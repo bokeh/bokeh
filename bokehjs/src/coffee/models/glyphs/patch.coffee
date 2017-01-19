@@ -1,5 +1,3 @@
-import * as _ from "underscore"
-
 import {Glyph, GlyphView} from "./glyph"
 
 export class PatchView extends GlyphView

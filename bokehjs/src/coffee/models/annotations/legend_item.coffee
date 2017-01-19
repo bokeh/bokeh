@@ -1,9 +1,7 @@
-import * as _ from "underscore"
-
 import {Model} from "../../model"
-
 import * as p from "../../core/properties"
 import {logger} from "../../core/logging"
+import {uniq} from "../../core/util/array"
 import {ColumnDataSource} from "../../models/sources/column_data_source"
 
 export class LegendItem extends Model
@@ -66,7 +64,7 @@ export class LegendItem extends Model
       if source instanceof ColumnDataSource
         data = source.get_column(field)
         if data?
-          return _.unique(data)
+          return uniq(data)
         else
           return ["Invalid field"]
     return []

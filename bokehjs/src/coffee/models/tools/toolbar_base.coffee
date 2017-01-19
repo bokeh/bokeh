@@ -1,8 +1,6 @@
-import * as _ from "underscore"
-import * as $ from "jquery"
-
 import {logger} from "../../core/logging"
 import {EQ, Variable} from "../../core/layout/solver"
+import {empty} from "../../core/dom"
 import * as p from "../../core/properties"
 
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
@@ -16,37 +14,37 @@ export class ToolbarBaseView extends LayoutDOMView
   template: toolbar_template
 
   render: () ->
-    if @model.sizing_mode != 'fixed'
-      @$el.css({
-        left: @model._dom_left._value
-        top: @model._dom_top._value
-        width: @model._width._value
-        height: @model._height._value
-      })
+    empty(@el)
 
-    @$el.html(@template({
+    if @model.sizing_mode != 'fixed'
+      @el.style.left = "#{@model._dom_left._value}px"
+      @el.style.top = "#{@model._dom_top._value}px"
+      @el.style.width = "#{@model._width._value}px"
+      @el.style.height = "#{@model._height._value}px"
+
+    @el.appendChild(@template({
       logo: @model.logo
       location: @model.toolbar_location
       sticky: if @model.toolbar_sticky then 'sticky' else 'not-sticky'
     }))
 
-    buttons = @$el.find(".bk-button-bar-list[type='inspectors']")
+    buttons = @el.querySelector(".bk-button-bar-list[type='inspectors']")
     for obj in @model.inspectors
-      buttons.append(new OnOffButtonView({model: obj}).el)
+      buttons.appendChild(new OnOffButtonView({model: obj}).el)
 
-    buttons = @$el.find(".bk-button-bar-list[type='help']")
+    buttons = @el.querySelector(".bk-button-bar-list[type='help']")
     for obj in @model.help
-      buttons.append(new ActionToolButtonView({model: obj}).el)
+      buttons.appendChild(new ActionToolButtonView({model: obj}).el)
 
-    buttons = @$el.find(".bk-button-bar-list[type='actions']")
+    buttons = @el.querySelector(".bk-button-bar-list[type='actions']")
     for obj in @model.actions
-      buttons.append(new ActionToolButtonView({model: obj}).el)
+      buttons.appendChild(new ActionToolButtonView({model: obj}).el)
 
     gestures = @model.gestures
     for et of gestures
-      buttons = @$el.find(".bk-button-bar-list[type='#{et}']")
+      buttons = @el.querySelector(".bk-button-bar-list[type='#{et}']")
       for obj in gestures[et].tools
-        buttons.append(new OnOffButtonView({model: obj}).el)
+        buttons.appendChild(new OnOffButtonView({model: obj}).el)
 
     return @
 

@@ -33,7 +33,6 @@ import os
 
 from ..document import Document
 from ..resources import Resources, _SessionCoordinates
-from ..client import DEFAULT_SESSION_ID
 
 class State(object):
     ''' Manage state related to controlling Bokeh output.
@@ -221,7 +220,7 @@ class State(object):
         '''
         self._notebook = True
 
-    def output_server(self, session_id=DEFAULT_SESSION_ID, url="default", app_path='/'):
+    def output_server(self, session_id=None, url="default", app_path='/'):
         ''' Store Bokeh plots and documents on a Bokeh server.
 
         .. warning::
@@ -244,6 +243,12 @@ class State(object):
             None
 
         '''
+
+        # limit heavyweight import to only when needed
+        from ..client import DEFAULT_SESSION_ID
+        if session_id is None:
+            session_id = DEFAULT_SESSION_ID
+
         self._session_coords = _SessionCoordinates(dict(session_id=session_id,
                                                         url=url,
                                                         app_path=app_path))

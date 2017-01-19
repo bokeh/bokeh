@@ -7,7 +7,6 @@ from ..core.properties import (Any, Int, String, Instance, List, Dict, Bool, Enu
                                JSON, Seq, ColumnData)
 from ..model import Model
 from ..util.dependencies import import_optional
-from ..util.deprecation import deprecated
 from ..util.warnings import BokehUserWarning
 from .callbacks import Callback
 
@@ -48,7 +47,17 @@ class DataSource(Model):
     A callback to run in the browser whenever the selection is changed.
     """)
 
-class ColumnDataSource(DataSource):
+@abstract
+class ColumnarDataSource(DataSource):
+    """ A baseclass for data source types, which can be mapped onto
+    a columnar format. Not useful to instantiate on its own.
+    """
+
+    column_names = List(String, help="""
+    An list of names for all the columns in this DataSource.
+    """)
+
+class ColumnDataSource(ColumnarDataSource):
     """ Maps names of columns to sequences or arrays.
 
     If the ColumnDataSource initializer is called with a single argument that
@@ -70,9 +79,6 @@ class ColumnDataSource(DataSource):
     """).asserts(lambda _, data: len(set(len(x) for x in data.values())) <= 1,
                  lambda: warnings.warn("ColumnDataSource's columns must be of the same length", BokehUserWarning))
 
-    column_names = List(String, help="""
-    An list of names for all the columns in this DataSource.
-    """)
 
     def __init__(self, *args, **kw):
         """ If called with a single argument that is a dict or
@@ -188,26 +194,6 @@ class ColumnDataSource(DataSource):
         except (ValueError, KeyError):
             import warnings
             warnings.warn("Unable to find column '%s' in data source" % name)
-
-    def push_notebook(self):
-        """ Update a data source for a plot in a Jupyter notebook.
-
-        This function can be be used to update data in plot data sources
-        in the Jupyter notebook, without having to use the Bokeh server.
-
-        .. warning::
-            This function has been deprecated. Please use
-            ``bokeh.io.push_notebook()`` which will push all changes
-            (not just data sources) to the last shown plot in a Jupyter
-            notebook.
-
-        Returns:
-            None
-
-        """
-        deprecated((0, 11, 0), 'ColumnDataSource.push_notebook()', 'bokeh.io.push_notebook()')
-        from bokeh.io import push_notebook
-        push_notebook()
 
     def stream(self, new_data, rollover=None, setter=None):
         ''' Efficiently update data source columns with new append-only data.
@@ -325,13 +311,12 @@ class ColumnDataSource(DataSource):
 
         self.data._patch(self.document, self, patches, setter)
 
-class GeoJSONDataSource(ColumnDataSource):
+class GeoJSONDataSource(ColumnarDataSource):
 
     geojson = JSON(help="""
     GeoJSON that contains features for plotting. Currently GeoJSONDataSource can
     only process a FeatureCollection or GeometryCollection.
     """)
-
 
 @abstract
 class RemoteSource(ColumnDataSource):

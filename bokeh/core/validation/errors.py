@@ -1,9 +1,6 @@
 ''' These define the standard error codes and messages for Bokeh
 validation checks.
 
-1000 *(COLUMN_LENGTHS)*
-    A |ColumnDataSource| has columns whose lengths are not all the same.
-
 1001 *(BAD_COLUMN_NAME)*
     A glyph has a property set to a field name that does not correspond to any
     column in the |GlyphRenderer|'s data source.

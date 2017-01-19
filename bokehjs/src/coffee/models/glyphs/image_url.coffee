@@ -1,5 +1,3 @@
-import * as _ from "underscore"
-
 import {Glyph, GlyphView} from "./glyph"
 import {logger} from "../../core/logging"
 import * as p from "../../core/properties"

@@ -1,5 +1,3 @@
-import * as _ from "underscore"
-
 import {ImagePool} from "./image_pool"
 import {ProjectionUtils} from "./tile_utils"
 import {logger} from "../../core/logging"

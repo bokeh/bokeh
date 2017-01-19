@@ -1,5 +1,3 @@
-import * as _ from "underscore"
-
 import {Glyph, GlyphView} from "../glyphs/glyph"
 import * as hittest from "../../core/hittest"
 import * as p from "../../core/properties"
@@ -17,7 +15,7 @@ export class MarkerView extends GlyphView
     size = { }
     size[index] = Math.min(Math.abs(x1-x0), Math.abs(y1-y0))*0.4
     angle = { }
-    angle[index] = 0
+    angle[index] = @_angle[index]
 
     data = {sx:sx, sy:sy, _size: size, _angle: angle}
     @_render(ctx, indices, data)
@@ -83,12 +81,7 @@ export class MarkerView extends GlyphView
       dist = Math.abs(@sx[i]-sx) + Math.abs(@sy[i]-sy)
       if Math.abs(@sx[i]-sx) <= s2 and Math.abs(@sy[i]-sy) <= s2
         hits.push([i, dist])
-    result = hittest.create_hit_test_result()
-    result['1d'].indices = _.chain(hits)
-      .sortBy((elt) -> return elt[1])
-      .map((elt) -> return elt[0])
-      .value()
-    return result
+    return hittest.create_1d_hit_test_result(hits)
 
   _hit_rect: (geometry) ->
     [x0, x1] = @renderer.xmapper.v_map_from_target([geometry.vx0, geometry.vx1], true)

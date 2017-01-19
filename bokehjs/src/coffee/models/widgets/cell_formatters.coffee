@@ -1,8 +1,9 @@
-import * as _ from "underscore"
 import * as $ from "jquery"
 import * as Numbro from "numbro"
 
 import * as p from "../../core/properties"
+import {extend} from "../../core/util/object"
+import {isString} from "../../core/util/types"
 import {Model} from "../../model"
 
 export class CellFormatter extends Model
@@ -91,7 +92,7 @@ export class DateFormatter extends CellFormatter
     if name? then $.datepicker[name] else format
 
   doFormat: (row, cell, value, columnDef, dataContext) ->
-    value = if _.isString(value) then parseInt(value, 10) else value
+    value = if isString(value) then parseInt(value, 10) else value
     date = $.datepicker.formatDate(@getFormat(), new Date(value))
     return super(row, cell, date, columnDef, dataContext)
 
@@ -107,6 +108,6 @@ export class HTMLTemplateFormatter extends CellFormatter
     if value == null
       return ""
     else
-      dataContext = _.extend({}, dataContext, {value: value})
+      dataContext = extend({}, dataContext, {value: value})
       compiled_template = _.template(template)
       return compiled_template(dataContext)

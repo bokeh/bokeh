@@ -1,4 +1,3 @@
-import * as _ from "underscore"
 import * as $ from "jquery"
 import "jquery-ui/datepicker"
 
@@ -9,8 +8,8 @@ import {InputWidget, InputWidgetView} from "./input_widget"
 
 export class DatePickerView extends InputWidgetView
 
-  initialize: (options) ->
-    super(options)
+  render: () ->
+    super()
     @label = $('<label>').text(@model.title)
     @input = $('<input type="text">')
     @datepicker = @input.datepicker({
@@ -20,6 +19,8 @@ export class DatePickerView extends InputWidgetView
       onSelect: @onSelect
     })
     @$el.append([@label, @input])
+    @_prefix_ui()
+    return @
 
   onSelect: (dateText, ui) =>
     d = new Date(dateText)

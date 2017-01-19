@@ -1,4 +1,3 @@
-import * as _ from "underscore"
 import * as rbush from "rbush"
 
 import {CategoricalMapper} from "../mappers/categorical_mapper"
@@ -10,6 +9,8 @@ import {Model} from "../../model"
 import {Visuals} from "../../core/visuals"
 import * as bokehgl from "./webgl/main"
 import {logger} from "../../core/logging"
+import {extend} from "../../core/util/object"
+import {isString, isArray} from "../../core/util/types"
 
 export class GlyphView extends BokehView
 
@@ -121,7 +122,7 @@ export class GlyphView extends BokehView
     return index
 
   sdist: (mapper, pts, spans, pts_location="edge", dilate=false) ->
-    if _.isString(pts[0])
+    if isString(pts[0])
       pts = mapper.v_map_to_target(pts)
 
     if pts_location == 'center'
@@ -190,7 +191,7 @@ export class GlyphView extends BokehView
 
   set_data: (source) ->
     data = @model.materialize_dataspecs(source)
-    _.extend(@, data)
+    extend(@, data)
 
     if @renderer.plot_view.model.use_map
       if @_x?
@@ -226,7 +227,7 @@ export class GlyphView extends BokehView
       syname = "s#{yname}"
       xname = "_#{xname}"
       yname = "_#{yname}"
-      if _.isArray(@[xname]?[0]) or @[xname]?[0]?.buffer instanceof ArrayBuffer
+      if isArray(@[xname]?[0]) or @[xname]?[0]?.buffer instanceof ArrayBuffer
         [ @[sxname], @[syname] ] = [ [], [] ]
         for i in [0...@[xname].length]
           [sx, sy] = @map_to_screen(@[xname][i], @[yname][i])

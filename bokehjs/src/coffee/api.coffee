@@ -1,5 +1,5 @@
 ## api/linalg.ts
-import * as LinAlg from "./api/linalg"; export {LinAlg}
+import * as LinAlg from "./core/util/array"; export {LinAlg}
 
 ## api/charts.d.ts
 import * as Charts from "./api/charts"; export {Charts}

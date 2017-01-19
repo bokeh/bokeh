@@ -14,7 +14,6 @@ DELETED bokeh.models.widgets.layouts.BaseBox
 DELETED bokeh.models.widgets.layouts.HBox
 DELETED bokeh.models.widgets.layouts.Layout
 DELETED bokeh.models.widgets.layouts.VBox
-DELETED bokeh.models.widgets.layouts.VBoxForm
 DELETED bokeh.application.handlers.script.ScriptHandler.failed
 DELETED bokeh.application.handlers.script.ScriptHandler.error_detail
 DELETED bokeh.application.handlers.script.ScriptHandler.url_path
@@ -23,7 +22,6 @@ DELETED bokeh.application.handlers.script.ScriptHandler.error
 DELETED bokeh.server.session.ServerSession.seconds_since_last_unsubscribe
 DELETED bokeh.models.sources.BlazeDataSource
 DELETED bokeh.models.plots.LayoutBox
-DELETED bokeh.models.plots.GridPlot
 ADDED bokeh.charts.glyphs.ArcGlyph
 ADDED bokeh.charts.attributes.AttrSpec.series
 ADDED bokeh.models.widgets.buttons.ButtonLike
@@ -77,10 +75,8 @@ ADDED bokeh.charts.utils.comp_glyphs_to_df
 ADDED bokeh.models.mappers.LogColorMapper
 ADDED bokeh.models.glyphs.Ellipse
 ADDED bokeh.server.session.ServerSession.milliseconds_since_last_unsubscribe
-ADDED bokeh.charts.builder.Builder.sort_legend
 ADDED bokeh.models.widgets.markups.Div
 ADDED bokeh.models.formatters.FuncTickFormatter
-ADDED bokeh.core.properties.TitleProp
 ADDED bokeh.core.properties.TimeDelta
 ADDED bokeh.server.tornado.match_host
 ADDED bokeh.server.tornado.BokehTornado.initialize

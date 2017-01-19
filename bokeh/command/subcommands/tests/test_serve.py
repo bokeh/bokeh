@@ -12,6 +12,9 @@ import requests
 
 import bokeh.command.subcommands.serve as scserve
 
+from bokeh.resources import DEFAULT_SERVER_PORT
+
+
 
 def test_create():
     import argparse
@@ -37,7 +40,7 @@ def test_args():
             metavar = 'PORT',
             type    = int,
             help    = "Port to listen on",
-            default = None
+            default = DEFAULT_SERVER_PORT
         )),
 
         ('--address', dict(

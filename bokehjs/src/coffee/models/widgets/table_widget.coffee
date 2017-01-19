@@ -1,5 +1,3 @@
-import * as _ from "underscore"
-
 import {Widget} from "./widget"
 import * as p from "../../core/properties"
 

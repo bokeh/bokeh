@@ -1,43 +1,25 @@
-"""This is the Bokeh charts interface. It gives you a high level API to build
+''' This is the Bokeh charts interface. It gives you a high level API to build
 complex plot is a simple way.
 
 This is the main Chart class which is able to build several plots using the low
 level Bokeh API. It setups all the plot characteristics and lets you plot
 different chart types, taking OrderedDict as the main input. It also supports
 the generation of several outputs (file, server, notebook).
-"""
-#-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2014, Continuum Analytics, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
-#
-# The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
-# Imports
-#-----------------------------------------------------------------------------
-
+'''
 from __future__ import absolute_import
 
-import warnings
 from collections import defaultdict
+import warnings
+
 import numpy as np
 
-from ..core.enums import enumeration
-from ..core.properties import value
-from ..models import (
-    CategoricalAxis, DatetimeAxis, glyphs, Grid, Legend, LegendItem, LinearAxis, markers,
-    Plot, HoverTool, FactorRange
-)
-from ..plotting import DEFAULT_TOOLS
-from ..plotting.helpers import _process_tools_arg, _glyph_function, _process_active_tools
-from ..core.properties import Auto, Either, Enum, String
-from ..util._plot_arg_helpers import _convert_responsive
-
-#-----------------------------------------------------------------------------
-# Classes and functions
-#-----------------------------------------------------------------------------
+from bokeh.core.enums import enumeration
+from bokeh.core.properties import Auto, Either, Enum, String, value
+from bokeh.models import CategoricalAxis, DatetimeAxis, FactorRange, glyphs, Grid, HoverTool, Legend, LegendItem, LinearAxis, markers, Plot
+from bokeh.plotting import DEFAULT_TOOLS
+from bokeh.plotting.helpers import _process_tools_arg, _glyph_function, _process_active_tools
+from bokeh.util._plot_arg_helpers import _convert_responsive
 
 Scale = enumeration('linear', 'categorical', 'datetime')
 

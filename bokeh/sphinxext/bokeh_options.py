@@ -77,12 +77,12 @@ class BokehOptionsDirective(BokehDirective):
 
         opts = [];
         for prop_name in sorted(options_obj.properties()):
-            prop = getattr(options_obj.__class__, prop_name)
+            descriptor = getattr(options_obj.__class__, prop_name)
             opts.append(dict(
                 name=prop_name,
-                type=prop._sphinx_type(),
+                type=descriptor.property._sphinx_type(),
                 default=None,
-                doc="" if prop.__doc__ is None else textwrap.dedent(prop.__doc__),
+                doc="" if descriptor.__doc__ is None else textwrap.dedent(descriptor.__doc__),
             ))
 
         rst_text = OPTIONS_DETAIL.render(opts=opts)

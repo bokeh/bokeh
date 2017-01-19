@@ -1,4 +1,4 @@
-import * as _ from "underscore"
+import {range} from "../../core/util/array"
 
 import {AdaptiveTicker} from "./adaptive_ticker"
 import {CompositeTicker} from "./composite_ticker"
@@ -52,16 +52,16 @@ export class DatetimeTicker extends CompositeTicker
         }),
 
         # Days.
-        new DaysTicker({days: _.range(1, 32)}),
-        new DaysTicker({days: _.range(1, 31, 3)}),
+        new DaysTicker({days: range(1, 32)}),
+        new DaysTicker({days: range(1, 31, 3)}),
         new DaysTicker({days: [1, 8, 15, 22]}),
         new DaysTicker({days: [1, 15]}),
 
         # Months.
-        new MonthsTicker({months: _.range(0, 12, 1)}),
-        new MonthsTicker({months: _.range(0, 12, 2)}),
-        new MonthsTicker({months: _.range(0, 12, 4)}),
-        new MonthsTicker({months: _.range(0, 12, 6)}),
+        new MonthsTicker({months: range(0, 12, 1)}),
+        new MonthsTicker({months: range(0, 12, 2)}),
+        new MonthsTicker({months: range(0, 12, 4)}),
+        new MonthsTicker({months: range(0, 12, 6)}),
 
         # Years
         new YearsTicker({})

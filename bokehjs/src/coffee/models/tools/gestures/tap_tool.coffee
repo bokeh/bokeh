@@ -1,7 +1,6 @@
-import * as _ from "underscore"
-
 import {SelectTool, SelectToolView} from "./select_tool"
 import * as p from "../../../core/properties"
+import {isFunction} from "../../../core/util/types"
 
 export class TapToolView extends SelectToolView
 
@@ -36,7 +35,7 @@ export class TapToolView extends SelectToolView
         did_hit = sm.inspect(@, view, geometry, {geometry: geometry})
 
       if did_hit and callback?
-        if _.isFunction(callback)
+        if isFunction(callback)
           callback(ds, cb_data)
         else
           callback.execute(ds, cb_data)

@@ -1,3 +1,5 @@
+import {sortBy} from "./util/array"
+
 export point_in_poly = (x, y, px, py) ->
   inside = false
 
@@ -48,6 +50,11 @@ export class HitTestResult
     @_0d.indices.length == 0 && @_1d.indices.length == 0
 
 export create_hit_test_result = () -> new HitTestResult()
+
+export create_1d_hit_test_result = (hits) ->
+  result = new HitTestResult()
+  result['1d'].indices = (i for [i, _dist] in sortBy(hits, ([_i, dist]) -> dist))
+  return result
 
 export validate_bbox_coords = ([x0, x1], [y0, y1]) ->
   # rbush expects x0, y0 to be min, x1, y1 max

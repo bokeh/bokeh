@@ -1,22 +1,19 @@
-import * as _ from "underscore"
-import * as $ from "jquery"
 import * as Hammer from "hammerjs"
-
-import * as mousewheel from "jquery-mousewheel"
-mousewheel($)
 
 import {Events} from "./events"
 import {logger} from "./logging"
+import {offset} from "./dom"
+import {getDeltaY} from "./util/wheel"
 
 export class UIEvents
-  _.extend(@prototype, Events)
+  @prototype extends Events
 
-  # new (toolbar: Toolbar, hit_area: $Element)
+  # new (toolbar: Toolbar, hit_area: Element)
   constructor: (@toolbar, @hit_area) ->
     @_configure_hammerjs()
 
   _configure_hammerjs: () ->
-    @hammer = new Hammer(@hit_area[0])
+    @hammer = new Hammer(@hit_area)
 
     # This is to be able to distinguish double taps from single taps
     @hammer.get('doubletap').recognizeWith('tap')
@@ -42,12 +39,14 @@ export class UIEvents
     @hammer.on('rotate', (e) => @_rotate(e))
     @hammer.on('rotateend', (e) => @_rotate_end(e))
 
-    @hit_area.mousemove((e) => @_mouse_move(e))
-    @hit_area.mouseenter((e) => @_mouse_enter(e))
-    @hit_area.mouseleave((e) => @_mouse_exit(e))
-    @hit_area.mousewheel((e, delta) => @_mouse_wheel(e, delta))
-    $(document).keydown((e) => @_key_down(e))
-    $(document).keyup((e) => @_key_up(e))
+    @hit_area.addEventListener("mousemove", (e) => @_mouse_move(e))
+    @hit_area.addEventListener("mouseenter", (e) => @_mouse_enter(e))
+    @hit_area.addEventListener("mouseleave", (e) => @_mouse_exit(e))
+
+    @hit_area.addEventListener("wheel", (e) => @_mouse_wheel(e))
+
+    document.addEventListener("keydown", (e) => @_key_down(e))
+    document.addEventListener("keyup", (e) => @_key_up(e))
 
   register_tool: (tool_view) ->
     et = tool_view.model.event_type
@@ -130,18 +129,14 @@ export class UIEvents
     else
       x = e.pointers[0].pageX
       y = e.pointers[0].pageY
-    offset = $(e.target).offset()
-    left = offset.left ? 0
-    top = offset.top ? 0
+    {left, top} = offset(e.target)
     e.bokeh = {
       sx: x - left
       sy: y - top
     }
 
   _bokify_jq: (e) ->
-    offset = $(e.currentTarget).offset()
-    left = offset.left ? 0
-    top = offset.top ? 0
+    {left, top} = offset(e.currentTarget)
     e.bokeh = {
       sx: e.pageX - left
       sy: e.pageY - top
@@ -214,9 +209,9 @@ export class UIEvents
     @_bokify_jq(e)
     @trigger('move:exit', e)
 
-  _mouse_wheel: (e, delta) ->
+  _mouse_wheel: (e) ->
     @_bokify_jq(e)
-    e.bokeh.delta = delta
+    e.bokeh.delta = getDeltaY(e)
     @_trigger('scroll', e)
 
   _key_down: (e) ->

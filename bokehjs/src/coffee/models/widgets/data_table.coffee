@@ -1,4 +1,3 @@
-import * as _ from "underscore"
 import * as $ from "jquery"
 import "jquery-ui/sortable"
 import * as SlickGrid from "slick_grid/slick.grid"
@@ -7,6 +6,8 @@ import * as CheckboxSelectColumn from "slick_grid/plugins/slick.checkboxselectco
 
 import * as hittest from "../../core/hittest"
 import * as p from "../../core/properties"
+import {uniqueId} from "../../core/util/string"
+import {any} from "../../core/util/array"
 
 import {TableWidget} from "./table_widget"
 import {WidgetView} from "./widget"
@@ -22,9 +23,9 @@ export class DataProvider
 
   constructor: (@source) ->
     @data = @source.data
-    @fields = _.keys(@data)
+    @fields = Object.keys(@data)
 
-    if not _.contains(@fields, "index")
+    if "index" not in @fields
       @data["index"] = [0...@getLength()]
       @fields.push("index")
 
@@ -72,7 +73,7 @@ export class DataProvider
     cols = for column in columns
       [column.sortCol.field, if column.sortAsc then 1 else -1]
 
-    if _.isEmpty(cols)
+    if cols.length == 0
       cols = [["index", 1]]
 
     records = @getRecords()
@@ -101,9 +102,10 @@ export class DataTableView extends WidgetView
     super(options)
     wait_for_element(@el, () => @render())
     @listenTo(@model, 'change', () => @render())
-    source = @model.source
-    @listenTo(source, 'change:data', () => @updateGrid())
-    @listenTo(source, 'change:selected', () => @updateSelection())
+    @listenTo(@model.source, 'change:data', () => @updateGrid())
+    @listenTo(@model.source, 'stream', () => @updateGrid())
+    @listenTo(@model.source, 'patch', () => @updateGrid())
+    @listenTo(@model.source, 'change:selected', () => @updateSelection())
 
   updateGrid: () ->
     @data.constructor(@model.source)
@@ -127,14 +129,14 @@ export class DataTableView extends WidgetView
     # console.log("DataTableView::updateSelection",
     #             @grid.getViewport(), @grid.getRenderedRange())
     cur_grid_range = @grid.getViewport()
-    if @model.scroll_to_selection and not _.any(indices, (i) -> cur_grid_range.top <= i <= cur_grid_range.bottom)
+    if @model.scroll_to_selection and not any(indices, (i) -> cur_grid_range.top <= i <= cur_grid_range.bottom)
       # console.log("DataTableView::updateSelection", min_index, indices)
       min_index = Math.max(0, Math.min.apply(null, indices) - 1)
       @grid.scrollRowToTop(min_index)
 
   newIndexColumn: () ->
     return {
-      id: _.uniqueId()
+      id: uniqueId()
       name: "#"
       field: "index"
       width: 40
@@ -169,11 +171,11 @@ export class DataTableView extends WidgetView
       autoEdit: false
 
     if width?
-      @$el.css(width: "#{@model.width}px")
+      @el.style.width = "#{@model.width}px"
     else
-      @$el.css(width: "#{@model.default_width}px")
+      @el.style.width = "#{@model.default_width}px"
     if height? and height != "auto"
-      @$el.css(height: "#{@model.height}px")
+      @el.style.height = "#{@model.height}px"
 
     @data = new DataProvider(@model.source)
     @grid = new SlickGrid(@el, @data, columns, options)
@@ -193,6 +195,7 @@ export class DataTableView extends WidgetView
         selected['1d'].indices = args.rows
         @model.source.selected = selected
 
+    @_prefix_ui()
     return @
 
 export class DataTable extends TableWidget

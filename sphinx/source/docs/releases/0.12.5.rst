@@ -1,0 +1,77 @@
+0.12.5 (XYZ 2017)
+=================
+
+Bokeh Version ``0.12.5`` is an incremental update that adds a few important
+features and fixes several bugs. Some of the highlights include:
+
+
+Many other small bugfixes and docs additions. For full details see the
+:bokeh-tree:`CHANGELOG`.
+
+NOTE: the 0.12.x series is the last planned release series before a
+version 1.0 release. The focus of the 1.0 release will be implementing
+build automation to enforce API stability, and a very small number of
+high value features. For more information see the `project roadmap`_.
+
+Migration Guide
+---------------
+
+As the project approaches a 1.0 release, it is necessary to make some changes
+to bring interfaces and functionality up to a point that can be maintained
+long-term. We try to limit such changes as much as possible, and have a
+period of deprecation.
+
+Deprecations removed
+~~~~~~~~~~~~~~~~~~~~
+
+All previous deprecations up to ``0.12.0`` have be removed. Below is the
+complete list of removals.
+
+Modules and functions and classes that have been removed:
+
+============================ ========================== ===================================
+Functions Removed            Modules Removed            Classes Removed
+============================ ========================== ===================================
+``bokeh.embed.components``   ``bokeh.browserlib``       ``bokeh.core.properties.TitleProp``
+``bokeh.charts.hplot``       ``bokeh.mixins``           ``bokeh.models.layouts.GridPlot``
+``bokeh.charts.vplot``       ``bokeh.plotting_helpers`` ``bokeh.models.layouts.VBoxForm``
+``bokeh.io.hplot``           ``bokeh.properties``
+``bokeh.io.hplot``           ``bokeh.templates``
+``bokeh.io.vform``
+``bokeh.plotting.hplot``
+``bokeh.plotting.vplot``
+============================ ========================== ===================================
+
+The methods ``bokeh.document.add`` and ``push_notebook`` of
+``ColumnDataSource`` have been removed.
+
+Additionally, the property ``bokeh.charts.builder.Builder.sort_legend`` was
+removed, as well as the following properties of ``Plot``
+
+* ``border_fill``
+* ``background_fill``
+* ``logo``
+* ``responsive``
+* ``title_text_align``
+* ``title_text_alpha``
+* ``title_text_baseline``
+* ``title_text_color``
+* ``title_text_font``
+* ``title_text_font_size``
+
+JQuery removed from BokehJS
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+JQuery has been removed as a build dependency of BokehJS, resulting in a ~10%
+reduction in the size of the minified code. The variable `Bokeh.$` is no
+longer available. If you require JQuery (i.e. for a custom extension or when
+using the JavaScript API) you will need to provide it explicitly.
+
+underscore.js removed from BokehJS
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+underscore.js has been removed as a build dependency of BokehJS. The variable
+`Bokeh._` is no longer available. If you require underscore.js (i.e. for a custom
+extension or when using the JavaScript API) you will need to provide it explicitly.
+
+.. _project roadmap: http://bokehplots.com/pages/roadmap.html

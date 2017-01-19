@@ -1,5 +1,3 @@
-import * as _ from "underscore"
-
 import * as p from "../../core/properties"
 
 import {AbstractButton, AbstractButtonView} from "./abstract_button"

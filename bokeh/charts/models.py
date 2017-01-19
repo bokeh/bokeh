@@ -1,14 +1,17 @@
+'''
+
+'''
 from __future__ import absolute_import
 
-from six import iteritems
 import pandas as pd
+from six import iteritems
 
+from bokeh.core.has_props import HasProps
 from bokeh.models.renderers import GlyphRenderer
 from bokeh.models.sources import ColumnDataSource
-from bokeh.core.properties import (HasProps, String, Either, Float, Color, Instance, List,
-                              Any, Dict)
-from .properties import ColumnLabel, Column
+from bokeh.core.properties import Any, Color, Dict, Either, Float, Instance, List, String
 
+from .properties import Column, ColumnLabel
 
 class CompositeGlyph(HasProps):
     """Represents a subset of data.

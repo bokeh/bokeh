@@ -42,7 +42,8 @@ different usage, for more information see the docs for |Include|.
 from __future__ import absolute_import
 
 from .enums import LineJoin, LineCap, FontStyle, TextAlign, TextBaseline
-from .properties import ColorSpec, DashPattern, Enum, FontSizeSpec, HasProps, Int, NumberSpec, String, value
+from .has_props import HasProps
+from .properties import ColorSpec, DashPattern, Enum, FontSizeSpec, Int, NumberSpec, String, value
 
 class FillProps(HasProps):
     ''' Properties relevant to rendering fill regions.

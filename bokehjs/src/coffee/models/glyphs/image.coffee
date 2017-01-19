@@ -1,8 +1,7 @@
-import * as _ from "underscore"
-
 import {Glyph, GlyphView} from "./glyph"
 import {LinearColorMapper} from "../mappers/linear_color_mapper"
 import * as p from "../../core/properties"
+import {max, concat} from "../../core/util/array"
 
 export class ImageView extends GlyphView
 
@@ -39,7 +38,7 @@ export class ImageView extends GlyphView
         @_height[i] = shape[0]
         @_width[i] = shape[1]
       else
-        img = _.flatten(@_image[i])
+        img = concat(@_image[i])
         @_height[i] = @_image[i].length
         @_width[i] = @_image[i][0].length
 
@@ -61,10 +60,10 @@ export class ImageView extends GlyphView
 
       @max_dw = 0
       if @_dw.units == "data"
-        @max_dw = _.max(@_dw)
+        @max_dw = max(@_dw)
       @max_dh = 0
       if @_dh.units == "data"
-        @max_dh = _.max(@_dh)
+        @max_dh = max(@_dh)
       @_xy_index()
 
   _map_data: () ->

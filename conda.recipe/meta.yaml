@@ -17,8 +17,9 @@ requirements:
   build:
     - python
     - setuptools
-    - nodejs >=4.1
+    - nodejs >=6.6.0
     - six
+    - packaging
     - python-dateutil
     - numpy
     - yaml
@@ -43,6 +44,7 @@ requirements:
 
 test:
   requires:
+    - conda ==4.2.15
     # docs
     - pygments
     - sphinx >=1.3.1
@@ -54,10 +56,12 @@ test:
     - coverage
     - flake8
     - mock
+    - packaging
     - pandas
     - pytest >=3.0.2
     - pytest-cov >=1.8.1     [unix]
     - pytest-selenium==1.6.0 [unix]
+    - pytest-html==1.7       [unix]
     - selenium==2.53.5
     - pytest-xdist
     - pytest-rerunfailures
@@ -66,7 +70,7 @@ test:
     - pillow
     - boto
     - pdiff                  [unix]
-    - nodejs >=4.1
+    - nodejs >=6.6.0
 
     # examples
     - jupyter

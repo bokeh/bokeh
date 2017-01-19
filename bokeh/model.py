@@ -22,7 +22,8 @@ from operator import itemgetter
 from six import iteritems
 
 from .core.json_encoder import serialize_json
-from .core.properties import Any, Dict, HasProps, Instance, List, MetaHasProps, String
+from .core.properties import Any, Dict, Instance, List, String
+from .core.has_props import HasProps, MetaHasProps
 from .core.query import find
 from .themes import default as default_theme
 from .util.callback_manager import CallbackManager

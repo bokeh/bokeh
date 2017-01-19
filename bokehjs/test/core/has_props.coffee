@@ -1,5 +1,4 @@
 {expect} = require "chai"
-_ = require "underscore"
 utils = require "../utils"
 fixtures = require "./fixtures/object"
 
@@ -40,31 +39,31 @@ describe "has_properties module", ->
 
     it "should have only id property", ->
       obj = new HasProps()
-      expect(_.keys(obj.properties)).to.be.deep.equal ['id']
-      expect(_.keys(obj.attributes)).to.be.deep.equal ['id']
+      expect(Object.keys(obj.properties)).to.be.deep.equal ['id']
+      expect(Object.keys(obj.attributes)).to.be.deep.equal ['id']
 
     it "should combine props from subclasses", ->
       obj = new SubclassWithProps()
-      expect(_.keys(obj.properties)).to.be.deep.equal ['id', 'foo', 'bar']
+      expect(Object.keys(obj.properties)).to.be.deep.equal ['id', 'foo', 'bar']
 
     it "should combine props from sub-subclasses", ->
       obj = new SubSubclassWithProps()
-      expect(_.keys(obj.properties)).to.be.deep.equal ['id', 'foo', 'bar', 'baz']
+      expect(Object.keys(obj.properties)).to.be.deep.equal ['id', 'foo', 'bar', 'baz']
 
     it "should combine mixins from subclasses", ->
       obj = new SubclassWithMixins()
-      props = _.keys(mixins.line(""))
-      expect(_.keys(obj.properties)).to.be.deep.equal(['id'].concat(props))
+      props = Object.keys(mixins.line(""))
+      expect(Object.keys(obj.properties)).to.be.deep.equal(['id'].concat(props))
 
     it "should combine mixins from sub-subclasses", ->
       obj = new SubSubclassWithMixins()
-      props = _.keys(_.extend(mixins.line(""), mixins.fill("foo_")))
-      expect(_.keys(obj.properties)).to.be.deep.equal(['id'].concat(props))
+      props = Object.keys(Object.assign(mixins.line(""), mixins.fill("foo_")))
+      expect(Object.keys(obj.properties)).to.be.deep.equal(['id'].concat(props))
 
     it "should combine multiple mixins from subclasses", ->
       obj = new SubclassWithMultipleMixins()
-      props = _.keys(_.extend(mixins.line(""), mixins.text("bar_")))
-      expect(_.keys(obj.properties)).to.be.deep.equal(['id'].concat(props))
+      props = Object.keys(Object.assign(mixins.line(""), mixins.text("bar_")))
+      expect(Object.keys(obj.properties)).to.be.deep.equal(['id'].concat(props))
 
   # describe "arrays of references", ->
   #   [model1, model2, model3, model4, doc] = [null, null, null, null, null]

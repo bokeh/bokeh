@@ -1,4 +1,3 @@
-import * as _ from "underscore"
 import {logger} from "../../core/logging"
 
 import {GMapPlotCanvas} from "./gmap_plot_canvas"

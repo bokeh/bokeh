@@ -1,6 +1,6 @@
 # This is based on https://github.com/pimterry/loglevel
 
-import * as _ from "underscore"
+import {isString} from "./util/types"
 
 noop = () ->
 
@@ -43,7 +43,7 @@ export class Logger
   Object.defineProperty(this, 'levels', { get: () -> Object.keys(Logger.log_levels) })
 
   @get: (name, level=Logger.INFO) ->
-    if _.isString(name) and name.length > 0
+    if isString(name) and name.length > 0
       logger = _loggers[name]
       if not logger?
         logger = _loggers[name] = new Logger(name, level)
@@ -62,7 +62,7 @@ export class Logger
   set_level: (log_level) ->
     if log_level instanceof LogLevel
       @_log_level = log_level
-    else if _.isString(log_level) and Logger.log_levels[log_level]?
+    else if isString(log_level) and Logger.log_levels[log_level]?
       @_log_level = Logger.log_levels[log_level]
     else
       throw new Error("Logger.set_level() expects a log-level object or a string name of a log-level")

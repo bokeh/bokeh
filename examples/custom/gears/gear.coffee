@@ -1,6 +1,5 @@
-import * as _ from "underscore"
-
 import * as p from "core/properties"
+import {isString} from "core/util/types"
 import {Glyph, GlyphView} from "models/glyphs/glyph"
 
 import {arc_to_bezier} from "./bezier"
@@ -72,7 +71,7 @@ export class GearView extends GlyphView
     i = 0
 
     while i < seq.length
-      if _.isString(seq[i])
+      if isString(seq[i])
         c = seq[i]
         i += 1
 

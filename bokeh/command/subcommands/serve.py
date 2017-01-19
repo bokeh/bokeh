@@ -352,7 +352,7 @@ base_serve_args = (
         metavar = 'PORT',
         type    = int,
         help    = "Port to listen on",
-        default = None
+        default = DEFAULT_SERVER_PORT
     )),
 
     ('--address', dict(
@@ -532,7 +532,7 @@ class Serve(Subcommand):
                                                               'check_unused_sessions_milliseconds',
                                                               'unused_session_lifetime_milliseconds',
                                                               'stats_log_frequency_milliseconds',
-                                                              'use_xheaders',
+                                                              'use_xheaders'
                                                             ]
                           if getattr(args, key, None) is not None }
 

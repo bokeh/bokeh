@@ -1,14 +1,16 @@
-import * as _ from "underscore"
-
-import {ColumnDataSource} from "./column_data_source"
+import {ColumnarDataSource} from "./columnar_data_source"
 import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
 
-export class GeoJSONDataSource extends ColumnDataSource
+export class GeoJSONDataSource extends ColumnarDataSource
   type: 'GeoJSONDataSource'
 
   @define {
     geojson: [ p.Any     ] # TODO (bev)
+  }
+
+  @internal {
+    data:    [ p.Any,   {} ]
   }
 
   initialize: (options) ->

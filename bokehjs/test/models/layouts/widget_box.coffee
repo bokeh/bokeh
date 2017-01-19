@@ -44,7 +44,7 @@ describe "WidgetBox", ->
       widget_box_view.render()
       # Note we do not set margin & padding on WidgetBox
       expected_style = "position: absolute; left: #{dom_left}px; top: #{dom_top}px; width: #{width}px; height: #{height}px;"
-      expect(widget_box_view.$el.attr('style')).to.be.equal expected_style
+      expect(widget_box_view.el.style.cssText).to.be.equal expected_style
 
     it "render should set the appropriate positions and paddings on the element when it is mode width", ->
       dom_left = 12
@@ -61,7 +61,7 @@ describe "WidgetBox", ->
       widget_box_view.render()
       # Note we do not set margin & padding or height on fixed WidgetBox
       expected_style = "width: #{width - 20}px;"
-      expect(widget_box_view.$el.attr('style')).to.be.equal expected_style
+      expect(widget_box_view.el.style.cssText).to.be.equal expected_style
 
     it "get_height should return the height of the widget children plus 10 for margin + 10 overall", ->
       widget_box_view = new @widget_box.default_view({ model: @widget_box })

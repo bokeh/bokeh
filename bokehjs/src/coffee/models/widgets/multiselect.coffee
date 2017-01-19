@@ -1,5 +1,3 @@
-import * as _ from "underscore"
-
 import * as p from "../../core/properties"
 
 import {InputWidget, InputWidgetView} from "./input_widget"
@@ -8,7 +6,6 @@ import multiselecttemplate from "./multiselecttemplate"
 
 
 export class MultiSelectView extends InputWidgetView
-  tagName: "div"
   template: multiselecttemplate
   events:
     "change select": "change_input"

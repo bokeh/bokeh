@@ -1,4 +1,3 @@
-_ = require "underscore"
 path = require "path"
 child_process = require "child_process"
 gulp = require "gulp"
@@ -15,7 +14,7 @@ gulp.task "defaults:generate", (cb) ->
       pypath = "#{basedir}:#{oldpath}"
     else
       pypath = basedir
-    env = _.extend({}, process.env, { PYTHONPATH: pypath })
+    env = Object.assign({}, process.env, { PYTHONPATH: pypath })
     handle = child_process.spawn("python", ['./gulp/tasks/generate_defaults.py', './test/'], {
       env: env,
       cwd: bokehjsdir

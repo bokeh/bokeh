@@ -13,7 +13,7 @@ describe "UIEvents", ->
   $ = cheerio.load(html)
 
   beforeEach ->
-    e = new Event("wheel", {deltaY: 100, deltaX: 100})
+    e = new Event("wheel", {deltaY: 100, deltaX: 100, deltaMode: 0})
     e.bokeh = {}
 
     @preventDefault = sinon.spy(e, "preventDefault")

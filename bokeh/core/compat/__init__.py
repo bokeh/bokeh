@@ -4,9 +4,9 @@ All of the functions and classes in ``bokeh.core.compat`` are internal
 implementation details, and not user-facing. For information on the public
 API for MPL compatibility, see :ref:`bokeh.mpl`.
 
-.. warning::
+**THIS MODULE IN ITS CURRENT FORM IS NO LONGER MAINTAINED**
 
-    **THIS MODULE IN ITS CURRENT FORM IS NO LONGER MAINTAINED**
+.. warning::
 
     Currently, compatibility is implemented using the third-party
     `mplexporter`_ library. This library does not provide a full interface

@@ -1,14 +1,14 @@
-import * as _ from "underscore"
-
 import {WEAK_EQ, GE, EQ, Strength, Variable} from "../../core/layout/solver"
 import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
+import {extend, values, clone} from "../../core/util/object"
+import {isString, isArray} from "../../core/util/types"
 
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
 import {Title} from "../annotations/title"
 import {Toolbar} from "../tools/toolbar"
 import {ToolEvents} from "../tools/tool_events"
-import {PlotCanvas} from "./plot_canvas"
+import {PlotCanvas, PlotCanvasView} from "./plot_canvas"
 
 import {ColumnDataSource} from "../sources/column_data_source"
 import {GlyphRenderer} from "../renderers/glyph_renderer"
@@ -32,13 +32,11 @@ export class PlotView extends LayoutDOMView
       s = @model.document.solver()
       s.suggest_value(@model._width, width)
       s.suggest_value(@model._height, height)
-      @$el.css({
-        position: 'absolute'
-        left: @model._dom_left._value
-        top: @model._dom_top._value
-        width: @model._width.value()
-        height: @model._height.value()
-      })
+      @el.style.position = 'absolute'
+      @el.style.left = "#{@model._dom_left._value}px"
+      @el.style.top = "#{@model._dom_top._value}px"
+      @el.style.width = "#{@model._width.value()}px"
+      @el.style.height = "#{@model._height.value()}px"
 
   get_width_height: () ->
       parent_height = @el.parentNode.clientHeight
@@ -67,20 +65,23 @@ export class PlotView extends LayoutDOMView
   get_width: () ->
     return @model._height._value * @model.get_aspect_ratio()
 
+  save: (name) ->
+    (view for view in values(@child_views) when view instanceof PlotCanvasView)[0].save(name)
+
 export class Plot extends LayoutDOM
   type: 'Plot'
   default_view: PlotView
 
   initialize: (options) ->
     super(options)
-    for xr in _.values(@extra_x_ranges).concat(@x_range)
+    for xr in values(@extra_x_ranges).concat(@x_range)
       plots = xr.plots
-      if _.isArray(plots)
+      if isArray(plots)
         plots = plots.concat(@)
         xr.setv('plots', plots, {silent: true})
-    for yr in _.values(@extra_y_ranges).concat(@y_range)
+    for yr in values(@extra_y_ranges).concat(@y_range)
       plots = yr.plots
-      if _.isArray(plots)
+      if isArray(plots)
         plots = plots.concat(@)
         yr.setv('plots', plots, {silent: true})
 
@@ -101,7 +102,7 @@ export class Plot extends LayoutDOM
 
     # Add the title to layout
     if @title?
-      title = if _.isString(@title) then new Title({text: @title}) else @title
+      title = if isString(@title) then new Title({text: @title}) else @title
       @add_layout(title, @title_location)
 
     @_plot_canvas = new PlotCanvas({plot: @})
@@ -152,7 +153,7 @@ export class Plot extends LayoutDOM
   add_glyph: (glyph, source, attrs={}) ->
     if not source?
       source = new ColumnDataSource()
-    attrs = _.extend({}, attrs, {data_source: source, glyph: glyph})
+    attrs = extend({}, attrs, {data_source: source, glyph: glyph})
     renderer = new GlyphRenderer(attrs)
     @add_renderers(renderer)
     return renderer
@@ -167,7 +168,7 @@ export class Plot extends LayoutDOM
       else
         # XXX: this part should be unnecessary, but you can't configure tool.plot
         # after construting a tool. When this limitation is lifted, remove this code.
-        attrs = _.clone(tool.attributes)
+        attrs = clone(tool.attributes)
         attrs.plot = this
         new tool.constructor(attrs)
 
@@ -267,7 +268,7 @@ export class Plot extends LayoutDOM
 
   get_constrained_variables: () ->
     constrained_variables = super()
-    constrained_variables = _.extend(constrained_variables, {
+    constrained_variables = extend(constrained_variables, {
       'on-edge-align-top'    : @plot_canvas._top
       'on-edge-align-bottom' : @plot_canvas._height_minus_bottom
       'on-edge-align-left'   : @plot_canvas._left
@@ -282,7 +283,7 @@ export class Plot extends LayoutDOM
       'box-equal-size-bottom': @plot_canvas._height_minus_bottom
     })
     if @sizing_mode isnt 'fixed'
-      constrained_variables = _.extend(constrained_variables, {
+      constrained_variables = extend(constrained_variables, {
         'box-equal-size-left'  : @plot_canvas._left
         'box-equal-size-right' : @plot_canvas._width_minus_right
       })

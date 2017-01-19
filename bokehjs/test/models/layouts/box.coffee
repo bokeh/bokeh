@@ -49,7 +49,7 @@ describe "Box", ->
       ev = parent_box.get_edit_variables()
       expect(ev.length).to.be.equal 6
 
-      evs = _.pluck(ev, 'edit_variable')
+      evs = (item.edit_variable for item in ev)
       expect(parent_box._height in evs).is.true
       expect(parent_box._width in evs).is.true
       expect(child1._height in evs).is.true

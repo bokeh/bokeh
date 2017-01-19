@@ -1,6 +1,5 @@
 from __future__ import print_function
 
-import pytest
 import subprocess
 
 basic_imports = [
@@ -17,6 +16,6 @@ def test_no_tornado_common():
         "python", "-c", "import sys; %s; sys.exit(1 if any('tornado' in x for x in sys.modules.keys()) else 0)" % ";".join(basic_imports)
     ],stdout=subprocess.PIPE)
     out, errs = proc.communicate()
-    msg = out.decode('utf-8', errors='ignore')
+    proc.wait()
     if proc.returncode != 0:
         assert False

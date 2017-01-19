@@ -1,27 +1,9 @@
 namespace WebBrowserMarketShare {
   import plt = Bokeh.Plotting;
-  import _ = Bokeh._;
+  const {zip, unzip, sum, cumsum} = Bokeh.LinAlg;
 
   Bokeh.set_log_level("info");
   Bokeh.logger.info(`Bokeh ${Bokeh.version}`);
-
-  function zip2<A, B>(As: Array<A>, Bs: Array<B>): Array<[A, B]> {
-    const ABs: Array<[A, B]> = []
-    for (let i = 0; i < As.length && i < Bs.length; i++) {
-      ABs.push([As[i], Bs[i]])
-    }
-    return ABs
-  }
-
-  function unzip2<A, B>(ABs: Array<[A, B]>): [Array<A>, Array<B>] {
-    const As: Array<A> = []
-    const Bs: Array<B> = []
-    for (const [a, b] of ABs) {
-      As.push(a)
-      Bs.push(b)
-    }
-    return [As, Bs]
-  }
 
   function to_cartesian(r: number, alpha: number): [number, number] {
     return [r*Math.cos(alpha), r*Math.sin(alpha)]
@@ -29,16 +11,6 @@ namespace WebBrowserMarketShare {
 
   function to_radians(x: number) {
     return 2*Math.PI*(x/100)
-  }
-
-  function sum(array: Array<number>) {
-    return array.reduce((a, b) => a + b, 0)
-  }
-
-  function cumsum(array: Array<number>) {
-    const result: Array<number> = []
-    array.reduce((a, b, i) => result[i] = a + b, 0)
-    return result
   }
 
   function read_csv_from(id: string) {
@@ -128,7 +100,7 @@ namespace WebBrowserMarketShare {
     const shares = item.shares
     const end_angles = cumsum(item.shares.map(to_radians))
     const start_angles = [0].concat(end_angles.slice(0, -1))
-    const half_angles = zip2(start_angles, end_angles).map(([start, end]) => (start + end)/2)
+    const half_angles = zip(start_angles, end_angles).map(([start, end]) => (start + end)/2)
     const colors = item.browsers.map((name) => info[name].color)
 
     fig.wedge({x: 0, y: 0, radius: 1.5, source: source,
@@ -136,7 +108,7 @@ namespace WebBrowserMarketShare {
          line_color: "white", line_width: 1, fill_color: colors})
 
     const icons = item.browsers.map((name) => info[name].icon)
-    const [x0, y0] = unzip2(half_angles.map((angle) => to_cartesian(1.7, angle)))
+    const [x0, y0] = unzip(half_angles.map((angle) => to_cartesian(1.7, angle)))
     fig.image_url(icons, x0, y0, null, null, {source: source, anchor: "center"})
 
     const texts = item.shares.map((share) => {
@@ -151,7 +123,7 @@ namespace WebBrowserMarketShare {
       else
         return 0
     })
-    const [x1, y1] = unzip2(half_angles.map((angle) => to_cartesian(1.0, angle)))
+    const [x1, y1] = unzip(half_angles.map((angle) => to_cartesian(1.0, angle)))
     fig.text(x1, y1, texts, {source: source, angle: text_angles, text_align: "center", text_baseline: "middle"})
   }
 

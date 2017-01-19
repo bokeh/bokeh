@@ -36,9 +36,9 @@ from .builders.chord_builder import Chord
 from ..models import ColumnDataSource
 from ..io import (
     curdoc, output_file, output_notebook, output_server, push,
-    reset_output, save, show, gridplot, vplot, hplot)
+    reset_output, save, show, gridplot)
 
 # Silence pyflakes
 (curdoc, output_file, output_notebook, output_server, push,
- reset_output, save, show, gridplot, vplot, hplot, ColumnDataSource,
+ reset_output, save, show, gridplot, ColumnDataSource,
  DEFAULT_PALETTE)

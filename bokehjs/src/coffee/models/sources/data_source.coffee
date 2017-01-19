@@ -1,8 +1,7 @@
-import * as _ from "underscore"
-
 import {Model} from "../../model"
 import * as hittest from "../../core/hittest"
 import * as p from "../../core/properties"
+import {isFunction} from "../../core/util/types"
 
 export class DataSource extends Model
   type: 'DataSource'
@@ -17,7 +16,7 @@ export class DataSource extends Model
     @listenTo @, 'change:selected', () =>
       callback = @callback
       if callback?
-        if _.isFunction(callback)
+        if isFunction(callback)
           callback(@)
         else
           callback.execute(@)

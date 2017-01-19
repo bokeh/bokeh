@@ -138,6 +138,8 @@ class PlotScriptParser(Parser):
 
     """
 
+    supported = ('python',)
+
     def parse(self, source, document):
         """ Parse ``source``, write results to ``document``.
 

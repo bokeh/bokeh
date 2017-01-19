@@ -128,7 +128,7 @@ class BokehJSONEncoder(json.JSONEncoder):
 
         from ..model import Model
         from ..colors import Color
-        from .properties import HasProps
+        from .has_props import HasProps
 
         # array types -- use force_list here, only binary
         # encoding CDS columns for now
@@ -209,7 +209,7 @@ def serialize_json(obj, pretty=False, indent=None, **kwargs):
     '''
 
     # these args to json.dumps are computed internally and should not be passed along
-    for name in ['allow_nan', 'indent', 'separators', 'sort_keys']:
+    for name in ['allow_nan', 'separators', 'sort_keys']:
         if name in kwargs:
             raise ValueError("The value of %r is computed internally, overriding is not permissable." % name)
 
