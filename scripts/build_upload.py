@@ -46,6 +46,8 @@ NOT_STARTED = "NOT STARTED"
 STARTED = "STARTED BUT NOT COMPLETED"
 COMPLETED = "COMPLETED"
 
+PLATFORMS = "osx-64 win-32 win-64 linux-32 linux-64".split()
+
 class config(object):
 
     # This excludes "local" build versions, e.g. 0.12.4+19.gf85560a
@@ -97,12 +99,16 @@ CONFIG = config()
 #
 #--------------------------------------
 
-def run(cmd, fake_cmd=None, silent=False):
+def run(cmd, fake_cmd=None, silent=False, **kw):
+    envstr = ""
+    for k, v in kw.items():
+        os.environ[k] = v
+        envstr += "%s=%s " % (k,v)
     if not silent:
         if fake_cmd:
-            print("+%s" % fake_cmd)
+            print("+%s%s" % (envstr, fake_cmd))
         else:
-            print("+%s" % cmd)
+            print("+%s%s" % (envstr, cmd))
 
     if CONFIG.dry_run:
         return "junk"
@@ -111,6 +117,8 @@ def run(cmd, fake_cmd=None, silent=False):
     p = Popen(cmd,  stdout=PIPE, stderr=STDOUT)
     out, err = p.communicate()
     out = out.decode('utf-8').strip()
+    for k, v in kw.items():
+        del os.environ[k]
     if p.returncode != 0:
         raise RuntimeError(out)
     return out
@@ -300,13 +308,16 @@ def check_cdn_creds():
 @build_wrapper('conda')
 def build_conda_packages():
     for v in "27 34 35 36".split():
-        os.environ['CONDA_PY'] = v
         # TODO (bev) remove --no-test when conda problems resolved
-        run("conda build conda.recipe --quiet --no-test")
+        run("conda build conda.recipe --quiet --no-test", CONDA_PY=v)
         # TODO (bev) make platform detected or configurable
-    files = " ".join(glob.glob('/home/travis/miniconda/conda-bld/linux-64/bokeh*'))
-    run("conda convert -p all %s" % files)
-    del os.environ['CONDA_PY']
+
+    # TravisCI will time out if this is all run with one command, problem
+    # should go away when new no-arch pkgs canbe used
+    files = glob.glob('/home/travis/miniconda/conda-bld/linux-64/bokeh*')
+    for file in files:
+        for plat in PLATFORMS:
+            run("conda convert -p %s %s" % (plat, file))
 
 @build_wrapper('sdist')
 def build_sdist_packages():
@@ -314,13 +325,9 @@ def build_sdist_packages():
 
 @build_wrapper('docs')
 def build_docs():
-    os.environ['BOKEH_DOCS_CDN'] = CONFIG.version
-    os.environ['BOKEH_DOCS_VERSION'] = CONFIG.version
     run("cd sphinx")
-    run("make clean all")
+    run("make clean all", BOKEH_DOCS_CDN=CONFIG.version, BOKEH_DOCS_VERSION=CONFIG.version)
     run("cd ..")
-    del os.environ['BOKEH_DOCS_CDN']
-    del os.environ['BOKEH_DOCS_VERSION']
 
 @build_wrapper('examples')
 def build_examples():
@@ -355,7 +362,7 @@ def upload_cdn(cdn_token, cdn_id):
 def upload_anaconda():
     token = os.environ['ANACONDA_TOKEN']
     channel = 'dev' if V(CONFIG.version).is_prerelease else 'main'
-    for plat in "osx-64 win-32 win-64 linux-32 linux-64".split():
+    for plat in PLATFORMS:
         cmd = "anaconda -t %s upload -u bokeh %s/bokeh*.tar.bz2 -c %s --force --no-progress"
         run(cmd % (token, plat, channel), fake_cmd=cmd % ("<hidden>", plat, channel))
 
