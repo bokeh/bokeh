@@ -139,6 +139,7 @@ after_success: |
         echo "Building a FULL RELEASE package: $TRAVIS_TAG"
       fi
       python scripts/build_upload.py $TRAVIS_TAG
+      exit $?
   else
       echo "No tag present, not building a release package."
   fi
