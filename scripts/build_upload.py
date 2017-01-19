@@ -22,7 +22,6 @@ import sys
 
 import certifi
 import pycurl
-import versioneer
 
 try:
     import colorama
@@ -98,9 +97,16 @@ CONFIG = config()
 #
 #--------------------------------------
 
-def run(cmd, silent=False):
+def run(cmd, fake_cmd=None, silent=False):
     if not silent:
-        print("+%s" % cmd)
+        if fake_cmd:
+            print("+%s" % fake_cmd)
+        else:
+            print("+%s" % cmd)
+
+    if CONFIG.dry_run:
+        return "junk"
+
     cmd = cmd.split()
     p = Popen(cmd,  stdout=PIPE, stderr=STDOUT)
     out, err = p.communicate()
@@ -120,10 +126,10 @@ def clean():
 
 def build_wrapper(name):
     def decorator(func):
-        def wrapper():
+        def wrapper(*args, **kw):
             try:
                 CONFIG.build_status[name] = STARTED
-                func()
+                func(*args, **kw)
                 passed("Build for %r finished" % name)
             except Exception as e:
                 failed("Build for %r did NOT succeed" % name, str(e).split('\n'))
@@ -134,10 +140,10 @@ def build_wrapper(name):
 
 def upload_wrapper(name):
     def decorator(func):
-        def wrapper():
+        def wrapper(*args, **kw):
             try:
                 CONFIG.upload_status[name] = STARTED
-                func()
+                func(*args, **kw)
                 passed("Upload for %r finished" % name)
             except Exception as e:
                 failed("Upload for %r did NOT succeed" % name, str(e).split('\n'))
@@ -148,6 +154,7 @@ def upload_wrapper(name):
 
 def cdn_upload(local_path, cdn_path, content_type, cdn_token, cdn_id):
     print(":uploading to CDN: %s" % cdn_path)
+    if CONFIG.dry_run: return
     url = 'https://storage101.dfw1.clouddrive.com/v1/%s/%s' % (cdn_id, cdn_path)
     c = pycurl.Curl()
     c.setopt(c.CAINFO, certifi.where())
@@ -333,14 +340,14 @@ def upload_cdn(cdn_token, cdn_id):
     for name in ('bokeh', 'bokeh-api', 'bokeh-widgets'):
         for suffix in ('js', 'min.js'):
             local_path = 'bokehjs/build/js/%s.%s' % (name, suffix)
-            cdn_path = 'bokeh/bokeh/%s/%s-%s.%s' % (subdir, basename, version, suffix)
+            cdn_path = 'bokeh/bokeh/%s/%s-%s.%s' % (subdir, name, version, suffix)
             cdn_upload(local_path, cdn_path, content_type, cdn_token, cdn_id)
 
     content_type = "text/css"
     for name in ('bokeh', 'bokeh-widgets'):
         for suffix in ('css', 'min.css'):
             local_path = 'bokehjs/build/js/%s.%s' % (name, suffix)
-            cdn_path = 'bokeh/bokeh/%s/%s-%s.%s' % (subdir, basename, version, suffix)
+            cdn_path = 'bokeh/bokeh/%s/%s-%s.%s' % (subdir, name, version, suffix)
             cdn_upload(local_path, cdn_path, content_type, cdn_token, cdn_id)
 
 @upload_wrapper('anaconda')
@@ -349,8 +356,7 @@ def upload_anaconda():
     channel = 'dev' if V(CONFIG.version).is_prerelease else 'main'
     for plat in "osx-64 win-32 win-64 linux-32 linux-64".split():
         cmd = "anaconda -t %s upload -u bokeh %s/bokeh*.tar.bz2 -c %s --force --no-progress"
-        print("+" + cmd % ("<hidden>", plat, channel))
-        run(cmd % (token, plat, channel), silent=True)
+        run(cmd % (token, plat, channel), fake_cmd=cmd % ("<hidden>", plat, channel))
 
 @upload_wrapper('pypi')
 def upload_pypi():
@@ -386,13 +392,21 @@ def upload_npm():
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Build and upload all assets for a Bokeh release.')
+    parser.add_argument('version',
+                        nargs=1,
+                        type=str,
+                        help='New Bokeh version to build and upload')
     parser.add_argument('--clean',
                         type=bool,
                         default=False,
                         help='Whether to clean the local checkout (default: False)')
+    parser.add_argument('--dry-run',
+                        action='store_true',
+                        default=False,
+                        help='Print, but do not execute, commands')
     args = parser.parse_args()
 
-
+    CONFIG.dry_run = args.dry_run
 
     banner(blue, "{:^80}".format("Starting a Bokeh release BUILD and UPLOAD"))
 
@@ -401,10 +415,10 @@ if __name__ == '__main__':
     print("!!! Running pre-checks\n")
 
     try:
-        CONFIG.version = versioneer.get_version()
+        CONFIG.version = args.version[0]
         passed("%r is a valid version for release" % CONFIG.version)
     except ValueError:
-        failed("%r is NOT a valid version for release" % CONFIG.version)
+        failed("%r is NOT a valid version for release" % args.version[0])
         abort_checks()
 
     check_environment_var('ANACONDA_TOKEN', 'access token for Anaconda.org')
