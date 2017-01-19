@@ -81,7 +81,6 @@
     "jqrangeslider/jQDateRangeSlider": "./src/vendor/jqrangeslider-5.7.0/jQDateRangeSlider.js",
     "jquery_event_drag": "./src/vendor/jquery-event-2.2/jquery.event.drag.js",
     "jquery_event_drop": "./src/vendor/jquery-event-2.2/jquery.event.drop.js",
-    "kiwi": "./src/vendor/kiwi/kiwi.js",
     "gloo2": "./src/vendor/gloo/gloo2.js"
   },
   "dependencies": {
@@ -105,6 +104,7 @@
     "jquery-ui": "~1.10.5",
 
     "numbro": "https://github.com/bokeh/numbro.git#5ed67cf",
+    "kiwi": "https://github.com/bokeh/kiwi.git#675a0e6",
     "root-require": "^0.3.1"
   },
   "scripts": {
