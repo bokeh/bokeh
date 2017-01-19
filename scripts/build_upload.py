@@ -123,6 +123,10 @@ def run(cmd, fake_cmd=None, silent=False, **kw):
         raise RuntimeError(out)
     return out
 
+def cd(dir):
+    print("+cd %s" % dir)
+    os.chdir(dir)
+
 def clean():
     for plat in "osx-64 win-32 win-64 linux-32 linux-64".split():
         run("rm -rf %s" % plat)
@@ -325,9 +329,9 @@ def build_sdist_packages():
 
 @build_wrapper('docs')
 def build_docs():
-    run("cd sphinx")
+    cd("sphinx")
     run("make clean all", BOKEH_DOCS_CDN=CONFIG.version, BOKEH_DOCS_VERSION=CONFIG.version)
-    run("cd ..")
+    cd("..")
 
 @build_wrapper('examples')
 def build_examples():
@@ -372,13 +376,13 @@ def upload_pypi():
 
 @upload_wrapper('docs')
 def upload_docs():
-    run("cd sphinx")
+    cd("sphinx")
     if V(CONFIG.version).is_prerelease:
         run("fab deploy:dev")
     else:
         run("fab deploy:%s" % CONFIG.version)
         run("fab latest:%s" % CONFIG.version)
-    run("cd ..")
+    cd("..")
 
 @upload_wrapper('examples')
 def upload_examples(cdn_token, cdn_id):
@@ -388,9 +392,9 @@ def upload_examples(cdn_token, cdn_id):
 
 @upload_wrapper('npm')
 def upload_npm():
-    run("cd bokehjs")
+    cd("bokehjs")
     run("npm publish")
-    run("cd ..")
+    cd("..")
 
 #--------------------------------------
 #
