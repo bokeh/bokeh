@@ -1,5 +1,3 @@
-import "jqrangeslider/jQDateRangeSlider"
-
 import * as p from "core/properties"
 import {isObject} from "core/util/types"
 
