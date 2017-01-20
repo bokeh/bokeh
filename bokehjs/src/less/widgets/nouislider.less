@@ -1,3 +1,15 @@
 @noUi-css-prefix: bk-noUi;
 @nouislider: "../../../node_modules/nouislider/src";
 @import "@{nouislider}/nouislider.base.less";
+
+.@{noUi-css-prefix}-tooltip {
+  display: none;
+}
+
+.@{noUi-css-prefix}-handle {
+  &:hover, &.@{noUi-css-prefix}-active {
+    .@{noUi-css-prefix}-tooltip {
+      display: block;
+    }
+  }
+}
