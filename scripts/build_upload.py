@@ -54,6 +54,7 @@ class config(object):
     ANY_VERSION = re.compile(r"^(\d+\.\d+\.\d+)((?:dev|rc)\d+)?$")
 
     def __init__(self):
+        self.dry_run = False
         self._version = None
         self._builds = ('conda', 'sdist', 'docs', 'examples')
         self._build_status = defaultdict(lambda: NOT_STARTED)
@@ -114,21 +115,22 @@ def run(cmd, fake_cmd=None, silent=False, **kw):
         return "junk"
 
     cmd = cmd.split()
-    p = Popen(cmd,  stdout=PIPE, stderr=STDOUT)
+    p = Popen(cmd,  stdout=PIPE, stderr=PIPE)
     out, err = p.communicate()
     out = out.decode('utf-8').strip()
+    err = err.decode('utf-8').strip()
     for k, v in kw.items():
         del os.environ[k]
     if p.returncode != 0:
-        raise RuntimeError(out)
+        raise RuntimeError("STDOUT:\n\n" + out + "\n\nSTDERR:\n\n" + err)
     return out
 
 def cd(dir):
-    print("+cd %s" % dir)
     os.chdir(dir)
+    print("+cd %s    [now: %s]" % (dir, os.getcwd()))
 
 def clean():
-    for plat in "osx-64 win-32 win-64 linux-32 linux-64".split():
+    for plat in PLATFORMS:
         run("rm -rf %s" % plat)
     run("rm -rf dist/")
     run("rm -rf build/")
@@ -183,7 +185,6 @@ def cdn_upload(local_path, cdn_path, content_type, cdn_token, cdn_id):
     c.perform()
     c.close()
 
-
 #--------------------------------------
 #
 # UI functions
@@ -232,6 +233,9 @@ def abort_builds():
 def abort_uploads():
     print(red("\n!!! FATAL problems occurred during UPLOADS"))
     print()
+    print("PWD: %s" % os.getcwd())
+    print("LS: %s" % os.listdir("."))
+    print()
     print(bright(red("!!! SOME ASSETS MAY HAVE BEEN UPLOADED")))
     print()
     print(bright(yellow("Here is the status of all uploads:")))
@@ -263,6 +267,7 @@ def check_anaconda_creds():
             failed("Could NOT verify Anaconda credentials")
             abort_checks()
         passed("Verified Anaconda credentials")
+        return token
     except Exception as e:
         failed("Could NOT verify Anaconda credentials")
         abort_checks()
@@ -363,11 +368,10 @@ def upload_cdn(cdn_token, cdn_id):
             cdn_upload(local_path, cdn_path, content_type, cdn_token, cdn_id)
 
 @upload_wrapper('anaconda')
-def upload_anaconda():
-    token = os.environ['ANACONDA_TOKEN']
+def upload_anaconda(token):
     channel = 'dev' if V(CONFIG.version).is_prerelease else 'main'
     for plat in PLATFORMS:
-        cmd = "anaconda -t %s upload -u bokeh %s/bokeh*.tar.bz2 -c %s --force --no-progress"
+        cmd = "anaconda -t %r upload -u bokeh %s/bokeh*.tar.bz2 -c %s --force --no-progress"
         run(cmd % (token, plat, channel), fake_cmd=cmd % ("<hidden>", plat, channel))
 
 @upload_wrapper('pypi')
@@ -437,12 +441,13 @@ if __name__ == '__main__':
     check_environment_var('RSUSER', 'username for CDN')
     check_environment_var('RSAPIKEY', 'API key for CDN')
 
-    check_anaconda_creds()
+    anaconda_token = check_anaconda_creds()
 
     cdn_token, cdn_id = check_cdn_creds()
 
     # builds ----------------------------------------------------------------
 
+    print()
     print("!!! Building Bokeh release assets\n")
 
     # build things first, and abort immediately on any failure, in order to
@@ -461,13 +466,14 @@ if __name__ == '__main__':
 
     # uploads ---------------------------------------------------------------
 
+    print()
     print("!!! Uploading Bokeh release assets\n")
 
     # upload to CDN first -- if this fails, save the trouble of removing
     # useless packages from Anaconda.org and PyPI
     upload_cdn(cdn_token, cdn_id)
 
-    upload_anaconda()
+    upload_anaconda(anaconda_token)
 
     if V(CONFIG.version).is_prerelease:
         print(blue("[SKIP] ") + "Not updating PyPI package for pre-releases")
