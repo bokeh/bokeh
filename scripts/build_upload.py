@@ -233,9 +233,6 @@ def abort_builds():
 def abort_uploads():
     print(red("\n!!! FATAL problems occurred during UPLOADS"))
     print()
-    print("PWD: %s" % os.getcwd())
-    print("LS: %s" % os.listdir("."))
-    print()
     print(bright(red("!!! SOME ASSETS MAY HAVE BEEN UPLOADED")))
     print()
     print(bright(yellow("Here is the status of all uploads:")))
@@ -371,8 +368,10 @@ def upload_cdn(cdn_token, cdn_id):
 def upload_anaconda(token):
     channel = 'dev' if V(CONFIG.version).is_prerelease else 'main'
     for plat in PLATFORMS:
-        cmd = "anaconda -t %r upload -u bokeh %s/bokeh*.tar.bz2 -c %s --force --no-progress"
-        run(cmd % (token, plat, channel), fake_cmd=cmd % ("<hidden>", plat, channel))
+        files = glob.glob("%s/bokeh*.tar.bz2" % plat)
+        for file in files:
+            cmd = "anaconda -t %s upload -u bokeh %s -c dev --force --no-progress"
+            run(cmd % (token, file), fake_cmd=cmd % ("<hidden>", file))
 
 @upload_wrapper('pypi')
 def upload_pypi():
