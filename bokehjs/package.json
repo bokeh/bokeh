@@ -90,8 +90,6 @@
     "@types/event-stream": "^3.3.31"
   },
   "browser": {
-    "jqrangeslider/jQRangeSlider": "./src/vendor/jqrangeslider-5.7.0/jQRangeSlider.js",
-    "jqrangeslider/jQDateRangeSlider": "./src/vendor/jqrangeslider-5.7.0/jQDateRangeSlider.js",
     "gloo2": "./src/vendor/gloo/gloo2.js"
   },
   "dependencies": {

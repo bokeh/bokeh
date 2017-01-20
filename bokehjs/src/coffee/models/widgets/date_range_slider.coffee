@@ -1,6 +1,3 @@
-if typeof $ == "function"
-  require("jqrangeslider/jQDateRangeSlider")
-
 import * as p from "core/properties"
 import {empty} from "core/dom"
 import {isObject} from "core/util/types"
