@@ -6,9 +6,9 @@ from __future__ import absolute_import
 from ...core.properties import Bool, Float, Date, RelativeDelta, Enum, Tuple, Instance
 from ...core.enums import SliderCallbackPolicy
 from ..callbacks import Callback
-from .inputs import InputWidget
+from .widget import Widget
 
-class Slider(InputWidget):
+class Slider(Widget):
     """ Slider-based number selection widget.
 
     """
@@ -51,7 +51,7 @@ class Slider(InputWidget):
     The "mouseup" policy is intended for scenarios in which the callback is expensive in time.
     """)
 
-class RangeSlider(InputWidget):
+class RangeSlider(Widget):
     """ Range-slider based range selection widget
 
     """
@@ -95,7 +95,7 @@ class RangeSlider(InputWidget):
     """)
 
 
-class DateRangeSlider(InputWidget):
+class DateRangeSlider(Widget):
     """ Slider-based date range selection widget.
 
     """
