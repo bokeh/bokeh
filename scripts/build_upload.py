@@ -175,13 +175,9 @@ def cdn_upload(local_path, cdn_path, content_type, cdn_token, cdn_id):
     c.setopt(c.URL, url)
     c.setopt(c.CUSTOMREQUEST, "PUT")
     c.setopt(c.HTTPHEADER, ["X-Auth-Token: %s" % cdn_token,
-                            "Origin: https://mycloud.rackspace.com"])
-    c.setopt(c.HTTPPOST, [
-        ('fileupload', (
-            c.FORM_FILE,        local_path,
-            c.FORM_CONTENTTYPE, content_type,
-        )),
-    ])
+                            "Origin: https://mycloud.rackspace.com",
+                            "Content-Type: %s" % content_type])
+    c.setopt(pycurl.POSTFIELDS, open(local_path).read().encode('utf-8'))
     c.perform()
     c.close()
 
