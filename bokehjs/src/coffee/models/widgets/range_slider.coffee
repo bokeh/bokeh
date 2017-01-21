@@ -41,6 +41,8 @@ export class RangeSliderView extends WidgetView
           max: @model.end
         }
         step: @model.step
+        behaviour: 'drag'
+        connect: [false, true, false]
         tooltips: true
         orientation: @model.orientation
       })
