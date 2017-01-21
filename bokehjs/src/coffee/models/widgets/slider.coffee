@@ -42,6 +42,8 @@ export class SliderView extends WidgetView
           max: @model.end
         }
         step: @model.step
+        behaviour: 'tap'
+        connect: [false, true]
         tooltips: true
         orientation: @model.orientation
       })
