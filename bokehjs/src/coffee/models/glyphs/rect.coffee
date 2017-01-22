@@ -1,7 +1,7 @@
 import {Glyph, GlyphView} from "./glyph"
 import * as hittest from "../../core/hittest"
 import * as p from "../../core/properties"
-import {array_max} from "../../core/util/math"
+import {max} from "../../core/util/array"
 
 export class RectView extends GlyphView
 
@@ -99,8 +99,8 @@ export class RectView extends GlyphView
     scenter_x = (@sx0[i] + @sw[i]/2 for i in [0...@sx0.length])
     scenter_y = (@sy1[i] + @sh[i]/2 for i in [0...@sy1.length])
 
-    max_x2_ddist = array_max(@_ddist(0, scenter_x, @ssemi_diag))
-    max_y2_ddist = array_max(@_ddist(1, scenter_y, @ssemi_diag))
+    max_x2_ddist = max(@_ddist(0, scenter_x, @ssemi_diag))
+    max_y2_ddist = max(@_ddist(1, scenter_y, @ssemi_diag))
 
     x0 = x - max_x2_ddist
     x1 = x + max_x2_ddist
