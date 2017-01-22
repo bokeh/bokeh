@@ -46,12 +46,15 @@ NOT_STARTED = "NOT STARTED"
 STARTED = "STARTED BUT NOT COMPLETED"
 COMPLETED = "COMPLETED"
 
+PLATFORMS = "osx-64 win-32 win-64 linux-32 linux-64".split()
+
 class config(object):
 
     # This excludes "local" build versions, e.g. 0.12.4+19.gf85560a
     ANY_VERSION = re.compile(r"^(\d+\.\d+\.\d+)((?:dev|rc)\d+)?$")
 
     def __init__(self):
+        self.dry_run = False
         self._version = None
         self._builds = ('conda', 'sdist', 'docs', 'examples')
         self._build_status = defaultdict(lambda: NOT_STARTED)
@@ -97,26 +100,37 @@ CONFIG = config()
 #
 #--------------------------------------
 
-def run(cmd, fake_cmd=None, silent=False):
+def run(cmd, fake_cmd=None, silent=False, **kw):
+    envstr = ""
+    for k, v in kw.items():
+        os.environ[k] = v
+        envstr += "%s=%s " % (k,v)
     if not silent:
         if fake_cmd:
-            print("+%s" % fake_cmd)
+            print("+%s%s" % (envstr, fake_cmd))
         else:
-            print("+%s" % cmd)
+            print("+%s%s" % (envstr, cmd))
 
     if CONFIG.dry_run:
         return "junk"
 
     cmd = cmd.split()
-    p = Popen(cmd,  stdout=PIPE, stderr=STDOUT)
+    p = Popen(cmd,  stdout=PIPE, stderr=PIPE)
     out, err = p.communicate()
     out = out.decode('utf-8').strip()
+    err = err.decode('utf-8').strip()
+    for k, v in kw.items():
+        del os.environ[k]
     if p.returncode != 0:
-        raise RuntimeError(out)
+        raise RuntimeError("STDOUT:\n\n" + out + "\n\nSTDERR:\n\n" + err)
     return out
 
+def cd(dir):
+    os.chdir(dir)
+    print("+cd %s    [now: %s]" % (dir, os.getcwd()))
+
 def clean():
-    for plat in "osx-64 win-32 win-64 linux-32 linux-64".split():
+    for plat in PLATFORMS:
         run("rm -rf %s" % plat)
     run("rm -rf dist/")
     run("rm -rf build/")
@@ -161,16 +175,11 @@ def cdn_upload(local_path, cdn_path, content_type, cdn_token, cdn_id):
     c.setopt(c.URL, url)
     c.setopt(c.CUSTOMREQUEST, "PUT")
     c.setopt(c.HTTPHEADER, ["X-Auth-Token: %s" % cdn_token,
-                            "Origin: https://mycloud.rackspace.com"])
-    c.setopt(c.HTTPPOST, [
-        ('fileupload', (
-            c.FORM_FILE,        local_path,
-            c.FORM_CONTENTTYPE, content_type,
-        )),
-    ])
+                            "Origin: https://mycloud.rackspace.com",
+                            "Content-Type: %s" % content_type])
+    c.setopt(pycurl.POSTFIELDS, open(local_path).read().encode('utf-8'))
     c.perform()
     c.close()
-
 
 #--------------------------------------
 #
@@ -251,6 +260,7 @@ def check_anaconda_creds():
             failed("Could NOT verify Anaconda credentials")
             abort_checks()
         passed("Verified Anaconda credentials")
+        return token
     except Exception as e:
         failed("Could NOT verify Anaconda credentials")
         abort_checks()
@@ -300,12 +310,16 @@ def check_cdn_creds():
 @build_wrapper('conda')
 def build_conda_packages():
     for v in "27 34 35 36".split():
-        os.environ['CONDA_PY'] = v
-        run("conda build conda.recipe --quiet")
+        # TODO (bev) remove --no-test when conda problems resolved
+        run("conda build conda.recipe --quiet --no-test", CONDA_PY=v)
         # TODO (bev) make platform detected or configurable
-    files = " ".join(glob.glob('/home/travis/miniconda/conda-bld/linux-64/bokeh*'))
-    run("conda convert -p all %s" % files)
-    del os.environ['CONDA_PY']
+
+    # TravisCI will time out if this is all run with one command, problem
+    # should go away when new no-arch pkgs canbe used
+    files = glob.glob('/home/travis/miniconda/conda-bld/linux-64/bokeh*')
+    for file in files:
+        for plat in PLATFORMS:
+            run("conda convert -p %s %s" % (plat, file))
 
 @build_wrapper('sdist')
 def build_sdist_packages():
@@ -313,13 +327,9 @@ def build_sdist_packages():
 
 @build_wrapper('docs')
 def build_docs():
-    os.environ['BOKEH_DOCS_CDN'] = CONFIG.version
-    os.environ['BOKEH_DOCS_VERSION'] = CONFIG.version
-    run("cd sphinx")
-    run("make clean all")
-    run("cd ..")
-    del os.environ['BOKEH_DOCS_CDN']
-    del os.environ['BOKEH_DOCS_VERSION']
+    cd("sphinx")
+    run("make clean all", BOKEH_DOCS_CDN=CONFIG.version, BOKEH_DOCS_VERSION=CONFIG.version)
+    cd("..")
 
 @build_wrapper('examples')
 def build_examples():
@@ -346,17 +356,18 @@ def upload_cdn(cdn_token, cdn_id):
     content_type = "text/css"
     for name in ('bokeh', 'bokeh-widgets'):
         for suffix in ('css', 'min.css'):
-            local_path = 'bokehjs/build/js/%s.%s' % (name, suffix)
+            local_path = 'bokehjs/build/css/%s.%s' % (name, suffix)
             cdn_path = 'bokeh/bokeh/%s/%s-%s.%s' % (subdir, name, version, suffix)
             cdn_upload(local_path, cdn_path, content_type, cdn_token, cdn_id)
 
 @upload_wrapper('anaconda')
-def upload_anaconda():
-    token = os.environ['ANACONDA_TOKEN']
+def upload_anaconda(token):
     channel = 'dev' if V(CONFIG.version).is_prerelease else 'main'
-    for plat in "osx-64 win-32 win-64 linux-32 linux-64".split():
-        cmd = "anaconda -t %s upload -u bokeh %s/bokeh*.tar.bz2 -c %s --force --no-progress"
-        run(cmd % (token, plat, channel), fake_cmd=cmd % ("<hidden>", plat, channel))
+    for plat in PLATFORMS:
+        files = glob.glob("%s/bokeh*.tar.bz2" % plat)
+        for file in files:
+            cmd = "anaconda -t %s upload -u bokeh %s -c dev --force --no-progress"
+            run(cmd % (token, file), fake_cmd=cmd % ("<hidden>", file))
 
 @upload_wrapper('pypi')
 def upload_pypi():
@@ -364,13 +375,13 @@ def upload_pypi():
 
 @upload_wrapper('docs')
 def upload_docs():
-    run("cd sphinx")
+    cd("sphinx")
     if V(CONFIG.version).is_prerelease:
         run("fab deploy:dev")
     else:
         run("fab deploy:%s" % CONFIG.version)
         run("fab latest:%s" % CONFIG.version)
-    run("cd ..")
+    cd("..")
 
 @upload_wrapper('examples')
 def upload_examples(cdn_token, cdn_id):
@@ -380,9 +391,9 @@ def upload_examples(cdn_token, cdn_id):
 
 @upload_wrapper('npm')
 def upload_npm():
-    run("cd bokehjs")
+    cd("bokehjs")
     run("npm publish")
-    run("cd ..")
+    cd("..")
 
 #--------------------------------------
 #
@@ -425,12 +436,13 @@ if __name__ == '__main__':
     check_environment_var('RSUSER', 'username for CDN')
     check_environment_var('RSAPIKEY', 'API key for CDN')
 
-    check_anaconda_creds()
+    anaconda_token = check_anaconda_creds()
 
     cdn_token, cdn_id = check_cdn_creds()
 
     # builds ----------------------------------------------------------------
 
+    print()
     print("!!! Building Bokeh release assets\n")
 
     # build things first, and abort immediately on any failure, in order to
@@ -449,13 +461,14 @@ if __name__ == '__main__':
 
     # uploads ---------------------------------------------------------------
 
+    print()
     print("!!! Uploading Bokeh release assets\n")
 
     # upload to CDN first -- if this fails, save the trouble of removing
     # useless packages from Anaconda.org and PyPI
     upload_cdn(cdn_token, cdn_id)
 
-    upload_anaconda()
+    upload_anaconda(anaconda_token)
 
     if V(CONFIG.version).is_prerelease:
         print(blue("[SKIP] ") + "Not updating PyPI package for pre-releases")

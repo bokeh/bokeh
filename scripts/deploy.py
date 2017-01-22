@@ -229,10 +229,16 @@ def check_checkout():
         abort()
 
 
-def check_last_versions():
+def check_tags():
     try:
         out = run("git for-each-ref --sort=-taggerdate --format '%(tag)' refs/tags")
         tags = [x.strip("'\"") for x in out.split("\n")]
+
+        if CONFIG.new_version in tags:
+            failed("There is already an existing tag for new version %r" % CONFIG.new_version)
+            abort()
+        else:
+            passed("New version %r does not already have a tag" % CONFIG.new_version)
 
         try:
             CONFIG.last_any_version = tags[0]
@@ -453,7 +459,7 @@ if __name__ == '__main__':
         failed("Version %r is NOT a valid Bokeh version" % CONFIG.new_version)
         abort()
 
-    check_last_versions()
+    check_tags()
     check_version_order()
     check_release_branch()
 

@@ -25,4 +25,3 @@ so the development priorities will tend to center around those tasks, until the
 project reaches a point of stability.
 
 Please join the discussion on the [Bokeh mailing list](https://groups.google.com/a/continuum.io/forum/#!forum/bokeh).
-

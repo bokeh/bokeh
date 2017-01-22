@@ -75,7 +75,7 @@ class Axis(GuideRenderer):
     """)
 
     major_label_orientation = Either(Enum("horizontal", "vertical"), Float, help="""
-    What direction the major label text should be oriented. If a i
+    What direction the major label text should be oriented. If a
     number is supplied, the angle of the text is measured from horizontal.
     """)
 

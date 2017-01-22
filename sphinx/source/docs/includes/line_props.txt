@@ -1,4 +1,3 @@
-
 ``line_color``
     color to use to stroke lines with
 
