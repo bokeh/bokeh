@@ -1048,7 +1048,7 @@ class Date(Property):
             except ValueError:
                 value = datetime.date.fromtimestamp(value/1000)
         elif isinstance(value, string_types):
-            value = dateutil.parser.parse(value).date()
+            value = dateutil.parser.parse(value.split(' (')[0]).date()
 
         return value
 
