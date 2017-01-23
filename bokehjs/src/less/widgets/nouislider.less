@@ -7,6 +7,13 @@
 }
 
 .@{noUi-css-prefix}-handle {
+  cursor: -webkit-grab;
+  cursor: grab;
+  &.@{noUi-css-prefix}-active {
+    cursor: -webkit-grabbing;
+    cursor: grabbing;
+  }
+
   &:hover, &.@{noUi-css-prefix}-active {
     .@{noUi-css-prefix}-tooltip {
       display: block;
