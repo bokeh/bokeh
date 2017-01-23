@@ -3,15 +3,44 @@
 """
 from __future__ import absolute_import
 
-from ...core.properties import Bool, Float, Date, RelativeDelta, Enum, Tuple, Instance
+from ...core.properties import Bool, Int, Float, Date, Enum, Tuple, Instance, Color
 from ...core.enums import SliderCallbackPolicy
 from ..callbacks import Callback
 from .widget import Widget
 
-class Slider(Widget):
-    """ Slider-based number selection widget.
+class AbstractSlider(Widget):
+    """ """
 
-    """
+    orientation = Enum("horizontal", "vertical", help="""
+    Orient the slider either horizontally (default) or vertically.
+    """)
+
+    direction = Enum("ltr", "rtl", help="""
+    """)
+
+    callback = Instance(Callback, help="""
+    A callback to run in the browser whenever the current Slider value changes.
+    """)
+
+    callback_throttle = Float(default=200, help="""
+    Number of microseconds to pause between callback calls as the slider is moved.
+    """)
+
+    callback_policy = Enum(SliderCallbackPolicy, default="throttle", help="""
+    When the callback is initiated. This parameter can take on only one of three options:
+
+    * "continuous": the callback will be executed immediately for each movement of the slider
+    * "throttle": the callback will be executed at most every ``callback_throttle`` milliseconds.
+    * "mouseup": the callback will be executed only once when the slider is released.
+
+    The "mouseup" policy is intended for scenarios in which the callback is expensive in time.
+    """)
+
+    bar_color = Color(default="#3fb8af", help="""
+    """)
+
+class Slider(AbstractSlider):
+    """ Slider-based number selection widget. """
 
     value = Float(default=0.5, help="""
     Initial or selected value.
@@ -29,32 +58,8 @@ class Slider(Widget):
     The step between consecutive values.
     """)
 
-    orientation = Enum("horizontal", "vertical", help="""
-    Orient the slider either horizontally (default) or vertically.
-    """)
-
-    callback = Instance(Callback, help="""
-    A callback to run in the browser whenever the current Slider value changes.
-    """)
-
-    callback_throttle = Float(default=200, help="""
-    Number of microseconds to pause between callback calls as the slider is moved.
-    """)
-
-    callback_policy = Enum(SliderCallbackPolicy, default="throttle", help="""
-    When the callback is initiated. This parameter can take on only one of three options:
-
-    * "continuous": the callback will be executed immediately for each movement of the slider
-    * "throttle": the callback will be executed at most every ``callback_throttle`` milliseconds.
-    * "mouseup": the callback will be executed only once when the slider is released.
-
-    The "mouseup" policy is intended for scenarios in which the callback is expensive in time.
-    """)
-
-class RangeSlider(Widget):
-    """ Range-slider based range selection widget
-
-    """
+class RangeSlider(AbstractSlider):
+    """ Range-slider based number range selection widget. """
 
     range = Tuple(Float, Float, default=(0.1, 0.9), help="""
     Initial or selected range.
@@ -72,70 +77,40 @@ class RangeSlider(Widget):
     The step between consecutive values.
     """)
 
-    orientation = Enum("horizontal", "vertical", help="""
-    Orient the slider either horizontally (default) or vertically.
+class DateSlider(AbstractSlider):
+    """ Slider-based date selection widget. """
+
+    value = Date(help="""
+    Initial or selected value.
     """)
 
-    callback = Instance(Callback, help="""
-    A callback to run in the browser whenever the current Slider value changes.
+    start = Date(help="""
+    The minimum allowable value.
     """)
 
-    callback_throttle = Float(default=200, help="""
-    Number of microseconds to pause between callback calls as the slider is moved.
+    end = Date(help="""
+    The maximum allowable value.
     """)
 
-    callback_policy = Enum(SliderCallbackPolicy, default="throttle", help="""
-    When the callback is initiated. This parameter can take on only one of three options:
-
-    * "continuous": the callback will be executed immediately for each movement of the slider
-    * "throttle": the callback will be executed at most every ``callback_throttle`` milliseconds.
-    * "mouseup": the callback will be executed only once when the slider is released.
-
-    The "mouseup" policy is intended for scenarios in which the callback is expensive in time.
+    step = Int(default=1, help="""
+    The step between consecutive values.
     """)
 
+class DateRangeSlider(AbstractSlider):
+    """ Slider-based date range selection widget. """
 
-class DateRangeSlider(Widget):
-    """ Slider-based date range selection widget.
-
-    """
-
-    value = Tuple(Date, Date, help="""
-    The initial or selected date range.
+    range = Tuple(Date, Date, help="""
+    Initial or selected range.
     """)
 
-    bounds = Tuple(Date, Date, help="""
-    The earliest and latest allowable dates.
+    start = Date(help="""
+    The minimum allowable value.
     """)
 
-    range = Tuple(RelativeDelta, RelativeDelta, help="""
-    [TDB]
+    end = Date(help="""
+    The maximum allowable value.
     """)
 
-    step = RelativeDelta(help="""
-    The step between consecutive dates.
-    """)
-
-    # formatter = Either(String, Function(Date))
-    # scales = DateRangeSliderScales ... # first, next, stop, label, format
-
-    enabled = Bool(True, help="""
-    Enable or disable this widget.
-    """)
-
-    arrows = Bool(True, help="""
-    Whether to show clickable arrows on both ends of the slider.
-    """)
-
-    value_labels = Enum("show", "hide", "change", help="""
-    Show or hide value labels on both sides of the slider.
-    """)
-
-    wheel_mode = Enum("scroll", "zoom", default=None, help="""
-    Whether mouse zoom should scroll or zoom selected range (or
-    do nothing).
-    """)
-
-    callback = Instance(Callback, help="""
-    A callback to run in the browser whenever either slider's value changes.
+    step = Int(default=1, help="""
+    The step between consecutive values.
     """)
