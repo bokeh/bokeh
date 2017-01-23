@@ -1,8 +1,7 @@
 import * as noUiSlider from "nouislider"
 
-import {logger} from "core/logging"
 import * as p from "core/properties"
-import {empty} from "core/dom"
+import {logger} from "core/logging"
 import {throttle} from "core/util/callback"
 
 import {Widget, WidgetView} from "./widget"
@@ -28,49 +27,47 @@ export class SliderView extends WidgetView
         when 'throttle'
           @callback_wrapper = throttle(callback, @model.callback_throttle)
 
+    if not @el.noUiSlider?
+      noUiSlider.create(@el, {
+        cssPrefix: 'bk-noUi-'
+        start: [@model.value]
+        range: {min: @model.start, max: @model.end}
+        step: @model.step
+        behaviour: 'tap'
+        connect: [true, false]
+        tooltips: true
+        orientation: @model.orientation
+        direction: @model.direction
+      })
+
+      @el.noUiSlider.on 'slide',  ([value], _handle) => @_slide(parseFloat(value))
+      @el.noUiSlider.on 'change', ([value], _handle) => @_change(parseFloat(value))
+    else
+      @el.noUiSlider.updateOptions({
+        start: [@model.value]
+        range: {min: @model.start, max: @model.end}
+        step: @model.step
+      })
+
+    if not @model.disabled
+      @el.querySelector('.bk-noUi-connect')
+         .style
+         .backgroundColor = @model.bar_color
+
     if @model.disabled
       @el.setAttribute('disabled', true)
     else
       @el.removeAttribute('disabled')
 
-    if not @el.noUiSlider?
-      noUiSlider.create(@el, {
-        cssPrefix: 'bk-noUi-'
-        start: [@model.value]
-        range: {
-          min: @model.start
-          max: @model.end
-        }
-        step: @model.step
-        behaviour: 'tap'
-        connect: [false, true]
-        tooltips: true
-        orientation: @model.orientation
-      })
-
-      @el.noUiSlider.on 'update', ([value], _handle) =>
-        @_update(parseFloat(value))
-      @el.noUiSlider.on 'change', ([value], _handle) =>
-        @_change(parseFloat(value))
-    else
-      @el.noUiSlider.updateOptions({
-        start: [@model.value]
-        range: {
-          min: @model.start
-          max: @model.end
-        }
-        step: @model.step
-      })
-
     return @
 
-  _update: (value) ->
-    logger.debug("slider update value = #{value}")
+  _slide: (value) ->
+    logger.debug("slide = #{value}")
     @model.value = value
     @callback_wrapper?()
 
   _change: (value) ->
-    logger.debug("slider change value = #{value}")
+    logger.debug("slider value = #{value}")
     switch @model.callback_policy
       when 'mouseup', 'throttle'
         @model.callback?.execute(@model)
@@ -88,4 +85,5 @@ export class Slider extends Widget
     callback:          [ p.Instance                  ]
     callback_throttle: [ p.Number,      200          ]
     callback_policy:   [ p.String,      "throttle"   ] # TODO (bev) enum
+    bar_color:         [ p.Color,       "#3fb8af"    ]
   }
