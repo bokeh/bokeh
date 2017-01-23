@@ -16,9 +16,9 @@ disabled_slider = Slider(value=50, start=0, end=96, step=5, disabled=True)
 
 range_slider = RangeSlider(value=[30, 70], start=0, end=100, step=0.5)
 
-#date_slider = DateSlider(value=date(2014, 1, 1), start=date(2010, 1, 1), end=date(2020, 1, 1), step=1)
+date_slider = DateSlider(value=date(2014, 1, 1), start=date(2010, 1, 1), end=date(2020, 1, 1), step=1)
 
-#date_range_slider = DateRangeSlider(range=(date(2014, 1, 1), date(2018, 12, 31)), start=date(2010, 1, 1), end=date(2020, 1, 1), step=1)
+date_range_slider = DateRangeSlider(value=(date(2014, 1, 1), date(2018, 12, 31)), start=date(2010, 1, 1), end=date(2020, 1, 1), step=1)
 
 def color_picker():
     def color_slider(color):
@@ -51,8 +51,8 @@ sliders = Row(children=[
         slider,
         disabled_slider,
         range_slider,
-        #date_slider,
-        #date_range_slider,
+        date_slider,
+        date_range_slider,
     ]),
     color_picker(),
 ])
