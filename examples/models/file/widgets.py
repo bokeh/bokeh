@@ -49,7 +49,7 @@ multi_select = MultiSelect(options=["Option %d" % (i+1) for i in range(16)], siz
 
 slider = Slider(value=10, start=0, end=100, step=0.5)
 
-range_slider = RangeSlider(range=[10, 90], start=0, end=100, step=0.5)
+range_slider = RangeSlider(value=[10, 90], start=0, end=100, step=0.5)
 
 #date_range_slider = DateRangeSlider(value=(date(2016, 1, 1), date(2016, 12, 31)))
 
