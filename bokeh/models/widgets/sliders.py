@@ -18,6 +18,9 @@ class AbstractSlider(Widget):
     direction = Enum("ltr", "rtl", help="""
     """)
 
+    tooltips = Bool(default=True, help="""
+    """)
+
     callback = Instance(Callback, help="""
     A callback to run in the browser whenever the current Slider value changes.
     """)
@@ -42,38 +45,38 @@ class AbstractSlider(Widget):
 class Slider(AbstractSlider):
     """ Slider-based number selection widget. """
 
-    value = Float(default=0.5, help="""
-    Initial or selected value.
-    """)
-
-    start = Float(default=0, help="""
+    start = Float(help="""
     The minimum allowable value.
     """)
 
-    end = Float(default=1, help="""
+    end = Float(help="""
     The maximum allowable value.
     """)
 
-    step = Float(default=0.1, help="""
+    value = Float(help="""
+    Initial or selected value.
+    """)
+
+    step = Float(default=1, help="""
     The step between consecutive values.
     """)
 
 class RangeSlider(AbstractSlider):
     """ Range-slider based number range selection widget. """
 
-    range = Tuple(Float, Float, default=(0.1, 0.9), help="""
+    value = Tuple(Float, Float, help="""
     Initial or selected range.
     """)
 
-    start = Float(default=0, help="""
+    start = Float(help="""
     The minimum allowable value.
     """)
 
-    end = Float(default=1, help="""
+    end = Float(help="""
     The maximum allowable value.
     """)
 
-    step = Float(default=0.1, help="""
+    step = Float(default=1, help="""
     The step between consecutive values.
     """)
 
