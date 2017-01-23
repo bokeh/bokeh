@@ -1,11 +1,9 @@
-import * as _ from "underscore"
-import * as $ from "jquery"
-
 import {build_views} from "../../core/build_views"
 import {BokehView} from "../../core/bokeh_view"
 import {WEAK_EQ, GE, EQ, Strength, Variable} from "../../core/layout/solver"
 import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
+import {extend} from "../../core/util/object"
 
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
 
@@ -38,26 +36,22 @@ export class WidgetBoxView extends LayoutDOMView
         s.update_variables()
 
     if @model._width._value - 20 > 0
-      css_width = @model._width._value - 20
+      css_width = "#{@model._width._value - 20}px"
     else
       css_width = "100%"
 
     if @model.sizing_mode is 'stretch_both'
-      @$el.css({
-        position: 'absolute'
-        left: @model._dom_left._value
-        top: @model._dom_top._value
-        width: @model._width._value
-        height: @model._height._value
-      })
+      @el.style.position = 'absolute'
+      @el.style.left = "#{@model._dom_left._value}px"
+      @el.style.top = "#{@model._dom_top._value}px"
+      @el.style.width = "#{@model._width._value}px"
+      @el.style.height = "#{@model._height._value}px"
     else
-      @$el.css({
-        width: css_width
-        # Note we DO NOT want to set a height (except in stretch_both). Widgets
-        # are happier sizing themselves. We've tried to tell the layout what
-        # the height is with the suggest_value. But that doesn't mean we need
-        # to put it in the dom.
-      })
+      # Note we DO NOT want to set a height (except in stretch_both). Widgets
+      # are happier sizing themselves. We've tried to tell the layout what
+      # the height is with the suggest_value. But that doesn't mean we need
+      # to put it in the dom.
+      @el.style.width = css_width
 
   get_height: () ->
     height = 0
@@ -108,7 +102,7 @@ export class WidgetBox extends LayoutDOM
 
   get_constrained_variables: () ->
     constrained_variables = super()
-    constrained_variables = _.extend(constrained_variables, {
+    constrained_variables = extend(constrained_variables, {
       'on-edge-align-top'    : @_top
       'on-edge-align-bottom' : @_height_minus_bottom
       'on-edge-align-left'   : @_left
@@ -123,7 +117,7 @@ export class WidgetBox extends LayoutDOM
       'box-equal-size-bottom': @_height_minus_bottom
     })
     if @sizing_mode isnt 'fixed'
-      constrained_variables = _.extend(constrained_variables, {
+      constrained_variables = extend(constrained_variables, {
         'box-equal-size-left'  : @_left
         'box-equal-size-right' : @_width_minus_right
       })

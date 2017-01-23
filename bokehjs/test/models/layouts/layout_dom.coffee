@@ -1,4 +1,3 @@
-_ = require "underscore"
 {expect} = require "chai"
 sinon = require "sinon"
 utils = require "../../utils"
@@ -29,33 +28,33 @@ describe "LayoutDOMView", ->
     it "should set a class of 'bk-layout-fixed' is sizing_mode is fixed", ->
       @test_layout.sizing_mode = 'fixed'
       layout_view = new LayoutDOMView({ model: @test_layout })
-      expect(layout_view.$el.attr('class')).to.be.equal 'bk-layout-fixed'
+      expect(layout_view.el.className).to.be.equal 'bk-layout-fixed'
 
     it "should set a class of 'bk-layout-stretch_both' is sizing_mode is stretch_both", ->
       @test_layout.sizing_mode = 'stretch_both'
       layout_view = new LayoutDOMView({ model: @test_layout })
-      expect(layout_view.$el.attr('class')).to.be.equal 'bk-layout-stretch_both'
+      expect(layout_view.el.className).to.be.equal 'bk-layout-stretch_both'
 
     it "should set a class of 'bk-layout-scale_width' if sizing_mode is scale_width", ->
       @test_layout.sizing_mode = 'scale_width'
       layout_view = new LayoutDOMView({ model: @test_layout })
-      expect(layout_view.$el.attr('class')).to.be.equal 'bk-layout-scale_width'
+      expect(layout_view.el.className).to.be.equal 'bk-layout-scale_width'
 
     it "should set a class of 'bk-layout-scale_height' if sizing_mode is scale_height", ->
       @test_layout.sizing_mode = 'scale_height'
       layout_view = new LayoutDOMView({ model: @test_layout })
-      expect(layout_view.$el.attr('class')).to.be.equal 'bk-layout-scale_height'
+      expect(layout_view.el.className).to.be.equal 'bk-layout-scale_height'
 
     it "should set classes from css_classes", ->
       @test_layout.sizing_mode = 'fixed'
       @test_layout.css_classes = ['FOO', 'BAR']
       layout_view = new LayoutDOMView({ model: @test_layout })
-      expect(layout_view.$el.attr('class')).to.be.equal 'bk-layout-fixed FOO BAR'
+      expect(layout_view.el.className).to.be.equal 'bk-layout-fixed FOO BAR'
 
     it "should set an id matching the model.id", ->
       # This is used by document to find the model and its parents on resize events
       layout_view = new LayoutDOMView({ model: @test_layout })
-      expect(layout_view.$el.attr('id')).to.equal "modelid_#{@test_layout.id}"
+      expect(layout_view.el.id).to.equal "modelid_#{@test_layout.id}"
 
     it.skip "should build the child views", ->
       # needs a test
@@ -85,7 +84,7 @@ describe "LayoutDOMView", ->
       layout_view = new LayoutDOMView({ model: @layout })
       layout_view.render()
       expected_style = "position: absolute; left: #{dom_left}px; top: #{dom_top}px; width: #{width}px; height: #{height}px;"
-      expect(layout_view.$el.attr('style')).to.be.equal expected_style
+      expect(layout_view.el.style.cssText).to.be.equal expected_style
 
     it "should set the appropriate style on the element if sizing_mode is 'fixed'", ->
       @layout.sizing_mode = 'fixed'
@@ -94,7 +93,7 @@ describe "LayoutDOMView", ->
       layout_view = new LayoutDOMView({ model: @layout })
       layout_view.render()
       expected_style = "width: 88px; height: 11px;"
-      expect(layout_view.$el.attr('style')).to.be.equal expected_style
+      expect(layout_view.el.style.cssText).to.be.equal expected_style
 
     it "should not call solver suggest_value if the sizing_mode is 'stretch_both'", ->
       @layout.sizing_mode = 'stretch_both'

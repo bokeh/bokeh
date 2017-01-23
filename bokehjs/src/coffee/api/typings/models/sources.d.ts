@@ -7,7 +7,7 @@ declare namespace Bokeh {
 
   type Data = Map<ArrayLike<any>>;
 
-  export interface ColumnarDataSource extends DataSource, IColumnarDataSource { };
+  export interface ColumnarDataSource extends DataSource, IColumnarDataSource {}
   export interface IColumnarDataSource extends IDataSource {
     column_names?: Array<string>;
     inspected?: Selected;

@@ -1,5 +1,3 @@
-import * as _ from "underscore"
-
 import {SelectTool, SelectToolView} from "./select_tool"
 import {PolyAnnotation} from "../../annotations/poly_annotation"
 import * as p from "../../../core/properties"

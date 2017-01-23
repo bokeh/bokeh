@@ -1,8 +1,7 @@
-import * as _ from "underscore"
-
 import {SingleIntervalTicker} from "./single_interval_ticker"
 import * as util from "./util"
 import * as p from "../../core/properties"
+import {concat} from "../../core/util/array"
 
 copy_date = util.copy_date
 last_month_no_later_than = util.last_month_no_later_than
@@ -71,7 +70,7 @@ export class DaysTicker extends SingleIntervalTicker
       return dates
 
     interval = @interval
-    day_dates = _.flatten(days_of_month(date, interval) for date in month_dates)
+    day_dates = concat((days_of_month(date, interval) for date in month_dates))
 
     all_ticks = (day_date.getTime() for day_date in day_dates)
     # FIXME Since the ticks are sorted, this could be done more efficiently.

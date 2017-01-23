@@ -531,7 +531,7 @@ describe "properties module", ->
         expect(prop.transform).to.be.equal properties.Property.prototype.transform
 
   describe "Instance", ->
-    prop = new properties.Instance({obj: new SomeHasProps(a: {value: null}), attr: 'a'})
+    prop = new properties.Instance({obj: new SomeHasProps({a: null}), attr: 'a'})
 
     it "should be an instance of Property", ->
       expect(prop).to.be.instanceof properties.Property

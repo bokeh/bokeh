@@ -13,7 +13,7 @@ class FontAwesomeIcon(AbstractIcon):
     for the list of available icons.
     """)
 
-    size = Float(None, help="""
+    size = Float(1, help="""
     The size multiplier (1x, 2x, ..., 5x).
     """)
 

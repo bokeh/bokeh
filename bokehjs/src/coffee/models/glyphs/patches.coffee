@@ -1,7 +1,8 @@
-import * as _ from "underscore"
 import * as rbush from "rbush"
 
 import {Glyph, GlyphView} from "./glyph"
+import {min, max, copy, findLastIndex} from "../../core/util/array"
+import {isStrictNaN} from "../../core/util/types"
 import * as hittest from "../../core/hittest"
 
 export class PatchesView extends GlyphView
@@ -26,10 +27,10 @@ export class PatchesView extends GlyphView
     ds = {}
     for i in [0...nanned_qs.length]
       ds[i] = []
-      qs = _.toArray(nanned_qs[i])
+      qs = copy(nanned_qs[i])
       while qs.length > 0
 
-        nan_index = _.findLastIndex(qs, (q) ->  _.isNaN(q))
+        nan_index = findLastIndex(qs, (q) -> isStrictNaN(q))
 
         if nan_index >= 0
           qs_part = qs.splice(nan_index)
@@ -37,7 +38,7 @@ export class PatchesView extends GlyphView
           qs_part = qs
           qs = []
 
-        denanned = (q for q in qs_part when not _.isNaN(q))
+        denanned = (q for q in qs_part when not isStrictNaN(q))
         ds[i].push(denanned)
     return ds
 
@@ -55,10 +56,10 @@ export class PatchesView extends GlyphView
         if xs.length == 0
           continue
         pts.push({
-          minX: _.min(xs),
-          minY: _.min(ys),
-          maxX: _.max(xs),
-          maxY: _.max(ys),
+          minX: min(xs),
+          minY: min(ys),
+          maxX: max(xs),
+          maxY: max(ys),
           i: i
         })
     index.load(pts)

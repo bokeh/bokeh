@@ -1,9 +1,8 @@
-import * as _ from "underscore"
-
 import {DataSource} from "./data_source"
 import {logger} from "../../core/logging"
 import {SelectionManager} from "../../core/selection_manager"
 import * as p from "../../core/properties"
+import {uniq} from "../../core/util/array"
 
 # Abstract baseclass for column based data sources, where the column
 # based data may be supplied directly or be computed from an attribute
@@ -25,10 +24,10 @@ export class ColumnarDataSource extends DataSource
 
   columns: () ->
     # return the column names in this data source
-    return _.keys(@data)
+    return Object.keys(@data)
 
   get_length: (soft=true) ->
-    lengths = _.uniq((val.length for _key, val of @data))
+    lengths = uniq((val.length for _key, val of @data))
 
     switch lengths.length
       when 0

@@ -1,6 +1,6 @@
-import * as DOM from "../../core/util/dom";
+import * as DOM from "../../core/dom";
 
-interface SliderProps {
+export interface SliderProps {
   id: string;
   title?: string;
   orientation: "horizontal" | "vertical";

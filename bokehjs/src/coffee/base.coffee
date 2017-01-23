@@ -1,9 +1,8 @@
-import * as _ from "underscore"
-
 import * as models from "./models/index"
+import {clone} from "./core/util/object"
 
 export overrides = {}
-_all_models = _.extend({}, models)
+_all_models = clone(models)
 
 export Models = (name) ->
   model = overrides[name] ? _all_models[name]

@@ -1,5 +1,3 @@
-import * as _ from "underscore"
-
 import {Glyph, GlyphView} from "./glyph"
 import * as hittest from "../../core/hittest"
 import * as p from "../../core/properties"
@@ -82,12 +80,7 @@ export class AnnulusView extends GlyphView
       if dist <= or2 and dist >= ir2
         hits.push([i, dist])
 
-    result = hittest.create_hit_test_result()
-    result['1d'].indices = _.chain(hits)
-      .sortBy((elt) -> return elt[1])
-      .map((elt) -> return elt[0])
-      .value()
-    return result
+    return hittest.create_1d_hit_test_result(hits)
 
   draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
     indices = [index]

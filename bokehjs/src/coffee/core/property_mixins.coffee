@@ -1,6 +1,5 @@
-import * as _ from "underscore"
-
 import * as p from "./properties"
+import {extend} from "./util/object"
 
 _gen_mixin = (mixin, prefix) ->
   result = {}
@@ -43,5 +42,5 @@ export create = (configs) ->
     [kind, prefix] = config.split(":")
     if not @[kind]?
       throw Error("Unknown property mixin kind '#{kind}'")
-    result = _.extend result, @[kind](prefix)
+    result = extend(result, @[kind](prefix))
   return result

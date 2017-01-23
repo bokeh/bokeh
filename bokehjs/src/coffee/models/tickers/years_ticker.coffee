@@ -1,5 +1,3 @@
-import * as _ from "underscore"
-
 import {BasicTicker} from "./basic_ticker"
 import {SingleIntervalTicker} from "./single_interval_ticker"
 import * as util from "./util"

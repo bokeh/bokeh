@@ -135,7 +135,7 @@ def _run(app, argv, input=None):
     if proc.returncode != 0:
         raise RuntimeError(errout)
     else:
-        return stdout.decode()
+        return stdout.decode('utf-8')
 
 def _run_nodejs(argv, input=None):
     return _run(_nodejs, argv, input)
@@ -303,7 +303,7 @@ def gen_custom_models_static():
 
     if dependencies:
         dependencies = sorted(dependencies, key=lambda name_version: name_version[0])
-        _run_npmjs(["install"] + [ name + "@" + version for (name, version) in dependencies ])
+        _run_npmjs(["install", "--no-progress"] + [ name + "@" + version for (name, version) in dependencies ])
 
     for model in ordered_models:
         impl = model.implementation

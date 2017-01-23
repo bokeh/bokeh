@@ -1,4 +1,3 @@
-import * as _ from "underscore"
 import {HasProps} from "./has_props"
 import {logger} from "./logging"
 import {Selector} from "./selector"
@@ -83,10 +82,13 @@ export class SelectionManager extends HasProps
         s.clear()
     @source.selected = hittest.create_hit_test_result()
 
-  _get_selector: (rview) ->
-    _.setdefault(@selectors, rview.model.id, new Selector())
-    return @selectors[rview.model.id]
+  _get_selector_from: (rview, selectors) ->
+    id = rview.model.id
+    if selectors[id]?
+      return selectors[id]
+    else
+      return selectors[id] = new Selector()
 
-  _get_inspector: (rview) ->
-    _.setdefault(@inspectors, rview.model.id, new Selector())
-    return @inspectors[rview.model.id]
+  _get_selector: (rview) -> @_get_selector_from(rview, @selectors)
+
+  _get_inspector: (rview) -> @_get_selector_from(rview, @inspectors)

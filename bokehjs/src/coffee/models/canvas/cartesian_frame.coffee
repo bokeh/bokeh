@@ -1,5 +1,3 @@
-import * as _ from "underscore"
-
 import {CategoricalMapper} from "../mappers/categorical_mapper"
 import {LinearMapper} from "../mappers/linear_mapper"
 import {LogMapper} from "../mappers/log_mapper"

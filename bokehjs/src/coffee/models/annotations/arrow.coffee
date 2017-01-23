@@ -1,5 +1,3 @@
-import * as _ from "underscore"
-
 import {Annotation, AnnotationView} from "./annotation"
 import {OpenHead} from "./arrow_head"
 import {ColumnDataSource} from "../sources/column_data_source"

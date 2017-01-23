@@ -27,9 +27,9 @@ bokehjs = () ->
     plugin = require(path)
     Bokeh.Models.register_models(plugin.models)
 
-    for name in plugin
+    for name, obj of plugin
       if name != "models"
-        Bokeh[name] = plugin[name]
+        Bokeh[name] = obj
 
   load_plugin('./api')
   load_plugin('./models/widgets/main')

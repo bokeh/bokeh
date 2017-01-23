@@ -1,4 +1,3 @@
-import * as _ from "underscore"
 import "jquery-ui/autocomplete"
 
 import {TextInput, TextInputView} from "./text_input"
@@ -11,6 +10,7 @@ export class AutocompleteInputView extends TextInputView
     $input = @$el.find("input")
     $input.autocomplete(source: @model.completions)
     $input.autocomplete("widget").addClass("bk-autocomplete-input")
+    @_prefix_ui()
     return @
 
 export class AutocompleteInput extends TextInput

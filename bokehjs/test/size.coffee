@@ -4,14 +4,13 @@ path = require "path"
 {expect} = require "chai"
 
 build_dir = path.normalize("#{__dirname}/../build")
-console.log(build_dir)
 
 LIMITS = {
-  "css/bokeh-widgets.min.css": 527
-  "css/bokeh.min.css":         74
-  "js/bokeh-widgets.min.js":   290
+  "css/bokeh-widgets.min.css": 160
+  "css/bokeh.min.css":         60
+  "js/bokeh-widgets.min.js":   380
   "js/bokeh-api.min.js":        75
-  "js/bokeh.min.js":           780
+  "js/bokeh.min.js":           699
 }
 
 for filename, maxsize of LIMITS

@@ -1,5 +1,3 @@
-import * as _ from "underscore"
-
 import {ImagePool} from "./image_pool"
 import {Renderer, RendererView} from "../renderers/renderer"
 import {logger} from "../../core/logging"

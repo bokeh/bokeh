@@ -1,4 +1,4 @@
-import {proj4, mercator} from "../../core/util/proj4"
+import {proj4, mercator} from "./proj4"
 
 export project_xy = (x, y) ->
   merc_x_s = []

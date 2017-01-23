@@ -92,7 +92,7 @@ class TestResources(unittest.TestCase):
         self.assertEqual(r.messages, [])
 
     def test_get_cdn_urls(self):
-        dev_version = "0.0.1dev"
+        dev_version = "0.0.1dev2"
         result = _get_cdn_urls(["bokeh"], version=dev_version)
         url = result['urls']('js')[0]
         self.assertIn('bokeh/dev', url)

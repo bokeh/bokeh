@@ -1,4 +1,3 @@
-_ = require "underscore"
 gulp = require "gulp"
 taskList = require "gulp-task-listing"
 

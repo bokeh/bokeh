@@ -20,7 +20,6 @@ class DateGapTickFormatter(TickFormatter):
     """)
 
     __implementation__ = """
-        import * as _ from "underscore"
         import {Model} from "model"
         import * as p from "core/properties"
 

@@ -1,6 +1,5 @@
-import * as _ from "underscore"
-
 import {GestureTool, GestureToolView} from "./gesture_tool"
+import {show, hide} from "../../../core/dom"
 import * as p from "../../../core/properties"
 
 export class ResizeToolView extends GestureToolView
@@ -8,9 +7,9 @@ export class ResizeToolView extends GestureToolView
 
   initialize: (options) ->
     super(options)
-    wrapper = @plot_view.$el.find('div.bk-canvas-wrapper')
-    @$el.appendTo(wrapper)
-    @$el.hide()
+    wrapper = @plot_view.el.querySelector('div.bk-canvas-wrapper')
+    wrapper.appendChild(@el)
+    hide(@el)
     @active = false
     return null
 
@@ -30,12 +29,12 @@ export class ResizeToolView extends GestureToolView
       frame = @plot_view.frame
       left = canvas.vx_to_sx(frame.h_range.end-40)
       top = canvas.vy_to_sy(frame.v_range.start+40)
-      @$el.attr('style',
-        "position:absolute; top:#{top}px; left:#{left}px;"
-      )
-      @$el.show()
+      @el.style.position = "absolute"
+      @el.style.top = "#{top}px"
+      @el.style.left = "#{left}px"
+      show(@el)
     else
-      @$el.hide()
+      hide(@el)
     return @
 
   _pan_start: (e) ->
