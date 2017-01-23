@@ -339,7 +339,7 @@ class PropertyValueDict(PropertyValueContainer, dict):
                 if rollover is not None:
                     del L[:-rollover]
 
-        from ...document import ColumnsStreamedEvent
+        from ...server.events import ColumnsStreamedEvent
 
         self._notify_owners(old,
                             hint=ColumnsStreamedEvent(doc, source, new_data, rollover, setter))
@@ -376,7 +376,7 @@ class PropertyValueDict(PropertyValueContainer, dict):
             for ind, value in patch:
                 self[name][ind] = value
 
-        from ...document import ColumnsPatchedEvent
+        from ...server.events import ColumnsPatchedEvent
 
         self._notify_owners(old,
                             hint=ColumnsPatchedEvent(doc, source, patches, setter))

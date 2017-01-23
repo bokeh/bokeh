@@ -28,7 +28,7 @@ class TestPatchDocument(unittest.TestCase):
     def test_create_model_changed(self):
         sample = self._sample_doc()
         obj = next(iter(sample.roots))
-        event = document.ModelChangedEvent(sample, obj, 'foo', obj.foo, 42, 42)
+        event = ModelChangedEvent(sample, obj, 'foo', obj.foo, 42, 42)
         Protocol("1.0").create("PATCH-DOC", [event])
 
     def test_create_then_apply_model_changed(self):
@@ -41,7 +41,7 @@ class TestPatchDocument(unittest.TestCase):
 
         obj = next(iter(sample.roots))
         assert obj.foo == 2
-        event = document.ModelChangedEvent(sample, obj, 'foo', obj.foo, 42, 42)
+        event = ModelChangedEvent(sample, obj, 'foo', obj.foo, 42, 42)
         msg = Protocol("1.0").create("PATCH-DOC", [event])
 
         copy = document.Document.from_json_string(sample.to_json_string())

@@ -648,13 +648,13 @@ class TestDocument(unittest.TestCase):
         d.add_root(root2)
         assert len(d.roots) == 2
 
-        event1 = document.ModelChangedEvent(d, root1, 'foo', root1.foo, 57, 57)
+        event1 = ModelChangedEvent(d, root1, 'foo', root1.foo, 57, 57)
         patch1 = d.create_json_patch_string([event1])
         d.apply_json_patch_string(patch1)
 
         assert root1.foo == 57
 
-        event2 = document.ModelChangedEvent(d, child1, 'foo', child1.foo, 67, 67)
+        event2 = ModelChangedEvent(d, child1, 'foo', child1.foo, 67, 67)
         patch2 = d.create_json_patch_string([event2])
         d.apply_json_patch_string(patch2)
 
@@ -672,8 +672,7 @@ class TestDocument(unittest.TestCase):
             serializable_new = root1.lookup('foo').property.to_serializable(root1,
                                                                               'foo',
                                                                               new_value)
-            event1 = document.ModelChangedEvent(d, root1, 'foo', root1.foo, new_value,
-                                                serializable_new)
+            event1 = ModelChangedEvent(d, root1, 'foo', root1.foo, new_value, serializable_new)
             patch1 = d.create_json_patch_string([event1])
             d.apply_json_patch_string(patch1)
             if isinstance(new_value, dict):
@@ -733,7 +732,7 @@ class TestDocument(unittest.TestCase):
         assert child2._id not in d._all_models
         assert child3._id not in d._all_models
 
-        event1 = document.ModelChangedEvent(d, root1, 'child', root1.child, child3, child3)
+        event1 = ModelChangedEvent(d, root1, 'child', root1.child, child3, child3)
         patch1 = d.create_json_patch_string([event1])
         d.apply_json_patch_string(patch1)
 
@@ -744,7 +743,7 @@ class TestDocument(unittest.TestCase):
         assert child3._id in d._all_models
 
         # put it back how it was before
-        event2 = document.ModelChangedEvent(d, root1, 'child', root1.child, child1, child1)
+        event2 = ModelChangedEvent(d, root1, 'child', root1.child, child1, child1)
         patch2 = d.create_json_patch_string([event2])
         d.apply_json_patch_string(patch2)
 
@@ -770,8 +769,8 @@ class TestDocument(unittest.TestCase):
 
         child2 = SomeModelInTestDocument(foo=44)
 
-        event1 = document.ModelChangedEvent(d, root1, 'foo', root1.foo, 57, 57)
-        event2 = document.ModelChangedEvent(d, root1, 'child', root1.child, child2, child2)
+        event1 = ModelChangedEvent(d, root1, 'foo', root1.foo, 57, 57)
+        event2 = ModelChangedEvent(d, root1, 'child', root1.child, child2, child2)
         patch1 = d.create_json_patch_string([event1, event2])
         d.apply_json_patch_string(patch1)
 

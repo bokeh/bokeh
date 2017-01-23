@@ -30,9 +30,6 @@ from .core.query import find
 from .core.templates import FILE
 from .core.validation import check_integrity
 from .model import collect_models, get_class
-from .server.callbacks import NextTickCallback, PeriodicCallback, TimeoutCallback
-from .server.events import (ColumnsPatchedEvent, ColumnsStreamedEvent, ModelChangedEvent, RootAddedEvent,
-                            RootRemovedEvent, SessionCallbackAdded, SessionCallbackRemoved, TitleChangedEvent)
 from .themes import default as default_theme
 from .themes import Theme
 from .util.callback_manager import _check_callback
@@ -202,6 +199,7 @@ class Document(object):
             standalone HTML or Jupyter notebook cells.
 
         '''
+        from .server.callbacks import NextTickCallback
         cb = NextTickCallback(self, None)
         return self._add_session_callback(cb, callback, one_shot=True)
 
@@ -224,6 +222,7 @@ class Document(object):
             standalone HTML or Jupyter notebook cells.
 
         '''
+        from .server.callbacks import PeriodicCallback
         cb = PeriodicCallback(self,
                               None,
                               period_milliseconds)
@@ -252,6 +251,8 @@ class Document(object):
                 suppress any updates that originate from itself.
 
         '''
+        from .server.events import RootAddedEvent
+
         if model in self._roots:
             return
         self._push_all_models_freeze()
@@ -285,6 +286,7 @@ class Document(object):
             standalone HTML or Jupyter notebook cells.
 
         '''
+        from .server.callbacks import TimeoutCallback
         cb = TimeoutCallback(self,
                              None,
                              timeout_milliseconds)
@@ -405,6 +407,8 @@ class Document(object):
           str :  JSON string which can be applied to make the given updates to obj
 
         '''
+        from .server.events import (ColumnsPatchedEvent, ColumnsStreamedEvent, ModelChangedEvent,
+                                    RootAddedEvent, RootRemovedEvent, TitleChangedEvent)
         references = set()
         json_events = []
         for event in events:
@@ -607,6 +611,8 @@ class Document(object):
                 suppress any updates that originate from itself.
 
         '''
+        from bokeh.server.events import RootRemovedEvent
+
         if model not in self._roots:
             return # TODO (bev) ValueError?
         self._push_all_models_freeze()
@@ -776,6 +782,7 @@ class Document(object):
             ValueError, if the callback has been previously added
 
         '''
+        from .server.events import SessionCallbackAdded
 
         if callback in self._session_callbacks:
             raise ValueError("callback has already been added")
@@ -1028,6 +1035,8 @@ class Document(object):
 
         '''
 
+        from .server.events import ModelChangedEvent
+
         # if name changes, update by-name index
         if attr == 'name':
             if old is not None:
@@ -1105,6 +1114,8 @@ class Document(object):
             KeyError, if the callback was never added
 
         '''
+        from bokeh.server.events import SessionCallbackRemoved
+
         if callback not in self._session_callbacks:
             raise ValueError("callback already ran or was already removed, cannot be removed again")
         cb = self._session_callbacks.pop(callback)
@@ -1115,6 +1126,8 @@ class Document(object):
         '''
 
         '''
+        from bokeh.server.events import TitleChangedEvent
+
         if title is None:
             raise ValueError("Document title may not be None")
         if self._title != title:
