@@ -2,18 +2,21 @@
 @nouislider: "../../../node_modules/nouislider/src";
 @import "@{nouislider}/nouislider.base.less";
 
+.@{noUi-css-prefix}-handle {
+  cursor: grab;
+  cursor: -webkit-grab;
+  &.@{noUi-css-prefix}-active {
+    cursor: grabbing;
+    cursor: -webkit-grabbing;
+  }
+}
+
 .@{noUi-css-prefix}-tooltip {
   display: none;
+  white-space: nowrap;
 }
 
 .@{noUi-css-prefix}-handle {
-  cursor: -webkit-grab;
-  cursor: grab;
-  &.@{noUi-css-prefix}-active {
-    cursor: -webkit-grabbing;
-    cursor: grabbing;
-  }
-
   &:hover, &.@{noUi-css-prefix}-active {
     .@{noUi-css-prefix}-tooltip {
       display: block;
