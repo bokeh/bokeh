@@ -102,7 +102,7 @@ class DateSlider(AbstractSlider):
 class DateRangeSlider(AbstractSlider):
     """ Slider-based date range selection widget. """
 
-    range = Tuple(Date, Date, help="""
+    value = Tuple(Date, Date, help="""
     Initial or selected range.
     """)
 
