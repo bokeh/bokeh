@@ -1,3 +1,5 @@
+import * as tz from "timezone"
+
 import {AbstractSlider, AbstractSliderView} from "./abstract_slider"
 
 export class DateSliderView extends AbstractSliderView
@@ -13,6 +15,9 @@ export class DateSliderView extends AbstractSliderView
   _calc_from: (values) ->
     [value] = values
     return parseFloat(value)
+
+  _pretty_value: (value) ->
+    return tz(value, '%d %b %G')
 
 export class DateSlider extends AbstractSlider
   type: "DateSlider"
