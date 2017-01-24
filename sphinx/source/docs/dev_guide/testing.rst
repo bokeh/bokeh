@@ -58,6 +58,14 @@ To run any of the tests without standard output captured use:
 
   py.test -s
 
+To run a subset of tests by name:
+
+.. code-block:: sh
+
+  py.test -k EXPRESSION
+
+This will run only the tests that include ``EXPRESSION`` in their names (function or class names).
+
 See the py.test documentation at http://pytest.org/latest/ for further information on py.test and it's options.
 
 Examples tests
@@ -155,7 +163,15 @@ For this command to be successful you will need the following:
  - pdiff (see examples tests)
  - ``SAUCELABS_USERNAME`` environment variable
  - ``SAUCELABS_API_KEY`` environment variable
- - sauce connect running (https://wiki.saucelabs.com/display/DOCS/Setting+Up+Sauce+Connect)
+ - Sauce Connect tunnel running
+
+To start up a Sauce Connect tunnel, download Sauce Connect from 
+https://wiki.saucelabs.com/display/DOCS/Setting+Up+Sauce+Connect+Proxy. Extract
+the files and go into the install directory. Then you can establish the tunnel with:
+
+.. code-block:: sh
+
+    bin/sc -u SAUCELABS_USERNAME -k SAUCELABS_API_KEY
 
 For the ``SAUCELABS_USERNAME`` and ``SAUCELABS_API_KEY`` talk to the Bokeh Core
 Developers.
@@ -166,9 +182,11 @@ Adding (or updating) a screenshot test
 If you'd like to add a new screenshot test to the Bokeh repo, first make sure
 you can run the existing screenshot tests. Assuming this runs, then you'll be
 able to make a new screenshot test. Check-out the existing screenshot tests to
-see how to set-up your new test.
+see how to set-up your new test. Ideally, tests should contain the minimal amount
+of code to test specific features. This means that you should use the low-level models
+interface rather than the plotting interface (i.e. don't use ``bokeh.plotting.figure``).
 
-Once you have done this you need to generate a base image.
+Once you're set up and have written your test, you need to generate a base image.
 
 To do this add ``--set-new-base-screenshot`` to your test command. This will
 generate an image in a screenshots directory with the name
