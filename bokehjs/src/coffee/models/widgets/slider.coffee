@@ -1,3 +1,5 @@
+import {format} from "numbro"
+
 import {AbstractSlider, AbstractSliderView} from "./abstract_slider"
 
 export class SliderView extends AbstractSliderView
@@ -18,7 +20,11 @@ export class Slider extends AbstractSlider
   type: "Slider"
   default_view: SliderView
 
+  behaviour: 'tap'
+  connect: [true, false]
+
+  _formatter: format
+
   @override {
-    behaviour: 'tap'
-    connect: [true, false]
+    format: "0,0.00"
   }

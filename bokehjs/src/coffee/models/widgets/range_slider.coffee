@@ -1,3 +1,5 @@
+import {format} from "numbro"
+
 import {AbstractSlider, AbstractSliderView} from "./abstract_slider"
 
 export class RangeSliderView extends AbstractSliderView
@@ -18,7 +20,11 @@ export class RangeSlider extends AbstractSlider
   type: "RangeSlider"
   default_view: RangeSliderView
 
+  behaviour: 'drag'
+  connect: [false, true, false]
+
+  _formatter: format
+
   @override {
-    behaviour: 'drag'
-    connect: [false, true, false]
+    format: "0,0.00"
   }

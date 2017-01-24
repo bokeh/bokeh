@@ -16,14 +16,15 @@ export class DateRangeSliderView extends AbstractSliderView
     [min, max] = values
     return [parseFloat(min), parseFloat(max)]
 
-  _pretty_value: (value) ->
-    return tz(value, '%d %b %G')
-
 export class DateRangeSlider extends AbstractSlider
   type: "DateRangeSlider"
   default_view: DateRangeSliderView
 
+  behaviour: 'drag'
+  connect: [false, true, false]
+
+  _formatter: tz
+
   @override {
-    behaviour: 'drag'
-    connect: [false, true, false]
+    format: "%d %b %G"
   }

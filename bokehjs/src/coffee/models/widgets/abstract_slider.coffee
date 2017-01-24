@@ -19,9 +19,6 @@ export class AbstractSliderView extends WidgetView
 
   _calc_from: (values) ->
 
-  _pretty_value: (value) ->
-    return "#{value}"
-
   render: () ->
     super()
 
@@ -38,8 +35,14 @@ export class AbstractSliderView extends WidgetView
 
     {start, end, value, step} = @_calc_to()
 
-    _formatter = { to: (value) => @_pretty_value(value) }
-    formatters = ( _formatter for i in [0...value.length] )
+    if @model.tooltips
+      formatter =  {
+        to: (value) => @model.pretty(value)
+      }
+
+      tooltips = ( formatter for i in [0...value.length] )
+    else
+      tooltips = false
 
     if not @el.noUiSlider?
       noUiSlider.create(@el, {
@@ -49,7 +52,7 @@ export class AbstractSliderView extends WidgetView
         step: step
         behaviour: @model.behaviour
         connect: @model.connect
-        tooltips: if @model.tooltips then formatters else false
+        tooltips: tooltips
         orientation: @model.orientation
         direction: @model.direction
       })
@@ -98,6 +101,7 @@ export class AbstractSlider extends Widget
     end:               [ p.Any                       ]
     value:             [ p.Any                       ]
     step:              [ p.Number,      1            ]
+    format:            [ p.String                    ]
     orientation:       [ p.Orientation, "horizontal" ]
     direction:         [ p.Any,         "ltr"        ]
     tooltips:          [ p.Boolean,     true         ]
@@ -107,7 +111,9 @@ export class AbstractSlider extends Widget
     bar_color:         [ p.Color,       "#3fb8af"    ]
   }
 
-  @internal {
-    behaviour: [ p.String ]
-    connect:   [ p.Array  ]
-  }
+  behaviour: null
+  connect: false
+
+  _formatter: (value, format) -> "#{value}"
+
+  pretty: (value) -> @_formatter(value, @format)
