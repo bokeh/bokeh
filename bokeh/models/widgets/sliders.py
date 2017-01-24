@@ -3,11 +3,13 @@
 """
 from __future__ import absolute_import
 
+from ...core.has_props import abstract
 from ...core.properties import Bool, Int, Float, String, Date, Enum, Tuple, Instance, Color, Override
 from ...core.enums import SliderCallbackPolicy
 from ..callbacks import Callback
 from .widget import Widget
 
+@abstract
 class AbstractSlider(Widget):
     """ """
 
