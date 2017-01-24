@@ -59,6 +59,14 @@ export class AbstractSliderView extends WidgetView
 
       @el.noUiSlider.on('slide',  (values, _handle) => @_slide(values))
       @el.noUiSlider.on('change', (values, _handle) => @_change(values))
+
+      toggleTooltip = (i, show) =>
+        handle = @el.querySelectorAll(".#{prefix}handle")[i]
+        tooltip = handle.querySelector(".#{prefix}tooltip")
+        tooltip.style.display = if show then 'block' else ''
+
+      @el.noUiSlider.on('start', (_, i) => toggleTooltip(i, true))
+      @el.noUiSlider.on('end',   (_, i) => toggleTooltip(i, false))
     else
       @el.noUiSlider.updateOptions({
         range: {min: start, max: end}
