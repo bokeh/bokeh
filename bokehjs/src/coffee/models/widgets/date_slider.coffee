@@ -16,14 +16,15 @@ export class DateSliderView extends AbstractSliderView
     [value] = values
     return parseFloat(value)
 
-  _pretty_value: (value) ->
-    return tz(value, '%d %b %G')
-
 export class DateSlider extends AbstractSlider
   type: "DateSlider"
   default_view: DateSliderView
 
+  behaviour: 'tap'
+  connect: [true, false]
+
+  _formatter: tz
+
   @override {
-    behaviour: 'tap'
-    connect: [true, false]
+    format: "%d %b %G"
   }
