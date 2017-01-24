@@ -57,8 +57,8 @@ export class AbstractSliderView extends WidgetView
         direction: @model.direction
       })
 
-      @el.noUiSlider.on('slide',  (values, _handle) => @_slide(values))
-      @el.noUiSlider.on('change', (values, _handle) => @_change(values))
+      @el.noUiSlider.on('slide',  (_, __, values) => @_slide(values))
+      @el.noUiSlider.on('change', (_, __, values) => @_change(values))
 
       toggleTooltip = (i, show) =>
         handle = @el.querySelectorAll(".#{prefix}handle")[i]
