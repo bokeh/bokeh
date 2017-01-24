@@ -1,4 +1,4 @@
-""" Bokeh comes with a number of interactive tools.
+''' Bokeh comes with a number of interactive tools.
 
 There are five types of tool interactions:
 
@@ -19,23 +19,19 @@ their button in the toolbar is pressed. Inspectors are passive tools that
 merely report information or annotate the plot in some way, and may
 always be active regardless of what other tools are currently active.
 
-"""
+'''
 from __future__ import absolute_import
 
+from ..core.enums import accept_left_right_center, Anchor, DeprecatedAnchor, Dimension, Dimensions, Location
+from ..core.has_props import abstract
+from ..core.properties import Any, Auto, Bool, Color, Dict, Either, Enum, Float, Percent, Instance, List, Override, String, Tuple
 from ..model import Model
-from ..core.properties import (
-    abstract, Float, Color, Percent,
-    Any, Auto, Bool, String, Enum, Instance, Either, List, Dict, Tuple, Override
-)
-from ..core.enums import (Dimension, Dimensions, Location, Anchor,
-    DeprecatedAnchor, accept_left_right_center,
-)
 from ..util.deprecation import deprecated
 
 from .annotations import BoxAnnotation, PolyAnnotation
 from .callbacks import Callback
 from .renderers import Renderer
-from .layouts import LayoutDOM, Box
+from .layouts import Box, LayoutDOM
 
 def _deprecated_dimensions(tool):
     def transformer(value):
@@ -51,56 +47,67 @@ def _deprecated_dimensions(tool):
     return transformer
 
 class ToolEvents(Model):
-    """
+    ''' A class for reporting tools geometries from BokehJS.
 
-    """
+    .. warning::
+        This class will be superceded by a new general events system in the
+        near future.
+
+    '''
 
     geometries = List(Dict(String, Any))
 
-
 @abstract
 class Tool(Model):
-    """ A base class for all interactive tool types. ``Tool`` is
-    not generally useful to instantiate on its own.
+    ''' A base class for all interactive tool types.
 
-    """
+    '''
 
     plot = Instance(".models.plots.Plot", help="""
     The Plot that this tool will act on.
     """)
 
-
 @abstract
 class Action(Tool):
-    pass
+    ''' A base class for tools that are buttons in the toolbar.
 
+    '''
+    pass
 
 @abstract
 class Drag(Tool):
-    pass
+    ''' A base class for tools that respond to drag events.
 
+    '''
+    pass
 
 @abstract
 class Scroll(Tool):
-    pass
+    ''' A base class for tools that respond to scroll events.
 
+    '''
+    pass
 
 @abstract
 class Tap(Tool):
+    ''' A base class for tools that respond to tap/click events.
+
+    '''
     pass
 
 
 @abstract
 class Inspection(Tool):
-    pass
+    ''' A base class for tools that perform "inspections", e.g. ``HoverTool``.
 
+    '''
+    pass
 
 @abstract
 class ToolbarBase(LayoutDOM):
-    """ A base class for different toolbars. ``ToolbarBase`` is
-    not generally useful to instantiate on its own.
+    ''' A base class for different toolbars.
 
-    """
+    '''
 
     logo = Enum("normal", "grey", help="""
     What version of the Bokeh logo to display on the toolbar. If
@@ -118,9 +125,9 @@ class ToolbarBase(LayoutDOM):
 
 
 class Toolbar(ToolbarBase):
-    """ Hold tools to display for a single plot.
+    ''' Collect tools to display for a single plot.
 
-    """
+    '''
 
     active_drag = Either(Auto, Instance(Drag), help="""
     Specify a drag tool to be active when the plot is displayed.
@@ -136,10 +143,10 @@ class Toolbar(ToolbarBase):
 
 
 class ToolbarBox(Box):
-    """ A layoutable toolbar that can accept the tools of multiple plots, and
+    ''' A layoutable toolbar that can accept the tools of multiple plots, and
     can merge the tools into a single button for convenience.
 
-    """
+    '''
     def _check_empty_layout(self):
         # Overriding the children check from Box. As toolbarbox's children
         # are normally set JS side.
@@ -165,7 +172,7 @@ class ToolbarBox(Box):
 
 
 class PanTool(Drag):
-    """ *toolbar icon*: |pan_icon|
+    ''' *toolbar icon*: |pan_icon|
 
     The pan tool allows the user to pan a Plot by left-dragging
     a mouse, or on touch devices by dragging a finger or stylus, across
@@ -179,7 +186,7 @@ class PanTool(Drag):
     .. |pan_icon| image:: /_images/icons/Pan.png
         :height: 18pt
 
-    """
+    '''
 
     dimensions = Enum(Dimensions, default="both", help="""
     Which dimensions the pan tool is constrained to act in. By default
@@ -189,7 +196,7 @@ class PanTool(Drag):
     """).accepts(List(Enum(Dimension)), _deprecated_dimensions("PanTool"))
 
 class WheelPanTool(Scroll):
-    """ *toolbar icon*: |wheel_pan_icon|
+    ''' *toolbar icon*: |wheel_pan_icon|
 
     The wheel pan tool allows the user to pan the plot along the configured
     dimension using the scroll wheel.
@@ -197,7 +204,7 @@ class WheelPanTool(Scroll):
     .. |wheel_pan_icon| image:: /_images/icons/WheelPan.png
         :height: 18pt
 
-    """
+    '''
 
     dimension = Enum(Dimension, default="width", help="""
     Which dimension the wheel pan tool is constrained to act in. By
@@ -206,7 +213,7 @@ class WheelPanTool(Scroll):
 
 
 class WheelZoomTool(Scroll):
-    """ *toolbar icon*: |wheel_zoom_icon|
+    ''' *toolbar icon*: |wheel_zoom_icon|
 
     The wheel zoom tool will zoom the plot in and out, centered on the
     current mouse location.
@@ -219,7 +226,7 @@ class WheelZoomTool(Scroll):
     .. |wheel_zoom_icon| image:: /_images/icons/WheelZoom.png
         :height: 18pt
 
-    """
+    '''
 
     dimensions = Enum(Dimensions, default="both", help="""
     Which dimensions the wheel zoom tool is constrained to act in. By
@@ -230,7 +237,7 @@ class WheelZoomTool(Scroll):
 
 
 class SaveTool(Action):
-    """ *toolbar icon*: |save_icon|
+    ''' *toolbar icon*: |save_icon|
 
     The save tool is an action. When activated, the tool opens a download dialog
     which allows to save an image reproduction of the plot in PNG format. If
@@ -242,11 +249,11 @@ class SaveTool(Action):
     .. |save_icon| image:: /_images/icons/Save.png
         :height: 18pt
 
-    """
+    '''
 
 
 class ResetTool(Action):
-    """ *toolbar icon*: |reset_icon|
+    ''' *toolbar icon*: |reset_icon|
 
     The reset tool is an action. When activated in the toolbar, the tool
     resets the data bounds of the plot to their values when the plot was
@@ -257,7 +264,9 @@ class ResetTool(Action):
 
     .. |reset_icon| image:: /_images/icons/Reset.png
         :height: 18pt
-    """
+
+    '''
+
     reset_size = Bool(default=True, help="""
     Whether activating the Reset tool should also reset the plot's canvas
     dimensions to their original size.
@@ -265,7 +274,7 @@ class ResetTool(Action):
 
 
 class ResizeTool(Drag):
-    """ *toolbar icon*: |resize_icon|
+    ''' *toolbar icon*: |resize_icon|
 
     The resize tool allows the user to left-drag a mouse or drag a finger
     to resize the entire plot area on the screen.
@@ -273,11 +282,11 @@ class ResizeTool(Drag):
     .. |resize_icon| image:: /_images/icons/Resize.png
         :height: 18pt
 
-    """
+    '''
 
 
 class TapTool(Tap):
-    """ *toolbar icon*: |tap_select_icon|
+    ''' *toolbar icon*: |tap_select_icon|
 
     The tap selection tool allows the user to select at single points by
     left-clicking a mouse, or tapping with a finger.
@@ -293,7 +302,8 @@ class TapTool(Tap):
         made by different selection tools. Hold down the <<shift>> key
         while making a selection to append the new selection to any
         previous selection that might exist.
-    """
+
+    '''
 
     names = List(String, help="""
     A list of names to query for. If set, only renderers that
@@ -322,7 +332,7 @@ class TapTool(Tap):
 
 
 class CrosshairTool(Inspection):
-    """ *toolbar icon*: |crosshair_icon|
+    ''' *toolbar icon*: |crosshair_icon|
 
     The crosshair tool is a passive inspector tool. It is generally on
     at all times, but can be configured in the inspector's menu
@@ -336,7 +346,7 @@ class CrosshairTool(Inspection):
     .. |crosshair_icon| image:: /_images/icons/Crosshair.png
         :height: 18pt
 
-    """
+    '''
 
     dimensions = Enum(Dimensions, default="both", help="""
     Which dimensions the crosshair tool is to track. By default, both a
@@ -387,7 +397,7 @@ DEFAULT_BOX_OVERLAY = lambda: BoxAnnotation(
 )
 
 class BoxZoomTool(Drag):
-    """ *toolbar icon*: |box_zoom_icon|
+    ''' *toolbar icon*: |box_zoom_icon|
 
     The box zoom tool allows users to define a rectangular
     region of a Plot to zoom to by dragging he mouse or a
@@ -397,7 +407,7 @@ class BoxZoomTool(Drag):
     .. |box_zoom_icon| image:: /_images/icons/BoxZoom.png
         :height: 18pt
 
-    """
+    '''
 
     dimensions = Enum(Dimensions, default="both", help="""
     Which dimensions the zoom box is to be free in. By default,
@@ -424,7 +434,7 @@ class BoxZoomTool(Drag):
     """)
 
 class ZoomInTool(Action):
-    """ *toolbar icon*: |zoom_in_icon|
+    ''' *toolbar icon*: |zoom_in_icon|
 
     The zoom-in tool allows users to click a button to zoom in
     by a fixed amount.
@@ -432,7 +442,7 @@ class ZoomInTool(Action):
     .. |zoom_in_icon| image:: /_images/icons/ZoomIn.png
         :height: 18pt
 
-    """
+    '''
     # TODO ZoomInTool dimensions should probably be constrained to be the same as ZoomOutTool
     dimensions = Enum(Dimensions, default="both", help="""
     Which dimensions the zoom-in tool is constrained to act in. By
@@ -446,7 +456,7 @@ class ZoomInTool(Action):
     """)
 
 class ZoomOutTool(Action):
-    """ *toolbar icon*: |zoom_out_icon|
+    ''' *toolbar icon*: |zoom_out_icon|
 
     The zoom-out tool allows users to click a button to zoom out
     by a fixed amount.
@@ -454,7 +464,7 @@ class ZoomOutTool(Action):
     .. |zoom_out_icon| image:: /_images/icons/ZoomOut.png
         :height: 18pt
 
-    """
+    '''
     dimensions = Enum(Dimensions, default="both", help="""
     Which dimensions the zoom-out tool is constrained to act in. By
     default the zoom-out tool will zoom in any dimension, but can be
@@ -468,7 +478,7 @@ class ZoomOutTool(Action):
 
 
 class BoxSelectTool(Drag):
-    """ *toolbar icon*: |box_select_icon|
+    ''' *toolbar icon*: |box_select_icon|
 
     The box selection tool allows users to make selections on a
     Plot by indicating a rectangular region by dragging the
@@ -482,7 +492,7 @@ class BoxSelectTool(Drag):
     .. |box_select_icon| image:: /_images/icons/BoxSelect.png
         :height: 18pt
 
-    """
+    '''
 
     names = List(String, help="""
     A list of names to query for. If set, only renderers that
@@ -534,7 +544,7 @@ DEFAULT_POLY_OVERLAY = lambda: PolyAnnotation(
 )
 
 class LassoSelectTool(Drag):
-    """ *toolbar icon*: |lasso_select_icon|
+    ''' *toolbar icon*: |lasso_select_icon|
 
     The lasso selection tool allows users to make selections on a
     Plot by indicating a free-drawn "lasso" region by dragging the
@@ -552,7 +562,8 @@ class LassoSelectTool(Drag):
 
     .. |lasso_select_icon| image:: /_images/icons/LassoSelect.png
         :height: 18pt
-    """
+
+    '''
 
     names = List(String, help="""
     A list of names to query for. If set, only renderers that
@@ -583,7 +594,7 @@ class LassoSelectTool(Drag):
 
 
 class PolySelectTool(Tap):
-    """ *toolbar icon*: |poly_select_icon|
+    ''' *toolbar icon*: |poly_select_icon|
 
     The polygon selection tool allows users to make selections on a
     Plot by indicating a polygonal region with mouse clicks. single
@@ -602,7 +613,8 @@ class PolySelectTool(Tap):
 
     .. |poly_select_icon| image:: /_images/icons/PolygonSelect.png
         :height: 18pt
-    """
+
+    '''
 
     names = List(String, help="""
     A list of names to query for. If set, only renderers that
@@ -619,7 +631,7 @@ class PolySelectTool(Tap):
     """)
 
 class HoverTool(Inspection):
-    """ *toolbar icon*: |crosshair_icon|
+    ''' *toolbar icon*: |crosshair_icon|
 
     The hover tool is a passive inspector tool. It is generally on at
     all times, but can be configured in the inspector's menu associated
@@ -673,7 +685,8 @@ class HoverTool(Inspection):
 
     .. |hover_icon| image:: /_images/icons/Hover.png
         :height: 18pt
-    """
+
+    '''
 
     names = List(String, help="""
     A list of names to query for. If set, only renderers that
@@ -776,11 +789,12 @@ DEFAULT_HELP_TIP = "Click the question mark to learn more about Bokeh plot tools
 DEFAULT_HELP_URL = "http://bokeh.pydata.org/en/latest/docs/user_guide/tools.html"
 
 class HelpTool(Action):
-    """
-    The help tool is a widget designed to replace the hardcoded 'Help' link.
+    ''' A button tool to provide a "help" link to users.
+
     The hover text can be customized through the ``help_tooltip`` attribute
     and the redirect site overridden as well.
-    """
+
+    '''
 
     help_tooltip = String(default=DEFAULT_HELP_TIP, help="""
     Tooltip displayed when hovering over the help icon.
@@ -791,19 +805,21 @@ class HelpTool(Action):
     """)
 
 class UndoTool(Action):
-    """ *toolbar icon*: |undo_icon|
+    ''' *toolbar icon*: |undo_icon|
 
     Undo tool allows to restore previous state of the plot.
 
     .. |undo_icon| image:: /_images/icons/Undo.png
         :height: 18pt
-    """
+
+    '''
 
 class RedoTool(Action):
-    """ *toolbar icon*: |redo_icon|
+    ''' *toolbar icon*: |redo_icon|
 
     Redo tool reverses the last action performed by undo tool.
 
     .. |redo_icon| image:: /_images/icons/Redo.png
         :height: 18pt
-    """
+
+    '''

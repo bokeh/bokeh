@@ -37,17 +37,33 @@ if IPython:
             super(_BokehPrettyPrinter, self).__init__(output, verbose, max_width, newline)
             self.type_pprinters[HasProps] = lambda obj, p, cycle: obj._bokeh_repr_pretty_(p, cycle)
 
+_ABSTRACT_ADMONITION = '''
+    .. note::
+        This is an abstract base class used to help organize the hierarchy of Bokeh
+        model types. **It is not useful to instantiate on its own.**
+
+'''
+
 _EXAMPLE_TEMPLATE = '''
 
     Example
     -------
 
     .. bokeh-plot:: ../%(path)s
-        :source-position: none
-
-    *source:* :bokeh-tree:`%(path)s`
+        :source-position: below
 
 '''
+
+def abstract(cls):
+    ''' A decorator to mark abstract base classes derived from |HasProps|.
+
+    '''
+    if not issubclass(cls, HasProps):
+        raise TypeError("%s is not a subclass of HasProps" % cls.__name__)
+
+    cls.__doc__ += _ABSTRACT_ADMONITION
+
+    return cls
 
 class MetaHasProps(type):
     ''' Specialize the construction of |HasProps| classes.

@@ -2,22 +2,21 @@ from __future__ import absolute_import
 
 import warnings
 
-from ..core.properties import abstract
-from ..core.properties import (Any, Int, String, Instance, List, Dict, Bool, Enum,
-                               JSON, Seq, ColumnData)
+from ..core.has_props import abstract
+from ..core.properties import Any, Bool, ColumnData, Dict, Enum, Instance, Int, JSON, List, Seq, String
 from ..model import Model
 from ..util.dependencies import import_optional
 from ..util.warnings import BokehUserWarning
+
 from .callbacks import Callback
 
 pd = import_optional('pandas')
 
 @abstract
 class DataSource(Model):
-    """ A base class for data source types. ``DataSource`` is
-    not generally useful to instantiate on its own.
+    ''' A base class for data source types.
 
-    """
+    '''
 
     selected = Dict(String, Dict(String, Any), default={
         '0d': {'glyph': None, 'indices': []},
@@ -49,16 +48,17 @@ class DataSource(Model):
 
 @abstract
 class ColumnarDataSource(DataSource):
-    """ A baseclass for data source types, which can be mapped onto
-    a columnar format. Not useful to instantiate on its own.
-    """
+    ''' A base class for data source types, which can be mapped onto
+    a columnar format.
+
+    '''
 
     column_names = List(String, help="""
     An list of names for all the columns in this DataSource.
     """)
 
 class ColumnDataSource(ColumnarDataSource):
-    """ Maps names of columns to sequences or arrays.
+    ''' Maps names of columns to sequences or arrays.
 
     If the ColumnDataSource initializer is called with a single argument that
     is a dict or pandas.DataFrame, that argument is used as the value for the
@@ -71,7 +71,7 @@ class ColumnDataSource(ColumnarDataSource):
         There is an implicit assumption that all the columns in a
         a given ColumnDataSource have the same length.
 
-    """
+    '''
 
     data = ColumnData(String, Seq(Any), help="""
     Mapping of column names to sequences of data. The data can be, e.g,
@@ -81,13 +81,16 @@ class ColumnDataSource(ColumnarDataSource):
 
 
     def __init__(self, *args, **kw):
-        """ If called with a single argument that is a dict or
+        ''' If called with a single argument that is a dict or
         pandas.DataFrame, treat that implicitly as the "data" attribute.
-        """
+
+        '''
         if len(args) == 1 and "data" not in kw:
             kw["data"] = args[0]
+
         # TODO (bev) invalid to pass args and "data", check and raise exception
         raw_data = kw.pop("data", {})
+
         if not isinstance(raw_data, dict):
             if pd and isinstance(raw_data, pd.DataFrame):
                 raw_data = self._data_from_df(raw_data)
@@ -99,7 +102,7 @@ class ColumnDataSource(ColumnarDataSource):
 
     @staticmethod
     def _data_from_df(df):
-        """ Create a ``dict`` of columns from a Pandas DataFrame,
+        ''' Create a ``dict`` of columns from a Pandas DataFrame,
         suitable for creating a ColumnDataSource.
 
         Args:
@@ -108,7 +111,7 @@ class ColumnDataSource(ColumnarDataSource):
         Returns:
             dict(str, list)
 
-        """
+        '''
         index = df.index
         new_data = {}
         for colname in df:
@@ -123,20 +126,20 @@ class ColumnDataSource(ColumnarDataSource):
 
     @classmethod
     def from_df(cls, data):
-        """ Create a ``dict`` of columns from a Pandas DataFrame,
+        ''' Create a ``dict`` of columns from a Pandas DataFrame,
         suitable for creating a ColumnDataSource.
 
         Args:
             data (DataFrame) : data to convert
 
         Returns:
-            dict(str, list)
+            dict[str, list]
 
-        """
+        '''
         return cls._data_from_df(data)
 
     def to_df(self):
-        """ Convert this data source to pandas dataframe.
+        ''' Convert this data source to pandas dataframe.
 
         If ``column_names`` is set, use those. Otherwise let Pandas
         infer the column names. The ``column_names`` property can be
@@ -145,7 +148,7 @@ class ColumnDataSource(ColumnarDataSource):
         Returns:
             DataFrame
 
-        """
+        '''
         if not pd:
             raise RuntimeError('Pandas must be installed to convert to a Pandas Dataframe')
         if self.column_names:
@@ -154,7 +157,7 @@ class ColumnDataSource(ColumnarDataSource):
             return pd.DataFrame(self.data)
 
     def add(self, data, name=None):
-        """ Appends a new column of data to the data source.
+        ''' Appends a new column of data to the data source.
 
         Args:
             data (seq) : new data to add
@@ -164,7 +167,7 @@ class ColumnDataSource(ColumnarDataSource):
         Returns:
             str:  the column name used
 
-        """
+        '''
         if name is None:
             n = len(self.data)
             while "Series %d"%n in self.data:
@@ -176,7 +179,7 @@ class ColumnDataSource(ColumnarDataSource):
 
 
     def remove(self, name):
-        """ Remove a column of data.
+        ''' Remove a column of data.
 
         Args:
             name (str) : name of the column to remove
@@ -187,7 +190,7 @@ class ColumnDataSource(ColumnarDataSource):
         .. note::
             If the column name does not exist, a warning is issued.
 
-        """
+        '''
         try:
             self.column_names.remove(name)
             del self.data[name]
@@ -220,7 +223,6 @@ class ColumnDataSource(ColumnarDataSource):
             ValueError
 
         Example:
-
 
         .. code-block:: python
 
@@ -312,6 +314,9 @@ class ColumnDataSource(ColumnarDataSource):
         self.data._patch(self.document, self, patches, setter)
 
 class GeoJSONDataSource(ColumnarDataSource):
+    '''
+
+    '''
 
     geojson = JSON(help="""
     GeoJSON that contains features for plotting. Currently GeoJSONDataSource can
@@ -320,6 +325,9 @@ class GeoJSONDataSource(ColumnarDataSource):
 
 @abstract
 class RemoteSource(ColumnDataSource):
+    '''
+
+    '''
 
     data_url = String(help="""
     The URL to the endpoint for the data.
@@ -330,6 +338,9 @@ class RemoteSource(ColumnDataSource):
     """)
 
 class AjaxDataSource(RemoteSource):
+    '''
+
+    '''
 
     method = Enum('POST', 'GET', help="http method - GET or POST")
 
@@ -348,9 +359,11 @@ class AjaxDataSource(RemoteSource):
     to the server. If this header is supported by the server, then only
     new data since the last request will be returned.
     """)
+
     content_type = String(default='application/json', help="""
     Set the "contentType" parameter for the Ajax request.
     """)
+
     http_headers = Dict(String, String, help="""
     HTTP headers to set for the Ajax request.
     """)

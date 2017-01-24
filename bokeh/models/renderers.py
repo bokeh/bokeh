@@ -1,28 +1,29 @@
-""" Models (mostly base classes) for the various kinds of renderer
+''' Models (mostly base classes) for the various kinds of renderer
 types that Bokeh supports.
 
-"""
+'''
 from __future__ import absolute_import
 
 import logging
 logger = logging.getLogger(__name__)
 
-from ..model import Model
 from ..core.enums import RenderLevel
-from ..core.properties import abstract
+from ..core.has_props import abstract
 from ..core.properties import Auto, Bool, Either, Enum, Float, Instance, Override, String
-from ..core import validation
+from ..core.validation import error
 from ..core.validation.errors import BAD_COLUMN_NAME, MISSING_GLYPH, NO_SOURCE_FOR_GLYPH
+from ..model import Model
 
 from .glyphs import Glyph
 from .images import ImageSource
-from .sources import DataSource, RemoteSource, ColumnDataSource
+from .sources import ColumnDataSource, DataSource, RemoteSource
 from .tiles import TileSource, WMTSTileSource
 
 @abstract
 class Renderer(Model):
-    """An abstract base class for renderer types.
-    """
+    '''An abstract base class for renderer types.
+
+    '''
 
     level = Enum(RenderLevel, help="""
     Specifies the level in which to paint this renderer.
@@ -34,10 +35,14 @@ class Renderer(Model):
 
 @abstract
 class DataRenderer(Renderer):
-    """ An abstract base class for data renderer types (e.g. ``GlyphRenderer``, ``TileRenderer``).
-    """
+    ''' An abstract base class for data renderer types (e.g. ``GlyphRenderer``, ``TileRenderer``).
+
+    '''
 
 class TileRenderer(DataRenderer):
+    '''
+
+    '''
 
     tile_source = Instance(TileSource, default=lambda: WMTSTileSource(), help="""
     Local data source to use when rendering glyphs on the plot.
@@ -66,6 +71,9 @@ class TileRenderer(DataRenderer):
     """)
 
 class DynamicImageRenderer(DataRenderer):
+    '''
+
+    '''
 
     image_source = Instance(ImageSource, help="""
     Image source to use when rendering on the plot.
@@ -82,19 +90,19 @@ class DynamicImageRenderer(DataRenderer):
     """)
 
 class GlyphRenderer(DataRenderer):
-    """
+    '''
 
-    """
+    '''
 
-    @validation.error(MISSING_GLYPH)
+    @error(MISSING_GLYPH)
     def _check_missing_glyph(self):
         if not self.glyph: return str(self)
 
-    @validation.error(NO_SOURCE_FOR_GLYPH)
+    @error(NO_SOURCE_FOR_GLYPH)
     def _check_no_source_for_glyph(self):
         if not self.data_source: return str(self)
 
-    @validation.error(BAD_COLUMN_NAME)
+    @error(BAD_COLUMN_NAME)
     def _check_bad_column_name(self):
         if not self.glyph: return
         if not self.data_source: return
@@ -156,10 +164,10 @@ class GlyphRenderer(DataRenderer):
 
 @abstract
 class GuideRenderer(Renderer):
-    """ A base class for all guide renderer types. ``GuideRenderer`` is
+    ''' A base class for all guide renderer types. ``GuideRenderer`` is
     not generally useful to instantiate on its own.
 
-    """
+    '''
 
     plot = Instance(".models.plots.Plot", help="""
     The plot to which this guide renderer is attached.

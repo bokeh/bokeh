@@ -1,17 +1,19 @@
-""" Various kinds of panel widgets.
+''' Various kinds of panel widgets.
 
-"""
+'''
 from __future__ import absolute_import
 
-from ...core.properties import Bool, Int, String, Instance, List
-from .widget import Widget
-from ..layouts import LayoutDOM
+from ...core.properties import Bool, Instance, Int, List, String
+
 from ..callbacks import Callback
+from ..layouts import LayoutDOM
+
+from .widget import Widget
 
 class Panel(Widget):
-    """ A single-widget container with title bar and controls.
+    ''' A single-widget container with title bar and controls.
 
-    """
+    '''
 
     title = String(default="", help="""
     An optional text title of the panel.
@@ -28,9 +30,11 @@ class Panel(Widget):
     """)
 
 class Tabs(Widget):
-    """ A panel widget with navigation tabs.
+    ''' A panel widget with navigation tabs.
 
-    """
+    '''
+
+    __example__ = "sphinx/source/docs/user_guide/examples/interaction_tab_panes.py"
 
     tabs = List(Instance(Panel), help="""
     The list of child panel widgets.

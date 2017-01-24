@@ -59,6 +59,15 @@ removed, as well as the following properties of ``Plot``
 * ``title_text_font``
 * ``title_text_font_size``
 
+``abstract`` moved
+~~~~~~~~~~~~~~~~~~
+
+The ``abstract`` class decorator was moved from ``models.py`` to
+``has_props.py`` in order that ``models.py`` only contain classes that might
+be of normal interest to users. The class decorator now also adds an
+admonition to the docstring of any class marked abstract that it is not
+useful to instantiate directly.
+
 JQuery removed from BokehJS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

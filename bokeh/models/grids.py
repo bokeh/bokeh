@@ -1,19 +1,19 @@
-""" A guide renderer for displaying grid lines on Bokeh plots.
+''' A guide renderer for displaying grid lines on Bokeh plots.
 
-"""
+'''
 from __future__ import absolute_import
 
-from ..core.properties import Int, String, Float, Auto, Instance, Tuple, Either, Include, Override
+from ..core.properties import Auto, Either, Float, Include, Instance, Int, Override, String, Tuple
 from ..core.property_mixins import FillProps, LineProps
 
 from .renderers import GuideRenderer
 from .tickers import Ticker
 
 class Grid(GuideRenderer):
-    """ Display horizontal or vertical grid lines at locations
+    ''' Display horizontal or vertical grid lines at locations
     given by a supplied ``Ticker``.
 
-    """
+    '''
     dimension = Int(0, help="""
     Which dimension the Axis Grid lines will intersect. The
     x-axis is dimension 0 (vertical Grid lines) and the y-axis

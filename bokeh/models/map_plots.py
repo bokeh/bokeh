@@ -1,23 +1,22 @@
-""" Models for displaying maps in Bokeh plots.
+''' Models for displaying maps in Bokeh plots.
 
-"""
+'''
 from __future__ import absolute_import
 
-from ..core import validation
-from ..core.validation.warnings import MISSING_RENDERERS, NO_DATA_RENDERERS
-from ..core.validation.errors import REQUIRED_RANGE, MISSING_GOOGLE_API_KEY
-from ..core.has_props import HasProps
-from ..core.properties import abstract
+from ..core.has_props import abstract, HasProps
 from ..core.properties import Enum, Float, Instance, Int, JSON, Override, String
 from ..core.enums import MapType
+from ..core.validation import error, warning
+from ..core.validation.warnings import MISSING_RENDERERS, NO_DATA_RENDERERS
+from ..core.validation.errors import REQUIRED_RANGE, MISSING_GOOGLE_API_KEY
 
 from .plots import Plot
 
 @abstract
 class MapOptions(HasProps):
-    """ Abstract base class for map options' models.
+    ''' Abstract base class for map options' models.
 
-    """
+    '''
 
     lat = Float(help="""
     The latitude where the map should be centered.
@@ -33,14 +32,14 @@ class MapOptions(HasProps):
 
 @abstract
 class MapPlot(Plot):
-    """ Abstract base class for map plot models.
+    ''' Abstract base class for map plot models.
 
-    """
+    '''
 
 class GMapOptions(MapOptions):
-    """ Options for GMapPlot objects.
+    ''' Options for GMapPlot objects.
 
-    """
+    '''
 
     map_type = Enum(MapType, help="""
     The `map type`_ to use for the GMapPlot.
@@ -59,7 +58,7 @@ class GMapOptions(MapOptions):
     """)
 
 class GMapPlot(MapPlot):
-    """ A Bokeh Plot with a `Google Map`_ displayed underneath.
+    ''' A Bokeh Plot with a `Google Map`_ displayed underneath.
 
     Data placed on this plot should be specified in decimal lat long coordinates e.g. 37.123, -122.404.
     It will be automatically converted into the web mercator projection to display properly over
@@ -67,20 +66,22 @@ class GMapPlot(MapPlot):
 
     .. _Google Map: https://www.google.com/maps/
 
-    """
+    '''
 
     # TODO (bev) map plot might not have these
-    @validation.error(REQUIRED_RANGE)
+    @error(REQUIRED_RANGE)
     def _check_required_range(self):
         pass
-    @validation.warning(MISSING_RENDERERS)
+
+    @warning(MISSING_RENDERERS)
     def _check_missing_renderers(self):
         pass
-    @validation.warning(NO_DATA_RENDERERS)
+
+    @warning(NO_DATA_RENDERERS)
     def _check_no_data_renderers(self):
         pass
 
-    @validation.error(MISSING_GOOGLE_API_KEY)
+    @error(MISSING_GOOGLE_API_KEY)
     def _check_missing_google_api_key(self):
         if self.api_key is None:
             return str(self)
