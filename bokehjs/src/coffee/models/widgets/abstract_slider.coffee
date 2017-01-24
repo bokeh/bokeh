@@ -88,13 +88,13 @@ export class AbstractSliderView extends WidgetView
 
   _slide: (values) ->
     value = @_calc_from(values)
-    logger.debug("[slider slide] value = #{value}")
+    logger.debug("[slider slide] value = #{(@model.pretty(v) for v in values).join(", ")}")
     @model.value = value
     @callback_wrapper?()
 
   _change: (values) ->
     value = @_calc_from(values)
-    logger.debug("[slider change] value = #{value}")
+    logger.debug("[slider change] value = #{(@model.pretty(v) for v in values).join(", ")}")
     @model.value = value
     switch @model.callback_policy
       when 'mouseup', 'throttle'
