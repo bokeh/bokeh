@@ -12,9 +12,7 @@ export class RangeSliderView extends AbstractSliderView
       step: @model.step
     }
 
-  _calc_from: (values) ->
-    [min, max] = values
-    return [parseFloat(min), parseFloat(max)]
+  _calc_from: (values) -> values
 
 export class RangeSlider extends AbstractSlider
   type: "RangeSlider"

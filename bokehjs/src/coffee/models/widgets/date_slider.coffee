@@ -12,9 +12,7 @@ export class DateSliderView extends AbstractSliderView
       step: @model.step
     }
 
-  _calc_from: (values) ->
-    [value] = values
-    return parseFloat(value)
+  _calc_from: ([value]) -> value
 
 export class DateSlider extends AbstractSlider
   type: "DateSlider"
