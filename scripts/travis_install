@@ -10,6 +10,7 @@ MINICONDA_URL="http://repo.continuum.io/miniconda/$MINICONDA.sh"
 
 PINNED_PKGS=$(cat <<EOF
 notebook ==4.2.3
+matplotlib <2.0
 EOF
 )
 
