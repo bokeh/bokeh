@@ -6,10 +6,13 @@ from __future__ import absolute_import
 import logging
 log = logging.getLogger(__name__)
 
-from tornado import gen, locks
-from bokeh.util.tornado import _DocumentCallbackGroup, yield_for_all_futures
-
 import time
+
+from tornado import gen, locks
+
+from ..util.tornado import yield_for_all_futures
+
+from .callbacks import _DocumentCallbackGroup
 
 def current_time():
     '''Return the time in milliseconds since the epoch as a floating

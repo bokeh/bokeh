@@ -1,6 +1,6 @@
-""" Utilities for Py2/Py3 interop.
+''' Utilities for Py2/Py3 interop.
 
-"""
+'''
 
 def with_metaclass(meta, *bases):
     """ Add metaclasses in both Python 2 and Python 3.
@@ -36,3 +36,23 @@ def with_metaclass(meta, *bases):
                 return type.__new__(cls, name, (), d)
             return meta(name, bases, d)
     return metaclass('temporary_class', None, {})
+
+
+# There is a problem with using @wraps decorator in combination with functools.partial.
+# This issue is not present in Python 3.
+# This redefinition will be triggered only if issue affects user,
+# otherwise regular definition of @wraps will be used.
+#
+# this code snippet was originally posted in following stack overflow discussion:
+# http://stackoverflow.com/a/28752007
+
+from functools import wraps, partial, WRAPPER_ASSIGNMENTS
+
+try:
+    wraps(partial(wraps))(wraps)
+except AttributeError:
+    @wraps(wraps)
+    def wraps(obj, attr_names=WRAPPER_ASSIGNMENTS, wraps=wraps):
+        return wraps(obj, assigned=(name for name in attr_names if hasattr(obj, name)))
+
+del partial, WRAPPER_ASSIGNMENTS
