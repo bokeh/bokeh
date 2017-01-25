@@ -1,5 +1,4 @@
-import * as rbush from "rbush"
-
+import {RBush} from "../../core/util/spatial"
 import {Glyph, GlyphView} from "./glyph"
 
 # Formula from: http://pomax.nihongoresources.com/pages/bezier/
@@ -33,9 +32,7 @@ export class QuadraticView extends GlyphView
 
       points.push({minX: x0, minY: y0, maxX: x1, maxY: y1, i: i})
 
-    index = rbush()
-    index.load(points)
-    return index
+    return new RBush(points)
 
   _render: (ctx, indices, {sx0, sy0, sx1, sy1, scx, scy}) ->
     if @visuals.line.doit

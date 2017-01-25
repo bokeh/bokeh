@@ -1,5 +1,4 @@
-import * as rbush from "rbush"
-
+import {RBush} from "../../core/util/spatial"
 import {Glyph, GlyphView} from "./glyph"
 
 export class SegmentView extends GlyphView
@@ -16,9 +15,7 @@ export class SegmentView extends GlyphView
           i: i
         })
 
-    index = rbush()
-    index.load(points)
-    return index
+    return new RBush(points)
 
   _render: (ctx, indices, {sx0, sy0, sx1, sy1}) ->
     if @visuals.line.doit

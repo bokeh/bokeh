@@ -85,7 +85,7 @@ export class RectView extends XYGlyphView
     [y0, y1] = @renderer.ymapper.v_map_from_target([geometry.vy0, geometry.vy1], true)
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
     result = hittest.create_hit_test_result()
-    result['1d'].indices = (x.i for x in @index.search(bbox))
+    result['1d'].indices = @index.indices(bbox)
     return result
 
   _hit_point: (geometry) ->
@@ -107,7 +107,7 @@ export class RectView extends XYGlyphView
     hits = []
 
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
-    for i in (pt.i for pt in @index.search(bbox))
+    for i in @index.indices(bbox)
       sx = @renderer.plot_view.canvas.vx_to_sx(vx)
       sy = @renderer.plot_view.canvas.vy_to_sy(vy)
 

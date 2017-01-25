@@ -1,5 +1,4 @@
-import * as rbush from "rbush"
-
+import {RBush} from "../../core/util/spatial"
 import {Glyph, GlyphView} from "./glyph"
 import {CategoricalMapper} from "../mappers/categorical_mapper"
 
@@ -26,9 +25,7 @@ export class XYGlyphView extends GlyphView
         continue
       points.push({minX: x, minY: y, maxX: x, maxY: y, i: i})
 
-    index = rbush()
-    index.load(points)
-    return index
+    return new RBush(points)
 
 export class XYGlyph extends Glyph
   type: "XYGlyph"

@@ -45,7 +45,7 @@ export class CircleView extends XYGlyphView
       [y0, y1] = @renderer.ymapper.v_map_from_target([sy0, sy1], true)
 
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
-    return (x.i for x in @index.search(bbox))
+    return @index.indices(bbox)
 
   _render: (ctx, indices, {sx, sy, sradius}) ->
 
@@ -89,7 +89,7 @@ export class CircleView extends XYGlyphView
       [y0, y1] = [Math.min(y0, y1), Math.max(y0, y1)]
 
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
-    candidates = (pt.i for pt in @index.search(bbox))
+    candidates = @index.indices(bbox)
 
     hits = []
     if @_radius? and @model.properties.radius.units == "data"
@@ -146,7 +146,7 @@ export class CircleView extends XYGlyphView
           [y0, y1] = @renderer.ymapper.v_map_from_target([vy0, vy1], true)
 
       bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
-      hits = (xx.i for xx in @index.search(bbox))
+      hits = @index.indices(bbox)
 
       result['1d'].indices = hits
       return result
@@ -156,7 +156,7 @@ export class CircleView extends XYGlyphView
     [y0, y1] = @renderer.ymapper.v_map_from_target([geometry.vy0, geometry.vy1], true)
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
     result = hittest.create_hit_test_result()
-    result['1d'].indices = (x.i for x in @index.search(bbox))
+    result['1d'].indices = @index.indices(bbox)
     return result
 
   _hit_poly: (geometry) ->

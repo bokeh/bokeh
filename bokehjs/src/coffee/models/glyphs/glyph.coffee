@@ -49,9 +49,8 @@ export class GlyphView extends BokehView
   bounds: () ->
     if not @index?
       return bbox.empty()
-    d = @index.data
-    bb = {minX: d.minX, minY: d.minY, maxX: d.maxX, maxY: d.maxY}
-    return @_bounds(bb)
+    else
+      return @_bounds(@index.bbox)
 
   log_bounds: () ->
     if not @index?

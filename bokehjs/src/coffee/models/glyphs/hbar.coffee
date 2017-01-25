@@ -1,4 +1,4 @@
-import * as rbush from "rbush"
+import {RBush} from "../../core/util/spatial"
 import * as Quad from "./quad"
 import {Glyph, GlyphView} from "./glyph"
 import {CategoricalMapper} from "../mappers/categorical_mapper"
@@ -49,9 +49,7 @@ export class HBarView extends GlyphView
         continue
       points.push({minX: l, minY: b, maxX: r, maxY: t, i: i})
 
-    index = rbush()
-    index.load(points)
-    return index
+    return new RBush(points)
 
   _render: (ctx, indices, {sleft, sright, stop, sbottom}) ->
     for i in indices
@@ -73,7 +71,7 @@ export class HBarView extends GlyphView
     x = @renderer.xmapper.map_from_target(vx, true)
     y = @renderer.ymapper.map_from_target(vy, true)
 
-    hits = (x.i for x in @index.search({minX: x, minY: y, maxX: x, maxY: y}))
+    hits = @index.indices({minX: x, minY: y, maxX: x, maxY: y})
 
     result = hittest.create_hit_test_result()
     result['1d'].indices = hits

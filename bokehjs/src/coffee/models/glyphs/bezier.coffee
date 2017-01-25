@@ -1,5 +1,4 @@
-import * as rbush from "rbush"
-
+import {RBush} from "../../core/util/spatial"
 import {Glyph, GlyphView} from "./glyph"
 
 # algorithm adapted from http://stackoverflow.com/a/14429749/3406693
@@ -74,9 +73,7 @@ export class BezierView extends GlyphView
       [x0, y0, x1, y1] = _cbb(@_x0[i], @_y0[i], @_x1[i], @_y1[i], @_cx0[i], @_cy0[i], @_cx1[i], @_cy1[i])
       points.push({minX: x0, minY: y0, maxX: x1, maxY: y1, i: i})
 
-    index = rbush()
-    index.load(points)
-    return index
+    return new RBush(points)
 
   _render: (ctx, indices, {sx0, sy0, sx1, sy1, scx, scx0, scy0, scx1, scy1}) ->
     if @visuals.line.doit
