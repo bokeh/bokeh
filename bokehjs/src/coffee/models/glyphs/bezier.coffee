@@ -66,17 +66,16 @@ _cbb = (x0, y0, x1, y1, x2, y2, x3, y3) ->
 export class BezierView extends GlyphView
 
   _index_data: () ->
-    index = rbush()
-    pts = []
+    points = []
     for i in [0...@_x0.length]
       if isNaN(@_x0[i]+@_x1[i]+@_y0[i]+@_y1[i]+@_cx0[i]+@_cy0[i]+@_cx1[i]+@_cy1[i])
         continue
 
       [x0, y0, x1, y1] = _cbb(@_x0[i], @_y0[i], @_x1[i], @_y1[i], @_cx0[i], @_cy0[i], @_cx1[i], @_cy1[i])
+      points.push({minX: x0, minY: y0, maxX: x1, maxY: y1, i: i})
 
-      pts.push({minX: x0, minY: y0, maxX: x1, maxY: y1, i: i})
-
-    index.load(pts)
+    index = rbush()
+    index.load(points)
     return index
 
   _render: (ctx, indices, {sx0, sy0, sx1, sy1, scx, scx0, scy0, scx1, scy1}) ->

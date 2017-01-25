@@ -5,18 +5,19 @@ import {Glyph, GlyphView} from "./glyph"
 export class SegmentView extends GlyphView
 
   _index_data: () ->
-    index = rbush()
-    pts = []
+    points = []
     for i in [0...@_x0.length]
       if not isNaN(@_x0[i] + @_x1[i] + @_y0[i] + @_y1[i])
-        pts.push({
+        points.push({
           minX: Math.min(@_x0[i], @_x1[i]),
           minY: Math.min(@_y0[i], @_y1[i]),
           maxX: Math.max(@_x0[i], @_x1[i]),
           maxY: Math.max(@_y0[i], @_y1[i]),
           i: i
         })
-    index.load(pts)
+
+    index = rbush()
+    index.load(points)
     return index
 
   _render: (ctx, indices, {sx0, sy0, sx1, sy1}) ->

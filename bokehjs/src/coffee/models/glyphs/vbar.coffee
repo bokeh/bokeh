@@ -36,9 +36,7 @@ export class VBarView extends GlyphView
     top = map_to_synthetic(@renderer.ymapper, @_top)
     bottom = map_to_synthetic(@renderer.ymapper, @_bottom)
 
-    index = rbush()
-    pts = []
-
+    points = []
     for i in [0...x.length]
       l = x[i] - width[i]/2
       r = x[i] + width[i]/2
@@ -46,9 +44,10 @@ export class VBarView extends GlyphView
       b = bottom[i]
       if isNaN(l+r+t+b) or not isFinite(l+r+t+b)
         continue
-      pts.push({minX: l, minY: b, maxX: r, maxY: t, i: i})
+      points.push({minX: l, minY: b, maxX: r, maxY: t, i: i})
 
-    index.load(pts)
+    index = rbush()
+    index.load(points)
     return index
 
   _render: (ctx, indices, {sleft, sright, stop, sbottom}) ->

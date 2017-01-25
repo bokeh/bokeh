@@ -38,8 +38,7 @@ export class HBarView extends GlyphView
     y = map_to_synthetic(@renderer.ymapper, @_y)
     height = map_to_synthetic(@renderer.ymapper, @_height)
 
-    index = rbush()
-    pts = []
+    points = []
 
     for i in [0...y.length]
       l = left[i]
@@ -48,9 +47,10 @@ export class HBarView extends GlyphView
       b = y[i] - 0.5 * height[i]
       if isNaN(l+r+t+b) or not isFinite(l+r+t+b)
         continue
-      pts.push({minX: l, minY: b, maxX: r, maxY: t, i: i})
+      points.push({minX: l, minY: b, maxX: r, maxY: t, i: i})
 
-    index.load(pts)
+    index = rbush()
+    index.load(points)
     return index
 
   _render: (ctx, indices, {sleft, sright, stop, sbottom}) ->

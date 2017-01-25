@@ -19,9 +19,7 @@ export class QuadView extends GlyphView
     top = map_to_synthetic(@renderer.ymapper, @_top)
     bottom = map_to_synthetic(@renderer.ymapper, @_bottom)
 
-    index = rbush()
-    pts = []
-
+    points = []
     for i in [0...left.length]
       l = left[i]
       r = right[i]
@@ -29,9 +27,10 @@ export class QuadView extends GlyphView
       b = bottom[i]
       if isNaN(l+r+t+b) or not isFinite(l+r+t+b)
         continue
-      pts.push({minX: l, minY: b, maxX: r, maxY: t, i: i})
+      points.push({minX: l, minY: b, maxX: r, maxY: t, i: i})
 
-    index.load(pts)
+    index = rbush()
+    index.load(points)
     return index
 
   _render: (ctx, indices, {sleft, sright, stop, sbottom}) ->

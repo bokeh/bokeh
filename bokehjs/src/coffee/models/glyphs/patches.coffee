@@ -44,25 +44,26 @@ export class PatchesView extends GlyphView
 
 
   _index_data: () ->
-    index = rbush()
-    pts = []
     xss = @_build_discontinuous_object(@_xs)
     yss = @_build_discontinuous_object(@_ys)
 
+    points = []
     for i in [0...@_xs.length]
       for j in [0...xss[i].length]
         xs = xss[i][j]
         ys = yss[i][j]
         if xs.length == 0
           continue
-        pts.push({
+        points.push({
           minX: min(xs),
           minY: min(ys),
           maxX: max(xs),
           maxY: max(ys),
           i: i
         })
-    index.load(pts)
+
+    index = rbush()
+    index.load(points)
     return index
 
   _mask_data: (all_indices) ->

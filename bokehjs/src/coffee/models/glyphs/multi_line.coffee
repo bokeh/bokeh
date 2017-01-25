@@ -8,21 +8,22 @@ import {Glyph, GlyphView} from "./glyph"
 export class MultiLineView extends GlyphView
 
   _index_data: () ->
-    index = rbush()
-    pts = []
+    points = []
     for i in [0...@_xs.length]
       xs = (x for x in @_xs[i] when not isStrictNaN(x))
       ys = (y for y in @_ys[i] when not isStrictNaN(y))
       if xs.length == 0
         continue
-      pts.push({
+      points.push({
         minX: min(xs),
         minY: min(ys),
         maxX: max(xs),
         maxY: max(ys),
         i: i
       })
-    index.load(pts)
+
+    index = rbush()
+    index.load(points)
     return index
 
   _render: (ctx, indices, {sxs, sys}) ->
