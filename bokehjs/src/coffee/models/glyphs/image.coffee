@@ -61,7 +61,6 @@ export class ImageView extends XYGlyphView
       @max_dh = 0
       if @_dh.units == "data"
         @max_dh = max(@_dh)
-      @_xy_index()
 
   _map_data: () ->
     switch @model.properties.dw.units
