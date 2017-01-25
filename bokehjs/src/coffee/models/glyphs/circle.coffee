@@ -1,11 +1,8 @@
-import {Glyph, GlyphView} from "./glyph"
+import {XYGlyph, XYGlyphView} from "./xy_glyph"
 import * as hittest from "../../core/hittest"
 import * as p from "../../core/properties"
 
-export class CircleView extends GlyphView
-
-  _index_data: () ->
-    return @_xy_index()
+export class CircleView extends XYGlyphView
 
   _map_data: () ->
     # NOTE: Order is important here: size is always present (at least
@@ -196,12 +193,11 @@ export class CircleView extends GlyphView
     data = {sx: sx, sy: sy, sradius: sradius}
     @_render(ctx, indices, data)
 
-export class Circle extends Glyph # XXX: Marker
+export class Circle extends XYGlyph # XXX: Marker
   default_view: CircleView
 
   type: 'Circle'
 
-  @coords [['x', 'y']]
   @mixins ['line', 'fill']
   @define {
       angle:            [ p.AngleSpec,    0                             ]

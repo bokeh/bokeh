@@ -1,12 +1,9 @@
-import {Glyph, GlyphView} from "./glyph"
+import {XYGlyph, XYGlyphView} from "./xy_glyph"
 import * as hittest from "../../core/hittest"
 import * as p from "../../core/properties"
 import {angle_between} from "../../core/util/math"
 
-export class AnnularWedgeView extends GlyphView
-
-  _index_data: () ->
-    @_xy_index()
+export class AnnularWedgeView extends XYGlyphView
 
   _map_data: () ->
     if @model.properties.inner_radius.units == "data"
@@ -108,12 +105,11 @@ export class AnnularWedgeView extends GlyphView
   scx: (i) -> @_scxy(i).x
   scy: (i) -> @_scxy(i).y
 
-export class AnnularWedge extends Glyph
+export class AnnularWedge extends XYGlyph
   default_view: AnnularWedgeView
 
   type: 'AnnularWedge'
 
-  @coords [['x', 'y']]
   @mixins ['line', 'fill']
   @define {
       direction:    [ p.Direction,   'anticlock' ]

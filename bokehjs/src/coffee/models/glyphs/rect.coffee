@@ -1,9 +1,9 @@
-import {Glyph, GlyphView} from "./glyph"
+import {XYGlyph, XYGlyphView} from "./xy_glyph"
 import * as hittest from "../../core/hittest"
 import * as p from "../../core/properties"
 import {max} from "../../core/util/array"
 
-export class RectView extends GlyphView
+export class RectView extends XYGlyphView
 
   _set_data: () ->
     @max_w2 = 0
@@ -12,9 +12,6 @@ export class RectView extends GlyphView
     @max_h2 = 0
     if @model.properties.height.units == "data"
       @max_h2 = @max_height/2
-
-  _index_data: () ->
-    @_xy_index()
 
   _map_data: () ->
     if @model.properties.width.units == "data"
@@ -157,12 +154,11 @@ export class RectView extends GlyphView
   _bounds: (bds) ->
     return @max_wh2_bounds(bds)
 
-export class Rect extends Glyph
+export class Rect extends XYGlyph
   default_view: RectView
 
   type: 'Rect'
 
-  @coords [['x', 'y']]
   @mixins ['line', 'fill']
   @define {
       angle:  [ p.AngleSpec,   0     ]
