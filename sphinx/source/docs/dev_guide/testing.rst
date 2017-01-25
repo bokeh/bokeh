@@ -165,7 +165,7 @@ For this command to be successful you will need the following:
  - ``SAUCELABS_API_KEY`` environment variable
  - Sauce Connect tunnel running
 
-To start up a Sauce Connect tunnel, download Sauce Connect from 
+To start up a Sauce Connect tunnel, download Sauce Connect from
 https://wiki.saucelabs.com/display/DOCS/Setting+Up+Sauce+Connect+Proxy. Extract
 the files and go into the install directory. Then you can establish the tunnel with:
 
