@@ -144,7 +144,7 @@ export inject_raw_css = (css) ->
 
 # pull missing render item fields from data- attributes
 fill_render_item_from_script_tag = (script, item) ->
-  info = script.data()
+  info = script.dataset
   # length checks are because we put all the attributes on the tag
   # but sometimes set them to empty string
   if info.bokehLogLevel? and info.bokehLogLevel.length > 0
