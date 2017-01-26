@@ -125,12 +125,11 @@ BokehJS has migrated to using ``.tsx`` templates. Provisional support for
 including ``.eco`` templates has been removed from both BokehJS and the
 Bokeh Python library.
 
-Python 3.3 No Longer Supported
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Used base64 serialisation
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Python 3.3 is not officially supported by Anaconda, so it is no longer
-tested in bokeh.  Particularly, plotting numpy/pandas data is unlikely
-to work correctly.
+Changes made to use b64encode mean that plotting numpy/pandas data no longer
+works with Python 3.3.
 
 BokehJS BackboneView ``$`` Removed
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
