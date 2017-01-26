@@ -85,11 +85,12 @@ export class GMapPlotCanvasView extends PlotCanvasView
     }
 
     mo = @model.plot.map_options
-    map_options =
+    map_options = {
       center: new maps.LatLng(mo.lat, mo.lng)
       zoom:mo.zoom
       disableDefaultUI: true
       mapTypeId: @map_types[mo.map_type]
+    }
 
     if mo.styles?
       map_options.styles = JSON.parse(mo.styles)
