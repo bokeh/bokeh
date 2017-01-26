@@ -2,6 +2,7 @@
 utils = require "../utils"
 fixtures = require "./fixtures/object"
 
+{ColumnDataSource} = utils.require("models/sources/column_data_source")
 {Models} = utils.require "base"
 {HasProps} = utils.require "core/has_props"
 p = utils.require "core/properties"
@@ -27,6 +28,25 @@ class SubSubclassWithMixins extends SubclassWithMixins
 
 class SubclassWithMultipleMixins extends HasProps
   @mixin('line', 'text:bar_')
+
+class SubclassWithNumberSpec extends HasProps
+  @define {
+    foo: [ p.NumberSpec, {field: 'colname'} ]
+    bar: [ p.Bool,       true               ]
+  }
+
+class SubclassWithDistanceSpec extends HasProps
+  @define {
+    foo: [ p.DistanceSpec, {field: 'colname'} ]
+    bar: [ p.Bool,         true               ]
+  }
+
+class SubclassWithOptionalSpec extends HasProps
+  @define {
+    foo: [ p.NumberSpec, {value: null}      ]
+    bar: [ p.Bool,       true               ]
+    baz: [ p.NumberSpec, {field: 'colname'} ]
+  }
 
 describe "has_properties module", ->
 
@@ -64,6 +84,38 @@ describe "has_properties module", ->
       obj = new SubclassWithMultipleMixins()
       props = Object.keys(Object.assign(mixins.line(""), mixins.text("bar_")))
       expect(Object.keys(obj.properties)).to.be.deep.equal(['id'].concat(props))
+
+  describe "materialize_dataspecs", ->
+    it "should collect dataspecs", ->
+      r = new ColumnDataSource({data: {colname: [1, 2, 3, 4]}})
+      obj = new SubclassWithNumberSpec()
+      data = obj.materialize_dataspecs(r)
+      expect(data).to.be.deep.equal {_foo: [1, 2, 3, 4]}
+
+    it "should collect shapes when they are present", ->
+      r = new ColumnDataSource({data: {colname: [1, 2, 3, 4]}})
+      r._shapes.colname = [2, 2]
+      obj = new SubclassWithNumberSpec()
+      data = obj.materialize_dataspecs(r)
+      expect(data).to.be.deep.equal {_foo: [1, 2, 3, 4], _foo_shape: [2, 2]}
+
+    it "should collect max vals for distance specs", ->
+      r = new ColumnDataSource({data: {colname: [1, 2, 3, 4, 2]}})
+      obj = new SubclassWithDistanceSpec()
+
+      data = obj.materialize_dataspecs(r)
+      expect(data).to.be.deep.equal {_foo: [1, 2, 3, 4, 2], max_foo: 4}
+
+      r._shapes.colname = [2, 2]
+      data = obj.materialize_dataspecs(r)
+      expect(data).to.be.deep.equal {_foo: [1, 2, 3, 4, 2], _foo_shape: [2, 2], max_foo: 4}
+
+    it "should collect ignore optional specs with null values", ->
+      r = new ColumnDataSource({data: {colname: [1, 2, 3, 4]}})
+      obj = new SubclassWithOptionalSpec()
+      obj.properties.foo.optional = true
+      data = obj.materialize_dataspecs(r)
+      expect(data).to.be.deep.equal {_baz: [1, 2, 3, 4]}
 
   # describe "arrays of references", ->
   #   [model1, model2, model3, model4, doc] = [null, null, null, null, null]
