@@ -130,7 +130,7 @@ Python 3.3 No Longer Supported
 
 Python 3.3 is not officially supported by Anaconda, so it is no longer
 tested in bokeh.  Particularly, plotting numpy/pandas data is unlikely
-to work correctly. 
+to work correctly.
 
 BokehJS BackboneView ``$`` Removed
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
