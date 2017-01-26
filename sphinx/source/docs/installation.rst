@@ -19,7 +19,8 @@ on any of the standard NumPy/SciPy stack.  It is entirely possible to use
 Bokeh with plain Python lists of values.
 
 The Bokeh plot server does take advantage of NumPy, and may have a hard
-dependency on several compiled libraries.
+dependency on several compiled libraries.  The plot server requires
+a minimum python version of 2.7 or 3.3.
 
 For basic usage, have the following libraries installed:
 
