@@ -2,6 +2,7 @@ import {Glyph, GlyphView} from "./glyph"
 import * as hittest from "../../core/hittest"
 import * as p from "../../core/properties"
 import {max} from "../../core/util/array"
+import {isString} from "../../core/util/types"
 
 export class RectView extends GlyphView
 
@@ -18,19 +19,31 @@ export class RectView extends GlyphView
 
   _map_data: () ->
     if @model.properties.width.units == "data"
-      x0 = (@_x[i] - @_width[i]/2 for i in [0...@_x.length])
-      vx0 = @renderer.xmapper.v_map_to_target(x0)
+      if isString(@_x[0])
+        synthetic_x = @renderer.xmapper.v_map_to_target(@_x, return_synthetic=true)
+        synthetic_x0 = (synthetic_x[i] - @_width[i]/2 for i in [0...@_x.length])
+        vx0 = @renderer.xmapper.v_map_to_target(synthetic_x0)
+        @sw = @sdist(@renderer.xmapper, @_x, @_width, 'center', @model.dilate)
+      else
+        x0 = (@_x[i] - @_width[i]/2 for i in [0...@_x.length])
+        vx0 = @renderer.xmapper.v_map_to_target(x0)
+        @sw = @sdist(@renderer.xmapper, x0, @_width, 'edge', @model.dilate)
       @sx0 = @renderer.plot_view.canvas.v_vx_to_sx(vx0)
-      @sw = @sdist(@renderer.xmapper, x0, @_width, 'edge', @model.dilate)
     else
       @sw = @_width
       @sx0 = (@sx[i] - @sw[i]/2 for i in [0...@sx.length])
     if @model.properties.height.units == "data"
-      y0 = (@_y[i] - @_height[i]/2 for i in [0...@_y.length])
-      y1 = (@_y[i] + @_height[i]/2 for i in [0...@_y.length])
-      vy1 = @renderer.ymapper.v_map_to_target(y1)
+      if isString(@_y[0])
+        synthetic_y = @renderer.ymapper.v_map_to_target(@_y, return_synthetic=true)
+        synthetic_y1 = (synthetic_y[i] + @_height[i]/2 for i in [0...@_y.length])
+        vy1 = @renderer.ymapper.v_map_to_target(synthetic_y1)
+        @sh = @sdist(@renderer.ymapper, @_y, @_height, 'center', @model.dilate)
+      else
+        y0 = (@_y[i] - @_height[i]/2 for i in [0...@_y.length])
+        y1 = (@_y[i] + @_height[i]/2 for i in [0...@_y.length])
+        vy1 = @renderer.ymapper.v_map_to_target(y1)
+        @sh = @sdist(@renderer.ymapper, y0, @_height, 'edge', @model.dilate)
       @sy1 = @renderer.plot_view.canvas.v_vy_to_sy(vy1)
-      @sh = @sdist(@renderer.ymapper, y0, @_height, 'edge', @model.dilate)
     else
       @sh = @_height
       @sy1 = (@sy[i] - @sh[i]/2 for i in [0...@sy.length])
