@@ -3,6 +3,7 @@ import * as hittest from "../../core/hittest"
 import * as p from "../../core/properties"
 import {max} from "../../core/util/array"
 import {isString} from "../../core/util/types"
+import {CategoricalMapper} from "../mappers/categorical_mapper"
 
 export class RectView extends GlyphView
 
@@ -19,7 +20,7 @@ export class RectView extends GlyphView
 
   _map_data: () ->
     if @model.properties.width.units == "data"
-      if isString(@_x[0])
+      if isString(@_x[0]) and @renderer.xmapper instanceof CategoricalMapper
         synthetic_x = @renderer.xmapper.v_map_to_target(@_x, return_synthetic=true)
         synthetic_x0 = (synthetic_x[i] - @_width[i]/2 for i in [0...@_x.length])
         vx0 = @renderer.xmapper.v_map_to_target(synthetic_x0)
@@ -33,7 +34,7 @@ export class RectView extends GlyphView
       @sw = @_width
       @sx0 = (@sx[i] - @sw[i]/2 for i in [0...@sx.length])
     if @model.properties.height.units == "data"
-      if isString(@_y[0])
+      if isString(@_y[0]) and @renderer.ymapper instanceof CategoricalMapper
         synthetic_y = @renderer.ymapper.v_map_to_target(@_y, return_synthetic=true)
         synthetic_y1 = (synthetic_y[i] + @_height[i]/2 for i in [0...@_y.length])
         vy1 = @renderer.ymapper.v_map_to_target(synthetic_y1)
