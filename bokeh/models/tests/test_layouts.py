@@ -20,7 +20,7 @@ def check_props_with_sizing_mode(layout):
 
 def check_children_prop(layout_callable):
     ## component subclasses are layouts, widgets and plots
-    components = [HBox(), VBox(), Figure()]
+    components = [Row(), Column(), Figure()]
 
     # Test layout accepts splatted components
     layout1 = layout_callable(*components)
@@ -60,7 +60,7 @@ def test_HBox():
 def test_Row():
     check_props_with_sizing_mode(Row())
     check_children_prop(Row)
-    check_widget_wrapped_in_widget_box(HBox)
+    check_widget_wrapped_in_widget_box(Row)
 
 
 def test_Column():
