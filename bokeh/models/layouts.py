@@ -13,6 +13,7 @@ from ..core.validation import warning
 from ..core.validation.warnings import BOTH_CHILD_AND_ROOT, EMPTY_LAYOUT
 from ..embed import notebook_div
 from ..model import Model
+from ..util.deprecation import deprecated
 
 @abstract
 class LayoutDOM(Model):
@@ -201,6 +202,7 @@ def HBox(*args, **kwargs):
 
     Returns a Row instance.
     '''
+    deprecated((0, 12, 5), 'bokeh.models.HBox', 'bokeh.models.Row')
     return Row(*args, **kwargs)
 
 
@@ -212,4 +214,5 @@ def VBox(*args, **kwargs):
 
     Returns a Column instance.
     '''
+    deprecated((0, 12, 5), 'bokeh.models.VBox', 'bokeh.models.Column')
     return Column(*args, **kwargs)
