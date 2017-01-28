@@ -27,7 +27,11 @@ export class RectView extends GlyphView
         @sw = @sdist(@renderer.xmapper, @_x, @_width, 'center', @model.dilate)
       else
         x0 = (@_x[i] - @_width[i]/2 for i in [0...@_x.length])
+        x1 = (@_x[i] + @_width[i]/2 for i in [0...@_x.length])
         vx0 = @renderer.xmapper.v_map_to_target(x0)
+        vx1 = @renderer.xmapper.v_map_to_target(x1)
+        if vx1[0] < vx0[0]
+          vx0 = vx1
         @sw = @sdist(@renderer.xmapper, x0, @_width, 'edge', @model.dilate)
       @sx0 = @renderer.plot_view.canvas.v_vx_to_sx(vx0)
     else
@@ -42,7 +46,10 @@ export class RectView extends GlyphView
       else
         y0 = (@_y[i] - @_height[i]/2 for i in [0...@_y.length])
         y1 = (@_y[i] + @_height[i]/2 for i in [0...@_y.length])
+        vy0 = @renderer.ymapper.v_map_to_target(y0)
         vy1 = @renderer.ymapper.v_map_to_target(y1)
+        if vy0[0] > vy1[0]
+          vy1 = vy0
         @sh = @sdist(@renderer.ymapper, y0, @_height, 'edge', @model.dilate)
       @sy1 = @renderer.plot_view.canvas.v_vy_to_sy(vy1)
     else
