@@ -133,7 +133,8 @@ export class RectView extends GlyphView
 
   _map_dist_corner_for_data_side_length: (coord, side_length, mapper, canvas, dim) ->
     if isString(coord[0]) and mapper instanceof CategoricalMapper
-      synthetic_pt = mapper.v_map_to_target(coord, return_synthetic=true)
+      return_synthetic = true
+      synthetic_pt = mapper.v_map_to_target(coord, return_synthetic)
       if dim == 0
         synthetic_pt_corner = (synthetic_pt[i] - side_length[i]/2 for i in [0...coord.length])
       else if dim == 1
