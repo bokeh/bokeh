@@ -19,39 +19,14 @@ export class RectView extends GlyphView
     @_xy_index()
 
   _map_data: () ->
+    canvas = @renderer.plot_view.canvas
     if @model.properties.width.units == "data"
-      if isString(@_x[0]) and @renderer.xmapper instanceof CategoricalMapper
-        synthetic_x = @renderer.xmapper.v_map_to_target(@_x, return_synthetic=true)
-        synthetic_x0 = (synthetic_x[i] - @_width[i]/2 for i in [0...@_x.length])
-        vx0 = @renderer.xmapper.v_map_to_target(synthetic_x0)
-        @sw = @sdist(@renderer.xmapper, @_x, @_width, 'center', @model.dilate)
-      else
-        x0 = (@_x[i] - @_width[i]/2 for i in [0...@_x.length])
-        x1 = (@_x[i] + @_width[i]/2 for i in [0...@_x.length])
-        vx0 = @renderer.xmapper.v_map_to_target(x0)
-        vx1 = @renderer.xmapper.v_map_to_target(x1)
-        if vx1[0] < vx0[0]
-          vx0 = vx1
-        @sw = @sdist(@renderer.xmapper, x0, @_width, 'edge', @model.dilate)
-      @sx0 = @renderer.plot_view.canvas.v_vx_to_sx(vx0)
+      [@sw, @sx0] = @_map_dist_corner_for_data_side_length(@_x, @_width, @renderer.xmapper, canvas, 0)
     else
       @sw = @_width
       @sx0 = (@sx[i] - @sw[i]/2 for i in [0...@sx.length])
     if @model.properties.height.units == "data"
-      if isString(@_y[0]) and @renderer.ymapper instanceof CategoricalMapper
-        synthetic_y = @renderer.ymapper.v_map_to_target(@_y, return_synthetic=true)
-        synthetic_y1 = (synthetic_y[i] + @_height[i]/2 for i in [0...@_y.length])
-        vy1 = @renderer.ymapper.v_map_to_target(synthetic_y1)
-        @sh = @sdist(@renderer.ymapper, @_y, @_height, 'center', @model.dilate)
-      else
-        y0 = (@_y[i] - @_height[i]/2 for i in [0...@_y.length])
-        y1 = (@_y[i] + @_height[i]/2 for i in [0...@_y.length])
-        vy0 = @renderer.ymapper.v_map_to_target(y0)
-        vy1 = @renderer.ymapper.v_map_to_target(y1)
-        if vy0[0] > vy1[0]
-          vy1 = vy0
-        @sh = @sdist(@renderer.ymapper, y0, @_height, 'edge', @model.dilate)
-      @sy1 = @renderer.plot_view.canvas.v_vy_to_sy(vy1)
+      [@sh, @sy1] = @_map_dist_corner_for_data_side_length(@_y, @_height, @renderer.ymapper, canvas, 1)
     else
       @sh = @_height
       @sy1 = (@sy[i] - @sh[i]/2 for i in [0...@sy.length])
@@ -155,6 +130,31 @@ export class RectView extends GlyphView
     result = hittest.create_hit_test_result()
     result['1d'].indices = hits
     return result
+
+  _map_dist_corner_for_data_side_length: (coord, side_length, mapper, canvas, dim) ->
+    if isString(coord[0]) and mapper instanceof CategoricalMapper
+      synthetic_pt = mapper.v_map_to_target(coord, return_synthetic=true)
+      if dim == 0
+        synthetic_pt_corner = (synthetic_pt[i] - side_length[i]/2 for i in [0...coord.length])
+      else if dim == 1
+        synthetic_pt_corner = (synthetic_pt[i] + side_length[i]/2 for i in [0...coord.length])
+      vpt_corner = mapper.v_map_to_target(synthetic_pt_corner)
+      sside_length = @sdist(mapper, coord, side_length, 'center', @model.dilate)
+    else
+      pt0 = (Number(coord[i]) - side_length[i]/2 for i in [0...coord.length])
+      pt1 = (Number(coord[i]) + side_length[i]/2 for i in [0...coord.length])
+      vpt0 = mapper.v_map_to_target(pt0)
+      vpt1 = mapper.v_map_to_target(pt1)
+      sside_length = @sdist(mapper, pt0, side_length, 'edge', @model.dilate)
+      if dim == 0
+        vpt_corner = if vpt0[0] < vpt1[0] then vpt0 else vpt1
+      else if dim == 1
+        vpt_corner = if vpt0[0] < vpt1[0] then vpt1 else vpt0
+
+    if dim == 0
+      return [sside_length, canvas.v_vx_to_sx(vpt_corner)]
+    else if dim == 1
+      return [sside_length, canvas.v_vy_to_sy(vpt_corner)]
 
   _ddist: (dim, spts, spans) ->
     if dim == 0
