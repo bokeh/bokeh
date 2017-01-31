@@ -3,6 +3,7 @@ import {logger} from "../../core/logging"
 import {SelectionManager} from "../../core/selection_manager"
 import * as p from "../../core/properties"
 import {uniq, range} from "../../core/util/array"
+import {isBoolean} from "../../core/util/types"
 import {create_hit_test_result} from "../../core/hittest"
 
 export class TableDataSource extends ColumnarDataSource
@@ -12,7 +13,9 @@ export class TableDataSource extends ColumnarDataSource
     super(options)
     if @filter.length == 0
       @indices = range(0, @cds.get_length())
-    else 
+    else if isBoolean(@filter[0])
+      @indices = (i for i in range(0, @cds.get_length()) when @filter[i] == true)
+    else
       @indices = @filter
 
     @subset_data()

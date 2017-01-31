@@ -4,7 +4,7 @@ import warnings
 import six
 
 from ..core.has_props import abstract
-from ..core.properties import Any, Bool, ColumnData, Dict, Enum, Instance, Int, JSON, List, Seq, String
+from ..core.properties import Any, Bool, ColumnData, Dict, Either, Enum, Instance, Int, JSON, List, Seq, String
 from ..model import Model
 from ..util.dependencies import import_optional
 from ..util.warnings import BokehUserWarning
@@ -324,9 +324,31 @@ class ColumnDataSource(ColumnarDataSource):
 
 class TableDataSource(ColumnarDataSource):
 
-    filter = Seq(Int, default=[])
+    filter = Either(Seq(Int), Seq(Bool), default=[])
 
     cds = Instance(ColumnDataSource)
+
+    def __init__(self, *args, **kw):
+        if len(args) == 1 and "cds" not in kw:
+            cds_or_data = args[0]
+            if isinstance(cds_or_data, ColumnDataSource):
+                kw["cds"] = cds_or_data
+            else:
+                data = cds_or_data
+                kw["cds"] = ColumnDataSource(data)
+
+        n = list(set(len(x) for x in kw["cds"].data.values()))[0]
+
+        filter = kw.pop("filter", list(range(n)))
+        if callable(filter):
+            kw["filter"] = list(range(n))
+        else:
+            kw["filter"] = filter
+
+        super(TableDataSource, self).__init__(**kw)
+
+        if callable(filter):
+            self.filter = list(filter(self))
 
     def __getitem__(self, key):
         import numpy as np
