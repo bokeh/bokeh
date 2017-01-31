@@ -321,6 +321,12 @@ class ColumnDataSource(ColumnarDataSource):
 
         self.data._patch(self.document, self, patches, setter)
 
+class TableDataSource(ColumnarDataSource):
+
+    filter = Seq(Int, default=[])
+
+    cds = Instance(ColumnDataSource)
+
 class GeoJSONDataSource(ColumnarDataSource):
     '''
 
