@@ -94,4 +94,11 @@ explicitly.
 Both of these removals together result in a ~10% reduction in the size of
 the minified BokehJS library.
 
+Default tooltip position for lines changed to nearest point
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When showing tooltips for lines, the new default is to label the nearest point,
+instead of the previous point, which used to be the default.
+
+
 .. _project roadmap: http://bokehplots.com/pages/roadmap.html
