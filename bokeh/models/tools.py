@@ -765,11 +765,12 @@ class HoverTool(Inspection):
     position.
     """)
 
-    line_policy = Enum("prev", "next", "nearest", "interp", "none", help="""
-    When showing tooltips for lines, whether the tooltip position should be
-    the "previous" or "next" points on the line, the nearest point to the
-    current mouse position, or interpolate along the line to the current
-    mouse position.
+    line_policy = Enum("prev", "next", "nearest", "interp", "none",
+                       default="nearest", help="""
+    When showing tooltips for lines, designates whether the tooltip position
+    should be the "previous" or "next" points on the line, the "nearest" point
+    to the current mouse position, or "interpolate" along the line to the
+    current mouse position.
     """)
 
     anchor = Enum(Anchor, default="center", help="""

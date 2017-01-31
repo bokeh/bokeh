@@ -9,7 +9,9 @@ sinon = require "sinon"
 {CartesianFrame} = utils.require("models/canvas/cartesian_frame")
 {LinearMapper} = utils.require("models/mappers/linear_mapper")
 {LogMapper} = utils.require("models/mappers/log_mapper")
+{CategoricalMapper} = utils.require("models/mappers/categorical_mapper")
 {Range1d} = utils.require("models/ranges/range1d")
+{FactorRange} = utils.require("models/ranges/factor_range")
 
 describe "Glyph (using Rect as a concrete Glyph)", ->
 
@@ -77,9 +79,19 @@ describe "Rect", ->
             source_range: new Range1d({start: 0, end: 100})
             target_range: new Range1d({start: 0, end: 200})
           })
-        else
+        else if type == "reverse"
+          mapper = new LinearMapper({
+            source_range: new Range1d({start: 0, end: 100})
+            target_range: new Range1d({start: 200, end: 0})
+          })
+        else if type == "log"
           mapper = new LogMapper({
             source_range: new Range1d({start: 0, end: 100})
+            target_range: new Range1d({start: 0, end: 200})
+          })
+        else
+          mapper = new CategoricalMapper({
+            source_range: new FactorRange({factors:['a', 'b']})
             target_range: new Range1d({start: 0, end: 200})
           })
         glyph_view.renderer.xmapper = mapper
@@ -140,6 +152,30 @@ describe "Rect", ->
       glyph_view.map_data()
       expect(glyph_view.sx0).to.be.deep.equal([-5])
       expect(glyph_view.sy1).to.be.deep.equal([-11])
+
+    it "`_map_data` should map values for x0 and y1 with reversed ranges", ->
+      data = {x: [1], y: [2]}
+      glyph_view = create_glyph_view(@glyph, data)
+
+      @set_mappers(glyph_view, "reverse")
+      glyph_view.map_data()
+      expect(glyph_view.sx0).to.be.deep.equal({'0': 188})
+      expect(glyph_view.sy1).to.be.deep.equal({'0': -217})
+
+    it "`_map_data` should map values for x0 and y1 with FactorRanges", ->
+      glyph = new Rect({
+        x: {field: "x"}
+        y: {field: "y"}
+        width: {value: 0.5}
+        height: {value: 0.5}
+      })
+      data = {x: ['a'], y: ['b']}
+      glyph_view = create_glyph_view(glyph, data)
+
+      @set_mappers(glyph_view, "categorical")
+      glyph_view.map_data()
+      expect(glyph_view.sx0).to.be.deep.equal({'0': 25})
+      expect(glyph_view.sy1).to.be.deep.equal({'0': -176})
 
     describe "hit-testing", ->
 

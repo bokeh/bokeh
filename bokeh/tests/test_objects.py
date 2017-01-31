@@ -16,11 +16,11 @@ def large_plot(n):
         ColumnDataSource, DataRange1d, PanTool, ZoomInTool, ZoomOutTool, WheelZoomTool, BoxZoomTool,
         BoxSelectTool, ResizeTool, SaveTool, ResetTool
     )
-    from bokeh.models.layouts import VBox
+    from bokeh.models.layouts import Column
     from bokeh.models.glyphs import Line
 
-    vbox = VBox()
-    objects = set([vbox])
+    col = Column()
+    objects = set([col])
 
     for i in xrange(n):
         source = ColumnDataSource(data=dict(x=[0, i + 1], y=[0, i + 1]))
@@ -46,13 +46,13 @@ def large_plot(n):
         reset = ResetTool()
         tools = [pan, zoom_in, zoom_out, wheel_zoom, box_zoom, box_select, resize, save, reset]
         plot.add_tools(*tools)
-        vbox.children.append(plot)
+        col.children.append(plot)
         objects |= set([
             source, xdr, ydr, plot, xaxis, yaxis, xgrid, ygrid, renderer, glyph,
             plot.toolbar, plot.tool_events, plot.title, box_zoom.overlay, box_select.overlay] +
             tickers + tools)
 
-    return vbox, objects
+    return col, objects
 
 
 class TestMetaModel(unittest.TestCase):

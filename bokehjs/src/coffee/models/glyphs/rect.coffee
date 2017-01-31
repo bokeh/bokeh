@@ -2,6 +2,8 @@ import {XYGlyph, XYGlyphView} from "./xy_glyph"
 import * as hittest from "../../core/hittest"
 import * as p from "../../core/properties"
 import {max} from "../../core/util/array"
+import {isString} from "../../core/util/types"
+import {CategoricalMapper} from "../mappers/categorical_mapper"
 
 export class RectView extends XYGlyphView
 
@@ -14,20 +16,14 @@ export class RectView extends XYGlyphView
       @max_h2 = @max_height/2
 
   _map_data: () ->
+    canvas = @renderer.plot_view.canvas
     if @model.properties.width.units == "data"
-      x0 = (@_x[i] - @_width[i]/2 for i in [0...@_x.length])
-      vx0 = @renderer.xmapper.v_map_to_target(x0)
-      @sx0 = @renderer.plot_view.canvas.v_vx_to_sx(vx0)
-      @sw = @sdist(@renderer.xmapper, x0, @_width, 'edge', @model.dilate)
+      [@sw, @sx0] = @_map_dist_corner_for_data_side_length(@_x, @_width, @renderer.xmapper, canvas, 0)
     else
       @sw = @_width
       @sx0 = (@sx[i] - @sw[i]/2 for i in [0...@sx.length])
     if @model.properties.height.units == "data"
-      y0 = (@_y[i] - @_height[i]/2 for i in [0...@_y.length])
-      y1 = (@_y[i] + @_height[i]/2 for i in [0...@_y.length])
-      vy1 = @renderer.ymapper.v_map_to_target(y1)
-      @sy1 = @renderer.plot_view.canvas.v_vy_to_sy(vy1)
-      @sh = @sdist(@renderer.ymapper, y0, @_height, 'edge', @model.dilate)
+      [@sh, @sy1] = @_map_dist_corner_for_data_side_length(@_y, @_height, @renderer.ymapper, canvas, 1)
     else
       @sh = @_height
       @sy1 = (@sy[i] - @sh[i]/2 for i in [0...@sy.length])
@@ -131,6 +127,32 @@ export class RectView extends XYGlyphView
     result = hittest.create_hit_test_result()
     result['1d'].indices = hits
     return result
+
+  _map_dist_corner_for_data_side_length: (coord, side_length, mapper, canvas, dim) ->
+    if isString(coord[0]) and mapper instanceof CategoricalMapper
+      return_synthetic = true
+      synthetic_pt = mapper.v_map_to_target(coord, return_synthetic)
+      if dim == 0
+        synthetic_pt_corner = (synthetic_pt[i] - side_length[i]/2 for i in [0...coord.length])
+      else if dim == 1
+        synthetic_pt_corner = (synthetic_pt[i] + side_length[i]/2 for i in [0...coord.length])
+      vpt_corner = mapper.v_map_to_target(synthetic_pt_corner)
+      sside_length = @sdist(mapper, coord, side_length, 'center', @model.dilate)
+    else
+      pt0 = (Number(coord[i]) - side_length[i]/2 for i in [0...coord.length])
+      pt1 = (Number(coord[i]) + side_length[i]/2 for i in [0...coord.length])
+      vpt0 = mapper.v_map_to_target(pt0)
+      vpt1 = mapper.v_map_to_target(pt1)
+      sside_length = @sdist(mapper, pt0, side_length, 'edge', @model.dilate)
+      if dim == 0
+        vpt_corner = if vpt0[0] < vpt1[0] then vpt0 else vpt1
+      else if dim == 1
+        vpt_corner = if vpt0[0] < vpt1[0] then vpt1 else vpt0
+
+    if dim == 0
+      return [sside_length, canvas.v_vx_to_sx(vpt_corner)]
+    else if dim == 1
+      return [sside_length, canvas.v_vy_to_sy(vpt_corner)]
 
   _ddist: (dim, spts, spans) ->
     if dim == 0
