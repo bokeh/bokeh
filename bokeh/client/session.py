@@ -7,10 +7,35 @@ import logging
 log = logging.getLogger(__name__)
 
 from ..document import Document
-from ..resources import DEFAULT_SERVER_WEBSOCKET_URL, server_url_for_websocket_url, _SessionCoordinates
+from ..resources import _SessionCoordinates, DEFAULT_SERVER_HTTP_URL
 from ..util.session_id import generate_session_id
 
 DEFAULT_SESSION_ID = "default"
+
+def websocket_url_for_server_url(url):
+    if url.startswith("http:"):
+        reprotocoled = "ws" + url[4:]
+    elif url.startswith("https:"):
+        reprotocoled = "wss" + url[5:]
+    else:
+        raise ValueError("URL has unknown protocol " + url)
+    if reprotocoled.endswith("/"):
+        return reprotocoled + "ws"
+    else:
+        return reprotocoled + "/ws"
+
+def server_url_for_websocket_url(url):
+    if url.startswith("ws:"):
+        reprotocoled = "http" + url[2:]
+    elif url.startswith("wss:"):
+        reprotocoled = "https" + url[3:]
+    else:
+        raise ValueError("URL has non-websocket protocol " + url)
+    if not reprotocoled.endswith("/ws"):
+        raise ValueError("websocket URL does not end in /ws")
+    return reprotocoled[:-2]
+
+DEFAULT_SERVER_WEBSOCKET_URL = websocket_url_for_server_url(DEFAULT_SERVER_HTTP_URL)
 
 def push_session(document, session_id=None, url='default', app_path='/', io_loop=None):
     """ Create a session by pushing the given document to the server,
@@ -53,7 +78,7 @@ def push_session(document, session_id=None, url='default', app_path='/', io_loop
 
     """
     coords = _SessionCoordinates(dict(session_id=session_id, url=url, app_path=app_path))
-    session = ClientSession(session_id=coords.session_id, websocket_url=coords.websocket_url, io_loop=io_loop)
+    session = ClientSession(session_id=coords.session_id, websocket_url=websocket_url_for_server_url(coords.server_url), io_loop=io_loop)
     session.push(document)
     return session
 
@@ -102,7 +127,7 @@ def pull_session(session_id=None, url='default', app_path='/', io_loop=None):
 
     """
     coords = _SessionCoordinates(dict(session_id=session_id, url=url, app_path=app_path))
-    session = ClientSession(session_id=session_id, websocket_url=coords.websocket_url, io_loop=io_loop)
+    session = ClientSession(session_id=session_id, websocket_url=websocket_url_for_server_url(coords.server_url), io_loop=io_loop)
     session.pull()
     return session
 
