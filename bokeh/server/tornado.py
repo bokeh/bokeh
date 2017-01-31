@@ -14,7 +14,6 @@ from pprint import pformat
 from tornado import gen
 from tornado.ioloop import PeriodicCallback
 from tornado.web import Application as TornadoApplication
-from tornado.web import HTTPError
 from tornado.web import StaticFileHandler
 
 from bokeh.resources import Resources
@@ -26,10 +25,8 @@ from .connection import ServerConnection
 from .application_context import ApplicationContext
 from .views.static_handler import StaticHandler
 
-
 def match_host(host, pattern):
     """ Match host against pattern
-
     >>> match_host('192.168.0.1:80', '192.168.0.1:80')
     True
     >>> match_host('192.168.0.1:80', '192.168.0.1')
@@ -58,7 +55,6 @@ def match_host(host, pattern):
     True
     >>> match_host('alice:8080', '*:80')
     False
-
     """
     if ':' in host:
         host, host_port = host.rsplit(':', 1)
@@ -92,7 +88,6 @@ def match_host(host, pattern):
 # factored out to be easier to test
 def check_whitelist(request_host, whitelist):
     ''' Check a given request host against a whitelist.
-
     '''
     if ':' not in request_host:
         request_host = request_host + ':80'
@@ -101,19 +96,6 @@ def check_whitelist(request_host, whitelist):
         return True
 
     return any(match_host(request_host, host) for host in whitelist)
-
-
-def _whitelist(handler_class):
-    if hasattr(handler_class.prepare, 'patched'):
-        return
-    old_prepare = handler_class.prepare
-    def _prepare(self, *args, **kw):
-        if not check_whitelist(self.request.host, self.application._hosts):
-            log.info("Rejected connection from host '%s' because it is not in the --host whitelist" % self.request.host)
-            raise HTTPError(403)
-        return old_prepare(self, *args, **kw)
-    _prepare.patched = True
-    handler_class.prepare = _prepare
 
 
 class BokehTornado(TornadoApplication):
@@ -129,12 +111,10 @@ class BokehTornado(TornadoApplication):
             Use this argument to add additional endpoints to custom deployments
             of the Bokeh Server.
         prefix (str) : a URL prefix to use for all Bokeh server paths
-        hosts (list) : hosts that are valid values for the Host header
         secret_key (str) : secret key for signing session IDs
         sign_sessions (boolean) : whether to sign session IDs
         generate_session_ids (boolean) : whether to generate a session ID when none is provided
         extra_websocket_origins (list) : hosts that can connect to the websocket
-            These are in addition to ``hosts``.
         keep_alive_milliseconds (int) : number of milliseconds between keep-alive pings
             Set to 0 to disable pings. Pings keep the websocket open.
         check_unused_sessions_milliseconds (int) : number of milliseconds between check for unused sessions
@@ -144,7 +124,8 @@ class BokehTornado(TornadoApplication):
 
     '''
 
-    def __init__(self, applications, prefix, hosts,
+    def __init__(self, applications,
+                 prefix,
                  extra_websocket_origins,
                  extra_patterns=None,
                  secret_key=settings.secret_key_bytes(),
@@ -177,14 +158,11 @@ class BokehTornado(TornadoApplication):
         if stats_log_frequency_milliseconds <= 0:
             raise ValueError("stats_log_frequency_milliseconds must be > 0")
 
-        self._hosts = set(hosts)
-        self._websocket_origins = self._hosts | set(extra_websocket_origins)
-        self._resources = {}
+        self._websocket_origins = set(extra_websocket_origins)
         self._secret_key = secret_key
         self._sign_sessions = sign_sessions
         self._generate_session_ids = generate_session_ids
 
-        log.debug("Allowed Host headers: %r", list(self._hosts))
         log.debug("These host origins can connect to the websocket: %r", list(self._websocket_origins))
 
         # Wrap applications in ApplicationContext
@@ -235,9 +213,6 @@ class BokehTornado(TornadoApplication):
             else:
                 prefixed_pat = (self._prefix + p[0],) + p[1:]
                 all_patterns.append(prefixed_pat)
-
-        for pat in all_patterns:
-            _whitelist(pat[1])
 
         log.debug("Patterns are:")
         for line in pformat(all_patterns, width=60).split("\n"):
@@ -296,24 +271,8 @@ class BokehTornado(TornadoApplication):
     def generate_session_ids(self):
         return self._generate_session_ids
 
-    def root_url_for_request(self, request):
-        return request.protocol + "://" + request.host + self._prefix + "/"
-
-    def websocket_url_for_request(self, request, websocket_path):
-        # websocket_path comes from the handler, and already has any
-        # prefix included, no need to add here
-        protocol = "ws"
-        if request.protocol == "https":
-            protocol = "wss"
-        return protocol + "://" + request.host + websocket_path
-
-    def resources(self, request):
-        root_url = self.root_url_for_request(request)
-        if root_url not in self._resources:
-            self._resources[root_url] =  Resources(mode="server",
-                                                   root_url=root_url,
-                                                   path_versioner=StaticHandler.append_version)
-        return self._resources[root_url]
+    def resources(self):
+        return Resources(mode="server", root_url="", path_versioner=StaticHandler.append_version)
 
     def start(self):
         ''' Start the Bokeh Server application.

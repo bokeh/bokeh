@@ -33,12 +33,11 @@ class AutoloadJsHandler(SessionHandler):
             self.send_error(status_code=400, reason='No bokeh-autoload-element query parameter')
             return
 
-        resources = self.application.resources(self.request)
-        websocket_url = self.application.websocket_url_for_request(self.request, self.bokeh_websocket_path)
+        resources = self.application.resources()
 
         # TODO: yes, this should resuse code from bokeh.embed more directly
         render_items = [dict(sessionid=session.id, elementid=element_id, use_for_title=False)]
-        script = _script_for_render_items(None, render_items, websocket_url=websocket_url, wrap_script=False)
+        script = _script_for_render_items(None, render_items, wrap_script=False)
 
         js = AUTOLOAD_JS.render(
             js_urls = resources.js_files,

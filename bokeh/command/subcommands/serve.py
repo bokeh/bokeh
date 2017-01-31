@@ -99,44 +99,6 @@ Similarly, a specific network address can be specified with the
 
 will have the Bokeh server listen all available network addresses.
 
-Additionally, it is possible to configure a hosts whitelist that must be
-matched by the ``Host`` header in new requests. You can specify multiple
-acceptable host values with the ``--host`` option:
-
-.. code-block:: sh
-
-    bokeh serve app_script.py --host foo.com:8081 --host bar.com
-
-If no port is specified in a host value, then port 80 will be used. In
-the example above Bokeh server will accept requests from ``foo.com:8081``
-and ``bar.com:80``.
-
-If no host values are specified, then by default the Bokeh server will
-accept requests from ``localhost:<port>`` where ``<port>`` is the port
-that the server is configured to listen on (by default: {DEFAULT_PORT}).
-
-If an asterix ``*`` is used in the host value then it will be treated as a
-wildcard:
-
-.. code-block:: sh
-
-    bokeh serve app_script.py --address 0.0.0.0 --host '*'
-
-Using the wildcard can be helpful when testing applications that are deployed
-with cloud orchestration tools and when the public endpoint is not known ahead
-of time: for instance if the public IP is dynamically allocated during the
-deployment process and no public DNS has been configured for the testing
-environment.
-
-As a warning, using permissive host values like ``*`` may be insecure and open
-your application to HTTP host header attacks. Production deployments should
-always set the ``--host`` flag to use the DNS name of the public endpoint such
-as a TLS-enabled load balancer or reverse proxy that serves the application to
-the end users.
-
-Also note that the host whitelist applies to all request handlers,
-including any extra ones added to extend the Bokeh server.
-
 Bokeh server can fork the underlying tornado server into multiprocess.  This is
 useful when trying to handle multiple connections especially in the context of
 apps which require high computational loads.  Default behavior is one process.
@@ -324,6 +286,7 @@ import logging
 log = logging.getLogger(__name__)
 
 import argparse
+import warnings
 
 from bokeh.application import Application
 from bokeh.resources import DEFAULT_SERVER_PORT
@@ -416,7 +379,7 @@ class Serve(Subcommand):
             metavar='HOST[:PORT]',
             action='append',
             type=str,
-            help="Public hostnames to allow in requests",
+            help="*** IGNORED, NO LONGER USED OR NECESSARY ***",
         )),
 
         ('--prefix', dict(
@@ -495,6 +458,9 @@ class Serve(Subcommand):
         log_level = getattr(logging, args.log_level.upper())
         logging.basicConfig(level=log_level, format=args.log_format)
 
+        if args.host is not None and len(args.host) > 0:
+            warnings.warn("The --hosts parameter is no longer needed or necessary and is ignored. It will be removed and trigger an error in a future release")
+
         if len(applications) == 0:
             # create an empty application by default, typically used with output_server
             applications['/'] = Application()
@@ -525,14 +491,13 @@ class Serve(Subcommand):
         server_kwargs = { key: getattr(args, key) for key in ['port',
                                                               'address',
                                                               'allow_websocket_origin',
-                                                              'host',
                                                               'num_procs',
                                                               'prefix',
                                                               'keep_alive_milliseconds',
                                                               'check_unused_sessions_milliseconds',
                                                               'unused_session_lifetime_milliseconds',
                                                               'stats_log_frequency_milliseconds',
-                                                              'use_xheaders'
+                                                              'use_xheaders',
                                                             ]
                           if getattr(args, key, None) is not None }
 
