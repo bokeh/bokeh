@@ -27,9 +27,10 @@ export class RBush extends SpatialIndex {
 
   indices(rect: Rect): number[] {
     const points = this.search(rect)
-    const indices = new Array<number>(points.length)
-    for (const {i} of points) {
-      indices.push(i)
+    const n = points.length
+    const indices = new Array<number>(n)
+    for (let j = 0; j < n; j++) {
+      indices[j] = points[j].i
     }
     return indices
   }
