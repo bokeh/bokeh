@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
 import warnings
+import six
 
 from ..core.has_props import abstract
 from ..core.properties import Any, Bool, ColumnData, Dict, Enum, Instance, Int, JSON, List, Seq, String
@@ -326,6 +327,17 @@ class TableDataSource(ColumnarDataSource):
     filter = Seq(Int, default=[])
 
     cds = Instance(ColumnDataSource)
+
+    def __getitem__(self, key):
+        import numpy as np
+        if isinstance(key, six.string_types):
+            colname = key
+            return np.array(self.cds.data[colname])
+        else:
+            key = list(key) #TODO check whether list is correct length, support int indexing
+            n = list(set(len(x) for x in self.cds.data.values()))[0]
+            filter = [i for i in range(n) if key[i] == True]
+            return TableDataSource(cds=self.cds, filter=filter)
 
 class GeoJSONDataSource(ColumnarDataSource):
     '''
