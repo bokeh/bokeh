@@ -8,8 +8,6 @@ log = logging.getLogger(__name__)
 
 from tornado import gen
 
-from bokeh.document import NextTickCallback, PeriodicCallback, TimeoutCallback
-
 @gen.coroutine
 def yield_for_all_futures(result):
     """ Converts result into a Future by collapsing any futures inside result.
@@ -186,40 +184,3 @@ class _CallbackGroup(object):
     def remove_periodic_callback(self, callback):
         """ Removes a callback added with add_periodic_callback."""
         self._remove(callback, self._periodic_callbacks)
-
-class _DocumentCallbackGroup(object):
-    def __init__(self, io_loop=None):
-        self._group = _CallbackGroup(io_loop)
-        # from callback ids to removers
-        self._removers = dict()
-
-    def remove_all_callbacks(self):
-        for r in list(self._removers.values()):
-            r()
-
-    def add_session_callbacks(self, callbacks):
-        for cb in callbacks:
-            self.add_session_callback(cb)
-
-    def add_session_callback(self, callback):
-        def cleanup(func):
-            if callback.id in self._removers:
-                del self._removers[callback.id]
-        if isinstance(callback, PeriodicCallback):
-            remover = self._group.add_periodic_callback(callback.callback, callback.period, cleanup)
-        elif isinstance(callback, TimeoutCallback):
-            remover = self._group.add_timeout_callback(callback.callback, callback.timeout, cleanup)
-        elif isinstance(callback, NextTickCallback):
-            remover = self._group.add_next_tick_callback(callback.callback, cleanup)
-        else:
-            raise ValueError("Expected callback of type PeriodicCallback, TimeoutCallback, NextTickCallback, got: %s" % callback.callback)
-        self._removers[callback.id] = remover
-
-    def remove_session_callback(self, callback):
-        # we may be called multiple times because of multiple
-        # views on a document - the document has to notify that
-        # the callback was removed even if only one view invoked
-        # it. So we need to silently no-op if we're already
-        # removed.
-        if callback.id in self._removers:
-            self._removers[callback.id]()

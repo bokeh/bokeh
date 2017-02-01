@@ -43,7 +43,7 @@ def test_editable_changes_data(output_file_url, selenium):
     actions = ActionChains(selenium)
     actions.move_to_element(row_1_cell)
     actions.double_click()
-    actions.send_keys("33\ue007")  # After the backslash is ENTER key
+    actions.send_keys(u"33\ue007")  # After the backslash is ENTER key
     actions.perform()
 
     # Click row_2 (which triggers alert again so we can inspect the data)

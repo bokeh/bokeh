@@ -4,9 +4,10 @@
 from __future__ import absolute_import
 
 from ..core.enums import StepMode, JitterRandomDistribution
-from ..core.properties import abstract
-from ..core.properties import Either, Enum, Float, Instance, Seq, String, Bool
+from ..core.has_props import abstract
+from ..core.properties import Bool, Either, Enum, Float, Instance, Seq, String
 from ..model import Model
+
 from .sources import ColumnarDataSource
 
 @abstract
@@ -75,6 +76,7 @@ class Interpolator(Transform):
     documentation for the final derived classes (Jitter, LineraInterpolator,
     StepInterpolator) for mor information on their specific methods of
     interpolation.
+
     '''
     x = Either(String, Seq(Float), help="""
     Independant coordiante denoting the location of a point.
@@ -99,14 +101,16 @@ class Interpolator(Transform):
 
 
 class LinearInterpolator(Interpolator):
-    ''' Compute a linear interpolation between the control points provided throught the ``x``, ``y``, and ``data`` parameters.
+    ''' Compute a linear interpolation between the control points provided through
+    the ``x``, ``y``, and ``data`` parameters.
 
     '''
     pass
 
 
 class StepInterpolator(Interpolator):
-    ''' Compute a step-wise interpolation between the points provided throught the ``x``, ``y``, and ``data`` parameters.
+    ''' Compute a step-wise interpolation between the points provided through
+    the ``x``, ``y``, and ``data`` parameters.
 
     '''
 

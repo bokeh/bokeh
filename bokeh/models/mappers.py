@@ -1,22 +1,21 @@
-""" Models for mapping values from one range or space to another.
+''' Models for mapping values from one range or space to another.
 
-"""
+'''
 from __future__ import absolute_import
+
 import warnings
 
-from ..model import Model
-from ..core.properties import abstract
-from ..core.properties import Color, Enum, Seq, Either, String, Int, Float, Date, Datetime
-from ..core.enums import Palette
 from .. import palettes
-
+from ..core.has_props import abstract
+from ..core.properties import Color, Date, Datetime, Either, Enum, Float, Int, Seq, String
+from ..core.enums import Palette
+from ..model import Model
 
 @abstract
 class ColorMapper(Model):
-    """ Base class for color mapper types. ``ColorMapper`` is not
-    generally useful to instantiate on its own.
+    ''' Base class for color mapper types.
 
-    """
+    '''
 
     palette = Seq(Color, help="""
     A sequence of colors to use as the target palette for mapping.
@@ -36,10 +35,10 @@ class ColorMapper(Model):
 
 
 class CategoricalColorMapper(ColorMapper):
-    """ Map categories to colors. Values that are passed to
+    ''' Map categories to colors. Values that are passed to
     this mapper that aren't in factors will be assigned the nan_color.
 
-    """
+    '''
 
     factors = Either(Seq(String), Seq(Int), Seq(Float), Seq(Datetime), Seq(Date), help="""
     A sequence of factors / categories that map to the color palette.
@@ -59,10 +58,9 @@ factors. %s will be assigned to `nan_color` %s""" % (extra_factors, self.nan_col
 
 @abstract
 class ContinuousColorMapper(ColorMapper):
-    """ Base class for cotinuous color mapper types. ``ContinuousColorMapper`` is not
-    generally useful to instantiate on its own.
+    ''' Base class for continuous color mapper types.
 
-    """
+    '''
 
     low = Float(help="""
     The minimum value of the range to map into the palette. Values below
@@ -85,7 +83,7 @@ class ContinuousColorMapper(ColorMapper):
     """)
 
 class LinearColorMapper(ContinuousColorMapper):
-    """ Map numbers in a range [*low*, *high*] linearly into a
+    ''' Map numbers in a range [*low*, *high*] linearly into a
     sequence of colors (a palette).
 
     For example, if the range is [0, 99] and the palette is
@@ -98,12 +96,10 @@ class LinearColorMapper(ContinuousColorMapper):
        66 >= x < 99 : 'blue'
        99 >= x      : 'blue'    # values > high are clamped
 
-    """
-
-
+    '''
 
 class LogColorMapper(ContinuousColorMapper):
-    """ Map numbers in a range [*low*, *high*] into a
+    ''' Map numbers in a range [*low*, *high*] into a
     sequence of colors (a palette) on a natural logarithm scale.
 
     For example, if the range is [0, 25] and the palette is
@@ -120,4 +116,4 @@ class LogColorMapper(ContinuousColorMapper):
         The LogColorMapper only works for images with scalar values that are
         non-negative.
 
-    """
+    '''

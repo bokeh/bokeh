@@ -1,6 +1,6 @@
 # This will first install the library located at the file path and then
 # move on to its abstract dependencies (listed in install_requires),
-# combining them with its --index option (the PyPi location) and 
+# combining them with its --index option (the PyPi location) and
 # turning them into concrete dependencies and installing them.
 # Reference: https://caremad.io/blog/setup-vs-requirement/
 --index-url https://pypi.python.org/simple/

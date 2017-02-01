@@ -1,9 +1,12 @@
 from __future__ import absolute_import
+
+from ..core.properties import Any, Dict, String
 from ..model import Model
-from ..core.properties import (Any, Dict, String)
 
 class ImageSource(Model):
-    """ A base class for all image source types. """
+    ''' A base class for all image source types.
+
+    '''
 
     _args = ('url', 'extra_url_vars')
 

@@ -305,7 +305,7 @@ export class HoverTool extends InspectTool
       names:        [ p.Array,  []             ]
       mode:         [ p.String, 'mouse'        ] # TODO (bev)
       point_policy: [ p.String, 'snap_to_data' ] # TODO (bev) "follow_mouse", "none"
-      line_policy:  [ p.String, 'prev'         ] # TODO (bev) "next", "nearest", "interp", "none"
+      line_policy:  [ p.String, 'nearest'      ] # TODO (bev) "next", "nearest", "interp", "none"
       show_arrow:   [ p.Boolean, true          ]
       anchor:       [ p.String, 'center'       ] # TODO: enum
       attachment:   [ p.String, 'horizontal'   ] # TODO: enum

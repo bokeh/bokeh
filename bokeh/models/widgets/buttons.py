@@ -1,21 +1,24 @@
-""" Various kinds of button widgets.
+''' Various kinds of button widgets.
 
-"""
+'''
 from __future__ import absolute_import
 
 import warnings
 
-from ...core.has_props import HasProps
-from ...core.properties import abstract
-from ...core.properties import Bool, Int, String, Enum, Instance, List, Tuple, Override
 from ...core.enums import ButtonType
+from ...core.has_props import abstract, HasProps
+from ...core.properties import Bool, Enum, Instance, Int, List, Override, String, Tuple
+
 from ..callbacks import Callback
-from .widget import Widget
+
 from .icons import AbstractIcon
+from .widget import Widget
 
 @abstract
 class ButtonLike(HasProps):
-    """ Shared properties for button-like widgets. """
+    ''' Shared properties for button-like widgets.
+
+    '''
 
     button_type = Enum(ButtonType, help="""
     A style for the button, signifying it's role.
@@ -43,11 +46,9 @@ class ButtonLike(HasProps):
 
 @abstract
 class AbstractButton(Widget, ButtonLike):
-    """ A base class that defines common properties for all
-    button types. ``AbstractButton`` is not generally useful to
-    instantiate on its own.
+    ''' A base class that defines common properties for all button types.
 
-    """
+    '''
 
     label = String("Button", help="""
     The text label for the button to display.
@@ -63,16 +64,16 @@ class AbstractButton(Widget, ButtonLike):
 
 
 class Button(AbstractButton):
-    """ A click button.
+    ''' A click button.
 
-    """
+    '''
 
     clicks = Int(0, help="""
     A private property used to trigger ``on_click`` event handler.
     """)
 
     def on_click(self, handler):
-        """ Set up a handler for button clicks.
+        ''' Set up a handler for button clicks.
 
         Args:
             handler (func) : handler function to call when button is clicked.
@@ -80,14 +81,14 @@ class Button(AbstractButton):
         Returns:
             None
 
-        """
+        '''
         self.on_change('clicks', lambda attr, old, new: handler())
 
 
 class Toggle(AbstractButton):
-    """ A two-state toggle button.
+    ''' A two-state toggle button.
 
-    """
+    '''
 
     label = Override(default="Toggle")
 
@@ -109,9 +110,9 @@ class Toggle(AbstractButton):
         self.on_change('active', lambda attr, old, new: handler(new))
 
 class Dropdown(AbstractButton):
-    """ A dropdown button.
+    ''' A dropdown button.
 
-    """
+    '''
 
     label = Override(default="Dropdown")
 
@@ -129,7 +130,7 @@ class Dropdown(AbstractButton):
     """)
 
     def on_click(self, handler):
-        """ Set up a handler for button or menu item clicks.
+        ''' Set up a handler for button or menu item clicks.
 
         Args:
             handler (func) : handler function to call when button is activated.
@@ -137,5 +138,5 @@ class Dropdown(AbstractButton):
         Returns:
             None
 
-        """
+        '''
         self.on_change('value', lambda attr, old, new: handler(new))

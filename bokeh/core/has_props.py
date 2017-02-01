@@ -1,4 +1,5 @@
-'''
+''' Provide a base class for objects that can have declarative, typed,
+serializable properties.
 
 .. note::
     These classes form part of the very low-level machinery that implements
@@ -35,7 +36,14 @@ if IPython:
     class _BokehPrettyPrinter(RepresentationPrinter):
         def __init__(self, output, verbose=False, max_width=79, newline='\n'):
             super(_BokehPrettyPrinter, self).__init__(output, verbose, max_width, newline)
-            self.type_pprinters[HasProps] = lambda obj, p, cycle: obj._bokeh_repr_pretty_(p, cycle)
+            self.type_pprinters[HasProps] = lambda obj, p, cycle: obj._repr_pretty(p, cycle)
+
+_ABSTRACT_ADMONITION = '''
+    .. note::
+        This is an abstract base class used to help organize the hierarchy of Bokeh
+        model types. **It is not useful to instantiate on its own.**
+
+'''
 
 _EXAMPLE_TEMPLATE = '''
 
@@ -43,11 +51,20 @@ _EXAMPLE_TEMPLATE = '''
     -------
 
     .. bokeh-plot:: ../%(path)s
-        :source-position: none
-
-    *source:* :bokeh-tree:`%(path)s`
+        :source-position: below
 
 '''
+
+def abstract(cls):
+    ''' A decorator to mark abstract base classes derived from |HasProps|.
+
+    '''
+    if not issubclass(cls, HasProps):
+        raise TypeError("%s is not a subclass of HasProps" % cls.__name__)
+
+    cls.__doc__ += _ABSTRACT_ADMONITION
+
+    return cls
 
 class MetaHasProps(type):
     ''' Specialize the construction of |HasProps| classes.
@@ -272,6 +289,7 @@ class HasProps(with_metaclass(MetaHasProps, object)):
             True, if properties are structurally equal, otherwise False
 
         '''
+
         # NOTE: don't try to use this to implement __eq__. Because then
         # you will be tempted to implement __hash__, which would interfere
         # with mutability of models. However, not implementing __hash__
@@ -694,7 +712,7 @@ class HasProps(with_metaclass(MetaHasProps, object)):
         '''
         return self.__class__(**self._property_values)
 
-    def _bokeh_repr_pretty_(self, p, cycle):
+    def _repr_pretty(self, p, cycle):
         '''
 
         '''

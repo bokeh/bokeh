@@ -1,4 +1,4 @@
-import * as rbush from "rbush"
+import {RBush} from "../../core/util/spatial"
 import * as Quad from "./quad"
 import {Glyph, GlyphView} from "./glyph"
 import {CategoricalMapper} from "../mappers/categorical_mapper"
@@ -38,8 +38,7 @@ export class HBarView extends GlyphView
     y = map_to_synthetic(@renderer.ymapper, @_y)
     height = map_to_synthetic(@renderer.ymapper, @_height)
 
-    index = rbush()
-    pts = []
+    points = []
 
     for i in [0...y.length]
       l = left[i]
@@ -48,10 +47,9 @@ export class HBarView extends GlyphView
       b = y[i] - 0.5 * height[i]
       if isNaN(l+r+t+b) or not isFinite(l+r+t+b)
         continue
-      pts.push({minX: l, minY: b, maxX: r, maxY: t, i: i})
+      points.push({minX: l, minY: b, maxX: r, maxY: t, i: i})
 
-    index.load(pts)
-    return index
+    return new RBush(points)
 
   _render: (ctx, indices, {sleft, sright, stop, sbottom}) ->
     for i in indices
@@ -73,7 +71,7 @@ export class HBarView extends GlyphView
     x = @renderer.xmapper.map_from_target(vx, true)
     y = @renderer.ymapper.map_from_target(vy, true)
 
-    hits = (x.i for x in @index.search({minX: x, minY: y, maxX: x, maxY: y}))
+    hits = @index.indices({minX: x, minY: y, maxX: x, maxY: y})
 
     result = hittest.create_hit_test_result()
     result['1d'].indices = hits

@@ -209,7 +209,7 @@ class TestResources(unittest.TestCase):
 
 def test_external_js_and_css_resource_embedding():
     """ This test method has to be at the end of the test modules because
-    subclassing a Model causes the CustomModel to be added as a Viewable and
+    subclassing a Model causes the CustomModel to be added as a MetaModel and
     messes up the Resources state for the other tests.
     """
 

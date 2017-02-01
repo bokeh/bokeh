@@ -1,27 +1,25 @@
-""" Models for describing different kinds of ranges of values
+''' Models for describing different kinds of ranges of values
 in different kinds of spaces (e.g., continuous or categorical)
 and with options for "auto sizing".
 
-"""
+'''
 from __future__ import absolute_import
 
-from ..model import Model
 from ..core.enums import StartEnd
-from ..core.properties import abstract
-from ..core.properties import (
-    Auto, Bool, Int, Float, String, Datetime, TimeDelta, Instance, List,
-    Either, Enum, MinMaxBounds,
-)
+from ..core.has_props import abstract
+from ..core.properties import (Auto, Bool, Datetime, Either, Enum, Float, Instance, Int,
+                               List, MinMaxBounds, String, TimeDelta)
+from ..model import Model
+
 from .callbacks import Callback
 from .renderers import Renderer
 
 
 @abstract
 class Range(Model):
-    """ A base class for all range types. ``Range`` is not generally
-    useful to instantiate on its own.
+    ''' A base class for all range types.
 
-    """
+    '''
 
     callback = Instance(Callback, help="""
     A callback to run in the browser whenever the range is updated.
@@ -29,7 +27,7 @@ class Range(Model):
 
 
 class Range1d(Range):
-    """ A fixed, closed range [start, end] in a continuous scalar
+    ''' A fixed, closed range [start, end] in a continuous scalar
     dimension.
 
     In addition to supplying ``start`` and ``end`` keyword arguments
@@ -38,7 +36,7 @@ class Range1d(Range):
 
         Range(0, 10) # equivalent to Range(start=0, end=10)
 
-    """
+    '''
 
     start = Either(Float, Datetime, Int, default=0, help="""
     The start of the range.
@@ -92,10 +90,9 @@ class Range1d(Range):
 
 @abstract
 class DataRange(Range):
-    """ A base class for all data range types. ``DataRange`` is not
-    generally useful to instantiate on its own.
+    ''' A base class for all data range types.
 
-    """
+    '''
 
     names = List(String, help="""
     A list of names to query for. If set, only renderers that
@@ -110,9 +107,10 @@ class DataRange(Range):
 
 
 class DataRange1d(DataRange):
-    """ An auto-fitting range in a continuous scalar dimension.
+    ''' An auto-fitting range in a continuous scalar dimension.
     The upper and lower bounds are set to the min and max of the data.
-    """
+
+    '''
 
     range_padding = Float(default=0.1, help="""
     A fraction of the total range size to add as padding to
@@ -199,7 +197,7 @@ class DataRange1d(DataRange):
 
 
 class FactorRange(Range):
-    """ A range in a categorical dimension.
+    ''' A range in a categorical dimension.
 
     In addition to supplying ``factors`` keyword argument to the
     ``FactorRange`` initializer, you can also instantiate with
@@ -211,7 +209,7 @@ class FactorRange(Range):
         ``FactorRange`` may be renamed to ``CategoricalRange`` in
         the future.
 
-    """
+    '''
 
     offset = Float(0, help="""
     An offset to the (synthetic) range (default: 0)

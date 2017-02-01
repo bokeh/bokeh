@@ -1,6 +1,3 @@
-import * as rbush from "rbush"
-
-import {CategoricalMapper} from "../mappers/categorical_mapper"
 import * as p from "../../core/properties"
 import * as bbox from "../../core/util/bbox"
 import * as proj from "../../core/util/projections"
@@ -52,9 +49,8 @@ export class GlyphView extends BokehView
   bounds: () ->
     if not @index?
       return bbox.empty()
-    d = @index.data
-    bb = {minX: d.minX, minY: d.minY, maxX: d.maxX, maxY: d.maxY}
-    return @_bounds(bb)
+    else
+      return @_bounds(@index.bbox)
 
   log_bounds: () ->
     if not @index?
@@ -94,32 +90,6 @@ export class GlyphView extends BokehView
   # snapping to a patch centroid, e.g, should override these
   scx: (i) -> return @sx[i]
   scy: (i) -> return @sy[i]
-
-  _xy_index: () ->
-    index = rbush()
-    pts = []
-
-    # if the range is categorical, map to synthetic coordinates first
-    if @renderer.xmapper instanceof CategoricalMapper
-      xx = @renderer.xmapper.v_map_to_target(@_x, true)
-    else
-      xx = @_x
-    if @renderer.ymapper instanceof CategoricalMapper
-      yy = @renderer.ymapper.v_map_to_target(@_y, true)
-    else
-      yy = @_y
-
-    for i in [0...xx.length]
-      x = xx[i]
-      if isNaN(x) or not isFinite(x)
-        continue
-      y = yy[i]
-      if isNaN(y) or not isFinite(y)
-        continue
-      pts.push({minX: x, minY: y, maxX: x, maxY: y, i: i})
-
-    index.load(pts)
-    return index
 
   sdist: (mapper, pts, spans, pts_location="edge", dilate=false) ->
     if isString(pts[0])

@@ -1,39 +1,35 @@
-""" Models for representing top-level plot objects.
+''' Models for representing top-level plot objects.
 
-"""
+'''
 from __future__ import absolute_import
 
 from six import string_types
 
-from ..core.query import find
-from ..core import validation
-from ..core.validation.errors import REQUIRED_RANGE
-from ..core.validation.warnings import (
-    MISSING_RENDERERS, NO_DATA_RENDERERS, MALFORMED_CATEGORY_LABEL,
-    SNAPPED_TOOLBAR_ANNOTATIONS)
 from ..core.enums import Location
+from ..core.properties import Auto, Bool, Dict, Either, Enum, Include, Instance, Int, List, Override, String
 from ..core.property_mixins import LineProps, FillProps
-from ..core.properties import (
-    Bool, Int, String, Enum, Auto, Instance, Either,
-    List, Dict, Include, Override)
+from ..core.query import find
+from ..core.validation import error, warning
+from ..core.validation.errors import REQUIRED_RANGE
+from ..core.validation.warnings import (MISSING_RENDERERS, NO_DATA_RENDERERS,
+                                        MALFORMED_CATEGORY_LABEL, SNAPPED_TOOLBAR_ANNOTATIONS)
+from ..util.plot_utils import _list_attr_splat, _select_helper
 from ..util.string import nice_join
 
 from .annotations import Legend, Title
 from .axes import Axis
 from .glyphs import Glyph
 from .grids import Grid
-from .ranges import Range, FactorRange
-from .renderers import Renderer, GlyphRenderer, DataRenderer, TileRenderer, DynamicImageRenderer
-from .sources import DataSource, ColumnDataSource
-from .tools import Tool, ToolEvents, Toolbar
 from .layouts import LayoutDOM
-
-from ..util.plot_utils import _list_attr_splat, _select_helper
+from .ranges import Range, FactorRange
+from .renderers import DataRenderer, DynamicImageRenderer, GlyphRenderer, Renderer, TileRenderer
+from .sources import DataSource, ColumnDataSource
+from .tools import Tool, Toolbar, ToolEvents
 
 class Plot(LayoutDOM):
-    """ Model representing a plot, containing glyphs, guides, annotations.
+    ''' Model representing a plot, containing glyphs, guides, annotations.
 
-    """
+    '''
 
     def __init__(self, **kwargs):
         if "tool_events" not in kwargs:
@@ -140,30 +136,30 @@ class Plot(LayoutDOM):
 
     @property
     def xaxis(self):
-        """ Splattable list of :class:`~bokeh.models.axes.Axis` objects for the x dimension.
+        ''' Splattable list of :class:`~bokeh.models.axes.Axis` objects for the x dimension.
 
-        """
+        '''
         return self._axis("above", "below")
 
     @property
     def yaxis(self):
-        """ Splattable list of :class:`~bokeh.models.axes.Axis` objects for the y dimension.
+        ''' Splattable list of :class:`~bokeh.models.axes.Axis` objects for the y dimension.
 
-        """
+        '''
         return self._axis("left", "right")
 
     @property
     def axis(self):
-        """ Splattable list of :class:`~bokeh.models.axes.Axis` objects.
+        ''' Splattable list of :class:`~bokeh.models.axes.Axis` objects.
 
-        """
+        '''
         return _list_attr_splat(self.xaxis + self.yaxis)
 
     @property
     def legend(self):
-        """Splattable list of :class:`~bokeh.models.annotations.Legend` objects.
+        ''' Splattable list of :class:`~bokeh.models.annotations.Legend` objects.
 
-        """
+        '''
         legends = [obj for obj in self.renderers if isinstance(obj, Legend)]
         return _list_attr_splat(legends)
 
@@ -173,23 +169,23 @@ class Plot(LayoutDOM):
 
     @property
     def xgrid(self):
-        """ Splattable list of :class:`~bokeh.models.grids.Grid` objects for the x dimension.
+        ''' Splattable list of :class:`~bokeh.models.grids.Grid` objects for the x dimension.
 
-        """
+        '''
         return self._grid(0)
 
     @property
     def ygrid(self):
-        """ Splattable list of :class:`~bokeh.models.grids.Grid` objects for the y dimension.
+        ''' Splattable list of :class:`~bokeh.models.grids.Grid` objects for the y dimension.
 
-        """
+        '''
         return self._grid(1)
 
     @property
     def grid(self):
-        """ Splattable list of :class:`~bokeh.models.grids.Grid` objects.
+        ''' Splattable list of :class:`~bokeh.models.grids.Grid` objects.
 
-        """
+        '''
         return _list_attr_splat(self.xgrid + self.ygrid)
 
     @property
@@ -285,7 +281,7 @@ class Plot(LayoutDOM):
         return g
 
     def add_tile(self, tile_source, **kw):
-        '''Adds new TileRenderer into the Plot.renderers
+        ''' Adds new TileRenderer into the Plot.renderers
 
         Args:
             tile_source (TileSource) : a tile source instance which contain tileset configuration
@@ -302,7 +298,7 @@ class Plot(LayoutDOM):
         return tile_renderer
 
     def add_dynamic_image(self, image_source, **kw):
-        '''Adds new DynamicImageRenderer into the Plot.renderers
+        ''' Adds new DynamicImageRenderer into the Plot.renderers
 
         Args:
             image_source (ImageSource) : a image source instance which contain image configuration
@@ -318,7 +314,7 @@ class Plot(LayoutDOM):
         self.renderers.append(image_renderer)
         return image_renderer
 
-    @validation.error(REQUIRED_RANGE)
+    @error(REQUIRED_RANGE)
     def _check_required_range(self):
         missing = []
         if not self.x_range: missing.append('x_range')
@@ -326,17 +322,17 @@ class Plot(LayoutDOM):
         if missing:
             return ", ".join(missing) + " [%s]" % self
 
-    @validation.warning(MISSING_RENDERERS)
+    @warning(MISSING_RENDERERS)
     def _check_missing_renderers(self):
         if len(self.renderers) == 0:
             return str(self)
 
-    @validation.warning(NO_DATA_RENDERERS)
+    @warning(NO_DATA_RENDERERS)
     def _check_no_data_renderers(self):
         if len(self.select(DataRenderer)) == 0:
             return str(self)
 
-    @validation.warning(MALFORMED_CATEGORY_LABEL)
+    @warning(MALFORMED_CATEGORY_LABEL)
     def _check_colon_in_category_label(self):
         if not self.x_range: return
         if not self.y_range: return
@@ -358,7 +354,7 @@ class Plot(LayoutDOM):
                                  for field, value in broken)
             return '%s [renderer: %s]' % (field_msg, self)
 
-    @validation.warning(SNAPPED_TOOLBAR_ANNOTATIONS)
+    @warning(SNAPPED_TOOLBAR_ANNOTATIONS)
     def _check_snapped_toolbar_and_axis(self):
         if not self.toolbar_sticky: return
         if self.toolbar_location is None: return

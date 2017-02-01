@@ -1,10 +1,7 @@
-import {Glyph, GlyphView} from "./glyph"
+import {XYGlyph, XYGlyphView} from "./xy_glyph"
 import * as p from "../../core/properties"
 
-export class RayView extends GlyphView
-
-  _index_data: () ->
-    @_xy_index()
+export class RayView extends XYGlyphView
 
   _map_data: () ->
     @slength = @sdist(@renderer.xmapper, @_x, @_length)
@@ -39,12 +36,11 @@ export class RayView extends GlyphView
   draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
     @_generic_line_legend(ctx, x0, x1, y0, y1, index)
 
-export class Ray extends Glyph
+export class Ray extends XYGlyph
   default_view: RayView
 
   type: 'Ray'
 
-  @coords [['x', 'y']]
   @mixins ['line']
   @define {
       length: [ p.DistanceSpec ]
