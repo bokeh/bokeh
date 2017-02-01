@@ -399,8 +399,10 @@ export class HasProps extends Backbone.Model
       if (prop.optional || false) and prop.spec.value == null and (name not of @_set_after_defaults)
         continue
       data["_#{name}"] = prop.array(source)
-      if name of source._shapes
-        data["_#{name}_shape"] = source._shapes[name]
+      # the shapes are indexed by the column name, but when we materialize the dataspec, we should
+      # store under the canonical field name, e.g. _image_shape, even if the column name is "foo"
+      if prop.spec.field? and prop.spec.field of source._shapes
+        data["_#{name}_shape"] = source._shapes[prop.spec.field]
       if prop instanceof p.Distance
         data["max_#{name}"] = max(data["_#{name}"])
     return data

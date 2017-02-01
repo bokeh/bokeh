@@ -8,9 +8,10 @@ import bokeh.document as document
 from bokeh.application import Application
 from bokeh.application.handlers import FunctionHandler
 from bokeh.client import pull_session, push_session, ClientSession
-from bokeh.document import ModelChangedEvent, TitleChangedEvent, Document
+from bokeh.document import Document
 from bokeh.model import Model
 from bokeh.models import Plot
+from bokeh.server.events import ModelChangedEvent, TitleChangedEvent
 from bokeh.core.properties import Int, Instance, Dict, String, Any, DistanceSpec, AngleSpec
 from tornado import gen
 from tornado.httpclient import HTTPError

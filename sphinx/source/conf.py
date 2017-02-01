@@ -130,7 +130,9 @@ autodoc_member_order = 'groupwise'
 rst_prolog = """
 .. |Color|              replace:: :py:class:`~bokeh.core.properties.Color`
 .. |DataSpec|           replace:: :py:class:`~bokeh.core.properties.DataSpec`
+.. |Document|           replace:: :py:class:`~bokeh.document.Document`
 .. |HasProps|           replace:: :py:class:`~bokeh.core.has_props.HasProps`
+.. |Model|              replace:: :py:class:`~bokeh.model.Model`
 .. |Property|           replace:: :py:class:`~bokeh.core.property.bases.Property`
 .. |PropertyContainer|  replace:: :py:class:`~bokeh.core.property.containers.PropertyContainer`
 .. |PropertyDescriptor| replace:: :py:class:`~bokeh.core.property.descriptor.PropertyDescriptor`

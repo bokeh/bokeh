@@ -5,7 +5,7 @@ from tornado.ioloop import IOLoop
 from bokeh.application import Application
 from bokeh.application.handlers import FunctionHandler
 from bokeh.embed import autoload_server
-from bokeh.layouts import column
+from bokeh.layouts import row, widgetbox
 from bokeh.models import ColumnDataSource, Slider
 from bokeh.plotting import figure
 from bokeh.server.server import Server
@@ -18,7 +18,7 @@ def modify_doc(doc):
 
     source = ColumnDataSource(data=dict(x=x, y=y))
 
-    plot = figure()
+    plot = figure(title="Simple plot with slider")
     plot.line('x', 'y', source=source)
 
     slider = Slider(start=1, end=10, value=1, step=0.1)
@@ -28,7 +28,7 @@ def modify_doc(doc):
         source.data = dict(x=x, y=y)
     slider.on_change('value', callback)
 
-    doc.add_root(column(slider, plot))
+    doc.add_root(row(widgetbox(slider), plot))
 
 bokeh_app = Application(FunctionHandler(modify_doc))
 
@@ -40,7 +40,7 @@ server.start()
 @flask_app.route('/', methods=['GET'])
 def bkapp_page():
     script = autoload_server(model=None, url='http://localhost:5006/bkapp')
-    return render_template("embed.html", script=script)
+    return render_template("embed.html", script=script, template="Flask")
 
 if __name__ == '__main__':
     from tornado.httpserver import HTTPServer

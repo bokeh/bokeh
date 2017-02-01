@@ -1,24 +1,27 @@
-""" Client-side interactivity. """
+''' Client-side interactivity.
 
+'''
 from __future__ import absolute_import
 
 from types import FunctionType
+
+from ..core.has_props import abstract
+from ..core.properties import Dict, Instance, String
 from ..model import Model
 from ..util.dependencies import import_required
 from ..util.compiler import nodejs_compile, CompilationError
 
-from ..core.properties import abstract
-from ..core.properties import Dict, Instance, String
-
-
 @abstract
 class Callback(Model):
-    """ Base class for interactive callback. ``Callback`` is generally
-    not useful to instantiate on its own."""
+    ''' Base class for interactive callback.
+
+    '''
 
 
 class OpenURL(Callback):
-    """ Open a URL in a new tab or window (browser dependent). """
+    ''' Open a URL in a new tab or window (browser dependent).
+
+    '''
 
     url = String("http://", help="""
     The URL to direct the web browser to. This can be a template string,
@@ -27,7 +30,9 @@ class OpenURL(Callback):
 
 
 class CustomJS(Callback):
-    """ Execute a JavaScript function. """
+    ''' Execute a JavaScript function.
+
+    '''
 
     @classmethod
     def from_py_func(cls, func):
@@ -51,7 +56,9 @@ class CustomJS(Callback):
 
     @classmethod
     def from_coffeescript(cls, code, args={}):
-        """ Create a ``CustomJS`` instance from CoffeeScript code. """
+        ''' Create a ``CustomJS`` instance from CoffeeScript code.
+
+        '''
         compiled = nodejs_compile(code, lang="coffeescript", file="???")
         if "error" in compiled:
             raise CompilationError(compiled.error)

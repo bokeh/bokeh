@@ -1,5 +1,4 @@
-import * as rbush from "rbush"
-
+import {RBush} from "../../core/util/spatial"
 import {Glyph, GlyphView} from "./glyph"
 import {CategoricalMapper} from "../mappers/categorical_mapper"
 import * as hittest from "../../core/hittest"
@@ -19,9 +18,7 @@ export class QuadView extends GlyphView
     top = map_to_synthetic(@renderer.ymapper, @_top)
     bottom = map_to_synthetic(@renderer.ymapper, @_bottom)
 
-    index = rbush()
-    pts = []
-
+    points = []
     for i in [0...left.length]
       l = left[i]
       r = right[i]
@@ -29,10 +26,9 @@ export class QuadView extends GlyphView
       b = bottom[i]
       if isNaN(l+r+t+b) or not isFinite(l+r+t+b)
         continue
-      pts.push({minX: l, minY: b, maxX: r, maxY: t, i: i})
+      points.push({minX: l, minY: b, maxX: r, maxY: t, i: i})
 
-    index.load(pts)
-    return index
+    return new RBush(points)
 
   _render: (ctx, indices, {sleft, sright, stop, sbottom}) ->
     for i in indices
@@ -54,7 +50,7 @@ export class QuadView extends GlyphView
     x = @renderer.xmapper.map_from_target(vx, true)
     y = @renderer.ymapper.map_from_target(vy, true)
 
-    hits = (x.i for x in @index.search({minX: x, minY: y, maxX: x, maxY: y}))
+    hits = @index.indices({minX: x, minY: y, maxX: x, maxY: y})
 
     result = hittest.create_hit_test_result()
     result['1d'].indices = hits

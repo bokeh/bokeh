@@ -1,9 +1,9 @@
-import {Glyph, GlyphView} from "./glyph"
+import {XYGlyph, XYGlyphView} from "./xy_glyph"
 import {LinearColorMapper} from "../mappers/linear_color_mapper"
 import * as p from "../../core/properties"
 import {max, concat} from "../../core/util/array"
 
-export class ImageView extends GlyphView
+export class ImageView extends XYGlyphView
 
   initialize: (options) ->
     super(options)
@@ -14,9 +14,6 @@ export class ImageView extends GlyphView
     if @image_data?
       @_set_data()
       @renderer.plot_view.request_render()
-
-  _index_data: () ->
-    @_xy_index()
 
   _set_data: () ->
     if not @image_data? or @image_data.length != @_image.length
@@ -64,7 +61,6 @@ export class ImageView extends GlyphView
       @max_dh = 0
       if @_dh.units == "data"
         @max_dh = max(@_dh)
-      @_xy_index()
 
   _map_data: () ->
     switch @model.properties.dw.units
@@ -98,24 +94,19 @@ export class ImageView extends GlyphView
     ctx.setImageSmoothingEnabled(old_smoothing)
 
   bounds: () ->
-    d = @index.data
-    return {
-      minX: d.minX,
-      minY: d.minY,
-      maxX: d.maxX + @max_dw,
-      maxY: d.maxY + @max_dh
-    }
+    bbox = @index.bbox
+    bbox.maxX += @max_dw
+    bbox.maxY += @max_dh
+    return bbox
 
 # NOTE: this needs to be redefined here, because palettes are located in bokeh-api.js bundle
 Greys9 = () -> [0x000000, 0x252525, 0x525252, 0x737373, 0x969696, 0xbdbdbd, 0xd9d9d9, 0xf0f0f0, 0xffffff]
 
-export class Image extends Glyph
+export class Image extends XYGlyph
   default_view: ImageView
 
   type: 'Image'
 
-  @coords [['x', 'y']]
-  @mixins []
   @define {
       image:        [ p.NumberSpec       ] # TODO (bev) array spec?
       dw:           [ p.DistanceSpec     ]

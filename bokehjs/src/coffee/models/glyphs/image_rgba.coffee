@@ -1,11 +1,8 @@
-import {Glyph, GlyphView} from "./glyph"
+import {XYGlyph, XYGlyphView} from "./xy_glyph"
 import * as p from "../../core/properties"
 import {max, concat} from "../../core/util/array"
 
-export class ImageRGBAView extends GlyphView
-
-  _index_data: () ->
-    @_xy_index()
+export class ImageRGBAView extends XYGlyphView
 
   # TODO (bev) to improve. Currently, if only one image has changed, can
   # pass index as "arg" to prevent full re-preocessing (useful for streaming)
@@ -105,21 +102,16 @@ export class ImageRGBAView extends GlyphView
     ctx.setImageSmoothingEnabled(old_smoothing)
 
   bounds: () ->
-    d = @index.data
-    return {
-      minX: d.minX,
-      minY: d.minY,
-      maxX: d.maxX + @max_dw,
-      maxY: d.maxY + @max_dh
-    }
+    bbox = @index.bbox
+    bbox.maxX += @max_dw
+    bbox.maxY += @max_dh
+    return bbox
 
-export class ImageRGBA extends Glyph
+export class ImageRGBA extends XYGlyph
   default_view: ImageRGBAView
 
   type: 'ImageRGBA'
 
-  @coords [['x', 'y']]
-  @mixins []
   @define {
       image:  [ p.NumberSpec       ] # TODO (bev) array spec?
       rows:   [ p.NumberSpec       ]

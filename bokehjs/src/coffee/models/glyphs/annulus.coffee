@@ -1,11 +1,8 @@
-import {Glyph, GlyphView} from "./glyph"
+import {XYGlyph, XYGlyphView} from "./xy_glyph"
 import * as hittest from "../../core/hittest"
 import * as p from "../../core/properties"
 
-export class AnnulusView extends GlyphView
-
-  _index_data: () ->
-    @_xy_index()
+export class AnnulusView extends XYGlyphView
 
   _map_data: () ->
     if @model.properties.inner_radius.units == "data"
@@ -69,7 +66,7 @@ export class AnnulusView extends GlyphView
     hits = []
 
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
-    for i in (pt.i for pt in @index.search(bbox))
+    for i in @index.indices(bbox)
       or2 = Math.pow(@souter_radius[i], 2)
       ir2 = Math.pow(@sinner_radius[i], 2)
       sx0 = @renderer.xmapper.map_to_target(x)
@@ -99,12 +96,11 @@ export class AnnulusView extends GlyphView
 
     @_render(ctx, indices, data)
 
-export class Annulus extends Glyph
+export class Annulus extends XYGlyph
   default_view: AnnulusView
 
   type: 'Annulus'
 
-  @coords [['x', 'y']]
   @mixins ['line', 'fill']
   @define {
       inner_radius: [ p.DistanceSpec ]

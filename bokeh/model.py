@@ -1,13 +1,5 @@
-''' Provide a base class for all objects (called Bokeh Models) that go in
-Bokeh Documents.
-
-The :class:`~bokeh.document.Document` class is the basic unit of serialization
-for Bokeh visualizations and applications. Documents contain collections of
-related Bokeh Models (e.g. ``Plot``, ``Range1d``, etc. ) that can be all
-serialized together.
-
-The :class:`~bokeh.model.Model` class is a base class for all objects that
-can be added to a Document.
+''' Provide a base class for all objects (called Bokeh Models) that can go in
+a Bokeh |Document|.
 
 '''
 from __future__ import absolute_import, print_function
@@ -30,63 +22,215 @@ from .util.callback_manager import CallbackManager
 from .util.future import with_metaclass
 from .util.serialization import make_id
 
+def collect_models(*input_values):
+    ''' Collect a duplicate-free list of all other Bokeh models referred to by
+    this model, or by any of its references, etc.
 
-class Viewable(MetaHasProps):
-    """ Any Bokeh Model which has its own View Model in the
-    persistence layer.
+    Iterate over ``input_values`` and descend through their structure
+    collecting all nested ``Models`` on the go. The resulting list is
+    duplicate-free based on objects' identifiers.
 
-    """
+    Args:
+        *input_values (Model)
+            Bokeh models to collect other models from
 
-    # Stores a mapping from subclass __view_model__ names to classes
+    Returns:
+        list[Model] : all models reachable from this one.
+
+    '''
+
+    ids = set([])
+    collected = []
+    queued = []
+
+    def queue_one(obj):
+        if obj._id not in ids:
+            queued.append(obj)
+
+    for value in input_values:
+        _visit_value_and_its_immediate_references(value, queue_one)
+
+    while queued:
+        obj = queued.pop(0)
+        if obj._id not in ids:
+            ids.add(obj._id)
+            collected.append(obj)
+            _visit_immediate_value_references(obj, queue_one)
+
+    return collected
+
+def get_class(view_model_name):
+    ''' Look up a Bokeh model class, given its view model name.
+
+    Args:
+        view_model_name (str) :
+            A view model name for a Bokeh model to look up
+
+    Returns:
+        Model: the model class corresponding to ``view_model_name``
+
+    Raises:
+        KeyError, if the model cannot be found
+
+    Example:
+
+        .. code-block:: python
+
+            >>> from bokeh.model import get_class
+            >>> get_class("Range1d")
+            <class 'bokeh.models.ranges.Range1d'>
+
+    '''
+
+    # in order to look up from the model catalog that MetaModel maintains, it
+    # has to be creates first. These imports ensure that all built-in Bokeh
+    # models are represented in the catalog.
+    from . import models; models
+    from .plotting import Figure; Figure
+
+    # We have to try-except here, because this import will fail if Pandas is
+    # not installed, but in that case bokeh.charts is not usable anyway
+    try:
+        from .charts import Chart; Chart
+    except RuntimeError:
+        pass
+
+    d = MetaModel.model_class_reverse_map
+    if view_model_name in d:
+        return d[view_model_name]
+    else:
+        raise KeyError("View model name '%s' not found" % view_model_name)
+
+class MetaModel(MetaHasProps):
+    ''' Specialize the construction of |Model| classes.
+
+    This class is a `metaclass`_ for |Model| that is responsible for
+    automatically cataloging all Bokeh models that get defined, so that the
+    serialization machinery between Bokeh and BokehJS can function properly.
+
+    .. note::
+        It is worth pointing out explicitly that this relies on the rules
+        for Metaclass inheritance in Python.
+
+    Bokeh works by replicating Python model objects (e.g. plots, ranges,
+    data sources, which are all |HasProps| subclasses) into BokehJS. In the
+    case of using a Bokeh server, the Bokeh model objects can also be
+    synchronized bidirectionally. This is accomplished by serializing the
+    models to and from a JSON format, that includes the name of the model type
+    as part of the payload, as well as a unique ID, and all the attributes:
+
+    .. code-block:: javascript
+
+        {
+            type: "Plot",
+            id: 100032,
+            attributes: { ... }
+        }
+
+    Typically the type name is inferred automatically from the Python class
+    name, and is set as the ``__view_model__`` class attribute on the Model
+    class that is create. But it is also possible to override this value
+    explicitly:
+
+    .. code-block:: python
+
+        class Foo(Model): pass
+
+        class Bar(Model):
+            __view_model__ == "Quux"
+
+    This metaclass will raise an error if two Bokeh models are created that
+    attempt to have the same view model name. The only exception made is if
+    one of the models has a custom ``__implementation__`` in its class
+    definition.
+
+    This metaclass also handles subtype relationships between Bokeh models.
+    Occasionally it may be necessary for multiple class types on the Python
+    side to resolve to the same type on the BokehJS side. This is called
+    subtyping, and is expressed through a ``__subtype__`` class attribute on
+    a model:
+
+    .. code-block:: python
+
+        class Foo(Model): pass
+
+        class Bar(Foo):
+            __view_model__ = "Foo"
+            __subtype__ = "Bar"
+
+    In this case, python instances of ``Foo`` and ``Bar`` will both resolve to
+    ``Foo`` models in BokehJS. In the context of a Bokeh server application,
+    the original python types will be faithfully round-tripped. (Without the
+    ``__subtype__`` specified, the above code would raise an error due to
+    duplicate view model names.)
+
+    .. _metaclass: https://docs.python.org/3/reference/datamodel.html#metaclasses
+
+    '''
+
     model_class_reverse_map = {}
 
-    # Mmmm.. metaclass inheritance.  On the one hand, it seems a little
-    # overkill. On the other hand, this is exactly the sort of thing
-    # it's meant for.
     def __new__(meta_cls, class_name, bases, class_dict):
+        '''
+
+        Raises:
+            Warning
+
+        '''
+
+        # use an explicitly provided view model name if there is one
         if "__view_model__" not in class_dict:
             class_dict["__view_model__"] = class_name
-        class_dict["get_class"] = Viewable.get_class
 
-        # Create the new class
-        newcls = super(Viewable, meta_cls).__new__(meta_cls, class_name, bases, class_dict)
+        # call the parent metaclass to create the new model type
+        newcls = super(MetaModel, meta_cls).__new__(meta_cls, class_name, bases, class_dict)
+
+        # update the mapping of view model names to classes, checking for any duplicates
+        # and handling any subtype relationships or custom implementations
         entry = class_dict.get("__subtype__", class_dict["__view_model__"])
-        # Add it to the reverse map, but check for duplicates first
-        if entry in Viewable.model_class_reverse_map and not hasattr(newcls, "__implementation__"):
+        if entry in MetaModel.model_class_reverse_map and not hasattr(newcls, "__implementation__"):
             raise Warning("Duplicate __view_model__ or __subtype__ declaration of '%s' for " \
                           "class %s.  Previous definition: %s" % \
                           (entry, class_name,
-                           Viewable.model_class_reverse_map[entry]))
-        Viewable.model_class_reverse_map[entry] = newcls
+                           MetaModel.model_class_reverse_map[entry]))
+        MetaModel.model_class_reverse_map[entry] = newcls
+
         return newcls
 
-    @classmethod
-    def _preload_models(cls):
-        from . import models; models
-        from .plotting import Figure; Figure
-        try:
-            from .charts import Chart; Chart
-        except RuntimeError:
-            # this would occur if pandas is not installed but then we can't
-            # use the bokeh.charts interface anyway
-            pass
+_HTML_REPR = """
+<script>
+(function() {
+  var expanded = false;
+  var ellipsis = document.getElementById("%(ellipsis_id)s");
+  ellipsis.addEventListener("click", function() {
+    var rows = document.getElementsByClassName("%(cls_name)s");
+    for (var i = 0; i < rows.length; i++) {
+      var el = rows[i];
+      el.style.display = expanded ? "none" : "table-row";
+    }
+    ellipsis.innerHTML = expanded ? "&hellip;)" : "&lsaquo;&lsaquo;&lsaquo;";
+    expanded = !expanded;
+  });
+})();
+</script>
+"""
 
-    @classmethod
-    def get_class(cls, view_model_name):
-        """ Given a __view_model__ name, returns the corresponding class
-        object
-        """
-        cls._preload_models()
-        d = Viewable.model_class_reverse_map
-        if view_model_name in d:
-            return d[view_model_name]
-        else:
-            raise KeyError("View model name '%s' not found" % view_model_name)
-
-class Model(with_metaclass(Viewable, HasProps, CallbackManager)):
-    ''' Base class for all objects stored in Bokeh ``Document`` instances.
+class Model(with_metaclass(MetaModel, HasProps, CallbackManager)):
+    ''' Base class for all objects stored in Bokeh  |Document| instances.
 
     '''
+
+    def __init__(self, **kwargs):
+        self._id = kwargs.pop("id", make_id())
+        self._document = None
+        super(Model, self).__init__(**kwargs)
+        default_theme.apply_to_model(self)
+
+    def __str__(self):
+        return "%s(id=%r, ...)" % (self.__class__.__name__, getattr(self, "_id", None))
+
+    __repr__ = __str__
+
 
     name = String(help="""
     An arbitrary, user-supplied name for this model.
@@ -102,7 +246,8 @@ class Model(with_metaclass(Viewable, HasProps, CallbackManager)):
 
     .. note::
         No uniqueness guarantees or other conditions are enforced on any names
-        that are provided.
+        that are provided, nor is the name used directly by Bokeh for any
+        reason.
 
     """)
 
@@ -123,6 +268,11 @@ class Model(with_metaclass(Viewable, HasProps, CallbackManager)):
     Or simply a convenient way to attach any necessary metadata to a model
     that can be accessed by CustomJS callbacks, etc.
 
+    .. note::
+        No uniqueness guarantees or other conditions are enforced on any tags
+        that are provided, nor are the tags used directly by Bokeh for any
+        reason.
+
     """)
 
     js_callbacks = Dict(String, List(Instance("bokeh.models.callbacks.CustomJS")), help="""
@@ -139,42 +289,40 @@ class Model(with_metaclass(Viewable, HasProps, CallbackManager)):
 
     """)
 
-    def __init__(self, **kwargs):
-        self._id = kwargs.pop("id", make_id())
-        self._document = None
-        super(Model, self).__init__(**kwargs)
-        default_theme.apply_to_model(self)
-
-    def _attach_document(self, doc):
-        '''This should only be called by the Document implementation to set the document field'''
-        if self._document is not None and self._document is not doc:
-            raise RuntimeError("Models must be owned by only a single document, %r is already in a doc" % (self))
-        doc.theme.apply_to_model(self)
-        self._document = doc
-
-    def _detach_document(self):
-        '''This should only be called by the Document implementation to unset the document field'''
-        self._document = None
-        default_theme.apply_to_model(self)
 
     @property
     def document(self):
-        return self._document
-
-    def on_change(self, attr, *callbacks):
-        ''' Add a callback on this object to trigger when ``attr`` changes.
-
-        Args:
-            attr (str) : an attribute name on this object
-            callback (callable) : a callback function to register
-
-        Returns:
-            None
+        ''' The |Document| this model is attached to (can be ``None``)
 
         '''
-        if attr not in self.properties():
-            raise ValueError("attempted to add a callback on nonexistent %s.%s property" % (self.__class__.__name__, attr))
-        super(Model, self).on_change(attr, *callbacks)
+        return self._document
+
+    @property
+    def ref(self):
+        ''' A Bokeh protocol "reference" to this model, i.e. a dict of the
+        form:
+
+        .. code-block:: python
+
+            {
+                'type' : << view model name >>
+                'id'   : << unique model id >>
+            }
+
+        Additionally there may be a `subtype` field if this model is a subtype.
+
+        '''
+        if "__subtype__" in self.__class__.__dict__:
+            return {
+                'type'    : self.__view_model__,
+                'subtype' : self.__subtype__,
+                'id'      : self._id,
+            }
+        else:
+            return {
+                'type' : self.__view_model__,
+                'id'   : self._id,
+            }
 
     def js_on_change(self, event, *callbacks):
         ''' Attach a CustomJS callback to an arbitrary BokehJS model event.
@@ -218,39 +366,35 @@ class Model(with_metaclass(Viewable, HasProps, CallbackManager)):
                 continue
             self.js_callbacks[event].append(callback)
 
-    def trigger(self, attr, old, new, hint=None, setter=None):
-        # The explicit assumption here is that hinted events do not
-        # need to go through all the same invalidation steps. Currently
-        # as of Bokeh 0.11.1 the only hinted event is ColumnsStreamedEvent.
-        # This may need to be further refined in the future, if the
-        # assumption does not hold for future hinted events (e.g. the hint
-        # could specify explicitly whether to do normal invalidation or not)
-        if not hint:
-            dirty = { 'count' : 0 }
-            def mark_dirty(obj):
-                dirty['count'] += 1
-            if self._document is not None:
-                self._visit_value_and_its_immediate_references(new, mark_dirty)
-                self._visit_value_and_its_immediate_references(old, mark_dirty)
-                if dirty['count'] > 0:
-                    self._document._invalidate_all_models()
-        # chain up to invoke callbacks
-        super(Model, self).trigger(attr, old, new, hint, setter)
+    def layout(self, side, plot):
+        '''
 
-    @property
-    def ref(self):
+        '''
+        try:
+            return self in getattr(plot, side)
+        except:
+            return []
 
-        if "__subtype__" in self.__class__.__dict__:
-            return {
-                'type': self.__view_model__,
-                'subtype': self.__subtype__,
-                'id': self._id,
-            }
-        else:
-            return {
-                'type': self.__view_model__,
-                'id': self._id,
-            }
+    def on_change(self, attr, *callbacks):
+        ''' Add a callback on this object to trigger when ``attr`` changes.
+
+        Args:
+            attr (str) : an attribute name on this object
+            callback (callable) : a callback function to register
+
+        Returns:
+            None
+
+        '''
+        if attr not in self.properties():
+            raise ValueError("attempted to add a callback on nonexistent %s.%s property" % (self.__class__.__name__, attr))
+        super(Model, self).on_change(attr, *callbacks)
+
+    def references(self):
+        ''' Returns all ``Models`` that this object has references to.
+
+        '''
+        return set(collect_models(self))
 
     def select(self, selector):
         ''' Query this object and all of its references for objects that
@@ -298,73 +442,104 @@ class Model(with_metaclass(Viewable, HasProps, CallbackManager)):
             for key, val in updates.items():
                 setattr(obj, key, val)
 
-    def layout(self, side, plot):
-        try:
-            return self in getattr(plot, side)
-        except:
-            return []
+    def to_json(self, include_defaults):
+        ''' Returns a dictionary of the attributes of this object,
+        containing only "JSON types" (string, number, boolean,
+        none, dict, list).
 
-    @classmethod
-    def _visit_immediate_value_references(cls, value, visitor):
-        ''' Visit all references to another Model without recursing into any
-        of the child Model; may visit the same Model more than once if
-        it's referenced more than once. Does not visit the passed-in value.
+        References to other objects are serialized as "refs" (just
+        the object ID and type info), so the deserializer will
+        need to separately have the full attributes of those
+        other objects.
+
+        There's no corresponding from_json() because to
+        deserialize an object is normally done in the context of a
+        Document (since the Document can resolve references).
+
+        For most purposes it's best to serialize and deserialize
+        entire documents.
+
+        Args:
+            include_defaults (bool) : whether to include attributes
+                that haven't been changed from the default
 
         '''
-        if isinstance(value, HasProps):
-            for attr in value.properties_with_refs():
-                child = getattr(value, attr)
-                cls._visit_value_and_its_immediate_references(child, visitor)
-        else:
-            cls._visit_value_and_its_immediate_references(value, visitor)
+        return loads(self.to_json_string(include_defaults=include_defaults))
 
-    @classmethod
-    def _visit_value_and_its_immediate_references(cls, obj, visitor):
-        if isinstance(obj, Model):
-            visitor(obj)
-        elif isinstance(obj, HasProps):
-            # this isn't a Model, so recurse into it
-            cls._visit_immediate_value_references(obj, visitor)
-        elif isinstance(obj, (list, tuple)):
-            for item in obj:
-                cls._visit_value_and_its_immediate_references(item, visitor)
-        elif isinstance(obj, dict):
-            for key, value in iteritems(obj):
-                cls._visit_value_and_its_immediate_references(key, visitor)
-                cls._visit_value_and_its_immediate_references(value, visitor)
+    def to_json_string(self, include_defaults):
+        ''' Returns a JSON string encoding the attributes of this object.
 
-    @classmethod
-    def collect_models(cls, *input_values):
-        """ Iterate over ``input_values`` and descend through their structure
-        collecting all nested ``Models`` on the go. The resulting list
-        is duplicate-free based on objects' identifiers.
-        """
-        ids = set([])
-        collected = []
-        queued = []
+        References to other objects are serialized as references
+        (just the object ID and type info), so the deserializer
+        will need to separately have the full attributes of those
+        other objects.
 
-        def queue_one(obj):
-            if obj._id not in ids:
-                queued.append(obj)
+        There's no corresponding from_json_string() because to
+        deserialize an object is normally done in the context of a
+        Document (since the Document can resolve references).
 
-        for value in input_values:
-            cls._visit_value_and_its_immediate_references(value, queue_one)
+        For most purposes it's best to serialize and deserialize
+        entire documents.
 
-        while queued:
-            obj = queued.pop(0)
-            if obj._id not in ids:
-                ids.add(obj._id)
-                collected.append(obj)
-                cls._visit_immediate_value_references(obj, queue_one)
+        Args:
+            include_defaults (bool) : whether to include attributes
+                that haven't been changed from the default
 
-        return collected
+        '''
+        json_like = self._to_json_like(include_defaults=include_defaults)
+        json_like['id'] = self._id
+        # serialize_json "fixes" the JSON from _to_json_like by converting
+        # all types into plain JSON types # (it converts Model into refs,
+        # for example).
+        return serialize_json(json_like)
 
-    def references(self):
-        """Returns all ``Models`` that this object has references to. """
-        return set(self.collect_models(self))
+    def trigger(self, attr, old, new, hint=None, setter=None):
+        '''
+
+        '''
+
+        # The explicit assumption here is that hinted events do not need to
+        # go through all the same invalidation steps. Currently this is the
+        # case for ColumnsStreamedEvent and ColumnsPatchedEvent. However,
+        # this may need to be further refined in the future, if the a
+        # assumption does not hold for future hinted events (e.g. the hint
+        # could specify explicitly whether to do normal invalidation or not)
+        if not hint:
+            dirty = { 'count' : 0 }
+            def mark_dirty(obj):
+                dirty['count'] += 1
+            if self._document is not None:
+                _visit_value_and_its_immediate_references(new, mark_dirty)
+                _visit_value_and_its_immediate_references(old, mark_dirty)
+                if dirty['count'] > 0:
+                    self._document._invalidate_all_models()
+        # chain up to invoke callbacks
+        super(Model, self).trigger(attr, old, new, hint, setter)
+
+    def _attach_document(self, doc):
+        ''' Attach a model to a Bokeh |Document|.
+
+        This private interface should only ever called by the Document
+        implementation to set the private ._document field properly
+
+        '''
+        if self._document is not None and self._document is not doc:
+            raise RuntimeError("Models must be owned by only a single document, %r is already in a doc" % (self))
+        doc.theme.apply_to_model(self)
+        self._document = doc
+
+    def _detach_document(self):
+        ''' Detach a model from a Bokeh |Document|.
+
+        This private interface should only ever called by the Document
+        implementation to unset the private ._document field properly
+
+        '''
+        self._document = None
+        default_theme.apply_to_model(self)
 
     def _to_json_like(self, include_defaults):
-        """ Returns a dictionary of the attributes of this object, in
+        ''' Returns a dictionary of the attributes of this object, in
         a layout corresponding to what BokehJS expects at unmarshalling time.
 
         This method does not convert "Bokeh types" into "plain JSON types,"
@@ -380,7 +555,7 @@ class Model(with_metaclass(Viewable, HasProps, CallbackManager)):
             include_defaults (bool) : whether to include attributes
                 that haven't been changed from the default.
 
-        """
+        '''
         all_attrs = self.properties_with_values(include_defaults=include_defaults)
 
         # If __subtype__ is defined, then this model may introduce properties
@@ -408,87 +583,10 @@ class Model(with_metaclass(Viewable, HasProps, CallbackManager)):
 
         return attrs
 
-    def to_json(self, include_defaults):
-        """ Returns a dictionary of the attributes of this object,
-        containing only "JSON types" (string, number, boolean,
-        none, dict, list).
-
-        References to other objects are serialized as "refs" (just
-        the object ID and type info), so the deserializer will
-        need to separately have the full attributes of those
-        other objects.
-
-        There's no corresponding from_json() because to
-        deserialize an object is normally done in the context of a
-        Document (since the Document can resolve references).
-
-        For most purposes it's best to serialize and deserialize
-        entire documents.
-
-        Args:
-            include_defaults (bool) : whether to include attributes
-                that haven't been changed from the default
-
-        """
-        return loads(self.to_json_string(include_defaults=include_defaults))
-
-    def to_json_string(self, include_defaults):
-        """Returns a JSON string encoding the attributes of this object.
-
-        References to other objects are serialized as references
-        (just the object ID and type info), so the deserializer
-        will need to separately have the full attributes of those
-        other objects.
-
-        There's no corresponding from_json_string() because to
-        deserialize an object is normally done in the context of a
-        Document (since the Document can resolve references).
-
-        For most purposes it's best to serialize and deserialize
-        entire documents.
-
-        Args:
-            include_defaults (bool) : whether to include attributes
-                that haven't been changed from the default
-
-        """
-        json_like = self._to_json_like(include_defaults=include_defaults)
-        json_like['id'] = self._id
-        # serialize_json "fixes" the JSON from _to_json_like by converting
-        # all types into plain JSON types # (it converts Model into refs,
-        # for example).
-        return serialize_json(json_like)
-
-    def __str__(self):
-        return "%s(id=%r, ...)" % (self.__class__.__name__, getattr(self, "_id", None))
-
-    __repr__ = __str__
-
-    def _bokeh_repr_pretty_(self, p, cycle):
-        name = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
-        _id = getattr(self, "_id", None)
-
-        if cycle:
-            p.text(name)
-            p.text('(id=')
-            p.pretty(_id)
-            p.text(', ...)')
-        else:
-            with p.group(4, '%s(' % name, ')'):
-                props = self.properties_with_values().items()
-                sorted_props = sorted(props, key=itemgetter(0))
-                all_props = [('id', _id)] + sorted_props
-                for i, (prop, value) in enumerate(all_props):
-                    if i == 0:
-                        p.breakable('')
-                    else:
-                        p.text(',')
-                        p.breakable()
-                    p.text(prop)
-                    p.text('=')
-                    p.pretty(value)
-
     def _repr_html_(self):
+        '''
+
+        '''
         module = self.__class__.__module__
         name = self.__class__.__name__
 
@@ -520,27 +618,41 @@ class Model(with_metaclass(Viewable, HasProps, CallbackManager)):
             html += hidden_row(cell("") + cell(prop + '&nbsp;=&nbsp;' + repr(value) + end))
 
         html += '</div>'
-        html += """
-<script>
-(function() {
-  var expanded = false;
-  var ellipsis = document.getElementById("%(ellipsis_id)s");
-  ellipsis.addEventListener("click", function() {
-    var rows = document.getElementsByClassName("%(cls_name)s");
-    for (var i = 0; i < rows.length; i++) {
-      var el = rows[i];
-      el.style.display = expanded ? "none" : "table-row";
-    }
-    ellipsis.innerHTML = expanded ? "&hellip;)" : "&lsaquo;&lsaquo;&lsaquo;";
-    expanded = !expanded;
-  });
-})();
-</script>
-""" % dict(ellipsis_id=ellipsis_id, cls_name=cls_name)
+        html += _HTML_REPR % dict(ellipsis_id=ellipsis_id, cls_name=cls_name)
 
         return html
 
+    def _repr_pretty(self, p, cycle):
+        '''
+
+        '''
+        name = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
+        _id = getattr(self, "_id", None)
+
+        if cycle:
+            p.text(name)
+            p.text('(id=')
+            p.pretty(_id)
+            p.text(', ...)')
+        else:
+            with p.group(4, '%s(' % name, ')'):
+                props = self.properties_with_values().items()
+                sorted_props = sorted(props, key=itemgetter(0))
+                all_props = [('id', _id)] + sorted_props
+                for i, (prop, value) in enumerate(all_props):
+                    if i == 0:
+                        p.breakable('')
+                    else:
+                        p.text(',')
+                        p.breakable()
+                    p.text(prop)
+                    p.text('=')
+                    p.pretty(value)
+
 def _find_some_document(models):
+    '''
+
+    '''
     from .document import Document
 
     # First try the easy stuff...
@@ -570,9 +682,43 @@ def _find_some_document(models):
 
     return doc
 
+def _visit_immediate_value_references(value, visitor):
+    ''' Visit all references to another Model without recursing into any
+    of the child Model; may visit the same Model more than once if
+    it's referenced more than once. Does not visit the passed-in value.
+
+    '''
+    if isinstance(value, HasProps):
+        for attr in value.properties_with_refs():
+            child = getattr(value, attr)
+            _visit_value_and_its_immediate_references(child, visitor)
+    else:
+        _visit_value_and_its_immediate_references(value, visitor)
+
+def _visit_value_and_its_immediate_references(obj, visitor):
+    '''
+
+    '''
+    if isinstance(obj, Model):
+        visitor(obj)
+    elif isinstance(obj, HasProps):
+        # this isn't a Model, so recurse into it
+        _visit_immediate_value_references(obj, visitor)
+    elif isinstance(obj, (list, tuple)):
+        for item in obj:
+            _visit_value_and_its_immediate_references(item, visitor)
+    elif isinstance(obj, dict):
+        for key, value in iteritems(obj):
+            _visit_value_and_its_immediate_references(key, visitor)
+            _visit_value_and_its_immediate_references(value, visitor)
+
 class _ModelInDocument(object):
-    # 'models' can be a single Model, a single Document, or a list of either
+    '''
+
+    '''
+
     def __init__(self, models):
+        # 'models' can be a single Model, a single Document, or a list of either
         from .document import Document
 
         self._to_remove_after = []
@@ -597,9 +743,11 @@ class _ModelInDocument(object):
         for model in self._to_remove_after:
             self._doc.add_root(model)
 
-
 @contextmanager
 def _ModelInEmptyDocument(model):
+    '''
+
+    '''
     from .document import Document
     full_doc = _find_some_document([model])
 

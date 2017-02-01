@@ -1,10 +1,7 @@
-import {Glyph, GlyphView} from "./glyph"
+import {XYGlyph, XYGlyphView} from "./xy_glyph"
 import * as p from "../../core/properties"
 
-export class TextView extends GlyphView
-
-  _index_data: () ->
-    @_xy_index()
+export class TextView extends XYGlyphView
 
   _render: (ctx, indices, {sx, sy, _x_offset, _y_offset, _angle, _text}) ->
     for i in indices
@@ -31,12 +28,11 @@ export class TextView extends GlyphView
     ctx.fillText("text", x2, (y1+y2)/2)
     ctx.restore()
 
-export class Text extends Glyph
+export class Text extends XYGlyph
   default_view: TextView
 
   type: 'Text'
 
-  @coords [['x', 'y']]
   @mixins ['text']
   @define {
       text:     [ p.StringSpec, { field :"text" } ]

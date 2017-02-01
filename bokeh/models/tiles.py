@@ -7,11 +7,11 @@ from ..core.properties import Any, Bool, Dict, Float, Int, Override, String
 from ..model import Model
 
 class TileSource(Model):
-    """ A base class for all tile source types. ``TileSource`` is not generally
-    useful to instantiate on its own. In general, tile sources are used as a
-    required input for ``TileRenderer``.
+    ''' A base class for all tile source types.
 
-    """
+    In general, tile sources are used as a required input for ``TileRenderer``.
+
+    '''
 
     _args = ('url', 'tile_size', 'min_zoom', 'max_zoom', 'extra_url_vars')
 
@@ -56,11 +56,9 @@ class TileSource(Model):
     """)
 
 class MercatorTileSource(TileSource):
-    """ ``MercatorTileSource`` is not generally useful to instantiate on its
-    own, but is the parent class of other mercator tile services (e.g.
-    ``WMTSTileSource``).
+    ''' A base class for Mercator tile services (e.g.``WMTSTileSource``).
 
-    """
+    '''
 
     _args = ('url', 'tile_size', 'min_zoom', 'max_zoom', 'x_origin_offset', 'y_origin_offset', 'extra_url_vars', 'initial_resolution')
 
@@ -81,40 +79,40 @@ class MercatorTileSource(TileSource):
     """)
 
 class TMSTileSource(MercatorTileSource):
-    """ The TMSTileSource contains tile config info and provides urls for
+    ''' The TMSTileSource contains tile config info and provides urls for
     tiles based on a templated url e.g. ``http://your.tms.server.host/{Z}/{X}/{Y}.png``.
     The defining feature of TMS is the tile-origin in located at the bottom-left.
 
     The TMSTileSource can also be helpful in implementing tile renderers for
     custom tile sets, including non-spatial datasets.
 
-    """
+    '''
     pass
 
 class WMTSTileSource(MercatorTileSource):
-    """ The ``WMTSTileSource`` behaves much like ``TMSTileSource`` but has its
+    ''' The ``WMTSTileSource`` behaves much like ``TMSTileSource`` but has its
     tile-origin in the top-left.
 
     This is the most common used tile source for web mapping applications.
     Such companies as Google, MapQuest, Stamen, Esri, and OpenStreetMap provide
     service which use the WMTS specification e.g. ``http://c.tile.openstreetmap.org/{Z}/{X}/{Y}.png``.
 
-    """
+    '''
     pass
 
 class QUADKEYTileSource(MercatorTileSource):
-    """ The QUADKEYTileSource has the same tile origin as the WMTSTileSource
+    ''' The QUADKEYTileSource has the same tile origin as the WMTSTileSource
     but requests tiles using a `quadkey` argument instead of X, Y, Z e.g. ``http://your.quadkey.tile.host/{Q}.png``
 
-    """
+    '''
     pass
 
 class BBoxTileSource(MercatorTileSource):
-    """ The BBoxTileSource has the same default tile origin as the
+    ''' The BBoxTileSource has the same default tile origin as the
     WMTSTileSource but requested tiles use a ``{XMIN}``, ``{YMIN}``,
     ``{XMAX}``, ``{YMAX}`` e.g. ``http://your.custom.tile.service?bbox={XMIN},{YMIN},{XMAX},{YMAX}``.
 
-    """
+    '''
 
     use_latlon = Bool(default=False, help="""
     Flag which indicates option to output {XMIN},{YMIN},{XMAX},{YMAX} in meters or latitude and longitude.

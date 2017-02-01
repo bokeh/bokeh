@@ -1,27 +1,24 @@
-""" Models for computing good tick locations on different kinds
+''' Models for computing good tick locations on different kinds
 of plots.
 
-"""
+'''
 from __future__ import absolute_import
 
+from ..core.has_props import abstract
+from ..core.properties import Instance, Int, Float, Override, Seq
 from ..model import Model
-from ..core.properties import abstract
-from ..core.properties import Int, Float, Seq, Instance, Override
-
 
 @abstract
 class Ticker(Model):
-    """ A base class for all ticker types. ``Ticker`` is not generally
-    useful to instantiate on its own.
+    ''' A base class for all ticker types.
 
-    """
+    '''
 
 @abstract
 class ContinuousTicker(Ticker):
-    """ A base class for non-categorical ticker types. ``ContinuousTicker``
-    is not generally useful to instantiate on its own.
+    ''' A base class for non-categorical ticker types.
 
-    """
+    '''
 
     num_minor_ticks = Int(5, help="""
     The number of minor tick positions to generate between
@@ -39,12 +36,12 @@ class ContinuousTicker(Ticker):
     """)
 
 class FixedTicker(ContinuousTicker):
-    """ Generate ticks at fixed, explicitly supplied locations.
+    ''' Generate ticks at fixed, explicitly supplied locations.
 
     .. note::
         The ``desired_num_ticks`` property is ignored by this Ticker.
 
-    """
+    '''
 
     ticks = Seq(Float, default=[], help="""
     List of tick locations.
@@ -52,7 +49,7 @@ class FixedTicker(ContinuousTicker):
 
 
 class AdaptiveTicker(ContinuousTicker):
-    """ Generate "nice" round ticks at any magnitude.
+    ''' Generate "nice" round ticks at any magnitude.
 
     Creates ticks that are "base" multiples of a set of given
     mantissas. For example, with ``base=10`` and
@@ -60,7 +57,7 @@ class AdaptiveTicker(ContinuousTicker):
 
         ..., 0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100, ...
 
-    """
+    '''
 
     base = Float(10.0, help="""
     The multiplier to use for scaling mantissas.
@@ -82,13 +79,13 @@ class AdaptiveTicker(ContinuousTicker):
     """)
 
 class CompositeTicker(ContinuousTicker):
-    """ Combine different tickers at different scales.
+    ''' Combine different tickers at different scales.
 
     Uses the ``min_interval`` and ``max_interval`` interval attributes
     of the tickers to select the appropriate ticker at different
     scales.
 
-    """
+    '''
 
     tickers = Seq(Instance(Ticker), default=[], help="""
     A list of Ticker objects to combine at different scales in order
@@ -100,54 +97,54 @@ class CompositeTicker(ContinuousTicker):
     """)
 
 class SingleIntervalTicker(ContinuousTicker):
-    """ Generate evenly spaced ticks at a fixed interval regardless of
+    ''' Generate evenly spaced ticks at a fixed interval regardless of
     scale.
 
-    """
+    '''
 
     interval = Float(help="""
     The interval between adjacent ticks.
     """)
 
 class DaysTicker(SingleIntervalTicker):
-    """ Generate ticks spaced apart by specific, even multiples of days.
+    ''' Generate ticks spaced apart by specific, even multiples of days.
 
-    """
+    '''
     days = Seq(Int, default=[], help="""
     The intervals of days to use.
     """)
 
 class MonthsTicker(SingleIntervalTicker):
-    """ Generate ticks spaced apart by specific, even multiples of months.
+    ''' Generate ticks spaced apart by specific, even multiples of months.
 
-    """
+    '''
     months = Seq(Int, default=[], help="""
     The intervals of months to use.
     """)
 
 class YearsTicker(SingleIntervalTicker):
-    """ Generate ticks spaced apart even numbers of years.
+    ''' Generate ticks spaced apart even numbers of years.
 
-    """
+    '''
 
 class BasicTicker(AdaptiveTicker):
-    """ Generate ticks on a linear scale.
+    ''' Generate ticks on a linear scale.
 
     .. note::
         This class may be renamed to ``LinearTicker`` in the future.
 
-    """
+    '''
 
 class LogTicker(AdaptiveTicker):
-    """ Generate ticks on a log scale.
+    ''' Generate ticks on a log scale.
 
-    """
+    '''
     mantissas = Override(default=[1, 5])
 
 class CategoricalTicker(Ticker):
-    """ Generate ticks for categorical ranges.
+    ''' Generate ticks for categorical ranges.
 
-    """
+    '''
 
 ONE_MILLI = 1.0
 ONE_SECOND = 1000.0
@@ -158,10 +155,12 @@ ONE_MONTH = 30 * ONE_DAY # An approximation, obviously.
 ONE_YEAR = 365 * ONE_DAY
 
 class DatetimeTicker(CompositeTicker):
-    """ Generate nice ticks across different date and time scales.
+    ''' Generate nice ticks across different date and time scales.
 
-    """
+    '''
+
     num_minor_ticks = Override(default=0)
+
     tickers = Override(default=lambda: [
         AdaptiveTicker(
             mantissas=[1, 2, 5],

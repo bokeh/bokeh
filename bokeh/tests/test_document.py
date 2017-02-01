@@ -10,6 +10,8 @@ from bokeh.io import curdoc
 from bokeh.model import Model
 from bokeh.models import ColumnDataSource
 from bokeh.core.properties import Int, Instance, String, DistanceSpec
+from bokeh.server.events import (ColumnsPatchedEvent, ColumnsStreamedEvent, ModelChangedEvent, RootAddedEvent,
+                                 RootRemovedEvent, SessionCallbackAdded, SessionCallbackRemoved, TitleChangedEvent)
 
 class AnotherModelInTestDocument(Model):
     bar = Int(1)
@@ -294,7 +296,7 @@ class TestDocument(unittest.TestCase):
         m.bar = 42
         assert events
         event = events[0]
-        assert isinstance(event, document.ModelChangedEvent)
+        assert isinstance(event, ModelChangedEvent)
         assert event.document == d
         assert event.model == m
         assert event.attr == 'bar'
@@ -319,8 +321,8 @@ class TestDocument(unittest.TestCase):
         m.stream(dict(a=[11, 12], b=[21, 22]), 200)
         assert events
         event = events[0]
-        assert isinstance(event, document.ModelChangedEvent)
-        assert isinstance(event.hint, document.ColumnsStreamedEvent)
+        assert isinstance(event, ModelChangedEvent)
+        assert isinstance(event.hint, ColumnsStreamedEvent)
         assert event.document == d
         assert event.model == m
         assert event.hint.column_source == m
@@ -349,8 +351,8 @@ class TestDocument(unittest.TestCase):
         m.patch(dict(a=[(0, 1)], b=[(0,0), (1,1)]))
         assert events
         event = events[0]
-        assert isinstance(event, document.ModelChangedEvent)
-        assert isinstance(event.hint, document.ColumnsPatchedEvent)
+        assert isinstance(event, ModelChangedEvent)
+        assert isinstance(event.hint, ColumnsPatchedEvent)
         assert event.document == d
         assert event.model == m
         assert event.hint.column_source == m
@@ -394,25 +396,25 @@ class TestDocument(unittest.TestCase):
         d.add_root(m)
         assert len(d.roots) == 1
         assert len(events) == 1
-        assert isinstance(events[0], document.RootAddedEvent)
+        assert isinstance(events[0], RootAddedEvent)
         assert events[0].model == m
         m2 = AnotherModelInTestDocument(bar=2)
         d.add_root(m2)
         assert len(d.roots) == 2
         assert len(events) == 2
-        assert isinstance(events[1], document.RootAddedEvent)
+        assert isinstance(events[1], RootAddedEvent)
         assert events[1].model == m2
 
         d.remove_root(m)
         assert len(d.roots) == 1
         assert len(events) == 3
-        assert isinstance(events[2], document.RootRemovedEvent)
+        assert isinstance(events[2], RootRemovedEvent)
         assert events[2].model == m
 
         d.remove_root(m2)
         assert len(d.roots) == 0
         assert len(events) == 4
-        assert isinstance(events[3], document.RootRemovedEvent)
+        assert isinstance(events[3], RootRemovedEvent)
         assert events[3].model == m2
 
     def test_notification_of_title(self):
@@ -428,7 +430,7 @@ class TestDocument(unittest.TestCase):
         d.title = "Foo"
         assert d.title == "Foo"
         assert len(events) == 1
-        assert isinstance(events[0], document.TitleChangedEvent)
+        assert isinstance(events[0], TitleChangedEvent)
         assert events[0].document is d
         assert events[0].title == "Foo"
 
@@ -447,15 +449,15 @@ class TestDocument(unittest.TestCase):
 
         callback = d.add_periodic_callback(cb, 1)
         assert len(d.session_callbacks) == len(events) == 1
-        assert isinstance(events[0], document.SessionCallbackAdded)
+        assert isinstance(events[0], SessionCallbackAdded)
         assert callback == d.session_callbacks[0] == events[0].callback
         assert callback.period == 1
 
         callback = d.remove_periodic_callback(cb)
         assert len(d.session_callbacks) == 0
         assert len(events) == 2
-        assert isinstance(events[0], document.SessionCallbackAdded)
-        assert isinstance(events[1], document.SessionCallbackRemoved)
+        assert isinstance(events[0], SessionCallbackAdded)
+        assert isinstance(events[1], SessionCallbackRemoved)
 
     def test_add_remove_timeout_callback(self):
         d = document.Document()
@@ -472,15 +474,15 @@ class TestDocument(unittest.TestCase):
 
         callback = d.add_timeout_callback(cb, 1)
         assert len(d.session_callbacks) == len(events) == 1
-        assert isinstance(events[0], document.SessionCallbackAdded)
+        assert isinstance(events[0], SessionCallbackAdded)
         assert callback == d.session_callbacks[0] == events[0].callback
         assert callback.timeout == 1
 
         callback = d.remove_timeout_callback(cb)
         assert len(d.session_callbacks) == 0
         assert len(events) == 2
-        assert isinstance(events[0], document.SessionCallbackAdded)
-        assert isinstance(events[1], document.SessionCallbackRemoved)
+        assert isinstance(events[0], SessionCallbackAdded)
+        assert isinstance(events[1], SessionCallbackRemoved)
 
     def test_add_partial_callback(self):
         from functools import partial
@@ -499,7 +501,7 @@ class TestDocument(unittest.TestCase):
 
         callback = d.add_timeout_callback(cb, 1)
         assert len(d.session_callbacks) == len(events) == 1
-        assert isinstance(events[0], document.SessionCallbackAdded)
+        assert isinstance(events[0], SessionCallbackAdded)
         assert callback == d.session_callbacks[0] == events[0].callback
         assert callback.timeout == 1
 
@@ -518,14 +520,14 @@ class TestDocument(unittest.TestCase):
 
         callback = d.add_next_tick_callback(cb)
         assert len(d.session_callbacks) == len(events) == 1
-        assert isinstance(events[0], document.SessionCallbackAdded)
+        assert isinstance(events[0], SessionCallbackAdded)
         assert callback == d.session_callbacks[0] == events[0].callback
 
         callback = d.remove_next_tick_callback(cb)
         assert len(d.session_callbacks) == 0
         assert len(events) == 2
-        assert isinstance(events[0], document.SessionCallbackAdded)
-        assert isinstance(events[1], document.SessionCallbackRemoved)
+        assert isinstance(events[0], SessionCallbackAdded)
+        assert isinstance(events[1], SessionCallbackRemoved)
 
     def test_periodic_callback_gets_curdoc(self):
         d = document.Document()
@@ -646,13 +648,13 @@ class TestDocument(unittest.TestCase):
         d.add_root(root2)
         assert len(d.roots) == 2
 
-        event1 = document.ModelChangedEvent(d, root1, 'foo', root1.foo, 57, 57)
+        event1 = ModelChangedEvent(d, root1, 'foo', root1.foo, 57, 57)
         patch1 = d.create_json_patch_string([event1])
         d.apply_json_patch_string(patch1)
 
         assert root1.foo == 57
 
-        event2 = document.ModelChangedEvent(d, child1, 'foo', child1.foo, 67, 67)
+        event2 = ModelChangedEvent(d, child1, 'foo', child1.foo, 67, 67)
         patch2 = d.create_json_patch_string([event2])
         d.apply_json_patch_string(patch2)
 
@@ -670,8 +672,7 @@ class TestDocument(unittest.TestCase):
             serializable_new = root1.lookup('foo').property.to_serializable(root1,
                                                                               'foo',
                                                                               new_value)
-            event1 = document.ModelChangedEvent(d, root1, 'foo', root1.foo, new_value,
-                                                serializable_new)
+            event1 = ModelChangedEvent(d, root1, 'foo', root1.foo, new_value, serializable_new)
             patch1 = d.create_json_patch_string([event1])
             d.apply_json_patch_string(patch1)
             if isinstance(new_value, dict):
@@ -731,7 +732,7 @@ class TestDocument(unittest.TestCase):
         assert child2._id not in d._all_models
         assert child3._id not in d._all_models
 
-        event1 = document.ModelChangedEvent(d, root1, 'child', root1.child, child3, child3)
+        event1 = ModelChangedEvent(d, root1, 'child', root1.child, child3, child3)
         patch1 = d.create_json_patch_string([event1])
         d.apply_json_patch_string(patch1)
 
@@ -742,7 +743,7 @@ class TestDocument(unittest.TestCase):
         assert child3._id in d._all_models
 
         # put it back how it was before
-        event2 = document.ModelChangedEvent(d, root1, 'child', root1.child, child1, child1)
+        event2 = ModelChangedEvent(d, root1, 'child', root1.child, child1, child1)
         patch2 = d.create_json_patch_string([event2])
         d.apply_json_patch_string(patch2)
 
@@ -768,8 +769,8 @@ class TestDocument(unittest.TestCase):
 
         child2 = SomeModelInTestDocument(foo=44)
 
-        event1 = document.ModelChangedEvent(d, root1, 'foo', root1.foo, 57, 57)
-        event2 = document.ModelChangedEvent(d, root1, 'child', root1.child, child2, child2)
+        event1 = ModelChangedEvent(d, root1, 'foo', root1.foo, 57, 57)
+        event2 = ModelChangedEvent(d, root1, 'child', root1.child, child2, child2)
         patch1 = d.create_json_patch_string([event1, event2])
         d.apply_json_patch_string(patch1)
 
@@ -952,10 +953,10 @@ class TestDocument(unittest.TestCase):
         self.assertEqual(57, d2.roots[1].foo)
 
 
-class TestUnlockedDocumentProxy(unittest.TestCase):
+class Test_UnlockedDocumentProxy(unittest.TestCase):
 
     def test_next_tick_callback_works(self):
-        d = document.UnlockedDocumentProxy(document.Document())
+        d = document._UnlockedDocumentProxy(document.Document())
         assert curdoc() is not d
         curdoc_from_cb = []
         def cb():
@@ -969,7 +970,7 @@ class TestUnlockedDocumentProxy(unittest.TestCase):
         d.remove_next_tick_callback(cb2)
 
     def test_other_attrs_raise(self):
-        d = document.UnlockedDocumentProxy(document.Document())
+        d = document._UnlockedDocumentProxy(document.Document())
         assert curdoc() is not d
         with pytest.raises(RuntimeError) as e:
             d.foo
@@ -993,4 +994,4 @@ class TestUnlockedDocumentProxy(unittest.TestCase):
         assert callback.callback.nolock == True
         assert len(curdoc_from_cb) == 1
         assert curdoc_from_cb[0]._doc is d
-        assert isinstance(curdoc_from_cb[0], document.UnlockedDocumentProxy)
+        assert isinstance(curdoc_from_cb[0], document._UnlockedDocumentProxy)

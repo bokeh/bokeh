@@ -92,7 +92,7 @@ class TestResources(unittest.TestCase):
         self.assertEqual(r.messages, [])
 
     def test_get_cdn_urls(self):
-        dev_version = "0.0.1dev"
+        dev_version = "0.0.1dev2"
         result = _get_cdn_urls(["bokeh"], version=dev_version)
         url = result['urls']('js')[0]
         self.assertIn('bokeh/dev', url)
@@ -209,7 +209,7 @@ class TestResources(unittest.TestCase):
 
 def test_external_js_and_css_resource_embedding():
     """ This test method has to be at the end of the test modules because
-    subclassing a Model causes the CustomModel to be added as a Viewable and
+    subclassing a Model causes the CustomModel to be added as a MetaModel and
     messes up the Resources state for the other tests.
     """
 

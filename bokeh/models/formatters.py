@@ -1,35 +1,34 @@
-""" Models for controlling the text and visual formatting of tick
+''' Models for controlling the text and visual formatting of tick
 labels on Bokeh plot axes.
 
-"""
+'''
 from __future__ import absolute_import
 
-from types import FunctionType
 import inspect
+from types import FunctionType
 
-from .tickers import Ticker
-from ..model import Model
-from ..core.properties import abstract
-from ..core.properties import (Bool, Int, String, Enum, Auto, List, Dict,
-    Either, Instance)
-from ..core.enums import RoundingFunction, NumeralLanguage
+from ..core.enums import NumeralLanguage, RoundingFunction
 from ..util.dependencies import import_required
 from ..util.deprecation import deprecated
+from ..core.has_props import abstract
+from ..core.properties import Auto, Bool, Dict, Either, Enum, Instance, Int, List, String
+from ..model import Model
 from ..util.compiler import nodejs_compile, CompilationError
+
+from .tickers import Ticker
 
 @abstract
 class TickFormatter(Model):
-    """ A base class for all tick formatter types. ``TickFormatter`` is
-    not generally useful to instantiate on its own.
+    ''' A base class for all tick formatter types.
 
-    """
+    '''
     pass
 
 class BasicTickFormatter(TickFormatter):
-    """ Display tick values from continuous ranges as "basic numbers",
+    ''' Display tick values from continuous ranges as "basic numbers",
     using scientific notation when appropriate by default.
 
-    """
+    '''
     precision = Either(Auto, Int, help="""
     How many digits of precision to display in tick labels.
     """)
@@ -55,7 +54,7 @@ class BasicTickFormatter(TickFormatter):
     """)
 
 class NumeralTickFormatter(TickFormatter):
-    """ Tick formatter based on a human-readable format string. """
+    ''' Tick formatter based on a human-readable format string. '''
 
     format = String("0,0", help="""
     The number format, as defined in the following tables:
@@ -142,7 +141,7 @@ class NumeralTickFormatter(TickFormatter):
     """)
 
 class PrintfTickFormatter(TickFormatter):
-    """ Tick formatter based on a printf-style format string. """
+    ''' Tick formatter based on a printf-style format string. '''
 
     format = String("%s", help="""
     The number format, as defined as follows: the placeholder in the format
@@ -189,32 +188,32 @@ class PrintfTickFormatter(TickFormatter):
     """)
 
 class LogTickFormatter(TickFormatter):
-    """ Display tick values from continuous ranges as powers
+    ''' Display tick values from continuous ranges as powers
     of some base.
 
     Most often useful in conjunction with a ``LogTicker``.
 
-    """
+    '''
     ticker = Instance(Ticker, help="""
     The corresponding ``LogTicker``, used to determine the correct
     base to use. If unset, the formatter will use base 10 as a default.
     """)
 
 class CategoricalTickFormatter(TickFormatter):
-    """ Display tick values from categorical ranges as string
+    ''' Display tick values from categorical ranges as string
     values.
 
-    """
+    '''
     pass
 
 class FuncTickFormatter(TickFormatter):
-    """ Display tick values that are formatted by a user-defined function.
+    ''' Display tick values that are formatted by a user-defined function.
 
-    """
+    '''
 
     @classmethod
     def from_py_func(cls, func):
-        """ Create a FuncTickFormatter instance from a Python function. The
+        ''' Create a FuncTickFormatter instance from a Python function. The
         function is translated to JavaScript using PyScript. The variable
         ``tick`` will contain the unformatted tick value and can be expected to
         be present in the function namespace at render time.
@@ -223,16 +222,16 @@ class FuncTickFormatter(TickFormatter):
 
         .. code-block:: python
 
-            code = '''
-                def ticker():
-                    return "{:.0f} + {:.2f}".format(tick, tick % 1)
-            '''
+            code = """
+            def ticker():
+                return "{:.0f} + {:.2f}".format(tick, tick % 1)
+            """
 
         The python function must have no positional arguments. It's
         possible to pass Bokeh models (e.g. a ColumnDataSource) as keyword
         arguments to the function.
 
-        """
+        '''
         if not isinstance(func, FunctionType):
             raise ValueError('CustomJS.from_py_func needs function object.')
         pyscript = import_required('flexx.pyscript',
@@ -259,7 +258,7 @@ class FuncTickFormatter(TickFormatter):
 
     @classmethod
     def from_coffeescript(cls, code, args={}):
-        """ Create a FuncTickFormatter instance from a CoffeeScript snippet.
+        ''' Create a FuncTickFormatter instance from a CoffeeScript snippet.
         The function body is translated to JavaScript using node. The variable
         ``tick`` will contain the unformatted tick value and can be expected to
         be present in the code snippet namespace at render time.
@@ -268,10 +267,10 @@ class FuncTickFormatter(TickFormatter):
 
         .. code-block:: coffeescript
 
-            code = '''
-                return Math.floor(tick) + " + " + (tick % 1).toFixed(2)
-            '''
-        """
+            code = """
+            return Math.floor(tick) + " + " + (tick % 1).toFixed(2)
+            """
+        '''
         compiled = nodejs_compile(code, lang="coffeescript", file="???")
         if "error" in compiled:
             raise CompilationError(compiled.error)
@@ -294,7 +293,7 @@ class FuncTickFormatter(TickFormatter):
         .. code-block:: javascript
 
             code = '''
-                return Math.floor(tick) + " + " + (tick % 1).toFixed(2)
+            return Math.floor(tick) + " + " + (tick % 1).toFixed(2)
             '''
     """)
 
@@ -321,7 +320,7 @@ def _DATETIME_TICK_FORMATTER_HELP(field):
     """ % field
 
 class DatetimeTickFormatter(TickFormatter):
-    """ A ``TickFormatter`` for displaying datetime values nicely across a
+    ''' A ``TickFormatter`` for displaying datetime values nicely across a
     range of scales.
 
     ``DatetimeTickFormatter`` has the following properties (listed together
@@ -523,7 +522,7 @@ class DatetimeTickFormatter(TickFormatter):
     .. _timezone: http://bigeasy.github.io/timezone/
     .. _github issue: https://github.com/bokeh/bokeh/issues
 
-    """
+    '''
     microseconds = List(String,
                         help=_DATETIME_TICK_FORMATTER_HELP("``microseconds``"),
                         default=['%fus']).accepts(String, lambda fmt: [fmt])
