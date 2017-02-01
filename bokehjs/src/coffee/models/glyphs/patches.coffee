@@ -1,5 +1,4 @@
-import * as rbush from "rbush"
-
+import {RBush} from "../../core/util/spatial"
 import {Glyph, GlyphView} from "./glyph"
 import {min, max, copy, findLastIndex} from "../../core/util/array"
 import {isStrictNaN} from "../../core/util/types"
@@ -44,26 +43,25 @@ export class PatchesView extends GlyphView
 
 
   _index_data: () ->
-    index = rbush()
-    pts = []
     xss = @_build_discontinuous_object(@_xs)
     yss = @_build_discontinuous_object(@_ys)
 
+    points = []
     for i in [0...@_xs.length]
       for j in [0...xss[i].length]
         xs = xss[i][j]
         ys = yss[i][j]
         if xs.length == 0
           continue
-        pts.push({
+        points.push({
           minX: min(xs),
           minY: min(ys),
           maxX: max(xs),
           maxY: max(ys),
           i: i
         })
-    index.load(pts)
-    return index
+
+    return new RBush(points)
 
   _mask_data: (all_indices) ->
     xr = @renderer.plot_view.x_range
@@ -73,7 +71,7 @@ export class PatchesView extends GlyphView
     [y0, y1] = [yr.min, yr.max]
 
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
-    return (x.i for x in @index.search(bbox))
+    return @index.indices(bbox)
 
   _render: (ctx, indices, {sxs, sys}) ->
     # @sxss and @syss are used by _hit_point and sxc, syc
@@ -129,7 +127,7 @@ export class PatchesView extends GlyphView
     x = @renderer.xmapper.map_from_target(vx, true)
     y = @renderer.ymapper.map_from_target(vy, true)
 
-    candidates = (x.i for x in @index.search({minX: x, minY: y, maxX: x, maxY: y}))
+    candidates = @index.indices({minX: x, minY: y, maxX: x, maxY: y})
 
     hits = []
     for i in [0...candidates.length]

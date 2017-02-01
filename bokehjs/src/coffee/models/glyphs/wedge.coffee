@@ -1,12 +1,9 @@
-import {Glyph, GlyphView} from "./glyph"
+import {XYGlyph, XYGlyphView} from "./xy_glyph"
 import * as hittest from "../../core/hittest"
 import * as p from "../../core/properties"
 import {angle_between} from "../../core/util/math"
 
-export class WedgeView extends GlyphView
-
-  _index_data: () ->
-    @_xy_index()
+export class WedgeView extends XYGlyphView
 
   _map_data: () ->
     if @model.properties.radius.units == "data"
@@ -58,7 +55,7 @@ export class WedgeView extends GlyphView
     candidates = []
 
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
-    for i in (pt.i for pt in @index.search(bbox))
+    for i in @index.indices(bbox)
       r2 = Math.pow(@sradius[i], 2)
       sx0 = @renderer.xmapper.map_to_target(x, true)
       sx1 = @renderer.xmapper.map_to_target(@_x[i], true)
@@ -83,12 +80,11 @@ export class WedgeView extends GlyphView
   draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
     @_generic_area_legend(ctx, x0, x1, y0, y1, index)
 
-export class Wedge extends Glyph
+export class Wedge extends XYGlyph
   default_view: WedgeView
 
   type: 'Wedge'
 
-  @coords [['x', 'y']]
   @mixins ['line', 'fill']
   @define {
       direction:    [ p.Direction,   'anticlock' ]

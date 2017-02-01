@@ -1,8 +1,8 @@
-import {Glyph, GlyphView} from "../glyphs/glyph"
+import {XYGlyph, XYGlyphView} from "../glyphs/xy_glyph"
 import * as hittest from "../../core/hittest"
 import * as p from "../../core/properties"
 
-export class MarkerView extends GlyphView
+export class MarkerView extends XYGlyphView
 
   draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
     # using objects like this seems a little wonky, since the keys are coerced to
@@ -40,9 +40,6 @@ export class MarkerView extends GlyphView
 
       ctx.translate(-sx[i], -sy[i])
 
-  _index_data: () ->
-    @_xy_index()
-
   _mask_data: (all_indices) ->
     # dilate the inner screen region by max_size and map back to data space for use in
     # spatial query
@@ -57,7 +54,7 @@ export class MarkerView extends GlyphView
     [y0, y1] = @renderer.ymapper.v_map_from_target([vy0, vy1], true)
 
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
-    return (x.i for x in @index.search(bbox))
+    return @index.indices(bbox)
 
   _hit_point: (geometry) ->
     [vx, vy] = [geometry.vx, geometry.vy]
@@ -73,7 +70,7 @@ export class MarkerView extends GlyphView
     [y0, y1] = @renderer.ymapper.v_map_from_target([vy0, vy1], true)
 
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
-    candidates = (x.i for x in @index.search(bbox))
+    candidates = @index.indices(bbox)
 
     hits = []
     for i in candidates
@@ -88,7 +85,7 @@ export class MarkerView extends GlyphView
     [y0, y1] = @renderer.ymapper.v_map_from_target([geometry.vy0, geometry.vy1], true)
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
     result = hittest.create_hit_test_result()
-    result['1d'].indices = (x.i for x in @index.search(bbox))
+    result['1d'].indices = @index.indices(bbox)
     return result
 
   _hit_poly: (geometry) ->
@@ -108,9 +105,8 @@ export class MarkerView extends GlyphView
     result['1d'].indices = hits
     return result
 
-export class Marker extends Glyph
+export class Marker extends XYGlyph
 
-  @coords [ ['x', 'y'] ]
   @mixins ['line', 'fill']
   @define {
     size:  [ p.DistanceSpec, { units: "screen", value: 4 } ]

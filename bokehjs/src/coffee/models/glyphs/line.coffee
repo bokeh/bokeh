@@ -1,10 +1,7 @@
-import {Glyph, GlyphView} from "./glyph"
+import {XYGlyph, XYGlyphView} from "./xy_glyph"
 import * as hittest from "../../core/hittest"
 
-export class LineView extends GlyphView
-
-  _index_data: () ->
-    @_xy_index()
+export class LineView extends XYGlyphView
 
   _render: (ctx, indices, {sx, sy}) ->
     drawing = false
@@ -101,10 +98,9 @@ export class LineView extends GlyphView
   draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
     @_generic_line_legend(ctx, x0, x1, y0, y1, index)
 
-export class Line extends Glyph
+export class Line extends XYGlyph
   default_view: LineView
 
   type: 'Line'
 
-  @coords [['x', 'y']]
   @mixins ['line']

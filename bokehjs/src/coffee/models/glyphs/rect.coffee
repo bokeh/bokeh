@@ -1,11 +1,11 @@
-import {Glyph, GlyphView} from "./glyph"
+import {XYGlyph, XYGlyphView} from "./xy_glyph"
 import * as hittest from "../../core/hittest"
 import * as p from "../../core/properties"
 import {max} from "../../core/util/array"
 import {isString} from "../../core/util/types"
 import {CategoricalMapper} from "../mappers/categorical_mapper"
 
-export class RectView extends GlyphView
+export class RectView extends XYGlyphView
 
   _set_data: () ->
     @max_w2 = 0
@@ -14,9 +14,6 @@ export class RectView extends GlyphView
     @max_h2 = 0
     if @model.properties.height.units == "data"
       @max_h2 = @max_height/2
-
-  _index_data: () ->
-    @_xy_index()
 
   _map_data: () ->
     canvas = @renderer.plot_view.canvas
@@ -84,7 +81,7 @@ export class RectView extends GlyphView
     [y0, y1] = @renderer.ymapper.v_map_from_target([geometry.vy0, geometry.vy1], true)
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
     result = hittest.create_hit_test_result()
-    result['1d'].indices = (x.i for x in @index.search(bbox))
+    result['1d'].indices = @index.indices(bbox)
     return result
 
   _hit_point: (geometry) ->
@@ -106,7 +103,7 @@ export class RectView extends GlyphView
     hits = []
 
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
-    for i in (pt.i for pt in @index.search(bbox))
+    for i in @index.indices(bbox)
       sx = @renderer.plot_view.canvas.vx_to_sx(vx)
       sy = @renderer.plot_view.canvas.vy_to_sy(vy)
 
@@ -179,12 +176,11 @@ export class RectView extends GlyphView
   _bounds: (bds) ->
     return @max_wh2_bounds(bds)
 
-export class Rect extends Glyph
+export class Rect extends XYGlyph
   default_view: RectView
 
   type: 'Rect'
 
-  @coords [['x', 'y']]
   @mixins ['line', 'fill']
   @define {
       angle:  [ p.AngleSpec,   0     ]

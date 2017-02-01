@@ -1,5 +1,4 @@
-import * as rbush from "rbush"
-
+import {RBush} from "../../core/util/spatial"
 import * as hittest from "../../core/hittest"
 import {min, max} from "../../core/util/array"
 import {isStrictNaN} from "../../core/util/types"
@@ -8,22 +7,21 @@ import {Glyph, GlyphView} from "./glyph"
 export class MultiLineView extends GlyphView
 
   _index_data: () ->
-    index = rbush()
-    pts = []
+    points = []
     for i in [0...@_xs.length]
       xs = (x for x in @_xs[i] when not isStrictNaN(x))
       ys = (y for y in @_ys[i] when not isStrictNaN(y))
       if xs.length == 0
         continue
-      pts.push({
+      points.push({
         minX: min(xs),
         minY: min(ys),
         maxX: max(xs),
         maxY: max(ys),
         i: i
       })
-    index.load(pts)
-    return index
+
+    return new RBush(points)
 
   _render: (ctx, indices, {sxs, sys}) ->
     for i in indices
