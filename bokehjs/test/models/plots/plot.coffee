@@ -33,7 +33,7 @@ describe "Plot", ->
       doc = new Document()
       doc.add_root(@p)
 
-    it "render should set the appropriate positions and paddings on the element when it is mode box", ->
+    it "render should set the appropriate positions and paddings on the element when it is mode box", sinon.test () ->
       dom_left = 12
       dom_top = 13
       width = 80
@@ -49,42 +49,38 @@ describe "Plot", ->
       expected_style = "position: absolute; left: #{dom_left}px; top: #{dom_top}px; width: #{width}px; height: #{height}px;"
       expect(plot_view.el.style.cssText).to.be.equal expected_style
 
-    it "should call suggest value with the model height and width if sizing_mode is scale_both", ->
+    it "should call suggest value with the model height and width if sizing_mode is scale_both", sinon.test () ->
       @p.sizing_mode = 'scale_both'
       plot_view = new @p.default_view({ model: @p })
-      sinon.stub(plot_view, 'get_width_height').returns([34, 77])
+      this.stub(plot_view, 'get_width_height').returns([34, 77])
       @solver_suggest.reset()
       plot_view.render()
       expect(@solver_suggest.callCount).is.equal 2
       expect(@solver_suggest.args[0]).to.be.deep.equal [@p._width, 34]
       expect(@solver_suggest.args[1]).to.be.deep.equal [@p._height, 77]
 
-    # TODO (bird) A number of these tests are skipped because of flakiness.
-    # We get kiwi unknown edit variable errors, although we shouldn't
-    # because the solver should have been stubbed out.
-
-    it.skip "get_height should return the height from the aspect ratio", ->
+    it "get_height should return the height from the aspect ratio", sinon.test () ->
       @p.width = 22
       @p.height = 44
       plot_view = new @p.default_view({ model: @p })
       @p._width = {_value: 33}
       expect(plot_view.get_height()).to.be.equal 66
 
-    it.skip "get_width should return the width from the aspect ratio", ->
+    it "get_width should return the width from the aspect ratio", sinon.test () ->
       @p.width = 2
       @p.height = 10
       plot_view = new @p.default_view({ model: @p })
       @p._height= {_value: 100}
       expect(plot_view.get_width()).to.be.equal 20
 
-    it.skip "get_width should return the width from the aspect ratio", ->
+    it "get_width should return the width from the aspect ratio", sinon.test () ->
       @p.width = 2
       @p.height = 10
       plot_view = new @p.default_view({ model: @p })
       @p._height= {_value: 100}
       expect(plot_view.get_width()).to.be.equal 20
 
-    it.skip "get_width_height should return a constrained width if plot is landscape oriented", ->
+    it "get_width_height should return a constrained width if plot is landscape oriented", sinon.test () ->
       @p.width = 4
       @p.height = 2
       plot_view = new @p.default_view({ model: @p })
@@ -93,7 +89,7 @@ describe "Plot", ->
       expect(w).to.be.equal 56
       expect(h).to.be.equal 56 / (4/2)
 
-    it.skip "get_width_height should return a constrained height if plot is portrait oriented", ->
+    it "get_width_height should return a constrained height if plot is portrait oriented", sinon.test () ->
       @p.width = 3
       @p.height = 5
       plot_view = new @p.default_view({ model: @p })
@@ -102,21 +98,21 @@ describe "Plot", ->
       expect(h).to.be.equal 49
       expect(w).to.be.equal 49 * (3/5)
 
-    it "should set min_border_x to value of min_border if min_border_x is not specified", ->
+    it "should set min_border_x to value of min_border if min_border_x is not specified", sinon.test () ->
       p = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d(), min_border: 33.33})
       expect(p.min_border_top).to.be.equal 33.33
       expect(p.min_border_bottom).to.be.equal 33.33
       expect(p.min_border_left).to.be.equal 33.33
       expect(p.min_border_right).to.be.equal 33.33
 
-    it "should set min_border_x to value of specified, and others to value of min_border", ->
+    it "should set min_border_x to value of specified, and others to value of min_border", sinon.test () ->
       p = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d(), min_border: 33.33, min_border_left: 66.66})
       expect(p.min_border_top).to.be.equal 33.33
       expect(p.min_border_bottom).to.be.equal 33.33
       expect(p.min_border_left).to.be.equal 66.66
       expect(p.min_border_right).to.be.equal 33.33
 
-    it "should set min_border_x to value of specified, and others to default min_border", ->
+    it "should set min_border_x to value of specified, and others to default min_border", sinon.test () ->
       p = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d(), min_border_left: 4})
       # MIN_BORDER is 5
       expect(p.min_border_top).to.be.equal 5
@@ -124,7 +120,7 @@ describe "Plot", ->
       expect(p.min_border_left).to.be.equal 4
       expect(p.min_border_right).to.be.equal 5
 
-    it.skip "should add the title to the list of renderers", ->
+    it "should add the title to the list of renderers", sinon.test () ->
       # TODO(bird) Write this test.
       null
 
@@ -138,22 +134,22 @@ describe "Plot", ->
       utils.stub_canvas()
       utils.stub_solver()
 
-    it "should have _horizontal set to true by default", ->
+    it "should have _horizontal set to true by default", sinon.test () ->
       expect(@p._horizontal).to.true
 
-    it "should have a PlotCanvas set on initialization with plot on it", ->
+    it "should have a PlotCanvas set on initialization with plot on it", sinon.test () ->
       expect(@p.plot_canvas).to.exist
       expect(@p.plot_canvas.plot).to.be.deep.equal @p
 
-    it "should attach document to plot canvas when document is attached to it", ->
+    it "should attach document to plot canvas when document is attached to it", sinon.test () ->
       expect(@p.plot_canvas.document).to.be.null
       doc = new Document()
       @p.attach_document(doc)
       expect(@p.plot_canvas.document).to.be.equal doc
 
-    it "should not execute range callbacks on initialization", ->
+    it "should not execute range callbacks on initialization", sinon.test () ->
       cb = new CustomJS()
-      spy = sinon.spy(cb, 'execute')
+      spy = this.spy(cb, 'execute')
 
       plot = new Plot({
          x_range: new Range1d({callback: cb})
@@ -192,24 +188,24 @@ describe "Plot", ->
           'box-cell-align-right' : plot_canvas._width_minus_right
         }
 
-      it "should return correct constrained_variables in box mode", ->
+      it "should return correct constrained_variables in box mode", sinon.test () ->
         @p.sizing_mode = 'stretch_both'
         constrained_variables = @p.get_constrained_variables()
         expect(constrained_variables).to.be.deep.equal @expected_constrained_variables
 
-      it "should return correct constrained_variables in scale_width mode", ->
+      it "should return correct constrained_variables in scale_width mode", sinon.test () ->
         @p.sizing_mode = 'scale_width'
         expected_constrained_variables = _.omit(@expected_constrained_variables, ['height'])
         constrained_variables = @p.get_constrained_variables()
         expect(constrained_variables).to.be.deep.equal expected_constrained_variables
 
-      it "should return correct constrained_variables in scale_height mode", ->
+      it "should return correct constrained_variables in scale_height mode", sinon.test () ->
         @p.sizing_mode = 'scale_height'
         expected_constrained_variables = _.omit(@expected_constrained_variables, ['width'])
         constrained_variables = @p.get_constrained_variables()
         expect(constrained_variables).to.be.deep.equal expected_constrained_variables
 
-      it "should return correct constrained_variables in fixed mode", ->
+      it "should return correct constrained_variables in fixed mode", sinon.test () ->
         @p.sizing_mode = 'fixed'
         expected_constrained_variables = _.omit(@expected_constrained_variables, ['height', 'width', 'box-equal-size-left', 'box-equal-size-right'])
         constrained_variables = @p.get_constrained_variables()

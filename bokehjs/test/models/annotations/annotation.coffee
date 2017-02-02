@@ -1,6 +1,5 @@
 {expect} = require "chai"
 utils = require "../../utils"
-sinon = require 'sinon'
 
 {SidePanel} = utils.require("core/layout/side_panel")
 

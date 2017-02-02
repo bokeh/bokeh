@@ -1,6 +1,5 @@
 {expect} = require "chai"
 utils = require "../../../utils"
-sinon = require 'sinon'
 
 {CrosshairTool} = utils.require("models/tools/inspectors/crosshair_tool")
 {DataRange1d} = utils.require("models/ranges/data_range1d")

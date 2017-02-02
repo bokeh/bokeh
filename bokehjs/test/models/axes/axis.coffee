@@ -102,8 +102,8 @@ describe "AxisView", ->
   it "_axis_label_extent should be 0 if no axis_label", ->
     expect(@axis_view._axis_label_extent()).to.be.equal 0
 
-  it "_get_size should return sum of _tick_extent, _axis_label_extent, and _tick_label_extent", ->
-    sinon.stub(@axis_view, '_tick_extent', () -> 0.11)
-    sinon.stub(@axis_view, '_axis_label_extent', () -> 0.11)
-    sinon.stub(@axis_view, '_tick_label_extent', () -> 0.11)
+  it "_get_size should return sum of _tick_extent, _axis_label_extent, and _tick_label_extent", sinon.test ->
+    this.stub(@axis_view, '_tick_extent', () -> 0.11)
+    this.stub(@axis_view, '_axis_label_extent', () -> 0.11)
+    this.stub(@axis_view, '_tick_label_extent', () -> 0.11)
     expect(@axis_view._get_size()).to.be.equal 0.33
