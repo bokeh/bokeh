@@ -36,7 +36,7 @@ describe "SelectionManager", ->
   # @xmapper = @plot_view.frame.x_mappers[@model.x_range_name]
   # @ymapper = @plot_view.frame.y_mappers[@model.y_range_name]
 
-  # so we put the mappers (mapper_normal and mapper_reverse, defined above) 
+  # so we put the mappers (mapper_normal and mapper_reverse, defined above)
   # in the stub objects in the same "location".
 
   plot_model_stub = {
