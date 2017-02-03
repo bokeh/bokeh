@@ -2,6 +2,7 @@ gulp = require "gulp"
 gutil = require "gulp-util"
 through = require "through"
 cp = require "child_process"
+argv = require("yargs").argv
 
 paths = require "../paths"
 utils = require "../utils"
@@ -11,9 +12,17 @@ mocha = (options={}) ->
     (file) ->
       if @_files? then @_files.push(file.path) else @_files = [file.path]
     () ->
-      proc = cp.spawn("node_modules/.bin/mocha",
-                      ["--compilers", "coffee:coffee-script/register", "./test/index.coffee"].concat(@_files),
-                      {stdio: 'inherit'})
+      args = [
+        "node_modules/mocha/bin/_mocha",
+        "--compilers", "coffee:coffee-script/register",
+        "--reporter", argv.reporter ? "spec",
+        "./test/index.coffee"
+      ].concat(@_files)
+
+      if argv.debug
+        args.unshift("debug")
+
+      proc = cp.spawn(process.execPath, args, {stdio: 'inherit'})
 
       proc.on "error", (err) =>
         @emit("error", new gutil.PluginError("mocha", err))
@@ -23,6 +32,11 @@ mocha = (options={}) ->
           @emit("error", new gutil.PluginError("mocha", "tests failed"))
         else
           @emit("end")
+
+      handler = () -> proc.kill()
+      process.on('exit',    handler)
+      process.on('SIGTERM', handler)
+      process.on('SIGINT',  handler)
   )
 
 gulp.task "test", ["defaults:generate"], () ->
