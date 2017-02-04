@@ -1,13 +1,13 @@
-import * as _ from "underscore"
-import * as $ from "jquery"
-
 import {InspectTool, InspectToolView} from "./inspect_tool"
 import {Tooltip} from "../../annotations/tooltip"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import * as hittest from "../../../core/hittest"
 import {logger} from "../../../core/logging"
 import {replace_placeholders} from "../../../core/util/templating"
+import {div, span} from "../../../core/dom"
 import * as p from "../../../core/properties"
+import {values, isEmpty} from "../../../core/util/object"
+import {isString, isFunction} from "../../../core/util/types"
 
 _color_to_hex = (color) ->
   if (color.substr(0, 1) == '#')
@@ -27,7 +27,7 @@ export class HoverToolView extends InspectToolView
     for r in @model.computed_renderers
       @listenTo(r.data_source, 'inspect', @_update)
 
-    @plot_view.canvas_view.$el.css('cursor', 'crosshair')
+    @plot_view.canvas_view.el.style.cursor = "crosshair"
 
   _clear: () ->
 
@@ -147,9 +147,8 @@ export class HoverToolView extends InspectToolView
 
     for i in indices['1d'].indices
       # multiglyphs will set '1d' and '2d' results, but have different tooltips
-      if not _.isEmpty(indices['2d'])
-        for pair in _.pairs(indices['2d'])
-          [i, j] = [pair[0], pair[1][0]]
+      if not isEmpty(indices['2d'])
+        for i, [j] of indices['2d']
           data_x = renderer.glyph._xs[i][j]
           data_y = renderer.glyph._ys[i][j]
 
@@ -232,7 +231,7 @@ export class HoverToolView extends InspectToolView
     callback = @model.callback
     [obj, data] = [callback, {index: indices, geometry: geometry}]
 
-    if _.isFunction(callback)
+    if isFunction(callback)
       callback(obj, data)
     else
       callback.execute(obj, data)
@@ -241,49 +240,53 @@ export class HoverToolView extends InspectToolView
 
   _render_tooltips: (ds, i, vars) ->
     tooltips = @model.tooltips
-    if _.isString(tooltips)
-      return $('<div>').html(replace_placeholders(tooltips, ds, i, vars))
-    else if _.isFunction(tooltips)
+    if isString(tooltips)
+      el = div()
+      el.innerHTML = replace_placeholders(tooltips, ds, i, vars)
+      return el
+    else if isFunction(tooltips)
       return tooltips(ds, vars)
     else
-      table = $('<table></table>')
+      rows = div({style: {display: "table", borderSpacing: "2px"}})
 
       for [label, value] in tooltips
-        row = $("<tr></tr>")
-        row.append($("<td class='bk-tooltip-row-label'>").text("#{label}: "))
-        td = $("<td class='bk-tooltip-row-value'></td>")
+        row = div({style: {display: "table-row"}})
+        rows.appendChild(row)
+
+        cell = div({style: {display: "table-cell"}, class: 'bk-tooltip-row-label'}, "#{label}: ")
+        row.appendChild(cell)
+
+        cell = div({style: {display: "table-cell"}, class: 'bk-tooltip-row-value'})
+        row.appendChild(cell)
 
         if value.indexOf("$color") >= 0
           [match, opts, colname] = value.match(/\$color(\[.*\])?:(\w*)/)
           column = ds.get_column(colname)
           if not column?
-            span = $("<span>").text("#{colname} unknown")
-            td.append(span)
+            el = span({}, "#{colname} unknown")
+            cell.appendChild(el)
             continue
           hex = opts?.indexOf("hex") >= 0
           swatch = opts?.indexOf("swatch") >= 0
           color = column[i]
           if not color?
-            span = $("<span>(null)</span>")
-            td.append(span)
+            el = span({}, "(null)")
+            cell.appendChild(el)
             continue
           if hex
             color = _color_to_hex(color)
-          span = $("<span>").text(color)
-          td.append(span)
+          el = span({}, color)
+          cell.appendChild(el)
           if swatch
-            span = $("<span class='bk-tooltip-color-block'> </span>")
-            span.css({ backgroundColor: color})
-          td.append(span)
+            el = span({class: 'bk-tooltip-color-block', style: {backgroundColor: color}}, " ")
+            cell.appendChild(el)
         else
           value = value.replace("$~", "$data_")
-          value = replace_placeholders(value, ds, i, vars)
-          td.append($('<span>').html(value))
+          el = span()
+          el.innerHTML = replace_placeholders(value, ds, i, vars)
+          cell.appendChild(el)
 
-        row.append(td)
-        table.append(row)
-
-      return table
+      return rows
 
 export class HoverTool extends InspectTool
   default_view: HoverToolView
@@ -302,7 +305,7 @@ export class HoverTool extends InspectTool
       names:        [ p.Array,  []             ]
       mode:         [ p.String, 'mouse'        ] # TODO (bev)
       point_policy: [ p.String, 'snap_to_data' ] # TODO (bev) "follow_mouse", "none"
-      line_policy:  [ p.String, 'prev'         ] # TODO (bev) "next", "nearest", "interp", "none"
+      line_policy:  [ p.String, 'nearest'      ] # TODO (bev) "next", "nearest", "interp", "none"
       show_arrow:   [ p.Boolean, true          ]
       anchor:       [ p.String, 'center'       ] # TODO: enum
       attachment:   [ p.String, 'horizontal'   ] # TODO: enum
@@ -336,7 +339,7 @@ export class HoverTool extends InspectTool
       if tooltips?
         for r in @computed_renderers
           tooltip = new Tooltip({
-            custom: _.isString(tooltips) or _.isFunction(tooltips)
+            custom: isString(tooltips) or isFunction(tooltips)
             attachment: @attachment
             show_arrow: @show_arrow
           })
@@ -348,5 +351,5 @@ export class HoverTool extends InspectTool
   @getters {
     computed_renderers: () -> @_get_computed('computed_renderers')
     ttmodels: () -> @_get_computed('ttmodels')
-    synthetic_renderers: () -> _.values(@ttmodels)
+    synthetic_renderers: () -> values(@ttmodels)
   }

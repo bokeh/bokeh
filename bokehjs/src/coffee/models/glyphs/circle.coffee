@@ -1,13 +1,8 @@
-import * as _ from "underscore"
-
-import {Glyph, GlyphView} from "./glyph"
+import {XYGlyph, XYGlyphView} from "./xy_glyph"
 import * as hittest from "../../core/hittest"
 import * as p from "../../core/properties"
 
-export class CircleView extends GlyphView
-
-  _index_data: () ->
-    return @_xy_index()
+export class CircleView extends XYGlyphView
 
   _map_data: () ->
     # NOTE: Order is important here: size is always present (at least
@@ -50,7 +45,7 @@ export class CircleView extends GlyphView
       [y0, y1] = @renderer.ymapper.v_map_from_target([sy0, sy1], true)
 
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
-    return (x.i for x in @index.search(bbox))
+    return @index.indices(bbox)
 
   _render: (ctx, indices, {sx, sy, sradius}) ->
 
@@ -94,7 +89,7 @@ export class CircleView extends GlyphView
       [y0, y1] = [Math.min(y0, y1), Math.max(y0, y1)]
 
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
-    candidates = (pt.i for pt in @index.search(bbox))
+    candidates = @index.indices(bbox)
 
     hits = []
     if @_radius? and @model.properties.radius.units == "data"
@@ -115,14 +110,8 @@ export class CircleView extends GlyphView
         dist = Math.pow(@sx[i]-sx, 2) + Math.pow(@sy[i]-sy, 2)
         if dist <= r2
           hits.push([i, dist])
-    hits = _.chain(hits)
-      .sortBy((elt) -> return elt[1])
-      .map((elt) -> return elt[0])
-      .value()
 
-    result = hittest.create_hit_test_result()
-    result['1d'].indices = hits
-    return result
+    return hittest.create_1d_hit_test_result(hits)
 
   _hit_span: (geometry) ->
       [vx, vy] = [geometry.vx, geometry.vy]
@@ -157,7 +146,7 @@ export class CircleView extends GlyphView
           [y0, y1] = @renderer.ymapper.v_map_from_target([vy0, vy1], true)
 
       bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
-      hits = (xx.i for xx in @index.search(bbox))
+      hits = @index.indices(bbox)
 
       result['1d'].indices = hits
       return result
@@ -167,7 +156,7 @@ export class CircleView extends GlyphView
     [y0, y1] = @renderer.ymapper.v_map_from_target([geometry.vy0, geometry.vy1], true)
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
     result = hittest.create_hit_test_result()
-    result['1d'].indices = (x.i for x in @index.search(bbox))
+    result['1d'].indices = @index.indices(bbox)
     return result
 
   _hit_poly: (geometry) ->
@@ -204,12 +193,11 @@ export class CircleView extends GlyphView
     data = {sx: sx, sy: sy, sradius: sradius}
     @_render(ctx, indices, data)
 
-export class Circle extends Glyph # XXX: Marker
+export class Circle extends XYGlyph # XXX: Marker
   default_view: CircleView
 
   type: 'Circle'
 
-  @coords [['x', 'y']]
   @mixins ['line', 'fill']
   @define {
       angle:            [ p.AngleSpec,    0                             ]

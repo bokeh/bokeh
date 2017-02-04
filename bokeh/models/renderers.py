@@ -1,28 +1,29 @@
-""" Models (mostly base classes) for the various kinds of renderer
+''' Models (mostly base classes) for the various kinds of renderer
 types that Bokeh supports.
 
-"""
+'''
 from __future__ import absolute_import
 
 import logging
 logger = logging.getLogger(__name__)
 
-from ..model import Model
 from ..core.enums import RenderLevel
-from ..core.properties import abstract
-from ..core.properties import String, Enum, Instance, Float, Bool, Override
-from ..core import validation
+from ..core.has_props import abstract
+from ..core.properties import Auto, Bool, Either, Enum, Float, Instance, Override, String
+from ..core.validation import error
 from ..core.validation.errors import BAD_COLUMN_NAME, MISSING_GLYPH, NO_SOURCE_FOR_GLYPH
+from ..model import Model
 
 from .glyphs import Glyph
 from .images import ImageSource
-from .sources import DataSource, RemoteSource
+from .sources import ColumnDataSource, DataSource, RemoteSource
 from .tiles import TileSource, WMTSTileSource
 
 @abstract
 class Renderer(Model):
-    """An abstract base class for renderer types.
-    """
+    '''An abstract base class for renderer types.
+
+    '''
 
     level = Enum(RenderLevel, help="""
     Specifies the level in which to paint this renderer.
@@ -34,10 +35,14 @@ class Renderer(Model):
 
 @abstract
 class DataRenderer(Renderer):
-    """ An abstract base class for data renderer types (e.g. ``GlyphRenderer``, ``TileRenderer``).
-    """
+    ''' An abstract base class for data renderer types (e.g. ``GlyphRenderer``, ``TileRenderer``).
+
+    '''
 
 class TileRenderer(DataRenderer):
+    '''
+
+    '''
 
     tile_source = Instance(TileSource, default=lambda: WMTSTileSource(), help="""
     Local data source to use when rendering glyphs on the plot.
@@ -66,6 +71,9 @@ class TileRenderer(DataRenderer):
     """)
 
 class DynamicImageRenderer(DataRenderer):
+    '''
+
+    '''
 
     image_source = Instance(ImageSource, help="""
     Image source to use when rendering on the plot.
@@ -82,19 +90,19 @@ class DynamicImageRenderer(DataRenderer):
     """)
 
 class GlyphRenderer(DataRenderer):
-    """
+    '''
 
-    """
+    '''
 
-    @validation.error(MISSING_GLYPH)
+    @error(MISSING_GLYPH)
     def _check_missing_glyph(self):
         if not self.glyph: return str(self)
 
-    @validation.error(NO_SOURCE_FOR_GLYPH)
+    @error(NO_SOURCE_FOR_GLYPH)
     def _check_no_source_for_glyph(self):
         if not self.data_source: return str(self)
 
-    @validation.error(BAD_COLUMN_NAME)
+    @error(BAD_COLUMN_NAME)
     def _check_bad_column_name(self):
         if not self.glyph: return
         if not self.data_source: return
@@ -104,6 +112,7 @@ class GlyphRenderer(DataRenderer):
         for name, item in self.glyph.properties_with_values(include_defaults=False).items():
             if name not in specs: continue
             if not isinstance(item, dict): continue
+            if not isinstance(self.data_source, ColumnDataSource): continue
             if 'field' in item and item['field'] not in self.data_source.column_names:
                 missing.add(item['field'])
         if missing:
@@ -130,14 +139,20 @@ class GlyphRenderer(DataRenderer):
     and ranges.
     """)
 
-    selection_glyph = Instance(Glyph, help="""
+    selection_glyph = Either(Auto, Instance(Glyph), default="auto", help="""
     An optional glyph used for selected points.
+
+    If set to "auto" then the standard glyph will be used for selected
+    points.
     """)
 
-    nonselection_glyph = Instance(Glyph, help="""
+    nonselection_glyph = Either(Auto, Instance(Glyph), default="auto", help="""
     An optional glyph used for explicitly non-selected points
     (i.e., non-selected when there are other points that are selected,
     but not when no points at all are selected.)
+
+    If set to "auto" then a glyph with a low alpha value (0.1) will
+    be used for non-selected points.
     """)
 
     hover_glyph = Instance(Glyph, help="""
@@ -149,10 +164,10 @@ class GlyphRenderer(DataRenderer):
 
 @abstract
 class GuideRenderer(Renderer):
-    """ A base class for all guide renderer types. ``GuideRenderer`` is
+    ''' A base class for all guide renderer types. ``GuideRenderer`` is
     not generally useful to instantiate on its own.
 
-    """
+    '''
 
     plot = Instance(".models.plots.Plot", help="""
     The plot to which this guide renderer is attached.

@@ -1,5 +1,3 @@
-import * as _ from "underscore"
-
 import {Renderer} from "./renderer"
 import * as p from "../../core/properties"
 

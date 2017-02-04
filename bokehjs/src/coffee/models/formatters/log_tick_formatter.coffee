@@ -1,5 +1,3 @@
-import * as _ from "underscore"
-
 import {BasicTickFormatter} from "./basic_tick_formatter"
 import {TickFormatter} from "./tick_formatter"
 import {logger} from "../../core/logging"

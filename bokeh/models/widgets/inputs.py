@@ -1,20 +1,21 @@
-""" Various kinds of input widgets and form controls.
+''' Various kinds of input widgets and form controls.
 
-"""
+'''
 from __future__ import absolute_import
 
-from ...core.properties import abstract
-from ...core.properties import Bool, Int, Float, String, Date, RelativeDelta, Enum, List, Tuple, Either, Instance
-from ..callbacks import Callback
-from .widget import Widget
 from ...core.enums import SliderCallbackPolicy
+from ...core.has_props import abstract
+from ...core.properties import Bool, Date, Either, Enum, Float, Instance, Int, List, RelativeDelta, String, Tuple
+
+from ..callbacks import Callback
+
+from .widget import Widget
 
 @abstract
 class InputWidget(Widget):
-    """ Abstract base class for input widgets. `InputWidget`` is not
-    generally useful to instantiate on its own.
+    ''' Abstract base class for input widgets.
 
-    """
+    '''
 
     title = String(default="", help="""
     Widget's label.
@@ -33,7 +34,9 @@ class InputWidget(Widget):
             return val
 
 class TextInput(InputWidget):
-    """ Single-line input widget. """
+    ''' Single-line input widget.
+
+    '''
 
     value = String(default="", help="""
     Initial or entered text value.
@@ -50,7 +53,9 @@ class TextInput(InputWidget):
 
 
 class AutocompleteInput(TextInput):
-    """ Single-line input widget with auto-completion. """
+    ''' Single-line input widget with auto-completion.
+
+    '''
 
     completions = List(String, help="""
     A list of completion strings. This will be used to guide the
@@ -59,9 +64,9 @@ class AutocompleteInput(TextInput):
 
 
 class Select(InputWidget):
-    """ Single-select widget.
+    ''' Single-select widget.
 
-    """
+    '''
 
     options = List(Either(String, Tuple(String, String)), help="""
     Available selection options. Options may be provided either as a list of
@@ -80,9 +85,9 @@ class Select(InputWidget):
     """)
 
 class MultiSelect(InputWidget):
-    """ Multi-select widget.
+    ''' Multi-select widget.
 
-    """
+    '''
 
     options = List(Either(String, Tuple(String, String)), help="""
     Available selection options. Options may be provided either as a list of
@@ -107,9 +112,9 @@ class MultiSelect(InputWidget):
     """)
 
 class Slider(InputWidget):
-    """ Slider-based number selection widget.
+    ''' Slider-based number selection widget.
 
-    """
+    '''
 
     value = Float(default=0.5, help="""
     Initial or selected value.
@@ -142,17 +147,17 @@ class Slider(InputWidget):
     callback_policy = Enum(SliderCallbackPolicy, default="throttle", help="""
     When the callback is initiated. This parameter can take on only one of three options:
 
-       "continuous": the callback will be executed immediately for each movement of the slider
-       "throttle": the callback will be executed at most every ``callback_throttle`` milliseconds.
-       "mouseup": the callback will be executed only once when the slider is released.
+    * "continuous": the callback will be executed immediately for each movement of the slider
+    * "throttle": the callback will be executed at most every ``callback_throttle`` milliseconds.
+    * "mouseup": the callback will be executed only once when the slider is released.
 
-       The `mouseup` policy is intended for scenarios in which the callback is expensive in time.
+    The "mouseup" policy is intended for scenarios in which the callback is expensive in time.
     """)
 
 class RangeSlider(InputWidget):
-    """ Range-slider based range selection widget
+    ''' Range-slider based range selection widget
 
-    """
+    '''
 
     range = Tuple(Float, Float, default=(0.1, 0.9), help="""
     Initial or selected range.
@@ -185,18 +190,18 @@ class RangeSlider(InputWidget):
     callback_policy = Enum(SliderCallbackPolicy, default="throttle", help="""
     When the callback is initiated. This parameter can take on only one of three options:
 
-       "continuous": the callback will be executed immediately for each movement of the slider
-       "throttle": the callback will be executed at most every ``callback_throttle`` milliseconds.
-       "mouseup": the callback will be executed only once when the slider is released.
+    * "continuous": the callback will be executed immediately for each movement of the slider
+    * "throttle": the callback will be executed at most every ``callback_throttle`` milliseconds.
+    * "mouseup": the callback will be executed only once when the slider is released.
 
-       The `mouseup` policy is intended for scenarios in which the callback is expensive in time.
+    The "mouseup" policy is intended for scenarios in which the callback is expensive in time.
     """)
 
 
 class DateRangeSlider(InputWidget):
-    """ Slider-based date range selection widget.
+    ''' Slider-based date range selection widget.
 
-    """
+    '''
 
     value = Tuple(Date, Date, help="""
     The initial or selected date range.
@@ -239,9 +244,9 @@ class DateRangeSlider(InputWidget):
     """)
 
 class DatePicker(InputWidget):
-    """ Calendar-based date picker widget.
+    ''' Calendar-based date picker widget.
 
-    """
+    '''
 
     value = Date(help="""
     The initial or picked date.

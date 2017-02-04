@@ -13,8 +13,6 @@ from ..io import reset_output; reset_output
 from ..io import save; save
 from ..io import show; show
 from ..io import gridplot, GridSpec; gridplot, GridSpec
-from ..io import hplot; hplot
-from ..io import vplot; vplot
 
 from .figure import Figure; Figure
 from .figure import figure; figure

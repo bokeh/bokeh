@@ -1,6 +1,6 @@
 namespace HoverfulScatter {
   import plt = Bokeh.Plotting;
-  import _ = Bokeh._;
+  const {range, zip} = Bokeh.LinAlg;
 
   Bokeh.set_log_level("info");
   Bokeh.logger.info(`Bokeh ${Bokeh.version}`);
@@ -17,11 +17,11 @@ namespace HoverfulScatter {
   }
 
   const N = xx.length
-  const indices = _.range(N).map((i) => i.toString())
-  const radii = _.range(N).map((i) => Math.random()*0.4 + 1.7)
+  const indices = range(N).map((i) => i.toString())
+  const radii = range(N).map((i) => Math.random()*0.4 + 1.7)
 
   const colors: Array<string> = []
-  for (const [r, g] of _.zip(xx.map((x) => 50 + 2*x), yy.map((y) => 30 + 2*y)))
+  for (const [r, g] of zip(xx.map((x) => 50 + 2*x), yy.map((y) => 30 + 2*y)))
     colors.push(plt.color(r, g, 150))
 
   const source = new Bokeh.ColumnDataSource({

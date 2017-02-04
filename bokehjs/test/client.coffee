@@ -1,4 +1,3 @@
-_ = require "underscore"
 chai = require "chai"
 chai.use(require "chai-as-promised")
 expect = chai.expect
@@ -52,21 +51,15 @@ with_server = (f) ->
   else
     pypath = basedir
   port = next_port()
-  env = _.extend({}, process.env, { PYTHONPATH: pypath })
+  env = Object.assign({}, process.env, { PYTHONPATH: pypath })
   handle = child_process.spawn("python", ["-m", "bokeh", "serve", "--port=#{port}"], {
     env: env,
     cwd: basedir
   })
-  handle.stdout.on 'data', (data) ->
-    console.log("server out: #{data}")
-  handle.stderr.on 'data', (data) ->
-    console.log("server err: #{data}")
   handle.on 'close', (code) ->
-    console.log("server exited #{code}")
     promise.reject(new Error("Server exited before test promise was resolved"))
 
   cleanup_process = (value_or_error) ->
-    console.log("Killing server process")
     handle.kill()
 
   promise.then(cleanup_process, cleanup_process)
@@ -126,11 +119,9 @@ describe "Client", ->
     promise = with_server (server_process) ->
       pull_session(url=server_process.url).then(
         (session) ->
-          console.log("Connection result #{session}")
           session.close()
           "OK"
         (error) ->
-          console.log("Connection error #{error}")
           throw error
       )
     expect(promise).eventually.to.equal("OK")
@@ -139,10 +130,8 @@ describe "Client", ->
     promise = with_server (server_process) ->
       pull_session(url=server_process.url).then(
         (session) ->
-          console.log("Connection result #{session}")
           session.request_server_info().then(
             (info) ->
-              console.log("Server info ", info)
               expect(info).to.have.property('version_info')
               "OK"
           )
@@ -173,7 +162,6 @@ describe "Client", ->
                 expect(root.end).to.equal 456
                 expect(session2.document.title()).to.equal "Hello Title"
               catch e
-                console.log("Exception was ", e)
                 throw e
               finally
                 session1.close()

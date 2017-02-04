@@ -1,10 +1,11 @@
-import * as _ from "underscore"
 import * as SPrintf from "sprintf"
 import * as tz from "timezone"
 
 import {TickFormatter} from "./tick_formatter"
 import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
+import {zip, unzip, sortBy} from "../../core/util/array"
+import {isFunction} from "../../core/util/types"
 
 _us = (t) ->
   # From double-precision unix (millisecond) timestamp get
@@ -18,7 +19,7 @@ _array = (t) ->
   return tz(t, "%Y %m %d %H %M %S").split(/\s+/).map( (e) -> return parseInt(e, 10) );
 
 _strftime = (t, format) ->
-  if _.isFunction(format)
+  if isFunction(format)
     return format(t)
   else
     # Python's datetime library augments the microsecond directive %f, which is not
@@ -70,8 +71,8 @@ export class DatetimeTickFormatter extends TickFormatter
 
     _widths = (fmt_strings) ->
       sizes = (_strftime(now, fmt_string).length for fmt_string in fmt_strings)
-      sorted = _.sortBy(_.zip(sizes, fmt_strings), ([size, fmt]) -> size)
-      return _.zip.apply(_, sorted)
+      sorted = sortBy(zip(sizes, fmt_strings), ([size, fmt]) -> size)
+      return unzip(sorted)
 
     @_width_formats = {
       microseconds: _widths(@microseconds)
@@ -135,7 +136,7 @@ export class DatetimeTickFormatter extends TickFormatter
         if widths[i] * ticks.length < fill_ratio * char_width
           good_formats.push(@_width_formats[i])
       if good_formats.length > 0
-        format = _.last(good_formats)
+        format = good_formats[good_formats.length-1]
 
     # Apply the format to the tick values
     labels = []

@@ -8,7 +8,7 @@ sinon = require 'sinon'
 {ColumnDataSource} = utils.require('models/sources/column_data_source')
 {PlotCanvasView} = utils.require('models/plots/plot_canvas')
 
-create_glyph_view = (glyph) ->
+create_glyph_view = (glyph, data={}) ->
   ###
   Requires stubbing the canvas and solver before calling
   ###
@@ -21,7 +21,7 @@ create_glyph_view = (glyph) ->
   plot_view = new plot.plot_canvas.default_view({model: plot.plot_canvas })
   sinon.stub(plot_view, 'update_constraints')
 
-  @data_source = new ColumnDataSource()
+  @data_source = new ColumnDataSource({data: data})
 
   glyph_renderer = new GlyphRenderer({
     glyph: glyph

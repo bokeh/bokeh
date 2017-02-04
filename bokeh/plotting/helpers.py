@@ -16,7 +16,7 @@ from ..models import (
     FactorRange, Grid, HelpTool, HoverTool, LassoSelectTool, Legend, LegendItem, LinearAxis,
     LogAxis, PanTool, ZoomInTool, ZoomOutTool, PolySelectTool, ContinuousTicker,
     SaveTool, Range, Range1d, UndoTool, RedoTool, ResetTool, ResizeTool, Tool,
-    WheelPanTool, WheelZoomTool, ColumnDataSource, GlyphRenderer)
+    WheelPanTool, WheelZoomTool, ColumnarDataSource, ColumnDataSource, GlyphRenderer)
 
 from ..core.properties import ColorSpec, Datetime, value, field
 from ..util.deprecation import deprecated
@@ -133,7 +133,7 @@ def _process_sequence_literals(glyphclass, kwargs, source, is_user_source):
         if isinstance(val, string_types):
             continue
         # similarly colorspecs handle color tuple sequences as-is
-        if (isinstance(dataspecs[var].descriptor, ColorSpec) and ColorSpec.is_color_tuple(val)):
+        if (isinstance(dataspecs[var].property, ColorSpec) and isinstance(val, tuple)):
             continue
 
         if isinstance(val, np.ndarray) and val.ndim != 1:
@@ -518,7 +518,7 @@ def _glyph_function(glyphclass, extra_docs=None):
         is_user_source = kwargs.get('source', None) is not None
         renderer_kws = _pop_renderer_args(kwargs)
         source = renderer_kws['data_source']
-        if not isinstance(source, ColumnDataSource):
+        if not isinstance(source, ColumnarDataSource):
             try:
                 # try converting the soruce to ColumnDataSource
                 source = ColumnDataSource(source)

@@ -10,6 +10,8 @@
 }
 
 .bk-toolbar-button {
+  box-sizing: border-box;
+
   &:focus {
     outline: none;
   }
@@ -109,22 +111,35 @@
    left: -26px;
 }
 
-.bk-toolbar-above .bk-button-bar-list .bk-toolbar-button.bk-active {
-  border-bottom: 2px solid #26aae1;
+@activeToolHighlight: #26aae1;
+
+.bk-toolbar-above .bk-toolbar-button {
+  border-bottom: 2px solid transparent;
+  &.bk-active {
+    border-bottom-color: @activeToolHighlight;
+  }
 }
 
-.bk-toolbar-below .bk-button-bar-list .bk-toolbar-button.bk-active {
-  border-top: 2px solid #26aae1;
+.bk-toolbar-below .bk-toolbar-button {
+  border-top: 2px solid transparent;
+  &.bk-active {
+    border-top-color: @activeToolHighlight;
+  }
 }
 
-.bk-toolbar-right .bk-button-bar-list .bk-toolbar-button.bk-active {
-  border-left: 2px solid #26aae1;
+.bk-toolbar-right .bk-toolbar-button {
+  border-left: 2px solid transparent;
+  &.bk-active {
+    border-left-color: @activeToolHighlight;
+  }
 }
 
-.bk-toolbar-left .bk-button-bar-list .bk-toolbar-button.bk-active {
-  border-right: 2px solid #26aae1;
+.bk-toolbar-left .bk-toolbar-button {
+  border-right: 2px solid transparent;
+  &.bk-active {
+    border-right-color: @activeToolHighlight;
+  }
 }
-
 
 .bk-button-bar > .bk-toolbar-button.bk-active {
   border-bottom: 1px solid #26aae1;
@@ -171,6 +186,7 @@
         .bk-toolbar-button {
           .bk-tip {
              float: right;
+             color: #333;
           }
         }
       }

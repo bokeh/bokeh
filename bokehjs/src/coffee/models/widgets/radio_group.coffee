@@ -1,12 +1,11 @@
-import * as _ from "underscore"
 import * as $ from "jquery"
 
 import * as p from "../../core/properties"
+import {uniqueId} from "../../core/util/string"
 
 import {Widget, WidgetView} from "./widget"
 
 export class RadioGroupView extends WidgetView
-  tagName: "div"
   events:
     "change input": "change_input"
 
@@ -19,7 +18,7 @@ export class RadioGroupView extends WidgetView
     super()
     @$el.empty()
 
-    name = _.uniqueId("RadioGroup")
+    name = uniqueId("RadioGroup")
     active = @model.active
     for label, i in @model.labels
       $input = $('<input type="radio">').attr(name: name, value: "#{i}")

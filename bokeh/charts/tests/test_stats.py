@@ -37,7 +37,7 @@ def test_histogram_wo_density():
     h = Histogram(values=values, bins=3)
 
     assert len(h.bins) == 3
-    assert [b.label[0] for b in h.bins] == ['[0.0, 3.0]', '(3.0, 6.0]', '(6.0, 9.0]']
+    assert [b.label[0] for b in h.bins] == ['[0.000000, 3.000000]', '(3.000000, 6.000000]', '(6.000000, 9.000000]']
     assert [b.values[0] for b in h.bins] == [3, 3, 4]
 
 
@@ -46,7 +46,7 @@ def test_histogram_w_density():
     h = Histogram(values=values, bins=3, density=True)
 
     assert len(h.bins) == 3
-    assert [b.label[0] for b in h.bins] == ['[0.0, 3.0]', '(3.0, 6.0]', '(6.0, 9.0]']
+    assert [b.label[0] for b in h.bins] == ['[0.000000, 3.000000]', '(3.000000, 6.000000]', '(6.000000, 9.000000]']
     assert [b.values[0] for b in h.bins] == [0.1, 0.1, 0.13333333333333333]
 
 

@@ -24,7 +24,7 @@ describe "WidgetBoxView", ->
     spacer_view = new @spacer.default_view({ model: @spacer })
     spacer_view.render()
     expected_style = "width: 12px; height: 22px;"
-    expect(spacer_view.$el.attr('style')).to.be.equal expected_style
+    expect(spacer_view.el.style.cssText).to.be.equal expected_style
 
 describe "Spacer", ->
 

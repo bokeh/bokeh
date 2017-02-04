@@ -1,5 +1,3 @@
-import * as _ from "underscore"
-
 import {Axis, AxisView} from "./axis"
 import {CategoricalTickFormatter} from "../formatters/categorical_tick_formatter"
 import {CategoricalTicker} from "../tickers/categorical_ticker"

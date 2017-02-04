@@ -48,9 +48,8 @@ export class LatexLabelView extends LabelView
       sx += panel_offset.x
       sy += panel_offset.y
 
-    latex = katex.renderToString(@model.text, {displayMode: true})
-
-    @_css_text(ctx, latex, sx + @model.x_offset, sy - @model.y_offset, angle)
+    @_css_text(ctx, "", sx + @model.x_offset, sy - @model.y_offset, angle)
+    katex.render(@model.text, @el, {displayMode: true})
 
 export class LatexLabel extends Label
   type: 'LatexLabel'

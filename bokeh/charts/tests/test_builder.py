@@ -116,7 +116,7 @@ def test_created_range_type(test_builder, test_data):
     assert builder4.xscale == 'datetime'
 
 def test_sort_legend(test_builder, test_data):
-    test_builder = test_builder(test_data.pd_data, sort_legend=[('color', 'ascending')])
+    test_builder = test_builder(test_data.pd_data, legend_sort_field='color', legend_sort_direction='ascending')
 
     assert test_builder.legend_sort_field == 'color'
     assert test_builder.legend_sort_direction == 'ascending'

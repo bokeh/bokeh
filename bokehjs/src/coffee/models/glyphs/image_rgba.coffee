@@ -1,12 +1,8 @@
-import * as _ from "underscore"
-
-import {Glyph, GlyphView} from "./glyph"
+import {XYGlyph, XYGlyphView} from "./xy_glyph"
 import * as p from "../../core/properties"
+import {max, concat} from "../../core/util/array"
 
-export class ImageRGBAView extends GlyphView
-
-  _index_data: () ->
-    @_xy_index()
+export class ImageRGBAView extends XYGlyphView
 
   # TODO (bev) to improve. Currently, if only one image has changed, can
   # pass index as "arg" to prevent full re-preocessing (useful for streaming)
@@ -47,7 +43,7 @@ export class ImageRGBAView extends GlyphView
         @_height[i] = shape[0]
         @_width[i] = shape[1]
       else
-        flat = _.flatten(@_image[i])
+        flat = concat(@_image[i])
         buf = new ArrayBuffer(flat.length * 4)
         color = new Uint32Array(buf)
         for j in [0...flat.length]
@@ -70,10 +66,10 @@ export class ImageRGBAView extends GlyphView
 
       @max_dw = 0
       if @_dw.units == "data"
-        @max_dw = _.max(@_dw)
+        @max_dw = max(@_dw)
       @max_dh = 0
       if @_dh.units == "data"
-        @max_dh = _.max(@_dh)
+        @max_dh = max(@_dh)
 
   _map_data: () ->
     switch @model.properties.dw.units
@@ -106,21 +102,16 @@ export class ImageRGBAView extends GlyphView
     ctx.setImageSmoothingEnabled(old_smoothing)
 
   bounds: () ->
-    d = @index.data
-    return {
-      minX: d.minX,
-      minY: d.minY,
-      maxX: d.maxX + @max_dw,
-      maxY: d.maxY + @max_dh
-    }
+    bbox = @index.bbox
+    bbox.maxX += @max_dw
+    bbox.maxY += @max_dh
+    return bbox
 
-export class ImageRGBA extends Glyph
+export class ImageRGBA extends XYGlyph
   default_view: ImageRGBAView
 
   type: 'ImageRGBA'
 
-  @coords [['x', 'y']]
-  @mixins []
   @define {
       image:  [ p.NumberSpec       ] # TODO (bev) array spec?
       rows:   [ p.NumberSpec       ]

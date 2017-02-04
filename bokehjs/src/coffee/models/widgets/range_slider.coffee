@@ -1,8 +1,8 @@
-import * as _ from "underscore"
 import "jquery-ui/slider"
 
 import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
+import {throttle} from "../../core/util/callback"
 
 import {InputWidget, InputWidgetView} from "./input_widget"
 
@@ -10,7 +10,6 @@ import slidertemplate from "./slidertemplate"
 
 
 export class RangeSliderView extends InputWidgetView
-  tagName: "div"
   template: slidertemplate
 
   initialize: (options) ->
@@ -24,7 +23,7 @@ export class RangeSliderView extends InputWidgetView
       @callbackWrapper = () ->
         @model.callback?.execute(@model)
     if @model.callback_policy == 'throttle' and @model.callback
-      @callbackWrapper = _.throttle(() ->
+      @callbackWrapper = throttle(() ->
         @model.callback?.execute(@model)
       , @model.callback_throttle)
     @render()
@@ -55,6 +54,7 @@ export class RangeSliderView extends InputWidgetView
     if bk_handle.length == 2
       bk_handle[0].style.left = @$el.find('.ui-slider-handle')[0].style.left
       bk_handle[1].style.left = @$el.find('.ui-slider-handle')[1].style.left
+    @_prefix_ui()
     return @
 
   slidestop: (event, ui) =>

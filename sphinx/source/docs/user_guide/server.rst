@@ -28,6 +28,32 @@ possibilities immediately open up:
 **This capability to synchronize between python and the browser is the main
 purpose of the Bokeh Server.**
 
+----
+
+The simple example below, embedded from `demo.bokehplots.com`_, illustrates
+this.
+
+.. raw:: html
+
+    <div>
+    <iframe
+        src="http://demo.bokehplots.com/apps/sliders/#"
+        frameborder="0"
+        style="overflow:hidden;height:400px;width: 90%;
+
+        -moz-transform-origin: top left;
+        -webkit-transform-origin: top left;
+        -o-transform-origin: top left;
+        -ms-transform-origin: top left;
+        transform-origin: top left;"
+        height="460"
+    ></iframe>
+    </div>
+
+When the controls are manipulated, their new values are automatically
+synced in the Bokeh server. Callbacks are triggered that also update the
+date for the plot in the server. These changes are automatically synced back
+to the browser, and the plot updates.
 
 .. _userguide_server_use_case:
 
@@ -106,7 +132,23 @@ Building Bokeh Applications
 
 By far the most flexible way to create interactive data visualizations using
 the Bokeh server is to create Bokeh Applications, and serve them with the
-``bokeh serve`` command.
+``bokeh serve`` command. In this scenario, a Bokeh server uses the application
+code to create sessions and documents for all browsers that connect:
+
+.. figure:: /_images/bokeh_serve.svg
+    :align: center
+    :width: 65%
+
+    A Bokeh server (left) uses Application code to create Bokeh Documents.
+    Every new connection from a browser (right) results in the Bokeh server
+    creating a new document, just for that session.
+
+The application code is executed in the Bokeh server every time a new
+connection is made, to create the new Bokeh ``Document`` that will be synced
+to the browser. The application code also sets up any callbacks that should be
+run whenever properties such as widget values are changes.
+
+There are a few different ways to provide the application code.
 
 .. _userguide_server_applications_single_module:
 
@@ -560,6 +602,42 @@ any or all of the following conventionally named functions:
         ''' If present, this function is called when a session is closed. '''
         pass
 
+.. _userguide_server_embedding:
+
+Embedding Bokeh Server as a Library
+-----------------------------------
+
+It can be useful to embed the Bokeh Server in a larger applications, and either
+letting the application handle the lifetime of the Tornado ``IOloop``, or
+handling it explicitly yourself.  Here is the basis of how to integrate Bokeh
+in such a scenario:
+
+.. code-block:: python
+
+   from bokeh.server.server import Server
+
+   server = Server(
+       bokeh_applications,  # list of Bokeh applications
+       io_loop=loop,        # Tornado IOLoop
+       **server_kwargs      # port, num_procs, etc.
+   )
+
+   # start timers and services and immediately return
+   server.start()
+
+In the case of a larger Tornado application, or the Jupyter notebook, there is
+an existing Tornado ``IOLoop`` that the Bokeh server can "piggyback" of off.
+But it is also possible to create and control an ``IOLoop`` directly. This can
+be useful to create standalone "normal" python scripts that server Bokeh apps,
+or to embed a Bokeh application into a framework like Flask or Django without
+having to run a separate Bokeh server process. Some examples of this technique
+can be found in the examples directory:
+
+* :bokeh-tree:`examples/howto/server_embed/flask_embed.py`
+* :bokeh-tree:`examples/howto/server_embed/notebook_embed.ipynb`
+* :bokeh-tree:`examples/howto/server_embed/standalone_embed.py`
+* :bokeh-tree:`examples/howto/server_embed/tornado_embed.py`
+
 .. _userguide_server_bokeh_client:
 
 Connecting with ``bokeh.client``
@@ -569,8 +647,43 @@ With the new Tornado and websocket-based server introduced in Bokeh 0.11,
 there is also a proper client API for interacting directly with a Bokeh
 Server. This client API can be used to trigger updates to the plots and
 widgets in the browser, either in response to UI events from the browser
-or as a results of periodic or asynchronous callbacks. As before, the first
-step is to start a Bokeh Server:
+or as a results of periodic or asynchronous callbacks.
+
+
+.. figure:: /_images/bokeh_serve_client.svg
+    :align: center
+    :width: 65%
+
+    Typically web browsers make connections to a Bokeh server, but it is
+    possible to connect from python by using the ``bokeh.client`` module.
+
+There are some important difference to note when using ``bokeh.client``
+instead of running Bokeh apps directly on a Bokeh server:
+
+* Callbacks execute in the separate python script, not in the Bokeh server. In
+  for callbacks to function, the script must stay running indefinitely.
+  Typically this is achieved by making a blocking call to
+  ``session.loop_until_closed()`` at the end of the script. **If the python
+  script terminates, callbacks for widgets, etc. will no longer function**.
+
+* In this scenario the Bokeh server is merely an intermediary that facilitates
+  the synchronization between the ``Document`` in the python script, and the
+  one in the browser. As a result, **the required network traffic is doubled**.
+
+* To open sessions to apps created this way, browsers must navigate to URLs
+  there explicitly refer to a specific session. If multiple browsers open the
+  URL, they will all *share the exact same application state*. That is, there
+  will be a "Google Docs" style of operation: **scrubbing a slider in one
+  browser will also update the slider in any other browser opened to the same
+  session.** This may or may not be desirable.
+
+* Apps created in this way are typically not easily scalable in the way that
+  apps run with ``bokeh serve app.py`` are, by simply running more servers
+  behind a load balancer. **If you need to scale out a Bokeh application,
+  running them directly on a Bokeh server is preferable.**
+
+As before, the first step is to start a Bokeh Server. However in this case it
+started without specifying any app script:
 
 .. code-block:: sh
 
@@ -644,39 +757,12 @@ callbacks happen:
 
     session.loop_until_closed() # run forever
 
-This mode of interaction can be very useful, especially for individual
-exploratory data analysis (e.g, in a Juypter notebook). However, it does
-have some drawbacks when compared to the Application technique described
-below. In particular, in addition to network traffic between the browser
-and the server, there is network traffic between the python client and the
-server as well. Depending on the particular usage, this could be a
-significant consideration.
-
-
-Embedding Bokeh Server as a Library
------------------------------------
-
-It can be useful to embed the Bokeh Server in a larger Tornado-based
-application with other concurrent network services or coroutines, while
-letting the application handle the lifetime of the I/O loop.  Here is how
-to integrate Bokeh in such a scenario:
-
-.. code-block:: python
-
-   from bokeh.server.server import Server
-
-   server = Server(
-       bokeh_applications,  # list of Bokeh applications
-       io_loop=loop,        # Tornado IOLoop
-       **server_kwargs      # port, num_procs, etc.
-   )
-
-   # start timers and services and immediately return
-   server.start()
-
-When you want to stop the embedded Bokeh Server, call the ``stop()``
-method on the given ``Server`` instance.
-
+It may be undesirable or not possible to run a blocking function on the main
+thread, e.g. when using ``bokeh.client`` to create sessions from a web
+framework such as Django or Flask. In these cases calling
+``loop_until_closed()`` from another thread may be an option. Another
+possibility is to not use ``bokeh.client`` at all. See the section
+`userguide_server_embedding`_ for some alternatives.
 
 .. _userguide_server_deployment:
 
@@ -966,6 +1052,13 @@ servers. Often in this situation it is desired to run all the Bokeh server
 instances behind a load balancer, so that new connections are distributed
 amongst the individual servers.
 
+.. figure:: /_images/bokeh_serve_scale.svg
+    :align: center
+    :width: 65%
+
+    The Bokeh server is horizontally scalable. To add more capacity, more
+    servers can be run behind a load balancer.
+
 Nginx offers a load balancing capability. We will describe some of the basics
 of one possible configuration, but please also refer to the
 `Nginx load balancer documentation`_. For instance, there are various different
@@ -1138,6 +1231,7 @@ minor modifications, this machinery should work on many linux variants.
 .. _Ansible: http://www.ansible.com
 .. _Chef: https://www.chef.io/chef/
 .. _contact us on the mailing list: https://groups.google.com/a/continuum.io/forum/#!forum/bokeh
+.. _demo.bokehplots.com: https://demo.bokehplots.com
 .. _HTTPServerRequest: http://www.tornadoweb.org/en/stable/httputil.html#tornado.httputil.HTTPServerRequest
 .. _Puppet: https://puppetlabs.com
 .. _SaltStack: http://saltstack.com

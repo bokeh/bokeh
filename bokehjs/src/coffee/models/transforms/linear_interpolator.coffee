@@ -1,4 +1,4 @@
-import * as _ from "underscore"
+import {findLastIndex} from "../../core/util/array"
 import {Interpolator} from "./interpolator"
 
 export class LinearInterpolator extends Interpolator
@@ -19,9 +19,7 @@ export class LinearInterpolator extends Interpolator
     if x == @_x_sorted[0]
       return @_y_sorted[0]
 
-    ind = _.findLastIndex(@_x_sorted, (num) ->
-      return num < x
-    )
+    ind = findLastIndex(@_x_sorted, (num) -> num < x)
 
     x1 = @_x_sorted[ind]
     x2 = @_x_sorted[ind+1]

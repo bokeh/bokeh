@@ -1,23 +1,10 @@
-import * as _ from "underscore"
-
 import {GestureTool, GestureToolView} from "./gesture_tool"
 import * as p from "../../../core/properties"
 
 export class WheelPanToolView extends GestureToolView
 
   _scroll: (e) ->
-    # we need a browser-specific multiplier to have similar experiences
-    if navigator.userAgent.toLowerCase().indexOf("firefox") > -1
-      multiplier = 20
-    else
-      multiplier = 1
-
-    if e.originalEvent?.deltaY?
-      delta = -e.originalEvent.deltaY * multiplier
-    else
-      delta = e.bokeh.delta
-
-    factor  = @model.speed * delta
+    factor = @model.speed * e.bokeh.delta
 
     # clamp the magnitude of factor, if it is > 1 bad things happen
     if factor > 0.9

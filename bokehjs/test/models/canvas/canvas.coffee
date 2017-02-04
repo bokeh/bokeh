@@ -83,15 +83,14 @@ describe "CanvasView", ->
     @c = new Canvas()
     @c.document = new Document()
 
-  it "initialize should call set_dims", ->
-    spy = sinon.spy(CanvasView.prototype, 'set_dims')
+  it "initialize should call set_dims", sinon.test ->
+    spy = this.spy(CanvasView.prototype, 'set_dims')
     c_view = new @c.default_view({'model': @c})
     expect(spy.calledOnce).to.be.true
-    spy.restore()
 
-  it "set_dims should call update_constraints", ->
+  it "set_dims should call update_constraints", sinon.test ->
     canvas_view = new @c.default_view({'model': @c})
-    spy = sinon.spy(canvas_view, 'update_constraints')
+    spy = this.spy(canvas_view, 'update_constraints')
     canvas_view.set_dims([1, 2])
     expect(spy.calledOnce).to.be.true
 

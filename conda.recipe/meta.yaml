@@ -1,10 +1,13 @@
+{% set data = load_setup_py_data() %}
+
 package:
   name: bokeh
-  version: 'nightly'
+  version: {{ data['version'] }}
+
+source:
+  path: ..
 
 build:
-  number: {{ environ.get('BINSTAR_BUILD', 1) }}
-  noarch_python: True
   entry_points:
     - bokeh = bokeh.__main__:main
 
@@ -17,28 +20,30 @@ requirements:
   build:
     - python
     - setuptools
-    - nodejs >=4.1
+    - nodejs >=6.6.0
+    - certifi
+    - pycurl
+    - packaging
     - six
+    - packaging
     - python-dateutil
     - numpy
     - yaml
     - pyyaml
     - jinja2
+    - twine
     - tornado >=4.3
 
   run:
-    # bokeh
     - python
-    - six
-    - requests
-    - pyyaml
-    - python-dateutil
-    - jinja2
-    - numpy
 
-    # server
-    - tornado >=4.3
+    {% for dep in data['install_requires'] %}
+    - {{ dep.lower() }}
+    {% endfor %}
+
     # meta-package installs futures for py 2.7 but not for py 3.x
+    # NOTE: once https://github.com/conda/conda-build/issues/1662 is fixed then
+    # this should be able to be removed
     - futures-compat
 
 test:
@@ -54,10 +59,12 @@ test:
     - coverage
     - flake8
     - mock
+    - packaging
     - pandas
     - pytest >=3.0.2
     - pytest-cov >=1.8.1     [unix]
     - pytest-selenium==1.6.0 [unix]
+    - pytest-html==1.7       [unix]
     - selenium==2.53.5
     - pytest-xdist
     - pytest-rerunfailures
@@ -66,7 +73,7 @@ test:
     - pillow
     - boto
     - pdiff                  [unix]
-    - nodejs >=4.1
+    - nodejs >=6.6.0
 
     # examples
     - jupyter
@@ -88,5 +95,6 @@ test:
     - bokeh
 
 about:
-  home: https://github.com/bokeh/bokeh
-  license: New BSD
+  home: {{ data['url'] }}
+  license: {{ data['license'] }}
+  summary: {{ data['description'] }}

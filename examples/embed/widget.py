@@ -33,7 +33,7 @@ from bokeh.embed import autoload_server
 from bokeh.layouts import row, column
 from bokeh.models import (Plot, DataRange1d, LinearAxis, CategoricalAxis,
                           Legend, ColumnDataSource, Grid, Line,
-                          SingleIntervalTicker, Quad, Select, FactorRange)
+                          HBar, Select, FactorRange)
 from bokeh.sampledata.population import load_population
 
 document = Document()
@@ -43,38 +43,35 @@ session = push_session(document)
 df = load_population()
 revision = 2012
 
-year = 2010
-location = "World"
+year, location = 2010, "World"
 
 years = [str(x) for x in sorted(df.Year.unique())]
 locations = sorted(df.Location.unique())
+groups =  [str(x) for x in df.AgeGrp.unique()]
+groups.remove('80+') # remove oddball group
 
-source_pyramid = ColumnDataSource(data=dict())
+source_pyramid_m = ColumnDataSource(data=dict(value=[], group=[]))
+source_pyramid_f = ColumnDataSource(data=dict(value=[], group=[]))
 
 def pyramid():
     xdr = DataRange1d()
-    ydr = DataRange1d()
+    ydr = FactorRange(factors=groups)
 
-    plot = Plot(title=None, x_range=xdr, y_range=ydr, plot_width=600, plot_height=600)
+    plot = Plot(x_range=xdr, y_range=ydr, plot_width=600, plot_height=500, toolbar_location=None)
 
     xaxis = LinearAxis()
     plot.add_layout(xaxis, 'below')
-    yaxis = LinearAxis(ticker=SingleIntervalTicker(interval=5))
-    plot.add_layout(yaxis, 'left')
+    plot.add_layout(CategoricalAxis(), 'left')
 
     plot.add_layout(Grid(dimension=0, ticker=xaxis.ticker))
-    plot.add_layout(Grid(dimension=1, ticker=yaxis.ticker))
 
-    male_quad = Quad(left="male", right=0, bottom="groups", top="shifted", fill_color="#3B8686")
-    male_quad_glyph = plot.add_glyph(source_pyramid, male_quad)
+    m = HBar(left="value", right=0, y="group", height=1, fill_color="#3B8686")
+    mglyph = plot.add_glyph(source_pyramid_m, m)
 
-    female_quad = Quad(left=0, right="female", bottom="groups", top="shifted", fill_color="#CFF09E")
-    female_quad_glyph = plot.add_glyph(source_pyramid, female_quad)
+    f = HBar(left=0, right="value", y="group", height=1, fill_color="#CFF09E")
+    fglyph = plot.add_glyph(source_pyramid_f, f)
 
-    plot.add_layout(Legend(items=[
-        ("Male"   , [male_quad_glyph]),
-        ("Female" , [female_quad_glyph]),
-    ]))
+    plot.add_layout(Legend(items=[("Male" , [mglyph]), ("Female" , [fglyph])]))
 
     return plot
 
@@ -85,23 +82,19 @@ def population():
     xdr = FactorRange(factors=years)
     ydr = DataRange1d()
 
-    plot = Plot(title=None, x_range=xdr, y_range=ydr, plot_width=800, plot_height=200)
+    plot = Plot(x_range=xdr, y_range=ydr, plot_width=600, plot_height=150, toolbar_location=None)
 
-    plot.add_layout(CategoricalAxis(major_label_orientation=pi/4), 'below')
+    plot.add_layout(CategoricalAxis(major_label_orientation=pi / 4), 'below')
 
-    line_known = Line(x="x", y="y", line_color="violet", line_width=2)
-    line_known_glyph = plot.add_glyph(source_known, line_known)
+    known = Line(x="x", y="y", line_color="violet", line_width=2)
+    known_glyph = plot.add_glyph(source_known, known)
 
-    line_predicted = Line(x="x", y="y", line_color="violet", line_width=2, line_dash="dashed")
-    line_predicted_glyph = plot.add_glyph(source_predicted, line_predicted)
+    predicted = Line(x="x", y="y", line_color="violet", line_width=2, line_dash="dashed")
+    predicted_glyph = plot.add_glyph(source_predicted, predicted)
 
-    plot.add_layout(Legend(
-        location="bottom_right",
-        items=[
-            ("known"     , [line_known_glyph]),
-            ("predicted" , [line_predicted_glyph]),
-        ])
-    )
+    legend = Legend(location="bottom_right",
+                    items=[("known", [known_glyph]), ("predicted", [predicted_glyph])])
+    plot.add_layout(legend)
 
     return plot
 
@@ -111,19 +104,17 @@ def update_pyramid():
     male = pyramid[pyramid.Sex == "Male"]
     female = pyramid[pyramid.Sex == "Female"]
 
-    total = male.Value.sum() + female.Value.sum()
+    total = df.Value.sum()
+    male_percent = -male.Value / total
+    female_percent = female.Value / total
 
-    male_percent = -male.Value/total
-    female_percent = female.Value/total
-
-    groups = male.AgeGrpStart.tolist()
-    shifted = groups[1:] + [groups[-1] + 5]
-
-    source_pyramid.data = dict(
-        groups=groups,
-        shifted=shifted,
-        male=male_percent,
-        female=female_percent,
+    source_pyramid_m.data = dict(
+        group=[str(x) for x in male.AgeGrp.unique()],
+        value=male_percent,
+    )
+    source_pyramid_f.data = dict(
+        group=[str(x) for x in female.AgeGrp.unique()],
+        value=female_percent,
     )
 
 def update_population():

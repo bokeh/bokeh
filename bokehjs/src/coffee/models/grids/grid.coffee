@@ -1,8 +1,7 @@
-import * as _ from "underscore"
-
 import {GuideRenderer} from "../renderers/guide_renderer"
 import {RendererView} from "../renderers/renderer"
 import * as p from "../../core/properties"
+import {isArray} from "../../core/util/types"
 
 export class GridView extends RendererView
   initialize: (attrs, options) ->
@@ -99,7 +98,7 @@ export class Grid extends GuideRenderer
     user_bounds = @bounds
     range_bounds = [range.min, range.max]
 
-    if _.isArray(user_bounds)
+    if isArray(user_bounds)
       start = Math.min(user_bounds[0], user_bounds[1])
       end = Math.max(user_bounds[0], user_bounds[1])
       if start < range_bounds[0]

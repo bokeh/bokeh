@@ -1,5 +1,3 @@
-import * as _ from "underscore"
-
 import {CategoricalMapper} from "../mappers/categorical_mapper"
 import {LinearMapper} from "../mappers/linear_mapper"
 import {LogMapper} from "../mappers/log_mapper"
@@ -56,7 +54,7 @@ export class CartesianFrame extends LayoutCanvas
           mapper_model = LogMapper
         else
           mapper_model = LinearMapper
-        range._mapper_type = mapper_type
+        range.mapper_hint = mapper_type
       else if range.type == "FactorRange"
         mapper_model = CategoricalMapper
       else

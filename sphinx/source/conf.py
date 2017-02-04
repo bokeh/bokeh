@@ -39,6 +39,7 @@ extensions = [
     'bokeh.sphinxext.bokeh_gallery',
     'bokeh.sphinxext.bokeh_github',
     'bokeh.sphinxext.bokeh_jinja',
+    'bokeh.sphinxext.bokeh_index_toctree',
     'bokeh.sphinxext.bokeh_model',
     'bokeh.sphinxext.bokeh_options',
     'bokeh.sphinxext.bokeh_palette',
@@ -123,6 +124,23 @@ pygments_style = 'sphinx'
 
 # Sort members by type
 autodoc_member_order = 'groupwise'
+
+# This would more properly be done with rst_epilog but something about
+# the combination of this with the bokeh-gallery directive breaks the build
+rst_prolog = """
+.. |Color|              replace:: :py:class:`~bokeh.core.properties.Color`
+.. |DataSpec|           replace:: :py:class:`~bokeh.core.properties.DataSpec`
+.. |Document|           replace:: :py:class:`~bokeh.document.Document`
+.. |HasProps|           replace:: :py:class:`~bokeh.core.has_props.HasProps`
+.. |Model|              replace:: :py:class:`~bokeh.model.Model`
+.. |Property|           replace:: :py:class:`~bokeh.core.property.bases.Property`
+.. |PropertyContainer|  replace:: :py:class:`~bokeh.core.property.containers.PropertyContainer`
+.. |PropertyDescriptor| replace:: :py:class:`~bokeh.core.property.descriptor.PropertyDescriptor`
+.. |UnitsSpec|          replace:: :py:class:`~bokeh.core.properties.UnitsSpec`
+
+.. |field|              replace:: :py:func:`~bokeh.core.properties.field`
+.. |value|              replace:: :py:func:`~bokeh.core.properties.value`
+"""
 
 # -- Options for HTML output ---------------------------------------------------
 

@@ -1,24 +1,25 @@
-""" Models for various kinds of arrow heads that can be added to
-Arrow annotations
+''' Models for various kinds of arrow heads that can be added to
+Arrow annotations.
 
-"""
+'''
 from __future__ import absolute_import
 
-from ..core.properties import abstract
+from ..core.has_props import abstract
 from ..core.properties import Float, Include, Override
-from ..core.property_mixins import LineProps, FillProps
+from ..core.property_mixins import FillProps, LineProps
+
 from .annotations import Annotation
 
 @abstract
 class ArrowHead(Annotation):
-    """ Base class for arrow heads.
+    ''' Base class for arrow heads.
 
-    """
+    '''
 
 class OpenHead(ArrowHead):
-    """ Render an open-body arrow head.
+    ''' Render an open-body arrow head.
 
-    """
+    '''
 
     size = Float(default=25, help="""
     The size, in pixels, of the arrow head.
@@ -29,9 +30,9 @@ class OpenHead(ArrowHead):
     """)
 
 class NormalHead(ArrowHead):
-    """ Render a closed-body arrow head.
+    ''' Render a closed-body arrow head.
 
-    """
+    '''
 
     size = Float(default=25, help="""
     The size, in pixels, of the arrow head.
@@ -48,9 +49,9 @@ class NormalHead(ArrowHead):
     fill_color = Override(default="black")
 
 class VeeHead(ArrowHead):
-    """ Render an vee-style arrow head.
+    ''' Render a vee-style arrow head.
 
-    """
+    '''
 
     size = Float(default=25, help="""
     The size, in pixels, of the arrow head.

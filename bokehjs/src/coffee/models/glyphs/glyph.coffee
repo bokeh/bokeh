@@ -1,7 +1,3 @@
-import * as _ from "underscore"
-import * as rbush from "rbush"
-
-import {CategoricalMapper} from "../mappers/categorical_mapper"
 import * as p from "../../core/properties"
 import * as bbox from "../../core/util/bbox"
 import * as proj from "../../core/util/projections"
@@ -10,6 +6,8 @@ import {Model} from "../../model"
 import {Visuals} from "../../core/visuals"
 import * as bokehgl from "./webgl/main"
 import {logger} from "../../core/logging"
+import {extend} from "../../core/util/object"
+import {isString, isArray} from "../../core/util/types"
 
 export class GlyphView extends BokehView
 
@@ -51,8 +49,27 @@ export class GlyphView extends BokehView
   bounds: () ->
     if not @index?
       return bbox.empty()
-    d = @index.data
-    bb = {minX: d.minX, minY: d.minY, maxX: d.maxX, maxY: d.maxY}
+    else
+      return @_bounds(@index.bbox)
+
+  log_bounds: () ->
+    if not @index?
+      return bbox.empty()
+
+    bb = bbox.empty()
+    positive_x_bbs = @index.search(bbox.positive_x())
+    positive_y_bbs = @index.search(bbox.positive_y())
+    for x in positive_x_bbs
+      if x.minX < bb.minX
+        bb.minX = x.minX
+      if x.maxX > bb.maxX
+        bb.maxX = x.maxX
+    for y in positive_y_bbs
+      if y.minY < bb.minY
+        bb.minY = y.minY
+      if y.maxY > bb.maxY
+        bb.maxY = y.maxY
+
     return @_bounds(bb)
 
   # this is available for subclasses to use, if appropriate.
@@ -74,34 +91,8 @@ export class GlyphView extends BokehView
   scx: (i) -> return @sx[i]
   scy: (i) -> return @sy[i]
 
-  _xy_index: () ->
-    index = rbush()
-    pts = []
-
-    # if the range is categorical, map to synthetic coordinates first
-    if @renderer.xmapper instanceof CategoricalMapper
-      xx = @renderer.xmapper.v_map_to_target(@_x, true)
-    else
-      xx = @_x
-    if @renderer.ymapper instanceof CategoricalMapper
-      yy = @renderer.ymapper.v_map_to_target(@_y, true)
-    else
-      yy = @_y
-
-    for i in [0...xx.length]
-      x = xx[i]
-      if isNaN(x) or not isFinite(x)
-        continue
-      y = yy[i]
-      if isNaN(y) or not isFinite(y)
-        continue
-      pts.push({minX: x, minY: y, maxX: x, maxY: y, i: i})
-
-    index.load(pts)
-    return index
-
   sdist: (mapper, pts, spans, pts_location="edge", dilate=false) ->
-    if _.isString(pts[0])
+    if isString(pts[0])
       pts = mapper.v_map_to_target(pts)
 
     if pts_location == 'center'
@@ -170,7 +161,7 @@ export class GlyphView extends BokehView
 
   set_data: (source) ->
     data = @model.materialize_dataspecs(source)
-    _.extend(@, data)
+    extend(@, data)
 
     if @renderer.plot_view.model.use_map
       if @_x?
@@ -206,7 +197,7 @@ export class GlyphView extends BokehView
       syname = "s#{yname}"
       xname = "_#{xname}"
       yname = "_#{yname}"
-      if _.isArray(@[xname]?[0]) or @[xname]?[0]?.buffer instanceof ArrayBuffer
+      if isArray(@[xname]?[0]) or @[xname]?[0]?.buffer instanceof ArrayBuffer
         [ @[sxname], @[syname] ] = [ [], [] ]
         for i in [0...@[xname].length]
           [sx, sy] = @map_to_screen(@[xname][i], @[yname][i])

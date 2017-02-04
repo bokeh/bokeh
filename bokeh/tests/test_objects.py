@@ -6,7 +6,7 @@ import copy
 from bokeh.core.properties import List, String, Instance, Dict, Any, Int
 from bokeh.model import Model, _ModelInDocument
 from bokeh.document import Document
-from bokeh.core.property_containers import PropertyValueList, PropertyValueDict
+from bokeh.core.property.containers import PropertyValueList, PropertyValueDict
 from bokeh.util.future import with_metaclass
 
 
@@ -16,11 +16,11 @@ def large_plot(n):
         ColumnDataSource, DataRange1d, PanTool, ZoomInTool, ZoomOutTool, WheelZoomTool, BoxZoomTool,
         BoxSelectTool, ResizeTool, SaveTool, ResetTool
     )
-    from bokeh.models.layouts import VBox
+    from bokeh.models.layouts import Column
     from bokeh.models.glyphs import Line
 
-    vbox = VBox()
-    objects = set([vbox])
+    col = Column()
+    objects = set([col])
 
     for i in xrange(n):
         source = ColumnDataSource(data=dict(x=[0, i + 1], y=[0, i + 1]))
@@ -46,27 +46,27 @@ def large_plot(n):
         reset = ResetTool()
         tools = [pan, zoom_in, zoom_out, wheel_zoom, box_zoom, box_select, resize, save, reset]
         plot.add_tools(*tools)
-        vbox.children.append(plot)
+        col.children.append(plot)
         objects |= set([
             source, xdr, ydr, plot, xaxis, yaxis, xgrid, ygrid, renderer, glyph,
             plot.toolbar, plot.tool_events, plot.title, box_zoom.overlay, box_select.overlay] +
             tickers + tools)
 
-    return vbox, objects
+    return col, objects
 
 
-class TestViewable(unittest.TestCase):
+class TestMetaModel(unittest.TestCase):
 
     def setUp(self):
-        from bokeh.model import Viewable
-        self.viewable = Viewable
-        self.old_map = copy.copy(self.viewable.model_class_reverse_map)
+        from bokeh.model import MetaModel
+        self.metamodel = MetaModel
+        self.old_map = copy.copy(self.metamodel.model_class_reverse_map)
 
     def tearDown(self):
-        self.viewable.model_class_reverse_map = self.old_map
+        self.metamodel.model_class_reverse_map = self.old_map
 
     def mkclass(self):
-        class Test_Class(with_metaclass(self.viewable)):
+        class Test_Class(with_metaclass(self.metamodel)):
             foo = 1
         return Test_Class
 
@@ -76,10 +76,11 @@ class TestViewable(unittest.TestCase):
         self.assertRaises(Warning, self.mkclass)
 
     def test_get_class(self):
+        from bokeh.model import get_class
         self.mkclass()
-        tclass = self.viewable.get_class('Test_Class')
+        tclass = get_class('Test_Class')
         self.assertTrue(hasattr(tclass, 'foo'))
-        self.assertRaises(KeyError, self.viewable.get_class, 'Imaginary_Class')
+        self.assertRaises(KeyError, get_class, 'Imaginary_Class')
 
 class DeepModel(Model):
     child = Instance(Model)
@@ -133,7 +134,8 @@ class TestModel(unittest.TestCase):
         self.assertEqual({'type': 'Model', 'id': 'test_id'}, testObject.ref)
 
     def test_references_by_ref_by_value(self):
-        from bokeh.core.properties import HasProps, Instance, Int
+        from bokeh.core.has_props import HasProps
+        from bokeh.core.properties import Instance, Int
 
         class T(self.pObjectClass):
             t = Int(0)

@@ -1,6 +1,9 @@
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
+import {JQueryable} from "./jqueryable"
 
 export class WidgetView extends LayoutDOMView
+  @prototype extends JQueryable
+
   className: "bk-widget"
 
   render: () ->
@@ -11,7 +14,6 @@ export class WidgetView extends LayoutDOMView
       @$el.height(@model.height)
     if @model.width
       @$el.width(@model.width)
-
 
 export class Widget extends LayoutDOM
   type: "Widget"

@@ -49,7 +49,7 @@ class TestChart(unittest.TestCase):
         )
 
     def test_title(self):
-        self.chart.title = "new_title"
+        self.chart.title.text = "new_title"
         self.assertEqual(self.chart.title.text, "new_title")
 
     def test_sizing_mode(self):

@@ -1,15 +1,11 @@
-import * as _ from "underscore"
-
 import * as p from "core/properties"
-import {Glyph, GlyphView} from "models/glyphs/glyph"
+import {isString} from "core/util/types"
+import {XYGlyph, XYGlyphView} from "models/glyphs/xy_glyph"
 
 import {arc_to_bezier} from "./bezier"
 import * as gear_utils from "./gear_utils"
 
-export class GearView extends GlyphView
-
-  _index_data: () ->
-    return @_xy_index()
+export class GearView extends XYGlyphView
 
   _map_data: () ->
     @smodule = @sdist(@renderer.xmapper, @_x, @_module, 'edge')
@@ -72,7 +68,7 @@ export class GearView extends GlyphView
     i = 0
 
     while i < seq.length
-      if _.isString(seq[i])
+      if isString(seq[i])
         c = seq[i]
         i += 1
 
@@ -115,12 +111,10 @@ export class GearView extends GlyphView
   draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
     @_generic_area_legend(ctx, x0, x1, y0, y1, index)
 
-export class Gear extends Glyph
+export class Gear extends XYGlyph
+  type: 'Gear'
   default_view: GearView
 
-  type: 'Gear'
-
-  @coords [['x', 'y']]
   @mixins ['line', 'fill']
   @define {
     angle:          [ p.AngleSpec,  0     ]

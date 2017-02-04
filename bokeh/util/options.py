@@ -2,7 +2,7 @@
 options.
 
 """
-from ..core.properties import HasProps
+from ..core.has_props import HasProps
 
 class Options(HasProps):
     ''' Leverage the Bokeh properties type system for specifying and

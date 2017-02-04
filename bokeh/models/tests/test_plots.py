@@ -13,7 +13,7 @@ import unittest
 import pytest
 
 from bokeh.plotting import figure
-from bokeh.models import GlyphRenderer, Label, Range1d, FactorRange, Plot, LinearAxis, GridPlot
+from bokeh.models import GlyphRenderer, Label, Range1d, FactorRange, Plot, LinearAxis
 from bokeh.models.tools import PanTool, Toolbar
 
 
@@ -159,15 +159,3 @@ def test_plot_raises_error_if_toolbar_and_tools_are_set():
 def test_plot_with_no_title_specified_creates_an_empty_title():
     plot = Plot()
     assert plot.title.text == ""
-
-
-############
-#
-# Test GridPlot
-#
-############
-
-
-def test_grid_plot_sizing_mode_property_is_fixed_by_default():
-    gp = GridPlot()
-    assert gp.sizing_mode is 'fixed'

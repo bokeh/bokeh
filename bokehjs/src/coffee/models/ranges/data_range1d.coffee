@@ -1,5 +1,3 @@
-import * as _ from "underscore"
-
 import {DataRange} from "./data_range"
 import {GlyphRenderer} from "../renderers/glyph_renderer"
 import {logger} from "../../core/logging"
@@ -18,9 +16,13 @@ export class DataRange1d extends DataRange
       follow_interval: [ p.Number        ]
       default_span:    [ p.Number, 2     ]
       bounds:          [ p.Any           ] # TODO (bev)
-      min_interval: [ p.Any ]
-      max_interval: [ p.Any ]
-    }
+      min_interval:    [ p.Any           ]
+      max_interval:    [ p.Any           ]
+  }
+
+  @internal {
+      mapper_hint:     [ p.String, 'auto' ]
+  }
 
   initialize: (attrs, options) ->
     super(attrs, options)
@@ -34,7 +36,6 @@ export class DataRange1d extends DataRange
     @_initial_follow = @follow
     @_initial_follow_interval = @follow_interval
     @_initial_default_span = @default_span
-    @_mapper_type = "auto"
 
   @getters {
     min: () -> Math.min(@start, @end)
@@ -86,11 +87,20 @@ export class DataRange1d extends DataRange
     range_padding = @range_padding
     if range_padding? and range_padding > 0
 
-      if @_mapper_type == "log"
-        if min <= 0 #hotfix
-          min = 1
-        if max <= 0
-          max = 10
+      if @mapper_hint == "log"
+        if isNaN(min) or not isFinite(min) or min <= 0
+          if isNaN(max) or not isFinite(max) or max <= 0
+            min = 0.1
+          else
+            min = max / 100
+          logger.warn("could not determine minimum data value for log axis, DataRange1d using value #{min}")
+        if isNaN(max) or not isFinite(max) or max <= 0
+          if isNaN(min) or not isFinite(min) or min <= 0
+            max = 10
+          else
+            max = min * 100
+          logger.warn("could not determine maximum data value for log axis, DataRange1d using value #{max}")
+
         log_min = Math.log(min) / Math.log(10)
         log_max = Math.log(max) / Math.log(10)
         if max == min
@@ -141,13 +151,13 @@ export class DataRange1d extends DataRange
     [start, end] = @_compute_range(min, max)
 
     if @_initial_start?
-      if @_mapper_type == "log"
+      if @mapper_hint == "log"
         if @_initial_start > 0
           start = @_initial_start
       else
         start = @_initial_start
     if @_initial_end?
-      if @_mapper_type == "log"
+      if @mapper_hint == "log"
         if @_initial_end > 0
           end = @_initial_end
       else

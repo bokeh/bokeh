@@ -63,7 +63,7 @@ class BokehGalleryDirective(BokehDirective):
 def env_updated_handler(app, env):
     # this is to make sure the files that were copied and read by hand
     # in by the directive get marked updated and written out appropriately
-    return env.gallery_updated
+    return getattr(env, 'gallery_updated', [])
 
 def setup(app):
     app.connect('env-updated', env_updated_handler)

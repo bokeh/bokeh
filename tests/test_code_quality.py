@@ -1,7 +1,9 @@
 # This is based on sympy's sympy/utilities/tests/test_code_quality.py
 
+import io
+import subprocess
 from os import walk, sep, pardir
-from os.path import split, join, isabs, abspath, relpath, exists, isfile, basename
+from os.path import split, join, isabs, abspath, relpath, exists, isfile, basename, splitext
 from glob import glob
 
 import pytest
@@ -30,6 +32,13 @@ def tab_in_leading(s):
         check = s[:n] + smore[:len(smore) - len(smore.lstrip())]
     return check.expandtabs() != check
 
+def use_tab_rule(fname):
+    return not (basename(fname) == 'Makefile' or splitext(fname)[1] == '.bat')
+
+exclude_exts = (".png", ".jpg", ".pxm", ".ico", ".ics", ".gz", ".gif", ".enc", ".svg", ".xml")
+
+exclude_dirs = ("bokehjs/src/vendor", "sphinx/draw.io")
+
 def collect_errors():
     errors = []
 
@@ -37,7 +46,6 @@ def collect_errors():
         line = None
 
         for idx, line in enumerate(test_file):
-            line = line.decode('utf-8')
             line_no = idx + 1
 
             if idx == 0 and len(line.strip()) == 0:
@@ -46,7 +54,7 @@ def collect_errors():
                 errors.append((message_space, fname, line_no))
             if line.endswith("\r\n") or line.endswith("\r"):
                 errors.append((message_carriage, fname, line_no))
-            if tab_in_leading(line):
+            if use_tab_rule(fname) and tab_in_leading(line):
                 errors.append((message_tabs, fname, line_no))
             #if len(line) > MAX_LINE_LENGTH:
             #    errors.append((message_too_long, fname, line_no))
@@ -57,64 +65,29 @@ def collect_errors():
             if not line.endswith('\n'):
                 errors.append((message_eof, fname, line_no))
 
-    def test(fname):
-        with open(fname, "Urb") as test_file:
-            test_this_file(fname, test_file)
+    paths = subprocess.check_output(["git", "ls-files"]).decode('utf-8').split("\n")
 
-    def canonicalize(path):
-        return path.replace('/', sep)
+    for path in paths:
+        if not path:
+            continue
 
-    def check_tree(base_path, patterns, dir_exclusions=None, file_exclusions=None):
-        dir_exclusions = dir_exclusions or []
-        file_exclusions = file_exclusions or []
-        base_path = join(TOP_PATH, canonicalize(base_path))
-        dir_exclusions = set([ join(base_path, canonicalize(path)) for path in dir_exclusions ])
+        if path.endswith(exclude_exts):
+            continue
 
-        for root, dirs, _ in walk(base_path):
-            if root in dir_exclusions:
-                del dirs[:]
-                continue
+        if path.startswith(exclude_dirs):
+            continue
 
-            for pattern in patterns:
-                files = glob(join(root, pattern))
-                check_files(files, file_exclusions)
+        with io.open(path, 'r', encoding='utf-8') as file:
+            test_this_file(path, file)
 
-    def check_files(files, file_exclusions=None):
-        file_exclusions = file_exclusions or []
-        for fname in files:
-            if not isabs(fname):
-                fname = join(TOP_PATH, fname)
-
-            if not exists(fname) or not isfile(fname):
-                continue
-
-            if basename(fname) in file_exclusions:
-                continue
-
-            test(fname)
-
-    check_files(["setup.py"])
-    check_tree('bin',          ['*'])
-    check_tree('bokeh',        ['*.py', '*.html', '*.js'], ["server/static"], ["__conda_version__.py"])
-    check_tree('bokehjs',      ['*.coffee', '*.js', '*.ts', '*.less', '*.css', '*.json'], ['build', 'node_modules', 'src/vendor', 'typings'])
-    check_tree('conda.recipe', ['*.py', '*.sh', '*.yaml'])
-    check_tree('examples',     ['*.py', '*.ipynb'])
-    check_tree('scripts',      ['*.py', '*.sh'])
-    check_tree('sphinx',       ['*.rst', '*.py'], ['_build', 'source/docs/gallery'])
-    check_tree('tests',        ['*.py', '*.js'])
-
-    return errors
+    return [ msg % (relpath(fname, TOP_PATH), line_no) for (msg, fname, line_no) in errors ]
 
 def bad_files():
     return " ".join(sorted(set([ file for (_, file, _) in collect_errors() ])))
 
 @pytest.mark.quality
 def test_files():
-    def format_message(msg, fname, line_no):
-        return msg % (relpath(fname, TOP_PATH), line_no)
-
-    errors = [ format_message(*args) for args in collect_errors() ]
-
+    errors = collect_errors()
     assert len(errors) == 0, "Code quality issues:\n%s" % "\n".join(errors)
 
 if __name__ == "__main__":

@@ -1,3 +1,6 @@
+'''
+
+'''
 from __future__ import absolute_import, division
 
 from collections import defaultdict
@@ -7,17 +10,15 @@ import pandas as pd
 
 from bokeh.charts import DEFAULT_PALETTE
 from bokeh.core.enums import DashPattern
-from bokeh.models.glyphs import Rect, Segment, Line, Patches, Arc
+from bokeh.models.glyphs import Arc, Line, Patches, Rect, Segment
 from bokeh.models.renderers import GlyphRenderer
-from bokeh.core.properties import (Float, String, Datetime, Bool, Instance,
-                                   List, Either, Int, Enum, Color, Override, Any, Angle)
+from bokeh.core.properties import Any, Angle, Bool, Color, Datetime, Either, Enum, Float, List, Override, Instance, Int, String
+
+from .data_source import ChartDataSource
 from .models import CompositeGlyph
 from .properties import Column, EitherColumn
-from .stats import (Stat, Quantile, Sum, Min, Max, Bins, stats, Histogram,
-                    BinnedStat)
-from .data_source import ChartDataSource
-from .utils import marker_types, generate_patch_base, label_from_index_dict
-
+from .stats import BinnedStat, Bins, Histogram, Max, Min, Quantile, Stat, stats, Sum
+from .utils import generate_patch_base, label_from_index_dict, marker_types
 
 class NestedCompositeGlyph(CompositeGlyph):
     """A composite glyph that consists of other composite glyphs.

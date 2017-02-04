@@ -1,7 +1,5 @@
-_ = require "underscore"
 {expect} = require "chai"
 utils = require "../../../utils"
-sinon = require 'sinon'
 
 {Document} = utils.require("document")
 {ZoomOutTool} = utils.require("models/tools/actions/zoom_out_tool")

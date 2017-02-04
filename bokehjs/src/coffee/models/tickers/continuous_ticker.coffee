@@ -1,5 +1,3 @@
-import * as _ from "underscore"
-
 import {Ticker} from "./ticker"
 import * as p from "../../core/properties"
 

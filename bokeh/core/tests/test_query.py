@@ -1,8 +1,8 @@
 from __future__ import absolute_import
 
-import unittest
+import pytest
 
-import bokeh.core.query as query
+import bokeh.core.query as q
 
 from bokeh.models import (
     Axis, BoxZoomTool, ColumnDataSource, DatetimeAxis, GlyphRenderer, Grid, LinearAxis,
@@ -19,6 +19,7 @@ def large_plot():
 
     ydr = Range1d(start=10, end=20)
     ydr.tags.append("foo")
+    ydr.tags.append(11)
 
     plot = Plot(x_range=xdr, y_range=ydr)
 
@@ -47,11 +48,6 @@ def large_plot():
 
     return plot
 
-class TestMatch(unittest.TestCase):
-
-    def test_type(self):
-        pass
-
 typcases = {
     Range1d: 3,
 
@@ -74,160 +70,172 @@ typcases = {
     WheelZoomTool: 1,
 }
 
-class TestFind(unittest.TestCase):
+plot = large_plot()
 
-    def setUp(self):
-        self.plot = large_plot()
+def test_type():
 
-    def test_type(self):
+    for typ, count in typcases.items():
+        res = list(q.find(plot.references(), dict(type=typ)))
+        assert len(res) == count
+        assert all(isinstance(x, typ) for x in res)
 
-        for typ, count in typcases.items():
-            res = list(query.find(self.plot.references(), dict(type=typ)))
-            self.assertEqual(len(res), count)
-            self.assertTrue(all(isinstance(x, typ) for x in res))
+def test_tags_with_scalar():
+    cases = {
+        11: 1,
+        12: 0,
+    }
 
-    def test_tags_with_string(self):
-        cases = {
-            "foo": 2,
-            "bar": 1,
-        }
+    for tag, count in cases.items():
+        res = list(q.find(plot.references(), dict(tags=tag)))
+        assert len(res) == count
 
-        for tag, count in cases.items():
-            res = list(query.find(self.plot.references(), dict(tags=tag)))
-            self.assertEqual(len(res), count)
+def test_tags_with_string():
+    cases = {
+        "foo": 2,
+        "bar": 1,
+    }
 
-    def test_tags_with_seq(self):
-        cases = {
-            "foo": 2,
-            "bar": 1,
-        }
+    for tag, count in cases.items():
+        res = list(q.find(plot.references(), dict(tags=tag)))
+        assert len(res) == count
 
-        for tag, count in cases.items():
-            res = list(query.find(self.plot.references(), dict(tags=[tag])))
-            self.assertEqual(len(res), count)
+def test_tags_with_seq():
+    cases = {
+        "foo": 2,
+        "bar": 1,
+    }
 
-        res = list(query.find(self.plot.references(), dict(tags=list(cases.keys()))))
-        self.assertEqual(len(res), 2)
+    for tag, count in cases.items():
+        res = list(q.find(plot.references(), dict(tags=[tag])))
+        assert len(res) == count
 
-    def test_name(self):
-        cases = {
-            "myline": Line,
-            "mycircle": Circle,
-            "myrect": Rect,
-        }
+    res = list(q.find(plot.references(), dict(tags=list(cases.keys()))))
+    assert len(res) == 2
 
-        for name, typ in cases.items():
-            res = list(query.find(self.plot.references(), dict(name=name)))
-            self.assertEqual(len(res), 1)
-            self.assertTrue(all(isinstance(x.glyph, typ) for x in res))
+def test_name():
+    cases = {
+        "myline": Line,
+        "mycircle": Circle,
+        "myrect": Rect,
+    }
 
-    def test_in(self):
-        from bokeh.core.query import IN
+    for name, typ in cases.items():
+        res = list(q.find(plot.references(), dict(name=name)))
+        assert len(res) == 1
+        assert all(isinstance(x.glyph, typ) for x in res)
 
-        res = list(query.find(self.plot.references(), dict(name={IN: ['a', 'b']})))
-        self.assertEqual(len(res), 0)
+def test_in():
+    res = list(q.find(plot.references(), dict(name={q.IN: ['a', 'b']})))
+    assert len(res) == 0
 
-        res = list(query.find(self.plot.references(), dict(name={IN: ['a', 'mycircle']})))
-        self.assertEqual(len(res), 1)
+    res = list(q.find(plot.references(), dict(name={q.IN: ['a', 'mycircle']})))
+    assert len(res) == 1
 
-        res = list(query.find(self.plot.references(), dict(name={IN: ['a', 'mycircle', 'myline']})))
-        self.assertEqual(len(res), 2)
+    res = list(q.find(plot.references(), dict(name={q.IN: ['a', 'mycircle', 'myline']})))
+    assert len(res) == 2
 
-        res = list(query.find(self.plot.references(), dict(name={IN: ['a', 'mycircle', 'myline', 'myrect']})))
-        self.assertEqual(len(res), 3)
+    res = list(q.find(plot.references(), dict(name={q.IN: ['a', 'mycircle', 'myline', 'myrect']})))
+    assert len(res) == 3
 
-        for typ, count in typcases.items():
-            res = list(query.find(self.plot.references(), dict(type={IN: [typ]})))
-            self.assertEqual(len(res), count)
-            self.assertTrue(all(isinstance(x, typ) for x in res))
+    for typ, count in typcases.items():
+        res = list(q.find(plot.references(), dict(type={q.IN: [typ]})))
+        assert len(res) == count
+        assert all(isinstance(x, typ) for x in res)
 
-            res = list(query.find(self.plot.references(), dict(type={IN: [typ, dict]})))
-            self.assertEqual(len(res), count)
-            self.assertTrue(all(isinstance(x, typ) for x in res))
+        res = list(q.find(plot.references(), dict(type={q.IN: [typ, dict]})))
+        assert len(res) == count
+        assert all(isinstance(x, typ) for x in res)
 
-            res = list(query.find(self.plot.references(), dict(type={IN: [dict]})))
-            self.assertEqual(len(res), 0)
+        res = list(q.find(plot.references(), dict(type={q.IN: [dict]})))
+        assert len(res) == 0
 
-        # count adjusted by hand to account for duplicates/subclasses
-        res = list(query.find(self.plot.references(), dict(type={IN: list(typcases.keys())})))
-        self.assertEqual(len(res), 18)
+    # count adjusted by hand to account for duplicates/subclasses
+    res = list(q.find(plot.references(), dict(type={q.IN: list(typcases.keys())})))
+    assert len(res) == 18
 
+def test_disjuction():
+    res = list(
+        q.find(plot.references(),
+        {q.OR: [dict(type=Axis), dict(type=Grid)]})
+    )
+    assert len(res) == 5
 
-    def test_disjuction(self):
-        from bokeh.core.query import OR
+    res = list(
+        q.find(plot.references(),
+        {q.OR: [dict(type=Axis), dict(name="mycircle")]})
+    )
+    assert len(res) == 4
 
-        res = list(
-            query.find(self.plot.references(),
-            {OR: [dict(type=Axis), dict(type=Grid)]})
-        )
-        self.assertEqual(len(res), 5)
+    res = list(
+        q.find(plot.references(),
+        {q.OR: [dict(type=Axis), dict(tags="foo"), dict(name="mycircle")]})
+    )
+    assert len(res) == 6
 
-        res = list(
-            query.find(self.plot.references(),
-            {OR: [dict(type=Axis), dict(name="mycircle")]})
-        )
-        self.assertEqual(len(res), 4)
+    res = list(
+        q.find(plot.references(),
+        {q.OR: [dict(type=Axis), dict(tags="foo"), dict(name="mycircle"), dict(name="bad")]})
+    )
+    assert len(res) == 6
 
-        res = list(
-            query.find(self.plot.references(),
-            {OR: [dict(type=Axis), dict(tags="foo"), dict(name="mycircle")]})
-        )
-        self.assertEqual(len(res), 6)
+def test_conjuction():
+    res = list(
+        q.find(plot.references(), dict(type=Axis, tags="foo"))
+    )
+    assert len(res) == 0
 
-        res = list(
-            query.find(self.plot.references(),
-            {OR: [dict(type=Axis), dict(tags="foo"), dict(name="mycircle"), dict(name="bad")]})
-        )
-        self.assertEqual(len(res), 6)
+    res = list(
+        q.find(plot.references(), dict(type=Range1d, tags="foo"))
+    )
+    assert len(res) == 2
 
-    def test_conjuction(self):
-        res = list(
-            query.find(self.plot.references(), dict(type=Axis, tags="foo"))
-        )
-        self.assertEqual(len(res), 0)
+    res = list(
+        q.find(plot.references(), dict(type=GlyphRenderer, name="mycircle"))
+    )
+    assert len(res) == 1
 
-        res = list(
-            query.find(self.plot.references(), dict(type=Range1d, tags="foo"))
-        )
-        self.assertEqual(len(res), 2)
+def test_ops():
+    res = list(
+        q.find(plot.references(), {'size': {q.EQ: 5}})
+    )
+    assert len(res) == 1
 
-        res = list(
-            query.find(self.plot.references(), dict(type=GlyphRenderer, name="mycircle"))
-        )
-        self.assertEqual(len(res), 1)
+    res = list(
+        q.find(plot.references(), {'size': {q.NEQ: 5}})
+    )
+    assert len(res) == 0
 
-    def test_ops(self):
-        from bokeh.core.query import EQ, LEQ, GEQ, LT, GT, NEQ
+    res = list(
+        q.find(plot.references(), {'size': {q.GEQ: 5}})
+    )
+    assert len(res) == 1
 
-        res = list(
-            query.find(self.plot.references(), {'size': {EQ: 5}})
-        )
-        self.assertEqual(len(res), 1)
+    res = list(
+        q.find(plot.references(), {'size': {q.LEQ: 5}})
+    )
+    assert len(res) == 1
 
-        res = list(
-            query.find(self.plot.references(), {'size': {NEQ: 5}})
-        )
-        self.assertEqual(len(res), 0)
+    res = list(
+        q.find(plot.references(), {'size': {q.GT: 5}})
+    )
+    assert len(res) == 0
 
-        res = list(
-            query.find(self.plot.references(), {'size': {GEQ: 5}})
-        )
-        self.assertEqual(len(res), 1)
+    res = list(
+        q.find(plot.references(), {'size': {q.LT: 5}})
+    )
+    assert len(res) == 0
 
-        res = list(
-            query.find(self.plot.references(), {'size': {LEQ: 5}})
-        )
-        self.assertEqual(len(res), 1)
+def test_malformed_exception():
+    with pytest.raises(ValueError):
+        q.match(plot, {11: {q.EQ: 5}})
 
-        res = list(
-            query.find(self.plot.references(), {'size': {GT: 5}})
-        )
-        self.assertEqual(len(res), 0)
+def test_with_context():
+    res = list(
+        q.find(plot.references(), {'layout': 'below'}, {'plot': plot})
+    )
+    assert len(res) == 1
 
-        res = list(
-            query.find(self.plot.references(), {'size': {LT: 5}})
-        )
-        self.assertEqual(len(res), 0)
-
-if __name__ == "__main__":
-    unittest.main()
+    res = list(
+        q.find(plot.references(), {'select': 'below'}, {'plot': plot})
+    )
+    assert len(res) == 0

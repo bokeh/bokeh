@@ -1,12 +1,7 @@
-"""The classes and functionality used to transform data inputs to consistent types."""
-# -----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2014, Continuum Analytics, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
-#
-# The full license is in the file LICENSE.txt, distributed with this software.
-# -----------------------------------------------------------------------------
+''' The classes and functionality used to transform data inputs to consistent
+types.
 
+'''
 from __future__ import absolute_import
 
 from copy import copy
@@ -18,12 +13,13 @@ import pandas as pd
 from six import iteritems
 from six.moves import zip
 
-from .properties import ColumnLabel, Column
-from .stats import Stat, Bins
-from .utils import collect_attribute_columns, special_columns, gen_column_names
-from ..models.sources import ColumnDataSource
-from ..core.properties import bokeh_integer_types, Datetime, List, HasProps, String, Float
+from bokeh.core.has_props import HasProps
+from bokeh.core.properties import bokeh_integer_types, Datetime, Float, List, String
+from bokeh.models.sources import ColumnDataSource
 
+from .properties import Column, ColumnLabel
+from .stats import Bins, Stat
+from .utils import collect_attribute_columns, gen_column_names, special_columns
 
 COMPUTED_COLUMN_NAMES = ['_charts_ones']
 ARRAY_TYPES = [tuple, list, np.ndarray, pd.Series]

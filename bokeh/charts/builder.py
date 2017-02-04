@@ -1,44 +1,27 @@
-"""This is the Bokeh charts interface. It gives you a high level API to build
+''' This is the Bokeh charts interface. It gives you a high level API to build
 complex plot is a simple way.
 
 This is the Builder class, a minimal prototype class to build more chart
 types on top of it.
-"""
-#-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2014, Continuum Analytics, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
-#
-# The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
-# Imports
-#-----------------------------------------------------------------------------
-
+'''
 from __future__ import absolute_import
 
 import numpy as np
-
 from six import string_types
-from .attributes import AttrSpec, ColorAttr, CatAttr
+
+from bokeh.core.enums import SortDirection
+from bokeh.core.has_props import HasProps
+from bokeh.core.properties import Bool, Color, Dict, Either, Enum, Instance, List, String, Tuple
+from bokeh.models.ranges import FactorRange, Range, Range1d
+from bokeh.models.sources import ColumnDataSource
+
+from .attributes import AttrSpec, CatAttr, ColorAttr
 from .chart import Chart
-from .data_source import ChartDataSource
+from .data_source import ChartDataSource, OrderedAssigner
 from .models import CompositeGlyph
 from .properties import Dimension, ColumnLabel
-from .utils import collect_attribute_columns, label_from_index_dict, build_hover_tooltips
-from .data_source import OrderedAssigner
-from ..models.ranges import Range, Range1d, FactorRange
-from ..models.sources import ColumnDataSource
-from ..core.properties import (HasProps, Instance, List, String, Dict,
-                          Color, Bool, Tuple, Either, Enum)
-from ..core.enums import SortDirection
-from ..util.deprecation import deprecated
-
-#-----------------------------------------------------------------------------
-# Classes and functions
-#-----------------------------------------------------------------------------
-
+from .utils import build_hover_tooltips, collect_attribute_columns, label_from_index_dict
 
 def create_and_build(builder_class, *data, **kws):
     """A factory function for handling Chart and Builder generation.
@@ -214,14 +197,6 @@ class Builder(HasProps):
 
     sort_dim = Dict(String, Bool, default={})
 
-    sort_legend = List(Tuple(String, Bool), help="""
-        List of tuples to use for sorting the legend, in order that they should be
-        used for sorting. This sorting can be different than the sorting used for the
-        rest of the chart. For example, you might want to sort only on the column
-        assigned to the color attribute, or sort it descending. The order of each tuple
-        is (Column, Ascending).
-        """)
-
     legend_sort_field = String(help="""
         Attribute that should be used to sort the legend, for example: color,
         dash, maker, etc. Valid values for this property depend on the type
@@ -243,7 +218,7 @@ class Builder(HasProps):
         using the valid input for the `HoverTool` tooltips kwarg.
         """)
 
-    __deprecated_attributes__ = ('sort_legend',)
+    __deprecated_attributes__ = ()
 
     def __init__(self, *args, **kws):
         """Common arguments to be used by all the inherited classes.
@@ -596,20 +571,6 @@ class Builder(HasProps):
                 return list(sorted(legends, key=foo, reverse=reverse))
 
         return legends
-
-    @property
-    def sort_legend(self):
-        deprecated((0, 12, 0), 'Chart.sort_legend', 'Chart.legend_sort_field')
-        return [(self.legend_sort_field, self.legend_sort_direction)]
-
-    @sort_legend.setter
-    def sort_legend(self, value):
-        deprecated((0, 12, 0), 'Chart.sort_legend', 'Chart.legend_sort_field')
-        self.legend_sort_field, direction = value[0]
-        if direction:
-            self.legend_sort_direction = "ascending"
-        else:
-            self.legend_sort_direction = "descending"
 
 class XYBuilder(Builder):
     """Implements common functionality for XY Builders."""

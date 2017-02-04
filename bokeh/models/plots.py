@@ -1,43 +1,35 @@
-""" Models for representing top-level plot objects.
+''' Models for representing top-level plot objects.
 
-"""
+'''
 from __future__ import absolute_import
 
 from six import string_types
 
-from ..core.query import find
-from ..core import validation
-from ..core.validation.errors import REQUIRED_RANGE
-from ..core.validation.warnings import (
-    MISSING_RENDERERS, NO_DATA_RENDERERS, MALFORMED_CATEGORY_LABEL,
-    SNAPPED_TOOLBAR_ANNOTATIONS)
 from ..core.enums import Location
+from ..core.properties import Auto, Bool, Dict, Either, Enum, Include, Instance, Int, List, Override, String
 from ..core.property_mixins import LineProps, FillProps
-from ..core.properties import (
-    Bool, Int, String, Enum, Auto, Instance, Either,
-    List, Dict, Include, Override, TitleProp)
+from ..core.query import find
+from ..core.validation import error, warning
+from ..core.validation.errors import REQUIRED_RANGE
+from ..core.validation.warnings import (MISSING_RENDERERS, NO_DATA_RENDERERS,
+                                        MALFORMED_CATEGORY_LABEL, SNAPPED_TOOLBAR_ANNOTATIONS)
+from ..util.plot_utils import _list_attr_splat, _select_helper
 from ..util.string import nice_join
-from ..util.deprecation import deprecated
 
 from .annotations import Legend, Title
 from .axes import Axis
 from .glyphs import Glyph
 from .grids import Grid
-from .ranges import Range, FactorRange
-from .renderers import Renderer, GlyphRenderer, DataRenderer, TileRenderer, DynamicImageRenderer
-from .sources import DataSource, ColumnDataSource
-from .tools import Tool, ToolEvents, Toolbar
 from .layouts import LayoutDOM
-
-from ..util.plot_utils import _list_attr_splat, _select_helper
-
-# We create an empty title by default
-DEFAULT_TITLE = lambda: Title(text="")
+from .ranges import Range, FactorRange
+from .renderers import DataRenderer, DynamicImageRenderer, GlyphRenderer, Renderer, TileRenderer
+from .sources import DataSource, ColumnDataSource
+from .tools import Tool, Toolbar, ToolEvents
 
 class Plot(LayoutDOM):
-    """ Model representing a plot, containing glyphs, guides, annotations.
+    ''' Model representing a plot, containing glyphs, guides, annotations.
 
-    """
+    '''
 
     def __init__(self, **kwargs):
         if "tool_events" not in kwargs:
@@ -54,12 +46,6 @@ class Plot(LayoutDOM):
             logo = kwargs.pop('logo', 'normal')
 
             kwargs["toolbar"] = Toolbar(tools=tools, logo=logo)
-
-        if "border_fill" in kwargs and "border_fill_color" in kwargs:
-            raise ValueError("Conflicting properties set on plot: border_fill, border_fill_color.")
-
-        if "background_fill" in kwargs and "background_fill_color" in kwargs:
-            raise ValueError("Conflicting properties set on plot: background_fill, background_fill_color.")
 
         super(LayoutDOM, self).__init__(**kwargs)
 
@@ -150,30 +136,30 @@ class Plot(LayoutDOM):
 
     @property
     def xaxis(self):
-        """ Splattable list of :class:`~bokeh.models.axes.Axis` objects for the x dimension.
+        ''' Splattable list of :class:`~bokeh.models.axes.Axis` objects for the x dimension.
 
-        """
+        '''
         return self._axis("above", "below")
 
     @property
     def yaxis(self):
-        """ Splattable list of :class:`~bokeh.models.axes.Axis` objects for the y dimension.
+        ''' Splattable list of :class:`~bokeh.models.axes.Axis` objects for the y dimension.
 
-        """
+        '''
         return self._axis("left", "right")
 
     @property
     def axis(self):
-        """ Splattable list of :class:`~bokeh.models.axes.Axis` objects.
+        ''' Splattable list of :class:`~bokeh.models.axes.Axis` objects.
 
-        """
+        '''
         return _list_attr_splat(self.xaxis + self.yaxis)
 
     @property
     def legend(self):
-        """Splattable list of :class:`~bokeh.models.annotations.Legend` objects.
+        ''' Splattable list of :class:`~bokeh.models.annotations.Legend` objects.
 
-        """
+        '''
         legends = [obj for obj in self.renderers if isinstance(obj, Legend)]
         return _list_attr_splat(legends)
 
@@ -183,23 +169,23 @@ class Plot(LayoutDOM):
 
     @property
     def xgrid(self):
-        """ Splattable list of :class:`~bokeh.models.grids.Grid` objects for the x dimension.
+        ''' Splattable list of :class:`~bokeh.models.grids.Grid` objects for the x dimension.
 
-        """
+        '''
         return self._grid(0)
 
     @property
     def ygrid(self):
-        """ Splattable list of :class:`~bokeh.models.grids.Grid` objects for the y dimension.
+        ''' Splattable list of :class:`~bokeh.models.grids.Grid` objects for the y dimension.
 
-        """
+        '''
         return self._grid(1)
 
     @property
     def grid(self):
-        """ Splattable list of :class:`~bokeh.models.grids.Grid` objects.
+        ''' Splattable list of :class:`~bokeh.models.grids.Grid` objects.
 
-        """
+        '''
         return _list_attr_splat(self.xgrid + self.ygrid)
 
     @property
@@ -295,7 +281,7 @@ class Plot(LayoutDOM):
         return g
 
     def add_tile(self, tile_source, **kw):
-        '''Adds new TileRenderer into the Plot.renderers
+        ''' Adds new TileRenderer into the Plot.renderers
 
         Args:
             tile_source (TileSource) : a tile source instance which contain tileset configuration
@@ -312,7 +298,7 @@ class Plot(LayoutDOM):
         return tile_renderer
 
     def add_dynamic_image(self, image_source, **kw):
-        '''Adds new DynamicImageRenderer into the Plot.renderers
+        ''' Adds new DynamicImageRenderer into the Plot.renderers
 
         Args:
             image_source (ImageSource) : a image source instance which contain image configuration
@@ -328,7 +314,7 @@ class Plot(LayoutDOM):
         self.renderers.append(image_renderer)
         return image_renderer
 
-    @validation.error(REQUIRED_RANGE)
+    @error(REQUIRED_RANGE)
     def _check_required_range(self):
         missing = []
         if not self.x_range: missing.append('x_range')
@@ -336,17 +322,17 @@ class Plot(LayoutDOM):
         if missing:
             return ", ".join(missing) + " [%s]" % self
 
-    @validation.warning(MISSING_RENDERERS)
+    @warning(MISSING_RENDERERS)
     def _check_missing_renderers(self):
         if len(self.renderers) == 0:
             return str(self)
 
-    @validation.warning(NO_DATA_RENDERERS)
+    @warning(NO_DATA_RENDERERS)
     def _check_no_data_renderers(self):
         if len(self.select(DataRenderer)) == 0:
             return str(self)
 
-    @validation.warning(MALFORMED_CATEGORY_LABEL)
+    @warning(MALFORMED_CATEGORY_LABEL)
     def _check_colon_in_category_label(self):
         if not self.x_range: return
         if not self.y_range: return
@@ -368,7 +354,7 @@ class Plot(LayoutDOM):
                                  for field, value in broken)
             return '%s [renderer: %s]' % (field_msg, self)
 
-    @validation.warning(SNAPPED_TOOLBAR_ANNOTATIONS)
+    @warning(SNAPPED_TOOLBAR_ANNOTATIONS)
     def _check_snapped_toolbar_and_axis(self):
         if not self.toolbar_sticky: return
         if self.toolbar_location is None: return
@@ -376,12 +362,6 @@ class Plot(LayoutDOM):
         objs = getattr(self, self.toolbar_location)
         if len(objs) > 0:
             return str(self)
-
-    __deprecated_attributes__ = (
-        'background_fill', 'border_fill', 'logo', 'tools', 'responsive',
-        'title_text_baseline', 'title_text_align', 'title_text_alpha', 'title_text_color',
-        'title_text_font_style', 'title_text_font_size', 'title_text_font', 'title_standoff'
-    )
 
     x_range = Instance(Range, help="""
     The (default) data range of the horizontal dimension of the plot.
@@ -425,8 +405,8 @@ class Plot(LayoutDOM):
     Whether to use HiDPI mode when available.
     """)
 
-    title = TitleProp(default=DEFAULT_TITLE, help="""
-    A title for the plot. Can be a text string or a Title annotation. Default is Title(text="").
+    title = Instance(Title, default=lambda: Title(text=""), help="""
+    A title for the plot. Can be a text string or a Title annotation.
     """)
 
     title_location = Enum(Location, default="above", help="""
@@ -621,161 +601,3 @@ class Plot(LayoutDOM):
     Whether WebGL is enabled for this plot. If True, the glyphs that
     support this will render via WebGL instead of the 2D canvas.
     """)
-
-    #
-    # DEPRECATED PROPERTIES
-    #
-
-    @property
-    def responsive(self):
-        deprecated((0, 12, 0), 'Plot.responsive', 'Plot.sizing_mode')
-        return self.sizing_mode != "fixed"
-
-    @responsive.setter
-    def responsive(self, value):
-        deprecated((0, 12, 0), 'Plot.responsive', 'Plot.sizing_mode', """
-        Plot.sizing_mode which accepts one of five modes:
-
-            fixed, scale_width, scale_height, scale_both, stretch_both
-
-        'responsive = False' is the equivalent of 'sizing_mode = "fixed"'
-
-        'responsive = True' is the equivalent of 'sizing_mode = "scale_width"'
-        """)
-        if value is True:
-            self.sizing_mode = "scale_width"
-        elif value is False:
-            self.sizing_mode = "fixed"
-        else:
-            raise ValueError("Plot.responsive only accepts True or False, got: %r" % value)
-
-    @property
-    def background_fill(self):
-        deprecated((0, 11, 0), 'Plot.background_fill', 'Plot.background_fill_color')
-        return self.background_fill_color
-
-    @background_fill.setter
-    def background_fill(self, color):
-        deprecated((0, 11, 0), 'Plot.background_fill', 'Plot.background_fill_color')
-        self.background_fill_color = color
-
-    @property
-    def border_fill(self):
-        deprecated((0, 11, 0), 'Plot.border_fill', 'Plot.border_fill_color')
-        return self.border_fill_color
-
-    @border_fill.setter
-    def border_fill(self, color):
-        deprecated((0, 11, 0), 'Plot.border_fill', 'Plot.border_fill_color')
-        self.border_fill_color = color
-
-    @property
-    def logo(self):
-        deprecated((0, 12, 0), 'Plot.logo', 'Plot.toolbar.logo')
-        return self.toolbar.logo
-
-    @logo.setter
-    def logo(self, value):
-        deprecated((0, 12, 0), 'Plot.logo', 'Plot.toolbar.logo')
-        self.toolbar.logo = value
-
-    @property
-    def title_standoff(self):
-        deprecated((0, 12, 0), 'Plot.title_standoff', 'Plot.title.offset')
-        return self.title.offset
-
-    @title_standoff.setter
-    def title_standoff(self, value):
-        deprecated((0, 12, 0), 'Plot.title_standoff', 'Plot.title.offset')
-        self.title.offset = value
-
-    @property
-    def title_text_font(self):
-        deprecated((0, 12, 0), 'Plot.title_text_font', 'Plot.title.text_font')
-        return self.title.text_font
-
-    @title_text_font.setter
-    def title_text_font(self, value):
-        deprecated((0, 12, 0), 'Plot.title_text_font', 'Plot.title.text_font')
-        self.title.text_font = value
-
-    @property
-    def title_text_font_size(self):
-        deprecated((0, 12, 0), 'Plot.title_text_font_size', 'Plot.title.text_font_size')
-        return self.title.text_font_size
-
-    @title_text_font_size.setter
-    def title_text_font_size(self, value):
-        deprecated((0, 12, 0), 'Plot.title_text_font_size', 'Plot.title.text_font_size')
-        self.title.text_font_size = value
-
-    @property
-    def title_text_font_style(self):
-        deprecated((0, 12, 0), 'Plot.title_text_font_style', 'Plot.title.text_font_style')
-        return self.title.text_font_style
-
-    @title_text_font_style.setter
-    def title_text_font_style(self, value):
-        deprecated((0, 12, 0), 'Plot.title_text_font_style', 'Plot.title.text_font_style')
-        self.title.text_font_style = value
-
-    @property
-    def title_text_color(self):
-        deprecated((0, 12, 0), 'Plot.title_text_color', 'Plot.title.text_color')
-        return self.title.text_color
-
-    @title_text_color.setter
-    def title_text_color(self, value):
-        deprecated((0, 12, 0), 'Plot.title_text_color', 'Plot.title.text_color')
-        self.title.text_color = value
-
-    @property
-    def title_text_alpha(self):
-        deprecated((0, 12, 0), 'Plot.title_text_alpha', 'Plot.title.text_alpha')
-        return self.title.text_alpha
-
-    @title_text_alpha.setter
-    def title_text_alpha(self, value):
-        deprecated((0, 12, 0), 'Plot.title_text_alpha', 'Plot.title.text_alpha')
-        self.title.text_alpha = value
-
-    @property
-    def title_text_align(self):
-        deprecated((0, 12, 0), 'Plot.title_text_align', 'Plot.title.align')
-        deprecated("""``title_text_align`` was deprecated in 0.12.0 and is no longer
-        available on the new Title object. There is a new ``plot.title.title_align`` which is
-        similar but not exactly the same. The new ``title_align`` both positions and aligns the title.
-        If you need the exact ``title_text_align`` behavior, please add a title by creating a
-        Label (``bokeh.models.annotations.Label``) and manually adding
-        it to the plot by doing, for example ``plot.add_layout(Label(), 'above')``.
-        """)
-        return self.title.align
-
-    @title_text_align.setter
-    def title_text_align(self, value):
-        deprecated((0, 12, 0), 'Plot.title_text_align', 'Plot.title.align')
-        deprecated("""``title_text_align`` was deprecated in 0.12.0 and is no longer
-        available on the new Title object. There is a new ``plot.title.title_align`` which is
-        similar but not exactly the same. The new ``title_align`` both positions and aligns the title.
-        If you need the exact ``title_text_align`` behavior, please add a title by creating a
-        Label (``bokeh.models.annotations.Label``) and manually adding
-        it to the plot by doing, for example ``plot.add_layout(Label(), 'above')``.
-        """)
-        self.title.align = value
-
-    @property
-    def title_text_baseline(self):
-        deprecated("""title_text_baseline was deprecated in 0.12.0 and is no longer
-        available on the new Title object. If you need to alter the text_baseline, please
-        add a title by creating a Label (``bokeh.models.annotations.Label``) and manually adding
-        it to the plot by doing, for example ``plot.add_layout(Label(), 'above')``.
-        """)
-        return None
-
-    @title_text_baseline.setter
-    def title_text_baseline(self, value):
-        deprecated("""title_text_baseline was deprecated in 0.12.0 and is no longer
-        available on the new Title object. If you need to alter the text_baseline, please
-        add a title by creating a Label (``bokeh.models.annotations.Label``) and manually adding
-        it to the plot by doing, for example ``plot.add_layout(Label(), 'above')``.
-        """)

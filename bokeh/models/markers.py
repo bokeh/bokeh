@@ -1,18 +1,45 @@
-""" Glyph renderer models for displaying simple scatter-type
-markers on Bokeh plots.
+''' Display a variety of simple scatter marker shapes whose attributes
+can be associated with data columns from ``ColumnDataSources``.
 
-"""
+The full list of markers built into Bokeh is given below:
+
+* :class:`~bokeh.models.markers.Asterisk`
+* :class:`~bokeh.models.markers.Circle`
+* :class:`~bokeh.models.markers.CircleCross`
+* :class:`~bokeh.models.markers.CircleX`
+* :class:`~bokeh.models.markers.Cross`
+* :class:`~bokeh.models.markers.Diamond`
+* :class:`~bokeh.models.markers.DiamondCross`
+* :class:`~bokeh.models.markers.InvertedTriangle`
+* :class:`~bokeh.models.markers.Square`
+* :class:`~bokeh.models.markers.SquareCross`
+* :class:`~bokeh.models.markers.SquareX`
+* :class:`~bokeh.models.markers.Triangle`
+* :class:`~bokeh.models.markers.X`
+
+Markers are all subclasses of ``Glyph``. Additionally, they all share the
+same common interface providing fill and line properties provided by their
+base class ``Marker``. Note that a few glyphs, ``Cross`` and ``X``, only
+draw lines. For these the fill property values are ignored. Also note that
+the ``Circle`` glyph has some additional properties such as ``radius`` that
+other markers do not.
+
+.. autoclass:: Marker
+    :members:
+
+'''
 from __future__ import absolute_import
 
-from .glyphs import Glyph
 from ..core.enums import enumeration
+from ..core.has_props import abstract
+from ..core.properties import AngleSpec, DistanceSpec, Enum, Include, NumberSpec, ScreenDistanceSpec
 from ..core.property_mixins import FillProps, LineProps
-from ..core.properties import abstract
-from ..core.properties import DistanceSpec, Enum, Include, NumberSpec, AngleSpec, ScreenDistanceSpec
+
+from .glyphs import Glyph
 
 @abstract
 class Marker(Glyph):
-    """ Base class for glyphs that are simple markers with line and
+    ''' Base class for glyphs that are simple markers with line and
     fill properties, located at an (x, y) location with a specified
     size.
 
@@ -22,7 +49,7 @@ class Marker(Glyph):
         draw lines. For these markers, the fill values are simply
         ignored.
 
-    """
+    '''
 
     # a canonical order for positional args that can be used for any
     # functions derived from this class
@@ -53,13 +80,13 @@ class Marker(Glyph):
     """)
 
 class Asterisk(Marker):
-    """ Render asterisk '*' markers. """
+    ''' Render asterisk '*' markers. '''
 
     __example__ = "tests/glyphs/Asterisk.py"
 
 
 class Circle(Marker):
-    """ Render circle markers. """
+    ''' Render circle markers. '''
 
     __example__ = "tests/glyphs/Circle.py"
 
@@ -95,57 +122,57 @@ class Circle(Marker):
     """)
 
 class CircleCross(Marker):
-    """ Render circle markers with a '+' cross through the center. """
+    ''' Render circle markers with a '+' cross through the center. '''
 
     __example__ = "tests/glyphs/CircleCross.py"
 
 class CircleX(Marker):
-    """ Render circle markers with an 'X' cross through the center. """
+    ''' Render circle markers with an 'X' cross through the center. '''
 
     __example__ = "tests/glyphs/CircleX.py"
 
 class Cross(Marker):
-    """ Render '+' cross markers. """
+    ''' Render '+' cross markers. '''
 
     __example__ = "tests/glyphs/Cross.py"
 
 class Diamond(Marker):
-    """ Render diamond markers. """
+    ''' Render diamond markers. '''
 
     __example__ = "tests/glyphs/Diamond.py"
 
 class DiamondCross(Marker):
-    """ Render diamond markers with a '+' cross through the center. """
+    ''' Render diamond markers with a '+' cross through the center. '''
 
     __example__ = "tests/glyphs/DiamondCross.py"
 
 
 class InvertedTriangle(Marker):
-    """ Render upside-down triangle markers. """
+    ''' Render upside-down triangle markers. '''
 
     __example__ = "tests/glyphs/InvertedTriangle.py"
 
 class Square(Marker):
-    """ Render a square marker, optionally rotated. """
+    ''' Render a square marker, optionally rotated. '''
 
     __example__ = "tests/glyphs/Square.py"
 
 class SquareCross(Marker):
-    """ Render square markers with a '+' cross through the center. """
+    ''' Render square markers with a '+' cross through the center. '''
 
     __example__ = "tests/glyphs/SquareCross.py"
 
 class SquareX(Marker):
-    """ Render square markers with an 'X' cross through the center. """
+    ''' Render square markers with an 'X' cross through the center. '''
 
     __example__ = "tests/glyphs/SquareX.py"
 
 class Triangle(Marker):
-    """ Render triangle markers. """
+    ''' Render triangle markers. '''
 
     __example__ = "tests/glyphs/Triangle.py"
 
 class X(Marker):
-    """ Render a 'X' cross markers. """
+    ''' Render a 'X' cross markers. '''
 
     __example__ = "tests/glyphs/X.py"
