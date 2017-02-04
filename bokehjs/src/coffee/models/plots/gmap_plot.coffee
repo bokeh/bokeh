@@ -16,8 +16,9 @@ export class MapOptions extends Model
 export class GMapOptions extends MapOptions
   type: 'GMapOptions'
   @define {
-    map_type: [ p.String, "roadmap" ]
-    styles:   [ p.String            ]
+    map_type:      [ p.String, "roadmap" ]
+    scale_control: [ p.Bool,   false     ]
+    styles:        [ p.String            ]
   }
 
 export class GMapPlotView extends PlotView
