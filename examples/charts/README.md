@@ -23,6 +23,6 @@ There are two subdirectories:
 
 * `server` examples related to Bokeh server applications
 
-The example code for charts using Jupyter/Ipython notebooks is located under 
-[examples/howto/charts](https://github.com/bokeh/bokeh/tree/master/examples/howto/charts). Many 
-of the examples there also contain explanatory discussion of various different chart options. 
+The example code for charts using Jupyter/Ipython notebooks is located under
+[examples/howto/charts](https://github.com/bokeh/bokeh/tree/master/examples/howto/charts). Many
+of the examples there also contain explanatory discussion of various different chart options.
