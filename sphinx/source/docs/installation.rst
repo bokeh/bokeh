@@ -12,11 +12,11 @@ for those who were unable to complete the process detailed in the
 Dependencies
 ============
 
-Bokeh is officially supported (and continuously tested) on CPython versions 2.7 
-and 3.4+ only. Other Python versions may function, possibly in limited capacity. 
-In particular, converting NumPy arrays to lists may be useful with other versions. 
+Bokeh is officially supported (and continuously tested) on CPython versions 2.7
+and 3.4+ only. Other Python versions may function, possibly in limited capacity.
+In particular, converting NumPy arrays to lists may be useful with other versions.
 However, this guidance is only provided as-is, in case it happens to be useful,
-and does not imply any level of official support for other Python versions. All 
+and does not imply any level of official support for other Python versions. All
 issues opened related to unsupported Python versions will be closed as invalid.
 
 For basic usage, have the following libraries installed:
@@ -39,12 +39,12 @@ Because the Bokeh client library is mostly concerned with providing a nice
 Python interface for generating JSON objects which are then consumed by the
 BokehJS library running in the browser, there shouldn't be a *hard* dependency
 on any of the standard NumPy/SciPy stack.  It is entirely possible to use
-Bokeh with plain Python lists of values. However, the Bokeh plot server does 
+Bokeh with plain Python lists of values. However, the Bokeh plot server does
 make direct use of NumPy, and it is required to be installed for Bokeh apps
-to function. 
+to function.
 
 Additionally the ``bokeh.charts`` interface and various examples
-depend on the Pandas library; it is recommended to install Pandas version 0.16.1 
+depend on the Pandas library; it is recommended to install Pandas version 0.16.1
 or later.
 
 .. _install_packages:

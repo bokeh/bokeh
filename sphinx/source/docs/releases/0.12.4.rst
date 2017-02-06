@@ -129,8 +129,8 @@ Base64 serialisation and Python 3.3
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The addition a binary protocol that uses a base 64 encoding for NumPy arrays
-means that Bokeh will *not* function with NumPy arrays on Python 3.3, due to a 
-bug in Python. A possible workaround is to convert all arrays to plain python 
+means that Bokeh will *not* function with NumPy arrays on Python 3.3, due to a
+bug in Python. A possible workaround is to convert all arrays to plain python
 lists. As a reminder, Bokeh official support includes Python 2.7 and 3.4+ only.
 
 BokehJS BackboneView ``$`` Removed
