@@ -97,7 +97,9 @@ class Document(object):
         self._modules = []
         self._template_variables = {}
 
-    def __del__(self):
+    def delete_modules(self):
+        ''' Clean up sys.modules after the session is destroyed.
+        '''
         for module in self._modules:
             if module.__name__ in sys.modules:
                 del sys.modules[module.__name__]

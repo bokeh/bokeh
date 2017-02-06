@@ -111,6 +111,7 @@ class ServerSession(object):
         return self._expiration_blocked_count
 
     def destroy(self):
+        self._document.delete_modules()
         self._destroyed = True
         self._document.remove_on_change(self)
         self._callbacks.remove_all_callbacks()
