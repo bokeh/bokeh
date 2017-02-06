@@ -17,19 +17,14 @@ export class LogMapper extends Model
   map_to_target: (x) ->
     [scale, offset, inter_scale, inter_offset] = @mapper_state
 
-    result = 0
-
     if inter_scale == 0
-      intermediate = 0
-
+      value = 0
     else
-      intermediate = (Math.log(x) - inter_offset) / inter_scale
-      if isNaN(intermediate) or not isFinite(intermediate)
-        intermediate = 0
+      value = (Math.log(x) - inter_offset) / inter_scale
+      if isNaN(value) or not isFinite(value)
+        value = 0
 
-    result = intermediate * scale + offset
-
-    return result
+    return value*scale + offset
 
   v_map_to_target: (xs) ->
     [scale, offset, inter_scale, inter_offset] = @mapper_state
@@ -37,33 +32,33 @@ export class LogMapper extends Model
     result = new Float64Array(xs.length)
 
     if inter_scale == 0
-      intermediate = xs.map (i) -> 0
-
+      for i in [0...xs.length]
+        result[i] = 0
     else
-      intermediate = xs.map (i) -> (Math.log(i) - inter_offset) / inter_scale
+      for i in [0...xs.length]
+        value = (Math.log(xs[i]) - inter_offset) / inter_scale
 
-      for x, idx in intermediate
-        if isNaN(intermediate[idx]) or not isFinite(intermediate[idx])
-          intermediate[idx] = 0
+        if isNaN(value) or not isFinite(value)
+          result[i] = 0
+        else
+          result[i] = value
 
-    for x, idx in xs
-      result[idx] = intermediate[idx] * scale + offset
+    for i in [0...xs.length]
+      result[i] = result[i]*scale + offset
 
     return result
 
   map_from_target: (xprime) ->
     [scale, offset, inter_scale, inter_offset] = @mapper_state
-    intermediate = (xprime - offset) / scale
-    intermediate = Math.exp(inter_scale * intermediate + inter_offset)
-
-    return intermediate
+    value = (xprime - offset) / scale
+    return Math.exp(inter_scale*value + inter_offset)
 
   v_map_from_target: (xprimes) ->
-    result = new Float64Array(xprimes.length)
     [scale, offset, inter_scale, inter_offset] = @mapper_state
-    intermediate = xprimes.map (i) -> (i - offset) / scale
-    for x, idx in xprimes
-      result[idx] = Math.exp(inter_scale * intermediate[idx] + inter_offset)
+    result = new Float64Array(xprimes.length)
+    for i in [0...xprimes.length]
+      value = (xprimes[i] - offset) / scale
+      result[i] = Math.exp(inter_scale*value + inter_offset)
     return result
 
   _get_safe_scale: (orig_start, orig_end) ->
