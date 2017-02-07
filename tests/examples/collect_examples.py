@@ -11,6 +11,7 @@ class Flags(object):
     server   = 1 << 1
     notebook = 1 << 2
     skip     = 1 << 3
+    no_diff  = 1 << 4
 
 
 class Example(object):
@@ -35,8 +36,12 @@ class Example(object):
     def is_skip(self):
         return self.flags & Flags.skip
 
+    @property
+    def is_no_diff(self):
+        return self.flags & Flags.no_diff
 
-def add_examples(list_of_examples, path, example_type=None, skip=None):
+
+def add_examples(list_of_examples, path, example_type=None, skip=None, no_diff=None):
     example_path = join(example_dir, path)
 
     if skip is not None:
@@ -66,6 +71,9 @@ def add_examples(list_of_examples, path, example_type=None, skip=None):
         if skip and f in skip:
             flags |= Flags.skip
 
+        if no_diff and (no_diff == 'all' or f in no_diff):
+            flags |= Flags.no_diff
+
         list_of_examples.append(Example(join(example_path, f), flags))
 
     return list_of_examples
@@ -84,8 +92,9 @@ def get_all_examples():
             example_type = None
 
         skip_status = example.get("skip")
+        no_diff_status = example.get("no_diff")
 
-        list_of_examples = add_examples(list_of_examples, path, example_type=example_type, skip=skip_status)
+        list_of_examples = add_examples(list_of_examples, path, example_type=example_type, skip=skip_status, no_diff=no_diff_status)
 
     return list_of_examples
 

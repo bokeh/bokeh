@@ -4,7 +4,7 @@
   type: server
 - path: "custom"
 - path: "compat"
-  skip: ["ggplot_density.py"]
+  no_diff: all
 - path: "charts/file"
 - path: "plotting/file"
 - path: "plotting/server"
