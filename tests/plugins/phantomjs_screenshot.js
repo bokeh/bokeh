@@ -51,16 +51,8 @@ page.onResourceReceived = function(response) {
 page.viewportSize = { width: width, height: height };
 
 page.open(url, function(status) {
-  page.evaluate(function() {
-    document.body.bgColor = 'white';
-
-    window.addEventListener("bokeh:rendered", function() {
-      window.callPhantom('working');
-    });
-  });
-
   function finalize(timeout) {
-    if (png !== undefined) {
+    if (png != null) {
       page.render(png);
     }
 
@@ -74,6 +66,18 @@ page.open(url, function(status) {
 
     phantom.exit();
   }
+
+  if (status !== 200) {
+    finalize(false);
+  }
+
+  page.evaluate(function() {
+    document.body.bgColor = 'white';
+
+    window.addEventListener("bokeh:rendered", function() {
+      window.callPhantom('working');
+    });
+  });
 
   var global_id = setTimeout(function() { finalize(true); }, global_wait);
   var local_id = null;
