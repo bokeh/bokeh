@@ -11,7 +11,6 @@ class Flags(object):
     file     = 1 << 0
     server   = 1 << 1
     notebook = 1 << 2
-    animated = 1 << 3
     skip     = 1 << 4
 
 
@@ -33,8 +32,6 @@ def add_examples(list_of_examples, path, example_type=None, skip=None):
     def get_flags(f):
         if example_type is not None:
             return example_type
-        elif "server" in f or "animate" in f:
-            return Flags.server
         else:
             return Flags.file
 
@@ -52,12 +49,6 @@ def add_examples(list_of_examples, path, example_type=None, skip=None):
             flags |= get_flags(f)
         else:
             continue
-
-        if "animate" in f:
-            flags |= Flags.animated
-
-            if flags & Flags.file:
-                raise ValueError("file examples can't be animated")
 
         if skip and f in skip:
             flags |= Flags.skip
