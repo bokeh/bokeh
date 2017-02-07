@@ -5,7 +5,7 @@ from boto.exception import NoAuthHandlerFound
 from os.path import join
 
 from .constants import job_id, __version__
-from .utils import ok, fail
+from .utils import trace, fail
 
 import logging
 logging.getLogger('boto').setLevel(logging.INFO)
@@ -52,4 +52,4 @@ def upload_file_to_s3(file_path, s3_filename, content_type="text/html", extra_me
         key = S3Key(bucket, s3_filename)
         key.set_metadata("Content-Type", content_type)
         key.set_contents_from_string(contents, policy="public-read")
-        ok("%s | Access upload at: %s" % (extra_message, join(S3_URL, s3_filename)))
+        trace("%s | Access upload at: %s" % (extra_message, join(S3_URL, s3_filename)))
