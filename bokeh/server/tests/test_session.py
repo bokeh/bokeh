@@ -1,5 +1,4 @@
 import mock
-import pytest
 
 from bokeh.document import Document
 
@@ -40,5 +39,3 @@ def test_destroy():
         s.destroy()
         assert s.destroyed
         docroc.assert_called_with(s)
-
-
