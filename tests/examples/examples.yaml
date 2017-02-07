@@ -1,12 +1,9 @@
 - path: "models"
   skip: ["maps_cities.py", "data_tables_server.py"]
 - path: "custom"
-  type: file
 - path: "compat"
   skip: ["ggplot_density.py"]
 - path: "charts/file"
-  type: file
 - path: "plotting/file"
-  type: file
 - path: "plotting/server"
   type: server
