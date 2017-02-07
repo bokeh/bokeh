@@ -37,6 +37,20 @@ class TestDocument(unittest.TestCase):
         assert not d.roots
         assert d.template_variables == {}
 
+    def test_delete_modules(self):
+        d = document.Document()
+        assert not d.roots
+        class FakeMod(object):
+            __name__ = 'junkjunkjunk'
+        mod = FakeMod()
+        import sys
+        assert 'junkjunkjunk' not in sys.modules
+        sys.modules['junkjunkjunk'] = mod
+        d._modules.append(mod)
+        assert 'junkjunkjunk' in sys.modules
+        d.delete_modules()
+        assert 'junkjunkjunk' not in sys.modules
+
     def test_add_roots(self):
         d = document.Document()
         assert not d.roots
