@@ -1,5 +1,7 @@
 - path: "models"
-  skip: ["maps_cities.py", "data_tables_server.py"]
+  skip: ["maps_cities.py"]
+- path: "models/server"
+  type: server
 - path: "custom"
 - path: "compat"
   skip: ["ggplot_density.py"]
