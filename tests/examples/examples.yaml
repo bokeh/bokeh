@@ -6,12 +6,7 @@
   skip: ["ggplot_density.py"]
 - path: "charts/file"
   type: file
-- path: "howto/charts"
-  type: notebook
 - path: "plotting/file"
   type: file
 - path: "plotting/server"
   type: server
-- path: "plotting/notebook"
-  type: notebook
-  skip_travis: ['color_scatterplot.ipynb', 'glyphs.ipynb']
