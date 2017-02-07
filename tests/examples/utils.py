@@ -27,12 +27,12 @@ def get_example_pngs(example_file, diff):
 
 
 def upload_example_pngs_to_s3(diff):
-
     all_examples = get_all_examples()
-    for example, _ in all_examples:
-        example_path = relpath(no_ext(example), example_dir)
+
+    for example in all_examples:
+        example_path = relpath(no_ext(example.path), example_dir)
         s3_path = join(__version__, example_path)
-        test_png, _, diff_png = get_example_pngs(example, diff)
+        test_png, _, diff_png = get_example_pngs(example.path, diff)
         if test_png:
             if isfile(test_png):
                 s3_png_file = s3_path + ".png"

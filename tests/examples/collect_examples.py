@@ -6,21 +6,34 @@ from os.path import join, dirname, abspath, pardir
 base_dir = dirname(__file__)
 example_dir = abspath(join(base_dir, pardir, pardir, 'examples'))
 
-
 class Flags(object):
     file     = 1 << 0
     server   = 1 << 1
     notebook = 1 << 2
-    skip     = 1 << 4
+    skip     = 1 << 3
 
 
-def example_type(flags):
-    if flags & Flags.file:
-        return "file"
-    elif flags & Flags.server:
-        return "server"
-    elif flags & Flags.notebook:
-        return "notebook"
+class Example(object):
+
+    def __init__(self, path, flags):
+        self.path = path
+        self.flags = flags
+
+    @property
+    def is_file(self):
+        return self.flags & Flags.file
+
+    @property
+    def is_server(self):
+        return self.flags & Flags.server
+
+    @property
+    def is_notebook(self):
+        return self.flags & Flags.notebook
+
+    @property
+    def is_skip(self):
+        return self.flags & Flags.skip
 
 
 def add_examples(list_of_examples, path, example_type=None, skip=None):
@@ -53,7 +66,7 @@ def add_examples(list_of_examples, path, example_type=None, skip=None):
         if skip and f in skip:
             flags |= Flags.skip
 
-        list_of_examples.append((join(example_path, f), flags))
+        list_of_examples.append(Example(join(example_path, f), flags))
 
     return list_of_examples
 
@@ -65,9 +78,9 @@ def get_all_examples():
         examples = yaml.load(f.read())
     for example in examples:
         path = example["path"]
-        try:
+        if example.get("type") is not None:
             example_type = getattr(Flags, example["type"])
-        except KeyError:
+        else:
             example_type = None
 
         skip_status = example.get("skip")
@@ -79,17 +92,14 @@ def get_all_examples():
 
 def get_file_examples():
     all_examples = get_all_examples()
-    file_examples = [example for example, flags in all_examples if (flags & Flags.file) and not (flags & Flags.skip)]
-    return file_examples
+    return [ example for example in all_examples if example.is_file and not example.is_skip ]
 
 
 def get_server_examples():
     all_examples = get_all_examples()
-    server_examples = [example for example, flags in all_examples if (flags & Flags.server) and not (flags & Flags.skip)]
-    return server_examples
+    return [ example for example in all_examples if example.is_server and not example.is_skip ]
 
 
 def get_notebook_examples():
     all_examples = get_all_examples()
-    notebook_examples = [example for example, flags in all_examples if (flags & Flags.notebook) and not (flags & Flags.skip)]
-    return notebook_examples
+    return [ example for example in all_examples if example.is_notebook and not example.is_skip ]

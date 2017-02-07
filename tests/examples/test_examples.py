@@ -40,32 +40,32 @@ def test_server_examples(server_example, bokeh_server, diff, log_file):
     # Note this is currently broken - server uses random sessions but we're
     # calling for "default" here - this has been broken for a while.
     # https://github.com/bokeh/bokeh/issues/3897
-    url = '%s/?bokeh-session-id=%s' % (bokeh_server, basename(no_ext(server_example)))
-    assert _run_example(server_example, log_file) == 0, 'Example did not run'
-    _assert_snapshot(server_example, url, 'server', diff)
+    url = '%s/?bokeh-session-id=%s' % (bokeh_server, basename(no_ext(server_example.path)))
+    assert _run_example(server_example.path, log_file) == 0, 'Example did not run'
+    _assert_snapshot(server_example.path, url, 'server', diff)
     if diff:
-        _get_pdiff(server_example, diff)
+        _get_pdiff(server_example.path, diff)
 
 
 @pytest.mark.examples
 def test_notebook_examples(notebook_example, jupyter_notebook, diff):
     notebook_port = pytest.config.option.notebook_port
-    url_path = join(*_get_path_parts(abspath(notebook_example)))
+    url_path = join(*_get_path_parts(abspath(notebook_example.path)))
     url = 'http://localhost:%d/notebooks/%s' % (notebook_port, url_path)
-    assert deal_with_output_cells(notebook_example), 'Notebook failed'
-    _assert_snapshot(notebook_example, url, 'notebook', diff)
+    assert deal_with_output_cells(notebook_example.path), 'Notebook failed'
+    _assert_snapshot(notebook_example.path, url, 'notebook', diff)
     if diff:
-        _get_pdiff(notebook_example, diff)
+        _get_pdiff(notebook_example.path, diff)
 
 
 @pytest.mark.examples
 def test_file_examples(file_example, diff, log_file):
-    html_file = "%s.html" % no_ext(file_example)
+    html_file = "%s.html" % no_ext(file_example.path)
     url = 'file://' + html_file
-    assert _run_example(file_example, log_file) == 0, 'Example did not run'
-    _assert_snapshot(file_example, url, 'file', diff)
+    assert _run_example(file_example.path, log_file) == 0, 'Example did not run'
+    _assert_snapshot(file_example.path, url, 'file', diff)
     if diff:
-        _get_pdiff(file_example, diff)
+        _get_pdiff(file_example.path, diff)
 
 
 def _get_pdiff(example, diff):
