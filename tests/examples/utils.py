@@ -3,7 +3,7 @@ import pytest
 
 from os.path import splitext, abspath, isfile, join, relpath
 
-from tests.plugins.utils import warn, fail, write, green
+from tests.plugins.utils import warn, fail, trace, green
 from tests.plugins.upload_to_s3 import upload_file_to_s3
 from tests.plugins.constants import __version__, job_id
 
@@ -36,12 +36,12 @@ def upload_example_pngs_to_s3(diff):
         if test_png:
             if isfile(test_png):
                 s3_png_file = s3_path + ".png"
-                write("%s Uploading image to S3 to %s" % (green(">>>"), s3_png_file))
+                trace("%s Uploading image to S3 to %s" % (green(">>>"), s3_png_file))
                 upload_file_to_s3(test_png, s3_png_file, "image/png")
         if diff_png:
             if isfile(diff_png):
                 s3_png_file = s3_path + diff + "-diff.png"
-                write("%s Uploading image to S3 to %s" % (green(">>>"), s3_png_file))
+                trace("%s Uploading image to S3 to %s" % (green(">>>"), s3_png_file))
                 upload_file_to_s3(diff_png, s3_png_file, "image/png")
 
 

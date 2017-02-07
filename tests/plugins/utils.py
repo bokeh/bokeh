@@ -10,6 +10,10 @@ import sys
 colorama.init()
 
 
+def trace(*values, **kwargs):
+    pass
+
+
 def write(*values, **kwargs):
     end = kwargs.get('end', '\n')
     print(*values, end=end)
