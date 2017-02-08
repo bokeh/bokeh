@@ -1,11 +1,26 @@
 - path: "models"
   skip: ["maps_cities.py"]
+
 - path: "models/server"
   type: server
-- path: "custom"
-- path: "compat"
   no_diff: all
+
+- path: "custom"
+
 - path: "charts/file"
+
 - path: "plotting/file"
+
 - path: "plotting/server"
   type: server
+  no_diff: all
+
+- path: "plotting/notebook"
+  type: notebook
+  skip: all
+
+- path: "compat"
+  no_diff: all
+
+- path: "howto/charts"
+  skip: all
