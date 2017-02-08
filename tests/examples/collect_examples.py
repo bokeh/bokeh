@@ -75,6 +75,8 @@ def add_examples(list_of_examples, path, example_type=None, skip=None, no_diff=N
             flags |= Flags.notebook
         elif os.path.isdir(os.path.join(example_path, f)):
             f = os.path.join(f, f + ".py")
+            if not os.path.exists(f):
+                continue
             flags |= get_flags(f)
         else:
             continue
