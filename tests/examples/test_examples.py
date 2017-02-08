@@ -36,6 +36,18 @@ from .utils import (
 
 
 @pytest.mark.examples
+def test_file_examples(file_example, diff, log_file):
+    example = file_example
+    html_file = "%s.html" % no_ext(example.path)
+    url = 'file://' + html_file
+    assert _run_example(example.path, log_file) == 0, 'Example did not run'
+    if not example.is_no_diff:
+        _assert_snapshot(example.path, url, 'file', diff)
+        if diff:
+            _get_pdiff(example.path, diff)
+
+
+@pytest.mark.examples
 def test_server_examples(server_example, bokeh_server, diff, log_file):
     example = server_example
     # Note this is currently broken - server uses random sessions but we're
@@ -58,18 +70,6 @@ def test_notebook_examples(notebook_example, jupyter_notebook, diff):
     assert deal_with_output_cells(example.path), 'Notebook failed'
     if not example.is_no_diff:
         _assert_snapshot(example.path, url, 'notebook', diff)
-        if diff:
-            _get_pdiff(example.path, diff)
-
-
-@pytest.mark.examples
-def test_file_examples(file_example, diff, log_file):
-    example = file_example
-    html_file = "%s.html" % no_ext(example.path)
-    url = 'file://' + html_file
-    assert _run_example(example.path, log_file) == 0, 'Example did not run'
-    if not example.is_no_diff:
-        _assert_snapshot(example.path, url, 'file', diff)
         if diff:
             _get_pdiff(example.path, diff)
 
