@@ -55,9 +55,6 @@ class Example(object):
 def add_examples(list_of_examples, path, example_type=None, skip=None, no_diff=None):
     example_path = join(example_dir, path)
 
-    if skip is not None:
-        skip = set(skip)
-
     def get_flags(f):
         if example_type is not None:
             return example_type
@@ -81,10 +78,10 @@ def add_examples(list_of_examples, path, example_type=None, skip=None, no_diff=N
         else:
             continue
 
-        if skip and f in skip:
+        if skip is not None and (skip == 'all' or f in skip):
             flags |= Flags.skip
 
-        if no_diff and (no_diff == 'all' or f in no_diff):
+        if no_diff is not None and (no_diff == 'all' or f in no_diff):
             flags |= Flags.no_diff
 
         list_of_examples.append(Example(join(example_path, f), flags))
