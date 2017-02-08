@@ -1,7 +1,7 @@
 import yaml
 import os
 
-from os.path import join, dirname, abspath, pardir
+from os.path import join, dirname, abspath, relpath, pardir
 
 base_dir = dirname(__file__)
 example_dir = abspath(join(base_dir, pardir, pardir, 'examples'))
@@ -19,6 +19,17 @@ class Example(object):
     def __init__(self, path, flags):
         self.path = path
         self.flags = flags
+
+    def __str__(self):
+        flags = ["file"     if self.is_file     else "",
+                 "server"   if self.is_server   else "",
+                 "notebook" if self.is_notebook else "",
+                 "skip"     if self.is_skip     else "",
+                 "no_diff"  if self.is_no_diff  else ""]
+        return "Example(%r, %s)" % (relpath(self.path, example_dir), "|".join([ f for f in flags if f ]))
+
+
+    __repr__ = __str__
 
     @property
     def is_file(self):
