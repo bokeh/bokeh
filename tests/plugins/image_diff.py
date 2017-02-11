@@ -1,17 +1,28 @@
-import subprocess
+import re
 import sys
+import subprocess
 
 from .utils import fail
 
+regex = re.compile(r"(\d+) pixels are different")
 
 def process_image_diff(diff_path, before_path, after_path):
-
+    """ Returns the number of differing pixels or -1 if dimensions differ. """
     cmd = ["perceptualdiff", "-output", diff_path, before_path, after_path]
+
     try:
-        proc = subprocess.Popen(cmd)
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         code = proc.wait()
     except OSError:
         fail("Failed to run: %s" % " ".join(cmd))
         sys.exit(1)
 
-    return code
+    if code != 0:
+        for line in proc.stdout.read().decode("utf-8").split('\n'):
+            result = regex.match(line)
+            if result is not None:
+                return int(result.group(1))
+        else:
+            return -1
+    else:
+        return 0

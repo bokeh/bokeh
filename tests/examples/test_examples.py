@@ -79,10 +79,10 @@ def _get_pdiff(example, diff):
 
         trace("saved reference: " + ref_png)
 
-        code = process_image_diff(diff_png, test_png, ref_png)
-        if code != 0:
-            warn("generated and reference images differ")
-            warn("diff: " + diff_png)
+        pixels = process_image_diff(diff_png, test_png, ref_png)
+        if pixels != 0:
+            comment = "dimensions don't match" if pixels == -1 else "%s pixels" % pixels
+            warn("generated and reference images differ: %s" % comment)
         else:
             ok("generated and reference images match")
 
