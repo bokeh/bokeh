@@ -39,24 +39,24 @@ def white(text):
     return "%s%s%s%s" % (colorama.Fore.WHITE, colorama.Style.BRIGHT, text, colorama.Style.RESET_ALL)
 
 
-def fail(msg=None):
+def fail(msg=None, label="FAIL"):
     msg = " " + msg if msg is not None else ""
-    write("%s%s" % (red("[FAIL]"), msg))
+    write("%s%s" % (red("[%s]" % label), msg))
 
 
-def warn(msg=None):
+def warn(msg=None, label="WARN"):
     msg = " " + msg if msg is not None else ""
-    write("%s%s" % (yellow("[WARN]"), msg))
+    write("%s%s" % (yellow("[%s]" % label), msg))
 
 
-def info(msg=None):
+def info(msg=None, label="INFO"):
     msg = " " + msg if msg is not None else ""
-    write("%s%s" % (white("[INFO]"), msg))
+    write("%s%s" % (white("[%s]" % label), msg))
 
 
-def ok(msg=None):
+def ok(msg=None, label="OK"):
     msg = " " + msg if msg is not None else ""
-    write("%s%s" % (green("[OK]"), msg))
+    write("%s%s" % (green("[%s]" % label), msg))
 
 
 def get_version_from_git(ref=None):

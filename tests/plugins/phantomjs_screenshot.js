@@ -13,58 +13,72 @@ var errors = [];
 var messages = [];
 var resources = [];
 
+var globalTimer = setTimeout(function() { finalize(true, true); }, global_wait);
+var localTimer = null;
+
+function resetLocalTimer() {
+  if (localTimer != null) {
+    clearTimeout(localTimer);
+  }
+
+  localTimer = setTimeout(function() { finalize(false, true); }, local_wait);
+}
+
+function finalize(timeout, success) {
+  if (png != null) {
+    page.render(png);
+  }
+
+  console.log(JSON.stringify({
+    success: success,
+    timeout: timeout,
+    errors: errors,
+    messages: messages,
+    resources: resources,
+  }));
+
+  phantom.exit();
+}
+
 page.onError = function(msg, trace) {
-    errors.push({
-        msg: msg,
-        trace: trace.map(function(item) {
-            return { file: item.file, line: item.line };
-        }),
-    });
+  resetLocalTimer();
+  errors.push({
+    msg: msg,
+    trace: trace.map(function(item) {
+      return { file: item.file, line: item.line };
+    }),
+  });
 };
 
 page.onConsoleMessage = function(msg, line, source) {
-    messages.push({
-        msg: msg,
-        line: line,
-        source: source,
-    });
+  if (localTimer != null) resetLocalTimer();
+  messages.push({msg: msg, line: line, source: source});
 };
 
 page.onResourceReceived = function(response) {
-    if (response.stage === 'end') {
-        var status = response.status;
+  if (localTimer != null) resetLocalTimer();
+  if (response.stage === 'end') {
+    var status = response.status;
 
-        if (response.url.slice(0, 7) === "file://") {
-            var path = response.url.slice(7);
+    if (response.url.slice(0, 7) === "file://") {
+      var path = response.url.slice(7);
 
-            if (!fs.exists(path)) {
-                response.status = 404;
-                response.statusText = "NOT FOUND";
-                resources.push(response);
-            }
-        } else if (status && status >= 400) {
-            resources.push(response);
-        }
+      if (!fs.exists(path)) {
+        response.status = 404;
+        response.statusText = "NOT FOUND";
+        resources.push(response);
+      }
+    } else if (status && status >= 400) {
+      resources.push(response);
     }
+  }
 };
 
 page.viewportSize = { width: width, height: height };
 
 page.open(url, function(status) {
-  function finalize(timeout) {
-    if (png != null) {
-      page.render(png);
-    }
-
-    console.log(JSON.stringify({
-      status: status,
-      timeout: timeout,
-      errors: errors,
-      messages: messages,
-      resources: resources,
-    }));
-
-    phantom.exit();
+  if (status === 'fail') {
+    finalize(false, false);
   }
 
   page.evaluate(function() {
@@ -75,16 +89,9 @@ page.open(url, function(status) {
     });
   });
 
-  var global_id = setTimeout(function() { finalize(true); }, global_wait);
-  var local_id = null;
-
   page.onCallback = function(data) {
     if (data === 'working') {
-      if (local_id != null) {
-        clearTimeout(local_id);
-      }
-
-      local_id = setTimeout(function() { finalize(false); }, local_wait);
+      resetLocalTimer();
     }
   };
 });

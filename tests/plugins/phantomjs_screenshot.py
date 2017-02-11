@@ -35,4 +35,5 @@ def get_phantomjs_screenshot(url, screenshot_path, local_wait, global_wait, widt
         fail("Failed to run: %s" % " ".join(cmd))
         sys.exit(1)
 
-    return json.loads(proc.stdout.read().decode("utf-8"))
+    output = proc.stdout.read().decode("utf-8")
+    return json.loads(output)

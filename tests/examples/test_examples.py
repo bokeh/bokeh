@@ -9,7 +9,7 @@ import signal
 from os.path import abspath, basename, dirname, exists, join, relpath, split, splitext
 
 from tests.plugins.upload_to_s3 import S3_URL
-from tests.plugins.utils import trace, info, ok, red, warn, write, yellow
+from tests.plugins.utils import trace, info, fail, ok, red, warn, write, yellow
 from tests.plugins.image_diff import process_image_diff
 from tests.plugins.phantomjs_screenshot import get_phantomjs_screenshot
 
@@ -109,10 +109,10 @@ def _print_phantomjs_output(result):
         line = message.get('line')
         source = message.get('source')
 
-        if not source or not line:
-            write(msg)
-        else:
-            write("%s:%s: %s" % (source, line, msg))
+        if source and line:
+            msg = "%s:%s: %s" % (source, line, msg)
+
+        info(msg, label="JS")
 
     # Process resources
     for resource in resources:
@@ -120,13 +120,17 @@ def _print_phantomjs_output(result):
         if url.endswith(".png"):
             ok("%s: %s (%s)" % (url, yellow(resource['status']), resource['statusText']))
         else:
-            warn("Resource error:: %s: %s (%s)" % (url, red(resource['status']), resource['statusText']))
+            fail("Resource error:: %s: %s (%s)" % (url, red(resource['status']), resource['statusText']), label="JS")
 
     # You can have a successful test, and still have errors reported, so not failing here.
     for error in errors:
-        warn("%s: %s" % (red("PhatomJS Error: "), error['msg']))
+        fail(error['msg'], label="JS")
         for item in error['trace']:
-            write("    %s: %d" % (item['file'], item['line']))
+            file = item['file']
+            line = item['line']
+
+            if file and line:
+                fail("  %s: %d" % (file, line), label="JS")
 
 
 def _assert_snapshot(example, url, example_type, diff):
@@ -137,22 +141,22 @@ def _assert_snapshot(example, url, example_type, diff):
 
     result = get_phantomjs_screenshot(url, screenshot_path, 1000, wait, 1000, height)
 
-    status = result['status']
+    success = result['success']
     timeout = result['timeout']
     errors = result['errors']
     messages = result['messages']
     resources = result['resources']
 
+    no_errors = len(errors) == 0
+
     if timeout:
-        warn("%s: %s" % (red("TIMEOUT: "), "example did not finish in %s ms" % wait))
+        warn("%s: %s" % (red("TIMEOUT: "), "bokehjs did not finish in %s ms" % wait))
 
-    if status != 'success':
-        assert False, "PhantomJS did not succeed: %s | %s | %s" % (errors, messages, resources)
-    else:
-        if pytest.config.option.verbose:
-            _print_phantomjs_output(result)
-        assert True
+    if pytest.config.option.verbose:
+        _print_phantomjs_output(result)
 
+    assert success, "Example failed to load"
+    assert no_errors, "Example failed with %d errors" % len(errors)
 
 def _get_reference_image_from_s3(example, diff):
     example_path = relpath(splitext(example)[0], example_dir)
