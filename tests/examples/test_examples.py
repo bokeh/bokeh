@@ -109,10 +109,8 @@ def _print_phantomjs_output(result):
         line = message.get('line')
         source = message.get('source')
 
-        if source is None:
+        if not source or not line:
             write(msg)
-        elif line is None:
-            write("%s: %s" % (source, msg))
         else:
             write("%s:%s: %s" % (source, line, msg))
 
