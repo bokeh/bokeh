@@ -20,19 +20,23 @@ def write(*values, **kwargs):
 
 
 def red(text):
-    return "%s%s%s" % (colorama.Fore.RED, text, colorama.Style.RESET_ALL)
+    return "%s%s%s%s" % (colorama.Fore.RED, colorama.Style.NORMAL, text, colorama.Style.RESET_ALL)
 
 
 def yellow(text):
-    return "%s%s%s" % (colorama.Fore.YELLOW, text, colorama.Style.RESET_ALL)
+    return "%s%s%s%s" % (colorama.Fore.YELLOW, colorama.Style.NORMAL, text, colorama.Style.RESET_ALL)
 
 
 def blue(text):
-    return "%s%s%s" % (colorama.Fore.BLUE, text, colorama.Style.RESET_ALL)
+    return "%s%s%s%s" % (colorama.Fore.BLUE, colorama.Style.NORMAL, text, colorama.Style.RESET_ALL)
 
 
 def green(text):
-    return "%s%s%s" % (colorama.Fore.GREEN, text, colorama.Style.RESET_ALL)
+    return "%s%s%s%s" % (colorama.Fore.GREEN, colorama.Style.NORMAL, text, colorama.Style.RESET_ALL)
+
+
+def white(text):
+    return "%s%s%s%s" % (colorama.Fore.WHITE, colorama.Style.BRIGHT, text, colorama.Style.RESET_ALL)
 
 
 def fail(msg=None):
@@ -47,7 +51,7 @@ def warn(msg=None):
 
 def info(msg=None):
     msg = " " + msg if msg is not None else ""
-    write("%s%s" % ("[INFO]", msg))
+    write("%s%s" % (white("[INFO]"), msg))
 
 
 def ok(msg=None):
