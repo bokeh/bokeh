@@ -187,6 +187,7 @@ with open(filename, 'rb') as example:
 
     env = os.environ.copy()
     env['BOKEH_RESOURCES'] = 'relative'
+    env['BOKEH_MINIFIED'] = 'false'
     env['BOKEH_BROWSER'] = 'none'
 
     class Timeout(Exception):
