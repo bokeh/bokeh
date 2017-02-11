@@ -211,7 +211,7 @@ with open(filename, 'rb') as example:
         raise Timeout
 
     signal.signal(signal.SIGALRM, alarm_handler)
-    signal.alarm(10)
+    signal.alarm(20)
 
     start = time.time()
     try:
