@@ -26,10 +26,14 @@ class Example(object):
                  "notebook" if self.is_notebook else "",
                  "skip"     if self.is_skip     else "",
                  "no_diff"  if self.is_no_diff  else ""]
-        return "Example(%r, %s)" % (relpath(self.path, example_dir), "|".join([ f for f in flags if f ]))
+        return "Example(%r, %s)" % (self.relpath, "|".join([ f for f in flags if f ]))
 
 
     __repr__ = __str__
+
+    @property
+    def relpath(self):
+        return relpath(self.path, example_dir)
 
     @property
     def is_file(self):
