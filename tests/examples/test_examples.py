@@ -1,6 +1,7 @@
 from __future__ import absolute_import, print_function
 
 import os
+import time
 import pytest
 import requests
 import subprocess
@@ -27,7 +28,12 @@ def test_file_examples(file_example, example, diff, log_file):
         print()
     html_file = "%s.html" % no_ext(example.path)
     url = 'file://' + html_file
-    assert _run_example(example.path, log_file) == 0, 'Example did not run'
+
+    (status, duration) = _run_example(example.path, log_file)
+    info("Example run in %.3f s" % duration)
+    assert status != "timeout", "%s timed out" % example.relpath
+    assert status == 0, "%s failed to run (exit code %s)" % (example.relpath, status)
+
     if not example.is_no_diff:
         _assert_snapshot(example.path, url, 'file', diff)
         if diff:
@@ -139,7 +145,11 @@ def _assert_snapshot(example, url, example_type, diff):
     height = 2000 if example_type == 'notebook' else 1000
     wait = 20000
 
+    start = time.time()
     result = get_phantomjs_screenshot(url, screenshot_path, 1000, wait, 1000, height)
+    end = time.time()
+
+    info("Example rendered in %.3f s" % (end - start))
 
     success = result['success']
     timeout = result['timeout']
@@ -203,12 +213,15 @@ with open(filename, 'rb') as example:
     signal.signal(signal.SIGALRM, alarm_handler)
     signal.alarm(10)
 
+    start = time.time()
     try:
         proc = subprocess.Popen(cmd, cwd=cwd, env=env, stdout=log_file, stderr=log_file)
-        return proc.wait()
+        status = proc.wait()
     except Timeout:
-        warn("Timeout - Example timed out when attempting to run")
         proc.kill()
-        return 0
+        status = 'timeout'
     finally:
         signal.alarm(0)
+    end = time.time()
+
+    return (status, end - start)
