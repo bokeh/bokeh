@@ -6,26 +6,10 @@ import requests
 import subprocess
 import signal
 
-from os.path import (
-    abspath,
-    basename,
-    dirname,
-    exists,
-    join,
-    relpath,
-    split,
-    splitext,
-)
+from os.path import abspath, basename, dirname, exists, join, relpath, split, splitext
 
 from tests.plugins.upload_to_s3 import S3_URL
-from tests.plugins.utils import (
-    info,
-    ok,
-    red,
-    warn,
-    write,
-    yellow,
-)
+from tests.plugins.utils import trace, info, ok, red, warn, write, yellow
 from tests.plugins.image_diff import process_image_diff
 from tests.plugins.phantomjs_screenshot import get_phantomjs_screenshot
 
@@ -81,7 +65,7 @@ def test_notebook_examples(notebook_example, example, jupyter_notebook, diff):
 
 def _get_pdiff(example, diff):
     test_png, ref_png, diff_png = get_example_pngs(example, diff)
-    info("generated image: " + test_png)
+    trace("generated image: " + test_png)
 
     retrieved_reference_image = _get_reference_image_from_s3(example, diff)
 
@@ -93,7 +77,7 @@ def _get_pdiff(example, diff):
         with open(ref_png, "wb") as f:
             f.write(retrieved_reference_image)
 
-        info("saved reference: " + ref_png)
+        trace("saved reference: " + ref_png)
 
         code = process_image_diff(diff_png, test_png, ref_png)
         if code != 0:
@@ -179,7 +163,7 @@ def _get_reference_image_from_s3(example, diff):
     response = requests.get(ref_url)
 
     if not response.ok:
-        info("reference image %s doesn't exist" % ref_url)
+        trace("reference image %s doesn't exist" % ref_url)
         return None
     return response.content
 
