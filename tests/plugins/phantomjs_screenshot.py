@@ -6,7 +6,7 @@ import subprocess
 import sys
 
 from os.path import abspath, dirname, join, pardir, split
-from .utils import info, fail
+from .utils import trace, info, fail
 
 TOP_PATH = abspath(join(split(__file__)[0], pardir, pardir))
 
@@ -26,7 +26,7 @@ def get_phantomjs_screenshot(url, screenshot_path, local_wait, global_wait, widt
     phantomjs = pytest.config.getoption('phantomjs')
 
     cmd = [phantomjs, join(dirname(__file__), "phantomjs_screenshot.js"), url, screenshot_path, str(local_wait), str(global_wait), str(width), str(height)]
-    info("Running command: %s" % " ".join(cmd))
+    trace("Running command: %s" % " ".join(cmd))
 
     try:
         proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
