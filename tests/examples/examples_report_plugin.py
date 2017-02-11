@@ -13,12 +13,7 @@ from tests.plugins.constants import __version__
 from tests.plugins.utils import get_version_from_git
 from tests.plugins.upload_to_s3 import upload_file_to_s3_by_job_id, S3_URL
 
-from .collect_examples import (
-    example_dir,
-    get_file_examples,
-    get_server_examples,
-    get_notebook_examples,
-)
+from .collect_examples import example_dir, get_all_examples
 from .utils import no_ext, get_example_pngs, upload_example_pngs_to_s3
 
 
@@ -48,15 +43,16 @@ def pytest_addoption(parser):
 
 
 def pytest_generate_tests(metafunc):
+    examples = get_all_examples()
     if 'file_example' in metafunc.fixturenames:
-        examples = get_file_examples()
-        metafunc.parametrize('file_example,example', zip([ e.path for e in examples ], examples))
+        file_examples = [ e for e in examples if e.is_file ]
+        metafunc.parametrize('file_example,example', zip([ e.path for e in file_examples ], file_examples))
     if 'server_example' in metafunc.fixturenames:
-        examples = get_server_examples()
-        metafunc.parametrize('server_example,example', zip([ e.path for e in examples ], examples))
+        server_examples = [ e for e in examples if e.is_server ]
+        metafunc.parametrize('server_example,example', zip([ e.path for e in server_examples ], server_examples))
     if 'notebook_example' in metafunc.fixturenames:
-        examples = get_notebook_examples()
-        metafunc.parametrize('notebook_example,example', zip([ e.path for e in examples ], examples))
+        notebook_examples = [ e for e in examples if e.is_notebook ]
+        metafunc.parametrize('notebook_example,example', zip([ e.path for e in notebook_examples ], notebook_examples))
 
 
 @pytest.fixture

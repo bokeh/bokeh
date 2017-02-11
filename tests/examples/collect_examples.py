@@ -96,10 +96,11 @@ def add_examples(list_of_examples, path, example_type=None, skip=None, no_diff=N
 
 
 def get_all_examples():
-    # Make a list of all the examples
     list_of_examples = []
+
     with open(join(dirname(__file__), "examples.yaml"), "r") as f:
         examples = yaml.load(f.read())
+
     for example in examples:
         path = example["path"]
         if example.get("type") is not None:
@@ -113,18 +114,3 @@ def get_all_examples():
         list_of_examples = add_examples(list_of_examples, path, example_type=example_type, skip=skip_status, no_diff=no_diff_status)
 
     return list_of_examples
-
-
-def get_file_examples():
-    all_examples = get_all_examples()
-    return [ example for example in all_examples if example.is_file and not example.is_skip ]
-
-
-def get_server_examples():
-    all_examples = get_all_examples()
-    return [ example for example in all_examples if example.is_server and not example.is_skip ]
-
-
-def get_notebook_examples():
-    all_examples = get_all_examples()
-    return [ example for example in all_examples if example.is_notebook and not example.is_skip ]
