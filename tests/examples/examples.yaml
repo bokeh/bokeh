@@ -3,7 +3,7 @@
 
 - path: "models/server"
   type: server
-  no_diff: all
+  skip: all
 
 - path: "custom"
 
@@ -13,10 +13,9 @@
 
 - path: "plotting/server"
   type: server
-  no_diff: all
+  skip: all
 
 - path: "plotting/notebook"
-  type: notebook
   skip: all
 
 - path: "compat"
