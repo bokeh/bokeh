@@ -34,10 +34,9 @@ def test_file_examples(file_example, example, diff, log_file):
     assert status != "timeout", "%s timed out" % example.relpath
     assert status == 0, "%s failed to run (exit code %s)" % (example.relpath, status)
 
-    if not example.is_no_diff:
-        _assert_snapshot(example.path, url, 'file', diff)
-        if diff:
-            _get_pdiff(example.path, diff)
+    _assert_snapshot(example.path, url, 'file', diff)
+    if not example.no_diff and diff:
+        _get_pdiff(example.path, diff)
 
 
 @pytest.mark.examples
@@ -49,10 +48,9 @@ def test_server_examples(server_example, example, bokeh_server, diff, log_file):
     # https://github.com/bokeh/bokeh/issues/3897
     url = '%s/?bokeh-session-id=%s' % (bokeh_server, basename(no_ext(example.path)))
     assert _run_example(example.path, log_file) == 0, 'Example did not run'
-    if not example.is_no_diff:
-        _assert_snapshot(example.path, url, 'server', diff)
-        if diff:
-            _get_pdiff(example.path, diff)
+    _assert_snapshot(example.path, url, 'server', diff)
+    if not example.no_diff and diff:
+        _get_pdiff(example.path, diff)
 
 
 @pytest.mark.examples
@@ -63,10 +61,9 @@ def test_notebook_examples(notebook_example, example, jupyter_notebook, diff):
     url_path = join(*_get_path_parts(abspath(example.path)))
     url = 'http://localhost:%d/notebooks/%s' % (notebook_port, url_path)
     assert deal_with_output_cells(example.path), 'Notebook failed'
-    if not example.is_no_diff:
-        _assert_snapshot(example.path, url, 'notebook', diff)
-        if diff:
-            _get_pdiff(example.path, diff)
+    _assert_snapshot(example.path, url, 'notebook', diff)
+    if not example.no_diff and diff:
+        _get_pdiff(example.path, diff)
 
 
 def _get_pdiff(example, diff):
