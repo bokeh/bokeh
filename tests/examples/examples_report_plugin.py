@@ -50,13 +50,13 @@ def pytest_addoption(parser):
 def pytest_generate_tests(metafunc):
     if 'file_example' in metafunc.fixturenames:
         examples = get_file_examples()
-        metafunc.parametrize('file_example', examples)
+        metafunc.parametrize('file_example,example', zip([ e.path for e in examples ], examples))
     if 'server_example' in metafunc.fixturenames:
         examples = get_server_examples()
-        metafunc.parametrize('server_example', examples)
+        metafunc.parametrize('server_example,example', zip([ e.path for e in examples ], examples))
     if 'notebook_example' in metafunc.fixturenames:
         examples = get_notebook_examples()
-        metafunc.parametrize('notebook_example', examples)
+        metafunc.parametrize('notebook_example,example', zip([ e.path for e in examples ], examples))
 
 
 @pytest.fixture
@@ -106,7 +106,7 @@ class ExamplesTestReport(object):
         # It can be got from the report.location attribute which is a tuple
         # that looks # something like this:
         # ('tests/examples/test_examples.py', 49, 'test_file_examples[/Users/caged/Dev/bokeh/bokeh/examples/models/anscombe.py]')
-        example = re.search(r'\[(.*?)\]', report.location[2]).group(1)
+        example = re.search(r'\[(.*?)\]', report.location[2]).group(1).rsplit('-', 1)[0]
         example_path = no_ext(example)
         test_png, ref_png, diff_png = get_example_pngs(example, self.diff)
 
