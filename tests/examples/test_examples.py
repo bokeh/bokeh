@@ -39,6 +39,8 @@ from .utils import (
 
 @pytest.mark.examples
 def test_file_examples(file_example, example, diff, log_file):
+    if pytest.config.option.verbose:
+        print()
     html_file = "%s.html" % no_ext(example.path)
     url = 'file://' + html_file
     assert _run_example(example.path, log_file) == 0, 'Example did not run'
@@ -50,6 +52,8 @@ def test_file_examples(file_example, example, diff, log_file):
 
 @pytest.mark.examples
 def test_server_examples(server_example, example, bokeh_server, diff, log_file):
+    if pytest.config.option.verbose:
+        print()
     # Note this is currently broken - server uses random sessions but we're
     # calling for "default" here - this has been broken for a while.
     # https://github.com/bokeh/bokeh/issues/3897
@@ -63,6 +67,8 @@ def test_server_examples(server_example, example, bokeh_server, diff, log_file):
 
 @pytest.mark.examples
 def test_notebook_examples(notebook_example, example, jupyter_notebook, diff):
+    if pytest.config.option.verbose:
+        print()
     notebook_port = pytest.config.option.notebook_port
     url_path = join(*_get_path_parts(abspath(example.path)))
     url = 'http://localhost:%d/notebooks/%s' % (notebook_port, url_path)
