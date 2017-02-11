@@ -180,6 +180,11 @@ and
 * http://cdn.pydata.org/bokeh/release/bokeh-0.12.0.min.css
 * http://cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.0.min.css
 
+.. note::
+    For releases ``0.12.2`` and after, the BokehJS API has been branched to a separate file.
+    It is also available for download from CDN at pydata.org under the name bokeh-api using
+    the above naming scheme.
+
 .. _Anaconda Python Distribution: http://continuum.io/anaconda
 .. _anaconda.org: http://anaconda.org
 .. _Continuum Analytics: http://continuum.io
