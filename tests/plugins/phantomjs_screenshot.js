@@ -67,10 +67,6 @@ page.open(url, function(status) {
     phantom.exit();
   }
 
-  if (status !== 200) {
-    finalize(false);
-  }
-
   page.evaluate(function() {
     document.body.bgColor = 'white';
 
