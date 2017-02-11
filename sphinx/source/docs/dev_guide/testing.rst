@@ -75,7 +75,7 @@ To run just the examples tests, run the command:
 
 .. code-block:: sh
 
-    py.test -m examples --examplereport=examples.html
+    py.test -m examples --report-path=examples.html
 
 The examples tests run through most of the bokeh examples and perform a visual
 diff to check how the examples are running. To run the examples tests you need:
@@ -93,7 +93,7 @@ The examples tests can run slowly, to speed them up, you can parallelize them:
 
 .. code-block:: sh
 
-    py.test -m examples --examplereport=examples.html -n 5
+    py.test -m examples --report-path=examples.html -n 5
 
 Where the number is the number of cores you want to use.
 

@@ -74,7 +74,7 @@ script:
       else
         export BOKEH_DEFAULT_DIFF=FETCH_HEAD;
         export IPYTHON_ALLOW_DRAFT_WEBSOCKETS_FOR_PHANTOMJS=1;
-        py.test -v -m examples --rerun=5 --upload --examplereport=examples.html;
+        py.test -v -m examples --rerun=5 --upload --report-path=examples.html;
       fi;
     fi
 

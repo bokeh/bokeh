@@ -37,7 +37,7 @@ def pytest_addoption(parser):
         "--output-cells", type=str, choices=['complain', 'remove', 'ignore'], default='complain', help="what to do with notebooks' output cells"
     )
     parser.addoption(
-        "--examplereport", action='store', dest='examplereport', metavar='path', default=None, help='create examples html report file at given path.'
+        "--report-path", action='store', dest='report_path', metavar='path', default='report.html', help='create examples html report file at given path.'
     )
     parser.addoption(
         "--patterns", type=str, nargs="*", help="select a subset of examples to test"
@@ -66,11 +66,11 @@ def diff(request):
 
 
 def pytest_configure(config):
-    examplereport = config.option.examplereport
+    report_path = config.option.report_path
     # prevent opening htmlpath on slave nodes (xdist)
-    if examplereport and not hasattr(config, 'slaveinput'):
+    if report_path and not hasattr(config, 'slaveinput'):
         diff = config.option.diff
-        config.examplereport = ExamplesTestReport(examplereport, diff)
+        config.examplereport = ExamplesTestReport(report_path, diff)
         config.pluginmanager.register(config.examplereport)
 
 
@@ -83,10 +83,10 @@ def pytest_unconfigure(config):
 
 class ExamplesTestReport(object):
 
-    def __init__(self, examplereport, diff):
-        examplereport = os.path.expanduser(os.path.expandvars(examplereport))
+    def __init__(self, report_path, diff):
+        report_path = os.path.expanduser(os.path.expandvars(report_path))
         self.diff = get_version_from_git(diff)
-        self.examplereport = os.path.abspath(examplereport)
+        self.report_path = os.path.abspath(report_path)
         self.entries = []
         self.errors = self.failed = 0
         self.passed = self.skipped = 0
@@ -172,17 +172,16 @@ class ExamplesTestReport(object):
         diff_version = get_version_from_git(session.config.option.diff)
         html = template.render(version=__version__, diff=diff_version, entries=self.entries)
 
-        if not os.path.exists(os.path.dirname(self.examplereport)):
-            os.makedirs(os.path.dirname(self.examplereport))
+        if not os.path.exists(os.path.dirname(self.report_path)):
+            os.makedirs(os.path.dirname(self.report_path))
 
-        with open(self.examplereport, 'w', encoding='utf-8') as f:
+        with open(self.report_path, 'w', encoding='utf-8') as f:
             f.write(html)
 
         if pytest.config.option.upload:
             upload_example_pngs_to_s3(diff_version)
-            upload_file_to_s3_by_job_id(session.config.option.examplereport, "text/html", "EXAMPLES REPORT SUCCESSFULLY UPLOADED")
+            upload_file_to_s3_by_job_id(session.config.option.report_path, "text/html", "EXAMPLES REPORT SUCCESSFULLY UPLOADED")
             upload_file_to_s3_by_job_id(session.config.option.log_file, "text/text", "EXAMPLES LOG SUCCESSFULLY UPLOADED")
 
     def pytest_terminal_summary(self, terminalreporter):
-        terminalreporter.write_sep('-', 'generated example report: {0}'.format(
-            self.examplereport))
+        terminalreporter.write_sep('-', 'generated example report: {0}'.format(self.report_path))
