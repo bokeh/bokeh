@@ -12,9 +12,10 @@ class Flags(object):
     file     = 1 << 0
     server   = 1 << 1
     notebook = 1 << 2
-    slow     = 1 << 3
-    skip     = 1 << 4
-    no_diff  = 1 << 5
+    slow     = 1 << 3  # example needs a lot of time to run (> 30 s) (e.g. choropleth.py)
+    skip     = 1 << 4  # don't run example at all (e.g. notebooks are completely broken)
+    no_js    = 1 << 5  # skip bokehjs and thus image diff (e.g. google maps key issue)
+    no_diff  = 1 << 6  # skip only image diff (e.g. inherent randomness as in jitter)
 
 
 class Example(object):
@@ -29,6 +30,7 @@ class Example(object):
                  "notebook" if self.is_notebook else "",
                  "slow"     if self.is_slow     else "",
                  "skip"     if self.is_skip     else "",
+                 "no_js"    if self.no_js       else "",
                  "no_diff"  if self.no_diff     else ""]
         return "Example(%r, %s)" % (self.relpath, "|".join([ f for f in flags if f ]))
 
@@ -60,11 +62,15 @@ class Example(object):
         return self.flags & Flags.skip
 
     @property
+    def no_js(self):
+        return self.flags & Flags.no_js
+
+    @property
     def no_diff(self):
         return self.flags & Flags.no_diff
 
 
-def add_examples(list_of_examples, path, example_type=None, slow=None, skip=None, no_diff=None):
+def add_examples(list_of_examples, path, example_type=None, slow=None, skip=None, no_js=None, no_diff=None):
     example_path = join(example_dir, path)
 
     def get_flags(f):
@@ -96,6 +102,9 @@ def add_examples(list_of_examples, path, example_type=None, slow=None, skip=None
         if skip is not None and (skip == 'all' or f in skip):
             flags |= Flags.skip
 
+        if no_js is not None and (no_js == 'all' or f in no_js):
+            flags |= Flags.no_js
+
         if no_diff is not None and (no_diff == 'all' or f in no_diff):
             flags |= Flags.no_diff
 
@@ -119,9 +128,10 @@ def get_all_examples():
 
         slow_status = example.get("slow")
         skip_status = example.get("skip")
+        no_js_status = example.get("no_js")
         no_diff_status = example.get("no_diff")
 
         list_of_examples = add_examples(list_of_examples, path, example_type=example_type,
-            slow=slow_status, skip=skip_status, no_diff=no_diff_status)
+            slow=slow_status, skip=skip_status, no_js=no_js_status, no_diff=no_diff_status)
 
     return list_of_examples

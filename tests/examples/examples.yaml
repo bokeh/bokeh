@@ -1,6 +1,6 @@
 - path: "models"
   slow: ["choropleth.py"]
-  no_diff: ["maps_cities.py", "maps.py", "trail.py"]
+  no_js: ["maps_cities.py", "maps.py", "trail.py"]
 
 - path: "models/server"
   type: server

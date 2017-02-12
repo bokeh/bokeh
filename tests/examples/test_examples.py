@@ -38,9 +38,14 @@ def test_file_examples(file_example, example, diff, log_file):
     assert status != "timeout", "%s timed out" % example.relpath
     assert status == 0, "%s failed to run (exit code %s)" % (example.relpath, status)
 
-    _assert_snapshot(example.path, url, 'file', diff)
-    if not example.no_diff and diff:
-        _get_pdiff(example.path, diff)
+    if not example.no_js:
+        _assert_snapshot(example.path, url, 'file', diff)
+        if not example.no_diff and diff:
+            _get_pdiff(example.path, diff)
+        else:
+            warn("skipping image diff for %s" % example.relpath)
+    else:
+        warn("skipping bokehjs for %s" % example.relpath)
 
 
 @pytest.mark.examples
@@ -56,9 +61,15 @@ def test_server_examples(server_example, example, bokeh_server, diff, log_file):
     # https://github.com/bokeh/bokeh/issues/3897
     url = '%s/?bokeh-session-id=%s' % (bokeh_server, basename(no_ext(example.path)))
     assert _run_example(example, log_file) == 0, 'Example did not run'
-    _assert_snapshot(example.path, url, 'server', diff)
-    if not example.no_diff and diff:
-        _get_pdiff(example.path, diff)
+
+    if not example.no_js:
+        _assert_snapshot(example.path, url, 'server', diff)
+        if not example.no_diff and diff:
+            _get_pdiff(example.path, diff)
+        else:
+            warn("skipping image diff for %s" % example.relpath)
+    else:
+        warn("skipping bokehjs for %s" % example.relpath)
 
 
 @pytest.mark.examples
