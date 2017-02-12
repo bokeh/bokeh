@@ -79,7 +79,7 @@ def add_examples(list_of_examples, path, example_type=None, slow=None, skip=None
         else:
             return Flags.file
 
-    for f in os.listdir(example_path):
+    for f in sorted(os.listdir(example_path)):
         flags = 0
 
         if f.startswith(('_', '.')):
