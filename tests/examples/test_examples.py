@@ -37,7 +37,7 @@ def test_file_examples(file_example, example, diff, log_file):
     url = 'file://' + html_file
 
     (status, duration, out, err) = _run_example(example)
-    info("Example run in %.3f s" % duration)
+    info("Example run in %s" % white("%.3fs" % duration))
 
     for line in out.split("\n"):
         if len(line) == 0 or line.startswith("Wrote "):
@@ -183,7 +183,7 @@ def _assert_snapshot(example, url, example_type, diff):
     result = get_phantomjs_screenshot(url, screenshot_path, 1000, wait, 1000, height)
     end = time.time()
 
-    info("Example rendered in %.3f s" % (end - start))
+    info("Example rendered in %s" % white("%.3fs" % (end - start)))
 
     success = result['success']
     timeout = result['timeout']
