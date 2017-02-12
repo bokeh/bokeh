@@ -177,7 +177,7 @@ def _assert_snapshot(example, url, example_type, diff):
     screenshot_path, _, _ = get_example_pngs(example, diff)
 
     height = 2000 if example_type == 'notebook' else 1000
-    wait = 20000
+    wait = 30000
 
     start = time.time()
     result = get_phantomjs_screenshot(url, screenshot_path, 1000, wait, 1000, height)
