@@ -10,7 +10,7 @@ import signal
 from os.path import abspath, basename, dirname, exists, join, relpath, split, splitext
 
 from tests.plugins.upload_to_s3 import S3_URL
-from tests.plugins.utils import trace, info, fail, ok, red, warn, write, yellow
+from tests.plugins.utils import trace, info, fail, ok, red, warn, write, yellow, white
 from tests.plugins.image_diff import process_image_diff
 from tests.plugins.phantomjs_screenshot import get_phantomjs_screenshot
 
@@ -121,7 +121,7 @@ def _get_pdiff(example, diff):
 
         pixels = process_image_diff(diff_png, test_png, ref_png)
         if pixels != 0:
-            comment = "dimensions don't match" if pixels == -1 else "%s pixels" % pixels
+            comment = "dimensions don't match" if pixels == -1 else white("%.04f%%" % pixels) + " of pixels"
             warn("generated and reference images differ: %s" % comment)
         else:
             ok("generated and reference images match")

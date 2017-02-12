@@ -2,12 +2,14 @@ import re
 import sys
 import subprocess
 
+from PIL import Image
+
 from .utils import fail
 
 regex = re.compile(r"(\d+) pixels are different")
 
 def process_image_diff(diff_path, before_path, after_path):
-    """ Returns the number of differing pixels or -1 if dimensions differ. """
+    """ Returns the percentage of differing pixels or -1 if dimensions differ. """
     cmd = ["perceptualdiff", "-output", diff_path, before_path, after_path]
 
     try:
@@ -21,7 +23,10 @@ def process_image_diff(diff_path, before_path, after_path):
         for line in proc.stdout.read().decode("utf-8").split('\n'):
             result = regex.match(line)
             if result is not None:
-                return int(result.group(1))
+                pixels = int(result.group(1))
+                with Image.open(after_path) as img:
+                    w, h = img.size
+                return float(pixels)/(w*h)
         else:
             return -1
     else:
