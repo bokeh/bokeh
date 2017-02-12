@@ -21,6 +21,9 @@ from .utils import (
     no_ext,
 )
 
+import logging
+logging.getLogger('requests.packages.urllib3.connectionpool').setLevel(logging.INFO)
+
 
 @pytest.mark.examples
 def test_file_examples(file_example, example, diff, log_file):
