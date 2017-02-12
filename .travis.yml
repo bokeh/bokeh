@@ -59,6 +59,9 @@ install:
 - scripts/travis_install
 
 script:
+  # preamble
+  - python -m bokeh info
+
   # unit tests
   - if [[ -z "$TRAVIS_TAG" && "$GROUP" == unit ]]; then
       py.test --rerun=3 -s -m js;
