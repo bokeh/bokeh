@@ -6,6 +6,9 @@ from PIL import Image
 
 from .utils import fail
 
+import logging
+logging.getLogger('PIL.PngImagePlugin').setLevel(logging.INFO)
+
 regex = re.compile(r"(\d+) pixels are different")
 
 def process_image_diff(diff_path, before_path, after_path):
