@@ -1,7 +1,7 @@
 import base64
 
 from os.path import exists
-from tests.plugins.image_diff import process_image_diff
+from tests.plugins.image_diff import image_diff
 
 
 class Screenshot(object):

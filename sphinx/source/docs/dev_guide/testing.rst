@@ -80,10 +80,9 @@ To run just the examples tests, run the command:
 The examples tests run through most of the bokeh examples and perform a visual
 diff to check how the examples are running. To run the examples tests you need:
 - phantomjs
-- perceptualdiff
 
-On linux systems, ``conda install phantomjs pdiff``.
-On OSX, with homebrew ``brew install phantomjs perceptualdiff``.
+On linux systems, ``conda install phantomjs``.
+On OSX, with homebrew ``brew install phantomjs``.
 
 After the tests have run, you will be able to see the test report at
 examples.html. On your local machine, you can name the test report wherever you
@@ -160,7 +159,6 @@ To run the integration tests on SauceLabs, run the command:
     py.test -m integration --driver=SauceLabs --html=tests/pytest-report.html
 
 For this command to be successful you will need the following:
- - pdiff (see examples tests)
  - ``SAUCELABS_USERNAME`` environment variable
  - ``SAUCELABS_API_KEY`` environment variable
  - Sauce Connect tunnel running

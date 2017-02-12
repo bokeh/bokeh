@@ -73,7 +73,6 @@ test:
     - scipy
     - pillow
     - boto
-    - pdiff                  [unix]
     - nodejs >=6.6.0
 
     # examples
