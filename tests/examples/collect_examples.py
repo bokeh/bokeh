@@ -12,8 +12,9 @@ class Flags(object):
     file     = 1 << 0
     server   = 1 << 1
     notebook = 1 << 2
-    skip     = 1 << 3
-    no_diff  = 1 << 4
+    slow     = 1 << 3
+    skip     = 1 << 4
+    no_diff  = 1 << 5
 
 
 class Example(object):
@@ -26,6 +27,7 @@ class Example(object):
         flags = ["file"     if self.is_file     else "",
                  "server"   if self.is_server   else "",
                  "notebook" if self.is_notebook else "",
+                 "slow"     if self.is_slow     else "",
                  "skip"     if self.is_skip     else "",
                  "no_diff"  if self.no_diff     else ""]
         return "Example(%r, %s)" % (self.relpath, "|".join([ f for f in flags if f ]))
@@ -50,6 +52,10 @@ class Example(object):
         return self.flags & Flags.notebook
 
     @property
+    def is_slow(self):
+        return self.flags & Flags.slow
+
+    @property
     def is_skip(self):
         return self.flags & Flags.skip
 
@@ -58,7 +64,7 @@ class Example(object):
         return self.flags & Flags.no_diff
 
 
-def add_examples(list_of_examples, path, example_type=None, skip=None, no_diff=None):
+def add_examples(list_of_examples, path, example_type=None, slow=None, skip=None, no_diff=None):
     example_path = join(example_dir, path)
 
     def get_flags(f):
@@ -84,6 +90,9 @@ def add_examples(list_of_examples, path, example_type=None, skip=None, no_diff=N
         else:
             continue
 
+        if slow is not None and f in slow:
+            flags |= Flags.slow
+
         if skip is not None and (skip == 'all' or f in skip):
             flags |= Flags.skip
 
@@ -108,9 +117,11 @@ def get_all_examples():
         else:
             example_type = None
 
+        slow_status = example.get("slow")
         skip_status = example.get("skip")
         no_diff_status = example.get("no_diff")
 
-        list_of_examples = add_examples(list_of_examples, path, example_type=example_type, skip=skip_status, no_diff=no_diff_status)
+        list_of_examples = add_examples(list_of_examples, path, example_type=example_type,
+            slow=slow_status, skip=skip_status, no_diff=no_diff_status)
 
     return list_of_examples

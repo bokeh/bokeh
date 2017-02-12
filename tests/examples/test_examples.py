@@ -33,7 +33,7 @@ def test_file_examples(file_example, example, diff, log_file):
     html_file = "%s.html" % no_ext(example.path)
     url = 'file://' + html_file
 
-    (status, duration) = _run_example(example.path, log_file)
+    (status, duration) = _run_example(example, log_file)
     info("Example run in %.3f s" % duration)
     assert status != "timeout", "%s timed out" % example.relpath
     assert status == 0, "%s failed to run (exit code %s)" % (example.relpath, status)
@@ -55,7 +55,7 @@ def test_server_examples(server_example, example, bokeh_server, diff, log_file):
     # calling for "default" here - this has been broken for a while.
     # https://github.com/bokeh/bokeh/issues/3897
     url = '%s/?bokeh-session-id=%s' % (bokeh_server, basename(no_ext(example.path)))
-    assert _run_example(example.path, log_file) == 0, 'Example did not run'
+    assert _run_example(example, log_file) == 0, 'Example did not run'
     _assert_snapshot(example.path, url, 'server', diff)
     if not example.no_diff and diff:
         _get_pdiff(example.path, diff)
@@ -190,7 +190,7 @@ def _get_reference_image_from_s3(example, diff):
 
 
 def _run_example(example, log_file):
-    example_path = join(example_dir, example)
+    example_path = join(example_dir, example.path)
 
     code = """\
 __file__ = filename = '%s'
@@ -220,7 +220,7 @@ with open(filename, 'rb') as example:
         raise Timeout
 
     signal.signal(signal.SIGALRM, alarm_handler)
-    signal.alarm(20)
+    signal.alarm(20 if not example.is_slow else 60)
 
     start = time.time()
     try:
