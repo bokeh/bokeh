@@ -36,8 +36,19 @@ def test_file_examples(file_example, example, diff, log_file):
     html_file = "%s.html" % no_ext(example.path)
     url = 'file://' + html_file
 
-    (status, duration) = _run_example(example, log_file)
+    (status, duration, out, err) = _run_example(example)
     info("Example run in %.3f s" % duration)
+
+    for line in out.split("\n"):
+        if len(line) == 0 or line.startswith("Wrote "):
+            continue
+        info(line, label="PY")
+
+    for line in err.split("\n"):
+        if len(line) == 0:
+            continue
+        warn(line, label="PY")
+
     assert status != "timeout", "%s timed out" % example.relpath
     assert status == 0, "%s failed to run (exit code %s)" % (example.relpath, status)
 
@@ -63,7 +74,7 @@ def test_server_examples(server_example, example, bokeh_server, diff, log_file):
     # calling for "default" here - this has been broken for a while.
     # https://github.com/bokeh/bokeh/issues/3897
     url = '%s/?bokeh-session-id=%s' % (bokeh_server, basename(no_ext(example.path)))
-    assert _run_example(example, log_file) == 0, 'Example did not run'
+    assert _run_example(example) == 0, 'Example did not run'
 
     if not example.no_js:
         _assert_snapshot(example.path, url, 'server', diff)
@@ -203,7 +214,7 @@ def _get_reference_image_from_s3(example, diff):
     return response.content
 
 
-def _run_example(example, log_file):
+def _run_example(example):
     example_path = join(example_dir, example.path)
 
     code = """\
@@ -238,7 +249,7 @@ with open(filename, 'rb') as example:
 
     start = time.time()
     try:
-        proc = subprocess.Popen(cmd, cwd=cwd, env=env, stdout=log_file, stderr=log_file)
+        proc = subprocess.Popen(cmd, cwd=cwd, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         status = proc.wait()
     except Timeout:
         proc.kill()
@@ -247,4 +258,7 @@ with open(filename, 'rb') as example:
         signal.alarm(0)
     end = time.time()
 
-    return (status, end - start)
+    out = proc.stdout.read().decode("utf-8")
+    err = proc.stderr.read().decode("utf-8")
+
+    return (status, end - start, out, err)
