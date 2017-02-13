@@ -226,6 +226,9 @@ random.seed(1)
 import numpy as np
 np.random.seed(1)
 
+import warnings
+warnings.filterwarnings("ignore", ".*", UserWarning, "matplotlib.font_manager")
+
 with open(filename, 'rb') as example:
     exec(compile(example.read(), filename, 'exec'))
 """ % example_path
