@@ -9,7 +9,7 @@ df = df_from_json(data)
 
 # filter by countries with at least one medal and sort by total medals
 df = df[df['total'] > 0]
-df = df.sort("total", ascending=False)
+df = df.sort_values(by="total", ascending=False)
 
 bar = Bar(df,
           values=blend('bronze', 'silver', 'gold', name='medals', labels_name='medal'),

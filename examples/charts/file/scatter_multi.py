@@ -43,7 +43,7 @@ scatter4 = Scatter(
 
 # Example with nested json/dict like data, which has been pre-aggregated and pivoted
 df2 = df_from_json(data)
-df2 = df2.sort('total', ascending=False)
+df2 = df2.sort_values(by='total', ascending=False)
 
 df2 = df2.head(10)
 df2 = pd.melt(df2, id_vars=['abbr', 'name'])
