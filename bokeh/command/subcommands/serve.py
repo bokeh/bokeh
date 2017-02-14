@@ -107,6 +107,12 @@ acceptable host values with the ``--host`` option:
 
     bokeh serve app_script.py --host foo.com:8081 --host bar.com
 
+To disable the whitelist and allow any host to connect, specify ``*`` like
+
+.. code-block:: sh
+
+    bokeh serve app_script.py --host=*
+
 If no port is specified in a host value, then port 80 will be used. In
 the example above Bokeh server will accept requests from ``foo.com:8081``
 and ``bar.com:80``.
