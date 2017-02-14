@@ -13,9 +13,7 @@ from tests.plugins.constants import __version__
 from tests.plugins.utils import get_version_from_git as resolve_ref
 from tests.plugins.upload_to_s3 import upload_file_to_s3_by_job_id, S3_URL
 
-from .collect_examples import example_dir, get_all_examples
-from .utils import no_ext, get_example_pngs, upload_example_pngs_to_s3
-
+from .collect_examples import collect_examples
 
 PY3 = sys.version_info[0] == 3
 if not PY3:
@@ -38,9 +36,15 @@ def pytest_addoption(parser):
         "--diff-ref", type=resolve_ref, default="origin/master", help="compare generated images against this ref"
     )
 
+_examples = None
+def get_all_examples(config):
+    global _examples
+    if _examples is None:
+        _examples = collect_examples(config)
+    return _examples
 
 def pytest_generate_tests(metafunc):
-    examples = get_all_examples()
+    examples = get_all_examples(metafunc.config)
     if 'file_example' in metafunc.fixturenames:
         file_examples = [ e for e in examples if e.is_file ]
         metafunc.parametrize('file_example,example', zip([ e.path for e in file_examples ], file_examples))
@@ -61,8 +65,9 @@ def pytest_configure(config):
     report_path = config.option.report_path
     # prevent opening htmlpath on slave nodes (xdist)
     if report_path and not hasattr(config, 'slaveinput'):
-        diff = config.option.diff_ref
-        config.examplereport = ExamplesTestReport(report_path, diff)
+        diff_ref = config.option.diff_ref
+        examples = get_all_examples(config)
+        config.examplereport = ExamplesTestReport(report_path, diff_ref, examples)
         config.pluginmanager.register(config.examplereport)
 
 
@@ -75,18 +80,17 @@ def pytest_unconfigure(config):
 
 class ExamplesTestReport(object):
 
-    def __init__(self, report_path, diff):
+    def __init__(self, report_path, diff_ref, examples):
         report_path = os.path.expanduser(os.path.expandvars(report_path))
-        self.diff = diff
         self.report_path = os.path.abspath(report_path)
+        self.examples = { e.path: e for e in examples }
+        self.diff = diff_ref
         self.entries = []
         self.errors = self.failed = 0
         self.passed = self.skipped = 0
         self.xfailed = self.xpassed = 0
 
     def _appendrow(self, result, report):
-        upload = pytest.config.option.upload
-
         skipped = False
         failed = False
         if result == 'Failed':
@@ -97,29 +101,9 @@ class ExamplesTestReport(object):
         # Example is the path of the example that was run
         # It can be got from the report.location attribute which is a tuple
         # that looks # something like this:
-        # ('tests/examples/test_examples.py', 49, 'test_file_examples[/Users/caged/Dev/bokeh/bokeh/examples/models/anscombe.py]')
-        example = re.search(r'\[(.*?)\]', report.location[2]).group(1).rsplit('-', 1)[0]
-        example_path = no_ext(example)
-        test_png, ref_png, diff_png = get_example_pngs(example, self.diff)
-
-        images_differ = False
-        if diff_png:
-            if isfile(diff_png):
-                images_differ = True
-
-        if not upload:
-            self.entries.append((example_path, self.diff, failed, skipped, test_png, diff_png, ref_png, images_differ))
-        else:
-            # We have to update the paths so that the html refers to the uploaded ones
-            example_path = relpath(no_ext(example), example_dir)
-            test_url = join(S3_URL, __version__, example_path) + '.png'
-            if self.diff:
-                diff_url = join(S3_URL, __version__, example_path) + self.diff + '-diff.png'
-                ref_url = join(S3_URL, self.diff, example_path) + '.png'
-            else:
-                diff_url = None
-                ref_url = None
-            self.entries.append((example_path, self.diff, failed, skipped, test_url, diff_url, ref_url, images_differ))
+        # ('tests/examples/test_examples.py', 49, 'test_file_examples[/Users/caged/Dev/bokeh/bokeh/examples/models/anscombe.py-exampleN]')
+        example_path = re.search(r'\[(.*?)\]', report.location[2]).group(1).rsplit('-', 1)[0]
+        self.entries.append((self.examples[example_path], failed, skipped))
 
     def append_pass(self, report):
         self.passed += 1
@@ -171,7 +155,9 @@ class ExamplesTestReport(object):
             f.write(html)
 
         if pytest.config.option.upload:
-            upload_example_pngs_to_s3(diff_version)
+            for (example, _, _) in self.entries:
+                example.upload_imgs()
+
             upload_file_to_s3_by_job_id(session.config.option.report_path, "text/html", "EXAMPLES REPORT SUCCESSFULLY UPLOADED")
             upload_file_to_s3_by_job_id(session.config.option.log_file, "text/text", "EXAMPLES LOG SUCCESSFULLY UPLOADED")
 

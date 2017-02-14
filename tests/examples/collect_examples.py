@@ -1,9 +1,19 @@
 from __future__ import absolute_import, print_function
 
-import yaml
 import os
 
-from os.path import join, dirname, abspath, relpath, pardir
+import yaml
+import requests
+
+from os.path import join, dirname, basename, abspath, relpath, pardir, splitext, isfile
+
+from ..plugins.constants import __version__, job_id
+from ..plugins.upload_to_s3 import S3_URL, upload_file_to_s3
+
+from ..plugins.utils import trace, green
+
+import logging
+logging.getLogger('requests.packages.urllib3.connectionpool').setLevel(logging.INFO)
 
 base_dir = dirname(__file__)
 example_dir = abspath(join(base_dir, pardir, pardir, 'examples'))
@@ -20,9 +30,16 @@ class Flags(object):
 
 class Example(object):
 
-    def __init__(self, path, flags):
+    def __init__(self, path, flags, config=None):
         self.path = path
         self.flags = flags
+        if config is not None:
+            self._diff_ref = config.option.diff_ref
+            self._upload = config.option.upload
+        else:
+            self._diff_ref = None
+            self._upload = False
+        self.pixels = 0
 
     def __str__(self):
         flags = ["file"     if self.is_file     else "",
@@ -34,12 +51,23 @@ class Example(object):
                  "no_diff"  if self.no_diff     else ""]
         return "Example(%r, %s)" % (self.relpath, "|".join([ f for f in flags if f ]))
 
-
     __repr__ = __str__
+
+    @property
+    def name(self):
+        return basename(self.path._no_ext)
 
     @property
     def relpath(self):
         return relpath(self.path, example_dir)
+
+    @property
+    def path_no_ext(self):
+        return splitext(self.path)[0]
+
+    @property
+    def relpath_no_ext(self):
+        return splitext(self.relpath)[0]
 
     @property
     def is_file(self):
@@ -69,8 +97,75 @@ class Example(object):
     def no_diff(self):
         return self.flags & Flags.no_diff
 
+    @property
+    def img_path_or_url(self):
+        return self.img_path if not self._upload else self.img_url
 
-def add_examples(list_of_examples, path, example_type=None, slow=None, skip=None, no_js=None, no_diff=None):
+    @property
+    def ref_path_or_url(self):
+        return self.ref_path if not self._upload else self.ref_url
+
+    @property
+    def diff_path_or_url(self):
+        return self.diff_path if not self._upload else self.diff_url
+
+    @property
+    def img_path(self):
+        return "%s-%s-%s.png" % (self.path_no_ext, __version__, job_id)
+
+    @property
+    def ref_path(self):
+        return "%s-%s-%s.png" % (self.path_no_ext, self._diff_ref, job_id)
+
+    @property
+    def diff_path(self):
+        return "%s-%s-%s-diff-%s.png" % (self.path_no_ext, __version__, self._diff_ref, job_id)
+
+    @property
+    def img_url(self):
+        return join(S3_URL, self.img_url_path)
+
+    @property
+    def ref_url(self):
+        return join(S3_URL, self.ref_url_path)
+
+    @property
+    def diff_url(self):
+        return join(S3_URL, self.diff_url_path)
+
+    @property
+    def img_url_path(self):
+        return join(__version__, self.relpath_no_ext) + '.png'
+
+    @property
+    def ref_url_path(self):
+        return join(self._diff_ref, self.relpath_no_ext) + '.png'
+
+    @property
+    def diff_url_path(self):
+        return join(__version__, self.relpath_no_ext) + self._diff_ref + '-diff.png'
+
+    def fetch_ref(self):
+        response = requests.get(self.ref_url)
+
+        if response.ok:
+            return response.content
+        else:
+            return None
+
+    def upload_imgs(self):
+        if isfile(self.img_path):
+            trace("%s Uploading image to S3 to %s" % (green(">>>"), self.img_url_path))
+            upload_file_to_s3(self.img_path, self.img_url_path, "image/png")
+        if isfile(self.diff_path):
+            trace("%s Uploading image to S3 to %s" % (green(">>>"), self.diff_url_path))
+            upload_file_to_s3(self.diff_path, self.diff_url_path, "image/png")
+
+    @property
+    def images_differ(self):
+        return self.pixels != 0
+
+def add_examples(list_of_examples, path, example_type=None, slow=None, skip=None, no_js=None, no_diff=None, config=None):
     example_path = join(example_dir, path)
 
     def get_flags(f):
@@ -108,12 +203,12 @@ def add_examples(list_of_examples, path, example_type=None, slow=None, skip=None
         if no_diff is not None and (no_diff == 'all' or f in no_diff):
             flags |= Flags.no_diff
 
-        list_of_examples.append(Example(join(example_path, f), flags))
+        list_of_examples.append(Example(join(example_path, f), flags, config))
 
     return list_of_examples
 
 
-def get_all_examples():
+def collect_examples(config):
     list_of_examples = []
 
     with open(join(dirname(__file__), "examples.yaml"), "r") as f:
@@ -132,6 +227,7 @@ def get_all_examples():
         no_diff_status = example.get("no_diff")
 
         list_of_examples = add_examples(list_of_examples, path, example_type=example_type,
-            slow=slow_status, skip=skip_status, no_js=no_js_status, no_diff=no_diff_status)
+            slow=slow_status, skip=skip_status, no_js=no_js_status, no_diff=no_diff_status,
+            config=config)
 
     return list_of_examples

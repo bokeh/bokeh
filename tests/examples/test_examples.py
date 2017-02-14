@@ -3,26 +3,17 @@ from __future__ import absolute_import, print_function
 import os
 import time
 import pytest
-import requests
 import subprocess
 import signal
 
 from os.path import abspath, basename, dirname, exists, join, relpath, split, splitext
 
-from tests.plugins.upload_to_s3 import S3_URL
 from tests.plugins.utils import trace, info, fail, ok, red, warn, write, yellow, white
 from tests.plugins.image_diff import image_diff
 from tests.plugins.phantomjs_screenshot import get_phantomjs_screenshot
 
 from .collect_examples import example_dir
-from .utils import (
-    deal_with_output_cells,
-    get_example_pngs,
-    no_ext,
-)
-
-import logging
-logging.getLogger('requests.packages.urllib3.connectionpool').setLevel(logging.INFO)
+from .utils import deal_with_output_cells
 
 
 @pytest.mark.examples
@@ -33,7 +24,7 @@ def test_file_examples(file_example, example, diff, log_file):
     if example.is_skip:
         pytest.skip("skipping %s" % example.relpath)
 
-    html_file = "%s.html" % no_ext(example.path)
+    html_file = "%s.html" % example.path_no_ext
     url = 'file://' + html_file
 
     (status, duration, out, err) = _run_example(example)
@@ -53,9 +44,9 @@ def test_file_examples(file_example, example, diff, log_file):
     assert status == 0, "%s failed to run (exit code %s)" % (example.relpath, status)
 
     if not example.no_js:
-        _assert_snapshot(example.path, url, 'file', diff)
+        _assert_snapshot(example, url, 'file', diff)
         if not example.no_diff and diff:
-            _get_pdiff(example.path, diff)
+            _get_pdiff(example)
         else:
             warn("skipping image diff for %s" % example.relpath)
     else:
@@ -73,13 +64,13 @@ def test_server_examples(server_example, example, bokeh_server, diff, log_file):
     # Note this is currently broken - server uses random sessions but we're
     # calling for "default" here - this has been broken for a while.
     # https://github.com/bokeh/bokeh/issues/3897
-    url = '%s/?bokeh-session-id=%s' % (bokeh_server, basename(no_ext(example.path)))
+    url = '%s/?bokeh-session-id=%s' % (bokeh_server, example.name)
     assert _run_example(example) == 0, 'Example did not run'
 
     if not example.no_js:
-        _assert_snapshot(example.path, url, 'server', diff)
+        _assert_snapshot(example, url, 'server', diff)
         if not example.no_diff and diff:
-            _get_pdiff(example.path, diff)
+            _get_pdiff(example)
         else:
             warn("skipping image diff for %s" % example.relpath)
     else:
@@ -98,30 +89,32 @@ def test_notebook_examples(notebook_example, example, jupyter_notebook, diff):
     url_path = join(*_get_path_parts(abspath(example.path)))
     url = 'http://localhost:%d/notebooks/%s' % (notebook_port, url_path)
     assert deal_with_output_cells(example.path), 'Notebook failed'
-    _assert_snapshot(example.path, url, 'notebook', diff)
+    _assert_snapshot(example, url, 'notebook', diff)
     if not example.no_diff and diff:
-        _get_pdiff(example.path, diff)
+        _get_pdiff(example)
 
 
-def _get_pdiff(example, diff):
-    test_png, ref_png, diff_png = get_example_pngs(example, diff)
-    trace("generated image: " + test_png)
+def _get_pdiff(example):
+    img_path, ref_path, diff_path = example.img_path, example.ref_path, example.diff_path
+    trace("generated image: " + img_path)
 
-    retrieved_reference_image = _get_reference_image_from_s3(example, diff)
+    ref = example.fetch_ref()
 
-    if retrieved_reference_image:
-        ref_png_path = dirname(ref_png)
-        if not exists(ref_png_path):
-            os.makedirs(ref_png_path)
+    if not ref:
+        warn("reference image %s doesn't exist" % example.ref_url)
+    else:
+        ref_dir = dirname(ref_path)
+        if not exists(ref_dir):
+            os.makedirs(ref_dir)
 
-        with open(ref_png, "wb") as f:
-            f.write(retrieved_reference_image)
+        with open(ref_path, "wb") as f:
+            f.write(ref)
 
-        trace("saved reference: " + ref_png)
+        trace("saved reference: " + ref_path)
 
-        pixels = image_diff(diff_png, test_png, ref_png)
-        if pixels != 0:
-            comment = "dimensions don't match" if pixels == -1 else white("%.02f%%" % pixels) + " of pixels"
+        example.pixels = image_diff(diff_path, img_path, ref_path)
+        if example.pixels != 0:
+            comment = "dimensions don't match" if example.pixels == -1 else white("%.02f%%" % example.pixels) + " of pixels"
             warn("generated and reference images differ: %s" % comment)
         else:
             ok("generated and reference images match")
@@ -174,7 +167,7 @@ def _print_phantomjs_output(result):
 
 
 def _assert_snapshot(example, url, example_type, diff):
-    screenshot_path, _, _ = get_example_pngs(example, diff)
+    screenshot_path = example.img_path
 
     height = 2000 if example_type == 'notebook' else 1000
     wait = 30000
@@ -202,21 +195,8 @@ def _assert_snapshot(example, url, example_type, diff):
     assert success, "Example failed to load"
     assert no_errors, "Example failed with %d errors" % len(errors)
 
-def _get_reference_image_from_s3(example, diff):
-    example_path = relpath(splitext(example)[0], example_dir)
-    ref_loc = join(diff, example_path + ".png")
-    ref_url = join(S3_URL, ref_loc)
-    response = requests.get(ref_url)
-
-    if not response.ok:
-        trace("reference image %s doesn't exist" % ref_url)
-        return None
-    return response.content
-
 
 def _run_example(example):
-    example_path = join(example_dir, example.path)
-
     code = """\
 __file__ = filename = '%s'
 
@@ -231,10 +211,10 @@ warnings.filterwarnings("ignore", ".*", UserWarning, "matplotlib.font_manager")
 
 with open(filename, 'rb') as example:
     exec(compile(example.read(), filename, 'exec'))
-""" % example_path
+""" % example.path
 
     cmd = ["python", "-c", code]
-    cwd = dirname(example_path)
+    cwd = dirname(example.path)
 
     env = os.environ.copy()
     env['BOKEH_RESOURCES'] = 'relative'

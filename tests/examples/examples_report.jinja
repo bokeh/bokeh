@@ -27,27 +27,27 @@
         <p><strong>Table of contents</strong></p>
         <p>Failures</p>
         <ul>
-        {% for (example, diff, fail, skip, png_url, diff_url, ref_url, images_differ) in entries %}
-            {% if fail %}
-            <li> <a href="#{{ example }}">{{ example }}</a> </li>
+        {% for (example, failed, skipped) in entries %}
+            {% if failed %}
+            <li> <a href="#{{ example.relpath_no_ext }}">{{ example.relpath_no_ext }}</a> </li>
             {% endif %}
         {% endfor %}
         </ul>
         <p>Successes</p>
         <ul>
-        {% for (example, diff, fail, skip, png_url, diff_url, ref_url, images_differ) in entries %}
-            {% if not fail %}
-            <li> <a href="#{{ example }}">{{ example }}</a> </li>
+        {% for (example, failed, skipped) in entries %}
+            {% if not failed %}
+            <li> <a href="#{{ example.relpath_no_ext }}">{{ example.relpath_no_ext }}</a> </li>
             {% endif %}
         {% endfor %}
         </ul>
         <h3>Results</h3>
-          {% for (example, diff, fail, skip, png_url, diff_url, ref_url, images_differ) in entries %}
-          <h5><a name="{{ example }}">{{ example }}</a>
+          {% for (example, failed, skipped) in entries %}
+          <h5><a name="{{ example.relpath_no_ext }}">{{ example.relpath_no_ext }}</a>
             <span class="header">
-                [{% if fail %}
+                [{% if failed %}
                 <span class="fail">example failed to run</span>
-                {% elif skip %}
+                {% elif skipped %}
                 <span class="skip">example skipped</span>
                 {% else %}
                 <span class="ok">example ran</span>
@@ -56,15 +56,15 @@
             <a href="#top">Top</a>
           </h5>
             <div>
-              {% if not skip %}
-                <a href="{{ png_url }}"><img class="thumbnail" src="{{ png_url }}"></img></a>
+              {% if not skipped %}
+                <a href="{{ example.img_path_or_url }}"><img class="thumbnail" src="{{ example.img_path_or_url }}"></img></a>
                 {% if diff %}
-                  {% if images_differ %}
-                  <a href="{{ diff_url }}"><img class="thumbnail" src="{{ diff_url }}"></img></a>
+                  {% if example.images_differ %}
+                  <a href="{{ example.diff_path_or_url }}"><img class="thumbnail" src="{{ example.diff_path_or_url }}"></img></a>
                   {% else %}
                   <div class="thumbnail">No diff</div>
                   {% endif %}
-                  <a href="{{ ref_url }}"><img class="thumbnail" src="{{ ref_url }}"></img></a>
+                  <a href="{{ example.ref_path_or_url }}"><img class="thumbnail" src="{{ example.ref_path_or_url }}"></img></a>
                 {% endif %}
               {% endif %}
             </div>
