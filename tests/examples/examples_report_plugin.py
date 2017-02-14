@@ -10,7 +10,7 @@ from os.path import join, dirname, isfile, relpath
 from py.xml import html
 
 from tests.plugins.constants import __version__
-from tests.plugins.utils import get_version_from_git
+from tests.plugins.utils import get_version_from_git as resolve_ref
 from tests.plugins.upload_to_s3 import upload_file_to_s3_by_job_id, S3_URL
 
 from .collect_examples import example_dir, get_all_examples
@@ -35,7 +35,7 @@ def pytest_addoption(parser):
         "--patterns", type=str, nargs="*", help="select a subset of examples to test"
     )
     parser.addoption(
-        "--diff-ref", type=str, default="origin/master", help="compare generated images against this ref"
+        "--diff-ref", type=resolve_ref, default="origin/master", help="compare generated images against this ref"
     )
 
 
@@ -54,8 +54,7 @@ def pytest_generate_tests(metafunc):
 
 @pytest.fixture
 def diff(request):
-    rawdiff = request.config.option.diff_ref
-    return get_version_from_git(rawdiff)
+    return request.config.option.diff_ref
 
 
 def pytest_configure(config):
@@ -78,7 +77,7 @@ class ExamplesTestReport(object):
 
     def __init__(self, report_path, diff):
         report_path = os.path.expanduser(os.path.expandvars(report_path))
-        self.diff = get_version_from_git(diff)
+        self.diff = diff
         self.report_path = os.path.abspath(report_path)
         self.entries = []
         self.errors = self.failed = 0
@@ -162,8 +161,8 @@ class ExamplesTestReport(object):
         with open(join(dirname(__file__), "examples_report.jinja")) as f:
             template = jinja2.Template(f.read())
 
-        diff_version = get_version_from_git(session.config.option.diff_ref)
-        html = template.render(version=__version__, diff=diff_version, entries=self.entries)
+        diff_ref = session.config.option.diff_ref
+        html = template.render(version=__version__, diff=diff_ref, entries=self.entries)
 
         if not os.path.exists(os.path.dirname(self.report_path)):
             os.makedirs(os.path.dirname(self.report_path))
