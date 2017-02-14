@@ -75,9 +75,8 @@ script:
       if [[ $TRAVIS_COMMIT_MSG == *"[ci disable examples]"* ]]; then
         echo "Examples run disabled by commit";
       else
-        export BOKEH_DEFAULT_DIFF=FETCH_HEAD;
         export IPYTHON_ALLOW_DRAFT_WEBSOCKETS_FOR_PHANTOMJS=1;
-        time py.test -s -v --tb line -m examples --upload --report-path=examples.html;
+        time py.test -s -v --tb line -m examples --diff-ref FETCH_HEAD --upload --report-path=examples.html;
       fi;
     fi
 
@@ -110,7 +109,6 @@ script:
 
   # Simple build log
   - echo "********** SIMPLE BUILD LOG **********";
-    echo $BOKEH_DEFAULT_DIFF;
     echo $TRAVIS_COMMIT_MSG;
     echo $TRAVIS_PULL_REQUEST;
     if [[ "$GROUP" == integration ]]; then

@@ -21,9 +21,6 @@ PY3 = sys.version_info[0] == 3
 if not PY3:
     from codecs import open
 
-default_diff = os.environ.get("BOKEH_DEFAULT_DIFF")
-default_upload = default_diff is not None
-
 def pytest_addoption(parser):
     parser.addoption(
         "--notebook-phantom-wait", dest="notebook_phantom_wait", action="store", type=int, default=10, help="How long should PhantomJS wait before taking a snapshot of a notebook (in seconds)"
@@ -38,7 +35,7 @@ def pytest_addoption(parser):
         "--patterns", type=str, nargs="*", help="select a subset of examples to test"
     )
     parser.addoption(
-        "--diff", type=str, default=default_diff, help="compare generated images against this ref"
+        "--diff-ref", type=str, default="origin/master", help="compare generated images against this ref"
     )
 
 
@@ -57,7 +54,7 @@ def pytest_generate_tests(metafunc):
 
 @pytest.fixture
 def diff(request):
-    rawdiff = request.config.option.diff
+    rawdiff = request.config.option.diff_ref
     return get_version_from_git(rawdiff)
 
 
@@ -65,7 +62,7 @@ def pytest_configure(config):
     report_path = config.option.report_path
     # prevent opening htmlpath on slave nodes (xdist)
     if report_path and not hasattr(config, 'slaveinput'):
-        diff = config.option.diff
+        diff = config.option.diff_ref
         config.examplereport = ExamplesTestReport(report_path, diff)
         config.pluginmanager.register(config.examplereport)
 
@@ -165,7 +162,7 @@ class ExamplesTestReport(object):
         with open(join(dirname(__file__), "examples_report.jinja")) as f:
             template = jinja2.Template(f.read())
 
-        diff_version = get_version_from_git(session.config.option.diff)
+        diff_version = get_version_from_git(session.config.option.diff_ref)
         html = template.render(version=__version__, diff=diff_version, entries=self.entries)
 
         if not os.path.exists(os.path.dirname(self.report_path)):

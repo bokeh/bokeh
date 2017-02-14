@@ -59,11 +59,9 @@ def ok(msg=None, label="OK"):
     write("%s%s" % (green("[%s]" % label), msg))
 
 
-def get_version_from_git(ref=None):
-    cmd = ["git", "describe", "--tags", "--always"]
-
-    if ref is not None:
-        cmd.append(ref)
+def get_version_from_git(ref):
+    """Get git-version of a specific ref, e.g. HEAD, origin/master. """
+    cmd = ["git", "describe", "--tags", "--always", ref]
 
     try:
         proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
@@ -79,6 +77,7 @@ def get_version_from_git(ref=None):
     version = proc.stdout.read().decode('utf-8').strip()
 
     try:
+        # git-version = tag-num-gSHA1
         tag, _, sha1 = version.split("-")
     except ValueError:
         return version
