@@ -18,18 +18,21 @@ def image_diff(diff_path, before_path, after_path, superimpose=False):
     mask = mask.convert('L')
     mask = mask.point(lambda k: 0 if k == 0 else 255)
 
-    diff = mask.convert('RGB')
-    if superimpose:
-        diff.paste(after, mask=mask)
+    if mask.getbbox() is None:
+        return 0
     else:
-        diff.paste((0, 0, 255), mask=mask)
-    diff.save(diff_path)
+        diff = mask.convert('RGB')
+        if superimpose:
+            diff.paste(after, mask=mask)
+        else:
+            diff.paste((0, 0, 255), mask=mask)
+        diff.save(diff_path)
 
-    w, h = after.size
-    pixels = 0
+        w, h = after.size
+        pixels = 0
 
-    for v in mask.getdata():
-        if v == 255:
-            pixels += 1
+        for v in mask.getdata():
+            if v == 255:
+                pixels += 1
 
-    return float(pixels)/(w*h)*100
+        return float(pixels)/(w*h)*100
