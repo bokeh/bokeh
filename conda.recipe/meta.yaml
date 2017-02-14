@@ -58,6 +58,7 @@ test:
     - colorama
     - coverage
     - flake8
+    - lxml
     - mock
     - packaging
     - pandas
