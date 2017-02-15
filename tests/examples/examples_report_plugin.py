@@ -50,37 +50,38 @@ def get_all_examples(config):
     return config.all_examples
 
 def pytest_generate_tests(metafunc):
-    if 'file_example' in metafunc.fixturenames:
-        file_examples = [ e for e in get_all_examples(metafunc.config) if e.is_file ]
-        metafunc.parametrize('file_example,example', zip([ e.path for e in file_examples ], file_examples))
-    if 'server_example' in metafunc.fixturenames:
-        server_examples = [ e for e in get_all_examples(metafunc.config) if e.is_server ]
-        metafunc.parametrize('server_example,example', zip([ e.path for e in server_examples ], server_examples))
-    if 'notebook_example' in metafunc.fixturenames:
-        notebook_examples = [ e for e in get_all_examples(metafunc.config) if e.is_notebook ]
-        metafunc.parametrize('notebook_example,example', zip([ e.path for e in notebook_examples ], notebook_examples))
+    if 'example' in metafunc.fixturenames:
+        config = metafunc.config
+        examples = get_all_examples(config)
+
+        if not hasattr(config, 'examples_report'):
+            report_path = config.option.report_path
+            diff_ref = config.option.diff_ref
+
+            config.examples_report = ExamplesTestReport(report_path, diff_ref, examples)
+            config.pluginmanager.register(config.examples_report)
+
+        if 'file_example' in metafunc.fixturenames:
+            file_examples = [ e for e in examples if e.is_file ]
+            metafunc.parametrize('file_example,example', zip([ e.path for e in file_examples ], file_examples))
+        if 'server_example' in metafunc.fixturenames:
+            server_examples = [ e for e in examples if e.is_server ]
+            metafunc.parametrize('server_example,example', zip([ e.path for e in server_examples ], server_examples))
+        if 'notebook_example' in metafunc.fixturenames:
+            notebook_examples = [ e for e in examples if e.is_notebook ]
+            metafunc.parametrize('notebook_example,example', zip([ e.path for e in notebook_examples ], notebook_examples))
+
+
+def pytest_unconfigure(config):
+    examples_report = getattr(config, 'examples_report', None)
+    if examples_report:
+        del config.examples_report
+        config.pluginmanager.unregister(html)
 
 
 @pytest.fixture
 def diff(request):
     return request.config.option.diff_ref
-
-
-def pytest_configure(config):
-    # prevent opening htmlpath on slave nodes (xdist)
-    if hasattr(config, "all_examples") and not hasattr(config, 'slaveinput'):
-        report_path = config.option.report_path
-        diff_ref = config.option.diff_ref
-        examples = get_all_examples(config)
-        config.examplereport = ExamplesTestReport(report_path, diff_ref, examples)
-        config.pluginmanager.register(config.examplereport)
-
-
-def pytest_unconfigure(config):
-    examplereport = getattr(config, 'examplereport', None)
-    if examplereport:
-        del config.examplereport
-        config.pluginmanager.unregister(html)
 
 
 class ExamplesTestReport(object):
