@@ -1,10 +1,12 @@
 from __future__ import absolute_import, print_function
 
-import pytest
-import jinja2
 import os
 import re
+import io
 import sys
+
+import pytest
+import jinja2
 
 from os.path import join, dirname, isfile, relpath
 from py.xml import html
@@ -14,10 +16,6 @@ from tests.plugins.utils import get_version_from_git as resolve_ref
 from tests.plugins.upload_to_s3 import upload_file_to_s3_by_job_id, S3_URL
 
 from .collect_examples import collect_examples, Flags
-
-PY3 = sys.version_info[0] == 3
-if not PY3:
-    from codecs import open
 
 def pytest_addoption(parser):
     parser.addoption(
@@ -118,7 +116,7 @@ class ExamplesTestReport(object):
             self._write_report()
 
     def _write_report(self):
-        with open(join(dirname(__file__), "examples_report.jinja")) as f:
+        with io.open(join(dirname(__file__), "examples_report.jinja"), encoding="utf-8") as f:
             template = jinja2.Template(f.read())
 
         diff_ref = pytest.config.option.diff_ref
@@ -127,7 +125,7 @@ class ExamplesTestReport(object):
         if not os.path.exists(os.path.dirname(self.report_path)):
             os.makedirs(os.path.dirname(self.report_path))
 
-        with open(self.report_path, 'w', encoding='utf-8') as f:
+        with io.open(self.report_path, 'w', encoding='utf-8') as f:
             f.write(html)
 
     def append_pass(self, report):
