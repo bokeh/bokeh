@@ -40,6 +40,7 @@ class Example(object):
             self._diff_ref = None
             self._upload = False
         self.pixels = 0
+        self._has_ref = False
 
     def __str__(self):
         flags = ["file"     if self.is_file     else "",
@@ -145,10 +146,15 @@ class Example(object):
     def diff_url_path(self):
         return join(__version__, self.relpath_no_ext) + self._diff_ref + '-diff.png'
 
+    @property
+    def has_ref(self):
+        return self._has_ref
+
     def fetch_ref(self):
         response = requests.get(self.ref_url)
 
         if response.ok:
+            self._has_ref = True
             return response.content
         else:
             return None

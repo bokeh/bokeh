@@ -64,7 +64,11 @@
                   {% else %}
                   <div class="thumbnail">No diff</div>
                   {% endif %}
+                  {% if example.has_ref %}
                   <a href="{{ example.ref_path_or_url }}"><img class="thumbnail" src="{{ example.ref_path_or_url }}"></img></a>
+                  {% else %}
+                  <div class="thumbnail">No ref</div>
+                  {% endif %}
                 {% endif %}
               {% endif %}
             </div>
