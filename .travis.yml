@@ -17,14 +17,14 @@ env:
 matrix:
   include:
     # unit tests (python 2.7, 3.4, and 3.5)
-    #- python: 2.7
-    #  env: GROUP=unit
-    #- python: 3.4
-    #  env: GROUP=unit
-    #- python: 3.5
-    #  env: GROUP=unit
-    #- python: 3.6
-    #  env: GROUP=unit
+    - python: 2.7
+      env: GROUP=unit
+    - python: 3.4
+      env: GROUP=unit
+    - python: 3.5
+      env: GROUP=unit
+    - python: 3.6
+      env: GROUP=unit
 
     # examples tests (python 2.7 and 3.4)
     - python: 2.7
@@ -33,14 +33,14 @@ matrix:
       env: GROUP=examples EXTRA_CMD=--no-js
 
     # linting, package and docs building (python 3.4)
-    #- python: 3.4
-    #  env: GROUP=flake_docs
+    - python: 3.4
+      env: GROUP=flake_docs
 
     # integration tests (python 3.4)
-    #- python: 3.4
-    #  env: GROUP=integration
-    #  addons:
-    #    sauce_connect: true
+    - python: 3.4
+      env: GROUP=integration
+      addons:
+        sauce_connect: true
 
 branches:
   only:
