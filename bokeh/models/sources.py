@@ -105,8 +105,8 @@ class ColumnDataSource(ColumnarDataSource):
             else:
                 raise ValueError("expected a dict or pandas.DataFrame, got %s" % raw_data)
         super(ColumnDataSource, self).__init__(**kw)
-        for name, data in raw_data.items():
-            self.add(data, name)
+        self.column_names[:] = list(raw_data.keys())
+        self.data.update(raw_data)
 
     @staticmethod
     def _data_from_df(df):
