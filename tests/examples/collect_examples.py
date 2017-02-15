@@ -30,15 +30,11 @@ class Flags(object):
 
 class Example(object):
 
-    def __init__(self, path, flags, config=None):
+    def __init__(self, path, flags):
         self.path = path
         self.flags = flags
-        if config is not None:
-            self._diff_ref = config.option.diff_ref
-            self._upload = config.option.upload
-        else:
-            self._diff_ref = None
-            self._upload = False
+        self._diff_ref = None
+        self._upload = False
         self.pixels = 0
         self._has_ref = False
 
@@ -175,7 +171,7 @@ class Example(object):
     def dimensions_differ(self):
         return self.pixels == -1
 
-def add_examples(list_of_examples, path, example_type=None, slow=None, skip=None, no_js=None, no_diff=None, config=None):
+def add_examples(list_of_examples, path, example_type=None, slow=None, skip=None, no_js=None, no_diff=None):
     example_path = join(example_dir, path)
 
     def get_flags(f):
@@ -213,12 +209,12 @@ def add_examples(list_of_examples, path, example_type=None, slow=None, skip=None
         if no_diff is not None and (no_diff == 'all' or f in no_diff):
             flags |= Flags.no_diff
 
-        list_of_examples.append(Example(join(example_path, f), flags, config))
+        list_of_examples.append(Example(join(example_path, f), flags))
 
     return list_of_examples
 
 
-def collect_examples(config):
+def collect_examples():
     list_of_examples = []
 
     with open(join(dirname(__file__), "examples.yaml"), "r") as f:
@@ -237,7 +233,7 @@ def collect_examples(config):
         no_diff_status = example.get("no_diff")
 
         list_of_examples = add_examples(list_of_examples, path, example_type=example_type,
-            slow=slow_status, skip=skip_status, no_js=no_js_status, no_diff=no_diff_status,
-            config=config)
+            slow=slow_status, skip=skip_status, no_js=no_js_status, no_diff=no_diff_status)
+
 
     return list_of_examples

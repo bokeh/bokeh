@@ -36,23 +36,25 @@ def pytest_addoption(parser):
         "--incremental", action="store_true", default=False, help="write report after each example"
     )
 
-_examples = None
 def get_all_examples(config):
-    global _examples
-    if _examples is None:
-        _examples = collect_examples(config)
-    return _examples
+    if not hasattr(config, "all_examples"):
+        config.all_examples = collect_examples()
+
+        for example in config.all_examples:
+            example._diff_ref = config.option.diff_ref
+            example._upload = config.option.upload
+
+    return config.all_examples
 
 def pytest_generate_tests(metafunc):
-    examples = get_all_examples(metafunc.config)
     if 'file_example' in metafunc.fixturenames:
-        file_examples = [ e for e in examples if e.is_file ]
+        file_examples = [ e for e in get_all_examples(metafunc.config) if e.is_file ]
         metafunc.parametrize('file_example,example', zip([ e.path for e in file_examples ], file_examples))
     if 'server_example' in metafunc.fixturenames:
-        server_examples = [ e for e in examples if e.is_server ]
+        server_examples = [ e for e in get_all_examples(metafunc.config) if e.is_server ]
         metafunc.parametrize('server_example,example', zip([ e.path for e in server_examples ], server_examples))
     if 'notebook_example' in metafunc.fixturenames:
-        notebook_examples = [ e for e in examples if e.is_notebook ]
+        notebook_examples = [ e for e in get_all_examples(metafunc.config) if e.is_notebook ]
         metafunc.parametrize('notebook_example,example', zip([ e.path for e in notebook_examples ], notebook_examples))
 
 
@@ -62,9 +64,9 @@ def diff(request):
 
 
 def pytest_configure(config):
-    report_path = config.option.report_path
     # prevent opening htmlpath on slave nodes (xdist)
-    if report_path and not hasattr(config, 'slaveinput'):
+    if hasattr(config, "all_examples") and not hasattr(config, 'slaveinput'):
+        report_path = config.option.report_path
         diff_ref = config.option.diff_ref
         examples = get_all_examples(config)
         config.examplereport = ExamplesTestReport(report_path, diff_ref, examples)
