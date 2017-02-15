@@ -50,17 +50,10 @@ def get_all_examples(config):
 
     return config.all_examples
 
+
 def pytest_generate_tests(metafunc):
     if 'example' in metafunc.fixturenames:
-        config = metafunc.config
-        examples = get_all_examples(config)
-
-        if not hasattr(config, 'examples_report'):
-            report_path = config.option.report_path
-            diff_ref = config.option.diff_ref
-
-            config.examples_report = ExamplesTestReport(report_path, diff_ref, examples)
-            config.pluginmanager.register(config.examples_report)
+        examples = get_all_examples(metafunc.config)
 
         if 'file_example' in metafunc.fixturenames:
             file_examples = [ e for e in examples if e.is_file ]
@@ -80,9 +73,18 @@ def pytest_unconfigure(config):
         config.pluginmanager.unregister(html)
 
 
-@pytest.fixture
-def diff(request):
-    return request.config.option.diff_ref
+@pytest.fixture(scope="session")
+def report(request):
+    config = request.config
+
+    if not hasattr(config, 'examples_report'):
+        report_path = config.option.report_path
+        diff_ref = config.option.diff_ref
+
+        examples = get_all_examples(config)
+
+        config.examples_report = ExamplesTestReport(report_path, diff_ref, examples)
+        config.pluginmanager.register(config.examples_report)
 
 
 class ExamplesTestReport(object):
@@ -109,11 +111,13 @@ class ExamplesTestReport(object):
         # It can be got from the report.location attribute which is a tuple
         # that looks # something like this:
         # ('tests/examples/test_examples.py', 49, 'test_file_examples[/Users/caged/Dev/bokeh/bokeh/examples/models/anscombe.py-exampleN]')
-        example_path = re.search(r'\[(.*?)\]', report.location[2]).group(1).rsplit('-', 1)[0]
-        self.entries.append((self.examples[example_path], failed, skipped))
+        match = re.search(r'\[(.*?)\]', report.location[2])
+        if match is not None:
+            example_path = match.group(1).rsplit('-', 1)[0]
+            self.entries.append((self.examples[example_path], failed, skipped))
 
-        if pytest.config.option.incremental:
-            self._write_report()
+            if pytest.config.option.incremental:
+                self._write_report()
 
     def _write_report(self):
         with io.open(join(dirname(__file__), "examples_report.jinja"), encoding="utf-8") as f:

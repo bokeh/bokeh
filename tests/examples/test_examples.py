@@ -9,15 +9,15 @@ import signal
 from os.path import abspath, basename, dirname, exists, join, relpath, split, splitext
 
 from tests.plugins.utils import trace, info, fail, ok, red, warn, write, yellow, white
-from tests.plugins.image_diff import image_diff
 from tests.plugins.phantomjs_screenshot import get_phantomjs_screenshot
+from tests.plugins.image_diff import image_diff
 
 from .collect_examples import example_dir
 from .utils import deal_with_output_cells
 
 
 @pytest.mark.examples
-def test_file_examples(file_example, example, diff, log_file):
+def test_file_examples(file_example, example, report):
     if pytest.config.option.verbose:
         print()
 
@@ -46,7 +46,7 @@ def test_file_examples(file_example, example, diff, log_file):
     if example.no_js:
         warn("skipping bokehjs for %s" % example.relpath)
     else:
-        _assert_snapshot(example, url, 'file', diff)
+        _assert_snapshot(example, url, 'file')
 
         if example.no_diff:
             warn("skipping image diff for %s" % example.relpath)
@@ -56,7 +56,7 @@ def test_file_examples(file_example, example, diff, log_file):
 
 ### {{{ THIS IS BROKEN and all examples are skipped in examples.yaml
 @pytest.mark.examples
-def test_server_examples(server_example, example, bokeh_server, diff, log_file):
+def test_server_examples(server_example, example, bokeh_server, report):
     if pytest.config.option.verbose:
         print()
 
@@ -72,7 +72,7 @@ def test_server_examples(server_example, example, bokeh_server, diff, log_file):
     if example.no_js:
         warn("skipping bokehjs for %s" % example.relpath)
     else:
-        _assert_snapshot(example, url, 'server', diff)
+        _assert_snapshot(example, url, 'server')
 
         if example.no_diff:
             warn("skipping image diff for %s" % example.relpath)
@@ -81,7 +81,7 @@ def test_server_examples(server_example, example, bokeh_server, diff, log_file):
 
 
 @pytest.mark.examples
-def test_notebook_examples(notebook_example, example, jupyter_notebook, diff):
+def test_notebook_examples(notebook_example, example, jupyter_notebook, report):
     if pytest.config.option.verbose:
         print()
 
@@ -92,8 +92,8 @@ def test_notebook_examples(notebook_example, example, jupyter_notebook, diff):
     url_path = join(*_get_path_parts(abspath(example.path)))
     url = 'http://localhost:%d/notebooks/%s' % (notebook_port, url_path)
     assert deal_with_output_cells(example.path), 'Notebook failed'
-    _assert_snapshot(example, url, 'notebook', diff)
-    if not example.no_diff and diff:
+    _assert_snapshot(example, url, 'notebook')
+    if not example.no_diff:
         _get_pdiff(example)
 # }}}
 
@@ -169,7 +169,7 @@ def _print_phantomjs_output(result):
                 fail("  %s: %d" % (file, line), label="JS")
 
 
-def _assert_snapshot(example, url, example_type, diff):
+def _assert_snapshot(example, url, example_type):
     screenshot_path = example.img_path
 
     height = 2000 if example_type == 'notebook' else 1000
