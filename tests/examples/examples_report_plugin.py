@@ -30,9 +30,6 @@ def pytest_addoption(parser):
         "--report-path", action='store', dest='report_path', metavar='path', default='report.html', help='create examples html report file at given path.'
     )
     parser.addoption(
-        "--patterns", type=str, nargs="*", help="select a subset of examples to test"
-    )
-    parser.addoption(
         "--diff-ref", type=resolve_ref, default="origin/master", help="compare generated images against this ref"
     )
     parser.addoption(
