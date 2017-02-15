@@ -43,16 +43,18 @@ def test_file_examples(file_example, example, diff, log_file):
     assert status != "timeout", "%s timed out" % example.relpath
     assert status == 0, "%s failed to run (exit code %s)" % (example.relpath, status)
 
-    if not example.no_js:
-        _assert_snapshot(example, url, 'file', diff)
-        if not example.no_diff and diff:
-            _get_pdiff(example)
-        else:
-            warn("skipping image diff for %s" % example.relpath)
-    else:
+    if example.no_js or pytest.config.option.no_js:
         warn("skipping bokehjs for %s" % example.relpath)
+    else:
+        _assert_snapshot(example, url, 'file', diff)
+
+        if example.no_diff or not diff:
+            warn("skipping image diff for %s" % example.relpath)
+        else:
+            _get_pdiff(example)
 
 
+### {{{ THIS IS BROKEN and all examples are skipped in examples.yaml
 @pytest.mark.examples
 def test_server_examples(server_example, example, bokeh_server, diff, log_file):
     if pytest.config.option.verbose:
@@ -67,14 +69,15 @@ def test_server_examples(server_example, example, bokeh_server, diff, log_file):
     url = '%s/?bokeh-session-id=%s' % (bokeh_server, example.name)
     assert _run_example(example) == 0, 'Example did not run'
 
-    if not example.no_js:
-        _assert_snapshot(example, url, 'server', diff)
-        if not example.no_diff and diff:
-            _get_pdiff(example)
-        else:
-            warn("skipping image diff for %s" % example.relpath)
-    else:
+    if example.no_js or pytest.config.option.no_js:
         warn("skipping bokehjs for %s" % example.relpath)
+    else:
+        _assert_snapshot(example, url, 'server', diff)
+
+        if example.no_diff or not diff:
+            warn("skipping image diff for %s" % example.relpath)
+        else:
+            _get_pdiff(example)
 
 
 @pytest.mark.examples
@@ -92,7 +95,7 @@ def test_notebook_examples(notebook_example, example, jupyter_notebook, diff):
     _assert_snapshot(example, url, 'notebook', diff)
     if not example.no_diff and diff:
         _get_pdiff(example)
-
+# }}}
 
 def _get_pdiff(example):
     img_path, ref_path, diff_path = example.img_path, example.ref_path, example.diff_path

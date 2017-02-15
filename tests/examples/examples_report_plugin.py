@@ -35,6 +35,9 @@ def pytest_addoption(parser):
     parser.addoption(
         "--incremental", action="store_true", default=False, help="write report after each example"
     )
+    parser.addoption(
+        "--no-js", action="store_true", default=False, help="only run python code and skip js and image diff"
+    )
 
 def get_all_examples(config):
     if not hasattr(config, "all_examples"):
