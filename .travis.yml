@@ -29,8 +29,8 @@ matrix:
     # examples tests (python 2.7 and 3.4)
     - python: 2.7
       env: GROUP=examples
-    #- python: 3.4
-    #  env: GROUP=examples
+    - python: 3.4
+      env: GROUP=examples EXTRA_CMD=--no-js
 
     # linting, package and docs building (python 3.4)
     #- python: 3.4
@@ -76,7 +76,7 @@ script:
         echo "Examples run disabled by commit";
       else
         export IPYTHON_ALLOW_DRAFT_WEBSOCKETS_FOR_PHANTOMJS=1;
-        time py.test -s -v --tb line -m examples --diff-ref FETCH_HEAD --upload --report-path=examples.html;
+        time py.test -s -v --tb line -m examples --diff-ref FETCH_HEAD --upload --report-path=examples.html $EXTRA_CMD;
       fi;
     fi
 
