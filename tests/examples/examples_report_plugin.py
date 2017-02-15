@@ -35,6 +35,9 @@ def pytest_addoption(parser):
     parser.addoption(
         "--diff-ref", type=resolve_ref, default="origin/master", help="compare generated images against this ref"
     )
+    parser.addoption(
+        "--incremental", action="store_true", default=False, help="write report after each example"
+    )
 
 _examples = None
 def get_all_examples(config):
@@ -105,6 +108,22 @@ class ExamplesTestReport(object):
         example_path = re.search(r'\[(.*?)\]', report.location[2]).group(1).rsplit('-', 1)[0]
         self.entries.append((self.examples[example_path], failed, skipped))
 
+        if pytest.config.option.incremental:
+            self._write_report()
+
+    def _write_report(self):
+        with open(join(dirname(__file__), "examples_report.jinja")) as f:
+            template = jinja2.Template(f.read())
+
+        diff_ref = pytest.config.option.diff_ref
+        html = template.render(version=__version__, diff=diff_ref, entries=self.entries)
+
+        if not os.path.exists(os.path.dirname(self.report_path)):
+            os.makedirs(os.path.dirname(self.report_path))
+
+        with open(self.report_path, 'w', encoding='utf-8') as f:
+            f.write(html)
+
     def append_pass(self, report):
         self.passed += 1
         self._appendrow('Passed', report)
@@ -142,17 +161,7 @@ class ExamplesTestReport(object):
             self.append_skipped(report)
 
     def pytest_sessionfinish(self, session):
-        with open(join(dirname(__file__), "examples_report.jinja")) as f:
-            template = jinja2.Template(f.read())
-
-        diff_ref = session.config.option.diff_ref
-        html = template.render(version=__version__, diff=diff_ref, entries=self.entries)
-
-        if not os.path.exists(os.path.dirname(self.report_path)):
-            os.makedirs(os.path.dirname(self.report_path))
-
-        with open(self.report_path, 'w', encoding='utf-8') as f:
-            f.write(html)
+        self._write_report()
 
         if pytest.config.option.upload:
             for (example, _, _) in self.entries:
