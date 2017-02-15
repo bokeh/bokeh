@@ -120,7 +120,7 @@ class ExamplesTestReport(object):
             template = jinja2.Template(f.read())
 
         diff_ref = pytest.config.option.diff_ref
-        html = template.render(version=__version__, diff=diff_ref, entries=self.entries)
+        html = template.render(version=__version__, diff_ref=diff_ref, entries=self.entries)
 
         if not os.path.exists(os.path.dirname(self.report_path)):
             os.makedirs(os.path.dirname(self.report_path))

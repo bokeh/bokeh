@@ -23,8 +23,16 @@
       }
     </style>
     <body>
-      <h2><a name="top">Examples test report <small>(comparing against {{ diff }})</small></a></h2>
+      <h2><a name="top">Examples test report <small>(comparing against {{ diff_ref }})</small></a></h2>
         <p><strong>Table of contents</strong></p>
+        <p>Image differences</p>
+        <ul>
+        {% for (example, failed, skipped) in entries %}
+            {% if not failed and not skipped and example.images_differ %}
+            <li> <a href="#{{ example.relpath_no_ext }}">{{ example.relpath_no_ext }}</a> </li>
+            {% endif %}
+        {% endfor %}
+        </ul>
         <p>Failures</p>
         <ul>
         {% for (example, failed, skipped) in entries %}
@@ -36,7 +44,15 @@
         <p>Successes</p>
         <ul>
         {% for (example, failed, skipped) in entries %}
-            {% if not failed %}
+            {% if not failed and not skipped and not example.images_differ  %}
+            <li> <a href="#{{ example.relpath_no_ext }}">{{ example.relpath_no_ext }}</a> </li>
+            {% endif %}
+        {% endfor %}
+        </ul>
+        <p>Skipped</p>
+        <ul>
+        {% for (example, failed, skipped) in entries %}
+            {% if skipped %}
             <li> <a href="#{{ example.relpath_no_ext }}">{{ example.relpath_no_ext }}</a> </li>
             {% endif %}
         {% endfor %}
@@ -58,7 +74,7 @@
             <div>
               {% if not skipped and not example.no_js %}
                 <a href="{{ example.img_path_or_url }}"><img class="thumbnail" src="{{ example.img_path_or_url }}"></img></a>
-                {% if diff %}
+                {% if not example.no_diff %}
                   {% if example.dimensions_differ %}
                   <div class="thumbnail">Dimensions differ</div>
                   {% elif example.images_differ %}

@@ -48,7 +48,7 @@ def test_file_examples(file_example, example, diff, log_file):
     else:
         _assert_snapshot(example, url, 'file', diff)
 
-        if example.no_diff or not diff:
+        if example.no_diff:
             warn("skipping image diff for %s" % example.relpath)
         else:
             _get_pdiff(example)
@@ -74,7 +74,7 @@ def test_server_examples(server_example, example, bokeh_server, diff, log_file):
     else:
         _assert_snapshot(example, url, 'server', diff)
 
-        if example.no_diff or not diff:
+        if example.no_diff:
             warn("skipping image diff for %s" % example.relpath)
         else:
             _get_pdiff(example)
