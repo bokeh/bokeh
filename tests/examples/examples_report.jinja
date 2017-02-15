@@ -59,7 +59,9 @@
         </ul>
         <h3>Results</h3>
           {% for (example, failed, skipped) in entries %}
-          <h5><a name="{{ example.relpath_no_ext }}">{{ example.relpath_no_ext }}</a>
+          <h5>
+            <a name="{{ example.relpath_no_ext }}">{{ example.relpath_no_ext }}</a>
+            <a href="#{{ example.relpath_no_ext }}">(link)</a>
             <span class="header">
                 [{% if failed %}
                 <span class="fail">example failed to run</span>
