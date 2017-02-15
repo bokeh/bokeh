@@ -56,7 +56,7 @@
             <a href="#top">Top</a>
           </h5>
             <div>
-              {% if not skipped %}
+              {% if not skipped and not example.no_js %}
                 <a href="{{ example.img_path_or_url }}"><img class="thumbnail" src="{{ example.img_path_or_url }}"></img></a>
                 {% if diff %}
                   {% if example.dimensions_differ %}

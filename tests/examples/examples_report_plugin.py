@@ -13,7 +13,7 @@ from tests.plugins.constants import __version__
 from tests.plugins.utils import get_version_from_git as resolve_ref
 from tests.plugins.upload_to_s3 import upload_file_to_s3_by_job_id, S3_URL
 
-from .collect_examples import collect_examples
+from .collect_examples import collect_examples, Flags
 
 PY3 = sys.version_info[0] == 3
 if not PY3:
@@ -46,6 +46,9 @@ def get_all_examples(config):
         for example in config.all_examples:
             example._diff_ref = config.option.diff_ref
             example._upload = config.option.upload
+
+            if config.option.no_js:
+                example.flags |= Flags.no_js
 
     return config.all_examples
 
