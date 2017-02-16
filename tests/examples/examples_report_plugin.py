@@ -72,14 +72,12 @@ def pytest_generate_tests(metafunc):
 _warned = False
 
 def pytest_runtest_call(item):
-    metafunc = item.callspec.metafunc
-
-    if 'example' in metafunc.fixturenames:
+    if 'example' in item.fixturenames:
         if pytest.config.option.verbose:
             print()
 
         global _warned
-        if not _warned and metafunc.config.option.no_js:
+        if not _warned and item.config.option.no_js:
             _warned = True
             warn("All examples will skip js rendering and image diff (under --no-js flag)")
 
