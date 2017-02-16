@@ -57,7 +57,7 @@
             {% endif %}
         {% endfor %}
         </ul>
-        <h3>Results</h3>
+        <h3>Results (current, diff, reference)</h3>
           {% for (example, failed, skipped) in entries %}
           <h5>
             <a name="{{ example.relpath_no_ext }}">{{ example.relpath_no_ext }}</a>
