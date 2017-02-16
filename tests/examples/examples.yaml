@@ -12,6 +12,7 @@
 
 - path: "plotting/file"
   slow: ["choropleth.py"]
+  no_diff: ["jitter.py"]
 
 - path: "plotting/server"
   type: server
