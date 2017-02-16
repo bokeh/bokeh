@@ -8,7 +8,7 @@ import sys
 import pytest
 import jinja2
 
-from os.path import join, dirname, isfile, relpath
+from os.path import abspath, pardir, join, dirname, isfile, relpath
 from py.xml import html
 
 from tests.plugins.constants import __version__
@@ -43,7 +43,11 @@ _examples = None
 def get_all_examples(config):
     global _examples
     if _examples is None:
-        _examples = collect_examples()
+        base_dir = abspath(join(dirname(__file__), pardir, pardir))
+
+        _examples = []
+        _examples.extend(collect_examples(join(base_dir, "examples", "examples.yaml")))
+        _examples.extend(collect_examples(join(base_dir, "bokehjs", "examples", "examples.yaml")))
 
         for example in _examples:
             example._diff_ref = config.option.diff_ref
@@ -59,6 +63,9 @@ def pytest_generate_tests(metafunc):
     if 'example' in metafunc.fixturenames:
         examples = get_all_examples(metafunc.config)
 
+        if 'js_example' in metafunc.fixturenames:
+            js_examples = [ e for e in examples if e.is_js ]
+            metafunc.parametrize('js_example,example', zip([ e.path for e in js_examples ], js_examples))
         if 'file_example' in metafunc.fixturenames:
             file_examples = [ e for e in examples if e.is_file ]
             metafunc.parametrize('file_example,example', zip([ e.path for e in file_examples ], file_examples))

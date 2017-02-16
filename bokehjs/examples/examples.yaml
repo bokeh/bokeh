@@ -1,0 +1,4 @@
+- path: "*"
+  type: js
+  skip: ["electron"]
+  no_diff: ["donut", "stocks"]

@@ -12,17 +12,28 @@ from tests.plugins.utils import trace, info, fail, ok, red, warn, write, yellow,
 from tests.plugins.phantomjs_screenshot import get_phantomjs_screenshot
 from tests.plugins.image_diff import image_diff
 
-from .collect_examples import example_dir
 from .utils import deal_with_output_cells
 
+@pytest.mark.examples
+def test_js_examples(js_example, example, report):
+    if example.is_skip:
+        pytest.skip("skipping %s" % example.relpath)
+
+    if example.no_js:
+        if not pytest.config.option.no_js:
+            warn("skipping bokehjs for %s" % example.relpath)
+    else:
+        _assert_snapshot(example, "file://%s" % example.path, 'js')
+
+        if example.no_diff:
+            warn("skipping image diff for %s" % example.relpath)
+        else:
+            _get_pdiff(example)
 
 @pytest.mark.examples
 def test_file_examples(file_example, example, report):
     if example.is_skip:
         pytest.skip("skipping %s" % example.relpath)
-
-    html_file = "%s.html" % example.path_no_ext
-    url = 'file://' + html_file
 
     (status, duration, out, err) = _run_example(example)
     info("Example run in %s" % white("%.3fs" % duration))
@@ -44,7 +55,7 @@ def test_file_examples(file_example, example, report):
         if not pytest.config.option.no_js:
             warn("skipping bokehjs for %s" % example.relpath)
     else:
-        _assert_snapshot(example, url, 'file')
+        _assert_snapshot(example, "file://%s.html" % example.path_no_ext, 'file')
 
         if example.no_diff:
             warn("skipping image diff for %s" % example.relpath)
