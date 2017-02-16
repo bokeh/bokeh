@@ -283,7 +283,8 @@ The optional components are
 
 * A ``templates`` subdirectory with ``index.html`` Jinja template file. The directory may contain additional Jinja templates for ``index.html`` to refer to. The template should have the same parameters as the :class:`~bokeh.core.templates.FILE` template.
 
-Custom variables can be passed to the template via the ``curdoc().template_variables`` dictionary in place:
+Custom variables can be passed to the template via the
+``curdoc().template_variables`` dictionary in place:
 
 .. code-block:: python
 
@@ -391,7 +392,8 @@ JavaScript Callbacks in the Browser
 
 Regardless of whether there is a Bokeh Server involved, it is possible to
 create callbacks that execute in the browser, using ``CustomJS`` and other
-methods. See :ref:`userguide_interaction_actions` for more detailed information and examples.
+methods. See :ref:`userguide_interaction_actions` for more detailed
+information and examples.
 
 It is critical to note that **no python code is ever executed when a CustomJS
 callback is used**. This is true even when the call back is supplied as python
@@ -781,7 +783,8 @@ Standalone Bokeh Server
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 First, it is possible to simply run the Bokeh server on a network for users
-to interact with directly. Depending on the computational burden of your application code, the number of users, the power of the machine used to run
+to interact with directly. Depending on the computational burden of your
+application code, the number of users, the power of the machine used to run
 on, etc., this could be a simple and immediate option for deployment an
 internal network.
 
@@ -793,9 +796,12 @@ these considerations.
 SSH Tunnels
 '''''''''''
 
-It may be convenient or necessary to run a standalone instance of the Bokeh server on a host to which direct access cannot be allowed. In such cases, ssh can be used to "tunnel" to the server.
+It may be convenient or necessary to run a standalone instance of the Bokeh
+server on a host to which direct access cannot be allowed. In such cases, SSH
+can be used to "tunnel" to the server.
 
-In the simplest scenario, the Bokeh server will run on one host and will be accessed from another location, e.g., a laptop, with no intermediary machines.
+In the simplest scenario, the Bokeh server will run on one host and will be
+accessed from another location, e.g., a laptop, with no intermediary machines.
 
 Run the server as usual on the **remote host**:
 
@@ -803,32 +809,49 @@ Run the server as usual on the **remote host**:
 
     bokeh server
 
-Next, issue the following command on the **local machine** to establish an ssh tunnel to the remote host:
+Next, issue the following command on the **local machine** to establish an SSH
+tunnel to the remote host:
 
 .. code-block:: sh
 
-    ssh -NfL localhost:5006:localhost:5006  user@remote.host
+    ssh -NfL localhost:5006:localhost:5006 user@remote.host
 
-Replace *user* with your username on the remote host and *remote.host* with the hostname/IP address of the system hosting the Bokeh server. You may be prompted for login credentials for the remote system. After the connection is set up you will be able to navigate to ``localhost:5006`` as though the Bokeh server were running on the local machine.
+Replace *user* with your username on the remote host and *remote.host* with
+the hostname/IP address of the system hosting the Bokeh server. You may be
+prompted for login credentials for the remote system. After the connection
+is set up you will be able to navigate to ``localhost:5006`` as though the
+Bokeh server were running on the local machine.
 
-The second, slightly more complicated case occurs when there is a gateway between the server and the local machine.  In that situation a reverse tunnel must be estabished from the server to the gateway. Additionally the tunnel from the local machine will also point to the gateway.
+The second, slightly more complicated case occurs when there is a gateway
+between the server and the local machine.  In that situation a reverse tunnel
+must be estabished from the server to the gateway. Additionally the tunnel
+from the local machine will also point to the gateway.
 
-Issue the following commands on the **remote host** where the Bokeh server will run:
+Issue the following commands on the **remote host** where the Bokeh server
+will run:
 
 .. code-block:: sh
 
     nohup bokeh server &
     ssh -NfR 5006:localhost:5006 user@gateway.host
 
-Replace *user* with your username on the gateway and *gateway.host* with the hostname/IP address of the gateway. You may be prompted for login credentials for the gateway.
+Replace *user* with your username on the gateway and *gateway.host* with the
+hostname/IP address of the gateway. You may be prompted for login credentials
+for the gateway.
 
-Now set up the other half of the tunnel, from the local machine to the gateway. On the **local machine**:
+Now set up the other half of the tunnel, from the local machine to the
+gateway. On the **local machine**:
 
 .. code-block:: sh
 
     ssh -NfL localhost:5006:localhost:5006 user@gateway.host
 
-Again, replace *user* with your username on the gateway and *gateway.host* with the hostname/IP address of the gateway. You should now be able to access the Bokeh server from the local machine by navigating to ``localhost:5006`` on the local machine, as if the Bokeh server were running on the local machine. You can even set up client connections from a Jupyter notebook running on the local machine.
+Again, replace *user* with your username on the gateway and *gateway.host*
+with the hostname/IP address of the gateway. You should now be able to access
+the Bokeh server from the local machine by navigating to ``localhost:5006``
+on the local machine, as if the Bokeh server were running on the local machine.
+You can even set up client connections from a Jupyter notebook running on the
+local machine.
 
 .. note::
     We intend to expand this section with more guidance for other tools and
@@ -879,20 +902,11 @@ The above ``server`` block sets up Nginx to to proxy incoming connections
 to ``127.0.0.1`` on port 80 to ``127.0.0.1:5100`` internally. To work in this
 configuration, we will need to use some of the command line options to
 configure the Bokeh Server. In particular we need to use ``--port`` to specify
-that the Bokeh Server should listen itself on port 5100. We also need to
-set the ``--host`` option to whitelist ``127.0.0.1:80`` as an acceptable `Host`
-on the incoming request header:
+that the Bokeh Server should listen itself on port 5100.
 
 .. code-block:: sh
 
-    bokeh serve myapp.py --port 5100 --host 127.0.0.1:80
-
-.. note::
-    The ``--host`` option is to guard against spoofed ``Host`` values. In a
-    more realistic scenario where you have Nginx and the Bokeh server server
-    running on ``foo.com``, you would set ``--host foo.com:80``. Then any
-    attempted connections that do not report this ``Host`` in the request
-    header (as *all* connections from Nginx do) will be rejected.
+    bokeh serve myapp.py --port 5100
 
 Note that in the basic server block above we have not configured any special
 handling for static resources, e.g., the Bokeh JS and CSS files. This means
@@ -968,7 +982,7 @@ As before, you would run the Bokeh server with the command:
 
 .. code-block:: sh
 
-    bokeh serve myapp.py --port 5100 --host 127.0.0.1:80
+    bokeh serve myapp.py --port 5100
 
 .. _userguide_server_deployment_nginx_proxy_ssl:
 
@@ -976,13 +990,12 @@ Reverse Proxying with Nginx and SSL
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If you would like to deploy a Bokeh Server behind an SSL-terminated Nginx
-proxy, then a few additional customizations are needed. First, the Bokeh
-server must be configured for a ``--host`` with the HTTP port 443, and
-you must also add the ``--use-xheaders`` flag:
+proxy, then a few additional customizations are needed. In particular, the
+Bokeh server must be configured with the ``--use-xheaders`` flag:
 
 .. code-block:: sh
 
-    bokeh serve myapp.py --port 5100 --host foo.com:443 --use-xheaders
+    bokeh serve myapp.py --port 5100 --use-xheaders
 
 The ``--use-xheaders`` option causes Bokeh to override the remote IP and
 URI scheme/protocol for all requests with ``X-Real-Ip``, ``X-Forwarded-For``,
@@ -1088,8 +1101,8 @@ You would run the Bokeh servers with commands similar to:
 
 .. code-block:: sh
 
-    serve myapp.py --port 5100 --host 127.0.0.1:80
-    serve myapp.py --port 5101 --host 127.0.0.1:80
+    serve myapp.py --port 5100
+    serve myapp.py --port 5101
     ...
 
 Next, in the ``location`` stanza for our Bokeh server, change the
@@ -1149,7 +1162,7 @@ Server app is below:
     serverurl=unix:///tmp/supervisor.sock ; use a unix:// URL for a unix socket
 
     [program:myapp]
-    command=/path/to/bokeh serve myapp.py --host foo.com:80
+    command=/path/to/bokeh serve myapp.py
     directory=/path/to/workdir
     autostart=false
     autorestart=true
@@ -1194,13 +1207,15 @@ And to update the process control after editing the config file, run:
 Scaling the server
 ~~~~~~~~~~~~~~~~~~
 
-You can fork multiple server processes with the `num-procs` option. For example, to fork 3 processes:
+You can fork multiple server processes with the `num-procs` option. For
+example, to fork 3 processes:
 
 .. code-block:: sh
 
     bokeh serve --num-procs 3
 
-Note that the forking operation happens in the underlying Tornado Server, see notes in the `Tornado docs`_.
+Note that the forking operation happens in the underlying Tornado Server,
+see notes in the `Tornado docs`_.
 
 .. _Tornado docs: http://www.tornadoweb.org/en/stable/tcpserver.html#tornado.tcpserver.TCPServer.start
 
