@@ -2,9 +2,9 @@ from __future__ import division
 
 import numpy as np
 
-from bokeh.core.properties import Any, Dict, Instance, String
+from bokeh.core.properties import Instance, String
+from bokeh.models import ColumnDataSource, LayoutDOM
 from bokeh.io import show
-from bokeh.models import ColumnDataSource, Div, Column,  LayoutDOM
 
 JS_CODE = """
 # This file contains the JavaScript (CoffeeScript) implementation

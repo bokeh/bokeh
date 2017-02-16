@@ -1,5 +1,5 @@
 from __future__ import absolute_import
-import os
+
 import pytest
 
 from ..api_report import diff_versions

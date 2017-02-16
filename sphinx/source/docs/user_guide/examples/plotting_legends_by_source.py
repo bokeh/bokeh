@@ -1,5 +1,5 @@
 from bokeh.io import show
-from bokeh.models import ColumnDataSource, LinearColorMapper
+from bokeh.models import ColumnDataSource
 from bokeh.palettes import RdBu3
 from bokeh.plotting import figure
 
