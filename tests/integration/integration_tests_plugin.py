@@ -92,7 +92,7 @@ def screenshot(request):
     if request.config.option.driver != 'SauceLabs':
         pytest.skip('Screenshot tests can only be run with --driver=SauceLabs')
 
-    capabilities = request.getfuncargvalue('capabilities')
+    capabilities = request.getfixturevalue('capabilities')
     if capabilities['browserName'] != 'firefox':
         pytest.skip('Screenshot tests can only be run with browserName firefox. Capabilties are: %s' % capabilities)
     if capabilities['platform'] != 'Linux':
