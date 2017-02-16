@@ -18,9 +18,6 @@ from .utils import deal_with_output_cells
 
 @pytest.mark.examples
 def test_file_examples(file_example, example, report):
-    if pytest.config.option.verbose:
-        print()
-
     if example.is_skip:
         pytest.skip("skipping %s" % example.relpath)
 
@@ -44,7 +41,8 @@ def test_file_examples(file_example, example, report):
     assert status == 0, "%s failed to run (exit code %s)" % (example.relpath, status)
 
     if example.no_js:
-        warn("skipping bokehjs for %s" % example.relpath)
+        if not pytest.config.option.no_js:
+            warn("skipping bokehjs for %s" % example.relpath)
     else:
         _assert_snapshot(example, url, 'file')
 
@@ -57,9 +55,6 @@ def test_file_examples(file_example, example, report):
 ### {{{ THIS IS BROKEN and all examples are skipped in examples.yaml
 @pytest.mark.examples
 def test_server_examples(server_example, example, bokeh_server, report):
-    if pytest.config.option.verbose:
-        print()
-
     if example.is_skip:
         pytest.skip("skipping %s" % example.relpath)
 
@@ -70,7 +65,8 @@ def test_server_examples(server_example, example, bokeh_server, report):
     assert _run_example(example) == 0, 'Example did not run'
 
     if example.no_js:
-        warn("skipping bokehjs for %s" % example.relpath)
+        if not pytest.config.option.no_js:
+            warn("skipping bokehjs for %s" % example.relpath)
     else:
         _assert_snapshot(example, url, 'server')
 
@@ -82,9 +78,6 @@ def test_server_examples(server_example, example, bokeh_server, report):
 
 @pytest.mark.examples
 def test_notebook_examples(notebook_example, example, jupyter_notebook, report):
-    if pytest.config.option.verbose:
-        print()
-
     if example.is_skip:
         pytest.skip("skipping %s" % example.relpath)
 

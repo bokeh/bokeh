@@ -14,6 +14,7 @@ from py.xml import html
 from tests.plugins.constants import __version__
 from tests.plugins.utils import get_version_from_git as resolve_ref
 from tests.plugins.upload_to_s3 import upload_file_to_s3_by_job_id, S3_URL
+from ..plugins.utils import warn
 
 from .collect_examples import collect_examples, Flags
 
@@ -37,18 +38,21 @@ def pytest_addoption(parser):
         "--no-js", action="store_true", default=False, help="only run python code and skip js and image diff"
     )
 
-def get_all_examples(config):
-    if not hasattr(config, "all_examples"):
-        config.all_examples = collect_examples()
+_examples = None
 
-        for example in config.all_examples:
+def get_all_examples(config):
+    global _examples
+    if _examples is None:
+        _examples = collect_examples()
+
+        for example in _examples:
             example._diff_ref = config.option.diff_ref
             example._upload = config.option.upload
 
             if config.option.no_js:
                 example.flags |= Flags.no_js
 
-    return config.all_examples
+    return _examples
 
 
 def pytest_generate_tests(metafunc):
@@ -64,6 +68,20 @@ def pytest_generate_tests(metafunc):
         if 'notebook_example' in metafunc.fixturenames:
             notebook_examples = [ e for e in examples if e.is_notebook ]
             metafunc.parametrize('notebook_example,example', zip([ e.path for e in notebook_examples ], notebook_examples))
+
+_warned = False
+
+def pytest_runtest_call(item):
+    metafunc = item.callspec.metafunc
+
+    if 'example' in metafunc.fixturenames:
+        if pytest.config.option.verbose:
+            print()
+
+        global _warned
+        if not _warned and metafunc.config.option.no_js:
+            _warned = True
+            warn("All examples will skip js rendering and image diff (under --no-js flag)")
 
 
 def pytest_unconfigure(config):
