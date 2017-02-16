@@ -1,4 +1,4 @@
-''' Functions useful for loading Bokeh code and data in IPython notebooks.
+''' Functions useful for loading Bokeh code and data in Jupyter/Zeppelin notebooks.
 
 '''
 from __future__ import absolute_import
@@ -6,7 +6,7 @@ from bokeh.core.templates import NOTEBOOK_CELL_OBSERVER
 
 _notebook_loaded = None
 
-def load_notebook(resources=None, verbose=False, hide_banner=False, load_timeout=5000):
+def load_notebook(resources=None, verbose=False, hide_banner=False, load_timeout=5000, notebook_type='jupyter'):
     ''' Prepare the IPython notebook for displaying Bokeh plots.
 
     Args:
@@ -22,6 +22,9 @@ def load_notebook(resources=None, verbose=False, hide_banner=False, load_timeout
         load_timeout (int, optional) :
             Timeout in milliseconds when plots assume load timed out (default: 5000)
 
+        notebook_type (string):
+            notebook_type (default: jupyter)
+
     .. warning::
         Clearing the output cell containing the published BokehJS
         resources HTML code may cause Bokeh CSS styling to be removed.
@@ -31,8 +34,13 @@ def load_notebook(resources=None, verbose=False, hide_banner=False, load_timeout
 
     '''
     html, js = _load_notebook_html(resources, verbose, hide_banner, load_timeout)
-    publish_display_data({'text/html': html})
-    publish_display_data({'application/javascript': js})
+    if notebook_type=='jupyter':
+        publish_display_data({'text/html': html})
+        publish_display_data({'application/javascript': js})
+    else:
+        print('%html ' + html)
+        print('%html ' + '<script type="text/javascript">' + js + "</script>")
+
 
 FINALIZE_JS = """
 document.getElementById("%s").textContent = "BokehJS is loading...";
@@ -92,13 +100,13 @@ def _load_notebook_html(resources=None, verbose=False, hide_banner=False,
     return html, js
 
 def publish_display_data(data, source='bokeh'):
-    ''' Compatibility wrapper for IPython ``publish_display_data``
+    ''' Compatibility wrapper for Jupyter ``publish_display_data``
 
-    Later versions of IPython remove the ``source`` (first) argument. This
+    Later versions of Jupyter remove the ``source`` (first) argument. This
     function insulates Bokeh library code from this change.
 
     Args:
-        source (str, optional) : the source arg for IPython (default: "bokeh")
+        source (str, optional) : the source arg for Jupyter (default: "bokeh")
         data (dict) : the data dict to pass to ``publish_display_data``
             Typically has the form ``{'text/html': html}``
 
@@ -111,7 +119,7 @@ def publish_display_data(data, source='bokeh'):
 
 def get_comms(target_name):
     ''' Create a Jupyter comms object for a specific target, that can
-    be used to update Bokeh documents in the notebook.
+    be used to update Bokeh documents in the Jupyter notebook.
 
     Args:
         target_name (str) : the target name the Comms object should connect to

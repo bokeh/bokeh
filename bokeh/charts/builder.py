@@ -1,5 +1,5 @@
 ''' This is the Bokeh charts interface. It gives you a high level API to build
-complex plot is a simple way.
+complex plot in a simple way.
 
 This is the Builder class, a minimal prototype class to build more chart
 types on top of it.

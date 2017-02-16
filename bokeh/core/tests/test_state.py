@@ -13,6 +13,8 @@ from bokeh.document import Document
 
 import bokeh.core.state as state
 
+import pytest
+
 def test_creation():
     s = state.State()
     assert isinstance(s.document, Document)
@@ -52,6 +54,20 @@ def test_output_notebook_noarg():
     s = state.State()
     s.output_notebook()
     assert s.notebook == True
+    assert s.notebook_type == 'jupyter'
+
+def test_output_notebook_witharg():
+    s = state.State()
+    s.output_notebook(notebook_type='zeppelin')
+    assert s.notebook == True
+    assert s.notebook_type == 'zeppelin'
+
+def test_output_invalid_notebook():
+    s = state.State()
+    with pytest.raises(Exception) as ex:
+        s.notebook_type="invalid_notebook"
+    assert "Notebook type 'invalid_notebook' is not supported, the supported notebook types are (jupyter," \
+           " zeppelin)" == str(ex.value)
 
 def test_reset():
     s = state.State()

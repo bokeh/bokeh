@@ -136,9 +136,9 @@ def output_file(filename, title="Bokeh Plot", mode="cdn", root_dir=None):
         root_dir=root_dir
     )
 
-def output_notebook(resources=None, verbose=False, hide_banner=False, load_timeout=5000):
+def output_notebook(resources=None, verbose=False, hide_banner=False, load_timeout=5000, notebook_type='jupyter'):
     ''' Configure the default output state to generate output in
-    Jupyter notebook cells when :func:`show` is called.
+    Jupyter/Zeppelin notebook cells when :func:`show` is called.
 
     Args:
         resources (Resource, optional) :
@@ -153,6 +153,8 @@ def output_notebook(resources=None, verbose=False, hide_banner=False, load_timeo
         load_timeout (int, optional) :
             Timeout in milliseconds when plots assume load timed out (default: 5000)
 
+        notebook_type (string, optional):
+            Notebook type (default: jupyter)
     Returns:
         None
 
@@ -161,8 +163,9 @@ def output_notebook(resources=None, verbose=False, hide_banner=False, load_timeo
         session or the top of a script.
 
     '''
-    load_notebook(resources, verbose, hide_banner, load_timeout)
-    _state.output_notebook()
+    # verify notebook_type first in _state.output_notebook
+    _state.output_notebook(notebook_type)
+    load_notebook(resources, verbose, hide_banner, load_timeout, notebook_type)
 
 def set_curdoc(doc):
     '''Configure the current document (returned by curdoc()).
@@ -260,7 +263,8 @@ def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="loca
       is active.
 
     * The ``notebook_handle`` parameter only applies when ``output_notebook``
-      is active, and non-Application objects are being shown.
+      is active, and non-Application objects are being shown. It is only supported to Jupyter notebook,
+      raise exception for other notebook types when it is True.
 
     * The ``notebook_url`` parameter only applies when showing Bokeh
       Applications in a Jupyter notebook.
@@ -283,7 +287,6 @@ def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="loca
         _state.document.add_root(obj)
     return _show_with_state(obj, _state, browser, new, notebook_handle=notebook_handle)
 
-
 def _show_notebook_app_with_state(app, state, app_path, notebook_url):
     if not state.watching_cells:
         watch_server_cells(_destroy_server_js)
@@ -299,7 +302,6 @@ def _show_notebook_app_with_state(app, state, app_path, notebook_url):
     script = autoload_server(url='http://127.0.0.1:%d%s' % (server.port, app_path))
     display(HTML(_server_cell(server, script)))
 
-
 def _show_with_state(obj, state, browser, new, notebook_handle=False):
     controller = browserlib.get_browser_controller(browser=browser)
 
@@ -307,7 +309,10 @@ def _show_with_state(obj, state, browser, new, notebook_handle=False):
     shown = False
 
     if state.notebook:
-        comms_handle = _show_notebook_with_state(obj, state, notebook_handle)
+        if state.notebook_type == 'jupyter':
+            comms_handle = _show_jupyter_with_state(obj, state, notebook_handle)
+        else:
+            comms_handle = _show_zeppelin_with_state(obj, state, notebook_handle)
         shown = True
 
     if state.file or not shown:
@@ -319,7 +324,7 @@ def _show_file_with_state(obj, state, new, controller):
     filename = save(obj, state=state)
     controller.open("file://" + filename, new=_new_param[new])
 
-def _show_notebook_with_state(obj, state, notebook_handle):
+def _show_jupyter_with_state(obj, state, notebook_handle):
     comms_target = make_id() if notebook_handle else None
     publish_display_data({'text/html': notebook_div(obj, comms_target)})
     if comms_target:
@@ -327,6 +332,12 @@ def _show_notebook_with_state(obj, state, notebook_handle):
                               state.document.to_json())
         state.last_comms_handle = handle
         return handle
+
+def _show_zeppelin_with_state(obj, state, notebook_handle):
+    if notebook_handle:
+        raise Exception("Zeppelin doesn't support notebook_handle.")
+    print("%html " + notebook_div(obj))
+    return None
 
 def save(obj, filename=None, resources=None, title=None, state=None, **kwargs):
     ''' Save an HTML file with the data for the current document.

@@ -39,6 +39,8 @@ class State(object):
 
     '''
 
+    valid_notebook_types = ['jupyter', 'zeppelin']
+
     def __init__(self):
         self.last_comms_handle = None
         self.uuid_to_server = {} # Mapping from uuid to server instance
@@ -80,6 +82,23 @@ class State(object):
 
         '''
         return self._notebook
+
+    @property
+    def notebook_type(self):
+        ''' Notebook type
+
+        '''
+        return self._notebook_type
+
+    @notebook_type.setter
+    def notebook_type(self, notebook_type):
+        ''' Notebook type, acceptable values are 'jupyter' and 'zeppelin'.
+
+        '''
+        if notebook_type is None or (notebook_type.lower() not in self.valid_notebook_types):
+            raise Exception("Notebook type '" + notebook_type + "' is not supported, the supported notebook types are "
+                            + "({})".format(', '.join(self.valid_notebook_types)))
+        self._notebook_type = notebook_type.lower()
 
     def _reset_keeping_doc(self):
         ''' Reset output modes but DO NOT replace the default Document
@@ -146,8 +165,8 @@ class State(object):
         if os.path.isfile(filename):
             logger.info("Session output file '%s' already exists, will be overwritten." % filename)
 
-    def output_notebook(self):
-        ''' Generate output in Jupyter  notebook cells.
+    def output_notebook(self, notebook_type='jupyter'):
+        ''' Generate output in Jupyter/Zeppelin notebook cells.
 
         Calling ``output_notebook`` not clear the effects of any other calls
         to ``output_file``, etc. It adds an additional output destination
@@ -159,3 +178,4 @@ class State(object):
 
         '''
         self._notebook = True
+        self.notebook_type = notebook_type
