@@ -10,7 +10,7 @@ TOP_PATH = abspath(join(split(__file__)[0], pardir))
 def test_flake8():
     chdir(TOP_PATH)
 
-    proc = Popen(["flake8", "bokeh", "tests", "examples"], stdout=PIPE, stderr=PIPE)
+    proc = Popen(["flake8"], stdout=PIPE, stderr=PIPE)
     out, err = proc.communicate()
 
     assert proc.returncode == 0, "Flake8 issues:\n%s" % out.decode("utf-8")
