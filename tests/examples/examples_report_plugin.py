@@ -1,33 +1,22 @@
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
+
+import os
+import re
+import io
+import sys
 
 import pytest
 import jinja2
-import os
-import re
-import sys
 
 from os.path import join, dirname, isfile, relpath
 from py.xml import html
 
 from tests.plugins.constants import __version__
-from tests.plugins.utils import get_version_from_git
+from tests.plugins.utils import get_version_from_git as resolve_ref
 from tests.plugins.upload_to_s3 import upload_file_to_s3_by_job_id, S3_URL
+from ..plugins.utils import warn
 
-from .collect_examples import (
-    example_dir,
-    get_file_examples,
-    get_server_examples,
-    get_notebook_examples,
-)
-from .utils import no_ext, get_example_pngs, upload_example_pngs_to_s3
-
-
-PY3 = sys.version_info[0] == 3
-if not PY3:
-    from codecs import open
-
-default_diff = os.environ.get("BOKEH_DEFAULT_DIFF")
-default_upload = default_diff is not None
+from .collect_examples import collect_examples, Flags
 
 def pytest_addoption(parser):
     parser.addoption(
@@ -37,64 +26,96 @@ def pytest_addoption(parser):
         "--output-cells", type=str, choices=['complain', 'remove', 'ignore'], default='complain', help="what to do with notebooks' output cells"
     )
     parser.addoption(
-        "--examplereport", action='store', dest='examplereport', metavar='path', default=None, help='create examples html report file at given path.'
+        "--report-path", action='store', dest='report_path', metavar='path', default='report.html', help='create examples html report file at given path.'
     )
     parser.addoption(
-        "--patterns", type=str, nargs="*", help="select a subset of examples to test"
+        "--diff-ref", type=resolve_ref, default="origin/master", help="compare generated images against this ref"
     )
     parser.addoption(
-        "--diff", type=str, default=default_diff, help="compare generated images against this ref"
+        "--incremental", action="store_true", default=False, help="write report after each example"
     )
+    parser.addoption(
+        "--no-js", action="store_true", default=False, help="only run python code and skip js and image diff"
+    )
+
+_examples = None
+
+def get_all_examples(config):
+    global _examples
+    if _examples is None:
+        _examples = collect_examples()
+
+        for example in _examples:
+            example._diff_ref = config.option.diff_ref
+            example._upload = config.option.upload
+
+            if config.option.no_js:
+                example.flags |= Flags.no_js
+
+    return _examples
 
 
 def pytest_generate_tests(metafunc):
-    if 'file_example' in metafunc.fixturenames:
-        examples = get_file_examples()
-        metafunc.parametrize('file_example', examples)
-    if 'server_example' in metafunc.fixturenames:
-        examples = get_server_examples()
-        metafunc.parametrize('server_example', examples)
-    if 'notebook_example' in metafunc.fixturenames:
-        examples = get_notebook_examples()
-        metafunc.parametrize('notebook_example', examples)
+    if 'example' in metafunc.fixturenames:
+        examples = get_all_examples(metafunc.config)
 
+        if 'file_example' in metafunc.fixturenames:
+            file_examples = [ e for e in examples if e.is_file ]
+            metafunc.parametrize('file_example,example', zip([ e.path for e in file_examples ], file_examples))
+        if 'server_example' in metafunc.fixturenames:
+            server_examples = [ e for e in examples if e.is_server ]
+            metafunc.parametrize('server_example,example', zip([ e.path for e in server_examples ], server_examples))
+        if 'notebook_example' in metafunc.fixturenames:
+            notebook_examples = [ e for e in examples if e.is_notebook ]
+            metafunc.parametrize('notebook_example,example', zip([ e.path for e in notebook_examples ], notebook_examples))
 
-@pytest.fixture
-def diff(request):
-    rawdiff = request.config.option.diff
-    return get_version_from_git(rawdiff)
+_warned = False
 
+def pytest_runtest_call(item):
+    if 'example' in item.fixturenames:
+        if pytest.config.option.verbose:
+            print()
 
-def pytest_configure(config):
-    examplereport = config.option.examplereport
-    # prevent opening htmlpath on slave nodes (xdist)
-    if examplereport and not hasattr(config, 'slaveinput'):
-        diff = config.option.diff
-        config.examplereport = ExamplesTestReport(examplereport, diff)
-        config.pluginmanager.register(config.examplereport)
+        global _warned
+        if not _warned and item.config.option.no_js:
+            _warned = True
+            warn("All examples will skip js rendering and image diff (under --no-js flag)")
 
 
 def pytest_unconfigure(config):
-    examplereport = getattr(config, 'examplereport', None)
-    if examplereport:
-        del config.examplereport
+    examples_report = getattr(config, 'examples_report', None)
+    if examples_report:
+        del config.examples_report
         config.pluginmanager.unregister(html)
+
+
+@pytest.fixture(scope="session")
+def report(request):
+    config = request.config
+
+    if not hasattr(config, 'examples_report'):
+        report_path = config.option.report_path
+        diff_ref = config.option.diff_ref
+
+        examples = get_all_examples(config)
+
+        config.examples_report = ExamplesTestReport(report_path, diff_ref, examples)
+        config.pluginmanager.register(config.examples_report)
 
 
 class ExamplesTestReport(object):
 
-    def __init__(self, examplereport, diff):
-        examplereport = os.path.expanduser(os.path.expandvars(examplereport))
-        self.diff = get_version_from_git(diff)
-        self.examplereport = os.path.abspath(examplereport)
+    def __init__(self, report_path, diff_ref, examples):
+        report_path = os.path.expanduser(os.path.expandvars(report_path))
+        self.report_path = os.path.abspath(report_path)
+        self.examples = { e.path: e for e in examples }
+        self.diff = diff_ref
         self.entries = []
         self.errors = self.failed = 0
         self.passed = self.skipped = 0
         self.xfailed = self.xpassed = 0
 
     def _appendrow(self, result, report):
-        upload = pytest.config.option.upload
-
         skipped = False
         failed = False
         if result == 'Failed':
@@ -105,29 +126,27 @@ class ExamplesTestReport(object):
         # Example is the path of the example that was run
         # It can be got from the report.location attribute which is a tuple
         # that looks # something like this:
-        # ('tests/examples/test_examples.py', 49, 'test_file_examples[/Users/caged/Dev/bokeh/bokeh/examples/models/anscombe.py]')
-        example = re.search(r'\[(.*?)\]', report.location[2]).group(1)
-        example_path = no_ext(example)
-        test_png, ref_png, diff_png = get_example_pngs(example, self.diff)
+        # ('tests/examples/test_examples.py', 49, 'test_file_examples[/Users/caged/Dev/bokeh/bokeh/examples/models/anscombe.py-exampleN]')
+        match = re.search(r'\[(.*?)\]', report.location[2])
+        if match is not None:
+            example_path = match.group(1).rsplit('-', 1)[0]
+            self.entries.append((self.examples[example_path], failed, skipped))
 
-        images_differ = False
-        if diff_png:
-            if isfile(diff_png):
-                images_differ = True
+            if pytest.config.option.incremental:
+                self._write_report()
 
-        if not upload:
-            self.entries.append((example_path, self.diff, failed, skipped, test_png, diff_png, ref_png, images_differ))
-        else:
-            # We have to update the paths so that the html refers to the uploaded ones
-            example_path = relpath(no_ext(example), example_dir)
-            test_url = join(S3_URL, __version__, example_path) + '.png'
-            if self.diff:
-                diff_url = join(S3_URL, __version__, example_path) + self.diff + '-diff.png'
-                ref_url = join(S3_URL, self.diff, example_path) + '.png'
-            else:
-                diff_url = None
-                ref_url = None
-            self.entries.append((example_path, self.diff, failed, skipped, test_url, diff_url, ref_url, images_differ))
+    def _write_report(self):
+        with io.open(join(dirname(__file__), "examples_report.jinja"), encoding="utf-8") as f:
+            template = jinja2.Template(f.read())
+
+        diff_ref = pytest.config.option.diff_ref
+        html = template.render(version=__version__, diff_ref=diff_ref, entries=self.entries)
+
+        if not os.path.exists(os.path.dirname(self.report_path)):
+            os.makedirs(os.path.dirname(self.report_path))
+
+        with io.open(self.report_path, 'w', encoding='utf-8') as f:
+            f.write(html)
 
     def append_pass(self, report):
         self.passed += 1
@@ -166,23 +185,17 @@ class ExamplesTestReport(object):
             self.append_skipped(report)
 
     def pytest_sessionfinish(self, session):
-        with open(join(dirname(__file__), "examples_report.jinja")) as f:
-            template = jinja2.Template(f.read())
-
-        diff_version = get_version_from_git(session.config.option.diff)
-        html = template.render(version=__version__, diff=diff_version, entries=self.entries)
-
-        if not os.path.exists(os.path.dirname(self.examplereport)):
-            os.makedirs(os.path.dirname(self.examplereport))
-
-        with open(self.examplereport, 'w', encoding='utf-8') as f:
-            f.write(html)
+        self._write_report()
 
         if pytest.config.option.upload:
-            upload_example_pngs_to_s3(diff_version)
-            upload_file_to_s3_by_job_id(session.config.option.examplereport, "text/html", "EXAMPLES REPORT SUCCESSFULLY UPLOADED")
+            if pytest.config.option.verbose:
+                print()
+
+            for (example, _, _) in self.entries:
+                example.upload_imgs()
+
+            upload_file_to_s3_by_job_id(session.config.option.report_path, "text/html", "EXAMPLES REPORT SUCCESSFULLY UPLOADED")
             upload_file_to_s3_by_job_id(session.config.option.log_file, "text/text", "EXAMPLES LOG SUCCESSFULLY UPLOADED")
 
     def pytest_terminal_summary(self, terminalreporter):
-        terminalreporter.write_sep('-', 'generated example report: {0}'.format(
-            self.examplereport))
+        terminalreporter.write_sep('-', 'generated example report: {0}'.format(self.report_path))

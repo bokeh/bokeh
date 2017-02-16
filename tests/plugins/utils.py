@@ -1,4 +1,4 @@
-from __future__ import print_function
+from __future__ import absolute_import, print_function
 
 import colorama
 import subprocess
@@ -10,52 +10,58 @@ import sys
 colorama.init()
 
 
+def trace(*values, **kwargs):
+    pass
+
+
 def write(*values, **kwargs):
     end = kwargs.get('end', '\n')
     print(*values, end=end)
 
 
 def red(text):
-    return "%s%s%s" % (colorama.Fore.RED, text, colorama.Style.RESET_ALL)
+    return "%s%s%s%s" % (colorama.Fore.RED, colorama.Style.NORMAL, text, colorama.Style.RESET_ALL)
 
 
 def yellow(text):
-    return "%s%s%s" % (colorama.Fore.YELLOW, text, colorama.Style.RESET_ALL)
+    return "%s%s%s%s" % (colorama.Fore.YELLOW, colorama.Style.NORMAL, text, colorama.Style.RESET_ALL)
 
 
 def blue(text):
-    return "%s%s%s" % (colorama.Fore.BLUE, text, colorama.Style.RESET_ALL)
+    return "%s%s%s%s" % (colorama.Fore.BLUE, colorama.Style.NORMAL, text, colorama.Style.RESET_ALL)
 
 
 def green(text):
-    return "%s%s%s" % (colorama.Fore.GREEN, text, colorama.Style.RESET_ALL)
+    return "%s%s%s%s" % (colorama.Fore.GREEN, colorama.Style.NORMAL, text, colorama.Style.RESET_ALL)
 
 
-def fail(msg=None):
+def white(text):
+    return "%s%s%s%s" % (colorama.Fore.WHITE, colorama.Style.BRIGHT, text, colorama.Style.RESET_ALL)
+
+
+def fail(msg=None, label="FAIL"):
     msg = " " + msg if msg is not None else ""
-    write("%s%s" % (red("[FAIL]"), msg))
+    write("%s%s" % (red("[%s]" % label), msg))
 
 
-def warn(msg=None):
+def warn(msg=None, label="WARN"):
     msg = " " + msg if msg is not None else ""
-    write("%s%s" % (yellow("[WARN]"), msg))
+    write("%s%s" % (yellow("[%s]" % label), msg))
 
 
-def info(msg=None):
+def info(msg=None, label="INFO"):
     msg = " " + msg if msg is not None else ""
-    write("%s%s" % ("[INFO]", msg))
+    write("%s%s" % (white("[%s]" % label), msg))
 
 
-def ok(msg=None):
+def ok(msg=None, label="OK"):
     msg = " " + msg if msg is not None else ""
-    write("%s%s" % (green("[OK]"), msg))
+    write("%s%s" % (green("[%s]" % label), msg))
 
 
-def get_version_from_git(ref=None):
-    cmd = ["git", "describe", "--tags", "--always"]
-
-    if ref is not None:
-        cmd.append(ref)
+def get_version_from_git(ref):
+    """Get git-version of a specific ref, e.g. HEAD, origin/master. """
+    cmd = ["git", "describe", "--tags", "--always", ref]
 
     try:
         proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
@@ -71,6 +77,7 @@ def get_version_from_git(ref=None):
     version = proc.stdout.read().decode('utf-8').strip()
 
     try:
+        # git-version = tag-num-gSHA1
         tag, _, sha1 = version.split("-")
     except ValueError:
         return version

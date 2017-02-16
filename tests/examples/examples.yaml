@@ -1,19 +1,28 @@
 - path: "models"
-  skip: ["choropleth.py", "maps_cities.py", "data_tables_server.py"]
+  slow: ["choropleth.py"]
+  no_js: ["maps_cities.py", "maps.py", "trail.py"]
+
+- path: "models/server"
+  type: server
+  skip: all
+
 - path: "custom"
-  type: file
-- path: "compat"
-  skip: ["ggplot_density.py"]
+
 - path: "charts/file"
-  type: file
-- path: "howto/charts"
-  type: notebook
+
 - path: "plotting/file"
-  type: file
-  skip: ["image.py", "image_rgba.py", "choropleth.py", "iris_blend.py",
-         "scatter10k.py", "clustering.py", "line10k.py"]
+  slow: ["choropleth.py"]
+  no_diff: ["jitter.py"]
+
 - path: "plotting/server"
   type: server
+  skip: all
+
 - path: "plotting/notebook"
-  type: notebook
-  skip_travis: ['color_scatterplot.ipynb', 'glyphs.ipynb']
+  skip: all
+
+- path: "compat"
+  no_diff: all
+
+- path: "howto/charts"
+  skip: all

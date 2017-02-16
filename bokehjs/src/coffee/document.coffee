@@ -566,9 +566,13 @@ export class Document
     logger.debug("Creating Document from JSON")
     if typeof json != 'object'
       throw new Error("JSON object has wrong type #{typeof json}")
+
     py_version = json['version']
+    is_dev = py_version.indexOf('+') != -1 or py_version.indexOf('-') != -1
+
     versions_string = "Library versions: JS (#{js_version})  /  Python (#{py_version})"
-    if py_version.indexOf('-') < 0 and js_version != py_version
+
+    if not is_dev and js_version != py_version
       logger.warn("JS/Python version mismatch")
       logger.warn(versions_string)
     else
