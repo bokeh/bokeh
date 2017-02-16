@@ -190,6 +190,9 @@ class ExamplesTestReport(object):
         self._write_report()
 
         if pytest.config.option.upload:
+            if pytest.config.option.verbose:
+                print()
+
             for (example, _, _) in self.entries:
                 example.upload_imgs()
 
