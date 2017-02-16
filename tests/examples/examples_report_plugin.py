@@ -3,40 +3,39 @@ from __future__ import absolute_import, print_function
 import os
 import re
 import io
-import sys
 
 import pytest
 import jinja2
 
-from os.path import join, dirname, isfile, relpath
+from os.path import join, dirname
 from py.xml import html
 
 from tests.plugins.constants import __version__
 from tests.plugins.utils import get_version_from_git as resolve_ref
-from tests.plugins.upload_to_s3 import upload_file_to_s3_by_job_id, S3_URL
+from tests.plugins.upload_to_s3 import upload_file_to_s3_by_job_id
 from ..plugins.utils import warn
 
 from .collect_examples import collect_examples, Flags
 
 def pytest_addoption(parser):
     parser.addoption(
-        "--notebook-phantom-wait", dest="notebook_phantom_wait", action="store", type=int, default=10, help="How long should PhantomJS wait before taking a snapshot of a notebook (in seconds)"
-    )
+        "--notebook-phantom-wait", dest="notebook_phantom_wait", action="store", type=int, default=10,
+        help="How long should PhantomJS wait before taking a snapshot of a notebook (in seconds)")
     parser.addoption(
-        "--output-cells", type=str, choices=['complain', 'remove', 'ignore'], default='complain', help="what to do with notebooks' output cells"
-    )
+        "--output-cells", type=str, choices=['complain', 'remove', 'ignore'], default='complain',
+        help="what to do with notebooks' output cells")
     parser.addoption(
-        "--report-path", action='store', dest='report_path', metavar='path', default='report.html', help='create examples html report file at given path.'
-    )
+        "--report-path", action='store', dest='report_path', metavar='path', default='report.html',
+        help='create examples html report file at given path.')
     parser.addoption(
-        "--diff-ref", type=resolve_ref, default="master@{upstream}", help="compare generated images against this ref"
-    )
+        "--diff-ref", type=resolve_ref, default="master@{upstream}",
+        help="compare generated images against this ref")
     parser.addoption(
-        "--incremental", action="store_true", default=False, help="write report after each example"
-    )
+        "--incremental", action="store_true", default=False,
+        help="write report after each example")
     parser.addoption(
-        "--no-js", action="store_true", default=False, help="only run python code and skip js and image diff"
-    )
+        "--no-js", action="store_true", default=False,
+        help="only run python code and skip js and image diff")
 
 _examples = None
 

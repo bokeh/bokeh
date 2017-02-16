@@ -3,11 +3,8 @@ from __future__ import absolute_import
 from bokeh.io import save
 from bokeh.plotting import figure
 from bokeh.models import TapTool, CustomJS
-from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.action_chains import ActionChains
 from tests.integration.utils import has_no_console_errors
-
-from ..utils import value_to_be_present_in_datahash
 
 import pytest
 pytestmark = pytest.mark.integration

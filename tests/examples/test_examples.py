@@ -6,13 +6,12 @@ import pytest
 import subprocess
 import signal
 
-from os.path import abspath, basename, dirname, exists, join, relpath, split, splitext
+from os.path import abspath, dirname, exists, join, split
 
-from tests.plugins.utils import trace, info, fail, ok, red, warn, write, yellow, white
+from tests.plugins.utils import trace, info, fail, ok, red, warn, yellow, white
 from tests.plugins.phantomjs_screenshot import get_phantomjs_screenshot
 from tests.plugins.image_diff import image_diff
 
-from .collect_examples import example_dir
 from .utils import deal_with_output_cells
 
 
@@ -177,8 +176,6 @@ def _assert_snapshot(example, url, example_type):
     success = result['success']
     timeout = result['timeout']
     errors = result['errors']
-    messages = result['messages']
-    resources = result['resources']
 
     no_errors = len(errors) == 0
 

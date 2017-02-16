@@ -21,7 +21,7 @@ plot = figure(y_range=(-10, 10), plot_width=400, plot_height=400)
 
 plot.line('x', 'y', source=source, line_width=3, line_alpha=0.6)
 
-def callback(source=source, window=None):
+def callback(source=source, window=None, amp=None, freq=None, phase=None, offset=None):
     data = source.data
     A, B = amp.value, offset.value
     k, phi = freq.value, phase.value

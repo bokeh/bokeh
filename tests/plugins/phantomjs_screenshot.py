@@ -6,7 +6,7 @@ import subprocess
 import sys
 
 from os.path import abspath, dirname, join, pardir, split
-from .utils import trace, info, fail
+from .utils import trace, fail
 
 TOP_PATH = abspath(join(split(__file__)[0], pardir, pardir))
 
