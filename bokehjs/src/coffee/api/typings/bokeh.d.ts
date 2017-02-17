@@ -31,7 +31,7 @@ declare namespace Bokeh {
     export function add_document_standalone(doc: Document, element: HTMLElement, use_for_title?: boolean): void;
   }
 
-  namespace LinAlg {
+  namespace Utils {
     // core/util/object.ts
     export function keys<T>(object: T): Array<string>
     export function values<T>(object: {[key: string]: T}): Array<T>

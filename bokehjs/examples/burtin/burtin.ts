@@ -1,6 +1,6 @@
 namespace Burtin {
   import plt = Bokeh.Plotting;
-  const {range, values} = Bokeh.LinAlg;
+  const {range, values} = Bokeh.Utils;
 
   import Color = Bokeh.Color;
   import Map = Bokeh.Map;

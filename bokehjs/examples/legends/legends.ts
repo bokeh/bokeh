@@ -1,6 +1,6 @@
 namespace Legends {
   import plt = Bokeh.Plotting
-  import linspace = Bokeh.LinAlg.linspace
+  import linspace = Bokeh.Utils.linspace
 
   console.log(`Bokeh ${Bokeh.version}`);
   Bokeh.set_log_level("info");

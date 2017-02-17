@@ -69,7 +69,7 @@ Python to JavaScript at this level is nearly one-to-one:
 .. code-block:: javascript
 
     // create some data and a ColumnDataSource
-    var x = Bokeh.LinAlg.linspace(-0.5, 20.5, 10);
+    var x = Bokeh.Utils.linspace(-0.5, 20.5, 10);
     var y = x.map(function (v) { return v * 0.5 + 3.0; });
     var source = new Bokeh.ColumnDataSource({ data: { x: x, y: y } });
 

@@ -1,6 +1,6 @@
 namespace WebBrowserMarketShare {
   import plt = Bokeh.Plotting;
-  const {zip, unzip, sum, cumsum} = Bokeh.LinAlg;
+  const {zip, unzip, sum, cumsum} = Bokeh.Utils;
 
   Bokeh.set_log_level("info");
   Bokeh.logger.info(`Bokeh ${Bokeh.version}`);

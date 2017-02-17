@@ -2,7 +2,7 @@ namespace Anscombe {
   console.log(`Bokeh ${Bokeh.version}`);
   Bokeh.set_log_level("info");
 
-  const anscombe_quartet = Bokeh.LinAlg.transpose([
+  const anscombe_quartet = Bokeh.Utils.transpose([
     [10.0,  8.04, 10.0, 9.14, 10.0,  7.46,  8.0,  6.58],
     [ 8.0,  6.95,  8.0, 8.14,  8.0,  6.77,  8.0,  5.76],
     [13.0,  7.58, 13.0, 8.74, 13.0, 12.74,  8.0,  7.71],
@@ -28,7 +28,7 @@ namespace Anscombe {
     }
   });
 
-  const x = Bokeh.LinAlg.linspace(-0.5, 20.5, 10);
+  const x = Bokeh.Utils.linspace(-0.5, 20.5, 10);
   const y = x.map((v) => v*0.5 + 3.0);
 
   const lines = new Bokeh.ColumnDataSource({data: {x: x, y: y}});
