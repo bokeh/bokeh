@@ -154,15 +154,9 @@ def _print_phantomjs_output(result):
 
         info(msg, label="JS")
 
-    # Process resources
     for resource in resources:
-        url = resource['url']
-        if url.endswith(".png"):
-            ok("%s: %s (%s)" % (url, yellow(resource['status']), resource['statusText']))
-        else:
-            fail("Resource error:: %s: %s (%s)" % (url, red(resource['status']), resource['statusText']), label="JS")
+        fail(resource['errorString'], label="JS")
 
-    # You can have a successful test, and still have errors reported, so not failing here.
     for error in errors:
         fail(error['msg'], label="JS")
         for item in error['trace']:
@@ -192,6 +186,7 @@ def _assert_snapshot(example, url, example_type):
     resources = result['resources']
 
     no_errors = len(errors) == 0
+    no_resources = len(resources) == 0
 
     if timeout:
         warn("%s: %s" % (red("TIMEOUT: "), "bokehjs did not finish in %s ms" % wait))
@@ -199,8 +194,9 @@ def _assert_snapshot(example, url, example_type):
     if pytest.config.option.verbose:
         _print_phantomjs_output(result)
 
-    assert success, "Example failed to load"
-    assert no_errors, "Example failed with %d errors" % len(errors)
+    assert success, "%s failed to load" % example.relpath
+    assert no_resources, "%s failed with %d missing resources" % (example.relpath, len(resources))
+    assert no_errors, "%s failed with %d errors" % (example.relpath, len(errors))
 
 
 def _run_example(example):
