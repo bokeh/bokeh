@@ -70,9 +70,9 @@ The ``--host`` parameter for the Bokeh server was confusing and difficult to
 explain. As long as the Bokeh server relied on the HTTP "host" header to
 provide URLs to resources, the ``--host`` parameter was a necessary precaution
 against certain kinds of HTTP spoofing attacks. However, the Bokeh server
-has be updated to no longer require the use of the "host" header (and this is
-now maintained under test). Accordingly, there is no need to have any checks
-on the value of the "host" header, and ``--host`` is no longer needed.
+has been updated to no longer require the use of the "host" header (and this
+is maintained under test). Accordingly, there is no need to have any check
+on the value of the "host" header, and so ``--host`` is no longer needed.
 
 Document and Model Refactoring
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
