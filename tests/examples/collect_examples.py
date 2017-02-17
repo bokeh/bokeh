@@ -52,7 +52,15 @@ class Example(object):
 
     @property
     def name(self):
-        return basename(self.path._no_ext)
+        return basename(self.path_no_ext)
+
+    @property
+    def base_dir(self):
+        return dirname(self.path)
+
+    @property
+    def imgs_dir(self):
+        return join(dirname(self.path), ".tests")
 
     @property
     def relpath(self):
@@ -112,15 +120,15 @@ class Example(object):
 
     @property
     def img_path(self):
-        return "%s-%s-%s.png" % (self.path_no_ext, __version__, job_id)
+        return join(self.imgs_dir, "%s-%s-%s.png" % (self.name, __version__, job_id))
 
     @property
     def ref_path(self):
-        return "%s-%s-%s.png" % (self.path_no_ext, self._diff_ref, job_id)
+        return join(self.imgs_dir, "%s-%s-%s.png" % (self.name, self._diff_ref, job_id))
 
     @property
     def diff_path(self):
-        return "%s-%s-%s-diff-%s.png" % (self.path_no_ext, __version__, self._diff_ref, job_id)
+        return join(self.imgs_dir, "%s-%s-%s-diff-%s.png" % (self.name, __version__, self._diff_ref, job_id))
 
     @property
     def img_url(self):
