@@ -29,7 +29,7 @@ def pytest_addoption(parser):
         "--report-path", action='store', dest='report_path', metavar='path', default='report.html', help='create examples html report file at given path.'
     )
     parser.addoption(
-        "--diff-ref", type=resolve_ref, default="origin/master", help="compare generated images against this ref"
+        "--diff-ref", type=resolve_ref, default="master@{upstream}", help="compare generated images against this ref"
     )
     parser.addoption(
         "--incremental", action="store_true", default=False, help="write report after each example"
