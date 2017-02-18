@@ -5,7 +5,7 @@ import * as string from "./core/util/string"
 import * as types from "./core/util/types"
 import * as eq from "./core/util/eq"
 
-export Utils = object.extend({}, object, array, string, types, eq)
+export LinAlg = object.extend({}, object, array, string, types, eq)
 
 ## api/charts.d.ts
 import * as Charts from "./api/charts"; export {Charts}

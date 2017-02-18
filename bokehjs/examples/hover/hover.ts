@@ -1,6 +1,6 @@
 namespace HoverfulScatter {
   import plt = Bokeh.Plotting;
-  const {range, zip} = Bokeh.Utils;
+  const {range, zip} = Bokeh.LinAlg;
 
   Bokeh.set_log_level("info");
   Bokeh.logger.info(`Bokeh ${Bokeh.version}`);

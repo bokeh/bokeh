@@ -1,6 +1,6 @@
 namespace LinkedBrushingAndPanning {
   import plt = Bokeh.Plotting;
-  import linspace = Bokeh.Utils.linspace;
+  import linspace = Bokeh.LinAlg.linspace;
 
   Bokeh.set_log_level("info");
   Bokeh.logger.info(`Bokeh ${Bokeh.version}`);
