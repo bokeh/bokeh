@@ -6,7 +6,7 @@ import os
 
 import bokeh.resources as resources
 from bokeh.models import Model
-from bokeh.resources import _get_cdn_urls
+from bokeh.resources import _get_cdn_urls, websocket_url_for_server_url
 
 # if BOKEH_RESOURCES is set many tests in this file fail
 if os.environ.get("BOKEH_RESOURCES"):
@@ -52,6 +52,17 @@ def test_inline_css_resources():
 
 
 class TestResources(unittest.TestCase):
+
+    def test_websocket_url(self):
+        self.assertEqual("ws://example.com:4000/ws", websocket_url_for_server_url("http://example.com:4000"))
+        # with trailing / on original url
+        self.assertEqual("ws://example.com:4000/ws", websocket_url_for_server_url("http://example.com:4000/"))
+        # with https
+        self.assertEqual("wss://example.com:4000/ws", websocket_url_for_server_url("https://example.com:4000"))
+        # with a path
+        self.assertEqual("wss://example.com:4000/bar/ws", websocket_url_for_server_url("https://example.com:4000/bar"))
+        # with path with trailing slash
+        self.assertEqual("wss://example.com:4000/bar/ws", websocket_url_for_server_url("https://example.com:4000/bar/"))
 
     def test_basic(self):
         r = resources.Resources()
@@ -103,7 +114,7 @@ class TestResources(unittest.TestCase):
             'type': 'warn'}
         ])
 
-    def test_server_default(self):
+    def test_server(self):
         r = resources.Resources(mode="server")
         self.assertEqual(r.mode, "server")
         self.assertEqual(r.dev, False)
@@ -111,33 +122,12 @@ class TestResources(unittest.TestCase):
         self.assertEqual(r.js_raw, [DEFAULT_LOG_JS_RAW])
         self.assertEqual(r.css_raw, [])
         self.assertEqual(r.messages, [])
-        self.assertEqual(r.js_files, ['http://localhost:5006/static/js/bokeh.min.js',
-                                      'http://localhost:5006/static/js/bokeh-widgets.min.js'])
-        self.assertEqual(r.css_files, ['http://localhost:5006/static/css/bokeh.min.css',
-                                       'http://localhost:5006/static/css/bokeh-widgets.min.css'])
 
-    def test_server_root_url(self):
         r = resources.Resources(mode="server", root_url="http://foo/")
 
         self.assertEqual(r.js_raw, [DEFAULT_LOG_JS_RAW])
         self.assertEqual(r.css_raw, [])
         self.assertEqual(r.messages, [])
-        self.assertEqual(r.js_files, ['http://foo/static/js/bokeh.min.js',
-                                      'http://foo/static/js/bokeh-widgets.min.js'])
-        self.assertEqual(r.css_files, ['http://foo/static/css/bokeh.min.css',
-                                       'http://foo/static/css/bokeh-widgets.min.css'])
-
-    def test_server_root_url_empty(self):
-        r = resources.Resources(mode="server", root_url="")
-
-        self.assertEqual(r.js_raw, [DEFAULT_LOG_JS_RAW])
-        self.assertEqual(r.css_raw, [])
-        self.assertEqual(r.messages, [])
-        self.assertEqual(r.js_files, ['static/js/bokeh.min.js',
-                                      'static/js/bokeh-widgets.min.js'])
-        self.assertEqual(r.css_files, ['static/css/bokeh.min.css',
-                                       'static/css/bokeh-widgets.min.css'])
-
 
     def test_server_with_versioner(self):
         def versioner(path):

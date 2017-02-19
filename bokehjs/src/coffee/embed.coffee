@@ -158,13 +158,7 @@ fill_render_item_from_script_tag = (script, item) ->
 
   logger.info("Will inject Bokeh script tag with params #{JSON.stringify(item)}")
 
-export embed_items = (docs_json, render_items) ->
-  protocol = 'ws:'
-  if (window.location.protocol == 'https:')
-    protocol = 'wss:'
-  ws_pathname = window.location.pathname.replace(/\/+$/, '') + '/ws'
-  websocket_url = protocol + '//' + window.location.host + ws_pathname
-
+export embed_items = (docs_json, render_items, websocket_url=null) ->
   docs = {}
   for docid of docs_json
     docs[docid] = Document.from_json(docs_json[docid])
