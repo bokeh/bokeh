@@ -59,21 +59,6 @@ removed, as well as the following properties of ``Plot``
 * ``title_text_font``
 * ``title_text_font_size``
 
-Host Parameter Obsoleted
-~~~~~~~~~~~~~~~~~~~~~~~~
-The ``--host`` parameter is now unnecessary. For compatibility, supplying
-it will currently cause a warning to be displayed, but it will otherwise
-be ignored, and apps will run as normal. In a future release, supplying it
-will result in an error.
-
-The ``--host`` parameter for the Bokeh server was confusing and difficult to
-explain. As long as the Bokeh server relied on the HTTP "host" header to
-provide URLs to resources, the ``--host`` parameter was a necessary precaution
-against certain kinds of HTTP spoofing attacks. However, the Bokeh server
-has been updated to no longer require the use of the "host" header (and this
-is maintained under test). Accordingly, there is no need to have any check
-on the value of the "host" header, and so ``--host`` is no longer needed.
-
 Document and Model Refactoring
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

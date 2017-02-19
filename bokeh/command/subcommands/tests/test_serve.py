@@ -94,7 +94,7 @@ def test_args():
             metavar='HOST[:PORT]',
             action='append',
             type=str,
-            help="*** IGNORED, NO LONGER USED OR NECESSARY ***",
+            help="Public hostnames to allow in requests",
         )),
 
         ('--prefix', dict(
