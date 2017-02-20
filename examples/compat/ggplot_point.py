@@ -1,8 +1,6 @@
 from ggplot import aes, geom_point, ggplot, mtcars
 import matplotlib.pyplot as plt
 
-from pandas import DataFrame
-
 from bokeh import mpl
 from bokeh.plotting import output_file, show
 

@@ -1,7 +1,6 @@
 from __future__ import absolute_import
 
 from bokeh.io import save
-from bokeh.plotting import figure
 from bokeh.models import ColumnDataSource, Plot, Rect, Range1d, LogAxis
 from tests.integration.utils import has_no_console_errors
 

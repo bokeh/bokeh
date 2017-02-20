@@ -3,7 +3,6 @@
 
 import numpy as np
 
-from bokeh.core.properties import Override
 from bokeh.models import Label
 from bokeh.plotting import figure, show
 

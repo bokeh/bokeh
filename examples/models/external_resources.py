@@ -1,7 +1,6 @@
 """ The LaTex example was derived from: http://matplotlib.org/users/usetex.html
 """
 
-from bokeh.core.properties import Override
 from bokeh.models import Label
 from bokeh.plotting import output_file, figure, show
 

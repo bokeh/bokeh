@@ -6,7 +6,6 @@ import sys
 
 from bokeh.model import Model
 import bokeh.models as models
-from bokeh.core.properties import DataSpec
 from bokeh.core.json_encoder import serialize_json
 
 dest_dir = sys.argv[1]
@@ -93,7 +92,7 @@ module.exports = {
 """
     try:
         os.makedirs(os.path.dirname(filename))
-    except OSError as e:
+    except OSError:
         pass
     f = codecs.open(filename, 'w', 'utf-8')
     f.write(coffee_template % output)

@@ -9,10 +9,10 @@ pytestmark = pytest.mark.integration
 
 @pytest.mark.screenshot
 def test_visible_property_hides_things_correctly(output_file_url, selenium, screenshot):
-
     plot = figure(toolbar_location=None)
+
     l1 = plot.line([1, 2, 3], [1, 2, 3])
-    l2 = plot.line([1, 2, 3], [2, 4, 6])
+    l2 = plot.line([1, 2, 3], [2, 4, 6]) # NOQA
 
     plot.xaxis.visible = False
     plot.ygrid.visible = False

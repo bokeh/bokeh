@@ -1,10 +1,7 @@
 from __future__ import absolute_import
 
 from bokeh.io import save
-from bokeh.models import (
-    Plot, ColorBar, LogTicker, Range1d, LinearColorMapper, LogColorMapper
-)
-from selenium.webdriver.common.action_chains import ActionChains
+from bokeh.models import  Plot, ColorBar, LogTicker, Range1d, LinearColorMapper, LogColorMapper
 from tests.integration.utils import has_no_console_errors
 
 import pytest

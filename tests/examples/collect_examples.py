@@ -5,7 +5,7 @@ import os
 import yaml
 import requests
 
-from os.path import join, dirname, basename, abspath, relpath, pardir, splitext, isfile
+from os.path import join, dirname, basename, relpath, splitext, isfile
 
 from ..plugins.constants import __version__, job_id
 from ..plugins.upload_to_s3 import S3_URL, upload_file_to_s3
