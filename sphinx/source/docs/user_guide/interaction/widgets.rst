@@ -174,8 +174,6 @@ The toggle button holds an on/off state:
 .. bokeh-plot:: docs/user_guide/examples/interaction_toggle_button.py
     :source-position: below
 
-.. _userguide_interaction_actions:
-
 Div
 ~~~
 
