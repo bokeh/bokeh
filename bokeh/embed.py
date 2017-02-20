@@ -136,7 +136,7 @@ def components(models, wrap_script=True, wrap_plot_info=True):
     with _ModelInDocument(models):
         (docs_json, render_items) = _standalone_docs_json_and_render_items(models)
 
-    script = _script_for_render_items(docs_json, render_items, wrap_script=wrap_script)
+    script = _script_for_render_items(docs_json, render_items, websocket_url=None, wrap_script=wrap_script)
     script = encode_utf8(script)
 
     if wrap_plot_info:
@@ -439,8 +439,9 @@ def autoload_server(model, app_path="/", session_id=None, url="default"):
 
     return encode_utf8(tag)
 
-def _script_for_render_items(docs_json, render_items, wrap_script=True):
+def _script_for_render_items(docs_json, render_items, websocket_url=None, wrap_script=True):
     plot_js = _wrap_in_onload(_wrap_in_safely(DOC_JS.render(
+        websocket_url=websocket_url,
         docs_json=serialize_json(docs_json),
         render_items=serialize_json(render_items),
     )))
@@ -450,14 +451,14 @@ def _script_for_render_items(docs_json, render_items, wrap_script=True):
     else:
         return plot_js
 
-def _html_page_for_render_items(bundle, docs_json, render_items, title,
+def _html_page_for_render_items(bundle, docs_json, render_items, title, websocket_url=None,
                                 template=FILE, template_variables={}):
     if title is None:
         title = DEFAULT_TITLE
 
     bokeh_js, bokeh_css = bundle
 
-    script = _script_for_render_items(docs_json, render_items)
+    script = _script_for_render_items(docs_json, render_items, websocket_url)
 
     template_variables_full = template_variables.copy()
 
@@ -590,7 +591,7 @@ def standalone_html_page_for_models(models, resources, title):
     '''
     return file_html(models, resources, title)
 
-def server_html_page_for_models(session_id, model_ids, resources, title, template=FILE):
+def server_html_page_for_models(session_id, model_ids, resources, title, websocket_url, template=FILE):
     render_items = []
     for modelid in model_ids:
         if modelid is None:
@@ -605,9 +606,10 @@ def server_html_page_for_models(session_id, model_ids, resources, title, templat
             })
 
     bundle = _bundle_for_objs_and_resources(None, resources)
-    return _html_page_for_render_items(bundle, {}, render_items, title, template=template)
+    return _html_page_for_render_items(bundle, {}, render_items, title, template=template, websocket_url=websocket_url)
 
-def server_html_page_for_session(session_id, resources, title, template=FILE, template_variables=None):
+def server_html_page_for_session(session_id, resources, title, websocket_url, template=FILE,
+                                 template_variables=None):
     elementid = make_id()
     render_items = [{
         'sessionid' : session_id,
@@ -620,4 +622,5 @@ def server_html_page_for_session(session_id, resources, title, template=FILE, te
         template_variables = {}
 
     bundle = _bundle_for_objs_and_resources(None, resources)
-    return _html_page_for_render_items(bundle, dict(), render_items, title, template=template, template_variables=template_variables)
+    return _html_page_for_render_items(bundle, {}, render_items, title, template=template,
+            websocket_url=websocket_url, template_variables=template_variables)

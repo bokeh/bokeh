@@ -1,13 +1,12 @@
 from __future__ import absolute_import, print_function
 
-import os
-import re
 import io
+import os
+from os.path import abspath, dirname, exists, expanduser, expandvars, join, pardir
+import re
 
-import pytest
 import jinja2
-
-from os.path import join, dirname
+import pytest
 from py.xml import html
 
 from tests.plugins.constants import __version__
@@ -42,7 +41,11 @@ _examples = None
 def get_all_examples(config):
     global _examples
     if _examples is None:
-        _examples = collect_examples()
+        base_dir = abspath(join(dirname(__file__), pardir, pardir))
+
+        _examples = []
+        _examples.extend(collect_examples(join(base_dir, "examples", "examples.yaml")))
+        _examples.extend(collect_examples(join(base_dir, "bokehjs", "examples", "examples.yaml")))
 
         for example in _examples:
             example._diff_ref = config.option.diff_ref
@@ -58,6 +61,9 @@ def pytest_generate_tests(metafunc):
     if 'example' in metafunc.fixturenames:
         examples = get_all_examples(metafunc.config)
 
+        if 'js_example' in metafunc.fixturenames:
+            js_examples = [ e for e in examples if e.is_js ]
+            metafunc.parametrize('js_example,example', zip([ e.path for e in js_examples ], js_examples))
         if 'file_example' in metafunc.fixturenames:
             file_examples = [ e for e in examples if e.is_file ]
             metafunc.parametrize('file_example,example', zip([ e.path for e in file_examples ], file_examples))
@@ -105,8 +111,8 @@ def report(request):
 class ExamplesTestReport(object):
 
     def __init__(self, report_path, diff_ref, examples):
-        report_path = os.path.expanduser(os.path.expandvars(report_path))
-        self.report_path = os.path.abspath(report_path)
+        report_path = expanduser(expandvars(report_path))
+        self.report_path = abspath(report_path)
         self.examples = { e.path: e for e in examples }
         self.diff = diff_ref
         self.entries = []
@@ -141,8 +147,8 @@ class ExamplesTestReport(object):
         diff_ref = pytest.config.option.diff_ref
         html = template.render(version=__version__, diff_ref=diff_ref, entries=self.entries)
 
-        if not os.path.exists(os.path.dirname(self.report_path)):
-            os.makedirs(os.path.dirname(self.report_path))
+        if not exists(dirname(self.report_path)):
+            os.makedirs(dirname(self.report_path))
 
         with io.open(self.report_path, 'w', encoding='utf-8') as f:
             f.write(html)

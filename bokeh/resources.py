@@ -34,6 +34,30 @@ DEFAULT_SERVER_HOST = "localhost"
 DEFAULT_SERVER_PORT = 5006
 DEFAULT_SERVER_HTTP_URL = "http://%s:%d/" % (DEFAULT_SERVER_HOST, DEFAULT_SERVER_PORT)
 
+def websocket_url_for_server_url(url):
+    if url.startswith("http:"):
+        reprotocoled = "ws" + url[4:]
+    elif url.startswith("https:"):
+        reprotocoled = "wss" + url[5:]
+    else:
+        raise ValueError("URL has unknown protocol " + url)
+    if reprotocoled.endswith("/"):
+        return reprotocoled + "ws"
+    else:
+        return reprotocoled + "/ws"
+
+
+def server_url_for_websocket_url(url):
+    if url.startswith("ws:"):
+        reprotocoled = "http" + url[2:]
+    elif url.startswith("wss:"):
+        reprotocoled = "https" + url[3:]
+    else:
+        raise ValueError("URL has non-websocket protocol " + url)
+    if not reprotocoled.endswith("/ws"):
+        raise ValueError("websocket URL does not end in /ws")
+    return reprotocoled[:-2]
+
 class _SessionCoordinates(object):
     """ Internal class used to parse kwargs for server URL, app_path, and session_id."""
     def __init__(self, kwargs):
@@ -71,6 +95,11 @@ class _SessionCoordinates(object):
             self._server_url = self._base_url + self._app_path[1:]
 
     @property
+    def websocket_url(self):
+        """ Websocket URL derived from the kwargs provided."""
+        return websocket_url_for_server_url(self._server_url)
+
+    @property
     def server_url(self):
         """ Server URL including app path derived from the kwargs provided."""
         return self._server_url
@@ -101,7 +130,10 @@ class _SessionCoordinates(object):
         """ App path derived from the kwargs provided."""
         return self._app_path
 
+DEFAULT_SERVER_WEBSOCKET_URL = websocket_url_for_server_url(DEFAULT_SERVER_HTTP_URL)
+
 _DEV_PAT = re.compile(r"^(\d)+\.(\d)+\.(\d)+(dev|rc)")
+
 
 def _cdn_base_url():
     return "https://cdn.pydata.org"
@@ -222,7 +254,7 @@ class BaseResources(object):
 
     @property
     def root_url(self):
-        if self._root_url is not None:
+        if self._root_url:
             return self._root_url
         else:
             return self._default_root_url
@@ -293,7 +325,7 @@ class JSResources(BaseResources):
     ''' The Resources class encapsulates information relating to loading or embedding Bokeh Javascript.
 
     Args:
-        mode (str) : How should Bokeh JS be included in output
+        mode (str) : how should Bokeh JS be included in output
 
             See below for descriptions of available modes
 
@@ -307,13 +339,7 @@ class JSResources(BaseResources):
 
         minified (bool, optional) : whether JavaScript should be minified or not (default: True)
 
-        root_url (str, optional) : URL and port of Bokeh Server to load resources from (default: None)
-
-            If ``None``, absoute URLs based on the default server configuration will
-            be generated.
-
-            ``root_url`` can also be the empty string, in which case relative URLs,
-            e.g., "static/css/bokeh.min.js", are generated.
+        root_url (str, optional) : URL and port of Bokeh Server to load resources from
 
             Only valid with ``'server'`` and ``'server-dev'`` modes
 
