@@ -28,22 +28,22 @@ class AutoloadJsHandler(SessionHandler):
     def get(self, *args, **kwargs):
         session = yield self.get_session()
 
-        element_id = self.get_argument("bokeh-autoload-element", default=None)
-        if not element_id:
-            self.send_error(status_code=400, reason='No bokeh-autoload-element query parameter')
-            return
-
         resources = self.application.resources(self.request)
-        websocket_url = self.application.websocket_url_for_request(self.request, self.bokeh_websocket_path)
+        js_raw = resources.js_raw
 
-        # TODO: yes, this should resuse code from bokeh.embed more directly
-        render_items = [dict(sessionid=session.id, elementid=element_id, use_for_title=False)]
-        script = _script_for_render_items(None, render_items, websocket_url=websocket_url, wrap_script=False)
+        element_id = self.get_argument("bokeh-autoload-element", default=None)
+        if element_id:
+            websocket_url = self.application.websocket_url_for_request(self.request, self.bokeh_websocket_path)
+
+            # TODO: yes, this should resuse code from bokeh.embed more directly
+            render_items = [dict(sessionid=session.id, elementid=element_id, use_for_title=False)]
+            script = _script_for_render_items(None, render_items, websocket_url=websocket_url, wrap_script=False)
+            js_raw += [script]
 
         js = AUTOLOAD_JS.render(
             js_urls = resources.js_files,
             css_urls = resources.css_files,
-            js_raw = resources.js_raw + [script],
+            js_raw = js_raw,
             css_raw = resources.css_raw_str,
             elementid = element_id,
         )
