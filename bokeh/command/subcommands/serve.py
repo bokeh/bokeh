@@ -207,6 +207,10 @@ that is SSL-terminated.
     It is not advised to set this option on a Bokeh server directly facing
     the Internet.
 
+
+
+.. _userguide_cli_serve_session_id_options:
+
 Session ID Options
 ~~~~~~~~~~~~~~~~~~
 
