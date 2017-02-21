@@ -6,6 +6,7 @@ from __future__ import absolute_import
 from functools import partial
 from inspect import formatargspec, getargspec, isfunction, ismethod
 from types import FunctionType
+from ..events import Event
 
 def _callback_argspec(callback):
     '''Bokeh-internal function to get argspec for a callable'''
@@ -42,7 +43,41 @@ def _check_callback(callback, fargs, what="Callback functions"):
     elif len(argspec.args) - defaults_length != len(margs):
         raise ValueError(error_msg % (", ".join(margs), formatted_args))
 
-class CallbackManager(object):
+
+class EventCallbackManager(object):
+    ''' A mixin class to provide an interface for registering and
+    triggering event callbacks on the Python side.
+
+    '''
+    def __init__(self, *args, **kw):
+        super(EventCallbackManager, self).__init__(*args, **kw)
+        self._event_callbacks = dict()
+
+    def on_event(self, event, *callbacks):
+        if not isinstance(event, str) and issubclass(event, Event):
+            event = event.event_name
+
+        if event not in self._event_callbacks:
+            self._event_callbacks[event] = [cb for cb in callbacks]
+        else:
+            self._event_callbacks[event].extend(callbacks)
+
+        if event not in self.subscribed_events:
+            self.subscribed_events.append(event)
+
+    def _trigger_event(self, event):
+        for callback in self._event_callbacks.get(event.event_name,[]):
+            callback(event)
+
+    def _update_event_callbacks(self):
+        if self.document is None:
+            return
+
+        events = self._event_callbacks.keys()
+        if events:
+            self.document.event_manager.subscribed_models.add(self)
+
+
 class PropertyCallbackManager(object):
     ''' A mixin class to provide an interface for registering and
     triggering callbacks.

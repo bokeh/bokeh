@@ -20,6 +20,7 @@ from .themes import default as default_theme
 from .util.callback_manager import PropertyCallbackManager, EventCallbackManager
 from .util.future import with_metaclass
 from .util.serialization import make_id
+from .events import Event
 
 def collect_models(*input_values):
     ''' Collect a duplicate-free list of all other Bokeh models referred to by
@@ -214,7 +215,7 @@ _HTML_REPR = """
 </script>
 """
 
-class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager)):
+class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCallbackManager)):
     ''' Base class for all objects stored in Bokeh  |Document| instances.
 
     '''
@@ -526,6 +527,7 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager)):
             raise RuntimeError("Models must be owned by only a single document, %r is already in a doc" % (self))
         doc.theme.apply_to_model(self)
         self._document = doc
+        self._update_event_callbacks()
 
     def _detach_document(self):
         ''' Detach a model from a Bokeh |Document|.
