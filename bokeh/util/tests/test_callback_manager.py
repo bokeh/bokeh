@@ -45,55 +45,55 @@ def _just_fine(w, x, y, z='default'):
     pass
 
 def test_creation():
-    m = cbm.CallbackManager()
+    m = cbm.PropertyCallbackManager()
     assert len(m._callbacks) == 0
 
 def test_on_change_good_method():
-    m = cbm.CallbackManager()
+    m = cbm.PropertyCallbackManager()
     good = _Good()
     m.on_change('foo', good.method)
     assert len(m._callbacks) == 1
     assert m._callbacks['foo'] == [good.method]
 
 def test_on_change_good_partial_function():
-    m = cbm.CallbackManager()
+    m = cbm.PropertyCallbackManager()
     p = partial(_partially_good, 'foo')
     m.on_change('bar', p)
     assert len(m._callbacks) == 1
 
 def test_on_change_good_partial_method():
-    m = cbm.CallbackManager()
+    m = cbm.PropertyCallbackManager()
     good = _Good()
     p = partial(good.partially_good, 'foo')
     m.on_change('bar', p)
     assert len(m._callbacks) == 1
 
 def test_on_change_good_extra_kwargs_function():
-    m = cbm.CallbackManager()
+    m = cbm.PropertyCallbackManager()
     m.on_change('bar', _just_fine)
     assert len(m._callbacks) == 1
 
 def test_on_change_good_extra_kwargs_method():
-    m = cbm.CallbackManager()
+    m = cbm.PropertyCallbackManager()
     good = _Good()
     m.on_change('bar', good.just_fine)
     assert len(m._callbacks) == 1
 
 def test_on_change_good_functor():
-    m = cbm.CallbackManager()
+    m = cbm.PropertyCallbackManager()
     good = _Good()
     m.on_change('foo', good)
     assert len(m._callbacks) == 1
     assert m._callbacks['foo'] == [good]
 
 def test_on_change_good_function():
-    m = cbm.CallbackManager()
+    m = cbm.PropertyCallbackManager()
     m.on_change('foo', _good)
     assert len(m._callbacks) == 1
     assert m._callbacks['foo'] == [_good]
 
 def test_on_change_good_lambda():
-    m = cbm.CallbackManager()
+    m = cbm.PropertyCallbackManager()
     good = lambda x, y, z: x
     m.on_change('foo', good)
     assert len(m._callbacks) == 1
@@ -102,13 +102,13 @@ def test_on_change_good_lambda():
 def test_on_change_good_closure():
     def good(x, y, z):
         pass
-    m = cbm.CallbackManager()
+    m = cbm.PropertyCallbackManager()
     m.on_change('foo', good)
     assert len(m._callbacks) == 1
     assert len(m._callbacks['foo']) == 1
 
 def test_on_change_bad_method():
-    m = cbm.CallbackManager()
+    m = cbm.PropertyCallbackManager()
     bad = _Bad()
     with pytest.raises(ValueError):
         m.on_change('foo', bad.method)
@@ -116,7 +116,7 @@ def test_on_change_bad_method():
     assert len(m._callbacks['foo']) == 0
 
 def test_on_change_bad_functor():
-    m = cbm.CallbackManager()
+    m = cbm.PropertyCallbackManager()
     bad = _Bad()
     with pytest.raises(ValueError):
         m.on_change('foo', bad)
@@ -124,14 +124,14 @@ def test_on_change_bad_functor():
     assert len(m._callbacks['foo']) == 0
 
 def test_on_change_bad_function():
-    m = cbm.CallbackManager()
+    m = cbm.PropertyCallbackManager()
     with pytest.raises(ValueError):
         m.on_change('foo', _bad)
     assert len(m._callbacks) == 1
     assert len(m._callbacks['foo']) == 0
 
 def test_on_change_bad_lambda():
-    m = cbm.CallbackManager()
+    m = cbm.PropertyCallbackManager()
     with pytest.raises(ValueError):
         m.on_change('foo', lambda x, y: x)
     assert len(m._callbacks) == 1
@@ -140,7 +140,7 @@ def test_on_change_bad_lambda():
 def test_on_change_bad_closure():
     def bad(x, y):
         pass
-    m = cbm.CallbackManager()
+    m = cbm.PropertyCallbackManager()
     with pytest.raises(ValueError):
         m.on_change('foo', bad)
     assert len(m._callbacks) == 1
@@ -152,7 +152,7 @@ def test_on_change_same_attr_twice_multiple_calls():
 
     def good2(x, y, z):
         pass
-    m1 = cbm.CallbackManager()
+    m1 = cbm.PropertyCallbackManager()
     m1.on_change('foo', good1)
     m1.on_change('foo', good2)
     assert len(m1._callbacks) == 1
@@ -164,7 +164,7 @@ def test_on_change_same_attr_twice_one_call():
 
     def good2(x, y, z):
         pass
-    m2 = cbm.CallbackManager()
+    m2 = cbm.PropertyCallbackManager()
     m2.on_change('foo', good1, good2)
     assert len(m2._callbacks) == 1
     assert m2._callbacks['foo'] == [good1, good2]
@@ -175,7 +175,7 @@ def test_on_change_different_attrs():
 
     def good2(x, y, z):
         pass
-    m1 = cbm.CallbackManager()
+    m1 = cbm.PropertyCallbackManager()
     m1.on_change('foo', good1)
     m1.on_change('bar', good2)
     assert len(m1._callbacks) == 2
@@ -183,7 +183,7 @@ def test_on_change_different_attrs():
     assert m1._callbacks['bar'] == [good2]
 
 def test_trigger():
-    m = cbm.CallbackManager()
+    m = cbm.PropertyCallbackManager()
     good = _Good()
     m.on_change('foo', good.method)
     m.trigger('foo', 42, 43)
@@ -192,7 +192,7 @@ def test_trigger():
     assert good.last_new == 43
 
 def test_trigger_with_two_callbacks():
-    m = cbm.CallbackManager()
+    m = cbm.PropertyCallbackManager()
     good1 = _Good()
     good2 = _Good()
     m.on_change('foo', good1.method)

@@ -17,7 +17,7 @@ from .core.properties import Any, Dict, Instance, List, String
 from .core.has_props import HasProps, MetaHasProps
 from .core.query import find
 from .themes import default as default_theme
-from .util.callback_manager import CallbackManager
+from .util.callback_manager import PropertyCallbackManager, EventCallbackManager
 from .util.future import with_metaclass
 from .util.serialization import make_id
 
@@ -214,7 +214,7 @@ _HTML_REPR = """
 </script>
 """
 
-class Model(with_metaclass(MetaModel, HasProps, CallbackManager)):
+class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager)):
     ''' Base class for all objects stored in Bokeh  |Document| instances.
 
     '''

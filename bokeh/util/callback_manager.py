@@ -1,6 +1,6 @@
-''' Provides ``CallbackManager`` mixin class for adding an ``on_change``
-callback interface to classes.
-
+''' Provides ``PropertyCallbackManager`` and ``EventCallbackManager``
+mixin classes for adding ``on_change`` and ``on_event`` callback
+interfaces to classes.
 '''
 from __future__ import absolute_import
 from functools import partial
@@ -43,13 +43,14 @@ def _check_callback(callback, fargs, what="Callback functions"):
         raise ValueError(error_msg % (", ".join(margs), formatted_args))
 
 class CallbackManager(object):
+class PropertyCallbackManager(object):
     ''' A mixin class to provide an interface for registering and
     triggering callbacks.
 
     '''
 
     def __init__(self, *args, **kw):
-        super(CallbackManager, self).__init__(*args, **kw)
+        super(PropertyCallbackManager, self).__init__(*args, **kw)
         self._callbacks = dict()
 
     def on_change(self, attr, *callbacks):
