@@ -19,6 +19,19 @@ export class Model extends HasProps
       for cb in callbacks
         @listenTo(@, evt, () -> cb.execute(@))
 
+    @listenTo(@, 'change:js_event_callbacks', () -> @_update_event_callbacks)
+
+  _update_event_callbacks : () ->
+    if not @document?
+      # File an issue: SidePanel in particular seems to have this issue
+      console.warn('WARNING: Document not defined for updating event callbacks')
+      return
+    @document.event_manager.subscribed_models.push(@)
+
+  _doc_attached : () ->
+    if Object.keys(@js_event_callbacks).length != 0
+      @_update_event_callbacks()
+
   select: (selector) ->
     if selector.prototype instanceof Model
       @references().filter((ref) -> ref instanceof selector)
