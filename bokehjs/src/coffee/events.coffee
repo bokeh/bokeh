@@ -37,6 +37,26 @@ export class KeyDown extends UIEvent
     @key = options.key
     super(options)
 
+
+export class PointEvent extends UIEvent
+
+  constructor: (options) ->
+    {@sx, @sy} = options
+    [@x, @y] = [null, null]
+    # Class attributes don't appear on instances?
+    super(options)
+
+  @from_event : (e) ->
+    # Given a DOM point event, construct a corresponding Event instance
+    return new @({sx: e.bokeh['sx'], sy : e.bokeh['sy']})
+
+
+export class MouseMove extends PointEvent
+  @event_name = 'mousemove'
+  @_event_classes['mousemove'] = @
+
+
+
 export class HammerEvent extends UIEvent
 
   constructor: (options) ->
