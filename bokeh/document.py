@@ -71,6 +71,14 @@ def without_document_lock(func):
     wrapper.nolock = True
     return wrapper
 
+
+class EventManager(object):
+
+    def __init__(self, document):
+        self.document = document
+        self.subscribed_models = set() # Models subscribed to events
+
+
 class Document(object):
     ''' The basic unit of serialization for Bokeh.
 
@@ -96,6 +104,8 @@ class Document(object):
         self._session_context = None
         self._modules = []
         self._template_variables = {}
+
+        self.event_manager = EventManager(self)
 
     def delete_modules(self):
         ''' Clean up sys.modules after the session is destroyed.
