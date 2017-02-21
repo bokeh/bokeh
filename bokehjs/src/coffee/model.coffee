@@ -36,6 +36,11 @@ export class Model extends HasProps
     js_event_callbacks = if js_event_callbacks then js_event_callbacks else []
     for callback in js_event_callbacks
       callback.execute({event: event},{})
+
+    if @subscribed_events.some((m) -> m == event_name)
+      @document.event_manager.send_event(event)
+
+
   _update_event_callbacks : () ->
     if not @document?
       # File an issue: SidePanel in particular seems to have this issue

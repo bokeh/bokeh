@@ -16,7 +16,13 @@ class EventManager
     # Dispatches events to the subscribed models
 
   constructor: () ->
+    @session = null
     @subscribed_models = new Set()
+
+  send_event: (event) ->
+    # Send message to Python via session
+    @session.send_event(event)
+
   trigger: (event) ->
     for model in @subscribed_models.values
         model._process_event(event)

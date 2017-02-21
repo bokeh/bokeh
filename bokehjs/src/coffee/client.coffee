@@ -188,6 +188,10 @@ class ClientConnection
     catch e
       logger.error("Error sending message ", e, message)
 
+  send_event : (event) ->
+    message = Message.create('EVENT', {}, JSON.stringify(event))
+    @send(message)
+
   send_with_reply : (message) ->
     promise = new Promise (resolve, reject) =>
       @_pending_replies[message.msgid()] = [resolve, reject]
@@ -356,8 +360,14 @@ class ClientSession
     @document_listener = (event) => @_document_changed(event)
     @document.on_change(@document_listener)
 
+    @event_manager = @document.event_manager
+    @event_manager.session = @
+
   close : () ->
     @_connection.close()
+
+  send_event : (type) ->
+    @_connection.send_event(type)
 
   _connection_closed : () ->
     @document.remove_on_change(@document_listener)
