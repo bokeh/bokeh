@@ -4,6 +4,8 @@ import {Events} from "./events"
 import {logger} from "./logging"
 import {offset} from "./dom"
 import {getDeltaY} from "./util/wheel"
+import {KeyDown} from "../events"
+
 
 export class UIEvents
   @prototype extends Events
@@ -216,6 +218,7 @@ export class UIEvents
 
   _key_down: (e) ->
     # NOTE: keydown event triggered unconditionally
+    @event_manager.trigger(new KeyDown({key: e.key}))
     @trigger('keydown', e)
 
   _key_up: (e) ->
