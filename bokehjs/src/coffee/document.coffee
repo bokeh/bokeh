@@ -17,6 +17,9 @@ class EventManager
 
   constructor: () ->
     @subscribed_models = new Set()
+  trigger: (event) ->
+    for model in @subscribed_models.values
+        model._process_event(event)
 export class DocumentChangedEvent
   constructor : (@document) ->
 

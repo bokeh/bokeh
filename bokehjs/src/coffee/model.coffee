@@ -21,6 +21,21 @@ export class Model extends HasProps
 
     @listenTo(@, 'change:js_event_callbacks', () -> @_update_event_callbacks)
 
+
+  _process_event : (event) ->
+    # Given an applicable event, execute the associated callback
+    if not event.constructor.event_name
+       console.warn('Event is still passed as a string: ' + event)
+       return
+    if not event.constructor.applicable_models.some((m) => m == @.type)
+      return
+
+    event = event._customize_event(@)
+    event_name = event.constructor.event_name
+    js_event_callbacks = @js_event_callbacks[event_name]
+    js_event_callbacks = if js_event_callbacks then js_event_callbacks else []
+    for callback in js_event_callbacks
+      callback.execute({event: event},{})
   _update_event_callbacks : () ->
     if not @document?
       # File an issue: SidePanel in particular seems to have this issue
