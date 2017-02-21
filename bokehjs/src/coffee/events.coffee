@@ -77,3 +77,19 @@ export class HammerEvent extends UIEvent
     @_options['x'] = @x
     @_options['y'] = @y
     return @
+
+
+export class Tap extends HammerEvent
+
+  @event_name = 'tap'
+  @_event_classes['tap'] = @
+
+export class DoubleTap extends HammerEvent
+
+  @event_name = 'doubletap'
+  @_event_classes['doubletap'] = @
+
+export class Press extends HammerEvent
+
+  @event_name = 'press'
+  @_event_classes['press'] = @
