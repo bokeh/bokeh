@@ -21,3 +21,19 @@ class Event
   # Called by one of the applicable models processing the event
   _customize_event : (model) ->
     return @
+
+
+class UIEvent extends Event
+  # A UIEvent is an event originating on a PlotCanvas this includes
+  # DOM events such as keystrokes as well as hammer events.
+  @applicable_models = ['Plot']
+
+
+export class KeyDown extends UIEvent
+  @event_name = 'keydown'
+  @_event_classes['keydown'] = @
+
+  constructor: (options) ->
+    @key = options.key
+    super(options)
+

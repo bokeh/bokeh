@@ -7,3 +7,9 @@ class Event(object):
 
     event_classes = []
     event_name = None
+class KeyDown(Event):
+
+    event_name = 'keydown'
+
+    def __init__(self, key=None):
+        self.key = key
