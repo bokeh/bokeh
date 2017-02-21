@@ -37,3 +37,23 @@ export class KeyDown extends UIEvent
     @key = options.key
     super(options)
 
+export class HammerEvent extends UIEvent
+
+  constructor: (options) ->
+    {@sx, @sy} = options
+    [@x, @y] = [null, null]
+    # Class attributes don't appear on instances?
+    super(options)
+
+  @from_event : (e) ->
+    # Given a hammer event, construct a corresponding Event instance
+    return new @({sx: e.bokeh['sx'], sy : e.bokeh['sy']})
+
+  _customize_event : (plot) ->
+    xmapper = plot.plot_canvas.frame.x_mappers['default']
+    ymapper = plot.plot_canvas.frame.y_mappers['default']
+    @x = xmapper.map_from_target(@sx)
+    @y = ymapper.map_from_target(@sy)
+    @_options['x'] = @x
+    @_options['y'] = @y
+    return @
