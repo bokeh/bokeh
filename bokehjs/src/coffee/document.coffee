@@ -12,6 +12,11 @@ import {isEqual} from "./core/util/eq"
 import {isArray, isObject} from "./core/util/types"
 import {ColumnDataSource} from "./models/sources/column_data_source"
 
+class EventManager
+    # Dispatches events to the subscribed models
+
+  constructor: () ->
+    @subscribed_models = new Set()
 export class DocumentChangedEvent
   constructor : (@document) ->
 
@@ -91,6 +96,7 @@ export class Document
     @_solver = new Solver()
     @_init_solver()
 
+    @event_manager = new EventManager()
     window.addEventListener("resize", () => @resize())
 
   _init_solver : () ->
