@@ -132,6 +132,10 @@ export class Plot extends LayoutDOM
     @_set_orientation_variables(@toolbar)
     @_set_orientation_variables(@plot_canvas)
 
+    # super call needed to inform the event manager of the model(s)
+    # processing events (in this case it is the Plot model)
+
+    super()
   add_renderers: (new_renderers...) ->
     renderers = @renderers
     renderers = renderers.concat(new_renderers)
