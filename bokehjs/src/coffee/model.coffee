@@ -6,9 +6,11 @@ export class Model extends HasProps
   type: "Model"
 
   @define {
-    tags:         [ p.Array, [] ]
-    name:         [ p.String    ]
-    js_callbacks: [ p.Any,   {} ]
+    tags:               [ p.Array, [] ]
+    name:               [ p.String    ]
+    js_callbacks:       [ p.Any,   {} ]
+    js_event_callbacks: [ p.Any,   {} ]
+    subscribed_events:  [ p.Array, [] ]
   }
 
   initialize: (options) ->
