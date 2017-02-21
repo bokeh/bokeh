@@ -36,6 +36,7 @@ from .util.callback_manager import _check_callback
 from .util.datatypes import MultiValuedDict
 from .util.future import wraps
 from .util.version import __version__
+from .events import Event
 
 DEFAULT_TITLE = "Bokeh Application"
 
@@ -303,6 +304,11 @@ class Document(object):
                              None,
                              timeout_milliseconds)
         return self._add_session_callback(cb, callback, one_shot=True)
+
+    def apply_json_event(self, json):
+        logger.debug('Python received the following event json: %s' % json)
+        for obj in self.event_manager.subscribed_models:
+            obj._trigger_event(Event.from_JSON(json))
 
     def apply_json_patch(self, patch, setter=None):
         ''' Apply a JSON patch object and process any resulting events.

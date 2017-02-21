@@ -2,11 +2,23 @@
 '''
 
 from __future__ import absolute_import
+import json
 
 class Event(object):
 
     event_classes = []
     event_name = None
+
+    @classmethod
+    def from_JSON(cls, json):
+        eventclasses = [eventcls for eventcls in cls.event_classes]
+        for eventscls in eventclasses:
+            if eventscls.event_name == json['event_name']:
+                return eventscls(**json['event_values'])
+        print('Warning: Could not find appropriate Event class')
+
+
+
 class MouseMove(Event):
 
     event_name = 'mousemove'
