@@ -4,7 +4,7 @@ import {Events} from "./events"
 import {logger} from "./logging"
 import {offset} from "./dom"
 import {getDeltaY} from "./util/wheel"
-import {HammerEvent, KeyDown} from "../events"
+import {HammerEvent, PointEvent, KeyDown} from "../events"
 
 
 export class UIEvents
@@ -142,12 +142,16 @@ export class UIEvents
     else
       console.log('Unhandled hammer event of type ' + e.type)
 
-  _bokify_jq: (e) ->
+  _bokify_point_event: (e) ->
+
     {left, top} = offset(e.currentTarget)
     e.bokeh = {
       sx: e.pageX - left
       sy: e.pageY - top
     }
+    event_cls = PointEvent.event_class(e)
+    if event_cls
+      @event_manager.trigger(event_cls.from_event(e))
 
   _tap: (e) ->
     @_bokify_hammer(e)
@@ -203,21 +207,21 @@ export class UIEvents
 
   _mouse_enter: (e) ->
     # NOTE: move:enter event triggered unconditionally
-    @_bokify_jq(e)
+    @_bokify_point_event(e)
     @trigger('move:enter', e)
 
   _mouse_move: (e) ->
     # NOTE: move event triggered unconditionally
-    @_bokify_jq(e)
+    @_bokify_point_event(e)
     @trigger('move', e)
 
   _mouse_exit: (e) ->
     # NOTE: move:exit event triggered unconditionally
-    @_bokify_jq(e)
+    @_bokify_point_event(e)
     @trigger('move:exit', e)
 
   _mouse_wheel: (e) ->
-    @_bokify_jq(e)
+    @_bokify_point_event(e)
     e.bokeh.delta = getDeltaY(e)
     @_trigger('scroll', e)
 
