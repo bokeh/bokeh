@@ -4,7 +4,7 @@ import {Events} from "./events"
 import {logger} from "./logging"
 import {offset} from "./dom"
 import {getDeltaY} from "./util/wheel"
-import {KeyDown} from "../events"
+import {HammerEvent, KeyDown} from "../events"
 
 
 export class UIEvents
@@ -136,6 +136,11 @@ export class UIEvents
       sx: x - left
       sy: y - top
     }
+    event_cls = HammerEvent.event_class(e)
+    if event_cls
+      @event_manager.trigger(event_cls.from_event(e))
+    else
+      console.log('Unhandled hammer event of type ' + e.type)
 
   _bokify_jq: (e) ->
     {left, top} = offset(e.currentTarget)
