@@ -96,6 +96,7 @@ class Document(object):
         self._session_context = None
         self._modules = []
         self._template_variables = {}
+        self._use_cached = kwargs.pop('use_cached', False)
 
     def delete_modules(self):
         ''' Clean up sys.modules after the session is destroyed.
@@ -1072,7 +1073,7 @@ class Document(object):
         '''
         new_all_models_set = set()
         for r in self.roots:
-            new_all_models_set = new_all_models_set.union(r.references())
+            new_all_models_set = new_all_models_set.union(r.references(use_cached=self._use_cached))
         old_all_models_set = set(self._all_models.values())
         to_detach = old_all_models_set - new_all_models_set
         to_attach = new_all_models_set - old_all_models_set
