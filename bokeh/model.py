@@ -723,9 +723,22 @@ class _ModelInDocument(object):
         for model in self._to_remove_after:
             model.document.remove_root(model)
 
-    def __enter__(self):
+    def __enter__(self, tried_already=False):
         for model in self._to_remove_after:
-            self._doc.add_root(model)
+            try:
+                self._doc.add_root(model)
+            except:
+                # see if some child of the model is in a doc, this is meant to
+                # handle a thing like:
+                #   p = figure()
+                #   box = HBox(children=[p])
+                #   show(box)
+                if tried_already is False:
+                    docs = [r.document for r in model.references()]
+                    if len(docs) == 1:
+                        self._doc = docs[0]
+                        self.__enter__(tried_already=True)
+
 
 @contextmanager
 def _ModelInEmptyDocument(model):
