@@ -649,7 +649,7 @@ class Model(with_metaclass(MetaModel, HasProps, CallbackManager)):
                     p.text('=')
                     p.pretty(value)
 
-def _find_some_document(models):
+def _find_some_document(models, _to_remove_after=None):
     '''
 
     '''
@@ -677,16 +677,17 @@ def _find_some_document(models):
                 #   box = HBox(children=[p])
                 #   show(box)
                 references = model.references()
-                references_lookup[model] = references
+                references_lookup[model._id] = references
                 for r in references:
                     if r.document is not None:
                         doc = r.document
                         break
-    if doc is None:
+    if doc is None and _to_remove_after is not None:
         doc = Document()
         for model in models:
-            doc.add_root(model, references=references_lookup[model])
-
+            if isinstance(model, Model):
+                doc.add_root(model, references=references_lookup[model._id])
+                _to_remove_after.append(model)
     return doc
 
 def _visit_immediate_value_references(value, visitor):
@@ -732,7 +733,7 @@ class _ModelInDocument(object):
         if not isinstance(models, list):
             models = [models]
 
-        self._doc = _find_some_document(models)
+        self._doc = _find_some_document(models, _to_remove_after=self._to_remove_after)
 
         for model in models:
             if isinstance(model, Model):
