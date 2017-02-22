@@ -655,7 +655,6 @@ def _find_some_document(models):
     '''
     from .document import Document
 
-    # First try the easy stuff...
     doc = None
     for model in models:
         if isinstance(model, Document):
@@ -665,21 +664,6 @@ def _find_some_document(models):
             if model.document is not None:
                 doc = model.document
                 break
-
-    # Now look in children of models
-    if doc is None:
-        for model in models:
-            if isinstance(model, Model):
-                # see if some child of ours is in a doc, this is meant to
-                # handle a thing like:
-                #   p = figure()
-                #   box = HBox(children=[p])
-                #   show(box)
-                for r in model.references():
-                    if r.document is not None:
-                        doc = r.document
-                        break
-
     return doc
 
 def _visit_immediate_value_references(value, visitor):
