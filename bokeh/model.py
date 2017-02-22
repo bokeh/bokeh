@@ -223,7 +223,6 @@ class Model(with_metaclass(MetaModel, HasProps, CallbackManager)):
     def __init__(self, **kwargs):
         self._id = kwargs.pop("id", make_id())
         self._document = None
-        self._references = None
         super(Model, self).__init__(**kwargs)
         default_theme.apply_to_model(self)
 
@@ -391,13 +390,11 @@ class Model(with_metaclass(MetaModel, HasProps, CallbackManager)):
             raise ValueError("attempted to add a callback on nonexistent %s.%s property" % (self.__class__.__name__, attr))
         super(Model, self).on_change(attr, *callbacks)
 
-    def references(self, use_cached=False):
+    def references(self):
         ''' Returns all ``Models`` that this object has references to.
 
         '''
-        if not use_cached or self._references is None:
-            self._references = set(collect_models(self))
-        return self._references
+        return set(collect_models(self))
 
     def select(self, selector):
         ''' Query this object and all of its references for objects that
@@ -671,6 +668,7 @@ def _find_some_document(models):
 
     # Now look in children of models
     if doc is None:
+        references_lookup = {}
         for model in models:
             if isinstance(model, Model):
                 # see if some child of ours is in a doc, this is meant to
@@ -678,12 +676,16 @@ def _find_some_document(models):
                 #   p = figure()
                 #   box = HBox(children=[p])
                 #   show(box)
-                for r in model.references():
+                references = model.references()
+                references_lookup[model] = references
+                for r in references:
                     if r.document is not None:
                         doc = r.document
                         break
     if doc is None:
-        doc = Document(use_cached=True)
+        doc = Document()
+        for model in models:
+            doc.add_root(model, references=references_lookup[model])
 
     return doc
 
@@ -744,7 +746,6 @@ class _ModelInDocument(object):
     def __enter__(self):
         for model in self._to_remove_after:
             self._doc.add_root(model)
-            self._doc._use_cached = False
 
 @contextmanager
 def _ModelInEmptyDocument(model):
