@@ -46,7 +46,7 @@ export class Model extends HasProps
       # File an issue: SidePanel in particular seems to have this issue
       console.warn('WARNING: Document not defined for updating event callbacks')
       return
-    @document.event_manager.subscribed_models.push(@)
+    @document.event_manager.subscribed_models.push(@.id)
 
   _doc_attached : () ->
     if Object.keys(@js_event_callbacks).length != 0

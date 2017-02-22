@@ -15,7 +15,7 @@ import {ColumnDataSource} from "./models/sources/column_data_source"
 class EventManager
     # Dispatches events to the subscribed models
 
-  constructor: () ->
+  constructor: (@document) ->
     @session = null
     @subscribed_models = new Set()
 
@@ -24,8 +24,11 @@ class EventManager
     @session.send_event(event)
 
   trigger: (event) ->
-    for model in @subscribed_models.values
-        model._process_event(event)
+    for model_id in @subscribed_models.values
+        model = @document._all_models[model_id]
+        if model?
+            model._process_event(event)
+
 export class DocumentChangedEvent
   constructor : (@document) ->
 
@@ -105,7 +108,7 @@ export class Document
     @_solver = new Solver()
     @_init_solver()
 
-    @event_manager = new EventManager()
+    @event_manager = new EventManager(@)
     window.addEventListener("resize", () => @resize())
 
   _init_solver : () ->
