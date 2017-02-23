@@ -15,6 +15,7 @@ from __future__ import absolute_import
 
 from collections import Sequence
 from warnings import warn
+import re
 
 from six import string_types
 
@@ -131,10 +132,37 @@ def components(models, wrap_script=True, wrap_plot_info=True):
             values.append(models[k])
         models = values
 
-    # 2) Do our rendering
+    # 2) Append models to one document. Either pre-existing or new.
+    doc = None
+    for model in models:
+        if isinstance(model, Document):
+            doc = model
+            break
+        elif isinstance(model, Model):
+            if model.document is not None:
+                doc = model.document
+                break
+    if doc is None:
+        # oh well - just make up a doc
+        doc = Document()
 
-    with _ModelInDocument(models):
-        (docs_json, render_items) = _standalone_docs_json_and_render_items(models)
+    _to_remove_after = []
+    for model in models:
+        if isinstance(model, Model):
+            if model.document is None:
+                try:
+                    doc.add_root(model)
+                except RuntimeError as e:
+                    child = re.search('\((.*)\)', str(e)).group(0)
+                    msg = ('Sub-model {0} of the root model {1} is already owned '
+                           'by another document (Models must be owned by only a '
+                           'single document). This may indicate a usage '
+                           'error.'.format(child, model))
+                    raise RuntimeError(msg)
+                _to_remove_after.append(model)
+
+    # 3) Do our rendering
+    (docs_json, render_items) = _standalone_docs_json_and_render_items(models)
 
     script = _script_for_render_items(docs_json, render_items, websocket_url=None, wrap_script=wrap_script)
     script = encode_utf8(script)
@@ -144,7 +172,11 @@ def components(models, wrap_script=True, wrap_plot_info=True):
     else:
         results = render_items
 
-    # 3) convert back to the input shape
+    # 4) Clean up the doc
+    for model in _to_remove_after:
+        doc.remove_root(model)
+
+    # 5) convert back to the input shape
 
     if was_single_object:
         return script, results[0]

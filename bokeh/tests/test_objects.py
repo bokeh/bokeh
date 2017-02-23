@@ -357,12 +357,11 @@ class TestModelInDocument(unittest.TestCase):
         self.assertIs(p1.document, None)
         self.assertIs(p2.document, None)
         self.assertIs(p2.child.document, doc)
-        with self.assertRaisesRegex(RuntimeError, p2._id):
-            with _ModelInDocument([p1, p2]):
-                self.assertIsNot(p1.document, None)
-                self.assertIsNot(p2.document, None)
-                self.assertIs(p1.document, doc)
-                self.assertIs(p2.document, doc)
+        with _ModelInDocument([p1, p2]):
+            self.assertIsNot(p1.document, None)
+            self.assertIsNot(p2.document, None)
+            self.assertIs(p1.document, doc)
+            self.assertIs(p2.document, doc)
         self.assertIs(p1.document, None)
         self.assertIs(p2.document, None)
         self.assertIs(p2.child.document, doc)

@@ -10,8 +10,6 @@ logger = logging.getLogger(__file__)
 from contextlib import contextmanager
 from json import loads
 from operator import itemgetter
-import re
-from itertools import takewhile
 
 from six import iteritems
 
@@ -657,6 +655,7 @@ def _find_some_document(models):
     '''
     from .document import Document
 
+    # First try the easy stuff...
     doc = None
     for model in models:
         if isinstance(model, Document):
@@ -666,6 +665,21 @@ def _find_some_document(models):
             if model.document is not None:
                 doc = model.document
                 break
+
+    # Now look in children of models
+    if doc is None:
+        for model in models:
+            if isinstance(model, Model):
+                # see if some child of ours is in a doc, this is meant to
+                # handle a thing like:
+                #   p = figure()
+                #   box = HBox(children=[p])
+                #   show(box)
+                for r in model.references():
+                    if r.document is not None:
+                        doc = r.document
+                        break
+
     return doc
 
 def _visit_immediate_value_references(value, visitor):
@@ -727,20 +741,7 @@ class _ModelInDocument(object):
 
     def __enter__(self):
         for model in self._to_remove_after:
-            try:
-                self._doc.add_root(model)
-            except RuntimeError as e:
-                try:
-                    for r in takewhile(lambda x: x != model, self._to_remove_after):
-                        r.document.remove_root(r)
-                except RuntimeError:
-                    pass
-                child = re.search('\((.*)\)', str(e)).group(0)
-                msg = ('Sub-model {0} of the root model {1} is already owned '
-                       'by another document (Models must be owned by only a '
-                       'single document). This may indicate a usage '
-                       'error.'.format(child, model))
-                raise RuntimeError(msg)
+            self._doc.add_root(model)
 
 
 @contextmanager
