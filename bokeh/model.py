@@ -743,7 +743,6 @@ class _ModelInDocument(object):
         for model in self._to_remove_after:
             self._doc.add_root(model)
 
-
 @contextmanager
 def _ModelInEmptyDocument(model):
     '''

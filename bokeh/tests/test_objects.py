@@ -349,7 +349,7 @@ class TestModelInDocument(unittest.TestCase):
         self.assertIs(p1.document, None)
         self.assertIs(p2.document, None)
 
-    def test_raise_error_if_doc_in_child(self):
+    def test_uses_precedent_from_child(self):
         doc = Document()
         p1 = Model()
         p2 = SomeModelInTestObjects(child=Model())
@@ -364,6 +364,7 @@ class TestModelInDocument(unittest.TestCase):
             self.assertIs(p2.document, doc)
         self.assertIs(p1.document, None)
         self.assertIs(p2.document, None)
+        self.assertIsNot(p2.child.document, None)
         self.assertIs(p2.child.document, doc)
 
 class TestContainerMutation(unittest.TestCase):
