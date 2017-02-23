@@ -10,6 +10,7 @@ logger = logging.getLogger(__file__)
 from contextlib import contextmanager
 from json import loads
 from operator import itemgetter
+import re
 
 from six import iteritems
 
@@ -723,21 +724,17 @@ class _ModelInDocument(object):
         for model in self._to_remove_after:
             model.document.remove_root(model)
 
-    def __enter__(self, tried_already=False):
+    def __enter__(self):
         for model in self._to_remove_after:
             try:
                 self._doc.add_root(model)
-            except:
-                # see if some child of the model is in a doc, this is meant to
-                # handle a thing like:
-                #   p = figure()
-                #   box = HBox(children=[p])
-                #   show(box)
-                if tried_already is False:
-                    docs = [r.document for r in model.references()]
-                    if len(docs) == 1:
-                        self._doc = docs[0]
-                        self.__enter__(tried_already=True)
+            except RuntimeError as e:
+                child = re.search('\((.*)\)', str(e)).group(0)
+                msg = ('Sub-model {0} of the root model {1} is already owned '
+                       'by another document (Models must be owned by only a '
+                       'single document). This may indicate a usage '
+                       'error.'.format(child, model))
+                raise RuntimeError(msg)
 
 
 @contextmanager
