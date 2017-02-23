@@ -2,12 +2,10 @@ from __future__ import division
 import os
 import math
 import json
-import numpy as np
 import pandas as pd
 import collections
 import bokeh.io as bio
 import bokeh.layouts as bl
-import bokeh.models as bm
 import bokeh.models.widgets as bmw
 import bokeh.models.sources as bms
 import bokeh.models.tools as bmt
@@ -105,38 +103,15 @@ def build_widgets():
         init['init_load'] = False
 
     wdg['data'].on_change('value', update_data)
-    wdg['chart_type'].on_change('value', update_sel)
-    wdg['x'].on_change('value', update_sel)
-    wdg['x_group'].on_change('value', update_sel)
-    wdg['y'].on_change('value', update_sel)
-    wdg['y_agg'].on_change('value', update_sel)
-    wdg['series'].on_change('value', update_sel)
-    wdg['series_stack'].on_change('value', update_sel)
-    wdg['explode'].on_change('value', update_sel)
-    wdg['explode_group'].on_change('value', update_sel)
-    wdg['plot_title'].on_change('value', update_sel)
-    wdg['plot_title_size'].on_change('value', update_sel)
-    wdg['plot_width'].on_change('value', update_sel)
-    wdg['plot_height'].on_change('value', update_sel)
-    wdg['opacity'].on_change('value', update_sel)
-    wdg['x_min'].on_change('value', update_sel)
-    wdg['x_max'].on_change('value', update_sel)
-    wdg['x_scale'].on_change('value', update_sel)
-    wdg['x_title'].on_change('value', update_sel)
-    wdg['x_title_size'].on_change('value', update_sel)
-    wdg['x_major_label_size'].on_change('value', update_sel)
-    wdg['x_major_label_orientation'].on_change('value', update_sel)
-    wdg['y_min'].on_change('value', update_sel)
-    wdg['y_max'].on_change('value', update_sel)
-    wdg['y_scale'].on_change('value', update_sel)
-    wdg['y_title'].on_change('value', update_sel)
-    wdg['y_title_size'].on_change('value', update_sel)
-    wdg['y_major_label_size'].on_change('value', update_sel)
-    wdg['circle_size'].on_change('value', update_sel)
-    wdg['bar_width'].on_change('value', update_sel)
-    wdg['line_width'].on_change('value', update_sel)
     wdg['update'].on_click(update_plots)
     wdg['download'].on_click(download)
+
+    wdg_names = ['chart_type', 'x', 'x_group', 'y', 'y_agg', 'series', 'series_stack', 'explode', 'explode_group', 'plot_title', 'plot_title_size',
+    'plot_width', 'plot_height', 'opacity', 'x_min', 'x_max', 'x_scale', 'x_title', 'x_title_size', 'x_major_label_size', 'x_major_label_orientation',
+    'y_min', 'y_max', 'y_scale', 'y_title', 'y_title_size', 'y_major_label_size', 'circle_size', 'bar_width', 'line_width']
+
+    for name in wdg_names:
+        wdg[name].on_change('value', update_sel)
 
     controls.children = list(wdg.values())
 
@@ -350,7 +325,7 @@ def download():
 #and widget configuration object (wdg_config)
 init = {'init_load':True}
 wdg_config = {}
-data_file = os.path.dirname(os.path.realpath(__file__)) + '/csv/electricity generation.csv'
+data_file = os.path.dirname(os.path.realpath(__file__)) + '/csv/US_electric_power_generation.csv'
 args = bio.curdoc().session_context.request.arguments
 wdg_arr = args.get('widgets')
 if wdg_arr is not None:
