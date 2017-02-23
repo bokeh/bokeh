@@ -100,5 +100,21 @@ Default tooltip position for lines changed to nearest point
 When showing tooltips for lines, the new default is to label the nearest point,
 instead of the previous point, which used to be the default.
 
+HTTP Request information for apps limited to query arguments
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The ``request`` previously attribute was added to session contexts as a way to
+expose HTTP query parameters. It was discovered that providing the entire
+request is not compatible with the usage of ``--num-procs``. A method was
+found to satisfy the original feature request for query arguments, together
+with ``--num-procs`` (but *only* for query arguments). Accordingly the only
+attribute that can now be accessed on ``request`` is ``.arguments``, e.g.:
+
+.. code-block:: python
+
+    curdoc().session_context.request.arguments
+
+Attempting to access any other attribute on ``request`` will result in an
+error.
 
 .. _project roadmap: http://bokehplots.com/pages/roadmap.html
