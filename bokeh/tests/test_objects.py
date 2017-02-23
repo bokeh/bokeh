@@ -363,6 +363,9 @@ class TestModelInDocument(unittest.TestCase):
                 self.assertIsNot(p2.document, None)
                 self.assertIs(p1.document, doc)
                 self.assertIs(p2.document, doc)
+        self.assertIs(p1.document, None)
+        self.assertIs(p2.document, None)
+        self.assertIs(p2.child.document, doc)
 
 class TestContainerMutation(unittest.TestCase):
 

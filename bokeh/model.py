@@ -11,6 +11,7 @@ from contextlib import contextmanager
 from json import loads
 from operator import itemgetter
 import re
+from itertools import takewhile
 
 from six import iteritems
 
@@ -729,6 +730,11 @@ class _ModelInDocument(object):
             try:
                 self._doc.add_root(model)
             except RuntimeError as e:
+                try:
+                    for r in takewhile(lambda x: x != model, self._to_remove_after):
+                        r.document.remove_root(r)
+                except RuntimeError:
+                    pass
                 child = re.search('\((.*)\)', str(e)).group(0)
                 msg = ('Sub-model {0} of the root model {1} is already owned '
                        'by another document (Models must be owned by only a '
