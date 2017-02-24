@@ -4,8 +4,6 @@ which allow users to create Bokeh plots using other plotting libraries.
 **NOTE** Bokeh's compatibility currently depends on a third party library which is not 100% complete.
 Bokeh is capable of rendering many&mdash;***but not all***&mdash;plots created using the libraries below.
 
-* `ggplot` Create Bokeh plots using the python [ggplot.py](http://ggplot.yhathq.com) port of the R [`ggplot2`](http://ggplot2.org/) library
-
 * `pandas` Create Bokeh plots using the plotting API for [pandas](http://pandas.pydata.org/) dataframes
 
 * `mpl` Create Bokeh plots from [matplotlib](http://matplotlib.org) code

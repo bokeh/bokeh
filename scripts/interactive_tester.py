@@ -26,7 +26,6 @@ DIRECTORIES = {
 DEFAULT_TEST_FILES = [
     '../../examples/plotting/file/stocks.py',
     '../../examples/plotting/file/glucose.py',
-    '../../examples/compat/ggplot_density.py',
     '../../examples/compat/seaborn_violin.py',
     '../../examples/plotting/server/hover.py',
     '../../examples/charts/boxplot.py',
@@ -257,7 +256,7 @@ if __name__ == '__main__':
             target = results.location
 
             if target == 'compat':
-                for dep in ['ggplot', 'pandas', 'seaborn']:
+                for dep in ['pandas', 'seaborn']:
                     if not depend_check(dep): sys.exit(1)
 
             test_dir = DIRECTORIES[target]
