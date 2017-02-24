@@ -752,10 +752,6 @@ class Document(object):
             None
 
         '''
-        # logging.basicConfig is a no-op if there's already
-        # some logging configured. We want to make sure warnings
-        # go somewhere so configure here if nobody has.
-        logging.basicConfig(level=logging.INFO)
         root_sets = []
         for r in self.roots:
             refs = r.references()

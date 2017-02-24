@@ -328,6 +328,7 @@ import argparse
 from bokeh.application import Application
 from bokeh.resources import DEFAULT_SERVER_PORT
 from bokeh.server.server import Server
+from bokeh.util.logconfig import basicConfig
 from bokeh.util.string import nice_join
 from bokeh.settings import settings
 
@@ -493,7 +494,7 @@ class Serve(Subcommand):
         applications = build_single_handler_applications(args.files, argvs)
 
         log_level = getattr(logging, args.log_level.upper())
-        logging.basicConfig(level=log_level, format=args.log_format)
+        basicConfig(level=log_level, format=args.log_format)
 
         if len(applications) == 0:
             # create an empty application by default, typically used with output_server
