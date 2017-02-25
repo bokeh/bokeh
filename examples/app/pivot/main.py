@@ -54,10 +54,12 @@ def build_widgets():
     wdg['series_dropdown'] = bmw.Div(text='Series', css_classes=['series-dropdown'])
     wdg['series_legend'] = bmw.Div(text='', css_classes=['series-drop'])
     wdg['series'] = bmw.Select(title='Separate Series By', value='None', options=['None'] + cols['seriesable'], css_classes=['wdgkey-series', 'series-drop'])
-    wdg['series_stack'] = bmw.Select(title='Series Stacking', value='Unstacked', options=['Unstacked', 'Stacked'], css_classes=['wdgkey-series_stack', 'series-drop'])
+    wdg['series_stack'] = bmw.Select(title='Series Stacking', value='Unstacked', options=['Unstacked', 'Stacked'],
+        css_classes=['wdgkey-series_stack', 'series-drop'])
     wdg['explode_dropdown'] = bmw.Div(text='Explode', css_classes=['explode-dropdown'])
     wdg['explode'] = bmw.Select(title='Explode By', value='None', options=['None'] + cols['seriesable'], css_classes=['wdgkey-explode', 'explode-drop'])
-    wdg['explode_group'] = bmw.Select(title='Group Exploded Charts By', value='None', options=['None'] + cols['seriesable'], css_classes=['wdgkey-explode_group', 'explode-drop'])
+    wdg['explode_group'] = bmw.Select(title='Group Exploded Charts By', value='None', options=['None'] + cols['seriesable'],
+        css_classes=['wdgkey-explode_group', 'explode-drop'])
     wdg['filters'] = bmw.Div(text='Filters', css_classes=['filters-dropdown'])
     for j, col in enumerate(cols['filterable']):
         val_list = [str(i) for i in sorted(dfs['df'][col].unique().tolist())]
@@ -77,7 +79,8 @@ def build_widgets():
     wdg['x_title'] = bmw.TextInput(title='X Title', value='', css_classes=['wdgkey-x_title', 'adjust-drop'])
     wdg['x_title_size'] = bmw.TextInput(title='X Title Font Size', value=str(PLOT_FONT_SIZE), css_classes=['wdgkey-x_title_size', 'adjust-drop'])
     wdg['x_major_label_size'] = bmw.TextInput(title='X Labels Font Size', value=str(PLOT_AXIS_LABEL_SIZE), css_classes=['wdgkey-x_major_label_size', 'adjust-drop'])
-    wdg['x_major_label_orientation'] = bmw.TextInput(title='X Labels Degrees', value=str(PLOT_LABEL_ORIENTATION), css_classes=['wdgkey-x_major_label_orientation', 'adjust-drop'])
+    wdg['x_major_label_orientation'] = bmw.TextInput(title='X Labels Degrees', value=str(PLOT_LABEL_ORIENTATION),
+        css_classes=['wdgkey-x_major_label_orientation', 'adjust-drop'])
     wdg['y_scale'] = bmw.TextInput(title='Y Scale', value=str(Y_SCALE), css_classes=['wdgkey-y_scale', 'adjust-drop'])
     wdg['y_min'] = bmw.TextInput(title='Y  Min', value='', css_classes=['wdgkey-y_min', 'adjust-drop'])
     wdg['y_max'] = bmw.TextInput(title='Y Max', value='', css_classes=['wdgkey-y_max', 'adjust-drop'])
@@ -318,7 +321,8 @@ def update_plots():
     create_figures()
 
 def download():
-    dfs['df_plots'].to_csv(os.path.dirname(os.path.realpath(__file__)) + '/downloads/out '+datetime.datetime.now().strftime("%Y-%m-%d %H-%M-%S-%f")+'.csv', index=False)
+    dfs['df_plots'].to_csv(os.path.dirname(os.path.realpath(__file__)) + '/downloads/out '+ 
+        datetime.datetime.now().strftime("%Y-%m-%d %H-%M-%S-%f")+'.csv', index=False)
 
 
 #On initial load, read 'widgets' parameter from URL query string and use to set data source (data_file)
