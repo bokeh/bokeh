@@ -1,157 +1,37 @@
 Scenario,Technology,Year,Generation (TWh)
-Reference Case,Nuclear,2016,787
-Reference Case,Nuclear,2018,779
 Reference Case,Nuclear,2020,768
-Reference Case,Nuclear,2022,768
-Reference Case,Nuclear,2024,768
-Reference Case,Nuclear,2026,768
-Reference Case,Nuclear,2028,768
 Reference Case,Nuclear,2030,768
-Reference Case,Nuclear,2032,762
-Reference Case,Nuclear,2034,762
-Reference Case,Nuclear,2036,762
-Reference Case,Nuclear,2038,762
 Reference Case,Nuclear,2040,762
-Reference Case,Coal,2016,1113
-Reference Case,Coal,2018,1265
 Reference Case,Coal,2020,1342
-Reference Case,Coal,2022,1377
-Reference Case,Coal,2024,1396
-Reference Case,Coal,2026,1292
-Reference Case,Coal,2028,1203
 Reference Case,Coal,2030,1125
-Reference Case,Coal,2032,1078
-Reference Case,Coal,2034,1052
-Reference Case,Coal,2036,1030
-Reference Case,Coal,2038,1006
 Reference Case,Coal,2040,982
-Reference Case,Natural Gas,2016,1361
-Reference Case,Natural Gas,2018,1145
 Reference Case,Natural Gas,2020,945
-Reference Case,Natural Gas,2022,947
-Reference Case,Natural Gas,2024,957
-Reference Case,Natural Gas,2026,1080
-Reference Case,Natural Gas,2028,1171
 Reference Case,Natural Gas,2030,1237
-Reference Case,Natural Gas,2032,1306
-Reference Case,Natural Gas,2034,1375
-Reference Case,Natural Gas,2036,1435
-Reference Case,Natural Gas,2038,1498
 Reference Case,Natural Gas,2040,1560
-Reference Case,Hydropower,2016,277
-Reference Case,Hydropower,2018,282
 Reference Case,Hydropower,2020,282
-Reference Case,Hydropower,2022,283
-Reference Case,Hydropower,2024,284
-Reference Case,Hydropower,2026,287
-Reference Case,Hydropower,2028,288
 Reference Case,Hydropower,2030,288
-Reference Case,Hydropower,2032,288
-Reference Case,Hydropower,2034,289
-Reference Case,Hydropower,2036,289
-Reference Case,Hydropower,2038,289
 Reference Case,Hydropower,2040,289
-Reference Case,Wind,2016,255
-Reference Case,Wind,2018,381
 Reference Case,Wind,2020,527
-Reference Case,Wind,2022,524
-Reference Case,Wind,2024,524
-Reference Case,Wind,2026,521
-Reference Case,Wind,2028,528
 Reference Case,Wind,2030,534
-Reference Case,Wind,2032,549
-Reference Case,Wind,2034,549
-Reference Case,Wind,2036,553
-Reference Case,Wind,2038,567
 Reference Case,Wind,2040,588
-Reference Case,Solar,2016,67
-Reference Case,Solar,2018,82
 Reference Case,Solar,2020,110
-Reference Case,Solar,2022,130
-Reference Case,Solar,2024,163
-Reference Case,Solar,2026,196
-Reference Case,Solar,2028,243
 Reference Case,Solar,2030,293
-Reference Case,Solar,2032,321
-Reference Case,Solar,2034,356
-Reference Case,Solar,2036,404
-Reference Case,Solar,2038,446
 Reference Case,Solar,2040,489
-Carbon Tax Case,Nuclear,2016,787
-Carbon Tax Case,Nuclear,2018,779
 Carbon Tax Case,Nuclear,2020,768
-Carbon Tax Case,Nuclear,2022,768
-Carbon Tax Case,Nuclear,2024,768
-Carbon Tax Case,Nuclear,2026,768
-Carbon Tax Case,Nuclear,2028,768
 Carbon Tax Case,Nuclear,2030,768
-Carbon Tax Case,Nuclear,2032,762
-Carbon Tax Case,Nuclear,2034,762
-Carbon Tax Case,Nuclear,2036,762
-Carbon Tax Case,Nuclear,2038,761
 Carbon Tax Case,Nuclear,2040,760
-Carbon Tax Case,Coal,2016,1113
-Carbon Tax Case,Coal,2018,585
 Carbon Tax Case,Coal,2020,356
-Carbon Tax Case,Coal,2022,272
-Carbon Tax Case,Coal,2024,244
-Carbon Tax Case,Coal,2026,195
-Carbon Tax Case,Coal,2028,92
 Carbon Tax Case,Coal,2030,51
-Carbon Tax Case,Coal,2032,30
-Carbon Tax Case,Coal,2034,17
-Carbon Tax Case,Coal,2036,10
-Carbon Tax Case,Coal,2038,7
 Carbon Tax Case,Coal,2040,5
-Carbon Tax Case,Natural Gas,2016,1361
-Carbon Tax Case,Natural Gas,2018,1609
 Carbon Tax Case,Natural Gas,2020,1296
-Carbon Tax Case,Natural Gas,2022,1231
-Carbon Tax Case,Natural Gas,2024,1140
-Carbon Tax Case,Natural Gas,2026,1137
-Carbon Tax Case,Natural Gas,2028,1123
 Carbon Tax Case,Natural Gas,2030,1143
-Carbon Tax Case,Natural Gas,2032,1153
-Carbon Tax Case,Natural Gas,2034,1166
-Carbon Tax Case,Natural Gas,2036,1187
-Carbon Tax Case,Natural Gas,2038,1236
 Carbon Tax Case,Natural Gas,2040,1257
-Carbon Tax Case,Hydropower,2016,277
-Carbon Tax Case,Hydropower,2018,285
 Carbon Tax Case,Hydropower,2020,286
-Carbon Tax Case,Hydropower,2022,288
-Carbon Tax Case,Hydropower,2024,289
-Carbon Tax Case,Hydropower,2026,290
-Carbon Tax Case,Hydropower,2028,290
 Carbon Tax Case,Hydropower,2030,291
-Carbon Tax Case,Hydropower,2032,291
-Carbon Tax Case,Hydropower,2034,291
-Carbon Tax Case,Hydropower,2036,291
-Carbon Tax Case,Hydropower,2038,292
 Carbon Tax Case,Hydropower,2040,292
-Carbon Tax Case,Wind,2016,255
-Carbon Tax Case,Wind,2018,559
 Carbon Tax Case,Wind,2020,1067
-Carbon Tax Case,Wind,2022,1121
-Carbon Tax Case,Wind,2024,1121
-Carbon Tax Case,Wind,2026,1116
-Carbon Tax Case,Wind,2028,1127
 Carbon Tax Case,Wind,2030,1126
-Carbon Tax Case,Wind,2032,1143
-Carbon Tax Case,Wind,2034,1166
-Carbon Tax Case,Wind,2036,1182
-Carbon Tax Case,Wind,2038,1201
 Carbon Tax Case,Wind,2040,1242
-Carbon Tax Case,Solar,2016,67
-Carbon Tax Case,Solar,2018,105
 Carbon Tax Case,Solar,2020,184
-Carbon Tax Case,Solar,2022,330
-Carbon Tax Case,Solar,2024,523
-Carbon Tax Case,Solar,2026,636
-Carbon Tax Case,Solar,2028,802
 Carbon Tax Case,Solar,2030,870
-Carbon Tax Case,Solar,2032,931
-Carbon Tax Case,Solar,2034,990
-Carbon Tax Case,Solar,2036,1051
-Carbon Tax Case,Solar,2038,1084
 Carbon Tax Case,Solar,2040,1130
