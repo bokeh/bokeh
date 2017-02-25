@@ -95,20 +95,20 @@ class Figure(Plot):
 
     def __init__(self, *arg, **kw):
 
-        if 'plot_width' in kwargs and 'width' in kwargs:
+        if 'plot_width' in kw and 'width' in kw:
             raise ValueError("Figure called with both 'plot_width' and 'width' supplied, supply only one")
-        if 'plot_height' in kwargs and 'height' in kwargs:
+        if 'plot_height' in kw and 'height' in kw:
             raise ValueError("Figure called with both 'plot_height' and 'height' supplied, supply only one")
-        if 'height' in kwargs:
-            kwargs['plot_height'] = kwargs.pop('height')
-        if 'width' in kwargs:
-            kwargs['plot_width'] = kwargs.pop('width')
+        if 'height' in kw:
+            kw['plot_height'] = kw.pop('height')
+        if 'width' in kw:
+            kw['plot_width'] = kw.pop('width')
 
-        if 'responsive' in kwargs and 'sizing_mode' in kwargs:
+        if 'responsive' in kw and 'sizing_mode' in kw:
             raise ValueError("Figure called with both 'responsive' and 'sizing_mode' supplied, supply only one")
-        if 'responsive' in kwargs:
-            kwargs['sizing_mode'] = _convert_responsive(kwargs['responsive'])
-            del kwargs['responsive']
+        if 'responsive' in kw:
+            kw['sizing_mode'] = _convert_responsive(kw['responsive'])
+            del kw['responsive']
 
         opts = FigureOptions(kw)
 
