@@ -16,11 +16,10 @@ The following requirements are necessary for building Bokeh documentation:
 * sphinx
 * seaborn
 * pyyaml
-* ggplot
 
 Install these requirements::
 
-    conda install -c bokeh sphinx seaborn pyyaml ggplot
+    conda install -c bokeh sphinx seaborn pyyaml
 
 We recommend using ``conda`` to install these requirements. Alternatively, you
 may use ``pip`` or install from the packages' source.

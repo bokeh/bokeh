@@ -3,7 +3,6 @@ from __future__ import absolute_import
 from bokeh.io import save
 from bokeh.models import Arrow, OpenHead, NormalHead, VeeHead
 from bokeh.plotting import figure
-from selenium.webdriver.common.action_chains import ActionChains
 from tests.integration.utils import has_no_console_errors
 
 import pytest

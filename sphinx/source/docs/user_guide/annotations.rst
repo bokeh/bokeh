@@ -168,7 +168,7 @@ text, as well as the border and background of the bounding box for the text:
 
 .. code-block:: python
 
-    Label(x=70, y=70, x_units='screen' text='Some Stuff', render_mode='css',
+    Label(x=70, y=70, x_units='screen', text='Some Stuff', render_mode='css',
           border_line_color='black', border_line_alpha=1.0,
           background_fill_color='white', background_fill_alpha=1.0)
 

@@ -275,7 +275,7 @@ Bokeh provides some level of Matplotlib_ compatibility, by using the
 third-party mplexporter_ library. Although it does not provide 100% coverage
 of Matplotlib_ capabilities, it is still quite useful. For instance, in
 addition to many Matplotlib_ plots, it is often possible to convert plots
-created using the python Seaborn_ and `ggplot.py`_ libraries into Bokeh
+created using the Python Seaborn_ and Pandas libraries into Bokeh
 plots very easily. There are several examples in the :ref:`gallery`. Here is
 a quick example that shows a Seaborn_ plot converted to a Bokeh plot with
 just one additional line of code:
@@ -284,7 +284,6 @@ just one additional line of code:
     :source-position: above
 
 .. _Backbone: http://backbonejs.org
-.. _ggplot.py: https://github.com/yhat/ggplot
 .. _Matlab: http://www.mathworks.com/products/matlab/
 .. _Matplotlib: http://matplotlib.org
 .. _mplexporter: https://github.com/mpld3/mplexporter
