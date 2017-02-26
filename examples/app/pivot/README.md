@@ -8,7 +8,7 @@ multiple pivot charts.
 The code was developed starting from Bokeh/examples/app/crossfilter.
 
 The code is data-agnostic, so any other properly formatted data can
-be used in place of csv/power.csv (see below) and be visualized.
+be used in place of the default CSV (see Data Source below).
 
 ## Setting Up From Scratch (if you don't already have Bokeh)
 Easiest way is to get Anaconda for python 2.7 or 3.5 at:
@@ -42,8 +42,7 @@ exception of Filters (see below). For select boxes, this means that making a new
 text boxes, after an entry is changed, you must press either Enter or defocus on the field to trigger the plot update.
 
 Here is the full list of widgets:
-* Data Source (required): Enter a path to a properly formatted csv file (see below). The path is relative to the
-root of this repo, but absolute paths may be entered as well, e.g. 'C:/somefolder/somefile.csv'. Make sure
+* Data Source (required): Enter a path to a properly formatted csv file. Make sure
 that there are column headers for each column in the csv file and no row labels.
 * X-axis (required): Select a column to use as x-axis
 * Group X By: Select a column to group the x-axis (if both x-axis and grouping columns are discrete).
