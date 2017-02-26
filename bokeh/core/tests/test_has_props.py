@@ -167,7 +167,7 @@ def test_HasProps_apply_theme():
     assert c.themed_values() is theme
 
     assert c.int2 == 10
-    #assert c.lst1 == ["foo", "bar"] # https://github.com/bokeh/bokeh/issues/5644
+    assert c.lst1 == ["foo", "bar"]
 
     assert c.int1 == 10
     assert c.ds1 == None
@@ -177,7 +177,7 @@ def test_HasProps_apply_theme():
 
     c.int2 = 25
     assert c.int2 == 25
-    #assert c.lst1 == ["foo", "bar"] # https://github.com/bokeh/bokeh/issues/5644
+    assert c.lst1 == ["foo", "bar"]
 
     assert c.int1 == 10
     assert c.ds1 == None
@@ -187,7 +187,7 @@ def test_HasProps_apply_theme():
 
     c.ds2 = "foo"
     assert c.int2 == 25
-    #assert c.lst1 == ["foo", "bar"] # https://github.com/bokeh/bokeh/issues/5644
+    assert c.lst1 == ["foo", "bar"]
 
     assert c.int1 == 10
     assert c.ds1 == None
@@ -200,7 +200,7 @@ def test_HasProps_unapply_theme():
     theme = dict(int2=10, lst1=["foo", "bar"])
     c.apply_theme(theme)
     assert c.int2 == 10
-    #assert c.lst1 == ["foo", "bar"] # https://github.com/bokeh/bokeh/issues/5644
+    assert c.lst1 == ["foo", "bar"]
 
     assert c.int1 == 10
     assert c.ds1 == None
