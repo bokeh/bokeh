@@ -37,7 +37,7 @@ bokeh serve --show /path/to/this/app/
 ```
 This will launch a browser window with the viewer. To see
 a plot, you'll have to select the columns to use for x-axis and y-axis, which are two of the widgets
-on the left-hand side of the screen. Plots will automatically update as most values are changed, with the 
+on the left-hand side of the screen. Plots will automatically update as most values are changed, with the
 exception of Filters (see below). For select boxes, this means that making a new selection will trigger plot updates. For
 text boxes, after an entry is changed, you must press either Enter or defocus on the field to trigger the plot update.
 
@@ -49,7 +49,7 @@ that there are column headers for each column in the csv file and no row labels.
 * Y-axis (required): Select a column to use as y-axis
 * Y-axis aggregation: You may aggregate y-axis data (for each series) if it is numeric. "Sum" is currently the only option.
 * Series: Pick a column to split the data into separate, color-coded series
-* Series Stacking: You may stack/unstack series vertically with this switch. Make sure to use Y-axis Aggregation if, 
+* Series Stacking: You may stack/unstack series vertically with this switch. Make sure to use Y-axis Aggregation if,
 for any series, there are multiple y-values for a given x-value.
 * Series Legend: Click on this to see the color and name of each series
 * Explode By: Select a discrete column to split into multiple charts. The charts' titles will correspond to the
