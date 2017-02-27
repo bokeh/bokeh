@@ -25,9 +25,8 @@ statistical or scientific charts such as
 This directory contains examples of plots that use Bokeh's [compatibility
 layer](http://bokeh.pydata.org/en/latest/docs/user_guide/compat.html) to allow
 users to create Bokeh plots using other plotting libraries such as
-[matplotlib](http://matplotlib.org),
-[seaborn](http://stanford.edu/~mwaskom/software/seaborn/), or
-[ggplot.py](http://ggplot.yhathq.com).
+[matplotlib](http://matplotlib.org) and
+[seaborn](http://stanford.edu/~mwaskom/software/seaborn/).
 
 ### [`embed`](embed/)
 

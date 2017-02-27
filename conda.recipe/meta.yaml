@@ -80,7 +80,6 @@ test:
     - matplotlib
     - sympy
     - scikit-learn
-    - ggplot <=0.9.4
     - seaborn
     - networkx
     - icalendar          [unix]
