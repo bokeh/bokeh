@@ -50,6 +50,28 @@ def _wrap_in_onload(code):
 })();
 """ % dict(code=_indent(code, 4))
 
+
+def _add_doc_to_models(doc, models):
+    for model in models:
+        if isinstance(model, Model):
+            if model.document is None:
+                try:
+                    doc.add_root(model)
+                    yield model
+                except RuntimeError as e:
+                    child = re.search('\((.*)\)', str(e)).group(0)
+                    msg = ('Sub-model {0} of the root model {1} is already owned '
+                           'by another document (Models must be owned by only a '
+                           'single document). This may indicate a usage '
+                           'error.'.format(child, model))
+                    raise RuntimeError(msg)
+
+
+def _remove_doc_from_models(doc, models):
+    for model in models:
+        doc.remove_root(model)
+
+
 def components(models, wrap_script=True, wrap_plot_info=True):
     '''
     Return HTML components to embed a Bokeh plot. The data for the plot is
@@ -133,33 +155,23 @@ def components(models, wrap_script=True, wrap_plot_info=True):
         models = values
 
     # 2) Append models to one document. Either pre-existing or new.
-    doc = None
-    for model in models:
-        if isinstance(model, Document):
-            doc = model
-            break
-        elif isinstance(model, Model):
-            if model.document is not None:
-                doc = model.document
-                break
-    if doc is None:
-        # oh well - just make up a doc
-        doc = Document()
+    existing_docs = set(m if isinstance(m, Document) else m.document for m in models)
+    existing_docs.discard(None)
 
-    _to_remove_after = []
-    for model in models:
-        if isinstance(model, Model):
-            if model.document is None:
-                try:
-                    doc.add_root(model)
-                except RuntimeError as e:
-                    child = re.search('\((.*)\)', str(e)).group(0)
-                    msg = ('Sub-model {0} of the root model {1} is already owned '
-                           'by another document (Models must be owned by only a '
-                           'single document). This may indicate a usage '
-                           'error.'.format(child, model))
-                    raise RuntimeError(msg)
-                _to_remove_after.append(model)
+    if len(existing_docs) == 0:
+        # no existing docs, make a new one
+        doc = Document()
+    elif len(existing_docs) == 1:
+        # all existing docs are the same, use that one
+        doc = existing_docs.pop()
+    else:
+        # conflicting/multiple docs, raise an error
+        msg = ('Multiple items in models conatain documents or are '
+               'themselves documents. (Models must be owned by only a '
+               'single document). This may indicate a usage error.')
+        raise RuntimeError(msg)
+
+    models_to_dedoc = list(_add_doc_to_models(doc, models))
 
     # 3) Do our rendering
     (docs_json, render_items) = _standalone_docs_json_and_render_items(models)
@@ -173,8 +185,7 @@ def components(models, wrap_script=True, wrap_plot_info=True):
         results = render_items
 
     # 4) Clean up the doc
-    for model in _to_remove_after:
-        doc.remove_root(model)
+    _remove_doc_from_models(doc, models_to_dedoc)
 
     # 5) convert back to the input shape
 
