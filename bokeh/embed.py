@@ -52,12 +52,13 @@ def _wrap_in_onload(code):
 
 
 def _add_doc_to_models(doc, models):
+    models_to_dedoc = []
     for model in models:
         if isinstance(model, Model):
             if model.document is None:
                 try:
                     doc.add_root(model)
-                    yield model
+                    models_to_dedoc.append(model)
                 except RuntimeError as e:
                     child = re.search('\((.*)\)', str(e)).group(0)
                     msg = ('Sub-model {0} of the root model {1} is already owned '
@@ -65,6 +66,7 @@ def _add_doc_to_models(doc, models):
                            'single document). This may indicate a usage '
                            'error.'.format(child, model))
                     raise RuntimeError(msg)
+    return models_to_dedoc
 
 
 def _remove_doc_from_models(doc, models):
@@ -171,7 +173,7 @@ def components(models, wrap_script=True, wrap_plot_info=True):
                'single document). This may indicate a usage error.')
         raise RuntimeError(msg)
 
-    models_to_dedoc = list(_add_doc_to_models(doc, models))
+    models_to_dedoc = _add_doc_to_models(doc, models)
 
     # 3) Do our rendering
     (docs_json, render_items) = _standalone_docs_json_and_render_items(models)
