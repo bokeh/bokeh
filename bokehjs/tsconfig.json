@@ -8,6 +8,7 @@
     "declaration": true,
     "jsx": "react",
     "reactNamespace": "DOM",
+    "types": [],
     "paths": {
       "gloo2": "./src/vendor/gloo/gloo2",
       "slick_grid/slick.core": "./src/vendor/slick-grid-2.1.0/slick.core",
