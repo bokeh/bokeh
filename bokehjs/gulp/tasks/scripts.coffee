@@ -19,6 +19,7 @@ path = require "path"
 shasum = require "shasum"
 argv = require("yargs").argv
 insert = require('gulp-insert')
+stripAnsi = require('strip-ansi')
 rootRequire = require("root-require")
 
 license = '/*\n' + fs.readFileSync('../LICENSE.txt', 'utf-8') + '*/\n';
@@ -51,15 +52,23 @@ tsconfig = rootRequire("./tsconfig.json")
 
 gulp.task "scripts:tsjs", ["scripts:coffee", "scripts:js", "scripts:ts"], () ->
   error = (err) ->
-    result = err.message.match(/(.*)(\(\d+,\d+\): .*)/)
+    raw = stripAnsi(err.message)
+    result = raw.match(/(.*)(\(\d+,\d+\): error TS(\d+):.*)/)
+
     if result?
-      [_match, file, rest] = result
+      [_match, file, rest, code] = result
       real = path.join('src', 'coffee', file.split(path.sep)[3...]...)
       if fs.existsSync(real)
         gutil.log("#{gutil.colors.red(real)}#{rest}")
         return
+
+      if code in ["2307"]
+        gutil.log(err.message)
+        return
+
     if not argv.ts?
       return
+
     if typeof argv.ts == "string"
       keywords = argv.ts.split(",")
       for keyword in keywords
@@ -70,7 +79,9 @@ gulp.task "scripts:tsjs", ["scripts:coffee", "scripts:js", "scripts:ts"], () ->
         found = err.message.indexOf(keyword) != -1
         if not ((found and must) or (not found and not must))
           return
+
     gutil.log(err.message)
+
   prefix = paths.buildDir.jsTree + '_ts/**'
   gulp.src(["#{prefix}/*.ts", "#{prefix}/*.tsx"])
       .pipe(ts(tsconfig.compilerOptions, ts.reporter.nullReporter()).on('error', error))
