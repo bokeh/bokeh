@@ -97,7 +97,7 @@ export class PlotCanvasView extends BokehView
       @model.document._unrendered_plots = {}  # poor man's set
     @model.document._unrendered_plots[@id] = true
 
-    @ui_event_bus = new UIEvents(@model.toolbar, @canvas_view.el, @model.document.event_manager)
+    @ui_event_bus = new UIEvents(@model.toolbar, @canvas_view.el, @model.document.event_manager, @model.plot)
 
     @levels = {}
     for level in enums.RenderLevel

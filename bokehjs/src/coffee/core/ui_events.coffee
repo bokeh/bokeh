@@ -11,7 +11,7 @@ export class UIEvents
   @prototype extends Events
 
   # new (toolbar: Toolbar, hit_area: Element)
-  constructor: (@toolbar, @hit_area, @event_manager) ->
+  constructor: (@toolbar, @hit_area, @event_manager, @plot) ->
     @_configure_hammerjs()
 
   _configure_hammerjs: () ->
