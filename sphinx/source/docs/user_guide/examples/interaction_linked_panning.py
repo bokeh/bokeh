@@ -12,7 +12,7 @@ y2 = [abs(xx-5) for xx in x]
 # create a new plot
 s1 = figure(plot_width=250, plot_height=250, title=None)
 s1.circle(x, y0, size=10, color="navy", alpha=0.5)
-plot_
+
 # create a new plot and share both ranges
 s2 = figure(plot_width=250, plot_height=250, x_range=s1.x_range, y_range=s1.y_range, title=None)
 s2.triangle(x, y1, size=10, color="firebrick", alpha=0.5)
