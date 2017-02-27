@@ -1,6 +1,6 @@
 import {RemoteDataSource} from "./remote_data_source"
-import {logger} from "../../core/logging"
-import * as p from "../../core/properties"
+import {logger} from "core/logging"
+import * as p from "core/properties"
 
 export class AjaxDataSource extends RemoteDataSource
   type: 'AjaxDataSource'

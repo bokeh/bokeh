@@ -1,6 +1,6 @@
 import {Model} from "../../model"
-import {range} from "../../core/util/array"
-import {isStrictNaN} from "../../core/util/types"
+import {range} from "core/util/array"
+import {isStrictNaN} from "core/util/types"
 
 # The base class for all Ticker objects.  It needs to be subclassed before
 # being used.  The simplest subclass is SingleIntervalTicker.

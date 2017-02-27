@@ -2,8 +2,8 @@ import * as $ from "jquery"
 import "bootstrap/button"
 
 import {Widget, WidgetView} from "./widget"
-import {BokehView} from "../../core/bokeh_view"
-import * as p from "../../core/properties"
+import {BokehView} from "core/bokeh_view"
+import * as p from "core/properties"
 import template from "./button_group_template"
 
 

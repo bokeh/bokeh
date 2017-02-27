@@ -1,5 +1,5 @@
 import {TextAnnotation, TextAnnotationView} from "./text_annotation"
-import * as p from "../../core/properties"
+import * as p from "core/properties"
 
 export class LabelView extends TextAnnotationView
   initialize: (options) ->

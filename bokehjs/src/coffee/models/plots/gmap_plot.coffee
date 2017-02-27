@@ -1,8 +1,8 @@
-import {logger} from "../../core/logging"
+import {logger} from "core/logging"
 
 import {GMapPlotCanvas} from "./gmap_plot_canvas"
 import {Plot, PlotView} from "./plot"
-import * as p from "../../core/properties"
+import * as p from "core/properties"
 import {Model} from "../../model"
 
 export class MapOptions extends Model

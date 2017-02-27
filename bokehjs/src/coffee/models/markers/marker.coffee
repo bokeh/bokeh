@@ -1,6 +1,6 @@
 import {XYGlyph, XYGlyphView} from "../glyphs/xy_glyph"
-import * as hittest from "../../core/hittest"
-import * as p from "../../core/properties"
+import * as hittest from "core/hittest"
+import * as p from "core/properties"
 
 export class MarkerView extends XYGlyphView
 

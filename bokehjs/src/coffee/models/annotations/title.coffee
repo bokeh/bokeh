@@ -1,6 +1,6 @@
 import {TextAnnotation, TextAnnotationView} from "./text_annotation"
-import * as p from "../../core/properties"
-import * as Visuals from "../../core/visuals"
+import * as p from "core/properties"
+import * as Visuals from "core/visuals"
 
 export class TitleView extends TextAnnotationView
 

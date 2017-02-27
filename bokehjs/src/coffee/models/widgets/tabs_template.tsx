@@ -1,4 +1,4 @@
-import * as DOM from "../../core/dom";
+import * as DOM from "core/dom";
 
 export interface TabsProps {
   tabs: Array<{ id: string; title: string; }>;

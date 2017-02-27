@@ -1,4 +1,4 @@
-import {RBush} from "../../core/util/spatial"
+import {RBush} from "core/util/spatial"
 import {Glyph, GlyphView} from "./glyph"
 
 # algorithm adapted from http://stackoverflow.com/a/14429749/3406693

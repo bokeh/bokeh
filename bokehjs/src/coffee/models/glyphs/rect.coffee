@@ -1,8 +1,8 @@
 import {XYGlyph, XYGlyphView} from "./xy_glyph"
-import * as hittest from "../../core/hittest"
-import * as p from "../../core/properties"
-import {max} from "../../core/util/array"
-import {isString} from "../../core/util/types"
+import * as hittest from "core/hittest"
+import * as p from "core/properties"
+import {max} from "core/util/array"
+import {isString} from "core/util/types"
 import {CategoricalMapper} from "../mappers/categorical_mapper"
 
 export class RectView extends XYGlyphView

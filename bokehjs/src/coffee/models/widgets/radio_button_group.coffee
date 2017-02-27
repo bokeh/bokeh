@@ -1,8 +1,8 @@
 import "bootstrap/button"
 
-import {input, label} from "../../core/dom"
-import * as p from "../../core/properties"
-import {uniqueId} from "../../core/util/string"
+import {input, label} from "core/dom"
+import * as p from "core/properties"
+import {uniqueId} from "core/util/string"
 
 import {Widget, WidgetView} from "./widget"
 import template from "./button_group_template"
