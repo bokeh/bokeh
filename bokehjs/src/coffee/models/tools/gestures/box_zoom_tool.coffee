@@ -1,6 +1,6 @@
 import {GestureTool, GestureToolView} from "./gesture_tool"
 import {BoxAnnotation} from "../../annotations/box_annotation"
-import * as p from "../../../core/properties"
+import * as p from "core/properties"
 
 export class BoxZoomToolView extends GestureToolView
 

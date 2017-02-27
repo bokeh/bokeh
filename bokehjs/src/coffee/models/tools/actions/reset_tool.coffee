@@ -1,6 +1,6 @@
 import {ActionTool, ActionToolView} from "./action_tool"
 
-import * as p from "../../../core/properties"
+import * as p from "core/properties"
 
 export class ResetToolView extends ActionToolView
 
