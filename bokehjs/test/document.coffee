@@ -760,6 +760,30 @@ it "can destructively move", ->
     expect(root1.foo).to.equal 57
     expect(root1.child.foo).to.be.equal 44
 
+  it "sets proper document on models added during patching", ->
+    d = new Document()
+    expect(d.roots().length).to.equal 0
+    expect(Object.keys(d._all_models).length).to.equal 0
+
+    root1 = new SomeModel({ foo: 42 })
+    child1 = new SomeModel({ foo: 44 })
+    d.add_root(root1)
+    expect(d.roots().length).to.equal 1
+
+    # can't create copy of doc here like other test. Testing explicitly that
+    # doc attach happens when *not* creating a new document (i.e only patching)
+    # Testing only for/against null .document is not the strongest test but it
+    # should suffice.
+
+    expect(root1.document.roots().length).equal 1
+    expect(root1.child).to.equal null
+
+    event1 = new ModelChangedEvent(d, root1, 'child', root1.child, child1)
+    patch1 = d.create_json_patch_string([event1])
+    d.apply_json_patch_string(patch1)
+
+    expect(root1.document.roots().length).equal 1
+    expect(root1.child.document.roots().length).equal 1
 
   it "sets proper document on models added during construction", ->
     d = new Document()
