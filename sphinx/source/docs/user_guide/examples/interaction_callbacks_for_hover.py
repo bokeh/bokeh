@@ -15,7 +15,7 @@ links = {
     5: [2, 3, 4]
 }
 
-p = figure(width=400, height=400, tools="", toolbar_location=None, title='Hover over points')
+p = figure(plot_width=400, plot_height=400, tools="", toolbar_location=None, title='Hover over points')
 
 source = ColumnDataSource({'x0': [], 'y0': [], 'x1': [], 'y1': []})
 sr = p.segment(x0='x0', y0='y0', x1='x1', y1='y1', color='olive', alpha=0.6, line_width=3, source=source, )

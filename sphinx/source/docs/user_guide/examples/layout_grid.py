@@ -11,11 +11,11 @@ y1 = [10 - i for i in x]
 y2 = [abs(i - 5) for i in x]
 
 # create three plots
-p1 = figure(width=250, plot_height=250, title=None)
+p1 = figure(plot_width=250, plot_height=250, title=None)
 p1.circle(x, y0, size=10, color=Viridis3[0])
-p2 = figure(width=250, height=250, title=None)
+p2 = figure(plot_width=250, plot_height=250, title=None)
 p2.triangle(x, y1, size=10, color=Viridis3[1])
-p3 = figure(width=250, height=250, title=None)
+p3 = figure(plot_width=250, plot_height=250, title=None)
 p3.square(x, y2, size=10, color=Viridis3[2])
 
 # make a grid
