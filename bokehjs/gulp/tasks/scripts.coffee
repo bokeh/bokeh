@@ -99,6 +99,7 @@ gulp.task "scripts:bundle", ["scripts:compile"], (cb) ->
     debug: true
     preludePath: preludePath
     prelude: preludeText
+    paths: ['./node_modules', paths.buildDir.jsTree]
   }
 
   bokehjs = browserify(bokehjsOpts)
@@ -136,6 +137,7 @@ gulp.task "scripts:bundle", ["scripts:compile"], (cb) ->
         debug: true
         preludePath: pluginPreludePath
         prelude: pluginPreludeText
+        paths: ['./node_modules', paths.buildDir.jsTree]
       }
       plugin = browserify(pluginOpts)
       labels[plugin_name] = namedLabeler(plugin, labels.bokehjs)
