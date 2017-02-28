@@ -7,7 +7,6 @@ from __future__ import absolute_import, print_function
 import logging
 logger = logging.getLogger(__file__)
 
-from contextlib import contextmanager
 from json import loads
 from operator import itemgetter
 
@@ -678,63 +677,3 @@ def _visit_value_and_its_immediate_references(obj, visitor):
         for key, value in iteritems(obj):
             _visit_value_and_its_immediate_references(key, visitor)
             _visit_value_and_its_immediate_references(value, visitor)
-
-class _FromCurdoc: pass
-
-@contextmanager
-def _ModelInDocument(models, theme=_FromCurdoc):
-    doc = _find_existing_docs(models)
-    old_theme = doc.theme
-
-    if theme is _FromCurdoc:
-        from .io import curdoc; curdoc
-        doc.theme = curdoc().theme
-    elif theme is not None:
-        doc.theme = theme
-
-    models_to_dedoc = _add_doc_to_models(doc, models)
-
-    yield models
-
-    for model in models_to_dedoc:
-        doc.remove_root(model, theme)
-    doc.theme = old_theme
-
-
-def _find_existing_docs(models):
-    from .document import Document
-
-    existing_docs = set(m if isinstance(m, Document) else m.document for m in models)
-    existing_docs.discard(None)
-
-    if len(existing_docs) == 0:
-        # no existing docs, use the current doc
-        doc = Document()
-    elif len(existing_docs) == 1:
-        # all existing docs are the same, use that one
-        doc = existing_docs.pop()
-    else:
-        # conflicting/multiple docs, raise an error
-        msg = ('Multiple items in models conatain documents or are '
-               'themselves documents. (Models must be owned by only a '
-               'single document). This may indicate a usage error.')
-        raise RuntimeError(msg)
-    return doc
-
-def _add_doc_to_models(doc, models):
-    import re
-    models_to_dedoc = []
-    for model in models:
-        if isinstance(model, Model):
-            if model.document is None:
-                try:
-                    doc.add_root(model)
-                    models_to_dedoc.append(model)
-                except RuntimeError as e:
-                    child = re.search('\((.*)\)', str(e)).group(0)
-                    msg = ('Sub-model {0} of the root model {1} is already owned '
-                           'by another document (Models must be owned by only a '
-                           'single document). This may indicate a usage '
-                           'error.'.format(child, model))
-                    raise RuntimeError(msg)
-    return models_to_dedoc

@@ -4,7 +4,8 @@ import unittest
 from six.moves import xrange
 import copy
 from bokeh.core.properties import List, String, Instance, Dict, Any, Int
-from bokeh.model import Model, _ModelInDocument
+from bokeh.model import Model
+from bokeh.embed import _ModelInDocument
 from bokeh.document import Document
 from bokeh.core.property.containers import PropertyValueList, PropertyValueDict
 from bokeh.util.future import with_metaclass
