@@ -45,7 +45,7 @@ gulp.task "scripts:js", () ->
 
 gulp.task "scripts:ts", () ->
   prefix = "./src/coffee/**"
-  gulp.src(["#{prefix}/*[^.d].ts", "#{prefix}/*.tsx"])
+  gulp.src(["#{prefix}/*.ts", "#{prefix}/*.tsx"])
       .pipe(gulp.dest(paths.buildDir.jsTree + '_ts'))
 
 tsconfig = rootRequire("./tsconfig.json")
