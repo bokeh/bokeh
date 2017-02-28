@@ -1,6 +1,6 @@
 import {Annotation} from "./annotation"
-import {Visuals} from "../../core/visuals"
-import * as p from "../../core/properties"
+import {Visuals} from "core/visuals"
+import * as p from "core/properties"
 
 export class ArrowHead extends Annotation
   type: 'ArrowHead'

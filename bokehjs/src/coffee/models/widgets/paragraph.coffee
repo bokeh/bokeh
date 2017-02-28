@@ -1,5 +1,5 @@
 import {Markup, MarkupView} from "./markup"
-import {p} from "../../core/dom"
+import {p} from "core/dom"
 
 export class ParagraphView extends MarkupView
 

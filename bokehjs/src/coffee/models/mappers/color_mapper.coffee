@@ -1,7 +1,7 @@
-import * as p from "../../core/properties"
+import * as p from "core/properties"
 
 import {Model} from "../../model"
-import {isNumber} from "../../core/util/types"
+import {isNumber} from "core/util/types"
 
 export class ColorMapper extends Model
   type: "ColorMapper"

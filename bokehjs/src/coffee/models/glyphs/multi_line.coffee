@@ -1,7 +1,7 @@
-import {RBush} from "../../core/util/spatial"
-import * as hittest from "../../core/hittest"
-import {min, max} from "../../core/util/array"
-import {isStrictNaN} from "../../core/util/types"
+import {RBush} from "core/util/spatial"
+import * as hittest from "core/hittest"
+import {min, max} from "core/util/array"
+import {isStrictNaN} from "core/util/types"
 import {Glyph, GlyphView} from "./glyph"
 
 export class MultiLineView extends GlyphView

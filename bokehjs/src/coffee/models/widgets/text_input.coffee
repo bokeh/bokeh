@@ -1,6 +1,6 @@
-import {build_views} from "../../core/build_views"
-import {logger} from "../../core/logging"
-import * as p from "../../core/properties"
+import {build_views} from "core/build_views"
+import {logger} from "core/logging"
+import * as p from "core/properties"
 
 import {InputWidget, InputWidgetView} from "./input_widget"
 import template from "./text_input_template"

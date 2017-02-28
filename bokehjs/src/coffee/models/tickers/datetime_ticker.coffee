@@ -1,4 +1,4 @@
-import {range} from "../../core/util/array"
+import {range} from "core/util/array"
 
 import {AdaptiveTicker} from "./adaptive_ticker"
 import {CompositeTicker} from "./composite_ticker"

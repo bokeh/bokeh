@@ -1,7 +1,7 @@
-import {RBush} from "../../core/util/spatial"
+import {RBush} from "core/util/spatial"
 import {Glyph, GlyphView} from "./glyph"
 import {CategoricalMapper} from "../mappers/categorical_mapper"
-import * as hittest from "../../core/hittest"
+import * as hittest from "core/hittest"
 
 export class QuadView extends GlyphView
 

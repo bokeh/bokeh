@@ -1,5 +1,5 @@
 import {LinearMapper} from "./linear_mapper"
-import {isNumber} from "../../core/util/types"
+import {isNumber} from "core/util/types"
 
 export class CategoricalMapper extends LinearMapper
 
