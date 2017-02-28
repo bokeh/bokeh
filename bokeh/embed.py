@@ -57,7 +57,7 @@ def _find_existing_docs(models):
     existing_docs.discard(None)
 
     if len(existing_docs) == 0:
-        # no existing docs, make a new one
+        # no existing docs, use the current doc
         doc = curdoc()
     elif len(existing_docs) == 1:
         # all existing docs are the same, use that one
