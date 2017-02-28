@@ -234,6 +234,7 @@ class HasProps(with_metaclass(MetaHasProps, object)):
         '''
         super(HasProps, self).__init__()
         self._property_values = dict()
+        self._unstable_default_values = dict()
 
         for name, value in properties.items():
             setattr(self, name, value)
@@ -534,7 +535,11 @@ class HasProps(with_metaclass(MetaHasProps, object)):
         if include_defaults:
             keys = self.properties()
         else:
-            keys = set(self._property_values.keys())
+            # TODO (bev) For now, include unstable default values. Things rely on Instances
+            # always getting serialized, even defaults, and adding unstable defaults here
+            # accomplishes that. Unmodified defaults for property value containers will be
+            # weeded out below.
+            keys = set(self._property_values.keys()) | set(self._unstable_default_values.keys())
             if self.themed_values():
                 themed_keys = set(self.themed_values().keys())
                 keys |= themed_keys
@@ -546,7 +551,7 @@ class HasProps(with_metaclass(MetaHasProps, object)):
 
             value = descriptor.serializable_value(self)
             if not include_defaults and key not in themed_keys:
-                if isinstance(value, PropertyValueContainer) and value._unmodified_default_value:
+                if isinstance(value, PropertyValueContainer) and key in self._unstable_default_values:
                     continue
             result[key] = value
 
@@ -603,8 +608,8 @@ class HasProps(with_metaclass(MetaHasProps, object)):
         # Property container values might be cached even if unmodified. Invalidate
         # any cached values that are not modified at this point.
         for k, v in old_values.items():
-            if isinstance(v, PropertyValueContainer) and v._unmodified_default_value and k in self._property_values:
-                del self._property_values[k]
+            if isinstance(v, PropertyValueContainer) and k in self._unstable_default_values:
+                del self._unstable_default_values[k]
 
         # Emit any change notifications that result
         for k, v in old_values.items():

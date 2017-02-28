@@ -278,22 +278,24 @@ class TestModel(unittest.TestCase):
             return counter['value']
         class HasFuncDefaultInt(Model):
             value = Int(default=next_value)
-        obj = HasFuncDefaultInt()
-        self.assertEqual(obj.value, obj.value)
+        obj1 = HasFuncDefaultInt()
+        obj2 = HasFuncDefaultInt()
+        self.assertEqual(obj1.value+1, obj2.value)
 
         # 'value' is a default, but it gets included as a
         # non-default because it's unstable.
-        self.assertTrue('value' in obj.properties_with_values(include_defaults=False))
+        self.assertTrue('value' in obj1.properties_with_values(include_defaults=False))
 
     def test_func_default_with_model(self):
         class HasFuncDefaultModel(Model):
             child = Instance(Model, lambda: Model())
-        obj = HasFuncDefaultModel()
-        self.assertEqual(obj.child._id, obj.child._id)
+        obj1 = HasFuncDefaultModel()
+        obj2 = HasFuncDefaultModel()
+        self.assertNotEqual(obj1.child._id, obj2.child._id)
 
         # 'child' is a default, but it gets included as a
         # non-default because it's unstable.
-        self.assertTrue('child' in obj.properties_with_values(include_defaults=False))
+        self.assertTrue('child' in obj1.properties_with_values(include_defaults=False))
 
 class SomeModelInTestObjects(Model):
     child = Instance(Model)
