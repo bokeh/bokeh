@@ -679,27 +679,37 @@ def _visit_value_and_its_immediate_references(obj, visitor):
             _visit_value_and_its_immediate_references(key, visitor)
             _visit_value_and_its_immediate_references(value, visitor)
 
+class FromCurdoc: pass
 
 @contextmanager
-def _ModelInDocument(models):
+def _ModelInDocument(models, theme=FromCurdoc):
     doc = _find_existing_docs(models)
+    old_theme = doc.theme
+
+    if theme is FromCurdoc:
+        from .io import curdoc; curdoc
+        doc.theme = curdoc().theme
+    elif theme is not None:
+        doc.theme = theme
+
     models_to_dedoc = _add_doc_to_models(doc, models)
 
     yield models
 
     for model in models_to_dedoc:
-        doc.remove_root(model)
+        doc.remove_root(model, theme)
+    doc.theme = old_theme
+
 
 def _find_existing_docs(models):
-    from bokeh.io import curdoc; curdoc
-    from bokeh.document import Document; Document
+    from .document import Document
 
     existing_docs = set(m if isinstance(m, Document) else m.document for m in models)
     existing_docs.discard(None)
 
     if len(existing_docs) == 0:
         # no existing docs, use the current doc
-        doc = curdoc()
+        doc = Document()
     elif len(existing_docs) == 1:
         # all existing docs are the same, use that one
         doc = existing_docs.pop()
