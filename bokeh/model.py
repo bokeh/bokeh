@@ -685,8 +685,7 @@ def _ModelInDocument(models):
     doc = _find_existing_docs(models)
     models_to_dedoc = _add_doc_to_models(doc, models)
 
-    for model in models:
-        yield model
+    yield models
 
     for model in models_to_dedoc:
         doc.remove_root(model)
@@ -713,6 +712,7 @@ def _find_existing_docs(models):
     return doc
 
 def _add_doc_to_models(doc, models):
+    import re
     models_to_dedoc = []
     for model in models:
         if isinstance(model, Model):

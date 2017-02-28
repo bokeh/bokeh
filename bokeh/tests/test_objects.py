@@ -302,7 +302,7 @@ class TestModelInDocument(unittest.TestCase):
     def test_single_model(self):
         p = Model()
         self.assertIs(p.document, None)
-        with _ModelInDocument(p):
+        with _ModelInDocument([p]):
             self.assertIsNot(p.document, None)
         self.assertIs(p.document, None)
 
@@ -349,7 +349,7 @@ class TestModelInDocument(unittest.TestCase):
         self.assertIs(p1.document, None)
         self.assertIs(p2.document, None)
 
-    def test_uses_precedent_from_child(self):
+    def test_with_doc_in_child_raises_error(self):
         doc = Document()
         p1 = Model()
         p2 = SomeModelInTestObjects(child=Model())
@@ -357,15 +357,12 @@ class TestModelInDocument(unittest.TestCase):
         self.assertIs(p1.document, None)
         self.assertIs(p2.document, None)
         self.assertIs(p2.child.document, doc)
-        with _ModelInDocument([p1, p2]):
-            self.assertIsNot(p1.document, None)
-            self.assertIsNot(p2.document, None)
-            self.assertIs(p1.document, doc)
-            self.assertIs(p2.document, doc)
-        self.assertIs(p1.document, None)
-        self.assertIs(p2.document, None)
-        self.assertIsNot(p2.child.document, None)
-        self.assertIs(p2.child.document, doc)
+        with self.assertRaisesRegex(RuntimeError, p2._id):
+            with _ModelInDocument([p1, p2]):
+                self.assertIsNot(p1.document, None)
+                self.assertIsNot(p2.document, None)
+                self.assertIs(p1.document, doc)
+                self.assertIs(p2.document, doc)
 
 class TestContainerMutation(unittest.TestCase):
 

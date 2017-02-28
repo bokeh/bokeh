@@ -331,7 +331,7 @@ def autoload_static(model, resources, script_path):
 
     model = _check_one_model(model)
 
-    with _ModelInDocument(model):
+    with _ModelInDocument([model]):
         (docs_json, render_items) = _standalone_docs_json_and_render_items([model])
 
     script = _script_for_render_items(docs_json, render_items, wrap_script=False)

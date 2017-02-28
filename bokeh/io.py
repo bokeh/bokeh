@@ -439,13 +439,14 @@ def _get_save_args(state, filename, resources, title):
     return filename, resources, title
 
 def _save_helper(obj, filename, resources, title, validate):
-    with _ModelInDocument(obj):
+    if not (isinstance(obj, LayoutDOM) or isinstance(obj, Document)):
+        raise RuntimeError("Unable to save object of type '%s'" % type(obj))
+
+    with _ModelInDocument([obj]):
         if isinstance(obj, LayoutDOM):
             doc = obj.document
         elif isinstance(obj, Document):
             doc = obj
-        else:
-            raise RuntimeError("Unable to save object of type '%s'" % type(obj))
 
         if validate:
             doc.validate()
