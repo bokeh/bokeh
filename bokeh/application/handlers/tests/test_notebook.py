@@ -2,11 +2,15 @@ from __future__ import absolute_import, print_function
 
 import unittest
 
-import nbformat
-
 from bokeh.application.handlers import NotebookHandler
 from bokeh.document import Document
 from bokeh.util.testing import with_temporary_file
+
+import pytest
+
+
+nbformat = pytest.importorskip('nbformat')
+
 
 def _with_script_contents(contents, func):
     def with_file_object(f):
