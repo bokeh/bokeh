@@ -657,7 +657,7 @@ class BasicPropertyDescriptor(PropertyDescriptor):
         # underneath us, or if the default is generated anew each
         # time by a function.
         default = self.instance_default(obj)
-        if not self.property._has_stable_default():
+        if self.property._may_have_unstable_default():
             if isinstance(default, PropertyValueContainer):
                 # this is a special-case so we can avoid returning the container
                 # as a non-default or application-overridden value, when

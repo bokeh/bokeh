@@ -467,9 +467,9 @@ class Instance(Property):
                 raise ValueError("expected an instance of type %s, got %s of type %s" %
                     (self.instance_type.__name__, value, type(value).__name__))
 
-    def _has_stable_default(self):
+    def _may_have_unstable_default(self):
         # because the instance value is mutable
-        return False
+        return True
 
     def _sphinx_type(self):
         fullname = "%s.%s" % (self.instance_type.__module__, self.instance_type.__name__)
