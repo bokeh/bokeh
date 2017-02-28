@@ -193,7 +193,11 @@ export class DataTableView extends WidgetView
       @grid.onSelectedRowsChanged.subscribe (event, args) =>
         selected = hittest.create_hit_test_result()
         selected['1d'].indices = args.rows
-        @model.source.selected = selected
+        if @model.source.cds?
+          @model.source.cds.selected = @model.source.convert_selection_to_cds(selected)
+          @model.source.cds.trigger("select")
+        else
+          @model.source.selected = selected
 
     @_prefix_ui()
     return @

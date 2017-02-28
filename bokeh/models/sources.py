@@ -1,9 +1,10 @@
 from __future__ import absolute_import
 
 import warnings
+import six
 
 from ..core.has_props import abstract
-from ..core.properties import Any, Bool, ColumnData, Dict, Enum, Instance, Int, JSON, List, Seq, String
+from ..core.properties import Any, Bool, ColumnData, Dict, Either, Enum, Instance, Int, JSON, List, Seq, String
 from ..model import Model
 from ..util.dependencies import import_optional
 from ..util.warnings import BokehUserWarning
@@ -320,6 +321,45 @@ class ColumnDataSource(ColumnarDataSource):
                 raise ValueError("Out-of bounds index (%d) in patch for column: %s" % (max_ind, name))
 
         self.data._patch(self.document, self, patches, setter)
+
+class TableDataSource(ColumnarDataSource):
+
+    filter = Either(Seq(Int), Seq(Bool), default=[])
+
+    cds = Instance(ColumnDataSource)
+
+    def __init__(self, *args, **kw):
+        if len(args) == 1 and "cds" not in kw:
+            cds_or_data = args[0]
+            if isinstance(cds_or_data, ColumnDataSource):
+                kw["cds"] = cds_or_data
+            else:
+                data = cds_or_data
+                kw["cds"] = ColumnDataSource(data)
+
+        n = list(set(len(x) for x in kw["cds"].data.values()))[0]
+
+        filter = kw.pop("filter", list(range(n)))
+        if callable(filter):
+            kw["filter"] = list(range(n))
+        else:
+            kw["filter"] = filter
+
+        super(TableDataSource, self).__init__(**kw)
+
+        if callable(filter):
+            self.filter = list(filter(self))
+
+    def __getitem__(self, key):
+        import numpy as np
+        if isinstance(key, six.string_types):
+            colname = key
+            return np.array(self.cds.data[colname])
+        else:
+            key = list(key) #TODO check whether list is correct length, support int indexing
+            n = list(set(len(x) for x in self.cds.data.values()))[0]
+            filter = [i for i in range(n) if key[i] == True]
+            return TableDataSource(cds=self.cds, filter=filter)
 
 class GeoJSONDataSource(ColumnarDataSource):
     '''
