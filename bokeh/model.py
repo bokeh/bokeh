@@ -679,14 +679,14 @@ def _visit_value_and_its_immediate_references(obj, visitor):
             _visit_value_and_its_immediate_references(key, visitor)
             _visit_value_and_its_immediate_references(value, visitor)
 
-class FromCurdoc: pass
+class _FromCurdoc: pass
 
 @contextmanager
-def _ModelInDocument(models, theme=FromCurdoc):
+def _ModelInDocument(models, theme=_FromCurdoc):
     doc = _find_existing_docs(models)
     old_theme = doc.theme
 
-    if theme is FromCurdoc:
+    if theme is _FromCurdoc:
         from .io import curdoc; curdoc
         doc.theme = curdoc().theme
     elif theme is not None:

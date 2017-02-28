@@ -2,21 +2,9 @@ import pytest
 
 from bokeh.core.properties import Int, String, Float, Instance, List, Any
 from bokeh.io import curdoc
-from bokeh.model import Model, _ModelInDocument
+from bokeh.model import Model
 from bokeh.models.callbacks import CustomJS
 from bokeh.plotting import figure
-
-def test_model_in_document_uses_current_document_on_model_and_then_restores():
-    doc = curdoc()
-    plot = figure()
-    assert plot._document is None
-
-    # Check current document has been used
-    with _ModelInDocument([plot]):
-        assert plot._document == doc
-
-    # Check existing document is restored
-    assert plot._document is None
 
 def test_Model_pretty():
     class Foo1(Model):

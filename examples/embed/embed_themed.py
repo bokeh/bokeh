@@ -5,7 +5,6 @@ from jinja2 import Template
 from bokeh.embed import components
 from bokeh.resources import INLINE
 from bokeh.util.browser import view
-from bokeh.io import curdoc, show
 from bokeh.themes import Theme
 from bokeh.plotting import figure
 
@@ -57,7 +56,6 @@ template = Template('''<!DOCTYPE html>
         <style>
             body {
                 text-rendering: optimizeLegibility;
-                color: #fff;
                 background: #2F2F2F;
             }
 

@@ -50,11 +50,7 @@ def _wrap_in_onload(code):
 })();
 """ % dict(code=_indent(code, 4))
 
-
-class FromCurdoc: pass
-
-
-def components(models, wrap_script=True, wrap_plot_info=True, theme=FromCurdoc):
+def components(models, wrap_script=True, wrap_plot_info=True, **kwargs):
     '''
     Return HTML components to embed a Bokeh plot. The data for the plot is
     stored directly in the returned HTML.
@@ -137,7 +133,7 @@ def components(models, wrap_script=True, wrap_plot_info=True, theme=FromCurdoc):
         models = values
 
     # 2) Append models to one document. Either pre-existing or new and render
-    with _ModelInDocument(models, theme=theme):
+    with _ModelInDocument(models, **kwargs):
         (docs_json, render_items) = _standalone_docs_json_and_render_items(models)
 
     script = _script_for_render_items(docs_json, render_items, websocket_url=None, wrap_script=wrap_script)
