@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 import ast
+import os
 import pytest
 
 
@@ -28,7 +29,9 @@ def sample_function(self):
 
 @pytest.fixture
 def test_crawler():
-    return api_crawler("bokeh")
+    path = os.path.abspath(os.path.join(os.path.dirname(__file__),
+                                        os.pardir, os.pardir))
+    return api_crawler(path)
 
 
 def test_get_crawl_dict(test_crawler):
