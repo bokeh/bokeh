@@ -552,7 +552,6 @@ class HasProps(with_metaclass(MetaHasProps, object)):
 
         return result
 
-    # TODO (bev) could this return an empty dict instead of None?
     def themed_values(self):
         ''' Get any theme-provided overrides.
 
@@ -563,10 +562,7 @@ class HasProps(with_metaclass(MetaHasProps, object)):
             dict or None
 
         '''
-        if hasattr(self, '__themed_values__'):
-            return getattr(self, '__themed_values__')
-        else:
-            return None
+        return getattr(self, '__themed_values__', None)
 
     def apply_theme(self, property_values):
         ''' Apply a set of theme values which will be used rather than
@@ -583,10 +579,9 @@ class HasProps(with_metaclass(MetaHasProps, object)):
             None
 
         '''
-        old_dict = getattr(self, '__themed_values__', None)
+        old_dict = self.themed_values()
 
-        # if the same theme is set again, it should reuse the
-        # same dict
+        # if the same theme is set again, it should reuse the same dict
         if old_dict is property_values:
             return
 
