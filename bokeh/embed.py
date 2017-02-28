@@ -25,7 +25,7 @@ from .core.templates import (
 )
 from .core.json_encoder import serialize_json
 from .document import Document, DEFAULT_TITLE
-from .model import Model, _ModelInDocument, _ModelInEmptyDocument
+from .model import Model, _ModelInDocument
 from .resources import BaseResources, _SessionCoordinates, EMPTY
 from .util.string import encode_utf8
 from .util.serialization import make_id
@@ -51,12 +51,14 @@ def _wrap_in_onload(code):
 """ % dict(code=_indent(code, 4))
 
 def _find_existing_docs(models):
+    from bokeh.io import curdoc; curdoc
+
     existing_docs = set(m if isinstance(m, Document) else m.document for m in models)
     existing_docs.discard(None)
 
     if len(existing_docs) == 0:
         # no existing docs, make a new one
-        doc = Document()
+        doc = curdoc()
     elif len(existing_docs) == 1:
         # all existing docs are the same, use that one
         doc = existing_docs.pop()
@@ -278,7 +280,6 @@ def notebook_div(model, notebook_comms_target=None):
     model = _check_one_model(model)
 
     # 2) Append models to one document. Either pre-existing or new.
-
     doc = _find_existing_docs([model])
     models_to_dedoc = _add_doc_to_models(doc, [model])
 
