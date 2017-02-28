@@ -12,8 +12,10 @@ from bokeh.plotting import figure
 x1 = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 y1 = [0, 8, 2, 4, 6, 9, 5, 6, 25, 28, 4]
 
-p1 = figure(title='PINK')
-p1.scatter(x1, y1)
+p1 = figure(title='PINK TITLE')
+p1.background_fill_color = "#999999"
+p1.border_fill_color = "#999999"
+p1.scatter(x1, y1, color='yellow')
 
 theme = Theme(json={'attrs': {'Title': {'text_color': 'pink'}}})
 curdoc().theme = theme
@@ -29,6 +31,10 @@ template = Template('''<!DOCTYPE html>
         {{ css_resources }}
         {{ script }}
         <style>
+            body {
+                background-color: #999999;
+            }
+
             .embed-wrapper {
                 width: 50%;
                 height: 400px;
