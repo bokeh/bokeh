@@ -1,5 +1,6 @@
 import pytest
 
+import bokeh.core.has_props as hp
 from bokeh.core.properties import Int, String, Float, Instance, List, Any
 from bokeh.io import curdoc
 from bokeh.model import Model, _ModelInEmptyDocument
@@ -36,6 +37,8 @@ def test_model_in_empty_document_unsets_curdoc_on_model_references_and_then_rest
     # Check old document is replaced
     assert a_ref._document == doc
 
+
+@pytest.mark.skipif(not hp.IPython, reason='Test requires IPython')
 def test_Model_pretty():
     class Foo1(Model):
         pass

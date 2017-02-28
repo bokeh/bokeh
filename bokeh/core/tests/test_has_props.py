@@ -220,6 +220,8 @@ def test_HasProps_unapply_theme():
 
     assert c.themed_values() == None
 
+
+@pytest.mark.skipif(not hp.IPython, reason='Test requires IPython')
 def test_HasProps_pretty():
     p = Parent()
     assert p.pretty() == "bokeh.core.tests.test_has_props.Parent(ds1=None, int1=10, lst1=[])"
@@ -229,6 +231,8 @@ def test_HasProps_pretty():
         p.pretty()
     hp.IPython = old
 
+
+@pytest.mark.skipif(not hp.IPython, reason='Test requires IPython')
 def test_HasProps_pprint(capsys):
     p = Parent()
     p.pprint()
