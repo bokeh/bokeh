@@ -12,8 +12,8 @@ def test_model_in_document_uses_current_document_on_model_and_then_restores():
     assert plot._document is None
 
     # Check current document has been used
-    with _ModelInDocument([plot]) as modded_plot:
-        assert modded_plot._document == doc
+    with _ModelInDocument([plot]):
+        assert plot._document == doc
 
     # Check existing document is restored
     assert plot._document is None
