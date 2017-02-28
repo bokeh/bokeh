@@ -50,46 +50,6 @@ def _wrap_in_onload(code):
 })();
 """ % dict(code=_indent(code, 4))
 
-def _find_existing_docs(models):
-    from bokeh.io import curdoc; curdoc
-
-    existing_docs = set(m if isinstance(m, Document) else m.document for m in models)
-    existing_docs.discard(None)
-
-    if len(existing_docs) == 0:
-        # no existing docs, use the current doc
-        doc = curdoc()
-    elif len(existing_docs) == 1:
-        # all existing docs are the same, use that one
-        doc = existing_docs.pop()
-    else:
-        # conflicting/multiple docs, raise an error
-        msg = ('Multiple items in models conatain documents or are '
-               'themselves documents. (Models must be owned by only a '
-               'single document). This may indicate a usage error.')
-        raise RuntimeError(msg)
-    return doc
-
-def _add_doc_to_models(doc, models):
-    models_to_dedoc = []
-    for model in models:
-        if isinstance(model, Model):
-            if model.document is None:
-                try:
-                    doc.add_root(model)
-                    models_to_dedoc.append(model)
-                except RuntimeError as e:
-                    child = re.search('\((.*)\)', str(e)).group(0)
-                    msg = ('Sub-model {0} of the root model {1} is already owned '
-                           'by another document (Models must be owned by only a '
-                           'single document). This may indicate a usage '
-                           'error.'.format(child, model))
-                    raise RuntimeError(msg)
-    return models_to_dedoc
-
-def _remove_doc_from_models(doc, models):
-    for model in models:
-        doc.remove_root(model)
 
 def components(models, wrap_script=True, wrap_plot_info=True):
     '''
@@ -173,12 +133,9 @@ def components(models, wrap_script=True, wrap_plot_info=True):
             values.append(models[k])
         models = values
 
-    # 2) Append models to one document. Either pre-existing or new.
-    doc = _find_existing_docs(models)
-    models_to_dedoc = _add_doc_to_models(doc, models)
-
-    # 3) Do our rendering
-    (docs_json, render_items) = _standalone_docs_json_and_render_items(models)
+    # 2) Append models to one document. Either pre-existing or new and render
+    with _ModelInDocument(models):
+        (docs_json, render_items) = _standalone_docs_json_and_render_items(models)
 
     script = _script_for_render_items(docs_json, render_items, websocket_url=None, wrap_script=wrap_script)
     script = encode_utf8(script)
@@ -188,10 +145,7 @@ def components(models, wrap_script=True, wrap_plot_info=True):
     else:
         results = render_items
 
-    # 4) Clean up the doc
-    _remove_doc_from_models(doc, models_to_dedoc)
-
-    # 5) convert back to the input shape
+    # 3) convert back to the input shape
 
     if was_single_object:
         return script, results[0]
@@ -279,13 +233,9 @@ def notebook_div(model, notebook_comms_target=None):
     '''
     model = _check_one_model(model)
 
-    # 2) Append models to one document. Either pre-existing or new.
-    doc = _find_existing_docs([model])
-    models_to_dedoc = _add_doc_to_models(doc, [model])
-
-    (docs_json, render_items) = _standalone_docs_json_and_render_items([model])
-
-    _remove_doc_from_models(doc, models_to_dedoc)
+    # Append models to one document. Either pre-existing or new and render
+    with _ModelInDocument([model]):
+        (docs_json, render_items) = _standalone_docs_json_and_render_items([model])
 
     item = render_items[0]
     if notebook_comms_target:

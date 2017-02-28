@@ -649,39 +649,6 @@ class Model(with_metaclass(MetaModel, HasProps, CallbackManager)):
                     p.text('=')
                     p.pretty(value)
 
-def _find_some_document(models):
-    '''
-
-    '''
-    from .document import Document
-
-    # First try the easy stuff...
-    doc = None
-    for model in models:
-        if isinstance(model, Document):
-            doc = model
-            break
-        elif isinstance(model, Model):
-            if model.document is not None:
-                doc = model.document
-                break
-
-    # Now look in children of models
-    if doc is None:
-        for model in models:
-            if isinstance(model, Model):
-                # see if some child of ours is in a doc, this is meant to
-                # handle a thing like:
-                #   p = figure()
-                #   box = HBox(children=[p])
-                #   show(box)
-                for r in model.references():
-                    if r.document is not None:
-                        doc = r.document
-                        break
-
-    return doc
-
 def _visit_immediate_value_references(value, visitor):
     ''' Visit all references to another Model without recursing into any
     of the child Model; may visit the same Model more than once if
@@ -712,53 +679,52 @@ def _visit_value_and_its_immediate_references(obj, visitor):
             _visit_value_and_its_immediate_references(key, visitor)
             _visit_value_and_its_immediate_references(value, visitor)
 
-class _ModelInDocument(object):
-    '''
-
-    '''
-
-    def __init__(self, models):
-        # 'models' can be a single Model, a single Document, or a list of either
-        from .document import Document
-
-        self._to_remove_after = []
-        if not isinstance(models, list):
-            models = [models]
-
-        self._doc = _find_some_document(models)
-        if self._doc is None:
-            # oh well - just make up a doc
-            self._doc = Document()
-
-        for model in models:
-            if isinstance(model, Model):
-                if model.document is None:
-                    self._to_remove_after.append(model)
-
-    def __exit__(self, type, value, traceback):
-        for model in self._to_remove_after:
-            model.document.remove_root(model)
-
-    def __enter__(self):
-        for model in self._to_remove_after:
-            self._doc.add_root(model)
 
 @contextmanager
-def _ModelInEmptyDocument(model):
-    '''
+def _ModelInDocument(models):
+    doc = _find_existing_docs(models)
+    models_to_dedoc = _add_doc_to_models(doc, models)
 
-    '''
-    from .document import Document
-    full_doc = _find_some_document([model])
+    for model in models:
+        yield model
 
-    model._document = None
-    for ref in model.references():
-        ref._document = None
-    empty_doc = Document()
-    empty_doc.add_root(model)
+    for model in models_to_dedoc:
+        doc.remove_root(model)
 
-    yield model
+def _find_existing_docs(models):
+    from bokeh.io import curdoc; curdoc
+    from bokeh.document import Document; Document
 
-    model._document = full_doc
-    for ref in model.references():
-        ref._document = full_doc
+    existing_docs = set(m if isinstance(m, Document) else m.document for m in models)
+    existing_docs.discard(None)
+
+    if len(existing_docs) == 0:
+        # no existing docs, use the current doc
+        doc = curdoc()
+    elif len(existing_docs) == 1:
+        # all existing docs are the same, use that one
+        doc = existing_docs.pop()
+    else:
+        # conflicting/multiple docs, raise an error
+        msg = ('Multiple items in models conatain documents or are '
+               'themselves documents. (Models must be owned by only a '
+               'single document). This may indicate a usage error.')
+        raise RuntimeError(msg)
+    return doc
+
+def _add_doc_to_models(doc, models):
+    models_to_dedoc = []
+    for model in models:
+        if isinstance(model, Model):
+            if model.document is None:
+                try:
+                    doc.add_root(model)
+                    models_to_dedoc.append(model)
+                except RuntimeError as e:
+                    child = re.search('\((.*)\)', str(e)).group(0)
+                    msg = ('Sub-model {0} of the root model {1} is already owned '
+                           'by another document (Models must be owned by only a '
+                           'single document). This may indicate a usage '
+                           'error.'.format(child, model))
+                    raise RuntimeError(msg)
+    return models_to_dedoc
