@@ -1,9 +1,9 @@
 {expect} = require "chai"
 utils = require "../../utils"
 sinon = require 'sinon'
-proxyquire = require "proxyquire"
 
 {SidePanel} = utils.require("core/layout/side_panel")
+{ColorBar, ColorBarView} = utils.require('models/annotations/color_bar')
 {LinearColorMapper} = utils.require("models/mappers/linear_color_mapper")
 {LinearMapper} = utils.require("models/mappers/linear_mapper")
 {LogColorMapper} = utils.require("models/mappers/log_color_mapper")
@@ -13,26 +13,17 @@ proxyquire = require "proxyquire"
 {Plot} = utils.require("models/plots/plot")
 {Range1d} = utils.require("models/ranges/range1d")
 {Document} = utils.require "document"
-
-###
-(LC) sinon doesn't appear to stub functions (vs object methods). This
-work-around using proxyrequire does some `require` hackery to stub the
-`text` module imported by `models/annotations/color_bar` so that
-text.get_text_height can be stubbed.
-###
-textStub = {}
-{ColorBar, ColorBarView} = proxyquire('../../../build/js/tree/models/annotations/color_bar', {"../../core/util/text": textStub})
+bokeh_text  = utils.require("core/util/text")
 
 describe "ColorBar module", ->
 
   afterEach ->
     utils.unstub_canvas()
-    textStub.get_text_height.restore()
+    bokeh_text.get_text_height.restore()
 
   beforeEach ->
     utils.stub_canvas()
-    stub = sinon.stub(textStub, 'get_text_height')
-    stub.returns({'height': 15, 'ascent': 10, 'descent': 5})
+    sinon.stub(bokeh_text, "get_text_height", () -> {height: 15, ascent: 10, descent: 5})
 
     @plot = new Plot({
        x_range: new Range1d({start: 0, end: 1})
