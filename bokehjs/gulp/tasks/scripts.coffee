@@ -62,7 +62,7 @@ gulp.task "scripts:tsjs", ["scripts:coffee", "scripts:js", "scripts:ts"], () ->
         gutil.log("#{gutil.colors.red(real)}#{rest}")
         return
 
-      if code in ["2307"]
+      if code in ["2307", "2688", "6053"]
         gutil.log(err.message)
         return
 
