@@ -55,7 +55,6 @@ template = Template('''<!DOCTYPE html>
         {{ script }}
         <style>
             body {
-                text-rendering: optimizeLegibility;
                 background: #2F2F2F;
             }
 
