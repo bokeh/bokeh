@@ -89,7 +89,7 @@ export function sum(array: Array<number>): number {
 }
 
 export function cumsum(array: Array<number>): Array<number> {
-  const result = []
+  const result: Array<number> = []
   array.reduce((a, b, i) => result[i] = a + b, 0)
   return result
 }

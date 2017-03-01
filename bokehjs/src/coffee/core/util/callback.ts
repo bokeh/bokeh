@@ -3,19 +3,17 @@
 //     (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 //     Underscore may be freely distributed under the MIT license.
 
-export type TimeoutID = number
-
-export function delay(func: () => void, wait: number): TimeoutID {
+export function delay(func: () => void, wait: number): number {
   return setTimeout(func, wait)
 }
 
-export function defer(func: () => void): TimeoutID {
+export function defer(func: () => void): number {
   return delay(func, 1)
 }
 
-export function throttle(func: () => void, wait: number, options?: {leading?: boolean, trailing?: boolean}) {
-  let context, args, result
-  let timeout = null
+export function throttle<T>(func: () => T, wait: number, options?: {leading?: boolean, trailing?: boolean}) {
+  let context: any, args: any, result: T
+  let timeout: number = null
   let previous = 0
   if (!options) options = {}
   const later = function() {

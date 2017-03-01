@@ -26,7 +26,7 @@ export function random(): number {
   return Math.random()
 }
 
-export function atan2(start: number, end: number): number {
+export function atan2(start: [number, number], end: [number, number]): number {
   /*
    * Calculate the angle between a line containing start and end points (composed
    * of [x, y] arrays) and the positive x-axis.
