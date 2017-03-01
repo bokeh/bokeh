@@ -22,6 +22,7 @@ import io
 import json
 import os
 import warnings
+import tempfile
 
 # Third-party imports
 
@@ -413,6 +414,8 @@ def _get_save_args(state, filename, resources, title):
     if filename is None:
         warn = False
         filename = _detect_filename("html")
+        if not os.access(filename, os.W_OK):
+            filename = tempfile.NamedTemporaryFile().name
 
     if filename is None:
         raise RuntimeError("save() called but no filename was supplied or detected, and output_file(...) was never called, nothing saved")
