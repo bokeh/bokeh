@@ -1,12 +1,16 @@
 import {isBoolean, isString, isArray, isObject} from "./util/types"
 
+/// <reference path="./jsx.d.ts" />
+
 export type HTMLAttrs = { [name: string]: any }
 export type HTMLChildren = Array<string | HTMLElement | Array<string | HTMLElement>>
 
 const _createElement = (tag: string) => (attrs: HTMLAttrs = {}, ...children: HTMLChildren): HTMLElement => {
-  let element
+  let element: HTMLElement
   if (tag === "fragment") {
-    element = document.createDocumentFragment()
+    // XXX: this is wrong, but the the common super type of DocumentFragment and HTMLElement is
+    // Node, which doesn't support classList, style, etc. attributes.
+    element = document.createDocumentFragment() as HTMLElement
   } else {
     element = document.createElement(tag)
     for (const attr in attrs) {
@@ -16,7 +20,7 @@ const _createElement = (tag: string) => (attrs: HTMLAttrs = {}, ...children: HTM
         continue
 
       if (attr === "class" && isArray(value)) {
-        for (const cls of value) {
+        for (const cls of (value as string[])) {
           if (cls != null) element.classList.add(cls)
         }
         continue
@@ -24,7 +28,7 @@ const _createElement = (tag: string) => (attrs: HTMLAttrs = {}, ...children: HTM
 
       if (attr === "style" && isObject(value)) {
         for (const prop in value) {
-          element.style[prop] = value[prop]
+          (element.style as any)[prop] = value[prop]
         }
         continue
       }
