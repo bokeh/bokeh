@@ -230,7 +230,7 @@ class Document(object):
                               period_milliseconds)
         return self._add_session_callback(cb, callback, one_shot=False)
 
-    def add_root(self, model, setter=None):
+    def add_root(self, model, setter=None, references=None):
         ''' Add a model as a root of this Document.
 
         Any changes to this model (including to other models referred to
@@ -266,7 +266,7 @@ class Document(object):
         try:
             self._roots.append(model)
         finally:
-            self._pop_all_models_freeze()
+            self._pop_all_models_freeze(model, references=references)
         self._trigger_on_change(RootAddedEvent(self, model, setter))
 
     def add_timeout_callback(self, callback, timeout_milliseconds):
@@ -1054,13 +1054,42 @@ class Document(object):
         '''
         self._all_models_freeze_count += 1
 
-    def _pop_all_models_freeze(self):
+    def _pop_all_models_freeze(self, model=None, references=None):
         '''
 
         '''
         self._all_models_freeze_count -= 1
         if self._all_models_freeze_count == 0:
-            self._recompute_all_models()
+            if model is None:
+                self._recompute_all_models()
+            else:
+                self._recompute_model(model, references=references)
+
+    def _recompute_model(self, model, references=None):
+        '''
+
+        '''
+        old_all_models_set = set(self._all_models.values())
+        if references is None:
+            references = model.references()
+        new_all_models_set = old_all_models_set.union(references)
+
+        to_detach = old_all_models_set - new_all_models_set
+        to_attach = new_all_models_set - old_all_models_set
+
+        recomputed = {}
+        recomputed_by_name = MultiValuedDict()
+        for m in new_all_models_set:
+            recomputed[m._id] = m
+            if m.name is not None:
+                recomputed_by_name.add_value(m.name, m)
+        for d in to_detach:
+            d._detach_document()
+        for a in to_attach:
+            a._attach_document(self)
+        self._all_models = recomputed
+        self._all_models_by_name = recomputed_by_name
+
 
     def _recompute_all_models(self):
         '''
