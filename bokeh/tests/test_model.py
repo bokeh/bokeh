@@ -1,10 +1,8 @@
 import pytest
 
 from bokeh.core.properties import Int, String, Float, Instance, List, Any
-from bokeh.io import curdoc
 from bokeh.model import Model
 from bokeh.models.callbacks import CustomJS
-from bokeh.plotting import figure
 
 def test_Model_pretty():
     class Foo1(Model):
