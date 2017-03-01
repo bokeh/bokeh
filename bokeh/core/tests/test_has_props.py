@@ -3,7 +3,7 @@ import pytest
 
 import bokeh.core.has_props as hp
 
-from bokeh.core.properties import Int, String, NumberSpec, List, Override
+from bokeh.core.properties import Int, String, NumberSpec, List, Override, Either
 from bokeh.core.property.descriptors import BasicPropertyDescriptor, DataSpecPropertyDescriptor
 
 class Parent(hp.HasProps):
@@ -219,6 +219,125 @@ def test_HasProps_unapply_theme():
     assert c.lst2 == [1,2,3]
 
     assert c.themed_values() == None
+
+class EitherSimpleDefault(hp.HasProps):
+    foo = Either(List(Int), Int, default=10)
+
+def test_HasProps_apply_theme_either_simple():
+
+    # check applying multiple themes
+    c = EitherSimpleDefault()
+    assert c.foo == 10
+
+    theme = dict(foo=20)
+    c.apply_theme(theme)
+    assert c.foo == 20
+
+    theme = dict(foo=30)
+    c.apply_theme(theme)
+    assert c.foo == 30
+
+    # check user set before theme
+    c = EitherSimpleDefault()
+    theme = dict(foo=30)
+    c.foo = 50
+    c.apply_theme(theme)
+    assert c.foo == 50
+
+    # check user set after theme
+    c = EitherSimpleDefault()
+    theme = dict(foo=30)
+    c.apply_theme(theme)
+    c.foo = 50
+    assert c.foo == 50
+
+    # check user set alt type
+    c = EitherSimpleDefault()
+    theme = dict(foo=30)
+    c.foo = [50]
+    c.apply_theme(theme)
+    assert c.foo == [50]
+
+    # check themed alt type
+    c = EitherSimpleDefault()
+    theme = dict(foo=[100])
+    c.apply_theme(theme)
+    assert c.foo == [100]
+
+class EitherContainerDefault(hp.HasProps):
+    foo = Either(List(Int), Int, default=[10])
+
+def test_HasProps_apply_theme_either_container():
+
+    # check applying multiple themes
+    c = EitherContainerDefault()
+    assert c.foo == [10]
+
+    theme = dict(foo=[20])
+    c.apply_theme(theme)
+    assert c.foo == [20]
+
+    theme = dict(foo=[30])
+    c.apply_theme(theme)
+    assert c.foo == [30]
+
+    # check user set before theme
+    c = EitherContainerDefault()
+    theme = dict(foo=[30])
+    c.foo = [50]
+    c.apply_theme(theme)
+    assert c.foo == [50]
+
+    # check user set after theme
+    c = EitherContainerDefault()
+    theme = dict(foo=[30])
+    c.apply_theme(theme)
+    c.foo = [50]
+    assert c.foo == [50]
+
+    # check user set alt type
+    c = EitherContainerDefault()
+    theme = dict(foo=[30])
+    c.foo = 50
+    c.apply_theme(theme)
+    assert c.foo == 50
+
+    # check themed alt type
+    c = EitherContainerDefault()
+    theme = dict(foo=100)
+    c.apply_theme(theme)
+    assert c.foo == 100
+
+class IntFuncDefault(hp.HasProps):
+    foo = Int(default=lambda: 10)
+
+def test_HasProps_apply_theme_func_default():
+
+    # check applying multiple themes
+    c = IntFuncDefault()
+    assert c.foo == 10
+
+    theme = dict(foo=20)
+    c.apply_theme(theme)
+    assert c.foo == 20
+
+    theme = dict(foo=30)
+    c.apply_theme(theme)
+    assert c.foo == 30
+
+    # check user set before theme
+    c = IntFuncDefault()
+    theme = dict(foo=30)
+    c.foo = 50
+    c.apply_theme(theme)
+    assert c.foo == 50
+
+    # check user set after theme
+    c = IntFuncDefault()
+    theme = dict(foo=30)
+    c.apply_theme(theme)
+    c.foo = 50
+    assert c.foo == 50
 
 def test_HasProps_pretty():
     p = Parent()

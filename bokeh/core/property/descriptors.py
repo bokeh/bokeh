@@ -654,14 +654,26 @@ class BasicPropertyDescriptor(PropertyDescriptor):
             # this shouldn't happen because we should have checked before _get_default()
             raise RuntimeError("Bokeh internal error, does not handle the case of self.name already in _property_values")
 
+        is_themed = obj.themed_values() is not None and self.name in obj.themed_values()
+
+        default = self.instance_default(obj)
+
+        if is_themed:
+            if self.name in obj._unstable_themed_values:
+                return obj._unstable_themed_values[self.name]
+
+            if self.property._may_have_unstable_default():
+                if isinstance(default, PropertyValueContainer):
+                    default._register_owner(obj, self)
+                obj._unstable_themed_values[self.name] = default
+            return default
+
         if self.name in obj._unstable_default_values:
             return obj._unstable_default_values[self.name]
 
-        default = self.instance_default(obj)
         if self.property._may_have_unstable_default():
             if isinstance(default, PropertyValueContainer):
                 default._register_owner(obj, self)
-
             obj._unstable_default_values[self.name] = default
 
         return default
@@ -751,8 +763,12 @@ class BasicPropertyDescriptor(PropertyDescriptor):
             if isinstance(value, PropertyValueContainer):
                 value._register_owner(obj, self)
 
+            if self.name in obj._unstable_themed_values:
+                del obj._unstable_themed_values[self.name]
+
             if self.name in obj._unstable_default_values:
                 del obj._unstable_default_values[self.name]
+
             obj._property_values[self.name] = value
 
         # for notification purposes, "old" should be the logical old

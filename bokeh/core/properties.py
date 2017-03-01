@@ -672,6 +672,9 @@ class Either(ParameterizedProperty):
         if not (value is None or any(param.is_valid(value) for param in self.type_params)):
             raise ValueError("expected an element of either %s, got %r" % (nice_join(self.type_params), value))
 
+    def _may_have_unstable_default(self):
+        return any(tp._may_have_unstable_default() for tp in self.type_params)
+
     def _sphinx_type(self):
         return self._sphinx_prop_link() + "( %s )" % ", ".join(x._sphinx_type() for x in self.type_params)
 

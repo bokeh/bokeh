@@ -235,6 +235,7 @@ class HasProps(with_metaclass(MetaHasProps, object)):
         super(HasProps, self).__init__()
         self._property_values = dict()
         self._unstable_default_values = dict()
+        self._unstable_themed_values = dict()
 
         for name, value in properties.items():
             setattr(self, name, value)
@@ -608,8 +609,8 @@ class HasProps(with_metaclass(MetaHasProps, object)):
         # Property container values might be cached even if unmodified. Invalidate
         # any cached values that are not modified at this point.
         for k, v in old_values.items():
-            if isinstance(v, PropertyValueContainer) and k in self._unstable_default_values:
-                del self._unstable_default_values[k]
+            if k in self._unstable_themed_values:
+                del self._unstable_themed_values[k]
 
         # Emit any change notifications that result
         for k, v in old_values.items():
