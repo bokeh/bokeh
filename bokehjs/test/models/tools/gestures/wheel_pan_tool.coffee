@@ -1,6 +1,5 @@
 {expect} = require "chai"
 utils = require "../../../utils"
-sinon = require 'sinon'
 
 {Document} = utils.require("document")
 {WheelPanTool} = utils.require("models/tools/gestures/wheel_pan_tool")

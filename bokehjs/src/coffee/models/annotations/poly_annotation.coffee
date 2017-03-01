@@ -1,5 +1,5 @@
 import {Annotation, AnnotationView} from "./annotation"
-import * as p from "../../core/properties"
+import * as p from "core/properties"
 
 export class PolyAnnotationView extends AnnotationView
 

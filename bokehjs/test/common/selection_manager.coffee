@@ -29,28 +29,44 @@ describe "SelectionManager", ->
     target_range: new Range1d(target)
   })
 
+  # The objects defined below to stub out the Plot and PlotView depend on the current interfaces
+  # of Plot and PlotView and the specific implementation of GlyphRenderer and GlyphRendererView
+  # initialization. For example, the GlyphRendererView defines its x and y mapper through:
+
+  # @xmapper = @plot_view.frame.x_mappers[@model.x_range_name]
+  # @ymapper = @plot_view.frame.y_mappers[@model.y_range_name]
+
+  # so we put the mappers (mapper_normal and mapper_reverse, defined above)
+  # in the stub objects in the same "location".
+
+  plot_model_stub = {
+    use_map: false
+    lod_factor: 1
+    plot: {lod_factor: 0.1}
+  }
+
   plot_view_stub_normal = {
     frame:
-      get: (param) ->
-        if param is 'x_mappers' or param is 'y_mappers'
-          {'default': mapper_normal}
+      'x_mappers':
+        {'default': mapper_normal}
+      'y_mappers':
+        {'default': mapper_normal}
     canvas_view:
       ctx: {'glcanvas': null}
+    model:
+      plot_model_stub
   }
 
   plot_view_stub_reverse = {
     frame:
-      get: (param) ->
-        if param is 'x_mappers' or param is 'y_mappers'
-          {'default': mapper_reverse}
+      'x_mappers':
+        {'default': mapper_reverse}
+      'y_mappers':
+        {'default': mapper_reverse}
     canvas_view:
       ctx: {'glcanvas': null}
-  }
-
-  plot_model_stub = {
-    use_map: false
-    get: (param) -> 1 if param is 'lod_factor'
-    plot: {lod_factor: 0.1}
+    model:
+      plot_model_stub
   }
 
   column_data_source = new ColumnDataSource({
@@ -64,7 +80,6 @@ describe "SelectionManager", ->
     glyph:        new SomeMarker({x: {field: "x"}, y: {field: "y"}})
   })
 
-  ### XXX: this fails with "cannot read property 'default' of undefined"
   glyph_renderer_view_normal = new GlyphRendererView({
     plot_model: plot_model_stub
     plot_view: plot_view_stub_normal
@@ -76,24 +91,23 @@ describe "SelectionManager", ->
     plot_view: plot_view_stub_reverse
     model: glyph_renderer
   })
-  ###
 
   sm = new SelectionManager()
 
-  it.skip "should start with no selectors", ->
+  it "should start with no selectors", ->
     expect(sm.selectors).to.deep.equal {}
 
   selector = null
 
-  it.skip "should add a selector when encountering a new renderer", ->
+  it "should add a selector when encountering a new renderer", ->
     selector = sm._get_selector(glyph_renderer_view_normal)
     expect(Object.keys(sm.selectors)).to.have.lengthOf(1)
     expect(sm.selectors).to.have.property glyph_renderer_view_normal.model.id
 
-  it.skip "should create a selector with an empty selection", ->
+  it "should create a selector with an empty selection", ->
     expect(selector.indices).to.deep.equal empty_selection
 
-  it.skip "should return the right selector", ->
+  it "should return the right selector", ->
     selector2 = sm._get_selector(glyph_renderer_view_normal)
     expect(Object.keys(sm.selectors)).to.have.lengthOf(1)
     expect(selector2).to.equal(selector)
@@ -108,18 +122,18 @@ describe "SelectionManager", ->
       vy1: 100
     }
 
-    it.skip "should update its data source's selected property", ->
+    it "should update its data source's selected property", ->
       sm = new SelectionManager({'source': column_data_source})
       expect(sm.source.selected).to.deep.equal empty_selection
       sm.select('tool', glyph_renderer_view_normal, geometry, true)
       expect(sm.source.selected).to.not.deep.equal empty_selection
 
-    it.skip "should update its selectors", ->
+    it "should update its selectors", ->
       sm = new SelectionManager({'source': column_data_source})
       sm.select('tool', glyph_renderer_view_normal, geometry, true)
       expect(sm.selectors[glyph_renderer_view_normal.model.id]).to.not.deep.equal empty_selection
 
-    it.skip "should work when mappers are reversed", ->
+    it "should work when mappers are reversed", ->
       sm = new SelectionManager({'source': column_data_source})
       sm.select('tool', glyph_renderer_view_reverse, geometry, true)
       expect(sm.source.selected).to.not.deep.equal empty_selection

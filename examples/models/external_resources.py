@@ -1,7 +1,6 @@
 """ The LaTex example was derived from: http://matplotlib.org/users/usetex.html
 """
 
-from bokeh.core.properties import Override
 from bokeh.models import Label
 from bokeh.plotting import output_file, figure, show
 
@@ -59,7 +58,7 @@ export class LatexLabel extends Label
 x = np.arange(0.0, 1.0 + 0.01, 0.01)
 y = np.cos(2*2*np.pi*x) + 2
 
-p = figure(title="LaTex Demonstration", width=500, height=500)
+p = figure(title="LaTex Demonstration", plot_width=500, plot_height=500)
 p.line(x, y)
 
 latex = LatexLabel(text="f = \sum_{n=1}^\infty\\frac{-e^{i\pi}}{2^n}!",

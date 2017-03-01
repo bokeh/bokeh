@@ -1,7 +1,7 @@
 import * as $ from "jquery"
 import "bootstrap/dropdown"
 
-import * as p from "../../core/properties"
+import * as p from "core/properties"
 
 import {AbstractButton, AbstractButtonView} from "./abstract_button"
 import template from "./dropdown_template"

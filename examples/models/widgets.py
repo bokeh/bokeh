@@ -1,19 +1,19 @@
 from __future__ import print_function
 
-from datetime import date
+#from datetime import date
 
 from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.resources import INLINE
 from bokeh.util.browser import view
-from bokeh.models.layouts import Column, Row, WidgetBox
+from bokeh.models.layouts import Row, WidgetBox
 from bokeh.models.widgets import (
     Button, Toggle, Dropdown,
     CheckboxGroup, RadioGroup,
     CheckboxButtonGroup, RadioButtonGroup,
     TextInput, AutocompleteInput,
     Select, MultiSelect,
-    Slider, RangeSlider, DateRangeSlider,
+    Slider, RangeSlider, #DateRangeSlider,
     DatePicker,
     Paragraph, Div, PreText,
     Panel, Tabs,
@@ -62,7 +62,7 @@ div = Div(text="some <b>text</b>")
 pre_text = PreText(text="some text")
 
 def mk_tab(color):
-    plot = figure(width=300, height=300)
+    plot = figure(plot_width=300, plot_height=300)
     plot.scatter(flowers["petal_length"], flowers["petal_width"], color=color, fill_alpha=0.2, size=12)
     return Panel(title="Tab 1: %s" % color.capitalize(), child=plot)
 

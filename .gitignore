@@ -64,6 +64,8 @@
 .coverage
 # ipython files
 **/.ipynb_checkpoints
+# tests/examples reports
+report.html
 
 # Logs and databases #
 ######################

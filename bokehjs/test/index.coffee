@@ -1,23 +1,27 @@
+fs = require "fs"
 path = require "path"
 assert = require "assert"
+rootRequire = require "root-require"
+
+root = rootRequire.packpath.parent()
+pkg = rootRequire("./package.json")
 
 module.constructor.prototype.require = (modulePath) ->
   assert(modulePath, 'missing path')
   assert(typeof modulePath == 'string', 'path must be a string')
 
-  self = this
-  load = (modulePath) ->
-    self.constructor._load(modulePath, self)
+  if not modulePath.startsWith(".")
+    overridePath = pkg.browser[modulePath]
 
-  root = process.cwd()
-  pkg = load(path.join(root, "package.json"))
+    if overridePath?
+      modulePath = path.join(root, overridePath)
+    else
+      overridePath = path.join(root, path.dirname(pkg.main), modulePath + ".js")
 
-  overridePath = pkg.browser[modulePath]
+      if fs.existsSync(overridePath)
+        modulePath = overridePath
 
-  if overridePath?
-    modulePath = path.join(root, overridePath)
-
-  return load(modulePath)
+  return this.constructor._load(modulePath, this)
 
 jsdom = require('jsdom').jsdom
 

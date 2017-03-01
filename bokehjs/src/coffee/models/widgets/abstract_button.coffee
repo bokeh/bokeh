@@ -1,6 +1,6 @@
-import * as p from "../../core/properties"
+import * as p from "core/properties"
 
-import {build_views} from "../../core/build_views"
+import {build_views} from "core/build_views"
 import {Widget, WidgetView} from "./widget"
 import template from "./button_template"
 

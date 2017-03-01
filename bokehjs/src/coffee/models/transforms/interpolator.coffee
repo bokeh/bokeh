@@ -1,6 +1,6 @@
 import {Transform} from "./transform"
-import * as p from "../../core/properties"
-import {logger} from "../../core/logging"
+import * as p from "core/properties"
+import {logger} from "core/logging"
 
 export class Interpolator extends Transform
 

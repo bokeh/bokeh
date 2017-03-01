@@ -1,4 +1,4 @@
-import * as p from "../../core/properties"
+import * as p from "core/properties"
 
 import {ColorMapper} from "./color_mapper"
 

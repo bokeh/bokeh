@@ -7,8 +7,8 @@ from .screenshot import Screenshot
 
 def pytest_addoption(parser):
     parser.addoption(
-        "--set-new-base-screenshot", dest="set_new_base_screenshot", action="store_true", default=False, help="Use to set a new screenshot for imagediff testing. Be sure to only set for the tests you want by usign the -k pytest option to select your test."
-    )
+        "--set-new-base-screenshot", dest="set_new_base_screenshot", action="store_true", default=False,
+        help="Use to set a new screenshot for imagediff testing. Be sure to only set for the tests you want by usign the -k pytest option to select your test.")
 
 
 @pytest.fixture
@@ -92,7 +92,7 @@ def screenshot(request):
     if request.config.option.driver != 'SauceLabs':
         pytest.skip('Screenshot tests can only be run with --driver=SauceLabs')
 
-    capabilities = request.getfuncargvalue('capabilities')
+    capabilities = request.getfixturevalue('capabilities')
     if capabilities['browserName'] != 'firefox':
         pytest.skip('Screenshot tests can only be run with browserName firefox. Capabilties are: %s' % capabilities)
     if capabilities['platform'] != 'Linux':

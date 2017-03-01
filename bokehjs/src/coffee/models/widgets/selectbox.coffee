@@ -1,5 +1,5 @@
-import {logger} from "../../core/logging"
-import * as p from "../../core/properties"
+import {logger} from "core/logging"
+import * as p from "core/properties"
 
 import {InputWidget, InputWidgetView} from "./input_widget"
 

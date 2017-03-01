@@ -1,4 +1,4 @@
-import {proj4, mercator, wgs84} from "../../core/util/proj4"
+import {proj4, mercator, wgs84} from "core/util/proj4"
 
 export class ProjectionUtils
 

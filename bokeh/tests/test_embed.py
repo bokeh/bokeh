@@ -86,9 +86,14 @@ class TestComponents(unittest.TestCase):
         self.assertEqual(len(divs), 2)
 
         div = divs[0]
-        self.assertTrue(set(div.attrs), set(['class', 'id']))
+        self.assertEqual(set(div.attrs), set(['class']))
         self.assertEqual(div.attrs['class'], ['bk-root'])
         self.assertEqual(div.text, '\n\n')
+
+        div = divs[1]
+        self.assertEqual(set(div.attrs), set(['id', 'class']))
+        self.assertEqual(div.attrs['class'], ['bk-plotdiv'])
+        self.assertEqual(div.text, '')
 
     def test_script_is_utf8_encoded(self):
         script, div = embed.components(_embed_test_plot)
@@ -126,9 +131,14 @@ class TestNotebookDiv(unittest.TestCase):
         self.assertEqual(len(divs), 2)
 
         div = divs[0]
-        self.assertTrue(set(div.attrs), set(['class', 'id']))
+        self.assertEqual(set(div.attrs), set(['class']))
         self.assertEqual(div.attrs['class'], ['bk-root'])
         self.assertEqual(div.text, '\n\n')
+
+        div = divs[1]
+        self.assertEqual(set(div.attrs), set(['id', 'class']))
+        self.assertEqual(div.attrs['class'], ['bk-plotdiv'])
+        self.assertEqual(div.text, '')
 
     def test_model_in_empty_document_context_manager_is_used(self):
         m = mock.MagicMock(name='_ModelInEmptyDocument')

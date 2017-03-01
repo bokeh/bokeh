@@ -16,7 +16,7 @@ export get_text_height = (font) ->
     result = {}
 
     block.style.verticalAlign = "baseline"
-    ascent = offset(block).top - offset(text).top
+    result.ascent = offset(block).top - offset(text).top
 
     block.style.verticalAlign = "bottom"
     result.height = offset(block).top - offset(text).top

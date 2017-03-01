@@ -12,14 +12,12 @@ for those who were unable to complete the process detailed in the
 Dependencies
 ============
 
-Because the Bokeh client library is mostly concerned with providing a nice
-Python interface for generating JSON objects which are then consumed by the
-BokehJS library running in the browser, there shouldn't be a *hard* dependency
-on any of the standard NumPy/SciPy stack.  It is entirely possible to use
-Bokeh with plain Python lists of values.
-
-The Bokeh plot server does take advantage of NumPy, and may have a hard
-dependency on several compiled libraries.
+Bokeh is officially supported (and continuously tested) on CPython versions 2.7
+and 3.4+ only. Other Python versions may function, possibly in limited capacity.
+In particular, converting NumPy arrays to lists may be useful with other versions.
+However, this guidance is only provided as-is, in case it happens to be useful,
+and does not imply any level of official support for other Python versions. All
+issues opened related to unsupported Python versions will be closed as invalid.
 
 For basic usage, have the following libraries installed:
 
@@ -37,8 +35,17 @@ For basic usage, have the following libraries installed:
 To use the Bokeh server with python 2.7, you also need to install Futures
 package.
 
+Because the Bokeh client library is mostly concerned with providing a nice
+Python interface for generating JSON objects which are then consumed by the
+BokehJS library running in the browser, there shouldn't be a *hard* dependency
+on any of the standard NumPy/SciPy stack.  It is entirely possible to use
+Bokeh with plain Python lists of values. However, the Bokeh plot server does
+make direct use of NumPy, and it is required to be installed for Bokeh apps
+to function.
+
 Additionally the ``bokeh.charts`` interface and various examples
-depend on the Pandas library; it is recommended to install Pandas version 0.16.1 or later.
+depend on the Pandas library; it is recommended to install Pandas version 0.16.1
+or later.
 
 .. _install_packages:
 
@@ -172,6 +179,11 @@ and
 
 * http://cdn.pydata.org/bokeh/release/bokeh-0.12.0.min.css
 * http://cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.0.min.css
+
+.. note::
+    For releases ``0.12.2`` and after, the BokehJS API has been branched to a separate file.
+    It is also available for download from CDN at pydata.org under the name bokeh-api using
+    the above naming scheme.
 
 .. _Anaconda Python Distribution: http://continuum.io/anaconda
 .. _anaconda.org: http://anaconda.org

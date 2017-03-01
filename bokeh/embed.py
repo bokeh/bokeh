@@ -15,6 +15,7 @@ from __future__ import absolute_import
 
 from collections import Sequence
 from warnings import warn
+import re
 
 from six import string_types
 
@@ -48,6 +49,30 @@ def _wrap_in_onload(code):
   else document.addEventListener("DOMContentLoaded", fn);
 })();
 """ % dict(code=_indent(code, 4))
+
+
+def _add_doc_to_models(doc, models):
+    models_to_dedoc = []
+    for model in models:
+        if isinstance(model, Model):
+            if model.document is None:
+                try:
+                    doc.add_root(model)
+                    models_to_dedoc.append(model)
+                except RuntimeError as e:
+                    child = re.search('\((.*)\)', str(e)).group(0)
+                    msg = ('Sub-model {0} of the root model {1} is already owned '
+                           'by another document (Models must be owned by only a '
+                           'single document). This may indicate a usage '
+                           'error.'.format(child, model))
+                    raise RuntimeError(msg)
+    return models_to_dedoc
+
+
+def _remove_doc_from_models(doc, models):
+    for model in models:
+        doc.remove_root(model)
+
 
 def components(models, wrap_script=True, wrap_plot_info=True):
     '''
@@ -131,10 +156,27 @@ def components(models, wrap_script=True, wrap_plot_info=True):
             values.append(models[k])
         models = values
 
-    # 2) Do our rendering
+    # 2) Append models to one document. Either pre-existing or new.
+    existing_docs = set(m if isinstance(m, Document) else m.document for m in models)
+    existing_docs.discard(None)
 
-    with _ModelInDocument(models):
-        (docs_json, render_items) = _standalone_docs_json_and_render_items(models)
+    if len(existing_docs) == 0:
+        # no existing docs, make a new one
+        doc = Document()
+    elif len(existing_docs) == 1:
+        # all existing docs are the same, use that one
+        doc = existing_docs.pop()
+    else:
+        # conflicting/multiple docs, raise an error
+        msg = ('Multiple items in models conatain documents or are '
+               'themselves documents. (Models must be owned by only a '
+               'single document). This may indicate a usage error.')
+        raise RuntimeError(msg)
+
+    models_to_dedoc = _add_doc_to_models(doc, models)
+
+    # 3) Do our rendering
+    (docs_json, render_items) = _standalone_docs_json_and_render_items(models)
 
     script = _script_for_render_items(docs_json, render_items, websocket_url=None, wrap_script=wrap_script)
     script = encode_utf8(script)
@@ -144,7 +186,10 @@ def components(models, wrap_script=True, wrap_plot_info=True):
     else:
         results = render_items
 
-    # 3) convert back to the input shape
+    # 4) Clean up the doc
+    _remove_doc_from_models(doc, models_to_dedoc)
+
+    # 5) convert back to the input shape
 
     if was_single_object:
         return script, results[0]

@@ -23,12 +23,14 @@ matrix:
       env: GROUP=unit
     - python: 3.5
       env: GROUP=unit
+    - python: 3.6
+      env: GROUP=unit
 
     # examples tests (python 2.7 and 3.4)
     - python: 2.7
       env: GROUP=examples
     - python: 3.4
-      env: GROUP=examples
+      env: GROUP=examples EXTRA_CMD=--no-js
 
     # linting, package and docs building (python 3.4)
     - python: 3.4
@@ -57,6 +59,9 @@ install:
 - scripts/travis_install
 
 script:
+  # preamble
+  - python -m bokeh info
+
   # unit tests
   - if [[ -z "$TRAVIS_TAG" && "$GROUP" == unit ]]; then
       py.test --rerun=3 -s -m js;
@@ -70,9 +75,8 @@ script:
       if [[ $TRAVIS_COMMIT_MSG == *"[ci disable examples]"* ]]; then
         echo "Examples run disabled by commit";
       else
-        export BOKEH_DEFAULT_DIFF=FETCH_HEAD;
         export IPYTHON_ALLOW_DRAFT_WEBSOCKETS_FOR_PHANTOMJS=1;
-        py.test -v -m examples --rerun=5 --upload --examplereport=examples.html;
+        time py.test -s -v --tb line -m examples --diff-ref FETCH_HEAD --upload --report-path=examples.html $EXTRA_CMD;
       fi;
     fi
 
@@ -105,7 +109,6 @@ script:
 
   # Simple build log
   - echo "********** SIMPLE BUILD LOG **********";
-    echo $BOKEH_DEFAULT_DIFF;
     echo $TRAVIS_COMMIT_MSG;
     echo $TRAVIS_PULL_REQUEST;
     if [[ "$GROUP" == integration ]]; then

@@ -1,5 +1,5 @@
-import {range} from "../../core/util/array"
-import {isStrictNaN} from "../../core/util/types"
+import {range} from "core/util/array"
+import {isStrictNaN} from "core/util/types"
 import {AdaptiveTicker} from "./adaptive_ticker"
 
 export class LogTicker extends AdaptiveTicker

@@ -1,6 +1,6 @@
 namespace Anscombe {
   console.log(`Bokeh ${Bokeh.version}`);
-  Bokeh.set_log_level("debug");
+  Bokeh.set_log_level("info");
 
   const anscombe_quartet = Bokeh.LinAlg.transpose([
     [10.0,  8.04, 10.0, 9.14, 10.0,  7.46,  8.0,  6.58],

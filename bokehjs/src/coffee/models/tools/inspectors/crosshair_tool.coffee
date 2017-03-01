@@ -1,7 +1,7 @@
 import {InspectTool, InspectToolView} from "./inspect_tool"
 import {Span} from "../../annotations/span"
-import * as p from "../../../core/properties"
-import {values} from "../../../core/util/object"
+import * as p from "core/properties"
+import {values} from "core/util/object"
 
 export class CrosshairToolView extends InspectToolView
 

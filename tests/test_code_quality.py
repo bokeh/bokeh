@@ -2,9 +2,8 @@
 
 import io
 import subprocess
-from os import walk, sep, pardir
-from os.path import split, join, isabs, abspath, relpath, exists, isfile, basename, splitext
-from glob import glob
+from os import pardir
+from os.path import split, join, abspath, relpath, basename, splitext
 
 import pytest
 

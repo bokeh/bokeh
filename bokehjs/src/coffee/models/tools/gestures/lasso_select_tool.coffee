@@ -1,6 +1,6 @@
 import {SelectTool, SelectToolView} from "./select_tool"
 import {PolyAnnotation} from "../../annotations/poly_annotation"
-import * as p from "../../../core/properties"
+import * as p from "core/properties"
 
 export class LassoSelectToolView extends SelectToolView
 

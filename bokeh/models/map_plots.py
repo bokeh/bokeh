@@ -5,7 +5,7 @@ from __future__ import absolute_import
 
 from ..core.enums import MapType
 from ..core.has_props import abstract
-from ..core.properties import Enum, Float, Instance, Int, JSON, Override, String
+from ..core.properties import Bool, Enum, Float, Instance, Int, JSON, Override, String
 from ..core.validation import error, warning
 from ..core.validation.warnings import MISSING_RENDERERS, NO_DATA_RENDERERS
 from ..core.validation.errors import REQUIRED_RANGE, MISSING_GOOGLE_API_KEY
@@ -46,6 +46,10 @@ class GMapOptions(MapOptions):
 
     .. _map type: https://developers.google.com/maps/documentation/javascript/reference#MapTypeId
 
+    """)
+
+    scale_control = Bool(default=False, help="""
+    Whether the Google map should display its distance scale control.
     """)
 
     styles = JSON(help="""

@@ -97,7 +97,9 @@ class Document(object):
         self._modules = []
         self._template_variables = {}
 
-    def __del__(self):
+    def delete_modules(self):
+        ''' Clean up sys.modules after the session is destroyed.
+        '''
         for module in self._modules:
             if module.__name__ in sys.modules:
                 del sys.modules[module.__name__]
@@ -750,10 +752,6 @@ class Document(object):
             None
 
         '''
-        # logging.basicConfig is a no-op if there's already
-        # some logging configured. We want to make sure warnings
-        # go somewhere so configure here if nobody has.
-        logging.basicConfig(level=logging.INFO)
         root_sets = []
         for r in self.roots:
             refs = r.references()

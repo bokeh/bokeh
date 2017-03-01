@@ -9,7 +9,7 @@ subset = data.ix['2010-10-06']
 x, y = subset.index.to_series(), subset['glucose']
 
 # Basic plot setup
-plot = figure(width=600, height=300, x_axis_type="datetime", tools="",
+plot = figure(plot_width=600, plot_height=300, x_axis_type="datetime", tools="",
               toolbar_location=None, title='Hover over points')
 
 plot.line(x, y, line_dash="4 4", line_width=1, color='gray')

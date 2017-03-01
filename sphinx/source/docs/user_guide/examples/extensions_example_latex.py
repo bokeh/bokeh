@@ -3,7 +3,6 @@
 
 import numpy as np
 
-from bokeh.core.properties import Override
 from bokeh.models import Label
 from bokeh.plotting import figure, show
 
@@ -71,7 +70,7 @@ class LatexLabel(Label):
 x = np.arange(0.0, 1.0 + 0.01, 0.01)
 y = np.cos(2*2*np.pi*x) + 2
 
-p = figure(title="LaTex Demonstration", width=500, height=500)
+p = figure(title="LaTex Demonstration", plot_width=500, plot_height=500)
 p.line(x, y)
 
 # Note: must set ``render_mode="css"``

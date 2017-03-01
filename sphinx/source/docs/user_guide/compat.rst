@@ -49,13 +49,13 @@ PDF output not currently available for native Bokeh plots.  See the
 Holoviews `Bokeh_Backend`_ tutorial for more details.
 
 
-Matplotlib, seaborn, ggplot, and Pandas
----------------------------------------
+Matplotlib, seaborn, Pandas
+---------------------------
 
 Bokeh can display figures created using `Matplotlib`_, which allows
 you to combine `Matplotlib`_ and Bokeh plots in the same document.
-Because `Seaborn`_, `ggplot.py`_, and `Pandas`_ generate Matplotlib
-figures, in many cases you can also use output from each of these
+Because `Seaborn`_, `Pandas`_, and others generate Matplotlib
+figures, in some cases you can also use output from each of these
 packages.  To display one of these plots, pass it to the
 ``bokeh.mpl.to_bokeh`` function:
 
@@ -81,7 +81,6 @@ You can see examples of Bokeh rendering Matplotlib plots generated
 from each of these libraries in the :bokeh-tree:`examples/compat` directory.
 
 .. _Bokeh_Backend: http://holoviews.org/Tutorials/Bokeh_Backend.html
-.. _ggplot.py: https://github.com/yhat/ggplot
 .. _HoloViews: http://holoviews.org
 .. _Matplotlib: http://matplotlib.org
 .. _MEP 25: https://github.com/matplotlib/matplotlib/wiki/MEP25

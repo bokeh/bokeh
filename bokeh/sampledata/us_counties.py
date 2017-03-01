@@ -4,9 +4,13 @@ indexed by the two-tuple containing (state_id, county_id) and has the following 
 associated value:
 
     data[(1,1)]['name']
+    data[(1,1)]['state']
+    data[(1,1)]['detailed name']
     data[(1,1)]['lats']
     data[(1,1)]['lons']
 
+'name' can have duplicates for certain states (especially Virginia). 'detailed name' and 'state'
+combinations are unique.
 '''
 from __future__ import absolute_import
 
@@ -25,7 +29,7 @@ with _open_csv_file(join(data_dir, 'US_Counties.csv')) as f:
     next(f)
     reader = csv.reader(f, delimiter=',', quotechar='"')
     for row in reader:
-        name, dummy, state, dummy, geometry, dummy, dummy, dummy, dummy, state_id, county_id, dummy, dummy = row
+        name, dummy, state, dummy, geometry, dummy, dummy, dummy, det_name, state_id, county_id, dummy, dummy = row
         xml = et.fromstring(geometry)
         lats = []
         lons = []
@@ -40,6 +44,7 @@ with _open_csv_file(join(data_dir, 'US_Counties.csv')) as f:
             lons.extend(lon)
         data[(int(state_id), int(county_id))] = {
             'name' : name,
+            'detailed name' : det_name,
             'state' : state,
             'lats' : lats,
             'lons' : lons,

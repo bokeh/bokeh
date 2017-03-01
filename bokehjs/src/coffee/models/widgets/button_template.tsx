@@ -1,4 +1,4 @@
-import * as DOM from "../../core/dom";
+import * as DOM from "core/dom";
 
 export interface ButtonProps {
   button_type: "default" | "primary" | "success" | "warning" | "danger" | "link";

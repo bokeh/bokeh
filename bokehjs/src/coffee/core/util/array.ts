@@ -260,7 +260,7 @@ export function intersection<T>(array: Array<T>, ...arrays: Array<Array<T>>): Ar
       continue
     for (const other of arrays) {
       if (!contains(other, item))
-        break top;
+        continue top;
     }
     result.push(item)
   }

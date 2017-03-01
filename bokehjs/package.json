@@ -1,6 +1,6 @@
 {
   "name": "bokehjs",
-  "version": "0.12.5dev11",
+  "version": "0.12.5dev13",
   "description": "Interactive, novel data visualization",
   "keywords": [
     "bokeh",
@@ -43,8 +43,7 @@
     "logtrap": "^0.0.1",
     "mocha": "^2.2.5",
     "mocha-jsdom": "^1.1.0",
-    "phantomjs-prebuilt": "2.1.7",
-    "proxyquire": "1.7.10",
+    "phantomjs-prebuilt": "^2.1.14",
     "run-sequence": "^1.0.0",
     "sandboxed-module": "^2.0.0",
     "sinon": "^1.15.4",
@@ -59,7 +58,7 @@
     "event-stream": "^3.3.1",
     "jsdom": "^9.8.3",
     "websocket":"^1.0.22",
-    "typescript": "^2.0.3",
+    "typescript": "^2.2.1",
     "coffee-script": "^1.10.0",
     "detective": "^4.3.1",
     "jslint": "^0.10.3",
@@ -67,7 +66,8 @@
     "request": "^2.74.0",
     "source-map-support": "^0.4.6",
     "atob": "^2.0.0",
-    "btoa": "^1.1.2"
+    "btoa": "^1.1.2",
+    "strip-ansi": "^3.0.1"
   },
   "browser": {
     "bootstrap/button": "./src/vendor/bootstrap-3.1.1/js/button.js",
@@ -86,7 +86,7 @@
   "dependencies": {
     "es6-promise":"3.0.2",
     "rbush": "^2.0.1",
-    "proj4": "^2.3.10",
+    "proj4": "<2.4",
     "sprintf": "^0.1.5",
     "timezone": "^1.0.6",
     "hammerjs": "^2.0.4",

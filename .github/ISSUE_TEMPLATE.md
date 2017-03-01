@@ -1,11 +1,18 @@
-The issue tracker isn't the place for general support. For questions and
-technical assistance, come ask the [Bokeh mailing list](https://groups.google.com/a/continuum.io/forum/#!forum/bokeh) or join the chat on [Gitter](https://gitter.im/bokeh/bokeh).
+# READ AND FOLLOW THESE INSTRUCTIONS CAREFULLY
 
-For defects or deficiencies, please provide:
-* Description of expected behavior and the observed behavior
-* Self-contained example code that generates the issue (if possible)
-* Stack traceback and/or browser developer tools console output
-* Software version information output by `bokeh info` command
+*ISSUES THAT DO NOT CONTAIN NECESSARY INFORMATION MAY BE CLOSED, IMMEDIATELY*
 
-For desired features, please provide:
-* Description of the desired feature
+The issue tracker is NOT the place for general support. For questions and
+technical assistance, come ask the [Bokeh mailing list](https://groups.google.com/a/continuum.io/forum/#!forum/bokeh) or join the chat on [Gitter](https://gitter.im/bokeh/bokeh). For feature requests, please provide a detailed description or proposal of the new capability or behavior.
+
+For defects or deficiencies, please provide ALL OF THE FOLLOWING:
+
+#### ALL software version info (bokeh, python, notebook, OS, browser, any other relevant pacakges)
+
+#### Description of expected behavior and the observed behavior
+
+#### Complete, minimal, self-contained example code that reproduces the issue
+
+#### Stack traceback and/or browser JavaScript console output
+
+#### Screenshots or screencasts of the bug in action

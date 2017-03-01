@@ -1,8 +1,8 @@
-import {logger} from "../../core/logging"
+import {logger} from "core/logging"
 
 import {GMapPlotCanvas} from "./gmap_plot_canvas"
 import {Plot, PlotView} from "./plot"
-import * as p from "../../core/properties"
+import * as p from "core/properties"
 import {Model} from "../../model"
 
 export class MapOptions extends Model
@@ -16,8 +16,9 @@ export class MapOptions extends Model
 export class GMapOptions extends MapOptions
   type: 'GMapOptions'
   @define {
-    map_type: [ p.String, "roadmap" ]
-    styles:   [ p.String            ]
+    map_type:      [ p.String, "roadmap" ]
+    scale_control: [ p.Bool,   false     ]
+    styles:        [ p.String            ]
   }
 
 export class GMapPlotView extends PlotView

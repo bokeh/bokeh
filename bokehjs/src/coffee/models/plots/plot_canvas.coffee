@@ -4,21 +4,21 @@ import {DataRange1d} from "../ranges/data_range1d"
 import {GlyphRenderer} from "../renderers/glyph_renderer"
 import {LayoutDOM} from "../layouts/layout_dom"
 
-import {build_views} from "../../core/build_views"
-import {UIEvents} from "../../core/ui_events"
-import {LayoutCanvas} from "../../core/layout/layout_canvas"
-import {Visuals} from "../../core/visuals"
-import {BokehView} from "../../core/bokeh_view"
-import {EQ, GE} from "../../core/layout/solver"
-import {logger} from "../../core/logging"
-import * as enums from "../../core/enums"
-import * as p from "../../core/properties"
-import {throttle} from "../../core/util/throttle"
-import {isStrictNaN} from "../../core/util/types"
-import {difference, sortBy} from "../../core/util/array"
-import {extend, values, isEmpty} from "../../core/util/object"
-import {defer} from "../../core/util/callback"
-import {update_constraints as update_panel_constraints} from "../../core/layout/side_panel"
+import {build_views} from "core/build_views"
+import {UIEvents} from "core/ui_events"
+import {LayoutCanvas} from "core/layout/layout_canvas"
+import {Visuals} from "core/visuals"
+import {BokehView} from "core/bokeh_view"
+import {EQ, GE} from "core/layout/solver"
+import {logger} from "core/logging"
+import * as enums from "core/enums"
+import * as p from "core/properties"
+import {throttle} from "core/util/throttle"
+import {isStrictNaN} from "core/util/types"
+import {difference, sortBy} from "core/util/array"
+import {extend, values, isEmpty} from "core/util/object"
+import {defer} from "core/util/callback"
+import {update_constraints as update_panel_constraints} from "core/layout/side_panel"
 
 # Notes on WebGL support:
 # Glyps can be rendered into the original 2D canvas, or in a (hidden)
@@ -576,6 +576,9 @@ export class PlotCanvasView extends BokehView
       if isEmpty(@model.document._unrendered_plots)
         @model.document._unrendered_plots = null
         defer(@model.document.resize.bind(@model.document))
+
+    event = new Event("bokeh:rendered", {detail: @})
+    window.dispatchEvent(event)
 
   resize: () ->
     # Set the plot and canvas to the current model's size

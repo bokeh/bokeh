@@ -12,7 +12,6 @@ prune examples/compat/mpl/.ipynb_checkpoints
 prune examples/glyphs/.ipynb_checkpoints
 prune examples/plotting/notebook/.ipynb_checkpoints
 prune examples/charts/*.html
-prune examples/compat/ggplot/*.html
 prune examples/compat/mpl/*.html
 prune examples/compat/pandas/*.html
 prune examples/compat/seaborn/*.html

@@ -67,6 +67,6 @@ if [ "$test" == "true" ]; then
 fi
 
 if [[ "$add" == "true" ]]; then
-    conda_install pdiff boto
+    conda_install boto
     echo "Image diff-related dependecies installed."
 fi

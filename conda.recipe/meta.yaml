@@ -58,6 +58,7 @@ test:
     - colorama
     - coverage
     - flake8
+    - lxml
     - mock
     - packaging
     - pandas
@@ -72,7 +73,6 @@ test:
     - scipy
     - pillow
     - boto
-    - pdiff                  [unix]
     - nodejs >=6.6.0
 
     # examples
@@ -80,7 +80,6 @@ test:
     - matplotlib
     - sympy
     - scikit-learn
-    - ggplot <=0.9.4
     - seaborn
     - networkx
     - icalendar          [unix]

@@ -9,7 +9,7 @@ df = df_from_json(data)
 
 # filter by countries with at least one medal and sort by total medals
 df = df[df['total'] > 8]
-df = df.sort("total", ascending=False)
+df = df.sort_values(by="total", ascending=False)
 df = pd.melt(df, id_vars=['abbr'],
              value_vars=['bronze', 'silver', 'gold'],
              value_name='medal_count', var_name='medal')

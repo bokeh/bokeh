@@ -1,5 +1,5 @@
 import {Range} from "./range"
-import * as p from "../../core/properties"
+import * as p from "core/properties"
 
 export class FactorRange extends Range
   type: 'FactorRange'

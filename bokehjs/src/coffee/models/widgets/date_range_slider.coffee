@@ -1,7 +1,7 @@
 import "jqrangeslider/jQDateRangeSlider"
 
-import * as p from "../../core/properties"
-import {isObject} from "../../core/util/types"
+import * as p from "core/properties"
+import {isObject} from "core/util/types"
 
 import {InputWidget, InputWidgetView} from "./input_widget"
 

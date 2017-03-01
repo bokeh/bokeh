@@ -31,7 +31,7 @@ def plot(tile_source, filename):
 
 # create a tile source
 tile_options = {}
-tile_options['url'] = 'http://otile2.mqcdn.com/tiles/1.0.0/sat/{Z}/{X}/{Y}.png'
+# TODO tile_options['url'] = 'http://otile2.mqcdn.com/tiles/1.0.0/sat/{Z}/{X}/{Y}.png'
 mq_tile_source = WMTSTileSource(**tile_options)
 
 carto = plot(CARTODBPOSITRON, 'airports_map_cartodb.html')
