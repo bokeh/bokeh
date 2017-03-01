@@ -140,14 +140,6 @@ class TestNotebookDiv(unittest.TestCase):
         self.assertEqual(div.attrs['class'], ['bk-plotdiv'])
         self.assertEqual(div.text, '')
 
-    def test_model_in_empty_document_context_manager_is_used(self):
-        m = mock.MagicMock(name='_ModelInEmptyDocument')
-        plot1 = figure()
-        curdoc().add_root(plot1)
-        with mock.patch('bokeh.embed._ModelInEmptyDocument', m):
-            embed.notebook_div(plot1)
-        m.assert_called_once_with(plot1)
-
 
 class TestFileHTML(unittest.TestCase):
 

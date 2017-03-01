@@ -31,7 +31,6 @@ from .document import Document
 from .embed import notebook_div, standalone_html_page_for_models, autoload_server
 from .models.layouts import LayoutDOM
 from .layouts import gridplot, GridSpec ; gridplot, GridSpec
-from .model import _ModelInDocument
 import bokeh.util.browser as browserlib  # full import needed for test mocking to work
 from .util.deprecation import deprecated
 from .util.notebook import load_notebook, publish_display_data, get_comms
@@ -439,21 +438,27 @@ def _get_save_args(state, filename, resources, title):
     return filename, resources, title
 
 def _save_helper(obj, filename, resources, title, validate):
-    with _ModelInDocument(obj):
-        if isinstance(obj, LayoutDOM):
-            doc = obj.document
-        elif isinstance(obj, Document):
-            doc = obj
-        else:
-            raise RuntimeError("Unable to save object of type '%s'" % type(obj))
+    remove_after = False
+    if isinstance(obj, LayoutDOM):
+        doc = obj.document
+        if doc is None:
+            doc = Document().add_root(obj)
+            remove_after = True
+    elif isinstance(obj, Document):
+        doc = obj
+    else:
+        raise RuntimeError("Unable to save object of type '%s'" % type(obj))
 
-        if validate:
-            doc.validate()
+    if validate:
+        doc.validate()
 
-        html = standalone_html_page_for_models(obj, resources, title)
+    html = standalone_html_page_for_models(obj, resources, title)
 
-        with io.open(filename, "w", encoding="utf-8") as f:
-            f.write(decode_utf8(html))
+    with io.open(filename, "w", encoding="utf-8") as f:
+        f.write(decode_utf8(html))
+
+    if remove_after:
+        doc.remove_root(obj)
 
 # this function exists mostly to be mocked in tests
 def _push_to_server(session_id, url, app_path, document, io_loop):

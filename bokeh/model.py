@@ -7,7 +7,6 @@ from __future__ import absolute_import, print_function
 import logging
 logger = logging.getLogger(__file__)
 
-from contextlib import contextmanager
 from json import loads
 from operator import itemgetter
 
@@ -649,39 +648,6 @@ class Model(with_metaclass(MetaModel, HasProps, CallbackManager)):
                     p.text('=')
                     p.pretty(value)
 
-def _find_some_document(models):
-    '''
-
-    '''
-    from .document import Document
-
-    # First try the easy stuff...
-    doc = None
-    for model in models:
-        if isinstance(model, Document):
-            doc = model
-            break
-        elif isinstance(model, Model):
-            if model.document is not None:
-                doc = model.document
-                break
-
-    # Now look in children of models
-    if doc is None:
-        for model in models:
-            if isinstance(model, Model):
-                # see if some child of ours is in a doc, this is meant to
-                # handle a thing like:
-                #   p = figure()
-                #   box = HBox(children=[p])
-                #   show(box)
-                for r in model.references():
-                    if r.document is not None:
-                        doc = r.document
-                        break
-
-    return doc
-
 def _visit_immediate_value_references(value, visitor):
     ''' Visit all references to another Model without recursing into any
     of the child Model; may visit the same Model more than once if
@@ -711,54 +677,3 @@ def _visit_value_and_its_immediate_references(obj, visitor):
         for key, value in iteritems(obj):
             _visit_value_and_its_immediate_references(key, visitor)
             _visit_value_and_its_immediate_references(value, visitor)
-
-class _ModelInDocument(object):
-    '''
-
-    '''
-
-    def __init__(self, models):
-        # 'models' can be a single Model, a single Document, or a list of either
-        from .document import Document
-
-        self._to_remove_after = []
-        if not isinstance(models, list):
-            models = [models]
-
-        self._doc = _find_some_document(models)
-        if self._doc is None:
-            # oh well - just make up a doc
-            self._doc = Document()
-
-        for model in models:
-            if isinstance(model, Model):
-                if model.document is None:
-                    self._to_remove_after.append(model)
-
-    def __exit__(self, type, value, traceback):
-        for model in self._to_remove_after:
-            model.document.remove_root(model)
-
-    def __enter__(self):
-        for model in self._to_remove_after:
-            self._doc.add_root(model)
-
-@contextmanager
-def _ModelInEmptyDocument(model):
-    '''
-
-    '''
-    from .document import Document
-    full_doc = _find_some_document([model])
-
-    model._document = None
-    for ref in model.references():
-        ref._document = None
-    empty_doc = Document()
-    empty_doc.add_root(model)
-
-    yield model
-
-    model._document = full_doc
-    for ref in model.references():
-        ref._document = full_doc
