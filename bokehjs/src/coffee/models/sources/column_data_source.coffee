@@ -5,7 +5,7 @@ import * as p from "../../core/properties"
 import * as serialization from "../../core/util/serialization"
 import {isObject, isBoolean} from "../../core/util/types"
 import * as hittest from "../../core/hittest"
-import {range} from "../../core/util/array"
+import {range, intersection} from "../../core/util/array"
 
 # exported for testing
 export concat_typed_arrays = (a, b) ->
@@ -66,16 +66,13 @@ export class ColumnDataSource extends ColumnarDataSource
 
   initialize: (options) ->
     super(options)
-    if @filter.length == 0
-      @indices = range(0, @data_store.get_length())
-    else if isBoolean(@filter[0])
-      @indices = (i for i in range(0, @data_store.get_length()) when @filter[i] == true)
-    else
-      @indices = @filter
 
+    @compute_indices()
     @subset_data()
     @indices_map_to_subset()
 
+    @listenTo @, 'change:filter', @compute_indices
+    @listenTo @, 'change:group', @compute_indices
     @listenTo @, 'change:indices', @subset_data
     @listenTo @data_store, 'change:selected', () ->
       @synchronize_selection(@data_store.selected)
@@ -83,6 +80,7 @@ export class ColumnDataSource extends ColumnarDataSource
   @define {
     data_store:   [ p.Any,   {} ]
     filter:       [ p.Array, [] ]
+    group:        [ p.Array, [] ]
   }
 
   @internal {
@@ -90,6 +88,28 @@ export class ColumnDataSource extends ColumnarDataSource
     indices_map:  [p.Any,    {} ]
     data:         [p.Any,    {} ]
   }
+
+  compute_indices: () ->
+    filter_indices = @_get_filter_indices()
+    group_indices = @_get_group_indices()
+    @indices = intersection(filter_indices, group_indices)
+
+  _get_filter_indices: () ->
+    if @filter.length == 0
+      filter_indices = range(0, @data_store.get_length())
+    else if isBoolean(@filter[0])
+      filter_indices = (i for i in range(0, @data_store.get_length()) when @filter[i] == true)
+    else
+      filter_indices = @filter
+    return filter_indices
+
+  _get_group_indices: () ->
+    if @group.length == 0
+      group_indices = range(0, @data_store.get_length())
+    else if @group.length == 2
+      if @group[0] of @data_store.data
+        group_indices = (i for i in range(0, @data_store.get_length()) when @data_store.data[@group[0]][i] == @group[1])
+    return group_indices
 
   subset_data: () ->
     @data = {}

@@ -247,6 +247,7 @@ export class GlyphRenderer extends Renderer
       x_range_name:       [ p.String,  'default' ]
       y_range_name:       [ p.String,  'default' ]
       data_source:        [ p.Instance           ]
+      group:              [ p.Array,       []    ]
       glyph:              [ p.Instance           ]
       hover_glyph:        [ p.Instance           ]
       nonselection_glyph: [ p.Any,      'auto'   ] # Instance or "auto"

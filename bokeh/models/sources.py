@@ -83,6 +83,11 @@ class ColumnDataSource(ColumnarDataSource):
 
     filter = Either(Seq(Int), Seq(Bool), default=[])
 
+    group = Seq(String, default=[], help="""
+    A tuple or list of length 2 that specifies the groupby column
+    and the group name.
+    """)
+
     def __init__(self, *args, **kw):
         ''' If called with a single argument that is a dict or
         pandas.DataFrame, treat that implicitly as the "data" attribute for 
