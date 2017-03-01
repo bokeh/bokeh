@@ -1,5 +1,5 @@
-''' Provide a ``Theme`` class for specify overrides for default values
-for Bokeh :class:`~bokeh.model.Model` properties.
+''' Provide a ``Theme`` class for specifying new default values for Bokeh
+:class:`~bokeh.model.Model` properties.
 
 '''
 from __future__ import absolute_import, print_function
@@ -18,7 +18,20 @@ _empty_dict = dict()
 # don't monitor it for changes. If you make this mutable by adding
 # any kind of setter, you could have to refactor some other code.
 class Theme(object):
-    '''
+    ''' Provide new default values for Bokeh models.
+
+    Bokeh Model properties all have some built-in default value. If a property
+    has not been explicitly set (e.g. ``m.foo = 10``) then accessing the
+    property with return the default value. It may be useful for users to be
+    able to specify a different set of default values than the built-in
+    default. The ``Theme`` class allows collections of custom default values
+    to be easily applied to Bokeh documents.
+
+    The ``Theme`` class can be constructed either from a YAML file or from a
+    JSON dict (but not both). The data should have a top level ``attrs``
+    key, followed by
+
+    Examples of both formats are shown below.
 
     Args:
         filename (str, optional) : path to a YAML theme file
@@ -27,6 +40,48 @@ class Theme(object):
     Raises:
         ValueError
             If neither ``filename`` or ``json`` is supplied.
+
+    Examples:
+
+        Themes are specified by providing a top-level key ``attrs`` which
+        has blocks for Model types to be themed. Each block has keys and
+        values that specify the new property defaults for that type.
+
+        Here is an example theme in YAML format that sets various visual
+        properties for all figures, grids, and titles:
+
+        .. code-block:: yaml
+
+            attrs:
+                Figure:
+                    background_fill_color: '#2F2F2F'
+                    border_fill_color: '#2F2F2F'
+                    outline_line_color: '#444444'
+                Grid:
+                    grid_line_dash: [6, 4]
+                    grid_line_alpha: .3
+                Title:
+                    text_color: "white"
+
+        Here is the same theme, in JSON format:
+
+        .. code-block:: python
+
+            {
+            'attrs' : {
+                'Figure' : {
+                    'background_fill_color': '#2F2F2F',
+                    'border_fill_color': '#2F2F2F',
+                    'outline_line_color': '#444444',
+                },
+                'Grid': {
+                    'grid_line_dash': [6, 4]',
+                    'grid_line_alpha': .3,
+                },
+                'Title': {
+                    'text_color': 'white'
+                }
+            }
 
     '''
     def __init__(self, filename=None, json=None):

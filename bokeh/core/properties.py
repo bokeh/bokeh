@@ -467,9 +467,9 @@ class Instance(Property):
                 raise ValueError("expected an instance of type %s, got %s of type %s" %
                     (self.instance_type.__name__, value, type(value).__name__))
 
-    def _has_stable_default(self):
+    def _may_have_unstable_default(self):
         # because the instance value is mutable
-        return False
+        return True
 
     def _sphinx_type(self):
         fullname = "%s.%s" % (self.instance_type.__module__, self.instance_type.__name__)
@@ -671,6 +671,10 @@ class Either(ParameterizedProperty):
 
         if not (value is None or any(param.is_valid(value) for param in self.type_params)):
             raise ValueError("expected an element of either %s, got %r" % (nice_join(self.type_params), value))
+
+    # TODO (bev) implement this
+    # def _may_have_unstable_default(self):
+    #     return any(tp._may_have_unstable_default() for tp in self.type_params)
 
     def _sphinx_type(self):
         return self._sphinx_prop_link() + "( %s )" % ", ".join(x._sphinx_type() for x in self.type_params)

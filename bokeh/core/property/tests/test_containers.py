@@ -24,7 +24,6 @@ def test_notify_owner():
 def test_PropertyValueContainer():
     pvc = pc.PropertyValueContainer()
     assert pvc._owners == set()
-    assert pvc._unmodified_default_value == False
 
     pvc._register_owner("owner", "prop")
     assert pvc._owners == set((("owner", "prop"), ))
