@@ -1,3 +1,4 @@
+import pytest
 from pytest import raises
 from bokeh.models import CustomJS, Slider
 
@@ -18,6 +19,7 @@ def test_js_callback():
 
 
 def test_py_callback():
+    pytest.importorskip('flexx')
 
     slider = Slider()
     foo = None  # fool pyflakes
