@@ -1,8 +1,8 @@
 import {DataSource} from "./data_source"
-import {logger} from "../../core/logging"
-import {SelectionManager} from "../../core/selection_manager"
-import * as p from "../../core/properties"
-import {uniq} from "../../core/util/array"
+import {logger} from "core/logging"
+import {SelectionManager} from "core/selection_manager"
+import * as p from "core/properties"
+import {uniq} from "core/util/array"
 
 # Abstract baseclass for column based data sources, where the column
 # based data may be supplied directly or be computed from an attribute

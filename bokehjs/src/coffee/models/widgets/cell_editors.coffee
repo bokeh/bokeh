@@ -2,9 +2,9 @@ import * as $ from "jquery"
 import "jquery-ui/autocomplete"
 import "jquery-ui/spinner"
 
-import * as p from "../../core/properties"
+import * as p from "core/properties"
 
-import {BokehView} from "../../core/bokeh_view"
+import {BokehView} from "core/bokeh_view"
 import {Model} from "../../model"
 import {JQueryable} from "./jqueryable"
 

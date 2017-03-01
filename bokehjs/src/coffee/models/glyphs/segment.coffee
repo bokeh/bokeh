@@ -1,4 +1,4 @@
-import {RBush} from "../../core/util/spatial"
+import {RBush} from "core/util/spatial"
 import {Glyph, GlyphView} from "./glyph"
 
 export class SegmentView extends GlyphView

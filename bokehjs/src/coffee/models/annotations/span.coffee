@@ -1,6 +1,6 @@
 import {Annotation, AnnotationView} from "./annotation"
-import {show, hide} from "../../core/dom"
-import * as p from "../../core/properties"
+import {show, hide} from "core/dom"
+import * as p from "core/properties"
 
 export class SpanView extends AnnotationView
 

@@ -1,5 +1,5 @@
 import {XYGlyph, XYGlyphView} from "./xy_glyph"
-import * as hittest from "../../core/hittest"
+import * as hittest from "core/hittest"
 
 export class LineView extends XYGlyphView
 

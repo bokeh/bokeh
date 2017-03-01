@@ -1,8 +1,8 @@
 import * as $ from "jquery"
 import "bootstrap/tab"
 
-import * as p from "../../core/properties"
-import {zip, findIndex} from "../../core/util/array"
+import * as p from "core/properties"
+import {zip, findIndex} from "core/util/array"
 
 import tabs_template from "./tabs_template"
 import {Widget, WidgetView} from "./widget"

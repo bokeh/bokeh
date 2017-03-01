@@ -1,8 +1,8 @@
 import {TextAnnotation, TextAnnotationView} from "./text_annotation"
 import {ColumnDataSource} from "../sources/column_data_source"
-import {div, show} from "../../core/dom"
-import * as p from "../../core/properties"
-import {isString, isArray} from "../../core/util/types"
+import {div, show} from "core/dom"
+import * as p from "core/properties"
+import {isString, isArray} from "core/util/types"
 
 export class LabelSetView extends TextAnnotationView
   initialize: (options) ->

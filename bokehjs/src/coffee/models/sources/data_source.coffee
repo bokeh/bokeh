@@ -1,7 +1,7 @@
 import {Model} from "../../model"
-import * as hittest from "../../core/hittest"
-import * as p from "../../core/properties"
-import {isFunction} from "../../core/util/types"
+import * as hittest from "core/hittest"
+import * as p from "core/properties"
+import {isFunction} from "core/util/types"
 
 export class DataSource extends Model
   type: 'DataSource'

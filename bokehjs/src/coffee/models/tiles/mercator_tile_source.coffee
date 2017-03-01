@@ -1,5 +1,5 @@
 import {TileSource} from "./tile_source"
-import * as p from "../../core/properties"
+import * as p from "core/properties"
 
 export class MercatorTileSource extends TileSource
   type: 'MercatorTileSource'

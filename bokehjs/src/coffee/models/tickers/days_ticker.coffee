@@ -1,7 +1,7 @@
 import {SingleIntervalTicker} from "./single_interval_ticker"
 import * as util from "./util"
-import * as p from "../../core/properties"
-import {concat} from "../../core/util/array"
+import * as p from "core/properties"
+import {concat} from "core/util/array"
 
 copy_date = util.copy_date
 last_month_no_later_than = util.last_month_no_later_than

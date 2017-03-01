@@ -6,10 +6,10 @@ import {LinearMapper} from "../mappers/linear_mapper"
 import {LogMapper} from "../mappers/log_mapper"
 import {Range1d} from "../ranges/range1d"
 
-import * as p from "../../core/properties"
-import * as text_util from "../../core/util/text"
-import {min, max} from "../../core/util/array"
-import {isString, isArray} from "../../core/util/types"
+import * as p from "core/properties"
+import * as text_util from "core/util/text"
+import {min, max} from "core/util/array"
+import {isString, isArray} from "core/util/types"
 
 SHORT_DIM = 25
 LONG_DIM_MIN_SCALAR = 0.3

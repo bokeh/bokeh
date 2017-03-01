@@ -2,10 +2,10 @@ import * as SPrintf from "sprintf"
 import * as tz from "timezone"
 
 import {TickFormatter} from "./tick_formatter"
-import {logger} from "../../core/logging"
-import * as p from "../../core/properties"
-import {zip, unzip, sortBy} from "../../core/util/array"
-import {isFunction} from "../../core/util/types"
+import {logger} from "core/logging"
+import * as p from "core/properties"
+import {zip, unzip, sortBy} from "core/util/array"
+import {isFunction} from "core/util/types"
 
 _us = (t) ->
   # From double-precision unix (millisecond) timestamp get
