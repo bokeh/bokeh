@@ -3,12 +3,13 @@ from __future__ import absolute_import
 import warnings
 
 from ..core.has_props import abstract
-from ..core.properties import Any, Bool, ColumnData, Dict, Enum, Instance, Int, JSON, List, Seq, String
+from ..core.properties import Any, Bool, ColumnData, Dict, Either, Enum, Instance, Int, JSON, List, Seq, String
 from ..model import Model
 from ..util.dependencies import import_optional
 from ..util.warnings import BokehUserWarning
 
 from .callbacks import Callback
+from .data_stores import ColumnDataStore
 
 pd = import_optional('pandas')
 
@@ -66,47 +67,50 @@ class ColumnarDataSource(DataSource):
     """)
 
 class ColumnDataSource(ColumnarDataSource):
-    ''' Maps names of columns to sequences or arrays.
+    ''' Contains a data store that maps names of columns to sequences or arrays.
 
     If the ColumnDataSource initializer is called with a single argument that
-    is a dict or pandas.DataFrame, that argument is used as the value for the
-    "data" attribute. For example::
-
-        ColumnDataSource(mydict) # same as ColumnDataSource(data=mydict)
-        ColumnDataSource(df) # same as ColumnDataSource(data=df)
+    is a dict or pandas.DataFrame, that argument is used as the value for its data store's
+    "data" attribute.
 
     .. note::
         There is an implicit assumption that all the columns in a
-        a given ColumnDataSource have the same length.
+        a given ColumnDataSource's data store have the same length.
 
     '''
 
-    data = ColumnData(String, Seq(Any), help="""
-    Mapping of column names to sequences of data. The data can be, e.g,
-    Python lists or tuples, NumPy arrays, etc.
-    """).asserts(lambda _, data: len(set(len(x) for x in data.values())) <= 1,
-                 lambda: warnings.warn("ColumnDataSource's columns must be of the same length", BokehUserWarning))
+    data_store = Instance(ColumnDataStore)
 
+    filter = Either(Seq(Int), Seq(Bool), default=[])
 
     def __init__(self, *args, **kw):
         ''' If called with a single argument that is a dict or
-        pandas.DataFrame, treat that implicitly as the "data" attribute.
-
+        pandas.DataFrame, treat that implicitly as the "data" attribute for 
+        the ColumnDataSource's ColumnDataStore.
         '''
         if len(args) == 1 and "data" not in kw:
-            kw["data"] = args[0]
-
-        # TODO (bev) invalid to pass args and "data", check and raise exception
-        raw_data = kw.pop("data", {})
-
-        if not isinstance(raw_data, dict):
-            if pd and isinstance(raw_data, pd.DataFrame):
-                raw_data = self._data_from_df(raw_data)
+            if isinstance(args[0], ColumnDataStore):
+                data_store = args[0]
             else:
-                raise ValueError("expected a dict or pandas.DataFrame, got %s" % raw_data)
+                data_store = ColumnDataStore(args[0])
+        else:
+            data_store = ColumnDataStore()
+
+        ns = list(set(len(x) for x in data_store.data.values()))
+        n = ns[0] if ns else 0
+
+        filter = kw.pop("filter", list(range(n)))
+        if callable(filter):
+            kw["filter"] = list(range(n))
+        else:
+            kw["filter"] = filter
+
         super(ColumnDataSource, self).__init__(**kw)
-        self.column_names[:] = list(raw_data.keys())
-        self.data.update(raw_data)
+        self.data_store = data_store
+        self.column_names = self.data_store.column_names
+
+        if callable(filter):
+            self.filter = list(filter(self))
 
     @staticmethod
     def _data_from_df(df):
@@ -160,12 +164,12 @@ class ColumnDataSource(ColumnarDataSource):
         if not pd:
             raise RuntimeError('Pandas must be installed to convert to a Pandas Dataframe')
         if self.column_names:
-            return pd.DataFrame(self.data, columns=self.column_names)
+            return pd.DataFrame(self.data_store.data, columns=self.column_names)
         else:
-            return pd.DataFrame(self.data)
+            return pd.DataFrame(self.data_store.data)
 
     def add(self, data, name=None):
-        ''' Appends a new column of data to the data source.
+        ''' Appends a new column of data to the data store.
 
         Args:
             data (seq) : new data to add
@@ -177,12 +181,13 @@ class ColumnDataSource(ColumnarDataSource):
 
         '''
         if name is None:
-            n = len(self.data)
-            while "Series %d"%n in self.data:
+            n = len(self.data_store.data)
+            while "Series %d"%n in self.data_store.data:
                 n += 1
             name = "Series %d"%n
+        self.data_store.column_names.append(name)
         self.column_names.append(name)
-        self.data[name] = data
+        self.data_store.data[name] = data
         return name
 
 
@@ -201,11 +206,13 @@ class ColumnDataSource(ColumnarDataSource):
         '''
         try:
             self.column_names.remove(name)
-            del self.data[name]
+            self.data_store.column_names.remove(name)
+            del self.data_store.data[name]
         except (ValueError, KeyError):
             import warnings
             warnings.warn("Unable to find column '%s' in data source" % name)
 
+    # TODO Move stream and patch into ColumnDataStore and have ColumnDataSources delegate
     def stream(self, new_data, rollover=None, setter=None):
         ''' Efficiently update data source columns with new append-only data.
 

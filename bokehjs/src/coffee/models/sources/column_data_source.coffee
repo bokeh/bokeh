@@ -1,9 +1,11 @@
 import {ColumnarDataSource} from "./columnar_data_source"
-import {HasProps} from "core/has_props"
-import {logger} from "core/logging"
-import * as p from "core/properties"
-import * as serialization from "core/util/serialization"
-import {isObject} from "core/util/types"
+import {HasProps} from "../../core/has_props"
+import {logger} from "../../core/logging"
+import * as p from "../../core/properties"
+import * as serialization from "../../core/util/serialization"
+import {isObject, isBoolean} from "../../core/util/types"
+import * as hittest from "../../core/hittest"
+import {range} from "../../core/util/array"
 
 # exported for testing
 export concat_typed_arrays = (a, b) ->
@@ -64,11 +66,52 @@ export class ColumnDataSource extends ColumnarDataSource
 
   initialize: (options) ->
     super(options)
-    [@data, @_shapes] = serialization.decode_column_data(@data)
+    if @filter.length == 0
+      @indices = range(0, @data_store.get_length())
+    else if isBoolean(@filter[0])
+      @indices = (i for i in range(0, @data_store.get_length()) when @filter[i] == true)
+    else
+      @indices = @filter
+
+    @subset_data()
+    @indices_map_to_subset()
+
+    @listenTo @, 'change:indices', @subset_data
+    @listenTo @data_store, 'change:selected', () ->
+      @synchronize_selection(@data_store.selected)
 
   @define {
-    data:         [ p.Any,   {} ]
+    data_store:   [ p.Any,   {} ]
+    filter:       [ p.Array, [] ]
   }
+
+  @internal {
+    indices:      [p.Array,  [] ]
+    indices_map:  [p.Any,    {} ]
+    data:         [p.Any,    {} ]
+  }
+
+  subset_data: () ->
+    @data = {}
+    for col_name, col_data of @data_store.data
+      @data[col_name] = (col_data[i] for i in @indices)
+
+  indices_map_to_subset: () ->
+    @indices_map = {}
+    for i in [0...@indices.length]
+      @indices_map[@indices[i]] = i
+
+  synchronize_selection: (selection) ->
+    selected = hittest.create_hit_test_result()
+    indices_1d = selection['1d']['indices']
+    subset_indices_1d = (@indices_map[i] for i in indices_1d when i of @indices_map)
+    selected['1d']['indices'] = subset_indices_1d
+    @selected = selected
+
+  convert_selection_to_data_store: (selection) ->
+    indices_1d = (@indices[i] for i in selection['1d']['indices'])
+    selection['1d']['indices'] = indices_1d
+    return selection
 
   attributes_as_json: (include_defaults=true, value_to_json=ColumnDataSource._value_to_json) ->
     attrs = {}

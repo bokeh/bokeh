@@ -61,7 +61,7 @@ export class GlyphRendererView extends RendererView
     @listenTo(@model.data_source, 'change', @set_data)
     @listenTo(@model.data_source, 'patch', @set_data)
     @listenTo(@model.data_source, 'stream', @set_data)
-    @listenTo(@model.data_source, 'select', @request_render)
+    @listenTo(@model.data_source.data_store, 'select', @request_render)
     if @hover_glyph?
       @listenTo(@model.data_source, 'inspect', @request_render)
 
@@ -97,9 +97,7 @@ export class GlyphRendererView extends RendererView
     if @hover_glyph?
       @hover_glyph.set_visuals(source)
 
-    length = source.get_length()
-    length = 1 if not length?
-    @all_indices = [0...length]
+    @all_indices = source.indices
 
     lod_factor = @plot_model.plot.lod_factor
     @decimated = []
@@ -127,13 +125,15 @@ export class GlyphRendererView extends RendererView
     dtmap = Date.now() - t0
 
     tmask = Date.now()
+    # all indices and indices are in subset space.
     indices = @glyph.mask_data(@all_indices)
     dtmask = Date.now() - tmask
 
     ctx = @plot_view.canvas_view.ctx
     ctx.save()
 
-    selected = @model.data_source.selected
+    # selected is in full set space
+    selected = @model.data_source.data_store.selected
     if !selected or selected.length == 0
       selected = []
     else
@@ -181,14 +181,17 @@ export class GlyphRendererView extends RendererView
       # reset the selection mask
       tselect = Date.now()
       selected_mask = {}
+      # selected is in full set space here, transformed below
       for i in selected
         selected_mask[i] = true
 
       # intersect/different selection with render mask
       selected = new Array()
       nonselected = new Array()
+
+      # now, selected is changed to subset space.
       for i in indices
-        if selected_mask[i]?
+        if selected_mask[@all_indices[i]]?
           selected.push(i)
         else
           nonselected.push(i)
