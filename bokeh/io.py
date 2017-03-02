@@ -394,14 +394,21 @@ def _detect_filename(ext):
     None if the script could not be found (e.g. interactive mode).
     """
     import inspect
-    from os.path import isfile, dirname, basename, splitext, join
+    from os.path import isfile, dirname, basename, splitext, join, curdir
 
     frame = inspect.currentframe()
     while frame.f_back and frame.f_globals.get('name') != '__main__':
         frame = frame.f_back
 
     filename = frame.f_globals.get('__file__')
-    if filename and isfile(filename):
+
+    if filename is None:
+        return tempfile.NamedTemporaryFile().name
+
+    elif not os.access(dirname(filename) or curdir, os.W_OK | os.X_OK):
+        return tempfile.NamedTemporaryFile().name
+
+    elif isfile(filename):
         name, _ = splitext(basename(filename))
         return join(dirname(filename), name + "." + ext)
 
@@ -414,8 +421,6 @@ def _get_save_args(state, filename, resources, title):
     if filename is None:
         warn = False
         filename = _detect_filename("html")
-        if not os.access(filename, os.W_OK):
-            filename = tempfile.NamedTemporaryFile().name
 
     if filename is None:
         raise RuntimeError("save() called but no filename was supplied or detected, and output_file(...) was never called, nothing saved")
