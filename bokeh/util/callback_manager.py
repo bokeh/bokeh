@@ -74,6 +74,9 @@ class EventCallbackManager(object):
             return
 
         events = self._event_callbacks.keys()
+        for callback_list in self._event_callbacks.values():
+            for callback in callback_list:
+                _check_callback(callback, ('event',), what='Event callback')
         if events:
             self.document.event_manager.subscribed_models.add(self)
 
