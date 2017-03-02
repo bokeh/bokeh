@@ -1,6 +1,7 @@
 export * from "./annotations"
 export * from "./axes"
 export * from "./callbacks"
+export * from "./canvas"
 export * from "./formatters"
 export * from "./glyphs"
 export * from "./grids"
