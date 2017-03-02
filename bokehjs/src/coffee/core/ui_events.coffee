@@ -4,7 +4,7 @@ import {Events} from "./events"
 import {logger} from "./logging"
 import {offset} from "./dom"
 import {getDeltaY} from "./util/wheel"
-import {HammerEvent, PointEvent, KeyDown} from "../events"
+import {HammerEvent, PointEvent, KeyDown} from "./bokeh_events"
 
 
 export class UIEvents
