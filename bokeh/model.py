@@ -285,12 +285,12 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
 
         callback = CustomJS(code="console.log('tap event occured')")
         plot.js_on_event('tap', callback)
-   """)
+    """)
 
     subscribed_events = List(String, help="""
-      List of events that are subscribed to by Python callbacks. This is
-      the set of events that will be communicated from BokehJS back to
-      Python for this model.
+    List of events that are subscribed to by Python callbacks. This is
+    the set of events that will be communicated from BokehJS back to
+    Python for this model.
      """   )
 
     js_callbacks = Dict(String, List(Instance("bokeh.models.callbacks.CustomJS")), help="""
