@@ -1,6 +1,7 @@
 import {HasProps} from "./core/has_props"
 import * as p from "./core/properties"
 import {isString} from "./core/util/types"
+import {isEmpty} from "./core/util/object"
 
 export class Model extends HasProps
   type: "Model"
@@ -49,7 +50,7 @@ export class Model extends HasProps
     @document.event_manager.subscribed_models.push(@.id)
 
   _doc_attached : () ->
-    if Object.keys(@js_event_callbacks).length != 0
+    if not isEmpty(@js_event_callbacks)
       @_update_event_callbacks()
 
   select: (selector) ->
