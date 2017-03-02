@@ -28,7 +28,8 @@ export class SelectionManager extends HasProps
       selector = @_get_selector(renderer_view)
       selector.update(indices, final, append)
 
-      @source.selected = selector.indices
+      @source.data_store.selected = @source.convert_selection_to_data_store(selector.indices)
+      @source.data_store.trigger('select')
 
       source.trigger('select')
       source.trigger('select-' + renderer_view.model.id)
