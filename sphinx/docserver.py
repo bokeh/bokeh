@@ -18,7 +18,8 @@ http_server = HTTPServer(WSGIContainer(app))
 
 @app.errorhandler(404)
 def page_not_found(e):
-    return flask.send_from_directory(os.path.join(_basedir, "sphinx"), "404.html"), 404
+    return flask.send_from_directory(
+        os.path.join(_basedir, "sphinx/_build/html/"), "404.html"), 404
 
 @app.route('/')
 def welcome():
