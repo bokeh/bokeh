@@ -140,7 +140,7 @@ export class UIEvents
     if event_cls
       @event_manager.trigger(event_cls.from_event(e, model_id=@plot.id))
     else
-      console.log('Unhandled hammer event of type ' + e.type)
+      logger.log('Unhandled hammer event of type ' + e.type)
 
   _bokify_point_event: (e) ->
 

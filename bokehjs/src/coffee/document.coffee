@@ -40,7 +40,7 @@ export class ModelChangedEvent extends DocumentChangedEvent
   json : (references) ->
 
     if @attr == 'id'
-      console.log("'id' field is immutable and should never be in a ModelChangedEvent ", @)
+      logger.warn("'id' field is immutable and should never be in a ModelChangedEvent ", @)
       throw new Error("'id' field should never change, whatever code just set it is wrong")
 
     value = @new_
@@ -626,7 +626,7 @@ export class Document
     for event in events
 
       if event.document != @
-        console.log("Cannot create a patch using events from a different document, event had ", event.document, " we are ", @)
+        logger.warn("Cannot create a patch using events from a different document, event had ", event.document, " we are ", @)
         throw new Error("Cannot create a patch using events from a different document")
 
       json_events.push(event.json(references))
@@ -651,7 +651,7 @@ export class Document
           references[model_id] = @_all_models[model_id]
         else
           if model_id not of references
-            console.log("Got an event for unknown model ", event_json['model'])
+            logger.warn("Got an event for unknown model ", event_json['model'])
             throw new Error("event model wasn't known")
 
     # split references into old and new so we know whether to initialize or update

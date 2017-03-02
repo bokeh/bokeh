@@ -2,6 +2,7 @@ import {HasProps} from "./core/has_props"
 import * as p from "./core/properties"
 import {isString} from "./core/util/types"
 import {isEmpty} from "./core/util/object"
+import {logger} from "./core/logging"
 
 export class Model extends HasProps
   type: "Model"
@@ -26,7 +27,7 @@ export class Model extends HasProps
   _process_event : (event) ->
     # Given an applicable event, execute the associated callback
     if not event.constructor.event_name
-       console.warn('Event is still passed as a string: ' + event)
+       logger.warn('Event is still passed as a string: ' + event)
        return
     if not event.constructor.applicable_models.some((m) => m == @.type)
       return
@@ -45,7 +46,7 @@ export class Model extends HasProps
   _update_event_callbacks : () ->
     if not @document?
       # File an issue: SidePanel in particular seems to have this issue
-      console.warn('WARNING: Document not defined for updating event callbacks')
+      logger.warn('WARNING: Document not defined for updating event callbacks')
       return
     @document.event_manager.subscribed_models.push(@.id)
 

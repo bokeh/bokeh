@@ -1,4 +1,5 @@
 # Granular event classes for use with the event system
+import {logger} from "./logging"
 
 class Event
 
@@ -12,7 +13,7 @@ class Event
     # Given an event with a type attribute matching the event_name,
     # return the appropriate Event class
     if not e.type?
-        console.warn('Event.event_class required events with a string type attribute')
+        logger.warn('Event.event_class required events with a string type attribute')
     return @_event_classes[e.type]
 
   toJSON : () ->
