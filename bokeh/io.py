@@ -22,6 +22,7 @@ import io
 import json
 import os
 import warnings
+import uuid
 
 # Third-party imports
 
@@ -36,6 +37,9 @@ from .util.deprecation import deprecated
 from .util.notebook import load_notebook, publish_display_data, get_comms
 from .util.string import decode_utf8
 from .util.serialization import make_id
+
+from .application import Application
+from .server.server import Server
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -258,7 +262,8 @@ def curstate():
     '''
     return _state
 
-def show(obj, browser=None, new="tab", notebook_handle=False):
+def show(obj, browser=None, new="tab", notebook_handle=False,
+                            app_path="/", notebook_url="127.0.0.1:8888"):
     ''' Immediately display a plot object.
 
     In an IPython/Jupyter notebook, the output is displayed in an output
@@ -297,9 +302,23 @@ def show(obj, browser=None, new="tab", notebook_handle=False):
         an IPython/Jupyter notebook.
 
     '''
+    if isinstance(obj, Application):
+        return _show_notebook_app_with_state(obj, _state, app_path, notebook_url)
+
     if obj not in _state.document.roots:
         _state.document.add_root(obj)
     return _show_with_state(obj, _state, browser, new, notebook_handle=notebook_handle)
+
+
+def _show_notebook_app_with_state(app, _state, app_path, notebook_url):
+    from IPython.display import HTML, display
+    from tornado.ioloop import IOLoop
+    loop = IOLoop.current()
+    server = Server({'/': app}, io_loop=loop, port=0, host='*',
+                    allow_websocket_origin=[notebook_url])
+    server.start()
+    script = autoload_server(model=None, url='http://127.0.0.1:%d' % server.port)
+    display(HTML(_server_cell(server, script)))
 
 
 def _show_with_state(obj, state, browser, new, notebook_handle=False):
@@ -614,3 +633,30 @@ def _remove_roots(subplots):
     for sub in subplots:
         if sub in doc.roots:
             doc.remove_root(sub)
+
+def _server_cell(server, script):
+    '''
+    Wraps a script returned by autoload_server in a div that allows cell
+    destruction/replacement to be detected.
+    '''
+    divid = uuid.uuid4().hex
+    _state.uuid_to_server[divid] = server
+    div_html = "<div class='bokeh_class' id='{divid}'>{script}</div>'"
+    return div_html.format(script=script, divid=divid)
+
+def _destroy_server(div_id):
+    '''
+    Given a uuid id of a div removed or replaced in the Jupyter
+    notebook, destroy the corresponding server sessions and stop it.
+    '''
+    server = _state.uuid_to_server.get(div_id, None)
+    if server is None:
+        logger.debug("No server instance found for uuid: %r" % div_id)
+        return
+
+    try:
+        for session in server.get_sessions('/'):
+            session.destroy()
+
+    except Exception as e:
+        logger.debug("Could not destroy server for id %r: %s" % (div_id, e))
