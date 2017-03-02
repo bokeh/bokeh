@@ -164,7 +164,7 @@ export update_constraints = (view) ->
 
   v._last_size = size
   if v._size_constraint?
-      s.remove_constraint(v._size_constraint)
+    s.remove_constraint(v._size_constraint, true)
   v._size_constraint = GE(v.model.panel._size, -size)
   s.add_constraint(v._size_constraint)
 

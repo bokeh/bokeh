@@ -97,12 +97,12 @@ export class CanvasView extends BokehView
     s = @model.document.solver()
 
     if @_width_constraint?
-      s.remove_constraint(@_width_constraint)
+      s.remove_constraint(@_width_constraint, true)
     @_width_constraint = EQ(@model._width, -requested_width)
     s.add_constraint(@_width_constraint)
 
     if @_height_constraint?
-      s.remove_constraint(@_height_constraint)
+      s.remove_constraint(@_height_constraint, true)
     @_height_constraint = EQ(@model._height, -requested_height)
     s.add_constraint(@_height_constraint)
 
