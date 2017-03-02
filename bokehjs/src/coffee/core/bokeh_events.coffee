@@ -1,3 +1,4 @@
+# Granular event classes for use with the event system
 
 class Event
 
