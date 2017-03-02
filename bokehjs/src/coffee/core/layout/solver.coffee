@@ -49,14 +49,14 @@ export class Solver
   add_constraint: (constraint) ->
     @solver.addConstraint(constraint)
 
-  remove_constraint: (constraint) ->
-    @solver.removeConstraint(constraint)
+  remove_constraint: (constraint, silent=false) ->
+    @solver.removeConstraint(constraint, silent)
 
   add_edit_variable: (variable, strength) ->
     @solver.addEditVariable(variable, strength)
 
-  remove_edit_variable: (variable) ->
-    @solver.removeEditVariable(variable, strength)
+  remove_edit_variable: (variable, silent=false) ->
+    @solver.removeEditVariable(variable, strength, silent)
 
   suggest_value: (variable, value) ->
     @solver.suggestValue(variable, value)
