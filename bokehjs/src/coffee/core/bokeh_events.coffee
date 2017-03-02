@@ -6,6 +6,7 @@ class Event
 
   constructor : (options) ->
     @_options = options
+    @model_id = options.model_id
 
   @event_class : (e) ->
     # Given an event with a type attribute matching the event_name,
@@ -29,6 +30,9 @@ class UIEvent extends Event
   # DOM events such as keystrokes as well as hammer events.
   @applicable_models = ['Plot']
 
+  constructor: (options) ->
+    super(options)
+
 
 export class KeyDown extends UIEvent
   @event_name = 'keydown'
@@ -44,12 +48,11 @@ export class PointEvent extends UIEvent
   constructor: (options) ->
     {@sx, @sy} = options
     [@x, @y] = [null, null]
-    # Class attributes don't appear on instances?
     super(options)
 
-  @from_event : (e) ->
+  @from_event : (e, model_id=null) ->
     # Given a DOM point event, construct a corresponding Event instance
-    return new @({sx: e.bokeh['sx'], sy : e.bokeh['sy']})
+    return new @({sx: e.bokeh['sx'], sy : e.bokeh['sy'], model_id: model_id})
 
 
 export class MouseMove extends PointEvent
@@ -63,12 +66,11 @@ export class HammerEvent extends UIEvent
   constructor: (options) ->
     {@sx, @sy} = options
     [@x, @y] = [null, null]
-    # Class attributes don't appear on instances?
     super(options)
 
-  @from_event : (e) ->
+  @from_event : (e, model_id=null) ->
     # Given a hammer event, construct a corresponding Event instance
-    return new @({sx: e.bokeh['sx'], sy : e.bokeh['sy']})
+    return new @({sx: e.bokeh['sx'], sy : e.bokeh['sy'], model_id: model_id})
 
   _customize_event : (plot) ->
     xmapper = plot.plot_canvas.frame.x_mappers['default']

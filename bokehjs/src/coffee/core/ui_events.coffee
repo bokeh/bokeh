@@ -138,7 +138,7 @@ export class UIEvents
     }
     event_cls = HammerEvent.event_class(e)
     if event_cls
-      @event_manager.trigger(event_cls.from_event(e))
+      @event_manager.trigger(event_cls.from_event(e, model_id=@plot.id))
     else
       console.log('Unhandled hammer event of type ' + e.type)
 
@@ -151,7 +151,7 @@ export class UIEvents
     }
     event_cls = PointEvent.event_class(e)
     if event_cls
-      @event_manager.trigger(event_cls.from_event(e))
+      @event_manager.trigger(event_cls.from_event(e, model_id=@plot.id))
 
   _tap: (e) ->
     @_bokify_hammer(e)
@@ -227,7 +227,7 @@ export class UIEvents
 
   _key_down: (e) ->
     # NOTE: keydown event triggered unconditionally
-    @event_manager.trigger(new KeyDown({key: e.key}))
+    @event_manager.trigger(new KeyDown({key: e.key, model_id: @plot.id}))
     @trigger('keydown', e)
 
   _key_up: (e) ->

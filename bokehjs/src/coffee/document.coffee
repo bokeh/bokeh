@@ -25,6 +25,8 @@ class EventManager
 
   trigger: (event) ->
     for model_id in @subscribed_models.values
+        if event.model_id != null and event.model_id != model_id
+            continue
         model = @document._all_models[model_id]
         if model?
             model._process_event(event)
