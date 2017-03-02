@@ -1,9 +1,9 @@
-:orphan:
-
 .. _404:
 
 404: Content Not Found
 ======================
+
+Return to the :ref:`main page <index>`.
 
 |
 |
