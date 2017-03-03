@@ -42,6 +42,9 @@ export class Model extends HasProps
     if @subscribed_events.some((m) -> m == event_name)
       @document.event_manager.send_event(event)
 
+  trigger_event : (event) ->
+    if @document?
+      @document.event_manager.trigger(event.set_model_id(@.id))
 
   _update_event_callbacks : () ->
     if not @document?
