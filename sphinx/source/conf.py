@@ -280,3 +280,7 @@ intersphinx_mapping = {
     'pandas': ('http://pandas.pydata.org/pandas-docs/stable/', None),
     'numpy': ('http://docs.scipy.org/doc/numpy/', None)
 }
+
+html_additional_pages = {
+    '404': '404.html',
+}

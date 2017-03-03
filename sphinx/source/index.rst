@@ -29,7 +29,6 @@ the :ref:`devguide`.
     :hidden:
     :glob:
 
-    404
     docs/installation
     docs/user_guide
     docs/user_guide/quickstart
