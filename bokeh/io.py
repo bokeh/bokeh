@@ -391,10 +391,11 @@ def save(obj, filename=None, resources=None, title=None, state=None, validate=Tr
 
 def _detect_filename(ext):
     """ Detect filename from the name of the script being run. Returns
-    None if the script could not be found (e.g. interactive mode).
+    temporary file if the script could not be found or the location of the
+    script does not have write permission (e.g. interactive mode).
     """
     import inspect
-    from os.path import isfile, dirname, basename, splitext, join, curdir
+    from os.path import dirname, basename, splitext, join, curdir
 
     frame = inspect.currentframe()
     while frame.f_back and frame.f_globals.get('name') != '__main__':
@@ -405,12 +406,14 @@ def _detect_filename(ext):
     if filename is None:
         return tempfile.NamedTemporaryFile().name
 
-    elif not os.access(dirname(filename) or curdir, os.W_OK | os.X_OK):
+    # dirname(filename) returns empty str if file called from within directory
+    directory = dirname(filename) or curdir
+
+    if not os.access(directory, os.W_OK | os.X_OK):
         return tempfile.NamedTemporaryFile().name
 
-    elif isfile(filename):
-        name, _ = splitext(basename(filename))
-        return join(dirname(filename), name + "." + ext)
+    name, _ = splitext(basename(filename))
+    return join(dirname(filename), name + "." + ext)
 
 def _get_save_args(state, filename, resources, title):
     warn = True
@@ -421,9 +424,6 @@ def _get_save_args(state, filename, resources, title):
     if filename is None:
         warn = False
         filename = _detect_filename("html")
-
-    if filename is None:
-        raise RuntimeError("save() called but no filename was supplied or detected, and output_file(...) was never called, nothing saved")
 
     if resources is None and state.file:
         resources = state.file['resources']
