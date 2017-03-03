@@ -11,7 +11,7 @@ export class UIEvents
   @prototype extends Events
 
   # new (toolbar: Toolbar, hit_area: Element)
-  constructor: (@toolbar, @hit_area, @event_manager, @plot) ->
+  constructor: (@toolbar, @hit_area, @plot) ->
     @_configure_hammerjs()
 
   _configure_hammerjs: () ->
@@ -138,9 +138,9 @@ export class UIEvents
     }
     event_cls = HammerEvent.event_class(e)
     if event_cls
-      @event_manager.trigger(event_cls.from_event(e, model_id=@plot.id))
+      @plot.trigger_event(event_cls.from_event(e))
     else
-      logger.log('Unhandled hammer event of type ' + e.type)
+      logger.debug('Unhandled hammer event of type ' + e.type)
 
   _bokify_point_event: (e) ->
 
@@ -151,7 +151,7 @@ export class UIEvents
     }
     event_cls = PointEvent.event_class(e)
     if event_cls
-      @event_manager.trigger(event_cls.from_event(e, model_id=@plot.id))
+      @plot.trigger_event(event_cls.from_event(e))
 
   _tap: (e) ->
     @_bokify_hammer(e)
@@ -227,7 +227,7 @@ export class UIEvents
 
   _key_down: (e) ->
     # NOTE: keydown event triggered unconditionally
-    @event_manager.trigger(new KeyDown({key: e.key, model_id: @plot.id}))
+    @plot.trigger_event(new KeyDown({key: e.key}))
     @trigger('keydown', e)
 
   _key_up: (e) ->

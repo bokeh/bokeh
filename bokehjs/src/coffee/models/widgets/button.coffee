@@ -7,10 +7,7 @@ import {AbstractButton, AbstractButtonView} from "./abstract_button"
 export class ButtonView extends AbstractButtonView
 
   change_input: () ->
-    if @model.document?
-        event = new ButtonClick({model_id: @model.id})
-        @model.document.event_manager.trigger(event)
-
+    @model.trigger_event(new ButtonClick({}))
     @model.clicks = @model.clicks + 1
     super()
 
