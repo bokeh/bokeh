@@ -403,14 +403,8 @@ def _detect_filename(ext):
 
     filename = frame.f_globals.get('__file__')
 
-    if filename is None:
-        return tempfile.NamedTemporaryFile().name
-
-    # dirname(filename) returns empty str if file called from within directory
-    directory = dirname(filename) or curdir
-
-    if not os.access(directory, os.W_OK | os.X_OK):
-        return tempfile.NamedTemporaryFile().name
+    if filename is None or not os.access(dirname(filename) or curdir, os.W_OK | os.X_OK):
+        return tempfile.NamedTemporaryFile(suffix="." + ext).name
 
     name, _ = splitext(basename(filename))
     return join(dirname(filename), name + "." + ext)
