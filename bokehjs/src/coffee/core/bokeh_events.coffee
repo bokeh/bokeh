@@ -7,7 +7,13 @@ class Event
 
   constructor : (options) ->
     @_options = options
-    @model_id = options.model_id
+    if options.model_id == undefined
+      @model_id = null
+
+  set_model_id : (id) ->
+    @_options.model_id = id
+    @model_id = id
+    return @
 
   @event_class : (e) ->
     # Given an event with a type attribute matching the event_name,
