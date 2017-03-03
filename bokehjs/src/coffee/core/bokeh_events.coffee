@@ -93,8 +93,8 @@ export class HammerEvent extends UIEvent
   _customize_event : (plot) ->
     xmapper = plot.plot_canvas.frame.x_mappers['default']
     ymapper = plot.plot_canvas.frame.y_mappers['default']
-    @x = xmapper.map_from_target(@sx)
-    @y = ymapper.map_from_target(@sy)
+    @x = xmapper.map_from_target(plot.plot_canvas.canvas.sx_to_vx(@sx))
+    @y = ymapper.map_from_target(plot.plot_canvas.canvas.sy_to_vy(@sy))
     @_options['x'] = @x
     @_options['y'] = @y
     return @
