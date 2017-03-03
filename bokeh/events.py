@@ -74,6 +74,24 @@ class Press(PointEvent):
 
     event_name = 'press'
 
+class PanStart(PointEvent):
+
+    event_name = 'panstart'
+
+class PanEnd(PointEvent):
+
+    event_name = 'panend'
+
+
+class Pan(PointEvent):
+
+    event_name = 'pan'
+
+    def __init__(self, deltaX=None, deltaY=None, direction=None, **kwargs):
+        self.deltaX = deltaX
+        self.deltaY = deltaY
+        self.direction = direction
+        super(Pan, self).__init__(**kwargs)
 
 
 

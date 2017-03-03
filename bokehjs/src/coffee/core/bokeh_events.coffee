@@ -114,3 +114,23 @@ export class Press extends HammerEvent
 
   @event_name = 'press'
   @_event_classes['press'] = @
+
+
+export class PanStart extends HammerEvent
+
+  @event_name = 'panstart'
+  @_event_classes['panstart'] = @
+
+export class PanEnd extends HammerEvent
+
+  @event_name = 'panend'
+  @_event_classes['panend'] = @
+
+
+export class Pan extends HammerEvent
+
+  @event_name = 'pan'
+  @_event_classes['pan'] = @
+
+  @from_event : (e, model_id=null) ->
+    return new @({sx: e.bokeh['sx'], sy : e.bokeh['sy'], deltaX : e.deltaX, deltaY : e.deltaY, direction: e.direction, model_id: model_id })
