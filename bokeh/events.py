@@ -20,6 +20,13 @@ class Event(object):
         print('Warning: Could not find appropriate Event class')
 
 
+class ButtonClick(Event):
+
+    event_name = 'button_click'
+
+    def __init__(self, model_id=None):
+        super(ButtonClick, self).__init__(model_id=model_id)
+
 
 class MouseMove(Event):
 

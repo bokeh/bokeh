@@ -35,6 +35,17 @@ class UIEvent extends Event
     super(options)
 
 
+
+export class ButtonClick extends Event
+
+  @event_name = 'button_click'
+  @applicable_models = ['Button']
+
+  constructor: (options) ->
+    super(options)
+
+
+
 export class KeyDown extends UIEvent
   @event_name = 'keydown'
   @_event_classes['keydown'] = @
