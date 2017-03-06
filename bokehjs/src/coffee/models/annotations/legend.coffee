@@ -91,7 +91,7 @@ export class LegendView extends AnnotationView
   render: () ->
     if not @model.visible
       return
-  
+
     if @model.items.length == 0
       return
 
