@@ -2,7 +2,7 @@ import {Annotation, AnnotationView} from "./annotation"
 import * as p from "core/properties"
 import {get_text_height} from "core/util/text"
 import {BBox} from "core/util/bbox"
-import {max} from "core/util/array"
+import {max, all} from "core/util/array"
 import {values} from "core/util/object"
 import {isString, isArray} from "core/util/types"
 
@@ -178,8 +178,8 @@ export class LegendView extends AnnotationView
 
       active = switch @model.click_policy
         when "none" then true
-        when "hide" then _.every(item.renderers, (r) -> r.visible)
-        when "mute" then _.every(item.renderers, (r) -> not r.muted)
+        when "hide" then all(item.renderers, (r) -> r.visible)
+        when "mute" then all(item.renderers, (r) -> not r.muted)
 
       for label in labels
         x1 = bbox.x + xoffset
