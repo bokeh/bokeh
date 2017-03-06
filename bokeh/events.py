@@ -40,6 +40,20 @@ class MouseMove(Event):
         super(MouseMove, self).__init__(model_id=model_id)
 
 
+class LODStart(Event):
+
+    event_name = 'lodstart'
+
+    def __init__(self, model_id=None):
+        super(LODStart, self).__init__(model_id=model_id)
+
+class LODEnd(Event):
+
+    event_name = 'lodend'
+
+    def __init__(self, model_id=None):
+        super(LODEnd, self).__init__(model_id=model_id)
+
 class KeyDown(Event):
 
     event_name = 'keydown'

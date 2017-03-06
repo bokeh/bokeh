@@ -34,8 +34,23 @@ class Event
 
 class UIEvent extends Event
   # A UIEvent is an event originating on a PlotCanvas this includes
-  # DOM events such as keystrokes as well as hammer events.
+  # DOM events such as keystrokes as well as hammer events and LOD events.
   @applicable_models = ['Plot']
+
+  constructor: (options) ->
+    super(options)
+
+
+export class LODStart extends UIEvent
+  @event_name = 'lodstart'
+  @_event_classes['lodstart'] = @
+
+  constructor: (options) ->
+    super(options)
+
+export class LODEnd extends UIEvent
+  @event_name = 'lodend'
+  @_event_classes['lodend'] = @
 
   constructor: (options) ->
     super(options)

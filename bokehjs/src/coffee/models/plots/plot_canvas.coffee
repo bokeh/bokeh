@@ -6,6 +6,7 @@ import {LayoutDOM} from "../layouts/layout_dom"
 
 import {build_views} from "core/build_views"
 import {UIEvents} from "core/ui_events"
+import {LODStart, LODEnd} from "core/bokeh_events"
 import {LayoutCanvas} from "core/layout/layout_canvas"
 import {Visuals} from "core/visuals"
 import {BokehView} from "core/bokeh_view"
@@ -62,6 +63,7 @@ export class PlotCanvasView extends BokehView
     super(options)
     @pause()
 
+    @lod_started = false
     @visuals = new Visuals(@model.plot)
 
     @_initial_state_info = {
@@ -504,6 +506,10 @@ export class PlotCanvasView extends BokehView
       return
 
     if Date.now() - @interactive_timestamp < @model.plot.lod_interval
+      if not @lod_started
+        @model.plot.trigger_event(new LODStart({}))
+        @lod_started = true
+
       @interactive = true
       lod_timeout = @model.plot.lod_timeout
       setTimeout(() =>
@@ -513,6 +519,9 @@ export class PlotCanvasView extends BokehView
         , lod_timeout)
     else
       @interactive = false
+      if @lod_started
+        @model.plot.trigger_event(new LODEnd({}))
+        @lod_started = false
 
     for k, v of @renderer_views
       if not @range_update_timestamp? or v.set_data_timestamp > @range_update_timestamp
