@@ -36,7 +36,7 @@ matrix:
     - python: 3.4
       env: GROUP=flake_docs
 
-    integration tests (python 3.4)
+    # integration tests (python 3.4)
     - python: 3.4
       env: GROUP=integration
       addons:
