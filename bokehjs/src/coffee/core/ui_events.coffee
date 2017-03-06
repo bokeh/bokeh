@@ -4,6 +4,7 @@ import {Events} from "./events"
 import {logger} from "./logging"
 import {offset} from "./dom"
 import {getDeltaY} from "./util/wheel"
+import {any} from "./util/array"
 
 export class UIEvents
   @prototype extends Events
@@ -134,7 +135,7 @@ export class UIEvents
         @plot_view.set_cursor()
     else
       if base_type == "move"
-        active = _.any(@toolbar.inspectors, (t) -> t.active)
+        active = any(@toolbar.inspectors, (t) -> t.active)
 
         if active and event_type in ["move", "move:enter"]
           @plot_view.set_cursor("crosshair")
