@@ -4,7 +4,7 @@ from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.util.browser import view
 from bokeh.resources import INLINE
-from bokeh.models.glyphs import Circle, Line, Text
+from bokeh.models.glyphs import Circle, Line
 from bokeh.models import (ColumnDataSource, Range1d, Plot, LinearAxis, Grid,
     HoverTool, CrosshairTool, TapTool, WheelZoomTool, Legend, LegendItem, CustomJS)
 
