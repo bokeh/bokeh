@@ -57,7 +57,7 @@ export class Surface3dView extends LayoutDOMView
     script = document.createElement('script')
     script.src = url
     script.async = false
-    script.onreadystatechange = s.onload = () => @_init()
+    script.onreadystatechange = script.onload = () => @_init()
     document.querySelector("head").appendChild(script)
 
   _init: () ->
