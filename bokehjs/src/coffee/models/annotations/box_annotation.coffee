@@ -22,6 +22,9 @@ export class BoxAnnotationView extends AnnotationView
       @listenTo(@model, 'data_update', @plot_view.request_render)
 
   render: () ->
+    if not @model.visible
+      return
+
     # don't render if *all* position are null
     if not @model.left? and not @model.right? and not @model.top? and not @model.bottom?
       hide(@el)
