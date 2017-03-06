@@ -20,6 +20,8 @@ export class SpanView extends AnnotationView
         @listenTo(@model, 'change:location', @_draw_span)
 
   render: () ->
+    if not @model.visible
+      return
     @_draw_span()
 
   _draw_span: () ->

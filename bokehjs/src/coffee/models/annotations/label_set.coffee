@@ -55,6 +55,8 @@ export class LabelSetView extends TextAnnotationView
     return [sx, sy]
 
   render: () ->
+    if not @model.visible
+      return
     ctx = @plot_view.canvas_view.ctx
 
     [sx, sy] = @_map_data()

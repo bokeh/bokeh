@@ -47,6 +47,8 @@ export class TitleView extends TextAnnotationView
     return text_location
 
   render: () ->
+    if not @model.visible
+      return
     angle = @model.panel.get_label_angle_heuristic('parallel')
     [sx, sy] = @_get_computed_location()
     ctx = @plot_view.canvas_view.ctx

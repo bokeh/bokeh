@@ -23,6 +23,9 @@ export class LabelView extends TextAnnotationView
       return width
 
   render: () ->
+    if not @model.visible
+      return
+
     ctx = @plot_view.canvas_view.ctx
 
     # Here because AngleSpec does units tranform and label doesn't support specs
