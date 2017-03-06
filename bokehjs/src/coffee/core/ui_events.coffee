@@ -4,7 +4,7 @@ import {Events} from "./events"
 import {logger} from "./logging"
 import {offset} from "./dom"
 import {getDeltaY} from "./util/wheel"
-import {HammerEvent, PointEvent, KeyDown} from "./bokeh_events"
+import {HammerEvent, PointEvent} from "./bokeh_events"
 
 
 export class UIEvents
@@ -13,7 +13,6 @@ export class UIEvents
   # new (toolbar: Toolbar, hit_area: Element)
   constructor: (@toolbar, @hit_area, @plot) ->
     @_configure_hammerjs()
-    @hover_focus = false
 
   _configure_hammerjs: () ->
     @hammer = new Hammer(@hit_area)
@@ -209,7 +208,6 @@ export class UIEvents
   _mouse_enter: (e) ->
     # NOTE: move:enter event triggered unconditionally
     @_bokify_point_event(e)
-    @hover_focus = true
     @trigger('move:enter', e)
 
   _mouse_move: (e) ->
@@ -220,7 +218,6 @@ export class UIEvents
   _mouse_exit: (e) ->
     # NOTE: move:exit event triggered unconditionally
     @_bokify_point_event(e)
-    @hover_focus = false
     @trigger('move:exit', e)
 
   _mouse_wheel: (e) ->
@@ -229,8 +226,6 @@ export class UIEvents
     @_trigger('scroll', e)
 
   _key_down: (e) ->
-    if @hover_focus
-      @plot.trigger_event(new KeyDown({key: e.key}))
     @trigger('keydown', e)
 
   _key_up: (e) ->

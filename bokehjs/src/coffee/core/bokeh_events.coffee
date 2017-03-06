@@ -65,17 +65,6 @@ export class ButtonClick extends Event
   constructor: (options) ->
     super(options)
 
-
-
-export class KeyDown extends UIEvent
-  @event_name = 'keydown'
-  @_event_classes['keydown'] = @
-
-  constructor: (options) ->
-    @key = options.key
-    super(options)
-
-
 export class PointEvent extends UIEvent
 
   constructor: (options) ->

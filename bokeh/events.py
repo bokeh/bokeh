@@ -54,15 +54,6 @@ class LODEnd(Event):
     def __init__(self, model_id=None):
         super(LODEnd, self).__init__(model_id=model_id)
 
-class KeyDown(Event):
-
-    event_name = 'keydown'
-
-    def __init__(self, key=None, model_id=None):
-        self.key = key
-        super(KeyDown, self).__init__(model_id=model_id)
-
-
 class PointEvent(Event):
 
     event_name = None
