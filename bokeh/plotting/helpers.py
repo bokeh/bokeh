@@ -553,8 +553,8 @@ def _glyph_function(glyphclass, extra_docs=None):
             hglyph_ca = None
 
         # handle the mute glyph, if any properties were given
-        if any(x.startswith('mute_') for x in kwargs):
-            mglyph_ca = _pop_colors_and_alpha(glyphclass, kwargs, prefix='mute_')
+        if any(x.startswith('muted_') for x in kwargs):
+            mglyph_ca = _pop_colors_and_alpha(glyphclass, kwargs, prefix='muted_')
         else:
             mglyph_ca = None
 
