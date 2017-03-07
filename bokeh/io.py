@@ -444,7 +444,8 @@ def _save_helper(obj, filename, resources, title, validate):
     if isinstance(obj, LayoutDOM):
         doc = obj.document
         if doc is None:
-            doc = Document().add_root(obj)
+            Document().add_root(obj)
+            doc = obj.document
             remove_after = True
     elif isinstance(obj, Document):
         doc = obj
