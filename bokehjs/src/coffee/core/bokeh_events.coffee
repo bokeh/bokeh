@@ -1,7 +1,7 @@
 # Granular event classes for use with the event system
 import {logger} from "./logging"
 
-class Event
+export class Event
 
   @_event_classes = {}
 
@@ -32,7 +32,7 @@ class Event
     return @
 
 
-class UIEvent extends Event
+export class UIEvent extends Event
   # A UIEvent is an event originating on a PlotCanvas this includes
   # DOM events such as keystrokes as well as hammer events and LOD events.
   @applicable_models = ['Plot']
