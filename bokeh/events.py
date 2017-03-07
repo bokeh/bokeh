@@ -8,6 +8,12 @@ class Event(object):
     event_classes = []
     event_name = None
 
+    @classmethod
+    def register_event_class(cls, event_cls):
+        ''' Register a custom event class.
+        '''
+        cls.event_classes.append(event_cls)
+
     def __init__(self, model_id=None):
         self.model_id = model_id
 
