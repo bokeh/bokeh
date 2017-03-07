@@ -152,7 +152,36 @@ class Test_GetSaveArgs(DefaultStateTester):
         self.assertEqual(mock_warn.call_args[1], {})
 
 class Test_SaveHelper(DefaultStateTester):
-    pass
+
+    @patch('io.open')
+    @patch('bokeh.io.standalone_html_page_for_models')
+    def test_obj_arg_is_document(self, mock_standalone_html_page, mock_io_open):
+        obj = Document()
+        filename, resources, title = io._get_save_args(io._state, "filename", "resources", "title")
+        io._save_helper(obj, filename, resources, title, True)
+
+        self._check_func_called(mock_standalone_html_page,
+                                (obj, resources, title),
+                                {})
+        self._check_func_called(mock_io_open,
+                                (filename,),
+                                {"mode":"w", "encoding":"utf-8"})
+
+    @patch('io.open')
+    @patch('bokeh.io.standalone_html_page_for_models')
+    def test_obj_arg_is_layoutdom(self, mock_standalone_html_page, mock_io_open):
+        obj = Plot()
+        doc = Document()
+        doc.add_root(obj)
+        filename, resources, title = io._get_save_args(io._state, "filename", "resources", "title")
+        io._save_helper(obj, filename, resources, title, True)
+
+        self._check_func_called(mock_standalone_html_page,
+                                (doc, resources, title),
+                                {})
+        self._check_func_called(mock_io_open,
+                                (filename,),
+                                {"mode":"w", "encoding":"utf-8"})
 
 class TestPush(DefaultStateTester):
 
