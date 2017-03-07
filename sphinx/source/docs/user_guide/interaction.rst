@@ -5,6 +5,7 @@ Adding Interactions
 
 .. toctree::
    interaction/linking
+   interaction/legends
    interaction/widgets
    interaction/callbacks
 
@@ -12,6 +13,10 @@ Adding Interactions
     Bokeh makes it simple to add certain kinds of linked interactions between
     plots, such as linked ranges when panning and zooming, or linked
     highlighting when making selections.
+
+:ref:`userguide_interaction_legends`
+    Bokeh ``Legends`` can be configure to allow for easily hiding or muting
+    corresponding glyphs.
 
 :ref:`userguide_interaction_widgets`
     Bokeh comes with a rich set of widgets that can be used with either
