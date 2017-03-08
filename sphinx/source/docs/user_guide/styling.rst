@@ -366,6 +366,8 @@ The same could also be achieved with the models interface as follows:
     ``nonselection_glyph`` are considered when rendering. Changing
     positions, sizes, etc. will have no effect.
 
+.. _userguide_styling_hover_inspections:
+
 Hover Inspections
 ~~~~~~~~~~~~~~~~~
 

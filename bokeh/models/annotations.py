@@ -7,7 +7,8 @@ from __future__ import absolute_import
 from six import string_types
 
 from ..core.enums import (accept_left_right_center, AngleUnits, DeprecatedLegendLocation, Dimension,
-                          FontStyle, LegendLocation, Orientation, RenderMode, SpatialUnits, TextAlign)
+                          FontStyle, LegendClickPolicy, LegendLocation, Orientation, RenderMode,
+                          SpatialUnits, TextAlign)
 from ..core.has_props import abstract
 from ..core.properties import (Angle, AngleSpec, Auto, Bool, ColorSpec, Either, Enum, Float,
                                FontSizeSpec, Include, Instance, Int, List, NumberSpec, Override,
@@ -107,9 +108,21 @@ class Legend(Annotation):
     The %s for the legend background style.
     """)
 
+    inactive_props = Include(FillProps, help="""
+    The %s for the legend background style when inactive.
+    """)
+
+    click_policy = Enum(LegendClickPolicy, default="none", help="""
+    Defines what happens when a lengend's item is clicked.
+    """)
+
     background_fill_color = Override(default="#ffffff")
 
     background_fill_alpha = Override(default=0.95)
+
+    inactive_fill_color = Override(default="lightgrey")
+
+    inactive_fill_alpha = Override(default=0.4)
 
     label_props = Include(TextProps, help="""
     The %s for the legend labels.

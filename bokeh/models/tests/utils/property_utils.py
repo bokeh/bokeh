@@ -11,6 +11,7 @@ ANGLE = ["angle", "angle_units"]
 
 PROPS = ["name", "tags", "js_callbacks", "js_event_callbacks", "subscribed_events"]
 GLYPH = ["visible"]
+
 MARKER = ["x", "y", "size", "angle", "angle_units"]
 
 def prefix(prefix, props):
