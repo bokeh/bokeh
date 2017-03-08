@@ -1,6 +1,7 @@
 # Granular event classes for use with the event system
 import {logger} from "./logging"
 
+
 export class Event
 
   @_event_classes = {}
@@ -92,20 +93,27 @@ export class MouseMove extends PointEvent
   @_event_classes['mousemove'] = @
 
 
-export class Tap extends PointEvent
+export class MouseEnter extends PointEvent
+  @event_name = 'mouseenter'
+  @_event_classes['mouseenter'] = @
 
+
+export class MouseExit extends PointEvent
+  @event_name = 'mouseexit'
+  @_event_classes['mouseexit'] = @
+
+
+export class Tap extends PointEvent
   @event_name = 'tap'
   @_event_classes['tap'] = @
 
 
 export class DoubleTap extends PointEvent
-
   @event_name = 'doubletap'
   @_event_classes['doubletap'] = @
 
 
 export class Press extends PointEvent
-
   @event_name = 'press'
   @_event_classes['press'] = @
 

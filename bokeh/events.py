@@ -34,18 +34,6 @@ class ButtonClick(Event):
         super(ButtonClick, self).__init__(model_id=model_id)
 
 
-class MouseMove(Event):
-
-    event_name = 'mousemove'
-
-    def __init__(self, sx=None,sy=None, x=None, y=None, model_id=None):
-        self.sx = sx
-        self.sy = sy
-        self.x = x
-        self.y = y
-        super(MouseMove, self).__init__(model_id=model_id)
-
-
 class LODStart(Event):
 
     event_name = 'lodstart'
@@ -72,10 +60,21 @@ class PointEvent(Event):
         super(PointEvent, self).__init__(model_id=model_id)
 
 
+class MouseMove(PointEvent):
+
+    event_name = 'mousemove'
+
+class MouseEnter(PointEvent):
+
+    event_name = 'mouseenter'
+
+class MouseExit(PointEvent):
+
+    event_name = 'mouseexit'
+
 class Tap(PointEvent):
 
     event_name = 'tap'
-
 
 class DoubleTap(PointEvent):
 
@@ -100,7 +99,6 @@ class PinchEnd(PointEvent):
 class PanEnd(PointEvent):
 
     event_name = 'panend'
-
 
 class Pan(PointEvent):
 
