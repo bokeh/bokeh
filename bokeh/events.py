@@ -89,6 +89,14 @@ class PanStart(PointEvent):
 
     event_name = 'panstart'
 
+class PinchStart(PointEvent):
+
+    event_name = 'pinchstart'
+
+class PinchEnd(PointEvent):
+
+    event_name = 'pinchend'
+
 class PanEnd(PointEvent):
 
     event_name = 'panend'
@@ -103,6 +111,14 @@ class Pan(PointEvent):
         self.deltaY = deltaY
         self.direction = direction
         super(Pan, self).__init__(**kwargs)
+
+class Pinch(PointEvent):
+
+    event_name = 'pinch'
+
+    def __init__(self, scale=None, **kwargs):
+        self.scale = scale
+        super(Pinch, self).__init__(**kwargs)
 
 
 

@@ -129,3 +129,24 @@ export class Pan extends PointEvent
 
   @from_event : (e, model_id=null) ->
     return new @({sx: e.bokeh['sx'], sy : e.bokeh['sy'], deltaX : e.deltaX, deltaY : e.deltaY, direction: e.direction, model_id: model_id })
+
+
+export class PinchStart extends PointEvent
+
+  @event_name = 'pinchstart'
+  @_event_classes['pinchstart'] = @
+
+
+export class Pinch extends PointEvent
+
+  @event_name = 'pinch'
+  @_event_classes['pinch'] = @
+
+  @from_event : (e, model_id=null) ->
+    return new @({sx: e.bokeh['sx'], sy : e.bokeh['sy'], scale : e.scale, model_id: model_id })
+
+
+export class PinchEnd extends PointEvent
+
+  @event_name = 'pinchend'
+  @_event_classes['pinchend'] = @
