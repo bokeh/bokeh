@@ -82,6 +82,15 @@ class Pinch(PointEvent):
         super(Pinch, self).__init__(**kwargs)
 
 
+class MouseWheel(PointEvent):
+
+    event_name = 'wheel'
+
+    def __init__(self, delta=None, **kwargs):
+        self.delta = delta
+        super(MouseWheel, self).__init__(**kwargs)
+
+
 class MouseMove(PointEvent):
 
     event_name = 'mousemove'

@@ -106,6 +106,16 @@ export class Pinch extends PointEvent
     return new @({sx: e.bokeh['sx'], sy : e.bokeh['sy'], scale : e.scale, model_id: model_id })
 
 
+export class MouseWheel extends PointEvent
+
+  @event_name = 'wheel'
+  @_event_classes['wheel'] = @
+
+  @from_event : (e, model_id=null) ->
+    return new @({sx: e.bokeh['sx'], sy : e.bokeh['sy'], delta : e.bokeh['delta'], model_id: model_id })
+
+
+
 export class MouseMove extends PointEvent
   @event_name = 'mousemove'
   @_event_classes['mousemove'] = @
