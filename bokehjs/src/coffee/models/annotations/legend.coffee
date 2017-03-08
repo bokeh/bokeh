@@ -246,8 +246,6 @@ export class Legend extends Annotation
       spacing:          [ p.Number,         3           ]
       items:            [ p.Array,          []          ]
       click_policy:     [ p.Any,            "none"      ]
-      hover_fill_color: [ p.Color,          "gray"      ]
-      hover_fill_alpha: [ p.Number,         1           ]
   }
 
   @override {

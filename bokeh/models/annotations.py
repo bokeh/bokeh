@@ -112,10 +112,6 @@ class Legend(Annotation):
     The %s for the legend background style when inactive.
     """)
 
-    hover_props = Include(FillProps, help="""
-    The %s for the legend background style when hovered.
-    """)
-
     click_policy = Enum(LegendClickPolicy, default="none", help="""
     Defines what happens when a lengend's item is clicked.
     """)

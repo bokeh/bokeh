@@ -52,7 +52,6 @@ def test_Legend():
         prefix('label_', TEXT),
         prefix('border_', LINE),
         prefix('background_', FILL),
-        prefix('hover_', FILL),
         prefix('inactive_', FILL))
 
 
