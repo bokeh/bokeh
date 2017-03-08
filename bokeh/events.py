@@ -131,6 +131,18 @@ class PanEnd(PointEvent):
 
     event_name = 'panend'
 
+class RotateStart(PointEvent):
+
+    event_name = 'rotatestart'
+
+class RotateEnd(PointEvent):
+
+    event_name = 'rotateend'
+
+class Rotate(PointEvent):
+
+    event_name = 'rotate'
+
 
 Event.event_classes = [v for v in locals().values()
                        if (type(v)==type and issubclass(v,Event))]
