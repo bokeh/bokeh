@@ -99,9 +99,9 @@ class MouseEnter(PointEvent):
 
     event_name = 'mouseenter'
 
-class MouseExit(PointEvent):
+class MouseLeave(PointEvent):
 
-    event_name = 'mouseexit'
+    event_name = 'mouseleave'
 
 class Tap(PointEvent):
 

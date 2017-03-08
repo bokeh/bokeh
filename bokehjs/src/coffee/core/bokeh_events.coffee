@@ -126,9 +126,9 @@ export class MouseEnter extends PointEvent
   @_event_classes['mouseenter'] = @
 
 
-export class MouseExit extends PointEvent
-  @event_name = 'mouseexit'
-  @_event_classes['mouseexit'] = @
+export class MouseLeave extends PointEvent
+  @event_name = 'mouseleave'
+  @_event_classes['mouseleave'] = @
 
 
 export class Tap extends PointEvent
