@@ -45,4 +45,4 @@ def test_the_default_titles_settings_and_ensure_outside_any_axes(output_file_url
     selenium.get(output_file_url)
 
     # Take screenshot
-    assert screenshot.is_valid()
+    screenshot.assert_is_valid()

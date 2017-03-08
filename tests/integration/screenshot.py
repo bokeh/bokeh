@@ -4,6 +4,12 @@ from os.path import exists
 from tests.plugins.image_diff import image_diff
 
 
+class ScreenshotMismatchError(AssertionError):
+    """ Custom assertion error for report handling. """
+    def __init__(self, *args, **kwargs):
+        super(AssertionError, self).__init__(*args, **kwargs)
+
+
 class Screenshot(object):
 
     def __init__(self, item=None, request=None, set_new_base=False):
@@ -57,7 +63,7 @@ class Screenshot(object):
         if exists(self.base_screenshot_path):
             return self.get_screenshot_as_b64(self.current_screenshot_path)
 
-    def is_valid(self):
+    def assert_is_valid(self):
         self.set_current_screenshot()
         if self.set_new_base:
             self.set_base_screenshot()
@@ -66,7 +72,6 @@ class Screenshot(object):
             self.base_screenshot_path,
             self.current_screenshot_path
         )
-        if image_diff_result == 0:
-            return True
-        else:
-            return False
+        if image_diff_result != 0:
+            __tracebackhide__ = True
+            raise ScreenshotMismatchError("The current screenshot doesn't match the base image.")

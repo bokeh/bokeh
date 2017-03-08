@@ -22,4 +22,4 @@ def test_visible_property_hides_things_correctly(output_file_url, selenium, scre
     save(plot)
     selenium.get(output_file_url)
     assert has_no_console_errors(selenium)
-    assert screenshot.is_valid()
+    screenshot.assert_is_valid()
