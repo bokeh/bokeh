@@ -41,12 +41,14 @@ class LODStart(Event):
     def __init__(self, model_id=None):
         super(LODStart, self).__init__(model_id=model_id)
 
+
 class LODEnd(Event):
 
     event_name = 'lodend'
 
     def __init__(self, model_id=None):
         super(LODEnd, self).__init__(model_id=model_id)
+
 
 class PointEvent(Event):
 
@@ -58,6 +60,26 @@ class PointEvent(Event):
         self.x = x
         self.y = y
         super(PointEvent, self).__init__(model_id=model_id)
+
+
+class Pan(PointEvent):
+
+    event_name = 'pan'
+
+    def __init__(self, deltaX=None, deltaY=None, direction=None, **kwargs):
+        self.deltaX = deltaX
+        self.deltaY = deltaY
+        self.direction = direction
+        super(Pan, self).__init__(**kwargs)
+
+
+class Pinch(PointEvent):
+
+    event_name = 'pinch'
+
+    def __init__(self, scale=None, **kwargs):
+        self.scale = scale
+        super(Pinch, self).__init__(**kwargs)
 
 
 class MouseMove(PointEvent):
@@ -99,25 +121,6 @@ class PinchEnd(PointEvent):
 class PanEnd(PointEvent):
 
     event_name = 'panend'
-
-class Pan(PointEvent):
-
-    event_name = 'pan'
-
-    def __init__(self, deltaX=None, deltaY=None, direction=None, **kwargs):
-        self.deltaX = deltaX
-        self.deltaY = deltaY
-        self.direction = direction
-        super(Pan, self).__init__(**kwargs)
-
-class Pinch(PointEvent):
-
-    event_name = 'pinch'
-
-    def __init__(self, scale=None, **kwargs):
-        self.scale = scale
-        super(Pinch, self).__init__(**kwargs)
-
 
 
 Event.event_classes = [v for v in locals().values()
