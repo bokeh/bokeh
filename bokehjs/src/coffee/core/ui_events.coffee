@@ -121,7 +121,7 @@ export class UIEvents
 
     if view != null
       if base_type == "move" and view.model.cursor?
-        @plot_view.set_cursor(view.model.cursor)
+        @plot_view.set_cursor(view.model.cursor())
 
       @trigger("move:exit", e)
 
