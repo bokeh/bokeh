@@ -97,7 +97,7 @@ export class PlotCanvasView extends BokehView
       @model.document._unrendered_plots = {}  # poor man's set
     @model.document._unrendered_plots[@id] = true
 
-    @ui_event_bus = new UIEvents(@model.toolbar, @canvas_view.el)
+    @ui_event_bus = new UIEvents(@, @model.toolbar, @canvas_view.el)
 
     @levels = {}
     for level in enums.RenderLevel
@@ -119,6 +119,9 @@ export class PlotCanvasView extends BokehView
 
   get_canvas_element: () ->
     return @canvas_view.ctx.canvas
+
+  set_cursor: (cursor="default") ->
+    @canvas_view.el.style.cursor = cursor
 
   @getters {
     canvas_overlays: () -> @el.querySelector('.bk-canvas-overlays')
@@ -444,6 +447,9 @@ export class PlotCanvasView extends BokehView
       view.bind_bokeh_events()
 
     return @
+
+  get_renderer_views: () ->
+    (@levels[r.level][r.id] for r in @model.plot.renderers)
 
   build_tools: () ->
     tool_models = @model.plot.toolbar.tools
