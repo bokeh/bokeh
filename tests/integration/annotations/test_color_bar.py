@@ -59,8 +59,6 @@ def test_color_bar_placement_and_render(output_file_url, selenium, screenshot):
     selenium.get(output_file_url)
     assert has_no_console_errors(selenium)
 
-    assert False
-
     # Take screenshot
     screenshot.assert_is_valid()
 
