@@ -4,7 +4,7 @@ import {Events} from "./events"
 import {logger} from "./logging"
 import {offset} from "./dom"
 import {getDeltaY} from "./util/wheel"
-import {HammerEvent, PointEvent} from "./bokeh_events"
+import {PointEvent} from "./bokeh_events"
 
 
 export class UIEvents
@@ -136,7 +136,7 @@ export class UIEvents
       sx: x - left
       sy: y - top
     }
-    event_cls = HammerEvent.event_class(e)
+    event_cls = PointEvent.event_class(e)
     if event_cls
       @plot.trigger_event(event_cls.from_event(e))
     else

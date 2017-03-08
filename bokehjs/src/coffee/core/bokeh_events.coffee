@@ -32,6 +32,15 @@ export class Event
     return @
 
 
+export class ButtonClick extends Event
+
+  @event_name = 'button_click'
+  @applicable_models = ['Button']
+
+  constructor: (options) ->
+    super(options)
+
+
 export class UIEvent extends Event
   # A UIEvent is an event originating on a PlotCanvas this includes
   # DOM events such as keystrokes as well as hammer events and LOD events.
@@ -48,6 +57,7 @@ export class LODStart extends UIEvent
   constructor: (options) ->
     super(options)
 
+
 export class LODEnd extends UIEvent
   @event_name = 'lodend'
   @_event_classes['lodend'] = @
@@ -55,15 +65,6 @@ export class LODEnd extends UIEvent
   constructor: (options) ->
     super(options)
 
-
-
-export class ButtonClick extends Event
-
-  @event_name = 'button_click'
-  @applicable_models = ['Button']
-
-  constructor: (options) ->
-    super(options)
 
 export class PointEvent extends UIEvent
 
@@ -76,24 +77,6 @@ export class PointEvent extends UIEvent
     # Given a DOM point event, construct a corresponding Event instance
     return new @({sx: e.bokeh['sx'], sy : e.bokeh['sy'], model_id: model_id})
 
-
-export class MouseMove extends PointEvent
-  @event_name = 'mousemove'
-  @_event_classes['mousemove'] = @
-
-
-
-export class HammerEvent extends UIEvent
-
-  constructor: (options) ->
-    {@sx, @sy} = options
-    [@x, @y] = [null, null]
-    super(options)
-
-  @from_event : (e, model_id=null) ->
-    # Given a hammer event, construct a corresponding Event instance
-    return new @({sx: e.bokeh['sx'], sy : e.bokeh['sy'], model_id: model_id})
-
   _customize_event : (plot) ->
     xmapper = plot.plot_canvas.frame.x_mappers['default']
     ymapper = plot.plot_canvas.frame.y_mappers['default']
@@ -104,34 +87,42 @@ export class HammerEvent extends UIEvent
     return @
 
 
-export class Tap extends HammerEvent
+export class MouseMove extends PointEvent
+  @event_name = 'mousemove'
+  @_event_classes['mousemove'] = @
+
+
+export class Tap extends PointEvent
 
   @event_name = 'tap'
   @_event_classes['tap'] = @
 
-export class DoubleTap extends HammerEvent
+
+export class DoubleTap extends PointEvent
 
   @event_name = 'doubletap'
   @_event_classes['doubletap'] = @
 
-export class Press extends HammerEvent
+
+export class Press extends PointEvent
 
   @event_name = 'press'
   @_event_classes['press'] = @
 
 
-export class PanStart extends HammerEvent
+export class PanStart extends PointEvent
 
   @event_name = 'panstart'
   @_event_classes['panstart'] = @
 
-export class PanEnd extends HammerEvent
+
+export class PanEnd extends PointEvent
 
   @event_name = 'panend'
   @_event_classes['panend'] = @
 
 
-export class Pan extends HammerEvent
+export class Pan extends PointEvent
 
   @event_name = 'pan'
   @_event_classes['pan'] = @
