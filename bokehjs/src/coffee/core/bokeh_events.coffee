@@ -168,18 +168,3 @@ export class PinchEnd extends PointEvent
 
   @event_name = 'pinchend'
   @_event_classes['pinchend'] = @
-
-export class RotateEnd extends PointEvent
-
-  @event_name = 'rotateend'
-  @_event_classes['rotateend'] = @
-
-export class RotateStart extends PointEvent
-
-  @event_name = 'rotatestart'
-  @_event_classes['rotatestart'] = @
-
-export class Rotate extends PointEvent
-
-  @event_name = 'rotate'
-  @_event_classes['rotate'] = @
