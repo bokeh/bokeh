@@ -4,6 +4,7 @@ import {Events} from "./events"
 import {logger} from "./logging"
 import {offset} from "./dom"
 import {getDeltaY} from "./util/wheel"
+import {extend} from "./util/object"
 import {PointEvent} from "./bokeh_events"
 
 
@@ -124,7 +125,7 @@ export class UIEvents
         e.stopPropagation()
       @trigger("#{event_type}:#{active_tool.id}", e)
 
-  _bokify_hammer: (e) ->
+  _bokify_hammer: (e, extras={}) ->
     if e.pointerType == 'mouse'
       x = e.srcEvent.pageX
       y = e.srcEvent.pageY
@@ -136,19 +137,21 @@ export class UIEvents
       sx: x - left
       sy: y - top
     }
+    e.bokeh = extend(e.bokeh, extras)
     event_cls = PointEvent.event_class(e)
     if event_cls
       @plot.trigger_event(event_cls.from_event(e))
     else
-      logger.debug('Unhandled hammer event of type ' + e.type)
+      logger.debug('Unhandled event of type ' + e.type)
 
-  _bokify_point_event: (e) ->
+  _bokify_point_event: (e, extras={}) ->
 
     {left, top} = offset(e.currentTarget)
     e.bokeh = {
       sx: e.pageX - left
       sy: e.pageY - top
     }
+    e.bokeh = extend(e.bokeh, extras)
     event_cls = PointEvent.event_class(e)
     if event_cls
       @plot.trigger_event(event_cls.from_event(e))
@@ -221,8 +224,7 @@ export class UIEvents
     @trigger('move:exit', e)
 
   _mouse_wheel: (e) ->
-    @_bokify_point_event(e)
-    e.bokeh.delta = getDeltaY(e)
+    @_bokify_point_event(e, {delta: getDeltaY(e)})
     @_trigger('scroll', e)
 
   _key_down: (e) ->
