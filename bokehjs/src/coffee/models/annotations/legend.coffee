@@ -222,7 +222,7 @@ export class Legend extends Annotation
 
   type: 'Legend'
 
-  cursor: "pointer"
+  cursor: () -> if @click_policy == "none" then null else "pointer"
 
   get_legend_names: () ->
     legend_names = []
