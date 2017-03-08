@@ -252,3 +252,6 @@ SortDirection = enumeration("ascending", "descending")
 
 #: Sizing mode policies
 SizingMode = enumeration("stretch_both", "scale_width", "scale_height", "scale_both", "fixed")
+
+#: Legend's click policies
+LegendClickPolicy = enumeration("none", "hide", "mute")

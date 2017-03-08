@@ -36,7 +36,7 @@ source-position : enum('above', 'below', 'none')
     Where to locate the the block of formatted source
     code (if anywhere).
 
-linenos : bool
+linenos : flag
     Whether to display line numbers along with the source.
 
 Examples
@@ -70,7 +70,7 @@ import re
 
 from docutils import nodes
 from docutils.parsers.rst import Directive, Parser
-from docutils.parsers.rst.directives import choice
+from docutils.parsers.rst.directives import choice, flag
 
 from sphinx.errors import SphinxError
 from sphinx.util import console, copyfile, ensuredir
@@ -182,6 +182,7 @@ class BokehPlotDirective(Directive):
 
     option_spec = {
         'source-position': lambda x: choice(x, ('below', 'above', 'none')),
+        'linenos': lambda x: True if flag(x) is None else False,
     }
 
     def run(self):
@@ -232,7 +233,8 @@ class BokehPlotDirective(Directive):
         target = nodes.target('', '', ids=[target_id])
         result = [target]
 
-        code = nodes.literal_block(source, source, language="python", linenos=False, classes=[])
+        linenos = self.options.get('linenos', False)
+        code = nodes.literal_block(source, source, language="python", linenos=linenos, classes=[])
         set_source_info(self, code)
 
         source_position = self.options.get('source-position', 'below')

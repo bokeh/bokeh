@@ -1,7 +1,8 @@
 import {Annotation, AnnotationView} from "./annotation"
 import * as p from "core/properties"
 import {get_text_height} from "core/util/text"
-import {max} from "core/util/array"
+import {BBox} from "core/util/bbox"
+import {max, all} from "core/util/array"
 import {values} from "core/util/object"
 import {isString, isArray} from "core/util/types"
 
@@ -50,10 +51,11 @@ export class LegendView extends AnnotationView
         legend_width += max([width, label_width]) + glyph_width + label_standoff
       legend_height = @max_label_height + 2 * legend_padding
 
-    location = @model.location
-    h_range = @plot_view.frame.h_range
-    v_range = @plot_view.frame.v_range
+    panel = @model.panel ? @plot_view.frame
+    h_range = {start: panel.left, end: panel.right}
+    v_range = {start: panel.bottom, end: panel.top}
 
+    location = @model.location
     if isString(location)
       switch location
         when 'top_left'
@@ -84,12 +86,62 @@ export class LegendView extends AnnotationView
           x = (h_range.end + h_range.start)/2 - legend_width/2
           y = (v_range.end + v_range.start)/2 + legend_height/2
     else if isArray(location) and location.length == 2
-      [x, y] = location
+      [x, y] = location   # left, bottom wrt panel
+      x += h_range.start
+      y += v_range.start + legend_height
 
     x = @plot_view.canvas.vx_to_sx(x)
     y = @plot_view.canvas.vy_to_sy(y)
 
     return {x: x, y: y, width: legend_width, height: legend_height}
+
+  bbox: () ->
+    {x, y, width, height} = @compute_legend_bbox()
+    return new BBox({x0: x, y0: y, x1: x+width, y1: y+height})
+
+  on_hit: (hx, hy) ->
+    glyph_height = @model.glyph_height
+    glyph_width = @model.glyph_width
+    legend_spacing = @model.spacing
+    label_standoff = @model.label_standoff
+    xoffset = yoffset = @model.padding
+
+    legend_bbox = @compute_legend_bbox()
+    vertical = @model.orientation == "vertical"
+
+    for item in @model.items
+      labels = item.get_labels_list_from_label_prop()
+      field = item.get_field_from_label_prop()
+
+      for label in labels
+        x1 = legend_bbox.x + xoffset
+        y1 = legend_bbox.y + yoffset
+        x2 = x1 + glyph_width
+        y2 = y1 + glyph_height
+
+        if vertical
+           [w, h] = [legend_bbox.width-2*@model.padding, @max_label_height]
+        else
+           [w, h] = [@text_widths[label] + glyph_width + label_standoff, @max_label_height]
+
+        bbox = new BBox({x0: x1, y0: y1, x1: x1+w, y1: y1+h})
+
+        if bbox.contains(hx, hy)
+          switch @model.click_policy
+            when "hide"
+              for r in item.renderers
+                r.visible = not r.visible
+            when "mute"
+              for r in item.renderers
+                r.muted = not r.muted
+          return true
+
+        if vertical
+          yoffset += @max_label_height + legend_spacing
+        else
+          xoffset += @text_widths[label] + glyph_width + label_standoff + legend_spacing
+
+    return false
 
   render: () ->
     if not @model.visible
@@ -107,9 +159,6 @@ export class LegendView extends AnnotationView
     ctx.restore()
 
   _draw_legend_box: (ctx, bbox) ->
-    if @model.panel?
-      panel_offset = @_get_panel_offset()
-      ctx.translate(panel_offset.x, panel_offset.y)
     ctx.beginPath()
     ctx.rect(bbox.x, bbox.y, bbox.width, bbox.height)
     @visuals.background_fill.set_value(ctx)
@@ -124,6 +173,7 @@ export class LegendView extends AnnotationView
     legend_spacing = @model.spacing
     label_standoff = @model.label_standoff
     xoffset = yoffset = @model.padding
+    vertical = @model.orientation == "vertical"
 
     for item in @model.items
       labels = item.get_labels_list_from_label_prop()
@@ -132,12 +182,17 @@ export class LegendView extends AnnotationView
       if labels.length == 0
         continue
 
+      active = switch @model.click_policy
+        when "none" then true
+        when "hide" then all(item.renderers, (r) -> r.visible)
+        when "mute" then all(item.renderers, (r) -> not r.muted)
+
       for label in labels
         x1 = bbox.x + xoffset
         y1 = bbox.y + yoffset
         x2 = x1 + glyph_width
         y2 = y1 + glyph_height
-        if @model.orientation == "vertical"
+        if vertical
           yoffset += @max_label_height + legend_spacing
         else
           xoffset += @text_widths[label] + glyph_width + label_standoff + legend_spacing
@@ -147,6 +202,16 @@ export class LegendView extends AnnotationView
         for r in item.renderers
           view = @plot_view.renderer_views[r.id]
           view.draw_legend(ctx, x1, x2, y1, y2, field, label)
+
+        if not active
+          if vertical
+             [w, h] = [bbox.width-2*@model.padding, @max_label_height]
+          else
+             [w, h] = [@text_widths[label] + glyph_width + label_standoff, @max_label_height]
+          ctx.beginPath()
+          ctx.rect(x1, y1, w, h)
+          @visuals.inactive_fill.set_value(ctx)
+          ctx.fill()
 
     return null
 
@@ -158,16 +223,12 @@ export class LegendView extends AnnotationView
     if side == 'left' or side == 'right'
       return bbox.width
 
-  _get_panel_offset: () ->
-    # Legends draw from the top down, so set the y_panel_offset to _top
-    x = @model.panel._left._value
-    y = @model.panel._top._value
-    return {x: x, y: -y}
-
 export class Legend extends Annotation
   default_view: LegendView
 
   type: 'Legend'
+
+  cursor: "pointer"
 
   get_legend_names: () ->
     legend_names = []
@@ -176,21 +237,21 @@ export class Legend extends Annotation
       legend_names = legend_names.concat(labels)
     return legend_names
 
-
-  @mixins ['text:label_', 'line:border_', 'fill:background_']
+  @mixins ['text:label_', 'fill:inactive_', 'line:border_', 'fill:background_']
 
   @define {
-      orientation:    [ p.Orientation,    'vertical'  ]
-      location:       [ p.Any,            'top_right' ] # TODO (bev)
-      label_standoff: [ p.Number,         5           ]
-      glyph_height:   [ p.Number,         20          ]
-      glyph_width:    [ p.Number,         20          ]
-      label_height:   [ p.Number,         20          ]
-      label_width:    [ p.Number,         20          ]
-      margin:         [ p.Number,         10          ]
-      padding:        [ p.Number,         10          ]
-      spacing:        [ p.Number,         3           ]
-      items:          [ p.Array,          []          ]
+      orientation:      [ p.Orientation,    'vertical'  ]
+      location:         [ p.Any,            'top_right' ] # TODO (bev)
+      label_standoff:   [ p.Number,         5           ]
+      glyph_height:     [ p.Number,         20          ]
+      glyph_width:      [ p.Number,         20          ]
+      label_height:     [ p.Number,         20          ]
+      label_width:      [ p.Number,         20          ]
+      margin:           [ p.Number,         10          ]
+      padding:          [ p.Number,         10          ]
+      spacing:          [ p.Number,         3           ]
+      items:            [ p.Array,          []          ]
+      click_policy:     [ p.Any,            "none"      ]
   }
 
   @override {
@@ -199,6 +260,8 @@ export class Legend extends Annotation
     border_line_width: 1
     background_fill_color: "#ffffff"
     background_fill_alpha: 0.95
+    inactive_fill_color: "lightgrey"
+    inactive_fill_alpha: 0.4
     label_text_font_size: "10pt"
     label_text_baseline: "middle"
   }

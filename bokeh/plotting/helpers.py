@@ -53,7 +53,7 @@ def get_default_alpha(plot=None):
 
 def _pop_renderer_args(kwargs):
     result = dict(data_source=kwargs.pop('source', ColumnDataSource()))
-    for attr in ['name', 'x_range_name', 'y_range_name', 'level']:
+    for attr in ['name', 'x_range_name', 'y_range_name', 'level', 'visible', 'muted']:
         val = kwargs.pop(attr, None)
         if val:
             result[attr] = val
@@ -552,15 +552,23 @@ def _glyph_function(glyphclass, extra_docs=None):
         else:
             hglyph_ca = None
 
+        # handle the mute glyph, if any properties were given
+        if any(x.startswith('muted_') for x in kwargs):
+            mglyph_ca = _pop_colors_and_alpha(glyphclass, kwargs, prefix='muted_')
+        else:
+            mglyph_ca = None
+
         glyph = _make_glyph(glyphclass, kwargs, glyph_ca)
         nsglyph = _make_glyph(glyphclass, kwargs, nsglyph_ca)
-        hglyph = _make_glyph(glyphclass, kwargs, hglyph_ca)
         sglyph = _make_glyph(glyphclass, kwargs, sglyph_ca)
+        hglyph = _make_glyph(glyphclass, kwargs, hglyph_ca)
+        mglyph = _make_glyph(glyphclass, kwargs, mglyph_ca)
 
         glyph_renderer = GlyphRenderer(glyph=glyph,
                                        nonselection_glyph=nsglyph,
                                        selection_glyph=sglyph,
                                        hover_glyph=hglyph,
+                                       muted_glyph=mglyph,
                                        **renderer_kws)
 
         if legend_item_label:

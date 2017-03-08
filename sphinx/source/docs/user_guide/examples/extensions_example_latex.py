@@ -40,13 +40,13 @@ export class LatexLabelView extends LabelView
 
     #--- End of copied section from ``Label.render`` implementation
 
-    # ``katex`` is loaded into the global window at runtime
-    # katex.renderToString returns a html ``span`` element
-    latex = katex.renderToString(@model.text, {displayMode: true})
-
     # Must render as superpositioned div (not on canvas) so that KaTex
     # css can properly style the text
-    @_css_text(ctx, latex, sx + @model.x_offset, sy - @model.y_offset, angle)
+    @_css_text(ctx, "", sx + @model.x_offset, sy - @model.y_offset, angle)
+
+    # ``katex`` is loaded into the global window at runtime
+    # katex.renderToString returns a html ``span`` element
+    katex.render(@model.text, @el, {displayMode: true})
 
 export class LatexLabel extends Label
   type: 'LatexLabel'
