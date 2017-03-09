@@ -117,19 +117,19 @@ class ColumnDataSource(ColumnarDataSource):
             df (DataFrame) : data to convert
 
         Returns:
-            dict(str, list)
+            dict[str, np.array]
 
         '''
         index = df.index
         new_data = {}
         for colname in df:
-            new_data[colname] = df[colname].tolist()
+            new_data[colname] = df[colname].values
         if index.name:
-            new_data[index.name] = index.tolist()
+            new_data[index.name] = index.values
         elif index.names and not all([x is None for x in index.names]):
-            new_data["_".join(index.names)] = index.tolist()
+            new_data["_".join(index.names)] = index.values
         else:
-            new_data["index"] = index.tolist()
+            new_data["index"] = index.values
         return new_data
 
     @classmethod
@@ -141,7 +141,7 @@ class ColumnDataSource(ColumnarDataSource):
             data (DataFrame) : data to convert
 
         Returns:
-            dict[str, list]
+            dict[str, np.array]
 
         '''
         return cls._data_from_df(data)
