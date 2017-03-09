@@ -1,4 +1,5 @@
 import {TextAnnotation, TextAnnotationView} from "./text_annotation"
+import {hide} from "core/dom"
 import * as p from "core/properties"
 import * as Visuals from "core/visuals"
 
@@ -47,6 +48,11 @@ export class TitleView extends TextAnnotationView
     return text_location
 
   render: () ->
+    if not @model.visible and @model.render_mode == 'css'
+      hide(@el)
+    if not @model.visible
+      return
+
     angle = @model.panel.get_label_angle_heuristic('parallel')
     [sx, sy] = @_get_computed_location()
     ctx = @plot_view.canvas_view.ctx

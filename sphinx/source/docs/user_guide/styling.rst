@@ -68,12 +68,16 @@ Text Properties
 Visible property
 ~~~~~~~~~~~~~~~~
 
-Glyph renderers, axes, and grids all have a visible property that can be used to turn them on
-and off. This can be particulartly useful in interactive examples with bokeh server or CustomJS.
+Glyph renderers, axes, grids, and annotations all have a visible property that can be used to turn them on
+and off.
 
 .. bokeh-plot:: docs/user_guide/examples/styling_visible_property.py
     :source-position: above
 
+This can be particularly useful in interactive examples with bokeh server or CustomJS.
+
+.. bokeh-plot:: docs/user_guide/examples/styling_visible_annotation_with_interaction.py
+    :source-position: above
 
 Specifying Colors
 ~~~~~~~~~~~~~~~~~
@@ -123,7 +127,9 @@ Styling Arrow Annotations
 There are several `ArrowHead` subtypes that can be applied to Arrow
 annotations. Setting the `start` or `end` property to None will
 cause no arrow head to be applied at the specified arrow end. Double-sided
-arrows can be created by setting both `start` and `end` styles.
+arrows can be created by setting both `start` and `end` styles. Setting
+`visible` to false on an arrow will also make the corresponding arrow head
+invisible.
 
 .. bokeh-plot:: docs/user_guide/examples/styling_arrow_annotations.py
     :source-position: none

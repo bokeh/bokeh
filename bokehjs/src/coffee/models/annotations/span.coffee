@@ -15,11 +15,17 @@ export class SpanView extends AnnotationView
       @listenTo(@model, 'change:computed_location', @_draw_span)
     else
       if @model.render_mode == 'canvas'
+        @listenTo(@model, 'change', @plot_view.request_render)
         @listenTo(@model, 'change:location', @plot_view.request_render)
       else
+        @listenTo(@model, 'change', @render)
         @listenTo(@model, 'change:location', @_draw_span)
 
   render: () ->
+    if not @model.visible and @model.render_mode == 'css'
+      hide(@el)
+    if not @model.visible
+      return
     @_draw_span()
 
   _draw_span: () ->
