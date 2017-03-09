@@ -14,7 +14,7 @@ def pytest_addoption(parser):
 @pytest.fixture
 def selenium(selenium):
     # Give items a chance to load
-    selenium.implicitly_wait(100)
+    selenium.implicitly_wait(10)
     selenium.set_window_size(width=1200, height=600)
     return selenium
 
