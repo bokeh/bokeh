@@ -29,7 +29,7 @@ class Event(object):
     ''' Base class for all Bokeh events.
 
     '''
-    event_classes = []
+    _event_classes = []
     event_name = None
 
     def __init__(self, model_id=None):
@@ -40,11 +40,11 @@ class Event(object):
         ''' Register a custom event class.
 
         '''
-        cls.event_classes.append(event_cls)
+        cls._event_classes.append(event_cls)
 
     @classmethod
     def from_JSON(cls, json):
-        eventclasses = [eventcls for eventcls in cls.event_classes]
+        eventclasses = [eventcls for eventcls in cls._event_classes]
         for eventscls in eventclasses:
             if eventscls.event_name == json['event_name']:
                 return eventscls(**json['event_values'])
@@ -174,5 +174,5 @@ class Press(PointEvent):
     '''
     event_name = 'press'
 
-Event.event_classes = [v for v in locals().values()
-                       if (type(v)==type and issubclass(v,Event))]
+Event._event_classes = [v for v in locals().values()
+                        if (type(v)==type and issubclass(v,Event))]
