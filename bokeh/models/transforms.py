@@ -19,11 +19,11 @@ class Transform(Model):
 
     .. code-block: coffeescript
 
-        compute: (x) ->
-            # compute the transform of a single value
+       compute: (x) ->
+           # compute the transform of a single value
 
-        v_compute: (xs) ->
-            # compute the transform of an array of values
+       v_compute: (xs) ->
+           # compute the transform of an array of values
 
     '''
     pass
