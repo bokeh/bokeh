@@ -13,11 +13,9 @@ p.add_layout(box)
 
 # We write coffeescript to link toggle with visible property of box and line
 code = '''\
-if toggle.active
-    object.visible = true
-else
-    object.visible = false
+object.visible = toggle.active
 '''
+
 callback1 = CustomJS.from_coffeescript(code=code, args={})
 toggle1 = Toggle(label="Green Box", button_type="success", callback=callback1)
 callback1.args = {'toggle': toggle1, 'object': box}
