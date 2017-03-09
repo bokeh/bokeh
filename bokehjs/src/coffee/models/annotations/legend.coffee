@@ -254,8 +254,8 @@ export class Legend extends Annotation
     border_line_width: 1
     background_fill_color: "#ffffff"
     background_fill_alpha: 0.95
-    inactive_fill_color: "lightgrey"
-    inactive_fill_alpha: 0.4
+    inactive_fill_color: "white"
+    inactive_fill_alpha: 0.9
     label_text_font_size: "10pt"
     label_text_baseline: "middle"
   }
