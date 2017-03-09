@@ -15,7 +15,7 @@ from data import process_data
 
 fertility_df, life_expectancy_df, population_df_size, regions_df, years, regions_list = process_data()
 
-sources = {}
+data = {}
 
 region_name = regions_df.Group
 region_name.name = 'region'
@@ -29,9 +29,9 @@ for year in years:
     population.name = 'population'
     df = pd.concat([fertility, life, population, region_name], axis=1)
     df = df.fillna('NaN')
-    sources[year] = ColumnDataSource(df)
+    data[year] = df.to_dict('series')
 
-source = sources[years[0]]
+source = ColumnDataSource(data=data[years[0]])
 
 plot = figure(x_range=(1, 9), y_range=(20, 100), title='Gapminder Data', plot_height=300)
 plot.xaxis.ticker = SingleIntervalTicker(interval=1)
@@ -68,7 +68,7 @@ def animate_update():
 def slider_update(attrname, old, new):
     year = slider.value
     label.text = str(year)
-    source.data = sources[year].data
+    source.data = data[year]
 
 slider = Slider(start=years[0], end=years[-1], value=years[0], step=1, title="Year")
 slider.on_change('value', slider_update)

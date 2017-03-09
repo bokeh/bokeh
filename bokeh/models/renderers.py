@@ -30,7 +30,7 @@ class Renderer(Model):
     """)
 
     visible = Bool(default=True, help="""
-    Is the renderer visible. Default: True
+    Is the renderer visible.
     """)
 
 @abstract
@@ -158,6 +158,12 @@ class GlyphRenderer(DataRenderer):
     hover_glyph = Instance(Glyph, help="""
     An optional glyph used for inspected points, e.g., those that are
     being hovered over by a HoverTool.
+    """)
+
+    muted_glyph = Instance(Glyph, help="""
+    """)
+
+    muted = Bool(False, help="""
     """)
 
     level = Override(default="glyph")

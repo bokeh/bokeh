@@ -10,6 +10,9 @@ export class PolyAnnotationView extends AnnotationView
     @listenTo(@model, 'data_update', @plot_view.request_render)
 
   render: (ctx) ->
+    if not @model.visible
+      return
+
     xs = @model.xs
     ys = @model.ys
 

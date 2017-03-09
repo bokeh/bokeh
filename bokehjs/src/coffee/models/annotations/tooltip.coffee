@@ -17,6 +17,8 @@ export class TooltipView extends AnnotationView
     @listenTo(@model, 'change:data', @_draw_tips)
 
   render: () ->
+    if not @model.visible
+      return
     @_draw_tips()
 
   _draw_tips: () ->
