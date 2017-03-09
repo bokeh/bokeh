@@ -12,7 +12,7 @@ export class BoxView extends LayoutDOMView
 
   bind_bokeh_events: () ->
     super()
-    @listenTo(@model, 'change:children', @build_child_views)
+    @listenTo(@model, 'change:children', () => @build_child_views())
 
   get_height: () ->
     children = @model.get_layoutable_children()
