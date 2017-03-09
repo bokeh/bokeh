@@ -35,7 +35,6 @@ export class LayoutDOMView extends BokehView
       @model.document._init_solver()
 
     children = @model.get_layoutable_children()
-    @child_views = {}
     build_views(@child_views, children)
 
     empty(@el)
