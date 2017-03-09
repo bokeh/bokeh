@@ -117,10 +117,7 @@ def pytest_runtest_makereport(item, call):
     # When executing the test failed for some reason
     if report.when == "call" and report.failed:
 
-        xfail = hasattr(report, 'wasxfail')
-
-
-        if 'screenshot' in item.fixturenames and isinstance(call.excinfo.value, ScreenshotMismatchError) and not xfail:
+        if 'screenshot' in item.fixturenames and isinstance(call.excinfo.value, ScreenshotMismatchError):
             screenshot = Screenshot(item=item)
             pytest_html = item.config.pluginmanager.getplugin('html')
             diff = pytest_html.extras.image(screenshot.get_diff_as_base64(), '')
