@@ -131,7 +131,7 @@ class ExamplesTestReport(object):
         # Example is the path of the example that was run
         # It can be got from the report.location attribute which is a tuple
         # that looks # something like this:
-        # ('tests/examples/test_examples.py', 49, 'test_file_examples[/Users/caged/Dev/bokeh/bokeh/examples/models/anscombe.py-exampleN]')
+        # ('tests/examples/test_examples.py', 49, 'test_file_examples[/Users/caged/Dev/bokeh/bokeh/examples/models/file/anscombe.py-exampleN]')
         match = re.search(r'\[(.*?)\]', report.location[2])
         if match is not None:
             example_path = match.group(1).rsplit('-', 1)[0]

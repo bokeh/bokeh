@@ -18,7 +18,8 @@ DIRECTORIES = {
     'server'           : '../../examples/plotting/server',
     'webgl'            : '../../examples/webgl',
     'compat'           : '../../examples/compat',
-    'models'           : '../../examples/models',
+    'models-file'      : '../../examples/models/file',
+    'models-server'    : '../../examples/models/server',
     'charts-file'      : '../../examples/charts/file',
     'charts-notebook'  : '../../examples/charts/notebook'
 }
@@ -52,7 +53,8 @@ def get_parser():
                         - plotting-notebook
                         - server
                         - compat
-                        - models
+                        - models-file
+                        - models-server
                         - charts-file
                         - charts-notebook
                     """), formatter_class=argparse.RawTextHelpFormatter)
