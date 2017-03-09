@@ -120,9 +120,9 @@ class Legend(Annotation):
 
     background_fill_alpha = Override(default=0.95)
 
-    inactive_fill_color = Override(default="lightgrey")
+    inactive_fill_color = Override(default="white")
 
-    inactive_fill_alpha = Override(default=0.4)
+    inactive_fill_alpha = Override(default=0.9)
 
     label_props = Include(TextProps, help="""
     The %s for the legend labels.
