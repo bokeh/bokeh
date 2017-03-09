@@ -30,7 +30,6 @@ class Event(object):
 
     '''
     _event_classes = []
-    event_name = None
 
     def __init__(self, model_id=None):
         self.model_id = model_id
