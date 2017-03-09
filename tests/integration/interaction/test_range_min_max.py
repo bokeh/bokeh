@@ -33,7 +33,7 @@ def make_pan_plot_with_callback(xr=None, yr=None):
             return x_range.end;
         }
     """)
-    x_range.callback = x_callback
+    x_range.js_on_change("end", x_callback)
 
     if yr is None:
         y_range = Range1d(0, 3, bounds=None)
@@ -47,7 +47,7 @@ def make_pan_plot_with_callback(xr=None, yr=None):
             return y_range.end;
         }
     """)
-    y_range.callback = y_callback
+    y_range.js_on_change("end", y_callback)
 
     source = ColumnDataSource(dict(x=[1, 2], y=[1, 1]))
     plot = Plot(plot_height=400, plot_width=400, x_range=x_range, y_range=y_range, min_border=0)
