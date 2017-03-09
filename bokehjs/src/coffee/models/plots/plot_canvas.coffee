@@ -85,7 +85,7 @@ export class PlotCanvasView extends BokehView
     @canvas = @model.canvas
     @canvas_view = new @canvas.default_view({'model': @canvas})
     @el.appendChild(@canvas_view.el)
-    @canvas_view.render(true)
+    @canvas_view.render()
 
     # If requested, try enabling webgl
     if @model.plot.webgl
@@ -505,8 +505,8 @@ export class PlotCanvasView extends BokehView
     else
       logger.warn('could not set initial ranges')
 
-  render: (force_canvas=false) ->
-    logger.trace("PlotCanvas.render(force_canvas=#{force_canvas}) for #{@model.id}")
+  render: () ->
+    logger.trace("PlotCanvas.render() for #{@model.id}")
 
     if not @model.document?
       return
