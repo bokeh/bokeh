@@ -6,7 +6,7 @@ export class Event {
     constructor(options = {}) {
         this._options = options;
         if (options.model_id) {
-            this.model_id = null
+            this.model_id = options.model_id
         }
     }
 
