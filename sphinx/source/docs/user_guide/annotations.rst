@@ -83,7 +83,7 @@ If you do not want this automatic behavior, you can use the ``field()`` or
 your  intentions. See :bokeh-tree:`examples/app/gapminder/main.py` for an
 example. Alternatively, you can not specify any legend argument, and manually
 build a :class:`~bokeh.models.annotations.Legend` by hand. You can see an
-example of this in :bokeh-tree:`examples/models/legends.py`:
+example of this in :bokeh-tree:`examples/models/file/legends.py`:
 
 It's also possible to configure legends to be interactive, so that clicking
 or tapping on legend entries affects the corresponding glyph visibility. See
