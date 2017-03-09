@@ -87,6 +87,13 @@ class PointEvent(Event):
 
 # --- Point Events ------------------------------------------------------------
 
+class Tap(PointEvent):
+    ''' Announce a tap or click event on a Bokeh plot.
+
+    '''
+    event_name = 'tap'
+
+
 class DoubleTap(PointEvent):
     ''' Announce a double-tap or double-click event on a Bokeh plot.
 
