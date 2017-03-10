@@ -28,10 +28,14 @@ class StaticHandler(StaticFileHandler):
     # static files from multiple paths at once in the future.
     @classmethod
     def append_version(cls, path):
-        # this version is cached on the StaticFileHandler class,
+        # This version is cached on the StaticFileHandler class,
         # keyed by absolute filesystem path, and only invalidated
         # on an explicit StaticFileHandler.reset(). The reset is
-        # automatic on every request if you set
-        # static_hash_cache=False in TornadoApplication kwargs.
-        version = StaticFileHandler.get_version(dict(static_path=settings.bokehjsdir()), path)
-        return ("%s?v=%s" % (path, version))
+        # automatic on every request if you set static_hash_cache=False
+        # in TornadoApplication kwargs. In dev mode rely on dev tools
+        # to manage caching. This improves the ability to debug code.
+        if settings.dev:
+            return path
+        else:
+            version = StaticFileHandler.get_version(dict(static_path=settings.bokehjsdir()), path)
+            return ("%s?v=%s" % (path, version))
