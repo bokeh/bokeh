@@ -198,22 +198,6 @@ describe "LayoutDOMView", ->
       LayoutDOMView.prototype.build_child_views.restore()
       expect(spy.callCount).is.equal 1
 
-    it "should call bind_bokeh_events", ->
-      layout_view = new LayoutDOMView({ model: @layout })
-      spy = sinon.spy(LayoutDOMView.prototype, 'bind_bokeh_events')
-      expect(spy.called).to.be.false
-      layout_view.build_child_views()
-      LayoutDOMView.prototype.bind_bokeh_events.restore()
-      expect(spy.callCount).is.equal 1
-
-    it "should call unbind_bokeh_events", ->
-      layout_view = new LayoutDOMView({ model: @layout })
-      spy = sinon.spy(LayoutDOMView.prototype, 'unbind_bokeh_events')
-      expect(spy.called).to.be.false
-      layout_view.build_child_views()
-      LayoutDOMView.prototype.unbind_bokeh_events.restore()
-      expect(spy.callCount).is.equal 1
-
     it.skip "should only init the solver if requested and should invalidate all the models", ->
       # Write this test
       null

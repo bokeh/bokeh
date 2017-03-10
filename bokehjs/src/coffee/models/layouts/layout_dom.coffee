@@ -18,15 +18,14 @@ export class LayoutDOMView extends BokehView
     if @model.css_classes?
       for cls in @model.css_classes
         @el.classList.add(cls)
-    @child_views = {}
 
-    # init_solver = false becuase we only need to init solver on subsequent
-    # children change. build_child_views calls bind_bokeh_events
+    # init_solver = false becuase we only need to init solver on subsequent children change.
+    @child_views = {}
     @build_child_views(false)
 
-  build_child_views: (init_solver=true) ->
-    @unbind_bokeh_events()
+    @bind_bokeh_events()
 
+  build_child_views: (init_solver=true) ->
     if init_solver
       # TODO (bird) Can't we put the call to invalidate_all_models in _init_solver
       # surely its document's problem to know how to init a solver. Also _init_solver
@@ -46,16 +45,8 @@ export class LayoutDOMView extends BokehView
       child_view = @child_views[child.id]
       @el.appendChild(child_view.el)
 
-    @bind_bokeh_events()
-
-  unbind_bokeh_events: () ->
-    @stopListening()
-    for id, view of @child_views
-      view.stopListening()
-      view.unbind_bokeh_events?()
-
   bind_bokeh_events: () ->
-    @listenTo(@model, 'change', @render)
+    @listenTo(@model, 'change', () => @render())
 
     if @model.sizing_mode == 'fixed'
       @listenToOnce(@model.document.solver(), 'resize', () => @render())
@@ -69,7 +60,6 @@ export class LayoutDOMView extends BokehView
     # title.
     sizing_mode_msg = "Changing sizing_mode after initialization is not currently supported."
     @listenTo(@model, 'change:sizing_mode', () -> logger.warn(sizing_mode_msg))
-
 
   render: () ->
     #logger.debug("#{@model} _dom_left: #{@model._dom_left._value}, _dom_top: #{@model._dom_top._value}")
