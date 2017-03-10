@@ -12,5 +12,5 @@ export class BokehView extends Backbone.View
   bind_bokeh_events: () ->
 
   remove: ->
-    @trigger('remove', @)
     super()
+    @trigger('remove', @)
