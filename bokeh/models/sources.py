@@ -69,8 +69,8 @@ class ColumnDataSource(ColumnarDataSource):
     ''' Maps names of columns to sequences or arrays.
 
     If the ColumnDataSource initializer is called with a single argument that
-    is a dict, pandas.DataFrame, or pandas.Series, that argument is used as
-    the value for the "data" attribute. For example::
+    is a dict or pandas.DataFrame, that argument is used as the value for the
+    "data" attribute. For example::
 
         ColumnDataSource(mydict) # same as ColumnDataSource(data=mydict)
         ColumnDataSource(df) # same as ColumnDataSource(data=df)
@@ -100,10 +100,10 @@ class ColumnDataSource(ColumnarDataSource):
         raw_data = kw.pop("data", {})
 
         if not isinstance(raw_data, dict):
-            if pd and (isinstance(raw_data, pd.DataFrame) or isinstance(raw_data, pd.Series)):
+            if pd and isinstance(raw_data, pd.DataFrame):
                 raw_data = self._data_from_df(raw_data)
             else:
-                raise ValueError("expected a dict, pandas.DataFrame, or pd.Series got %s" % raw_data)
+                raise ValueError("expected a dict or pandas.DataFrame, got %s" % raw_data)
         super(ColumnDataSource, self).__init__(**kw)
         self.column_names[:] = list(raw_data.keys())
         self.data.update(raw_data)
@@ -120,7 +120,18 @@ class ColumnDataSource(ColumnarDataSource):
             dict[str, np.array]
 
         '''
-        return df.reset_index().to_dict('series')
+        _df = df.copy()
+        index = _df.index
+        new_data = _df.to_dict('series')
+
+        if index.name:
+            new_data[index.name] = index.values
+        elif index.names and not all([x is None for x in index.names]):
+            print("_".join(index.names))
+            new_data["_".join(index.names)] = index.values
+        else:
+            new_data["index"] = index.values
+        return new_data
 
     @classmethod
     def from_df(cls, data):
