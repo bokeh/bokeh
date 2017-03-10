@@ -4,7 +4,6 @@ from bokeh.io import save
 from bokeh.models import (
     BoxZoomTool,
     ColumnDataSource,
-    CustomJS,
     DataRange1d,
     PanTool,
     Plot,
@@ -13,44 +12,26 @@ from bokeh.models import (
     LinearAxis
 )
 from selenium.webdriver.common.action_chains import ActionChains
-from tests.integration.utils import has_no_console_errors
+from tests.integration.utils import has_no_console_errors, wait_for_canvas_resize
 
 import pytest
 pytestmark = pytest.mark.integration
 
-from .test_sizing_mode import wait_for_canvas_resize
 
-def make_pan_plot_with_callback(xr=None, yr=None):
+def make_plot(xr=None, yr=None):
     if xr is None:
         x_range = Range1d(0, 3, bounds=None)
     else:
         x_range = xr
-    x_callback = CustomJS(args=dict(x_range=x_range), code="""
-        window.get_x_range_start = function() {
-            return x_range.start;
-        }
-        window.get_x_range_end = function() {
-            return x_range.end;
-        }
-    """)
-    x_range.js_on_change("end", x_callback)
 
     if yr is None:
         y_range = Range1d(0, 3, bounds=None)
     else:
         y_range = yr
-    y_callback = CustomJS(args=dict(y_range=y_range), code="""
-        window.get_y_range_start = function() {
-            return y_range.start;
-        }
-        window.get_y_range_end = function() {
-            return y_range.end;
-        }
-    """)
-    y_range.js_on_change("end", y_callback)
 
     source = ColumnDataSource(dict(x=[1, 2], y=[1, 1]))
-    plot = Plot(plot_height=400, plot_width=400, x_range=x_range, y_range=y_range, min_border=0)
+    # explicitly set plot.id so that the plot can be accessed from Bokeh.index in browser
+    plot = Plot(id='plot-id', plot_height=400, plot_width=400, x_range=x_range, y_range=y_range, min_border=0)
     plot.add_glyph(source, Rect(x='x', y='y', width=0.9, height=0.9))
     plot.add_tools(PanTool(), BoxZoomTool())
     plot.add_layout(LinearAxis(), 'below')
@@ -75,75 +56,59 @@ def pan_plot(selenium, pan_x=None, pan_y=None):
     actions.perform()
 
 
-def test_range_with_callback_triggers_alert(output_file_url, selenium):
-    # Simple test to ensure range callbacks are working
-    # Rest of tests in this file depend on range callback.
-
-    plot = make_pan_plot_with_callback()
-    initial_start = plot.x_range.start
-    save(plot)
-    selenium.get(output_file_url)
-    assert has_no_console_errors(selenium)
-
-    # Pan plot and test for new range value
-    pan_plot(selenium, pan_x=100, pan_y=100)
-    new_range_start = float(selenium.execute_script("""alert(window.get_x_range_start())"""))
-    selenium.switch_to_alert().dismiss()
-    assert new_range_start < initial_start
-
-
 def test_x_range_does_not_pan_left_of_x_min(output_file_url, selenium):
     x_range_min = -1
-    plot = make_pan_plot_with_callback(xr=Range1d(0, 3, bounds=(x_range_min, None)))
+    plot = make_plot(xr=Range1d(0, 3, bounds=(x_range_min, None)))
     save(plot)
     selenium.get(output_file_url)
     assert has_no_console_errors(selenium)
 
     # Pan plot and test for new range value
-    pan_plot(selenium, pan_x=200, pan_y=0)
-    new_range_start = float(selenium.execute_script("""alert(window.get_x_range_start())"""))
+    pan_plot(selenium, pan_x=150, pan_y=0)
+    new_range_start = float(selenium.execute_script("""alert(Bokeh.index['plot-id'].model.x_range.start)"""))
     selenium.switch_to_alert().dismiss()
     assert round(new_range_start) == x_range_min
 
 
 def test_x_range_does_not_pan_right_of_x_max(output_file_url, selenium):
     x_range_max = 4
-    plot = make_pan_plot_with_callback(xr=Range1d(0, 3, bounds=(None, x_range_max)))
+    plot = make_plot(xr=Range1d(0, 3, bounds=(None, x_range_max)))
     save(plot)
     selenium.get(output_file_url)
     assert has_no_console_errors(selenium)
 
     # Pan plot and test for new range value
-    pan_plot(selenium, pan_x=-200, pan_y=0)
-    new_range_end = float(selenium.execute_script("""alert(window.get_x_range_end())"""))
+    pan_plot(selenium, pan_x=-150, pan_y=0)
+    new_range_end = float(selenium.execute_script("""alert(Bokeh.index['plot-id'].model.x_range.end)"""))
     selenium.switch_to_alert().dismiss()  # This is not necessary but assists debugging
     assert round(new_range_end) == x_range_max
 
 
 def test_y_range_does_not_pan_below_y_min(output_file_url, selenium):
     y_range_min = -1
-    plot = make_pan_plot_with_callback(yr=Range1d(0, 3, bounds=(y_range_min, None)))
+    plot = make_plot(yr=Range1d(0, 3, bounds=(y_range_min, None)))
     save(plot)
     selenium.get(output_file_url)
     assert has_no_console_errors(selenium)
 
     # Pan plot and test for new range value
     pan_plot(selenium, pan_x=50, pan_y=-150)
-    new_range_start = float(selenium.execute_script("""alert(window.get_y_range_start())"""))
+    new_range_start = float(selenium.execute_script("""alert(Bokeh.index['plot-id'].model.y_range.start)"""))
     selenium.switch_to_alert().dismiss()  # This is not necessary but assists debugging
     assert round(new_range_start) == y_range_min
 
 
+
 def test_y_range_does_not_pan_above_y_max(output_file_url, selenium):
     y_range_max = 4
-    plot = make_pan_plot_with_callback(yr=Range1d(0, 3, bounds=(None, y_range_max)))
+    plot = make_plot(yr=Range1d(0, 3, bounds=(None, y_range_max)))
     save(plot)
     selenium.get(output_file_url)
     assert has_no_console_errors(selenium)
 
     # Pan plot and test for new range value
     pan_plot(selenium, pan_x=50, pan_y=150)
-    new_range_end = float(selenium.execute_script("""alert(window.get_y_range_end())"""))
+    new_range_end = float(selenium.execute_script("""alert(Bokeh.index['plot-id'].model.y_range.end)"""))
     selenium.switch_to_alert().dismiss()  # This is not necessary but assists debugging
     assert round(new_range_end) == y_range_max
 
@@ -154,35 +119,35 @@ def test_y_range_does_not_pan_above_y_max(output_file_url, selenium):
 
 def test_reversed_x_range_does_not_pan_right_of_x_min(output_file_url, selenium):
     x_range_min = -1
-    plot = make_pan_plot_with_callback(xr=Range1d(3, 0, bounds=(x_range_min, None)))
+    plot = make_plot(xr=Range1d(3, 0, bounds=(x_range_min, None)))
     save(plot)
     selenium.get(output_file_url)
     assert has_no_console_errors(selenium)
 
     # Pan plot and test for new range value
-    pan_plot(selenium, pan_x=-200, pan_y=0)
-    new_range_start = float(selenium.execute_script("""alert(window.get_x_range_end())"""))
+    pan_plot(selenium, pan_x=-150, pan_y=0)
+    new_range_start = float(selenium.execute_script("""alert(Bokeh.index['plot-id'].model.x_range.min)"""))
     selenium.switch_to_alert().dismiss()
     assert round(new_range_start) == x_range_min
 
 
 def test_reversed_x_range_does_not_pan_left_of_x_max(output_file_url, selenium):
     x_range_max = 4
-    plot = make_pan_plot_with_callback(xr=Range1d(3, 0, bounds=(None, x_range_max)))
+    plot = make_plot(xr=Range1d(3, 0, bounds=(None, x_range_max)))
     save(plot)
     selenium.get(output_file_url)
     assert has_no_console_errors(selenium)
 
     # Pan plot and test for new range value
-    pan_plot(selenium, pan_x=200, pan_y=0)
-    new_range_end = float(selenium.execute_script("""alert(window.get_x_range_start())"""))
+    pan_plot(selenium, pan_x=150, pan_y=0)
+    new_range_end = float(selenium.execute_script("""alert(Bokeh.index['plot-id'].model.x_range.max)"""))
     selenium.switch_to_alert().dismiss()  # This is not necessary but assists debugging
     assert round(new_range_end) == x_range_max
 
 
 def test_reversed_y_range_does_not_pan_above_y_min(output_file_url, selenium):
     y_range_min = -1
-    plot = make_pan_plot_with_callback(yr=Range1d(3, 0, bounds=(y_range_min, None)))
+    plot = make_plot(yr=Range1d(3, 0, bounds=(y_range_min, None)))
     save(plot)
     selenium.get(output_file_url)
     assert has_no_console_errors(selenium)
@@ -190,21 +155,21 @@ def test_reversed_y_range_does_not_pan_above_y_min(output_file_url, selenium):
     # Pan plot and test for new range value
     pan_plot(selenium, pan_x=50, pan_y=150)
 
-    new_range_start = float(selenium.execute_script("""alert(window.get_y_range_end())"""))
+    new_range_start = float(selenium.execute_script("""alert(Bokeh.index['plot-id'].model.y_range.min)"""))
     selenium.switch_to_alert().dismiss()
     assert round(new_range_start) == y_range_min
 
 
 def test_reversed_y_range_does_not_pan_below_y_max(output_file_url, selenium):
     y_range_max = 4
-    plot = make_pan_plot_with_callback(yr=Range1d(3, 0, bounds=(None, y_range_max)))
+    plot = make_plot(yr=Range1d(3, 0, bounds=(None, y_range_max)))
     save(plot)
     selenium.get(output_file_url)
     assert has_no_console_errors(selenium)
 
     # Pan plot and test for new range value
     pan_plot(selenium, pan_x=50, pan_y=-150)
-    new_range_end = float(selenium.execute_script("""alert(window.get_y_range_start())"""))
+    new_range_end = float(selenium.execute_script("""alert(Bokeh.index['plot-id'].model.y_range.max)"""))
     selenium.switch_to_alert().dismiss()
     assert round(new_range_end) == y_range_max
 
@@ -239,26 +204,26 @@ def _assert_autorange_prevents_panning_but_can_zoom(output_file_url, selenium):
 
     # Now the plot is zoomed in, try a little to the right
     pan_plot(selenium, pan_x=-50, pan_y=0)
-    x_range_start = float(selenium.execute_script("""alert(window.get_x_range_start())"""))
+    x_range_start = float(selenium.execute_script("""alert(Bokeh.index['plot-id'].model.x_range.start)"""))
     selenium.switch_to_alert().dismiss()
     assert x_range_start > 0.5
 
     # Now try panning far to left to check bounds
-    pan_plot(selenium, pan_x=200, pan_y=0)
-    x_range_start = float(selenium.execute_script("""alert(window.get_x_range_start())"""))
+    pan_plot(selenium, pan_x=100, pan_y=0)
+    x_range_start = float(selenium.execute_script("""alert(Bokeh.index['plot-id'].model.x_range.start)"""))
     selenium.switch_to_alert().dismiss()
     assert x_range_start > 0.4
     assert x_range_start < 0.5
 
 
 def test_autorange_prevents_panning_but_can_zoom_in_with_datarange1d(output_file_url, selenium):
-    plot = make_pan_plot_with_callback(xr=DataRange1d(bounds='auto'), yr=DataRange1d(bounds='auto'))
+    plot = make_plot(xr=DataRange1d(bounds='auto'), yr=DataRange1d(bounds='auto'))
     save(plot)
     _assert_autorange_prevents_panning_but_can_zoom(output_file_url, selenium)
 
 
 def test_autorange_prevents_panning_but_can_zoom_in_with_range1d(output_file_url, selenium):
-    plot = make_pan_plot_with_callback(xr=Range1d(0.45, 3, bounds='auto'), yr=DataRange1d(0, 3, bounds='auto'))
+    plot = make_plot(xr=Range1d(0.45, 3, bounds='auto'), yr=DataRange1d(0, 3, bounds='auto'))
     save(plot)
     _assert_autorange_prevents_panning_but_can_zoom(output_file_url, selenium)
 
@@ -282,12 +247,12 @@ def test_autorange_prevents_panning_but_can_zoom_in_with_range1d(output_file_url
 #
 #
 #def test_no_bounds_allows_unlimited_panning_with_datarange1d(output_file_url, selenium):
-#    plot = make_pan_plot_with_callback(xr=DataRange1d(bounds=None), yr=DataRange1d(bounds=None))
+#    plot = make_plot_with_callback(xr=DataRange1d(bounds=None), yr=DataRange1d(bounds=None))
 #    save(plot)
 #    _assert_no_bounds_allows_unlimited_panning(output_file_url, selenium)
 #
 #
 #def test_no_bounds_allows_unlimited_panning_with_range1d(output_file_url, selenium):
-#    plot = make_pan_plot_with_callback(xr=Range1d(0.45, 3, bounds=None), yr=DataRange1d(0, 3, bounds=None))
+#    plot = make_plot_with_callback(xr=Range1d(0.45, 3, bounds=None), yr=DataRange1d(0, 3, bounds=None))
 #    save(plot)
 #    _assert_no_bounds_allows_unlimited_panning(output_file_url, selenium)
