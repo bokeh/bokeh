@@ -272,7 +272,7 @@ class BokehTornado(TornadoApplication):
         return self._generate_session_ids
 
     def resources(self):
-        return Resources(mode="server", root_url="", path_versioner=StaticHandler.append_version)
+        return Resources(mode="server", root_url=self._prefix, path_versioner=StaticHandler.append_version)
 
     def start(self):
         ''' Start the Bokeh Server application.

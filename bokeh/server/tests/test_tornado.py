@@ -6,6 +6,7 @@ import bokeh.server.tornado as tornado
 
 from bokeh.application import Application
 from bokeh.client import pull_session
+from bokeh.server.views.static_handler import StaticHandler
 
 from .utils import ManagedServerLoop, url
 
@@ -45,6 +46,44 @@ def test_check_whitelist_accepts_all_on_star():
     assert True == tornado.check_whitelist("foobarbaz:5006", ['*'])
     assert True == tornado.check_whitelist("foobarbaz:5006", ['*:*'])
     assert True == tornado.check_whitelist("foobarbaz:5006", ['*:5006'])
+
+def test_default_resources():
+    application = Application()
+    with ManagedServerLoop(application) as server:
+        r = server._tornado.resources()
+        assert r.mode == "server"
+        assert r.root_url == ""
+        assert r.path_versioner == StaticHandler.append_version
+
+    with ManagedServerLoop(application, prefix="/foo/") as server:
+        r = server._tornado.resources()
+        assert r.mode == "server"
+        assert r.root_url == "/foo/"
+        assert r.path_versioner == StaticHandler.append_version
+
+    with ManagedServerLoop(application, prefix="foo/") as server:
+        r = server._tornado.resources()
+        assert r.mode == "server"
+        assert r.root_url == "/foo/"
+        assert r.path_versioner == StaticHandler.append_version
+
+    with ManagedServerLoop(application, prefix="foo") as server:
+        r = server._tornado.resources()
+        assert r.mode == "server"
+        assert r.root_url == "/foo/"
+        assert r.path_versioner == StaticHandler.append_version
+
+    with ManagedServerLoop(application, prefix="/foo") as server:
+        r = server._tornado.resources()
+        assert r.mode == "server"
+        assert r.root_url == "/foo/"
+        assert r.path_versioner == StaticHandler.append_version
+
+    with ManagedServerLoop(application, prefix="/foo/bar") as server:
+        r = server._tornado.resources()
+        assert r.mode == "server"
+        assert r.root_url == "/foo/bar/"
+        assert r.path_versioner == StaticHandler.append_version
 
 # tried to use capsys to test what's actually logged and it wasn't
 # working, in the meantime at least this tests that log_stats
