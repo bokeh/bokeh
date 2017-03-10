@@ -49,4 +49,4 @@ def test_label_set(output_file_url, selenium, screenshot):
     selenium.get(output_file_url)
 
     # Take screenshot
-    assert screenshot.is_valid()
+    screenshot.assert_is_valid()

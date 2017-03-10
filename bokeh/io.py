@@ -442,10 +442,10 @@ def _get_save_args(state, filename, resources, title):
 def _save_helper(obj, filename, resources, title, validate):
     remove_after = False
     if isinstance(obj, LayoutDOM):
-        doc = obj.document
-        if doc is None:
-            doc = Document().add_root(obj)
+        if obj.document is None:
+            Document().add_root(obj)
             remove_after = True
+        doc = obj.document
     elif isinstance(obj, Document):
         doc = obj
     else:
@@ -454,9 +454,9 @@ def _save_helper(obj, filename, resources, title, validate):
     if validate:
         doc.validate()
 
-    html = standalone_html_page_for_models(obj, resources, title)
+    html = standalone_html_page_for_models(doc, resources, title)
 
-    with io.open(filename, "w", encoding="utf-8") as f:
+    with io.open(filename, mode="w", encoding="utf-8") as f:
         f.write(decode_utf8(html))
 
     if remove_after:
