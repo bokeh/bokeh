@@ -103,10 +103,10 @@ export class Pan extends PointEvent {
 
     return new this(
       {
-                sx: e.bokeh['sx'],
+        sx: e.bokeh['sx'],
         sy: e.bokeh['sy'],
-        deltaX: e.deltaX,
-        deltaY: e.deltaY,
+        delta_x: e.deltaX,
+        delta_y: e.deltaY,
         direction: e.direction,
         model_id: model_id
       });

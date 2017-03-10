@@ -137,9 +137,9 @@ class Pan(PointEvent):
     '''
     event_name = 'pan'
 
-    def __init__(self, deltaX=None, deltaY=None, direction=None, **kwargs):
-        self.deltaX = deltaX
-        self.deltaY = deltaY
+    def __init__(self, delta_x=None, delta_y=None, direction=None, **kwargs):
+        self.delta_x = delta_x
+        self.delta_y = delta_y
         self.direction = direction
         super(Pan, self).__init__(**kwargs)
 
