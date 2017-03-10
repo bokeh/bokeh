@@ -105,11 +105,6 @@ class Test_GetSaveArgs(DefaultStateTester):
         filename, resources, title = io._get_save_args(io._state, None, "resources", "title")
         self.assertEqual(filename, "filename")
 
-    def test_missing_filename(self):
-        io._state.file = None
-        with self.assertRaises(RuntimeError):
-            io.save("obj", None, "resources", "title")
-
     def test_explicit_resources(self):
         filename, resources, title = io._get_save_args(io._state, "filename", "resources", "title")
         self.assertEqual(resources, "resources")
@@ -155,26 +150,14 @@ class Test_SaveHelper(DefaultStateTester):
 
     @patch('io.open')
     @patch('bokeh.io.standalone_html_page_for_models')
-    def test_obj_arg_is_document(self, mock_standalone_html_page, mock_io_open):
-        obj = Document()
-        filename, resources, title = io._get_save_args(io._state, "filename", "resources", "title")
-        io._save_helper(obj, filename, resources, title, True)
-
-        self._check_func_called(mock_standalone_html_page,
-                                (obj, resources, title),
-                                {})
-        self._check_func_called(mock_io_open,
-                                (filename,),
-                                {"mode":"w", "encoding":"utf-8"})
-
-    @patch('io.open')
-    @patch('bokeh.io.standalone_html_page_for_models')
-    def test_obj_arg_is_layoutdom(self, mock_standalone_html_page, mock_io_open):
+    def test_obj_with_document(self, mock_standalone_html_page, mock_io_open):
         obj = Plot()
-        doc = Document()
+        doc = Document(title="foo")
+        io._state.document = doc
         doc.add_root(obj)
         filename, resources, title = io._get_save_args(io._state, "filename", "resources", "title")
-        io._save_helper(obj, filename, resources, title, True)
+
+        io._save_helper(obj, io._state, filename, resources, title, True)
 
         self._check_func_called(mock_standalone_html_page,
                                 (doc, resources, title),
@@ -182,6 +165,24 @@ class Test_SaveHelper(DefaultStateTester):
         self._check_func_called(mock_io_open,
                                 (filename,),
                                 {"mode":"w", "encoding":"utf-8"})
+        # assert document attr isn't modified
+        assert obj.document == doc
+
+    @patch('io.open')
+    @patch('bokeh.io.standalone_html_page_for_models')
+    def test_obj_without_document(self, mock_standalone_html_page, mock_io_open):
+        obj = Plot()
+        filename, resources, title = io._get_save_args(io._state, "filename", "resources", "title")
+        io._save_helper(obj, io._state, filename, resources, title, True)
+
+        self._check_func_called(mock_standalone_html_page,
+                                (io._state.document, resources, title),
+                                {})
+        self._check_func_called(mock_io_open,
+                                (filename,),
+                                {"mode":"w", "encoding":"utf-8"})
+        # assert document is cleaned up
+        assert obj.document is None
 
 class TestPush(DefaultStateTester):
 
