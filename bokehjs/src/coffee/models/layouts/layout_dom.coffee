@@ -25,6 +25,13 @@ export class LayoutDOMView extends BokehView
 
     @bind_bokeh_events()
 
+  remove: () ->
+    for _, view of @child_views
+      view.remove()
+    @child_views = {}
+
+    super()
+
   build_child_views: (init_solver=true) ->
     if init_solver
       # TODO (bird) Can't we put the call to invalidate_all_models in _init_solver

@@ -16,6 +16,13 @@ export class AbstractButtonView extends WidgetView
     @listenTo(@model, 'change', @render)
     @render()
 
+  remove: () ->
+    for _, view of @icon_views
+      view.remove()
+    @icon_views = {}
+
+    super()
+
   render: () ->
     super()
 

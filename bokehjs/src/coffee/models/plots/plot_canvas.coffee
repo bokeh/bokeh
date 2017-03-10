@@ -54,10 +54,15 @@ export class PlotCanvasView extends BokehView
     return
 
   remove: () =>
+    for _, view of @renderer_views
+      view.remove()
+    @renderer_views = {}
+
+    for _, view of @tool_views
+      view.remove()
+    @tool_views = {}
+
     super()
-    # When this view is removed, also remove all of the tools.
-    for id, tool_view of @tool_views
-      tool_view.remove()
 
   initialize: (options) ->
     super(options)
