@@ -24,27 +24,30 @@ This can ccomplished with the :func:`~bokeh.model.Model.on_event` method:
 
 '''
 from __future__ import absolute_import
+from .util.future import with_metaclass
 
-class Event(object):
+EVENT_CLASSES = set()
+
+class MetaEvent(type):
+    def __new__(cls, clsname, bases, attrs):
+        newclass = super(MetaEvent, cls).__new__(cls, clsname, bases, attrs)
+        EVENT_CLASSES.add(newclass)
+        return newclass
+
+
+class Event(with_metaclass(MetaEvent, object)):
     ''' Base class for all Bokeh events.
 
     '''
     _event_classes = []
+    event_name = None
 
     def __init__(self, model_id=None):
         self.model_id = model_id
 
     @classmethod
-    def register_event_class(cls, event_cls):
-        ''' Register a custom event class.
-
-        '''
-        cls._event_classes.append(event_cls)
-
-    @classmethod
     def from_JSON(cls, json):
-        eventclasses = [eventcls for eventcls in cls._event_classes]
-        for eventscls in eventclasses:
+        for eventscls in EVENT_CLASSES:
             if eventscls.event_name == json['event_name']:
                 return eventscls(**json['event_values'])
         print('Warning: Could not find appropriate Event class')
@@ -179,6 +182,3 @@ class Press(PointEvent):
 
     '''
     event_name = 'press'
-
-Event._event_classes = [v for v in locals().values()
-                        if (type(v)==type and issubclass(v,Event))]
