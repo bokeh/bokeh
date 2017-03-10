@@ -306,9 +306,11 @@ class Document(object):
         return self._add_session_callback(cb, callback, one_shot=True)
 
     def apply_json_event(self, json):
-        logger.debug('Python received the following event json: %s' % json)
         for obj in self.event_manager.subscribed_models:
-            obj._trigger_event(Event.from_JSON(json))
+            event = loads(json, object_hook=Event.decode_json)
+            if not isinstance(event, Event):
+                logger.warn('Could not decode event json: %s' % json)
+            obj._trigger_event(event)
 
     def apply_json_patch(self, patch, setter=None):
         ''' Apply a JSON patch object and process any resulting events.

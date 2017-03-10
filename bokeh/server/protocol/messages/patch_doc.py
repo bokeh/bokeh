@@ -54,4 +54,4 @@ class event_1(Message):
     revision = 1
 
     def notify_event(self, document):
-        document.apply_json_event(loads(self.content))
+        document.apply_json_event(self.content)

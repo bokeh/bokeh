@@ -25,8 +25,12 @@ This can ccomplished with the :func:`~bokeh.model.Model.on_event` method:
 '''
 from __future__ import absolute_import
 from .util.future import with_metaclass
+import logging
+logger = logging.getLogger(__file__)
 
 EVENT_CLASSES = set()
+
+
 
 class MetaEvent(type):
     def __new__(cls, clsname, bases, attrs):
@@ -46,11 +50,17 @@ class Event(with_metaclass(MetaEvent, object)):
         self.model_id = model_id
 
     @classmethod
-    def from_JSON(cls, json):
+    def decode_json(cls, dct):
+        ''' Custom json decoder for Events for use with the object_hook
+        argument of json.load or json.loads.
+        '''
+        if not (('event_name' in dct) and ('event_values' in dct)):
+            return dct
+
         for eventscls in EVENT_CLASSES:
-            if eventscls.event_name == json['event_name']:
-                return eventscls(**json['event_values'])
-        print('Warning: Could not find appropriate Event class')
+            if eventscls.event_name == dct['event_name']:
+                return eventscls(**dct['event_values'])
+        logger.warn("Could not find appropriate Event class for %r" % dct['event_name'])
 
 
 class ButtonClick(Event):
