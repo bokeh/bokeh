@@ -438,7 +438,7 @@ def _save_helper(obj, state, filename, resources, title, validate):
     remove_after = False
     doc = state.document
 
-    if obj not in doc.roots:
+    if obj.document is None:
         doc.add_root(obj)
         remove_after = True
 
