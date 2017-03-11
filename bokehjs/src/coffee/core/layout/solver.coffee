@@ -32,6 +32,7 @@ export class Solver
 
   clear: () ->
     @solver = new ConstraintSolver()
+    @trigger("layout_reset")
 
   toString: () -> "Solver[num_constraints=#{@num_constraints()}, num_edit_variables=#{@num_edit_variables()}]"
 
