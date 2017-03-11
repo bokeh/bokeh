@@ -40,6 +40,8 @@ export class CanvasView extends BokehView
     @set_dims([@model.initial_width, @model.initial_height])
     logger.debug("CanvasView initialized")
 
+    @listenTo(@model.document.solver(), "layout_reset", () => @_add_constraints())
+
   get_canvas_element: () ->
     return @el.querySelector('canvas.bk-canvas')
 
@@ -95,17 +97,23 @@ export class CanvasView extends BokehView
 
     if @_width_constraint?
       s.remove_constraint(@_width_constraint, true)
-    @_width_constraint = EQ(@model._width, -requested_width)
-    s.add_constraint(@_width_constraint)
-
     if @_height_constraint?
       s.remove_constraint(@_height_constraint, true)
-    @_height_constraint = EQ(@model._height, -requested_height)
-    s.add_constraint(@_height_constraint)
+
+    @_add_constraints()
 
     @last_requested_dims = [requested_width, requested_height]
 
     s.update_variables(trigger)
+
+  _add_constraints: () ->
+    s = @model.document.solver()
+
+    @_width_constraint = EQ(@model._width, -@requested_width)
+    s.add_constraint(@_width_constraint)
+
+    @_height_constraint = EQ(@model._height, -@requested_height)
+    s.add_constraint(@_height_constraint)
 
 export class Canvas extends LayoutCanvas
   type: 'Canvas'
