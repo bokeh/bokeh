@@ -9,6 +9,9 @@
         {{ bokeh_js }}
     </head>
     <body>
+        <div id="header">
+            <strong>Instructions:</strong> An example csv and widget configuration is shown on the left. The widgets of each section may be expanded or collapsed by clicking on the blue headers. For pre-configured axes, series, and explode widgets, select "None" to free up the column for use in the other widgets. Changes to widgets will automatically trigger plot updates, except for Filters, for which you must press the "Update Filters" button to apply your changes. Chart type (Dot, Line, Bar, Area) is in the Plot Adjustments section, along with many more options. Try pointing to your own csv file in the Data Source widget. More information is in README.md.
+        </div>
         {{ plot_div|indent(8) }}
         {{ plot_script|indent(8) }}
         <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js'></script>

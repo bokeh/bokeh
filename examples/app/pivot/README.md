@@ -47,10 +47,10 @@ that there are column headers for each column in the csv file and no row labels.
 * X-axis (required): Select a column to use as x-axis
 * Group X By: Select a column to group the x-axis (if both x-axis and grouping columns are discrete).
 * Y-axis (required): Select a column to use as y-axis
-* Y-axis aggregation: You may aggregate y-axis data (for each series) if it is numeric. "Sum" is currently the only option.
-* Series: Pick a column to split the data into separate, color-coded series
-* Series Stacking: You may stack/unstack series vertically with this switch. Make sure to use Y-axis Aggregation if,
-for any series, there are multiple y-values for a given x-value.
+* Y-axis aggregation: You may aggregate y-axis data (for each series) if it is numeric. "Sum" is currently the only option,
+and is on by default.
+* Series: Pick a column to split the data into separate, color-coded series. If Chart Type (see Plot Adjustments
+below) is Area or Bar, series will automatically be stacked. If Chart Type is Line or Dot, the series will not be stacked.
 * Series Legend: Click on this to see the color and name of each series
 * Explode By: Select a discrete column to split into multiple charts. The charts' titles will correspond to the
 exploded column values.
@@ -59,7 +59,7 @@ and/or resize your browser screen to make a nice 2d array of charts.
 * Filters: Each column can be used to filter data with checkboxes. After selecting Filters, you must press
 the Update Filters button to apply the filters
 * Update Filters: This is used for updating the charts once filters have been changed
-* Plot adjustments: Make additional modifications to the chart type, size, x-axis/y-axis limits and scale, etc.
+* Plot Adjustments: Make additional modifications to the chart type, size, x-axis/y-axis limits and scale, etc.
 * Download csv: This will download the data you are viewing (after applying filters, aggregation, etc.) into
 a csv file in the downloads/ folder
 * Export config to URL: Clicking this will take the widget configurations and dump them into the URL address bar. You can use this URL

@@ -18,12 +18,13 @@ import bokeh.plotting as bp
 import datetime
 import six.moves.urllib.parse as urlp
 
+#Defaults to configure:
 PLOT_WIDTH = 300
 PLOT_HEIGHT = 300
 PLOT_FONT_SIZE = 10
 PLOT_AXIS_LABEL_SIZE = 8
 PLOT_LABEL_ORIENTATION = 45
-OPACITY = 0.6
+OPACITY = 0.8
 X_SCALE = 1
 Y_SCALE = 1
 CIRCLE_SIZE = 9
@@ -32,10 +33,12 @@ LINE_WIDTH = 2
 COLORS = ['#5e4fa2', '#3288bd', '#66c2a5', '#abdda4', '#e6f598', '#fee08b', '#fdae61', '#f46d43', '#d53e4f', '#9e0142']*1000
 C_NORM = "#31AADE"
 CHARTTYPES = ['Dot', 'Line', 'Bar', 'Area']
+STACKEDTYPES = ['Bar', 'Area']
 AGGREGATIONS = ['None', 'Sum']
 
 def get_data(data_source):
-    ''' Read a csv into a pandas dataframe, and determine which columns of the dataframe
+    '''
+    Read a csv into a pandas dataframe, and determine which columns of the dataframe
     are discrete (strings), continuous (numbers), able to be filtered (aka filterable),
     and able to be used as a series (aka seriesable). NA values are filled based on the type of column,
     and the dataframe and columns are returned.
@@ -46,50 +49,48 @@ def get_data(data_source):
     Returns:
         df_source (pandas dataframe): A dataframe of the csv source, with filled NA values.
         cols (dict): Keys are categories of columns of df_source, and values are a list of columns of that category.
-
     '''
     df_source = pd.read_csv(data_source)
     cols = {}
-    cols['all'] = sorted(df_source.columns)
+    cols['all'] = df_source.columns.values.tolist()
     cols['discrete'] = [x for x in cols['all'] if df_source[x].dtype == object]
     cols['continuous'] = [x for x in cols['all'] if x not in cols['discrete']]
-    cols['filterable'] = cols['discrete']+[x for x in cols['continuous'] if len(df_source[x].unique()) < 500]
+    cols['filterable'] = cols['discrete']+[x for x in cols['continuous'] if len(df_source[x].unique()) < 100]
     cols['seriesable'] = cols['discrete']+[x for x in cols['continuous'] if len(df_source[x].unique()) < 60]
     df_source[cols['discrete']] = df_source[cols['discrete']].fillna('{BLANK}')
     df_source[cols['continuous']] = df_source[cols['continuous']].fillna(0)
     return (df_source, cols)
 
-def build_widgets(data_source, df_source, cols, init_load=False, init_config={}):
-    ''' Use a dataframe and its columns to set widget options. Widget values may
+def build_widgets(df_source, cols, defaults, init_load=False, init_config={}):
+    '''
+    Use a dataframe and its columns to set widget options. Widget values may
     be set by URL parameters via init_config.
 
     Args:
-        data_source (string): Path to csv file.
         df_source (pandas dataframe): Dataframe of the csv source.
         cols (dict): Keys are categories of columns of df_source, and values are a list of columns of that category.
+        defaults (dict): Keys correspond to widgets, and values (str) are the default values of those widgets.
         init_load (boolean, optional): If this is the initial page load, then this will be True, else False.
         init_config (dict): Initial widget configuration passed via URL.
 
     Returns:
         wdg (ordered dict): Dictionary of bokeh.model.widgets.
-
     '''
+    #Add widgets
     wdg = collections.OrderedDict()
-    wdg['data'] = bmw.TextInput(title='Data Source (required)', value=data_source, css_classes=['wdgkey-data'])
+    wdg['data'] = bmw.TextInput(title='Data Source (required)', value=defaults['data_source'], css_classes=['wdgkey-data'])
     wdg['x_dropdown'] = bmw.Div(text='X-Axis (required)', css_classes=['x-dropdown'])
-    wdg['x'] = bmw.Select(title='X-Axis (required)', value='None', options=['None'] + cols['all'], css_classes=['wdgkey-x', 'x-drop'])
-    wdg['x_group'] = bmw.Select(title='Group X-Axis By', value='None', options=['None'] + cols['seriesable'], css_classes=['wdgkey-x_group', 'x-drop'])
+    wdg['x'] = bmw.Select(title='X-Axis (required)', value=defaults['x'], options=['None'] + cols['all'], css_classes=['wdgkey-x', 'x-drop'])
+    wdg['x_group'] = bmw.Select(title='Group X-Axis By', value=defaults['x_group'], options=['None'] + cols['seriesable'], css_classes=['wdgkey-x_group', 'x-drop'])
     wdg['y_dropdown'] = bmw.Div(text='Y-Axis (required)', css_classes=['y-dropdown'])
-    wdg['y'] = bmw.Select(title='Y-Axis (required)', value='None', options=['None'] + cols['all'], css_classes=['wdgkey-y', 'y-drop'])
+    wdg['y'] = bmw.Select(title='Y-Axis (required)', value=defaults['y'], options=['None'] + cols['all'], css_classes=['wdgkey-y', 'y-drop'])
     wdg['y_agg'] = bmw.Select(title='Y-Axis Aggregation', value='Sum', options=AGGREGATIONS, css_classes=['wdgkey-y_agg', 'y-drop'])
     wdg['series_dropdown'] = bmw.Div(text='Series', css_classes=['series-dropdown'])
+    wdg['series'] = bmw.Select(title='Separate Series By', value=defaults['series'], options=['None'] + cols['seriesable'], css_classes=['wdgkey-series', 'series-drop'])
     wdg['series_legend'] = bmw.Div(text='', css_classes=['series-drop'])
-    wdg['series'] = bmw.Select(title='Separate Series By', value='None', options=['None'] + cols['seriesable'], css_classes=['wdgkey-series', 'series-drop'])
-    wdg['series_stack'] = bmw.Select(title='Series Stacking', value='Unstacked', options=['Unstacked', 'Stacked'],
-        css_classes=['wdgkey-series_stack', 'series-drop'])
     wdg['explode_dropdown'] = bmw.Div(text='Explode', css_classes=['explode-dropdown'])
-    wdg['explode'] = bmw.Select(title='Explode By', value='None', options=['None'] + cols['seriesable'], css_classes=['wdgkey-explode', 'explode-drop'])
-    wdg['explode_group'] = bmw.Select(title='Group Exploded Charts By', value='None', options=['None'] + cols['seriesable'],
+    wdg['explode'] = bmw.Select(title='Explode By', value=defaults['explode'], options=['None'] + cols['seriesable'], css_classes=['wdgkey-explode', 'explode-drop'])
+    wdg['explode_group'] = bmw.Select(title='Group Exploded Charts By', value=defaults['explode_group'], options=['None'] + cols['seriesable'],
         css_classes=['wdgkey-explode_group', 'explode-drop'])
     wdg['filters'] = bmw.Div(text='Filters', css_classes=['filters-dropdown'])
     for j, col in enumerate(cols['filterable']):
@@ -98,7 +99,7 @@ def build_widgets(data_source, df_source, cols, init_load=False, init_config={})
         wdg['filter_'+str(j)] = bmw.CheckboxGroup(labels=val_list, active=list(range(len(val_list))), css_classes=['wdgkey-filter_'+str(j), 'filter'])
     wdg['update'] = bmw.Button(label='Update Filters', button_type='success', css_classes=['filters-update'])
     wdg['adjustments'] = bmw.Div(text='Plot Adjustments', css_classes=['adjust-dropdown'])
-    wdg['chart_type'] = bmw.Select(title='Chart Type', value=CHARTTYPES[0], options=CHARTTYPES, css_classes=['wdgkey-chart_type', 'adjust-drop'])
+    wdg['chart_type'] = bmw.Select(title='Chart Type', value=defaults['chart_type'], options=CHARTTYPES, css_classes=['wdgkey-chart_type', 'adjust-drop'])
     wdg['plot_width'] = bmw.TextInput(title='Plot Width (px)', value=str(PLOT_WIDTH), css_classes=['wdgkey-plot_width', 'adjust-drop'])
     wdg['plot_height'] = bmw.TextInput(title='Plot Height (px)', value=str(PLOT_HEIGHT), css_classes=['wdgkey-plot_height', 'adjust-drop'])
     wdg['plot_title'] = bmw.TextInput(title='Plot Title', value='', css_classes=['wdgkey-plot_title', 'adjust-drop'])
@@ -122,7 +123,7 @@ def build_widgets(data_source, df_source, cols, init_load=False, init_config={})
     wdg['bar_width'] = bmw.TextInput(title='Bar Width (Bar Only)', value=str(BAR_WIDTH), css_classes=['wdgkey-bar_width', 'adjust-drop'])
     wdg['line_width'] = bmw.TextInput(title='Line Width (Line Only)', value=str(LINE_WIDTH), css_classes=['wdgkey-line_width', 'adjust-drop'])
     wdg['download'] = bmw.Button(label='Download csv', button_type='success')
-    wdg['export_config'] = bmw.Div(text='Export Config to URL', css_classes=['export-config'])
+    wdg['export_config'] = bmw.Div(text='Export Config to URL', css_classes=['export-config', 'bk-bs-btn', 'bk-bs-btn-success'])
 
     #use init_config (from 'widgets' parameter in URL query string) to configure widgets.
     if init_load:
@@ -133,21 +134,20 @@ def build_widgets(data_source, df_source, cols, init_load=False, init_config={})
                 elif hasattr(wdg[key], 'active'):
                     wdg[key].active = init_config[key]
 
+    #Add update functions for widgets
     wdg['data'].on_change('value', update_data)
     wdg['update'].on_click(update_plots)
     wdg['download'].on_click(download)
-
-    wdg_names = ['chart_type', 'x', 'x_group', 'y', 'y_agg', 'series', 'series_stack', 'explode', 'explode_group', 'plot_title', 'plot_title_size',
-    'plot_width', 'plot_height', 'opacity', 'x_min', 'x_max', 'x_scale', 'x_title', 'x_title_size', 'x_major_label_size', 'x_major_label_orientation',
-    'y_min', 'y_max', 'y_scale', 'y_title', 'y_title_size', 'y_major_label_size', 'circle_size', 'bar_width', 'line_width']
-
-    for name in wdg_names:
-        wdg[name].on_change('value', update_sel)
+    for name in wdg_col:
+        wdg[name].on_change('value', update_wdg_col)
+    for name in wdg_non_col:
+        wdg[name].on_change('value', update_wdg)
 
     return wdg
 
 def set_df_plots(df_source, cols, wdg):
-    ''' Apply filters, scaling, aggregation, and sorting to source dataframe, and return the result.
+    '''
+    Apply filters, scaling, aggregation, and sorting to source dataframe, and return the result.
 
     Args:
         df_source (pandas dataframe): Dataframe of the csv source.
@@ -156,7 +156,6 @@ def set_df_plots(df_source, cols, wdg):
 
     Returns:
         df_plots (pandas dataframe): df_source after having been filtered, scaled, aggregated, and sorted.
-
     '''
     df_plots = df_source.copy()
 
@@ -197,7 +196,8 @@ def set_df_plots(df_source, cols, wdg):
     return df_plots
 
 def create_figures(df_plots, wdg, cols):
-    ''' Create figures based on the data in a dataframe and widget configuration, and return figures in a list.
+    '''
+    Create figures based on the data in a dataframe and widget configuration, and return figures in a list.
     The explode widget determines if there will be multiple figures.
 
     Args:
@@ -207,7 +207,6 @@ def create_figures(df_plots, wdg, cols):
 
     Returns:
         plot_list (list): List of bokeh.model.figures.
-
     '''
     plot_list = []
     df_plots_cp = df_plots.copy()
@@ -227,7 +226,8 @@ def create_figures(df_plots, wdg, cols):
     return plot_list
 
 def create_figure(df_exploded, df_plots, wdg, cols, explode_val=None, explode_group=None):
-    ''' Create and return a figure based on the data in a dataframe and widget configuration.
+    '''
+    Create and return a figure based on the data in a dataframe and widget configuration.
 
     Args:
         df_exploded (pandas dataframe): Dataframe of just the data that will be plotted in this figure.
@@ -239,7 +239,6 @@ def create_figure(df_exploded, df_plots, wdg, cols, explode_val=None, explode_gr
 
     Returns:
         p (bokeh.model.figure): A figure, with all glyphs added by the add_glyph() function.
-
     '''
     # If x_group has a value, create a combined column in the dataframe for x and x_group
     x_col = wdg['x'].value
@@ -314,7 +313,7 @@ def create_figure(df_exploded, df_plots, wdg, cols, explode_val=None, explode_gr
         add_glyph(wdg, p, xs, ys, c)
     else:
         full_series = df_plots[wdg['series'].value].unique().tolist() #for colors only
-        if wdg['series_stack'].value == 'Stacked':
+        if wdg['chart_type'].value in STACKEDTYPES: #We are stacking the series
             xs_full = sorted(df_exploded[x_col].unique().tolist())
             y_bases_pos = [0]*len(xs_full)
             y_bases_neg = [0]*len(xs_full)
@@ -323,9 +322,9 @@ def create_figure(df_exploded, df_plots, wdg, cols, explode_val=None, explode_gr
             df_series = df_exploded[df_exploded[wdg['series'].value].isin([ser])]
             xs_ser = df_series[x_col].values.tolist()
             ys_ser = df_series[wdg['y'].value].values.tolist()
-            if wdg['series_stack'].value == 'Unstacked':
+            if wdg['chart_type'].value not in STACKEDTYPES: #The series will not be stacked
                 add_glyph(wdg, p, xs_ser, ys_ser, c, series=ser)
-            else:
+            else: #We are stacking the series
                 ys_pos = [ys_ser[xs_ser.index(x)] if x in xs_ser and ys_ser[xs_ser.index(x)] > 0 else 0 for i, x in enumerate(xs_full)]
                 ys_neg = [ys_ser[xs_ser.index(x)] if x in xs_ser and ys_ser[xs_ser.index(x)] < 0 else 0 for i, x in enumerate(xs_full)]
                 ys_stacked_pos = [ys_pos[i] + y_bases_pos[i] for i in range(len(xs_full))]
@@ -337,7 +336,8 @@ def create_figure(df_exploded, df_plots, wdg, cols, explode_val=None, explode_gr
     return p
 
 def add_glyph(wdg, p, xs, ys, c, y_bases=None, series=None):
-    ''' Add a glyph to a Bokeh figure, depending on the chosen chart type.
+    '''
+    Add a glyph to a Bokeh figure, depending on the chosen chart type.
 
     Args:
         wdg (ordered dict): Dictionary of bokeh model widgets.
@@ -350,7 +350,6 @@ def add_glyph(wdg, p, xs, ys, c, y_bases=None, series=None):
 
     Returns:
         Nothing.
-
     '''
     alpha = float(wdg['opacity'].value)
     y_unstacked = list(ys) if y_bases is None else [ys[i] - y_bases[i] for i in range(len(ys))]
@@ -376,7 +375,8 @@ def add_glyph(wdg, p, xs, ys, c, y_bases=None, series=None):
 
 
 def build_series_legend(df_plots, series_val):
-    ''' Return html for series legend, based on values of column that was chosen for series, and global COLORS.
+    '''
+    Return html for series legend, based on values of column that was chosen for series, and global COLORS.
 
     Args:
         df_plots (pandas dataframe): Dataframe of all plots data.
@@ -384,7 +384,6 @@ def build_series_legend(df_plots, series_val):
 
     Returns:
         series_legend_string (string): html to be used as legend.
-
     '''
     series_legend_string = '<div class="legend-header">Series Legend</div><div class="legend-body">'
     if series_val != 'None':
@@ -397,15 +396,53 @@ def build_series_legend(df_plots, series_val):
 
 
 def update_data(attr, old, new):
-    gl['df_source'], gl['columns'] = get_data(gl['widgets']['data'].value)
-    gl['widgets'] = build_widgets(gl['widgets']['data'].value, gl['df_source'], gl['columns'])
+    '''
+    When data source is updated, rebuild widgets and plots.
+    '''
+    defaults['data_source'] = gl['widgets']['data'].value
+    for w in wdg_col:
+        defaults[w] = 'None'
+    defaults['chart_type'] = 'Dot'
+    gl['df_source'], gl['columns'] = get_data(defaults['data_source'])
+    gl['widgets'] = build_widgets(gl['df_source'], gl['columns'], defaults)
     gl['controls'].children = list(gl['widgets'].values())
     gl['plots'].children = []
 
-def update_sel(attr, old, new):
+def update_wdg(attr, old, new):
+    '''
+    When general widgets are updated (not in wdg_col), update plots only.
+    '''
     update_plots()
 
+def update_wdg_col(attr, old, new):
+    '''
+    When widgets in wdg_col are updated, set the options of all wdg_col widgets,
+    and update plots.
+    '''
+    set_wdg_col_options()
+    update_plots()
+
+def set_wdg_col_options():
+    '''
+    Limit available options for wdg_col widgets based on their selected values, so that users
+    cannot select the same value for two different wdg_col widgets.
+    '''
+    cols = gl['columns']
+    wdg = gl['widgets']
+    #get list of selected values and use to reduce selection options.
+    sels = [str(wdg[w].value) for w in wdg_col if str(wdg[w].value) !='None']
+    all_reduced = [x for x in cols['all'] if x not in sels]
+    ser_reduced = [x for x in cols['seriesable'] if x not in sels]
+    for w in wdg_col:
+        val = str(wdg[w].value)
+        none_append = [] if val == 'None' else ['None']
+        opt_reduced = all_reduced if w in wdg_col_all else ser_reduced
+        wdg[w].options = [val] + opt_reduced + none_append
+
 def update_plots():
+    '''
+    Make sure x axis and y axis are set. If so, set the dataframe for the plots and build them.
+    '''
     if gl['widgets']['x'].value == 'None' or gl['widgets']['y'].value == 'None':
         gl['plots'].children = []
         return
@@ -414,27 +451,55 @@ def update_plots():
     gl['plots'].children = create_figures(gl['df_plots'], gl['widgets'], gl['columns'])
 
 def download():
+    '''
+    Download a csv file of the currently viewed data to the downloads/ directory,
+    with the current timestamp.
+    '''
     gl['df_plots'].to_csv(os.path.dirname(os.path.realpath(__file__)) + '/downloads/out '+
         datetime.datetime.now().strftime("%Y-%m-%d %H-%M-%S-%f")+'.csv', index=False)
 
+#initialize globals dict
+gl = {'df_source':None, 'df_plots':None, 'columns':None, 'widgets':None, 'controls': None, 'plots':None}
 
-#On initial load, read 'widgets' parameter from URL query string and use to set data source (data_file)
+#List of widgets that use columns as their selectors
+wdg_col_all = ['x', 'y'] #all columns available for these widgets
+wdg_col_ser = ['x_group', 'series', 'explode', 'explode_group'] #seriesable columns available for these widgets
+wdg_col = wdg_col_all + wdg_col_ser
+
+#List of widgets that don't use columns as selector and share general widget update function
+wdg_non_col = ['chart_type', 'y_agg', 'plot_title', 'plot_title_size',
+    'plot_width', 'plot_height', 'opacity', 'x_min', 'x_max', 'x_scale', 'x_title',
+    'x_title_size', 'x_major_label_size', 'x_major_label_orientation',
+    'y_min', 'y_max', 'y_scale', 'y_title', 'y_title_size', 'y_major_label_size',
+    'circle_size', 'bar_width', 'line_width']
+
+#Specify default widget values
+defaults = {}
+defaults['data_source'] = os.path.dirname(os.path.realpath(__file__)) + '/csv/US_electric_power_generation.csv'
+for w in wdg_col:
+    defaults[w] = 'None'
+defaults['x'] = 'Year'
+defaults['y'] = 'Electricity Generation (TWh)'
+defaults['series'] = 'Technology'
+defaults['explode'] = 'Case'
+defaults['chart_type'] = 'Area'
+
+#On initial load, read 'widgets' parameter from URL query string and use to set data source (data_source)
 #and widget configuration object (wdg_config)
 wdg_config = {}
-data_file = os.path.dirname(os.path.realpath(__file__)) + '/csv/US_electric_power_generation.csv'
 args = bio.curdoc().session_context.request.arguments
 wdg_arr = args.get('widgets')
 if wdg_arr is not None:
     wdg_config = json.loads(urlp.unquote(wdg_arr[0].decode('utf-8')))
     if 'data' in wdg_config:
-        data_file = str(wdg_config['data'])
-
-#initialize globals dict
-gl = {'df_source':None, 'df_plots':None, 'columns':None, 'widgets':None, 'controls': None, 'plots':None}
+        defaults['data_source'] = str(wdg_config['data'])
+        for w in wdg_col:
+            defaults[w] = 'None'
 
 #build widgets and plots
-gl['df_source'], gl['columns'] = get_data(data_file)
-gl['widgets'] = build_widgets(data_file, gl['df_source'], gl['columns'], init_load=True, init_config=wdg_config)
+gl['df_source'], gl['columns'] = get_data(defaults['data_source'])
+gl['widgets'] = build_widgets(gl['df_source'], gl['columns'], defaults, init_load=True, init_config=wdg_config)
+set_wdg_col_options()
 gl['controls'] = bl.widgetbox(list(gl['widgets'].values()), id='widgets_section')
 gl['plots'] = bl.column([], id='plots_section')
 update_plots()
