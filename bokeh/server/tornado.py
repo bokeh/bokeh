@@ -271,7 +271,9 @@ class BokehTornado(TornadoApplication):
     def generate_session_ids(self):
         return self._generate_session_ids
 
-    def resources(self):
+    def resources(self, absolute_url=None):
+        if absolute_url:
+            return Resources(mode="server", root_url=absolute_url + self._prefix, path_versioner=StaticHandler.append_version)
         return Resources(mode="server", root_url=self._prefix, path_versioner=StaticHandler.append_version)
 
     def start(self):

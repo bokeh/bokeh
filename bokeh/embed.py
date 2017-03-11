@@ -422,7 +422,7 @@ def autoload_static(model, resources, script_path):
 
     return encode_utf8(js), encode_utf8(tag)
 
-def autoload_server(model, app_path="/", session_id=None, url="default"):
+def autoload_server(model, app_path="/", session_id=None, url="default", relative_urls=True):
     '''Return a script tag that embeds the given model (or entire
     Document) from a Bokeh server session.
 
@@ -491,8 +491,10 @@ def autoload_server(model, app_path="/", session_id=None, url="default"):
                          "this doesn't work because the server will generate a fresh session "
                          "which won't have the model in it.")
 
-    src_path = coords.server_url + "/autoload.js" + \
-               "?bokeh-autoload-element=" + elementid
+    src_path = coords.server_url + "/autoload.js?bokeh-autoload-element=" + elementid + "&bokeh-app-path=" + app_path
+
+    if not relative_urls:
+        src_path += "&bokeh-absolute-url=" + coords.url
 
     # we want the server to generate the ID, so the autoload script
     # can be embedded in a static page while every user still gets
@@ -503,16 +505,19 @@ def autoload_server(model, app_path="/", session_id=None, url="default"):
 
     tag = AUTOLOAD_TAG.render(
         src_path = src_path,
+        app_path = app_path,
         elementid = elementid,
         modelid = model_id,
     )
 
     return encode_utf8(tag)
 
-def _script_for_render_items(docs_json, render_items, wrap_script=True):
+def _script_for_render_items(docs_json, render_items, app_path=None, absolute_url=None, wrap_script=True):
     plot_js = _wrap_in_onload(_wrap_in_safely(DOC_JS.render(
         docs_json=serialize_json(docs_json),
         render_items=serialize_json(render_items),
+        app_path=app_path,
+        absolute_url=absolute_url
     )))
 
     if wrap_script:
