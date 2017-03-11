@@ -1,6 +1,6 @@
 import {ColumnarDataSource} from "./columnar_data_source"
-import {logger} from "../../core/logging"
-import * as p from "../../core/properties"
+import {logger} from "core/logging"
+import * as p from "core/properties"
 
 export class GeoJSONDataSource extends ColumnarDataSource
   type: 'GeoJSONDataSource'

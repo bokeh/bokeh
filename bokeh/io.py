@@ -22,6 +22,7 @@ import io
 import json
 import os
 import warnings
+import tempfile
 
 # Third-party imports
 
@@ -31,7 +32,6 @@ from .document import Document
 from .embed import notebook_div, standalone_html_page_for_models, autoload_server
 from .models.layouts import LayoutDOM
 from .layouts import gridplot, GridSpec ; gridplot, GridSpec
-from .model import _ModelInDocument
 import bokeh.util.browser as browserlib  # full import needed for test mocking to work
 from .util.deprecation import deprecated
 from .util.notebook import load_notebook, publish_display_data, get_comms
@@ -390,19 +390,23 @@ def save(obj, filename=None, resources=None, title=None, state=None, validate=Tr
 
 def _detect_filename(ext):
     """ Detect filename from the name of the script being run. Returns
-    None if the script could not be found (e.g. interactive mode).
+    temporary file if the script could not be found or the location of the
+    script does not have write permission (e.g. interactive mode).
     """
     import inspect
-    from os.path import isfile, dirname, basename, splitext, join
+    from os.path import dirname, basename, splitext, join, curdir
 
     frame = inspect.currentframe()
     while frame.f_back and frame.f_globals.get('name') != '__main__':
         frame = frame.f_back
 
     filename = frame.f_globals.get('__file__')
-    if filename and isfile(filename):
-        name, _ = splitext(basename(filename))
-        return join(dirname(filename), name + "." + ext)
+
+    if filename is None or not os.access(dirname(filename) or curdir, os.W_OK | os.X_OK):
+        return tempfile.NamedTemporaryFile(suffix="." + ext).name
+
+    name, _ = splitext(basename(filename))
+    return join(dirname(filename), name + "." + ext)
 
 def _get_save_args(state, filename, resources, title):
     warn = True
@@ -413,9 +417,6 @@ def _get_save_args(state, filename, resources, title):
     if filename is None:
         warn = False
         filename = _detect_filename("html")
-
-    if filename is None:
-        raise RuntimeError("save() called but no filename was supplied or detected, and output_file(...) was never called, nothing saved")
 
     if resources is None and state.file:
         resources = state.file['resources']
@@ -439,21 +440,27 @@ def _get_save_args(state, filename, resources, title):
     return filename, resources, title
 
 def _save_helper(obj, filename, resources, title, validate):
-    with _ModelInDocument(obj):
-        if isinstance(obj, LayoutDOM):
-            doc = obj.document
-        elif isinstance(obj, Document):
-            doc = obj
-        else:
-            raise RuntimeError("Unable to save object of type '%s'" % type(obj))
+    remove_after = False
+    if isinstance(obj, LayoutDOM):
+        if obj.document is None:
+            Document().add_root(obj)
+            remove_after = True
+        doc = obj.document
+    elif isinstance(obj, Document):
+        doc = obj
+    else:
+        raise RuntimeError("Unable to save object of type '%s'" % type(obj))
 
-        if validate:
-            doc.validate()
+    if validate:
+        doc.validate()
 
-        html = standalone_html_page_for_models(obj, resources, title)
+    html = standalone_html_page_for_models(doc, resources, title)
 
-        with io.open(filename, "w", encoding="utf-8") as f:
-            f.write(decode_utf8(html))
+    with io.open(filename, mode="w", encoding="utf-8") as f:
+        f.write(decode_utf8(html))
+
+    if remove_after:
+        doc.remove_root(obj)
 
 # this function exists mostly to be mocked in tests
 def _push_to_server(session_id, url, app_path, document, io_loop):

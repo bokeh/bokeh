@@ -1,5 +1,5 @@
-import * as p from "../../core/properties"
-import {values} from "../../core/util/object"
+import * as p from "core/properties"
+import {values} from "core/util/object"
 import {Model} from "../../model"
 
 export class CustomJS extends Model
@@ -16,11 +16,11 @@ export class CustomJS extends Model
   }
 
   execute: (cb_obj, cb_data) ->
-    @func(@values..., cb_obj, cb_data, require)
+    @func(@values..., cb_obj, cb_data, require, {})
 
   _make_values: () -> values(@args)
 
   _make_func: () ->
     # this relies on Object.keys(args) and values(args) returning keys and values
     # in the same order
-    new Function(Object.keys(@args)..., "cb_obj", "cb_data", "require", @code)
+    new Function(Object.keys(@args)..., "cb_obj", "cb_data", "require", "exports", @code)

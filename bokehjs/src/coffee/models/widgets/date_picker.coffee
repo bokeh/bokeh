@@ -1,7 +1,7 @@
 import * as $ from "jquery"
 import "jquery-ui/datepicker"
 
-import * as p from "../../core/properties"
+import * as p from "core/properties"
 
 import {InputWidget, InputWidgetView} from "./input_widget"
 

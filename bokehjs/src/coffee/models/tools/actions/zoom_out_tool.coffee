@@ -1,8 +1,8 @@
 import {ActionTool, ActionToolView} from "./action_tool"
-import {scale_range} from "../../../core/util/zoom"
-import {logger} from "../../../core/logging"
+import {scale_range} from "core/util/zoom"
+import {logger} from "core/logging"
 
-import * as p from "../../../core/properties"
+import * as p from "core/properties"
 
 export class ZoomOutToolView extends ActionToolView
 

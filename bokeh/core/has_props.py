@@ -234,6 +234,8 @@ class HasProps(with_metaclass(MetaHasProps, object)):
         '''
         super(HasProps, self).__init__()
         self._property_values = dict()
+        self._unstable_default_values = dict()
+        self._unstable_themed_values = dict()
 
         for name, value in properties.items():
             setattr(self, name, value)
@@ -330,8 +332,8 @@ class HasProps(with_metaclass(MetaHasProps, object)):
         '''
         if name in self.properties():
             #logger.debug("Patching attribute %s of %r", attr, patched_obj)
-            prop = self.lookup(name)
-            prop.set_from_json(self, json, models, setter)
+            descriptor = self.lookup(name)
+            descriptor.set_from_json(self, json, models, setter)
         else:
             logger.warn("JSON had attr %r on obj %r, which is a client-only or invalid attribute that shouldn't have been sent", name, self)
 
@@ -529,28 +531,33 @@ class HasProps(with_metaclass(MetaHasProps, object)):
             dict : mapping of property names and values for matching properties
 
         '''
+        themed_keys = set()
         result = dict()
         if include_defaults:
             keys = self.properties()
         else:
-            keys = set(self._property_values.keys())
+            # TODO (bev) For now, include unstable default values. Things rely on Instances
+            # always getting serialized, even defaults, and adding unstable defaults here
+            # accomplishes that. Unmodified defaults for property value containers will be
+            # weeded out below.
+            keys = set(self._property_values.keys()) | set(self._unstable_default_values.keys())
             if self.themed_values():
-                keys |= set(self.themed_values().keys())
+                themed_keys = set(self.themed_values().keys())
+                keys |= themed_keys
 
         for key in keys:
-            prop = self.lookup(key)
-            if not query(prop):
+            descriptor = self.lookup(key)
+            if not query(descriptor):
                 continue
 
-            value = prop.serializable_value(self)
-            if not include_defaults:
-                if isinstance(value, PropertyValueContainer) and value._unmodified_default_value:
+            value = descriptor.serializable_value(self)
+            if not include_defaults and key not in themed_keys:
+                if isinstance(value, PropertyValueContainer) and key in self._unstable_default_values:
                     continue
             result[key] = value
 
         return result
 
-    # TODO (bev) could this return an empty dict instead of None?
     def themed_values(self):
         ''' Get any theme-provided overrides.
 
@@ -561,10 +568,7 @@ class HasProps(with_metaclass(MetaHasProps, object)):
             dict or None
 
         '''
-        if hasattr(self, '__themed_values__'):
-            return getattr(self, '__themed_values__')
-        else:
-            return None
+        return getattr(self, '__themed_values__', None)
 
     def apply_theme(self, property_values):
         ''' Apply a set of theme values which will be used rather than
@@ -581,12 +585,9 @@ class HasProps(with_metaclass(MetaHasProps, object)):
             None
 
         '''
-        old_dict = None
-        if hasattr(self, '__themed_values__'):
-            old_dict = getattr(self, '__themed_values__')
+        old_dict = self.themed_values()
 
-        # if the same theme is set again, it should reuse the
-        # same dict
+        # if the same theme is set again, it should reuse the same dict
         if old_dict is property_values:
             return
 
@@ -605,10 +606,16 @@ class HasProps(with_metaclass(MetaHasProps, object)):
         elif hasattr(self, '__themed_values__'):
             delattr(self, '__themed_values__')
 
+        # Property container values might be cached even if unmodified. Invalidate
+        # any cached values that are not modified at this point.
+        for k, v in old_values.items():
+            if k in self._unstable_themed_values:
+                del self._unstable_themed_values[k]
+
         # Emit any change notifications that result
         for k, v in old_values.items():
-            prop = self.lookup(k)
-            prop.trigger_if_changed(self, v)
+            descriptor = self.lookup(k)
+            descriptor.trigger_if_changed(self, v)
 
     def unapply_theme(self):
         ''' Remove any themed values and restore defaults.

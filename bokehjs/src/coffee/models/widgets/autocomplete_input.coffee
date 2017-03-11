@@ -1,7 +1,7 @@
 import "jquery-ui/autocomplete"
 
 import {TextInput, TextInputView} from "./text_input"
-import * as p from "../../core/properties"
+import * as p from "core/properties"
 
 export class AutocompleteInputView extends TextInputView
 

@@ -1,6 +1,6 @@
 import {TickFormatter} from "./tick_formatter"
-import * as p from "../../core/properties"
-import {isNumber} from "../../core/util/types"
+import * as p from "core/properties"
+import {isNumber} from "core/util/types"
 
 export class BasicTickFormatter extends TickFormatter
   type: 'BasicTickFormatter'

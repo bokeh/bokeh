@@ -1,12 +1,21 @@
 {
   "compilerOptions": {
-    "noImplicitAny": false,
+    "noImplicitAny": true,
     "noEmitOnError": false,
     "module": "commonjs",
     "moduleResolution": "node",
     "target": "ES5",
     "declaration": true,
     "jsx": "react",
-    "reactNamespace": "DOM"
+    "reactNamespace": "DOM",
+    "types": [],
+    "baseUrl": "./build/js/tree_ts/",
+    "paths": {
+      "gloo2": "./src/vendor/gloo/gloo2",
+      "slick_grid/slick.core": "./src/vendor/slick-grid-2.1.0/slick.core",
+      "slick_grid/slick.grid": "./src/vendor/slick-grid-2.1.0/slick.grid",
+      "slick_grid/plugins/slick.rowselectionmodel": "./src/vendor/slick-grid-2.1.0/plugins/slick.rowselectionmodel",
+      "slick_grid/plugins/slick.checkboxselectcolumn": "./src/vendor/slick-grid-2.1.0/plugins/slick.checkboxselectcolumn"
+    }
   }
 }

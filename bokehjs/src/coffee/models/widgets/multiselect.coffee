@@ -1,4 +1,4 @@
-import * as p from "../../core/properties"
+import * as p from "core/properties"
 
 import {InputWidget, InputWidgetView} from "./input_widget"
 

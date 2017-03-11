@@ -1,5 +1,5 @@
 import {Widget, WidgetView} from "./widget"
-import * as p from "../../core/properties"
+import * as p from "core/properties"
 
 export class PanelView extends WidgetView
 

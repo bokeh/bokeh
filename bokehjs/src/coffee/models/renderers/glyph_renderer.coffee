@@ -1,9 +1,9 @@
 import {Renderer, RendererView} from "./renderer"
 import {RemoteDataSource} from "../sources/remote_data_source"
-import {logger} from "../../core/logging"
-import * as p from "../../core/properties"
-import {difference} from "../../core/util/array"
-import {extend, clone} from "../../core/util/object"
+import {logger} from "core/logging"
+import * as p from "core/properties"
+import {difference} from "core/util/array"
+import {extend, clone} from "core/util/object"
 
 export class GlyphRendererView extends RendererView
 
@@ -41,6 +41,10 @@ export class GlyphRendererView extends RendererView
     hover_glyph = @model.hover_glyph
     if hover_glyph?
       @hover_glyph = @build_glyph_view(hover_glyph)
+
+    muted_glyph = @model.muted_glyph
+    if muted_glyph?
+      @muted_glyph = @build_glyph_view(muted_glyph)
 
     decimated_glyph = mk_glyph(@model.decimated_defaults)
     @decimated_glyph = @build_glyph_view(decimated_glyph)
@@ -96,6 +100,8 @@ export class GlyphRendererView extends RendererView
       @nonselection_glyph.set_visuals(source)
     if @hover_glyph?
       @hover_glyph.set_visuals(source)
+    if @muted_glyph?
+      @muted_glyph.set_visuals(source)
 
     length = source.get_length()
     length = 1 if not length?
@@ -115,7 +121,7 @@ export class GlyphRendererView extends RendererView
       @request_render()
 
   render: () ->
-    if @model.visible == false
+    if not @model.visible
       return
 
     t0 = Date.now()
@@ -163,7 +169,7 @@ export class GlyphRendererView extends RendererView
       nonselection_glyph = @decimated_glyph
       selection_glyph = @selection_glyph
     else
-      glyph = @glyph
+      glyph = if @model.muted and @muted_glyph? then @muted_glyph else @glyph
       nonselection_glyph = @nonselection_glyph
       selection_glyph = @selection_glyph
 
@@ -248,6 +254,8 @@ export class GlyphRenderer extends Renderer
       hover_glyph:        [ p.Instance           ]
       nonselection_glyph: [ p.Any,      'auto'   ] # Instance or "auto"
       selection_glyph:    [ p.Any,      'auto'   ] # Instance or "auto"
+      muted_glyph:        [ p.Instance           ]
+      muted:              [ p.Bool,        false ]
     }
 
   @override {

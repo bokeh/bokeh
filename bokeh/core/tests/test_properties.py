@@ -8,7 +8,7 @@ from copy import copy
 
 from bokeh.core.properties import (field, value,
     NumberSpec, ColorSpec, Bool, Int, Float, Complex, String,
-    Regex, Seq, List, Dict, Tuple, Array, Instance, Any, Interval, Either,
+    Regex, Seq, List, Dict, Tuple, Instance, Any, Interval, Either,
     Enum, Color, DashPattern, Size, Percent, Angle, AngleSpec,
     DistanceSpec, FontSizeSpec, Override, Include, MinMaxBounds)
 
@@ -22,7 +22,8 @@ class Basictest(unittest.TestCase):
         class Foo(HasProps):
             x = Int(12)
             y = String("hello")
-            z = Array(Int, np.array([1, 2, 3]))
+            z = List(Int, [1, 2, 3])
+            zz = Dict(String, Int)
             s = String(None)
 
         f = Foo()
@@ -32,14 +33,10 @@ class Basictest(unittest.TestCase):
         self.assertEqual(f.s, None)
 
 
-        self.assertEqual(set(["x", "y", "z", "s"]), f.properties())
+        self.assertEqual(set(["x", "y", "z", "zz", "s"]), f.properties())
         with_defaults = f.properties_with_values(include_defaults=True)
-        del with_defaults['z'] # can't compare equality on the np array
-        self.assertDictEqual(dict(x=12, y="hello", s=None), with_defaults)
+        self.assertDictEqual(dict(x=12, y="hello", z=[1,2,3], zz={}, s=None), with_defaults)
         without_defaults = f.properties_with_values(include_defaults=False)
-        # the Array is in here because it's mutable
-        self.assertTrue('z' in without_defaults)
-        del without_defaults['z']
         self.assertDictEqual(dict(), without_defaults)
 
         f.x = 18
@@ -49,8 +46,17 @@ class Basictest(unittest.TestCase):
         self.assertEqual(f.y, "bar")
 
         without_defaults = f.properties_with_values(include_defaults=False)
-        del without_defaults['z']
         self.assertDictEqual(dict(x=18, y="bar"), without_defaults)
+
+        f.z[0] = 100
+
+        without_defaults = f.properties_with_values(include_defaults=False)
+        self.assertDictEqual(dict(x=18, y="bar", z=[100,2,3]), without_defaults)
+
+        f.zz = {'a': 10}
+
+        without_defaults = f.properties_with_values(include_defaults=False)
+        self.assertDictEqual(dict(x=18, y="bar", z=[100,2,3], zz={'a': 10}), without_defaults)
 
     def test_enum(self):
         class Foo(HasProps):

@@ -57,13 +57,13 @@ describe "customjs module", ->
 
     it "should have code property as function body", ->
       r = new CustomJS({code: "return 10"})
-      f = new Function("cb_obj", "cb_data", "require", "return 10")
+      f = new Function("cb_obj", "cb_data", "require", "exports", "return 10")
       expect(r.func.toString()).to.be.equal f.toString()
 
     it "should have values as function args", ->
       rng = new Range1d()
       r = new CustomJS({args: {foo: rng.ref()}, code: "return 10"})
-      f = new Function("foo", "cb_obj", "cb_data", "require", "return 10")
+      f = new Function("foo", "cb_obj", "cb_data", "require", "exports", "return 10")
       expect(r.func.toString()).to.be.equal f.toString()
 
   describe "execute method", ->

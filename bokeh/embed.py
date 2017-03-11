@@ -13,8 +13,10 @@ these different cases.
 
 from __future__ import absolute_import
 
+from contextlib import contextmanager
 from collections import Sequence
 from warnings import warn
+import re
 
 from six import string_types
 
@@ -24,7 +26,7 @@ from .core.templates import (
 )
 from .core.json_encoder import serialize_json
 from .document import Document, DEFAULT_TITLE
-from .model import Model, _ModelInDocument, _ModelInEmptyDocument
+from .model import Model
 from .resources import BaseResources, _SessionCoordinates, EMPTY
 from .util.string import encode_utf8
 from .util.serialization import make_id
@@ -49,7 +51,64 @@ def _wrap_in_onload(code):
 })();
 """ % dict(code=_indent(code, 4))
 
-def components(models, wrap_script=True, wrap_plot_info=True):
+@contextmanager
+def _ModelInDocument(models, theme=None):
+    doc = _find_existing_docs(models)
+    old_theme = doc.theme
+
+    if theme is FromCurdoc:
+        from .io import curdoc; curdoc
+        doc.theme = curdoc().theme
+    elif theme is not None:
+        doc.theme = theme
+
+    models_to_dedoc = _add_doc_to_models(doc, models)
+
+    yield models
+
+    for model in models_to_dedoc:
+        doc.remove_root(model, theme)
+    doc.theme = old_theme
+
+
+def _find_existing_docs(models):
+    existing_docs = set(m if isinstance(m, Document) else m.document for m in models)
+    existing_docs.discard(None)
+
+    if len(existing_docs) == 0:
+        # no existing docs, use the current doc
+        doc = Document()
+    elif len(existing_docs) == 1:
+        # all existing docs are the same, use that one
+        doc = existing_docs.pop()
+    else:
+        # conflicting/multiple docs, raise an error
+        msg = ('Multiple items in models conatain documents or are '
+               'themselves documents. (Models must be owned by only a '
+               'single document). This may indicate a usage error.')
+        raise RuntimeError(msg)
+    return doc
+
+def _add_doc_to_models(doc, models):
+    models_to_dedoc = []
+    for model in models:
+        if isinstance(model, Model):
+            if model.document is None:
+                try:
+                    doc.add_root(model)
+                    models_to_dedoc.append(model)
+                except RuntimeError as e:
+                    child = re.search('\((.*)\)', str(e)).group(0)
+                    msg = ('Sub-model {0} of the root model {1} is already owned '
+                           'by another document (Models must be owned by only a '
+                           'single document). This may indicate a usage '
+                           'error.'.format(child, model))
+                    raise RuntimeError(msg)
+    return models_to_dedoc
+
+class FromCurdoc: pass
+
+def components(models, wrap_script=True, wrap_plot_info=True, theme=FromCurdoc):
     '''
     Return HTML components to embed a Bokeh plot. The data for the plot is
     stored directly in the returned HTML.
@@ -81,6 +140,12 @@ def components(models, wrap_script=True, wrap_plot_info=True):
                     'elementid': 'The css identifier the BokehJS will look for to target the plot',
                     'docid': 'Used by Bokeh to find the doc embedded in the returned script',
                 }
+
+        theme (Theme, optional) :
+            Defaults to the ``Theme`` instance in the current document.
+            Setting this to ``None`` uses the default theme or the theme
+            already specified in the document. Any other value must be an
+            instance of the ``Theme`` class.
 
     Returns:
         UTF-8 encoded *(script, div[s])* or *(raw_script, plot_info[s])*
@@ -131,9 +196,8 @@ def components(models, wrap_script=True, wrap_plot_info=True):
             values.append(models[k])
         models = values
 
-    # 2) Do our rendering
-
-    with _ModelInDocument(models):
+    # 2) Append models to one document. Either pre-existing or new and render
+    with _ModelInDocument(models, theme=theme):
         (docs_json, render_items) = _standalone_docs_json_and_render_items(models)
 
     script = _script_for_render_items(docs_json, render_items, websocket_url=None, wrap_script=wrap_script)
@@ -210,7 +274,7 @@ def _bundle_for_objs_and_resources(objs, resources):
     return bokeh_js, bokeh_css
 
 
-def notebook_div(model, notebook_comms_target=None):
+def notebook_div(model, notebook_comms_target=None, theme=FromCurdoc):
     ''' Return HTML for a div that will display a Bokeh plot in an
     IPython Notebook
 
@@ -221,6 +285,11 @@ def notebook_div(model, notebook_comms_target=None):
         notebook_comms_target (str, optional) :
             A target name for a Jupyter Comms object that can update
             the document that is rendered to this notebook div
+        theme (Theme, optional) :
+            Defaults to the ``Theme`` instance in the current document.
+            Setting this to ``None`` uses the default theme or the theme
+            already specified in the document. Any other value must be an
+            instance of the ``Theme`` class.
 
     Returns:
         UTF-8 encoded HTML text for a ``<div>``
@@ -232,7 +301,8 @@ def notebook_div(model, notebook_comms_target=None):
     '''
     model = _check_one_model(model)
 
-    with _ModelInEmptyDocument(model):
+    # Append models to one document. Either pre-existing or new and render
+    with _ModelInDocument([model], theme=theme):
         (docs_json, render_items) = _standalone_docs_json_and_render_items([model])
 
     item = render_items[0]
@@ -329,7 +399,7 @@ def autoload_static(model, resources, script_path):
 
     model = _check_one_model(model)
 
-    with _ModelInDocument(model):
+    with _ModelInDocument([model]):
         (docs_json, render_items) = _standalone_docs_json_and_render_items([model])
 
     script = _script_for_render_items(docs_json, render_items, wrap_script=False)

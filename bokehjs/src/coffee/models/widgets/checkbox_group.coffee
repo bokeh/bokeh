@@ -1,8 +1,8 @@
 import * as $ from "jquery"
 
 import {Widget, WidgetView} from "./widget"
-import {BokehView} from "../../core/bokeh_view"
-import * as p from "../../core/properties"
+import {BokehView} from "core/bokeh_view"
+import * as p from "core/properties"
 
 
 export class CheckboxGroupView extends WidgetView

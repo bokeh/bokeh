@@ -1,13 +1,13 @@
-import * as p from "../../core/properties"
-import * as bbox from "../../core/util/bbox"
-import * as proj from "../../core/util/projections"
-import {BokehView} from "../../core/bokeh_view"
+import * as p from "core/properties"
+import * as bbox from "core/util/bbox"
+import * as proj from "core/util/projections"
+import {BokehView} from "core/bokeh_view"
 import {Model} from "../../model"
-import {Visuals} from "../../core/visuals"
+import {Visuals} from "core/visuals"
 import * as bokehgl from "./webgl/main"
-import {logger} from "../../core/logging"
-import {extend} from "../../core/util/object"
-import {isString, isArray} from "../../core/util/types"
+import {logger} from "core/logging"
+import {extend} from "core/util/object"
+import {isString, isArray} from "core/util/types"
 
 export class GlyphView extends BokehView
 
@@ -35,16 +35,13 @@ export class GlyphView extends BokehView
       @glglyph.set_visuals_changed()
 
   render: (ctx, indices, data) ->
-    if @model.visible
-      ctx.beginPath()
+    ctx.beginPath()
 
-      if @glglyph?
-        if @glglyph.render(ctx, indices, data)
-          return
+    if @glglyph?
+      if @glglyph.render(ctx, indices, data)
+        return
 
-      @_render(ctx, indices, data)
-
-    return
+    @_render(ctx, indices, data)
 
   bounds: () ->
     if not @index?
@@ -228,10 +225,6 @@ export class Glyph extends Model
       result[y] = [ p.NumberSpec ]
 
     @define(result)
-
-  @define {
-    visible: [ p.Bool, true ]
-  }
 
   @internal {
     x_range_name: [ p.String,      'default' ]

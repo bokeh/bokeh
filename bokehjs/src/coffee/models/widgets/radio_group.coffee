@@ -1,7 +1,7 @@
 import * as $ from "jquery"
 
-import * as p from "../../core/properties"
-import {uniqueId} from "../../core/util/string"
+import * as p from "core/properties"
+import {uniqueId} from "core/util/string"
 
 import {Widget, WidgetView} from "./widget"
 

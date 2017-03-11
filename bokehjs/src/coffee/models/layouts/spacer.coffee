@@ -1,5 +1,5 @@
 import {LayoutDOM, LayoutDOMView} from "./layout_dom"
-import {extend} from "../../core/util/object"
+import {extend} from "core/util/object"
 
 export class SpacerView extends LayoutDOMView
   className: "bk-spacer-box"

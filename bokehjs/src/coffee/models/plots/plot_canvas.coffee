@@ -4,21 +4,21 @@ import {DataRange1d} from "../ranges/data_range1d"
 import {GlyphRenderer} from "../renderers/glyph_renderer"
 import {LayoutDOM} from "../layouts/layout_dom"
 
-import {build_views} from "../../core/build_views"
-import {UIEvents} from "../../core/ui_events"
-import {LayoutCanvas} from "../../core/layout/layout_canvas"
-import {Visuals} from "../../core/visuals"
-import {BokehView} from "../../core/bokeh_view"
-import {EQ, GE} from "../../core/layout/solver"
-import {logger} from "../../core/logging"
-import * as enums from "../../core/enums"
-import * as p from "../../core/properties"
-import {throttle} from "../../core/util/throttle"
-import {isStrictNaN} from "../../core/util/types"
-import {difference, sortBy} from "../../core/util/array"
-import {extend, values, isEmpty} from "../../core/util/object"
-import {defer} from "../../core/util/callback"
-import {update_constraints as update_panel_constraints} from "../../core/layout/side_panel"
+import {build_views} from "core/build_views"
+import {UIEvents} from "core/ui_events"
+import {LayoutCanvas} from "core/layout/layout_canvas"
+import {Visuals} from "core/visuals"
+import {BokehView} from "core/bokeh_view"
+import {EQ, GE} from "core/layout/solver"
+import {logger} from "core/logging"
+import * as enums from "core/enums"
+import * as p from "core/properties"
+import {throttle} from "core/util/throttle"
+import {isStrictNaN} from "core/util/types"
+import {difference, sortBy} from "core/util/array"
+import {extend, values, isEmpty} from "core/util/object"
+import {defer} from "core/util/callback"
+import {update_constraints as update_panel_constraints} from "core/layout/side_panel"
 
 # Notes on WebGL support:
 # Glyps can be rendered into the original 2D canvas, or in a (hidden)
@@ -97,7 +97,7 @@ export class PlotCanvasView extends BokehView
       @model.document._unrendered_plots = {}  # poor man's set
     @model.document._unrendered_plots[@id] = true
 
-    @ui_event_bus = new UIEvents(@model.toolbar, @canvas_view.el)
+    @ui_event_bus = new UIEvents(@, @model.toolbar, @canvas_view.el)
 
     @levels = {}
     for level in enums.RenderLevel
@@ -119,6 +119,9 @@ export class PlotCanvasView extends BokehView
 
   get_canvas_element: () ->
     return @canvas_view.ctx.canvas
+
+  set_cursor: (cursor="default") ->
+    @canvas_view.el.style.cursor = cursor
 
   @getters {
     canvas_overlays: () -> @el.querySelector('.bk-canvas-overlays')
@@ -445,6 +448,9 @@ export class PlotCanvasView extends BokehView
 
     return @
 
+  get_renderer_views: () ->
+    (@levels[r.level][r.id] for r in @model.plot.renderers)
+
   build_tools: () ->
     tool_models = @model.plot.toolbar.tools
     new_tool_views = build_views(@tool_views, tool_models, @view_options())
@@ -586,12 +592,7 @@ export class PlotCanvasView extends BokehView
     # a resize of the canvas, which means that any previous calls to ctx.save() may be undone.
     @canvas_view.prepare_canvas()
 
-    try
-      @update_constraints()
-    catch silent_error
-      # [AK] This sucks, but due to probably some race condidition this (sometimes?)
-      # results in "unknown edit variable" at kiwi.js. Tried to skip only the
-      # first time we get here, but then layout initialization fails.
+    @update_constraints()
 
     # This allows the plot canvas to be positioned around the toolbar
     @el.style.position = 'absolute'

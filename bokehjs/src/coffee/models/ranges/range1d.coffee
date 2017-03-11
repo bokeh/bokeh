@@ -1,5 +1,5 @@
 import {Range} from "./range"
-import * as p from "../../core/properties"
+import * as p from "core/properties"
 
 export class Range1d extends Range
   type: 'Range1d'

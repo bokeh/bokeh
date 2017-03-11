@@ -1,7 +1,7 @@
-import {BokehView} from "../../core/bokeh_view"
+import {BokehView} from "core/bokeh_view"
 import {Tool, ToolView} from "./tool"
-import {div, span, empty} from "../../core/dom"
-import * as p from "../../core/properties"
+import {div, span, empty} from "core/dom"
+import * as p from "core/properties"
 
 export class ButtonToolButtonView extends BokehView
   className: "bk-toolbar-button"

@@ -60,7 +60,7 @@ def test_color_bar_placement_and_render(output_file_url, selenium, screenshot):
     assert has_no_console_errors(selenium)
 
     # Take screenshot
-    assert screenshot.is_valid()
+    screenshot.assert_is_valid()
 
 @pytest.mark.screenshot
 def test_color_bar_with_scale_alpha(output_file_url, selenium, screenshot):
@@ -79,4 +79,4 @@ def test_color_bar_with_scale_alpha(output_file_url, selenium, screenshot):
     assert has_no_console_errors(selenium)
 
     # Take screenshot
-    assert screenshot.is_valid()
+    screenshot.assert_is_valid()

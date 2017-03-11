@@ -1,11 +1,11 @@
-import {SidePanel} from "../../core/layout/side_panel"
+import {SidePanel} from "core/layout/side_panel"
 import {GuideRenderer} from "../renderers/guide_renderer"
 import {RendererView} from "../renderers/renderer"
 
-import {GE} from "../../core/layout/solver"
-import {logger} from "../../core/logging"
-import * as p from "../../core/properties"
-import {isString, isArray} from "../../core/util/types"
+import {GE} from "core/layout/solver"
+import {logger} from "core/logging"
+import * as p from "core/properties"
+import {isString, isArray} from "core/util/types"
 
 export class AxisView extends RendererView
   initialize: (options) ->

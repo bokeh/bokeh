@@ -1,6 +1,6 @@
 import {Interpolator} from "./interpolator"
-import * as p from "../../core/properties"
-import {min, findIndex, findLastIndex} from "../../core/util/array"
+import * as p from "core/properties"
+import {min, findIndex, findLastIndex} from "core/util/array"
 
 
 export class StepInterpolator extends Interpolator

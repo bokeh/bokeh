@@ -1,4 +1,4 @@
-import * as p from "../../core/properties"
+import * as p from "core/properties"
 
 import {Widget, WidgetView} from "./widget"
 import template from "./markup_template"

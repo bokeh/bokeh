@@ -1,4 +1,4 @@
-- path: "models"
+- path: "models/file"
   slow: ["choropleth.py"]
   no_js: ["maps_cities.py", "maps.py", "trail.py"]
 

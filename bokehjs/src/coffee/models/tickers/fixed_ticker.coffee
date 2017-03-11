@@ -1,5 +1,5 @@
 import {ContinuousTicker} from "./continuous_ticker"
-import * as p from "../../core/properties"
+import * as p from "core/properties"
 
 export class FixedTicker extends ContinuousTicker
   type: 'FixedTicker'

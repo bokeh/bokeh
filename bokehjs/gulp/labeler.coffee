@@ -6,6 +6,7 @@ gutil = require "gulp-util"
 argv = require("yargs").argv
 rootRequire = require("root-require")
 pkg = rootRequire("./package.json")
+paths = require "./paths"
 
 customLabeler = (bundle, parentLabels, fn) ->
   labels = {}
@@ -22,6 +23,7 @@ customLabeler = (bundle, parentLabels, fn) ->
       opts = {
         basedir: path.dirname(row.file)
         extensions: ['.js', '.coffee']
+        paths: ['./node_modules', paths.buildDir.jsTree]
       }
 
       if not dep?

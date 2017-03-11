@@ -1,6 +1,6 @@
 import {ContinuousTicker} from "./continuous_ticker"
-import * as p from "../../core/properties"
-import {argmin, sortedIndex} from "../../core/util/array"
+import * as p from "core/properties"
+import {argmin, sortedIndex} from "core/util/array"
 
 # This Ticker takes a collection of Tickers and picks the one most appropriate
 # for a given range.

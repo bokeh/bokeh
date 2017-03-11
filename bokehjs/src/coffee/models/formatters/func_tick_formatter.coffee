@@ -1,5 +1,5 @@
-import * as p from "../../core/properties"
-import {values} from "../../core/util/object"
+import * as p from "core/properties"
+import {values} from "core/util/object"
 
 import {TickFormatter} from "../formatters/tick_formatter"
 

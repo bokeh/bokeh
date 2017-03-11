@@ -1,5 +1,6 @@
 import {TextAnnotation, TextAnnotationView} from "./text_annotation"
-import * as p from "../../core/properties"
+import {hide} from "core/dom"
+import * as p from "core/properties"
 
 export class LabelView extends TextAnnotationView
   initialize: (options) ->
@@ -23,6 +24,11 @@ export class LabelView extends TextAnnotationView
       return width
 
   render: () ->
+    if not @model.visible and @model.render_mode == 'css'
+      hide(@el)
+    if not @model.visible
+      return
+
     ctx = @plot_view.canvas_view.ctx
 
     # Here because AngleSpec does units tranform and label doesn't support specs

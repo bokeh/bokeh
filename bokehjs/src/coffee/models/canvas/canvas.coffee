@@ -1,12 +1,12 @@
 import canvas_template from "./canvas_template"
-import {LayoutCanvas} from "../../core/layout/layout_canvas"
+import {LayoutCanvas} from "core/layout/layout_canvas"
 
-import {BokehView} from "../../core/bokeh_view"
-import {GE, EQ} from "../../core/layout/solver"
-import {logger} from "../../core/logging"
-import * as p from "../../core/properties"
-import {isEqual} from "../../core/util/eq"
-import {fixup_image_smoothing, fixup_line_dash, fixup_line_dash_offset, fixup_measure_text, get_scale_ratio, fixup_ellipse} from "../../core/util/canvas"
+import {BokehView} from "core/bokeh_view"
+import {GE, EQ} from "core/layout/solver"
+import {logger} from "core/logging"
+import * as p from "core/properties"
+import {isEqual} from "core/util/eq"
+import {fixup_image_smoothing, fixup_line_dash, fixup_line_dash_offset, fixup_measure_text, get_scale_ratio, fixup_ellipse} from "core/util/canvas"
 
 export class CanvasView extends BokehView
   className: "bk-canvas-wrapper"
@@ -97,12 +97,12 @@ export class CanvasView extends BokehView
     s = @model.document.solver()
 
     if @_width_constraint?
-      s.remove_constraint(@_width_constraint)
+      s.remove_constraint(@_width_constraint, true)
     @_width_constraint = EQ(@model._width, -requested_width)
     s.add_constraint(@_width_constraint)
 
     if @_height_constraint?
-      s.remove_constraint(@_height_constraint)
+      s.remove_constraint(@_height_constraint, true)
     @_height_constraint = EQ(@model._height, -requested_height)
     s.add_constraint(@_height_constraint)
 

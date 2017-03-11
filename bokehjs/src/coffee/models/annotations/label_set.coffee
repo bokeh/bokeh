@@ -1,8 +1,8 @@
 import {TextAnnotation, TextAnnotationView} from "./text_annotation"
 import {ColumnDataSource} from "../sources/column_data_source"
-import {div, show} from "../../core/dom"
-import * as p from "../../core/properties"
-import {isString, isArray} from "../../core/util/types"
+import {div, show, hide} from "core/dom"
+import * as p from "core/properties"
+import {isString, isArray} from "core/util/types"
 
 export class LabelSetView extends TextAnnotationView
   initialize: (options) ->
@@ -55,6 +55,10 @@ export class LabelSetView extends TextAnnotationView
     return [sx, sy]
 
   render: () ->
+    if not @model.visible and @model.render_mode == 'css'
+      hide(@el)
+    if not @model.visible
+      return
     ctx = @plot_view.canvas_view.ctx
 
     [sx, sy] = @_map_data()

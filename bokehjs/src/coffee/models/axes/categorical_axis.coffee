@@ -1,7 +1,7 @@
 import {Axis, AxisView} from "./axis"
 import {CategoricalTickFormatter} from "../formatters/categorical_tick_formatter"
 import {CategoricalTicker} from "../tickers/categorical_ticker"
-import {logger} from "../../core/logging"
+import {logger} from "core/logging"
 
 export class CategoricalAxisView extends AxisView
 

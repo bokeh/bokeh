@@ -118,3 +118,19 @@ Attempting to access any other attribute on ``request`` will result in an
 error.
 
 .. _project roadmap: http://bokehplots.com/pages/roadmap.html
+
+Default save file
+~~~~~~~~~~~~~~~~~
+
+If user-specified or default destination cannot be written to, a temporary
+file is generated instead. This mostly affects using ``output_file`` in an
+interactive session which formerly could result in a ``PermissionError``.
+
+For details see :bokeh-pull:`5942`.
+
+Reorganization of bokeh's examples
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Low-level examples, located under `examples/models`, were split in file
+and server examples and are available under `examples/models/file` and
+`examples/models/server` respectively (similarly to plotting examples).

@@ -1,8 +1,8 @@
-import {WEAK_EQ, GE, EQ, Strength, Variable} from "../../core/layout/solver"
-import {logger} from "../../core/logging"
-import * as p from "../../core/properties"
-import {extend, values, clone} from "../../core/util/object"
-import {isString, isArray} from "../../core/util/types"
+import {WEAK_EQ, GE, EQ, Strength, Variable} from "core/layout/solver"
+import {logger} from "core/logging"
+import * as p from "core/properties"
+import {extend, values, clone} from "core/util/object"
+import {isString, isArray} from "core/util/types"
 
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
 import {Title} from "../annotations/title"

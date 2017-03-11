@@ -62,7 +62,7 @@ div = Div(text="some <b>text</b>")
 pre_text = PreText(text="some text")
 
 def mk_tab(color):
-    plot = figure(width=300, height=300)
+    plot = figure(plot_width=300, plot_height=300)
     plot.scatter(flowers["petal_length"], flowers["petal_width"], color=color, fill_alpha=0.2, size=12)
     return Panel(title="Tab 1: %s" % color.capitalize(), child=plot)
 

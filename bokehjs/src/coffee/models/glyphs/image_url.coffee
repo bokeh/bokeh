@@ -1,6 +1,6 @@
 import {Glyph, GlyphView} from "./glyph"
-import {logger} from "../../core/logging"
-import * as p from "../../core/properties"
+import {logger} from "core/logging"
+import * as p from "core/properties"
 
 export class ImageURLView extends GlyphView
   initialize: (options) ->

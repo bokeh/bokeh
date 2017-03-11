@@ -1,9 +1,9 @@
 import {ColumnarDataSource} from "./columnar_data_source"
-import {HasProps} from "../../core/has_props"
-import {logger} from "../../core/logging"
-import * as p from "../../core/properties"
-import * as serialization from "../../core/util/serialization"
-import {isObject} from "../../core/util/types"
+import {HasProps} from "core/has_props"
+import {logger} from "core/logging"
+import * as p from "core/properties"
+import * as serialization from "core/util/serialization"
+import {isObject} from "core/util/types"
 
 # exported for testing
 export concat_typed_arrays = (a, b) ->

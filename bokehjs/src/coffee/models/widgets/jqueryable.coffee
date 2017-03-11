@@ -1,6 +1,6 @@
 import * as $ from "jquery"
 
-import {isFunction} from "../../core/util/types"
+import {isFunction} from "core/util/types"
 
 # Cached regex to split keys for `delegate`.
 delegateEventSplitter = /^(\S+)\s*(.*)$/

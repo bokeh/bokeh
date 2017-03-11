@@ -1,4 +1,4 @@
-import * as p from "../../core/properties"
+import * as p from "core/properties"
 import {Model} from "../../model"
 
 export class ToolProxy extends Model

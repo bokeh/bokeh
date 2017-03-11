@@ -1,8 +1,8 @@
 import {Annotation, AnnotationView} from "./annotation"
 import {OpenHead} from "./arrow_head"
 import {ColumnDataSource} from "../sources/column_data_source"
-import * as p from "../../core/properties"
-import {atan2} from "../../core/util/math"
+import * as p from "core/properties"
+import {atan2} from "core/util/math"
 
 export class ArrowView extends AnnotationView
   initialize: (options) ->
@@ -46,6 +46,9 @@ export class ArrowView extends AnnotationView
     return [start, end]
 
   render: () ->
+    if not @model.visible
+      return
+
     ctx = @plot_view.canvas_view.ctx
     ctx.save()
 

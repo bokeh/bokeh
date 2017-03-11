@@ -1,5 +1,5 @@
 import {GestureTool, GestureToolView} from "./gesture_tool"
-import * as p from "../../../core/properties"
+import * as p from "core/properties"
 
 export class PanToolView extends GestureToolView
 

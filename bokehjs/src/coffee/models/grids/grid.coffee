@@ -1,7 +1,7 @@
 import {GuideRenderer} from "../renderers/guide_renderer"
 import {RendererView} from "../renderers/renderer"
-import * as p from "../../core/properties"
-import {isArray} from "../../core/util/types"
+import * as p from "core/properties"
+import {isArray} from "core/util/types"
 
 export class GridView extends RendererView
   initialize: (attrs, options) ->
