@@ -22,13 +22,17 @@ export class SelectionManager extends HasProps
     if source != renderer_view.model.data_source
       logger.warn('select called with mis-matched data sources')
 
+    view = renderer_view.model.view
+    if source != view.source
+      logger.warn('select called with view and data source mismatch')
+
     indices = renderer_view.hit_test(geometry)
 
     if indices?
       selector = @_get_selector(renderer_view)
       selector.update(indices, final, append)
 
-      @source.selected = selector.indices
+      @source.selected = view.convert_selection(selector.indices)
 
       source.trigger('select')
       source.trigger('select-' + renderer_view.model.id)
@@ -41,6 +45,10 @@ export class SelectionManager extends HasProps
     source = @source
     if source != renderer_view.model.data_source
       logger.warn('inspect called with mis-matched data sources')
+
+    view = renderer_view.model.view
+    if source != view.source
+      logger.warn('inspect called with view and data source mismatch')
 
     indices = renderer_view.hit_test(geometry)
 
@@ -60,7 +68,7 @@ export class SelectionManager extends HasProps
       inspector = @_get_inspector(renderer_view)
       inspector.update(indices, true, false, true)
 
-      @source.setv({inspected: inspector.indices}, {"silent": true })
+      @source.setv({inspected: view.convert_selection(inspector.indices)}, {"silent": true })
 
       source.trigger(
         'inspect', indices, tool, renderer_view, source, data

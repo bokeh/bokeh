@@ -159,8 +159,18 @@ export class GlyphView extends BokehView
 
     return result
 
-  set_data: (source) ->
+  set_data: (source, indices) ->
     data = @model.materialize_dataspecs(source)
+
+    if indices
+      data_subset = {}
+      for k, v of data
+        if k.charAt(0) == '_'
+          data_subset[k] = (v[i] for i in indices)
+        else
+          data_subset[k] = v
+      data = data_subset
+
     extend(@, data)
 
     if @renderer.plot_view.model.use_map
@@ -172,8 +182,7 @@ export class GlyphView extends BokehView
     if @glglyph?
       @glglyph.set_data_changed(@_x.length)
 
-    @_set_data(source)
-
+    @_set_data(source) #TODO doesn't take indices into account
     @index = @_index_data()
 
   _set_data: () ->

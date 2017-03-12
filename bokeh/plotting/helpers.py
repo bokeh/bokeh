@@ -53,7 +53,7 @@ def get_default_alpha(plot=None):
 
 def _pop_renderer_args(kwargs):
     result = dict(data_source=kwargs.pop('source', ColumnDataSource()))
-    for attr in ['name', 'x_range_name', 'y_range_name', 'level']:
+    for attr in ['name', 'x_range_name', 'y_range_name', 'level', 'view']:
         val = kwargs.pop(attr, None)
         if val:
             result[attr] = val

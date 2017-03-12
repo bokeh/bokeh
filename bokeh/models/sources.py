@@ -9,6 +9,7 @@ from ..util.dependencies import import_optional
 from ..util.warnings import BokehUserWarning
 
 from .callbacks import Callback
+from .filters import Filter
 
 pd = import_optional('pandas')
 
@@ -320,6 +321,20 @@ class ColumnDataSource(ColumnarDataSource):
                 raise ValueError("Out-of bounds index (%d) in patch for column: %s" % (max_ind, name))
 
         self.data._patch(self.document, self, patches, setter)
+
+class CDSView(Model):
+    ''' A view into a ColumnDataSource that represents a row-wise subset.
+
+    '''
+
+    filters = List(Instance(Filter), default=[], help="""
+    List of filters that the view comprises.
+    """)
+
+    source = Instance(ColumnDataSource, help="""
+    The ColumnDataSource associated with this view. Used to determine
+    the length of the columns.
+    """)
 
 class GeoJSONDataSource(ColumnarDataSource):
     '''

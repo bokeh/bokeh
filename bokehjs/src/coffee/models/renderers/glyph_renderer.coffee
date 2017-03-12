@@ -84,10 +84,12 @@ export class GlyphRendererView extends RendererView
     t0 = Date.now()
     source = @model.data_source
 
+    @all_indices = @model.view.indices
+
     # TODO (bev) this is a bit clunky, need to make sure glyphs use the correct ranges when they call
     # mapping functions on the base Renderer class
     @glyph.model.setv({x_range_name: @model.x_range_name, y_range_name: @model.y_range_name}, {silent: true})
-    @glyph.set_data(source, arg)
+    @glyph.set_data(source, @all_indices, arg)
 
     @glyph.set_visuals(source)
     @decimated_glyph.set_visuals(source)
@@ -96,10 +98,6 @@ export class GlyphRendererView extends RendererView
       @nonselection_glyph.set_visuals(source)
     if @hover_glyph?
       @hover_glyph.set_visuals(source)
-
-    length = source.get_length()
-    length = 1 if not length?
-    @all_indices = [0...length]
 
     lod_factor = @plot_model.plot.lod_factor
     @decimated = []
@@ -154,6 +152,7 @@ export class GlyphRendererView extends RendererView
         inspected = inspected['1d'].indices
       else
         inspected = []
+    inspected = (i for i in indices when @all_indices[i] in inspected)
 
     lod_threshold = @plot_model.plot.lod_threshold
     if @plot_view.interactive and !glsupport and lod_threshold? and @all_indices.length > lod_threshold
@@ -188,7 +187,7 @@ export class GlyphRendererView extends RendererView
       selected = new Array()
       nonselected = new Array()
       for i in indices
-        if selected_mask[i]?
+        if selected_mask[@all_indices[i]]?
           selected.push(i)
         else
           nonselected.push(i)
@@ -244,6 +243,7 @@ export class GlyphRenderer extends Renderer
       x_range_name:       [ p.String,  'default' ]
       y_range_name:       [ p.String,  'default' ]
       data_source:        [ p.Instance           ]
+      view:               [ p.Instance           ]
       glyph:              [ p.Instance           ]
       hover_glyph:        [ p.Instance           ]
       nonselection_glyph: [ p.Any,      'auto'   ] # Instance or "auto"

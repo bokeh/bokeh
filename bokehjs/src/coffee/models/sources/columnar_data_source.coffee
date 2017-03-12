@@ -41,3 +41,8 @@ export class ColumnarDataSource extends DataSource
           return lengths.sort()[0]
         else
           throw new Error(msg)
+
+  get_indices: () ->
+    length = @get_length()
+    length = 1 if not length?
+    return [0...length]
