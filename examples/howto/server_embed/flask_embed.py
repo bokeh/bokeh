@@ -35,7 +35,6 @@ bokeh_app = Application(FunctionHandler(modify_doc))
 io_loop = IOLoop.current()
 
 server = Server({'/bkapp': bokeh_app}, io_loop=io_loop, allow_websocket_origin=["localhost:8080"])
-server.start()
 
 @flask_app.route('/', methods=['GET'])
 def bkapp_page():
