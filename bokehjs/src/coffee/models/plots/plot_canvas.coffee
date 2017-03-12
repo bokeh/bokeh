@@ -96,7 +96,7 @@ export class PlotCanvasView extends BokehView
     if @model.plot.webgl
       @init_webgl()
 
-    @throttled_render = throttle(@render, 15) # TODO (bev) configurable
+    @throttled_render = throttle((() => @trigger("force_render")), 15) # TODO (bev) configurable
 
     # Keep track of which plots of the canvas are not yet rendered
     if not @model.document._unrendered_plots?
@@ -465,6 +465,7 @@ export class PlotCanvasView extends BokehView
       @ui_event_bus.register_tool(tool_view)
 
   bind_bokeh_events: () ->
+    @listenTo(@, "force_render", () => @render())
     for name, rng of @model.frame.x_ranges
       @listenTo(rng, 'change', @request_render)
     for name, rng of @model.frame.y_ranges
