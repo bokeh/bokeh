@@ -40,4 +40,4 @@ def test_hover_changes_color(output_file_url, selenium, screenshot):
     # Hover over plot and take screenshot
     canvas = selenium.find_element_by_tag_name('canvas')
     hover_at_position(selenium, canvas, WIDTH * 0.33, HEIGHT * 0.5)
-    assert screenshot.is_valid()
+    screenshot.assert_is_valid()

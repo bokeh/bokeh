@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 
-from ..core.properties import Bool, Int, Seq, String
+from ..core.properties import Int, Seq, String
 from ..model import Model
 
 class Filter(Model):

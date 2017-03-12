@@ -37,4 +37,4 @@ def test_legend_powered_by_source(output_file_url, selenium, screenshot):
     assert has_no_console_errors(selenium)
 
     # Take screenshot
-    assert screenshot.is_valid()
+    screenshot.assert_is_valid()
