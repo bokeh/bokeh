@@ -133,4 +133,3 @@ p.on_event(events.PinchEnd,   print_event(attributes=point_attributes))
 
 
 curdoc().add_root(layout)
-
