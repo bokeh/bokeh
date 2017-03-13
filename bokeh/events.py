@@ -118,6 +118,13 @@ class DoubleTap(PointEvent):
     '''
     event_name = 'doubletap'
 
+class Press(PointEvent):
+    '''
+
+    '''
+    event_name = 'press'
+
+
 class MouseEnter(PointEvent):
     '''
 
@@ -191,9 +198,3 @@ class PinchStart(PointEvent):
 
     '''
     event_name = 'pinchstart'
-
-class Press(PointEvent):
-    '''
-
-    '''
-    event_name = 'press'
