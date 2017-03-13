@@ -5,7 +5,7 @@ import {logger} from "./logging"
 import {offset} from "./dom"
 import {getDeltaY} from "./util/wheel"
 import {extend} from "./util/object"
-import {PointEvent} from "./bokeh_events"
+import {BokehEvent} from "./bokeh_events"
 import {any} from "./util/array"
 
 
@@ -181,7 +181,7 @@ export class UIEvents
       sy: y - top
     }
     e.bokeh = extend(e.bokeh, extras)
-    event_cls = PointEvent.event_class(e)
+    event_cls = BokehEvent.event_class(e)
     if event_cls
       @plot.trigger_event(event_cls.from_event(e))
     else
@@ -195,7 +195,7 @@ export class UIEvents
       sy: e.pageY - top
     }
     e.bokeh = extend(e.bokeh, extras)
-    event_cls = PointEvent.event_class(e)
+    event_cls = BokehEvent.event_class(e)
     if event_cls
       @plot.trigger_event(event_cls.from_event(e))
 
