@@ -135,7 +135,7 @@ export class ColorBarView extends AnnotationView
     return {sx: sx, sy: sy}
 
   render: () ->
-    if @model.visible == false
+    if not @model.visible
       return
 
     ctx = @plot_view.canvas_view.ctx

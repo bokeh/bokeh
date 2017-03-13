@@ -46,6 +46,9 @@ export class ArrowView extends AnnotationView
     return [start, end]
 
   render: () ->
+    if not @model.visible
+      return
+
     ctx = @plot_view.canvas_view.ctx
     ctx.save()
 
