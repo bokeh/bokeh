@@ -127,7 +127,6 @@ class ColumnDataSource(ColumnarDataSource):
         if index.name:
             new_data[index.name] = index.values
         elif index.names and not all([x is None for x in index.names]):
-            print("_".join(index.names))
             new_data["_".join(index.names)] = index.values
         else:
             new_data["index"] = index.values
