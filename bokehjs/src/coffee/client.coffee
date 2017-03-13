@@ -13,14 +13,10 @@ class Message
     @buffers = []
 
   @assemble : (header_json, metadata_json, content_json) ->
-    try
-      header = JSON.parse(header_json)
-      metadata = JSON.parse(metadata_json)
-      content = JSON.parse(content_json)
-      new Message(header, metadata, content)
-    catch e
-      logger.error("Failure parsing json #{e} #{header_json} #{metadata_json} #{content_json}", e)
-      throw e
+    header = JSON.parse(header_json)
+    metadata = JSON.parse(metadata_json)
+    content = JSON.parse(content_json)
+    new Message(header, metadata, content)
 
   @create_header : (msgtype, options) ->
     header = {
@@ -36,16 +32,12 @@ class Message
     new Message(header, {}, content)
 
   send : (socket) ->
-    try
-      header_json = JSON.stringify(@header)
-      metadata_json = JSON.stringify(@metadata)
-      content_json = JSON.stringify(@content)
-      socket.send(header_json)
-      socket.send(metadata_json)
-      socket.send(content_json)
-    catch e
-      logger.error("Error sending ", @, e)
-      throw e
+    header_json = JSON.stringify(@header)
+    metadata_json = JSON.stringify(@metadata)
+    content_json = JSON.stringify(@content)
+    socket.send(header_json)
+    socket.send(metadata_json)
+    socket.send(content_json)
 
   complete : ->
     if @header? and @metadata? and @content?
@@ -180,12 +172,9 @@ class ClientConnection
     setTimeout retry, milliseconds
 
   send : (message) ->
-    try
-      if @socket == null
-        throw new Error("not connected so cannot send #{message}")
-      message.send(@socket)
-    catch e
-      logger.error("Error sending message ", e, message)
+    if @socket == null
+      throw new Error("not connected so cannot send #{message}")
+    message.send(@socket)
 
   send_event : (event) ->
     message = Message.create('EVENT', {}, JSON.stringify(event))
@@ -266,10 +255,7 @@ class ClientConnection
       @_awaiting_ack_handler(message)
 
   _on_message : (event) ->
-    try
-      @_on_message_unchecked(event)
-    catch e
-      logger.error("Error handling message: #{e}, #{event}")
+    @_on_message_unchecked(event)
 
   _on_message_unchecked : (event) ->
     if not @_current_handler?
