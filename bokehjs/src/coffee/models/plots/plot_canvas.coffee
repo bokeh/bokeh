@@ -62,6 +62,9 @@ export class PlotCanvasView extends BokehView
       view.remove()
     @tool_views = {}
 
+    @canvas_view.remove()
+    @canvas_view = null
+
     super()
 
   initialize: (options) ->
