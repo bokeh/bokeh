@@ -91,10 +91,10 @@ def test_transform_array_to_list():
 
 @pytest.mark.parametrize('values', [(['cat', 'dog']), ([1.2, 'apple'])])
 def test_transform_array_with_nans_to_list(values):
-    s = pd.Series([np.nan, *values])
+    s = pd.Series([np.nan, values[0], values[1]])
     out = bus.transform_array_to_list(s)
     assert isinstance(out, list)
-    assert out == ['NaN', *values]
+    assert out == ['NaN', values[0], values[1]]
 
 def test_array_encoding_disabled_by_dtype():
 
