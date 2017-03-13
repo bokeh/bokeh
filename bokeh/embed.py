@@ -28,6 +28,7 @@ from .core.json_encoder import serialize_json
 from .document import Document, DEFAULT_TITLE
 from .model import Model
 from .resources import BaseResources, _SessionCoordinates, EMPTY
+from .util.deprecation import deprecated
 from .util.string import encode_utf8
 from .util.serialization import make_id
 
@@ -340,10 +341,8 @@ def file_html(models,
               template_variables={}):
     '''Return an HTML document that embeds Bokeh Model or Document objects.
 
-    The data for the plot is stored directly in the returned HTML.
-
-    This is an alias for standalone_html_page_for_models() which
-    supports customizing the JS/CSS resources independently and
+    The data for the plot is stored directly in the returned HTML, with
+    support for customizing the JS/CSS resources independently and
     customizing the jinja2 template.
 
     Args:
@@ -659,6 +658,7 @@ def standalone_html_page_for_models(models, resources, title):
         UTF-8 encoded HTML
 
     '''
+    deprecated((0, 12, 5), 'bokeh.io.standalone_html_page_for_models', 'bokeh.io.file_html')
     return file_html(models, resources, title)
 
 def server_html_page_for_models(session_id, model_ids, resources, title, websocket_url, template=FILE):

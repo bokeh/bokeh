@@ -54,7 +54,7 @@ respectively.
 from __future__ import absolute_import
 
 from bokeh.resources import Resources
-from bokeh.embed import standalone_html_page_for_models
+from bokeh.embed import file_html
 
 from .file_output import FileOutputSubcommand
 
@@ -88,4 +88,4 @@ class HTML(FileOutputSubcommand):
 
     def file_contents(self, args, doc):
         resources = Resources(mode="cdn", root_dir=None)
-        return standalone_html_page_for_models(doc, resources=resources, title=None)
+        return file_html(doc, resources=resources, title=None)
