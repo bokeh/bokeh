@@ -111,6 +111,12 @@ export class Pan extends PointEvent {
         model_id: model_id
       });
   }
+
+  constructor(options = {}) {
+    this.delta_x = options.delta_x;
+    this.delta_y = options.delta_y;
+    super(options)
+  }
 }
 
 export class Pinch extends PointEvent {
@@ -126,6 +132,11 @@ export class Pinch extends PointEvent {
               model_id: model_id
             });
   }
+
+  constructor(options = {}) {
+    this.scale = options.scale;
+    super(options)
+  }
 }
 
 export class MouseWheel extends PointEvent {
@@ -140,6 +151,11 @@ export class MouseWheel extends PointEvent {
         delta: e.delta,
         model_id: model_id
       });
+  }
+
+  constructor(options = {}) {
+    this.delta = options.delta;
+    super(options)
   }
 }
 
