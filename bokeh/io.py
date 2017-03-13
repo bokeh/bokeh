@@ -29,11 +29,10 @@ import tempfile
 # Bokeh imports
 from .core.state import State
 from .document import Document
-from .embed import notebook_div, standalone_html_page_for_models, autoload_server
+from .embed import notebook_div, standalone_html_page_for_models
 from .models.layouts import LayoutDOM
 from .layouts import gridplot, GridSpec ; gridplot, GridSpec
 import bokeh.util.browser as browserlib  # full import needed for test mocking to work
-from .util.deprecation import deprecated
 from .util.notebook import load_notebook, publish_display_data, get_comms
 from .util.string import decode_utf8
 from .util.serialization import make_id
@@ -100,10 +99,9 @@ def output_file(filename, title="Bokeh Plot", mode="cdn", root_dir=None):
     '''Configure the default output state to generate output saved
     to a file when :func:`show` is called.
 
-    Does not change the current Document from curdoc(). File,
-    server, and notebook output may be active at the same time, so
-    this does not clear the effects of output_server() or
-    output_notebook().
+    Does not change the current Document from curdoc(). File and notebook
+    output may be active at the same time, so e.g., this does not clear the
+    effects of ``output_notebook()``.
 
     Args:
         filename (str) : a filename for saving the HTML document
@@ -139,11 +137,7 @@ def output_file(filename, title="Bokeh Plot", mode="cdn", root_dir=None):
 
 def output_notebook(resources=None, verbose=False, hide_banner=False, load_timeout=5000):
     ''' Configure the default output state to generate output in
-    Jupyter/IPython notebook cells when :func:`show` is called.
-
-    If output_server() has also been called, the notebook cells
-    are loaded from the configured server; otherwise, Bokeh pushes
-    HTML to the notebook directly.
+    Jupyter notebook cells when :func:`show` is called.
 
     Args:
         resources (Resource, optional) :
@@ -169,72 +163,14 @@ def output_notebook(resources=None, verbose=False, hide_banner=False, load_timeo
     load_notebook(resources, verbose, hide_banner, load_timeout)
     _state.output_notebook()
 
-# usually we default session_id to "generate a random one" but
-# here we default to a hardcoded one. This is to support local
-# usage e.g. with a notebook.
-def output_server(session_id=None, url="default", app_path="/"):
-    """ Configure the default output state to push its document to a
-    session on a Bokeh server.
-
-    Sessions are in-memory and not persisted to disk; in a typical
-    production deployment, you would have a fresh session ID for each
-    browser tab. If different users share the same session ID, it will
-    create security and scalability problems.
-
-    ``output_server()`` defaults to always using the
-    ``session_id`` ``"default"``, which is useful for running
-    local demos or notebooks. However, if you are creating
-    production sessions, you'll need to set ``session_id`` to None
-    (to generate a fresh ID) or to a session ID generated elsewhere.
-
-    File, server, and notebook output may be active at the same
-    time, so output_server() does not clear the effects of
-    output_file() or output_notebook(). output_server() changes
-    the behavior of output_notebook(), so the notebook will load
-    output cells from the server rather than receiving them as
-    inline HTML.
-
-    Args:
-        session_id (str, optional) : Name of session to push on Bokeh server (default: "default")
-            Any existing session with the same name will be overwritten.
-
-        url (str, optional) : base URL of the Bokeh server (default: "default")
-            If "default" use the default localhost URL.
-
-        app_path (str, optional) : relative path of the app on the Bokeh server (default: "/")
-
-    Returns:
-        None
-
-    .. warning::
-        Calling this function will replace any existing server-side document in the named session.
-
-    """
-    deprecated((0, 12, 3), 'bokeh.io.output_server()', """
-    bokeh.client sessions as described at http://bokeh.pydata.org/en/latest/docs/user_guide/server.html#connecting-with-bokeh-client"
-    """)
-
-    # limit heavyweight import to only when needed
-    from .client import DEFAULT_SESSION_ID
-    if session_id is None:
-        session_id = DEFAULT_SESSION_ID
-    _state.output_server(session_id=session_id, url=url, app_path=app_path)
-
 def set_curdoc(doc):
     '''Configure the current document (returned by curdoc()).
-
-    This is the document we will save or push according to
-    output_file(), output_server(), etc. configuration.
 
     Args:
         doc (Document) : Document we will output.
 
     Returns:
         None
-
-    .. note::
-        Generally, this should be called at the beginning of an interactive
-        session or the top of a script.
 
     .. warning::
         Calling this function will replace any existing document.
@@ -262,13 +198,8 @@ def curstate():
 def show(obj, browser=None, new="tab", notebook_handle=False):
     ''' Immediately display a plot object.
 
-    In an IPython/Jupyter notebook, the output is displayed in an output
-    cell. Otherwise, a browser window or tab is autoraised to display the
-    plot object.
-
-    If both a server session and notebook output have been configured on
-    the default output state then the notebook output will be generated to
-    load the plot from that server session.
+    In a Jupyter notebook, the output is displayed in an output cell. Otherwise,
+    a browser window or tab is autoraised to display the plot object.
 
     Args:
         obj (LayoutDOM object) : a Layout (Row/Column), Plot or Widget object to display
@@ -295,7 +226,7 @@ def show(obj, browser=None, new="tab", notebook_handle=False):
 
     .. note::
         The ``browser`` and ``new`` parameters are ignored when showing in
-        an IPython/Jupyter notebook.
+        a Jupyter notebook.
 
     '''
     if obj not in _state.document.roots:
@@ -313,10 +244,6 @@ def _show_with_state(obj, state, browser, new, notebook_handle=False):
         comms_handle = _show_notebook_with_state(obj, state, notebook_handle)
         shown = True
 
-    elif state.server_enabled:
-        _show_server_with_state(obj, state, new, controller)
-        shown = True
-
     if state.file or not shown:
         _show_file_with_state(obj, state, new, controller)
 
@@ -327,26 +254,13 @@ def _show_file_with_state(obj, state, new, controller):
     controller.open("file://" + filename, new=_new_param[new])
 
 def _show_notebook_with_state(obj, state, notebook_handle):
-    if state.server_enabled:
-        push(state=state)
-        snippet = autoload_server(obj, session_id=state.session_id_allowing_none, url=state.url, app_path=state.app_path)
-        publish_display_data({'text/html': snippet})
-    else:
-        comms_target = make_id() if notebook_handle else None
-        publish_display_data({'text/html': notebook_div(obj, comms_target)})
-        if comms_target:
-            handle = _CommsHandle(get_comms(comms_target), state.document,
-                                  state.document.to_json())
-            state.last_comms_handle = handle
-            return handle
-
-def _show_server_with_state(obj, state, new, controller):
-    # limit heavyweight import to only when needed
-    from .client import show_session
-
-    push(state=state)
-    show_session(session_id=state.session_id_allowing_none, url=state.url, app_path=state.app_path,
-                 new=new, controller=controller)
+    comms_target = make_id() if notebook_handle else None
+    publish_display_data({'text/html': notebook_div(obj, comms_target)})
+    if comms_target:
+        handle = _CommsHandle(get_comms(comms_target), state.document,
+                              state.document.to_json())
+        state.last_comms_handle = handle
+        return handle
 
 def save(obj, filename=None, resources=None, title=None, state=None, validate=True):
     ''' Save an HTML file with the data for the current document.
@@ -462,69 +376,6 @@ def _save_helper(obj, filename, resources, title, validate):
     if remove_after:
         doc.remove_root(obj)
 
-# this function exists mostly to be mocked in tests
-def _push_to_server(session_id, url, app_path, document, io_loop):
-    # limit heavyweight import to only when needed
-    from .client import push_session
-    session = push_session(document, session_id=session_id, url=url, app_path=app_path, io_loop=io_loop)
-    session.close()
-    session.loop_until_closed()
-
-def push(session_id=None, url=None, app_path=None, document=None, state=None, io_loop=None, validate=True):
-    ''' Update the server with the data for the current document.
-
-    Will fall back to the default output state (or an explicitly
-    provided :class:`State` object) for ``session_id``, ``url``,
-    ``app_path``, or ``document`` if they are not provided.
-
-    Args:
-        session_id (str, optional) : a Bokeh server session ID to push objects to
-
-        url (str, optional) : a Bokeh server URL to push objects to
-
-        app_path (str, optional) : Relative application path to push objects to
-
-        document (Document, optional) : A :class:`bokeh.document.Document` to use
-
-        state (State, optional) : A state to use for any output_server() configuration of session or url
-
-        io_loop (tornado.ioloop.IOLoop, optional) : Tornado IOLoop to use for connecting to server
-
-        validate (bool, optional) : True to check integrity of the document we are pushing
-
-    Returns:
-        None
-
-    '''
-    if state is None:
-        state = _state
-
-    if not session_id:
-        session_id = state.session_id_allowing_none
-
-    if not url:
-        url = state.url
-
-    if not app_path:
-        app_path = state.app_path
-
-    # State is supposed to ensure these are set
-    assert session_id is not None
-    assert url is not None
-    assert app_path is not None
-
-    if not document:
-        document = state.document
-
-    if not document:
-        warnings.warn("No document to push")
-
-    if validate:
-        document.validate()
-
-    _push_to_server(session_id=session_id, url=url, app_path=app_path,
-                    document=document, io_loop=io_loop)
-
 def push_notebook(document=None, state=None, handle=None):
     ''' Update Bokeh plots in a Jupyter notebook output cells with new data
     or property values.
@@ -575,9 +426,6 @@ def push_notebook(document=None, state=None, handle=None):
     '''
     if state is None:
         state = _state
-
-    if state.server_enabled:
-        raise RuntimeError("output_server() has been called, which is incompatible with push_notebook")
 
     if not document:
         document = state.document
