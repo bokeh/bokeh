@@ -88,4 +88,4 @@ class HTML(FileOutputSubcommand):
 
     def file_contents(self, args, doc):
         resources = Resources(mode="cdn", root_dir=None)
-        return file_html(doc, resources=resources, title=None)
+        return file_html(doc, resources)
