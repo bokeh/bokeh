@@ -29,7 +29,7 @@ import tempfile
 # Bokeh imports
 from .core.state import State
 from .document import Document
-from .embed import notebook_div, standalone_html_page_for_models, autoload_server
+from .embed import notebook_div, file_html, autoload_server
 from .layouts import gridplot, GridSpec ; gridplot, GridSpec
 import bokeh.util.browser as browserlib  # full import needed for test mocking to work
 from .util.deprecation import deprecated
@@ -380,7 +380,7 @@ def save(obj, filename=None, resources=None, title=None, state=None, validate=Tr
         state = _state
 
     filename, resources, title = _get_save_args(state, filename, resources, title)
-    _save_helper(obj, state, filename, resources, title, validate)
+    _save_helper(obj, filename, resources, title)
     return os.path.abspath(filename)
 
 def _detect_filename(ext):
@@ -434,24 +434,11 @@ def _get_save_args(state, filename, resources, title):
 
     return filename, resources, title
 
-def _save_helper(obj, state, filename, resources, title, validate):
-    remove_after = False
-    doc = state.document
-
-    if obj.document is None:
-        doc.add_root(obj)
-        remove_after = True
-
-    if validate:
-        doc.validate()
-
-    html = standalone_html_page_for_models(doc, resources, title)
+def _save_helper(obj, filename, resources, title):
+    html = file_html([obj], resources, title=title)
 
     with io.open(filename, mode="w", encoding="utf-8") as f:
         f.write(decode_utf8(html))
-
-    if remove_after:
-        doc.remove_root(obj)
 
 # this function exists mostly to be mocked in tests
 def _push_to_server(session_id, url, app_path, document, io_loop):
