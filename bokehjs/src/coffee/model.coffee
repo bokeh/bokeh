@@ -29,7 +29,8 @@ export class Model extends HasProps
     if not event.constructor.event_name
        logger.warn('Event is still passed as a string: ' + event)
        return
-    if not event.constructor.applicable_models.some((m) => m == @.type)
+
+    if not event.constructor.applicable_models.some((m) => @ instanceof m )
       return
 
     event = event._customize_event(@)

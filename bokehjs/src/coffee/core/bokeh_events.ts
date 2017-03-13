@@ -1,4 +1,6 @@
 import { logger } from "./logging"
+import {Button} from "../models/widgets"
+import {Plot} from "../models/plots/plot"
 
 export class BokehEvent {
   static _event_classes: any = {}
@@ -54,14 +56,14 @@ export class BokehEvent {
 
 export class ButtonClick extends BokehEvent {
   static event_name = 'button_click'
-  static applicable_models = ['Button']
+  static applicable_models = [Button]
 }
 
 
 export class UIEvent extends BokehEvent {
   // A UIEvent is an event originating on a PlotCanvas this includes
   // DOM events such as keystrokes as well as hammer events and LOD events.
-  static applicable_models = ['Plot']
+  static applicable_models = [Plot]
 }
 
 
