@@ -72,13 +72,13 @@ export class LODEnd extends UIEvent {
 
 export class PointEvent extends UIEvent {
 
-    constructor(options) {
-      this.sx = options.sx;
-      this.sy = options.sy;
-      this.x = null;
-      this.y = null;
-      super(options)
-    }
+  constructor(options) {
+    super(options)
+    this.sx = options.sx;
+    this.sy = options.sy;
+    this.x = null;
+    this.y = null;
+  }
 
   static from_event(e, model_id = null) {
     return new this({ sx: e.bokeh['sx'], sy: e.bokeh['sy'], model_id: model_id });
@@ -113,9 +113,9 @@ export class Pan extends PointEvent {
   }
 
   constructor(options = {}) {
+    super(options)
     this.delta_x = options.delta_x;
     this.delta_y = options.delta_y;
-    super(options)
   }
 }
 
@@ -134,8 +134,8 @@ export class Pinch extends PointEvent {
   }
 
   constructor(options = {}) {
-    this.scale = options.scale;
     super(options)
+    this.scale = options.scale;
   }
 }
 
