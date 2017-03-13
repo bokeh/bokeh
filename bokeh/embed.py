@@ -84,7 +84,7 @@ def _find_existing_docs(models):
         doc = existing_docs.pop()
     else:
         # conflicting/multiple docs, raise an error
-        msg = ('Multiple items in models conatain documents or are '
+        msg = ('Multiple items in models contain documents or are '
                'themselves documents. (Models must be owned by only a '
                'single document). This may indicate a usage error.')
         raise RuntimeError(msg)

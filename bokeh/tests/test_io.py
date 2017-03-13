@@ -157,7 +157,7 @@ class Test_SaveHelper(DefaultStateTester):
         io._save_helper(obj, filename, resources, title)
 
         self._check_func_called(mock_file_html,
-                                ([obj], resources),
+                                (obj, resources),
                                 {"title": "title"})
         self._check_func_called(mock_io_open,
                                 (filename,),

@@ -347,7 +347,7 @@ def _show_server_with_state(obj, state, new, controller):
     show_session(session_id=state.session_id_allowing_none, url=state.url, app_path=state.app_path,
                  new=new, controller=controller)
 
-def save(obj, filename=None, resources=None, title=None, state=None, validate=True):
+def save(obj, filename=None, resources=None, title=None, state=None, **kwargs):
     ''' Save an HTML file with the data for the current document.
 
     Will fall back to the default output state (or an explicitly provided
@@ -370,12 +370,15 @@ def save(obj, filename=None, resources=None, title=None, state=None, validate=Tr
             If None, use the default state title value, if there is one.
             Otherwise, use "Bokeh Plot"
 
-        validate (bool, optional) : True to check integrity of the models
-
     Returns:
         filename (str) : the filename where the HTML file is saved.
 
     '''
+
+    if 'validate' in kwargs:
+        deprecated((0, 12, 5), 'The `validate` keyword argument', 'None', """
+        The keyword argument has been removed and the document will always be validated.""")
+
     if state is None:
         state = _state
 
@@ -435,7 +438,7 @@ def _get_save_args(state, filename, resources, title):
     return filename, resources, title
 
 def _save_helper(obj, filename, resources, title):
-    html = file_html([obj], resources, title=title)
+    html = file_html(obj, resources, title=title)
 
     with io.open(filename, mode="w", encoding="utf-8") as f:
         f.write(decode_utf8(html))
