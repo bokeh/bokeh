@@ -43,8 +43,8 @@ export class BokehEvent {
     return this
   }
 
-  static register_event_class(name, event_cls) {
-    BokehEvent._event_classes[name] = event_cls
+  static register_event_class(event_cls) {
+    BokehEvent._event_classes[event_cls.event_name] = event_cls
   }
 }
 
@@ -199,19 +199,19 @@ export class PinchEnd extends PointEvent {
   static event_name = 'pinchend'
 }
 
-BokehEvent.register_event_class('lodstart', ButtonClick);
-BokehEvent.register_event_class('lodstart', LODStart);
-BokehEvent.register_event_class('lodend', LODEnd);
-BokehEvent.register_event_class('pan', Pan);
-BokehEvent.register_event_class('pinch', Pan);
-BokehEvent.register_event_class('wheel', MouseWheel);
-BokehEvent.register_event_class('mousemove', MouseMove);
-BokehEvent.register_event_class('mouseenter', MouseEnter);
-BokehEvent.register_event_class('mouseleave', MouseLeave);
-BokehEvent.register_event_class('tap', Tap);
-BokehEvent.register_event_class('doubletap', DoubleTap);
-BokehEvent.register_event_class('press', Press);
-BokehEvent.register_event_class('panstart', PanStart);
-BokehEvent.register_event_class('panend', PanEnd);
-BokehEvent.register_event_class('pinchstart', PinchStart);
-BokehEvent.register_event_class('pinchend', PinchEnd);
+BokehEvent.register_event_class(ButtonClick);
+BokehEvent.register_event_class(LODStart);
+BokehEvent.register_event_class(LODEnd);
+BokehEvent.register_event_class(Pan);
+BokehEvent.register_event_class(Pan);
+BokehEvent.register_event_class(MouseWheel);
+BokehEvent.register_event_class(MouseMove);
+BokehEvent.register_event_class(MouseEnter);
+BokehEvent.register_event_class(MouseLeave);
+BokehEvent.register_event_class(Tap);
+BokehEvent.register_event_class(DoubleTap);
+BokehEvent.register_event_class(Press);
+BokehEvent.register_event_class(PanStart);
+BokehEvent.register_event_class(PanEnd);
+BokehEvent.register_event_class(PinchStart);
+BokehEvent.register_event_class(PinchEnd);
