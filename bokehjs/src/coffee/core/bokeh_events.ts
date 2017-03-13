@@ -1,6 +1,6 @@
 import { logger } from "./logging"
 
-export class Event {
+export class BokehEvent {
   static _event_classes = {}
 
   constructor(options = {}) {
@@ -18,12 +18,12 @@ export class Event {
 
   static event_class(e) {
     // Given an event with a type attribute matching the event_name,
-    // return the appropriate Event class
+    // return the appropriate BokehEvent class
     if (e.type) {
       return this._event_classes[e.type];
     }
     else {
-      logger.warn('Event.event_class required events with a string type attribute')
+      logger.warn('BokehEvent.event_class required events with a string type attribute')
     }
   }
 
@@ -44,17 +44,17 @@ export class Event {
   }
 
   static register_event_class(name, event_cls) {
-    Event._event_classes[name] = event_cls
+    BokehEvent._event_classes[name] = event_cls
   }
 }
 
-export class ButtonClick extends Event {
+export class ButtonClick extends BokehEvent {
   static event_name = 'button_click'
   static applicable_models = ['Button']
 }
 
 
-export class UIEvent extends Event {
+export class UIEvent extends BokehEvent {
   // A UIEvent is an event originating on a PlotCanvas this includes
   // DOM events such as keystrokes as well as hammer events and LOD events.
   static applicable_models = ['Plot']
@@ -199,19 +199,19 @@ export class PinchEnd extends PointEvent {
   static event_name = 'pinchend'
 }
 
-Event.register_event_class('lodstart', ButtonClick);
-Event.register_event_class('lodstart', LODStart);
-Event.register_event_class('lodend', LODEnd);
-Event.register_event_class('pan', Pan);
-Event.register_event_class('pinch', Pan);
-Event.register_event_class('wheel', MouseWheel);
-Event.register_event_class('mousemove', MouseMove);
-Event.register_event_class('mouseenter', MouseEnter);
-Event.register_event_class('mouseleave', MouseLeave);
-Event.register_event_class('tap', Tap);
-Event.register_event_class('doubletap', DoubleTap);
-Event.register_event_class('press', Press);
-Event.register_event_class('panstart', PanStart);
-Event.register_event_class('panend', PanEnd);
-Event.register_event_class('pinchstart', PinchStart);
-Event.register_event_class('pinchend', PinchEnd);
+BokehEvent.register_event_class('lodstart', ButtonClick);
+BokehEvent.register_event_class('lodstart', LODStart);
+BokehEvent.register_event_class('lodend', LODEnd);
+BokehEvent.register_event_class('pan', Pan);
+BokehEvent.register_event_class('pinch', Pan);
+BokehEvent.register_event_class('wheel', MouseWheel);
+BokehEvent.register_event_class('mousemove', MouseMove);
+BokehEvent.register_event_class('mouseenter', MouseEnter);
+BokehEvent.register_event_class('mouseleave', MouseLeave);
+BokehEvent.register_event_class('tap', Tap);
+BokehEvent.register_event_class('doubletap', DoubleTap);
+BokehEvent.register_event_class('press', Press);
+BokehEvent.register_event_class('panstart', PanStart);
+BokehEvent.register_event_class('panend', PanEnd);
+BokehEvent.register_event_class('pinchstart', PinchStart);
+BokehEvent.register_event_class('pinchend', PinchEnd);
