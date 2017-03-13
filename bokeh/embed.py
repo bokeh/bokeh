@@ -52,22 +52,22 @@ def _wrap_in_onload(code):
 """ % dict(code=_indent(code, 4))
 
 @contextmanager
-def _ModelInDocument(models, theme=None):
+def _ModelInDocument(models, apply_theme=None):
     doc = _find_existing_docs(models)
     old_theme = doc.theme
 
-    if theme is FromCurdoc:
+    if apply_theme is FromCurdoc:
         from .io import curdoc; curdoc
         doc.theme = curdoc().theme
-    elif theme is not None:
-        doc.theme = theme
+    elif apply_theme is not None:
+        doc.theme = apply_theme
 
     models_to_dedoc = _add_doc_to_models(doc, models)
 
     yield models
 
     for model in models_to_dedoc:
-        doc.remove_root(model, theme)
+        doc.remove_root(model, apply_theme)
     doc.theme = old_theme
 
 
@@ -197,7 +197,7 @@ def components(models, wrap_script=True, wrap_plot_info=True, theme=FromCurdoc):
         models = values
 
     # 2) Append models to one document. Either pre-existing or new and render
-    with _ModelInDocument(models, theme=theme):
+    with _ModelInDocument(models, apply_theme=theme):
         (docs_json, render_items) = _standalone_docs_json_and_render_items(models)
 
     script = _script_for_render_items(docs_json, render_items, websocket_url=None, wrap_script=wrap_script)
@@ -302,7 +302,7 @@ def notebook_div(model, notebook_comms_target=None, theme=FromCurdoc):
     model = _check_one_model(model)
 
     # Append models to one document. Either pre-existing or new and render
-    with _ModelInDocument([model], theme=theme):
+    with _ModelInDocument([model], apply_theme=theme):
         (docs_json, render_items) = _standalone_docs_json_and_render_items([model])
 
     item = render_items[0]
