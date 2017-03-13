@@ -1,22 +1,25 @@
 import { logger } from "./logging"
 
 export class BokehEvent {
-  static _event_classes = {}
+  static _event_classes: any = {}
 
-  constructor(options = {}) {
+  _options: any
+  model_id: string
+
+  constructor(options: any = {}) {
     this._options = options;
     if (options.model_id) {
       this.model_id = options.model_id
     }
   }
 
-  set_model_id(id) {
+  set_model_id(id: string): this {
     this._options.model_id = id;
     this.model_id = id;
     return this
   }
 
-  static event_class(e) {
+  static event_class(e: any): any {
     // Given an event with a type attribute matching the event_name,
     // return the appropriate BokehEvent class
     if (e.type) {
@@ -27,11 +30,12 @@ export class BokehEvent {
     }
   }
 
-  toJSON() {
-    if (this.constructor.event_name) {
+  toJSON(): any {
+    const event_name: string = (this.constructor as any).event_name
+    if (event_name != null) {
       return {
-        event_name: this.constructor.event_name,
-        event_values: this._options
+        event_name: event_name,
+        event_values: this._options,
       };
     }
     else {
@@ -39,11 +43,11 @@ export class BokehEvent {
     }
   }
 
-  _customize_event(model) {
+  _customize_event(model: any): this {
     return this
   }
 
-  static register_event_class(event_cls) {
+  static register_event_class(event_cls: any) {
     BokehEvent._event_classes[event_cls.event_name] = event_cls
   }
 }
@@ -72,7 +76,13 @@ export class LODEnd extends UIEvent {
 
 export class PointEvent extends UIEvent {
 
-  constructor(options) {
+  sx: number
+  sy: number
+
+  x: number
+  y: number
+
+  constructor(options: any) {
     super(options)
     this.sx = options.sx;
     this.sy = options.sy;
@@ -80,11 +90,11 @@ export class PointEvent extends UIEvent {
     this.y = null;
   }
 
-  static from_event(e, model_id = null) {
+  static from_event(e: any, model_id: string = null) {
     return new this({ sx: e.bokeh['sx'], sy: e.bokeh['sy'], model_id: model_id });
   }
 
-  _customize_event(plot) {
+  _customize_event(plot: any) {
     let xmapper = plot.plot_canvas.frame.x_mappers['default'];
     let ymapper = plot.plot_canvas.frame.y_mappers['default'];
     this.x = xmapper.map_from_target(plot.plot_canvas.canvas.sx_to_vx(this.sx));
@@ -99,7 +109,7 @@ export class Pan extends PointEvent {
 
   static event_name = 'pan'
 
-  static from_event(e, model_id = null) {
+  static from_event(e: any, model_id: string = null) {
 
     return new this(
       {
@@ -112,7 +122,10 @@ export class Pan extends PointEvent {
       });
   }
 
-  constructor(options = {}) {
+  delta_x: number
+  delta_y: number
+
+  constructor(options: any = {}) {
     super(options)
     this.delta_x = options.delta_x;
     this.delta_y = options.delta_y;
@@ -123,7 +136,7 @@ export class Pinch extends PointEvent {
 
   static event_name = 'pinch'
 
-  static from_event(e, model_id = null) {
+  static from_event(e: any, model_id: string = null) {
     return new this(
             {
               sx: e.bokeh['sx'],
@@ -133,7 +146,9 @@ export class Pinch extends PointEvent {
             });
   }
 
-  constructor(options = {}) {
+  scale: number
+
+  constructor(options: any = {}) {
     super(options)
     this.scale = options.scale;
   }
@@ -143,7 +158,7 @@ export class MouseWheel extends PointEvent {
 
   static event_name = 'wheel'
 
-  static from_event(e, model_id = null) {
+  static from_event(e: any, model_id: string = null) {
     return new this(
       {
         sx: e.bokeh['sx'],
@@ -153,9 +168,11 @@ export class MouseWheel extends PointEvent {
       });
   }
 
-  constructor(options = {}) {
-    this.delta = options.delta;
+  delta: number
+
+  constructor(options: any = {}) {
     super(options)
+    this.delta = options.delta;
   }
 }
 
