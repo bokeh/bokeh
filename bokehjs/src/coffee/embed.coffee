@@ -160,28 +160,19 @@ fill_render_item_from_script_tag = (script, item) ->
 
   logger.info("Will inject Bokeh script tag with params #{JSON.stringify(item)}")
 
-export embed_items = (docs_json, render_items, app_path, absolute_url) ->
+export embed_items = (docs_json, render_items, absolute_url) ->
   protocol = 'ws:'
   if (window.location.protocol == 'https:')
     protocol = 'wss:'
-  logger.debug("embed: detected protocol: #{protocol}")
-
-  if app_path?
-    console.debug("embed: using supplied app path: #{app_path}")
-    if app_path == "/"
-      app_path = ""
-  else
-    app_path = window.location.pathname.replace(/\/+$/, '')
-    console.debug("embed: using computed app path: #{app_path}")
-
-  ws_pathname = app_path + '/ws'
 
   if absolute_url?
-    absurl = new URL(absolute_url)
-    websocket_url = protocol + '//' + absurl.host + ws_pathname
+    loc = new URL(absolute_url)
   else
-    websocket_url = protocol + '//' + window.location.host + ws_pathname
-  logger.debug("embed: using ws url: #{websocket_url}")
+    loc = window.location
+
+  app_path = loc.pathname.replace(/\/+$/, '')
+  websocket_url = protocol + '//' + loc.host + app_path + '/ws'
+  logger.debug("embed: computed ws url: #{websocket_url}")
 
   docs = {}
   for docid of docs_json

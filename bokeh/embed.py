@@ -422,7 +422,7 @@ def autoload_static(model, resources, script_path):
 
     return encode_utf8(js), encode_utf8(tag)
 
-def autoload_server(model, app_path="/", session_id=None, url="default", relative_urls=True):
+def autoload_server(model, app_path=None, session_id=None, url="default", relative_urls=True):
     '''Return a script tag that embeds the given model (or entire
     Document) from a Bokeh server session.
 
@@ -475,9 +475,11 @@ def autoload_server(model, app_path="/", session_id=None, url="default", relativ
 
     '''
 
-    coords = _SessionCoordinates(dict(url=url,
-                                      session_id=session_id,
-                                      app_path=app_path))
+    if app_path is not None:
+        # TODO deprecate message
+        url = url + app_path
+
+    coords = _SessionCoordinates(url=url, session_id=session_id)
 
     elementid = make_id()
 
@@ -491,7 +493,7 @@ def autoload_server(model, app_path="/", session_id=None, url="default", relativ
                          "this doesn't work because the server will generate a fresh session "
                          "which won't have the model in it.")
 
-    src_path = coords.server_url + "/autoload.js?bokeh-autoload-element=" + elementid + "&bokeh-app-path=" + app_path
+    src_path = coords.url + "/autoload.js?bokeh-autoload-element=" + elementid
 
     if not relative_urls:
         src_path += "&bokeh-absolute-url=" + coords.url

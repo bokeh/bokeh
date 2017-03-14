@@ -39,7 +39,7 @@ server.start()
 
 @flask_app.route('/', methods=['GET'])
 def bkapp_page():
-    script = autoload_server(model=None, url='http://localhost:5006', app_path='/bkapp', relative_urls=False)
+    script = autoload_server(model=None, url='http://localhost:5006/bkapp', relative_urls=False)
     return render_template("embed.html", script=script, template="Flask")
 
 if __name__ == '__main__':

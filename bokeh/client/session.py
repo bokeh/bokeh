@@ -37,7 +37,7 @@ def server_url_for_websocket_url(url):
 
 DEFAULT_SERVER_WEBSOCKET_URL = websocket_url_for_server_url(DEFAULT_SERVER_HTTP_URL)
 
-def push_session(document, session_id=None, url='default', app_path='/', io_loop=None):
+def push_session(document, session_id=None, url='default', app_path=None, io_loop=None):
     """ Create a session by pushing the given document to the server,
        overwriting any existing server-side document.
 
@@ -77,8 +77,12 @@ def push_session(document, session_id=None, url='default', app_path='/', io_loop
                 A new ClientSession connected to the server
 
     """
-    coords = _SessionCoordinates(dict(session_id=session_id, url=url, app_path=app_path))
-    session = ClientSession(session_id=coords.session_id, websocket_url=websocket_url_for_server_url(coords.server_url), io_loop=io_loop)
+    if app_path is not None:
+        # TODO deprecate message
+        url = url + app_path
+
+    coords = _SessionCoordinates(session_id=session_id, url=url)
+    session = ClientSession(session_id=coords.session_id, websocket_url=websocket_url_for_server_url(coords.url), io_loop=io_loop)
     session.push(document)
     return session
 
@@ -126,8 +130,11 @@ def pull_session(session_id=None, url='default', app_path='/', io_loop=None):
             A new ClientSession connected to the server
 
     """
-    coords = _SessionCoordinates(dict(session_id=session_id, url=url, app_path=app_path))
-    session = ClientSession(session_id=session_id, websocket_url=websocket_url_for_server_url(coords.server_url), io_loop=io_loop)
+    if app_path is not None:
+        # TODO deprecate message
+        url = url + app_path
+    coords = _SessionCoordinates(session_id=session_id, url=url)
+    session = ClientSession(session_id=session_id, websocket_url=websocket_url_for_server_url(coords.url), io_loop=io_loop)
     session.pull()
     return session
 
@@ -178,12 +185,16 @@ def show_session(session_id=None, url='default', app_path='/',
 
         """
 
+        if app_path is not None:
+            # TODO deprecate message
+            url = url + app_path
+
         if session is not None:
             server_url = server_url_for_websocket_url(session._connection.url)
             session_id = session.id
         else:
-            coords = _SessionCoordinates(dict(session_id=session_id, url=url, app_path=app_path))
-            server_url = coords.server_url
+            coords = _SessionCoordinates(session_id=session_id, url=url)
+            server_url = coords.url
             session_id = coords.session_id
 
         if controller is None:

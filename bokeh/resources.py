@@ -36,49 +36,26 @@ DEFAULT_SERVER_HTTP_URL = "http://%s:%d/" % (DEFAULT_SERVER_HOST, DEFAULT_SERVER
 
 class _SessionCoordinates(object):
     """ Internal class used to parse kwargs for server URL, app_path, and session_id."""
-    def __init__(self, kwargs):
-        """ Using kwargs which may have extra stuff we don't care about, compute websocket url and session ID."""
+    def __init__(self, **kwargs):
+        self._url = kwargs.get('url', DEFAULT_SERVER_HTTP_URL)
 
-        self._base_url = kwargs.get('url', DEFAULT_SERVER_HTTP_URL)
-        if self._base_url is None:
+        if self._url is None:
             raise ValueError("url cannot be None")
-        if self._base_url == 'default':
-            self._base_url = DEFAULT_SERVER_HTTP_URL
-        if self._base_url.startswith("ws"):
+
+        if self._url == 'default':
+            self._url = DEFAULT_SERVER_HTTP_URL
+
+        if self._url.startswith("ws"):
             raise ValueError("url should be the http or https URL for the server, not the websocket URL")
 
-        # base_url always has trailing slash, host:port/{prefix/}
-        if not self._base_url.endswith("/"):
-            self._base_url = self._base_url + "/"
+        self._url = self._url.rstrip("/")
 
-        self._app_path = kwargs.get('app_path', '/')
-        if self._app_path is None:
-            raise ValueError("app_path cannot be None")
-        if not self._app_path.startswith("/"):
-            raise ValueError("app_path should start with a '/' character")
-        if self._app_path != '/' and self._app_path.endswith("/"):
-            self._app_path = self._app_path[:-1] # chop off trailing slash
-
+        # we lazy-generate the session_id so we can generate it server-side when appropriate
         self._session_id = kwargs.get('session_id')
-        # we lazy-generate the session_id so we can generate
-        # it server-side when appropriate
-
-        # server_url never has trailing slash because it's
-        # prettier like host:port/app_path without a slash
-        if self._app_path == '/':
-            self._server_url = self._base_url[:-1] # chop off trailing slash
-        else:
-            self._server_url = self._base_url + self._app_path[1:]
-
-    @property
-    def server_url(self):
-        """ Server URL including app path derived from the kwargs provided."""
-        return self._server_url
 
     @property
     def url(self):
-        """ Server base URL derived from the kwargs provided (no app path)."""
-        return self._base_url
+        return self._url
 
     @property
     def session_id(self):
