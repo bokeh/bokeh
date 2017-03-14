@@ -73,56 +73,56 @@ def test_pinchevent_decode_json():
     assert event._model_id == 'test-model-id'
 
 
-def test_Event_constructor_button():
+def test_event_constructor_button():
     model = Button()
     event = Event(model)
     assert event._model_id == model._id
 
-def test_Event_constructor_div():
+def test_event_constructor_div():
     model = Div()
     event = Event(model)
     assert event._model_id == model._id
 
-def test_Event_constructor_plot():
+def test_event_constructor_plot():
     model = Plot()
     event = Event(model)
     assert event._model_id == model._id
 
-def test_ButtonClick_constructor_button():
+def test_buttonclick_constructor_button():
     model = Button()
     event = ButtonClick(model)
     assert event._model_id == model._id
 
-def test_ButtonClick_constructor_div():
+def test_buttonclick_constructor_div():
     with pytest.raises(ValueError) as e:
         ButtonClick(Div())
 
-def test_ButtonClick_constructor_plot():
+def test_buttonclick_constructor_plot():
     with pytest.raises(ValueError) as e:
         ButtonClick(Plot())
 
-def test_LODStart_constructor_button():
+def test_lodstart_constructor_button():
     with pytest.raises(ValueError) as e:
         LODStart(Button())
 
-def test_LODStart_constructor_div():
+def test_lodstart_constructor_div():
     with pytest.raises(ValueError) as e:
         LODStart(Div())
 
-def test_LODStart_constructor_plot():
+def test_lodstart_constructor_plot():
     model = Plot()
     event = LODStart(model)
     assert event._model_id == model._id
 
-def test_LODEnd_constructor_button():
+def test_lodend_constructor_button():
     with pytest.raises(ValueError) as e:
         LODEnd(Button())
 
-def test_LODEnd_constructor_div():
+def test_lodend_constructor_div():
     with pytest.raises(ValueError) as e:
         LODEnd(Div())
 
-def test_LODEnd_constructor_plot():
+def test_lodend_constructor_plot():
     model = Plot()
     event = LODEnd(model)
     assert event._model_id == model._id
@@ -179,4 +179,3 @@ def test_PointEvent_subclass_constructor_div():
     for subcls in point_events:
         with pytest.raises(ValueError) as e:
             subcls(model, sx=3, sy=-2, x=10, y=100)
-
