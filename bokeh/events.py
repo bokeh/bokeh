@@ -88,22 +88,39 @@ class ButtonClick(Event):
     event_name = 'button_click'
 
     def __init__(self, model):
+        from .models.widgets import Button
+        if model is not None and not isinstance(model, Button):
+            msg ='{clsname} event only applies to Button models'
+            raise ValueError(msg.format(clsname=self.__class__.__name__))
         super(ButtonClick, self).__init__(model=model)
 
 
-class LODStart(Event):
+
+class PlotEvent(Event):
+    ''' PlotEvent is the baseclass for all events applicable to Plot models
+    '''
+
+    def __init__(self, model):
+        from .models import Plot
+        if model is not None and not isinstance(model, Plot):
+            msg ='{clsname} event only applies to Plot models'
+            raise ValueError(msg.format(clsname=self.__class__.__name__))
+        super(PlotEvent, self).__init__(model=model)
+
+
+class LODStart(PlotEvent):
     ''' Announce the start of "interactive level-of-detail" mode on a plot.
 
     '''
     event_name = 'lodstart'
 
-class LODEnd(Event):
+class LODEnd(PlotEvent):
     ''' Announce the end of "interactive level-of-detail" mode on a plot.
 
     '''
     event_name = 'lodend'
 
-class PointEvent(Event):
+class PointEvent(PlotEvent):
     ''' Base class for UI events associated with a specific (x,y) point.
 
     '''
