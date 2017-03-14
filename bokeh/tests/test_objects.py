@@ -126,10 +126,10 @@ class TestModel(unittest.TestCase):
         testObject2 = self.pObjectClass()
         self.assertIsNot(testObject2._id, None)
 
-        self.assertEqual(set(["name", "tags", "js_callbacks",
+        self.assertEqual(set(["name", "tags", "js_property_callbacks",
                               "subscribed_events", "js_event_callbacks"]),
                          testObject.properties())
-        self.assertDictEqual(dict(name=None, tags=[], js_callbacks={},
+        self.assertDictEqual(dict(name=None, tags=[], js_property_callbacks={},
                                   js_event_callbacks={}, subscribed_events=[]),
                              testObject.properties_with_values(include_defaults=True))
         self.assertDictEqual(dict(), testObject.properties_with_values(include_defaults=False))
@@ -205,7 +205,7 @@ class TestModel(unittest.TestCase):
                            "id" : obj._id,
                            "name" : None,
                            "tags" : [],
-                           'js_callbacks': {},
+                           'js_property_callbacks': {},
                            "js_event_callbacks" : {},
                            "subscribed_events" : [],
                            "foo" : 42,
@@ -213,7 +213,7 @@ class TestModel(unittest.TestCase):
                          json)
         self.assertEqual(('{"bar":"world",' +
                           '"child":{"id":"%s","type":"SomeModelToJson"},' +
-                          '"foo":42,"id":"%s","js_callbacks":{},"js_event_callbacks":{},' +
+                          '"foo":42,"id":"%s","js_property_callbacks":{},"js_event_callbacks":{},' +
                           '"name":null,"subscribed_events":[],"tags":[]}') %
                          (child_obj._id, obj._id),
                          json_string)

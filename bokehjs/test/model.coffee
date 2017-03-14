@@ -26,8 +26,8 @@ describe "Model objects", ->
     it "should have empty tags", ->
       expect(m.tags).to.be.deep.equal []
 
-    it "should have empty js_callbacks", ->
-      expect(m.js_callbacks).to.be.deep.equal {}
+    it "should have empty js_property_callbacks", ->
+      expect(m.js_property_callbacks).to.be.deep.equal {}
 
   describe "js callbacks", ->
 
@@ -43,7 +43,7 @@ describe "Model objects", ->
       spy = sinon.spy(cb3, 'execute')
 
       m = new SomeModel({
-        js_callbacks: {
+        js_property_callbacks: {
           'change:foo': [cb1, cb2]
           'change:bar': [cb3]
         }

@@ -8,16 +8,16 @@ export class Model extends HasProps
   type: "Model"
 
   @define {
-    tags:               [ p.Array, [] ]
-    name:               [ p.String    ]
-    js_callbacks:       [ p.Any,   {} ]
-    js_event_callbacks: [ p.Any,   {} ]
-    subscribed_events:  [ p.Array, [] ]
+    tags:                  [ p.Array, [] ]
+    name:                  [ p.String    ]
+    js_property_callbacks: [ p.Any,   {} ]
+    js_event_callbacks:    [ p.Any,   {} ]
+    subscribed_events:     [ p.Array, [] ]
   }
 
   initialize: (options) ->
     super(options)
-    for evt, callbacks of @js_callbacks
+    for evt, callbacks of @js_property_callbacks
       for cb in callbacks
         @listenTo(@, evt, () -> cb.execute(@))
 

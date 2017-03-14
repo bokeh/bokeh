@@ -293,7 +293,7 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
     Python for this model.
      """   )
 
-    js_callbacks = Dict(String, List(Instance("bokeh.models.callbacks.CustomJS")), help="""
+    js_property_callbacks = Dict(String, List(Instance("bokeh.models.callbacks.CustomJS")), help="""
     A mapping of attribute names to lists of CustomJS callbacks, to be set up on
     BokehJS side when the document is created.
 
@@ -391,12 +391,12 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
         if event in self.properties():
             event = "change:%s" % event
 
-        if event not in self.js_callbacks:
-            self.js_callbacks[event] = []
+        if event not in self.js_property_callbacks:
+            self.js_property_callbacks[event] = []
         for callback in callbacks:
-            if callback in self.js_callbacks[event]:
+            if callback in self.js_property_callbacks[event]:
                 continue
-            self.js_callbacks[event].append(callback)
+            self.js_property_callbacks[event].append(callback)
 
     def layout(self, side, plot):
         '''
