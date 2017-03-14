@@ -29,6 +29,27 @@ class Transform(Model):
     pass
 
 
+class CustomJSTransform(Transform):
+    ''' Apply a custom defined transform to data.
+
+    '''
+
+    code = String(default="", help="""
+    A snippet of JavaScript code to transform a single value. The variable
+    ``x`` will contain the untransformed value and can be expected to be
+    present in the function namespace at render time. The snippet will be
+    into the body of a function and therefore requires a return statement.
+
+    Example:
+
+        .. code-block:: javascript
+
+            code = '''
+            return Math.floor(x) + 0.5
+            '''
+    """)
+
+
 class Jitter(Transform):
     ''' Apply either a uniform or normally sampled random jitter to data.
 
