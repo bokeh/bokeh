@@ -54,7 +54,7 @@ class Event(with_metaclass(MetaEvent, object)):
     def __init__(self, model):
         self._model_id = None
         if model is not None:
-            self._model_id = model
+            self._model_id = model._id
 
     @classmethod
     def decode_json(cls, dct):
