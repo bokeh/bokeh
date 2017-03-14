@@ -39,7 +39,10 @@ class TestColumnDataSource(unittest.TestCase):
         ds = ColumnDataSource(df)
         self.assertTrue(set(df.columns).issubset(set(ds.column_names)))
         for key in data.keys():
-            self.assertEquals(list(df[key]), data[key])
+            self.assertIsInstance(ds.data[key], pd.Series)
+            self.assertEquals(list(df[key]), list(ds.data[key]))
+        self.assertIsInstance(ds.data['index'], np.ndarray)
+        self.assertEquals([0, 1], list(ds.data['index']))
         self.assertEqual(set(ds.column_names) - set(df.columns), set(["index"]))
 
     @skipIf(not is_pandas, "pandas not installed")
@@ -49,7 +52,10 @@ class TestColumnDataSource(unittest.TestCase):
         ds = ColumnDataSource(data=df)
         self.assertTrue(set(df.columns).issubset(set(ds.column_names)))
         for key in data.keys():
-            self.assertEquals(list(df[key]), data[key])
+            self.assertIsInstance(ds.data[key], pd.Series)
+            self.assertEquals(list(df[key]), list(ds.data[key]))
+        self.assertIsInstance(ds.data['index'], np.ndarray)
+        self.assertEquals([0, 1], list(ds.data['index']))
         self.assertEqual(set(ds.column_names) - set(df.columns), set(["index"]))
 
     def test_add_with_name(self):

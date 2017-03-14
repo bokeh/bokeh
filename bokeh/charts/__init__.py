@@ -7,7 +7,7 @@ import_required(
 )
 
 # defaults and constants
-from ..plotting.helpers import DEFAULT_PALETTE
+from ..plotting.helpers import DEFAULT_PALETTE; DEFAULT_PALETTE
 
 # main components
 from .chart import Chart, defaults
@@ -33,12 +33,8 @@ from .builders.donut_builder import Donut
 from .builders.chord_builder import Chord
 
 # easy access to required bokeh components
-from ..models import ColumnDataSource
-from ..io import (
-    curdoc, output_file, output_notebook, output_server, push,
-    reset_output, save, show, gridplot)
+from ..models import ColumnDataSource; ColumnDataSource
+from ..io import curdoc, output_file, output_notebook, reset_output, save, show, gridplot
 
 # Silence pyflakes
-(curdoc, output_file, output_notebook, output_server, push,
- reset_output, save, show, gridplot, ColumnDataSource,
- DEFAULT_PALETTE)
+(curdoc, output_file, output_notebook, reset_output, save, show, gridplot)

@@ -450,47 +450,6 @@ class TestClientServer(unittest.TestCase):
             client_session.loop_until_closed()
             assert not client_session.connected
 
-    def test_io_push_to_server(self):
-        from bokeh.io import output_server, push, curdoc, reset_output
-        application = Application()
-        with ManagedServerLoop(application) as server:
-            reset_output()
-            doc = curdoc()
-            doc.clear()
-
-            client_root = SomeModelInTestClientServer(foo=42)
-
-            session_id = 'test_io_push_to_server'
-            output_server(session_id=session_id,
-                          url=("http://localhost:%d/" % server.port))
-
-            doc.add_root(client_root)
-            push(io_loop=server.io_loop)
-
-            server_session = server.get_session('/', session_id)
-
-            print(repr(server_session.document.roots))
-
-            assert len(server_session.document.roots) == 1
-            server_root = next(iter(server_session.document.roots))
-
-            assert client_root.foo == 42
-            assert server_root.foo == 42
-
-            # Now modify the client document and push
-            client_root.foo = 57
-            push(io_loop=server.io_loop)
-            server_root = next(iter(server_session.document.roots))
-            assert server_root.foo == 57
-
-            # Remove a root and push
-            doc.remove_root(client_root)
-            push(io_loop=server.io_loop)
-            assert len(server_session.document.roots) == 0
-
-            # Clean up global IO state
-            reset_output()
-
     @gen.coroutine
     def async_value(self, value):
         yield gen.moment # this ensures we actually return to the loop

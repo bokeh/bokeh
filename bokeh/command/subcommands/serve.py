@@ -497,7 +497,7 @@ class Serve(Subcommand):
         basicConfig(level=log_level, format=args.log_format)
 
         if len(applications) == 0:
-            # create an empty application by default, typically used with output_server
+            # create an empty application by default
             applications['/'] = Application()
 
         if args.keep_alive is not None:
