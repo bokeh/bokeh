@@ -51,8 +51,10 @@ class Event(with_metaclass(MetaEvent, object)):
     _event_classes = []
     event_name = None
 
-    def __init__(self, model_id=None):
-        self.model_id = model_id
+    def __init__(self, model):
+        self._model_id = None
+        if model is not None:
+            self._model_id = model
 
     @classmethod
     def decode_json(cls, dct):
@@ -62,9 +64,13 @@ class Event(with_metaclass(MetaEvent, object)):
         if not (('event_name' in dct) and ('event_values' in dct)):
             return dct
 
+        event_values = dct['event_values']
         for eventscls in EVENT_CLASSES:
             if eventscls.event_name == dct['event_name']:
-                return eventscls(**dct['event_values'])
+                model_id = event_values.pop('model_id')
+                event = eventscls(model=None, **event_values)
+                event._model_id = model_id
+                return event
         logger.warn("Could not find appropriate Event class for %r" % dct['event_name'])
 
 
@@ -81,8 +87,8 @@ class ButtonClick(Event):
     '''
     event_name = 'button_click'
 
-    def __init__(self, model_id=None):
-        super(ButtonClick, self).__init__(model_id=model_id)
+    def __init__(self, model):
+        super(ButtonClick, self).__init__(model=model)
 
 
 class LODStart(Event):
@@ -103,12 +109,12 @@ class PointEvent(Event):
     '''
     event_name = None
 
-    def __init__(self, sx=None,sy=None, x=None, y=None, model_id=None):
+    def __init__(self, model, sx=None,sy=None, x=None, y=None):
         self.sx = sx
         self.sy = sy
         self.x = x
         self.y = y
-        super(PointEvent, self).__init__(model_id=model_id)
+        super(PointEvent, self).__init__(model=model)
 
 # --- Point Events ------------------------------------------------------------
 
@@ -156,9 +162,9 @@ class MouseWheel(PointEvent):
     '''
     event_name = 'wheel'
 
-    def __init__(self, delta=None, **kwargs):
+    def __init__(self, model, delta=None, **kwargs):
         self.delta = delta
-        super(MouseWheel, self).__init__(**kwargs)
+        super(MouseWheel, self).__init__(model, **kwargs)
 
 class Pan(PointEvent):
     '''
@@ -166,11 +172,11 @@ class Pan(PointEvent):
     '''
     event_name = 'pan'
 
-    def __init__(self, delta_x=None, delta_y=None, direction=None, **kwargs):
+    def __init__(self, model, delta_x=None, delta_y=None, direction=None, **kwargs):
         self.delta_x = delta_x
         self.delta_y = delta_y
         self.direction = direction
-        super(Pan, self).__init__(**kwargs)
+        super(Pan, self).__init__(model, **kwargs)
 
 class PanEnd(PointEvent):
     '''
@@ -190,9 +196,9 @@ class Pinch(PointEvent):
     '''
     event_name = 'pinch'
 
-    def __init__(self, scale=None, **kwargs):
+    def __init__(self, model, scale=None, **kwargs):
         self.scale = scale
-        super(Pinch, self).__init__(**kwargs)
+        super(Pinch, self).__init__(model, **kwargs)
 
 class PinchEnd(PointEvent):
     '''
