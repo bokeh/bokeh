@@ -128,6 +128,19 @@ interactive session which formerly could result in a ``PermissionError``.
 
 For details see :bokeh-pull:`5942`.
 
+The ``validate`` keyword argument to ``bokeh.io.save`` has been put into a
+deprecation cycle. Future usage of ``bokeh.io.save`` will always validate
+the document before outputting a file.
+
+The ``bokeh.io.save`` method will now only accept a ``LayoutDOM``object and no
+longer a ``Document`` for its ``obj`` argument. This aligns the
+``bokeh.io.save`` argument types with ``bokeh.io.show``.
+
+The ``bokeh.embed.standalone_html_page_for_models`` method has been put into
+a deprecation cycle in place of ``bokeh.embed.file_html``.
+
+For details see :bokeh-pull:`5978`.
+
 Reorganization of bokeh's examples
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
