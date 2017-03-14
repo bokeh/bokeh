@@ -7,8 +7,6 @@ from ..models.layouts import Row, Column; Row, Column
 from ..io import curdoc; curdoc
 from ..io import output_file; output_file
 from ..io import output_notebook; output_notebook
-from ..io import output_server; output_server
-from ..io import push; push
 from ..io import reset_output; reset_output
 from ..io import save; save
 from ..io import show; show

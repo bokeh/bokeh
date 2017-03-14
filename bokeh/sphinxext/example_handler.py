@@ -10,7 +10,7 @@ class ExampleHandler(Handler):
 
     """
 
-    _output_funcs = ['output_server', 'output_notebook', 'output_file', 'reset_output']
+    _output_funcs = ['output_notebook', 'output_file', 'reset_output']
     _io_funcs = ['show', 'save', 'push']
 
     def __init__(self, source, filename):

@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 import os
 
 from ..document import Document
-from ..resources import Resources, _SessionCoordinates
+from ..resources import Resources
 
 class State(object):
     ''' Manage state related to controlling Bokeh output.
@@ -79,74 +79,12 @@ class State(object):
         '''
         return self._notebook
 
-    @property
-    def server_enabled(self):
-        ''' Whether to generate output on a Bokeh server. (READ ONLY)
-
-        .. warning::
-            This property is deprecated.
-
-        '''
-        return self._server_enabled
-
-    @property
-    def session_id(self):
-        ''' A default session ID for Bokeh server output. (READ ONLY)
-
-        .. warning::
-            This property is deprecated.
-
-        '''
-        return self._session_coords.session_id
-
-    @property
-    def session_id_allowing_none(self):
-        ''' A session ID for Bokeh server output, or ``None``. (READ ONLY)
-
-        .. warning::
-            This property is deprecated.
-
-        '''
-        return self._session_coords.session_id_allowing_none
-
-    @property
-    def url(self):
-        ''' A base URL (not including any app path) for a Bokeh server.
-
-        .. warning::
-            This property is deprecated.
-
-        '''
-        return self._session_coords.url
-
-    @property
-    def server_url(self):
-        ''' A full URL (including the app path) for a Bokeh server app.
-
-        .. warning::
-            This property is deprecated.
-
-        '''
-        return self._session_coords.server_url
-
-    @property
-    def app_path(self):
-        ''' A relative app path for a Bokeh server app.
-
-        .. warning::
-            This property is deprecated.
-
-        '''
-        return self._session_coords.app_path
-
     def _reset_keeping_doc(self):
         ''' Reset output modes but DO NOT replace the default Document
 
         '''
         self._file = None
         self._notebook = False
-        self._session_coords = _SessionCoordinates(dict())
-        self._server_enabled = False
 
     def _reset_with_doc(self, doc):
         ''' Reset output modes but DO replace the default Document
@@ -219,38 +157,3 @@ class State(object):
 
         '''
         self._notebook = True
-
-    def output_server(self, session_id=None, url="default", app_path='/'):
-        ''' Store Bokeh plots and documents on a Bokeh server.
-
-        .. warning::
-            The use of the higher level function ``bokeh.io.output_server``
-            has be deprecated. This support function will also be removed
-            when that deprecation is complete.
-
-        Args:
-            session_id (str) : Name of session to push on Bokeh server
-
-                ***Any existing session with the same id will be overwritten.***
-
-            url (str, optional) : base URL of the Bokeh server (default: "default")
-                If "default" use the default localhost URL.
-
-            app_path (str, optional) : relative path of the app on the Bokeh server
-                (default: "/")
-
-        Returns:
-            None
-
-        '''
-
-        # limit heavyweight import to only when needed
-        from ..client import DEFAULT_SESSION_ID
-        if session_id is None:
-            session_id = DEFAULT_SESSION_ID
-
-        self._session_coords = _SessionCoordinates(dict(session_id=session_id,
-                                                        url=url,
-                                                        app_path=app_path))
-
-        self._server_enabled = True

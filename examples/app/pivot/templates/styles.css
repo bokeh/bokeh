@@ -1,0 +1,83 @@
+@import url(https://fonts.googleapis.com/css?family=Noto+Sans);
+
+body {
+  font-family: 'Noto Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+#modelid_layout{
+    width: auto !important;
+    height: auto !important;
+}
+#modelid_widgets_section{
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 10;
+    width: 225px !important;
+    height: auto !important;
+    overflow-y: scroll;
+}
+#header{
+    margin-left: 260px;
+    margin-bottom: 20px;
+    font-size: 10pt;
+}
+#modelid_plots_section{
+    margin-left: 250px;
+    width: auto !important;
+    height: auto !important;
+}
+.bk-plot-layout{
+    display: inline-block;
+}
+.filter,
+.filters-update,
+.adjust-drop{
+    display: none;
+}
+.filter-head{
+    font-weight: bold;
+    cursor: pointer;
+    color: purple;
+    display: none;
+}
+.x-dropdown,
+.y-dropdown,
+.series-dropdown,
+.explode-dropdown,
+.filters-dropdown,
+.adjust-dropdown{
+    font-weight: bold;
+    color: blue;
+    cursor: pointer;
+    margin-top: 20px;
+    text-decoration: underline;
+}
+.select-opt{
+    color: blue;
+    cursor: pointer;
+    margin-left: 5px;
+    margin-right: 5px;
+}
+.legend-header,
+.export-config{
+    color: blue;
+    cursor: pointer;
+}
+.legend-body{
+    border: 1px solid lightgrey;
+    padding: 10px;
+}
+.legend-color{
+    width: 20px;
+    height: 10px;
+    display: inline-block;
+    margin-right: 10px
+}
+.bk-root .bk-bs-btn.export-config{
+    width: 100%;
+    padding: 6px 0;
+    border: 0;
+}
