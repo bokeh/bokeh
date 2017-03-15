@@ -455,7 +455,7 @@ def autoload_server(model, app_path=None, session_id=None, url="default", relati
     ``autoload_server()``.
 
     Args:
-        model (Model, options) : The object to render from the session
+        model (Model, optional) : The object to render from the session
             Pass ``None`` to render an entire document. (default: ``None``)
 
         session_id (str, optional) : server session ID (default: None)
