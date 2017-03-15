@@ -10,8 +10,8 @@ def test_Model_pretty():
     assert Foo1(id='1').pretty() == """\
 bokeh.tests.test_model.Foo1(
     id='1',
-    js_property_callbacks={},
     js_event_callbacks={},
+    js_property_callbacks={},
     name=None,
     subscribed_events=[],
     tags=[])"""
@@ -27,8 +27,8 @@ bokeh.tests.test_model.Foo2(
     a=12,
     b='hello',
     c=[1, 2, 3],
-    js_property_callbacks={},
     js_event_callbacks={},
+    js_property_callbacks={},
     name=None,
     subscribed_events=[],
     tags=[])"""
@@ -46,8 +46,8 @@ bokeh.tests.test_model.Foo3(
     b='hello',
     c=[1, 2, 3],
     d=None,
-    js_property_callbacks={},
     js_event_callbacks={},
+    js_property_callbacks={},
     name=None,
     subscribed_events=[],
     tags=[])"""
@@ -71,13 +71,13 @@ bokeh.tests.test_model.Foo4(
         a=12,
         b='hello',
         c=[1, 2, 3],
-        js_property_callbacks={},
         js_event_callbacks={},
+        js_property_callbacks={},
         name=None,
         subscribed_events=[],
         tags=[]),
-    js_property_callbacks={},
     js_event_callbacks={},
+    js_property_callbacks={},
     name=None,
     subscribed_events=[],
     tags=[])"""
@@ -98,13 +98,13 @@ bokeh.tests.test_model.Foo5(
     foo6=bokeh.tests.test_model.Foo6(
         id='uvw',
         foo5=bokeh.tests.test_model.Foo5(id='xyz', ...),
-        js_property_callbacks={},
         js_event_callbacks={},
+        js_property_callbacks={},
         name=None,
         subscribed_events=[],
         tags=[]),
-    js_property_callbacks={},
     js_event_callbacks={},
+    js_property_callbacks={},
     name=None,
     subscribed_events=[],
     tags=[])"""
