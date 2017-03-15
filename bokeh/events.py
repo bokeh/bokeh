@@ -12,7 +12,9 @@ function with or without a Bokeh server. This can be accomplished with the
 
 .. code-block:: python
 
-    # example setting up JS callback
+    from bokh.models import Button
+    button = Button()
+    button.js_on_event(events.ButtonClick, CustomJS(code='console.log("JS:Click")'))
 
 Alternatively it is possible to trigger Python code to run when events
 happen, in the context of a Bokeh application running on a Bokeh server.
@@ -20,7 +22,13 @@ This can ccomplished with the :func:`~bokeh.model.Model.on_event` method:
 
 . code-block:: python
 
-    # example setting up python callback
+    from bokh.models import Button
+    button = Button()
+
+    def click_callback(event):
+       print('Python:Click')
+
+    button.on_event(events.ButtonClick, click_callback)
 
 '''
 from __future__ import absolute_import
@@ -82,7 +90,7 @@ class Event(with_metaclass(MetaEvent, object)):
         return '{cls_name}({attrs})'.format(cls_name=cls_name, attrs=attrs)
 
 class ButtonClick(Event):
-    ''' Announce a button click event.
+    ''' Announce a button click event on a Bokeh Button widget
 
     '''
     event_name = 'button_click'
@@ -149,32 +157,32 @@ class DoubleTap(PointEvent):
     event_name = 'doubletap'
 
 class Press(PointEvent):
-    '''
+    ''' Announce a press event on a Bokeh plot.
 
     '''
     event_name = 'press'
 
 
 class MouseEnter(PointEvent):
-    '''
+    ''' Announce a mouse enter event onto a Bokeh plot.
 
     '''
     event_name = 'mouseenter'
 
 class MouseLeave(PointEvent):
-    '''
+    ''' Announce a mouse leave event from a Bokeh plot.
 
     '''
     event_name = 'mouseleave'
 
 class MouseMove(PointEvent):
-    '''
+    ''' Announce a mouse movement event over a Bokeh plot.
 
     '''
     event_name = 'mousemove'
 
 class MouseWheel(PointEvent):
-    '''
+    ''' Announce a mouse whee event on a Bokeh plot.
 
     '''
     event_name = 'wheel'
@@ -184,7 +192,7 @@ class MouseWheel(PointEvent):
         super(MouseWheel, self).__init__(model, **kwargs)
 
 class Pan(PointEvent):
-    '''
+    ''' Announce a pan event on a Bokeh plot.
 
     '''
     event_name = 'pan'
@@ -196,19 +204,19 @@ class Pan(PointEvent):
         super(Pan, self).__init__(model, **kwargs)
 
 class PanEnd(PointEvent):
-    '''
+    ''' Announce the end of a pan event on a Bokeh plot.
 
     '''
     event_name = 'panend'
 
 class PanStart(PointEvent):
-    '''
+    ''' Announce the start of a pan event on a Bokeh plot.
 
     '''
     event_name = 'panstart'
 
 class Pinch(PointEvent):
-    '''
+    ''' Announce a pinch event on a Bokeh plot.
 
     '''
     event_name = 'pinch'
@@ -218,13 +226,13 @@ class Pinch(PointEvent):
         super(Pinch, self).__init__(model, **kwargs)
 
 class PinchEnd(PointEvent):
-    '''
+    ''' Announce the end of a pinch event on a Bokeh plot.
 
     '''
     event_name = 'pinchend'
 
 class PinchStart(PointEvent):
-    '''
+    ''' Announce the start of a pinch event on a Bokeh plot.
 
     '''
     event_name = 'pinchstart'
