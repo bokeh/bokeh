@@ -457,11 +457,14 @@ def autoload_server(model, app_path=None, session_id=None, url="default", relati
     Args:
         model (Model, options) : The object to render from the session
             Pass ``None`` to render an entire document. (default: ``None``)
+
         session_id (str, optional) : server session ID (default: None)
             If ``None``, let the server autogenerate a random session ID. If
             you supply a specific model to render, you must also supply the
             session ID containing that model, though.
+
         url (str, optional) : The URL to a Bokeh application on a Bokeh server
+
         relative_urls (bool, optional) : Whether to use relative URLS for resources.
             This should normally be set to ``True``, but must be set to
             ``False`` in situations where relative URLs will not work. E.g.
@@ -486,6 +489,8 @@ def autoload_server(model, app_path=None, session_id=None, url="default", relati
     '''
     if app_path is not None:
         deprecated((0, 12, 5), "app_path", "url", "Now pass entire app URLS in the url arguments, e.g. 'url=http://foo.com:5010/bar/myapp'")
+        if not app_path.startswith("/"):
+            app_path = "/" + app_path
         url = url + app_path
 
     coords = _SessionCoordinates(url=url, session_id=session_id)
@@ -506,6 +511,8 @@ def autoload_server(model, app_path=None, session_id=None, url="default", relati
 
     if url != "default":
         app_path = urlparse(url).path.rstrip("/")
+        if not app_path.startswith("/"):
+            app_path = "/" + app_path
         src_path += "&bokeh-app-path=" + app_path
 
     if not relative_urls:
