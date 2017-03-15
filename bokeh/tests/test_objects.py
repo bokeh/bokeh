@@ -213,7 +213,7 @@ class TestModel(unittest.TestCase):
                          json)
         self.assertEqual(('{"bar":"world",' +
                           '"child":{"id":"%s","type":"SomeModelToJson"},' +
-                          '"foo":42,"id":"%s","js_property_callbacks":{},"js_event_callbacks":{},' +
+                          '"foo":42,"id":"%s","js_event_callbacks":{},"js_property_callbacks":{},' +
                           '"name":null,"subscribed_events":[],"tags":[]}') %
                          (child_obj._id, obj._id),
                          json_string)
