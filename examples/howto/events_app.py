@@ -18,7 +18,7 @@ def display_event(div, attributes=[]):
     Function to build a suitable CustomJS to display the current event
     in the div model.
     """
-    name = "cb_obj.event.constructor.event_name"
+    name = "cb_obj.event.event_name"
     attrs =  [("'{attr}='+ Number(cb_obj.event['{attr}']).toFixed(2)"
                + " + ', '").format(attr=attr) for attr in attributes]
     args = '+'.join(attrs) if attributes else repr('')
