@@ -17,9 +17,10 @@ from .core.properties import Any, Dict, Instance, List, String
 from .core.has_props import HasProps, MetaHasProps
 from .core.query import find
 from .themes import default as default_theme
-from .util.callback_manager import CallbackManager
+from .util.callback_manager import PropertyCallbackManager, EventCallbackManager
 from .util.future import with_metaclass
 from .util.serialization import make_id
+from .events import Event
 
 def collect_models(*input_values):
     ''' Collect a duplicate-free list of all other Bokeh models referred to by
@@ -214,7 +215,7 @@ _HTML_REPR = """
 </script>
 """
 
-class Model(with_metaclass(MetaModel, HasProps, CallbackManager)):
+class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCallbackManager)):
     ''' Base class for all objects stored in Bokeh  |Document| instances.
 
     '''
@@ -274,7 +275,25 @@ class Model(with_metaclass(MetaModel, HasProps, CallbackManager)):
 
     """)
 
-    js_callbacks = Dict(String, List(Instance("bokeh.models.callbacks.CustomJS")), help="""
+    js_event_callbacks = Dict(String, List(Instance("bokeh.models.callbacks.CustomJS")),
+    help="""A mapping of event names to lists of CustomJS callbacks.
+
+    Typically, rather then modifying this property directly, callbacks should be
+    added using the ``Model.js_on_event`` method:)
+
+    .. code:: python
+
+        callback = CustomJS(code="console.log('tap event occured')")
+        plot.js_on_event('tap', callback)
+    """)
+
+    subscribed_events = List(String, help="""
+    List of events that are subscribed to by Python callbacks. This is
+    the set of events that will be communicated from BokehJS back to
+    Python for this model.
+     """   )
+
+    js_property_callbacks = Dict(String, List(Instance("bokeh.models.callbacks.CustomJS")), help="""
     A mapping of attribute names to lists of CustomJS callbacks, to be set up on
     BokehJS side when the document is created.
 
@@ -323,6 +342,20 @@ class Model(with_metaclass(MetaModel, HasProps, CallbackManager)):
                 'id'   : self._id,
             }
 
+    def js_on_event(self, event, *callbacks):
+
+        if not isinstance(event, str) and issubclass(event, Event):
+            event = event.event_name
+
+        if event not in self.js_event_callbacks:
+            self.js_event_callbacks[event] = []
+
+        for callback in callbacks:
+            if callback in self.js_event_callbacks[event]:
+                continue
+            self.js_event_callbacks[event].append(callback)
+
+
     def js_on_change(self, event, *callbacks):
         ''' Attach a CustomJS callback to an arbitrary BokehJS model event.
 
@@ -358,12 +391,12 @@ class Model(with_metaclass(MetaModel, HasProps, CallbackManager)):
         if event in self.properties():
             event = "change:%s" % event
 
-        if event not in self.js_callbacks:
-            self.js_callbacks[event] = []
+        if event not in self.js_property_callbacks:
+            self.js_property_callbacks[event] = []
         for callback in callbacks:
-            if callback in self.js_callbacks[event]:
+            if callback in self.js_property_callbacks[event]:
                 continue
-            self.js_callbacks[event].append(callback)
+            self.js_property_callbacks[event].append(callback)
 
     def layout(self, side, plot):
         '''
@@ -526,6 +559,7 @@ class Model(with_metaclass(MetaModel, HasProps, CallbackManager)):
             raise RuntimeError("Models must be owned by only a single document, %r is already in a doc" % (self))
         doc.theme.apply_to_model(self)
         self._document = doc
+        self._update_event_callbacks()
 
     def _detach_document(self):
         ''' Detach a model from a Bokeh |Document|.

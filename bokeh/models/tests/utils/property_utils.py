@@ -9,8 +9,9 @@ TEXT = ["text_font", "text_font_size", "text_font_style", "text_color", "text_al
 
 ANGLE = ["angle", "angle_units"]
 
-PROPS = ["name", "tags", "js_callbacks"]
+PROPS = ["name", "tags", "js_property_callbacks", "js_event_callbacks", "subscribed_events"]
 GLYPH = []
+
 MARKER = ["x", "y", "size", "angle", "angle_units"]
 
 def prefix(prefix, props):
