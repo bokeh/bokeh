@@ -205,3 +205,161 @@ def test_property_trigger_with_two_callbacks():
     assert good2.last_name == 'foo'
     assert good2.last_old == 42
     assert good2.last_new == 43
+
+# Tests for the EventCallbackManager
+
+class _GoodEventCallback(object):
+
+    def __init__(self):
+        self.last_name = None
+        self.last_old = None
+        self.last_new = None
+
+    def __call__(self, event):
+        self.method(event)
+
+    def method(self, event):
+        self.event = event
+
+    def partially_good(self, arg, event):
+        pass
+
+class _BadEventCallback(object):
+
+    def __call__(self):
+        pass
+
+    def method(self):
+        pass
+
+def _good_event(event):
+    pass
+def _bad_event(x,y,z):
+    pass
+def _partially_good_event(arg, event):
+    pass
+def _partially_bad_event(event):
+    pass
+
+def test_event_creation():
+    m = cbm.EventCallbackManager()
+    assert len(m._event_callbacks) == 0
+
+def test_event_on_change_good_method():
+    m = cbm.EventCallbackManager()
+    m.subscribed_events = []
+    good = _GoodEventCallback()
+    m.on_event('foo', good.method)
+    assert len(m._event_callbacks) == 1
+    assert m._event_callbacks['foo'] == [good.method]
+
+def test_event_on_change_good_partial_function():
+    m = cbm.EventCallbackManager()
+    p = partial(_partially_good_event, 'foo')
+    m.subscribed_events = []
+    m.on_event('foo', p)
+    assert len(m._event_callbacks) == 1
+    assert m._event_callbacks['foo'] == [p]
+
+def test_event_on_change_bad_partial_function():
+    m = cbm.EventCallbackManager()
+    p = partial(_partially_bad_event, 'foo')
+    m.subscribed_events = []
+    with pytest.raises(ValueError):
+        m.on_event('foo', p)
+    assert len(m._event_callbacks) == 0
+
+def test_event_on_change_good_partial_method():
+    m = cbm.EventCallbackManager()
+    m.subscribed_events = []
+    good = _GoodEventCallback()
+    p = partial(good.partially_good, 'foo')
+    m.on_event('foo', p)
+    assert len(m._event_callbacks) == 1
+
+def test_event_on_change_good_functor():
+    m = cbm.EventCallbackManager()
+    m.subscribed_events = []
+    good = _GoodEventCallback()
+    m.on_event('foo', good)
+    assert len(m._event_callbacks) == 1
+    assert m._event_callbacks['foo'] == [good]
+
+def test_event_on_change_good_function():
+    m = cbm.EventCallbackManager()
+    m.subscribed_events = []
+    m.on_event('foo', _good_event)
+    assert len(m._event_callbacks) == 1
+    assert m._event_callbacks['foo'] == [_good_event]
+
+def test_event_on_change_good_lambda():
+    m = cbm.EventCallbackManager()
+    m.subscribed_events = []
+    good = lambda event: event
+    m.on_event('foo', good)
+    assert len(m._event_callbacks) == 1
+    assert m._event_callbacks['foo'] == [good]
+
+def test_event_on_change_good_closure():
+    def good(event):
+        pass
+    m = cbm.EventCallbackManager()
+    m.subscribed_events = []
+    m.on_event('foo', good)
+    assert len(m._event_callbacks) == 1
+    assert len(m._event_callbacks['foo']) == 1
+
+def test_event_on_change_bad_method():
+    m = cbm.EventCallbackManager()
+    m.subscribed_events = []
+    bad = _BadEventCallback()
+    with pytest.raises(ValueError):
+        m.on_event('foo', bad.method)
+    assert len(m._event_callbacks) == 0
+
+def test_event_on_change_bad_functor():
+    m = cbm.EventCallbackManager()
+    m.subscribed_events = []
+    bad = _BadEventCallback()
+    with pytest.raises(ValueError):
+        m.on_event('foo', bad)
+    assert len(m._event_callbacks) == 0
+
+def test_event_on_change_bad_function():
+    m = cbm.EventCallbackManager()
+    m.subscribed_events = []
+    with pytest.raises(ValueError):
+        m.on_event('foo', _bad_event)
+    assert len(m._event_callbacks) == 0
+
+def test_event_on_change_bad_lambda():
+    m = cbm.EventCallbackManager()
+    m.subscribed_events = []
+    with pytest.raises(ValueError):
+        m.on_event('foo', lambda x, y: x)
+    assert len(m._event_callbacks) == 0
+
+def test_event_on_change_bad_closure():
+    def bad(event, y):
+        pass
+    m = cbm.EventCallbackManager()
+    m.subscribed_events = []
+    with pytest.raises(ValueError):
+        m.on_event('foo', bad)
+    assert len(m._event_callbacks) == 0
+
+def test_event_on_change_with_two_callbacks():
+    m = cbm.EventCallbackManager()
+    m.subscribed_events = []
+    good1 = _GoodEventCallback()
+    good2 = _GoodEventCallback()
+    m.on_event('foo', good1.method)
+    m.on_event('foo', good2.method)
+
+def test_event_on_change_with_two_callbacks_one_bad():
+    m = cbm.EventCallbackManager()
+    m.subscribed_events = []
+    good = _GoodEventCallback()
+    bad = _BadEventCallback()
+    with pytest.raises(ValueError):
+        m.on_event('foo', good.method, bad.method)
