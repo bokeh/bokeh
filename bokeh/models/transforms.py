@@ -3,12 +3,18 @@
 '''
 from __future__ import absolute_import
 
+import inspect
+from textwrap import dedent
+from types import FunctionType
+
 from ..core.enums import StepMode, JitterRandomDistribution
 from ..core.has_props import abstract
 from ..core.properties import (
     Bool, Either, Enum, Float, Instance, Seq, String, Dict
 )
 from ..model import Model
+from ..util.compiler import nodejs_compile, CompilationError
+from ..util.dependencies import import_required
 
 from .sources import ColumnarDataSource
 
@@ -35,6 +41,76 @@ class CustomJSTransform(Transform):
     ''' Apply a custom defined transform to data.
 
     '''
+
+    @classmethod
+    def from_py_func(cls, func):
+        ''' Create a CustomJSTransform instance from a Python function. The
+        function is translated to JavaScript using PyScript. The variable
+        ``x`` will contain the untransformed value and can be expected to
+        be present in the function namespace at render time.
+
+        Example:
+
+        .. code-block:: python
+
+            code = """
+            def transform():
+                import math
+                return math.cos(x)
+            """
+
+        The python function must have no positional arguments. It's
+        possible to pass Bokeh models (e.g. a ColumnDataSource) as keyword
+        arguments to the function.
+
+        '''
+        if not isinstance(func, FunctionType):
+            raise ValueError('CustomJSTransform.from_py_func needs function object.')
+        pyscript = import_required(
+            'flexx.pyscript',
+            dedent("""\
+                To use Python functions for CustomJSTransform, you need Flexx
+                '("conda install -c bokeh flexx" or "pip install flexx")""")
+            )
+        argspec = inspect.getargspec(func)
+
+        default_names = argspec.args
+        default_values = argspec.defaults or []
+
+        if len(default_names) - len(default_values) != 0:
+            raise ValueError("Function `func` may only contain keyword arguments.")
+
+        if default_values and not any([isinstance(value, Model) for value in default_values]):
+            raise ValueError("Default value must be a plot object.")
+
+        func_kwargs = dict(zip(default_names, default_values))
+
+        # Wrap the code attr in a function named `formatter` and call it
+        # with arguments that match the `args` attr
+        code = pyscript.py2js(func, 'transformer') + 'return transformer(%s);\n' % ', '.join(default_names)
+
+        return cls(code=code, args=func_kwargs)
+
+    @classmethod
+    def from_coffeescript(cls, code, args={}):
+        ''' Create a CustomJSTransform instance from a CoffeeScript snippet.
+        The function body is translated to JavaScript using node. The variable
+        ``x`` will contain the untransformed value and can be expected to
+        be present in the code snippet namespace at render time.
+
+        Example:
+
+        .. code-block:: coffeescript
+
+            code = """
+            return Math.cos(x)
+            """
+        '''
+        compiled = nodejs_compile(code, lang="coffeescript", file="???")
+        if "error" in compiled:
+            raise CompilationError(compiled.error)
+        else:
+            return cls(code=compiled.code, args=args)
 
     args = Dict(String, Instance(Model), help="""
     A mapping of names to Bokeh plot objects. These objects are made
