@@ -9,7 +9,7 @@ all_events = set([v for v in globals().values()
 point_events = set([v for v in globals().values()
                     if isinstance(v,type) and issubclass(v, events.PointEvent)])
 
-class TestCallback(object):
+class EventCallback(object):
     def __init__(self, attributes=[]):
         self.event_name = None
         self.attributes = attributes
@@ -190,7 +190,7 @@ def test_pointevent_subclass_constructor_div():
 
 def test_buttonclick_event_callbacks():
     button = Button()
-    test_callback = TestCallback()
+    test_callback = EventCallback()
     button.on_event(events.ButtonClick, test_callback)
     assert test_callback.event_name == None
     button._trigger_event(events.ButtonClick(button))
@@ -199,7 +199,7 @@ def test_buttonclick_event_callbacks():
 def test_atomic_plot_event_callbacks():
     plot = Plot()
     for event_cls in [events.LODStart, events.LODEnd]:
-        test_callback = TestCallback()
+        test_callback = EventCallback()
         plot.on_event(event_cls, test_callback)
         assert test_callback.event_name == None
         plot._trigger_event(event_cls(plot))
@@ -210,7 +210,7 @@ def test_pointevent_callbacks():
     plot = Plot()
     payload = dict(sx=3, sy=-2, x=10, y=100)
     for event_cls in point_events:
-        test_callback = TestCallback(['sx','sy','x','y'])
+        test_callback = EventCallback(['sx','sy','x','y'])
         plot.on_event(event_cls, test_callback)
         assert test_callback.event_name == None
         plot._trigger_event(event_cls(plot, **payload))
@@ -220,7 +220,7 @@ def test_pointevent_callbacks():
 def test_mousewheel_callbacks():
     plot = Plot()
     payload = dict(sx=3, sy=-2, x=10, y=100, delta=5)
-    test_callback = TestCallback(['sx','sy','x','y', 'delta'])
+    test_callback = EventCallback(['sx','sy','x','y', 'delta'])
     plot.on_event(events.MouseWheel, test_callback)
     assert test_callback.event_name == None
     plot._trigger_event(events.MouseWheel(plot, **payload))
@@ -230,7 +230,7 @@ def test_mousewheel_callbacks():
 def test_pan_callbacks():
     plot = Plot()
     payload = dict(sx=3, sy=-2, x=10, y=100, delta_x=2, delta_y=3.2)
-    test_callback = TestCallback(['sx','sy','x','y', 'delta_x', 'delta_y'])
+    test_callback = EventCallback(['sx','sy','x','y', 'delta_x', 'delta_y'])
     plot.on_event(events.Pan, test_callback)
     assert test_callback.event_name == None
     plot._trigger_event(events.Pan(plot, **payload))
@@ -240,7 +240,7 @@ def test_pan_callbacks():
 def test_pinch_callbacks():
     plot = Plot()
     payload = dict(sx=3, sy=-2, x=10, y=100, scale=42)
-    test_callback = TestCallback(['sx','sy','x','y', 'scale'])
+    test_callback = EventCallback(['sx','sy','x','y', 'scale'])
     plot.on_event(events.Pinch, test_callback)
     assert test_callback.event_name == None
     plot._trigger_event(events.Pinch(plot, **payload))
