@@ -12,6 +12,8 @@ import {PlotCanvas, PlotCanvasView} from "./plot_canvas"
 
 import {ColumnDataSource} from "../sources/column_data_source"
 import {GlyphRenderer} from "../renderers/glyph_renderer"
+import * as events from 'core/bokeh_events'
+
 
 export class PlotView extends LayoutDOMView
   className: "bk-plot-layout"
@@ -368,3 +370,19 @@ export class Plot extends LayoutDOM
         renderers = renderers.concat(tool.synthetic_renderers)
       return renderers
   }
+
+events.UIEvent.register_event_class(events.LODStart, Plot)
+events.UIEvent.register_event_class(events.LODEnd, Plot)
+events.UIEvent.register_event_class(events.Pan, Plot)
+events.UIEvent.register_event_class(events.Pan, Plot)
+events.UIEvent.register_event_class(events.MouseWheel, Plot)
+events.UIEvent.register_event_class(events.MouseMove, Plot)
+events.UIEvent.register_event_class(events.MouseEnter, Plot)
+events.UIEvent.register_event_class(events.MouseLeave, Plot)
+events.UIEvent.register_event_class(events.Tap, Plot)
+events.UIEvent.register_event_class(events.DoubleTap, Plot)
+events.UIEvent.register_event_class(events.Press, Plot)
+events.UIEvent.register_event_class(events.PanStart, Plot)
+events.UIEvent.register_event_class(events.PanEnd, Plot)
+events.UIEvent.register_event_class(events.PinchStart, Plot)
+events.UIEvent.register_event_class(events.PinchEnd, Plot)

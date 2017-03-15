@@ -1,8 +1,8 @@
 import { logger } from "./logging"
-import {Button} from "../models/widgets"
-import {Plot} from "../models/plots/plot"
 
 export class BokehEvent {
+
+  static applicable_models = []
   static _event_classes: any = {}
 
   _options: any
@@ -49,21 +49,20 @@ export class BokehEvent {
     return this
   }
 
-  static register_event_class(event_cls: any) {
-    BokehEvent._event_classes[event_cls.event_name] = event_cls
+  static register_event_class(event_cls: any, model: any) {
+    BokehEvent._event_classes[event_cls.event_name] = event_cls;
+    event_cls.applicable_models=[model]
   }
 }
 
 export class ButtonClick extends BokehEvent {
   static event_name = 'button_click'
-  static applicable_models = [Button]
 }
 
 
 export class UIEvent extends BokehEvent {
   // A UIEvent is an event originating on a PlotCanvas this includes
   // DOM events such as keystrokes as well as hammer events and LOD events.
-  static applicable_models = [Plot]
 }
 
 
@@ -217,20 +216,3 @@ export class PinchStart extends PointEvent {
 export class PinchEnd extends PointEvent {
   static event_name = 'pinchend'
 }
-
-BokehEvent.register_event_class(ButtonClick);
-BokehEvent.register_event_class(LODStart);
-BokehEvent.register_event_class(LODEnd);
-BokehEvent.register_event_class(Pan);
-BokehEvent.register_event_class(Pan);
-BokehEvent.register_event_class(MouseWheel);
-BokehEvent.register_event_class(MouseMove);
-BokehEvent.register_event_class(MouseEnter);
-BokehEvent.register_event_class(MouseLeave);
-BokehEvent.register_event_class(Tap);
-BokehEvent.register_event_class(DoubleTap);
-BokehEvent.register_event_class(Press);
-BokehEvent.register_event_class(PanStart);
-BokehEvent.register_event_class(PanEnd);
-BokehEvent.register_event_class(PinchStart);
-BokehEvent.register_event_class(PinchEnd);

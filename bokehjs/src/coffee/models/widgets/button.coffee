@@ -19,3 +19,5 @@ export class Button extends AbstractButton
   @define {
     clicks: [ p.Number, 0        ]
   }
+
+ButtonClick.register_event_class(ButtonClick, Button)
