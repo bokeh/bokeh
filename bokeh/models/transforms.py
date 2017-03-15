@@ -5,7 +5,9 @@ from __future__ import absolute_import
 
 from ..core.enums import StepMode, JitterRandomDistribution
 from ..core.has_props import abstract
-from ..core.properties import Bool, Either, Enum, Float, Instance, Seq, String
+from ..core.properties import (
+    Bool, Either, Enum, Float, Instance, Seq, String, Dict
+)
 from ..model import Model
 
 from .sources import ColumnarDataSource
@@ -33,6 +35,12 @@ class CustomJSTransform(Transform):
     ''' Apply a custom defined transform to data.
 
     '''
+
+    args = Dict(String, Instance(Model), help="""
+    A mapping of names to Bokeh plot objects. These objects are made
+    available to the callback code snippet as the values of named
+    parameters to the callback.
+    """)
 
     code = String(default="", help="""
     A snippet of JavaScript code to transform a single value. The variable
