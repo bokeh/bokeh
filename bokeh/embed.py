@@ -19,6 +19,7 @@ from warnings import warn
 import re
 
 from six import string_types
+from six.moves.urllib.parse import urlparse
 
 from .core.templates import (
     AUTOLOAD_JS, AUTOLOAD_NB_JS, AUTOLOAD_TAG,
@@ -493,7 +494,8 @@ def autoload_server(model, app_path=None, session_id=None, url="default", relati
                          "this doesn't work because the server will generate a fresh session "
                          "which won't have the model in it.")
 
-    src_path = coords.url + "/autoload.js?bokeh-autoload-element=" + elementid
+    app_path = urlparse(url).path.rstrip("/")
+    src_path = coords.url + "/autoload.js?bokeh-autoload-element=" + elementid + "&bokeh-app-path=" + app_path
 
     if not relative_urls:
         src_path += "&bokeh-absolute-url=" + coords.url
