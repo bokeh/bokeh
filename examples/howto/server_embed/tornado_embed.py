@@ -17,7 +17,7 @@ env = Environment(loader=FileSystemLoader('templates'))
 class IndexHandler(RequestHandler):
     def get(self):
         template = env.get_template('embed.html')
-        script = autoload_server(model=None, url='http://localhost:5006/bkapp')
+        script = autoload_server(model=None, url='http://localhost:5006/bkapp', relative_urls=False)
         self.write(template.render(script=script, template="Tornado"))
 
 def modify_doc(doc):

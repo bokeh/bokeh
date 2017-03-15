@@ -8,15 +8,6 @@ calls it with the rendered model.
 :param elementid: the unique id for the script tag
 :type elementid: str
 
-:param websocket_url: path to use to open websocket, or null if we are not using a server
-:type websocket_url: str
-
-:param sessionid: The id of the Bokeh server session to get a document from
-:type sessionid: str
-
-:param docs_json: embedded JSON serialization of documents
-:type docs_json: dict
-
 :param js_urls: URLs of JS files making up Bokeh library
 :type js_urls: list
 

@@ -11,7 +11,7 @@ class ExampleHandler(Handler):
     """
 
     _output_funcs = ['output_notebook', 'output_file', 'reset_output']
-    _io_funcs = ['show', 'save', 'push']
+    _io_funcs = ['show', 'save']
 
     def __init__(self, source, filename):
         super(ExampleHandler, self).__init__(self)

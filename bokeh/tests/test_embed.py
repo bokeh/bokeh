@@ -284,5 +284,70 @@ class TestAutoloadServer(unittest.TestCase):
                                'src' : src },
                              attrs)
 
-    def test_autoload_server_value_error_on_model_id_without_session_id(self):
-        self.assertRaises(ValueError, embed.autoload_server, _embed_test_plot)
+    def test_script_attrs_url_provided(self):
+        r = embed.autoload_server(model=None, url="http://localhost:8081/foo/bar/sliders")
+        self.assertTrue('bokeh-app-path=/foo/bar/sliders' in r)
+        html = bs4.BeautifulSoup(r)
+        scripts = html.findAll(name='script')
+        self.assertEqual(len(scripts), 1)
+        attrs = scripts[0].attrs
+        self.assertTrue(set(attrs), set([
+            'src',
+            'data-bokeh-doc-id',
+            'data-bokeh-model-id',
+            'id'
+        ]))
+        divid = attrs['id']
+        src = "%s/autoload.js?bokeh-autoload-element=%s&bokeh-app-path=/foo/bar/sliders" % \
+              ("http://localhost:8081/foo/bar/sliders", divid)
+        self.assertDictEqual({ 'data-bokeh-doc-id' : '',
+                               'data-bokeh-model-id' : '',
+                               'id' : divid,
+                               'src' : src },
+                             attrs)
+
+    def test_script_attrs_url_provided_absolute_resources(self):
+        r = embed.autoload_server(model=None, url="http://localhost:8081/foo/bar/sliders", relative_urls=False)
+        self.assertTrue('bokeh-app-path=/foo/bar/sliders' in r)
+        self.assertTrue('bokeh-absolute-url=http://localhost:8081/foo/bar/sliders' in r)
+        html = bs4.BeautifulSoup(r)
+        scripts = html.findAll(name='script')
+        self.assertEqual(len(scripts), 1)
+        attrs = scripts[0].attrs
+        self.assertTrue(set(attrs), set([
+            'src',
+            'data-bokeh-doc-id',
+            'data-bokeh-model-id',
+            'id'
+        ]))
+        divid = attrs['id']
+        src = "%s/autoload.js?bokeh-autoload-element=%s&bokeh-app-path=/foo/bar/sliders&bokeh-absolute-url=%s" % \
+              ("http://localhost:8081/foo/bar/sliders", divid, "http://localhost:8081/foo/bar/sliders")
+        self.assertDictEqual({ 'data-bokeh-doc-id' : '',
+                               'data-bokeh-model-id' : '',
+                               'id' : divid,
+                               'src' : src },
+                             attrs)
+
+    def test_script_attrs_url_and_app_path_provided(self):
+        for path in ("/foo/bar/sliders", "/foo/bar/sliders/", "foo/bar/sliders", "foo/bar/sliders"):
+            r = embed.autoload_server(model=None, url="http://localhost:8081", app_path=path)
+            self.assertTrue('bokeh-app-path=/foo/bar/sliders' in r)
+            html = bs4.BeautifulSoup(r)
+            scripts = html.findAll(name='script')
+            self.assertEqual(len(scripts), 1)
+            attrs = scripts[0].attrs
+            self.assertTrue(set(attrs), set([
+                'src',
+                'data-bokeh-doc-id',
+                'data-bokeh-model-id',
+                'id'
+            ]))
+            divid = attrs['id']
+            src = "%s/autoload.js?bokeh-autoload-element=%s&bokeh-app-path=/foo/bar/sliders" % \
+                  ("http://localhost:8081/foo/bar/sliders", divid)
+            self.assertDictEqual({ 'data-bokeh-doc-id' : '',
+                                   'data-bokeh-model-id' : '',
+                                   'id' : divid,
+                                   'src' : src },
+                                 attrs)
