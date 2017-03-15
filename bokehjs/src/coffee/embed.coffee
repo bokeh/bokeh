@@ -160,6 +160,10 @@ fill_render_item_from_script_tag = (script, item) ->
 
   logger.info("Will inject Bokeh script tag with params #{JSON.stringify(item)}")
 
+# TODO (bev) this is currently clunky. Standalone embeds (e.g. notebook) only provide
+# the first two args, whereas server provide the app_app, and *may* prove and
+# absolute_url as well if non-relative links are needed for resources. This function
+# should probably be split in to two pieces to reflect the different usage patterns
 export embed_items = (docs_json, render_items, app_path, absolute_url) ->
   protocol = 'ws:'
   if (window.location.protocol == 'https:')

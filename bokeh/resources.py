@@ -73,11 +73,6 @@ class _SessionCoordinates(object):
         """
         return self._session_id
 
-    @property
-    def app_path(self):
-        """ App path derived from the kwargs provided."""
-        return self._app_path
-
 _DEV_PAT = re.compile(r"^(\d)+\.(\d)+\.(\d)+(dev|rc)")
 
 def _cdn_base_url():
