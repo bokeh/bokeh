@@ -57,6 +57,9 @@ class EventCallbackManager(object):
         if not isinstance(event, str) and issubclass(event, Event):
             event = event.event_name
 
+        for callback in callbacks:
+            _check_callback(callback, ('event',), what='Event callback')
+
         if event not in self._event_callbacks:
             self._event_callbacks[event] = [cb for cb in callbacks]
         else:
@@ -74,11 +77,7 @@ class EventCallbackManager(object):
         if self.document is None:
             return
 
-        events = self._event_callbacks.keys()
-        for callback_list in self._event_callbacks.values():
-            for callback in callback_list:
-                _check_callback(callback, ('event',), what='Event callback')
-        if events:
+        if self._event_callbacks.keys():
             self.document.event_manager.subscribed_models.add(self)
 
 
