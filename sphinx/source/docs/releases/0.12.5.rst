@@ -170,3 +170,10 @@ The ``bokeh.io.output_server`` function, which was deprecated in ``0.12.3``,
 has been removed. Additionally, ``bokeh.io.push`` and other supporting
 functions or properties that are useless without ``output_server`` have
 also been removed.
+
+Enabling WebGL rendering with URL parameters was disallowed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Previously it was allowed to enable WebGL with `?webgl=1` URL parameter. This
+isn't possible anymore since addition of `bokeh-gl` bundle. Configure WebGL
+rendering with `Plot.webgl` property.

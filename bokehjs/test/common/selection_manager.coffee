@@ -52,7 +52,7 @@ describe "SelectionManager", ->
       'y_mappers':
         {'default': mapper_normal}
     canvas_view:
-      ctx: {'glcanvas': null}
+      ctx: {}
     model:
       plot_model_stub
   }
@@ -64,7 +64,7 @@ describe "SelectionManager", ->
       'y_mappers':
         {'default': mapper_reverse}
     canvas_view:
-      ctx: {'glcanvas': null}
+      ctx: {}
     model:
       plot_model_stub
   }

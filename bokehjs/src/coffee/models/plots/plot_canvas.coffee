@@ -32,7 +32,7 @@ import {update_constraints as update_panel_constraints} from "core/layout/side_p
 # The presence (and not-being-false) of the ctx.glcanvas attribute is the
 # marker that we use throughout that determines whether we have gl support.
 
-global_gl_canvas = null
+global_glcanvas = null
 
 export class PlotCanvasView extends BokehView
   className: "bk-plot-wrapper"
@@ -88,9 +88,8 @@ export class PlotCanvasView extends BokehView
     @canvas_view.render(true)
 
     # If requested, try enabling webgl
-    if @model.plot.webgl or window.location.search.indexOf('webgl=1') > 0
-      if window.location.search.indexOf('webgl=0') == -1
-        @init_webgl()
+    if @model.plot.webgl
+      @init_webgl()
 
     @throttled_render = throttle(@render, 15) # TODO (bev) configurable
 
@@ -134,9 +133,9 @@ export class PlotCanvasView extends BokehView
 
     # We use a global invisible canvas and gl context. By having a global context,
     # we avoid the limitation of max 16 contexts that most browsers have.
-    glcanvas = global_gl_canvas
+    glcanvas = global_glcanvas
     if not glcanvas?
-      global_gl_canvas = glcanvas = document.createElement('canvas')
+      global_glcanvas = glcanvas = document.createElement('canvas')
       opts = {'premultipliedAlpha': true}  # premultipliedAlpha is true by default
       glcanvas.gl = glcanvas.getContext("webgl", opts) || glcanvas.getContext("experimental-webgl", opts)
 
@@ -146,7 +145,6 @@ export class PlotCanvasView extends BokehView
       ctx.glcanvas = glcanvas
     else
       logger.warn('WebGL is not supported, falling back to 2D canvas.')
-      # Do not set @canvas_view.ctx.glcanvas
 
   prepare_webgl: (ratio, frame_box) ->
     # Prepare WebGL for a drawing pass
