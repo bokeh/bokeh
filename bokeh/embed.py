@@ -238,6 +238,22 @@ def _use_widgets(objs):
     else:
         return False
 
+def _use_gl(objs):
+    from .models.plots import Plot
+
+    def _needs_gl(obj):
+        return isinstance(obj, Plot) and obj.webgl
+
+    for obj in objs:
+        if isinstance(obj, Document):
+            if _use_gl(obj.roots):
+                return True
+        else:
+            if any(_needs_gl(ref) for ref in obj.references()):
+                return True
+    else:
+        return False
+
 def _bundle_for_objs_and_resources(objs, resources):
     if isinstance(resources, BaseResources):
         js_resources = css_resources = resources
@@ -256,11 +272,14 @@ def _bundle_for_objs_and_resources(objs, resources):
 
     # XXX: force all components on server and in notebook, because we don't know in advance what will be used
     use_widgets =  _use_widgets(objs) if objs else True
+    use_gl      =  _use_gl(objs)      if objs else True
 
     if js_resources:
         js_resources = deepcopy(js_resources)
         if not use_widgets and "bokeh-widgets" in js_resources.components:
             js_resources.components.remove("bokeh-widgets")
+        if use_gl and "bokeh-gl" not in js_resources.components:
+            js_resources.components.append("bokeh-gl")
         bokeh_js = js_resources.render_js()
     else:
         bokeh_js = None

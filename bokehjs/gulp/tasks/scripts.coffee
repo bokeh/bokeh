@@ -107,6 +107,7 @@ gulp.task "scripts:bundle", ["scripts:compile"], (cb) ->
 
   buildBokehjs = (next) ->
     if argv.verbose then util.log("Building bokehjs")
+    bokehjs.exclude(path.resolve("build/js/tree/models/glyphs/webgl/index.js"))
     labels.bokehjs = namedLabeler(bokehjs, {})
     bokehjs
       .bundle()
@@ -162,6 +163,8 @@ gulp.task "scripts:bundle", ["scripts:compile"], (cb) ->
 
   buildWidgets = mkBuildPlugin("widgets", 'models/widgets/main.js')
 
+  buildGL = mkBuildPlugin("gl", "models/glyphs/webgl/main.js")
+
   writeLabels = (next) ->
     data = {}
     for own name, module_labels of labels
@@ -169,7 +172,7 @@ gulp.task "scripts:bundle", ["scripts:compile"], (cb) ->
     modulesPath = path.join(paths.buildDir.js, "modules.json")
     fs.writeFile(modulesPath, JSON.stringify(data), () -> next())
 
-  buildBokehjs(() -> buildAPI(() -> buildWidgets(() -> writeLabels(cb))))
+  buildBokehjs(() -> buildAPI(() -> buildWidgets(() -> buildGL(() -> writeLabels(cb)))))
   null # XXX: this is extremely important to allow cb() to work
 
 gulp.task "scripts:build", ["scripts:bundle"]
@@ -196,7 +199,7 @@ gulp.task "compiler:build", ->
     .pipe(gulp.dest(paths.buildDir.js))
 
 gulp.task "scripts:minify", ["scripts:bundle"], ->
-  tasks = [paths.coffee.bokehjs, paths.coffee.api, paths.coffee.widgets].map (entry) ->
+  tasks = [paths.coffee.bokehjs, paths.coffee.api, paths.coffee.widgets, paths.coffee.gl].map (entry) ->
     gulp.src(entry.destination.fullWithPath)
       .pipe(rename((path) -> path.basename += '.min'))
       .pipe(uglify({ output: {comments: /^!|copyright|license|\(c\)/i} }))
