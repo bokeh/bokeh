@@ -38,8 +38,6 @@ from .util.notebook import get_comms, load_notebook, publish_display_data, watch
 from .util.string import decode_utf8
 from .util.serialization import make_id
 
-from .application import Application
-
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
@@ -233,7 +231,10 @@ def show(obj, browser=None, new="tab", notebook_handle=False,
         a Jupyter notebook.
 
     '''
-    if isinstance(obj, Application):
+
+    # This ugliness is to prevent importing bokeh.application (which would bring
+    # in Tornado) just in order to show a non-server object
+    if getattr(obj, '_is_a_bokeh_application_class', False):
         return _show_notebook_app_with_state(obj, _state, app_path, notebook_url)
 
     if obj not in _state.document.roots:

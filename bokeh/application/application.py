@@ -11,61 +11,47 @@ from tornado import gen
 from abc import ABCMeta, abstractmethod
 
 from ..util.future import with_metaclass
+from ..util.tornado import yield_for_all_futures
 from ..document import Document
 
 class ServerContext(with_metaclass(ABCMeta)):
     @property
     @abstractmethod
     def sessions(self):
-        ''' SessionContext instances belonging to this application.
-
-        '''
+        """ SessionContext instances belonging to this application."""
         raise NotImplementedError("sessions property, should return SessionContext")
 
     @abstractmethod
     def add_next_tick_callback(self, callback):
-        ''' Adds a callback to be run on the next tick of the event loop.
-
-        '''
+        """ Adds a callback to be run on the next tick of the event loop."""
         raise NotImplementedError("add_next_tick_callback")
 
     @abstractmethod
     def remove_next_tick_callback(self, callback):
-        ''' Removes a callback added with add_next_tick_callback, before it runs.
-
-        '''
+        """ Removes a callback added with add_next_tick_callback, before it runs."""
         raise NotImplementedError("remove_next_tick_callback")
 
     @abstractmethod
     def add_timeout_callback(self, callback, timeout_milliseconds):
-        ''' Adds a callback to be run once after timeout_milliseconds.
-
-        '''
+        """ Adds a callback to be run once after timeout_milliseconds."""
         raise NotImplementedError("add_timeout_callback")
 
     @abstractmethod
     def remove_timeout_callback(self, callback):
-        ''' Removes a callback added with add_timeout_callback, before it runs.
-
-        '''
+        """ Removes a callback added with add_timeout_callback, before it runs."""
         raise NotImplementedError("remove_timeout_callback")
 
     @abstractmethod
     def add_periodic_callback(self, callback, period_milliseconds):
-        ''' Adds a callback to be run every period_milliseconds until it is removed.
-
-        '''
+        """ Adds a callback to be run every period_milliseconds until it is removed."""
         raise NotImplementedError("add_periodic_callback")
 
     @abstractmethod
     def remove_periodic_callback(self, callback):
-        ''' Removes a callback added with add_periodic_callback.
-
-        '''
+        """ Removes a callback added with add_periodic_callback."""
         raise NotImplementedError("remove_periodic_callback")
 
 class SessionContext(with_metaclass(ABCMeta)):
-
     def __init__(self, server_context, session_id):
         self._server_context = server_context
         self._id = session_id
@@ -81,34 +67,37 @@ class SessionContext(with_metaclass(ABCMeta)):
     @property
     @abstractmethod
     def destroyed(self):
-        ''' If True, the session has been discarded and cannot be used.
+        """If True, the session has been discarded and cannot be used. A
+        new session with the same ID could be created later but
+        this object instance will not come back to life.
 
-        A new session with the same ID could be created later but this object
-        instance will not come back to life.
-
-        '''
+        """
         raise NotImplementedError("destroyed")
 
     @abstractmethod
     def with_locked_document(self, func):
-        ''' Runs a function with the document lock held, passing the document
-        to the function. The function may return a future.
+        """ Runs a function with the document lock held, passing the document to the function.
+        The function may return a future.
 
         Args:
-            func (callable) :
-                function that takes a single parameter (the Document) and
-                returns None or a Future
+            func: function that takes a single parameter (the Document) and returns None or a Future
 
         Returns:
             a Future containing the result of the function
 
-        '''
+        """
         raise NotImplementedError("locked_document")
 
 class Application(object):
     ''' An Application is a factory for Document instances.
 
     '''
+
+    # This is so that bokeh.io.show can check if a passed in object is an
+    # Application without having to import Application directly. This module
+    # depends on tornado and we have made a commitment that "basic" modules
+    # will function without bringing in tornado.
+    _is_a_bokeh_application_class = True
 
     def __init__(self, *handlers):
         self._static_path = None
@@ -117,17 +106,13 @@ class Application(object):
             self.add(h)
 
     def create_document(self):
-        ''' Creates and initializes a document using the Application's handlers.
-
-        '''
+        ''' Creates and initializes a document using the Application's handlers.'''
         doc = Document()
         self.initialize_document(doc)
         return doc
 
     def initialize_document(self, doc):
-        ''' Fills in a new document using the Application's handlers.
-
-        '''
+        ''' Fills in a new document using the Application's handlers. '''
         for h in self._handlers:
             # TODO (havocp) we need to check the 'failed' flag on each handler
             # and build a composite error display. In develop mode, we want to
@@ -172,31 +157,22 @@ class Application(object):
         return self._static_path
 
     def on_server_loaded(self, server_context):
-        ''' Invoked after server startup but before any sessions are created.
-
-        '''
+        """ Invoked after server startup but before any sessions are created."""
         for h in self._handlers:
             h.on_server_loaded(server_context)
 
     def on_server_unloaded(self, server_context):
-        ''' Invoked in theory if the server shuts down cleanly, probably
+        """ Invoked in theory if the server shuts down cleanly, probably
         not invoked most of the time in practice since servers tend to be
-        killed by a signal. Invoked before stopping the server's IOLoop.
-
-        '''
+        killed by a signal. Invoked before stopping the server's IOLoop."""
         for h in self._handlers:
             h.on_server_unloaded(server_context)
 
     @gen.coroutine
     def on_session_created(self, session_context):
-        ''' Invoked when we create a new session, with a blank Document that
+        """ Invoked when we create a new session, with a blank Document that
         hasn't been filled in yet.
-
-        May return a Future which will delay session creation until the Future
-        completes.
-
-        '''
-        from ..util.tornado import yield_for_all_futures
+        May return a Future which will delay session creation until the Future completes."""
         for h in self._handlers:
             result = h.on_session_created(session_context)
             yield yield_for_all_futures(result)
@@ -204,12 +180,8 @@ class Application(object):
 
     @gen.coroutine
     def on_session_destroyed(self, session_context):
-        ''' Invoked when we have destroyed a session.
-
-        Afterwards, ``session_context.destroyed`` will be True.
-
-        '''
-        from ..util.tornado import yield_for_all_futures
+        """ Invoked when we have destroyed a session.
+        ``session_context.destroyed`` will be True."""
         for h in self._handlers:
             result = h.on_session_destroyed(session_context)
             yield yield_for_all_futures(result)
