@@ -232,10 +232,14 @@ class Server(object):
 
         return self._tornado.get_session(app_path, session_id)
 
-    def get_sessions(self, app_path):
+    def get_sessions(self, app_path=None):
         '''Gets all live sessions for an application.'''
-
-        return self._tornado.get_sessions(app_path)
+        if app_path is not None:
+            return self._tornado.get_sessions(app_path)
+        all_sessions = []
+        for path in self._tornado.app_paths:
+            all_sessions += self._tornado.get_sessions(path)
+        return all_sessions
 
     def show(self, app_path, browser=None, new='tab'):
         ''' Opens an app in a browser window or tab.

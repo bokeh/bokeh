@@ -252,6 +252,10 @@ class BokehTornado(TornadoApplication):
             self._ping_job = None
 
     @property
+    def app_paths(self):
+        return set(self._applications)
+
+    @property
     def io_loop(self):
         return self._loop
 

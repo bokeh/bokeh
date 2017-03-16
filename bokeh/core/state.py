@@ -42,6 +42,7 @@ class State(object):
     def __init__(self):
         self.last_comms_handle = None
         self.uuid_to_server = {} # Mapping from uuid to server instance
+        self.watching_cells = False
         self.reset()
 
     @property

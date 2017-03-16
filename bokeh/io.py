@@ -34,7 +34,7 @@ from .embed import autoload_server, notebook_div, file_html
 from .layouts import gridplot, GridSpec ; gridplot, GridSpec
 import bokeh.util.browser as browserlib  # full import needed for test mocking to work
 from .util.deprecation import deprecated
-from .util.notebook import load_notebook, publish_display_data, get_comms
+from .util.notebook import get_comms, load_notebook, publish_display_data, watch_server_cells
 from .util.string import decode_utf8
 from .util.serialization import make_id
 
@@ -200,7 +200,7 @@ def curstate():
 
 def show(obj, browser=None, new="tab", notebook_handle=False,
                             app_path="/", notebook_url="localhost:8888"):
-    ''' Immediately display a plot object.
+    ''' Immediately display a plot object or Bokeh application.
 
     In a Jupyter notebook, the output is displayed in an output cell. Otherwise,
     a browser window or tab is autoraised to display the plot object.
@@ -234,14 +234,18 @@ def show(obj, browser=None, new="tab", notebook_handle=False,
 
     '''
     if isinstance(obj, Application):
-        return _show_notebook_app(obj, app_path, notebook_url)
+        return _show_notebook_app_with_state(obj, _state, app_path, notebook_url)
 
     if obj not in _state.document.roots:
         _state.document.add_root(obj)
     return _show_with_state(obj, _state, browser, new, notebook_handle=notebook_handle)
 
 
-def _show_notebook_app(app, app_path, notebook_url):
+def _show_notebook_app_with_state(app, state, app_path, notebook_url):
+    if not state.watching_cells:
+        watch_server_cells(_destroy_server_js)
+        state.watching_cells = True
+
     logging.basicConfig()
     from IPython.display import HTML, display
     from tornado.ioloop import IOLoop
@@ -249,7 +253,7 @@ def _show_notebook_app(app, app_path, notebook_url):
     loop = IOLoop.current()
     server = Server({app_path: app}, io_loop=loop, port=0,  allow_websocket_origin=[notebook_url])
     server.start()
-    script = autoload_server(model=None, url='http://127.0.0.1:%d' % server.port, relative_urls=False)
+    script = autoload_server(model=None, url='http://127.0.0.1:%d%s' % (server.port, app_path), relative_urls=False)
     display(HTML(_server_cell(server, script)))
 
 
@@ -476,6 +480,12 @@ def _server_cell(server, script):
     div_html = "<div class='bokeh_class' id='{divid}'>{script}</div>"
     return div_html.format(script=script, divid=divid)
 
+_destroy_server_js = """
+var cmd = "from bokeh import io; io._destroy_server('<%= destroyed_id %>')";
+var command = _.template(cmd)({destroyed_id:destroyed_id});
+Jupyter.notebook.kernel.execute(command);
+"""
+
 def _destroy_server(div_id):
     '''
     Given a uuid id of a div removed or replaced in the Jupyter
@@ -487,7 +497,7 @@ def _destroy_server(div_id):
         return
 
     try:
-        for session in server.get_sessions('/'):
+        for session in server.get_sessions():
             session.destroy()
 
     except Exception as e:

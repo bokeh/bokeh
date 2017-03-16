@@ -85,6 +85,17 @@ def test_default_resources():
         assert r.root_url == "/foo/bar/"
         assert r.path_versioner == StaticHandler.append_version
 
+def test_default_app_paths():
+    app = Application()
+    t = tornado.BokehTornado({}, "", [])
+    assert t.app_paths == set()
+
+    t = tornado.BokehTornado({"/": app}, "", [])
+    assert t.app_paths == { "/" }
+
+    t = tornado.BokehTornado({"/": app, "/foo": app}, "", [])
+    assert t.app_paths == { "/", "/foo"}
+
 # tried to use capsys to test what's actually logged and it wasn't
 # working, in the meantime at least this tests that log_stats
 # doesn't crash in various scenarios
