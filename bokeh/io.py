@@ -29,10 +29,10 @@ import tempfile
 # Bokeh imports
 from .core.state import State
 from .document import Document
-from .embed import notebook_div, standalone_html_page_for_models
-from .models.layouts import LayoutDOM
+from .embed import notebook_div, file_html
 from .layouts import gridplot, GridSpec ; gridplot, GridSpec
 import bokeh.util.browser as browserlib  # full import needed for test mocking to work
+from .util.deprecation import deprecated
 from .util.notebook import load_notebook, publish_display_data, get_comms
 from .util.string import decode_utf8
 from .util.serialization import make_id
@@ -262,7 +262,7 @@ def _show_notebook_with_state(obj, state, notebook_handle):
         state.last_comms_handle = handle
         return handle
 
-def save(obj, filename=None, resources=None, title=None, state=None, validate=True):
+def save(obj, filename=None, resources=None, title=None, state=None, **kwargs):
     ''' Save an HTML file with the data for the current document.
 
     Will fall back to the default output state (or an explicitly provided
@@ -272,11 +272,10 @@ def save(obj, filename=None, resources=None, title=None, state=None, validate=Tr
     ``/foo/myplot.html``)
 
     Args:
-        obj (Document or model object) : a plot object to save
+        obj (LayoutDOM object) : a Layout (Row/Column), Plot or Widget object to display
 
         filename (str, optional) : filename to save document under (default: None)
-            If None, use the default state configuration, otherwise raise a
-            ``RuntimeError``.
+            If None, use the default state configuration.
 
         resources (Resources, optional) : A Resources config to use (default: None)
             If None, use the default state configuration, if there is one.
@@ -286,20 +285,20 @@ def save(obj, filename=None, resources=None, title=None, state=None, validate=Tr
             If None, use the default state title value, if there is one.
             Otherwise, use "Bokeh Plot"
 
-        validate (bool, optional) : True to check integrity of the models
-
     Returns:
         filename (str) : the filename where the HTML file is saved.
 
-    Raises:
-        RuntimeError
-
     '''
+
+    if 'validate' in kwargs:
+        deprecated((0, 12, 5), 'The `validate` keyword argument', 'None', """
+        The keyword argument has been removed and the document will always be validated.""")
+
     if state is None:
         state = _state
 
     filename, resources, title = _get_save_args(state, filename, resources, title)
-    _save_helper(obj, filename, resources, title, validate)
+    _save_helper(obj, filename, resources, title)
     return os.path.abspath(filename)
 
 def _detect_filename(ext):
@@ -353,28 +352,11 @@ def _get_save_args(state, filename, resources, title):
 
     return filename, resources, title
 
-def _save_helper(obj, filename, resources, title, validate):
-    remove_after = False
-    if isinstance(obj, LayoutDOM):
-        if obj.document is None:
-            Document().add_root(obj)
-            remove_after = True
-        doc = obj.document
-    elif isinstance(obj, Document):
-        doc = obj
-    else:
-        raise RuntimeError("Unable to save object of type '%s'" % type(obj))
-
-    if validate:
-        doc.validate()
-
-    html = standalone_html_page_for_models(doc, resources, title)
+def _save_helper(obj, filename, resources, title):
+    html = file_html(obj, resources, title=title)
 
     with io.open(filename, mode="w", encoding="utf-8") as f:
         f.write(decode_utf8(html))
-
-    if remove_after:
-        doc.remove_root(obj)
 
 def push_notebook(document=None, state=None, handle=None):
     ''' Update Bokeh plots in a Jupyter notebook output cells with new data

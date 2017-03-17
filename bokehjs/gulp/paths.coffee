@@ -40,6 +40,11 @@ module.exports = {
         full: "bokeh-widgets.js"
         fullWithPath: path.join(JS_BUILD_DIR, "bokeh-widgets.js")
         minified: "bokeh-widgets.min.js"
+    gl:
+      destination:
+        full: "bokeh-gl.js"
+        fullWithPath: path.join(JS_BUILD_DIR, "bokeh-gl.js")
+        minified: "bokeh-gl.min.js"
     sources: [
         "./src/coffee/main.coffee"
         "./src/coffee/widget/main.coffee"

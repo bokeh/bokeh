@@ -51,6 +51,7 @@ spec = {
         ("ACK", 1),
         ("OK", 1),
         ("ERROR", 1),
+        ("EVENT", 1),
         ('SERVER-INFO-REPLY', 1),
         ('SERVER-INFO-REQ', 1),
         ('PULL-DOC-REQ', 1),

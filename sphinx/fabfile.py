@@ -7,7 +7,7 @@ sys.path.append("source")
 import conf
 
 env.roledefs = {
-    'web': ['bokeh.pydata.org']
+    'web': ['50.56.188.141']
 }
 env.user = "bokeh"
 

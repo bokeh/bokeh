@@ -5,6 +5,14 @@ namespace HoverfulScatter {
   Bokeh.set_log_level("info");
   Bokeh.logger.info(`Bokeh ${Bokeh.version}`);
 
+  const random = (function() {
+    let seed = 1
+    return function() { // Park-Miller LCG
+      seed = (seed*48271) % 2147483647 // 1 <= seed < 2^31 - 1
+      return (seed - 1) / 2147483646
+    }
+  })()
+
   const M = 100
   const xx: Array<number> = []
   const yy: Array<number> = []
@@ -18,7 +26,7 @@ namespace HoverfulScatter {
 
   const N = xx.length
   const indices = range(N).map((i) => i.toString())
-  const radii = range(N).map((i) => Math.random()*0.4 + 1.7)
+  const radii = range(N).map((i) => random()*0.4 + 1.7)
 
   const colors: Array<string> = []
   for (const [r, g] of zip(xx.map((x) => 50 + 2*x), yy.map((y) => 30 + 2*y)))

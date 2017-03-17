@@ -87,148 +87,69 @@ class TestClientServer(unittest.TestCase):
             session.close()
             session.loop_until_closed()
 
-    def check_http_gets_fail(self, server, host=None):
+    def check_http_gets_fail(self, server):
         with (self.assertRaises(HTTPError)):
-            http_get(server.io_loop, url(server), host)
+            http_get(server.io_loop, url(server))
         with (self.assertRaises(HTTPError)):
-            http_get(server.io_loop, url(server) + "autoload.js?bokeh-autoload-element=foo", host)
+            http_get(server.io_loop, url(server) + "autoload.js?bokeh-autoload-element=foo")
 
-    def check_connect_session_fails(self, server, origin, host=None):
+    def check_connect_session_fails(self, server, origin):
         with (self.assertRaises(HTTPError)):
             websocket_open(server.io_loop,
                            ws_url(server)+"?bokeh-protocol-version=1.0&bokeh-session-id=foo",
-                           origin=origin,
-                           host=host)
+                           origin=origin)
 
-    def check_http_gets(self, server, host=None):
-        http_get(server.io_loop, url(server), host)
-        http_get(server.io_loop, url(server) + "autoload.js?bokeh-autoload-element=foo", host)
+    def check_http_gets(self, server):
+        http_get(server.io_loop, url(server))
+        http_get(server.io_loop, url(server) + "autoload.js?bokeh-autoload-element=foo")
 
-    def check_connect_session(self, server, origin, host=None):
+    def check_connect_session(self, server, origin):
         websocket_open(server.io_loop,
                        ws_url(server)+"?bokeh-protocol-version=1.0&bokeh-session-id=foo",
-                       origin=origin,
-                       host=host)
+                       origin=origin)
 
-    def check_http_ok_socket_ok(self, server, origin=None, host=None):
-        self.check_http_gets(server, host=host)
-        self.check_connect_session(server, origin=origin, host=host)
+    def check_http_ok_socket_ok(self, server, origin=None):
+        self.check_http_gets(server)
+        self.check_connect_session(server, origin=origin)
 
-    def check_http_ok_socket_blocked(self, server, origin=None, host=None):
-        self.check_http_gets(server, host=host)
-        self.check_connect_session_fails(server, origin=origin, host=host)
+    def check_http_ok_socket_blocked(self, server, origin=None):
+        self.check_http_gets(server)
+        self.check_connect_session_fails(server, origin=origin)
 
-    def check_http_blocked_socket_blocked(self, server, origin=None, host=None):
-        self.check_http_gets_fail(server, host=host)
-        self.check_connect_session_fails(server, origin=origin, host=host)
-
-    def test_host_whitelist_success(self):
-        application = Application()
-
-        # succeed no host value with defaults
-        with ManagedServerLoop(application, host=None) as server:
-            self.check_http_ok_socket_ok(server)
-
-        # succeed no host value with port
-        with ManagedServerLoop(application, port=8080, host=None) as server:
-            self.check_http_ok_socket_ok(server)
-
-        # succeed matching host value (localhost)
-        with ManagedServerLoop(application, port=8080, host=["localhost:8080"]) as server:
-            self.check_http_ok_socket_ok(server)
-
-        # succeed matching host value (not localhost)
-        with ManagedServerLoop(application, port=8080, host=["example.com:8080"]) as server:
-            self.check_http_ok_socket_ok(server, host="example.com:8080")
-
-        # succeed matching host value one of multiple
-        with ManagedServerLoop(application, port=8080, host=["bad_host", "localhost:8080"]) as server:
-            self.check_http_ok_socket_ok(server)
-
-        # succeed matching host value with implicit port 80 (note
-        # that the server is in fact on 8080, as if we were behind
-        # a reverse proxy)
-        with ManagedServerLoop(application, port=8080, host=["example.com:80"]) as server:
-            self.check_http_ok_socket_ok(server, host="example.com")
-
-    def test_host_whitelist_failure(self):
-        application = Application()
-
-        # failure bad host with localhost provided as Host
-        with ManagedServerLoop(application, host=["bad_host"]) as server:
-            self.check_http_blocked_socket_blocked(server)
-
-        with ManagedServerLoop(application, host=["bad_host:5006"]) as server:
-            self.check_http_blocked_socket_blocked(server)
-
-        # failure bad host with localhost expected and bad_host provided
-        with ManagedServerLoop(application, port=5006) as server:
-            self.check_http_blocked_socket_blocked(server, host="bad_host")
-
-        with ManagedServerLoop(application, port=5006) as server:
-            self.check_http_blocked_socket_blocked(server, host="bad_host:5006")
-
-        # failure good host, bad port
-        with ManagedServerLoop(application, host=["localhost:80"]) as server:
-            self.check_http_blocked_socket_blocked(server)
-
-        # failure good host, bad default port
-        with ManagedServerLoop(application, host=["localhost"]) as server:
-            self.check_http_blocked_socket_blocked(server)
-
-        # failure with custom port
-        with ManagedServerLoop(application, port=8080, host=["localhost:8081"]) as server:
-            self.check_http_blocked_socket_blocked(server)
-
-        # failure with implicit port 80 in Host when server is on another port
-        with ManagedServerLoop(application, port=5006, host=["example.com:5007"]) as server:
-            self.check_http_blocked_socket_blocked(server, host="example.com")
+    def check_http_blocked_socket_blocked(self, server, origin=None):
+        self.check_http_gets_fail(server)
+        self.check_connect_session_fails(server, origin=origin)
 
     def test_allow_websocket_origin(self):
         application = Application()
 
-        # allow an origin that's an allowed host but not an extra origin
-        with ManagedServerLoop(application, host=None,
-                               allow_websocket_origin=["example.com"]) as server:
-            self.check_http_ok_socket_ok(server, origin=url(server))
-
-        # allow good host and good origin
-        with ManagedServerLoop(application, host=None,
-                               allow_websocket_origin=["example.com"]) as server:
+        # allow good origin
+        with ManagedServerLoop(application, allow_websocket_origin=["example.com"]) as server:
             self.check_http_ok_socket_ok(server, origin="http://example.com:80")
 
-        # allow good host and good origin with port
-        with ManagedServerLoop(application, host=None,
-                               allow_websocket_origin=["example.com:8080"]) as server:
+        # allow good origin with port
+        with ManagedServerLoop(application, allow_websocket_origin=["example.com:8080"]) as server:
             self.check_http_ok_socket_ok(server, origin="http://example.com:8080")
 
-        # allow good host and origin header with an implicit 80
-        with ManagedServerLoop(application, host=None,
-                               allow_websocket_origin=["example.com"]) as server:
+        # allow good origin header with an implicit 80
+        with ManagedServerLoop(application, allow_websocket_origin=["example.com"]) as server:
             self.check_http_ok_socket_ok(server, origin="http://example.com")
 
         # block non-Host origins by default even if no extra origins specified
-        with ManagedServerLoop(application, host=None) as server:
+        with ManagedServerLoop(application) as server:
             self.check_http_ok_socket_blocked(server, origin="http://example.com:80")
 
         # block on a garbage Origin header
-        with ManagedServerLoop(application, host=None) as server:
+        with ManagedServerLoop(application) as server:
             self.check_http_ok_socket_blocked(server, origin="hsdf:::///%#^$#:8080")
 
-        # block good host and bad origin
-        with ManagedServerLoop(application, host=None,
-                               allow_websocket_origin=["example.com"]) as server:
+        # block bad origin
+        with ManagedServerLoop(application, allow_websocket_origin=["example.com"]) as server:
             self.check_http_ok_socket_blocked(server, origin="http://foobar.com:80")
 
-        # block good host and bad origin port
-        with ManagedServerLoop(application, host=None,
-                               allow_websocket_origin=["example.com:8080"]) as server:
+        # block bad origin port
+        with ManagedServerLoop(application, allow_websocket_origin=["example.com:8080"]) as server:
             self.check_http_ok_socket_blocked(server, origin="http://example.com:8081")
-
-        # block on bad host even though the bad host is an allowed origin
-        with ManagedServerLoop(application, host=["bad_host"],
-                               allow_websocket_origin=["bad_host"]) as server:
-            self.check_http_blocked_socket_blocked(server, origin="http://bad_host:80")
 
     def test_push_document(self):
         application = Application()

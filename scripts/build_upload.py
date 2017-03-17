@@ -346,7 +346,7 @@ def upload_cdn(cdn_token, cdn_id):
     version = CONFIG.version
 
     content_type = "application/javascript"
-    for name in ('bokeh', 'bokeh-api', 'bokeh-widgets'):
+    for name in ('bokeh', 'bokeh-api', 'bokeh-widgets', 'bokeh-gl'):
         for suffix in ('js', 'min.js'):
             local_path = 'bokehjs/build/js/%s.%s' % (name, suffix)
             cdn_path = 'bokeh/bokeh/%s/%s-%s.%s' % (subdir, name, version, suffix)

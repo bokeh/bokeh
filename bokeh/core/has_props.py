@@ -699,7 +699,7 @@ class HasProps(with_metaclass(MetaHasProps, object)):
                     bounds=None,
                     callback=None,
                     end=20,
-                    js_callbacks={},
+                    js_property_callbacks={},
                     max_interval=None,
                     min_interval=None,
                     name=None,

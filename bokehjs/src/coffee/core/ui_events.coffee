@@ -4,13 +4,16 @@ import {Events} from "./events"
 import {logger} from "./logging"
 import {offset} from "./dom"
 import {getDeltaY} from "./util/wheel"
+import {extend} from "./util/object"
+import {BokehEvent} from "./bokeh_events"
 import {any} from "./util/array"
+
 
 export class UIEvents
   @prototype extends Events
 
-  # new (plot_view: PlotCanvasView, toolbar: Toolbar, hit_area: Element)
-  constructor: (@plot_view, @toolbar, @hit_area) ->
+  # new (plot_view: PlotCanvasView, toolbar: Toolbar, hit_area: Element, plot: Plot)
+  constructor: (@plot_view, @toolbar, @hit_area, @plot) ->
     @_configure_hammerjs()
 
   _configure_hammerjs: () ->
@@ -165,7 +168,7 @@ export class UIEvents
         e.stopPropagation()
       @trigger("#{event_type}:#{active_tool.id}", e)
 
-  _bokify_hammer: (e) ->
+  _bokify_hammer: (e, extras={}) ->
     if e.pointerType == 'mouse'
       x = e.srcEvent.pageX
       y = e.srcEvent.pageY
@@ -177,13 +180,24 @@ export class UIEvents
       sx: x - left
       sy: y - top
     }
+    e.bokeh = extend(e.bokeh, extras)
+    event_cls = BokehEvent.event_class(e)
+    if event_cls
+      @plot.trigger_event(event_cls.from_event(e))
+    else
+      logger.debug('Unhandled event of type ' + e.type)
 
-  _bokify_jq: (e) ->
+  _bokify_point_event: (e, extras={}) ->
+
     {left, top} = offset(e.currentTarget)
     e.bokeh = {
       sx: e.pageX - left
       sy: e.pageY - top
     }
+    e.bokeh = extend(e.bokeh, extras)
+    event_cls = BokehEvent.event_class(e)
+    if event_cls
+      @plot.trigger_event(event_cls.from_event(e))
 
   _tap: (e) ->
     @_bokify_hammer(e)
@@ -238,24 +252,22 @@ export class UIEvents
     @_trigger('rotate:end', e)
 
   _mouse_enter: (e) ->
-    @_bokify_jq(e)
-    @_trigger('move:enter', e)
+    @_bokify_point_event(e)
+    @trigger('move:enter', e)
 
   _mouse_move: (e) ->
-    @_bokify_jq(e)
-    @_trigger('move', e)
+    @_bokify_point_event(e)
+    @trigger('move', e)
 
   _mouse_exit: (e) ->
-    @_bokify_jq(e)
-    @_trigger('move:exit', e)
+    @_bokify_point_event(e)
+    @trigger('move:exit', e)
 
   _mouse_wheel: (e) ->
-    @_bokify_jq(e)
-    e.bokeh.delta = getDeltaY(e)
+    @_bokify_point_event(e, {delta: getDeltaY(e)})
     @_trigger('scroll', e)
 
   _key_down: (e) ->
-    # NOTE: keydown event triggered unconditionally
     @trigger('keydown', e)
 
   _key_up: (e) ->

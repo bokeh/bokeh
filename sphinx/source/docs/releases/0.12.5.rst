@@ -59,6 +59,21 @@ removed, as well as the following properties of ``Plot``
 * ``title_text_font``
 * ``title_text_font_size``
 
+Host Parameter Obsoleted
+~~~~~~~~~~~~~~~~~~~~~~~~
+The ``--host`` parameter is now unnecessary. For compatibility, supplying
+it will currently cause a warning to be displayed, but it will otherwise
+be ignored, and apps will run as normal. In a future release, supplying it
+will result in an error.
+
+The ``--host`` parameter for the Bokeh server was confusing and difficult to
+explain. As long as the Bokeh server relied on the HTTP "host" header to
+provide URLs to resources, the ``--host`` parameter was a necessary precaution
+against certain kinds of HTTP spoofing attacks. However, the Bokeh server
+has been updated to no longer require the use of the "host" header (and this
+is maintained under test). Accordingly, there is no need to have any check
+on the value of the "host" header, and so ``--host`` is no longer needed.
+
 Document and Model Refactoring
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -128,6 +143,19 @@ interactive session which formerly could result in a ``PermissionError``.
 
 For details see :bokeh-pull:`5942`.
 
+The ``validate`` keyword argument to ``bokeh.io.save`` has been deprecated.
+Future usage of ``bokeh.io.save`` will always validate the document before
+outputting a file.
+
+The ``bokeh.io.save`` method will now only accept a ``LayoutDOM`` object and no
+longer a ``Document`` for its ``obj`` argument. This aligns the
+``bokeh.io.save`` argument types with ``bokeh.io.show``.
+
+The ``bokeh.embed.standalone_html_page_for_models`` method has been deprecated
+in place of ``bokeh.embed.file_html``.
+
+For details see :bokeh-pull:`5978`.
+
 Reorganization of bokeh's examples
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -142,3 +170,10 @@ The ``bokeh.io.output_server`` function, which was deprecated in ``0.12.3``,
 has been removed. Additionally, ``bokeh.io.push`` and other supporting
 functions or properties that are useless without ``output_server`` have
 also been removed.
+
+Enabling WebGL rendering with URL parameters was disallowed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Previously it was allowed to enable WebGL with `?webgl=1` URL parameter. This
+isn't possible anymore since addition of `bokeh-gl` bundle. Configure WebGL
+rendering with `Plot.webgl` property.
