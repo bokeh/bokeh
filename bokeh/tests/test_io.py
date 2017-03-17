@@ -257,12 +257,17 @@ class TestResetOutput(DefaultStateTester):
         io.reset_output()
         self.assertTrue(io._state.reset.called)
 
+def test__server_cell():
+    io._state.uuid_to_server = {}
+    html = io._server_cell("server", "script123")
+    assert list(io._state.uuid_to_server.values()) == ['server']
+    assert html.startswith("<div class='bokeh_class' id='")
+    assert html.endswith("'>script123</div>")
 
 def _test_layout_added_to_root(layout_generator, children=None):
     layout = layout_generator(Plot() if children is None else children)
     assert layout in io.curdoc().roots
     io.curdoc().clear()
-
 
 def _test_children_removed_from_root(layout_generator, children=None):
     component = Plot()
