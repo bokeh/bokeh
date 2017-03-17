@@ -405,6 +405,10 @@ export class HasProps extends Backbone.Model
       # this skips optional properties like radius for circles
       if (prop.optional || false) and prop.spec.value == null and (name not of @_set_after_defaults)
         continue
+      if prop.spec.transform
+        if not prop.spec.transform._listeners[this._listenId]
+          @listenTo(prop.spec.transform, "change", () -> @trigger('transformchange', this))
+
       data["_#{name}"] = prop.array(source)
       # the shapes are indexed by the column name, but when we materialize the dataspec, we should
       # store under the canonical field name, e.g. _image_shape, even if the column name is "foo"

@@ -69,6 +69,8 @@ export class GlyphRendererView extends RendererView
     if @hover_glyph?
       @listenTo(@model.data_source, 'inspect', @request_render)
 
+    @listenTo(@model.glyph, 'transformchange', () -> @set_data())
+
     # TODO (bev) This is a quick change that  allows the plot to be
     # update/re-rendered when properties change on the JS side. It would
     # be better to make this more fine grained in terms of setting visuals
