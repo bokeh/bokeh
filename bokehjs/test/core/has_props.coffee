@@ -8,15 +8,6 @@ fixtures = require "./fixtures/object"
 p = utils.require "core/properties"
 mixins = utils.require "core/property_mixins"
 {Document} = utils.require "document"
-{Transform} = utils.require "models/transforms/transform"
-
-class TestTransform extends Transform
-  compute: (x) -> x+1
-  v_compute: (xs) ->
-    ret = []
-    for i in [0...xs.length]
-      ret.push(xs[i]+i)
-    ret
 
 class SubclassWithProps extends HasProps
   @define {
@@ -49,6 +40,7 @@ class SubclassWithDistanceSpec extends HasProps
     foo: [ p.DistanceSpec, {field: 'colname'} ]
     bar: [ p.Bool,         true               ]
   }
+
 class SubclassWithTransformSpec extends HasProps
   @define {
     foo: [ p.NumberSpec, {field: 'colname', transform: new fixtures.Model()} ]
