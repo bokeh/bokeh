@@ -8,6 +8,15 @@ fixtures = require "./fixtures/object"
 p = utils.require "core/properties"
 mixins = utils.require "core/property_mixins"
 {Document} = utils.require "document"
+{Transform} = utils.require "models/transforms/transform"
+
+class TestTransform extends Transform
+  compute: (x) -> x+1
+  v_compute: (xs) ->
+    ret = []
+    for i in [0...xs.length]
+      ret.push(xs[i]+i)
+    ret
 
 class SubclassWithProps extends HasProps
   @define {
@@ -39,6 +48,11 @@ class SubclassWithDistanceSpec extends HasProps
   @define {
     foo: [ p.DistanceSpec, {field: 'colname'} ]
     bar: [ p.Bool,         true               ]
+  }
+class SubclassWithTransformSpec extends HasProps
+  @define {
+    foo: [ p.NumberSpec, {field: 'colname', transform: new fixtures.Model()} ]
+    bar: [ p.Bool,       true               ]
   }
 
 class SubclassWithOptionalSpec extends HasProps
@@ -84,6 +98,11 @@ describe "has_properties module", ->
       obj = new SubclassWithMultipleMixins()
       props = Object.keys(Object.assign(mixins.line(""), mixins.text("bar_")))
       expect(Object.keys(obj.properties)).to.be.deep.equal(['id'].concat(props))
+
+    it "should set listenTo on transforms", ->
+      obj = new SubclassWithTransformSpec()
+      transform = obj.properties.foo.spec.transform
+      expect(Object.keys(transform._listeners)).to.contain(obj._listenId)
 
   describe "materialize_dataspecs", ->
     it "should collect dataspecs", ->
