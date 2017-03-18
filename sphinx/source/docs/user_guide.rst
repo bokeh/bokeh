@@ -24,10 +24,6 @@ topic:
     Use the high-level |bokeh.charts| interface to create common
     statistical charts quickly and easily.
 
-:ref:`userguide_compat`
-    Display a wide range of plots created using `Matplotlib`_, `Seaborn`_,
-    or `pandas`_ as Bokeh plots, or build Bokeh plots using `HoloViews`_.
-
 :ref:`userguide_annotations`
     Add informational annotations, such as labels, arrows, and legends to
     plots.
