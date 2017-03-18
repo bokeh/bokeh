@@ -40,8 +40,6 @@
         { "path": "examples/charts/file/line_single.py",       "name": "line_chart"         },
         { "path": "examples/charts/file/palettes.py",          "name": "palettes"           },
         { "path": "examples/charts/file/stacked_bar.py",       "name": "stacked_bar_chart"  },
-        { "path": "examples/charts/file/steps.py",             "name": "step_chart"         },
-        { "path": "examples/compat/seaborn_violin.py",         "name": "seaborn_violin"     },
-        { "path": "examples/compat/seaborn_errorbar.py",       "name": "seaborn_sinerror"   }
+        { "path": "examples/charts/file/steps.py",             "name": "step_chart"         }
     ]
 }
