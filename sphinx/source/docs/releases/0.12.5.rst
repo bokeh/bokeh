@@ -1,25 +1,12 @@
-0.12.5 (March 2017)
-===================
+0.12.5 (XYZ 2017)
+=================
 
 Bokeh Version ``0.12.5`` is an incremental update that adds a few important
 features and fixes several bugs. Some of the highlights include:
 
-* New general capability for Python/JS events (:bokeh-issue:`3210`,
-  :bokeh-issue:`3748`, :bokeh-issue:`5278`)
-* Bokeh apps easily viewable inline in Jupyter Notebooks (:bokeh-issue:`3461`)
-* Confusing ``--host`` parameter no longer necessary (:bokeh-issue:`5692`)
-* Interactive legends can now control glyph visibility (:bokeh-issue:`2274`,
-  :bokeh-issue:`3715`)
-* Several fixes and improvements to ``GMapPlot`` (:bokeh-issue:`2822`,
-  :bokeh-issue:`3737`, :bokeh-issue:`4835`, :bokeh-issue:`5592`,
-  :bokeh-issue:`5845`)
-* ``CustomJSTransform`` now available for CDS columns (:bokeh-issue:`5015`)
-* Sophisticated "pivot" example app contributed (:bokeh-issue:`5894`)
-* Themes now work with ``components`` and in Jupyter notebooks
-  (:bokeh-issue:`4722`, :bokeh-issue:`4952`, )
 
-Many other bugfixes and docs additions are also included. For full details
-see the :bokeh-tree:`CHANGELOG`.
+Many other small bugfixes and docs additions. For full details see the
+:bokeh-tree:`CHANGELOG`.
 
 NOTE: the 0.12.x series is the last planned release series before a
 version 1.0 release. The focus of the 1.0 release will be implementing
@@ -33,28 +20,6 @@ As the project approaches a 1.0 release, it is necessary to make some changes
 to bring interfaces and functionality up to a point that can be maintained
 long-term. We try to limit such changes as much as possible, and have a
 period of deprecation.
-
-New Deprecations
-~~~~~~~~~~~~~~~~
-
-**MPL COMPATIBLITY IS DEPRECATED**
-
-Bokeh's MPL compatibility was implemented using a third-party library that
-only exposes a small fraction of all Matplotlib functionality, and is
-now no longer being actively maintained. The Bokeh team unfortunately does
-not have the resources to continue supporting this functionality, which
-was never more than *extremely* limited in capability, and often produced
-substandard results. Accordingly, in order to support the long term health
-of the project, it has been decided to remove all MPL compatibility support
-on the occasion of a 1.0 release. Any code that currently uses ``to_bokeh``
-will continue to work with a deprecation warning until that time.
-
-The ``bokeh.embed.standalone_html_page_for_models`` method has been deprecated
-in place of ``bokeh.embed.file_html``. For details see :bokeh-pull:`5978`.
-
-The ``validate`` keyword argument to ``bokeh.io.save`` has been deprecated.
-Future usage of ``bokeh.io.save`` will always validate the document before
-outputting a file.
 
 Deprecations removed
 ~~~~~~~~~~~~~~~~~~~~
@@ -71,7 +36,7 @@ Functions Removed            Modules Removed            Classes Removed
 ``bokeh.charts.hplot``       ``bokeh.mixins``           ``bokeh.models.layouts.GridPlot``
 ``bokeh.charts.vplot``       ``bokeh.plotting_helpers`` ``bokeh.models.layouts.VBoxForm``
 ``bokeh.io.hplot``           ``bokeh.properties``
-``bokeh.io.vplot``           ``bokeh.templates``
+``bokeh.io.hplot``           ``bokeh.templates``
 ``bokeh.io.vform``
 ``bokeh.plotting.hplot``
 ``bokeh.plotting.vplot``
@@ -79,12 +44,6 @@ Functions Removed            Modules Removed            Classes Removed
 
 The methods ``bokeh.document.add`` and ``push_notebook`` of
 ``ColumnDataSource`` have been removed.
-
-The ``bokeh.io.output_server`` function has been also been removed.
-Additionally, ``bokeh.io.push`` and other supporting functions or
-properties that are useless without ``output_server`` have been
-removed. This includes any transitive imports of these functions
-from other modules.
 
 Additionally, the property ``bokeh.charts.builder.Builder.sort_legend`` was
 removed, as well as the following properties of ``Plot``
@@ -181,23 +140,40 @@ Default save file
 If user-specified or default destination cannot be written to, a temporary
 file is generated instead. This mostly affects using ``output_file`` in an
 interactive session which formerly could result in a ``PermissionError``.
+
 For details see :bokeh-pull:`5942`.
 
-The ``bokeh.io.save`` method will now only accept a ``LayoutDOM`` object and
-no longer a ``Document`` object for its ``obj`` argument. This aligns the
+The ``validate`` keyword argument to ``bokeh.io.save`` has been deprecated.
+Future usage of ``bokeh.io.save`` will always validate the document before
+outputting a file.
+
+The ``bokeh.io.save`` method will now only accept a ``LayoutDOM`` object and no
+longer a ``Document`` for its ``obj`` argument. This aligns the
 ``bokeh.io.save`` argument types with ``bokeh.io.show``.
+
+The ``bokeh.embed.standalone_html_page_for_models`` method has been deprecated
+in place of ``bokeh.embed.file_html``.
+
+For details see :bokeh-pull:`5978`.
 
 Reorganization of bokeh's examples
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Low-level examples, located under ``examples/models``, were split into ``file``
-and ``server`` examples and are available under ``examples/models/file`` and
-``examples/models/server`` respectively (similarly to plotting examples).
+Low-level examples, located under `examples/models`, were split in file
+and server examples and are available under `examples/models/file` and
+`examples/models/server` respectively (similarly to plotting examples).
 
-Enabling WebGL via URL parameters disallowed
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Deprecated ``output_server`` removed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Previously it was possible to enable WebGL with ``?webgl=1`` URL parameter.
-With addition of a separate ``bokeh-gl`` bundle, this usage is no longer
-supportable. WebGL rendering is still configurable using the ``Plot.webgl``
-property.
+The ``bokeh.io.output_server`` function, which was deprecated in ``0.12.3``,
+has been removed. Additionally, ``bokeh.io.push`` and other supporting
+functions or properties that are useless without ``output_server`` have
+also been removed.
+
+Enabling WebGL rendering with URL parameters was disallowed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Previously it was allowed to enable WebGL with `?webgl=1` URL parameter. This
+isn't possible anymore since addition of `bokeh-gl` bundle. Configure WebGL
+rendering with `Plot.webgl` property.

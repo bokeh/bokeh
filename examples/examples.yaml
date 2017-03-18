@@ -21,5 +21,8 @@
 - path: "plotting/notebook"
   skip: all
 
+- path: "compat"
+  no_diff: all
+
 - path: "howto/charts"
   skip: all
