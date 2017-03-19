@@ -424,8 +424,8 @@ Updating From Threads
 '''''''''''''''''''''
 
 If the app needs to perform blocking computation, it is possible to perform
-that work in a separate thread, and then schedule a next-tick
-callback to update the document with the results. The callback
+that work in a separate thread. However, updates to the Document must be
+scheduled via a next-tick callback.  The callback
 will execute as soon as possible on the next iteration of the
 Tornado event loop, and will automatically acquire necessary locks to update the
 document state safely.
@@ -504,11 +504,11 @@ Normally Bokeh session callbacks recursively lock the document until all
 future work they initiate is completed.  However, you may want to drive
 blocking computations from callbacks using Tornado's
 ``ThreadPoolExecutor`` in an asynchronous callback. This can work, but requires
-the Bokeh provided :func:`~bokeh.document.without_document_lock` decorator,
-which suppresses the normal locking behavior.
+the Bokeh provided :func:`~bokeh.document.without_document_lock` decorator
+to suppress the normal locking behavior.
 
-As with the thread example above, all actions that update document state
-**must go through a next-tick callback**.
+As with the thread example above, **all actions that update document state
+must go through a next-tick callback**.
 
 The following example demonstrates an application that drives a blocking
 computation from one unlocked Bokeh session callback, by yielding to a
