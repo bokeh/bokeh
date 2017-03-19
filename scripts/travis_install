@@ -44,6 +44,10 @@ popd
 
 python setup.py --quiet install --build-js
 
+pushd bokehjs
+node_modules/.bin/gulp examples --no-build
+popd
+
 DEPS_RUN=$(cat <<EOF | python -
 from conda_build.metadata import MetaData
 print(" ".join([s.replace(" ", "") for s in MetaData("conda.recipe").get_value("requirements/run")]))

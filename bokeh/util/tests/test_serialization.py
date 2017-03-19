@@ -2,6 +2,7 @@ from __future__ import absolute_import
 
 import base64
 
+import pytest
 import numpy as np
 import pandas as pd
 
@@ -87,6 +88,13 @@ def test_transform_array_to_list():
         a = np.empty(shape=10, dtype=dt)
         out = bus.transform_array_to_list(a)
         assert isinstance(out, list)
+
+@pytest.mark.parametrize('values', [(['cat', 'dog']), ([1.2, 'apple'])])
+def test_transform_array_with_nans_to_list(values):
+    s = pd.Series([np.nan, values[0], values[1]])
+    out = bus.transform_array_to_list(s)
+    assert isinstance(out, list)
+    assert out == ['NaN', values[0], values[1]]
 
 def test_array_encoding_disabled_by_dtype():
 

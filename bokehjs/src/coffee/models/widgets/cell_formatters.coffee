@@ -1,9 +1,9 @@
 import * as $ from "jquery"
 import * as Numbro from "numbro"
 
-import * as p from "../../core/properties"
-import {extend} from "../../core/util/object"
-import {isString} from "../../core/util/types"
+import * as p from "core/properties"
+import {extend} from "core/util/object"
+import {isString} from "core/util/types"
 import {Model} from "../../model"
 
 export class CellFormatter extends Model

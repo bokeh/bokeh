@@ -50,28 +50,14 @@ page.onError = function(msg, trace) {
   });
 };
 
+page.onResourceError = function(response) {
+  resetLocalTimer();
+  resources.push(response);
+};
+
 page.onConsoleMessage = function(msg, line, source) {
   if (localTimer != null) resetLocalTimer();
   messages.push({msg: msg, line: line, source: source});
-};
-
-page.onResourceReceived = function(response) {
-  if (localTimer != null) resetLocalTimer();
-  if (response.stage === 'end') {
-    var status = response.status;
-
-    if (response.url.slice(0, 7) === "file://") {
-      var path = response.url.slice(7);
-
-      if (!fs.exists(path)) {
-        response.status = 404;
-        response.statusText = "NOT FOUND";
-        resources.push(response);
-      }
-    } else if (status && status >= 400) {
-      resources.push(response);
-    }
-  }
 };
 
 page.viewportSize = { width: width, height: height };

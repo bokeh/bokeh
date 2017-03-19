@@ -7,7 +7,6 @@ from __future__ import absolute_import, print_function
 import logging
 logger = logging.getLogger(__file__)
 
-from contextlib import contextmanager
 from json import loads
 from operator import itemgetter
 
@@ -18,9 +17,10 @@ from .core.properties import Any, Dict, Instance, List, String
 from .core.has_props import HasProps, MetaHasProps
 from .core.query import find
 from .themes import default as default_theme
-from .util.callback_manager import CallbackManager
+from .util.callback_manager import PropertyCallbackManager, EventCallbackManager
 from .util.future import with_metaclass
 from .util.serialization import make_id
+from .events import Event
 
 def collect_models(*input_values):
     ''' Collect a duplicate-free list of all other Bokeh models referred to by
@@ -215,7 +215,7 @@ _HTML_REPR = """
 </script>
 """
 
-class Model(with_metaclass(MetaModel, HasProps, CallbackManager)):
+class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCallbackManager)):
     ''' Base class for all objects stored in Bokeh  |Document| instances.
 
     '''
@@ -275,7 +275,25 @@ class Model(with_metaclass(MetaModel, HasProps, CallbackManager)):
 
     """)
 
-    js_callbacks = Dict(String, List(Instance("bokeh.models.callbacks.CustomJS")), help="""
+    js_event_callbacks = Dict(String, List(Instance("bokeh.models.callbacks.CustomJS")),
+    help="""A mapping of event names to lists of CustomJS callbacks.
+
+    Typically, rather then modifying this property directly, callbacks should be
+    added using the ``Model.js_on_event`` method:)
+
+    .. code:: python
+
+        callback = CustomJS(code="console.log('tap event occured')")
+        plot.js_on_event('tap', callback)
+    """)
+
+    subscribed_events = List(String, help="""
+    List of events that are subscribed to by Python callbacks. This is
+    the set of events that will be communicated from BokehJS back to
+    Python for this model.
+     """   )
+
+    js_property_callbacks = Dict(String, List(Instance("bokeh.models.callbacks.CustomJS")), help="""
     A mapping of attribute names to lists of CustomJS callbacks, to be set up on
     BokehJS side when the document is created.
 
@@ -324,6 +342,20 @@ class Model(with_metaclass(MetaModel, HasProps, CallbackManager)):
                 'id'   : self._id,
             }
 
+    def js_on_event(self, event, *callbacks):
+
+        if not isinstance(event, str) and issubclass(event, Event):
+            event = event.event_name
+
+        if event not in self.js_event_callbacks:
+            self.js_event_callbacks[event] = []
+
+        for callback in callbacks:
+            if callback in self.js_event_callbacks[event]:
+                continue
+            self.js_event_callbacks[event].append(callback)
+
+
     def js_on_change(self, event, *callbacks):
         ''' Attach a CustomJS callback to an arbitrary BokehJS model event.
 
@@ -359,12 +391,12 @@ class Model(with_metaclass(MetaModel, HasProps, CallbackManager)):
         if event in self.properties():
             event = "change:%s" % event
 
-        if event not in self.js_callbacks:
-            self.js_callbacks[event] = []
+        if event not in self.js_property_callbacks:
+            self.js_property_callbacks[event] = []
         for callback in callbacks:
-            if callback in self.js_callbacks[event]:
+            if callback in self.js_property_callbacks[event]:
                 continue
-            self.js_callbacks[event].append(callback)
+            self.js_property_callbacks[event].append(callback)
 
     def layout(self, side, plot):
         '''
@@ -527,6 +559,7 @@ class Model(with_metaclass(MetaModel, HasProps, CallbackManager)):
             raise RuntimeError("Models must be owned by only a single document, %r is already in a doc" % (self))
         doc.theme.apply_to_model(self)
         self._document = doc
+        self._update_event_callbacks()
 
     def _detach_document(self):
         ''' Detach a model from a Bokeh |Document|.
@@ -649,39 +682,6 @@ class Model(with_metaclass(MetaModel, HasProps, CallbackManager)):
                     p.text('=')
                     p.pretty(value)
 
-def _find_some_document(models):
-    '''
-
-    '''
-    from .document import Document
-
-    # First try the easy stuff...
-    doc = None
-    for model in models:
-        if isinstance(model, Document):
-            doc = model
-            break
-        elif isinstance(model, Model):
-            if model.document is not None:
-                doc = model.document
-                break
-
-    # Now look in children of models
-    if doc is None:
-        for model in models:
-            if isinstance(model, Model):
-                # see if some child of ours is in a doc, this is meant to
-                # handle a thing like:
-                #   p = figure()
-                #   box = HBox(children=[p])
-                #   show(box)
-                for r in model.references():
-                    if r.document is not None:
-                        doc = r.document
-                        break
-
-    return doc
-
 def _visit_immediate_value_references(value, visitor):
     ''' Visit all references to another Model without recursing into any
     of the child Model; may visit the same Model more than once if
@@ -711,54 +711,3 @@ def _visit_value_and_its_immediate_references(obj, visitor):
         for key, value in iteritems(obj):
             _visit_value_and_its_immediate_references(key, visitor)
             _visit_value_and_its_immediate_references(value, visitor)
-
-class _ModelInDocument(object):
-    '''
-
-    '''
-
-    def __init__(self, models):
-        # 'models' can be a single Model, a single Document, or a list of either
-        from .document import Document
-
-        self._to_remove_after = []
-        if not isinstance(models, list):
-            models = [models]
-
-        self._doc = _find_some_document(models)
-        if self._doc is None:
-            # oh well - just make up a doc
-            self._doc = Document()
-
-        for model in models:
-            if isinstance(model, Model):
-                if model.document is None:
-                    self._to_remove_after.append(model)
-
-    def __exit__(self, type, value, traceback):
-        for model in self._to_remove_after:
-            model.document.remove_root(model)
-
-    def __enter__(self):
-        for model in self._to_remove_after:
-            self._doc.add_root(model)
-
-@contextmanager
-def _ModelInEmptyDocument(model):
-    '''
-
-    '''
-    from .document import Document
-    full_doc = _find_some_document([model])
-
-    model._document = None
-    for ref in model.references():
-        ref._document = None
-    empty_doc = Document()
-    empty_doc.add_root(model)
-
-    yield model
-
-    model._document = full_doc
-    for ref in model.references():
-        ref._document = full_doc

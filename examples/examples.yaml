@@ -1,0 +1,25 @@
+- path: "models/file"
+  slow: ["choropleth.py"]
+  no_js: ["maps_cities.py", "maps.py", "trail.py"]
+
+- path: "models/server"
+  type: server
+  skip: all
+
+- path: "custom"
+
+- path: "charts/file"
+
+- path: "plotting/file"
+  slow: ["choropleth.py"]
+  no_diff: ["jitter.py"]
+
+- path: "plotting/server"
+  type: server
+  skip: all
+
+- path: "plotting/notebook"
+  skip: all
+
+- path: "howto/charts"
+  skip: all

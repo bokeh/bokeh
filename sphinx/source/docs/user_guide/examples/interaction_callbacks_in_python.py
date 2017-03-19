@@ -14,7 +14,7 @@ plot.line('x', 'y', source=source, line_width=3, line_alpha=0.6)
 
 def callback(source=source, window=None):
     data = source.data
-    f = cb_obj.value
+    f = cb_obj.value                         # NOQA
     x, y = data['x'], data['y']
     for i in range(len(x)):
         y[i] = window.Math.pow(x[i], f)

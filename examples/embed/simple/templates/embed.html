@@ -19,10 +19,10 @@
     <form name="color_button" method='GET'>
         Color:
         <select name="color">
-            <option value="Red">Red</option>
-            <option value="Green">Green</option>
-            <option value="Blue">Blue</option>
-            <option selected="selected" value="Black">Black</option>
+            <option {{ "selected" if color|indent(4)|safe == "Red" }} value="Red">Red</option>
+            <option {{ "selected" if color|indent(4)|safe == "Green" }} value="Green">Green</option>
+            <option {{ "selected" if color|indent(4)|safe == "Blue" }} value="Blue">Blue</option>
+            <option {{ "selected" if color|indent(4)|safe == "Black" }} value="Black">Black</option>
         </select>
         <br>
         From:

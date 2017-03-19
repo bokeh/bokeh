@@ -94,7 +94,7 @@ class WSHandler(WebSocketHandler):
     @gen.coroutine
     def _async_open(self, session_id, proto_version):
         try:
-            yield self.application_context.create_session_if_needed(session_id)
+            yield self.application_context.create_session_if_needed(session_id, self.request)
             session = self.application_context.get_session(session_id)
 
             protocol = Protocol(proto_version)

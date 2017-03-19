@@ -117,7 +117,7 @@ describe "Client", ->
 
   it "should be able to connect", ->
     promise = with_server (server_process) ->
-      pull_session(url=server_process.url).then(
+      pull_session(server_process.url).then(
         (session) ->
           session.close()
           "OK"
@@ -126,21 +126,41 @@ describe "Client", ->
       )
     expect(promise).eventually.to.equal("OK")
 
-  it "should get server info", ->
+  it "should pass request string to connection", ->
     promise = with_server (server_process) ->
-      pull_session(url=server_process.url).then(
+      pull_session(server_process.url, null, "foo=10&bar=20").then(
         (session) ->
-          session.request_server_info().then(
-            (info) ->
-              expect(info).to.have.property('version_info')
-              "OK"
-          )
+          expect(session._connection.args_string).to.be.equal "foo=10&bar=20"
+          "OK"
       )
     expect(promise).eventually.to.equal("OK")
 
+  it "should be able to connect", ->
+    promise = with_server (server_process) ->
+      pull_session(server_process.url).then(
+        (session) ->
+          session.close()
+          "OK"
+        (error) ->
+          throw error
+      )
+    expect(promise).eventually.to.equal("OK")
+
+   it "should get server info", ->
+     promise = with_server (server_process) ->
+       pull_session(server_process.url).then(
+         (session) ->
+           session.request_server_info().then(
+             (info) ->
+               expect(info).to.have.property('version_info')
+               "OK"
+           )
+        )
+     expect(promise).eventually.to.equal("OK")
+
   it "should sync a document between two connections", ->
     promise = with_server (server_process) ->
-      added_root = pull_session(url=server_process.url).then(
+      added_root = pull_session(server_process.url).then(
         (session) ->
           root1 = new Range1d({start: 123, end: 456})
           session.document.add_root(root1)
@@ -153,7 +173,7 @@ describe "Client", ->
 
       added_root.then(
         (session1) ->
-          ok = pull_session(url=server_process.url, session_id=session1.id).then(
+          ok = pull_session(server_process.url, session1.id).then(
             (session2) ->
               try
                 expect(session2.document.roots().length).to.equal 1

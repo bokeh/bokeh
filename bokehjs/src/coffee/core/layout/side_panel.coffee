@@ -1,9 +1,9 @@
 import {EQ, GE} from "./solver"
 import {LayoutCanvas} from "./layout_canvas"
 
-import * as p from "../../core/properties"
-import {logger} from "../../core/logging"
-import {isString} from "../../core/util/types"
+import * as p from "core/properties"
+import {logger} from "core/logging"
+import {isString} from "core/util/types"
 
 # This table lays out the rules for configuring the baseline, alignment, etc. of
 # title text, based on it's location and orientation
@@ -164,7 +164,7 @@ export update_constraints = (view) ->
 
   v._last_size = size
   if v._size_constraint?
-      s.remove_constraint(v._size_constraint)
+    s.remove_constraint(v._size_constraint, true)
   v._size_constraint = GE(v.model.panel._size, -size)
   s.add_constraint(v._size_constraint)
 

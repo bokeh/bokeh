@@ -13,10 +13,13 @@ these different cases.
 
 from __future__ import absolute_import
 
+from contextlib import contextmanager
 from collections import Sequence
 from warnings import warn
+import re
 
 from six import string_types
+from six.moves.urllib.parse import urlparse
 
 from .core.templates import (
     AUTOLOAD_JS, AUTOLOAD_NB_JS, AUTOLOAD_TAG,
@@ -24,8 +27,9 @@ from .core.templates import (
 )
 from .core.json_encoder import serialize_json
 from .document import Document, DEFAULT_TITLE
-from .model import Model, _ModelInDocument, _ModelInEmptyDocument
+from .model import Model
 from .resources import BaseResources, _SessionCoordinates, EMPTY
+from .util.deprecation import deprecated
 from .util.string import encode_utf8
 from .util.serialization import make_id
 
@@ -49,7 +53,64 @@ def _wrap_in_onload(code):
 })();
 """ % dict(code=_indent(code, 4))
 
-def components(models, wrap_script=True, wrap_plot_info=True):
+@contextmanager
+def _ModelInDocument(models, apply_theme=None):
+    doc = _find_existing_docs(models)
+    old_theme = doc.theme
+
+    if apply_theme is FromCurdoc:
+        from .io import curdoc; curdoc
+        doc.theme = curdoc().theme
+    elif apply_theme is not None:
+        doc.theme = apply_theme
+
+    models_to_dedoc = _add_doc_to_models(doc, models)
+
+    yield models
+
+    for model in models_to_dedoc:
+        doc.remove_root(model, apply_theme)
+    doc.theme = old_theme
+
+
+def _find_existing_docs(models):
+    existing_docs = set(m if isinstance(m, Document) else m.document for m in models)
+    existing_docs.discard(None)
+
+    if len(existing_docs) == 0:
+        # no existing docs, use the current doc
+        doc = Document()
+    elif len(existing_docs) == 1:
+        # all existing docs are the same, use that one
+        doc = existing_docs.pop()
+    else:
+        # conflicting/multiple docs, raise an error
+        msg = ('Multiple items in models contain documents or are '
+               'themselves documents. (Models must be owned by only a '
+               'single document). This may indicate a usage error.')
+        raise RuntimeError(msg)
+    return doc
+
+def _add_doc_to_models(doc, models):
+    models_to_dedoc = []
+    for model in models:
+        if isinstance(model, Model):
+            if model.document is None:
+                try:
+                    doc.add_root(model)
+                    models_to_dedoc.append(model)
+                except RuntimeError as e:
+                    child = re.search('\((.*)\)', str(e)).group(0)
+                    msg = ('Sub-model {0} of the root model {1} is already owned '
+                           'by another document (Models must be owned by only a '
+                           'single document). This may indicate a usage '
+                           'error.'.format(child, model))
+                    raise RuntimeError(msg)
+    return models_to_dedoc
+
+class FromCurdoc: pass
+
+def components(models, wrap_script=True, wrap_plot_info=True, theme=FromCurdoc):
     '''
     Return HTML components to embed a Bokeh plot. The data for the plot is
     stored directly in the returned HTML.
@@ -81,6 +142,12 @@ def components(models, wrap_script=True, wrap_plot_info=True):
                     'elementid': 'The css identifier the BokehJS will look for to target the plot',
                     'docid': 'Used by Bokeh to find the doc embedded in the returned script',
                 }
+
+        theme (Theme, optional) :
+            Defaults to the ``Theme`` instance in the current document.
+            Setting this to ``None`` uses the default theme or the theme
+            already specified in the document. Any other value must be an
+            instance of the ``Theme`` class.
 
     Returns:
         UTF-8 encoded *(script, div[s])* or *(raw_script, plot_info[s])*
@@ -131,12 +198,11 @@ def components(models, wrap_script=True, wrap_plot_info=True):
             values.append(models[k])
         models = values
 
-    # 2) Do our rendering
-
-    with _ModelInDocument(models):
+    # 2) Append models to one document. Either pre-existing or new and render
+    with _ModelInDocument(models, apply_theme=theme):
         (docs_json, render_items) = _standalone_docs_json_and_render_items(models)
 
-    script = _script_for_render_items(docs_json, render_items, websocket_url=None, wrap_script=wrap_script)
+    script = _script_for_render_items(docs_json, render_items, wrap_script=wrap_script)
     script = encode_utf8(script)
 
     if wrap_plot_info:
@@ -172,6 +238,22 @@ def _use_widgets(objs):
     else:
         return False
 
+def _use_gl(objs):
+    from .models.plots import Plot
+
+    def _needs_gl(obj):
+        return isinstance(obj, Plot) and obj.webgl
+
+    for obj in objs:
+        if isinstance(obj, Document):
+            if _use_gl(obj.roots):
+                return True
+        else:
+            if any(_needs_gl(ref) for ref in obj.references()):
+                return True
+    else:
+        return False
+
 def _bundle_for_objs_and_resources(objs, resources):
     if isinstance(resources, BaseResources):
         js_resources = css_resources = resources
@@ -190,11 +272,14 @@ def _bundle_for_objs_and_resources(objs, resources):
 
     # XXX: force all components on server and in notebook, because we don't know in advance what will be used
     use_widgets =  _use_widgets(objs) if objs else True
+    use_gl      =  _use_gl(objs)      if objs else True
 
     if js_resources:
         js_resources = deepcopy(js_resources)
         if not use_widgets and "bokeh-widgets" in js_resources.components:
             js_resources.components.remove("bokeh-widgets")
+        if use_gl and "bokeh-gl" not in js_resources.components:
+            js_resources.components.append("bokeh-gl")
         bokeh_js = js_resources.render_js()
     else:
         bokeh_js = None
@@ -210,7 +295,7 @@ def _bundle_for_objs_and_resources(objs, resources):
     return bokeh_js, bokeh_css
 
 
-def notebook_div(model, notebook_comms_target=None):
+def notebook_div(model, notebook_comms_target=None, theme=FromCurdoc):
     ''' Return HTML for a div that will display a Bokeh plot in an
     IPython Notebook
 
@@ -221,6 +306,11 @@ def notebook_div(model, notebook_comms_target=None):
         notebook_comms_target (str, optional) :
             A target name for a Jupyter Comms object that can update
             the document that is rendered to this notebook div
+        theme (Theme, optional) :
+            Defaults to the ``Theme`` instance in the current document.
+            Setting this to ``None`` uses the default theme or the theme
+            already specified in the document. Any other value must be an
+            instance of the ``Theme`` class.
 
     Returns:
         UTF-8 encoded HTML text for a ``<div>``
@@ -232,7 +322,8 @@ def notebook_div(model, notebook_comms_target=None):
     '''
     model = _check_one_model(model)
 
-    with _ModelInEmptyDocument(model):
+    # Append models to one document. Either pre-existing or new and render
+    with _ModelInDocument([model], apply_theme=theme):
         (docs_json, render_items) = _standalone_docs_json_and_render_items([model])
 
     item = render_items[0]
@@ -268,12 +359,10 @@ def file_html(models,
               title=None,
               template=FILE,
               template_variables={}):
-    '''Return an HTML document that embeds Bokeh Model or Document objects.
+    ''' Return an HTML document that embeds Bokeh Model or Document objects.
 
-    The data for the plot is stored directly in the returned HTML.
-
-    This is an alias for standalone_html_page_for_models() which
-    supports customizing the JS/CSS resources independently and
+    The data for the plot is stored directly in the returned HTML, with
+    support for customizing the JS/CSS resources independently and
     customizing the jinja2 template.
 
     Args:
@@ -329,7 +418,7 @@ def autoload_static(model, resources, script_path):
 
     model = _check_one_model(model)
 
-    with _ModelInDocument(model):
+    with _ModelInDocument([model]):
         (docs_json, render_items) = _standalone_docs_json_and_render_items([model])
 
     script = _script_for_render_items(docs_json, render_items, wrap_script=False)
@@ -352,42 +441,53 @@ def autoload_static(model, resources, script_path):
 
     return encode_utf8(js), encode_utf8(tag)
 
-def autoload_server(model, app_path="/", session_id=None, url="default"):
-    '''Return a script tag that embeds the given model (or entire
-    Document) from a Bokeh server session.
+def autoload_server(model, app_path=None, session_id=None, url="default", relative_urls=True):
+    '''Return a script tag that embeds content from a Bokeh server session.
 
-    In a typical deployment, each browser tab connecting to a
-    Bokeh application will have its own unique session ID. The session ID
-    identifies a unique Document instance for each session (so the state
-    of the Document can be different in every tab).
+    In a typical deployment, each browser tab connecting to a Bokeh application
+    will have its own unique session ID. The session ID identifies a unique
+    Document instance for each session (so the state of the Document can be
+    different in every tab).
 
-    If you call ``autoload_server(model=None)``, you'll embed the
-    entire Document for a freshly-generated session ID. Typically,
-    you should call ``autoload_server()`` again for each page load so
-    that every new browser tab gets its own session.
+    If you call ``autoload_server(model=None)``, you'll embed the entire
+    Document for a freshly-generated session ID. Typically, you should call
+    ``autoload_server()`` again for each page load so that every new browser
+    tab gets its own session.
 
-    Sometimes when doodling around on a local machine, it's fine
-    to set ``session_id`` to something human-readable such as
-    ``"default"``.  That way you can easily reload the same
-    session each time and keep your state.  But don't do this in
-    production!
+    Sometimes when doodling around on a local machine, it's fine to set
+    ``session_id`` to something human-readable such as ``"default"``.  That
+    way you can easily reload the same session each time and keep your state.
+    But don't do this in production!
 
-    In some applications, you may want to "set up" the session
-    before you embed it. For example, you might ``session =
-    bokeh.client.pull_session()`` to load up a session, modify
-    ``session.document`` in some way (perhaps adding per-user
-    data?), and then call ``autoload_server(model=None,
-    session_id=session.id)``. The session ID obtained from
-    ``pull_session()`` can be passed to ``autoload_server()``.
+    In some applications, you may want to "set up" the session before you embed
+    it. For example, you might ``session=bokeh.client.pull_session()`` to load
+    up a session, modify ``session.document`` in some way (perhaps adding
+    per-user data?), and then call:
+
+    .. code-block:: python
+
+        autoload_server(model=None, session_id=session.id)``.
+
+    The session ID obtained from ``pull_session()`` can be passed to
+    ``autoload_server()``.
 
     Args:
-        model (Model) : the object to render from the session, or None for entire document
-        app_path (str, optional) : the server path to the app we want to load
+        model (Model, optional) : The object to render from the session
+            Pass ``None`` to render an entire document. (default: ``None``)
+
         session_id (str, optional) : server session ID (default: None)
-          If None, let the server autogenerate a random session ID. If you supply
-          a specific model to render, you must also supply the session ID containing
-          that model, though.
-        url (str, optional) : server root URL (where static resources live, not where a specific app lives)
+            If ``None``, let the server autogenerate a random session ID. If
+            you supply a specific model to render, you must also supply the
+            session ID containing that model, though.
+
+        url (str, optional) : The URL to a Bokeh application on a Bokeh server
+
+        relative_urls (bool, optional) : Whether to use relative URLS for resources.
+            This should normally be set to ``True``, but must be set to
+            ``False`` in situations where relative URLs will not work. E.g.
+            when embedding the Bokeh server as a library in a bare Flask or
+            other web app directly, the relative URLs will land on the web
+            app server, not to the Bokeh server.
 
     Returns:
         tag :
@@ -404,10 +504,13 @@ def autoload_server(model, app_path="/", session_id=None, url="default"):
         ``autoload_server()`` should be called again on each page load.
 
     '''
+    if app_path is not None:
+        deprecated((0, 12, 5), "app_path", "url", "Now pass entire app URLS in the url arguments, e.g. 'url=http://foo.com:5010/bar/myapp'")
+        if not app_path.startswith("/"):
+            app_path = "/" + app_path
+        url = url + app_path
 
-    coords = _SessionCoordinates(dict(url=url,
-                                      session_id=session_id,
-                                      app_path=app_path))
+    coords = _SessionCoordinates(url=url, session_id=session_id)
 
     elementid = make_id()
 
@@ -421,8 +524,16 @@ def autoload_server(model, app_path="/", session_id=None, url="default"):
                          "this doesn't work because the server will generate a fresh session "
                          "which won't have the model in it.")
 
-    src_path = coords.server_url + "/autoload.js" + \
-               "?bokeh-autoload-element=" + elementid
+    src_path = coords.url + "/autoload.js?bokeh-autoload-element=" + elementid
+
+    if url != "default":
+        app_path = urlparse(url).path.rstrip("/")
+        if not app_path.startswith("/"):
+            app_path = "/" + app_path
+        src_path += "&bokeh-app-path=" + app_path
+
+    if not relative_urls:
+        src_path += "&bokeh-absolute-url=" + coords.url
 
     # we want the server to generate the ID, so the autoload script
     # can be embedded in a static page while every user still gets
@@ -433,17 +544,19 @@ def autoload_server(model, app_path="/", session_id=None, url="default"):
 
     tag = AUTOLOAD_TAG.render(
         src_path = src_path,
+        app_path = app_path,
         elementid = elementid,
         modelid = model_id,
     )
 
     return encode_utf8(tag)
 
-def _script_for_render_items(docs_json, render_items, websocket_url=None, wrap_script=True):
+def _script_for_render_items(docs_json, render_items, app_path=None, absolute_url=None, wrap_script=True):
     plot_js = _wrap_in_onload(_wrap_in_safely(DOC_JS.render(
-        websocket_url=websocket_url,
         docs_json=serialize_json(docs_json),
         render_items=serialize_json(render_items),
+        app_path=app_path,
+        absolute_url=absolute_url
     )))
 
     if wrap_script:
@@ -451,14 +564,14 @@ def _script_for_render_items(docs_json, render_items, websocket_url=None, wrap_s
     else:
         return plot_js
 
-def _html_page_for_render_items(bundle, docs_json, render_items, title, websocket_url=None,
+def _html_page_for_render_items(bundle, docs_json, render_items, title,
                                 template=FILE, template_variables={}):
     if title is None:
         title = DEFAULT_TITLE
 
     bokeh_js, bokeh_css = bundle
 
-    script = _script_for_render_items(docs_json, render_items, websocket_url)
+    script = _script_for_render_items(docs_json, render_items)
 
     template_variables_full = template_variables.copy()
 
@@ -589,9 +702,10 @@ def standalone_html_page_for_models(models, resources, title):
         UTF-8 encoded HTML
 
     '''
+    deprecated((0, 12, 5), 'bokeh.io.standalone_html_page_for_models', 'bokeh.io.file_html')
     return file_html(models, resources, title)
 
-def server_html_page_for_models(session_id, model_ids, resources, title, websocket_url, template=FILE):
+def server_html_page_for_models(session_id, model_ids, resources, title, template=FILE):
     render_items = []
     for modelid in model_ids:
         if modelid is None:
@@ -606,10 +720,9 @@ def server_html_page_for_models(session_id, model_ids, resources, title, websock
             })
 
     bundle = _bundle_for_objs_and_resources(None, resources)
-    return _html_page_for_render_items(bundle, {}, render_items, title, template=template, websocket_url=websocket_url)
+    return _html_page_for_render_items(bundle, {}, render_items, title, template=template)
 
-def server_html_page_for_session(session_id, resources, title, websocket_url, template=FILE,
-                                 template_variables=None):
+def server_html_page_for_session(session_id, resources, title, template=FILE, template_variables=None):
     elementid = make_id()
     render_items = [{
         'sessionid' : session_id,
@@ -622,5 +735,4 @@ def server_html_page_for_session(session_id, resources, title, websocket_url, te
         template_variables = {}
 
     bundle = _bundle_for_objs_and_resources(None, resources)
-    return _html_page_for_render_items(bundle, {}, render_items, title, template=template,
-            websocket_url=websocket_url, template_variables=template_variables)
+    return _html_page_for_render_items(bundle, dict(), render_items, title, template=template, template_variables=template_variables)

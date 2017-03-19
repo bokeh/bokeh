@@ -49,43 +49,6 @@ PDF output not currently available for native Bokeh plots.  See the
 Holoviews `Bokeh_Backend`_ tutorial for more details.
 
 
-Matplotlib, seaborn, ggplot, and Pandas
----------------------------------------
-
-Bokeh can display figures created using `Matplotlib`_, which allows
-you to combine `Matplotlib`_ and Bokeh plots in the same document.
-Because `Seaborn`_, `ggplot.py`_, and `Pandas`_ generate Matplotlib
-figures, in many cases you can also use output from each of these
-packages.  To display one of these plots, pass it to the
-``bokeh.mpl.to_bokeh`` function:
-
-----
-
-.. autofunction:: bokeh.mpl.to_bokeh
-
-----
-
-To achieve this interoperability, Bokeh currently relies on the third-party
-library `mplexporter`_, which can convert many `Matplotlib`_ plots into Bokeh
-plots. However, MPL plots using features not supported by
-`mplexporter`_ may not render fully.
-
-Interoperability with these libraries is expected to improve
-significantly in the future, based on plans (`MEP 25`_) for Matplotlib
-to adopt a native JSON ingest/export functionality of its own. This
-will allow Bokeh and other systems to interact more robustly with
-Matplotlib, potentially in both directions (i.e., with Matplotlib able
-to display Bokeh plots).
-
-You can see examples of Bokeh rendering Matplotlib plots generated
-from each of these libraries in the :bokeh-tree:`examples/compat` directory.
-
 .. _Bokeh_Backend: http://holoviews.org/Tutorials/Bokeh_Backend.html
-.. _ggplot.py: https://github.com/yhat/ggplot
 .. _HoloViews: http://holoviews.org
-.. _Matplotlib: http://matplotlib.org
-.. _MEP 25: https://github.com/matplotlib/matplotlib/wiki/MEP25
-.. _mplexporter:
-.. _Pandas: http://pandas.pydata.org
 .. _PhosphorJS: http://phosphorjs.github.io
-.. _Seaborn: http://web.stanford.edu/~mwaskom/software/seaborn

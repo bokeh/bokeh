@@ -83,7 +83,17 @@ If you do not want this automatic behavior, you can use the ``field()`` or
 your  intentions. See :bokeh-tree:`examples/app/gapminder/main.py` for an
 example. Alternatively, you can not specify any legend argument, and manually
 build a :class:`~bokeh.models.annotations.Legend` by hand. You can see an
-example of this in :bokeh-tree:`examples/models/legends.py`:
+example of this in :bokeh-tree:`examples/models/file/legends.py`:
+
+It's also possible to configure legends to be interactive, so that clicking
+or tapping on legend entries affects the corresponding glyph visibility. See
+the :ref:`userguide_interaction_legends` section of the User's Guide for more
+information and examples.
+
+.. note::
+    :ref:`userguide_interaction_legends` features currently work on the first,
+    "per-glyph" style legends. Legends that are created by specifying a column
+    to automatically group do no yet support interactive features.
 
 .. _userguide_plotting_color_bars:
 
@@ -168,7 +178,7 @@ text, as well as the border and background of the bounding box for the text:
 
 .. code-block:: python
 
-    Label(x=70, y=70, x_units='screen' text='Some Stuff', render_mode='css',
+    Label(x=70, y=70, x_units='screen', text='Some Stuff', render_mode='css',
           border_line_color='black', border_line_alpha=1.0,
           background_fill_color='white', background_fill_alpha=1.0)
 

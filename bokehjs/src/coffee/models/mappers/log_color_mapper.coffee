@@ -1,7 +1,7 @@
-import * as p from "../../core/properties"
+import * as p from "core/properties"
 
-import {color2hex} from "../../core/util/color"
-import {min, max} from "../../core/util/array"
+import {color2hex} from "core/util/color"
+import {min, max} from "core/util/array"
 import {ColorMapper} from "./color_mapper"
 
 # Math.log1p() is not supported by any version of IE, so let's use a polyfill based on

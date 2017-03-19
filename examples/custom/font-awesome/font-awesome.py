@@ -1,4 +1,4 @@
-from bokeh.plotting import show, output_file
+from bokeh.plotting import show
 from bokeh.layouts import column
 from bokeh.models import CustomJS
 from bokeh.models.widgets import Button

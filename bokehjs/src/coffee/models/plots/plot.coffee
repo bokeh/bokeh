@@ -1,8 +1,8 @@
-import {WEAK_EQ, GE, EQ, Strength, Variable} from "../../core/layout/solver"
-import {logger} from "../../core/logging"
-import * as p from "../../core/properties"
-import {extend, values, clone} from "../../core/util/object"
-import {isString, isArray} from "../../core/util/types"
+import {WEAK_EQ, GE, EQ, Strength, Variable} from "core/layout/solver"
+import {logger} from "core/logging"
+import * as p from "core/properties"
+import {extend, values, clone} from "core/util/object"
+import {isString, isArray} from "core/util/types"
 
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
 import {Title} from "../annotations/title"
@@ -12,6 +12,7 @@ import {PlotCanvas, PlotCanvasView} from "./plot_canvas"
 
 import {ColumnDataSource} from "../sources/column_data_source"
 import {GlyphRenderer} from "../renderers/glyph_renderer"
+import {register_with_event, UIEvent} from 'core/bokeh_events'
 
 export class PlotView extends LayoutDOMView
   className: "bk-plot-layout"
@@ -132,6 +133,10 @@ export class Plot extends LayoutDOM
     @_set_orientation_variables(@toolbar)
     @_set_orientation_variables(@plot_canvas)
 
+    # super call needed to inform the event manager of the model(s)
+    # processing events (in this case it is the Plot model)
+
+    super()
   add_renderers: (new_renderers...) ->
     renderers = @renderers
     renderers = renderers.concat(new_renderers)
@@ -364,3 +369,5 @@ export class Plot extends LayoutDOM
         renderers = renderers.concat(tool.synthetic_renderers)
       return renderers
   }
+
+register_with_event(UIEvent, Plot)

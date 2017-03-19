@@ -3,10 +3,10 @@ import {LinearMapper} from "../mappers/linear_mapper"
 import {LogMapper} from "../mappers/log_mapper"
 import {Range1d} from "../ranges/range1d"
 
-import {EQ, GE} from "../../core/layout/solver"
-import {LayoutCanvas} from "../../core/layout/layout_canvas"
-import {logger} from "../../core/logging"
-import * as p from "../../core/properties"
+import {EQ, GE} from "core/layout/solver"
+import {LayoutCanvas} from "core/layout/layout_canvas"
+import {logger} from "core/logging"
+import * as p from "core/properties"
 
 export class CartesianFrame extends LayoutCanvas
   type: 'CartesianFrame'

@@ -1,7 +1,7 @@
 import {Annotation, AnnotationView} from "./annotation"
-import {logger} from "../../core/logging"
-import {div, show, hide, empty} from "../../core/dom"
-import * as p from "../../core/properties"
+import {logger} from "core/logging"
+import {div, show, hide, empty} from "core/dom"
+import * as p from "core/properties"
 
 export class TooltipView extends AnnotationView
   className: "bk-tooltip"
@@ -17,6 +17,8 @@ export class TooltipView extends AnnotationView
     @listenTo(@model, 'change:data', @_draw_tips)
 
   render: () ->
+    if not @model.visible
+      return
     @_draw_tips()
 
   _draw_tips: () ->

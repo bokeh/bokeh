@@ -1,7 +1,7 @@
 import {SelectTool, SelectToolView} from "./select_tool"
 import {PolyAnnotation} from "../../annotations/poly_annotation"
-import * as p from "../../../core/properties"
-import {copy} from "../../../core/util/array"
+import * as p from "core/properties"
+import {copy} from "core/util/array"
 
 export class PolySelectToolView extends SelectToolView
 

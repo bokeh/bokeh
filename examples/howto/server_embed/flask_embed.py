@@ -13,7 +13,7 @@ from bokeh.server.server import Server
 flask_app = Flask(__name__)
 
 def modify_doc(doc):
-    x = np.linspace(0, 10, 1000)
+    x = np.linspace(0.0001, 10, 1000)
     y = np.log(x) * np.sin(x)
 
     source = ColumnDataSource(data=dict(x=x, y=y))
@@ -39,7 +39,7 @@ server.start()
 
 @flask_app.route('/', methods=['GET'])
 def bkapp_page():
-    script = autoload_server(model=None, url='http://localhost:5006/bkapp')
+    script = autoload_server(model=None, url='http://localhost:5006/bkapp', relative_urls=False)
     return render_template("embed.html", script=script, template="Flask")
 
 if __name__ == '__main__':

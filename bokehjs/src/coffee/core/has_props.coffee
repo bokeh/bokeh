@@ -119,6 +119,21 @@ export class HasProps extends Backbone.Model
     if not options.defer_initialization
       this.initialize.apply(this, arguments)
 
+  initialize: (options) ->
+    # This is necessary because the initial creation of properties relies on
+    # model.get which is not usable at that point yet in the constructor. This
+    # initializer is called when deferred initialization happens for all models
+    # and insures that the Bokeh properties are initialized from Backbone
+    # attributes in a consistent way.
+    #
+    # TODO (bev) split property creation up into two parts so that only the
+    # portion of init that can be done happens in HasProps constructor and so
+    # that subsequent updates do not duplicate that setup work.
+    for name, prop of @properties
+      prop.update()
+      if prop.spec.transform
+        @listenTo(prop.spec.transform, "change", () -> @trigger('transformchange', this))
+
   setv: (key, value, options) ->
     # backbones set function supports 2 call signatures, either a dictionary of
     # key value pairs, and then options, or one key, one value, and then options.
@@ -348,12 +363,6 @@ export class HasProps extends Backbone.Model
 
     @document = doc
 
-    # XXXXXXX not sure about the things below yet
-
-    # TODO (bev) is there are way to get rid of this?
-    for name, prop of @properties
-      prop.update()
-
     if @_doc_attached?
       @_doc_attached()
 
@@ -398,6 +407,7 @@ export class HasProps extends Backbone.Model
       # this skips optional properties like radius for circles
       if (prop.optional || false) and prop.spec.value == null and (name not of @_set_after_defaults)
         continue
+
       data["_#{name}"] = prop.array(source)
       # the shapes are indexed by the column name, but when we materialize the dataspec, we should
       # store under the canonical field name, e.g. _image_shape, even if the column name is "foo"

@@ -146,9 +146,8 @@ and domain experts who do not want to be distracted by the details of the
 software, and also provide a richly detailed interface to application
 developers and software engineers who may want more control or access to more
 sophisticated features. Because of this, Bokeh takes a layered approach and
-offers programming interfaces appropriate to different levels, as well as some
-compatibility interfaces to make use of existing code from other
-libraries. This section provides an overview of the different interfaces
+offers different programming interfaces appropriate to different levels
+of use. This section provides an overview of the various interfaces
 that are available to Bokeh users, as well as more context about the most
 important concepts central to the library. If you'd like to jump right
 into plotting, go to :ref:`userguide_plotting` or :ref:`userguide_charts`.
@@ -267,28 +266,9 @@ interfaces. As with |bokeh.plotting|, the output functions |output_file| and
 |show|, etc. that are defined in |bokeh.io|, are also importable from
 |bokeh.charts| as a convenience.
 
-
-other interfaces
-~~~~~~~~~~~~~~~~
-
-Bokeh provides some level of Matplotlib_ compatibility, by using the
-third-party mplexporter_ library. Although it does not provide 100% coverage
-of Matplotlib_ capabilities, it is still quite useful. For instance, in
-addition to many Matplotlib_ plots, it is often possible to convert plots
-created using the python Seaborn_ and `ggplot.py`_ libraries into Bokeh
-plots very easily. There are several examples in the :ref:`gallery`. Here is
-a quick example that shows a Seaborn_ plot converted to a Bokeh plot with
-just one additional line of code:
-
-.. bokeh-plot:: docs/user_guide/examples/concepts_other_interfaces.py
-    :source-position: above
-
 .. _Backbone: http://backbonejs.org
-.. _ggplot.py: https://github.com/yhat/ggplot
 .. _Matlab: http://www.mathworks.com/products/matlab/
 .. _Matplotlib: http://matplotlib.org
-.. _mplexporter: https://github.com/mpld3/mplexporter
-.. _Seaborn: http://stanford.edu/~mwaskom/software/seaborn/
 
 .. |bokeh.charts|   replace:: :ref:`bokeh.charts <bokeh.charts>`
 .. |bokeh.models|   replace:: :ref:`bokeh.models <bokeh.models>`

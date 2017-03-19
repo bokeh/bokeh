@@ -1,5 +1,5 @@
 import * as gloo2 from "gloo2"
-import {logger} from "../../../core/logging"
+import {logger} from "core/logging"
 import {BaseGLGlyph, line_width, attach_float, attach_color} from "./base"
 
 

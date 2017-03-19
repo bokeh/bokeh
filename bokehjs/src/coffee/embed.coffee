@@ -97,20 +97,21 @@ export add_document_standalone = (document, element, use_for_title=false) ->
 
 # map { websocket url to map { session id to promise of ClientSession } }
 _sessions = {}
-_get_session = (websocket_url, session_id) ->
+_get_session = (websocket_url, session_id, args_string) ->
   if not websocket_url? or websocket_url == null
     throw new Error("Missing websocket_url")
   if websocket_url not of _sessions
     _sessions[websocket_url] = {}
   subsessions = _sessions[websocket_url]
   if session_id not of subsessions
-    subsessions[session_id] = pull_session(websocket_url, session_id)
+    subsessions[session_id] = pull_session(websocket_url, session_id, args_string)
 
   subsessions[session_id]
 
 # Fill element with the roots from session_id
 add_document_from_session = (element, websocket_url, session_id, use_for_title) ->
-  promise = _get_session(websocket_url, session_id)
+  args_string = window.location.search.substr(1)
+  promise = _get_session(websocket_url, session_id, args_string)
   promise.then(
     (session) ->
       _render_document_to_element(element, session.document, use_for_title)
@@ -121,7 +122,8 @@ add_document_from_session = (element, websocket_url, session_id, use_for_title) 
 
 # Replace element with a view of model_id from the given session
 add_model_from_session = (element, websocket_url, model_id, session_id) ->
-  promise = _get_session(websocket_url, session_id)
+  args_string = window.location.search.substr(1)
+  promise = _get_session(websocket_url, session_id, args_string)
   promise.then(
     (session) ->
       model = session.document.get_model_by_id(model_id)
@@ -158,7 +160,29 @@ fill_render_item_from_script_tag = (script, item) ->
 
   logger.info("Will inject Bokeh script tag with params #{JSON.stringify(item)}")
 
-export embed_items = (docs_json, render_items, websocket_url=null) ->
+# TODO (bev) this is currently clunky. Standalone embeds (e.g. notebook) only provide
+# the first two args, whereas server provide the app_app, and *may* prove and
+# absolute_url as well if non-relative links are needed for resources. This function
+# should probably be split in to two pieces to reflect the different usage patterns
+export embed_items = (docs_json, render_items, app_path, absolute_url) ->
+  protocol = 'ws:'
+  if (window.location.protocol == 'https:')
+    protocol = 'wss:'
+
+  if absolute_url?
+    loc = new URL(absolute_url)
+  else
+    loc = window.location
+
+  if app_path?
+    if app_path == "/"
+      app_path = ""
+  else
+    app_path = loc.pathname.replace(/\/+$/, '')
+
+  websocket_url = protocol + '//' + loc.host + app_path + '/ws'
+  logger.debug("embed: computed ws url: #{websocket_url}")
+
   docs = {}
   for docid of docs_json
     docs[docid] = Document.from_json(docs_json[docid])

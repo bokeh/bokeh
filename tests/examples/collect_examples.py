@@ -5,7 +5,7 @@ import os
 import yaml
 import requests
 
-from os.path import join, dirname, basename, abspath, relpath, pardir, splitext, isfile
+from os.path import join, dirname, basename, relpath, splitext, isfile
 
 from ..plugins.constants import __version__, job_id
 from ..plugins.upload_to_s3 import S3_URL, upload_file_to_s3
@@ -15,31 +15,31 @@ from ..plugins.utils import trace, green
 import logging
 logging.getLogger('requests.packages.urllib3.connectionpool').setLevel(logging.INFO)
 
-base_dir = dirname(__file__)
-example_dir = abspath(join(base_dir, pardir, pardir, 'examples'))
-
 class Flags(object):
-    file     = 1 << 0
-    server   = 1 << 1
-    notebook = 1 << 2
-    slow     = 1 << 3  # example needs a lot of time to run (> 30 s) (e.g. choropleth.py)
-    skip     = 1 << 4  # don't run example at all (e.g. notebooks are completely broken)
-    no_js    = 1 << 5  # skip bokehjs and thus image diff (e.g. google maps key issue)
-    no_diff  = 1 << 6  # skip only image diff (e.g. inherent randomness as in jitter)
+    js       = 1 << 0
+    file     = 1 << 1
+    server   = 1 << 2
+    notebook = 1 << 3
+    slow     = 1 << 4  # example needs a lot of time to run (> 30 s) (e.g. choropleth.py)
+    skip     = 1 << 5  # don't run example at all (e.g. notebooks are completely broken)
+    no_js    = 1 << 6  # skip bokehjs and thus image diff (e.g. google maps key issue)
+    no_diff  = 1 << 7  # skip only image diff (e.g. inherent randomness as in jitter)
 
 
 class Example(object):
 
-    def __init__(self, path, flags):
+    def __init__(self, path, flags, examples_dir):
         self.path = path
         self.flags = flags
+        self.examples_dir = examples_dir
         self._diff_ref = None
         self._upload = False
         self.pixels = 0
         self._has_ref = False
 
     def __str__(self):
-        flags = ["file"     if self.is_file     else "",
+        flags = ["js"       if self.is_js       else "",
+                 "file"     if self.is_file     else "",
                  "server"   if self.is_server   else "",
                  "notebook" if self.is_notebook else "",
                  "slow"     if self.is_slow     else "",
@@ -52,11 +52,19 @@ class Example(object):
 
     @property
     def name(self):
-        return basename(self.path._no_ext)
+        return basename(self.path_no_ext)
+
+    @property
+    def base_dir(self):
+        return dirname(self.path)
+
+    @property
+    def imgs_dir(self):
+        return join(dirname(self.path), ".tests")
 
     @property
     def relpath(self):
-        return relpath(self.path, example_dir)
+        return relpath(self.path, self.examples_dir)
 
     @property
     def path_no_ext(self):
@@ -65,6 +73,10 @@ class Example(object):
     @property
     def relpath_no_ext(self):
         return splitext(self.relpath)[0]
+
+    @property
+    def is_js(self):
+        return self.flags & Flags.js
 
     @property
     def is_file(self):
@@ -108,15 +120,15 @@ class Example(object):
 
     @property
     def img_path(self):
-        return "%s-%s-%s.png" % (self.path_no_ext, __version__, job_id)
+        return join(self.imgs_dir, "%s-%s-%s.png" % (self.name, __version__, job_id))
 
     @property
     def ref_path(self):
-        return "%s-%s-%s.png" % (self.path_no_ext, self._diff_ref, job_id)
+        return join(self.imgs_dir, "%s-%s-%s.png" % (self.name, self._diff_ref, job_id))
 
     @property
     def diff_path(self):
-        return "%s-%s-%s-diff-%s.png" % (self.path_no_ext, __version__, self._diff_ref, job_id)
+        return join(self.imgs_dir, "%s-%s-%s-diff-%s.png" % (self.name, __version__, self._diff_ref, job_id))
 
     @property
     def img_url(self):
@@ -171,53 +183,58 @@ class Example(object):
     def dimensions_differ(self):
         return self.pixels == -1
 
-def add_examples(list_of_examples, path, example_type=None, slow=None, skip=None, no_js=None, no_diff=None):
-    example_path = join(example_dir, path)
+def add_examples(list_of_examples, path, examples_dir, example_type=None, slow=None, skip=None, no_js=None, no_diff=None):
+    if path == '*':
+        example_path = examples_dir
+    else:
+        example_path = join(examples_dir, path)
 
-    def get_flags(f):
-        if example_type is not None:
-            return example_type
-        else:
-            return Flags.file
-
-    for f in sorted(os.listdir(example_path)):
+    for name in sorted(os.listdir(example_path)):
         flags = 0
+        orig_name = name
 
-        if f.startswith(('_', '.')):
+        if name.startswith(('_', '.')):
             continue
-        elif f.endswith(".py"):
-            flags |= get_flags(f)
-        elif f.endswith(".ipynb"):
+        elif name.endswith(".py"):
+            flags |= example_type if example_type else Flags.file
+        elif name.endswith(".ipynb"):
             flags |= Flags.notebook
-        elif os.path.isdir(os.path.join(example_path, f)):
-            f = os.path.join(f, f + ".py")
-            if not os.path.exists(f):
-                continue
-            flags |= get_flags(f)
+        elif os.path.isdir(join(example_path, name)):
+            full_path = join(example_path, name, name + ".html")
+            if os.path.exists(full_path):
+                name = join(name, name + ".html")
+                flags |= example_type if example_type else Flags.js
+            else:
+                full_path = join(example_path, name, name + ".py")
+                if not os.path.exists(full_path):
+                    continue
+                name = join(name, name + ".py")
+                flags |= example_type if example_type else Flags.file
         else:
             continue
 
-        if slow is not None and f in slow:
+        if slow is not None and orig_name in slow:
             flags |= Flags.slow
 
-        if skip is not None and (skip == 'all' or f in skip):
+        if skip is not None and (skip == 'all' or orig_name in skip):
             flags |= Flags.skip
 
-        if no_js is not None and (no_js == 'all' or f in no_js):
+        if no_js is not None and (no_js == 'all' or orig_name in no_js):
             flags |= Flags.no_js
 
-        if no_diff is not None and (no_diff == 'all' or f in no_diff):
+        if no_diff is not None and (no_diff == 'all' or orig_name in no_diff):
             flags |= Flags.no_diff
 
-        list_of_examples.append(Example(join(example_path, f), flags))
+        list_of_examples.append(Example(join(example_path, name), flags, examples_dir))
 
     return list_of_examples
 
 
-def collect_examples():
+def collect_examples(config_path):
+    examples_dir = dirname(config_path)
     list_of_examples = []
 
-    with open(join(dirname(__file__), "examples.yaml"), "r") as f:
+    with open(config_path, "r") as f:
         examples = yaml.load(f.read())
 
     for example in examples:
@@ -232,8 +249,8 @@ def collect_examples():
         no_js_status = example.get("no_js")
         no_diff_status = example.get("no_diff")
 
-        list_of_examples = add_examples(list_of_examples, path, example_type=example_type,
-            slow=slow_status, skip=skip_status, no_js=no_js_status, no_diff=no_diff_status)
+        list_of_examples = add_examples(list_of_examples, path, examples_dir,
+            example_type=example_type, slow=slow_status, skip=skip_status, no_js=no_js_status, no_diff=no_diff_status)
 
 
     return list_of_examples

@@ -24,10 +24,6 @@ To enable WebGL, set the plot's ``webgl`` property to ``True``:
     p = Plot(webgl=True)  # for the glyph API
     p = figure(webgl=True)  # for the plotting API
 
-Alternatively, WebGL can be explicitly enabled or disabled on a page
-by adding ``?webgl=1`` or ``#webgl=0`` to the URL.
-
-
 Support
 -------
 

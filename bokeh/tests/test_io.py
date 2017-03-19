@@ -11,8 +11,7 @@ from mock import patch, Mock, PropertyMock
 import unittest
 
 import bokeh.io as io
-from bokeh.resources import Resources, _SessionCoordinates
-from bokeh.document import Document
+from bokeh.resources import Resources
 from bokeh.models.plots import Plot
 
 class TestDefaultState(unittest.TestCase):
@@ -78,18 +77,6 @@ class TestOutputNotebook(DefaultStateTester):
         self._check_func_called(io._state.output_notebook, (), {})
         self._check_func_called(mock_load_notebook, load_notebook_args, {})
 
-class TestOutputServer(DefaultStateTester):
-
-    def test_noarg(self):
-        default_kwargs = dict(session_id="default", url="default", app_path='/')
-        io.output_server()
-        self._check_func_called(io._state.output_server, (), default_kwargs)
-
-    def test_args(self):
-        kwargs = dict(session_id="foo", url="http://example.com", app_path='/foo')
-        io.output_server(**kwargs)
-        self._check_func_called(io._state.output_server, (), kwargs)
-
 class TestSave(DefaultStateTester):
     pass
 
@@ -104,11 +91,6 @@ class Test_GetSaveArgs(DefaultStateTester):
         io._state.file['filename'] = "filename"
         filename, resources, title = io._get_save_args(io._state, None, "resources", "title")
         self.assertEqual(filename, "filename")
-
-    def test_missing_filename(self):
-        io._state.file = None
-        with self.assertRaises(RuntimeError):
-            io.save("obj", None, "resources", "title")
 
     def test_explicit_resources(self):
         filename, resources, title = io._get_save_args(io._state, "filename", "resources", "title")
@@ -152,112 +134,21 @@ class Test_GetSaveArgs(DefaultStateTester):
         self.assertEqual(mock_warn.call_args[1], {})
 
 class Test_SaveHelper(DefaultStateTester):
-    pass
 
-class TestPush(DefaultStateTester):
+    @patch('io.open')
+    @patch('bokeh.io.file_html')
+    def test_save_helper_method(self, mock_file_html, mock_io_open):
+        obj = Plot()
+        filename, resources, title = io._get_save_args(io._state, "filename", "resources", "title")
 
-    @patch('bokeh.io._push_to_server')
-    def test_missing_output_server(self, mock_push_to_server):
-        # never calling output_server should pull session coords
-        # off the io._state object
-        io._state.server_enabled = False
-        io._state.document = Document()
-        io.push()
-        self._check_func_called(mock_push_to_server, (),
-                                dict(url=io._state.url,
-                                     app_path=io._state.app_path,
-                                     session_id=io._state.session_id_allowing_none,
-                                     document=io._state.document,
-                                     io_loop=None))
+        io._save_helper(obj, filename, resources, title)
 
-    @patch('bokeh.io._push_to_server')
-    def test_noargs(self, mock_push_to_server):
-        # if we had called output_server, the state object would be set
-        # up like this
-        io._state.session_id_allowing_none = "fakesessionid"
-        io._state.url = "http://example.com/"
-        io._state.app_path = "/bar"
-        io._state.server_enabled = True
-        io.push()
-        self._check_func_called(mock_push_to_server, (),
-                                dict(url="http://example.com/",
-                                     document=io._state.document,
-                                     session_id="fakesessionid",
-                                     app_path="/bar",
-                                     io_loop=None))
-
-    @patch('bokeh.io._push_to_server')
-    def test_session_arg(self, mock_push_to_server):
-        # this simulates never calling output_server
-        io._state.server_enabled = False
-        io.push(session_id="somesession")
-        self._check_func_called(mock_push_to_server, (),
-                                dict(url=io._state.url,
-                                     app_path=io._state.app_path,
-                                     document=io._state.document,
-                                     session_id="somesession",
-                                     io_loop=None))
-
-    @patch('bokeh.io._push_to_server')
-    def test_url_arg(self, mock_push_to_server):
-        # this simulates never calling output_server
-        io._state.server_enabled = False
-        io.push(url="http://example.com/")
-        self._check_func_called(mock_push_to_server, (),
-                                dict(url="http://example.com/",
-                                     app_path=io._state.app_path,
-                                     session_id=io._state.session_id_allowing_none,
-                                     document=io._state.document,
-                                     io_loop=None))
-
-    @patch('bokeh.io._push_to_server')
-    def test_document_arg(self, mock_push_to_server):
-        # this simulates never calling output_server
-        io._state.server_enabled = False
-        d = Document()
-        io.push(document=d)
-        self._check_func_called(mock_push_to_server, (),
-                                dict(url=io._state.url,
-                                     app_path=io._state.app_path,
-                                     session_id=io._state.session_id_allowing_none,
-                                     document=d,
-                                     io_loop=None))
-
-
-    @patch('bokeh.io._push_to_server')
-    def test_all_args(self, mock_push_to_server):
-        d = Document()
-        url = "https://example.com/"
-        session_id = "all_args_session"
-        app_path = "/foo"
-        # state should get ignored since we specified everything otherwise
-        state = Mock()
-        io_loop = Mock()
-        io.push(document=d, url=url, app_path=app_path, state=state, session_id=session_id, io_loop=io_loop)
-        self._check_func_called(mock_push_to_server, (),
-                                dict(url="https://example.com/",
-                                     app_path="/foo",
-                                     document=d,
-                                     session_id="all_args_session",
-                                     io_loop=io_loop))
-
-    @patch('bokeh.io._push_to_server')
-    def test_state_arg(self, mock_push_to_server):
-        d = Document()
-        url = "https://example.com/state/"
-        session_id = "state_arg_session"
-        # state should get ignored since we specified everything otherwise
-        state = Mock()
-        state.document = d
-        state.url = url
-        state.session_id_allowing_none = session_id
-        io.push(state=state)
-        self._check_func_called(mock_push_to_server, (),
-                                dict(url="https://example.com/state/",
-                                     document=d,
-                                     session_id="state_arg_session",
-                                     app_path = state.app_path,
-                                     io_loop=None))
+        self._check_func_called(mock_file_html,
+                                (obj, resources),
+                                {"title": "title"})
+        self._check_func_called(mock_io_open,
+                                (filename,),
+                                {"mode":"w", "encoding":"utf-8"})
 
 class TestShow(DefaultStateTester):
 
@@ -295,40 +186,28 @@ def test_show_doesnt_duplicate_if_already_there(m):
 class Test_ShowWithState(DefaultStateTester):
 
     @patch('bokeh.io._show_notebook_with_state')
-    @patch('bokeh.io._show_server_with_state')
     @patch('bokeh.io._show_file_with_state')
     @patch('bokeh.util.browser.get_browser_controller')
     def test_notebook(self, mock_get_browser_controller,
-            mock__show_file_with_state, mock__show_server_with_state,
-            mock__show_notebook_with_state):
+            mock__show_file_with_state, mock__show_notebook_with_state):
         mock_get_browser_controller.return_value = "controller"
         s = io.State()
         s.output_notebook()
         io._show_with_state("obj", s, "browser", "new")
         self._check_func_called(mock__show_notebook_with_state, ("obj", s, False), {})
-        self.assertFalse(mock__show_server_with_state.called)
         self.assertFalse(mock__show_file_with_state.called)
 
         s.output_file("foo.html")
         io._show_with_state("obj", s, "browser", "new")
         self._check_func_called(mock__show_notebook_with_state, ("obj", s, False), {})
-        self.assertFalse(mock__show_server_with_state.called)
-        self._check_func_called(mock__show_file_with_state, ("obj", s, "new", "controller"), {})
-
-        s._session = Mock
-        io._show_with_state("obj", s, "browser", "new")
-        self._check_func_called(mock__show_notebook_with_state, ("obj", s, False), {})
-        self.assertFalse(mock__show_server_with_state.called)
         self._check_func_called(mock__show_file_with_state, ("obj", s, "new", "controller"), {})
 
     @patch('bokeh.io.get_comms')
     @patch('bokeh.io._show_notebook_with_state')
-    @patch('bokeh.io._show_server_with_state')
     @patch('bokeh.io._show_file_with_state')
     @patch('bokeh.util.browser.get_browser_controller')
     def test_no_notebook(self, mock_get_browser_controller,
-            mock__show_file_with_state, mock__show_server_with_state,
-            mock__show_notebook_with_state,
+            mock__show_file_with_state, mock__show_notebook_with_state,
             mock_get_comms):
         mock_get_browser_controller.return_value = "controller"
         mock_get_comms.return_value = "comms"
@@ -337,16 +216,6 @@ class Test_ShowWithState(DefaultStateTester):
         s.output_file("foo.html")
         io._show_with_state("obj", s, "browser", "new")
         self.assertFalse(mock__show_notebook_with_state.called)
-        self.assertFalse(mock__show_server_with_state.called)
-        self._check_func_called(mock__show_file_with_state, ("obj", s, "new", "controller"), {})
-
-        s._session_coords = _SessionCoordinates(dict(session_id="fakesession",
-                                                     url="http://example.com",
-                                                     app_path='/'))
-        s._server_enabled = True
-        io._show_with_state("obj", s, "browser", "new")
-        self.assertFalse(mock__show_notebook_with_state.called)
-        self._check_func_called(mock__show_server_with_state, ("obj", s, "new", "controller"), {})
         self._check_func_called(mock__show_file_with_state, ("obj", s, "new", "controller"), {})
 
 class Test_ShowFileWithState(DefaultStateTester):
@@ -369,18 +238,6 @@ class Test_ShowFileWithState(DefaultStateTester):
 
 class Test_ShowNotebookWithState(DefaultStateTester):
 
-    @patch('bokeh.io.publish_display_data')
-    @patch('bokeh.io.autoload_server')
-    @patch('bokeh.io.push')
-    def test_with_server(self, mock_push, mock_autoload_server, mock_publish_display_data):
-        s = io.State()
-        s._server_enabled = True
-        mock_autoload_server.return_value = "snippet"
-
-        io._show_notebook_with_state("obj", s, True)
-        self._check_func_called(mock_push, (), {"state": s})
-        self._check_func_called(mock_publish_display_data, ({"text/html":"snippet"},), {})
-
     @patch('bokeh.io.get_comms')
     @patch('bokeh.io.publish_display_data')
     @patch('bokeh.io.notebook_div')
@@ -394,37 +251,23 @@ class Test_ShowNotebookWithState(DefaultStateTester):
         io._nb_loaded = False
         self._check_func_called(mock_publish_display_data, ({"text/html": "notebook_div"},), {})
 
-class Test_ShowServerWithState(DefaultStateTester):
-
-    @patch('bokeh.io.push')
-    def test(self, mock_push):
-        s = io.State()
-        s._session_coords = _SessionCoordinates(dict(session_id="thesession",
-                                                     url="http://example.com",
-                                                     app_path='/foo'))
-        s._server_enabled = True
-        controller = Mock()
-
-        io._show_server_with_state("obj", s, "window", controller)
-        self._check_func_called(mock_push, (), {"state": s})
-        self._check_func_called(controller.open, ("http://example.com/foo?bokeh-session-id=thesession",), {"new": 1})
-
-        io._show_server_with_state("obj", s, "tab", controller)
-        self._check_func_called(mock_push, (), {"state": s})
-        self._check_func_called(controller.open, ("http://example.com/foo?bokeh-session-id=thesession",), {"new": 2})
-
 class TestResetOutput(DefaultStateTester):
 
     def test(self):
         io.reset_output()
         self.assertTrue(io._state.reset.called)
 
+def test__server_cell():
+    io._state.uuid_to_server = {}
+    html = io._server_cell("server", "script123")
+    assert list(io._state.uuid_to_server.values()) == ['server']
+    assert html.startswith("<div class='bokeh_class' id='")
+    assert html.endswith("'>script123</div>")
 
 def _test_layout_added_to_root(layout_generator, children=None):
     layout = layout_generator(Plot() if children is None else children)
     assert layout in io.curdoc().roots
     io.curdoc().clear()
-
 
 def _test_children_removed_from_root(layout_generator, children=None):
     component = Plot()

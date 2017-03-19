@@ -1,6 +1,7 @@
-from bokeh.plotting import figure, gridplot, GridSpec, output_file, show
 import networkx as nx
-from sympy import *
+from sympy import Symbol, symbols, Dummy, roots, solve
+
+from bokeh.plotting import figure, gridplot, GridSpec, output_file, show
 
 def graph_draw(g, layout=nx.circular_layout, node_color="white", text_color="black"):
     pos = layout(g)
@@ -12,7 +13,7 @@ def graph_draw(g, layout=nx.circular_layout, node_color="white", text_color="bla
         x1, y1 = pos[b]
         xs.append([x0, x1])
         ys.append([y0, y1])
-    f = figure(width=300, height=300,
+    f = figure(plot_width=300, plot_height=300,
                x_axis_type=None, y_axis_type=None,
                outline_line_color=None,
                tools=[], toolbar_location=None)

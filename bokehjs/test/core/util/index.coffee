@@ -1,3 +1,4 @@
+require "./array"
 require "./bbox"
 require "./color"
 require "./math"

@@ -504,6 +504,9 @@ class BasicPropertyDescriptor(PropertyDescriptor):
         if self.name in obj._property_values:
             del obj._property_values[self.name]
 
+        if self.name in obj._unstable_default_values:
+            del obj._unstable_default_values[self.name]
+
     def class_default(self, cls):
         ''' Get the default value for a specific subtype of ``HasProps``,
         which may not be used for an individual instance.
@@ -651,21 +654,27 @@ class BasicPropertyDescriptor(PropertyDescriptor):
             # this shouldn't happen because we should have checked before _get_default()
             raise RuntimeError("Bokeh internal error, does not handle the case of self.name already in _property_values")
 
-        # merely getting a default may force us to put it in
-        # _property_values if we need to wrap the container, if
-        # the default is a Model that may change out from
-        # underneath us, or if the default is generated anew each
-        # time by a function.
-        default = self.instance_default(obj)
-        if not self.property._has_stable_default():
-            if isinstance(default, PropertyValueContainer):
-                # this is a special-case so we can avoid returning the container
-                # as a non-default or application-overridden value, when
-                # it has not been modified.
-                default._unmodified_default_value = True
-                default._register_owner(obj, self)
+        is_themed = obj.themed_values() is not None and self.name in obj.themed_values()
 
-            obj._property_values[self.name] = default
+        default = self.instance_default(obj)
+
+        if is_themed:
+            if self.name in obj._unstable_themed_values:
+                return obj._unstable_themed_values[self.name]
+
+            if self.property._may_have_unstable_default():
+                if isinstance(default, PropertyValueContainer):
+                    default._register_owner(obj, self)
+                obj._unstable_themed_values[self.name] = default
+            return default
+
+        if self.name in obj._unstable_default_values:
+            return obj._unstable_default_values[self.name]
+
+        if self.property._may_have_unstable_default():
+            if isinstance(default, PropertyValueContainer):
+                default._register_owner(obj, self)
+            obj._unstable_default_values[self.name] = default
 
         return default
 
@@ -753,6 +762,12 @@ class BasicPropertyDescriptor(PropertyDescriptor):
                 old_attr_value._unregister_owner(obj, self)
             if isinstance(value, PropertyValueContainer):
                 value._register_owner(obj, self)
+
+            if self.name in obj._unstable_themed_values:
+                del obj._unstable_themed_values[self.name]
+
+            if self.name in obj._unstable_default_values:
+                del obj._unstable_default_values[self.name]
 
             obj._property_values[self.name] = value
 

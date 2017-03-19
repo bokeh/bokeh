@@ -3,9 +3,7 @@ from __future__ import absolute_import, print_function
 import json
 import pytest
 
-from os.path import splitext, abspath, isfile, join, relpath
-
-from tests.plugins.utils import warn, fail, trace, green
+from tests.plugins.utils import warn, fail
 
 def deal_with_output_cells(example):
     output_cells = pytest.config.option.output_cells

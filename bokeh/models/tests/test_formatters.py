@@ -59,6 +59,7 @@ def test_functickformatter_from_coffeescript_no_arg():
 
     assert formatter.code == dedent("""\
         "use strict";
+        Object.defineProperty(exports, "__esModule", { value: true });
         var square;
         square = function (x) {
             return x * x;
@@ -77,6 +78,7 @@ def test_functickformatter_from_coffeescript_with_args():
 
     assert formatter.code == dedent("""\
         "use strict";
+        Object.defineProperty(exports, "__esModule", { value: true });
         return Math.floor(slider.get("value") / 2) + tick;
         """)
     assert formatter.args == {"slider": slider}

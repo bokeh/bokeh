@@ -6,23 +6,34 @@ import pytest
 import subprocess
 import signal
 
-from os.path import abspath, basename, dirname, exists, join, relpath, split, splitext
+from os.path import abspath, dirname, exists, join, split
 
-from tests.plugins.utils import trace, info, fail, ok, red, warn, write, yellow, white
+from tests.plugins.utils import trace, info, fail, ok, red, warn, white
 from tests.plugins.phantomjs_screenshot import get_phantomjs_screenshot
 from tests.plugins.image_diff import image_diff
 
-from .collect_examples import example_dir
 from .utils import deal_with_output_cells
 
+@pytest.mark.examples
+def test_js_examples(js_example, example, report):
+    if example.is_skip:
+        pytest.skip("skipping %s" % example.relpath)
+
+    if example.no_js:
+        if not pytest.config.option.no_js:
+            warn("skipping bokehjs for %s" % example.relpath)
+    else:
+        _assert_snapshot(example, "file://%s" % example.path, 'js')
+
+        if example.no_diff:
+            warn("skipping image diff for %s" % example.relpath)
+        else:
+            _get_pdiff(example)
 
 @pytest.mark.examples
 def test_file_examples(file_example, example, report):
     if example.is_skip:
         pytest.skip("skipping %s" % example.relpath)
-
-    html_file = "%s.html" % example.path_no_ext
-    url = 'file://' + html_file
 
     (status, duration, out, err) = _run_example(example)
     info("Example run in %s" % white("%.3fs" % duration))
@@ -44,7 +55,7 @@ def test_file_examples(file_example, example, report):
         if not pytest.config.option.no_js:
             warn("skipping bokehjs for %s" % example.relpath)
     else:
-        _assert_snapshot(example, url, 'file')
+        _assert_snapshot(example, "file://%s.html" % example.path_no_ext, 'file')
 
         if example.no_diff:
             warn("skipping image diff for %s" % example.relpath)
@@ -143,15 +154,9 @@ def _print_phantomjs_output(result):
 
         info(msg, label="JS")
 
-    # Process resources
     for resource in resources:
-        url = resource['url']
-        if url.endswith(".png"):
-            ok("%s: %s (%s)" % (url, yellow(resource['status']), resource['statusText']))
-        else:
-            fail("Resource error:: %s: %s (%s)" % (url, red(resource['status']), resource['statusText']), label="JS")
+        fail(resource['errorString'], label="JS")
 
-    # You can have a successful test, and still have errors reported, so not failing here.
     for error in errors:
         fail(error['msg'], label="JS")
         for item in error['trace']:
@@ -177,10 +182,10 @@ def _assert_snapshot(example, url, example_type):
     success = result['success']
     timeout = result['timeout']
     errors = result['errors']
-    messages = result['messages']
     resources = result['resources']
 
     no_errors = len(errors) == 0
+    no_resources = len(resources) == 0
 
     if timeout:
         warn("%s: %s" % (red("TIMEOUT: "), "bokehjs did not finish in %s ms" % wait))
@@ -188,8 +193,9 @@ def _assert_snapshot(example, url, example_type):
     if pytest.config.option.verbose:
         _print_phantomjs_output(result)
 
-    assert success, "Example failed to load"
-    assert no_errors, "Example failed with %d errors" % len(errors)
+    assert success, "%s failed to load" % example.relpath
+    assert no_resources, "%s failed with %d missing resources" % (example.relpath, len(resources))
+    assert no_errors, "%s failed with %d errors" % (example.relpath, len(errors))
 
 
 def _run_example(example):

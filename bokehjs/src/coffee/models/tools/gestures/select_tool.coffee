@@ -1,8 +1,8 @@
 import {GestureTool, GestureToolView} from "./gesture_tool"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
-import {logger} from "../../../core/logging"
-import * as p from "../../../core/properties"
-import {clone} from "../../../core/util/object"
+import {logger} from "core/logging"
+import * as p from "core/properties"
+import {clone} from "core/util/object"
 
 export class SelectToolView extends GestureToolView
 

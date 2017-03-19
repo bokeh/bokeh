@@ -109,13 +109,20 @@ def test_BasicPropertyDescriptor__set__improper():
 def test_BasicPropertyDescriptor__delete__():
     class Foo(object):
         _property_values = dict(foo=0)
+        _unstable_default_values = dict(bar=[10])
     f = Foo()
     d1 = pd.BasicPropertyDescriptor("foo", f)
     d2 = pd.BasicPropertyDescriptor("bar", f)
+    d3 = pd.BasicPropertyDescriptor("baz", f)
     d1.__delete__(f)
     assert f._property_values == {}
+    assert f._unstable_default_values == dict(bar=[10])
     d2.__delete__(f)
     assert f._property_values == {}
+    assert f._unstable_default_values == {}
+    d3.__delete__(f)
+    assert f._property_values == {}
+    assert f._unstable_default_values == {}
 
 def test_BasicPropertyDescriptor_class_default():
     result = {}

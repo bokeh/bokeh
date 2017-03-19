@@ -2,9 +2,9 @@ from __future__ import division
 
 import numpy as np
 
-from bokeh.core.properties import Any, Dict, Instance, String
+from bokeh.core.properties import Instance, String
+from bokeh.models import ColumnDataSource, LayoutDOM
 from bokeh.io import show
-from bokeh.models import ColumnDataSource, Div, Column,  LayoutDOM
 
 JS_CODE = """
 # This file contains the JavaScript (CoffeeScript) implementation
@@ -57,7 +57,7 @@ export class Surface3dView extends LayoutDOMView
     script = document.createElement('script')
     script.src = url
     script.async = false
-    script.onreadystatechange = s.onload = () => @_init()
+    script.onreadystatechange = script.onload = () => @_init()
     document.querySelector("head").appendChild(script)
 
   _init: () ->

@@ -2,13 +2,13 @@ import os
 import pytest
 
 from bokeh.io import output_file
-from .screenshot import Screenshot
+from .screenshot import Screenshot, ScreenshotMismatchError
 
 
 def pytest_addoption(parser):
     parser.addoption(
-        "--set-new-base-screenshot", dest="set_new_base_screenshot", action="store_true", default=False, help="Use to set a new screenshot for imagediff testing. Be sure to only set for the tests you want by usign the -k pytest option to select your test."
-    )
+        "--set-new-base-screenshot", dest="set_new_base_screenshot", action="store_true", default=False,
+        help="Use to set a new screenshot for imagediff testing. Be sure to only set for the tests you want by usign the -k pytest option to select your test.")
 
 
 @pytest.fixture
@@ -21,7 +21,6 @@ def selenium(selenium):
 
 @pytest.fixture
 def output_file_url(request, file_server):
-
     filename = request.function.__name__ + '.html'
     file_obj = request.fspath.dirpath().join(filename)
     file_path = file_obj.strpath
@@ -106,37 +105,23 @@ def screenshot(request):
 
 
 #
-# Hook into the pytest report to add the screnshot diff
+# Hook into the pytest report to add the screenshot diff
 #
+
 
 @pytest.mark.hookwrapper
 def pytest_runtest_makereport(item, call):
     outcome = yield
-
-    # Only run through this at the end of the test
-    if call.when != 'call':
-        return
-
-    # Don't continue if this isn't a screenshot test
-    if 'screenshot' not in item.fixturenames:
-        return
-
-    # Don't add screenshots if we can't create a screenshot
-    try:
-        screenshot = Screenshot(item=item)
-    except AssertionError:
-        return
-
     report = outcome.get_result()
-    xfail = hasattr(report, 'wasxfail')
-    failure = (report.skipped and xfail) or (report.failed and not xfail)
-    pytest_html = item.config.pluginmanager.getplugin('html')
 
-    # Don't add screenshots if test passed
-    if failure:
-        diff = pytest_html.extras.image(screenshot.get_diff_as_base64(), '')
-        base = pytest_html.extras.image(screenshot.get_base_as_base64(), '')
-        test = pytest_html.extras.image(screenshot.get_current_as_base64(), '')
-        # Override existing extra and logs for screenshot tests (keeps output manageable)
-        report.extra = [test, diff, base]
-        report.longrepr = ''
+    # When executing the test failed for some reason
+    if report.when == "call" and report.failed:
+
+        if 'screenshot' in item.fixturenames and isinstance(call.excinfo.value, ScreenshotMismatchError):
+            screenshot = Screenshot(item=item)
+            pytest_html = item.config.pluginmanager.getplugin('html')
+            diff = pytest_html.extras.image(screenshot.get_diff_as_base64(), '')
+            base = pytest_html.extras.image(screenshot.get_base_as_base64(), '')
+            test = pytest_html.extras.image(screenshot.get_current_as_base64(), '')
+            # Override existing extra screenshot attr to add image reports
+            report.extra = [test, diff, base]

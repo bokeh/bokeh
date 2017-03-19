@@ -52,10 +52,6 @@ class Glyph(Model):
 
     '''
 
-    visible = Bool(True, help="""
-    Whether the glyph should render or not.
-    """)
-
 class AnnularWedge(Glyph):
     ''' Render annular wedges.
 

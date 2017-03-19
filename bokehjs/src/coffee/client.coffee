@@ -99,7 +99,7 @@ class ClientConnection
 
   @_connection_count : 0
 
-  constructor : (@url, @id, @_on_have_session_hook, @_on_closed_permanently_hook) ->
+  constructor : (@url, @id, @args_string, @_on_have_session_hook, @_on_closed_permanently_hook) ->
     @_number = ClientConnection._connection_count
     ClientConnection._connection_count = @_number + 1
     if not @url?
@@ -134,6 +134,8 @@ class ClientConnection
 
     try
       versioned_url = "#{@url}?bokeh-protocol-version=1.0&bokeh-session-id=#{@id}"
+      if @args_string?.length > 0
+        versioned_url += "&#{@args_string}"
       if window.MozWebSocket?
         @socket = new MozWebSocket(versioned_url)
       else
@@ -185,6 +187,10 @@ class ClientConnection
       message.send(@socket)
     catch e
       logger.error("Error sending message ", e, message)
+
+  send_event : (event) ->
+    message = Message.create('EVENT', {}, JSON.stringify(event))
+    @send(message)
 
   send_with_reply : (message) ->
     promise = new Promise (resolve, reject) =>
@@ -354,8 +360,14 @@ class ClientSession
     @document_listener = (event) => @_document_changed(event)
     @document.on_change(@document_listener)
 
+    @event_manager = @document.event_manager
+    @event_manager.session = @
+
   close : () ->
     @_connection.close()
+
+  send_event : (type) ->
+    @_connection.send_event(type)
 
   _connection_closed : () ->
     @document.remove_on_change(@document_listener)
@@ -404,11 +416,11 @@ class ClientSession
 # The returned promise has a close() method
 # in case you want to close before getting a session;
 # session.close() works too once you have a session.
-export pull_session = (url, session_id) ->
+export pull_session = (url, session_id, args_string) ->
   rejecter = null
   connection = null
   promise = new Promise (resolve, reject) ->
-    connection = new ClientConnection(url, session_id,
+    connection = new ClientConnection(url, session_id, args_string,
       (session) ->
         try
           resolve(session)

@@ -36,6 +36,7 @@ from .util.callback_manager import _check_callback
 from .util.datatypes import MultiValuedDict
 from .util.future import wraps
 from .util.version import __version__
+from .events import Event
 
 DEFAULT_TITLE = "Bokeh Application"
 
@@ -71,6 +72,14 @@ def without_document_lock(func):
     wrapper.nolock = True
     return wrapper
 
+
+class EventManager(object):
+
+    def __init__(self, document):
+        self.document = document
+        self.subscribed_models = set() # Models subscribed to events
+
+
 class Document(object):
     ''' The basic unit of serialization for Bokeh.
 
@@ -96,6 +105,8 @@ class Document(object):
         self._session_context = None
         self._modules = []
         self._template_variables = {}
+
+        self.event_manager = EventManager(self)
 
     def delete_modules(self):
         ''' Clean up sys.modules after the session is destroyed.
@@ -258,11 +269,10 @@ class Document(object):
         if model in self._roots:
             return
         self._push_all_models_freeze()
-        # TODO (bird) Should we do some kind of reporting of how many LayoutDOM
-        # items are in the document roots. In vanilla bokeh cases e.g.
-        # output_file, output_server more than one LayoutDOM is probably not
-        # going to go well. But in embedded cases, you may well want more than
-        # one.
+        # TODO (bird) Should we do some kind of reporting of how many
+        # LayoutDOM's are in the document roots? In vanilla bokeh cases e.g.
+        # output_file more than one LayoutDOM is probably not going to go
+        # well. But in embedded cases, you may well want more than one.
         try:
             self._roots.append(model)
         finally:
@@ -293,6 +303,13 @@ class Document(object):
                              None,
                              timeout_milliseconds)
         return self._add_session_callback(cb, callback, one_shot=True)
+
+    def apply_json_event(self, json):
+        for obj in self.event_manager.subscribed_models:
+            event = loads(json, object_hook=Event.decode_json)
+            if not isinstance(event, Event):
+                logger.warn('Could not decode event json: %s' % json)
+            obj._trigger_event(event)
 
     def apply_json_patch(self, patch, setter=None):
         ''' Apply a JSON patch object and process any resulting events.
@@ -752,10 +769,6 @@ class Document(object):
             None
 
         '''
-        # logging.basicConfig is a no-op if there's already
-        # some logging configured. We want to make sure warnings
-        # go somewhere so configure here if nobody has.
-        logging.basicConfig(level=logging.INFO)
         root_sets = []
         for r in self.roots:
             refs = r.references()

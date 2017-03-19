@@ -6,7 +6,7 @@ namespace Burtin {
   import Map = Bokeh.Map;
 
   console.log(`Bokeh ${Bokeh.version}`);
-  Bokeh.set_log_level("debug");
+  Bokeh.set_log_level("info");
 
   type Gram = "negative" | "positive";
 

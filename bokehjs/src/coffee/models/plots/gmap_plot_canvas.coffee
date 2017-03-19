@@ -1,8 +1,8 @@
-import {proj4, mercator} from "../../core/util/proj4"
+import {proj4, mercator} from "core/util/proj4"
 
 import {PlotCanvas, PlotCanvasView} from "./plot_canvas"
-import * as p from "../../core/properties"
-import {defer} from "../../core/util/callback"
+import * as p from "core/properties"
+import {defer} from "core/util/callback"
 
 load_google_api = (callback, api_key) ->
   if not window.google?.maps?

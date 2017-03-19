@@ -4,6 +4,7 @@ import logging
 log = logging.getLogger(__name__)
 
 from bokeh.server.server import Server
+from bokeh.util.logconfig import basicConfig
 
 from ..subcommand import Subcommand
 from ..util import report_server_init_errors
@@ -21,7 +22,7 @@ class Static(Subcommand):
 
     def invoke(self, args):
         log_level = getattr(logging, args.log_level.upper())
-        logging.basicConfig(level=log_level, format=args.log_format)
+        basicConfig(level=log_level, format=args.log_format)
 
         applications = {}
 

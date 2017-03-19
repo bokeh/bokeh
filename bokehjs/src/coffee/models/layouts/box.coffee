@@ -1,8 +1,8 @@
-import {EQ, GE, Strength, Variable, WEAK_EQ} from "../../core/layout/solver"
-import * as p from "../../core/properties"
-import {isString} from "../../core/util/types"
-import {all} from "../../core/util/array"
-import {extend} from "../../core/util/object"
+import {EQ, GE, Strength, Variable, WEAK_EQ} from "core/layout/solver"
+import * as p from "core/properties"
+import {isString} from "core/util/types"
+import {all, max, sum} from "core/util/array"
+import {extend} from "core/util/object"
 
 import {LayoutDOM, LayoutDOMView} from "./layout_dom"
 
@@ -18,18 +18,18 @@ export class BoxView extends LayoutDOMView
     children = @model.get_layoutable_children()
     child_heights = children.map((child) -> child._height._value)
     if @model._horizontal
-      height = child_heights.reduce((a, b) -> Math.max(a, b))
+      height = max(child_heights)
     else
-      height = child_heights.reduce((a, b) -> a + b)
+      height = sum(child_heights)
     return height
 
   get_width: () ->
     children = @model.get_layoutable_children()
     child_widths = children.map((child) -> child._width._value)
     if @model._horizontal
-      width = child_widths.reduce((a, b) -> a + b)
+      width = sum(child_widths)
     else
-      width = child_widths.reduce((a, b) -> Math.max(a, b))
+      width = max(child_widths)
     return width
 
 

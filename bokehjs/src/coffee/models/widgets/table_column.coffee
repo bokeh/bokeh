@@ -1,7 +1,7 @@
 import {StringFormatter} from "./cell_formatters"
 import {StringEditor} from "./cell_editors"
-import * as p from "../../core/properties"
-import {uniqueId} from "../../core/util/string"
+import * as p from "core/properties"
+import {uniqueId} from "core/util/string"
 import {Model} from "../../model"
 
 export class TableColumn extends Model

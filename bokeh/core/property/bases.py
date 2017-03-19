@@ -100,16 +100,13 @@ class Property(PropertyDescriptorFactory):
         '''
         return [ BasicPropertyDescriptor(base_name, self) ]
 
-    def _has_stable_default(self):
-        ''' True if we have a default that is immutable, and will be the
+    def _may_have_unstable_default(self):
+        ''' False if we have a default that is immutable, and will be the
         same every time (some defaults are generated on demand by a function
         to be called).
 
         '''
-        if isinstance(self._default, types.FunctionType):
-            return False
-        else:
-            return True
+        return isinstance(self._default, types.FunctionType)
 
     @classmethod
     def _copy_default(cls, default):
@@ -373,6 +370,6 @@ class ContainerProperty(ParameterizedProperty):
 
     '''
 
-    def _has_stable_default(self):
+    def _may_have_unstable_default(self):
         # all containers are mutable, so the default can be modified
-        return False
+        return True

@@ -46,7 +46,7 @@ describe "UIEvents", ->
     it "should not stop propagation or prevent default of event", ->
       # This is handled by _trigger function depending on tool state
 
-      sinon.stub(@ui_event, "_bokify_jq")  # Stub out _bokify_jq as not testing it
+      sinon.stub(@ui_event, "_bokify_point_event")  # Stub out _bokify_point_event as not testing it
       sinon.stub(@ui_event, "_trigger")  # Stub out _trigger as not testing it
 
       @ui_event._mouse_wheel(@e, {})

@@ -14,10 +14,9 @@ import glob
 from io import BytesIO
 import json
 import os
-from os.path import join
 from packaging.version import Version as V
 import re
-from subprocess import Popen, PIPE, STDOUT
+from subprocess import Popen, PIPE
 import sys
 
 import certifi
@@ -115,7 +114,7 @@ def run(cmd, fake_cmd=None, silent=False, **kw):
         return "junk"
 
     cmd = cmd.split()
-    p = Popen(cmd,  stdout=PIPE, stderr=PIPE)
+    p = Popen(cmd, stdout=PIPE, stderr=PIPE)
     out, err = p.communicate()
     out = out.decode('utf-8').strip()
     err = err.decode('utf-8').strip()
@@ -261,7 +260,7 @@ def check_anaconda_creds():
             abort_checks()
         passed("Verified Anaconda credentials")
         return token
-    except Exception as e:
+    except Exception:
         failed("Could NOT verify Anaconda credentials")
         abort_checks()
 
@@ -347,7 +346,7 @@ def upload_cdn(cdn_token, cdn_id):
     version = CONFIG.version
 
     content_type = "application/javascript"
-    for name in ('bokeh', 'bokeh-api', 'bokeh-widgets'):
+    for name in ('bokeh', 'bokeh-api', 'bokeh-widgets', 'bokeh-gl'):
         for suffix in ('js', 'min.js'):
             local_path = 'bokehjs/build/js/%s.%s' % (name, suffix)
             cdn_path = 'bokeh/bokeh/%s/%s-%s.%s' % (subdir, name, version, suffix)
@@ -362,7 +361,6 @@ def upload_cdn(cdn_token, cdn_id):
 
 @upload_wrapper('anaconda')
 def upload_anaconda(token):
-    channel = 'dev' if V(CONFIG.version).is_prerelease else 'main'
     for plat in PLATFORMS:
         files = glob.glob("%s/bokeh*.tar.bz2" % plat)
         for file in files:

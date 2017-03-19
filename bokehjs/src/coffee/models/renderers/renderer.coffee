@@ -1,9 +1,9 @@
-import {BokehView} from "../../core/bokeh_view"
-import {Visuals} from "../../core/visuals"
-import {logger} from "../../core/logging"
-import * as p from "../../core/properties"
-import * as proj from "../../core/util/projections"
-import {extend} from "../../core/util/object"
+import {BokehView} from "core/bokeh_view"
+import {Visuals} from "core/visuals"
+import {logger} from "core/logging"
+import * as p from "core/properties"
+import * as proj from "core/util/projections"
+import {extend} from "core/util/object"
 import {Model} from "../../model"
 
 export class RendererView extends BokehView

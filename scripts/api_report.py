@@ -1,5 +1,5 @@
 from __future__ import absolute_import
-import ast, os, copy, subprocess, sys
+import subprocess, sys
 
 from bokeh.util.api_crawler import api_crawler, differ
 

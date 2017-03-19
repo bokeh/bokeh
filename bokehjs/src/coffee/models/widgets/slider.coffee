@@ -1,8 +1,8 @@
 import "jquery-ui/slider"
 
-import {logger} from "../../core/logging"
-import * as p from "../../core/properties"
-import {throttle} from "../../core/util/callback"
+import {logger} from "core/logging"
+import * as p from "core/properties"
+import {throttle} from "core/util/callback"
 
 import {InputWidget, InputWidgetView} from "./input_widget"
 

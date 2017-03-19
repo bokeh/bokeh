@@ -1,13 +1,13 @@
 import {InspectTool, InspectToolView} from "./inspect_tool"
 import {Tooltip} from "../../annotations/tooltip"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
-import * as hittest from "../../../core/hittest"
-import {logger} from "../../../core/logging"
-import {replace_placeholders} from "../../../core/util/templating"
-import {div, span} from "../../../core/dom"
-import * as p from "../../../core/properties"
-import {values, isEmpty} from "../../../core/util/object"
-import {isString, isFunction} from "../../../core/util/types"
+import * as hittest from "core/hittest"
+import {logger} from "core/logging"
+import {replace_placeholders} from "core/util/templating"
+import {div, span} from "core/dom"
+import * as p from "core/properties"
+import {values, isEmpty} from "core/util/object"
+import {isString, isFunction} from "core/util/types"
 
 _color_to_hex = (color) ->
   if (color.substr(0, 1) == '#')

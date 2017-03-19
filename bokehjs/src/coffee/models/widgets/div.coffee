@@ -1,6 +1,6 @@
 import {Markup, MarkupView} from "./markup"
-import {div} from "../../core/dom"
-import * as p from "../../core/properties"
+import {div} from "core/dom"
+import * as p from "core/properties"
 
 export class DivView extends MarkupView
 

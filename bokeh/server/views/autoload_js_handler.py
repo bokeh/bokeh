@@ -6,6 +6,7 @@ from __future__ import absolute_import, print_function
 import logging
 log = logging.getLogger(__name__)
 
+from six.moves.urllib.parse import urlparse
 from tornado import gen
 
 from bokeh.core.templates import AUTOLOAD_JS
@@ -33,12 +34,17 @@ class AutoloadJsHandler(SessionHandler):
             self.send_error(status_code=400, reason='No bokeh-autoload-element query parameter')
             return
 
-        resources = self.application.resources(self.request)
-        websocket_url = self.application.websocket_url_for_request(self.request, self.bokeh_websocket_path)
+        app_path = self.get_argument("bokeh-app-path", default="/")
+        absolute_url = self.get_argument("bokeh-absolute-url", default=None)
 
-        # TODO: yes, this should resuse code from bokeh.embed more directly
+        if absolute_url:
+            server_url = '{uri.scheme}://{uri.netloc}/'.format(uri=urlparse(absolute_url))
+        else:
+            server_url = None
+        resources = self.application.resources(server_url)
+
         render_items = [dict(sessionid=session.id, elementid=element_id, use_for_title=False)]
-        script = _script_for_render_items(None, render_items, websocket_url=websocket_url, wrap_script=False)
+        script = _script_for_render_items(None, render_items, app_path=app_path, absolute_url=absolute_url, wrap_script=False)
 
         js = AUTOLOAD_JS.render(
             js_urls = resources.js_files,

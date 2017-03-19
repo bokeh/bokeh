@@ -11,9 +11,8 @@ basic_imports = [
 ]
 
 def test_no_tornado_common():
-    proc = subprocess.Popen([
-        "python", "-c", "import sys; %s; sys.exit(1 if any(('bokeh.client' in x or 'bokeh.server' in x) for x in sys.modules.keys()) else 0)" % ";".join(basic_imports)
-    ],stdout=subprocess.PIPE)
+    code = "import sys; %s; sys.exit(1 if any(('bokeh.client' in x or 'bokeh.server' in x) for x in sys.modules.keys()) else 0)"
+    proc = subprocess.Popen(["python", "-c", code % ";".join(basic_imports)],stdout=subprocess.PIPE)
     proc.wait()
     if proc.returncode != 0:
         assert False

@@ -2,7 +2,7 @@ from __future__ import absolute_import, division
 
 from bokeh.charts import Histogram
 from bokeh.io import save
-from bokeh.models import Plot, ColumnDataSource, Rect, DataRange1d, Row
+from bokeh.models import Plot, ColumnDataSource, Rect, DataRange1d
 from bokeh.sampledata.autompg import autompg as df
 
 from tests.integration.utils import has_no_console_errors, wait_for_canvas_resize

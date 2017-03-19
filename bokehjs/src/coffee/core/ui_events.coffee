@@ -4,12 +4,16 @@ import {Events} from "./events"
 import {logger} from "./logging"
 import {offset} from "./dom"
 import {getDeltaY} from "./util/wheel"
+import {extend} from "./util/object"
+import {BokehEvent} from "./bokeh_events"
+import {any} from "./util/array"
+
 
 export class UIEvents
   @prototype extends Events
 
-  # new (toolbar: Toolbar, hit_area: Element)
-  constructor: (@toolbar, @hit_area) ->
+  # new (plot_view: PlotCanvasView, toolbar: Toolbar, hit_area: Element, plot: Plot)
+  constructor: (@plot_view, @toolbar, @hit_area, @plot) ->
     @_configure_hammerjs()
 
   _configure_hammerjs: () ->
@@ -98,22 +102,64 @@ export class UIEvents
         logger.debug("Registering scroll on touch screen")
         tool_view.listenTo(@, "scroll:#{id}", tool_view["_scroll"])
 
+  _hit_test_renderers: (sx, sy) ->
+    for view in @plot_view.get_renderer_views() by -1
+      if view.model.level in ['annotation', 'overlay'] and view.bbox?
+        if view.bbox().contains(sx, sy)
+          return view
+
+    return null
+
+  _hit_test_frame: (sx, sy) ->
+    canvas = @plot_view.canvas
+    vx = canvas.sx_to_vx(sx)
+    vy = canvas.sy_to_vy(sy)
+    return @plot_view.frame.contains(vx, vy)
+
   _trigger: (event_type, e) ->
-    base_event_type = event_type.split(":")[0]
+    base_type = event_type.split(":")[0]
 
-    # Dual touch hack part 2/2
-    # This is a hack for laptops with touch screen who may be pinching or scrolling
-    # in order to use the wheel zoom tool. If it's a touch screen the WheelZoomTool event
-    # will be linked to pinch. But we also want to trigger in the case of a scroll.
-    if 'ontouchstart' of window or navigator.maxTouchPoints > 0
-      if event_type == 'scroll'
-        base_event_type = 'pinch'
+    {sx, sy} = e.bokeh
+    view = @_hit_test_renderers(sx, sy)
 
-    gestures = @toolbar.gestures
-    active_tool = gestures[base_event_type].active
+    if view != null
+      if base_type == "move" and view.model.cursor?
+        @plot_view.set_cursor(view.model.cursor())
 
-    if active_tool?
-      @_trigger_event(event_type, active_tool, e)
+      @trigger("move:exit", e)
+
+      switch event_type
+        when "tap"
+          view.on_hit?(sx, sy)
+    else if not @_hit_test_frame(sx, sy)
+      @trigger("move:exit", e)
+
+      if base_type == "move"
+        @plot_view.set_cursor()
+    else
+      if base_type == "move"
+        active = any(@toolbar.inspectors, (t) -> t.active)
+
+        if active and event_type in ["move", "move:enter"]
+          @plot_view.set_cursor("crosshair")
+        else
+          @plot_view.set_cursor()
+
+        @trigger(event_type, e)
+      else
+        # Dual touch hack part 2/2
+        # This is a hack for laptops with touch screen who may be pinching or scrolling
+        # in order to use the wheel zoom tool. If it's a touch screen the WheelZoomTool event
+        # will be linked to pinch. But we also want to trigger in the case of a scroll.
+        if 'ontouchstart' of window or navigator.maxTouchPoints > 0
+          if event_type == 'scroll'
+            base_type = 'pinch'
+
+        gestures = @toolbar.gestures
+        active_tool = gestures[base_type].active
+
+        if active_tool?
+          @_trigger_event(event_type, active_tool, e)
 
   _trigger_event: (event_type, active_tool, e)->
     if active_tool.active == true
@@ -122,7 +168,7 @@ export class UIEvents
         e.stopPropagation()
       @trigger("#{event_type}:#{active_tool.id}", e)
 
-  _bokify_hammer: (e) ->
+  _bokify_hammer: (e, extras={}) ->
     if e.pointerType == 'mouse'
       x = e.srcEvent.pageX
       y = e.srcEvent.pageY
@@ -134,13 +180,24 @@ export class UIEvents
       sx: x - left
       sy: y - top
     }
+    e.bokeh = extend(e.bokeh, extras)
+    event_cls = BokehEvent.event_class(e)
+    if event_cls
+      @plot.trigger_event(event_cls.from_event(e))
+    else
+      logger.debug('Unhandled event of type ' + e.type)
 
-  _bokify_jq: (e) ->
+  _bokify_point_event: (e, extras={}) ->
+
     {left, top} = offset(e.currentTarget)
     e.bokeh = {
       sx: e.pageX - left
       sy: e.pageY - top
     }
+    e.bokeh = extend(e.bokeh, extras)
+    event_cls = BokehEvent.event_class(e)
+    if event_cls
+      @plot.trigger_event(event_cls.from_event(e))
 
   _tap: (e) ->
     @_bokify_hammer(e)
@@ -195,27 +252,22 @@ export class UIEvents
     @_trigger('rotate:end', e)
 
   _mouse_enter: (e) ->
-    # NOTE: move:enter event triggered unconditionally
-    @_bokify_jq(e)
+    @_bokify_point_event(e)
     @trigger('move:enter', e)
 
   _mouse_move: (e) ->
-    # NOTE: move event triggered unconditionally
-    @_bokify_jq(e)
+    @_bokify_point_event(e)
     @trigger('move', e)
 
   _mouse_exit: (e) ->
-    # NOTE: move:exit event triggered unconditionally
-    @_bokify_jq(e)
+    @_bokify_point_event(e)
     @trigger('move:exit', e)
 
   _mouse_wheel: (e) ->
-    @_bokify_jq(e)
-    e.bokeh.delta = getDeltaY(e)
+    @_bokify_point_event(e, {delta: getDeltaY(e)})
     @_trigger('scroll', e)
 
   _key_down: (e) ->
-    # NOTE: keydown event triggered unconditionally
     @trigger('keydown', e)
 
   _key_up: (e) ->

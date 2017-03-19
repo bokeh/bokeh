@@ -4,21 +4,22 @@ import {DataRange1d} from "../ranges/data_range1d"
 import {GlyphRenderer} from "../renderers/glyph_renderer"
 import {LayoutDOM} from "../layouts/layout_dom"
 
-import {build_views} from "../../core/build_views"
-import {UIEvents} from "../../core/ui_events"
-import {LayoutCanvas} from "../../core/layout/layout_canvas"
-import {Visuals} from "../../core/visuals"
-import {BokehView} from "../../core/bokeh_view"
-import {EQ, GE} from "../../core/layout/solver"
-import {logger} from "../../core/logging"
-import * as enums from "../../core/enums"
-import * as p from "../../core/properties"
-import {throttle} from "../../core/util/throttle"
-import {isStrictNaN} from "../../core/util/types"
-import {difference, sortBy} from "../../core/util/array"
-import {extend, values, isEmpty} from "../../core/util/object"
-import {defer} from "../../core/util/callback"
-import {update_constraints as update_panel_constraints} from "../../core/layout/side_panel"
+import {build_views} from "core/build_views"
+import {UIEvents} from "core/ui_events"
+import {LODStart, LODEnd} from "core/bokeh_events"
+import {LayoutCanvas} from "core/layout/layout_canvas"
+import {Visuals} from "core/visuals"
+import {BokehView} from "core/bokeh_view"
+import {EQ, GE} from "core/layout/solver"
+import {logger} from "core/logging"
+import * as enums from "core/enums"
+import * as p from "core/properties"
+import {throttle} from "core/util/throttle"
+import {isStrictNaN} from "core/util/types"
+import {difference, sortBy} from "core/util/array"
+import {extend, values, isEmpty} from "core/util/object"
+import {defer} from "core/util/callback"
+import {update_constraints as update_panel_constraints} from "core/layout/side_panel"
 
 # Notes on WebGL support:
 # Glyps can be rendered into the original 2D canvas, or in a (hidden)
@@ -31,7 +32,7 @@ import {update_constraints as update_panel_constraints} from "../../core/layout/
 # The presence (and not-being-false) of the ctx.glcanvas attribute is the
 # marker that we use throughout that determines whether we have gl support.
 
-global_gl_canvas = null
+global_glcanvas = null
 
 export class PlotCanvasView extends BokehView
   className: "bk-plot-wrapper"
@@ -62,6 +63,7 @@ export class PlotCanvasView extends BokehView
     super(options)
     @pause()
 
+    @lod_started = false
     @visuals = new Visuals(@model.plot)
 
     @_initial_state_info = {
@@ -86,9 +88,8 @@ export class PlotCanvasView extends BokehView
     @canvas_view.render(true)
 
     # If requested, try enabling webgl
-    if @model.plot.webgl or window.location.search.indexOf('webgl=1') > 0
-      if window.location.search.indexOf('webgl=0') == -1
-        @init_webgl()
+    if @model.plot.webgl
+      @init_webgl()
 
     @throttled_render = throttle(@render, 15) # TODO (bev) configurable
 
@@ -97,7 +98,7 @@ export class PlotCanvasView extends BokehView
       @model.document._unrendered_plots = {}  # poor man's set
     @model.document._unrendered_plots[@id] = true
 
-    @ui_event_bus = new UIEvents(@model.toolbar, @canvas_view.el)
+    @ui_event_bus = new UIEvents(@, @model.toolbar, @canvas_view.el, @model.plot)
 
     @levels = {}
     for level in enums.RenderLevel
@@ -120,6 +121,9 @@ export class PlotCanvasView extends BokehView
   get_canvas_element: () ->
     return @canvas_view.ctx.canvas
 
+  set_cursor: (cursor="default") ->
+    @canvas_view.el.style.cursor = cursor
+
   @getters {
     canvas_overlays: () -> @el.querySelector('.bk-canvas-overlays')
   }
@@ -129,9 +133,9 @@ export class PlotCanvasView extends BokehView
 
     # We use a global invisible canvas and gl context. By having a global context,
     # we avoid the limitation of max 16 contexts that most browsers have.
-    glcanvas = global_gl_canvas
+    glcanvas = global_glcanvas
     if not glcanvas?
-      global_gl_canvas = glcanvas = document.createElement('canvas')
+      global_glcanvas = glcanvas = document.createElement('canvas')
       opts = {'premultipliedAlpha': true}  # premultipliedAlpha is true by default
       glcanvas.gl = glcanvas.getContext("webgl", opts) || glcanvas.getContext("experimental-webgl", opts)
 
@@ -141,7 +145,6 @@ export class PlotCanvasView extends BokehView
       ctx.glcanvas = glcanvas
     else
       logger.warn('WebGL is not supported, falling back to 2D canvas.')
-      # Do not set @canvas_view.ctx.glcanvas
 
   prepare_webgl: (ratio, frame_box) ->
     # Prepare WebGL for a drawing pass
@@ -445,6 +448,9 @@ export class PlotCanvasView extends BokehView
 
     return @
 
+  get_renderer_views: () ->
+    (@levels[r.level][r.id] for r in @model.plot.renderers)
+
   build_tools: () ->
     tool_models = @model.plot.toolbar.tools
     new_tool_views = build_views(@tool_views, tool_models, @view_options())
@@ -504,6 +510,10 @@ export class PlotCanvasView extends BokehView
       return
 
     if Date.now() - @interactive_timestamp < @model.plot.lod_interval
+      if not @lod_started
+        @model.plot.trigger_event(new LODStart({}))
+        @lod_started = true
+
       @interactive = true
       lod_timeout = @model.plot.lod_timeout
       setTimeout(() =>
@@ -513,6 +523,9 @@ export class PlotCanvasView extends BokehView
         , lod_timeout)
     else
       @interactive = false
+      if @lod_started
+        @model.plot.trigger_event(new LODEnd({}))
+        @lod_started = false
 
     for k, v of @renderer_views
       if not @range_update_timestamp? or v.set_data_timestamp > @range_update_timestamp
@@ -586,12 +599,7 @@ export class PlotCanvasView extends BokehView
     # a resize of the canvas, which means that any previous calls to ctx.save() may be undone.
     @canvas_view.prepare_canvas()
 
-    try
-      @update_constraints()
-    catch silent_error
-      # [AK] This sucks, but due to probably some race condidition this (sometimes?)
-      # results in "unknown edit variable" at kiwi.js. Tried to skip only the
-      # first time we get here, but then layout initialization fails.
+    @update_constraints()
 
     # This allows the plot canvas to be positioned around the toolbar
     @el.style.position = 'absolute'

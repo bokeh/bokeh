@@ -4,7 +4,8 @@ import unittest
 from six.moves import xrange
 import copy
 from bokeh.core.properties import List, String, Instance, Dict, Any, Int
-from bokeh.model import Model, _ModelInDocument
+from bokeh.model import Model
+from bokeh.embed import _ModelInDocument
 from bokeh.document import Document
 from bokeh.core.property.containers import PropertyValueList, PropertyValueDict
 from bokeh.util.future import with_metaclass
@@ -125,8 +126,12 @@ class TestModel(unittest.TestCase):
         testObject2 = self.pObjectClass()
         self.assertIsNot(testObject2._id, None)
 
-        self.assertEqual(set(["name", "tags", "js_callbacks"]), testObject.properties())
-        self.assertDictEqual(dict(name=None, tags=[], js_callbacks={}), testObject.properties_with_values(include_defaults=True))
+        self.assertEqual(set(["name", "tags", "js_property_callbacks",
+                              "subscribed_events", "js_event_callbacks"]),
+                         testObject.properties())
+        self.assertDictEqual(dict(name=None, tags=[], js_property_callbacks={},
+                                  js_event_callbacks={}, subscribed_events=[]),
+                             testObject.properties_with_values(include_defaults=True))
         self.assertDictEqual(dict(), testObject.properties_with_values(include_defaults=False))
 
     def test_ref(self):
@@ -200,13 +205,16 @@ class TestModel(unittest.TestCase):
                            "id" : obj._id,
                            "name" : None,
                            "tags" : [],
-                           'js_callbacks': {},
+                           'js_property_callbacks': {},
+                           "js_event_callbacks" : {},
+                           "subscribed_events" : [],
                            "foo" : 42,
                            "bar" : "world" },
                          json)
         self.assertEqual(('{"bar":"world",' +
                           '"child":{"id":"%s","type":"SomeModelToJson"},' +
-                          '"foo":42,"id":"%s","js_callbacks":{},"name":null,"tags":[]}') %
+                          '"foo":42,"id":"%s","js_event_callbacks":{},"js_property_callbacks":{},' +
+                          '"name":null,"subscribed_events":[],"tags":[]}') %
                          (child_obj._id, obj._id),
                          json_string)
 
@@ -278,22 +286,24 @@ class TestModel(unittest.TestCase):
             return counter['value']
         class HasFuncDefaultInt(Model):
             value = Int(default=next_value)
-        obj = HasFuncDefaultInt()
-        self.assertEqual(obj.value, obj.value)
+        obj1 = HasFuncDefaultInt()
+        obj2 = HasFuncDefaultInt()
+        self.assertEqual(obj1.value+1, obj2.value)
 
         # 'value' is a default, but it gets included as a
         # non-default because it's unstable.
-        self.assertTrue('value' in obj.properties_with_values(include_defaults=False))
+        self.assertTrue('value' in obj1.properties_with_values(include_defaults=False))
 
     def test_func_default_with_model(self):
         class HasFuncDefaultModel(Model):
             child = Instance(Model, lambda: Model())
-        obj = HasFuncDefaultModel()
-        self.assertEqual(obj.child._id, obj.child._id)
+        obj1 = HasFuncDefaultModel()
+        obj2 = HasFuncDefaultModel()
+        self.assertNotEqual(obj1.child._id, obj2.child._id)
 
         # 'child' is a default, but it gets included as a
         # non-default because it's unstable.
-        self.assertTrue('child' in obj.properties_with_values(include_defaults=False))
+        self.assertTrue('child' in obj1.properties_with_values(include_defaults=False))
 
 class SomeModelInTestObjects(Model):
     child = Instance(Model)
@@ -302,7 +312,7 @@ class TestModelInDocument(unittest.TestCase):
     def test_single_model(self):
         p = Model()
         self.assertIs(p.document, None)
-        with _ModelInDocument(p):
+        with _ModelInDocument([p]):
             self.assertIsNot(p.document, None)
         self.assertIs(p.document, None)
 
@@ -349,7 +359,7 @@ class TestModelInDocument(unittest.TestCase):
         self.assertIs(p1.document, None)
         self.assertIs(p2.document, None)
 
-    def test_uses_precedent_from_child(self):
+    def test_with_doc_in_child_raises_error(self):
         doc = Document()
         p1 = Model()
         p2 = SomeModelInTestObjects(child=Model())
@@ -357,15 +367,12 @@ class TestModelInDocument(unittest.TestCase):
         self.assertIs(p1.document, None)
         self.assertIs(p2.document, None)
         self.assertIs(p2.child.document, doc)
-        with _ModelInDocument([p1, p2]):
-            self.assertIsNot(p1.document, None)
-            self.assertIsNot(p2.document, None)
-            self.assertIs(p1.document, doc)
-            self.assertIs(p2.document, doc)
-        self.assertIs(p1.document, None)
-        self.assertIs(p2.document, None)
-        self.assertIsNot(p2.child.document, None)
-        self.assertIs(p2.child.document, doc)
+        with self.assertRaisesRegexp(RuntimeError, p2._id):
+            with _ModelInDocument([p1, p2]):
+                self.assertIsNot(p1.document, None)
+                self.assertIsNot(p2.document, None)
+                self.assertIs(p1.document, doc)
+                self.assertIs(p2.document, doc)
 
 class TestContainerMutation(unittest.TestCase):
 

@@ -95,7 +95,8 @@ class Server(object):
                                                         'keep_alive_milliseconds',
                                                         'check_unused_sessions_milliseconds',
                                                         'unused_session_lifetime_milliseconds',
-                                                        'stats_log_frequency_milliseconds']
+                                                        'stats_log_frequency_milliseconds',
+                                                        ]
                            if key in kwargs }
 
         prefix = kwargs.get('prefix')
@@ -120,7 +121,6 @@ class Server(object):
 
         sockets, self._port = _bind_sockets(self._address, port)
         try:
-            tornado_kwargs['hosts'] = _create_hosts_whitelist(kwargs.get('host'), self._port)
             tornado_kwargs['extra_websocket_origins'] = _create_hosts_whitelist(kwargs.get('allow_websocket_origin'), self._port)
             tornado_kwargs['use_index'] = kwargs.get('use_index', True)
             tornado_kwargs['redirect_root'] = kwargs.get('redirect_root', True)
@@ -232,10 +232,14 @@ class Server(object):
 
         return self._tornado.get_session(app_path, session_id)
 
-    def get_sessions(self, app_path):
+    def get_sessions(self, app_path=None):
         '''Gets all live sessions for an application.'''
-
-        return self._tornado.get_sessions(app_path)
+        if app_path is not None:
+            return self._tornado.get_sessions(app_path)
+        all_sessions = []
+        for path in self._tornado.app_paths:
+            all_sessions += self._tornado.get_sessions(path)
+        return all_sessions
 
     def show(self, app_path, browser=None, new='tab'):
         ''' Opens an app in a browser window or tab.

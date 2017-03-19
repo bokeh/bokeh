@@ -150,6 +150,10 @@ def transform_array_to_list(array):
         transformed[np.isposinf(array)] = 'Infinity'
         transformed[np.isneginf(array)] = '-Infinity'
         return transformed.tolist()
+    elif (array.dtype.kind == 'O' and pd and pd.isnull(array).any()):
+        transformed = array.astype('object')
+        transformed[pd.isnull(array)] = 'NaN'
+        return transformed.tolist()
     return array.tolist()
 
 def transform_series(series, force_list=False):

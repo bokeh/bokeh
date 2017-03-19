@@ -1,5 +1,5 @@
 import {ActionTool, ActionToolView} from "./action_tool"
-import * as p from "../../../core/properties"
+import * as p from "core/properties"
 
 export class HelpToolView extends ActionToolView
   do: () ->

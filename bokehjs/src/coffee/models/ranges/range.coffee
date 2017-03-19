@@ -1,5 +1,5 @@
 import {Model} from "../../model"
-import * as p from "../../core/properties"
+import * as p from "core/properties"
 
 export class Range extends Model
   type: 'Range'
