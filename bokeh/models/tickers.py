@@ -4,8 +4,11 @@ of plots.
 '''
 from __future__ import absolute_import
 
+from ..core.enums import LatLon
 from ..core.has_props import abstract
-from ..core.properties import Instance, Int, Float, Override, Seq
+from ..core.properties import Enum, Float, Instance, Int, Override, Seq
+from ..core.validation import error
+from ..core.validation.errors import MISSING_MERCATOR_DIMENSION
 from ..model import Model
 
 @abstract
@@ -46,7 +49,6 @@ class FixedTicker(ContinuousTicker):
     ticks = Seq(Float, default=[], help="""
     List of tick locations.
     """)
-
 
 class AdaptiveTicker(ContinuousTicker):
     ''' Generate "nice" round ticks at any magnitude.
@@ -140,6 +142,34 @@ class LogTicker(AdaptiveTicker):
 
     '''
     mantissas = Override(default=[1, 5])
+
+
+class MercatorTicker(BasicTicker):
+    ''' Generate nice lat/lon ticks form underlying WebMercator coordinates.
+
+    '''
+
+    dimension = Enum(LatLon, default=None, help="""
+    Specify whether to generate ticks for Latitude or Longitude.
+
+    Projected coordinates are not separable, computing Latitude and Longitude
+    tick locations from Web Mercator requires considering coordinates from
+    both dimensions together. Use this property to specify which result should
+    be returned.
+
+    Typically, if the ticker is for an x-axis, then dimension should be
+    ``"lon"`` and if the ticker is for a y-axis, then the dimension
+    should be `"lat"``.
+
+    In order to prevent hard to debug errors, there is no default value for
+    dimension. Using an un-configured MercatorTicker will result in a
+    validation error and a JavaScript console error.
+    """)
+
+    @error(MISSING_MERCATOR_DIMENSION)
+    def _check_missing_dimension(self):
+        if self.dimension is None:
+            return str(self)
 
 class CategoricalTicker(Ticker):
     ''' Generate ticks for categorical ranges.

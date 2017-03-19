@@ -45,7 +45,7 @@ export class MonthsTicker extends SingleIntervalTicker
         12 * ONE_MONTH
     @interval = interval
 
-  get_ticks_no_defaults: (data_low, data_high, desired_n_ticks) ->
+  get_ticks_no_defaults: (data_low, data_high, cross_loc, desired_n_ticks) ->
     year_dates = date_range_by_year(data_low, data_high)
 
     months = @months

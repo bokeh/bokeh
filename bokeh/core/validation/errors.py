@@ -26,8 +26,8 @@ validation checks.
     is type field.
 
 1007 *(MISSING_MERCATOR_DIMENSION)*
-    ``MercatorTickFormatter`` modelss must have their ``dimension`` property
-    set to ``'lat'`` or ``'lon'``.
+    ``MercatorTicker`` and ``MercatorTickFormatter``models must have their
+    ``dimension`` property set to ``'lat'`` or ``'lon'``.
 
 9999 *(EXT)*
     Indicates that a custom error check has failed.
@@ -41,7 +41,7 @@ codes = {
     1004: ("REQUIRED_RANGE",         "A required Range objects missing"),
     1005: ("MISSING_GOOGLE_API_KEY", "Google now requires API keys for all Google Maps usage"),
     1006: ("NON_MATCHING_DATA_SOURCES_ON_LEGEND_ITEM_RENDERERS", "LegendItem.label is a field, but renderer data sources don't match"),
-    1007: ("MISSING_MERCATOR_DIMENSION", "MercatorTickFormatters must have their dimension property set to 'lat' or 'lon'"),
+    1007: ("MISSING_MERCATOR_DIMENSION", "Mercator Tickers and Formatters must have their dimension property set to 'lat' or 'lon'"),
     9999: ("EXT",                    "Custom extension reports error"),
 }
 

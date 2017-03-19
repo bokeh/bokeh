@@ -244,7 +244,10 @@ export class ColorBarView extends AnnotationView
     [sx, sy] = @model._tick_coordinates().major
 
     labels = @model._tick_coordinates().major_labels
-    formatted_labels = @model.formatter.doFormat(labels)
+
+    # note: passing null as cross_loc probably means MercatorTickFormatters, etc
+    # will not function properly in conjunction with colorbars
+    formatted_labels = @model.formatter.doFormat(labels, null)
 
     @visuals.major_label_text.set_value(ctx)
 
@@ -470,7 +473,10 @@ export class ColorBar extends Annotation
     [i, j] = @_normals()
 
     [start, end] = [@color_mapper.low, @color_mapper.high]
-    ticks = @ticker.get_ticks(start, end, null, @ticker.desired_num_ticks)
+
+    # note: passing null as cross_loc probably means MercatorTickers, etc
+    # will not function properly in conjunction with colorbars
+    ticks = @ticker.get_ticks(start, end, null, null, @ticker.desired_num_ticks)
 
     majors = ticks.major
     minors = ticks.minor

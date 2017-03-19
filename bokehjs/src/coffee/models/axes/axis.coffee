@@ -353,7 +353,7 @@ export class Axis extends GuideRenderer
     [range, cross_range] = @ranges
     [start, end] = @computed_bounds
 
-    ticks = @ticker.get_ticks(start, end, range, {})
+    ticks = @ticker.get_ticks(start, end, range, @loc, {})
     majors = ticks.major
     minors = ticks.minor
 
