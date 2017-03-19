@@ -260,7 +260,9 @@ On top of websocket frames, we implement our own ``Message`` concept. A Bokeh
 ``Message`` spans multiple websocket frames. It always contains a header frame,
 metadata frame, and content frame. These three frames each contain a JSON
 string. The code permits these three frames to be followed by optional binary data
-frames. Currently in Bokeh, binary data frames are only used to transport image data.
+frames. In principle this could allow for example, for sending numpy arrays
+directly from their memory buffers to the websocket with no additional copies.
+However, the binary data frames are not yet used in Bokeh.
 
 The header frame indicates the message type and gives messages an ID. Message
 IDs are used to match replies with requests (the reply contains a field saying
@@ -314,8 +316,16 @@ Some Current Protocol Caveats
    send the whole giant dictionary whenever any entry in it
    changes.
 
-3. At the moment, we only optimize image data by sending it
-   over binary websocket frames.  All other binary data is unoptimized.
+3. At the moment, we do not optimize binary data by sending it
+   over binary websocket frames.  However, NumPy arrays of
+   dtype ``float32``, ``float64`` and integer types smaller than ``int32``
+   are base64 encoded in content frame to avoid performance
+   limitations of naiive JSON string searliazation.
+   JavaScript's lack of native 64-bit integer support precludes
+   them from inclusion in this optimization.
+   The base64 encoding should be entirely transparent to all
+   but those who look at the actual wire protocol. For more
+   information, refer to ``bokah.util.serialization``.
 
 
 HTTP Endpoints
