@@ -78,51 +78,52 @@ export class LayoutDOMView extends LayoutableView
 
     s = @model.document.solver()
 
-    if @model.sizing_mode is 'fixed'
-      # If the width or height is unset:
-      # - compute it from children
-      # - but then save for future use
-      # (for some reason widget boxes keep shrinking if you keep computing
-      # but this is more efficient and appropriate for fixed anyway).
-      if @model.width?
-        width = @model.width
-      else
-        width = @get_width()
-        @model.width = width
-      if @model.height?
-        height = @model.height
-      else
+    switch @model.sizing_mode
+      when 'fixed'
+        # If the width or height is unset:
+        # - compute it from children
+        # - but then save for future use
+        # (for some reason widget boxes keep shrinking if you keep computing
+        # but this is more efficient and appropriate for fixed anyway).
+        if @model.width?
+          width = @model.width
+        else
+          width = @get_width()
+          @model.width = width
+        if @model.height?
+          height = @model.height
+        else
+          height = @get_height()
+          @model.height = height
+
+        s.suggest_value(@model._width, width)
+        s.suggest_value(@model._height, height)
+        s.update_variables()
+        @el.style.width = "#{width}px"
+        @el.style.height = "#{height}px"
+
+      when 'scale_width'
         height = @get_height()
-        @model.height = height
 
-      s.suggest_value(@model._width, width)
-      s.suggest_value(@model._height, height)
-      s.update_variables()
-      @el.style.width = "#{width}px"
-      @el.style.height = "#{height}px"
+        s.suggest_value(@model._height, height)
+        s.update_variables()
+        @el.style.width = "#{@model._width._value}px"
+        @el.style.height = "#{@model._height._value}px"
 
-    if @model.sizing_mode is 'scale_width'
-      height = @get_height()
+      when 'scale_height'
+        width = @get_width()
 
-      s.suggest_value(@model._height, height)
-      s.update_variables()
-      @el.style.width = "#{@model._width._value}px"
-      @el.style.height = "#{@model._height._value}px"
+        s.suggest_value(@model._width, width)
+        s.update_variables()
+        @el.style.width = "#{@model._width._value}px"
+        @el.style.height = "#{@model._height._value}px"
 
-    if @model.sizing_mode is 'scale_height'
-      width = @get_width()
-
-      s.suggest_value(@model._width, width)
-      s.update_variables()
-      @el.style.width = "#{@model._width._value}px"
-      @el.style.height = "#{@model._height._value}px"
-
-    if @model.sizing_mode is 'stretch_both'
-      @el.style.position = 'absolute'
-      @el.style.left = "#{@model._dom_left._value}px"
-      @el.style.top = "#{@model._dom_top._value}px"
-      @el.style.width = "#{@model._width._value}px"
-      @el.style.height = "#{@model._height._value}px"
+      when 'stretch_both'
+        @el.style.position = 'absolute'
+        @el.style.left = "#{@model._dom_left._value}px"
+        @el.style.top = "#{@model._dom_top._value}px"
+        @el.style.width = "#{@model._width._value}px"
+        @el.style.height = "#{@model._height._value}px"
 
   get_height: () ->
     # Subclasses should implement this to explain
