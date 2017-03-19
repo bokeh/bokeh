@@ -32,11 +32,6 @@ export class WidgetBoxView extends LayoutDOMView
         s.suggest_value(@model._height, height)
         s.update_variables()
 
-    if @model._width._value - 20 > 0
-      css_width = "#{@model._width._value - 20}px"
-    else
-      css_width = "100%"
-
     if @model.sizing_mode is 'stretch_both'
       @el.style.position = 'absolute'
       @el.style.left = "#{@model._dom_left._value}px"
@@ -48,6 +43,11 @@ export class WidgetBoxView extends LayoutDOMView
       # are happier sizing themselves. We've tried to tell the layout what
       # the height is with the suggest_value. But that doesn't mean we need
       # to put it in the dom.
+      if @model._width._value - 20 > 0
+        css_width = "#{@model._width._value - 20}px"
+      else
+        css_width = "100%"
+
       @el.style.width = css_width
 
   get_height: () ->
