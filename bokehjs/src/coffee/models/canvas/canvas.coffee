@@ -6,7 +6,7 @@ import {GE, EQ} from "core/layout/solver"
 import {logger} from "core/logging"
 import * as p from "core/properties"
 import {isEqual} from "core/util/eq"
-import {fixup_image_smoothing, fixup_line_dash, fixup_line_dash_offset, fixup_measure_text, get_scale_ratio, fixup_ellipse} from "core/util/canvas"
+import {fixup_ctx, get_scale_ratio} from "core/util/canvas"
 
 export class CanvasView extends BokehView
   className: "bk-canvas-wrapper"
@@ -22,11 +22,7 @@ export class CanvasView extends BokehView
     @ctx = @get_ctx()
 
     # work around canvas incompatibilities
-    fixup_line_dash(@ctx)
-    fixup_line_dash_offset(@ctx)
-    fixup_image_smoothing(@ctx)
-    fixup_measure_text(@ctx)
-    fixup_ellipse(@ctx)
+    fixup_ctx(@ctx)
 
     # fixes up a problem with some versions of IE11
     # ref: http://stackoverflow.com/questions/22062313/imagedata-set-in-internetexplorer
