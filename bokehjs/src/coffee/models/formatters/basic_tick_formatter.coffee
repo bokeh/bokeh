@@ -6,11 +6,11 @@ export class BasicTickFormatter extends TickFormatter
   type: 'BasicTickFormatter'
 
   @define {
-      precision:        [ p.Any,    'auto' ] # TODO (bev) better
-      use_scientific:   [ p.Bool,   true   ]
-      power_limit_high: [ p.Number, 5      ]
-      power_limit_low:  [ p.Number, -3     ]
-    }
+    precision:        [ p.Any,    'auto' ] # TODO (bev) better
+    use_scientific:   [ p.Bool,   true   ]
+    power_limit_high: [ p.Number, 5      ]
+    power_limit_low:  [ p.Number, -3     ]
+  }
 
   @getters {
     scientific_limit_low: () -> Math.pow(10.0, @power_limit_low)
@@ -21,7 +21,7 @@ export class BasicTickFormatter extends TickFormatter
     super(attrs, options)
     @last_precision = 3
 
-  doFormat: (ticks) ->
+  doFormat: (ticks, loc) ->
     if ticks.length == 0
       return []
 

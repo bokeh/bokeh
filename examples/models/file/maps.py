@@ -5,7 +5,8 @@ from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models.glyphs import Circle
 from bokeh.models import (
-    GMapPlot, Range1d, ColumnDataSource, PanTool, WheelZoomTool, BoxSelectTool, GMapOptions)
+    GMapPlot, Range1d, ColumnDataSource, PanTool, WheelZoomTool, BoxSelectTool, GMapOptions,
+    LinearAxis, MercatorTickFormatter)
 from bokeh.resources import INLINE
 
 x_range = Range1d()
@@ -43,6 +44,14 @@ wheel_zoom = WheelZoomTool()
 box_select = BoxSelectTool()
 
 plot.add_tools(pan, wheel_zoom, box_select)
+
+xformatter = MercatorTickFormatter(dimension="lon")
+xaxis = LinearAxis(formatter=xformatter)
+plot.add_layout(xaxis, 'below')
+
+yformatter = MercatorTickFormatter(dimension="lat")
+yaxis = LinearAxis(formatter=yformatter)
+plot.add_layout(yaxis, 'left')
 
 doc = Document()
 doc.add_root(plot)

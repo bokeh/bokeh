@@ -7,13 +7,15 @@ from __future__ import absolute_import
 import inspect
 from types import FunctionType
 
-from ..core.enums import NumeralLanguage, RoundingFunction
-from ..util.dependencies import import_required
-from ..util.deprecation import deprecated
+from ..core.enums import LatLon, NumeralLanguage, RoundingFunction
 from ..core.has_props import abstract
 from ..core.properties import Auto, Bool, Dict, Either, Enum, Instance, Int, List, String
+from ..core.validation import error
+from ..core.validation.errors import MISSING_MERCATOR_DIMENSION
 from ..model import Model
 from ..util.compiler import nodejs_compile, CompilationError
+from ..util.dependencies import import_required
+from ..util.deprecation import deprecated
 
 from .tickers import Ticker
 
@@ -52,6 +54,38 @@ class BasicTickFormatter(TickFormatter):
         log(x) <= power_limit_low
 
     """)
+
+class MercatorTickFormatter(BasicTickFormatter):
+    ''' TickFormatter for values in WebMercator units.
+
+    Some map plot types internally use WebMercator to describe coordinates,
+    plot bounds, etc. These units are not very human-friendly. This tick
+    formatter will convert WebMercator units into Latitude and Longitude
+    for display on axes.
+
+    '''
+
+    dimension = Enum(LatLon, default=None, help="""
+    Specify whether to format ticks for Latitude or Longitude.
+
+    Projected coordinates are not separable, computing Latitude and Longitude
+    tick labels from Web Mercator requires considering coordinates from both
+    dimensions together. Use this property to specify which result should be
+    used for display.
+
+    Typically, if the formatter is for an x-axis, then dimension should be
+    ``"lon"`` and if the formatter is for a y-axis, then the dimension
+    should be `"lat"``.
+
+    In order to prevent hard to debug errors, there is no default value for
+    dimension. Using an un-configured MercatorTickFormatter will result in
+    a validation error and a JavaScript console error.
+    """)
+
+    @error(MISSING_MERCATOR_DIMENSION)
+    def _check_missing_dimension(self):
+        if self.dimension is None:
+            return str(self)
 
 class NumeralTickFormatter(TickFormatter):
     ''' Tick formatter based on a human-readable format string. '''

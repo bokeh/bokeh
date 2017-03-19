@@ -8,6 +8,8 @@ export Direction = ["clock", "anticlock"]
 
 export FontStyle = ["normal", "italic", "bold"]
 
+export LatLon = ["lat", "lon"]
+
 export LineCap = ["butt", "round", "square"]
 
 export LineJoin = ["miter", "round", "bevel"]
