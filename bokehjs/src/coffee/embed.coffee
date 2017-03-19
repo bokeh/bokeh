@@ -96,7 +96,7 @@ export add_document_standalone = (document, element, use_for_title=false) ->
 # map { websocket url to map { session id to promise of ClientSession } }
 _sessions = {}
 _get_session = (websocket_url, session_id, args_string) ->
-  if not websocket_url? or websocket_url == null
+  if not websocket_url?
     throw new Error("Missing websocket_url")
   if websocket_url not of _sessions
     _sessions[websocket_url] = {}
