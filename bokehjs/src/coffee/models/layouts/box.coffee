@@ -69,12 +69,6 @@ export class Box extends LayoutDOM
   get_layoutable_children: () ->
     @children
 
-  variables_updated: () ->
-    # Use trigger to force re-render
-    for child in @get_layoutable_children()
-      child.trigger('change')
-    @trigger('change')
-
   get_edit_variables: () ->
     edit_variables = super()
     for child in @get_layoutable_children()
