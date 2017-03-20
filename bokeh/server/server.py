@@ -27,9 +27,10 @@ def _create_hosts_whitelist(host_list, port):
     hosts = []
     for host in host_list:
         if '*' in host:
-            log.warning('Host wildcard %r can expose the application to HTTP '
-                        'host header attacks. Host wildcard should only be '
-                        'used for testing purpose.', host)
+            log.warning(
+                "Host wildcard %r will allow websocket connections originating "
+                "from multiple (or possibly all) hostnames or IPs. Use non-wildcard "
+                "values to restrict access explicitly", host)
         if host == '*':
             # do not append the :80 port suffix in that case: any port is
             # accepted
