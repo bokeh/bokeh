@@ -13,6 +13,7 @@
 - path: "plotting/file"
   slow: ["choropleth.py"]
   no_diff: ["jitter.py"]
+  no_js: ["gmap.py"]
 
 - path: "plotting/server"
   type: server
