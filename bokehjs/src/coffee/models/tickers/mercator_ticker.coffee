@@ -15,13 +15,12 @@ export class MercatorTicker extends BasicTicker
       throw new Error("MercatorTicker.dimension not configured")
 
     if @dimension == "lon"
-      [proj_low,  _] = proj4(mercator).inverse([data_low,  cross_loc])
-      [proj_high, _] = proj4(mercator).inverse([data_high, cross_loc])
+      [proj_low,  proj_cross_loc] = proj4(mercator).inverse([data_low,  cross_loc])
+      [proj_high, proj_cross_loc] = proj4(mercator).inverse([data_high, cross_loc])
     else
-      [_, proj_low ] = proj4(mercator).inverse([cross_loc, data_low ])
-      [_, proj_high] = proj4(mercator).inverse([cross_loc, data_high])
+      [proj_cross_loc, proj_low ] = proj4(mercator).inverse([cross_loc, data_low ])
+      [proj_cross_loc, proj_high] = proj4(mercator).inverse([cross_loc, data_high])
 
-    proj_cross_loc = _
     proj_ticks = super(proj_low, proj_high, cross_loc, desired_n_ticks)
 
     ticks = {
