@@ -175,6 +175,8 @@ export class Dimensions extends enum_prop("Dimensions", enums.Dimensions)
 
 export class FontStyle extends enum_prop("FontStyle", enums.FontStyle)
 
+export class LatLon extends enum_prop("LatLon", enums.LatLon)
+
 export class LineCap extends enum_prop("LineCap", enums.LineCap)
 
 export class LineJoin extends enum_prop("LineJoin", enums.LineJoin)

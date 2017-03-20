@@ -7,13 +7,13 @@ export class NumeralTickFormatter extends TickFormatter
   type: 'NumeralTickFormatter'
 
   @define {
-      # TODO (bev) all of these could be tightened up
-      format:   [ p.String, '0,0'   ]
-      language: [ p.String, 'en'    ]
-      rounding: [ p.String, 'round' ]
-    }
+    # TODO (bev) all of these could be tightened up
+    format:   [ p.String, '0,0'   ]
+    language: [ p.String, 'en'    ]
+    rounding: [ p.String, 'round' ]
+  }
 
-  doFormat: (ticks) ->
+  doFormat: (ticks, loc) ->
     format = @format
     language = @language
     rounding = switch @rounding

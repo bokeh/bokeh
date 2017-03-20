@@ -128,6 +128,9 @@ def enumeration(*values, **kwargs):
 
     return type("Enumeration", (Enumeration,), attrs)()
 
+#: Specify whether a dimension or coordinate is latitude or longitude
+LatLon = enumeration("lat", "lon")
+
 #: Specify how stroked lines should be joined together
 LineJoin = enumeration("miter", "round", "bevel")
 

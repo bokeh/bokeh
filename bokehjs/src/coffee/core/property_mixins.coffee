@@ -41,6 +41,6 @@ export create = (configs) ->
   for config in configs
     [kind, prefix] = config.split(":")
     if not @[kind]?
-      throw Error("Unknown property mixin kind '#{kind}'")
+      throw new Error("Unknown property mixin kind '#{kind}'")
     result = extend(result, @[kind](prefix))
   return result

@@ -50,7 +50,7 @@ export class CompositeTicker extends ContinuousTicker
     best_ticker = @get_best_ticker(data_low, data_high, desired_n_ticks)
     return best_ticker.get_interval(data_low, data_high, desired_n_ticks)
 
-  get_ticks_no_defaults: (data_low, data_high, desired_n_ticks) ->
+  get_ticks_no_defaults: (data_low, data_high, cross_loc, desired_n_ticks) ->
     best_ticker = @get_best_ticker(data_low, data_high, desired_n_ticks)
-    ticks = best_ticker.get_ticks_no_defaults(data_low, data_high, desired_n_ticks)
+    ticks = best_ticker.get_ticks_no_defaults(data_low, data_high, cross_loc, desired_n_ticks)
     return ticks

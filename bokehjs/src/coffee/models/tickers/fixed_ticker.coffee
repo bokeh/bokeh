@@ -8,7 +8,7 @@ export class FixedTicker extends ContinuousTicker
       ticks: [ p.Array, [] ]
     }
 
-  get_ticks_no_defaults: (data_low, data_high, desired_n_ticks) ->
+  get_ticks_no_defaults: (data_low, data_high, cross_loc, desired_n_ticks) ->
     return {
       major: @ticks
       minor: []

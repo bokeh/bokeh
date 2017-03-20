@@ -16,3 +16,6 @@ from .figure import Figure; Figure
 from .figure import figure; figure
 from .figure import markers; markers
 from .figure import DEFAULT_TOOLS; DEFAULT_TOOLS
+
+from .gmap import GMap; GMap
+from .gmap import gmap; gmap
