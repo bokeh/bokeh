@@ -123,7 +123,9 @@ class CustomJSTransform(Transform):
     @classmethod
     def from_coffeescript(cls, func, v_func, args={}):
         ''' Create a CustomJSTransform instance from a pair of CoffeeScript
-        snippets. The function bodies are translated to JavaScript using node.
+        snippets. The function bodies are translated to JavaScript functions
+        using node and therefore require return statements.
+
         The ``func`` snippet namespace will contain the variable ``x`` (the
         untransformed value) at render time. The ``v_func`` snippet namespace
         will contain the variable ``xs`` (the untransformed vector) at render
@@ -133,13 +135,19 @@ class CustomJSTransform(Transform):
 
         .. code-block:: coffeescript
 
-            func = """
-            return Math.cos(x)
-            """
+            func = "return Math.cos(x)"
+            v_func = "return [Math.cos(x) for x in xs]"
 
-            v_func = """
-            return [Math.cos(x) for x in xs]
-            """
+            transform = CustomJSTransform.from_coffeescript(func, v_func)
+
+        Args:
+            func (str) : a coffeescript snippet to transform a single ``x`` value
+
+            v_func (str) : a coffeescript snippet function to transform a vector ``xs``
+
+        Returns:
+            CustomJSTransform
+
         '''
         compiled = nodejs_compile(func, lang="coffeescript", file="???")
         if "error" in compiled:
