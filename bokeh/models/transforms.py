@@ -43,74 +43,113 @@ class CustomJSTransform(Transform):
     '''
 
     @classmethod
-    def from_py_func(cls, func):
-        ''' Create a CustomJSTransform instance from a Python function. The
-        function is translated to JavaScript using PyScript. The variable
-        ``x`` will contain the untransformed value and can be expected to
-        be present in the function namespace at render time.
+    def from_py_func(cls, func, v_func):
+        ''' Create a CustomJSTransform instance from a pair of Python
+        functions. The function is translated to JavaScript using PyScript.
+
+        The python functions must have no positional arguments. It's
+        possible to pass Bokeh models (e.g. a ColumnDataSource) as keyword
+        arguments to the functions.
+
+        The ``func`` function namespace will contain the variable ``x`` (the
+        untransformed value) at render time. The ``v_func`` function namespace
+        will contain the variable ``xs`` (the untransformed vector) at render
+        time.
+
+        .. warning::
+            The vectorized function, ``v_func``, must return an array of the
+            same length as the input ``xs`` array.
 
         Example:
 
         .. code-block:: python
 
-            code = """
             def transform():
-                import math
-                return math.cos(x)
-            """
+                from flexx.pyscript.stubs import Math
+                return Math.cos(x)
 
-        The python function must have no positional arguments. It's
-        possible to pass Bokeh models (e.g. a ColumnDataSource) as keyword
-        arguments to the function.
+            def v_transform():
+                from flexx.pyscript.stubs import Math
+                return [Math.cos(x) for x in xs]
+
+            customjs_transform = CustomJSTransform.from_py_func(transform, v_transform)
+
+        Args:
+            func (function) : a scalar function to transform a single ``x`` value
+
+            v_func (function) : a vectorized function to transform a vector ``xs``
+
+        Returns:
+            CustomJSTransform
 
         '''
-        if not isinstance(func, FunctionType):
-            raise ValueError('CustomJSTransform.from_py_func needs function object.')
+        if not isinstance(func, FunctionType) or not isinstance(v_func, FunctionType):
+            raise ValueError('CustomJSTransform.from_py_func only accepts function objects.')
+
         pyscript = import_required(
             'flexx.pyscript',
             dedent("""\
                 To use Python functions for CustomJSTransform, you need Flexx
                 '("conda install -c bokeh flexx" or "pip install flexx")""")
             )
-        argspec = inspect.getargspec(func)
 
-        default_names = argspec.args
-        default_values = argspec.defaults or []
+        def pyscript_compile(func):
+            argspec = inspect.getargspec(func)
 
-        if len(default_names) - len(default_values) != 0:
-            raise ValueError("Function `func` may only contain keyword arguments.")
+            default_names = argspec.args
+            default_values = argspec.defaults or []
 
-        if default_values and not any([isinstance(value, Model) for value in default_values]):
-            raise ValueError("Default value must be a plot object.")
+            if len(default_names) - len(default_values) != 0:
+                raise ValueError("Function may only contain keyword arguments.")
 
-        func_kwargs = dict(zip(default_names, default_values))
+            if default_values and not any([isinstance(value, Model) for value in default_values]):
+                raise ValueError("Default value must be a plot object.")
 
-        # Wrap the code attr in a function named `formatter` and call it
-        # with arguments that match the `args` attr
-        code = pyscript.py2js(func, 'transformer') + 'return transformer(%s);\n' % ', '.join(default_names)
+            func_kwargs = dict(zip(default_names, default_values))
 
-        return cls(code=code, args=func_kwargs)
+            # Wrap the code attr in a function named `formatter` and call it
+            # with arguments that match the `args` attr
+            code = pyscript.py2js(func, 'transformer') + 'return transformer(%s);\n' % ', '.join(default_names)
+            return code, func_kwargs
+
+        jsfunc, func_kwargs = pyscript_compile(func)
+        v_jsfunc, v_func_kwargs = pyscript_compile(v_func)
+
+        # Have to merge the function arguments
+        func_kwargs.update(v_func_kwargs)
+
+        return cls(func=jsfunc, v_func=v_jsfunc, args=func_kwargs)
 
     @classmethod
-    def from_coffeescript(cls, code, args={}):
-        ''' Create a CustomJSTransform instance from a CoffeeScript snippet.
-        The function body is translated to JavaScript using node. The variable
-        ``x`` will contain the untransformed value and can be expected to
-        be present in the code snippet namespace at render time.
+    def from_coffeescript(cls, func, v_func, args={}):
+        ''' Create a CustomJSTransform instance from a pair of CoffeeScript
+        snippets. The function bodies are translated to JavaScript using node.
+        The ``func`` snippet namespace will contain the variable ``x`` (the
+        untransformed value) at render time. The ``v_func`` snippet namespace
+        will contain the variable ``xs`` (the untransformed vector) at render
+        time.
 
         Example:
 
         .. code-block:: coffeescript
 
-            code = """
+            func = """
             return Math.cos(x)
             """
+
+            v_func = """
+            return [Math.cos(x) for x in xs]
+            """
         '''
-        compiled = nodejs_compile(code, lang="coffeescript", file="???")
+        compiled = nodejs_compile(func, lang="coffeescript", file="???")
         if "error" in compiled:
             raise CompilationError(compiled.error)
-        else:
-            return cls(code=compiled.code, args=args)
+
+        v_compiled = nodejs_compile(v_func, lang="coffeescript", file="???")
+        if "error" in v_compiled:
+            raise CompilationError(v_compiled.error)
+
+        return cls(func=compiled.code, v_func=v_compiled.code, args=args)
 
     args = Dict(String, Instance(Model), help="""
     A mapping of names to Bokeh plot objects. These objects are made
@@ -118,7 +157,7 @@ class CustomJSTransform(Transform):
     parameters to the callback.
     """)
 
-    code = String(default="", help="""
+    func = String(default="", help="""
     A snippet of JavaScript code to transform a single value. The variable
     ``x`` will contain the untransformed value and can be expected to be
     present in the function namespace at render time. The snippet will be
@@ -131,6 +170,29 @@ class CustomJSTransform(Transform):
             code = '''
             return Math.floor(x) + 0.5
             '''
+    """)
+
+    v_func = String(default="", help="""
+    A snippet of JavaScript code to transform an array of values. The variable
+    ``xs`` will contain the untransformed array and can be expected to be
+    present in the function namespace at render time. The snippet will be
+    into the body of a function and therefore requires a return statement.
+
+    Example:
+
+        .. code-block:: javascript
+
+            code = '''
+            new_xs = new Array(xs.length)
+            for(i = 0; i < xs.length; i++) {
+                new_xs[i] = xs[i] + 0.5
+            }
+            return new_xs
+            '''
+
+    .. warning::
+        The vectorized function, ``v_func``, must return an array of the
+        same length as the input ``xs`` array.
     """)
 
 
