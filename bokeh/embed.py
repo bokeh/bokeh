@@ -28,10 +28,11 @@ from .core.templates import (
 from .core.json_encoder import serialize_json
 from .document import Document, DEFAULT_TITLE
 from .model import Model
-from .resources import BaseResources, _SessionCoordinates, EMPTY
+from .resources import BaseResources, _SessionCoordinates
 from .util.deprecation import deprecated
 from .util.string import encode_utf8
 from .util.serialization import make_id
+from .util.compiler import bundle_all_models
 
 def _indent(text, n=2):
     return "\n".join([ " "*n + line for line in text.split("\n") ])
@@ -52,6 +53,9 @@ def _wrap_in_onload(code):
   else document.addEventListener("DOMContentLoaded", fn);
 })();
 """ % dict(code=_indent(code, 4))
+
+def _wrap_in_script_tag(js):
+    return SCRIPT_TAG.render(js_code=js)
 
 @contextmanager
 def _ModelInDocument(models, apply_theme=None):
@@ -202,7 +206,10 @@ def components(models, wrap_script=True, wrap_plot_info=True, theme=FromCurdoc):
     with _ModelInDocument(models, apply_theme=theme):
         (docs_json, render_items) = _standalone_docs_json_and_render_items(models)
 
-    script = _script_for_render_items(docs_json, render_items, wrap_script=wrap_script)
+    script  = bundle_all_models()
+    script += _script_for_render_items(docs_json, render_items)
+    if wrap_script:
+        script = _wrap_in_script_tag(script)
     script = encode_utf8(script)
 
     if wrap_plot_info:
@@ -336,14 +343,13 @@ def notebook_div(model, notebook_comms_target=None, theme=FromCurdoc):
         docs_json=serialize_json(docs_json),
         render_items=serialize_json(render_items)
     ))
-    resources = EMPTY
 
     js = AUTOLOAD_NB_JS.render(
         comms_target=notebook_comms_target,
-        js_urls = resources.js_files,
-        css_urls = resources.css_files,
-        js_raw = resources.js_raw + [script],
-        css_raw = resources.css_raw_str,
+        js_urls = [],
+        css_urls = [],
+        js_raw = [script],
+        css_raw = "",
         elementid = item['elementid']
     )
     div = _div_for_render_item(item)
@@ -421,13 +427,14 @@ def autoload_static(model, resources, script_path):
     with _ModelInDocument([model]):
         (docs_json, render_items) = _standalone_docs_json_and_render_items([model])
 
-    script = _script_for_render_items(docs_json, render_items, wrap_script=False)
+    bundle = bundle_all_models()
+    script = _script_for_render_items(docs_json, render_items)
     item = render_items[0]
 
     js = _wrap_in_onload(AUTOLOAD_JS.render(
         js_urls = resources.js_files,
         css_urls = resources.css_files,
-        js_raw = resources.js_raw + [script],
+        js_raw = resources.js_raw + [bundle, script],
         css_raw = resources.css_raw_str,
         elementid = item['elementid'],
     ))
@@ -551,18 +558,13 @@ def autoload_server(model, app_path=None, session_id=None, url="default", relati
 
     return encode_utf8(tag)
 
-def _script_for_render_items(docs_json, render_items, app_path=None, absolute_url=None, wrap_script=True):
-    plot_js = _wrap_in_onload(_wrap_in_safely(DOC_JS.render(
+def _script_for_render_items(docs_json, render_items, app_path=None, absolute_url=None):
+    return _wrap_in_onload(_wrap_in_safely(DOC_JS.render(
         docs_json=serialize_json(docs_json),
         render_items=serialize_json(render_items),
         app_path=app_path,
-        absolute_url=absolute_url
+        absolute_url=absolute_url,
     )))
-
-    if wrap_script:
-        return SCRIPT_TAG.render(js_code=plot_js)
-    else:
-        return plot_js
 
 def _html_page_for_render_items(bundle, docs_json, render_items, title,
                                 template=FILE, template_variables={}):
@@ -571,7 +573,8 @@ def _html_page_for_render_items(bundle, docs_json, render_items, title,
 
     bokeh_js, bokeh_css = bundle
 
-    script = _script_for_render_items(docs_json, render_items)
+    script  = bundle_all_models()
+    script += _script_for_render_items(docs_json, render_items)
 
     template_variables_full = template_variables.copy()
 
@@ -579,7 +582,7 @@ def _html_page_for_render_items(bundle, docs_json, render_items, title,
         title = title,
         bokeh_js = bokeh_js,
         bokeh_css = bokeh_css,
-        plot_script = script,
+        plot_script = _wrap_in_script_tag(script),
         plot_div = "\n".join(_div_for_render_item(item) for item in render_items)
     ))
 

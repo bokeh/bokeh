@@ -45,6 +45,7 @@ def _load_notebook_html(resources=None, verbose=False, hide_banner=False,
     from .. import __version__
     from ..core.templates import AUTOLOAD_NB_JS, NOTEBOOK_LOAD
     from ..util.serialization import make_id
+    from ..util.compiler import bundle_all_models
     from ..resources import CDN
 
     if resources is None:
@@ -76,11 +77,13 @@ def _load_notebook_html(resources=None, verbose=False, hide_banner=False,
         hide_banner   = hide_banner,
     )
 
+    custom_models_js = bundle_all_models()
+
     js = AUTOLOAD_NB_JS.render(
         elementid = '' if hide_banner else element_id,
         js_urls  = resources.js_files,
         css_urls = resources.css_files,
-        js_raw   = resources.js_raw + ([] if hide_banner else [FINALIZE_JS % element_id]),
+        js_raw   = resources.js_raw + [custom_models_js] + ([] if hide_banner else [FINALIZE_JS % element_id]),
         css_raw  = resources.css_raw_str,
         force    = True,
         timeout  = load_timeout

@@ -27,7 +27,6 @@ from .settings import settings
 
 from .util.paths import bokehjsdir
 from .util.session_id import generate_session_id
-from .util.compiler import gen_custom_models_static
 from .model import Model
 
 DEFAULT_SERVER_HOST = "localhost"
@@ -331,10 +330,6 @@ class JSResources(BaseResources):
         if self.log_level is not None:
             raw.append('Bokeh.set_log_level("%s");' % self.log_level)
 
-        custom_models = gen_custom_models_static()
-        if custom_models is not None:
-            raw.append(custom_models)
-
         return raw
 
     def render_js(self):
@@ -459,5 +454,3 @@ class Resources(JSResources, CSSResources):
 CDN = Resources(mode="cdn")
 
 INLINE = Resources(mode="inline")
-
-EMPTY = Resources(mode="inline", components=[], log_level=None)

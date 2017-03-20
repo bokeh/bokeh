@@ -283,10 +283,11 @@ class CustomModel(object):
     def module(self):
         return "custom/%s" % snakify(self.full_name)
 
-def gen_custom_models_static():
+def bundle_models(models):
+    """Create a bundle of `models`. """
     custom_models = {}
 
-    for cls in Model.model_class_reverse_map.values():
+    for cls in models:
         impl = getattr(cls, "__implementation__", None)
 
         if impl is not None:
@@ -393,3 +394,6 @@ def gen_custom_models_static():
     modules = sep.join([ _module_template % dict(module=module, code=code, deps=json.dumps(deps)) for (module, code, deps) in modules ])
 
     return _plugin_template % dict(prelude=_plugin_prelude, exports=exports, modules=modules)
+
+def bundle_all_models():
+    return bundle_models(Model.model_class_reverse_map.values()) or ""
