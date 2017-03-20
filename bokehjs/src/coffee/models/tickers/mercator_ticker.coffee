@@ -12,7 +12,7 @@ export class MercatorTicker extends BasicTicker
   get_ticks_no_defaults: (data_low, data_high, cross_loc, desired_n_ticks) ->
 
     if not @dimension?
-      throw Error("MercatorTickFormatter.dimension not configured")
+      throw new Error("MercatorTicker.dimension not configured")
 
     if @dimension == "lon"
       [proj_low,  _] = proj4(mercator).inverse([data_low,  cross_loc])

@@ -10,11 +10,11 @@ export class MercatorTickFormatter extends BasicTickFormatter
   }
 
   doFormat: (ticks, loc) ->
+    if not @dimension?
+      throw new Error("MercatorTickFormatter.dimension not configured")
+
     if ticks.length == 0
       return []
-
-    if not @dimension?
-      throw Error("MercatorTickFormatter.dimension not configured")
 
     proj_ticks = new Array(ticks.length)
 
