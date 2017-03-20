@@ -14,7 +14,7 @@ def datetime(x):
 plot = figure(x_axis_type="datetime", title="Normalized Stock Closing Prices")
 plot.grid.grid_line_alpha=0.3
 plot.xaxis.axis_label = 'Date'
-plot.yaxis.axis_label = 'Normalized Closing Price'
+plot.yaxis.axis_label = 'Price'
 
 aapl_source = ColumnDataSource(data=dict(
     aapl_date=datetime(AAPL['date']),
