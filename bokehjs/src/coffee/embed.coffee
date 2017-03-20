@@ -3,7 +3,6 @@ import {pull_session} from "./client"
 import {logger, set_log_level} from "./core/logging"
 import {Document, RootAddedEvent, RootRemovedEvent, TitleChangedEvent} from "./document"
 import {div, link, style, replaceWith} from "./core/dom"
-import {delay} from "./core/util/callback"
 
 # Matches Bokeh CSS class selector. Setting all Bokeh parent element class names
 # with this var prevents user configurations where css styling is unset.
@@ -84,11 +83,11 @@ add_model_static = (element, model_id, doc) ->
   if not model?
     throw new Error("Model #{model_id} was not in document #{doc}")
   view = _create_view(model)
-  delay(-> replaceWith(element, view.el))
+  replaceWith(element, view.el)
 
 # Fill element with the roots from doc
 export add_document_static = (element, doc, use_for_title) ->
-  delay(-> _render_document_to_element(element, doc, use_for_title))
+  _render_document_to_element(element, doc, use_for_title)
 
 export add_document_standalone = (document, element, use_for_title=false) ->
   return _render_document_to_element(element, document, use_for_title)
