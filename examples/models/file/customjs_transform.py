@@ -14,7 +14,7 @@ def datetime(x):
 plot = figure(x_axis_type="datetime", title="Normalized Stock Closing Prices")
 plot.grid.grid_line_alpha=0.3
 plot.xaxis.axis_label = 'Date'
-plot.yaxis.axis_label = 'Price'
+plot.yaxis.axis_label = 'Normalized Price'
 
 aapl_source = ColumnDataSource(data=dict(
     aapl_date=datetime(AAPL['date']),
@@ -27,10 +27,10 @@ goog_source = ColumnDataSource(data=dict(
 ))
 
 v_func = """\
-    var last = xs[xs.length - 1]
+    var first = xs[0]
     var norm = new Float64Array(xs.length)
     for (i = 0; i < xs.length; i++) {
-        norm[i] = xs[i] / last
+        norm[i] = xs[i] / first
     }
     return norm
 """
