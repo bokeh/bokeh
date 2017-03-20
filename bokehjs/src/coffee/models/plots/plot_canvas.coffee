@@ -473,6 +473,8 @@ export class PlotCanvasView extends BokehView
       @model.plot.setv({
         inner_width: Math.round(@frame.width)
         inner_height: Math.round(@frame.height)
+        layout_width: Math.round(@canvas.width)
+        layout_height: Math.round(@canvas.height)
       })
     )
     @listenTo(@model.plot.document.solver(), 'resize', () => @resize())

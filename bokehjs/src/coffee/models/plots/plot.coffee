@@ -354,6 +354,8 @@ export class Plot extends LayoutDOM
 
       inner_width:       [ p.Number                           ]
       inner_height:      [ p.Number                           ]
+      layout_width:      [ p.Number                           ]
+      layout_height:     [ p.Number                           ]
     }
 
   @override {
