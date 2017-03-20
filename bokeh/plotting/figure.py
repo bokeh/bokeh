@@ -7,10 +7,7 @@ from six import string_types
 
 from ..core.properties import Auto, Either, Enum, Float, Int, Seq, Instance, String, Tuple
 from ..core.enums import HorizontalLocation, VerticalLocation
-from ..models import Plot
-from ..models.annotations import Title
-from ..models.ranges import Range
-from ..models.tools import Tool
+from ..models import Plot, Range, Title, Tool
 from ..models import glyphs, markers
 from ..util.options import Options
 from ..util._plot_arg_helpers import _convert_responsive
