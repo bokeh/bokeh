@@ -175,7 +175,7 @@ class CustomJSTransform(Transform):
 
         .. code-block:: javascript
 
-            code = '''
+            func = '''
             return Math.floor(x) + 0.5
             '''
     """)
@@ -190,7 +190,7 @@ class CustomJSTransform(Transform):
 
         .. code-block:: javascript
 
-            code = '''
+            v_func = '''
             new_xs = new Array(xs.length)
             for(i = 0; i < xs.length; i++) {
                 new_xs[i] = xs[i] + 0.5
