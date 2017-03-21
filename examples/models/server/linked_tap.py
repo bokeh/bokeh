@@ -61,12 +61,12 @@ def on_reset_click():
     source1.selected = {
         '0d': {'flag': False, 'indices': []},
         '1d': {'indices': []},
-        '2d': {'indices': []}
+        '2d': {'indices': {}}
     }
     source2.selected = {
         '0d': {'flag': False, 'indices': []},
         '1d': {'indices': []},
-        '2d': {'indices': []}
+        '2d': {'indices': {}}
     }
 
 reset.on_click(on_reset_click)
