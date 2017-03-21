@@ -7,7 +7,11 @@ describe "array module", ->
 
   it "copy should return a new copy", ->
     a = [0, 1, 2]
-    expect(array.copy(a)).to.deep.equal [0, 1, 2]
+    b = array.copy(a)
+    expect(b).to.deep.equal [0, 1, 2]
+    a[0] = 10
+    expect(a).to.deep.equal [10, 1, 2]
+    expect(b).to.deep.equal [0, 1, 2]
 
   it "concat should append all arrays", ->
     a = [0, 1, 2]
