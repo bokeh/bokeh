@@ -43,7 +43,7 @@ fill_color = { "gold": gold_fill, "silver": silver_fill, "bronze": bronze_fill }
 line_color = { "gold": gold_line, "silver": silver_line, "bronze": bronze_line }
 
 def selected_name(name, medal, year):
-    return name if medal == "gold" and year in [1988, 1968, 1936, 1896] else None
+    return name if medal == "gold" and year in [1988, 1968, 1936, 1896] else ""
 
 t0 = sprint.Time[0]
 
