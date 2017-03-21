@@ -412,7 +412,7 @@ export class PlotCanvasView extends BokehView
       return weight
 
   update_range: (range_info, is_panning, is_scrolling) ->
-    @pause
+    @pause()
     if not range_info?
       for name, rng of @frame.x_ranges
         rng.reset()
