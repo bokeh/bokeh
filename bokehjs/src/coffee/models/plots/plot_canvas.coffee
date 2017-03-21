@@ -48,12 +48,12 @@ export class PlotCanvasView extends BokehView
     @is_paused = false
     @request_render()
 
-  request_render: () =>
+  request_render: () ->
     if not @is_paused
       @throttled_render()
     return
 
-  remove: () =>
+  remove: () ->
     for _, view of @renderer_views
       view.remove()
     @renderer_views = {}
