@@ -160,7 +160,7 @@ export update_constraints = (view) ->
   if size == v._last_size
     return
 
-  s = v.model.document.solver()
+  s = v.solver
 
   v._last_size = size
   if v._size_constraint?

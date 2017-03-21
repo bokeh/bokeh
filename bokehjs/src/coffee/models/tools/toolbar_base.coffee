@@ -30,21 +30,21 @@ export class ToolbarBaseView extends LayoutDOMView
 
     buttons = @el.querySelector(".bk-button-bar-list[type='inspectors']")
     for obj in @model.inspectors
-      buttons.appendChild(new OnOffButtonView({model: obj}).el)
+      buttons.appendChild(new OnOffButtonView({model: obj, parent: @}).el)
 
     buttons = @el.querySelector(".bk-button-bar-list[type='help']")
     for obj in @model.help
-      buttons.appendChild(new ActionToolButtonView({model: obj}).el)
+      buttons.appendChild(new ActionToolButtonView({model: obj, parent: @}).el)
 
     buttons = @el.querySelector(".bk-button-bar-list[type='actions']")
     for obj in @model.actions
-      buttons.appendChild(new ActionToolButtonView({model: obj}).el)
+      buttons.appendChild(new ActionToolButtonView({model: obj, parent: @}).el)
 
     gestures = @model.gestures
     for et of gestures
       buttons = @el.querySelector(".bk-button-bar-list[type='#{et}']")
       for obj in gestures[et].tools
-        buttons.appendChild(new OnOffButtonView({model: obj}).el)
+        buttons.appendChild(new OnOffButtonView({model: obj, parent: @}).el)
 
     return @
 

@@ -30,9 +30,8 @@ export class PlotView extends LayoutDOMView
 
     if @model.sizing_mode is 'scale_both'
       [width, height] = @get_width_height()
-      s = @model.document.solver()
-      s.suggest_value(@model._width, width)
-      s.suggest_value(@model._height, height)
+      @solver.suggest_value(@model._width, width)
+      @solver.suggest_value(@model._height, height)
       @el.style.position = 'absolute'
       @el.style.left = "#{@model._dom_left._value}px"
       @el.style.top = "#{@model._dom_top._value}px"

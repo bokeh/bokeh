@@ -39,7 +39,7 @@ export class PlotCanvasView extends BokehView
 
   state: { history: [], index: -1 }
 
-  view_options: () -> extend({plot_view: @}, @options)
+  view_options: () -> extend({plot_view: @, parent: @}, @options)
 
   pause: () ->
     @is_paused = true
@@ -91,7 +91,7 @@ export class PlotCanvasView extends BokehView
     @ymapper = @frame.y_mappers['default']
 
     @canvas = @model.canvas
-    @canvas_view = new @canvas.default_view({'model': @canvas})
+    @canvas_view = new @canvas.default_view({model: @canvas, parent: @})
     @el.appendChild(@canvas_view.el)
     @canvas_view.render()
 
@@ -294,9 +294,8 @@ export class PlotCanvasView extends BokehView
     @pause()
     @model.plot.width = width
     @model.plot.height = height
-    @model.document.resize()
+    @parent.resize()  # parent because this view doesn't participate in layout hierarchy
     @unpause()
-
 
   get_selection: () ->
     selection = []
@@ -477,8 +476,9 @@ export class PlotCanvasView extends BokehView
     @listenTo(@model.plot.toolbar, 'change:tools', () => @build_levels(); @build_tools())
     @listenTo(@model.plot, 'change', @request_render)
     @listenTo(@model.plot, 'destroy', () => @remove())
-    @listenTo(@model.plot.document.solver(), 'layout_update', () => @request_render())
-    @listenTo(@model.plot.document.solver(), 'layout_update', () =>
+    @listenTo(@solver, 'layout_update', () => @model.frame._update_mappers())
+    @listenTo(@solver, 'layout_update', () => @request_render())
+    @listenTo(@solver, 'layout_update', () =>
       @model.plot.setv({
         inner_width: Math.round(@frame.width)
         inner_height: Math.round(@frame.height)
@@ -486,7 +486,7 @@ export class PlotCanvasView extends BokehView
         layout_height: Math.round(@canvas.height)
       })
     )
-    @listenTo(@model.plot.document.solver(), 'resize', () => @resize())
+    @listenTo(@solver, 'resize', () => @_on_resize())
     @listenTo(@canvas, 'change:pixel_ratio', () => @request_render())
 
   set_initial_range : () ->
@@ -516,9 +516,6 @@ export class PlotCanvasView extends BokehView
 
   render: () ->
     logger.trace("PlotCanvas.render() for #{@model.id}")
-
-    if not @model.document?
-      return
 
     if Date.now() - @interactive_timestamp < @model.plot.lod_interval
       if not @lod_started
@@ -593,12 +590,12 @@ export class PlotCanvasView extends BokehView
       delete @model.document._unrendered_plots[@id]
       if isEmpty(@model.document._unrendered_plots)
         @model.document._unrendered_plots = null
-        defer(@model.document.resize.bind(@model.document))
+        defer(@parent.resize.bind(@))  # parent because this view doesn't participate in layout hierarchy
 
     event = new Event("bokeh:rendered", {detail: @})
     window.dispatchEvent(event)
 
-  resize: () ->
+  _on_resize: () ->
     # Set the plot and canvas to the current model's size
     # This gets called upon solver resize events
     width = @model._width._value
@@ -620,17 +617,15 @@ export class PlotCanvasView extends BokehView
     @el.style.height = "#{@model._height._value}px"
 
   update_constraints: () ->
-    s = @model.document.solver()
-
     # Note: -1 to effectively dilate the canvas by 1px
-    s.suggest_value(@frame._width, @canvas.width - 1)
-    s.suggest_value(@frame._height, @canvas.height - 1)
+    @solver.suggest_value(@frame._width, @canvas.width - 1)
+    @solver.suggest_value(@frame._height, @canvas.height - 1)
 
     for model_id, view of @renderer_views
       if view.model.panel?
         update_panel_constraints(view)
 
-    s.update_variables(false)
+    @solver.update_variables(false)
 
   _render_levels: (ctx, levels, clip_region) ->
     ctx.save()

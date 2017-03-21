@@ -1,7 +1,7 @@
 import {Model} from "../../model"
 import {empty} from "core/dom"
 import * as p from "core/properties"
-import {GE, EQ, Strength, Variable} from "core/layout/solver"
+import {Solver, GE, EQ, Strength, Variable} from "core/layout/solver"
 
 import {build_views} from "core/build_views"
 import {BokehView} from "core/bokeh_view"
@@ -14,6 +14,12 @@ export class LayoutDOMView extends LayoutableView
 
   initialize: (options) ->
     super(options)
+
+    # this is a root view
+    if @parent == null
+      @_solver = new Solver()
+      @_init_solver()
+
     # Provides a hook so document can measure
     @el.setAttribute("id", "modelid_#{@model.id}")
     @el.classList.add("bk-layout-#{@model.sizing_mode}")
@@ -32,7 +38,72 @@ export class LayoutDOMView extends LayoutableView
       view.remove()
     @child_views = {}
 
+    # remove on_resize
+
     super()
+
+  _reset_solver: () ->
+    @_solver.clear()
+    @_init_solver()
+
+  _init_solver: () ->
+    @_doc_width = new Variable("document_width")
+    @_doc_height = new Variable("document_height")
+
+    @_solver.add_edit_variable(@_doc_width)
+    @_solver.add_edit_variable(@_doc_height)
+
+    editables = @model.get_edit_variables()
+    constraints = @model.get_constraints()
+    variables = @model.get_constrained_variables()
+
+    for {edit_variable, strength} in editables
+      @_solver.add_edit_variable(edit_variable, strength)
+
+    for constraint in constraints
+      @_solver.add_constraint(constraint)
+
+    if variables.width?
+      @_solver.add_constraint(EQ(variables.width, @_doc_width))
+    if variables.height?
+      @_solver.add_constraint(EQ(variables.height, @_doc_height))
+
+    @_solver.update_variables()
+
+  resize: (width=null, height=null) ->
+    if @parent != null
+      @parent.resize(width, height)
+    else
+      # Ideally the solver would settle in one pass (can that be done?),
+      # but it currently needs two passes to get it right.
+      # Seems to be needed everywhere on initialization, and on Windows
+      # it seems necessary on each Draw
+      @_resize(width, height)
+      @_resize(width, height)
+
+  _resize: (width=null, height=null) ->
+    variables = @model.get_constrained_variables()
+
+    if variables.width? or variables.height?
+      if width == null or height=null
+        measuring = @el
+
+        while true
+          measuring = measuring.parentNode
+          if not measuring?
+            throw new Error("detached element")
+
+          {width, height} = measuring.getBoundingClientRect()
+          if height != 0
+            break
+
+      if variables.width?
+        @_solver.suggest_value(@_doc_width, width)
+      if variables.height?
+        @_solver.suggest_value(@_doc_height, height)
+
+    @_solver.update_variables(false)
+    @_solver.trigger('resize')
 
   build_child_views: (init_solver=true) ->
     if init_solver
@@ -40,10 +111,10 @@ export class LayoutDOMView extends LayoutableView
       # surely its document's problem to know how to init a solver. Also _init_solver
       # probably shouldn't be a private method if we're using it here.
       @model.document._invalidate_all_models()
-      @model.document._init_solver()
+      @_reset_solver()
 
     children = @model.get_layoutable_children()
-    build_views(@child_views, children)
+    build_views(@child_views, children, {parent: @})
 
     empty(@el)
 
@@ -55,12 +126,15 @@ export class LayoutDOMView extends LayoutableView
       @el.appendChild(child_view.el)
 
   bind_bokeh_events: () ->
+    if @parent == null
+      window.addEventListener("resize", () => @resize())
+
     @listenTo(@model, 'change', () => @render())
 
     if @model.sizing_mode == 'fixed'
-      @listenToOnce(@model.document.solver(), 'resize', () => @render())
+      @listenToOnce(@solver, 'resize', () => @render())
     else
-      @listenTo(@model.document.solver(), 'resize', () => @render())
+      @listenTo(@solver, 'resize', () => @render())
 
     # Note: `sizing_mode` update is not supported because changing the
     # sizing_mode mode necessitates stripping out all the relevant constraints
@@ -75,8 +149,6 @@ export class LayoutDOMView extends LayoutableView
     #logger.debug("#{@model} _top: #{@model._top._value}, _right: #{@model._right._value}, _bottom: #{@model._bottom._value}, _left: #{@model._left._value}")
     #logger.debug("#{@model} _width: #{@model._width._value}, _height: #{@model._height._value}")
     #logger.debug("#{@model} _width_minus_right: #{@model._width_minus_right._value}, _height_minus_bottom: #{@model._height_minus_bottom._value}")
-
-    s = @model.document.solver()
 
     switch @model.sizing_mode
       when 'fixed'
@@ -96,25 +168,25 @@ export class LayoutDOMView extends LayoutableView
           height = @get_height()
           @model.height = height
 
-        s.suggest_value(@model._width, width)
-        s.suggest_value(@model._height, height)
-        s.update_variables()
+        @solver.suggest_value(@model._width, width)
+        @solver.suggest_value(@model._height, height)
+        @solver.update_variables()
         @el.style.width = "#{width}px"
         @el.style.height = "#{height}px"
 
       when 'scale_width'
         height = @get_height()
 
-        s.suggest_value(@model._height, height)
-        s.update_variables()
+        @solver.suggest_value(@model._height, height)
+        @solver.update_variables()
         @el.style.width = "#{@model._width._value}px"
         @el.style.height = "#{@model._height._value}px"
 
       when 'scale_height'
         width = @get_width()
 
-        s.suggest_value(@model._width, width)
-        s.update_variables()
+        @solver.suggest_value(@model._width, width)
+        @solver.update_variables()
         @el.style.width = "#{@model._width._value}px"
         @el.style.height = "#{@model._height._value}px"
 

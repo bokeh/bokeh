@@ -20,10 +20,6 @@ export class CartesianFrame extends LayoutCanvas
 
     return null
 
-  _doc_attached: () ->
-    @listenTo(@document.solver(), 'layout_update', () => @_update_mappers())
-    return null
-
   contains: (vx, vy) ->
     return (
       vx >= @left and vx <= @right and

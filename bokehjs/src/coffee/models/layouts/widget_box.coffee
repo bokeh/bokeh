@@ -17,20 +17,17 @@ export class WidgetBoxView extends LayoutDOMView
     @listenTo(@model, 'change:children', () => @build_child_views())
 
   render: () ->
-
-    s = @model.document.solver()
-
     if @model.sizing_mode is 'fixed' or @model.sizing_mode == 'scale_height'
       width = @get_width()
       if @model._width._value != width
-        s.suggest_value(@model._width, width)
-        s.update_variables()
+        @solver.suggest_value(@model._width, width)
+        @solver.update_variables()
 
     if @model.sizing_mode == 'fixed' or @model.sizing_mode == 'scale_width'
       height = @get_height()
       if @model._height._value != height
-        s.suggest_value(@model._height, height)
-        s.update_variables()
+        @solver.suggest_value(@model._height, height)
+        @solver.update_variables()
 
     if @model.sizing_mode is 'stretch_both'
       @el.style.position = 'absolute'

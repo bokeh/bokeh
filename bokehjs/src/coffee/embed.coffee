@@ -41,7 +41,7 @@ _init_comms = (target, doc) ->
     console.warn('Jupyter notebooks comms not available. push_notebook() will not function');
 
 _create_view = (model) ->
-  view = new model.default_view({model : model})
+  view = new model.default_view({model: model, parent: null})
   base.index[model.id] = view
   view
 
