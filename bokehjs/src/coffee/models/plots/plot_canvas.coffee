@@ -101,11 +101,6 @@ export class PlotCanvasView extends BokehView
 
     @throttled_render = throttle((() => @trigger("force_render")), 15) # TODO (bev) configurable
 
-    # Keep track of which plots of the canvas are not yet rendered
-    if not @model.document._unrendered_plots?
-      @model.document._unrendered_plots = {}  # poor man's set
-    @model.document._unrendered_plots[@id] = true
-
     @ui_event_bus = new UIEvents(@, @model.toolbar, @canvas_view.el, @model.plot)
 
     @levels = {}
@@ -583,14 +578,7 @@ export class PlotCanvasView extends BokehView
 
     ctx.restore()  # Restore to default state
 
-    # Invoke a resize on the document the first time that all plots of that
-    # document are rendered. For some reason, the layout solver only works well
-    # after the plots have been rendered. See #4401.
-    if @model.document._unrendered_plots?
-      delete @model.document._unrendered_plots[@id]
-      if isEmpty(@model.document._unrendered_plots)
-        @model.document._unrendered_plots = null
-        defer(@parent.resize.bind(@))  # parent because this view doesn't participate in layout hierarchy
+    @parent.resize()  # parent because this view doesn't participate in layout hierarchy
 
     event = new Event("bokeh:rendered", {detail: @})
     window.dispatchEvent(event)
