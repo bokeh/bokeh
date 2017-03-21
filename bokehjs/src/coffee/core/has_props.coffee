@@ -306,7 +306,7 @@ export class HasProps extends Backbone.Model
   # this is like _value_record_references but expects to find refs
   # instead of models, and takes a doc to look up the refs in
   @_json_record_references: (doc, v, result, recurse) ->
-    if v is null
+    if not v?
       ;
     else if refs.is_ref(v)
       if v.id not of result
@@ -323,7 +323,7 @@ export class HasProps extends Backbone.Model
   # is true then descend into refs, if false only
   # descend into non-refs
   @_value_record_references: (v, result, recurse) ->
-    if v is null
+    if not v?
       ;
     else if v instanceof HasProps
       if v.id not of result
