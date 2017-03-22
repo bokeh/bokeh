@@ -578,7 +578,11 @@ export class PlotCanvasView extends BokehView
 
     ctx.restore()  # Restore to default state
 
-    @parent.resize()  # parent because this view doesn't participate in layout hierarchy
+    # XXX: resize() only once, otherwise this will enter infinite render loop.
+    # This is a temporary workaround until a proper layout pipeline is implemented.
+    if not @_did_resize?
+      @_did_resize = true
+      @parent.resize()  # parent because this view doesn't participate in layout hierarchy
 
     event = new Event("bokeh:rendered", {detail: @})
     window.dispatchEvent(event)
