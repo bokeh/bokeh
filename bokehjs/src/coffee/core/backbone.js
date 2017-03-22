@@ -97,7 +97,7 @@ extend(Model.prototype, Events, {
     // You might be wondering why there's a `while` loop here. Changes can
     // be recursively nested within `"change"` events.
     if (changing) return this;
-    if (!silent) {
+    if (!silent && !options.no_change) {
       while (this._pending) {
         this._pending = false;
         this.trigger('change', this);

@@ -479,7 +479,7 @@ export class PlotCanvasView extends BokehView
         inner_height: Math.round(@frame.height)
         layout_width: Math.round(@canvas.width)
         layout_height: Math.round(@canvas.height)
-      })
+      }, {no_change: true})
     )
     @listenTo(@solver, 'resize', () => @_on_resize())
     @listenTo(@canvas, 'change:pixel_ratio', () => @request_render())
