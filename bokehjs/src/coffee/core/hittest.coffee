@@ -40,6 +40,7 @@ export class HitTestResult
     @['2d'] = {
       # mapping of indices of the multiglyph to array of glyph indices that were hit
       # e.g. {3: [5, 6], 4, [5]}
+      indices: {}
     }
 
   Object.defineProperty(this.prototype, '_0d', { get: () -> @['0d'] })
