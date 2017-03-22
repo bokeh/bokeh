@@ -891,6 +891,7 @@ it "can destructively move", ->
     expect(Object.keys(root1.dict_of_list_prop).length).to.equal 1
     expect(_.values(root1.dict_of_list_prop)[0].length).to.equal 1
 
+  ###
   it "adds two constraints and two edit_variables on instantiation solver", ->
     d = new Document()
     s = d.solver()
@@ -1080,3 +1081,4 @@ it "can destructively move", ->
     d.resize()
     expect(spy.calledTwice).is.true  # NOTE double amount, for now
     expect(spy.calledWith('resize')).is.true
+  ###
