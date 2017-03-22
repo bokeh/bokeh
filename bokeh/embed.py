@@ -76,6 +76,28 @@ def _ModelInDocument(models, apply_theme=None):
         doc.remove_root(model, apply_theme)
     doc.theme = old_theme
 
+@contextmanager
+def _ModelInEmptyDocument(model, apply_theme=None):
+    from .document import Document
+    doc = _find_existing_docs([model])
+
+    if apply_theme is FromCurdoc:
+        from .io import curdoc; curdoc
+        doc.theme = curdoc().theme
+    elif apply_theme is not None:
+        doc.theme = apply_theme
+
+    model._document = None
+    for ref in model.references():
+        ref._document = None
+    empty_doc = Document()
+    empty_doc.add_root(model)
+
+    yield model
+
+    model._document = doc
+    for ref in model.references():
+        ref._document = doc
 
 def _find_existing_docs(models):
     existing_docs = set(m if isinstance(m, Document) else m.document for m in models)
@@ -330,7 +352,7 @@ def notebook_div(model, notebook_comms_target=None, theme=FromCurdoc):
     model = _check_one_model(model)
 
     # Append models to one document. Either pre-existing or new and render
-    with _ModelInDocument([model], apply_theme=theme):
+    with _ModelInEmptyDocument(model, apply_theme=theme):
         (docs_json, render_items) = _standalone_docs_json_and_render_items([model])
 
     item = render_items[0]
