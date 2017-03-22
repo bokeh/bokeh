@@ -30,7 +30,7 @@ def modify_doc(doc):
     def callback(attr, old, new):
         if new == 0:
             data = df
-        else
+        else:
             data = df.rolling('{0}D'.format(new)).mean()
         source.data = ColumnDataSource(data=data).data
 
