@@ -44,16 +44,14 @@ export class CanvasView extends BokehView
   get_ctx: () ->
     return @get_canvas_element().getContext('2d')
 
-  prepare_canvas: (force=false) ->
+  prepare_canvas: () ->
     # Ensure canvas has the correct size, taking HIDPI into account
-
     width = @model._width._value
     height = @model._height._value
     dpr = window.devicePixelRatio
 
-    # only resize the canvas when the canvas dimensions change unless force==true
-    if not isEqual(@last_dims, [width, height, dpr]) or force
-
+    # only resize the canvas when the canvas dimensions change
+    if not isEqual(@last_dims, [width, height, dpr])
       @el.style.width = "#{width}px"
       @el.style.height = "#{height}px"
 
@@ -65,7 +63,7 @@ export class CanvasView extends BokehView
       canvas_el.setAttribute('width', width*ratio)
       canvas_el.setAttribute('height', height*ratio)
 
-      logger.debug("Rendering CanvasView [force=#{force}] with width: #{width}, height: #{height}, ratio: #{ratio}")
+      logger.debug("Rendering CanvasView with width: #{width}, height: #{height}, ratio: #{ratio}")
       @model.pixel_ratio = @pixel_ratio
       @last_dims = [width, height, dpr]
 
