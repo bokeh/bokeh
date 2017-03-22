@@ -764,41 +764,34 @@ export class PlotCanvas extends LayoutDOM
     return constraints
 
   _get_constant_constraints: () ->
-    min_border_top    = @plot.min_border_top
-    min_border_bottom = @plot.min_border_bottom
-    min_border_left   = @plot.min_border_left
-    min_border_right  = @plot.min_border_right
-
     # Create the constraints that always apply for a plot
-    constraints = []
+    return [
+      # Set the border constraints
+      GE( @above_panel._height, -@plot.min_border_top    ),
+      GE( @below_panel._height, -@plot.min_border_bottom ),
+      GE( @left_panel._width,   -@plot.min_border_left   ),
+      GE( @right_panel._width,  -@plot.min_border_right  ),
 
-    # Set the border constraints
-    constraints.push(GE( @above_panel._height, -min_border_top    ))
-    constraints.push(GE( @below_panel._height, -min_border_bottom ))
-    constraints.push(GE( @left_panel._width,   -min_border_left   ))
-    constraints.push(GE( @right_panel._width,  -min_border_right  ))
+      # Set panel top and bottom related to canvas and frame
+      EQ( @above_panel._top,    [-1, @canvas._top]    ),
+      EQ( @above_panel._bottom, [-1, @frame._top]     ),
+      EQ( @below_panel._bottom, [-1, @canvas._bottom] ),
+      EQ( @below_panel._top,    [-1, @frame._bottom]  ),
+      EQ( @left_panel._left,    [-1, @canvas._left]   ),
+      EQ( @left_panel._right,   [-1, @frame._left]    ),
+      EQ( @right_panel._right,  [-1, @canvas._right]  ),
+      EQ( @right_panel._left,   [-1, @frame._right]   ),
 
-    # Set panel top and bottom related to canvas and frame
-    constraints.push(EQ( @above_panel._top,    [-1, @canvas._top]    ))
-    constraints.push(EQ( @above_panel._bottom, [-1, @frame._top]     ))
-    constraints.push(EQ( @below_panel._bottom, [-1, @canvas._bottom] ))
-    constraints.push(EQ( @below_panel._top,    [-1, @frame._bottom]  ))
-    constraints.push(EQ( @left_panel._left,    [-1, @canvas._left]   ))
-    constraints.push(EQ( @left_panel._right,   [-1, @frame._left]    ))
-    constraints.push(EQ( @right_panel._right,  [-1, @canvas._right]  ))
-    constraints.push(EQ( @right_panel._left,   [-1, @frame._right]   ))
-
-    # Plot sides align
-    constraints.push(EQ( @above_panel._height, [-1, @_top]                         ))
-    constraints.push(EQ( @above_panel._height, [-1, @canvas._top], @frame._top     ))
-    constraints.push(EQ( @below_panel._height, [-1, @_height], @_bottom            ))
-    constraints.push(EQ( @below_panel._height, [-1, @frame._bottom]                ))
-    constraints.push(EQ( @left_panel._width,   [-1, @_left]                        ))
-    constraints.push(EQ( @left_panel._width,   [-1, @frame._left]                  ))
-    constraints.push(EQ( @right_panel._width,  [-1, @_width], @_right              ))
-    constraints.push(EQ( @right_panel._width,  [-1, @canvas._right], @frame._right ))
-
-    return constraints
+      # Plot sides align
+      EQ( @above_panel._height, [-1, @_top]                         ),
+      EQ( @above_panel._height, [-1, @canvas._top], @frame._top     ),
+      EQ( @below_panel._height, [-1, @_height], @_bottom            ),
+      EQ( @below_panel._height, [-1, @frame._bottom]                ),
+      EQ( @left_panel._width,   [-1, @_left]                        ),
+      EQ( @left_panel._width,   [-1, @frame._left]                  ),
+      EQ( @right_panel._width,  [-1, @_width], @_right              ),
+      EQ( @right_panel._width,  [-1, @canvas._right], @frame._right ),
+    ]
 
   _get_side_constraints: () ->
     constraints = []

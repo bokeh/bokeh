@@ -159,13 +159,13 @@ export class Canvas extends LayoutCanvas
     return _yy
 
   get_constraints: () ->
-    constraints = super()
-    constraints.push(GE(@_top))
-    constraints.push(GE(@_bottom))
-    constraints.push(GE(@_left))
-    constraints.push(GE(@_right))
-    constraints.push(GE(@_width))
-    constraints.push(GE(@_height))
-    constraints.push(EQ(@_width, [-1, @_right]))
-    constraints.push(EQ(@_height, [-1, @_top]))
-    return constraints
+    return super().concat([
+      GE(@_top),
+      GE(@_bottom),
+      GE(@_left),
+      GE(@_right),
+      GE(@_width),
+      GE(@_height),
+      EQ(@_width, [-1, @_right]),
+      EQ(@_height, [-1, @_top]),
+    ])

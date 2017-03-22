@@ -234,26 +234,23 @@ export class LayoutDOM extends Layoutable
     @_whitespace_right = new Variable()
 
   get_constraints: () ->
-    constraints = []
+    return [
+      # Make sure things dont squeeze out of their bounding box
+      GE(@_dom_left),
+      GE(@_dom_top),
 
-    # Make sure things dont squeeze out of their bounding box
-    constraints.push(GE(@_dom_left))
-    constraints.push(GE(@_dom_top))
+      # Plot has to be inside the width/height
+      GE(@_left),
+      GE(@_width, [-1, @_right]),
+      GE(@_top),
+      GE(@_height, [-1, @_bottom]),
 
-    # Plot has to be inside the width/height
-    constraints.push(GE(@_left))
-    constraints.push(GE(@_width, [-1, @_right]))
-    constraints.push(GE(@_top))
-    constraints.push(GE(@_height, [-1, @_bottom]))
+      ## Declare computed constraints
+      EQ(@_width_minus_right, [-1, @_width], @_right),
+      EQ(@_height_minus_bottom, [-1, @_height], @_bottom),
+    ]
 
-    ## Declare computed constraints
-    constraints.push(EQ(@_width_minus_right, [-1, @_width], @_right))
-    constraints.push(EQ(@_height_minus_bottom, [-1, @_height], @_bottom))
-
-    return constraints
-
-  get_layoutable_children: () ->
-    []
+  get_layoutable_children: () -> []
 
   get_edit_variables: () ->
     edit_variables = []
