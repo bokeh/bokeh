@@ -18,8 +18,8 @@ export class BoxAnnotationView extends AnnotationView
       @listenTo(@model, 'change', @render)
       @listenTo(@model, 'data_update', @render)
     else
-      @listenTo(@model, 'change', @plot_view.request_render)
-      @listenTo(@model, 'data_update', @plot_view.request_render)
+      @listenTo(@model, 'change', () => @plot_view.request_render())
+      @listenTo(@model, 'data_update', () => @plot_view.request_render())
 
   render: () ->
     if not @model.visible and @model.render_mode == 'css'
