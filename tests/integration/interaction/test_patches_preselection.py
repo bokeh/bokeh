@@ -31,7 +31,7 @@ def test_patches_hover_still_works_when_a_seleciton_is_preselcted(output_file_ur
     source.selected = {
         '0d': {'glyph': None, 'indices': []},
         '1d': {'indices': [1]},
-        '2d': {}
+        '2d': {'indices': {}},
     }
     plot.add_glyph(source, Patches(xs='xs', ys='ys', fill_color='color'))
     plot.add_tools(HoverTool())

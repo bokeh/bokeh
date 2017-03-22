@@ -21,7 +21,7 @@ class DataSource(Model):
     selected = Dict(String, Dict(String, Any), default={
         '0d': {'glyph': None, 'indices': []},
         '1d': {'indices': []},
-        '2d': {}
+        '2d': {'indices': {}}
     }, help="""
     A dict to indicate selected indices on different dimensions on this DataSource. Keys are:
 
@@ -46,6 +46,7 @@ class DataSource(Model):
         '2d': {
           # mapping of indices of the multiglyph to array of glyph indices that were hit
           # e.g. {3: [5, 6], 4, [5]}
+          indices: {}
         }
 
     """)
