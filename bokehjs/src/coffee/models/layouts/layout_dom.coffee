@@ -7,6 +7,7 @@ import {build_views} from "core/build_views"
 import {BokehView} from "core/bokeh_view"
 import {logger} from "core/logging"
 import {extend} from "core/util/object"
+import {defer} from "core/util/callback"
 
 import {Layoutable, LayoutableView} from "./layoutable"
 
@@ -32,7 +33,7 @@ export class LayoutDOMView extends LayoutableView
     @build_child_views()
 
     if @is_root
-      @resize()
+      defer(() => @resize())
 
     @bind_bokeh_events()
 
