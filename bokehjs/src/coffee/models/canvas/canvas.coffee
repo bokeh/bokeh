@@ -33,7 +33,7 @@ export class CanvasView extends BokehView
 
     # map plots reference this attribute
     @map_div = @el.querySelector('div.bk-canvas-map')
-    @set_dims([@model.initial_width, @model.initial_height])
+    @set_dims([@model.initial_width, @model.initial_height], false)
     logger.debug("CanvasView initialized")
 
     @listenTo(@solver, "layout_reset", () => @_add_constraints())
@@ -67,13 +67,13 @@ export class CanvasView extends BokehView
       @model.pixel_ratio = @pixel_ratio
       @last_dims = [width, height, dpr]
 
-  set_dims: (dims) ->
+  set_dims: (dims, trigger=true) ->
     @requested_width = dims[0]
     @requested_height = dims[1]
-    @update_constraints()
+    @update_constraints(trigger)
     return
 
-  update_constraints: () ->
+  update_constraints: (trigger) ->
     requested_width = @requested_width
     requested_height = @requested_height
 
@@ -96,7 +96,7 @@ export class CanvasView extends BokehView
 
     @last_requested_dims = [requested_width, requested_height]
 
-    @solver.update_variables()
+    @solver.update_variables(trigger)
 
   _add_constraints: () ->
     @_width_constraint = EQ(@model._width, -@requested_width)
