@@ -1,12 +1,9 @@
 import numpy as np
 
-from bokeh.document import Document
-from bokeh.embed import file_html
 from bokeh.models import ColumnDataSource, CustomJSTransform
 from bokeh.plotting import figure
-from bokeh.resources import INLINE
+from bokeh.io import output_file, show
 from bokeh.sampledata.stocks import AAPL, GOOG
-from bokeh.util.browser import view
 
 def datetime(x):
     return np.array(x, dtype=np.datetime64)
@@ -42,13 +39,5 @@ plot.line(x='goog_date', y={'field': 'goog_close', 'transform': normalize},
         color='blue', legend="Google", source=goog_source)
 plot.legend.location='top_left'
 
-doc = Document()
-doc.add_root(plot)
-
-if __name__ == "__main__":
-    doc.validate()
-    filename = "customjs_transform.html"
-    with open(filename, "w") as f:
-        f.write(file_html(doc, INLINE, "CustomJSTransform Example"))
-    print("Wrote %s" % filename)
-    view(filename)
+output_file("customjs_transform.html")
+show(plot)
