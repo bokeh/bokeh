@@ -67,13 +67,13 @@ export class CanvasView extends BokehView
       @model.pixel_ratio = @pixel_ratio
       @last_dims = [width, height, dpr]
 
-  set_dims: (dims, trigger=true) ->
+  set_dims: (dims) ->
     @requested_width = dims[0]
     @requested_height = dims[1]
-    @update_constraints(trigger)
+    @update_constraints()
     return
 
-  update_constraints: (trigger=true) ->
+  update_constraints: () ->
     requested_width = @requested_width
     requested_height = @requested_height
 
@@ -96,7 +96,7 @@ export class CanvasView extends BokehView
 
     @last_requested_dims = [requested_width, requested_height]
 
-    @solver.update_variables(trigger)
+    @solver.update_variables()
 
   _add_constraints: () ->
     @_width_constraint = EQ(@model._width, -@requested_width)

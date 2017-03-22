@@ -589,7 +589,7 @@ export class PlotCanvasView extends BokehView
     width = @model._width._value
     height = @model._height._value
 
-    @canvas_view.set_dims([width, height], true)  # this indirectly calls @request_render
+    @canvas_view.set_dims([width, height])  # this indirectly calls @request_render
 
     # Prepare the canvas size, taking HIDPI into account. Note that this may cause
     # a resize of the canvas, which means that any previous calls to ctx.save() may be undone.
