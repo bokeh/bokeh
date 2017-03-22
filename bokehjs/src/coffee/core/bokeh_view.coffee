@@ -21,12 +21,9 @@ export class BokehView extends Backbone.View
     @parent = null
     @trigger('remove', @)
 
+  # non-root view must have @parent != null
+  # this should be defined deeper in the hierarchy
   @getters {
-    # non-root view must have @parent != null
-    # this should be defined deeper in the hierarchy
-    solver: () ->
-      if @parent != null
-        return @parent.solver
-      else
-        return @_solver
+    is_root: () -> @parent == null
+    solver:  () -> if @is_root then @_solver else @parent.solver
   }

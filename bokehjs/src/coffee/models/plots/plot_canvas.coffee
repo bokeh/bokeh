@@ -44,9 +44,12 @@ export class PlotCanvasView extends BokehView
   pause: () ->
     @is_paused = true
 
-  unpause: () ->
+  unpause: (immediate=false) ->
     @is_paused = false
-    @request_render()
+    if immediate
+      @render()
+    else
+      @request_render()
 
   request_render: () ->
     if not @is_paused
@@ -116,7 +119,7 @@ export class PlotCanvasView extends BokehView
     @bind_bokeh_events()
     @update_dataranges()
 
-    @unpause()
+    @unpause(true)
     logger.debug("PlotView initialized")
 
     return this
@@ -577,12 +580,6 @@ export class PlotCanvasView extends BokehView
       @set_initial_range()
 
     ctx.restore()  # Restore to default state
-
-    # XXX: resize() only once, otherwise this will enter infinite render loop.
-    # This is a temporary workaround until a proper layout pipeline is implemented.
-    if not @_did_resize?
-      @_did_resize = true
-      @parent.resize()  # parent because this view doesn't participate in layout hierarchy
 
     event = new Event("bokeh:rendered", {detail: @})
     window.dispatchEvent(event)

@@ -16,7 +16,7 @@ export class LayoutDOMView extends LayoutableView
     super(options)
 
     # this is a root view
-    if @parent == null
+    if @is_root
       @_solver = new Solver()
       @_init_solver()
 
@@ -29,7 +29,10 @@ export class LayoutDOMView extends LayoutableView
 
     # init_solver = false becuase we only need to init solver on subsequent children change.
     @child_views = {}
-    @build_child_views(false)
+    @build_child_views()
+
+    if @is_root
+      @resize()
 
     @bind_bokeh_events()
 
@@ -43,8 +46,11 @@ export class LayoutDOMView extends LayoutableView
     super()
 
   _reset_solver: () ->
-    @_solver.clear()
-    @_init_solver()
+    if not @is_root
+      @parent._reset_solver()
+    else
+      @_solver.clear()
+      @_init_solver()
 
   _init_solver: () ->
     @_doc_width = new Variable("document_width")
@@ -71,7 +77,7 @@ export class LayoutDOMView extends LayoutableView
     @_solver.update_variables()
 
   resize: (width=null, height=null) ->
-    if @parent != null
+    if not @is_root
       @parent.resize(width, height)
     else
       # Ideally the solver would settle in one pass (can that be done?),
@@ -105,14 +111,15 @@ export class LayoutDOMView extends LayoutableView
     @_solver.update_variables(false)
     @_solver.trigger('resize')
 
-  build_child_views: (init_solver=true) ->
-    if init_solver
-      # TODO (bird) Can't we put the call to invalidate_all_models in _init_solver
-      # surely its document's problem to know how to init a solver. Also _init_solver
-      # probably shouldn't be a private method if we're using it here.
-      @model.document._invalidate_all_models()
-      @_reset_solver()
+  rebuild_child_views: () ->
+    # TODO (bird) Can't we put the call to invalidate_all_models in _init_solver
+    # surely its document's problem to know how to init a solver. Also _init_solver
+    # probably shouldn't be a private method if we're using it here.
+    @model.document._invalidate_all_models()
+    @_reset_solver()
+    @build_child_views()
 
+  build_child_views: () ->
     children = @model.get_layoutable_children()
     build_views(@child_views, children, {parent: @})
 
@@ -126,7 +133,7 @@ export class LayoutDOMView extends LayoutableView
       @el.appendChild(child_view.el)
 
   bind_bokeh_events: () ->
-    if @parent == null
+    if @is_root
       window.addEventListener("resize", () => @resize())
 
     @listenTo(@model, 'change', () => @render())
