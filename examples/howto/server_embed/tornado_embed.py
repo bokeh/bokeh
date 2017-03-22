@@ -23,7 +23,7 @@ class IndexHandler(RequestHandler):
         self.write(template.render(script=script, template="Tornado"))
 
 def modify_doc(doc):
-    data_url = "http://www.neracoos.org/erddap/tabledap/B01_sbe37_all.csvp?time,temperature&depth=1&temperature_qc=0&time>=now-13months"
+    data_url = "http://www.neracoos.org/erddap/tabledap/B01_sbe37_all.csvp?time,temperature&depth=1&temperature_qc=0&time>=2016-02-15&time<=2017-03-22"
     df = pd.read_csv(data_url, parse_dates=True, index_col=0)
     df = df.rename(columns={'temperature (celsius)': 'temperature'})
     df.index.name = 'time'
@@ -35,10 +35,13 @@ def modify_doc(doc):
     plot.line('time', 'temperature', source=source)
 
     def callback(attr, old, new):
-        data = df.rolling('{0}D'.format(new)).mean()
+        if new == 0:
+            data = df
+        else
+            data = df.rolling('{0}D'.format(new)).mean()
         source.data = ColumnDataSource(data=data).data
 
-    slider = Slider(start=1, end=30, value=1, step=1, title="Smoothing by N Days")
+    slider = Slider(start=0, end=30, value=0, step=1, title="Smoothing by N Days")
     slider.on_change('value', callback)
 
     doc.add_root(column(slider, plot))
