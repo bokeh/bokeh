@@ -59,7 +59,7 @@ html = """
     %s
   </body>
 </html>
-""" % autoload_server(p, session_id=session.id)
+""" % autoload_server(p, session_id=session.id, relative_urls=False)
 
 with io.open("animated.html", mode='w+', encoding='utf-8') as f:
     f.write(html)
