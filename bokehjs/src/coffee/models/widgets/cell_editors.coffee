@@ -4,11 +4,11 @@ import "jquery-ui/spinner"
 
 import * as p from "core/properties"
 
-import {BokehView} from "core/bokeh_view"
+import {DOMView} from "core/dom_view"
 import {Model} from "../../model"
 import {JQueryable} from "./jqueryable"
 
-export class CellEditorView extends BokehView
+export class CellEditorView extends DOMView
   @prototype extends JQueryable
 
   className: "bk-cell-editor"

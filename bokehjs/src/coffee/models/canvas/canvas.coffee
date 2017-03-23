@@ -1,14 +1,14 @@
 import canvas_template from "./canvas_template"
 import {LayoutCanvas} from "core/layout/layout_canvas"
 
-import {BokehView} from "core/bokeh_view"
+import {DOMView} from "core/dom_view"
 import {GE, EQ} from "core/layout/solver"
 import {logger} from "core/logging"
 import * as p from "core/properties"
 import {isEqual} from "core/util/eq"
 import {fixup_ctx, get_scale_ratio} from "core/util/canvas"
 
-export class CanvasView extends BokehView
+export class CanvasView extends DOMView
   className: "bk-canvas-wrapper"
   template: canvas_template
 

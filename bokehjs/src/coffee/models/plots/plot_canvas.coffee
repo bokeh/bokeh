@@ -9,7 +9,7 @@ import {UIEvents} from "core/ui_events"
 import {LODStart, LODEnd} from "core/bokeh_events"
 import {LayoutCanvas} from "core/layout/layout_canvas"
 import {Visuals} from "core/visuals"
-import {BokehView} from "core/bokeh_view"
+import {DOMView} from "core/dom_view"
 import {EQ, GE} from "core/layout/solver"
 import {logger} from "core/logging"
 import * as enums from "core/enums"
@@ -34,7 +34,7 @@ import {update_constraints as update_panel_constraints} from "core/layout/side_p
 
 global_glcanvas = null
 
-export class PlotCanvasView extends BokehView
+export class PlotCanvasView extends DOMView
   className: "bk-plot-wrapper"
 
   state: { history: [], index: -1 }

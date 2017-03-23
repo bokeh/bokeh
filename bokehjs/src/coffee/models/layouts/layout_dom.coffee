@@ -4,14 +4,12 @@ import * as p from "core/properties"
 import {Solver, GE, EQ, Strength, Variable} from "core/layout/solver"
 
 import {build_views} from "core/build_views"
-import {BokehView} from "core/bokeh_view"
+import {DOMView} from "core/dom_view"
 import {logger} from "core/logging"
 import {extend} from "core/util/object"
 import {defer} from "core/util/callback"
 
-import {Layoutable, LayoutableView} from "./layoutable"
-
-export class LayoutDOMView extends LayoutableView
+export class LayoutDOMView extends DOMView
 
   initialize: (options) ->
     super(options)
@@ -215,9 +213,7 @@ export class LayoutDOMView extends LayoutableView
     # what their width should be in sizing_mode mode.
     return null
 
-
-
-export class LayoutDOM extends Layoutable
+export class LayoutDOM extends Model
   type: "LayoutDOM"
 
   initialize: (attrs, options) ->

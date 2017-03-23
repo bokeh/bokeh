@@ -4,7 +4,6 @@ import {extend} from "core/util/object"
 
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
 
-
 export class WidgetBoxView extends LayoutDOMView
   className: "bk-widget-box"
 

@@ -9,7 +9,7 @@ sinon = require "sinon"
 js_version = utils.require("version").version
 {Models} = utils.require "base"
 {Model} = utils.require "model"
-{Layoutable} = utils.require "models/layouts/layoutable"
+{LayoutDOM} = utils.require "models/layouts/layout_dom"
 logging = utils.require "core/logging"
 p = utils.require "core/properties"
 
@@ -76,7 +76,7 @@ class ComplicatedModelWithConstructTimeChanges extends Model
 Models.register('ComplicatedModelWithConstructTimeChanges', ComplicatedModelWithConstructTimeChanges)
 
 
-class LayoutableModel extends Layoutable
+class LayoutableModel extends LayoutDOM
   type: 'LayoutableModel'
 
   get_constraints: () ->
