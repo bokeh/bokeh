@@ -21,8 +21,6 @@ export class LogMapper extends Model
       value = 0
     else
       value = (Math.log(x) - inter_offset) / inter_scale
-      if isNaN(value) or not isFinite(value)
-        value = 0
 
     return value*scale + offset
 
@@ -37,14 +35,7 @@ export class LogMapper extends Model
     else
       for i in [0...xs.length]
         value = (Math.log(xs[i]) - inter_offset) / inter_scale
-
-        if isNaN(value) or not isFinite(value)
-          result[i] = 0
-        else
-          result[i] = value
-
-    for i in [0...xs.length]
-      result[i] = result[i]*scale + offset
+        result[i] = value*scale + offset
 
     return result
 
