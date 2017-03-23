@@ -22,22 +22,27 @@ describe "UIEvents", ->
 
     @active_scroll = new WheelZoomTool()
     @ui_event = new UIEvents()
+    @ui_event.toolbar = {gestures: {scroll: {}}}
+    @ui_event._hit_test_renderers = (x, y) -> return null
+    @ui_event._hit_test_frame = (x, y) -> return true
 
   describe "_trigger_scroll", ->
 
     it "should stopPropagation & preventDefault of event if scroll gesture is active", ->
 
       @active_scroll.active = true
+      @ui_event.toolbar.gestures['scroll'].active = @active_scroll
 
-      @ui_event._trigger_event('scroll', @active_scroll, @e)
+      @ui_event._trigger('scroll', @e)
       expect(@stopPropagation.callCount).to.equal 1
       expect(@preventDefault.callCount).to.equal 1
 
     it "should not stopPropagation & preventDefault of event if scroll gesture is not active", ->
 
       @active_scroll.active = false
+      @ui_event.toolbar.gestures['scroll'].active = @active_scroll
 
-      @ui_event._trigger_event('scroll', @active_scroll, @e)
+      @ui_event._trigger('scroll', @e)
       expect(@stopPropagation.callCount).to.equal 0
       expect(@preventDefault.callCount).to.equal 0
 
