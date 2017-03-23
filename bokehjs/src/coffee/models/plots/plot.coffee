@@ -119,7 +119,9 @@ export class Plot extends LayoutDOM
     if not @height?
       @height = @plot_height
 
-  @getter("plot_canvas", () -> @_plot_canvas)
+  @getters {
+    plot_canvas: () -> @_plot_canvas
+  }
 
   _doc_attached: () ->
     # Setup side renderers

@@ -211,12 +211,8 @@ extend(View.prototype, Events, {
   }
 });
 
-Model.getter = View.getter = function(name, get) {
-  Object.defineProperty(this.prototype, name, { get: get });
-};
-
 Model.getters = View.getters = function(specs) {
   for (var name in specs) {
-    this.getter(name, specs[name]);
+    Object.defineProperty(this.prototype, name, { get: specs[name] });
   }
 };
