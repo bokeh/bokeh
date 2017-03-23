@@ -695,19 +695,27 @@ def _visit_immediate_value_references(value, visitor):
     else:
         _visit_value_and_its_immediate_references(value, visitor)
 
+
+_common_types = {int, float, str}
+
+
 def _visit_value_and_its_immediate_references(obj, visitor):
     '''
 
     '''
-    if isinstance(obj, Model):
-        visitor(obj)
-    elif isinstance(obj, HasProps):
-        # this isn't a Model, so recurse into it
-        _visit_immediate_value_references(obj, visitor)
-    elif isinstance(obj, (list, tuple)):
+    typ = type(obj)
+    if typ in _common_types:  # short circuit on common base types
+        return
+    if typ is list or issubclass(typ, (list, tuple)):  # check common containers
         for item in obj:
             _visit_value_and_its_immediate_references(item, visitor)
-    elif isinstance(obj, dict):
+    elif issubclass(typ, dict):
         for key, value in iteritems(obj):
             _visit_value_and_its_immediate_references(key, visitor)
             _visit_value_and_its_immediate_references(value, visitor)
+    elif issubclass(typ, HasProps):
+        if issubclass(typ, Model):
+            visitor(obj)
+        else:
+            # this isn't a Model, so recurse into it
+            _visit_immediate_value_references(obj, visitor)
