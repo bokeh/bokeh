@@ -29,6 +29,7 @@ for year in years:
     population.name = 'population'
     df = pd.concat([fertility, life, population, region_name], axis=1)
     df = df.fillna('NaN')
+    df['country'] = df.index
     data[year] = df.to_dict('series')
 
 source = ColumnDataSource(data=data[years[0]])
@@ -55,7 +56,7 @@ plot.circle(
     line_alpha=0.5,
     legend=field('region'),
 )
-plot.add_tools(HoverTool(tooltips="@index", show_arrow=False, point_policy='follow_mouse'))
+plot.add_tools(HoverTool(tooltips="@country", show_arrow=False, point_policy='follow_mouse'))
 
 
 def animate_update():
