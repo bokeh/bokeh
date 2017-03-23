@@ -700,8 +700,12 @@ _common_types = {int, float, str}
 
 
 def _visit_value_and_its_immediate_references(obj, visitor):
-    '''
+    ''' Recurse down Models, HasProps, and Python containers
 
+    The ordering in this function is to optimize performance.  We check the
+    most comomn types (int, float, str) first so that we can quickly return in
+    the common case.  We avoid isinstance and issubclass checks in a couple
+    places with `type` checks because isinstance checks can be slow.
     '''
     typ = type(obj)
     if typ in _common_types:  # short circuit on common base types
