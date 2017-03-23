@@ -45,7 +45,7 @@ def test_selection_tool_make_selection(output_file_url, selenium):
     selected = selenium.execute_script(code)
     assert selected == [0, 1]
 
-def test_selection_tool_selection_ending_outside_frame_stops_selection(output_file_url, selenium):
+def test_selection_tool_selection_ending_outside_frame_makes_selection(output_file_url, selenium):
     plot = make_plot()
 
     save(plot)
@@ -57,7 +57,7 @@ def test_selection_tool_selection_ending_outside_frame_stops_selection(output_fi
 
     code = "return Bokeh.index['plot-id'].model.select_one('rect-glyph').data_source.selected['1d'].indices"
     selected = selenium.execute_script(code)
-    assert selected == []
+    assert selected == [0,1,2]
 
 def test_selection_tool_non_selection_clears_selected(output_file_url, selenium):
     plot = make_plot()
