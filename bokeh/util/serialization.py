@@ -216,9 +216,7 @@ def traverse_data(obj, is_numpy=is_numpy, use_numpy=True):
         return [transform_array(el) for el in obj]
     obj_copy = []
     for item in obj:
-        if isinstance(item, (list, tuple)):
-            obj_copy.append(traverse_data(item))
-        elif isinstance(item, float):
+        if isinstance(item, float):
             if np.isnan(item):
                 item = 'NaN'
             elif np.isposinf(item):
@@ -226,6 +224,8 @@ def traverse_data(obj, is_numpy=is_numpy, use_numpy=True):
             elif np.isneginf(item):
                 item = '-Infinity'
             obj_copy.append(item)
+        elif isinstance(item, (list, tuple)):
+            obj_copy.append(traverse_data(item))
         else:
             obj_copy.append(item)
     return obj_copy
