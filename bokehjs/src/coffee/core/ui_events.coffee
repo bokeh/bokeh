@@ -131,11 +131,20 @@ export class UIEvents
       switch event_type
         when "tap"
           view.on_hit?(sx, sy)
-    else if not @_hit_test_frame(sx, sy)
-      @trigger("move:exit", e)
 
+      if base_type == "pan"
+        @_trigger_event_for_gesture(event_type, e)
+    else if not @_hit_test_frame(sx, sy)
       if base_type == "move"
         @plot_view.set_cursor()
+
+      if event_type != "move:exit"
+        @trigger("move:exit", e)
+
+      if base_type == "move"
+        @trigger(event_type, e)
+      else
+        @_trigger_event_for_gesture(event_type, e)
     else
       if base_type == "move"
         active = any(@toolbar.inspectors, (t) -> t.active)
@@ -147,26 +156,26 @@ export class UIEvents
 
         @trigger(event_type, e)
       else
-        # Dual touch hack part 2/2
-        # This is a hack for laptops with touch screen who may be pinching or scrolling
-        # in order to use the wheel zoom tool. If it's a touch screen the WheelZoomTool event
-        # will be linked to pinch. But we also want to trigger in the case of a scroll.
-        if 'ontouchstart' of window or navigator.maxTouchPoints > 0
-          if event_type == 'scroll'
-            base_type = 'pinch'
+        @_trigger_event_for_gesture(event_type, e)
 
-        gestures = @toolbar.gestures
-        active_tool = gestures[base_type].active
+  _trigger_event_for_gesture: (event_type, e) ->
+    base_type = event_type.split(":")[0]
 
-        if active_tool?
-          @_trigger_event(event_type, active_tool, e)
+    # Dual touch hack part 2/2
+    # This is a hack for laptops with touch screen who may be pinching or scrolling
+    # in order to use the wheel zoom tool. If it's a touch screen the WheelZoomTool event
+    # will be linked to pinch. But we also want to trigger in the case of a scroll.
+    if 'ontouchstart' of window or navigator.maxTouchPoints > 0
+      if event_type == 'scroll'
+        base_type = 'pinch'
 
-  _trigger_event: (event_type, active_tool, e)->
-    if active_tool.active == true
+    active_gesture = @toolbar.gestures[base_type].active
+
+    if active_gesture? and active_gesture.active
       if event_type == 'scroll'
         e.preventDefault()
         e.stopPropagation()
-      @trigger("#{event_type}:#{active_tool.id}", e)
+      @trigger("#{event_type}:#{active_gesture.id}", e)
 
   _bokify_hammer: (e, extras={}) ->
     if e.pointerType == 'mouse'
@@ -253,15 +262,15 @@ export class UIEvents
 
   _mouse_enter: (e) ->
     @_bokify_point_event(e)
-    @trigger('move:enter', e)
+    @_trigger('move:enter', e)
 
   _mouse_move: (e) ->
     @_bokify_point_event(e)
-    @trigger('move', e)
+    @_trigger('move', e)
 
   _mouse_exit: (e) ->
     @_bokify_point_event(e)
-    @trigger('move:exit', e)
+    @_trigger('move:exit', e)
 
   _mouse_wheel: (e) ->
     @_bokify_point_event(e, {delta: getDeltaY(e)})
