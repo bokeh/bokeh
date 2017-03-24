@@ -75,7 +75,7 @@ can be processed to trigger more visual updates.
             Interactive weather statistics for three cities.
           </p>
           <p>
-            <em>Source code: </em><a target="_blank" href="https://github.com/bokeh/bokeh-demos/tree/master/weather">weather</a>
+            <em>Source code: </em><a target="_blank" href="https://github.com/bokeh/bokeh/tree/master/examples/app/weather">weather</a>
           </p>
         </div>
       </div>
