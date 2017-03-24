@@ -43,6 +43,10 @@ p.ellipse(x, y, 15, 25, angle=-0.7, color="#1D91C0",
        width_units="screen", height_units="screen")
 children.append(p)
 
+p = figure(title="Hbar")
+p.hbar(y=x, height=0.5, left=0, right=y, color="#AA9348")
+children.append(p)
+
 p = figure(title="line")
 p.line(x, y, color="#F46D43")
 children.append(p)
@@ -87,6 +91,10 @@ children.append(p)
 
 p = figure(title="square")
 p.square(x, y, size=sizes, color="#74ADD1")
+children.append(p)
+
+p = figure(title="Vbar")
+p.vbar(x=x, width=0.5, bottom=0, top=y, color="#CAB2D6")
 children.append(p)
 
 p = figure(title="wedge")
