@@ -22,6 +22,7 @@ export class Model extends HasProps
         @listenTo(@, evt, () -> cb.execute(@))
 
     @listenTo(@, 'change:js_event_callbacks', () -> @_update_event_callbacks)
+    @listenTo(@, 'change:subscribed_events', () -> @_update_event_callbacks)
 
   _process_event: (event) ->
     if event.is_applicable_to(this)
@@ -46,6 +47,8 @@ export class Model extends HasProps
 
   _doc_attached: () ->
     if not isEmpty(@js_event_callbacks)
+      @_update_event_callbacks()
+    if not isEmpty(@subscribed_events)
       @_update_event_callbacks()
 
   select: (selector) ->
