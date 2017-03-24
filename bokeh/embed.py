@@ -470,7 +470,7 @@ def autoload_static(model, resources, script_path):
 
     return encode_utf8(js), encode_utf8(tag)
 
-def autoload_server(model, app_path=None, session_id=None, url="default", relative_urls=True):
+def autoload_server(model=None, app_path=None, session_id=None, url="default", relative_urls=False):
     '''Return a script tag that embeds content from a Bokeh server session.
 
     In a typical deployment, each browser tab connecting to a Bokeh application
@@ -512,11 +512,10 @@ def autoload_server(model, app_path=None, session_id=None, url="default", relati
         url (str, optional) : The URL to a Bokeh application on a Bokeh server
 
         relative_urls (bool, optional) : Whether to use relative URLS for resources.
-            This should normally be set to ``True``, but must be set to
-            ``False`` in situations where relative URLs will not work. E.g.
-            when embedding the Bokeh server as a library in a bare Flask or
-            other web app directly, the relative URLs will land on the web
-            app server, not to the Bokeh server.
+            This should normally be set to ``False``, but must be set to
+            ``True`` in situations where only relative URLs will work. E.g.
+            when running the Bokeh behind reverse-proxies under certain
+            configurations
 
     Returns:
         tag :
