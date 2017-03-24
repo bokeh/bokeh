@@ -373,7 +373,7 @@ def upload_anaconda(token, dev):
     for plat in PLATFORMS:
         files = glob.glob("%s/bokeh*.tar.bz2" % plat)
         for file in files:
-            run(cmd % (token, file), fake_cmd=cmd % ("<hidden>", file, "-c dev" if dev else ""))
+            run(cmd % (token, file), fake_cmd=cmd % ("<hidden>", file))
 
     files = glob.glob("dist/bokeh*.tar.gz")
     for file in files:
