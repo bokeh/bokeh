@@ -29,7 +29,7 @@ export class Model extends HasProps
       event = event._customize_event(@)
 
       for callback in @js_event_callbacks[event.event_name] ? []
-        callback.execute({event: event}, {})
+        callback.execute(event, {})
 
       if @subscribed_events.some((m) -> m == event.event_name)
         @document.event_manager.send_event(event)
