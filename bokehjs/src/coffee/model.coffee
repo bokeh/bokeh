@@ -46,9 +46,7 @@ export class Model extends HasProps
     @document.event_manager.subscribed_models.push(@id)
 
   _doc_attached: () ->
-    if not isEmpty(@js_event_callbacks)
-      @_update_event_callbacks()
-    if not isEmpty(@subscribed_events)
+    if not isEmpty(@js_event_callbacks) or not isEmpty(@subscribed_events)
       @_update_event_callbacks()
 
   select: (selector) ->
