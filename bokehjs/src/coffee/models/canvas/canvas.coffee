@@ -8,6 +8,13 @@ import * as p from "core/properties"
 import {isEqual} from "core/util/eq"
 import {fixup_ctx, get_scale_ratio} from "core/util/canvas"
 
+# fixes up a problem with some versions of IE11
+# ref: http://stackoverflow.com/questions/22062313/imagedata-set-in-internetexplorer
+if window.CanvasPixelArray?
+  CanvasPixelArray.prototype.set = (arr) ->
+    for i in [0...@length]
+      @[i] = arr[i]
+
 export class CanvasView extends DOMView
   className: "bk-canvas-wrapper"
   template: canvas_template
@@ -23,13 +30,6 @@ export class CanvasView extends DOMView
 
     # work around canvas incompatibilities
     fixup_ctx(@ctx)
-
-    # fixes up a problem with some versions of IE11
-    # ref: http://stackoverflow.com/questions/22062313/imagedata-set-in-internetexplorer
-    if window.CanvasPixelArray?
-      CanvasPixelArray.prototype.set = (arr) ->
-        for i in [0...@length]
-            @[i] = arr[i]
 
     # map plots reference this attribute
     @map_div = @el.querySelector('div.bk-canvas-map')
