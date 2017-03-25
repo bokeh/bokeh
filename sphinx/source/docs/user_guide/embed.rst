@@ -40,7 +40,7 @@ You can also provide your own template and pass in custom, or additional, templa
 See the |file_html| function for more details. You can see an example of this
 in the `gapminder example plot`_.
 
-.. _gapminder example plot: https://github.com/bokeh/bokeh/blob/master/examples/howto/interactive_bubble/gapminder.py
+.. _gapminder example plot: https://demo.bokehplots.com/apps/gapminder
 
 .. _userguide_embed_components:
 
