@@ -32,13 +32,13 @@ This can ccomplished with the :func:`~bokeh.model.Model.on_event` method:
 
 '''
 from __future__ import absolute_import
-from .util.future import with_metaclass
+
 import logging
 logger = logging.getLogger(__file__)
 
+from .util.future import with_metaclass
+
 EVENT_CLASSES = set()
-
-
 
 class _MetaEvent(type):
     ''' Metaclass used to keep track of all classes subclassed from Event.
@@ -50,7 +50,6 @@ class _MetaEvent(type):
         newclass = super(_MetaEvent, cls).__new__(cls, clsname, bases, attrs)
         EVENT_CLASSES.add(newclass)
         return newclass
-
 
 class Event(with_metaclass(_MetaEvent, object)):
     ''' Base class for all Bokeh events.
@@ -81,7 +80,6 @@ class Event(with_metaclass(_MetaEvent, object)):
                 return event
         logger.warn("Could not find appropriate Event class for %r" % dct['event_name'])
 
-
 class ButtonClick(Event):
     ''' Announce a button click event on a Bokeh Button widget
 
@@ -95,10 +93,9 @@ class ButtonClick(Event):
             raise ValueError(msg.format(clsname=self.__class__.__name__))
         super(ButtonClick, self).__init__(model=model)
 
-
-
 class PlotEvent(Event):
     ''' PlotEvent is the baseclass for all events applicable to Plot models
+
     '''
 
     def __init__(self, model):
@@ -107,7 +104,6 @@ class PlotEvent(Event):
             msg ='{clsname} event only applies to Plot models'
             raise ValueError(msg.format(clsname=self.__class__.__name__))
         super(PlotEvent, self).__init__(model=model)
-
 
 class LODStart(PlotEvent):
     ''' Announce the start of "interactive level-of-detail" mode on a plot.
@@ -142,7 +138,6 @@ class Tap(PointEvent):
     '''
     event_name = 'tap'
 
-
 class DoubleTap(PointEvent):
     ''' Announce a double-tap or double-click event on a Bokeh plot.
 
@@ -154,7 +149,6 @@ class Press(PointEvent):
 
     '''
     event_name = 'press'
-
 
 class MouseEnter(PointEvent):
     ''' Announce a mouse enter event onto a Bokeh plot.
