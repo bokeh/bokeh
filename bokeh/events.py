@@ -40,19 +40,19 @@ EVENT_CLASSES = set()
 
 
 
-class MetaEvent(type):
+class _MetaEvent(type):
     ''' Metaclass used to keep track of all classes subclassed from Event.
 
     All Event classes will be added to the EVENT_CLASSES set which is
     used to decode event instances from JSON.
     '''
     def __new__(cls, clsname, bases, attrs):
-        newclass = super(MetaEvent, cls).__new__(cls, clsname, bases, attrs)
+        newclass = super(_MetaEvent, cls).__new__(cls, clsname, bases, attrs)
         EVENT_CLASSES.add(newclass)
         return newclass
 
 
-class Event(with_metaclass(MetaEvent, object)):
+class Event(with_metaclass(_MetaEvent, object)):
     ''' Base class for all Bokeh events.
 
     '''
