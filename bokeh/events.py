@@ -7,28 +7,39 @@ others. The classes in this module represent these different events, so that
 callbacks can be attached and executed when they occur.
 
 It is possible to respond to events with ``CustomJS`` callbacks, which will
-function with or without a Bokeh server. This can be accomplished with the
-:func:`~bokeh.model.Model.js_on_event` method:
+function with or without a Bokeh server. This can be accomplished by passing
+and event class, and a ``CustomJS`` model to the
+:func:`~bokeh.model.Model.js_on_event` method. When the ``CustomJS`` is
+executed in the browser, its ``cb_obj`` argument will contain the concrete
+event object that triggered the callback.
 
 .. code-block:: python
 
-    from bokh.models import Button
+    from bokeh.events import ButtonClick
+    from bokeh.models import Button, CustomJS
+
     button = Button()
-    button.js_on_event(events.ButtonClick, CustomJS(code='console.log("JS:Click")'))
+
+    button.js_on_event(ButtonClick, CustomJS(code='console.log("JS:Click")'))
 
 Alternatively it is possible to trigger Python code to run when events
 happen, in the context of a Bokeh application running on a Bokeh server.
-This can ccomplished with the :func:`~bokeh.model.Model.on_event` method:
+This can accomplished by passing an event class, and a callback function
+to the the :func:`~bokeh.model.Model.on_event` method. The callback should
+accept a single argument ``event``, which will be passed the concrete
+event object that triggered the callback.
 
-. code-block:: python
+.. code-block:: python
 
-    from bokh.models import Button
+    from bokeh.events import ButtonClick
+    from bokeh.models import Button
+
     button = Button()
 
-    def click_callback(event):
-       print('Python:Click')
+    def callback(event):
+        print('Python:Click')
 
-    button.on_event(events.ButtonClick, click_callback)
+    button.on_event(ButtonClick, callback)
 
 '''
 from __future__ import absolute_import
