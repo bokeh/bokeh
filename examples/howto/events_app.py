@@ -18,18 +18,19 @@ def display_event(div, attributes=[]):
     Function to build a suitable CustomJS to display the current event
     in the div model.
     """
-    name = "cb_obj.event_name"
-    attrs =  [("'{attr}='+ Number(cb_obj['{attr}']).toFixed(2)"
-               + " + ', '").format(attr=attr) for attr in attributes]
-    args = '+'.join(attrs) if attributes else repr('')
-    l1 = "text = {name} + '(' + {args} + ')' + \
-             div.text.replace('<b>JS Events (see console for Python events)</b>','');".format(name=name, args=args )
-    l2 = "div.text = '<b>JS Events (see console for Python events)</b><br><font size=\"0.5pt\">' + text.split('<br>',20).join('<br>')+ '</font>';"
-    return CustomJS(code=l1+l2, args={'div': div})
-
-def pprint(cls, attributes):
-    ''' Pretty print the event with the given set of attributes'''
-
+    style = 'float:left;clear:left;font_size=0.5pt'
+    return CustomJS(args=dict(div=div), code="""
+        attrs = %s;
+        args = [];
+        for ( i=0; i<attrs.length; i++ ) {
+            args.push(attrs[i] + '=' + Number(cb_obj[attrs[i]]).toFixed(2));
+        }
+        line = "'<span style=%r><b>" + cb_obj.event_name + "</b>(" + args.join(", ") + ")</span>\\n";
+        text = div.text.concat(line);
+        lines = text.split("\\n")
+        if ( lines.length > 35 ) { lines.shift(); }
+        div.text = lines.join("\\n");
+    """ % (attributes, style))
 
 def print_event(attributes=[]):
     """
