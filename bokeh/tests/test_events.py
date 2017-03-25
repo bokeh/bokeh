@@ -3,8 +3,8 @@ import pytest
 from bokeh.models import Plot, Button, Div
 from bokeh import events
 
-all_events = set([v for v in globals().values()
-                  if isinstance(v,type) and issubclass(v, events.Event)])
+concrete_events = set([v for v in globals().values()
+                      if isinstance(v,type) and issubclass(v, events.Event) and v.event_name is not None])
 
 point_events = set([v for v in globals().values()
                     if isinstance(v,type) and issubclass(v, events.PointEvent)])
@@ -22,11 +22,11 @@ class EventCallback(object):
 
 def test_event_metaclass():
     # All events currently in the namespace should be in the EVENT_CLASSES set
-    assert len(all_events - events.EVENT_CLASSES) == 0
+    assert len(concrete_events - set(events._CONCRETE_EVENT_CLASSES.values())) == 0
 
 def test_common_decode_json():
-    for event_cls in events.EVENT_CLASSES:
-        if event_cls.event_name is None: continue # Skip abstract base class
+    for event_name, event_cls in events._CONCRETE_EVENT_CLASSES.items():
+        if event_name is None: continue # Skip abstract base class
         event = events.Event.decode_json({'event_name':event_cls.event_name,
                                           'event_values':{'model_id':'test-model-id'}})
         assert event._model_id == 'test-model-id'

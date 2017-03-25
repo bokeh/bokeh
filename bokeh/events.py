@@ -49,17 +49,20 @@ logger = logging.getLogger(__file__)
 
 from .util.future import with_metaclass
 
-EVENT_CLASSES = set()
+_CONCRETE_EVENT_CLASSES = dict()
 
 class _MetaEvent(type):
     ''' Metaclass used to keep track of all classes subclassed from Event.
 
-    All Event classes will be added to the EVENT_CLASSES set which is
-    used to decode event instances from JSON.
+    All Concrete Event classes (i.e. not "abstract" event base classes with
+    no ``event_name``) will be added to the _CONCRETE_EVENT_CLASSES set which
+    is used to decode event instances from JSON.
+
     '''
     def __new__(cls, clsname, bases, attrs):
         newclass = super(_MetaEvent, cls).__new__(cls, clsname, bases, attrs)
-        EVENT_CLASSES.add(newclass)
+        if newclass.event_name is not None:
+            _CONCRETE_EVENT_CLASSES[newclass.event_name] = newclass
         return newclass
 
 class Event(with_metaclass(_MetaEvent, object)):
@@ -76,20 +79,42 @@ class Event(with_metaclass(_MetaEvent, object)):
 
     @classmethod
     def decode_json(cls, dct):
-        ''' Custom json decoder for Events for use with the object_hook
-        argument of json.load or json.loads.
+        ''' Custom JSON decoder for Events.
+
+        Can be used as the ``object_hook`` argument of ``json.load`` or
+        ``json.loads``.
+
+        Args:
+            dct (dict) : a JSON dictionary to decode
+                The dictionary should have keys ``event_name`` and ``event_values``
+
+        Raises:
+            ValueError, if the event_name is unknown
+
+        Examples:
+
+            .. code-block:: python
+
+                >>> import json
+                >>> from bokeh.events import Event
+                >>> data = '{"event_name": "pan", "event_values" : {"model_id": 1, "x": 10, "y": 20, "sx": 200, "sy": 37}}'
+                >>> json.loads(data, object_hook=Event.decode_json)
+                <bokeh.events.Pan object at 0x1040f84a8>
+
         '''
         if not (('event_name' in dct) and ('event_values' in dct)):
             return dct
 
+        event_name = dct['event_name']
+
+        if event_name not in _CONCRETE_EVENT_CLASSES:
+            raise ValueError("Could not find appropriate Event class for event_name: %r" % event_name)
+
         event_values = dct['event_values']
-        for eventscls in EVENT_CLASSES:
-            if eventscls.event_name == dct['event_name']:
-                model_id = event_values.pop('model_id')
-                event = eventscls(model=None, **event_values)
-                event._model_id = model_id
-                return event
-        logger.warn("Could not find appropriate Event class for %r" % dct['event_name'])
+        model_id = event_values.pop('model_id')
+        event = _CONCRETE_EVENT_CLASSES[event_name](model=None, **event_values)
+        event._model_id = model_id
+        return event
 
 class ButtonClick(Event):
     ''' Announce a button click event on a Bokeh Button widget
