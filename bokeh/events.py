@@ -82,13 +82,6 @@ class Event(with_metaclass(MetaEvent, object)):
         logger.warn("Could not find appropriate Event class for %r" % dct['event_name'])
 
 
-    def pprint(self, attributes):
-        ''' Pretty print the event with the given set of attributes'''
-        cls_name = self.__class__.__name__
-        attrs = ', '.join(['{attr}={val}'.format(attr=attr, val=self.__dict__[attr])
-                           for attr in attributes])
-        return '{cls_name}({attrs})'.format(cls_name=cls_name, attrs=attrs)
-
 class ButtonClick(Event):
     ''' Announce a button click event on a Bokeh Button widget
 

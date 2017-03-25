@@ -27,13 +27,19 @@ def display_event(div, attributes=[]):
     l2 = "div.text = '<b>JS Events (see console for Python events)</b><br><font size=\"0.5pt\">' + text.split('<br>',20).join('<br>')+ '</font>';"
     return CustomJS(code=l1+l2, args={'div': div})
 
+def pprint(cls, attributes):
+    ''' Pretty print the event with the given set of attributes'''
+
 
 def print_event(attributes=[]):
     """
     Function that returns a Python callback to pretty print the events.
     """
     def python_callback(event):
-        print(event.pprint(attributes))
+        cls_name = event.__class__.__name__
+        attrs = ', '.join(['{attr}={val}'.format(attr=attr, val=event.__dict__[attr])
+                       for attr in attributes])
+        print('{cls_name}({attrs})'.format(cls_name=cls_name, attrs=attrs))
     return python_callback
 
 # Follows the color_scatter gallery example
