@@ -1,14 +1,22 @@
 import {proj4, mercator} from "core/util/proj4"
 
 import {PlotCanvas, PlotCanvasView} from "./plot_canvas"
+import {Events} from "core/events"
+import {extend} from "core/util/object"
 
-load_google_api = (callback, api_key) ->
-  if not window.google?.maps?
-    window._bokeh_gmap_callback = () -> callback()
-    script = document.createElement('script')
-    script.type = 'text/javascript'
-    script.src = "https://maps.googleapis.com/maps/api/js?key=#{api_key}&callback=_bokeh_gmap_callback"
-    document.body.appendChild(script)
+load_google_api = (api_key) ->
+  callback = null
+  callback = () -> callback.trigger("gmaps_ready")
+  extend(callback, Events)
+
+  window._bokeh_gmaps_callback = callback
+
+  script = document.createElement('script')
+  script.type = 'text/javascript'
+  script.src = "https://maps.googleapis.com/maps/api/js?key=#{api_key}&callback=_bokeh_gmaps_callback"
+  document.body.appendChild(script)
+
+  return callback
 
 export class GMapPlotCanvasView extends PlotCanvasView
 
@@ -23,13 +31,17 @@ export class GMapPlotCanvasView extends PlotCanvasView
 
     @canvas_view.map_el.style.position = "absolute"
 
-    load_google_api(@request_render, @model.plot.api_key)
+    if not window.google?.maps?
+      cb = window._bokeh_gmaps_callback
+      if not cb?
+        cb = load_google_api(@model.plot.api_key)
+      cb.once("gmaps_ready", () => @request_render())
 
   update_range: (range_info) ->
     # RESET -------------------------
     if not range_info?
       mo = @model.plot.map_options
-      @map.setCenter({lat: @initial_lat, lng: @initial_lng});
+      @map.setCenter({lat: @initial_lat, lng: @initial_lng})
       @map.setOptions({zoom: @initial_zoom})
       super(null)
 
@@ -167,7 +179,7 @@ export class GMapPlotCanvasView extends PlotCanvasView
     @canvas_view.map_el.style.width  = "#{width}px"
     @canvas_view.map_el.style.height = "#{height}px"
 
-    if not @map?
+    if not @map? and window.google?.maps?
       @_build_map()
 
   # this overrides the standard _paint_empty to make the inner canvas transparent
