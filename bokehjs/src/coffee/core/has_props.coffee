@@ -1,4 +1,4 @@
-import * as Backbone from "./backbone"
+import {Events} from "./events"
 import {logger} from "./logging"
 import * as property_mixins from "./property_mixins"
 import * as refs from "./util/refs"
@@ -7,8 +7,14 @@ import {uniqueId} from "./util/string"
 import {max} from "./util/array"
 import {extend, values, clone, isEmpty} from "./util/object"
 import {isString, isObject, isArray} from "./util/types"
+import {isEqual} from './util/eq'
 
-export class HasProps extends Backbone.Model
+export class HasProps
+  @prototype extends Events
+
+  @getters = (specs) ->
+    for name, fn of specs
+      Object.defineProperty(@prototype, name, { get: fn })
 
   props: {}
   mixins: []
@@ -79,10 +85,9 @@ export class HasProps extends Backbone.Model
 
   toString: () -> "#{@type}(#{@id})"
 
-  constructor : (attributes, options) ->
+  constructor: (attributes, options) ->
     @document = null
 
-    ## straight from backbone.js
     attrs = attributes || {}
     if not options
       options = {}
@@ -130,16 +135,64 @@ export class HasProps extends Backbone.Model
       if prop.spec.transform
         @listenTo(prop.spec.transform, "change", () -> @trigger('transformchange', this))
 
+  destroy: () ->
+    this.stopListening()
+    this.trigger('destroy', this)
+
+  # Create a new model with identical attributes to this one.
+  clone: () ->
+    return new this.constructor(this.attributes)
+
+  # Set a hash of model attributes on the object, firing `"change"`. This is
+  # the core primitive operation of a model, updating the data and notifying
+  # anyone who needs to know about the change in state. The heart of the beast.
+  _setv: (attrs, options) ->
+    # Extract attributes and options.
+    silent     = options.silent
+    changes    = []
+    changing   = this._changing
+    this._changing = true
+
+    current = this.attributes
+
+    # For each `set` attribute, update or delete the current value.
+    for attr, val of attrs
+      val = attrs[attr]
+      if not isEqual(current[attr], val)
+        changes.push(attr)
+      current[attr] = val
+
+    # Trigger all relevant attribute changes.
+    if not silent
+      if changes.length
+        this._pending = true
+      for i in [0...changes.length]
+        this.trigger('change:' + changes[i], this, current[changes[i]])
+
+    # You might be wondering why there's a `while` loop here. Changes can
+    # be recursively nested within `"change"` events.
+    if changing
+      return this
+    if not silent and not options.no_change
+      while this._pending
+        this._pending = false
+        this.trigger('change', this)
+
+    this._pending = false
+    this._changing = false
+    return this
+
   setv: (key, value, options) ->
-    # backbones set function supports 2 call signatures, either a dictionary of
-    # key value pairs, and then options, or one key, one value, and then options.
-    # replicating that logic here
     if isObject(key) or key == null
       attrs = key
       options = value
     else
       attrs = {}
       attrs[key] = value
+
+    if not options?
+      options = {}
+
     for own key, val of attrs
       prop_name = key
       if not @props[prop_name]?
@@ -147,11 +200,12 @@ export class HasProps extends Backbone.Model
 
       if not (options? and options.defaults)
         @_set_after_defaults[key] = true
+
     if not isEmpty(attrs)
       old = {}
       for key, value of attrs
         old[key] = @getv(key)
-      super(attrs, options)
+      @_setv(attrs, options)
 
       if not options?.silent?
         for key, value of attrs
@@ -228,7 +282,7 @@ export class HasProps extends Backbone.Model
     if not @props[prop_name]?
       throw new Error("property #{@type}.#{prop_name} wasn't declared")
     else
-      return super(prop_name)
+      return this.attributes[prop_name]
 
   _get_computed: (prop_name) ->
     prop_spec = @_computed[prop_name]
