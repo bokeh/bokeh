@@ -12,7 +12,6 @@ export class LegendView extends AnnotationView
 
   bind_bokeh_events: () ->
     @listenTo(@model, 'change:visible', @plot_view.request_render)
-    @listenTo(@plot_view.ui_event_bus, 'tap', (e) => @on_hit(e))
 
   compute_legend_bbox: () ->
     legend_names = @model.get_legend_names()
