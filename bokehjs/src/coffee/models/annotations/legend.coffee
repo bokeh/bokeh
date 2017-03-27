@@ -12,6 +12,7 @@ export class LegendView extends AnnotationView
 
   bind_bokeh_events: () ->
     @listenTo(@model, 'change:visible', @plot_view.request_render)
+    @listenTo(@plot_view.ui_event_bus, 'tap', (e) => @on_hit(e))
 
   compute_legend_bbox: () ->
     legend_names = @model.get_legend_names()
@@ -99,7 +100,9 @@ export class LegendView extends AnnotationView
     {x, y, width, height} = @compute_legend_bbox()
     return new BBox({x0: x, y0: y, x1: x+width, y1: y+height})
 
-  on_hit: (hx, hy) ->
+  on_hit: (e) ->
+    {sx, sy} = e.bokeh
+
     glyph_height = @model.glyph_height
     glyph_width = @model.glyph_width
     legend_spacing = @model.spacing
@@ -126,7 +129,7 @@ export class LegendView extends AnnotationView
 
         bbox = new BBox({x0: x1, y0: y1, x1: x1+w, y1: y1+h})
 
-        if bbox.contains(hx, hy)
+        if bbox.contains(sx, sy)
           switch @model.click_policy
             when "hide"
               for r in item.renderers
