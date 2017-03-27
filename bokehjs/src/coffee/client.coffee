@@ -80,7 +80,7 @@ message_handlers = {
       session._handle_patch(message)
 
   'OK' : (connection, message) ->
-    logger.debug("Unhandled OK reply to #{message.reqid()}")
+    logger.trace("Unhandled OK reply to #{message.reqid()}")
 
   'ERROR' : (connection, message) ->
     logger.error("Unhandled ERROR reply to #{message.reqid()}: #{message.content['text']}")
