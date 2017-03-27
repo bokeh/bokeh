@@ -18,7 +18,6 @@ import {throttle} from "core/util/throttle"
 import {isStrictNaN} from "core/util/types"
 import {difference, sortBy} from "core/util/array"
 import {extend, values, isEmpty} from "core/util/object"
-import {defer} from "core/util/callback"
 import {update_constraints as update_panel_constraints} from "core/layout/side_panel"
 
 # Notes on WebGL support:
