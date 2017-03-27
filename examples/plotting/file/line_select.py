@@ -21,20 +21,21 @@ if (d0.glyph) {
     var color = d0.get_view().visuals.line.line_color.value();
     var data = source.data;
     data['text'] = ['Selected the ' + color + ' line'];
+    data['text_color'] = [color];
     source.trigger('change');
 }
 """
 
 # use a source to easily update the text of the text-glyph
-source = ColumnDataSource(data=dict(text=['no line selected']))
+source = ColumnDataSource(data=dict(text=['No line selected'], text_color=['black']))
 
-p = figure()
+p = figure(width=600, height=500)
 
-l1 = p.line(t, 100*np.sin(t*50), color='red', line_width=25)
-l2 = p.line(t, 100*np.sin(t*50+1), color='green', line_width=5)
-l3 = p.line(t, 100*np.sin(t*50+2), color='blue',  line_width=1)
+l1 = p.line(t, 100*np.sin(t*50), color='goldenrod', line_width=25)
+l2 = p.line(t, 100*np.sin(t*50+1), color='lightcoral', line_width=25)
+l3 = p.line(t, 100*np.sin(t*50+2), color='royalblue', line_width=25)
 
-p.text(0, -100, source=source)
+p.text(0, -100, text_color='text_color', source=source)
 
 p.add_tools(TapTool(callback=CustomJS(code=code, args=dict(source=source))))
 
