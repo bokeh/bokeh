@@ -131,7 +131,7 @@ export class PlotCanvasView extends DOMView
     @canvas_view.el.style.cursor = cursor
 
   @getters {
-    canvas_overlays: () -> @el.querySelector('.bk-canvas-overlays')
+    canvas_overlays: () -> @canvas_view.overlays_el
   }
 
   init_webgl: () ->

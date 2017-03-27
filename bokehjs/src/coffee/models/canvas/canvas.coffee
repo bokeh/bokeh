@@ -1,10 +1,10 @@
-import canvas_template from "./canvas_template"
 import {LayoutCanvas} from "core/layout/layout_canvas"
 
 import {DOMView} from "core/dom_view"
 import {GE, EQ} from "core/layout/solver"
 import {logger} from "core/logging"
 import * as p from "core/properties"
+import {div, canvas} from "core/dom"
 import {isEqual} from "core/util/eq"
 import {fixup_ctx, get_scale_ratio} from "core/util/canvas"
 
@@ -17,13 +17,14 @@ if window.CanvasPixelArray?
 
 export class CanvasView extends DOMView
   className: "bk-canvas-wrapper"
-  template: canvas_template
 
   initialize: (options) ->
     super(options)
 
-    html = @template({ map: @model.map })
-    @el.appendChild(html)
+    @map_el      = if @model.map then @el.appendChild(div({class: "bk-canvas-map"})) else null
+    @events_el   = @el.appendChild(div({class: "bk-canvas-events"}))
+    @overlays_el = @el.appendChild(div({class: "bk-canvas-overlays"}))
+    @canvas_el   = @el.appendChild(canvas({class: "bk-canvas"}))
 
     # create the canvas context that gets passed around for drawing
     @ctx = @get_ctx()
@@ -31,18 +32,15 @@ export class CanvasView extends DOMView
     # work around canvas incompatibilities
     fixup_ctx(@ctx)
 
-    # map plots reference this attribute
-    @map_div = @el.querySelector('div.bk-canvas-map')
     @set_dims([@model.initial_width, @model.initial_height], false)
     logger.debug("CanvasView initialized")
 
     @listenTo(@solver, "layout_reset", () => @_add_constraints())
 
-  get_canvas_element: () ->
-    return @el.querySelector('canvas.bk-canvas')
+  get_canvas_element: () -> @canvas_el
 
   get_ctx: () ->
-    return @get_canvas_element().getContext('2d')
+    return @canvas_el.getContext('2d')
 
   prepare_canvas: () ->
     # Ensure canvas has the correct size, taking HIDPI into account
@@ -57,11 +55,10 @@ export class CanvasView extends DOMView
 
       # Scale the canvas (this resets the context's state)
       @pixel_ratio = ratio = get_scale_ratio(@ctx, @model.use_hidpi)
-      canvas_el = @get_canvas_element()
-      canvas_el.style.width = "#{width}px"
-      canvas_el.style.height = "#{height}px"
-      canvas_el.setAttribute('width', width*ratio)
-      canvas_el.setAttribute('height', height*ratio)
+      @canvas_el.style.width = "#{width}px"
+      @canvas_el.style.height = "#{height}px"
+      @canvas_el.setAttribute('width', width*ratio)
+      @canvas_el.setAttribute('height', height*ratio)
 
       logger.debug("Rendering CanvasView with width: #{width}, height: #{height}, ratio: #{ratio}")
       @model.pixel_ratio = @pixel_ratio

@@ -21,7 +21,7 @@ export class GMapPlotCanvasView extends PlotCanvasView
     @initial_lat = mo.lat
     @initial_lng = mo.lng
 
-    @canvas_view.map_div.style.position = "absolute"
+    @canvas_view.map_el.style.position = "absolute"
 
     load_google_api(@request_render, @model.plot.api_key)
 
@@ -95,7 +95,7 @@ export class GMapPlotCanvasView extends PlotCanvasView
       map_options.styles = JSON.parse(mo.styles)
 
     # create the map with above options in div
-    @map = new maps.Map(@canvas_view.map_div, map_options)
+    @map = new maps.Map(@canvas_view.map_el, map_options)
 
     # update bokeh ranges whenever the map idles, which should be after any UI action
     maps.event.addListenerOnce(@map, 'idle', @_set_bokeh_ranges)
@@ -162,10 +162,10 @@ export class GMapPlotCanvasView extends PlotCanvasView
   # this method is expected and called by PlotView.render
   _map_hook: (ctx, frame_box) ->
     [left, top, width, height] = frame_box
-    @canvas_view.map_div.style.top    = "#{top}px"
-    @canvas_view.map_div.style.left   = "#{left}px"
-    @canvas_view.map_div.style.width  = "#{width}px"
-    @canvas_view.map_div.style.height = "#{height}px"
+    @canvas_view.map_el.style.top    = "#{top}px"
+    @canvas_view.map_el.style.left   = "#{left}px"
+    @canvas_view.map_el.style.width  = "#{width}px"
+    @canvas_view.map_el.style.height = "#{height}px"
 
     if not @map?
       @_build_map()

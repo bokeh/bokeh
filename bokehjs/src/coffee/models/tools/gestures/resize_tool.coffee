@@ -7,7 +7,7 @@ export class ResizeToolView extends GestureToolView
   initialize: (options) ->
     super(options)
     @overlay = div()
-    wrapper = @plot_view.el.querySelector('div.bk-canvas-wrapper')
+    wrapper = @plot_view.canvas_view.el
     wrapper.appendChild(@overlay)
     hide(@overlay)
     @active = false
