@@ -1,12 +1,13 @@
 {expect, assert} = require "chai"
 utils = require "../utils"
-cheerio = require 'cheerio'
 sinon = require 'sinon'
 
 {UIEvents} = utils.require "core/ui_events"
-
 # Stub out _hammer_element as not used in testing
 stub = sinon.stub(UIEvents.prototype, "_configure_hammerjs")
+
+dom = utils.require("core/dom")
+{Tap, MouseMove} = utils.require("core/bokeh_events")
 
 {CrosshairTool} = utils.require("models/tools/inspectors/crosshair_tool")
 {PanTool} = utils.require("models/tools/gestures/pan_tool")
@@ -24,8 +25,6 @@ stub = sinon.stub(UIEvents.prototype, "_configure_hammerjs")
 {Toolbar} = utils.require("models/tools/toolbar")
 
 describe "ui_events module", ->
-  # html = '<body><canvas></canvas></body>'
-  # $ = cheerio.load(html)
 
   afterEach ->
     utils.unstub_canvas()
@@ -207,3 +206,49 @@ describe "ui_events module", ->
 
         assert(@spy_trigger.calledOnce)
         expect(@spy_trigger.args[0]).to.be.deep.equal(["pan:#{gesture.id}", @e])
+
+  describe "_bokify_hammer method", ->
+
+    afterEach ->
+      @dom_stub.restore()
+
+    beforeEach ->
+      @dom_stub = sinon.stub(dom, "offset").returns({top: 0, left: 0})
+      @spy = sinon.spy(@plot, "trigger_event")
+
+    it "Should trigger tap event with appropriate coords and model_id", ->
+      e = new Event("tap")
+      e.pointerType = "mouse"
+      e.srcEvent = {pageX: 100, pageY: 200}
+
+      @ui_events._bokify_hammer(e, {})
+
+      bk_event = @spy.args[0][0]
+
+      expect(bk_event).to.be.instanceof(Tap)
+      expect(bk_event.sx).to.be.equal(100)
+      expect(bk_event.sy).to.be.equal(200)
+      expect(bk_event.model_id).to.be.equal(@plot.id)
+
+  describe "_bokify_point_event method", ->
+
+    afterEach ->
+      @dom_stub.restore()
+
+    beforeEach ->
+      @dom_stub = sinon.stub(dom, "offset").returns({top: 0, left: 0})
+      @spy = sinon.spy(@plot, "trigger_event")
+
+    it "Should trigger mousemove event with appropriate coords and model_id", ->
+      e = new Event("mousemove")
+      e.pageX = 100
+      e.pageY = 200
+
+      @ui_events._bokify_point_event(e, {})
+
+      bk_event = @spy.args[0][0]
+
+      expect(bk_event).to.be.instanceof(MouseMove)
+      expect(bk_event.sx).to.be.equal(100)
+      expect(bk_event.sy).to.be.equal(200)
+      expect(bk_event.model_id).to.be.equal(@plot.id)
