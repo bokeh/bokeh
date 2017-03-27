@@ -62,7 +62,7 @@ describe "ui_events module", ->
       beforeEach ->
         @e = new Event("move")
         @e.bokeh = {}
-        @e.isTrusted = false
+
         @spy_cursor = sinon.spy(@plot_canvas_view, "set_cursor")
 
       it "should handle base case", ->
@@ -122,7 +122,6 @@ describe "ui_events module", ->
       beforeEach ->
         @e = new Event("tap")
         @e.bokeh = {sx: 10, sy: 15}
-        @e.isTrusted = false
         @e.srcEvent = {shiftKey: false}
 
       it "should not trigger tap event if no active tap tool", ->
@@ -157,7 +156,6 @@ describe "ui_events module", ->
       beforeEach ->
         @e = new Event("scroll")
         @e.bokeh = {}
-        @e.isTrusted = false
 
         @preventDefault = sinon.spy(@e, "preventDefault")
         @stopPropagation = sinon.spy(@e, "stopPropagation")
@@ -191,7 +189,6 @@ describe "ui_events module", ->
       beforeEach ->
         @e = new Event("pan")
         @e.bokeh = {}
-        @e.isTrusted = false
 
       it "should not trigger event if no active tool", ->
         @plot.toolbar.gestures["pan"].active = null
