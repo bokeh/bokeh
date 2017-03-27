@@ -99,9 +99,7 @@ export class LegendView extends AnnotationView
     {x, y, width, height} = @compute_legend_bbox()
     return new BBox({x0: x, y0: y, x1: x+width, y1: y+height})
 
-  on_hit: (e) ->
-    {sx, sy} = e.bokeh
-
+  on_hit: (sx, sy) ->
     glyph_height = @model.glyph_height
     glyph_width = @model.glyph_width
     legend_spacing = @model.spacing

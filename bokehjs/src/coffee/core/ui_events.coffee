@@ -144,7 +144,7 @@ export class UIEvents
 
       when "tap"
         if view?
-          view.on_hit?(e)
+          view.on_hit?(e.bokeh.sx, e.bokeh.sy)
         active_gesture = @toolbar.gestures[base_type].active
         if active_gesture?
           @trigger("#{event_type}:#{active_gesture.id}", e)
@@ -266,6 +266,7 @@ export class UIEvents
     @_trigger('scroll', e)
 
   _key_down: (e) ->
+    # NOTE: keyup event triggered unconditionally
     @trigger('keydown', e)
 
   _key_up: (e) ->
