@@ -99,10 +99,6 @@ export class HasProps extends Backbone.Model
 
     this.setv(attrs, options)
 
-    # this is maintained by backbone ("changes since the last
-    # setv()") and probably isn't relevant to us
-    this.changed = {}
-
     ## bokeh custom constructor code
 
     # setting up data structures for properties

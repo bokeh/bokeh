@@ -23,15 +23,11 @@ export var Model = function(attributes, options) {
   options || (options = {});
   this.attributes = {};
   this.setv(attrs, options);
-  this.changed = {};
   this.initialize.apply(this, arguments);
 };
 
 // Attach all inheritable methods to the Model prototype.
 extend(Model.prototype, Events, {
-
-  // A hash of attributes whose current and previous value differ.
-  changed: null,
 
   // Initialize is an empty function by default. Override it with your own
   // initialization logic.
@@ -65,23 +61,13 @@ extend(Model.prototype, Events, {
     var changing   = this._changing;
     this._changing = true;
 
-    if (!changing) {
-      this._previousAttributes = clone(this.attributes);
-      this.changed = {};
-    }
-
     var current = this.attributes;
-    var changed = this.changed;
-    var prev    = this._previousAttributes;
 
     // For each `set` attribute, update or delete the current value.
     for (var attr in attrs) {
       val = attrs[attr];
-      if (!isEqual(current[attr], val)) changes.push(attr);
-      if (!isEqual(prev[attr], val)) {
-        changed[attr] = val;
-      } else {
-        delete changed[attr];
+      if (!isEqual(current[attr], val)) {
+        changes.push(attr);
       }
       current[attr] = val;
     }
