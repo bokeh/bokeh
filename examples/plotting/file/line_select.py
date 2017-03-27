@@ -31,9 +31,9 @@ source = ColumnDataSource(data=dict(text=['No line selected'], text_color=['blac
 
 p = figure(width=600, height=500)
 
-l1 = p.line(t, 100*np.sin(t*50), color='goldenrod', line_width=25)
-l2 = p.line(t, 100*np.sin(t*50+1), color='lightcoral', line_width=25)
-l3 = p.line(t, 100*np.sin(t*50+2), color='royalblue', line_width=25)
+l1 = p.line(t, 100*np.sin(t*50), color='goldenrod', line_width=30)
+l2 = p.line(t, 100*np.sin(t*50+1), color='lightcoral', line_width=20)
+l3 = p.line(t, 100*np.sin(t*50+2), color='royalblue', line_width=10)
 
 p.text(0, -100, text_color='text_color', source=source)
 
