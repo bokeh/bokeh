@@ -1,20 +1,17 @@
-import numpy as np
-
 from bokeh.models import Jitter
+from bokeh.layouts import column
 from bokeh.plotting import figure, show, output_file
+from bokeh.sampledata.autompg import autompg as df
 
-p = figure(plot_width=500, plot_height=400, x_range=(0,3), y_range=(0,10),
-           title="Demonstration of Jitter transform")
+p1 = figure(plot_width=600, plot_height=300, title="Years vs mpg without jittering")
+p1.circle(x=df['yr'], y=df['mpg'], color='darkred')
 
-y1 = np.random.random(2500) * 10
-y2 = np.random.normal(size=2500)*2 + 5
-
-p.circle(x={'value': 1, 'transform': Jitter(width=0.4)}, y=y1,
-         color="navy", alpha=0.3)
-
-p.circle(x={'value': 2, 'transform': Jitter(width=0.4)}, y=y2,
-         color="firebrick", alpha=0.3)
+p2 = figure(plot_width=600, plot_height=300, title="Years vs mpg with jittering")
+for year in df['yr'].unique():
+    p2.circle(x={'value': year, 'transform': Jitter(width=1)},
+              y=df[df['yr'] == year]['mpg'],
+              color='salmon')
 
 output_file("jitter.html")
 
-show(p)
+show(column(p1, p2))
