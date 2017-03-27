@@ -30,7 +30,7 @@ source = ColumnDataSource(data=dict(
     rate=county_rates,
 ))
 
-TOOLS = "pan,wheel_zoom,box_zoom,reset,hover,save"
+TOOLS = "pan,wheel_zoom,reset,hover,save"
 
 p = figure(
     title="Texas Unemployment, 2009", tools=TOOLS,
