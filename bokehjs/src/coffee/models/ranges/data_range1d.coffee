@@ -180,6 +180,7 @@ export class DataRange1d extends DataRange
 
   reset: () ->
     @have_updated_interactively = false
+    # change events silenced as PlotCanvasView.update_dataranges triggers update
     @setv({
       range_padding: @_initial_range_padding
       follow: @_initial_follow
