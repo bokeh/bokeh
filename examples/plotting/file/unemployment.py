@@ -34,7 +34,7 @@ source = ColumnDataSource(
 
 TOOLS = "hover,save,pan,box_zoom,wheel_zoom"
 
-p = figure(title="US Unemployment (1948 - 2013)",
+p = figure(title="US Unemployment ({0} - {1})".format(years[0], years[-1]),
            x_range=years, y_range=list(reversed(months)),
            x_axis_location="above", plot_width=900, plot_height=400,
            tools=TOOLS)
