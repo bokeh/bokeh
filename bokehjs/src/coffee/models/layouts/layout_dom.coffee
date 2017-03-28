@@ -274,47 +274,44 @@ export class LayoutDOM extends Model
     #  # When this widget is on the edge of a box visually,
     #  # align these variables down that edge. Right/bottom
     #  # are an inset from the edge.
-    #  'on-edge-align-top'    : @_top
-    #  'on-edge-align-bottom' : @_height_minus_bottom
-    #  'on-edge-align-left'   : @_left
-    #  'on-edge-align-right'  : @_width_minus_right
+    #  on_edge_align_top    : @_top
+    #  on_edge_align_bottom : @_height_minus_bottom
+    #  on_edge_align_left   : @_left
+    #  on_edge_align_right  : @_width_minus_right
     #  # When this widget is in a box cell with the same "arity
     #  # path" as a widget in another cell, align these variables
     #  # between the two box cells. Right/bottom are an inset from
     #  # the edge.
-    #  'box-cell-align-top'   : @_top
-    #  'box-cell-align-bottom': @_height_minus_bottom
-    #  'box-cell-align-left'  : @_left
-    #  'box-cell-align-right' : @_width_minus_right
+    #  box_cell_align_top   : @_top
+    #  box_cell_align_bottom: @_height_minus_bottom
+    #  box_cell_align_left  : @_left
+    #  box_cell_align_right : @_width_minus_right
     #  # When this widget is in a box, make these the same distance
     #  # apart in every widget. Right/bottom are inset from the edge.
-    #  'box-equal-size-top'   : @_top
-    #  'box-equal-size-bottom': @_height_minus_bottom
-    #  'box-equal-size-left'  : @_left
-    #  'box-equal-size-right' : @_width_minus_right
+    #  box_equal_size_top   : @_top
+    #  box_equal_size_bottom: @_height_minus_bottom
+    #  box_equal_size_left  : @_left
+    #  box_equal_size_right : @_width_minus_right
 
-    constrained_variables = {
-      'origin-x': @_dom_left
-      'origin-y': @_dom_top
-      'whitespace-top' : @_whitespace_top
-      'whitespace-bottom' : @_whitespace_bottom
-      'whitespace-left' : @_whitespace_left
-      'whitespace-right' : @_whitespace_right
+    vars = {
+      origin_x          : @_dom_left
+      origin_y          : @_dom_top
+      whitespace_top    : @_whitespace_top
+      whitespace_bottom : @_whitespace_bottom
+      whitespace_left   : @_whitespace_left
+      whitespace_right  : @_whitespace_right
     }
-    if @sizing_mode is 'stretch_both'
-      constrained_variables = extend(constrained_variables, {
-        'width': @_width
-        'height': @_height
-      })
-    if @sizing_mode is 'scale_width'
-      constrained_variables = extend(constrained_variables, {
-        'width': @_width
-      })
-    if @sizing_mode is 'scale_height'
-      constrained_variables = extend(constrained_variables, {
-        'height': @_height
-      })
-    return constrained_variables
+
+    switch @sizing_mode
+      when 'stretch_both'
+        vars.width  = @_width
+        vars.height = @_height
+      when 'scale_width'
+        vars.width  = @_width
+      when 'scale_height'
+        vars.height = @_height
+
+    return vars
 
   @define {
       height:      [ p.Number              ]

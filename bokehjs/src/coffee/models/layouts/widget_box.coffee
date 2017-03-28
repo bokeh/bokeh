@@ -99,31 +99,30 @@ export class WidgetBox extends LayoutDOM
     return constraints
 
   get_constrained_variables: () ->
-    constrained_variables = super()
-    constrained_variables = extend(constrained_variables, {
-      'on-edge-align-top'    : @_top
-      'on-edge-align-bottom' : @_height_minus_bottom
-      'on-edge-align-left'   : @_left
-      'on-edge-align-right'  : @_width_minus_right
+    vars = extend({}, super(), {
+      on_edge_align_top    : @_top
+      on_edge_align_bottom : @_height_minus_bottom
+      on_edge_align_left   : @_left
+      on_edge_align_right  : @_width_minus_right
 
-      'box-cell-align-top'   : @_top
-      'box-cell-align-bottom': @_height_minus_bottom
-      'box-cell-align-left'  : @_left
-      'box-cell-align-right' : @_width_minus_right
+      box_cell_align_top   : @_top
+      box_cell_align_bottom: @_height_minus_bottom
+      box_cell_align_left  : @_left
+      box_cell_align_right : @_width_minus_right
 
-      'box-equal-size-top'   : @_top
-      'box-equal-size-bottom': @_height_minus_bottom
+      box_equal_size_top   : @_top
+      box_equal_size_bottom: @_height_minus_bottom
     })
-    if @sizing_mode isnt 'fixed'
-      constrained_variables = extend(constrained_variables, {
-        'box-equal-size-left'  : @_left
-        'box-equal-size-right' : @_width_minus_right
-      })
-    return constrained_variables
+
+    if @sizing_mode != 'fixed'
+      vars.box_equal_size_left  = @_left
+      vars.box_equal_size_right = @_width_minus_right
+
+    return vars
 
   get_layoutable_children: () ->
     return @children
 
   @define {
-    'children': [ p.Array, [] ]
+    children: [ p.Array, [] ]
   }

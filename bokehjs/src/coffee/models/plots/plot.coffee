@@ -273,27 +273,26 @@ export class Plot extends LayoutDOM
     return constraints
 
   get_constrained_variables: () ->
-    constrained_variables = super()
-    constrained_variables = extend(constrained_variables, {
-      'on-edge-align-top'    : @plot_canvas._top
-      'on-edge-align-bottom' : @plot_canvas._height_minus_bottom
-      'on-edge-align-left'   : @plot_canvas._left
-      'on-edge-align-right'  : @plot_canvas._width_minus_right
+    vars = extend({}, super(), {
+      on_edge_align_top    : @plot_canvas._top
+      on_edge_align_bottom : @plot_canvas._height_minus_bottom
+      on_edge_align_left   : @plot_canvas._left
+      on_edge_align_right  : @plot_canvas._width_minus_right
 
-      'box-cell-align-top'   : @plot_canvas._top
-      'box-cell-align-bottom': @plot_canvas._height_minus_bottom
-      'box-cell-align-left'  : @plot_canvas._left
-      'box-cell-align-right' : @plot_canvas._width_minus_right
+      box_cell_align_top   : @plot_canvas._top
+      box_cell_align_bottom: @plot_canvas._height_minus_bottom
+      box_cell_align_left  : @plot_canvas._left
+      box_cell_align_right : @plot_canvas._width_minus_right
 
-      'box-equal-size-top'   : @plot_canvas._top
-      'box-equal-size-bottom': @plot_canvas._height_minus_bottom
+      box_equal_size_top   : @plot_canvas._top
+      box_equal_size_bottom: @plot_canvas._height_minus_bottom
     })
-    if @sizing_mode isnt 'fixed'
-      constrained_variables = extend(constrained_variables, {
-        'box-equal-size-left'  : @plot_canvas._left
-        'box-equal-size-right' : @plot_canvas._width_minus_right
-      })
-    return constrained_variables
+
+    if @sizing_mode != 'fixed'
+      vars.box_equal_size_left  = @plot_canvas._left
+      vars.box_equal_size_right = @plot_canvas._width_minus_right
+
+    return vars
 
   _set_orientation_variables: (model) ->
     if @_horizontal is false  # toolbar is above or below or null
