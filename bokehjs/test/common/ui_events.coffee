@@ -2,54 +2,47 @@
 utils = require "../utils"
 sinon = require 'sinon'
 
-{UIEvents} = utils.require "core/ui_events"
-# Stub out _hammer_element as not used in testing
-stub = sinon.stub(UIEvents.prototype, "_configure_hammerjs")
-
 dom = utils.require("core/dom")
 {Tap, MouseMove} = utils.require("core/bokeh_events")
 
 {CrosshairTool} = utils.require("models/tools/inspectors/crosshair_tool")
 {PanTool} = utils.require("models/tools/gestures/pan_tool")
+{PolySelectTool} = utils.require("models/tools/gestures/poly_select_tool")
 {TapTool} = utils.require("models/tools/gestures/tap_tool")
-{WheelPanTool} = utils.require("models/tools/gestures/wheel_pan_tool")
+{WheelZoomTool} = utils.require("models/tools/gestures/wheel_zoom_tool")
 
 {Canvas} = utils.require("models/canvas/canvas")
-{CanvasView} = utils.require("models/canvas/canvas")
 {Document} = utils.require("document")
 {Legend} = utils.require("models/annotations/legend")
 {Plot} = utils.require("models/plots/plot")
 {PlotCanvas} = utils.require("models/plots/plot_canvas")
-{PlotCanvasView} = utils.require("models/plots/plot_canvas")
 {Range1d} = utils.require("models/ranges/range1d")
 {Toolbar} = utils.require("models/tools/toolbar")
+{UIEvents} = utils.require "core/ui_events"
 
 describe "ui_events module", ->
 
   afterEach ->
     utils.unstub_canvas()
     utils.unstub_solver()
+    UIEvents.prototype._configure_hammerjs.restore()
 
   beforeEach ->
     utils.stub_canvas()
     utils.stub_solver()
+    sinon.stub(UIEvents.prototype, "_configure_hammerjs")
 
     @toolbar = new Toolbar()
     canvas = new Canvas()
     canvas.document = new Document()
-
     @plot = new Plot({
       x_range: new Range1d({start: 0, end: 1})
       y_range: new Range1d({start: 0, end: 1})
       toolbar: @toolbar
     })
     canvas.document.add_root(@plot)
-    plot_canvas = @plot.plot_canvas
-    plot_canvas.attach_document(canvas.document)
-
-    @plot_canvas_view = new plot_canvas.default_view({ 'model': plot_canvas })
-    @canvas_view = new canvas.default_view({'model': canvas})
-
+    @plot.plot_canvas.attach_document(canvas.document)
+    @plot_canvas_view = new @plot.plot_canvas.default_view({ 'model': @plot.plot_canvas })
     @ui_events = @plot_canvas_view.ui_event_bus
 
   describe "_trigger method", ->
@@ -170,9 +163,9 @@ describe "ui_events module", ->
         assert(@stopPropagation.notCalled)
 
       it "should trigger scroll event if exists an active tap tool", ->
-        gesture = new WheelPanTool()
+        gesture = new WheelZoomTool()
         @plot.add_tools(gesture)
-        # unclear why add_tools doesn't active the tool, so have to do it manually
+        # unclear why add_tools doesn't activate the tool, so have to do it manually
         @plot.toolbar.gestures['scroll'].active = gesture
 
         @ui_events._trigger("scroll", @e)
@@ -191,7 +184,6 @@ describe "ui_events module", ->
         @e.bokeh = {}
 
       it "should not trigger event if no active tool", ->
-        @plot.toolbar.gestures["pan"].active = null
         @ui_events._trigger("pan", @e)
         assert(@spy_trigger.notCalled)
 
@@ -204,7 +196,7 @@ describe "ui_events module", ->
         assert(@spy_trigger.calledOnce)
         expect(@spy_trigger.args[0]).to.be.deep.equal(["pan:#{gesture.id}", @e])
 
-  describe "_bokify_hammer method", ->
+  describe "_bokify methods", ->
 
     afterEach ->
       @dom_stub.restore()
@@ -213,7 +205,7 @@ describe "ui_events module", ->
       @dom_stub = sinon.stub(dom, "offset").returns({top: 0, left: 0})
       @spy = sinon.spy(@plot, "trigger_event")
 
-    it "Should trigger tap event with appropriate coords and model_id", ->
+    it "_bokify_hammer should trigger event with appropriate coords and model_id", ->
       e = new Event("tap")
       e.pointerType = "mouse"
       e.srcEvent = {pageX: 100, pageY: 200}
@@ -227,16 +219,7 @@ describe "ui_events module", ->
       expect(bk_event.sy).to.be.equal(200)
       expect(bk_event.model_id).to.be.equal(@plot.id)
 
-  describe "_bokify_point_event method", ->
-
-    afterEach ->
-      @dom_stub.restore()
-
-    beforeEach ->
-      @dom_stub = sinon.stub(dom, "offset").returns({top: 0, left: 0})
-      @spy = sinon.spy(@plot, "trigger_event")
-
-    it "Should trigger mousemove event with appropriate coords and model_id", ->
+    it "_bokify_point_event should trigger event with appropriate coords and model_id", ->
       e = new Event("mousemove")
       e.pageX = 100
       e.pageY = 200
@@ -249,3 +232,216 @@ describe "ui_events module", ->
       expect(bk_event.sx).to.be.equal(100)
       expect(bk_event.sy).to.be.equal(200)
       expect(bk_event.model_id).to.be.equal(@plot.id)
+
+  describe "_event methods", ->
+    ###
+    These tests are mildly integration tests. Based on an Event (as would be
+    initiated by event listeners attached in the _register_tool method), they
+    check whether the BokehEvent and UIEvents are correctly triggered.
+    ###
+
+    afterEach ->
+      @dom_stub.restore()
+
+    beforeEach ->
+      @dom_stub = sinon.stub(dom, "offset").returns({top: 0, left: 0})
+      # The BokehEvent that is triggered by the plot
+      @spy_plot = sinon.spy(@plot, "trigger_event")
+      # The event is that triggered on UIEvent for tool interactions
+      @spy_uievent = sinon.spy(@plot_canvas_view.ui_event_bus, "trigger")
+
+    it "_tap method should handle tap event", ->
+      e = new Event("tap")
+      e.pointerType = "mouse"
+      e.srcEvent = {pageX: 100, pageY: 200}
+
+      @plot.add_tools(new TapTool())
+
+      @ui_events._tap(e, {})
+
+      assert(@spy_plot.calledOnce)
+      assert(@spy_uievent.calledOnce)
+
+    it "_doubletap method should handle doubletap event", ->
+      e = new Event("doubletap")
+      e.pointerType = "mouse"
+      e.srcEvent = {pageX: 100, pageY: 200}
+
+      @plot.add_tools(new PolySelectTool())
+
+      @ui_events._doubletap(e, {})
+
+      assert(@spy_plot.calledOnce)
+      assert(@spy_uievent.calledOnce)
+
+    it "_press method should handle press event", ->
+      e = new Event("press")
+      e.pointerType = "mouse"
+      e.srcEvent = {pageX: 100, pageY: 200}
+
+      @ui_events._press(e, {})
+
+      assert(@spy_plot.calledOnce)
+      # There isn't a tool that uses the _press method
+      # assert(@spy_uievent.calledOnce)
+
+    it "_pan_start method should handle panstart event", ->
+      e = new Event("panstart")
+      e.pointerType = "mouse"
+      e.srcEvent = {pageX: 100, pageY: 200}
+
+      pan_tool = new PanTool()
+      @plot.add_tools(pan_tool)
+
+      @ui_events._pan_start(e, {})
+
+      assert(@spy_plot.calledOnce)
+      assert(@spy_uievent.calledOnce)
+
+    it "_pan method should handle pan event", ->
+      e = new Event("pan")
+      e.pointerType = "mouse"
+      e.srcEvent = {pageX: 100, pageY: 200}
+
+      pan_tool = new PanTool()
+      @plot.add_tools(pan_tool)
+
+      @ui_events._pan(e, {})
+
+      assert(@spy_plot.calledOnce)
+      assert(@spy_uievent.calledOnce)
+
+    it "_pan_end method should handle pan event", ->
+      e = new Event("panend")
+      e.pointerType = "mouse"
+      e.srcEvent = {pageX: 100, pageY: 200}
+
+      pan_tool = new PanTool()
+      @plot.add_tools(pan_tool)
+
+      @ui_events._pan_end(e, {})
+
+      assert(@spy_plot.calledOnce)
+      assert(@spy_uievent.calledOnce)
+
+    it "_pinch_start method should handle pinchstart event", ->
+      e = new Event("pinchstart")
+      e.pointerType = "mouse"
+      e.srcEvent = {pageX: 100, pageY: 200}
+
+      wheel_zoom_tool = new WheelZoomTool()
+      @plot.add_tools(wheel_zoom_tool)
+
+      #idk why it's not auto active
+      @plot.toolbar.gestures['pinch'].active = wheel_zoom_tool
+
+      @ui_events._pinch_start(e, {})
+
+      assert(@spy_plot.calledOnce)
+      # wheelzoomtool doesn't have _pinch_start but will emit event anyway
+      assert(@spy_uievent.calledOnce)
+
+    it "_pinch method should handle pinch event", ->
+      e = new Event("pinch")
+      e.pointerType = "mouse"
+      e.srcEvent = {pageX: 100, pageY: 200}
+
+      wheel_zoom_tool = new WheelZoomTool()
+      @plot.add_tools(wheel_zoom_tool)
+
+      #idk why it's not auto active
+      @plot.toolbar.gestures['pinch'].active = wheel_zoom_tool
+
+      @ui_events._pinch(e, {})
+
+      assert(@spy_plot.calledOnce)
+      assert(@spy_uievent.calledOnce)
+
+    it "_pinch_end method should handle pinchend event", ->
+      e = new Event("pinchend")
+      e.pointerType = "mouse"
+      e.srcEvent = {pageX: 100, pageY: 200}
+
+      wheel_zoom_tool = new WheelZoomTool()
+      @plot.add_tools(wheel_zoom_tool)
+
+      #idk why it's not auto active
+      @plot.toolbar.gestures['pinch'].active = wheel_zoom_tool
+
+      @ui_events._pinch_end(e, {})
+
+      assert(@spy_plot.calledOnce)
+      # wheelzoomtool doesn't have _pinch_start but will emit event anyway
+      assert(@spy_uievent.calledOnce)
+
+    # not implemented as tool method or BokehEvent
+    # it "_rotate_start method should handle rotatestart event", ->
+
+    # not implemented as tool method or BokehEvent
+    # it "_rotate method should handle rotate event", ->
+
+    # not implemented as tool method or BokehEvent
+    # it "_rotate_end method should handle rotateend event", ->
+
+    it "_move_enter method should handle mouseenter event", ->
+      e = new Event("mouseenter")
+
+      crosshair_tool = new CrosshairTool()
+      @plot.add_tools(crosshair_tool)
+
+      @ui_events._mouse_enter(e, {})
+
+      assert(@spy_plot.calledOnce)
+      assert(@spy_uievent.calledOnce)
+
+    it "_move method should handle mousemove event", ->
+      e = new Event("mousemove")
+
+      crosshair_tool = new CrosshairTool()
+      @plot.add_tools(crosshair_tool)
+
+      @ui_events._mouse_move(e, {})
+
+      assert(@spy_plot.calledOnce)
+      assert(@spy_uievent.calledOnce)
+
+    it "_move_exit method should handle mouseleave event", ->
+      e = new Event("mouseleave")
+
+      crosshair_tool = new CrosshairTool()
+      @plot.add_tools(crosshair_tool)
+
+      @ui_events._mouse_exit(e, {})
+
+      assert(@spy_plot.calledOnce)
+      assert(@spy_uievent.calledOnce)
+
+    it "_mouse_wheel method should handle wheel event", ->
+      e = new Event("wheel")
+
+      wheel_zoom_tool = new WheelZoomTool()
+      @plot.add_tools(wheel_zoom_tool)
+
+      #idk why it's not auto active
+      @plot.toolbar.gestures['scroll'].active = wheel_zoom_tool
+
+      @ui_events._mouse_wheel(e, {})
+
+      assert(@spy_plot.calledOnce)
+      assert(@spy_uievent.calledOnce)
+
+    # not implemented as tool method or BokehEvent
+    # it "_key_down method should handle keydown event", ->
+
+    it "_key_up method should handle keyup event", ->
+      e = new Event("keyup")
+
+      poly_select_tool = new PolySelectTool()
+      @plot.add_tools(poly_select_tool)
+
+      @ui_events._key_up(e, {})
+
+      # There isn't a BokehEvent model for keydown events
+      # assert(@spy_plot.calledOnce)
+      # This is a event on select tools that should probably be removed
+      assert(@spy_uievent.calledOnce)

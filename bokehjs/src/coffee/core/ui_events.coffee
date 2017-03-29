@@ -66,9 +66,9 @@ export class UIEvents
       logger.debug("Registering tool: #{type} for event '#{et}'")
       if tool_view["_#{et}_start"]?
         tool_view.listenTo(@, "#{et}:start:#{id}", tool_view["_#{et}_start"])
-      if tool_view["_#{et}"]
+      if tool_view["_#{et}"]?
         tool_view.listenTo(@, "#{et}:#{id}",       tool_view["_#{et}"])
-      if tool_view["_#{et}_end"]
+      if tool_view["_#{et}_end"]?
         tool_view.listenTo(@, "#{et}:end:#{id}",   tool_view["_#{et}_end"])
     else if et == "move"
       logger.debug("Registering tool: #{type} for event '#{et}'")
@@ -180,7 +180,7 @@ export class UIEvents
     }
     e.bokeh = extend(e.bokeh, extras)
     event_cls = BokehEvent.event_class(e)
-    if event_cls
+    if event_cls?
       @plot.trigger_event(event_cls.from_event(e))
     else
       logger.debug('Unhandled event of type ' + e.type)
@@ -194,8 +194,10 @@ export class UIEvents
     }
     e.bokeh = extend(e.bokeh, extras)
     event_cls = BokehEvent.event_class(e)
-    if event_cls
+    if event_cls?
       @plot.trigger_event(event_cls.from_event(e))
+    else
+      logger.debug('Unhandled event of type ' + e.type)
 
   _tap: (e) ->
     @_bokify_hammer(e)
