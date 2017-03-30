@@ -7,6 +7,7 @@ from bokeh.models import (
     HoverTool,
     LinearColorMapper,
     BasicTicker,
+    PrintfTickFormatter,
     ColorBar,
 )
 from bokeh.plotting import figure
@@ -50,12 +51,13 @@ p.rect(x="Year", y="Month", width=1, height=1,
 
 color_bar = ColorBar(color_mapper=mapper, major_label_text_font_size="5pt",
                      ticker=BasicTicker(desired_num_ticks=len(colors)),
-                     location=(0, 0))
+                     formatter=PrintfTickFormatter(format="%d%%"),
+                     label_standoff=6, border_line_color=None, location=(0, 0))
 p.add_layout(color_bar, 'right')
 
 p.select_one(HoverTool).tooltips = [
-    ('date', '@Month @Year'),
-    ('rate', '@rate'),
+     ('date', '@Month @Year'),
+     ('rate', '@rate%'),
 ]
 
 show(p)      # show the plot

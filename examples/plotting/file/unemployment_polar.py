@@ -8,6 +8,7 @@ from bokeh.models import (
     HoverTool,
     LinearColorMapper,
     BasicTicker,
+    PrintfTickFormatter,
     ColorBar,
     LabelSet,
 )
@@ -86,12 +87,13 @@ p.add_layout(labels)
 
 color_bar = ColorBar(color_mapper=mapper,
                      ticker=BasicTicker(desired_num_ticks=len(colors)),
-                     border_line_color=None, location=(0,0))
+                     formatter=PrintfTickFormatter(format="%d%%"),
+                     label_standoff=8, border_line_color=None, location=(0, 0))
 p.add_layout(color_bar, 'right')
 
 p.select_one(HoverTool).tooltips = [
      ('date', '@Month @Year'),
-     ('rate', '@rate'),
+     ('rate', '@rate%'),
 ]
 
 output_file("unemployment_polar.html", title="unemployment_polar.py example")
