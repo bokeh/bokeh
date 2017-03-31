@@ -25,7 +25,7 @@ def display_event(div, attributes=[]):
         for (var i=0; i<attrs.length; i++ ) {
             args.push(attrs[i] + '=' + Number(cb_obj[attrs[i]]).toFixed(2));
         }
-        var line = "'<span style=%r><b>" + cb_obj.event_name + "</b>(" + args.join(", ") + ")</span>\\n";
+        var line = "<span style=%r><b>" + cb_obj.event_name + "</b>(" + args.join(", ") + ")</span>\\n";
         var text = div.text.concat(line);
         var lines = text.split("\\n")
         if ( lines.length > 35 ) { lines.shift(); }
