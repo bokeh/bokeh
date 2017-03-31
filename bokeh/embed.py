@@ -28,7 +28,7 @@ from .core.templates import (
 from .core.json_encoder import serialize_json
 from .document import Document, DEFAULT_TITLE
 from .model import Model
-from .resources import BaseResources, _SessionCoordinates
+from .resources import BaseResources, DEFAULT_SERVER_HTTP_URL, _SessionCoordinates
 from .util.deprecation import deprecated
 from .util.string import encode_utf8
 from .util.serialization import make_id
@@ -470,67 +470,103 @@ def autoload_static(model, resources, script_path):
 
     return encode_utf8(js), encode_utf8(tag)
 
-def autoload_server(model, app_path=None, session_id=None, url="default", relative_urls=True):
-    '''Return a script tag that embeds content from a Bokeh server session.
+def autoload_server(model=None, app_path=None, session_id=None, url="default", relative_urls=False):
+    ''' Return a script tag that embeds content from a Bokeh server session.
 
-    In a typical deployment, each browser tab connecting to a Bokeh application
-    will have its own unique session ID. The session ID identifies a unique
-    Document instance for each session (so the state of the Document can be
-    different in every tab).
+    Bokeh apps embedded using ``autoload_server`` will NOT set the browser
+    window title.
 
-    If you call ``autoload_server(model=None)``, you'll embed the entire
-    Document for a freshly-generated session ID. Typically, you should call
-    ``autoload_server()`` again for each page load so that every new browser
-    tab gets its own session.
-
-    Sometimes when doodling around on a local machine, it's fine to set
-    ``session_id`` to something human-readable such as ``"default"``.  That
-    way you can easily reload the same session each time and keep your state.
-    But don't do this in production!
-
-    In some applications, you may want to "set up" the session before you embed
-    it. For example, you might ``session=bokeh.client.pull_session()`` to load
-    up a session, modify ``session.document`` in some way (perhaps adding
-    per-user data?), and then call:
-
-    .. code-block:: python
-
-        autoload_server(model=None, session_id=session.id)``.
-
-    The session ID obtained from ``pull_session()`` can be passed to
-    ``autoload_server()``.
+    .. note::
+        Typically you will not want to save or re-use the output of this
+        function for different or multiple page loads.
 
     Args:
         model (Model, optional) : The object to render from the session
-            Pass ``None`` to render an entire document. (default: ``None``)
 
-        session_id (str, optional) : server session ID (default: None)
-            If ``None``, let the server autogenerate a random session ID. If
-            you supply a specific model to render, you must also supply the
-            session ID containing that model, though.
+            If ``None`` an entire document is rendered. (default: ``None``)
 
-        url (str, optional) : The URL to a Bokeh application on a Bokeh server
+            If you supply a specific model to render, you must also supply the
+            session ID containing that model.
 
-        relative_urls (bool, optional) : Whether to use relative URLS for resources.
-            This should normally be set to ``True``, but must be set to
-            ``False`` in situations where relative URLs will not work. E.g.
-            when embedding the Bokeh server as a library in a bare Flask or
-            other web app directly, the relative URLs will land on the web
-            app server, not to the Bokeh server.
+            Supplying a model is usually only useful when embedding
+            a specific session that was previously created using the
+            ``bokeh.client`` API.
+
+        session_id (str, optional) : A server session ID (default: None)
+
+            If ``None``, let the server auto-generate a random session ID.
+
+            Supplying a session id is usually only useful when embedding
+            a specific session that was previously created using the
+            ``bokeh.client`` API.
+
+        url (str, optional) : A URL to a Bokeh application on a Bokeh server
+
+            If ``None`` the default URL ``%s`` will be used.
+
+        relative_urls (bool, optional) :
+            Whether to use relative URLs for resources.
+
+            If ``True`` the links generated for resources such a BokehJS
+            JavaScript and CSS will be relative links.
+
+            This should normally be set to ``False``, but must be set to
+            ``True`` in situations where only relative URLs will work. E.g.
+            when running the Bokeh behind reverse-proxies under certain
+            configurations
 
     Returns:
-        tag :
-            a ``<script>`` tag that will execute an autoload script
-            loaded from the Bokeh Server
+        A ``<script>`` tag that will execute an autoload script loaded
+        from the Bokeh Server.
 
-    .. note::
-        Bokeh apps embedded using ``autoload_server`` will NOT set the browser
-        window title.
+    Examples:
 
-    .. warning::
-        It is a very bad idea to use the same ``session_id`` for every page
-        load; you are likely to create scalability and security problems. So
-        ``autoload_server()`` should be called again on each page load.
+        In the simplest and most common case, we wish to embed Bokeh server
+        application by providing the URL to where it is located.
+
+        Suppose the app is running (perhaps behind Nginx or some other proxy)
+        at ``http://app.server.org/foo/myapp``. We wish to embed this app in
+        a page at ``mysite.com``. The following will provide an HTML script
+        tag to do that, that can be included in ``mysite.com``:
+
+        .. code-block:: python
+
+            script = autoload_server(url="http://app.server.org/foo/myapp")
+
+        Note that in order for this embedding to work, the Bokeh server needs
+        to have been configured to allow connections from the public URL where
+        the embedding happens. In this case, if the autoload script is run from
+        a page located at ``http://mysite.com/report`` then the Bokeh server
+        must have been started with an ``--allow-websocket-origin`` option
+        specifically allowing websocket connections from pages that originate
+        from ``mysite.com``:
+
+        .. code-block:: sh
+
+            bokeh serve mayapp.py --allow-websocket-origin=mysite.com
+
+        If an autoload script runs from an origin that has not been allowed,
+        the Bokeh server will return a 403 error.
+
+        It's also possible to initiate sessions on a Bokeh server from
+        Python, using the functions :func:`~bokeh.client.push_session` and
+        :func:`~bokeh.client.push_session`. This can be useful in advanced
+        situations where you may want to "set up" the session before you
+        embed it. For example, you might to load up a session and modify
+        ``session.document`` in some way (perhaps adding per-user data).
+
+        In such cases you will pass the session id as an argument as well:
+
+        .. code-block:: python
+
+            script = autoload_server(session_id="some_session_id",
+                                     url="http://app.server.org/foo/myapp")
+
+        .. warning::
+            It is typically a bad idea to re-use the same ``session_id`` for
+            every page load. This is likely to create scalability and security
+            problems, and will cause "shared Google doc" behaviour, which is
+            typically not desired.
 
     '''
     if app_path is not None:
@@ -579,6 +615,8 @@ def autoload_server(model, app_path=None, session_id=None, url="default", relati
     )
 
     return encode_utf8(tag)
+
+autoload_server.__doc__ = autoload_server.__doc__ % DEFAULT_SERVER_HTTP_URL
 
 def _script_for_render_items(docs_json, render_items, app_path=None, absolute_url=None):
     return _wrap_in_onload(_wrap_in_safely(DOC_JS.render(
