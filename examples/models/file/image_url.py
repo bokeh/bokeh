@@ -33,7 +33,7 @@ plot.add_glyph(source, image1)
 image2 = ImageURL(url="url", x="x2", y="y2", w=20, h=20, anchor="top_left")
 plot.add_glyph(source, image2)
 
-image3 = ImageURL(url=dict(value=url), x=200, y=-100, anchor="bottom_right")
+image3 = ImageURL(url=dict(value=url), x=200, y=-100, w=50, h=50, angle=np.pi, anchor="bottom_right")
 plot.add_glyph(source, image3)
 
 xaxis = LinearAxis()
