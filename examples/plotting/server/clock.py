@@ -35,7 +35,7 @@ p.add_layout(labels)
 
 # add the seconds, minutes, and hours hand at current time.
 start = datetime.datetime.now().time()
-ds = ColumnDataSource(dict(angle=[-(pi/6)*(start.hour % 12) + pi/2,
+ds = ColumnDataSource(dict(angle=[-(pi/6)*((start.hour % 12) + start.minute/60) + pi/2,
                                   -(pi/30)*start.minute + pi/2,
                                   -(pi/30)*start.second + pi/2],
                            color=['black', 'black', 'red'],
