@@ -6,7 +6,7 @@ from bokeh.embed import file_html
 from bokeh.models.glyphs import Circle
 from bokeh.models import (
     GMapPlot, Range1d, ColumnDataSource,
-    PanTool, WheelZoomTool, GMapOptions)
+    PanTool, WheelZoomTool, GMapOptions, Label)
 from bokeh.resources import INLINE
 from bokeh.sampledata.world_cities import data
 
@@ -15,7 +15,7 @@ y_range = Range1d(-80, 80)
 
 # Google Maps now requires an API key. You can find out how to get one here:
 # https://developers.google.com/maps/documentation/javascript/get-api-key
-API_KEY = "XXXXXXXXXXX"
+API_KEY = "GOOGLE_API_KEY"
 
 map_options = GMapOptions(lat=15, lng=0, zoom=2)
 
@@ -28,6 +28,12 @@ plot = GMapPlot(
     api_key=API_KEY,
     webgl=True,
 )
+
+if plot.api_key == "GOOGLE_API_KEY":
+    plot.add_layout(Label(x=500, y=320, x_units='screen', y_units='screen',
+                          text='Replace GOOGLE_API_KEY with your own key',
+                          text_color='red', text_align='center'))
+
 plot.title.text = "Cities of the world with a population over 5,000 people."
 
 circle = Circle(x="lng", y="lat", size=5, line_color=None, fill_color='firebrick', fill_alpha=0.2)
