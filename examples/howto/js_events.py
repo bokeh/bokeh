@@ -18,14 +18,14 @@ def display_event(div, attributes=[]):
     """
     style = 'float:left;clear:left;font_size=0.5pt'
     return CustomJS(args=dict(div=div), code="""
-        attrs = %s;
-        args = [];
-        for ( i=0; i<attrs.length; i++ ) {
+        var attrs = %s;
+        var args = [];
+        for (var i=0; i<attrs.length; i++ ) {
             args.push(attrs[i] + '=' + Number(cb_obj[attrs[i]]).toFixed(2));
         }
-        line = "<span style=%r><b>" + cb_obj.event_name + "</b>(" + args.join(", ") + ")</span>\\n";
-        text = div.text.concat(line);
-        lines = text.split("\\n")
+        var line = "'<span style=%r><b>" + cb_obj.event_name + "</b>(" + args.join(", ") + ")</span>\\n";
+        var text = div.text.concat(line);
+        var lines = text.split("\\n")
         if ( lines.length > 35 ) { lines.shift(); }
         div.text = lines.join("\\n");
     """ % (attributes, style))
