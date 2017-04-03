@@ -8,7 +8,7 @@ export class PolySelectToolView extends SelectToolView
   initialize: (options) ->
     super(options)
     @listenTo(@model, 'change:active', @_active_change)
-    @data = null
+    @data = {vx: [], vy: []}
 
   _active_change: () ->
     if not @model.active
@@ -25,7 +25,7 @@ export class PolySelectToolView extends SelectToolView
     @_clear_data()
 
   _clear_data: () ->
-    @data = null
+    @data = {vx: [], vy: []}
     @model.overlay.update({xs:[], ys:[]})
 
   _tap: (e) ->
@@ -33,18 +33,10 @@ export class PolySelectToolView extends SelectToolView
     vx = canvas.sx_to_vx(e.bokeh.sx)
     vy = canvas.sy_to_vy(e.bokeh.sy)
 
-    if not @data?
-      @data = {vx: [vx], vy: [vy]}
-      return null
-
     @data.vx.push(vx)
     @data.vy.push(vy)
 
-    overlay = @model.overlay
-    new_data = {}
-    new_data.vx = copy(@data.vx)
-    new_data.vy = copy(@data.vy)
-    overlay.update({xs: @data.vx, ys: @data.vy})
+    @model.overlay.update({xs: copy(@data.vx), ys: copy(@data.vy)})
 
   _select: (vx, vy, final, append) ->
     geometry = {
