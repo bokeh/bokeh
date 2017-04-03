@@ -40,6 +40,7 @@ export class Range1d extends Range
   }
 
   reset: () ->
-    # start/end change events not silenced to trigger callbacks
-    @setv({start: @_initial_start, end: @_initial_end})
     @_set_auto_bounds()
+    # start/end change events not silenced to trigger property callbacks
+    @setv({start: @_initial_start, end: @_initial_end})
+    @trigger('change')
