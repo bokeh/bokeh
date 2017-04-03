@@ -97,8 +97,15 @@ describe "range1d module", ->
     it "should execute update callback once", ->
       cb = new CustomJS()
       r = new Range1d({callback: cb})
-      r.start = -2.1
+      spy = sinon.spy(cb, 'execute')
+      r.reset()
+      expect(spy.calledOnce).to.be.true
 
+    it "should execute update callback once even if resetting start/end", ->
+      cb = new CustomJS()
+      r = new Range1d({callback: cb, start:0, end:1})
+      r.start = 2
+      r.end = 3
       spy = sinon.spy(cb, 'execute')
       r.reset()
       expect(spy.calledOnce).to.be.true
