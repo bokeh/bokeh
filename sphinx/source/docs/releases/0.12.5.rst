@@ -32,8 +32,8 @@ Known Issues
 
 The ClientSession APIs defined in `bokeh.client.session`, such as
 `push_session`, don't currently support the new `on_event` interface for
-UI event callbacks in Bokeh Server application. This deficiency is expected
-to be addressed in the next Bokeh release.
+UI event callbacks in Bokeh Server application. You may track the issue on
+GitHub (:bokeh-issue:`6092`).
 
 Migration Guide
 ---------------
