@@ -77,10 +77,57 @@ is executed to update some data:
     :source-position: above
 
 
+
+CustomJS for Event classes
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In addition to responding to Backbone events using ``js_on_change``,
+Bokeh allows ``CustomJS`` callbacks to be triggered by a set of
+dedicated event objects. These events include interaction events with
+the plot canvas, button click events and LOD events.
+
+When registering with these events, the ``CustomJS`` callbacks is
+attached to the event using the ``js_on_event`` method of Bokeh models
+and the callback receives the event object as ``cb_obj``:
+
+
+.. code:: python
+
+    from bokeh.models.callbacks import CustomJS
+
+    callback = CustomJS(code="""
+    // the event that triggered the callback is cb_obj:
+    var event = cb_obj.value;
+    // The event type determines the relevant attributes
+    console.log('Tap event occured at x-position: ' + event.x)
+    """)
+
+    p = figure()
+    # execute a callback whenever the plot canvas is tapped
+    p.js_on_event('tap', callback)
+
+
+Although the event can be specified as a string such as ``'tap'`` above,
+it is often more appropriate to specify the first argument of
+``js_on_event`` using the event class. The full set of event classes can
+be imported from the ``bokeh.events`` module.
+
+The following code imports ``bokeh.events`` and registered all the
+available event classes using the ``display_event`` function to generate
+the ``CustomJS`` objects. This function is used to update the ``Div``
+with the event name (always accessible from the ``event_name``
+attribute) as well as all the other applicable event attributes. The
+result is a plot that when interacted with, displays the corresponding
+event on the right:
+    
+.. bokeh-plot:: docs/user_guide/examples/js_events.py
+    :source-position: above
+
+ 
 CustomJS for Specialized Events
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In addition to the generic mechanism described above for adding ``CustomJS``
+In addition to the generic mechanisms described above for adding ``CustomJS``
 callbacks to Bokeh models, there are also a some Bokeh models that have a
 ``.callback`` property specifically for executing ``CustomJS`` in response
 to specific events or situations.
@@ -111,6 +158,8 @@ changes the source of a plot when the slider is used.
     :source-position: above
 
 .. _userguide_interaction_actions_tool_callbacks:
+
+
 
 CustomJS for Tools
 ''''''''''''''''''
