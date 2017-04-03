@@ -41,6 +41,7 @@ export class Range1d extends Range
 
   reset: () ->
     @_set_auto_bounds()
-    # start/end change events not silenced to trigger property callbacks
-    @setv({start: @_initial_start, end: @_initial_end})
-    @trigger('change')
+    if @start != @_initial_start or @end != @_initial_end
+      @setv({start: @_initial_start, end: @_initial_end})
+    else
+      @trigger('change')
