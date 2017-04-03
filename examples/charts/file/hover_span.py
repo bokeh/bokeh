@@ -10,7 +10,7 @@ defaults.height = 300
 
 TOOLS='box_zoom,box_select,hover,crosshair,reset'
 
-TOOLTIPS = [ ("y", "$~y"), ("x", "$~x") ]
+TOOLTIPS = [ ("y", "$~y"), ("x", "$~x{0}") ]
 
 data = data[['Biology', 'Business', 'Computer Science', "Year"]]
 data = pd.melt(data, id_vars=['Year'],
