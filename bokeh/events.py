@@ -298,11 +298,10 @@ class MouseWheel(PointEvent):
         y (float) : y-coordinate of the event in *data* space
 
 
-    By default, Bokeh plots do not capture scroll events, because prevents
-    the page from scrolling which can be annoying unless it was explicitly
-    requested. In order for ``MouseWheel`` events to fire, either the
-    ``WheelZoomTool`` must be active, or some custom extension must have
-    requested wheel UI events to propagate.
+    .. note::
+        By default, Bokeh plots do not prevent default scroll events unless a
+        WheelZoomTool or WheelPanTool is active. This may change in future
+        releases.
 
     '''
     event_name = 'wheel'

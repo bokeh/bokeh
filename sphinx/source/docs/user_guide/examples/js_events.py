@@ -57,4 +57,5 @@ p.js_on_event(events.MouseWheel, display_event(div,attributes=wheel_attributes))
 p.js_on_event(events.Pan,        display_event(div, attributes=pan_attributes))
 p.js_on_event(events.Pinch,      display_event(div, attributes=pinch_attributes))
 
+output_file("js_events.html", title="JS Events Example")
 show(layout)
