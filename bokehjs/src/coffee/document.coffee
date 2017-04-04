@@ -21,15 +21,14 @@ class EventManager
 
   send_event: (event) ->
     # Send message to Python via session
-    @session.send_event(event)
+    @session?.send_event(event)
 
   trigger: (event) ->
     for model_id in @subscribed_models.values
-        if event.model_id != null and event.model_id != model_id
-            continue
-        model = @document._all_models[model_id]
-        if model?
-            model._process_event(event)
+      if event.model_id != null and event.model_id != model_id
+        continue
+      model = @document._all_models[model_id]
+      model?._process_event(event)
 
 export class DocumentChangedEvent
   constructor : (@document) ->

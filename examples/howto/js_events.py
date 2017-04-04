@@ -16,15 +16,19 @@ def display_event(div, attributes=[]):
     Function to build a suitable CustomJS to display the current event
     in the div model.
     """
-    name = "cb_obj.event.event_name"
-    attrs =  [("'{attr}='+ Number(cb_obj.event['{attr}']).toFixed(2)"
-               + " + ', '").format(attr=attr) for attr in attributes]
-    args = '+'.join(attrs) if attributes else repr('')
-    l1 = "text = {name} + '(' + {args} + ')' + \
-             div.text.replace('<b>Events</b>','');".format(name=name, args=args )
-    l2 = "div.text = '<b>Events</b><br><font size=\"0.5pt\">' + text.split('<br>',20).join('<br>')+ '</font>';"
-    return CustomJS(code=l1+l2, args={'div': div})
-
+    style = 'float:left;clear:left;font_size=0.5pt'
+    return CustomJS(args=dict(div=div), code="""
+        var attrs = %s;
+        var args = [];
+        for (var i=0; i<attrs.length; i++ ) {
+            args.push(attrs[i] + '=' + Number(cb_obj[attrs[i]]).toFixed(2));
+        }
+        var line = "'<span style=%r><b>" + cb_obj.event_name + "</b>(" + args.join(", ") + ")</span>\\n";
+        var text = div.text.concat(line);
+        var lines = text.split("\\n")
+        if ( lines.length > 35 ) { lines.shift(); }
+        div.text = lines.join("\\n");
+    """ % (attributes, style))
 
 # Follows the color_scatter gallery example
 
@@ -36,8 +40,7 @@ colors = [
     "#%02x%02x%02x" % (int(r), int(g), 150) for r, g in zip(50+2*x, 30+2*y)
 ]
 
-p = figure(tools="pan,wheel_zoom,zoom_in,zoom_out,reset",
-           plot_width=400, plot_height=400)
+p = figure(tools="pan,wheel_zoom,zoom_in,zoom_out,reset")
 
 p.scatter(x, y, radius=radii,
           fill_color=colors, fill_alpha=0.6,

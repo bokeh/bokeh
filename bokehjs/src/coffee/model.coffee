@@ -22,20 +22,20 @@ export class Model extends HasProps
         @listenTo(@, evt, () -> cb.execute(@))
 
     @listenTo(@, 'change:js_event_callbacks', () -> @_update_event_callbacks)
+    @listenTo(@, 'change:subscribed_events', () -> @_update_event_callbacks)
 
   _process_event: (event) ->
     if event.is_applicable_to(this)
       event = event._customize_event(@)
 
       for callback in @js_event_callbacks[event.event_name] ? []
-        callback.execute({event: event}, {})
+        callback.execute(event, {})
 
       if @subscribed_events.some((m) -> m == event.event_name)
         @document.event_manager.send_event(event)
 
   trigger_event: (event) ->
-    if @document?
-      @document.event_manager.trigger(event.set_model_id(@.id))
+    @document?.event_manager.trigger(event.set_model_id(@.id))
 
   _update_event_callbacks: () ->
     if not @document?
@@ -45,7 +45,7 @@ export class Model extends HasProps
     @document.event_manager.subscribed_models.push(@id)
 
   _doc_attached: () ->
-    if not isEmpty(@js_event_callbacks)
+    if not isEmpty(@js_event_callbacks) or not isEmpty(@subscribed_events)
       @_update_event_callbacks()
 
   select: (selector) ->

@@ -50,6 +50,9 @@ automatically be available to the JavaScript code by the corresponding name.
 Additionally, the model that triggers the callback (i.e. the model that
 the callback is attached to) will be available as ``cb_obj``.
 
+CustomJS for Model Property Events
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 These ``CustomJS`` callbacks can be attached to property change events on
 any Bokeh model, using the ``js_on_change`` method of Bokeh models:
 
@@ -76,11 +79,51 @@ is executed to update some data:
 .. bokeh-plot:: docs/user_guide/examples/interaction_callbacks_js_on_change.py
     :source-position: above
 
+CustomJS for User Interaction Events
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In addition to responding to property change events using js_on_change, Bokeh
+allows CustomJS callbacks to be triggered by specific interaction events with
+the plot canvas, on button click events, and on LOD events.
+
+These event callbacks are defined on models using the js_on_event method,
+with the callback receiving the event object as a locally defined cb_obj
+variable:
+
+.. code:: python
+
+    from bokeh.models.callbacks import CustomJS
+
+    callback = CustomJS(code="""
+    // the event that triggered the callback is cb_obj:
+    var event = cb_obj.value;
+    // The event type determines the relevant attributes
+    console.log('Tap event occured at x-position: ' + event.x)
+    """)
+
+    p = figure()
+    # execute a callback whenever the plot canvas is tapped
+    p.js_on_event('tap', callback)
+
+The event can be specified as a string such as ``'tap'`` above, or an event
+class import from the ``bokeh.events`` module
+(i.e. ``from bokeh.events import Tap``).
+
+The following code imports ``bokeh.events`` and registers all of the
+available event classes using the ``display_event`` function in order to
+generate the ``CustomJS`` objects. This function is used to update the ``Div``
+with the event name (always accessible from the ``event_name``
+attribute) as well as all the other applicable event attributes. The
+result is a plot that when interacted with, displays the corresponding
+event on the right:
+
+.. bokeh-plot:: docs/user_guide/examples/js_events.py
+    :source-position: above
 
 CustomJS for Specialized Events
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In addition to the generic mechanism described above for adding ``CustomJS``
+In addition to the generic mechanisms described above for adding ``CustomJS``
 callbacks to Bokeh models, there are also a some Bokeh models that have a
 ``.callback`` property specifically for executing ``CustomJS`` in response
 to specific events or situations.
