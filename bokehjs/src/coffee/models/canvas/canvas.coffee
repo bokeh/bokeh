@@ -54,14 +54,14 @@ export class CanvasView extends DOMView
       @el.style.height = "#{height}px"
 
       # Scale the canvas (this resets the context's state)
-      @pixel_ratio = ratio = get_scale_ratio(@ctx, @model.use_hidpi)
+      pixel_ratio = get_scale_ratio(@ctx, @model.use_hidpi)
       @canvas_el.style.width = "#{width}px"
       @canvas_el.style.height = "#{height}px"
-      @canvas_el.setAttribute('width', width*ratio)
-      @canvas_el.setAttribute('height', height*ratio)
+      @canvas_el.setAttribute('width', width*pixel_ratio)
+      @canvas_el.setAttribute('height', height*pixel_ratio)
 
-      logger.debug("Rendering CanvasView with width: #{width}, height: #{height}, ratio: #{ratio}")
-      @model.pixel_ratio = @pixel_ratio
+      logger.debug("Rendering CanvasView with width: #{width}, height: #{height}, pixel ratio: #{pixel_ratio}")
+      @model.pixel_ratio = pixel_ratio
       @last_dims = [width, height, dpr]
 
   set_dims: (dims, trigger=true) ->
