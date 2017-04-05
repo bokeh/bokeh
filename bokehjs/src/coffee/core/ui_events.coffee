@@ -130,13 +130,13 @@ export class UIEvents
         if view?
           if view.model.cursor?
             cursor = view.model.cursor()
-          if active_inspectors?
+          if active_inspectors
             # override event_type to cause inspectors to clear overlays
             event_type = "move:exit"
 
         # the event happened on the plot frame but off a renderer
         else if @_hit_test_frame(e.bokeh.sx, e.bokeh.sy)
-          if active_inspectors?
+          if active_inspectors
             cursor = "crosshair"
 
         @plot_view.set_cursor(cursor)
