@@ -690,20 +690,6 @@ export class PlotCanvas extends LayoutDOM
 
     logger.debug("PlotCanvas initialized")
 
-  add_renderer_to_canvas_side: (renderer, side) ->
-    # Calling this method after a plot has been initialized may (will?)
-    # fail because the new constraints from the panel may
-    # not be added to the solver.
-    #
-    # TODO (bird): We could make it more formal that in order for
-    # a renderer to be available as an off-center item, it needs an add_panel
-    # method. Currently axis and annotation have these.
-    #
-    # TODO (bird): Should we actually just throw an error if you try
-    # to call this for a center renderer to help with clarity.
-    if side != 'center'
-      renderer.add_panel(side)
-
   _doc_attached: () ->
     @canvas.attach_document(@document)
     @frame.attach_document(@document)
@@ -711,6 +697,7 @@ export class PlotCanvas extends LayoutDOM
     @below_panel.attach_document(@document)
     @left_panel.attach_document(@document)
     @right_panel.attach_document(@document)
+    super()
     logger.debug("PlotCanvas attached to document")
 
   @override {

@@ -26,7 +26,6 @@ export class LayoutDOMView extends DOMView
       for cls in @model.css_classes
         @el.classList.add(cls)
 
-    # init_solver = false becuase we only need to init solver on subsequent children change.
     @child_views = {}
     @build_child_views()
 
@@ -111,10 +110,6 @@ export class LayoutDOMView extends DOMView
     @_solver.trigger('resize')
 
   rebuild_child_views: () ->
-    # TODO (bird) Can't we put the call to invalidate_all_models in _init_solver
-    # surely its document's problem to know how to init a solver. Also _init_solver
-    # probably shouldn't be a private method if we're using it here.
-    @model.document._invalidate_all_models()
     @_reset_solver()
     @build_child_views()
 

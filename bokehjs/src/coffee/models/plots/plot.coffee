@@ -85,9 +85,7 @@ export class Plot extends LayoutDOM
         plots = plots.concat(@)
         yr.setv('plots', plots, {silent: true})
 
-    @_horizontal = false
-    if @toolbar_location in ['left', 'right']
-      @_horizontal = true
+    @_horizontal = @toolbar_location in ['left', 'right']
 
     # Min border applies to the edge of everything
     if @min_border?
@@ -119,42 +117,39 @@ export class Plot extends LayoutDOM
     if not @height?
       @height = @plot_height
 
+    # Setup side renderers
+    for side in ['above', 'below', 'left', 'right']
+      layout_renderers = @getv(side)
+      for renderer in layout_renderers
+        renderer.add_panel(side)
+
+    _set_sizeable = (model) =>
+      model._sizeable = if not @_horizontal then model._height else model._width
+
+    _set_sizeable(@)
+    _set_sizeable(@plot_canvas)
+
   @getters {
     plot_canvas: () -> @_plot_canvas
   }
 
   _doc_attached: () ->
-    # Setup side renderers
-    for side in ['above', 'below', 'left', 'right']
-      layout_renderers = @getv(side)
-      for r in layout_renderers
-        @plot_canvas.add_renderer_to_canvas_side(r, side)
     @plot_canvas.attach_document(@document)
-    @_set_orientation_variables(@)
-    @_set_orientation_variables(@toolbar)
-    @_set_orientation_variables(@plot_canvas)
-
-    # super call needed to inform the event manager of the model(s)
-    # processing events (in this case it is the Plot model)
-
     super()
+
   add_renderers: (new_renderers...) ->
     renderers = @renderers
     renderers = renderers.concat(new_renderers)
     @renderers = renderers
 
   add_layout: (renderer, side="center") ->
-    # For non-center renderers, this method can only be used before
-    # the document is attached to the plot. In _doc_attached, the canvas
-    # sets up the the sub-side panels that are necessary for
-    # side_renderers to lay themselves out.
-    # (Bird: I'm not sure if live adding of center renderers will work or not).
     if renderer.props.plot?
       renderer.plot = this
     @add_renderers(renderer)
     if side != 'center'
       side_renderers = @getv(side)
       side_renderers.push(renderer)
+      renderer.add_panel(side)
 
   add_glyph: (glyph, source, attrs={}) ->
     if not source?
@@ -222,7 +217,10 @@ export class Plot extends LayoutDOM
         constraints.push(EQ(@_sizeable, [-1, @plot_canvas._sizeable], [-1, @toolbar._sizeable]))
 
       # (2) plot_width = plot_canvas_width | plot_height = plot_canvas_height | plot_height = plot_canvas_height
-      constraints.push(EQ(@_full, [-1, @plot_canvas._full]))
+      if not @_horizontal
+        constraints.push(EQ(@_width, [-1, @plot_canvas._width]))
+      else
+        constraints.push(EQ(@_height, [-1, @plot_canvas._height]))
 
       if @toolbar_location is 'above'
         # (3) stack: plot_canvas._top = toolbar._dom_top + toolbar._height
@@ -293,14 +291,6 @@ export class Plot extends LayoutDOM
       vars.box_equal_size_right = @plot_canvas._width_minus_right
 
     return vars
-
-  _set_orientation_variables: (model) ->
-    if @_horizontal is false  # toolbar is above or below or null
-      model._sizeable = model._height
-      model._full = model._width
-    if @_horizontal is true  # toolbar is left or right
-      model._sizeable = model._width
-      model._full = model._height
 
   #
   # SETUP PROPERTIES

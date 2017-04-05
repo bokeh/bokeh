@@ -52,6 +52,15 @@ export class ToolbarBase extends LayoutDOM
   type: 'ToolbarBase'
   default_view: ToolbarBaseView
 
+  initialize: (attrs, options) ->
+    super(attrs, options)
+    @_set_sizeable()
+    @listenTo(@, 'change:toolbar_location', () => @_set_sizeable())
+
+  _set_sizeable: () ->
+    horizontal = @toolbar_location in ['left', 'right']
+    @_sizeable = if not horizontal then @_height else @_width
+
   _active_change: (tool) =>
     event_type = tool.event_type
     gestures = @gestures
