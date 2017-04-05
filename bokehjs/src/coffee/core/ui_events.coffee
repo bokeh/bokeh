@@ -123,20 +123,20 @@ export class UIEvents
     switch base_type
 
       when "move"
-        active_inspectors = any(@toolbar.inspectors, (t) -> t.active)
+        has_active_inspectors = any(@toolbar.inspectors, (t) -> t.active)
         cursor = "default"
 
         # the event happened on a renderer
         if view?
           if view.model.cursor?
             cursor = view.model.cursor()
-          if active_inspectors
+          if has_active_inspectors
             # override event_type to cause inspectors to clear overlays
             event_type = "move:exit"
 
         # the event happened on the plot frame but off a renderer
         else if @_hit_test_frame(e.bokeh.sx, e.bokeh.sy)
-          if active_inspectors
+          if has_active_inspectors
             cursor = "crosshair"
 
         @plot_view.set_cursor(cursor)
