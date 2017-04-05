@@ -470,7 +470,6 @@ export class PlotCanvasView extends DOMView
     @listenTo(@model.plot.toolbar, 'change:tools', () => @build_levels(); @build_tools())
     @listenTo(@model.plot, 'change', @request_render)
     @listenTo(@model.plot, 'destroy', () => @remove())
-    @listenTo(@solver, 'layout_update', () => @model.frame._update_mappers())
     @listenTo(@solver, 'layout_update', () => @request_render())
     @listenTo(@solver, 'layout_update', () =>
       @model.plot.setv({
@@ -539,6 +538,8 @@ export class PlotCanvasView extends DOMView
 
     # TODO (bev) OK this sucks, but the event from the solver update doesn't
     # reach the frame in time (sometimes) so force an update here for now
+    # (mp) not only that, but models don't know about solver anymore, so
+    # frame can't update its mappers.
     @model.frame._update_mappers()
 
     ctx = @canvas_view.ctx
