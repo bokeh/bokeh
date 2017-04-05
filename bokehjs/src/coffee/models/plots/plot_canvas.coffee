@@ -123,9 +123,6 @@ export class PlotCanvasView extends DOMView
 
     return this
 
-  get_canvas_element: () ->
-    return @canvas_view.ctx.canvas
-
   set_cursor: (cursor="default") ->
     @canvas_view.el.style.cursor = cursor
 
@@ -651,7 +648,7 @@ export class PlotCanvasView extends DOMView
       ctx.fillRect(frame_box...)
 
   save: (name) ->
-    canvas = @get_canvas_element()
+    canvas = @canvas_view.get_canvas_element()
 
     if canvas.msToBlob?
       blob = canvas.msToBlob()
