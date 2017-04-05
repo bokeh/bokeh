@@ -469,7 +469,6 @@ export class PlotCanvasView extends DOMView
     @listenTo(@model.plot, 'change:renderers', () => @build_levels())
     @listenTo(@model.plot.toolbar, 'change:tools', () => @build_levels(); @build_tools())
     @listenTo(@model.plot, 'change', @request_render)
-    @listenTo(@model.plot, 'destroy', () => @remove())
     @listenTo(@solver, 'layout_update', () => @request_render())
     @listenTo(@solver, 'layout_update', () =>
       @model.plot.setv({
