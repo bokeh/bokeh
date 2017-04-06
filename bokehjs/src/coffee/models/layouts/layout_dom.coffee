@@ -19,7 +19,8 @@ export class LayoutDOMView extends DOMView
       @_solver = new Solver()
       @_init_solver()
 
-    @el.classList.add("bk-layout-#{@model.sizing_mode}")
+    if @model.sizing_mode? # because toolbar uses null
+      @el.classList.add("bk-layout-#{@model.sizing_mode}")
     if @model.css_classes?
       for cls in @model.css_classes
         @el.classList.add(cls)
