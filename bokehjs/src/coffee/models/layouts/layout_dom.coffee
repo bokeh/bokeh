@@ -19,8 +19,6 @@ export class LayoutDOMView extends DOMView
       @_solver = new Solver()
       @_init_solver()
 
-    # Provides a hook so document can measure
-    @el.setAttribute("id", "modelid_#{@model.id}")
     @el.classList.add("bk-layout-#{@model.sizing_mode}")
     if @model.css_classes?
       for cls in @model.css_classes
