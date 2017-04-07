@@ -88,7 +88,7 @@ export class LayoutDOMView extends DOMView
     variables = @model.get_constrained_variables()
 
     if variables.width? or variables.height?
-      if width == null or height=null
+      if width == null or height == null
         measuring = @el
 
         while true
