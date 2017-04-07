@@ -144,43 +144,38 @@ _align_lookup_positive = {
 #         calculate mid-way for alignment.
 
 export update_constraints = (view) ->
-  v = view
-
-  if v.model.props.visible?
-    if v.model.visible is false
-      # if not visible, avoid applying constraints until visible again
-      return
-
-  # Constrain size based on contents (may not have changed)
-  size = v._get_size()
-
-  if not v._last_size?
-    v._last_size = -1
-
-  if size == v._last_size
+  if view.model.props.visible? and not view.model.visible
+    # if not visible, avoid applying constraints until visible again
     return
 
-  s = v.solver
+  # Constrain size based on contents (may not have changed)
+  size = view._get_size()
 
-  v._last_size = size
-  if v._size_constraint?
-    s.remove_constraint(v._size_constraint, true)
-  v._size_constraint = GE(v.model.panel._size, -size)
-  s.add_constraint(v._size_constraint)
+  if not view._last_size?
+    view._last_size = -1
+
+  if size == view._last_size
+    return
+
+  s = view.solver
+
+  view._last_size = size
+  if view._size_constraint?
+    s.remove_constraint(view._size_constraint, true)
+  view._size_constraint = GE(view.model.panel._size, -size)
+  s.add_constraint(view._size_constraint)
 
   # Constrain Full Dimension - link it to the plot (only needs to be done once)
   # If axis is on the left, then it is the full height of the plot.
   # If axis is on the top, then it is the full width of the plot.
-  if not v._full_set?
-    v._full_set = false
-  if not v._full_set
-    side = v.model.panel.side
-    if side in ['above', 'below']
-      s.add_constraint(EQ(v.model.panel._width, [-1, v.plot_model.canvas._width]))
-    if side in ['left', 'right']
-      s.add_constraint(EQ(v.model.panel._height, [-1, v.plot_model.canvas._height]))
-    v._full_set = true
-
+  if not view._full_set?
+    view._full_set = false
+  if not view._full_set
+    constraint = switch view.model.panel.side
+      when 'above', 'below' then EQ(view.model.panel._width,  [-1, view.plot_model.canvas._width])
+      when 'left', 'right'  then EQ(view.model.panel._height, [-1, view.plot_model.canvas._height])
+    s.add_constraint(constraint)
+    view._full_set = true
 
 export class SidePanel extends LayoutCanvas
 
