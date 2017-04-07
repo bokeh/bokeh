@@ -39,7 +39,7 @@ export class CompositeTicker extends ContinuousTicker
     # this can happen if the data isn't loaded yet, we just default to
     # the first scale
     best_index = argmin(errors)
-    if best_index == Infinity
+    if best_index is undefined
       return @tickers[0]
     best_ticker_ndx = ticker_ndxs[best_index]
     best_ticker = @tickers[best_ticker_ndx]
