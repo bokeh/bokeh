@@ -801,8 +801,3 @@ export class PlotCanvas extends LayoutDOM
           when "right" then EQ(last.panel._right, [-1, @right_panel._right])
         constraints.push(constraint)
     return constraints
-
-  # TODO: This is less than awesome - this is here purely for tests to pass. Need to
-  # find a better way, but this was expedient for now.
-  plot_canvas: () ->
-    return @
