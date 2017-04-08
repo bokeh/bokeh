@@ -36,26 +36,12 @@ describe "AdaptiveTicker Model", ->
       interval = @ticker.get_interval(0, 1000, 2)
       expect(interval).to.be.equal(500)
 
-  describe "AdaptiveTicker get_ticks method", ->
+    it "should use the min_interval", ->
+      @ticker.min_interval = 250
+      interval = @ticker.get_interval(0, 1000, 10)
+      expect(interval).to.be.equal(250)
 
-    it "should have five major and ten minor ticks", ->
-      ticker = new AdaptiveTicker({mantissas: [5], base: 10, desired_num_ticks: 5, num_minor_ticks: 2})
-
-      # `range` and `cross_loc` aren't used by the AdaptiveTicker, so are passed as null args
-      ticks = ticker.get_ticks(-100, 100, null, null, {})
-      expect(ticks.major).to.be.deep.equal([ -100, -50, 0, 50, 100 ])
-      expect(ticks.minor).to.be.deep.equal([ -125, -100, -75, -50, -25, 0, 25, 50, 75, 100, 125 ])
-
-    it "should have five major and five minor ticks", ->
-      ticker = new AdaptiveTicker({mantissas: [512], base: 1024, desired_num_ticks: 5, num_minor_ticks:1})
-
-      ticks = ticker.get_ticks(-1024, 1024, null, null, {})
-      expect(ticks.major).to.be.deep.equal([ -1024, -512, 0, 512, 1024 ])
-      expect(ticks.minor).to.be.deep.equal([ -1024, -512, 0, 512, 1024 ])
-
-    it "should have five major and zero minor ticks", ->
-      ticker = new AdaptiveTicker({mantissas: [512], base: 1024, desired_num_ticks: 5, num_minor_ticks:0})
-
-      ticks = ticker.get_ticks(-1024, 1024, null, null, {})
-      expect(ticks.major).to.be.deep.equal([ -1024, -512, 0, 512, 1024 ])
-      expect(ticks.minor).to.be.deep.equal([ ])
+    it "should use the max_interval", ->
+      @ticker.max_interval = 50
+      interval = @ticker.get_interval(0, 1000, 10)
+      expect(interval).to.be.equal(50)
