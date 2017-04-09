@@ -34,7 +34,7 @@ export class Ticker extends Model
     ticks = (factor * interval for factor in factors)
     num_minor_ticks = @num_minor_ticks
     minor_ticks = []
-    if num_minor_ticks > 0
+    if num_minor_ticks > 0 and ticks.length > 0
       minor_interval = interval / num_minor_ticks
       minor_offsets = (i*minor_interval for i in [0...num_minor_ticks])
       for x in minor_offsets[1..minor_offsets.length]
