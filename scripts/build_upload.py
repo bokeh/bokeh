@@ -381,7 +381,7 @@ def upload_anaconda(token, dev):
 
 @upload_wrapper('pypi')
 def upload_pypi():
-    run("twine register upload dist/*")
+    run("twine upload dist/bokeh-%s.tar.gz" % CONFIG.version)
 
 @upload_wrapper('docs')
 def upload_docs():
