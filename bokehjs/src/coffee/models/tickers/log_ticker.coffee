@@ -31,7 +31,7 @@ export class LogTicker extends AdaptiveTicker
         factors = range(start_factor, end_factor + 1)
 
       ticks = (factor * interval for factor in factors when factor != 0)
-      ticks = ticks.filter((tick) -> data_low <= tick <= data_high)
+      ticks = ticks.filter((tick) -> return data_low <= tick <= data_high)
 
       if num_minor_ticks > 0 and ticks.length > 0
         minor_interval = interval / num_minor_ticks
@@ -42,8 +42,8 @@ export class LogTicker extends AdaptiveTicker
           for x in minor_offsets
             minor_ticks.push(tick+x)
     else
-      startlog = Math.ceil(log_low * 0.9999)
-      endlog = Math.floor(log_high * 1.0001)
+      startlog = Math.ceil(log_low * 0.999999)
+      endlog = Math.floor(log_high * 1.000001)
       interval = Math.ceil((endlog - startlog) / 9.0)
 
       ticks = range(startlog, endlog + 1, interval)
