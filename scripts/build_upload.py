@@ -245,13 +245,15 @@ def abort_uploads():
 #--------------------------------------
 
 def check_environment_var(name, message):
-    if name in os.environ:
+    if name in os.environ or CONFIG.dry_run:
         passed("Found %s (%s)" % (message, name))
     else:
         failed("Missing %s (%s)" % (message, name))
         abort_checks()
 
 def check_anaconda_creds():
+    if  CONFIG.dry_run:
+        return "junk"
     try:
         token = os.environ['ANACONDA_TOKEN']
         out = run("anaconda -t %s whoami" % token, silent=True)
@@ -265,6 +267,8 @@ def check_anaconda_creds():
         abort_checks()
 
 def check_cdn_creds():
+    if  CONFIG.dry_run:
+        return "junk", "junk"
     try:
         username = os.environ['RSUSER']
         key = os.environ['RSAPIKEY']
@@ -360,12 +364,20 @@ def upload_cdn(cdn_token, cdn_id):
             cdn_upload(local_path, cdn_path, content_type, cdn_token, cdn_id)
 
 @upload_wrapper('anaconda')
-def upload_anaconda(token):
+def upload_anaconda(token, dev):
+    if dev:
+        cmd = "anaconda -t %s upload -u bokeh %s -c dev --force --no-progress"
+    else:
+        cmd = "anaconda -t %s upload -u bokeh %s --force --no-progress"
+
     for plat in PLATFORMS:
         files = glob.glob("%s/bokeh*.tar.bz2" % plat)
         for file in files:
-            cmd = "anaconda -t %s upload -u bokeh %s -c dev --force --no-progress"
             run(cmd % (token, file), fake_cmd=cmd % ("<hidden>", file))
+
+    files = glob.glob("dist/bokeh*.tar.gz")
+    for file in files:
+        run(cmd % (token, file), fake_cmd=cmd % ("<hidden>", file))
 
 @upload_wrapper('pypi')
 def upload_pypi():
@@ -447,12 +459,11 @@ if __name__ == '__main__':
     # prevent any partial uploads from occurring
 
     build_conda_packages()
+    build_sdist_packages() # BokehJS also (re-)built in this step
 
     if V(CONFIG.version).is_prerelease:
-        print(blue("[SKIP] ") + "Not building PyPI package for pre-releases")
         print(blue("[SKIP] ") + "Not building Examples tarball for pre-releases")
     else:
-        build_sdist_packages() # BokehJS also built in this step
         build_examples()
 
     build_docs()
@@ -466,7 +477,9 @@ if __name__ == '__main__':
     # useless packages from Anaconda.org and PyPI
     upload_cdn(cdn_token, cdn_id)
 
-    upload_anaconda(anaconda_token)
+    upload_anaconda(anaconda_token, V(CONFIG.version).is_prerelease)
+
+    upload_docs()
 
     if V(CONFIG.version).is_prerelease:
         print(blue("[SKIP] ") + "Not updating PyPI package for pre-releases")
@@ -474,10 +487,8 @@ if __name__ == '__main__':
         print(blue("[SKIP] ") + "Not updating Examples tarball for pre-releases")
     else:
         upload_pypi()
-        upload_npm()
         upload_examples(cdn_token, cdn_id)
-
-    upload_docs()
+        upload_npm()
 
     # finish ----------------------------------------------------------------
 

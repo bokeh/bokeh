@@ -45,7 +45,7 @@ class DataSource(Model):
         # selection information for multiline and patches glyphs
         '2d': {
           # mapping of indices of the multiglyph to array of glyph indices that were hit
-          # e.g. {3: [5, 6], 4, [5]}
+          # e.g. {3: [5, 6], 4: [5]}
           indices: {}
         }
 

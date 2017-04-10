@@ -1,7 +1,9 @@
 import numpy as np
 
 from bokeh.layouts import gridplot
-from bokeh.plotting import figure, show, output_file
+from bokeh.plotting import figure
+from bokeh.io import curdoc, show, output_file
+from bokeh.themes import Theme
 
 N = 9
 
@@ -39,6 +41,10 @@ children.append(p)
 p = figure(title="ellipse")
 p.ellipse(x, y, 15, 25, angle=-0.7, color="#1D91C0",
        width_units="screen", height_units="screen")
+children.append(p)
+
+p = figure(title="Hbar")
+p.hbar(y=x, height=0.5, left=0, right=y, color="#AA9348")
 children.append(p)
 
 p = figure(title="line")
@@ -87,58 +93,78 @@ p = figure(title="square")
 p.square(x, y, size=sizes, color="#74ADD1")
 children.append(p)
 
+p = figure(title="Vbar")
+p.vbar(x=x, width=0.5, bottom=0, top=y, color="#CAB2D6")
+children.append(p)
+
 p = figure(title="wedge")
 p.wedge(x, y, 15, 0.6, 4.1, radius_units="screen", color="#B3DE69")
 children.append(p)
 
-p = figure(title="circle_x")
+p = figure(title="Marker: circle_x")
 p.scatter(x, y, marker="circle_x", size=sizes, color="#DD1C77", fill_color=None)
 children.append(p)
 
-p = figure(title="triangle")
+p = figure(title="Marker: triangle")
 p.scatter(x, y, marker="triangle", size=sizes, color="#99D594", line_width=2)
 children.append(p)
 
-p = figure(title="circle")
+p = figure(title="Marker: circle")
 p.scatter(x, y, marker="o", size=sizes, color="#80B1D3", line_width=3)
 children.append(p)
 
-p = figure(title="cross")
+p = figure(title="Marker: x")
+p.scatter(x, y, marker="x", size=sizes, color="#B3DE69", line_width=3)
+children.append(p)
+
+p = figure(title="Marker: cross")
 p.scatter(x, y, marker="cross", size=sizes, color="#E6550D", line_width=2)
 children.append(p)
 
-p = figure(title="diamond")
+p = figure(title="Marker: diamond")
 p.scatter(x, y, marker="diamond", size=sizes, color="#1C9099", line_width=2)
 children.append(p)
 
-p = figure(title="inverted_triangle")
+p = figure(title="Marker: inverted_triangle")
 p.scatter(x, y, marker="inverted_triangle", size=sizes, color="#DE2D26")
 children.append(p)
 
-p = figure(title="square_x")
+p = figure(title="Marker: square_x")
 p.scatter(x, y, marker="square_x", size=sizes, color="#FDAE6B",
     fill_color=None, line_width=2)
 children.append(p)
 
-p = figure(title="asterisk")
+p = figure(title="Marker: asterisk")
 p.scatter(x, y, marker="asterisk", size=sizes, color="#F0027F", line_width=2)
 children.append(p)
 
-p = figure(title="square_cross")
+p = figure(title="Marker: square_cross")
 p.scatter(x, y, marker="square_cross", size=sizes, color="#7FC97F",
     fill_color=None, line_width=2)
 children.append(p)
 
-p = figure(title="diamond_cross")
+p = figure(title="Marker: diamond_cross")
 p.scatter(x, y, marker="diamond_cross", size=sizes, color="#386CB0",
     fill_color=None, line_width=2)
 children.append(p)
 
-p = figure(title="circle_cross")
+p = figure(title="Marker: circle_cross")
 p.scatter(x, y, marker="circle_cross", size=sizes, color="#FB8072",
     fill_color=None, line_width=2)
 children.append(p)
 
+# simplify theme by turning off axes and gridlines
+curdoc().theme = Theme(json={
+    "attrs": {
+        "Axis": {
+            "visible": False
+            },
+        "Grid": {
+            "visible": False
+            }
+        }
+    })
+
 output_file("glyphs.html", title="glyphs.py example")
 
-show(gridplot(children, ncols=3, plot_width=200, plot_height=200))  # open a browser
+show(gridplot(children, ncols=4, plot_width=200, plot_height=200))  # open a browser

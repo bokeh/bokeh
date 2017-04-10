@@ -11,6 +11,7 @@ performance and efficiency. The list of supported dtypes is:
 from __future__ import absolute_import
 
 import base64
+import math
 
 from six import iterkeys
 
@@ -216,16 +217,19 @@ def traverse_data(obj, is_numpy=is_numpy, use_numpy=True):
         return [transform_array(el) for el in obj]
     obj_copy = []
     for item in obj:
-        if isinstance(item, (list, tuple)):
-            obj_copy.append(traverse_data(item))
-        elif isinstance(item, float):
-            if np.isnan(item):
+        # Check the base/common case first for performance reasons
+        # Also use type(x) is float because it's faster than isinstance
+        if type(item) is float:
+            if math.isnan(item):
                 item = 'NaN'
-            elif np.isposinf(item):
-                item = 'Infinity'
-            elif np.isneginf(item):
-                item = '-Infinity'
+            elif math.isinf(item):
+                if item > 0:
+                    item = 'Infinity'
+                else:
+                    item = '-Infinity'
             obj_copy.append(item)
+        elif isinstance(item, (list, tuple)):  # check less common type second
+            obj_copy.append(traverse_data(item))
         else:
             obj_copy.append(item)
     return obj_copy

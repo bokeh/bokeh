@@ -27,6 +27,14 @@ version 1.0 release. The focus of the 1.0 release will be implementing
 build automation to enforce API stability, and a very small number of
 high value features. For more information see the `project roadmap`_.
 
+Known Issues
+------------
+
+The ClientSession APIs defined in `bokeh.client.session`, such as
+`push_session`, don't currently support the new `on_event` interface for
+UI event callbacks in Bokeh Server application. You may track the issue on
+GitHub (:bokeh-issue:`6092`).
+
 Migration Guide
 ---------------
 

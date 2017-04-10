@@ -34,6 +34,8 @@ def tab_in_leading(s):
 def use_tab_rule(fname):
     return not (basename(fname) == 'Makefile' or splitext(fname)[1] == '.bat')
 
+exclude_paths = ("CHANGELOG",)
+
 exclude_exts = (".png", ".jpg", ".pxm", ".ico", ".ics", ".gz", ".gif", ".enc", ".svg", ".xml")
 
 exclude_dirs = ("bokehjs/src/vendor", "sphinx/draw.io")
@@ -68,6 +70,9 @@ def collect_errors():
 
     for path in paths:
         if not path:
+            continue
+
+        if path in exclude_paths:
             continue
 
         if path.endswith(exclude_exts):
