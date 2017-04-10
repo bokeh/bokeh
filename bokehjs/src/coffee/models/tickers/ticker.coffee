@@ -32,12 +32,13 @@ export class Ticker extends Model
     else
       factors = range(start_factor, end_factor + 1)
     ticks = (factor * interval for factor in factors)
+    ticks = ticks.filter((tick) -> data_low <= tick <= data_high)
     num_minor_ticks = @num_minor_ticks
     minor_ticks = []
-    if num_minor_ticks > 1
+    if num_minor_ticks > 0 and ticks.length > 0
       minor_interval = interval / num_minor_ticks
-      minor_offsets = (i*minor_interval for i in [1..num_minor_ticks])
-      for x in minor_offsets
+      minor_offsets = (i*minor_interval for i in [0...num_minor_ticks])
+      for x in minor_offsets[1..minor_offsets.length]
         minor_ticks.push(ticks[0]-x)
       for tick in ticks
         for x in minor_offsets
