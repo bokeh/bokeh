@@ -21,7 +21,6 @@ export class LogTicker extends AdaptiveTicker
 
     if not isFinite(log_interval)
       ticks = []
-      logger.warn('Could not calculate tick coordinates because the log of range start or end is not numeric')
 
     # treat as linear ticker
     else if log_interval < 2
