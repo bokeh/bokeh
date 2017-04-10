@@ -32,6 +32,7 @@ export class Ticker extends Model
     else
       factors = range(start_factor, end_factor + 1)
     ticks = (factor * interval for factor in factors)
+    ticks = ticks.filter((tick) -> data_low <= tick <= data_high)
     num_minor_ticks = @num_minor_ticks
     minor_ticks = []
     if num_minor_ticks > 0 and ticks.length > 0

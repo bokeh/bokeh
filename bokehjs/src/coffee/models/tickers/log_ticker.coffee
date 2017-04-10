@@ -10,7 +10,6 @@ export class LogTicker extends AdaptiveTicker
   }
 
   get_ticks_no_defaults: (data_low, data_high, cross_loc, desired_n_ticks) ->
-
     num_minor_ticks = @num_minor_ticks
     minor_ticks = []
 
@@ -20,6 +19,7 @@ export class LogTicker extends AdaptiveTicker
     log_high = Math.log(data_high) / Math.log(base)
     log_interval = log_high - log_low
 
+    # treat as linear ticker
     if log_interval < 2
       interval = @get_interval(data_low, data_high, desired_n_ticks)
       start_factor = Math.floor(data_low / interval)
@@ -31,32 +31,31 @@ export class LogTicker extends AdaptiveTicker
         factors = range(start_factor, end_factor + 1)
 
       ticks = (factor * interval for factor in factors when factor != 0)
+      ticks = ticks.filter((tick) -> data_low <= tick <= data_high)
 
-      if num_minor_ticks > 1
+      if num_minor_ticks > 0 and ticks.length > 0
         minor_interval = interval / num_minor_ticks
-        minor_offsets = (i*minor_interval for i in [1..num_minor_ticks])
-        for x in minor_offsets
+        minor_offsets = (i*minor_interval for i in [0...num_minor_ticks])
+        for x in minor_offsets[1..minor_offsets.length]
           minor_ticks.push(ticks[0]-x)
         for tick in ticks
           for x in minor_offsets
             minor_ticks.push(tick+x)
     else
-      startlog = Math.ceil(log_low)
-      endlog = Math.floor(log_high)
+      startlog = Math.ceil(log_low * 0.9999)
+      endlog = Math.floor(log_high * 1.0001)
       interval = Math.ceil((endlog - startlog) / 9.0)
 
-      ticks = range(startlog, endlog, interval)
-
-      if (endlog - startlog) % interval == 0
-        ticks = ticks.concat [endlog]
-
+      ticks = range(startlog, endlog + 1, interval)
       ticks = ticks.map (i) -> Math.pow(base, i)
+      ticks = ticks.filter((tick) -> data_low <= tick <= data_high)
 
-      if num_minor_ticks > 1
+      if num_minor_ticks > 0 and ticks.length > 0
         minor_interval = Math.pow(base, interval) / num_minor_ticks
         minor_offsets = (i*minor_interval for i in [1..num_minor_ticks])
         for x in minor_offsets
           minor_ticks.push(ticks[0] / x)
+        minor_ticks.push(ticks[0])
         for tick in ticks
           for x in minor_offsets
             minor_ticks.push(tick * x)
