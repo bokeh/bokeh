@@ -87,7 +87,7 @@ describe "Rect", ->
         else if type == "log"
           mapper = new LogMapper({
             source_range: new Range1d({start: 1, end: 1000})
-            target_range: new Range1d({start: 1, end: 1000})
+            target_range: new Range1d({start: 0, end: 200})
           })
         else
           mapper = new CategoricalMapper({
@@ -303,8 +303,8 @@ describe "Rect", ->
           @set_mappers(glyph_view, type="log")
           glyph_view.map_data()
 
-          result4 = glyph_view._hit_point({ vx: 200, vy: 200 })
-          result5 = glyph_view._hit_point({ vx: 400, vy: 400 })
+          result4 = glyph_view._hit_point({ vx: 66.666, vy: 66.666 })
+          result5 = glyph_view._hit_point({ vx: 133.333, vy: 133.333 })
 
-          expect(result4['1d'].indices).to.be.deep.equal([0])
-          expect(result5['1d'].indices).to.be.deep.equal([])
+          expect(result4['1d'].indices).to.be.deep.equal([1])
+          expect(result5['1d'].indices).to.be.deep.equal([2])

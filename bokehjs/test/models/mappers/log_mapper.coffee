@@ -20,13 +20,6 @@ describe "LogMapper module", ->
 
   describe "map_to_target method", ->
 
-    it "should clamp values to source range", ->
-      expect(@mapper.map_to_target(1)).to.be.equal 10
-      expect(@mapper.map_to_target(0)).to.be.equal 10
-
-      expect(@mapper.map_to_target(10000)).to.be.equal 110
-      expect(@mapper.map_to_target(10001)).to.be.equal 110
-
     it "should map NaN values to NaN", ->
       expect(@mapper.map_to_target(NaN)).to.be.NaN
 
@@ -41,10 +34,6 @@ describe "LogMapper module", ->
       expect(@mapper.map_to_target(10000)).to.be.equal 110
 
   describe "v_map_to_target method", ->
-
-    it "should clamp values to source range", ->
-      expect(@mapper.v_map_to_target([0, 1])).to.be.deep.equal(new Float64Array([10, 10]))
-      expect(@mapper.v_map_to_target([10000, 10001])).to.be.deep.equal(new Float64Array([110, 110]))
 
     it "should vector map NaN values to NaN", ->
       expect(@mapper.v_map_to_target([NaN])).to.be.deep.equal(new Float64Array([NaN]))

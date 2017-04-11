@@ -311,10 +311,10 @@ class ColorBar(Annotation):
 
     .. warning::
         If the `low` and `high` attributes of the ColorMapper aren't set, ticks
-        and tick labels won't be rendered. Additionally, if a LogTicker and
-        either or both of the logarithms of `low` and `high` values of the
-        color_mapper are non-numeric (i.e. `low=0`), the tick and tick labels
-        won't be rendered.
+        and tick labels won't be rendered. Additionally, if a LogTicker is
+        passed to the `ticker` argument and either or both of the logarithms
+        of `low` and `high` values of the color_mapper are non-numeric
+        (i.e. `low=0`), the tick and tick labels won't be rendered.
     """)
 
     margin = Int(30, help="""

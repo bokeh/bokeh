@@ -280,8 +280,9 @@ describe "ColorBar module", ->
 
     it "ColorBarView._get_label_extent method (orientation='vertical') and no major_labels", ->
       # Handle case where mapper start/end causes no ticks to exist (usually for a logticker)
-      sinon.stub(@color_bar_view.model, "_tick_coordinates").returns({"major_labels": []})
+      stub = sinon.stub(@color_bar_view.model, "_tick_coordinates").returns({"major_labels": []})
       expect(@color_bar_view._get_label_extent()).to.be.equal(0)
+      stub.restore()
 
     it "ColorBarView._get_label_extent method (orientation='horizontal')", ->
       @color_bar_view.model.orientation = "horizontal"

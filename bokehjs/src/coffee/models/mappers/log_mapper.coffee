@@ -1,6 +1,5 @@
 import {Model} from "../../model"
 import * as p from "core/properties"
-import {clamp} from "core/util/math"
 
 export class LogMapper extends Model
   initialize: (attrs, options) ->
@@ -21,8 +20,7 @@ export class LogMapper extends Model
     if inter_scale == 0
       value = 0
     else
-      clamped_x = clamp(x, @source_range.start, @source_range.end)
-      _x = (Math.log(clamped_x) - inter_offset) / inter_scale
+      _x = (Math.log(x) - inter_offset) / inter_scale
       if isFinite(_x)
         value = _x * scale + offset
       else
@@ -40,8 +38,7 @@ export class LogMapper extends Model
         result[i] = 0
     else
       for i in [0...xs.length]
-        clamped_x = clamp(xs[i], @source_range.start, @source_range.end)
-        _x = (Math.log(clamped_x) - inter_offset) / inter_scale
+        _x = (Math.log(xs[i]) - inter_offset) / inter_scale
         if isFinite(_x)
           value = _x * scale + offset
         else
