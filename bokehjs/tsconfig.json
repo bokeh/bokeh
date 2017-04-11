@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "noImplicitAny": true,
+    "noUnusedLocals": true,
     "noEmitOnError": false,
     "module": "commonjs",
     "moduleResolution": "node",
