@@ -306,5 +306,5 @@ describe "Rect", ->
           result4 = glyph_view._hit_point({ vx: 66.666, vy: 66.666 })
           result5 = glyph_view._hit_point({ vx: 133.333, vy: 133.333 })
 
-          expect(result4['1d'].indices).to.be.deep.equal([1])
-          expect(result5['1d'].indices).to.be.deep.equal([2])
+          expect(result4['1d'].indices).to.be.deep.equal([])
+          expect(result5['1d'].indices).to.be.deep.equal([])
