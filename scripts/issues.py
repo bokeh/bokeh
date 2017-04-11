@@ -9,13 +9,14 @@ import dateutil.tz
 import gzip
 import json
 import logging
+import os
 import pickle
 import sys
 
 from collections import OrderedDict
 from functools import partial
 from itertools import count, groupby
-from six.moves.urllib.request import urlopen
+from six.moves.urllib.request import urlopen, Request
 
 logging.basicConfig(level=logging.INFO)
 
@@ -184,8 +185,13 @@ def parse_timestamp(timestamp):
 def read_url(url):
     """Reads given URL as JSON and returns data as loaded python object."""
     logging.debug('reading {url} ...'.format(url=url))
-    r = urlopen(url).read()
-    return json.loads(r.decode("UTF-8"))
+    token = os.environ.get("BOKEH_GITHUB_API_TOKEN")
+    headers = {}
+    if token:
+        headers['Authorization'] = 'token %s' % token
+    request = Request(url, headers=headers)
+    response = urlopen(request).read()
+    return json.loads(response.decode("UTF-8"))
 
 
 def query_tags():
