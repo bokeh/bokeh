@@ -1,6 +1,5 @@
 import {HasProps} from "./has_props"
 import * as hittest from "./hittest"
-import {logger} from "./logging"
 import * as p from "./properties"
 import {union, concat} from "./util/array"
 

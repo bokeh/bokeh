@@ -1,4 +1,4 @@
-import {EQ, GE, Strength, Variable, WEAK_EQ} from "core/layout/solver"
+import {EQ, GE, Variable, WEAK_EQ} from "core/layout/solver"
 import * as p from "core/properties"
 import {isString} from "core/util/types"
 import {all, max, sum} from "core/util/array"

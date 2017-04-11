@@ -1,6 +1,5 @@
 import {Annotation, AnnotationView} from "./annotation"
 import {show, hide} from "core/dom"
-import * as p from "core/properties"
 import {isString, isArray} from "core/util/types"
 import {get_text_height} from "core/util/text"
 

@@ -1,4 +1,4 @@
-import {WEAK_EQ, GE, EQ, Strength, Variable} from "core/layout/solver"
+import {WEAK_EQ, GE, EQ, Strength} from "core/layout/solver"
 import {logger} from "core/logging"
 import * as p from "core/properties"
 import {extend, values, clone} from "core/util/object"

@@ -1,4 +1,4 @@
-import {Variable, EQ, GE, Strength} from "./solver"
+import {Variable, Strength} from "./solver"
 import {Model} from "../../model"
 import * as p from "../properties"
 

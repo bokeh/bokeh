@@ -1,6 +1,4 @@
 import * as sprintf from "sprintf"
-import {Document} from "../document"
-import * as embed from "../embed"
 import * as models from "./models"
 import * as palettes from "./palettes"
 import {zip, unzip, sum, cumsum, copy} from "../core/util/array"

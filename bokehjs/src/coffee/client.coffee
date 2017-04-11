@@ -1,6 +1,5 @@
 import {Promise} from "es6-promise"
 
-import {HasProps} from "./core/has_props"
 import {logger} from "./core/logging"
 import {uniqueId} from "./core/util/string"
 import {extend} from "./core/util/object"
