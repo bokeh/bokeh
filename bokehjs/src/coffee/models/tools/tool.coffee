@@ -1,4 +1,3 @@
-import {logger} from "core/logging"
 import * as p from "core/properties"
 import {BokehView} from "core/bokeh_view"
 import {min, max} from "core/util/array"

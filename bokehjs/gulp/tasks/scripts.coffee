@@ -62,6 +62,7 @@ gulp.task "scripts:tsjs", ["scripts:coffee", "scripts:js", "scripts:ts"], () ->
         gutil.log("#{gutil.colors.red(real)}#{rest}")
         return
 
+      # XXX: can't enable "6133", because CS generates faulty code for closures
       if code in ["2307", "2688", "6053"]
         gutil.log(err.message)
         return

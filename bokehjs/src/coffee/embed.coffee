@@ -1,5 +1,3 @@
-import {Promise} from "es6-promise"
-
 import * as base from "./base"
 import {pull_session} from "./client"
 import {logger, set_log_level} from "./core/logging"
