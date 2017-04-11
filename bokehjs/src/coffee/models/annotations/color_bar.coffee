@@ -9,6 +9,7 @@ import {Range1d} from "../ranges/range1d"
 import * as p from "core/properties"
 import * as text_util from "core/util/text"
 import {min, max} from "core/util/array"
+import {isEmpty} from "core/util/object"
 import {isString, isArray} from "core/util/types"
 
 SHORT_DIM = 25
@@ -269,14 +270,14 @@ export class ColorBarView extends AnnotationView
     ctx.restore()
 
   _get_label_extent: () ->
-    if @model.color_mapper.low? and @model.color_mapper.high?
+    major_labels = @model._tick_coordinates().major_labels
+    if @model.color_mapper.low? and @model.color_mapper.high? and not isEmpty(major_labels)
       ctx = @plot_view.canvas_view.ctx
       ctx.save()
       @visuals.major_label_text.set_value(ctx)
-
       switch @model.orientation
         when "vertical"
-          formatted_labels = @model.formatter.doFormat(@model._tick_coordinates().major_labels)
+          formatted_labels = @model.formatter.doFormat(major_labels)
           label_extent = max((ctx.measureText(label.toString()).width for label in formatted_labels))
         when "horizontal"
           label_extent = text_util.get_text_height(@visuals.major_label_text.font_value()).height
