@@ -24,7 +24,10 @@ from __future__ import absolute_import
 
 from ..core.enums import accept_left_right_center, Anchor, DeprecatedAnchor, Dimension, Dimensions, Location
 from ..core.has_props import abstract
-from ..core.properties import Any, Auto, Bool, Color, Dict, Either, Enum, Float, Percent, Instance, List, Override, String, Tuple
+from ..core.properties import (
+    Any, Auto, Bool, Color, Dict, Either, Enum, Float, Percent, Instance, List,
+    Override, Seq, String, Tuple
+)
 from ..model import Model
 from ..util.deprecation import deprecated
 
@@ -131,6 +134,11 @@ class Toolbar(ToolbarBase):
 
     active_drag = Either(Auto, Instance(Drag), help="""
     Specify a drag tool to be active when the plot is displayed.
+    """)
+
+    active_inspect = Either(Auto, Instance(Inspection), Seq(Instance(Inspection)), help="""
+    Specify an inspection tool or sequence of inspection tools to be active when
+    the plot is displayed.
     """)
 
     active_scroll = Either(Auto, Instance(Scroll), help="""
