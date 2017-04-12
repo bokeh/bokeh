@@ -1,5 +1,5 @@
+import {logger} from "core/logging"
 import {range} from "core/util/array"
-import {isStrictNaN} from "core/util/types"
 import {AdaptiveTicker} from "./adaptive_ticker"
 
 export class LogTicker extends AdaptiveTicker
@@ -19,17 +19,16 @@ export class LogTicker extends AdaptiveTicker
     log_high = Math.log(data_high) / Math.log(base)
     log_interval = log_high - log_low
 
+    if not isFinite(log_interval)
+      ticks = []
+
     # treat as linear ticker
-    if log_interval < 2
+    else if log_interval < 2
       interval = @get_interval(data_low, data_high, desired_n_ticks)
       start_factor = Math.floor(data_low / interval)
       end_factor   = Math.ceil(data_high / interval)
 
-      if isStrictNaN(start_factor) or isStrictNaN(end_factor)
-        factors = []
-      else
-        factors = range(start_factor, end_factor + 1)
-
+      factors = range(start_factor, end_factor + 1)
       ticks = (factor * interval for factor in factors when factor != 0)
       ticks = ticks.filter((tick) -> return data_low <= tick <= data_high)
 
@@ -41,6 +40,7 @@ export class LogTicker extends AdaptiveTicker
         for tick in ticks
           for x in minor_offsets
             minor_ticks.push(tick+x)
+
     else
       startlog = Math.ceil(log_low * 0.999999)
       endlog = Math.floor(log_high * 1.000001)

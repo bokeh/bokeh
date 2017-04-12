@@ -1,5 +1,6 @@
 import {Model} from "../../model"
 import * as p from "core/properties"
+import {clamp} from "core/util/math"
 
 export class LogMapper extends Model
   initialize: (attrs, options) ->
@@ -20,11 +21,14 @@ export class LogMapper extends Model
     if inter_scale == 0
       value = 0
     else
-      value = (Math.log(x) - inter_offset) / inter_scale
-      if isNaN(value) or not isFinite(value)
-        value = 0
+      clamped_x = clamp(x, @source_range.start, @source_range.end)
+      _x = (Math.log(clamped_x) - inter_offset) / inter_scale
+      if isFinite(_x)
+        value = _x * scale + offset
+      else
+        value = NaN
 
-    return value*scale + offset
+    return value
 
   v_map_to_target: (xs) ->
     [scale, offset, inter_scale, inter_offset] = @mapper_state
@@ -36,15 +40,13 @@ export class LogMapper extends Model
         result[i] = 0
     else
       for i in [0...xs.length]
-        value = (Math.log(xs[i]) - inter_offset) / inter_scale
-
-        if isNaN(value) or not isFinite(value)
-          result[i] = 0
+        clamped_x = clamp(xs[i], @source_range.start, @source_range.end)
+        _x = (Math.log(clamped_x) - inter_offset) / inter_scale
+        if isFinite(_x)
+          value = _x * scale + offset
         else
-          result[i] = value
-
-    for i in [0...xs.length]
-      result[i] = result[i]*scale + offset
+          value = NaN
+        result[i] = value
 
     return result
 
