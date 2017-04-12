@@ -40,8 +40,9 @@ export class Toolbar extends ToolbarBase
           @gestures[et].tools = @gestures[et].tools.concat([tool])
         @listenTo(tool, 'change:active', @_active_change.bind(tool))
 
-    if @active_inspect is 'auto'
+    if @active_inspect == 'auto'
       # do nothing as all tools are active be default
+      ;
     else if @active_inspect instanceof InspectTool
       @inspectors.map((inspector) => if inspector != @active_inspect then inspector.active = false)
     else if @active_inspect instanceof Array
