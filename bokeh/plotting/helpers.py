@@ -373,13 +373,14 @@ def _process_tools_arg(plot, tools):
     return tool_objs, tool_map
 
 
-def _process_active_tools(toolbar, tool_map, active_drag, active_scroll, active_tap):
+def _process_active_tools(toolbar, tool_map, active_drag, active_inspect, active_scroll, active_tap):
     """ Adds tools to the plot object
 
     Args:
         toolbar (Toolbar): instance of a Toolbar object
         tools_map (dict[str]|Tool): tool_map from _process_tools_arg
         active_drag (str or Tool): the tool to set active for drag
+        active_inspect (str or Tool): the tool to set active for inspect
         active_scroll (str or Tool): the tool to set active for scroll
         active_tap (str or Tool): the tool to set active for tap
 
@@ -395,6 +396,13 @@ def _process_active_tools(toolbar, tool_map, active_drag, active_scroll, active_
         toolbar.active_drag = tool_map[active_drag]
     else:
         raise ValueError("Got unknown %r for 'active_drag', which was not a string supplied in 'tools' argument" % active_drag)
+
+    if active_inspect in ['auto', None] or isinstance(active_inspect, Tool) or all([isinstance(t, Tool) for t in active_inspect]):
+        toolbar.active_inspect = active_inspect
+    elif active_inspect in tool_map:
+        toolbar.active_inspect = tool_map[active_inspect]
+    else:
+        raise ValueError("Got unknown %r for 'active_inspect', which was not a string supplied in 'tools' argument" % active_scroll)
 
     if active_scroll in ['auto', None] or isinstance(active_scroll, Tool):
         toolbar.active_scroll = active_scroll
