@@ -7,21 +7,35 @@ describe "LogTicker Model", ->
 
   describe "LogTicker get_ticks_no_defaults method", ->
 
+    # not finite range
+
+    it "should return empty ticks when start/end is not finite", ->
+      ticker = new LogTicker()
+      ticks = ticker.get_ticks_no_defaults(NaN, NaN, null, 3)
+      expect(ticks.major).to.be.deep.equal([ ])
+      expect(ticks.minor).to.be.deep.equal([ ])
+
+    it "should return empty ticks when log(start) or log(end) not finite", ->
+      ticker = new LogTicker()
+      ticks = ticker.get_ticks_no_defaults(0, 100, null, 3)
+      expect(ticks.major).to.be.deep.equal([ ])
+      expect(ticks.minor).to.be.deep.equal([ ])
+
     # short range (<2 base orders)
 
-    it "should have three major ticks and zero minor ticks for long range", ->
+    it "should have three major ticks and zero minor ticks for short range", ->
       ticker = new LogTicker({desired_num_ticks: 3, num_minor_ticks: 0})
       ticks = ticker.get_ticks_no_defaults(1, 999, null, 3)
       expect(ticks.major).to.be.deep.equal([ 1, 10, 100 ])
       expect(ticks.minor).to.be.deep.equal([ ])
 
-    it "should have three major ticks and five minor ticks for long range", ->
+    it "should have three major ticks and five minor ticks for short range", ->
       ticker = new LogTicker({desired_num_ticks: 3, num_minor_ticks: 1})
       ticks = ticker.get_ticks_no_defaults(1, 999, null, 3)
       expect(ticks.major).to.be.deep.equal([ 1, 10, 100 ])
       expect(ticks.minor).to.be.deep.equal([ 0.1, 1, 10, 100, 1000 ])
 
-    it "should do stuff on short scale", ->
+    it "should have three major ticks and nine minor ticks for short range", ->
       ticker = new LogTicker({desired_num_ticks: 3, num_minor_ticks: 2})
       ticks = ticker.get_ticks_no_defaults(1, 999, null, 3)
       expect(ticks.major).to.be.deep.equal([ 1, 10, 100 ])
