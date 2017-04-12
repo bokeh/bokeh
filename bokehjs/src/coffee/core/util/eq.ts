@@ -5,6 +5,8 @@
 
 import {isFunction} from "./types"
 
+const toString = Object.prototype.toString
+
 // Internal recursive comparison function for `isEqual`.
 function eq(a: any, b: any, aStack?: Array<any>, bStack?: Array<any>): boolean {
   // Identical objects are equal. `0 === -0`, but they aren't identical.
