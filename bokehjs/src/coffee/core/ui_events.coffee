@@ -4,9 +4,8 @@ import {Events} from "./events"
 import {logger} from "./logging"
 import {offset} from "./dom"
 import {getDeltaY} from "./util/wheel"
-import {extend} from "./util/object"
+import {extend, isEmpty} from "./util/object"
 import {BokehEvent} from "./bokeh_events"
-import {any} from "./util/array"
 
 
 export class UIEvents
@@ -73,10 +72,10 @@ export class UIEvents
     else if et == "move"
       logger.debug("Registering tool: #{type} for event '#{et}'")
       if tool_view._move_enter?
-        tool_view.listenTo(@, "move:enter", tool_view._move_enter)
-      tool_view.listenTo(@, "move", tool_view["_move"])
+        tool_view.listenTo(@, "move:enter:#{id}", tool_view._move_enter)
+      tool_view.listenTo(@, "move:#{id}", tool_view["_move"])
       if tool_view._move_exit?
-        tool_view.listenTo(@, "move:exit", tool_view._move_exit)
+        tool_view.listenTo(@, "move:exit:#{id}", tool_view._move_exit)
     else
       logger.debug("Registering tool: #{type} for event '#{et}'")
       tool_view.listenTo(@, "#{et}:#{id}", tool_view["_#{et}"])
@@ -123,24 +122,25 @@ export class UIEvents
     switch base_type
 
       when "move"
-        has_active_inspectors = any(@toolbar.inspectors, (t) -> t.active)
+        active_inspectors = @toolbar.inspectors.filter((t) -> return t.active)
         cursor = "default"
 
         # the event happened on a renderer
         if view?
           if view.model.cursor?
             cursor = view.model.cursor()
-          if has_active_inspectors
+          if not isEmpty(active_inspectors)
             # override event_type to cause inspectors to clear overlays
             event_type = "move:exit"
 
         # the event happened on the plot frame but off a renderer
         else if @_hit_test_frame(e.bokeh.sx, e.bokeh.sy)
-          if has_active_inspectors
+          if not isEmpty(active_inspectors)
             cursor = "crosshair"
 
         @plot_view.set_cursor(cursor)
-        @trigger(event_type, e)
+        for inspector in active_inspectors
+          @trigger("#{event_type}:#{inspector.id}", e)
 
       when "tap"
         if view?
