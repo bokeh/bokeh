@@ -230,7 +230,10 @@ export class GlyphRendererView extends RendererView
     @glyph.draw_legend_for_index(ctx, x0, x1, y0, y1, index)
 
   hit_test: (geometry) ->
-    @glyph.hit_test(geometry)
+    if @model.visible
+      return @glyph.hit_test(geometry)
+    else
+      return null
 
 
 export class GlyphRenderer extends Renderer
