@@ -21,7 +21,7 @@ export abstract class BokehEvent {
   /* prototype */ applicable_models: any[]
 
   protected _options: any
-  model_id: string
+  model_id: string | null = null
 
   constructor(options: any = {}) {
     this._options = options
@@ -57,7 +57,7 @@ export abstract class BokehEvent {
     }
   }
 
-  _customize_event(model: any): this {
+  _customize_event(_model: any): this {
     return this
   }
 }
@@ -82,8 +82,8 @@ export /* TODO abstract */ class PointEvent extends UIEvent {
   sx: number
   sy: number
 
-  x: number
-  y: number
+  x: number | null
+  y: number | null
 
   constructor(options: any) {
     super(options)
@@ -93,7 +93,7 @@ export /* TODO abstract */ class PointEvent extends UIEvent {
     this.y = null
   }
 
-  static from_event(e: any, model_id: string = null) {
+  static from_event(e: any, model_id: string | null = null) {
     return new this({ sx: e.bokeh['sx'], sy: e.bokeh['sy'], model_id: model_id })
   }
 
@@ -111,7 +111,7 @@ export /* TODO abstract */ class PointEvent extends UIEvent {
 @register_event_class("pan")
 export class Pan extends PointEvent {
 
-  static from_event(e: any, model_id: string = null) {
+  static from_event(e: any, model_id: string | null = null) {
     return new this({
       sx: e.bokeh['sx'],
       sy: e.bokeh['sy'],
@@ -135,7 +135,7 @@ export class Pan extends PointEvent {
 @register_event_class("pinch")
 export class Pinch extends PointEvent {
 
-  static from_event(e: any, model_id: string = null) {
+  static from_event(e: any, model_id: string | null = null) {
     return new this({
       sx: e.bokeh['sx'],
       sy: e.bokeh['sy'],
@@ -155,7 +155,7 @@ export class Pinch extends PointEvent {
 @register_event_class("wheel")
 export class MouseWheel extends PointEvent {
 
-  static from_event(e: any, model_id: string = null) {
+  static from_event(e: any, model_id: string | null = null) {
     return new this({
       sx: e.bokeh['sx'],
       sy: e.bokeh['sy'],
