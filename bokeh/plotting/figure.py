@@ -59,8 +59,7 @@ class FigureOptions(Options):
     Which drag tool should initially be active.
     """)
 
-    active_inspect = Either(Auto, String, Instance(Inspection), Seq(Instance(Inspection)),
-    default="auto", help="""
+    active_inspect = Either(Auto, String, Instance(Inspection), Seq(Instance(Inspection)), default="auto", help="""
     Which drag tool should initially be active.
     """)
 
