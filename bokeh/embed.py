@@ -325,7 +325,8 @@ def _bundle_for_objs_and_resources(objs, resources):
 
 def notebook_div(model, notebook_comms_target=None, theme=FromCurdoc):
     ''' Return HTML for a div that will display a Bokeh plot in a
-    Jupyter/Zeppelin Notebook. notebook_comms_target is only supported in Jupyter for now.
+    Jupyter/Zeppelin Notebook. notebook_comms_target is only supported
+    in Jupyter for now.
 
     The data for the plot is stored directly in the returned HTML.
 

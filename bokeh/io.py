@@ -288,6 +288,9 @@ def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="loca
     return _show_with_state(obj, _state, browser, new, notebook_handle=notebook_handle)
 
 def _show_notebook_app_with_state(app, state, app_path, notebook_url):
+    if state.notebook_type == 'zeppelin':
+        raise ValueError("Zeppelin doesn't support show bokeh app.")
+
     if not state.watching_cells:
         watch_server_cells(_destroy_server_js)
         state.watching_cells = True
@@ -335,7 +338,7 @@ def _show_jupyter_with_state(obj, state, notebook_handle):
 
 def _show_zeppelin_with_state(obj, state, notebook_handle):
     if notebook_handle:
-        raise Exception("Zeppelin doesn't support notebook_handle.")
+        raise ValueError("Zeppelin doesn't support notebook_handle.")
     print("%html " + notebook_div(obj))
     return None
 

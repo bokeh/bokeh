@@ -38,13 +38,16 @@ def load_notebook(resources=None, verbose=False, hide_banner=False, load_timeout
         publish_display_data({'text/html': html})
         publish_display_data({'application/javascript': js})
     else:
-        print('%html ' + html)
-        print('%html ' + '<script type="text/javascript">' + js + "</script>")
+        _publish_zeppelin_data(html, js)
 
 
 FINALIZE_JS = """
 document.getElementById("%s").textContent = "BokehJS is loading...";
 """
+
+def _publish_zeppelin_data(html, js):
+    print('%html ' + html)
+    print('%html ' + '<script type="text/javascript">' + js + "</script>")
 
 def _load_notebook_html(resources=None, verbose=False, hide_banner=False,
                         load_timeout=5000):

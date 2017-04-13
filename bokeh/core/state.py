@@ -39,7 +39,7 @@ class State(object):
 
     '''
 
-    valid_notebook_types = ['jupyter', 'zeppelin']
+    NOTEBOOK_TYPES = ('jupyter', 'zeppelin')
 
     def __init__(self):
         self.last_comms_handle = None
@@ -95,9 +95,8 @@ class State(object):
         ''' Notebook type, acceptable values are 'jupyter' and 'zeppelin'.
 
         '''
-        if notebook_type is None or (notebook_type.lower() not in self.valid_notebook_types):
-            raise Exception("Notebook type '" + notebook_type + "' is not supported, the supported notebook types are "
-                            + "({})".format(', '.join(self.valid_notebook_types)))
+        if notebook_type is None or (notebook_type.lower() not in self.NOTEBOOK_TYPES):
+            raise ValueError("Unknown notebook type %r, valid notebook types are: %s" % (notebook_type, ', '.join(self.NOTEBOOK_TYPES)))
         self._notebook_type = notebook_type.lower()
 
     def _reset_keeping_doc(self):

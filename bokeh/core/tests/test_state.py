@@ -66,8 +66,7 @@ def test_output_invalid_notebook():
     s = state.State()
     with pytest.raises(Exception) as ex:
         s.notebook_type="invalid_notebook"
-    assert "Notebook type 'invalid_notebook' is not supported, the supported notebook types are (jupyter," \
-           " zeppelin)" == str(ex.value)
+    assert "Unknown notebook type 'invalid_notebook', valid notebook types are: jupyter, zeppelin" == str(ex.value)
 
 def test_reset():
     s = state.State()
