@@ -9,6 +9,7 @@ from ..core.enums import HorizontalLocation, VerticalLocation
 from ..core.properties import Auto, Either, Enum, Int, Seq, Instance, String
 from ..models import GMapPlot, LinearAxis, MercatorTicker, MercatorTickFormatter, Range1d, Title, Tool
 from ..models import glyphs, markers
+from ..models.tools import Drag, Inspection, Scroll, Tap
 from ..util.options import Options
 from .helpers import _process_tools_arg, _process_active_tools, _glyph_function
 
@@ -44,15 +45,19 @@ class GMapFigureOptions(Options):
     A label for the y-axis.
     """)
 
-    active_drag = Either(Auto, String, Instance(Tool), default="auto", help="""
+    active_drag = Either(Auto, String, Instance(Drag), default="auto", help="""
     Which drag tool should initially be active.
     """)
 
-    active_scroll = Either(Auto, String, Instance(Tool), default="auto", help="""
+    active_inspect = Either(Auto, String, Instance(Inspection), Seq(Instance(Inspection)), default="auto", help="""
+    Which drag tool should initially be active.
+    """)
+
+    active_scroll = Either(Auto, String, Instance(Scroll), default="auto", help="""
     Which scroll tool should initially be active.
     """)
 
-    active_tap = Either(Auto, String, Instance(Tool), default="auto", help="""
+    active_tap = Either(Auto, String, Instance(Tap), default="auto", help="""
     Which tap tool should initially be active.
     """)
 
@@ -102,7 +107,7 @@ class GMap(GMapPlot):
 
         tool_objs, tool_map = _process_tools_arg(self, opts.tools)
         self.add_tools(*tool_objs)
-        _process_active_tools(self.toolbar, tool_map, opts.active_drag, opts.active_scroll, opts.active_tap)
+        _process_active_tools(self.toolbar, tool_map, opts.active_drag, opts.active_inspect, opts.active_scroll, opts.active_tap)
 
     annular_wedge = _glyph_function(glyphs.AnnularWedge)
 
