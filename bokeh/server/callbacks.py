@@ -141,12 +141,13 @@ class _DocumentCallbackGroup(object):
         def cleanup(func):
             if callback.id in self._removers:
                 del self._removers[callback.id]
+        cb_with_args = lambda: callback.callback(*callback._args, **callback._kwargs)
         if isinstance(callback, PeriodicCallback):
-            remover = self._group.add_periodic_callback(callback.callback, callback.period, cleanup)
+            remover = self._group.add_periodic_callback(cb_with_args, callback.period, cleanup)
         elif isinstance(callback, TimeoutCallback):
-            remover = self._group.add_timeout_callback(callback.callback, callback.timeout, cleanup)
+            remover = self._group.add_timeout_callback(cb_with_args, callback.timeout, cleanup)
         elif isinstance(callback, NextTickCallback):
-            remover = self._group.add_next_tick_callback(callback.callback, cleanup)
+            remover = self._group.add_next_tick_callback(cb_with_args, cleanup)
         else:
             raise ValueError("Expected callback of type PeriodicCallback, TimeoutCallback, NextTickCallback, got: %s" % callback.callback)
         self._removers[callback.id] = remover

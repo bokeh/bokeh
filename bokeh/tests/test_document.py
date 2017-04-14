@@ -473,6 +473,34 @@ class TestDocument(unittest.TestCase):
         assert isinstance(events[0], SessionCallbackAdded)
         assert isinstance(events[1], SessionCallbackRemoved)
 
+    def test_add_remove_periodic_callback_with_args(self):
+        d = document.Document()
+
+        events = []
+        def listener(event):
+            events.append(event)
+        d.on_change(listener)
+
+        assert len(d.session_callbacks) == 0
+        assert not events
+
+        def cb(a,b,c,d): pass
+
+        callback = d.add_periodic_callback(cb, 1, 10, 20, c=30, d=40)
+        assert len(d.session_callbacks) == len(events) == 1
+        assert isinstance(events[0], SessionCallbackAdded)
+        assert callback == d.session_callbacks[0] == events[0].callback
+        assert callback.period == 1
+        assert callback._args == (10, 20)
+        assert callback._kwargs == dict(c=30, d=40)
+
+        callback = d.remove_periodic_callback(cb)
+        assert len(d.session_callbacks) == 0
+        assert len(events) == 2
+        assert isinstance(events[0], SessionCallbackAdded)
+        assert isinstance(events[1], SessionCallbackRemoved)
+
+
     def test_add_remove_timeout_callback(self):
         d = document.Document()
 
@@ -491,6 +519,33 @@ class TestDocument(unittest.TestCase):
         assert isinstance(events[0], SessionCallbackAdded)
         assert callback == d.session_callbacks[0] == events[0].callback
         assert callback.timeout == 1
+
+        callback = d.remove_timeout_callback(cb)
+        assert len(d.session_callbacks) == 0
+        assert len(events) == 2
+        assert isinstance(events[0], SessionCallbackAdded)
+        assert isinstance(events[1], SessionCallbackRemoved)
+
+    def test_add_remove_timeout_callback_with_args(self):
+        d = document.Document()
+
+        events = []
+        def listener(event):
+            events.append(event)
+        d.on_change(listener)
+
+        assert len(d.session_callbacks) == 0
+        assert not events
+
+        def cb(a,b,c,d): pass
+
+        callback = d.add_timeout_callback(cb, 1, 10, 20, c=30, d=40)
+        assert len(d.session_callbacks) == len(events) == 1
+        assert isinstance(events[0], SessionCallbackAdded)
+        assert callback == d.session_callbacks[0] == events[0].callback
+        assert callback.timeout == 1
+        assert callback._args == (10, 20)
+        assert callback._kwargs == dict(c=30, d=40)
 
         callback = d.remove_timeout_callback(cb)
         assert len(d.session_callbacks) == 0
@@ -542,6 +597,33 @@ class TestDocument(unittest.TestCase):
         assert len(events) == 2
         assert isinstance(events[0], SessionCallbackAdded)
         assert isinstance(events[1], SessionCallbackRemoved)
+
+    def test_add_remove_next_tick_callback_with_args(self):
+        d = document.Document()
+
+        events = []
+        def listener(event):
+            events.append(event)
+        d.on_change(listener)
+
+        assert len(d.session_callbacks) == 0
+        assert not events
+
+        def cb(a,b,c,d): pass
+
+        callback = d.add_next_tick_callback(cb, 10, 20, c=30, d=40)
+        assert len(d.session_callbacks) == len(events) == 1
+        assert isinstance(events[0], SessionCallbackAdded)
+        assert callback == d.session_callbacks[0] == events[0].callback
+        assert callback._args == (10, 20)
+        assert callback._kwargs == dict(c=30, d=40)
+
+        callback = d.remove_next_tick_callback(cb)
+        assert len(d.session_callbacks) == 0
+        assert len(events) == 2
+        assert isinstance(events[0], SessionCallbackAdded)
+        assert isinstance(events[1], SessionCallbackRemoved)
+
 
     def test_periodic_callback_gets_curdoc(self):
         d = document.Document()

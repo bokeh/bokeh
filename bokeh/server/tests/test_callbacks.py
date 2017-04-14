@@ -4,7 +4,9 @@ import unittest
 
 from tornado.ioloop import IOLoop
 
+from bokeh.document import Document
 from bokeh.util.tornado import _CallbackGroup
+from bokeh.server.callbacks import _DocumentCallbackGroup
 
 def _make_invocation_counter(loop, stop_after=1):
     from types import MethodType
@@ -258,3 +260,36 @@ class TestCallbackGroup(unittest.TestCase):
             ctx.group.add_timeout_callback(func, timeout_milliseconds=1, cleanup=cleanup)
         self.assertEqual(1, func.count())
         self.assertTrue(result['ok'])
+
+class Test_DocumentCallbackGroup(unittest.TestCase):
+    def test_add_session_callback(self):
+
+
+        def func(a,b,c,d):
+            return a,b,c,d
+
+        group = _DocumentCallbackGroup(IOLoop())
+
+        d = Document()
+        cb = d.add_next_tick_callback(func, 10, 20, c=30, d=40)
+
+        group.add_session_callback(cb)
+        assert len(group._group._next_tick_callbacks) == 1
+        assert list(group._group._next_tick_callbacks.keys())[0]() == (10, 20, 30, 40)
+        group.remove_session_callback(cb)
+
+        d = Document()
+        cb = d.add_periodic_callback(func, 1, 10, 20, c=30, d=40)
+
+        group.add_session_callback(cb)
+        assert len(group._group._periodic_callbacks) == 1
+        assert list(group._group._periodic_callbacks.keys())[0]() == (10, 20, 30, 40)
+        group.remove_session_callback(cb)
+
+        d = Document()
+        cb = d.add_timeout_callback(func, 1, 10, 20, c=30, d=40)
+
+        group.add_session_callback(cb)
+        assert len(group._group._timeout_callbacks) == 1
+        assert list(group._group._timeout_callbacks.keys())[0]() == (10, 20, 30, 40)
+        group.remove_session_callback(cb)
