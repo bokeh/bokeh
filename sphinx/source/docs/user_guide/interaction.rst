@@ -23,6 +23,6 @@ Adding Interactions
     client-side JavaScript callbacks, or with real python code in a Bokeh
     server application.
 
-:ref:`userguide_interaction_callbacks`
+:ref:`userguide_interaction_jscallbacks`
     See how to attach ``CustomJS`` callbacks to various widgets and events
     in Bokeh documents.
