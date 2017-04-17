@@ -5,7 +5,7 @@ runSequence = require "run-sequence"
 paths = require "../paths"
 
 gulp.task "watch", ->
-  gulp.watch "#{paths.coffee.watchSources}", ->
+  gulp.watch "#{paths.bokehjs.coffee.watchSources}", ->
     runSequence("scripts:build")
   gulp.watch "#{paths.less.watchSources}", ->
     runSequence("styles:build")
