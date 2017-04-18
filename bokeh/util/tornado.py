@@ -16,6 +16,12 @@ def yield_for_all_futures(result):
     the Future is another Future we yield until it's done as well, and so on.
     """
     while True:
+
+        # This is needed for Tornado >= 4.5 where convert_yielded will no
+        # longer raise BadYieldError on None
+        if result is None:
+            break
+
         try:
             future = gen.convert_yielded(result)
         except gen.BadYieldError:
@@ -23,6 +29,7 @@ def yield_for_all_futures(result):
             break
         else:
             result = yield future
+
     raise gen.Return(result)
 
 class _AsyncPeriodic(object):
@@ -56,6 +63,12 @@ class _AsyncPeriodic(object):
             # the period.
             sleep_future = self.sleep()
             result = self._func()
+
+            # This is needed for Tornado >= 4.5 where convert_yielded will no
+            # longer raise BadYieldError on None
+            if result is None:
+                return sleep_future
+
             try:
                 callback_future = gen.convert_yielded(result)
             except gen.BadYieldError:
