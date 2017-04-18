@@ -178,25 +178,25 @@ class TestColumnDataSource(unittest.TestCase):
         with warnings.catch_warnings(record=True) as warns:
             ColumnDataSource(data=dict(a=[10, 11], b=[20, 21, 22]))
             self.assertEquals(len(warns), 1)
-            self.assertEquals(str(warns[0].message), "ColumnDataSource's columns must be of the same length")
+            self.assertEquals(str(warns[0].message), "ColumnDataSource's columns must be of the same length. Current lengths: ('a', 2), ('b', 3)")
 
         ds = ColumnDataSource()
         with warnings.catch_warnings(record=True) as warns:
             ds.data = dict(a=[10, 11], b=[20, 21, 22])
             self.assertEquals(len(warns), 1)
-            self.assertEquals(str(warns[0].message), "ColumnDataSource's columns must be of the same length")
+            self.assertEquals(str(warns[0].message), "ColumnDataSource's columns must be of the same length. Current lengths: ('a', 2), ('b', 3)")
 
         ds = ColumnDataSource(data=dict(a=[10, 11]))
         with warnings.catch_warnings(record=True) as warns:
             ds.data["b"] = [20, 21, 22]
             self.assertEquals(len(warns), 1)
-            self.assertEquals(str(warns[0].message), "ColumnDataSource's columns must be of the same length")
+            self.assertEquals(str(warns[0].message), "ColumnDataSource's columns must be of the same length. Current lengths: ('a', 2), ('b', 3)")
 
         ds = ColumnDataSource(data=dict(a=[10, 11], b=[20, 21]))
         with warnings.catch_warnings(record=True) as warns:
             ds.data.update(dict(a=[10, 11, 12]))
             self.assertEquals(len(warns), 1)
-            self.assertEquals(str(warns[0].message), "ColumnDataSource's columns must be of the same length")
+            self.assertEquals(str(warns[0].message), "ColumnDataSource's columns must be of the same length. Current lengths: ('a', 3), ('b', 2)")
 
     def test_set_data_from_json_list(self):
         ds = ColumnDataSource()

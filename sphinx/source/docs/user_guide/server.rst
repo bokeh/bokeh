@@ -392,7 +392,7 @@ JavaScript Callbacks in the Browser
 
 Regardless of whether there is a Bokeh Server involved, it is possible to
 create callbacks that execute in the browser, using ``CustomJS`` and other
-methods. See :ref:`userguide_interaction_actions_customjs` for more detailed
+methods. See :ref:`userguide_interaction_jscallbacks` for more detailed
 information and examples.
 
 It is critical to note that **no python code is ever executed when a CustomJS
