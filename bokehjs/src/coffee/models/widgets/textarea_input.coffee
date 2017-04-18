@@ -33,4 +33,7 @@ export class TextareaInput extends InputWidget
   @define {
       value: [ p.String, "" ]
       placeholder: [ p.String, "" ]
+      cols: [ p.String, "" ]
+      maxlength: [ p.String, "" ]
+      rows: [ p.String, "" ]
     }
