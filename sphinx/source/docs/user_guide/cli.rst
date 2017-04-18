@@ -15,7 +15,7 @@ There are three basic ``bokeh`` commands:
 
 The ``bokeh html`` command can create standalone HTML documents from any
 kind of Bokeh application source: e.g., python scripts, app directories,
-JSON files, jupyter notebooks and others. For example:
+JSON files, Jupyter/Zeppelin notebooks and others. For example:
 
 .. code-block:: bash
 

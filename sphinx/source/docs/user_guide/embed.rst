@@ -269,7 +269,7 @@ IPython Notebook
 ----------------
 
 Bokeh can also generate ``<div>`` tags suitable for inline display in the
-IPython notebook using the |notebook_div| function:
+Jupyter notebook using the |notebook_div| function:
 
 .. code-block:: python
 
@@ -285,7 +285,7 @@ The returned div contains the same sort of ``<script>`` and ``<div>`` that
 the |components| function above returns.
 
 .. note::
-    This is a fairly low-level, explicit way to generate an IPython
+    This is a fairly low-level, explicit way to generate a Jupyter
     notebook div. When using the |bokeh.plotting| or |bokeh.charts|
     interfaces, users will typically call the function |output_notebook|
     in conjunction with |show| instead.

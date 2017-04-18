@@ -66,6 +66,14 @@ Execute the lines of python code in the notebook, except with ``output_notebook`
     :scale: 50 %
     :align: center
 
+You can also test your Bokeh installation in an Zeppelin notebook.
+Execute the lines of python code in the notebook, except specifying ``notebook_type``
+as ``zeppelin`` in method ``output_notebook``. You should see results like:
+
+.. image:: /_images/bokeh_simple_test_zeppelin.png
+    :scale: 50 %
+    :align: center
+
 Finding Help
 ------------
 
