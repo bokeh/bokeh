@@ -616,7 +616,9 @@ def autoload_server(model=None, app_path=None, session_id=None, url="default", r
 
     return encode_utf8(tag)
 
-autoload_server.__doc__ = autoload_server.__doc__ % DEFAULT_SERVER_HTTP_URL
+# running python with -OO will discard docstrings -> __doc__ is None
+if autoload_server.__doc__ is not None:
+    autoload_server.__doc__ = autoload_server.__doc__ % DEFAULT_SERVER_HTTP_URL
 
 def _script_for_render_items(docs_json, render_items, app_path=None, absolute_url=None):
     return _wrap_in_onload(_wrap_in_safely(DOC_JS.render(

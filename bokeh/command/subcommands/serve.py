@@ -308,12 +308,14 @@ LOGLEVELS = ('debug', 'info', 'warning', 'error', 'critical')
 SESSION_ID_MODES = ('unsigned', 'signed', 'external-signed')
 DEFAULT_LOG_FORMAT = "%(asctime)s %(message)s"
 
-__doc__ = __doc__.format(
-    DEFAULT_PORT=DEFAULT_SERVER_PORT,
-    LOGLEVELS=nice_join(LOGLEVELS),
-    SESSION_ID_MODES=nice_join(SESSION_ID_MODES),
-    DEFAULT_LOG_FORMAT=DEFAULT_LOG_FORMAT
-)
+# running python with -OO will discard docstrings -> __doc__ is None
+if __doc__ is not None:
+    __doc__ = __doc__.format(
+        DEFAULT_PORT=DEFAULT_SERVER_PORT,
+        LOGLEVELS=nice_join(LOGLEVELS),
+        SESSION_ID_MODES=nice_join(SESSION_ID_MODES),
+        DEFAULT_LOG_FORMAT=DEFAULT_LOG_FORMAT
+    )
 
 def _fixup_deprecated_host_args(args):
     if args.host is not None and len(args.host) > 0:

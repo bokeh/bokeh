@@ -638,5 +638,8 @@ _df = DatetimeTickFormatter()
 _df_fields = ['microseconds', 'milliseconds', 'seconds', 'minsec', 'minutes', 'hourmin', 'hours', 'days', 'months', 'years']
 _df_defaults = _df.properties_with_values()
 _df_defaults_string = "\n\n        ".join("%s = %s" % (name, _df_defaults[name]) for name in _df_fields)
-DatetimeTickFormatter.__doc__ = DatetimeTickFormatter.__doc__.format(defaults=_df_defaults_string)
+
+# running python with -OO will discard docstrings -> __doc__ is None
+if DatetimeTickFormatter.__doc__ is not None:
+    DatetimeTickFormatter.__doc__ = DatetimeTickFormatter.__doc__.format(defaults=_df_defaults_string)
 del _df, _df_fields, _df_defaults, _df_defaults_string

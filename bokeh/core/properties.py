@@ -1867,6 +1867,8 @@ _data_specs = "\n".join(sorted(".. autoclass:: %s" % x.__name__ for x in _find_a
 _containers = "\n".join(sorted(".. autoclass:: %s" % x.__name__ for x in _find_and_remove(ContainerProperty)))
 _basic = "\n".join(sorted(".. autoclass:: %s" % x.__name__ for x in _all_props))
 
-__doc__ = __doc__ % (_basic, _containers, _data_specs)
+# running python with -OO will discard docstrings -> __doc__ is None
+if __doc__ is not None:
+    __doc__ = __doc__ % (_basic, _containers, _data_specs)
 
 del _all_props, _data_specs, _containers, _basic, _find_and_remove

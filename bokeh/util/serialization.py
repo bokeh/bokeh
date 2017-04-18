@@ -36,7 +36,9 @@ except ImportError:
     is_numpy = False
     BINARY_ARRAY_TYPES = set()
 
-__doc__ = __doc__ % ("\n".join("* ``np." + str(x) + "``" for x in BINARY_ARRAY_TYPES))
+# running python with -OO will discard docstrings -> __doc__ is None
+if __doc__ is not None:
+    __doc__ = __doc__ % ("\n".join("* ``np." + str(x) + "``" for x in BINARY_ARRAY_TYPES))
 
 pd = import_optional('pandas')
 
@@ -85,7 +87,9 @@ def array_encoding_disabled(array):
     # disable binary encoding for non-supported dtypes
     return array.dtype not in BINARY_ARRAY_TYPES
 
-array_encoding_disabled.__doc__ = array_encoding_disabled.__doc__ % ("\n    ".join("* ``np." + str(x) + "``" for x in BINARY_ARRAY_TYPES))
+# running python with -OO will discard docstrings -> __doc__ is None
+if array_encoding_disabled.__doc__ is not None:
+    array_encoding_disabled.__doc__ = array_encoding_disabled.__doc__ % ("\n    ".join("* ``np." + str(x) + "``" for x in BINARY_ARRAY_TYPES))
 
 def transform_array(array, force_list=False):
     """ Transform a NumPy arrays into serialized format
