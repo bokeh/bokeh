@@ -51,6 +51,18 @@ class TextInput(InputWidget):
     Placeholder for empty input field
     """)
 
+    cols = String(default="", help="""
+    Column count
+    """)
+
+    rows = String(default="", help="""
+    Row count
+    """)
+
+    maxlength = String(default="", help="""
+    Max count of characters in field
+    """)
+
 
 class AutocompleteInput(TextInput):
     ''' Single-line input widget with auto-completion.
