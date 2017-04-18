@@ -17,7 +17,7 @@ export default (props: TextareaInputProps): HTMLElement => {
       <label for={props.id}> {props.title} </label>
       <textarea class="bk-widget-form-input" id={props.id} name={props.name}
                 placeholder={props.placeholder} cols={props.cols} maxlength={props.maxlength}
-                rows={props.row}>{props.value}</textarea>
+                rows={props.rows}>{props.value}</textarea>
     </fragment>
   )
 }
