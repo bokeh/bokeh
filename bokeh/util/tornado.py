@@ -1,6 +1,6 @@
-""" Internal utils related to Tornado
+''' Internal utilities related to Tornado
 
-"""
+'''
 from __future__ import absolute_import, print_function
 
 import logging
@@ -10,28 +10,28 @@ from tornado import gen
 
 @gen.coroutine
 def yield_for_all_futures(result):
-    """ Converts result into a Future by collapsing any futures inside result.
+    ''' Converts result into a Future by collapsing any futures inside result.
 
     If result is a Future we yield until it's done, then if the value inside
     the Future is another Future we yield until it's done as well, and so on.
-    """
+
+    '''
     while True:
-        try:
-            future = gen.convert_yielded(result)
-        except gen.BadYieldError:
-            # result is not a yieldable thing, we are done
+        # result is not a yieldable thing, we are done
+        if not isinstance(result, gen.Future):
             break
-        else:
-            result = yield future
+        future = gen.convert_yielded(result)
+        result = yield future
     raise gen.Return(result)
 
 class _AsyncPeriodic(object):
-    """Like ioloop.PeriodicCallback except the 'func' can be async and
-        return a Future, and we wait for func to finish each time
-        before we call it again.  Plain ioloop.PeriodicCallback
-        can "pile up" invocations if they are taking too long.
+    ''' Like ioloop.PeriodicCallback except the 'func' can be async and return
+    a Future, and we wait for func to finish each time before we call it again.
 
-    """
+    Plain ioloop.PeriodicCallback can "pile up" invocations if they are taking
+    too long.
+
+    '''
     def __init__(self, func, period, io_loop):
         self._func = func
         self._loop = io_loop
@@ -39,8 +39,7 @@ class _AsyncPeriodic(object):
         self._started = False
         self._stopped = False
 
-    # this is like gen.sleep but uses our IOLoop instead of the
-    # current IOLoop
+    # this is like gen.sleep but uses our IOLoop instead of the current IOLoop
     def sleep(self):
         f = gen.Future()
         self._loop.call_later(self._period / 1000.0, lambda: f.set_result(None))
@@ -51,18 +50,14 @@ class _AsyncPeriodic(object):
             raise RuntimeError("called start() twice on _AsyncPeriodic")
         self._started = True
         def invoke():
-            # important to start the sleep before starting callback
-            # so any initial time spent in callback "counts against"
-            # the period.
+            # important to start the sleep before starting callback so any
+            # initial time spent in callback "counts against" the period.
             sleep_future = self.sleep()
             result = self._func()
-            try:
-                callback_future = gen.convert_yielded(result)
-            except gen.BadYieldError:
-                # result is not a yieldable thing
+            if not isinstance(result, gen.Future):
                 return sleep_future
-            else:
-                return gen.multi([sleep_future, callback_future])
+            callback_future = gen.convert_yielded(result)
+            return gen.multi([sleep_future, callback_future])
         def on_done(future):
             if not self._stopped:
                 self._loop.add_future(invoke(), on_done)
@@ -74,8 +69,10 @@ class _AsyncPeriodic(object):
         self._stopped = True
 
 class _CallbackGroup(object):
-    """ A collection of callbacks added to a Tornado IOLoop that we may
-    want to remove as a group. """
+    ''' A collection of callbacks added to a Tornado IOLoop that we may
+    want to remove as a group.
+
+    '''
 
     def __init__(self, io_loop=None):
         if io_loop is None:
@@ -89,7 +86,9 @@ class _CallbackGroup(object):
         self._periodic_callbacks = {}
 
     def remove_all_callbacks(self):
-        """ Removes all registered callbacks."""
+        ''' Removes all registered callbacks.
+
+        '''
         for cb in list(self._next_tick_callbacks.keys()):
             self.remove_next_tick_callback(cb)
         for cb in list(self._timeout_callbacks.keys()):
@@ -108,10 +107,9 @@ class _CallbackGroup(object):
             cleanup(callback)
 
     def _wrap_next_tick(self, callback, cleanup):
-        # this 'removed' flag is a hack because Tornado has no way
-        # to remove a "next tick" callback added with
-        # IOLoop.add_callback. So instead we make our wrapper skip
-        # invoking the callback.
+        # this 'removed' flag is a hack because Tornado has no way to remove
+        # a "next tick" callback added with IOLoop.add_callback. So instead we
+        # make our wrapper skip invoking the callback.
         handle = { 'removed' : False }
         def wrapper(*args, **kwargs):
             was_removed = handle['removed']
@@ -124,8 +122,11 @@ class _CallbackGroup(object):
         return wrapper
 
     def add_next_tick_callback(self, callback, cleanup=None):
-        """ Adds a callback to be run on the next tick.
-        Returns a callable that removes the callback if called."""
+        ''' Adds a callback to be run on the next tick.
+
+        Returns a callable that removes the callback if called.
+
+        '''
         if callback in self._next_tick_callbacks:
             raise ValueError("Next-tick callback added twice")
         wrapper = self._wrap_next_tick(callback, cleanup)
@@ -141,7 +142,9 @@ class _CallbackGroup(object):
         callbacks[callback]()
 
     def remove_next_tick_callback(self, callback):
-        """ Removes a callback added with add_next_tick_callback."""
+        ''' Removes a callback added with add_next_tick_callback.
+
+        '''
         self._remove(callback, self._next_tick_callbacks)
 
     def _wrap_timeout(self, callback):
@@ -151,8 +154,11 @@ class _CallbackGroup(object):
         return wrapper
 
     def add_timeout_callback(self, callback, timeout_milliseconds, cleanup=None):
-        """ Adds a callback to be run once after timeout_milliseconds.
-        Returns a callable that removes the callback if called."""
+        ''' Adds a callback to be run once after timeout_milliseconds.
+
+        Returns a callable that removes the callback if called.
+
+        '''
         if callback in self._timeout_callbacks:
             raise ValueError("Callback added as a timeout twice")
         handle = self._loop.call_later(timeout_milliseconds / 1000.0,
@@ -164,11 +170,16 @@ class _CallbackGroup(object):
         return remover
 
     def remove_timeout_callback(self, callback):
-        """ Removes a callback added with add_timeout_callback, before it runs."""
+        ''' Removes a callback added with add_timeout_callback, before it runs.
+
+        '''
         self._remove(callback, self._timeout_callbacks)
 
     def add_periodic_callback(self, callback, period_milliseconds, cleanup=None):
-        """ Adds a callback to be run every period_milliseconds until it is removed."""
+        ''' Adds a callback to be run every period_milliseconds until it
+        is removed.
+
+        '''
         if callback in self._periodic_callbacks:
             raise ValueError("Callback added as a periodic callback twice")
         cb = _AsyncPeriodic(
@@ -182,5 +193,7 @@ class _CallbackGroup(object):
         return remover
 
     def remove_periodic_callback(self, callback):
-        """ Removes a callback added with add_periodic_callback."""
+        ''' Removes a callback added with add_periodic_callback.
+
+        '''
         self._remove(callback, self._periodic_callbacks)
