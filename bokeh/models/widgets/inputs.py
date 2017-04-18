@@ -282,4 +282,16 @@ class TextareaInput(InputWidget):
     Placeholder for empty input field
     """)
 
+    cols = String(default="", help="""
+    Column count
+    """)
+
+    rows = String(default="", help="""
+    Row count
+    """)
+
+    maxlength = String(default="", help="""
+    Max count of characters in field
+    """)
+
 
