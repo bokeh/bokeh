@@ -86,8 +86,9 @@ class ColumnDataSource(ColumnarDataSource):
     Mapping of column names to sequences of data. The data can be, e.g,
     Python lists or tuples, NumPy arrays, etc.
     """).asserts(lambda _, data: len(set(len(x) for x in data.values())) <= 1,
-                 lambda: warnings.warn("ColumnDataSource's columns must be of the same length", BokehUserWarning))
-
+                 lambda obj, name, data: warnings.warn(
+                    "ColumnDataSource's columns must be of the same length. " +
+                    "Current lengths: %s" % ", ".join(sorted(str((k, len(v))) for k, v in data.items())), BokehUserWarning))
 
     def __init__(self, *args, **kw):
         ''' If called with a single argument that is a dict or

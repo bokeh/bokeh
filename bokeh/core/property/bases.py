@@ -276,17 +276,13 @@ class Property(PropertyDescriptorFactory):
                 else:
                     result = fn(obj, value)
 
-                if isinstance(result, bool):
-                    if not result:
-                        if isinstance(msg_or_fn, string_types):
-                            raise ValueError(msg_or_fn)
-                        else:
-                            msg_or_fn()
-                elif result is not None:
+                assert isinstance(result, bool)
+
+                if not result:
                     if isinstance(msg_or_fn, string_types):
-                        raise ValueError(msg_or_fn % result)
+                        raise ValueError(msg_or_fn)
                     else:
-                        msg_or_fn(result)
+                        msg_or_fn(obj, name, value)
 
         return self._wrap_container(value)
 
@@ -295,11 +291,48 @@ class Property(PropertyDescriptorFactory):
         return False
 
     def accepts(self, tp, converter):
+        ''' Declare that other types may be converted to this property type.
+
+        Args:
+            tp (Property) :
+                A type that may be converted automatically to this property
+                type.
+
+            converter (callable) :
+                A function accepting ``value`` to perform conversion of the
+                value to this property type.
+
+        Returns:
+            self
+
+        '''
+
         tp = ParameterizedProperty._validate_type_param(tp)
         self.alternatives.append((tp, converter))
         return self
 
     def asserts(self, fn, msg_or_fn):
+        ''' Assert that prepared values satisfy given conditions.
+
+        Assertions are intended in enforce conditions beyond simple value
+        type validation. For instance, this method can be use to assert that
+        the columns of a ``ColumnDataSource`` all collectively have the same
+        length at all times.
+
+        Args:
+            fn (callable) :
+                A function accepting ``(obj, value)`` that returns True if the value
+                passes the assertion, or False othwise
+
+            msg_or_fn (str or callable) :
+                A message to print in case the assertion fails, or a function
+                accepting ``(obj, name, value)`` to call in in case the assertion
+                fails.
+
+        Returns:
+            self
+
+        '''
         self.assertions.append((fn, msg_or_fn))
         return self
 
