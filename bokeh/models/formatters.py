@@ -15,8 +15,6 @@ from ..core.validation.errors import MISSING_MERCATOR_DIMENSION
 from ..model import Model
 from ..util.compiler import nodejs_compile, CompilationError
 from ..util.dependencies import import_required
-from ..util.deprecation import deprecated
-
 from .tickers import Ticker
 
 @abstract
@@ -331,21 +329,6 @@ class FuncTickFormatter(TickFormatter):
             '''
     """)
 
-def DEFAULT_DATETIME_FORMATS():
-    deprecated((0, 12, 3), 'DEFAULT_DATETIME_FORMATS', 'individual DatetimeTickFormatter fields')
-    return {
-        'microseconds': ['%fus'],
-        'milliseconds': ['%3Nms', '%S.%3Ns'],
-        'seconds':      ['%Ss'],
-        'minsec':       [':%M:%S'],
-        'minutes':      [':%M', '%Mm'],
-        'hourmin':      ['%H:%M'],
-        'hours':        ['%Hh', '%H:%M'],
-        'days':         ['%m/%d', '%a%d'],
-        'months':       ['%m/%Y', '%b%y'],
-        'years':        ['%Y'],
-    }
-
 def _DATETIME_TICK_FORMATTER_HELP(field):
     return """
     Formats for displaying datetime values in the %s range.
@@ -596,42 +579,6 @@ class DatetimeTickFormatter(TickFormatter):
     years        = List(String,
                         help=_DATETIME_TICK_FORMATTER_HELP("``years``"),
                         default=['%Y']).accepts(String, lambda fmt: [fmt])
-
-    __deprecated_attributes__ = ('formats',)
-
-    @property
-    def formats(self):
-        ''' A dictionary containing formats for all scales.
-
-        THIS PROPERTY IS DEPRECTATED. Use individual DatetimeTickFormatter fields instead.
-
-        '''
-        deprecated((0, 12, 3), 'DatetimeTickFormatter.formats', 'individual DatetimeTickFormatter fields')
-        return dict(
-            microseconds = self.microseconds,
-            milliseconds = self.milliseconds,
-            seconds      = self.seconds,
-            minsec       = self.minsec,
-            minutes      = self.minutes,
-            hourmin      = self.hourmin,
-            hours        = self.hours,
-            days         = self.days,
-            months       = self.months,
-            years        = self.years)
-
-    @formats.setter
-    def formats(self, value):
-        deprecated((0, 12, 3), 'DatetimeTickFormatter.formats', 'individual DatetimeTickFormatter fields')
-        if 'microseconds' in value: self.microseconds = value['microseconds']
-        if 'milliseconds' in value: self.milliseconds = value['milliseconds']
-        if 'seconds'      in value: self.seconds      = value['seconds']
-        if 'minsec'       in value: self.minsec       = value['minsec']
-        if 'minutes'      in value: self.minutes      = value['minutes']
-        if 'hourmin'      in value: self.hourmin      = value['hourmin']
-        if 'hours'        in value: self.hours        = value['hours']
-        if 'days'         in value: self.days         = value['days']
-        if 'months'       in value: self.months       = value['months']
-        if 'years'        in value: self.years        = value['years']
 
 # This is to automate documentation of DatetimeTickFormatter formats and their defaults
 _df = DatetimeTickFormatter()

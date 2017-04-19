@@ -17,7 +17,6 @@ from ..core.property_mixins import FillProps, LineProps, TextProps
 from ..core.validation import error
 from ..core.validation.errors import BAD_COLUMN_NAME, NON_MATCHING_DATA_SOURCES_ON_LEGEND_ITEM_RENDERERS
 from ..model import Model
-from ..util.deprecation import deprecated
 
 from .formatters import BasicTickFormatter, TickFormatter
 from .mappers import ContinuousColorMapper
@@ -191,63 +190,6 @@ class Legend(Annotation):
     where each tuple is of the form: *(label, renderers)*.
 
     """).accepts(List(Tuple(String, List(Instance(GlyphRenderer)))), lambda items: [LegendItem(label=item[0], renderers=item[1]) for item in items])
-
-    # --- DEPRECATIONS --------------------------------------------------------
-
-    __deprecated_attributes__ = (
-        'legends', 'legend_margin', 'legend_padding', 'legend_spacing'
-    )
-
-    @property
-    def legends(self):
-        deprecated((0, 12, 3), 'legends', 'Legend.items')
-        return self.items
-
-    @legends.setter
-    def legends(self, legends):
-        deprecated((0, 12, 3), 'legends', 'Legend.items')
-        # Legends are [('label', [glyph_renderer_1, glyph_renderer_2]), ....]
-        # Or {'label', [glyph_renderer_1, glyph_renderer_2], ....}
-        if isinstance(legends, dict):
-            legends = list(legends.items())
-        items_list = []
-        for legend in legends:
-            item = LegendItem()
-            item.label = value(legend[0])
-            item.renderers = legend[1]
-            items_list.append(item)
-        self.items = items_list
-
-    @property
-    def legend_margin(self):
-        deprecated((0, 12, 3), 'legend_margin', 'Legend.margin')
-        return self.margin
-
-    @legend_margin.setter
-    def legend_margin(self, margin):
-        deprecated((0, 12, 3), 'legend_margin', 'Legend.margin')
-        self.margin = margin
-
-    @property
-    def legend_padding(self):
-        deprecated((0, 12, 3), 'legend_padding', 'Legend.padding')
-        return self.padding
-
-    @legend_padding.setter
-    def legend_padding(self, padding):
-        deprecated((0, 12, 3), 'legend_padding', 'Legend.padding')
-        self.padding = padding
-
-    @property
-    def legend_spacing(self):
-        deprecated((0, 12, 3), 'legend_spacing', 'Legend.spacing')
-        return self.spacing
-
-    @legend_spacing.setter
-    def legend_spacing(self, spacing):
-        deprecated((0, 12, 3), 'legend_spacing', 'Legend.spacing')
-        self.spacing = spacing
-
 
 class ColorBar(Annotation):
     ''' Render a color bar based on a color mapper.

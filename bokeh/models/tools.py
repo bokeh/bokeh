@@ -26,25 +26,11 @@ from ..core.enums import accept_left_right_center, Anchor, DeprecatedAnchor, Dim
 from ..core.has_props import abstract
 from ..core.properties import Any, Auto, Bool, Color, Dict, Either, Enum, Float, Percent, Instance, List, Override, String, Tuple
 from ..model import Model
-from ..util.deprecation import deprecated
 
 from .annotations import BoxAnnotation, PolyAnnotation
 from .callbacks import Callback
 from .renderers import Renderer
 from .layouts import Box, LayoutDOM
-
-def _deprecated_dimensions(tool):
-    def transformer(value):
-        deprecated((0, 12, 3), "List(Enum(Dimension)) in %s.dimensions" % tool, "Enum(Dimensions)")
-
-        if "width" in value and "height" in value:
-            return "both"
-        elif "width" in value or "height" in value:
-            return value
-        else:
-            raise ValueError("empty dimensions' list doesn't make sense")
-
-    return transformer
 
 class ToolEvents(Model):
     ''' A class for reporting tools geometries from BokehJS.
@@ -193,7 +179,7 @@ class PanTool(Drag):
     the pan tool will pan in any dimension, but can be configured to only
     pan horizontally across the width of the plot, or vertically across the
     height of the plot.
-    """).accepts(List(Enum(Dimension)), _deprecated_dimensions("PanTool"))
+    """)
 
 class WheelPanTool(Scroll):
     ''' *toolbar icon*: |wheel_pan_icon|
@@ -233,7 +219,7 @@ class WheelZoomTool(Scroll):
     default the wheel zoom tool will zoom in any dimension, but can be
     configured to only zoom horizontally across the width of the plot, or
     vertically across the height of the plot.
-    """).accepts(List(Enum(Dimension)), _deprecated_dimensions("WheelZoomTool"))
+    """)
 
 
 class SaveTool(Action):
@@ -353,7 +339,7 @@ class CrosshairTool(Inspection):
     vertical and horizontal line will be drawn. If only "width" is supplied,
     only a horizontal line will be drawn. If only "height" is supplied,
     only a vertical line will be drawn.
-    """).accepts(List(Enum(Dimension)), _deprecated_dimensions("CrosshairTool"))
+    """)
 
     line_color = Color(default="black", help="""
     A color to use to stroke paths with.
@@ -417,7 +403,7 @@ class BoxZoomTool(Drag):
     controlled. If only "height" is supplied, the box will be constrained
     to span the entire horizontal space of the plot, and the vertical
     dimension can be controlled.
-    """).accepts(List(Enum(Dimension)), _deprecated_dimensions("BoxZoomTool"))
+    """)
 
     overlay = Instance(BoxAnnotation, default=DEFAULT_BOX_OVERLAY, help="""
     A shaded annotation drawn to indicate the selection region.
@@ -449,7 +435,7 @@ class ZoomInTool(Action):
     default the zoom-in zoom tool will zoom in any dimension, but can be
     configured to only zoom horizontally across the width of the plot, or
     vertically across the height of the plot.
-    """).accepts(List(Enum(Dimension)), _deprecated_dimensions("ZoomInTool"))
+    """)
 
     factor = Percent(default=0.1, help="""
     Percentage to zoom for each click of the zoom-in tool.
@@ -470,7 +456,7 @@ class ZoomOutTool(Action):
     default the zoom-out tool will zoom in any dimension, but can be
     configured to only zoom horizontally across the width of the plot, or
     vertically across the height of the plot.
-    """).accepts(List(Enum(Dimension)), _deprecated_dimensions("ZoomOutTool"))
+    """)
 
     factor = Percent(default=0.1, help="""
     Percentage to zoom for each click of the zoom-in tool.
@@ -517,7 +503,7 @@ class BoxSelectTool(Drag):
     controlled. If only "height" is supplied, the box will be constrained
     to span the entire horizontal space of the plot, and the vertical
     dimension can be controlled.
-    """).accepts(List(Enum(Dimension)), _deprecated_dimensions("BoxSelectTool"))
+    """)
 
     callback = Instance(Callback, help="""
     A callback to run in the browser on completion of drawing a selection box.

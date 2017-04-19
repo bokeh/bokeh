@@ -1,0 +1,26 @@
+0.12.6 (May 2017)
+=================
+
+Bokeh Version ``0.12.6`` is an incremental update that adds a few important
+features and fixes several bugs. Some of the highlights include:
+
+Migration Guide
+---------------
+
+As the project approaches a 1.0 release, it is necessary to make some changes
+to bring interfaces and functionality up to a point that can be maintained
+long-term. We try to limit such changes as much as possible, and have a
+period of deprecation.
+
+Deprecations removed
+~~~~~~~~~~~~~~~~~~~~
+
+All previous deprecations up to ``0.12.3`` have be removed. Below is the
+complete list of removals.
+
+* Deperecated ``Legend`` properties: ``legends``, ``legend_margin``,
+  ``legend_padding``, ``legend_spacing`` have been removed.
+* Deprecated ``DatetimeTickFormatter.formats`` dict property has been removed.
+* ``Tool`` dimensions specified as a list value rather than an enum, are no
+  longer accepted.
+* Deprecated ``Button.type`` property has been removed.
