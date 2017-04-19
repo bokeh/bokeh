@@ -30,7 +30,6 @@ clean:
 
 html:
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
-	@ln -sf ../../../bokeh/server/static $(BUILDDIR)/html/static
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
 
