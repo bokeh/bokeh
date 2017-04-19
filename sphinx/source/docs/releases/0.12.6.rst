@@ -18,7 +18,7 @@ Deprecations removed
 All previous deprecations up to ``0.12.3`` have be removed. Below is the
 complete list of removals.
 
-* Deperecated ``Legend`` properties: ``legends``, ``legend_margin``,
+* Deprecated ``Legend`` properties: ``legends``, ``legend_margin``,
   ``legend_padding``, ``legend_spacing`` have been removed.
 * Deprecated ``DatetimeTickFormatter.formats`` dict property has been removed.
 * ``Tool`` dimensions specified as a list value rather than an enum, are no
