@@ -323,10 +323,10 @@ def _bundle_for_objs_and_resources(objs, resources):
 
     return bokeh_js, bokeh_css
 
-
 def notebook_div(model, notebook_comms_target=None, theme=FromCurdoc):
-    ''' Return HTML for a div that will display a Bokeh plot in an
-    IPython Notebook
+    ''' Return HTML for a div that will display a Bokeh plot in a
+    Jupyter/Zeppelin Notebook. notebook_comms_target is only supported
+    in Jupyter for now.
 
     The data for the plot is stored directly in the returned HTML.
 
@@ -367,7 +367,7 @@ def notebook_div(model, notebook_comms_target=None, theme=FromCurdoc):
     ))
 
     js = AUTOLOAD_NB_JS.render(
-        comms_target=notebook_comms_target,
+        comms_target = notebook_comms_target,
         js_urls = [],
         css_urls = [],
         js_raw = [script],

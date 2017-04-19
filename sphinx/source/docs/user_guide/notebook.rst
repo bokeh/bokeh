@@ -8,13 +8,21 @@ Working in the Notebook
 Inline Plots
 ------------
 
-To display Bokeh plots inline in an Jupyter notebook, use the
+To display Bokeh plots inline in an Jupyter/Zeppelin notebook, use the
 |output_notebook| function from |bokeh.io| instead of (or in addition to)
 the |output_file| function we have seen previously. No other modifications
 are required. When |show| is called, the plot will be displayed inline in
-the next notebook output cell. You can see a screenshot below:
+the next notebook output cell. You can see a Jupyter screenshot below:
 
 .. image:: /_images/notebook_inline.png
+    :scale: 50 %
+    :align: center
+
+By defaults, |output_notebook| apply to Juypter. If you want to use bokeh
+to display inline plots in Zeppelin, you need to specify `notebook_type`
+to `zeppelin` in |output_notebook|. Here's one Zeppelin screenshot.
+
+.. image:: /_images/bokeh_simple_test_zeppelin.png
     :scale: 50 %
     :align: center
 
@@ -31,6 +39,7 @@ It is possible to update a previously shown plot in-place. When the argument
 ``notebook_handle=True`` is passed to |show| then a handle object is returned.
 This handle object can be used with the |push_notebook| function to update
 the plot with any recent changes to plots properties, data source values, etc.
+But `notebook handle` is only supported in Jupyter, not supported by Zeppelin yet.
 
 The following screenshots walk through the basic usage of notebook handles.
 

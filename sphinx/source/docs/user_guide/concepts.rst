@@ -84,7 +84,7 @@ interactive usage are:
     For generating simple standalone HTML documents for Bokeh visualizations.
 
 ``output_notebook``
-    For displaying Bokeh visualizations inline in Jupyter notebook cells.
+    For displaying Bokeh visualizations inline in Jupyter/Zeppelin notebook cells.
 
 These functions are most often used together with the ``show`` or ``save``
 functions. Scripts that output with these typically look something like:

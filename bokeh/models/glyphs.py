@@ -407,11 +407,11 @@ class ImageRGBA(Glyph):
 
     rows = NumberSpec(None, help="""
     The numbers of rows in the images
-    """).asserts(False, lambda: deprecated((0, 12, 4), "ImageRGBA.rows", "2D array representation"))
+    """).asserts(False, lambda obj, name, value: deprecated((0, 12, 4), "ImageRGBA.rows", "2D array representation"))
 
     cols = NumberSpec(None, help="""
     The numbers of columns in the images
-    """).asserts(False, lambda: deprecated((0, 12, 4), "ImageRGBA.cols", "2D array representation"))
+    """).asserts(False, lambda obj, name, value: deprecated((0, 12, 4), "ImageRGBA.cols", "2D array representation"))
 
     dw = DistanceSpec(help="""
     The widths of the plot regions that the images will occupy.

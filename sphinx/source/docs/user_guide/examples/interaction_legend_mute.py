@@ -11,7 +11,8 @@ for name, color in zip(['AAPL', 'IBM', 'MSFT', 'GOOG'], Spectral4):
         "http://ichart.yahoo.com/table.csv?s=%s&a=0&b=1&c=2005&d=0&e=1&f=2014" % name,
         parse_dates=['Date']
     )
-    p.line(df['Date'], df['Close'], line_width=2, color=color, alpha=0.8, muted_alpha=0.2, legend=name)
+    p.line(df['Date'], df['Close'], line_width=2, color=color, alpha=0.8,
+           muted_color=color, muted_alpha=0.2, legend=name)
 
 p.legend.location = "top_left"
 p.legend.click_policy="mute"
