@@ -11,18 +11,22 @@ export function defer(func: () => void): number {
   return delay(func, 1)
 }
 
-export function throttle<T>(func: () => T, wait: number, options?: {leading?: boolean, trailing?: boolean}) {
+export interface ThrottleOptions {
+  leading?: boolean
+  trailing?: boolean
+}
+
+export function throttle<T>(func: () => T, wait: number, options: ThrottleOptions = {}) {
   let context: any, args: any, result: T
-  let timeout: number = null
+  let timeout: number | null = null
   let previous = 0
-  if (!options) options = {}
   const later = function() {
     previous = options.leading === false ? 0 : Date.now()
     timeout = null
     result = func.apply(context, args)
     if (!timeout) context = args = null
   }
-  return function() {
+  return function(this: any) {
     const now = Date.now()
     if (!previous && options.leading === false) previous = now
     const remaining = wait - (now - previous)

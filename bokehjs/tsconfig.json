@@ -2,6 +2,11 @@
   "compilerOptions": {
     "noImplicitAny": true,
     "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitThis": true,
+    "noImplicitReturns": true,
+    "strictNullChecks": true,
+    "alwaysStrict": true,
     "noEmitOnError": false,
     "module": "commonjs",
     "moduleResolution": "node",
