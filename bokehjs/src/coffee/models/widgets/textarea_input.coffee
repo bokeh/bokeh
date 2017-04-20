@@ -34,6 +34,6 @@ export class TextareaInput extends InputWidget
       value:       [ p.String, "" ]
       placeholder: [ p.String, "" ]
       cols:        [ p.Number, 20 ] # 20 is the HTML default
-      max_length:  [ p.Number, "" ]
-      rows:        [ p.Number, "" ]
+      max_length:  [ p.Number ]
+      rows:        [ p.Number, 2 ] # 20 is the HTML default
     }
