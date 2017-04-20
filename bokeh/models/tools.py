@@ -675,12 +675,10 @@ class HoverTool(Inspection):
             * image
             * image_rgba
             * image_url
-            * multi_line
             * oval
             * patch
             * quadratic
             * ray
-            * segment
             * text
 
     .. |hover_icon| image:: /_images/icons/Hover.png

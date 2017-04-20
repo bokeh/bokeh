@@ -69,7 +69,7 @@ export class LineView extends XYGlyphView
       values = @_x
 
     for i in [0...values.length-1]
-      if values[i]<=val<=values[i+1]
+      if values[i]<=val<=values[i+1] or values[i+1]<=val<=values[i]
         result['0d'].glyph = this.model
         result['0d'].get_view = (() -> this).bind(this);
         result['0d'].flag = true  # backward compat
