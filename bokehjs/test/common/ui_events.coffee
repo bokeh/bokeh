@@ -58,17 +58,42 @@ describe "ui_events module", ->
 
         @spy_cursor = sinon.spy(@plot_canvas_view, "set_cursor")
 
-      it "should handle base case", ->
-        # no inspectors or view_renderers
+      it "should trigger move event for active inspectors", ->
+        inspector = new CrosshairTool({active: true})
+        @plot.add_tools(inspector)
+
         @ui_events._trigger("move", @e)
 
         assert(@spy_trigger.calledOnce)
-        expect(@spy_trigger.args[0]).to.be.deep.equal(["move", @e])
+        expect(@spy_trigger.args[0]).to.be.deep.equal(["move:#{inspector.id}", @e])
+
+      it "should not trigger move event for inactive inspectors", ->
+        inspector = new CrosshairTool({active: false})
+        @plot.add_tools(inspector)
+
+        @ui_events._trigger("move", @e)
+
+        assert(@spy_trigger.notCalled)
+
+      it "should use default cursor no active inspector", ->
+        @ui_events._trigger("move", @e)
 
         assert(@spy_cursor.calledOnce)
         assert(@spy_cursor.calledWith("default"))
 
-      it "should change cursor if active inspector is present", ->
+      it "should use default cursor if active inspector but mouse is off-frame", ->
+        inspector = new CrosshairTool()
+        @plot.add_tools(inspector)
+
+        ss = sinon.stub(@ui_events, "_hit_test_frame").returns(false)
+
+        @ui_events._trigger("move", @e)
+        assert(@spy_cursor.calledOnce)
+        assert(@spy_cursor.calledWith("default"))
+
+        ss.restore()
+
+      it "should change cursor if active inspector is present and over frame", ->
         inspector = new CrosshairTool()
         @plot.add_tools(inspector)
 
@@ -103,7 +128,7 @@ describe "ui_events module", ->
 
         @ui_events._trigger("move", @e)
         assert(@spy_trigger.calledOnce)
-        expect(@spy_trigger.args[0]).to.be.deep.equal(["move:exit", @e])
+        expect(@spy_trigger.args[0]).to.be.deep.equal(["move:exit:#{inspector.id}", @e])
         # should also use view renderer cursor and not inspector cursor
         assert(@spy_cursor.calledOnce)
         assert(@spy_cursor.calledWith("pointer"))

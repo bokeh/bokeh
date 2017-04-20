@@ -109,12 +109,15 @@ tools, to be active.
 
 However it is possible to exert control over which tool is active. At the
 lowest ``bokeh.models`` level, this is accomplished by using the ``active_drag``,
-``active_scroll``, and ``active_tap`` properties of ``Toolbar``. These
-properties can take the following values:
+``active_inspect``, ``active_scroll``, and ``active_tap`` properties of
+``Toolbar``. These properties can take the following values:
 
 * ``None`` --- there is no active tool of this kind
 * ``"auto"`` --- Bokeh chooses a tool of this kind to be active (possibly none)
 * a ``Tool`` instance --- Bokeh sets the given tool to be the active tool
+
+Additionally, the ``active_inspect`` tool may accept:
+* A sequence of ``Tool`` instances to be set as the active tools
 
 As an example:
 
@@ -128,6 +131,10 @@ As an example:
 
     # configure so that a specific PolySelect tap tool is active
     plot.toolbar.active_tap = poly_select
+
+    # configure so that a sequence of specific inspect tools are active
+    # note: this only works for inspect tools
+    plot.toolbar.active_inspect = [hover_tool, crosshair_tool]
 
 The default value for all of these properties is ``"auto"``.
 
