@@ -530,6 +530,52 @@ class BoxAnnotation(Annotation):
 
     """)
 
+class FilledArea(Annotation):
+    ''' Render a filled area band along a dimension.
+
+    '''
+    lower = NumberSpec(help="""
+    The lower coordinates to locate the text anchors.
+    """)
+
+    upper = NumberSpec(help="""
+    The upper coordinates to locate the text anchors.
+    """)
+
+    coords = NumberSpec(help="""
+    The upper coordinates to locate the text anchors.
+    """)
+
+    dimension = Enum(Dimension, default='height', help="""
+    The direction of the span.
+    """)
+
+    fill_props = Include(FillProps, use_prefix=False, help="""
+    The %s values for the text bounding box.
+    """)
+
+    # background_fill_color = Override(default=None)
+
+    line_props = Include(LineProps, use_prefix=False, help="""
+    The %s values for the text bounding box.
+    """)
+
+    # border_line_color = Override(default=None)
+
+    source = Instance(DataSource, default=lambda: ColumnDataSource(), help="""
+    Local data source to use when rendering annotations on the plot.
+    """)
+
+    x_range_name = String('default', help="""
+    A particular (named) x-range to use for computing screen locations when
+    rendering annotations on the plot. If unset, use the default x-range.
+    """)
+
+    y_range_name = String('default', help="""
+    A particular (named) y-range to use for computing screen locations when
+    rendering annotations on the plot. If unset, use the default y-range.
+    """)
+
 class Label(TextAnnotation):
     ''' Render a single text label as an annotation.
 

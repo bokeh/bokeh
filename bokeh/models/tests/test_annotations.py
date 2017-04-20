@@ -4,7 +4,8 @@ import mock
 from bokeh.core.properties import field, value
 from bokeh.core.validation import check_integrity
 from bokeh.models.annotations import (
-    Legend, LegendItem, ColorBar, Arrow, BoxAnnotation, Span, LabelSet, Label, Title
+    Legend, LegendItem, ColorBar, Arrow, BoxAnnotation, Span, LabelSet, Label,
+    Title, FilledArea
 )
 from bokeh.models import (
     ColumnDataSource, ArrowHead, BasicTicker, BasicTickFormatter, GlyphRenderer
@@ -177,6 +178,33 @@ def test_BoxAnnotation():
         "x_range_name",
         "y_range_name",
         "level",
+    ], LINE, FILL)
+
+
+def test_FilledArea():
+    area = FilledArea()
+    assert area.plot is None
+    assert area.level == 'annotation'
+    assert area.lower is None
+    assert area.upper is None
+    assert area.coords is None
+    assert area.dimension == 'height'
+    assert isinstance(area.source, ColumnDataSource)
+    assert area.x_range_name == 'default'
+    assert area.y_range_name == 'default'
+    check_line_properties(area, "")
+    check_fill_properties(area, "")
+    check_properties_existence(area, [
+        "plot",
+        "visible",
+        "level",
+        "lower",
+        "upper",
+        "coords",
+        "dimension",
+        "source",
+        "x_range_name",
+        "y_range_name",
     ], LINE, FILL)
 
 
