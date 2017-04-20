@@ -27,8 +27,6 @@ export class HoverToolView extends InspectToolView
     for r in @model.computed_renderers
       @listenTo(r.data_source, 'inspect', @_update)
 
-    @plot_view.canvas_view.el.style.cursor = "crosshair"
-
   _clear: () ->
 
     @_inspect(Infinity, Infinity)
@@ -78,6 +76,9 @@ export class HoverToolView extends InspectToolView
     return
 
   _update: (indices, tool, renderer, ds, {geometry}) ->
+    if not @model.active
+      return
+
     tooltip = @model.ttmodels[renderer.model.id] ? null
     if not tooltip?
       return
