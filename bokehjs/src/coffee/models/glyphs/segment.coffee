@@ -36,8 +36,6 @@ export class SegmentView extends GlyphView
     x = @renderer.xmapper.map_from_target(vx, true)
     y = @renderer.ymapper.map_from_target(vy, true)
 
-    threshold = Math.max(2, @visuals.line.line_width.value() / 2)
-
     point =
       x: this.renderer.plot_view.canvas.vx_to_sx(vx)
       y: this.renderer.plot_view.canvas.vy_to_sy(vy)
@@ -46,6 +44,7 @@ export class SegmentView extends GlyphView
 
     candidates = @index.indices({minX: x, minY: y, maxX: x, maxY: y})
     for i in candidates
+      threshold = Math.max(2, @visuals.line.cache_select('line_width', i) / 2)
       [p0, p1] = [{x: @sx0[i], y: @sy0[i]}, {x: @sx1[i], y: @sy1[i]}]
       dist = hittest.dist_to_segment(point, p0, p1)
       if dist < threshold
