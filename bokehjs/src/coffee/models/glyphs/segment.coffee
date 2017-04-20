@@ -1,3 +1,4 @@
+import * as hittest from "core/hittest"
 import {RBush} from "core/util/spatial"
 import {Glyph, GlyphView} from "./glyph"
 
@@ -29,6 +30,65 @@ export class SegmentView extends GlyphView
 
         @visuals.line.set_vectorize(ctx, i)
         ctx.stroke()
+
+  _hit_point: (geometry) ->
+    [vx, vy] = [geometry.vx, geometry.vy]
+    x = @renderer.xmapper.map_from_target(vx, true)
+    y = @renderer.ymapper.map_from_target(vy, true)
+
+    point =
+      x: this.renderer.plot_view.canvas.vx_to_sx(vx)
+      y: this.renderer.plot_view.canvas.vy_to_sy(vy)
+
+    hits = []
+
+    candidates = @index.indices({minX: x, minY: y, maxX: x, maxY: y})
+    for i in candidates
+      threshold = Math.max(2, @visuals.line.cache_select('line_width', i) / 2)
+      [p0, p1] = [{x: @sx0[i], y: @sy0[i]}, {x: @sx1[i], y: @sy1[i]}]
+      dist = hittest.dist_to_segment(point, p0, p1)
+      if dist < threshold
+        hits.push(i)
+
+    result = hittest.create_hit_test_result()
+    result['1d'].indices = hits
+    return result
+
+  _hit_span: (geometry) ->
+    hr = @renderer.plot_view.frame.h_range
+    vr = @renderer.plot_view.frame.v_range
+
+    [vx, vy] = [geometry.vx, geometry.vy]
+
+    if geometry.direction == 'v'
+      val = @renderer.ymapper.map_from_target(vy)
+      [v0, v1] = [@_y0, @_y1]
+    else
+      val = @renderer.xmapper.map_from_target(vx)
+      [v0, v1] = [@_x0, @_x1]
+
+    hits = []
+
+    candidates = @index.indices({
+      minX: @renderer.xmapper.map_from_target(hr.min),
+      minY: @renderer.ymapper.map_from_target(vr.min),
+      maxX: @renderer.xmapper.map_from_target(hr.max),
+      maxY: @renderer.ymapper.map_from_target(vr.max)
+    })
+
+    for i in candidates
+      if v0[i]<=val<=v1[i] or v1[i]<=val<=v0[i]
+        hits.push(i)
+
+    result = hittest.create_hit_test_result()
+    result['1d'].indices = hits
+    return result
+
+  scx: (i) ->
+    return (@sx0[i] + @sx1[i])/2
+
+  scy: (i) ->
+    return (@sy0[i] + @sy1[i])/2
 
   draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
     @_generic_line_legend(ctx, x0, x1, y0, y1, index)
