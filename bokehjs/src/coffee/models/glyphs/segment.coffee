@@ -75,7 +75,7 @@ export class SegmentView extends GlyphView
       maxX: @renderer.xmapper.map_from_target(hr.max),
       maxY: @renderer.ymapper.map_from_target(vr.max)
     })
-    console.log (candidates)
+
     for i in candidates
       if v0[i]<=val<=v1[i] or v1[i]<=val<=v0[i]
         hits.push(i)
