@@ -113,6 +113,11 @@ export class PlotCanvasView extends BokehView
     @bind_bokeh_events()
     @update_dataranges()
 
+    for name, rng of @frame.x_ranges
+      rng.callback?.execute(rng)
+    for name, rng of @frame.y_ranges
+      rng.callback?.execute(rng)
+
     @unpause()
     logger.debug("PlotView initialized")
 
@@ -417,6 +422,12 @@ export class PlotCanvasView extends BokehView
       for name, rng of @frame.y_ranges
         rng.reset()
       @update_dataranges()
+
+      for name, rng of @frame.x_ranges
+        rng.callback?.execute(rng)
+      for name, rng of @frame.y_ranges
+        rng.callback?.execute(rng)
+
     else
       range_info_iter = []
       for name, rng of @frame.x_ranges
