@@ -1432,21 +1432,21 @@ class DataSpec(Either):
             color = ColorSpec(help="docs for color") # defaults to None
 
     '''
-    def __init__(self, typ, default, help=None):
+    def __init__(self, key_type, value_type, default, help=None):
         super(DataSpec, self).__init__(
             String,
             Dict(
-                String,
+                key_type,
                 Either(
                     String,
                     Instance('bokeh.models.transforms.Transform'),
                     Instance('bokeh.models.mappers.ColorMapper'),
-                    typ)),
-            typ,
+                    value_type)),
+            value_type,
             default=default,
             help=help
         )
-        self._type = self._validate_type_param(typ)
+        self._type = self._validate_type_param(value_type)
 
     # TODO (bev) add stricter validation on keys
 
@@ -1489,6 +1489,8 @@ class DataSpec(Either):
     def _sphinx_type(self):
         return self._sphinx_prop_link()
 
+_FieldValueTransform = Enum("field", "value", "transform")
+
 class NumberSpec(DataSpec):
     ''' A |DataSpec| property that accepts numeric fixed values.
 
@@ -1499,8 +1501,8 @@ class NumberSpec(DataSpec):
         m.location = "foo" # field
 
     '''
-    def __init__(self, default=None, help=None):
-        super(NumberSpec, self).__init__(Float, default=default, help=help)
+    def __init__(self, default=None, help=None, key_type=_FieldValueTransform):
+        super(NumberSpec, self).__init__(key_type, Float, default=default, help=help)
 
 class StringSpec(DataSpec):
     ''' A |DataSpec| property that accepts string fixed values.
@@ -1517,8 +1519,8 @@ class StringSpec(DataSpec):
         m.title = "foo"        # field
 
     '''
-    def __init__(self, default, help=None):
-        super(StringSpec, self).__init__(List(String), default=default, help=help)
+    def __init__(self, default, help=None, key_type=_FieldValueTransform):
+        super(StringSpec, self).__init__(key_type, List(String), default=default, help=help)
 
     def prepare_value(self, cls, name, value):
         if isinstance(value, list):
@@ -1549,13 +1551,15 @@ class FontSizeSpec(DataSpec):
     '''
     _font_size_re = re.compile("^[0-9]+(\.[0-9]+)?(%|em|ex|ch|ic|rem|vw|vh|vi|vb|vmin|vmax|cm|mm|q|in|pc|pt|px)$", re.I)
 
-    def __init__(self, default, help=None):
-        super(FontSizeSpec, self).__init__(List(String), default=default, help=help)
+    def __init__(self, default, help=None, key_type=_FieldValueTransform):
+        super(FontSizeSpec, self).__init__(key_type, List(String), default=default, help=help)
 
     def prepare_value(self, cls, name, value):
         if isinstance(value, string_types) and self._font_size_re.match(value) is not None:
             value = dict(value=value)
         return super(FontSizeSpec, self).prepare_value(cls, name, value)
+
+_FieldValueTransformUnits = Enum("field", "value", "transform", "units")
 
 class UnitsSpec(NumberSpec):
     ''' A |DataSpec| property that accepts numeric fixed values, and also
@@ -1563,7 +1567,7 @@ class UnitsSpec(NumberSpec):
 
     '''
     def __init__(self, default, units_type, units_default, help=None):
-        super(UnitsSpec, self).__init__(default=default, help=help)
+        super(UnitsSpec, self).__init__(default=default, help=help, key_type=_FieldValueTransformUnits)
         self._units_type = self._validate_type_param(units_type)
         # this is a hack because we already constructed units_type
         self._units_type.validate(units_default)
@@ -1703,8 +1707,8 @@ class ColorSpec(DataSpec):
         m.color = field("firebrick")       # field (named "firebrick")
 
     '''
-    def __init__(self, default, help=None):
-        super(ColorSpec, self).__init__(Color, default=default, help=help)
+    def __init__(self, default, help=None, key_type=_FieldValueTransform):
+        super(ColorSpec, self).__init__(key_type, Color, default=default, help=help)
 
     @classmethod
     def isconst(cls, val):
