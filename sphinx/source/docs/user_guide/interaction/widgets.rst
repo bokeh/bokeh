@@ -167,7 +167,7 @@ A widget for collecting a line of text from a user:
     :source-position: below
 
 TextareaInput
-~~~~~~~~~
+~~~~~~~~~~~~~
 
 A widget for collecting a multiple lines of text from a user:
 

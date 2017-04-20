@@ -31,9 +31,9 @@ export class TextareaInput extends InputWidget
   default_view: TextareaInputView
 
   @define {
-      value: [ p.String, "" ]
+      value:       [ p.String, "" ]
       placeholder: [ p.String, "" ]
-      cols: [ p.String, "" ]
-      maxlength: [ p.String, "" ]
-      rows: [ p.String, "" ]
+      cols:        [ p.Number, 20 ] # 20 is the HTML default
+      max_length:  [ p.Number, "" ]
+      rows:        [ p.Number, "" ]
     }
