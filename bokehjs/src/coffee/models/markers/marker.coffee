@@ -80,6 +80,32 @@ export class MarkerView extends XYGlyphView
         hits.push([i, dist])
     return hittest.create_1d_hit_test_result(hits)
 
+  _hit_span: (geometry) ->
+    [vx, vy] = [geometry.vx, geometry.vy]
+    {minX, minY, maxX, maxY} = this.bounds()
+    result = hittest.create_hit_test_result()
+
+    if geometry.direction == 'h'
+      y0 = minY
+      y1 = maxY
+      ms = @max_size/2
+      vx0 = vx - ms
+      vx1 = vx + ms
+      [x0, x1] = @renderer.xmapper.v_map_from_target([vx0, vx1], true)
+    else
+      x0 = minX
+      x1 = maxX
+      ms = @max_size/2
+      vy0 = vy - ms
+      vy1 = vy + ms
+      [y0, y1] = @renderer.ymapper.v_map_from_target([vy0, vy1], true)
+
+    bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
+    hits = @index.indices(bbox)
+
+    result['1d'].indices = hits
+    return result
+
   _hit_rect: (geometry) ->
     [x0, x1] = @renderer.xmapper.v_map_from_target([geometry.vx0, geometry.vx1], true)
     [y0, y1] = @renderer.ymapper.v_map_from_target([geometry.vy0, geometry.vy1], true)
