@@ -19,6 +19,8 @@ export class TextareaInputView extends InputWidgetView
   render: () ->
     super()
     @$el.html(@template(@model.attributes))
+    @$el.find('textarea').height(@model.rows * 13.3)
+    return @
 
   change_input: () ->
     value = @$el.find('textarea').val()
