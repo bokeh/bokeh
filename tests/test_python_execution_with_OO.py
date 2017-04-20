@@ -8,6 +8,8 @@ def test_python_execution_with_OO():
     # running python with -OO will discard docstrings -> __doc__ is None
     # We have this test to make sure that the deployed code will still run.
 
+    # If you ever encounter a new problem with docstrings being formatted try using format_docstring.
+
     imports = []
     for path, dirs, files in os.walk("bokeh"):
 

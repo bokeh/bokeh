@@ -7,6 +7,7 @@ from __future__ import absolute_import
 import inspect
 from types import FunctionType
 
+from bokeh.util.string import format_docstring
 from ..core.enums import LatLon, NumeralLanguage, RoundingFunction
 from ..core.has_props import abstract
 from ..core.properties import Auto, Bool, Dict, Either, Enum, Instance, Int, List, String
@@ -639,7 +640,5 @@ _df_fields = ['microseconds', 'milliseconds', 'seconds', 'minsec', 'minutes', 'h
 _df_defaults = _df.properties_with_values()
 _df_defaults_string = "\n\n        ".join("%s = %s" % (name, _df_defaults[name]) for name in _df_fields)
 
-# running python with -OO will discard docstrings -> __doc__ is None
-if DatetimeTickFormatter.__doc__ is not None:
-    DatetimeTickFormatter.__doc__ = DatetimeTickFormatter.__doc__.format(defaults=_df_defaults_string)
+DatetimeTickFormatter.__doc__ = format_docstring(DatetimeTickFormatter.__doc__, defaults=_df_defaults_string)
 del _df, _df_fields, _df_defaults, _df_defaults_string

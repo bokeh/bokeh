@@ -63,3 +63,21 @@ def snakify(name, sep='_'):
     name = re.sub("([A-Z]+)([A-Z][a-z])", r"\1%s\2" % sep, name)
     name = re.sub("([a-z\\d])([A-Z])", r"\1%s\2" % sep, name)
     return name.lower()
+
+def format_docstring(docstring, *args, **kwargs):
+    ''' Safely format docstrings.
+
+    When Python is executed with the ``-OO`` option, doc strings are removed and
+    replaced the value ``None``. This function guards against applying the string
+    formatting options in that case.
+
+    Args:
+        docstring (str or None) : The docstring to format, or ``None``
+        args (tuple) : string formatting arguments for the docsring
+        kwargs (dict) : string formatting arguments for the docsring
+
+    Returns:
+        str or None
+
+    '''
+    return None if docstring is None else docstring.format(*args, **kwargs)

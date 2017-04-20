@@ -296,7 +296,7 @@ from bokeh.application import Application
 from bokeh.resources import DEFAULT_SERVER_PORT
 from bokeh.server.server import Server
 from bokeh.util.logconfig import basicConfig
-from bokeh.util.string import nice_join
+from bokeh.util.string import nice_join, format_docstring
 from bokeh.settings import settings
 
 from os import getpid
@@ -308,14 +308,12 @@ LOGLEVELS = ('debug', 'info', 'warning', 'error', 'critical')
 SESSION_ID_MODES = ('unsigned', 'signed', 'external-signed')
 DEFAULT_LOG_FORMAT = "%(asctime)s %(message)s"
 
-# running python with -OO will discard docstrings -> __doc__ is None
-if __doc__ is not None:
-    __doc__ = __doc__.format(
-        DEFAULT_PORT=DEFAULT_SERVER_PORT,
-        LOGLEVELS=nice_join(LOGLEVELS),
-        SESSION_ID_MODES=nice_join(SESSION_ID_MODES),
-        DEFAULT_LOG_FORMAT=DEFAULT_LOG_FORMAT
-    )
+__doc__ = format_docstring(__doc__,
+    DEFAULT_PORT=DEFAULT_SERVER_PORT,
+    LOGLEVELS=nice_join(LOGLEVELS),
+    SESSION_ID_MODES=nice_join(SESSION_ID_MODES),
+    DEFAULT_LOG_FORMAT=DEFAULT_LOG_FORMAT
+)
 
 def _fixup_deprecated_host_args(args):
     if args.host is not None and len(args.host) > 0:
