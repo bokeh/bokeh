@@ -63,17 +63,17 @@ easily and automatically extracted with the Sphinx extensions in the
 Basic Properties
 ----------------
 
-%s
+{basic_properties}
 
 Container Properties
 --------------------
 
-%s
+{container_properties}
 
 DataSpec Properties
 -------------------
 
-%s
+{dataspec_properties}
 
 Helpers
 ~~~~~~~
@@ -107,7 +107,7 @@ from six import string_types, iteritems
 from ..colors import RGB
 from ..util.dependencies import import_optional
 from ..util.serialization import transform_column_source_data, decode_base64_dict
-from ..util.string import nice_join
+from ..util.string import nice_join, format_docstring
 
 from .property.bases import ContainerProperty, DeserializationError, ParameterizedProperty, Property, PrimitiveProperty
 from .property.descriptor_factory import PropertyDescriptorFactory
@@ -1867,6 +1867,6 @@ _data_specs = "\n".join(sorted(".. autoclass:: %s" % x.__name__ for x in _find_a
 _containers = "\n".join(sorted(".. autoclass:: %s" % x.__name__ for x in _find_and_remove(ContainerProperty)))
 _basic = "\n".join(sorted(".. autoclass:: %s" % x.__name__ for x in _all_props))
 
-__doc__ = __doc__ % (_basic, _containers, _data_specs)
+__doc__ = format_docstring(__doc__, basic_properties=_basic, container_properties=_containers, dataspec_properties=_data_specs)
 
 del _all_props, _data_specs, _containers, _basic, _find_and_remove

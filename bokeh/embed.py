@@ -30,7 +30,7 @@ from .document import Document, DEFAULT_TITLE
 from .model import Model
 from .resources import BaseResources, DEFAULT_SERVER_HTTP_URL, _SessionCoordinates
 from .util.deprecation import deprecated
-from .util.string import encode_utf8
+from .util.string import encode_utf8, format_docstring
 from .util.serialization import make_id
 from .util.compiler import bundle_all_models
 
@@ -502,7 +502,7 @@ def autoload_server(model=None, app_path=None, session_id=None, url="default", r
 
         url (str, optional) : A URL to a Bokeh application on a Bokeh server
 
-            If ``None`` the default URL ``%s`` will be used.
+            If ``None`` the default URL ``{DEFAULT_SERVER_HTTP_URL}`` will be used.
 
         relative_urls (bool, optional) :
             Whether to use relative URLs for resources.
@@ -616,7 +616,7 @@ def autoload_server(model=None, app_path=None, session_id=None, url="default", r
 
     return encode_utf8(tag)
 
-autoload_server.__doc__ = autoload_server.__doc__ % DEFAULT_SERVER_HTTP_URL
+autoload_server.__doc__ = format_docstring(autoload_server.__doc__, DEFAULT_SERVER_HTTP_URL=DEFAULT_SERVER_HTTP_URL)
 
 def _script_for_render_items(docs_json, render_items, app_path=None, absolute_url=None):
     return _wrap_in_onload(_wrap_in_safely(DOC_JS.render(
