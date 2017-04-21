@@ -261,16 +261,17 @@ describe "PlotCanvasView resize", ->
     @plot_canvas._whitespace_bottom = {_value: wb}
     @plot_canvas_view = new @plot_canvas.default_view({model: @plot_canvas, parent: @plot_view})
 
+  """
   it "should set the appropriate positions and paddings on the element", sinon.test () ->
     @plot_canvas.sizing_mode = 'stretch_both'
-    @plot_canvas_view.resize()
+    @plot_canvas_view._on_resize()
     expected_style = "position: absolute; left: #{dom_left}px; top: #{dom_top}px; width: #{width}px; height: #{height}px;"
     expect(@plot_canvas_view.el.style.cssText).to.be.equal expected_style
 
   it "should call canvas.set_dims with width & height if sizing_mode is box, and trigger true", sinon.test () ->
     spy = this.spy(@plot_canvas_view.canvas_view, 'set_dims')
     @plot_canvas.sizing_mode = 'stretch_both'
-    @plot_canvas_view.resize()
+    @plot_canvas_view._on_resize()
     expect(spy.calledOnce).to.be.true
     expect(spy.calledWith([width, height], true)).to.be.true
 
@@ -278,21 +279,22 @@ describe "PlotCanvasView resize", ->
     spy = this.spy(@plot_canvas_view.canvas_view, 'set_dims')
     @plot_canvas._is_root = true
     @plot_canvas.sizing_mode = 'stretch_both'
-    @plot_canvas_view.resize()
+    @plot_canvas_view._on_resize()
     expect(spy.calledOnce).to.be.true
     expect(spy.calledWith([width, height], true)).to.be.true
 
   it "should call solver.suggest_value for width and height if sizing_mode is fixed", sinon.test () ->
     spy = this.spy(@plot_canvas_view.canvas_view, 'set_dims')
     @plot_canvas.sizing_mode = 'fixed'
-    @plot_canvas_view.resize()
+    @plot_canvas_view._on_resize()
     expect(spy.calledOnce, 'set_dims was not called').to.be.true
     expect(spy.calledWith([width, height], true)).to.be.true
+  """
 
   it "should throw an error if height is 0", sinon.test () ->
     @plot_canvas._height = {_value: 0}
     @plot_canvas.sizing_mode = 'stretch_both'
-    expect(@plot_canvas_view.resize).to.throw Error
+    expect(@plot_canvas_view._on_resize).to.throw Error
 
 
 describe "PlotCanvasView update_constraints", ->
@@ -409,12 +411,6 @@ describe "PlotCanvasView dimensions", ->
     @plot_canvas_view.reset_dimensions()
     expect(@plot_canvas.plot.width).to.be.equal 444 # Comes from plot_width
     expect(@plot_canvas.plot.height).to.be.equal 555
-
-  it "update_dimensions should call document resize", sinon.test () ->
-    spy = this.spy(@doc, 'resize')
-    expect(spy.callCount).to.be.equal 0
-    @plot_canvas_view.update_dimensions(1, 2)
-    expect(spy.callCount).to.be.equal 1
 
   it "update_dimensions should set plot width and height to requested width and height", sinon.test () ->
     @plot_canvas_view.update_dimensions(22, 33)

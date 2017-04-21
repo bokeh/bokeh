@@ -51,11 +51,6 @@ describe "LayoutDOMView", ->
       layout_view = new LayoutDOMView({ model: @test_layout, parent: null })
       expect(layout_view.el.className).to.be.equal 'bk-layout-fixed FOO BAR'
 
-    it "should set an id matching the model.id", ->
-      # This is used by document to find the model and its parents on resize events
-      layout_view = new LayoutDOMView({ model: @test_layout })
-      expect(layout_view.el.id).to.equal "modelid_#{@test_layout.id}"
-
     it.skip "should build the child views", ->
       # needs a test
       null
