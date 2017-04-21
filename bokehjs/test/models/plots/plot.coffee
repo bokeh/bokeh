@@ -43,7 +43,7 @@ describe "Plot", ->
       @p._width = {_value: width}
       @p._height = {_value: height}
       @p.sizing_mode = 'stretch_both'
-      plot_view = new @p.default_view({ model: @p })
+      plot_view = new @p.default_view({ model: @p, parent: null })
       plot_view.render()
       # Note we do not set margin & padding on Plot
       expected_style = "position: absolute; left: #{dom_left}px; top: #{dom_top}px; width: #{width}px; height: #{height}px;"
@@ -51,7 +51,7 @@ describe "Plot", ->
 
     it "should call suggest value with the model height and width if sizing_mode is scale_both", sinon.test () ->
       @p.sizing_mode = 'scale_both'
-      plot_view = new @p.default_view({ model: @p })
+      plot_view = new @p.default_view({ model: @p, parent: null })
       this.stub(plot_view, 'get_width_height').returns([34, 77])
       @solver_suggest.reset()
       plot_view.render()
@@ -62,28 +62,28 @@ describe "Plot", ->
     it "get_height should return the height from the aspect ratio", sinon.test () ->
       @p.width = 22
       @p.height = 44
-      plot_view = new @p.default_view({ model: @p })
+      plot_view = new @p.default_view({ model: @p, parent: null })
       @p._width = {_value: 33}
       expect(plot_view.get_height()).to.be.equal 66
 
     it "get_width should return the width from the aspect ratio", sinon.test () ->
       @p.width = 2
       @p.height = 10
-      plot_view = new @p.default_view({ model: @p })
+      plot_view = new @p.default_view({ model: @p, parent: null })
       @p._height= {_value: 100}
       expect(plot_view.get_width()).to.be.equal 20
 
     it "get_width should return the width from the aspect ratio", sinon.test () ->
       @p.width = 2
       @p.height = 10
-      plot_view = new @p.default_view({ model: @p })
+      plot_view = new @p.default_view({ model: @p, parent: null })
       @p._height= {_value: 100}
       expect(plot_view.get_width()).to.be.equal 20
 
     it "get_width_height should return a constrained width if plot is landscape oriented", sinon.test () ->
       @p.width = 4
       @p.height = 2
-      plot_view = new @p.default_view({ model: @p })
+      plot_view = new @p.default_view({ model: @p, parent: null })
       plot_view.el = {'parentNode': {'clientWidth': 56, 'clientHeight': 49}}
       [w, h] = plot_view.get_width_height()
       expect(w).to.be.equal 56
@@ -92,7 +92,7 @@ describe "Plot", ->
     it "get_width_height should return a constrained height if plot is portrait oriented", sinon.test () ->
       @p.width = 3
       @p.height = 5
-      plot_view = new @p.default_view({ model: @p })
+      plot_view = new @p.default_view({ model: @p, parent: null })
       plot_view.el = {'parentNode': {'clientWidth': 56, 'clientHeight': 49}}
       [w, h] = plot_view.get_width_height()
       expect(h).to.be.equal 49

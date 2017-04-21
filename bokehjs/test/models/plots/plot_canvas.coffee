@@ -43,8 +43,9 @@ describe "PlotCanvas", ->
       toolbar: new Toolbar()
       title: null
     })
+    @plot_view = new @plot.default_view({model: @plot, parent: null})
     @doc.add_root(@plot)
-    @plot_canvas = new PlotCanvas({ 'plot': @plot })
+    @plot_canvas = new PlotCanvas({plot: @plot})
     @plot_canvas.attach_document(@doc)
 
   it "should set the sizing_mode to box by default", sinon.test () ->
@@ -210,10 +211,11 @@ describe "PlotCanvasView render", ->
       y_range: new Range1d({start: 0, end: 1})
       toolbar: new Toolbar()
     })
+    @plot_view = new plot.default_view({model: plot, parent: null})
     doc.add_root(plot)
     plot_canvas = new PlotCanvas({ 'plot': plot })
     plot_canvas.attach_document(doc)
-    @plot_canvas_view = new plot_canvas.default_view({ 'model': plot_canvas })
+    @plot_canvas_view = new plot_canvas.default_view({model: plot_canvas, parent: @plot_view})
 
   it "should call own update_constraints method", sinon.test () ->
     spy = this.spy(@plot_canvas_view, 'update_constraints')
@@ -245,6 +247,7 @@ describe "PlotCanvasView resize", ->
       y_range: new Range1d({start: 0, end: 1})
       toolbar: new Toolbar()
     })
+    @plot_view = new plot.default_view({model: plot, parent: null})
     doc.add_root(plot)
     @plot_canvas = new PlotCanvas({ 'plot': plot })
     @plot_canvas.attach_document(doc)
@@ -256,7 +259,7 @@ describe "PlotCanvasView resize", ->
     @plot_canvas._whitespace_right = {_value: wr}
     @plot_canvas._whitespace_top = {_value: wt}
     @plot_canvas._whitespace_bottom = {_value: wb}
-    @plot_canvas_view = new @plot_canvas.default_view({ 'model': @plot_canvas })
+    @plot_canvas_view = new @plot_canvas.default_view({model: @plot_canvas, parent: @plot_view})
 
   it "should set the appropriate positions and paddings on the element", sinon.test () ->
     @plot_canvas.sizing_mode = 'stretch_both'
@@ -310,8 +313,9 @@ describe "PlotCanvasView update_constraints", ->
       y_range: new Range1d({start: 0, end: 1})
       toolbar: new Toolbar()
     })
+    @plot_view = new plot.default_view({model: plot, parent: null})
     doc.add_root(plot)
-    @plot_canvas = new PlotCanvas({ 'plot': plot })
+    @plot_canvas = new PlotCanvas({plot: plot})
     @plot_canvas.attach_document(doc)
 
   #it "should call SidePanel update_constraints with axis view as argument", ->
@@ -327,14 +331,14 @@ describe "PlotCanvasView update_constraints", ->
   #  expect(spy.calledOnce).to.be.true
 
   it "should call solver suggest twice for frame sizing", sinon.test () ->
-    test_plot_canvas_view = new @plot_canvas.default_view({ 'model': @plot_canvas })
+    test_plot_canvas_view = new @plot_canvas.default_view({model: @plot_canvas, parent: @plot_view})
 
     initial_count = @solver_suggest_stub.callCount
     test_plot_canvas_view.update_constraints()
     expect(@solver_suggest_stub.callCount).to.be.equal initial_count + 2
 
   it "should call solver update_variables with false for trigger", sinon.test () ->
-    test_plot_canvas_view = new @plot_canvas.default_view({ 'model': @plot_canvas })
+    test_plot_canvas_view = new @plot_canvas.default_view({model: @plot_canvas, parent: @plot_view})
 
     initial_count = @solver_update_stub.callCount
     test_plot_canvas_view.update_constraints()
@@ -359,10 +363,11 @@ describe "PlotCanvasView get_canvas_element", ->
       y_range: new Range1d({start: 0, end: 1})
       toolbar: new Toolbar()
     })
+    @plot_view = new plot.default_view({model: plot, parent: null})
     doc.add_root(plot)
     plot_canvas = new PlotCanvas({ 'plot': plot })
     plot_canvas.attach_document(doc)
-    @plot_canvas_view = new plot_canvas.default_view({ 'model': plot_canvas })
+    @plot_canvas_view = new plot_canvas.default_view({model: plot_canvas, parent: @plot_view})
 
   it "should exist because get_canvas_element depends on it", sinon.test () ->
     expect(@plot_canvas_view.canvas_view.ctx).to.exist
@@ -389,18 +394,13 @@ describe "PlotCanvasView dimensions", ->
       plot_width: 444
       plot_height: 555
     })
+    @plot_view = new plot.default_view({model: plot, parent: null})
     @doc.add_root(plot)
     @plot_canvas = new PlotCanvas({
       plot: plot
     })
     @plot_canvas.attach_document(@doc)
-    @plot_canvas_view = new @plot_canvas.default_view({ 'model': @plot_canvas })
-
-  it "reset_dimensions should call document resize", sinon.test () ->
-    spy = this.spy(@doc, 'resize')
-    expect(spy.callCount).to.be.equal 0
-    @plot_canvas_view.reset_dimensions()
-    expect(spy.callCount).to.be.equal 1
+    @plot_canvas_view = new @plot_canvas.default_view({model: @plot_canvas, parent: @plot_view})
 
   it "reset_dimensions should set plot width and height to initial width and height", sinon.test () ->
     # Explicitly set to 1 to make sure they're being set

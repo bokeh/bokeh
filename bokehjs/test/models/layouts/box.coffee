@@ -30,7 +30,7 @@ describe "BoxView", ->
   it "should call build_child_views if children change", ->
     child_box = new Box()
     spy = sinon.spy(LayoutDOMView.prototype, 'build_child_views')
-    new @box.default_view({ model: @box })
+    new @box.default_view({ model: @box, parent: null })
     expect(spy.callCount).is.equal 1  # Expect one from initialization
     @box.children = [child_box]
     LayoutDOMView.prototype.build_child_views.restore()

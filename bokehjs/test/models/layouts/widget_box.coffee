@@ -40,7 +40,7 @@ describe "WidgetBox", ->
       @widget_box._width = {_value: width}
       @widget_box._height = {_value: height}
       @widget_box.sizing_mode = 'stretch_both'
-      widget_box_view = new @widget_box.default_view({ model: @widget_box })
+      widget_box_view = new @widget_box.default_view({ model: @widget_box, parent: null })
       widget_box_view.render()
       # Note we do not set margin & padding on WidgetBox
       expected_style = "position: absolute; left: #{dom_left}px; top: #{dom_top}px; width: #{width}px; height: #{height}px;"
@@ -56,7 +56,7 @@ describe "WidgetBox", ->
       @widget_box._width = {_value: width}
       @widget_box._height = {_value: height}
       @widget_box.sizing_mode = 'scale_width'
-      widget_box_view = new @widget_box.default_view({ model: @widget_box })
+      widget_box_view = new @widget_box.default_view({ model: @widget_box, parent: null })
       widget_box_view.child_views = {'child_view_1': {'el': {'scrollHeight': 222}}}
       widget_box_view.render()
       # Note we do not set margin & padding or height on fixed WidgetBox
@@ -64,12 +64,12 @@ describe "WidgetBox", ->
       expect(widget_box_view.el.style.cssText).to.be.equal expected_style
 
     it "get_height should return the height of the widget children plus 10 for margin + 10 overall", ->
-      widget_box_view = new @widget_box.default_view({ model: @widget_box })
+      widget_box_view = new @widget_box.default_view({ model: @widget_box, parent: null })
       widget_box_view.child_views = {'child_view_1': {'el': {'scrollHeight': 222}}}
       expect(widget_box_view.get_height()).to.be.equal 222 + 10 + 10
 
     it "get_height should return the sum of multiple children plus 10 for margin + 10 overall", ->
-      widget_box_view = new @widget_box.default_view({ model: @widget_box })
+      widget_box_view = new @widget_box.default_view({ model: @widget_box, parent: null })
       widget_box_view.child_views = {
         'child_view_1': {'el': {'scrollHeight': 222}}
         'child_view_2': {'el': {'scrollHeight': 23}}
@@ -78,7 +78,7 @@ describe "WidgetBox", ->
 
     it "get_width should return the max of it and the children", ->
       @widget_box.width = null  # Manually set to null to check calc
-      widget_box_view = new @widget_box.default_view({ model: @widget_box })
+      widget_box_view = new @widget_box.default_view({ model: @widget_box, parent: null })
       widget_box_view.el = {'scrollWidth': 99}
       widget_box_view.child_views = {
         'child_view_1': {'el': {'scrollWidth': 111}}
@@ -89,7 +89,7 @@ describe "WidgetBox", ->
 
     it "get_width should return itself + 20 if no children", ->
       @widget_box.width = null  # Manually set to null to check calc
-      widget_box_view = new @widget_box.default_view({ model: @widget_box })
+      widget_box_view = new @widget_box.default_view({ model: @widget_box, parent: null })
       widget_box_view.el = {'scrollWidth': 99}
       widget_box_view.child_views = {
       }
@@ -98,7 +98,7 @@ describe "WidgetBox", ->
     it "should call build_child_views if children change", ->
       child_widget = new Tabs()
       spy = sinon.spy(LayoutDOMView.prototype, 'build_child_views')
-      new @widget_box.default_view({ model: @widget_box })
+      new @widget_box.default_view({ model: @widget_box, parent: null })
       expect(spy.callCount).is.equal 1  # Expect one from initialization
       @widget_box.children = [child_widget]
       LayoutDOMView.prototype.build_child_views.restore()
