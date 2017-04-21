@@ -5,7 +5,7 @@ from bokeh.core.properties import field, value
 from bokeh.core.validation import check_integrity
 from bokeh.models.annotations import (
     Legend, LegendItem, ColorBar, Arrow, BoxAnnotation, Span, LabelSet, Label,
-    Title, FilledArea
+    Title, Band
 )
 from bokeh.models import (
     ColumnDataSource, ArrowHead, BasicTicker, BasicTickFormatter, GlyphRenderer
@@ -181,26 +181,30 @@ def test_BoxAnnotation():
     ], LINE, FILL)
 
 
-def test_FilledArea():
-    area = FilledArea()
-    assert area.plot is None
-    assert area.level == 'annotation'
-    assert area.lower is None
-    assert area.upper is None
-    assert area.coords is None
-    assert area.dimension == 'height'
-    assert isinstance(area.source, ColumnDataSource)
-    assert area.x_range_name == 'default'
-    assert area.y_range_name == 'default'
-    check_line_properties(area, "")
-    check_fill_properties(area, "")
-    check_properties_existence(area, [
+def test_Band():
+    band = Band()
+    assert band.plot is None
+    assert band.level == 'annotation'
+    assert band.lower is None
+    assert band.lower_units == 'data'
+    assert band.upper is None
+    assert band.upper_units == 'data'
+    assert band.base is None
+    assert band.dimension == 'height'
+    assert isinstance(band.source, ColumnDataSource)
+    assert band.x_range_name == 'default'
+    assert band.y_range_name == 'default'
+    check_line_properties(band, "")
+    check_fill_properties(band, "")
+    check_properties_existence(band, [
         "plot",
         "visible",
         "level",
         "lower",
+        "lower_units",
         "upper",
-        "coords",
+        "upper_units",
+        "base",
         "dimension",
         "source",
         "x_range_name",

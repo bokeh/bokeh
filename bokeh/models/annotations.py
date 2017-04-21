@@ -530,34 +530,44 @@ class BoxAnnotation(Annotation):
 
     """)
 
-class FilledArea(Annotation):
+class Band(Annotation):
     ''' Render a filled area band along a dimension.
 
     '''
     lower = NumberSpec(help="""
-    The lower coordinates to locate the text anchors.
+    The coordinates of the lower portion of the filled area band.
+    """)
+
+    lower_units = Enum(SpatialUnits, default='data', help="""
+    The unit type for the lower attribute. Interpreted as "data space" units
+    by default.
     """)
 
     upper = NumberSpec(help="""
-    The upper coordinates to locate the text anchors.
+    The coordinations of the upper portion of the filled area band.
     """)
 
-    coords = NumberSpec(help="""
-    The upper coordinates to locate the text anchors.
+    upper_units = Enum(SpatialUnits, default='data', help="""
+    The unit type for the upper attribute. Interpreted as "data space" units
+    by default.
+    """)
+
+    base = NumberSpec(help="""
+    The orthogonal coordinates of the upper and lower values.
     """)
 
     dimension = Enum(Dimension, default='height', help="""
-    The direction of the span.
+    The direction of the band.
     """)
 
     fill_props = Include(FillProps, use_prefix=False, help="""
-    The %s values for the text bounding box.
+    The %s values for the band.
     """)
 
     # background_fill_color = Override(default=None)
 
     line_props = Include(LineProps, use_prefix=False, help="""
-    The %s values for the text bounding box.
+    The %s values for the band.
     """)
 
     # border_line_color = Override(default=None)
