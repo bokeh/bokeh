@@ -94,15 +94,17 @@ export class LayoutDOMView extends DOMView
         while true
           measuring = measuring.parentNode
           if not measuring?
-            throw new Error("detached element")
+            logger.warn("detached element")
+            width = height = null
+            break
 
           {width, height} = measuring.getBoundingClientRect()
           if height != 0
             break
 
-      if variables.width?
+      if variables.width? and width?
         @_solver.suggest_value(@_doc_width, width)
-      if variables.height?
+      if variables.height? and height?
         @_solver.suggest_value(@_doc_height, height)
 
     @_solver.update_variables(false)
