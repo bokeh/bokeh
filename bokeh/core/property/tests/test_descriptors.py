@@ -3,6 +3,9 @@ import pytest
 
 import bokeh.core.property.descriptors as pd
 
+from bokeh.model import Model
+from bokeh.core.properties import Int, List
+
 def test_PropertyDescriptor__init__():
     d = pd.PropertyDescriptor("foo")
     assert d.name == "foo"
@@ -107,22 +110,62 @@ def test_BasicPropertyDescriptor__set__improper():
     assert str(e).endswith("Cannot set a property value 'foo' on a str instance before HasProps.__init__")
 
 def test_BasicPropertyDescriptor__delete__():
-    class Foo(object):
-        _property_values = dict(foo=0)
-        _unstable_default_values = dict(bar=[10])
+    class Foo(Model):
+        foo = Int()
+        bar = List(Int, default=[10])
+        baz = Int(default=20)
+        quux = List(Int, default=[30])
     f = Foo()
-    d1 = pd.BasicPropertyDescriptor("foo", f)
-    d2 = pd.BasicPropertyDescriptor("bar", f)
-    d3 = pd.BasicPropertyDescriptor("baz", f)
-    d1.__delete__(f)
+    f.foo
+    f.bar
+    f.baz
+    f.quux
+
+    calls = []
+
+    def cb(attr, old, new):
+        calls.append(attr)
+
+    for name in ['foo', 'bar', 'baz', 'quux']:
+        f.on_change(name, cb)
+
     assert f._property_values == {}
+    assert f._unstable_default_values == dict(bar=[10], quux=[30])
+
+    del f.foo
+    assert f._property_values == {}
+    assert f._unstable_default_values == dict(bar=[10], quux=[30])
+    assert calls == []
+
+    f.baz = 50
+
+    assert f.baz == 50
+    assert f._unstable_default_values == dict(bar=[10], quux=[30])
+    assert calls == ['baz']
+
+    del f.baz
+    assert f.baz == 20
+    assert f._unstable_default_values == dict(bar=[10], quux=[30])
+    assert calls == ['baz', 'baz']
+
+    del f.bar
+    assert f._property_values == {}
+    assert f._unstable_default_values == dict(quux=[30])
+    assert calls == ['baz', 'baz']
+
+    f.bar = [60]
+    assert f.bar == [60]
+    assert f._unstable_default_values == dict(quux=[30])
+    assert calls == ['baz', 'baz', 'bar']
+
+    del f.bar
+    assert f.bar == [10]
+    assert f._unstable_default_values == dict(bar=[10], quux=[30])
+    assert calls == ['baz', 'baz', 'bar', 'bar']
+
+    del f.quux
     assert f._unstable_default_values == dict(bar=[10])
-    d2.__delete__(f)
-    assert f._property_values == {}
-    assert f._unstable_default_values == {}
-    d3.__delete__(f)
-    assert f._property_values == {}
-    assert f._unstable_default_values == {}
+    assert calls == ['baz', 'baz', 'bar', 'bar']
 
 def test_BasicPropertyDescriptor_class_default():
     result = {}
