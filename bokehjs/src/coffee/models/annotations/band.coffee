@@ -22,31 +22,21 @@ export class BandView extends AnnotationView
     x_mapper = @plot_view.frame.x_mappers[@model.x_range_name]
     y_mapper = @plot_view.frame.y_mappers[@model.y_range_name]
 
-    if @model.lower_units == "data"
-      mapper = switch
-        when @model.dimension == "height" then y_mapper
-        when @model.dimension == "width" then x_mapper
+    non_base_mapper = if @model.dimension == "height" then y_mapper else x_mapper
+    base_mapper = if @model.dimension == "height" then x_mapper else y_mapper
 
-      _lower_vx = mapper.v_map_to_target(@_lower)
+    if @model.lower_units == "data"
+      _lower_vx = non_base_mapper.v_map_to_target(@_lower)
     else
       _lower_vx = @_lower
 
     if @model.upper_units == "data"
-      mapper = switch
-        when @model.dimension == "height" then y_mapper
-        when @model.dimension == "width" then x_mapper
-
-      _upper_vx = mapper.v_map_to_target(@_upper)
+      _upper_vx = non_base_mapper.v_map_to_target(@_upper)
     else
       _upper_vx = @_upper
 
     if @model.base_units == "data"
-      mapper = switch
-        # Note that the mapper is the opposite of the upper/lower mapper
-        when @model.dimension == "height" then x_mapper
-        when @model.dimension == "width" then y_mapper
-
-      _base_vx = mapper.v_map_to_target(@_base)
+      _base_vx = base_mapper.v_map_to_target(@_base)
     else
       _base_vx = @_base
 
