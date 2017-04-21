@@ -19,11 +19,26 @@ export class BandView extends AnnotationView
     @visuals.warm_cache(source)
 
   _map_data: () ->
+    @_canvas = @plot_model.canvas
     [i, j] = @model._normals()
     lower = [@_lower, @_base]
     upper = [@_upper, @_base]
-    @_lower_sx_sy = @map_to_screen(lower[i], lower[j])
-    @_upper_sx_sy = @map_to_screen(upper[i], upper[j])
+
+    switch @model.lower_units
+      when "data"
+        @_lower_sx_sy = @map_to_screen(lower[i], lower[j])
+      when "screen"
+        @_lower_sx_sy = [[], []]
+        @_lower_sx_sy[0] = @_canvas.v_vx_to_sx(lower[i])
+        @_lower_sx_sy[1] = @_canvas.v_vy_to_sy(lower[j])
+
+    switch @model.upper_units
+      when "data"
+        @_upper_sx_sy = @map_to_screen(upper[i], upper[j])
+      when "screen"
+        @_upper_sx_sy = [[], []]
+        @_upper_sx_sy[0] = @_canvas.v_vx_to_sx(upper[i])
+        @_upper_sx_sy[1] = @_canvas.v_vy_to_sy(upper[j])
 
   render: () ->
     if not @model.visible
@@ -32,7 +47,6 @@ export class BandView extends AnnotationView
     @_map_data()
 
     ctx = @plot_view.canvas_view.ctx
-
 
     sx = @_lower_sx_sy[0]
     sy = @_lower_sx_sy[1]
