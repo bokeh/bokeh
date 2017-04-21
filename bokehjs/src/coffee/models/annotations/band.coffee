@@ -3,7 +3,7 @@ import {ColumnDataSource} from "../sources/column_data_source"
 
 import * as p from "core/properties"
 
-export class FilledAreaView extends AnnotationView
+export class BandView extends AnnotationView
   initialize: (options) ->
     super(options)
     @set_data(@model.source)
@@ -20,8 +20,8 @@ export class FilledAreaView extends AnnotationView
 
   _map_data: () ->
     [i, j] = @model._normals()
-    lower = [@_lower, @_coords]
-    upper = [@_upper, @_coords]
+    lower = [@_lower, @_base]
+    upper = [@_upper, @_base]
     @_lower_sx_sy = @map_to_screen(lower[i], lower[j])
     @_upper_sx_sy = @map_to_screen(upper[i], upper[j])
 
@@ -32,6 +32,7 @@ export class FilledAreaView extends AnnotationView
     @_map_data()
 
     ctx = @plot_view.canvas_view.ctx
+
 
     sx = @_lower_sx_sy[0]
     sy = @_lower_sx_sy[1]
@@ -57,20 +58,22 @@ export class FilledAreaView extends AnnotationView
       @visuals.fill.set_value(ctx)
       ctx.fill()
 
-export class FilledArea extends Annotation
-  default_view: FilledAreaView
-  type: 'FilledArea'
+export class Band extends Annotation
+  default_view: BandView
+  type: 'Band'
 
   @mixins ['line', 'fill']
 
   @define {
     lower:        [ p.NumberSpec                      ]
+    lower_units:  [ p.SpatialUnits, 'data'            ]
     upper:        [ p.NumberSpec                      ]
-    coords:       [ p.NumberSpec,                     ]
-    dimension:    [ p.Dimension,  'height'            ]
+    upper_units:  [ p.SpatialUnits, 'data'            ]
+    base:         [ p.NumberSpec,                     ]
+    dimension:    [ p.Dimension,    'height'          ]
     source:       [ p.Instance,     () -> new ColumnDataSource()  ]
-    x_range_name: [ p.String,      'default'          ]
-    y_range_name: [ p.String,      'default'          ]
+    x_range_name: [ p.String,       'default'         ]
+    y_range_name: [ p.String,       'default'         ]
   }
 
   _normals: () ->

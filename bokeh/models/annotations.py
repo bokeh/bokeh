@@ -560,18 +560,6 @@ class Band(Annotation):
     The direction of the band.
     """)
 
-    fill_props = Include(FillProps, use_prefix=False, help="""
-    The %s values for the band.
-    """)
-
-    # background_fill_color = Override(default=None)
-
-    line_props = Include(LineProps, use_prefix=False, help="""
-    The %s values for the band.
-    """)
-
-    # border_line_color = Override(default=None)
-
     source = Instance(DataSource, default=lambda: ColumnDataSource(), help="""
     Local data source to use when rendering annotations on the plot.
     """)
@@ -585,6 +573,18 @@ class Band(Annotation):
     A particular (named) y-range to use for computing screen locations when
     rendering annotations on the plot. If unset, use the default y-range.
     """)
+
+    fill_props = Include(FillProps, use_prefix=False, help="""
+    The %s values for the band.
+    """)
+
+    # background_fill_color = Override(default=None)
+
+    line_props = Include(LineProps, use_prefix=False, help="""
+    The %s values for the band.
+    """)
+
+    # border_line_color = Override(default=None)
 
 class Label(TextAnnotation):
     ''' Render a single text label as an annotation.
