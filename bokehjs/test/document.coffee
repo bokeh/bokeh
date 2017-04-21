@@ -9,6 +9,7 @@ sinon = require "sinon"
 js_version = utils.require("version").version
 {Models} = utils.require "base"
 {Model} = utils.require "model"
+{Layoutable} = utils.require "models/layouts/layoutable"
 logging = utils.require "core/logging"
 p = utils.require "core/properties"
 
@@ -75,7 +76,7 @@ class ComplicatedModelWithConstructTimeChanges extends Model
 Models.register('ComplicatedModelWithConstructTimeChanges', ComplicatedModelWithConstructTimeChanges)
 
 
-class LayoutableModel extends Model
+class LayoutableModel extends Layoutable
   type: 'LayoutableModel'
 
   get_constraints: () ->
@@ -86,10 +87,6 @@ class LayoutableModel extends Model
 
   get_constrained_variables: () ->
     {}
-
-  @internal {
-    layoutable: [ p.Bool, true ]
-  }
 Models.register('LayoutableModel', LayoutableModel)
 
 class ModelWithConstraint extends LayoutableModel
@@ -1003,21 +1000,6 @@ it "can destructively move", ->
     spy = sinon.spy(s, 'update_variables')
     d.add_root(new ModelWithEditVariableAndConstraint())
     expect(spy.calledOnce).is.true
-
-  it "add_root sets the _is_root property of model to true", ->
-    d = new Document()
-    root_model = new ModelWithConstrainedVariables()
-    expect(root_model._is_root).is.undefined
-    d.add_root(root_model)
-    expect(root_model._is_root).is.true
-
-  it "remove_root sets the _is_root property of model to false", ->
-    d = new Document()
-    root_model = new ModelWithConstrainedVariables()
-    d.add_root(root_model)
-    expect(root_model._is_root).is.true
-    d.remove_root(root_model)
-    expect(root_model._is_root).is.false
 
   # TODO(bird) - We're not using window - so need to find a new
   # way to test the size was set correctly.
