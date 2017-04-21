@@ -556,6 +556,11 @@ class Band(Annotation):
     The orthogonal coordinates of the upper and lower values.
     """)
 
+    base_units = Enum(SpatialUnits, default='data', help="""
+    The unit type for the upper attribute. Interpreted as "data space" units
+    by default.
+    """)
+
     dimension = Enum(Dimension, default='height', help="""
     The direction of the band.
     """)
