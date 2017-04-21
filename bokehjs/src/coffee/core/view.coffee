@@ -14,10 +14,7 @@ export class View
     else
       throw new Error("model of a view wasn't configured")
 
-    if options.parent != undefined # null means root
-      @parent = options.parent
-    else
-      throw new Error("parent of a view wasn't configured")
+    @_parent = options.parent
 
     @id = options.id ? uniqueId('View')
     @initialize(options)
@@ -25,14 +22,20 @@ export class View
   initialize: (options) ->
 
   remove: () ->
-    @parent = undefined
+    @_parent = undefined
     @stopListening()
     @trigger('remove')
 
   toString: () -> "#{@model.type}View(#{@id})"
 
   @getters {
-    is_root: () -> @parent == null
+    parent: () ->
+      if @_parent != undefined
+        return @_parent
+      else
+        throw new Error("parent of a view wasn't configured")
+    is_root: () ->
+      return @parent == null
   }
 
   bind_bokeh_events: () ->
