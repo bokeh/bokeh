@@ -58,6 +58,8 @@ export class BandView extends AnnotationView
 
     sx = @_upper_sx_sy[0]
     sy = @_upper_sx_sy[1]
+    # Move to upper portion without drawing a line
+    # ctx.moveTo(sx[sx.length-1], sy[sy.length-1])
     # iterate backwards so that end is below start
     for i in [sx.length-1..0]
       ctx.lineTo(sx[i], sy[i])
@@ -88,6 +90,13 @@ export class Band extends Annotation
     source:       [ p.Instance,     () -> new ColumnDataSource()  ]
     x_range_name: [ p.String,       'default'         ]
     y_range_name: [ p.String,       'default'         ]
+  }
+
+  @override {
+    fill_color: "#fff9ba"
+    fill_alpha: 0.4
+    line_color: "#cccccc"
+    line_alpha: 0.3
   }
 
   _normals: () ->

@@ -574,17 +574,21 @@ class Band(Annotation):
     rendering annotations on the plot. If unset, use the default y-range.
     """)
 
-    fill_props = Include(FillProps, use_prefix=False, help="""
-    The %s values for the band.
-    """)
-
-    # background_fill_color = Override(default=None)
-
     line_props = Include(LineProps, use_prefix=False, help="""
     The %s values for the band.
     """)
 
-    # border_line_color = Override(default=None)
+    line_alpha = Override(default=0.3)
+
+    line_color = Override(default="#cccccc")
+
+    fill_props = Include(FillProps, use_prefix=False, help="""
+    The %s values for the band.
+    """)
+
+    fill_alpha = Override(default=0.4)
+
+    fill_color = Override(default="#fff9ba")
 
 class Label(TextAnnotation):
     ''' Render a single text label as an annotation.

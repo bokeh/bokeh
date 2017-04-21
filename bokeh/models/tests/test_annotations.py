@@ -194,8 +194,8 @@ def test_Band():
     assert isinstance(band.source, ColumnDataSource)
     assert band.x_range_name == 'default'
     assert band.y_range_name == 'default'
-    check_line_properties(band, "")
-    check_fill_properties(band, "")
+    check_line_properties(band, "", "#cccccc", 1.0, 0.3)
+    check_fill_properties(band, "", "#fff9ba", 0.4)
     check_properties_existence(band, [
         "plot",
         "visible",
