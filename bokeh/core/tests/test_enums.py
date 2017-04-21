@@ -62,6 +62,7 @@ def test_enums_contents():
         'NamedColor',
         'NumeralLanguage',
         'Orientation',
+        'PaddingUnits',
         'Palette',
         'RenderLevel',
         'RenderMode',
