@@ -245,15 +245,15 @@ describe "LayoutDOM", ->
   it "should return all default constrained_variables in stretch_both sizing_mode", ->
     l = new LayoutDOM()
     expected_constrainted_variables = {
-      'width': l._width
-      'height': l._height
-      'origin-x': l._dom_left
-      'origin-y': l._dom_top
+      width: l._width
+      height: l._height
+      origin_x: l._dom_left
+      origin_y: l._dom_top
       # whitespace
-      'whitespace-top' : l._whitespace_top
-      'whitespace-bottom' : l._whitespace_bottom
-      'whitespace-left' : l._whitespace_left
-      'whitespace-right' : l._whitespace_right
+      whitespace_top : l._whitespace_top
+      whitespace_bottom : l._whitespace_bottom
+      whitespace_left : l._whitespace_left
+      whitespace_right : l._whitespace_right
     }
     l.sizing_mode = 'stretch_both'
     constrained_variables = l.get_constrained_variables()
@@ -262,12 +262,12 @@ describe "LayoutDOM", ->
   it "should not return height constraints in fixed sizing_mode", ->
     l = new LayoutDOM()
     expected_constrainted_variables = {
-      'origin-x': l._dom_left
-      'origin-y': l._dom_top
-      'whitespace-top' : l._whitespace_top
-      'whitespace-bottom' : l._whitespace_bottom
-      'whitespace-left' : l._whitespace_left
-      'whitespace-right' : l._whitespace_right
+      origin_x: l._dom_left
+      origin_y: l._dom_top
+      whitespace_top : l._whitespace_top
+      whitespace_bottom : l._whitespace_bottom
+      whitespace_left : l._whitespace_left
+      whitespace_right : l._whitespace_right
     }
     l.sizing_mode = 'fixed'
     constrained_variables = l.get_constrained_variables()
@@ -277,14 +277,14 @@ describe "LayoutDOM", ->
     l = new LayoutDOM()
     l.sizing_mode = 'scale_width'
     expected_constrainted_variables = {
-      'width': l._width
-      'origin-x': l._dom_left
-      'origin-y': l._dom_top
+      width: l._width
+      origin_x: l._dom_left
+      origin_y: l._dom_top
       # whitespace
-      'whitespace-top' : l._whitespace_top
-      'whitespace-bottom' : l._whitespace_bottom
-      'whitespace-left' : l._whitespace_left
-      'whitespace-right' : l._whitespace_right
+      whitespace_top : l._whitespace_top
+      whitespace_bottom : l._whitespace_bottom
+      whitespace_left : l._whitespace_left
+      whitespace_right : l._whitespace_right
     }
     constrained_variables = l.get_constrained_variables()
     expect(constrained_variables).to.be.deep.equal expected_constrainted_variables
@@ -293,14 +293,14 @@ describe "LayoutDOM", ->
     l = new LayoutDOM()
     l.sizing_mode = 'scale_height'
     expected_constrainted_variables = {
-      'height': l._height
-      'origin-x': l._dom_left
-      'origin-y': l._dom_top
+      height: l._height
+      origin_x: l._dom_left
+      origin_y: l._dom_top
       # whitespace
-      'whitespace-top' : l._whitespace_top
-      'whitespace-bottom' : l._whitespace_bottom
-      'whitespace-left' : l._whitespace_left
-      'whitespace-right' : l._whitespace_right
+      whitespace_top : l._whitespace_top
+      whitespace_bottom : l._whitespace_bottom
+      whitespace_left : l._whitespace_left
+      whitespace_right : l._whitespace_right
     }
     constrained_variables = l.get_constrained_variables()
     expect(constrained_variables).to.be.deep.equal expected_constrainted_variables

@@ -62,22 +62,22 @@ describe "Box", ->
     beforeEach ->
       @box = new Box()
       @expected_constrained_variables = {
-        'width': @box._width
-        'height': @box._height
-        'origin-x': @box._dom_left
-        'origin-y': @box._dom_top
-        'whitespace-top' : @box._whitespace_top
-        'whitespace-bottom' : @box._whitespace_bottom
-        'whitespace-left' : @box._whitespace_left
-        'whitespace-right' : @box._whitespace_right
-        'box-equal-size-top' : @box._box_equal_size_top
-        'box-equal-size-bottom' : @box._box_equal_size_bottom
-        'box-equal-size-left' : @box._box_equal_size_left
-        'box-equal-size-right' : @box._box_equal_size_right
-        'box-cell-align-top' : @box._box_cell_align_top
-        'box-cell-align-bottom' : @box._box_cell_align_bottom
-        'box-cell-align-left' : @box._box_cell_align_left
-        'box-cell-align-right' : @box._box_cell_align_right
+        width: @box._width
+        height: @box._height
+        origin_x: @box._dom_left
+        origin_y: @box._dom_top
+        whitespace_top : @box._whitespace_top
+        whitespace_bottom : @box._whitespace_bottom
+        whitespace_left : @box._whitespace_left
+        whitespace_right : @box._whitespace_right
+        box_equal_size_top : @box._box_equal_size_top
+        box_equal_size_bottom : @box._box_equal_size_bottom
+        box_equal_size_left : @box._box_equal_size_left
+        box_equal_size_right : @box._box_equal_size_right
+        box_cell_align_top : @box._box_cell_align_top
+        box_cell_align_bottom : @box._box_cell_align_bottom
+        box_cell_align_left : @box._box_cell_align_left
+        box_cell_align_right : @box._box_cell_align_right
       }
 
     it "should return correct constrained_variables in stretch_both mode", ->

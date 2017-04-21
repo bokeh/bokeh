@@ -109,26 +109,26 @@ describe "WidgetBox", ->
   describe "WidgetBox", ->
     beforeEach ->
       @expected_constrained_variables = {
-        'width': @widget_box._width
-        'height': @widget_box._height
-        'origin-x': @widget_box._dom_left
-        'origin-y': @widget_box._dom_top
-        'whitespace-top' : @widget_box._whitespace_top
-        'whitespace-bottom' : @widget_box._whitespace_bottom
-        'whitespace-left' : @widget_box._whitespace_left
-        'whitespace-right' : @widget_box._whitespace_right
-        'on-edge-align-top' : @widget_box._top
-        'on-edge-align-bottom' : @widget_box._height_minus_bottom
-        'on-edge-align-left' : @widget_box._left
-        'on-edge-align-right' : @widget_box._width_minus_right
-        'box-equal-size-top' : @widget_box._top
-        'box-equal-size-bottom' : @widget_box._height_minus_bottom
-        'box-equal-size-left' : @widget_box._left
-        'box-equal-size-right' : @widget_box._width_minus_right
-        'box-cell-align-top' : @widget_box._top
-        'box-cell-align-bottom' : @widget_box._height_minus_bottom
-        'box-cell-align-left' : @widget_box._left
-        'box-cell-align-right' : @widget_box._width_minus_right
+        width: @widget_box._width
+        height: @widget_box._height
+        origin_x: @widget_box._dom_left
+        origin_y: @widget_box._dom_top
+        whitespace_top : @widget_box._whitespace_top
+        whitespace_bottom : @widget_box._whitespace_bottom
+        whitespace_left : @widget_box._whitespace_left
+        whitespace_right : @widget_box._whitespace_right
+        on_edge_align_top : @widget_box._top
+        on_edge_align_bottom : @widget_box._height_minus_bottom
+        on_edge_align_left : @widget_box._left
+        on_edge_align_right : @widget_box._width_minus_right
+        box_equal_size_top : @widget_box._top
+        box_equal_size_bottom : @widget_box._height_minus_bottom
+        box_equal_size_left : @widget_box._left
+        box_equal_size_right : @widget_box._width_minus_right
+        box_cell_align_top : @widget_box._top
+        box_cell_align_bottom : @widget_box._height_minus_bottom
+        box_cell_align_left : @widget_box._left
+        box_cell_align_right : @widget_box._width_minus_right
       }
 
     it "should return correct constrained_variables in box mode", ->
@@ -153,7 +153,7 @@ describe "WidgetBox", ->
     it "should return correct constrained_variables in fixed mode", ->
       # We don't return height or width because we're going to set them ourselves.
       @widget_box.sizing_mode = 'fixed'
-      expected_constrained_variables = _.omit(@expected_constrained_variables, ['height', 'width', 'box-equal-size-left', 'box-equal-size-right'])
+      expected_constrained_variables = _.omit(@expected_constrained_variables, ['height', 'width', 'box_equal_size_left', 'box_equal_size_right'])
       constrained_variables = @widget_box.get_constrained_variables()
       expect(constrained_variables).to.be.deep.equal expected_constrained_variables
 
