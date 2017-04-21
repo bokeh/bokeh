@@ -45,6 +45,9 @@ export class ColorBarView extends AnnotationView
       return bbox.width
 
   _set_canvas_image: () ->
+    if not @model.color_mapper?
+      return
+
     palette = @model.color_mapper.palette
 
     if @model.orientation == 'vertical'
