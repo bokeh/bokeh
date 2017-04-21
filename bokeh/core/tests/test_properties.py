@@ -570,6 +570,36 @@ class TestFontSizeSpec(unittest.TestCase):
             self.assertEqual(a.x, f)
             self.assertEqual(a.lookup('x').serializable_value(a), dict(field=f))
 
+    def test_bad_font_size_values(self):
+        class Foo(HasProps):
+            x = FontSizeSpec(default=None)
+
+        a = Foo()
+
+        with self.assertRaises(ValueError):
+            a.x = "6"
+
+        with self.assertRaises(ValueError):
+            a.x = 6
+
+    def test_bad_field(self):
+        class Foo(HasProps):
+            x = FontSizeSpec(default=None)
+
+        a = Foo()
+
+        a.x = "_120"
+        self.assertEqual(a.x, "_120")
+
+        a.x = dict(field="_120")
+        self.assertEqual(a.x, dict(field="_120"))
+
+        a.x = "foo"
+        self.assertEqual(a.x, "foo")
+
+        a.x = dict(field="foo")
+        self.assertEqual(a.x, dict(field="foo"))
+
 class TestAngleSpec(unittest.TestCase):
     def test_default_none(self):
         class Foo(HasProps):
