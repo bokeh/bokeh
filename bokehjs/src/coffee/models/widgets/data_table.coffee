@@ -12,6 +12,8 @@ import {any} from "core/util/array"
 import {TableWidget} from "./table_widget"
 import {WidgetView} from "./widget"
 
+export DTINDEX_NAME = "__bkdt_internal_index__"
+
 wait_for_element = (el, fn) ->
   handler = () =>
     if $.contains(document.documentElement, el)
@@ -22,47 +24,37 @@ wait_for_element = (el, fn) ->
 export class DataProvider
 
   constructor: (@source) ->
-    @data = @source.data
-    @fields = Object.keys(@data)
-
-    if "index" not in @fields
-      @data["index"] = [0...@getLength()]
-      @fields.push("index")
+    if DTINDEX_NAME of @source.data
+      throw new Error("special name #{DTINDEX_NAME} cannot be used as a data table column")
+    @index = [0...@getLength()]
 
   getLength: () -> @source.get_length()
 
   getItem: (offset) ->
     item = {}
-    for field in @fields
-      item[field] = @data[field][offset]
+    for field in Object.keys(@source.data)
+      item[field] = @source.data[field][@index[offset]]
+    item[DTINDEX_NAME] = @index[offset]
     return item
 
-  _setItem: (offset, item) ->
-    for field, value of item
-      @data[field][offset] = value
-    return
-
   setItem: (offset, item) ->
-    @_setItem(offset, item)
-    @updateSource()
+    for field, value of item
+      # internal index is maintained independently, ignore
+      if field != DTINDEX_NAME
+        @source.data[field][@index[offset]] = value
+    @_update_source_inplace()
+    return null
 
-  getField: (index, field) ->
-    offset = @data["index"].indexOf(index)
-    return @data[field][offset]
+  getField: (offset, field) ->
+    if field == DTINDEX_NAME
+      return @index[offset]
+    return @source.data[field][@index[offset]]
 
-  _setField: (index, field, value) ->
-    offset = @data["index"].indexOf(index)
-    @data[field][offset] = value
-    return
-
-  setField: (index, field, value) ->
-    @_setField(index, field, value)
-    @updateSource()
-
-  updateSource: () ->
-    # XXX: We should say `@source.data = @data`, but data was updated in-place,
-    # so that would be a no-op. We have to trigger change events manually instead.
-    @source.trigger("change:data", @, @source.attributes['data'])
+  setField: (offset, field, value) ->
+    # field assumed never to be internal index name (ctor would throw)
+    @source.data[field][@index[offset]] = value
+    @_update_source_inplace()
+    return null
 
   getItemMetadata: (index) -> null
 
@@ -74,26 +66,27 @@ export class DataProvider
       [column.sortCol.field, if column.sortAsc then 1 else -1]
 
     if cols.length == 0
-      cols = [["index", 1]]
+      cols = [[DTINDEX_NAME, 1]]
 
     records = @getRecords()
-    records.sort (record1, record2) ->
+    old_index = @index.slice()
+
+    # TODO (bev) this sort is unstable, which is not great
+    @index.sort (i1, i2) ->
       for [field, sign] in cols
-        value1 = record1[field]
-        value2 = record2[field]
+        value1 = records[old_index.indexOf(i1)][field]
+        value2 = records[old_index.indexOf(i2)][field]
         result =
           if      value1 == value2 then 0
           else if value1 >  value2 then sign
           else                         -sign
         if result != 0
           return result
-
       return 0
 
-    for record, i in records
-      @_setItem(i, record)
-
-    @updateSource()
+  _update_source_inplace: () ->
+    @source.trigger("change:data", @, @source.attributes['data'])
+    return
 
 export class DataTableView extends WidgetView
   className: "bk-data-table"
@@ -107,38 +100,40 @@ export class DataTableView extends WidgetView
     @listenTo(@model.source, 'patch', () => @updateGrid())
     @listenTo(@model.source, 'change:selected', () => @updateSelection())
 
+    @in_selection_update = false
+
   updateGrid: () ->
     @data.constructor(@model.source)
     @grid.invalidate()
     @grid.render()
 
-    # XXX: Workaround for `@model.source.trigger('change')` not triggering an event within python.
-    # But we still need it to trigger render updates
-    @model.source.data = @model.source.data
-    @model.source.trigger('change')
-
   updateSelection: () ->
+    if @in_selection_update
+      return
+
     selected = @model.source.selected
-    indices = selected['1d'].indices
-    @grid.setSelectedRows(indices)
+    selected_indices = selected['1d'].indices
+
+    permuted_indices = (@data.index.indexOf(x) for x in selected_indices)
+
+    @in_selection_update = true
+    @grid.setSelectedRows(permuted_indices)
+    @in_selection_update = false
     # If the selection is not in the current slickgrid viewport, scroll the
     # datatable to start at the row before the first selected row, so that
     # the selection is immediately brought into view. We don't scroll when
     # the selection is already in the viewport so that selecting from the
     # datatable itself does not re-scroll.
-    # console.log("DataTableView::updateSelection",
-    #             @grid.getViewport(), @grid.getRenderedRange())
     cur_grid_range = @grid.getViewport()
-    if @model.scroll_to_selection and not any(indices, (i) -> cur_grid_range.top <= i <= cur_grid_range.bottom)
-      # console.log("DataTableView::updateSelection", min_index, indices)
-      min_index = Math.max(0, Math.min.apply(null, indices) - 1)
+    if @model.scroll_to_selection and not any(permuted_indices, (i) -> cur_grid_range.top <= i <= cur_grid_range.bottom)
+      min_index = Math.max(0, Math.min.apply(null, permuted_indices) - 1)
       @grid.scrollRowToTop(min_index)
 
   newIndexColumn: () ->
     return {
       id: uniqueId()
       name: "#"
-      field: "index"
+      field: DTINDEX_NAME
       width: 40
       behavior: "select"
       cannotTriggerInsert: true
@@ -155,26 +150,24 @@ export class DataTableView extends WidgetView
       checkboxSelector = new CheckboxSelectColumn(cssClass: "bk-cell-select")
       columns.unshift(checkboxSelector.getColumnDefinition())
 
-    if @model.row_headers and @model.source.get_column("index")?
+    if @model.row_headers
       columns.unshift(@newIndexColumn())
-
-    width = @model.width
-    height = @model.height
 
     options =
       enableCellNavigation: @model.selectable != false
       enableColumnReorder: true
       forceFitColumns: @model.fit_columns
-      autoHeight: height == "auto"
+      autoHeight: @model.height == "auto"
       multiColumnSort: @model.sortable
       editable: @model.editable
       autoEdit: false
 
-    if width?
+    if @model.width?
       @el.style.width = "#{@model.width}px"
     else
       @el.style.width = "#{@model.default_width}px"
-    if height? and height != "auto"
+
+    if @model.height? and @model.height != "auto"
       @el.style.height = "#{@model.height}px"
 
     @data = new DataProvider(@model.source)
@@ -184,6 +177,7 @@ export class DataTableView extends WidgetView
       columns = args.sortCols
       @data.sort(columns)
       @grid.invalidate()
+      @updateSelection()
       @grid.render()
 
     if @model.selectable != false
@@ -191,8 +185,11 @@ export class DataTableView extends WidgetView
       if checkboxSelector? then @grid.registerPlugin(checkboxSelector)
 
       @grid.onSelectedRowsChanged.subscribe (event, args) =>
+        if @in_selection_update
+          return
+
         selected = hittest.create_hit_test_result()
-        selected['1d'].indices = args.rows
+        selected['1d'].indices = (@data.index[i] for i in args.rows)
         @model.source.selected = selected
 
     @_prefix_ui()
