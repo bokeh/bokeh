@@ -132,8 +132,8 @@ class ModelWithConstrainedVariables extends LayoutableModel
       height: @_height
     }
 
-  @define {
-    sizing_mode: [ p.SizingMode, 'scale_width']
+  @override {
+    sizing_mode: 'scale_width'
   }
 
 Models.register('ModelWithConstrainedVariables', ModelWithConstrainedVariables)
@@ -150,8 +150,8 @@ class ModelWithConstrainedWidthVariable extends LayoutableModel
       width: @_width
     }
 
-  @define {
-    sizing_mode: [ p.SizingMode, 'scale_width']
+  @override {
+    sizing_mode: 'scale_width'
   }
 
 Models.register('ModelWithConstrainedWidthVariable', ModelWithConstrainedWidthVariable)
@@ -169,8 +169,8 @@ class ModelWithConstrainedHeightVariable extends LayoutableModel
       height: @_height
     }
 
-  @define {
-    sizing_mode: [ p.SizingMode, 'scale_width']
+  @override {
+    sizing_mode: 'scale_width'
   }
 
 Models.register('ModelWithConstrainedHeightVariable', ModelWithConstrainedHeightVariable)
