@@ -22,7 +22,7 @@ always be active regardless of what other tools are currently active.
 '''
 from __future__ import absolute_import
 
-from ..core.enums import accept_left_right_center, Anchor, DeprecatedAnchor, Dimension, Dimensions, Location
+from ..core.enums import accept_left_right_center, Anchor, DeprecatedAnchor, Dimension, Dimensions, Location, TooltipFieldFormatter
 from ..core.has_props import abstract
 from ..core.properties import (
     Any, Auto, Bool, Color, Dict, Either, Enum, Float, Percent, Instance, List,
@@ -745,6 +745,10 @@ class HoverTool(Inspection):
         the visual presentation order is unspecified.
 
     """).accepts(Dict(String, String), lambda d: list(d.items()))
+
+    formatters = Dict(String, Enum(TooltipFieldFormatter), default=lambda: dict(), help="""
+
+    """)
 
     mode = Enum("mouse", "hline", "vline", help="""
     Whether to consider hover pointer as a point (x/y values), or a
