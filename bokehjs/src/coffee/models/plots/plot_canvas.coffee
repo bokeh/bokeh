@@ -542,7 +542,7 @@ export class PlotCanvasView extends DOMView
     @model.frame._update_mappers()
 
     ctx = @canvas_view.ctx
-    ctx.pixel_ratio = ratio = @canvas_view.pixel_ratio  # Also store on cts for WebGL
+    ctx.pixel_ratio = ratio = @canvas.pixel_ratio  # Also store on cts for WebGL
 
     # Set hidpi-transform
     ctx.save()  # Save default state, do *after* getting ratio, cause setting canvas.width resets transforms
