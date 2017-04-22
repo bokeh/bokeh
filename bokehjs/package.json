@@ -104,7 +104,7 @@
     "jquery-ui": "~1.10.5",
 
     "numbro": "https://github.com/bokeh/numbro.git#e1b6c52",
-    "kiwi": "https://github.com/bokeh/kiwi.git#55c0ff9",
+    "kiwi": "https://github.com/bokeh/kiwi.git#b26f6cb",
     "root-require": "^0.3.1"
   },
   "scripts": {
