@@ -145,11 +145,11 @@ export class Plot extends LayoutDOM
   add_layout: (renderer, side="center") ->
     if renderer.props.plot?
       renderer.plot = this
-    @add_renderers(renderer)
     if side != 'center'
       side_renderers = @getv(side)
       side_renderers.push(renderer)
       renderer.add_panel(side)
+    @add_renderers(renderer)
 
   add_glyph: (glyph, source, attrs={}) ->
     if not source?
