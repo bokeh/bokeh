@@ -22,9 +22,9 @@ export class ColorBarView extends AnnotationView
     @_set_canvas_image()
 
   bind_bokeh_events: () ->
-    @listenTo(@model, 'change:visible', @plot_view.request_render)
-    @listenTo(@model.ticker, 'change', @plot_view.request_render)
-    @listenTo(@model.formatter, 'change', @plot_view.request_render)
+    @listenTo(@model, 'change:visible', () => @plot_view.request_render())
+    @listenTo(@model.ticker, 'change', () => @plot_view.request_render())
+    @listenTo(@model.formatter, 'change', () => @plot_view.request_render())
     @listenTo(@model.color_mapper, 'change', () ->
       @_set_canvas_image()
       @plot_view.request_render()
