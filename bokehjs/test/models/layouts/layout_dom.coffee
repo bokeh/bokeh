@@ -60,17 +60,6 @@ describe "LayoutDOMView", ->
       @layout = new LayoutDOM()
       @doc = new Document()
       @doc.add_root(@layout)
-      @layout._dom_left.setValue(dom_left)
-      @layout._dom_top.setValue(dom_top)
-      @layout._width.setValue(width)
-      @layout._height.setValue(height)
-
-    it "should set the appropriate style on the element if sizing_mode is 'stretch_both'", ->
-      @layout.sizing_mode = 'stretch_both'
-      layout_view = new LayoutDOMView({ model: @layout, parent: null })
-      layout_view.render()
-      expected_style = "position: absolute; left: #{dom_left}px; top: #{dom_top}px; width: #{width}px; height: #{height}px;"
-      expect(layout_view.el.style.cssText).to.be.equal expected_style
 
     it "should set the appropriate style on the element if sizing_mode is 'fixed'", ->
       @layout.sizing_mode = 'fixed'
