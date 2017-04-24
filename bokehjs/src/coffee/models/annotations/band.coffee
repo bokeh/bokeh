@@ -25,17 +25,17 @@ export class BandView extends AnnotationView
     non_base_mapper = if @model.dimension == "height" then y_mapper else x_mapper
     base_mapper = if @model.dimension == "height" then x_mapper else y_mapper
 
-    if @model.lower_units == "data"
+    if @model.lower.units == "data"
       _lower_vx = non_base_mapper.v_map_to_target(@_lower)
     else
       _lower_vx = @_lower
 
-    if @model.upper_units == "data"
+    if @model.upper.units == "data"
       _upper_vx = non_base_mapper.v_map_to_target(@_upper)
     else
       _upper_vx = @_upper
 
-    if @model.base_units == "data"
+    if @model.base.units == "data"
       _base_vx = base_mapper.v_map_to_target(@_base)
     else
       _base_vx = @_base
@@ -102,12 +102,9 @@ export class Band extends Annotation
   @mixins ['line', 'fill']
 
   @define {
-    lower:        [ p.NumberSpec                      ]
-    lower_units:  [ p.SpatialUnits, 'data'            ]
-    upper:        [ p.NumberSpec                      ]
-    upper_units:  [ p.SpatialUnits, 'data'            ]
-    base:         [ p.NumberSpec,                     ]
-    base_units:   [ p.SpatialUnits, 'data'            ]
+    lower:        [ p.DistanceSpec                    ]
+    upper:        [ p.DistanceSpec                    ]
+    base:         [ p.DistanceSpec                    ]
     dimension:    [ p.Dimension,    'height'          ]
     source:       [ p.Instance,     () -> new ColumnDataSource()  ]
     x_range_name: [ p.String,       'default'         ]

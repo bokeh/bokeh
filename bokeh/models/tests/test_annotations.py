@@ -205,7 +205,7 @@ def test_Band():
         "upper",
         "upper_units",
         "base",
-        "base_units"
+        "base_units",
         "dimension",
         "source",
         "x_range_name",

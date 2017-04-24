@@ -10,7 +10,7 @@ from ..core.enums import (accept_left_right_center, AngleUnits, DeprecatedLegend
                           FontStyle, LegendClickPolicy, LegendLocation, Orientation, RenderMode,
                           SpatialUnits, TextAlign)
 from ..core.has_props import abstract
-from ..core.properties import (Angle, AngleSpec, Auto, Bool, ColorSpec, Either, Enum, Float,
+from ..core.properties import (Angle, AngleSpec, Auto, Bool, ColorSpec, DistanceSpec, Either, Enum, Float,
                                FontSizeSpec, Include, Instance, Int, List, NumberSpec, Override,
                                Seq, String, StringSpec, Tuple, value)
 from ..core.property_mixins import FillProps, LineProps, TextProps
@@ -534,31 +534,17 @@ class Band(Annotation):
     ''' Render a filled area band along a dimension.
 
     '''
-    lower = NumberSpec(help="""
+
+    lower = DistanceSpec(help="""
     The coordinates of the lower portion of the filled area band.
     """)
 
-    lower_units = Enum(SpatialUnits, default='data', help="""
-    The unit type for the lower attribute. Interpreted as "data space" units
-    by default.
-    """)
-
-    upper = NumberSpec(help="""
+    upper = DistanceSpec(help="""
     The coordinations of the upper portion of the filled area band.
     """)
 
-    upper_units = Enum(SpatialUnits, default='data', help="""
-    The unit type for the upper attribute. Interpreted as "data space" units
-    by default.
-    """)
-
-    base = NumberSpec(help="""
+    base = DistanceSpec(help="""
     The orthogonal coordinates of the upper and lower values.
-    """)
-
-    base_units = Enum(SpatialUnits, default='data', help="""
-    The unit type for the upper attribute. Interpreted as "data space" units
-    by default.
     """)
 
     dimension = Enum(Dimension, default='height', help="""
