@@ -251,14 +251,14 @@ describe "PlotCanvasView resize", ->
     doc.add_root(plot)
     @plot_canvas = new PlotCanvas({ 'plot': plot })
     @plot_canvas.attach_document(doc)
-    @plot_canvas._dom_left = {_value: dom_left}
-    @plot_canvas._dom_top = {_value: dom_top}
-    @plot_canvas._width = {_value: width}
-    @plot_canvas._height = {_value: height}
-    @plot_canvas._whitespace_left = {_value: wl}
-    @plot_canvas._whitespace_right = {_value: wr}
-    @plot_canvas._whitespace_top = {_value: wt}
-    @plot_canvas._whitespace_bottom = {_value: wb}
+    @plot_canvas._dom_left.setValue(dom_left)
+    @plot_canvas._dom_top.setValue(dom_top)
+    @plot_canvas._width.setValue(width)
+    @plot_canvas._height.setValue(height)
+    @plot_canvas._whitespace_left.setValue(wl)
+    @plot_canvas._whitespace_right.setValue(wr)
+    @plot_canvas._whitespace_top.setValue(wt)
+    @plot_canvas._whitespace_bottom.setValue(wb)
     @plot_canvas_view = new @plot_canvas.default_view({model: @plot_canvas, parent: @plot_view})
 
   """
@@ -292,7 +292,7 @@ describe "PlotCanvasView resize", ->
   """
 
   it "should throw an error if height is 0", sinon.test () ->
-    @plot_canvas._height = {_value: 0}
+    @plot_canvas._height.setValue(0)
     @plot_canvas.sizing_mode = 'stretch_both'
     expect(@plot_canvas_view._on_resize).to.throw Error
 

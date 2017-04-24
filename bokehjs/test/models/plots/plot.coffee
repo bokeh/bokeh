@@ -38,10 +38,10 @@ describe "Plot", ->
       dom_top = 13
       width = 80
       height = 100
-      @p._dom_left = {_value: dom_left}
-      @p._dom_top = {_value: dom_top}
-      @p._width = {_value: width}
-      @p._height = {_value: height}
+      @p._dom_left.setValue(dom_left)
+      @p._dom_top.setValue(dom_top)
+      @p._width.setValue(width)
+      @p._height.setValue(height)
       @p.sizing_mode = 'stretch_both'
       plot_view = new @p.default_view({ model: @p, parent: null })
       plot_view.render()
@@ -63,21 +63,21 @@ describe "Plot", ->
       @p.width = 22
       @p.height = 44
       plot_view = new @p.default_view({ model: @p, parent: null })
-      @p._width = {_value: 33}
+      @p._width.setValue(33)
       expect(plot_view.get_height()).to.be.equal 66
 
     it "get_width should return the width from the aspect ratio", sinon.test () ->
       @p.width = 2
       @p.height = 10
       plot_view = new @p.default_view({ model: @p, parent: null })
-      @p._height= {_value: 100}
+      @p._height.setValue(100)
       expect(plot_view.get_width()).to.be.equal 20
 
     it "get_width should return the width from the aspect ratio", sinon.test () ->
       @p.width = 2
       @p.height = 10
       plot_view = new @p.default_view({ model: @p, parent: null })
-      @p._height= {_value: 100}
+      @p._height.setValue(100)
       expect(plot_view.get_width()).to.be.equal 20
 
     it "get_width_height should return a constrained width if plot is landscape oriented", sinon.test () ->

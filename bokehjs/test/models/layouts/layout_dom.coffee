@@ -69,10 +69,10 @@ describe "LayoutDOMView", ->
       @layout = new LayoutDOM()
       @doc = new Document()
       @doc.add_root(@layout)
-      @layout._dom_left = {_value: dom_left}
-      @layout._dom_top = {_value: dom_top}
-      @layout._width = {_value: width}
-      @layout._height = {_value: height}
+      @layout._dom_left.setValue(dom_left)
+      @layout._dom_top.setValue(dom_top)
+      @layout._width.setValue(width)
+      @layout._height.setValue(height)
 
     it "should set the appropriate style on the element if sizing_mode is 'stretch_both'", ->
       @layout.sizing_mode = 'stretch_both'

@@ -35,10 +35,10 @@ describe "WidgetBox", ->
       dom_top = 13
       width = 80
       height = 100
-      @widget_box._dom_left = {_value: dom_left}
-      @widget_box._dom_top = {_value: dom_top}
-      @widget_box._width = {_value: width}
-      @widget_box._height = {_value: height}
+      @widget_box._dom_left.setValue(dom_left)
+      @widget_box._dom_top.setValue(dom_top)
+      @widget_box._width.setValue(width)
+      @widget_box._height.setValue(height)
       @widget_box.sizing_mode = 'stretch_both'
       widget_box_view = new @widget_box.default_view({ model: @widget_box, parent: null })
       widget_box_view.render()
@@ -51,10 +51,10 @@ describe "WidgetBox", ->
       dom_top = 13
       width = 80
       height = 100
-      @widget_box._dom_left = {_value: dom_left}
-      @widget_box._dom_top = {_value: dom_top}
-      @widget_box._width = {_value: width}
-      @widget_box._height = {_value: height}
+      @widget_box._dom_left.setValue(dom_left)
+      @widget_box._dom_top.setValue(dom_top)
+      @widget_box._width.setValue(width)
+      @widget_box._height.setValue(height)
       @widget_box.sizing_mode = 'scale_width'
       widget_box_view = new @widget_box.default_view({ model: @widget_box, parent: null })
       widget_box_view.child_views = {'child_view_1': {'el': {'scrollHeight': 222}}}

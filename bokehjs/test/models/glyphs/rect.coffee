@@ -185,13 +185,13 @@ describe "Rect", ->
 
       beforeEach ->
         set_dims = (dims) ->
-          @model._width._value = dims[0]
-          @model._height._value = dims[1]
+          @model._width.setValue(dims[0])
+          @model._height.setValue(dims[1])
         @canvas_set_dims_stub = sinon.stub(CanvasView.prototype, 'set_dims', set_dims)
 
         resize = () ->
-          @frame._width._value = @canvas._width._value
-          @frame._height._value = @canvas._height._value
+          @frame._width.setValue(@canvas._width.value())
+          @frame._height.setValue(@canvas._height.value())
         @plot_canvas_resize_stub = sinon.stub(PlotCanvasView.prototype, '_on_resize', resize)
 
       describe "_hit_point", ->

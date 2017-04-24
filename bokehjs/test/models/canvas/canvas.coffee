@@ -29,7 +29,7 @@ describe "Canvas", ->
   describe "Coordinate transforms", ->
     c = new Canvas()
     # stub solver property
-    c._height._value = 100
+    c._height.setValue(100)
 
     it "Canvas.vx_to_sx method", ->
       expect(c.vx_to_sx(10)).to.be.equal(10)
