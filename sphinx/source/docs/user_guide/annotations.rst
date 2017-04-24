@@ -154,7 +154,7 @@ Bands
 
 A |Band| will create a dimensionally-linked "stripe", either located in data
 or screen coordinates. One common use for the Band annotation is to indicate
-uncertainty around stuff.
+uncertainty related to a series of measurements.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_band.py
     :source-position: above
