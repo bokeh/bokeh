@@ -22,6 +22,7 @@ import io
 import json
 import os
 import warnings
+import subprocess
 import tempfile
 import uuid
 
@@ -32,6 +33,7 @@ from .core.state import State
 from .document import Document
 from .embed import autoload_server, notebook_div, file_html
 from .layouts import gridplot, GridSpec ; gridplot, GridSpec
+from .resources import INLINE
 import bokeh.util.browser as browserlib  # full import needed for test mocking to work
 from .util.deprecation import deprecated
 from .util.notebook import get_comms, load_notebook, publish_display_data, watch_server_cells
@@ -559,3 +561,88 @@ def _destroy_server(div_id):
 
     except Exception as e:
         logger.debug("Could not destroy server for id %r: %s" % (div_id, e))
+
+# def _get_export_args(filename, resources, title):
+#     warn = True
+#
+#     if filename is None and state.file:
+#         filename = state.file['filename']
+#
+#     if filename is None:
+#         warn = False
+#         filename = _detect_filename("html")
+#
+#     if resources is None and state.file:
+#         resources = state.file['resources']
+#
+#     if resources is None:
+#         if warn:
+#             warnings.warn("save() called but no resources were supplied and output_file(...) was never called, defaulting to resources.CDN")
+#
+#         from .resources import CDN
+#         resources = CDN
+#
+#     if title is None and state.file:
+#         title = state.file['title']
+#
+#     if title is None:
+#         if warn:
+#             warnings.warn("save() called but no title was supplied and output_file(...) was never called, using default title 'Bokeh Plot'")
+#
+#         title = "Bokeh Plot"
+#
+#     return filename, resources, title
+
+def export(obj, filename=None):
+    ''' Save an HTML file with the data for the current document.
+
+    If the filename is not given, it is derived from the script name
+    (e.g. ``/foo/myplot.py`` will create ``/foo/myplot.html``)
+
+    Args:
+        obj (LayoutDOM object) : a Layout (Row/Column), Plot or Widget object to display
+
+        filename (str, optional) : filename to save document under (default: None)
+            If None, infer from the filename.
+
+    Returns:
+        filename (str) : the filename where the static file is saved.
+
+    '''
+
+    # TODO - check that phantomjs is installed
+
+    temp_html = tempfile.NamedTemporaryFile(suffix=".html").name
+    save(obj, filename=temp_html, resources=INLINE, title="")
+
+    filename = _detect_filename("png")
+
+    # TODO - come up with better values
+    local_wait = 1000
+    global_wait = 1000
+    width = 1000
+    height = 1000
+
+    # TODO - better find 'phantomjs' source (see node compile method)
+    cmd = ["phantomjs",
+           os.path.join(os.path.dirname(__file__),
+           "phantomjs_screenshot.js"),
+           temp_html,
+           filename,
+           str(local_wait),
+           str(global_wait),
+           str(width),
+           str(height)]
+    logger.debug("Running command: %s" % " ".join(cmd))
+
+    try:
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        proc.wait()
+    except OSError as e:
+        logger.error("Failed to run: %s" % " ".join(cmd))
+        raise OSError(e)
+
+    output = proc.stdout.read().decode("utf-8")  ## noqa
+    # TODO - check that there aren't JS console errors
+
+    return os.path.abspath(filename)
