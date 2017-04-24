@@ -624,6 +624,7 @@ def export(obj, filename=None):
     height = 1000
 
     # TODO - better find 'phantomjs' source (see node compile method)
+    # TODO - actually use selenium with drop in driver instead of phantomjs CLI
     cmd = ["phantomjs",
            os.path.join(os.path.dirname(__file__),
            "phantomjs_screenshot.js"),
