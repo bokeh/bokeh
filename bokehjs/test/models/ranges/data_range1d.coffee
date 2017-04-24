@@ -78,11 +78,13 @@ describe "datarange1d module", ->
     it "should reset configuration to initial values", ->
       r = new DataRange1d()
       r.range_padding = 0.2
+      r.range_padding_units = 'absolute'
       r.follow = 'end'
       r.follow_interval = 10
       r.default_span = 10
       r.reset()
       expect(r.range_padding).to.be.equal 0.1
+      expect(r.range_padding_units).to.be.equal "percent"
       expect(r.follow).to.be.null
       expect(r.follow_interval).to.be.null
       expect(r.default_span).to.be.equal 2
@@ -201,16 +203,25 @@ describe "datarange1d module", ->
       expect(r._compute_range(1, 3)).to.be.deep.equal [3, 1]
       expect(r._compute_range(1, 7)).to.be.deep.equal [5, 1]
 
-    it "should apply range_padding", ->
+    it "should apply percentage range_padding", ->
       r = new DataRange1d()
       r.range_padding = 0.5
       expect(r._compute_range(1, 3)).to.be.deep.equal [0.5, 3.5]
+
+    it "should apply absolute range_padding", ->
+      r = new DataRange1d()
+      r.range_padding = 0.2
+      r.range_padding_units = "absolute"
+      expect(r._compute_range(1, 3)).to.be.deep.equal [0.8, 3.2]
 
     it "should apply range_padding logly when mapper_hint='log'", ->
       r = new DataRange1d()
       r.range_padding = 0.5
       r.mapper_hint = "log"
       expect(r._compute_range(0.01, 10)).to.be.deep.equal [0.0017782794100389264, 56.23413251903488]
+
+      r.range_padding_units = "absolute"
+      expect(r._compute_range(1, 10)).to.be.deep.equal [0.5000000000000001, 10.5]
 
   describe "_compute_min_max", ->
 

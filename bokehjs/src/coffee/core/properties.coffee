@@ -203,6 +203,10 @@ export class Distribution extends enum_prop("Distribution", enums.DistributionTy
 
 export class TransformStepMode extends enum_prop("TransformStepMode", enums.TransformStepModes)
 
+export class PaddingUnits extends enum_prop("PaddingUnits", enums.PaddingUnits)
+
+export class StartEnd extends enum_prop("StartEnd", enums.StartEnd)
+
 #
 # Units Properties
 #
