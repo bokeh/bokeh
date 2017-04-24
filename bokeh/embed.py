@@ -386,7 +386,8 @@ def file_html(models,
               resources,
               title=None,
               template=FILE,
-              template_variables={}):
+              template_variables={},
+              theme=None):
     ''' Return an HTML document that embeds Bokeh Model or Document objects.
 
     The data for the plot is stored directly in the returned HTML, with
@@ -412,7 +413,7 @@ def file_html(models,
     '''
     models = _check_models(models)
 
-    with _ModelInDocument(models):
+    with _ModelInDocument(models, apply_theme=theme):
         (docs_json, render_items) = _standalone_docs_json_and_render_items(models)
         title = _title_from_models(models, title)
         bundle = _bundle_for_objs_and_resources(models, resources)
