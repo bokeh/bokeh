@@ -49,7 +49,7 @@ from ..util.serialization import transform_series, transform_array
 pd = import_optional('pandas')
 rd = import_optional("dateutil.relativedelta")
 
-NP_EPOCH = np.datetime64('1970-01-01T00:00:00Z')
+NP_EPOCH = np.datetime64(0, 's')
 NP_MS_DELTA = np.timedelta64(1, 'ms')
 
 class BokehJSONEncoder(json.JSONEncoder):
