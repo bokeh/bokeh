@@ -126,9 +126,9 @@ describe "LayoutDOMView", ->
       @layout.sizing_mode = 'fixed'
       render_spy = sinon.spy(LayoutDOMView.prototype, 'render')
       layout_view = new LayoutDOMView({ model: @layout, parent: null })
-      @doc.solver().trigger('resize')
-      @doc.solver().trigger('resize')
-      @doc.solver().trigger('resize')
+      layout_view.solver.trigger('resize')
+      layout_view.solver.trigger('resize')
+      layout_view.solver.trigger('resize')
       LayoutDOMView.prototype.render.restore()
       expect(render_spy.callCount).is.equal 1
 
@@ -136,9 +136,9 @@ describe "LayoutDOMView", ->
       @layout.sizing_mode = 'scale_both'
       render_spy = sinon.spy(LayoutDOMView.prototype, 'render')
       layout_view = new LayoutDOMView({ model: @layout, parent: null })
-      @doc.solver().trigger('resize')
-      @doc.solver().trigger('resize')
-      @doc.solver().trigger('resize')
+      layout_view.solver.trigger('resize')
+      layout_view.solver.trigger('resize')
+      layout_view.solver.trigger('resize')
       LayoutDOMView.prototype.render.restore()
       expect(render_spy.callCount).is.equal 3
 
