@@ -16,11 +16,7 @@ height = 443
 describe "LayoutDOMView", ->
 
   describe "initialize", ->
-    afterEach ->
-      utils.unstub_solver()
-
     beforeEach ->
-      utils.stub_solver()
       @test_layout = new LayoutDOM()
       @doc = new Document()
       @doc.add_root(@test_layout)
@@ -60,12 +56,7 @@ describe "LayoutDOMView", ->
       null
 
   describe "render", ->
-    afterEach ->
-      utils.unstub_solver()
-
     beforeEach ->
-      solver_stubs = utils.stub_solver()
-      @solver_suggest = solver_stubs['suggest']
       @layout = new LayoutDOM()
       @doc = new Document()
       @doc.add_root(@layout)
@@ -93,8 +84,9 @@ describe "LayoutDOMView", ->
     it "should not call solver suggest_value if the sizing_mode is 'stretch_both'", ->
       @layout.sizing_mode = 'stretch_both'
       layout_view = new LayoutDOMView({ model: @layout, parent: null })
+      suggest_value = sinon.spy(layout_view.solver, 'suggest_value')
       layout_view.render()
-      expect(@solver_suggest.called).is.false
+      expect(suggest_value.called).is.false
 
     it "should call get_height if sizing_mode is 'scale_width'", ->
       @layout.sizing_mode = 'scale_width'
@@ -117,10 +109,11 @@ describe "LayoutDOMView", ->
       @layout.width = 22
       @layout.height = 33
       layout_view = new LayoutDOMView({ model: @layout, parent: null })
+      suggest_value = sinon.spy(layout_view.solver, 'suggest_value')
       layout_view.render()
-      expect(@solver_suggest.callCount).is.equal 2
-      expect(@solver_suggest.args[0]).to.be.deep.equal [@layout._width, 22]
-      expect(@solver_suggest.args[1]).to.be.deep.equal [@layout._height, 33]
+      expect(suggest_value.callCount).is.equal 2
+      expect(suggest_value.args[0]).to.be.deep.equal [@layout._width, 22]
+      expect(suggest_value.args[1]).to.be.deep.equal [@layout._height, 33]
 
     it "should only listen to resize event once if sizing_mode is fixed", ->
       @layout.sizing_mode = 'fixed'
@@ -145,18 +138,20 @@ describe "LayoutDOMView", ->
     it "should call suggest value with the value from get_height if sizing_mode is scale_width", ->
       @layout.sizing_mode = 'scale_width'
       layout_view = new LayoutDOMView({ model: @layout, parent: null })
+      suggest_value = sinon.spy(layout_view.solver, 'suggest_value')
       sinon.stub(layout_view, 'get_height').returns(89)
       layout_view.render()
-      expect(@solver_suggest.callCount).is.equal 1
-      expect(@solver_suggest.args[0]).to.be.deep.equal [@layout._height, 89]
+      expect(suggest_value.callCount).is.equal 1
+      expect(suggest_value.args[0]).to.be.deep.equal [@layout._height, 89]
 
     it "should call suggest value with the value from get_width if sizing_mode is scale_height", ->
       @layout.sizing_mode = 'scale_height'
       layout_view = new LayoutDOMView({ model: @layout, parent: null })
+      suggest_value = sinon.spy(layout_view.solver, 'suggest_value')
       sinon.stub(layout_view, 'get_width').returns(222)
       layout_view.render()
-      expect(@solver_suggest.callCount).is.equal 1
-      expect(@solver_suggest.args[0]).to.be.deep.equal [@layout._width, 222]
+      expect(suggest_value.callCount).is.equal 1
+      expect(suggest_value.args[0]).to.be.deep.equal [@layout._width, 222]
 
     it "should set the value of model.width from get_width if mode is fixed and if model.width is null", ->
       @layout.sizing_mode = 'fixed'
@@ -177,11 +172,7 @@ describe "LayoutDOMView", ->
       expect(@layout.height).to.be.equal 123
 
   describe "build_child_views", ->
-    afterEach ->
-      utils.unstub_solver()
-
     beforeEach ->
-      solver_stubs = utils.stub_solver()
       @layout = new LayoutDOM()
       @doc = new Document()
       @doc.add_root(@layout)
