@@ -147,6 +147,18 @@ and the fill properties control the interior of the arrow head (if applicable).
 .. bokeh-plot:: docs/user_guide/examples/plotting_arrow.py
     :source-position: above
 
+.. _userguide_plotting_bands:
+
+Bands
+~~~~~
+
+A |Band| will create a dimensionally-linked "stripe", either located in data
+or screen coordinates. One common use for the Band annotation is to indicate
+uncertainty around stuff.
+
+.. bokeh-plot:: docs/user_guide/examples/plotting_band.py
+    :source-position: above
+
 .. _userguide_plotting_box_annotations:
 
 Box Annotations
@@ -224,6 +236,7 @@ and extend to the edge of the plot area.
 
 .. |Arrow|         replace:: :class:`~bokeh.models.annotations.Arrow`
 .. |ArrowHead|     replace:: :class:`~bokeh.models.arrow_heads.ArrowHead`
+.. |Band|          replace:: :class:`~bokeh.models.annotations.Band`
 .. |BoxAnnotation| replace:: :class:`~bokeh.models.annotations.BoxAnnotation`
 .. |ColorBar|      replace:: :class:`~bokeh.models.annotations.ColorBar`
 .. |Label|         replace:: :class:`~bokeh.models.annotations.Label`

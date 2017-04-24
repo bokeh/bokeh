@@ -75,14 +75,18 @@ export class BandView extends AnnotationView
       @visuals.fill.set_value(ctx)
       ctx.fill()
 
-    ctx.beginPath()
-
     # Draw the lower band edge
+    ctx.beginPath()
     ctx.moveTo(@_lower_sx[0], @_lower_sy[0])
     for i in [0...@_lower_sx.length]
       ctx.lineTo(@_lower_sx[i], @_lower_sy[i])
 
+    if @visuals.line.doit
+      @visuals.line.set_value(ctx)
+      ctx.stroke()
+
     # Draw the upper band edge
+    ctx.beginPath()
     ctx.moveTo(@_upper_sx[0], @_upper_sy[0])
     for i in [0...@_upper_sx.length]
       ctx.lineTo(@_upper_sx[i], @_upper_sy[i])
