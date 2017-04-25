@@ -62,6 +62,6 @@ def detect_phantomjs():
         proc = Popen([phantomjs_path, "--version"], stdout=PIPE, stderr=PIPE)
         proc.wait()
     except OSError:
-        raise RuntimeError('PhantomJS is needed to to export')
+        raise RuntimeError('PhantomJS is not present in PATH.')
     else:
         return phantomjs_path

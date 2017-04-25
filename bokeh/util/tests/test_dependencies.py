@@ -19,6 +19,6 @@ def test_detect_phantomjs_success():
     assert dep.detect_phantomjs() is not None
 
 def test_detect_phantomjs_fail(monkeypatch):
-    monkeypatch.setenv("PHANTOMJS_PATH", "bad_path")
+    monkeypatch.setenv("BOKEH_PHANTOMJS_PATH", "bad_path")
     with pytest.raises(RuntimeError):
         dep.detect_phantomjs()
