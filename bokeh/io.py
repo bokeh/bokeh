@@ -648,6 +648,7 @@ def export(obj, filename=None):
     canvas = driver.find_element_by_tag_name('canvas')
     wait_for_canvas_resize(canvas, driver)
 
+    driver.maximize_window()
     driver.save_screenshot(filename)
     driver.quit()
 
