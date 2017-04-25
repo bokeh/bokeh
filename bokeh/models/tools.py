@@ -724,16 +724,33 @@ class HoverTool(Inspection):
         are: 'hex' (to display the color as a hex value), and
         'swatch' to also display a small color swatch.
 
-    Additional format options ``safe`` and `Numbro format codes <http://numbrojs.com/format.html>`_
-    can be included in a post-fix brace block on field names. ::
+    Field names that begin with ``@`` are associated with columns in a
+    ``ColumnDataSource``. For instance the field name ``"@price"`` will
+    display values from the ``"price"`` column whenever a hover is triggered.
+    If the hover is for the 17th glyph, then the hover tooltip will
+    correspondingly display the 17th price value.
 
-        [("total", "@total{$0,0.00}"),
-         ("data", "@data{safe}")]
+    Note that if a column name contains spaces, the it must be supplied by
+    surrounding it in curly braces, e.g. ``@{adjusted close}`` will display
+    values from a column named ``"adjusted close"``.
 
-    Including ``{safe}`` after a field name will override automatic escaping
-    of the tooltip data source. Any HTML tags in the data tags will be rendered
-    as HTML in the resulting HoverTool output. See :ref:`custom_hover_tooltip` for a
-    more detailed example.
+    By default, values for fields (e.g. ``@foo``) are displayed in a basic
+    numeric format. However it is possible to control the formatting of values
+    more precisely. Fields can be modified by appending a format specified to
+    the end in curly braces. Some examples are below.
+
+    .. code-block:: python
+
+        "@foo{0,0.000}"    # formats 10000.1234 as: 10,000.123
+
+        "@foo{(.00)}"      # formats -10000.1234 as: (10000.123)
+
+        "@foo{($ 0.00 a)}" # formats 1230974 as: $ 1.23 m
+
+    Specifcying a format ``{safe}`` after a field name will override automatic
+    escaping of the tooltip data source. Any HTML tags in the data tags will
+    be rendered as HTML in the resulting HoverTool output. See
+    :ref:`custom_hover_tooltip` for a more detailed example.
 
     ``None`` is also a valid value for tooltips. This turns off the
     rendering of tooltips. This is mostly useful when supplying other
@@ -747,6 +764,35 @@ class HoverTool(Inspection):
     """).accepts(Dict(String, String), lambda d: list(d.items()))
 
     formatters = Dict(String, Enum(TooltipFieldFormatter), default=lambda: dict(), help="""
+    Specify the formatting scheme for data source columns, e.g.
+
+    .. code-block:: python
+
+        tool.formatters = dict(date="datetime")
+
+    will cause format specifications for the "date" column to be interpreted
+    according to the "datetime" formatting scheme. The following schemed are
+    available:
+
+    :``"numeral"``:
+        Provides a wide variety of formats for numbers, currency, bytes, times,
+        and percentages. The full set of formats can be found in the
+        |NumeralTickFormatter| reference documentation.
+
+    :``"datetime"``:
+        Provides formats for date and time values. The full set of formats is
+        listed in the |DatetimeTickFormatter| reference documentation.
+
+    :``"printf"``:
+        Provides formats similar to C-style "printf" type specifiers. See the
+        |PrintfTickFormatter| reference documentation for complete details.
+
+    If no formatter is specified for a column name, the default ``"numeral"``
+    formatter is assumed.
+
+    .. |NumeralTickFormatter| replace:: :class:`~bokeh.models.formatters.NumeralTickFormatter`
+    .. |DatetimeTickFormatter| replace:: :class:`~bokeh.models.formatters.DatetimeTickFormatter`
+    .. |PrintfTickFormatter| replace:: :class:`~bokeh.models.formatters.PrintfTickFormatter`
 
     """)
 

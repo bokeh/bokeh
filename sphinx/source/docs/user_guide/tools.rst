@@ -148,22 +148,17 @@ ease of configuration:
     # configures the lasso tool to be active
     plot = figure(tools="pan,lasso_select,box_select", active_drag="lasso_select")
 
-.. _userguide_tools_builtin_tools:
-
-Built-in Tools
---------------
-
 .. _userguide_tools_pandrag:
 
 Pan/Drag Tools
-~~~~~~~~~~~~~~
+--------------
 
 These tools are employed by panning (on touch devices) or left-dragging (on
 mouse devices). Only one pan/drag tool may be active at a time. Where
 applicable, Pan/Drag tools will respect any max and min values set on ranges.
 
 BoxSelectTool
-'''''''''''''
+~~~~~~~~~~~~~
 
 * name: ``'box_select'``
 * icon: |box_select_icon|
@@ -179,7 +174,7 @@ setting the ``dimensions`` property to a list containing ``width`` or
     selection, press the ESC key.
 
 BoxZoomTool
-'''''''''''
+~~~~~~~~~~~
 
 * name: ``'box_zoom'``
 * icon: |box_zoom_icon|
@@ -189,7 +184,7 @@ plot bounds too, by left-dragging a mouse, or dragging a finger across the
 plot area.
 
 LassoSelectTool
-'''''''''''''''
+~~~~~~~~~~~~~~~
 
 * name: ``'lasso_select'``
 * icon: |lasso_select_icon|
@@ -202,7 +197,7 @@ selection by left-dragging a mouse, or dragging a finger across the plot area.
     press the ESC key.
 
 PanTool
-'''''''
+~~~~~~~
 
 * name: ``'pan'``, ``'xpan'``, ``'ypan'``,
 * icon: |pan_icon|
@@ -216,7 +211,7 @@ or ``height``. Additionally, there are tool aliases ``'xpan'`` and ``'ypan'``,
 respectively.
 
 ResizeTool
-''''''''''
+~~~~~~~~~~
 
 * name: ``'resize'``
 * icon: |resize_icon|
@@ -227,13 +222,13 @@ the entire plot.
 .. _userguide_tools_clicktap:
 
 Click/Tap Tools
-~~~~~~~~~~~~~~~
+---------------
 
 These tools are employed by tapping (on touch devices) or left-clicking (on
 mouse devices). Only one click/tap tool may be active at a time.
 
 PolySelectTool
-''''''''''''''
+~~~~~~~~~~~~~~
 
 * name: ``'poly_select'``
 * icon: |poly_select_icon|
@@ -248,7 +243,7 @@ locations.
     ESC key.
 
 TapSelectTool
-'''''''''''''
+~~~~~~~~~~~~~
 
 * name: ``'tap'``
 * icon: |tap_select_icon|
@@ -263,13 +258,13 @@ a left mouse button, or tapping with a finger.
 .. _userguide_tools_scrollpinch:
 
 Scroll/Pinch Tools
-~~~~~~~~~~~~~~~~~~
+------------------
 
 These tools are employed by pinching (on touch devices) or scrolling (on
 mouse devices). Only one scroll/pinch tool may be active at a time.
 
 WheelZoomTool
-'''''''''''''
+~~~~~~~~~~~~~
 
 * name: ``'wheel_zoom'``, ``'xwheel_zoom'``, ``'ywheel_zoom'``
 * icon: |wheel_zoom_icon|
@@ -284,7 +279,7 @@ a list containing ``width`` or ``height``. Additionally, there are tool aliases
 ``'xwheel_zoom'`` and ``'ywheel_zoom'``, respectively.
 
 WheelPanTool
-'''''''''''''
+~~~~~~~~~~~~
 
 * name: ``'xwheel_pan'``, ``'ywheel_pan'``
 * icon: |wheel_pan_icon|
@@ -296,13 +291,13 @@ min and max values and ranges preventing panning beyond these values.
 .. _userguide_tools_actions:
 
 Actions
-~~~~~~~
+-------
 
 Actions are operations that are activated only when their button in the toolbar
 is tapped or clicked. They are typically modal or immediate-acting.
 
 UndoTool
-'''''''''
+~~~~~~~~
 
 * name: ``'undo'``
 * icon: |undo_icon|
@@ -310,7 +305,7 @@ UndoTool
 The undo tool allows to restore previous state of the plot.
 
 RedoTool
-'''''''''
+~~~~~~~~
 
 * name: ``'redo'``
 * icon: |redo_icon|
@@ -318,7 +313,7 @@ RedoTool
 The redo tool reverses the last action performed by undo tool.
 
 ResetTool
-'''''''''
+~~~~~~~~~
 
 * name: ``'reset'``
 * icon: |reset_icon|
@@ -326,7 +321,7 @@ ResetTool
 The reset tool will restore the plot ranges to their original values.
 
 SaveTool
-''''''''
+~~~~~~~~
 
 * name: ``'save'``
 * icon: |save_icon|
@@ -335,7 +330,7 @@ The save tool pops up a modal dialog that allows the user to save a PNG image
 of the plot.
 
 ZoomInTool
-''''''''''
+~~~~~~~~~~
 
 * name: ``'zoom_in'``, ``'xzoom_in'``, ``'yzoom_in'``
 * icon: |zoom_in_icon|
@@ -349,7 +344,7 @@ a list containing ``width`` or ``height``. Additionally, there are tool aliases
 ``'xzoom_in'`` and ``'yzoom_in'``, respectively.
 
 ZoomOutTool
-'''''''''''
+~~~~~~~~~~~
 
 * name: ``'zoom_out'``, ``'xzoom_out'``, ``'yzoom_out'``
 * icon: |zoom_out_icon|
@@ -365,7 +360,7 @@ a list containing ``width`` or ``height``. Additionally, there are tool aliases
 .. _userguide_tools_inspectors:
 
 Inspectors
-~~~~~~~~~~
+----------
 
 Inspectors are passive tools that annotate or otherwise report information about
 the plot, based on the current cursor position. Any number of inspectors may be
@@ -373,7 +368,7 @@ active at any given time. The inspectors menu in the toolbar allows users to
 toggle the active state of any inspector.
 
 CrosshairTool
-'''''''''''''
+~~~~~~~~~~~~~
 
 * name: ``'crosshair'``
 * menu icon: |crosshair_icon|
@@ -384,80 +379,177 @@ across only one dimension by setting the ``dimensions`` property to a
 list containing ``width`` or ``height``.
 
 HoverTool
-'''''''''
+~~~~~~~~~
 
 * name: ``'hover'``
 * menu icon: |hover_icon|
 
-The hover tool pops up a tooltip div whenever the cursor is over a glyph.
-The information comes from the glyphs data source and is configurable through
-a simple tooltips dictionary that maps displayed names to columns in the data source,
-or to special known variables
-
-----
-
-Below is some code that shows how to specify which tools to add to the
-toolbar.
-
-Try running the code and changing the name of tools being added to the
-tools with valid values
-
-.. bokeh-plot:: docs/user_guide/examples/tools_hover_string.py
-    :source-position: above
-
-or with a list of the tool instances:
-
-.. bokeh-plot:: docs/user_guide/examples/tools_hover_instance.py
-    :source-position: above
-
-Setting Tool Visuals
---------------------
-
-Hover Tool
-~~~~~~~~~~
-
 The hover tool is a passive inspector tool. It is generally on at all times,
 but can be configured in the inspector’s menu associated with the toolbar.
 
-The hover tool displays informational tooltips whenever the cursor is directly
-over a glyph. The data to show comes from the glyph’s data source, and what is
-to be displayed is configurable through a tooltips attribute that maps display
-names to columns in the data source, or to special known variables.
-
-Field names starting with “@” are interpreted as columns on the data source.
-Field names starting with “$” are special, known fields, e.g. `$x` will
-display the x-coordinate under the current mouse position. More information
-about those fields can be found in the |HoverTool| reference.
+.. _basic_tooltips:
 
 Basic Tooltips
 ''''''''''''''
 
-The hover tool will generate a default "tabular" tooltip of field names
-and their associated values. These field names and values are supplied
-as a list of *(field name, value)* tuples. For instance, the tooltip
-list below on the left will produce the basic default tooltip below on
-the right:
+By default, the hover tool will generate a "tabular" tooltip where each row
+contains a label, and its associated value. The labels and values are supplied
+as a list of *(label, value)* tuples. For instance, the tooltip below on the
+left was created with the accompanying ``tooltips`` definition on the right.
 
-|
+.. this kind of sucks but gets the job done (aligns hover basic image vertically)
 
-+-----------------------------------------------------------+--------------------+
-|::                                                         |                    |
-|                                                           |                    |
-|    hover.tooltips = [                                     |                    |
-|        ("index", "$index"),                               |                    |
-|        ("(x,y)", "($x, $y)"),                             |                    |
-|        ("radius", "@radius"),                             |   |hover_basic|    |
-|        ("fill color", "$color[hex, swatch]:fill_color"),  |                    |
-|        ("foo", "@foo"),                                   |                    |
-|        ("bar", "@bar"),                                   |                    |
-|    ]                                                      |                    |
-+-----------------------------------------------------------+--------------------+
+.. raw:: html
+
+    <style>
+        div.valign-center > table > tbody { vertical-align: middle !important; }
+    </style>
+
+.. container:: valign_center
+
+    +--------------------+-----------------------------------------------------------+
+    |                    |::                                                         |
+    |                    |                                                           |
+    |                    |    hover.tooltips = [                                     |
+    |                    |        ("index", "$index"),                               |
+    |                    |        ("(x,y)", "($x, $y)"),                             |
+    |   |hover_basic|    |        ("radius", "@radius"),                             |
+    |                    |        ("fill color", "$color[hex, swatch]:fill_color"),  |
+    |                    |        ("foo", "@foo"),                                   |
+    |                    |        ("bar", "@bar"),                                   |
+    |                    |    ]                                                      |
+    +--------------------+-----------------------------------------------------------+
+
+Field names that begin with ``$`` are "special fields". These often correspond
+to values that are intrinsic to the plot, such as the coordinates of the mouse
+in data or screen space. These special fields are listed here:
+
+:``$index``:
+    index of selected point in the data source
+:``$x``:
+    x-coordinate under the cursor in data space
+:``$y``:
+    y-coordinate under the cursor in data space
+:``$sx``:
+    x-coordinate under the cursor in screen (canvas) space
+:``$sy``:
+    y-coordinate under the cursor in screen (canvas) space
+:``$color``:
+    colors from a data source, with the syntax: ``$color[options]:field_name``.
+    The available options are: ``hex`` (to display the color as a hex value),
+    and ``swatch`` to also display a small color swatch.
+
+Field names that begin with ``@`` are associated with columns in a
+``ColumnDataSource``. For instance the field name ``"@price"`` will display
+values from the ``"price"`` column whenever a hover is triggered. If the hover
+is for the 17th glyph, then the hover tooltip will correspondingly display
+the 17th price value.
+
+Note that if a column name contains spaces, the it must be supplied by
+surrounding it in curly braces, e.g. ``@{adjusted close}`` will display values
+from a column named ``"adjusted close"``.
 
 Here is a complete example of how to configure and use the hover tool with
-default tooltip:
+a default tooltip:
 
 .. bokeh-plot:: docs/user_guide/examples/tools_hover_tooltips.py
     :source-position: above
+
+Hit-testing Behavior
+''''''''''''''''''''
+
+The hover tool displays informational tooltips associated with individual
+glyphs. These tooltips can be configured to activate in in different ways
+with a ``mode`` property:
+
+:``"mouse"``:
+    only when the mouse is directly over a glyph
+
+:``"vline"``:
+    whenever the a vertical line from the mouse position intersects a glyph
+
+:``"hline"``:
+    whenever the a horizontal line from the mouse position intersects a glyph
+
+The default configuration is ``mode = "mouse"``. This can be observed in the
+:ref:`basic_tooltips` example above. The example below in
+:ref:`formatting_tooltip_fields` demonstrates an example that sets
+``mode = "vline"``.
+
+.. _formatting_tooltip_fields:
+
+Formatting Tooltip Fields
+'''''''''''''''''''''''''
+
+By default, values for fields (e.g. ``@foo``) are displayed in a basic numeric
+format. However it is possible to control the formatting of values more
+precisely. Fields can be modified by appending a format specified to the end
+in curly braces. Some examples are below.
+
+.. code-block:: python
+
+    "@foo{0,0.000}"    # formats 10000.1234 as: 10,000.123
+
+    "@foo{(.00)}"      # formats -10000.1234 as: (10000.123)
+
+    "@foo{($ 0.00 a)}" # formats 1230974 as: $ 1.23 m
+
+The examples above all use the default formatting scheme. But there are
+other formatting schemes that can be specified for interpreting format
+strings:
+
+:``"numeral"``:
+    Provides a wide variety of formats for numbers, currency, bytes, times,
+    and percentages. The full set of formats can be found in the
+    |NumeralTickFormatter| reference documentation.
+
+:``"datetime"``:
+    Provides formats for date and time values. The full set of formats is
+    listed in the |DatetimeTickFormatter| reference documentation.
+
+:``"printf"``:
+    Provides formats similar to C-style "printf" type specifiers. See the
+    |PrintfTickFormatter| reference documentation for complete details.
+
+These are supplied by configuring the ``formatters`` property of a hover
+tool. This property maps column names to format schemes. For example, to
+use the ``"datetime"`` scheme for formatting a column ``"close date"``,
+set the value:
+
+.. code-block:: python
+
+    hover_tool.formatters = { "close date": "datetime"}
+
+If no formatter is specified for a column name, the default ``"numeral"``
+formatter is assumed.
+
+The example code below shows configuring a ``HoverTool`` with different
+formatters for different fields:
+
+.. code-block:: python
+
+    HoverTool(
+        tooltips=[
+            ( 'date',   '@date{%F}'            ),
+            ( 'close',  '$@{adj close}{%0.2f}' ), # use @{ } for field names with spaces
+            ( 'volume', '@volume{0.00 a}'      ),
+        ],
+
+        formatters={
+            'date'      : 'datetime', # use 'datetime' formatter for 'date' field
+            'adj close' : 'printf',   # use 'printf' formatter for 'adj close' field
+                                      # use default 'numeral' formatter for other fields
+        },
+
+        # display a tooltip whenever the cursor is vertically in line with a glyph
+        mode='vline'
+    )
+
+You can see the output generated by this configuration by hovering the mouse
+over the plot below:
+
+.. bokeh-plot:: docs/user_guide/examples/tools_hover_tooltip_formatting.py
+    :source-position: none
 
 
 .. _custom_hover_tooltip:
@@ -465,20 +557,15 @@ default tooltip:
 Custom Tooltip
 ''''''''''''''
 
-It is also possible to supply a custom tooltip template. To do this,
-pass an HTML string, with the Bokeh tooltip field name symbols wherever
-substitutions are desired. You can use the ``{safe}`` tag after the column
-name to disable the escaping of HTML in the data source. An example is shown below:
+It is also possible to supply a custom HTML template for a tooltip. To do
+this, pass an HTML string, with the Bokeh tooltip field name symbols wherever
+substitutions are desired. All of the information above regarding formats, etc.
+still applies. Note that you can also use the ``{safe}`` format after the
+column name to disable the escaping of HTML in the data source. An example is
+shown below:
 
 .. bokeh-plot:: docs/user_guide/examples/tools_hover_custom_tooltip.py
     :source-position: above
-
-Selection Overlays
-~~~~~~~~~~~~~~~~~~
-
-Selection Overlays can also be configured.  See the :ref:`userguide_styling_tool_overlays` section
-for more information.
-
 
 .. _userguide_tools_lod:
 
@@ -496,11 +583,11 @@ sizes, Bokeh plots offer "Level of Detail" (LOD) capability in the client.
     browser. Such an approach is unavoidable past a certain data size. See
     :ref:`userguide_server` for more information.
 
-The basic idea is that during interactive operations (e.g., panning or zooming),
-the plot only draws some small fraction of data points. This hopefully allows the
-general sense of the interaction to be preserved mid-flight, while maintaining
-interactive performance. There are four properties on |Plot| objects that control
-LOD behavior:
+The basic idea is that during interactive operations (e.g., panning or
+zooming), the plot only draws some small fraction of data points. This
+hopefully allows the general sense of the interaction to be preserved
+mid-flight, while maintaining interactive performance. There are four
+properties on |Plot| objects that control LOD behavior:
 
 .. bokeh-prop:: Plot.lod_factor
     :module: bokeh.models.plots
@@ -515,13 +602,17 @@ LOD behavior:
     :module: bokeh.models.plots
 
 
-.. |bokeh.charts|   replace:: :ref:`bokeh.charts <bokeh.charts>`
+.. |bokeh.charts| replace:: :ref:`bokeh.charts <bokeh.charts>`
 
 .. |Plot| replace:: :class:`~bokeh.models.plots.Plot`
 
 .. |figure| replace:: :func:`~bokeh.plotting.figure`
 
 .. |HoverTool| replace:: :class:`~bokeh.models.tools.HoverTool`
+
+.. |NumeralTickFormatter| replace:: :class:`~bokeh.models.formatters.NumeralTickFormatter`
+.. |DatetimeTickFormatter| replace:: :class:`~bokeh.models.formatters.DatetimeTickFormatter`
+.. |PrintfTickFormatter| replace:: :class:`~bokeh.models.formatters.PrintfTickFormatter`
 
 .. |hover_basic| image:: /_images/hover_basic.png
 
