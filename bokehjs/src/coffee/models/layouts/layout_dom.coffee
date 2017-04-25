@@ -50,11 +50,11 @@ export class LayoutDOMView extends DOMView
       @_init_solver()
 
   _init_solver: () ->
-    @_doc_width = new Variable("document_width")
-    @_doc_height = new Variable("document_height")
+    @_root_width = new Variable("root_width")
+    @_root_height = new Variable("root_height")
 
-    @_solver.add_edit_variable(@_doc_width)
-    @_solver.add_edit_variable(@_doc_height)
+    @_solver.add_edit_variable(@_root_width)
+    @_solver.add_edit_variable(@_root_height)
 
     editables = @model.get_edit_variables()
     constraints = @model.get_constraints()
@@ -67,9 +67,9 @@ export class LayoutDOMView extends DOMView
       @_solver.add_constraint(constraint)
 
     if variables.width?
-      @_solver.add_constraint(EQ(variables.width, @_doc_width))
+      @_solver.add_constraint(EQ(variables.width, @_root_width))
     if variables.height?
-      @_solver.add_constraint(EQ(variables.height, @_doc_height))
+      @_solver.add_constraint(EQ(variables.height, @_root_height))
 
     @_solver.update_variables()
 
@@ -103,9 +103,9 @@ export class LayoutDOMView extends DOMView
             break
 
       if variables.width? and width?
-        @_solver.suggest_value(@_doc_width, width)
+        @_solver.suggest_value(@_root_width, width)
       if variables.height? and height?
-        @_solver.suggest_value(@_doc_height, height)
+        @_solver.suggest_value(@_root_height, height)
 
     @_solver.update_variables(false)
     @_solver.trigger('resize')
