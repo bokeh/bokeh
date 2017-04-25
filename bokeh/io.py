@@ -36,7 +36,7 @@ from .embed import autoload_server, notebook_div, file_html
 from .layouts import gridplot, GridSpec ; gridplot, GridSpec
 from .resources import INLINE
 import bokeh.util.browser as browserlib  # full import needed for test mocking to work
-from .util.dependencies import import_required
+from .util.dependencies import import_required, detect_phantomjs
 from .util.deprecation import deprecated
 from .util.notebook import get_comms, load_notebook, publish_display_data, watch_server_cells
 from .util.string import decode_utf8
@@ -586,10 +586,10 @@ def export(obj, filename=None):
                                 'To use bokeh.io.export you need selenium ' +
                                 '("conda install -c bokeh selenium" or "pip install selenium")')
 
-    # TODO - check that phantomjs is installed?
-    # TODO - support other browsers? (even if not headless?)
+    # assert that phantomjs is in path for webdriver
+    detect_phantomjs()
+
     driver = webdriver.PhantomJS()
-    # driver = webdriver.Firefox()
 
     # generate the html as tempfile
     temp_html = tempfile.NamedTemporaryFile(suffix=".html").name
