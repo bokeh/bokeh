@@ -649,6 +649,12 @@ def export(obj, filename=None):
     wait_for_canvas_resize(canvas, driver)
 
     driver.maximize_window()
+
+    browser_logs = driver.get_log('browser')
+    severe_errors = [l for l in browser_logs if l.get('level') == 'SEVERE']
+    if len(severe_errors) > 0:
+        logger.warn("There were severe browser errors that may have affected your export: {}".format(severe_errors))
+
     driver.save_screenshot(filename)
     driver.quit()
 
