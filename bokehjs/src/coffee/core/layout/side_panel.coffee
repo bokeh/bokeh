@@ -106,7 +106,7 @@ _align_lookup = {
     parallel   : CENTER
     normal     : LEFT
     horizontal : CENTER
-    vertical   : RIGHT
+    vertical   : LEFT
   left:
     justified  : CENTER
     parallel   : CENTER

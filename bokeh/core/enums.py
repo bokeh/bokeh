@@ -258,3 +258,6 @@ SizingMode = enumeration("stretch_both", "scale_width", "scale_height", "scale_b
 
 #: Legend's click policies
 LegendClickPolicy = enumeration("none", "hide", "mute")
+
+#: Whether range padding should be interpreted a percentage or and absolute quantity
+PaddingUnits = enumeration("percent", "absolute")

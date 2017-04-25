@@ -8,16 +8,17 @@ export class DataRange1d extends DataRange
   type: 'DataRange1d'
 
   @define {
-      start:           [ p.Number        ]
-      end:             [ p.Number        ]
-      range_padding:   [ p.Number, 0.1   ]
-      flipped:         [ p.Bool,   false ]
-      follow:          [ p.String        ] # TODO (bev)
-      follow_interval: [ p.Number        ]
-      default_span:    [ p.Number, 2     ]
-      bounds:          [ p.Any           ] # TODO (bev)
-      min_interval:    [ p.Any           ]
-      max_interval:    [ p.Any           ]
+      start:               [ p.Number                  ]
+      end:                 [ p.Number                  ]
+      range_padding:       [ p.Number,       0.1       ]
+      range_padding_units: [ p.PaddingUnits, "percent" ]
+      flipped:             [ p.Bool,         false     ]
+      follow:              [ p.StartEnd,               ]
+      follow_interval:     [ p.Number                  ]
+      default_span:        [ p.Number,       2         ]
+      bounds:              [ p.Any                     ]
+      min_interval:        [ p.Any                     ]
+      max_interval:        [ p.Any                     ]
   }
 
   @internal {
@@ -33,6 +34,7 @@ export class DataRange1d extends DataRange
     @_initial_start = @start
     @_initial_end = @end
     @_initial_range_padding = @range_padding
+    @_initial_range_padding_units = @range_padding_units
     @_initial_follow = @follow
     @_initial_follow_interval = @follow_interval
     @_initial_default_span = @default_span
@@ -101,20 +103,29 @@ export class DataRange1d extends DataRange
             max = min * 100
           logger.warn("could not determine maximum data value for log axis, DataRange1d using value #{max}")
 
-        log_min = Math.log(min) / Math.log(10)
-        log_max = Math.log(max) / Math.log(10)
         if max == min
           span = @default_span + 0.001
+          center = Math.log(min) / Math.log(10)
         else
-          span = (log_max-log_min)*(1+range_padding)
-        center = (log_min+log_max) / 2.0
+          if @range_padding_units == "percent"
+            log_min = Math.log(min) / Math.log(10)
+            log_max = Math.log(max) / Math.log(10)
+            span = (log_max-log_min)*(1+range_padding)
+          else
+            log_min = Math.log(min-range_padding) / Math.log(10)
+            log_max = Math.log(max+range_padding) / Math.log(10)
+            span = log_max-log_min
+          center = (log_min+log_max) / 2.0
         [start, end] = [Math.pow(10, center-span / 2.0), Math.pow(10, center+span / 2.0)]
 
       else
         if max == min
           span = @default_span
         else
-          span = (max-min)*(1+range_padding)
+          if @range_padding_units == "percent"
+            span = (max-min)*(1+range_padding)
+          else
+            span = (max-min) + 2*range_padding
         center = (max+min) / 2.0
         [start, end] = [center-span / 2.0, center+span / 2.0]
 
@@ -183,6 +194,7 @@ export class DataRange1d extends DataRange
     # change events silenced as PlotCanvasView.update_dataranges triggers property callbacks
     @setv({
       range_padding: @_initial_range_padding
+      range_padding_units: @_initial_range_padding_units
       follow: @_initial_follow
       follow_interval: @_initial_follow_interval
       default_span: @_initial_default_span

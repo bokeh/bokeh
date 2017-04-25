@@ -5,7 +5,7 @@ and with options for "auto sizing".
 '''
 from __future__ import absolute_import
 
-from ..core.enums import StartEnd
+from ..core.enums import PaddingUnits, StartEnd
 from ..core.has_props import abstract
 from ..core.properties import (Auto, Bool, Datetime, Either, Enum, Float, Instance, Int,
                                List, MinMaxBounds, String, TimeDelta)
@@ -113,8 +113,18 @@ class DataRange1d(DataRange):
     '''
 
     range_padding = Float(default=0.1, help="""
-    A fraction of the total range size to add as padding to
-    the range start and end.
+    How much padding to add around the computed data bounds.
+
+    When ``range_padding_units`` is set to ``"percent"``, the span of the
+    range span is expanded to make the range ``range_padding`` percent larger.
+
+    When ``range_padding_units`` is set to ``"absolute"``, the start and end
+    of the range span are extended by the amount ``range_padding``.
+    """)
+
+    range_padding_units = Enum(PaddingUnits, default="percent", help="""
+    Whether the ``range_padding`` should be interpreted as a percentage, or
+    as an absolute quantity. (default: ``"percent"``)
     """)
 
     start = Float(help="""
@@ -131,15 +141,17 @@ class DataRange1d(DataRange):
     The bounds that the range is allowed to go to - typically used to prevent
     the user from panning/zooming/etc away from the data.
 
-    By default, the bounds will be None, allowing your plot to pan/zoom as far as you want.
-    If bounds are 'auto' they will be computed to be the same as the start and end of the DataRange1d.
+    By default, the bounds will be None, allowing your plot to pan/zoom as far
+    as you want. If bounds are 'auto' they will be computed to be the same as
+    the start and end of the DataRange1d.
 
-    Bounds are provided as a tuple of ``(min, max)`` so regardless of whether your range is
-    increasing or decreasing, the first item should be the minimum value of the range and the
-    second item should be the maximum. Setting min > max will result in a ``ValueError``.
+    Bounds are provided as a tuple of ``(min, max)`` so regardless of whether
+    your range is increasing or decreasing, the first item should be the
+    minimum value of the range and the second item should be the maximum.
+    Setting ``min > max`` will result in a ``ValueError``.
 
-    If you only want to constrain one end of the plot, you can set min or max to
-    ``None`` e.g. ``DataRange1d(bounds=(None, 12))``
+    If you only want to constrain one end of the plot, you can set ``min`` or
+    ``max`` to ``None`` e.g. ``DataRange1d(bounds=(None, 12))``
     """)
 
     min_interval = Float(default=None, help="""
@@ -172,7 +184,8 @@ class DataRange1d(DataRange):
     If set to ``None`` (default), then auto-ranging does not follow, and
     the range will encompass both the minimum and maximum data values.
 
-    ``follow`` cannot be used with bounds, and if set, bounds will be set to ``None``.
+    ``follow`` cannot be used with bounds, and if set, bounds will be set to
+    ``None``.
     """)
 
     follow_interval = Float(default=None, help="""
