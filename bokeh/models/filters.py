@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 
-from ..core.properties import Int, Seq, String
+from ..core.properties import Bool, Either, Int, Seq, String
 from ..model import Model
 
 class Filter(Model):
@@ -8,7 +8,7 @@ class Filter(Model):
 
     '''
 
-    filter = Seq(Int, default=[])
+    filter = Either(Seq(Int), Seq(Bool), default=[])
 
 class GroupFilter(Filter):
     ''' A GroupFilter represents the rows of a ColumnDataSource where the values of the categorical

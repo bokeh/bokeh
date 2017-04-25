@@ -1,5 +1,7 @@
 import {Model} from "../../model"
 import * as p from "core/properties"
+import {isBoolean} from "core/util/types"
+import {range} from "core/util/array"
 
 export class Filter extends Model
   type: 'Filter'
@@ -20,7 +22,10 @@ export class Filter extends Model
   }
 
   compute_indices: () ->
-    @indices = @filter
+    if @filter?.length? > 0 && isBoolean(@filter[0])
+      @indices = (i for i in range(0, @filter.length) when @filter[i] == true)
+    else
+      @indices = @filter
 
   get_indices: () ->
     return @indices
