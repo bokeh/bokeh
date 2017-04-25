@@ -73,14 +73,14 @@ class TestComponents(unittest.TestCase):
 
     def test_result_attrs(self):
         script, div = embed.components(_embed_test_plot)
-        html = bs4.BeautifulSoup(script)
+        html = bs4.BeautifulSoup(script, 'html5lib')
         scripts = html.findAll(name='script')
         self.assertEqual(len(scripts), 1)
         self.assertTrue(scripts[0].attrs, {'type': 'text/javascript'})
 
     def test_div_attrs(self):
         script, div = embed.components(_embed_test_plot)
-        html = bs4.BeautifulSoup(div)
+        html = bs4.BeautifulSoup(div, 'html5lib')
 
         divs = html.findAll(name='div')
         self.assertEqual(len(divs), 2)
@@ -88,7 +88,7 @@ class TestComponents(unittest.TestCase):
         div = divs[0]
         self.assertEqual(set(div.attrs), set(['class']))
         self.assertEqual(div.attrs['class'], ['bk-root'])
-        self.assertEqual(div.text, '\n\n')
+        self.assertEqual(div.text, '\n    \n')
 
         div = divs[1]
         self.assertEqual(set(div.attrs), set(['id', 'class']))
@@ -102,7 +102,7 @@ class TestComponents(unittest.TestCase):
     @mock.patch('bokeh.embed.make_id', new_callable=lambda: _stable_id)
     def test_output_is_without_script_tag_when_wrap_script_is_false(self, mock_make_id):
         script, div = embed.components(_embed_test_plot)
-        html = bs4.BeautifulSoup(script)
+        html = bs4.BeautifulSoup(script, 'html5lib')
         scripts = html.findAll(name='script')
         self.assertEqual(len(scripts), 1)
         script_content = scripts[0].getText()
@@ -119,21 +119,21 @@ class TestNotebookDiv(unittest.TestCase):
 
     def test_result_attrs(self):
         r = embed.notebook_div(_embed_test_plot)
-        html = bs4.BeautifulSoup(r)
+        html = bs4.BeautifulSoup(r, 'html5lib')
         scripts = html.findAll(name='script')
         self.assertEqual(len(scripts), 1)
         self.assertTrue(scripts[0].attrs, {'type': 'text/javascript'})
 
     def test_div_attrs(self):
         r = embed.notebook_div(_embed_test_plot)
-        html = bs4.BeautifulSoup(r)
+        html = bs4.BeautifulSoup(r, 'html5lib')
         divs = html.findAll(name='div')
         self.assertEqual(len(divs), 2)
 
         div = divs[0]
         self.assertEqual(set(div.attrs), set(['class']))
         self.assertEqual(div.attrs['class'], ['bk-root'])
-        self.assertEqual(div.text, '\n\n')
+        self.assertEqual(div.text, '\n        \n    ')
 
         div = divs[1]
         self.assertEqual(set(div.attrs), set(['id', 'class']))
@@ -221,7 +221,7 @@ class TestAutoloadStatic(unittest.TestCase):
     @mock.patch('bokeh.embed.make_id', new_callable=lambda: _stable_id)
     def test_script_attrs(self, mock_make_id):
         js, tag = embed.autoload_static(_embed_test_plot, CDN, "some/path")
-        html = bs4.BeautifulSoup(tag)
+        html = bs4.BeautifulSoup(tag, 'html5lib')
         scripts = html.findAll(name='script')
         self.assertEqual(len(scripts), 1)
         attrs = scripts[0].attrs
@@ -243,7 +243,7 @@ class TestAutoloadServer(unittest.TestCase):
     def test_script_attrs_session_id_provided(self):
         r = embed.autoload_server(_embed_test_plot, session_id='fakesession')
         self.assertTrue('bokeh-session-id=fakesession' in r)
-        html = bs4.BeautifulSoup(r)
+        html = bs4.BeautifulSoup(r, 'html5lib')
         scripts = html.findAll(name='script')
         self.assertEqual(len(scripts), 1)
         attrs = scripts[0].attrs
@@ -265,7 +265,7 @@ class TestAutoloadServer(unittest.TestCase):
     def test_script_attrs_no_session_id_provided(self):
         r = embed.autoload_server(None)
         self.assertFalse('bokeh-session-id' in r)
-        html = bs4.BeautifulSoup(r)
+        html = bs4.BeautifulSoup(r, 'html5lib')
         scripts = html.findAll(name='script')
         self.assertEqual(len(scripts), 1)
         attrs = scripts[0].attrs
