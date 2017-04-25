@@ -3,6 +3,7 @@ import "jquery-ui/autocomplete"
 import "jquery-ui/spinner"
 
 import * as p from "core/properties"
+import {extend} from "core/util/object"
 
 import {DOMView} from "core/dom_view"
 import {Model} from "../../model"
@@ -18,9 +19,11 @@ export class CellEditorView extends DOMView
   emptyValue: null
   defaultValue: null
 
-  initialize: (options) ->
+  constructor: (options) ->
     @args = options
-    @model = @args.column.editor
+    super(extend({model: options.column.editor}, options))
+
+  initialize: (options) ->
     super(options)
     @render()
 
