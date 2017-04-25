@@ -14,7 +14,7 @@ export class Filter extends Model
     @listenTo @, 'change:filter', @compute_indices
 
   @define {
-    filter:      [p.Any       ]
+    filter:      [p.Any,   [] ]
   }
 
   @internal {

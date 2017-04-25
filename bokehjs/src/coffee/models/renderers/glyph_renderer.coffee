@@ -1,5 +1,6 @@
 import {Renderer, RendererView} from "./renderer"
 import {RemoteDataSource} from "../sources/remote_data_source"
+import {CDSView} from "../sources/cds_view"
 import {logger} from "core/logging"
 import * as p from "core/properties"
 import {difference} from "core/util/array"
@@ -236,6 +237,12 @@ export class GlyphRenderer extends Renderer
   default_view: GlyphRendererView
 
   type: 'GlyphRenderer'
+
+  initialize: (options) ->
+    super(options)
+
+    if not @view?
+      @view = new CDSView({'source': @data_source})
 
   get_reference_point: (field, value) ->
     index = 0  # This is the default to return
