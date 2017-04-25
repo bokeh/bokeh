@@ -1549,7 +1549,7 @@ class FontSizeSpec(DataSpec):
     https://drafts.csswg.org/css-values/#lengths
 
     '''
-    _font_size_re = re.compile("^[0-9]+(\.[0-9]+)?(%|em|ex|ch|ic|rem|vw|vh|vi|vb|vmin|vmax|cm|mm|q|in|pc|pt|px)$", re.I)
+    _font_size_re = re.compile(r"^[0-9]+(.[0-9]+)?(%|em|ex|ch|ic|rem|vw|vh|vi|vb|vmin|vmax|cm|mm|q|in|pc|pt|px)$", re.I)
 
     def __init__(self, default, help=None, key_type=_FieldValueTransform):
         super(FontSizeSpec, self).__init__(key_type, List(String), default=default, help=help)
@@ -1558,6 +1558,18 @@ class FontSizeSpec(DataSpec):
         if isinstance(value, string_types) and self._font_size_re.match(value) is not None:
             value = dict(value=value)
         return super(FontSizeSpec, self).prepare_value(cls, name, value)
+
+    def validate(self, value):
+        super(FontSizeSpec, self).validate(value)
+
+        if isinstance(value, dict) and 'value' in value:
+            value = value['value']
+
+        if isinstance(value, string_types):
+            if len(value) == 0:
+                raise ValueError("empty string is not a valid font size value")
+            elif value[0].isdigit() and self._font_size_re.match(value) is None:
+                raise ValueError("%r is not a valid font size value" % value)
 
 _FieldValueTransformUnits = Enum("field", "value", "transform", "units")
 
