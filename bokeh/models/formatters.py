@@ -7,14 +7,15 @@ from __future__ import absolute_import
 import inspect
 from types import FunctionType
 
-from ..core.enums import NumeralLanguage, RoundingFunction
-from ..util.dependencies import import_required
-from ..util.deprecation import deprecated
+from bokeh.util.string import format_docstring
+from ..core.enums import LatLon, NumeralLanguage, RoundingFunction
 from ..core.has_props import abstract
 from ..core.properties import Auto, Bool, Dict, Either, Enum, Instance, Int, List, String
+from ..core.validation import error
+from ..core.validation.errors import MISSING_MERCATOR_DIMENSION
 from ..model import Model
 from ..util.compiler import nodejs_compile, CompilationError
-
+from ..util.dependencies import import_required
 from .tickers import Ticker
 
 @abstract
@@ -52,6 +53,38 @@ class BasicTickFormatter(TickFormatter):
         log(x) <= power_limit_low
 
     """)
+
+class MercatorTickFormatter(BasicTickFormatter):
+    ''' TickFormatter for values in WebMercator units.
+
+    Some map plot types internally use WebMercator to describe coordinates,
+    plot bounds, etc. These units are not very human-friendly. This tick
+    formatter will convert WebMercator units into Latitude and Longitude
+    for display on axes.
+
+    '''
+
+    dimension = Enum(LatLon, default=None, help="""
+    Specify whether to format ticks for Latitude or Longitude.
+
+    Projected coordinates are not separable, computing Latitude and Longitude
+    tick labels from Web Mercator requires considering coordinates from both
+    dimensions together. Use this property to specify which result should be
+    used for display.
+
+    Typically, if the formatter is for an x-axis, then dimension should be
+    ``"lon"`` and if the formatter is for a y-axis, then the dimension
+    should be `"lat"``.
+
+    In order to prevent hard to debug errors, there is no default value for
+    dimension. Using an un-configured MercatorTickFormatter will result in
+    a validation error and a JavaScript console error.
+    """)
+
+    @error(MISSING_MERCATOR_DIMENSION)
+    def _check_missing_dimension(self):
+        if self.dimension is None:
+            return str(self)
 
 class NumeralTickFormatter(TickFormatter):
     ''' Tick formatter based on a human-readable format string. '''
@@ -296,21 +329,6 @@ class FuncTickFormatter(TickFormatter):
             return Math.floor(tick) + " + " + (tick % 1).toFixed(2)
             '''
     """)
-
-def DEFAULT_DATETIME_FORMATS():
-    deprecated((0, 12, 3), 'DEFAULT_DATETIME_FORMATS', 'individual DatetimeTickFormatter fields')
-    return {
-        'microseconds': ['%fus'],
-        'milliseconds': ['%3Nms', '%S.%3Ns'],
-        'seconds':      ['%Ss'],
-        'minsec':       [':%M:%S'],
-        'minutes':      [':%M', '%Mm'],
-        'hourmin':      ['%H:%M'],
-        'hours':        ['%Hh', '%H:%M'],
-        'days':         ['%m/%d', '%a%d'],
-        'months':       ['%m/%Y', '%b%y'],
-        'years':        ['%Y'],
-    }
 
 def _DATETIME_TICK_FORMATTER_HELP(field):
     return """
@@ -563,46 +581,11 @@ class DatetimeTickFormatter(TickFormatter):
                         help=_DATETIME_TICK_FORMATTER_HELP("``years``"),
                         default=['%Y']).accepts(String, lambda fmt: [fmt])
 
-    __deprecated_attributes__ = ('formats',)
-
-    @property
-    def formats(self):
-        ''' A dictionary containing formats for all scales.
-
-        THIS PROPERTY IS DEPRECTATED. Use individual DatetimeTickFormatter fields instead.
-
-        '''
-        deprecated((0, 12, 3), 'DatetimeTickFormatter.formats', 'individual DatetimeTickFormatter fields')
-        return dict(
-            microseconds = self.microseconds,
-            milliseconds = self.milliseconds,
-            seconds      = self.seconds,
-            minsec       = self.minsec,
-            minutes      = self.minutes,
-            hourmin      = self.hourmin,
-            hours        = self.hours,
-            days         = self.days,
-            months       = self.months,
-            years        = self.years)
-
-    @formats.setter
-    def formats(self, value):
-        deprecated((0, 12, 3), 'DatetimeTickFormatter.formats', 'individual DatetimeTickFormatter fields')
-        if 'microseconds' in value: self.microseconds = value['microseconds']
-        if 'milliseconds' in value: self.milliseconds = value['milliseconds']
-        if 'seconds'      in value: self.seconds      = value['seconds']
-        if 'minsec'       in value: self.minsec       = value['minsec']
-        if 'minutes'      in value: self.minutes      = value['minutes']
-        if 'hourmin'      in value: self.hourmin      = value['hourmin']
-        if 'hours'        in value: self.hours        = value['hours']
-        if 'days'         in value: self.days         = value['days']
-        if 'months'       in value: self.months       = value['months']
-        if 'years'        in value: self.years        = value['years']
-
 # This is to automate documentation of DatetimeTickFormatter formats and their defaults
 _df = DatetimeTickFormatter()
 _df_fields = ['microseconds', 'milliseconds', 'seconds', 'minsec', 'minutes', 'hourmin', 'hours', 'days', 'months', 'years']
 _df_defaults = _df.properties_with_values()
 _df_defaults_string = "\n\n        ".join("%s = %s" % (name, _df_defaults[name]) for name in _df_fields)
-DatetimeTickFormatter.__doc__ = DatetimeTickFormatter.__doc__.format(defaults=_df_defaults_string)
+
+DatetimeTickFormatter.__doc__ = format_docstring(DatetimeTickFormatter.__doc__, defaults=_df_defaults_string)
 del _df, _df_fields, _df_defaults, _df_defaults_string

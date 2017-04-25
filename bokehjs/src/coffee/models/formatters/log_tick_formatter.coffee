@@ -7,8 +7,8 @@ export class LogTickFormatter extends TickFormatter
   type: 'LogTickFormatter'
 
   @define {
-      ticker: [ p.Instance, null ]
-    }
+    ticker: [ p.Instance, null ]
+  }
 
   initialize: (attrs, options) ->
     super(attrs, options)
@@ -16,7 +16,7 @@ export class LogTickFormatter extends TickFormatter
     if not @ticker?
       logger.warn("LogTickFormatter not configured with a ticker, using default base of 10 (labels will be incorrect if ticker base is not 10)")
 
-  doFormat: (ticks) ->
+  doFormat: (ticks, loc) ->
     if ticks.length == 0
       return []
 

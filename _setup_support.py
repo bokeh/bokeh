@@ -182,7 +182,7 @@ def fixup_for_packaged():
         None
 
     '''
-    if exists(join(ROOT, 'PKG-INFOvi ')):
+    if exists(join(ROOT, 'PKG-INFO')):
         if "--build-js" in sys.argv or "--install-js" in sys.argv:
             print(SDIST_BUILD_WARNING)
             if "--build-js" in sys.argv:

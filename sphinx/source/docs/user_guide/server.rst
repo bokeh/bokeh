@@ -22,8 +22,8 @@ possibilities immediately open up:
 
 * respond to UI and tool events generated in a browser with computations or
   queries using the full power of python
-* automatically push updates the UI (i.e. widgets or plots), in a browser
-* use periodic, timeout, and asynchronous callbacks drive streaming updates
+* automatically push server-side updates to the UI (i.e. widgets or plots in a browser)
+* use periodic, timeout, and asynchronous callbacks to drive streaming updates
 
 **This capability to synchronize between python and the browser is the main
 purpose of the Bokeh Server.**
@@ -176,7 +176,7 @@ in more detail:
     p.outline_line_color = None
     p.grid.grid_line_color = None
 
-    # add a text renderer to out plot (no data yet)
+    # add a text renderer to our plot (no data yet)
     r = p.text(x=[], y=[], text=[], text_color=[], text_font_size="20pt",
                text_baseline="middle", text_align="center")
 
@@ -283,7 +283,8 @@ The optional components are
 
 * A ``templates`` subdirectory with ``index.html`` Jinja template file. The directory may contain additional Jinja templates for ``index.html`` to refer to. The template should have the same parameters as the :class:`~bokeh.core.templates.FILE` template.
 
-Custom variables can be passed to the template via the ``curdoc().template_variables`` dictionary in place:
+Custom variables can be passed to the template via the
+``curdoc().template_variables`` dictionary in place:
 
 .. code-block:: python
 
@@ -391,13 +392,14 @@ JavaScript Callbacks in the Browser
 
 Regardless of whether there is a Bokeh Server involved, it is possible to
 create callbacks that execute in the browser, using ``CustomJS`` and other
-methods. See :ref:`userguide_interaction_actions` for more detailed information and examples.
+methods. See :ref:`userguide_interaction_jscallbacks` for more detailed
+information and examples.
 
 It is critical to note that **no python code is ever executed when a CustomJS
 callback is used**. This is true even when the call back is supplied as python
 code to be translated to JavaScript. A ``CustomJS`` callback is only executed
-inside a browser JavaScript interpreter, and can only directly interact
-JavaScript data and functions (e.g., BokehJS Backbone models).
+inside the browser's JavaScript interpreter, and thus can only directly interact
+with JavaScript data and functions (e.g., BokehJS Backbone models).
 
 Python Callbacks with Jupyter Interactors
 '''''''''''''''''''''''''''''''''''''''''
@@ -421,24 +423,24 @@ detailed information, see :ref:`userguide_notebook_jupyter_interactors`.
 Updating From Threads
 '''''''''''''''''''''
 
-If the app needs to perform blocking computation, it can be possible to have
-a separate thread perform that work, and then add a callback to update the
-document with the results. It is important to emphasize that the interface
-to update the document must pass through a "next tick callback". A callback
-added this way will execute as soon as possible on the next iteration of the
-Tornado event loop, and automatically acquire necessary locks to update the
+If the app needs to perform blocking computation, it is possible to perform
+that work in a separate thread. However, updates to the Document must be
+scheduled via a next-tick callback.  The callback
+will execute as soon as possible on the next iteration of the
+Tornado event loop, and will automatically acquire necessary locks to update the
 document state safely.
-
-Any usage that updates the document state from another thread, either by
-calling other methods on the document, or by setting properties directly
-on Bokeh models, risks data and protocol corruption.
 
 .. warning::
     The ONLY safe operations to perform on a document from a different thread
     is :func:`~bokeh.document.Document.add_next_tick_callback` and
     :func:`~bokeh.document.Document.remove_next_tick_callback`
 
-It is also important to save a local copy of ``curdoc()`` off so that all
+It is important to emphasize that the document update must be scheduled in a "next tick callback".
+Any usage that directly updates the document state from another thread, either by calling other document
+methods, or by setting properties on Bokeh models, risks data and protocol
+corruption.
+
+It is also important to save a local copy of ``curdoc()`` so that all
 threads have access to the same document. This is illustrated in the example
 below:
 
@@ -498,20 +500,20 @@ then execute
 Updating from Unlocked Callbacks
 ''''''''''''''''''''''''''''''''
 
-You may also want to drive blocking computations from callbacks using, e.g.
-Tornado's ``ThreadPoolExecutor`` in an asynchronous callback. This can work,
-however, normally Bokeh session callbacks recursively lock the document until
-all future work they initiate is completed. To make this scenario work as
-desired, Bokeh provides a :func:`~bokeh.document.without_document_lock`
-decorator that can suppress the normal locking behavior.
+Normally Bokeh session callbacks recursively lock the document until all
+future work they initiate is completed.  However, you may want to drive
+blocking computations from callbacks using Tornado's
+``ThreadPoolExecutor`` in an asynchronous callback. This can work, but requires
+the Bokeh provided :func:`~bokeh.document.without_document_lock` decorator
+to suppress the normal locking behavior.
 
-As with the thread example above, all actions that update document state
-**must go through a next-tick callback**.
+As with the thread example above, **all actions that update document state
+must go through a next-tick callback**.
 
 The following example demonstrates an application that drives a blocking
 computation from one unlocked Bokeh session callback, by yielding to a
 blocking function that runs on the thread pool executor and updates by using
-a next-tick callback, and also updates the state simply from a standard
+a next-tick callback. The example also updates the state simply from a standard
 locked session callback on a different update rate.
 
 .. code-block:: python
@@ -575,7 +577,7 @@ Lifecycle Hooks
 Sometimes it is desirable to have code execute at specific times in a server
 or session lifetime. For instance, if you are using a Bokeh Server along side
 a Django server, you would need to call ``django.setup()`` once, as each
-Bokeh server started, to initialize the Django properly for use by Bokeh
+Bokeh server starts, to initialize Django properly for use by Bokeh
 application code.
 
 Bokeh provides this capability through a set of *Lifecycle Hooks*. To use
@@ -607,10 +609,10 @@ any or all of the following conventionally named functions:
 Embedding Bokeh Server as a Library
 -----------------------------------
 
-It can be useful to embed the Bokeh Server in a larger applications, and either
-letting the application handle the lifetime of the Tornado ``IOloop``, or
-handling it explicitly yourself.  Here is the basis of how to integrate Bokeh
-in such a scenario:
+It can be useful to embed the Bokeh Server in a larger Tornado application, or the
+Jupyter notebook, and use the already existing Tornado ``IOloop``.  Here is the
+basis of how to integrate Bokeh in such a scenario:
+
 
 .. code-block:: python
 
@@ -625,10 +627,8 @@ in such a scenario:
    # start timers and services and immediately return
    server.start()
 
-In the case of a larger Tornado application, or the Jupyter notebook, there is
-an existing Tornado ``IOLoop`` that the Bokeh server can "piggyback" of off.
-But it is also possible to create and control an ``IOLoop`` directly. This can
-be useful to create standalone "normal" python scripts that server Bokeh apps,
+It is also possible to create and control an ``IOLoop`` directly. This can
+be useful to create standalone "normal" python scripts that serve Bokeh apps,
 or to embed a Bokeh application into a framework like Flask or Django without
 having to run a separate Bokeh server process. Some examples of this technique
 can be found in the examples directory:
@@ -671,14 +671,14 @@ instead of running Bokeh apps directly on a Bokeh server:
   one in the browser. As a result, **the required network traffic is doubled**.
 
 * To open sessions to apps created this way, browsers must navigate to URLs
-  there explicitly refer to a specific session. If multiple browsers open the
+  that explicitly refer to a specific session. If multiple browsers open the
   URL, they will all *share the exact same application state*. That is, there
   will be a "Google Docs" style of operation: **scrubbing a slider in one
   browser will also update the slider in any other browser opened to the same
   session.** This may or may not be desirable.
 
-* Apps created in this way are typically not easily scalable in the way that
-  apps run with ``bokeh serve app.py`` are, by simply running more servers
+* Apps created in this way are typically more difficult to scale compared
+  to apps run with ``bokeh serve app.py`` where we can simply run more servers
   behind a load balancer. **If you need to scale out a Bokeh application,
   running them directly on a Bokeh server is preferable.**
 
@@ -762,18 +762,24 @@ thread, e.g. when using ``bokeh.client`` to create sessions from a web
 framework such as Django or Flask. In these cases calling
 ``loop_until_closed()`` from another thread may be an option. Another
 possibility is to not use ``bokeh.client`` at all. See the section
-`userguide_server_embedding`_ for some alternatives.
+:ref:`userguide_server_embedding` for some alternatives.
 
 .. _userguide_server_deployment:
 
 Deployment Scenarios
 --------------------
 
-With an application, we can run it just locally any time we want to interact
-with it. Or we can share it with other people, and they can run it locally
-themselves in the same manner. But we might also want to deploy the application
-in a way that other people can access it. This section describes some of the
-considerations that arise in that case.
+With an application we are developing, we can run it locally any time we want to interact
+with it. To share it with other people who are able to install the required
+python stack, we can share the application with them, and let them run it locally
+themselves in the same manner. However, we might also want to deploy the application
+in a way that other people can access it as a service:
+* without having to install all of the prerequisites
+* without needing to have the source code
+* like any other webpage
+
+This section describes some of the considerations that arise when deploying
+Bokeh server applications as a service for others to use.
 
 .. _userguide_server_deployment_standalone:
 
@@ -781,21 +787,25 @@ Standalone Bokeh Server
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 First, it is possible to simply run the Bokeh server on a network for users
-to interact with directly. Depending on the computational burden of your application code, the number of users, the power of the machine used to run
+to interact with directly. Depending on the computational burden of your
+application code, the number of users, the power of the machine used to run
 on, etc., this could be a simple and immediate option for deployment an
 internal network.
 
 However, it is often the case that there are needs around authentication,
-scaling, and uptime. In these cases more sophisticated deployment
+scaling, and uptime. In these cases, more sophisticated deployment
 configurations are needed. In the following sections we discuss some of
 these considerations.
 
 SSH Tunnels
 '''''''''''
 
-It may be convenient or necessary to run a standalone instance of the Bokeh server on a host to which direct access cannot be allowed. In such cases, ssh can be used to "tunnel" to the server.
+It may be convenient or necessary to run a standalone instance of the Bokeh
+server on a host to which direct access cannot be allowed. In such cases, SSH
+can be used to "tunnel" to the server.
 
-In the simplest scenario, the Bokeh server will run on one host and will be accessed from another location, e.g., a laptop, with no intermediary machines.
+In the simplest scenario, the Bokeh server will run on one host and will be
+accessed from another location, e.g., a laptop, with no intermediary machines.
 
 Run the server as usual on the **remote host**:
 
@@ -803,32 +813,49 @@ Run the server as usual on the **remote host**:
 
     bokeh server
 
-Next, issue the following command on the **local machine** to establish an ssh tunnel to the remote host:
+Next, issue the following command on the **local machine** to establish an SSH
+tunnel to the remote host:
 
 .. code-block:: sh
 
-    ssh -NfL localhost:5006:localhost:5006  user@remote.host
+    ssh -NfL localhost:5006:localhost:5006 user@remote.host
 
-Replace *user* with your username on the remote host and *remote.host* with the hostname/IP address of the system hosting the Bokeh server. You may be prompted for login credentials for the remote system. After the connection is set up you will be able to navigate to ``localhost:5006`` as though the Bokeh server were running on the local machine.
+Replace *user* with your username on the remote host and *remote.host* with
+the hostname/IP address of the system hosting the Bokeh server. You may be
+prompted for login credentials for the remote system. After the connection
+is set up you will be able to navigate to ``localhost:5006`` as though the
+Bokeh server were running on the local machine.
 
-The second, slightly more complicated case occurs when there is a gateway between the server and the local machine.  In that situation a reverse tunnel must be estabished from the server to the gateway. Additionally the tunnel from the local machine will also point to the gateway.
+The second, slightly more complicated case occurs when there is a gateway
+between the server and the local machine.  In that situation a reverse tunnel
+must be estabished from the server to the gateway. Additionally the tunnel
+from the local machine will also point to the gateway.
 
-Issue the following commands on the **remote host** where the Bokeh server will run:
+Issue the following commands on the **remote host** where the Bokeh server
+will run:
 
 .. code-block:: sh
 
     nohup bokeh server &
     ssh -NfR 5006:localhost:5006 user@gateway.host
 
-Replace *user* with your username on the gateway and *gateway.host* with the hostname/IP address of the gateway. You may be prompted for login credentials for the gateway.
+Replace *user* with your username on the gateway and *gateway.host* with the
+hostname/IP address of the gateway. You may be prompted for login credentials
+for the gateway.
 
-Now set up the other half of the tunnel, from the local machine to the gateway. On the **local machine**:
+Now set up the other half of the tunnel, from the local machine to the
+gateway. On the **local machine**:
 
 .. code-block:: sh
 
     ssh -NfL localhost:5006:localhost:5006 user@gateway.host
 
-Again, replace *user* with your username on the gateway and *gateway.host* with the hostname/IP address of the gateway. You should now be able to access the Bokeh server from the local machine by navigating to ``localhost:5006`` on the local machine, as if the Bokeh server were running on the local machine. You can even set up client connections from a Jupyter notebook running on the local machine.
+Again, replace *user* with your username on the gateway and *gateway.host*
+with the hostname/IP address of the gateway. You should now be able to access
+the Bokeh server from the local machine by navigating to ``localhost:5006``
+on the local machine, as if the Bokeh server were running on the local machine.
+You can even set up client connections from a Jupyter notebook running on the
+local machine.
 
 .. note::
     We intend to expand this section with more guidance for other tools and
@@ -879,26 +906,17 @@ The above ``server`` block sets up Nginx to to proxy incoming connections
 to ``127.0.0.1`` on port 80 to ``127.0.0.1:5100`` internally. To work in this
 configuration, we will need to use some of the command line options to
 configure the Bokeh Server. In particular we need to use ``--port`` to specify
-that the Bokeh Server should listen itself on port 5100. We also need to
-set the ``--host`` option to whitelist ``127.0.0.1:80`` as an acceptable `Host`
-on the incoming request header:
+that the Bokeh Server should listen itself on port 5100.
 
 .. code-block:: sh
 
-    bokeh serve myapp.py --port 5100 --host 127.0.0.1:80
-
-.. note::
-    The ``--host`` option is to guard against spoofed ``Host`` values. In a
-    more realistic scenario where you have Nginx and the Bokeh server server
-    running on ``foo.com``, you would set ``--host foo.com:80``. Then any
-    attempted connections that do not report this ``Host`` in the request
-    header (as *all* connections from Nginx do) will be rejected.
+    bokeh serve myapp.py --port 5100
 
 Note that in the basic server block above we have not configured any special
 handling for static resources, e.g., the Bokeh JS and CSS files. This means
 that these files are served directly by the Bokeh server itself. While this
 works, it places an unnecessary additional load on the Bokeh server, since
-Nginx has a fast static asset handler. To utilize Nginx to server Bokeh's
+Nginx has a fast static asset handler. To utilize Nginx to serve Bokeh's
 static assets, you can add a new stanza inside the `server` block above,
 similar to this:
 
@@ -909,7 +927,7 @@ similar to this:
     }
 
 Be careful that the file permissions of the Bokeh resources are accessible to
-whatever user Nginx is running as. Alternatively, you can copy the resources
+whatever user account is running the Nginx server process. Alternatively, you can copy the resources
 to a global static directory during your deployment process. See
 :ref:`userguide_server_deployment_automation` for a demonstration of this.
 
@@ -968,7 +986,7 @@ As before, you would run the Bokeh server with the command:
 
 .. code-block:: sh
 
-    bokeh serve myapp.py --port 5100 --host 127.0.0.1:80
+    bokeh serve myapp.py --port 5100
 
 .. _userguide_server_deployment_nginx_proxy_ssl:
 
@@ -976,13 +994,12 @@ Reverse Proxying with Nginx and SSL
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If you would like to deploy a Bokeh Server behind an SSL-terminated Nginx
-proxy, then a few additional customizations are needed. First, the Bokeh
-server must be configured for a ``--host`` with the HTTP port 443, and
-you must also add the ``--use-xheaders`` flag:
+proxy, then a few additional customizations are needed. In particular, the
+Bokeh server must be configured with the ``--use-xheaders`` flag:
 
 .. code-block:: sh
 
-    bokeh serve myapp.py --port 5100 --host foo.com:443 --use-xheaders
+    bokeh serve myapp.py --port 5100 --use-xheaders
 
 The ``--use-xheaders`` option causes Bokeh to override the remote IP and
 URI scheme/protocol for all requests with ``X-Real-Ip``, ``X-Forwarded-For``,
@@ -1064,7 +1081,7 @@ of one possible configuration, but please also refer to the
 `Nginx load balancer documentation`_. For instance, there are various different
 strategies available for choosing what server to connect to next.
 
-First we need to add an ``upstream`` stanze to our NGinx configuration,
+First we need to add an ``upstream`` stanza to our NGinx configuration,
 typically above the ``server`` stanza. This section looks something like:
 
 .. code-block:: nginx
@@ -1088,8 +1105,8 @@ You would run the Bokeh servers with commands similar to:
 
 .. code-block:: sh
 
-    serve myapp.py --port 5100 --host 127.0.0.1:80
-    serve myapp.py --port 5101 --host 127.0.0.1:80
+    serve myapp.py --port 5100
+    serve myapp.py --port 5101
     ...
 
 Next, in the ``location`` stanza for our Bokeh server, change the
@@ -1149,7 +1166,7 @@ Server app is below:
     serverurl=unix:///tmp/supervisor.sock ; use a unix:// URL for a unix socket
 
     [program:myapp]
-    command=/path/to/bokeh serve myapp.py --host foo.com:80
+    command=/path/to/bokeh serve myapp.py
     directory=/path/to/workdir
     autostart=false
     autorestart=true
@@ -1161,7 +1178,7 @@ Server app is below:
     user=someuser
     environment=USER="someuser",HOME="/home/someuser"
 
-The standard location for the supervisor configj file varies from system to
+The standard location for the supervisor config file varies from system to
 system. Consult the `Supervisor configuration documentation`_ for more
 details. It is also possible to specify a config file explicity. To do this,
 execute:
@@ -1194,13 +1211,15 @@ And to update the process control after editing the config file, run:
 Scaling the server
 ~~~~~~~~~~~~~~~~~~
 
-You can fork multiple server processes with the `num-procs` option. For example, to fork 3 processes:
+You can fork multiple server processes with the `num-procs` option. For
+example, to fork 3 processes:
 
 .. code-block:: sh
 
     bokeh serve --num-procs 3
 
-Note that the forking operation happens in the underlying Tornado Server, see notes in the `Tornado docs`_.
+Note that the forking operation happens in the underlying Tornado Server,
+see notes in the `Tornado docs`_.
 
 .. _Tornado docs: http://www.tornadoweb.org/en/stable/tcpserver.html#tornado.tcpserver.TCPServer.start
 
@@ -1227,6 +1246,12 @@ https://github.com/bokeh/demo.bokehplots.com
 You can modify or deploy your own version of this site on an Amazon Linux
 instance by simply running the ``deploy.sh`` script at the top level. With
 minor modifications, this machinery should work on many linux variants.
+
+Further Reading
+---------------
+Now that you are familiar with the concepts of :ref:`userguide_server`, you
+may be interested in learning more about the internals of the Bokeh server
+in :ref:`devguide_server`
 
 .. _Ansible: http://www.ansible.com
 .. _Chef: https://www.chef.io/chef/

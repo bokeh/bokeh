@@ -1,6 +1,5 @@
 import {Transform} from "./transform"
 import * as p from "core/properties"
-import {logger} from "core/logging"
 
 export class Interpolator extends Transform
 
@@ -23,12 +22,12 @@ export class Interpolator extends Transform
   sort: (descending = false) ->
     # Verify that all necessary objects exist...
     if typeof(@x) != typeof(@y)
-      throw Error('The parameters for x and y must be of the same type, either both strings which define a column in the data source or both arrays of the same length')
+      throw new Error('The parameters for x and y must be of the same type, either both strings which define a column in the data source or both arrays of the same length')
       return
 
     else
       if typeof(@x) == 'string' and @data == null
-        throw Error('If the x and y parameters are not specified as an array, the data parameter is reqired.')
+        throw new Error('If the x and y parameters are not specified as an array, the data parameter is reqired.')
         return
 
     # Stop processing this if the dirty flag is not set
@@ -45,10 +44,10 @@ export class Interpolator extends Transform
 
       column_names = data.columns()
       if @x not in column_names
-        throw Error('The x parameter does not correspond to a valid column name defined in the data parameter')
+        throw new Error('The x parameter does not correspond to a valid column name defined in the data parameter')
 
       if @y not in column_names
-        throw Error('The x parameter does not correspond to a valid column name defined in the data parameter')
+        throw new Error('The x parameter does not correspond to a valid column name defined in the data parameter')
 
       tsx = data.get_column(@x)
       tsy = data.get_column(@y)
@@ -57,10 +56,10 @@ export class Interpolator extends Transform
       tsy = @y
 
     if tsx.length != tsy.length
-      throw Error('The length for x and y do not match')
+      throw new Error('The length for x and y do not match')
 
     if tsx.length < 2
-      throw Error('x and y must have at least two elements to support interpolation')
+      throw new Error('x and y must have at least two elements to support interpolation')
 
     # The following sorting code is referenced from:
     # http://stackoverflow.com/questions/11499268/sort-two-arrays-the-same-way

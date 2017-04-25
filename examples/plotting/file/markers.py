@@ -13,6 +13,7 @@ def mtext(p, x, y, text):
 p = figure(title="Bokeh Markers", toolbar_location=None)
 p.grid.grid_line_color = None
 p.background_fill_color = "#eeeeee"
+p.axis.visible = False
 
 N = 10
 

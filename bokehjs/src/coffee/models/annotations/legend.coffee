@@ -99,7 +99,7 @@ export class LegendView extends AnnotationView
     {x, y, width, height} = @compute_legend_bbox()
     return new BBox({x0: x, y0: y, x1: x+width, y1: y+height})
 
-  on_hit: (hx, hy) ->
+  on_hit: (sx, sy) ->
     glyph_height = @model.glyph_height
     glyph_width = @model.glyph_width
     legend_spacing = @model.spacing
@@ -126,7 +126,7 @@ export class LegendView extends AnnotationView
 
         bbox = new BBox({x0: x1, y0: y1, x1: x1+w, y1: y1+h})
 
-        if bbox.contains(hx, hy)
+        if bbox.contains(sx, sy)
           switch @model.click_policy
             when "hide"
               for r in item.renderers

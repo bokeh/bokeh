@@ -5,15 +5,17 @@ Bokeh objects.
 Certain NunPy array dtypes can be serialized to a binary format for
 performance and efficiency. The list of supported dtypes is:
 
-%s
+{binary_array_types}
 
 """
 from __future__ import absolute_import
 
 import base64
+import math
 
 from six import iterkeys
 
+from bokeh.util.string import format_docstring
 from .dependencies import import_optional
 
 is_numpy = None
@@ -35,7 +37,7 @@ except ImportError:
     is_numpy = False
     BINARY_ARRAY_TYPES = set()
 
-__doc__ = __doc__ % ("\n".join("* ``np." + str(x) + "``" for x in BINARY_ARRAY_TYPES))
+__doc__ = format_docstring(__doc__, binary_array_types="\n".join("* ``np." + str(x) + "``" for x in BINARY_ARRAY_TYPES))
 
 pd = import_optional('pandas')
 
@@ -71,7 +73,7 @@ def array_encoding_disabled(array):
 
     The NumPy array dtypes that can be encoded are:
 
-    %s
+    {binary_array_types}
 
     Args:
         array (np.ndarray) : the array to check
@@ -84,7 +86,9 @@ def array_encoding_disabled(array):
     # disable binary encoding for non-supported dtypes
     return array.dtype not in BINARY_ARRAY_TYPES
 
-array_encoding_disabled.__doc__ = array_encoding_disabled.__doc__ % ("\n    ".join("* ``np." + str(x) + "``" for x in BINARY_ARRAY_TYPES))
+array_encoding_disabled.__doc__ = format_docstring(array_encoding_disabled.__doc__,
+                                                   binary_array_types="\n    ".join("* ``np." + str(x) + "``"
+                                                                                    for x in BINARY_ARRAY_TYPES))
 
 def transform_array(array, force_list=False):
     """ Transform a NumPy arrays into serialized format
@@ -150,6 +154,10 @@ def transform_array_to_list(array):
         transformed[np.isposinf(array)] = 'Infinity'
         transformed[np.isneginf(array)] = '-Infinity'
         return transformed.tolist()
+    elif (array.dtype.kind == 'O' and pd and pd.isnull(array).any()):
+        transformed = array.astype('object')
+        transformed[pd.isnull(array)] = 'NaN'
+        return transformed.tolist()
     return array.tolist()
 
 def transform_series(series, force_list=False):
@@ -212,16 +220,19 @@ def traverse_data(obj, is_numpy=is_numpy, use_numpy=True):
         return [transform_array(el) for el in obj]
     obj_copy = []
     for item in obj:
-        if isinstance(item, (list, tuple)):
-            obj_copy.append(traverse_data(item))
-        elif isinstance(item, float):
-            if np.isnan(item):
+        # Check the base/common case first for performance reasons
+        # Also use type(x) is float because it's faster than isinstance
+        if type(item) is float:
+            if math.isnan(item):
                 item = 'NaN'
-            elif np.isposinf(item):
-                item = 'Infinity'
-            elif np.isneginf(item):
-                item = '-Infinity'
+            elif math.isinf(item):
+                if item > 0:
+                    item = 'Infinity'
+                else:
+                    item = '-Infinity'
             obj_copy.append(item)
+        elif isinstance(item, (list, tuple)):  # check less common type second
+            obj_copy.append(traverse_data(item))
         else:
             obj_copy.append(item)
     return obj_copy

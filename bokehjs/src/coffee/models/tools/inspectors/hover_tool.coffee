@@ -2,7 +2,6 @@ import {InspectTool, InspectToolView} from "./inspect_tool"
 import {Tooltip} from "../../annotations/tooltip"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import * as hittest from "core/hittest"
-import {logger} from "core/logging"
 import {replace_placeholders} from "core/util/templating"
 import {div, span} from "core/dom"
 import * as p from "core/properties"
@@ -26,8 +25,6 @@ export class HoverToolView extends InspectToolView
   bind_bokeh_events: () ->
     for r in @model.computed_renderers
       @listenTo(r.data_source, 'inspect', @_update)
-
-    @plot_view.canvas_view.el.style.cursor = "crosshair"
 
   _clear: () ->
 
@@ -78,6 +75,9 @@ export class HoverToolView extends InspectToolView
     return
 
   _update: (indices, tool, renderer, ds, {geometry}) ->
+    if not @model.active
+      return
+
     tooltip = @model.ttmodels[renderer.model.id] ? null
     if not tooltip?
       return
@@ -147,8 +147,8 @@ export class HoverToolView extends InspectToolView
 
     for i in indices['1d'].indices
       # multiglyphs will set '1d' and '2d' results, but have different tooltips
-      if not isEmpty(indices['2d'])
-        for i, [j] of indices['2d']
+      if not isEmpty(indices['2d'].indices)
+        for i, [j] of indices['2d'].indices
           data_x = renderer.glyph._xs[i][j]
           data_y = renderer.glyph._ys[i][j]
 

@@ -86,7 +86,7 @@ describe "Rect", ->
           })
         else if type == "log"
           mapper = new LogMapper({
-            source_range: new Range1d({start: 0, end: 100})
+            source_range: new Range1d({start: 1, end: 1000})
             target_range: new Range1d({start: 0, end: 200})
           })
         else
@@ -297,14 +297,14 @@ describe "Rect", ->
           expect(result3['1d'].indices).to.be.deep.equal([1])
 
         it "should work when axis is log", ->
-          data = {x: [60, 100, 140], y: [60, 100, 140]}
+          data = {x: [1, 10, 100, 1000], y: [1, 10, 100, 1000]}
           glyph_view = create_glyph_view(@glyph, data)
 
           @set_mappers(glyph_view, type="log")
           glyph_view.map_data()
 
-          result4 = glyph_view._hit_point(@geometry4)
-          result5 = glyph_view._hit_point(@geometry5)
+          result4 = glyph_view._hit_point({ vx: 66.666, vy: 66.666 })
+          result5 = glyph_view._hit_point({ vx: 133.333, vy: 133.333 })
 
-          expect(result4['1d'].indices).to.be.deep.equal([1])
-          expect(result5['1d'].indices).to.be.deep.equal([1])
+          expect(result4['1d'].indices).to.be.deep.equal([])
+          expect(result5['1d'].indices).to.be.deep.equal([])

@@ -7,8 +7,14 @@ from bokeh.models.callbacks import CustomJS
 def test_Model_pretty():
     class Foo1(Model):
         pass
-
-    assert Foo1(id='1').pretty() == "bokeh.tests.test_model.Foo1(id='1', js_callbacks={}, name=None, tags=[])"
+    assert Foo1(id='1').pretty() == """\
+bokeh.tests.test_model.Foo1(
+    id='1',
+    js_event_callbacks={},
+    js_property_callbacks={},
+    name=None,
+    subscribed_events=[],
+    tags=[])"""
 
     class Foo2(Model):
         a = Int(12)
@@ -21,8 +27,10 @@ bokeh.tests.test_model.Foo2(
     a=12,
     b='hello',
     c=[1, 2, 3],
-    js_callbacks={},
+    js_event_callbacks={},
+    js_property_callbacks={},
     name=None,
+    subscribed_events=[],
     tags=[])"""
 
     class Foo3(Model):
@@ -38,8 +46,10 @@ bokeh.tests.test_model.Foo3(
     b='hello',
     c=[1, 2, 3],
     d=None,
-    js_callbacks={},
+    js_event_callbacks={},
+    js_property_callbacks={},
     name=None,
+    subscribed_events=[],
     tags=[])"""
 
     class Foo4(Model):
@@ -61,11 +71,15 @@ bokeh.tests.test_model.Foo4(
         a=12,
         b='hello',
         c=[1, 2, 3],
-        js_callbacks={},
+        js_event_callbacks={},
+        js_property_callbacks={},
         name=None,
+        subscribed_events=[],
         tags=[]),
-    js_callbacks={},
+    js_event_callbacks={},
+    js_property_callbacks={},
     name=None,
+    subscribed_events=[],
     tags=[])"""
 
     class Foo5(Model):
@@ -84,11 +98,15 @@ bokeh.tests.test_model.Foo5(
     foo6=bokeh.tests.test_model.Foo6(
         id='uvw',
         foo5=bokeh.tests.test_model.Foo5(id='xyz', ...),
-        js_callbacks={},
+        js_event_callbacks={},
+        js_property_callbacks={},
         name=None,
+        subscribed_events=[],
         tags=[]),
-    js_callbacks={},
+    js_event_callbacks={},
+    js_property_callbacks={},
     name=None,
+    subscribed_events=[],
     tags=[])"""
 
 class SomeModel(Model):
@@ -113,36 +131,36 @@ def test_model_js_on_change_with_propname():
     for name in m0.properties():
         m = SomeModel()
         m.js_on_change(name, cb)
-        assert m.js_callbacks == {"change:%s" % name: [cb]}
+        assert m.js_property_callbacks == {"change:%s" % name: [cb]}
 
 def test_model_js_on_change_with_non_propname():
     cb = CustomJS(code="")
     m1 = SomeModel()
     m1.js_on_change('foo', cb)
-    assert m1.js_callbacks == {"foo": [cb]}
+    assert m1.js_property_callbacks == {"foo": [cb]}
 
     m2 = SomeModel()
     m2.js_on_change('change:b', cb)
-    assert m2.js_callbacks == {"change:b": [cb]}
+    assert m2.js_property_callbacks == {"change:b": [cb]}
 
 def test_model_js_on_change_with_multple_callbacks():
     cb1 = CustomJS(code="")
     cb2 = CustomJS(code="")
     m = SomeModel()
     m.js_on_change('foo', cb1, cb2)
-    assert m.js_callbacks == {"foo": [cb1, cb2]}
+    assert m.js_property_callbacks == {"foo": [cb1, cb2]}
 
 def test_model_js_on_change_with_multple_callbacks_separately():
     cb1 = CustomJS(code="")
     cb2 = CustomJS(code="")
     m = SomeModel()
     m.js_on_change('foo', cb1)
-    assert m.js_callbacks == {"foo": [cb1]}
+    assert m.js_property_callbacks == {"foo": [cb1]}
     m.js_on_change('foo', cb2)
-    assert m.js_callbacks == {"foo": [cb1, cb2]}
+    assert m.js_property_callbacks == {"foo": [cb1, cb2]}
 
 def test_model_js_on_change_ignores_dupe_callbacks():
     cb = CustomJS(code="")
     m = SomeModel()
     m.js_on_change('foo', cb, cb)
-    assert m.js_callbacks == {"foo": [cb]}
+    assert m.js_property_callbacks == {"foo": [cb]}

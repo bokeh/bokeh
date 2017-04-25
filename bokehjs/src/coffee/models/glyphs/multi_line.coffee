@@ -47,10 +47,10 @@ export class MultiLineView extends GlyphView
       x: this.renderer.plot_view.canvas.vx_to_sx(geometry.vx)
       y: this.renderer.plot_view.canvas.vy_to_sy(geometry.vy)
     shortest = 9999
-    threshold = Math.max(2, @visuals.line.line_width.value() / 2)
 
     hits = {}
     for i in [0...@sxs.length]
+      threshold = Math.max(2, @visuals.line.cache_select('line_width', i) / 2)
       points = null
       for j in [0...@sxs[i].length-1]
         [p0, p1] = [{x: @sxs[i][j], y: @sys[i][j]}, {x: @sxs[i][j+1], y: @sys[i][j+1]}]
@@ -62,7 +62,7 @@ export class MultiLineView extends GlyphView
         hits[i] = points
 
     result['1d'].indices = Object.keys(hits)
-    result['2d'] = hits
+    result['2d'].indices = hits
 
     return result
 
@@ -87,7 +87,7 @@ export class MultiLineView extends GlyphView
         hits[i] = points
 
     result['1d'].indices = Object.keys(hits)
-    result['2d'] = hits
+    result['2d'].indices = hits
 
     return result
 

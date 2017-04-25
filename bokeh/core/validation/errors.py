@@ -25,8 +25,12 @@ validation checks.
     All data_sources on ``LegendItem.renderers`` must match when LegendItem.label
     is type field.
 
-1007 *(CDSVIEW_SOURCE_DOESNT_MATCH)*
-    A |GlyphRenderer| has a CDSView whose source doesn't match the GlyphRenderer'set
+1007 *(MISSING_MERCATOR_DIMENSION)*
+    ``MercatorTicker`` and ``MercatorTickFormatter``models must have their
+    ``dimension`` property set to ``'lat'`` or ``'lon'``.
+
+1008 *(CDSVIEW_SOURCE_DOESNT_MATCH)*
+    A |GlyphRenderer| has a CDSView whose source doesn't match the GlyphRenderer's
     data source.
 
 9999 *(EXT)*
@@ -41,7 +45,8 @@ codes = {
     1004: ("REQUIRED_RANGE",         "A required Range objects missing"),
     1005: ("MISSING_GOOGLE_API_KEY", "Google now requires API keys for all Google Maps usage"),
     1006: ("NON_MATCHING_DATA_SOURCES_ON_LEGEND_ITEM_RENDERERS", "LegendItem.label is a field, but renderer data sources don't match"),
-    1007: ("CDSVIEW_SOURCE_DOESNT_MATCH", "CDSView used by Glyph renderer must have a source that matches the Glyph renderer's data source"),
+    1007: ("MISSING_MERCATOR_DIMENSION", "Mercator Tickers and Formatters must have their dimension property set to 'lat' or 'lon'"),
+    1008: ("CDSVIEW_SOURCE_DOESNT_MATCH", "CDSView used by Glyph renderer must have a source that matches the Glyph renderer's data source"),
     9999: ("EXT",                    "Custom extension reports error"),
 }
 

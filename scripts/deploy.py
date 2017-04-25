@@ -353,7 +353,8 @@ def update_changelog():
     try:
         out = run("python issues.py -p %s -r %s" % (CONFIG.last_full_version, CONFIG.new_version))
         passed("Updated CHANGELOG with new closed issues")
-        commit("CHANGELOG", CONFIG.new_version)
+        filename = join(CONFIG.top_dir, "CHANGELOG")
+        commit(filename, CONFIG.new_version)
     except CalledProcessError as e:
         out = e.output.decode('utf-8')
         if "HTTP Error 403: Forbidden" in out:

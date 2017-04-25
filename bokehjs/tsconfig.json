@@ -1,6 +1,12 @@
 {
   "compilerOptions": {
     "noImplicitAny": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitThis": true,
+    "noImplicitReturns": true,
+    "strictNullChecks": true,
+    "alwaysStrict": true,
     "noEmitOnError": false,
     "module": "commonjs",
     "moduleResolution": "node",
@@ -8,6 +14,7 @@
     "declaration": true,
     "jsx": "react",
     "reactNamespace": "DOM",
+    "experimentalDecorators": true,
     "types": [],
     "baseUrl": "./build/js/tree_ts/",
     "paths": {

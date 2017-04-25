@@ -12,6 +12,24 @@ import {isEqual} from "./core/util/eq"
 import {isArray, isObject} from "./core/util/types"
 import {ColumnDataSource} from "./models/sources/column_data_source"
 
+class EventManager
+    # Dispatches events to the subscribed models
+
+  constructor: (@document) ->
+    @session = null
+    @subscribed_models = new Set()
+
+  send_event: (event) ->
+    # Send message to Python via session
+    @session?.send_event(event)
+
+  trigger: (event) ->
+    for model_id in @subscribed_models.values
+      if event.model_id != null and event.model_id != model_id
+        continue
+      model = @document._all_models[model_id]
+      model?._process_event(event)
+
 export class DocumentChangedEvent
   constructor : (@document) ->
 
@@ -21,7 +39,7 @@ export class ModelChangedEvent extends DocumentChangedEvent
   json : (references) ->
 
     if @attr == 'id'
-      console.log("'id' field is immutable and should never be in a ModelChangedEvent ", @)
+      logger.warn("'id' field is immutable and should never be in a ModelChangedEvent ", @)
       throw new Error("'id' field should never change, whatever code just set it is wrong")
 
     value = @new_
@@ -91,6 +109,7 @@ export class Document
     @_solver = new Solver()
     @_init_solver()
 
+    @event_manager = new EventManager(@)
     window.addEventListener("resize", () => @resize())
 
   _init_solver : () ->
@@ -606,7 +625,7 @@ export class Document
     for event in events
 
       if event.document != @
-        console.log("Cannot create a patch using events from a different document, event had ", event.document, " we are ", @)
+        logger.warn("Cannot create a patch using events from a different document, event had ", event.document, " we are ", @)
         throw new Error("Cannot create a patch using events from a different document")
 
       json_events.push(event.json(references))
@@ -631,7 +650,7 @@ export class Document
           references[model_id] = @_all_models[model_id]
         else
           if model_id not of references
-            console.log("Got an event for unknown model ", event_json['model'])
+            logger.warn("Got an event for unknown model ", event_json['model'])
             throw new Error("event model wasn't known")
 
     # split references into old and new so we know whether to initialize or update

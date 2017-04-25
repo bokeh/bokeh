@@ -228,6 +228,52 @@ def test__lifecycle_hooks():
     assert client_hook_list.hooks == ["session_created", "modify"]
     assert server_hook_list.hooks == ["session_created", "modify", "session_destroyed"]
 
+def test_get_sessions():
+    application = Application()
+    with ManagedServerLoop(application) as server:
+        server_sessions = server.get_sessions('/')
+        assert len(server_sessions) == 0
+
+        http_get(server.io_loop, url(server))
+        server_sessions = server.get_sessions('/')
+        assert len(server_sessions) == 1
+
+        http_get(server.io_loop, url(server))
+        server_sessions = server.get_sessions('/')
+        assert len(server_sessions) == 2
+
+        server_sessions = server.get_sessions()
+        assert len(server_sessions) == 2
+
+        with pytest.raises(ValueError):
+            server.get_sessions("/foo")
+
+    with ManagedServerLoop({"/foo": application, "/bar": application}) as server:
+        http_get(server.io_loop, url(server) + "foo")
+        server_sessions = server.get_sessions('/foo')
+        assert len(server_sessions) == 1
+        server_sessions = server.get_sessions('/bar')
+        assert len(server_sessions) == 0
+        server_sessions = server.get_sessions()
+        assert len(server_sessions) == 1
+
+
+        http_get(server.io_loop, url(server) + "foo")
+        server_sessions = server.get_sessions('/foo')
+        assert len(server_sessions) == 2
+        server_sessions = server.get_sessions('/bar')
+        assert len(server_sessions) == 0
+        server_sessions = server.get_sessions()
+        assert len(server_sessions) == 2
+
+        http_get(server.io_loop, url(server) + "bar")
+        server_sessions = server.get_sessions('/foo')
+        assert len(server_sessions) == 2
+        server_sessions = server.get_sessions('/bar')
+        assert len(server_sessions) == 1
+        server_sessions = server.get_sessions()
+        assert len(server_sessions) == 3
+
 def test__request_in_session_context():
     application = Application()
     with ManagedServerLoop(application) as server:

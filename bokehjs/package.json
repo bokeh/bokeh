@@ -1,6 +1,6 @@
 {
   "name": "bokehjs",
-  "version": "0.12.5dev14",
+  "version": "0.12.6dev2",
   "description": "Interactive, novel data visualization",
   "keywords": [
     "bokeh",
@@ -103,7 +103,7 @@
     "jquery-mousewheel": "^3.1.12",
     "jquery-ui": "~1.10.5",
 
-    "numbro": "https://github.com/bokeh/numbro.git#5ed67cf",
+    "numbro": "https://github.com/bokeh/numbro.git#e1b6c52",
     "kiwi": "https://github.com/bokeh/kiwi.git#55c0ff9",
     "root-require": "^0.3.1"
   },

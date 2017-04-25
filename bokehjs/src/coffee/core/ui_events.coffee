@@ -4,13 +4,15 @@ import {Events} from "./events"
 import {logger} from "./logging"
 import {offset} from "./dom"
 import {getDeltaY} from "./util/wheel"
-import {any} from "./util/array"
+import {extend, isEmpty} from "./util/object"
+import {BokehEvent} from "./bokeh_events"
+
 
 export class UIEvents
   @prototype extends Events
 
-  # new (plot_view: PlotCanvasView, toolbar: Toolbar, hit_area: Element)
-  constructor: (@plot_view, @toolbar, @hit_area) ->
+  # new (plot_view: PlotCanvasView, toolbar: Toolbar, hit_area: Element, plot: Plot)
+  constructor: (@plot_view, @toolbar, @hit_area, @plot) ->
     @_configure_hammerjs()
 
   _configure_hammerjs: () ->
@@ -63,17 +65,17 @@ export class UIEvents
       logger.debug("Registering tool: #{type} for event '#{et}'")
       if tool_view["_#{et}_start"]?
         tool_view.listenTo(@, "#{et}:start:#{id}", tool_view["_#{et}_start"])
-      if tool_view["_#{et}"]
+      if tool_view["_#{et}"]?
         tool_view.listenTo(@, "#{et}:#{id}",       tool_view["_#{et}"])
-      if tool_view["_#{et}_end"]
+      if tool_view["_#{et}_end"]?
         tool_view.listenTo(@, "#{et}:end:#{id}",   tool_view["_#{et}_end"])
     else if et == "move"
       logger.debug("Registering tool: #{type} for event '#{et}'")
       if tool_view._move_enter?
-        tool_view.listenTo(@, "move:enter", tool_view._move_enter)
-      tool_view.listenTo(@, "move", tool_view["_move"])
+        tool_view.listenTo(@, "move:enter:#{id}", tool_view._move_enter)
+      tool_view.listenTo(@, "move:#{id}", tool_view["_move"])
       if tool_view._move_exit?
-        tool_view.listenTo(@, "move:exit", tool_view._move_exit)
+        tool_view.listenTo(@, "move:exit:#{id}", tool_view._move_exit)
     else
       logger.debug("Registering tool: #{type} for event '#{et}'")
       tool_view.listenTo(@, "#{et}:#{id}", tool_view["_#{et}"])
@@ -115,57 +117,56 @@ export class UIEvents
 
   _trigger: (event_type, e) ->
     base_type = event_type.split(":")[0]
+    view = @_hit_test_renderers(e.bokeh.sx, e.bokeh.sy)
 
-    {sx, sy} = e.bokeh
-    view = @_hit_test_renderers(sx, sy)
+    switch base_type
 
-    if view != null
-      if base_type == "move" and view.model.cursor?
-        @plot_view.set_cursor(view.model.cursor())
+      when "move"
+        active_inspectors = @toolbar.inspectors.filter((t) -> return t.active)
+        cursor = "default"
 
-      @trigger("move:exit", e)
+        # the event happened on a renderer
+        if view?
+          if view.model.cursor?
+            cursor = view.model.cursor()
+          if not isEmpty(active_inspectors)
+            # override event_type to cause inspectors to clear overlays
+            event_type = "move:exit"
 
-      switch event_type
-        when "tap"
-          view.on_hit?(sx, sy)
-    else if not @_hit_test_frame(sx, sy)
-      @trigger("move:exit", e)
+        # the event happened on the plot frame but off a renderer
+        else if @_hit_test_frame(e.bokeh.sx, e.bokeh.sy)
+          if not isEmpty(active_inspectors)
+            cursor = "crosshair"
 
-      if base_type == "move"
-        @plot_view.set_cursor()
-    else
-      if base_type == "move"
-        active = any(@toolbar.inspectors, (t) -> t.active)
+        @plot_view.set_cursor(cursor)
+        for inspector in active_inspectors
+          @trigger("#{event_type}:#{inspector.id}", e)
 
-        if active and event_type in ["move", "move:enter"]
-          @plot_view.set_cursor("crosshair")
-        else
-          @plot_view.set_cursor()
+      when "tap"
+        if view?
+          view.on_hit?(e.bokeh.sx, e.bokeh.sy)
+        active_gesture = @toolbar.gestures[base_type].active
+        if active_gesture?
+          @trigger("#{event_type}:#{active_gesture.id}", e)
 
-        @trigger(event_type, e)
-      else
+      when "scroll"
         # Dual touch hack part 2/2
         # This is a hack for laptops with touch screen who may be pinching or scrolling
         # in order to use the wheel zoom tool. If it's a touch screen the WheelZoomTool event
         # will be linked to pinch. But we also want to trigger in the case of a scroll.
-        if 'ontouchstart' of window or navigator.maxTouchPoints > 0
-          if event_type == 'scroll'
-            base_type = 'pinch'
+        base = if 'ontouchstart' of window or navigator.maxTouchPoints > 0 then "pinch" else "scroll"
+        active_gesture = @toolbar.gestures[base].active
+        if active_gesture?
+          e.preventDefault()
+          e.stopPropagation()
+          @trigger("#{event_type}:#{active_gesture.id}", e)
 
-        gestures = @toolbar.gestures
-        active_tool = gestures[base_type].active
+      else
+        active_gesture = @toolbar.gestures[base_type].active
+        if active_gesture?
+          @trigger("#{event_type}:#{active_gesture.id}", e)
 
-        if active_tool?
-          @_trigger_event(event_type, active_tool, e)
-
-  _trigger_event: (event_type, active_tool, e)->
-    if active_tool.active == true
-      if event_type == 'scroll'
-        e.preventDefault()
-        e.stopPropagation()
-      @trigger("#{event_type}:#{active_tool.id}", e)
-
-  _bokify_hammer: (e) ->
+  _bokify_hammer: (e, extras={}) ->
     if e.pointerType == 'mouse'
       x = e.srcEvent.pageX
       y = e.srcEvent.pageY
@@ -177,13 +178,26 @@ export class UIEvents
       sx: x - left
       sy: y - top
     }
+    e.bokeh = extend(e.bokeh, extras)
+    event_cls = BokehEvent.event_class(e)
+    if event_cls?
+      @plot.trigger_event(event_cls.from_event(e))
+    else
+      logger.debug('Unhandled event of type ' + e.type)
 
-  _bokify_jq: (e) ->
+  _bokify_point_event: (e, extras={}) ->
+
     {left, top} = offset(e.currentTarget)
     e.bokeh = {
       sx: e.pageX - left
       sy: e.pageY - top
     }
+    e.bokeh = extend(e.bokeh, extras)
+    event_cls = BokehEvent.event_class(e)
+    if event_cls?
+      @plot.trigger_event(event_cls.from_event(e))
+    else
+      logger.debug('Unhandled event of type ' + e.type)
 
   _tap: (e) ->
     @_bokify_hammer(e)
@@ -238,24 +252,23 @@ export class UIEvents
     @_trigger('rotate:end', e)
 
   _mouse_enter: (e) ->
-    @_bokify_jq(e)
+    @_bokify_point_event(e)
     @_trigger('move:enter', e)
 
   _mouse_move: (e) ->
-    @_bokify_jq(e)
+    @_bokify_point_event(e)
     @_trigger('move', e)
 
   _mouse_exit: (e) ->
-    @_bokify_jq(e)
+    @_bokify_point_event(e)
     @_trigger('move:exit', e)
 
   _mouse_wheel: (e) ->
-    @_bokify_jq(e)
-    e.bokeh.delta = getDeltaY(e)
+    @_bokify_point_event(e, {delta: getDeltaY(e)})
     @_trigger('scroll', e)
 
   _key_down: (e) ->
-    # NOTE: keydown event triggered unconditionally
+    # NOTE: keyup event triggered unconditionally
     @trigger('keydown', e)
 
   _key_up: (e) ->

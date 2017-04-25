@@ -1,5 +1,4 @@
 import {Annotation, AnnotationView} from "./annotation"
-import {logger} from "core/logging"
 import {div, show, hide, empty} from "core/dom"
 import * as p from "core/properties"
 

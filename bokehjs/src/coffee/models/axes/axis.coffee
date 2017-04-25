@@ -2,7 +2,6 @@ import {SidePanel} from "core/layout/side_panel"
 import {GuideRenderer} from "../renderers/guide_renderer"
 import {RendererView} from "../renderers/renderer"
 
-import {GE} from "core/layout/solver"
 import {logger} from "core/logging"
 import * as p from "core/properties"
 import {isString, isArray} from "core/util/types"
@@ -95,7 +94,8 @@ export class AxisView extends RendererView
     else
       angle = -orient
     standoff = @_tick_extent() + @model.major_label_standoff
-    labels = @model.formatter.doFormat(coords.major[dim])
+
+    labels = @model.formatter.doFormat(coords.major[dim], @model.loc)
 
     @visuals.major_label_text.set_value(ctx)
     @model.panel.apply_label_text_heuristics(ctx, orient)
@@ -152,7 +152,7 @@ export class AxisView extends RendererView
     coords = @model.tick_coords.major
     side = @model.panel_side
     orient = @model.major_label_orientation
-    labels = @model.formatter.doFormat(coords[dim])
+    labels = @model.formatter.doFormat(coords[dim], @model.loc)
     @visuals.major_label_text.set_value(ctx)
 
     if isString(orient)
@@ -267,6 +267,7 @@ export class Axis extends GuideRenderer
     normals: () -> @panel._normals
     dimension: () -> @panel._dim
     offsets: () -> @_offsets()
+    loc: () ->@_get_loc()
   }
 
   add_panel: (side) ->
@@ -335,15 +336,13 @@ export class Axis extends GuideRenderer
     ys = new Array(2)
     coords = [xs, ys]
 
-    loc = @_get_loc(cross_range)
-
     coords[i][0] = Math.max(start, range.min)
     coords[i][1] = Math.min(end, range.max)
     if coords[i][0] > coords[i][1]
       coords[i][0] = coords[i][1] = NaN
 
-    coords[j][0] = loc
-    coords[j][1] = loc
+    coords[j][0] = @loc
+    coords[j][1] = @loc
 
     return coords
 
@@ -353,11 +352,9 @@ export class Axis extends GuideRenderer
     [range, cross_range] = @ranges
     [start, end] = @computed_bounds
 
-    ticks = @ticker.get_ticks(start, end, range, {})
+    ticks = @ticker.get_ticks(start, end, range, @loc, {})
     majors = ticks.major
     minors = ticks.minor
-
-    loc = @_get_loc(cross_range)
 
     xs = []
     ys = []
@@ -370,7 +367,7 @@ export class Axis extends GuideRenderer
     if range.type == "FactorRange"
       for ii in [0...majors.length]
         coords[i].push(majors[ii])
-        coords[j].push(loc)
+        coords[j].push(@loc)
     else
       [range_min, range_max] = [range.min, range.max]
 
@@ -378,20 +375,21 @@ export class Axis extends GuideRenderer
         if majors[ii] < range_min or majors[ii] > range_max
           continue
         coords[i].push(majors[ii])
-        coords[j].push(loc)
+        coords[j].push(@loc)
 
       for ii in [0...minors.length]
         if minors[ii] < range_min or minors[ii] > range_max
           continue
         minor_coords[i].push(minors[ii])
-        minor_coords[j].push(loc)
+        minor_coords[j].push(@loc)
 
     return {
       "major": coords,
       "minor": minor_coords
     }
 
-  _get_loc: (cross_range) ->
+  _get_loc: () ->
+    [range, cross_range] = @ranges
     cstart = cross_range.start
     cend = cross_range.end
     side = @panel_side

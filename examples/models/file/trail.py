@@ -17,7 +17,7 @@ from bokeh.models.layouts import Column
 from bokeh.models import (
     Plot, GMapPlot, GMapOptions,
     DataRange1d, ColumnDataSource,
-    LinearAxis, Grid,
+    LinearAxis, Grid, Label,
     PanTool, WheelZoomTool, ResetTool)
 
 from bokeh.sampledata.mtb import obiszow_mtb_xcm
@@ -73,7 +73,7 @@ name = "Obiszów MTB XCM"
 
 # Google Maps now requires an API key. You can find out how to get one here:
 # https://developers.google.com/maps/documentation/javascript/get-api-key
-API_KEY = "XXXXXXXXXXX"
+API_KEY = "GOOGLE_API_KEY"
 
 def trail_map(data):
     lon = (min(data.lon) + max(data.lon)) / 2
@@ -89,6 +89,11 @@ def trail_map(data):
     line_source = ColumnDataSource(dict(x=data.lon, y=data.lat, dist=data.dist))
     line = Line(x="x", y="y", line_color="blue", line_width=2)
     plot.add_glyph(line_source, line)
+
+    if plot.api_key == "GOOGLE_API_KEY":
+        plot.add_layout(Label(x=240, y=700, x_units='screen', y_units='screen',
+                              text='Replace GOOGLE_API_KEY with your own key',
+                              text_color='red'))
 
     return plot
 
@@ -130,6 +135,7 @@ def altitude_profile(data):
 data = prep_data(obiszow_mtb_xcm)
 
 trail = trail_map(data)
+
 altitude = altitude_profile(data)
 
 layout = Column(children=[altitude, trail])

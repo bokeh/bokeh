@@ -39,7 +39,10 @@ class TestColumnDataSource(unittest.TestCase):
         ds = ColumnDataSource(df)
         self.assertTrue(set(df.columns).issubset(set(ds.column_names)))
         for key in data.keys():
-            self.assertEquals(list(df[key]), data[key])
+            self.assertIsInstance(ds.data[key], pd.Series)
+            self.assertEquals(list(df[key]), list(ds.data[key]))
+        self.assertIsInstance(ds.data['index'], np.ndarray)
+        self.assertEquals([0, 1], list(ds.data['index']))
         self.assertEqual(set(ds.column_names) - set(df.columns), set(["index"]))
 
     @skipIf(not is_pandas, "pandas not installed")
@@ -49,7 +52,10 @@ class TestColumnDataSource(unittest.TestCase):
         ds = ColumnDataSource(data=df)
         self.assertTrue(set(df.columns).issubset(set(ds.column_names)))
         for key in data.keys():
-            self.assertEquals(list(df[key]), data[key])
+            self.assertIsInstance(ds.data[key], pd.Series)
+            self.assertEquals(list(df[key]), list(ds.data[key]))
+        self.assertIsInstance(ds.data['index'], np.ndarray)
+        self.assertEquals([0, 1], list(ds.data['index']))
         self.assertEqual(set(ds.column_names) - set(df.columns), set(["index"]))
 
     def test_add_with_name(self):
@@ -172,25 +178,25 @@ class TestColumnDataSource(unittest.TestCase):
         with warnings.catch_warnings(record=True) as warns:
             ColumnDataSource(data=dict(a=[10, 11], b=[20, 21, 22]))
             self.assertEquals(len(warns), 1)
-            self.assertEquals(str(warns[0].message), "ColumnDataSource's columns must be of the same length")
+            self.assertEquals(str(warns[0].message), "ColumnDataSource's columns must be of the same length. Current lengths: ('a', 2), ('b', 3)")
 
         ds = ColumnDataSource()
         with warnings.catch_warnings(record=True) as warns:
             ds.data = dict(a=[10, 11], b=[20, 21, 22])
             self.assertEquals(len(warns), 1)
-            self.assertEquals(str(warns[0].message), "ColumnDataSource's columns must be of the same length")
+            self.assertEquals(str(warns[0].message), "ColumnDataSource's columns must be of the same length. Current lengths: ('a', 2), ('b', 3)")
 
         ds = ColumnDataSource(data=dict(a=[10, 11]))
         with warnings.catch_warnings(record=True) as warns:
             ds.data["b"] = [20, 21, 22]
             self.assertEquals(len(warns), 1)
-            self.assertEquals(str(warns[0].message), "ColumnDataSource's columns must be of the same length")
+            self.assertEquals(str(warns[0].message), "ColumnDataSource's columns must be of the same length. Current lengths: ('a', 2), ('b', 3)")
 
         ds = ColumnDataSource(data=dict(a=[10, 11], b=[20, 21]))
         with warnings.catch_warnings(record=True) as warns:
             ds.data.update(dict(a=[10, 11, 12]))
             self.assertEquals(len(warns), 1)
-            self.assertEquals(str(warns[0].message), "ColumnDataSource's columns must be of the same length")
+            self.assertEquals(str(warns[0].message), "ColumnDataSource's columns must be of the same length. Current lengths: ('a', 3), ('b', 2)")
 
     def test_set_data_from_json_list(self):
         ds = ColumnDataSource()

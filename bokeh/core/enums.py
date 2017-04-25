@@ -128,6 +128,9 @@ def enumeration(*values, **kwargs):
 
     return type("Enumeration", (Enumeration,), attrs)()
 
+#: Specify whether a dimension or coordinate is latitude or longitude
+LatLon = enumeration("lat", "lon")
+
 #: Specify how stroked lines should be joined together
 LineJoin = enumeration("miter", "round", "bevel")
 
@@ -255,3 +258,6 @@ SizingMode = enumeration("stretch_both", "scale_width", "scale_height", "scale_b
 
 #: Legend's click policies
 LegendClickPolicy = enumeration("none", "hide", "mute")
+
+#: Whether range padding should be interpreted a percentage or and absolute quantity
+PaddingUnits = enumeration("percent", "absolute")

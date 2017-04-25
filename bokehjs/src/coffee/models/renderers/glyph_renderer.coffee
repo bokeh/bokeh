@@ -69,6 +69,8 @@ export class GlyphRendererView extends RendererView
     if @hover_glyph?
       @listenTo(@model.data_source, 'inspect', @request_render)
 
+    @listenTo(@model.glyph, 'transformchange', () -> @set_data())
+
     # TODO (bev) This is a quick change that  allows the plot to be
     # update/re-rendered when properties change on the JS side. It would
     # be better to make this more fine grained in terms of setting visuals
@@ -227,7 +229,7 @@ export class GlyphRendererView extends RendererView
     @glyph.draw_legend_for_index(ctx, x0, x1, y0, y1, index)
 
   hit_test: (geometry) ->
-    @glyph.hit_test(geometry)
+    return @model.hit_test_helper(geometry, @glyph)
 
 
 export class GlyphRenderer extends Renderer
@@ -244,6 +246,13 @@ export class GlyphRenderer extends Renderer
         if i > 0
           index = i
     return index
+
+  # TODO (bev) this is just to make testing easier. Might be better on a view model
+  hit_test_helper: (geometry, glyph) ->
+    if @visible
+      return glyph.hit_test(geometry)
+    else
+      return null
 
   @define {
       x_range_name:       [ p.String,  'default' ]

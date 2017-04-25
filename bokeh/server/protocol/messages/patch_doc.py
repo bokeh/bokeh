@@ -42,3 +42,16 @@ class patch_doc_1(Message):
 
     def apply_to_document(self, doc, setter=None):
         doc.apply_json_patch(self.content, setter)
+
+
+@register
+class event_1(Message):
+    '''
+    Message used to communicate Events between Python and Javascript
+    '''
+
+    msgtype  = 'EVENT'
+    revision = 1
+
+    def notify_event(self, document):
+        document.apply_json_event(self.content)

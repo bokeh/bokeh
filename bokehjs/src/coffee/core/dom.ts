@@ -10,7 +10,7 @@ const _createElement = (tag: string) => (attrs: HTMLAttrs = {}, ...children: HTM
   if (tag === "fragment") {
     // XXX: this is wrong, but the the common super type of DocumentFragment and HTMLElement is
     // Node, which doesn't support classList, style, etc. attributes.
-    element = document.createDocumentFragment() as HTMLElement
+    element = (document.createDocumentFragment() as any) as HTMLElement
   } else {
     element = document.createElement(tag)
     for (const attr in attrs) {
@@ -101,8 +101,8 @@ export function position(element: HTMLElement) {
 export function offset(element: HTMLElement) {
   const rect = element.getBoundingClientRect()
   return {
-    top:  rect.top  + document.body.scrollTop,
-    left: rect.left + document.body.scrollLeft,
+    top:  rect.top  + window.pageYOffset - document.documentElement.clientTop,
+    left: rect.left + window.pageXOffset - document.documentElement.clientLeft,
   }
 }
 

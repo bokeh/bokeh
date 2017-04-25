@@ -1,5 +1,5 @@
 import {logger} from "core/logging"
-import {EQ, Variable} from "core/layout/solver"
+import {EQ} from "core/layout/solver"
 import {empty} from "core/dom"
 import * as p from "core/properties"
 

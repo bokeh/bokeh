@@ -164,7 +164,7 @@ html = """
         %s
     </body>
 </html>
-""" % autoload_server(layout, session_id=session.id)
+""" % autoload_server(layout, session_id=session.id, relative_urls=False)
 
 with io.open("widget.html", mode='w+', encoding='utf-8') as f:
     f.write(html)

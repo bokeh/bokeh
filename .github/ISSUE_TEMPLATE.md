@@ -7,7 +7,7 @@ technical assistance, come ask the [Bokeh mailing list](https://groups.google.co
 
 For defects or deficiencies, please provide ALL OF THE FOLLOWING:
 
-#### ALL software version info (bokeh, python, notebook, OS, browser, any other relevant pacakges)
+#### ALL software version info (bokeh, python, notebook, OS, browser, any other relevant packages)
 
 #### Description of expected behavior and the observed behavior
 

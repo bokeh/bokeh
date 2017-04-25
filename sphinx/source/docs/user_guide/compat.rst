@@ -14,8 +14,51 @@ wide variety of JavaScript libraries, such as `PhosphorJS`_.  Listing
 such libraries is beyond the scope of this document; it's best just to
 try and see!
 
+
+Datashader
+----------
+
+A major strength of Bokeh is that it copies your data from Python
+directly into the browser, which makes it possible for the user to
+interact with the represented data quickly and responsively, even
+without a live Python process running.  However, for plotting millions
+or billions of points, this strength can turn into a liability,
+because current web browsers are very limited in how much data they
+can feasibly work with.  Moreover, the visual representation of such
+large datasets is often misleading due to `overplotting`_ and related
+issues.
+
+`Datashader`_ is a separately available Python library that
+pre-renders even the largest datasets into a fixed-size raster image
+that faithfully represents the data's distribution.  Datashader
+includes tools and examples showing how to build interactive Bokeh
+plots that dynamically re-render these images when zooming and panning
+in Bokeh, making it practical to work with arbitrarily large datasets
+in a web browser.
+
+.. image:: /_images/ds_sample.png
+ :width: 900 px
+ :height: 670 px
+ :scale: 70 %
+ :alt: Datashader Bokeh example
+ :align: center
+
+Datashader works well together with `HoloViews`_ (see below and
+`this_example`_), which allows you to flexibly switch between
+datashaded and non-datashaded versions of a plot, interleave
+datashader-based plots with other Bokeh-based plots, and so on.
+
+
 HoloViews
 ---------
+
+Bokeh is designed to provide an enormous amount of power and
+flexibility to the Python programmer, making it feasible to develop
+complex visualization-focused applications for deployment on web
+browsers.  However, for day-to-day work exploring and visualizing
+data, it can be helpful to have a higher-level API on top of what
+Bokeh provides, to make it simpler to do common visualization tasks
+without specifying each step explicitly.
 
 `HoloViews`_ is a separately maintained package that provides a
 concise declarative interface for building Bokeh plots. HoloViews is
@@ -49,42 +92,9 @@ PDF output not currently available for native Bokeh plots.  See the
 Holoviews `Bokeh_Backend`_ tutorial for more details.
 
 
-Matplotlib, seaborn, Pandas
----------------------------
-
-Bokeh can display figures created using `Matplotlib`_, which allows
-you to combine `Matplotlib`_ and Bokeh plots in the same document.
-Because `Seaborn`_, `Pandas`_, and others generate Matplotlib
-figures, in some cases you can also use output from each of these
-packages.  To display one of these plots, pass it to the
-``bokeh.mpl.to_bokeh`` function:
-
-----
-
-.. autofunction:: bokeh.mpl.to_bokeh
-
-----
-
-To achieve this interoperability, Bokeh currently relies on the third-party
-library `mplexporter`_, which can convert many `Matplotlib`_ plots into Bokeh
-plots. However, MPL plots using features not supported by
-`mplexporter`_ may not render fully.
-
-Interoperability with these libraries is expected to improve
-significantly in the future, based on plans (`MEP 25`_) for Matplotlib
-to adopt a native JSON ingest/export functionality of its own. This
-will allow Bokeh and other systems to interact more robustly with
-Matplotlib, potentially in both directions (i.e., with Matplotlib able
-to display Bokeh plots).
-
-You can see examples of Bokeh rendering Matplotlib plots generated
-from each of these libraries in the :bokeh-tree:`examples/compat` directory.
-
 .. _Bokeh_Backend: http://holoviews.org/Tutorials/Bokeh_Backend.html
 .. _HoloViews: http://holoviews.org
-.. _Matplotlib: http://matplotlib.org
-.. _MEP 25: https://github.com/matplotlib/matplotlib/wiki/MEP25
-.. _mplexporter:
-.. _Pandas: http://pandas.pydata.org
 .. _PhosphorJS: http://phosphorjs.github.io
-.. _Seaborn: http://web.stanford.edu/~mwaskom/software/seaborn
+.. _Datashader: https://github.com/bokeh/datashader
+.. _overplotting: https://anaconda.org/jbednar/plotting_pitfalls
+.. _this_example: https://anaconda.org/jbednar/census-hv

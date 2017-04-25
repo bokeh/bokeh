@@ -175,6 +175,8 @@ export class Dimensions extends enum_prop("Dimensions", enums.Dimensions)
 
 export class FontStyle extends enum_prop("FontStyle", enums.FontStyle)
 
+export class LatLon extends enum_prop("LatLon", enums.LatLon)
+
 export class LineCap extends enum_prop("LineCap", enums.LineCap)
 
 export class LineJoin extends enum_prop("LineJoin", enums.LineJoin)
@@ -200,6 +202,10 @@ export class SpatialUnits extends enum_prop("SpatialUnits", enums.SpatialUnits)
 export class Distribution extends enum_prop("Distribution", enums.DistributionTypes)
 
 export class TransformStepMode extends enum_prop("TransformStepMode", enums.TransformStepModes)
+
+export class PaddingUnits extends enum_prop("PaddingUnits", enums.PaddingUnits)
+
+export class StartEnd extends enum_prop("StartEnd", enums.StartEnd)
 
 #
 # Units Properties

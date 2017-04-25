@@ -1,5 +1,4 @@
 import {RBush} from "core/util/spatial"
-import * as Quad from "./quad"
 import {Glyph, GlyphView} from "./glyph"
 import {CategoricalMapper} from "../mappers/categorical_mapper"
 import * as hittest from "core/hittest"

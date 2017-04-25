@@ -1,5 +1,3 @@
-import {Promise} from "es6-promise"
-
 import * as base from "./base"
 import {pull_session} from "./client"
 import {logger, set_log_level} from "./core/logging"
@@ -160,7 +158,29 @@ fill_render_item_from_script_tag = (script, item) ->
 
   logger.info("Will inject Bokeh script tag with params #{JSON.stringify(item)}")
 
-export embed_items = (docs_json, render_items, websocket_url=null) ->
+# TODO (bev) this is currently clunky. Standalone embeds (e.g. notebook) only provide
+# the first two args, whereas server provide the app_app, and *may* prove and
+# absolute_url as well if non-relative links are needed for resources. This function
+# should probably be split in to two pieces to reflect the different usage patterns
+export embed_items = (docs_json, render_items, app_path, absolute_url) ->
+  protocol = 'ws:'
+  if (window.location.protocol == 'https:')
+    protocol = 'wss:'
+
+  if absolute_url?
+    loc = new URL(absolute_url)
+  else
+    loc = window.location
+
+  if app_path?
+    if app_path == "/"
+      app_path = ""
+  else
+    app_path = loc.pathname.replace(/\/+$/, '')
+
+  websocket_url = protocol + '//' + loc.host + app_path + '/ws'
+  logger.debug("embed: computed ws url: #{websocket_url}")
+
   docs = {}
   for docid of docs_json
     docs[docid] = Document.from_json(docs_json[docid])
