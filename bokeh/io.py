@@ -22,11 +22,12 @@ import io
 import json
 import os
 import warnings
-import subprocess
 import tempfile
 import uuid
 
 # Third-party imports
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.common.exceptions import TimeoutException
 
 # Bokeh imports
 from .core.state import State
@@ -35,6 +36,7 @@ from .embed import autoload_server, notebook_div, file_html
 from .layouts import gridplot, GridSpec ; gridplot, GridSpec
 from .resources import INLINE
 import bokeh.util.browser as browserlib  # full import needed for test mocking to work
+from .util.dependencies import import_required
 from .util.deprecation import deprecated
 from .util.notebook import get_comms, load_notebook, publish_display_data, watch_server_cells
 from .util.string import decode_utf8
@@ -562,42 +564,11 @@ def _destroy_server(div_id):
     except Exception as e:
         logger.debug("Could not destroy server for id %r: %s" % (div_id, e))
 
-# def _get_export_args(filename, resources, title):
-#     warn = True
-#
-#     if filename is None and state.file:
-#         filename = state.file['filename']
-#
-#     if filename is None:
-#         warn = False
-#         filename = _detect_filename("html")
-#
-#     if resources is None and state.file:
-#         resources = state.file['resources']
-#
-#     if resources is None:
-#         if warn:
-#             warnings.warn("save() called but no resources were supplied and output_file(...) was never called, defaulting to resources.CDN")
-#
-#         from .resources import CDN
-#         resources = CDN
-#
-#     if title is None and state.file:
-#         title = state.file['title']
-#
-#     if title is None:
-#         if warn:
-#             warnings.warn("save() called but no title was supplied and output_file(...) was never called, using default title 'Bokeh Plot'")
-#
-#         title = "Bokeh Plot"
-#
-#     return filename, resources, title
-
 def export(obj, filename=None):
     ''' Save an HTML file with the data for the current document.
 
     If the filename is not given, it is derived from the script name
-    (e.g. ``/foo/myplot.py`` will create ``/foo/myplot.html``)
+    (e.g. ``/foo/myplot.py`` will create ``/foo/myplot.png``)
 
     Args:
         obj (LayoutDOM object) : a Layout (Row/Column), Plot or Widget object to display
@@ -610,40 +581,74 @@ def export(obj, filename=None):
 
     '''
 
-    # TODO - check that phantomjs is installed
+    # probably need a specific version
+    webdriver = import_required('selenium.webdriver',
+                                'To use bokeh.io.export you need selenium ' +
+                                '("conda install -c bokeh selenium" or "pip install selenium")')
 
+    # TODO - check that phantomjs is installed?
+    # TODO - support other browsers? (even if not headless?)
+    driver = webdriver.PhantomJS()
+    # driver = webdriver.Firefox()
+
+    # generate the html as tempfile
     temp_html = tempfile.NamedTemporaryFile(suffix=".html").name
     save(obj, filename=temp_html, resources=INLINE, title="")
 
-    filename = _detect_filename("png")
+    if filename is None:
+        filename = _detect_filename("png")
 
-    # TODO - come up with better values
-    local_wait = 1000
-    global_wait = 1000
-    width = 1000
-    height = 1000
+    driver.get("file:///" + temp_html)
 
-    # TODO - better find 'phantomjs' source (see node compile method)
-    # TODO - actually use selenium with drop in driver instead of phantomjs CLI
-    cmd = ["phantomjs",
-           os.path.join(os.path.dirname(__file__),
-           "phantomjs_screenshot.js"),
-           temp_html,
-           filename,
-           str(local_wait),
-           str(global_wait),
-           str(width),
-           str(height)]
-    logger.debug("Running command: %s" % " ".join(cmd))
+    class element_to_start_resizing(object):
+        """
+        An expectation for checking if an element has started resizing
+        """
+        def __init__(self, element):
+            self.element = element
+            self.previous_width = self.element.size['width']
 
-    try:
-        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        proc.wait()
-    except OSError as e:
-        logger.error("Failed to run: %s" % " ".join(cmd))
-        raise OSError(e)
+        def __call__(self, driver):
+            current_width = self.element.size['width']
+            if self.previous_width != current_width:
+                return True
+            else:
+                self.previous_width = current_width
+                return False
 
-    output = proc.stdout.read().decode("utf-8")  ## noqa
-    # TODO - check that there aren't JS console errors
+
+    class element_to_finish_resizing(object):
+        """
+        An expectation for checking if an element has finished resizing
+        """
+        def __init__(self, element):
+            self.element = element
+            self.previous_width = self.element.size['width']
+
+        def __call__(self, driver):
+            current_width = self.element.size['width']
+            if self.previous_width == current_width:
+                return True
+            else:
+                self.previous_width = current_width
+                return False
+
+
+    def wait_for_canvas_resize(canvas, test_driver):
+        try:
+            wait = WebDriverWait(test_driver, 1)
+            wait.until(element_to_start_resizing(canvas))
+            wait.until(element_to_finish_resizing(canvas))
+        except TimeoutException:
+            # Resize may or may not happen instantaneously,
+            # Put the waits in to give some time, but allow test to
+            # try and process.
+            pass
+
+    canvas = driver.find_element_by_tag_name('canvas')
+    wait_for_canvas_resize(canvas, driver)
+
+    driver.save_screenshot(filename)
+    driver.quit()
 
     return os.path.abspath(filename)
