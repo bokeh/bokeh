@@ -1565,8 +1565,11 @@ class FontSizeSpec(DataSpec):
         if isinstance(value, dict) and 'value' in value:
             value = value['value']
 
-        if isinstance(value, string_types) and value[0].isdigit() and self._font_size_re.match(value) is None:
-            raise ValueError("%r is not a valid font size value" % value)
+        if isinstance(value, string_types):
+            if len(value) == 0:
+                raise ValueError("empty string is not a valid font size value")
+            elif value[0].isdigit() and self._font_size_re.match(value) is None:
+                raise ValueError("%r is not a valid font size value" % value)
 
 _FieldValueTransformUnits = Enum("field", "value", "transform", "units")
 

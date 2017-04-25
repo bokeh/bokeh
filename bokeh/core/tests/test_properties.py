@@ -585,6 +585,9 @@ class TestFontSizeSpec(unittest.TestCase):
         with self.assertRaises(ValueError):
             a.x = 6
 
+        with self.assertRaises(ValueError):
+            a.x = ""
+
     def test_fields(self):
         class Foo(HasProps):
             x = FontSizeSpec(default=None)
