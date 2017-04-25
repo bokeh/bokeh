@@ -1,6 +1,7 @@
 import {Model} from "../../model"
 import * as p from "core/properties"
 import {intersection} from "core/util/array"
+import {ColumnarDataSource} from "./columnar_data_source"
 
 export class CDSView extends Model
   type: 'CDSView'
@@ -23,7 +24,8 @@ export class CDSView extends Model
 
   compute_indices: () ->
     if @filters.length == 0
-      @indices = @source.get_indices()
+      if @source instanceof ColumnarDataSource
+        @indices = @source?.get_indices()
     else
       indices = (filter.get_indices(@source) for filter in @filters)
       console.log indices
