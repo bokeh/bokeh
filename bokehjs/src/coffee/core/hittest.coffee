@@ -1,4 +1,4 @@
-import {sortBy} from "./util/array"
+import {union, concat, sortBy} from "./util/array"
 
 export point_in_poly = (x, y, px, py) ->
   inside = false
@@ -18,6 +18,19 @@ export point_in_poly = (x, y, px, py) ->
   return inside
 
 nullreturner = () -> null  # stub function shared by all hittests by default
+
+merge = (obj1, obj2) ->
+  result = {}
+
+  keys = concat(Object.keys(obj1),
+                Object.keys(obj2))
+
+  for key in keys
+    arr1 = obj1[key] or []
+    arr2 = obj2[key] or []
+    result[key] = union(arr1, arr2)
+
+  return result
 
 export class HitTestResult
   constructor: () ->
@@ -49,6 +62,12 @@ export class HitTestResult
 
   is_empty: () ->
     @_0d.indices.length == 0 && @_1d.indices.length == 0
+
+  update_through_union: (other) ->
+    @['0d'].indices = union(@['0d'].indices, other['0d'].indices)
+    @['0d'].glyph = @['0d'].glyph or other['0d'].glyph
+    @['1d'].indices = union(@['1d'].indices, other['1d'].indices)
+    @['2d'].indices = merge(@['2d'].indices, other['2d'].indices)
 
 export create_hit_test_result = () -> new HitTestResult()
 
