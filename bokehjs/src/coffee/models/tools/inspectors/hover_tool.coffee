@@ -242,7 +242,7 @@ export class HoverToolView extends InspectToolView
     tooltips = @model.tooltips
     if isString(tooltips)
       el = div()
-      el.innerHTML = replace_placeholders(tooltips, ds, i, vars)
+      el.innerHTML = replace_placeholders(tooltips, ds, i, @model.formatters, vars)
       return el
     else if isFunction(tooltips)
       return tooltips(ds, vars)
@@ -283,7 +283,7 @@ export class HoverToolView extends InspectToolView
         else
           value = value.replace("$~", "$data_")
           el = span()
-          el.innerHTML = replace_placeholders(value, ds, i, vars)
+          el.innerHTML = replace_placeholders(value, ds, i, @model.formatters, vars)
           cell.appendChild(el)
 
       return rows
@@ -301,6 +301,7 @@ export class HoverTool extends InspectTool
           ["data (x, y)",   "($x, $y)"]
           ["canvas (x, y)", "($sx, $sy)"]
         ] ] # TODO (bev)
+      formatters:   [ p.Any,    {}             ]
       renderers:    [ p.Array,  []             ]
       names:        [ p.Array,  []             ]
       mode:         [ p.String, 'mouse'        ] # TODO (bev)
