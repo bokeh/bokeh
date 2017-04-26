@@ -80,8 +80,8 @@ export class PlotCanvasView extends DOMView
       range: null                     # set later by set_initial_range()
       selection: {}                   # XXX: initial selection?
       dimensions: {
-        width: @model.canvas.width
-        height: @model.canvas.height
+        width: @model.canvas._width._value
+        height: @model.canvas._height._value
       }
     }
 
@@ -472,10 +472,10 @@ export class PlotCanvasView extends DOMView
     @listenTo(@solver, 'layout_update', () => @request_render())
     @listenTo(@solver, 'layout_update', () =>
       @model.plot.setv({
-        inner_width: Math.round(@frame.width)
-        inner_height: Math.round(@frame.height)
-        layout_width: Math.round(@canvas.width)
-        layout_height: Math.round(@canvas.height)
+        inner_width: Math.round(@frame._width._value)
+        inner_height: Math.round(@frame._height._value)
+        layout_width: Math.round(@canvas._width._value)
+        layout_height: Math.round(@canvas._height._value)
       }, {no_change: true})
     )
     @listenTo(@solver, 'resize', () => @_on_resize())
@@ -560,10 +560,10 @@ export class PlotCanvasView extends DOMView
     ctx.translate(0.5, 0.5)
 
     frame_box = [
-      @canvas.vx_to_sx(@frame.left),
-      @canvas.vy_to_sy(@frame.top),
-      @frame.width,
-      @frame.height,
+      @canvas.vx_to_sx(@frame._left._value),
+      @canvas.vy_to_sy(@frame._top._value),
+      @frame._width._value,
+      @frame._height._value,
     ]
 
     @_map_hook(ctx, frame_box)
@@ -601,8 +601,8 @@ export class PlotCanvasView extends DOMView
 
   update_constraints: () ->
     # Note: -1 to effectively dilate the canvas by 1px
-    @solver.suggest_value(@frame._width, @canvas.width - 1)
-    @solver.suggest_value(@frame._height, @canvas.height - 1)
+    @solver.suggest_value(@frame._width, @canvas._width._value - 1)
+    @solver.suggest_value(@frame._height, @canvas._height._value - 1)
 
     for model_id, view of @renderer_views
       if view.model.panel?
@@ -636,10 +636,10 @@ export class PlotCanvasView extends DOMView
   _map_hook: (ctx, frame_box) ->
 
   _paint_empty: (ctx, frame_box) ->
-    ctx.clearRect(0, 0,  @canvas_view.model.width, @canvas_view.model.height)
+    ctx.clearRect(0, 0,  @canvas_view.model._width._value, @canvas_view.model._height._value)
     if @visuals.border_fill.doit
       @visuals.border_fill.set_value(ctx)
-      ctx.fillRect(0, 0,  @canvas_view.model.width, @canvas_view.model.height)
+      ctx.fillRect(0, 0,  @canvas_view.model._width._value, @canvas_view.model._height._value)
       ctx.clearRect(frame_box...)
     if @visuals.background_fill.doit
       @visuals.background_fill.set_value(ctx)

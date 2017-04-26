@@ -49,7 +49,7 @@ export class DynamicImageView extends RendererView
       cache_key : bounds.join(':')
 
     @model.image_source.add_image(image.image_data)
-    image.src = @model.image_source.get_image_url(bounds[0], bounds[1], bounds[2], bounds[3], Math.ceil(@map_frame.height), Math.ceil(@map_frame.width))
+    image.src = @model.image_source.get_image_url(bounds[0], bounds[1], bounds[2], bounds[3], Math.ceil(@map_frame._height._value), Math.ceil(@map_frame._width._value))
     return image
 
   render: (ctx, indices, args) ->
@@ -96,10 +96,10 @@ export class DynamicImageView extends RendererView
 
   _set_rect:() ->
     outline_width = @plot_model.plot.properties.outline_line_width.value()
-    l = @plot_view.canvas.vx_to_sx(@map_frame.left) + (outline_width/2)
-    t = @plot_view.canvas.vy_to_sy(@map_frame.top) + (outline_width/2)
-    w = @map_frame.width - outline_width
-    h = @map_frame.height - outline_width
+    l = @plot_view.canvas.vx_to_sx(@map_frame._left._value) + (outline_width/2)
+    t = @plot_view.canvas.vy_to_sy(@map_frame._top._value) + (outline_width/2)
+    w = @map_frame._width._value - outline_width
+    h = @map_frame._height._value - outline_width
     @map_canvas.rect(l, t, w, h)
     @map_canvas.clip()
 

@@ -282,13 +282,13 @@ export class Axis extends GuideRenderer
 
     switch side
       when "below"
-        yoff = Math.abs(@panel.top - frame.bottom)
+        yoff = Math.abs(@panel._top._value - frame._bottom._value)
       when "above"
-        yoff = Math.abs(@panel.bottom - frame.top)
+        yoff = Math.abs(@panel._bottom._value - frame._top._value)
       when "right"
-        xoff = Math.abs(@panel.left - frame.right)
+        xoff = Math.abs(@panel._left._value - frame._right._value)
       when "left"
-        xoff = Math.abs(@panel.right - frame.left)
+        xoff = Math.abs(@panel._right._value - frame._left._value)
 
     return [xoff, yoff]
 
