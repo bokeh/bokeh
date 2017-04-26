@@ -577,62 +577,28 @@ def _get_screenshot_as_png(obj):
 
     driver = webdriver.PhantomJS()
     driver.get("file:///" + html_path)
-
-    class element_to_start_resizing(object):
+    script = """
+        window._bokeh_render_complete = false;
+        window.addEventListener("bokeh:rendered", function() {
+            window._bokeh_render_complete = true;
+        })
         """
-        An expectation for checking if an element has started resizing
-        """
-        def __init__(self, element):
-            self.element = element
-            self.previous_width = self.element.size['width']
+    driver.execute_script(script)
 
-        def __call__(self, driver):
-            current_width = self.element.size['width']
-            if self.previous_width != current_width:
-                return True
-            else:
-                self.previous_width = current_width
-                return False
+    def is_bokeh_render_complete(driver):
+        return driver.execute_script('return window._bokeh_render_complete;')
 
-
-    class element_to_finish_resizing(object):
-        """
-        An expectation for checking if an element has finished resizing
-        """
-        def __init__(self, element):
-            self.element = element
-            self.previous_width = self.element.size['width']
-
-        def __call__(self, driver):
-            current_width = self.element.size['width']
-            if self.previous_width == current_width:
-                return True
-            else:
-                self.previous_width = current_width
-                return False
-
-
-    def wait_for_canvas_resize(canvas, test_driver):
-        try:
-            wait = WebDriverWait(test_driver, 1)
-            wait.until(element_to_start_resizing(canvas))
-            wait.until(element_to_finish_resizing(canvas))
-        except TimeoutException:
-            # Resize may or may not happen instantaneously,
-            # Put the waits in to give some time, but allow test to
-            # try and process.
-            pass
-
-    canvas = driver.find_element_by_tag_name('canvas')
-    wait_for_canvas_resize(canvas, driver)
-
-    driver.maximize_window()
+    try:
+        WebDriverWait(driver, 5, poll_frequency=0.1).until(is_bokeh_render_complete)
+    except TimeoutException:
+        pass
 
     browser_logs = driver.get_log('browser')
     severe_errors = [l for l in browser_logs if l.get('level') == 'SEVERE']
     if len(severe_errors) > 0:
         logger.warn("There were severe browser errors that may have affected your export: {}".format(severe_errors))
 
+    driver.maximize_window()
     png = driver.get_screenshot_as_png()
     driver.quit()
 
