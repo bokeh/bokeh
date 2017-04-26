@@ -22,9 +22,9 @@ export class ColorBarView extends AnnotationView
     @_set_canvas_image()
 
   bind_bokeh_events: () ->
-    @listenTo(@model, 'change:visible', @plot_view.request_render)
-    @listenTo(@model.ticker, 'change', @plot_view.request_render)
-    @listenTo(@model.formatter, 'change', @plot_view.request_render)
+    @listenTo(@model, 'change:visible', () => @plot_view.request_render())
+    @listenTo(@model.ticker, 'change', () => @plot_view.request_render())
+    @listenTo(@model.formatter, 'change', () => @plot_view.request_render())
     @listenTo(@model.color_mapper, 'change', () ->
       @_set_canvas_image()
       @plot_view.request_render()
@@ -45,6 +45,9 @@ export class ColorBarView extends AnnotationView
       return bbox.width
 
   _set_canvas_image: () ->
+    if not @model.color_mapper?
+      return
+
     palette = @model.color_mapper.palette
 
     if @model.orientation == 'vertical'
@@ -136,7 +139,7 @@ export class ColorBarView extends AnnotationView
     return {sx: sx, sy: sy}
 
   render: () ->
-    if not @model.visible
+    if not @model.visible or not @model.color_mapper?
       return
 
     ctx = @plot_view.canvas_view.ctx

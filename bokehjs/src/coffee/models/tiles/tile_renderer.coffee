@@ -52,7 +52,7 @@ export class TileRendererView extends RendererView
           }
         })
 
-        overlays = @plot_view.el.querySelector('div.bk-canvas-events')
+        overlays = @plot_view.canvas_view.events_el
         overlays.appendChild(@attributionEl)
 
       @attributionEl.innerHTML = attribution

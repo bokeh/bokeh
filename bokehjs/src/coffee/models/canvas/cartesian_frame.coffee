@@ -20,10 +20,6 @@ export class CartesianFrame extends LayoutCanvas
 
     return null
 
-  _doc_attached: () ->
-    @listenTo(@document.solver(), 'layout_update', () => @_update_mappers())
-    return null
-
   contains: (vx, vy) ->
     return (
       vx >= @left and vx <= @right and
@@ -107,13 +103,13 @@ export class CartesianFrame extends LayoutCanvas
   }
 
   get_constraints: () ->
-    constraints = []
-    constraints.push(GE(@_top))
-    constraints.push(GE(@_bottom))
-    constraints.push(GE(@_left))
-    constraints.push(GE(@_right))
-    constraints.push(GE(@_width))
-    constraints.push(GE(@_height))
-    constraints.push(EQ(@_left, @_width, [-1, @_right]))
-    constraints.push(EQ(@_bottom, @_height, [-1, @_top]))
-    return constraints
+    return [
+      GE(@_top),
+      GE(@_bottom),
+      GE(@_left),
+      GE(@_right),
+      GE(@_width),
+      GE(@_height),
+      EQ(@_left, @_width, [-1, @_right]),
+      EQ(@_bottom, @_height, [-1, @_top]),
+    ]

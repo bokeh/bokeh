@@ -22,7 +22,7 @@ describe "ToolbarView", ->
 
   it "render should call template with toolbar_location", ->
     @test_tb.toolbar_location = 'below'
-    tb_view = new @test_tb.default_view({ model: @test_tb })
+    tb_view = new @test_tb.default_view({ model: @test_tb, parent: null })
     spy = sinon.spy(tb_view, 'template')
     tb_view.render()
     expect(spy.calledOnce).is.true
@@ -33,13 +33,13 @@ describe "ToolbarView", ->
     dom_top = 44
     width = 111
     height = 123
-    @test_tb._dom_left = {_value: dom_left}
-    @test_tb._dom_top = {_value: dom_top}
-    @test_tb._width = {_value: width}
-    @test_tb._height = {_value: height}
+    @test_tb._dom_left.setValue(dom_left)
+    @test_tb._dom_top.setValue(dom_top)
+    @test_tb._width.setValue(width)
+    @test_tb._height.setValue(height)
     @test_tb.sizing_mode = 'stretch_both'
 
-    tb_view = new @test_tb.default_view({ model: @test_tb })
+    tb_view = new @test_tb.default_view({ model: @test_tb, parent: null })
     tb_view.render()
     expected_style = "left: #{dom_left}px; top: #{dom_top}px; width: #{width}px; height: #{height}px;"
     expect(tb_view.el.style.cssText).to.be.equal expected_style
@@ -49,13 +49,13 @@ describe "ToolbarView", ->
     dom_top = 44
     width = 111
     height = 123
-    @test_tb._dom_left = {_value: dom_left}
-    @test_tb._dom_top = {_value: dom_top}
-    @test_tb._width = {_value: width}
-    @test_tb._height = {_value: height}
+    @test_tb._dom_left.setValue(dom_left)
+    @test_tb._dom_top.setValue(dom_top)
+    @test_tb._width.setValue(width)
+    @test_tb._height.setValue(height)
     @test_tb.sizing_mode = 'fixed'
 
-    tb_view = new @test_tb.default_view({ model: @test_tb })
+    tb_view = new @test_tb.default_view({ model: @test_tb, parent: null })
     tb_view.render()
     expect(tb_view.el.style.cssText).to.be.equal("")
 

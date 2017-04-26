@@ -30,6 +30,10 @@ class Settings(object):
     def _is_dev(self):
         return self._get_bool("DEV", False)
 
+    @property
+    def dev(self):
+        return self._is_dev
+
     def _dev_or_default(self, default, dev):
         return dev if dev is not None and self._is_dev else default
 

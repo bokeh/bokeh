@@ -1,14 +1,14 @@
 import * as p from "core/properties"
 import * as bbox from "core/util/bbox"
 import * as proj from "core/util/projections"
-import {BokehView} from "core/bokeh_view"
+import {View} from "core/view"
 import {Model} from "../../model"
 import {Visuals} from "core/visuals"
 import {logger} from "core/logging"
 import {extend} from "core/util/object"
 import {isString, isArray} from "core/util/types"
 
-export class GlyphView extends BokehView
+export class GlyphView extends View
 
   initialize: (options) ->
     super(options)

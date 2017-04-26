@@ -30,27 +30,36 @@ export class ToolbarBaseView extends LayoutDOMView
 
     buttons = @el.querySelector(".bk-button-bar-list[type='inspectors']")
     for obj in @model.inspectors
-      buttons.appendChild(new OnOffButtonView({model: obj}).el)
+      buttons.appendChild(new OnOffButtonView({model: obj, parent: @}).el)
 
     buttons = @el.querySelector(".bk-button-bar-list[type='help']")
     for obj in @model.help
-      buttons.appendChild(new ActionToolButtonView({model: obj}).el)
+      buttons.appendChild(new ActionToolButtonView({model: obj, parent: @}).el)
 
     buttons = @el.querySelector(".bk-button-bar-list[type='actions']")
     for obj in @model.actions
-      buttons.appendChild(new ActionToolButtonView({model: obj}).el)
+      buttons.appendChild(new ActionToolButtonView({model: obj, parent: @}).el)
 
     gestures = @model.gestures
     for et of gestures
       buttons = @el.querySelector(".bk-button-bar-list[type='#{et}']")
       for obj in gestures[et].tools
-        buttons.appendChild(new OnOffButtonView({model: obj}).el)
+        buttons.appendChild(new OnOffButtonView({model: obj, parent: @}).el)
 
     return @
 
 export class ToolbarBase extends LayoutDOM
   type: 'ToolbarBase'
   default_view: ToolbarBaseView
+
+  initialize: (attrs, options) ->
+    super(attrs, options)
+    @_set_sizeable()
+    @listenTo(@, 'change:toolbar_location', () => @_set_sizeable())
+
+  _set_sizeable: () ->
+    horizontal = @toolbar_location in ['left', 'right']
+    @_sizeable = if not horizontal then @_height else @_width
 
   _active_change: (tool) =>
     event_type = tool.event_type
@@ -70,10 +79,10 @@ export class ToolbarBase extends LayoutDOM
 
   get_constraints: () ->
     # Get the constraints from widget
-    constraints = super()
-    # Set the fixed size of toolbar
-    constraints.push(EQ(@_sizeable, -30))
-    return constraints
+    return super().concat([
+      # Set the fixed size of toolbar
+      EQ(@_sizeable, -30),
+    ])
 
   @define {
       tools: [ p.Array,    []       ]

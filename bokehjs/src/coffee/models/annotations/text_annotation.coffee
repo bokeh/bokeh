@@ -19,7 +19,7 @@ export class TextAnnotationView extends AnnotationView
       # dispatch CSS update immediately
       @listenTo(@model, 'change', @render)
     else
-      @listenTo(@model, 'change', @plot_view.request_render)
+      @listenTo(@model, 'change', () => @plot_view.request_render())
 
   _calculate_text_dimensions: (ctx, text) ->
     width = ctx.measureText(text).width

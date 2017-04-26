@@ -24,12 +24,10 @@ describe "ui_events module", ->
 
   afterEach ->
     utils.unstub_canvas()
-    utils.unstub_solver()
     UIEvents.prototype._configure_hammerjs.restore()
 
   beforeEach ->
     utils.stub_canvas()
-    utils.stub_solver()
     sinon.stub(UIEvents.prototype, "_configure_hammerjs")
 
     @toolbar = new Toolbar()
@@ -40,9 +38,10 @@ describe "ui_events module", ->
       y_range: new Range1d({start: 0, end: 1})
       toolbar: @toolbar
     })
+    @plot_view = new @plot.default_view({model: @plot, parent: null})
     canvas.document.add_root(@plot)
     @plot.plot_canvas.attach_document(canvas.document)
-    @plot_canvas_view = new @plot.plot_canvas.default_view({ 'model': @plot.plot_canvas })
+    @plot_canvas_view = new @plot.plot_canvas.default_view({ model: @plot.plot_canvas, parent: @plot_view })
     @ui_events = @plot_canvas_view.ui_event_bus
 
   describe "_trigger method", ->
@@ -107,7 +106,7 @@ describe "ui_events module", ->
 
       it "should change cursor on view_renderer with cursor method", ->
         legend = new Legend({click_policy: "mute"})
-        legend_view = new legend.default_view({'model': legend})
+        legend_view = new legend.default_view({model: legend, parent: null}) # wrong
 
         ss = sinon.stub(@ui_events, "_hit_test_renderers").returns(legend_view)
 
@@ -122,7 +121,7 @@ describe "ui_events module", ->
         @plot.add_tools(inspector)
 
         legend = new Legend({click_policy: "mute"})
-        legend_view = new legend.default_view({'model': legend})
+        legend_view = new legend.default_view({model: legend, parent: null}) # wrong
 
         ss = sinon.stub(@ui_events, "_hit_test_renderers").returns(legend_view)
 
@@ -157,7 +156,7 @@ describe "ui_events module", ->
 
       it "should call on_hit method on view renderer if exists", ->
         legend = new Legend({click_policy: "mute"})
-        legend_view = new legend.default_view({'model': legend})
+        legend_view = new legend.default_view({model: legend, parent: null}) # wrong
 
         ss = sinon.stub(@ui_events, "_hit_test_renderers").returns(legend_view)
         on_hit = sinon.stub(legend_view, "on_hit")
