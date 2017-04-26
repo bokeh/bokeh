@@ -564,41 +564,19 @@ def _destroy_server(div_id):
     except Exception as e:
         logger.debug("Could not destroy server for id %r: %s" % (div_id, e))
 
-def export(obj, filename=None):
-    ''' Save an HTML file with the data for the current document.
-
-    If the filename is not given, it is derived from the script name
-    (e.g. ``/foo/myplot.py`` will create ``/foo/myplot.png``)
-
-    Args:
-        obj (LayoutDOM object) : a Layout (Row/Column), Plot or Widget object to display
-
-        filename (str, optional) : filename to save document under (default: None)
-            If None, infer from the filename.
-
-    Returns:
-        filename (str) : the filename where the static file is saved.
-
-    '''
-
+def _get_screenshot_as_png(obj):
     # probably need a specific version
     webdriver = import_required('selenium.webdriver',
                                 'To use bokeh.io.export you need selenium ' +
                                 '("conda install -c bokeh selenium" or "pip install selenium")')
-
     # assert that phantomjs is in path for webdriver
     detect_phantomjs()
 
+    html_path = tempfile.NamedTemporaryFile(suffix=".html").name
+    save(obj, filename=html_path, resources=INLINE, title="")
+
     driver = webdriver.PhantomJS()
-
-    # generate the html as tempfile
-    temp_html = tempfile.NamedTemporaryFile(suffix=".html").name
-    save(obj, filename=temp_html, resources=INLINE, title="")
-
-    if filename is None:
-        filename = _detect_filename("png")
-
-    driver.get("file:///" + temp_html)
+    driver.get("file:///" + html_path)
 
     class element_to_start_resizing(object):
         """
@@ -655,7 +633,33 @@ def export(obj, filename=None):
     if len(severe_errors) > 0:
         logger.warn("There were severe browser errors that may have affected your export: {}".format(severe_errors))
 
-    driver.save_screenshot(filename)
+    png = driver.get_screenshot_as_png()
     driver.quit()
+
+    return png
+
+def export(obj, filename=None):
+    ''' Save an HTML file with the data for the current document.
+
+    If the filename is not given, it is derived from the script name
+    (e.g. ``/foo/myplot.py`` will create ``/foo/myplot.png``)
+
+    Args:
+        obj (LayoutDOM object) : a Layout (Row/Column), Plot or Widget object to display
+
+        filename (str, optional) : filename to save document under (default: None)
+            If None, infer from the filename.
+
+    Returns:
+        filename (str) : the filename where the static file is saved.
+
+    '''
+    png = _get_screenshot_as_png(obj)
+
+    if filename is None:
+        filename = _detect_filename("png")
+
+    with open(filename, 'wb') as f:
+        f.write(png)
 
     return os.path.abspath(filename)

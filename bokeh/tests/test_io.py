@@ -9,11 +9,13 @@
 from __future__ import absolute_import
 from mock import patch, Mock, PropertyMock
 import pytest
+import selenium
 import unittest
 
 import bokeh.io as io
 from bokeh.resources import Resources
 from bokeh.models.plots import Plot
+from bokeh.plotting import figure
 
 class TestDefaultState(unittest.TestCase):
 
@@ -293,3 +295,13 @@ def _test_children_removed_from_root(layout_generator, children=None):
     layout_generator(component if children is None else children)
     assert component not in io.curdoc().roots
     io.curdoc().clear()
+
+def test__export_helper(monkeypatch):
+    def mockreturn(self):
+        return "PNG"
+    monkeypatch.setattr(selenium.webdriver.remote.webdriver.WebDriver, "get_screenshot_as_png", mockreturn)
+
+    layout = figure()
+
+    png = io._export_helper(layout)
+    assert png == "PNG"
