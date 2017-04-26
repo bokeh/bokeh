@@ -564,11 +564,23 @@ def _destroy_server(div_id):
     except Exception as e:
         logger.debug("Could not destroy server for id %r: %s" % (div_id, e))
 
+def _crop_png(png, rect):
+    '''Crop the border from the layout'''
+    Image = import_required('PIL.Image',
+                            'To use bokeh.io.export you need pillow ' +
+                            '("conda install -c bokeh pillow" or "pip install pillow")')
+
+    image = Image.open(io.BytesIO(png))
+    cropped_image = image.crop((rect['left'], rect['top'], rect['right'], rect['bottom']))
+
+    return cropped_image
+
 def _get_screenshot_as_png(obj):
     # probably need a specific version
     webdriver = import_required('selenium.webdriver',
                                 'To use bokeh.io.export you need selenium ' +
                                 '("conda install -c bokeh selenium" or "pip install selenium")')
+
     # assert that phantomjs is in path for webdriver
     detect_phantomjs()
 
@@ -587,7 +599,6 @@ def _get_screenshot_as_png(obj):
 
     def is_bokeh_render_complete(driver):
         return driver.execute_script('return window._bokeh_render_complete;')
-
     try:
         WebDriverWait(driver, 5, poll_frequency=0.1).until(is_bokeh_render_complete)
     except TimeoutException:
@@ -600,9 +611,15 @@ def _get_screenshot_as_png(obj):
 
     driver.maximize_window()
     png = driver.get_screenshot_as_png()
+
+    bounding_rect_script = "return document.getElementsByClassName('bk-root')[0].children[0].getBoundingClientRect()"
+    bounding_rect = driver.execute_script(bounding_rect_script)
+
     driver.quit()
 
-    return png
+    cropped_png = _crop_png(png, bounding_rect)
+
+    return cropped_png
 
 def export(obj, filename=None):
     ''' Save an HTML file with the data for the current document.
@@ -625,7 +642,6 @@ def export(obj, filename=None):
     if filename is None:
         filename = _detect_filename("png")
 
-    with open(filename, 'wb') as f:
-        f.write(png)
+    png.save(filename)
 
     return os.path.abspath(filename)

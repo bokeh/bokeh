@@ -9,7 +9,6 @@
 from __future__ import absolute_import
 from mock import patch, Mock, PropertyMock
 import pytest
-import selenium
 import unittest
 
 import bokeh.io as io
@@ -296,12 +295,10 @@ def _test_children_removed_from_root(layout_generator, children=None):
     assert component not in io.curdoc().roots
     io.curdoc().clear()
 
-def test__get_screenshot_as_png(monkeypatch):
-    def mockreturn(self):
-        return "PNG"
-    monkeypatch.setattr(selenium.webdriver.remote.webdriver.WebDriver, "get_screenshot_as_png", mockreturn)
-
-    layout = Plot(x_range=Range1d(), y_range=Range1d())
+def test__get_screenshot_as_png():
+    layout = Plot(x_range=Range1d(), y_range=Range1d(),
+                  plot_height=2, plot_width=2, logo=None,
+                  outline_line_color="#ffffff")
 
     png = io._get_screenshot_as_png(layout)
-    assert png == "PNG"
+    assert png.tobytes() == b'\xff\xff\xff?\xff\xff\xff\x7f\xff\xff\xff\x7f\xff\xff\xff\xff'
