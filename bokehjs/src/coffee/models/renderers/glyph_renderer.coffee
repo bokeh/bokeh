@@ -134,12 +134,14 @@ export class GlyphRendererView extends RendererView
     dtmap = Date.now() - t0
 
     tmask = Date.now()
+    # all_indices and indices are in cdsview subset space
     indices = @glyph.mask_data(@all_indices)
     dtmask = Date.now() - tmask
 
     ctx = @plot_view.canvas_view.ctx
     ctx.save()
 
+    # selected is in full set space
     selected = @model.data_source.selected
     if !selected or selected.length == 0
       selected = []
@@ -151,6 +153,7 @@ export class GlyphRendererView extends RendererView
       else
         selected = []
 
+    # inspected is in full set space
     inspected = @model.data_source.inspected
     if !inspected or inspected.length == 0
       inspected = []
@@ -161,6 +164,7 @@ export class GlyphRendererView extends RendererView
         inspected = inspected['1d'].indices
       else
         inspected = []
+    # inspected is transformed to subset space
     inspected = (i for i in indices when @all_indices[i] in inspected)
 
     lod_threshold = @plot_model.plot.lod_threshold
@@ -196,6 +200,7 @@ export class GlyphRendererView extends RendererView
       selected = new Array()
       nonselected = new Array()
       for i in indices
+        # now, selected is changed to subset space
         if selected_mask[@all_indices[i]]?
           selected.push(i)
         else
