@@ -34,7 +34,7 @@ export class DynamicImageView extends RendererView
       @request_render()
 
   _on_image_error: (e) =>
-    logger.error('Error loading image: #{e.target.src}')
+    logger.error("Error loading image: #{e.target.src}")
     image_data = e.target.image_data
     @model.image_source.remove_image(image_data)
 
