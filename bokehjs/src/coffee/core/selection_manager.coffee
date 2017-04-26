@@ -13,25 +13,30 @@ export class SelectionManager extends HasProps
 
   initialize: (attrs, options) ->
     super(attrs, options)
-    @selectors = {}
+    @selector = new Selector()
     @inspectors = {}
     @last_inspection_was_empty = {}
 
-  select: (tool, renderer_view, geometry, final, append=false) ->
+  select: (tool, renderer_views, geometry, final, append=false) ->
     source = @source
-    if source != renderer_view.model.data_source
+    if source != renderer_views[0].model.data_source
       logger.warn('select called with mis-matched data sources')
 
-    indices = renderer_view.hit_test(geometry)
+    indices_renderers = (r.hit_test(geometry) for r in renderer_views)
 
-    if indices?
-      selector = @_get_selector(renderer_view)
-      selector.update(indices, final, append)
+    if indices_renderers?
+      indices = indices_renderers[0]
+      for indices_other in indices_renderers
+        indices.update_through_union(indices_other)
 
-      @source.selected = selector.indices
+      @selector.update(indices, final, append)
+
+      @source.selected = @selector.indices
 
       source.trigger('select')
-      source.trigger('select-' + renderer_view.model.id)
+
+      for renderer_view in renderer_views
+        source.trigger('select-' + renderer_view.model.id)
 
       return not indices.is_empty()
     else
@@ -74,21 +79,12 @@ export class SelectionManager extends HasProps
       return false
 
   clear: (rview) ->
-    if rview?
-      selector = @_get_selector(rview)
-      selector.clear()
-    else
-      for k, s of @selectors
-        s.clear()
+    @selector.clear()
     @source.selected = hittest.create_hit_test_result()
 
-  _get_selector_from: (rview, selectors) ->
+  _get_inspector: (rview) ->
     id = rview.model.id
-    if selectors[id]?
-      return selectors[id]
+    if @inspectors[id]?
+      return @inspectors[id]
     else
-      return selectors[id] = new Selector()
-
-  _get_selector: (rview) -> @_get_selector_from(rview, @selectors)
-
-  _get_inspector: (rview) -> @_get_selector_from(rview, @inspectors)
+      return @inspectors[id] = new Selector()

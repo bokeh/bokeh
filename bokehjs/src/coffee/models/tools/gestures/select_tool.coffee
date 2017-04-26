@@ -80,3 +80,12 @@ export class SelectTool extends GestureTool
   @getters {
     computed_renderers: () -> @_get_computed('computed_renderers')
   }
+
+  _computed_renderers_by_data_source: () ->
+    renderers_by_source = {}
+    for r in @computed_renderers
+      if !(r.data_source of renderers_by_source)
+        renderers_by_source[r.data_source] = [r]
+      else
+        renderers_by_source[r.data_source] = renderers_by_source[r.data_source].concat([r])
+    return renderers_by_source
