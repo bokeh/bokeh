@@ -597,6 +597,7 @@ export class PlotCanvasView extends DOMView
     height = @model._height._value
 
     @canvas_view.set_dims([width, height])  # this indirectly calls @request_render
+    @update_constraints()                   # XXX should be unnecessary
 
   update_constraints: () ->
     # Note: -1 to effectively dilate the canvas by 1px
