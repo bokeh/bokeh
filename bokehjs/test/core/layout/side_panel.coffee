@@ -108,12 +108,6 @@ describe "SidePanel", ->
       update_constraints(@axis_view)
       expect(@solver_add_constraint.callCount).to.be.equal add_constraint_call_count + 2
 
-    it "should add one constraints on first call (for size) if manually set view._full_set to true", ->
-      add_constraint_call_count = @solver_add_constraint.callCount
-      @axis_view._full_set = true
-      update_constraints(@axis_view)
-      expect(@solver_add_constraint.callCount).to.be.equal add_constraint_call_count + 1
-
     it "should add and remove a constraint if the size changes", ->
       @axis_view._tick_extent = sinon.stub()
       @axis_view._tick_extent.onCall(0).returns(0.11)

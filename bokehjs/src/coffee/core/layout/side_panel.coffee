@@ -148,34 +148,22 @@ export update_constraints = (view) ->
     # if not visible, avoid applying constraints until visible again
     return
 
-  # Constrain size based on contents (may not have changed)
-  size = view._get_size()
-
-  if not view._last_size?
-    view._last_size = -1
-
-  if size == view._last_size
-    return
-
   s = view.solver
 
-  view._last_size = size
-  if view._size_constraint?
-    s.remove_constraint(view._size_constraint, true)
-  view._size_constraint = GE(view.model.panel._size, -size)
+  if view._size_constraint? and s.has_constraint(view._size_constraint)
+    s.remove_constraint(view._size_constraint)
+  view._size_constraint = GE(view.model.panel._size, -view._get_size())
   s.add_constraint(view._size_constraint)
 
   # Constrain Full Dimension - link it to the plot (only needs to be done once)
   # If axis is on the left, then it is the full height of the plot.
   # If axis is on the top, then it is the full width of the plot.
-  if not view._full_set?
-    view._full_set = false
-  if not view._full_set
-    constraint = switch view.model.panel.side
-      when 'above', 'below' then EQ(view.model.panel._width,  [-1, view.plot_model.canvas._width])
-      when 'left', 'right'  then EQ(view.model.panel._height, [-1, view.plot_model.canvas._height])
+  constraint = switch view.model.panel.side
+    when 'above', 'below' then EQ(view.model.panel._width,  [-1, view.plot_model.canvas._width])
+    when 'left', 'right'  then EQ(view.model.panel._height, [-1, view.plot_model.canvas._height])
+
+  if not s.has_constraint(constraint)
     s.add_constraint(constraint)
-    view._full_set = true
 
 export class SidePanel extends LayoutCanvas
 

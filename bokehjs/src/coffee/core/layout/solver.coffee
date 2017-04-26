@@ -47,6 +47,9 @@ export class Solver
     if trigger
       @trigger('layout_update')
 
+  has_constraint: (constraint) ->
+    return @solver.hasConstraint(constraint)
+
   add_constraint: (constraint) ->
     @solver.addConstraint(constraint)
 
