@@ -523,6 +523,10 @@ set the value:
 If no formatter is specified for a column name, the default ``"numeral"``
 formatter is assumed.
 
+Note that format specifications are also compatible with column names that
+have spaces. For example ```@{adjusted close}{($ 0.00 a)}`` applies a format
+to a column named "adjusted close".
+
 The example code below shows configuring a ``HoverTool`` with different
 formatters for different fields:
 

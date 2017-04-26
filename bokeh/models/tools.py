@@ -747,7 +747,7 @@ class HoverTool(Inspection):
 
         "@foo{($ 0.00 a)}" # formats 1230974 as: $ 1.23 m
 
-    Specifcying a format ``{safe}`` after a field name will override automatic
+    Specifying a format ``{safe}`` after a field name will override automatic
     escaping of the tooltip data source. Any HTML tags in the data tags will
     be rendered as HTML in the resulting HoverTool output. See
     :ref:`custom_hover_tooltip` for a more detailed example.
