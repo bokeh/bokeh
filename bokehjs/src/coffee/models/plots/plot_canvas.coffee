@@ -479,7 +479,6 @@ export class PlotCanvasView extends DOMView
       }, {no_change: true})
     )
     @listenTo(@solver, 'resize', () => @_on_resize())
-    @listenTo(@canvas, 'change:pixel_ratio', () => @request_render())
 
   set_initial_range : () ->
     # check for good values for ranges before setting initial range
@@ -527,13 +526,24 @@ export class PlotCanvasView extends DOMView
         @model.plot.trigger_event(new LODEnd({}))
         @lod_started = false
 
+    # Prepare the canvas size, taking HIDPI into account. Note that this may cause a resize
+    # of the canvas, which means that any previous calls to ctx.save() will be undone.
+    @canvas_view.prepare_canvas()
+
+    # AK: seems weird to me that this is here, but get solver errors if I remove it
+    @update_constraints()
+
+    # This allows the plot canvas to be positioned around the toolbar
+    @el.style.position = 'absolute'
+    @el.style.left = "#{@model._dom_left._value}px"
+    @el.style.top = "#{@model._dom_top._value}px"
+    @el.style.width = "#{@model._width._value}px"
+    @el.style.height = "#{@model._height._value}px"
+
     for k, v of @renderer_views
       if not @range_update_timestamp? or v.set_data_timestamp > @range_update_timestamp
         @update_dataranges()
         break
-
-    # AK: seems weird to me that this is here, but get solver errors if I remove it
-    @update_constraints()
 
     # TODO (bev) OK this sucks, but the event from the solver update doesn't
     # reach the frame in time (sometimes) so force an update here for now
@@ -587,19 +597,6 @@ export class PlotCanvasView extends DOMView
     height = @model._height._value
 
     @canvas_view.set_dims([width, height])  # this indirectly calls @request_render
-
-    # Prepare the canvas size, taking HIDPI into account. Note that this may cause
-    # a resize of the canvas, which means that any previous calls to ctx.save() may be undone.
-    @canvas_view.prepare_canvas()
-
-    @update_constraints()
-
-    # This allows the plot canvas to be positioned around the toolbar
-    @el.style.position = 'absolute'
-    @el.style.left = "#{@model._dom_left._value}px"
-    @el.style.top = "#{@model._dom_top._value}px"
-    @el.style.width = "#{@model._width._value}px"
-    @el.style.height = "#{@model._height._value}px"
 
   update_constraints: () ->
     # Note: -1 to effectively dilate the canvas by 1px

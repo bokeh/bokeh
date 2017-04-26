@@ -46,23 +46,19 @@ export class CanvasView extends DOMView
     # Ensure canvas has the correct size, taking HIDPI into account
     width = @model._width._value
     height = @model._height._value
-    dpr = window.devicePixelRatio
 
-    # only resize the canvas when the canvas dimensions change
-    if not isEqual(@last_dims, [width, height, dpr])
-      @el.style.width = "#{width}px"
-      @el.style.height = "#{height}px"
+    @el.style.width = "#{width}px"
+    @el.style.height = "#{height}px"
 
-      # Scale the canvas (this resets the context's state)
-      pixel_ratio = get_scale_ratio(@ctx, @model.use_hidpi)
-      @canvas_el.style.width = "#{width}px"
-      @canvas_el.style.height = "#{height}px"
-      @canvas_el.setAttribute('width', width*pixel_ratio)
-      @canvas_el.setAttribute('height', height*pixel_ratio)
+    pixel_ratio = get_scale_ratio(@ctx, @model.use_hidpi)
+    @model.pixel_ratio = pixel_ratio
 
-      logger.debug("Rendering CanvasView with width: #{width}, height: #{height}, pixel ratio: #{pixel_ratio}")
-      @model.pixel_ratio = pixel_ratio
-      @last_dims = [width, height, dpr]
+    @canvas_el.style.width = "#{width}px"
+    @canvas_el.style.height = "#{height}px"
+    @canvas_el.setAttribute('width', width*pixel_ratio)
+    @canvas_el.setAttribute('height', height*pixel_ratio)
+
+    logger.debug("Rendering CanvasView with width: #{width}, height: #{height}, pixel ratio: #{pixel_ratio}")
 
   set_dims: (dims, trigger=true) ->
     @requested_width = dims[0]
