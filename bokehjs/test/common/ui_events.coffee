@@ -24,12 +24,10 @@ describe "ui_events module", ->
 
   afterEach ->
     utils.unstub_canvas()
-    utils.unstub_solver()
     UIEvents.prototype._configure_hammerjs.restore()
 
   beforeEach ->
     utils.stub_canvas()
-    utils.stub_solver()
     sinon.stub(UIEvents.prototype, "_configure_hammerjs")
 
     @toolbar = new Toolbar()
