@@ -15,7 +15,7 @@ import unittest
 import bokeh.io as io
 from bokeh.resources import Resources
 from bokeh.models.plots import Plot
-from bokeh.plotting import figure
+from bokeh.models import Range1d
 
 class TestDefaultState(unittest.TestCase):
 
@@ -296,12 +296,12 @@ def _test_children_removed_from_root(layout_generator, children=None):
     assert component not in io.curdoc().roots
     io.curdoc().clear()
 
-def test__export_helper(monkeypatch):
+def test__get_screenshot_as_png(monkeypatch):
     def mockreturn(self):
         return "PNG"
     monkeypatch.setattr(selenium.webdriver.remote.webdriver.WebDriver, "get_screenshot_as_png", mockreturn)
 
-    layout = figure()
+    layout = Plot(x_range=Range1d(), y_range=Range1d())
 
-    png = io._export_helper(layout)
+    png = io._get_screenshot_as_png(layout)
     assert png == "PNG"
