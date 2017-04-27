@@ -22,8 +22,8 @@ export class CartesianFrame extends LayoutCanvas
 
   contains: (vx, vy) ->
     return (
-      vx >= @left and vx <= @right and
-      vy >= @bottom and vy <= @top
+      vx >= @_left.value   and vx <= @_right.value and
+      vy >= @_bottom.value and vy <= @_top.value
     )
 
   map_to_screen: (x, y, canvas, x_name='default', y_name='default') ->
@@ -63,8 +63,8 @@ export class CartesianFrame extends LayoutCanvas
     return mappers
 
   _configure_frame_ranges: () ->
-    @_h_range = new Range1d({start: @left,   end: @left   + @width})
-    @_v_range = new Range1d({start: @bottom, end: @bottom + @height})
+    @_h_range = new Range1d({start: @_left.value,   end: @_left.value   + @_width.value})
+    @_v_range = new Range1d({start: @_bottom.value, end: @_bottom.value + @_height.value})
 
   _configure_mappers: () ->
     @_configure_frame_ranges()

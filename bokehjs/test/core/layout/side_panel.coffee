@@ -93,7 +93,7 @@ describe "SidePanel", ->
       sinon.stub(@axis_view, '_tick_label_extent', () -> 0.11)
       expect(@axis_view._size_constraint).to.be.undefined
       update_constraints(@axis_view)
-      expect(@axis_view._size_constraint.expression().constant()).to.be.equal(-0.33)
+      expect(@axis_view._size_constraint.expression.constant).to.be.equal(-0.33)
 
     it "should add two constraints on first call (one for size, one for full)", ->
       add_constraint_call_count = @solver_add_constraint.callCount

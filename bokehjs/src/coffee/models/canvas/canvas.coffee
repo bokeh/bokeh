@@ -44,8 +44,8 @@ export class CanvasView extends DOMView
 
   prepare_canvas: () ->
     # Ensure canvas has the correct size, taking HIDPI into account
-    width = @model._width._value
-    height = @model._height._value
+    width = @model._width.value
+    height = @model._height.value
 
     @el.style.width = "#{width}px"
     @el.style.height = "#{height}px"
@@ -119,7 +119,7 @@ export class Canvas extends LayoutCanvas
 
   vy_to_sy: (y) ->
     # Note: +1 to account for 1px canvas dilation
-    return @_height._value - (y + 1)
+    return @_height.value - (y + 1)
 
   # vectorized versions of vx_to_sx/vy_to_sy
   v_vx_to_sx: (xx) ->
@@ -127,7 +127,7 @@ export class Canvas extends LayoutCanvas
 
   v_vy_to_sy: (yy) ->
     _yy = new Float64Array(yy.length)
-    height = @_height._value
+    height = @_height.value
     # Note: +1 to account for 1px canvas dilation
     for y, idx in yy
       _yy[idx] = height - (y + 1)
@@ -137,7 +137,7 @@ export class Canvas extends LayoutCanvas
 
   sy_to_vy: (y) ->
     # Note: +1 to account for 1px canvas dilation
-    return @_height._value - (y + 1)
+    return @_height.value - (y + 1)
 
   # vectorized versions of sx_to_vx/sy_to_vy
   v_sx_to_vx: (xx) ->
@@ -145,7 +145,7 @@ export class Canvas extends LayoutCanvas
 
   v_sy_to_vy: (yy) ->
     _yy = new Float64Array(yy.length)
-    height = @_height._value
+    height = @_height.value
     # Note: +1 to account for 1px canvas dilation
     for y, idx in yy
       _yy[idx] = height - (y + 1)

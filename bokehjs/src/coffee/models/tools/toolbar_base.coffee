@@ -17,10 +17,10 @@ export class ToolbarBaseView extends LayoutDOMView
     empty(@el)
 
     if @model.sizing_mode != 'fixed'
-      @el.style.left = "#{@model._dom_left._value}px"
-      @el.style.top = "#{@model._dom_top._value}px"
-      @el.style.width = "#{@model._width._value}px"
-      @el.style.height = "#{@model._height._value}px"
+      @el.style.left = "#{@model._dom_left.value}px"
+      @el.style.top = "#{@model._dom_top.value}px"
+      @el.style.width = "#{@model._width.value}px"
+      @el.style.height = "#{@model._height.value}px"
 
     @el.appendChild(@template({
       logo: @model.logo

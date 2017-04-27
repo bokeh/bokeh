@@ -80,8 +80,8 @@ export class PlotCanvasView extends DOMView
       range: null                     # set later by set_initial_range()
       selection: {}                   # XXX: initial selection?
       dimensions: {
-        width: @model.canvas.width
-        height: @model.canvas.height
+        width: @model.canvas._width.value
+        height: @model.canvas._height.value
       }
     }
 
@@ -472,10 +472,10 @@ export class PlotCanvasView extends DOMView
     @listenTo(@solver, 'layout_update', () => @request_render())
     @listenTo(@solver, 'layout_update', () =>
       @model.plot.setv({
-        inner_width: Math.round(@frame.width)
-        inner_height: Math.round(@frame.height)
-        layout_width: Math.round(@canvas.width)
-        layout_height: Math.round(@canvas.height)
+        inner_width: Math.round(@frame._width.value)
+        inner_height: Math.round(@frame._height.value)
+        layout_width: Math.round(@canvas._width.value)
+        layout_height: Math.round(@canvas._height.value)
       }, {no_change: true})
     )
     @listenTo(@solver, 'resize', () => @_on_resize())
@@ -535,10 +535,10 @@ export class PlotCanvasView extends DOMView
 
     # This allows the plot canvas to be positioned around the toolbar
     @el.style.position = 'absolute'
-    @el.style.left = "#{@model._dom_left._value}px"
-    @el.style.top = "#{@model._dom_top._value}px"
-    @el.style.width = "#{@model._width._value}px"
-    @el.style.height = "#{@model._height._value}px"
+    @el.style.left = "#{@model._dom_left.value}px"
+    @el.style.top = "#{@model._dom_top.value}px"
+    @el.style.width = "#{@model._width.value}px"
+    @el.style.height = "#{@model._height.value}px"
 
     for k, v of @renderer_views
       if not @range_update_timestamp? or v.set_data_timestamp > @range_update_timestamp
@@ -560,10 +560,10 @@ export class PlotCanvasView extends DOMView
     ctx.translate(0.5, 0.5)
 
     frame_box = [
-      @canvas.vx_to_sx(@frame.left),
-      @canvas.vy_to_sy(@frame.top),
-      @frame.width,
-      @frame.height,
+      @canvas.vx_to_sx(@frame._left.value),
+      @canvas.vy_to_sy(@frame._top.value),
+      @frame._width.value,
+      @frame._height.value,
     ]
 
     @_map_hook(ctx, frame_box)
@@ -593,16 +593,16 @@ export class PlotCanvasView extends DOMView
   _on_resize: () ->
     # Set the plot and canvas to the current model's size
     # This gets called upon solver resize events
-    width = @model._width._value
-    height = @model._height._value
+    width = @model._width.value
+    height = @model._height.value
 
     @canvas_view.set_dims([width, height])  # this indirectly calls @request_render
     @update_constraints()                   # XXX should be unnecessary
 
   update_constraints: () ->
     # Note: -1 to effectively dilate the canvas by 1px
-    @solver.suggest_value(@frame._width, @canvas.width - 1)
-    @solver.suggest_value(@frame._height, @canvas.height - 1)
+    @solver.suggest_value(@frame._width, @canvas._width.value - 1)
+    @solver.suggest_value(@frame._height, @canvas._height.value - 1)
 
     for model_id, view of @renderer_views
       if view.model.panel?
@@ -636,10 +636,10 @@ export class PlotCanvasView extends DOMView
   _map_hook: (ctx, frame_box) ->
 
   _paint_empty: (ctx, frame_box) ->
-    ctx.clearRect(0, 0,  @canvas_view.model.width, @canvas_view.model.height)
+    ctx.clearRect(0, 0,  @canvas_view.model._width.value, @canvas_view.model._height.value)
     if @visuals.border_fill.doit
       @visuals.border_fill.set_value(ctx)
-      ctx.fillRect(0, 0,  @canvas_view.model.width, @canvas_view.model.height)
+      ctx.fillRect(0, 0,  @canvas_view.model._width.value, @canvas_view.model._height.value)
       ctx.clearRect(frame_box...)
     if @visuals.background_fill.doit
       @visuals.background_fill.set_value(ctx)

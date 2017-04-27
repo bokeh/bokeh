@@ -16,7 +16,7 @@ export class BoxView extends LayoutDOMView
 
   get_height: () ->
     children = @model.get_layoutable_children()
-    child_heights = children.map((child) -> child._height._value)
+    child_heights = children.map((child) -> child._height.value)
     if @model._horizontal
       height = max(child_heights)
     else
@@ -25,7 +25,7 @@ export class BoxView extends LayoutDOMView
 
   get_width: () ->
     children = @model.get_layoutable_children()
-    child_widths = children.map((child) -> child._width._value)
+    child_widths = children.map((child) -> child._width.value)
     if @model._horizontal
       width = sum(child_widths)
     else

@@ -147,11 +147,6 @@ export class LayoutDOMView extends DOMView
     @listenTo(@model, 'change:sizing_mode', () -> logger.warn(sizing_mode_msg))
 
   render: () ->
-    #logger.debug("#{@model} _dom_left: #{@model._dom_left._value}, _dom_top: #{@model._dom_top._value}")
-    #logger.debug("#{@model} _top: #{@model._top._value}, _right: #{@model._right._value}, _bottom: #{@model._bottom._value}, _left: #{@model._left._value}")
-    #logger.debug("#{@model} _width: #{@model._width._value}, _height: #{@model._height._value}")
-    #logger.debug("#{@model} _width_minus_right: #{@model._width_minus_right._value}, _height_minus_bottom: #{@model._height_minus_bottom._value}")
-
     switch @model.sizing_mode
       when 'fixed'
         # If the width or height is unset:
@@ -181,23 +176,23 @@ export class LayoutDOMView extends DOMView
 
         @solver.suggest_value(@model._height, height)
         @solver.update_variables()
-        @el.style.width = "#{@model._width._value}px"
-        @el.style.height = "#{@model._height._value}px"
+        @el.style.width = "#{@model._width.value}px"
+        @el.style.height = "#{@model._height.value}px"
 
       when 'scale_height'
         width = @get_width()
 
         @solver.suggest_value(@model._width, width)
         @solver.update_variables()
-        @el.style.width = "#{@model._width._value}px"
-        @el.style.height = "#{@model._height._value}px"
+        @el.style.width = "#{@model._width.value}px"
+        @el.style.height = "#{@model._height.value}px"
 
       when 'stretch_both'
         @el.style.position = 'absolute'
-        @el.style.left = "#{@model._dom_left._value}px"
-        @el.style.top = "#{@model._dom_top._value}px"
-        @el.style.width = "#{@model._width._value}px"
-        @el.style.height = "#{@model._height._value}px"
+        @el.style.left = "#{@model._dom_left.value}px"
+        @el.style.top = "#{@model._dom_top.value}px"
+        @el.style.width = "#{@model._width.value}px"
+        @el.style.height = "#{@model._height.value}px"
 
   get_height: () ->
     # Subclasses should implement this to explain
