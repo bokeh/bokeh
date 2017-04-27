@@ -564,14 +564,9 @@ def _destroy_server(div_id):
     except Exception as e:
         logger.debug("Could not destroy server for id %r: %s" % (div_id, e))
 
-def _crop_png(png, rect):
+def _crop_image(image, left=0, top=0, right=0, bottom=0, **kwargs):
     '''Crop the border from the layout'''
-    Image = import_required('PIL.Image',
-                            'To use bokeh.io.export you need pillow ' +
-                            '("conda install -c bokeh pillow" or "pip install pillow")')
-
-    image = Image.open(io.BytesIO(png))
-    cropped_image = image.crop((rect['left'], rect['top'], rect['right'], rect['bottom']))
+    cropped_image = image.crop((left, top, right, bottom))
 
     return cropped_image
 
@@ -580,7 +575,9 @@ def _get_screenshot_as_png(obj):
     webdriver = import_required('selenium.webdriver',
                                 'To use bokeh.io.export you need selenium ' +
                                 '("conda install -c bokeh selenium" or "pip install selenium")')
-
+    Image = import_required('PIL.Image',
+                            'To use bokeh.io.export you need pillow ' +
+                            '("conda install -c bokeh pillow" or "pip install pillow")')
     # assert that phantomjs is in path for webdriver
     detect_phantomjs()
 
@@ -613,13 +610,14 @@ def _get_screenshot_as_png(obj):
     png = driver.get_screenshot_as_png()
 
     bounding_rect_script = "return document.getElementsByClassName('bk-root')[0].children[0].getBoundingClientRect()"
-    bounding_rect = driver.execute_script(bounding_rect_script)
+    b_rect = driver.execute_script(bounding_rect_script)
 
     driver.quit()
 
-    cropped_png = _crop_png(png, bounding_rect)
+    image = Image.open(io.BytesIO(png))
+    cropped_image = _crop_image(image, **b_rect)
 
-    return cropped_png
+    return cropped_image
 
 def export(obj, filename=None):
     ''' Save an HTML file with the data for the current document.
@@ -637,11 +635,11 @@ def export(obj, filename=None):
         filename (str) : the filename where the static file is saved.
 
     '''
-    png = _get_screenshot_as_png(obj)
+    image = _get_screenshot_as_png(obj)
 
     if filename is None:
         filename = _detect_filename("png")
 
-    png.save(filename)
+    image.save(filename)
 
     return os.path.abspath(filename)
