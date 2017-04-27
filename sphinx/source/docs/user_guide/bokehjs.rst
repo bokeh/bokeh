@@ -130,9 +130,9 @@ These higher level interfaces currently comprise  ``Bokeh.Plotting`` and
 ``Bokeh.Charts``.
 
 .. note::
-    The APIs described below are currently part of the ``bokeh.js`` file,
-    however it is likely that in the future these interfaces will be split
-    into separate files for distribution.
+    As of ``0.12.2`` the APIs described below have been split into BokehJS
+    API, in the ``bokeh-api.js`` file, which must be imported in addition
+    to ``bokeh.js``.
 
 .. _userguide_bokehjs_interfaces_plotting:
 
