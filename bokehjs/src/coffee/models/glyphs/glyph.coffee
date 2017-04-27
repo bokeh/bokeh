@@ -97,9 +97,9 @@ export class GlyphView extends View
   scx: (i) -> return @sx[i]
   scy: (i) -> return @sy[i]
 
-  sdist: (mapper, pts, spans, pts_location="edge", dilate=false) ->
+  sdist: (scale, pts, spans, pts_location="edge", dilate=false) ->
     if isString(pts[0])
-      pts = mapper.v_compute(pts)
+      pts = scale.v_compute(pts)
 
     if pts_location == 'center'
       halfspan = (d / 2 for d in spans)
@@ -109,8 +109,8 @@ export class GlyphView extends View
       pt0 = pts
       pt1 = (pt0[i] + spans[i] for i in [0...pt0.length])
 
-    spt0 = mapper.v_compute(pt0)
-    spt1 = mapper.v_compute(pt1)
+    spt0 = scale.v_compute(pt0)
+    spt1 = scale.v_compute(pt1)
 
     if dilate
       return (Math.ceil(Math.abs(spt1[i] - spt0[i])) for i in [0...spt0.length])

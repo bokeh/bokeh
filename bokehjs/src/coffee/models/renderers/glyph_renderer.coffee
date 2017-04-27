@@ -49,8 +49,8 @@ export class GlyphRendererView extends RendererView
     decimated_glyph = mk_glyph(@model.decimated_defaults)
     @decimated_glyph = @build_glyph_view(decimated_glyph)
 
-    @xmapper = @plot_view.frame.x_mappers[@model.x_range_name]
-    @ymapper = @plot_view.frame.y_mappers[@model.y_range_name]
+    @xscale = @plot_view.frame.xscales[@model.x_range_name]
+    @yscale = @plot_view.frame.yscales[@model.y_range_name]
 
     @set_data(false)
 

@@ -439,18 +439,18 @@ export class ColorBar extends Annotation
 
     return {"height": height, "width": width}
 
-  _tick_coordinate_mapper: (scale_length) ->
+  _tick_coordinate_scale: (scale_length) ->
     ###
-    Creates and returns a mapper instance that maps the `color_mapper` range
+    Creates and returns a scale instance that maps the `color_mapper` range
     (low to high) to a screen space range equal to the length of the ColorBar's
-    scale image. The mapper is used to calculate the tick coordinates in screen
+    scale image. The scale is used to calculate the tick coordinates in screen
     coordinates for plotting purposes.
 
-    Note: the type of color_mapper has to match the type of mapper (i.e.
+    Note: the type of color_mapper has to match the type of scale (i.e.
     a LinearColorMapper will require a corresponding LinearScale instance).
     ###
 
-    mapping = {
+    ranges = {
       'source_range': new Range1d({
         start: @color_mapper.low
         end: @color_mapper.high
@@ -461,10 +461,10 @@ export class ColorBar extends Annotation
     }
 
     switch @color_mapper.type
-      when "LinearColorMapper" then mapper = new LinearScale(mapping)
-      when "LogColorMapper" then mapper = new LogScale(mapping)
+      when "LinearColorMapper" then scale = new LinearScale(ranges)
+      when "LogColorMapper" then scale = new LogScale(ranges)
 
-    return mapper
+    return scale
 
   _tick_coordinates: () ->
     image_dimensions = @_computed_image_dimensions()
@@ -472,7 +472,7 @@ export class ColorBar extends Annotation
       when "vertical" then scale_length = image_dimensions.height
       when "horizontal" then scale_length = image_dimensions.width
 
-    mapper = @_tick_coordinate_mapper(scale_length)
+    scale = @_tick_coordinate_scale(scale_length)
 
     [i, j] = @_normals()
 
@@ -502,8 +502,8 @@ export class ColorBar extends Annotation
 
     major_labels = major_coords[i].slice(0) # make deep copy
 
-    major_coords[i] = mapper.v_compute(major_coords[i])
-    minor_coords[i] = mapper.v_compute(minor_coords[i])
+    major_coords[i] = scale.v_compute(major_coords[i])
+    minor_coords[i] = scale.v_compute(minor_coords[i])
 
     # Because we want the scale to be reversed
     if @orientation == 'vertical'

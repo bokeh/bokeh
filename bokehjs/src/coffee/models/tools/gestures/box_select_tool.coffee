@@ -82,12 +82,12 @@ export class BoxSelectToolView extends SelectToolView
     geometry['sy0'] = canvas.vy_to_sy(geometry.vy0)
     geometry['sy1'] = canvas.vy_to_sy(geometry.vy1)
 
-    xmapper = frame.x_mappers[r.x_range_name]
-    ymapper = frame.y_mappers[r.y_range_name]
-    geometry['x0'] = xmapper.invert(geometry.vx0)
-    geometry['x1'] = xmapper.invert(geometry.vx1)
-    geometry['y0'] = ymapper.invert(geometry.vy0)
-    geometry['y1'] = ymapper.invert(geometry.vy1)
+    xscale = frame.xscales[r.x_range_name]
+    yscale = frame.yscales[r.y_range_name]
+    geometry['x0'] = xscale.invert(geometry.vx0)
+    geometry['x1'] = xscale.invert(geometry.vx1)
+    geometry['y0'] = yscale.invert(geometry.vy0)
+    geometry['y1'] = yscale.invert(geometry.vy1)
 
     @model.callback.execute(@model, {geometry: geometry})
 

@@ -7,33 +7,33 @@ import * as p from "core/properties"
 export class VBarView extends GlyphView
 
   _map_data: () ->
-    @sx = @renderer.xmapper.v_compute(@_x)
+    @sx = @renderer.xscale.v_compute(@_x)
 
-    vtop = @renderer.ymapper.v_compute(@_top)
-    vbottom = (@renderer.ymapper.v_compute(@_bottom))
+    vtop = @renderer.yscale.v_compute(@_top)
+    vbottom = (@renderer.yscale.v_compute(@_bottom))
     @stop = @renderer.plot_view.canvas.v_vy_to_sy(vtop)
     @sbottom = @renderer.plot_view.canvas.v_vy_to_sy(vbottom)
 
     @sleft = []
     @sright = []
-    @sw = @sdist(@renderer.xmapper, @_x, @_width, 'center')
+    @sw = @sdist(@renderer.xscale, @_x, @_width, 'center')
     for i in [0...@sx.length]
       @sleft.push(@sx[i] - @sw[i]/2)
       @sright.push(@sx[i] + @sw[i]/2)
     return null
 
   _index_data: () ->
-    map_to_synthetic = (mapper, array) ->
-      if mapper instanceof CategoricalScale
-        mapper.v_compute(array, true)
+    map_to_synthetic = (scale, array) ->
+      if scale instanceof CategoricalScale
+        scale.v_compute(array, true)
       else
         array
 
-    x = map_to_synthetic(@renderer.xmapper, @_x)
-    width = map_to_synthetic(@renderer.xmapper, @_width)
+    x = map_to_synthetic(@renderer.xscale, @_x)
+    width = map_to_synthetic(@renderer.xscale, @_width)
 
-    top = map_to_synthetic(@renderer.ymapper, @_top)
-    bottom = map_to_synthetic(@renderer.ymapper, @_bottom)
+    top = map_to_synthetic(@renderer.yscale, @_top)
+    bottom = map_to_synthetic(@renderer.yscale, @_bottom)
 
     points = []
     for i in [0...x.length]
@@ -64,8 +64,8 @@ export class VBarView extends GlyphView
 
   _hit_point: (geometry) ->
     [vx, vy] = [geometry.vx, geometry.vy]
-    x = @renderer.xmapper.invert(vx, true)
-    y = @renderer.ymapper.invert(vy, true)
+    x = @renderer.xscale.invert(vx, true)
+    y = @renderer.yscale.invert(vy, true)
 
     hits = @index.indices({minX: x, minY: y, maxX: x, maxY: y})
 

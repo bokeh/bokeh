@@ -43,11 +43,11 @@ export class ImageURLView extends GlyphView
     hs = (if @_h? then @_h else NaN for x in @_x)
 
     switch @model.properties.w.units
-      when "data" then @sw = @sdist(@renderer.xmapper, @_x, ws, 'edge', @model.dilate)
+      when "data" then @sw = @sdist(@renderer.xscale, @_x, ws, 'edge', @model.dilate)
       when "screen" then @sw = ws
 
     switch @model.properties.h.units
-      when "data" then @sh = @sdist(@renderer.ymapper, @_y, hs, 'edge', @model.dilate)
+      when "data" then @sh = @sdist(@renderer.yscale, @_y, hs, 'edge', @model.dilate)
       when "screen" then @sh = hs
 
   _render: (ctx, indices, {_url, image, sx, sy, sw, sh, _angle}) ->

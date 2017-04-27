@@ -22,13 +22,13 @@ export class LatexLabelView extends LabelView
       when "deg" then angle = -1 * @model.angle * Math.PI/180.0
 
     if @model.x_units == "data"
-      vx = @xmapper.compute(@model.x)
+      vx = @xscale.compute(@model.x)
     else
       vx = @model.x
     sx = @canvas.vx_to_sx(vx)
 
     if @model.y_units == "data"
-      vy = @ymapper.compute(@model.y)
+      vy = @yscale.compute(@model.y)
     else
       vy = @model.y
     sy = @canvas.vy_to_sy(vy)

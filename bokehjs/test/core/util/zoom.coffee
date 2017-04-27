@@ -38,7 +38,7 @@ describe "zoom module", ->
 
   describe "get_info", ->
 
-    it "should work with categorical mappers", ->
+    it "should work with categorical scales", ->
       cm = new CategoricalScale({
         source_range: new FactorRange({factors: ['foo', 'bar', 'baz']})
         target_range: Range1d(20, 80)

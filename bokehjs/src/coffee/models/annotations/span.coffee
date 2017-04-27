@@ -40,17 +40,17 @@ export class SpanView extends AnnotationView
 
     frame = @plot_model.frame
     canvas = @plot_model.canvas
-    xmapper = @plot_view.frame.x_mappers[@model.x_range_name]
-    ymapper = @plot_view.frame.y_mappers[@model.y_range_name]
+    xscale = @plot_view.frame.xscales[@model.x_range_name]
+    yscale = @plot_view.frame.yscales[@model.y_range_name]
 
     if @model.dimension == 'width'
-      stop = canvas.vy_to_sy(@_calc_dim(loc, ymapper))
+      stop = canvas.vy_to_sy(@_calc_dim(loc, yscale))
       sleft = canvas.vx_to_sx(frame._left.value)
       width = frame._width.value
       height = @model.properties.line_width.value()
     else
       stop = canvas.vy_to_sy(frame._top.value)
-      sleft = canvas.vx_to_sx(@_calc_dim(loc, xmapper))
+      sleft = canvas.vx_to_sx(@_calc_dim(loc, xscale))
       width = @model.properties.line_width.value()
       height = frame._height.value
 
@@ -79,9 +79,9 @@ export class SpanView extends AnnotationView
 
       ctx.restore()
 
-  _calc_dim: (location, mapper) ->
+  _calc_dim: (location, scale) ->
       if @model.location_units == 'data'
-        vdim = mapper.compute(location)
+        vdim = scale.compute(location)
       else
         vdim = location
       return vdim

@@ -6,17 +6,17 @@ import * as hittest from "core/hittest"
 export class QuadView extends GlyphView
 
   _index_data: () ->
-    map_to_synthetic = (mapper, array) ->
-      if mapper instanceof CategoricalScale
-        mapper.v_compute(array, true)
+    map_to_synthetic = (scale, array) ->
+      if scale instanceof CategoricalScale
+        scale.v_compute(array, true)
       else
         array
 
-    left = map_to_synthetic(@renderer.xmapper, @_left)
-    right = map_to_synthetic(@renderer.xmapper, @_right)
+    left = map_to_synthetic(@renderer.xscale, @_left)
+    right = map_to_synthetic(@renderer.xscale, @_right)
 
-    top = map_to_synthetic(@renderer.ymapper, @_top)
-    bottom = map_to_synthetic(@renderer.ymapper, @_bottom)
+    top = map_to_synthetic(@renderer.yscale, @_top)
+    bottom = map_to_synthetic(@renderer.yscale, @_bottom)
 
     points = []
     for i in [0...left.length]
@@ -47,8 +47,8 @@ export class QuadView extends GlyphView
 
   _hit_point: (geometry) ->
     [vx, vy] = [geometry.vx, geometry.vy]
-    x = @renderer.xmapper.invert(vx, true)
-    y = @renderer.ymapper.invert(vy, true)
+    x = @renderer.xscale.invert(vx, true)
+    y = @renderer.yscale.invert(vy, true)
 
     hits = @index.indices({minX: x, minY: y, maxX: x, maxY: y})
 

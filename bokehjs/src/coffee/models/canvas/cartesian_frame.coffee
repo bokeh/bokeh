@@ -15,8 +15,8 @@ export class CartesianFrame extends LayoutCanvas
     super(attrs, options)
     @panel = @
 
-    @_configure_mappers()
-    @listenTo(@, 'change', () => @_configure_mappers())
+    @_configure_scales()
+    @listenTo(@, 'change', () => @_configure_scales())
 
     return null
 
@@ -27,10 +27,10 @@ export class CartesianFrame extends LayoutCanvas
     )
 
   map_to_screen: (x, y, canvas, x_name='default', y_name='default') ->
-    vx = @x_mappers[x_name].v_compute(x)
+    vx = @xscales[x_name].v_compute(x)
     sx = canvas.v_vx_to_sx(vx)
 
-    vy = @y_mappers[y_name].v_compute(y)
+    vy = @yscales[y_name].v_compute(y)
     sy = canvas.v_vy_to_sy(vy)
     return [sx, sy]
 
@@ -42,55 +42,55 @@ export class CartesianFrame extends LayoutCanvas
         ranges[name] = extra_range
     return ranges
 
-  _get_mappers: (mapper_type, ranges, frame_range) ->
-    mappers = {}
+  _get_scales: (scale_type_name, ranges, frame_range) ->
+    scales = {}
     for name, range of ranges
       if range.type == "Range1d" or range.type == "DataRange1d"
-        if mapper_type == "log"
-          mapper_model = LogScale
+        if scale_type_name == "log"
+          scale_type = LogScale
         else
-          mapper_model = LinearScale
-        range.mapper_hint = mapper_type
+          scale_type = LinearScale
+        range.scale_hint = scale_type_name
       else if range.type == "FactorRange"
-        mapper_model = CategoricalScale
+        scale_type = CategoricalScale
       else
         logger.warn("unknown range type for range '#{name}': #{range}")
         return null
-      mappers[name] = new mapper_model({
+      scales[name] = new scale_type({
         source_range: range
         target_range: frame_range
       })
-    return mappers
+    return scales
 
   _configure_frame_ranges: () ->
     @_h_range = new Range1d({start: @_left.value,   end: @_left.value   + @_width.value})
     @_v_range = new Range1d({start: @_bottom.value, end: @_bottom.value + @_height.value})
 
-  _configure_mappers: () ->
+  _configure_scales: () ->
     @_configure_frame_ranges()
 
     @_x_ranges = @_get_ranges(@x_range, @extra_x_ranges)
     @_y_ranges = @_get_ranges(@y_range, @extra_y_ranges)
 
-    @_x_mappers = @_get_mappers(@x_mapper_type, @_x_ranges, @_h_range)
-    @_y_mappers = @_get_mappers(@y_mapper_type, @_y_ranges, @_v_range)
+    @_xscales = @_get_scales(@x_mapper_type, @_x_ranges, @_h_range)
+    @_yscales = @_get_scales(@y_mapper_type, @_y_ranges, @_v_range)
 
-  _update_mappers: () ->
+  _update_scales: () ->
     @_configure_frame_ranges()
 
-    for name, mapper of @_x_mappers
-      mapper.target_range = @_h_range
-    for name, mapper of @_y_mappers
-      mapper.target_range = @_v_range
+    for name, scale of @_xscales
+      scale.target_range = @_h_range
+    for name, scale of @_yscales
+      scale.target_range = @_v_range
     return null
 
   @getters {
-    h_range:   () -> @_h_range
-    v_range:   () -> @_v_range
-    x_ranges:  () -> @_x_ranges
-    y_ranges:  () -> @_y_ranges
-    x_mappers: () -> @_x_mappers
-    y_mappers: () -> @_y_mappers
+    h_range:  () -> @_h_range
+    v_range:  () -> @_v_range
+    x_ranges: () -> @_x_ranges
+    y_ranges: () -> @_y_ranges
+    xscales:  () -> @_xscales
+    yscales:  () -> @_yscales
   }
 
   @internal {

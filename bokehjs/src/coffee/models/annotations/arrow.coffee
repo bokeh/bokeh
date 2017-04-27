@@ -10,8 +10,8 @@ export class ArrowView extends AnnotationView
     if not @model.source?
       this.model.source = new ColumnDataSource()
     @canvas = @plot_model.canvas
-    @xmapper = @plot_view.frame.x_mappers[@model.x_range_name]
-    @ymapper = @plot_view.frame.y_mappers[@model.y_range_name]
+    @xscale = @plot_view.frame.xscales[@model.x_range_name]
+    @yscale = @plot_view.frame.yscales[@model.y_range_name]
     @set_data(@model.source)
 
   bind_bokeh_events: () ->

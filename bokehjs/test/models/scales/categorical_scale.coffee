@@ -7,56 +7,56 @@ utils = require "../../utils"
 
 close = (a, b) -> Math.abs(a-b)<10e-7
 
-describe "categorical mapper module", ->
+describe "categorical_scale module", ->
   factors = ["foo", "bar", "baz"]
   start = 20
   end = 80
 
-  generate_mapper = (offset=0) ->
+  generate_scale = (offset=0) ->
     new CategoricalScale({
       source_range: new FactorRange({factors: factors, offset: offset})
       target_range: new Range1d({start: start, end: end})
     })
 
   describe "mapping", ->
-    mapper = generate_mapper()
-    omapper = generate_mapper(-1)
+    scale = generate_scale()
+    oscale = generate_scale(-1)
 
-    test_mapping = (mapper, key, expected) ->
-      expect(mapper.compute key).to.equal expected
+    test_mapping = (scale, key, expected) ->
+      expect(scale.compute key).to.equal expected
 
-    test_synthetic_mapping = (mapper, key, expected) ->
-      expect(mapper.compute key, true).to.equal expected
+    test_synthetic_mapping = (scale, key, expected) ->
+      expect(scale.compute key, true).to.equal expected
 
     it "should map factors evenly", ->
-      test_mapping mapper, "foo", 30
-      test_mapping mapper, "bar", 50
-      test_mapping mapper, "baz", 70
+      test_mapping scale, "foo", 30
+      test_mapping scale, "bar", 50
+      test_mapping scale, "baz", 70
 
-      test_mapping omapper, "foo", 30
-      test_mapping omapper, "bar", 50
-      test_mapping omapper, "baz", 70
+      test_mapping oscale, "foo", 30
+      test_mapping oscale, "bar", 50
+      test_mapping oscale, "baz", 70
 
     it "should expose synthetic range values", ->
-      test_synthetic_mapping mapper, "foo", 1
-      test_synthetic_mapping mapper, "bar", 2
-      test_synthetic_mapping mapper, "baz", 3
+      test_synthetic_mapping scale, "foo", 1
+      test_synthetic_mapping scale, "bar", 2
+      test_synthetic_mapping scale, "baz", 3
 
-      test_synthetic_mapping omapper, "foo", 0
-      test_synthetic_mapping omapper, "bar", 1
-      test_synthetic_mapping omapper, "baz", 2
+      test_synthetic_mapping oscale, "foo", 0
+      test_synthetic_mapping oscale, "bar", 1
+      test_synthetic_mapping oscale, "baz", 2
 
     it "should map synthetic values to synthetic values", ->
-      test_synthetic_mapping mapper, 1, 1
-      test_synthetic_mapping mapper, 2, 2
-      test_synthetic_mapping mapper, 3, 3
+      test_synthetic_mapping scale, 1, 1
+      test_synthetic_mapping scale, 2, 2
+      test_synthetic_mapping scale, 3, 3
 
-      test_synthetic_mapping omapper, 1, 1
-      test_synthetic_mapping omapper, 2, 2
-      test_synthetic_mapping omapper, 3, 3
+      test_synthetic_mapping oscale, 1, 1
+      test_synthetic_mapping oscale, 2, 2
+      test_synthetic_mapping oscale, 3, 3
 
   describe "vector mapping", ->
-    values = generate_mapper().v_compute factors
+    values = generate_scale().v_compute factors
 
     it "should return a Float64Array", ->
       expect(values).to.be.an.instanceof Float64Array
@@ -65,78 +65,78 @@ describe "categorical mapper module", ->
       expect(values).to.deep.equal new Float64Array [30, 50, 70]
 
     it "should expose synthetic range values", ->
-      synthetic = generate_mapper().v_compute factors, true
+      synthetic = generate_scale().v_compute factors, true
       expect(synthetic).to.deep.equal [1, 2, 3]
 
-      osynthetic = generate_mapper(-1).v_compute factors, true
+      osynthetic = generate_scale(-1).v_compute factors, true
       expect(osynthetic).to.deep.equal [0, 1, 2]
 
     it "should map synthetic values to synthetic values", ->
-      synthetic = generate_mapper().v_compute [1,2,3], true
+      synthetic = generate_scale().v_compute [1,2,3], true
       expect(synthetic).to.deep.equal [1, 2, 3]
 
-      osynthetic = generate_mapper().v_compute [1,2,3], true
+      osynthetic = generate_scale().v_compute [1,2,3], true
       expect(osynthetic).to.deep.equal [1, 2, 3]
 
   describe "inverse mapping", ->
-    mapper = generate_mapper()
-    omapper = generate_mapper(-1)
+    scale = generate_scale()
+    oscale = generate_scale(-1)
     close = (a, b) -> Math.abs(a-b)<10e-7
 
-    test_inverse_mapping = (mapper, key, expected) ->
-      expect(mapper.invert key).to.equal expected
+    test_inverse_mapping = (scale, key, expected) ->
+      expect(scale.invert key).to.equal expected
 
-    test_synthetic_inverse_mapping = (mapper, key, expected) ->
-      val = mapper.invert key, true
+    test_synthetic_inverse_mapping = (scale, key, expected) ->
+      val = scale.invert key, true
       expect(close(val, expected)).to.be.ok
 
     it "should bin inverses evenly", ->
-      test_inverse_mapping mapper, 21, 'foo'
-      test_inverse_mapping mapper, 30, 'foo'
-      test_inverse_mapping mapper, 39, 'foo'
-      test_inverse_mapping mapper, 41, 'bar'
-      test_inverse_mapping mapper, 50, 'bar'
-      test_inverse_mapping mapper, 59, 'bar'
-      test_inverse_mapping mapper, 61, 'baz'
-      test_inverse_mapping mapper, 70, 'baz'
-      test_inverse_mapping mapper, 79, 'baz'
+      test_inverse_mapping scale, 21, 'foo'
+      test_inverse_mapping scale, 30, 'foo'
+      test_inverse_mapping scale, 39, 'foo'
+      test_inverse_mapping scale, 41, 'bar'
+      test_inverse_mapping scale, 50, 'bar'
+      test_inverse_mapping scale, 59, 'bar'
+      test_inverse_mapping scale, 61, 'baz'
+      test_inverse_mapping scale, 70, 'baz'
+      test_inverse_mapping scale, 79, 'baz'
 
-      test_inverse_mapping omapper, 21, 'foo'
-      test_inverse_mapping omapper, 30, 'foo'
-      test_inverse_mapping omapper, 39, 'foo'
-      test_inverse_mapping omapper, 41, 'bar'
-      test_inverse_mapping omapper, 50, 'bar'
-      test_inverse_mapping omapper, 59, 'bar'
-      test_inverse_mapping omapper, 61, 'baz'
-      test_inverse_mapping omapper, 70, 'baz'
-      test_inverse_mapping omapper, 79, 'baz'
+      test_inverse_mapping oscale, 21, 'foo'
+      test_inverse_mapping oscale, 30, 'foo'
+      test_inverse_mapping oscale, 39, 'foo'
+      test_inverse_mapping oscale, 41, 'bar'
+      test_inverse_mapping oscale, 50, 'bar'
+      test_inverse_mapping oscale, 59, 'bar'
+      test_inverse_mapping oscale, 61, 'baz'
+      test_inverse_mapping oscale, 70, 'baz'
+      test_inverse_mapping oscale, 79, 'baz'
 
 
     it "should expose synthetic range values", ->
-      test_synthetic_inverse_mapping mapper, 21, 0.55
-      test_synthetic_inverse_mapping mapper, 30, 1.0
-      test_synthetic_inverse_mapping mapper, 39, 1.45
-      test_synthetic_inverse_mapping mapper, 41, 1.55
-      test_synthetic_inverse_mapping mapper, 50, 2.0
-      test_synthetic_inverse_mapping mapper, 59, 2.45
-      test_synthetic_inverse_mapping mapper, 61, 2.55
-      test_synthetic_inverse_mapping mapper, 70, 3.0
-      test_synthetic_inverse_mapping mapper, 79, 3.45
+      test_synthetic_inverse_mapping scale, 21, 0.55
+      test_synthetic_inverse_mapping scale, 30, 1.0
+      test_synthetic_inverse_mapping scale, 39, 1.45
+      test_synthetic_inverse_mapping scale, 41, 1.55
+      test_synthetic_inverse_mapping scale, 50, 2.0
+      test_synthetic_inverse_mapping scale, 59, 2.45
+      test_synthetic_inverse_mapping scale, 61, 2.55
+      test_synthetic_inverse_mapping scale, 70, 3.0
+      test_synthetic_inverse_mapping scale, 79, 3.45
 
-      test_synthetic_inverse_mapping omapper, 21, -0.45
-      test_synthetic_inverse_mapping omapper, 30, 0.0
-      test_synthetic_inverse_mapping omapper, 39, 0.45
-      test_synthetic_inverse_mapping omapper, 41, 0.55
-      test_synthetic_inverse_mapping omapper, 50, 1.0
-      test_synthetic_inverse_mapping omapper, 59, 1.45
-      test_synthetic_inverse_mapping omapper, 61, 1.55
-      test_synthetic_inverse_mapping omapper, 70, 2.0
-      test_synthetic_inverse_mapping omapper, 79, 2.45
+      test_synthetic_inverse_mapping oscale, 21, -0.45
+      test_synthetic_inverse_mapping oscale, 30, 0.0
+      test_synthetic_inverse_mapping oscale, 39, 0.45
+      test_synthetic_inverse_mapping oscale, 41, 0.55
+      test_synthetic_inverse_mapping oscale, 50, 1.0
+      test_synthetic_inverse_mapping oscale, 59, 1.45
+      test_synthetic_inverse_mapping oscale, 61, 1.55
+      test_synthetic_inverse_mapping oscale, 70, 2.0
+      test_synthetic_inverse_mapping oscale, 79, 2.45
 
   describe "inverse vector mapping", ->
     values = [21,30,39,41,50,59,61,70,79]
-    result = generate_mapper().v_invert values
-    oresult = generate_mapper(-1).v_invert values
+    result = generate_scale().v_invert values
+    oresult = generate_scale(-1).v_invert values
 
     it "should return an Array", ->
       expect(result).to.be.an.instanceof Array
@@ -147,26 +147,26 @@ describe "categorical mapper module", ->
       expect(oresult).to.deep.equal ['foo','foo','foo','bar','bar','bar','baz','baz','baz']
 
     it "should expose synthetic range values", ->
-      synthetic = generate_mapper().v_invert values, true
+      synthetic = generate_scale().v_invert values, true
       expected = [0.55, 1.0, 1.45, 1.55, 2.0, 2.45, 2.55, 3.0, 3.45]
       for i in [0...values.length]
         expect(close(synthetic[i], expected[i])).to.be.ok
 
-      osynthetic = generate_mapper(-1).v_invert values, true
+      osynthetic = generate_scale(-1).v_invert values, true
       expected = [-0.45, 0.0, 0.45, 0.55, 1.0, 1.45, 1.55, 2.0, 2.45]
       for i in [0...values.length]
         expect(close(osynthetic[i], expected[i])).to.be.ok
 
   describe "source updates", ->
     new_factors = ['a', 'b', 'c', 'd']
-    mapper = generate_mapper()
-    mapper.source_range.factors = new_factors
+    scale = generate_scale()
+    scale.source_range.factors = new_factors
 
     test_mapping = (key, expected) ->
-      expect(mapper.compute key).to.equal expected
+      expect(scale.compute key).to.equal expected
 
     test_inverse_mapping = (key, expected) ->
-      expect(mapper.invert key).to.equal expected
+      expect(scale.invert key).to.equal expected
 
     it "should cause updated mapped values", ->
       test_mapping 'a', 27.5
@@ -175,7 +175,7 @@ describe "categorical mapper module", ->
       test_mapping 'd', 72.5
 
     it "should cause updated vector mapped values", ->
-      new_values =  mapper.v_compute new_factors
+      new_values =  scale.v_compute new_factors
       expect(new_values).to.deep.equal new Float64Array [27.5, 42.5, 57.5, 72.5]
 
     it "should cause updated inverse mapped values", ->
@@ -197,54 +197,54 @@ describe "categorical mapper module", ->
 
     it "should cause updated inverse vector mapped values", ->
       values = [25,27.5,30,40,42.5,45,55,57.5,60,70,72.5,75]
-      result = mapper.v_invert values
+      result = scale.v_invert values
       expect(result).to.deep.equal ['a','a','a','b','b','b','c','c','c','d','d','d']
 
   describe "categorical coordinates", ->
-    mapper = generate_mapper()
-    omapper = generate_mapper(-1)
+    scale = generate_scale()
+    oscale = generate_scale(-1)
 
-    test_mapping = (mapper, key, expected) ->
-      expect(mapper.compute key).to.equal expected
+    test_mapping = (scale, key, expected) ->
+      expect(scale.compute key).to.equal expected
 
     it "should apply map percentages to mappings", ->
-      test_mapping mapper, 'foo:0.1', 22
-      test_mapping mapper, 'foo:0.5', 30
-      test_mapping mapper, 'foo:0.9', 38
-      test_mapping mapper, 'bar:0.2', 44
-      test_mapping mapper, 'bar:0.4', 48
-      test_mapping mapper, 'bar:0.6', 52
-      test_mapping mapper, 'bar:0.8', 56
-      test_mapping mapper, 'baz:0.3', 66
-      test_mapping mapper, 'baz:0.7', 74
+      test_mapping scale, 'foo:0.1', 22
+      test_mapping scale, 'foo:0.5', 30
+      test_mapping scale, 'foo:0.9', 38
+      test_mapping scale, 'bar:0.2', 44
+      test_mapping scale, 'bar:0.4', 48
+      test_mapping scale, 'bar:0.6', 52
+      test_mapping scale, 'bar:0.8', 56
+      test_mapping scale, 'baz:0.3', 66
+      test_mapping scale, 'baz:0.7', 74
 
     it "should apply map percentages to mappings with offset synthetic ranges", ->
-      test_mapping omapper, 'foo:0.1', 22
-      test_mapping omapper, 'foo:0.5', 30
-      test_mapping omapper, 'foo:0.9', 38
-      test_mapping omapper, 'bar:0.2', 44
-      test_mapping omapper, 'bar:0.4', 48
-      test_mapping omapper, 'bar:0.6', 52
-      test_mapping omapper, 'bar:0.8', 56
-      test_mapping omapper, 'baz:0.3', 66
-      test_mapping omapper, 'baz:0.7', 74
+      test_mapping oscale, 'foo:0.1', 22
+      test_mapping oscale, 'foo:0.5', 30
+      test_mapping oscale, 'foo:0.9', 38
+      test_mapping oscale, 'bar:0.2', 44
+      test_mapping oscale, 'bar:0.4', 48
+      test_mapping oscale, 'bar:0.6', 52
+      test_mapping oscale, 'bar:0.8', 56
+      test_mapping oscale, 'baz:0.3', 66
+      test_mapping oscale, 'baz:0.7', 74
 
     it "should apply percentages to vector mappings", ->
-      values = generate_mapper().v_compute ['foo:0.1', 'foo:0.5', 'foo:0.9']
+      values = generate_scale().v_compute ['foo:0.1', 'foo:0.5', 'foo:0.9']
       expect(values).to.deep.equal new Float64Array [22,30,38]
 
-      values = generate_mapper().v_compute ['bar:0.2', 'bar:0.4', 'bar:0.6', 'bar:0.8']
+      values = generate_scale().v_compute ['bar:0.2', 'bar:0.4', 'bar:0.6', 'bar:0.8']
       expect(values).to.deep.equal new Float64Array [44,48,52,56]
 
-      values = generate_mapper().v_compute ['baz:0.3', 'baz:0.7']
+      values = generate_scale().v_compute ['baz:0.3', 'baz:0.7']
       expect(values).to.deep.equal new Float64Array [66, 74]
 
     it "should apply percentages to vector mappings with offset synthetic ranges", ->
-      values = generate_mapper(-1).v_compute ['foo:0.1', 'foo:0.5', 'foo:0.9']
+      values = generate_scale(-1).v_compute ['foo:0.1', 'foo:0.5', 'foo:0.9']
       expect(values).to.deep.equal new Float64Array [22,30,38]
 
-      values = generate_mapper(-1).v_compute ['bar:0.2', 'bar:0.4', 'bar:0.6', 'bar:0.8']
+      values = generate_scale(-1).v_compute ['bar:0.2', 'bar:0.4', 'bar:0.6', 'bar:0.8']
       expect(values).to.deep.equal new Float64Array [44,48,52,56]
 
-      values = generate_mapper(-1).v_compute ['baz:0.3', 'baz:0.7']
+      values = generate_scale(-1).v_compute ['baz:0.3', 'baz:0.7']
       expect(values).to.deep.equal new Float64Array [66, 74]

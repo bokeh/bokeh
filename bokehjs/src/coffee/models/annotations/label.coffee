@@ -6,8 +6,8 @@ export class LabelView extends TextAnnotationView
   initialize: (options) ->
     super(options)
     @canvas = @plot_model.canvas
-    @xmapper = @plot_view.frame.x_mappers[@model.x_range_name]
-    @ymapper = @plot_view.frame.y_mappers[@model.y_range_name]
+    @xscale = @plot_view.frame.xscales[@model.x_range_name]
+    @yscale = @plot_view.frame.yscales[@model.y_range_name]
 
     @visuals.warm_cache(null)
 
@@ -37,13 +37,13 @@ export class LabelView extends TextAnnotationView
       when "deg" then angle = -1 * @model.angle * Math.PI/180.0
 
     if @model.x_units == "data"
-      vx = @xmapper.compute(@model.x)
+      vx = @xscale.compute(@model.x)
     else
       vx = @model.x
     sx = @canvas.vx_to_sx(vx)
 
     if @model.y_units == "data"
-      vy = @ymapper.compute(@model.y)
+      vy = @yscale.compute(@model.y)
     else
       vy = @model.y
     sy = @canvas.vy_to_sy(vy)
