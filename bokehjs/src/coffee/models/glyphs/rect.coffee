@@ -3,7 +3,7 @@ import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {max} from "core/util/array"
 import {isString} from "core/util/types"
-import {CategoricalMapper} from "../mappers/categorical_mapper"
+import {CategoricalScale} from "../scales/categorical_scale"
 
 export class RectView extends XYGlyphView
 
@@ -129,7 +129,7 @@ export class RectView extends XYGlyphView
     return result
 
   _map_dist_corner_for_data_side_length: (coord, side_length, mapper, canvas, dim) ->
-    if isString(coord[0]) and mapper instanceof CategoricalMapper
+    if isString(coord[0]) and mapper instanceof CategoricalScale
       return_synthetic = true
       synthetic_pt = mapper.v_map_to_target(coord, return_synthetic)
       if dim == 0

@@ -1,7 +1,7 @@
 {expect} = require "chai"
 utils = require "../../utils"
 
-{LinearMapper} = utils.require("models/mappers/linear_mapper")
+{LinearScale} = utils.require("models/scales/linear_scale")
 {Range1d} = utils.require("models/ranges/range1d")
 
 describe "linear_mapper module", ->
@@ -9,7 +9,7 @@ describe "linear_mapper module", ->
   target = {start: 20, end: 80}
 
   generate_mapper = ->
-    new LinearMapper({
+    new LinearScale({
       source_range: new Range1d(source)
       target_range: new Range1d(target)
     })
@@ -18,7 +18,7 @@ describe "linear_mapper module", ->
     mapper = generate_mapper()
 
     it "should compute mapper state", ->
-      expect(mapper.mapper_state).to.be.deep.equal [6, 20]
+      expect(mapper.state).to.be.deep.equal [6, 20]
 
     it "should map values linearly", ->
       expect(mapper.map_to_target(-1)).to.be.equal 14
@@ -51,31 +51,31 @@ describe "linear_mapper module", ->
       it "should update on whole range replacement", ->
         mapper = generate_mapper()
         mapper.source_range = new Range1d({start: -10, end: 20})
-        expect(mapper.mapper_state).to.be.deep.equal [2, 40]
+        expect(mapper.state).to.be.deep.equal [2, 40]
 
       it "should update on range start update", ->
         mapper = generate_mapper()
         mapper.source_range.start = -10
-        expect(mapper.mapper_state).to.be.deep.equal [3, 50]
+        expect(mapper.state).to.be.deep.equal [3, 50]
 
       it "should update on range end update", ->
         mapper = generate_mapper()
         mapper.source_range.end = 20
-        expect(mapper.mapper_state).to.be.deep.equal [3, 20]
+        expect(mapper.state).to.be.deep.equal [3, 20]
 
     describe "update target range1d", ->
 
       it "should update on whole range replacement", ->
         mapper = generate_mapper()
         mapper.target_range = new Range1d({start: 0, end: 100})
-        expect(mapper.mapper_state).to.be.deep.equal [10, 0]
+        expect(mapper.state).to.be.deep.equal [10, 0]
 
       it "should update on range start update", ->
         mapper = generate_mapper()
         mapper.target_range.start = 0
-        expect(mapper.mapper_state).to.be.deep.equal [8, 0]
+        expect(mapper.state).to.be.deep.equal [8, 0]
 
       it "should update on range end update", ->
         mapper = generate_mapper()
         mapper.target_range.end = 100
-        expect(mapper.mapper_state).to.be.deep.equal [8, 20]
+        expect(mapper.state).to.be.deep.equal [8, 20]

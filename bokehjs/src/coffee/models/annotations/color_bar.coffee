@@ -2,8 +2,8 @@ import {Annotation, AnnotationView} from "./annotation"
 import {BasicTicker} from "../tickers/basic_ticker"
 import {BasicTickFormatter} from "../formatters/basic_tick_formatter"
 import {LinearColorMapper} from "../mappers/linear_color_mapper"
-import {LinearMapper} from "../mappers/linear_mapper"
-import {LogMapper} from "../mappers/log_mapper"
+import {LinearScale} from "../scales/linear_scale"
+import {LogScale} from "../scales/log_scale"
 import {Range1d} from "../ranges/range1d"
 
 import * as p from "core/properties"
@@ -328,15 +328,15 @@ export class ColorBar extends Annotation
       orientation:    [ p.Orientation,    'vertical'  ]
       title:          [ p.String,                     ]
       title_standoff: [ p.Number,         2           ]
-      height:  [ p.Any,            'auto'      ]
-      width:   [ p.Any,            'auto'      ]
+      height:         [ p.Any,            'auto'      ]
+      width:          [ p.Any,            'auto'      ]
       scale_alpha:    [ p.Number,         1.0         ]
       ticker:         [ p.Instance,    () -> new BasicTicker()         ]
       formatter:      [ p.Instance,    () -> new BasicTickFormatter()  ]
       color_mapper:   [ p.Instance                    ]
       label_standoff: [ p.Number,         5           ]
-      margin:  [ p.Number,         30          ]
-      padding: [ p.Number,         10          ]
+      margin:         [ p.Number,         30          ]
+      padding:        [ p.Number,         10          ]
       major_tick_in:  [ p.Number,         5           ]
       major_tick_out: [ p.Number,         0           ]
       minor_tick_in:  [ p.Number,         0           ]
@@ -447,7 +447,7 @@ export class ColorBar extends Annotation
     coordinates for plotting purposes.
 
     Note: the type of color_mapper has to match the type of mapper (i.e.
-    a LinearColorMapper will require a corresponding LinearMapper instance).
+    a LinearColorMapper will require a corresponding LinearScale instance).
     ###
 
     mapping = {
@@ -461,8 +461,8 @@ export class ColorBar extends Annotation
     }
 
     switch @color_mapper.type
-      when "LinearColorMapper" then mapper = new LinearMapper(mapping)
-      when "LogColorMapper" then mapper = new LogMapper(mapping)
+      when "LinearColorMapper" then mapper = new LinearScale(mapping)
+      when "LogColorMapper" then mapper = new LogScale(mapping)
 
     return mapper
 

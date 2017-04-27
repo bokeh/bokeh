@@ -1,7 +1,7 @@
 {expect} = require "chai"
 utils = require "../../utils"
 
-{CategoricalMapper} = utils.require("models/mappers/categorical_mapper")
+{CategoricalScale} = utils.require("models/scales/categorical_scale")
 {FactorRange} = utils.require("models/ranges/factor_range")
 {Range1d} = utils.require("models/ranges/range1d")
 
@@ -13,7 +13,7 @@ describe "categorical mapper module", ->
   end = 80
 
   generate_mapper = (offset=0) ->
-    new CategoricalMapper({
+    new CategoricalScale({
       source_range: new FactorRange({factors: factors, offset: offset})
       target_range: new Range1d({start: start, end: end})
     })

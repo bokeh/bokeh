@@ -36,6 +36,7 @@
 /// <reference path="./typings/models/plots.d.ts" />
 /// <reference path="./typings/models/ranges.d.ts" />
 /// <reference path="./typings/models/renderers.d.ts" />
+/// <reference path="./typings/models/scales.d.ts" />
 /// <reference path="./typings/models/sources.d.ts" />
 /// <reference path="./typings/models/tickers.d.ts" />
 /// <reference path="./typings/models/tiles.d.ts" />

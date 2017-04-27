@@ -1,6 +1,6 @@
-import {CategoricalMapper} from "../mappers/categorical_mapper"
-import {LinearMapper} from "../mappers/linear_mapper"
-import {LogMapper} from "../mappers/log_mapper"
+import {CategoricalScale} from "../scales/categorical_scale"
+import {LinearScale} from "../scales/linear_scale"
+import {LogScale} from "../scales/log_scale"
 import {Range1d} from "../ranges/range1d"
 
 import {EQ, GE} from "core/layout/solver"
@@ -47,12 +47,12 @@ export class CartesianFrame extends LayoutCanvas
     for name, range of ranges
       if range.type == "Range1d" or range.type == "DataRange1d"
         if mapper_type == "log"
-          mapper_model = LogMapper
+          mapper_model = LogScale
         else
-          mapper_model = LinearMapper
+          mapper_model = LinearScale
         range.mapper_hint = mapper_type
       else if range.type == "FactorRange"
-        mapper_model = CategoricalMapper
+        mapper_model = CategoricalScale
       else
         logger.warn("unknown range type for range '#{name}': #{range}")
         return null

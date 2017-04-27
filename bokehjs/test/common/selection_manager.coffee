@@ -7,7 +7,7 @@ SomeMarker = utils.require("models/markers/index").CircleX
 {GlyphRenderer} = utils.require("models/renderers/glyph_renderer")
 {GlyphRendererView} = utils.require("models/renderers/glyph_renderer")
 {ColumnDataSource} = utils.require("models/sources/column_data_source")
-{LinearMapper} = utils.require("models/mappers/linear_mapper")
+{LinearScale} = utils.require("models/scales/linear_scale")
 {Range1d} = utils.require("models/ranges/range1d")
 
 hittest = utils.require "core/hittest"
@@ -19,12 +19,12 @@ describe "SelectionManager", ->
   source_reverse = {start: 10, end: 0}
   target = {start: 0, end: 100}
 
-  mapper_normal = new LinearMapper({
+  mapper_normal = new LinearScale({
     source_range: new Range1d(source_normal)
     target_range: new Range1d(target)
   })
 
-  mapper_reverse = new LinearMapper({
+  mapper_reverse = new LinearScale({
     source_range: new Range1d(source_reverse)
     target_range: new Range1d(target)
   })

@@ -5,9 +5,9 @@ sinon = require 'sinon'
 {SidePanel} = utils.require("core/layout/side_panel")
 {ColorBar, ColorBarView} = utils.require('models/annotations/color_bar')
 {LinearColorMapper} = utils.require("models/mappers/linear_color_mapper")
-{LinearMapper} = utils.require("models/mappers/linear_mapper")
+{LinearScale} = utils.require("models/scales/linear_scale")
 {LogColorMapper} = utils.require("models/mappers/log_color_mapper")
-{LogMapper} = utils.require("models/mappers/log_mapper")
+{LogScale} = utils.require("models/scales/log_scale")
 {LogTicker} = utils.require("models/tickers/log_ticker")
 {Viridis} = utils.require("api/palettes")
 {Plot} = utils.require("models/plots/plot")
@@ -64,17 +64,17 @@ describe "ColorBar module", ->
 
     describe "ColorBar._tick_coordinate_mapper method", ->
 
-      it "LinearColorMapper should yield LinearMapper instance with correct state", ->
+      it "LinearColorMapper should yield LinearScale instance with correct state", ->
         @color_bar.color_mapper = new LinearColorMapper({low: 0, high: 10, palette: Viridis.Viridis10})
         mapper = @color_bar._tick_coordinate_mapper(100) #length of scale dimension
-        expect(mapper).to.be.instanceof(LinearMapper)
-        expect(mapper.mapper_state).to.be.deep.equal [10, 0]
+        expect(mapper).to.be.instanceof(LinearScale)
+        expect(mapper.state).to.be.deep.equal [10, 0]
 
-      it "LogColorMapper should yield LogMapper instance with correct state", ->
+      it "LogColorMapper should yield LogScale instance with correct state", ->
         @color_bar.color_mapper = new LogColorMapper({low: 0, high: 10, palette: Viridis.Viridis10})
         mapper = @color_bar._tick_coordinate_mapper(100) #length of scale dimension
-        expect(mapper).to.be.instanceof(LogMapper)
-        expect(mapper.mapper_state).to.be.deep.equal [100, 0, 2.302585092994046, 0]
+        expect(mapper).to.be.instanceof(LogScale)
+        expect(mapper.state).to.be.deep.equal [100, 0, 2.302585092994046, 0]
 
     describe "ColorBar._computed_image_dimensions method", ->
 

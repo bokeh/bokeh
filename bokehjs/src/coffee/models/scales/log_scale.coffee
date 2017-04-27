@@ -1,21 +1,21 @@
 import {Model} from "../../model"
 import * as p from "core/properties"
 
-export class LogMapper extends Model
+export class LogScale extends Model
   initialize: (attrs, options) ->
     super(attrs, options)
 
-    @define_computed_property('mapper_state', @_mapper_state, true)
-    @add_dependencies('mapper_state', this, ['source_range', 'target_range'])
-    @add_dependencies('mapper_state', @source_range, ['start', 'end'])
-    @add_dependencies('mapper_state', @target_range, ['start', 'end'])
+    @define_computed_property('state', @_state, true)
+    @add_dependencies('state', this, ['source_range', 'target_range'])
+    @add_dependencies('state', @source_range, ['start', 'end'])
+    @add_dependencies('state', @target_range, ['start', 'end'])
 
   @getters {
-    mapper_state: () -> @_get_computed('mapper_state')
+    state: () -> @_get_computed('state')
   }
 
   map_to_target: (x) ->
-    [scale, offset, inter_scale, inter_offset] = @mapper_state
+    [scale, offset, inter_scale, inter_offset] = @state
 
     if inter_scale == 0
       value = 0
@@ -29,7 +29,7 @@ export class LogMapper extends Model
     return value
 
   v_map_to_target: (xs) ->
-    [scale, offset, inter_scale, inter_offset] = @mapper_state
+    [scale, offset, inter_scale, inter_offset] = @state
 
     result = new Float64Array(xs.length)
 
@@ -48,12 +48,12 @@ export class LogMapper extends Model
     return result
 
   map_from_target: (xprime) ->
-    [scale, offset, inter_scale, inter_offset] = @mapper_state
+    [scale, offset, inter_scale, inter_offset] = @state
     value = (xprime - offset) / scale
     return Math.exp(inter_scale*value + inter_offset)
 
   v_map_from_target: (xprimes) ->
-    [scale, offset, inter_scale, inter_offset] = @mapper_state
+    [scale, offset, inter_scale, inter_offset] = @state
     result = new Float64Array(xprimes.length)
     for i in [0...xprimes.length]
       value = (xprimes[i] - offset) / scale
@@ -85,7 +85,7 @@ export class LogMapper extends Model
 
     return [start, end]
 
-  _mapper_state: () ->
+  _state: () ->
     source_start = @source_range.start
     source_end   = @source_range.end
     target_start = @target_range.start

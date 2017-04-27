@@ -7,9 +7,9 @@ sinon = require "sinon"
 {PlotCanvasView} = utils.require("models/plots/plot_canvas")
 {CanvasView} = utils.require("models/canvas/canvas")
 {CartesianFrame} = utils.require("models/canvas/cartesian_frame")
-{LinearMapper} = utils.require("models/mappers/linear_mapper")
-{LogMapper} = utils.require("models/mappers/log_mapper")
-{CategoricalMapper} = utils.require("models/mappers/categorical_mapper")
+{LinearScale} = utils.require("models/scales/linear_scale")
+{LogScale} = utils.require("models/scales/log_scale")
+{CategoricalScale} = utils.require("models/scales/categorical_scale")
 {Range1d} = utils.require("models/ranges/range1d")
 {FactorRange} = utils.require("models/ranges/factor_range")
 
@@ -75,22 +75,22 @@ describe "Rect", ->
 
       @set_mappers = (glyph_view, type="linear") ->
         if type == "linear"
-          mapper = new LinearMapper({
+          mapper = new LinearScale({
             source_range: new Range1d({start: 0, end: 100})
             target_range: new Range1d({start: 0, end: 200})
           })
         else if type == "reverse"
-          mapper = new LinearMapper({
+          mapper = new LinearScale({
             source_range: new Range1d({start: 0, end: 100})
             target_range: new Range1d({start: 200, end: 0})
           })
         else if type == "log"
-          mapper = new LogMapper({
+          mapper = new LogScale({
             source_range: new Range1d({start: 1, end: 1000})
             target_range: new Range1d({start: 0, end: 200})
           })
         else
-          mapper = new CategoricalMapper({
+          mapper = new CategoricalScale({
             source_range: new FactorRange({factors:['a', 'b']})
             target_range: new Range1d({start: 0, end: 200})
           })
@@ -272,12 +272,12 @@ describe "Rect", ->
           data = {x: [60, 100, 140], y: [60, 100, 140]}
           glyph_view = create_glyph_view(glyph, data)
 
-          xmapper = new LinearMapper({
+          xmapper = new LinearScale({
             source_range: new Range1d({start: 0, end: 100})
             target_range: new Range1d({start: 95, end: 105})
           })
 
-          ymapper = new LinearMapper({
+          ymapper = new LinearScale({
             source_range: new Range1d({start: 0, end: 100})
             target_range: new Range1d({start: 0, end: 200})
           })

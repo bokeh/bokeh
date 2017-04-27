@@ -1,7 +1,7 @@
-import {LinearMapper} from "./linear_mapper"
+import {LinearScale} from "./linear_scale"
 import {isNumber} from "core/util/types"
 
-export class CategoricalMapper extends LinearMapper
+export class CategoricalScale extends LinearScale
 
   map_to_target: (x, return_synthetic=false) ->
     if isNumber(x)

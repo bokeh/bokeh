@@ -6,7 +6,7 @@ zoom = utils.require "core/util/zoom"
 {CartesianFrame} = utils.require("models/canvas/cartesian_frame")
 {Range1d} = utils.require("models/ranges/range1d")
 {FactorRange} = utils.require("models/ranges/factor_range")
-{CategoricalMapper} = utils.require("models/mappers/categorical_mapper")
+{CategoricalScale} = utils.require("models/scales/categorical_scale")
 
 describe "zoom module", ->
 
@@ -39,7 +39,7 @@ describe "zoom module", ->
   describe "get_info", ->
 
     it "should work with categorical mappers", ->
-      cm = new CategoricalMapper({
+      cm = new CategoricalScale({
         source_range: new FactorRange({factors: ['foo', 'bar', 'baz']})
         target_range: Range1d(20, 80)
       })

@@ -1,6 +1,6 @@
 import {RBush} from "core/util/spatial"
 import {Glyph, GlyphView} from "./glyph"
-import {CategoricalMapper} from "../mappers/categorical_mapper"
+import {CategoricalScale} from "../scales/categorical_scale"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
 
@@ -24,7 +24,7 @@ export class VBarView extends GlyphView
 
   _index_data: () ->
     map_to_synthetic = (mapper, array) ->
-      if mapper instanceof CategoricalMapper
+      if mapper instanceof CategoricalScale
         mapper.v_map_to_target(array, true)
       else
         array
