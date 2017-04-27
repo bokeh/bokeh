@@ -135,7 +135,7 @@ class ClientConnection
       new Promise (resolve, reject) =>
         # "arraybuffer" gives us binary data we can look at;
         # if we just needed an opaque blob we could use "blob"
-        @socket.binarytype = "arraybuffer"
+        @socket.binaryType = "arraybuffer"
         @socket.onopen = () => @_on_open(resolve, reject)
         @socket.onmessage = (event) => @_on_message(event)
         @socket.onclose = (event) => @_on_close(event)
