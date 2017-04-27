@@ -1,7 +1,9 @@
-import {Model} from "../../model"
+import {Scale} from "./scale"
+
 import * as p from "core/properties"
 
-export class LinearScale extends Model
+export class LinearScale extends Scale
+
   initialize: (attrs, options) ->
     super(attrs, options)
 
@@ -14,26 +16,26 @@ export class LinearScale extends Model
     state: () -> @_get_computed('state')
   }
 
-  map_to_target: (x) ->
-    [scale, offset] = @state
-    return scale * x + offset
+  compute: (x) ->
+    [factor, offset] = @state
+    return factor * x + offset
 
-  v_map_to_target: (xs) ->
-    [scale, offset] = @state
+  v_compute: (xs) ->
+    [factor, offset] = @state
     result = new Float64Array(xs.length)
     for x, idx in xs
-      result[idx] = scale * x + offset
+      result[idx] = factor * x + offset
     return result
 
-  map_from_target: (xprime) ->
-    [scale, offset] = @state
-    return (xprime - offset) / scale
+  invert: (xprime) ->
+    [factor, offset] = @state
+    return (xprime - offset) / factor
 
-  v_map_from_target: (xprimes) ->
-    [scale, offset] = @state
+  v_invert: (xprimes) ->
+    [factor, offset] = @state
     result = new Float64Array(xprimes.length)
     for xprime, idx in xprimes
-      result[idx] = (xprime - offset) / scale
+      result[idx] = (xprime - offset) / factor
     return result
 
   _state: () ->
@@ -42,15 +44,15 @@ export class LinearScale extends Model
     #  --------- * x - --------- * s0 + t0
     #  (s1 - s0)       (s1 - s0)
     #
-    # [  scale  ]     [    offset    ]
+    # [  factor  ]     [    offset    ]
     #
     source_start = @source_range.start
     source_end   = @source_range.end
     target_start = @target_range.start
     target_end   = @target_range.end
-    scale = (target_end - target_start)/(source_end - source_start)
-    offset = -(scale * source_start) + target_start
-    return [scale, offset]
+    factor = (target_end - target_start)/(source_end - source_start)
+    offset = -(factor * source_start) + target_start
+    return [factor, offset]
 
   @internal {
     source_range: [ p.Any ]

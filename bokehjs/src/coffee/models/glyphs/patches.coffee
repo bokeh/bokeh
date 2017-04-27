@@ -124,8 +124,8 @@ export class PatchesView extends GlyphView
     sx = @renderer.plot_view.canvas.vx_to_sx(vx)
     sy = @renderer.plot_view.canvas.vy_to_sy(vy)
 
-    x = @renderer.xmapper.map_from_target(vx, true)
-    y = @renderer.ymapper.map_from_target(vy, true)
+    x = @renderer.xmapper.invert(vx, true)
+    y = @renderer.ymapper.invert(vy, true)
 
     candidates = @index.indices({minX: x, minY: y, maxX: x, maxY: y})
 

@@ -97,8 +97,8 @@ export class HoverToolView extends InspectToolView
 
     xmapper = frame.x_mappers[renderer.model.x_range_name]
     ymapper = frame.y_mappers[renderer.model.y_range_name]
-    x = xmapper.map_from_target(vx)
-    y = ymapper.map_from_target(vy)
+    x = xmapper.invert(vx)
+    y = ymapper.invert(vy)
 
     for i in indices['0d'].indices
       data_x = renderer.glyph._x[i+1]
@@ -107,8 +107,8 @@ export class HoverToolView extends InspectToolView
       switch @model.line_policy
         when "interp" # and renderer.get_interpolation_hit?
           [data_x, data_y] = renderer.glyph.get_interpolation_hit(i, geometry)
-          rx = xmapper.map_to_target(data_x)
-          ry = ymapper.map_to_target(data_y)
+          rx = xmapper.compute(data_x)
+          ry = ymapper.compute(data_y)
 
         when "prev"
           rx = canvas.sx_to_vx(renderer.glyph.sx[i])
@@ -155,8 +155,8 @@ export class HoverToolView extends InspectToolView
           switch @model.line_policy
             when "interp" # and renderer.get_interpolation_hit?
               [data_x, data_y] = renderer.glyph.get_interpolation_hit(i, j, geometry)
-              rx = xmapper.map_to_target(data_x)
-              ry = ymapper.map_to_target(data_y)
+              rx = xmapper.compute(data_x)
+              ry = ymapper.compute(data_y)
 
             when "prev"
               rx = canvas.sx_to_vx(renderer.glyph.sxs[i][j])
@@ -225,8 +225,8 @@ export class HoverToolView extends InspectToolView
 
     xmapper = frame.x_mappers[r.x_range_name]
     ymapper = frame.y_mappers[r.y_range_name]
-    geometry['x'] = xmapper.map_from_target(geometry.vx)
-    geometry['y'] = ymapper.map_from_target(geometry.vy)
+    geometry['x'] = xmapper.invert(geometry.vx)
+    geometry['y'] = ymapper.invert(geometry.vy)
 
     callback = @model.callback
     [obj, data] = [callback, {index: indices, geometry: geometry}]

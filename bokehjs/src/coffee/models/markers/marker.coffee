@@ -46,12 +46,12 @@ export class MarkerView extends XYGlyphView
     hr = @renderer.plot_view.frame.h_range
     vx0 = hr.start - @max_size
     vx1 = hr.end + @max_size
-    [x0, x1] = @renderer.xmapper.v_map_from_target([vx0, vx1], true)
+    [x0, x1] = @renderer.xmapper.v_invert([vx0, vx1], true)
 
     vr = @renderer.plot_view.frame.v_range
     vy0 = vr.start - @max_size
     vy1 = vr.end + @max_size
-    [y0, y1] = @renderer.ymapper.v_map_from_target([vy0, vy1], true)
+    [y0, y1] = @renderer.ymapper.v_invert([vy0, vy1], true)
 
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
     return @index.indices(bbox)
@@ -63,11 +63,11 @@ export class MarkerView extends XYGlyphView
 
     vx0 = vx - @max_size
     vx1 = vx + @max_size
-    [x0, x1] = @renderer.xmapper.v_map_from_target([vx0, vx1], true)
+    [x0, x1] = @renderer.xmapper.v_invert([vx0, vx1], true)
 
     vy0 = vy - @max_size
     vy1 = vy + @max_size
-    [y0, y1] = @renderer.ymapper.v_map_from_target([vy0, vy1], true)
+    [y0, y1] = @renderer.ymapper.v_invert([vy0, vy1], true)
 
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
     candidates = @index.indices(bbox)
@@ -91,14 +91,14 @@ export class MarkerView extends XYGlyphView
       ms = @max_size/2
       vx0 = vx - ms
       vx1 = vx + ms
-      [x0, x1] = @renderer.xmapper.v_map_from_target([vx0, vx1], true)
+      [x0, x1] = @renderer.xmapper.v_invert([vx0, vx1], true)
     else
       x0 = minX
       x1 = maxX
       ms = @max_size/2
       vy0 = vy - ms
       vy1 = vy + ms
-      [y0, y1] = @renderer.ymapper.v_map_from_target([vy0, vy1], true)
+      [y0, y1] = @renderer.ymapper.v_invert([vy0, vy1], true)
 
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
     hits = @index.indices(bbox)
@@ -107,8 +107,8 @@ export class MarkerView extends XYGlyphView
     return result
 
   _hit_rect: (geometry) ->
-    [x0, x1] = @renderer.xmapper.v_map_from_target([geometry.vx0, geometry.vx1], true)
-    [y0, y1] = @renderer.ymapper.v_map_from_target([geometry.vy0, geometry.vy1], true)
+    [x0, x1] = @renderer.xmapper.v_invert([geometry.vx0, geometry.vx1], true)
+    [y0, y1] = @renderer.ymapper.v_invert([geometry.vy0, geometry.vy1], true)
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
     result = hittest.create_hit_test_result()
     result['1d'].indices = @index.indices(bbox)

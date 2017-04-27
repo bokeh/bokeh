@@ -71,10 +71,10 @@ export class MultiLineView extends GlyphView
     result = hittest.create_hit_test_result()
 
     if geometry.direction == 'v'
-      val = @renderer.ymapper.map_from_target(vy)
+      val = @renderer.ymapper.invert(vy)
       values = @_ys
     else
-      val = @renderer.xmapper.map_from_target(vx)
+      val = @renderer.xmapper.invert(vx)
       values = @_xs
 
     hits = {}
@@ -96,14 +96,14 @@ export class MultiLineView extends GlyphView
     [x2, y2, x3, y3] = [@_xs[i][point_i], @_ys[i][point_i], @_xs[i][point_i+1], @_ys[i][point_i+1]]
 
     if geometry.type == 'point'
-      [y0, y1] = @renderer.ymapper.v_map_from_target([vy-1, vy+1])
-      [x0, x1] = @renderer.xmapper.v_map_from_target([vx-1, vx+1])
+      [y0, y1] = @renderer.ymapper.v_invert([vy-1, vy+1])
+      [x0, x1] = @renderer.xmapper.v_invert([vx-1, vx+1])
     else
       if geometry.direction == 'v'
-        [y0, y1] = @renderer.ymapper.v_map_from_target([vy, vy])
+        [y0, y1] = @renderer.ymapper.v_invert([vy, vy])
         [x0, x1] = [x2, x3]
       else
-        [x0, x1] = @renderer.xmapper.v_map_from_target([vx, vx])
+        [x0, x1] = @renderer.xmapper.v_invert([vx, vx])
         [y0, y1] = [y2, y3]
 
     res = hittest.check_2_segments_intersect(x0, y0, x1, y1, x2, y2, x3, y3)

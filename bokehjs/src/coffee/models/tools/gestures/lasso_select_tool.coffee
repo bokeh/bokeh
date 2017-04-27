@@ -90,8 +90,8 @@ export class LassoSelectToolView extends SelectToolView
 
     xmapper = frame.x_mappers[r.x_range_name]
     ymapper = frame.y_mappers[r.y_range_name]
-    geometry['x'] = xmapper.v_map_from_target(geometry.vx)
-    geometry['y'] = ymapper.v_map_from_target(geometry.vy)
+    geometry['x'] = xmapper.v_invert(geometry.vx)
+    geometry['y'] = ymapper.v_invert(geometry.vy)
 
     @model.callback.execute(@model, {geometry: geometry})
 

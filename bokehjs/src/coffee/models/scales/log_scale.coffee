@@ -1,7 +1,8 @@
-import {Model} from "../../model"
+import {Scale} from "./scale"
 import * as p from "core/properties"
 
-export class LogScale extends Model
+export class LogScale extends Scale
+
   initialize: (attrs, options) ->
     super(attrs, options)
 
@@ -14,53 +15,53 @@ export class LogScale extends Model
     state: () -> @_get_computed('state')
   }
 
-  map_to_target: (x) ->
-    [scale, offset, inter_scale, inter_offset] = @state
+  compute: (x) ->
+    [factor, offset, inter_factor, inter_offset] = @state
 
-    if inter_scale == 0
+    if inter_factor == 0
       value = 0
     else
-      _x = (Math.log(x) - inter_offset) / inter_scale
+      _x = (Math.log(x) - inter_offset) / inter_factor
       if isFinite(_x)
-        value = _x * scale + offset
+        value = _x * factor + offset
       else
         value = NaN
 
     return value
 
-  v_map_to_target: (xs) ->
-    [scale, offset, inter_scale, inter_offset] = @state
+  v_compute: (xs) ->
+    [factor, offset, inter_factor, inter_offset] = @state
 
     result = new Float64Array(xs.length)
 
-    if inter_scale == 0
+    if inter_factor == 0
       for i in [0...xs.length]
         result[i] = 0
     else
       for i in [0...xs.length]
-        _x = (Math.log(xs[i]) - inter_offset) / inter_scale
+        _x = (Math.log(xs[i]) - inter_offset) / inter_factor
         if isFinite(_x)
-          value = _x * scale + offset
+          value = _x * factor + offset
         else
           value = NaN
         result[i] = value
 
     return result
 
-  map_from_target: (xprime) ->
-    [scale, offset, inter_scale, inter_offset] = @state
-    value = (xprime - offset) / scale
-    return Math.exp(inter_scale*value + inter_offset)
+  invert: (xprime) ->
+    [factor, offset, inter_factor, inter_offset] = @state
+    value = (xprime - offset) / factor
+    return Math.exp(inter_factor*value + inter_offset)
 
-  v_map_from_target: (xprimes) ->
-    [scale, offset, inter_scale, inter_offset] = @state
+  v_invert: (xprimes) ->
+    [factor, offset, inter_factor, inter_offset] = @state
     result = new Float64Array(xprimes.length)
     for i in [0...xprimes.length]
-      value = (xprimes[i] - offset) / scale
-      result[i] = Math.exp(inter_scale*value + inter_offset)
+      value = (xprimes[i] - offset) / factor
+      result[i] = Math.exp(inter_factor*value + inter_offset)
     return result
 
-  _get_safe_scale: (orig_start, orig_end) ->
+  _get_safe_factor: (orig_start, orig_end) ->
     if orig_start < 0
       start = 0
     else
@@ -92,19 +93,19 @@ export class LogScale extends Model
     target_end   = @target_range.end
 
     screen_range = target_end - target_start
-    [start, end] = @_get_safe_scale(source_start, source_end)
+    [start, end] = @_get_safe_factor(source_start, source_end)
 
     if start == 0
-      inter_scale = Math.log(end)
+      inter_factor = Math.log(end)
       inter_offset = 0
     else
-      inter_scale = Math.log(end) - Math.log(start)
+      inter_factor = Math.log(end) - Math.log(start)
       inter_offset = Math.log(start)
 
-    scale = screen_range
+    factor = screen_range
     offset = target_start
 
-    return [scale, offset, inter_scale, inter_offset]
+    return [factor, offset, inter_factor, inter_offset]
 
   @internal {
     source_range: [ p.Any ]

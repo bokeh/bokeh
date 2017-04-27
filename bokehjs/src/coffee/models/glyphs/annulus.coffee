@@ -55,11 +55,11 @@ export class AnnulusView extends XYGlyphView
 
   _hit_point: (geometry) ->
     [vx, vy] = [geometry.vx, geometry.vy]
-    x = @renderer.xmapper.map_from_target(vx, true)
+    x = @renderer.xmapper.invert(vx, true)
     x0 = x - @max_radius
     x1 = x + @max_radius
 
-    y = @renderer.ymapper.map_from_target(vy, true)
+    y = @renderer.ymapper.invert(vy, true)
     y0 = y - @max_radius
     y1 = y + @max_radius
 
@@ -69,10 +69,10 @@ export class AnnulusView extends XYGlyphView
     for i in @index.indices(bbox)
       or2 = Math.pow(@souter_radius[i], 2)
       ir2 = Math.pow(@sinner_radius[i], 2)
-      sx0 = @renderer.xmapper.map_to_target(x)
-      sx1 = @renderer.xmapper.map_to_target(@_x[i])
-      sy0 = @renderer.ymapper.map_to_target(y)
-      sy1 = @renderer.ymapper.map_to_target(@_y[i])
+      sx0 = @renderer.xmapper.compute(x)
+      sx1 = @renderer.xmapper.compute(@_x[i])
+      sy0 = @renderer.ymapper.compute(y)
+      sy1 = @renderer.ymapper.compute(@_y[i])
       dist = Math.pow(sx0-sx1, 2) + Math.pow(sy0-sy1, 2)
       if dist <= or2 and dist >= ir2
         hits.push([i, dist])

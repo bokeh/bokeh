@@ -27,10 +27,10 @@ export class CartesianFrame extends LayoutCanvas
     )
 
   map_to_screen: (x, y, canvas, x_name='default', y_name='default') ->
-    vx = @x_mappers[x_name].v_map_to_target(x)
+    vx = @x_mappers[x_name].v_compute(x)
     sx = canvas.v_vx_to_sx(vx)
 
-    vy = @y_mappers[y_name].v_map_to_target(y)
+    vy = @y_mappers[y_name].v_compute(y)
     sy = canvas.v_vy_to_sy(vy)
     return [sx, sy]
 

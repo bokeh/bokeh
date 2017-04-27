@@ -84,10 +84,10 @@ export class BoxSelectToolView extends SelectToolView
 
     xmapper = frame.x_mappers[r.x_range_name]
     ymapper = frame.y_mappers[r.y_range_name]
-    geometry['x0'] = xmapper.map_from_target(geometry.vx0)
-    geometry['x1'] = xmapper.map_from_target(geometry.vx1)
-    geometry['y0'] = ymapper.map_from_target(geometry.vy0)
-    geometry['y1'] = ymapper.map_from_target(geometry.vy1)
+    geometry['x0'] = xmapper.invert(geometry.vx0)
+    geometry['x1'] = xmapper.invert(geometry.vx1)
+    geometry['y0'] = ymapper.invert(geometry.vy0)
+    geometry['y1'] = ymapper.invert(geometry.vy1)
 
     @model.callback.execute(@model, {geometry: geometry})
 

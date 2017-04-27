@@ -41,13 +41,13 @@ export class LabelSetView extends TextAnnotationView
 
   _map_data: () ->
     if @model.x_units == "data"
-      vx = @xmapper.v_map_to_target(@_x)
+      vx = @xmapper.v_compute(@_x)
     else
       vx = @_x.slice(0) # make deep copy to not mutate
     sx = @canvas.v_vx_to_sx(vx)
 
     if @model.y_units == "data"
-      vy = @ymapper.v_map_to_target(@_y)
+      vy = @ymapper.v_compute(@_y)
     else
       vy = @_y.slice(0) # make deep copy to not mutate
     sy = @canvas.v_vy_to_sy(vy)

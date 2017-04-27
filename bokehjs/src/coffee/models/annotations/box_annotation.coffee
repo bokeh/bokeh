@@ -87,7 +87,7 @@ export class BoxAnnotationView extends AnnotationView
   _calc_dim: (dim, dim_units, mapper, frame_extrema) ->
     if dim?
       if dim_units == 'data'
-        vdim = mapper.map_to_target(dim)
+        vdim = mapper.compute(dim)
       else
         vdim = dim
     else

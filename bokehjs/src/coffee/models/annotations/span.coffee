@@ -81,7 +81,7 @@ export class SpanView extends AnnotationView
 
   _calc_dim: (location, mapper) ->
       if @model.location_units == 'data'
-        vdim = mapper.map_to_target(location)
+        vdim = mapper.compute(location)
       else
         vdim = location
       return vdim

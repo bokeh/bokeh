@@ -17,53 +17,53 @@ describe "LogScale module", ->
     it "should correctly compute the mapper state", ->
       expect(@mapper.state).to.be.deep.equal [ 100, 10, 9.210340371976184, 0 ]
 
-  describe "map_to_target method", ->
+  describe "compute method", ->
 
     it "should map NaN values to NaN", ->
-      expect(@mapper.map_to_target(NaN)).to.be.NaN
+      expect(@mapper.compute(NaN)).to.be.NaN
 
     it "should map infinity values to NaN", ->
       @mapper.source_range.start = 0
-      expect(@mapper.map_to_target(0)).to.be.NaN
+      expect(@mapper.compute(0)).to.be.NaN
 
     it "should map values > start logly", ->
-      expect(@mapper.map_to_target(1)).to.be.equal 10
-      expect(@mapper.map_to_target(10)).to.be.equal 35
-      expect(@mapper.map_to_target(100)).to.be.equal 60
-      expect(@mapper.map_to_target(10000)).to.be.equal 110
+      expect(@mapper.compute(1)).to.be.equal 10
+      expect(@mapper.compute(10)).to.be.equal 35
+      expect(@mapper.compute(100)).to.be.equal 60
+      expect(@mapper.compute(10000)).to.be.equal 110
 
-  describe "v_map_to_target method", ->
+  describe "v_compute method", ->
 
     it "should vector map NaN values to NaN", ->
-      expect(@mapper.v_map_to_target([NaN])).to.be.deep.equal(new Float64Array([NaN]))
+      expect(@mapper.v_compute([NaN])).to.be.deep.equal(new Float64Array([NaN]))
 
     it "should vector map infinity values to NaN", ->
       @mapper.source_range.start = 0
-      expect(@mapper.v_map_to_target([0])).to.be.deep.equal(new Float64Array([NaN]))
+      expect(@mapper.v_compute([0])).to.be.deep.equal(new Float64Array([NaN]))
 
     it "should vector map values logly", ->
-      expect(@mapper.v_map_to_target([1,10,100,10000])).to.be.deep.equal new Float64Array [10, 35, 60, 110]
+      expect(@mapper.v_compute([1,10,100,10000])).to.be.deep.equal new Float64Array [10, 35, 60, 110]
 
     it "should map to a Float64Array", ->
-      expect(@mapper.v_map_to_target([-1,0,5,10,11])).to.be.instanceof Float64Array
+      expect(@mapper.v_compute([-1,0,5,10,11])).to.be.instanceof Float64Array
 
-  describe "map_from_target method", ->
+  describe "invert method", ->
 
     it "should inverse map values logly", ->
-      expect(@mapper.map_from_target(-15)).to.be.equal 0.09999999999999996
-      expect(@mapper.map_from_target(10)).to.be.equal 1
-      expect(@mapper.map_from_target(35)).to.be.equal 10.000000000000004
-      expect(@mapper.map_from_target(60)).to.be.equal 100.00000000000007
-      expect(@mapper.map_from_target(85)).to.be.equal 1000.0000000000014
-      expect(@mapper.map_from_target(110)).to.be.equal 10000.000000000007
+      expect(@mapper.invert(-15)).to.be.equal 0.09999999999999996
+      expect(@mapper.invert(10)).to.be.equal 1
+      expect(@mapper.invert(35)).to.be.equal 10.000000000000004
+      expect(@mapper.invert(60)).to.be.equal 100.00000000000007
+      expect(@mapper.invert(85)).to.be.equal 1000.0000000000014
+      expect(@mapper.invert(110)).to.be.equal 10000.000000000007
 
-  describe "v_map_from_target method", ->
+  describe "v_invert method", ->
 
     it "should vector map inverse map values logly", ->
-      expect(@mapper.v_map_from_target([-15, 10, 35, 60, 85, 110])).to.be.deep.equal new Float64Array [0.09999999999999996, 1, 10.000000000000004, 100.00000000000007, 1000.0000000000014, 10000.000000000007]
+      expect(@mapper.v_invert([-15, 10, 35, 60, 85, 110])).to.be.deep.equal new Float64Array [0.09999999999999996, 1, 10.000000000000004, 100.00000000000007, 1000.0000000000014, 10000.000000000007]
 
     it "should inverse map to a Float64Array", ->
-      expect(@mapper.v_map_from_target([-1,0,5,10,11])).to.be.instanceof Float64Array
+      expect(@mapper.v_invert([-1,0,5,10,11])).to.be.instanceof Float64Array
 
     describe "update source range1d", ->
 

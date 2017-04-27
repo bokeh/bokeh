@@ -33,8 +33,8 @@ export class SegmentView extends GlyphView
 
   _hit_point: (geometry) ->
     [vx, vy] = [geometry.vx, geometry.vy]
-    x = @renderer.xmapper.map_from_target(vx, true)
-    y = @renderer.ymapper.map_from_target(vy, true)
+    x = @renderer.xmapper.invert(vx, true)
+    y = @renderer.ymapper.invert(vy, true)
 
     point =
       x: this.renderer.plot_view.canvas.vx_to_sx(vx)
@@ -61,19 +61,19 @@ export class SegmentView extends GlyphView
     [vx, vy] = [geometry.vx, geometry.vy]
 
     if geometry.direction == 'v'
-      val = @renderer.ymapper.map_from_target(vy)
+      val = @renderer.ymapper.invert(vy)
       [v0, v1] = [@_y0, @_y1]
     else
-      val = @renderer.xmapper.map_from_target(vx)
+      val = @renderer.xmapper.invert(vx)
       [v0, v1] = [@_x0, @_x1]
 
     hits = []
 
     candidates = @index.indices({
-      minX: @renderer.xmapper.map_from_target(hr.min),
-      minY: @renderer.ymapper.map_from_target(vr.min),
-      maxX: @renderer.xmapper.map_from_target(hr.max),
-      maxY: @renderer.ymapper.map_from_target(vr.max)
+      minX: @renderer.xmapper.invert(hr.min),
+      minY: @renderer.ymapper.invert(vr.min),
+      maxX: @renderer.xmapper.invert(hr.max),
+      maxY: @renderer.ymapper.invert(vr.max)
     })
 
     for i in candidates

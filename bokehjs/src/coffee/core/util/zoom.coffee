@@ -12,7 +12,7 @@ export scale_highlow = (range, factor, center=null) ->
 export get_info = (mappers, [x0, x1]) ->
   info = {}
   for name, mapper of mappers
-    [start, end] = mapper.v_map_from_target([x0, x1], true)
+    [start, end] = mapper.v_invert([x0, x1], true)
     info[name] = {start: start, end: end}
   return info
 

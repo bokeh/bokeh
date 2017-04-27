@@ -100,8 +100,8 @@ export /* TODO abstract */ class PointEvent extends UIEvent {
   _customize_event(plot: any) {
     const xmapper = plot.plot_canvas.frame.x_mappers['default']
     const ymapper = plot.plot_canvas.frame.y_mappers['default']
-    this.x = xmapper.map_from_target(plot.plot_canvas.canvas.sx_to_vx(this.sx))
-    this.y = ymapper.map_from_target(plot.plot_canvas.canvas.sy_to_vy(this.sy))
+    this.x = xmapper.invert(plot.plot_canvas.canvas.sx_to_vx(this.sx))
+    this.y = ymapper.invert(plot.plot_canvas.canvas.sy_to_vy(this.sy))
     this._options['x'] = this.x
     this._options['y'] = this.y
     return this

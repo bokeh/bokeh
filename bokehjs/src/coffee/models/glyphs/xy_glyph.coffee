@@ -7,11 +7,11 @@ export class XYGlyphView extends GlyphView
   _index_data: () ->
     # if the range is categorical, map to synthetic coordinates first
     if @renderer.xmapper instanceof CategoricalScale
-      xx = @renderer.xmapper.v_map_to_target(@_x, true)
+      xx = @renderer.xmapper.v_compute(@_x, true)
     else
       xx = @_x
     if @renderer.ymapper instanceof CategoricalScale
-      yy = @renderer.ymapper.v_map_to_target(@_y, true)
+      yy = @renderer.ymapper.v_compute(@_y, true)
     else
       yy = @_y
 

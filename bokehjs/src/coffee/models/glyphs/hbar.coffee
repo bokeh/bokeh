@@ -7,11 +7,11 @@ import * as p from "core/properties"
 export class HBarView extends GlyphView
 
   _map_data: () ->
-    vy = @renderer.ymapper.v_map_to_target(@_y)
+    vy = @renderer.ymapper.v_compute(@_y)
     @sy = @renderer.plot_view.canvas.v_vy_to_sy(vy)
 
-    vright = @renderer.xmapper.v_map_to_target(@_right)
-    vleft = @renderer.xmapper.v_map_to_target(@_left)
+    vright = @renderer.xmapper.v_compute(@_right)
+    vleft = @renderer.xmapper.v_compute(@_left)
 
     @sright = @renderer.plot_view.canvas.v_vx_to_sx(vright)
     @sleft = @renderer.plot_view.canvas.v_vx_to_sx(vleft)
@@ -27,7 +27,7 @@ export class HBarView extends GlyphView
   _index_data: () ->
     map_to_synthetic = (mapper, array) ->
       if mapper instanceof CategoricalScale
-        mapper.v_map_to_target(array, true)
+        mapper.v_compute(array, true)
       else
         array
 
@@ -67,8 +67,8 @@ export class HBarView extends GlyphView
 
   _hit_point: (geometry) ->
     [vx, vy] = [geometry.vx, geometry.vy]
-    x = @renderer.xmapper.map_from_target(vx, true)
-    y = @renderer.ymapper.map_from_target(vy, true)
+    x = @renderer.xmapper.invert(vx, true)
+    y = @renderer.ymapper.invert(vy, true)
 
     hits = @index.indices({minX: x, minY: y, maxX: x, maxY: y})
 
