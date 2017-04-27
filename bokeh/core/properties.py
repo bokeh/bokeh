@@ -1440,7 +1440,6 @@ class DataSpec(Either):
                 Either(
                     String,
                     Instance('bokeh.models.transforms.Transform'),
-                    Instance('bokeh.models.mappers.ColorMapper'),
                     value_type)),
             value_type,
             default=default,

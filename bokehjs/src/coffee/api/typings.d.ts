@@ -42,3 +42,4 @@
 /// <reference path="./typings/models/tiles.d.ts" />
 /// <reference path="./typings/models/toolbars.d.ts" />
 /// <reference path="./typings/models/tools.d.ts" />
+/// <reference path="./typings/models/transforms.d.ts" />

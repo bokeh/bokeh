@@ -1,9 +1,9 @@
 import * as p from "core/properties"
 
-import {Model} from "../../model"
+import {Transform} from "../transforms/transform"
 import {isNumber} from "core/util/types"
 
-export class ColorMapper extends Model
+export class ColorMapper extends Transform
   type: "ColorMapper"
 
   @define {
@@ -20,6 +20,7 @@ export class ColorMapper extends Model
       @_palette = @_build_palette(@palette)
     )
 
+  # TODO (bev) This should not be needed, everything should use v_compute
   v_map_screen: (data, image_glyph=false) ->
     values = @_get_values(data, @_palette, image_glyph)
     buf = new ArrayBuffer(data.length * 4)
