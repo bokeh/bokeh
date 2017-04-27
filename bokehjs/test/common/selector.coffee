@@ -31,7 +31,7 @@ describe "Selector", ->
     s = new Selector()
     s.update(some_1d_selection, true, true)
     s.update(other_1d_selection, true, true)
-    expect(s.indices['1d'].indices).to.be.deep.equal [4, 5, 0, 1]
+    expect(s.indices['1d'].indices).to.be.deep.equal [0, 1, 4, 5]
 
   it "should be clearable", ->
     s = new Selector()

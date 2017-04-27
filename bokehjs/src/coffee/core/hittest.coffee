@@ -64,10 +64,10 @@ export class HitTestResult
     @_0d.indices.length == 0 && @_1d.indices.length == 0
 
   update_through_union: (other) ->
-    @['0d'].indices = union(@['0d'].indices, other['0d'].indices)
-    @['0d'].glyph = @['0d'].glyph or other['0d'].glyph
-    @['1d'].indices = union(@['1d'].indices, other['1d'].indices)
-    @['2d'].indices = merge(@['2d'].indices, other['2d'].indices)
+    @['0d'].indices = union(other['0d'].indices, @['0d'].indices)
+    @['0d'].glyph = other['0d'].glyph or @['0d'].glyph
+    @['1d'].indices = union(other['1d'].indices, @['1d'].indices)
+    @['2d'].indices = merge(other['2d'].indices, @['2d'].indices)
 
 export create_hit_test_result = () -> new HitTestResult()
 
