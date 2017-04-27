@@ -60,7 +60,7 @@ export class ArrowView extends AnnotationView
     # Next we call .clip on all the arrow heads, inside an initial canvas sized
     # rect, to create an "inverted" clip region for the arrow heads
     ctx.beginPath();
-    ctx.rect(0, 0, @canvas._width._value, @canvas._height._value)
+    ctx.rect(0, 0, @canvas._width.value, @canvas._height.value)
     if @model.end? then @_arrow_head(ctx, "clip", @model.end, @start, @end)
     if @model.start? then @_arrow_head(ctx, "clip", @model.start, @end, @start)
     ctx.closePath()

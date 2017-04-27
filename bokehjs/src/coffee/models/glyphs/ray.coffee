@@ -9,8 +9,8 @@ export class RayView extends XYGlyphView
   _render: (ctx, indices, {sx, sy, slength, _angle}) ->
     if @visuals.line.doit
 
-      width = @renderer.plot_view.frame._width._value
-      height = @renderer.plot_view.frame._height._value
+      width = @renderer.plot_view.frame._width.value
+      height = @renderer.plot_view.frame._height.value
       inf_len = 2 * (width + height)
       for i in [0...slength.length]
         if slength[i] == 0

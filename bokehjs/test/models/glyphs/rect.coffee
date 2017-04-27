@@ -190,8 +190,8 @@ describe "Rect", ->
         @canvas_set_dims_stub = sinon.stub(CanvasView.prototype, 'set_dims', set_dims)
 
         resize = () ->
-          @frame._width.setValue(@canvas._width.value())
-          @frame._height.setValue(@canvas._height.value())
+          @frame._width.setValue(@canvas._width.value)
+          @frame._height.setValue(@canvas._height.value)
         @plot_canvas_resize_stub = sinon.stub(PlotCanvasView.prototype, '_on_resize', resize)
 
       describe "_hit_point", ->

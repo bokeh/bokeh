@@ -32,8 +32,8 @@ export class ColorBarView extends AnnotationView
 
   _get_panel_offset: () ->
     # ColorBars draw from the top down, so set the y_panel_offset to _top
-    x = @model.panel._left._value
-    y = @model.panel._top._value
+    x = @model.panel._left.value
+    y = @model.panel._top.value
     return {x: x, y: -y}
 
   _get_size: () ->
@@ -298,8 +298,8 @@ export class ColorBarView extends AnnotationView
     frame = @plot_view.frame
 
     switch panel.side
-      when "left", "right" then yoff = Math.abs(panel._top._value - frame._top._value)
-      when "above", "below" then xoff = Math.abs(frame._left._value)
+      when "left", "right" then yoff = Math.abs(panel._top.value - frame._top.value)
+      when "above", "below" then xoff = Math.abs(frame._left.value)
 
     return {x: xoff, y: yoff}
 
@@ -404,8 +404,8 @@ export class ColorBar extends Annotation
       * The parallel frame dimension * 0.80
     ###
 
-    frame_height = @plot.plot_canvas.frame._height._value
-    frame_width = @plot.plot_canvas.frame._width._value
+    frame_height = @plot.plot_canvas.frame._height.value
+    frame_width = @plot.plot_canvas.frame._width.value
     title_extent = @_title_extent()
 
     switch @orientation

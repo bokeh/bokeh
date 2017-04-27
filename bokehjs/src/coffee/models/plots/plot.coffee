@@ -33,10 +33,10 @@ export class PlotView extends LayoutDOMView
       @solver.suggest_value(@model._width, width)
       @solver.suggest_value(@model._height, height)
       @el.style.position = 'absolute'
-      @el.style.left = "#{@model._dom_left._value}px"
-      @el.style.top = "#{@model._dom_top._value}px"
-      @el.style.width = "#{@model._width.value()}px"
-      @el.style.height = "#{@model._height.value()}px"
+      @el.style.left = "#{@model._dom_left.value}px"
+      @el.style.top = "#{@model._dom_top.value}px"
+      @el.style.width = "#{@model._width.value}px"
+      @el.style.height = "#{@model._height.value}px"
 
   get_width_height: () ->
       parent_height = @el.parentNode.clientHeight
@@ -60,10 +60,10 @@ export class PlotView extends LayoutDOMView
       return [width, height]
 
   get_height: () ->
-    return @model._width._value / @model.get_aspect_ratio()
+    return @model._width.value / @model.get_aspect_ratio()
 
   get_width: () ->
-    return @model._height._value * @model.get_aspect_ratio()
+    return @model._height.value * @model.get_aspect_ratio()
 
   save: (name) ->
     (view for view in values(@child_views) when view instanceof PlotCanvasView)[0].save(name)

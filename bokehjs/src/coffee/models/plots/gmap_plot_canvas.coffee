@@ -184,8 +184,8 @@ export class GMapPlotCanvasView extends PlotCanvasView
 
   # this overrides the standard _paint_empty to make the inner canvas transparent
   _paint_empty: (ctx, frame_box) ->
-    ow = @canvas._width._value
-    oh = @canvas._height._value
+    ow = @canvas._width.value
+    oh = @canvas._height.value
     [left, top, iw, ih] = frame_box
 
     ctx.clearRect(0, 0, ow, oh)

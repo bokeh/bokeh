@@ -45,15 +45,15 @@ export class TooltipView extends AnnotationView
     attachment = @model.attachment
     switch attachment
       when "horizontal"
-        width = @plot_view.frame._width._value
-        left = @plot_view.frame._left._value
+        width = @plot_view.frame._width.value
+        left = @plot_view.frame._left.value
         if vx - left < width/2
           side = 'right'
         else
           side = 'left'
       when "vertical"
-        height = @plot_view.frame._height._value
-        bottom = @plot_view.frame._bottom._value
+        height = @plot_view.frame._height.value
+        bottom = @plot_view.frame._bottom.value
         if vy - bottom < height/2
           side = 'below'
         else

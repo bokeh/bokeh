@@ -45,14 +45,14 @@ export class SpanView extends AnnotationView
 
     if @model.dimension == 'width'
       stop = canvas.vy_to_sy(@_calc_dim(loc, ymapper))
-      sleft = canvas.vx_to_sx(frame._left._value)
-      width = frame._width._value
+      sleft = canvas.vx_to_sx(frame._left.value)
+      width = frame._width.value
       height = @model.properties.line_width.value()
     else
-      stop = canvas.vy_to_sy(frame._top._value)
+      stop = canvas.vy_to_sy(frame._top.value)
       sleft = canvas.vx_to_sx(@_calc_dim(loc, xmapper))
       width = @model.properties.line_width.value()
-      height = frame._height._value
+      height = frame._height.value
 
     if @model.render_mode == "css"
       @el.style.top = "#{stop}px"

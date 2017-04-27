@@ -24,11 +24,11 @@ export class TitleView extends TextAnnotationView
         vx = 0
         vy = @_get_text_location(@model.align, @frame.v_range) + @model.offset
       when 'right'
-        vx = @canvas._right._value - 1 #fudge factor due to error in text height measurement
-        vy = @canvas._height._value - @_get_text_location(@model.align, @frame.v_range) - @model.offset
+        vx = @canvas._right.value - 1 #fudge factor due to error in text height measurement
+        vy = @canvas._height.value - @_get_text_location(@model.align, @frame.v_range) - @model.offset
       when 'above'
         vx = @_get_text_location(@model.align, @frame.h_range) + @model.offset
-        vy = @canvas._top._value - 10 # Corresponds to the +10 added in get_size
+        vy = @canvas._top.value - 10 # Corresponds to the +10 added in get_size
       when 'below'
         vx = @_get_text_location(@model.align, @frame.h_range) + @model.offset
         vy = 0
