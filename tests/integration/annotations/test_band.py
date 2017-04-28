@@ -24,13 +24,14 @@ def test_band(output_file_url, selenium, screenshot):
         x1 = [1,3,5,7,9],
         lower1 = [1,2,1,2,1],
         upper1 = [2,3,2,3,2],
-        x2 = [50, 150, 250, 350, 450],
+        x2 = [200, 250, 350, 450, 550],
         lower2 = [400, 300, 400, 300, 400],
         upper2 = [500, 400, 500, 400, 500],
     ))
 
     band1 = Band(base='x1', lower='lower1', upper='upper1',
-                 line_width=3, line_color='red', source=source)
+                 line_width=3, line_color='red', line_dash='dashed',
+                 source=source)
     band2 = Band(base='x2', lower='lower2', upper='upper2',
                  base_units='screen', lower_units='screen', upper_units='screen',
                  dimension='width', line_width=3, fill_color='blue', line_color='green',
