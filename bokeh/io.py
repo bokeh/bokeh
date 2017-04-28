@@ -571,7 +571,6 @@ def _crop_image(image, left=0, top=0, right=0, bottom=0, **kwargs):
     return cropped_image
 
 def _get_screenshot_as_png(obj):
-    # probably need a specific version
     webdriver = import_required('selenium.webdriver',
                                 'To use bokeh.io.export you need selenium ' +
                                 '("conda install -c bokeh selenium" or "pip install selenium")')
@@ -589,6 +588,7 @@ def _get_screenshot_as_png(obj):
     script = """
         // override body width CSS for PhantomJS compat
         document.body.style.width = '100%';
+        // add private window prop to check that render is complete
         window._bokeh_render_complete = false;
         window.addEventListener("bokeh:rendered", function() {
             window._bokeh_render_complete = true;
@@ -624,7 +624,7 @@ def _get_screenshot_as_png(obj):
     return cropped_image
 
 def export(obj, filename=None):
-    ''' Save an HTML file with the data for the current document.
+    ''' Export the LayoutDOM object as a PNG.
 
     If the filename is not given, it is derived from the script name
     (e.g. ``/foo/myplot.py`` will create ``/foo/myplot.png``)
