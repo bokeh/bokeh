@@ -51,6 +51,45 @@ class TextInput(InputWidget):
     Placeholder for empty input field
     """)
 
+class NumberInput(InputWidget):
+    ''' Single-line number input widget.
+
+    '''
+
+    value = Float(default=0., help="""
+    Initial or entered text value.
+    """)
+
+    start = Float(default=0, help="""
+    The minimum allowable value.
+    """)
+
+    end = Float(default=1, help="""
+    The maximum allowable value.
+    """)
+
+    step = Float(default=0.1, help="""
+    The step between consecutive values.
+    """)
+
+    callback = Instance(Callback, help="""
+    A callback to run in the browser whenever the user unfocuses the TextInput
+    widget by hitting Enter or clicking outside of the text box area.
+    """)
+
+    callback_throttle = Float(default=200, help="""
+    Number of microseconds to pause between callback calls as the spinner is changed.
+    """)
+
+    callback_policy = Enum(SliderCallbackPolicy, default="throttle", help="""
+    When the callback is initiated. This parameter can take on only one of three options:
+
+    * "continuous": the callback will be executed immediately for each update of the spinner
+    * "throttle": the callback will be executed at most every ``callback_throttle`` milliseconds.
+    * "mouseup": the callback will be executed only once when the spinner is released.
+
+    The "mouseup" policy is intended for scenarios in which the callback is expensive in time.
+    """)
 
 class AutocompleteInput(TextInput):
     ''' Single-line input widget with auto-completion.
