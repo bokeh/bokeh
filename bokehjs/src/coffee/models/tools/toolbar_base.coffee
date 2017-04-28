@@ -63,18 +63,19 @@ export class ToolbarBase extends LayoutDOM
 
   _active_change: (tool) =>
     event_type = tool.event_type
-    gestures = @gestures
 
-    # Toggle between tools of the same type by deactivating any active ones
-    currently_active_tool = gestures[event_type].active
-    if currently_active_tool? and currently_active_tool != tool
-      logger.debug("Toolbar: deactivating tool: #{currently_active_tool.type} (#{currently_active_tool.id}) for event type '#{event_type}'")
-      currently_active_tool.active = false
+    if tool.active
+      # Toggle between tools of the same type by deactivating any active ones
+      currently_active_tool = @gestures[event_type].active
+      if currently_active_tool?
+        logger.debug("Toolbar: deactivating tool: #{currently_active_tool.type} (#{currently_active_tool.id}) for event type '#{event_type}'")
+        currently_active_tool.active = false
+      # Update the gestures with the new active tool
+      @gestures[event_type].active = tool
+      logger.debug("Toolbar: activating tool: #{tool.type} (#{tool.id}) for event type '#{event_type}'")
+    else
+      @gestures[event_type].active = null
 
-    # Update the gestures with the new active tool
-    gestures[event_type].active = tool
-    @gestures = gestures
-    logger.debug("Toolbar: activating tool: #{tool.type} (#{tool.id}) for event type '#{event_type}'")
     return null
 
   get_constraints: () ->
