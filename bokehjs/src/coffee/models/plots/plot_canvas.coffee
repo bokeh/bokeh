@@ -87,10 +87,6 @@ export class PlotCanvasView extends DOMView
 
     # compat, to be removed
     @frame = @model.frame
-    @x_range = @frame.x_ranges['default']
-    @y_range = @frame.y_ranges['default']
-    @xscale = @frame.xscales['default']
-    @yscale = @frame.yscales['default']
 
     @canvas = @model.canvas
     @canvas_view = new @canvas.default_view({model: @canvas, parent: @})

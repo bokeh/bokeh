@@ -32,15 +32,15 @@ export class BoxAnnotationView extends AnnotationView
       hide(@el)
       return null
 
-    @frame = @plot_model.frame
-    @canvas = @plot_model.canvas
-    @xscale = @plot_view.frame.xscales[@model.x_range_name]
-    @yscale = @plot_view.frame.yscales[@model.y_range_name]
+    frame = @plot_model.frame
+    canvas = @plot_model.canvas
+    xscale = @plot_view.frame.xscales[@model.x_range_name]
+    yscale = @plot_view.frame.yscales[@model.y_range_name]
 
-    sleft   = @canvas.vx_to_sx(@_calc_dim(@model.left,   @model.left_units,   @xscale, @frame.h_range.start))
-    sright  = @canvas.vx_to_sx(@_calc_dim(@model.right,  @model.right_units,  @xscale, @frame.h_range.end))
-    sbottom = @canvas.vy_to_sy(@_calc_dim(@model.bottom, @model.bottom_units, @yscale, @frame.v_range.start))
-    stop    = @canvas.vy_to_sy(@_calc_dim(@model.top,    @model.top_units,    @yscale, @frame.v_range.end))
+    sleft   = canvas.vx_to_sx(@_calc_dim(@model.left,   @model.left_units,   xscale, frame.h_range.start))
+    sright  = canvas.vx_to_sx(@_calc_dim(@model.right,  @model.right_units,  xscale, frame.h_range.end))
+    sbottom = canvas.vy_to_sy(@_calc_dim(@model.bottom, @model.bottom_units, yscale, frame.v_range.start))
+    stop    = canvas.vy_to_sy(@_calc_dim(@model.top,    @model.top_units,    yscale, frame.v_range.end))
 
     if @model.render_mode == 'css'
       @_css_box(sleft, sright, sbottom, stop)

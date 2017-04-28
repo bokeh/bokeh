@@ -52,6 +52,10 @@ export class GlyphRendererView extends RendererView
     @xscale = @plot_view.frame.xscales[@model.x_range_name]
     @yscale = @plot_view.frame.yscales[@model.y_range_name]
 
+    # compat, deprecated, to be removed
+    @xmapper = @xscale
+    @ymapper = @yscale
+
     @set_data(false)
 
     if @model.data_source instanceof RemoteDataSource
