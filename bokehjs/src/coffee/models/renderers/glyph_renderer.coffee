@@ -52,14 +52,19 @@ export class GlyphRendererView extends RendererView
     @xscale = @plot_view.frame.xscales[@model.x_range_name]
     @yscale = @plot_view.frame.yscales[@model.y_range_name]
 
-    # compat, deprecated, to be removed
-    @xmapper = @xscale
-    @ymapper = @yscale
-
     @set_data(false)
 
     if @model.data_source instanceof RemoteDataSource
       @model.data_source.setup(@plot_view, @glyph)
+
+  @getters {
+    xmapper: () ->
+      log.warning("xmapper attr is deprecated, use xscale")
+      @xscale
+    ymapper: () ->
+      log.warning("ymapper attr is deprecated, use yscale")
+      @yscale
+  }
 
   build_glyph_view: (model) ->
     new model.default_view({model: model, renderer: @, plot_view: @plot_view, parent: @})

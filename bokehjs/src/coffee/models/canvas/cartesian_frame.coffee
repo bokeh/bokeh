@@ -93,8 +93,12 @@ export class CartesianFrame extends LayoutCanvas
     yscales:  () -> @_yscales
 
     # These are deprecated and should not be used in new code
-    x_mappers: () -> @_xscales
-    y_mappers: () -> @_yscales
+    x_mappers: () ->
+      logger.warn("x_mappers attr is deprecated, use xscales")
+      @_xscales
+    y_mappers: () ->
+      logger.warn("y_mappers attr is deprecated, use yscales")
+      @_yscales
   }
 
   @internal {
