@@ -24,3 +24,37 @@ complete list of removals.
 * ``Tool`` dimensions specified as a list value rather than an enum, are no
   longer accepted.
 * Deprecated ``Button.type`` property has been removed.
+
+Scales Changes
+~~~~~~~~~~~~~~
+
+The following BokehJS classes have been moved and renamed:
+
+============================== ==============================
+Old                            New
+============================== ==============================
+``mappers/LinearMapper``       ``scales/LinearScale``
+``mappers/LogMapper``          ``scales/LogScale``
+``mappers/CategoricalMapper``  ``scales/CategoricalScale``
+============================== ==============================
+
+Previously, these classes were internal implementation details. These changes
+are not expected to impact any user code.
+
+Additionally, these new scales models are now accessible from the Python.
+
+As part of this work, some BokehJS attributes were renamed to be consistent
+with the new terminology:
+
+============================== ==============================
+Old                            New
+============================== ==============================
+``CartesianFrame.x_mappers``   ``CartesianFrame.xscales``
+``CartesianFrame.y_mappers``   ``CartesianFrame.yscales``
+``GlyphRenderer.xmapper``      ``GlyphRenderer.xscale``
+``GlyphRenderer.ymapper``      ``GlyphRenderer.yscale``
+============================== ==============================
+
+Since these attributes may be present in user code (e.g CustomJS callbacks
+or extensions), the old names will continue to work for some time, with a
+deprecation warning in the JS console.

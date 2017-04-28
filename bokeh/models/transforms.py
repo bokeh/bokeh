@@ -9,9 +9,7 @@ from types import FunctionType
 
 from ..core.enums import StepMode, JitterRandomDistribution
 from ..core.has_props import abstract
-from ..core.properties import (
-    Bool, Either, Enum, Float, Instance, Seq, String, Dict
-)
+from ..core.properties import Bool, Dict, Either, Enum, Float, Instance, Seq, String
 from ..model import Model
 from ..util.compiler import nodejs_compile, CompilationError
 from ..util.dependencies import import_required
@@ -27,11 +25,11 @@ class Transform(Model):
 
     .. code-block: coffeescript
 
-       compute: (x) ->
-           # compute the transform of a single value
+        compute: (x) ->
+            # compute the transform of a single value
 
-       v_compute: (xs) ->
-           # compute the transform of an array of values
+        v_compute: (xs) ->
+            # compute the transform of an array of values
 
     '''
     pass

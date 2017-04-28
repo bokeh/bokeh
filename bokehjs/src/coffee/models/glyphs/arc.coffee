@@ -5,7 +5,7 @@ export class ArcView extends XYGlyphView
 
   _map_data: () ->
     if @model.properties.radius.units == "data"
-      @sradius = @sdist(@renderer.xmapper, @_x, @_radius)
+      @sradius = @sdist(@renderer.xscale, @_x, @_radius)
     else
       @sradius = @_radius
 

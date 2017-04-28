@@ -9,10 +9,10 @@ from .. import palettes
 from ..core.has_props import abstract
 from ..core.properties import Color, Date, Datetime, Either, Enum, Float, Int, Seq, String
 from ..core.enums import Palette
-from ..model import Model
+from .transforms import Transform
 
 @abstract
-class ColorMapper(Model):
+class ColorMapper(Transform):
     ''' Base class for color mapper types.
 
     '''

@@ -87,10 +87,6 @@ export class PlotCanvasView extends DOMView
 
     # compat, to be removed
     @frame = @model.frame
-    @x_range = @frame.x_ranges['default']
-    @y_range = @frame.y_ranges['default']
-    @xmapper = @frame.x_mappers['default']
-    @ymapper = @frame.y_mappers['default']
 
     @canvas = @model.canvas
     @canvas_view = new @canvas.default_view({model: @canvas, parent: @})
@@ -194,7 +190,7 @@ export class PlotCanvasView extends DOMView
     calculate_log_bounds = false
     for r in values(frame.x_ranges).concat(values(frame.y_ranges))
       if r instanceof DataRange1d
-        if r.mapper_hint == "log"
+        if r.scale_hint == "log"
           calculate_log_bounds = true
 
     for k, v of @renderer_views
@@ -211,7 +207,7 @@ export class PlotCanvasView extends DOMView
 
     for xr in values(frame.x_ranges)
       if xr instanceof DataRange1d
-        bounds_to_use = if xr.mapper_hint == "log" then log_bounds else bounds
+        bounds_to_use = if xr.scale_hint == "log" then log_bounds else bounds
         xr.update(bounds_to_use, 0, @model.id)
         if xr.follow
           follow_enabled = true
@@ -219,7 +215,7 @@ export class PlotCanvasView extends DOMView
 
     for yr in values(frame.y_ranges)
       if yr instanceof DataRange1d
-        bounds_to_use = if yr.mapper_hint == "log" then log_bounds else bounds
+        bounds_to_use = if yr.scale_hint == "log" then log_bounds else bounds
         yr.update(bounds_to_use, 1, @model.id)
         if yr.follow
           follow_enabled = true
@@ -548,8 +544,8 @@ export class PlotCanvasView extends DOMView
     # TODO (bev) OK this sucks, but the event from the solver update doesn't
     # reach the frame in time (sometimes) so force an update here for now
     # (mp) not only that, but models don't know about solver anymore, so
-    # frame can't update its mappers.
-    @model.frame._update_mappers()
+    # frame can't update its scales.
+    @model.frame._update_scales()
 
     ctx = @canvas_view.ctx
     ctx.pixel_ratio = ratio = @canvas.pixel_ratio  # Also store on cts for WebGL
