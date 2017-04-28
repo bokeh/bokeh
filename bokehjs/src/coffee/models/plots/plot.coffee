@@ -103,7 +103,7 @@ export class Plot extends LayoutDOM
       title = if isString(@title) then new Title({text: @title}) else @title
       @add_layout(title, @title_location)
 
-    @_plot_canvas = new PlotCanvas({plot: @})
+    @_plot_canvas = @_init_plot_canvas()
 
     @toolbar.toolbar_location = @toolbar_location
     @toolbar.toolbar_sticky = @toolbar_sticky
@@ -128,6 +128,9 @@ export class Plot extends LayoutDOM
 
     _set_sizeable(@)
     _set_sizeable(@plot_canvas)
+
+  _init_plot_canvas: () ->
+    return new PlotCanvas({plot: @})
 
   @getters {
     plot_canvas: () -> @_plot_canvas
