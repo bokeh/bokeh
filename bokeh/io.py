@@ -587,26 +587,30 @@ def _get_screenshot_as_png(obj):
     driver = webdriver.PhantomJS()
     driver.get("file:///" + html_path)
     script = """
+        // override body width CSS for PhantomJS compat
+        document.body.style.width = '100%';
         window._bokeh_render_complete = false;
         window.addEventListener("bokeh:rendered", function() {
             window._bokeh_render_complete = true;
-        })
+        });
         """
     driver.execute_script(script)
 
     def is_bokeh_render_complete(driver):
         return driver.execute_script('return window._bokeh_render_complete;')
+
     try:
         WebDriverWait(driver, 5, poll_frequency=0.1).until(is_bokeh_render_complete)
     except TimeoutException:
-        pass
+        logger.warn("The webdriver raised a TimeoutException while waiting for \
+                     a 'bokeh:rendered' event to signify that the layout has rendered. \
+                     Something may have gone wrong.")
+    finally:
+        browser_logs = driver.get_log('browser')
+        severe_errors = [l for l in browser_logs if l.get('level') == 'SEVERE']
+        if len(severe_errors) > 0:
+            logger.warn("There were severe browser errors that may have affected your export: {}".format(severe_errors))
 
-    browser_logs = driver.get_log('browser')
-    severe_errors = [l for l in browser_logs if l.get('level') == 'SEVERE']
-    if len(severe_errors) > 0:
-        logger.warn("There were severe browser errors that may have affected your export: {}".format(severe_errors))
-
-    driver.maximize_window()
     png = driver.get_screenshot_as_png()
 
     bounding_rect_script = "return document.getElementsByClassName('bk-root')[0].children[0].getBoundingClientRect()"

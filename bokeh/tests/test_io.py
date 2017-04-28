@@ -8,7 +8,6 @@
 
 from __future__ import absolute_import
 from mock import patch, Mock, PropertyMock
-# import numpy as np
 from PIL import Image
 import pytest
 import unittest
@@ -297,19 +296,19 @@ def _test_children_removed_from_root(layout_generator, children=None):
     assert component not in io.curdoc().roots
     io.curdoc().clear()
 
-def test__crop_png():
+def test__crop_image():
     image = Image.new(mode="RGBA", size=(10,10))
     rect = dict(left=2, right=8, top=3, bottom=7)
-    cropped = io._crop_png(image, **rect)
+    cropped = io._crop_image(image, **rect)
     assert cropped.size == (6,4)
 
 def test__get_screenshot_as_png():
     layout = Plot(x_range=Range1d(), y_range=Range1d(),
-                  plot_height=2, plot_width=2, logo=None,
-                  outline_line_color="#ffffff")
+                  plot_height=2, plot_width=2, toolbar_location=None,
+                  outline_line_color=None, background_fill_color=None,
+                  border_fill_color=None)
 
     png = io._get_screenshot_as_png(layout)
     assert png.size == (2, 2)
-    assert png.tobytes() == b'\xff\xff\xff?\xff\xff\xff\x7f\xff\xff\xff\x7f\xff\xff\xff\xff'
-    # expected = np.full((4,4), 255, dtype=int)
-    # np.testing.assert_array_equal(expected, np.array(png.getdata()))
+    # a 2x2px image of transparent pixels
+    assert png.tobytes() == b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
