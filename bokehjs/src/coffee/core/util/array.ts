@@ -199,6 +199,16 @@ function findIndexFactory(dir: number) {
 export const findIndex = findIndexFactory(1)
 export const findLastIndex = findIndexFactory(-1)
 
+export function find<T>(array: Array<T>, predicate: (item: T) => boolean): T | undefined {
+  const index = findIndex(array, predicate)
+  return index == -1 ? undefined : array[index]
+}
+
+export function findLast<T>(array: Array<T>, predicate: (item: T) => boolean): T | undefined {
+  const index = findLastIndex(array, predicate)
+  return index == -1 ? undefined : array[index]
+}
+
 export function sortedIndex<T>(array: Array<T>, value: T): number {
   let low = 0
   let high = array.length
