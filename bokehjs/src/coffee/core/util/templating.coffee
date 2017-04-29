@@ -1,5 +1,7 @@
 import * as SPrintf from "sprintf"
 import * as Numbro from "numbro"
+import * as tz from "timezone"
+
 import {escape} from "./string"
 import {isNumber} from "./types"
 
@@ -17,7 +19,7 @@ _format_number = (number) ->
   else
     return "#{number}" # get strings for categorical types
 
-export replace_placeholders = (string, data_source, i, special_vars = {}) ->
+export replace_placeholders = (string, data_source, i, formatters, special_vars = {}) ->
   string = string.replace /(^|[^\$])\$(\w+)/g, (match, prefix, name) => "#{prefix}@$#{name}"
 
   string = string.replace /(^|[^@])@(?:(\$?\w+)|{([^{}]+)})(?:{([^{}]+)})?/g, (match, prefix, name, long_name, format) =>
@@ -27,18 +29,39 @@ export replace_placeholders = (string, data_source, i, special_vars = {}) ->
       if name[0] == "$"
         special_vars[name.substring(1)]
       else
+
         data_source.get_column(name)?[i]
 
     replacement = null
     if not value?
       replacement = "???"
+
     else
+      # 'safe' format, just return the value as is
       if format == 'safe'
         return "#{prefix}#{value}"
+
       else if format?
-        replacement = Numbro.format(value, format)
+
+        # see if the field has an entry in the formatters dict
+        if formatters? and name of formatters
+          if formatters[name] == "numeral"
+            replacement = Numbro.format(value, format)
+          else if formatters[name] == "datetime"
+            replacement = tz(value, format)
+          else if formatters[name] == "printf"
+            replacement = SPrintf(format, value)
+          else
+            throw new Error("Unknown tooltip field formatter type '#{ formatters[name] }'")
+
+        # if not assume the format string is Numbro
+        else
+          replacement = Numbro.format(value, format)
+
+      # no format supplied, just use a basic default numeric format
       else
         replacement = _format_number(value)
+
     replacement = "#{prefix}#{escape(replacement)}"
 
   return string

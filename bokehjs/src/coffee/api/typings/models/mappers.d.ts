@@ -1,9 +1,6 @@
 declare namespace Bokeh {
-  export interface Mapper extends Model, IMapper {}
-  export interface IMapper extends IModel {}
-
-  export interface ColorMapper extends Mapper, IColorMapper {}
-  export interface IColorMapper extends IMapper {
+  export interface ColorMapper extends Transform, IColorMapper {}
+  export interface IColorMapper extends ITransform {
     palette?: Array<Color>;
     nan_color?: Color;
   }

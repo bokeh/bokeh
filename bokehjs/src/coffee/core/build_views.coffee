@@ -18,19 +18,19 @@ export build_views = (view_storage, view_models, options, view_types=[]) ->
   # * options: any additional option to be used in the construction of views
   # * view_option: array, optional view specific options passed in to the construction of the view
 
+  to_remove = difference(Object.keys(view_storage), (model.id for model in view_models))
+
+  for model_id in to_remove
+    view_storage[model_id].remove()
+    delete view_storage[model_id]
+
   created_views = []
-  newmodels = view_models.filter((x) -> not view_storage[x.id]?)
+  new_models = view_models.filter((model) -> not view_storage[model.id]?)
 
-  for model, i_model in newmodels
-    cls = view_types[i_model] ? model.default_view
+  for model, i in new_models
+    view_cls = view_types[i] ? model.default_view
     view_options = extend({model: model}, options)
-    view_storage[model.id] = view = new cls(view_options)
+    view_storage[model.id] = view = new view_cls(view_options)
     created_views.push(view)
-
-  to_remove = difference(Object.keys(view_storage), (view.id for view in view_models))
-
-  for key in to_remove
-    view_storage[key].remove()
-    delete view_storage[key]
 
   return created_views

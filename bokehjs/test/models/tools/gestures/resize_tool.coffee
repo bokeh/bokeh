@@ -27,12 +27,14 @@ describe "ResizeTool", ->
       doc = new Document()
 
       plot = new Plot({x_range: @x_range, y_range: @y_range, toolbar: toolbar})
+      plot_view = new plot.default_view({model: plot, parent: null})
       doc.add_root(plot)
-      @plot_canvas_view = new plot.plot_canvas.default_view({ 'model': plot.plot_canvas })
+      @plot_canvas_view = new plot.plot_canvas.default_view({model: plot.plot_canvas, parent: plot_view})
       @resizetool = new ResizeTool({ plot: plot })
       @resizetool_view = new @resizetool.default_view({
         model: @resizetool
         plot_view: @plot_canvas_view
+        parent: null # wrong
       })
 
     it "_update should call plot_view update dimensions", ->

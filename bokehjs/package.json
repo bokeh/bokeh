@@ -1,6 +1,6 @@
 {
   "name": "bokehjs",
-  "version": "0.12.6dev2",
+  "version": "0.12.6dev3",
   "description": "Interactive, novel data visualization",
   "keywords": [
     "bokeh",
@@ -58,7 +58,8 @@
     "event-stream": "^3.3.1",
     "jsdom": "^9.8.3",
     "websocket":"^1.0.22",
-    "typescript": "^2.2.1",
+    "typescript": "^2.3.0",
+    "tslib": "^1.6.0",
     "coffee-script": "^1.10.0",
     "detective": "^4.3.1",
     "jslint": "^0.10.3",
@@ -104,7 +105,7 @@
     "jquery-ui": "~1.10.5",
 
     "numbro": "https://github.com/bokeh/numbro.git#e1b6c52",
-    "kiwi": "https://github.com/bokeh/kiwi.git#55c0ff9",
+    "kiwi": "https://github.com/bokeh/kiwi.git#3091d4d",
     "root-require": "^0.3.1"
   },
   "scripts": {

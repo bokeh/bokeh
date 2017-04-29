@@ -26,7 +26,7 @@ export class AxisView extends RendererView
     ctx.restore()
 
   bind_bokeh_events: () ->
-    @listenTo(@model, 'change', @plot_view.request_render)
+    @listenTo(@model, 'change', () => @plot_view.request_render())
 
   _get_size: () ->
     return @_tick_extent() + @_tick_label_extent() + @_axis_label_extent()
@@ -282,13 +282,13 @@ export class Axis extends GuideRenderer
 
     switch side
       when "below"
-        yoff = Math.abs(@panel.top - frame.bottom)
+        yoff = Math.abs(@panel._top.value - frame._bottom.value)
       when "above"
-        yoff = Math.abs(@panel.bottom - frame.top)
+        yoff = Math.abs(@panel._bottom.value - frame._top.value)
       when "right"
-        xoff = Math.abs(@panel.left - frame.right)
+        xoff = Math.abs(@panel._left.value - frame._right.value)
       when "left"
-        xoff = Math.abs(@panel.right - frame.left)
+        xoff = Math.abs(@panel._right.value - frame._left.value)
 
     return [xoff, yoff]
 

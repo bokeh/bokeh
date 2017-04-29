@@ -8,9 +8,6 @@ export class LabelSetView extends TextAnnotationView
   initialize: (options) ->
     super(options)
 
-    @xmapper = @plot_view.frame.x_mappers[@model.x_range_name]
-    @ymapper = @plot_view.frame.y_mappers[@model.y_range_name]
-
     @set_data(@model.source)
 
     if @model.render_mode == 'css'
@@ -40,14 +37,17 @@ export class LabelSetView extends TextAnnotationView
     @visuals.warm_cache(source)
 
   _map_data: () ->
+    xscale = @plot_view.frame.xscales[@model.x_range_name]
+    yscale = @plot_view.frame.yscales[@model.y_range_name]
+
     if @model.x_units == "data"
-      vx = @xmapper.v_map_to_target(@_x)
+      vx = xscale.v_compute(@_x)
     else
       vx = @_x.slice(0) # make deep copy to not mutate
     sx = @canvas.v_vx_to_sx(vx)
 
     if @model.y_units == "data"
-      vy = @ymapper.v_map_to_target(@_y)
+      vy = yscale.v_compute(@_y)
     else
       vy = @_y.slice(0) # make deep copy to not mutate
     sy = @canvas.v_vy_to_sy(vy)
