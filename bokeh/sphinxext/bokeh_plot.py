@@ -150,12 +150,6 @@ class PlotScriptParser(Parser):
         env = document.settings.env
         filename = env.doc2path(env.docname) # e.g. full path to docs/user_guide/examples/layout_vertical
 
-        # Do not parse file if <bokeh_include_dirs> defined and file is not in <bokeh_include_dirs> folder
-    	if isinstance(env.app.config.bokeh_include_dirs, list):
-    	    if not env.docname.startswith(tuple(env.app.config.bokeh_include_dirs)):
-    		env.clear_doc(env.docname)
-    		return False
-
         # This code splits the source into two parts: the docstring (or None if
         # there is not one), and the remaining source code after
         m = ast.parse(source)
@@ -255,6 +249,10 @@ class BokehPlotDirective(Directive):
 
 def env_before_read_docs(app, env, docnames):
     docnames.sort(key=lambda x: 2 if "extension" in x else 0 if "examples" in x else 1)
+    for name in [x for x in docnames if env.doc2path(x).endswith(".py")]:
+        if not name.startswith(tuple(env.app.config.bokeh_plot_pyfile_include_dirs)):
+            env.found_docs.remove(name)
+            docnames.remove(name)
 
 def builder_inited(app):
     app.env.bokeh_plot_auxdir = join(app.env.doctreedir, 'bokeh_plot')
@@ -300,7 +298,7 @@ def env_purge_doc(app, env, docname):
 
 def setup(app):
     # Define config variable to filter .py files parser
-    app.add_config_value('bokeh_include_dirs', '', 'html')
+    app.add_config_value('bokeh_plot_pyfile_include_dirs', [], 'html')
 
     app.add_source_parser('.py', PlotScriptParser)
 
