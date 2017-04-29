@@ -1,4 +1,5 @@
 import {union, concat, sortBy} from "./util/array"
+import {merge} from "./util/object"
 
 export point_in_poly = (x, y, px, py) ->
   inside = false
@@ -18,19 +19,6 @@ export point_in_poly = (x, y, px, py) ->
   return inside
 
 nullreturner = () -> null  # stub function shared by all hittests by default
-
-merge = (obj1, obj2) ->
-  result = {}
-
-  keys = concat(Object.keys(obj1),
-                Object.keys(obj2))
-
-  for key in keys
-    arr1 = obj1[key] or []
-    arr2 = obj2[key] or []
-    result[key] = union(arr1, arr2)
-
-  return result
 
 export class HitTestResult
   constructor: () ->
