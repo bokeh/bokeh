@@ -387,7 +387,7 @@ def file_html(models,
               title=None,
               template=FILE,
               template_variables={},
-              theme=None):
+              theme=FromCurdoc):
     ''' Return an HTML document that embeds Bokeh Model or Document objects.
 
     The data for the plot is stored directly in the returned HTML, with
@@ -406,6 +406,11 @@ def file_html(models,
         template_variables (dict, optional) : variables to be used in the Jinja2
             template. If used, the following variable names will be overwritten:
             title, bokeh_js, bokeh_css, plot_script, plot_div
+        theme (Theme, optional) :
+            Defaults to the ``Theme`` instance in the current document.
+            Setting this to ``None`` uses the default theme or the theme
+            already specified in the document. Any other value must be an
+            instance of the ``Theme`` class.
 
     Returns:
         UTF-8 encoded HTML
