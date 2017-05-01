@@ -7,6 +7,7 @@ include versioneer.py
 include _setup_support.py
 include bokeh/themes/*.yaml
 recursive-include examples *.py *.ipynb *.md
+recursive-include tests *.py *.ipynb *.jinja *.js *.md *.png
 prune examples/charts/.ipynb_checkpoints
 prune examples/compat/mpl/.ipynb_checkpoints
 prune examples/glyphs/.ipynb_checkpoints

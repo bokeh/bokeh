@@ -111,6 +111,7 @@ class Chart(Plot):
             del kwargs['responsive']
 
         self._active_drag = kwargs.pop('active_drag', 'auto')
+        self._active_inspect = kwargs.pop('active_inspect', 'auto')
         self._active_scroll = kwargs.pop('active_scroll', 'auto')
         self._active_tap = kwargs.pop('active_tap', 'auto')
 
@@ -142,7 +143,7 @@ class Chart(Plot):
         self._tooltips = []
 
         if hasattr(self, '_tools'):
-            self.create_tools(self._tools, self._active_drag, self._active_scroll, self._active_tap)
+            self.create_tools(self._tools, self._active_drag, self._active_inspect, self._active_scroll, self._active_tap)
 
     def add_renderers(self, builder, renderers):
         self.renderers += renderers
@@ -180,7 +181,7 @@ class Chart(Plot):
         if ygrid:
             self.make_grid(1, self._yaxis.ticker)
 
-    def create_tools(self, tools, active_drag, active_scroll, active_tap):
+    def create_tools(self, tools, active_drag, active_inspect, active_scroll, active_tap):
         """Create tools if given tools=True input.
 
         Only adds tools if given boolean and does not already have
@@ -197,7 +198,7 @@ class Chart(Plot):
             # if no tools customization let's create the default tools
             tool_objs, tool_map = _process_tools_arg(self, tools)
             self.add_tools(*tool_objs)
-            _process_active_tools(self.toolbar, tool_map, self._active_drag, self._active_scroll, self._active_tap)
+            _process_active_tools(self.toolbar, tool_map, self._active_drag, self._active_inspect, self._active_scroll, self._active_tap)
 
     def start_plot(self):
         """Add the axis, grids and tools
@@ -206,7 +207,7 @@ class Chart(Plot):
         self.create_grids(self._xgrid, self._ygrid)
 
         if self.toolbar.tools:
-            self.create_tools(self._tools, self._active_drag, self._active_scroll, self._active_tap)
+            self.create_tools(self._tools, self._active_drag, self._active_inspect, self._active_scroll, self._active_tap)
 
         if len(self._tooltips) > 0:
             self.add_tools(HoverTool(tooltips=self._tooltips))

@@ -40,6 +40,8 @@ export class Range1d extends Range
   }
 
   reset: () ->
-    @setv({start: @_initial_start, end: @_initial_end}, {silent: true})
     @_set_auto_bounds()
-    @trigger('change')
+    if @start != @_initial_start or @end != @_initial_end
+      @setv({start: @_initial_start, end: @_initial_end})
+    else
+      @trigger('change')

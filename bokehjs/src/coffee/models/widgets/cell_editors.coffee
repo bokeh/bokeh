@@ -3,12 +3,13 @@ import "jquery-ui/autocomplete"
 import "jquery-ui/spinner"
 
 import * as p from "core/properties"
+import {extend} from "core/util/object"
 
-import {BokehView} from "core/bokeh_view"
+import {DOMView} from "core/dom_view"
 import {Model} from "../../model"
 import {JQueryable} from "./jqueryable"
 
-export class CellEditorView extends BokehView
+export class CellEditorView extends DOMView
   @prototype extends JQueryable
 
   className: "bk-cell-editor"
@@ -18,9 +19,11 @@ export class CellEditorView extends BokehView
   emptyValue: null
   defaultValue: null
 
-  initialize: (options) ->
+  constructor: (options) ->
     @args = options
-    @model = @args.column.editor
+    super(extend({model: options.column.editor}, options))
+
+  initialize: (options) ->
     super(options)
     @render()
 

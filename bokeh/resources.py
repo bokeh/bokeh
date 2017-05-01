@@ -27,87 +27,34 @@ from .settings import settings
 
 from .util.paths import bokehjsdir
 from .util.session_id import generate_session_id
-from .util.compiler import gen_custom_models_static
 from .model import Model
 
 DEFAULT_SERVER_HOST = "localhost"
 DEFAULT_SERVER_PORT = 5006
 DEFAULT_SERVER_HTTP_URL = "http://%s:%d/" % (DEFAULT_SERVER_HOST, DEFAULT_SERVER_PORT)
 
-def websocket_url_for_server_url(url):
-    if url.startswith("http:"):
-        reprotocoled = "ws" + url[4:]
-    elif url.startswith("https:"):
-        reprotocoled = "wss" + url[5:]
-    else:
-        raise ValueError("URL has unknown protocol " + url)
-    if reprotocoled.endswith("/"):
-        return reprotocoled + "ws"
-    else:
-        return reprotocoled + "/ws"
-
-
-def server_url_for_websocket_url(url):
-    if url.startswith("ws:"):
-        reprotocoled = "http" + url[2:]
-    elif url.startswith("wss:"):
-        reprotocoled = "https" + url[3:]
-    else:
-        raise ValueError("URL has non-websocket protocol " + url)
-    if not reprotocoled.endswith("/ws"):
-        raise ValueError("websocket URL does not end in /ws")
-    return reprotocoled[:-2]
-
 class _SessionCoordinates(object):
     """ Internal class used to parse kwargs for server URL, app_path, and session_id."""
-    def __init__(self, kwargs):
-        """ Using kwargs which may have extra stuff we don't care about, compute websocket url and session ID."""
+    def __init__(self, **kwargs):
+        self._url = kwargs.get('url', DEFAULT_SERVER_HTTP_URL)
 
-        self._base_url = kwargs.get('url', DEFAULT_SERVER_HTTP_URL)
-        if self._base_url is None:
+        if self._url is None:
             raise ValueError("url cannot be None")
-        if self._base_url == 'default':
-            self._base_url = DEFAULT_SERVER_HTTP_URL
-        if self._base_url.startswith("ws"):
+
+        if self._url == 'default':
+            self._url = DEFAULT_SERVER_HTTP_URL
+
+        if self._url.startswith("ws"):
             raise ValueError("url should be the http or https URL for the server, not the websocket URL")
 
-        # base_url always has trailing slash, host:port/{prefix/}
-        if not self._base_url.endswith("/"):
-            self._base_url = self._base_url + "/"
+        self._url = self._url.rstrip("/")
 
-        self._app_path = kwargs.get('app_path', '/')
-        if self._app_path is None:
-            raise ValueError("app_path cannot be None")
-        if not self._app_path.startswith("/"):
-            raise ValueError("app_path should start with a '/' character")
-        if self._app_path != '/' and self._app_path.endswith("/"):
-            self._app_path = self._app_path[:-1] # chop off trailing slash
-
+        # we lazy-generate the session_id so we can generate it server-side when appropriate
         self._session_id = kwargs.get('session_id')
-        # we lazy-generate the session_id so we can generate
-        # it server-side when appropriate
-
-        # server_url never has trailing slash because it's
-        # prettier like host:port/app_path without a slash
-        if self._app_path == '/':
-            self._server_url = self._base_url[:-1] # chop off trailing slash
-        else:
-            self._server_url = self._base_url + self._app_path[1:]
-
-    @property
-    def websocket_url(self):
-        """ Websocket URL derived from the kwargs provided."""
-        return websocket_url_for_server_url(self._server_url)
-
-    @property
-    def server_url(self):
-        """ Server URL including app path derived from the kwargs provided."""
-        return self._server_url
 
     @property
     def url(self):
-        """ Server base URL derived from the kwargs provided (no app path)."""
-        return self._base_url
+        return self._url
 
     @property
     def session_id(self):
@@ -125,15 +72,7 @@ class _SessionCoordinates(object):
         """
         return self._session_id
 
-    @property
-    def app_path(self):
-        """ App path derived from the kwargs provided."""
-        return self._app_path
-
-DEFAULT_SERVER_WEBSOCKET_URL = websocket_url_for_server_url(DEFAULT_SERVER_HTTP_URL)
-
 _DEV_PAT = re.compile(r"^(\d)+\.(\d)+\.(\d)+(dev|rc)")
-
 
 def _cdn_base_url():
     return "https://cdn.pydata.org"
@@ -254,7 +193,7 @@ class BaseResources(object):
 
     @property
     def root_url(self):
-        if self._root_url:
+        if self._root_url is not None:
             return self._root_url
         else:
             return self._default_root_url
@@ -325,7 +264,7 @@ class JSResources(BaseResources):
     ''' The Resources class encapsulates information relating to loading or embedding Bokeh Javascript.
 
     Args:
-        mode (str) : how should Bokeh JS be included in output
+        mode (str) : How should Bokeh JS be included in output
 
             See below for descriptions of available modes
 
@@ -339,7 +278,13 @@ class JSResources(BaseResources):
 
         minified (bool, optional) : whether JavaScript should be minified or not (default: True)
 
-        root_url (str, optional) : URL and port of Bokeh Server to load resources from
+        root_url (str, optional) : URL and port of Bokeh Server to load resources from (default: None)
+
+            If ``None``, absoute URLs based on the default server configuration will
+            be generated.
+
+            ``root_url`` can also be the empty string, in which case relative URLs,
+            e.g., "static/css/bokeh.min.js", are generated.
 
             Only valid with ``'server'`` and ``'server-dev'`` modes
 
@@ -384,10 +329,6 @@ class JSResources(BaseResources):
 
         if self.log_level is not None:
             raw.append('Bokeh.set_log_level("%s");' % self.log_level)
-
-        custom_models = gen_custom_models_static()
-        if custom_models is not None:
-            raw.append(custom_models)
 
         return raw
 
@@ -513,5 +454,3 @@ class Resources(JSResources, CSSResources):
 CDN = Resources(mode="cdn")
 
 INLINE = Resources(mode="inline")
-
-EMPTY = Resources(mode="inline", components=[], log_level=None)

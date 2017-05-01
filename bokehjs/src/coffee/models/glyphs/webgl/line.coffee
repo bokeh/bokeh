@@ -1,7 +1,6 @@
 import * as gloo2 from "gloo2"
-import {logger} from "core/logging"
 import {color2rgba} from "core/util/color"
-import {BaseGLGlyph, line_width, attach_float, attach_color} from "./base"
+import {BaseGLGlyph} from "./base"
 
 class DashAtlas
 

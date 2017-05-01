@@ -26,4 +26,4 @@ def test_rect_rendering_with_log_axis(output_file_url, selenium, screenshot):
     save(plot)
     selenium.get(output_file_url)
     assert has_no_console_errors(selenium)
-    assert screenshot.is_valid()
+    screenshot.assert_is_valid()

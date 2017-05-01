@@ -1,4 +1,5 @@
 import {TextAnnotation, TextAnnotationView} from "./text_annotation"
+import {hide} from "core/dom"
 import * as p from "core/properties"
 import * as Visuals from "core/visuals"
 
@@ -23,11 +24,11 @@ export class TitleView extends TextAnnotationView
         vx = 0
         vy = @_get_text_location(@model.align, @frame.v_range) + @model.offset
       when 'right'
-        vx = @canvas.right - 1 #fudge factor due to error in text height measurement
-        vy = @canvas.height - @_get_text_location(@model.align, @frame.v_range) - @model.offset
+        vx = @canvas._right.value - 1 #fudge factor due to error in text height measurement
+        vy = @canvas._height.value - @_get_text_location(@model.align, @frame.v_range) - @model.offset
       when 'above'
         vx = @_get_text_location(@model.align, @frame.h_range) + @model.offset
-        vy = @canvas.top - 10 # Corresponds to the +10 added in get_size
+        vy = @canvas._top.value - 10 # Corresponds to the +10 added in get_size
       when 'below'
         vx = @_get_text_location(@model.align, @frame.h_range) + @model.offset
         vy = 0
@@ -47,6 +48,11 @@ export class TitleView extends TextAnnotationView
     return text_location
 
   render: () ->
+    if not @model.visible and @model.render_mode == 'css'
+      hide(@el)
+    if not @model.visible
+      return
+
     angle = @model.panel.get_label_angle_heuristic('parallel')
     [sx, sy] = @_get_computed_location()
     ctx = @plot_view.canvas_view.ctx

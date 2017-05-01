@@ -21,7 +21,7 @@ class DataSource(Model):
     selected = Dict(String, Dict(String, Any), default={
         '0d': {'glyph': None, 'indices': []},
         '1d': {'indices': []},
-        '2d': {}
+        '2d': {'indices': {}}
     }, help="""
     A dict to indicate selected indices on different dimensions on this DataSource. Keys are:
 
@@ -45,7 +45,8 @@ class DataSource(Model):
         # selection information for multiline and patches glyphs
         '2d': {
           # mapping of indices of the multiglyph to array of glyph indices that were hit
-          # e.g. {3: [5, 6], 4, [5]}
+          # e.g. {3: [5, 6], 4: [5]}
+          indices: {}
         }
 
     """)
@@ -85,8 +86,9 @@ class ColumnDataSource(ColumnarDataSource):
     Mapping of column names to sequences of data. The data can be, e.g,
     Python lists or tuples, NumPy arrays, etc.
     """).asserts(lambda _, data: len(set(len(x) for x in data.values())) <= 1,
-                 lambda: warnings.warn("ColumnDataSource's columns must be of the same length", BokehUserWarning))
-
+                 lambda obj, name, data: warnings.warn(
+                    "ColumnDataSource's columns must be of the same length. " +
+                    "Current lengths: %s" % ", ".join(sorted(str((k, len(v))) for k, v in data.items())), BokehUserWarning))
 
     def __init__(self, *args, **kw):
         ''' If called with a single argument that is a dict or
@@ -117,19 +119,19 @@ class ColumnDataSource(ColumnarDataSource):
             df (DataFrame) : data to convert
 
         Returns:
-            dict(str, list)
+            dict[str, np.array]
 
         '''
-        index = df.index
-        new_data = {}
-        for colname in df:
-            new_data[colname] = df[colname].tolist()
+        _df = df.copy()
+        index = _df.index
+        new_data = _df.to_dict('series')
+
         if index.name:
-            new_data[index.name] = index.tolist()
+            new_data[index.name] = index.values
         elif index.names and not all([x is None for x in index.names]):
-            new_data["_".join(index.names)] = index.tolist()
+            new_data["_".join(index.names)] = index.values
         else:
-            new_data["index"] = index.tolist()
+            new_data["index"] = index.values
         return new_data
 
     @classmethod
@@ -141,7 +143,7 @@ class ColumnDataSource(ColumnarDataSource):
             data (DataFrame) : data to convert
 
         Returns:
-            dict[str, list]
+            dict[str, np.array]
 
         '''
         return cls._data_from_df(data)

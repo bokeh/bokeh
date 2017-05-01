@@ -5,6 +5,7 @@ Adding Interactions
 
 .. toctree::
    interaction/linking
+   interaction/legends
    interaction/widgets
    interaction/callbacks
 
@@ -13,11 +14,15 @@ Adding Interactions
     plots, such as linked ranges when panning and zooming, or linked
     highlighting when making selections.
 
+:ref:`userguide_interaction_legends`
+    Bokeh ``Legends`` can be configure to allow for easily hiding or muting
+    corresponding glyphs.
+
 :ref:`userguide_interaction_widgets`
     Bokeh comes with a rich set of widgets that can be used with either
     client-side JavaScript callbacks, or with real python code in a Bokeh
     server application.
 
-:ref:`userguide_interaction_callbacks`
+:ref:`userguide_interaction_jscallbacks`
     See how to attach ``CustomJS`` callbacks to various widgets and events
     in Bokeh documents.

@@ -47,7 +47,7 @@ describe "ImageURL module", ->
       image_url_view = create_glyph_view(@image_url)
 
       image_url_view.map_data()
-      # sw and sh will be equal to zero because the mapper state isn't complete
+      # sw and sh will be equal to zero because the scale state isn't complete
       # this is ok - it just shouldn't be equal to the initial values
       expect(image_url_view.sw).to.be.deep.equal([0])
       expect(image_url_view.sh).to.be.deep.equal([0])

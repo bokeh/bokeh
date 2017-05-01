@@ -1,15 +1,14 @@
 import * as p from "core/properties"
 import * as bbox from "core/util/bbox"
 import * as proj from "core/util/projections"
-import {BokehView} from "core/bokeh_view"
+import {View} from "core/view"
 import {Model} from "../../model"
 import {Visuals} from "core/visuals"
-import * as bokehgl from "./webgl/main"
 import {logger} from "core/logging"
 import {extend} from "core/util/object"
 import {isString, isArray} from "core/util/types"
 
-export class GlyphView extends BokehView
+export class GlyphView extends View
 
   initialize: (options) ->
     super(options)
@@ -21,11 +20,21 @@ export class GlyphView extends BokehView
     # and not done if it isn't ever set, but for now it only
     # matters in the unit tests because we build a view without a
     # renderer there)
-    if @renderer?.plot_view?
-      ctx = @renderer.plot_view.canvas_view.ctx
-      if ctx.glcanvas?
-        Cls = bokehgl[@model.type + 'GLGlyph']
-        if Cls
+    ctx = @renderer.plot_view.canvas_view.ctx
+
+    if ctx.glcanvas?
+      try
+        glglyphs = require("models/glyphs/webgl/index")
+      catch e
+        if e.code == 'MODULE_NOT_FOUND'
+          logger.warn('WebGL was requested and is supported, but bokeh-gl(.min).js is not available, falling back to 2D rendering.')
+          glglyphs = null
+        else
+          throw e
+
+      if glglyphs?
+        Cls = glglyphs[@model.type + 'GLGlyph']
+        if Cls?
           @glglyph = new Cls(ctx.glcanvas.gl, @)
 
   set_visuals: (source) ->
@@ -35,16 +44,13 @@ export class GlyphView extends BokehView
       @glglyph.set_visuals_changed()
 
   render: (ctx, indices, data) ->
-    if @model.visible
-      ctx.beginPath()
+    ctx.beginPath()
 
-      if @glglyph?
-        if @glglyph.render(ctx, indices, data)
-          return
+    if @glglyph?
+      if @glglyph.render(ctx, indices, data)
+        return
 
-      @_render(ctx, indices, data)
-
-    return
+    @_render(ctx, indices, data)
 
   bounds: () ->
     if not @index?
@@ -91,9 +97,9 @@ export class GlyphView extends BokehView
   scx: (i) -> return @sx[i]
   scy: (i) -> return @sy[i]
 
-  sdist: (mapper, pts, spans, pts_location="edge", dilate=false) ->
+  sdist: (scale, pts, spans, pts_location="edge", dilate=false) ->
     if isString(pts[0])
-      pts = mapper.v_map_to_target(pts)
+      pts = scale.v_compute(pts)
 
     if pts_location == 'center'
       halfspan = (d / 2 for d in spans)
@@ -103,8 +109,8 @@ export class GlyphView extends BokehView
       pt0 = pts
       pt1 = (pt0[i] + spans[i] for i in [0...pt0.length])
 
-    spt0 = mapper.v_map_to_target(pt0)
-    spt1 = mapper.v_map_to_target(pt1)
+    spt0 = scale.v_compute(pt0)
+    spt1 = scale.v_compute(pt1)
 
     if dilate
       return (Math.ceil(Math.abs(spt1[i] - spt0[i])) for i in [0...spt0.length])
@@ -228,10 +234,6 @@ export class Glyph extends Model
       result[y] = [ p.NumberSpec ]
 
     @define(result)
-
-  @define {
-    visible: [ p.Bool, true ]
-  }
 
   @internal {
     x_range_name: [ p.String,      'default' ]

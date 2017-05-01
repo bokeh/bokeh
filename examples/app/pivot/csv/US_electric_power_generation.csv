@@ -1,0 +1,175 @@
+Case,Region,Technology,Technology Type,Year,Electricity Generation (TWh)
+Reference,Western US,Nuclear,Non-Renewable,2010,76
+Reference,Western US,Nuclear,Non-Renewable,2020,58
+Reference,Western US,Nuclear,Non-Renewable,2030,58
+Reference,Western US,Nuclear,Non-Renewable,2040,58
+Reference,Western US,Nuclear,Non-Renewable,2050,58
+Reference,Western US,Coal,Non-Renewable,2010,237
+Reference,Western US,Coal,Non-Renewable,2020,163
+Reference,Western US,Coal,Non-Renewable,2030,122
+Reference,Western US,Coal,Non-Renewable,2040,126
+Reference,Western US,Coal,Non-Renewable,2050,107
+Reference,Western US,Natural Gas,Non-Renewable,2010,176
+Reference,Western US,Natural Gas,Non-Renewable,2020,154
+Reference,Western US,Natural Gas,Non-Renewable,2030,196
+Reference,Western US,Natural Gas,Non-Renewable,2040,221
+Reference,Western US,Natural Gas,Non-Renewable,2050,268
+Reference,Western US,Hydropower,Renewable,2010,165
+Reference,Western US,Hydropower,Renewable,2020,183
+Reference,Western US,Hydropower,Renewable,2030,189
+Reference,Western US,Hydropower,Renewable,2040,189
+Reference,Western US,Hydropower,Renewable,2050,190
+Reference,Western US,Wind,Renewable,2010,30
+Reference,Western US,Wind,Renewable,2020,103
+Reference,Western US,Wind,Renewable,2030,101
+Reference,Western US,Wind,Renewable,2040,105
+Reference,Western US,Wind,Renewable,2050,135
+Reference,Western US,Solar,Renewable,2010,5
+Reference,Western US,Solar,Renewable,2020,56
+Reference,Western US,Solar,Renewable,2030,121
+Reference,Western US,Solar,Renewable,2040,181
+Reference,Western US,Solar,Renewable,2050,236
+Reference,Eastern US,Nuclear,Non-Renewable,2010,683
+Reference,Eastern US,Nuclear,Non-Renewable,2020,671
+Reference,Eastern US,Nuclear,Non-Renewable,2030,671
+Reference,Eastern US,Nuclear,Non-Renewable,2040,664
+Reference,Eastern US,Nuclear,Non-Renewable,2050,648
+Reference,Eastern US,Coal,Non-Renewable,2010,1535
+Reference,Eastern US,Coal,Non-Renewable,2020,1096
+Reference,Eastern US,Coal,Non-Renewable,2030,969
+Reference,Eastern US,Coal,Non-Renewable,2040,824
+Reference,Eastern US,Coal,Non-Renewable,2050,505
+Reference,Eastern US,Natural Gas,Non-Renewable,2010,524
+Reference,Eastern US,Natural Gas,Non-Renewable,2020,691
+Reference,Eastern US,Natural Gas,Non-Renewable,2030,893
+Reference,Eastern US,Natural Gas,Non-Renewable,2040,1166
+Reference,Eastern US,Natural Gas,Non-Renewable,2050,1530
+Reference,Eastern US,Hydropower,Renewable,2010,101
+Reference,Eastern US,Hydropower,Renewable,2020,98
+Reference,Eastern US,Hydropower,Renewable,2030,99
+Reference,Eastern US,Hydropower,Renewable,2040,99
+Reference,Eastern US,Hydropower,Renewable,2050,101
+Reference,Eastern US,Wind,Renewable,2010,50
+Reference,Eastern US,Wind,Renewable,2020,262
+Reference,Eastern US,Wind,Renewable,2030,276
+Reference,Eastern US,Wind,Renewable,2040,311
+Reference,Eastern US,Wind,Renewable,2050,383
+Reference,Eastern US,Solar,Renewable,2010,0
+Reference,Eastern US,Solar,Renewable,2020,48
+Reference,Eastern US,Solar,Renewable,2030,129
+Reference,Eastern US,Solar,Renewable,2040,254
+Reference,Eastern US,Solar,Renewable,2050,441
+Reference,Texas,Nuclear,Non-Renewable,2010,39
+Reference,Texas,Nuclear,Non-Renewable,2020,39
+Reference,Texas,Nuclear,Non-Renewable,2030,39
+Reference,Texas,Nuclear,Non-Renewable,2040,39
+Reference,Texas,Nuclear,Non-Renewable,2050,39
+Reference,Texas,Coal,Non-Renewable,2010,126
+Reference,Texas,Coal,Non-Renewable,2020,83
+Reference,Texas,Coal,Non-Renewable,2030,34
+Reference,Texas,Coal,Non-Renewable,2040,32
+Reference,Texas,Coal,Non-Renewable,2050,32
+Reference,Texas,Natural Gas,Non-Renewable,2010,125
+Reference,Texas,Natural Gas,Non-Renewable,2020,96
+Reference,Texas,Natural Gas,Non-Renewable,2030,148
+Reference,Texas,Natural Gas,Non-Renewable,2040,172
+Reference,Texas,Natural Gas,Non-Renewable,2050,188
+Reference,Texas,Hydropower,Renewable,2010,1
+Reference,Texas,Hydropower,Renewable,2020,1
+Reference,Texas,Hydropower,Renewable,2030,1
+Reference,Texas,Hydropower,Renewable,2040,1
+Reference,Texas,Hydropower,Renewable,2050,1
+Reference,Texas,Wind,Renewable,2010,25
+Reference,Texas,Wind,Renewable,2020,162
+Reference,Texas,Wind,Renewable,2030,158
+Reference,Texas,Wind,Renewable,2040,171
+Reference,Texas,Wind,Renewable,2050,212
+Reference,Texas,Solar,Renewable,2010,0
+Reference,Texas,Solar,Renewable,2020,6
+Reference,Texas,Solar,Renewable,2030,43
+Reference,Texas,Solar,Renewable,2040,54
+Reference,Texas,Solar,Renewable,2050,62
+Carbon Tax,Western US,Nuclear,Non-Renewable,2010,76
+Carbon Tax,Western US,Nuclear,Non-Renewable,2020,58
+Carbon Tax,Western US,Nuclear,Non-Renewable,2030,58
+Carbon Tax,Western US,Nuclear,Non-Renewable,2040,57
+Carbon Tax,Western US,Nuclear,Non-Renewable,2050,57
+Carbon Tax,Western US,Coal,Non-Renewable,2010,237
+Carbon Tax,Western US,Coal,Non-Renewable,2020,3
+Carbon Tax,Western US,Natural Gas,Non-Renewable,2010,176
+Carbon Tax,Western US,Natural Gas,Non-Renewable,2020,182
+Carbon Tax,Western US,Natural Gas,Non-Renewable,2030,126
+Carbon Tax,Western US,Natural Gas,Non-Renewable,2040,105
+Carbon Tax,Western US,Natural Gas,Non-Renewable,2050,98
+Carbon Tax,Western US,Hydropower,Renewable,2010,165
+Carbon Tax,Western US,Hydropower,Renewable,2020,186
+Carbon Tax,Western US,Hydropower,Renewable,2030,190
+Carbon Tax,Western US,Hydropower,Renewable,2040,191
+Carbon Tax,Western US,Hydropower,Renewable,2050,191
+Carbon Tax,Western US,Wind,Renewable,2010,30
+Carbon Tax,Western US,Wind,Renewable,2020,194
+Carbon Tax,Western US,Wind,Renewable,2030,197
+Carbon Tax,Western US,Wind,Renewable,2040,223
+Carbon Tax,Western US,Wind,Renewable,2050,273
+Carbon Tax,Western US,Solar,Renewable,2010,5
+Carbon Tax,Western US,Solar,Renewable,2020,78
+Carbon Tax,Western US,Solar,Renewable,2030,229
+Carbon Tax,Western US,Solar,Renewable,2040,343
+Carbon Tax,Western US,Solar,Renewable,2050,434
+Carbon Tax,Eastern US,Nuclear,Non-Renewable,2010,683
+Carbon Tax,Eastern US,Nuclear,Non-Renewable,2020,671
+Carbon Tax,Eastern US,Nuclear,Non-Renewable,2030,671
+Carbon Tax,Eastern US,Nuclear,Non-Renewable,2040,664
+Carbon Tax,Eastern US,Nuclear,Non-Renewable,2050,647
+Carbon Tax,Eastern US,Coal,Non-Renewable,2010,1535
+Carbon Tax,Eastern US,Coal,Non-Renewable,2020,345
+Carbon Tax,Eastern US,Coal,Non-Renewable,2030,51
+Carbon Tax,Eastern US,Coal,Non-Renewable,2040,5
+Carbon Tax,Eastern US,Coal,Non-Renewable,2050,4
+Carbon Tax,Eastern US,Natural Gas,Non-Renewable,2010,524
+Carbon Tax,Eastern US,Natural Gas,Non-Renewable,2020,1010
+Carbon Tax,Eastern US,Natural Gas,Non-Renewable,2030,912
+Carbon Tax,Eastern US,Natural Gas,Non-Renewable,2040,1048
+Carbon Tax,Eastern US,Natural Gas,Non-Renewable,2050,1111
+Carbon Tax,Eastern US,Hydropower,Renewable,2010,101
+Carbon Tax,Eastern US,Hydropower,Renewable,2020,99
+Carbon Tax,Eastern US,Hydropower,Renewable,2030,100
+Carbon Tax,Eastern US,Hydropower,Renewable,2040,100
+Carbon Tax,Eastern US,Hydropower,Renewable,2050,102
+Carbon Tax,Eastern US,Wind,Renewable,2010,50
+Carbon Tax,Eastern US,Wind,Renewable,2020,621
+Carbon Tax,Eastern US,Wind,Renewable,2030,695
+Carbon Tax,Eastern US,Wind,Renewable,2040,755
+Carbon Tax,Eastern US,Wind,Renewable,2050,938
+Carbon Tax,Eastern US,Solar,Renewable,2010,0
+Carbon Tax,Eastern US,Solar,Renewable,2020,94
+Carbon Tax,Eastern US,Solar,Renewable,2030,570
+Carbon Tax,Eastern US,Solar,Renewable,2040,701
+Carbon Tax,Eastern US,Solar,Renewable,2050,735
+Carbon Tax,Texas,Nuclear,Non-Renewable,2010,39
+Carbon Tax,Texas,Nuclear,Non-Renewable,2020,39
+Carbon Tax,Texas,Nuclear,Non-Renewable,2030,39
+Carbon Tax,Texas,Nuclear,Non-Renewable,2040,39
+Carbon Tax,Texas,Nuclear,Non-Renewable,2050,38
+Carbon Tax,Texas,Coal,Non-Renewable,2010,126
+Carbon Tax,Texas,Coal,Non-Renewable,2020,8
+Carbon Tax,Texas,Natural Gas,Non-Renewable,2010,125
+Carbon Tax,Texas,Natural Gas,Non-Renewable,2020,100
+Carbon Tax,Texas,Natural Gas,Non-Renewable,2030,105
+Carbon Tax,Texas,Natural Gas,Non-Renewable,2040,104
+Carbon Tax,Texas,Natural Gas,Non-Renewable,2050,131
+Carbon Tax,Texas,Hydropower,Renewable,2010,1
+Carbon Tax,Texas,Hydropower,Renewable,2020,1
+Carbon Tax,Texas,Hydropower,Renewable,2030,1
+Carbon Tax,Texas,Hydropower,Renewable,2040,1
+Carbon Tax,Texas,Hydropower,Renewable,2050,1
+Carbon Tax,Texas,Wind,Renewable,2010,25
+Carbon Tax,Texas,Wind,Renewable,2020,252
+Carbon Tax,Texas,Wind,Renewable,2030,234
+Carbon Tax,Texas,Wind,Renewable,2040,264
+Carbon Tax,Texas,Wind,Renewable,2050,299
+Carbon Tax,Texas,Solar,Renewable,2010,0
+Carbon Tax,Texas,Solar,Renewable,2020,12
+Carbon Tax,Texas,Solar,Renewable,2030,72
+Carbon Tax,Texas,Solar,Renewable,2040,86
+Carbon Tax,Texas,Solar,Renewable,2050,110

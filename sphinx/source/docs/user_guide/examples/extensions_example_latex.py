@@ -22,13 +22,13 @@ export class LatexLabelView extends LabelView
       when "deg" then angle = -1 * @model.angle * Math.PI/180.0
 
     if @model.x_units == "data"
-      vx = @xmapper.map_to_target(@model.x)
+      vx = @xscale.compute(@model.x)
     else
       vx = @model.x
     sx = @canvas.vx_to_sx(vx)
 
     if @model.y_units == "data"
-      vy = @ymapper.map_to_target(@model.y)
+      vy = @yscale.compute(@model.y)
     else
       vy = @model.y
     sy = @canvas.vy_to_sy(vy)
@@ -40,13 +40,13 @@ export class LatexLabelView extends LabelView
 
     #--- End of copied section from ``Label.render`` implementation
 
-    # ``katex`` is loaded into the global window at runtime
-    # katex.renderToString returns a html ``span`` element
-    latex = katex.renderToString(@model.text, {displayMode: true})
-
     # Must render as superpositioned div (not on canvas) so that KaTex
     # css can properly style the text
-    @_css_text(ctx, latex, sx + @model.x_offset, sy - @model.y_offset, angle)
+    @_css_text(ctx, "", sx + @model.x_offset, sy - @model.y_offset, angle)
+
+    # ``katex`` is loaded into the global window at runtime
+    # katex.renderToString returns a html ``span`` element
+    katex.render(@model.text, @el, {displayMode: true})
 
 export class LatexLabel extends Label
   type: 'LatexLabel'

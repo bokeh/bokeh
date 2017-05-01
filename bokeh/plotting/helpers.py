@@ -53,7 +53,7 @@ def get_default_alpha(plot=None):
 
 def _pop_renderer_args(kwargs):
     result = dict(data_source=kwargs.pop('source', ColumnDataSource()))
-    for attr in ['name', 'x_range_name', 'y_range_name', 'level']:
+    for attr in ['name', 'x_range_name', 'y_range_name', 'level', 'visible', 'muted']:
         val = kwargs.pop(attr, None)
         if val:
             result[attr] = val
@@ -373,13 +373,14 @@ def _process_tools_arg(plot, tools):
     return tool_objs, tool_map
 
 
-def _process_active_tools(toolbar, tool_map, active_drag, active_scroll, active_tap):
+def _process_active_tools(toolbar, tool_map, active_drag, active_inspect, active_scroll, active_tap):
     """ Adds tools to the plot object
 
     Args:
         toolbar (Toolbar): instance of a Toolbar object
         tools_map (dict[str]|Tool): tool_map from _process_tools_arg
         active_drag (str or Tool): the tool to set active for drag
+        active_inspect (str or Tool): the tool to set active for inspect
         active_scroll (str or Tool): the tool to set active for scroll
         active_tap (str or Tool): the tool to set active for tap
 
@@ -395,6 +396,13 @@ def _process_active_tools(toolbar, tool_map, active_drag, active_scroll, active_
         toolbar.active_drag = tool_map[active_drag]
     else:
         raise ValueError("Got unknown %r for 'active_drag', which was not a string supplied in 'tools' argument" % active_drag)
+
+    if active_inspect in ['auto', None] or isinstance(active_inspect, Tool) or all([isinstance(t, Tool) for t in active_inspect]):
+        toolbar.active_inspect = active_inspect
+    elif active_inspect in tool_map:
+        toolbar.active_inspect = tool_map[active_inspect]
+    else:
+        raise ValueError("Got unknown %r for 'active_inspect', which was not a string supplied in 'tools' argument" % active_scroll)
 
     if active_scroll in ['auto', None] or isinstance(active_scroll, Tool):
         toolbar.active_scroll = active_scroll
@@ -415,7 +423,12 @@ def _get_argspecs(glyphclass):
     for arg in glyphclass._args:
         spec = {}
         prop = getattr(glyphclass, arg)
-        spec['desc'] = " ".join(x.strip() for x in prop.__doc__.strip().split("\n\n")[0].split('\n'))
+
+        # running python with -OO will discard docstrings -> __doc__ is None
+        if prop.__doc__:
+            spec['desc'] = " ".join(x.strip() for x in prop.__doc__.strip().split("\n\n")[0].split('\n'))
+        else:
+            spec['desc'] = ""
         spec['default'] = prop.class_default(glyphclass)
         spec['type'] = prop.__class__.__name__
         argspecs[arg] = spec
@@ -552,15 +565,23 @@ def _glyph_function(glyphclass, extra_docs=None):
         else:
             hglyph_ca = None
 
+        # handle the mute glyph, if any properties were given
+        if any(x.startswith('muted_') for x in kwargs):
+            mglyph_ca = _pop_colors_and_alpha(glyphclass, kwargs, prefix='muted_')
+        else:
+            mglyph_ca = None
+
         glyph = _make_glyph(glyphclass, kwargs, glyph_ca)
         nsglyph = _make_glyph(glyphclass, kwargs, nsglyph_ca)
-        hglyph = _make_glyph(glyphclass, kwargs, hglyph_ca)
         sglyph = _make_glyph(glyphclass, kwargs, sglyph_ca)
+        hglyph = _make_glyph(glyphclass, kwargs, hglyph_ca)
+        mglyph = _make_glyph(glyphclass, kwargs, mglyph_ca)
 
         glyph_renderer = GlyphRenderer(glyph=glyph,
                                        nonselection_glyph=nsglyph,
                                        selection_glyph=sglyph,
                                        hover_glyph=hglyph,
+                                       muted_glyph=mglyph,
                                        **renderer_kws)
 
         if legend_item_label:

@@ -127,11 +127,11 @@ setup(
     author='Continuum Analytics',
     author_email='info@continuum.io',
     url='http://github.com/bokeh/bokeh',
-    classifiers=open("classifiers.txt").read().split('\n'),
+    classifiers=open("classifiers.txt").read().strip().split('\n'),
 
     # details needed by setup
     install_requires=REQUIRES,
-    packages=find_packages(),
+    packages=find_packages(exclude=["scripts*", "tests*"]),
     package_data=get_package_data(),
     entry_points={'console_scripts': ['bokeh = bokeh.__main__:main',], },
     zip_safe=False,

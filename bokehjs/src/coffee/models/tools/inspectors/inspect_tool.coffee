@@ -8,13 +8,3 @@ export class InspectTool extends ButtonTool
   @override {
     active: true
   }
-
-  bind_bokeh_events: () ->
-    super()
-    @listenTo(events, 'move', @_inspect)
-
-  _inspect: (vx, vy, e) ->
-
-  _exit_inner: () ->
-
-  _exit_outer: () ->

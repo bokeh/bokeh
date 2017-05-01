@@ -19,25 +19,25 @@ describe "ToolbarBoxView", ->
 
   it "should return null from get_width if @_horizontal is not true", ->
     @box._horizontal = false
-    @box_view = new @box.default_view({ model: @box })
+    @box_view = new @box.default_view({ model: @box, parent: null })
     expect(@box_view.get_width()).to.be.null
 
   it "should return 30 from get_width if @_horizontal is true", ->
     # @_horizontal means that the toolbar is on the left or the right
     @box._horizontal = true
-    @box_view = new @box.default_view({ model: @box })
+    @box_view = new @box.default_view({ model: @box, parent: null })
     expect(@box_view.get_width()).to.be.equal 30
 
   # Note: The way height is reporting is not perfectly correct, but this
   # simple version gets a number of things working as a starting point
   it "should return 30 from get_height if @_horizontal is true", ->
     @box._horizontal = true
-    @box_view = new @box.default_view({ model: @box })
+    @box_view = new @box.default_view({ model: @box, parent: null })
     expect(@box_view.get_height()).to.be.equal 30
 
   it "should return 30 from get_height if @_horizontal is false", ->
     @box._horizontal = false
-    @box_view = new @box.default_view({ model: @box })
+    @box_view = new @box.default_view({ model: @box, parent: null })
     expect(@box_view.get_height()).to.be.equal 30
 
 

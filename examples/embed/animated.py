@@ -39,7 +39,7 @@ r_x = linspace(0, 6*pi, N-1)
 rmin = r_base - cos(r_x) - 1
 rmax = r_base + sin(r_x) + 1
 
-colors = ["FFFFCC", "#C7E9B4", "#7FCDBB", "#41B6C4", "#2C7FB8",
+colors = ["#FFFFCC", "#C7E9B4", "#7FCDBB", "#41B6C4", "#2C7FB8",
           "#253494", "#2C7FB8", "#41B6C4", "#7FCDBB", "#C7E9B4"] * 5
 
 p = figure(x_range=(-11, 11), y_range=(-11, 11))
@@ -59,7 +59,7 @@ html = """
     %s
   </body>
 </html>
-""" % autoload_server(p, session_id=session.id)
+""" % autoload_server(p, session_id=session.id, relative_urls=False)
 
 with io.open("animated.html", mode='w+', encoding='utf-8') as f:
     f.write(html)
@@ -73,6 +73,6 @@ def update():
     rmax = roll(ds.data["outer_radius"], -1)
     ds.data.update(inner_radius=rmin, outer_radius=rmax)
 
-curdoc().add_periodic_callback(update, 30)
+curdoc().add_periodic_callback(update, 60)
 
 session.loop_until_closed() # run forever

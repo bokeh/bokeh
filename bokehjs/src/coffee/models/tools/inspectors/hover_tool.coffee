@@ -2,7 +2,6 @@ import {InspectTool, InspectToolView} from "./inspect_tool"
 import {Tooltip} from "../../annotations/tooltip"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import * as hittest from "core/hittest"
-import {logger} from "core/logging"
 import {replace_placeholders} from "core/util/templating"
 import {div, span} from "core/dom"
 import * as p from "core/properties"
@@ -26,8 +25,6 @@ export class HoverToolView extends InspectToolView
   bind_bokeh_events: () ->
     for r in @model.computed_renderers
       @listenTo(r.data_source, 'inspect', @_update)
-
-    @plot_view.canvas_view.el.style.cursor = "crosshair"
 
   _clear: () ->
 
@@ -78,6 +75,9 @@ export class HoverToolView extends InspectToolView
     return
 
   _update: (indices, tool, renderer, ds, {geometry}) ->
+    if not @model.active
+      return
+
     tooltip = @model.ttmodels[renderer.model.id] ? null
     if not tooltip?
       return
@@ -95,10 +95,10 @@ export class HoverToolView extends InspectToolView
     sx = canvas.vx_to_sx(vx)
     sy = canvas.vy_to_sy(vy)
 
-    xmapper = frame.x_mappers[renderer.model.x_range_name]
-    ymapper = frame.y_mappers[renderer.model.y_range_name]
-    x = xmapper.map_from_target(vx)
-    y = ymapper.map_from_target(vy)
+    xscale = frame.xscales[renderer.model.x_range_name]
+    yscale = frame.yscales[renderer.model.y_range_name]
+    x = xscale.invert(vx)
+    y = yscale.invert(vy)
 
     for i in indices['0d'].indices
       data_x = renderer.glyph._x[i+1]
@@ -107,8 +107,8 @@ export class HoverToolView extends InspectToolView
       switch @model.line_policy
         when "interp" # and renderer.get_interpolation_hit?
           [data_x, data_y] = renderer.glyph.get_interpolation_hit(i, geometry)
-          rx = xmapper.map_to_target(data_x)
-          ry = ymapper.map_to_target(data_y)
+          rx = xscale.compute(data_x)
+          ry = yscale.compute(data_y)
 
         when "prev"
           rx = canvas.sx_to_vx(renderer.glyph.sx[i])
@@ -147,16 +147,16 @@ export class HoverToolView extends InspectToolView
 
     for i in indices['1d'].indices
       # multiglyphs will set '1d' and '2d' results, but have different tooltips
-      if not isEmpty(indices['2d'])
-        for i, [j] of indices['2d']
+      if not isEmpty(indices['2d'].indices)
+        for i, [j] of indices['2d'].indices
           data_x = renderer.glyph._xs[i][j]
           data_y = renderer.glyph._ys[i][j]
 
           switch @model.line_policy
             when "interp" # and renderer.get_interpolation_hit?
               [data_x, data_y] = renderer.glyph.get_interpolation_hit(i, j, geometry)
-              rx = xmapper.map_to_target(data_x)
-              ry = ymapper.map_to_target(data_y)
+              rx = xscale.compute(data_x)
+              ry = yscale.compute(data_y)
 
             when "prev"
               rx = canvas.sx_to_vx(renderer.glyph.sxs[i][j])
@@ -223,10 +223,10 @@ export class HoverToolView extends InspectToolView
     geometry['sx'] = canvas.vx_to_sx(geometry.vx)
     geometry['sy'] = canvas.vy_to_sy(geometry.vy)
 
-    xmapper = frame.x_mappers[r.x_range_name]
-    ymapper = frame.y_mappers[r.y_range_name]
-    geometry['x'] = xmapper.map_from_target(geometry.vx)
-    geometry['y'] = ymapper.map_from_target(geometry.vy)
+    xscale = frame.xscales[r.x_range_name]
+    yscale = frame.yscales[r.y_range_name]
+    geometry['x'] = xscale.invert(geometry.vx)
+    geometry['y'] = yscale.invert(geometry.vy)
 
     callback = @model.callback
     [obj, data] = [callback, {index: indices, geometry: geometry}]
@@ -242,7 +242,7 @@ export class HoverToolView extends InspectToolView
     tooltips = @model.tooltips
     if isString(tooltips)
       el = div()
-      el.innerHTML = replace_placeholders(tooltips, ds, i, vars)
+      el.innerHTML = replace_placeholders(tooltips, ds, i, @model.formatters, vars)
       return el
     else if isFunction(tooltips)
       return tooltips(ds, vars)
@@ -283,7 +283,7 @@ export class HoverToolView extends InspectToolView
         else
           value = value.replace("$~", "$data_")
           el = span()
-          el.innerHTML = replace_placeholders(value, ds, i, vars)
+          el.innerHTML = replace_placeholders(value, ds, i, @model.formatters, vars)
           cell.appendChild(el)
 
       return rows
@@ -301,6 +301,7 @@ export class HoverTool extends InspectTool
           ["data (x, y)",   "($x, $y)"]
           ["canvas (x, y)", "($sx, $sy)"]
         ] ] # TODO (bev)
+      formatters:   [ p.Any,    {}             ]
       renderers:    [ p.Array,  []             ]
       names:        [ p.Array,  []             ]
       mode:         [ p.String, 'mouse'        ] # TODO (bev)

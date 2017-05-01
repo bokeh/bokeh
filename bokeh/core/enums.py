@@ -128,6 +128,9 @@ def enumeration(*values, **kwargs):
 
     return type("Enumeration", (Enumeration,), attrs)()
 
+#: Specify whether a dimension or coordinate is latitude or longitude
+LatLon = enumeration("lat", "lon")
+
 #: Specify how stroked lines should be joined together
 LineJoin = enumeration("miter", "round", "bevel")
 
@@ -252,3 +255,12 @@ SortDirection = enumeration("ascending", "descending")
 
 #: Sizing mode policies
 SizingMode = enumeration("stretch_both", "scale_width", "scale_height", "scale_both", "fixed")
+
+#: Specify how a legend should respond to click events
+LegendClickPolicy = enumeration("none", "hide", "mute")
+
+#: Whether range padding should be interpreted a percentage or and absolute quantity
+PaddingUnits = enumeration("percent", "absolute")
+
+#: Specify how a format string for a tooltip field should be interpreted
+TooltipFieldFormatter = enumeration("numeral", "datetime", "printf")

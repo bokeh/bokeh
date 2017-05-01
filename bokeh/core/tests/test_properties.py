@@ -6,11 +6,14 @@ import numpy as np
 import pandas as pd
 from copy import copy
 
+import pytest
+
 from bokeh.core.properties import (field, value,
     NumberSpec, ColorSpec, Bool, Int, Float, Complex, String,
     Regex, Seq, List, Dict, Tuple, Instance, Any, Interval, Either,
-    Enum, Color, DashPattern, Size, Percent, Angle, AngleSpec,
-    DistanceSpec, FontSizeSpec, Override, Include, MinMaxBounds)
+    Enum, Color, DashPattern, Size, Percent, Angle, AngleSpec, StringSpec,
+    DistanceSpec, FontSizeSpec, Override, Include, MinMaxBounds,
+    DataDistanceSpec, ScreenDistanceSpec)
 
 from bokeh.core.has_props import HasProps
 
@@ -569,6 +572,39 @@ class TestFontSizeSpec(unittest.TestCase):
             a.x = f
             self.assertEqual(a.x, f)
             self.assertEqual(a.lookup('x').serializable_value(a), dict(field=f))
+
+    def test_bad_font_size_values(self):
+        class Foo(HasProps):
+            x = FontSizeSpec(default=None)
+
+        a = Foo()
+
+        with self.assertRaises(ValueError):
+            a.x = "6"
+
+        with self.assertRaises(ValueError):
+            a.x = 6
+
+        with self.assertRaises(ValueError):
+            a.x = ""
+
+    def test_fields(self):
+        class Foo(HasProps):
+            x = FontSizeSpec(default=None)
+
+        a = Foo()
+
+        a.x = "_120"
+        self.assertEqual(a.x, "_120")
+
+        a.x = dict(field="_120")
+        self.assertEqual(a.x, dict(field="_120"))
+
+        a.x = "foo"
+        self.assertEqual(a.x, "foo")
+
+        a.x = dict(field="foo")
+        self.assertEqual(a.x, dict(field="foo"))
 
 class TestAngleSpec(unittest.TestCase):
     def test_default_none(self):
@@ -1666,3 +1702,25 @@ def test_value_function():
     assert value("foo") == dict(value="foo")
     # TODO (bev) would like this to work I think
     #assert value("foo", transform="junk") == dict(value="foo", transform="junk")
+
+def test_strict_dataspec_key_values():
+    for typ in (NumberSpec, StringSpec, FontSizeSpec, ColorSpec, DataDistanceSpec, ScreenDistanceSpec):
+        class Foo(HasProps):
+            x = typ("x")
+        f = Foo()
+        with pytest.raises(ValueError):
+            f.x = dict(field="foo", units="junk")
+
+def test_strict_unitspec_key_values():
+    class FooUnits(HasProps):
+        x = DistanceSpec("x")
+    f = FooUnits()
+    f.x = dict(field="foo", units="screen")
+    with pytest.raises(ValueError):
+        f.x = dict(field="foo", units="junk", foo="crap")
+    class FooUnits(HasProps):
+        x = AngleSpec("x")
+    f = FooUnits()
+    f.x = dict(field="foo", units="deg")
+    with pytest.raises(ValueError):
+        f.x = dict(field="foo", units="junk", foo="crap")

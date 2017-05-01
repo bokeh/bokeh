@@ -20,8 +20,7 @@ class CodeHandler(Handler):
 
     """
 
-    _io_functions = ['output_server', 'output_notebook', 'output_file',
-                     'show', 'save', 'push', 'reset_output']
+    _io_functions = ['output_notebook', 'output_file', 'show', 'save', 'reset_output']
 
     def __init__(self, *args, **kwargs):
         super(CodeHandler, self).__init__(*args, **kwargs)

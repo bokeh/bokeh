@@ -8,6 +8,8 @@ export Direction = ["clock", "anticlock"]
 
 export FontStyle = ["normal", "italic", "bold"]
 
+export LatLon = ["lat", "lon"]
+
 export LineCap = ["butt", "round", "square"]
 
 export LineJoin = ["miter", "round", "bevel"]
@@ -41,3 +43,5 @@ export DistributionTypes = ["uniform", "normal"]
 export TransformStepModes = ["after", "before", "center"]
 
 export SizingMode = ["stretch_both", "scale_width", "scale_height", "scale_both", "fixed"]
+
+export PaddingUnits = ["percent", "absolute"]

@@ -93,6 +93,12 @@ class Application(object):
 
     '''
 
+    # This is so that bokeh.io.show can check if a passed in object is an
+    # Application without having to import Application directly. This module
+    # depends on tornado and we have made a commitment that "basic" modules
+    # will function without bringing in tornado.
+    _is_a_bokeh_application_class = True
+
     def __init__(self, *handlers):
         self._static_path = None
         self._handlers = []

@@ -1,6 +1,7 @@
 import {ContinuousTicker} from "./continuous_ticker"
 import * as p from "core/properties"
 import {argmin, sortedIndex} from "core/util/array"
+import {isEmpty} from "core/util/object"
 
 # This Ticker takes a collection of Tickers and picks the one most appropriate
 # for a given range.
@@ -38,11 +39,12 @@ export class CompositeTicker extends ContinuousTicker
 
     # this can happen if the data isn't loaded yet, we just default to
     # the first scale
-    best_index = argmin(errors)
-    if best_index == Infinity
-      return @tickers[0]
-    best_ticker_ndx = ticker_ndxs[best_index]
-    best_ticker = @tickers[best_ticker_ndx]
+    if isEmpty(errors.filter((e) -> return not isNaN(e)))
+      best_ticker = @tickers[0]
+    else
+      best_index = argmin(errors)
+      best_ticker_ndx = ticker_ndxs[best_index]
+      best_ticker = @tickers[best_ticker_ndx]
 
     return best_ticker
 
@@ -50,7 +52,7 @@ export class CompositeTicker extends ContinuousTicker
     best_ticker = @get_best_ticker(data_low, data_high, desired_n_ticks)
     return best_ticker.get_interval(data_low, data_high, desired_n_ticks)
 
-  get_ticks_no_defaults: (data_low, data_high, desired_n_ticks) ->
+  get_ticks_no_defaults: (data_low, data_high, cross_loc, desired_n_ticks) ->
     best_ticker = @get_best_ticker(data_low, data_high, desired_n_ticks)
-    ticks = best_ticker.get_ticks_no_defaults(data_low, data_high, desired_n_ticks)
+    ticks = best_ticker.get_ticks_no_defaults(data_low, data_high, cross_loc, desired_n_ticks)
     return ticks

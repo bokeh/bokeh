@@ -17,8 +17,8 @@ DIRECTORIES = {
     'plotting-notebook': '../../examples/plotting/notebook',
     'server'           : '../../examples/plotting/server',
     'webgl'            : '../../examples/webgl',
-    'compat'           : '../../examples/compat',
-    'models'           : '../../examples/models',
+    'models-file'      : '../../examples/models/file',
+    'models-server'    : '../../examples/models/server',
     'charts-file'      : '../../examples/charts/file',
     'charts-notebook'  : '../../examples/charts/notebook'
 }
@@ -26,7 +26,6 @@ DIRECTORIES = {
 DEFAULT_TEST_FILES = [
     '../../examples/plotting/file/stocks.py',
     '../../examples/plotting/file/glucose.py',
-    '../../examples/compat/seaborn_violin.py',
     '../../examples/plotting/server/hover.py',
     '../../examples/charts/boxplot.py',
 ]
@@ -51,8 +50,8 @@ def get_parser():
                         - plotting-file
                         - plotting-notebook
                         - server
-                        - compat
-                        - models
+                        - models-file
+                        - models-server
                         - charts-file
                         - charts-notebook
                     """), formatter_class=argparse.RawTextHelpFormatter)
@@ -254,10 +253,6 @@ if __name__ == '__main__':
     if results.location:
         if results.location and results.location in DIRECTORIES:
             target = results.location
-
-            if target == 'compat':
-                for dep in ['pandas', 'seaborn']:
-                    if not depend_check(dep): sys.exit(1)
 
             test_dir = DIRECTORIES[target]
 

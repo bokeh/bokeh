@@ -1,4 +1,4 @@
-import {WEAK_EQ, GE, EQ, Strength, Variable} from "core/layout/solver"
+import {WEAK_EQ, GE, EQ, Strength} from "core/layout/solver"
 import {logger} from "core/logging"
 import * as p from "core/properties"
 import {extend, values, clone} from "core/util/object"
@@ -12,6 +12,7 @@ import {PlotCanvas, PlotCanvasView} from "./plot_canvas"
 
 import {ColumnDataSource} from "../sources/column_data_source"
 import {GlyphRenderer} from "../renderers/glyph_renderer"
+import {register_with_event, UIEvent} from 'core/bokeh_events'
 
 export class PlotView extends LayoutDOMView
   className: "bk-plot-layout"
@@ -29,14 +30,13 @@ export class PlotView extends LayoutDOMView
 
     if @model.sizing_mode is 'scale_both'
       [width, height] = @get_width_height()
-      s = @model.document.solver()
-      s.suggest_value(@model._width, width)
-      s.suggest_value(@model._height, height)
+      @solver.suggest_value(@model._width, width)
+      @solver.suggest_value(@model._height, height)
       @el.style.position = 'absolute'
-      @el.style.left = "#{@model._dom_left._value}px"
-      @el.style.top = "#{@model._dom_top._value}px"
-      @el.style.width = "#{@model._width.value()}px"
-      @el.style.height = "#{@model._height.value()}px"
+      @el.style.left = "#{@model._dom_left.value}px"
+      @el.style.top = "#{@model._dom_top.value}px"
+      @el.style.width = "#{@model._width.value}px"
+      @el.style.height = "#{@model._height.value}px"
 
   get_width_height: () ->
       parent_height = @el.parentNode.clientHeight
@@ -60,10 +60,10 @@ export class PlotView extends LayoutDOMView
       return [width, height]
 
   get_height: () ->
-    return @model._width._value / @model.get_aspect_ratio()
+    return @model._width.value / @model.get_aspect_ratio()
 
   get_width: () ->
-    return @model._height._value * @model.get_aspect_ratio()
+    return @model._height.value * @model.get_aspect_ratio()
 
   save: (name) ->
     (view for view in values(@child_views) when view instanceof PlotCanvasView)[0].save(name)
@@ -85,9 +85,7 @@ export class Plot extends LayoutDOM
         plots = plots.concat(@)
         yr.setv('plots', plots, {silent: true})
 
-    @_horizontal = false
-    if @toolbar_location in ['left', 'right']
-      @_horizontal = true
+    @_horizontal = @toolbar_location in ['left', 'right']
 
     # Min border applies to the edge of everything
     if @min_border?
@@ -119,18 +117,25 @@ export class Plot extends LayoutDOM
     if not @height?
       @height = @plot_height
 
-  @getter("plot_canvas", () -> @_plot_canvas)
-
-  _doc_attached: () ->
     # Setup side renderers
     for side in ['above', 'below', 'left', 'right']
       layout_renderers = @getv(side)
-      for r in layout_renderers
-        @plot_canvas.add_renderer_to_canvas_side(r, side)
+      for renderer in layout_renderers
+        renderer.add_panel(side)
+
+    _set_sizeable = (model) =>
+      model._sizeable = if not @_horizontal then model._height else model._width
+
+    _set_sizeable(@)
+    _set_sizeable(@plot_canvas)
+
+  @getters {
+    plot_canvas: () -> @_plot_canvas
+  }
+
+  _doc_attached: () ->
     @plot_canvas.attach_document(@document)
-    @_set_orientation_variables(@)
-    @_set_orientation_variables(@toolbar)
-    @_set_orientation_variables(@plot_canvas)
+    super()
 
   add_renderers: (new_renderers...) ->
     renderers = @renderers
@@ -138,17 +143,13 @@ export class Plot extends LayoutDOM
     @renderers = renderers
 
   add_layout: (renderer, side="center") ->
-    # For non-center renderers, this method can only be used before
-    # the document is attached to the plot. In _doc_attached, the canvas
-    # sets up the the sub-side panels that are necessary for
-    # side_renderers to lay themselves out.
-    # (Bird: I'm not sure if live adding of center renderers will work or not).
     if renderer.props.plot?
       renderer.plot = this
-    @add_renderers(renderer)
     if side != 'center'
       side_renderers = @getv(side)
       side_renderers.push(renderer)
+      renderer.add_panel(side)
+    @add_renderers(renderer)
 
   add_glyph: (glyph, source, attrs={}) ->
     if not source?
@@ -216,7 +217,10 @@ export class Plot extends LayoutDOM
         constraints.push(EQ(@_sizeable, [-1, @plot_canvas._sizeable], [-1, @toolbar._sizeable]))
 
       # (2) plot_width = plot_canvas_width | plot_height = plot_canvas_height | plot_height = plot_canvas_height
-      constraints.push(EQ(@_full, [-1, @plot_canvas._full]))
+      if not @_horizontal
+        constraints.push(EQ(@_width, [-1, @plot_canvas._width]))
+      else
+        constraints.push(EQ(@_height, [-1, @plot_canvas._height]))
 
       if @toolbar_location is 'above'
         # (3) stack: plot_canvas._top = toolbar._dom_top + toolbar._height
@@ -267,35 +271,26 @@ export class Plot extends LayoutDOM
     return constraints
 
   get_constrained_variables: () ->
-    constrained_variables = super()
-    constrained_variables = extend(constrained_variables, {
-      'on-edge-align-top'    : @plot_canvas._top
-      'on-edge-align-bottom' : @plot_canvas._height_minus_bottom
-      'on-edge-align-left'   : @plot_canvas._left
-      'on-edge-align-right'  : @plot_canvas._width_minus_right
+    vars = extend({}, super(), {
+      on_edge_align_top    : @plot_canvas._top
+      on_edge_align_bottom : @plot_canvas._height_minus_bottom
+      on_edge_align_left   : @plot_canvas._left
+      on_edge_align_right  : @plot_canvas._width_minus_right
 
-      'box-cell-align-top'   : @plot_canvas._top
-      'box-cell-align-bottom': @plot_canvas._height_minus_bottom
-      'box-cell-align-left'  : @plot_canvas._left
-      'box-cell-align-right' : @plot_canvas._width_minus_right
+      box_cell_align_top   : @plot_canvas._top
+      box_cell_align_bottom: @plot_canvas._height_minus_bottom
+      box_cell_align_left  : @plot_canvas._left
+      box_cell_align_right : @plot_canvas._width_minus_right
 
-      'box-equal-size-top'   : @plot_canvas._top
-      'box-equal-size-bottom': @plot_canvas._height_minus_bottom
+      box_equal_size_top   : @plot_canvas._top
+      box_equal_size_bottom: @plot_canvas._height_minus_bottom
     })
-    if @sizing_mode isnt 'fixed'
-      constrained_variables = extend(constrained_variables, {
-        'box-equal-size-left'  : @plot_canvas._left
-        'box-equal-size-right' : @plot_canvas._width_minus_right
-      })
-    return constrained_variables
 
-  _set_orientation_variables: (model) ->
-    if @_horizontal is false  # toolbar is above or below or null
-      model._sizeable = model._height
-      model._full = model._width
-    if @_horizontal is true  # toolbar is left or right
-      model._sizeable = model._width
-      model._full = model._height
+    if @sizing_mode != 'fixed'
+      vars.box_equal_size_left  = @plot_canvas._left
+      vars.box_equal_size_right = @plot_canvas._width_minus_right
+
+    return vars
 
   #
   # SETUP PROPERTIES
@@ -349,6 +344,8 @@ export class Plot extends LayoutDOM
 
       inner_width:       [ p.Number                           ]
       inner_height:      [ p.Number                           ]
+      layout_width:      [ p.Number                           ]
+      layout_height:     [ p.Number                           ]
     }
 
   @override {
@@ -364,3 +361,5 @@ export class Plot extends LayoutDOM
         renderers = renderers.concat(tool.synthetic_renderers)
       return renderers
   }
+
+register_with_event(UIEvent, Plot)

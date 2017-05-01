@@ -125,7 +125,11 @@ export class Grid extends GuideRenderer
     end = Math.max(start, end)
     start = tmp
 
-    ticks = @ticker.get_ticks(start, end, range, {})[location]
+    # TODO: (bev) using cross_range.min for cross_loc is a bit of a cheat. Since we
+    # currently only support "straight line" grids, this should be OK for now. If
+    # we ever want to support "curved" grids, e.g. for some projections, we may
+    # have to communicate more than just a single cross location.
+    ticks = @ticker.get_ticks(start, end, range, cross_range.min, {})[location]
 
     min = range.min
     max = range.max

@@ -10,7 +10,7 @@ const _createElement = (tag: string) => (attrs: HTMLAttrs = {}, ...children: HTM
   if (tag === "fragment") {
     // XXX: this is wrong, but the the common super type of DocumentFragment and HTMLElement is
     // Node, which doesn't support classList, style, etc. attributes.
-    element = document.createDocumentFragment() as HTMLElement
+    element = (document.createDocumentFragment() as any) as HTMLElement
   } else {
     element = document.createElement(tag)
     for (const attr in attrs) {
@@ -76,12 +76,18 @@ export const
   ol     = _createElement("ol"),
   li     = _createElement("li");
 
-export function show(element: HTMLElement): void {
-  element.style.display = ""
+export function removeElement(element: HTMLElement): void {
+  const parent = element.parentNode
+  if (parent != null) {
+    parent.removeChild(element)
+  }
 }
 
-export function hide(element: HTMLElement): void {
-  element.style.display = "none"
+export function replaceWith(element: HTMLElement, replacement: HTMLElement) {
+  const parent = element.parentNode
+  if (parent != null) {
+    parent.replaceChild(replacement, element)
+  }
 }
 
 export function empty(element: HTMLElement): void {
@@ -89,6 +95,14 @@ export function empty(element: HTMLElement): void {
   while (child = element.firstChild) {
     element.removeChild(child)
   }
+}
+
+export function show(element: HTMLElement): void {
+  element.style.display = ""
+}
+
+export function hide(element: HTMLElement): void {
+  element.style.display = "none"
 }
 
 export function position(element: HTMLElement) {
@@ -101,14 +115,7 @@ export function position(element: HTMLElement) {
 export function offset(element: HTMLElement) {
   const rect = element.getBoundingClientRect()
   return {
-    top:  rect.top  + document.body.scrollTop,
-    left: rect.left + document.body.scrollLeft,
-  }
-}
-
-export function replaceWith(element: HTMLElement, replacement: HTMLElement) {
-  const parent = element.parentNode
-  if (parent != null) {
-    parent.replaceChild(replacement, element)
+    top:  rect.top  + window.pageYOffset - document.documentElement.clientTop,
+    left: rect.left + window.pageXOffset - document.documentElement.clientLeft,
   }
 }

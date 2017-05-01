@@ -51,6 +51,8 @@ def test_enums_contents():
         'FontStyle',
         'HorizontalLocation',
         'JitterRandomDistribution',
+        'LatLon',
+        'LegendClickPolicy',
         'LegendLocation',
         'LineCap',
         'LineDash',
@@ -60,6 +62,7 @@ def test_enums_contents():
         'NamedColor',
         'NumeralLanguage',
         'Orientation',
+        'PaddingUnits',
         'Palette',
         'RenderLevel',
         'RenderMode',
@@ -72,5 +75,6 @@ def test_enums_contents():
         'StepMode',
         'TextAlign',
         'TextBaseline',
+        'TooltipFieldFormatter',
         'VerticalLocation',
     ]

@@ -49,8 +49,8 @@ from ..util.serialization import transform_series, transform_array
 pd = import_optional('pandas')
 rd = import_optional("dateutil.relativedelta")
 
-NP_EPOCH = np.datetime64('1970-01-01T00:00:00Z')
-NP_MS_DELTA = np.timedelta64(1, 'ms')
+_NP_EPOCH = np.datetime64(0, 'ms')
+_NP_MS_DELTA = np.timedelta64(1, 'ms')
 
 class BokehJSONEncoder(json.JSONEncoder):
     ''' A custom ``json.JSONEncoder`` subclass for encoding objects in
@@ -93,8 +93,8 @@ class BokehJSONEncoder(json.JSONEncoder):
 
         # Numpy datetime64
         elif isinstance(obj, np.datetime64):
-            epoch_delta = obj - NP_EPOCH
-            return (epoch_delta / NP_MS_DELTA)
+            epoch_delta = obj - _NP_EPOCH
+            return (epoch_delta / _NP_MS_DELTA)
 
         # Time
         elif isinstance(obj, dt.time):

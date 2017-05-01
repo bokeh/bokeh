@@ -113,22 +113,32 @@ def _detect_nodejs():
 
     for nodejs_path in nodejs_paths:
         try:
-            Popen([nodejs_path, "--version"], stdout=PIPE, stderr=PIPE)
+            proc = Popen([nodejs_path, "--version"], stdout=PIPE, stderr=PIPE)
+            proc.wait()
         except OSError:
             pass
         else:
             return nodejs_path
     else:
-        return None
-
-_nodejs = _detect_nodejs()
-_npmjs = None if _nodejs is None else join(dirname(_nodejs), "npm")
-
-def _run(app, argv, input=None):
-    if _nodejs is None:
         raise RuntimeError('node.js is needed to allow compilation of custom models ' +
                            '("conda install -c bokeh nodejs" or follow https://nodejs.org/en/download/)')
 
+_nodejs = None
+_npmjs = None
+
+def _nodejs_path():
+    global _nodejs
+    if _nodejs is None:
+        _nodejs = _detect_nodejs()
+    return _nodejs
+
+def _npmjs_path():
+    global _npmjs
+    if _npmjs is None:
+        _npmjs = join(dirname(_nodejs_path()), "npm")
+    return _npmjs
+
+def _run(app, argv, input=None):
     proc = Popen([app] + argv, stdout=PIPE, stderr=PIPE, stdin=PIPE)
     (stdout, errout) = proc.communicate(input=None if input is None else json.dumps(input).encode())
 
@@ -138,10 +148,10 @@ def _run(app, argv, input=None):
         return stdout.decode('utf-8')
 
 def _run_nodejs(argv, input=None):
-    return _run(_nodejs, argv, input)
+    return _run(_nodejs_path(), argv, input)
 
 def _run_npmjs(argv, input=None):
-    return _run(_npmjs, argv, input)
+    return _run(_npmjs_path(), argv, input)
 
 def _version(run_app):
     try:
@@ -273,10 +283,11 @@ class CustomModel(object):
     def module(self):
         return "custom/%s" % snakify(self.full_name)
 
-def gen_custom_models_static():
+def bundle_models(models):
+    """Create a bundle of `models`. """
     custom_models = {}
 
-    for cls in Model.model_class_reverse_map.values():
+    for cls in models:
         impl = getattr(cls, "__implementation__", None)
 
         if impl is not None:
@@ -383,3 +394,6 @@ def gen_custom_models_static():
     modules = sep.join([ _module_template % dict(module=module, code=code, deps=json.dumps(deps)) for (module, code, deps) in modules ])
 
     return _plugin_template % dict(prelude=_plugin_prelude, exports=exports, modules=modules)
+
+def bundle_all_models():
+    return bundle_models(Model.model_class_reverse_map.values()) or ""

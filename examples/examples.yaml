@@ -1,4 +1,4 @@
-- path: "models"
+- path: "models/file"
   slow: ["choropleth.py"]
   no_js: ["maps_cities.py", "maps.py", "trail.py"]
 
@@ -13,6 +13,7 @@
 - path: "plotting/file"
   slow: ["choropleth.py"]
   no_diff: ["jitter.py"]
+  no_js: ["gmap.py"]
 
 - path: "plotting/server"
   type: server
@@ -21,8 +22,7 @@
 - path: "plotting/notebook"
   skip: all
 
-- path: "compat"
-  no_diff: all
-
 - path: "howto/charts"
   skip: all
+
+- path: "howto/layouts"

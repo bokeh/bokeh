@@ -14,7 +14,7 @@ To use widgets, you must add them to your document and define their functionalit
 Widgets can be added directly to the document root or nested inside a layout. There
 are two ways to program a widget's functionality:
 
-    * Use the ``CustomJS`` callback (see :ref:`userguide_interaction_actions_widget_callbacks`). This will work in standalone HTML documents.
+    * Use the ``CustomJS`` callback (see :ref:`userguide_interaction_jscallbacks`). This will work in standalone HTML documents.
     * Use ``bokeh serve`` to start the Bokeh server and set up event handlers with ``.on_change`` (or for some widgets, ``.on_click``).
 
 Event handlers are user-defined Python functions that can be attached to widgets. These functions are
@@ -173,8 +173,6 @@ The toggle button holds an on/off state:
 
 .. bokeh-plot:: docs/user_guide/examples/interaction_toggle_button.py
     :source-position: below
-
-.. _userguide_interaction_actions:
 
 Div
 ~~~

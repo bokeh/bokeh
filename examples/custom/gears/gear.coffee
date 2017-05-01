@@ -8,7 +8,7 @@ import * as gear_utils from "./gear_utils"
 export class GearView extends XYGlyphView
 
   _map_data: () ->
-    @smodule = @sdist(@renderer.xmapper, @_x, @_module, 'edge')
+    @smodule = @sdist(@renderer.xscale, @_x, @_module, 'edge')
 
   _render: (ctx, indices, {sx, sy, smodule, _angle, _teeth, _pressure_angle, _shaft_size, _internal}) ->
     for i in indices

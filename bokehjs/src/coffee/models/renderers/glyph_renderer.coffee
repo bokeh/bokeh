@@ -42,19 +42,32 @@ export class GlyphRendererView extends RendererView
     if hover_glyph?
       @hover_glyph = @build_glyph_view(hover_glyph)
 
+    muted_glyph = @model.muted_glyph
+    if muted_glyph?
+      @muted_glyph = @build_glyph_view(muted_glyph)
+
     decimated_glyph = mk_glyph(@model.decimated_defaults)
     @decimated_glyph = @build_glyph_view(decimated_glyph)
 
-    @xmapper = @plot_view.frame.x_mappers[@model.x_range_name]
-    @ymapper = @plot_view.frame.y_mappers[@model.y_range_name]
+    @xscale = @plot_view.frame.xscales[@model.x_range_name]
+    @yscale = @plot_view.frame.yscales[@model.y_range_name]
 
     @set_data(false)
 
     if @model.data_source instanceof RemoteDataSource
       @model.data_source.setup(@plot_view, @glyph)
 
+  @getters {
+    xmapper: () ->
+      log.warning("xmapper attr is deprecated, use xscale")
+      @xscale
+    ymapper: () ->
+      log.warning("ymapper attr is deprecated, use yscale")
+      @yscale
+  }
+
   build_glyph_view: (model) ->
-    new model.default_view({model: model, renderer: @, plot_view: @plot_view})
+    new model.default_view({model: model, renderer: @, plot_view: @plot_view, parent: @})
 
   bind_bokeh_events: () ->
     @listenTo(@model, 'change', @request_render)
@@ -64,6 +77,8 @@ export class GlyphRendererView extends RendererView
     @listenTo(@model.data_source, 'select', @request_render)
     if @hover_glyph?
       @listenTo(@model.data_source, 'inspect', @request_render)
+
+    @listenTo(@model.glyph, 'transformchange', () -> @set_data())
 
     # TODO (bev) This is a quick change that  allows the plot to be
     # update/re-rendered when properties change on the JS side. It would
@@ -96,6 +111,8 @@ export class GlyphRendererView extends RendererView
       @nonselection_glyph.set_visuals(source)
     if @hover_glyph?
       @hover_glyph.set_visuals(source)
+    if @muted_glyph?
+      @muted_glyph.set_visuals(source)
 
     length = source.get_length()
     length = 1 if not length?
@@ -115,7 +132,7 @@ export class GlyphRendererView extends RendererView
       @request_render()
 
   render: () ->
-    if @model.visible == false
+    if not @model.visible
       return
 
     t0 = Date.now()
@@ -163,7 +180,7 @@ export class GlyphRendererView extends RendererView
       nonselection_glyph = @decimated_glyph
       selection_glyph = @selection_glyph
     else
-      glyph = @glyph
+      glyph = if @model.muted and @muted_glyph? then @muted_glyph else @glyph
       nonselection_glyph = @nonselection_glyph
       selection_glyph = @selection_glyph
 
@@ -222,7 +239,7 @@ export class GlyphRendererView extends RendererView
     @glyph.draw_legend_for_index(ctx, x0, x1, y0, y1, index)
 
   hit_test: (geometry) ->
-    @glyph.hit_test(geometry)
+    return @model.hit_test_helper(geometry, @glyph)
 
 
 export class GlyphRenderer extends Renderer
@@ -240,6 +257,13 @@ export class GlyphRenderer extends Renderer
           index = i
     return index
 
+  # TODO (bev) this is just to make testing easier. Might be better on a view model
+  hit_test_helper: (geometry, glyph) ->
+    if @visible
+      return glyph.hit_test(geometry)
+    else
+      return null
+
   @define {
       x_range_name:       [ p.String,  'default' ]
       y_range_name:       [ p.String,  'default' ]
@@ -248,6 +272,8 @@ export class GlyphRenderer extends Renderer
       hover_glyph:        [ p.Instance           ]
       nonselection_glyph: [ p.Any,      'auto'   ] # Instance or "auto"
       selection_glyph:    [ p.Any,      'auto'   ] # Instance or "auto"
+      muted_glyph:        [ p.Instance           ]
+      muted:              [ p.Bool,        false ]
     }
 
   @override {

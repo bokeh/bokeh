@@ -18,12 +18,12 @@ export class Ticker extends Model
   type: 'Ticker'
 
   # Generates a nice series of ticks for a given range.
-  get_ticks: (data_low, data_high, range, {desired_n_ticks}) ->
-    return @get_ticks_no_defaults(data_low, data_high, @desired_num_ticks)
+  get_ticks: (data_low, data_high, range, cross_loc, {desired_n_ticks}) ->
+    return @get_ticks_no_defaults(data_low, data_high, cross_loc, @desired_num_ticks)
 
   # The version of get_ticks() that does the work (and the version that
   # should be overridden in subclasses).
-  get_ticks_no_defaults: (data_low, data_high, desired_n_ticks) ->
+  get_ticks_no_defaults: (data_low, data_high, cross_loc, desired_n_ticks) ->
     interval = @get_interval(data_low, data_high, desired_n_ticks)
     start_factor = Math.floor(data_low / interval)
     end_factor   = Math.ceil(data_high / interval)
@@ -32,12 +32,13 @@ export class Ticker extends Model
     else
       factors = range(start_factor, end_factor + 1)
     ticks = (factor * interval for factor in factors)
+    ticks = ticks.filter((tick) -> data_low <= tick <= data_high)
     num_minor_ticks = @num_minor_ticks
     minor_ticks = []
-    if num_minor_ticks > 1
+    if num_minor_ticks > 0 and ticks.length > 0
       minor_interval = interval / num_minor_ticks
-      minor_offsets = (i*minor_interval for i in [1..num_minor_ticks])
-      for x in minor_offsets
+      minor_offsets = (i*minor_interval for i in [0...num_minor_ticks])
+      for x in minor_offsets[1..minor_offsets.length]
         minor_ticks.push(ticks[0]-x)
       for tick in ticks
         for x in minor_offsets
