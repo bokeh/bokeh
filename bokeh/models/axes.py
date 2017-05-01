@@ -5,12 +5,12 @@ Bokeh plots
 from __future__ import absolute_import
 
 from ..core.has_props import abstract
-from ..core.properties import Auto, Datetime, Either, Enum, Float, Include, Instance, Int, Override, String, Tuple
+from ..core.properties import Auto, Datetime, Either, Enum, Float, Include, Instance, Int, Override, Seq, String, Tuple
 from ..core.property_mixins import LineProps, TextProps
 
 from .formatters import BasicTickFormatter, CategoricalTickFormatter, DatetimeTickFormatter, LogTickFormatter, TickFormatter
 from .renderers import GuideRenderer
-from .tickers import Ticker, BasicTicker, LogTicker, CategoricalTicker, DatetimeTicker
+from .tickers import Ticker, BasicTicker, LogTicker, CategoricalTicker, DatetimeTicker, FixedTicker
 
 @abstract
 class Axis(GuideRenderer):
@@ -37,7 +37,29 @@ class Axis(GuideRenderer):
 
     ticker = Instance(Ticker, help="""
     A Ticker to use for computing locations of axis components.
-    """)
+
+    THe property may also be passed a sequence of floating point numbers as
+    a shorthand for creating and configuring a ``FixedTicker``, e.g. the
+    following code
+
+    .. code-block:: python
+
+        from bokeh.plotting import figure
+
+        p = figure()
+        p.xaxis.ticker = [10, 20, 37.4]
+
+    is equivalent to:
+
+    .. code-block:: python
+
+        from bokeh.plotting import figure
+        from bokeh.models.tickers import FixedTicker
+
+        p = figure()
+        p.xaxis.ticker = FixedTicker(ticks=[10, 20, 37.4])
+
+    """).accepts(Seq(Float), lambda ticks: FixedTicker(ticks=ticks))
 
     formatter = Instance(TickFormatter, help="""
     A TickFormatter to use for formatting the visual appearance
