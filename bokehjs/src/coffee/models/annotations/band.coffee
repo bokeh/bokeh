@@ -19,24 +19,24 @@ export class BandView extends AnnotationView
     @visuals.warm_cache(source)
 
   _map_data: () ->
-    x_mapper = @plot_view.frame.x_mappers[@model.x_range_name]
-    y_mapper = @plot_view.frame.y_mappers[@model.y_range_name]
+    x_scale = @plot_view.frame.xscales[@model.x_range_name]
+    y_scale = @plot_view.frame.yscales[@model.y_range_name]
 
-    limit_mapper = if @model.dimension == "height" then y_mapper else x_mapper
-    base_mapper = if @model.dimension == "height" then x_mapper else y_mapper
+    limit_scale = if @model.dimension == "height" then y_scale else x_scale
+    base_scale = if @model.dimension == "height" then x_scale else y_scale
 
     if @model.lower.units == "data"
-      _lower_vx = limit_mapper.v_map_to_target(@_lower)
+      _lower_vx = limit_scale.v_compute(@_lower)
     else
       _lower_vx = @_lower
 
     if @model.upper.units == "data"
-      _upper_vx = limit_mapper.v_map_to_target(@_upper)
+      _upper_vx = limit_scale.v_compute(@_upper)
     else
       _upper_vx = @_upper
 
     if @model.base.units == "data"
-      _base_vx = base_mapper.v_map_to_target(@_base)
+      _base_vx = base_scale.v_compute(@_base)
     else
       _base_vx = @_base
 
