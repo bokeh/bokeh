@@ -297,7 +297,7 @@ def env_purge_doc(app, env, docname):
         del env.bokeh_plot_files[docname]
 
 def setup(app):
-    # Define config variable to filter .py files parser
+    """ sphinx config variable to scan .py files in provided directories only """
     app.add_config_value('bokeh_plot_pyfile_include_dirs', [], 'html')
 
     app.add_source_parser('.py', PlotScriptParser)
