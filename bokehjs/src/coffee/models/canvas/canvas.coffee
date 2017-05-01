@@ -1,75 +1,64 @@
-import canvas_template from "./canvas_template"
 import {LayoutCanvas} from "core/layout/layout_canvas"
 
-import {BokehView} from "core/bokeh_view"
+import {DOMView} from "core/dom_view"
 import {GE, EQ} from "core/layout/solver"
 import {logger} from "core/logging"
 import * as p from "core/properties"
+import {div, canvas} from "core/dom"
 import {isEqual} from "core/util/eq"
-import {fixup_image_smoothing, fixup_line_dash, fixup_line_dash_offset, fixup_measure_text, get_scale_ratio, fixup_ellipse} from "core/util/canvas"
+import {fixup_ctx, get_scale_ratio} from "core/util/canvas"
 
-export class CanvasView extends BokehView
+# fixes up a problem with some versions of IE11
+# ref: http://stackoverflow.com/questions/22062313/imagedata-set-in-internetexplorer
+if window.CanvasPixelArray?
+  CanvasPixelArray.prototype.set = (arr) ->
+    for i in [0...@length]
+      @[i] = arr[i]
+
+export class CanvasView extends DOMView
   className: "bk-canvas-wrapper"
-  template: canvas_template
 
   initialize: (options) ->
     super(options)
 
-    html = @template({ map: @model.map })
-    @el.appendChild(html)
+    @map_el      = if @model.map then @el.appendChild(div({class: "bk-canvas-map"})) else null
+    @events_el   = @el.appendChild(div({class: "bk-canvas-events"}))
+    @overlays_el = @el.appendChild(div({class: "bk-canvas-overlays"}))
+    @canvas_el   = @el.appendChild(canvas({class: "bk-canvas"}))
 
     # create the canvas context that gets passed around for drawing
     @ctx = @get_ctx()
 
     # work around canvas incompatibilities
-    fixup_line_dash(@ctx)
-    fixup_line_dash_offset(@ctx)
-    fixup_image_smoothing(@ctx)
-    fixup_measure_text(@ctx)
-    fixup_ellipse(@ctx)
+    fixup_ctx(@ctx)
 
-    # fixes up a problem with some versions of IE11
-    # ref: http://stackoverflow.com/questions/22062313/imagedata-set-in-internetexplorer
-    if window.CanvasPixelArray?
-      CanvasPixelArray.prototype.set = (arr) ->
-        for i in [0...@length]
-            @[i] = arr[i]
-
-    # map plots reference this attribute
-    @map_div = @el.querySelector('div.bk-canvas-map')
-    @set_dims([@model.initial_width, @model.initial_height])
+    @set_dims([@model.initial_width, @model.initial_height], false)
     logger.debug("CanvasView initialized")
 
-  get_canvas_element: () ->
-    return @el.querySelector('canvas.bk-canvas')
+    @listenTo(@solver, "layout_reset", () => @_add_constraints())
+
+  get_canvas_element: () -> @canvas_el
 
   get_ctx: () ->
-    return @get_canvas_element().getContext('2d')
+    return @canvas_el.getContext('2d')
 
-  prepare_canvas: (force=false) ->
+  prepare_canvas: () ->
     # Ensure canvas has the correct size, taking HIDPI into account
+    width = @model._width.value
+    height = @model._height.value
 
-    width = @model._width._value
-    height = @model._height._value
-    dpr = window.devicePixelRatio
+    @el.style.width = "#{width}px"
+    @el.style.height = "#{height}px"
 
-    # only resize the canvas when the canvas dimensions change unless force==true
-    if not isEqual(@last_dims, [width, height, dpr]) or force
+    pixel_ratio = get_scale_ratio(@ctx, @model.use_hidpi)
+    @model.pixel_ratio = pixel_ratio
 
-      @el.style.width = "#{width}px"
-      @el.style.height = "#{height}px"
+    @canvas_el.style.width = "#{width}px"
+    @canvas_el.style.height = "#{height}px"
+    @canvas_el.setAttribute('width', width*pixel_ratio)
+    @canvas_el.setAttribute('height', height*pixel_ratio)
 
-      # Scale the canvas (this resets the context's state)
-      @pixel_ratio = ratio = get_scale_ratio(@ctx, @model.use_hidpi)
-      canvas_el = @get_canvas_element()
-      canvas_el.style.width = "#{width}px"
-      canvas_el.style.height = "#{height}px"
-      canvas_el.setAttribute('width', width*ratio)
-      canvas_el.setAttribute('height', height*ratio)
-
-      logger.debug("Rendering CanvasView [force=#{force}] with width: #{width}, height: #{height}, ratio: #{ratio}")
-      @model.pixel_ratio = @pixel_ratio
-      @last_dims = [width, height, dpr]
+    logger.debug("Rendering CanvasView with width: #{width}, height: #{height}, pixel ratio: #{pixel_ratio}")
 
   set_dims: (dims, trigger=true) ->
     @requested_width = dims[0]
@@ -77,7 +66,7 @@ export class CanvasView extends BokehView
     @update_constraints(trigger)
     return
 
-  update_constraints: (trigger=true) ->
+  update_constraints: (trigger) ->
     requested_width = @requested_width
     requested_height = @requested_height
 
@@ -91,32 +80,34 @@ export class CanvasView extends BokehView
     if isEqual(@last_requested_dims, [requested_width, requested_height])
       return
 
-    s = @model.document.solver()
-
     if @_width_constraint?
-      s.remove_constraint(@_width_constraint, true)
-    @_width_constraint = EQ(@model._width, -requested_width)
-    s.add_constraint(@_width_constraint)
-
+      @solver.remove_constraint(@_width_constraint, true)
     if @_height_constraint?
-      s.remove_constraint(@_height_constraint, true)
-    @_height_constraint = EQ(@model._height, -requested_height)
-    s.add_constraint(@_height_constraint)
+      @solver.remove_constraint(@_height_constraint, true)
+
+    @_add_constraints()
 
     @last_requested_dims = [requested_width, requested_height]
 
-    s.update_variables(trigger)
+    @solver.update_variables(trigger)
+
+  _add_constraints: () ->
+    @_width_constraint = EQ(@model._width, -@requested_width)
+    @solver.add_constraint(@_width_constraint)
+
+    @_height_constraint = EQ(@model._height, -@requested_height)
+    @solver.add_constraint(@_height_constraint)
 
 export class Canvas extends LayoutCanvas
   type: 'Canvas'
   default_view: CanvasView
 
   @internal {
-    map: [ p.Boolean, false ]
-    initial_width: [ p.Number ]
-    initial_height: [ p.Number ]
-    use_hidpi: [ p.Boolean, true ]
-    pixel_ratio: [ p.Number ]
+    map:            [ p.Boolean, false ]
+    initial_width:  [ p.Number         ]
+    initial_height: [ p.Number         ]
+    use_hidpi:      [ p.Boolean, true  ]
+    pixel_ratio:    [ p.Number,  1     ]
   }
 
   initialize: (attrs, options) ->
@@ -128,7 +119,7 @@ export class Canvas extends LayoutCanvas
 
   vy_to_sy: (y) ->
     # Note: +1 to account for 1px canvas dilation
-    return @_height._value - (y + 1)
+    return @_height.value - (y + 1)
 
   # vectorized versions of vx_to_sx/vy_to_sy
   v_vx_to_sx: (xx) ->
@@ -136,7 +127,7 @@ export class Canvas extends LayoutCanvas
 
   v_vy_to_sy: (yy) ->
     _yy = new Float64Array(yy.length)
-    height = @_height._value
+    height = @_height.value
     # Note: +1 to account for 1px canvas dilation
     for y, idx in yy
       _yy[idx] = height - (y + 1)
@@ -146,7 +137,7 @@ export class Canvas extends LayoutCanvas
 
   sy_to_vy: (y) ->
     # Note: +1 to account for 1px canvas dilation
-    return @_height._value - (y + 1)
+    return @_height.value - (y + 1)
 
   # vectorized versions of sx_to_vx/sy_to_vy
   v_sx_to_vx: (xx) ->
@@ -154,20 +145,20 @@ export class Canvas extends LayoutCanvas
 
   v_sy_to_vy: (yy) ->
     _yy = new Float64Array(yy.length)
-    height = @_height._value
+    height = @_height.value
     # Note: +1 to account for 1px canvas dilation
     for y, idx in yy
       _yy[idx] = height - (y + 1)
     return _yy
 
   get_constraints: () ->
-    constraints = super()
-    constraints.push(GE(@_top))
-    constraints.push(GE(@_bottom))
-    constraints.push(GE(@_left))
-    constraints.push(GE(@_right))
-    constraints.push(GE(@_width))
-    constraints.push(GE(@_height))
-    constraints.push(EQ(@_width, [-1, @_right]))
-    constraints.push(EQ(@_height, [-1, @_top]))
-    return constraints
+    return super().concat([
+      GE(@_top),
+      GE(@_bottom),
+      GE(@_left),
+      GE(@_right),
+      GE(@_width),
+      GE(@_height),
+      EQ(@_width, [-1, @_right]),
+      EQ(@_height, [-1, @_top]),
+    ])

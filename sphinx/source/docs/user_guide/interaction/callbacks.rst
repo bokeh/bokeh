@@ -7,14 +7,15 @@ While the main goal of Bokeh is to provide a path to create rich interactive
 visualizations in the browser, purely from python, there will always be
 specialized use-cases that are outside the capabilities of the core library.
 For this reason, Bokeh provides different ways for users to supply custom
-JavaScript when necessary, so that users
+JavaScript when necessary, so that users may add custom or specialized
+behaviours in response to property changes and other events.
 
 One mechanism is the ability to add entire new custom extension models,
 as described in :ref:`userguide_extensions`. However it is also possible
 to supply small snippets of JavaScript as callbacks to use, e.g when property
-values change. This kind of callback can be used to add interesting
-interactions to Bokeh documents without the need to use a Bokeh server (but
-can also be used in conjunction with a Bokeh server).
+values change, or when UI or other events occur. This kind of callback can be
+used to add interesting interactions to Bokeh documents without the need to
+use a Bokeh server (but can also be used in conjunction with a Bokeh server).
 
 .. _userguide_interaction_jscallbacks_customjs:
 

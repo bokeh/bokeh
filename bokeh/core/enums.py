@@ -256,5 +256,11 @@ SortDirection = enumeration("ascending", "descending")
 #: Sizing mode policies
 SizingMode = enumeration("stretch_both", "scale_width", "scale_height", "scale_both", "fixed")
 
-#: Legend's click policies
+#: Specify how a legend should respond to click events
 LegendClickPolicy = enumeration("none", "hide", "mute")
+
+#: Whether range padding should be interpreted a percentage or and absolute quantity
+PaddingUnits = enumeration("percent", "absolute")
+
+#: Specify how a format string for a tooltip field should be interpreted
+TooltipFieldFormatter = enumeration("numeral", "datetime", "printf")

@@ -296,7 +296,7 @@ from bokeh.application import Application
 from bokeh.resources import DEFAULT_SERVER_PORT
 from bokeh.server.server import Server
 from bokeh.util.logconfig import basicConfig
-from bokeh.util.string import nice_join
+from bokeh.util.string import nice_join, format_docstring
 from bokeh.settings import settings
 
 from os import getpid
@@ -308,7 +308,7 @@ LOGLEVELS = ('debug', 'info', 'warning', 'error', 'critical')
 SESSION_ID_MODES = ('unsigned', 'signed', 'external-signed')
 DEFAULT_LOG_FORMAT = "%(asctime)s %(message)s"
 
-__doc__ = __doc__.format(
+__doc__ = format_docstring(__doc__,
     DEFAULT_PORT=DEFAULT_SERVER_PORT,
     LOGLEVELS=nice_join(LOGLEVELS),
     SESSION_ID_MODES=nice_join(SESSION_ID_MODES),

@@ -12,6 +12,7 @@ from bokeh.models.tools import Toolbar, ToolbarBox
 def test_Toolbar():
     tb = Toolbar()
     assert tb.active_drag == 'auto'
+    assert tb.active_inspect == 'auto'
     assert tb.active_scroll == 'auto'
     assert tb.active_tap == 'auto'
 

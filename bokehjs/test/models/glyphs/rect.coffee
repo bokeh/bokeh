@@ -7,9 +7,9 @@ sinon = require "sinon"
 {PlotCanvasView} = utils.require("models/plots/plot_canvas")
 {CanvasView} = utils.require("models/canvas/canvas")
 {CartesianFrame} = utils.require("models/canvas/cartesian_frame")
-{LinearMapper} = utils.require("models/mappers/linear_mapper")
-{LogMapper} = utils.require("models/mappers/log_mapper")
-{CategoricalMapper} = utils.require("models/mappers/categorical_mapper")
+{LinearScale} = utils.require("models/scales/linear_scale")
+{LogScale} = utils.require("models/scales/log_scale")
+{CategoricalScale} = utils.require("models/scales/categorical_scale")
 {Range1d} = utils.require("models/ranges/range1d")
 {FactorRange} = utils.require("models/ranges/factor_range")
 
@@ -73,31 +73,31 @@ describe "Rect", ->
         height: {value: 20}
       })
 
-      @set_mappers = (glyph_view, type="linear") ->
+      @set_scales = (glyph_view, type="linear") ->
         if type == "linear"
-          mapper = new LinearMapper({
+          scale = new LinearScale({
             source_range: new Range1d({start: 0, end: 100})
             target_range: new Range1d({start: 0, end: 200})
           })
         else if type == "reverse"
-          mapper = new LinearMapper({
+          scale = new LinearScale({
             source_range: new Range1d({start: 0, end: 100})
             target_range: new Range1d({start: 200, end: 0})
           })
         else if type == "log"
-          mapper = new LogMapper({
+          scale = new LogScale({
             source_range: new Range1d({start: 1, end: 1000})
             target_range: new Range1d({start: 0, end: 200})
           })
         else
-          mapper = new CategoricalMapper({
+          scale = new CategoricalScale({
             source_range: new FactorRange({factors:['a', 'b']})
             target_range: new Range1d({start: 0, end: 200})
           })
-        glyph_view.renderer.xmapper = mapper
-        glyph_view.renderer.ymapper = mapper
-        glyph_view.renderer.plot_view.frame.x_mappers['default'] = mapper
-        glyph_view.renderer.plot_view.frame.y_mappers['default'] = mapper
+        glyph_view.renderer.xscale = scale
+        glyph_view.renderer.yscale = scale
+        glyph_view.renderer.plot_view.frame.xscales['default'] = scale
+        glyph_view.renderer.plot_view.frame.yscales['default'] = scale
 
     it "should calculate bounds based on data including width and height", ->
       data = {x: [0, 1, 2, 3], y: [0, 1, 2, 3]}
@@ -117,7 +117,7 @@ describe "Rect", ->
       data = {x: [1], y: [2]}
       glyph_view = create_glyph_view(@glyph, data)
 
-      @set_mappers(glyph_view)
+      @set_scales(glyph_view)
       glyph_view.map_data()
       expect(glyph_view.sw).to.be.deep.equal([20])
       expect(glyph_view.sh).to.be.deep.equal([40])
@@ -129,7 +129,7 @@ describe "Rect", ->
       glyph_view.model.properties.width.units = "screen"
       glyph_view.model.properties.height.units = "screen"
 
-      @set_mappers(glyph_view)
+      @set_scales(glyph_view)
       glyph_view.map_data()
       expect(glyph_view.sw).to.be.deep.equal([10])
       expect(glyph_view.sh).to.be.deep.equal([20])
@@ -157,7 +157,7 @@ describe "Rect", ->
       data = {x: [1], y: [2]}
       glyph_view = create_glyph_view(@glyph, data)
 
-      @set_mappers(glyph_view, "reverse")
+      @set_scales(glyph_view, "reverse")
       glyph_view.map_data()
       expect(glyph_view.sx0).to.be.deep.equal({'0': 188})
       expect(glyph_view.sy1).to.be.deep.equal({'0': -217})
@@ -172,7 +172,7 @@ describe "Rect", ->
       data = {x: ['a'], y: ['b']}
       glyph_view = create_glyph_view(glyph, data)
 
-      @set_mappers(glyph_view, "categorical")
+      @set_scales(glyph_view, "categorical")
       glyph_view.map_data()
       expect(glyph_view.sx0).to.be.deep.equal({'0': 25})
       expect(glyph_view.sy1).to.be.deep.equal({'0': -176})
@@ -185,14 +185,14 @@ describe "Rect", ->
 
       beforeEach ->
         set_dims = (dims) ->
-          @model._width._value = dims[0]
-          @model._height._value = dims[1]
+          @model._width.setValue(dims[0])
+          @model._height.setValue(dims[1])
         @canvas_set_dims_stub = sinon.stub(CanvasView.prototype, 'set_dims', set_dims)
 
         resize = () ->
-          @frame._width._value = @canvas._width._value
-          @frame._height._value = @canvas._height._value
-        @plot_canvas_resize_stub = sinon.stub(PlotCanvasView.prototype, 'resize', resize)
+          @frame._width.setValue(@canvas._width.value)
+          @frame._height.setValue(@canvas._height.value)
+        @plot_canvas_resize_stub = sinon.stub(PlotCanvasView.prototype, '_on_resize', resize)
 
       describe "_hit_point", ->
 
@@ -208,7 +208,7 @@ describe "Rect", ->
           data = {x: [60, 100, 140], y: [60, 100, 140]}
           glyph_view = create_glyph_view(@glyph, data)
 
-          @set_mappers(glyph_view)
+          @set_scales(glyph_view)
           glyph_view.map_data()
 
           result1 = glyph_view._hit_point(@geometry1)
@@ -226,7 +226,7 @@ describe "Rect", ->
           glyph_view.model.properties.width.units = "screen"
           glyph_view.model.properties.height.units = "screen"
 
-          @set_mappers(glyph_view)
+          @set_scales(glyph_view)
           glyph_view.map_data()
 
           result1 = glyph_view._hit_point(@geometry1)
@@ -249,7 +249,7 @@ describe "Rect", ->
           data = {x: [60, 100, 140], y: [60, 100, 140]}
           glyph_view = create_glyph_view(glyph, data)
 
-          @set_mappers(glyph_view)
+          @set_scales(glyph_view)
           glyph_view.map_data()
 
           result1 = glyph_view._hit_point(@geometry1)
@@ -272,20 +272,20 @@ describe "Rect", ->
           data = {x: [60, 100, 140], y: [60, 100, 140]}
           glyph_view = create_glyph_view(glyph, data)
 
-          xmapper = new LinearMapper({
+          xscale = new LinearScale({
             source_range: new Range1d({start: 0, end: 100})
             target_range: new Range1d({start: 95, end: 105})
           })
 
-          ymapper = new LinearMapper({
+          yscale = new LinearScale({
             source_range: new Range1d({start: 0, end: 100})
             target_range: new Range1d({start: 0, end: 200})
           })
 
-          glyph_view.renderer.xmapper = xmapper
-          glyph_view.renderer.ymapper = ymapper
-          glyph_view.renderer.plot_view.frame.x_mappers['default'] = xmapper
-          glyph_view.renderer.plot_view.frame.y_mappers['default'] = ymapper
+          glyph_view.renderer.xscale = xscale
+          glyph_view.renderer.yscale = yscale
+          glyph_view.renderer.plot_view.frame.xscales['default'] = xscale
+          glyph_view.renderer.plot_view.frame.yscales['default'] = yscale
           glyph_view.map_data()
 
           result1 = glyph_view._hit_point({vx: 105, vy: 200})
@@ -300,7 +300,7 @@ describe "Rect", ->
           data = {x: [1, 10, 100, 1000], y: [1, 10, 100, 1000]}
           glyph_view = create_glyph_view(@glyph, data)
 
-          @set_mappers(glyph_view, type="log")
+          @set_scales(glyph_view, type="log")
           glyph_view.map_data()
 
           result4 = glyph_view._hit_point({ vx: 66.666, vy: 66.666 })

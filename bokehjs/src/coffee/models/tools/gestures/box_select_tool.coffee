@@ -82,12 +82,12 @@ export class BoxSelectToolView extends SelectToolView
     geometry['sy0'] = canvas.vy_to_sy(geometry.vy0)
     geometry['sy1'] = canvas.vy_to_sy(geometry.vy1)
 
-    xmapper = frame.x_mappers[r.x_range_name]
-    ymapper = frame.y_mappers[r.y_range_name]
-    geometry['x0'] = xmapper.map_from_target(geometry.vx0)
-    geometry['x1'] = xmapper.map_from_target(geometry.vx1)
-    geometry['y0'] = ymapper.map_from_target(geometry.vy0)
-    geometry['y1'] = ymapper.map_from_target(geometry.vy1)
+    xscale = frame.xscales[r.x_range_name]
+    yscale = frame.yscales[r.y_range_name]
+    geometry['x0'] = xscale.invert(geometry.vx0)
+    geometry['x1'] = xscale.invert(geometry.vx1)
+    geometry['y0'] = yscale.invert(geometry.vy0)
+    geometry['y1'] = yscale.invert(geometry.vy1)
 
     @model.callback.execute(@model, {geometry: geometry})
 
@@ -100,12 +100,12 @@ DEFAULT_BOX_OVERLAY = () -> new BoxAnnotation({
   left_units: "screen"
   bottom_units: "screen"
   right_units: "screen"
-  fill_color: "lightgrey"
-  fill_alpha: 0.5
-  line_color: "black"
-  line_alpha: 1.0
-  line_width: 2
-  line_dash: [4, 4]
+  fill_color: {value: "lightgrey"}
+  fill_alpha: {value: 0.5}
+  line_color: {value: "black"}
+  line_alpha: {value: 1.0}
+  line_width: {value: 2}
+  line_dash: {value: [4, 4]}
 })
 
 export class BoxSelectTool extends SelectTool

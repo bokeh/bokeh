@@ -129,13 +129,13 @@ export class BoxZoomToolView extends GestureToolView
       return
 
     xrs = {}
-    for name, mapper of @plot_view.frame.x_mappers
-      [start, end] = mapper.v_map_from_target(vx, true)
+    for name, scale of @plot_view.frame.xscales
+      [start, end] = scale.v_invert(vx, true)
       xrs[name] = {start: start, end: end}
 
     yrs = {}
-    for name, mapper of @plot_view.frame.y_mappers
-      [start, end] = mapper.v_map_from_target(vy, true)
+    for name, scale of @plot_view.frame.yscales
+      [start, end] = scale.v_invert(vy, true)
       yrs[name] = {start: start, end: end}
 
     zoom_info = {
@@ -153,12 +153,12 @@ DEFAULT_BOX_OVERLAY = () -> new BoxAnnotation({
   left_units: "screen"
   bottom_units: "screen"
   right_units: "screen"
-  fill_color: "lightgrey"
-  fill_alpha: 0.5
-  line_color: "black"
-  line_alpha: 1.0
-  line_width: 2
-  line_dash: [4, 4]
+  fill_color: {value: "lightgrey"}
+  fill_alpha: {value: 0.5}
+  line_color: {value: "black"}
+  line_alpha: {value: 1.0}
+  line_width: {value: 2}
+  line_dash: {value: [4, 4]}
 })
 
 export class BoxZoomTool extends GestureTool

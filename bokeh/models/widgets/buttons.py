@@ -3,8 +3,6 @@
 '''
 from __future__ import absolute_import
 
-import warnings
-
 from ...core.enums import ButtonType
 from ...core.has_props import abstract, HasProps
 from ...core.properties import Bool, Enum, Instance, Int, List, Override, String, Tuple
@@ -23,26 +21,6 @@ class ButtonLike(HasProps):
     button_type = Enum(ButtonType, help="""
     A style for the button, signifying it's role.
     """)
-
-    @property
-    def type(self):
-        warnings.warn(
-            """
-            Property 'type' was deprecated in Bokeh 0.12.0
-            and will be removed. Use 'button_type' instead.
-            """)
-        return self.button_type
-
-    @type.setter
-    def type(self, type):
-        warnings.warn(
-            """
-            Property 'type' was deprecated in Bokeh 0.12.0
-            and will be removed. Use 'button_type' instead.
-            """)
-        self.button_type = type
-
-    __deprecated_attributes__ = ('type',)
 
 @abstract
 class AbstractButton(Widget, ButtonLike):

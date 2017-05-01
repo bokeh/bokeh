@@ -29,6 +29,7 @@ export function escape(s: string): string {
       case '"': return '&quot;';
       case "'": return '&#x27;';
       case '`': return '&#x60;';
+      default:  return ch;
     }
   })
 }

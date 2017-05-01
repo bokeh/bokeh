@@ -35,12 +35,14 @@ describe "WheelZoomTool", ->
          x_range: new Range1d({start: -1, end: 1})
          y_range: new Range1d({start: -1, end: 1})
       })
+      @plot_view = new @plot.default_view({model: @plot, parent: null})
 
       document = new Document()
       document.add_root(@plot)
 
       @plot_canvas_view = new @plot.plot_canvas.default_view({
         model: @plot.plot_canvas
+        parent: @plot_view
       })
 
     it "should zoom in both ranges", ->
@@ -52,6 +54,7 @@ describe "WheelZoomTool", ->
         model: wheel_zoom
         plot_model: @plot.plot_canvas
         plot_view: @plot_canvas_view
+        parent: null # wrong
       })
 
       # positive delta will zoom in
@@ -76,6 +79,7 @@ describe "WheelZoomTool", ->
         model: wheel_zoom
         plot_model: @plot.plot_canvas
         plot_view: @plot_canvas_view
+        parent: null # wrong
       })
 
       # positive delta will zoom out
@@ -100,6 +104,7 @@ describe "WheelZoomTool", ->
         model: wheel_zoom
         plot_model: @plot.plot_canvas
         plot_view: @plot_canvas_view
+        parent: null # wrong
       })
 
       # positive delta will zoom in
@@ -123,6 +128,7 @@ describe "WheelZoomTool", ->
         model: wheel_zoom
         plot_model: @plot.plot_canvas
         plot_view: @plot_canvas_view
+        parent: null # wrong
       })
 
       # positive delta will zoom in
@@ -146,6 +152,7 @@ describe "WheelZoomTool", ->
         model: wheel_zoom
         plot_model: @plot.plot_canvas
         plot_view: @plot_canvas_view
+        parent: null # wrong
       })
 
       # positive delta will zoom in
@@ -169,6 +176,7 @@ describe "WheelZoomTool", ->
         model: wheel_zoom
         plot_model: @plot.plot_canvas
         plot_view: @plot_canvas_view
+        parent: null # wrong
       })
 
       # positive delta will zoom in
@@ -192,6 +200,7 @@ describe "WheelZoomTool", ->
         model: wheel_zoom
         plot_model: @plot.plot_canvas
         plot_view: @plot_canvas_view
+        parent: null # wrong
       })
 
       # positive delta will zoom in

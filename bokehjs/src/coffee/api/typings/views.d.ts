@@ -5,7 +5,7 @@ declare namespace Bokeh {
    el?: HTMLElement;
   }
 
-  class BokehView<ModelType extends Model> {
+  class View<ModelType extends Model> {
     constructor(options?: ViewOptions<ModelType>);
 
     model: ModelType;
@@ -15,6 +15,4 @@ declare namespace Bokeh {
     render(): this;
     remove(): this;
   }
-
-  type View<ModelType extends Model> = BokehView<ModelType>;
 }

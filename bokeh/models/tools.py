@@ -22,29 +22,18 @@ always be active regardless of what other tools are currently active.
 '''
 from __future__ import absolute_import
 
-from ..core.enums import accept_left_right_center, Anchor, DeprecatedAnchor, Dimension, Dimensions, Location
+from ..core.enums import accept_left_right_center, Anchor, DeprecatedAnchor, Dimension, Dimensions, Location, TooltipFieldFormatter
 from ..core.has_props import abstract
-from ..core.properties import Any, Auto, Bool, Color, Dict, Either, Enum, Float, Percent, Instance, List, Override, String, Tuple
+from ..core.properties import (
+    Any, Auto, Bool, Color, Dict, Either, Enum, Float, Percent, Instance, List,
+    Override, Seq, String, Tuple
+)
 from ..model import Model
-from ..util.deprecation import deprecated
 
 from .annotations import BoxAnnotation, PolyAnnotation
 from .callbacks import Callback
 from .renderers import Renderer
 from .layouts import Box, LayoutDOM
-
-def _deprecated_dimensions(tool):
-    def transformer(value):
-        deprecated((0, 12, 3), "List(Enum(Dimension)) in %s.dimensions" % tool, "Enum(Dimensions)")
-
-        if "width" in value and "height" in value:
-            return "both"
-        elif "width" in value or "height" in value:
-            return value
-        else:
-            raise ValueError("empty dimensions' list doesn't make sense")
-
-    return transformer
 
 class ToolEvents(Model):
     ''' A class for reporting tools geometries from BokehJS.
@@ -133,6 +122,11 @@ class Toolbar(ToolbarBase):
     Specify a drag tool to be active when the plot is displayed.
     """)
 
+    active_inspect = Either(Auto, Instance(Inspection), Seq(Instance(Inspection)), help="""
+    Specify an inspection tool or sequence of inspection tools to be active when
+    the plot is displayed.
+    """)
+
     active_scroll = Either(Auto, Instance(Scroll), help="""
     Specify a scroll/pinch tool to be active when the plot is displayed.
     """)
@@ -193,7 +187,7 @@ class PanTool(Drag):
     the pan tool will pan in any dimension, but can be configured to only
     pan horizontally across the width of the plot, or vertically across the
     height of the plot.
-    """).accepts(List(Enum(Dimension)), _deprecated_dimensions("PanTool"))
+    """)
 
 class WheelPanTool(Scroll):
     ''' *toolbar icon*: |wheel_pan_icon|
@@ -233,7 +227,7 @@ class WheelZoomTool(Scroll):
     default the wheel zoom tool will zoom in any dimension, but can be
     configured to only zoom horizontally across the width of the plot, or
     vertically across the height of the plot.
-    """).accepts(List(Enum(Dimension)), _deprecated_dimensions("WheelZoomTool"))
+    """)
 
 
 class SaveTool(Action):
@@ -353,7 +347,7 @@ class CrosshairTool(Inspection):
     vertical and horizontal line will be drawn. If only "width" is supplied,
     only a horizontal line will be drawn. If only "height" is supplied,
     only a vertical line will be drawn.
-    """).accepts(List(Enum(Dimension)), _deprecated_dimensions("CrosshairTool"))
+    """)
 
     line_color = Color(default="black", help="""
     A color to use to stroke paths with.
@@ -417,7 +411,7 @@ class BoxZoomTool(Drag):
     controlled. If only "height" is supplied, the box will be constrained
     to span the entire horizontal space of the plot, and the vertical
     dimension can be controlled.
-    """).accepts(List(Enum(Dimension)), _deprecated_dimensions("BoxZoomTool"))
+    """)
 
     overlay = Instance(BoxAnnotation, default=DEFAULT_BOX_OVERLAY, help="""
     A shaded annotation drawn to indicate the selection region.
@@ -449,7 +443,7 @@ class ZoomInTool(Action):
     default the zoom-in zoom tool will zoom in any dimension, but can be
     configured to only zoom horizontally across the width of the plot, or
     vertically across the height of the plot.
-    """).accepts(List(Enum(Dimension)), _deprecated_dimensions("ZoomInTool"))
+    """)
 
     factor = Percent(default=0.1, help="""
     Percentage to zoom for each click of the zoom-in tool.
@@ -470,7 +464,7 @@ class ZoomOutTool(Action):
     default the zoom-out tool will zoom in any dimension, but can be
     configured to only zoom horizontally across the width of the plot, or
     vertically across the height of the plot.
-    """).accepts(List(Enum(Dimension)), _deprecated_dimensions("ZoomOutTool"))
+    """)
 
     factor = Percent(default=0.1, help="""
     Percentage to zoom for each click of the zoom-in tool.
@@ -517,7 +511,7 @@ class BoxSelectTool(Drag):
     controlled. If only "height" is supplied, the box will be constrained
     to span the entire horizontal space of the plot, and the vertical
     dimension can be controlled.
-    """).accepts(List(Enum(Dimension)), _deprecated_dimensions("BoxSelectTool"))
+    """)
 
     callback = Instance(Callback, help="""
     A callback to run in the browser on completion of drawing a selection box.
@@ -675,12 +669,10 @@ class HoverTool(Inspection):
             * image
             * image_rgba
             * image_url
-            * multi_line
             * oval
             * patch
             * quadratic
             * ray
-            * segment
             * text
 
     .. |hover_icon| image:: /_images/icons/Hover.png
@@ -732,16 +724,33 @@ class HoverTool(Inspection):
         are: 'hex' (to display the color as a hex value), and
         'swatch' to also display a small color swatch.
 
-    Additional format options ``safe`` and `Numbro format codes <http://numbrojs.com/format.html>`_
-    can be included in a post-fix brace block on field names. ::
+    Field names that begin with ``@`` are associated with columns in a
+    ``ColumnDataSource``. For instance the field name ``"@price"`` will
+    display values from the ``"price"`` column whenever a hover is triggered.
+    If the hover is for the 17th glyph, then the hover tooltip will
+    correspondingly display the 17th price value.
 
-        [("total", "@total{$0,0.00}"),
-         ("data", "@data{safe}")]
+    Note that if a column name contains spaces, the it must be supplied by
+    surrounding it in curly braces, e.g. ``@{adjusted close}`` will display
+    values from a column named ``"adjusted close"``.
 
-    Including ``{safe}`` after a field name will override automatic escaping
-    of the tooltip data source. Any HTML tags in the data tags will be rendered
-    as HTML in the resulting HoverTool output. See :ref:`custom_hover_tooltip` for a
-    more detailed example.
+    By default, values for fields (e.g. ``@foo``) are displayed in a basic
+    numeric format. However it is possible to control the formatting of values
+    more precisely. Fields can be modified by appending a format specified to
+    the end in curly braces. Some examples are below.
+
+    .. code-block:: python
+
+        "@foo{0,0.000}"    # formats 10000.1234 as: 10,000.123
+
+        "@foo{(.00)}"      # formats -10000.1234 as: (10000.123)
+
+        "@foo{($ 0.00 a)}" # formats 1230974 as: $ 1.23 m
+
+    Specifying a format ``{safe}`` after a field name will override automatic
+    escaping of the tooltip data source. Any HTML tags in the data tags will
+    be rendered as HTML in the resulting HoverTool output. See
+    :ref:`custom_hover_tooltip` for a more detailed example.
 
     ``None`` is also a valid value for tooltips. This turns off the
     rendering of tooltips. This is mostly useful when supplying other
@@ -753,6 +762,39 @@ class HoverTool(Inspection):
         the visual presentation order is unspecified.
 
     """).accepts(Dict(String, String), lambda d: list(d.items()))
+
+    formatters = Dict(String, Enum(TooltipFieldFormatter), default=lambda: dict(), help="""
+    Specify the formatting scheme for data source columns, e.g.
+
+    .. code-block:: python
+
+        tool.formatters = dict(date="datetime")
+
+    will cause format specifications for the "date" column to be interpreted
+    according to the "datetime" formatting scheme. The following schemed are
+    available:
+
+    :``"numeral"``:
+        Provides a wide variety of formats for numbers, currency, bytes, times,
+        and percentages. The full set of formats can be found in the
+        |NumeralTickFormatter| reference documentation.
+
+    :``"datetime"``:
+        Provides formats for date and time values. The full set of formats is
+        listed in the |DatetimeTickFormatter| reference documentation.
+
+    :``"printf"``:
+        Provides formats similar to C-style "printf" type specifiers. See the
+        |PrintfTickFormatter| reference documentation for complete details.
+
+    If no formatter is specified for a column name, the default ``"numeral"``
+    formatter is assumed.
+
+    .. |NumeralTickFormatter| replace:: :class:`~bokeh.models.formatters.NumeralTickFormatter`
+    .. |DatetimeTickFormatter| replace:: :class:`~bokeh.models.formatters.DatetimeTickFormatter`
+    .. |PrintfTickFormatter| replace:: :class:`~bokeh.models.formatters.PrintfTickFormatter`
+
+    """)
 
     mode = Enum("mouse", "hline", "vline", help="""
     Whether to consider hover pointer as a point (x/y values), or a
