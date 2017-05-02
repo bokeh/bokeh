@@ -30,7 +30,7 @@ export class CanvasView extends DOMView
     switch @model.backend
       when "canvas"
         @canvas_el = @el.appendChild(canvas({class: "bk-canvas"}))
-        @ctx = @canvas_el.getContext('2d')
+        @ctx = @get_ctx()
       when "svg"
         @ctx = new canvas2svg()
         @canvas_el = @el.appendChild(@ctx.getSvg())
@@ -42,6 +42,9 @@ export class CanvasView extends DOMView
     logger.debug("CanvasView initialized")
 
     @listenTo(@solver, "layout_reset", () => @_add_constraints())
+
+  # Method exists so that context can be stubbed in unit tests
+  get_ctx: () -> return @canvas_el.getContext('2d')
 
   get_canvas_element: () -> @canvas_el
 
