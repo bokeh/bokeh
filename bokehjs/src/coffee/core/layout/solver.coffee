@@ -1,6 +1,5 @@
 import {Variable, Expression, Constraint, Operator, Strength, Solver as ConstraintSolver} from "kiwi"
-import {Events} from "../events"
-import {Signal} from "../signaling"
+import {Signal, Signalable} from "../signaling"
 
 _constrainer = (op) ->
   () =>
@@ -26,7 +25,7 @@ export WEAK_LE = _weak_constrainer(Operator.Le)
 export WEAK_GE = _weak_constrainer(Operator.Ge)
 
 export class Solver
-  @prototype extends Events
+  @prototype extends Signalable
 
   constructor: () ->
     @layout_update = new Signal(this, "layout_update")

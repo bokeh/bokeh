@@ -1,6 +1,5 @@
-import {Events} from "./events"
 import {logger} from "./logging"
-import {Signal} from "./signaling"
+import {Signal, Signalable} from "./signaling"
 import * as property_mixins from "./property_mixins"
 import * as refs from "./util/refs"
 import * as p from "./properties"
@@ -11,7 +10,7 @@ import {isString, isObject, isArray} from "./util/types"
 import {isEqual} from './util/eq'
 
 export class HasProps
-  @prototype extends Events
+  @prototype extends Signalable
 
   @getters = (specs) ->
     for name, fn of specs

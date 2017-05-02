@@ -1,5 +1,4 @@
-import {Events} from "./events"
-import {Signal} from "./signaling"
+import {Signal, Signalable} from "./signaling"
 import * as enums from "./enums"
 import * as svg_colors from "./util/svg_colors"
 import {valid_rgb} from "./util/color"
@@ -11,7 +10,7 @@ import {isBoolean, isNumber, isString, isFunction, isArray, isObject} from "./ut
 #
 
 export class Property # <T>
-  @prototype extends Events
+  @prototype extends Signalable
 
   dataspec: false
 

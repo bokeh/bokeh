@@ -1,9 +1,8 @@
-import {Events} from "./events"
-import {Signal} from "./signaling"
+import {Signal, Signalable} from "./signaling"
 import {uniqueId} from "./util/string"
 
 export class View
-  @prototype extends Events
+  @prototype extends Signalable
 
   @getters = (specs) ->
     for name, fn of specs
