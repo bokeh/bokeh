@@ -5,7 +5,7 @@ from __future__ import absolute_import
 
 from six import string_types
 
-from ..core.enums import Location
+from ..core.enums import Location, OutputBackend
 from ..core.properties import Auto, Bool, Dict, Either, Enum, Include, Instance, Int, List, Override, String
 from ..core.property_mixins import LineProps, FillProps
 from ..core.query import find
@@ -622,4 +622,8 @@ class Plot(LayoutDOM):
     webgl = Bool(False, help="""
     Whether WebGL is enabled for this plot. If True, the glyphs that
     support this will render via WebGL instead of the 2D canvas.
+    """)
+
+    output_backend = Enum(OutputBackend, default="canvas", help="""
+    Specify the output backend for the plot area. Default is HTML5 Canvas.
     """)

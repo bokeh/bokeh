@@ -185,6 +185,8 @@ export class LegendLocation extends enum_prop("LegendLocation", enums.LegendLoca
 
 export class Location extends enum_prop("Location", enums.Location)
 
+export class OutputBackend extends enum_prop("OutputBackend", enums.OutputBackend)
+
 export class Orientation extends enum_prop("Orientation", enums.Orientation)
 
 export class TextAlign extends enum_prop("TextAlign", enums.TextAlign)

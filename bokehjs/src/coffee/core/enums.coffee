@@ -24,6 +24,8 @@ export LegendLocation = [
 
 export Orientation = ["vertical", "horizontal"]
 
+export OutputBackend = ["canvas", "svg"]
+
 export RenderLevel = ["image", "underlay", "glyph", "annotation", "overlay"]
 
 export RenderMode = ["canvas", "css"]
