@@ -9,9 +9,10 @@ The ``bokeh-plot`` directive can be used by either supplying:
 
     .. bokeh-plot:: path/to/plot.py
 
-NOTE: .py scripts are not scanned automatically! In order to include
-certain directories into .py scanning process use following directive
-in sphinx conf.py file: bokeh_plot_pyfile_include_dirs = ["dir1","dir2"]
+.. note:: 
+    .py scripts are not scanned automatically! In order to include
+    certain directories into .py scanning process use following directive
+    in sphinx conf.py file: bokeh_plot_pyfile_include_dirs = ["dir1","dir2"]
 
 **Inline code** as the content of the directive::
 
