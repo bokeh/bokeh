@@ -26,6 +26,7 @@ export class View
 
   remove: () ->
     @_parent = undefined
+    Signal.disconnectReceiver(@)
     @removed.emit()
 
   toString: () -> "#{@model.type}View(#{@id})"

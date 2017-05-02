@@ -142,6 +142,7 @@ export class HasProps
         @listenTo(prop.spec.transform.change, () -> @transformchange.emit())
 
   destroy: () ->
+    Signal.disconnectReceiver(@)
     @destroyed.emit()
 
   # Create a new model with identical attributes to this one.
