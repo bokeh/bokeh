@@ -609,11 +609,10 @@ export class PlotCanvasView extends DOMView
   _render_levels: (ctx, levels, clip_region) ->
     ctx.save()
 
-    if clip_region?
+    if clip_region? and @model.plot.output_backend == "canvas"
       ctx.beginPath()
       ctx.rect.apply(ctx, clip_region)
       ctx.clip()
-      ctx.beginPath()
 
     indices = {}
     for renderer, i in @model.plot.renderers
@@ -665,7 +664,8 @@ export class PlotCanvas extends LayoutDOM
       map: @use_map ? false
       initial_width: @plot.plot_width,
       initial_height: @plot.plot_height,
-      use_hidpi: @plot.hidpi
+      use_hidpi: @plot.hidpi,
+      backend: @plot.output_backend
     })
 
     @frame = new CartesianFrame({

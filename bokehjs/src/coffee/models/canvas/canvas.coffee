@@ -8,6 +8,8 @@ import {div, canvas} from "core/dom"
 import {isEqual} from "core/util/eq"
 import {fixup_ctx, get_scale_ratio} from "core/util/canvas"
 
+import * as canvas2svg from "canvas2svg"
+
 # fixes up a problem with some versions of IE11
 # ref: http://stackoverflow.com/questions/22062313/imagedata-set-in-internetexplorer
 if window.CanvasPixelArray?
@@ -24,10 +26,14 @@ export class CanvasView extends DOMView
     @map_el      = if @model.map then @el.appendChild(div({class: "bk-canvas-map"})) else null
     @events_el   = @el.appendChild(div({class: "bk-canvas-events"}))
     @overlays_el = @el.appendChild(div({class: "bk-canvas-overlays"}))
-    @canvas_el   = @el.appendChild(canvas({class: "bk-canvas"}))
 
-    # create the canvas context that gets passed around for drawing
-    @ctx = @get_ctx()
+    switch @model.backend
+      when "canvas"
+        @canvas_el = @el.appendChild(canvas({class: "bk-canvas"}))
+        @ctx = @canvas_el.getContext('2d')
+      when "svg"
+        @ctx = new canvas2svg()
+        @canvas_el = @el.appendChild(@ctx.getSvg())
 
     # work around canvas incompatibilities
     fixup_ctx(@ctx)
@@ -39,9 +45,6 @@ export class CanvasView extends DOMView
 
   get_canvas_element: () -> @canvas_el
 
-  get_ctx: () ->
-    return @canvas_el.getContext('2d')
-
   prepare_canvas: () ->
     # Ensure canvas has the correct size, taking HIDPI into account
     width = @model._width.value
@@ -50,7 +53,7 @@ export class CanvasView extends DOMView
     @el.style.width = "#{width}px"
     @el.style.height = "#{height}px"
 
-    pixel_ratio = get_scale_ratio(@ctx, @model.use_hidpi)
+    pixel_ratio = get_scale_ratio(@ctx, @model.use_hidpi, @model.backend)
     @model.pixel_ratio = pixel_ratio
 
     @canvas_el.style.width = "#{width}px"
@@ -108,6 +111,7 @@ export class Canvas extends LayoutCanvas
     initial_height: [ p.Number         ]
     use_hidpi:      [ p.Boolean, true  ]
     pixel_ratio:    [ p.Number,  1     ]
+    backend:        [ p.OutputBackend, "canvas"]
   }
 
   initialize: (attrs, options) ->
