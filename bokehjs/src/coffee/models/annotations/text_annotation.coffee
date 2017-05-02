@@ -17,9 +17,9 @@ export class TextAnnotationView extends AnnotationView
   bind_bokeh_events: () ->
     if @model.render_mode == 'css'
       # dispatch CSS update immediately
-      @listenTo(@model, 'change', @render)
+      @listenTo(@model.change, @render)
     else
-      @listenTo(@model, 'change', () => @plot_view.request_render())
+      @listenTo(@model.change, () => @plot_view.request_render())
 
   _calculate_text_dimensions: (ctx, text) ->
     width = ctx.measureText(text).width

@@ -4,13 +4,13 @@ import {Signal} from "core/signaling"
 export class ActionToolButtonView extends ButtonToolButtonView
 
   _clicked: () ->
-    @model.trigger('do')
+    @model.do.emit()
 
 export class ActionToolView extends ButtonToolView
 
   initialize: (options) ->
     super(options)
-    @listenTo(@model, 'do', @do)
+    @listenTo(@model.do, @doit)
 
 export class ActionTool extends ButtonTool
 

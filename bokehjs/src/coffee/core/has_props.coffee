@@ -139,11 +139,10 @@ export class HasProps
     for name, prop of @properties
       prop.update()
       if prop.spec.transform
-        @listenTo(prop.spec.transform, "change", () -> @trigger('transformchange', this))
+        @listenTo(prop.spec.transform.change, () -> @transformchange.emit())
 
   destroy: () ->
-    this.stopListening()
-    this.trigger('destroy', this)
+    @destroyed.emit()
 
   # Create a new model with identical attributes to this one.
   clone: () ->
@@ -173,7 +172,7 @@ export class HasProps
       if changes.length
         this._pending = true
       for i in [0...changes.length]
-        this.trigger('change:' + changes[i], this, current[changes[i]])
+        this.properties[changes[i]].change.emit(current[changes[i]])
 
     # You might be wondering why there's a `while` loop here. Changes can
     # be recursively nested within `"change"` events.
@@ -182,7 +181,7 @@ export class HasProps
     if not silent and not options.no_change
       while this._pending
         this._pending = false
-        this.trigger('change', this)
+        this.change.emit()
 
     this._pending = false
     this._changing = false
@@ -230,7 +229,7 @@ export class HasProps
     )
     # bind depdencies to change dep callback
     for fld in fields
-      @listenTo(object, "change:" + fld, prop_spec['callbacks']['changedep'])
+      @listenTo(object.properties[fld].change, prop_spec['callbacks']['changedep'])
 
   define_computed_property: (prop_name, getter, use_cache=true) ->
     # #### Parameters
@@ -248,7 +247,7 @@ export class HasProps
       throw new Error("attempted to redefine existing computed property #{@type}.#{prop_name}")
 
     changedep = () =>
-      @trigger('changedep:' + prop_name)
+      @properties[prop_name].changedep.emit()
 
     propchange = () =>
       firechange = true
@@ -258,8 +257,8 @@ export class HasProps
         new_val = @_get_computed(prop_name)
         firechange = new_val != old_val
       if firechange
-        @trigger('change:' + prop_name, this, @_get_computed(prop_name))
-        @trigger('change', this)
+        @properties[prop_name].change.emit(@_get_computed(prop_name))
+        @change.emit()
 
     prop_spec =
       'getter': getter,
@@ -272,7 +271,7 @@ export class HasProps
     @_computed[prop_name] = prop_spec
 
     # bind propchange callback to change dep event
-    @listenTo(this, "changedep:#{prop_name}", prop_spec['callbacks']['propchange'])
+    @properties[prop_name].changedep.connect(prop_spec['callbacks']['propchange'])
 
     return prop_spec
 

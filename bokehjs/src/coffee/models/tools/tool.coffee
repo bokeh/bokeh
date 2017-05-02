@@ -14,7 +14,7 @@ export class ToolView extends View
   }
 
   bind_bokeh_events: () ->
-    @listenTo(@model, 'change:active', () =>
+    @listenTo(@model.properties.active.change, () =>
       if @model.active
         @activate()
       else

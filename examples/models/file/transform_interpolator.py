@@ -35,7 +35,7 @@ callback = CustomJS(args=dict(source=source, linear=linear, step=step), code="""
         }
     }
 
-    source.trigger('change')
+    source.change.emit()
 
 """ % (N, N))
 

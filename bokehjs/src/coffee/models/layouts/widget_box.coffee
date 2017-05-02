@@ -13,7 +13,7 @@ export class WidgetBoxView extends LayoutDOMView
 
   bind_bokeh_events: () ->
     super()
-    @listenTo(@model, 'change:children', () => @rebuild_child_views())
+    @listenTo(@model.properties.children.change, () => @rebuild_child_views())
 
   render: () ->
     update_layout = false

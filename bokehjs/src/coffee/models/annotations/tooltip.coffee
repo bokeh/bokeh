@@ -13,7 +13,7 @@ export class TooltipView extends AnnotationView
     hide(@el)
 
   bind_bokeh_events: () ->
-    @listenTo(@model, 'change:data', @_draw_tips)
+    @listenTo(@model.properties.data.change, @_draw_tips)
 
   render: () ->
     if not @model.visible
@@ -129,4 +129,4 @@ export class Tooltip extends Annotation
     @data = data
 
     # TODO (bev) not sure why this is now necessary
-    @trigger('change:data')
+    @properties.data.change.emit()

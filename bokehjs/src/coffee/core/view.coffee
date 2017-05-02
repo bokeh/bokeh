@@ -26,8 +26,7 @@ export class View
 
   remove: () ->
     @_parent = undefined
-    @stopListening()
-    @trigger('remove')
+    @removed.emit()
 
   toString: () -> "#{@model.type}View(#{@id})"
 

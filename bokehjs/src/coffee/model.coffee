@@ -17,12 +17,12 @@ export class Model extends HasProps
 
   initialize: (options) ->
     super(options)
-    for evt, callbacks of @js_property_callbacks
+    for attr, callbacks of @js_property_callbacks
       for cb in callbacks
-        @listenTo(@, evt, () -> cb.execute(@))
+        @listenTo(@properties[attr].change, () -> cb.execute(@))
 
-    @listenTo(@, 'change:js_event_callbacks', () -> @_update_event_callbacks)
-    @listenTo(@, 'change:subscribed_events', () -> @_update_event_callbacks)
+    @listenTo(@.properties.js_event_callbacks.change, () -> @_update_event_callbacks)
+    @listenTo(@.properties.subscribed_events.change, () -> @_update_event_callbacks)
 
   _process_event: (event) ->
     if event.is_applicable_to(this)

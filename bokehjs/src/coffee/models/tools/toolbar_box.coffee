@@ -92,7 +92,7 @@ export class ToolbarBoxToolbar extends ToolbarBase
         if tools.length > 0
           proxy = make_proxy(tools)
           @gestures[event_type].tools.push(proxy)
-          @listenTo(proxy, 'change:active', @_active_change.bind(proxy))
+          @listenTo(proxy.properties.active.change, @_active_change.bind(proxy))
 
     @actions = []
     for tool_type, tools of actions

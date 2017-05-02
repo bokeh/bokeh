@@ -37,7 +37,7 @@ export class Solver
 
   clear: () ->
     @solver = new ConstraintSolver()
-    @trigger("layout_reset")
+    @layout_reset.emit()
 
   toString: () -> "Solver[num_constraints=#{@num_constraints()}, num_edit_variables=#{@num_edit_variables()}]"
 
@@ -50,7 +50,7 @@ export class Solver
   update_variables: (trigger=true) ->
     @solver.updateVariables()
     if trigger
-      @trigger('layout_update')
+      @layout_update.emit()
 
   has_constraint: (constraint) ->
     return @solver.hasConstraint(constraint)

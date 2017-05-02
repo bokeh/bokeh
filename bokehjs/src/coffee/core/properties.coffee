@@ -22,9 +22,9 @@ export class Property # <T>
     @change = new Signal(@obj, "change")
 
     # TODO (bev) Quick fix, see https://github.com/bokeh/bokeh/pull/2684
-    @listenTo(@obj, "change:#{@attr}", () =>
+    @listenTo(@obj.properties[attr].change, () =>
       @_init()
-      @obj.trigger("propchange")
+      @obj.propchange.emit()
     )
 
   update: () -> @_init()
@@ -112,7 +112,7 @@ export class Property # <T>
     @init()
 
     if trigger
-      @trigger("change")
+      @change.emit()
 
 #
 # Simple Properties

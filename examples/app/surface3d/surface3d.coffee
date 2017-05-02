@@ -54,7 +54,7 @@ export class Surface3dView extends LayoutDOMView
 
     # Set Backbone listener so that when the Bokeh data source has a change
     # event, we can process the new data
-    @listenTo(@model.data_source, 'change', () =>
+    @listenTo(@model.data_source.change, () =>
         @_graph.setData(@get_data())
     )
 

@@ -12,7 +12,7 @@ export class TileRendererView extends RendererView
     super
 
   bind_bokeh_events: () ->
-    @listenTo(@model, 'change', @request_render)
+    @listenTo(@model.change, @request_render)
 
   get_extent: () ->
     return [@x_range.start, @y_range.start, @x_range.end, @y_range.end]

@@ -13,7 +13,7 @@ export class AbstractButtonView extends WidgetView
   initialize: (options) ->
     super(options)
     @icon_views = {}
-    @listenTo(@model, 'change', @render)
+    @listenTo(@model.change, @render)
     @render()
 
   remove: () ->

@@ -8,10 +8,12 @@ export class ToolProxy extends Model
   initialize: (options) ->
     super(options)
     @do = new Signal(this, "do")
+    @listenTo(@do, @doit)
+    @listenTo(@properties.active.change, @set_active)
 
-  do: () ->
+  doit: () ->
     for tool in @tools
-      tool.trigger('do')
+      tool.do.emit()
     return null
 
   set_active: () ->

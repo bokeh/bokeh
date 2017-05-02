@@ -16,7 +16,7 @@ export class GeoJSONDataSource extends ColumnarDataSource
   initialize: (options) ->
     super(options)
     @_update_data()
-    @listenTo(@, 'change:geojson', () => @_update_data())
+    @listenTo(@properties.geojson.change, () => @_update_data())
 
   _update_data: () -> @data = @geojson_to_column_data()
 

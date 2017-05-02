@@ -24,7 +24,7 @@ export class HoverToolView extends InspectToolView
 
   bind_bokeh_events: () ->
     for r in @model.computed_renderers
-      @listenTo(r.data_source, 'inspect', @_update)
+      @listenTo(r.data_source.inspect, @_update)
 
   _clear: () ->
 

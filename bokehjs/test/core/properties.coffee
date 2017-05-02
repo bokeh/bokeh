@@ -237,7 +237,7 @@ describe "properties module", ->
         obj = new SomeHasProps(a: {value: "foo"})
         prop = new properties.Property({obj: obj, attr: 'a'})
         stuff = {called: false}
-        prop.listenTo(prop, 'change', () -> stuff.called = true)
+        prop.listenTo(prop.change, () -> stuff.called = true)
         obj.a = {value: "bar"}
         expect(stuff.called).to.be.true
 

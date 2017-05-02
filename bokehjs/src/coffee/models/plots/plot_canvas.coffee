@@ -102,7 +102,7 @@ export class PlotCanvasView extends DOMView
     if @model.plot.webgl
       @init_webgl()
 
-    @throttled_render = throttle((() => @trigger("force_render")), 15) # TODO (bev) configurable
+    @throttled_render = throttle((() => @force_render.emit()), 15) # TODO (bev) configurable
 
     @ui_event_bus = new UIEvents(@, @model.toolbar, @canvas_view.el, @model.plot)
 
@@ -246,11 +246,11 @@ export class PlotCanvasView extends DOMView
     @state.history.push({type: type, info: info})
     @state.index = @state.history.length - 1
 
-    @trigger("state_changed")
+    @state_changed.emit()
 
   clear_state: () ->
     @state = {history: [], index: -1}
-    @trigger("state_changed")
+    @state_changed.emit()
 
   can_undo: () ->
     @state.index >= 0
@@ -262,13 +262,13 @@ export class PlotCanvasView extends DOMView
     if @can_undo()
       @state.index -= 1
       @_do_state_change(@state.index)
-      @trigger("state_changed")
+      @state_changed.emit()
 
   redo: () ->
     if @can_redo()
       @state.index += 1
       @_do_state_change(@state.index)
-      @trigger("state_changed")
+      @state_changed.emit()
 
   _do_state_change: (index) ->
     info = @state.history[index]?.info or @_initial_state_info
@@ -462,16 +462,16 @@ export class PlotCanvasView extends DOMView
       @ui_event_bus.register_tool(tool_view)
 
   bind_bokeh_events: () ->
-    @listenTo(@, "force_render", () => @render())
+    @listenTo(@force_render, () => @render())
     for name, rng of @model.frame.x_ranges
-      @listenTo(rng, 'change', @request_render)
+      @listenTo(rng.change, @request_render)
     for name, rng of @model.frame.y_ranges
-      @listenTo(rng, 'change', @request_render)
-    @listenTo(@model.plot, 'change:renderers', () => @build_levels())
-    @listenTo(@model.plot.toolbar, 'change:tools', () => @build_levels(); @build_tools())
-    @listenTo(@model.plot, 'change', @request_render)
-    @listenTo(@solver, 'layout_update', () => @request_render())
-    @listenTo(@solver, 'layout_update', () =>
+      @listenTo(rng.change, @request_render)
+    @listenTo(@model.plot.properties.renderers.change, () => @build_levels())
+    @listenTo(@model.plot.toolbar.properties.tools.change, () => @build_levels(); @build_tools())
+    @listenTo(@model.plot.change, @request_render)
+    @listenTo(@solver.layout_update, () => @request_render())
+    @listenTo(@solver.layout_update, () =>
       @model.plot.setv({
         inner_width: Math.round(@frame._width.value)
         inner_height: Math.round(@frame._height.value)
@@ -479,7 +479,7 @@ export class PlotCanvasView extends DOMView
         layout_height: Math.round(@canvas._height.value)
       }, {no_change: true})
     )
-    @listenTo(@solver, 'resize', () => @_on_resize())
+    @listenTo(@solver.resize, () => @_on_resize())
 
   set_initial_range : () ->
     # check for good values for ranges before setting initial range

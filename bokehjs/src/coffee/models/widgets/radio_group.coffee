@@ -12,7 +12,7 @@ export class RadioGroupView extends WidgetView
   initialize: (options) ->
     super(options)
     @render()
-    @listenTo(@model, 'change', @render)
+    @listenTo(@model.change, @render)
 
   render: () ->
     super()

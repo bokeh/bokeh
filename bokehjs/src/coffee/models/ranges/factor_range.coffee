@@ -29,8 +29,8 @@ export class FactorRange extends Range
       @setv({_bounds_as_factors: @factors}, {silent: true})
 
     @_init()
-    @listenTo(@, 'change:factors', @_update_factors)
-    @listenTo(@, 'change:offset', @_init)
+    @listenTo(@.properties.factors.change, @_update_factors)
+    @listenTo(@.properties.offset.change, @_init)
 
   @getters {
     min: () -> @start
@@ -39,7 +39,7 @@ export class FactorRange extends Range
 
   reset: () ->
     @_init()
-    @trigger('change')
+    @change.emit()
 
   _update_factors: () ->
     # Factors have been changed, need to update the factored version of the bounds

@@ -18,17 +18,17 @@ export class LabelSetView extends TextAnnotationView
   bind_bokeh_events: () ->
     if @model.render_mode == 'css'
       # dispatch CSS update immediately
-      @listenTo(@model, 'change', () ->
+      @listenTo(@model.change, () ->
         @set_data(@model.source)
         @render())
-      @listenTo(@model.source, 'change', () ->
+      @listenTo(@model.source.change, () ->
         @set_data(@model.source)
         @render())
     else
-      @listenTo(@model, 'change', () ->
+      @listenTo(@model.change, () ->
         @set_data(@model.source)
         @plot_view.request_render())
-      @listenTo(@model.source, 'change', () ->
+      @listenTo(@model.source.change, () ->
         @set_data(@model.source)
         @plot_view.request_render())
 

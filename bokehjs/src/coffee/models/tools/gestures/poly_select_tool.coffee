@@ -7,7 +7,7 @@ export class PolySelectToolView extends SelectToolView
 
   initialize: (options) ->
     super(options)
-    @listenTo(@model, 'change:active', @_active_change)
+    @listenTo(@model.properties.active.change, @_active_change)
     @data = {vx: [], vy: []}
 
   _active_change: () ->
