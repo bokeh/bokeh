@@ -38,7 +38,7 @@ class Axis(GuideRenderer):
     ticker = Instance(Ticker, help="""
     A Ticker to use for computing locations of axis components.
 
-    THe property may also be passed a sequence of floating point numbers as
+    The property may also be passed a sequence of floating point numbers as
     a shorthand for creating and configuring a ``FixedTicker``, e.g. the
     following code
 
