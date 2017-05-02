@@ -5,7 +5,7 @@ Bokeh plots
 from __future__ import absolute_import
 
 from ..core.has_props import abstract
-from ..core.properties import Auto, Datetime, Either, Enum, Float, Include, Instance, Int, Override, Seq, String, Tuple
+from ..core.properties import Auto, Datetime, Dict, Either, Enum, Float, Include, Instance, Int, Override, Seq, String, Tuple
 from ..core.property_mixins import LineProps, TextProps
 
 from .formatters import BasicTickFormatter, CategoricalTickFormatter, DatetimeTickFormatter, LogTickFormatter, TickFormatter
@@ -96,6 +96,11 @@ class Axis(GuideRenderer):
     major_label_orientation = Either(Enum("horizontal", "vertical"), Float, help="""
     What direction the major label text should be oriented. If a
     number is supplied, the angle of the text is measured from horizontal.
+    """)
+
+    major_label_overrides = Dict(Either(Float, String), String, default={}, help="""
+    Provide explicit tick label values for specific tick locations that
+    override normal formatting.
     """)
 
     major_label_props = Include(TextProps, help="""

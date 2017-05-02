@@ -95,7 +95,7 @@ export class AxisView extends RendererView
       angle = -orient
     standoff = @_tick_extent() + @model.major_label_standoff
 
-    labels = @model.formatter.doFormat(coords.major[dim], @model)
+    labels = @model.compute_labels(coords.major[dim])
 
     @visuals.major_label_text.set_value(ctx)
     @model.panel.apply_label_text_heuristics(ctx, orient)
@@ -152,7 +152,8 @@ export class AxisView extends RendererView
     coords = @model.tick_coords.major
     side = @model.panel_side
     orient = @model.major_label_orientation
-    labels = @model.formatter.doFormat(coords[dim], @model)
+    labels = @model.compute_labels(coords[dim])
+
     @visuals.major_label_text.set_value(ctx)
 
     if isString(orient)
@@ -219,19 +220,20 @@ export class Axis extends GuideRenderer
   ]
 
   @define {
-      bounds:         [ p.Any,      'auto'    ] # TODO (bev)
-      ticker:         [ p.Instance, null      ]
-      formatter:      [ p.Instance, null      ]
-      x_range_name:   [ p.String,   'default' ]
-      y_range_name:   [ p.String,   'default' ]
-      axis_label:     [ p.String,   ''        ]
-      axis_label_standoff:     [ p.Int,         5 ]
-      major_label_standoff:    [ p.Int,         5 ]
-      major_label_orientation: [ p.Any, "horizontal" ] # TODO: p.Orientation | p.Number
-      major_tick_in:  [ p.Number,   2         ]
-      major_tick_out: [ p.Number,   6         ]
-      minor_tick_in:  [ p.Number,   0         ]
-      minor_tick_out: [ p.Number,   4         ]
+      bounds:                  [ p.Any,      'auto'       ] # TODO (bev)
+      ticker:                  [ p.Instance, null         ]
+      formatter:               [ p.Instance, null         ]
+      x_range_name:            [ p.String,   'default'    ]
+      y_range_name:            [ p.String,   'default'    ]
+      axis_label:              [ p.String,   ''           ]
+      axis_label_standoff:     [ p.Int,      5            ]
+      major_label_standoff:    [ p.Int,      5            ]
+      major_label_orientation: [ p.Any,      "horizontal" ] # TODO: p.Orientation | p.Number
+      major_label_overrides:   [ p.Any,      {}           ]
+      major_tick_in:           [ p.Number,   2            ]
+      major_tick_out:          [ p.Number,   6            ]
+      minor_tick_in:           [ p.Number,   0            ]
+      minor_tick_out:          [ p.Number,   4            ]
   }
 
   @override {
@@ -252,12 +254,19 @@ export class Axis extends GuideRenderer
     panel_side: [ p.Any ]
   }
 
-  initialize: (attrs, options)->
+  initialize: (attrs, options) ->
     super(attrs, options)
 
     @define_computed_property('computed_bounds', @_computed_bounds, false)
     @add_dependencies('computed_bounds', this, ['bounds'])
     @add_dependencies('computed_bounds', @plot, ['x_range', 'y_range'])
+
+  compute_labels: (ticks) ->
+    labels = @formatter.doFormat(ticks, @)
+    for i in [0...ticks.length]
+      if ticks[i] of @major_label_overrides
+        labels[i] = @major_label_overrides[ticks[i]]
+    return labels
 
   @getters {
     computed_bounds: () -> @_get_computed('computed_bounds')
