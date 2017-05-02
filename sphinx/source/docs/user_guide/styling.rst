@@ -478,7 +478,21 @@ useful.
 '''''''''''''''
 
 This ticker model allows users to specify exact tick locations
-explicitly.
+explicitly, e.g.
+
+.. code-block:: python
+
+    from bokeh.plotting import figure
+    from bokeh.models.tickers import FixedTicker
+
+    p = figure()
+
+    # no additional tick locations will be displayed on the x-axis
+    p.xaxis.ticker = FixedTicker(ticks=[10, 20, 37.4])
+
+However it is also possible to supply the list of ticks directly, as a
+shortcut, e.g. ``p.xaxis.ticker = [10, 20, 37.4]``. The example below
+demonstrates this method.
 
 .. bokeh-plot:: docs/user_guide/examples/styling_fixed_ticker.py
     :source-position: above

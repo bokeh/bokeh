@@ -16,7 +16,7 @@ export class LogTickFormatter extends TickFormatter
     if not @ticker?
       logger.warn("LogTickFormatter not configured with a ticker, using default base of 10 (labels will be incorrect if ticker base is not 10)")
 
-  doFormat: (ticks, loc) ->
+  doFormat: (ticks, axis) ->
     if ticks.length == 0
       return []
 
