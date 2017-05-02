@@ -249,7 +249,7 @@ export class HasProps
       throw new Error("attempted to redefine existing computed property #{@type}.#{prop_name}")
 
     changedep = () =>
-      @properties[prop_name].changedep.emit()
+      @_computed[prop_name].changedep.emit()
 
     propchange = () =>
       firechange = true
@@ -259,21 +259,24 @@ export class HasProps
         new_val = @_get_computed(prop_name)
         firechange = new_val != old_val
       if firechange
-        @properties[prop_name].change.emit(@_get_computed(prop_name))
+        @_computed[prop_name].change.emit(@_get_computed(prop_name))
         @change.emit()
 
-    prop_spec =
+    prop_spec = {
+      change: new Signal(this, "change")
+      changedep: new Signal(this, "changedep")
       'getter': getter,
       'dependencies': [],
       'use_cache': use_cache
       'callbacks':
         changedep: changedep
         propchange: propchange
+    }
 
     @_computed[prop_name] = prop_spec
 
     # bind propchange callback to change dep event
-    @properties[prop_name].changedep.connect(prop_spec['callbacks']['propchange'])
+    @listenTo(@_computed[prop_name].changedep, prop_spec['callbacks']['propchange'])
 
     return prop_spec
 
