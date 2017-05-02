@@ -6,7 +6,7 @@ export class RedoToolView extends ActionToolView
     super(options)
     @listenTo(@plot_view.state_changed, () => @model.disabled = not @plot_view.can_redo())
 
-  do: () ->
+  doit: () ->
     @plot_view.redo()
 
 export class RedoTool extends ActionTool
