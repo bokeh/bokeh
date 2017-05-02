@@ -95,7 +95,7 @@ export class AxisView extends RendererView
       angle = -orient
     standoff = @_tick_extent() + @model.major_label_standoff
 
-    labels = @model.formatter.doFormat(coords.major[dim], @model.loc)
+    labels = @model.formatter.doFormat(coords.major[dim], @model)
 
     @visuals.major_label_text.set_value(ctx)
     @model.panel.apply_label_text_heuristics(ctx, orient)
@@ -152,7 +152,7 @@ export class AxisView extends RendererView
     coords = @model.tick_coords.major
     side = @model.panel_side
     orient = @model.major_label_orientation
-    labels = @model.formatter.doFormat(coords[dim], @model.loc)
+    labels = @model.formatter.doFormat(coords[dim], @model)
     @visuals.major_label_text.set_value(ctx)
 
     if isString(orient)
