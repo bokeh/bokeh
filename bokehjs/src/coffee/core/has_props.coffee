@@ -220,6 +220,8 @@ export class HasProps
     # * prop_name - name of property
     # * object - object on which dependencies reside
     # * fields - attributes on that object
+    if not object?
+      return
     if not isArray(fields)
       fields = [fields]
     prop_spec = @_computed[prop_name]
