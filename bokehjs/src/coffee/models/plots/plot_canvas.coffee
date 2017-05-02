@@ -4,6 +4,7 @@ import {DataRange1d} from "../ranges/data_range1d"
 import {GlyphRenderer} from "../renderers/glyph_renderer"
 import {LayoutDOM} from "../layouts/layout_dom"
 
+import {Signal} from "core/signaling"
 import {build_views} from "core/build_views"
 import {UIEvents} from "core/ui_events"
 import {LODStart, LODEnd} from "core/bokeh_events"
@@ -71,6 +72,10 @@ export class PlotCanvasView extends DOMView
 
   initialize: (options) ->
     super(options)
+
+    @force_render = new Signal(this, "force_render")
+    @state_changed = new Signal(this, "state_changed")
+
     @pause()
 
     @lod_started = false

@@ -1,4 +1,5 @@
 import {Annotation, AnnotationView} from "./annotation"
+import {Signal} from "core/signaling"
 import {show, hide} from "core/dom"
 import * as p from "core/properties"
 import {isString, isArray} from "core/util/types"
@@ -121,6 +122,10 @@ export class BoxAnnotation extends Annotation
     line_color: '#cccccc'
     line_alpha: 0.3
   }
+
+  initialize: (attrs, options) ->
+    super(attrs, options)
+    @data_update = new Signal(this, "data_update")
 
   update:({left, right, top, bottom}) ->
     @setv({left: left, right: right, top: top, bottom: bottom}, {silent: true})

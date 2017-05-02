@@ -1,5 +1,6 @@
 import {Variable, Expression, Constraint, Operator, Strength, Solver as ConstraintSolver} from "kiwi"
 import {Events} from "../events"
+import {Signal} from "../signaling"
 
 _constrainer = (op) ->
   () =>
@@ -28,6 +29,10 @@ export class Solver
   @prototype extends Events
 
   constructor: () ->
+    @layout_update = new Signal(this, "layout_update")
+    @layout_reset = new Signal(this, "layout_reset")
+    @resize = new Signal(this, "resize")
+
     @solver = new ConstraintSolver()
 
   clear: () ->

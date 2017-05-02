@@ -1,4 +1,5 @@
 import {Events} from "./events"
+import {Signal} from "./signaling"
 import * as enums from "./enums"
 import * as svg_colors from "./util/svg_colors"
 import {valid_rgb} from "./util/color"
@@ -9,13 +10,16 @@ import {isBoolean, isNumber, isString, isFunction, isArray, isObject} from "./ut
 # Property base class
 #
 
-export class Property
+export class Property # <T>
   @prototype extends Events
 
   dataspec: false
 
   constructor: ({@obj, @attr, @default_value}) ->
     @_init(false)
+
+    # Signal<T, HasProps>
+    @change = new Signal(@obj, "change")
 
     # TODO (bev) Quick fix, see https://github.com/bokeh/bokeh/pull/2684
     @listenTo(@obj, "change:#{@attr}", () =>

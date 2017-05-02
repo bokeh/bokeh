@@ -1,4 +1,5 @@
 import {ButtonTool, ButtonToolView, ButtonToolButtonView} from "../button_tool"
+import {Signal} from "core/signaling"
 
 export class ActionToolButtonView extends ButtonToolButtonView
 
@@ -12,3 +13,7 @@ export class ActionToolView extends ButtonToolView
     @listenTo(@model, 'do', @do)
 
 export class ActionTool extends ButtonTool
+
+  initialize: (attrs, options) ->
+    super(attrs, options)
+    @do = new Signal(this, "do")

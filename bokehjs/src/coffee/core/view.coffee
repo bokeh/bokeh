@@ -1,4 +1,5 @@
 import {Events} from "./events"
+import {Signal} from "./signaling"
 import {uniqueId} from "./util/string"
 
 export class View
@@ -9,6 +10,8 @@ export class View
       Object.defineProperty(@prototype, name, { get: fn })
 
   constructor: (options={}) ->
+    @removed = new Signal(this, "removed")
+
     if options.model?
       @model = options.model
     else

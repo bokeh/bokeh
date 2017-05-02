@@ -1,5 +1,6 @@
 import {Events} from "./events"
 import {logger} from "./logging"
+import {Signal} from "./signaling"
 import * as property_mixins from "./property_mixins"
 import * as refs from "./util/refs"
 import * as p from "./properties"
@@ -87,6 +88,11 @@ export class HasProps
 
   constructor: (attributes, options) ->
     @document = null
+
+    @destroyed = new Signal(this, "destroyed")
+    @change = new Signal(this, "change")
+    @propchange = new Signal(this, "propchange")
+    @transformchange = new Signal(this, "transformchange")
 
     attrs = attributes || {}
     if not options

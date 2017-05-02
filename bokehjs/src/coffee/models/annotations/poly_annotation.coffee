@@ -1,4 +1,5 @@
 import {Annotation, AnnotationView} from "./annotation"
+import {Signal} from "core/signaling"
 import * as p from "core/properties"
 
 export class PolyAnnotationView extends AnnotationView
@@ -70,6 +71,10 @@ export class PolyAnnotation extends Annotation
     line_color: "#cccccc"
     line_alpha: 0.3
   }
+
+  initialize: (attrs, options) ->
+    super(attrs, options)
+    @data_update = new Signal(this, "data_update")
 
   update:({xs, ys}) ->
     @setv({xs: xs, ys: ys}, {silent: true})
