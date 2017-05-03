@@ -5,7 +5,7 @@ Bokeh objects.
 Certain NunPy array dtypes can be serialized to a binary format for
 performance and efficiency. The list of supported dtypes is:
 
-%s
+{binary_array_types}
 
 """
 from __future__ import absolute_import
@@ -15,6 +15,7 @@ import math
 
 from six import iterkeys
 
+from bokeh.util.string import format_docstring
 from .dependencies import import_optional
 
 is_numpy = None
@@ -36,7 +37,7 @@ except ImportError:
     is_numpy = False
     BINARY_ARRAY_TYPES = set()
 
-__doc__ = __doc__ % ("\n".join("* ``np." + str(x) + "``" for x in BINARY_ARRAY_TYPES))
+__doc__ = format_docstring(__doc__, binary_array_types="\n".join("* ``np." + str(x) + "``" for x in BINARY_ARRAY_TYPES))
 
 pd = import_optional('pandas')
 
@@ -72,7 +73,7 @@ def array_encoding_disabled(array):
 
     The NumPy array dtypes that can be encoded are:
 
-    %s
+    {binary_array_types}
 
     Args:
         array (np.ndarray) : the array to check
@@ -85,7 +86,9 @@ def array_encoding_disabled(array):
     # disable binary encoding for non-supported dtypes
     return array.dtype not in BINARY_ARRAY_TYPES
 
-array_encoding_disabled.__doc__ = array_encoding_disabled.__doc__ % ("\n    ".join("* ``np." + str(x) + "``" for x in BINARY_ARRAY_TYPES))
+array_encoding_disabled.__doc__ = format_docstring(array_encoding_disabled.__doc__,
+                                                   binary_array_types="\n    ".join("* ``np." + str(x) + "``"
+                                                                                    for x in BINARY_ARRAY_TYPES))
 
 def transform_array(array, force_list=False):
     """ Transform a NumPy arrays into serialized format

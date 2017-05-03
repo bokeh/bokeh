@@ -49,16 +49,25 @@ export class GlyphRendererView extends RendererView
     decimated_glyph = mk_glyph(@model.decimated_defaults)
     @decimated_glyph = @build_glyph_view(decimated_glyph)
 
-    @xmapper = @plot_view.frame.x_mappers[@model.x_range_name]
-    @ymapper = @plot_view.frame.y_mappers[@model.y_range_name]
+    @xscale = @plot_view.frame.xscales[@model.x_range_name]
+    @yscale = @plot_view.frame.yscales[@model.y_range_name]
 
     @set_data(false)
 
     if @model.data_source instanceof RemoteDataSource
       @model.data_source.setup(@plot_view, @glyph)
 
+  @getters {
+    xmapper: () ->
+      log.warning("xmapper attr is deprecated, use xscale")
+      @xscale
+    ymapper: () ->
+      log.warning("ymapper attr is deprecated, use yscale")
+      @yscale
+  }
+
   build_glyph_view: (model) ->
-    new model.default_view({model: model, renderer: @, plot_view: @plot_view})
+    new model.default_view({model: model, renderer: @, plot_view: @plot_view, parent: @})
 
   bind_bokeh_events: () ->
     @listenTo(@model, 'change', @request_render)
@@ -230,7 +239,7 @@ export class GlyphRendererView extends RendererView
     @glyph.draw_legend_for_index(ctx, x0, x1, y0, y1, index)
 
   hit_test: (geometry) ->
-    @glyph.hit_test(geometry)
+    return @model.hit_test_helper(geometry, @glyph)
 
 
 export class GlyphRenderer extends Renderer
@@ -247,6 +256,13 @@ export class GlyphRenderer extends Renderer
         if i > 0
           index = i
     return index
+
+  # TODO (bev) this is just to make testing easier. Might be better on a view model
+  hit_test_helper: (geometry, glyph) ->
+    if @visible
+      return glyph.hit_test(geometry)
+    else
+      return null
 
   @define {
       x_range_name:       [ p.String,  'default' ]

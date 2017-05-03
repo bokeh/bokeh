@@ -12,12 +12,23 @@ mocha = (options={}) ->
     (file) ->
       if @_files? then @_files.push(file.path) else @_files = [file.path]
     () ->
-      args = [
-        "node_modules/mocha/bin/_mocha",
-        "--compilers", "coffee:coffee-script/register",
-        "--reporter", argv.reporter ? "spec",
-        "./test/index.coffee"
-      ].concat(@_files)
+      if options.coverage? and options.coverage
+        args = [
+          "node_modules/.bin/istanbul",
+          "cover",
+          "node_modules/mocha/bin/_mocha",
+          "--",
+          "--compilers", "coffee:coffee-script/register",
+          "--reporter", argv.reporter ? "spec",
+          "./test/index.coffee"
+        ].concat(@_files)
+      else
+        args = [
+          "node_modules/mocha/bin/_mocha",
+          "--compilers", "coffee:coffee-script/register",
+          "--reporter", argv.reporter ? "spec",
+          "./test/index.coffee"
+        ].concat(@_files)
 
       if argv.debug
         args.unshift("debug")
@@ -38,6 +49,9 @@ mocha = (options={}) ->
       process.on('SIGTERM', handler)
       process.on('SIGINT',  handler)
   )
+
+gulp.task "test:coverage", ["defaults:generate"], () ->
+  gulp.src(["./test/all.coffee"]).pipe(mocha({coverage: true}))
 
 gulp.task "test", ["defaults:generate"], () ->
   gulp.src(["./test/all.coffee"]).pipe(mocha())

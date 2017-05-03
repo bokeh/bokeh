@@ -17,9 +17,10 @@ create_glyph_view = (glyph, data={}) ->
     x_range: new Range1d({start: 0, end: 1})
     y_range: new Range1d({start: 0, end: 1})
   })
+  plot_view = new plot.default_view({model: plot, parent: null})
   doc.add_root(plot)
-  plot_view = new plot.plot_canvas.default_view({model: plot.plot_canvas })
-  sinon.stub(plot_view, 'update_constraints')
+  plot_canvas_view = new plot.plot_canvas.default_view({model: plot.plot_canvas, parent: plot_view})
+  sinon.stub(plot_canvas_view, 'update_constraints')
 
   @data_source = new ColumnDataSource({data: data})
 
@@ -30,7 +31,8 @@ create_glyph_view = (glyph, data={}) ->
 
   glyph_renderer_view = new glyph_renderer.default_view({
     model: glyph_renderer
-    plot_view: plot_view
+    plot_view: plot_canvas_view
+    parent: plot_canvas_view
   })
 
   return glyph_renderer_view.glyph

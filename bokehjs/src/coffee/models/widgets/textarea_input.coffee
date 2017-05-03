@@ -19,8 +19,11 @@ export class TextareaInputView extends InputWidgetView
   render: () ->
     super()
     @$el.html(@template(@model.attributes))
+<<<<<<< HEAD
     @$el.find('textarea').height(@model.rows * 13.3)
     return @
+=======
+>>>>>>> master
 
   change_input: () ->
     value = @$el.find('textarea').val()
@@ -33,9 +36,17 @@ export class TextareaInput extends InputWidget
   default_view: TextareaInputView
 
   @define {
+<<<<<<< HEAD
       value:       [ p.String, "" ]
       placeholder: [ p.String, "" ]
       cols:        [ p.Number, 20 ] # 20 is the HTML default
       max_length:  [ p.Number ]
       rows:        [ p.Number, 2 ] # 20 is the HTML default
+=======
+      value: [ p.String, "" ]
+      placeholder: [ p.String, "" ]
+      cols: [ p.String, "" ]
+      maxlength: [ p.String, "" ]
+      rows: [ p.String, "" ]
+>>>>>>> master
     }

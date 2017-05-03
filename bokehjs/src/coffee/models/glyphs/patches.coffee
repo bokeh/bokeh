@@ -64,10 +64,10 @@ export class PatchesView extends GlyphView
     return new RBush(points)
 
   _mask_data: (all_indices) ->
-    xr = @renderer.plot_view.x_range
+    xr = @renderer.plot_view.frame.x_ranges.default
     [x0, x1] = [xr.min, xr.max]
 
-    yr = @renderer.plot_view.y_range
+    yr = @renderer.plot_view.frame.y_ranges.default
     [y0, y1] = [yr.min, yr.max]
 
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
@@ -124,8 +124,8 @@ export class PatchesView extends GlyphView
     sx = @renderer.plot_view.canvas.vx_to_sx(vx)
     sy = @renderer.plot_view.canvas.vy_to_sy(vy)
 
-    x = @renderer.xmapper.map_from_target(vx, true)
-    y = @renderer.ymapper.map_from_target(vy, true)
+    x = @renderer.xscale.invert(vx, true)
+    y = @renderer.yscale.invert(vy, true)
 
     candidates = @index.indices({minX: x, minY: y, maxX: x, maxY: y})
 

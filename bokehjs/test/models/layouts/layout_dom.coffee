@@ -16,45 +16,36 @@ height = 443
 describe "LayoutDOMView", ->
 
   describe "initialize", ->
-    afterEach ->
-      utils.unstub_solver()
-
     beforeEach ->
-      utils.stub_solver()
       @test_layout = new LayoutDOM()
       @doc = new Document()
       @doc.add_root(@test_layout)
 
     it "should set a class of 'bk-layout-fixed' is sizing_mode is fixed", ->
       @test_layout.sizing_mode = 'fixed'
-      layout_view = new LayoutDOMView({ model: @test_layout })
+      layout_view = new LayoutDOMView({ model: @test_layout, parent: null })
       expect(layout_view.el.className).to.be.equal 'bk-layout-fixed'
 
     it "should set a class of 'bk-layout-stretch_both' is sizing_mode is stretch_both", ->
       @test_layout.sizing_mode = 'stretch_both'
-      layout_view = new LayoutDOMView({ model: @test_layout })
+      layout_view = new LayoutDOMView({ model: @test_layout, parent: null })
       expect(layout_view.el.className).to.be.equal 'bk-layout-stretch_both'
 
     it "should set a class of 'bk-layout-scale_width' if sizing_mode is scale_width", ->
       @test_layout.sizing_mode = 'scale_width'
-      layout_view = new LayoutDOMView({ model: @test_layout })
+      layout_view = new LayoutDOMView({ model: @test_layout, parent: null })
       expect(layout_view.el.className).to.be.equal 'bk-layout-scale_width'
 
     it "should set a class of 'bk-layout-scale_height' if sizing_mode is scale_height", ->
       @test_layout.sizing_mode = 'scale_height'
-      layout_view = new LayoutDOMView({ model: @test_layout })
+      layout_view = new LayoutDOMView({ model: @test_layout, parent: null })
       expect(layout_view.el.className).to.be.equal 'bk-layout-scale_height'
 
     it "should set classes from css_classes", ->
       @test_layout.sizing_mode = 'fixed'
       @test_layout.css_classes = ['FOO', 'BAR']
-      layout_view = new LayoutDOMView({ model: @test_layout })
+      layout_view = new LayoutDOMView({ model: @test_layout, parent: null })
       expect(layout_view.el.className).to.be.equal 'bk-layout-fixed FOO BAR'
-
-    it "should set an id matching the model.id", ->
-      # This is used by document to find the model and its parents on resize events
-      layout_view = new LayoutDOMView({ model: @test_layout })
-      expect(layout_view.el.id).to.equal "modelid_#{@test_layout.id}"
 
     it.skip "should build the child views", ->
       # needs a test
@@ -65,45 +56,30 @@ describe "LayoutDOMView", ->
       null
 
   describe "render", ->
-    afterEach ->
-      utils.unstub_solver()
-
     beforeEach ->
-      solver_stubs = utils.stub_solver()
-      @solver_suggest = solver_stubs['suggest']
       @layout = new LayoutDOM()
       @doc = new Document()
       @doc.add_root(@layout)
-      @layout._dom_left = {_value: dom_left}
-      @layout._dom_top = {_value: dom_top}
-      @layout._width = {_value: width}
-      @layout._height = {_value: height}
-
-    it "should set the appropriate style on the element if sizing_mode is 'stretch_both'", ->
-      @layout.sizing_mode = 'stretch_both'
-      layout_view = new LayoutDOMView({ model: @layout })
-      layout_view.render()
-      expected_style = "position: absolute; left: #{dom_left}px; top: #{dom_top}px; width: #{width}px; height: #{height}px;"
-      expect(layout_view.el.style.cssText).to.be.equal expected_style
 
     it "should set the appropriate style on the element if sizing_mode is 'fixed'", ->
       @layout.sizing_mode = 'fixed'
       @layout.width = 88
       @layout.height = 11
-      layout_view = new LayoutDOMView({ model: @layout })
+      layout_view = new LayoutDOMView({ model: @layout, parent: null })
       layout_view.render()
       expected_style = "width: 88px; height: 11px;"
       expect(layout_view.el.style.cssText).to.be.equal expected_style
 
     it "should not call solver suggest_value if the sizing_mode is 'stretch_both'", ->
       @layout.sizing_mode = 'stretch_both'
-      layout_view = new LayoutDOMView({ model: @layout })
+      layout_view = new LayoutDOMView({ model: @layout, parent: null })
+      suggest_value = sinon.spy(layout_view.solver, 'suggest_value')
       layout_view.render()
-      expect(@solver_suggest.called).is.false
+      expect(suggest_value.called).is.false
 
     it "should call get_height if sizing_mode is 'scale_width'", ->
       @layout.sizing_mode = 'scale_width'
-      layout_view = new LayoutDOMView({ model: @layout })
+      layout_view = new LayoutDOMView({ model: @layout, parent: null })
       spy = sinon.spy(layout_view, 'get_height')
       expect(spy.called).is.false
       layout_view.render()
@@ -111,7 +87,7 @@ describe "LayoutDOMView", ->
 
     it "should call get_width if sizing_mode is 'scale_height'", ->
       @layout.sizing_mode = 'scale_height'
-      layout_view = new LayoutDOMView({ model: @layout })
+      layout_view = new LayoutDOMView({ model: @layout, parent: null })
       spy = sinon.spy(layout_view, 'get_width')
       expect(spy.called).is.false
       layout_view.render()
@@ -121,52 +97,55 @@ describe "LayoutDOMView", ->
       @layout.sizing_mode = 'fixed'
       @layout.width = 22
       @layout.height = 33
-      layout_view = new LayoutDOMView({ model: @layout })
+      layout_view = new LayoutDOMView({ model: @layout, parent: null })
+      suggest_value = sinon.spy(layout_view.solver, 'suggest_value')
       layout_view.render()
-      expect(@solver_suggest.callCount).is.equal 2
-      expect(@solver_suggest.args[0]).to.be.deep.equal [@layout._width, 22]
-      expect(@solver_suggest.args[1]).to.be.deep.equal [@layout._height, 33]
+      expect(suggest_value.callCount).is.equal 2
+      expect(suggest_value.args[0]).to.be.deep.equal [@layout._width, 22]
+      expect(suggest_value.args[1]).to.be.deep.equal [@layout._height, 33]
 
     it "should only listen to resize event once if sizing_mode is fixed", ->
       @layout.sizing_mode = 'fixed'
       render_spy = sinon.spy(LayoutDOMView.prototype, 'render')
-      layout_view = new LayoutDOMView({ model: @layout })
-      @doc.solver().trigger('resize')
-      @doc.solver().trigger('resize')
-      @doc.solver().trigger('resize')
+      layout_view = new LayoutDOMView({ model: @layout, parent: null })
+      layout_view.solver.trigger('resize')
+      layout_view.solver.trigger('resize')
+      layout_view.solver.trigger('resize')
       LayoutDOMView.prototype.render.restore()
       expect(render_spy.callCount).is.equal 1
 
     it "should keep listening to resize event if sizing_mode is not fixed", ->
       @layout.sizing_mode = 'scale_both'
       render_spy = sinon.spy(LayoutDOMView.prototype, 'render')
-      layout_view = new LayoutDOMView({ model: @layout })
-      @doc.solver().trigger('resize')
-      @doc.solver().trigger('resize')
-      @doc.solver().trigger('resize')
+      layout_view = new LayoutDOMView({ model: @layout, parent: null })
+      layout_view.solver.trigger('resize')
+      layout_view.solver.trigger('resize')
+      layout_view.solver.trigger('resize')
       LayoutDOMView.prototype.render.restore()
       expect(render_spy.callCount).is.equal 3
 
     it "should call suggest value with the value from get_height if sizing_mode is scale_width", ->
       @layout.sizing_mode = 'scale_width'
-      layout_view = new LayoutDOMView({ model: @layout })
+      layout_view = new LayoutDOMView({ model: @layout, parent: null })
+      suggest_value = sinon.spy(layout_view.solver, 'suggest_value')
       sinon.stub(layout_view, 'get_height').returns(89)
       layout_view.render()
-      expect(@solver_suggest.callCount).is.equal 1
-      expect(@solver_suggest.args[0]).to.be.deep.equal [@layout._height, 89]
+      expect(suggest_value.callCount).is.equal 1
+      expect(suggest_value.args[0]).to.be.deep.equal [@layout._height, 89]
 
     it "should call suggest value with the value from get_width if sizing_mode is scale_height", ->
       @layout.sizing_mode = 'scale_height'
-      layout_view = new LayoutDOMView({ model: @layout })
+      layout_view = new LayoutDOMView({ model: @layout, parent: null })
+      suggest_value = sinon.spy(layout_view.solver, 'suggest_value')
       sinon.stub(layout_view, 'get_width').returns(222)
       layout_view.render()
-      expect(@solver_suggest.callCount).is.equal 1
-      expect(@solver_suggest.args[0]).to.be.deep.equal [@layout._width, 222]
+      expect(suggest_value.callCount).is.equal 1
+      expect(suggest_value.args[0]).to.be.deep.equal [@layout._width, 222]
 
     it "should set the value of model.width from get_width if mode is fixed and if model.width is null", ->
       @layout.sizing_mode = 'fixed'
       @layout.width = null
-      layout_view = new LayoutDOMView({ model: @layout })
+      layout_view = new LayoutDOMView({ model: @layout, parent: null })
       sinon.stub(layout_view, 'get_width').returns(123)
       expect(@layout.width).to.be.null
       layout_view.render()
@@ -175,18 +154,14 @@ describe "LayoutDOMView", ->
     it "should set the value of model.height from get_height if mode is fixed and if model.height is null", ->
       @layout.sizing_mode = 'fixed'
       @layout.height = null
-      layout_view = new LayoutDOMView({ model: @layout })
+      layout_view = new LayoutDOMView({ model: @layout, parent: null })
       sinon.stub(layout_view, 'get_height').returns(123)
       expect(@layout.height).to.be.null
       layout_view.render()
       expect(@layout.height).to.be.equal 123
 
   describe "build_child_views", ->
-    afterEach ->
-      utils.unstub_solver()
-
     beforeEach ->
-      solver_stubs = utils.stub_solver()
       @layout = new LayoutDOM()
       @doc = new Document()
       @doc.add_root(@layout)
@@ -194,24 +169,8 @@ describe "LayoutDOMView", ->
     it "should be called once on initialization", ->
       spy = sinon.spy(LayoutDOMView.prototype, 'build_child_views')
       expect(spy.called).to.be.false
-      layout_view = new LayoutDOMView({ model: @layout })
+      layout_view = new LayoutDOMView({ model: @layout, parent: null })
       LayoutDOMView.prototype.build_child_views.restore()
-      expect(spy.callCount).is.equal 1
-
-    it "should call bind_bokeh_events", ->
-      layout_view = new LayoutDOMView({ model: @layout })
-      spy = sinon.spy(LayoutDOMView.prototype, 'bind_bokeh_events')
-      expect(spy.called).to.be.false
-      layout_view.build_child_views()
-      LayoutDOMView.prototype.bind_bokeh_events.restore()
-      expect(spy.callCount).is.equal 1
-
-    it "should call unbind_bokeh_events", ->
-      layout_view = new LayoutDOMView({ model: @layout })
-      spy = sinon.spy(LayoutDOMView.prototype, 'unbind_bokeh_events')
-      expect(spy.called).to.be.false
-      layout_view.build_child_views()
-      LayoutDOMView.prototype.unbind_bokeh_events.restore()
       expect(spy.callCount).is.equal 1
 
     it.skip "should only init the solver if requested and should invalidate all the models", ->
@@ -261,15 +220,15 @@ describe "LayoutDOM", ->
   it "should return all default constrained_variables in stretch_both sizing_mode", ->
     l = new LayoutDOM()
     expected_constrainted_variables = {
-      'width': l._width
-      'height': l._height
-      'origin-x': l._dom_left
-      'origin-y': l._dom_top
+      width: l._width
+      height: l._height
+      origin_x: l._dom_left
+      origin_y: l._dom_top
       # whitespace
-      'whitespace-top' : l._whitespace_top
-      'whitespace-bottom' : l._whitespace_bottom
-      'whitespace-left' : l._whitespace_left
-      'whitespace-right' : l._whitespace_right
+      whitespace_top : l._whitespace_top
+      whitespace_bottom : l._whitespace_bottom
+      whitespace_left : l._whitespace_left
+      whitespace_right : l._whitespace_right
     }
     l.sizing_mode = 'stretch_both'
     constrained_variables = l.get_constrained_variables()
@@ -278,12 +237,12 @@ describe "LayoutDOM", ->
   it "should not return height constraints in fixed sizing_mode", ->
     l = new LayoutDOM()
     expected_constrainted_variables = {
-      'origin-x': l._dom_left
-      'origin-y': l._dom_top
-      'whitespace-top' : l._whitespace_top
-      'whitespace-bottom' : l._whitespace_bottom
-      'whitespace-left' : l._whitespace_left
-      'whitespace-right' : l._whitespace_right
+      origin_x: l._dom_left
+      origin_y: l._dom_top
+      whitespace_top : l._whitespace_top
+      whitespace_bottom : l._whitespace_bottom
+      whitespace_left : l._whitespace_left
+      whitespace_right : l._whitespace_right
     }
     l.sizing_mode = 'fixed'
     constrained_variables = l.get_constrained_variables()
@@ -293,14 +252,14 @@ describe "LayoutDOM", ->
     l = new LayoutDOM()
     l.sizing_mode = 'scale_width'
     expected_constrainted_variables = {
-      'width': l._width
-      'origin-x': l._dom_left
-      'origin-y': l._dom_top
+      width: l._width
+      origin_x: l._dom_left
+      origin_y: l._dom_top
       # whitespace
-      'whitespace-top' : l._whitespace_top
-      'whitespace-bottom' : l._whitespace_bottom
-      'whitespace-left' : l._whitespace_left
-      'whitespace-right' : l._whitespace_right
+      whitespace_top : l._whitespace_top
+      whitespace_bottom : l._whitespace_bottom
+      whitespace_left : l._whitespace_left
+      whitespace_right : l._whitespace_right
     }
     constrained_variables = l.get_constrained_variables()
     expect(constrained_variables).to.be.deep.equal expected_constrainted_variables
@@ -309,14 +268,14 @@ describe "LayoutDOM", ->
     l = new LayoutDOM()
     l.sizing_mode = 'scale_height'
     expected_constrainted_variables = {
-      'height': l._height
-      'origin-x': l._dom_left
-      'origin-y': l._dom_top
+      height: l._height
+      origin_x: l._dom_left
+      origin_y: l._dom_top
       # whitespace
-      'whitespace-top' : l._whitespace_top
-      'whitespace-bottom' : l._whitespace_bottom
-      'whitespace-left' : l._whitespace_left
-      'whitespace-right' : l._whitespace_right
+      whitespace_top : l._whitespace_top
+      whitespace_bottom : l._whitespace_bottom
+      whitespace_left : l._whitespace_left
+      whitespace_right : l._whitespace_right
     }
     constrained_variables = l.get_constrained_variables()
     expect(constrained_variables).to.be.deep.equal expected_constrainted_variables

@@ -10,7 +10,7 @@ export class PrintfTickFormatter extends TickFormatter
     format: [ p.String, '%s' ]
   }
 
-  doFormat: (ticks, loc) ->
+  doFormat: (ticks, axis) ->
     format = @format
     labels = ( SPrintf.sprintf(format, tick) for tick in ticks )
     return labels

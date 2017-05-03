@@ -9,6 +9,10 @@ The ``bokeh-plot`` directive can be used by either supplying:
 
     .. bokeh-plot:: path/to/plot.py
 
+.. note::
+    .py scripts are not scanned automatically! In order to include
+    certain directories into .py scanning process use following directive
+    in sphinx conf.py file: bokeh_plot_pyfile_include_dirs = ["dir1","dir2"]
 
 **Inline code** as the content of the directive::
 
@@ -249,6 +253,10 @@ class BokehPlotDirective(Directive):
 
 def env_before_read_docs(app, env, docnames):
     docnames.sort(key=lambda x: 2 if "extension" in x else 0 if "examples" in x else 1)
+    for name in [x for x in docnames if env.doc2path(x).endswith(".py")]:
+        if not name.startswith(tuple(env.app.config.bokeh_plot_pyfile_include_dirs)):
+            env.found_docs.remove(name)
+            docnames.remove(name)
 
 def builder_inited(app):
     app.env.bokeh_plot_auxdir = join(app.env.doctreedir, 'bokeh_plot')
@@ -293,6 +301,9 @@ def env_purge_doc(app, env, docname):
         del env.bokeh_plot_files[docname]
 
 def setup(app):
+    """ sphinx config variable to scan .py files in provided directories only """
+    app.add_config_value('bokeh_plot_pyfile_include_dirs', [], 'html')
+
     app.add_source_parser('.py', PlotScriptParser)
 
     app.add_directive('bokeh-plot', BokehPlotDirective)

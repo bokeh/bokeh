@@ -14,20 +14,6 @@ export class LayoutCanvas extends Model
     @_right = new Variable("right #{@id}")
     @_bottom = new Variable("bottom #{@id}")
 
-  # TODO (bird) - I'd like to get rid of these to reduce confusion
-  @getters {
-    height: () -> @_height.value()
-    width: () -> @_width.value()
-    right: () -> @_right.value()
-    left: () -> @_left.value()
-    top: () -> @_top.value()
-    bottom: () -> @_bottom.value()
-  }
-
-  @internal {
-    layout_location: [ p.Any ]
-  }
-
   get_edit_variables: () ->
     editables = []
     editables.push({edit_variable: @_top, strength: Strength.strong})

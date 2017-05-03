@@ -1,41 +1,41 @@
 import {RBush} from "core/util/spatial"
 import {Glyph, GlyphView} from "./glyph"
-import {CategoricalMapper} from "../mappers/categorical_mapper"
+import {CategoricalScale} from "../scales/categorical_scale"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
 
 export class HBarView extends GlyphView
 
   _map_data: () ->
-    vy = @renderer.ymapper.v_map_to_target(@_y)
+    vy = @renderer.yscale.v_compute(@_y)
     @sy = @renderer.plot_view.canvas.v_vy_to_sy(vy)
 
-    vright = @renderer.xmapper.v_map_to_target(@_right)
-    vleft = @renderer.xmapper.v_map_to_target(@_left)
+    vright = @renderer.xscale.v_compute(@_right)
+    vleft = @renderer.xscale.v_compute(@_left)
 
     @sright = @renderer.plot_view.canvas.v_vx_to_sx(vright)
     @sleft = @renderer.plot_view.canvas.v_vx_to_sx(vleft)
 
     @stop = []
     @sbottom = []
-    @sh = @sdist(@renderer.ymapper, @_y, @_height, 'center')
+    @sh = @sdist(@renderer.yscale, @_y, @_height, 'center')
     for i in [0...@sy.length]
       @stop.push(@sy[i] - @sh[i]/2)
       @sbottom.push(@sy[i] + @sh[i]/2)
     return null
 
   _index_data: () ->
-    map_to_synthetic = (mapper, array) ->
-      if mapper instanceof CategoricalMapper
-        mapper.v_map_to_target(array, true)
+    map_to_synthetic = (scale, array) ->
+      if scale instanceof CategoricalScale
+        scale.v_compute(array, true)
       else
         array
 
-    left = map_to_synthetic(@renderer.xmapper, @_left)
-    right = map_to_synthetic(@renderer.xmapper, @_right)
+    left = map_to_synthetic(@renderer.xscale, @_left)
+    right = map_to_synthetic(@renderer.xscale, @_right)
 
-    y = map_to_synthetic(@renderer.ymapper, @_y)
-    height = map_to_synthetic(@renderer.ymapper, @_height)
+    y = map_to_synthetic(@renderer.yscale, @_y)
+    height = map_to_synthetic(@renderer.yscale, @_height)
 
     points = []
 
@@ -67,8 +67,8 @@ export class HBarView extends GlyphView
 
   _hit_point: (geometry) ->
     [vx, vy] = [geometry.vx, geometry.vy]
-    x = @renderer.xmapper.map_from_target(vx, true)
-    y = @renderer.ymapper.map_from_target(vy, true)
+    x = @renderer.xscale.invert(vx, true)
+    y = @renderer.yscale.invert(vy, true)
 
     hits = @index.indices({minX: x, minY: y, maxX: x, maxY: y})
 

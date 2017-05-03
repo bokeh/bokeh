@@ -167,6 +167,21 @@ which show how Bokeh can be used together with Jupyter interactive widgets:
 
 :bokeh-tree:`examples/howto/notebook_comms/Numba Image Example.ipynb`
 
+Zeppelin Notebooks
+==================
+
+At this point we should mention `Apache Zeppelin`_ notebooks.
+
+`Apache Zeppelin`_ is a web-based notebook that enables interactive data analytics.
+You can make beautiful data-driven, interactive and collaborative documents with
+SQL, Scala and more. It is widely used across the Spark community. Bokeh integrates
+seamlessly with Zeppelin notebooks. To view the above examples in a notebook, you
+would only need change |output_file| to |output_notebook| (notebook_type='zeppelin')
+instead.
+
+The usage of bokeh in Zeppelin notebook is no difference from Jupyter except you
+need to specify notebook_type as zeppelin.
+
 .. _quickstart_other_languages:
 
 Other Languages
@@ -543,6 +558,7 @@ Be sure to follow us on Twitter `@bokehplots <Twitter_>`_, as well as on
 .. _Twitter: http://twitter.com/BokehPlots
 .. _Vine: https://vine.co/bokehplots
 .. _YouTube: https://www.youtube.com/channel/UCK0rSk29mmg4UT4bIOvPYhw
+.. _Apache Zeppelin: http://zeppelin.apache.org
 
 .. |bokeh.charts|   replace:: :ref:`bokeh.charts <bokeh.charts>`
 .. |bokeh.models|   replace:: :ref:`bokeh.models <bokeh.models>`

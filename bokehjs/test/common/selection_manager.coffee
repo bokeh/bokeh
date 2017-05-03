@@ -7,7 +7,7 @@ SomeMarker = utils.require("models/markers/index").CircleX
 {GlyphRenderer} = utils.require("models/renderers/glyph_renderer")
 {GlyphRendererView} = utils.require("models/renderers/glyph_renderer")
 {ColumnDataSource} = utils.require("models/sources/column_data_source")
-{LinearMapper} = utils.require("models/mappers/linear_mapper")
+{LinearScale} = utils.require("models/scales/linear_scale")
 {Range1d} = utils.require("models/ranges/range1d")
 
 hittest = utils.require "core/hittest"
@@ -19,24 +19,24 @@ describe "SelectionManager", ->
   source_reverse = {start: 10, end: 0}
   target = {start: 0, end: 100}
 
-  mapper_normal = new LinearMapper({
+  scale_normal = new LinearScale({
     source_range: new Range1d(source_normal)
     target_range: new Range1d(target)
   })
 
-  mapper_reverse = new LinearMapper({
+  scale_reverse = new LinearScale({
     source_range: new Range1d(source_reverse)
     target_range: new Range1d(target)
   })
 
   # The objects defined below to stub out the Plot and PlotView depend on the current interfaces
   # of Plot and PlotView and the specific implementation of GlyphRenderer and GlyphRendererView
-  # initialization. For example, the GlyphRendererView defines its x and y mapper through:
+  # initialization. For example, the GlyphRendererView defines its x and y scale through:
 
-  # @xmapper = @plot_view.frame.x_mappers[@model.x_range_name]
-  # @ymapper = @plot_view.frame.y_mappers[@model.y_range_name]
+  # @xscale = @plot_view.frame.xscales[@model.x_range_name]
+  # @yscale = @plot_view.frame.yscales[@model.y_range_name]
 
-  # so we put the mappers (mapper_normal and mapper_reverse, defined above)
+  # so we put the scales (scale_normal and scale_reverse, defined above)
   # in the stub objects in the same "location".
 
   plot_model_stub = {
@@ -47,10 +47,10 @@ describe "SelectionManager", ->
 
   plot_view_stub_normal = {
     frame:
-      'x_mappers':
-        {'default': mapper_normal}
-      'y_mappers':
-        {'default': mapper_normal}
+      'xscales':
+        {'default': scale_normal}
+      'yscales':
+        {'default': scale_normal}
     canvas_view:
       ctx: {}
     model:
@@ -59,10 +59,10 @@ describe "SelectionManager", ->
 
   plot_view_stub_reverse = {
     frame:
-      'x_mappers':
-        {'default': mapper_reverse}
-      'y_mappers':
-        {'default': mapper_reverse}
+      'xscales':
+        {'default': scale_reverse}
+      'yscales':
+        {'default': scale_reverse}
     canvas_view:
       ctx: {}
     model:
@@ -133,7 +133,7 @@ describe "SelectionManager", ->
       sm.select('tool', glyph_renderer_view_normal, geometry, true)
       expect(sm.selectors[glyph_renderer_view_normal.model.id]).to.not.deep.equal empty_selection
 
-    it "should work when mappers are reversed", ->
+    it "should work when scales are reversed", ->
       sm = new SelectionManager({'source': column_data_source})
       sm.select('tool', glyph_renderer_view_reverse, geometry, true)
       expect(sm.source.selected).to.not.deep.equal empty_selection

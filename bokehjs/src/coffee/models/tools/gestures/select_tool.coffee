@@ -15,23 +15,23 @@ export class SelectToolView extends GestureToolView
 
   _save_geometry: (geometry, final, append) ->
     g = clone(geometry)
-    xm = @plot_view.frame.x_mappers['default']
-    ym = @plot_view.frame.y_mappers['default']
+    xm = @plot_view.frame.xscales['default']
+    ym = @plot_view.frame.yscales['default']
     switch g.type
       when 'point'
-        g.x = xm.map_from_target(g.vx)
-        g.y = ym.map_from_target(g.vy)
+        g.x = xm.invert(g.vx)
+        g.y = ym.invert(g.vy)
       when 'rect'
-        g.x0 = xm.map_from_target(g.vx0)
-        g.y0 = ym.map_from_target(g.vy0)
-        g.x1 = xm.map_from_target(g.vx1)
-        g.y1 = ym.map_from_target(g.vy1)
+        g.x0 = xm.invert(g.vx0)
+        g.y0 = ym.invert(g.vy0)
+        g.x1 = xm.invert(g.vx1)
+        g.y1 = ym.invert(g.vy1)
       when 'poly'
         g.x = new Array(g.vx.length)
         g.y = new Array(g.vy.length)
         for i in [0...g.vx.length]
-          g.x[i] = xm.map_from_target(g.vx[i])
-          g.y[i] = ym.map_from_target(g.vy[i])
+          g.x[i] = xm.invert(g.vx[i])
+          g.y[i] = ym.invert(g.vy[i])
       else
         logger.debug("Unrecognized selection geometry type: '#{g.type}'")
 

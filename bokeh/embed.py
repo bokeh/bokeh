@@ -29,8 +29,9 @@ from .core.json_encoder import serialize_json
 from .document import Document, DEFAULT_TITLE
 from .model import Model
 from .resources import BaseResources, DEFAULT_SERVER_HTTP_URL, _SessionCoordinates
+from .settings import settings
 from .util.deprecation import deprecated
-from .util.string import encode_utf8
+from .util.string import encode_utf8, format_docstring
 from .util.serialization import make_id
 from .util.compiler import bundle_all_models
 
@@ -323,10 +324,10 @@ def _bundle_for_objs_and_resources(objs, resources):
 
     return bokeh_js, bokeh_css
 
-
 def notebook_div(model, notebook_comms_target=None, theme=FromCurdoc):
-    ''' Return HTML for a div that will display a Bokeh plot in an
-    IPython Notebook
+    ''' Return HTML for a div that will display a Bokeh plot in a
+    Jupyter/Zeppelin Notebook. notebook_comms_target is only supported
+    in Jupyter for now.
 
     The data for the plot is stored directly in the returned HTML.
 
@@ -367,7 +368,7 @@ def notebook_div(model, notebook_comms_target=None, theme=FromCurdoc):
     ))
 
     js = AUTOLOAD_NB_JS.render(
-        comms_target=notebook_comms_target,
+        comms_target = notebook_comms_target,
         js_urls = [],
         css_urls = [],
         js_raw = [script],
@@ -386,7 +387,8 @@ def file_html(models,
               resources,
               title=None,
               template=FILE,
-              template_variables={}):
+              template_variables={},
+              theme=FromCurdoc):
     ''' Return an HTML document that embeds Bokeh Model or Document objects.
 
     The data for the plot is stored directly in the returned HTML, with
@@ -405,6 +407,11 @@ def file_html(models,
         template_variables (dict, optional) : variables to be used in the Jinja2
             template. If used, the following variable names will be overwritten:
             title, bokeh_js, bokeh_css, plot_script, plot_div
+        theme (Theme, optional) :
+            Defaults to the ``Theme`` instance in the current document.
+            Setting this to ``None`` uses the default theme or the theme
+            already specified in the document. Any other value must be an
+            instance of the ``Theme`` class.
 
     Returns:
         UTF-8 encoded HTML
@@ -412,7 +419,7 @@ def file_html(models,
     '''
     models = _check_models(models)
 
-    with _ModelInDocument(models):
+    with _ModelInDocument(models, apply_theme=theme):
         (docs_json, render_items) = _standalone_docs_json_and_render_items(models)
         title = _title_from_models(models, title)
         bundle = _bundle_for_objs_and_resources(models, resources)
@@ -502,7 +509,7 @@ def autoload_server(model=None, app_path=None, session_id=None, url="default", r
 
         url (str, optional) : A URL to a Bokeh application on a Bokeh server
 
-            If ``None`` the default URL ``%s`` will be used.
+            If ``None`` the default URL ``{DEFAULT_SERVER_HTTP_URL}`` will be used.
 
         relative_urls (bool, optional) :
             Whether to use relative URLs for resources.
@@ -616,15 +623,20 @@ def autoload_server(model=None, app_path=None, session_id=None, url="default", r
 
     return encode_utf8(tag)
 
-autoload_server.__doc__ = autoload_server.__doc__ % DEFAULT_SERVER_HTTP_URL
+autoload_server.__doc__ = format_docstring(autoload_server.__doc__, DEFAULT_SERVER_HTTP_URL=DEFAULT_SERVER_HTTP_URL)
 
 def _script_for_render_items(docs_json, render_items, app_path=None, absolute_url=None):
-    return _wrap_in_onload(_wrap_in_safely(DOC_JS.render(
+    js = DOC_JS.render(
         docs_json=serialize_json(docs_json),
         render_items=serialize_json(render_items),
         app_path=app_path,
         absolute_url=absolute_url,
-    )))
+    )
+
+    if not settings.dev:
+        js = _wrap_in_safely(js)
+
+    return _wrap_in_onload(js)
 
 def _html_page_for_render_items(bundle, docs_json, render_items, title,
                                 template=FILE, template_variables={}):

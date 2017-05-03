@@ -21,7 +21,7 @@ export class BasicTickFormatter extends TickFormatter
     super(attrs, options)
     @last_precision = 3
 
-  doFormat: (ticks, loc) ->
+  doFormat: (ticks, axis) ->
     if ticks.length == 0
       return []
 

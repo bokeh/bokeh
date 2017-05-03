@@ -1,6 +1,5 @@
 import {Models} from "./base"
 import {version as js_version} from "./version"
-import {EQ, Solver, Variable} from "./core/layout/solver"
 import {logger} from "./core/logging"
 import {HasProps} from "./core/has_props"
 import {is_ref} from "./core/util/refs"
@@ -104,70 +103,7 @@ export class Document
     @_all_models_by_name = new MultiDict()
     @_all_models_freeze_count = 0
     @_callbacks = []
-    @_doc_width = new Variable("document_width")
-    @_doc_height = new Variable("document_height")
-    @_solver = new Solver()
-    @_init_solver()
-
     @event_manager = new EventManager(@)
-    window.addEventListener("resize", () => @resize())
-
-  _init_solver : () ->
-    @_solver.clear()
-    @_solver.add_edit_variable(@_doc_width)
-    @_solver.add_edit_variable(@_doc_height)
-    for model in @_roots
-      if model.layoutable
-        @_add_layoutable(model)
-
-  solver: () ->
-    @_solver
-
-  resize: (width=null, height=null) ->
-    # Notes on resizing (xx:yy means event yy on object xx):
-    # window:event -> document.resize() -> solver:resize
-    #   -> LayoutDOM.render()
-    #   -> PlotCanvas.resize() -> solver:update_layout
-
-    # Ideally the solver would settle in one pass (can that be done?),
-    # but it currently needs two passes to get it right.
-    # Seems to be needed everywhere on initialization, and on Windows
-    # it seems necessary on each Draw
-    @_resize(width, height)
-    @_resize(width, height)
-
-  _resize: (width=null, height=null) ->
-    for root in @_roots
-      if root.layoutable isnt true
-        continue
-
-      vars = root.get_constrained_variables()
-      if not vars.width? and not vars.height?
-        continue
-
-      # Find the html element
-      root_div = document.getElementById("modelid_#{root.id}")
-
-      # Start working upwards until you find a height to pin against - usually .bk-root
-      if root_div? and width == null
-        measuring = root_div
-        while true
-          measuring = measuring.parentNode
-          {width, height} = measuring.getBoundingClientRect()
-          if height != 0
-            break
-
-      # Set the constraints on root
-      if vars.width?
-        logger.debug("Suggest width on Document -- #{width}")
-        @_solver.suggest_value(@_doc_width, width)
-      if vars.height?
-        logger.debug("Suggest height on Document -- #{height}")
-        @_solver.suggest_value(@_doc_height, height)
-
-    # Finally update everything only once.
-    @_solver.update_variables(false)
-    @_solver.trigger('resize')
 
   clear : () ->
     @_push_all_models_freeze()
@@ -243,29 +179,7 @@ export class Document
 
     @_all_models = recomputed
 
-  roots : () ->
-    @_roots
-
-  _add_layoutable: (model) ->
-    if model.layoutable isnt true
-      throw new Error("Cannot add non-layoutable - #{model}")
-
-    editables = model.get_edit_variables()
-    constraints = model.get_constraints()
-    vars = model.get_constrained_variables()
-
-    for {edit_variable, strength} in editables
-      @_solver.add_edit_variable(edit_variable, strength)
-
-    for constraint in constraints
-      @_solver.add_constraint(constraint)
-
-    if vars.width?
-      @_solver.add_constraint(EQ(vars.width, @_doc_width))
-    if vars.height?
-      @_solver.add_constraint(EQ(vars.height, @_doc_height))
-
-    @_solver.update_variables()
+  roots: () -> @_roots
 
   add_root : (model, setter_id) ->
     logger.debug("Adding root: #{model}")
@@ -276,11 +190,8 @@ export class Document
     @_push_all_models_freeze()
     try
       @_roots.push(model)
-      model._is_root = true # TODO get rid of this?
     finally
       @_pop_all_models_freeze()
-
-    @_init_solver()
 
     @_trigger_on_change(new RootAddedEvent(@, model, setter_id))
 
@@ -292,11 +203,8 @@ export class Document
     @_push_all_models_freeze()
     try
       @_roots.splice(i, 1)
-      model._is_root = false
     finally
       @_pop_all_models_freeze()
-
-    @_init_solver()
 
     @_trigger_on_change(new RootRemovedEvent(@, model, setter_id))
 
