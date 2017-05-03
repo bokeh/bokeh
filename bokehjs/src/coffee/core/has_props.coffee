@@ -231,7 +231,8 @@ export class HasProps
     )
     # bind depdencies to change dep callback
     for fld in fields
-      @listenTo(object.properties[fld].change, prop_spec['callbacks']['changedep'])
+      prop = object.properties[fld] ? object._computed[fld]
+      @listenTo(prop.change, prop_spec['callbacks']['changedep'])
 
   define_computed_property: (prop_name, getter, use_cache=true) ->
     # #### Parameters
