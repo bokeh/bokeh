@@ -25,10 +25,10 @@ export class ColorBarView extends AnnotationView
     @listenTo(@model.properties.visible.change, () => @plot_view.request_render())
     @listenTo(@model.ticker.change, () => @plot_view.request_render())
     @listenTo(@model.formatter.change, () => @plot_view.request_render())
-    @listenTo(@model.color_mapper.change, () ->
-      @_set_canvas_image()
-      @plot_view.request_render()
-      )
+    if @model.color_mapper?
+      @listenTo @model.color_mapper.change, () ->
+        @_set_canvas_image()
+        @plot_view.request_render()
 
   _get_panel_offset: () ->
     # ColorBars draw from the top down, so set the y_panel_offset to _top
