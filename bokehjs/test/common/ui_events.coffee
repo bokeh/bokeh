@@ -234,7 +234,7 @@ describe "ui_events module", ->
       e.pointerType = "mouse"
       e.srcEvent = {pageX: 100, pageY: 200}
 
-      @ui_events._bokify_hammer(e, {})
+      @ui_events._bokify_hammer(e)
 
       bk_event = @spy.args[0][0]
 
@@ -248,7 +248,7 @@ describe "ui_events module", ->
       e.pageX = 100
       e.pageY = 200
 
-      @ui_events._bokify_point_event(e, {})
+      @ui_events._bokify_point_event(e)
 
       bk_event = @spy.args[0][0]
 
@@ -281,7 +281,7 @@ describe "ui_events module", ->
 
       @plot.add_tools(new TapTool())
 
-      @ui_events._tap(e, {})
+      @ui_events._tap(e)
 
       assert(@spy_plot.calledOnce)
       assert(@spy_uievent.calledOnce)
@@ -293,7 +293,7 @@ describe "ui_events module", ->
 
       @plot.add_tools(new PolySelectTool())
 
-      @ui_events._doubletap(e, {})
+      @ui_events._doubletap(e)
 
       assert(@spy_plot.calledOnce)
       assert(@spy_uievent.calledOnce)
@@ -303,7 +303,7 @@ describe "ui_events module", ->
       e.pointerType = "mouse"
       e.srcEvent = {pageX: 100, pageY: 200}
 
-      @ui_events._press(e, {})
+      @ui_events._press(e)
 
       assert(@spy_plot.calledOnce)
       # There isn't a tool that uses the _press method
@@ -317,7 +317,7 @@ describe "ui_events module", ->
       pan_tool = new PanTool()
       @plot.add_tools(pan_tool)
 
-      @ui_events._pan_start(e, {})
+      @ui_events._pan_start(e)
 
       assert(@spy_plot.calledOnce)
       assert(@spy_uievent.calledOnce)
@@ -330,7 +330,7 @@ describe "ui_events module", ->
       pan_tool = new PanTool()
       @plot.add_tools(pan_tool)
 
-      @ui_events._pan(e, {})
+      @ui_events._pan(e)
 
       assert(@spy_plot.calledOnce)
       assert(@spy_uievent.calledOnce)
@@ -343,7 +343,7 @@ describe "ui_events module", ->
       pan_tool = new PanTool()
       @plot.add_tools(pan_tool)
 
-      @ui_events._pan_end(e, {})
+      @ui_events._pan_end(e)
 
       assert(@spy_plot.calledOnce)
       assert(@spy_uievent.calledOnce)
@@ -359,7 +359,7 @@ describe "ui_events module", ->
       #idk why it's not auto active
       @plot.toolbar.gestures['pinch'].active = wheel_zoom_tool
 
-      @ui_events._pinch_start(e, {})
+      @ui_events._pinch_start(e)
 
       assert(@spy_plot.calledOnce)
       # wheelzoomtool doesn't have _pinch_start but will emit event anyway
@@ -376,7 +376,7 @@ describe "ui_events module", ->
       #idk why it's not auto active
       @plot.toolbar.gestures['pinch'].active = wheel_zoom_tool
 
-      @ui_events._pinch(e, {})
+      @ui_events._pinch(e)
 
       assert(@spy_plot.calledOnce)
       assert(@spy_uievent.calledOnce)
@@ -392,7 +392,7 @@ describe "ui_events module", ->
       #idk why it's not auto active
       @plot.toolbar.gestures['pinch'].active = wheel_zoom_tool
 
-      @ui_events._pinch_end(e, {})
+      @ui_events._pinch_end(e)
 
       assert(@spy_plot.calledOnce)
       # wheelzoomtool doesn't have _pinch_start but will emit event anyway
@@ -413,7 +413,7 @@ describe "ui_events module", ->
       crosshair_tool = new CrosshairTool()
       @plot.add_tools(crosshair_tool)
 
-      @ui_events._mouse_enter(e, {})
+      @ui_events._mouse_enter(e)
 
       assert(@spy_plot.calledOnce)
       assert(@spy_uievent.calledOnce)
@@ -424,7 +424,7 @@ describe "ui_events module", ->
       crosshair_tool = new CrosshairTool()
       @plot.add_tools(crosshair_tool)
 
-      @ui_events._mouse_move(e, {})
+      @ui_events._mouse_move(e)
 
       assert(@spy_plot.calledOnce)
       assert(@spy_uievent.calledOnce)
@@ -435,7 +435,7 @@ describe "ui_events module", ->
       crosshair_tool = new CrosshairTool()
       @plot.add_tools(crosshair_tool)
 
-      @ui_events._mouse_exit(e, {})
+      @ui_events._mouse_exit(e)
 
       assert(@spy_plot.calledOnce)
       assert(@spy_uievent.calledOnce)
@@ -449,7 +449,7 @@ describe "ui_events module", ->
       #idk why it's not auto active
       @plot.toolbar.gestures['scroll'].active = wheel_zoom_tool
 
-      @ui_events._mouse_wheel(e, {})
+      @ui_events._mouse_wheel(e)
 
       assert(@spy_plot.calledOnce)
       assert(@spy_uievent.calledOnce)
@@ -463,7 +463,7 @@ describe "ui_events module", ->
       poly_select_tool = new PolySelectTool()
       @plot.add_tools(poly_select_tool)
 
-      @ui_events._key_up(e, {})
+      @ui_events._key_up(e)
 
       # There isn't a BokehEvent model for keydown events
       # assert(@spy_plot.calledOnce)
