@@ -1,5 +1,7 @@
 // Based on https://github.com/phosphorjs/phosphor/blob/master/packages/signaling/src/index.ts
 
+import * as WeakMap from "es6-weak-map"
+
 import {find} from "./util/array"
 
 export namespace Signalable {
