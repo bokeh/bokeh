@@ -13,6 +13,7 @@ from ..core.validation import error, warning
 from ..core.validation.errors import REQUIRED_RANGE
 from ..core.validation.warnings import (MISSING_RENDERERS, NO_DATA_RENDERERS,
                                         MALFORMED_CATEGORY_LABEL, SNAPPED_TOOLBAR_ANNOTATIONS)
+from ..util.deprecation import deprecated
 from ..util.plot_utils import _list_attr_splat, _select_helper
 from ..util.string import nice_join
 
@@ -23,6 +24,7 @@ from .grids import Grid
 from .layouts import LayoutDOM
 from .ranges import Range, FactorRange
 from .renderers import DataRenderer, DynamicImageRenderer, GlyphRenderer, Renderer, TileRenderer
+from .scales import Scale, CategoricalScale, LinearScale, LogScale
 from .sources import DataSource, ColumnDataSource
 from .tools import Tool, Toolbar, ToolEvents
 
@@ -36,16 +38,28 @@ class Plot(LayoutDOM):
             kwargs["tool_events"] = ToolEvents()
 
         if "toolbar" in kwargs and "logo" in kwargs:
-            raise ValueError("Conflicing properties set on plot: toolbar, logo.")
+            raise ValueError("Conflicting properties set on plot: toolbar, logo.")
 
         if "toolbar" in kwargs and "tools" in kwargs:
-            raise ValueError("Conflicing properties set on plot: toolbar, tools.")
+            raise ValueError("Conflicting properties set on plot: toolbar, tools.")
 
         if "toolbar" not in kwargs:
             tools = kwargs.pop('tools', [])
             logo = kwargs.pop('logo', 'normal')
 
             kwargs["toolbar"] = Toolbar(tools=tools, logo=logo)
+
+        if "x_mapper_type" in kwargs and "x_scale" in kwargs:
+            raise ValueError("Conflicting properties set on plot: x_mapper_type, x_scale.")
+
+        elif "x_mapper_type" in kwargs:
+            kwargs["x_scale"] = self._scale(kwargs.pop("x_mapper_type"))
+
+        if "y_mapper_type" in kwargs and "y_scale" in kwargs:
+            raise ValueError("Conflicting properties set on plot: y_mapper_type, y_scale")
+
+        elif "y_mapper_type" in kwargs:
+            kwargs["y_scale"] = self._scale(kwargs.pop("y_mapper_type"))
 
         super(LayoutDOM, self).__init__(**kwargs)
 
@@ -371,8 +385,41 @@ class Plot(LayoutDOM):
     The (default) data range of the vertical dimension of the plot.
     """)
 
-    x_mapper_type = Either(Auto, String, help="""
-    What kind of mapper to use to convert x-coordinates in data space
+    @classmethod
+    def _scale(cls, scale):
+        if scale == "auto":
+            return Auto
+        if scale == "categorical":
+            return CategoricalScale()
+        elif scale == "linear":
+            return LinearScale()
+        elif scale == "log":
+            return LogScale()
+        else:
+            raise ValueError("Unknown mapper_type")
+
+    @property
+    def x_mapper_type(self):
+        deprecated((0, 12, 6), "x_mapper_type", "x_scale")
+        return self.x_scale
+
+    @x_mapper_type.setter
+    def x_mapper_type(self, mapper_type):
+        deprecated((0, 12, 6), "x_mapper_type", "x_scale")
+        self.x_scale = self._scale(mapper_type)
+
+    @property
+    def y_mapper_type(self):
+        deprecated((0, 12, 6), "y_mapper_type", "y_scale")
+        return self.y_scale
+
+    @y_mapper_type.setter
+    def y_mapper_type(self, mapper_type):
+        deprecated((0, 12, 6), "y_mapper_type", "y_scale")
+        self.y_scale = self._scale(mapper_type)
+
+    x_scale = Either(Auto, Instance(Scale), help="""
+    What kind of scale to use to convert x-coordinates in data space
     into x-coordinates in screen space.
 
     Typically this can be determined automatically, but this property
@@ -380,8 +427,8 @@ class Plot(LayoutDOM):
     "seconds since epoch" instead of formatted dates.
     """)
 
-    y_mapper_type = Either(Auto, String, help="""
-    What kind of mapper to use to convert y-coordinates in data space
+    y_scale = Either(Auto, Instance(Scale), help="""
+    What kind of scale to use to convert y-coordinates in data space
     into y-coordinates in screen space.
 
     Typically this can be determined automatically, but this property
