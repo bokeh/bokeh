@@ -12,7 +12,7 @@ export class TooltipView extends AnnotationView
     @el.style.zIndex = 1010
     hide(@el)
 
-  bind_bokeh_events: () ->
+  connect_signals: () ->
     @listenTo(@model.properties.data.change, @_draw_tips)
 
   render: () ->

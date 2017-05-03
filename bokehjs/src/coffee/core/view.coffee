@@ -25,7 +25,7 @@ export class View
 
   remove: () ->
     @_parent = undefined
-    Signal.disconnectReceiver(@)
+    @disconnect_signals()
     @removed.emit()
 
   toString: () -> "#{@model.type}View(#{@id})"
@@ -40,4 +40,7 @@ export class View
       return @parent == null
   }
 
-  bind_bokeh_events: () ->
+  connect_signals: () ->
+
+  disconnect_signals: () ->
+    Signal.disconnectReceiver(@)

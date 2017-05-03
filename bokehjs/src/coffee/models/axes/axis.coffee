@@ -25,7 +25,7 @@ export class AxisView extends RendererView
     @_draw_axis_label(ctx)
     ctx.restore()
 
-  bind_bokeh_events: () ->
+  connect_signals: () ->
     @listenTo(@model.change, () => @plot_view.request_render())
 
   _get_size: () ->

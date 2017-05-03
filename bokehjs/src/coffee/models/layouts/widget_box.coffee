@@ -11,7 +11,7 @@ export class WidgetBoxView extends LayoutDOMView
     super(options)
     @render()
 
-  bind_bokeh_events: () ->
+  connect_signals: () ->
     super()
     @listenTo(@model.properties.children.change, () => @rebuild_child_views())
 

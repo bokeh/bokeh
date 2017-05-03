@@ -13,7 +13,7 @@ export class ToolView extends View
     plot_model: () -> @plot_view.model
   }
 
-  bind_bokeh_events: () ->
+  connect_signals: () ->
     @listenTo(@model.properties.active.change, () =>
       if @model.active
         @activate()

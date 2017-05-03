@@ -11,7 +11,7 @@ export class BoxAnnotationView extends AnnotationView
     @el.classList.add("bk-shading")
     hide(@el)
 
-  bind_bokeh_events: () ->
+  connect_signals: () ->
     # need to respond to either normal BB change events or silent
     # "data only updates" that tools might want to use
     if @model.render_mode == 'css'

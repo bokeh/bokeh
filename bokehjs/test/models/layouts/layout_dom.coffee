@@ -177,7 +177,7 @@ describe "LayoutDOMView", ->
       # Write this test
       null
 
-  describe "unbind_bokeh_events", ->
+  describe "disconnect_signals", ->
 
     it.skip "should have tests", ->
       # Check that listening actually stops on model and its descendents

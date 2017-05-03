@@ -10,7 +10,7 @@ export class SpanView extends AnnotationView
     @el.style.position = "absolute"
     hide(@el)
 
-  bind_bokeh_events: () ->
+  connect_signals: () ->
     if @model.for_hover
       @listenTo(@model.properties.computed_location.change, @_draw_span)
     else

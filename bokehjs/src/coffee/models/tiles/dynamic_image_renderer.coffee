@@ -4,7 +4,7 @@ import * as p from "core/properties"
 
 export class DynamicImageView extends RendererView
 
-  bind_bokeh_events: () ->
+  connect_signals: () ->
     @listenTo(@model.change, @request_render)
 
   get_extent: () ->

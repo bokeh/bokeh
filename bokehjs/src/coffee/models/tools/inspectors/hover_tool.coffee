@@ -22,7 +22,7 @@ _color_to_hex = (color) ->
 
 export class HoverToolView extends InspectToolView
 
-  bind_bokeh_events: () ->
+  connect_signals: () ->
     for r in @model.computed_renderers
       @listenTo(r.data_source.inspect, @_update)
 

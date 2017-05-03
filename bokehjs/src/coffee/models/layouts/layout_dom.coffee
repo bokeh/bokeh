@@ -31,7 +31,7 @@ export class LayoutDOMView extends DOMView
     if @is_root
       defer(() => @resize())
 
-    @bind_bokeh_events()
+    @connect_signals()
 
   remove: () ->
     for _, view of @child_views
@@ -127,7 +127,7 @@ export class LayoutDOMView extends DOMView
       child_view = @child_views[child.id]
       @el.appendChild(child_view.el)
 
-  bind_bokeh_events: () ->
+  connect_signals: () ->
     if @is_root
       window.addEventListener("resize", () => @resize())
 

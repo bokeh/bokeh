@@ -8,7 +8,7 @@ export class BandView extends AnnotationView
     super(options)
     @set_data(@model.source)
 
-  bind_bokeh_events: () ->
+  connect_signals: () ->
     super()
     @listenTo(@model.source, 'change', () ->
       @set_data(@model.source)

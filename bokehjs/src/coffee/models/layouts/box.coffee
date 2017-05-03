@@ -10,7 +10,7 @@ import {LayoutDOM, LayoutDOMView} from "./layout_dom"
 export class BoxView extends LayoutDOMView
   className: "bk-grid"
 
-  bind_bokeh_events: () ->
+  connect_signals: () ->
     super()
     @listenTo(@model.properties.children.change, () => @rebuild_child_views())
 

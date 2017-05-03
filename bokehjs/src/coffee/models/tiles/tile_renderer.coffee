@@ -11,7 +11,7 @@ export class TileRendererView extends RendererView
     @attributionEl = null
     super
 
-  bind_bokeh_events: () ->
+  connect_signals: () ->
     @listenTo(@model.change, @request_render)
 
   get_extent: () ->
