@@ -25,6 +25,7 @@ mocha = (options={}) ->
       args = args.concat(
         ["--compilers", "coffee:coffee-script/register"],
         ["--reporter", argv.reporter ? "spec"],
+        ["--slow", "5s"]
         ["./test/index.coffee"],
         @_files,
       )
