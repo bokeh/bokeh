@@ -1,22 +1,18 @@
 import {proj4, mercator} from "core/util/proj4"
 
 import {PlotCanvas, PlotCanvasView} from "./plot_canvas"
-import {Events} from "core/events"
+import {Signal} from "core/signaling"
 import {extend} from "core/util/object"
 
-load_google_api = (api_key) ->
-  callback = null
-  callback = () -> callback.trigger("gmaps_ready")
-  extend(callback, Events)
+gmaps_ready = new Signal(this, "gmaps_ready")
 
-  window._bokeh_gmaps_callback = callback
+load_google_api = (api_key) ->
+  window._bokeh_gmaps_callback = () -> gmaps_ready.emit()
 
   script = document.createElement('script')
   script.type = 'text/javascript'
   script.src = "https://maps.googleapis.com/maps/api/js?key=#{api_key}&callback=_bokeh_gmaps_callback"
   document.body.appendChild(script)
-
-  return callback
 
 export class GMapPlotCanvasView extends PlotCanvasView
 
@@ -32,10 +28,9 @@ export class GMapPlotCanvasView extends PlotCanvasView
     @canvas_view.map_el.style.position = "absolute"
 
     if not window.google?.maps?
-      cb = window._bokeh_gmaps_callback
-      if not cb?
-        cb = load_google_api(@model.plot.api_key)
-      cb.once("gmaps_ready", () => @request_render())
+      if not window._bokeh_gmaps_callback?
+        load_google_api(@model.plot.api_key)
+      gmaps_ready.connect(() => @request_render())
 
   update_range: (range_info) ->
     # RESET -------------------------
