@@ -234,16 +234,16 @@ describe "properties module", ->
 
     describe "changing the property attribute value", ->
       it "should trigger change on the property", ->
-        obj = new SomeHasProps(a: {value: "foo"})
-        prop = new properties.Property({obj: obj, attr: 'a'})
+        obj = new SomeHasProps({a: {value: "foo"}})
+        prop = obj.properties.a
         stuff = {called: false}
-        prop.listenTo(prop.change, () -> stuff.called = true)
+        prop.change.connect(() -> stuff.called = true)
         obj.a = {value: "bar"}
         expect(stuff.called).to.be.true
 
       it "should update the spec", ->
         obj = new SomeHasProps(a: {value: "foo"})
-        prop = new properties.Property({obj: obj, attr: 'a'})
+        prop = obj.properties.a
         obj.a = {value: "bar"}
         expect(prop.spec).to.be.deep.equal {value: "bar"}
 
