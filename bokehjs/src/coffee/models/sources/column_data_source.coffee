@@ -1,6 +1,5 @@
 import {ColumnarDataSource} from "./columnar_data_source"
 import {HasProps} from "core/has_props"
-import {Signal} from "core/signaling"
 import * as p from "core/properties"
 import * as serialization from "core/util/serialization"
 import {isObject} from "core/util/types"
@@ -64,13 +63,6 @@ export class ColumnDataSource extends ColumnarDataSource
 
   initialize: (options) ->
     super(options)
-
-    @select = new Signal(this, "select")
-    @inspect = new Signal(this, "inspect")
-
-    @streaming = new Signal(this, "streaming")
-    @patching = new Signal(this, "patching")
-
     [@data, @_shapes] = serialization.decode_column_data(@data)
 
   @define {
