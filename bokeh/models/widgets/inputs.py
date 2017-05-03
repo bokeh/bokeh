@@ -285,13 +285,12 @@ class TextareaInput(InputWidget):
     cols = Int(default=20, help="""
     Specifies the width of the text area (in average character width). Default: 20
     """)
- 
+
     rows = Int(default=2, help="""
     Specifies the height of the text area (in lines). Default: 2
     """)
- 
+
     max_length = Int(default=None, help="""
     Max count of characters in field
     """)
-
 
