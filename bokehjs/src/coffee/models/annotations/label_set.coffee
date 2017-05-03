@@ -18,17 +18,17 @@ export class LabelSetView extends TextAnnotationView
   connect_signals: () ->
     if @model.render_mode == 'css'
       # dispatch CSS update immediately
-      @listenTo(@model.change, () ->
+      @connectTo(@model.change, () ->
         @set_data(@model.source)
         @render())
-      @listenTo(@model.source.change, () ->
+      @connectTo(@model.source.change, () ->
         @set_data(@model.source)
         @render())
     else
-      @listenTo(@model.change, () ->
+      @connectTo(@model.change, () ->
         @set_data(@model.source)
         @plot_view.request_render())
-      @listenTo(@model.source.change, () ->
+      @connectTo(@model.source.change, () ->
         @set_data(@model.source)
         @plot_view.request_render())
 

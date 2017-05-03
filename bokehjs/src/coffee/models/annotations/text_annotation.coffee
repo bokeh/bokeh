@@ -17,9 +17,9 @@ export class TextAnnotationView extends AnnotationView
   connect_signals: () ->
     if @model.render_mode == 'css'
       # dispatch CSS update immediately
-      @listenTo(@model.change, @render)
+      @connectTo(@model.change, @render)
     else
-      @listenTo(@model.change, () => @plot_view.request_render())
+      @connectTo(@model.change, () => @plot_view.request_render())
 
   _calculate_text_dimensions: (ctx, text) ->
     width = ctx.measureText(text).width

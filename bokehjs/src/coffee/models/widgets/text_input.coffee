@@ -14,7 +14,7 @@ export class TextInputView extends InputWidgetView
   initialize: (options) ->
     super(options)
     @render()
-    @listenTo(@model.change, @render)
+    @connectTo(@model.change, @render)
 
   render: () ->
     super()

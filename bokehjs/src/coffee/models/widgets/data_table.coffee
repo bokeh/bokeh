@@ -94,11 +94,11 @@ export class DataTableView extends WidgetView
   initialize: (options) ->
     super(options)
     wait_for_element(@el, () => @render())
-    @listenTo(@model.change, () => @render())
-    @listenTo(@model.source.properties.data.change, () => @updateGrid())
-    @listenTo(@model.source.streaming, () => @updateGrid())
-    @listenTo(@model.source.patching, () => @updateGrid())
-    @listenTo(@model.source.properties.selected.change, () => @updateSelection())
+    @connectTo(@model.change, () => @render())
+    @connectTo(@model.source.properties.data.change, () => @updateGrid())
+    @connectTo(@model.source.streaming, () => @updateGrid())
+    @connectTo(@model.source.patching, () => @updateGrid())
+    @connectTo(@model.source.properties.selected.change, () => @updateSelection())
 
     @in_selection_update = false
 

@@ -14,7 +14,7 @@ export class CheckboxButtonGroupView extends WidgetView
   initialize: (options) ->
     super(options)
     @render()
-    @listenTo(@model.change, @render)
+    @connectTo(@model.change, @render)
 
   render: () ->
     super()

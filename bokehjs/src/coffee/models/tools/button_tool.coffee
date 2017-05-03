@@ -8,7 +8,7 @@ export class ButtonToolButtonView extends DOMView
 
   initialize: (options) ->
     super(options)
-    @listenTo(@model.change, () => @render())
+    @connectTo(@model.change, () => @render())
     @el.addEventListener("click", (e) => @_clicked(e))
     @render()
 

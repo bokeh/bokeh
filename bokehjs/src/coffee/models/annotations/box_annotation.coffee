@@ -16,11 +16,11 @@ export class BoxAnnotationView extends AnnotationView
     # "data only updates" that tools might want to use
     if @model.render_mode == 'css'
       # dispatch CSS update immediately
-      @listenTo(@model.change, @render)
-      @listenTo(@model.data_update, @render)
+      @connectTo(@model.change, @render)
+      @connectTo(@model.data_update, @render)
     else
-      @listenTo(@model.change, () => @plot_view.request_render())
-      @listenTo(@model.data_update, () => @plot_view.request_render())
+      @connectTo(@model.change, () => @plot_view.request_render())
+      @connectTo(@model.data_update, () => @plot_view.request_render())
 
   render: () ->
     if not @model.visible and @model.render_mode == 'css'

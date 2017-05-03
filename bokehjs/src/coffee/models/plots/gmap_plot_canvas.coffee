@@ -108,13 +108,13 @@ export class GMapPlotCanvasView extends PlotCanvasView
     maps.event.addListenerOnce(@map, 'idle', @_set_bokeh_ranges)
 
     # wire up listeners so that changes to properties are reflected
-    @listenTo(@model.plot.properties.map_options.change, () => @_update_options())
-    @listenTo(@model.plot.map_options.properties.styles.change, () => @_update_styles())
-    @listenTo(@model.plot.map_options.properties.lat.change, () => @_update_center('lat'))
-    @listenTo(@model.plot.map_options.properties.lng.change, () => @_update_center('lng'))
-    @listenTo(@model.plot.map_options.properties.zoom.change, () => @_update_zoom())
-    @listenTo(@model.plot.map_options.properties.map_type.change, () => @_update_map_type())
-    @listenTo(@model.plot.map_options.properties.scale_control.change, () => @_update_scale_control())
+    @connectTo(@model.plot.properties.map_options.change, () => @_update_options())
+    @connectTo(@model.plot.map_options.properties.styles.change, () => @_update_styles())
+    @connectTo(@model.plot.map_options.properties.lat.change, () => @_update_center('lat'))
+    @connectTo(@model.plot.map_options.properties.lng.change, () => @_update_center('lng'))
+    @connectTo(@model.plot.map_options.properties.zoom.change, () => @_update_zoom())
+    @connectTo(@model.plot.map_options.properties.map_type.change, () => @_update_map_type())
+    @connectTo(@model.plot.map_options.properties.scale_control.change, () => @_update_scale_control())
 
   _get_latlon_bounds: () =>
     bounds = @map.getBounds()

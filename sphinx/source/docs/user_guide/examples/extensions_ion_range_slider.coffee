@@ -15,7 +15,7 @@ export class IonRangeSliderView extends InputWidgetView
 
   initialize: (options) ->
     super(options)
-    @listenTo(@model.change, @render)
+    @connectTo(@model.change, @render)
     @$el.empty()
     html = @template(@model.attributes)
     @$el.html(html)

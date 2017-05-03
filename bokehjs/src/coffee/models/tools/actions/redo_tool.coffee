@@ -4,7 +4,7 @@ export class RedoToolView extends ActionToolView
 
   initialize: (options) ->
     super(options)
-    @listenTo(@plot_view.state_changed, () => @model.disabled = not @plot_view.can_redo())
+    @connectTo(@plot_view.state_changed, () => @model.disabled = not @plot_view.can_redo())
 
   doit: () ->
     @plot_view.redo()

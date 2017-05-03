@@ -5,7 +5,7 @@ import * as WeakMap from "es6-weak-map"
 import {find} from "./util/array"
 
 export namespace Signalable {
-  export function listenTo<Args, Sender extends object>(this: object, signal: Signal<Args, Sender>, slot: Slot<Args, Sender>): boolean {
+  export function connectTo<Args, Sender extends object>(this: object, signal: Signal<Args, Sender>, slot: Slot<Args, Sender>): boolean {
     return signal.connect(slot, this)
   }
 }

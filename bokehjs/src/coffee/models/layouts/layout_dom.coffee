@@ -131,9 +131,9 @@ export class LayoutDOMView extends DOMView
     if @is_root
       window.addEventListener("resize", () => @resize())
 
-    @listenTo(@model.change, () => @render())
+    @connectTo(@model.change, () => @render())
 
-    @listenTo @solver.resize, () =>
+    @connectTo @solver.resize, () =>
       if @model.sizing_mode != 'fixed' or not @_did_render
         @_did_render = true
         @render()
@@ -144,7 +144,7 @@ export class LayoutDOMView extends DOMView
     # a machinery for this. Other things with a similar problem are axes and
     # title.
     sizing_mode_msg = "Changing sizing_mode after initialization is not currently supported."
-    @listenTo(@model.properties.sizing_mode.change, () -> logger.warn(sizing_mode_msg))
+    @connectTo(@model.properties.sizing_mode.change, () -> logger.warn(sizing_mode_msg))
 
   render: () ->
     switch @model.sizing_mode

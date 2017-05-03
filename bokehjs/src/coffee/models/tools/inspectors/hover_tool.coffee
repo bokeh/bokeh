@@ -24,7 +24,7 @@ export class HoverToolView extends InspectToolView
 
   connect_signals: () ->
     for r in @model.computed_renderers
-      @listenTo(r.data_source.inspect, @_update)
+      @connectTo(r.data_source.inspect, @_update)
 
   _clear: () ->
 

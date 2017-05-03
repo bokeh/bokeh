@@ -29,8 +29,8 @@ export class FactorRange extends Range
       @setv({_bounds_as_factors: @factors}, {silent: true})
 
     @_init()
-    @listenTo(@.properties.factors.change, @_update_factors)
-    @listenTo(@.properties.offset.change, @_init)
+    @connectTo(@.properties.factors.change, @_update_factors)
+    @connectTo(@.properties.offset.change, @_init)
 
   @getters {
     min: () -> @start

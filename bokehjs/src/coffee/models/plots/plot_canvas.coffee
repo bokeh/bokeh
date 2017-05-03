@@ -462,16 +462,16 @@ export class PlotCanvasView extends DOMView
       @ui_event_bus.register_tool(tool_view)
 
   connect_signals: () ->
-    @listenTo(@force_render, () => @render())
+    @connectTo(@force_render, () => @render())
     for name, rng of @model.frame.x_ranges
-      @listenTo(rng.change, @request_render)
+      @connectTo(rng.change, @request_render)
     for name, rng of @model.frame.y_ranges
-      @listenTo(rng.change, @request_render)
-    @listenTo(@model.plot.properties.renderers.change, () => @build_levels())
-    @listenTo(@model.plot.toolbar.properties.tools.change, () => @build_levels(); @build_tools())
-    @listenTo(@model.plot.change, @request_render)
-    @listenTo(@solver.layout_update, () => @request_render())
-    @listenTo(@solver.layout_update, () =>
+      @connectTo(rng.change, @request_render)
+    @connectTo(@model.plot.properties.renderers.change, () => @build_levels())
+    @connectTo(@model.plot.toolbar.properties.tools.change, () => @build_levels(); @build_tools())
+    @connectTo(@model.plot.change, @request_render)
+    @connectTo(@solver.layout_update, () => @request_render())
+    @connectTo(@solver.layout_update, () =>
       @model.plot.setv({
         inner_width: Math.round(@frame._width.value)
         inner_height: Math.round(@frame._height.value)
@@ -479,7 +479,7 @@ export class PlotCanvasView extends DOMView
         layout_height: Math.round(@canvas._height.value)
       }, {no_change: true})
     )
-    @listenTo(@solver.resize, () => @_on_resize())
+    @connectTo(@solver.resize, () => @_on_resize())
 
   set_initial_range : () ->
     # check for good values for ranges before setting initial range

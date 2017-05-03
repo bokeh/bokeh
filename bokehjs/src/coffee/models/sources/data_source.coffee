@@ -13,7 +13,7 @@ export class DataSource extends Model
 
   initialize: (options) ->
     super(options)
-    @listenTo @.properties.selected.change, () =>
+    @connectTo @.properties.selected.change, () =>
       callback = @callback
       if callback?
         if isFunction(callback)

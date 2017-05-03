@@ -13,7 +13,7 @@ export class WidgetBoxView extends LayoutDOMView
 
   connect_signals: () ->
     super()
-    @listenTo(@model.properties.children.change, () => @rebuild_child_views())
+    @connectTo(@model.properties.children.change, () => @rebuild_child_views())
 
   render: () ->
     update_layout = false

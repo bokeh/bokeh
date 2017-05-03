@@ -7,7 +7,7 @@ export class ImageView extends XYGlyphView
 
   initialize: (options) ->
     super(options)
-    @listenTo(@model.color_mapper.change, @_update_image)
+    @connectTo(@model.color_mapper.change, @_update_image)
 
   _update_image: () ->
     # Only reset image_data if already initialized

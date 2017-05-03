@@ -12,7 +12,7 @@ export class TileRendererView extends RendererView
     super
 
   connect_signals: () ->
-    @listenTo(@model.change, @request_render)
+    @connectTo(@model.change, @request_render)
 
   get_extent: () ->
     return [@x_range.start, @y_range.start, @x_range.end, @y_range.end]

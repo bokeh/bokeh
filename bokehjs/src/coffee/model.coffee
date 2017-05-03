@@ -21,12 +21,12 @@ export class Model extends HasProps
       [evt, attr=null] = evt.split(':')
       for cb in callbacks
         if attr != null
-          @listenTo(@properties[attr][evt], () -> cb.execute(@))
+          @connectTo(@properties[attr][evt], () -> cb.execute(@))
         else
-          @listenTo(@[evt], () -> cb.execute(@))
+          @connectTo(@[evt], () -> cb.execute(@))
 
-    @listenTo(@.properties.js_event_callbacks.change, () -> @_update_event_callbacks)
-    @listenTo(@.properties.subscribed_events.change, () -> @_update_event_callbacks)
+    @connectTo(@.properties.js_event_callbacks.change, () -> @_update_event_callbacks)
+    @connectTo(@.properties.subscribed_events.change, () -> @_update_event_callbacks)
 
   _process_event: (event) ->
     if event.is_applicable_to(this)

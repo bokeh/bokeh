@@ -16,7 +16,7 @@ export class CartesianFrame extends LayoutCanvas
     @panel = @
 
     @_configure_scales()
-    @listenTo(@change, () => @_configure_scales())
+    @connectTo(@change, () => @_configure_scales())
 
     return null
 

@@ -14,7 +14,7 @@ export class ToolView extends View
   }
 
   connect_signals: () ->
-    @listenTo(@model.properties.active.change, () =>
+    @connectTo(@model.properties.active.change, () =>
       if @model.active
         @activate()
       else

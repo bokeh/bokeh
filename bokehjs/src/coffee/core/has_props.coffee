@@ -138,7 +138,7 @@ export class HasProps
     for name, prop of @properties
       prop.update()
       if prop.spec.transform
-        @listenTo(prop.spec.transform.change, () -> @transformchange.emit())
+        @connectTo(prop.spec.transform.change, () -> @transformchange.emit())
 
   destroy: () ->
     Signal.disconnectReceiver(@)
@@ -232,7 +232,7 @@ export class HasProps
     # bind depdencies to change dep callback
     for fld in fields
       prop = object.properties[fld] ? object._computed[fld]
-      @listenTo(prop.change, prop_spec['callbacks']['changedep'])
+      @connectTo(prop.change, prop_spec['callbacks']['changedep'])
 
   define_computed_property: (prop_name, getter, use_cache=true) ->
     # #### Parameters
@@ -277,7 +277,7 @@ export class HasProps
     @_computed[prop_name] = prop_spec
 
     # bind propchange callback to change dep event
-    @listenTo(@_computed[prop_name].changedep, prop_spec['callbacks']['propchange'])
+    @connectTo(@_computed[prop_name].changedep, prop_spec['callbacks']['propchange'])
 
     return prop_spec
 

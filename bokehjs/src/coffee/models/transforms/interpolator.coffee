@@ -9,7 +9,7 @@ export class Interpolator extends Transform
     @_y_sorted = []
     @_sorted_dirty = true
 
-    @listenTo(@change, () -> @_sorted_dirty = true)
+    @connectTo(@change, () -> @_sorted_dirty = true)
 
   @define {
     x:    [ p.Any]
