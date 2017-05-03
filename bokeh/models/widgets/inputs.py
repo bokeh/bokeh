@@ -265,7 +265,7 @@ class DatePicker(InputWidget):
     """)
 
 class TextareaInput(InputWidget):
-    ''' Single-line input widget.
+    ''' Multi-line input widget.
 
     '''
 
@@ -282,15 +282,15 @@ class TextareaInput(InputWidget):
     Placeholder for empty input field
     """)
 
-    cols = String(default="", help="""
-    Column count
+    cols = Int(default=20, help="""
+    Specifies the width of the text area (in average character width). Default: 20
     """)
-
-    rows = String(default="", help="""
-    Row count
+ 
+    rows = Int(default=2, help="""
+    Specifies the height of the text area (in lines). Default: 2
     """)
-
-    maxlength = String(default="", help="""
+ 
+    max_length = Int(default=None, help="""
     Max count of characters in field
     """)
 
