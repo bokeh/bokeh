@@ -61,7 +61,7 @@ export class SelectionManager extends HasProps
 
       @source.setv({inspected: inspector.indices}, {"silent": true })
 
-      source.inspect.emit(indices, tool, renderer_view, source, data)
+      source.inspect.emit([indices, tool, renderer_view, source, data])
       return not indices.is_empty()
     else
       return false

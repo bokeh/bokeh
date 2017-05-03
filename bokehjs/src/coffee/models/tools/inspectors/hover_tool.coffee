@@ -74,7 +74,7 @@ export class HoverToolView extends InspectToolView
 
     return
 
-  _update: (indices, tool, renderer, ds, {geometry}) ->
+  _update: ([indices, tool, renderer, ds, {geometry}]) ->
     if not @model.active
       return
 
