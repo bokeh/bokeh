@@ -15,13 +15,13 @@ export class Property # <T>
   dataspec: false
 
   constructor: ({@obj, @attr, @default_value}) ->
-    @_init(false)
+    @_init()
 
     # Signal<T, HasProps>
     @change = new Signal(@obj, "change")
 
     # TODO (bev) Quick fix, see https://github.com/bokeh/bokeh/pull/2684
-    @listenTo(@obj.properties[attr].change, () =>
+    @listenTo(@change, () =>
       @_init()
       @obj.propchange.emit()
     )
@@ -67,7 +67,7 @@ export class Property # <T>
 
   # ----- private methods
 
-  _init: (trigger=true) ->
+  _init: () ->
     obj = @obj
     if not obj?
       throw new Error("missing property object")
@@ -109,9 +109,6 @@ export class Property # <T>
       @validate(@spec.value)
 
     @init()
-
-    if trigger
-      @change.emit()
 
 #
 # Simple Properties
