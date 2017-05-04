@@ -4,16 +4,19 @@ import * as p from "core/properties"
 
 export class LinearScale extends Scale
 
-  initialize: (attrs, options) ->
-    super(attrs, options)
-
-    @define_computed_property('state', @_state, true)
-    @add_dependencies('state', this, ['source_range', 'target_range'])
-    @add_dependencies('state', @source_range, ['start', 'end'])
-    @add_dependencies('state', @target_range, ['start', 'end'])
+  connect_signals: () ->
+    super()
+    @connectTo(@properties.source_range.change,       () -> @_state = null)
+    @connectTo(@properties.target_range.change,       () -> @_state = null)
+    @connectTo(@source_range.properties.start.change, () -> @_state = null)
+    @connectTo(@source_range.properties.end.change,   () -> @_state = null)
+    @connectTo(@target_range.properties.start.change, () -> @_state = null)
+    @connectTo(@target_range.properties.end.change,   () -> @_state = null)
 
   @getters {
-    state: () -> @_get_computed('state')
+    state: () ->
+      if not @_state? then @_state = @_compute_state()
+      return @_state
   }
 
   compute: (x) ->
@@ -38,7 +41,7 @@ export class LinearScale extends Scale
       result[idx] = (xprime - offset) / factor
     return result
 
-  _state: () ->
+  _compute_state: () ->
     #
     #  (t1 - t0)       (t1 - t0)
     #  --------- * x - --------- * s0 + t0
