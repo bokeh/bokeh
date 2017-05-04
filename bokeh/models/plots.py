@@ -6,7 +6,7 @@ from __future__ import absolute_import
 from six import string_types
 
 from ..core.enums import Location
-from ..core.properties import Auto, Bool, Dict, Either, Enum, Include, Instance, Int, List, Override, String
+from ..core.properties import Bool, Dict, Enum, Include, Instance, Int, List, Override, String
 from ..core.property_mixins import LineProps, FillProps
 from ..core.query import find
 from ..core.validation import error, warning
@@ -387,8 +387,8 @@ class Plot(LayoutDOM):
 
     @classmethod
     def _scale(cls, scale):
-        if scale == "auto":
-            return Auto
+        if scale == "auto" or scale is None:
+            return None
         if scale == "categorical":
             return CategoricalScale()
         elif scale == "linear":
@@ -418,22 +418,22 @@ class Plot(LayoutDOM):
         deprecated((0, 12, 6), "y_mapper_type", "y_scale")
         self.y_scale = self._scale(mapper_type)
 
-    x_scale = Either(Auto, Instance(Scale), help="""
+    x_scale = Instance(Scale, help="""
     What kind of scale to use to convert x-coordinates in data space
     into x-coordinates in screen space.
 
-    Typically this can be determined automatically, but this property
-    can be useful to, e.g., show datetime values as floating point
-    "seconds since epoch" instead of formatted dates.
+    If set to ``None``, but will infer an appropriate scale type based on
+    the default range in x-dimension. Numeric ranges will use a LinearScale
+    and FactorRanges will use a CategoricalScale.
     """)
 
-    y_scale = Either(Auto, Instance(Scale), help="""
+    y_scale = Instance(Scale, help="""
     What kind of scale to use to convert y-coordinates in data space
     into y-coordinates in screen space.
 
-    Typically this can be determined automatically, but this property
-    can be useful to, e.g., show datetime values as floating point
-    "seconds since epoch" instead of formatted dates
+    If set to ``None``, but will infer an appropriate scale type based on
+    the default range in x-dimension. Numeric ranges will use a LinearScale
+    and FactorRanges will use a CategoricalScale.
     """)
 
     extra_x_ranges = Dict(String, Instance(Range), help="""
