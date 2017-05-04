@@ -320,7 +320,7 @@ export class HoverTool extends InspectTool
 
   connect_signals: () ->
     super()
-    @connectTo(@plot.properties.renderers.change, () -> @_computed_renderers = @_ttmodels = null)
+    # TODO: @connectTo(@plot.properties.renderers.change, () -> @_computed_renderers = @_ttmodels = null)
     @connectTo(@properties.renderers.change,      () -> @_computed_renderers = @_ttmodels = null)
     @connectTo(@properties.names.change,          () -> @_computed_renderers = @_ttmodels = null)
     @connectTo(@properties.plot.change,           () -> @_computed_renderers = @_ttmodels = null)

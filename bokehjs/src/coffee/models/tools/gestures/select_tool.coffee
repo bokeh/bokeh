@@ -59,7 +59,7 @@ export class SelectTool extends GestureTool
 
   connect_signals: () ->
     super()
-    @connectTo(@plot.properties.renderers.change, () -> @_computed_renderers = null)
+    # TODO: @connectTo(@plot.properties.renderers.change, () -> @_computed_renderers = null)
     @connectTo(@properties.renderers.change,      () -> @_computed_renderers = null)
     @connectTo(@properties.names.change,          () -> @_computed_renderers = null)
     @connectTo(@properties.plot.change,           () -> @_computed_renderers = null)
