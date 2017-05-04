@@ -283,3 +283,12 @@ export function difference<T>(array: Array<T>, ...arrays: Array<Array<T>>): Arra
   const rest = concat(arrays)
   return array.filter((value) => !contains(rest, value))
 }
+
+export function removeBy<T>(array: Array<T>, key: (item: T) => boolean): void {
+  for (let i = 0; i < array.length;) {
+    if (key(array[i]))
+      array.splice(i, 1)
+    else
+      i++
+  }
+}

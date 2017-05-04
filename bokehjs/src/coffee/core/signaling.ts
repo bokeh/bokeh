@@ -1,45 +1,11 @@
 // Based on https://github.com/phosphorjs/phosphor/blob/master/packages/signaling/src/index.ts
 
-import * as WeakMap from "es6-weak-map"
+import WeakMap = require("es6-weak-map")
 
 import {logger} from "./logging"
-import {find} from "./util/array"
+import {find, removeBy} from "./util/array"
 
-export namespace Signalable {
-  export function connectTo<Args, Sender extends object>(this: object, signal: Signal<Args, Sender>, slot: Slot<Args, Sender>): boolean {
-    return signal.connect(slot, this)
-  }
-
-  export function listenTo<Args, Sender extends object>(this: object, event: string, slot: Slot<Args, Sender>): boolean {
-    logger.warn("obj.listenTo('event', handler) is deprecated, use obj.connectTo(signal, slot)")
-    const [name, attr] = event.split(":")
-    const signal = (attr == null) ? (this as any)[name] : (this as any).properties[attr][name]
-    return (signal as Signal<Args, Sender>).connect(slot, this)
-  }
-
-  export function trigger<Args, Sender extends object>(this: object, event: string, args: Args): void {
-    logger.warn("obj.trigger('event', args) is deprecated, use signal.emit(args)")
-    const [name, attr] = event.split(":")
-    const signal = (attr == null) ? (this as any)[name] : (this as any).properties[attr][name]
-    return (signal as Signal<Args, Sender>).emit(args)
-  }
-}
-
-export type Slot<Args, Sender extends object> =
-  ((args: Args, sender: Sender) => void) | ((args: Args) => void) | (() => void)
-
-interface Connection {
-  signal: Signal<any, object> | null
-  readonly slot: Slot<any, object>
-  readonly context: object | null
-}
-
-const receiversForSender = new WeakMap<object, Connection[]>()
-const sendersForReceiver = new WeakMap<object, Connection[]>()
-
-function findConnection(conns: Connection[], signal: Signal<any, any>, slot: Slot<any, any>, context: any): Connection | undefined {
-  return find(conns, conn => conn.signal === signal && conn.slot === slot && conn.context === context)
-}
+export type Slot<Args, Sender extends object> = ((args: Args, sender: Sender) => void) | ((args: Args) => void) | (() => void)
 
 export class Signal<Args, Sender extends object> {
 
@@ -89,8 +55,8 @@ export class Signal<Args, Sender extends object> {
     const senders = sendersForReceiver.get(receiver)!
 
     connection.signal = null
-    //scheduleCleanup(receivers)
-    //scheduleCleanup(senders)
+    scheduleCleanup(receivers)
+    scheduleCleanup(senders)
 
     return true
   }
@@ -107,16 +73,48 @@ export class Signal<Args, Sender extends object> {
 }
 
 export namespace Signal {
-  /*
   export function disconnectBetween(sender: object, receiver: object): void {
+    const receivers = receiversForSender.get(sender)
+    if (receivers == null || receivers.length === 0)
+      return
+
+    const senders = sendersForReceiver.get(receiver)
+    if (senders == null || senders.length === 0)
+      return
+
+    for (const connection of senders) {
+      if (connection.signal == null)
+        return
+
+      if (connection.signal.sender === sender)
+        connection.signal = null
+    }
+
+    scheduleCleanup(receivers)
+    scheduleCleanup(senders)
   }
 
   export function disconnectSender(sender: object): void {
+    const receivers = receiversForSender.get(sender)
+    if (receivers == null || receivers.length === 0)
+      return
+
+    for (const connection of receivers) {
+      if (connection.signal == null)
+        return
+
+      const receiver = connection.context || connection.slot
+      connection.signal = null
+      scheduleCleanup(sendersForReceiver.get(receiver)!)
+    }
+
+    scheduleCleanup(receivers)
   }
-  */
 
   export function disconnectReceiver(receiver: object): void {
-    const senders = sendersForReceiver.get(receiver) || []
+    const senders = sendersForReceiver.get(receiver)
+    if (senders == null || senders.length === 0)
+      return
 
     for (const connection of senders) {
       if (connection.signal == null)
@@ -124,17 +122,78 @@ export namespace Signal {
 
       const sender = connection.signal.sender
       connection.signal = null
-
-      // Cleanup the array of receivers, which is now known to exist.
-      //scheduleCleanup(receiversForSender.get(sender)!)
+      scheduleCleanup(receiversForSender.get(sender)!)
     }
 
-    // Schedule a cleanup of the list of senders.
-    //scheduleCleanup(senders)
+    scheduleCleanup(senders)
   }
 
-  /*
   export function disconnectAll(obj: object): void {
+    const receivers = receiversForSender.get(obj)
+    if (receivers != null && receivers.length !== 0) {
+      for (const connection of receivers) {
+        connection.signal = null
+      }
+      scheduleCleanup(receivers)
+    }
+
+    const senders = sendersForReceiver.get(obj)
+    if (senders != null && senders.length !== 0) {
+      for (const connection of senders) {
+        connection.signal = null
+      }
+      scheduleCleanup(senders)
+    }
   }
-  */
 }
+
+export namespace Signalable {
+  export function connectTo<Args, Sender extends object>(this: object, signal: Signal<Args, Sender>, slot: Slot<Args, Sender>): boolean {
+    return signal.connect(slot, this)
+  }
+
+  export function listenTo<Args, Sender extends object>(this: object, event: string, slot: Slot<Args, Sender>): boolean {
+    logger.warn("obj.listenTo('event', handler) is deprecated, use obj.connectTo(signal, slot)")
+    const [name, attr] = event.split(":")
+    const signal = (attr == null) ? (this as any)[name] : (this as any).properties[attr][name]
+    return (signal as Signal<Args, Sender>).connect(slot, this)
+  }
+
+  export function trigger<Args, Sender extends object>(this: object, event: string, args: Args): void {
+    logger.warn("obj.trigger('event', args) is deprecated, use signal.emit(args)")
+    const [name, attr] = event.split(":")
+    const signal = (attr == null) ? (this as any)[name] : (this as any).properties[attr][name]
+    return (signal as Signal<Args, Sender>).emit(args)
+  }
+}
+
+interface Connection {
+  signal: Signal<any, object> | null
+  readonly slot: Slot<any, object>
+  readonly context: object | null
+}
+
+const receiversForSender = new WeakMap<object, Connection[]>()
+const sendersForReceiver = new WeakMap<object, Connection[]>()
+
+function findConnection(conns: Connection[], signal: Signal<any, any>, slot: Slot<any, any>, context: any): Connection | undefined {
+  return find(conns, conn => conn.signal === signal && conn.slot === slot && conn.context === context)
+}
+
+const dirtySet = new Set<Connection[]>()
+
+function scheduleCleanup(connections: Connection[]): void {
+  if (dirtySet.size === 0) {
+    schedule(cleanupDirtySet);
+  }
+  dirtySet.add(connections);
+}
+
+function cleanupDirtySet(): void {
+  dirtySet.forEach((connections) => {
+    removeBy(connections, (connection) => connection.signal == null)
+  })
+  dirtySet.clear()
+}
+
+const schedule = window.requestAnimationFrame
