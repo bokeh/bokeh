@@ -38,6 +38,9 @@ export class ColorBarView extends AnnotationView
     return {x: x, y: -y}
 
   _get_size: () ->
+    if not @model.color_mapper?
+      return
+
     bbox = @compute_legend_dimensions()
     side = @model.panel.side
     if side == 'above' or side == 'below'
