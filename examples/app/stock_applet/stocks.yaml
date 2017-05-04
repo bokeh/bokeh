@@ -1,0 +1,118 @@
+name: stocks_app
+title: Stocks App
+
+
+datasets:
+  main_source: !ColumnDataSource
+    tags: ['main_source']
+
+ui:
+  scatterplot: !figure
+    figure:
+      width: 400
+      height: 400
+      tools: pan,wheel_zoom,box_select,reset
+      title_text_font_size: 10pt
+      title: "{{ '%s vs %s' % (ticker1.value, ticker2.value) }}"
+
+    glyphs:
+      circle:
+        x: x_returns
+        y: y_returns
+        size: 2
+        nonselection_alpha: 0.02
+        source: main_source
+
+  line1: !figure
+    figure:
+      width: 1000
+      height: 200
+      tools: pan,wheel_zoom,box_select,reset
+      title_text_font_size: 10pt
+      x_axis_type: datetime
+      title: "{{ ticker1.value }}"
+
+    glyphs:
+      circle:
+        x: date
+        y: x
+        size: 2
+        nonselection_alpha: 0.02
+        source: main_source
+
+  line2: !figure
+    figure:
+      width: 1000
+      height: 200
+      tools: pan,wheel_zoom,box_select,reset
+      title_text_font_size: 10pt
+      x_axis_type: datetime
+      title: "{{ ticker2.value }}"
+
+    glyphs:
+      circle:
+        x: date
+        y: y
+        size: 2
+        nonselection_alpha: 0.02
+        source: main_source
+
+  statstext: !PreText
+#    name: statstext
+    width: 500
+
+  ticker1: !Select
+    value: AAPL
+    options: ['AAPL', 'GOOG', 'INTC', 'BRCM', 'YHOO']
+#    name: ticker1
+
+  ticker2: !Select
+    value: GOOG
+    options: ['AAPL', 'GOOG', 'INTC', 'BRCM', 'YHOO']
+#    name: ticker2
+
+#  hist1: !figure
+#    figure:
+#      width: 500
+#      height: 200
+#      tools: ''
+#      title_text_font_size: 10pt
+#      title: AAPL Histogram
+#
+#  hist2: !figure
+#    figure:
+#      width: 500
+#      height: 200
+#      tools: ''
+#      title_text_font_size: 10pt
+#      title: GOOG Histogram
+
+
+layout:
+    widgets: !AppVBox
+  #    name: widgets
+    children: ['ticker1', 'ticker2']
+
+  row1: !AppHBox
+#    name: row1
+    children: ['scatterplot', 'statstext']
+
+  row2: !AppHBox
+#    name: row2
+    children: ['hist1', 'hist2']
+
+  all_plots: !AppVBox
+#    name: all_plots
+    children: ['row1', 'row2', 'line1', 'line2']
+
+  app: !AppHBox
+#    name: app
+    children: ['widgets', 'all_plots']
+
+event_handlers:
+  module: stocks_utils
+
+  update_selection: !Event
+    tags: main_source
+    property: selected
+    handler: update_selection
