@@ -21,6 +21,7 @@ export class GridView extends RendererView
     ctx.restore()
 
   connect_signals: () ->
+    super()
     @connectTo(@model.change, @request_render)
 
   _draw_regions: (ctx) ->

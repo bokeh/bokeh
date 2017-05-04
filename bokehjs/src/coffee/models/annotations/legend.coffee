@@ -11,6 +11,7 @@ export class LegendView extends AnnotationView
     super(options)
 
   connect_signals: () ->
+    super()
     @connectTo(@model.properties.visible.change, () => @plot_view.request_render())
 
   compute_legend_bbox: () ->

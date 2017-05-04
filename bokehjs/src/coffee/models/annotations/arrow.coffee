@@ -13,6 +13,7 @@ export class ArrowView extends AnnotationView
     @set_data(@model.source)
 
   connect_signals: () ->
+    super()
     @connectTo(@model.change, () => @plot_view.request_render())
     @connectTo(@model.source.change, () ->
       @set_data(@model.source)

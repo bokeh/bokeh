@@ -12,6 +12,7 @@ export class BoxAnnotationView extends AnnotationView
     hide(@el)
 
   connect_signals: () ->
+    super()
     # need to respond to either normal BB change events or silent
     # "data only updates" that tools might want to use
     if @model.render_mode == 'css'

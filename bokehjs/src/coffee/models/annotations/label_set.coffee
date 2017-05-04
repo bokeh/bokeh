@@ -16,6 +16,7 @@ export class LabelSetView extends TextAnnotationView
         @el.appendChild(@title_div)
 
   connect_signals: () ->
+    super()
     if @model.render_mode == 'css'
       # dispatch CSS update immediately
       @connectTo(@model.change, () ->

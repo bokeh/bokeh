@@ -70,6 +70,7 @@ export class GlyphRendererView extends RendererView
     new model.default_view({model: model, renderer: @, plot_view: @plot_view, parent: @})
 
   connect_signals: () ->
+    super()
     @connectTo(@model.change, @request_render)
     @connectTo(@model.data_source.change, @set_data)
     @connectTo(@model.data_source.streaming, @set_data)

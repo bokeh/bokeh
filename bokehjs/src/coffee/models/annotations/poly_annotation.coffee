@@ -5,6 +5,7 @@ import * as p from "core/properties"
 export class PolyAnnotationView extends AnnotationView
 
   connect_signals: () ->
+    super()
     # need to respond to either normal BB change events or silent
     # "data only updates" that tools might want to use
     @connectTo(@model.change, () => @plot_view.request_render())

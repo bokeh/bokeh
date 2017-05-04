@@ -22,6 +22,7 @@ export class ColorBarView extends AnnotationView
     @_set_canvas_image()
 
   connect_signals: () ->
+    super()
     @connectTo(@model.properties.visible.change, () => @plot_view.request_render())
     @connectTo(@model.ticker.change, () => @plot_view.request_render())
     @connectTo(@model.formatter.change, () => @plot_view.request_render())

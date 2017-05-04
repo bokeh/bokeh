@@ -26,6 +26,7 @@ export class AxisView extends RendererView
     ctx.restore()
 
   connect_signals: () ->
+    super()
     @connectTo(@model.change, () => @plot_view.request_render())
 
   _get_size: () ->

@@ -23,6 +23,7 @@ _color_to_hex = (color) ->
 export class HoverToolView extends InspectToolView
 
   connect_signals: () ->
+    super()
     for r in @model.computed_renderers
       @connectTo(r.data_source.inspect, @_update)
 

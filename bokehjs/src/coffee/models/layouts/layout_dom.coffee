@@ -128,6 +128,8 @@ export class LayoutDOMView extends DOMView
       @el.appendChild(child_view.el)
 
   connect_signals: () ->
+    super()
+
     if @is_root
       window.addEventListener("resize", () => @resize())
 

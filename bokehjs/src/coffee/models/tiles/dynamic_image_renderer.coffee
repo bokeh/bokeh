@@ -5,6 +5,7 @@ import * as p from "core/properties"
 export class DynamicImageView extends RendererView
 
   connect_signals: () ->
+    super()
     @connectTo(@model.change, @request_render)
 
   get_extent: () ->

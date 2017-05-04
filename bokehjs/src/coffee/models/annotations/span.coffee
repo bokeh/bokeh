@@ -11,6 +11,7 @@ export class SpanView extends AnnotationView
     hide(@el)
 
   connect_signals: () ->
+    super()
     if @model.for_hover
       @connectTo(@model.properties.computed_location.change, @_draw_span)
     else

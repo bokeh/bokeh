@@ -15,6 +15,7 @@ export class TextAnnotationView extends AnnotationView
       @plot_view.canvas_overlays.appendChild(@el)
 
   connect_signals: () ->
+    super()
     if @model.render_mode == 'css'
       # dispatch CSS update immediately
       @connectTo(@model.change, @render)

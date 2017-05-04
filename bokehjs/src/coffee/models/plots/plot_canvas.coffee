@@ -462,6 +462,7 @@ export class PlotCanvasView extends DOMView
       @ui_event_bus.register_tool(tool_view)
 
   connect_signals: () ->
+    super()
     @connectTo(@force_render, () => @render())
     for name, rng of @model.frame.x_ranges
       @connectTo(rng.change, @request_render)

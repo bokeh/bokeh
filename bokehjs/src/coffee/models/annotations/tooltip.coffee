@@ -13,6 +13,7 @@ export class TooltipView extends AnnotationView
     hide(@el)
 
   connect_signals: () ->
+    super()
     @connectTo(@model.properties.data.change, @_draw_tips)
 
   render: () ->
