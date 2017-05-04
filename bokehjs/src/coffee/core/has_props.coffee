@@ -85,7 +85,7 @@ export class HasProps
 
   toString: () -> "#{@type}(#{@id})"
 
-  constructor: (attributes, options) ->
+  constructor: (attributes={}, options={}) ->
     @document = null
 
     @destroyed = new Signal(this, "destroyed")
@@ -93,9 +93,6 @@ export class HasProps
     @propchange = new Signal(this, "propchange")
     @transformchange = new Signal(this, "transformchange")
 
-    attrs = attributes || {}
-    if not options
-      options = {}
     this.attributes = {}
 
     @properties = {}
@@ -107,12 +104,12 @@ export class HasProps
     # Bokeh specific
     this._set_after_defaults = {}
 
-    this.setv(attrs, options)
+    this.setv(attributes, options)
 
     ## bokeh custom constructor code
 
     # auto generating ID
-    if not attrs.id?
+    if not attributes.id?
       this.id = uniqueId(this.type)
 
     # allowing us to defer initialization when loading many models
@@ -120,9 +117,9 @@ export class HasProps
     # because other objects that this one depends on might not be loaded yet
 
     if not options.defer_initialization
-      this.initialize.apply(this, arguments)
+      @finalize(attributes, options)
 
-  initialize: (options) ->
+  finalize: (attributes, options) ->
     # This is necessary because the initial creation of properties relies on
     # model.get which is not usable at that point yet in the constructor. This
     # initializer is called when deferred initialization happens for all models
@@ -137,8 +134,18 @@ export class HasProps
       if prop.spec.transform
         @connectTo(prop.spec.transform.change, () -> @transformchange.emit())
 
-  destroy: () ->
+    @initialize(attributes, options)
+    @connect_signals()
+
+  initialize: (attributes, options) ->
+
+  connect_signals: () ->
+
+  disconnect_signals: () ->
     Signal.disconnectReceiver(@)
+
+  destroy: () ->
+    @disconnect_signals()
     @destroyed.emit()
 
   # Create a new model with identical attributes to this one.
