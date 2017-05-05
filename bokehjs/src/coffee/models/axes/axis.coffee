@@ -254,13 +254,6 @@ export class Axis extends GuideRenderer
     panel_side: [ p.Any ]
   }
 
-  initialize: (attrs, options) ->
-    super(attrs, options)
-
-    @define_computed_property('computed_bounds', @_computed_bounds, false)
-    @add_dependencies('computed_bounds', this, ['bounds'])
-    @add_dependencies('computed_bounds', @plot, ['x_range', 'y_range'])
-
   compute_labels: (ticks) ->
     labels = @formatter.doFormat(ticks, @)
     for i in [0...ticks.length]
@@ -269,7 +262,7 @@ export class Axis extends GuideRenderer
     return labels
 
   @getters {
-    computed_bounds: () -> @_get_computed('computed_bounds')
+    computed_bounds: () -> @_computed_bounds()
     rule_coords: () -> @_rule_coords()
     tick_coords: () -> @_tick_coords()
     ranges: () -> @_ranges()
