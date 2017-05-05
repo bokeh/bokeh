@@ -42,26 +42,6 @@ export class CartesianFrame extends LayoutCanvas
         ranges[name] = extra_range
     return ranges
 
-  # _get_scales: (scale_type_name, ranges, frame_range) ->
-  #   scales = {}
-  #   for name, range of ranges
-  #     if range.type == "Range1d" or range.type == "DataRange1d"
-  #       if scale_type_name == "log"
-  #         scale_type = LogScale
-  #       else
-  #         scale_type = LinearScale
-  #       range.scale_hint = scale_type_name
-  #     else if range.type == "FactorRange"
-  #       scale_type = CategoricalScale
-  #     else
-  #       logger.warn("unknown range type for range '#{name}': #{range}")
-  #       return null
-  #     scales[name] = new scale_type({
-  #       source_range: range
-  #       target_range: frame_range
-  #     })
-  #   return scales
-
   _get_scales: (scale, ranges, frame_range) ->
     scales = {}
     for name, range of ranges
