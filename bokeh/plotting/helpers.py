@@ -16,7 +16,8 @@ from ..models import (
     FactorRange, Grid, HelpTool, HoverTool, LassoSelectTool, Legend, LegendItem, LinearAxis,
     LogAxis, PanTool, ZoomInTool, ZoomOutTool, PolySelectTool, ContinuousTicker,
     SaveTool, Range, Range1d, UndoTool, RedoTool, ResetTool, ResizeTool, Tool,
-    WheelPanTool, WheelZoomTool, ColumnarDataSource, ColumnDataSource, GlyphRenderer)
+    WheelPanTool, WheelZoomTool, ColumnarDataSource, ColumnDataSource, GlyphRenderer,
+    LogScale)
 
 from ..core.properties import ColorSpec, Datetime, value, field
 from ..util.deprecation import deprecated
@@ -302,11 +303,10 @@ def _process_axis_and_grid(plot, axis_type, axis_location, minor_ticks, axis_lab
     if axiscls:
 
         if axiscls is LogAxis:
-            # TODO (bev) this mapper type hinting is ugly
             if dim == 0:
-                plot.x_mapper_type = 'log'
+                plot.x_scale = LogScale()
             elif dim == 1:
-                plot.y_mapper_type = 'log'
+                plot.y_scale = LogScale()
             else:
                 raise ValueError("received invalid dimension value: %r" % dim)
 
