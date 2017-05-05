@@ -71,5 +71,5 @@ export class SelectTool extends GestureTool
     return renderers
 
   @getters {
-    computed_renderers: () -> @_computed_renderers()
+    computed_renderers: @_computed_renderers
   }
