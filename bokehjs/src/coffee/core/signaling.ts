@@ -147,6 +147,12 @@ export namespace Signal {
   }
 }
 
+export interface Signalable {
+  connectTo<Args, Sender extends object>(this: object, signal: Signal<Args, Sender>, slot: Slot<Args, Sender>): boolean
+  listenTo<Args, Sender extends object>(this: object, event: string, slot: Slot<Args, Sender>): boolean
+  trigger<Args>(this: object, event: string, args: Args): void
+}
+
 export namespace Signalable {
   export function connectTo<Args, Sender extends object>(this: object, signal: Signal<Args, Sender>, slot: Slot<Args, Sender>): boolean {
     return signal.connect(slot, this)
@@ -159,11 +165,11 @@ export namespace Signalable {
     return (signal as Signal<Args, Sender>).connect(slot, this)
   }
 
-  export function trigger<Args, Sender extends object>(this: object, event: string, args: Args): void {
+  export function trigger<Args>(this: object, event: string, args: Args): void {
     logger.warn("obj.trigger('event', args) is deprecated, use signal.emit(args)")
     const [name, attr] = event.split(":")
     const signal = (attr == null) ? (this as any)[name] : (this as any).properties[attr][name]
-    return (signal as Signal<Args, Sender>).emit(args)
+    return (signal as Signal<Args, any>).emit(args)
   }
 }
 
