@@ -48,5 +48,5 @@ export class LinearScale extends Scale
   }
 
   @getters {
-    state: @_state
+    state: () -> @_state()
   }

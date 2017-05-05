@@ -101,5 +101,5 @@ export class LogScale extends Scale
   }
 
   @getters {
-    state: @_state
+    state: () -> @_state()
   }
