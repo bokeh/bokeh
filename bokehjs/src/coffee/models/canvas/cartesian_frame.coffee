@@ -45,8 +45,10 @@ export class CartesianFrame extends LayoutCanvas
   _get_scales: (scale, ranges, frame_range) ->
     scales = {}
     for name, range of ranges
-      if range.type == 'Range1d' or range.type == "DataRange1d"
-        s = if scale? then scale else new LinearScale()
+      if scale?
+        s = scale
+      else if range.type == 'Range1d' or range.type == "DataRange1d"
+        s = new LinearScale()
       else if range.type == "FactorRange"
         s = new CategoricalScale()
       else
