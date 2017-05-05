@@ -5,22 +5,22 @@ import * as p from "core/properties"
 export class LinearScale extends Scale
 
   compute: (x) ->
-    [factor, offset] = @_state()
+    [factor, offset] = @state
     return factor * x + offset
 
   v_compute: (xs) ->
-    [factor, offset] = @_state()
+    [factor, offset] = @state
     result = new Float64Array(xs.length)
     for x, idx in xs
       result[idx] = factor * x + offset
     return result
 
   invert: (xprime) ->
-    [factor, offset] = @_state()
+    [factor, offset] = @state
     return (xprime - offset) / factor
 
   v_invert: (xprimes) ->
-    [factor, offset] = @_state()
+    [factor, offset] = @state
     result = new Float64Array(xprimes.length)
     for xprime, idx in xprimes
       result[idx] = (xprime - offset) / factor
@@ -45,4 +45,8 @@ export class LinearScale extends Scale
   @internal {
     source_range: [ p.Any ]
     target_range: [ p.Any ]
+  }
+
+  @getters {
+    state: @_state
   }

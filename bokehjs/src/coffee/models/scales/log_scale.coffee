@@ -4,7 +4,7 @@ import * as p from "core/properties"
 export class LogScale extends Scale
 
   compute: (x) ->
-    [factor, offset, inter_factor, inter_offset] = @_state()
+    [factor, offset, inter_factor, inter_offset] = @state
 
     if inter_factor == 0
       value = 0
@@ -18,7 +18,7 @@ export class LogScale extends Scale
     return value
 
   v_compute: (xs) ->
-    [factor, offset, inter_factor, inter_offset] = @_state()
+    [factor, offset, inter_factor, inter_offset] = @state
 
     result = new Float64Array(xs.length)
 
@@ -37,12 +37,12 @@ export class LogScale extends Scale
     return result
 
   invert: (xprime) ->
-    [factor, offset, inter_factor, inter_offset] = @_state()
+    [factor, offset, inter_factor, inter_offset] = @state
     value = (xprime - offset) / factor
     return Math.exp(inter_factor*value + inter_offset)
 
   v_invert: (xprimes) ->
-    [factor, offset, inter_factor, inter_offset] = @_state()
+    [factor, offset, inter_factor, inter_offset] = @state
     result = new Float64Array(xprimes.length)
     for i in [0...xprimes.length]
       value = (xprimes[i] - offset) / factor
@@ -98,4 +98,8 @@ export class LogScale extends Scale
   @internal {
     source_range: [ p.Any ]
     target_range: [ p.Any ]
+  }
+
+  @getters {
+    state: @_state
   }
