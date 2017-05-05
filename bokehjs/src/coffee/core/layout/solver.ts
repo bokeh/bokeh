@@ -1,70 +1,91 @@
 import {Variable, Expression, Constraint, Operator, Strength, Solver as ConstraintSolver} from "kiwi"
-import {Signal, Signalable} from "../signaling"
+import {Signal} from "../signaling"
 
-_constrainer = (op) ->
-  () =>
-    expr = Object.create(Expression.prototype)
-    Expression.apply(expr, arguments)
+export type Term = number | Variable | [number, Variable]
+
+function _constrainer(op: Operator) {
+  return (...terms: Term[]) => {
+    const expr = Object.create(Expression.prototype)
+    Expression.apply(expr, terms)
     return new Constraint(expr, op)
+  }
+}
 
-_weak_constrainer = (op) ->
-  () ->
-    args = [null]
-    for arg in arguments
-      args.push(arg)
-    new Constraint( new (Function.prototype.bind.apply(Expression, args)), op, Strength.weak )
+function _weak_constrainer(op: Operator) {
+  return (...terms: Term[]) => {
+    const _terms: (Term | null)[] = terms
+    _terms.unshift(null)
+    return new Constraint(new (Function.prototype.bind.apply(Expression, _terms)), op, Strength.weak)
+  }
+}
 
 export {Variable, Expression, Constraint, Operator, Strength}
 
-export EQ = _constrainer(Operator.Eq)
-export LE = _constrainer(Operator.Le)
-export GE = _constrainer(Operator.Ge)
+export const EQ = _constrainer(Operator.Eq)
+export const LE = _constrainer(Operator.Le)
+export const GE = _constrainer(Operator.Ge)
 
-export WEAK_EQ = _weak_constrainer(Operator.Eq)
-export WEAK_LE = _weak_constrainer(Operator.Le)
-export WEAK_GE = _weak_constrainer(Operator.Ge)
+export const WEAK_EQ = _weak_constrainer(Operator.Eq)
+export const WEAK_LE = _weak_constrainer(Operator.Le)
+export const WEAK_GE = _weak_constrainer(Operator.Ge)
 
-export class Solver
-  @prototype extends Signalable
+export class Solver {
 
-  constructor: () ->
-    @layout_update = new Signal(this, "layout_update")
-    @layout_reset = new Signal(this, "layout_reset")
-    @resize = new Signal(this, "resize")
+  readonly layout_update = new Signal<void, Solver>(this, "layout_update")
+  readonly layout_reset = new Signal<void, Solver>(this, "layout_reset")
+  readonly resize = new Signal<void, Solver>(this, "resize")
 
-    @solver = new ConstraintSolver()
+  protected solver: ConstraintSolver
 
-  clear: () ->
-    @solver = new ConstraintSolver()
-    @layout_reset.emit()
+  constructor() {
+    this.solver = new ConstraintSolver()
+  }
 
-  toString: () -> "Solver[num_constraints=#{@num_constraints()}, num_edit_variables=#{@num_edit_variables()}]"
+  clear(): void {
+    this.solver = new ConstraintSolver()
+    this.layout_reset.emit(undefined)
+  }
 
-  num_constraints: () ->
-    @solver._cnMap._array.length
+  toString(): string {
+    return `Solver(num_constraints=${this.num_constraints}, num_edit_variables=${this.num_edit_variables})`
+  }
 
-  num_edit_variables: () ->
-    @solver._editMap._array.length
+  get num_constraints(): number {
+    return this.solver.numConstraints
+  }
 
-  update_variables: (trigger=true) ->
-    @solver.updateVariables()
-    if trigger
-      @layout_update.emit()
+  get num_edit_variables(): number {
+    return this.solver.numEditVariables
+  }
 
-  has_constraint: (constraint) ->
-    return @solver.hasConstraint(constraint)
+  update_variables(trigger: boolean = true): void {
+    this.solver.updateVariables()
+    if (trigger) {
+      this.layout_update.emit(undefined)
+    }
+  }
 
-  add_constraint: (constraint) ->
-    @solver.addConstraint(constraint)
+  has_constraint(constraint: Constraint): boolean {
+    return this.solver.hasConstraint(constraint)
+  }
 
-  remove_constraint: (constraint, silent=false) ->
-    @solver.removeConstraint(constraint, silent)
+  add_constraint(constraint: Constraint): void {
+    this.solver.addConstraint(constraint)
+  }
 
-  add_edit_variable: (variable, strength) ->
-    @solver.addEditVariable(variable, strength)
+  remove_constraint(constraint: Constraint, silent: boolean = false): void {
+    this.solver.removeConstraint(constraint, silent)
+  }
 
-  remove_edit_variable: (variable, silent=false) ->
-    @solver.removeEditVariable(variable, strength, silent)
+  add_edit_variable(variable: Variable, strength: number): void {
+    this.solver.addEditVariable(variable, strength)
+  }
 
-  suggest_value: (variable, value) ->
-    @solver.suggestValue(variable, value)
+  remove_edit_variable(variable: Variable, silent: boolean = false): void {
+    this.solver.removeEditVariable(variable, silent)
+  }
+
+  suggest_value(variable: Variable, value: number): void {
+    this.solver.suggestValue(variable, value)
+  }
+}

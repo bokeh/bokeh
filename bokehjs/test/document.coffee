@@ -895,22 +895,22 @@ it "can destructively move", ->
   it "adds two constraints and two edit_variables on instantiation solver", ->
     d = new Document()
     s = d.solver()
-    expect(s.num_constraints()).to.equal 2
-    expect(s.num_edit_variables()).to.equal 2
+    expect(s.num_constraints).to.equal 2
+    expect(s.num_edit_variables).to.equal 2
 
   it "adds edit_variables of root to solver", ->
     d = new Document()
     s = d.solver()
     expect(d.roots().length).to.equal 0
-    expect(s.num_constraints()).to.equal 2
-    expect(s.num_edit_variables()).to.equal 2
+    expect(s.num_constraints).to.equal 2
+    expect(s.num_edit_variables).to.equal 2
 
     d.add_root(new ModelWithEditVariable())
     expect(d.roots().length).to.equal 1
 
     # Check state of solver
-    expect(s.num_edit_variables()).to.equal 3
-    expect(s.num_constraints()).to.equal 3
+    expect(s.num_edit_variables).to.equal 3
+    expect(s.num_constraints).to.equal 3
     expect(s.solver._editMap._array['2'].first._name).to.equal 'ModelWithEditVariable._left'
     expect(s.solver._editMap._array['2'].second.constraint._strength).to.equal Strength.strong
 
@@ -918,82 +918,82 @@ it "can destructively move", ->
     d = new Document()
     s = d.solver()
     expect(d.roots().length).to.equal 0
-    expect(s.num_constraints()).to.equal 2
-    expect(s.num_edit_variables()).to.equal 2
+    expect(s.num_constraints).to.equal 2
+    expect(s.num_edit_variables).to.equal 2
 
     d.add_root(new ModelWithConstraint())
     expect(d.roots().length).to.equal 1
 
     # Check state of solver
-    expect(s.num_edit_variables()).to.equal 2
-    expect(s.num_constraints()).to.equal 3
+    expect(s.num_edit_variables).to.equal 2
+    expect(s.num_constraints).to.equal 3
     expect(s.solver._cnMap._array['2'].first._expression._terms._array['0'].first._name).to.equal 'ModelWithConstraint._left'
 
   it "adds constraints and edit variable of root to solver", ->
     d = new Document()
     s = d.solver()
     expect(d.roots().length).to.equal 0
-    expect(s.num_constraints()).to.equal 2
-    expect(s.num_edit_variables()).to.equal 2
+    expect(s.num_constraints).to.equal 2
+    expect(s.num_edit_variables).to.equal 2
 
     d.add_root(new ModelWithEditVariableAndConstraint())
     expect(d.roots().length).to.equal 1
 
     # Check state of solver
-    expect(s.num_edit_variables()).to.equal 3
-    expect(s.num_constraints()).to.equal 4
+    expect(s.num_edit_variables).to.equal 3
+    expect(s.num_constraints).to.equal 4
 
   it "adds one constraint on add_root if model has get_constrained_variables width", ->
     d = new Document()
     s = d.solver()
     expect(d.roots().length).to.equal 0
 
-    before_constraints = s.num_constraints()
+    before_constraints = s.num_constraints
 
-    expect(s.num_edit_variables()).to.equal 2
+    expect(s.num_edit_variables).to.equal 2
     d.add_root(new ModelWithConstrainedWidthVariable())
 
     expect(d.roots().length).to.equal 1
-    expect(s.num_constraints()).to.equal before_constraints + 1
+    expect(s.num_constraints).to.equal before_constraints + 1
 
   it "adds one constraints on add_root if model has get_constrained_variables height and sizing_mode is stretch_both", ->
     d = new Document()
     s = d.solver()
     expect(d.roots().length).to.equal 0
 
-    before_constraints = s.num_constraints()
+    before_constraints = s.num_constraints
 
-    expect(s.num_edit_variables()).to.equal 2
+    expect(s.num_edit_variables).to.equal 2
     d.add_root(new ModelWithConstrainedHeightVariable({sizing_mode: 'stretch_both'}))
 
     expect(d.roots().length).to.equal 1
-    expect(s.num_constraints()).to.equal before_constraints + 1
+    expect(s.num_constraints).to.equal before_constraints + 1
 
   it "adds no new constraints on add_root if model has no get_constrained_variables", ->
     d = new Document()
     s = d.solver()
     expect(d.roots().length).to.equal 0
 
-    before_constraints = s.num_constraints()
+    before_constraints = s.num_constraints
 
-    expect(s.num_edit_variables()).to.equal 2
+    expect(s.num_edit_variables).to.equal 2
     d.add_root(new SomeModel())
 
     expect(d.roots().length).to.equal 1
-    expect(s.num_constraints()).to.equal before_constraints
+    expect(s.num_constraints).to.equal before_constraints
 
   it "adds two constraints on add_root if model has get_constrained_variables width & height and sizing_mode is 'stretch_both'", ->
     d = new Document()
     s = d.solver()
     expect(d.roots().length).to.equal 0
 
-    before_constraints = s.num_constraints()
+    before_constraints = s.num_constraints
 
-    expect(s.num_edit_variables()).to.equal 2
+    expect(s.num_edit_variables).to.equal 2
     d.add_root(new ModelWithConstrainedVariables({sizing_mode: 'stretch_both'}))
 
     expect(d.roots().length).to.equal 1
-    expect(s.num_constraints()).to.equal before_constraints + 2
+    expect(s.num_constraints).to.equal before_constraints + 2
 
   it "add_root calls update_variables on solver", ->
     d = new Document()
