@@ -3,20 +3,8 @@ import * as p from "core/properties"
 
 export class LogScale extends Scale
 
-  initialize: (attrs, options) ->
-    super(attrs, options)
-
-    @define_computed_property('state', @_state, true)
-    @add_dependencies('state', this, ['source_range', 'target_range'])
-    @add_dependencies('state', @source_range, ['start', 'end'])
-    @add_dependencies('state', @target_range, ['start', 'end'])
-
-  @getters {
-    state: () -> @_get_computed('state')
-  }
-
   compute: (x) ->
-    [factor, offset, inter_factor, inter_offset] = @state
+    [factor, offset, inter_factor, inter_offset] = @_state()
 
     if inter_factor == 0
       value = 0
@@ -30,7 +18,7 @@ export class LogScale extends Scale
     return value
 
   v_compute: (xs) ->
-    [factor, offset, inter_factor, inter_offset] = @state
+    [factor, offset, inter_factor, inter_offset] = @_state()
 
     result = new Float64Array(xs.length)
 
@@ -49,12 +37,12 @@ export class LogScale extends Scale
     return result
 
   invert: (xprime) ->
-    [factor, offset, inter_factor, inter_offset] = @state
+    [factor, offset, inter_factor, inter_offset] = @_state()
     value = (xprime - offset) / factor
     return Math.exp(inter_factor*value + inter_offset)
 
   v_invert: (xprimes) ->
-    [factor, offset, inter_factor, inter_offset] = @state
+    [factor, offset, inter_factor, inter_offset] = @_state()
     result = new Float64Array(xprimes.length)
     for i in [0...xprimes.length]
       value = (xprimes[i] - offset) / factor

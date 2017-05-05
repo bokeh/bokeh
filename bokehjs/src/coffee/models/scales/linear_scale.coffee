@@ -4,35 +4,23 @@ import * as p from "core/properties"
 
 export class LinearScale extends Scale
 
-  initialize: (attrs, options) ->
-    super(attrs, options)
-
-    @define_computed_property('state', @_state, true)
-    @add_dependencies('state', this, ['source_range', 'target_range'])
-    @add_dependencies('state', @source_range, ['start', 'end'])
-    @add_dependencies('state', @target_range, ['start', 'end'])
-
-  @getters {
-    state: () -> @_get_computed('state')
-  }
-
   compute: (x) ->
-    [factor, offset] = @state
+    [factor, offset] = @_state()
     return factor * x + offset
 
   v_compute: (xs) ->
-    [factor, offset] = @state
+    [factor, offset] = @_state()
     result = new Float64Array(xs.length)
     for x, idx in xs
       result[idx] = factor * x + offset
     return result
 
   invert: (xprime) ->
-    [factor, offset] = @state
+    [factor, offset] = @_state()
     return (xprime - offset) / factor
 
   v_invert: (xprimes) ->
-    [factor, offset] = @state
+    [factor, offset] = @_state()
     result = new Float64Array(xprimes.length)
     for xprime, idx in xprimes
       result[idx] = (xprime - offset) / factor
