@@ -1,7 +1,5 @@
 // Based on https://github.com/phosphorjs/phosphor/blob/master/packages/signaling/src/index.ts
 
-import WeakMap = require("es6-weak-map")
-
 import {logger} from "./logging"
 import {find, removeBy} from "./util/array"
 

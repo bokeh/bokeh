@@ -88,14 +88,14 @@
   "dependencies": {
     "es6-promise":"3.0.2",
     "es6-weak-map": "^2.0.2",
+    "es6-set": "^0.1.5",
+
     "rbush": "^2.0.1",
     "proj4": "<2.4",
     "sprintf": "^0.1.5",
     "timezone": "^1.0.6",
     "hammerjs": "^2.0.4",
 
-    "@types/es6-promise": "^0.0.32",
-    "@types/es6-weak-map": "^1.2.0",
     "@types/rbush": "^2.0.2",
     "@types/proj4": "^2.3.2",
     "@types/sprintf": "^0.0.28",
