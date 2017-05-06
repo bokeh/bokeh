@@ -212,6 +212,11 @@ def test_file_html_provides_warning_if_no_js(mock_warn):
     )
 
 
+def test_file_html_title_is_escaped():
+    r = embed.file_html(_embed_test_plot, CDN, "&<")
+    assert "<title>&amp;&lt;</title>" in r
+
+
 class TestAutoloadStatic(unittest.TestCase):
 
     def test_return_type(self):
