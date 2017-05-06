@@ -5,8 +5,6 @@
 /// <reference types="@types/timezone-js" />
 /// <reference types="@types/hammerjs" />
 
-/// <reference types="kiwi" />
-
 /// <reference path="./typings/bokeh.d.ts" />
 /// <reference path="./typings/charts.d.ts" />
 /// <reference path="./typings/colors.d.ts" />
