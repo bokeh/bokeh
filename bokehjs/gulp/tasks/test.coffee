@@ -23,14 +23,18 @@ mocha = (options={}) ->
         args.unshift("debug")
 
       args = args.concat(
-        ["--compilers", "coffee:coffee-script/register"],
+        ["--compilers", "coffee:coffee-script/register,ts:ts-node/register"],
         ["--reporter", argv.reporter ? "spec"],
         ["--slow", "5s"]
         ["./test/index.coffee"],
         @_files,
       )
 
-      proc = cp.spawn(process.execPath, args, {stdio: 'inherit'})
+      env = Object.assign({}, process.env, {
+        TS_NODE_PROJECT: "./test/tsconfig.json"
+      })
+
+      proc = cp.spawn(process.execPath, args, {stdio: 'inherit', env: env})
 
       proc.on "error", (err) =>
         @emit("error", new gutil.PluginError("mocha", err))
