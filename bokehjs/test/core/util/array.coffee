@@ -46,7 +46,7 @@ describe "array module", ->
     b = [1, 5, 2, 10]
     expect(array.zip(a, b)).to.deep.equal [[0,1], [1,5], [2,2]]
 
- it "range should mimic python range", ->
+  it "range should mimic python range", ->
     expect(array.range(5)).to.deep.equal [0,1,2,3,4]
     expect(array.range(0, 5)).to.deep.equal [0,1,2,3,4]
     expect(array.range(1, 5)).to.deep.equal [1,2,3,4]
