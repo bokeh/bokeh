@@ -4,19 +4,11 @@ import {Signal} from "../signaling"
 export type Term = number | Variable | [number, Variable]
 
 function _constrainer(op: Operator) {
-  return (...terms: Term[]) => {
-    const expr = Object.create(Expression.prototype)
-    Expression.apply(expr, terms)
-    return new Constraint(expr, op)
-  }
+  return (...terms: Term[]) => new Constraint(new Expression(...terms), op)
 }
 
 function _weak_constrainer(op: Operator) {
-  return (...terms: Term[]) => {
-    const _terms: (Term | null)[] = terms
-    _terms.unshift(null)
-    return new Constraint(new (Function.prototype.bind.apply(Expression, _terms)), op, Strength.weak)
-  }
+  return (...terms: Term[]) => new Constraint(new Expression(...terms), op, Strength.weak)
 }
 
 export {Variable, Expression, Constraint, Operator, Strength}
