@@ -39,16 +39,16 @@ mocha = (options={}) ->
       proc.on "error", (err) =>
         @emit("error", new gutil.PluginError("mocha", err))
 
-      proc.on "exit", (code) =>
+      proc.on "exit", (code, signal) =>
         if code != 0
-          @emit("error", new gutil.PluginError("mocha", "tests failed"))
+          comment = if signal == "SIGINT" then "interrupted" else "failed"
+          @emit("error", new gutil.PluginError("mocha", "tests #{comment}"))
         else
           @emit("end")
 
-      handler = () -> proc.kill()
-      process.on('exit',    handler)
-      process.on('SIGTERM', handler)
-      process.on('SIGINT',  handler)
+      process.on('exit',    () -> proc.kill())
+      process.on("SIGTERM", () -> proc.kill("SIGTERM"))
+      process.on("SIGINT",  () -> proc.kill("SIGINT"))
   )
 
 gulp.task "test:coverage", ["defaults:generate"], () ->
