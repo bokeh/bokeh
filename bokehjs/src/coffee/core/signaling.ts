@@ -1,6 +1,7 @@
 // Based on https://github.com/phosphorjs/phosphor/blob/master/packages/signaling/src/index.ts
 
 import {logger} from "./logging"
+import {defer} from "./util/callback"
 import {find, removeBy} from "./util/array"
 
 export type Slot<Args, Sender extends object> = ((args: Args, sender: Sender) => void) | ((args: Args) => void) | (() => void)
@@ -188,7 +189,7 @@ const dirtySet = new Set<Connection[]>()
 
 function scheduleCleanup(connections: Connection[]): void {
   if (dirtySet.size === 0) {
-    schedule(cleanupDirtySet);
+    defer(cleanupDirtySet);
   }
   dirtySet.add(connections);
 }
@@ -199,5 +200,3 @@ function cleanupDirtySet(): void {
   })
   dirtySet.clear()
 }
-
-const schedule = window.requestAnimationFrame
