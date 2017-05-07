@@ -547,7 +547,7 @@ describe "Document", ->
       expect(e.message).to.include('Attempted to overwrite a document with itself')
     expect(got_error).to.equal(true)
 
-it "can destructively move", ->
+  it "can destructively move", ->
     d = new Document()
     expect(d.roots().length).to.equal 0
     expect(d.title()).to.equal DEFAULT_TITLE
