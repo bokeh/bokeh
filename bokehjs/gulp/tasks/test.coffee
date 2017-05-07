@@ -51,32 +51,39 @@ mocha = (options={}) ->
       process.on("SIGINT",  () -> proc.kill("SIGINT"))
   )
 
-gulp.task "test:coverage", ["defaults:generate"], () ->
-  gulp.src(["./test/all.coffee"]).pipe(mocha({coverage: true}))
 
 gulp.task "test", ["defaults:generate"], () ->
-  gulp.src(["./test/all.coffee"]).pipe(mocha())
+  gulp.src(["./test/unit.coffee", "./test/defaults.coffee", "./test/size"]).pipe(mocha())
 
-gulp.task "test:client", ->
+gulp.task "test:unit", () ->
+  gulp.src(["./test/unit.coffee"]).pipe(mocha())
+
+gulp.task "test:unit:coverage", () ->
+  gulp.src(["./test/unit.coffee"]).pipe(mocha({coverage: true}))
+
+gulp.task "test:client", () ->
   gulp.src(["./test/client.coffee"]).pipe(mocha())
 
-gulp.task "test:core", ->
+gulp.task "test:core", () ->
   gulp.src(["./test/core"]).pipe(mocha())
 
-gulp.task "test:document", ->
+gulp.task "test:document", () ->
   gulp.src(["./test/document.coffee"]).pipe(mocha())
 
-gulp.task "test:model", ->
+gulp.task "test:model", () ->
   gulp.src(["./test/model.coffee"]).pipe(mocha())
 
-gulp.task "test:models", ->
+gulp.task "test:models", () ->
   gulp.src(["./test/models"]).pipe(mocha())
 
-gulp.task "test:utils", ->
+gulp.task "test:utils", () ->
   gulp.src(["./test/utils.coffee"]).pipe(mocha())
 
-gulp.task "test:common", ["defaults:generate"], ->
+gulp.task "test:common", () ->
   gulp.src(["./test/common"]).pipe(mocha())
+
+gulp.task "test:defaults", ["defaults:generate"], () ->
+  gulp.src(["./test/defaults.coffee"]).pipe(mocha())
 
 gulp.task "test:size", ->
   gulp.src(["./test/size.coffee"]).pipe(mocha())
