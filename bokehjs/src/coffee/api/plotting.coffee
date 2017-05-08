@@ -306,9 +306,9 @@ export class Figure extends models.Plot
     if axiscls?
       if axiscls == models.LogAxis
         if dim == 0
-          @x_scale = new models.LogScale()
+          @x_mapper_type = 'log'
         else
-          @y_scale = new models.LogScale()
+          @y_mapper_type = 'log'
 
       axis = new axiscls()
 

@@ -55,8 +55,8 @@ declare namespace Bokeh {
   extra_x_ranges?: Map<Range>;
   extra_y_ranges?: Map<Range>;
 
-  x_scale?: Scale;
-  y_scale?: Scale;
+  x_mapper_type?: Auto | "log";
+  y_mapper_type?: Auto | "log";
 
   tool_events?: ToolEvents;
 
