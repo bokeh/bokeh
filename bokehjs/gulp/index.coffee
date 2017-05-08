@@ -1,8 +1,3 @@
-gulp = require "gulp"
-taskList = require "gulp-task-listing"
-
-utils = require "./utils"
-
 chalk = require "chalk"
 {TSError} = require "ts-node"
 
@@ -20,8 +15,9 @@ module.constructor.prototype.require = (modulePath) ->
     else
       throw err
 
-for tasks in utils.loadTasks "#{__dirname}/tasks/"
-  for task in tasks
-    require task.path
+gulp = require "gulp"
+task_list = require "gulp-task-listing"
 
-gulp.task "help", taskList
+require("./tasks")
+
+gulp.task("help", task_list)
