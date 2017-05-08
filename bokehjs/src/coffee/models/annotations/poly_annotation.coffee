@@ -1,13 +1,15 @@
 import {Annotation, AnnotationView} from "./annotation"
+import {Signal} from "core/signaling"
 import * as p from "core/properties"
 
 export class PolyAnnotationView extends AnnotationView
 
-  bind_bokeh_events: () ->
+  connect_signals: () ->
+    super()
     # need to respond to either normal BB change events or silent
     # "data only updates" that tools might want to use
-    @listenTo(@model, 'change', () => @plot_view.request_render())
-    @listenTo(@model, 'data_update', () => @plot_view.request_render())
+    @connect(@model.change, () => @plot_view.request_render())
+    @connect(@model.data_update, () => @plot_view.request_render())
 
   render: (ctx) ->
     if not @model.visible
@@ -71,6 +73,10 @@ export class PolyAnnotation extends Annotation
     line_alpha: 0.3
   }
 
+  initialize: (attrs, options) ->
+    super(attrs, options)
+    @data_update = new Signal(this, "data_update")
+
   update:({xs, ys}) ->
     @setv({xs: xs, ys: ys}, {silent: true})
-    @trigger('data_update')
+    @data_update.emit()

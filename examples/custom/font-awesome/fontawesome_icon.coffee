@@ -11,7 +11,7 @@ export class FontAwesomeIconView extends WidgetView
   initialize: (options) ->
     super(options)
     @render()
-    @listenTo(@model, 'change', @render)
+    @connect(@model.change, @render)
 
   render: () ->
     @el.className = "" # erase all CSS classes if re-rendering

@@ -267,7 +267,7 @@ to avoid confusion and help static code analysis tools. You can add
         x, y = data['x'], data['y']
         for i in range(len(x)):
             y[i] = window.Math.pow(x[i], f)
-        source.trigger('change')
+        source.change.emit()
 
     slider = Slider(start=0.1, end=4, value=1, step=.1, title="power",
                     callback=CustomJS.from_py_func(callback))

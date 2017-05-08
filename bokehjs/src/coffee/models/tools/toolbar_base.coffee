@@ -55,7 +55,7 @@ export class ToolbarBase extends LayoutDOM
   initialize: (attrs, options) ->
     super(attrs, options)
     @_set_sizeable()
-    @listenTo(@, 'change:toolbar_location', () => @_set_sizeable())
+    @connect(@properties.toolbar_location.change, () => @_set_sizeable())
 
   _set_sizeable: () ->
     horizontal = @toolbar_location in ['left', 'right']

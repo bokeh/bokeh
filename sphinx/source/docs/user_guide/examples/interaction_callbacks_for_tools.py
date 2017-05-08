@@ -24,8 +24,8 @@ callback = CustomJS(args=dict(source=source), code="""
         data['width'].push(width);
         data['height'].push(height);
 
-        // trigger update of data source
-        source.trigger('change');
+        // emit update of data source
+        source.change.emit();
     """)
 
 box_select = BoxSelectTool(callback=callback)
