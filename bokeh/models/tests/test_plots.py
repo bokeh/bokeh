@@ -14,6 +14,7 @@ import pytest
 
 from bokeh.plotting import figure
 from bokeh.models import GlyphRenderer, Label, Range1d, FactorRange, Plot, LinearAxis
+from bokeh.models.scales import CategoricalScale, LinearScale, LogScale
 from bokeh.models.tools import PanTool, Toolbar
 
 
@@ -159,3 +160,33 @@ def test_plot_raises_error_if_toolbar_and_tools_are_set():
 def test_plot_with_no_title_specified_creates_an_empty_title():
     plot = Plot()
     assert plot.title.text == ""
+
+
+def test_plot__scale_classmethod():
+    assert Plot._scale("auto") == None
+    assert Plot._scale(None) == None
+    assert isinstance(Plot._scale("categorical"), CategoricalScale)
+    assert isinstance(Plot._scale("linear"), LinearScale)
+    assert isinstance(Plot._scale("log"), LogScale)
+    with pytest.raises(ValueError):
+        Plot._scale("malformed_type")
+
+
+def test_plot_x_mapper_type_kwarg_sets_x_scale():
+    plot = Plot(x_mapper_type="linear")
+    assert isinstance(plot.x_scale, LinearScale)
+
+
+def test_plot_y_mapper_type_kwarg_sets_y_scale():
+    plot = Plot(y_mapper_type="log")
+    assert isinstance(plot.y_scale, LogScale)
+
+
+def test_plot_raises_error_if_x_mapper_type_and_x_scale_are_set():
+    with pytest.raises(ValueError):
+        Plot(x_mapper_type="linear", x_scale=LinearScale())
+
+
+def test_plot_raises_error_if_y_mapper_type_and_y_scale_are_set():
+    with pytest.raises(ValueError):
+        Plot(y_mapper_type="log", y_scale=LogScale())

@@ -1,7 +1,12 @@
 {expect} = require "chai"
 utils = require "../../utils"
 
+{CategoricalScale} = utils.require("models/scales/categorical_scale")
+{LinearScale} = utils.require("models/scales/linear_scale")
+{LogScale} = utils.require("models/scales/log_scale")
 {CartesianFrame} = utils.require("models/canvas/cartesian_frame")
+{DataRange1d} = utils.require("models/ranges/data_range1d")
+{FactorRange} = utils.require("models/ranges/factor_range")
 {Range1d} = utils.require("models/ranges/range1d")
 {Document} = utils.require "document"
 {Variable}  = utils.require("core/layout/solver")
@@ -33,3 +38,33 @@ describe "CartesianFrame", ->
 
     expect(c.x_mappers).to.be.deep.equal c.xscales
     expect(c.y_mappers).to.be.deep.equal c.yscales
+
+  describe "_get_scales method", ->
+
+    beforeEach ->
+      @frame = new CartesianFrame({x_range: Range1d(), y_range: Range1d()})
+      @frame_range = Range1d(0, 100)
+
+    it "should return scale if defined", ->
+      scale = new LogScale()
+      ranges = {"default": new Range1d()}
+      scales = @frame._get_scales(scale, ranges, @frame_range)
+      expect(scales["default"]).to.be.instanceof(LogScale)
+
+    it "should return LinearScale as default for Range1d", ->
+      scale = undefined
+      ranges = {"default": new Range1d()}
+      scales = @frame._get_scales(scale, ranges, @frame_range)
+      expect(scales["default"]).to.be.instanceof(LinearScale)
+
+    it "should return LinearScale as default for DataRange1d", ->
+      scale = undefined
+      ranges = {"default": new DataRange1d()}
+      scales = @frame._get_scales(scale, ranges, @frame_range)
+      expect(scales["default"]).to.be.instanceof(LinearScale)
+
+    it "should return CategoricalScale as default for FactorRange", ->
+      scale = undefined
+      ranges = {"default": new FactorRange()}
+      scales = @frame._get_scales(scale, ranges, @frame_range)
+      expect(scales["default"]).to.be.instanceof(CategoricalScale)

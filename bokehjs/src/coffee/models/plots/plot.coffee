@@ -326,8 +326,8 @@ export class Plot extends LayoutDOM
       y_range:           [ p.Instance                         ]
       extra_y_ranges:    [ p.Any,      {}                     ] # TODO (bev)
 
-      x_mapper_type:     [ p.String,   'auto'                 ] # TODO (bev)
-      y_mapper_type:     [ p.String,   'auto'                 ] # TODO (bev)
+      x_scale:           [ p.Instance                         ]
+      y_scale:           [ p.Instance                         ]
 
       tool_events:       [ p.Instance, () -> new ToolEvents() ]
 
@@ -363,6 +363,12 @@ export class Plot extends LayoutDOM
       for tool in @toolbar.tools
         renderers = renderers.concat(tool.synthetic_renderers)
       return renderers
+    x_mapper_type: () ->
+      log.warning("x_mapper_type attr is deprecated, use x_scale")
+      @x_scale
+    y_mapper_type: () ->
+      log.warning("y_mapper_type attr is deprecated, use y_scale")
+      @y_scale
   }
 
 register_with_event(UIEvent, Plot)
