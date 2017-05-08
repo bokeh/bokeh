@@ -3,18 +3,6 @@ import * as p from "core/properties"
 
 export class LogScale extends Scale
 
-  initialize: (attrs, options) ->
-    super(attrs, options)
-
-    @define_computed_property('state', @_state, true)
-    @add_dependencies('state', this, ['source_range', 'target_range'])
-    @add_dependencies('state', @source_range, ['start', 'end'])
-    @add_dependencies('state', @target_range, ['start', 'end'])
-
-  @getters {
-    state: () -> @_get_computed('state')
-  }
-
   compute: (x) ->
     [factor, offset, inter_factor, inter_offset] = @state
 
@@ -110,4 +98,8 @@ export class LogScale extends Scale
   @internal {
     source_range: [ p.Any ]
     target_range: [ p.Any ]
+  }
+
+  @getters {
+    state: () -> @_state()
   }

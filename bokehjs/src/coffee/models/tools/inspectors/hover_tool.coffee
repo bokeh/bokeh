@@ -317,44 +317,36 @@ export class HoverTool extends InspectTool
       callback:     [ p.Any                    ] # TODO: p.Either(p.Instance(Callback), p.Function) ]
     }
 
-  initialize: (attrs, options) ->
-    super(attrs, options)
+  _computed_renderers: () ->
+    renderers = @renderers
+    names = @names
 
-    @define_computed_property('computed_renderers',
-      () ->
-        renderers = @renderers
-        names = @names
+    if renderers.length == 0
+      all_renderers = @plot.renderers
+      renderers = (r for r in all_renderers when r instanceof GlyphRenderer)
 
-        if renderers.length == 0
-          all_renderers = @plot.renderers
-          renderers = (r for r in all_renderers when r instanceof GlyphRenderer)
+    if names.length > 0
+      renderers = (r for r in renderers when names.indexOf(r.name) >= 0)
 
-        if names.length > 0
-          renderers = (r for r in renderers when names.indexOf(r.name) >= 0)
+    return renderers
 
-        return renderers
-      , true)
-    @add_dependencies('computed_renderers', this, ['renderers', 'names', 'plot'])
-    @add_dependencies('computed_renderers', @plot, ['renderers'])
+  _ttmodels: () ->
+    ttmodels = {}
+    tooltips = @tooltips
 
-    @define_computed_property 'ttmodels', () ->
-      ttmodels = {}
-      tooltips = @tooltips
+    if tooltips?
+      for r in @computed_renderers
+        tooltip = new Tooltip({
+          custom: isString(tooltips) or isFunction(tooltips)
+          attachment: @attachment
+          show_arrow: @show_arrow
+        })
+        ttmodels[r.id] = tooltip
 
-      if tooltips?
-        for r in @computed_renderers
-          tooltip = new Tooltip({
-            custom: isString(tooltips) or isFunction(tooltips)
-            attachment: @attachment
-            show_arrow: @show_arrow
-          })
-          ttmodels[r.id] = tooltip
-
-      return ttmodels
-    @add_dependencies('ttmodels', this, ['computed_renderers', 'tooltips'])
+    return ttmodels
 
   @getters {
-    computed_renderers: () -> @_get_computed('computed_renderers')
-    ttmodels: () -> @_get_computed('ttmodels')
+    computed_renderers: () -> @_computed_renderers()
+    ttmodels: () -> @_ttmodels()
     synthetic_renderers: () -> values(@ttmodels)
   }

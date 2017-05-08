@@ -104,11 +104,6 @@ export class HasProps
 
     this.setv(attrs, options)
 
-    ## bokeh custom constructor code
-
-    # setting up data structures for properties
-    @_computed = {}
-
     # auto generating ID
     if not attrs.id?
       this.id = uniqueId(this.type)
@@ -217,7 +212,6 @@ export class HasProps
     # * fields - attributes on that object
     if not isArray(fields)
       fields = [fields]
-    prop_spec = @_computed[prop_name]
     prop_spec.dependencies = prop_spec.dependencies.concat(
       obj: object
       fields: fields
@@ -225,50 +219,6 @@ export class HasProps
     # bind depdencies to change dep callback
     for fld in fields
       @listenTo(object, "change:" + fld, prop_spec['callbacks']['changedep'])
-
-  define_computed_property: (prop_name, getter, use_cache=true) ->
-    # #### Parameters
-    # * prop_name: name of property
-    # * getter: function, calculates computed value, takes no arguments
-    # * use_cache: whether to cache or not
-    # #### Returns
-    # * prop_spec: specification of the property, with the getter,
-
-    if @props[prop_name]?
-      #throw new Error(
-      console.log("attempted to redefine existing property #{@type}.#{prop_name}")
-
-    if @_computed[prop_name]?
-      throw new Error("attempted to redefine existing computed property #{@type}.#{prop_name}")
-
-    changedep = () =>
-      @trigger('changedep:' + prop_name)
-
-    propchange = () =>
-      firechange = true
-      if prop_spec['use_cache']
-        old_val = prop_spec.cache
-        prop_spec.cache = undefined
-        new_val = @_get_computed(prop_name)
-        firechange = new_val != old_val
-      if firechange
-        @trigger('change:' + prop_name, this, @_get_computed(prop_name))
-        @trigger('change', this)
-
-    prop_spec =
-      'getter': getter,
-      'dependencies': [],
-      'use_cache': use_cache
-      'callbacks':
-        changedep: changedep
-        propchange: propchange
-
-    @_computed[prop_name] = prop_spec
-
-    # bind propchange callback to change dep event
-    @listenTo(this, "changedep:#{prop_name}", prop_spec['callbacks']['propchange'])
-
-    return prop_spec
 
   set: (key, value, options) ->
     logger.warn("HasProps.set('prop_name', value) is deprecated, use HasProps.prop_name = value instead")
@@ -283,19 +233,6 @@ export class HasProps
       throw new Error("property #{@type}.#{prop_name} wasn't declared")
     else
       return this.attributes[prop_name]
-
-  _get_computed: (prop_name) ->
-    prop_spec = @_computed[prop_name]
-    if not prop_spec?
-      throw new Error("computed property #{@type}.#{prop_name} wasn't declared")
-    if prop_spec.use_cache and prop_spec.cache
-      return prop_spec.cache
-    else
-      getter = prop_spec.getter
-      computed = getter.apply(this, [prop_name])
-      if prop_spec.use_cache
-        prop_spec.cache = computed
-      return computed
 
   ref: () -> refs.create_ref(@)
 

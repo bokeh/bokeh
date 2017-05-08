@@ -4,18 +4,6 @@ import * as p from "core/properties"
 
 export class LinearScale extends Scale
 
-  initialize: (attrs, options) ->
-    super(attrs, options)
-
-    @define_computed_property('state', @_state, true)
-    @add_dependencies('state', this, ['source_range', 'target_range'])
-    @add_dependencies('state', @source_range, ['start', 'end'])
-    @add_dependencies('state', @target_range, ['start', 'end'])
-
-  @getters {
-    state: () -> @_get_computed('state')
-  }
-
   compute: (x) ->
     [factor, offset] = @state
     return factor * x + offset
@@ -57,4 +45,8 @@ export class LinearScale extends Scale
   @internal {
     source_range: [ p.Any ]
     target_range: [ p.Any ]
+  }
+
+  @getters {
+    state: () -> @_state()
   }
