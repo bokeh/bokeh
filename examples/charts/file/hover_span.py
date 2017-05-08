@@ -10,23 +10,23 @@ defaults.height = 300
 
 TOOLS='box_zoom,box_select,hover,crosshair,reset'
 
-TOOLTIPS = [ ("y", "$~y"), ("x", "$~x") ]
+TOOLTIPS = [ ("y", "$~y"), ("x", "$~x{0}") ]
 
 data = data[['Biology', 'Business', 'Computer Science', "Year"]]
 data = pd.melt(data, id_vars=['Year'],
                value_vars=['Biology', 'Business', 'Computer Science'],
                value_name='Count', var_name='Degree')
 
-vline = Line(data, y='Count', color='Degree', title="Lines VLine", ylabel='measures',
+vline = Line(data, x='Year', y='Count', color='Degree', title="Lines VLine", ylabel='measures',
              tools=TOOLS)
 
-hline = Line(data, y='Count', color='Degree', title="Lines HLine",
+hline = Line(data, x='Year', y='Count', color='Degree', title="Lines HLine",
              ylabel='measures', tools=TOOLS)
 
-int_vline = Line(data, y='Count', color='Degree', title="Lines VLine Interp",
+int_vline = Line(data, x='Year', y='Count', color='Degree', title="Lines VLine Interp",
                  ylabel='measures', tools=TOOLS)
 
-int_hline = Line(data, y='Count', color='Degree', title="Lines HLine Interp",
+int_hline = Line(data, x='Year', y='Count', color='Degree', title="Lines HLine Interp",
                  ylabel='measures', tools=TOOLS)
 
 scatter_point = Scatter(data, x='Year', y='Count', color='Degree',
