@@ -135,8 +135,8 @@ export class GMapPlotCanvasView extends PlotCanvasView
 
   _set_bokeh_ranges: () =>
     [proj_xstart, proj_xend, proj_ystart, proj_yend] = @_get_projected_bounds()
-    @x_range.setv({start: proj_xstart, end: proj_xend})
-    @y_range.setv({start: proj_ystart, end: proj_yend})
+    @frame.x_range.setv({start: proj_xstart, end: proj_xend})
+    @frame.y_range.setv({start: proj_ystart, end: proj_yend})
 
   _update_center: (fld) ->
     c = @map.getCenter().toJSON()
