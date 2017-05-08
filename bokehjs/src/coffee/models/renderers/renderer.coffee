@@ -1,11 +1,12 @@
-import {BokehView} from "core/bokeh_view"
+import {DOMView} from "core/dom_view"
 import {Visuals} from "core/visuals"
 import * as p from "core/properties"
 import * as proj from "core/util/projections"
 import {extend} from "core/util/object"
 import {Model} from "../../model"
 
-export class RendererView extends BokehView
+# This shouldn't be a DOMView, but annotations create a mess.
+export class RendererView extends DOMView
 
   initialize: (options) ->
     super(options)

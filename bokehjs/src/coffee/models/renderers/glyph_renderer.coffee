@@ -49,16 +49,25 @@ export class GlyphRendererView extends RendererView
     decimated_glyph = mk_glyph(@model.decimated_defaults)
     @decimated_glyph = @build_glyph_view(decimated_glyph)
 
-    @xmapper = @plot_view.frame.x_mappers[@model.x_range_name]
-    @ymapper = @plot_view.frame.y_mappers[@model.y_range_name]
+    @xscale = @plot_view.frame.xscales[@model.x_range_name]
+    @yscale = @plot_view.frame.yscales[@model.y_range_name]
 
     @set_data(false)
 
     if @model.data_source instanceof RemoteDataSource
       @model.data_source.setup(@plot_view, @glyph)
 
+  @getters {
+    xmapper: () ->
+      log.warning("xmapper attr is deprecated, use xscale")
+      @xscale
+    ymapper: () ->
+      log.warning("ymapper attr is deprecated, use yscale")
+      @yscale
+  }
+
   build_glyph_view: (model) ->
-    new model.default_view({model: model, renderer: @, plot_view: @plot_view})
+    new model.default_view({model: model, renderer: @, plot_view: @plot_view, parent: @})
 
   bind_bokeh_events: () ->
     @listenTo(@model, 'change', @request_render)

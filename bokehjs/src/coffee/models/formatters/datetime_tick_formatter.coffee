@@ -109,7 +109,7 @@ export class DatetimeTickFormatter extends TickFormatter
       else                                  "years"
 
   # TODO (bev) remove these unused "default" params and associated logic
-  doFormat: (ticks, loc, num_labels=null, char_width=null, fill_ratio=0.3, ticker=null) ->
+  doFormat: (ticks, axis, num_labels=null, char_width=null, fill_ratio=0.3, ticker=null) ->
 
     # In order to pick the right set of labels, we need to determine
     # the resolution of the ticks.  We can do this using a ticker if

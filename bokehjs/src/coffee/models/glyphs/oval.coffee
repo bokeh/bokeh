@@ -13,11 +13,11 @@ export class OvalView extends XYGlyphView
 
   _map_data: () ->
     if @model.properties.width.units == "data"
-      @sw = @sdist(@renderer.xmapper, @_x, @_width, 'center')
+      @sw = @sdist(@renderer.xscale, @_x, @_width, 'center')
     else
       @sw = @_width
     if @model.properties.height.units == "data"
-      @sh = @sdist(@renderer.ymapper, @_y, @_height, 'center')
+      @sh = @sdist(@renderer.yscale, @_y, @_height, 'center')
     else
       @sh = @_height
 

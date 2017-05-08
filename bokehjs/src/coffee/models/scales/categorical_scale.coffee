@@ -1,9 +1,9 @@
-import {LinearMapper} from "./linear_mapper"
+import {LinearScale} from "./linear_scale"
 import {isNumber} from "core/util/types"
 
-export class CategoricalMapper extends LinearMapper
+export class CategoricalScale extends LinearScale
 
-  map_to_target: (x, return_synthetic=false) ->
+  compute: (x, return_synthetic=false) ->
     if isNumber(x)
       if return_synthetic
         return x
@@ -22,7 +22,7 @@ export class CategoricalMapper extends LinearMapper
     else
       return super(result)
 
-  v_map_to_target: (xs, return_synthetic=false) ->
+  v_compute: (xs, return_synthetic=false) ->
     if isNumber(xs[0])
       if return_synthetic
         return xs
@@ -44,7 +44,7 @@ export class CategoricalMapper extends LinearMapper
     else
       return super(results)
 
-  map_from_target: (xprime, skip_cat=false) ->
+  invert: (xprime, skip_cat=false) ->
     xprime = super(xprime)
     if skip_cat
       return xprime
@@ -52,7 +52,7 @@ export class CategoricalMapper extends LinearMapper
     factors = range.factors
     return factors[Math.floor(xprime - 0.5 - range.offset)]
 
-  v_map_from_target: (xprimes, skip_cat=false) ->
+  v_invert: (xprimes, skip_cat=false) ->
     x = super(xprimes)
     for i in [0...x.length]
       x[i] = x[i]

@@ -10,7 +10,7 @@ from ..core.enums import (accept_left_right_center, AngleUnits, DeprecatedLegend
                           FontStyle, LegendClickPolicy, LegendLocation, Orientation, RenderMode,
                           SpatialUnits, TextAlign)
 from ..core.has_props import abstract
-from ..core.properties import (Angle, AngleSpec, Auto, Bool, ColorSpec, Either, Enum, Float,
+from ..core.properties import (Angle, AngleSpec, Auto, Bool, ColorSpec, DistanceSpec, Either, Enum, Float,
                                FontSizeSpec, Include, Instance, Int, List, NumberSpec, Override,
                                Seq, String, StringSpec, Tuple, value)
 from ..core.property_mixins import FillProps, LineProps, TextProps
@@ -471,6 +471,57 @@ class BoxAnnotation(Annotation):
         the render_mode is set to "css"
 
     """)
+
+class Band(Annotation):
+    ''' Render a filled area band along a dimension.
+
+    '''
+
+    lower = DistanceSpec(help="""
+    The coordinates of the lower portion of the filled area band.
+    """)
+
+    upper = DistanceSpec(help="""
+    The coordinations of the upper portion of the filled area band.
+    """)
+
+    base = DistanceSpec(help="""
+    The orthogonal coordinates of the upper and lower values.
+    """)
+
+    dimension = Enum(Dimension, default='height', help="""
+    The direction of the band.
+    """)
+
+    source = Instance(DataSource, default=lambda: ColumnDataSource(), help="""
+    Local data source to use when rendering annotations on the plot.
+    """)
+
+    x_range_name = String('default', help="""
+    A particular (named) x-range to use for computing screen locations when
+    rendering annotations on the plot. If unset, use the default x-range.
+    """)
+
+    y_range_name = String('default', help="""
+    A particular (named) y-range to use for computing screen locations when
+    rendering annotations on the plot. If unset, use the default y-range.
+    """)
+
+    line_props = Include(LineProps, use_prefix=False, help="""
+    The %s values for the band.
+    """)
+
+    line_alpha = Override(default=0.3)
+
+    line_color = Override(default="#cccccc")
+
+    fill_props = Include(FillProps, use_prefix=False, help="""
+    The %s values for the band.
+    """)
+
+    fill_alpha = Override(default=0.4)
+
+    fill_color = Override(default="#fff9ba")
 
 class Label(TextAnnotation):
     ''' Render a single text label as an annotation.

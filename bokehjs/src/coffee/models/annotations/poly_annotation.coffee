@@ -6,8 +6,8 @@ export class PolyAnnotationView extends AnnotationView
   bind_bokeh_events: () ->
     # need to respond to either normal BB change events or silent
     # "data only updates" that tools might want to use
-    @listenTo(@model, 'change', @plot_view.request_render)
-    @listenTo(@model, 'data_update', @plot_view.request_render)
+    @listenTo(@model, 'change', () => @plot_view.request_render())
+    @listenTo(@model, 'data_update', () => @plot_view.request_render())
 
   render: (ctx) ->
     if not @model.visible

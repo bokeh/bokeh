@@ -31,12 +31,14 @@ describe "WheelPanTool", ->
          x_range: new Range1d({start: 0, end: 1})
          y_range: new Range1d({start: 0, end: 1})
       })
+      @plot_view = new @plot.default_view({model: @plot, parent: null})
 
       document = new Document()
       document.add_root(@plot)
 
       @plot_canvas_view = new @plot.plot_canvas.default_view({
         model: @plot.plot_canvas
+        parent: @plot_view
       })
 
     it "should translate x-range in positive direction", ->
@@ -47,6 +49,7 @@ describe "WheelPanTool", ->
       wheel_pan_tool_view = new x_wheel_pan_tool.default_view({
         model: x_wheel_pan_tool
         plot_view: @plot_canvas_view
+        parent: null # wrong
       })
 
       # negative factors move in positive x-data direction
@@ -66,6 +69,7 @@ describe "WheelPanTool", ->
       wheel_pan_tool_view = new x_wheel_pan_tool.default_view({
         model: x_wheel_pan_tool
         plot_view: @plot_canvas_view
+        parent: null # wrong
       })
 
       # positive factors move in positive y-data direction

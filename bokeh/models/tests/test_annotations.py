@@ -4,7 +4,8 @@ import mock
 from bokeh.core.properties import field, value
 from bokeh.core.validation import check_integrity
 from bokeh.models.annotations import (
-    Legend, LegendItem, ColorBar, Arrow, BoxAnnotation, Span, LabelSet, Label, Title
+    Legend, LegendItem, ColorBar, Arrow, BoxAnnotation, Span, LabelSet, Label,
+    Title, Band
 )
 from bokeh.models import (
     ColumnDataSource, ArrowHead, BasicTicker, BasicTickFormatter, GlyphRenderer
@@ -177,6 +178,38 @@ def test_BoxAnnotation():
         "x_range_name",
         "y_range_name",
         "level",
+    ], LINE, FILL)
+
+
+def test_Band():
+    band = Band()
+    assert band.plot is None
+    assert band.level == 'annotation'
+    assert band.lower is None
+    assert band.lower_units == 'data'
+    assert band.upper is None
+    assert band.upper_units == 'data'
+    assert band.base is None
+    assert band.dimension == 'height'
+    assert isinstance(band.source, ColumnDataSource)
+    assert band.x_range_name == 'default'
+    assert band.y_range_name == 'default'
+    check_line_properties(band, "", "#cccccc", 1.0, 0.3)
+    check_fill_properties(band, "", "#fff9ba", 0.4)
+    check_properties_existence(band, [
+        "plot",
+        "visible",
+        "level",
+        "lower",
+        "lower_units",
+        "upper",
+        "upper_units",
+        "base",
+        "base_units",
+        "dimension",
+        "source",
+        "x_range_name",
+        "y_range_name",
     ], LINE, FILL)
 
 
