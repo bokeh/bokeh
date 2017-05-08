@@ -4,7 +4,7 @@ gulp = require "gulp"
 path = require "path"
 
 scriptFilter = (name) ->
-  /(\.(js|coffee)$)/i.test(path.extname(name))
+  /(\.(js|coffee|ts)$)/i.test(path.extname(name))
 
 copySourceToTaskName = (source) ->
   "copy:#{source}"

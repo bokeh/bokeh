@@ -12,10 +12,7 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "target": "ES5",
-    "lib": ["es5", "dom", "es2015.collection"],
-    "baseUrl": ".",
-    "paths": {
-      "*": ["../build/js/tree/*"]
-    }
+    "lib": ["es5"],
+    "baseUrl": "."
   }
 }
