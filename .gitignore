@@ -109,7 +109,3 @@ win-64
 /bokeh/LICENSE.txt
 /examples/refs
 .cache/
-
-# generated coffeescript
-/bokehjs/test/common/generated_defaults/models_defaults.coffee
-/bokehjs/test/common/generated_defaults/widgets_defaults.coffee

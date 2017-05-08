@@ -159,7 +159,7 @@ export class MouseWheel extends PointEvent {
     return new this({
       sx: e.bokeh['sx'],
       sy: e.bokeh['sy'],
-      delta: e.delta,
+      delta: e.bokeh['delta'],
       model_id: model_id,
     })
   }

@@ -128,7 +128,7 @@ def add_visual_box_select(plot):
         data['height'].push(height);
 
         // trigger update of data source
-        source.trigger('change');
+        source.change.emit();
     """)
     box_select = BoxSelectTool(callback=callback)
     plot.add_glyph(source, rect, selection_glyph=rect, nonselection_glyph=rect)

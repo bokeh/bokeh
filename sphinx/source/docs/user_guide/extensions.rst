@@ -102,7 +102,7 @@ extensions in the next section.
 
         # Set Backbone listener so that when the Bokeh slider has a change
         # event, we can process the new data
-        @listenTo(@model.slider, 'change', () => @render())
+        @connect(@model.slider.change, () => @render())
 
       render: () ->
         # Backbone Views create <div> elements by default, accessible as @el.

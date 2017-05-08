@@ -14,7 +14,7 @@ export class Toolbar extends ToolbarBase
 
   initialize: (attrs, options) ->
     super(attrs, options)
-    @listenTo(@, 'change:tools', @_init_tools)
+    @connect(@properties.tools.change, @_init_tools)
     @_init_tools()
 
   _init_tools: () ->
@@ -38,7 +38,7 @@ export class Toolbar extends ToolbarBase
 
         if not any(@gestures[et].tools, (t) => t.id == tool.id)
           @gestures[et].tools = @gestures[et].tools.concat([tool])
-        @listenTo(tool, 'change:active', @_active_change.bind(tool))
+        @connect(tool.properties.active.change, @_active_change.bind(null, tool))
 
     if @active_inspect == 'auto'
       # do nothing as all tools are active be default

@@ -366,7 +366,7 @@ export class Document
     # after removing all the refs, we can run the initialize code safely
     foreach_depth_first to_update, (instance, attrs, was_new) ->
       if was_new
-        instance.initialize(attrs)
+        instance.finalize(attrs)
 
   @_event_for_attribute_change: (changed_obj, key, new_value, doc, value_refs) ->
       changed_model = doc.get_model_by_id(changed_obj.id)

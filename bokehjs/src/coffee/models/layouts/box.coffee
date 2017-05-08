@@ -10,9 +10,9 @@ import {LayoutDOM, LayoutDOMView} from "./layout_dom"
 export class BoxView extends LayoutDOMView
   className: "bk-grid"
 
-  bind_bokeh_events: () ->
+  connect_signals: () ->
     super()
-    @listenTo(@model, 'change:children', () => @rebuild_child_views())
+    @connect(@model.properties.children.change, () => @rebuild_child_views())
 
   get_height: () ->
     children = @model.get_layoutable_children()

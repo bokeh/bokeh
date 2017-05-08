@@ -61,21 +61,21 @@ describe "ui_events module", ->
         inspector = new CrosshairTool({active: true})
         @plot.add_tools(inspector)
 
-        @ui_events._trigger("move", @e)
+        @ui_events._trigger(@ui_events.move, @e)
 
         assert(@spy_trigger.calledOnce)
-        expect(@spy_trigger.args[0]).to.be.deep.equal(["move:#{inspector.id}", @e])
+        expect(@spy_trigger.args[0]).to.be.deep.equal([@ui_events.move, @e, inspector.id])
 
       it "should not trigger move event for inactive inspectors", ->
         inspector = new CrosshairTool({active: false})
         @plot.add_tools(inspector)
 
-        @ui_events._trigger("move", @e)
+        @ui_events._trigger(@ui_events.move, @e)
 
         assert(@spy_trigger.notCalled)
 
       it "should use default cursor no active inspector", ->
-        @ui_events._trigger("move", @e)
+        @ui_events._trigger(@ui_events.move, @e)
 
         assert(@spy_cursor.calledOnce)
         assert(@spy_cursor.calledWith("default"))
@@ -86,7 +86,7 @@ describe "ui_events module", ->
 
         ss = sinon.stub(@ui_events, "_hit_test_frame").returns(false)
 
-        @ui_events._trigger("move", @e)
+        @ui_events._trigger(@ui_events.move, @e)
         assert(@spy_cursor.calledOnce)
         assert(@spy_cursor.calledWith("default"))
 
@@ -98,7 +98,7 @@ describe "ui_events module", ->
 
         ss = sinon.stub(@ui_events, "_hit_test_frame").returns(true)
 
-        @ui_events._trigger("move", @e)
+        @ui_events._trigger(@ui_events.move, @e)
         assert(@spy_cursor.calledOnce)
         assert(@spy_cursor.calledWith("crosshair"))
 
@@ -110,7 +110,7 @@ describe "ui_events module", ->
 
         ss = sinon.stub(@ui_events, "_hit_test_renderers").returns(legend_view)
 
-        @ui_events._trigger("move", @e)
+        @ui_events._trigger(@ui_events.move, @e)
         assert(@spy_cursor.calledOnce)
         assert(@spy_cursor.calledWith("pointer"))
 
@@ -125,9 +125,9 @@ describe "ui_events module", ->
 
         ss = sinon.stub(@ui_events, "_hit_test_renderers").returns(legend_view)
 
-        @ui_events._trigger("move", @e)
+        @ui_events._trigger(@ui_events.move, @e)
         assert(@spy_trigger.calledOnce)
-        expect(@spy_trigger.args[0]).to.be.deep.equal(["move:exit:#{inspector.id}", @e])
+        expect(@spy_trigger.args[0]).to.be.deep.equal([@ui_events.move_exit, @e, inspector.id])
         # should also use view renderer cursor and not inspector cursor
         assert(@spy_cursor.calledOnce)
         assert(@spy_cursor.calledWith("pointer"))
@@ -142,17 +142,17 @@ describe "ui_events module", ->
         @e.srcEvent = {shiftKey: false}
 
       it "should not trigger tap event if no active tap tool", ->
-        @ui_events._trigger("tap", @e)
+        @ui_events._trigger(@ui_events.tap, @e)
         assert(@spy_trigger.notCalled)
 
       it "should trigger tap event if exists an active tap tool", ->
         gesture = new TapTool()
         @plot.add_tools(gesture)
 
-        @ui_events._trigger("tap", @e)
+        @ui_events._trigger(@ui_events.tap, @e)
 
         assert(@spy_trigger.calledOnce)
-        expect(@spy_trigger.args[0]).to.be.deep.equal(["tap:#{gesture.id}", @e])
+        expect(@spy_trigger.args[0]).to.be.deep.equal([@ui_events.tap, @e, gesture.id])
 
       it "should call on_hit method on view renderer if exists", ->
         legend = new Legend({click_policy: "mute"})
@@ -161,7 +161,7 @@ describe "ui_events module", ->
         ss = sinon.stub(@ui_events, "_hit_test_renderers").returns(legend_view)
         on_hit = sinon.stub(legend_view, "on_hit")
 
-        @ui_events._trigger("tap", @e)
+        @ui_events._trigger(@ui_events.tap, @e)
         assert(on_hit.calledOnce)
         expect(on_hit.args[0]).to.be.deep.equal([10, 15])
 
@@ -179,7 +179,7 @@ describe "ui_events module", ->
 
       it "should not trigger scroll event if no active scroll tool", ->
         @plot.toolbar.gestures["scroll"].active = null
-        @ui_events._trigger("scroll", @e)
+        @ui_events._trigger(@ui_events.scroll, @e)
         assert(@spy_trigger.notCalled)
 
         # assert that default scrolling isn't hijacked
@@ -192,14 +192,14 @@ describe "ui_events module", ->
         # unclear why add_tools doesn't activate the tool, so have to do it manually
         @plot.toolbar.gestures['scroll'].active = gesture
 
-        @ui_events._trigger("scroll", @e)
+        @ui_events._trigger(@ui_events.scroll, @e)
 
         # assert that default scrolling is disabled
         assert(@preventDefault.calledOnce)
         assert(@stopPropagation.calledOnce)
 
         assert(@spy_trigger.calledOnce)
-        expect(@spy_trigger.args[0]).to.be.deep.equal(["scroll:#{gesture.id}", @e])
+        expect(@spy_trigger.args[0]).to.be.deep.equal([@ui_events.scroll, @e, gesture.id])
 
     describe "normally propagate other gesture base_types", ->
 
@@ -208,17 +208,17 @@ describe "ui_events module", ->
         @e.bokeh = {}
 
       it "should not trigger event if no active tool", ->
-        @ui_events._trigger("pan", @e)
+        @ui_events._trigger(@ui_events.pan, @e)
         assert(@spy_trigger.notCalled)
 
       it "should trigger event if exists an active related tool", ->
         gesture = new PanTool()
         @plot.add_tools(gesture)
 
-        @ui_events._trigger("pan", @e)
+        @ui_events._trigger(@ui_events.pan, @e)
 
         assert(@spy_trigger.calledOnce)
-        expect(@spy_trigger.args[0]).to.be.deep.equal(["pan:#{gesture.id}", @e])
+        expect(@spy_trigger.args[0]).to.be.deep.equal([@ui_events.pan, @e, gesture.id])
 
   describe "_bokify methods", ->
 
@@ -234,7 +234,7 @@ describe "ui_events module", ->
       e.pointerType = "mouse"
       e.srcEvent = {pageX: 100, pageY: 200}
 
-      @ui_events._bokify_hammer(e, {})
+      @ui_events._bokify_hammer(e)
 
       bk_event = @spy.args[0][0]
 
@@ -248,7 +248,7 @@ describe "ui_events module", ->
       e.pageX = 100
       e.pageY = 200
 
-      @ui_events._bokify_point_event(e, {})
+      @ui_events._bokify_point_event(e)
 
       bk_event = @spy.args[0][0]
 
@@ -281,7 +281,7 @@ describe "ui_events module", ->
 
       @plot.add_tools(new TapTool())
 
-      @ui_events._tap(e, {})
+      @ui_events._tap(e)
 
       assert(@spy_plot.calledOnce)
       assert(@spy_uievent.calledOnce)
@@ -293,7 +293,7 @@ describe "ui_events module", ->
 
       @plot.add_tools(new PolySelectTool())
 
-      @ui_events._doubletap(e, {})
+      @ui_events._doubletap(e)
 
       assert(@spy_plot.calledOnce)
       assert(@spy_uievent.calledOnce)
@@ -303,7 +303,7 @@ describe "ui_events module", ->
       e.pointerType = "mouse"
       e.srcEvent = {pageX: 100, pageY: 200}
 
-      @ui_events._press(e, {})
+      @ui_events._press(e)
 
       assert(@spy_plot.calledOnce)
       # There isn't a tool that uses the _press method
@@ -317,7 +317,7 @@ describe "ui_events module", ->
       pan_tool = new PanTool()
       @plot.add_tools(pan_tool)
 
-      @ui_events._pan_start(e, {})
+      @ui_events._pan_start(e)
 
       assert(@spy_plot.calledOnce)
       assert(@spy_uievent.calledOnce)
@@ -330,7 +330,7 @@ describe "ui_events module", ->
       pan_tool = new PanTool()
       @plot.add_tools(pan_tool)
 
-      @ui_events._pan(e, {})
+      @ui_events._pan(e)
 
       assert(@spy_plot.calledOnce)
       assert(@spy_uievent.calledOnce)
@@ -343,7 +343,7 @@ describe "ui_events module", ->
       pan_tool = new PanTool()
       @plot.add_tools(pan_tool)
 
-      @ui_events._pan_end(e, {})
+      @ui_events._pan_end(e)
 
       assert(@spy_plot.calledOnce)
       assert(@spy_uievent.calledOnce)
@@ -359,7 +359,7 @@ describe "ui_events module", ->
       #idk why it's not auto active
       @plot.toolbar.gestures['pinch'].active = wheel_zoom_tool
 
-      @ui_events._pinch_start(e, {})
+      @ui_events._pinch_start(e)
 
       assert(@spy_plot.calledOnce)
       # wheelzoomtool doesn't have _pinch_start but will emit event anyway
@@ -376,7 +376,7 @@ describe "ui_events module", ->
       #idk why it's not auto active
       @plot.toolbar.gestures['pinch'].active = wheel_zoom_tool
 
-      @ui_events._pinch(e, {})
+      @ui_events._pinch(e)
 
       assert(@spy_plot.calledOnce)
       assert(@spy_uievent.calledOnce)
@@ -392,7 +392,7 @@ describe "ui_events module", ->
       #idk why it's not auto active
       @plot.toolbar.gestures['pinch'].active = wheel_zoom_tool
 
-      @ui_events._pinch_end(e, {})
+      @ui_events._pinch_end(e)
 
       assert(@spy_plot.calledOnce)
       # wheelzoomtool doesn't have _pinch_start but will emit event anyway
@@ -413,7 +413,7 @@ describe "ui_events module", ->
       crosshair_tool = new CrosshairTool()
       @plot.add_tools(crosshair_tool)
 
-      @ui_events._mouse_enter(e, {})
+      @ui_events._mouse_enter(e)
 
       assert(@spy_plot.calledOnce)
       assert(@spy_uievent.calledOnce)
@@ -424,7 +424,7 @@ describe "ui_events module", ->
       crosshair_tool = new CrosshairTool()
       @plot.add_tools(crosshair_tool)
 
-      @ui_events._mouse_move(e, {})
+      @ui_events._mouse_move(e)
 
       assert(@spy_plot.calledOnce)
       assert(@spy_uievent.calledOnce)
@@ -435,7 +435,7 @@ describe "ui_events module", ->
       crosshair_tool = new CrosshairTool()
       @plot.add_tools(crosshair_tool)
 
-      @ui_events._mouse_exit(e, {})
+      @ui_events._mouse_exit(e)
 
       assert(@spy_plot.calledOnce)
       assert(@spy_uievent.calledOnce)
@@ -449,7 +449,7 @@ describe "ui_events module", ->
       #idk why it's not auto active
       @plot.toolbar.gestures['scroll'].active = wheel_zoom_tool
 
-      @ui_events._mouse_wheel(e, {})
+      @ui_events._mouse_wheel(e)
 
       assert(@spy_plot.calledOnce)
       assert(@spy_uievent.calledOnce)
@@ -463,7 +463,7 @@ describe "ui_events module", ->
       poly_select_tool = new PolySelectTool()
       @plot.add_tools(poly_select_tool)
 
-      @ui_events._key_up(e, {})
+      @ui_events._key_up(e)
 
       # There isn't a BokehEvent model for keydown events
       # assert(@spy_plot.calledOnce)
