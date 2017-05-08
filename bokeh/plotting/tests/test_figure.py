@@ -10,7 +10,6 @@ from bokeh.models import (
     LassoSelectTool,
     Legend,
     LinearAxis,
-    LogScale,
     PanTool,
     ResetTool,
     ResizeTool,
@@ -116,11 +115,11 @@ class TestFigure(unittest.TestCase):
     def test_log_axis(self):
         p = plt.figure(x_axis_type='log')
         p.circle([1, 2, 3], [1, 2, 3])
-        self.assertIsInstance(p.x_scale, LogScale)
+        self.assertEqual(p.x_mapper_type, 'log')
 
         p = plt.figure(y_axis_type='log')
         p.circle([1, 2, 3], [1, 2, 3])
-        self.assertIsInstance(p.y_scale, LogScale)
+        self.assertEqual(p.y_mapper_type, 'log')
 
     def test_xgrid(self):
         p = plt.figure()
