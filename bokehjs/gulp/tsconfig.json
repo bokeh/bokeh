@@ -12,7 +12,7 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "target": "ES5",
-    "lib": ["es5"],
+    "lib": ["es6"],
     "baseUrl": "."
   }
 }
