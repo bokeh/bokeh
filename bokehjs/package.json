@@ -77,8 +77,13 @@
     "@types/chai": "^3.5.2",
     "@types/gulp": "^4.0.2",
     "@types/gulp-util": "^3.0.31",
+    "@types/gulp-less": "^0.0.30",
+    "@types/gulp-rename": "^0.0.32",
+    "@types/gulp-sourcemaps": "^0.0.30",
     "@types/through": "^0.0.28",
-    "@types/yargs": "^6.6.0"
+    "@types/yargs": "^6.6.0",
+    "@types/run-sequence": "^0.0.29",
+    "@types/del": "^2.2.32"
   },
   "browser": {
     "bootstrap/button": "./src/vendor/bootstrap-3.1.1/js/button.js",

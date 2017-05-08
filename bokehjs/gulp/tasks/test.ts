@@ -5,9 +5,8 @@ import * as cp from "child_process"
 import {Stream} from "stream"
 import {argv} from "yargs"
 
-// TODO: can't import CoffeeScript modules
-//import * as paths from "../paths"
-//import * as utils from "../utils"
+import * as paths from "../paths"
+import {buildWatchTask} from "../utils"
 
 function mocha(options: {coverage?: boolean} = {}) {
   type This = Stream & {_files: string[] | null}
@@ -112,4 +111,4 @@ gulp.task("test:size", () => {
   gulp.src(["./test/size.coffee"]).pipe(mocha())
 })
 
-//utils.buildWatchTask("test", paths.test.watchSources)
+buildWatchTask("test", paths.test.watchSources)
