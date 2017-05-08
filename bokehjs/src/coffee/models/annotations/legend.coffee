@@ -10,8 +10,9 @@ export class LegendView extends AnnotationView
   initialize: (options) ->
     super(options)
 
-  bind_bokeh_events: () ->
-    @listenTo(@model, 'change:visible', () => @plot_view.request_render())
+  connect_signals: () ->
+    super()
+    @connect(@model.properties.visible.change, () => @plot_view.request_render())
 
   compute_legend_bbox: () ->
     legend_names = @model.get_legend_names()

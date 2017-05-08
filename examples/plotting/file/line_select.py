@@ -22,7 +22,7 @@ if (d0.glyph) {
     var data = source.data;
     data['text'] = ['Selected the ' + color + ' line'];
     data['text_color'] = [color];
-    source.trigger('change');
+    source.change.emit();
 }
 """
 

@@ -12,9 +12,10 @@ export class ArrowView extends AnnotationView
     @canvas = @plot_model.canvas
     @set_data(@model.source)
 
-  bind_bokeh_events: () ->
-    @listenTo(@model, 'change', () => @plot_view.request_render())
-    @listenTo(@model.source, 'change', () ->
+  connect_signals: () ->
+    super()
+    @connect(@model.change, () => @plot_view.request_render())
+    @connect(@model.source.change, () ->
       @set_data(@model.source)
       @plot_view.request_render())
 

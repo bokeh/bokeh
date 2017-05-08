@@ -1,4 +1,4 @@
-import {Events} from "./events"
+import {Signal, Signalable} from "./signaling"
 import * as enums from "./enums"
 import * as svg_colors from "./util/svg_colors"
 import {valid_rgb} from "./util/color"
@@ -9,18 +9,21 @@ import {isBoolean, isNumber, isString, isFunction, isArray, isObject} from "./ut
 # Property base class
 #
 
-export class Property
-  @prototype extends Events
+export class Property # <T>
+  @prototype extends Signalable
 
   dataspec: false
 
   constructor: ({@obj, @attr, @default_value}) ->
-    @_init(false)
+    @_init()
+
+    # Signal<T, HasProps>
+    @change = new Signal(@obj, "change")
 
     # TODO (bev) Quick fix, see https://github.com/bokeh/bokeh/pull/2684
-    @listenTo(@obj, "change:#{@attr}", () =>
+    @connect(@change, () =>
       @_init()
-      @obj.trigger("propchange")
+      @obj.propchange.emit()
     )
 
   update: () -> @_init()
@@ -64,7 +67,7 @@ export class Property
 
   # ----- private methods
 
-  _init: (trigger=true) ->
+  _init: () ->
     obj = @obj
     if not obj?
       throw new Error("missing property object")
@@ -106,9 +109,6 @@ export class Property
       @validate(@spec.value)
 
     @init()
-
-    if trigger
-      @trigger("change")
 
 #
 # Simple Properties

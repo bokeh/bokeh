@@ -108,9 +108,9 @@ describe "LayoutDOMView", ->
       @layout.sizing_mode = 'fixed'
       render_spy = sinon.spy(LayoutDOMView.prototype, 'render')
       layout_view = new LayoutDOMView({ model: @layout, parent: null })
-      layout_view.solver.trigger('resize')
-      layout_view.solver.trigger('resize')
-      layout_view.solver.trigger('resize')
+      layout_view.solver.resize.emit()
+      layout_view.solver.resize.emit()
+      layout_view.solver.resize.emit()
       LayoutDOMView.prototype.render.restore()
       expect(render_spy.callCount).is.equal 1
 
@@ -118,9 +118,9 @@ describe "LayoutDOMView", ->
       @layout.sizing_mode = 'scale_both'
       render_spy = sinon.spy(LayoutDOMView.prototype, 'render')
       layout_view = new LayoutDOMView({ model: @layout, parent: null })
-      layout_view.solver.trigger('resize')
-      layout_view.solver.trigger('resize')
-      layout_view.solver.trigger('resize')
+      layout_view.solver.resize.emit()
+      layout_view.solver.resize.emit()
+      layout_view.solver.resize.emit()
       LayoutDOMView.prototype.render.restore()
       expect(render_spy.callCount).is.equal 3
 
@@ -177,7 +177,7 @@ describe "LayoutDOMView", ->
       # Write this test
       null
 
-  describe "unbind_bokeh_events", ->
+  describe "disconnect_signals", ->
 
     it.skip "should have tests", ->
       # Check that listening actually stops on model and its descendents

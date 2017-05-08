@@ -1,5 +1,5 @@
-import {Events} from "./events"
 import {logger} from "./logging"
+import {Signal, Signalable} from "./signaling"
 import * as property_mixins from "./property_mixins"
 import * as refs from "./util/refs"
 import * as p from "./properties"
@@ -10,7 +10,7 @@ import {isString, isObject, isArray} from "./util/types"
 import {isEqual} from './util/eq'
 
 export class HasProps
-  @prototype extends Events
+  @prototype extends Signalable
 
   @getters = (specs) ->
     for name, fn of specs
@@ -85,12 +85,14 @@ export class HasProps
 
   toString: () -> "#{@type}(#{@id})"
 
-  constructor: (attributes, options) ->
+  constructor: (attributes={}, options={}) ->
     @document = null
 
-    attrs = attributes || {}
-    if not options
-      options = {}
+    @destroyed = new Signal(this, "destroyed")
+    @change = new Signal(this, "change")
+    @propchange = new Signal(this, "propchange")
+    @transformchange = new Signal(this, "transformchange")
+
     this.attributes = {}
 
     @properties = {}
@@ -102,15 +104,12 @@ export class HasProps
     # Bokeh specific
     this._set_after_defaults = {}
 
-    this.setv(attrs, options)
+    this.setv(attributes, options)
 
     ## bokeh custom constructor code
 
-    # setting up data structures for properties
-    @_computed = {}
-
     # auto generating ID
-    if not attrs.id?
+    if not attributes.id?
       this.id = uniqueId(this.type)
 
     # allowing us to defer initialization when loading many models
@@ -118,9 +117,9 @@ export class HasProps
     # because other objects that this one depends on might not be loaded yet
 
     if not options.defer_initialization
-      this.initialize.apply(this, arguments)
+      @finalize(attributes, options)
 
-  initialize: (options) ->
+  finalize: (attributes, options) ->
     # This is necessary because the initial creation of properties relies on
     # model.get which is not usable at that point yet in the constructor. This
     # initializer is called when deferred initialization happens for all models
@@ -133,11 +132,21 @@ export class HasProps
     for name, prop of @properties
       prop.update()
       if prop.spec.transform
-        @listenTo(prop.spec.transform, "change", () -> @trigger('transformchange', this))
+        @connect(prop.spec.transform.change, () -> @transformchange.emit())
+
+    @initialize(attributes, options)
+    @connect_signals()
+
+  initialize: (attributes, options) ->
+
+  connect_signals: () ->
+
+  disconnect_signals: () ->
+    Signal.disconnectReceiver(@)
 
   destroy: () ->
-    this.stopListening()
-    this.trigger('destroy', this)
+    @disconnect_signals()
+    @destroyed.emit()
 
   # Create a new model with identical attributes to this one.
   clone: () ->
@@ -167,7 +176,7 @@ export class HasProps
       if changes.length
         this._pending = true
       for i in [0...changes.length]
-        this.trigger('change:' + changes[i], this, current[changes[i]])
+        this.properties[changes[i]].change.emit(current[changes[i]])
 
     # You might be wondering why there's a `while` loop here. Changes can
     # be recursively nested within `"change"` events.
@@ -176,7 +185,7 @@ export class HasProps
     if not silent and not options.no_change
       while this._pending
         this._pending = false
-        this.trigger('change', this)
+        this.change.emit()
 
     this._pending = false
     this._changing = false
@@ -211,65 +220,6 @@ export class HasProps
         for key, value of attrs
           @_tell_document_about_change(key, old[key], @getv(key), options)
 
-  add_dependencies:  (prop_name, object, fields) ->
-    # * prop_name - name of property
-    # * object - object on which dependencies reside
-    # * fields - attributes on that object
-    if not isArray(fields)
-      fields = [fields]
-    prop_spec = @_computed[prop_name]
-    prop_spec.dependencies = prop_spec.dependencies.concat(
-      obj: object
-      fields: fields
-    )
-    # bind depdencies to change dep callback
-    for fld in fields
-      @listenTo(object, "change:" + fld, prop_spec['callbacks']['changedep'])
-
-  define_computed_property: (prop_name, getter, use_cache=true) ->
-    # #### Parameters
-    # * prop_name: name of property
-    # * getter: function, calculates computed value, takes no arguments
-    # * use_cache: whether to cache or not
-    # #### Returns
-    # * prop_spec: specification of the property, with the getter,
-
-    if @props[prop_name]?
-      #throw new Error(
-      console.log("attempted to redefine existing property #{@type}.#{prop_name}")
-
-    if @_computed[prop_name]?
-      throw new Error("attempted to redefine existing computed property #{@type}.#{prop_name}")
-
-    changedep = () =>
-      @trigger('changedep:' + prop_name)
-
-    propchange = () =>
-      firechange = true
-      if prop_spec['use_cache']
-        old_val = prop_spec.cache
-        prop_spec.cache = undefined
-        new_val = @_get_computed(prop_name)
-        firechange = new_val != old_val
-      if firechange
-        @trigger('change:' + prop_name, this, @_get_computed(prop_name))
-        @trigger('change', this)
-
-    prop_spec =
-      'getter': getter,
-      'dependencies': [],
-      'use_cache': use_cache
-      'callbacks':
-        changedep: changedep
-        propchange: propchange
-
-    @_computed[prop_name] = prop_spec
-
-    # bind propchange callback to change dep event
-    @listenTo(this, "changedep:#{prop_name}", prop_spec['callbacks']['propchange'])
-
-    return prop_spec
-
   set: (key, value, options) ->
     logger.warn("HasProps.set('prop_name', value) is deprecated, use HasProps.prop_name = value instead")
     return @setv(key, value, options)
@@ -283,19 +233,6 @@ export class HasProps
       throw new Error("property #{@type}.#{prop_name} wasn't declared")
     else
       return this.attributes[prop_name]
-
-  _get_computed: (prop_name) ->
-    prop_spec = @_computed[prop_name]
-    if not prop_spec?
-      throw new Error("computed property #{@type}.#{prop_name} wasn't declared")
-    if prop_spec.use_cache and prop_spec.cache
-      return prop_spec.cache
-    else
-      getter = prop_spec.getter
-      computed = getter.apply(this, [prop_name])
-      if prop_spec.use_cache
-        prop_spec.cache = computed
-      return computed
 
   ref: () -> refs.create_ref(@)
 

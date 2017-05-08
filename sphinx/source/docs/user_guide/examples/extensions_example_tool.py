@@ -30,7 +30,7 @@ export class DrawToolView extends GestureToolView
 
     @model.source.data.x.push(x)
     @model.source.data.y.push(y)
-    @model.source.trigger('change')
+    @model.source.change.emit()
 
   # this is executed then the pan/drag ends
   _pan_end: (e) -> return null

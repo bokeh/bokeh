@@ -17,13 +17,13 @@ import {register_with_event, UIEvent} from 'core/bokeh_events'
 export class PlotView extends LayoutDOMView
   className: "bk-plot-layout"
 
-  bind_bokeh_events: () ->
+  connect_signals: () ->
     super()
     # Note: Title object cannot be replaced after initialization, similar to axes, and also
     # not being able to change the sizing_mode. All of these changes require a re-initialization
     # of all constraints which we don't currently support.
     title_msg = "Title object cannot be replaced. Try changing properties on title to update it after initialization."
-    @listenTo(@model, 'change:title', () => logger.warn(title_msg))
+    @connect(@model.properties.title.change, () => logger.warn(title_msg))
 
   render: () ->
     super()
@@ -103,7 +103,7 @@ export class Plot extends LayoutDOM
       title = if isString(@title) then new Title({text: @title}) else @title
       @add_layout(title, @title_location)
 
-    @_plot_canvas = new PlotCanvas({plot: @})
+    @_plot_canvas = @_init_plot_canvas()
 
     @toolbar.toolbar_location = @toolbar_location
     @toolbar.toolbar_sticky = @toolbar_sticky
@@ -128,6 +128,9 @@ export class Plot extends LayoutDOM
 
     _set_sizeable(@)
     _set_sizeable(@plot_canvas)
+
+  _init_plot_canvas: () ->
+    return new PlotCanvas({plot: @})
 
   @getters {
     plot_canvas: () -> @_plot_canvas

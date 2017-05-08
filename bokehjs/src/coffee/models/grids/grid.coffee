@@ -20,8 +20,9 @@ export class GridView extends RendererView
     @_draw_grids(ctx)
     ctx.restore()
 
-  bind_bokeh_events: () ->
-    @listenTo(@model, 'change', @request_render)
+  connect_signals: () ->
+    super()
+    @connect(@model.change, @request_render)
 
   _draw_regions: (ctx) ->
     if not @visuals.band_fill.doit

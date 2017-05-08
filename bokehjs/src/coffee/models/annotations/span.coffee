@@ -10,16 +10,17 @@ export class SpanView extends AnnotationView
     @el.style.position = "absolute"
     hide(@el)
 
-  bind_bokeh_events: () ->
+  connect_signals: () ->
+    super()
     if @model.for_hover
-      @listenTo(@model, 'change:computed_location', @_draw_span)
+      @connect(@model.properties.computed_location.change, @_draw_span)
     else
       if @model.render_mode == 'canvas'
-        @listenTo(@model, 'change', () => @plot_view.request_render())
-        @listenTo(@model, 'change:location', () => @plot_view.request_render())
+        @connect(@model.change, () => @plot_view.request_render())
+        @connect(@model.properties.location.change, () => @plot_view.request_render())
       else
-        @listenTo(@model, 'change', @render)
-        @listenTo(@model, 'change:location', @_draw_span)
+        @connect(@model.change, @render)
+        @connect(@model.properties.location.change, @_draw_span)
 
   render: () ->
     if not @model.visible and @model.render_mode == 'css'

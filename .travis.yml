@@ -64,7 +64,7 @@ script:
 
   # unit tests
   - if [[ -z "$TRAVIS_TAG" && "$GROUP" == unit ]]; then
-      py.test --rerun=3 -s -m js;
+      py.test -s -m js;
     fi
   - if [[ -z "$TRAVIS_TAG" && "$GROUP" == unit ]]; then
       py.test --rerun=5 -m 'not (examples or js or integration or quality)' --cov=bokeh --cov-config=bokeh/.coveragerc;

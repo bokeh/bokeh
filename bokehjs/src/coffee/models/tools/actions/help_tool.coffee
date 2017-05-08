@@ -2,7 +2,7 @@ import {ActionTool, ActionToolView} from "./action_tool"
 import * as p from "core/properties"
 
 export class HelpToolView extends ActionToolView
-  do: () ->
+  doit: () ->
     window.open(@model.redirect)
 
 export class HelpTool extends ActionTool

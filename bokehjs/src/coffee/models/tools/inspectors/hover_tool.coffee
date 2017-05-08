@@ -22,9 +22,10 @@ _color_to_hex = (color) ->
 
 export class HoverToolView extends InspectToolView
 
-  bind_bokeh_events: () ->
+  connect_signals: () ->
+    super()
     for r in @model.computed_renderers
-      @listenTo(r.data_source, 'inspect', @_update)
+      @connect(r.data_source.inspect, @_update)
 
   _clear: () ->
 
@@ -74,7 +75,7 @@ export class HoverToolView extends InspectToolView
 
     return
 
-  _update: (indices, tool, renderer, ds, {geometry}) ->
+  _update: ([indices, tool, renderer, ds, {geometry}]) ->
     if not @model.active
       return
 
@@ -317,44 +318,48 @@ export class HoverTool extends InspectTool
       callback:     [ p.Any                    ] # TODO: p.Either(p.Instance(Callback), p.Function) ]
     }
 
-  initialize: (attrs, options) ->
-    super(attrs, options)
+  connect_signals: () ->
+    super()
+    # TODO: @connect(@plot.properties.renderers.change, () -> @_computed_renderers = @_ttmodels = null)
+    @connect(@properties.renderers.change,      () -> @_computed_renderers = @_ttmodels = null)
+    @connect(@properties.names.change,          () -> @_computed_renderers = @_ttmodels = null)
+    @connect(@properties.plot.change,           () -> @_computed_renderers = @_ttmodels = null)
+    @connect(@properties.tooltips.change,       () -> @_ttmodels = null)
 
-    @define_computed_property('computed_renderers',
-      () ->
-        renderers = @renderers
-        names = @names
+  _compute_renderers: () ->
+    renderers = @renderers
+    names = @names
 
-        if renderers.length == 0
-          all_renderers = @plot.renderers
-          renderers = (r for r in all_renderers when r instanceof GlyphRenderer)
+    if renderers.length == 0
+      all_renderers = @plot.renderers
+      renderers = (r for r in all_renderers when r instanceof GlyphRenderer)
 
-        if names.length > 0
-          renderers = (r for r in renderers when names.indexOf(r.name) >= 0)
+    if names.length > 0
+      renderers = (r for r in renderers when names.indexOf(r.name) >= 0)
 
-        return renderers
-      , true)
-    @add_dependencies('computed_renderers', this, ['renderers', 'names', 'plot'])
-    @add_dependencies('computed_renderers', @plot, ['renderers'])
+    return renderers
 
-    @define_computed_property 'ttmodels', () ->
-      ttmodels = {}
-      tooltips = @tooltips
+  _compute_ttmodels: () ->
+    ttmodels = {}
+    tooltips = @tooltips
 
-      if tooltips?
-        for r in @computed_renderers
-          tooltip = new Tooltip({
-            custom: isString(tooltips) or isFunction(tooltips)
-            attachment: @attachment
-            show_arrow: @show_arrow
-          })
-          ttmodels[r.id] = tooltip
+    if tooltips?
+      for r in @computed_renderers
+        tooltip = new Tooltip({
+          custom: isString(tooltips) or isFunction(tooltips)
+          attachment: @attachment
+          show_arrow: @show_arrow
+        })
+        ttmodels[r.id] = tooltip
 
-      return ttmodels
-    @add_dependencies('ttmodels', this, ['computed_renderers', 'tooltips'])
+    return ttmodels
 
   @getters {
-    computed_renderers: () -> @_get_computed('computed_renderers')
-    ttmodels: () -> @_get_computed('ttmodels')
+    computed_renderers: () ->
+      if not @_computed_renderers? then @_computed_renderers = @_compute_renderers()
+      return @_computed_renderers
+    ttmodels: () ->
+      if not @_ttmodels? then @_ttmodels = @_compute_ttmodels()
+      return @_ttmodels
     synthetic_renderers: () -> values(@ttmodels)
   }

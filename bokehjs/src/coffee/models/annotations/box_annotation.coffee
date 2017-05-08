@@ -1,4 +1,5 @@
 import {Annotation, AnnotationView} from "./annotation"
+import {Signal} from "core/signaling"
 import {show, hide} from "core/dom"
 import * as p from "core/properties"
 import {isString, isArray} from "core/util/types"
@@ -10,16 +11,17 @@ export class BoxAnnotationView extends AnnotationView
     @el.classList.add("bk-shading")
     hide(@el)
 
-  bind_bokeh_events: () ->
+  connect_signals: () ->
+    super()
     # need to respond to either normal BB change events or silent
     # "data only updates" that tools might want to use
     if @model.render_mode == 'css'
       # dispatch CSS update immediately
-      @listenTo(@model, 'change', @render)
-      @listenTo(@model, 'data_update', @render)
+      @connect(@model.change, @render)
+      @connect(@model.data_update, @render)
     else
-      @listenTo(@model, 'change', () => @plot_view.request_render())
-      @listenTo(@model, 'data_update', () => @plot_view.request_render())
+      @connect(@model.change, () => @plot_view.request_render())
+      @connect(@model.data_update, () => @plot_view.request_render())
 
   render: () ->
     if not @model.visible and @model.render_mode == 'css'
@@ -122,6 +124,10 @@ export class BoxAnnotation extends Annotation
     line_alpha: 0.3
   }
 
+  initialize: (attrs, options) ->
+    super(attrs, options)
+    @data_update = new Signal(this, "data_update")
+
   update:({left, right, top, bottom}) ->
     @setv({left: left, right: right, top: top, bottom: bottom}, {silent: true})
-    @trigger('data_update')
+    @data_update.emit()
