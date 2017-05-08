@@ -10,7 +10,7 @@ export class BandView extends AnnotationView
 
   connect_signals: () ->
     super()
-    @connectTo(@model.source.change, () ->
+    @connect(@model.source.change, () ->
       @set_data(@model.source)
       @plot_view.request_render())
 

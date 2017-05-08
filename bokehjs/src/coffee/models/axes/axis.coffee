@@ -27,7 +27,7 @@ export class AxisView extends RendererView
 
   connect_signals: () ->
     super()
-    @connectTo(@model.change, () => @plot_view.request_render())
+    @connect(@model.change, () => @plot_view.request_render())
 
   _get_size: () ->
     return @_tick_extent() + @_tick_label_extent() + @_axis_label_extent()

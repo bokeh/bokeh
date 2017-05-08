@@ -6,7 +6,7 @@ export class Range extends Model
 
   initialize: (options) ->
     super(options)
-    @connectTo(@change, () -> @callback?.execute(@))
+    @connect(@change, () -> @callback?.execute(@))
 
   @define {
       callback: [ p.Instance ]

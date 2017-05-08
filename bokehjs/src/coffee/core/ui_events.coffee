@@ -83,38 +83,38 @@ export class UIEvents
 
     switch et
       when "pan"
-        if v._pan_start?    then v.connectTo(@pan_start,    (x) -> if x.id == id then v._pan_start(x.e))
-        if v._pan?          then v.connectTo(@pan,          (x) -> if x.id == id then v._pan(x.e))
-        if v._pan_end?      then v.connectTo(@pan_end,      (x) -> if x.id == id then v._pan_end(x.e))
+        if v._pan_start?    then v.connect(@pan_start,    (x) -> if x.id == id then v._pan_start(x.e))
+        if v._pan?          then v.connect(@pan,          (x) -> if x.id == id then v._pan(x.e))
+        if v._pan_end?      then v.connect(@pan_end,      (x) -> if x.id == id then v._pan_end(x.e))
       when "pinch"
-        if v._pinch_start?  then v.connectTo(@pinch_start,  (x) -> if x.id == id then v._pinch_start(x.e))
-        if v._pinch?        then v.connectTo(@pinch,        (x) -> if x.id == id then v._pinch(x.e))
-        if v._pinch_end?    then v.connectTo(@pinch_end,    (x) -> if x.id == id then v._pinch_end(x.e))
+        if v._pinch_start?  then v.connect(@pinch_start,  (x) -> if x.id == id then v._pinch_start(x.e))
+        if v._pinch?        then v.connect(@pinch,        (x) -> if x.id == id then v._pinch(x.e))
+        if v._pinch_end?    then v.connect(@pinch_end,    (x) -> if x.id == id then v._pinch_end(x.e))
       when "rotate"
-        if v._rotate_start? then v.connectTo(@rotate_start, (x) -> if x.id == id then v._rotate_start(x.e))
-        if v._rotate?       then v.connectTo(@rotate,       (x) -> if x.id == id then v._rotate(x.e))
-        if v._rotate_end?   then v.connectTo(@rotate_end,   (x) -> if x.id == id then v._rotate_end(x.e))
+        if v._rotate_start? then v.connect(@rotate_start, (x) -> if x.id == id then v._rotate_start(x.e))
+        if v._rotate?       then v.connect(@rotate,       (x) -> if x.id == id then v._rotate(x.e))
+        if v._rotate_end?   then v.connect(@rotate_end,   (x) -> if x.id == id then v._rotate_end(x.e))
       when "move"
-        if v._move_enter?   then v.connectTo(@move_enter,   (x) -> if x.id == id then v._move_enter(x.e))
-        if v._move?         then v.connectTo(@move,         (x) -> if x.id == id then v._move(x.e))
-        if v._move_exit?    then v.connectTo(@move_exit,    (x) -> if x.id == id then v._move_exit(x.e))
+        if v._move_enter?   then v.connect(@move_enter,   (x) -> if x.id == id then v._move_enter(x.e))
+        if v._move?         then v.connect(@move,         (x) -> if x.id == id then v._move(x.e))
+        if v._move_exit?    then v.connect(@move_exit,    (x) -> if x.id == id then v._move_exit(x.e))
       when "tap"
-        if v._tap?          then v.connectTo(@tap,          (x) -> if x.id == id then v._tap(x.e))
+        if v._tap?          then v.connect(@tap,          (x) -> if x.id == id then v._tap(x.e))
       when "press"
-        if v._press?        then v.connectTo(@press,        (x) -> if x.id == id then v._press(x.e))
+        if v._press?        then v.connect(@press,        (x) -> if x.id == id then v._press(x.e))
       when "scroll"
-        if v._scroll?       then v.connectTo(@scroll,       (x) -> if x.id == id then v._scroll(x.e))
+        if v._scroll?       then v.connect(@scroll,       (x) -> if x.id == id then v._scroll(x.e))
       else
         throw new Error("unsupported event_type: #{ev}")
 
     if v._doubletap?
-      v.connectTo(@doubletap, (x) -> v._doubletap(x.e))
+      v.connect(@doubletap, (x) -> v._doubletap(x.e))
 
     if v._keydown?
-      v.connectTo(@keydown, (x) -> v._keydown(x.e))
+      v.connect(@keydown, (x) -> v._keydown(x.e))
 
     if v._keyup?
-      v.connectTo(@keyup, (x) -> v._keyup(x.e))
+      v.connect(@keyup, (x) -> v._keyup(x.e))
 
     # Dual touch hack part 1/2
     # This is a hack for laptops with touch screen who may be pinching or scrolling
@@ -123,7 +123,7 @@ export class UIEvents
     if 'ontouchstart' of window or navigator.maxTouchPoints > 0
       if et == 'pinch'
         logger.debug("Registering scroll on touch screen")
-        v.connectTo(@scroll, (x) -> if x.id == id then v._scroll(x.e))
+        v.connect(@scroll, (x) -> if x.id == id then v._scroll(x.e))
 
   _hit_test_renderers: (sx, sy) ->
     for view in @plot_view.get_renderer_views() by -1

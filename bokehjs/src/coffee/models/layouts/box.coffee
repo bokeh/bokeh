@@ -12,7 +12,7 @@ export class BoxView extends LayoutDOMView
 
   connect_signals: () ->
     super()
-    @connectTo(@model.properties.children.change, () => @rebuild_child_views())
+    @connect(@model.properties.children.change, () => @rebuild_child_views())
 
   get_height: () ->
     children = @model.get_layoutable_children()

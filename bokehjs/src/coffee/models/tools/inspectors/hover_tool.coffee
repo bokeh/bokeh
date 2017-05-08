@@ -25,7 +25,7 @@ export class HoverToolView extends InspectToolView
   connect_signals: () ->
     super()
     for r in @model.computed_renderers
-      @connectTo(r.data_source.inspect, @_update)
+      @connect(r.data_source.inspect, @_update)
 
   _clear: () ->
 
@@ -320,11 +320,11 @@ export class HoverTool extends InspectTool
 
   connect_signals: () ->
     super()
-    # TODO: @connectTo(@plot.properties.renderers.change, () -> @_computed_renderers = @_ttmodels = null)
-    @connectTo(@properties.renderers.change,      () -> @_computed_renderers = @_ttmodels = null)
-    @connectTo(@properties.names.change,          () -> @_computed_renderers = @_ttmodels = null)
-    @connectTo(@properties.plot.change,           () -> @_computed_renderers = @_ttmodels = null)
-    @connectTo(@properties.tooltips.change,       () -> @_ttmodels = null)
+    # TODO: @connect(@plot.properties.renderers.change, () -> @_computed_renderers = @_ttmodels = null)
+    @connect(@properties.renderers.change,      () -> @_computed_renderers = @_ttmodels = null)
+    @connect(@properties.names.change,          () -> @_computed_renderers = @_ttmodels = null)
+    @connect(@properties.plot.change,           () -> @_computed_renderers = @_ttmodels = null)
+    @connect(@properties.tooltips.change,       () -> @_ttmodels = null)
 
   _compute_renderers: () ->
     renderers = @renderers

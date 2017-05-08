@@ -70,7 +70,7 @@ to bokehjs and writers of extensions.
 Old                                   New
 ===================================== ==============================================
 
-``@listenTo(obj, "change", fn)``      ``@connectTo(obj.change, fn)``
-``@listenTo(obj, "change:some", fn)`` ``@connectTo(obj.properties.some.change, fn)``
+``@listenTo(obj, "change", fn)``      ``@connect(obj.change, fn)``
+``@listenTo(obj, "change:some", fn)`` ``@connect(obj.properties.some.change, fn)``
 ``obj.trigger("change", arg)``        ``obj.change.emit(arg)``
 ``obj.trigger("change:some", arg)``   ``obj.properties.some.change.emit(arg)``

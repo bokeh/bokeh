@@ -21,7 +21,7 @@ export class Property # <T>
     @change = new Signal(@obj, "change")
 
     # TODO (bev) Quick fix, see https://github.com/bokeh/bokeh/pull/2684
-    @connectTo(@change, () =>
+    @connect(@change, () =>
       @_init()
       @obj.propchange.emit()
     )

@@ -14,7 +14,7 @@ export class SliderView extends InputWidgetView
 
   initialize: (options) ->
     super(options)
-    @connectTo(@model.change, @render)
+    @connect(@model.change, @render)
     @$el.empty()
     html = @template(@model.attributes)
     @$el.html(html)

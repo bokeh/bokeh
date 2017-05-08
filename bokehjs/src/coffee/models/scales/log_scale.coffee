@@ -5,12 +5,12 @@ export class LogScale extends Scale
 
   connect_signals: () ->
     super()
-    @connectTo(@properties.source_range.change,       () -> @_state = null)
-    @connectTo(@properties.target_range.change,       () -> @_state = null)
-    @connectTo(@source_range.properties.start.change, () -> @_state = null)
-    @connectTo(@source_range.properties.end.change,   () -> @_state = null)
-    @connectTo(@target_range.properties.start.change, () -> @_state = null)
-    @connectTo(@target_range.properties.end.change,   () -> @_state = null)
+    @connect(@properties.source_range.change,       () -> @_state = null)
+    @connect(@properties.target_range.change,       () -> @_state = null)
+    @connect(@source_range.properties.start.change, () -> @_state = null)
+    @connect(@source_range.properties.end.change,   () -> @_state = null)
+    @connect(@target_range.properties.start.change, () -> @_state = null)
+    @connect(@target_range.properties.end.change,   () -> @_state = null)
 
   @getters {
     state: () ->

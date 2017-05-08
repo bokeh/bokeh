@@ -16,7 +16,7 @@ export class ColorMapper extends Transform
     @_little_endian = @_is_little_endian()
     @_palette       = @_build_palette(@palette)
 
-    @connectTo(@change, () ->
+    @connect(@change, () ->
       @_palette = @_build_palette(@palette)
     )
 

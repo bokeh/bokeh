@@ -132,7 +132,7 @@ export class HasProps
     for name, prop of @properties
       prop.update()
       if prop.spec.transform
-        @connectTo(prop.spec.transform.change, () -> @transformchange.emit())
+        @connect(prop.spec.transform.change, () -> @transformchange.emit())
 
     @initialize(attributes, options)
     @connect_signals()

@@ -35,7 +35,7 @@ export class CanvasView extends DOMView
     @set_dims([@model.initial_width, @model.initial_height], false)
     logger.debug("CanvasView initialized")
 
-    @connectTo(@solver.layout_reset, () => @_add_constraints())
+    @connect(@solver.layout_reset, () => @_add_constraints())
 
   get_canvas_element: () -> @canvas_el
 

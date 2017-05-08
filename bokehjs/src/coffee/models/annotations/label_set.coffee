@@ -19,17 +19,17 @@ export class LabelSetView extends TextAnnotationView
     super()
     if @model.render_mode == 'css'
       # dispatch CSS update immediately
-      @connectTo(@model.change, () ->
+      @connect(@model.change, () ->
         @set_data(@model.source)
         @render())
-      @connectTo(@model.source.change, () ->
+      @connect(@model.source.change, () ->
         @set_data(@model.source)
         @render())
     else
-      @connectTo(@model.change, () ->
+      @connect(@model.change, () ->
         @set_data(@model.source)
         @plot_view.request_render())
-      @connectTo(@model.source.change, () ->
+      @connect(@model.source.change, () ->
         @set_data(@model.source)
         @plot_view.request_render())
 

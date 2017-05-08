@@ -8,8 +8,8 @@ export class ToolProxy extends Model
   initialize: (options) ->
     super(options)
     @do = new Signal(this, "do")
-    @connectTo(@do, @doit)
-    @connectTo(@properties.active.change, @set_active)
+    @connect(@do, @doit)
+    @connect(@properties.active.change, @set_active)
 
   doit: () ->
     for tool in @tools

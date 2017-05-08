@@ -23,11 +23,11 @@ export class ColorBarView extends AnnotationView
 
   connect_signals: () ->
     super()
-    @connectTo(@model.properties.visible.change, () => @plot_view.request_render())
-    @connectTo(@model.ticker.change, () => @plot_view.request_render())
-    @connectTo(@model.formatter.change, () => @plot_view.request_render())
+    @connect(@model.properties.visible.change, () => @plot_view.request_render())
+    @connect(@model.ticker.change, () => @plot_view.request_render())
+    @connect(@model.formatter.change, () => @plot_view.request_render())
     if @model.color_mapper?
-      @connectTo @model.color_mapper.change, () ->
+      @connect @model.color_mapper.change, () ->
         @_set_canvas_image()
         @plot_view.request_render()
 

@@ -5,7 +5,7 @@ import * as p from "core/properties"
 export class ImageURLView extends GlyphView
   initialize: (options) ->
     super(options)
-    @connectTo(@model.properties.global_alpha.change, () => @renderer.request_render())
+    @connect(@model.properties.global_alpha.change, () => @renderer.request_render())
 
   _index_data: () ->
 

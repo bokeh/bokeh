@@ -8,8 +8,8 @@ export class PolyAnnotationView extends AnnotationView
     super()
     # need to respond to either normal BB change events or silent
     # "data only updates" that tools might want to use
-    @connectTo(@model.change, () => @plot_view.request_render())
-    @connectTo(@model.data_update, () => @plot_view.request_render())
+    @connect(@model.change, () => @plot_view.request_render())
+    @connect(@model.data_update, () => @plot_view.request_render())
 
   render: (ctx) ->
     if not @model.visible
