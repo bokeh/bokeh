@@ -71,6 +71,6 @@ Old                                   New
 ===================================== ==============================================
 
 ``@listenTo(obj, "change", fn)``      ``@connect(obj.change, fn)``
-``@listenTo(obj, "change:some", fn)`` ``@connect(obj.properties.some.change, fn)``
+``@listenTo(obj, "change:attr", fn)`` ``@connect(obj.properties.attr.change, fn)``
 ``obj.trigger("change", arg)``        ``obj.change.emit(arg)``
-``obj.trigger("change:some", arg)``   ``obj.properties.some.change.emit(arg)``
+``obj.trigger("change:attr", arg)``   ``obj.properties.attr.change.emit(arg)``
