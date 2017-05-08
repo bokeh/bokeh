@@ -25,10 +25,6 @@ import warnings
 import tempfile
 import uuid
 
-# Third-party imports
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.common.exceptions import TimeoutException
-
 # Bokeh imports
 from .core.state import State
 from .document import Document
@@ -574,6 +570,9 @@ def _get_screenshot_as_png(obj):
     webdriver = import_required('selenium.webdriver',
                                 'To use bokeh.io.export you need selenium ' +
                                 '("conda install -c bokeh selenium" or "pip install selenium")')
+    from selenium.webdriver.support.ui import WebDriverWait
+    from selenium.common.exceptions import TimeoutException
+
     Image = import_required('PIL.Image',
                             'To use bokeh.io.export you need pillow ' +
                             '("conda install -c bokeh pillow" or "pip install pillow")')
