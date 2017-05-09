@@ -356,3 +356,17 @@ class TestAutoloadServer(unittest.TestCase):
                                    'id' : divid,
                                    'src' : src },
                                  attrs)
+
+@mock.patch('bokeh.document.check_integrity')
+def test_modelindocument_validates_document(check_integrity):
+    p = figure()
+    with embed._ModelInDocument([p]):
+        pass
+    assert check_integrity.called
+
+@mock.patch('bokeh.document.check_integrity')
+def test_modelinemptydocument_validates_document(check_integrity):
+    p = figure()
+    with embed._ModelInEmptyDocument(p):
+        pass
+    assert check_integrity.called
