@@ -8,7 +8,7 @@ import * as sourcemaps from "gulp-sourcemaps"
 import * as paths from "../paths"
 
 gulp.task("styles:build", () => {
-  gulp.src(paths.less.sources)
+  return gulp.src(paths.less.sources)
     .pipe(sourcemaps.init({
       loadMaps: true,
     }))
@@ -18,9 +18,8 @@ gulp.task("styles:build", () => {
 })
 
 gulp.task("styles:minify", () => {
-  gulp.src(paths.css.sources)
+  return gulp.src(paths.css.sources)
     .pipe(rename((path) => path.basename += ".min"))
-    .pipe(gulp.dest(paths.buildDir.css))
     .pipe(sourcemaps.init({
       loadMaps: true,
     }))

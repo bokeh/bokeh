@@ -64,51 +64,51 @@ function mocha(options: {coverage?: boolean} = {}) {
 }
 
 gulp.task("test", ["defaults:generate"], () => {
-  gulp.src(["./test/unit.coffee", "./test/defaults.coffee", "./test/size"]).pipe(mocha())
+  return gulp.src(["./test/unit.coffee", "./test/defaults.coffee", "./test/size"]).pipe(mocha())
 })
 
 gulp.task("test:unit", () => {
-  gulp.src(["./test/unit.coffee"]).pipe(mocha())
+  return gulp.src(["./test/unit.coffee"]).pipe(mocha())
 })
 
 gulp.task("test:unit:coverage", () => {
-  gulp.src(["./test/unit.coffee"]).pipe(mocha({coverage: true}))
+  return gulp.src(["./test/unit.coffee"]).pipe(mocha({coverage: true}))
 })
 
 gulp.task("test:client", () => {
-  gulp.src(["./test/client.coffee"]).pipe(mocha())
+  return gulp.src(["./test/client.coffee"]).pipe(mocha())
 })
 
 gulp.task("test:core", () => {
-  gulp.src(["./test/core"]).pipe(mocha())
+  return gulp.src(["./test/core"]).pipe(mocha())
 })
 
 gulp.task("test:document", () => {
-  gulp.src(["./test/document.coffee"]).pipe(mocha())
+  return gulp.src(["./test/document.coffee"]).pipe(mocha())
 })
 
 gulp.task("test:model", () => {
-  gulp.src(["./test/model.coffee"]).pipe(mocha())
+  return gulp.src(["./test/model.coffee"]).pipe(mocha())
 })
 
 gulp.task("test:models", () => {
-  gulp.src(["./test/models"]).pipe(mocha())
+  return gulp.src(["./test/models"]).pipe(mocha())
 })
 
 gulp.task("test:utils", () => {
-  gulp.src(["./test/utils.coffee"]).pipe(mocha())
+  return gulp.src(["./test/utils.coffee"]).pipe(mocha())
 })
 
 gulp.task("test:common", () => {
-  gulp.src(["./test/common"]).pipe(mocha())
+  return gulp.src(["./test/common"]).pipe(mocha())
 })
 
 gulp.task("test:defaults", ["defaults:generate"], () => {
-  gulp.src(["./test/defaults.coffee"]).pipe(mocha())
+  return gulp.src(["./test/defaults.coffee"]).pipe(mocha())
 })
 
 gulp.task("test:size", () => {
-  gulp.src(["./test/size.coffee"]).pipe(mocha())
+  return gulp.src(["./test/size.coffee"]).pipe(mocha())
 })
 
 buildWatchTask("test", paths.test.watchSources)
