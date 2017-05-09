@@ -10,7 +10,7 @@ import * as paths from "./paths"
 const pkg = rootRequire("./package.json")
 
 type Bundle = {pipeline: any}
-type Labels = {[key: string]: string}
+export type Labels = {[key: string]: string}
 
 function customLabeler(bundle: Bundle, parentLabels: Labels, fn: (row: any) => string): Labels {
   const labels: Labels = {}
