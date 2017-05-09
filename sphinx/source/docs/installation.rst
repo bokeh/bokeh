@@ -43,10 +43,6 @@ Bokeh with plain Python lists of values. However, the Bokeh plot server does
 make direct use of NumPy, and it is required to be installed for Bokeh apps
 to function.
 
-Additionally the ``bokeh.charts`` interface and various examples
-depend on the Pandas library; it is recommended to install Pandas version 0.16.1
-or later.
-
 .. _install_packages:
 
 Package Installs
