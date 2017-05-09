@@ -59,7 +59,7 @@ def _wrap_in_script_tag(js):
     return SCRIPT_TAG.render(js_code=js)
 
 @contextmanager
-def _ModelInDocument(models, apply_theme=None, validate=True):
+def _ModelInDocument(models, apply_theme=None):
     doc = _find_existing_docs(models)
     old_theme = doc.theme
 
@@ -71,7 +71,7 @@ def _ModelInDocument(models, apply_theme=None, validate=True):
 
     models_to_dedoc = _add_doc_to_models(doc, models)
 
-    if validate:
+    if settings.perform_document_validation():
         doc.validate()
 
     yield models
@@ -81,7 +81,7 @@ def _ModelInDocument(models, apply_theme=None, validate=True):
     doc.theme = old_theme
 
 @contextmanager
-def _ModelInEmptyDocument(model, apply_theme=None, validate=True):
+def _ModelInEmptyDocument(model, apply_theme=None):
     from .document import Document
     doc = _find_existing_docs([model])
 
@@ -97,7 +97,7 @@ def _ModelInEmptyDocument(model, apply_theme=None, validate=True):
     empty_doc = Document()
     empty_doc.add_root(model)
 
-    if validate:
+    if settings.perform_document_validation():
         empty_doc.validate()
 
     yield model

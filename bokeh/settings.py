@@ -175,6 +175,12 @@ class Settings(object):
         '''
         return self._get_bool("SIGN_SESSIONS", default)
 
+    def perform_document_validation(self, default=True):
+        ''' Set whether Bokeh should perform validation checks on properties
+        and documents.
+        '''
+        return self._get_bool("PERFORM_DOCUMENT_VALIDATION", default)
+
     # Server settings go here:
 
     def bokehjssrcdir(self):
