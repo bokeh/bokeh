@@ -467,28 +467,18 @@ class ImageURL(Glyph):
     The y-coordinates to locate the image anchors.
     """)
 
-    # TODO: (bev) rename to "dw" for consistency
-    w = DistanceSpec(help="""
-    The widths of the plot regions that the images will occupy.
+    w = DistanceSpec(default=None, help="""
+    The height of the plot region that the image will occupy in data space.
 
-    .. note::
-        This is not the number of pixels that an image is wide.
-        That number is fixed by the image itself.
-
-    .. note::
-        This may be renamed to "dw" in the future.
+    The default value is ``None``, in which case the image will be displayed
+    at its actual image size (regardless of the units specified here).
     """)
 
-    # TODO: (bev) rename to "dh" for consistency
-    h = DistanceSpec(help="""
-    The height of the plot region that the image will occupy.
+    h = DistanceSpec(default=None, help="""
+    The height of the plot region that the image will occupy in data space.
 
-    .. note::
-        This is not the number of pixels that an image is tall.
-        That number is fixed by the image itself.
-
-    .. note::
-        This may be renamed to "dh" in the future.
+    The default value is ``None``, in which case the image will be displayed
+    at its actual image size (regardless of the units specified here).
     """)
 
     angle = AngleSpec(default=0, help="""
