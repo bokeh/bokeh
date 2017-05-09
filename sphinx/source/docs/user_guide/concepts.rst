@@ -25,13 +25,6 @@ BokehJS
     good to have basic knowledge of this dichotomy. For full details, see
     the :ref:`devguide_bokehjs` chapter of the :ref:`devguide`.
 
-Charts
-    Schematic statistical plots such as bar charts, horizon plots, time
-    series, etc. that may include faceting, grouping, or stacking based on
-    the structure of the data. Bokeh provides a high level ``bokeh.charts``
-    interface to quickly construct these kinds of plots. See
-    :ref:`userguide_charts` for examples and usage.
-
 Documents
     An organizing data structure for Bokeh applications. Documents
     contain all the Bokeh Models and data needed to render an interactive
@@ -150,7 +143,7 @@ offers different programming interfaces appropriate to different levels
 of use. This section provides an overview of the various interfaces
 that are available to Bokeh users, as well as more context about the most
 important concepts central to the library. If you'd like to jump right
-into plotting, go to :ref:`userguide_plotting` or :ref:`userguide_charts`.
+into basic plotting, go to :ref:`userguide_plotting`.
 
 *bokeh.models*
 ~~~~~~~~~~~~~~
@@ -230,47 +223,16 @@ axes or grids (although we can configure them if we need to), and specifying
 tools is done simply with the names of tools to add. Finally we use some output
 functions to display our plot.
 
-.. note::
-    The output functions |output_file| and |show|, etc. are
-    defined in the |bokeh.io| module, but are also importable from
-    |bokeh.plotting| for convenience.
-
 There are many other possibilities: saving our plot instead of showing it,
 styling or removing the axes or grids, adding additional renderers, and
 laying out multiple plots together. The :ref:`userguide_plotting` section of
 this :ref:`userguide` will walk through many more examples and common use
 cases of using the |bokeh.plotting| interface.
 
-
-*bokeh.charts*
-~~~~~~~~~~~~~~
-
-Bokeh also provides a very **high-level** |bokeh.charts| interface for quickly
-creating statistical charts. As with |bokeh.plotting|, the main purpose of
-the interface is to help simplify the creation of Bokeh object graphs by
-encapsulating patterns of assembling Bokeh models. The |bokeh.charts|
-interface may also take the additional step of performing necessary
-statistical or data processing for the user. The interface presents functions
-for common, schematic statistical charts. Additionally, the chart functions
-can take care of automatically coloring and faceting based on group structure.
-
-The interface includes chart types such as: |Bar|, |BoxPlot|, |Histogram|,
-|Timeseries|, and many others. One simple example using |Scatter| is shown
-below:
-
-.. bokeh-plot:: docs/user_guide/examples/concepts_charts.py
-    :source-position: above
-
-Important to note is that the same output functions are used across different
-interfaces. As with |bokeh.plotting|, the output functions |output_file| and
-|show|, etc. that are defined in |bokeh.io|, are also importable from
-|bokeh.charts| as a convenience.
-
 .. _Backbone: http://backbonejs.org
 .. _Matlab: http://www.mathworks.com/products/matlab/
 .. _Matplotlib: http://matplotlib.org
 
-.. |bokeh.charts|   replace:: :ref:`bokeh.charts <bokeh.charts>`
 .. |bokeh.models|   replace:: :ref:`bokeh.models <bokeh.models>`
 .. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`
 .. |bokeh.io|       replace:: :ref:`bokeh.io <bokeh.io>`

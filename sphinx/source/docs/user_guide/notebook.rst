@@ -26,10 +26,6 @@ to `zeppelin` in |output_notebook|. Here's one Zeppelin screenshot.
     :scale: 50 %
     :align: center
 
-.. note::
-    As a convenience, |output_notebook| is also importable from the
-    |bokeh.charts| and |bokeh.plotting| modules.
-
 .. _userguide_notebook_notebook_handles:
 
 Notebook Handles
@@ -102,8 +98,6 @@ notebook is shown below:
 
 
 .. |bokeh.io| replace:: :ref:`bokeh.io <bokeh.io>`
-.. |bokeh.charts| replace:: :ref:`bokeh.charts <bokeh.charts>`
-.. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`
 
 .. |output_notebook| replace:: :func:`~bokeh.io.output_notebook`
 .. |output_file| replace:: :func:`~bokeh.io.output_file`
