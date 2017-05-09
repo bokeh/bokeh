@@ -38,9 +38,10 @@ export class ImageURLView extends GlyphView
       img.src = @_url[i]
 
   _map_data: () ->
-    # XXX: remove this when `null` handling is improved.
-    ws = (if @_w? then @_w else NaN for x in @_x)
-    hs = (if @_h? then @_h else NaN for x in @_x)
+    # Better to check @model.w and @model.h for null since the set_data
+    # machinery will have converted @_w and @_w to lists of null
+    ws = (if @model.w? then @_w else NaN for x in @_x)
+    hs = (if @model.h? then @_h else NaN for x in @_x)
 
     switch @model.properties.w.units
       when "data" then @sw = @sdist(@renderer.xscale, @_x, ws, 'edge', @model.dilate)
