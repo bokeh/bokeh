@@ -42,8 +42,8 @@ def test(args=None):
     Args:
         args(list, optional): command line arguments accepted by ``py.test``
 
-            For example, ``args=['-s', '-k charts']`` prevents capture of standard out
-            and only runs tests that match ``"charts"``. For more ``py.test`` options
+            For example, ``args=['-s', '-k plotting']`` prevents capture of standard out
+            and only runs tests that match ``"plotting"``. For more ``py.test`` options
             see http://pytest.org/latest/usage.html.
 
     Returns:

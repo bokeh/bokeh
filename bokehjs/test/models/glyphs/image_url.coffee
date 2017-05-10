@@ -63,3 +63,20 @@ describe "ImageURL module", ->
       image_url_view.map_data()
       expect(image_url_view.sw).to.be.deep.equal([100])
       expect(image_url_view.sh).to.be.deep.equal([200])
+
+    it "`_map_data` should map data to NaN if w and h are null, regardless of units", ->
+      # if sw, sh are NaN, then the image width or height are used during render
+      @image_url.w = null
+      @image_url.h = null
+
+      image_url_view = create_glyph_view(@image_url)
+      image_url_view.map_data()
+      expect(image_url_view.sw).to.be.deep.equal([NaN])
+      expect(image_url_view.sh).to.be.deep.equal([NaN])
+
+      @image_url.properties.w.units = "screen"
+      @image_url.properties.h.units = "screen"
+      image_url_view = create_glyph_view(@image_url)
+      image_url_view.map_data()
+      expect(image_url_view.sw).to.be.deep.equal([NaN])
+      expect(image_url_view.sh).to.be.deep.equal([NaN])

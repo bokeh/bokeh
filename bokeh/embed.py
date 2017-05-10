@@ -71,6 +71,9 @@ def _ModelInDocument(models, apply_theme=None):
 
     models_to_dedoc = _add_doc_to_models(doc, models)
 
+    if settings.perform_document_validation():
+        doc.validate()
+
     yield models
 
     for model in models_to_dedoc:
@@ -93,6 +96,9 @@ def _ModelInEmptyDocument(model, apply_theme=None):
         ref._document = None
     empty_doc = Document()
     empty_doc.add_root(model)
+
+    if settings.perform_document_validation():
+        empty_doc.validate()
 
     yield model
 
