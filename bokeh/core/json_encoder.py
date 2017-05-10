@@ -49,6 +49,16 @@ from ..util.serialization import transform_series, transform_array
 pd = import_optional('pandas')
 rd = import_optional("dateutil.relativedelta")
 
+if pd:
+    try:
+        # pandas >= 0.15.0
+        Timestamp = pd.Timestamp
+    except AttributeError:
+        Timestamp = pd.tslib.Timestamp
+else:
+    Timestamp = None
+
+
 _NP_EPOCH = np.datetime64(0, 'ms')
 _NP_MS_DELTA = np.timedelta64(1, 'ms')
 
@@ -70,7 +80,7 @@ class BokehJSONEncoder(json.JSONEncoder):
         '''
 
         # Pandas Timestamp
-        if pd and isinstance(obj, pd.tslib.Timestamp):
+        if pd and isinstance(obj, Timestamp):
             return obj.value / 10**6.0  #nanosecond to millisecond
         elif np.issubdtype(type(obj), np.float):
             return float(obj)
