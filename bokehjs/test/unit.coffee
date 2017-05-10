@@ -3,7 +3,6 @@
 #     gulp/tasks/test.coffee
 
 require "./client"
-require "./common"
 require "./core"
 require "./document"
 require "./model"
