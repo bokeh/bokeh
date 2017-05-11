@@ -51,7 +51,7 @@ def test_is_datetime_type():
     assert bus.is_datetime_type(bus._pd_timestamp(3000000))
 
 def test_convert_datetime_type():
-    assert bus.convert_datetime_type(datetime.datetime(2016, 5, 11)) == 1462942800000.0
+    assert bus.convert_datetime_type(datetime.datetime(2016, 5, 11, tzinfo=None)) == 1462942800000.0
     assert bus.convert_datetime_type(datetime.timedelta(3000)) == 259200000000.0
     assert bus.convert_datetime_type(datetime.date(2016, 5, 11)) == 1462942800000.0
     assert bus.convert_datetime_type(datetime.time(3, 54)) == 14040000.0

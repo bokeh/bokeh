@@ -489,7 +489,7 @@ class TestNumberSpec(unittest.TestCase):
 
         f = Foo()
 
-        f.dt = datetime.datetime(2016, 5, 11)
+        f.dt = datetime.datetime(2016, 5, 11, tzinfo=None)
         self.assertEqual(f.dt, 1462942800000.0)
 
         f.dt = datetime.date(2016, 5, 12)
