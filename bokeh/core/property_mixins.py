@@ -66,7 +66,7 @@ class FillProps(HasProps):
 
     """)
 
-    fill_alpha = NumberSpec(default=1.0, help="""
+    fill_alpha = NumberSpec(default=1.0, accept_datetime=False, help="""
     An alpha value to use to fill paths with.
 
     Acceptable values are floating point numbers between 0 (transparent)
@@ -95,11 +95,11 @@ class LineProps(HasProps):
 
     """)
 
-    line_width = NumberSpec(default=1, help="""
+    line_width = NumberSpec(default=1, accept_datetime=False, help="""
     Stroke width in units of pixels.
     """)
 
-    line_alpha = NumberSpec(default=1.0, help="""
+    line_alpha = NumberSpec(default=1.0, accept_datetime=False, help="""
     An alpha value to use to stroke paths with.
 
     Acceptable values are floating point numbers between 0 (transparent)
@@ -196,7 +196,7 @@ class TextProps(HasProps):
 
     """)
 
-    text_alpha = NumberSpec(default=1.0, help="""
+    text_alpha = NumberSpec(default=1.0, accept_datetime=False, help="""
     An alpha value to use to fill text with.
 
     Acceptable values are floating point numbers between 0 (transparent)
