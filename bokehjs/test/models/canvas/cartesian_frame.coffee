@@ -52,3 +52,13 @@ describe "CartesianFrame", ->
       expect(scales["default"]).to.be.instanceof(LinearScale)
       expect(scales["default"].source_range).to.be.instanceof(Range1d)
       expect(scales["default"].target_range).to.be.instanceof(Range1d)
+
+    it "should throw error for incompatible numeric scale and factor range", ->
+      ranges = {"default": new FactorRange()}
+      scale = new LinearScale()
+      expect(() -> @frame._get_scales(scale, ranges, @frame_range)).to.throw(Error)
+
+    it "should throw error for incompatible factor scale and numeric range", ->
+      ranges = {"default": new Range1d()}
+      scale = new CategoricalScale()
+      expect(() -> @frame._get_scales(scale, ranges, @frame_range)).to.throw(Error)

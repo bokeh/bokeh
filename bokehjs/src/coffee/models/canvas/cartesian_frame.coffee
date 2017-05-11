@@ -2,6 +2,8 @@ import {CategoricalScale} from "../scales/categorical_scale"
 import {LinearScale} from "../scales/linear_scale"
 import {LogScale} from "../scales/log_scale"
 import {Range1d} from "../ranges/range1d"
+import {DataRange1d} from "../ranges/data_range1d"
+import {FactorRange} from "../ranges/factor_range"
 
 import {EQ, GE} from "core/layout/solver"
 import {LayoutCanvas} from "core/layout/layout_canvas"
@@ -44,7 +46,15 @@ export class CartesianFrame extends LayoutCanvas
 
   _get_scales: (scale, ranges, frame_range) ->
     scales = {}
+
     for name, range of ranges
+      if range instanceof DataRange1d or range instanceof Range1d
+        if not scale instanceof LogScale or not scale instanceof LinearScale
+          throw new Error("Range #{range.constructor.name} is incompatible is Scale #{scale.constructor.name}")
+      if range instanceof FactorRange
+        if not scale instanceof CategoricalScale
+          throw new Error("Range #{range.constructor.name} is incompatible is Scale #{scale.constructor.name}")
+
       s = scale.clone()
       s.setv({source_range: range, target_range: frame_range})
       s.connect_range_signals()
