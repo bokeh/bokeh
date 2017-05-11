@@ -109,7 +109,7 @@ class TestBokehJSONEncoder(unittest.TestCase):
 
     @skipIf(not is_pandas, "pandas does not work in PyPy.")
     def test_pd_timestamp(self):
-        ts = pd.tslib.Timestamp('April 28, 1948')
+        ts = pd.Timestamp('April 28, 1948')
         self.assertEqual(self.encoder.default(ts), -684115200000)
 
 class TestSerializeJson(unittest.TestCase):
