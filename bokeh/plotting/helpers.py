@@ -17,7 +17,7 @@ from ..models import (
     LogAxis, PanTool, ZoomInTool, ZoomOutTool, PolySelectTool, ContinuousTicker,
     SaveTool, Range, Range1d, UndoTool, RedoTool, ResetTool, ResizeTool, Tool,
     WheelPanTool, WheelZoomTool, ColumnarDataSource, ColumnDataSource, GlyphRenderer,
-    LogScale)
+    LogScale, LinearScale, CategoricalScale)
 
 from ..core.properties import ColorSpec, Datetime, value, field
 from ..util.deprecation import deprecated
@@ -199,6 +199,17 @@ def _get_range(range_input):
             except ValueError:  # @mattpap suggests ValidationError instead
                 pass
     raise ValueError("Unrecognized range input: '%s'" % str(range_input))
+
+
+def _get_scale(range_input, axis_type):
+    if isinstance(range_input, (DataRange1d, Range1d)) and axis_type in ["linear", "datetime", "auto"]:
+        return LinearScale()
+    elif isinstance(range_input, (DataRange1d, Range1d)) and axis_type == "log":
+        return LogScale()
+    elif isinstance(range_input, FactorRange):
+        return CategoricalScale()
+    else:
+        raise ValueError("Unable to determine proper scale for: '%s'" % str(range_input))
 
 
 def _get_axis_class(axis_type, range_input):
