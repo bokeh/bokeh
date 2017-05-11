@@ -14,7 +14,7 @@ utils = require "../../utils"
 describe "CartesianFrame", ->
 
   it "should have 6 variables", ->
-    c = new CartesianFrame({x_range: Range1d(0, 1), y_range: Range1d(0, 1)})
+    c = new CartesianFrame({x_range: Range1d(0, 1), y_range: Range1d(0, 1), x_scale: new LinearScale(), y_scale: new LinearScale()})
     # These are inherited from LayoutDOM
     expect(c._top).to.be.an.instanceOf(Variable)
     expect(c._bottom).to.be.an.instanceOf(Variable)
@@ -24,17 +24,17 @@ describe "CartesianFrame", ->
     expect(c._height).to.be.an.instanceOf(Variable)
 
   it "should should return 8 constraints", ->
-    c = new CartesianFrame({x_range: Range1d(0, 1), y_range: Range1d(0, 1)})
+    c = new CartesianFrame({x_range: Range1d(0, 1), y_range: Range1d(0, 1), x_scale: new LinearScale(), y_scale: new LinearScale()})
     expect(c.get_constraints().length).to.be.equal 8
 
   it "should report default scales", ->
-    c = new CartesianFrame({x_range: Range1d(0, 1), y_range: Range1d(0, 1)})
+    c = new CartesianFrame({x_range: Range1d(0, 1), y_range: Range1d(0, 1), x_scale: new LinearScale(), y_scale: new LinearScale()})
 
     expect(c.xscales.default).to.not.be.undefined
     expect(c.yscales.default).to.not.be.undefined
 
   it "should report deprecated *_mappers", ->
-    c = new CartesianFrame({x_range: Range1d(0, 1), y_range: Range1d(0, 1)})
+    c = new CartesianFrame({x_range: Range1d(0, 1), y_range: Range1d(0, 1), x_scale: new LinearScale(), y_scale: new LinearScale()})
 
     expect(c.x_mappers).to.be.deep.equal c.xscales
     expect(c.y_mappers).to.be.deep.equal c.yscales
@@ -42,29 +42,13 @@ describe "CartesianFrame", ->
   describe "_get_scales method", ->
 
     beforeEach ->
-      @frame = new CartesianFrame({x_range: Range1d(), y_range: Range1d()})
+      @frame = new CartesianFrame({x_range: Range1d(), y_range: Range1d(), x_scale: new LinearScale(), y_scale: new LinearScale()})
       @frame_range = Range1d(0, 100)
 
     it "should return scale if defined", ->
-      scale = new LogScale()
+      # scale = new LinearScale()
       ranges = {"default": new Range1d()}
-      scales = @frame._get_scales(scale, ranges, @frame_range)
-      expect(scales["default"]).to.be.instanceof(LogScale)
-
-    it "should return LinearScale as default for Range1d", ->
-      scale = undefined
-      ranges = {"default": new Range1d()}
-      scales = @frame._get_scales(scale, ranges, @frame_range)
+      scales = @frame._get_scales(@frame.x_scale, ranges, @frame_range)
       expect(scales["default"]).to.be.instanceof(LinearScale)
-
-    it "should return LinearScale as default for DataRange1d", ->
-      scale = undefined
-      ranges = {"default": new DataRange1d()}
-      scales = @frame._get_scales(scale, ranges, @frame_range)
-      expect(scales["default"]).to.be.instanceof(LinearScale)
-
-    it "should return CategoricalScale as default for FactorRange", ->
-      scale = undefined
-      ranges = {"default": new FactorRange()}
-      scales = @frame._get_scales(scale, ranges, @frame_range)
-      expect(scales["default"]).to.be.instanceof(CategoricalScale)
+      expect(scales["default"].source_range).to.be.instanceof(Range1d)
+      expect(scales["default"].target_range).to.be.instanceof(Range1d)
