@@ -3,20 +3,19 @@ import * as p from "core/properties"
 
 export class LogScale extends Scale
 
-  connect_signals: () ->
-    super()
+  @getters {
+    state: () ->
+      if not @_state? then @_state = @_compute_state()
+      return @_state
+  }
+
+  connect_range_signals: () ->
     @connect(@properties.source_range.change,       () -> @_state = null)
     @connect(@properties.target_range.change,       () -> @_state = null)
     @connect(@source_range.properties.start.change, () -> @_state = null)
     @connect(@source_range.properties.end.change,   () -> @_state = null)
     @connect(@target_range.properties.start.change, () -> @_state = null)
     @connect(@target_range.properties.end.change,   () -> @_state = null)
-
-  @getters {
-    state: () ->
-      if not @_state? then @_state = @_compute_state()
-      return @_state
-  }
 
   compute: (x) ->
     [factor, offset, inter_factor, inter_offset] = @state

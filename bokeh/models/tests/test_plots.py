@@ -13,7 +13,8 @@ import unittest
 import pytest
 
 from bokeh.plotting import figure
-from bokeh.models import GlyphRenderer, Label, Range1d, FactorRange, Plot, LinearAxis
+from bokeh.models import GlyphRenderer, Label, Plot, LinearAxis
+from bokeh.models.ranges import FactorRange, DataRange1d, Range1d
 from bokeh.models.scales import CategoricalScale, LinearScale, LogScale
 from bokeh.models.tools import PanTool, Toolbar
 
@@ -190,3 +191,44 @@ def test_plot_raises_error_if_x_mapper_type_and_x_scale_are_set():
 def test_plot_raises_error_if_y_mapper_type_and_y_scale_are_set():
     with pytest.raises(ValueError):
         Plot(y_mapper_type="log", y_scale=LogScale())
+
+
+def test__check_required_scale_has_scales():
+    plot = Plot()
+    check = plot._check_required_scale()
+    assert check == []
+
+
+def test__check_required_scale_missing_scales():
+    plot = Plot(x_scale=None, y_scale=None)
+    check = plot._check_required_scale()
+    assert check != []
+
+
+def test__check_compatible_scale_and_ranges_compat_numeric():
+    plot = Plot(x_scale=LinearScale(), x_range=Range1d())
+    check = plot._check_compatible_scale_and_ranges()
+    assert check == []
+
+
+    plot = Plot(y_scale=LogScale(), y_range=DataRange1d())
+    check = plot._check_compatible_scale_and_ranges()
+    assert check == []
+
+
+def test__check_compatible_scale_and_ranges_compat_factor():
+    plot = Plot(x_scale=CategoricalScale(), x_range=FactorRange())
+    check = plot._check_compatible_scale_and_ranges()
+    assert check == []
+
+
+def test__check_compatible_scale_and_ranges_incompat_numeric_scale_and_factor_range():
+    plot = Plot(x_scale=LinearScale(), x_range=FactorRange())
+    check = plot._check_compatible_scale_and_ranges()
+    assert check != []
+
+
+# def test__check_compatible_scale_and_ranges_incompat_factor_scale_and_numeric_range():
+#     plot = Plot(x_scale=CategoricalScale(), x_range=DataRange1d())
+#     check = plot._check_compatible_scale_and_ranges()
+#     assert check != []

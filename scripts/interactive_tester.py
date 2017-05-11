@@ -19,15 +19,12 @@ DIRECTORIES = {
     'webgl'            : '../../examples/webgl',
     'models-file'      : '../../examples/models/file',
     'models-server'    : '../../examples/models/server',
-    'charts-file'      : '../../examples/charts/file',
-    'charts-notebook'  : '../../examples/charts/notebook'
 }
 
 DEFAULT_TEST_FILES = [
     '../../examples/plotting/file/stocks.py',
     '../../examples/plotting/file/glucose.py',
     '../../examples/plotting/server/hover.py',
-    '../../examples/charts/boxplot.py',
 ]
 
 SESSION_FILE = os.path.abspath("INTERACTIVE_TESTER_SESSION.json")
@@ -52,8 +49,6 @@ def get_parser():
                         - server
                         - models-file
                         - models-server
-                        - charts-file
-                        - charts-notebook
                     """), formatter_class=argparse.RawTextHelpFormatter)
 
     parser.add_argument('--no-log', action='store_true', dest='nolog', default=False,

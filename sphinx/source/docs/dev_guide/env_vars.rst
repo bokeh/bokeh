@@ -119,6 +119,13 @@ Normally Bokeh generates UUIDs for object identifiers. Setting this variable
 to an affirmative value will result in more friendly simple numeric IDs
 counting up from 1000.
 
+``BOKEH_VALIDATE_DOC``
+-----------------------
+Whether to perform a validation check on the document before outputting.
+Accepted values are ``yes``/``no``, ``true``/``false`` or ``0``/``1``.
+Setting this variable to a negative value for a document that is known to be
+correctly configured may yield performance improvements.
+
 ``BOKEH_VERSION``
 -----------------
 What version of BokehJS to use with ``cdn`` resources

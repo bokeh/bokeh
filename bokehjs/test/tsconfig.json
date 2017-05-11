@@ -7,12 +7,12 @@
     "noImplicitReturns": true,
     "strictNullChecks": true,
     "alwaysStrict": true,
-    "noEmitOnError": false,
+    "noEmitOnError": true,
+    "declaration": false,
     "module": "commonjs",
     "moduleResolution": "node",
     "target": "ES5",
     "lib": ["es5", "dom", "es2015.collection"],
-    "declaration": false,
     "baseUrl": ".",
     "paths": {
       "*": ["../build/js/tree/*"]

@@ -10,7 +10,7 @@ from ..core.properties import Bool, Dict, Enum, Include, Instance, Int, List, Ov
 from ..core.property_mixins import LineProps, FillProps
 from ..core.query import find
 from ..core.validation import error, warning
-from ..core.validation.errors import REQUIRED_RANGE
+from ..core.validation.errors import REQUIRED_RANGE, REQUIRED_SCALE, INCOMPATIBLE_SCALE_AND_RANGE
 from ..core.validation.warnings import (MISSING_RENDERERS, NO_DATA_RENDERERS,
                                         MALFORMED_CATEGORY_LABEL, SNAPPED_TOOLBAR_ANNOTATIONS)
 from ..util.deprecation import deprecated
@@ -22,7 +22,7 @@ from .axes import Axis
 from .glyphs import Glyph
 from .grids import Grid
 from .layouts import LayoutDOM
-from .ranges import Range, FactorRange
+from .ranges import Range, FactorRange, DataRange1d, Range1d
 from .renderers import DataRenderer, DynamicImageRenderer, GlyphRenderer, Renderer, TileRenderer
 from .scales import Scale, CategoricalScale, LinearScale, LogScale
 from .sources import DataSource, ColumnDataSource
@@ -336,6 +336,37 @@ class Plot(LayoutDOM):
         if missing:
             return ", ".join(missing) + " [%s]" % self
 
+    @error(REQUIRED_SCALE)
+    def _check_required_scale(self):
+        missing = []
+        if not self.x_scale: missing.append('x_scale')
+        if not self.y_scale: missing.append('y_scale')
+        if missing:
+            return ", ".join(missing) + " [%s]" % self
+
+    @error(INCOMPATIBLE_SCALE_AND_RANGE)
+    def _check_compatible_scale_and_ranges(self):
+        incompatible = []
+        x_ranges = list(self.extra_x_ranges.values())
+        if self.x_range: x_ranges.append(self.x_range)
+        y_ranges = list(self.extra_y_ranges.values())
+        if self.y_range: y_ranges.append(self.y_range)
+
+        for rng in x_ranges:
+            if isinstance(rng, (DataRange1d, Range1d)) and not isinstance(self.x_scale, (LinearScale, LogScale)):
+                incompatible.append("incompatibility on x-dimension: %s, %s" %(rng, self.x_scale))
+            elif isinstance(rng, FactorRange) and not isinstance(self.x_scale, CategoricalScale):
+                incompatible.append("incompatibility on x-dimension: %s/%s" %(rng, self.x_scale))
+
+        for rng in y_ranges:
+            if isinstance(rng, (DataRange1d, Range1d)) and not isinstance(self.y_scale, (LinearScale, LogScale)):
+                incompatible.append("incompatibility on y-dimension: %s/%s" %(rng, self.y_scale))
+            elif isinstance(rng, FactorRange) and not isinstance(self.y_scale, CategoricalScale):
+                incompatible.append("incompatibility on y-dimension: %s/%s" %(rng, self.y_scale))
+
+        if incompatible:
+            return ", ".join(incompatible) + " [%s]" % self
+
     @warning(MISSING_RENDERERS)
     def _check_missing_renderers(self):
         if len(self.renderers) == 0:
@@ -418,22 +449,14 @@ class Plot(LayoutDOM):
         deprecated((0, 12, 6), "y_mapper_type", "y_scale")
         self.y_scale = self._scale(mapper_type)
 
-    x_scale = Instance(Scale, help="""
+    x_scale = Instance(Scale, default=lambda: LinearScale(), help="""
     What kind of scale to use to convert x-coordinates in data space
     into x-coordinates in screen space.
-
-    If set to ``None``, but will infer an appropriate scale type based on
-    the default range in x-dimension. Numeric ranges will use a LinearScale
-    and FactorRanges will use a CategoricalScale.
     """)
 
-    y_scale = Instance(Scale, help="""
+    y_scale = Instance(Scale, default=lambda: LinearScale(), help="""
     What kind of scale to use to convert y-coordinates in data space
     into y-coordinates in screen space.
-
-    If set to ``None``, but will infer an appropriate scale type based on
-    the default range in x-dimension. Numeric ranges will use a LinearScale
-    and FactorRanges will use a CategoricalScale.
     """)
 
     extra_x_ranges = Dict(String, Instance(Range), help="""
