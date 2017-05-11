@@ -418,16 +418,14 @@ class Plot(LayoutDOM):
 
     @classmethod
     def _scale(cls, scale):
-        if scale == "auto" or scale is None:
-            return None
-        if scale == "categorical":
-            return CategoricalScale()
-        elif scale == "linear":
+        if scale in ["auto", "linear"]:
             return LinearScale()
         elif scale == "log":
             return LogScale()
+        if scale == "categorical":
+            return CategoricalScale()
         else:
-            raise ValueError("Unknown mapper_type")
+            raise ValueError("Unknown mapper_type: %s" % scale)
 
     @property
     def x_mapper_type(self):
