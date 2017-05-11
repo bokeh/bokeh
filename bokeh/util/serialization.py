@@ -16,7 +16,6 @@ log = logging.getLogger(__name__)
 import base64
 import datetime as dt
 import math
-import time
 
 from six import iterkeys
 
@@ -57,6 +56,8 @@ if pd:
 
 NP_EPOCH = np.datetime64(0, 'ms')
 NP_MS_DELTA = np.timedelta64(1, 'ms')
+
+DT_EPOCH = dt.datetime.utcfromtimestamp(0)
 
 __doc__ = format_docstring(__doc__, binary_array_types="\n".join("* ``np." + str(x) + "``" for x in BINARY_ARRAY_TYPES))
 
@@ -100,7 +101,7 @@ def convert_datetime_type(obj):
 
     # Datetime (datetime is a subclass of date)
     elif isinstance(obj, dt.datetime):
-        return time.mktime(obj.timetuple()) * 1000. + obj.microsecond / 1000.
+        return (obj - DT_EPOCH).total_seconds() * 1000. + obj.microsecond / 1000.
 
     # Timedelta (timedelta is class in the datetime library)
     elif isinstance(obj, dt.timedelta):
@@ -108,7 +109,7 @@ def convert_datetime_type(obj):
 
     # Date
     elif isinstance(obj, dt.date):
-        return time.mktime(obj.timetuple()) * 1000.
+        return (dt.datetime(*obj.timetuple()[:6]) - DT_EPOCH).total_seconds() * 1000
 
     # NumPy datetime64
     elif isinstance(obj, np.datetime64):

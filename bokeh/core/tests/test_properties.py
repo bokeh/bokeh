@@ -489,24 +489,24 @@ class TestNumberSpec(unittest.TestCase):
 
         f = Foo()
 
-        f.dt = datetime.datetime(2016, 5, 11, tzinfo=None)
-        self.assertEqual(f.dt, 1462942800000.0)
+        f.dt = datetime.datetime(2016, 5, 11)
+        self.assertEqual(f.dt, 1462924800000.0)
 
-        f.dt = datetime.date(2016, 5, 12)
-        self.assertEqual(f.dt, 1463029200000.0)
+        f.dt = datetime.date(2016, 5, 11)
+        self.assertEqual(f.dt, 1462924800000.0)
 
-        f.dt = np.datetime64("2016-05-13")
-        self.assertEqual(f.dt, 1463097600000.0)
+        f.dt = np.datetime64("2016-05-11")
+        self.assertEqual(f.dt, 1462924800000.0)
 
 
         with self.assertRaises(ValueError):
             f.ndt = datetime.datetime(2016, 5, 11)
 
         with self.assertRaises(ValueError):
-            f.ndt = datetime.date(2016, 5, 12)
+            f.ndt = datetime.date(2016, 5, 11)
 
         with self.assertRaises(ValueError):
-            f.ndt = np.datetime64("2016-05-13")
+            f.ndt = np.datetime64("2016-05-11")
 
     def test_default(self):
         class Foo(HasProps):
