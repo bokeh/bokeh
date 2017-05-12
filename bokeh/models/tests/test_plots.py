@@ -227,7 +227,7 @@ def test__check_compatible_scale_and_ranges_incompat_numeric_scale_and_factor_ra
     assert check != []
 
 
-# def test__check_compatible_scale_and_ranges_incompat_factor_scale_and_numeric_range():
-#     plot = Plot(x_scale=CategoricalScale(), x_range=DataRange1d())
-#     check = plot._check_compatible_scale_and_ranges()
-#     assert check != []
+def test__check_compatible_scale_and_ranges_incompat_factor_scale_and_numeric_range():
+    plot = Plot(x_scale=CategoricalScale(), x_range=DataRange1d())
+    check = plot._check_compatible_scale_and_ranges()
+    assert check != []

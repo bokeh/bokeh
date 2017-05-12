@@ -357,12 +357,18 @@ class Plot(LayoutDOM):
                 incompatible.append("incompatibility on x-dimension: %s, %s" %(rng, self.x_scale))
             elif isinstance(rng, FactorRange) and not isinstance(self.x_scale, CategoricalScale):
                 incompatible.append("incompatibility on x-dimension: %s/%s" %(rng, self.x_scale))
+            # special case because CategoricalScale is a subclass of LinearScale, should be removed in future
+            if isinstance(rng, (DataRange1d, Range1d)) and isinstance(self.x_scale, CategoricalScale):
+                incompatible.append("incompatibility on x-dimension: %s, %s" %(rng, self.x_scale))
 
         for rng in y_ranges:
             if isinstance(rng, (DataRange1d, Range1d)) and not isinstance(self.y_scale, (LinearScale, LogScale)):
                 incompatible.append("incompatibility on y-dimension: %s/%s" %(rng, self.y_scale))
             elif isinstance(rng, FactorRange) and not isinstance(self.y_scale, CategoricalScale):
                 incompatible.append("incompatibility on y-dimension: %s/%s" %(rng, self.y_scale))
+            # special case because CategoricalScale is a subclass of LinearScale, should be removed in future
+            if isinstance(rng, (DataRange1d, Range1d)) and isinstance(self.y_scale, CategoricalScale):
+                incompatible.append("incompatibility on y-dimension: %s, %s" %(rng, self.y_scale))
 
         if incompatible:
             return ", ".join(incompatible) + " [%s]" % self
