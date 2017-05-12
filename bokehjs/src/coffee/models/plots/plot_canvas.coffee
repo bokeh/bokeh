@@ -589,8 +589,11 @@ export class PlotCanvasView extends DOMView
 
     ctx.restore()  # Restore to default state
 
-    event = new Event("bokeh:rendered", {detail: @})
-    window.dispatchEvent(event)
+    try
+      event = new Event("bokeh:rendered", {detail: @})
+      window.dispatchEvent(event)
+    catch
+      # new Event() is not supported on IE.
 
   _on_resize: () ->
     # Set the plot and canvas to the current model's size

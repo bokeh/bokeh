@@ -186,7 +186,7 @@ def curdoc():
     ''' Return the document for the current default state.
 
     Returns:
-        doc : the current default document object.
+        Document : the current default document object.
 
     '''
     return _state.document
@@ -195,7 +195,7 @@ def curstate():
     ''' Return the current State object
 
     Returns:
-      state : the current default State object
+      State : the current default State object
 
     '''
     return _state
@@ -365,8 +365,12 @@ def save(obj, filename=None, resources=None, title=None, state=None, **kwargs):
             If None, use the default state title value, if there is one.
             Otherwise, use "Bokeh Plot"
 
+         state (State, optional) :
+            A :class:`State` object. If None, then the current default
+            implicit state is used. (default: None).
+
     Returns:
-        filename (str) : the filename where the HTML file is saved.
+        str: the filename where the HTML file is saved.
 
     '''
 
@@ -457,10 +461,11 @@ def push_notebook(document=None, state=None, handle=None):
 
         document (Document, optional) :
             A :class:`~bokeh.document.Document` to push from. If None,
-            uses ``curdoc()``.
+            uses ``curdoc()``. (default: None)
 
         state (State, optional) :
-            A Bokeh State object
+            A :class:`State` object. If None, then the current default
+            state (set by ``output_file``, etc.) is used. (default: None)
 
     Returns:
         None
@@ -528,9 +533,9 @@ def _remove_roots(subplots):
             doc.remove_root(sub)
 
 def _server_cell(server, script):
-    '''
-    Wraps a script returned by autoload_server in a div that allows cell
+    ''' Wrap a script returned by ``autoload_server`` in a div that allows cell
     destruction/replacement to be detected.
+
     '''
     divid = uuid.uuid4().hex
     _state.uuid_to_server[divid] = server
@@ -544,9 +549,9 @@ Jupyter.notebook.kernel.execute(command);
 """
 
 def _destroy_server(div_id):
-    '''
-    Given a uuid id of a div removed or replaced in the Jupyter
+    ''' Given a UUID id of a div removed or replaced in the Jupyter
     notebook, destroy the corresponding server sessions and stop it.
+
     '''
     server = _state.uuid_to_server.get(div_id, None)
     if server is None:
