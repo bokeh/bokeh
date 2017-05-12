@@ -6,7 +6,7 @@ from __future__ import absolute_import
 from six import string_types
 
 from ..core.enums import Location
-from ..core.properties import Auto, Bool, Dict, Either, Enum, Include, Instance, Int, List, Override, String
+from ..core.properties import Auto, Bool, Dict, Either, Enum, Float, Include, Instance, Int, List, Override, String, Tuple
 from ..core.property_mixins import LineProps, FillProps
 from ..core.query import find
 from ..core.validation import error, warning
@@ -21,7 +21,7 @@ from .axes import Axis
 from .glyphs import Glyph
 from .grids import Grid
 from .layouts import LayoutDOM
-from .ranges import Range, FactorRange
+from .ranges import FactorRange, Range, Range1d
 from .renderers import DataRenderer, DynamicImageRenderer, GlyphRenderer, Renderer, TileRenderer
 from .sources import DataSource, ColumnDataSource
 from .tools import Tool, Toolbar, ToolEvents
@@ -365,11 +365,17 @@ class Plot(LayoutDOM):
 
     x_range = Instance(Range, help="""
     The (default) data range of the horizontal dimension of the plot.
-    """)
+
+    As a convenience, may be configured with a tuple of floats ``(start, end)``
+    which is equivalent to setting ``x_range = Range1d(start, end)``.
+    """).accepts(Tuple(Float, Float), lambda x: Range1d(x[0], x[1]))
 
     y_range = Instance(Range, help="""
     The (default) data range of the vertical dimension of the plot.
-    """)
+
+    As a convenience, may be configured with a tuple of floats ``(start, end)``
+    which is equivalent to setting ``y_range = Range1d(start, end)``.
+    """).accepts(Tuple(Float, Float), lambda x: Range1d(x[0], x[1]))
 
     x_mapper_type = Either(Auto, String, help="""
     What kind of mapper to use to convert x-coordinates in data space

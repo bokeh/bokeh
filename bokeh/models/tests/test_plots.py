@@ -67,6 +67,17 @@ class TestPlotSelect(unittest.TestCase):
         )
 
 
+def test_plot_ranges_accept_tuples_for_fixed_ranges():
+    p = Plot(y_range=(10, 20))
+    p.x_range = (0, 1)
+    assert isinstance(p.x_range, Range1d)
+    assert p.x_range.start == 0
+    assert p.x_range.end == 1
+    assert isinstance(p.y_range, Range1d)
+    assert p.y_range.start == 10
+    assert p.y_range.end == 20
+
+
 def test_plot_add_layout_raises_error_if_not_render():
     plot = figure()
     with pytest.raises(ValueError):
