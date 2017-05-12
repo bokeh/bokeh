@@ -54,6 +54,8 @@ export class CartesianFrame extends LayoutCanvas
       if range instanceof FactorRange
         if not scale instanceof CategoricalScale
           throw new Error("Range #{range.constructor.name} is incompatible is Scale #{scale.constructor.name}")
+      if scale instanceof LogScale and range instanceof DataRange1d
+        range.scale_hint = "log"
 
       s = scale.clone()
       s.setv({source_range: range, target_range: frame_range})
