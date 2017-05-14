@@ -22,11 +22,23 @@ export class LabelSetView extends TextAnnotationView
       @connect(@model.change, () ->
         @set_data(@model.source)
         @render())
+      @connect(@model.source.streaming, () ->
+        @set_data(@model.source)
+        @render())
+      @connect(@model.source.patching, () ->
+        @set_data(@model.source)
+        @render())
       @connect(@model.source.change, () ->
         @set_data(@model.source)
         @render())
     else
       @connect(@model.change, () ->
+        @set_data(@model.source)
+        @plot_view.request_render())
+      @connect(@model.source.streaming, () ->
+        @set_data(@model.source)
+        @plot_view.request_render())
+      @connect(@model.source.patching, () ->
         @set_data(@model.source)
         @plot_view.request_render())
       @connect(@model.source.change, () ->
