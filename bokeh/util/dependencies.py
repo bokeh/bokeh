@@ -62,6 +62,7 @@ def detect_phantomjs():
         proc = Popen([phantomjs_path, "--version"], stdout=PIPE, stderr=PIPE)
         proc.wait()
     except OSError:
-        raise RuntimeError('PhantomJS is not present in PATH.')
+        raise RuntimeError('PhantomJS is not present in PATH. Try "conda install phantomjs" or \
+                           "npm install -g phantomjs-prebuilt"')
     else:
         return phantomjs_path

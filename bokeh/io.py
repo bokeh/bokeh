@@ -580,7 +580,7 @@ def _get_screenshot_as_png(obj):
 
     Image = import_required('PIL.Image',
                             'To use bokeh.io.export you need pillow ' +
-                            '("conda install -c bokeh pillow" or "pip install pillow")')
+                            '("conda install pillow" or "pip install pillow")')
     # assert that phantomjs is in path for webdriver
     detect_phantomjs()
 
