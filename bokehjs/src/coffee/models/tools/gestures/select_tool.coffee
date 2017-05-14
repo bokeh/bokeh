@@ -49,34 +49,36 @@ export class SelectToolView extends GestureToolView
 export class SelectTool extends GestureTool
 
   @define {
-      renderers: [ p.Array, [] ]
-      names:     [ p.Array, [] ]
-    }
+    renderers: [ p.Array, [] ]
+    names:     [ p.Array, [] ]
+  }
 
   @internal {
     multi_select_modifier: [ p.String, "shift" ]
   }
 
-  initialize: (attrs, options) ->
-    super(attrs, options)
+  connect_signals: () ->
+    super()
+    # TODO: @connect(@plot.properties.renderers.change, () -> @_computed_renderers = null)
+    @connect(@properties.renderers.change,      () -> @_computed_renderers = null)
+    @connect(@properties.names.change,          () -> @_computed_renderers = null)
+    @connect(@properties.plot.change,           () -> @_computed_renderers = null)
 
-    @define_computed_property('computed_renderers',
-      () ->
-        renderers = @renderers
-        names = @names
+  _compute_renderers: () ->
+    renderers = @renderers
+    names = @names
 
-        if renderers.length == 0
-          all_renderers = @plot.renderers
-          renderers = (r for r in all_renderers when r instanceof GlyphRenderer)
+    if renderers.length == 0
+      all_renderers = @plot.renderers
+      renderers = (r for r in all_renderers when r instanceof GlyphRenderer)
 
-        if names.length > 0
-          renderers = (r for r in renderers when names.indexOf(r.name) >= 0)
+    if names.length > 0
+      renderers = (r for r in renderers when names.indexOf(r.name) >= 0)
 
-        return renderers
-      , true)
-    @add_dependencies('computed_renderers', this, ['renderers', 'names', 'plot'])
-    @add_dependencies('computed_renderers', @plot, ['renderers'])
+    return renderers
 
   @getters {
-    computed_renderers: () -> @_get_computed('computed_renderers')
+    computed_renderers: () ->
+      if not @_computed_renderers? then @_computed_renderers = @_compute_renderers()
+      return @_computed_renderers
   }

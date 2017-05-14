@@ -91,11 +91,11 @@ export class ColumnDataSource extends ColumnarDataSource
     for k, v of new_data
       data[k] = stream_to_column(data[k], new_data[k], rollover)
     @setv('data', data, {silent: true})
-    @trigger('stream')
+    @streaming.emit()
 
   patch: (patches) ->
     data = @data
     for k, patch of patches
       patch_to_column(data[k], patch)
     @setv('data', data, {silent: true})
-    @trigger('patch')
+    @patching.emit()

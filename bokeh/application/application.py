@@ -13,6 +13,7 @@ from abc import ABCMeta, abstractmethod
 from ..util.future import with_metaclass
 from ..util.tornado import yield_for_all_futures
 from ..document import Document
+from ..settings import settings
 
 class ServerContext(with_metaclass(ABCMeta)):
     @property
@@ -121,9 +122,8 @@ class Application(object):
             if h.failed:
                 log.error("Error running application handler %r: %s %s ", h, h.error, h.error_detail)
 
-        # A future server setting could make it configurable whether to do this,
-        # since it has some performance impact probably. Let's see if we need to.
-        doc.validate()
+        if settings.perform_document_validation():
+            doc.validate()
 
     def add(self, handler):
         ''' Add a handler to the pipeline used to initialize new documents.

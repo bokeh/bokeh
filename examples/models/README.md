@@ -1,11 +1,13 @@
-This directory contains examples that use the lowest-level [`bokeh.models`](http://bokeh.pydata.org/en/latest/docs/user_guide/concepts.html#bokeh-models)
-interface. This interface mirrors the models found in the BokehJS browser library, and provides
-complete control over every aspect of constructing a Bokeh document, at the expense of increased
-verbosity.
+This directory contains examples that use the lowest-level
+[`bokeh.models`](http://bokeh.pydata.org/en/latest/docs/user_guide/concepts.html#bokeh-models)
+interface. This interface mirrors the models found in the BokehJS browser
+library, and provides complete control over every aspect of constructing a
+Bokeh document, at the expense of increased verbosity.
 
-*Most* users will probably want to start off with the higher level [`bokeh.plotting`](http://bokeh.pydata.org/en/latest/docs/user_guide/plotting.html)
-or [`bokeh.charts`](http://bokeh.pydata.org/en/latest/docs/user_guide/charts.html) interfaces,
-and only selectively use the [`bokeh.models`](http://bokeh.pydata.org/en/latest/docs/user_guide/concepts.html#bokeh-models)
+Most users will probably want to start off with the higher level
+[`bokeh.plotting`](http://bokeh.pydata.org/en/latest/docs/user_guide/plotting.html)
+interface,and only selectively use the
+[`bokeh.models`](http://bokeh.pydata.org/en/latest/docs/user_guide/concepts.html#bokeh-models)
 interface whenever a particular need arises.
 
 #### Examples that use the server

@@ -1,10 +1,13 @@
 from __future__ import absolute_import, print_function
 
+import mock
 import pytest
 
 from bokeh.application.handlers import FunctionHandler
 from bokeh.application import Application
+from bokeh.document import Document
 from bokeh.model import Model
+from bokeh.plotting import figure
 from bokeh.core.properties import Int, Instance
 
 class AnotherModelInTestApplication(Model):
@@ -86,3 +89,20 @@ def test_excess_static_path():
     with pytest.raises(RuntimeError) as e:
         a.add(handler2)
     assert "More than one static path" in str(e)
+
+@mock.patch('bokeh.document.check_integrity')
+def test_application_validates_document_by_default(check_integrity):
+    a = Application()
+    d = Document()
+    d.add_root(figure())
+    a.initialize_document(d)
+    assert check_integrity.called
+
+@mock.patch('bokeh.document.check_integrity')
+def test_application_doesnt_validate_document_due_to_env_var(check_integrity, monkeypatch):
+    monkeypatch.setenv("BOKEH_VALIDATE_DOC", "false")
+    a = Application()
+    d = Document()
+    d.add_root(figure())
+    a.initialize_document(d)
+    assert not check_integrity.called

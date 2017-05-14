@@ -199,6 +199,16 @@ function findIndexFactory(dir: number) {
 export const findIndex = findIndexFactory(1)
 export const findLastIndex = findIndexFactory(-1)
 
+export function find<T>(array: Array<T>, predicate: (item: T) => boolean): T | undefined {
+  const index = findIndex(array, predicate)
+  return index == -1 ? undefined : array[index]
+}
+
+export function findLast<T>(array: Array<T>, predicate: (item: T) => boolean): T | undefined {
+  const index = findLastIndex(array, predicate)
+  return index == -1 ? undefined : array[index]
+}
+
 export function sortedIndex<T>(array: Array<T>, value: T): number {
   let low = 0
   let high = array.length
@@ -272,4 +282,13 @@ export function intersection<T>(array: Array<T>, ...arrays: Array<Array<T>>): Ar
 export function difference<T>(array: Array<T>, ...arrays: Array<Array<T>>): Array<T> {
   const rest = concat(arrays)
   return array.filter((value) => !contains(rest, value))
+}
+
+export function removeBy<T>(array: Array<T>, key: (item: T) => boolean): void {
+  for (let i = 0; i < array.length;) {
+    if (key(array[i]))
+      array.splice(i, 1)
+    else
+      i++
+  }
 }

@@ -33,8 +33,8 @@ s.callback = CustomJS(args=dict(s2=s2), code="""
         ym /= inds.length
         s2.data['ym'] = [ym, ym]
 
-        cb_obj.trigger('change');
-        s2.trigger('change');
+        cb_obj.change.emit();
+        s2.change.emit();
     """)
 
 show(p)

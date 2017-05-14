@@ -5,7 +5,8 @@ To create a Bokeh visualization, the central task is to assemble a collection
 model objects from |bokeh.models| into a graph that represents the scene that
 should be created in the client. It is possible to to this "by hand", using the
 model objects directly. However, to make this process easier, Bokeh provides
-higher level interfaces such as |bokeh.plotting| and |bokeh.charts| for users.
+higher level interfaces such as |bokeh.plotting| for users.
+
 These interfaces automate common "assembly" steps, to ensure a Bokeh object
 graph is created in a consistent, predictable way. However, regardless of what
 interface is used, it is possible to put Bokeh models together in ways that are

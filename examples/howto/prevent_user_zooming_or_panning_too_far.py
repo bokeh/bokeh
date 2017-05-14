@@ -1,6 +1,5 @@
 from datetime import date, timedelta
 import numpy as np
-from bokeh.charts import HeatMap
 from bokeh.io import output_file, show
 from bokeh.layouts import row, column
 from bokeh.models import Range1d, LinearAxis
@@ -75,24 +74,6 @@ fruits = {
         '2009', '2010', '2011', '2012', '2013']
 }
 
-plot_cat_unbounded = HeatMap(fruits, y='year', x='fruit', values='fruit_count', stat=None, title="Heatmap (unbounded)")
-
-plot_cat_autobounded = HeatMap(fruits, y='year', x='fruit', values='fruit_count', stat=None, title="Heatmap (autobounded)")
-###### -- ranges set here -- ########
-plot_cat_autobounded.x_range.bounds = 'auto'
-plot_cat_autobounded.y_range.bounds = 'auto'
-###### -- end -- ########
-
-plot_cat_bounded = HeatMap(
-    fruits, y='year', x='fruit', values='fruit_count', stat=None,
-    title="Heatmap with bounds x:['apples', 'pears'], y:['2009', '2010', '2013']"
-)
-###### -- ranges set here -- ########
-plot_cat_bounded.x_range.bounds = ['apples', 'pears']
-plot_cat_bounded.y_range.bounds = ['2009', '2010', '2013']
-###### -- end -- ########
-
-
 ## Plot with multiple ranges that are bounded
 x = np.array(AAPL['date'], dtype=np.datetime64)
 x = x[0:1000]
@@ -116,9 +97,8 @@ plot_extra.line(x, google_y, color='pink', y_range_name='goog')
 plot_extra.add_layout(LinearAxis(y_range_name="goog", major_label_text_color='pink'), 'left')
 
 # Tweak the formats to make it all readable
-plots = [plot_default, plot_range, plot_range_un, plot_range_rev, plot_cat_autobounded, plot_cat_unbounded, plot_cat_bounded, plot_extra]
+plots = [plot_default, plot_range, plot_range_un, plot_range_rev, plot_extra]
 
 show(column(plot_default,
             row(plot_range, plot_range_un, plot_range_rev),
-            row(plot_cat_unbounded, plot_cat_autobounded, plot_cat_bounded),
             plot_extra))

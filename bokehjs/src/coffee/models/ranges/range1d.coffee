@@ -44,4 +44,4 @@ export class Range1d extends Range
     if @start != @_initial_start or @end != @_initial_end
       @setv({start: @_initial_start, end: @_initial_end})
     else
-      @trigger('change')
+      @change.emit()

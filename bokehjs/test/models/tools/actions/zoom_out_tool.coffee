@@ -56,7 +56,7 @@ describe "ZoomOutTool", ->
       })
 
       # perform the tool action
-      zoom_out_tool_view.do()
+      zoom_out_tool_view.doit()
 
       hr = @plot_canvas_view.frame.x_ranges['default']
       expect([hr.start, hr.end]).to.be.deep.equal([-1.1, 1.1])
@@ -76,7 +76,7 @@ describe "ZoomOutTool", ->
       })
 
       # perform the tool action
-      zoom_out_tool_view.do()
+      zoom_out_tool_view.doit()
 
       hr = @plot_canvas_view.frame.x_ranges['default']
       expect([hr.start, hr.end]).to.be.deep.equal([-1.1, 1.1])
@@ -96,7 +96,7 @@ describe "ZoomOutTool", ->
       })
 
       # perform the tool action
-      zoom_out_tool_view.do()
+      zoom_out_tool_view.doit()
 
       hr = @plot_canvas_view.frame.x_ranges['default']
       expect([hr.start, hr.end]).to.be.deep.equal([-1.0, 1.0])

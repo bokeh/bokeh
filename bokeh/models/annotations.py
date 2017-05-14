@@ -10,13 +10,14 @@ from ..core.enums import (accept_left_right_center, AngleUnits, DeprecatedLegend
                           FontStyle, LegendClickPolicy, LegendLocation, Orientation, RenderMode,
                           SpatialUnits, TextAlign)
 from ..core.has_props import abstract
-from ..core.properties import (Angle, AngleSpec, Auto, Bool, ColorSpec, DistanceSpec, Either, Enum, Float,
-                               FontSizeSpec, Include, Instance, Int, List, NumberSpec, Override,
+from ..core.properties import (Angle, AngleSpec, Auto, Bool, ColorSpec, Datetime, DistanceSpec, Either,
+                               Enum, Float, FontSizeSpec, Include, Instance, Int, List, NumberSpec, Override,
                                Seq, String, StringSpec, Tuple, value)
 from ..core.property_mixins import FillProps, LineProps, TextProps
 from ..core.validation import error
 from ..core.validation.errors import BAD_COLUMN_NAME, NON_MATCHING_DATA_SOURCES_ON_LEGEND_ITEM_RENDERERS
 from ..model import Model
+from ..util.serialization import convert_datetime_type
 
 from .formatters import BasicTickFormatter, TickFormatter
 from .mappers import ContinuousColorMapper
@@ -402,6 +403,9 @@ class BoxAnnotation(Annotation):
 
     left = Either(Auto, NumberSpec(), default=None, help="""
     The x-coordinates of the left edge of the box annotation.
+
+    Datetime values are also accepted, but note that they are immediately
+    converted to milliseconds-since-epoch.
     """)
 
     left_units = Enum(SpatialUnits, default='data', help="""
@@ -411,6 +415,9 @@ class BoxAnnotation(Annotation):
 
     right = Either(Auto, NumberSpec(), default=None, help="""
     The x-coordinates of the right edge of the box annotation.
+
+    Datetime values are also accepted, but note that they are immediately
+    converted to milliseconds-since-epoch.
     """)
 
     right_units = Enum(SpatialUnits, default='data', help="""
@@ -420,6 +427,9 @@ class BoxAnnotation(Annotation):
 
     bottom = Either(Auto, NumberSpec(), default=None, help="""
     The y-coordinates of the bottom edge of the box annotation.
+
+    Datetime values are also accepted, but note that they are immediately
+    converted to milliseconds-since-epoch.
     """)
 
     bottom_units = Enum(SpatialUnits, default='data', help="""
@@ -429,6 +439,9 @@ class BoxAnnotation(Annotation):
 
     top = Either(Auto, NumberSpec(), default=None, help="""
     The y-coordinates of the top edge of the box annotation.
+
+    Datetime values are also accepted, but note that they are immediately
+    converted to milliseconds-since-epoch.
     """)
 
     top_units = Enum(SpatialUnits, default='data', help="""
@@ -543,7 +556,10 @@ class Label(TextAnnotation):
 
     x = Float(help="""
     The x-coordinate in screen coordinates to locate the text anchors.
-    """)
+
+    Datetime values are also accepted, but note that they are immediately
+    converted to milliseconds-since-epoch.
+    """).accepts(Datetime, convert_datetime_type)
 
     x_units = Enum(SpatialUnits, default='data', help="""
     The unit type for the x attribute. Interpreted as "data space" units
@@ -552,7 +568,10 @@ class Label(TextAnnotation):
 
     y = Float(help="""
     The y-coordinate in screen coordinates to locate the text anchors.
-    """)
+
+    Datetime values are also accepted, but note that they are immediately
+    converted to milliseconds-since-epoch.
+    """).accepts(Datetime, convert_datetime_type)
 
     y_units = Enum(SpatialUnits, default='data', help="""
     The unit type for the y attribute. Interpreted as "data space" units

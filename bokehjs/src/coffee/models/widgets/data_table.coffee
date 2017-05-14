@@ -85,7 +85,7 @@ export class DataProvider
       return 0
 
   _update_source_inplace: () ->
-    @source.trigger("change:data", @, @source.attributes['data'])
+    @source.properties.data.change.emit(@, @source.attributes['data'])
     return
 
 export class DataTableView extends WidgetView
@@ -94,11 +94,11 @@ export class DataTableView extends WidgetView
   initialize: (options) ->
     super(options)
     wait_for_element(@el, () => @render())
-    @listenTo(@model, 'change', () => @render())
-    @listenTo(@model.source, 'change:data', () => @updateGrid())
-    @listenTo(@model.source, 'stream', () => @updateGrid())
-    @listenTo(@model.source, 'patch', () => @updateGrid())
-    @listenTo(@model.source, 'change:selected', () => @updateSelection())
+    @connect(@model.change, () => @render())
+    @connect(@model.source.properties.data.change, () => @updateGrid())
+    @connect(@model.source.streaming, () => @updateGrid())
+    @connect(@model.source.patching, () => @updateGrid())
+    @connect(@model.source.properties.selected.change, () => @updateSelection())
 
     @in_selection_update = false
 

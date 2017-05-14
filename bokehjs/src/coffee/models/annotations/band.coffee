@@ -8,15 +8,16 @@ export class BandView extends AnnotationView
     super(options)
     @set_data(@model.source)
 
-  bind_bokeh_events: () ->
+  connect_signals: () ->
     super()
-    @listenTo(@model.source, 'change', () ->
-      @set_data(@model.source)
-      @plot_view.request_render())
+    @connect(@model.source.streaming, () -> @set_data(@model.source))
+    @connect(@model.source.patching, () -> @set_data(@model.source))
+    @connect(@model.source.change, () -> @set_data(@model.source))
 
   set_data: (source) ->
     super(source)
     @visuals.warm_cache(source)
+    @plot_view.request_render()
 
   _map_data: () ->
     x_scale = @plot_view.frame.xscales[@model.x_range_name]

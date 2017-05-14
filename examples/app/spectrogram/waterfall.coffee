@@ -27,7 +27,7 @@ export class WaterfallRendererView extends RendererView
     @yscale = @plot_view.frame.yscales['default']
     @max_freq = @plot_view.y_range.end
 
-    @listenTo(@model, 'change', @request_render)
+    @connect(@model.change, @request_render)
 
   render: () ->
     ctx = @plot_view.canvas_view.ctx
