@@ -30,7 +30,7 @@ export class CanvasView extends DOMView
     switch @model.backend
       when "canvas"
         @canvas_el = @el.appendChild(canvas({class: "bk-canvas"}))
-        @ctx = @get_ctx()
+        @ctx = @canvas_el.getContext('2d')
       when "svg"
         @ctx = new canvas2svg()
         @canvas_el = @el.appendChild(@ctx.getSvg())
