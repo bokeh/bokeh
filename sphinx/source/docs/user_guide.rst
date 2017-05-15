@@ -75,6 +75,9 @@ topic:
 :ref:`userguide_tutorials`
     Read tutorials on specific topics for using Bokeh.
 
+:ref:`userguide_export`
+    Learn how to export Bokeh layouts as PNGs.
+
 The examples in the user guide are written to be as minimal as possible,
 while illustrating how to accomplish a single task within Bokeh. With a
 handful of exceptions, no outside libraries such as NumPy, Pandas, or

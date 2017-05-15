@@ -49,6 +49,7 @@ the :ref:`devguide`.
     docs/user_guide/extensions
     docs/user_guide/info
     docs/user_guide/tutorials
+    docs/user_guide/export
     docs/reference
     docs/reference/*
     docs/dev_guide
