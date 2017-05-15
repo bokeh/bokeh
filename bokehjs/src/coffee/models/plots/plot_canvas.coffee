@@ -685,7 +685,7 @@ export class PlotCanvas extends LayoutDOM
       initial_width: @plot.plot_width,
       initial_height: @plot.plot_height,
       use_hidpi: @plot.hidpi,
-      backend: @plot.output_backend
+      output_backend: @plot.output_backend
     })
 
     @frame = new CartesianFrame({

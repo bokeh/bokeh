@@ -27,7 +27,7 @@ export class CanvasView extends DOMView
     @events_el   = @el.appendChild(div({class: "bk-canvas-events"}))
     @overlays_el = @el.appendChild(div({class: "bk-canvas-overlays"}))
 
-    switch @model.backend
+    switch @model.output_backend
       when "canvas"
         @canvas_el = @el.appendChild(canvas({class: "bk-canvas"}))
         @ctx = @canvas_el.getContext('2d')
@@ -56,7 +56,7 @@ export class CanvasView extends DOMView
     @el.style.width = "#{width}px"
     @el.style.height = "#{height}px"
 
-    pixel_ratio = get_scale_ratio(@ctx, @model.use_hidpi, @model.backend)
+    pixel_ratio = get_scale_ratio(@ctx, @model.use_hidpi, @model.output_backend)
     @model.pixel_ratio = pixel_ratio
 
     @canvas_el.style.width = "#{width}px"
@@ -114,7 +114,7 @@ export class Canvas extends LayoutCanvas
     initial_height: [ p.Number         ]
     use_hidpi:      [ p.Boolean, true  ]
     pixel_ratio:    [ p.Number,  1     ]
-    backend:        [ p.OutputBackend, "canvas"]
+    output_backend: [ p.OutputBackend, "canvas"]
   }
 
   initialize: (attrs, options) ->
