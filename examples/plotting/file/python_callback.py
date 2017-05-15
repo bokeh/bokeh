@@ -28,7 +28,7 @@ def callback(source=source, window=None, amp=None, freq=None, phase=None, offset
     x, y = data['x'], data['y']
     for i in range(len(x)):
         y[i] = B + A * window.Math.sin(k * x[i] + phi)
-    source.trigger('change')
+    source.change.emit()
 
 # turn our function into a CustomJS object.
 # print(callback.code) to see the generated JavaScript code

@@ -72,7 +72,7 @@ callback = CustomJS(args=dict(source=source), code="""
     if ((R > 127) || (G > 127) || (B > 127)) {
         text_color[0] = '#000000';
     }
-    source.trigger('change');
+    source.change.emit();
 """)
 
 # create slider tool objects with a callback to control the RGB levels for first plot

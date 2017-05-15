@@ -31,8 +31,9 @@ export class GMapPlot extends Plot
     super(options)
     if not @api_key
       logger.error("api_key is required. See https://developers.google.com/maps/documentation/javascript/get-api-key for more information on how to obtain your own.")
-    @_plot_canvas = new GMapPlotCanvas({plot: @})
-    @plot_canvas.toolbar = @toolbar
+
+  _init_plot_canvas: () ->
+    return new GMapPlotCanvas({plot: @})
 
   # Set all the PlotCanvas properties as internal.
   # This seems to be necessary so that everything can initialize.

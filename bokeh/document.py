@@ -769,10 +769,8 @@ class Document(object):
             None
 
         '''
-        root_sets = []
         for r in self.roots:
             refs = r.references()
-            root_sets.append(refs)
             check_integrity(refs)
 
     def _add_session_callback(self, callback_obj, callback, one_shot):

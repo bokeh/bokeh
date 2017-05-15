@@ -1,9 +1,7 @@
 from __future__ import absolute_import, division
 
-from bokeh.charts import Histogram
 from bokeh.io import save
 from bokeh.models import Plot, ColumnDataSource, Rect, DataRange1d
-from bokeh.sampledata.autompg import autompg as df
 
 from tests.integration.utils import has_no_console_errors, wait_for_canvas_resize
 
@@ -104,23 +102,6 @@ def test_scale_width_maintains_a_minimum_height(output_file_url, selenium):
     # Plot should have been shrunk somewhat
     assert canvas.size['height'] < 600
     assert canvas.size['height'] >= 100
-
-
-def test_scale_width_chart_starts_at_correct_size(output_file_url, selenium):
-    hist = Histogram(df['mpg'], title="MPG Distribution", sizing_mode='scale_width')
-    save(hist)
-
-    selenium.set_window_size(width=1000, height=600)
-    selenium.get(output_file_url)
-    assert has_no_console_errors(selenium)
-
-    canvas = selenium.find_element_by_tag_name('canvas')
-    wait_for_canvas_resize(canvas, selenium)
-
-    # Canvas width should be just under 1000 * 0.9
-    # (default file_html has a body width of 90%)
-    assert canvas.size['width'] > 850
-    assert canvas.size['width'] < 900
 
 
 def test_scale_width_plot_starts_at_correct_size(output_file_url, selenium):

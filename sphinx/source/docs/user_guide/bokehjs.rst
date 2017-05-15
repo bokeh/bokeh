@@ -390,7 +390,7 @@ and dynamic creation and modification of plots.
         source.data.x.push(Math.random());
         source.data.y.push(Math.random());
         // Also, the DataSource object must be notified when it has changed.
-        source.trigger('change');
+        source.change.emit();
     }
 
     </script>

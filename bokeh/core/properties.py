@@ -106,7 +106,7 @@ from six import string_types, iteritems
 
 from ..colors import RGB
 from ..util.dependencies import import_optional
-from ..util.serialization import transform_column_source_data, decode_base64_dict
+from ..util.serialization import convert_datetime_type, decode_base64_dict, transform_column_source_data
 from ..util.string import nice_join, format_docstring
 
 from .property.bases import ContainerProperty, DeserializationError, ParameterizedProperty, Property, PrimitiveProperty
@@ -636,6 +636,9 @@ class Either(ParameterizedProperty):
             return self._type_params[0]._raw_default()
         default = kwargs.get("default", choose_default)
         super(Either, self).__init__(default=default, help=help)
+        self.alternatives = []
+        for tp in self._type_params:
+            self.alternatives.extend(tp.alternatives)
 
     # TODO (bev) get rid of this?
     def __or__(self, other):
@@ -1029,7 +1032,7 @@ class Angle(Float):
     pass
 
 class Date(Property):
-    ''' Accept Date (not datetime) values.
+    ''' Accept Date (but not DateTime) values.
 
     '''
     def __init__(self, default=datetime.date.today(), help=None):
@@ -1455,7 +1458,7 @@ class DataSpec(Either):
         property.
 
         Args:
-            name (str) : the name of the property these descriptors are for
+            base_name (str) : the name of the property these descriptors are for
 
         Returns:
             list[DataSpecPropertyDescriptor]
@@ -1491,7 +1494,13 @@ class DataSpec(Either):
 _FieldValueTransform = Enum("field", "value", "transform")
 
 class NumberSpec(DataSpec):
-    ''' A |DataSpec| property that accepts numeric fixed values.
+    ''' A |DataSpec| property that accepts numeric and datetime fixed values.
+
+    By default, date and datetime values are immediately converted to
+    milliseconds since epoch. It it possible to disable processing of datetime
+    values by passing ``accept_datetime=False``.
+
+    Timedelta values are interpreted as absolute milliseconds.
 
     .. code-block:: python
 
@@ -1500,8 +1509,12 @@ class NumberSpec(DataSpec):
         m.location = "foo" # field
 
     '''
-    def __init__(self, default=None, help=None, key_type=_FieldValueTransform):
+    def __init__(self, default=None, help=None, key_type=_FieldValueTransform, accept_datetime=True):
         super(NumberSpec, self).__init__(key_type, Float, default=default, help=help)
+        self.accepts(TimeDelta, convert_datetime_type)
+        if accept_datetime:
+            self.accepts(Datetime, convert_datetime_type)
+
 
 class StringSpec(DataSpec):
     ''' A |DataSpec| property that accepts string fixed values.

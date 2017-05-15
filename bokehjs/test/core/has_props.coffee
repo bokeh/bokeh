@@ -91,11 +91,6 @@ describe "has_properties module", ->
       props = Object.keys(Object.assign(mixins.line(""), mixins.text("bar_")))
       expect(Object.keys(obj.properties)).to.be.deep.equal(['id'].concat(props))
 
-    it "should set listenTo on transforms", ->
-      obj = new SubclassWithTransformSpec()
-      transform = obj.properties.foo.spec.transform
-      expect(Object.keys(transform._listeners)).to.contain(obj._listenId)
-
   describe "materialize_dataspecs", ->
     it "should collect dataspecs", ->
       r = new ColumnDataSource({data: {colname: [1, 2, 3, 4]}})

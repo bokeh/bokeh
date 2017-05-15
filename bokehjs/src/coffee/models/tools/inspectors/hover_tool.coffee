@@ -22,9 +22,10 @@ _color_to_hex = (color) ->
 
 export class HoverToolView extends InspectToolView
 
-  bind_bokeh_events: () ->
+  connect_signals: () ->
+    super()
     for r in @model.computed_renderers
-      @listenTo(r.data_source, 'inspect', @_update)
+      @connect(r.data_source.inspect, @_update)
 
   _clear: () ->
 
@@ -74,7 +75,7 @@ export class HoverToolView extends InspectToolView
 
     return
 
-  _update: (indices, tool, renderer, ds, {geometry}) ->
+  _update: ([indices, tool, renderer, ds, {geometry}]) ->
     if not @model.active
       return
 
@@ -103,6 +104,7 @@ export class HoverToolView extends InspectToolView
     for i in indices['0d'].indices
       data_x = renderer.glyph._x[i+1]
       data_y = renderer.glyph._y[i+1]
+      ii = i
 
       switch @model.line_policy
         when "interp" # and renderer.get_interpolation_hit?
@@ -117,6 +119,7 @@ export class HoverToolView extends InspectToolView
         when "next"
           rx = canvas.sx_to_vx(renderer.glyph.sx[i+1])
           ry = canvas.sy_to_vy(renderer.glyph.sy[i+1])
+          ii = i+1
 
         when "nearest"
           d1x = renderer.glyph.sx[i]
@@ -131,7 +134,7 @@ export class HoverToolView extends InspectToolView
             [sdatax, sdatay] = [d1x, d1y]
           else
             [sdatax, sdatay] = [d2x, d2y]
-            i = i+1
+            ii = i+1
 
           data_x = renderer.glyph._x[i]
           data_y = renderer.glyph._y[i]
@@ -141,9 +144,9 @@ export class HoverToolView extends InspectToolView
         else
           [rx, ry] = [vx, vy]
 
-      vars = {index: i, x: x, y: y, vx: vx, vy: vy, sx: sx, sy: sy, data_x: data_x, data_y: data_y, rx:rx, ry:ry}
+      vars = {index: ii, x: x, y: y, vx: vx, vy: vy, sx: sx, sy: sy, data_x: data_x, data_y: data_y, rx:rx, ry:ry}
 
-      tooltip.add(rx, ry, @_render_tooltips(ds, i, vars))
+      tooltip.add(rx, ry, @_render_tooltips(ds, ii, vars))
 
     for i in indices['1d'].indices
       # multiglyphs will set '1d' and '2d' results, but have different tooltips
@@ -151,6 +154,7 @@ export class HoverToolView extends InspectToolView
         for i, [j] of indices['2d'].indices
           data_x = renderer.glyph._xs[i][j]
           data_y = renderer.glyph._ys[i][j]
+          jj = j
 
           switch @model.line_policy
             when "interp" # and renderer.get_interpolation_hit?
@@ -165,6 +169,7 @@ export class HoverToolView extends InspectToolView
             when "next"
               rx = canvas.sx_to_vx(renderer.glyph.sxs[i][j+1])
               ry = canvas.sy_to_vy(renderer.glyph.sys[i][j+1])
+              jj = j+1
 
             when "nearest"
               d1x = renderer.glyph.sx[i][j]
@@ -179,14 +184,14 @@ export class HoverToolView extends InspectToolView
                 [sdatax, sdatay] = [d1x, d1y]
               else
                 [sdatax, sdatay] = [d2x, d2y]
-                j = j+1
+                jj = j+1
 
               data_x = renderer.glyph._x[i][j]
               data_y = renderer.glyph._y[i][j]
               rx = canvas.sx_to_vx(sdatax)
               ry = canvas.sy_to_vy(sdatay)
 
-          vars = {index: i, segment_index: j, x: x, y: y, vx: vx, vy: vy, sx: sx, sy: sy, data_x: data_x, data_y: data_y}
+          vars = {index: i, segment_index: jj, x: x, y: y, vx: vx, vy: vy, sx: sx, sy: sy, data_x: data_x, data_y: data_y}
 
           tooltip.add(rx, ry, @_render_tooltips(ds, i, vars))
 
@@ -313,44 +318,48 @@ export class HoverTool extends InspectTool
       callback:     [ p.Any                    ] # TODO: p.Either(p.Instance(Callback), p.Function) ]
     }
 
-  initialize: (attrs, options) ->
-    super(attrs, options)
+  connect_signals: () ->
+    super()
+    # TODO: @connect(@plot.properties.renderers.change, () -> @_computed_renderers = @_ttmodels = null)
+    @connect(@properties.renderers.change,      () -> @_computed_renderers = @_ttmodels = null)
+    @connect(@properties.names.change,          () -> @_computed_renderers = @_ttmodels = null)
+    @connect(@properties.plot.change,           () -> @_computed_renderers = @_ttmodels = null)
+    @connect(@properties.tooltips.change,       () -> @_ttmodels = null)
 
-    @define_computed_property('computed_renderers',
-      () ->
-        renderers = @renderers
-        names = @names
+  _compute_renderers: () ->
+    renderers = @renderers
+    names = @names
 
-        if renderers.length == 0
-          all_renderers = @plot.renderers
-          renderers = (r for r in all_renderers when r instanceof GlyphRenderer)
+    if renderers.length == 0
+      all_renderers = @plot.renderers
+      renderers = (r for r in all_renderers when r instanceof GlyphRenderer)
 
-        if names.length > 0
-          renderers = (r for r in renderers when names.indexOf(r.name) >= 0)
+    if names.length > 0
+      renderers = (r for r in renderers when names.indexOf(r.name) >= 0)
 
-        return renderers
-      , true)
-    @add_dependencies('computed_renderers', this, ['renderers', 'names', 'plot'])
-    @add_dependencies('computed_renderers', @plot, ['renderers'])
+    return renderers
 
-    @define_computed_property 'ttmodels', () ->
-      ttmodels = {}
-      tooltips = @tooltips
+  _compute_ttmodels: () ->
+    ttmodels = {}
+    tooltips = @tooltips
 
-      if tooltips?
-        for r in @computed_renderers
-          tooltip = new Tooltip({
-            custom: isString(tooltips) or isFunction(tooltips)
-            attachment: @attachment
-            show_arrow: @show_arrow
-          })
-          ttmodels[r.id] = tooltip
+    if tooltips?
+      for r in @computed_renderers
+        tooltip = new Tooltip({
+          custom: isString(tooltips) or isFunction(tooltips)
+          attachment: @attachment
+          show_arrow: @show_arrow
+        })
+        ttmodels[r.id] = tooltip
 
-      return ttmodels
-    @add_dependencies('ttmodels', this, ['computed_renderers', 'tooltips'])
+    return ttmodels
 
   @getters {
-    computed_renderers: () -> @_get_computed('computed_renderers')
-    ttmodels: () -> @_get_computed('ttmodels')
+    computed_renderers: () ->
+      if not @_computed_renderers? then @_computed_renderers = @_compute_renderers()
+      return @_computed_renderers
+    ttmodels: () ->
+      if not @_ttmodels? then @_ttmodels = @_compute_ttmodels()
+      return @_ttmodels
     synthetic_renderers: () -> values(@ttmodels)
   }

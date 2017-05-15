@@ -41,7 +41,7 @@ export class CanvasView extends DOMView
     @set_dims([@model.initial_width, @model.initial_height], false)
     logger.debug("CanvasView initialized")
 
-    @listenTo(@solver, "layout_reset", () => @_add_constraints())
+    @connect(@solver.layout_reset, () => @_add_constraints())
 
   # Method exists so that context can be stubbed in unit tests
   get_ctx: () -> return @canvas_el.getContext('2d')

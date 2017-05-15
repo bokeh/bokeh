@@ -30,8 +30,7 @@ export class SelectionManager extends HasProps
 
       @source.selected = selector.indices
 
-      source.trigger('select')
-      source.trigger('select-' + renderer_view.model.id)
+      source.select.emit(renderer_view.model.id)
 
       return not indices.is_empty()
     else
@@ -62,13 +61,7 @@ export class SelectionManager extends HasProps
 
       @source.setv({inspected: inspector.indices}, {"silent": true })
 
-      source.trigger(
-        'inspect', indices, tool, renderer_view, source, data
-      )
-      source.trigger(
-        "inspect#{renderer_view.model.id}", indices, tool, renderer_view,
-        source, data
-      )
+      source.inspect.emit([indices, tool, renderer_view, source, data])
       return not indices.is_empty()
     else
       return false
