@@ -642,6 +642,10 @@ def export(obj, filename=None):
     Returns:
         filename (str) : the filename where the static file is saved.
 
+    .. warning::
+        Responsive sizing_modes may generate layouts with unexpected size and
+        aspect ratios. It is recommended to use the default ``fixed`` sizing mode.
+
     '''
     image = _get_screenshot_as_png(obj)
 
