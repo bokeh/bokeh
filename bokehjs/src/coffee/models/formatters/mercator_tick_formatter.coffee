@@ -9,7 +9,7 @@ export class MercatorTickFormatter extends BasicTickFormatter
     dimension: [ p.LatLon ]
   }
 
-  doFormat: (ticks, loc) ->
+  doFormat: (ticks, axis) ->
     if not @dimension?
       throw new Error("MercatorTickFormatter.dimension not configured")
 
@@ -20,11 +20,11 @@ export class MercatorTickFormatter extends BasicTickFormatter
 
     if @dimension == "lon"
       for i in [0...ticks.length]
-        [lon, lat] = proj4(mercator).inverse([ticks[i], loc])
+        [lon, lat] = proj4(mercator).inverse([ticks[i], axis.loc])
         proj_ticks[i] = lon
     else
       for i in [0...ticks.length]
-        [lon, lat] = proj4(mercator).inverse([loc, ticks[i]])
+        [lon, lat] = proj4(mercator).inverse([axis.loc, ticks[i]])
         proj_ticks[i] = lat
 
-    return super(proj_ticks, loc)
+    return super(proj_ticks, axis)

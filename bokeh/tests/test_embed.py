@@ -212,6 +212,11 @@ def test_file_html_provides_warning_if_no_js(mock_warn):
     )
 
 
+def test_file_html_title_is_escaped():
+    r = embed.file_html(_embed_test_plot, CDN, "&<")
+    assert "<title>&amp;&lt;</title>" in r
+
+
 class TestAutoloadStatic(unittest.TestCase):
 
     def test_return_type(self):
@@ -351,3 +356,33 @@ class TestAutoloadServer(unittest.TestCase):
                                    'id' : divid,
                                    'src' : src },
                                  attrs)
+
+@mock.patch('bokeh.document.check_integrity')
+def test_modelindocument_validates_document_by_default(check_integrity):
+    p = figure()
+    with embed._ModelInDocument([p]):
+        pass
+    assert check_integrity.called
+
+@mock.patch('bokeh.document.check_integrity')
+def test_modelindocument_doesnt_validate_doc_due_to_env_var(check_integrity, monkeypatch):
+    monkeypatch.setenv("BOKEH_VALIDATE_DOC", "false")
+    p = figure()
+    with embed._ModelInDocument([p]):
+        pass
+    assert not check_integrity.called
+
+@mock.patch('bokeh.document.check_integrity')
+def test_modelinemptydocument_validates_document_by_default(check_integrity):
+    p = figure()
+    with embed._ModelInEmptyDocument(p):
+        pass
+    assert check_integrity.called
+
+@mock.patch('bokeh.document.check_integrity')
+def test_modelinemptydocument_doesnt_validate_document_due_to_env_var(check_integrity, monkeypatch):
+    monkeypatch.setenv("BOKEH_VALIDATE_DOC", "false")
+    p = figure()
+    with embed._ModelInEmptyDocument(p):
+        pass
+    assert not check_integrity.called

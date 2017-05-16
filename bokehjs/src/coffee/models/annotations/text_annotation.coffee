@@ -14,12 +14,13 @@ export class TextAnnotationView extends AnnotationView
       @el.classList.add('bk-annotation')
       @plot_view.canvas_overlays.appendChild(@el)
 
-  bind_bokeh_events: () ->
+  connect_signals: () ->
+    super()
     if @model.render_mode == 'css'
       # dispatch CSS update immediately
-      @listenTo(@model, 'change', @render)
+      @connect(@model.change, @render)
     else
-      @listenTo(@model, 'change', @plot_view.request_render)
+      @connect(@model.change, () => @plot_view.request_render())
 
   _calculate_text_dimensions: (ctx, text) ->
     width = ctx.measureText(text).width

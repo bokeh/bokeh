@@ -20,7 +20,7 @@ callback = CustomJS(args=dict(source=source), code="""
         for (i = 0; i < x.length; i++) {
             y[i] = Math.pow(x[i], f)
         }
-        source.trigger('change');
+        source.change.emit();
     """)
 
 slider = Slider(start=0.1, end=4, value=1, step=.1, title="power", callback=callback)

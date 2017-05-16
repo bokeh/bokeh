@@ -22,7 +22,7 @@ export class DataRange1d extends DataRange
   }
 
   @internal {
-      mapper_hint:     [ p.String, 'auto' ]
+      scale_hint:     [ p.String, 'auto' ]
   }
 
   initialize: (attrs, options) ->
@@ -89,7 +89,7 @@ export class DataRange1d extends DataRange
     range_padding = @range_padding
     if range_padding? and range_padding > 0
 
-      if @mapper_hint == "log"
+      if @scale_hint == "log"
         if isNaN(min) or not isFinite(min) or min <= 0
           if isNaN(max) or not isFinite(max) or max <= 0
             min = 0.1
@@ -162,13 +162,13 @@ export class DataRange1d extends DataRange
     [start, end] = @_compute_range(min, max)
 
     if @_initial_start?
-      if @mapper_hint == "log"
+      if @scale_hint == "log"
         if @_initial_start > 0
           start = @_initial_start
       else
         start = @_initial_start
     if @_initial_end?
-      if @mapper_hint == "log"
+      if @scale_hint == "log"
         if @_initial_end > 0
           end = @_initial_end
       else
@@ -187,7 +187,7 @@ export class DataRange1d extends DataRange
     if @bounds == 'auto'
       @setv({bounds: [start, end]}, {silent: true})
 
-    @trigger('change')
+    @change.emit()
 
   reset: () ->
     @have_updated_interactively = false
@@ -199,4 +199,4 @@ export class DataRange1d extends DataRange
       follow_interval: @_initial_follow_interval
       default_span: @_initial_default_span
     }, {silent: true})
-    @trigger('change')
+    @change.emit()

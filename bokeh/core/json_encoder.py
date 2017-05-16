@@ -9,6 +9,10 @@ In general, functions in this module convert values in the following way:
 * Datetime values (Python, Pandas, NumPy) are converted to floating point
   milliseconds since epoch.
 
+* TimeDelta values are converted to absolute floating point milliseconds.
+
+* RelativeDelta values are converted to dictionaries.
+
 * Decimal values are converted to floating point.
 
 * Sequences (Pandas Series, NumPy arrays, python sequences) that are passed
@@ -35,22 +39,17 @@ import logging
 log = logging.getLogger(__name__)
 
 import collections
-import datetime as dt
 import decimal
 import json
-import time
 
 import numpy as np
 
 from ..settings import settings
 from ..util.dependencies import import_optional
-from ..util.serialization import transform_series, transform_array
+from ..util.serialization import convert_datetime_type, is_datetime_type, transform_series, transform_array
 
 pd = import_optional('pandas')
 rd = import_optional("dateutil.relativedelta")
-
-NP_EPOCH = np.datetime64('1970-01-01T00:00:00Z')
-NP_MS_DELTA = np.timedelta64(1, 'ms')
 
 class BokehJSONEncoder(json.JSONEncoder):
     ''' A custom ``json.JSONEncoder`` subclass for encoding objects in
@@ -69,9 +68,11 @@ class BokehJSONEncoder(json.JSONEncoder):
 
         '''
 
-        # Pandas Timestamp
-        if pd and isinstance(obj, pd.tslib.Timestamp):
-            return obj.value / 10**6.0  #nanosecond to millisecond
+        # date/time values that get serialized as milliseconds
+        if is_datetime_type(obj):
+            return convert_datetime_type(obj)
+
+        # NumPy scalars
         elif np.issubdtype(type(obj), np.float):
             return float(obj)
         elif np.issubdtype(type(obj), np.integer):
@@ -79,38 +80,19 @@ class BokehJSONEncoder(json.JSONEncoder):
         elif np.issubdtype(type(obj), np.bool_):
             return bool(obj)
 
-        # Datetime (datetime is a subclass of date)
-        elif isinstance(obj, dt.datetime):
-            return time.mktime(obj.timetuple()) * 1000. + obj.microsecond / 1000.
-
-        # Timedelta (timedelta is class in the datetime library)
-        elif isinstance(obj, dt.timedelta):
-            return obj.total_seconds() * 1000.
-
-        # Date
-        elif isinstance(obj, dt.date):
-            return time.mktime(obj.timetuple()) * 1000.
-
-        # Numpy datetime64
-        elif isinstance(obj, np.datetime64):
-            epoch_delta = obj - NP_EPOCH
-            return (epoch_delta / NP_MS_DELTA)
-
-        # Time
-        elif isinstance(obj, dt.time):
-            return (obj.hour * 3600 + obj.minute * 60 + obj.second) * 1000 + obj.microsecond / 1000.
-        elif rd and isinstance(obj, rd.relativedelta):
-            return dict(years=obj.years,
-                        months=obj.months,
-                        days=obj.days,
-                        hours=obj.hours,
-                        minutes=obj.minutes,
-                        seconds=obj.seconds,
-                        microseconds=obj.microseconds)
-
-        # Decimal
+        # Decimal values
         elif isinstance(obj, decimal.Decimal):
             return float(obj)
+
+        # RelativeDelta gets serialized as a dict
+        elif rd and isinstance(obj, rd.relativedelta):
+            return dict(years=obj.years,
+                    months=obj.months,
+                    days=obj.days,
+                    hours=obj.hours,
+                    minutes=obj.minutes,
+                    seconds=obj.seconds,
+                    microseconds=obj.microseconds)
 
         else:
             return super(BokehJSONEncoder, self).default(obj)

@@ -13,11 +13,11 @@ export class MultiSelectView extends InputWidgetView
   initialize: (options) ->
     super(options)
     @render()
-    @listenTo(@model, 'change:value', @render_selection)
-    @listenTo(@model, 'change:options', @render)
-    @listenTo(@model, 'change:name', @render)
-    @listenTo(@model, 'change:title', @render)
-    @listenTo(@model, 'change:size', @render)
+    @connect(@model.properties.value.change, @render_selection)
+    @connect(@model.properties.options.change, @render)
+    @connect(@model.properties.name.change, @render)
+    @connect(@model.properties.title.change, @render)
+    @connect(@model.properties.size.change, @render)
 
   render: () ->
     super()

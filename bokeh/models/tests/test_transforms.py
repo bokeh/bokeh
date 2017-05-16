@@ -76,14 +76,10 @@ def test_customjstransform_from_coffeescript_no_arg():
     transform = CustomJSTransform.from_coffeescript(code, v_code)
 
     assert transform.func == dedent("""\
-        "use strict";
-        Object.defineProperty(exports, "__esModule", { value: true });
         return x * x;
         """)
 
     assert transform.v_func == dedent("""\
-        "use strict";
-        Object.defineProperty(exports, "__esModule", { value: true });
         var x;
         return [
             (function () {
@@ -108,14 +104,10 @@ def test_customjstransform_from_coffeescript_with_args():
     formatter = CustomJSTransform.from_coffeescript(func=code, v_func=v_code, args={"foo": slider})
 
     assert formatter.func == dedent("""\
-        "use strict";
-        Object.defineProperty(exports, "__esModule", { value: true });
         return Math.floor(foo.get('value') / 2) + x;
         """)
 
     assert formatter.v_func == dedent("""\
-        "use strict";
-        Object.defineProperty(exports, "__esModule", { value: true });
         var x;
         return [
             (function () {

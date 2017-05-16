@@ -9,7 +9,7 @@ from bokeh.resources import INLINE
 from bokeh.util.browser import view
 
 # create some data
-x1 = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+x1 = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12]
 y1 = [0, 8, 2, 4, 6, 9, 5, 6, 25, 28, 4, 7]
 x2 = [2, 5, 7, 15, 18, 19, 25, 28, 9, 10, 4]
 y2 = [2, 4, 6, 9, 15, 18, 0, 8, 2, 25, 28]

@@ -50,34 +50,44 @@ export class GlyphRendererView extends RendererView
     decimated_glyph = mk_glyph(@model.decimated_defaults)
     @decimated_glyph = @build_glyph_view(decimated_glyph)
 
-    @xmapper = @plot_view.frame.x_mappers[@model.x_range_name]
-    @ymapper = @plot_view.frame.y_mappers[@model.y_range_name]
+    @xscale = @plot_view.frame.xscales[@model.x_range_name]
+    @yscale = @plot_view.frame.yscales[@model.y_range_name]
 
     @set_data(false)
 
     if @model.data_source instanceof RemoteDataSource
       @model.data_source.setup(@plot_view, @glyph)
 
+  @getters {
+    xmapper: () ->
+      log.warning("xmapper attr is deprecated, use xscale")
+      @xscale
+    ymapper: () ->
+      log.warning("ymapper attr is deprecated, use yscale")
+      @yscale
+  }
+
   build_glyph_view: (model) ->
-    new model.default_view({model: model, renderer: @, plot_view: @plot_view})
+    new model.default_view({model: model, renderer: @, plot_view: @plot_view, parent: @})
 
-  bind_bokeh_events: () ->
-    @listenTo(@model, 'change', @request_render)
-    @listenTo(@model.data_source, 'change', @set_data)
-    @listenTo(@model.data_source, 'patch', @set_data)
-    @listenTo(@model.data_source, 'stream', @set_data)
-    @listenTo(@model.data_source, 'select', @request_render)
+  connect_signals: () ->
+    super()
+    @connect(@model.change, @request_render)
+    @connect(@model.data_source.change, @set_data)
+    @connect(@model.data_source.streaming, @set_data)
+    @connect(@model.data_source.patching, @set_data)
+    @connect(@model.data_source.select, @request_render)
     if @hover_glyph?
-      @listenTo(@model.data_source, 'inspect', @request_render)
+      @connect(@model.data_source.inspect, @request_render)
 
-    @listenTo(@model.glyph, 'transformchange', () -> @set_data())
+    @connect(@model.glyph.transformchange, () -> @set_data())
 
     # TODO (bev) This is a quick change that  allows the plot to be
     # update/re-rendered when properties change on the JS side. It would
     # be better to make this more fine grained in terms of setting visuals
     # and also could potentially be improved by making proper models out
     # of "Spec" properties. See https://github.com/bokeh/bokeh/pull/2684
-    @listenTo(@model.glyph, 'propchange', () ->
+    @connect(@model.glyph.propchange, () ->
         @glyph.set_visuals(@model.data_source)
         @request_render()
     )

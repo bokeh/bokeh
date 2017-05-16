@@ -9,6 +9,7 @@ sinon = require "sinon"
 js_version = utils.require("version").version
 {Models} = utils.require "base"
 {Model} = utils.require "model"
+{LayoutDOM} = utils.require "models/layouts/layout_dom"
 logging = utils.require "core/logging"
 p = utils.require "core/properties"
 
@@ -75,7 +76,7 @@ class ComplicatedModelWithConstructTimeChanges extends Model
 Models.register('ComplicatedModelWithConstructTimeChanges', ComplicatedModelWithConstructTimeChanges)
 
 
-class LayoutableModel extends Model
+class LayoutableModel extends LayoutDOM
   type: 'LayoutableModel'
 
   get_constraints: () ->
@@ -86,10 +87,6 @@ class LayoutableModel extends Model
 
   get_constrained_variables: () ->
     {}
-
-  @internal {
-    layoutable: [ p.Bool, true ]
-  }
 Models.register('LayoutableModel', LayoutableModel)
 
 class ModelWithConstraint extends LayoutableModel
@@ -135,8 +132,8 @@ class ModelWithConstrainedVariables extends LayoutableModel
       height: @_height
     }
 
-  @define {
-    sizing_mode: [ p.SizingMode, 'scale_width']
+  @override {
+    sizing_mode: 'scale_width'
   }
 
 Models.register('ModelWithConstrainedVariables', ModelWithConstrainedVariables)
@@ -153,8 +150,8 @@ class ModelWithConstrainedWidthVariable extends LayoutableModel
       width: @_width
     }
 
-  @define {
-    sizing_mode: [ p.SizingMode, 'scale_width']
+  @override {
+    sizing_mode: 'scale_width'
   }
 
 Models.register('ModelWithConstrainedWidthVariable', ModelWithConstrainedWidthVariable)
@@ -172,8 +169,8 @@ class ModelWithConstrainedHeightVariable extends LayoutableModel
       height: @_height
     }
 
-  @define {
-    sizing_mode: [ p.SizingMode, 'scale_width']
+  @override {
+    sizing_mode: 'scale_width'
   }
 
 Models.register('ModelWithConstrainedHeightVariable', ModelWithConstrainedHeightVariable)
@@ -550,7 +547,7 @@ describe "Document", ->
       expect(e.message).to.include('Attempted to overwrite a document with itself')
     expect(got_error).to.equal(true)
 
-it "can destructively move", ->
+  it "can destructively move", ->
     d = new Document()
     expect(d.roots().length).to.equal 0
     expect(d.title()).to.equal DEFAULT_TITLE
@@ -894,25 +891,26 @@ it "can destructively move", ->
     expect(Object.keys(root1.dict_of_list_prop).length).to.equal 1
     expect(_.values(root1.dict_of_list_prop)[0].length).to.equal 1
 
+  ###
   it "adds two constraints and two edit_variables on instantiation solver", ->
     d = new Document()
     s = d.solver()
-    expect(s.num_constraints()).to.equal 2
-    expect(s.num_edit_variables()).to.equal 2
+    expect(s.num_constraints).to.equal 2
+    expect(s.num_edit_variables).to.equal 2
 
   it "adds edit_variables of root to solver", ->
     d = new Document()
     s = d.solver()
     expect(d.roots().length).to.equal 0
-    expect(s.num_constraints()).to.equal 2
-    expect(s.num_edit_variables()).to.equal 2
+    expect(s.num_constraints).to.equal 2
+    expect(s.num_edit_variables).to.equal 2
 
     d.add_root(new ModelWithEditVariable())
     expect(d.roots().length).to.equal 1
 
     # Check state of solver
-    expect(s.num_edit_variables()).to.equal 3
-    expect(s.num_constraints()).to.equal 3
+    expect(s.num_edit_variables).to.equal 3
+    expect(s.num_constraints).to.equal 3
     expect(s.solver._editMap._array['2'].first._name).to.equal 'ModelWithEditVariable._left'
     expect(s.solver._editMap._array['2'].second.constraint._strength).to.equal Strength.strong
 
@@ -920,82 +918,82 @@ it "can destructively move", ->
     d = new Document()
     s = d.solver()
     expect(d.roots().length).to.equal 0
-    expect(s.num_constraints()).to.equal 2
-    expect(s.num_edit_variables()).to.equal 2
+    expect(s.num_constraints).to.equal 2
+    expect(s.num_edit_variables).to.equal 2
 
     d.add_root(new ModelWithConstraint())
     expect(d.roots().length).to.equal 1
 
     # Check state of solver
-    expect(s.num_edit_variables()).to.equal 2
-    expect(s.num_constraints()).to.equal 3
+    expect(s.num_edit_variables).to.equal 2
+    expect(s.num_constraints).to.equal 3
     expect(s.solver._cnMap._array['2'].first._expression._terms._array['0'].first._name).to.equal 'ModelWithConstraint._left'
 
   it "adds constraints and edit variable of root to solver", ->
     d = new Document()
     s = d.solver()
     expect(d.roots().length).to.equal 0
-    expect(s.num_constraints()).to.equal 2
-    expect(s.num_edit_variables()).to.equal 2
+    expect(s.num_constraints).to.equal 2
+    expect(s.num_edit_variables).to.equal 2
 
     d.add_root(new ModelWithEditVariableAndConstraint())
     expect(d.roots().length).to.equal 1
 
     # Check state of solver
-    expect(s.num_edit_variables()).to.equal 3
-    expect(s.num_constraints()).to.equal 4
+    expect(s.num_edit_variables).to.equal 3
+    expect(s.num_constraints).to.equal 4
 
   it "adds one constraint on add_root if model has get_constrained_variables width", ->
     d = new Document()
     s = d.solver()
     expect(d.roots().length).to.equal 0
 
-    before_constraints = s.num_constraints()
+    before_constraints = s.num_constraints
 
-    expect(s.num_edit_variables()).to.equal 2
+    expect(s.num_edit_variables).to.equal 2
     d.add_root(new ModelWithConstrainedWidthVariable())
 
     expect(d.roots().length).to.equal 1
-    expect(s.num_constraints()).to.equal before_constraints + 1
+    expect(s.num_constraints).to.equal before_constraints + 1
 
   it "adds one constraints on add_root if model has get_constrained_variables height and sizing_mode is stretch_both", ->
     d = new Document()
     s = d.solver()
     expect(d.roots().length).to.equal 0
 
-    before_constraints = s.num_constraints()
+    before_constraints = s.num_constraints
 
-    expect(s.num_edit_variables()).to.equal 2
+    expect(s.num_edit_variables).to.equal 2
     d.add_root(new ModelWithConstrainedHeightVariable({sizing_mode: 'stretch_both'}))
 
     expect(d.roots().length).to.equal 1
-    expect(s.num_constraints()).to.equal before_constraints + 1
+    expect(s.num_constraints).to.equal before_constraints + 1
 
   it "adds no new constraints on add_root if model has no get_constrained_variables", ->
     d = new Document()
     s = d.solver()
     expect(d.roots().length).to.equal 0
 
-    before_constraints = s.num_constraints()
+    before_constraints = s.num_constraints
 
-    expect(s.num_edit_variables()).to.equal 2
+    expect(s.num_edit_variables).to.equal 2
     d.add_root(new SomeModel())
 
     expect(d.roots().length).to.equal 1
-    expect(s.num_constraints()).to.equal before_constraints
+    expect(s.num_constraints).to.equal before_constraints
 
   it "adds two constraints on add_root if model has get_constrained_variables width & height and sizing_mode is 'stretch_both'", ->
     d = new Document()
     s = d.solver()
     expect(d.roots().length).to.equal 0
 
-    before_constraints = s.num_constraints()
+    before_constraints = s.num_constraints
 
-    expect(s.num_edit_variables()).to.equal 2
+    expect(s.num_edit_variables).to.equal 2
     d.add_root(new ModelWithConstrainedVariables({sizing_mode: 'stretch_both'}))
 
     expect(d.roots().length).to.equal 1
-    expect(s.num_constraints()).to.equal before_constraints + 2
+    expect(s.num_constraints).to.equal before_constraints + 2
 
   it "add_root calls update_variables on solver", ->
     d = new Document()
@@ -1003,21 +1001,6 @@ it "can destructively move", ->
     spy = sinon.spy(s, 'update_variables')
     d.add_root(new ModelWithEditVariableAndConstraint())
     expect(spy.calledOnce).is.true
-
-  it "add_root sets the _is_root property of model to true", ->
-    d = new Document()
-    root_model = new ModelWithConstrainedVariables()
-    expect(root_model._is_root).is.undefined
-    d.add_root(root_model)
-    expect(root_model._is_root).is.true
-
-  it "remove_root sets the _is_root property of model to false", ->
-    d = new Document()
-    root_model = new ModelWithConstrainedVariables()
-    d.add_root(root_model)
-    expect(root_model._is_root).is.true
-    d.remove_root(root_model)
-    expect(root_model._is_root).is.false
 
   # TODO(bird) - We're not using window - so need to find a new
   # way to test the size was set correctly.
@@ -1098,3 +1081,4 @@ it "can destructively move", ->
     d.resize()
     expect(spy.calledTwice).is.true  # NOTE double amount, for now
     expect(spy.calledWith('resize')).is.true
+  ###

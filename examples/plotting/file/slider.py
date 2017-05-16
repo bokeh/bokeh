@@ -24,7 +24,7 @@ callback = CustomJS(args=dict(source=source), code="""
     for (i = 0; i < x.length; i++) {
         y[i] = B + A*Math.sin(k*x[i]+phi);
     }
-    source.trigger('change');
+    source.change.emit();
 """)
 
 amp_slider = Slider(start=0.1, end=10, value=1, step=.1,

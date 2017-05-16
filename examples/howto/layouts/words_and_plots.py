@@ -1,12 +1,9 @@
 from bokeh.sampledata.glucose import data
 from bokeh.sampledata.iris import flowers
 
-from bokeh.charts import Scatter
-from bokeh.charts.operations import blend
 from bokeh.io import show, output_file
 from bokeh.layouts import layout
-from bokeh.models import Paragraph, HoverTool, Div
-from bokeh.palettes import Spectral4
+from bokeh.models import ColumnDataSource, Paragraph, HoverTool, Div
 from bokeh.plotting import figure
 
 output_file("words_and_plots.html")
@@ -32,13 +29,14 @@ def text():
 
 
 def scatter():
-    s = Scatter(
-        flowers,
-        title="Fisher's Iris data set", tools='tap,box_select,save',
-        x=blend('petal_length', name='Length'),
-        y=blend('petal_width', name='Width'),
-        color='species', palette=Spectral4, legend=True,
-    )
+    colormap = {'setosa': 'red', 'versicolor': 'green', 'virginica': 'blue'}
+    source = ColumnDataSource(flowers)
+    source.data['colors'] = [colormap[x] for x in flowers['species']]
+    s = figure(title = "Iris Morphology")
+    s.xaxis.axis_label = 'Petal Length'
+    s.yaxis.axis_label = 'Petal Width'
+    s.circle("petal_length", "petal_width", color="colors", source=source,
+             fill_alpha=0.2, size=10, legend="species")
     # Lets move the legend off-canvas!
     legend = s.legend[0]
     legend.border_line_color = None

@@ -12,8 +12,9 @@ export class TooltipView extends AnnotationView
     @el.style.zIndex = 1010
     hide(@el)
 
-  bind_bokeh_events: () ->
-    @listenTo(@model, 'change:data', @_draw_tips)
+  connect_signals: () ->
+    super()
+    @connect(@model.properties.data.change, @_draw_tips)
 
   render: () ->
     if not @model.visible
@@ -45,15 +46,15 @@ export class TooltipView extends AnnotationView
     attachment = @model.attachment
     switch attachment
       when "horizontal"
-        width = @plot_view.frame.width
-        left = @plot_view.frame.left
+        width = @plot_view.frame._width.value
+        left = @plot_view.frame._left.value
         if vx - left < width/2
           side = 'right'
         else
           side = 'left'
       when "vertical"
-        height = @plot_view.frame.height
-        bottom = @plot_view.frame.bottom
+        height = @plot_view.frame._height.value
+        bottom = @plot_view.frame._bottom.value
         if vy - bottom < height/2
           side = 'below'
         else
@@ -129,4 +130,4 @@ export class Tooltip extends Annotation
     @data = data
 
     # TODO (bev) not sure why this is now necessary
-    @trigger('change:data')
+    @properties.data.change.emit()

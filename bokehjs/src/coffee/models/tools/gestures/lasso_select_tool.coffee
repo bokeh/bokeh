@@ -6,7 +6,7 @@ export class LassoSelectToolView extends SelectToolView
 
   initialize: (options) ->
     super(options)
-    @listenTo(@model, 'change:active', @_active_change)
+    @connect(@model.properties.active.change, @_active_change)
     @data = null
 
   _active_change: () ->
@@ -88,10 +88,10 @@ export class LassoSelectToolView extends SelectToolView
     geometry['sx'] = canvas.v_vx_to_sx(geometry.vx)
     geometry['sy'] = canvas.v_vy_to_sy(geometry.vy)
 
-    xmapper = frame.x_mappers[r.x_range_name]
-    ymapper = frame.y_mappers[r.y_range_name]
-    geometry['x'] = xmapper.v_map_from_target(geometry.vx)
-    geometry['y'] = ymapper.v_map_from_target(geometry.vy)
+    xscale = frame.xscales[r.x_range_name]
+    yscale = frame.yscales[r.y_range_name]
+    geometry['x'] = xscale.v_invert(geometry.vx)
+    geometry['y'] = yscale.v_invert(geometry.vy)
 
     @model.callback.execute(@model, {geometry: geometry})
 

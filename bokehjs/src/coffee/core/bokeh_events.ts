@@ -98,10 +98,10 @@ export /* TODO abstract */ class PointEvent extends UIEvent {
   }
 
   _customize_event(plot: any) {
-    const xmapper = plot.plot_canvas.frame.x_mappers['default']
-    const ymapper = plot.plot_canvas.frame.y_mappers['default']
-    this.x = xmapper.map_from_target(plot.plot_canvas.canvas.sx_to_vx(this.sx))
-    this.y = ymapper.map_from_target(plot.plot_canvas.canvas.sy_to_vy(this.sy))
+    const xscale = plot.plot_canvas.frame.xscales['default']
+    const yscale = plot.plot_canvas.frame.yscales['default']
+    this.x = xscale.invert(plot.plot_canvas.canvas.sx_to_vx(this.sx))
+    this.y = yscale.invert(plot.plot_canvas.canvas.sy_to_vy(this.sy))
     this._options['x'] = this.x
     this._options['y'] = this.y
     return this
@@ -159,7 +159,7 @@ export class MouseWheel extends PointEvent {
     return new this({
       sx: e.bokeh['sx'],
       sy: e.bokeh['sy'],
-      delta: e.delta,
+      delta: e.bokeh['delta'],
       model_id: model_id,
     })
   }

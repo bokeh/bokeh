@@ -10,16 +10,17 @@ export class SpanView extends AnnotationView
     @el.style.position = "absolute"
     hide(@el)
 
-  bind_bokeh_events: () ->
+  connect_signals: () ->
+    super()
     if @model.for_hover
-      @listenTo(@model, 'change:computed_location', @_draw_span)
+      @connect(@model.properties.computed_location.change, @_draw_span)
     else
       if @model.render_mode == 'canvas'
-        @listenTo(@model, 'change', @plot_view.request_render)
-        @listenTo(@model, 'change:location', @plot_view.request_render)
+        @connect(@model.change, () => @plot_view.request_render())
+        @connect(@model.properties.location.change, () => @plot_view.request_render())
       else
-        @listenTo(@model, 'change', @render)
-        @listenTo(@model, 'change:location', @_draw_span)
+        @connect(@model.change, @render)
+        @connect(@model.properties.location.change, @_draw_span)
 
   render: () ->
     if not @model.visible and @model.render_mode == 'css'
@@ -40,19 +41,19 @@ export class SpanView extends AnnotationView
 
     frame = @plot_model.frame
     canvas = @plot_model.canvas
-    xmapper = @plot_view.frame.x_mappers[@model.x_range_name]
-    ymapper = @plot_view.frame.y_mappers[@model.y_range_name]
+    xscale = @plot_view.frame.xscales[@model.x_range_name]
+    yscale = @plot_view.frame.yscales[@model.y_range_name]
 
     if @model.dimension == 'width'
-      stop = canvas.vy_to_sy(@_calc_dim(loc, ymapper))
-      sleft = canvas.vx_to_sx(frame.left)
-      width = frame.width
+      stop = canvas.vy_to_sy(@_calc_dim(loc, yscale))
+      sleft = canvas.vx_to_sx(frame._left.value)
+      width = frame._width.value
       height = @model.properties.line_width.value()
     else
-      stop = canvas.vy_to_sy(frame.top)
-      sleft = canvas.vx_to_sx(@_calc_dim(loc, xmapper))
+      stop = canvas.vy_to_sy(frame._top.value)
+      sleft = canvas.vx_to_sx(@_calc_dim(loc, xscale))
       width = @model.properties.line_width.value()
-      height = frame.height
+      height = frame._height.value
 
     if @model.render_mode == "css"
       @el.style.top = "#{stop}px"
@@ -79,9 +80,9 @@ export class SpanView extends AnnotationView
 
       ctx.restore()
 
-  _calc_dim: (location, mapper) ->
+  _calc_dim: (location, scale) ->
       if @model.location_units == 'data'
-        vdim = mapper.map_to_target(location)
+        vdim = scale.compute(location)
       else
         vdim = location
       return vdim

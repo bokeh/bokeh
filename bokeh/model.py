@@ -89,11 +89,11 @@ def get_class(view_model_name):
     from .plotting import Figure; Figure
 
     # We have to try-except here, because this import will fail if Pandas is
-    # not installed, but in that case bokeh.charts is not usable anyway
-    try:
-        from .charts import Chart; Chart
-    except RuntimeError:
-        pass
+    # not installed, but in that case bkcharts is not usable anyway
+    # try:
+    #     from bkcharts import Chart; Chart
+    # except RuntimeError:
+    #     pass
 
     d = MetaModel.model_class_reverse_map
     if view_model_name in d:

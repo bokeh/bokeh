@@ -1,6 +1,6 @@
 {
   "name": "bokehjs",
-  "version": "0.12.6dev2",
+  "version": "0.12.6dev5",
   "description": "Interactive, novel data visualization",
   "keywords": [
     "bokeh",
@@ -24,6 +24,7 @@
     "cheerio": "^0.19.0",
     "coffeeify": "^0.7.0",
     "del": "^1.1.1",
+    "istanbul": "^0.4.5",
     "gulp": "^3.9.0",
     "gulp-change": "^1.0.0",
     "gulp-insert": "^0.5.0",
@@ -35,7 +36,6 @@
     "gulp-uglifycss": "^1.0.4",
     "gulp-util": "^3.0.4",
     "gulp-coffee": "^2.3.1",
-    "gulp-replace": "^0.5.4",
     "gulp-typescript": "^3.0.2",
     "gulp-newer": "^1.1.0",
     "gulp-if": "^2.0.0",
@@ -58,8 +58,9 @@
     "event-stream": "^3.3.1",
     "jsdom": "^9.8.3",
     "websocket":"^1.0.22",
-    "typescript": "^2.2.1",
-    "coffee-script": "^1.10.0",
+    "typescript": "^2.3.0",
+    "tslib": "^1.6.0",
+    "coffee-script": "^1.12.5",
     "detective": "^4.3.1",
     "jslint": "^0.10.3",
     "less": "^2.7.1",
@@ -67,7 +68,27 @@
     "source-map-support": "^0.4.6",
     "atob": "^2.0.0",
     "btoa": "^1.1.2",
-    "strip-ansi": "^3.0.1"
+    "strip-ansi": "^3.0.1",
+    "chalk": "^1.1.3",
+    "ts-node": "^3.0.4",
+    "@types/node": "^7.0.18",
+    "@types/mocha": "^2.2.41",
+    "@types/chai": "^3.5.2",
+    "@types/gulp": "^4.0.2",
+    "@types/gulp-util": "^3.0.31",
+    "@types/gulp-less": "^0.0.30",
+    "@types/gulp-rename": "^0.0.32",
+    "@types/gulp-insert": "^0.5.6",
+    "@types/gulp-sourcemaps": "^0.0.30",
+    "@types/gulp-task-listing": "^0.0.30",
+    "@types/through": "^0.0.28",
+    "@types/yargs": "^6.6.0",
+    "@types/run-sequence": "^0.0.29",
+    "@types/del": "^2.2.32",
+    "@types/resolve": "^0.0.4",
+    "@types/underscore": "^1.8.0",
+    "@types/browserify": "^12.0.30",
+    "@types/event-stream": "^3.3.31"
   },
   "browser": {
     "bootstrap/button": "./src/vendor/bootstrap-3.1.1/js/button.js",
@@ -85,13 +106,15 @@
   },
   "dependencies": {
     "es6-promise":"3.0.2",
+    "es6-weak-map": "^2.0.2",
+    "es6-set": "^0.1.5",
+
     "rbush": "^2.0.1",
     "proj4": "<2.4",
     "sprintf": "^0.1.5",
     "timezone": "^1.0.6",
     "hammerjs": "^2.0.4",
 
-    "@types/es6-promise": "^0.0.32",
     "@types/rbush": "^2.0.2",
     "@types/proj4": "^2.3.2",
     "@types/sprintf": "^0.0.28",
@@ -104,7 +127,7 @@
     "jquery-ui": "~1.10.5",
 
     "numbro": "https://github.com/bokeh/numbro.git#e1b6c52",
-    "kiwi": "https://github.com/bokeh/kiwi.git#55c0ff9",
+    "kiwi": "https://github.com/bokeh/kiwi.git#6941045",
     "root-require": "^0.3.1"
   },
   "scripts": {

@@ -11,7 +11,7 @@ export class FontAwesomeIconView extends WidgetView
   initialize: (options) ->
     super(options)
     @render()
-    @listenTo(@model, 'change', @render)
+    @connect(@model.change, @render)
 
   render: () ->
     @el.className = "" # erase all CSS classes if re-rendering
@@ -28,8 +28,6 @@ export class FontAwesomeIconView extends WidgetView
       @el.classList.add("bk-u-fa-spin")
 
     return @
-
-  update_constraints: () -> null
 
 export class FontAwesomeIcon extends AbstractIcon
   type: "FontAwesomeIcon"

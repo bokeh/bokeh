@@ -8,8 +8,6 @@
 
 - path: "custom"
 
-- path: "charts/file"
-
 - path: "plotting/file"
   slow: ["choropleth.py"]
   no_diff: ["jitter.py"]
@@ -22,5 +20,4 @@
 - path: "plotting/notebook"
   skip: all
 
-- path: "howto/charts"
-  skip: all
+- path: "howto/layouts"

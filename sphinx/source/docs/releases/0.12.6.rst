@@ -24,3 +24,64 @@ complete list of removals.
 * ``Tool`` dimensions specified as a list value rather than an enum, are no
   longer accepted.
 * Deprecated ``Button.type`` property has been removed.
+
+Scales Changes
+~~~~~~~~~~~~~~
+
+The following BokehJS classes have been moved and renamed:
+
+============================== ==============================
+Old                            New
+============================== ==============================
+``mappers/LinearMapper``       ``scales/LinearScale``
+``mappers/LogMapper``          ``scales/LogScale``
+``mappers/CategoricalMapper``  ``scales/CategoricalScale``
+============================== ==============================
+
+Previously, these classes were internal implementation details. These changes
+are not expected to impact any user code.
+
+Additionally, these new scales models are now accessible from the Python.
+
+As part of this work, some BokehJS attributes were renamed to be consistent
+with the new terminology:
+
+============================== ==============================
+Old                            New
+============================== ==============================
+``CartesianFrame.x_mappers``   ``CartesianFrame.xscales``
+``CartesianFrame.y_mappers``   ``CartesianFrame.yscales``
+``GlyphRenderer.xmapper``      ``GlyphRenderer.xscale``
+``GlyphRenderer.ymapper``      ``GlyphRenderer.yscale``
+============================== ==============================
+
+Since these attributes may be present in user code (e.g CustomJS callbacks
+or extensions), the old names will continue to work for some time, with a
+deprecation warning in the JS console.
+
+New signaling API
+~~~~~~~~~~~~~~~~~
+
+Previously we used Backbone events for communication between bokehjs' objects.
+This was changed to a new type-safe API. This change primarily affects
+contributors working on BokehJS and writers of extensions.
+
+===================================== ==============================================
+Old                                   New
+===================================== ==============================================
+
+``@listenTo(obj, "change", fn)``      ``@connect(obj.change, fn)``
+``@listenTo(obj, "change:attr", fn)`` ``@connect(obj.properties.attr.change, fn)``
+``obj.trigger("change", arg)``        ``obj.change.emit(arg)``
+``obj.trigger("change:attr", arg)``   ``obj.properties.attr.change.emit(arg)``
+
+Python datetime handling
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Bokeh has not handled Python datetime values consistently with NumPy
+``datetime64``. Bokeh aims to treat all datetime values "as-is", but in some
+cases a local timezone conversion could affect Python datetime values. This
+has been corrected. In case there is code that depends on the erroneous
+behavior, please note that the new behavior is effective immediately and is
+now maintained under test to be consistent with NumPy values. See the issue
+https://github.com/bokeh/bokeh/issues/5499 for more details.

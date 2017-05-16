@@ -1,17 +1,17 @@
 import {RBush} from "core/util/spatial"
 import {Glyph, GlyphView} from "./glyph"
-import {CategoricalMapper} from "../mappers/categorical_mapper"
+import {CategoricalScale} from "../scales/categorical_scale"
 
 export class XYGlyphView extends GlyphView
 
   _index_data: () ->
     # if the range is categorical, map to synthetic coordinates first
-    if @renderer.xmapper instanceof CategoricalMapper
-      xx = @renderer.xmapper.v_map_to_target(@_x, true)
+    if @renderer.xscale instanceof CategoricalScale
+      xx = @renderer.xscale.v_compute(@_x, true)
     else
       xx = @_x
-    if @renderer.ymapper instanceof CategoricalMapper
-      yy = @renderer.ymapper.v_map_to_target(@_y, true)
+    if @renderer.yscale instanceof CategoricalScale
+      yy = @renderer.yscale.v_compute(@_y, true)
     else
       yy = @_y
 

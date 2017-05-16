@@ -137,8 +137,8 @@ def runtests(args=None):
     Args:
         args(list, optional): command line arguments accepted by py.test
 
-            e.g. args=['-s', '-k charts'] prevents capture of standard out
-            and only runs tests that match charts. For more py.test options
+            e.g. args=['-s', '-k plotting'] prevents capture of standard out
+            and only runs tests that match plotting. For more py.test options
             see http://pytest.org/latest/usage.html#usage.
 
     Returns:
@@ -161,34 +161,3 @@ def runtests(args=None):
     os.chdir(rootdir)
 
     return pytest.main(args=args)
-
-
-#----------------------
-# For testing charts
-#----------------------
-
-def create_chart(klass, values, compute_values=True, **kws):
-    ''' Create a new chart class instance with values and the extra kws keyword
-    parameters.
-
-    Args:
-        klass (class): chart class to be created
-        values (iterable): chart data series
-        compute_values (bool): if == True underlying chart attributes (e.g.,
-            data, ranges, source, etc.) are computed by calling _setup_show,
-            _prepare_show and _show_teardown methods.
-        **kws (refer to klass arguments specification details)
-
-    Return:
-        _chart: klass chart instance
-
-    '''
-    _chart = klass(
-        values, title="title", xlabel="xlabel", ylabel="ylabel",
-        legend="top_left", xscale="linear", yscale="linear",
-        width=800, height=600, tools=True,
-        filename=False, server=False, notebook=False,
-        **kws
-    )
-
-    return _chart

@@ -32,12 +32,11 @@ operations.
 
 .. note::
     This is a fairly low-level, explicit way to generate an HTML file.
-    When using the |bokeh.plotting| or |bokeh.charts| interfaces, users will
-    typically call the function |output_file| in conjunction with |show| or
-    |save| instead.
+    When using the |bokeh.plotting| interface, users will typically call
+    the function |output_file| in conjunction with |show| or |save| instead.
 
-You can also provide your own template and pass in custom, or additional, template variables.
-See the |file_html| function for more details.
+You can also provide your own template and pass in custom, or additional,
+template variables. See the |file_html| function for more details.
 
 .. _userguide_embed_components:
 
@@ -286,9 +285,9 @@ the |components| function above returns.
 
 .. note::
     This is a fairly low-level, explicit way to generate a Jupyter
-    notebook div. When using the |bokeh.plotting| or |bokeh.charts|
-    interfaces, users will typically call the function |output_notebook|
-    in conjunction with |show| instead.
+    notebook div. When using the |bokeh.plotting| interface, users will
+    typically call the function |output_notebook| in conjunction with
+    |show| instead.
 
 .. _userguide_embed_autoloading:
 
@@ -418,7 +417,6 @@ on the server at `"some/path"`, from the document that has the plot embedded.
     In both cases the ``<script>`` tag loads a ``<div>`` in place, so it must
     be placed under ``<head>``.
 
-.. |bokeh.charts|   replace:: :ref:`bokeh.charts <bokeh.charts>`
 .. |bokeh.models|   replace:: :ref:`bokeh.models <bokeh.models>`
 .. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`
 
