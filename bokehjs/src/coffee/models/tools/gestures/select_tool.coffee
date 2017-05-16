@@ -82,3 +82,12 @@ export class SelectTool extends GestureTool
       if not @_computed_renderers? then @_computed_renderers = @_compute_renderers()
       return @_computed_renderers
   }
+
+  _computed_renderers_by_data_source: () ->
+    renderers_by_source = {}
+    for r in @computed_renderers
+      if !(r.data_source.id of renderers_by_source)
+        renderers_by_source[r.data_source.id] = [r]
+      else
+        renderers_by_source[r.data_source.id] = renderers_by_source[r.data_source.id].concat([r])
+    return renderers_by_source

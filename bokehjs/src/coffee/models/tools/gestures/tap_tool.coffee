@@ -24,24 +24,34 @@ export class TapToolView extends SelectToolView
     cb_data =
       geometries: @plot_model.plot.tool_events.geometries
 
-    for r in @model.computed_renderers
-      ds = r.data_source
-      sm = ds.selection_manager
+    if @model.behavior == "select"
 
-      view = @plot_view.renderer_views[r.id]
-      if @model.behavior == "select"
-        did_hit = sm.select(@, view, geometry, final, append)
-      else
+      renderers_by_source = @model._computed_renderers_by_data_source()
+
+      for ds, renderers of renderers_by_source
+        sm = renderers[0].data_source.selection_manager
+        did_hit = sm.select(@, (@plot_view.renderer_views[r.id] for r in renderers), geometry, final, append)
+
+        if did_hit and callback?
+          if isFunction(callback)
+            callback(ds, cb_data)
+          else
+            callback.execute(ds, cb_data)
+
+      @plot_view.push_state('tap', {selection: @plot_view.get_selection()})
+
+    else # @model.behavior == "inspect"
+      for r in @model.computed_renderers
+        ds = r.data_source
+        sm = ds.selection_manager
+        view = @plot_view.renderer_views[r.id]
         did_hit = sm.inspect(@, view, geometry, {geometry: geometry})
 
-      if did_hit and callback?
-        if isFunction(callback)
-          callback(ds, cb_data)
-        else
-          callback.execute(ds, cb_data)
-
-    if @model.behavior == "select"
-      @plot_view.push_state('tap', {selection: @plot_view.get_selection()})
+        if did_hit and callback?
+          if isFunction(callback)
+            callback(ds, cb_data)
+          else
+            callback.execute(ds, cb_data)
 
     return null
 
