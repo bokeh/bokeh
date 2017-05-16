@@ -1,119 +1,146 @@
-import {difference} from "./array"
+import {difference, copy} from "./array"
 import {isEqual} from "./eq"
 import {isArray} from "./types"
 
-export class MultiDict
+export class MultiDict<T> {
 
-    constructor : () ->
-      @_dict = {}
+  _dict: {[key: string]: T | T[]} = {}
 
-    _existing: (key) ->
-      if key of @_dict
-        return @_dict[key]
-      else
-        return null
-
-    add_value: (key, value) ->
-      if value == null
-        throw new Error("Can't put null in this dict")
-      if isArray(value)
-        throw new Error("Can't put arrays in this dict")
-      existing = @_existing(key)
-      if existing == null
-        @_dict[key] = value
-      else if isArray(existing)
-        existing.push(value)
-      else
-        @_dict[key] = [existing, value]
-
-    remove_value: (key, value) ->
-      existing = @_existing(key)
-      if isArray(existing)
-        new_array = difference(existing, [value])
-        if new_array.length > 0
-          @_dict[key] = new_array
-        else
-          delete @_dict[key]
-      else if isEqual(existing, value)
-        delete @_dict[key]
-
-    get_one: (key, duplicate_error) ->
-      existing = @_existing(key)
-      if isArray(existing)
-        if existing.length == 1
-          return existing[0]
-        else
-          throw new Error(duplicate_error)
-      else
-        return existing
-
-export class Set
-  constructor: (array) ->
-    if not array
-      @values = []
+  _existing(key: string): T | T[] | null {
+    if (key in this._dict)
+      return this._dict[key]
     else
-      if array.constructor is Set
-        return new Set array.values
-      if array.constructor is Array
-        @values = Set.compact(array)
+      return null
+  }
+
+  add_value(key: string, value: T) {
+    /*
+    if value == null
+      throw new Error("Can't put null in this dict")
+    if isArray(value)
+      throw new Error("Can't put arrays in this dict")
+    */
+    const existing = this._existing(key)
+    if (existing == null) {
+      this._dict[key] = value
+    } else if (isArray(existing)) {
+      existing.push(value)
+    } else {
+      this._dict[key] = [existing, value]
+    }
+  }
+
+  remove_value(key: string, value: T) {
+    const existing = this._existing(key)
+    if (isArray(existing)) {
+      const new_array = difference(existing, [value])
+      if (new_array.length > 0)
+        this._dict[key] = new_array
       else
-        @values = [array]
+        delete this._dict[key]
+    } else if (isEqual(existing, value)) {
+      delete this._dict[key]
+    }
+  }
 
-  @compact: (array) ->
-    newArray = []
+  get_one(key: string, duplicate_error: string): T | null {
+    const existing = this._existing(key)
+    if (isArray(existing)) {
+      if (existing.length === 1)
+        return existing[0]
+      else
+        throw new Error(duplicate_error)
+    } else
+      return existing
+  }
+}
 
-    for item in array
-      newArray.push item if newArray.indexOf(item) is -1
+export class Set<T> {
+
+  values: T[]
+
+  constructor(obj?: T[] | Set<T>) {
+    if (obj == null) {
+      this.values = []
+    } else if (obj instanceof Set) {
+      this.values = copy(obj.values)
+    } else {
+      this.values = this._compact(obj)
+    }
+  }
+
+  protected _compact(array: T[]): T[] {
+    const newArray: T[] = []
+
+    for (const item of array) {
+      if (newArray.indexOf(item) === -1) {
+        newArray.push(item)
+      }
+    }
 
     return newArray
+  }
 
-  push: (item) ->
-    if @missing(item)
-      @values.push(item)
+  push(item: T): void {
+    if (this.missing(item))
+      this.values.push(item)
+  }
 
-  remove: (item) ->
-    i = @values.indexOf item
-    @values = @values.slice(0,i).concat @values.slice(i+1)
+  remove(item: T): void {
+    const i = this.values.indexOf(item)
+    this.values = this.values.slice(0, i).concat(this.values.slice(i + 1))
+  }
 
-  length: ->
-    @values.length
+  length(): number {
+    return this.values.length
+  }
 
-  includes: (item) ->
-    @values.indexOf(item) isnt -1
+  includes(item: T): boolean {
+    return this.values.indexOf(item) != -1
+  }
 
-  missing: (item) ->
-    not @includes item
+  missing(item: T): boolean {
+    return !this.includes(item)
+  }
 
-  slice: (from, to) ->
-    @values.slice from, to
+  slice(from: number, to: number): T[] {
+    return this.values.slice(from, to)
+  }
 
-  join: (str) ->
-    @values.join str
+  join(str: string): string {
+    return this.values.join(str)
+  }
 
-  toString: ->
-    @join ', '
+  toString(): string {
+    return this.join(', ')
+  }
 
-  includes: (item) ->
-    @values.indexOf(item) isnt -1
+  union(set: T[] | Set<T>): Set<T> {
+    set = new Set<T>(set)
+    return new Set(this.values.concat(set.values))
+  }
 
-  union: (set) ->
-    set = new Set(set)
-    new Set @values.concat set.values
+  intersect(set: T[] | Set<T>): Set<T> {
+    set = new Set<T>(set)
+    const newSet = new Set<T>()
 
-  intersect: (set) ->
-    set = new Set(set)
-    newSet = new Set
-
-    for item in set.values
-      newSet.push item if @includes(item) and set.includes(item)
+    for (const item of set.values) {
+      if (this.includes(item) && set.includes(item))
+        newSet.push(item)
+    }
 
     return newSet
+  }
 
-  diff: (set) ->
-    set = new Set(set)
-    newSet = new Set
+  diff(set: T[] | Set<T>): Set<T> {
+    set = new Set<T>(set)
+    const newSet = new Set<T>()
 
-    for item in @values
-      newSet.push item if set.missing(item)
+    for (const item of this.values) {
+      if (set.missing(item))
+        newSet.push(item)
+    }
 
     return newSet
+  }
+}
