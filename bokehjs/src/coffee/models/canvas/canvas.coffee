@@ -30,11 +30,12 @@ export class CanvasView extends DOMView
     switch @model.output_backend
       when "canvas"
         @canvas_el = @el.appendChild(canvas({class: "bk-canvas"}))
-        @ctx = @canvas_el.getContext('2d')
+        @_ctx = @canvas_el.getContext('2d')
       when "svg"
-        @ctx = new canvas2svg()
-        @canvas_el = @el.appendChild(@ctx.getSvg())
+        @_ctx = new canvas2svg()
+        @canvas_el = @el.appendChild(@_ctx.getSvg())
 
+    @ctx = @get_ctx()
     # work around canvas incompatibilities
     fixup_ctx(@ctx)
 
@@ -44,9 +45,9 @@ export class CanvasView extends DOMView
     @connect(@solver.layout_reset, () => @_add_constraints())
 
   # Method exists so that context can be stubbed in unit tests
-  get_ctx: () -> return @ctx
+  get_ctx: () -> return @_ctx
 
-  get_canvas_element: () -> @canvas_el
+  get_canvas_element: () -> return @canvas_el
 
   prepare_canvas: () ->
     # Ensure canvas has the correct size, taking HIDPI into account
