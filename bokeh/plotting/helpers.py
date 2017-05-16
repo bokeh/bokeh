@@ -202,7 +202,7 @@ def _get_range(range_input):
 
 
 def _get_scale(range_input, axis_type):
-    if isinstance(range_input, (DataRange1d, Range1d)) and axis_type in ["linear", "datetime", "auto"]:
+    if isinstance(range_input, (DataRange1d, Range1d)) and axis_type in ["linear", "datetime", "auto", None]:
         return LinearScale()
     elif isinstance(range_input, (DataRange1d, Range1d)) and axis_type == "log":
         return LogScale()
