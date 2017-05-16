@@ -1,21 +1,28 @@
+# Things to always exclude
 global-exclude .git*
+global-exclude .ipynb_checkpoints
+global-exclude *.pyc
+global-exclude *.pyo
+
+# Specific files to include
+include bokeh/themes/*.yaml
 include CHANGELOG
 include classifiers.txt
 include LICENSE.txt
 include setup.cfg
 include versioneer.py
 include _setup_support.py
-include bokeh/themes/*.yaml
-recursive-include examples *.py *.ipynb *.md
+
+# Tests
 recursive-include tests *.py *.ipynb *.jinja *.js *.md *.png
-prune examples/charts/.ipynb_checkpoints
-prune examples/compat/mpl/.ipynb_checkpoints
-prune examples/glyphs/.ipynb_checkpoints
-prune examples/plotting/notebook/.ipynb_checkpoints
-prune examples/charts/*.html
-prune examples/compat/mpl/*.html
-prune examples/compat/pandas/*.html
-prune examples/compat/seaborn/*.html
+
+# Docs
+graft sphinx
+prune sphinx/_build
+
+# Examples
+recursive-include examples *.py *.ipynb *.md
 prune examples/embed/*.html
-prune examples/glyphs/*.html
+prune examples/models/file/*.html
 prune examples/plotting/file/*.html
+prune examples/webgl/*.html
