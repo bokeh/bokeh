@@ -2,6 +2,7 @@ import {Scale} from "./scale"
 import * as p from "core/properties"
 
 export class LogScale extends Scale
+  type: "LogScale"
 
   @getters {
     state: () ->

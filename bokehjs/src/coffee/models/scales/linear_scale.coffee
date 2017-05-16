@@ -3,6 +3,7 @@ import {Scale} from "./scale"
 import * as p from "core/properties"
 
 export class LinearScale extends Scale
+  type: "LinearScale"
 
   @getters {
     state: () ->

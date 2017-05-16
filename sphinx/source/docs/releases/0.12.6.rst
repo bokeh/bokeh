@@ -38,10 +38,14 @@ Old                            New
 ``mappers/CategoricalMapper``  ``scales/CategoricalScale``
 ============================== ==============================
 
-Previously, these classes were internal implementation details. These changes
-are not expected to impact any user code.
+Previously, these Mapper classes were internal implementation details. The
+new Scale classes are first-class Bokeh models and are accessible from
+Python.
 
-Additionally, these new scales models are now accessible from the Python.
+There is a new Plot validation check to ensure that Scales and Ranges on a
+dimension are compatible. Users employing a ``FactorRange`` in the
+``bokeh.plotting`` API will have to specify ``CategoricalScale`` on the same
+dimension.
 
 As part of this work, some BokehJS attributes were renamed to be consistent
 with the new terminology:
