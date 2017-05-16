@@ -6,7 +6,7 @@ export class LassoSelectToolView extends SelectToolView
 
   initialize: (options) ->
     super(options)
-    @listenTo(@model, 'change:active', @_active_change)
+    @connect(@model.properties.active.change, @_active_change)
     @data = null
 
   _active_change: () ->

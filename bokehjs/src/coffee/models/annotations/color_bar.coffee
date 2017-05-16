@@ -21,14 +21,15 @@ export class ColorBarView extends AnnotationView
     super(options)
     @_set_canvas_image()
 
-  bind_bokeh_events: () ->
-    @listenTo(@model, 'change:visible', () => @plot_view.request_render())
-    @listenTo(@model.ticker, 'change', () => @plot_view.request_render())
-    @listenTo(@model.formatter, 'change', () => @plot_view.request_render())
-    @listenTo(@model.color_mapper, 'change', () ->
-      @_set_canvas_image()
-      @plot_view.request_render()
-      )
+  connect_signals: () ->
+    super()
+    @connect(@model.properties.visible.change, () => @plot_view.request_render())
+    @connect(@model.ticker.change, () => @plot_view.request_render())
+    @connect(@model.formatter.change, () => @plot_view.request_render())
+    if @model.color_mapper?
+      @connect @model.color_mapper.change, () ->
+        @_set_canvas_image()
+        @plot_view.request_render()
 
   _get_panel_offset: () ->
     # ColorBars draw from the top down, so set the y_panel_offset to _top
@@ -37,6 +38,9 @@ export class ColorBarView extends AnnotationView
     return {x: x, y: -y}
 
   _get_size: () ->
+    if not @model.color_mapper?
+      return
+
     bbox = @compute_legend_dimensions()
     side = @model.panel.side
     if side == 'above' or side == 'below'

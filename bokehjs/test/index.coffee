@@ -2,6 +2,8 @@ fs = require "fs"
 path = require "path"
 assert = require "assert"
 rootRequire = require "root-require"
+chalk = require "chalk"
+{TSError} = require "ts-node"
 
 root = rootRequire.packpath.parent()
 pkg = rootRequire("./package.json")
@@ -21,7 +23,18 @@ module.constructor.prototype.require = (modulePath) ->
       if fs.existsSync(overridePath)
         modulePath = overridePath
 
-  return this.constructor._load(modulePath, this)
+  try
+    return this.constructor._load(modulePath, this)
+  catch err
+    if err instanceof TSError
+      console.error(prettyTSError(err))
+      process.exit(1)
+    else
+      throw err
+
+prettyTSError = (error) ->
+  title = "#{chalk.red('⨯')} Unable to compile TypeScript"
+  return "#{chalk.bold(title)}\n#{error.diagnostics.map((x) -> x.message).join('\n')}"
 
 jsdom = require('jsdom').jsdom
 

@@ -1,14 +1,16 @@
-import {Events} from "./events"
+import {Signal, Signalable} from "./signaling"
 import {uniqueId} from "./util/string"
 
 export class View
-  @prototype extends Events
+  @prototype extends Signalable
 
   @getters = (specs) ->
     for name, fn of specs
       Object.defineProperty(@prototype, name, { get: fn })
 
   constructor: (options={}) ->
+    @removed = new Signal(this, "removed")
+
     if options.model?
       @model = options.model
     else
@@ -23,8 +25,8 @@ export class View
 
   remove: () ->
     @_parent = undefined
-    @stopListening()
-    @trigger('remove')
+    @disconnect_signals()
+    @removed.emit()
 
   toString: () -> "#{@model.type}View(#{@id})"
 
@@ -38,4 +40,7 @@ export class View
       return @parent == null
   }
 
-  bind_bokeh_events: () ->
+  connect_signals: () ->
+
+  disconnect_signals: () ->
+    Signal.disconnectReceiver(@)

@@ -6,7 +6,7 @@ export class Range extends Model
 
   initialize: (options) ->
     super(options)
-    @listenTo(@, 'change', () -> @callback?.execute(@))
+    @connect(@change, () -> @callback?.execute(@))
 
   @define {
       callback: [ p.Instance ]
@@ -21,4 +21,4 @@ export class Range extends Model
     This method should be reimplemented by subclasses and ensure that
     the callback, if exists, is executed at completion.
     """
-    @trigger('change')
+    @change.emit()

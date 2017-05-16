@@ -3,16 +3,19 @@ import * as p from "core/properties"
 
 export class LogScale extends Scale
 
-  initialize: (attrs, options) ->
-    super(attrs, options)
-
-    @define_computed_property('state', @_state, true)
-    @add_dependencies('state', this, ['source_range', 'target_range'])
-    @add_dependencies('state', @source_range, ['start', 'end'])
-    @add_dependencies('state', @target_range, ['start', 'end'])
+  connect_signals: () ->
+    super()
+    @connect(@properties.source_range.change,       () -> @_state = null)
+    @connect(@properties.target_range.change,       () -> @_state = null)
+    @connect(@source_range.properties.start.change, () -> @_state = null)
+    @connect(@source_range.properties.end.change,   () -> @_state = null)
+    @connect(@target_range.properties.start.change, () -> @_state = null)
+    @connect(@target_range.properties.end.change,   () -> @_state = null)
 
   @getters {
-    state: () -> @_get_computed('state')
+    state: () ->
+      if not @_state? then @_state = @_compute_state()
+      return @_state
   }
 
   compute: (x) ->
@@ -86,7 +89,7 @@ export class LogScale extends Scale
 
     return [start, end]
 
-  _state: () ->
+  _compute_state: () ->
     source_start = @source_range.start
     source_end   = @source_range.end
     target_start = @target_range.start

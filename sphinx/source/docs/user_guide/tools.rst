@@ -31,8 +31,7 @@ you will learn how to specify a different location for the toolbar, or to
 remove it entirely.
 
 The toolbar location can be specified by passing the ``toolbar_location``
-parameter to the |figure| function or to any |bokeh.charts| Chart function.
-Valid values are:
+parameter to the |figure| function. Valid values are:
 
 * ``"above"``
 * ``"below"``
@@ -69,11 +68,10 @@ passing instances of ``Tool`` objects to the ``add_tools`` method:
     plot.add_tools(WheelZoomTool())
 
 This explicit way of adding tools works with any Bokeh ``Plot`` or
-``Plot`` subclass, such as ``Figure`` or ``Chart``.
+``Plot`` subclass, such as ``Figure``.
 
 Tools can be specified by passing the ``tools`` parameter to the |figure|
-function or to any |bokeh.charts| Chart function. The tools parameter
-accepts a list of tool objects, for instance:
+function. The tools parameter accepts a list of tool objects, for instance:
 
 .. code-block:: python
 
@@ -139,9 +137,8 @@ As an example:
 The default value for all of these properties is ``"auto"``.
 
 Active tools can be specified by passing the these properties as keyword
-arguments to the |figure| function or to any |bokeh.charts| Chart function.
-In this case, it is also possible to pass any one of the string names for,
-ease of configuration:
+arguments to the |figure| function. It is also possible to pass any one of
+the string names for, ease of configuration:
 
 .. code-block:: python
 
@@ -605,8 +602,6 @@ properties on |Plot| objects that control LOD behavior:
 .. bokeh-prop:: Plot.lod_timeout
     :module: bokeh.models.plots
 
-
-.. |bokeh.charts| replace:: :ref:`bokeh.charts <bokeh.charts>`
 
 .. |Plot| replace:: :class:`~bokeh.models.plots.Plot`
 

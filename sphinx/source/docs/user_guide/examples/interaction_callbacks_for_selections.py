@@ -28,7 +28,7 @@ s1.callback = CustomJS(args=dict(s2=s2), code="""
             d2['x'].push(d1['x'][inds[i]])
             d2['y'].push(d1['y'][inds[i]])
         }
-        s2.trigger('change');
+        s2.change.emit();
     """)
 
 layout = row(p1, p2)

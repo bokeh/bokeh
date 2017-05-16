@@ -243,34 +243,49 @@ class FactorRange(Range):
     The bounds that the range is allowed to go to - typically used to prevent
     the user from panning/zooming/etc away from the data.
 
-    Unlike Range1d and DataRange1d, factors do not have an order and so a min and max cannot be
-    provied in the same way. bounds accepts a list of factors, that constrain the displayed factors.
+    Unlike Range1d and DataRange1d, factors do not have an order and so a
+    min and max cannot be proved in the same way. bounds accepts a list of
+    factors, that constrain the displayed factors.
 
     By default, bounds are ``None``, allows unlimited panning or zooming.
 
-    If ``bounds='auto'``, bounds will be the same as factors and the plot will not be able to
-    pan or zoom beyond the first and last items in factors.
+    If ``bounds='auto'``, bounds will be the same as factors and the plot
+    will not be able to pan or zoom beyond the first and last factors.
 
-    If you provide a list, then only the factors that are in that list will be displayed on the
-    plot and the plot will not pan or zoom outside the first and last items in the shortened
-    factors list. Note the order of factors is the defining order for your plot.
+    If you provide a list, then only the factors that are in that list will
+    be displayed on the plot and the plot will not pan or zoom outside the
+    first and last items in the shortened factors list. Note the order of
+    factors is the defining order for your plot.
 
-    Values of bounds that are not in factors are acceptable and will simply have no impact
-    on the plot.
+    Values of bounds that are not in factors are acceptable and will simply
+    have no impact on the plot.
 
     Examples:
 
     Auto behavior:
-        x_range = FactorRange(factors=["apples", "dogs", "peaches", "bananas", "pigs"], bounds='auto')
 
-        The plot will display all the factors and you will not be able to pan left of apples or right
-        of pigs.
+    .. code-block:: python
+
+        x_range = FactorRange(
+            factors=["apples", "dogs", "peaches", "bananas", "pigs"],
+            bounds='auto'
+        )
+
+        The plot will display all the factors and you will not be able to
+        pan left of apples or right of pigs.
 
     Constraining behavior:
-        x_range = FactorRange(factors=["apples", "dogs", "peaches", "bananas", "pigs"], bounds=["apples", "bananas", "peaches"])
 
-        The plot will display the chart with only the factors ["apples", "peaches", "bananas"] (in that order)
-        and the plot will not pan left of apples or right of bananas.
+    .. code-block:: python
+
+        x_range = FactorRange(
+            factors=["apples", "dogs", "peaches", "bananas", "pigs"],
+            bounds=["apples", "bananas", "peaches"]
+        )
+
+        Only the factors ``["apples", "peaches", "bananas"]`` (in that
+        order) will appear in the plot, and the plot will not pan left of
+        ``"apples"`` or right of ``"bananas"``.
     """)
 
     min_interval = Int(default=None, help="""

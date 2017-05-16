@@ -7,6 +7,7 @@ import {extend} from "core/util/object"
 
 import {DOMView} from "core/dom_view"
 import {Model} from "../../model"
+import {DTINDEX_NAME} from "./data_table"
 import {JQueryable} from "./jqueryable"
 
 export class CellEditorView extends DOMView
@@ -69,8 +70,7 @@ export class CellEditorView extends DOMView
   isValueChanged: () -> return not (@getValue() == "" and not @defaultValue?) and (@getValue() != @defaultValue)
 
   applyValue: (item, state) ->
-    # XXX: In perfect world this would be `item[@args.column.field] = state`.
-    @args.grid.getData().setField(item.index, @args.column.field, state)
+    @args.grid.getData().setField(item[DTINDEX_NAME], @args.column.field, state)
 
   loadValue: (item) ->
     value = item[@args.column.field]

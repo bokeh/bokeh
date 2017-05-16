@@ -31,7 +31,7 @@ export class LayoutDOMView extends DOMView
     if @is_root
       defer(() => @resize())
 
-    @bind_bokeh_events()
+    @connect_signals()
 
   remove: () ->
     for _, view of @child_views
@@ -108,7 +108,7 @@ export class LayoutDOMView extends DOMView
         @_solver.suggest_value(@_root_height, height)
 
     @_solver.update_variables(false)
-    @_solver.trigger('resize')
+    @_solver.resize.emit()
 
   rebuild_child_views: () ->
     @_reset_solver()
@@ -127,16 +127,18 @@ export class LayoutDOMView extends DOMView
       child_view = @child_views[child.id]
       @el.appendChild(child_view.el)
 
-  bind_bokeh_events: () ->
+  connect_signals: () ->
+    super()
+
     if @is_root
       window.addEventListener("resize", () => @resize())
 
-    @listenTo(@model, 'change', () => @render())
+    @connect(@model.change, () => @render())
 
-    if @model.sizing_mode == 'fixed'
-      @listenToOnce(@solver, 'resize', () => @render())
-    else
-      @listenTo(@solver, 'resize', () => @render())
+    @connect @solver.resize, () =>
+      if @model.sizing_mode != 'fixed' or not @_did_render
+        @_did_render = true
+        @render()
 
     # Note: `sizing_mode` update is not supported because changing the
     # sizing_mode mode necessitates stripping out all the relevant constraints
@@ -144,7 +146,7 @@ export class LayoutDOMView extends DOMView
     # a machinery for this. Other things with a similar problem are axes and
     # title.
     sizing_mode_msg = "Changing sizing_mode after initialization is not currently supported."
-    @listenTo(@model, 'change:sizing_mode', () -> logger.warn(sizing_mode_msg))
+    @connect(@model.properties.sizing_mode.change, () -> logger.warn(sizing_mode_msg))
 
   render: () ->
     switch @model.sizing_mode

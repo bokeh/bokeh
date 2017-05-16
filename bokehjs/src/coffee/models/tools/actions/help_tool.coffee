@@ -2,7 +2,7 @@ import {ActionTool, ActionToolView} from "./action_tool"
 import * as p from "core/properties"
 
 export class HelpToolView extends ActionToolView
-  do: () ->
+  doit: () ->
     window.open(@model.redirect)
 
 export class HelpTool extends ActionTool
@@ -18,7 +18,7 @@ export class HelpTool extends ActionTool
     ]
     redirect:     [
       p.String
-      'http://bokeh.pydata.org/en/latest/docs/user_guide/tools.html'
+      'http://bokeh.pydata.org/en/latest/docs/user_guide/tools.html#built-in-tools'
     ]
   }
 

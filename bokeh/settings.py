@@ -175,6 +175,12 @@ class Settings(object):
         '''
         return self._get_bool("SIGN_SESSIONS", default)
 
+    def perform_document_validation(self, default=True):
+        ''' Set whether Bokeh should perform validation checks on documents.
+
+        '''
+        return self._get_bool("VALIDATE_DOC", default)
+
     # Server settings go here:
 
     def bokehjssrcdir(self):
@@ -222,6 +228,9 @@ class Settings(object):
 
     def nodejs_path(self, default=None):
         return self._get_str("NODEJS_PATH", default)
+
+    def phantomjs_path(self, default=None):
+        return self._get_str("PHANTOMJS_PATH", default)
 
 #: A global settings object that other parts of Bokeh can refer to.
 #:

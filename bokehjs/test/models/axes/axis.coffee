@@ -15,6 +15,23 @@ sinon = require 'sinon'
 
 describe "Axis", ->
 
+  it "should compute labels with overrides", ->
+    doc = new Document()
+    p = new Plot({
+      x_range: new Range1d({start: 0, end: 10})
+      y_range: new Range1d({start: 0, end: 10})
+    })
+    doc.add_root(p)
+    ticker = new BasicTicker()
+    formatter = new BasicTickFormatter()
+    axis = new Axis({
+      ticker: ticker
+      formatter: formatter
+      plot: p
+      major_label_overrides: {0: "zero", 4: "four", 10: "ten"}
+    })
+    expect(axis.compute_labels([0,2,4.0,6,8,10])).to.be.deep.equal ["zero", "2", "four", "6", "8", "ten"]
+
   it "should have a SidePanel after add_panel is called", ->
     doc = new Document()
     p = new Plot({

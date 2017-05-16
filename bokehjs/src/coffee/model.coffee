@@ -18,11 +18,15 @@ export class Model extends HasProps
   initialize: (options) ->
     super(options)
     for evt, callbacks of @js_property_callbacks
+      [evt, attr=null] = evt.split(':')
       for cb in callbacks
-        @listenTo(@, evt, () -> cb.execute(@))
+        if attr != null
+          @connect(@properties[attr][evt], () -> cb.execute(@))
+        else
+          @connect(@[evt], () -> cb.execute(@))
 
-    @listenTo(@, 'change:js_event_callbacks', () -> @_update_event_callbacks)
-    @listenTo(@, 'change:subscribed_events', () -> @_update_event_callbacks)
+    @connect(@properties.js_event_callbacks.change, () -> @_update_event_callbacks)
+    @connect(@properties.subscribed_events.change, () -> @_update_event_callbacks)
 
   _process_event: (event) ->
     if event.is_applicable_to(this)
@@ -35,7 +39,7 @@ export class Model extends HasProps
         @document.event_manager.send_event(event)
 
   trigger_event: (event) ->
-    @document?.event_manager.trigger(event.set_model_id(@.id))
+    @document?.event_manager.trigger(event.set_model_id(@id))
 
   _update_event_callbacks: () ->
     if not @document?

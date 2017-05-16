@@ -15,20 +15,33 @@ export class LabelSetView extends TextAnnotationView
         @title_div = div({class: 'bk-annotation-child', style: {display: "none"}})
         @el.appendChild(@title_div)
 
-  bind_bokeh_events: () ->
+  connect_signals: () ->
+    super()
     if @model.render_mode == 'css'
       # dispatch CSS update immediately
-      @listenTo(@model, 'change', () ->
+      @connect(@model.change, () ->
         @set_data(@model.source)
         @render())
-      @listenTo(@model.source, 'change', () ->
+      @connect(@model.source.streaming, () ->
+        @set_data(@model.source)
+        @render())
+      @connect(@model.source.patching, () ->
+        @set_data(@model.source)
+        @render())
+      @connect(@model.source.change, () ->
         @set_data(@model.source)
         @render())
     else
-      @listenTo(@model, 'change', () ->
+      @connect(@model.change, () ->
         @set_data(@model.source)
         @plot_view.request_render())
-      @listenTo(@model.source, 'change', () ->
+      @connect(@model.source.streaming, () ->
+        @set_data(@model.source)
+        @plot_view.request_render())
+      @connect(@model.source.patching, () ->
+        @set_data(@model.source)
+        @plot_view.request_render())
+      @connect(@model.source.change, () ->
         @set_data(@model.source)
         @plot_view.request_render())
 
