@@ -13,14 +13,14 @@ Install requirements
 
 The following requirements are necessary for building Bokeh documentation:
 
-* sphinx=1.5.1
+* sphinx
 * pyyaml
 * packaging
 * pygments
 
 Install these requirements::
 
-    conda install -c bokeh sphinx=1.5.1 pyyaml packaging pygments
+    conda install -c bokeh sphinx pyyaml packaging pygments
 
 We recommend using ``conda`` to install these requirements. Alternatively, you
 may use ``pip`` or install from the packages' source.
