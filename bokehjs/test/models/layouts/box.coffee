@@ -1,10 +1,9 @@
-_ = require "underscore"
 {expect} = require "chai"
 utils = require "../../utils"
 sinon = require "sinon"
 
+{clone} = utils.require("core/util/object")
 {Strength, Variable}  = utils.require("core/layout/solver")
-
 {Document} = utils.require("document")
 {Box} = utils.require("models/layouts/box")
 {BoxView} = utils.require("models/layouts/box")
@@ -86,19 +85,23 @@ describe "Box", ->
       expect(constrained_variables).to.be.deep.equal @expected_constrained_variables
 
     it "should return correct constrained_variables in scale_width mode", ->
-      expected_constrained_variables = _.omit(@expected_constrained_variables, ['height'])
+      expected_constrained_variables = clone(@expected_constrained_variables)
+      delete expected_constrained_variables.height
       @box.sizing_mode = 'scale_width'
       constrained_variables = @box.get_constrained_variables()
       expect(constrained_variables).to.be.deep.equal expected_constrained_variables
 
     it "should return correct constrained_variables in scale_height mode", ->
-      expected_constrained_variables = _.omit(@expected_constrained_variables, ['width'])
+      expected_constrained_variables = clone(@expected_constrained_variables)
+      delete expected_constrained_variables.width
       @box.sizing_mode = 'scale_height'
       constrained_variables = @box.get_constrained_variables()
       expect(constrained_variables).to.be.deep.equal expected_constrained_variables
 
     it "should return correct constrained_variables in fixed mode", ->
-      expected_constrained_variables = _.omit(@expected_constrained_variables, ['height', 'width'])
+      expected_constrained_variables = clone(@expected_constrained_variables)
+      delete expected_constrained_variables.height
+      delete expected_constrained_variables.width
       @box.sizing_mode = 'fixed'
       constrained_variables = @box.get_constrained_variables()
       expect(constrained_variables).to.be.deep.equal expected_constrained_variables
