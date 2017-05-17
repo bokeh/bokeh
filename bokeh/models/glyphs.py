@@ -405,11 +405,11 @@ class ImageRGBA(Glyph):
     The y-coordinates to locate the image anchors.
     """)
 
-    rows = NumberSpec(None, help="""
+    rows = NumberSpec(None, accept_datetime=False, help="""
     The numbers of rows in the images
     """).asserts(False, lambda obj, name, value: deprecated((0, 12, 4), "ImageRGBA.rows", "2D array representation"))
 
-    cols = NumberSpec(None, help="""
+    cols = NumberSpec(None, accept_datetime=False, help="""
     The numbers of columns in the images
     """).asserts(False, lambda obj, name, value: deprecated((0, 12, 4), "ImageRGBA.cols", "2D array representation"))
 
@@ -451,7 +451,8 @@ class ImageURL(Glyph):
     # functions derived from this class
     _args = ('url', 'x', 'y', 'w', 'h', 'angle', 'global_alpha', 'dilate')
 
-    url = NumberSpec(help="""
+    # TODO (bev) Why is this a NumberSpec??
+    url = NumberSpec(accept_datetime=False, help="""
     The URLs to retrieve images from.
 
     .. note::

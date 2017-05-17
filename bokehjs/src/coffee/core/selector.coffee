@@ -1,20 +1,6 @@
 import {HasProps} from "./has_props"
 import * as hittest from "./hittest"
 import * as p from "./properties"
-import {union, concat} from "./util/array"
-
-merge = (obj1, obj2) ->
-  result = {}
-
-  keys = concat(Object.keys(obj1),
-                Object.keys(obj2))
-
-  for key in keys
-    arr1 = obj1[key] or []
-    arr2 = obj2[key] or []
-    result[key] = union(arr1, arr2)
-
-  return result
 
 export class Selector extends HasProps
   type: 'Selector'
@@ -23,10 +9,7 @@ export class Selector extends HasProps
     @setv('timestamp', new Date(), {silent: silent})
     @setv('final', final, {silent: silent})
     if append
-      indices['0d'].indices = union(@indices['0d'].indices, indices['0d'].indices)
-      indices['0d'].glyph =  @indices['0d'].glyph or indices['0d'].glyph
-      indices['1d'].indices = union(@indices['1d'].indices, indices['1d'].indices)
-      indices['2d'].indices = merge(@indices['2d'].indices, indices['2d'].indices)
+      indices.update_through_union(@indices)
     @setv('indices', indices, {silent: silent})
 
   clear: () ->

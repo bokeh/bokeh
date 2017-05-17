@@ -25,14 +25,14 @@ import warnings
 import tempfile
 import uuid
 
-# Third-party imports
-
 # Bokeh imports
 from .core.state import State
 from .document import Document
 from .embed import autoload_server, notebook_div, file_html
 from .layouts import gridplot, GridSpec ; gridplot, GridSpec
+from .resources import INLINE
 import bokeh.util.browser as browserlib  # full import needed for test mocking to work
+from .util.dependencies import import_required, detect_phantomjs
 from .util.deprecation import deprecated
 from .util.notebook import get_comms, load_notebook, publish_display_data, watch_server_cells
 from .util.string import decode_utf8
@@ -564,3 +564,94 @@ def _destroy_server(div_id):
 
     except Exception as e:
         logger.debug("Could not destroy server for id %r: %s" % (div_id, e))
+
+def _crop_image(image, left=0, top=0, right=0, bottom=0, **kwargs):
+    '''Crop the border from the layout'''
+    cropped_image = image.crop((left, top, right, bottom))
+
+    return cropped_image
+
+def _get_screenshot_as_png(obj):
+    webdriver = import_required('selenium.webdriver',
+                                'To use bokeh.io.export you need selenium ' +
+                                '("conda install -c bokeh selenium" or "pip install selenium")')
+    from selenium.webdriver.support.ui import WebDriverWait
+    from selenium.common.exceptions import TimeoutException
+
+    Image = import_required('PIL.Image',
+                            'To use bokeh.io.export you need pillow ' +
+                            '("conda install pillow" or "pip install pillow")')
+    # assert that phantomjs is in path for webdriver
+    detect_phantomjs()
+
+    html_path = tempfile.NamedTemporaryFile(suffix=".html").name
+    save(obj, filename=html_path, resources=INLINE, title="")
+
+    driver = webdriver.PhantomJS()
+    driver.get("file:///" + html_path)
+    script = """
+        // override body width CSS for PhantomJS compat
+        document.body.style.width = '100%';
+        // add private window prop to check that render is complete
+        window._bokeh_render_complete = false;
+        window.addEventListener("bokeh:rendered", function() {
+            window._bokeh_render_complete = true;
+        });
+        """
+    driver.execute_script(script)
+
+    def is_bokeh_render_complete(driver):
+        return driver.execute_script('return window._bokeh_render_complete;')
+
+    try:
+        WebDriverWait(driver, 5, poll_frequency=0.1).until(is_bokeh_render_complete)
+    except TimeoutException:
+        logger.warn("The webdriver raised a TimeoutException while waiting for \
+                     a 'bokeh:rendered' event to signify that the layout has rendered. \
+                     Something may have gone wrong.")
+    finally:
+        browser_logs = driver.get_log('browser')
+        severe_errors = [l for l in browser_logs if l.get('level') == 'SEVERE']
+        if len(severe_errors) > 0:
+            logger.warn("There were severe browser errors that may have affected your export: {}".format(severe_errors))
+
+    png = driver.get_screenshot_as_png()
+
+    bounding_rect_script = "return document.getElementsByClassName('bk-root')[0].children[0].getBoundingClientRect()"
+    b_rect = driver.execute_script(bounding_rect_script)
+
+    driver.quit()
+
+    image = Image.open(io.BytesIO(png))
+    cropped_image = _crop_image(image, **b_rect)
+
+    return cropped_image
+
+def export(obj, filename=None):
+    ''' Export the LayoutDOM object as a PNG.
+
+    If the filename is not given, it is derived from the script name
+    (e.g. ``/foo/myplot.py`` will create ``/foo/myplot.png``)
+
+    Args:
+        obj (LayoutDOM object) : a Layout (Row/Column), Plot or Widget object to display
+
+        filename (str, optional) : filename to save document under (default: None)
+            If None, infer from the filename.
+
+    Returns:
+        filename (str) : the filename where the static file is saved.
+
+    .. warning::
+        Responsive sizing_modes may generate layouts with unexpected size and
+        aspect ratios. It is recommended to use the default ``fixed`` sizing mode.
+
+    '''
+    image = _get_screenshot_as_png(obj)
+
+    if filename is None:
+        filename = _detect_filename("png")
+
+    image.save(filename)
+
+    return os.path.abspath(filename)
