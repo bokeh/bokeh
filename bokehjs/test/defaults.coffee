@@ -97,7 +97,7 @@ check_matching_defaults = (name, python_defaults, coffee_defaults) ->
 
           # palettes in JS are stored as int color values
           if k == 'palette'
-            py_v = (parseInt(x, 16) for x in py_v)
+            py_v = (parseInt(x[1...], 16) for x in py_v)
 
           if js_v.length != py_v.length
             equal = false
