@@ -3,6 +3,8 @@
 //     (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 //     Underscore may be freely distributed under the MIT license.
 
+import {randomIn} from "./math"
+
 const slice = Array.prototype.slice
 
 export function copy<T>(array: Array<T> /*| TypedArray*/): Array<T> {
@@ -272,7 +274,7 @@ export function intersection<T>(array: Array<T>, ...arrays: Array<Array<T>>): Ar
       continue
     for (const other of arrays) {
       if (!contains(other, item))
-        continue top;
+        continue top
     }
     result.push(item)
   }
@@ -291,4 +293,18 @@ export function removeBy<T>(array: Array<T>, key: (item: T) => boolean): void {
     else
       i++
   }
+}
+
+// Shuffle a collection, using the modern version of the
+// [Fisher-Yates shuffle](http://en.wikipedia.org/wiki/Fisher–Yates_shuffle).
+export function shuffle<T>(array: T[]): T[] {
+  const length = array.length
+  const shuffled = new Array(length)
+  for (let i = 0; i < length; i++) {
+    let rand = randomIn(0, i)
+    if (rand !== i)
+      shuffled[i] = shuffled[rand]
+    shuffled[rand] = array[i]
+  }
+  return shuffled
 }
