@@ -18,7 +18,7 @@ describe "linear_scale module", ->
     scale = generate_scale()
 
     it "should compute scale state", ->
-      expect(scale.state).to.be.deep.equal [6, 20]
+      expect(scale._compute_state()).to.be.deep.equal [6, 20]
 
     it "should map values linearly", ->
       expect(scale.compute(-1)).to.be.equal 14
@@ -45,37 +45,3 @@ describe "linear_scale module", ->
 
     it "should inverse map to a Float64Array", ->
       expect(scale.v_invert([-1,0,5,10,11])).to.be.instanceof Float64Array
-
-    describe "update source range1d", ->
-
-      it "should update on whole range replacement", ->
-        scale = generate_scale()
-        scale.source_range = new Range1d({start: -10, end: 20})
-        expect(scale.state).to.be.deep.equal [2, 40]
-
-      it "should update on range start update", ->
-        scale = generate_scale()
-        scale.source_range.start = -10
-        expect(scale.state).to.be.deep.equal [3, 50]
-
-      it "should update on range end update", ->
-        scale = generate_scale()
-        scale.source_range.end = 20
-        expect(scale.state).to.be.deep.equal [3, 20]
-
-    describe "update target range1d", ->
-
-      it "should update on whole range replacement", ->
-        scale = generate_scale()
-        scale.target_range = new Range1d({start: 0, end: 100})
-        expect(scale.state).to.be.deep.equal [10, 0]
-
-      it "should update on range start update", ->
-        scale = generate_scale()
-        scale.target_range.start = 0
-        expect(scale.state).to.be.deep.equal [8, 0]
-
-      it "should update on range end update", ->
-        scale = generate_scale()
-        scale.target_range.end = 100
-        expect(scale.state).to.be.deep.equal [8, 20]

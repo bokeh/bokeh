@@ -64,7 +64,6 @@ export class CartesianFrame extends LayoutCanvas
 
       s = scale.clone()
       s.setv({source_range: range, target_range: frame_range})
-      s.connect_range_signals()
       scales[name] = s
     return scales
 

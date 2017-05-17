@@ -5,37 +5,23 @@ import * as p from "core/properties"
 export class LinearScale extends Scale
   type: "LinearScale"
 
-  @getters {
-    state: () ->
-      if not @_state? then @_state = @_compute_state()
-      return @_state
-  }
-
-  connect_range_signals: () ->
-    @connect(@properties.source_range.change,       () -> @_state = null)
-    @connect(@properties.target_range.change,       () -> @_state = null)
-    @connect(@source_range.properties.start.change, () -> @_state = null)
-    @connect(@source_range.properties.end.change,   () -> @_state = null)
-    @connect(@target_range.properties.start.change, () -> @_state = null)
-    @connect(@target_range.properties.end.change,   () -> @_state = null)
-
   compute: (x) ->
-    [factor, offset] = @state
+    [factor, offset] = @_compute_state()
     return factor * x + offset
 
   v_compute: (xs) ->
-    [factor, offset] = @state
+    [factor, offset] = @_compute_state()
     result = new Float64Array(xs.length)
     for x, idx in xs
       result[idx] = factor * x + offset
     return result
 
   invert: (xprime) ->
-    [factor, offset] = @state
+    [factor, offset] = @_compute_state()
     return (xprime - offset) / factor
 
   v_invert: (xprimes) ->
-    [factor, offset] = @state
+    [factor, offset] = @_compute_state()
     result = new Float64Array(xprimes.length)
     for xprime, idx in xprimes
       result[idx] = (xprime - offset) / factor
