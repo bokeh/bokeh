@@ -50,14 +50,14 @@ export class CartesianFrame extends LayoutCanvas
     for name, range of ranges
       if range instanceof DataRange1d or range instanceof Range1d
         if scale not instanceof LogScale and scale not instanceof LinearScale
-          throw new Error("Range #{range.constructor.name} is incompatible is Scale #{scale.constructor.name}")
+          throw new Error("Range #{range.type} is incompatible is Scale #{scale.type}")
         # special case because CategoricalScale is a subclass of LinearScale, should be removed in future
         if scale instanceof CategoricalScale
-          throw new Error("Range #{range.constructor.name} is incompatible is Scale #{scale.constructor.name}")
+          throw new Error("Range #{range.type} is incompatible is Scale #{scale.type}")
 
       if range instanceof FactorRange
         if scale not instanceof CategoricalScale
-          throw new Error("Range #{range.constructor.name} is incompatible is Scale #{scale.constructor.name}")
+          throw new Error("Range #{range.type} is incompatible is Scale #{scale.type}")
 
       if scale instanceof LogScale and range instanceof DataRange1d
         range.scale_hint = "log"
