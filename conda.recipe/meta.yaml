@@ -25,7 +25,6 @@ requirements:
     - pycurl
     - packaging
     - six
-    - packaging
     - python-dateutil
     - numpy
     - yaml
@@ -50,11 +49,11 @@ test:
   requires:
     # docs
     - pygments
-    - sphinx >=1.3.1
+    - sphinx >=1.4
+    # pyyaml installed by bokeh
+    # packaging installed by bokeh
 
     # tests
-    # pyyaml installed by bokeh
-    # jinja2 installed by bokeh
     - colorama
     - coverage
     - flake8
@@ -74,6 +73,8 @@ test:
     - pillow
     - boto
     - nodejs >=6.6.0
+    # pyyaml installed by bokeh
+    # jinja2 installed by bokeh
 
     # examples
     - jupyter
