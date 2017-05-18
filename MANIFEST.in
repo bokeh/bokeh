@@ -1,14 +1,16 @@
 # Things to always exclude
 global-exclude .git*
-global-exclude .ipynb_checkpoints
+global-exclude *.ipynb_checkpoints*s
 global-exclude *.pyc
 global-exclude *.pyo
+global-exclude *js/tree_ts/*
 
 # Specific files to include
 include bokeh/themes/*.yaml
 include CHANGELOG
 include classifiers.txt
 include LICENSE.txt
+include MANIFEST.in
 include setup.cfg
 include versioneer.py
 include _setup_support.py
