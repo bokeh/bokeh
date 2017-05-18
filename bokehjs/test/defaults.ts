@@ -1,198 +1,243 @@
-{expect} = require "chai"
-utils = require "./utils"
+import {expect} from "chai"
 
-core_defaults = require "./.generated_defaults/models_defaults"
-widget_defaults = require "./.generated_defaults/widgets_defaults"
+import * as core_defaults from "./.generated_defaults/models_defaults"
+import * as widget_defaults from "./.generated_defaults/widgets_defaults"
 
-{isArray, isObject} = utils.require("core/util/types")
-{difference} = utils.require("core/util/array")
-{keys} = utils.require("core/util/object")
-{isEqual} = utils.require("core/util/eq")
+import {isArray, isObject} from "core/util/types"
+import {difference, concat} from "core/util/array"
+import {keys} from "core/util/object"
+import {isEqual} from "core/util/eq"
 
-{Models} = utils.require "base"
-mixins = utils.require "core/property_mixins"
-{HasProps} = utils.require "core/has_props"
+import {Models} from "base"
+import {HasProps} from "core/has_props"
 
-widget_models = utils.require("models/widgets/main").models
-Models.register_models(widget_models)
+import {models as widget_models} from "models/widgets/main"
+Models.register_models(widget_models as {[key: string]: any}, false, undefined)
 
-all_view_model_names = []
-all_view_model_names = all_view_model_names.concat(core_defaults.all_view_model_names())
-all_view_model_names = all_view_model_names.concat(widget_defaults.all_view_model_names())
+const all_view_model_names = concat([core_defaults.all_view_model_names(), widget_defaults.all_view_model_names()])
 
-get_defaults = (name) ->
-  core_defaults.get_defaults(name) or widget_defaults.get_defaults(name)
-
-safe_stringify = (v) ->
-  if v == Infinity
-    "Infinity"
+function get_defaults(name: string) {
+  const defaults = core_defaults.get_defaults(name) || widget_defaults.get_defaults(name)
+  if (defaults != null)
+    return defaults
   else
-    try
-      "#{JSON.stringify(v)}"
-    catch e
-      "#{v}"
+    throw new Error(`can't find defaults for ${name}`)
+}
 
+function safe_stringify(v: any): string {
+  if (v === Infinity) {
+    return "Infinity"
+  } else {
+    try {
+      return JSON.stringify(v)
+    } catch (_e) {
+      return v.toString()
+    }
+  }
+}
 
-deep_value_to_json = (key, value, optional_parent_object) ->
-  if value instanceof HasProps
-    {type: value.type, attributes: value.attributes_as_json() }
-  else if isArray(value)
-    ref_array = []
-    for v, i in value
-      ref_array.push(deep_value_to_json(i, v, value))
-    ref_array
-  else if isObject(value)
-    ref_obj = {}
-    for own subkey of value
-      ref_obj[subkey] = deep_value_to_json(subkey, value[subkey], value)
-    ref_obj
-  else
-    value
+function deep_value_to_json(_key: string, value: any, _optional_parent_object: any): any {
+  if (value instanceof HasProps) {
+    return {type: value.type, attributes: value.attributes_as_json()}
+  } else if (isArray(value)) {
+    const ref_array: any[] = []
+    for (let i = 0; i < value.length; i++) {
+      ref_array.push(deep_value_to_json(i.toString(), value[i], value))
+    }
+    return ref_array
+  } else if (isObject(value)) {
+    const ref_obj: {[key: string]: any} = {}
+    for (const subkey in value) {
+      if (value.hasOwnProperty(subkey))
+        ref_obj[subkey] = deep_value_to_json(subkey, value[subkey], value)
+    }
+    return ref_obj
+  } else
+    return value
+}
 
-check_matching_defaults = (name, python_defaults, coffee_defaults) ->
-  different = []
-  python_missing = []
-  coffee_missing = []
-  for k, js_v of coffee_defaults
+function check_matching_defaults(name: string, python_defaults: {[key: string]: any}, coffee_defaults: {[key: string]: any}): boolean {
+  const different: string[] = []
+  const python_missing: string[] = []
+  const coffee_missing: string[] = []
+  for (const k in coffee_defaults) {
+    const js_v = coffee_defaults[k]
 
-    # special case for date picker, default is "now"
-    if name == 'DatePicker' and k == 'value'
+    // special case for date picker, default is "now"
+    if (name === 'DatePicker' && k === 'value')
       continue
 
-    # special case for date time tickers, class hierarchy and attributes are handled differently
-    if name == "DatetimeTicker" and k == "tickers"
+    // special case for date time tickers, class hierarchy and attributes are handled differently
+    if (name === "DatetimeTicker" && k === "tickers")
       continue
 
-    # special case for Title derived text properties
-    if name == "Title" and (k == "text_align" or k == "text_baseline")
+    // special case for Title derived text properties
+    if (name === "Title" && (k === "text_align" || k === "text_baseline"))
       continue
 
-    # special case for selections that have a method added to them
-    if k == 'selected'
+    // special case for selections that have a method added to them
+    if (k === 'selected')
       delete js_v['0d'].get_view
 
-    if k == 'id'
+    if (k === 'id')
       continue
 
-    if k of python_defaults
-      py_v = python_defaults[k]
+    if (k in python_defaults) {
+      let py_v = python_defaults[k]
       strip_ids(py_v)
 
-      if not isEqual(py_v, js_v)
+      if (!isEqual(py_v, js_v)) {
 
-        # these two conditionals compare 'foo' and {value: 'foo'}
-        if isObject(js_v) and 'value' of js_v and isEqual(py_v, js_v['value'])
+        // these two conditionals compare 'foo' and {value: 'foo'}
+        if (isObject(js_v) && 'value' in js_v && isEqual(py_v, js_v['value']))
           continue
-        if isObject(py_v) and 'value' of py_v and isEqual(py_v['value'], js_v)
+        if (isObject(py_v) && 'value' in py_v && isEqual(py_v['value'], js_v))
           continue
 
-        if isObject(js_v) and 'attributes' of js_v and isObject(py_v) and 'attributes' of py_v
-          if js_v['type'] == py_v['type']
-            check_matching_defaults("#{name}.#{k}", py_v['attributes'], js_v['attributes'])
+        if (isObject(js_v) && 'attributes' in js_v && isObject(py_v) && 'attributes' in py_v) {
+          if (js_v['type'] === py_v['type']) {
+            check_matching_defaults(`${name}.${k}`, py_v['attributes'], js_v['attributes'])
             continue
+          }
+        }
 
-        # compare arrays of objects
-        if isArray(js_v) and isArray(py_v)
-          equal = true
+        // compare arrays of objects
+        if (isArray(js_v) && isArray(py_v)) {
+          let equal = true
 
-          # palettes in JS are stored as int color values
-          if k == 'palette'
-            py_v = (parseInt(x[1...], 16) for x in py_v)
+          // palettes in JS are stored as int color values
+          if (k === 'palette')
+            py_v = py_v.map((x: string) => parseInt(x.slice(1), 16))
 
-          if js_v.length != py_v.length
+          if (js_v.length !== py_v.length)
             equal = false
-          else
-            for i in [0...js_v.length]
-              delete js_v[i].id
-              delete py_v[i].id
-              if not isEqual(js_v[i], py_v[i])
+          else {
+            for (let i = 0; i < js_v.length; i++) {
+              delete (js_v[i] as any).id
+              delete (py_v[i] as any).id
+              if (!isEqual(js_v[i], py_v[i])) {
                 equal = false
                 break
+              }
+            }
+          }
 
-          if equal
+          if (equal)
             continue
+        }
 
-        different.push("#{name}.#{k}: coffee defaults to #{safe_stringify(js_v)} but python defaults to #{safe_stringify(py_v)}")
-    else
-      python_missing.push("#{name}.#{k}: coffee defaults to #{safe_stringify(js_v)} but python has no such property")
-  for k, v of python_defaults
-    if k not of coffee_defaults
-      coffee_missing.push("#{name}.#{k}: python defaults to #{safe_stringify(v)} but coffee has no such property")
+        different.push(`${name}.${k}: coffee defaults to ${safe_stringify(js_v)} but python defaults to ${safe_stringify(py_v)}`)
+      }
+    } else {
+      python_missing.push(`${name}.${k}: coffee defaults to ${safe_stringify(js_v)} but python has no such property`)
+    }
+  }
 
-  complain = (failures, message) ->
-    if failures.length > 0
+  for (const k in python_defaults) {
+    if (!(k in coffee_defaults)) {
+      const v = python_defaults[k]
+      coffee_missing.push(`${name}.${k}: python defaults to ${safe_stringify(v)} but coffee has no such property`)
+    }
+  }
+
+  function complain(failures: string[], message: string): void {
+    if (failures.length > 0) {
       console.error(message)
-      for f in failures
-        console.error("    #{f}")
+      for (const f of failures)
+        console.error(`    ${f}`)
+    }
+  }
 
-  complain(different, "#{name}: defaults are out of sync between Python and CoffeeScript")
-  complain(python_missing, "#{name}: python is missing some properties found in CoffeeScript")
-  complain(coffee_missing, "#{name}: coffee is missing some properties found in Python")
+  complain(different, `${name}: defaults are out of sync between Python and CoffeeScript`)
+  complain(python_missing, `${name}: python is missing some properties found in CoffeeScript`)
+  complain(coffee_missing, `${name}: coffee is missing some properties found in Python`)
 
-  different.length == 0 and python_missing.length == 0 and coffee_missing.length == 0
+  return different.length === 0 && python_missing.length === 0 && coffee_missing.length === 0
+}
 
-strip_ids = (value) ->
-  if isArray(value)
-    for v in value
+function strip_ids(value: any): void {
+  if (isArray(value)) {
+    for (const v of value) {
       strip_ids(v)
-  else if isObject(value)
-    if ('id' of value)
-      delete value['id']
-    for k, v of value
-      strip_ids(v)
+    }
+  } else if (isObject(value)) {
+    if ('id' in value) {
+      delete value.id
+    }
+    for (const k in value) {
+      strip_ids(value[k])
+    }
+  }
+}
 
-describe "Defaults", ->
-
-  # this is skipped while we decide whether to automate putting them all
-  # in Bokeh or just leave it as a curated (or ad hoc?) subset
-  it.skip "have all non-Widget view models from Python in the Models object", ->
-    missing = []
-    for name in core_defaults.all_view_model_names()
-      if name not of Models.registered_names()
+describe("Defaults", () => {
+  // this is skipped while we decide whether to automate putting them all
+  // in Bokeh or just leave it as a curated (or ad hoc?) subset
+  it.skip("have all non-Widget view models from Python in the Models object", () => {
+    const missing = []
+    for (const name of core_defaults.all_view_model_names()) {
+      if (!(name in Models.registered_names())) {
         missing.push(name)
-    for m in missing
-      console.log("'Models.#{m}' not found but there's a Python model '#{m}'")
-    expect(missing.length).to.equal 0
+      }
+    }
+    for (const m of missing) {
+      console.log(`'Models.${m}' not found but there's a Python model '${m}'`)
+    }
+    expect(missing.length).to.equal(0)
+  })
 
-  it "have all Widget view models from Python in widget locations registry", ->
-    missing = []
-    for name in widget_defaults.all_view_model_names()
-      if name not of widget_models
+  it("have all Widget view models from Python in widget locations registry", () => {
+    const missing = []
+    for (const name of widget_defaults.all_view_model_names()) {
+      if (!(name in widget_models)) {
         missing.push(name)
-    for m in missing
-      console.log("'#{m}' not found but there's a Python model '#{m}'")
-    expect(missing.length).to.equal 0
+      }
+    }
+    for (const m of missing) {
+      console.log(`'${m}' not found but there's a Python model '${m}'`)
+    }
+    expect(missing.length).to.equal(0)
+  })
 
-  it "have all view models from Python in registered locations", ->
-    registered = {}
-    for name in Models.registered_names()
+  it("have all view models from Python in registered locations", () => {
+    const registered: {[key: string]: boolean} = {}
+    for (const name of Models.registered_names()) {
       registered[name] = true
-    missing = []
-    for name in all_view_model_names
-      if name not of registered
+    }
+    const missing = []
+    for (const name of all_view_model_names) {
+      if (!(name in registered)) {
         missing.push(name)
-    for m in missing
-      console.log("'base.locations[\"#{m}\"]' not found but there's a Python model '#{m}'")
-    expect(missing.length).to.equal 0
+      }
+    }
+    for (const m of missing) {
+      console.log(`'base.locations["${m}"]' not found but there's a Python model '${m}'`)
+    }
+    expect(missing.length).to.equal(0)
+  })
 
-  it "match between Python and CoffeeScript", ->
-    fail_count = 0
-    for name in all_view_model_names
-      model = Models(name)
-      instance = new model({}, {silent: true, defer_initialization: true})
-      attrs = instance.attributes_as_json(true, deep_value_to_json)
+  it("match between Python and CoffeeScript", () => {
+    let fail_count = 0
+    for (const name of all_view_model_names) {
+      const model = Models(name)
+      const instance = new model({}, {silent: true, defer_initialization: true})
+      const attrs = instance.attributes_as_json(true, deep_value_to_json)
       strip_ids(attrs)
 
-      python_defaults = get_defaults(name)
-      coffee_defaults = attrs
-      if not check_matching_defaults(name, python_defaults, coffee_defaults)
+      const python_defaults = get_defaults(name)
+      const coffee_defaults = attrs
+      if (!check_matching_defaults(name, python_defaults, coffee_defaults)) {
         console.log(name)
-        # console.log('python defaults:')
-        # console.log(python_defaults)
-        # console.log('coffee defaults:')
-        # console.log(coffee_defaults)
+        // console.log('python defaults:')
+        // console.log(python_defaults)
+        // console.log('coffee defaults:')
+        // console.log(coffee_defaults)
         console.log(difference(keys(python_defaults), keys(coffee_defaults)))
-        fail_count = fail_count + 1
+        fail_count += 1
+      }
+    }
 
-    console.error("Python/Coffee matching defaults problems: #{fail_count}")
-    expect(fail_count).to.equal 0
+    console.error(`Python/Coffee matching defaults problems: ${fail_count}`)
+    expect(fail_count).to.equal(0)
+  })
+})
