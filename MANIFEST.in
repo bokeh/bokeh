@@ -21,7 +21,7 @@ graft sphinx
 prune sphinx/_build
 
 # Examples
-recursive-include examples *.py *.ipynb *.md
+recursive-include examples *.html *.py *.ipynb *.md
 prune examples/embed/*.html
 prune examples/models/file/*.html
 prune examples/plotting/file/*.html
