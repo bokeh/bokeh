@@ -153,6 +153,7 @@ MAIN_SITE = '//bokehplots.com'
 
 html_context = {
     'SITEMAP_BASE_URL': 'http://bokeh.pydata.org/en/', # Trailing slash is needed
+    'SITE_URL':  '//bokeh.pydata.org/en/latest/',
     'DESCRIPTION': 'Bokeh visualization library, documentation site.',
     'AUTHOR': 'Bokeh contributors',
     'VERSION': version,
@@ -279,4 +280,8 @@ intersphinx_mapping = {
     'python': ('https://docs.python.org/', None),
     'pandas': ('http://pandas.pydata.org/pandas-docs/stable/', None),
     'numpy': ('http://docs.scipy.org/doc/numpy/', None)
+}
+
+html_additional_pages = {
+    '404': '404.html',
 }

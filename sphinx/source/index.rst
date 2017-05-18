@@ -1,3 +1,5 @@
+.. _index:
+
 Welcome to Bokeh
 ================
 

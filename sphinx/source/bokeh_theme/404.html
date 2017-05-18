@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <!-- Basic Page Needs
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta charset="utf-8">
+  <title>{{ title }} &mdash; {{ shorttitle }}</title>
+  <meta name="description" content="{{ DESCRIPTION }}">
+  <meta name="author" content="{{ AUTHOR }}">
+
+  <!-- Mobile Specific Metas
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.16/webfont.js"></script>
+  <script>
+    WebFont.load({
+      google: {
+        families: ['Source Sans Pro']
+      }
+    });
+  </script>
+
+  <!-- CSS
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="stylesheet" href="//{{ css_server }}/theme/css/main.css">
+
+
+  <!-- Scripts
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+  <script type="text/javascript">
+    var _BOKEH_CURRENT_VERSION = "{{ VERSION }}";
+  </script>
+  <script src="{{ SITE_URL }}_static/{{ theme_js }}"></script>
+
+  <!-- Favicon
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="icon" type="image/png" href="{{ SITE_URL }}_static/{{ theme_favicon }}">
+
+  <!-- Canonical
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="canonical" href="http://bokeh.pydata.org/en/latest/{{ pagename }}{{ file_suffix }}" />
+
+</head>
+<body class="">
+
+  <header class="navigation">
+    <div class="wrapper">
+      <a href="{{ SITE_URL }}" class="logo">
+        <img src="{{ SITE_URL }}_static/images/logo.png" alt="Bokeh Logo">
+      </a>
+      <a href="{{ SITE_URL }}" class="navigation-menu logo-text">Bokeh</a>
+      <a href="javascript:void(0)" class="navigation-menu-button" id="js-mobile-menu">Menu</a>
+      <nav>
+        <ul id="js-navigation-menu" class="navigation-menu show">
+          {% for name, link in NAV %}
+              <li class="nav-link"><a href="{{ link }}">{{ name }}</a></li>
+          {% endfor %}
+        </ul>
+      </nav>
+    </div>
+  </header>
+  <div class="second-nav">
+    <nav>
+      <ul class="navigation-menu show">
+        <li class="nav-link more"><a href="{{ SITE_URL }}{{ index }}">{{ version }}</a>
+            <ul class="submenu">
+              {% for version in ALL_VERSIONS %}
+              <li class="version-link"><a href="{{ SITEMAP_BASE_URL }}{{ version }}/">{{ version }}</a></li>
+              {% endfor %}
+            </ul>
+        </li>
+        {%- for name, link in NAV_DOCS  %}
+            <li class="nav-link doc-head"><a href="{{ SITE_URL }}{{ pathto('docs/' + link) }}">{{ name }}</a></li>
+        {%- endfor %}
+      </ul>
+    </nav>
+    <div class="navigation-tools">
+      {% include 'includes/searchbox.html' %}
+    </div>
+  </div>
+
+<!-- MAIN BODY OF DOCS –––––––––––––––––– -->
+  <div class="docs section">
+    <div class="content" style="margin-left: 5%">
+        {% block body %}
+        <h1>404: Content Not Found</h1>
+          <p>Return to the <a href="{{ SITE_URL }}">main page</a>.
+            </br>
+            </br>
+            </br>
+            </br>
+            </br>
+            </br>
+            </br>
+            </br>
+            </br>
+            </br>
+          </p>
+
+        {% endblock %}
+    </div>
+  </div>
+
+<!-- END MAIN BODY OF DOCS ––––––––––––– -->
+
+<footer class="footer">
+  <div class="footer-links">
+    <ul>
+      <li><span class="footer-title">About Us</span></li>
+      {% for name, link in ABOUT %}
+          <li><a href="{{ link }}">{{ name }}</a></li>
+      {% endfor %}
+    </ul>
+    <ul>
+      <li><span class="footer-title">Links</span></li>
+      {% for name, link in LINKS %}
+          <li><a href="{{ link }}">{{ name }}</a></li>
+      {% endfor %}
+    </ul>
+    <ul>
+      <li><span class="footer-title">Join Us</span></li>
+      {% for name, link in SOCIAL %}
+          <li><a href="{{ link }}">{{ name }}</a></li>
+      {% endfor %}
+    </ul>
+    <ul class="copyright">
+      <li>{{ copyright }}</li>
+    </ul>
+  </div>
+</footer>
+
+<!-- Google Analytics -->
+{% include 'includes/ga.html' %}
+
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+</body>
+
+</html>

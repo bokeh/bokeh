@@ -16,6 +16,11 @@ app = flask.Flask(__name__, static_path="/unused")
 PORT=5009
 http_server = HTTPServer(WSGIContainer(app))
 
+@app.errorhandler(404)
+def page_not_found(e):
+    return flask.send_from_directory(
+        os.path.join(_basedir, "sphinx/_build/html/"), "404.html"), 404
+
 @app.route('/')
 def welcome():
     return """
