@@ -5,7 +5,7 @@ import {GlyphRenderer} from "../renderers/glyph_renderer"
 import {LayoutDOM} from "../layouts/layout_dom"
 
 import {Signal} from "core/signaling"
-import {build_views} from "core/build_views"
+import {build_views, remove_views} from "core/build_views"
 import {UIEvents} from "core/ui_events"
 import {LODStart, LODEnd} from "core/bokeh_events"
 import {LayoutCanvas} from "core/layout/layout_canvas"
@@ -57,13 +57,8 @@ export class PlotCanvasView extends DOMView
     return
 
   remove: () ->
-    for _, view of @renderer_views
-      view.remove()
-    @renderer_views = {}
-
-    for _, view of @tool_views
-      view.remove()
-    @tool_views = {}
+    remove_views(@renderer_views)
+    remove_views(@tool_views)
 
     @canvas_view.remove()
     @canvas_view = null
