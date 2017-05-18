@@ -1,9 +1,8 @@
-_ = require "underscore"
 {expect} = require "chai"
 utils = require "../../utils"
 
+{clone} = utils.require("core/util/object")
 {Document} = utils.require("document")
-
 {Spacer} = utils.require("models/layouts/spacer")
 
 describe "WidgetBoxView", ->
@@ -60,14 +59,16 @@ describe "Spacer", ->
 
   it "should return correct constrained_variables in scale_width mode", ->
     # We don't return height because we're going to set it ourselves.
-    expected_constrained_variables = _.omit(@expected_constrained_variables, ['height'])
+    expected_constrained_variables = clone(@expected_constrained_variables)
+    delete expected_constrained_variables.height
     @spacer.sizing_mode = 'scale_width'
     constrained_variables = @spacer.get_constrained_variables()
     expect(constrained_variables).to.be.deep.equal expected_constrained_variables
 
   it "should return correct constrained_variables in scale_height mode", ->
     # We don't return width because we're going to set it ourselves.
-    expected_constrained_variables = _.omit(@expected_constrained_variables, ['width'])
+    expected_constrained_variables = clone(@expected_constrained_variables)
+    delete expected_constrained_variables.width
     @spacer.sizing_mode = 'scale_height'
     constrained_variables = @spacer.get_constrained_variables()
     expect(constrained_variables).to.be.deep.equal expected_constrained_variables
@@ -75,6 +76,8 @@ describe "Spacer", ->
   it "should return correct constrained_variables in fixed mode", ->
     # We don't return height or width because we're going to set them ourselves.
     @spacer.sizing_mode = 'fixed'
-    expected_constrained_variables = _.omit(@expected_constrained_variables, ['height', 'width'])
+    expected_constrained_variables = clone(@expected_constrained_variables)
+    delete expected_constrained_variables.height
+    delete expected_constrained_variables.width
     constrained_variables = @spacer.get_constrained_variables()
     expect(constrained_variables).to.be.deep.equal expected_constrained_variables

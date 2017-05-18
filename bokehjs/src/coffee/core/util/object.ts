@@ -46,6 +46,10 @@ export function merge<T>(obj1: {[key: string] : Array<T>}, obj2: {[key: string]:
   return result
 }
 
+export function size<T>(obj: T): number {
+  return Object.keys(obj).length
+}
+
 export function isEmpty<T>(obj: T): boolean {
-  return Object.keys(obj).length === 0
+  return size(obj) === 0
 }
