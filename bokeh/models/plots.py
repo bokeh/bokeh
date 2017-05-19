@@ -6,13 +6,14 @@ from __future__ import absolute_import
 from six import string_types
 
 from ..core.enums import Location
-from ..core.properties import Auto, Bool, Dict, Either, Enum, Include, Instance, Int, List, Override, String
+from ..core.properties import Bool, Dict, Enum, Include, Instance, Int, List, Override, String
 from ..core.property_mixins import LineProps, FillProps
 from ..core.query import find
 from ..core.validation import error, warning
-from ..core.validation.errors import REQUIRED_RANGE
+from ..core.validation.errors import REQUIRED_RANGE, REQUIRED_SCALE, INCOMPATIBLE_SCALE_AND_RANGE
 from ..core.validation.warnings import (MISSING_RENDERERS, NO_DATA_RENDERERS,
                                         MALFORMED_CATEGORY_LABEL, SNAPPED_TOOLBAR_ANNOTATIONS)
+from ..util.deprecation import deprecated
 from ..util.plot_utils import _list_attr_splat, _select_helper
 from ..util.string import nice_join
 
@@ -21,8 +22,9 @@ from .axes import Axis
 from .glyphs import Glyph
 from .grids import Grid
 from .layouts import LayoutDOM
-from .ranges import Range, FactorRange
+from .ranges import Range, FactorRange, DataRange1d, Range1d
 from .renderers import DataRenderer, DynamicImageRenderer, GlyphRenderer, Renderer, TileRenderer
+from .scales import Scale, CategoricalScale, LinearScale, LogScale
 from .sources import DataSource, ColumnDataSource
 from .tools import Tool, Toolbar, ToolEvents
 
@@ -36,16 +38,28 @@ class Plot(LayoutDOM):
             kwargs["tool_events"] = ToolEvents()
 
         if "toolbar" in kwargs and "logo" in kwargs:
-            raise ValueError("Conflicing properties set on plot: toolbar, logo.")
+            raise ValueError("Conflicting properties set on plot: toolbar, logo.")
 
         if "toolbar" in kwargs and "tools" in kwargs:
-            raise ValueError("Conflicing properties set on plot: toolbar, tools.")
+            raise ValueError("Conflicting properties set on plot: toolbar, tools.")
 
         if "toolbar" not in kwargs:
             tools = kwargs.pop('tools', [])
             logo = kwargs.pop('logo', 'normal')
 
             kwargs["toolbar"] = Toolbar(tools=tools, logo=logo)
+
+        if "x_mapper_type" in kwargs and "x_scale" in kwargs:
+            raise ValueError("Conflicting properties set on plot: x_mapper_type, x_scale.")
+
+        elif "x_mapper_type" in kwargs:
+            kwargs["x_scale"] = self._scale(kwargs.pop("x_mapper_type"))
+
+        if "y_mapper_type" in kwargs and "y_scale" in kwargs:
+            raise ValueError("Conflicting properties set on plot: y_mapper_type, y_scale")
+
+        elif "y_mapper_type" in kwargs:
+            kwargs["y_scale"] = self._scale(kwargs.pop("y_mapper_type"))
 
         super(LayoutDOM, self).__init__(**kwargs)
 
@@ -322,6 +336,43 @@ class Plot(LayoutDOM):
         if missing:
             return ", ".join(missing) + " [%s]" % self
 
+    @error(REQUIRED_SCALE)
+    def _check_required_scale(self):
+        missing = []
+        if not self.x_scale: missing.append('x_scale')
+        if not self.y_scale: missing.append('y_scale')
+        if missing:
+            return ", ".join(missing) + " [%s]" % self
+
+    @error(INCOMPATIBLE_SCALE_AND_RANGE)
+    def _check_compatible_scale_and_ranges(self):
+        incompatible = []
+        x_ranges = list(self.extra_x_ranges.values())
+        if self.x_range: x_ranges.append(self.x_range)
+        y_ranges = list(self.extra_y_ranges.values())
+        if self.y_range: y_ranges.append(self.y_range)
+
+        for rng in x_ranges:
+            if isinstance(rng, (DataRange1d, Range1d)) and not isinstance(self.x_scale, (LinearScale, LogScale)):
+                incompatible.append("incompatibility on x-dimension: %s, %s" %(rng, self.x_scale))
+            elif isinstance(rng, FactorRange) and not isinstance(self.x_scale, CategoricalScale):
+                incompatible.append("incompatibility on x-dimension: %s/%s" %(rng, self.x_scale))
+            # special case because CategoricalScale is a subclass of LinearScale, should be removed in future
+            if isinstance(rng, (DataRange1d, Range1d)) and isinstance(self.x_scale, CategoricalScale):
+                incompatible.append("incompatibility on x-dimension: %s, %s" %(rng, self.x_scale))
+
+        for rng in y_ranges:
+            if isinstance(rng, (DataRange1d, Range1d)) and not isinstance(self.y_scale, (LinearScale, LogScale)):
+                incompatible.append("incompatibility on y-dimension: %s/%s" %(rng, self.y_scale))
+            elif isinstance(rng, FactorRange) and not isinstance(self.y_scale, CategoricalScale):
+                incompatible.append("incompatibility on y-dimension: %s/%s" %(rng, self.y_scale))
+            # special case because CategoricalScale is a subclass of LinearScale, should be removed in future
+            if isinstance(rng, (DataRange1d, Range1d)) and isinstance(self.y_scale, CategoricalScale):
+                incompatible.append("incompatibility on y-dimension: %s, %s" %(rng, self.y_scale))
+
+        if incompatible:
+            return ", ".join(incompatible) + " [%s]" % self
+
     @warning(MISSING_RENDERERS)
     def _check_missing_renderers(self):
         if len(self.renderers) == 0:
@@ -371,22 +422,45 @@ class Plot(LayoutDOM):
     The (default) data range of the vertical dimension of the plot.
     """)
 
-    x_mapper_type = Either(Auto, String, help="""
-    What kind of mapper to use to convert x-coordinates in data space
-    into x-coordinates in screen space.
+    @classmethod
+    def _scale(cls, scale):
+        if scale in ["auto", "linear"]:
+            return LinearScale()
+        elif scale == "log":
+            return LogScale()
+        if scale == "categorical":
+            return CategoricalScale()
+        else:
+            raise ValueError("Unknown mapper_type: %s" % scale)
 
-    Typically this can be determined automatically, but this property
-    can be useful to, e.g., show datetime values as floating point
-    "seconds since epoch" instead of formatted dates.
+    @property
+    def x_mapper_type(self):
+        deprecated((0, 12, 6), "x_mapper_type", "x_scale")
+        return self.x_scale
+
+    @x_mapper_type.setter
+    def x_mapper_type(self, mapper_type):
+        deprecated((0, 12, 6), "x_mapper_type", "x_scale")
+        self.x_scale = self._scale(mapper_type)
+
+    @property
+    def y_mapper_type(self):
+        deprecated((0, 12, 6), "y_mapper_type", "y_scale")
+        return self.y_scale
+
+    @y_mapper_type.setter
+    def y_mapper_type(self, mapper_type):
+        deprecated((0, 12, 6), "y_mapper_type", "y_scale")
+        self.y_scale = self._scale(mapper_type)
+
+    x_scale = Instance(Scale, default=lambda: LinearScale(), help="""
+    What kind of scale to use to convert x-coordinates in data space
+    into x-coordinates in screen space.
     """)
 
-    y_mapper_type = Either(Auto, String, help="""
-    What kind of mapper to use to convert y-coordinates in data space
+    y_scale = Instance(Scale, default=lambda: LinearScale(), help="""
+    What kind of scale to use to convert y-coordinates in data space
     into y-coordinates in screen space.
-
-    Typically this can be determined automatically, but this property
-    can be useful to, e.g., show datetime values as floating point
-    "seconds since epoch" instead of formatted dates
     """)
 
     extra_x_ranges = Dict(String, Instance(Range), help="""

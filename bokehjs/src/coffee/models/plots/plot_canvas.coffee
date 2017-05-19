@@ -675,10 +675,10 @@ export class PlotCanvas extends LayoutDOM
     @frame = new CartesianFrame({
       x_range: @plot.x_range,
       extra_x_ranges: @plot.extra_x_ranges,
-      x_mapper_type: @plot.x_mapper_type,
+      x_scale: @plot.x_scale,
       y_range: @plot.y_range,
       extra_y_ranges: @plot.extra_y_ranges,
-      y_mapper_type: @plot.y_mapper_type,
+      y_scale: @plot.y_scale
     })
 
     @above_panel = new LayoutCanvas()

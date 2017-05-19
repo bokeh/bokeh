@@ -2,6 +2,8 @@ import {CategoricalScale} from "../scales/categorical_scale"
 import {LinearScale} from "../scales/linear_scale"
 import {LogScale} from "../scales/log_scale"
 import {Range1d} from "../ranges/range1d"
+import {DataRange1d} from "../ranges/data_range1d"
+import {FactorRange} from "../ranges/factor_range"
 
 import {EQ, GE} from "core/layout/solver"
 import {LayoutCanvas} from "core/layout/layout_canvas"
@@ -42,24 +44,27 @@ export class CartesianFrame extends LayoutCanvas
         ranges[name] = extra_range
     return ranges
 
-  _get_scales: (scale_type_name, ranges, frame_range) ->
+  _get_scales: (scale, ranges, frame_range) ->
     scales = {}
+
     for name, range of ranges
-      if range.type == "Range1d" or range.type == "DataRange1d"
-        if scale_type_name == "log"
-          scale_type = LogScale
-        else
-          scale_type = LinearScale
-        range.scale_hint = scale_type_name
-      else if range.type == "FactorRange"
-        scale_type = CategoricalScale
-      else
-        logger.warn("unknown range type for range '#{name}': #{range}")
-        return null
-      scales[name] = new scale_type({
-        source_range: range
-        target_range: frame_range
-      })
+      if range instanceof DataRange1d or range instanceof Range1d
+        if scale not instanceof LogScale and scale not instanceof LinearScale
+          throw new Error("Range #{range.type} is incompatible is Scale #{scale.type}")
+        # special case because CategoricalScale is a subclass of LinearScale, should be removed in future
+        if scale instanceof CategoricalScale
+          throw new Error("Range #{range.type} is incompatible is Scale #{scale.type}")
+
+      if range instanceof FactorRange
+        if scale not instanceof CategoricalScale
+          throw new Error("Range #{range.type} is incompatible is Scale #{scale.type}")
+
+      if scale instanceof LogScale and range instanceof DataRange1d
+        range.scale_hint = "log"
+
+      s = scale.clone()
+      s.setv({source_range: range, target_range: frame_range})
+      scales[name] = s
     return scales
 
   _configure_frame_ranges: () ->
@@ -72,8 +77,8 @@ export class CartesianFrame extends LayoutCanvas
     @_x_ranges = @_get_ranges(@x_range, @extra_x_ranges)
     @_y_ranges = @_get_ranges(@y_range, @extra_y_ranges)
 
-    @_xscales = @_get_scales(@x_mapper_type, @_x_ranges, @_h_range)
-    @_yscales = @_get_scales(@y_mapper_type, @_y_ranges, @_v_range)
+    @_xscales = @_get_scales(@x_scale, @_x_ranges, @_h_range)
+    @_yscales = @_get_scales(@y_scale, @_y_ranges, @_v_range)
 
   _update_scales: () ->
     @_configure_frame_ranges()
@@ -106,8 +111,8 @@ export class CartesianFrame extends LayoutCanvas
     extra_y_ranges: [ p.Any, {} ]
     x_range:        [ p.Instance ]
     y_range:        [ p.Instance ]
-    x_mapper_type:  [ p.String, 'auto' ]
-    y_mapper_type:  [ p.String, 'auto' ]
+    x_scale:        [ p.Instance ]
+    y_scale:        [ p.Instance ]
   }
 
   get_constraints: () ->
