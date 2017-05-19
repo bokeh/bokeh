@@ -1,12 +1,13 @@
 # Things to always exclude
 global-exclude .git*
-global-exclude *.ipynb_checkpoints*s
-global-exclude *.pyc
-global-exclude *.pyo
-global-exclude *js/tree_ts/*
+global-exclude .ipynb_checkpoints
+global-exclude *.py[co]
 
-# Specific files to include
-include bokeh/themes/*.yaml
+# Build
+prune bokeh/server/static/js/tree
+prune bokeh/server/static/js/tree_ts
+
+# Config
 include CHANGELOG
 include classifiers.txt
 include LICENSE.txt
@@ -23,7 +24,7 @@ graft sphinx
 prune sphinx/_build
 
 # Examples
-recursive-include examples *.html *.py *.ipynb *.md
+recursive-include examples *.html *.py *.ipynb *.md *.yaml
 prune examples/embed/*.html
 prune examples/models/file/*.html
 prune examples/plotting/file/*.html
