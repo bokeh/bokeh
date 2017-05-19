@@ -53,6 +53,7 @@ the ``bokeh.model`` API will have to specify a ``CategoricalScale`` on the same
 dimension. For example:
 
 .. code-block:: python
+
     plot = Plot()
     plot.x_range = DataRange1d()
     plot.y_range = FactorRange(["Mon", "Tues", "Wed", "Thurs", "Fri"])
