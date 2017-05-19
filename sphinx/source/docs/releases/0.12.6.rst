@@ -40,12 +40,26 @@ Old                            New
 
 Previously, these Mapper classes were internal implementation details. The
 new Scale classes are first-class Bokeh models and are accessible from
-Python.
+Python. This was done to facilitate future work supporting custom, user-defined
+scales.
 
-There is a new Plot validation check to ensure that Scales and Ranges on a
-dimension are compatible. Users employing a ``FactorRange`` in the
-``bokeh.plotting`` API will have to specify ``CategoricalScale`` on the same
-dimension.
+There is a new Plot validation check to ensure that Scales and Ranges
+on a dimension are compatible. By default, ``Plot`` models are configured with
+``LinearScale`` models which (along with ``LogScale`` models) are compatible
+with ``Range1d`` and ``DataRange1d`` range models.
+
+One inevitable breaking change is that users employing a ``FactorRange`` in
+the ``bokeh.model`` API will have to specify a ``CategoricalScale`` on the same
+dimension. For example:
+
+.. code-block:: python
+    plot = Plot()
+    plot.x_range = DataRange1d()
+    plot.y_range = FactorRange(["Mon", "Tues", "Wed", "Thurs", "Fri"])
+    plot.y_scale = CategoricalScale()
+
+The ``bokeh.plotting.figure`` function should this range and scale
+compatibility handling automagically in most cases.
 
 As part of this work, some BokehJS attributes were renamed to be consistent
 with the new terminology:
