@@ -5,7 +5,7 @@ import {max, concat} from "core/util/array"
 export class ImageRGBAView extends XYGlyphView
 
   # TODO (bev) to improve. Currently, if only one image has changed, can
-  # pass index as "arg" to prevent full re-preocessing (useful for streaming)
+  # pass index as "arg" to prevent full re-processing (useful for streaming)
   _set_data: (source, arg) ->
     if not @image_data? or @image_data.length != @_image.length
       @image_data = new Array(@_image.length)
