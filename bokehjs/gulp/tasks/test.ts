@@ -64,7 +64,7 @@ function mocha(options: {coverage?: boolean} = {}) {
 }
 
 gulp.task("test", ["defaults:generate"], () => {
-  return gulp.src(["./test/unit.coffee", "./test/defaults.ts", "./test/size"]).pipe(mocha())
+  return gulp.src(["./test/unit.coffee", "./test/defaults.ts", "./test/size.ts"]).pipe(mocha())
 })
 
 gulp.task("test:unit", () => {
@@ -108,7 +108,7 @@ gulp.task("test:defaults", ["defaults:generate"], () => {
 })
 
 gulp.task("test:size", () => {
-  return gulp.src(["./test/size.coffee"]).pipe(mocha())
+  return gulp.src(["./test/size.ts"]).pipe(mocha())
 })
 
 buildWatchTask("test", paths.test.watchSources)

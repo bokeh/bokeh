@@ -1,22 +1,26 @@
-fs = require "fs"
-path = require "path"
+import * as fs from "fs"
+import * as path from "path"
 
-{expect} = require "chai"
+import {expect} from "chai"
 
-build_dir = path.normalize("#{__dirname}/../build")
+const build_dir = path.normalize(`${__dirname}/../build`)
 
-LIMITS = {
-  "css/bokeh-widgets.min.css": 160
-  "css/bokeh.min.css":          60
-  "js/bokeh-widgets.min.js":   380
-  "js/bokeh-api.min.js":        75
-  "js/bokeh-gl.min.js":         70
-  "js/bokeh.min.js":           700
+const LIMITS: {[key: string]: number} = {
+  "css/bokeh-widgets.min.css": 160,
+  "css/bokeh.min.css":          60,
+  "js/bokeh-widgets.min.js":   380,
+  "js/bokeh-api.min.js":        75,
+  "js/bokeh-gl.min.js":         70,
+  "js/bokeh.min.js":           750,
 }
 
-for filename, maxsize of LIMITS
-  do (filename, maxsize) ->
-    describe "#{filename} file size", ->
-      it "should remain below limit", ->
-        stats = fs.statSync(path.join(build_dir, filename))
-        expect(stats['size']).to.be.below maxsize * 1024
+for (const filename in LIMITS) {
+  const maxsize = LIMITS[filename]
+
+  describe(`${filename} file size`, () => {
+    it(`should remain below ${maxsize} kB limit`, () => {
+      const stats = fs.statSync(path.join(build_dir, filename))
+      expect(stats.size).to.be.below(maxsize*1024)
+    })
+  })
+}
