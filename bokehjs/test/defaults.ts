@@ -56,12 +56,12 @@ function deep_value_to_json(_key: string, value: any, _optional_parent_object: a
     return value
 }
 
-function check_matching_defaults(name: string, python_defaults: {[key: string]: any}, coffee_defaults: {[key: string]: any}): boolean {
+function check_matching_defaults(name: string, python_defaults: {[key: string]: any}, bokehjs_defaults: {[key: string]: any}): boolean {
   const different: string[] = []
   const python_missing: string[] = []
-  const coffee_missing: string[] = []
-  for (const k in coffee_defaults) {
-    const js_v = coffee_defaults[k]
+  const bokehjs_missing: string[] = []
+  for (const k in bokehjs_defaults) {
+    const js_v = bokehjs_defaults[k]
 
     // special case for date picker, default is "now"
     if (name === 'DatePicker' && k === 'value')
@@ -126,17 +126,17 @@ function check_matching_defaults(name: string, python_defaults: {[key: string]: 
             continue
         }
 
-        different.push(`${name}.${k}: coffee defaults to ${safe_stringify(js_v)} but python defaults to ${safe_stringify(py_v)}`)
+        different.push(`${name}.${k}: bokehjs defaults to ${safe_stringify(js_v)} but python defaults to ${safe_stringify(py_v)}`)
       }
     } else {
-      python_missing.push(`${name}.${k}: coffee defaults to ${safe_stringify(js_v)} but python has no such property`)
+      python_missing.push(`${name}.${k}: bokehjs defaults to ${safe_stringify(js_v)} but python has no such property`)
     }
   }
 
   for (const k in python_defaults) {
-    if (!(k in coffee_defaults)) {
+    if (!(k in bokehjs_defaults)) {
       const v = python_defaults[k]
-      coffee_missing.push(`${name}.${k}: python defaults to ${safe_stringify(v)} but coffee has no such property`)
+      bokehjs_missing.push(`${name}.${k}: python defaults to ${safe_stringify(v)} but bokehjs has no such property`)
     }
   }
 
@@ -148,11 +148,11 @@ function check_matching_defaults(name: string, python_defaults: {[key: string]: 
     }
   }
 
-  complain(different, `${name}: defaults are out of sync between Python and CoffeeScript`)
-  complain(python_missing, `${name}: python is missing some properties found in CoffeeScript`)
-  complain(coffee_missing, `${name}: coffee is missing some properties found in Python`)
+  complain(different, `${name}: defaults are out of sync between Python and bokehjs`)
+  complain(python_missing, `${name}: python is missing some properties found in bokehjs`)
+  complain(bokehjs_missing, `${name}: bokehjs is missing some properties found in Python`)
 
-  return different.length === 0 && python_missing.length === 0 && coffee_missing.length === 0
+  return different.length === 0 && python_missing.length === 0 && bokehjs_missing.length === 0
 }
 
 function strip_ids(value: any): void {
@@ -216,7 +216,7 @@ describe("Defaults", () => {
     expect(missing.length).to.equal(0)
   })
 
-  it("match between Python and CoffeeScript", () => {
+  it("match between Python and bokehjs", () => {
     let fail_count = 0
     for (const name of all_view_model_names) {
       const model = Models(name)
@@ -225,19 +225,19 @@ describe("Defaults", () => {
       strip_ids(attrs)
 
       const python_defaults = get_defaults(name)
-      const coffee_defaults = attrs
-      if (!check_matching_defaults(name, python_defaults, coffee_defaults)) {
+      const bokehjs_defaults = attrs
+      if (!check_matching_defaults(name, python_defaults, bokehjs_defaults)) {
         console.log(name)
         // console.log('python defaults:')
         // console.log(python_defaults)
-        // console.log('coffee defaults:')
-        // console.log(coffee_defaults)
-        console.log(difference(keys(python_defaults), keys(coffee_defaults)))
+        // console.log('bokehjs defaults:')
+        // console.log(bokehjs_defaults)
+        console.log(difference(keys(python_defaults), keys(bokehjs_defaults)))
         fail_count += 1
       }
     }
 
-    console.error(`Python/Coffee matching defaults problems: ${fail_count}`)
+    console.error(`Python/bokehjs matching defaults problems: ${fail_count}`)
     expect(fail_count).to.equal(0)
   })
 })
