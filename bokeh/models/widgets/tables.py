@@ -355,7 +355,7 @@ class DataTable(TableWidget):
     """)
     
     reorderable = Bool(True, help="""
-    Allows the reordering of a tables's columns. To reorder a column, 
+    Allows the reordering of a tables's columns. To reorder a column,
     click and drag a table's header to the desired location in the table.
     The columns on either side will remain in their previous order.
     """)
