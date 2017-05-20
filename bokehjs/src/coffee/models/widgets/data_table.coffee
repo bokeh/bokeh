@@ -155,7 +155,7 @@ export class DataTableView extends WidgetView
 
     options =
       enableCellNavigation: @model.selectable != false
-      enableColumnReorder: true
+      enableColumnReorder: @model.reorderable
       forceFitColumns: @model.fit_columns
       autoHeight: @model.height == "auto"
       multiColumnSort: @model.sortable
@@ -203,6 +203,7 @@ export class DataTable extends TableWidget
       columns:             [ p.Array,  []    ]
       fit_columns:         [ p.Bool,   true  ]
       sortable:            [ p.Bool,   true  ]
+      reorderable:         [ p.Bool,   true  ]
       editable:            [ p.Bool,   false ]
       selectable:          [ p.Bool,   true  ]
       row_headers:         [ p.Bool,   true  ]
