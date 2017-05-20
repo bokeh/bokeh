@@ -315,10 +315,6 @@ class TableColumn(Model):
     Whether this column is sortable or not. Note that data table has
     to have sorting enabled to allow sorting in general.
     """)
-    
-    reorderable = Bool(True, help="""
-    Whether this column is reorderable or not.
-    """)
 
     default_sort = Enum("ascending", "descending", help="""
     The default sorting order. By default ``ascending`` order is used.
