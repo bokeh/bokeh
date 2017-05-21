@@ -6,9 +6,9 @@ export interface TextareaInputProps {
   name: string;
   placeholder: string;
   value: string;
-  cols: string;
-  max_length: string;
-  rows: string;
+  cols: int;
+  max_length: int;
+  rows: int;
 }
 
 export default (props: TextareaInputProps): HTMLElement => {
