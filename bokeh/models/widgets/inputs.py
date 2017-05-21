@@ -51,15 +51,15 @@ class TextInput(InputWidget):
     Placeholder for empty input field
     """)
 
-    cols = String(default="", help="""
+    cols = Int(default=20, help="""
     Column count
     """)
 
-    rows = String(default="", help="""
+    rows = Int(default=2, help="""
     Row count
     """)
 
-    maxlength = String(default="", help="""
+    max_length = Int(default=None, help="""
     Max count of characters in field
     """)
 
