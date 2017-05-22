@@ -165,7 +165,7 @@ export class GlyphView extends View
 
     return result
 
-  set_data: (source) ->
+  set_data: (source, indices) ->
     data = @model.materialize_dataspecs(source)
     extend(@, data)
 
@@ -178,7 +178,7 @@ export class GlyphView extends View
     if @glglyph?
       @glglyph.set_data_changed(@_x.length)
 
-    @_set_data(source)
+    @_set_data(source, indices)
 
     @index = @_index_data()
 

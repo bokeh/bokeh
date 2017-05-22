@@ -2,6 +2,7 @@
 utils = require "../../utils"
 { stdoutTrap, stderrTrap } = require 'logtrap'
 
+{Set} = utils.require("core/util/data_structures")
 {set_log_level} = utils.require "core/logging"
 
 {ColumnDataSource, concat_typed_arrays, stream_to_column, slice, patch_to_column} = utils.require("models/sources/column_data_source")
@@ -86,6 +87,12 @@ describe "column_data_source module", ->
         expect(a).to.be.instanceof Array
         expect(a).to.be.deep.equal [10,2,3,100,-1]
 
+      it "should return a Set of the patched indices", ->
+        a = [1,2,3,4,5]
+        s = patch_to_column(a, [[3, 100], [0, 10], [4, -1]])
+        expect(s).to.be.instanceof Set
+        expect(s.diff(new Set([0,3,4])).values).to.be.deep.equal []
+
     describe "with single slice index", ->
 
       it "should patch Arrays to Arrays", ->
@@ -121,78 +128,114 @@ describe "column_data_source module", ->
         expect(a).to.be.instanceof Array
         expect(a).to.be.deep.equal [10,2,100,101,-1]
 
+      it "should return a Set of the patched indices", ->
+        a = [1,2,3,4,5]
+        s = patch_to_column(a, [[{start:2,stop:4,step:1}, [100, 101]], [{start:null, stop:1, step:1}, [10]], [4, -1]])
+        expect(s).to.be.instanceof Set
+        expect(s.diff(new Set([0,2,3,4])).values).to.be.deep.equal []
+
     describe "with multi-index for 1d subarrays", ->
 
       it "should patch Arrays to Arrays", ->
         a = [1,2,3,4,5]
         b = [10, 20, -1, -2, 0, 10]
-        patch_to_column([a, b], [
+        c = [1,2,3,4]
+        patch_to_column([a, b, c], [
           [[0, {start:2,stop:4,step:1}], [100, 101]]
-        ], [[5], [6]])
+        ], [[5], [6], [4]])
         expect(a).to.be.instanceof Array
         expect(b).to.be.instanceof Array
+        expect(c).to.be.instanceof Array
         expect(a).to.be.deep.equal [1,2,100,101,5]
         expect(b).to.be.deep.equal [10, 20, -1, -2, 0, 10]
+        expect(c).to.be.deep.equal [1,2,3,4]
 
-        patch_to_column([a, b], [
+        patch_to_column([a, b, c], [
           [[1, {start:2,stop:4,step:1}], [100, 101]]
-        ], [[5], [6]])
+        ], [[5], [6], [4]])
         expect(a).to.be.instanceof Array
         expect(b).to.be.instanceof Array
+        expect(c).to.be.instanceof Array
         expect(a).to.be.deep.equal [1,2,100,101,5]
         expect(b).to.be.deep.equal [10, 20, 100, 101, 0, 10]
+        expect(c).to.be.deep.equal [1,2,3,4]
 
       it "should patch typed Arrays to typed Arrays", ->
         for typ in [Float32Array, Float64Array, Int32Array]
           a = new typ([1,2,3,4,5])
           b = new typ([10, 20, -1, -2, 0, 10])
-          patch_to_column([a, b], [
+          c = new typ([1,2,3,4])
+          patch_to_column([a, b, c], [
             [[0, {start:2,stop:4,step:1}], [100, 101]]
-          ], [[5], [6]])
+          ], [[5], [6], [4]])
           expect(a).to.be.instanceof typ
           expect(b).to.be.instanceof typ
+          expect(c).to.be.instanceof typ
           expect(a).to.be.deep.equal new typ([1,2,100,101,5])
           expect(b).to.be.deep.equal new typ([10, 20, -1, -2, 0, 10])
+          expect(c).to.be.deep.equal new typ([1,2,3,4])
 
-          patch_to_column([a, b], [
+          patch_to_column([a, b, c], [
             [[1, {start:2,stop:4,step:1}], [100, 101]]
-          ], [[5], [6]])
+          ], [[5], [6], [4]])
           expect(a).to.be.instanceof typ
           expect(b).to.be.instanceof typ
+          expect(c).to.be.instanceof typ
           expect(a).to.be.deep.equal new typ([1,2,100,101,5])
           expect(b).to.be.deep.equal new typ([10, 20, 100, 101, 0, 10])
+          expect(c).to.be.deep.equal new typ([1,2,3,4])
 
       it "should handle patch indices with strides", ->
         a = new Int32Array([1,2,3,4,5])
         b = new Int32Array([10, 20, -1, -2, 0, 10])
-        patch_to_column([a, b], [
+        c = new Int32Array([1,2,3,4])
+        patch_to_column([a, b,c], [
           [[0, {start:1,stop:5,step:2}], [100, 101]]
-        ], [[5], [6]])
+        ], [[5], [6], [4]])
         expect(a).to.be.instanceof Int32Array
         expect(b).to.be.instanceof Int32Array
+        expect(c).to.be.instanceof Int32Array
         expect(a).to.be.deep.equal new Int32Array([1,100,3,101,5])
         expect(b).to.be.deep.equal new Int32Array([10, 20, -1, -2, 0, 10])
+        expect(c).to.be.deep.equal new Int32Array([1,2,3,4])
 
-        patch_to_column([a, b], [
+        patch_to_column([a, b, c], [
           [[1, {start:null,stop:null,step:3}], [100, 101]]
-        ], [[5], [6]])
+        ], [[5], [6], [4]])
         expect(a).to.be.instanceof Int32Array
         expect(b).to.be.instanceof Int32Array
+        expect(c).to.be.instanceof Int32Array
         expect(a).to.be.deep.equal new Int32Array([1,100,3,101,5])
         expect(b).to.be.deep.equal new Int32Array([100, 20, -1, 101, 0, 10])
+        expect(c).to.be.deep.equal new Int32Array([1,2,3,4])
 
       it "should handle multi-part patches", ->
         a = [1,2,3,4,5]
         b = [10, 20, -1, -2, 0, 10]
-        patch_to_column([a, b], [
+        c = [1,2,3,4]
+        patch_to_column([a, b, c], [
           [[0, {start:2,stop:4,step:1}], [100, 101]],
           [[1, {start:null, stop:2, step:1}], [999, 999]],
           [[1, 5], [6]]
-        ], [[5], [6]])
+        ], [[5], [6], [4]])
         expect(a).to.be.instanceof Array
         expect(b).to.be.instanceof Array
+        expect(c).to.be.instanceof Array
         expect(a).to.be.deep.equal [1,2,100,101,5]
         expect(b).to.be.deep.equal [999, 999, -1, -2, 0, 6]
+        expect(c).to.be.deep.equal [1,2,3,4]
+
+      it "should return a Set of the patched indices", ->
+        a = [1,2,3,4,5]
+        b = [10, 20, -1, -2, 0, 10]
+        c = [1,2,3,4]
+        s = patch_to_column([a, b, c], [
+          [[0, {start:2,stop:4,step:1}], [100, 101]],
+          [[1, {start:null, stop:2, step:1}], [999, 999]],
+          [[1, 5], [6]]
+        ], [[5], [6], [4]])
+        expect(s).to.be.instanceof Set
+        expect(s.diff(new Set([0,1])).values).to.be.deep.equal []
 
     describe "with multi-index for 2d subarrays", ->
 
@@ -202,9 +245,10 @@ describe "column_data_source module", ->
         b = [10, 20,
              -1, -2,
               0, 10]
-        patch_to_column([a, b], [
+        c = [1,2]
+        patch_to_column([a, b, c], [
           [[0, {start:null,stop:null,step:null}, 2], [100, 101]]
-        ], [[2,3], [3,2]])
+        ], [[2,3], [3,2], [1,2]])
         expect(a).to.be.instanceof Array
         expect(b).to.be.instanceof Array
         expect(a).to.be.deep.equal [1,2,100,
@@ -212,10 +256,11 @@ describe "column_data_source module", ->
         expect(b).to.be.deep.equal [10, 20,
                                     -1, -2,
                                      0, 10]
+        expect(c).to.be.deep.equal [1,2]
 
-        patch_to_column([a, b], [
+        patch_to_column([a, b, c], [
           [[1, {start:0,stop:2,step:1}, {start:0,stop:1,step:1}], [100, 101]]
-        ], [[2,3], [3,2]])
+        ], [[2,3], [3,2], [1,2]])
         expect(a).to.be.instanceof Array
         expect(b).to.be.instanceof Array
         expect(a).to.be.deep.equal [1,2,100,
@@ -223,6 +268,7 @@ describe "column_data_source module", ->
         expect(b).to.be.deep.equal [100, 20,
                                     101, -2,
                                       0, 10]
+        expect(c).to.be.deep.equal [1,2]
 
       it "should patch typed Arrays to types Arrays", ->
         for typ in [Float32Array, Float64Array, Int32Array]
@@ -231,52 +277,64 @@ describe "column_data_source module", ->
           b = new typ([10, 20,
                        -1, -2,
                         0, 10])
-          patch_to_column([a, b], [
+          c = new typ([1,2])
+          patch_to_column([a, b, c], [
             [[0, {start:null,stop:null,step:null}, 2], [100, 101]]
-          ], [[2,3], [3,2]])
+          ], [[2,3], [3,2], [1,2]])
           expect(a).to.be.instanceof typ
           expect(b).to.be.instanceof typ
+          expect(c).to.be.instanceof typ
           expect(a).to.be.deep.equal new typ([1,2,100,
                                               4,5,101])
           expect(b).to.be.deep.equal new typ([10, 20,
                                               -1, -2,
                                                0, 10])
+          expect(c).to.be.deep.equal new typ([1,2])
 
-          patch_to_column([a, b], [
+          patch_to_column([a, b, c], [
             [[1, {start:0,stop:2,step:1}, {start:0,stop:1,step:1}], [100, 101]]
-          ], [[2,3], [3,2]])
+          ], [[2,3], [3,2], [1,2]])
           expect(a).to.be.instanceof typ
           expect(b).to.be.instanceof typ
+          expect(c).to.be.instanceof typ
           expect(a).to.be.deep.equal new typ([1,2,100,
                                               4,5,101])
           expect(b).to.be.deep.equal new typ([100, 20,
                                               101, -2,
                                                 0, 10])
+          expect(c).to.be.deep.equal new typ([1,2])
 
       it "should handle patch indices with strides", ->
-          a = new Int32Array([1,2,3,4,5,6])
-          b = new Int32Array([10, 20, -1, -2, 0, 10])
-          patch_to_column([a, b], [
-            [[0, {start:null,stop:null,step:1}, 2], [100, 101]]
-          ], [[2,3], [3,2]])
-          expect(a).to.be.instanceof Int32Array
-          expect(b).to.be.instanceof Int32Array
-          expect(a).to.be.deep.equal new Int32Array([1,2,100,
-                                                     4,5,101])
-          expect(b).to.be.deep.equal new Int32Array([10, 20,
-                                                     -1, -2,
-                                                      0, 10])
+        a = new Int32Array([1,2,3,4,5,6])
+        b = new Int32Array([10, 20, -1, -2, 0, 10])
+        c = new Int32Array([1,2])
+        patch_to_column([a, b, c], [
+          [[0, {start:null,stop:null,step:1}, 2], [100, 101]]
+        ], [[2,3], [3,2], [1,2]])
+        expect(a).to.be.instanceof Int32Array
+        expect(b).to.be.instanceof Int32Array
+        expect(c).to.be.instanceof Int32Array
+        expect(a).to.be.deep.equal new Int32Array([1,2,100,
+                                                   4,5,101])
+        expect(b).to.be.deep.equal new Int32Array([10, 20,
+                                                   -1, -2,
+                                                    0, 10])
+        expect(c).to.be.deep.equal new Int32Array([1,2])
 
-          patch_to_column([a, b], [
-            [[1, {start:0,stop:3,step:2}, {start:0,stop:1,step:1}], [100, 101]]
-          ], [[2,3], [3,2]])
-          expect(a).to.be.instanceof Int32Array
-          expect(b).to.be.instanceof Int32Array
-          expect(a).to.be.deep.equal new Int32Array([1,2,100,
-                                                     4,5,101])
-          expect(b).to.be.deep.equal new Int32Array([100, 20,
-                                                      -1, -2,
-                                                     101, 10])
+        patch_to_column([a, b, c], [
+          [[1, {start:0,stop:3,step:2}, {start:0,stop:1,step:1}], [100, 101]]
+        ], [[2,3], [3,2], [1,2]])
+        expect(a).to.be.instanceof Int32Array
+        expect(b).to.be.instanceof Int32Array
+        expect(c).to.be.instanceof Int32Array
+        expect(c).to.be.deep.equal new Int32Array([1,2])
+        expect(a).to.be.deep.equal new Int32Array([1,2,100,
+                                                   4,5,101])
+        expect(b).to.be.deep.equal new Int32Array([100, 20,
+                                                    -1, -2,
+                                                  101, 10]) # this will literally fail to compile if another space is added to line things up
+        expect(c).to.be.deep.equal new Int32Array([1,2])
+
 
       it "should handle multi-part patches", ->
         a = [1,2,3,
@@ -284,17 +342,34 @@ describe "column_data_source module", ->
         b = [10, 20,
              -1, -2,
               0, 10]
-        patch_to_column([a, b], [
+        c = [1,2]
+        patch_to_column([a, b, c], [
           [[0, {start:null,stop:null,step:1}, 2], [100, 101]],
           [[1, {start:0,stop:2,step:1}, {start:0,stop:1,step:1}], [100, 101]]
-        ], [[2,3], [3,2]])
+        ], [[2,3], [3,2], [1,2]])
         expect(a).to.be.instanceof Array
         expect(b).to.be.instanceof Array
+        expect(c).to.be.instanceof Array
         expect(a).to.be.deep.equal [1,2,100,
                                     4,5,101]
         expect(b).to.be.deep.equal [100, 20,
                                     101, -2,
                                       0, 10]
+        expect(c).to.be.deep.equal [1, 2]
+
+      it "should return a Set of the patched indices", ->
+        a = [1,2,3,
+             4,5,6]
+        b = [10, 20,
+             -1, -2,
+              0, 10]
+        c = [1,2]
+        s = patch_to_column([a, b, c], [
+          [[0, {start:null,stop:null,step:1}, 2], [100, 101]],
+          [[1, {start:0,stop:2,step:1}, {start:0,stop:1,step:1}], [100, 101]]
+        ], [[2,3], [3,2], [1,2]])
+        expect(s).to.be.instanceof Set
+        expect(s.diff(new Set([0,1])).values).to.be.deep.equal []
 
   describe "stream_to_column", ->
 
