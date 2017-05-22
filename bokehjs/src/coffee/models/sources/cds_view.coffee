@@ -25,7 +25,7 @@ export class CDSView extends Model
       if @source instanceof ColumnarDataSource
         @indices = @source?.get_indices()
     else
-      indices = (filter.get_indices(@source) for filter in @filters)
+      indices = (filter.compute_indices(@source) for filter in @filters)
       console.log indices
       @indices = intersection.apply(this, indices)
 

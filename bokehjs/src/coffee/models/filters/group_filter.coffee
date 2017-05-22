@@ -10,7 +10,7 @@ export class GroupFilter extends Filter
     group:        [ p.String  ]
   }
 
-  get_indices: (source) ->
+  compute_indices: (source) ->
     column = source.get_column(@column_name)
     if !column?
       logger.warn("group filter: groupby column not found in data source")
