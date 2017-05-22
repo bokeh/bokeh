@@ -1,9 +1,8 @@
 import * as p from "core/properties"
 
-import {build_views} from "core/build_views"
+import {build_views, remove_views} from "core/build_views"
 import {Widget, WidgetView} from "./widget"
 import template from "./button_template"
-
 
 export class AbstractButtonView extends WidgetView
   events:
@@ -17,10 +16,7 @@ export class AbstractButtonView extends WidgetView
     @render()
 
   remove: () ->
-    for _, view of @icon_views
-      view.remove()
-    @icon_views = {}
-
+    remove_views(@icon_views)
     super()
 
   render: () ->

@@ -1,3 +1,5 @@
+import {concat, union} from "./array"
+
 export const keys = Object.keys
 
 export function values<T>(object: {[key: string]: T}): Array<T> {
@@ -27,6 +29,27 @@ export function clone<T>(obj: T): T {
   return extend({}, obj)
 }
 
+export function merge<T>(obj1: {[key: string] : Array<T>}, obj2: {[key: string]: Array<T>}): {[key: string]: Array<T>} {
+  /*
+   * Returns an object with the array values for obj1 and obj2 unioned by key.
+   */
+  const result: {[key: string]: Array<T>} = Object.create(null);
+
+  const keys = concat([Object.keys(obj1), Object.keys(obj2)])
+
+  for (const key of keys){
+    const arr1 = obj1.hasOwnProperty(key) ? obj1[key] : []
+    const arr2 = obj2.hasOwnProperty(key) ? obj2[key] : []
+    result[key] = union(arr1, arr2)
+  }
+
+  return result
+}
+
+export function size<T>(obj: T): number {
+  return Object.keys(obj).length
+}
+
 export function isEmpty<T>(obj: T): boolean {
-  return Object.keys(obj).length === 0
+  return size(obj) === 0
 }

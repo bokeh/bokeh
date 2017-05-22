@@ -11,8 +11,6 @@ export class CDSView extends Model
 
     @compute_indices()
 
-    @listenTo @, 'change:filters', @compute_indices
-
   @define {
      filters: [ p.Array, [] ]
      source:  [ p.Instance  ]

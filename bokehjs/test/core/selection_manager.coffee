@@ -73,6 +73,7 @@ describe "SelectionManager", ->
     data:
       x: [0, 1, 2, 3, 4]
       y: [0, 1, 2, 3, 4]
+      z: [5, 6, 7, 8, 9]
   })
 
   glyph_renderer = new GlyphRenderer({
@@ -92,25 +93,18 @@ describe "SelectionManager", ->
     model: glyph_renderer
   })
 
+  glyph_renderer2 = new GlyphRenderer({
+    data_source:  column_data_source
+    glyph:        new SomeMarker({x: {field: "x"}, y: {field: "z"}})
+  })
+
+  glyph_renderer_view2 = new GlyphRendererView({
+    plot_model: plot_model_stub
+    plot_view: plot_view_stub_normal
+    model: glyph_renderer2
+  })
+
   sm = new SelectionManager()
-
-  it "should start with no selectors", ->
-    expect(sm.selectors).to.deep.equal {}
-
-  selector = null
-
-  it "should add a selector when encountering a new renderer", ->
-    selector = sm._get_selector(glyph_renderer_view_normal)
-    expect(Object.keys(sm.selectors)).to.have.lengthOf(1)
-    expect(sm.selectors).to.have.property glyph_renderer_view_normal.model.id
-
-  it "should create a selector with an empty selection", ->
-    expect(selector.indices).to.deep.equal empty_selection
-
-  it "should return the right selector", ->
-    selector2 = sm._get_selector(glyph_renderer_view_normal)
-    expect(Object.keys(sm.selectors)).to.have.lengthOf(1)
-    expect(selector2).to.equal(selector)
 
   describe "using rect geometry (like that from box select tool)", ->
 
@@ -125,16 +119,31 @@ describe "SelectionManager", ->
     it "should update its data source's selected property", ->
       sm = new SelectionManager({'source': column_data_source})
       expect(sm.source.selected).to.deep.equal empty_selection
-      sm.select('tool', glyph_renderer_view_normal, geometry, true)
+      sm.select('tool', [glyph_renderer_view_normal], geometry, true)
       expect(sm.source.selected).to.not.deep.equal empty_selection
 
-    it "should update its selectors", ->
+    it "should update its selector", ->
       sm = new SelectionManager({'source': column_data_source})
-      sm.select('tool', glyph_renderer_view_normal, geometry, true)
-      expect(sm.selectors[glyph_renderer_view_normal.model.id]).to.not.deep.equal empty_selection
+      sm.select('tool', [glyph_renderer_view_normal], geometry, true)
+      expect(sm.selector).to.not.deep.equal empty_selection
 
     it "should work when scales are reversed", ->
       sm = new SelectionManager({'source': column_data_source})
-      sm.select('tool', glyph_renderer_view_reverse, geometry, true)
+      sm.select('tool', [glyph_renderer_view_reverse], geometry, true)
       expect(sm.source.selected).to.not.deep.equal empty_selection
-      expect(sm.selectors[glyph_renderer_view_reverse.model.id]).to.not.deep.equal empty_selection
+      expect(sm.selector).to.not.deep.equal empty_selection
+
+    geometry2 = {
+      type: 'rect'
+      vx0: 0
+      vx1: 100
+      vy0: 60
+      vy1: 100
+    }
+
+    it "should select from multiple renderers", ->
+      sm = new SelectionManager({'source': column_data_source})
+      sm.select('tool', [glyph_renderer_view_normal], geometry2, true)
+      expect(sm.source.selected).to.deep.equal empty_selection
+      sm.select('tool', [glyph_renderer_view_normal, glyph_renderer_view2], geometry2, true)
+      expect(sm.source.selected).not.to.deep.equal empty_selection

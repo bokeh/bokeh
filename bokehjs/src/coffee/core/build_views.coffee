@@ -1,5 +1,5 @@
 import {difference} from "./util/array"
-import {extend} from "./util/object"
+import {keys, extend} from "./util/object"
 
 export build_views = (view_storage, view_models, options, view_types=[]) ->
   # ## function: build_views
@@ -34,3 +34,8 @@ export build_views = (view_storage, view_models, options, view_types=[]) ->
     created_views.push(view)
 
   return created_views
+
+export remove_views = (view_storage) ->
+  for id in keys(view_storage)
+    view_storage[id].remove()
+    delete view_storage[id]

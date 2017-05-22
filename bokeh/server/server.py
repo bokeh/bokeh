@@ -8,6 +8,7 @@ import logging
 log = logging.getLogger(__name__)
 import signal
 
+import tornado
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
 from tornado import netutil
@@ -82,7 +83,7 @@ class Server(object):
     '''
 
     def __init__(self, applications, io_loop=None, **kwargs):
-        log.info("Starting Bokeh server version %s" % __version__)
+        log.info("Starting Bokeh server version %s (running on Tornado %s)" % (__version__, tornado.version))
 
         if isinstance(applications, Application):
             self._applications = { '/' : applications }

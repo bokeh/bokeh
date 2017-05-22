@@ -5,7 +5,7 @@ import {GlyphRenderer} from "../renderers/glyph_renderer"
 import {LayoutDOM} from "../layouts/layout_dom"
 
 import {Signal} from "core/signaling"
-import {build_views} from "core/build_views"
+import {build_views, remove_views} from "core/build_views"
 import {UIEvents} from "core/ui_events"
 import {LODStart, LODEnd} from "core/bokeh_events"
 import {LayoutCanvas} from "core/layout/layout_canvas"
@@ -57,13 +57,8 @@ export class PlotCanvasView extends DOMView
     return
 
   remove: () ->
-    for _, view of @renderer_views
-      view.remove()
-    @renderer_views = {}
-
-    for _, view of @tool_views
-      view.remove()
-    @tool_views = {}
+    remove_views(@renderer_views)
+    remove_views(@tool_views)
 
     @canvas_view.remove()
     @canvas_view = null
@@ -680,10 +675,10 @@ export class PlotCanvas extends LayoutDOM
     @frame = new CartesianFrame({
       x_range: @plot.x_range,
       extra_x_ranges: @plot.extra_x_ranges,
-      x_mapper_type: @plot.x_mapper_type,
+      x_scale: @plot.x_scale,
       y_range: @plot.y_range,
       extra_y_ranges: @plot.extra_y_ranges,
-      y_mapper_type: @plot.y_mapper_type,
+      y_scale: @plot.y_scale
     })
 
     @above_panel = new LayoutCanvas()

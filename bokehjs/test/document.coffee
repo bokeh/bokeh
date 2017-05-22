@@ -1,9 +1,9 @@
-_ = require "underscore"
 {expect} = require "chai"
 utils = require "./utils"
 sinon = require "sinon"
 { stdoutTrap, stderrTrap } = require 'logtrap'
 
+{values, size} = utils.require("core/util/object")
 {Document, ModelChangedEvent, TitleChangedEvent, RootAddedEvent, RootRemovedEvent, DEFAULT_TITLE} = utils.require "document"
 {GE, Strength, Variable}  = utils.require "core/layout/solver"
 js_version = utils.require("version").version
@@ -334,7 +334,7 @@ describe "Document", ->
   it "can have all_models with multiple references", ->
     d = new Document()
     expect(d.roots().length).to.equal 0
-    expect(_.size(d._all_models)).to.equal 0
+    expect(size(d._all_models)).to.equal 0
 
     root1 = new SomeModel()
     root2 = new SomeModel()
@@ -344,30 +344,30 @@ describe "Document", ->
     d.add_root(root1)
     d.add_root(root2)
     expect(d.roots().length).to.equal 2
-    expect(_.size(d._all_models)).to.equal 3
+    expect(size(d._all_models)).to.equal 3
 
     root1.child = null
-    expect(_.size(d._all_models)).to.equal 3
+    expect(size(d._all_models)).to.equal 3
 
     root2.child = null
-    expect(_.size(d._all_models)).to.equal 2
+    expect(size(d._all_models)).to.equal 2
 
     root1.child = child1
-    expect(_.size(d._all_models)).to.equal 3
+    expect(size(d._all_models)).to.equal 3
 
     root2.child = child1
-    expect(_.size(d._all_models)).to.equal 3
+    expect(size(d._all_models)).to.equal 3
 
     d.remove_root(root1)
-    expect(_.size(d._all_models)).to.equal 2
+    expect(size(d._all_models)).to.equal 2
 
     d.remove_root(root2)
-    expect(_.size(d._all_models)).to.equal 0
+    expect(size(d._all_models)).to.equal 0
 
   it "can have all_models with cycles", ->
     d = new Document()
     expect(d.roots().length).to.equal 0
-    expect(_.size(d._all_models)).to.equal 0
+    expect(size(d._all_models)).to.equal 0
 
     root1 = new SomeModel()
     root2 = new SomeModel()
@@ -378,21 +378,21 @@ describe "Document", ->
     d.add_root(root1)
     d.add_root(root2)
     expect(d.roots().length).to.equal 2
-    expect(_.size(d._all_models)).to.equal 3
+    expect(size(d._all_models)).to.equal 3
 
     root1.child = null
-    expect(_.size(d._all_models)).to.equal 3
+    expect(size(d._all_models)).to.equal 3
 
     root2.child = null
-    expect(_.size(d._all_models)).to.equal 2
+    expect(size(d._all_models)).to.equal 2
 
     root1.child = child1
-    expect(_.size(d._all_models)).to.equal 3
+    expect(size(d._all_models)).to.equal 3
 
   it "can have all_models with cycles through lists", ->
     d = new Document()
     expect(d.roots().length).to.equal 0
-    expect(_.size(d._all_models)).to.equal 0
+    expect(size(d._all_models)).to.equal 0
 
     root1 = new SomeModelWithChildren()
     root2 = new SomeModelWithChildren()
@@ -403,16 +403,16 @@ describe "Document", ->
     d.add_root(root1)
     d.add_root(root2)
     expect(d.roots().length).to.equal 2
-    expect(_.size(d._all_models)).to.equal 3
+    expect(size(d._all_models)).to.equal 3
 
     root1.children = []
-    expect(_.size(d._all_models)).to.equal 3
+    expect(size(d._all_models)).to.equal 3
 
     root2.children = []
-    expect(_.size(d._all_models)).to.equal 2
+    expect(size(d._all_models)).to.equal 2
 
     root1.children = [child1]
-    expect(_.size(d._all_models)).to.equal 3
+    expect(size(d._all_models)).to.equal 3
 
   it "can notify on changes", ->
     d = new Document()
@@ -527,7 +527,7 @@ describe "Document", ->
     expect(d.title()).to.equal 'Foo'
     d.clear()
     expect(d.roots().length).to.equal 0
-    expect(_.size(d._all_models)).to.equal 0
+    expect(size(d._all_models)).to.equal 0
     # does not reset title
     expect(d.title()).to.equal 'Foo'
 
@@ -889,7 +889,7 @@ describe "Document", ->
     expect(root1.obj_prop).to.be.an.instanceof(ModelWithConstructTimeChanges)
     expect(root1.obj_prop.child).to.be.an.instanceof(AnotherModel)
     expect(Object.keys(root1.dict_of_list_prop).length).to.equal 1
-    expect(_.values(root1.dict_of_list_prop)[0].length).to.equal 1
+    expect(values(root1.dict_of_list_prop)[0].length).to.equal 1
 
   ###
   it "adds two constraints and two edit_variables on instantiation solver", ->
