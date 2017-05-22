@@ -3,7 +3,7 @@ import {HasProps} from "core/has_props"
 import * as p from "core/properties"
 import {Set} from "core/util/data_structures"
 import * as serialization from "core/util/serialization"
-import {isArray, isObject} from "core/util/types"
+import {isArray, isNumber, isObject} from "core/util/types"
 
 # exported for testing
 export concat_typed_arrays = (a, b) ->
@@ -65,7 +65,7 @@ export patch_to_column = (col, patch, shapes) ->
     # make the single index case look like the length-3 multi-index case
     if not isArray(ind)
 
-      if Number.isInteger(ind)
+      if isNumber(ind)
         value = [value]
         patched.push(ind)
       else
