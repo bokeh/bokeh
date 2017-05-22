@@ -310,23 +310,35 @@ class ColumnDataSource(ColumnarDataSource):
 
             # replace the entire 10th column of the 2nd array:
 
-              +------------- index of item in column data source
+              +----------------- index of item in column data source
               |
-              |     +------- row subindex into array item
-              |     |
-              |     |     +- column subindex into array item
-              V     V     V
-            ([2, slice(), 10], new_values)
+              |       +--------- row subindex into array item
+              |       |
+              |       |       +- column subindex into array item
+              V       V       V
+            ([2, slice(None), 10], new_values)
 
-        This is roughly equivalent to indexing a three dimensional NumPy array
-        with ``arr[2, :, 10]`` The new values to patch should be supplied as a
-        **flattened one-dimensional array** of the appropriate size.
+        Imagining a list of 2d NumPy arrays, the patch above is roughly
+        equivalent to:
+
+        .. code-block:: python
+
+            data = [arr1, arr2, ...]  # list of 2d arrays
+
+            data[2][:, 10] = new_data
 
         There are some limitations to the kinds of slices and data that can
         be accepted.
 
-        * Negative start, stop, or step values will result in a ``ValueError``.
-        * ``start > stop`` will result in a ``ValueError``
+        * Negative ``start``, ``stop``, or ``step`` values for slices will
+          result in a ``ValueError``.
+
+        * In a slice, ``start > stop`` will result in a ``ValueError``
+
+        * When patching 1d or 2d subitems, the subitems must be NumPy arrays.
+
+        * New values must be supplied as a **flattened one-dimensional array**
+          of the appropriate size.
 
         Args:
             patches (dict[str, list[tuple]]) : lists of patches for each column
@@ -357,6 +369,8 @@ class ColumnDataSource(ColumnarDataSource):
         .. code-block:: python
 
             dict(foo=[11, 22, 30], bar=[101, 200, 301])
+
+        For a more comprehensive complete example, see :bokeh-tree:`examples/howto/patch_app.py`.
 
         '''
         import numpy as np
