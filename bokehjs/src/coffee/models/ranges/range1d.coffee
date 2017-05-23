@@ -10,12 +10,14 @@ export class Range1d extends Range
       bounds: [ p.Any       ] # TODO (bev)
       min_interval: [ p.Any ]
       max_interval: [ p.Any ]
+      initial_start: [p.Number, 0]
+      initial_end: [p.Number, 1]
     }
 
   _set_auto_bounds: () ->
     if @bounds == 'auto'
-      min = Math.min(@_initial_start, @_initial_end)
-      max = Math.max(@_initial_start, @_initial_end)
+      min = Math.min(@initial_start, @initial_end)
+      max = Math.max(@initial_start, @initial_end)
       @setv({bounds: [min, max]}, {silent: true})
 
   constructor: () ->
@@ -29,8 +31,8 @@ export class Range1d extends Range
   initialize: (attrs, options) ->
     super(attrs, options)
 
-    @_initial_start = @start
-    @_initial_end = @end
+    @initial_start = @start
+    @initial_end = @end
 
     @_set_auto_bounds()
 
@@ -41,7 +43,7 @@ export class Range1d extends Range
 
   reset: () ->
     @_set_auto_bounds()
-    if @start != @_initial_start or @end != @_initial_end
-      @setv({start: @_initial_start, end: @_initial_end})
+    if @start != @initial_start or @end != @initial_end
+      @setv({start: @initial_start, end: @initial_end})
     else
       @change.emit()
