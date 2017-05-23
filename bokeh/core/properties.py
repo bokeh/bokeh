@@ -1766,8 +1766,8 @@ class ColorSpec(DataSpec):
         if isinstance(val, string_types):
             return dict(field=val)
 
-        # Must be dict, return as-is
-        return val
+        # Must be dict, return new dict
+        return dict(val)
 
     def prepare_value(self, cls, name, value):
         # Some explanation is in order. We want to accept tuples like
