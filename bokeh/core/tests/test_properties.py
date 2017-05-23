@@ -1766,6 +1766,19 @@ def test_strict_dataspec_key_values():
         with pytest.raises(ValueError):
             f.x = dict(field="foo", units="junk")
 
+def test_dataspec_dict_to_serializable():
+    for typ in (NumberSpec, StringSpec, FontSizeSpec, ColorSpec, DataDistanceSpec, ScreenDistanceSpec):
+        class Foo(HasProps):
+            x = typ("x")
+        foo = Foo(x=dict(field='foo'))
+        props = foo.properties_with_values(include_defaults=False)
+        if typ is DataDistanceSpec:
+            assert props['x']['units'] == 'data'
+        elif typ is ScreenDistanceSpec:
+            assert props['x']['units'] == 'screen'
+        assert props['x']['field'] == 'foo'
+        assert props['x'] is not foo.x
+
 def test_strict_unitspec_key_values():
     class FooUnits(HasProps):
         x = DistanceSpec("x")
