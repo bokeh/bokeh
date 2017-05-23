@@ -1702,7 +1702,7 @@ class DataDistanceSpec(NumberSpec):
         return super(DataDistanceSpec, self).prepare_value(cls, name, value)
 
     def to_serializable(self, obj, name, val):
-        d = super(ScreenDistanceSpec, self).to_serializable(obj, name, val)
+        d = super(DataDistanceSpec, self).to_serializable(obj, name, val)
         d["units"] = "data"
         return d
 
