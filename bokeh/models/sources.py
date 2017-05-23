@@ -285,11 +285,63 @@ class ColumnDataSource(ColumnarDataSource):
         the subset, instead of requiring the entire data set to be sent.
 
         This method should be passed a dictionary that maps column names to
-        lists of tuples, each of the form ``(index, new_value)``. The value
-        at the given index for that column will be updated with the new value.
+        lists of tuples that describe a patch change to apply. To replace
+        individual items in columns entirely, the tuples should be of the
+        form:
+
+        .. code-block:: python
+
+            (index, new_value)  # replace a single column value
+
+            # or
+
+            (slice, new_values) # replace several column values
+
+        Values at an index or slice will be replaced with the corresponding
+        new values.
+
+        In the case of columns whose values are other arrays or lists, (e.g.
+        image or patches glyphs), it is also possible to patch "subregions".
+        In this case the first item of the tuple should be a whose first
+        element is the index of the array item in the CDS patch, and whose
+        subsequent elements are integer indices or slices into the array item:
+
+        .. code-block:: python
+
+            # replace the entire 10th column of the 2nd array:
+
+              +----------------- index of item in column data source
+              |
+              |       +--------- row subindex into array item
+              |       |
+              |       |       +- column subindex into array item
+              V       V       V
+            ([2, slice(None), 10], new_values)
+
+        Imagining a list of 2d NumPy arrays, the patch above is roughly
+        equivalent to:
+
+        .. code-block:: python
+
+            data = [arr1, arr2, ...]  # list of 2d arrays
+
+            data[2][:, 10] = new_data
+
+        There are some limitations to the kinds of slices and data that can
+        be accepted.
+
+        * Negative ``start``, ``stop``, or ``step`` values for slices will
+          result in a ``ValueError``.
+
+        * In a slice, ``start > stop`` will result in a ``ValueError``
+
+        * When patching 1d or 2d subitems, the subitems must be NumPy arrays.
+
+        * New values must be supplied as a **flattened one-dimensional array**
+          of the appropriate size.
 
         Args:
-            patches (dict[str, list[tuple]]) : lists of patches for each column.
+            patches (dict[str, list[tuple]]) : lists of patches for each column
 
         Returns:
             None
@@ -299,29 +351,96 @@ class ColumnDataSource(ColumnarDataSource):
 
         Example:
 
+        The following example shows how to patch entire column elements. In this case,
+
         .. code-block:: python
 
-            source = ColumnDataSource(data=dict(foo=[10, 20], bar=[100, 200]))
+            source = ColumnDataSource(data=dict(foo=[10, 20, 30], bar=[100, 200, 300]))
 
             patches = {
-                'foo' : [ (0, 1) ],
-                'bar' : [ (0, 101), (1, 201) ],
+                'foo' : [ (slice(2), [11, 12]) ],
+                'bar' : [ (0, 101), (2, 301) ],
             }
 
             source.patch(patches)
 
+        After this operation, the value of the ``source.data`` will be:
+
+        .. code-block:: python
+
+            dict(foo=[11, 22, 30], bar=[101, 200, 301])
+
+        For a more comprehensive complete example, see :bokeh-tree:`examples/howto/patch_app.py`.
+
         '''
+        import numpy as np
+
         extra = set(patches.keys()) - set(self.data.keys())
 
         if extra:
             raise ValueError("Can only patch existing columns (extra: %s)" % ", ".join(sorted(extra)))
 
         for name, patch in patches.items():
-            max_ind = max(x[0] for x in patch)
-            if max_ind >= len(self.data[name]):
-                raise ValueError("Out-of bounds index (%d) in patch for column: %s" % (max_ind, name))
+
+            col_len = len(self.data[name])
+
+            for ind, value in patch:
+
+                # integer index, patch single value of 1d column
+                if isinstance(ind, int):
+                    if ind > col_len or ind < 0:
+                        raise ValueError("Out-of bounds index (%d) in patch for column: %s" % (ind, name))
+
+                # slice index, patch multiple values of 1d column
+                elif isinstance(ind, slice):
+                    _check_slice(ind)
+                    if ind.stop is not None and ind.stop > col_len:
+                        raise ValueError("Out-of bounds slice index stop (%d) in patch for column: %s" % (ind.stop, name))
+
+                # multi-index, patch sub-regions of "n-d" column
+                elif isinstance(ind, (list, tuple)):
+                    if len(ind) == 0:
+                        raise ValueError("Empty (length zero) patch multi-index")
+
+                    if len(ind) == 1:
+                        raise ValueError("Patch multi-index must contain more than one subindex")
+
+                    if not isinstance(ind[0], int):
+                        raise ValueError("Initial patch sub-index may only be integer, got: %s" % ind[0])
+
+                    if ind[0] > col_len or ind[0] < 0:
+                        raise ValueError("Out-of bounds initial sub-index (%d) in patch for column: %s" % (ind, name))
+
+                    if not isinstance(self.data[name][ind[0]], np.ndarray):
+                        raise ValueError("Can only sub-patch into columns with NumPy array items")
+
+                    if len(self.data[name][ind[0]].shape) != (len(ind)-1):
+                        raise ValueError("Shape mismatch between patch slice and sliced data")
+
+                    elif isinstance(ind[0], slice):
+                        _check_slice(ind[0])
+                        if ind[0].stop is not None and ind[0].stop > col_len:
+                            raise ValueError("Out-of bounds initial slice sub-index stop (%d) in patch for column: %s" % (ind.stop, name))
+
+                    # Note: bounds of sub-indices after the first are not checked!
+                    for subind in ind[1:]:
+                        if not isinstance(subind, (int, slice)):
+                            raise ValueError("Invalid patch sub-index: %s" % subind)
+                        if isinstance(subind, slice):
+                            _check_slice(subind)
+
+                else:
+                    raise ValueError("Invalid patch index: %s" % ind)
 
         self.data._patch(self.document, self, patches, setter)
+
+def _check_slice(s):
+    if (s.start is not None and s.stop is not None and s.start > s.stop):
+        raise ValueError("Patch slices must have start < end, got %s" % s)
+    if (s.start is not None and s.start < 1) or \
+       (s.stop  is not None and s.stop < 1) or \
+       (s.step  is not None and s.step < 1):
+        raise ValueError("Patch slices must have positive (start, stop, step) values, got %s" % s)
 
 class GeoJSONDataSource(ColumnarDataSource):
     '''

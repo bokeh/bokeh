@@ -72,6 +72,10 @@ class BokehJSONEncoder(json.JSONEncoder):
         if is_datetime_type(obj):
             return convert_datetime_type(obj)
 
+        # slice objects
+        elif isinstance(obj, slice):
+            return dict(start=obj.start, stop=obj.stop, step=obj.step)
+
         # NumPy scalars
         elif np.issubdtype(type(obj), np.float):
             return float(obj)
