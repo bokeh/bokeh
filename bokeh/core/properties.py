@@ -1485,8 +1485,8 @@ class DataSpec(Either):
         if isinstance(val, string_types):
             return dict(field=val)
 
-        # Must be dict, return as-is
-        return val
+        # Must be dict, return a new dict
+        return dict(val)
 
     def _sphinx_type(self):
         return self._sphinx_prop_link()
