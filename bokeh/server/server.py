@@ -189,6 +189,7 @@ class Server(object):
         assert not self._stopped, "Already stopped"
         self._stopped = True
         self._tornado.stop(wait)
+        self._http.stop()
 
     def run_until_shutdown(self):
         ''' Run the Bokeh Server until shutdown is requested by the user,
