@@ -6,4 +6,5 @@ export class TableWidget extends Widget
 
   @define {
       source: [ p.Instance ]
+      view:   [ p.Instance ]
     }
