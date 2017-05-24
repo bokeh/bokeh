@@ -101,16 +101,13 @@ export class HasProps
         throw new Error("undefined property type for #{@type}.#{name}")
       @properties[name] = new type({obj: @, attr: name, default_value: default_value})
 
-    # Bokeh specific
     this._set_after_defaults = {}
-
-    this.setv(attributes, options)
-
-    ## bokeh custom constructor code
 
     # auto generating ID
     if not attributes.id?
       @setv("id", uniqueId(), {silent: true})
+
+    this.setv(attributes, extend({silent: true}, options))
 
     # allowing us to defer initialization when loading many models
     # when loading a bunch of models, we want to do initialization as a second pass
