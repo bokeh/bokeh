@@ -110,7 +110,7 @@ export class HasProps
 
     # auto generating ID
     if not attributes.id?
-      this.id = uniqueId(this.type)
+      @setv("id", uniqueId(), {silent: true})
 
     # allowing us to defer initialization when loading many models
     # when loading a bunch of models, we want to do initialization as a second pass
