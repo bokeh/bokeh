@@ -1,5 +1,4 @@
 import {Variable, Expression, Constraint, Operator, Strength, Solver as ConstraintSolver} from "kiwi"
-import {Signal} from "../signaling"
 
 export type Term = number | Variable | [number, Variable]
 
@@ -23,10 +22,6 @@ export const WEAK_GE = _weak_constrainer(Operator.Ge)
 
 export class Solver {
 
-  readonly layout_update = new Signal<void, Solver>(this, "layout_update")
-  readonly layout_reset = new Signal<void, Solver>(this, "layout_reset")
-  readonly resize = new Signal<void, Solver>(this, "resize")
-
   protected solver: ConstraintSolver
 
   constructor() {
@@ -35,7 +30,6 @@ export class Solver {
 
   clear(): void {
     this.solver = new ConstraintSolver()
-    this.layout_reset.emit(undefined)
   }
 
   toString(): string {
@@ -50,11 +44,8 @@ export class Solver {
     return this.solver.numEditVariables
   }
 
-  update_variables(trigger: boolean = true): void {
+  update_variables(): void {
     this.solver.updateVariables()
-    if (trigger) {
-      this.layout_update.emit(undefined)
-    }
   }
 
   has_constraint(constraint: Constraint): boolean {

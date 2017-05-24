@@ -39,10 +39,7 @@ export class CanvasView extends DOMView
     # work around canvas incompatibilities
     fixup_ctx(@ctx)
 
-    @set_dims([@model.initial_width, @model.initial_height], false)
     logger.debug("CanvasView initialized")
-
-    @connect(@solver.layout_reset, () => @_add_constraints())
 
   # Method exists so that context can be stubbed in unit tests
   get_ctx: () -> return @_ctx
@@ -67,43 +64,26 @@ export class CanvasView extends DOMView
 
     logger.debug("Rendering CanvasView with width: #{width}, height: #{height}, pixel ratio: #{pixel_ratio}")
 
-  set_dims: (dims, trigger=true) ->
-    @requested_width = dims[0]
-    @requested_height = dims[1]
-    @update_constraints(trigger)
-    return
-
-  update_constraints: (trigger) ->
-    requested_width = @requested_width
-    requested_height = @requested_height
-
-    if not requested_width? or not requested_height?
+  set_dims: ([width, height]) ->
+    # XXX: for whatever reason we need to protect against those nonsense values,
+    #      that appear in the middle of updating layout. Otherwise we would get
+    #      all possible errors from the layout solver.
+    if width == 0 or height == 0
       return
 
-    MIN_SIZE = 50
-    if requested_width < MIN_SIZE or requested_height < MIN_SIZE
-      return
+    if @_width_constraint? and @solver.has_constraint(@_width_constraint)
+      @solver.remove_constraint(@_width_constraint)
 
-    if isEqual(@last_requested_dims, [requested_width, requested_height])
-      return
+    if @_height_constraint? and @solver.has_constraint(@_height_constraint)
+      @solver.remove_constraint(@_height_constraint)
 
-    if @_width_constraint?
-      @solver.remove_constraint(@_width_constraint, true)
-    if @_height_constraint?
-      @solver.remove_constraint(@_height_constraint, true)
-
-    @_add_constraints()
-
-    @last_requested_dims = [requested_width, requested_height]
-
-    @solver.update_variables(trigger)
-
-  _add_constraints: () ->
-    @_width_constraint = EQ(@model._width, -@requested_width)
+    @_width_constraint = EQ(@model._width, -width)
     @solver.add_constraint(@_width_constraint)
 
-    @_height_constraint = EQ(@model._height, -@requested_height)
+    @_height_constraint = EQ(@model._height, -height)
     @solver.add_constraint(@_height_constraint)
+
+    @solver.update_variables()
 
 export class Canvas extends LayoutCanvas
   type: 'Canvas'

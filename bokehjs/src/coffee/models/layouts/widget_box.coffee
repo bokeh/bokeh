@@ -7,10 +7,6 @@ import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
 export class WidgetBoxView extends LayoutDOMView
   className: "bk-widget-box"
 
-  initialize: (options) ->
-    super(options)
-    @render()
-
   connect_signals: () ->
     super()
     @connect(@model.properties.children.change, () => @rebuild_child_views())

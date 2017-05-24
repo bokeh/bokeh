@@ -1,6 +1,7 @@
 import * as $ from "jquery"
 import "jquery-ui/datepicker"
 
+import {empty} from "core/dom"
 import * as p from "core/properties"
 
 import {InputWidget, InputWidgetView} from "./input_widget"
@@ -10,6 +11,7 @@ export class DatePickerView extends InputWidgetView
 
   render: () ->
     super()
+    empty(@el)
     @label = $('<label>').text(@model.title)
     @input = $('<input type="text">')
     @datepicker = @input.datepicker({

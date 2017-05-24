@@ -3,7 +3,7 @@ utils = require "../../utils"
 sinon = require 'sinon'
 
 {SidePanel} = utils.require("core/layout/side_panel")
-{update_constraints} = utils.require("core/layout/side_panel")
+{update_panel_constraints} = utils.require("core/layout/side_panel")
 
 {Document} = utils.require("document")
 
@@ -52,8 +52,8 @@ describe "SidePanel", ->
       angle = p.get_label_angle_heuristic('horizontal')
       expect(angle).to.be.equal 0
 
-  describe "update_constraints", ->
-    # Using axis_view as the view to pass into update_constraints
+  describe "update_panel_constraints", ->
+    # Using axis_view as the view to pass into update_panel_constraints
 
     afterEach ->
       utils.unstub_canvas()
@@ -83,7 +83,7 @@ describe "SidePanel", ->
     it "should not set _size_constraint if visible is false", ->
       @axis.visible = false
       expect(@axis_view._size_constraint).to.be.undefined
-      update_constraints(@axis_view)
+      update_panel_constraints(@axis_view)
       # Should still be undefined because visible is false
       expect(@axis_view._size_constraint).to.be.undefined
 
@@ -92,12 +92,12 @@ describe "SidePanel", ->
       sinon.stub(@axis_view, '_axis_label_extent', () -> 0.11)
       sinon.stub(@axis_view, '_tick_label_extent', () -> 0.11)
       expect(@axis_view._size_constraint).to.be.undefined
-      update_constraints(@axis_view)
+      update_panel_constraints(@axis_view)
       expect(@axis_view._size_constraint.expression.constant).to.be.equal(-0.33)
 
     it "should add two constraints on first call (one for size, one for full)", ->
       add_constraint_call_count = @solver_add_constraint.callCount
-      update_constraints(@axis_view)
+      update_panel_constraints(@axis_view)
       expect(@solver_add_constraint.callCount).to.be.equal add_constraint_call_count + 2
 
     it "should add and remove a constraint if the size changes", ->
@@ -108,12 +108,12 @@ describe "SidePanel", ->
       add_constraint_call_count = @solver_add_constraint.callCount
       remove_constraint_call_count = @solver_remove_constraint.callCount
 
-      update_constraints(@axis_view)
+      update_panel_constraints(@axis_view)
 
       expect(@solver_add_constraint.callCount).to.be.equal(add_constraint_call_count + 2)
       expect(@solver_remove_constraint.callCount).to.be.equal(remove_constraint_call_count + 0)
 
-      update_constraints(@axis_view)
+      update_panel_constraints(@axis_view)
 
       expect(@solver_add_constraint.callCount).to.be.equal(add_constraint_call_count + 3)
       expect(@solver_remove_constraint.callCount).to.be.equal(remove_constraint_call_count + 0)

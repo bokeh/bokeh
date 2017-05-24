@@ -19,7 +19,7 @@ import {throttle} from "core/util/throttle"
 import {isStrictNaN} from "core/util/types"
 import {difference, sortBy} from "core/util/array"
 import {extend, values, isEmpty} from "core/util/object"
-import {update_constraints as update_panel_constraints} from "core/layout/side_panel"
+import {update_panel_constraints} from "core/layout/side_panel"
 
 # Notes on WebGL support:
 # Glyps can be rendered into the original 2D canvas, or in a (hidden)
@@ -47,13 +47,10 @@ export class PlotCanvasView extends DOMView
     else
       @_is_paused += 1
 
-  unpause: (immediate=false) ->
+  unpause: (no_render=false) ->
     @_is_paused -= 1
-    if @_is_paused == 0
-      if immediate
-        @render()
-      else
-        @request_render()
+    if @_is_paused == 0 and not no_render
+      @request_render()
 
   request_render: () ->
     if not @is_paused
@@ -289,7 +286,7 @@ export class PlotCanvasView extends DOMView
     @pause()
     @model.plot.width = width
     @model.plot.height = height
-    @parent.resize()  # parent because this view doesn't participate in layout hierarchy
+    @parent.layout()  # XXX: parent because this view doesn't participate in layout hierarchy
     @unpause()
 
   get_selection: () ->
@@ -463,7 +460,7 @@ export class PlotCanvasView extends DOMView
 
   connect_signals: () ->
     super()
-    @connect(@force_render, () => @render())
+    @connect(@force_render, () => @repaint())
     for name, rng of @model.frame.x_ranges
       @connect(rng.change, () -> @request_render())
     for name, rng of @model.frame.y_ranges
@@ -471,16 +468,6 @@ export class PlotCanvasView extends DOMView
     @connect(@model.plot.properties.renderers.change, () => @build_levels())
     @connect(@model.plot.toolbar.properties.tools.change, () => @build_levels(); @build_tools())
     @connect(@model.plot.change, () -> @request_render())
-    @connect(@solver.layout_update, () => @request_render())
-    @connect(@solver.layout_update, () =>
-      @model.plot.setv({
-        inner_width: Math.round(@frame._width.value)
-        inner_height: Math.round(@frame._height.value)
-        layout_width: Math.round(@canvas._width.value)
-        layout_height: Math.round(@canvas._height.value)
-      }, {no_change: true})
-    )
-    @connect(@solver.resize, () => @_on_resize())
 
   set_initial_range : () ->
     # check for good values for ranges before setting initial range
@@ -507,7 +494,56 @@ export class PlotCanvasView extends DOMView
     else
       logger.warn('could not set initial ranges')
 
+  update_constraints: () ->
+    # Note: -1 to effectively dilate the canvas by 1px
+    @solver.suggest_value(@frame._width, @canvas._width.value - 1)
+    @solver.suggest_value(@frame._height, @canvas._height.value - 1)
+
+    for _, view of @renderer_views
+      if view.model.panel?
+        update_panel_constraints(view)
+
+    @solver.update_variables()
+
+  # XXX: bacause PlotCanvas is NOT a LayoutDOM
+  _layout: (final=false) ->
+    @render()
+
+    if final
+      @model.plot.setv({
+        inner_width: Math.round(@frame._width.value)
+        inner_height: Math.round(@frame._height.value)
+        layout_width: Math.round(@canvas._width.value)
+        layout_height: Math.round(@canvas._height.value)
+      }, {no_change: true})
+
+      @paint()
+
   render: () ->
+    # Set the plot and canvas to the current model's size
+    # This gets called upon solver resize events
+    width = @model._width.value
+    height = @model._height.value
+
+    @canvas_view.set_dims([width, height])
+    @update_constraints()
+
+    # Prepare the canvas size, taking HIDPI into account. Note that this may cause a resize
+    # of the canvas, which means that any previous calls to ctx.save() will be undone.
+    @canvas_view.prepare_canvas()
+
+    # This allows the plot canvas to be positioned around the toolbar
+    @el.style.position = 'absolute'
+    @el.style.left     = "#{@model._dom_left.value}px"
+    @el.style.top      = "#{@model._dom_top.value}px"
+    @el.style.width    = "#{@model._width.value}px"
+    @el.style.height   = "#{@model._height.value}px"
+
+  repaint: () ->
+    @render()
+    @paint()
+
+  paint: () ->
     if @is_paused
       return
 
@@ -530,20 +566,6 @@ export class PlotCanvasView extends DOMView
       if @lod_started
         @model.plot.trigger_event(new LODEnd({}))
         @lod_started = false
-
-    # Prepare the canvas size, taking HIDPI into account. Note that this may cause a resize
-    # of the canvas, which means that any previous calls to ctx.save() will be undone.
-    @canvas_view.prepare_canvas()
-
-    # AK: seems weird to me that this is here, but get solver errors if I remove it
-    @update_constraints()
-
-    # This allows the plot canvas to be positioned around the toolbar
-    @el.style.position = 'absolute'
-    @el.style.left = "#{@model._dom_left.value}px"
-    @el.style.top = "#{@model._dom_top.value}px"
-    @el.style.width = "#{@model._width.value}px"
-    @el.style.height = "#{@model._height.value}px"
 
     for k, v of @renderer_views
       if not @range_update_timestamp? or v.set_data_timestamp > @range_update_timestamp
@@ -582,10 +604,10 @@ export class PlotCanvasView extends DOMView
       ctx.strokeRect.apply(ctx, frame_box)
     ctx.restore()
 
-    @_render_levels(ctx, ['image', 'underlay', 'glyph'], frame_box)
+    @_paint_levels(ctx, ['image', 'underlay', 'glyph'], frame_box)
     @blit_webgl(ratio)
-    @_render_levels(ctx, ['annotation'], frame_box)
-    @_render_levels(ctx, ['overlay'])
+    @_paint_levels(ctx, ['annotation'], frame_box)
+    @_paint_levels(ctx, ['overlay'])
 
     if not @initial_range_info?
       @set_initial_range()
@@ -598,27 +620,7 @@ export class PlotCanvasView extends DOMView
     catch
       # new Event() is not supported on IE.
 
-  _on_resize: () ->
-    # Set the plot and canvas to the current model's size
-    # This gets called upon solver resize events
-    width = @model._width.value
-    height = @model._height.value
-
-    @canvas_view.set_dims([width, height])  # this indirectly calls @request_render
-    @update_constraints()                   # XXX should be unnecessary
-
-  update_constraints: () ->
-    # Note: -1 to effectively dilate the canvas by 1px
-    @solver.suggest_value(@frame._width, @canvas._width.value - 1)
-    @solver.suggest_value(@frame._height, @canvas._height.value - 1)
-
-    for model_id, view of @renderer_views
-      if view.model.panel?
-        update_panel_constraints(view)
-
-    @solver.update_variables(false)
-
-  _render_levels: (ctx, levels, clip_region) ->
+  _paint_levels: (ctx, levels, clip_region) ->
     ctx.save()
 
     if clip_region? and @model.plot.output_backend == "canvas"

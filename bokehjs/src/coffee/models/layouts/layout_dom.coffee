@@ -7,7 +7,6 @@ import {build_views} from "core/build_views"
 import {DOMView} from "core/dom_view"
 import {logger} from "core/logging"
 import {extend} from "core/util/object"
-import {defer} from "core/util/callback"
 
 export class LayoutDOMView extends DOMView
 
@@ -27,9 +26,6 @@ export class LayoutDOMView extends DOMView
 
     @child_views = {}
     @build_child_views()
-
-    if @is_root
-      defer(() => @resize())
 
     @connect_signals()
 
@@ -73,46 +69,57 @@ export class LayoutDOMView extends DOMView
 
     @_solver.update_variables()
 
-  resize: (width=null, height=null) ->
+  _calc_width_height: () ->
+    measuring = @el
+
+    while true
+      measuring = measuring.parentNode
+      if not measuring?
+        logger.warn("detached element")
+        width = height = null
+        break
+
+      {width, height} = measuring.getBoundingClientRect()
+      if height != 0
+        break
+
+    return [width, height]
+
+  layout: (width=null, height=null) ->
     if not @is_root
-      @parent.resize(width, height)
+      @parent.layout(width, height)
     else
-      # Ideally the solver would settle in one pass (can that be done?),
-      # but it currently needs two passes to get it right.
-      # Seems to be needed everywhere on initialization, and on Windows
-      # it seems necessary on each Draw
-      @_resize(width, height)
-      @_resize(width, height)
+      variables = @model.get_constrained_variables()
 
-  _resize: (width=null, height=null) ->
-    variables = @model.get_constrained_variables()
+      if variables.width? or variables.height?
+        if width == null or height == null
+          [width, height] = @_calc_width_height()
 
-    if variables.width? or variables.height?
-      if width == null or height == null
-        measuring = @el
+        if variables.width? and width?
+          @_solver.suggest_value(@_root_width, width)
+        if variables.height? and height?
+          @_solver.suggest_value(@_root_height, height)
 
-        while true
-          measuring = measuring.parentNode
-          if not measuring?
-            logger.warn("detached element")
-            width = height = null
-            break
+      @_solver.update_variables()
 
-          {width, height} = measuring.getBoundingClientRect()
-          if height != 0
-            break
+      # XXX: do layout twice, because there are interdependencies between views,
+      # which currently cannot be resolved with one pass. The second pass also
+      # triggers (expensive) painting.
+      @_layout()
+      @_layout(true)
 
-      if variables.width? and width?
-        @_solver.suggest_value(@_root_width, width)
-      if variables.height? and height?
-        @_solver.suggest_value(@_root_height, height)
+  _layout: (final=false) ->
+    for child in @model.get_layoutable_children()
+      child_view = @child_views[child.id]
+      if child_view._layout?
+        child_view._layout(final)
 
-    @_solver.update_variables(false)
-    @_solver.resize.emit()
+    @render()
 
   rebuild_child_views: () ->
     @_reset_solver()
     @build_child_views()
+    @layout()
 
   build_child_views: () ->
     children = @model.get_layoutable_children()
@@ -131,14 +138,9 @@ export class LayoutDOMView extends DOMView
     super()
 
     if @is_root
-      window.addEventListener("resize", () => @resize())
+      window.addEventListener("resize", () => @layout())
 
     @connect(@model.change, () => @render())
-
-    @connect @solver.resize, () =>
-      if @model.sizing_mode != 'fixed' or not @_did_render
-        @_did_render = true
-        @render()
 
     # Note: `sizing_mode` update is not supported because changing the
     # sizing_mode mode necessitates stripping out all the relevant constraints
@@ -160,12 +162,12 @@ export class LayoutDOMView extends DOMView
           width = @model.width
         else
           width = @get_width()
-          @model.width = width
+          @model.setv({width: width}, {silent: true})
         if @model.height?
           height = @model.height
         else
           height = @get_height()
-          @model.height = height
+          @model.setv({height: height}, {silent: true})
 
         @solver.suggest_value(@model._width, width)
         @solver.suggest_value(@model._height, height)

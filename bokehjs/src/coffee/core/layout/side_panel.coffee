@@ -143,7 +143,7 @@ _align_lookup_positive = {
 #         height or width. Extending to full height or width means it's easy to
 #         calculate mid-way for alignment.
 
-export update_constraints = (view) ->
+export update_panel_constraints = (view) ->
   if view.model.props.visible? and not view.model.visible
     # if not visible, avoid applying constraints until visible again
     return

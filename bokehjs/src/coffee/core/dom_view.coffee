@@ -13,7 +13,17 @@ export class DOMView extends View
     DOM.removeElement(@el)
     super()
 
+  layout: () ->
+
   render: () ->
+
+  renderTo: (element, replace=false) -> # HTMLElement, boolean
+    if not replace
+      element.appendChild(@el)
+    else
+      DOM.replaceWith(element, @el)
+
+    @layout()
 
   @getters {
     solver:  () -> if @is_root then @_solver else @parent.solver
