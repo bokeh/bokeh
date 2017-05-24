@@ -115,5 +115,5 @@ describe "SidePanel", ->
 
       update_constraints(@axis_view)
 
-      expect(@solver_add_constraint.callCount).to.be.equal(add_constraint_call_count + 4)
+      expect(@solver_add_constraint.callCount).to.be.equal(add_constraint_call_count + 3)
       expect(@solver_remove_constraint.callCount).to.be.equal(remove_constraint_call_count + 0)
