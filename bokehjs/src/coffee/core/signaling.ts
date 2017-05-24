@@ -62,7 +62,7 @@ export class Signal<Args, Sender extends object> {
 
     for (const {signal, slot, context} of receivers) {
       if (signal === this) {
-        slot.call(context, args, signal!.sender)
+        slot.call(context, args, this.sender)
       }
     }
   }
