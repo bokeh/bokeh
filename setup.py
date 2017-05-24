@@ -93,6 +93,9 @@ REQUIRES = [
     'Jinja2 >=2.7',
     'numpy >=1.7.1',
     'tornado >=4.3',
+
+    # this will be removed when Bokeh hits 1.0
+    'bkcharts >=0.1',
 ]
 
 # handle the compat difference for futures (meta.yaml handles differently)
