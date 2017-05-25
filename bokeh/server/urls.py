@@ -8,12 +8,16 @@ from .views.root_handler import RootHandler
 from .views.doc_handler import DocHandler
 from .views.static_handler import StaticHandler
 from .views.autoload_js_handler import AutoloadJsHandler
+from .views.resources_js_handler import ResourcesJsHandler
+from .views.resources_css_handler import ResourcesCssHandler
 
 # all routes are prefixed with any --prefix specified
 
 toplevel_patterns = [
     (r'/?', RootHandler),
-    (r'/static/(.*)', StaticHandler)
+    (r'/static/(.*)', StaticHandler),
+    (r'/resources.js', ResourcesJsHandler),
+    (r'/resources.css', ResourcesCssHandler),
 ]
 
 # these all also get prefixed with the application route
