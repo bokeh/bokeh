@@ -18,7 +18,7 @@ export class View
 
     @_parent = options.parent
 
-    @id = options.id ? uniqueId('View')
+    @id = options.id ? uniqueId()
     @initialize(options)
 
   initialize: (options) ->
