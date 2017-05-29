@@ -1,4 +1,3 @@
-var $ = require("jquery");
 /**
  * AutoTooltips plugin to show/hide tooltips when columns are too narrow to fit content.
  * @constructor

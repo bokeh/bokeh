@@ -1,5 +1,3 @@
-var $ = require("jquery");
-
 /***
  * Displays an overlay on top of a given cell range.
  *

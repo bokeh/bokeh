@@ -4,8 +4,6 @@
  * @namespace Slick
  */
 
-var $ = require("jquery");
-
 function TextEditor(args) {
   var $input;
   var defaultValue;

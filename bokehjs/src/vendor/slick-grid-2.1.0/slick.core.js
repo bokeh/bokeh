@@ -4,8 +4,6 @@
  * @namespace Slick
  */
 
-var $ = require("jquery");
-
 // register namespace
 var Slick = {
   Event: Event,

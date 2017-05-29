@@ -1,4 +1,3 @@
-var $ = require("jquery");
 var Slick = require("../slick.core");
 var CellRangeSelector = require("./slick.cellrangeselector");
 

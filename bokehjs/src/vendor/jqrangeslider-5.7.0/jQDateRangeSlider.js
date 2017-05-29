@@ -7,7 +7,6 @@
  *
  */
 
-var $ = require("jquery");
 require("./jQRangeSlider");
 "use strict";
 

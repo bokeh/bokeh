@@ -8,8 +8,6 @@
  * @namespace Slick
  */
 
-var $ = require("jquery");
-
 function PercentCompleteFormatter(row, cell, value, columnDef, dataContext) {
   if (value == null || value === "") {
     return "-";

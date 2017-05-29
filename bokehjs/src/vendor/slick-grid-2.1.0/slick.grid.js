@@ -16,9 +16,8 @@
  *     and do proper cleanup.
  */
 
-var $ = require("jquery");
-var $1 = require("jquery_event_drag");
-var $2 = require("jquery_event_drop");
+require("jquery_event_drag");
+require("jquery_event_drop");
 var Slick = require("./slick.core");
 
 

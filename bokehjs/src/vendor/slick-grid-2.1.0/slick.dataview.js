@@ -5,7 +5,6 @@
  * Relies on the data item having an "id" property uniquely identifying it.
  */
 
-var $ = require("jquery");
 var Slick = require("./slick.core");
 var GroupItemMetadataProvider = require("./slick.groupitemmetadataprovider");
 

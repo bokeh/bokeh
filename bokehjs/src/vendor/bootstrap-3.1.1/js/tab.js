@@ -1,4 +1,3 @@
-var $ = require("jquery");
 /* ========================================================================
  * Bootstrap: tab.js v3.1.1
  * http://getbootstrap.com/javascript/#tabs

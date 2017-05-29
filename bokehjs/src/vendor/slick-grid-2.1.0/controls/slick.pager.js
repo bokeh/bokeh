@@ -1,4 +1,3 @@
-var $ = require("jquery");
 var Slick = require("../slick.core");
 function SlickGridPager(dataView, grid, $container) {
   var $status;

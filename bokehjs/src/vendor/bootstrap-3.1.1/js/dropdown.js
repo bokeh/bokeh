@@ -1,5 +1,3 @@
-var $ = require("jquery");
-
 /* ========================================================================
  * Bootstrap: dropdown.js v3.1.1
  * http://getbootstrap.com/javascript/#dropdowns

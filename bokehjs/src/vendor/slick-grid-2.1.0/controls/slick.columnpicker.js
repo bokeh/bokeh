@@ -1,4 +1,3 @@
-var $ = require("jquery");
 function SlickColumnPicker(columns, grid, options) {
   var $menu;
   var columnCheckboxes;
