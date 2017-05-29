@@ -1,4 +1,5 @@
-import "jqrangeslider/jQDateRangeSlider"
+if typeof $ == "function"
+  require("jqrangeslider/jQDateRangeSlider")
 
 import * as p from "core/properties"
 import {empty} from "core/dom"
