@@ -35,7 +35,6 @@ export class CellEditorView extends DOMView
     @$el.append(@$input)
     @renderEditor()
     @disableNavigation()
-    @_prefix_ui()
     return @
 
   renderEditor: () ->

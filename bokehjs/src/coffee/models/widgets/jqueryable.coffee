@@ -9,14 +9,6 @@ delegateEventSplitter = /^(\S+)\s*(.*)$/
 # trait
 export JQueryable = {
 
-  _prefix_ui: () ->
-    for el in @el.querySelectorAll("*[class*='ui-']")
-      classList = []
-      for cls in el.classList
-        classList.push(if cls.indexOf("ui-") == 0 then "bk-#{cls}" else cls)
-      el.className = classList.join(" ")
-    return null
-
   _createElement: () ->
     el = DOM.createElement(@tagName, {id: @id, class: @className})
     @$el = $(el)

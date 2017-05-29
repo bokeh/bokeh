@@ -10,7 +10,6 @@ export class AutocompleteInputView extends TextInputView
     $input = @$el.find("input")
     $input.autocomplete(source: @model.completions)
     $input.autocomplete("widget").addClass("bk-autocomplete-input")
-    @_prefix_ui()
     return @
 
 export class AutocompleteInput extends TextInput
