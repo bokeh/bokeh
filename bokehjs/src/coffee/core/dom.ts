@@ -3,9 +3,9 @@ import {isBoolean, isString, isArray, isObject} from "./util/types"
 /// <reference path="./jsx.d.ts" />
 
 export type HTMLAttrs = { [name: string]: any }
-export type HTMLChildren = Array<string | HTMLElement | Array<string | HTMLElement>>
+export type HTMLChild = string | HTMLElement | (string | HTMLElement)[]
 
-const _createElement = (tag: string) => (attrs: HTMLAttrs = {}, ...children: HTMLChildren): HTMLElement => {
+const _createElement = (tag: string) => (attrs: HTMLAttrs = {}, ...children: HTMLChild[]): HTMLElement => {
   let element: HTMLElement
   if (tag === "fragment") {
     // XXX: this is wrong, but the the common super type of DocumentFragment and HTMLElement is
@@ -57,7 +57,7 @@ const _createElement = (tag: string) => (attrs: HTMLAttrs = {}, ...children: HTM
   return element
 }
 
-export function createElement(tag: string, attrs: HTMLAttrs, ...children: HTMLChildren): HTMLElement {
+export function createElement(tag: string, attrs: HTMLAttrs, ...children: HTMLChild[]): HTMLElement {
   return _createElement(tag)(attrs, ...children)
 }
 
