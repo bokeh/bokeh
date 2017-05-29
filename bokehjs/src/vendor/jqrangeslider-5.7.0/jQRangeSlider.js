@@ -10,7 +10,7 @@
 // requires jquery ui's core
 // requires jquery ui's widget
 // requires jquery ui's mouse
-require("jquery-mousewheel");
+// optionally requires jquery-mousewheel
 "use strict";
 
 module.exports = $.widget("ui.rangeSlider", {
