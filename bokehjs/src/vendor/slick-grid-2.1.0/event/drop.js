@@ -7,7 +7,7 @@
 // Updated: 2012-05-21
 // REQUIRES: jquery 1.7.x, event.drag 2.2
 
-var $1 = require("jquery_event_drag");
+require("./drag");
 
 // Events: drop, dropstart, dropend
 
