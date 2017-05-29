@@ -130,3 +130,9 @@ export function offset(element: HTMLElement) {
     left: rect.left + window.pageXOffset - document.documentElement.clientLeft,
   }
 }
+
+export function matches(el: HTMLElement, selector: string): boolean {
+  const p: any = Element.prototype
+  const f = p.matches || p.webkitMatchesSelector || p.mozMatchesSelector || p.msMatchesSelector
+  return f.call(el, selector)
+}

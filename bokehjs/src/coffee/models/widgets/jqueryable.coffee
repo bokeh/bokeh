@@ -33,7 +33,6 @@ export JQueryable = {
   delegateEvents: (events) ->
     events ?= @events
     if not events then return @
-    @undelegateEvents()
     for key, method of events
       if not isFunction(method) then method = @[method]
       if not method? then continue
@@ -45,20 +44,9 @@ export JQueryable = {
   # using `selector`). This only works for delegate-able events: not `focus`,
   # `blur`, and not `change`, `submit`, and `reset` in Internet Explorer.
   delegate: (eventName, selector, listener) ->
-    @$el.on(eventName + '.delegateEvents' + @id, selector, listener)
-    return @
-
-  # Clears all callbacks previously bound to the view by `delegateEvents`.
-  # You usually don't need to use this, but may wish to if you have multiple
-  # Backbone views attached to the same DOM element.
-  undelegateEvents: () ->
-    if @$el then @$el.off('.delegateEvents' + @id)
-    return @
-
-  # A finer-grained `undelegateEvents` for removing a single delegated event.
-  # `selector` and `listener` are both optional.
-  undelegate: (eventName, selector, listener) ->
-    @$el.off(eventName + '.delegateEvents' + @id, selector, listener)
+    @el.addEventListener eventName, (event) =>
+      if not selector? or (event.target? and matches(event.target, selector))
+        listener(event)
     return @
 
   # END backbone
