@@ -20,11 +20,11 @@ module.exports = $.widget("ui.dateRangeSlider", $.ui.rangeSlider, {
 	_create: function(){
 		$.ui.rangeSlider.prototype._create.apply(this);
 
-		this.element.addClass("bk-ui-dateRangeSlider");
+		this.element.addClass("ui-dateRangeSlider");
 	},
 
 	destroy: function(){
-		this.element.removeClass("bk-ui-dateRangeSlider");
+		this.element.removeClass("ui-dateRangeSlider");
 		$.ui.rangeSlider.prototype.destroy.apply(this);
 	},
 

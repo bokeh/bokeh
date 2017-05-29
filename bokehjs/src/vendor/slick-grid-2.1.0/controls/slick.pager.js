@@ -82,34 +82,34 @@ function SlickGridPager(dataView, grid, $container) {
       }
     });
 
-    var icon_prefix = "<span class='bk-ui-state-default bk-ui-corner-all bk-ui-icon-container'><span class='bk-ui-icon ";
+    var icon_prefix = "<span class='ui-state-default ui-corner-all ui-icon-container'><span class='ui-icon ";
     var icon_suffix = "' /></span>";
 
-    $(icon_prefix + "bk-ui-icon-lightbulb" + icon_suffix)
+    $(icon_prefix + "ui-icon-lightbulb" + icon_suffix)
         .click(function () {
           $(".bk-slick-pager-settings-expanded").toggle()
         })
         .appendTo($settings);
 
-    $(icon_prefix + "bk-ui-icon-seek-first" + icon_suffix)
+    $(icon_prefix + "ui-icon-seek-first" + icon_suffix)
         .click(gotoFirst)
         .appendTo($nav);
 
-    $(icon_prefix + "bk-ui-icon-seek-prev" + icon_suffix)
+    $(icon_prefix + "ui-icon-seek-prev" + icon_suffix)
         .click(gotoPrev)
         .appendTo($nav);
 
-    $(icon_prefix + "bk-ui-icon-seek-next" + icon_suffix)
+    $(icon_prefix + "ui-icon-seek-next" + icon_suffix)
         .click(gotoNext)
         .appendTo($nav);
 
-    $(icon_prefix + "bk-ui-icon-seek-end" + icon_suffix)
+    $(icon_prefix + "ui-icon-seek-end" + icon_suffix)
         .click(gotoLast)
         .appendTo($nav);
 
-    $container.find(".bk-ui-icon-container")
+    $container.find(".ui-icon-container")
         .hover(function () {
-          $(this).toggleClass("bk-ui-state-hover");
+          $(this).toggleClass("ui-state-hover");
         });
 
     $container.children().wrapAll("<div class='bk-slick-pager' />");
@@ -119,18 +119,18 @@ function SlickGridPager(dataView, grid, $container) {
   function updatePager(pagingInfo) {
     var state = getNavState();
 
-    $container.find(".bk-slick-pager-nav span").removeClass("bk-ui-state-disabled");
+    $container.find(".bk-slick-pager-nav span").removeClass("ui-state-disabled");
     if (!state.canGotoFirst) {
-      $container.find(".bk-ui-icon-seek-first").addClass("bk-ui-state-disabled");
+      $container.find(".ui-icon-seek-first").addClass("ui-state-disabled");
     }
     if (!state.canGotoLast) {
-      $container.find(".bk-ui-icon-seek-end").addClass("bk-ui-state-disabled");
+      $container.find(".ui-icon-seek-end").addClass("ui-state-disabled");
     }
     if (!state.canGotoNext) {
-      $container.find(".bk-ui-icon-seek-next").addClass("bk-ui-state-disabled");
+      $container.find(".ui-icon-seek-next").addClass("ui-state-disabled");
     }
     if (!state.canGotoPrev) {
-      $container.find(".bk-ui-icon-seek-prev").addClass("bk-ui-state-disabled");
+      $container.find(".ui-icon-seek-prev").addClass("ui-state-disabled");
     }
 
     if (pagingInfo.pageSize == 0) {

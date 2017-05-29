@@ -5,7 +5,7 @@ No built-in (selected, editable, highlight, flashing, invalid, loading, :focus) 
 classes should alter those!
 */
 
-.bk-slick-header.bk-ui-state-default, .bk-slick-headerrow.bk-ui-state-default {
+.bk-slick-header.ui-state-default, .bk-slick-headerrow.ui-state-default {
   width: 100%;
   overflow: hidden;
   border-left: 0px;
@@ -18,7 +18,7 @@ classes should alter those!
   overflow: hidden;
 }
 
-.bk-slick-header-column.bk-ui-state-default {
+.bk-slick-header-column.ui-state-default {
   position: relative;
   display: inline-block;
   overflow: hidden;
@@ -35,7 +35,7 @@ classes should alter those!
   float: left;
 }
 
-.bk-slick-headerrow-column.bk-ui-state-default {
+.bk-slick-headerrow-column.ui-state-default {
   padding: 4px;
 }
 
@@ -80,7 +80,7 @@ classes should alter those!
   outline: 0;
 }
 
-.bk-slick-row.bk-ui-widget-content, .bk-slick-row.bk-ui-state-active {
+.bk-slick-row.ui-widget-content, .bk-slick-row.ui-state-active {
   position: absolute;
   border: 0px;
   width: 100%;

@@ -33,11 +33,11 @@
 			this.element
 				.css("position", "absolute")
 				.css("top", 0)
-				.addClass("bk-ui-rangeSlider-handle")
-				.toggleClass("bk-ui-rangeSlider-leftHandle", this.options.isLeft)
-				.toggleClass("bk-ui-rangeSlider-rightHandle", !this.options.isLeft);
+				.addClass("ui-rangeSlider-handle")
+				.toggleClass("ui-rangeSlider-leftHandle", this.options.isLeft)
+				.toggleClass("ui-rangeSlider-rightHandle", !this.options.isLeft);
 
-			this.element.append("<div class='bk-ui-rangeSlider-handle-inner' />");
+			this.element.append("<div class='ui-rangeSlider-handle-inner' />");
 
 			this._value = this._constraintValue(this.options.value);
 		},
@@ -53,8 +53,8 @@
 				this.options.isLeft = value;
 
 				this.element
-					.toggleClass("bk-ui-rangeSlider-leftHandle", this.options.isLeft)
-					.toggleClass("bk-ui-rangeSlider-rightHandle", !this.options.isLeft);
+					.toggleClass("ui-rangeSlider-leftHandle", this.options.isLeft)
+					.toggleClass("ui-rangeSlider-rightHandle", !this.options.isLeft);
 
 				this._position(this._value);
 

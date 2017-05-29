@@ -33,7 +33,7 @@
 			this.options.isLeft = this._handle("option", "isLeft");
 
 			this.element
-				.addClass("bk-ui-rangeSlider-label")
+				.addClass("ui-rangeSlider-label")
 				.css("position", "absolute")
 				.css("display", "block");
 
@@ -70,10 +70,10 @@
 		},
 
 		_createElements: function(){
-			this._valueContainer = $("<div class='bk-ui-rangeSlider-label-value' />")
+			this._valueContainer = $("<div class='ui-rangeSlider-label-value' />")
 				.appendTo(this.element);
 
-			this._innerElement = $("<div class='bk-ui-rangeSlider-label-inner' />")
+			this._innerElement = $("<div class='ui-rangeSlider-label-inner' />")
 				.appendTo(this.element);
 		},
 
@@ -139,8 +139,8 @@
 		},
 
 		_toggleClass: function(){
-			this.element.toggleClass("bk-ui-rangeSlider-leftLabel", this.options.isLeft)
-				.toggleClass("bk-ui-rangeSlider-rightLabel", !this.options.isLeft);
+			this.element.toggleClass("ui-rangeSlider-leftLabel", this.options.isLeft)
+				.toggleClass("ui-rangeSlider-rightLabel", !this.options.isLeft);
 		},
 
 		_positionLabels: function(){

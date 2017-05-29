@@ -213,7 +213,7 @@ function SlickGrid(container, data, columns, options) {
         .css("overflow", "hidden")
         .css("outline", 0)
         .addClass(uid)
-        .addClass("bk-ui-widget");
+        .addClass("ui-widget");
 
     // set up a positioning container if needed
     if (!/relative|absolute|fixed/.test($container.css("position"))) {
@@ -222,17 +222,17 @@ function SlickGrid(container, data, columns, options) {
 
     $focusSink = $("<div tabIndex='0' hideFocus style='position:fixed;width:0;height:0;top:0;left:0;outline:0;'></div>").appendTo($container);
 
-    $headerScroller = $("<div class='bk-slick-header bk-ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
+    $headerScroller = $("<div class='bk-slick-header ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
     $headers = $("<div class='bk-slick-header-columns' style='left:-1000px' />").appendTo($headerScroller);
     $headers.width(getHeadersWidth());
 
-    $headerRowScroller = $("<div class='bk-slick-headerrow bk-ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
+    $headerRowScroller = $("<div class='bk-slick-headerrow ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
     $headerRow = $("<div class='bk-slick-headerrow-columns' />").appendTo($headerRowScroller);
     $headerRowSpacer = $("<div style='display:block;height:1px;position:absolute;top:0;left:0;'></div>")
         .css("width", getCanvasWidth() + scrollbarDimensions.width + "px")
         .appendTo($headerRowScroller);
 
-    $topPanelScroller = $("<div class='bk-slick-top-panel-scroller bk-ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
+    $topPanelScroller = $("<div class='bk-slick-top-panel-scroller ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
     $topPanel = $("<div class='bk-slick-top-panel' style='width:10000px' />").appendTo($topPanelScroller);
 
     if (!options.showTopPanel) {
@@ -510,11 +510,11 @@ function SlickGrid(container, data, columns, options) {
 
   function createColumnHeaders() {
     function onMouseEnter() {
-      $(this).addClass("bk-ui-state-hover");
+      $(this).addClass("ui-state-hover");
     }
 
     function onMouseLeave() {
-      $(this).removeClass("bk-ui-state-hover");
+      $(this).removeClass("ui-state-hover");
     }
 
     $headers.find(".bk-slick-header-column")
@@ -545,7 +545,7 @@ function SlickGrid(container, data, columns, options) {
     for (var i = 0; i < columns.length; i++) {
       var m = columns[i];
 
-      var header = $("<div class='bk-ui-state-default bk-slick-header-column' />")
+      var header = $("<div class='ui-state-default bk-slick-header-column' />")
           .html("<span class='bk-slick-column-name'>" + m.name + "</span>")
           .width(m.width - headerColumnWidthDiff)
           .attr("id", "" + uid + m.id)
@@ -571,7 +571,7 @@ function SlickGrid(container, data, columns, options) {
       });
 
       if (options.showHeaderRow) {
-        var headerRowCell = $("<div class='bk-ui-state-default bk-slick-headerrow-column l" + i + " r" + i + "'></div>")
+        var headerRowCell = $("<div class='ui-state-default bk-slick-headerrow-column l" + i + " r" + i + "'></div>")
             .data("column", m)
             .appendTo($headerRow);
 
@@ -664,7 +664,7 @@ function SlickGrid(container, data, columns, options) {
       cursor: "default",
       tolerance: "intersection",
       helper: "clone",
-      placeholder: "bk-slick-sortable-placeholder bk-ui-state-default bk-slick-header-column",
+      placeholder: "bk-slick-sortable-placeholder ui-state-default bk-slick-header-column",
       start: function (e, ui) {
         ui.placeholder.width(ui.helper.outerWidth() - headerColumnWidthDiff);
         $(ui.helper).addClass("bk-slick-header-column-active");
@@ -875,7 +875,7 @@ function SlickGrid(container, data, columns, options) {
     var h = ["borderLeftWidth", "borderRightWidth", "paddingLeft", "paddingRight"];
     var v = ["borderTopWidth", "borderBottomWidth", "paddingTop", "paddingBottom"];
 
-    el = $("<div class='bk-ui-state-default bk-slick-header-column' style='visibility:hidden'>-</div>").appendTo($headers);
+    el = $("<div class='ui-state-default bk-slick-header-column' style='visibility:hidden'>-</div>").appendTo($headers);
     headerColumnWidthDiff = headerColumnHeightDiff = 0;
     if (el.css("box-sizing") != "border-box" && el.css("-moz-box-sizing") != "border-box" && el.css("-webkit-box-sizing") != "border-box") {
       $.each(h, function (n, val) {
@@ -1421,7 +1421,7 @@ function SlickGrid(container, data, columns, options) {
       rowCss += " " + metadata.cssClasses;
     }
 
-    stringArray.push("<div class='bk-ui-widget-content " + rowCss + "' style='top:" + getRowTop(row) + "px'>");
+    stringArray.push("<div class='ui-widget-content " + rowCss + "' style='top:" + getRowTop(row) + "px'>");
 
     var colspan, m;
     for (var i = 0, ii = columns.length; i < ii; i++) {

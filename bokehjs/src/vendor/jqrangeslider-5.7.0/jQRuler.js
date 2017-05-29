@@ -35,13 +35,13 @@
 		},
 
 		_create: function(){
-			this.element.addClass("bk-ui-ruler");
+			this.element.addClass("ui-ruler");
 
 			this._createScales();
 		},
 
 		destroy: function(){
-			this.element.removeClass("bk-ui-ruler");
+			this.element.removeClass("ui-ruler");
 			this.element.empty();
 		},
 
@@ -76,9 +76,9 @@
 
 		_createScale: function(opt, index){
 			var options = $.extend({}, scaleDefaults, opt),
-				container = $("<div class='bk-ui-ruler-scale' />").appendTo(this.element);
+				container = $("<div class='ui-ruler-scale' />").appendTo(this.element);
 
-			container.addClass("bk-ui-ruler-scale" + index);
+			container.addClass("ui-ruler-scale" + index);
 
 			this._createTicks(container, options);
 		},
@@ -113,9 +113,9 @@
 		},
 
 		_createTick: function(start, end, scaleOptions){
-			var container = $("<div class='bk-ui-ruler-tick' style='display:inline-block' />"),
-				inner = $("<div class='bk-ui-ruler-tick-inner' />").appendTo(container),
-				label = $("<span class='bk-ui-ruler-tick-label' />").appendTo(inner);
+			var container = $("<div class='ui-ruler-tick' style='display:inline-block' />"),
+				inner = $("<div class='ui-ruler-tick-inner' />").appendTo(container),
+				label = $("<span class='ui-ruler-tick-label' />").appendTo(inner);
 
 			label.text(scaleOptions.label(start, end));
 			scaleOptions.format(container, start, end);

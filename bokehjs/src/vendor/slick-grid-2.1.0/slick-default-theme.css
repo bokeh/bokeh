@@ -29,7 +29,7 @@ classes should alter those!
   height: 100%;
 }
 
-.bk-slick-row.bk-ui-state-active {
+.bk-slick-row.ui-state-active {
   background: #F5F7D7;
 }
 
@@ -90,7 +90,7 @@ classes should alter those!
   background: #fafafa;
 }
 
-.bk-slick-row.bk-ui-state-active {
+.bk-slick-row.ui-state-active {
   background: #F5F7D7;
 }
 

@@ -19,11 +19,11 @@
 		_create: function(){
 			$.ui.rangeSlider.prototype._create.apply(this);
 
-			this.element.addClass("bk-ui-editRangeSlider");
+			this.element.addClass("ui-editRangeSlider");
 		},
 
 		destroy: function(){
-			this.element.removeClass("bk-ui-editRangeSlider");
+			this.element.removeClass("ui-editRangeSlider");
 
 			$.ui.rangeSlider.prototype.destroy.apply(this);
 		},

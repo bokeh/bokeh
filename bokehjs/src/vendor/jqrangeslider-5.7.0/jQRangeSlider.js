@@ -187,15 +187,15 @@ module.exports = $.widget("ui.rangeSlider", {
 		if (key === "arrows" && (value === true || value === false) && value !== this.options.arrows){
 			if (value === true){
 				this.element
-					.removeClass("bk-ui-rangeSlider-noArrow")
-					.addClass("bk-ui-rangeSlider-withArrows");
+					.removeClass("ui-rangeSlider-noArrow")
+					.addClass("ui-rangeSlider-withArrows");
 				this.arrows.left.css("display", "block");
 				this.arrows.right.css("display", "block");
 				this.options.arrows = true;
 			}else if (value === false){
 				this.element
-					.addClass("bk-ui-rangeSlider-noArrow")
-					.removeClass("bk-ui-rangeSlider-withArrows");
+					.addClass("ui-rangeSlider-noArrow")
+					.removeClass("ui-rangeSlider-withArrows");
 				this.arrows.left.css("display", "none");
 				this.arrows.right.css("display", "none");
 				this.options.arrows = false;
@@ -239,13 +239,13 @@ module.exports = $.widget("ui.rangeSlider", {
 			this.element.css("position", "relative");
 		}
 
-		this.element.addClass("bk-ui-rangeSlider");
+		this.element.addClass("ui-rangeSlider");
 
-		this.container = $("<div class='bk-ui-rangeSlider-container' />")
+		this.container = $("<div class='ui-rangeSlider-container' />")
 			.css("position", "absolute")
 			.appendTo(this.element);
 
-		this.innerBar = $("<div class='bk-ui-rangeSlider-innerBar' />")
+		this.innerBar = $("<div class='ui-rangeSlider-innerBar' />")
 			.css("position", "absolute")
 			.css("top", 0)
 			.css("left", 0);
@@ -319,16 +319,16 @@ module.exports = $.widget("ui.rangeSlider", {
 		if (!this.options.arrows){
 			this.arrows.left.css("display", "none");
 			this.arrows.right.css("display", "none");
-			this.element.addClass("bk-ui-rangeSlider-noArrow");
+			this.element.addClass("ui-rangeSlider-noArrow");
 		}else{
-			this.element.addClass("bk-ui-rangeSlider-withArrows");
+			this.element.addClass("ui-rangeSlider-withArrows");
 		}
 	},
 
 	_createArrow: function(whichOne){
-		var arrow = $("<div class='bk-ui-rangeSlider-arrow' />")
-			.append("<div class='bk-ui-rangeSlider-arrow-inner' />")
-			.addClass("bk-ui-rangeSlider-" + whichOne + "Arrow")
+		var arrow = $("<div class='ui-rangeSlider-arrow' />")
+			.append("<div class='ui-rangeSlider-arrow-inner' />")
+			.addClass("ui-rangeSlider-" + whichOne + "Arrow")
 			.css("position", "absolute")
 			.css(whichOne, 0)
 			.appendTo(this.element),
@@ -619,7 +619,7 @@ module.exports = $.widget("ui.rangeSlider", {
 	 * Ruler
 	 */
 	_createRuler: function(){
-		this.ruler = $("<div class='bk-ui-rangeSlider-ruler' />").appendTo(this.innerBar);
+		this.ruler = $("<div class='ui-rangeSlider-ruler' />").appendTo(this.innerBar);
 	},
 
 	_setRulerParameters: function(){
@@ -758,7 +758,7 @@ module.exports = $.widget("ui.rangeSlider", {
 
 	_toggle: function(enabled){
 		this.options.enabled = enabled;
-		this.element.toggleClass("bk-ui-rangeSlider-disabled", !enabled);
+		this.element.toggleClass("ui-rangeSlider-disabled", !enabled);
 
 		var action = enabled ? "enable" : "disable";
 
@@ -773,12 +773,12 @@ module.exports = $.widget("ui.rangeSlider", {
 	 * Destroy
 	 */
 	destroy: function(){
-		this.element.removeClass("bk-ui-rangeSlider-withArrows bk-ui-rangeSlider-noArrow bk-ui-rangeSlider-disabled");
+		this.element.removeClass("ui-rangeSlider-withArrows ui-rangeSlider-noArrow ui-rangeSlider-disabled");
 
 		this._destroyWidgets();
 		this._destroyElements();
 
-		this.element.removeClass("bk-ui-rangeSlider");
+		this.element.removeClass("ui-rangeSlider");
 		this.options = null;
 
 		$(window).unbind("resize", this._resizeProxy);
