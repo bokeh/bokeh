@@ -121,9 +121,7 @@
     "@types/hammerjs": "^2.0.33",
 
     "underscore.template": "^0.1.7",
-    "jquery": "^2.1.1",
     "jquery-mousewheel": "^3.1.12",
-    "jquery-ui": "~1.10.5",
 
     "canvas2svg": "https://github.com/bokeh/canvas2svg#v1.0.21",
     "numbro": "https://github.com/bokeh/numbro.git#e1b6c52",
