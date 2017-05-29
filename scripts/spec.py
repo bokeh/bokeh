@@ -13,7 +13,7 @@ data = {}
 for name, m in sorted(Model.__class__.model_class_reverse_map.items()):
     item = {
         'name'  : name,
-        'bases' : [str(base)[8:-2] for base in m.__bases__],
+        'bases' : [base.__module__ + '.' + base.__name__ for base in m.__bases__],
         'desc'  : m.__doc__.strip() if m.__doc__ is not None else '',
         'proto' : _proto(m(), True),
     }
@@ -35,7 +35,7 @@ for name, m in sorted(Model.__class__.model_class_reverse_map.items()):
         if isinstance(default, Model):
             default = _proto(default)
 
-        if isinstance(default, list) and any(isinstance(x, Model) for x in default):
+        if isinstance(default, (list, tuple)) and any(isinstance(x, Model) for x in default):
             default = [_proto(x) for x in default]
 
         if isinstance(default, dict) and any(isinstance(x, Model) for x in default.values()):
