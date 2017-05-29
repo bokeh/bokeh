@@ -66,10 +66,8 @@ Button.prototype.toggle = function () {
 // BUTTON PLUGIN DEFINITION
 // ========================
 
-var old = $.fn.button
-
-$.fn.button = function (option) {
-  return this.each(function () {
+var button = function (el, option) {
+  return $(el).each(function () {
     var $this   = $(this)
     var data    = $this.data('bk-bs.button')
     var options = typeof option == 'object' && option
@@ -81,17 +79,9 @@ $.fn.button = function (option) {
   })
 }
 
-$.fn.button.Constructor = Button
-
-
-// BUTTON NO CONFLICT
-// ==================
-
-$.fn.button.noConflict = function () {
-  $.fn.button = old
-  return this
-}
-
+module.exports = {
+  button: button
+};
 
 // BUTTON DATA-API
 // ===============

@@ -89,10 +89,8 @@ Tab.prototype.activate = function (element, container, callback) {
 // TAB PLUGIN DEFINITION
 // =====================
 
-var old = $.fn.tab
-
-$.fn.tab = function ( option ) {
-  return this.each(function () {
+var tab = function (el, option ) {
+  return $(el).each(function () {
     var $this = $(this)
     var data  = $this.data('bk-bs.tab')
 
@@ -101,17 +99,9 @@ $.fn.tab = function ( option ) {
   })
 }
 
-$.fn.tab.Constructor = Tab
-
-
-// TAB NO CONFLICT
-// ===============
-
-$.fn.tab.noConflict = function () {
-  $.fn.tab = old
-  return this
-}
-
+module.exports = {
+  tab: tab
+};
 
 // TAB DATA-API
 // ============

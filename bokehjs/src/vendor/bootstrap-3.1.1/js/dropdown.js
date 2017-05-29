@@ -111,10 +111,8 @@ function getParent($this) {
 // DROPDOWN PLUGIN DEFINITION
 // ==========================
 
-var old = $.fn.dropdown
-
-$.fn.dropdown = function (option) {
-  return this.each(function () {
+var dropdown = function (el, option) {
+  return $(el).each(function () {
     var $this = $(this)
     var data  = $this.data('bk-bs.dropdown')
 
@@ -123,17 +121,9 @@ $.fn.dropdown = function (option) {
   })
 }
 
-$.fn.dropdown.Constructor = Dropdown
-
-
-// DROPDOWN NO CONFLICT
-// ====================
-
-$.fn.dropdown.noConflict = function () {
-  $.fn.dropdown = old
-  return this
-}
-
+module.exports = {
+  dropdown: dropdown
+};
 
 // APPLY TO STANDARD DROPDOWN ELEMENTS
 // ===================================
