@@ -1,5 +1,4 @@
-import * as $ from "jquery"
-import "jquery-ui/datepicker"
+# requires jquery ui's datepicker
 
 import {empty} from "core/dom"
 import * as p from "core/properties"

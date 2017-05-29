@@ -1,4 +1,3 @@
-import * as $ from "jquery"
 import {logger} from "core/logging"
 import * as p from "core/properties"
 
@@ -22,7 +21,7 @@ export class TextInputView extends InputWidgetView
     @el.appendChild(@template(@model.attributes))
     # TODO - This 35 is a hack we should be able to compute it
     if @model.height
-      $(@el.querySelector('input')).height(@model.height - 35)
+      @el.querySelector('input').style.height = "#{@model.height - 35}px"
     return @
 
   change_input: () ->

@@ -1,5 +1,3 @@
-import * as $ from "jquery"
-
 import {Widget, WidgetView} from "./widget"
 import * as p from "core/properties"
 import {empty, input, label, div} from "core/dom"

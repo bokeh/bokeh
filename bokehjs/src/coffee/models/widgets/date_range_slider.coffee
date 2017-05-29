@@ -1,4 +1,3 @@
-import * as $ from "jquery"
 import "jqrangeslider/jQDateRangeSlider"
 
 import * as p from "core/properties"

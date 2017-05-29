@@ -1,6 +1,5 @@
-import * as $ from "jquery"
-import "jquery-ui/autocomplete"
-import "jquery-ui/spinner"
+# requires jquery ui's autocomplete
+# requires jquery ui's spinner
 
 import * as p from "core/properties"
 import {input, select, option} from "core/dom"

@@ -1,5 +1,3 @@
-import * as $ from "jquery"
-
 import * as DOM from "core/dom"
 import {isFunction} from "core/util/types"
 
@@ -11,7 +9,8 @@ export JQueryable = {
 
   _createElement: () ->
     el = DOM.createElement(@tagName, {id: @id, class: @className})
-    @$el = $(el)
+    if typeof $ == "function"
+      @$el = $(el)
     @delegateEvents()
     return el
 

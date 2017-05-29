@@ -1,5 +1,3 @@
-import * as $ from "jquery"
-
 import * as p from "core/properties"
 import {empty, input, label, div} from "core/dom"
 import {uniqueId} from "core/util/string"

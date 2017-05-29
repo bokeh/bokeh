@@ -1,4 +1,3 @@
-import * as $ from "jquery"
 import * as Numbro from "numbro"
 import * as compile_template from "underscore.template"
 

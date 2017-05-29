@@ -1,5 +1,4 @@
-import * as $ from "jquery"
-import "jquery-ui/slider"
+# requires jquery ui's slider
 
 import {logger} from "core/logging"
 import * as p from "core/properties"
