@@ -85,9 +85,11 @@ module.exports = {
 // BUTTON DATA-API
 // ===============
 
+/*
 $(document).on('click.bk-bs.button.data-api', '[data-bk-bs-toggle^=button]', function (e) {
   var $btn = $(e.target)
   if (!$btn.hasClass('bk-bs-btn')) $btn = $btn.closest('.bk-bs-btn')
   $btn.button('toggle')
   e.preventDefault()
 })
+*/

@@ -105,7 +105,9 @@ module.exports = {
 // TAB DATA-API
 // ============
 
+/*
 $(document).on('click.bk-bs.tab.data-api', '[data-bk-bs-toggle="tab"], [data-bk-bs-toggle="pill"]', function (e) {
   e.preventDefault()
   $(this).tab('show')
 })
+*/

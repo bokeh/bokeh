@@ -126,8 +126,10 @@ module.exports = {
 // APPLY TO STANDARD DROPDOWN ELEMENTS
 // ===================================
 
+/*
 $(document)
   .on('click.bk-bs.dropdown.data-api', clearMenus)
   .on('click.bk-bs.dropdown.data-api', '.bk-bs-dropdown form', function (e) { e.stopPropagation() })
   .on('click.bk-bs.dropdown.data-api', toggle, Dropdown.prototype.toggle)
   .on('keydown.bk-bs.dropdown.data-api', toggle + ', [role=menu], [role=listbox]', Dropdown.prototype.keydown)
+*/
