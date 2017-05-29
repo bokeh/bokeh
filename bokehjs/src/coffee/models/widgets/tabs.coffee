@@ -1,5 +1,4 @@
-import * as $ from "jquery"
-import "bootstrap/tab"
+import {tab} from "bootstrap/tab"
 
 import * as p from "core/properties"
 import {empty} from "core/dom"
@@ -29,7 +28,7 @@ export class TabsView extends WidgetView
     html.querySelectorAll(".bk-bs-nav a").addEventListener "click", (event) =>
       el = event.currentTarget
       event.preventDefault()
-      $(el).tab('show')
+      tab(el, 'show')
       panelId = el.href.replace('#tab-', '')
       tabs = @model.tabs
       panelIdx = findIndex(tabs, (panel) -> panel.id == panelId)

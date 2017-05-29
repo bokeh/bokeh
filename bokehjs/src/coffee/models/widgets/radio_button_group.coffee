@@ -1,4 +1,4 @@
-import "bootstrap/button"
+import {button} from "bootstrap/button"
 
 import {empty, input, label} from "core/dom"
 import * as p from "core/properties"
