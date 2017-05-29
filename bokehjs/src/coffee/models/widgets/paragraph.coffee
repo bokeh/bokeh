@@ -7,7 +7,7 @@ export class ParagraphView extends MarkupView
     super()
     # This overrides default user-agent styling and helps layout work
     content = p({style: {margin: 0}}, @model.text)
-    @$el.find('.bk-markup').append(content)
+    @el.querySelector('.bk-markup').appendChild(content)
 
 export class Paragraph extends Markup
   type: "Paragraph"

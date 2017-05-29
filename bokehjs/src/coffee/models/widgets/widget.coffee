@@ -13,9 +13,9 @@ export class WidgetView extends LayoutDOMView
     # it's render method is not suitable for widgets - who
     # should provide their own.
     if @model.height
-      @$el.height(@model.height)
+      @el.style.height = "#{@model.height}px"
     if @model.width
-      @$el.width(@model.width)
+      @el.style.width = "#{@model.width}px"
 
 export class Widget extends LayoutDOM
   type: "Widget"

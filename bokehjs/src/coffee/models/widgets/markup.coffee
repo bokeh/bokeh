@@ -1,4 +1,5 @@
 import * as p from "core/properties"
+import {empty} from "core/dom"
 
 import {Widget, WidgetView} from "./widget"
 import template from "./markup_template"
@@ -14,13 +15,8 @@ export class MarkupView extends WidgetView
 
   render: () ->
     super()
-    @$el.empty()
-    @$el.html(@template())
-    if @model.height
-      @$el.height(@model.height)
-    if @model.width
-      @$el.width(@model.width)
-
+    empty(@el)
+    @el.appendChild(@template())
 
 export class Markup extends Widget
   type: "Markup"

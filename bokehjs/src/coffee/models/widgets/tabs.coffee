@@ -2,6 +2,7 @@ import * as $ from "jquery"
 import "bootstrap/tab"
 
 import * as p from "core/properties"
+import {empty} from "core/dom"
 import {zip, findIndex} from "core/util/array"
 
 import tabs_template from "./tabs_template"
@@ -13,33 +14,35 @@ export class TabsView extends WidgetView
     super()
     for own _key, child of @child_views
       child.el.parentNode?.removeChild(child.el)
-    @$el.empty()
+
+    empty(@el)
 
     tabs = @model.tabs
     active = @model.active
     children = @model.children
 
-    html = $(tabs_template({
+    html = tabs_template({
       tabs: tabs
       active_tab_id: tabs[active].id
-    }))
+    })
 
-    that = this
-    html.find(".bk-bs-nav a").click (event) ->
+    html.querySelectorAll(".bk-bs-nav a").addEventListener "click", (event) =>
+      el = event.currentTarget
       event.preventDefault()
-      $(this).tab('show')
-      panelId = $(this).attr('href').replace('#tab-','')
-      tabs = that.model.tabs
+      $(el).tab('show')
+      panelId = el.href.replace('#tab-', '')
+      tabs = @model.tabs
       panelIdx = findIndex(tabs, (panel) -> panel.id == panelId)
-      that.model.active = panelIdx
-      that.model.callback?.execute(that.model)
+      @model.active = panelIdx
+      @model.callback?.execute(@model)
 
-    $panels = html.find(".bk-bs-tab-pane")
+    panels = html.querySelectorAll(".bk-bs-tab-pane")
 
-    for [child, panel] in zip(children, $panels)
-      $(panel).html(@child_views[child.id].el)
+    for [child, panel] in zip(children, panels)
+      empty(panel)
+      panel.appendChild(@child_views[child.id].el)
 
-    @$el.append(html)
+    @el.appendChild(html)
     return @
 
 export class Tabs extends Widget

@@ -1,4 +1,5 @@
 import * as p from "core/properties"
+import {empty} from "core/dom"
 
 import {InputWidget, InputWidgetView} from "./input_widget"
 
@@ -21,9 +22,9 @@ export class MultiSelectView extends InputWidgetView
 
   render: () ->
     super()
-    @$el.empty()
+    empty(@el)
     html = @template(@model.attributes)
-    @$el.html(html)
+    @el.appendChild(html)
     @render_selection()
     return @
 
@@ -31,19 +32,16 @@ export class MultiSelectView extends InputWidgetView
     values = {}
     for x in @model.value
       values[x] = true
-    @$el.find('option').each((el) =>
-      el = @$el.find(el)
-      if values[el.attr('value')]
-        el.attr('selected', 'selected')
-    )
+    for el in @el.querySelectorAll('option')
+      if values[el.value]
+        el.selected = 'selected'
     # Note that some browser implementations might not reduce
     # the number of visible options for size <= 3.
-    @$el.find('select').attr('size', this.model.size)
+    @el.querySelector('select').size = @model.size
 
   change_input: () ->
-    # Haven't checked if :focus selector works for IE <= 7
-    is_focused = @$el.find('select:focus').size()
-    value = @$el.find('select').val()
+    is_focused = @el.querySelector('select:focus') != null
+    value = @el.querySelector('select').value
     if value
       @model.value = value
     else
@@ -54,7 +52,7 @@ export class MultiSelectView extends InputWidgetView
     # focus remains on <select> and one can seamlessly scroll
     # up/down.
     if is_focused
-      @$el.find('select').focus()
+      @el.querySelector('select').focus()
 
 export class MultiSelect extends InputWidget
   type: "MultiSelect"

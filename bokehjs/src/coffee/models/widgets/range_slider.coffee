@@ -1,7 +1,9 @@
+import * as $ from "jquery"
 import "jquery-ui/slider"
 
 import {logger} from "core/logging"
 import * as p from "core/properties"
+import {empty} from "core/dom"
 import {throttle} from "core/util/callback"
 
 import {InputWidget, InputWidgetView} from "./input_widget"
@@ -18,9 +20,9 @@ export class RangeSliderView extends InputWidgetView
     @connect(@model.properties.end.change, () -> @_render())
     @connect(@model.properties.step.change, () -> @_render())
     @connect(@model.properties.orientation.change, () -> @_render())
-    @$el.empty()
+    empty(@el)
     html = @template(@model.attributes)
-    @$el.html(html)
+    @el.appendChild(html)
     @callbackWrapper = null
     if @model.callback_policy == 'continuous'
       @callbackWrapper = () ->
@@ -48,15 +50,10 @@ export class RangeSliderView extends InputWidgetView
       stop: @slidestop,
       slide: @slide
     }
-    @$el.find('.slider').slider(opts)
+    $(@el.querySelector('.slider')).slider(opts)
     if @model.title?
-      @$el.find( "##{ @model.id }" ).val( @$el.find('.slider').slider('values').join(' - ') )
-    @$el.find('.bk-slider-parent').height(@model.height)
-    bk_handle = @$el.find('.ui-slider-handle')
-    # Map bk handle to ui handle - otherwise slide doesn't work
-    if bk_handle.length == 2
-      bk_handle[0].style.left = @$el.find('.ui-slider-handle')[0].style.left
-      bk_handle[1].style.left = @$el.find('.ui-slider-handle')[1].style.left
+      @el.querySelector( "##{ @model.id }" ).value = $(@el.querySelector('.slider')).slider('values').join(' - ')
+    @el.querySelector('.bk-slider-parent').style.height = "#{@model.height}px"
     return @
 
   slidestop: (event, ui) =>
@@ -68,7 +65,7 @@ export class RangeSliderView extends InputWidgetView
     values_str = values.join(' - ')
     logger.debug("range-slide value = #{values_str}")
     if @model.title?
-      @$el.find( "##{ @model.id }" ).val( values_str )
+      @el.querySelector( "##{ @model.id }" ).value = values_str
     @model.range = values
     if @callbackWrapper then @callbackWrapper()
 

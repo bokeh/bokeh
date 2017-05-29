@@ -1,7 +1,9 @@
+import * as $ from "jquery"
 import "jquery-ui/slider"
 
 import {logger} from "core/logging"
 import * as p from "core/properties"
+import {empty} from "core/dom"
 import {throttle} from "core/util/callback"
 
 import {InputWidget, InputWidgetView} from "./input_widget"
@@ -15,9 +17,9 @@ export class SliderView extends InputWidgetView
   initialize: (options) ->
     super(options)
     @connect(@model.change, () -> @render())
-    @$el.empty()
+    empty(@el)
     html = @template(@model.attributes)
-    @$el.html(html)
+    @el.appendChild(html)
     @callbackWrapper = null
     if @model.callback_policy == 'continuous'
       @callbackWrapper = () ->
@@ -44,10 +46,10 @@ export class SliderView extends InputWidgetView
       stop: @slidestop,
       slide: @slide
     }
-    @$el.find('.slider').slider(opts)
+    $(@el.querySelector('.slider')).slider(opts)
     if @model.title?
-      @$el.find( "##{ @model.id }" ).val( @$el.find('.slider').slider('value') )
-    @$el.find('.bk-slider-parent').height(@model.height)
+      @el.querySelector( "##{ @model.id }" ).value = $(@el.querySelector('.slider')).slider('value')
+    @el.querySelector('.bk-slider-parent').style.height = "#{@model.height}px"
     return @
 
   slidestop: (event, ui) =>
@@ -58,7 +60,7 @@ export class SliderView extends InputWidgetView
     value = ui.value
     logger.debug("slide value = #{value}")
     if @model.title?
-      @$el.find( "##{ @model.id }" ).val( ui.value )
+      @el.querySelector( "##{ @model.id }" ).value = ui.value
     @model.value = value
     if @callbackWrapper then @callbackWrapper()
 

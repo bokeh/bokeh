@@ -3,6 +3,7 @@ import * as Numbro from "numbro"
 import * as compile_template from "underscore.template"
 
 import * as p from "core/properties"
+import {span, i} from "core/dom"
 import {extend} from "core/util/object"
 import {isString} from "core/util/types"
 import {Model} from "../../model"
@@ -31,13 +32,19 @@ export class StringFormatter extends CellFormatter
     text_color = @text_color
 
     if font_style? or text_align? or text_color?
-      text = $("<span>#{text}</span>")
+      text = span({}, text)
       switch font_style
-        when "bold"   then text = text.css("font-weight", "bold")
-        when "italic" then text = text.css("font-style",  "italic")
-      if text_align? then text = text.css("text-align", text_align)
-      if text_color? then text = text.css("color",      text_color)
-      text = text.prop('outerHTML')
+        when "bold"
+          text.style.fontWeight = "bold"
+        when "italic"
+          text.style.fontStyle = "italic"
+
+      if text_align?
+        text.style.textAlign = text_align
+      if text_color?
+        text.style.color = text_color
+
+      text = text.outerHTML
 
     return text
 
@@ -68,7 +75,7 @@ export class BooleanFormatter extends CellFormatter
   }
 
   doFormat: (row, cell, value, columnDef, dataContext) ->
-    if !!value then $('<i>').addClass(@icon).html() else ""
+    if !!value then i({class: @icon}).outerHTML else ""
 
 export class DateFormatter extends CellFormatter
   type: 'DateFormatter'

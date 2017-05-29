@@ -2,7 +2,7 @@ import * as $ from "jquery"
 
 import {Widget, WidgetView} from "./widget"
 import * as p from "core/properties"
-
+import {empty, input, label, div} from "core/dom"
 
 export class CheckboxGroupView extends WidgetView
   events:
@@ -15,26 +15,26 @@ export class CheckboxGroupView extends WidgetView
 
   render: () ->
     super()
-    @$el.empty()
+    empty(@el)
 
     active = @model.active
     for label, i in @model.labels
-      $input = $('<input type="checkbox">').attr(value: "#{i}")
-      if @model.disabled then $input.prop("disabled", true)
-      if i in active then $input.prop("checked", true)
+      inputEl = input({type: "checkbox", value: "#{i}"})
+      if @model.disabled then inputEl.disabled = true
+      if i in active then inputEl.checked = true
 
-      $label = $('<label></label>').text(label).prepend($input)
+      labelEl = label({}, inputEl, label)
       if @model.inline
-          $label.addClass("bk-bs-checkbox-inline")
-          @$el.append($label)
+        labelEl.classList.add("bk-bs-checkbox-inline")
+        @el.appendChild(labelEl)
       else
-          $div = $('<div class="bk-bs-checkbox"></div>').append($label)
-          @$el.append($div)
+        divEl = div({class: "bk-bs-checkbox"}, labelEl)
+        @el.appendChild(divEl)
 
     return @
 
   change_input: () ->
-    active = (i for checkbox, i in @$el.find("input") when checkbox.checked)
+    active = (i for checkbox, i in @el.querySelectorAll("input") when checkbox.checked)
     @model.active = active
     @model.callback?.execute(@model)
 

@@ -6,7 +6,7 @@ export class PreTextView extends MarkupView
   render: () ->
     super()
     content = pre({style: {overflow: "auto"}}, @model.text)
-    @$el.find('.bk-markup').append(content)
+    @el.querySelector('.bk-markup').appendChild(content)
 
 export class PreText extends Markup
   type: "PreText"

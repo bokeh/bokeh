@@ -1,5 +1,6 @@
 import {logger} from "core/logging"
 import * as p from "core/properties"
+import {empty} from "core/dom"
 
 import {InputWidget, InputWidgetView} from "./input_widget"
 
@@ -18,13 +19,13 @@ export class SelectView extends InputWidgetView
 
   render: () ->
     super()
-    @$el.empty()
+    empty(@el)
     html = @template(@model.attributes)
-    @$el.html(html)
+    @el.appendChild(html)
     return @
 
   change_input: () ->
-    value = @$el.find('select').val()
+    value = @el.querySelector('select').value
     logger.debug("selectbox: value = #{value}")
     @model.value = value
     super()

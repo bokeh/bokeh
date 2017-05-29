@@ -1,6 +1,8 @@
+import * as $ from "jquery"
 import "jqrangeslider/jQDateRangeSlider"
 
 import * as p from "core/properties"
+import {empty} from "core/dom"
 import {isObject} from "core/util/types"
 
 import {InputWidget, InputWidgetView} from "./input_widget"
@@ -15,13 +17,13 @@ export class DateRangeSliderView extends InputWidgetView
 
   render: () ->
     super()
-    @$el.empty()
+    empty(@el)
 
     [value_min, value_max] = @model.value
     [range_min, range_max] = @model.range
     [bounds_min, bounds_max] = @model.bounds
 
-    @$el.dateRangeSlider({
+    $(@el).dateRangeSlider({
       defaultValues: { min: new Date(value_min), max: new Date(value_max) },
       bounds: { min: new Date(bounds_min), max: new Date(bounds_max) },
       range: {
@@ -37,7 +39,7 @@ export class DateRangeSliderView extends InputWidgetView
       wheelMode: @model.wheel_mode,
     })
 
-    @$el.on "userValuesChanged", (event, data) =>
+    $(@el).on "userValuesChanged", (event, data) =>
       @model.value = [data.values.min, data.values.max]
       @model.callback?.execute(@model)
 

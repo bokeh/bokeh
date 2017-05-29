@@ -3,6 +3,7 @@ import "jquery-ui/autocomplete"
 import "jquery-ui/spinner"
 
 import * as p from "core/properties"
+import {input, select, option} from "core/dom"
 import {extend} from "core/util/object"
 
 import {DOMView} from "core/dom_view"
@@ -15,7 +16,7 @@ export class CellEditorView extends DOMView
 
   className: "bk-cell-editor"
 
-  input: null
+  inputEl: null
 
   emptyValue: null
   defaultValue: null
@@ -30,9 +31,8 @@ export class CellEditorView extends DOMView
 
   render: () ->
     super()
-    @$el.appendTo(@args.container)
-    @$input = $(@input)
-    @$el.append(@$input)
+    @args.container.appendChild(@el)
+    @el.appendChild(@inputEl)
     @renderEditor()
     @disableNavigation()
     return @
@@ -40,7 +40,7 @@ export class CellEditorView extends DOMView
   renderEditor: () ->
 
   disableNavigation: () ->
-    @$input.keydown (event) =>
+    @inputEl.addEventListener "keydown", (event) =>
       stop = () -> event.stopImmediatePropagation()
       switch event.keyCode
         when $.ui.keyCode.LEFT      then stop()
@@ -52,7 +52,7 @@ export class CellEditorView extends DOMView
 
   destroy: () -> @remove()
 
-  focus: () -> @$input.focus()
+  focus: () -> @inputEl.focus()
 
   show: () ->
 
@@ -60,9 +60,9 @@ export class CellEditorView extends DOMView
 
   position: () ->
 
-  getValue: () -> return @$input.val()
+  getValue: () -> return @inputEl.value
 
-  setValue: (val) -> @$input.val(val)
+  setValue: (val) -> @inputEl.value = val
 
   serializeValue: () -> return @getValue()
 
@@ -94,19 +94,20 @@ export class StringEditorView extends CellEditorView
 
   emptyValue: ""
 
-  input: '<input type="text" />'
+  inputEl: input({type: "text"})
 
   renderEditor: () ->
     completions = @model.completions
     if completions.length != 0
-      @$input.autocomplete(source: completions)
-      @$input.autocomplete("widget").addClass("bk-cell-editor-completion")
-    @$input.focus().select()
+      @inputEl.classList.add("bk-cell-editor-completion")
+      $(@inputEl).autocomplete({source: completions})
+      $(@inputEl).autocomplete("widget")
+    @inputEl.focus().select()
 
   loadValue: (item) ->
     super(item)
-    @$input[0].defaultValue = @defaultValue
-    @$input.select()
+    @inputEl.defaultValue = @defaultValue
+    @inputEl.select()
 
 export class StringEditor extends CellEditor
   type: 'StringEditor'
@@ -123,16 +124,16 @@ export class TextEditor extends CellEditor
 
 export class SelectEditorView extends CellEditorView
 
-  input: '<select />'
+  inputEl: select()
 
   renderEditor: () ->
     for option in @model.options
-      @$input.append($('<option>').attr(value: option).text(option))
+      @inputEl.appendChild(option({value: option}, option))
     @focus()
 
   loadValue: (item) ->
     super(item)
-    @$input.select()
+    @inputEl.select()
 
 export class SelectEditor extends CellEditor
   type: 'SelectEditor'
@@ -149,16 +150,16 @@ export class PercentEditor extends CellEditor
 
 export class CheckboxEditorView extends CellEditorView
 
-  input: '<input type="checkbox" value="true" />'
+  inputEl: input({type: "checkbox", value: "true"})
 
   renderEditor: () -> @focus()
 
   loadValue: (item) ->
     @defaultValue = !!item[@args.column.field]
-    @$input.prop('checked', @defaultValue)
+    @inputEl.checked = @defaultValue
 
   serializeValue: () ->
-    return @$input.prop('checked')
+    return @inputEl.checked
 
 export class CheckboxEditor extends CellEditor
   type: 'CheckboxEditor'
@@ -166,14 +167,14 @@ export class CheckboxEditor extends CellEditor
 
 export class IntEditorView extends CellEditorView
 
-  input: '<input type="text" />'
+  inputEl: input({type: "text"})
 
   renderEditor: () ->
-    @$input.spinner(step: @model.step)
-    @$input.focus().select()
+    $(@inputEl).spinner({step: @model.step})
+    @inputEl.focus().select()
 
   remove: () ->
-    @$input.spinner("destroy")
+    $(@inputEl).spinner("destroy")
     super()
 
   serializeValue: () ->
@@ -181,8 +182,8 @@ export class IntEditorView extends CellEditorView
 
   loadValue: (item) ->
     super(item)
-    @$input[0].defaultValue = @defaultValue
-    @$input.select()
+    @inputEl.defaultValue = @defaultValue
+    @inputEl.select()
 
   validateValue: (value) ->
     if isNaN(value)
@@ -199,14 +200,14 @@ export class IntEditor extends CellEditor
 
 export class NumberEditorView extends CellEditorView
 
-  input: '<input type="text" />'
+  inputEl: input({type: "text"})
 
   renderEditor: () ->
-    @$input.spinner(step: @model.step)
-    @$input.focus().select()
+    $(@inputEl).spinner({step: @model.step})
+    @inputEl.focus().select()
 
   remove: () ->
-    @$input.spinner("destroy")
+    $(@inputEl).spinner("destroy")
     super()
 
   serializeValue: () ->
@@ -214,8 +215,8 @@ export class NumberEditorView extends CellEditorView
 
   loadValue: (item) ->
     super(item)
-    @$input[0].defaultValue = @defaultValue
-    @$input.select()
+    @inputEl.defaultValue = @defaultValue
+    @inputEl.select()
 
   validateValue: (value) ->
     if isNaN(value)
@@ -240,24 +241,25 @@ export class DateEditorView extends CellEditorView
 
   emptyValue: new Date()
 
-  input: '<input type="text" />'
+  inputEl: input({type: "text"})
 
   renderEditor: () ->
     @calendarOpen = false
 
-    @$input.datepicker
+    @$datepicker = $(@inputEl).datepicker({
       showOn: "button"
       buttonImageOnly: true
       beforeShow: () => @calendarOpen = true
       onClose: () => @calendarOpen = false
-    @$input.siblings(".ui-datepicker-trigger").css("vertical-align": "middle")
-    @$input.width(@$input.width() - (14 + 2*4 + 4)) # img width + margins + edge distance
-    @$input.focus().select()
+    })
+    @$datepicker.siblings(".ui-datepicker-trigger").css("vertical-align": "middle")
+    @$datepicker.width(@$datepicker.width() - (14 + 2*4 + 4)) # img width + margins + edge distance
+    @inputEl.focus().select()
 
   destroy: () ->
     $.datepicker.dpDiv.stop(true, true)
-    @$input.datepicker("hide")
-    @$input.datepicker("destroy")
+    @$datepicker.datepicker("hide")
+    @$datepicker.datepicker("destroy")
     super()
 
   show: () ->
@@ -275,9 +277,9 @@ export class DateEditorView extends CellEditorView
       $.datepicker.dpDiv.css(top: position.top + 30, left: position.left)
     super()
 
-  getValue: () -> return @$input.datepicker("getDate").getTime()
+  getValue: () -> return @$datepicker.datepicker("getDate").getTime()
 
-  setValue: (val) -> @$input.datepicker("setDate", new Date(val))
+  setValue: (val) -> @$datepicker.datepicker("setDate", new Date(val))
 
 export class DateEditor extends CellEditor
   type: 'DateEditor'
