@@ -52,7 +52,7 @@ export class RangeSliderView extends InputWidgetView
     if @model.title?
       @$el.find( "##{ @model.id }" ).val( @$el.find('.slider').slider('values').join(' - ') )
     @$el.find('.bk-slider-parent').height(@model.height)
-    bk_handle = @$el.find('.bk-ui-slider-handle')
+    bk_handle = @$el.find('.ui-slider-handle')
     # Map bk handle to ui handle - otherwise slide doesn't work
     if bk_handle.length == 2
       bk_handle[0].style.left = @$el.find('.ui-slider-handle')[0].style.left

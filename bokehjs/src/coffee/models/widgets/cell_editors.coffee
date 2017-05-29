@@ -251,7 +251,7 @@ export class DateEditorView extends CellEditorView
       buttonImageOnly: true
       beforeShow: () => @calendarOpen = true
       onClose: () => @calendarOpen = false
-    @$input.siblings(".bk-ui-datepicker-trigger").css("vertical-align": "middle")
+    @$input.siblings(".ui-datepicker-trigger").css("vertical-align": "middle")
     @$input.width(@$input.width() - (14 + 2*4 + 4)) # img width + margins + edge distance
     @$input.focus().select()
 
