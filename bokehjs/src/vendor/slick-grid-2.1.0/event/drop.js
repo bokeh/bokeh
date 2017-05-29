@@ -7,6 +7,9 @@
 // Updated: 2012-05-21
 // REQUIRES: jquery 1.7.x, event.drag 2.2
 
+if (typeof $ !== "function")
+  return
+
 require("./drag");
 
 // Events: drop, dropstart, dropend

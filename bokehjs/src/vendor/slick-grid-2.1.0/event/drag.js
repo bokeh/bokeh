@@ -7,6 +7,9 @@
 // Updated: 2012-05-21
 // REQUIRES: jquery 1.7.x
 
+if (typeof $ !== "function")
+  return
+
 // add the jquery instance method
 $.fn.drag = function( str, arg, opts ){
 	// figure out the event type
