@@ -76,7 +76,7 @@ topic:
     Read tutorials on specific topics for using Bokeh.
 
 :ref:`userguide_export`
-    Learn how to export Bokeh layouts as PNGs.
+    Learn how to export Bokeh layouts as PNGs and SVGs.
 
 The examples in the user guide are written to be as minimal as possible,
 while illustrating how to accomplish a single task within Bokeh. With a
