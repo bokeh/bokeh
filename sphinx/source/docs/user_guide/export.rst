@@ -17,12 +17,13 @@ In order to create a PNG with a transparent background, users should set the
 ``Plot.background_fill_color`` and ``Plot.border_fill_color`` properties to
 ``None``.
 
-.. warning::
-    Responsive sizing_modes may generate layouts with unexpected size and
-    aspect ratios. It is recommended to use the default ``fixed`` sizing mode.
+Limitations
+~~~~~~~~~~~
 
-.. warning::
-    Glyphs that are rendered via webgl won't be included in the generated PNG.
+Responsive sizing_modes may generate layouts with unexpected size and aspect
+ratios. It is recommended to use the default ``fixed`` sizing mode. Also,
+glyphs that are rendered via webgl won't be included in the generated PNG, so
+it's suggested to use the default ``Plot.webgl=True`` attribute.
 
 Additional dependencies
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -72,14 +73,13 @@ Like PNGs, in order to create a SVG with a transparent background, users
 should set the ``Plot.background_fill_color`` and ``Plot.border_fill_color``
 properties to ``None``.
 
-.. warning::
-    It's not possible to generate a single SVG for a layout of plots, as each
-    plot is it's own distinct SVG element.
+Limitations
+~~~~~~~~~~~
 
-.. warning::
-    Glyphs that are rendered via webgl and overlaid HTML elements such as
-    the toolbar will be rendered in the HTML output but won't be included
-    in any exported SVG.
+It's not possible to create a single SVG for a layout of plots, as each plot
+is it's own distinct SVG element. Also, glyphs that are rendered via webgl and
+overlaid HTML elements such as the toolbar will be rendered in the HTML output
+but won't be included in any exported SVG.
 
 Example usage
 ~~~~~~~~~~~~~
