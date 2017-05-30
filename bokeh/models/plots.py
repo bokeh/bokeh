@@ -710,4 +710,8 @@ class Plot(LayoutDOM):
 
     output_backend = Enum(OutputBackend, default="canvas", help="""
     Specify the output backend for the plot area. Default is HTML5 Canvas.
+
+    .. note::
+        When set to ``webgl``, glyphs without a WebGL rendering implementation
+        will fall back to rendering onto 2D canvas.
     """)
