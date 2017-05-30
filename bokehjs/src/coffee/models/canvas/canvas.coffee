@@ -8,6 +8,8 @@ import {div, canvas} from "core/dom"
 import {isEqual} from "core/util/eq"
 import {fixup_ctx, get_scale_ratio} from "core/util/canvas"
 
+import * as canvas2svg from "canvas2svg"
+
 # fixes up a problem with some versions of IE11
 # ref: http://stackoverflow.com/questions/22062313/imagedata-set-in-internetexplorer
 if window.CanvasPixelArray?
@@ -24,11 +26,16 @@ export class CanvasView extends DOMView
     @map_el      = if @model.map then @el.appendChild(div({class: "bk-canvas-map"})) else null
     @events_el   = @el.appendChild(div({class: "bk-canvas-events"}))
     @overlays_el = @el.appendChild(div({class: "bk-canvas-overlays"}))
-    @canvas_el   = @el.appendChild(canvas({class: "bk-canvas"}))
 
-    # create the canvas context that gets passed around for drawing
+    switch @model.output_backend
+      when "canvas"
+        @canvas_el = @el.appendChild(canvas({class: "bk-canvas"}))
+        @_ctx = @canvas_el.getContext('2d')
+      when "svg"
+        @_ctx = new canvas2svg()
+        @canvas_el = @el.appendChild(@_ctx.getSvg())
+
     @ctx = @get_ctx()
-
     # work around canvas incompatibilities
     fixup_ctx(@ctx)
 
@@ -37,10 +44,10 @@ export class CanvasView extends DOMView
 
     @connect(@solver.layout_reset, () => @_add_constraints())
 
-  get_canvas_element: () -> @canvas_el
+  # Method exists so that context can be stubbed in unit tests
+  get_ctx: () -> return @_ctx
 
-  get_ctx: () ->
-    return @canvas_el.getContext('2d')
+  get_canvas_element: () -> return @canvas_el
 
   prepare_canvas: () ->
     # Ensure canvas has the correct size, taking HIDPI into account
@@ -50,7 +57,7 @@ export class CanvasView extends DOMView
     @el.style.width = "#{width}px"
     @el.style.height = "#{height}px"
 
-    pixel_ratio = get_scale_ratio(@ctx, @model.use_hidpi)
+    pixel_ratio = get_scale_ratio(@ctx, @model.use_hidpi, @model.output_backend)
     @model.pixel_ratio = pixel_ratio
 
     @canvas_el.style.width = "#{width}px"
@@ -108,6 +115,7 @@ export class Canvas extends LayoutCanvas
     initial_height: [ p.Number         ]
     use_hidpi:      [ p.Boolean, true  ]
     pixel_ratio:    [ p.Number,  1     ]
+    output_backend: [ p.OutputBackend, "canvas"]
   }
 
   initialize: (attrs, options) ->

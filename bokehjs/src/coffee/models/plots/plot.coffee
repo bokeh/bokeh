@@ -339,6 +339,7 @@ export class Plot extends LayoutDOM
 
       webgl:             [ p.Bool,     false                  ]
       hidpi:             [ p.Bool,     true                   ]
+      output_backend:    [ p.OutputBackend, "canvas"          ]
 
       min_border:        [ p.Number,   5                      ]
       min_border_top:    [ p.Number,   null                   ]

@@ -69,8 +69,10 @@ export fixup_ctx = (ctx) ->
   fixup_measure_text(ctx)
   fixup_ellipse(ctx)
 
-export get_scale_ratio = (ctx, hidpi) ->
-  if hidpi
+export get_scale_ratio = (ctx, hidpi, backend) ->
+  if backend == "svg"
+    return 1
+  else if hidpi
     devicePixelRatio = window.devicePixelRatio || 1
     backingStoreRatio = ctx.webkitBackingStorePixelRatio ||
                         ctx.mozBackingStorePixelRatio ||

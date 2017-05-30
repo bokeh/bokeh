@@ -613,11 +613,10 @@ export class PlotCanvasView extends DOMView
   _render_levels: (ctx, levels, clip_region) ->
     ctx.save()
 
-    if clip_region?
+    if clip_region? and @model.plot.output_backend == "canvas"
       ctx.beginPath()
       ctx.rect.apply(ctx, clip_region)
       ctx.clip()
-      ctx.beginPath()
 
     indices = {}
     for renderer, i in @model.plot.renderers
@@ -646,17 +645,28 @@ export class PlotCanvasView extends DOMView
       ctx.fillRect(frame_box...)
 
   save: (name) ->
-    canvas = @canvas_view.get_canvas_element()
-
-    if canvas.msToBlob?
-      blob = canvas.msToBlob()
-      window.navigator.msSaveBlob(blob, name)
-    else
-      link = document.createElement('a')
-      link.href = canvas.toDataURL('image/png')
-      link.download = name
-      link.target = "_blank"
-      link.dispatchEvent(new MouseEvent('click'))
+    if @model.plot.output_backend == "canvas"
+      canvas = @canvas_view.get_canvas_element()
+      if canvas.msToBlob?
+        blob = canvas.msToBlob()
+        window.navigator.msSaveBlob(blob, name)
+      else
+        link = document.createElement('a')
+        link.href = canvas.toDataURL('image/png')
+        link.download = name + ".png"
+        link.target = "_blank"
+        link.dispatchEvent(new MouseEvent('click'))
+    else if @model.plot.output_backend == "svg"
+      svg = @canvas_view.ctx.getSerializedSvg(true)
+      svgblob = new Blob([svg], {type:'text/plain'})
+      downloadLink = document.createElement("a")
+      downloadLink.download =  name + ".svg"
+      downloadLink.innerHTML = "Download svg"
+      downloadLink.href = window.URL.createObjectURL(svgblob)
+      downloadLink.onclick = (event) -> document.body.removeChild(event.target)
+      downloadLink.style.display = "none"
+      document.body.appendChild(downloadLink)
+      downloadLink.click()
 
 export class PlotCanvas extends LayoutDOM
   type: 'PlotCanvas'
@@ -669,7 +679,8 @@ export class PlotCanvas extends LayoutDOM
       map: @use_map ? false
       initial_width: @plot.plot_width,
       initial_height: @plot.plot_height,
-      use_hidpi: @plot.hidpi
+      use_hidpi: @plot.hidpi,
+      output_backend: @plot.output_backend
     })
 
     @frame = new CartesianFrame({
