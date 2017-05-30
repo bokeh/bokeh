@@ -2,6 +2,7 @@ import {LinearScale} from "./linear_scale"
 import {isNumber} from "core/util/types"
 
 export class CategoricalScale extends LinearScale
+  type: "CategoricalScale"
 
   compute: (x, return_synthetic=false) ->
     if isNumber(x)

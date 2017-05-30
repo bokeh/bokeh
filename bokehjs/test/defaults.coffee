@@ -1,9 +1,13 @@
-_ = require "underscore"
 {expect} = require "chai"
 utils = require "./utils"
 
 core_defaults = require "./.generated_defaults/models_defaults"
 widget_defaults = require "./.generated_defaults/widgets_defaults"
+
+{isArray, isObject} = utils.require("core/util/types")
+{difference} = utils.require("core/util/array")
+{keys} = utils.require("core/util/object")
+{isEqual} = utils.require("core/util/eq")
 
 {Models} = utils.require "base"
 mixins = utils.require "core/property_mixins"
@@ -32,12 +36,12 @@ safe_stringify = (v) ->
 deep_value_to_json = (key, value, optional_parent_object) ->
   if value instanceof HasProps
     {type: value.type, attributes: value.attributes_as_json() }
-  else if _.isArray(value)
+  else if isArray(value)
     ref_array = []
     for v, i in value
       ref_array.push(deep_value_to_json(i, v, value))
     ref_array
-  else if _.isObject(value)
+  else if isObject(value)
     ref_obj = {}
     for own subkey of value
       ref_obj[subkey] = deep_value_to_json(subkey, value[subkey], value)
@@ -49,7 +53,7 @@ check_matching_defaults = (name, python_defaults, coffee_defaults) ->
   different = []
   python_missing = []
   coffee_missing = []
-  for k, v of coffee_defaults
+  for k, js_v of coffee_defaults
 
     # special case for date picker, default is "now"
     if name == 'DatePicker' and k == 'value'
@@ -65,7 +69,7 @@ check_matching_defaults = (name, python_defaults, coffee_defaults) ->
 
     # special case for selections that have a method added to them
     if k == 'selected'
-      v['0d'] = _.omit(v['0d'], 'get_view')
+      delete js_v['0d'].get_view
 
     if k == 'id'
       continue
@@ -74,41 +78,43 @@ check_matching_defaults = (name, python_defaults, coffee_defaults) ->
       py_v = python_defaults[k]
       strip_ids(py_v)
 
-      if not _.isEqual(py_v, v)
+      if not isEqual(py_v, js_v)
 
         # these two conditionals compare 'foo' and {value: 'foo'}
-        if _.isObject(v) and 'value' of v and _.isEqual(py_v, v['value'])
+        if isObject(js_v) and 'value' of js_v and isEqual(py_v, js_v['value'])
           continue
-        if _.isObject(py_v) and 'value' of py_v and _.isEqual(py_v['value'], v)
+        if isObject(py_v) and 'value' of py_v and isEqual(py_v['value'], js_v)
           continue
 
-        if _.isObject(v) and 'attributes' of v and _.isObject(py_v) and 'attributes' of py_v
-          if v['type'] == py_v['type']
-            check_matching_defaults("#{name}.#{k}", py_v['attributes'], v['attributes'])
+        if isObject(js_v) and 'attributes' of js_v and isObject(py_v) and 'attributes' of py_v
+          if js_v['type'] == py_v['type']
+            check_matching_defaults("#{name}.#{k}", py_v['attributes'], js_v['attributes'])
             continue
 
         # compare arrays of objects
-        if _.isArray(v) and _.isArray(py_v)
+        if isArray(js_v) and isArray(py_v)
           equal = true
 
           # palettes in JS are stored as int color values
           if k == 'palette'
-            py_v = (parseInt(x, 16) for x in py_v)
+            py_v = (parseInt(x[1...], 16) for x in py_v)
 
-          if v.length != py_v.length
+          if js_v.length != py_v.length
             equal = false
           else
-            for i in [0...v.length]
-              if not _.isEqual(_.omit(v[i], 'id'), _.omit(py_v[i], 'id'))
+            for i in [0...js_v.length]
+              delete js_v[i].id
+              delete py_v[i].id
+              if not isEqual(js_v[i], py_v[i])
                 equal = false
                 break
 
           if equal
             continue
 
-        different.push("#{name}.#{k}: coffee defaults to #{safe_stringify(v)} but python defaults to #{safe_stringify(py_v)}")
+        different.push("#{name}.#{k}: coffee defaults to #{safe_stringify(js_v)} but python defaults to #{safe_stringify(py_v)}")
     else
-      python_missing.push("#{name}.#{k}: coffee defaults to #{safe_stringify(v)} but python has no such property")
+      python_missing.push("#{name}.#{k}: coffee defaults to #{safe_stringify(js_v)} but python has no such property")
   for k, v of python_defaults
     if k not of coffee_defaults
       coffee_missing.push("#{name}.#{k}: python defaults to #{safe_stringify(v)} but coffee has no such property")
@@ -126,10 +132,10 @@ check_matching_defaults = (name, python_defaults, coffee_defaults) ->
   different.length == 0 and python_missing.length == 0 and coffee_missing.length == 0
 
 strip_ids = (value) ->
-  if _.isArray(value)
+  if isArray(value)
     for v in value
       strip_ids(v)
-  else if _.isObject(value)
+  else if isObject(value)
     if ('id' of value)
       delete value['id']
     for k, v of value
@@ -185,7 +191,7 @@ describe "Defaults", ->
         # console.log(python_defaults)
         # console.log('coffee defaults:')
         # console.log(coffee_defaults)
-        console.log(_.difference(_.keys(python_defaults), _.keys(coffee_defaults)))
+        console.log(difference(keys(python_defaults), keys(coffee_defaults)))
         fail_count = fail_count + 1
 
     console.error("Python/Coffee matching defaults problems: #{fail_count}")

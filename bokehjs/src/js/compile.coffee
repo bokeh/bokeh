@@ -1,4 +1,3 @@
-_ = require "underscore"
 fs = require "fs"
 path = require "path"
 ts = require "typescript"
@@ -114,7 +113,7 @@ compile_and_resolve_deps = (input) ->
     }
   })
 
-  if _.isArray(result.diagnostics) and result.diagnostics.length > 0
+  if result.diagnostics?.length > 0
     diagnostic = result.diagnostics[0]
     return reply({error: mkTypeScriptError(diagnostic)})
 

@@ -354,6 +354,12 @@ class DataTable(TableWidget):
     Shift + click to sort multiple columns simultaneously.
     """)
 
+    reorderable = Bool(True, help="""
+    Allows the reordering of a tables's columns. To reorder a column,
+    click and drag a table's header to the desired location in the table.
+    The columns on either side will remain in their previous order.
+    """)
+
     editable = Bool(False, help="""
     Allows to edit table's contents. Needs cell editors to be configured on
     columns that are required to be editable.

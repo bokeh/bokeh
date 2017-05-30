@@ -68,13 +68,13 @@ describe "ColorBar module", ->
         @color_bar.color_mapper = new LinearColorMapper({low: 0, high: 10, palette: Viridis.Viridis10})
         scale = @color_bar._tick_coordinate_scale(100) #length of scale dimension
         expect(scale).to.be.instanceof(LinearScale)
-        expect(scale.state).to.be.deep.equal [10, 0]
+        expect(scale._compute_state()).to.be.deep.equal [10, 0]
 
       it "LogColorMapper should yield LogScale instance with correct state", ->
         @color_bar.color_mapper = new LogColorMapper({low: 0, high: 10, palette: Viridis.Viridis10})
         scale = @color_bar._tick_coordinate_scale(100) #length of scale dimension
         expect(scale).to.be.instanceof(LogScale)
-        expect(scale.state).to.be.deep.equal [100, 0, 2.302585092994046, 0]
+        expect(scale._compute_state()).to.be.deep.equal [100, 0, 2.302585092994046, 0]
 
     describe "ColorBar._computed_image_dimensions method", ->
 

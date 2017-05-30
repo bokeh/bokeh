@@ -29,6 +29,14 @@ validation checks.
     ``MercatorTicker`` and ``MercatorTickFormatter``models must have their
     ``dimension`` property set to ``'lat'`` or ``'lon'``.
 
+1008 *(REQUIRED_SCALE)*
+    A |Scale| on is missing one or more required default scales (will result in
+    blank plot).
+
+1009 *(INCOMPATIBLE_SCALE_AND_RANGE)*
+    A |Scale| type is incompatible with one or more ranges on the same plot
+    dimension (will result in blank plot).
+
 9999 *(EXT)*
     Indicates that a custom error check has failed.
 
@@ -38,10 +46,12 @@ codes = {
     1001: ("BAD_COLUMN_NAME",        "Glyph refers to nonexistent column name"),
     1002: ("MISSING_GLYPH",          "Glyph renderer has no glyph set"),
     1003: ("NO_SOURCE_FOR_GLYPH",    "Glyph renderer has no data source"),
-    1004: ("REQUIRED_RANGE",         "A required Range objects missing"),
+    1004: ("REQUIRED_RANGE",         "A required Range object is missing"),
     1005: ("MISSING_GOOGLE_API_KEY", "Google now requires API keys for all Google Maps usage"),
     1006: ("NON_MATCHING_DATA_SOURCES_ON_LEGEND_ITEM_RENDERERS", "LegendItem.label is a field, but renderer data sources don't match"),
     1007: ("MISSING_MERCATOR_DIMENSION", "Mercator Tickers and Formatters must have their dimension property set to 'lat' or 'lon'"),
+    1008: ("REQUIRED_SCALE",         "A required Scale object is missing"),
+    1009: ("INCOMPATIBLE_SCALE_AND_RANGE", "A Scale is incompatible with one or more ranges on the same plot dimension"),
     9999: ("EXT",                    "Custom extension reports error"),
 }
 

@@ -361,7 +361,7 @@ export class Document
     # this first pass removes all 'refs' replacing them with real instances
     foreach_depth_first to_update, (instance, attrs, was_new) ->
       if was_new
-        instance.setv(attrs)
+        instance.setv(attrs, {silent: true})
 
     # after removing all the refs, we can run the initialize code safely
     foreach_depth_first to_update, (instance, attrs, was_new) ->

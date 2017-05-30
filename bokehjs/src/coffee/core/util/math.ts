@@ -26,6 +26,15 @@ export function random(): number {
   return Math.random()
 }
 
+export function randomIn(min: number, max?: number): number {
+  if (max == null) {
+    max = min
+    min = 0
+  }
+
+  return min + Math.floor(Math.random()*(max - min + 1))
+}
+
 export function atan2(start: [number, number], end: [number, number]): number {
   /*
    * Calculate the angle between a line containing start and end points (composed

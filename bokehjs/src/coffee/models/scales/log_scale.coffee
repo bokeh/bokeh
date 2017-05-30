@@ -2,24 +2,10 @@ import {Scale} from "./scale"
 import * as p from "core/properties"
 
 export class LogScale extends Scale
-
-  connect_signals: () ->
-    super()
-    @connect(@properties.source_range.change,       () -> @_state = null)
-    @connect(@properties.target_range.change,       () -> @_state = null)
-    @connect(@source_range.properties.start.change, () -> @_state = null)
-    @connect(@source_range.properties.end.change,   () -> @_state = null)
-    @connect(@target_range.properties.start.change, () -> @_state = null)
-    @connect(@target_range.properties.end.change,   () -> @_state = null)
-
-  @getters {
-    state: () ->
-      if not @_state? then @_state = @_compute_state()
-      return @_state
-  }
+  type: "LogScale"
 
   compute: (x) ->
-    [factor, offset, inter_factor, inter_offset] = @state
+    [factor, offset, inter_factor, inter_offset] = @_compute_state()
 
     if inter_factor == 0
       value = 0
@@ -33,7 +19,7 @@ export class LogScale extends Scale
     return value
 
   v_compute: (xs) ->
-    [factor, offset, inter_factor, inter_offset] = @state
+    [factor, offset, inter_factor, inter_offset] = @_compute_state()
 
     result = new Float64Array(xs.length)
 
@@ -52,12 +38,12 @@ export class LogScale extends Scale
     return result
 
   invert: (xprime) ->
-    [factor, offset, inter_factor, inter_offset] = @state
+    [factor, offset, inter_factor, inter_offset] = @_compute_state()
     value = (xprime - offset) / factor
     return Math.exp(inter_factor*value + inter_offset)
 
   v_invert: (xprimes) ->
-    [factor, offset, inter_factor, inter_offset] = @state
+    [factor, offset, inter_factor, inter_offset] = @_compute_state()
     result = new Float64Array(xprimes.length)
     for i in [0...xprimes.length]
       value = (xprimes[i] - offset) / factor
