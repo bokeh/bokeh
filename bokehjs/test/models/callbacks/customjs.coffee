@@ -57,13 +57,13 @@ describe "customjs module", ->
 
     it "should have code property as function body", ->
       r = new CustomJS({code: "return 10"})
-      f = new Function("cb_obj", "cb_data", "require", "exports", "return 10")
+      f = new Function("cb_obj", "cb_data", "vars", "require", "exports", "return 10")
       expect(r.func.toString()).to.be.equal f.toString()
 
     it "should have values as function args", ->
       rng = new Range1d()
       r = new CustomJS({args: {foo: rng.ref()}, code: "return 10"})
-      f = new Function("foo", "cb_obj", "cb_data", "require", "exports", "return 10")
+      f = new Function("foo", "cb_obj", "cb_data", "vars", "require", "exports", "return 10")
       expect(r.func.toString()).to.be.equal f.toString()
 
   describe "execute method", ->
@@ -97,3 +97,10 @@ describe "customjs module", ->
           foo1: "foo1", foo2: "foo2", foo3: "foo3"
         }, code: "return foo1 + foo2 + foo3 + foo4 + foo5 + foo6"})
       expect(r.execute()).to.be.equal "foo1foo2foo3foo4foo5foo6"
+
+    it "should allow namespace vars", ->
+      d = new Document()
+      d.set_var("N", 5)
+      r = new CustomJS({code: "return 2*vars.get('N')"})
+      r.attach_document(d)
+      expect(r.execute()).to.be.equal(10)
