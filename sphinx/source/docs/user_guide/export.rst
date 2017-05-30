@@ -77,9 +77,10 @@ Limitations
 ~~~~~~~~~~~
 
 It's not possible to create a single SVG for a layout of plots, as each plot
-is it's own distinct SVG element. Also, glyphs that are rendered via webgl and
-overlaid HTML elements such as the toolbar will be rendered in the HTML output
-but won't be included in any exported SVG.
+is it's own distinct SVG element. Alternatively, it's possible to download a
+SVG plot using a SaveTool from the toolbar. However, currently an SVG export
+of a plot with a toolbar will have a blank area where the toolbar was rendered
+in the browser.
 
 Example usage
 ~~~~~~~~~~~~~

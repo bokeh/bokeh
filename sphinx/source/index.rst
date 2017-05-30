@@ -43,13 +43,13 @@ the :ref:`devguide`.
     docs/user_guide/cli
     docs/user_guide/server
     docs/user_guide/embed
+    docs/user_guide/export
     docs/user_guide/webgl
     docs/user_guide/geo
     docs/user_guide/bokehjs
     docs/user_guide/extensions
     docs/user_guide/info
     docs/user_guide/tutorials
-    docs/user_guide/export
     docs/reference
     docs/reference/*
     docs/dev_guide
