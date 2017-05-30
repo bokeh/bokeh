@@ -453,6 +453,21 @@ class Plot(LayoutDOM):
         deprecated((0, 12, 6), "y_mapper_type", "y_scale")
         self.y_scale = self._scale(mapper_type)
 
+    @property
+    def webgl(self):
+        deprecated((0, 12, 6), "webgl", "output_backend")
+        return self.output_backend == "webgl"
+
+    @webgl.setter
+    def webgl(self, webgl):
+        deprecated((0, 12, 6), "webgl", "output_backend")
+        if not isinstance(webgl, bool):
+            raise ValueError('Attribute "webgl" must be a boolean')
+        if webgl is True:
+            self.output_backend = "webgl"
+        else:
+            self.output_backend = "canvas"
+
     x_scale = Instance(Scale, default=lambda: LinearScale(), help="""
     What kind of scale to use to convert x-coordinates in data space
     into x-coordinates in screen space.
@@ -691,11 +706,6 @@ class Plot(LayoutDOM):
     occurring. Once level-of-detail mode is enabled, a check is made every
     ``lod_timeout`` ms. If no interactive tool events have happened,
     level-of-detail mode is disabled.
-    """)
-
-    webgl = Bool(False, help="""
-    Whether WebGL is enabled for this plot. If True, the glyphs that
-    support this will render via WebGL instead of the 2D canvas.
     """)
 
     output_backend = Enum(OutputBackend, default="canvas", help="""
