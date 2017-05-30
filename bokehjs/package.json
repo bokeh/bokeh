@@ -19,7 +19,6 @@
   "devDependencies": {
     "browserify": "^11.1.0",
     "resolve": "^1.1.7",
-    "canvas2svg": "^1.0.16",
     "chai": "^3.5.0",
     "chai-as-promised" : "^5.1.0",
     "cheerio": "^0.19.0",
@@ -126,6 +125,7 @@
     "jquery-mousewheel": "^3.1.12",
     "jquery-ui": "~1.10.5",
 
+    "canvas2svg": "https://github.com/bokeh/canvas2svg#v1.0.20",
     "numbro": "https://github.com/bokeh/numbro.git#e1b6c52",
     "kiwi": "https://github.com/bokeh/kiwi.git#6941045",
     "root-require": "^0.3.1"
