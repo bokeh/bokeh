@@ -1,8 +1,8 @@
 from bokeh.models import CustomJS, Select, WidgetBox, Column, ColumnDataSource
 from bokeh.models.transforms import LinearInterpolator, StepInterpolator
-from bokeh.plotting import figure, show, output_file
+from bokeh.plotting import figure, show, output_file, curdoc
 
-N = 600
+curdoc().set_var("N", 600)
 
 controls = ColumnDataSource(data=dict(x=[1, 2, 3, 4, 5], y=[2, 8, 7, 3, 5]))
 source = ColumnDataSource(data=dict(x=[], y=[]))
@@ -15,29 +15,30 @@ p.circle(x='x', y='y', source=controls, size=15, alpha=0.5, color="firebrick")
 p.circle(x='x', y='y', source=source, size=1, alpha=0.2, color="navy")
 
 callback = CustomJS(args=dict(source=source, linear=linear, step=step), code="""
+    var N = vars.get("N"); // alternatively use cb_obj.document.get_var("N")
+    console.log(N)
+
     var mode = cb_obj.value;
     var data = source.data;
-    var dx = 6 / %d;
+    var dx = 6 / N;
 
     if (mode == 'None') {
         data['x'] = [];
         data['y'] = [];
-    }
-    else {
+    } else {
         if (mode == 'Linear') { interp = linear; }
         else if (mode == 'Step (before)') { interp = step; step.mode = 'before'; }
         else if (mode == 'Step (center)') { interp = step; step.mode = 'center'; }
         else if (mode == 'Step (after)')  { interp = step; step.mode = 'after';  }
 
-        for (i=0; i < %d; i++) {
+        for (var i = 0; i < N; i++) {
             data['x'][i] = i * dx
             data['y'][i] = interp.compute(data['x'][i])
         }
     }
 
     source.change.emit()
-
-""" % (N, N))
+""")
 
 mode = Select(
     title='Interpolation Mode',
