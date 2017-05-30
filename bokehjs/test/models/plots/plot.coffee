@@ -1,10 +1,10 @@
-_ = require "underscore"
 {expect} = require "chai"
 utils = require "../../utils"
 sinon = require 'sinon'
 
 {Document} = utils.require("document")
 
+{clone} = utils.require("core/util/object")
 {CustomJS} = utils.require("models/callbacks/customjs")
 {DataRange1d} = utils.require("models/ranges/data_range1d")
 {Range1d} = utils.require("models/ranges/range1d")
@@ -195,18 +195,24 @@ describe "Plot", ->
 
       it "should return correct constrained_variables in scale_width mode", sinon.test () ->
         @p.sizing_mode = 'scale_width'
-        expected_constrained_variables = _.omit(@expected_constrained_variables, ['height'])
+        expected_constrained_variables = clone(@expected_constrained_variables)
+        delete expected_constrained_variables.height
         constrained_variables = @p.get_constrained_variables()
         expect(constrained_variables).to.be.deep.equal expected_constrained_variables
 
       it "should return correct constrained_variables in scale_height mode", sinon.test () ->
         @p.sizing_mode = 'scale_height'
-        expected_constrained_variables = _.omit(@expected_constrained_variables, ['width'])
+        expected_constrained_variables = clone(@expected_constrained_variables)
+        delete expected_constrained_variables.width
         constrained_variables = @p.get_constrained_variables()
         expect(constrained_variables).to.be.deep.equal expected_constrained_variables
 
       it "should return correct constrained_variables in fixed mode", sinon.test () ->
         @p.sizing_mode = 'fixed'
-        expected_constrained_variables = _.omit(@expected_constrained_variables, ['height', 'width', 'box_equal_size_left', 'box_equal_size_right'])
+        expected_constrained_variables = clone(@expected_constrained_variables)
+        delete expected_constrained_variables.height
+        delete expected_constrained_variables.width
+        delete expected_constrained_variables.box_equal_size_left
+        delete expected_constrained_variables.box_equal_size_right
         constrained_variables = @p.get_constrained_variables()
         expect(constrained_variables).to.be.deep.equal expected_constrained_variables

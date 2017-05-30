@@ -5,6 +5,12 @@ import {valid_rgb} from "./util/color"
 import {copy} from "./util/array"
 import {isBoolean, isNumber, isString, isFunction, isArray, isObject} from "./util/types"
 
+valueToString = (value) ->
+  try
+    return JSON.stringify(value)
+  catch
+    return value.toString()
+
 #
 # Property base class
 #
@@ -110,16 +116,19 @@ export class Property # <T>
 
     @init()
 
+
+  toString: () -> "#{@name}(#{@obj}.#{@attr}, spec: #{valueToString(@spec)})"
+
 #
 # Simple Properties
 #
 
 export simple_prop = (name, pred) ->
   class Prop extends Property
-    toString: () -> "#{name}(obj: #{@obj.id}, spec: #{JSON.stringify(@spec)})"
+    name: name
     validate: (value) ->
       if not pred(value)
-        throw new Error("#{name} property '#{@attr}' given invalid value: #{JSON.stringify(value)}")
+        throw new Error("#{name} property '#{@attr}' given invalid value: #{valueToString(value)}")
 
 export class Any extends simple_prop("Any", (x) -> true)
 
@@ -154,7 +163,7 @@ export class Font extends String
 
 export enum_prop = (name, enum_values) ->
   class Enum extends simple_prop(name, (x) -> x in enum_values)
-    toString: () -> "#{name}(obj: #{@obj.id}, spec: #{JSON.stringify(@spec)})"
+    name: name
 
 export class Anchor extends enum_prop("Anchor", enums.LegendLocation)
 
@@ -212,10 +221,9 @@ export class StartEnd extends enum_prop("StartEnd", enums.StartEnd)
 #
 # Units Properties
 #
-
 export units_prop = (name, valid_units, default_units) ->
   class UnitsProp extends Number
-    toString: () -> "#{name}(obj: #{@obj.id}, spec: #{JSON.stringify(@spec)})"
+    name: name
     init: () ->
       if not @spec.units?
         @spec.units = default_units

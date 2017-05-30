@@ -1,6 +1,8 @@
 from bokeh.models import ColumnDataSource
+from bokeh.models.ranges import Range1d, DataRange1d, FactorRange
+from bokeh.models.scales import LinearScale, LogScale, CategoricalScale
 from bokeh.plotting.helpers import (
-    _get_legend_item_label
+    _get_legend_item_label, _get_scale
 )
 
 
@@ -37,3 +39,21 @@ def test_if_legend_is_a_string_and_source_without_column_name_then_value():
     }
     label = _get_legend_item_label(kwargs)
     assert label == {'value': 'not_a_column_label'}
+
+def test__get_scale_numeric_range_linear_axis():
+    s = _get_scale(Range1d(), "linear")
+    assert isinstance(s, LinearScale)
+
+    s = _get_scale(Range1d(), "datetime")
+    assert isinstance(s, LinearScale)
+
+    s = _get_scale(Range1d(), "auto")
+    assert isinstance(s, LinearScale)
+
+def test__get_scale_numeric_range_log_axis():
+    s = _get_scale(DataRange1d(), "log")
+    assert isinstance(s, LogScale)
+
+def test__get_scale_factor_range():
+    s = _get_scale(FactorRange(), "auto")
+    assert isinstance(s, CategoricalScale)

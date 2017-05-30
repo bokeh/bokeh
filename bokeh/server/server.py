@@ -8,6 +8,7 @@ import logging
 log = logging.getLogger(__name__)
 import signal
 
+import tornado
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
 from tornado import netutil
@@ -82,7 +83,7 @@ class Server(object):
     '''
 
     def __init__(self, applications, io_loop=None, **kwargs):
-        log.info("Starting Bokeh server version %s" % __version__)
+        log.info("Starting Bokeh server version %s (running on Tornado %s)" % (__version__, tornado.version))
 
         if isinstance(applications, Application):
             self._applications = { '/' : applications }
@@ -188,6 +189,7 @@ class Server(object):
         assert not self._stopped, "Already stopped"
         self._stopped = True
         self._tornado.stop(wait)
+        self._http.stop()
 
     def run_until_shutdown(self):
         ''' Run the Bokeh Server until shutdown is requested by the user,

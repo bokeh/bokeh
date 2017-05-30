@@ -27,7 +27,7 @@ export class ColumnarDataSource extends DataSource
     @inspect = new Signal(this, "inspect")
 
     @streaming = new Signal(this, "streaming")
-    @patching = new Signal(this, "patching")
+    @patching = new Signal(this, "patching") # <number[], ColumnarDataSource>
 
   get_column: (colname) ->
     return @data[colname] ? null

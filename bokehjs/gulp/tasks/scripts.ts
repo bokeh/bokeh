@@ -1,4 +1,3 @@
-import * as _ from "underscore"
 import * as browserify from "browserify"
 import * as gulp from "gulp"
 import * as gutil from "gulp-util"
@@ -185,7 +184,7 @@ gulp.task("scripts:bundle", ["scripts:compile"], (cb: (arg?: any) => void) => {
     const data: {[key: string]: any} = {}
     for (const name in labels) {
       const module_labels = labels[name]
-      data[name] = _.sortBy(_.values(module_labels), (mod) => mod)
+      data[name] = Object.keys(module_labels).map((key) => module_labels[key]).sort()
     }
     const modulesPath = path.join(paths.buildDir.js, "modules.json")
     fs.writeFile(modulesPath, JSON.stringify(data), () => next())

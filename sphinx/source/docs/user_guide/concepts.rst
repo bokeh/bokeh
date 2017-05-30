@@ -120,10 +120,11 @@ above example would be simplified to:
 
 .. code-block:: python
 
-    from bokeh.plotting import figure
+    from bokeh.plotting import figure, curdoc
 
     p = figure()
     p.line(x=[1, 2, 3], y=[4,6,2])
+    curdoc().add_root(p)
 
 Now, you can run ``bokeh html foo.py`` to generate a standalone HTML file,
 or ``bokeh serve foo.py`` to start serving this document as a web application.

@@ -8,10 +8,7 @@ export type Slot<Args, Sender extends object> = ((args: Args, sender: Sender) =>
 
 export class Signal<Args, Sender extends object> {
 
-  constructor(readonly sender: Sender, readonly name: string) {
-    this.sender = sender
-    this.name = name
-  }
+  constructor(readonly sender: Sender, readonly name: string) {}
 
   connect(slot: Slot<Args, Sender>, context: object | null = null): boolean {
     if (!receiversForSender.has(this.sender)) {
@@ -65,7 +62,7 @@ export class Signal<Args, Sender extends object> {
 
     for (const {signal, slot, context} of receivers) {
       if (signal === this) {
-        slot.call(context, args, signal!.sender)
+        slot.call(context, args, this.sender)
       }
     }
   }

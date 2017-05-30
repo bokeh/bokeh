@@ -1,10 +1,9 @@
-_ = require "underscore"
 {expect} = require "chai"
 utils = require "../../utils"
 sinon = require 'sinon'
 
+{clone} = utils.require("core/util/object")
 {Document} = utils.require("document")
-
 {DataRange1d} = utils.require("models/ranges/data_range1d")
 {LayoutDOM} = utils.require("models/layouts/layout_dom")
 {LayoutDOMView} = utils.require("models/layouts/layout_dom")
@@ -138,14 +137,16 @@ describe "WidgetBox", ->
 
     it "should return correct constrained_variables in scale_width mode", ->
       # We don't return height because we're going to set it ourselves.
-      expected_constrained_variables = _.omit(@expected_constrained_variables, ['height'])
+      expected_constrained_variables = clone(@expected_constrained_variables)
+      delete expected_constrained_variables.height
       @widget_box.sizing_mode = 'scale_width'
       constrained_variables = @widget_box.get_constrained_variables()
       expect(constrained_variables).to.be.deep.equal expected_constrained_variables
 
     it "should return correct constrained_variables in scale_height mode", ->
       # We don't return width because we're going to set it ourselves.
-      expected_constrained_variables = _.omit(@expected_constrained_variables, ['width'])
+      expected_constrained_variables = clone(@expected_constrained_variables)
+      delete expected_constrained_variables.width
       @widget_box.sizing_mode = 'scale_height'
       constrained_variables = @widget_box.get_constrained_variables()
       expect(constrained_variables).to.be.deep.equal expected_constrained_variables
@@ -153,7 +154,11 @@ describe "WidgetBox", ->
     it "should return correct constrained_variables in fixed mode", ->
       # We don't return height or width because we're going to set them ourselves.
       @widget_box.sizing_mode = 'fixed'
-      expected_constrained_variables = _.omit(@expected_constrained_variables, ['height', 'width', 'box_equal_size_left', 'box_equal_size_right'])
+      expected_constrained_variables = clone(@expected_constrained_variables)
+      delete expected_constrained_variables.height
+      delete expected_constrained_variables.width
+      delete expected_constrained_variables.box_equal_size_left
+      delete expected_constrained_variables.box_equal_size_right
       constrained_variables = @widget_box.get_constrained_variables()
       expect(constrained_variables).to.be.deep.equal expected_constrained_variables
 

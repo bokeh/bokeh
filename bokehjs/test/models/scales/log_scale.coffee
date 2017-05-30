@@ -12,10 +12,10 @@ describe "LogScale module", ->
       target_range: new Range1d({start: 10, end: 110})
     })
 
-  describe "state property", ->
+  describe "_compute_state method", ->
 
     it "should correctly compute the scale state", ->
-      expect(@scale.state).to.be.deep.equal [ 100, 10, 9.210340371976184, 0 ]
+      expect(@scale._compute_state()).to.be.deep.equal [ 100, 10, 9.210340371976184, 0 ]
 
   describe "compute method", ->
 
@@ -64,31 +64,3 @@ describe "LogScale module", ->
 
     it "should inverse map to a Float64Array", ->
       expect(@scale.v_invert([-1,0,5,10,11])).to.be.instanceof Float64Array
-
-    describe "update source range1d", ->
-
-      it "should update on whole range replacement", ->
-        @scale.source_range = new Range1d({start: -10, end: 20})
-        expect(@scale.state).to.be.deep.equal [ 100, 10, 2.995732273553991, 0 ]
-
-      it "should update on range start update", ->
-        @scale.source_range.start = -10
-        expect(@scale.state).to.be.deep.equal [ 100, 10, 9.210340371976184, 0 ]
-
-      it "should update on range end update", ->
-        @scale.source_range.end = 20
-        expect(@scale.state).to.be.deep.equal [ 100, 10, 2.995732273553991, 0 ]
-
-    describe "update target range1d", ->
-
-      it "should update on whole range replacement", ->
-        @scale.target_range = new Range1d({start: 0, end: 100})
-        expect(@scale.state).to.be.deep.equal [ 100, 0, 9.210340371976184, 0 ]
-
-      it "should update on range start update", ->
-        @scale.target_range.start = 0
-        expect(@scale.state).to.be.deep.equal [ 110, 0, 9.210340371976184, 0 ]
-
-      it "should update on range end update", ->
-        @scale.target_range.end = 100
-        expect(@scale.state).to.be.deep.equal [ 90, 10, 9.210340371976184, 0 ]

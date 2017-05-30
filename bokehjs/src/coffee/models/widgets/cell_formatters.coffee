@@ -1,5 +1,6 @@
 import * as $ from "jquery"
 import * as Numbro from "numbro"
+import * as compile_template from "underscore.template"
 
 import * as p from "core/properties"
 import {extend} from "core/util/object"
@@ -109,5 +110,5 @@ export class HTMLTemplateFormatter extends CellFormatter
       return ""
     else
       dataContext = extend({}, dataContext, {value: value})
-      compiled_template = _.template(template)
+      compiled_template = compile_template(template)
       return compiled_template(dataContext)

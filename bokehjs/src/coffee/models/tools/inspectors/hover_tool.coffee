@@ -7,6 +7,7 @@ import {div, span} from "core/dom"
 import * as p from "core/properties"
 import {values, isEmpty} from "core/util/object"
 import {isString, isFunction} from "core/util/types"
+import {build_views, remove_views} from "core/build_views"
 
 _color_to_hex = (color) ->
   if (color.substr(0, 1) == '#')
@@ -22,16 +23,73 @@ _color_to_hex = (color) ->
 
 export class HoverToolView extends InspectToolView
 
+  initialize: (options) ->
+    super(options)
+    @ttviews = {}
+
+  remove: () ->
+    remove_views(@ttviews)
+    super()
+
   connect_signals: () ->
     super()
-    for r in @model.computed_renderers
+
+    for r in @computed_renderers
       @connect(r.data_source.inspect, @_update)
+
+    # TODO: @connect(@plot.properties.renderers.change, () -> @_computed_renderers = @_ttmodels = null)
+    @connect(@model.properties.renderers.change,      () -> @_computed_renderers = @_ttmodels = null)
+    @connect(@model.properties.names.change,          () -> @_computed_renderers = @_ttmodels = null)
+    @connect(@model.properties.plot.change,           () -> @_computed_renderers = @_ttmodels = null)
+    @connect(@model.properties.tooltips.change,       () -> @_ttmodels = null)
+
+  _compute_renderers: () ->
+    renderers = @model.renderers
+    names = @model.names
+
+    if renderers.length == 0
+      all_renderers = @model.plot.renderers
+      renderers = (r for r in all_renderers when r instanceof GlyphRenderer)
+
+    if names.length > 0
+      renderers = (r for r in renderers when names.indexOf(r.name) >= 0)
+
+    return renderers
+
+  _compute_ttmodels: () ->
+    ttmodels = {}
+    tooltips = @model.tooltips
+
+    if tooltips?
+      for r in @computed_renderers
+        tooltip = new Tooltip({
+          custom: isString(tooltips) or isFunction(tooltips)
+          attachment: @model.attachment
+          show_arrow: @model.show_arrow
+        })
+        ttmodels[r.id] = tooltip
+
+    new_views = build_views(@ttviews, values(ttmodels), {parent: @, plot_view: @plot_view})
+    # XXX: we shouldn't maintain this, but currently connection of signals is a mess.
+    for view in new_views
+      view.connect_signals()
+
+    return ttmodels
+
+  @getters {
+    computed_renderers: () ->
+      if not @_computed_renderers? then @_computed_renderers = @_compute_renderers()
+      return @_computed_renderers
+    ttmodels: () ->
+      if not @_ttmodels? then @_ttmodels = @_compute_ttmodels()
+      return @_ttmodels
+  }
 
   _clear: () ->
 
     @_inspect(Infinity, Infinity)
 
-    for rid, tt of @model.ttmodels
+    for rid, tt of @ttmodels
       tt.clear()
 
   _move: (e) ->
@@ -66,7 +124,7 @@ export class HoverToolView extends InspectToolView
     hovered_indexes = []
     hovered_renderers = []
 
-    for r in @model.computed_renderers
+    for r in @computed_renderers
       sm = r.data_source.selection_manager
       sm.inspect(@, @plot_view.renderer_views[r.id], geometry, {"geometry": geometry})
 
@@ -79,7 +137,7 @@ export class HoverToolView extends InspectToolView
     if not @model.active
       return
 
-    tooltip = @model.ttmodels[renderer.model.id] ? null
+    tooltip = @ttmodels[renderer.model.id] ? null
     if not tooltip?
       return
     tooltip.clear()
@@ -219,7 +277,7 @@ export class HoverToolView extends InspectToolView
     return null
 
   _emit_callback: (geometry) ->
-    r = @model.computed_renderers[0]
+    r = @computed_renderers[0]
     indices = @plot_view.renderer_views[r.id].hit_test(geometry)
 
     canvas = @plot_model.canvas
@@ -234,7 +292,7 @@ export class HoverToolView extends InspectToolView
     geometry['y'] = yscale.invert(geometry.vy)
 
     callback = @model.callback
-    [obj, data] = [callback, {index: indices, geometry: geometry}]
+    [obj, data] = [callback, {index: indices, geometry: geometry, renderer: r}]
 
     if isFunction(callback)
       callback(obj, data)
@@ -300,66 +358,19 @@ export class HoverTool extends InspectTool
   icon: "bk-tool-icon-hover"
 
   @define {
-      tooltips: [ p.Any,
-        [
-          ["index",         "$index"]
-          ["data (x, y)",   "($x, $y)"]
-          ["canvas (x, y)", "($sx, $sy)"]
-        ] ] # TODO (bev)
-      formatters:   [ p.Any,    {}             ]
-      renderers:    [ p.Array,  []             ]
-      names:        [ p.Array,  []             ]
-      mode:         [ p.String, 'mouse'        ] # TODO (bev)
-      point_policy: [ p.String, 'snap_to_data' ] # TODO (bev) "follow_mouse", "none"
-      line_policy:  [ p.String, 'nearest'      ] # TODO (bev) "next", "nearest", "interp", "none"
-      show_arrow:   [ p.Boolean, true          ]
-      anchor:       [ p.String, 'center'       ] # TODO: enum
-      attachment:   [ p.String, 'horizontal'   ] # TODO: enum
-      callback:     [ p.Any                    ] # TODO: p.Either(p.Instance(Callback), p.Function) ]
-    }
-
-  connect_signals: () ->
-    super()
-    # TODO: @connect(@plot.properties.renderers.change, () -> @_computed_renderers = @_ttmodels = null)
-    @connect(@properties.renderers.change,      () -> @_computed_renderers = @_ttmodels = null)
-    @connect(@properties.names.change,          () -> @_computed_renderers = @_ttmodels = null)
-    @connect(@properties.plot.change,           () -> @_computed_renderers = @_ttmodels = null)
-    @connect(@properties.tooltips.change,       () -> @_ttmodels = null)
-
-  _compute_renderers: () ->
-    renderers = @renderers
-    names = @names
-
-    if renderers.length == 0
-      all_renderers = @plot.renderers
-      renderers = (r for r in all_renderers when r instanceof GlyphRenderer)
-
-    if names.length > 0
-      renderers = (r for r in renderers when names.indexOf(r.name) >= 0)
-
-    return renderers
-
-  _compute_ttmodels: () ->
-    ttmodels = {}
-    tooltips = @tooltips
-
-    if tooltips?
-      for r in @computed_renderers
-        tooltip = new Tooltip({
-          custom: isString(tooltips) or isFunction(tooltips)
-          attachment: @attachment
-          show_arrow: @show_arrow
-        })
-        ttmodels[r.id] = tooltip
-
-    return ttmodels
-
-  @getters {
-    computed_renderers: () ->
-      if not @_computed_renderers? then @_computed_renderers = @_compute_renderers()
-      return @_computed_renderers
-    ttmodels: () ->
-      if not @_ttmodels? then @_ttmodels = @_compute_ttmodels()
-      return @_ttmodels
-    synthetic_renderers: () -> values(@ttmodels)
+    tooltips: [ p.Any, [
+      ["index",         "$index"    ]
+      ["data (x, y)",   "($x, $y)"  ]
+      ["canvas (x, y)", "($sx, $sy)"]
+    ]] # TODO (bev)
+    formatters:   [ p.Any,    {}             ]
+    renderers:    [ p.Array,  []             ]
+    names:        [ p.Array,  []             ]
+    mode:         [ p.String, 'mouse'        ] # TODO (bev)
+    point_policy: [ p.String, 'snap_to_data' ] # TODO (bev) "follow_mouse", "none"
+    line_policy:  [ p.String, 'nearest'      ] # TODO (bev) "next", "nearest", "interp", "none"
+    show_arrow:   [ p.Boolean, true          ]
+    anchor:       [ p.String, 'center'       ] # TODO: enum
+    attachment:   [ p.String, 'horizontal'   ] # TODO: enum
+    callback:     [ p.Any                    ] # TODO: p.Either(p.Instance(Callback), p.Function) ]
   }
