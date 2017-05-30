@@ -85,13 +85,13 @@ Example usage
 ~~~~~~~~~~~~~
 
 The SVG backend is activated by setting the ``Plot.output_backend`` attribute
-to ``"svg"`.
+to ``"svg"``.
 
 .. code-block:: python
 
-    # option one:
+    # option one
     plot = Plot(output_backend="svg")
-    # option two:
+    # option two
     plot.output_backend = "svg"
 
 .. image:: /_images/unemployment.svg
