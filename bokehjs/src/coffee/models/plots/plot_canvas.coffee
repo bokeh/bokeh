@@ -94,7 +94,7 @@ export class PlotCanvasView extends DOMView
     @canvas_view.render()
 
     # If requested, try enabling webgl
-    if @model.plot.webgl
+    if @model.plot.output_backend == "webgl"
       @init_webgl()
 
     @throttled_render = throttle((() => @force_render.emit()), 15) # TODO (bev) configurable
