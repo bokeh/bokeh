@@ -241,6 +241,27 @@ class Document(object):
                               period_milliseconds)
         return self._add_session_callback(cb, callback, one_shot=False)
 
+    def _get_namespace(self):
+        from .models import Namespace
+
+        for model in self._roots:
+            if isinstance(model, Namespace):
+                return model
+        else:
+            model = Namespace()
+            self._roots.append(model)
+            return model
+
+    def set_var(self, name, value):
+        '''
+        '''
+        self._get_namespace().vars[name] = value
+
+    def get_var(self, name):
+        '''
+        '''
+        return self._get_namespace().vars[name]
+
     def add_root(self, model, setter=None):
         ''' Add a model as a root of this Document.
 

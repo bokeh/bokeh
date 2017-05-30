@@ -6,10 +6,11 @@ import {is_ref} from "./core/util/refs"
 import {decode_column_data} from "./core/util/serialization"
 import {MultiDict, Set} from "./core/util/data_structures"
 import {difference, intersection} from "./core/util/array"
-import {extend, values} from "./core/util/object"
+import {extend, values, clone} from "./core/util/object"
 import {isEqual} from "./core/util/eq"
 import {isArray, isObject} from "./core/util/types"
 import {ColumnDataSource} from "./models/sources/column_data_source"
+import {Namespace} from "./models/namespaces/namespace"
 
 class EventManager
     # Dispatches events to the subscribed models
@@ -104,6 +105,10 @@ export class Document
     @_all_models_freeze_count = 0
     @_callbacks = []
     @event_manager = new EventManager(@)
+
+  toString: () ->
+    roots = (root.toString() for root in @_roots)
+    return "Document(roots=[#{roots.join(", ")}])"
 
   clear : () ->
     @_push_all_models_freeze()
@@ -207,6 +212,29 @@ export class Document
       @_pop_all_models_freeze()
 
     @_trigger_on_change(new RootRemovedEvent(@, model, setter_id))
+
+  _get_namespace: () ->
+    for model in @_roots
+      if model instanceof Namespace
+        return model
+
+    model = new Namespace()
+    @_roots.push(model)
+    return model
+
+  set_var: (name, value) ->
+    ns = @_get_namespace()
+    vars = clone(ns.vars)
+    vars[name] = value
+    ns.vars = vars
+
+  get_var: (name) ->
+    ns = @_get_namespace()
+    value = ns.vars[name]
+    if not value?
+      throw new Error("variable '#{name}' doesn't exist on #{@}")
+    else
+      return value
 
   title : () ->
     @_title
