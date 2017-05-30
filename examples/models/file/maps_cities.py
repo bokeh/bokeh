@@ -26,7 +26,7 @@ plot = GMapPlot(
     plot_height=500,
     map_options=map_options,
     api_key=API_KEY,
-    webgl=True,
+    output_backend=True,
 )
 
 if plot.api_key == "GOOGLE_API_KEY":
