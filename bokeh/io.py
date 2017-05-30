@@ -646,6 +646,9 @@ def export(obj, filename=None):
         Responsive sizing_modes may generate layouts with unexpected size and
         aspect ratios. It is recommended to use the default ``fixed`` sizing mode.
 
+    .. warning::
+        Glyphs that are rendered via webgl won't be included in the generated PNG.
+
     '''
     image = _get_screenshot_as_png(obj)
 
