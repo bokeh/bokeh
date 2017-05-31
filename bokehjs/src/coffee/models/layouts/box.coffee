@@ -312,7 +312,12 @@ export class Box extends LayoutDOM
   # once with horizontal=true and once with horizontal=false)
   _align_inner_cell_edges_constraints: () ->
     constraints = []
-    if @ in @document.roots()
+
+    # XXX: checking for `@document?` is a temporary hack, because document isn't always
+    # attached properly. However, if document is not attached then we know it can't be
+    # a root, because otherwise add_root() would attach it. All this layout logic should
+    # be part of views instead of models and use is_root, etc.
+    if @document? and @ in @document.roots()
       flattened = @_flatten_cell_edge_variables(@_horizontal)
       for key, variables of flattened
         if variables.length > 1
