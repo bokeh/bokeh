@@ -12,6 +12,13 @@ to bring interfaces and functionality up to a point that can be maintained
 long-term. We try to limit such changes as much as possible, and have a
 period of deprecation.
 
+New Deprecations
+~~~~~~~~~~~~~~~~
+
+The ``Plot.webgl`` property has been deprecated in place of
+``Plot.output_backend`` in order to avoid conflicts between WebGL and a new
+SVG backend.
+
 Deprecations removed
 ~~~~~~~~~~~~~~~~~~~~
 

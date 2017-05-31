@@ -337,7 +337,6 @@ export class Plot extends LayoutDOM
       lod_threshold:     [ p.Number,   2000                   ]
       lod_timeout:       [ p.Number,   500                    ]
 
-      webgl:             [ p.Bool,     false                  ]
       hidpi:             [ p.Bool,     true                   ]
       output_backend:    [ p.OutputBackend, "canvas"          ]
 
@@ -367,10 +366,13 @@ export class Plot extends LayoutDOM
       return renderers
     x_mapper_type: () ->
       log.warning("x_mapper_type attr is deprecated, use x_scale")
-      @x_scale
+      return @x_scale
     y_mapper_type: () ->
       log.warning("y_mapper_type attr is deprecated, use y_scale")
-      @y_scale
+      return @y_scale
+    webgl: () ->
+      log.warning("webgl attr is deprecated, use output_backend")
+      return @output_backend == "webgl"
   }
 
 register_with_event(UIEvent, Plot)
