@@ -41,7 +41,7 @@ class BokehGalleryDirective(BokehDirective):
         for detail in details_iter:
             src_path = abspath(join("..", detail['path']))
             dest_path = join(dest_dir, detail['name'] + ".py")
-            docname = join("docs", "gallery", detail['name'])
+            docname = join("docs", "gallery", detail['name']).replace("\\","/")
 
             try:
                 copyfile(src_path, dest_path)
