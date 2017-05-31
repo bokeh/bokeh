@@ -470,7 +470,7 @@ def autoload_static(model, resources, script_path):
 
     return encode_utf8(js), encode_utf8(tag)
 
-def autoload_server(model=None, app_path=None, session_id=None, url="default", relative_urls=False):
+def autoload_server(model=None, app_path=None, session_id=None, url="default", relative_urls=False, exclude_resource_files=False):
     ''' Return a script tag that embeds content from a Bokeh server session.
 
     Bokeh apps embedded using ``autoload_server`` will NOT set the browser
@@ -606,6 +606,9 @@ def autoload_server(model=None, app_path=None, session_id=None, url="default", r
     # using a generated ID.
     if coords.session_id_allowing_none is not None:
         src_path = src_path + "&bokeh-session-id=" + session_id
+
+    if exclude_resource_files:
+        src_path = src_path + "&exclude-resource-files=true"
 
     tag = AUTOLOAD_TAG.render(
         src_path = src_path,
