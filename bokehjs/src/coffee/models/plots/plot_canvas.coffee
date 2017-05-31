@@ -42,17 +42,21 @@ export class PlotCanvasView extends DOMView
   view_options: () -> extend({plot_view: @, parent: @}, @options)
 
   pause: () ->
-    @is_paused = true
+    if not @is_paused?
+      @is_paused = 1
+    else
+      @is_paused += 1
 
   unpause: (immediate=false) ->
-    @is_paused = false
-    if immediate
-      @render()
-    else
-      @request_render()
+    @is_paused -= 1
+    if @is_paused == 0
+      if immediate
+        @render()
+      else
+        @request_render()
 
   request_render: () ->
-    if not @is_paused
+    if @is_paused? and @is_paused == 0
       @throttled_render()
     return
 
@@ -66,12 +70,12 @@ export class PlotCanvasView extends DOMView
     super()
 
   initialize: (options) ->
+    @pause()
+
     super(options)
 
     @force_render = new Signal(this, "force_render")
     @state_changed = new Signal(this, "state_changed")
-
-    @pause()
 
     @lod_started = false
     @visuals = new Visuals(@model.plot)
@@ -503,6 +507,9 @@ export class PlotCanvasView extends DOMView
       logger.warn('could not set initial ranges')
 
   render: () ->
+    if @is_paused? and @is_paused > 0
+      return
+
     logger.trace("PlotCanvas.render() for #{@model.id}")
 
     if Date.now() - @interactive_timestamp < @model.plot.lod_interval
