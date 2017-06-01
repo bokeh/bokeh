@@ -682,7 +682,7 @@ def _get_svg(obj):
 
     svg_script = """
     var serialized_svgs = [];
-    var svgs = document.getElementsByTagName("svg");
+    var svgs = document.getElementsByClassName('bk-root')[0].getElementsByTagName("svg");
     for (var i = 0; i < svgs.length; i++) {
         var source = (new XMLSerializer()).serializeToString(svgs[i]);
         serialized_svgs.push(source);
