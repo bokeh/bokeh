@@ -8,7 +8,6 @@ log = logging.getLogger(__name__)
 
 from six.moves.urllib.parse import urlparse
 from tornado import gen
-from tornado.web import MissingArgumentError
 
 from bokeh.core.templates import AUTOLOAD_JS
 from bokeh.util.string import encode_utf8
@@ -50,10 +49,8 @@ class AutoloadJsHandler(SessionHandler):
         render_items = [dict(sessionid=session.id, elementid=element_id, use_for_title=False)]
         script = _script_for_render_items(None, render_items, app_path=app_path, absolute_url=absolute_url)
 
-        exclude_resource_files = self.get_argument("exclude-resource-files", "false")
-        exclude_resource_files = True if exclude_resource_files == "true" else False
-
-        if exclude_resource_files:
+        resources_param = self.get_argument("resources", "default")
+        if resources_param == "none":
             js_urls = []
             css_urls = []
         else:
