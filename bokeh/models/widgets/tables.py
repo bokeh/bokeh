@@ -377,6 +377,10 @@ class DataTable(TableWidget):
     Enable or disable row headers, i.e. the index column.
     """)
 
+    index_column = Bool(True, help="""
+    Include or exclude an index column.
+    """)
+
     scroll_to_selection = Bool(True, help="""
     Whenever a selection is made on the data source, scroll the selected
     rows into the table's viewport if none of the selected rows are already

@@ -34,7 +34,8 @@ export class DataProvider
     item = {}
     for field in Object.keys(@source.data)
       item[field] = @source.data[field][@index[offset]]
-    item[DTINDEX_NAME] = @index[offset]
+    if @model.index_column
+      item[DTINDEX_NAME] = @index[offset]
     return item
 
   setItem: (offset, item) ->
@@ -46,7 +47,7 @@ export class DataProvider
     return null
 
   getField: (offset, field) ->
-    if field == DTINDEX_NAME
+    if @model.index_column and (field == DTINDEX_NAME)
       return @index[offset]
     return @source.data[field][@index[offset]]
 
@@ -66,7 +67,10 @@ export class DataProvider
       [column.sortCol.field, if column.sortAsc then 1 else -1]
 
     if cols.length == 0
-      cols = [[DTINDEX_NAME, 1]]
+      if @model.index_column
+        cols = [[DTINDEX_NAME, 1]]
+      else
+        return 0
 
     records = @getRecords()
     old_index = @index.slice()
@@ -150,7 +154,7 @@ export class DataTableView extends WidgetView
       checkboxSelector = new CheckboxSelectColumn(cssClass: "bk-cell-select")
       columns.unshift(checkboxSelector.getColumnDefinition())
 
-    if @model.row_headers
+    if @model.index_column and @model.row_headers
       columns.unshift(@newIndexColumn())
 
     options =
@@ -207,6 +211,7 @@ export class DataTable extends TableWidget
       editable:            [ p.Bool,   false ]
       selectable:          [ p.Bool,   true  ]
       row_headers:         [ p.Bool,   true  ]
+      index_column:        [ p.Bool,   true  ]
       scroll_to_selection: [ p.Bool,   true  ]
     }
 
