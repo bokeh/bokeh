@@ -33,6 +33,8 @@ class Plot(LayoutDOM):
 
     '''
 
+    __deprecated_attributes__ = ["webgl", "x_mapper_type", "y_mapper_type"]
+
     def __init__(self, **kwargs):
         if "tool_events" not in kwargs:
             kwargs["tool_events"] = ToolEvents()
@@ -52,14 +54,8 @@ class Plot(LayoutDOM):
         if "x_mapper_type" in kwargs and "x_scale" in kwargs:
             raise ValueError("Conflicting properties set on plot: x_mapper_type, x_scale.")
 
-        elif "x_mapper_type" in kwargs:
-            kwargs["x_scale"] = self._scale(kwargs.pop("x_mapper_type"))
-
         if "y_mapper_type" in kwargs and "y_scale" in kwargs:
             raise ValueError("Conflicting properties set on plot: y_mapper_type, y_scale")
-
-        elif "y_mapper_type" in kwargs:
-            kwargs["y_scale"] = self._scale(kwargs.pop("y_mapper_type"))
 
         super(LayoutDOM, self).__init__(**kwargs)
 
