@@ -43,10 +43,6 @@ Bokeh with plain Python lists of values. However, the Bokeh plot server does
 make direct use of NumPy, and it is required to be installed for Bokeh apps
 to function.
 
-Additionally the ``bokeh.charts`` interface and various examples
-depend on the Pandas library; it is recommended to install Pandas version 0.16.1
-or later.
-
 .. _install_packages:
 
 Package Installs
@@ -167,6 +163,9 @@ for the BokehJS JavaScript files, and::
 
 for the BokehJS CSS files.
 
+.. note::
+    The CSS must be loaded *before* the JavaScript library.
+
 The ``"-widgets"`` files are only necessary if you are using any of the widgets
 built into Bokeh in ``bokeh.models.widgets`` in your documents.
 
@@ -183,7 +182,7 @@ and
 .. note::
     For releases ``0.12.2`` and after, the BokehJS API has been branched to a separate file.
     It is also available for download from CDN at pydata.org under the name bokeh-api using
-    the above naming scheme.
+    the above naming scheme. It must be loaded *after* the JavaScript library.
 
 .. _Anaconda Python Distribution: http://continuum.io/anaconda
 .. _anaconda.org: http://anaconda.org

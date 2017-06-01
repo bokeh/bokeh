@@ -9,8 +9,7 @@ Using Palettes
 --------------
 
 Palettes are sequences (lists or tuples) of RGB(A) hex strings that define a
-colormap and be can set as the ``palette`` attribute of all chart types from
-``bokeh.charts`` and as the ``color`` attribute of many plot objects from
+colormap and be can set as the ``color`` attribute of many plot objects from
 ``bokeh.plotting``. Bokeh offers many of the standard Brewer palettes, which
 can be imported from the ``bokeh.palettes`` module. For example, importing
 “Spectral6” gives a six element list of RGB(A) hex strings from the Brewer
@@ -140,7 +139,7 @@ Screen Units and Data-space Units
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Screen units use raw numbers of pixels to specify height or width, while
-data-space units are relative to the data and the axes of the chart. For
+data-space units are relative to the data and the axes of the plot. For
 example, in a 400 pixel by 400 pixel graph with x and y axes ranging from 0
 through 10, a glyph one fifth as wide and tall as the graph would be 80 screen
 units or 2 data-space units.
@@ -198,9 +197,8 @@ Dimensions
 The dimensions (width and height) of a |Plot| are controlled by ``plot_width``
 and ``plot_height`` attributes. These values are in screen units, and they
 control the size of the entire canvas area, including any axes or titles (but
-not the toolbar). If you are using the |bokeh.plotting| or |bokeh.charts|
-interfaces, then these values can be passed to |figure| or the Chart function
-as a convenience:
+not the toolbar). If you are using the |bokeh.plotting| interface, then these
+values can be passed to |figure| as a convenience:
 
 .. bokeh-plot:: docs/user_guide/examples/styling_dimensions.py
     :source-position: above
@@ -469,16 +467,29 @@ Tick Locations
 
 Bokeh has several "ticker" models that can choose nice locations for ticks.
 These are configured on the ``.ticker`` property of an axis. With the
-|bokeh.plotting| and |bokeh.charts| interfaces, choosing an appropriate ticker
-type (categorical, datetime, linear or log scale) normally happens
-automatically. However, there are cases when more explicit control is
-useful.
+|bokeh.plotting| interface, choosing an appropriate ticker type (categorical,
+datetime, mercator, linear or log scale) normally happens automatically.
+However, there are cases when more explicit control is useful.
 
 ``FixedTicker``
 '''''''''''''''
 
 This ticker model allows users to specify exact tick locations
-explicitly.
+explicitly, e.g.
+
+.. code-block:: python
+
+    from bokeh.plotting import figure
+    from bokeh.models.tickers import FixedTicker
+
+    p = figure()
+
+    # no additional tick locations will be displayed on the x-axis
+    p.xaxis.ticker = FixedTicker(ticks=[10, 20, 37.4])
+
+However it is also possible to supply the list of ticks directly, as a
+shortcut, e.g. ``p.xaxis.ticker = [10, 20, 37.4]``. The example below
+demonstrates this method.
 
 .. bokeh-plot:: docs/user_guide/examples/styling_fixed_ticker.py
     :source-position: above
@@ -846,7 +857,6 @@ spacing, etc. of the legend components:
 
 .. |figure| replace:: :func:`~bokeh.plotting.figure`
 
-.. |bokeh.charts|   replace:: :ref:`bokeh.charts <bokeh.charts>`
 .. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`
 
 .. |Range1d| replace:: :class:`~bokeh.models.ranges.Range1d`

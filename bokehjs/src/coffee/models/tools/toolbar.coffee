@@ -14,7 +14,7 @@ export class Toolbar extends ToolbarBase
 
   initialize: (attrs, options) ->
     super(attrs, options)
-    @listenTo(@, 'change:tools', @_init_tools)
+    @connect(@properties.tools.change, @_init_tools)
     @_init_tools()
 
   _init_tools: () ->
@@ -38,7 +38,17 @@ export class Toolbar extends ToolbarBase
 
         if not any(@gestures[et].tools, (t) => t.id == tool.id)
           @gestures[et].tools = @gestures[et].tools.concat([tool])
-        @listenTo(tool, 'change:active', @_active_change.bind(tool))
+        @connect(tool.properties.active.change, @_active_change.bind(null, tool))
+
+    if @active_inspect == 'auto'
+      # do nothing as all tools are active be default
+      ;
+    else if @active_inspect instanceof InspectTool
+      @inspectors.map((inspector) => if inspector != @active_inspect then inspector.active = false)
+    else if @active_inspect instanceof Array
+      @inspectors.map((inspector) => if inspector not in @active_inspect then inspector.active = false)
+    else if @active_inspect is null
+      @inspectors.map((inspector) -> inspector.active = false)
 
     for et of @gestures
       tools = @gestures[et].tools
@@ -68,7 +78,8 @@ export class Toolbar extends ToolbarBase
         @active_scroll.active = true
 
   @define {
-      active_drag:   [ p.Any, 'auto' ]
-      active_scroll: [ p.Any, 'auto' ]
-      active_tap:    [ p.Any, 'auto' ]
+      active_drag:     [ p.Any, 'auto' ]
+      active_inspect:  [ p.Any, 'auto' ]
+      active_scroll:   [ p.Any, 'auto' ]
+      active_tap:      [ p.Any, 'auto' ]
   }

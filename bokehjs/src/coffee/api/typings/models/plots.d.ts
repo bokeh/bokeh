@@ -55,8 +55,8 @@ declare namespace Bokeh {
   extra_x_ranges?: Map<Range>;
   extra_y_ranges?: Map<Range>;
 
-  x_mapper_type?: Auto | "log";
-  y_mapper_type?: Auto | "log";
+  x_scale?: Scale;
+  y_scale?: Scale;
 
   tool_events?: ToolEvents;
 
@@ -74,7 +74,6 @@ declare namespace Bokeh {
   lod_interval?: Int;
   lod_timeout?: Int;
 
-  webgl?: boolean;
   hidpi?: boolean;
  }
 }

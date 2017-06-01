@@ -1,6 +1,5 @@
 import {Transform} from "./transform"
 import * as p from "core/properties"
-import {logger} from "core/logging"
 
 export class Interpolator extends Transform
 
@@ -10,8 +9,7 @@ export class Interpolator extends Transform
     @_y_sorted = []
     @_sorted_dirty = true
 
-    @on 'change', () ->
-      @_sorted_dirty = true
+    @connect(@change, () -> @_sorted_dirty = true)
 
   @define {
     x:    [ p.Any]

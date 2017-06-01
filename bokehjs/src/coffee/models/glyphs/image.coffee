@@ -7,7 +7,7 @@ export class ImageView extends XYGlyphView
 
   initialize: (options) ->
     super(options)
-    @listenTo(@model.color_mapper, 'change', @_update_image)
+    @connect(@model.color_mapper.change, @_update_image)
 
   _update_image: () ->
     # Only reset image_data if already initialized
@@ -64,11 +64,11 @@ export class ImageView extends XYGlyphView
 
   _map_data: () ->
     switch @model.properties.dw.units
-      when "data" then @sw = @sdist(@renderer.xmapper, @_x, @_dw, 'edge', @model.dilate)
+      when "data" then @sw = @sdist(@renderer.xscale, @_x, @_dw, 'edge', @model.dilate)
       when "screen" then @sw = @_dw
 
     switch @model.properties.dh.units
-      when "data" then @sh = @sdist(@renderer.ymapper, @_y, @_dh, 'edge', @model.dilate)
+      when "data" then @sh = @sdist(@renderer.yscale, @_y, @_dh, 'edge', @model.dilate)
       when "screen" then @sh = @_dh
 
   _render: (ctx, indices, {image_data, sx, sy, sw, sh}) ->

@@ -1,26 +1,35 @@
-import {Events} from "./events"
+import {Signal, Signalable} from "./signaling"
 import * as enums from "./enums"
 import * as svg_colors from "./util/svg_colors"
 import {valid_rgb} from "./util/color"
 import {copy} from "./util/array"
 import {isBoolean, isNumber, isString, isFunction, isArray, isObject} from "./util/types"
 
+valueToString = (value) ->
+  try
+    return JSON.stringify(value)
+  catch
+    return value.toString()
+
 #
 # Property base class
 #
 
-export class Property
-  @prototype extends Events
+export class Property # <T>
+  @prototype extends Signalable
 
   dataspec: false
 
   constructor: ({@obj, @attr, @default_value}) ->
-    @_init(false)
+    @_init()
+
+    # Signal<T, HasProps>
+    @change = new Signal(@obj, "change")
 
     # TODO (bev) Quick fix, see https://github.com/bokeh/bokeh/pull/2684
-    @listenTo(@obj, "change:#{@attr}", () =>
+    @connect(@change, () =>
       @_init()
-      @obj.trigger("propchange")
+      @obj.propchange.emit()
     )
 
   update: () -> @_init()
@@ -64,7 +73,7 @@ export class Property
 
   # ----- private methods
 
-  _init: (trigger=true) ->
+  _init: () ->
     obj = @obj
     if not obj?
       throw new Error("missing property object")
@@ -107,8 +116,8 @@ export class Property
 
     @init()
 
-    if trigger
-      @trigger("change")
+
+  toString: () -> "#{@name}(#{@obj}.#{@attr}, spec: #{valueToString(@spec)})"
 
 #
 # Simple Properties
@@ -116,10 +125,10 @@ export class Property
 
 export simple_prop = (name, pred) ->
   class Prop extends Property
-    toString: () -> "#{name}(obj: #{@obj.id}, spec: #{JSON.stringify(@spec)})"
+    name: name
     validate: (value) ->
       if not pred(value)
-        throw new Error("#{name} property '#{@attr}' given invalid value: #{JSON.stringify(value)}")
+        throw new Error("#{name} property '#{@attr}' given invalid value: #{valueToString(value)}")
 
 export class Any extends simple_prop("Any", (x) -> true)
 
@@ -154,7 +163,7 @@ export class Font extends String
 
 export enum_prop = (name, enum_values) ->
   class Enum extends simple_prop(name, (x) -> x in enum_values)
-    toString: () -> "#{name}(obj: #{@obj.id}, spec: #{JSON.stringify(@spec)})"
+    name: name
 
 export class Anchor extends enum_prop("Anchor", enums.LegendLocation)
 
@@ -185,6 +194,8 @@ export class LegendLocation extends enum_prop("LegendLocation", enums.LegendLoca
 
 export class Location extends enum_prop("Location", enums.Location)
 
+export class OutputBackend extends enum_prop("OutputBackend", enums.OutputBackend)
+
 export class Orientation extends enum_prop("Orientation", enums.Orientation)
 
 export class TextAlign extends enum_prop("TextAlign", enums.TextAlign)
@@ -203,13 +214,16 @@ export class Distribution extends enum_prop("Distribution", enums.DistributionTy
 
 export class TransformStepMode extends enum_prop("TransformStepMode", enums.TransformStepModes)
 
+export class PaddingUnits extends enum_prop("PaddingUnits", enums.PaddingUnits)
+
+export class StartEnd extends enum_prop("StartEnd", enums.StartEnd)
+
 #
 # Units Properties
 #
-
 export units_prop = (name, valid_units, default_units) ->
   class UnitsProp extends Number
-    toString: () -> "#{name}(obj: #{@obj.id}, spec: #{JSON.stringify(@spec)})"
+    name: name
     init: () ->
       if not @spec.units?
         @spec.units = default_units

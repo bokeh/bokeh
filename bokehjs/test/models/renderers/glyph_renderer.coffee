@@ -42,3 +42,9 @@ describe "GlyphRenderer", ->
       gr = new GlyphRenderer({'data_source': source})
       index = gr.get_reference_point('label', 20)
       expect(index).to.be.equal 0
+
+  describe "hit_test_helper", ->
+
+    it "should return null if @visible is false", ->
+      @gr.visible = false
+      expect(@gr.hit_test_helper("junk", "junk")).to.be.equal null

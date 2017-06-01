@@ -2,13 +2,14 @@ import {Annotation, AnnotationView} from "./annotation"
 import {BasicTicker} from "../tickers/basic_ticker"
 import {BasicTickFormatter} from "../formatters/basic_tick_formatter"
 import {LinearColorMapper} from "../mappers/linear_color_mapper"
-import {LinearMapper} from "../mappers/linear_mapper"
-import {LogMapper} from "../mappers/log_mapper"
+import {LinearScale} from "../scales/linear_scale"
+import {LogScale} from "../scales/log_scale"
 import {Range1d} from "../ranges/range1d"
 
 import * as p from "core/properties"
 import * as text_util from "core/util/text"
 import {min, max} from "core/util/array"
+import {isEmpty} from "core/util/object"
 import {isString, isArray} from "core/util/types"
 
 SHORT_DIM = 25
@@ -20,22 +21,26 @@ export class ColorBarView extends AnnotationView
     super(options)
     @_set_canvas_image()
 
-  bind_bokeh_events: () ->
-    @listenTo(@model, 'change:visible', @plot_view.request_render)
-    @listenTo(@model.ticker, 'change', @plot_view.request_render)
-    @listenTo(@model.formatter, 'change', @plot_view.request_render)
-    @listenTo(@model.color_mapper, 'change', () ->
-      @_set_canvas_image()
-      @plot_view.request_render()
-      )
+  connect_signals: () ->
+    super()
+    @connect(@model.properties.visible.change, () => @plot_view.request_render())
+    @connect(@model.ticker.change, () => @plot_view.request_render())
+    @connect(@model.formatter.change, () => @plot_view.request_render())
+    if @model.color_mapper?
+      @connect @model.color_mapper.change, () ->
+        @_set_canvas_image()
+        @plot_view.request_render()
 
   _get_panel_offset: () ->
     # ColorBars draw from the top down, so set the y_panel_offset to _top
-    x = @model.panel._left._value
-    y = @model.panel._top._value
+    x = @model.panel._left.value
+    y = @model.panel._top.value
     return {x: x, y: -y}
 
   _get_size: () ->
+    if not @model.color_mapper?
+      return
+
     bbox = @compute_legend_dimensions()
     side = @model.panel.side
     if side == 'above' or side == 'below'
@@ -44,6 +49,9 @@ export class ColorBarView extends AnnotationView
       return bbox.width
 
   _set_canvas_image: () ->
+    if not @model.color_mapper?
+      return
+
     palette = @model.color_mapper.palette
 
     if @model.orientation == 'vertical'
@@ -135,7 +143,7 @@ export class ColorBarView extends AnnotationView
     return {sx: sx, sy: sy}
 
   render: () ->
-    if not @model.visible
+    if not @model.visible or not @model.color_mapper?
       return
 
     ctx = @plot_view.canvas_view.ctx
@@ -269,14 +277,14 @@ export class ColorBarView extends AnnotationView
     ctx.restore()
 
   _get_label_extent: () ->
-    if @model.color_mapper.low? and @model.color_mapper.high?
+    major_labels = @model._tick_coordinates().major_labels
+    if @model.color_mapper.low? and @model.color_mapper.high? and not isEmpty(major_labels)
       ctx = @plot_view.canvas_view.ctx
       ctx.save()
       @visuals.major_label_text.set_value(ctx)
-
       switch @model.orientation
         when "vertical"
-          formatted_labels = @model.formatter.doFormat(@model._tick_coordinates().major_labels)
+          formatted_labels = @model.formatter.doFormat(major_labels)
           label_extent = max((ctx.measureText(label.toString()).width for label in formatted_labels))
         when "horizontal"
           label_extent = text_util.get_text_height(@visuals.major_label_text.font_value()).height
@@ -294,8 +302,8 @@ export class ColorBarView extends AnnotationView
     frame = @plot_view.frame
 
     switch panel.side
-      when "left", "right" then yoff = Math.abs(panel.top - frame.top)
-      when "above", "below" then xoff = Math.abs(frame.left)
+      when "left", "right" then yoff = Math.abs(panel._top.value - frame._top.value)
+      when "above", "below" then xoff = Math.abs(frame._left.value)
 
     return {x: xoff, y: yoff}
 
@@ -324,15 +332,15 @@ export class ColorBar extends Annotation
       orientation:    [ p.Orientation,    'vertical'  ]
       title:          [ p.String,                     ]
       title_standoff: [ p.Number,         2           ]
-      height:  [ p.Any,            'auto'      ]
-      width:   [ p.Any,            'auto'      ]
+      height:         [ p.Any,            'auto'      ]
+      width:          [ p.Any,            'auto'      ]
       scale_alpha:    [ p.Number,         1.0         ]
       ticker:         [ p.Instance,    () -> new BasicTicker()         ]
       formatter:      [ p.Instance,    () -> new BasicTickFormatter()  ]
       color_mapper:   [ p.Instance                    ]
       label_standoff: [ p.Number,         5           ]
-      margin:  [ p.Number,         30          ]
-      padding: [ p.Number,         10          ]
+      margin:         [ p.Number,         30          ]
+      padding:        [ p.Number,         10          ]
       major_tick_in:  [ p.Number,         5           ]
       major_tick_out: [ p.Number,         0           ]
       minor_tick_in:  [ p.Number,         0           ]
@@ -400,8 +408,8 @@ export class ColorBar extends Annotation
       * The parallel frame dimension * 0.80
     ###
 
-    frame_height = @plot.plot_canvas.frame.height
-    frame_width = @plot.plot_canvas.frame.width
+    frame_height = @plot.plot_canvas.frame._height.value
+    frame_width = @plot.plot_canvas.frame._width.value
     title_extent = @_title_extent()
 
     switch @orientation
@@ -435,18 +443,18 @@ export class ColorBar extends Annotation
 
     return {"height": height, "width": width}
 
-  _tick_coordinate_mapper: (scale_length) ->
+  _tick_coordinate_scale: (scale_length) ->
     ###
-    Creates and returns a mapper instance that maps the `color_mapper` range
+    Creates and returns a scale instance that maps the `color_mapper` range
     (low to high) to a screen space range equal to the length of the ColorBar's
-    scale image. The mapper is used to calculate the tick coordinates in screen
+    scale image. The scale is used to calculate the tick coordinates in screen
     coordinates for plotting purposes.
 
-    Note: the type of color_mapper has to match the type of mapper (i.e.
-    a LinearColorMapper will require a corresponding LinearMapper instance).
+    Note: the type of color_mapper has to match the type of scale (i.e.
+    a LinearColorMapper will require a corresponding LinearScale instance).
     ###
 
-    mapping = {
+    ranges = {
       'source_range': new Range1d({
         start: @color_mapper.low
         end: @color_mapper.high
@@ -457,10 +465,10 @@ export class ColorBar extends Annotation
     }
 
     switch @color_mapper.type
-      when "LinearColorMapper" then mapper = new LinearMapper(mapping)
-      when "LogColorMapper" then mapper = new LogMapper(mapping)
+      when "LinearColorMapper" then scale = new LinearScale(ranges)
+      when "LogColorMapper" then scale = new LogScale(ranges)
 
-    return mapper
+    return scale
 
   _tick_coordinates: () ->
     image_dimensions = @_computed_image_dimensions()
@@ -468,7 +476,7 @@ export class ColorBar extends Annotation
       when "vertical" then scale_length = image_dimensions.height
       when "horizontal" then scale_length = image_dimensions.width
 
-    mapper = @_tick_coordinate_mapper(scale_length)
+    scale = @_tick_coordinate_scale(scale_length)
 
     [i, j] = @_normals()
 
@@ -498,8 +506,8 @@ export class ColorBar extends Annotation
 
     major_labels = major_coords[i].slice(0) # make deep copy
 
-    major_coords[i] = mapper.v_map_to_target(major_coords[i])
-    minor_coords[i] = mapper.v_map_to_target(minor_coords[i])
+    major_coords[i] = scale.v_compute(major_coords[i])
+    minor_coords[i] = scale.v_compute(minor_coords[i])
 
     # Because we want the scale to be reversed
     if @orientation == 'vertical'

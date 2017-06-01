@@ -8,9 +8,6 @@ export class LabelSetView extends TextAnnotationView
   initialize: (options) ->
     super(options)
 
-    @xmapper = @plot_view.frame.x_mappers[@model.x_range_name]
-    @ymapper = @plot_view.frame.y_mappers[@model.y_range_name]
-
     @set_data(@model.source)
 
     if @model.render_mode == 'css'
@@ -18,20 +15,33 @@ export class LabelSetView extends TextAnnotationView
         @title_div = div({class: 'bk-annotation-child', style: {display: "none"}})
         @el.appendChild(@title_div)
 
-  bind_bokeh_events: () ->
+  connect_signals: () ->
+    super()
     if @model.render_mode == 'css'
       # dispatch CSS update immediately
-      @listenTo(@model, 'change', () ->
+      @connect(@model.change, () ->
         @set_data(@model.source)
         @render())
-      @listenTo(@model.source, 'change', () ->
+      @connect(@model.source.streaming, () ->
+        @set_data(@model.source)
+        @render())
+      @connect(@model.source.patching, () ->
+        @set_data(@model.source)
+        @render())
+      @connect(@model.source.change, () ->
         @set_data(@model.source)
         @render())
     else
-      @listenTo(@model, 'change', () ->
+      @connect(@model.change, () ->
         @set_data(@model.source)
         @plot_view.request_render())
-      @listenTo(@model.source, 'change', () ->
+      @connect(@model.source.streaming, () ->
+        @set_data(@model.source)
+        @plot_view.request_render())
+      @connect(@model.source.patching, () ->
+        @set_data(@model.source)
+        @plot_view.request_render())
+      @connect(@model.source.change, () ->
         @set_data(@model.source)
         @plot_view.request_render())
 
@@ -40,14 +50,17 @@ export class LabelSetView extends TextAnnotationView
     @visuals.warm_cache(source)
 
   _map_data: () ->
+    xscale = @plot_view.frame.xscales[@model.x_range_name]
+    yscale = @plot_view.frame.yscales[@model.y_range_name]
+
     if @model.x_units == "data"
-      vx = @xmapper.v_map_to_target(@_x)
+      vx = xscale.v_compute(@_x)
     else
       vx = @_x.slice(0) # make deep copy to not mutate
     sx = @canvas.v_vx_to_sx(vx)
 
     if @model.y_units == "data"
-      vy = @ymapper.v_map_to_target(@_y)
+      vy = yscale.v_compute(@_y)
     else
       vy = @_y.slice(0) # make deep copy to not mutate
     sy = @canvas.v_vy_to_sy(vy)

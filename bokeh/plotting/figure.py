@@ -9,9 +9,12 @@ from ..core.properties import Auto, Either, Enum, Float, Int, Seq, Instance, Str
 from ..core.enums import HorizontalLocation, VerticalLocation
 from ..models import Plot, Range, Title, Tool
 from ..models import glyphs, markers
+from ..models.tools import Drag, Inspection, Scroll, Tap
 from ..util.options import Options
 from ..util._plot_arg_helpers import _convert_responsive
-from .helpers import _get_range, _process_axis_and_grid, _process_tools_arg, _glyph_function, _process_active_tools
+from .helpers import (
+    _get_range, _get_scale, _process_axis_and_grid, _process_tools_arg,
+    _glyph_function, _process_active_tools)
 
 DEFAULT_TOOLS = "pan,wheel_zoom,box_zoom,save,reset,help"
 
@@ -54,15 +57,19 @@ class FigureOptions(Options):
     A label for the y-axis.
     """)
 
-    active_drag = Either(Auto, String, Instance(Tool), default="auto", help="""
+    active_drag = Either(Auto, String, Instance(Drag), default="auto", help="""
     Which drag tool should initially be active.
     """)
 
-    active_scroll = Either(Auto, String, Instance(Tool), default="auto", help="""
+    active_inspect = Either(Auto, String, Instance(Inspection), Seq(Instance(Inspection)), default="auto", help="""
+    Which drag tool should initially be active.
+    """)
+
+    active_scroll = Either(Auto, String, Instance(Scroll), default="auto", help="""
     Which scroll tool should initially be active.
     """)
 
-    active_tap = Either(Auto, String, Instance(Tool), default="auto", help="""
+    active_tap = Either(Auto, String, Instance(Tap), default="auto", help="""
     Which tap tool should initially be active.
     """)
 
@@ -118,12 +125,15 @@ class Figure(Plot):
         self.x_range = _get_range(opts.x_range)
         self.y_range = _get_range(opts.y_range)
 
+        self.x_scale = _get_scale(self.x_range, opts.x_axis_type)
+        self.y_scale = _get_scale(self.y_range, opts.y_axis_type)
+
         _process_axis_and_grid(self, opts.x_axis_type, opts.x_axis_location, opts.x_minor_ticks, opts.x_axis_label, self.x_range, 0)
         _process_axis_and_grid(self, opts.y_axis_type, opts.y_axis_location, opts.y_minor_ticks, opts.y_axis_label, self.y_range, 1)
 
         tool_objs, tool_map = _process_tools_arg(self, opts.tools)
         self.add_tools(*tool_objs)
-        _process_active_tools(self.toolbar, tool_map, opts.active_drag, opts.active_scroll, opts.active_tap)
+        _process_active_tools(self.toolbar, tool_map, opts.active_drag, opts.active_inspect, opts.active_scroll, opts.active_tap)
 
     annular_wedge = _glyph_function(glyphs.AnnularWedge)
 

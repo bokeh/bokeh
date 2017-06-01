@@ -3,7 +3,7 @@ import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {max} from "core/util/array"
 import {isString} from "core/util/types"
-import {CategoricalMapper} from "../mappers/categorical_mapper"
+import {CategoricalScale} from "../scales/categorical_scale"
 
 export class RectView extends XYGlyphView
 
@@ -18,12 +18,12 @@ export class RectView extends XYGlyphView
   _map_data: () ->
     canvas = @renderer.plot_view.canvas
     if @model.properties.width.units == "data"
-      [@sw, @sx0] = @_map_dist_corner_for_data_side_length(@_x, @_width, @renderer.xmapper, canvas, 0)
+      [@sw, @sx0] = @_map_dist_corner_for_data_side_length(@_x, @_width, @renderer.xscale, canvas, 0)
     else
       @sw = @_width
       @sx0 = (@sx[i] - @sw[i]/2 for i in [0...@sx.length])
     if @model.properties.height.units == "data"
-      [@sh, @sy1] = @_map_dist_corner_for_data_side_length(@_y, @_height, @renderer.ymapper, canvas, 1)
+      [@sh, @sy1] = @_map_dist_corner_for_data_side_length(@_y, @_height, @renderer.yscale, canvas, 1)
     else
       @sh = @_height
       @sy1 = (@sy[i] - @sh[i]/2 for i in [0...@sy.length])
@@ -77,8 +77,8 @@ export class RectView extends XYGlyphView
       ctx.stroke()
 
   _hit_rect: (geometry) ->
-    [x0, x1] = @renderer.xmapper.v_map_from_target([geometry.vx0, geometry.vx1], true)
-    [y0, y1] = @renderer.ymapper.v_map_from_target([geometry.vy0, geometry.vy1], true)
+    [x0, x1] = @renderer.xscale.v_invert([geometry.vx0, geometry.vx1], true)
+    [y0, y1] = @renderer.yscale.v_invert([geometry.vy0, geometry.vy1], true)
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
     result = hittest.create_hit_test_result()
     result['1d'].indices = @index.indices(bbox)
@@ -86,8 +86,8 @@ export class RectView extends XYGlyphView
 
   _hit_point: (geometry) ->
     [vx, vy] = [geometry.vx, geometry.vy]
-    x = @renderer.xmapper.map_from_target(vx, true)
-    y = @renderer.ymapper.map_from_target(vy, true)
+    x = @renderer.xscale.invert(vx, true)
+    y = @renderer.yscale.invert(vy, true)
 
     scenter_x = (@sx0[i] + @sw[i]/2 for i in [0...@sx0.length])
     scenter_y = (@sy1[i] + @sh[i]/2 for i in [0...@sy1.length])
@@ -128,22 +128,22 @@ export class RectView extends XYGlyphView
     result['1d'].indices = hits
     return result
 
-  _map_dist_corner_for_data_side_length: (coord, side_length, mapper, canvas, dim) ->
-    if isString(coord[0]) and mapper instanceof CategoricalMapper
+  _map_dist_corner_for_data_side_length: (coord, side_length, scale, canvas, dim) ->
+    if isString(coord[0]) and scale instanceof CategoricalScale
       return_synthetic = true
-      synthetic_pt = mapper.v_map_to_target(coord, return_synthetic)
+      synthetic_pt = scale.v_compute(coord, return_synthetic)
       if dim == 0
         synthetic_pt_corner = (synthetic_pt[i] - side_length[i]/2 for i in [0...coord.length])
       else if dim == 1
         synthetic_pt_corner = (synthetic_pt[i] + side_length[i]/2 for i in [0...coord.length])
-      vpt_corner = mapper.v_map_to_target(synthetic_pt_corner)
-      sside_length = @sdist(mapper, coord, side_length, 'center', @model.dilate)
+      vpt_corner = scale.v_compute(synthetic_pt_corner)
+      sside_length = @sdist(scale, coord, side_length, 'center', @model.dilate)
     else
       pt0 = (Number(coord[i]) - side_length[i]/2 for i in [0...coord.length])
       pt1 = (Number(coord[i]) + side_length[i]/2 for i in [0...coord.length])
-      vpt0 = mapper.v_map_to_target(pt0)
-      vpt1 = mapper.v_map_to_target(pt1)
-      sside_length = @sdist(mapper, pt0, side_length, 'edge', @model.dilate)
+      vpt0 = scale.v_compute(pt0)
+      vpt1 = scale.v_compute(pt1)
+      sside_length = @sdist(scale, pt0, side_length, 'edge', @model.dilate)
       if dim == 0
         vpt_corner = if vpt0[0] < vpt1[0] then vpt0 else vpt1
       else if dim == 1
@@ -157,16 +157,16 @@ export class RectView extends XYGlyphView
   _ddist: (dim, spts, spans) ->
     if dim == 0
       vpts = @renderer.plot_view.canvas.v_sx_to_vx(spts)
-      mapper = @renderer.xmapper
+      scale = @renderer.xscale
     else
       vpts = @renderer.plot_view.canvas.v_vy_to_sy(spts)
-      mapper = @renderer.ymapper
+      scale = @renderer.yscale
 
     vpt0 = vpts
     vpt1 = (vpt0[i] + spans[i] for i in [0...vpt0.length])
 
-    pt0 = mapper.v_map_from_target(vpt0)
-    pt1 = mapper.v_map_from_target(vpt1)
+    pt0 = scale.v_invert(vpt0)
+    pt1 = scale.v_invert(vpt1)
 
     return (Math.abs(pt1[i] - pt0[i]) for i in [0...pt0.length])
 

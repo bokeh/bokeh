@@ -1,4 +1,4 @@
-import {Variable, EQ, GE, Strength} from "./solver"
+import {Variable, Strength} from "./solver"
 import {Model} from "../../model"
 import * as p from "../properties"
 
@@ -13,20 +13,6 @@ export class LayoutCanvas extends Model
     @_height = new Variable("height #{@id}")
     @_right = new Variable("right #{@id}")
     @_bottom = new Variable("bottom #{@id}")
-
-  # TODO (bird) - I'd like to get rid of these to reduce confusion
-  @getters {
-    height: () -> @_height.value()
-    width: () -> @_width.value()
-    right: () -> @_right.value()
-    left: () -> @_left.value()
-    top: () -> @_top.value()
-    bottom: () -> @_bottom.value()
-  }
-
-  @internal {
-    layout_location: [ p.Any ]
-  }
 
   get_edit_variables: () ->
     editables = []

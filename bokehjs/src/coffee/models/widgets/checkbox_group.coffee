@@ -1,7 +1,6 @@
 import * as $ from "jquery"
 
 import {Widget, WidgetView} from "./widget"
-import {BokehView} from "core/bokeh_view"
 import * as p from "core/properties"
 
 
@@ -12,7 +11,7 @@ export class CheckboxGroupView extends WidgetView
   initialize: (options) ->
     super(options)
     @render()
-    @listenTo(@model, 'change', @render)
+    @connect(@model.change, @render)
 
   render: () ->
     super()

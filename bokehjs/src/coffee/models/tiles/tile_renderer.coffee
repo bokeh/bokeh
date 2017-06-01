@@ -1,7 +1,6 @@
 import {ImagePool} from "./image_pool"
 import {WMTSTileSource} from "./wmts_tile_source"
 import {Renderer, RendererView} from "../renderers/renderer"
-import {logger} from "core/logging"
 import {div} from "core/dom"
 import * as p from "core/properties"
 import {isString} from "core/util/types"
@@ -12,8 +11,9 @@ export class TileRendererView extends RendererView
     @attributionEl = null
     super
 
-  bind_bokeh_events: () ->
-    @listenTo(@model, 'change', @request_render)
+  connect_signals: () ->
+    super()
+    @connect(@model.change, @request_render)
 
   get_extent: () ->
     return [@x_range.start, @y_range.start, @x_range.end, @y_range.end]
@@ -24,9 +24,7 @@ export class TileRendererView extends RendererView
     @map_canvas = @plot_view.canvas_view.ctx
     @map_frame = @plot_model.frame
     @x_range = @map_plot.x_range
-    @x_mapper = this.map_frame.x_mappers['default']
     @y_range = @map_plot.y_range
-    @y_mapper = this.map_frame.y_mappers['default']
     @extent = @get_extent()
     @_last_height = undefined
     @_last_width = undefined
@@ -38,8 +36,8 @@ export class TileRendererView extends RendererView
       if not @attributionEl?
         border_width = @map_plot.outline_line_width
         bottom_offset = @map_plot.min_border_bottom + border_width
-        right_offset = @map_frame.right - @map_frame.width
-        max_width = @map_frame.width - border_width
+        right_offset = @map_frame._right.value - @map_frame._width.value
+        max_width = @map_frame._width.value - border_width
         @attributionEl = div({
           class: 'bk-tile-attribution'
           style: {
@@ -53,15 +51,15 @@ export class TileRendererView extends RendererView
           }
         })
 
-        overlays = @plot_view.el.querySelector('div.bk-canvas-events')
+        overlays = @plot_view.canvas_view.events_el
         overlays.appendChild(@attributionEl)
 
       @attributionEl.innerHTML = attribution
 
   _map_data: () ->
     @initial_extent = @get_extent()
-    zoom_level = @model.tile_source.get_level_by_extent(@initial_extent, @map_frame.height, @map_frame.width)
-    new_extent = @model.tile_source.snap_to_zoom(@initial_extent, @map_frame.height, @map_frame.width, zoom_level)
+    zoom_level = @model.tile_source.get_level_by_extent(@initial_extent, @map_frame._height.value, @map_frame._width.value)
+    new_extent = @model.tile_source.snap_to_zoom(@initial_extent, @map_frame._height.value, @map_frame._width.value, zoom_level)
     @x_range.start = new_extent[0]
     @y_range.start = new_extent[1]
     @x_range.end = new_extent[2]
@@ -111,15 +109,15 @@ export class TileRendererView extends RendererView
 
   _enforce_aspect_ratio: () ->
     # brute force way of handling resize or sizing_mode event -------------------------------------------------------------
-    if @_last_height != @map_frame.height or @_last_width != @map_frame.width
+    if @_last_height != @map_frame._height.value or @_last_width != @map_frame._width.value
       extent = @get_extent()
-      zoom_level = @model.tile_source.get_level_by_extent(extent, @map_frame.height, @map_frame.width)
-      new_extent = @model.tile_source.snap_to_zoom(extent, @map_frame.height, @map_frame.width, zoom_level)
+      zoom_level = @model.tile_source.get_level_by_extent(extent, @map_frame._height.value, @map_frame._width.value)
+      new_extent = @model.tile_source.snap_to_zoom(extent, @map_frame._height.value, @map_frame._width.value, zoom_level)
       @x_range.setv({start:new_extent[0], end: new_extent[2]})
       @y_range.setv({start:new_extent[1], end: new_extent[3]})
       @extent = new_extent
-      @_last_height = @map_frame.height
-      @_last_width = @map_frame.width
+      @_last_height = @map_frame._height.value
+      @_last_width = @map_frame._width.value
       return true
     return false
 
@@ -157,10 +155,10 @@ export class TileRendererView extends RendererView
 
   _set_rect:() ->
     outline_width = @plot_model.plot.properties.outline_line_width.value()
-    l = @plot_view.canvas.vx_to_sx(@map_frame.left) + (outline_width/2)
-    t = @plot_view.canvas.vy_to_sy(@map_frame.top) + (outline_width/2)
-    w = @map_frame.width - outline_width
-    h = @map_frame.height - outline_width
+    l = @plot_view.canvas.vx_to_sx(@map_frame._left.value) + (outline_width/2)
+    t = @plot_view.canvas.vy_to_sy(@map_frame._top.value) + (outline_width/2)
+    w = @map_frame._width.value - outline_width
+    h = @map_frame._height.value - outline_width
     @map_canvas.rect(l, t, w, h)
     @map_canvas.clip()
 
@@ -175,8 +173,8 @@ export class TileRendererView extends RendererView
   _prefetch_tiles: () =>
     tile_source = @model.tile_source
     extent = @get_extent()
-    h = @map_frame.height
-    w = @map_frame.width
+    h = @map_frame._height.value
+    w = @map_frame._width.value
     zoom_level = @model.tile_source.get_level_by_extent(extent, h, w)
     tiles = @model.tile_source.get_tiles_by_extent(extent, zoom_level)
     for t in [0..Math.min(10, tiles.length)] by 1
@@ -203,8 +201,8 @@ export class TileRendererView extends RendererView
     tile_source.update()
     extent = @get_extent()
     zooming_out = @extent[2] - @extent[0] < extent[2] - extent[0]
-    h = @map_frame.height
-    w = @map_frame.width
+    h = @map_frame._height.value
+    w = @map_frame._width.value
     zoom_level = tile_source.get_level_by_extent(extent, h, w)
     snap_back = false
 

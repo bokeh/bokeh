@@ -1,10 +1,9 @@
-import {logger} from "core/logging"
 import * as p from "core/properties"
-import {BokehView} from "core/bokeh_view"
+import {View} from "core/view"
 import {min, max} from "core/util/array"
 import {Model} from "../../model"
 
-export class ToolView extends BokehView
+export class ToolView extends View
 
   initialize: (options) ->
     super(options)
@@ -14,8 +13,9 @@ export class ToolView extends BokehView
     plot_model: () -> @plot_view.model
   }
 
-  bind_bokeh_events: () ->
-    @listenTo(@model, 'change:active', () =>
+  connect_signals: () ->
+    super()
+    @connect(@model.properties.active.change, () =>
       if @model.active
         @activate()
       else

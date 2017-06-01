@@ -1,16 +1,18 @@
 import {proj4, mercator} from "core/util/proj4"
 
 import {PlotCanvas, PlotCanvasView} from "./plot_canvas"
-import * as p from "core/properties"
-import {defer} from "core/util/callback"
+import {Signal} from "core/signaling"
+import {extend} from "core/util/object"
 
-load_google_api = (callback, api_key) ->
-  if not window.google?.maps?
-    window._bokeh_gmap_callback = () -> callback()
-    script = document.createElement('script')
-    script.type = 'text/javascript'
-    script.src = "https://maps.googleapis.com/maps/api/js?key=#{api_key}&callback=_bokeh_gmap_callback"
-    document.body.appendChild(script)
+gmaps_ready = new Signal(this, "gmaps_ready")
+
+load_google_api = (api_key) ->
+  window._bokeh_gmaps_callback = () -> gmaps_ready.emit()
+
+  script = document.createElement('script')
+  script.type = 'text/javascript'
+  script.src = "https://maps.googleapis.com/maps/api/js?key=#{api_key}&callback=_bokeh_gmaps_callback"
+  document.body.appendChild(script)
 
 export class GMapPlotCanvasView extends PlotCanvasView
 
@@ -23,15 +25,18 @@ export class GMapPlotCanvasView extends PlotCanvasView
     @initial_lat = mo.lat
     @initial_lng = mo.lng
 
-    @canvas_view.map_div.style.position = "absolute"
+    @canvas_view.map_el.style.position = "absolute"
 
-    load_google_api(@request_render, @model.plot.api_key)
+    if not window.google?.maps?
+      if not window._bokeh_gmaps_callback?
+        load_google_api(@model.plot.api_key)
+      gmaps_ready.connect(() => @request_render())
 
   update_range: (range_info) ->
     # RESET -------------------------
     if not range_info?
       mo = @model.plot.map_options
-      @map.setCenter({lat: @initial_lat, lng: @initial_lng});
+      @map.setCenter({lat: @initial_lat, lng: @initial_lng})
       @map.setOptions({zoom: @initial_zoom})
       super(null)
 
@@ -97,19 +102,19 @@ export class GMapPlotCanvasView extends PlotCanvasView
       map_options.styles = JSON.parse(mo.styles)
 
     # create the map with above options in div
-    @map = new maps.Map(@canvas_view.map_div, map_options)
+    @map = new maps.Map(@canvas_view.map_el, map_options)
 
     # update bokeh ranges whenever the map idles, which should be after any UI action
     maps.event.addListenerOnce(@map, 'idle', @_set_bokeh_ranges)
 
     # wire up listeners so that changes to properties are reflected
-    @listenTo(@model.plot, 'change:map_options', () => @_update_options())
-    @listenTo(@model.plot.map_options, 'change:styles', () => @_update_styles())
-    @listenTo(@model.plot.map_options, 'change:lat', () => @_update_center('lat'))
-    @listenTo(@model.plot.map_options, 'change:lng', () => @_update_center('lng'))
-    @listenTo(@model.plot.map_options, 'change:zoom', () => @_update_zoom())
-    @listenTo(@model.plot.map_options, 'change:map_type', () => @_update_map_type())
-    @listenTo(@model.plot.map_options, 'change:scale_control', () => @_update_scale_control())
+    @connect(@model.plot.properties.map_options.change, () => @_update_options())
+    @connect(@model.plot.map_options.properties.styles.change, () => @_update_styles())
+    @connect(@model.plot.map_options.properties.lat.change, () => @_update_center('lat'))
+    @connect(@model.plot.map_options.properties.lng.change, () => @_update_center('lng'))
+    @connect(@model.plot.map_options.properties.zoom.change, () => @_update_zoom())
+    @connect(@model.plot.map_options.properties.map_type.change, () => @_update_map_type())
+    @connect(@model.plot.map_options.properties.scale_control.change, () => @_update_scale_control())
 
   _get_latlon_bounds: () =>
     bounds = @map.getBounds()
@@ -130,8 +135,8 @@ export class GMapPlotCanvasView extends PlotCanvasView
 
   _set_bokeh_ranges: () =>
     [proj_xstart, proj_xend, proj_ystart, proj_yend] = @_get_projected_bounds()
-    @x_range.setv({start: proj_xstart, end: proj_xend})
-    @y_range.setv({start: proj_ystart, end: proj_yend})
+    @frame.x_range.setv({start: proj_xstart, end: proj_xend})
+    @frame.y_range.setv({start: proj_ystart, end: proj_yend})
 
   _update_center: (fld) ->
     c = @map.getCenter().toJSON()
@@ -164,18 +169,18 @@ export class GMapPlotCanvasView extends PlotCanvasView
   # this method is expected and called by PlotView.render
   _map_hook: (ctx, frame_box) ->
     [left, top, width, height] = frame_box
-    @canvas_view.map_div.style.top    = "#{top}px"
-    @canvas_view.map_div.style.left   = "#{left}px"
-    @canvas_view.map_div.style.width  = "#{width}px"
-    @canvas_view.map_div.style.height = "#{height}px"
+    @canvas_view.map_el.style.top    = "#{top}px"
+    @canvas_view.map_el.style.left   = "#{left}px"
+    @canvas_view.map_el.style.width  = "#{width}px"
+    @canvas_view.map_el.style.height = "#{height}px"
 
-    if not @map?
+    if not @map? and window.google?.maps?
       @_build_map()
 
   # this overrides the standard _paint_empty to make the inner canvas transparent
   _paint_empty: (ctx, frame_box) ->
-    ow = @canvas.width
-    oh = @canvas.height
+    ow = @canvas._width.value
+    oh = @canvas._height.value
     [left, top, iw, ih] = frame_box
 
     ctx.clearRect(0, 0, ow, oh)

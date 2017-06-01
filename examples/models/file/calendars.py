@@ -3,7 +3,7 @@ from __future__ import absolute_import, print_function
 from calendar import Calendar, day_abbr as day_abbrs, month_name as month_names
 
 from bokeh.layouts import gridplot
-from bokeh.models import Plot, ColumnDataSource, FactorRange, CategoricalAxis, HoverTool
+from bokeh.models import Plot, ColumnDataSource, FactorRange, CategoricalAxis, HoverTool, CategoricalScale
 from bokeh.models.glyphs import Text, Rect
 from bokeh.document import Document
 from bokeh.embed import file_html
@@ -48,8 +48,10 @@ def make_calendar(year, month, firstweekday="Mon"):
 
     xdr = FactorRange(factors=list(day_names))
     ydr = FactorRange(factors=list(reversed([ str(week) for week in range(month_weeks) ])))
+    x_scale, y_scale = CategoricalScale(), CategoricalScale()
 
-    plot = Plot(x_range=xdr, y_range=ydr, plot_width=300, plot_height=300, outline_line_color=None)
+    plot = Plot(x_range=xdr, y_range=ydr, x_scale=x_scale, y_scale=y_scale,
+                plot_width=300, plot_height=300, outline_line_color=None)
     plot.title.text = month_names[month]
     plot.title.text_font_size = "12pt"
     plot.title.text_color = "darkolivegreen"

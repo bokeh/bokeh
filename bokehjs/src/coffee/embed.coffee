@@ -1,11 +1,8 @@
-import {Promise} from "es6-promise"
-
 import * as base from "./base"
 import {pull_session} from "./client"
 import {logger, set_log_level} from "./core/logging"
 import {Document, RootAddedEvent, RootRemovedEvent, TitleChangedEvent} from "./document"
 import {div, link, style, replaceWith} from "./core/dom"
-import {delay} from "./core/util/callback"
 
 # Matches Bokeh CSS class selector. Setting all Bokeh parent element class names
 # with this var prevents user configurations where css styling is unset.
@@ -44,7 +41,7 @@ _init_comms = (target, doc) ->
     console.warn('Jupyter notebooks comms not available. push_notebook() will not function');
 
 _create_view = (model) ->
-  view = new model.default_view({model : model})
+  view = new model.default_view({model: model, parent: null})
   base.index[model.id] = view
   view
 
@@ -86,11 +83,11 @@ add_model_static = (element, model_id, doc) ->
   if not model?
     throw new Error("Model #{model_id} was not in document #{doc}")
   view = _create_view(model)
-  delay(-> replaceWith(element, view.el))
+  replaceWith(element, view.el)
 
 # Fill element with the roots from doc
 export add_document_static = (element, doc, use_for_title) ->
-  delay(-> _render_document_to_element(element, doc, use_for_title))
+  _render_document_to_element(element, doc, use_for_title)
 
 export add_document_standalone = (document, element, use_for_title=false) ->
   return _render_document_to_element(element, document, use_for_title)
@@ -98,7 +95,7 @@ export add_document_standalone = (document, element, use_for_title=false) ->
 # map { websocket url to map { session id to promise of ClientSession } }
 _sessions = {}
 _get_session = (websocket_url, session_id, args_string) ->
-  if not websocket_url? or websocket_url == null
+  if not websocket_url?
     throw new Error("Missing websocket_url")
   if websocket_url not of _sessions
     _sessions[websocket_url] = {}

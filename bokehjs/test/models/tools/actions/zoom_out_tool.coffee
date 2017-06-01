@@ -33,12 +33,14 @@ describe "ZoomOutTool", ->
          x_range: new Range1d({start: -1, end: 1})
          y_range: new Range1d({start: -1, end: 1})
       })
+      @plot_view = new @plot.default_view({model: @plot, parent: null})
 
       document = new Document()
       document.add_root(@plot)
 
       @plot_canvas_view = new @plot.plot_canvas.default_view({
         model: @plot.plot_canvas
+        parent: @plot_view
       })
 
     it "should zoom into both ranges", ->
@@ -50,10 +52,11 @@ describe "ZoomOutTool", ->
         model: zoom_out_tool
         plot_model: @plot.plot_canvas
         plot_view: @plot_canvas_view
+        parent: null # wrong
       })
 
       # perform the tool action
-      zoom_out_tool_view.do()
+      zoom_out_tool_view.doit()
 
       hr = @plot_canvas_view.frame.x_ranges['default']
       expect([hr.start, hr.end]).to.be.deep.equal([-1.1, 1.1])
@@ -69,10 +72,11 @@ describe "ZoomOutTool", ->
         model: zoom_out_tool
         plot_model: @plot.plot_canvas
         plot_view: @plot_canvas_view
+        parent: null # wrong
       })
 
       # perform the tool action
-      zoom_out_tool_view.do()
+      zoom_out_tool_view.doit()
 
       hr = @plot_canvas_view.frame.x_ranges['default']
       expect([hr.start, hr.end]).to.be.deep.equal([-1.1, 1.1])
@@ -88,10 +92,11 @@ describe "ZoomOutTool", ->
         model: zoom_out_tool
         plot_model: @plot.plot_canvas
         plot_view: @plot_canvas_view
+        parent: null # wrong
       })
 
       # perform the tool action
-      zoom_out_tool_view.do()
+      zoom_out_tool_view.doit()
 
       hr = @plot_canvas_view.frame.x_ranges['default']
       expect([hr.start, hr.end]).to.be.deep.equal([-1.0, 1.0])

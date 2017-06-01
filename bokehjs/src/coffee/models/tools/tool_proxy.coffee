@@ -1,4 +1,5 @@
 import * as p from "core/properties"
+import {Signal} from "core/signaling"
 import {Model} from "../../model"
 
 export class ToolProxy extends Model
@@ -6,12 +7,13 @@ export class ToolProxy extends Model
 
   initialize: (options) ->
     super(options)
-    @listenTo(@, 'do', @do)
-    @listenTo(@, 'change:active', @set_active)
+    @do = new Signal(this, "do")
+    @connect(@do, @doit)
+    @connect(@properties.active.change, @set_active)
 
-  do: () ->
+  doit: () ->
     for tool in @tools
-      tool.trigger('do')
+      tool.do.emit()
     return null
 
   set_active: () ->

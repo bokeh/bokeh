@@ -17,12 +17,12 @@ WebGL is standardized and available in all modern browsers.
 How to enable WebGL
 -------------------
 
-To enable WebGL, set the plot's ``webgl`` property to ``True``:
+To enable WebGL, set the plot's ``output_backend`` property to ``"webgl"``:
 
 .. code-block:: python
 
-    p = Plot(webgl=True)  # for the glyph API
-    p = figure(webgl=True)  # for the plotting API
+    p = Plot(output_backend="webgl")  # for the glyph API
+    p = figure(output_backend="webgl")  # for the plotting API
 
 Support
 -------
@@ -67,8 +67,8 @@ Examples
 
     output_file("scatter10k.html", title="scatter 10k points (no WebGL)")
 
-    p = figure(webgl=False)
-    p.scatter(x,y, alpha=0.1)
+    p = figure(output_backend="webgl")
+    p.scatter(x, y, alpha=0.1)
     show(p)
 
 
@@ -86,8 +86,8 @@ Examples
 
     output_file("scatter10k.html", title="scatter 10k points (with WebGL)")
 
-    p = figure(webgl=True)
-    p.scatter(x,y, alpha=0.1)
+    p = figure(output_backend="webgl")
+    p.scatter(x, y, alpha=0.1)
     show(p)
 
 
@@ -105,6 +105,6 @@ Examples
 
     output_file("line10k.html", title="line10k.py example")
 
-    p = figure(title="A line consisting of 10k points", webgl=True)
+    p = figure(title="A line consisting of 10k points", output_backend="webgl")
     p.line(x, y, color="#22aa22", line_width=3)
     show(p)

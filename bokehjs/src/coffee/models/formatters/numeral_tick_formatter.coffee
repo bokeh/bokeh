@@ -13,7 +13,7 @@ export class NumeralTickFormatter extends TickFormatter
     rounding: [ p.String, 'round' ]
   }
 
-  doFormat: (ticks, loc) ->
+  doFormat: (ticks, axis) ->
     format = @format
     language = @language
     rounding = switch @rounding

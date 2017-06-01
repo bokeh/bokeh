@@ -92,7 +92,7 @@ export class ToolbarBoxToolbar extends ToolbarBase
         if tools.length > 0
           proxy = make_proxy(tools)
           @gestures[event_type].tools.push(proxy)
-          @listenTo(proxy, 'change:active', @_active_change.bind(proxy))
+          @connect(proxy.properties.active.change, @_active_change.bind(null, proxy))
 
     @actions = []
     for tool_type, tools of actions
@@ -135,15 +135,13 @@ export class ToolbarBox extends Box
   initialize: (options) ->
     super(options)
     @_toolbar = new ToolbarBoxToolbar(options)
-    if @toolbar_location in ['left', 'right']
-      @_horizontal = true
-      @_toolbar._sizeable = @_toolbar._width
-    else
-      @_horizontal = false
-      @_toolbar._sizeable = @_toolbar._height
+
+    @_horizontal = @toolbar_location in ['left', 'right']
+    @_sizeable = if not @_horizontal then @_height else @_width
 
   _doc_attached: () ->
     @_toolbar.attach_document(@document)
+    super()
 
   get_layoutable_children: () ->
     return [@_toolbar]

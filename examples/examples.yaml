@@ -8,12 +8,11 @@
 
 - path: "custom"
 
-- path: "charts/file"
-
 - path: "plotting/file"
   slow: ["choropleth.py"]
   no_diff: ["jitter.py"]
   no_js: ["gmap.py"]
+  skip: ["dynamic_map.py"]
 
 - path: "plotting/server"
   type: server
@@ -22,5 +21,4 @@
 - path: "plotting/notebook"
   skip: all
 
-- path: "howto/charts"
-  skip: all
+- path: "howto/layouts"

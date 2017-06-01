@@ -8,11 +8,14 @@
 
 from __future__ import absolute_import
 from mock import patch, Mock, PropertyMock
+from PIL import Image
+import pytest
 import unittest
 
 import bokeh.io as io
 from bokeh.resources import Resources
 from bokeh.models.plots import Plot
+from bokeh.models import Range1d
 
 class TestDefaultState(unittest.TestCase):
 
@@ -61,21 +64,38 @@ class testOutputFile(DefaultStateTester):
         io.output_file("foo.html", **kwargs)
         self._check_func_called(io._state.output_file, ("foo.html",), kwargs)
 
-class TestOutputNotebook(DefaultStateTester):
+class TestOutputJupyter(DefaultStateTester):
 
     @patch('bokeh.io.load_notebook')
     def test_noarg(self, mock_load_notebook):
-        default_load_notebook_args = (None, False, False, 5000)
+        default_load_jupyter_args = (None, False, False, 5000)
         io.output_notebook()
-        self._check_func_called(io._state.output_notebook, (), {})
-        self._check_func_called(mock_load_notebook, default_load_notebook_args, {})
+        self._check_func_called(io._state.output_notebook, ('jupyter',), {})
+        self._check_func_called(mock_load_notebook, default_load_jupyter_args + ('jupyter',), {})
 
     @patch('bokeh.io.load_notebook')
     def test_args(self, mock_load_notebook):
-        load_notebook_args = (Resources(), True, True, 1000)
-        io.output_notebook(*load_notebook_args)
-        self._check_func_called(io._state.output_notebook, (), {})
-        self._check_func_called(mock_load_notebook, load_notebook_args, {})
+        load_jupyter_args = (Resources(), True, True, 1000, 'jupyter')
+        io.output_notebook(*load_jupyter_args)
+        self._check_func_called(io._state.output_notebook, ('jupyter',), {})
+        self._check_func_called(mock_load_notebook, load_jupyter_args, {})
+
+class TestOutputZeppelin(DefaultStateTester):
+
+    @patch('bokeh.io.load_notebook')
+    def test_args(self, mock_load_notebook):
+        load_zeppelin_args = (Resources(), True, True, 1000, 'zeppelin')
+        io.output_notebook(*load_zeppelin_args)
+        self._check_func_called(io._state.output_notebook, ('zeppelin',), {})
+        self._check_func_called(mock_load_notebook, load_zeppelin_args, {})
+
+    def test_zeppelin_with_notebook_handle(self):
+        load_zeppelin_args = (Resources(), True, True, 1000, 'zeppelin')
+        io.output_notebook(*load_zeppelin_args)
+        with pytest.raises(Exception) as ex:
+            p = Plot()
+            io.show(p, notebook_handle=True)
+        assert "Zeppelin doesn't support notebook_handle." == str(ex.value)
 
 class TestSave(DefaultStateTester):
     pass
@@ -185,29 +205,29 @@ def test_show_doesnt_duplicate_if_already_there(m):
 
 class Test_ShowWithState(DefaultStateTester):
 
-    @patch('bokeh.io._show_notebook_with_state')
+    @patch('bokeh.io._show_jupyter_with_state')
     @patch('bokeh.io._show_file_with_state')
     @patch('bokeh.util.browser.get_browser_controller')
     def test_notebook(self, mock_get_browser_controller,
-            mock__show_file_with_state, mock__show_notebook_with_state):
+            mock__show_file_with_state, mock__show_jupyter_with_state):
         mock_get_browser_controller.return_value = "controller"
         s = io.State()
         s.output_notebook()
         io._show_with_state("obj", s, "browser", "new")
-        self._check_func_called(mock__show_notebook_with_state, ("obj", s, False), {})
+        self._check_func_called(mock__show_jupyter_with_state, ("obj", s, False), {})
         self.assertFalse(mock__show_file_with_state.called)
 
         s.output_file("foo.html")
         io._show_with_state("obj", s, "browser", "new")
-        self._check_func_called(mock__show_notebook_with_state, ("obj", s, False), {})
+        self._check_func_called(mock__show_jupyter_with_state, ("obj", s, False), {})
         self._check_func_called(mock__show_file_with_state, ("obj", s, "new", "controller"), {})
 
     @patch('bokeh.io.get_comms')
-    @patch('bokeh.io._show_notebook_with_state')
+    @patch('bokeh.io._show_jupyter_with_state')
     @patch('bokeh.io._show_file_with_state')
     @patch('bokeh.util.browser.get_browser_controller')
     def test_no_notebook(self, mock_get_browser_controller,
-            mock__show_file_with_state, mock__show_notebook_with_state,
+            mock__show_file_with_state, mock__show_jupyter_with_state,
             mock_get_comms):
         mock_get_browser_controller.return_value = "controller"
         mock_get_comms.return_value = "comms"
@@ -215,7 +235,7 @@ class Test_ShowWithState(DefaultStateTester):
 
         s.output_file("foo.html")
         io._show_with_state("obj", s, "browser", "new")
-        self.assertFalse(mock__show_notebook_with_state.called)
+        self.assertFalse(mock__show_jupyter_with_state.called)
         self._check_func_called(mock__show_file_with_state, ("obj", s, "new", "controller"), {})
 
 class Test_ShowFileWithState(DefaultStateTester):
@@ -236,7 +256,7 @@ class Test_ShowFileWithState(DefaultStateTester):
         self._check_func_called(mock_save, ("obj",), {"state": s})
         self._check_func_called(controller.open, ("file://savepath",), {"new": 2})
 
-class Test_ShowNotebookWithState(DefaultStateTester):
+class Test_ShowJupyterWithState(DefaultStateTester):
 
     @patch('bokeh.io.get_comms')
     @patch('bokeh.io.publish_display_data')
@@ -247,7 +267,7 @@ class Test_ShowNotebookWithState(DefaultStateTester):
         mock_notebook_div.return_value = "notebook_div"
 
         io._nb_loaded = True
-        io._show_notebook_with_state("obj", s, True)
+        io._show_jupyter_with_state("obj", s, True)
         io._nb_loaded = False
         self._check_func_called(mock_publish_display_data, ({"text/html": "notebook_div"},), {})
 
@@ -275,3 +295,20 @@ def _test_children_removed_from_root(layout_generator, children=None):
     layout_generator(component if children is None else children)
     assert component not in io.curdoc().roots
     io.curdoc().clear()
+
+def test__crop_image():
+    image = Image.new(mode="RGBA", size=(10,10))
+    rect = dict(left=2, right=8, top=3, bottom=7)
+    cropped = io._crop_image(image, **rect)
+    assert cropped.size == (6,4)
+
+def test__get_screenshot_as_png():
+    layout = Plot(x_range=Range1d(), y_range=Range1d(),
+                  plot_height=2, plot_width=2, toolbar_location=None,
+                  outline_line_color=None, background_fill_color=None,
+                  border_fill_color=None)
+
+    png = io._get_screenshot_as_png(layout)
+    assert png.size == (2, 2)
+    # a 2x2px image of transparent pixels
+    assert png.tobytes() == b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'

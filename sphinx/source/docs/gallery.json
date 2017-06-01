@@ -28,18 +28,6 @@
         { "path": "examples/plotting/file/brewer.py",          "name": "brewer"             },
         { "path": "examples/plotting/file/elements.py",        "name": "elements"           },
         { "path": "examples/plotting/file/boxplot.py",         "name": "boxplot"            },
-        { "path": "examples/plotting/file/logplot.py",         "name": "logaxis"            },
-        { "path": "examples/charts/file/area.py",              "name": "area_chart"         },
-        { "path": "examples/charts/file/boxplot_single.py",    "name": "boxplot_chart"      },
-        { "path": "examples/charts/file/heatmap.py",           "name": "heatmap_chart"      },
-        { "path": "examples/charts/file/donut.py",             "name": "donut_chart"        },
-        { "path": "examples/charts/file/dots.py",              "name": "dot_chart"          },
-        { "path": "examples/charts/file/chord_from_df.py",     "name": "chord_chart"        },
-        { "path": "examples/charts/file/histogram_single.py",  "name": "histograms_chart"   },
-        { "path": "examples/charts/file/iris_simple.py",       "name": "iris_scatter_chart" },
-        { "path": "examples/charts/file/line_single.py",       "name": "line_chart"         },
-        { "path": "examples/charts/file/palettes.py",          "name": "palettes"           },
-        { "path": "examples/charts/file/stacked_bar.py",       "name": "stacked_bar_chart"  },
-        { "path": "examples/charts/file/steps.py",             "name": "step_chart"         }
+        { "path": "examples/plotting/file/logplot.py",         "name": "logaxis"            }
     ]
 }

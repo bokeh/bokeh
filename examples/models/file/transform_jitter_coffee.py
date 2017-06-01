@@ -34,7 +34,7 @@ callback=CustomJS.from_coffeescript(args=dict(source=source, normal=normal, unif
         data['xn'][i] = normal.compute(data['x'][i] + 1)
     for i in [0...data['y'].length]
         data['xu'][i] = uniform.compute(data['x'][i] + 2)
-    source.trigger 'change'
+    source.change.emit()
 """)
 
 button = Button(label='Press to apply Jitter!', callback=callback)

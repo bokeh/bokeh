@@ -1,14 +1,14 @@
-import {BokehView} from "core/bokeh_view"
+import {DOMView} from "core/dom_view"
 import {Tool, ToolView} from "./tool"
 import {div, span, empty} from "core/dom"
 import * as p from "core/properties"
 
-export class ButtonToolButtonView extends BokehView
+export class ButtonToolButtonView extends DOMView
   className: "bk-toolbar-button"
 
   initialize: (options) ->
     super(options)
-    @listenTo(@model, 'change', () => @render())
+    @connect(@model.change, () => @render())
     @el.addEventListener("click", (e) => @_clicked(e))
     @render()
 

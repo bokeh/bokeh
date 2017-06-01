@@ -1,7 +1,7 @@
-_ = require "underscore"
 {expect} = require "chai"
 utils = require "../../utils"
 
+{shuffle} = utils.require "core/util/array"
 {TileRenderer} = utils.require "models/tiles/tile_renderer"
 {TileSource} = utils.require "models/tiles/tile_source"
 {MercatorTileSource} = utils.require "models/tiles/mercator_tile_source"
@@ -132,7 +132,7 @@ describe "tile sources", ->
         for y in [1..6] by 1
           tiles.push([x, y])
 
-      tiles = _.shuffle(tiles)
+      tiles = shuffle(tiles)
       sorted_tiles = source.sort_tiles_from_center(tiles, [1, 1, 6, 6])
 
       for i in [0..3] by 1

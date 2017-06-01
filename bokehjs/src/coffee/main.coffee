@@ -1,3 +1,5 @@
+import "./polyfill"
+
 export {version} from "./version"
 
 import * as embed from "./embed"

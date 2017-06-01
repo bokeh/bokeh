@@ -10,8 +10,9 @@ export class LegendView extends AnnotationView
   initialize: (options) ->
     super(options)
 
-  bind_bokeh_events: () ->
-    @listenTo(@model, 'change:visible', @plot_view.request_render)
+  connect_signals: () ->
+    super()
+    @connect(@model.properties.visible.change, () => @plot_view.request_render())
 
   compute_legend_bbox: () ->
     legend_names = @model.get_legend_names()
@@ -52,8 +53,8 @@ export class LegendView extends AnnotationView
       legend_height = @max_label_height + 2 * legend_padding
 
     panel = @model.panel ? @plot_view.frame
-    h_range = {start: panel.left, end: panel.right}
-    v_range = {start: panel.bottom, end: panel.top}
+    h_range = {start: panel._left.value, end: panel._right.value}
+    v_range = {start: panel._bottom.value, end: panel._top.value}
 
     location = @model.location
     if isString(location)
@@ -87,8 +88,12 @@ export class LegendView extends AnnotationView
           y = (v_range.end + v_range.start)/2 + legend_height/2
     else if isArray(location) and location.length == 2
       [x, y] = location   # left, bottom wrt panel
-      x += h_range.start
-      y += v_range.start + legend_height
+      if panel.side in ["left", "right", "above", "below"]
+        x += h_range.start
+        y += v_range.end
+      else
+        x += h_range.start
+        y += v_range.start
 
     x = @plot_view.canvas.vx_to_sx(x)
     y = @plot_view.canvas.vy_to_sy(y)

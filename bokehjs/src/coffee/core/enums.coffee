@@ -24,6 +24,8 @@ export LegendLocation = [
 
 export Orientation = ["vertical", "horizontal"]
 
+export OutputBackend = ["canvas", "svg", "webgl"]
+
 export RenderLevel = ["image", "underlay", "glyph", "annotation", "overlay"]
 
 export RenderMode = ["canvas", "css"]
@@ -43,3 +45,5 @@ export DistributionTypes = ["uniform", "normal"]
 export TransformStepModes = ["after", "before", "center"]
 
 export SizingMode = ["stretch_both", "scale_width", "scale_height", "scale_both", "fixed"]
+
+export PaddingUnits = ["percent", "absolute"]

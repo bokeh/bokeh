@@ -1,9 +1,8 @@
 import * as p from "core/properties"
 
-import {build_views} from "core/build_views"
+import {build_views, remove_views} from "core/build_views"
 import {Widget, WidgetView} from "./widget"
 import template from "./button_template"
-
 
 export class AbstractButtonView extends WidgetView
   events:
@@ -13,15 +12,19 @@ export class AbstractButtonView extends WidgetView
   initialize: (options) ->
     super(options)
     @icon_views = {}
-    @listenTo(@model, 'change', @render)
+    @connect(@model.change, @render)
     @render()
+
+  remove: () ->
+    remove_views(@icon_views)
+    super()
 
   render: () ->
     super()
 
     icon = @model.icon
     if icon?
-      build_views(@icon_views, [icon])
+      build_views(@icon_views, [icon], {parent: @})
       for own key, val of @icon_views
         val.el.parentNode?.removeChild(val.el)
 

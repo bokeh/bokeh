@@ -229,13 +229,18 @@ NumeralLanguage = enumeration("be-nl", "chs", "cs", "da-dk", "de-ch", "de", "en"
                               "fr", "hu", "it", "ja", "nl-nl", "pl", "pt-br",
                               "pt-pt", "ru", "ru-UA", "sk", "th", "tr", "uk-UA")
 
+#: Specify an output backend to render a plot area onto
+OutputBackend = enumeration("canvas", "svg", "webgl")
+
 #: Specify a position in the render order for a Bokeh renderer
 RenderLevel = enumeration("image", "underlay", "glyph", "annotation", "overlay")
 
 #: Specify a render mode for renderers that support both Canvas or CSS rendering
 RenderMode = enumeration("canvas", "css")
 
-#: Specify an aggregation type for different charts
+# TODO (bev) Aggregation can probably be deprecated and removed
+
+#: Specify an aggregation type
 Aggregation = enumeration("sum", "mean", "count", "nunique", "median", "min", "max")
 
 #: Specify a start/end value
@@ -256,5 +261,11 @@ SortDirection = enumeration("ascending", "descending")
 #: Sizing mode policies
 SizingMode = enumeration("stretch_both", "scale_width", "scale_height", "scale_both", "fixed")
 
-#: Legend's click policies
+#: Specify how a legend should respond to click events
 LegendClickPolicy = enumeration("none", "hide", "mute")
+
+#: Whether range padding should be interpreted a percentage or and absolute quantity
+PaddingUnits = enumeration("percent", "absolute")
+
+#: Specify how a format string for a tooltip field should be interpreted
+TooltipFieldFormatter = enumeration("numeral", "datetime", "printf")

@@ -2,7 +2,6 @@ import * as $ from "jquery"
 import "bootstrap/button"
 
 import {Widget, WidgetView} from "./widget"
-import {BokehView} from "core/bokeh_view"
 import * as p from "core/properties"
 import template from "./button_group_template"
 
@@ -15,7 +14,7 @@ export class CheckboxButtonGroupView extends WidgetView
   initialize: (options) ->
     super(options)
     @render()
-    @listenTo(@model, 'change', @render)
+    @connect(@model.change, @render)
 
   render: () ->
     super()

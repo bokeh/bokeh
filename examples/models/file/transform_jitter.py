@@ -36,7 +36,7 @@ callback=CustomJS(args=dict(source=source, normal=normal, uniform=uniform), code
     for (var i = 0; i < data['y'].length; i++) {
         data['xu'][i] = uniform.compute(data['x'][i] + 2);
     }
-    source.trigger('change');
+    source.change.emit();
 """)
 
 button = Button(label='Press to apply Jitter!', callback=callback)

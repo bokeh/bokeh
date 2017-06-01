@@ -1,10 +1,10 @@
-_ = require "underscore"
 {expect} = require "chai"
 utils = require "../../utils"
 sinon = require 'sinon'
 
 {Document} = utils.require("document")
 
+{clone} = utils.require("core/util/object")
 {CustomJS} = utils.require("models/callbacks/customjs")
 {DataRange1d} = utils.require("models/ranges/data_range1d")
 {Range1d} = utils.require("models/ranges/range1d")
@@ -38,12 +38,12 @@ describe "Plot", ->
       dom_top = 13
       width = 80
       height = 100
-      @p._dom_left = {_value: dom_left}
-      @p._dom_top = {_value: dom_top}
-      @p._width = {_value: width}
-      @p._height = {_value: height}
+      @p._dom_left.setValue(dom_left)
+      @p._dom_top.setValue(dom_top)
+      @p._width.setValue(width)
+      @p._height.setValue(height)
       @p.sizing_mode = 'stretch_both'
-      plot_view = new @p.default_view({ model: @p })
+      plot_view = new @p.default_view({ model: @p, parent: null })
       plot_view.render()
       # Note we do not set margin & padding on Plot
       expected_style = "position: absolute; left: #{dom_left}px; top: #{dom_top}px; width: #{width}px; height: #{height}px;"
@@ -51,7 +51,7 @@ describe "Plot", ->
 
     it "should call suggest value with the model height and width if sizing_mode is scale_both", sinon.test () ->
       @p.sizing_mode = 'scale_both'
-      plot_view = new @p.default_view({ model: @p })
+      plot_view = new @p.default_view({ model: @p, parent: null })
       this.stub(plot_view, 'get_width_height').returns([34, 77])
       @solver_suggest.reset()
       plot_view.render()
@@ -62,28 +62,28 @@ describe "Plot", ->
     it "get_height should return the height from the aspect ratio", sinon.test () ->
       @p.width = 22
       @p.height = 44
-      plot_view = new @p.default_view({ model: @p })
-      @p._width = {_value: 33}
+      plot_view = new @p.default_view({ model: @p, parent: null })
+      @p._width.setValue(33)
       expect(plot_view.get_height()).to.be.equal 66
 
     it "get_width should return the width from the aspect ratio", sinon.test () ->
       @p.width = 2
       @p.height = 10
-      plot_view = new @p.default_view({ model: @p })
-      @p._height= {_value: 100}
+      plot_view = new @p.default_view({ model: @p, parent: null })
+      @p._height.setValue(100)
       expect(plot_view.get_width()).to.be.equal 20
 
     it "get_width should return the width from the aspect ratio", sinon.test () ->
       @p.width = 2
       @p.height = 10
-      plot_view = new @p.default_view({ model: @p })
-      @p._height= {_value: 100}
+      plot_view = new @p.default_view({ model: @p, parent: null })
+      @p._height.setValue(100)
       expect(plot_view.get_width()).to.be.equal 20
 
     it "get_width_height should return a constrained width if plot is landscape oriented", sinon.test () ->
       @p.width = 4
       @p.height = 2
-      plot_view = new @p.default_view({ model: @p })
+      plot_view = new @p.default_view({ model: @p, parent: null })
       plot_view.el = {'parentNode': {'clientWidth': 56, 'clientHeight': 49}}
       [w, h] = plot_view.get_width_height()
       expect(w).to.be.equal 56
@@ -92,7 +92,7 @@ describe "Plot", ->
     it "get_width_height should return a constrained height if plot is portrait oriented", sinon.test () ->
       @p.width = 3
       @p.height = 5
-      plot_view = new @p.default_view({ model: @p })
+      plot_view = new @p.default_view({ model: @p, parent: null })
       plot_view.el = {'parentNode': {'clientWidth': 56, 'clientHeight': 49}}
       [w, h] = plot_view.get_width_height()
       expect(h).to.be.equal 49
@@ -165,27 +165,27 @@ describe "Plot", ->
         # constraints come from there - whilst others come from the plot container.
         @expected_constrained_variables = {
           # Constraints from Plot
-          'width': @p._width
-          'height': @p._height
-          'origin-x': @p._dom_left
-          'origin-y': @p._dom_top
-          'whitespace-top' : @p._whitespace_top
-          'whitespace-bottom' : @p._whitespace_bottom
-          'whitespace-left' : @p._whitespace_left
-          'whitespace-right' : @p._whitespace_right
+          width: @p._width
+          height: @p._height
+          origin_x: @p._dom_left
+          origin_y: @p._dom_top
+          whitespace_top : @p._whitespace_top
+          whitespace_bottom : @p._whitespace_bottom
+          whitespace_left : @p._whitespace_left
+          whitespace_right : @p._whitespace_right
           # Constraints from PlotCanvas
-          'on-edge-align-top' : plot_canvas._top
-          'on-edge-align-bottom' : plot_canvas._height_minus_bottom
-          'on-edge-align-left' : plot_canvas._left
-          'on-edge-align-right' : plot_canvas._width_minus_right
-          'box-equal-size-top' : plot_canvas._top
-          'box-equal-size-bottom' : plot_canvas._height_minus_bottom
-          'box-equal-size-left' : plot_canvas._left
-          'box-equal-size-right' : plot_canvas._width_minus_right
-          'box-cell-align-top' : plot_canvas._top
-          'box-cell-align-bottom' : plot_canvas._height_minus_bottom
-          'box-cell-align-left' : plot_canvas._left
-          'box-cell-align-right' : plot_canvas._width_minus_right
+          on_edge_align_top : plot_canvas._top
+          on_edge_align_bottom : plot_canvas._height_minus_bottom
+          on_edge_align_left : plot_canvas._left
+          on_edge_align_right : plot_canvas._width_minus_right
+          box_equal_size_top : plot_canvas._top
+          box_equal_size_bottom : plot_canvas._height_minus_bottom
+          box_equal_size_left : plot_canvas._left
+          box_equal_size_right : plot_canvas._width_minus_right
+          box_cell_align_top : plot_canvas._top
+          box_cell_align_bottom : plot_canvas._height_minus_bottom
+          box_cell_align_left : plot_canvas._left
+          box_cell_align_right : plot_canvas._width_minus_right
         }
 
       it "should return correct constrained_variables in box mode", sinon.test () ->
@@ -195,18 +195,24 @@ describe "Plot", ->
 
       it "should return correct constrained_variables in scale_width mode", sinon.test () ->
         @p.sizing_mode = 'scale_width'
-        expected_constrained_variables = _.omit(@expected_constrained_variables, ['height'])
+        expected_constrained_variables = clone(@expected_constrained_variables)
+        delete expected_constrained_variables.height
         constrained_variables = @p.get_constrained_variables()
         expect(constrained_variables).to.be.deep.equal expected_constrained_variables
 
       it "should return correct constrained_variables in scale_height mode", sinon.test () ->
         @p.sizing_mode = 'scale_height'
-        expected_constrained_variables = _.omit(@expected_constrained_variables, ['width'])
+        expected_constrained_variables = clone(@expected_constrained_variables)
+        delete expected_constrained_variables.width
         constrained_variables = @p.get_constrained_variables()
         expect(constrained_variables).to.be.deep.equal expected_constrained_variables
 
       it "should return correct constrained_variables in fixed mode", sinon.test () ->
         @p.sizing_mode = 'fixed'
-        expected_constrained_variables = _.omit(@expected_constrained_variables, ['height', 'width', 'box-equal-size-left', 'box-equal-size-right'])
+        expected_constrained_variables = clone(@expected_constrained_variables)
+        delete expected_constrained_variables.height
+        delete expected_constrained_variables.width
+        delete expected_constrained_variables.box_equal_size_left
+        delete expected_constrained_variables.box_equal_size_right
         constrained_variables = @p.get_constrained_variables()
         expect(constrained_variables).to.be.deep.equal expected_constrained_variables

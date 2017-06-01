@@ -4,9 +4,7 @@ import {max, concat} from "core/util/array"
 
 export class ImageRGBAView extends XYGlyphView
 
-  # TODO (bev) to improve. Currently, if only one image has changed, can
-  # pass index as "arg" to prevent full re-preocessing (useful for streaming)
-  _set_data: (source, arg) ->
+  _set_data: (source, indices) ->
     if not @image_data? or @image_data.length != @_image.length
       @image_data = new Array(@_image.length)
 
@@ -17,9 +15,8 @@ export class ImageRGBAView extends XYGlyphView
       @_height = new Array(@_image.length)
 
     for i in [0...@_image.length]
-      if arg?
-        if i != arg
-          continue
+      if indices? and indices.indexOf(i) < 0
+        continue
 
       shape = []
       if @_image_shape?
@@ -73,11 +70,11 @@ export class ImageRGBAView extends XYGlyphView
 
   _map_data: () ->
     switch @model.properties.dw.units
-      when "data" then @sw = @sdist(@renderer.xmapper, @_x, @_dw, 'edge', @model.dilate)
+      when "data" then @sw = @sdist(@renderer.xscale, @_x, @_dw, 'edge', @model.dilate)
       when "screen" then @sw = @_dw
 
     switch @model.properties.dh.units
-      when "data" then @sh = @sdist(@renderer.ymapper, @_y, @_dh, 'edge', @model.dilate)
+      when "data" then @sh = @sdist(@renderer.yscale, @_y, @_dh, 'edge', @model.dilate)
       when "screen" then @sh = @_dh
 
   _render: (ctx, indices, {image_data, sx, sy, sw, sh}) ->

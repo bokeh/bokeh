@@ -10,14 +10,14 @@ from ..core.enums import (accept_left_right_center, AngleUnits, DeprecatedLegend
                           FontStyle, LegendClickPolicy, LegendLocation, Orientation, RenderMode,
                           SpatialUnits, TextAlign)
 from ..core.has_props import abstract
-from ..core.properties import (Angle, AngleSpec, Auto, Bool, ColorSpec, Either, Enum, Float,
-                               FontSizeSpec, Include, Instance, Int, List, NumberSpec, Override,
+from ..core.properties import (Angle, AngleSpec, Auto, Bool, ColorSpec, Datetime, DistanceSpec, Either,
+                               Enum, Float, FontSizeSpec, Include, Instance, Int, List, NumberSpec, Override,
                                Seq, String, StringSpec, Tuple, value)
 from ..core.property_mixins import FillProps, LineProps, TextProps
 from ..core.validation import error
 from ..core.validation.errors import BAD_COLUMN_NAME, NON_MATCHING_DATA_SOURCES_ON_LEGEND_ITEM_RENDERERS
 from ..model import Model
-from ..util.deprecation import deprecated
+from ..util.serialization import convert_datetime_type
 
 from .formatters import BasicTickFormatter, TickFormatter
 from .mappers import ContinuousColorMapper
@@ -192,63 +192,6 @@ class Legend(Annotation):
 
     """).accepts(List(Tuple(String, List(Instance(GlyphRenderer)))), lambda items: [LegendItem(label=item[0], renderers=item[1]) for item in items])
 
-    # --- DEPRECATIONS --------------------------------------------------------
-
-    __deprecated_attributes__ = (
-        'legends', 'legend_margin', 'legend_padding', 'legend_spacing'
-    )
-
-    @property
-    def legends(self):
-        deprecated((0, 12, 3), 'legends', 'Legend.items')
-        return self.items
-
-    @legends.setter
-    def legends(self, legends):
-        deprecated((0, 12, 3), 'legends', 'Legend.items')
-        # Legends are [('label', [glyph_renderer_1, glyph_renderer_2]), ....]
-        # Or {'label', [glyph_renderer_1, glyph_renderer_2], ....}
-        if isinstance(legends, dict):
-            legends = list(legends.items())
-        items_list = []
-        for legend in legends:
-            item = LegendItem()
-            item.label = value(legend[0])
-            item.renderers = legend[1]
-            items_list.append(item)
-        self.items = items_list
-
-    @property
-    def legend_margin(self):
-        deprecated((0, 12, 3), 'legend_margin', 'Legend.margin')
-        return self.margin
-
-    @legend_margin.setter
-    def legend_margin(self, margin):
-        deprecated((0, 12, 3), 'legend_margin', 'Legend.margin')
-        self.margin = margin
-
-    @property
-    def legend_padding(self):
-        deprecated((0, 12, 3), 'legend_padding', 'Legend.padding')
-        return self.padding
-
-    @legend_padding.setter
-    def legend_padding(self, padding):
-        deprecated((0, 12, 3), 'legend_padding', 'Legend.padding')
-        self.padding = padding
-
-    @property
-    def legend_spacing(self):
-        deprecated((0, 12, 3), 'legend_spacing', 'Legend.spacing')
-        return self.spacing
-
-    @legend_spacing.setter
-    def legend_spacing(self, spacing):
-        deprecated((0, 12, 3), 'legend_spacing', 'Legend.spacing')
-        self.spacing = spacing
-
-
 class ColorBar(Annotation):
     ''' Render a color bar based on a color mapper.
 
@@ -311,7 +254,10 @@ class ColorBar(Annotation):
 
     .. warning::
         If the `low` and `high` attributes of the ColorMapper aren't set, ticks
-        and tick labels won't be rendered.
+        and tick labels won't be rendered. Additionally, if a LogTicker is
+        passed to the `ticker` argument and either or both of the logarithms
+        of `low` and `high` values of the color_mapper are non-numeric
+        (i.e. `low=0`), the tick and tick labels won't be rendered.
     """)
 
     margin = Int(30, help="""
@@ -457,6 +403,9 @@ class BoxAnnotation(Annotation):
 
     left = Either(Auto, NumberSpec(), default=None, help="""
     The x-coordinates of the left edge of the box annotation.
+
+    Datetime values are also accepted, but note that they are immediately
+    converted to milliseconds-since-epoch.
     """)
 
     left_units = Enum(SpatialUnits, default='data', help="""
@@ -466,6 +415,9 @@ class BoxAnnotation(Annotation):
 
     right = Either(Auto, NumberSpec(), default=None, help="""
     The x-coordinates of the right edge of the box annotation.
+
+    Datetime values are also accepted, but note that they are immediately
+    converted to milliseconds-since-epoch.
     """)
 
     right_units = Enum(SpatialUnits, default='data', help="""
@@ -475,6 +427,9 @@ class BoxAnnotation(Annotation):
 
     bottom = Either(Auto, NumberSpec(), default=None, help="""
     The y-coordinates of the bottom edge of the box annotation.
+
+    Datetime values are also accepted, but note that they are immediately
+    converted to milliseconds-since-epoch.
     """)
 
     bottom_units = Enum(SpatialUnits, default='data', help="""
@@ -484,6 +439,9 @@ class BoxAnnotation(Annotation):
 
     top = Either(Auto, NumberSpec(), default=None, help="""
     The y-coordinates of the top edge of the box annotation.
+
+    Datetime values are also accepted, but note that they are immediately
+    converted to milliseconds-since-epoch.
     """)
 
     top_units = Enum(SpatialUnits, default='data', help="""
@@ -527,6 +485,57 @@ class BoxAnnotation(Annotation):
 
     """)
 
+class Band(Annotation):
+    ''' Render a filled area band along a dimension.
+
+    '''
+
+    lower = DistanceSpec(help="""
+    The coordinates of the lower portion of the filled area band.
+    """)
+
+    upper = DistanceSpec(help="""
+    The coordinations of the upper portion of the filled area band.
+    """)
+
+    base = DistanceSpec(help="""
+    The orthogonal coordinates of the upper and lower values.
+    """)
+
+    dimension = Enum(Dimension, default='height', help="""
+    The direction of the band.
+    """)
+
+    source = Instance(DataSource, default=lambda: ColumnDataSource(), help="""
+    Local data source to use when rendering annotations on the plot.
+    """)
+
+    x_range_name = String('default', help="""
+    A particular (named) x-range to use for computing screen locations when
+    rendering annotations on the plot. If unset, use the default x-range.
+    """)
+
+    y_range_name = String('default', help="""
+    A particular (named) y-range to use for computing screen locations when
+    rendering annotations on the plot. If unset, use the default y-range.
+    """)
+
+    line_props = Include(LineProps, use_prefix=False, help="""
+    The %s values for the band.
+    """)
+
+    line_alpha = Override(default=0.3)
+
+    line_color = Override(default="#cccccc")
+
+    fill_props = Include(FillProps, use_prefix=False, help="""
+    The %s values for the band.
+    """)
+
+    fill_alpha = Override(default=0.4)
+
+    fill_color = Override(default="#fff9ba")
+
 class Label(TextAnnotation):
     ''' Render a single text label as an annotation.
 
@@ -547,7 +556,10 @@ class Label(TextAnnotation):
 
     x = Float(help="""
     The x-coordinate in screen coordinates to locate the text anchors.
-    """)
+
+    Datetime values are also accepted, but note that they are immediately
+    converted to milliseconds-since-epoch.
+    """).accepts(Datetime, convert_datetime_type)
 
     x_units = Enum(SpatialUnits, default='data', help="""
     The unit type for the x attribute. Interpreted as "data space" units
@@ -556,7 +568,10 @@ class Label(TextAnnotation):
 
     y = Float(help="""
     The y-coordinate in screen coordinates to locate the text anchors.
-    """)
+
+    Datetime values are also accepted, but note that they are immediately
+    converted to milliseconds-since-epoch.
+    """).accepts(Datetime, convert_datetime_type)
 
     y_units = Enum(SpatialUnits, default='data', help="""
     The unit type for the y attribute. Interpreted as "data space" units

@@ -1,4 +1,4 @@
-""" Simplify linking to Bokeh Github resources.
+''' Simplify linking to Bokeh Github resources.
 
 This module proved four new roles that can be uses to easily link
 to various resources in the Bokeh Github repository:
@@ -26,36 +26,34 @@ The repo history shows that :bokeh-commit:`bf19bcb` was made in
 in :bokeh-pull:`1698`,which closed :bokeh-issue:`1694`. This included
 updating all of the files in the :bokeh-tree:`examples` subdirectory.
 
-"""
+'''
 from __future__ import absolute_import
 
 from docutils import nodes, utils
 from docutils.parsers.rst.roles import set_classes
 
-from six.moves import urllib
-
 BOKEH_GH = "https://github.com/bokeh/bokeh"
 
 def bokeh_commit(name, rawtext, text, lineno, inliner, options=None, content=None):
-    """ Link to a Bokeh Github issue.
+    ''' Link to a Bokeh Github issue.
 
     Returns 2 part tuple containing list of nodes to insert into the
     document and a list of system messages.  Both are allowed to be
     empty.
 
-    """
+    '''
     app = inliner.document.settings.env.app
-    node = make_gh_link_node(app, rawtext, 'commit', 'commit ', 'commit', text, options)
+    node = _make_gh_link_node(app, rawtext, 'commit', 'commit ', 'commit', text, options)
     return [node], []
 
 def bokeh_issue(name, rawtext, text, lineno, inliner, options=None, content=None):
-    """ Link to a Bokeh Github issue.
+    ''' Link to a Bokeh Github issue.
 
     Returns 2 part tuple containing list of nodes to insert into the
     document and a list of system messages.  Both are allowed to be
     empty.
 
-    """
+    '''
     app = inliner.document.settings.env.app
     try:
         issue_num = int(text)
@@ -67,17 +65,17 @@ def bokeh_issue(name, rawtext, text, lineno, inliner, options=None, content=None
             '"%s" is invalid.' % text, line=lineno)
         prb = inliner.problematic(rawtext, rawtext, msg)
         return [prb], [msg]
-    node = make_gh_link_node(app, rawtext, 'issue', '#', 'issues', str(issue_num), options)
+    node = _make_gh_link_node(app, rawtext, 'issue', '#', 'issues', str(issue_num), options)
     return [node], []
 
 def bokeh_pull(name, rawtext, text, lineno, inliner, options=None, content=None):
-    """ Link to a Bokeh Github issue.
+    ''' Link to a Bokeh Github issue.
 
     Returns 2 part tuple containing list of nodes to insert into the
     document and a list of system messages.  Both are allowed to be
     empty.
 
-    """
+    '''
     app = inliner.document.settings.env.app
     try:
         issue_num = int(text)
@@ -89,11 +87,11 @@ def bokeh_pull(name, rawtext, text, lineno, inliner, options=None, content=None)
             '"%s" is invalid.' % text, line=lineno)
         prb = inliner.problematic(rawtext, rawtext, msg)
         return [prb], [msg]
-    node = make_gh_link_node(app, rawtext, 'pull', 'pull request ', 'pull', str(issue_num), options)
+    node = _make_gh_link_node(app, rawtext, 'pull', 'pull request ', 'pull', str(issue_num), options)
     return [node], []
 
 def bokeh_tree(name, rawtext, text, lineno, inliner, options=None, content=None):
-    """ Link to a URL in the Bokeh GitHub tree, pointing to appropriate tags
+    ''' Link to a URL in the Bokeh GitHub tree, pointing to appropriate tags
     for releases, or to master otherwise.
 
     The link text is simply the URL path supplied, so typical usage might
@@ -109,7 +107,7 @@ def bokeh_tree(name, rawtext, text, lineno, inliner, options=None, content=None)
     document and a list of system messages.  Both are allowed to be
     empty.
 
-    """
+    '''
     app = inliner.document.settings.env.app
 
     tag = app.env.config['version']
@@ -117,17 +115,14 @@ def bokeh_tree(name, rawtext, text, lineno, inliner, options=None, content=None)
         tag = 'master'
 
     url = "%s/tree/%s/%s" % (BOKEH_GH, tag, text)
-    _try_url(app, url, 'tree')
     options = options or {}
     set_classes(options)
     node = nodes.reference(
         rawtext, text, refuri=url, **options)
     return [node], []
 
-
-
-def make_gh_link_node(app, rawtext, role, kind, api_type, id, options=None):
-    """ Return a link to a Bokeh Github resource.
+def _make_gh_link_node(app, rawtext, role, kind, api_type, id, options=None):
+    ''' Return a link to a Bokeh Github resource.
 
     Args:
         app (Sphinx app) : current app
@@ -138,27 +133,13 @@ def make_gh_link_node(app, rawtext, role, kind, api_type, id, options=None):
         id : (str) : id of the resource to link to
         options (dict) : options dictionary passed to role function
 
-    """
+    '''
     url = "%s/%s/%s" % (BOKEH_GH, api_type, id)
     options = options or {}
-    _try_url(app, url, role)
     set_classes(options)
     node = nodes.reference(
         rawtext, kind + utils.unescape(id), refuri=url, **options)
     return node
-
-
-def _try_url(app, url, role):
-    url = url[:8] + urllib.parse.quote(url[8:])  # spaced to %20 etc.
-    try:
-        request = urllib.request.Request(url)
-        request.get_method = lambda : 'HEAD'
-        response = urllib.request.urlopen(request, timeout=5)
-    except (urllib.error.HTTPError, urllib.error.URLError):
-        app.info("URL '%s' for :bokeh-%s: role is not available on GitHub" % (url, role))
-    else:
-        if response.getcode() >= 400:
-            app.info("URL '%s' for :bokeh-%s: role is not available on GitHub" % (url, role))
 
 def setup(app):
     app.add_role('bokeh-commit', bokeh_commit)

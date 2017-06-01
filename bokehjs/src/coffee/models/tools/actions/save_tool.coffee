@@ -2,7 +2,7 @@ import {ActionTool, ActionToolView} from "./action_tool"
 
 export class SaveToolView extends ActionToolView
 
-  do: () -> @plot_view.save("bokeh_plot.png")
+  doit: () -> @plot_view.save("bokeh_plot")
 
 export class SaveTool extends ActionTool
   default_view: SaveToolView

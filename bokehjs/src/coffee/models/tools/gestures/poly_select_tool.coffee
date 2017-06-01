@@ -7,7 +7,7 @@ export class PolySelectToolView extends SelectToolView
 
   initialize: (options) ->
     super(options)
-    @listenTo(@model, 'change:active', @_active_change)
+    @connect(@model.properties.active.change, @_active_change)
     @data = {vx: [], vy: []}
 
   _active_change: () ->
@@ -45,10 +45,11 @@ export class PolySelectToolView extends SelectToolView
       vy: vy
     }
 
-    for r in @model.computed_renderers
-      ds = r.data_source
-      sm = ds.selection_manager
-      sm.select(@, @plot_view.renderer_views[r.id], geometry, final, append)
+    renderers_by_source = @model._computed_renderers_by_data_source()
+
+    for ds, renderers of renderers_by_source
+      sm = renderers[0].data_source.selection_manager
+      sm.select(@, (@plot_view.renderer_views[r.id] for r in renderers), geometry, final, append)
 
     @_save_geometry(geometry, final, append)
     @plot_view.push_state('poly_select', {selection: @plot_view.get_selection()})
@@ -59,12 +60,12 @@ DEFAULT_POLY_OVERLAY = () -> new PolyAnnotation({
   level: "overlay"
   xs_units: "screen"
   ys_units: "screen"
-  fill_color: "lightgrey"
-  fill_alpha: 0.5
-  line_color: "black"
-  line_alpha: 1.0
-  line_width: 2
-  line_dash: [4, 4]
+  fill_color: {value: "lightgrey"}
+  fill_alpha: {value: 0.5}
+  line_color: {value: "black"}
+  line_alpha: {value: 1.0}
+  line_width: {value: 2}
+  line_dash: {value: [4, 4]}
 })
 
 export class PolySelectTool extends SelectTool

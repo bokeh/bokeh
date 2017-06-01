@@ -6,7 +6,6 @@ from unittest import skipIf
 from collections import deque
 import datetime as dt
 import decimal
-import time
 
 import numpy as np
 from six import string_types
@@ -107,9 +106,30 @@ class TestBokehJSONEncoder(unittest.TestCase):
         self.assertEqual(self.encoder.default(c), "rgba(16, 32, 64, 0.1)")
         self.assertIsInstance(self.encoder.default(c), string_types)
 
+    def test_slice(self):
+        c = slice(2)
+        self.assertEqual(self.encoder.default(c), dict(start=None, stop=2, step=None))
+        self.assertIsInstance(self.encoder.default(c), dict)
+
+        c = slice(0,2)
+        self.assertEqual(self.encoder.default(c), dict(start=0, stop=2, step=None))
+        self.assertIsInstance(self.encoder.default(c), dict)
+
+        c = slice(0, 10, 2)
+        self.assertEqual(self.encoder.default(c), dict(start=0, stop=10, step=2))
+        self.assertIsInstance(self.encoder.default(c), dict)
+
+        c = slice(0, None, 2)
+        self.assertEqual(self.encoder.default(c), dict(start=0, stop=None, step=2))
+        self.assertIsInstance(self.encoder.default(c), dict)
+
+        c = slice(None, None, None)
+        self.assertEqual(self.encoder.default(c), dict(start=None, stop=None, step=None))
+        self.assertIsInstance(self.encoder.default(c), dict)
+
     @skipIf(not is_pandas, "pandas does not work in PyPy.")
     def test_pd_timestamp(self):
-        ts = pd.tslib.Timestamp('April 28, 1948')
+        ts = pd.Timestamp('April 28, 1948')
         self.assertEqual(self.encoder.default(ts), -684115200000)
 
 class TestSerializeJson(unittest.TestCase):
@@ -180,16 +200,23 @@ class TestSerializeJson(unittest.TestCase):
         """ should convert to millis as-is
         """
 
+        DT_EPOCH = dt.datetime.utcfromtimestamp(0)
+
         a = dt.date(2016, 4, 28)
         b = dt.datetime(2016, 4, 28, 2, 20, 50)
         serialized = self.serialize({'a' : [a],
                                      'b' : [b]})
         deserialized = self.deserialize(serialized)
 
-        baseline = {u'a': [time.mktime(a.timetuple())*1000],
-                    u'b': [time.mktime(b.timetuple())*1000],
+        baseline = {u'a': [(dt.datetime(*a.timetuple()[:6]) - DT_EPOCH).total_seconds() * 1000],
+                    u'b': [(b - DT_EPOCH).total_seconds() * 1000. + b.microsecond / 1000.],
         }
         assert deserialized == baseline
+
+        # test pre-computed values too
+        assert deserialized == {
+            u'a': [1461801600000.0], u'b': [1461810050000.0]
+        }
 
     def test_builtin_timedelta_types(self):
         """ should convert time delta to a dictionary
@@ -202,6 +229,14 @@ class TestSerializeJson(unittest.TestCase):
     def test_deque(self):
         """Test that a deque is deserialized as a list."""
         self.assertEqual(self.serialize(deque([0, 1, 2])), '[0,1,2]')
+
+    def test_slice(self):
+        """Test that a slice is deserialized as a list."""
+        self.assertEqual(self.serialize(slice(2)), '{"start":null,"step":null,"stop":2}')
+        self.assertEqual(self.serialize(slice(0, 2)), '{"start":0,"step":null,"stop":2}')
+        self.assertEqual(self.serialize(slice(0, 10, 2)), '{"start":0,"step":2,"stop":10}')
+        self.assertEqual(self.serialize(slice(0, None, 2)), '{"start":0,"step":2,"stop":null}')
+        self.assertEqual(self.serialize(slice(None, None, None)), '{"start":null,"step":null,"stop":null}')
 
     def test_bad_kwargs(self):
         self.assertRaises(ValueError, self.serialize, [1], allow_nan=True)

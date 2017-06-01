@@ -501,8 +501,11 @@ class BasicPropertyDescriptor(PropertyDescriptor):
             obj (HasProps) : An instance to delete this property from
 
         '''
+
         if self.name in obj._property_values:
+            old_value = obj._property_values[self.name]
             del obj._property_values[self.name]
+            self.trigger_if_changed(obj, old_value)
 
         if self.name in obj._unstable_default_values:
             del obj._unstable_default_values[self.name]

@@ -93,6 +93,9 @@ REQUIRES = [
     'Jinja2 >=2.7',
     'numpy >=1.7.1',
     'tornado >=4.3',
+
+    # this will be removed when Bokeh hits 1.0
+    'bkcharts >=0.1',
 ]
 
 # handle the compat difference for futures (meta.yaml handles differently)
@@ -127,11 +130,11 @@ setup(
     author='Continuum Analytics',
     author_email='info@continuum.io',
     url='http://github.com/bokeh/bokeh',
-    classifiers=open("classifiers.txt").read().split('\n'),
+    classifiers=open("classifiers.txt").read().strip().split('\n'),
 
     # details needed by setup
     install_requires=REQUIRES,
-    packages=find_packages(),
+    packages=find_packages(exclude=["scripts*", "tests*"]),
     package_data=get_package_data(),
     entry_points={'console_scripts': ['bokeh = bokeh.__main__:main',], },
     zip_safe=False,

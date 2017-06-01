@@ -150,6 +150,24 @@ declare namespace Bokeh {
     // }}}
   }
 
+  export var Band: { new(attributes?: IBand, options?: ModelOpts): Band };
+  export interface Band extends Annotation, IBand {}
+  export interface IBand extends IAnnotation, LineProps, FillProps {
+    lower?: Array<number>;
+    lower_units?: SpatialUnits;
+
+    upper?: Array<number>;
+    upper_units?: SpatialUnits;
+
+    base?: Array<number>;
+    base_units?: SpatialUnits;
+
+    dimension?: Dimension;
+
+    x_range_name?: string;
+    y_range_name?: string;
+  }
+
   export var BoxAnnotation: { new(attributes?: IBoxAnnotation, options?: ModelOpts): BoxAnnotation };
   export interface BoxAnnotation extends Annotation, IBoxAnnotation {}
   export interface IBoxAnnotation extends IAnnotation, LineProps, FillProps {

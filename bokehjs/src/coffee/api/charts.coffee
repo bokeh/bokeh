@@ -1,6 +1,4 @@
 import * as sprintf from "sprintf"
-import {Document} from "../document"
-import * as embed from "../embed"
 import * as models from "./models"
 import * as palettes from "./palettes"
 import {zip, unzip, sum, cumsum, copy} from "../core/util/array"
@@ -148,6 +146,7 @@ export bar = (data, opts={}) ->
 
   yaxis = new models.CategoricalAxis()
   ydr = new models.FactorRange({factors: labels})
+  yscale = new models.CategoricalScale()
 
   if opts.axis_number_format?
     xformatter = new models.NumeralTickFormatter({format: opts.axis_number_format})
@@ -155,6 +154,7 @@ export bar = (data, opts={}) ->
     xformatter = new models.BasicTickFormatter()
   xaxis = new models.LinearAxis({formatter: xformatter})
   xdr = new models.DataRange1d({start: 0})
+  xscale = new models.LinearScale()
 
   if isArray(opts.palette)
     palette = opts.palette
@@ -239,13 +239,14 @@ export bar = (data, opts={}) ->
   if orientation == "vertical"
     [xdr, ydr] = [ydr, xdr]
     [xaxis, yaxis] = [yaxis, xaxis]
+    [xscale, yscale] = [yscale, xscale]
 
     for r in renderers
       data = r.data_source.data
       [data.left, data.bottom] = [data.bottom, data.left]
       [data.right, data.top] = [data.top, data.right]
 
-  plot = new models.Plot({x_range: xdr, y_range: ydr})
+  plot = new models.Plot({x_range: xdr, y_range: ydr, x_scale: xscale, y_scale: yscale})
 
   if opts.width? then plot.plot_width = opts.width
   if opts.height? then plot.plot_height = opts.height

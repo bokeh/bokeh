@@ -20,7 +20,7 @@ sinon = require 'sinon'
 describe "SidePanel", ->
 
   it "should should return 8 constraints", ->
-    p = new SidePanel()
+    p = new SidePanel({side: "left"})
     expect(p.get_constraints().length).to.be.equal 8
     # TODO (bird) - it would be good if we could actually assert about the
     # constraints, but this is hard (impossible?) at the moment, so will have to do some
@@ -74,19 +74,11 @@ describe "SidePanel", ->
       @axis = new Axis({ ticker: new BasicTicker(), formatter: new BasicTickFormatter() })
       plot.add_layout(@axis, 'below')
       doc.add_root(plot)
-      plot_view = new plot.default_view({ 'model': plot })
-      @plot_canvas = new PlotCanvas({ 'plot': plot })
+      plot_view = new plot.default_view({model: plot, parent: null})
+      @plot_canvas = new PlotCanvas({plot: plot})
       @plot_canvas.attach_document(doc)
-      @plot_canvas_view = new @plot_canvas.default_view({ 'model': @plot_canvas })
-      @axis_view = new @axis.default_view({ model: @axis, plot_view: @plot_canvas_view })
-
-    it "should not fail if visible is not on model", ->
-      an = new Annotation()
-      an_view = new an.default_view({model: an, plot_view: @plot_canvas_view})
-      expect(an_view._size_constraint).to.be.undefined
-      update_constraints(an_view)
-      # Should still be undefined because visible is false
-      expect(an_view._size_constraint).to.be.undefined
+      @plot_canvas_view = new @plot_canvas.default_view({model: @plot_canvas, parent: plot_view})
+      @axis_view = new @axis.default_view({model: @axis, plot_view: @plot_canvas_view, parent: @plot_canvas_view})
 
     it "should not set _size_constraint if visible is false", ->
       @axis.visible = false
@@ -101,18 +93,12 @@ describe "SidePanel", ->
       sinon.stub(@axis_view, '_tick_label_extent', () -> 0.11)
       expect(@axis_view._size_constraint).to.be.undefined
       update_constraints(@axis_view)
-      expect(@axis_view._last_size).to.be.equal 0.33
+      expect(@axis_view._size_constraint.expression.constant).to.be.equal(-0.33)
 
     it "should add two constraints on first call (one for size, one for full)", ->
       add_constraint_call_count = @solver_add_constraint.callCount
       update_constraints(@axis_view)
       expect(@solver_add_constraint.callCount).to.be.equal add_constraint_call_count + 2
-
-    it "should add one constraints on first call (for size) if manually set view._full_set to true", ->
-      add_constraint_call_count = @solver_add_constraint.callCount
-      @axis_view._full_set = true
-      update_constraints(@axis_view)
-      expect(@solver_add_constraint.callCount).to.be.equal add_constraint_call_count + 1
 
     it "should add and remove a constraint if the size changes", ->
       @axis_view._tick_extent = sinon.stub()
@@ -124,21 +110,10 @@ describe "SidePanel", ->
 
       update_constraints(@axis_view)
 
-      expect(@solver_add_constraint.callCount).to.be.equal add_constraint_call_count + 2
-      expect(@solver_remove_constraint.callCount).to.be.equal remove_constraint_call_count + 0
+      expect(@solver_add_constraint.callCount).to.be.equal(add_constraint_call_count + 2)
+      expect(@solver_remove_constraint.callCount).to.be.equal(remove_constraint_call_count + 0)
 
       update_constraints(@axis_view)
 
-      expect(@solver_add_constraint.callCount).to.be.equal add_constraint_call_count + 3
-      expect(@solver_remove_constraint.callCount).to.be.equal remove_constraint_call_count + 1
-
-    it "should not add and remove a constraint if the size is the same", ->
-      @axis_view._tick_extent = sinon.stub()
-      @axis_view._tick_extent.returns(0.11)
-
-      update_constraints(@axis_view)
-      add_constraint_call_count = @solver_add_constraint.callCount
-      remove_constraint_call_count = @solver_remove_constraint.callCount
-      update_constraints(@axis_view)
-      expect(@solver_add_constraint.callCount).to.be.equal add_constraint_call_count
-      expect(@solver_remove_constraint.callCount).to.be.equal remove_constraint_call_count
+      expect(@solver_add_constraint.callCount).to.be.equal(add_constraint_call_count + 3)
+      expect(@solver_remove_constraint.callCount).to.be.equal(remove_constraint_call_count + 0)
