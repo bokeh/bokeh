@@ -1,4 +1,11 @@
 .bk-root {
+  // XXX: this is necessary to make bokehjs embeddable in web pages using
+  // bootstrap (that includes jupyter-notebook), which is very insisting
+  // on setting the right defaults globally and breaking the world.
+  * {
+    box-sizing: content-box;
+  }
+
   @import "main.less";
   @import "icons.less";
   @import "layout.less";
