@@ -302,6 +302,18 @@ def test__crop_image():
     cropped = io._crop_image(image, **rect)
     assert cropped.size == (6,4)
 
+def test__resize_image_default_values():
+    size = (10, 10)
+    image = Image.new(mode="RGBA", size=size)
+    resized_image = io._resize_image(image, height=None, width=None)
+    assert resized_image.size == size
+
+def test__resize_image_new_values():
+    size = (10, 10)
+    image = Image.new(mode="RGBA", size=size)
+    resized_image = io._resize_image(image, height=20, width=20)
+    assert resized_image.size == (20, 20)
+
 def test__get_screenshot_as_png():
     layout = Plot(x_range=Range1d(), y_range=Range1d(),
                   plot_height=2, plot_width=2, toolbar_location=None,

@@ -571,6 +571,15 @@ def _crop_image(image, left=0, top=0, right=0, bottom=0, **kwargs):
 
     return cropped_image
 
+def _resize_image(image, height=None, width=None):
+    '''Resize the image'''
+    (old_width, old_height) = image.size
+    if height is None:
+        height = old_height
+    if width is None:
+        width = old_height
+    return image.resize((width, height))
+
 def _get_screenshot_as_png(obj):
     webdriver = import_required('selenium.webdriver',
                                 'To use bokeh.io.export you need selenium ' +
@@ -627,7 +636,7 @@ def _get_screenshot_as_png(obj):
 
     return cropped_image
 
-def export(obj, filename=None):
+def export(obj, filename=None, height=None, width=None):
     ''' Export the LayoutDOM object as a PNG.
 
     If the filename is not given, it is derived from the script name
@@ -638,6 +647,12 @@ def export(obj, filename=None):
 
         filename (str, optional) : filename to save document under (default: None)
             If None, infer from the filename.
+
+        height (int, optional) : the desired, resized height of the PNG (in px). If
+            None, the image will be the height of the layout.
+
+        width (int, optional) : the desired, resized height of the PNG (in px). If
+            None, the image will be the width of the layout.
 
     Returns:
         filename (str) : the filename where the static file is saved.
@@ -651,6 +666,9 @@ def export(obj, filename=None):
 
     '''
     image = _get_screenshot_as_png(obj)
+
+    if height is not None or width is not None:
+        image = _resize_image(height=height, width=width)
 
     if filename is None:
         filename = _detect_filename("png")
