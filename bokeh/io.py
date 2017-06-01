@@ -565,39 +565,17 @@ def _destroy_server(div_id):
     except Exception as e:
         logger.debug("Could not destroy server for id %r: %s" % (div_id, e))
 
-def _crop_image(image, left=0, top=0, right=0, bottom=0, **kwargs):
-    '''Crop the border from the layout'''
-    cropped_image = image.crop((left, top, right, bottom))
-
-    return cropped_image
-
-def _get_screenshot_as_png(obj):
-    webdriver = import_required('selenium.webdriver',
-                                'To use bokeh.io.export you need selenium ' +
-                                '("conda install -c bokeh selenium" or "pip install selenium")')
+def _wait_until_render_complete(driver):
     from selenium.webdriver.support.ui import WebDriverWait
     from selenium.common.exceptions import TimeoutException
 
-    Image = import_required('PIL.Image',
-                            'To use bokeh.io.export you need pillow ' +
-                            '("conda install pillow" or "pip install pillow")')
-    # assert that phantomjs is in path for webdriver
-    detect_phantomjs()
-
-    html_path = tempfile.NamedTemporaryFile(suffix=".html").name
-    save(obj, filename=html_path, resources=INLINE, title="")
-
-    driver = webdriver.PhantomJS()
-    driver.get("file:///" + html_path)
     script = """
-        // override body width CSS for PhantomJS compat
-        document.body.style.width = '100%';
-        // add private window prop to check that render is complete
-        window._bokeh_render_complete = false;
-        window.addEventListener("bokeh:rendered", function() {
-            window._bokeh_render_complete = true;
-        });
-        """
+    // add private window prop to check that render is complete
+    window._bokeh_render_complete = false;
+    window.addEventListener("bokeh:rendered", function() {
+        window._bokeh_render_complete = true;
+    });
+    """
     driver.execute_script(script)
 
     def is_bokeh_render_complete(driver):
@@ -614,6 +592,34 @@ def _get_screenshot_as_png(obj):
         severe_errors = [l for l in browser_logs if l.get('level') == 'SEVERE']
         if len(severe_errors) > 0:
             logger.warn("There were severe browser errors that may have affected your export: {}".format(severe_errors))
+
+def _crop_image(image, left=0, top=0, right=0, bottom=0, **kwargs):
+    '''Crop the border from the layout'''
+    cropped_image = image.crop((left, top, right, bottom))
+
+    return cropped_image
+
+def _get_screenshot_as_png(obj):
+    webdriver = import_required('selenium.webdriver',
+                                'To use bokeh.io.export you need selenium ' +
+                                '("conda install -c bokeh selenium" or "pip install selenium")')
+
+    Image = import_required('PIL.Image',
+                            'To use bokeh.io.export you need pillow ' +
+                            '("conda install pillow" or "pip install pillow")')
+    # assert that phantomjs is in path for webdriver
+    detect_phantomjs()
+
+    html_path = tempfile.NamedTemporaryFile(suffix=".html").name
+    save(obj, filename=html_path, resources=INLINE, title="")
+
+    driver = webdriver.PhantomJS()
+    driver.get("file:///" + html_path)
+
+    ## resize for PhantomJS compat
+    driver.execute_script("document.body.style.width = '100%';")
+
+    _wait_until_render_complete(driver)
 
     png = driver.get_screenshot_as_png()
 
@@ -663,8 +669,6 @@ def _get_svg(obj):
     webdriver = import_required('selenium.webdriver',
                                 'To use bokeh.io.export you need selenium ' +
                                 '("conda install -c bokeh selenium" or "pip install selenium")')
-    from selenium.webdriver.support.ui import WebDriverWait
-    from selenium.common.exceptions import TimeoutException
 
     # assert that phantomjs is in path for webdriver
     detect_phantomjs()
@@ -674,29 +678,8 @@ def _get_svg(obj):
 
     driver = webdriver.PhantomJS()
     driver.get("file:///" + html_path)
-    script = """
-        // add private window prop to check that render is complete
-        window._bokeh_render_complete = false;
-        window.addEventListener("bokeh:rendered", function() {
-            window._bokeh_render_complete = true;
-        });
-        """
-    driver.execute_script(script)
 
-    def is_bokeh_render_complete(driver):
-        return driver.execute_script('return window._bokeh_render_complete;')
-
-    try:
-        WebDriverWait(driver, 5, poll_frequency=0.1).until(is_bokeh_render_complete)
-    except TimeoutException:
-        logger.warn("The webdriver raised a TimeoutException while waiting for \
-                     a 'bokeh:rendered' event to signify that the layout has rendered. \
-                     Something may have gone wrong.")
-    finally:
-        browser_logs = driver.get_log('browser')
-        severe_errors = [l for l in browser_logs if l.get('level') == 'SEVERE']
-        if len(severe_errors) > 0:
-            logger.warn("There were severe browser errors that may have affected your export: {}".format(severe_errors))
+    _wait_until_render_complete(driver)
 
     svg_script = """
     var serialized_svgs = [];
