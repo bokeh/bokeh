@@ -697,7 +697,8 @@ def _get_svgs(obj):
     return svgs
 
 def export_svgs(obj, filename=None):
-    ''' Export the LayoutDOM object as a PNG.
+    ''' Export the SVG-enabled plots within a layout. Each plot will result
+    in a distinct SVG file.
 
     If the filename is not given, it is derived from the script name
     (e.g. ``/foo/myplot.py`` will create ``/foo/myplot.svg``)
@@ -709,14 +710,12 @@ def export_svgs(obj, filename=None):
             If None, infer from the filename.
 
     Returns:
-        filename (str) : the filename where the static file is saved.
+        filename (str) : the filename or list of filenames where the SVGs files
+            are saved.
 
     .. warning::
         Responsive sizing_modes may generate layouts with unexpected size and
         aspect ratios. It is recommended to use the default ``fixed`` sizing mode.
-
-    .. warning::
-        Glyphs that are rendered via webgl won't be included in the generated PNG.
 
     '''
     svgs = _get_svgs(obj)
