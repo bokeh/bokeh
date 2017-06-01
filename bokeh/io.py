@@ -669,7 +669,6 @@ def _get_svg(obj):
     webdriver = import_required('selenium.webdriver',
                                 'To use bokeh.io.export you need selenium ' +
                                 '("conda install -c bokeh selenium" or "pip install selenium")')
-
     # assert that phantomjs is in path for webdriver
     detect_phantomjs()
 
