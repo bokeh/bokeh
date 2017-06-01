@@ -658,3 +658,100 @@ def export(obj, filename=None):
     image.save(filename)
 
     return os.path.abspath(filename)
+
+def _get_svg(obj):
+    webdriver = import_required('selenium.webdriver',
+                                'To use bokeh.io.export you need selenium ' +
+                                '("conda install -c bokeh selenium" or "pip install selenium")')
+    from selenium.webdriver.support.ui import WebDriverWait
+    from selenium.common.exceptions import TimeoutException
+
+    # assert that phantomjs is in path for webdriver
+    detect_phantomjs()
+
+    html_path = tempfile.NamedTemporaryFile(suffix=".html").name
+    save(obj, filename=html_path, resources=INLINE, title="")
+
+    driver = webdriver.PhantomJS()
+    driver.get("file:///" + html_path)
+    script = """
+        // add private window prop to check that render is complete
+        window._bokeh_render_complete = false;
+        window.addEventListener("bokeh:rendered", function() {
+            window._bokeh_render_complete = true;
+        });
+        """
+    driver.execute_script(script)
+
+    def is_bokeh_render_complete(driver):
+        return driver.execute_script('return window._bokeh_render_complete;')
+
+    try:
+        WebDriverWait(driver, 5, poll_frequency=0.1).until(is_bokeh_render_complete)
+    except TimeoutException:
+        logger.warn("The webdriver raised a TimeoutException while waiting for \
+                     a 'bokeh:rendered' event to signify that the layout has rendered. \
+                     Something may have gone wrong.")
+    finally:
+        browser_logs = driver.get_log('browser')
+        severe_errors = [l for l in browser_logs if l.get('level') == 'SEVERE']
+        if len(severe_errors) > 0:
+            logger.warn("There were severe browser errors that may have affected your export: {}".format(severe_errors))
+
+    svg_script = """
+    var serialized_svgs = [];
+    var svgs = document.getElementsByTagName("svg");
+    for (var i = 0; i < svgs.length; i++) {
+        var source = (new XMLSerializer()).serializeToString(svgs[i]);
+        serialized_svgs.push(source);
+    };
+    return serialized_svgs
+    """
+
+    svgs = driver.execute_script(svg_script)
+
+    driver.quit()
+
+    return svgs
+
+def export_svgs(obj, filename=None):
+    ''' Export the LayoutDOM object as a PNG.
+
+    If the filename is not given, it is derived from the script name
+    (e.g. ``/foo/myplot.py`` will create ``/foo/myplot.png``)
+
+    Args:
+        obj (LayoutDOM object) : a Layout (Row/Column), Plot or Widget object to display
+
+        filename (str, optional) : filename to save document under (default: None)
+            If None, infer from the filename.
+
+    Returns:
+        filename (str) : the filename where the static file is saved.
+
+    .. warning::
+        Responsive sizing_modes may generate layouts with unexpected size and
+        aspect ratios. It is recommended to use the default ``fixed`` sizing mode.
+
+    .. warning::
+        Glyphs that are rendered via webgl won't be included in the generated PNG.
+
+    '''
+    svgs = _get_svg(obj)
+
+    if len(svgs) == 0:
+        logger.warn("No SVG Plots were found.")
+        return
+
+    if filename is None:
+        filename = _detect_filename("svg")
+
+    for i, svg in enumerate(svgs):
+        if i == 0:
+            filename = filename
+        else:
+            idx = filename.find(".svg")
+            filename = filename[:idx] + "_{}".format(i) + filename[idx:]
+
+        with io.open(filename, mode="w", encoding="utf-8") as f:
+            f.write(svg)
