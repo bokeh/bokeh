@@ -665,7 +665,7 @@ def export(obj, filename=None):
 
     return os.path.abspath(filename)
 
-def _get_svg(obj):
+def _get_svgs(obj):
     webdriver = import_required('selenium.webdriver',
                                 'To use bokeh.io.export you need selenium ' +
                                 '("conda install -c bokeh selenium" or "pip install selenium")')
@@ -700,7 +700,7 @@ def export_svgs(obj, filename=None):
     ''' Export the LayoutDOM object as a PNG.
 
     If the filename is not given, it is derived from the script name
-    (e.g. ``/foo/myplot.py`` will create ``/foo/myplot.png``)
+    (e.g. ``/foo/myplot.py`` will create ``/foo/myplot.svg``)
 
     Args:
         obj (LayoutDOM object) : a Layout (Row/Column), Plot or Widget object to display
@@ -719,7 +719,7 @@ def export_svgs(obj, filename=None):
         Glyphs that are rendered via webgl won't be included in the generated PNG.
 
     '''
-    svgs = _get_svg(obj)
+    svgs = _get_svgs(obj)
 
     if len(svgs) == 0:
         logger.warn("No SVG Plots were found.")
