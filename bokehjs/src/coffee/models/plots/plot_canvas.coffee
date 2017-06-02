@@ -42,21 +42,21 @@ export class PlotCanvasView extends DOMView
   view_options: () -> extend({plot_view: @, parent: @}, @options)
 
   pause: () ->
-    if not @is_paused?
-      @is_paused = 1
+    if not @_is_paused?
+      @_is_paused = 1
     else
-      @is_paused += 1
+      @_is_paused += 1
 
   unpause: (immediate=false) ->
-    @is_paused -= 1
-    if @is_paused == 0
+    @_is_paused -= 1
+    if @_is_paused == 0
       if immediate
         @render()
       else
         @request_render()
 
   request_render: () ->
-    if @is_paused? and @is_paused == 0
+    if not @is_paused
       @throttled_render()
     return
 
@@ -128,6 +128,7 @@ export class PlotCanvasView extends DOMView
 
   @getters {
     canvas_overlays: () -> @canvas_view.overlays_el
+    is_paused: () -> @_is_paused? and @_is_paused != 0
   }
 
   init_webgl: () ->
@@ -507,7 +508,7 @@ export class PlotCanvasView extends DOMView
       logger.warn('could not set initial ranges')
 
   render: () ->
-    if @is_paused? and @is_paused > 0
+    if @is_paused
       return
 
     logger.trace("PlotCanvas.render() for #{@model.id}")
