@@ -6,7 +6,7 @@ export class DynamicImageView extends RendererView
 
   connect_signals: () ->
     super()
-    @connect(@model.change, @request_render)
+    @connect(@model.change, () -> @request_render())
 
   get_extent: () ->
     return [@x_range.start, @y_range.start, @x_range.end, @y_range.end]

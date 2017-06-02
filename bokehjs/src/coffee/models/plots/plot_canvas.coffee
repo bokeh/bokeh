@@ -460,12 +460,12 @@ export class PlotCanvasView extends DOMView
     super()
     @connect(@force_render, () => @render())
     for name, rng of @model.frame.x_ranges
-      @connect(rng.change, @request_render)
+      @connect(rng.change, () -> @request_render())
     for name, rng of @model.frame.y_ranges
-      @connect(rng.change, @request_render)
+      @connect(rng.change, () -> @request_render())
     @connect(@model.plot.properties.renderers.change, () => @build_levels())
     @connect(@model.plot.toolbar.properties.tools.change, () => @build_levels(); @build_tools())
-    @connect(@model.plot.change, @request_render)
+    @connect(@model.plot.change, () -> @request_render())
     @connect(@solver.layout_update, () => @request_render())
     @connect(@solver.layout_update, () =>
       @model.plot.setv({
