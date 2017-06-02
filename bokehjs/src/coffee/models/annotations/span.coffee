@@ -13,14 +13,14 @@ export class SpanView extends AnnotationView
   connect_signals: () ->
     super()
     if @model.for_hover
-      @connect(@model.properties.computed_location.change, @_draw_span)
+      @connect(@model.properties.computed_location.change, () -> @_draw_span())
     else
       if @model.render_mode == 'canvas'
         @connect(@model.change, () => @plot_view.request_render())
         @connect(@model.properties.location.change, () => @plot_view.request_render())
       else
-        @connect(@model.change, @render)
-        @connect(@model.properties.location.change, @_draw_span)
+        @connect(@model.change, () -> @render())
+        @connect(@model.properties.location.change, () -> @_draw_span())
 
   render: () ->
     if not @model.visible and @model.render_mode == 'css'

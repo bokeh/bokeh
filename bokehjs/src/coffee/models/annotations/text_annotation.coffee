@@ -18,7 +18,7 @@ export class TextAnnotationView extends AnnotationView
     super()
     if @model.render_mode == 'css'
       # dispatch CSS update immediately
-      @connect(@model.change, @render)
+      @connect(@model.change, () -> @render())
     else
       @connect(@model.change, () => @plot_view.request_render())
 

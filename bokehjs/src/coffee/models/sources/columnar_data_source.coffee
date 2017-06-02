@@ -24,7 +24,7 @@ export class ColumnarDataSource extends DataSource
     super(options)
 
     @select = new Signal(this, "select")
-    @inspect = new Signal(this, "inspect")
+    @inspect = new Signal(this, "inspect") # XXX: <[indices, tool, renderer-view, source, data], this>
 
     @streaming = new Signal(this, "streaming")
     @patching = new Signal(this, "patching") # <number[], ColumnarDataSource>
