@@ -16,6 +16,7 @@ from copy import copy
 import types
 
 from six import string_types
+import numpy as np
 
 from ...util.string import nice_join
 from .containers import PropertyValueList, PropertyValueDict
@@ -163,20 +164,21 @@ class Property(PropertyDescriptorFactory):
         return self._readonly
 
     def matches(self, new, old):
-        # XXX: originally this code warned about not being able to compare values, but that
-        # doesn't make sense, because most comparisons involving numpy arrays will fail with
-        # ValueError exception, thus warning about inevitable.
-        try:
-            if new is None or old is None:
-                return new is old           # XXX: silence FutureWarning from NumPy
-            else:
-                return new == old
-        except (KeyboardInterrupt, SystemExit):
-            raise
-        except Exception:
-            # if we cannot compare (e.g. arrays) just punt return False for match
-            pass
-        return False
+        ''' Whether two parameters match values.
+
+        If either ``new`` or ``old`` is a NumPy array, then the result of
+        ``np.array_equal`` will determine if the values match..
+
+        Otherwise, the result of standard Python equality will be returned.
+
+        Returns:
+            True, if new and old match, False otherwise
+
+        '''
+        if isinstance(new, np.ndarray) or isinstance(old, np.ndarray):
+            return np.array_equal(new, old)
+
+        return new == old
 
     def from_json(self, json, models=None):
         ''' Convert from JSON-compatible values into a value for this property.
