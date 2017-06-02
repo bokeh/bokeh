@@ -4,7 +4,6 @@ labels on Bokeh plot axes.
 '''
 from __future__ import absolute_import
 
-import inspect
 from types import FunctionType
 
 from bokeh.util.string import format_docstring
@@ -16,6 +15,7 @@ from ..core.validation.errors import MISSING_MERCATOR_DIMENSION
 from ..model import Model
 from ..util.compiler import nodejs_compile, CompilationError
 from ..util.dependencies import import_required
+from ..util.future import get_param_info, signature
 from .tickers import Ticker
 
 @abstract
@@ -270,22 +270,21 @@ class FuncTickFormatter(TickFormatter):
         pyscript = import_required('flexx.pyscript',
                                    'To use Python functions for CustomJS, you need Flexx ' +
                                    '("conda install -c bokeh flexx" or "pip install flexx")')
-        argspec = inspect.getargspec(func)
+        sig = signature(func)
 
-        default_names = argspec.args
-        default_values = argspec.defaults or []
+        all_names, default_values = get_param_info(sig)
 
-        if len(default_names) - len(default_values) != 0:
+        if len(all_names) - len(default_values) != 0:
             raise ValueError("Function `func` may only contain keyword arguments.")
 
         if default_values and not any([isinstance(value, Model) for value in default_values]):
-            raise ValueError("Default value must be a plot object.")
+            raise ValueError("Default value must be a Bokeh Model.")
 
-        func_kwargs = dict(zip(default_names, default_values))
+        func_kwargs = dict(zip(all_names, default_values))
 
         # Wrap the code attr in a function named `formatter` and call it
         # with arguments that match the `args` attr
-        code = pyscript.py2js(func, 'formatter') + 'return formatter(%s);\n' % ', '.join(default_names)
+        code = pyscript.py2js(func, 'formatter') + 'return formatter(%s);\n' % ', '.join(all_names)
 
         return cls(code=code, args=func_kwargs)
 
