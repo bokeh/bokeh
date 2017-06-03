@@ -71,13 +71,13 @@ export class GlyphRendererView extends RendererView
 
   connect_signals: () ->
     super()
-    @connect(@model.change, @request_render)
-    @connect(@model.data_source.change, @set_data)
-    @connect(@model.data_source.streaming, @set_data)
+    @connect(@model.change, () -> @request_render())
+    @connect(@model.data_source.change, () -> @set_data())
+    @connect(@model.data_source.streaming, () -> @set_data())
     @connect(@model.data_source.patching, (indices) -> @set_data(true, indices))
-    @connect(@model.data_source.select, @request_render)
+    @connect(@model.data_source.select, () -> @request_render())
     if @hover_glyph?
-      @connect(@model.data_source.inspect, @request_render)
+      @connect(@model.data_source.inspect, () -> @request_render())
 
     @connect(@model.glyph.transformchange, () -> @set_data())
 

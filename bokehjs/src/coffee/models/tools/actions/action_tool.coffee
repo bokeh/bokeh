@@ -10,7 +10,7 @@ export class ActionToolView extends ButtonToolView
 
   initialize: (options) ->
     super(options)
-    @connect(@model.do, @doit)
+    @connect(@model.do, () -> @doit())
 
 export class ActionTool extends ButtonTool
 

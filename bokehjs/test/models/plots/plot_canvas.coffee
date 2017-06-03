@@ -99,6 +99,48 @@ describe "PlotCanvas", ->
     for child in children
       expect(child.get_edit_variables.callCount).to.be.equal 1
 
+describe "PlotCanvasView pause", ->
+
+  afterEach ->
+    utils.unstub_canvas()
+    utils.unstub_solver()
+
+  beforeEach ->
+    utils.stub_canvas()
+    utils.stub_solver()
+    @doc = new Document()
+    @plot = new Plot({
+      x_range: new Range1d({start: 0, end: 1})
+      y_range: new Range1d({start: 0, end: 1})
+      toolbar: new Toolbar()
+      title: null
+    })
+    @plot_view = new @plot.default_view({model: @plot, parent: null})
+    @doc.add_root(@plot)
+    @plot_canvas = new PlotCanvas({plot: @plot})
+    @plot_canvas.attach_document(@doc)
+    @plot_canvas_view = new @plot_canvas.default_view({model: @plot_canvas, parent: @plot_view})
+
+  it "should start unpaused", ->
+    expect(@plot_canvas_view.is_paused).to.be.false
+
+  it "should toggle on/off in pairs", ->
+    expect(@plot_canvas_view.is_paused).to.be.false
+    @plot_canvas_view.pause()
+    expect(@plot_canvas_view.is_paused).to.be.true
+    @plot_canvas_view.unpause()
+    expect(@plot_canvas_view.is_paused).to.be.false
+
+  it "should toggle off only on last unpause with nested pairs", ->
+    expect(@plot_canvas_view.is_paused).to.be.false
+    @plot_canvas_view.pause()
+    expect(@plot_canvas_view.is_paused).to.be.true
+    @plot_canvas_view.pause()
+    expect(@plot_canvas_view.is_paused).to.be.true
+    @plot_canvas_view.unpause()
+    expect(@plot_canvas_view.is_paused).to.be.true
+    @plot_canvas_view.unpause()
+    expect(@plot_canvas_view.is_paused).to.be.false
 
 describe "PlotCanvas constraints", ->
 

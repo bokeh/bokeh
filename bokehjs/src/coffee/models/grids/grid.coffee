@@ -22,7 +22,7 @@ export class GridView extends RendererView
 
   connect_signals: () ->
     super()
-    @connect(@model.change, @request_render)
+    @connect(@model.change, () -> @request_render())
 
   _draw_regions: (ctx) ->
     if not @visuals.band_fill.doit
