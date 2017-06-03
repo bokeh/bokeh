@@ -1,0 +1,35 @@
+# Upgrade pip
+pip
+
+# Bokeh base dependencies
+jinja2
+numpy
+python-dateutil
+pyyaml
+requests
+tornado
+
+# Build, documentation and test dependencies
+beautifulsoup4
+colorama
+pytest
+pytest-cov
+pytest-selenium >= 1.0
+mock
+websocket-client
+flake8
+boto
+icalendar
+packaging
+pillow
+bkcharts
+nbformat
+pandas
+matplotlib
+flexx
+jupyter
+sphinx
+pygments
+
+# Python 2 specific dependencies
+futures
