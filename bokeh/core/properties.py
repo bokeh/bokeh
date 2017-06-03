@@ -1485,8 +1485,8 @@ class DataSpec(Either):
         if isinstance(val, string_types):
             return dict(field=val)
 
-        # Must be dict, return as-is
-        return val
+        # Must be dict, return a new dict
+        return dict(val)
 
     def _sphinx_type(self):
         return self._sphinx_prop_link()
@@ -1702,7 +1702,7 @@ class DataDistanceSpec(NumberSpec):
         return super(DataDistanceSpec, self).prepare_value(cls, name, value)
 
     def to_serializable(self, obj, name, val):
-        d = super(ScreenDistanceSpec, self).to_serializable(obj, name, val)
+        d = super(DataDistanceSpec, self).to_serializable(obj, name, val)
         d["units"] = "data"
         return d
 
@@ -1766,8 +1766,8 @@ class ColorSpec(DataSpec):
         if isinstance(val, string_types):
             return dict(field=val)
 
-        # Must be dict, return as-is
-        return val
+        # Must be dict, return new dict
+        return dict(val)
 
     def prepare_value(self, cls, name, value):
         # Some explanation is in order. We want to accept tuples like

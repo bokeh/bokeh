@@ -56,9 +56,9 @@ source_predicted = ColumnDataSource(data=dict(x=[], y=[]))
 def population():
     xdr = FactorRange(factors=years)
     ydr = DataRange1d()
-    y_scale = CategoricalScale()
+    x_scale = CategoricalScale()
 
-    plot = Plot(x_range=xdr, y_range=ydr, y_scale=y_scale, plot_width=600, plot_height=150, toolbar_location=None)
+    plot = Plot(x_range=xdr, y_range=ydr, x_scale=x_scale, plot_width=600, plot_height=150, toolbar_location=None)
 
     plot.add_layout(CategoricalAxis(major_label_orientation=pi / 4), 'below')
 

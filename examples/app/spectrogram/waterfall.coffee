@@ -25,7 +25,7 @@ export class WaterfallRendererView extends RendererView
     @cmap = new LinearColorMapper({'palette': @model.palette, low: 0, high: 5})
     @xscale = @plot_view.frame.xscales['default']
     @yscale = @plot_view.frame.yscales['default']
-    @max_freq = @plot_view.y_range.end
+    @max_freq = @plot_view.frame.y_range.end
 
     @connect(@model.change, @request_render)
 

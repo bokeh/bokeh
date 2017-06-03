@@ -137,7 +137,7 @@ def test_PropertyValueDict__stream_array_with_rollover(mock_notify):
     assert mock_notify.call_args[1]['hint'].rollover == 3
 
 @patch('bokeh.core.property.containers.PropertyValueContainer._notify_owners')
-def test_PropertyValueDict__patch(mock_notify):
+def test_PropertyValueDict__patch_with_simple_indices(mock_notify):
     from bokeh.server.events import ColumnsPatchedEvent
     source = ColumnDataSource(data=dict(foo=[10, 20]))
     pvd = pc.PropertyValueDict(source.data)
@@ -146,6 +146,53 @@ def test_PropertyValueDict__patch(mock_notify):
     pvd._patch("doc", source, dict(foo=[(1, 40)]), setter='setter')
     assert mock_notify.called_once
     assert mock_notify.call_args[0] == ({'foo': [10, 40]},)
+    assert pvd == dict(foo=[10, 40])
+    assert 'hint' in mock_notify.call_args[1]
+    assert isinstance(mock_notify.call_args[1]['hint'], ColumnsPatchedEvent)
+    assert mock_notify.call_args[1]['hint'].setter == 'setter'
+
+@patch('bokeh.core.property.containers.PropertyValueContainer._notify_owners')
+def test_PropertyValueDict__patch_with_repeated_simple_indices(mock_notify):
+    from bokeh.server.events import ColumnsPatchedEvent
+    source = ColumnDataSource(data=dict(foo=[10, 20]))
+    pvd = pc.PropertyValueDict(source.data)
+
+    mock_notify.reset()
+    pvd._patch("doc", source, dict(foo=[(1, 40), (1, 50)]), setter='setter')
+    assert mock_notify.called_once
+    assert mock_notify.call_args[0] == ({'foo': [10, 50]},)
+    assert pvd == dict(foo=[10, 50])
+    assert 'hint' in mock_notify.call_args[1]
+    assert isinstance(mock_notify.call_args[1]['hint'], ColumnsPatchedEvent)
+    assert mock_notify.call_args[1]['hint'].setter == 'setter'
+
+
+@patch('bokeh.core.property.containers.PropertyValueContainer._notify_owners')
+def test_PropertyValueDict__patch_with_slice_indices(mock_notify):
+    from bokeh.server.events import ColumnsPatchedEvent
+    source = ColumnDataSource(data=dict(foo=[10, 20, 30, 40, 50]))
+    pvd = pc.PropertyValueDict(source.data)
+
+    mock_notify.reset()
+    pvd._patch("doc", source, dict(foo=[(slice(2), [1,2])]), setter='setter')
+    assert mock_notify.called_once
+    assert mock_notify.call_args[0] == ({'foo': [1, 2, 30, 40, 50]},)
+    assert pvd == dict(foo=[1, 2, 30, 40, 50])
+    assert 'hint' in mock_notify.call_args[1]
+    assert isinstance(mock_notify.call_args[1]['hint'], ColumnsPatchedEvent)
+    assert mock_notify.call_args[1]['hint'].setter == 'setter'
+
+@patch('bokeh.core.property.containers.PropertyValueContainer._notify_owners')
+def test_PropertyValueDict__patch_with_overlapping_slice_indices(mock_notify):
+    from bokeh.server.events import ColumnsPatchedEvent
+    source = ColumnDataSource(data=dict(foo=[10, 20, 30, 40, 50]))
+    pvd = pc.PropertyValueDict(source.data)
+
+    mock_notify.reset()
+    pvd._patch("doc", source, dict(foo=[(slice(2), [1,2]), (slice(1,3), [1000,2000])]), setter='setter')
+    assert mock_notify.called_once
+    assert mock_notify.call_args[0] == ({'foo': [1, 1000, 2000, 40, 50]},)
+    assert pvd == dict(foo=[1, 1000, 2000, 40, 50])
     assert 'hint' in mock_notify.call_args[1]
     assert isinstance(mock_notify.call_args[1]['hint'], ColumnsPatchedEvent)
     assert mock_notify.call_args[1]['hint'].setter == 'setter'

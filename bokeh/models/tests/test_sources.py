@@ -132,11 +132,8 @@ class TestColumnDataSource(unittest.TestCase):
         self.assertEqual(stuff['args'], ("doc", ds, dict(a=[11, 12], b=[21, 22]), "foo", mock_setter))
         self.assertEqual(stuff['kw'], {})
 
-    def test_patch_bad_data(self):
+    def test_patch_bad_columns(self):
         ds = ColumnDataSource(data=dict(a=[10, 11], b=[20, 21]))
-        with self.assertRaises(ValueError) as cm:
-            ds.patch(dict(a=[(3, 100)]))
-        self.assertEqual(str(cm.exception), "Out-of bounds index (3) in patch for column: a")
         with self.assertRaises(ValueError) as cm:
             ds.patch(dict(c=[(0, 100)]))
         self.assertEqual(str(cm.exception), "Can only patch existing columns (extra: c)")
@@ -144,7 +141,14 @@ class TestColumnDataSource(unittest.TestCase):
             ds.patch(dict(a=[(0,100)], c=[(0, 100)], d=[(0, 100)]))
         self.assertEqual(str(cm.exception), "Can only patch existing columns (extra: c, d)")
 
-    def test_patch_good_data(self):
+
+    def test_patch_bad_simple_indices(self):
+        ds = ColumnDataSource(data=dict(a=[10, 11], b=[20, 21]))
+        with self.assertRaises(ValueError) as cm:
+            ds.patch(dict(a=[(3, 100)]))
+        self.assertEqual(str(cm.exception), "Out-of bounds index (3) in patch for column: a")
+
+    def test_patch_good_simple_indices(self):
         ds = ColumnDataSource(data=dict(a=[10, 11], b=[20, 21]))
         ds._document = "doc"
         stuff = {}
@@ -155,6 +159,43 @@ class TestColumnDataSource(unittest.TestCase):
         ds.data._patch = mock
         ds.patch(dict(a=[(0,100), (1,101)], b=[(0,200)]), mock_setter)
         self.assertEqual(stuff['args'], ("doc", ds, dict(a=[(0,100), (1,101)], b=[(0,200)]), mock_setter))
+        self.assertEqual(stuff['kw'], {})
+
+    def test_patch_bad_slice_indices(self):
+        ds = ColumnDataSource(data=dict(a=[10, 11, 12, 13, 14, 15], b=[20, 21, 22, 23, 24, 25]))
+        with self.assertRaises(ValueError) as cm:
+            ds.patch(dict(a=[(slice(10), list(range(10)))]))
+        self.assertEqual(str(cm.exception), "Out-of bounds slice index stop (10) in patch for column: a")
+        with self.assertRaises(ValueError) as cm:
+            ds.patch(dict(a=[(slice(10, 1), list(range(10)))]))
+        self.assertEqual(str(cm.exception), "Patch slices must have start < end, got slice(10, 1, None)")
+        with self.assertRaises(ValueError) as cm:
+            ds.patch(dict(a=[(slice(None, 10, -1), list(range(10)))]))
+        self.assertEqual(str(cm.exception), "Patch slices must have positive (start, stop, step) values, got slice(None, 10, -1)")
+        with self.assertRaises(ValueError) as cm:
+            ds.patch(dict(a=[(slice(10, 1, 1), list(range(10)))]))
+        self.assertEqual(str(cm.exception), "Patch slices must have start < end, got slice(10, 1, 1)")
+        with self.assertRaises(ValueError) as cm:
+            ds.patch(dict(a=[(slice(10, 1, -1), list(range(10)))]))
+        self.assertEqual(str(cm.exception), "Patch slices must have start < end, got slice(10, 1, -1)")
+        with self.assertRaises(ValueError) as cm:
+            ds.patch(dict(a=[(slice(1, 10, -1), list(range(10)))]))
+        self.assertEqual(str(cm.exception), "Patch slices must have positive (start, stop, step) values, got slice(1, 10, -1)")
+
+
+    def test_patch_good_slice_indices(self):
+        ds = ColumnDataSource(data=dict(a=[10, 11, 12, 13, 14, 15], b=[20, 21, 22, 23, 24, 25]))
+        ds._document = "doc"
+        stuff = {}
+        mock_setter = object()
+        def mock(*args, **kw):
+            stuff['args'] = args
+            stuff['kw'] = kw
+        ds.data._patch = mock
+        ds.patch(dict(a=[(slice(2), [100, 101]), (slice(3, 5), [100, 101])], b=[(slice(None, None, 2), [100, 101, 102])]), mock_setter)
+        self.assertEqual(stuff['args'],
+            ("doc", ds, dict(a=[(slice(2), [100, 101]), (slice(3, 5), [100, 101])], b=[(slice(None, None, 2), [100, 101, 102])]), mock_setter)
+        )
         self.assertEqual(stuff['kw'], {})
 
     def test_data_column_lengths(self):

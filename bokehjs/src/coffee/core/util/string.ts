@@ -2,7 +2,7 @@ export function startsWith(str: string, searchString: string, position: number =
   return str.substr(position, searchString.length) == searchString
 }
 
-export function uniqueId(prefix?: string): string {
+export function uuid4(): string {
   // from ipython project
   // http://www.ietf.org/rfc/rfc4122.txt
   const s = new Array<string>(32)
@@ -13,11 +13,19 @@ export function uniqueId(prefix?: string): string {
   s[12] = "4"                                                     // bits 12-15 of the time_hi_and_version field to 0010
   s[16] = hexDigits.substr((s[16].charCodeAt(0) & 0x3) | 0x8, 1)  // bits 6-7 of the clock_seq_hi_and_reserved to 01
 
-  const uuid = s.join("")
+  return s.join("")
+}
+
+const dev = false
+let counter = 1000
+
+export function uniqueId(prefix?: string): string {
+  const id = dev ? `j${counter++}` : uuid4()
+
   if (prefix != null)
-    return `${prefix}-${uuid}`
+    return `${prefix}-${id}`
   else
-    return uuid
+    return id
 }
 
 export function escape(s: string): string {

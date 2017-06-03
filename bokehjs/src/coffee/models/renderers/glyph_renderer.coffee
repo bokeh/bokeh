@@ -72,13 +72,13 @@ export class GlyphRendererView extends RendererView
 
   connect_signals: () ->
     super()
-    @connect(@model.change, @request_render)
-    @connect(@model.data_source.change, @set_data)
-    @connect(@model.data_source.streaming, @set_data)
-    @connect(@model.data_source.patching, @set_data)
-    @connect(@model.data_source.select, @request_render)
+    @connect(@model.change, () -> @request_render())
+    @connect(@model.data_source.change, () -> @set_data())
+    @connect(@model.data_source.streaming, () -> @set_data())
+    @connect(@model.data_source.patching, (indices) -> @set_data(true, indices))
+    @connect(@model.data_source.select, () -> @request_render())
     if @hover_glyph?
-      @connect(@model.data_source.inspect, @request_render)
+      @connect(@model.data_source.inspect, () -> @request_render())
 
     @connect(@model.glyph.transformchange, () -> @set_data())
 
@@ -94,10 +94,9 @@ export class GlyphRendererView extends RendererView
 
   have_selection_glyphs: () -> @selection_glyph? && @nonselection_glyph?
 
-  # TODO (bev) arg is a quick-fix to allow some hinting for things like
-  # partial data updates (especially useful on expensive set_data calls
-  # for image, e.g.)
-  set_data: (request_render=true, arg) ->
+  # in case of partial updates like patching, the list of indices that actually
+  # changed may be passed as the "indices" parameter to afford any optional optimizations
+  set_data: (request_render=true, indices) ->
     t0 = Date.now()
     source = @model.data_source
 
@@ -106,7 +105,7 @@ export class GlyphRendererView extends RendererView
     # TODO (bev) this is a bit clunky, need to make sure glyphs use the correct ranges when they call
     # mapping functions on the base Renderer class
     @glyph.model.setv({x_range_name: @model.x_range_name, y_range_name: @model.y_range_name}, {silent: true})
-    @glyph.set_data(source, @all_indices, arg)
+    @glyph.set_data(source, @all_indices, indices)
 
     @glyph.set_visuals(source)
     @decimated_glyph.set_visuals(source)

@@ -292,7 +292,7 @@ export class HoverToolView extends InspectToolView
     geometry['y'] = yscale.invert(geometry.vy)
 
     callback = @model.callback
-    [obj, data] = [callback, {index: indices, geometry: geometry}]
+    [obj, data] = [callback, {index: indices, geometry: geometry, renderer: r}]
 
     if isFunction(callback)
       callback(obj, data)

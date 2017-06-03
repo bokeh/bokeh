@@ -14,7 +14,7 @@ export class Toolbar extends ToolbarBase
 
   initialize: (attrs, options) ->
     super(attrs, options)
-    @connect(@properties.tools.change, @_init_tools)
+    @connect(@properties.tools.change, () -> @_init_tools())
     @_init_tools()
 
   _init_tools: () ->

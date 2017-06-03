@@ -42,14 +42,18 @@ export class PlotCanvasView extends DOMView
   view_options: () -> extend({plot_view: @, parent: @}, @options)
 
   pause: () ->
-    @is_paused = true
+    if not @_is_paused?
+      @_is_paused = 1
+    else
+      @_is_paused += 1
 
   unpause: (immediate=false) ->
-    @is_paused = false
-    if immediate
-      @render()
-    else
-      @request_render()
+    @_is_paused -= 1
+    if @_is_paused == 0
+      if immediate
+        @render()
+      else
+        @request_render()
 
   request_render: () ->
     if not @is_paused
@@ -66,12 +70,12 @@ export class PlotCanvasView extends DOMView
     super()
 
   initialize: (options) ->
+    @pause()
+
     super(options)
 
     @force_render = new Signal(this, "force_render")
     @state_changed = new Signal(this, "state_changed")
-
-    @pause()
 
     @lod_started = false
     @visuals = new Visuals(@model.plot)
@@ -94,7 +98,7 @@ export class PlotCanvasView extends DOMView
     @canvas_view.render()
 
     # If requested, try enabling webgl
-    if @model.plot.webgl
+    if @model.plot.output_backend == "webgl"
       @init_webgl()
 
     @throttled_render = throttle((() => @force_render.emit()), 15) # TODO (bev) configurable
@@ -124,6 +128,7 @@ export class PlotCanvasView extends DOMView
 
   @getters {
     canvas_overlays: () -> @canvas_view.overlays_el
+    is_paused: () -> @_is_paused? and @_is_paused != 0
   }
 
   init_webgl: () ->
@@ -460,12 +465,12 @@ export class PlotCanvasView extends DOMView
     super()
     @connect(@force_render, () => @render())
     for name, rng of @model.frame.x_ranges
-      @connect(rng.change, @request_render)
+      @connect(rng.change, () -> @request_render())
     for name, rng of @model.frame.y_ranges
-      @connect(rng.change, @request_render)
+      @connect(rng.change, () -> @request_render())
     @connect(@model.plot.properties.renderers.change, () => @build_levels())
     @connect(@model.plot.toolbar.properties.tools.change, () => @build_levels(); @build_tools())
-    @connect(@model.plot.change, @request_render)
+    @connect(@model.plot.change, () -> @request_render())
     @connect(@solver.layout_update, () => @request_render())
     @connect(@solver.layout_update, () =>
       @model.plot.setv({
@@ -503,6 +508,9 @@ export class PlotCanvasView extends DOMView
       logger.warn('could not set initial ranges')
 
   render: () ->
+    if @is_paused
+      return
+
     logger.trace("PlotCanvas.render() for #{@model.id}")
 
     if Date.now() - @interactive_timestamp < @model.plot.lod_interval
@@ -613,11 +621,10 @@ export class PlotCanvasView extends DOMView
   _render_levels: (ctx, levels, clip_region) ->
     ctx.save()
 
-    if clip_region?
+    if clip_region? and @model.plot.output_backend == "canvas"
       ctx.beginPath()
       ctx.rect.apply(ctx, clip_region)
       ctx.clip()
-      ctx.beginPath()
 
     indices = {}
     for renderer, i in @model.plot.renderers
@@ -646,17 +653,28 @@ export class PlotCanvasView extends DOMView
       ctx.fillRect(frame_box...)
 
   save: (name) ->
-    canvas = @canvas_view.get_canvas_element()
-
-    if canvas.msToBlob?
-      blob = canvas.msToBlob()
-      window.navigator.msSaveBlob(blob, name)
-    else
-      link = document.createElement('a')
-      link.href = canvas.toDataURL('image/png')
-      link.download = name
-      link.target = "_blank"
-      link.dispatchEvent(new MouseEvent('click'))
+    if @model.plot.output_backend == "canvas"
+      canvas = @canvas_view.get_canvas_element()
+      if canvas.msToBlob?
+        blob = canvas.msToBlob()
+        window.navigator.msSaveBlob(blob, name)
+      else
+        link = document.createElement('a')
+        link.href = canvas.toDataURL('image/png')
+        link.download = name + ".png"
+        link.target = "_blank"
+        link.dispatchEvent(new MouseEvent('click'))
+    else if @model.plot.output_backend == "svg"
+      svg = @canvas_view.ctx.getSerializedSvg(true)
+      svgblob = new Blob([svg], {type:'text/plain'})
+      downloadLink = document.createElement("a")
+      downloadLink.download =  name + ".svg"
+      downloadLink.innerHTML = "Download svg"
+      downloadLink.href = window.URL.createObjectURL(svgblob)
+      downloadLink.onclick = (event) -> document.body.removeChild(event.target)
+      downloadLink.style.display = "none"
+      document.body.appendChild(downloadLink)
+      downloadLink.click()
 
 export class PlotCanvas extends LayoutDOM
   type: 'PlotCanvas'
@@ -669,7 +687,8 @@ export class PlotCanvas extends LayoutDOM
       map: @use_map ? false
       initial_width: @plot.plot_width,
       initial_height: @plot.plot_height,
-      use_hidpi: @plot.hidpi
+      use_hidpi: @plot.hidpi,
+      output_backend: @plot.output_backend
     })
 
     @frame = new CartesianFrame({

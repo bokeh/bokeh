@@ -69,6 +69,9 @@ topic:
 :ref:`userguide_extensions`
     Adding new capability to Bokeh with custom user extensions.
 
+:ref:`userguide_export`
+    Learn how to export Bokeh layouts as PNGs and SVGs.
+
 :ref:`userguide_info`
     See where to go next for more information and examples.
 

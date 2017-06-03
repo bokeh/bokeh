@@ -278,7 +278,7 @@ def _use_gl(objs):
     from .models.plots import Plot
 
     def _needs_gl(obj):
-        return isinstance(obj, Plot) and obj.webgl
+        return isinstance(obj, Plot) and obj.output_backend == "webgl"
 
     for obj in objs:
         if isinstance(obj, Document):

@@ -229,6 +229,9 @@ NumeralLanguage = enumeration("be-nl", "chs", "cs", "da-dk", "de-ch", "de", "en"
                               "fr", "hu", "it", "ja", "nl-nl", "pl", "pt-br",
                               "pt-pt", "ru", "ru-UA", "sk", "th", "tr", "uk-UA")
 
+#: Specify an output backend to render a plot area onto
+OutputBackend = enumeration("canvas", "svg", "webgl")
+
 #: Specify a position in the render order for a Bokeh renderer
 RenderLevel = enumeration("image", "underlay", "glyph", "annotation", "overlay")
 

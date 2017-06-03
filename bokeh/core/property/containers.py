@@ -363,15 +363,20 @@ class PropertyValueDict(PropertyValueContainer, dict):
         synchronize.
 
         .. warning::
-            This function assumes the integrity of ``new_data`` has already
+            This function assumes the integrity of ``patches`` has already
             been verified.
 
         '''
+        import numpy as np
         old = self._saved_copy()
 
         for name, patch in patches.items():
             for ind, value in patch:
-                self[name][ind] = value
+                if isinstance(ind, (int, slice)):
+                    self[name][ind] = value
+                else:
+                    shape = self[name][ind[0]][ind[1:]].shape
+                    self[name][ind[0]][ind[1:]] = np.array(value, copy=False).reshape(shape)
 
         from ...server.events import ColumnsPatchedEvent
 

@@ -5,7 +5,7 @@ from __future__ import absolute_import
 
 from six import string_types
 
-from ..core.enums import Location
+from ..core.enums import Location, OutputBackend
 from ..core.properties import Bool, Dict, Enum, Include, Instance, Int, List, Override, String
 from ..core.property_mixins import LineProps, FillProps
 from ..core.query import find
@@ -33,6 +33,8 @@ class Plot(LayoutDOM):
 
     '''
 
+    __deprecated_attributes__ = ["webgl", "x_mapper_type", "y_mapper_type"]
+
     def __init__(self, **kwargs):
         if "tool_events" not in kwargs:
             kwargs["tool_events"] = ToolEvents()
@@ -52,14 +54,8 @@ class Plot(LayoutDOM):
         if "x_mapper_type" in kwargs and "x_scale" in kwargs:
             raise ValueError("Conflicting properties set on plot: x_mapper_type, x_scale.")
 
-        elif "x_mapper_type" in kwargs:
-            kwargs["x_scale"] = self._scale(kwargs.pop("x_mapper_type"))
-
         if "y_mapper_type" in kwargs and "y_scale" in kwargs:
             raise ValueError("Conflicting properties set on plot: y_mapper_type, y_scale")
-
-        elif "y_mapper_type" in kwargs:
-            kwargs["y_scale"] = self._scale(kwargs.pop("y_mapper_type"))
 
         super(LayoutDOM, self).__init__(**kwargs)
 
@@ -453,6 +449,21 @@ class Plot(LayoutDOM):
         deprecated((0, 12, 6), "y_mapper_type", "y_scale")
         self.y_scale = self._scale(mapper_type)
 
+    @property
+    def webgl(self):
+        deprecated((0, 12, 6), "webgl", "output_backend")
+        return self.output_backend == "webgl"
+
+    @webgl.setter
+    def webgl(self, webgl):
+        deprecated((0, 12, 6), "webgl", "output_backend")
+        if not isinstance(webgl, bool):
+            raise ValueError('Attribute "webgl" must be a boolean')
+        if webgl is True:
+            self.output_backend = "webgl"
+        else:
+            self.output_backend = "canvas"
+
     x_scale = Instance(Scale, default=lambda: LinearScale(), help="""
     What kind of scale to use to convert x-coordinates in data space
     into x-coordinates in screen space.
@@ -693,7 +704,10 @@ class Plot(LayoutDOM):
     level-of-detail mode is disabled.
     """)
 
-    webgl = Bool(False, help="""
-    Whether WebGL is enabled for this plot. If True, the glyphs that
-    support this will render via WebGL instead of the 2D canvas.
+    output_backend = Enum(OutputBackend, default="canvas", help="""
+    Specify the output backend for the plot area. Default is HTML5 Canvas.
+
+    .. note::
+        When set to ``webgl``, glyphs without a WebGL rendering implementation
+        will fall back to rendering onto 2D canvas.
     """)

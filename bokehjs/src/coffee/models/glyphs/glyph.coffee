@@ -165,7 +165,7 @@ export class GlyphView extends View
 
     return result
 
-  set_data: (source, indices) ->
+  set_data: (source, indices, indices_to_update) ->
     data = @model.materialize_dataspecs(source)
 
     if indices
@@ -188,7 +188,8 @@ export class GlyphView extends View
     if @glglyph?
       @glglyph.set_data_changed(@_x.length)
 
-    @_set_data(source) #TODO doesn't take indices into account
+    @_set_data(source, indices_to_update) #TODO doesn't take subset indices into account
+
     @index = @_index_data()
 
   _set_data: () ->

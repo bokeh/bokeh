@@ -80,9 +80,14 @@ class Server(object):
     Kwargs:
         num_procs (str):
             Number of worker processes for an app. Default to one. Using 0 will autodetect number of cores
+        tornado_server_kwargs (dict):
+            Additional arguments passed to tornado.httpserver.HTTPServer. E.g. max_buffer_size to
+            specify the maximum upload size. More details can be found at:
+
+            http://www.tornadoweb.org/en/stable/httpserver.html#http-server
     '''
 
-    def __init__(self, applications, io_loop=None, **kwargs):
+    def __init__(self, applications, io_loop=None, tornado_server_kwargs=None, **kwargs):
         log.info("Starting Bokeh server version %s (running on Tornado %s)" % (__version__, tornado.version))
 
         if isinstance(applications, Application):
@@ -115,6 +120,10 @@ class Server(object):
         port = kwargs.get('port', DEFAULT_SERVER_PORT)
         self._address = kwargs.get('address') or None
 
+        if tornado_server_kwargs is None:
+            tornado_server_kwargs = {}
+        tornado_server_kwargs.setdefault('xheaders', kwargs.get('use_xheaders', False))
+
         self._num_procs = kwargs.get('num_procs', 1)
         if self._num_procs != 1:
             assert all(app.safe_to_fork for app in self._applications.values()), (
@@ -128,7 +137,7 @@ class Server(object):
             tornado_kwargs['redirect_root'] = kwargs.get('redirect_root', True)
 
             self._tornado = BokehTornado(self._applications, self.prefix, **tornado_kwargs)
-            self._http = HTTPServer(self._tornado, xheaders=kwargs.get('use_xheaders', False))
+            self._http = HTTPServer(self._tornado, **tornado_server_kwargs)
             self._http.start(self._num_procs)
             self._http.add_sockets(sockets)
 
@@ -189,6 +198,7 @@ class Server(object):
         assert not self._stopped, "Already stopped"
         self._stopped = True
         self._tornado.stop(wait)
+        self._http.stop()
 
     def run_until_shutdown(self):
         ''' Run the Bokeh Server until shutdown is requested by the user,
