@@ -285,11 +285,11 @@ class TestServerSession(unittest.TestCase):
 
     def test_model_and_session_both_required(self):
         with self.assertRaises(TypeError):
-            r = embed.server_session()
+            embed.server_session()
         with self.assertRaises(TypeError):
-            r = embed.server_session(_embed_test_plot)
+            embed.server_session(_embed_test_plot)
         with self.assertRaises(TypeError):
-            r = embed.server_session(session_id='fakesession')
+            embed.server_session(session_id='fakesession')
 
     def test_ensure_session_and_model(self):
         r = embed.server_session(_embed_test_plot, session_id='fakesession')
