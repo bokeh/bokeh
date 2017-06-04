@@ -710,7 +710,7 @@ def export_svgs(obj, filename=None):
             If None, infer from the filename.
 
     Returns:
-        filename (str) : the filename or list of filenames where the SVGs files
+        filenames (list(str)) : the list of filenames where the SVGs files
             are saved.
 
     .. warning::
@@ -727,6 +727,8 @@ def export_svgs(obj, filename=None):
     if filename is None:
         filename = _detect_filename("svg")
 
+    filenames = []
+
     for i, svg in enumerate(svgs):
         if i == 0:
             filename = filename
@@ -736,3 +738,7 @@ def export_svgs(obj, filename=None):
 
         with io.open(filename, mode="w", encoding="utf-8") as f:
             f.write(svg)
+
+        filenames.append(filename)
+
+    return filenames
