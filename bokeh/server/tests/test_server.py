@@ -347,10 +347,36 @@ def autoload_url(server):
     return url(server) + \
         "autoload.js?bokeh-protocol-version=1.0&bokeh-autoload-element=foo"
 
+def resource_files_requested(response, requested=True):
+    for file in [
+        'static/css/bokeh.min.css', 'static/css/bokeh-widgets.min.css',
+        'static/js/bokeh.min.js', 'static/js/bokeh-widgets.min.js']:
+        if requested:
+            assert file in response
+        else:
+            assert file not in response
+
 def test_use_xheaders():
     application = Application()
     with ManagedServerLoop(application, use_xheaders=True) as server:
         assert server._http.xheaders == True
+
+@pytest.mark.parametrize("querystring,requested", [
+    ("", True),
+    ("&resources=default", True),
+    ("&resources=whatever", True),
+    ("&resources=none", False),
+])
+def test__resource_files_requested(querystring, requested):
+    """
+    Checks if the loading of resource files is requested by the autoload.js
+    response based on the value of the "resources" parameter.
+    """
+    application = Application()
+    with ManagedServerLoop(application) as server:
+        response = http_get(server.io_loop,
+                            autoload_url(server) + querystring)
+        resource_files_requested(response.body, requested=requested)
 
 def test__autocreate_session_autoload():
     application = Application()
