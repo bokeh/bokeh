@@ -983,3 +983,50 @@ class Tooltip(Annotation):
     show_arrow = Bool(default=True, help="""
     Whether tooltip's arrow should be showed.
     """)
+
+class Whisker(Annotation):
+    ''' Render a whisker along a dimension.
+
+    '''
+
+    lower = DistanceSpec(help="""
+    The coordinates of the lower end of the whiskers.
+    """)
+
+    upper = DistanceSpec(help="""
+    The coordinations of the upper end of the whiskers.
+    """)
+
+    length = Int(5, help="""
+    The length (in pixels) of the whisker ends.
+    """)
+
+    base = DistanceSpec(help="""
+    The orthogonal coordinates of the upper and lower values.
+    """)
+
+    dimension = Enum(Dimension, default='height', help="""
+    The direction of the band.
+    """)
+
+    source = Instance(DataSource, default=lambda: ColumnDataSource(), help="""
+    Local data source to use when rendering annotations on the plot.
+    """)
+
+    x_range_name = String('default', help="""
+    A particular (named) x-range to use for computing screen locations when
+    rendering annotations on the plot. If unset, use the default x-range.
+    """)
+
+    y_range_name = String('default', help="""
+    A particular (named) y-range to use for computing screen locations when
+    rendering annotations on the plot. If unset, use the default y-range.
+    """)
+
+    whisker_props = Include(LineProps, use_prefix=True, help="""
+    The %s values for the whisker.
+    """)
+
+    body_props = Include(LineProps, use_prefix=True, help="""
+    The %s values for the whisker body.
+    """)
