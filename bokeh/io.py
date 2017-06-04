@@ -668,7 +668,7 @@ def export(obj, filename=None, height=None, width=None):
     image = _get_screenshot_as_png(obj)
 
     if height is not None or width is not None:
-        image = _resize_image(height=height, width=width)
+        image = _resize_image(image, height=height, width=width)
 
     if filename is None:
         filename = _detect_filename("png")
