@@ -9,9 +9,10 @@ PNG Generation
 --------------
 
 Bokeh can generate RGBA-format Portable Network Graphics (PNG) images from
-layouts using the |export| function. This functionality uses a headless browser
-called WebKit to render the layout in memory and then capture a screenshot. The
-generated image will be of the same dimensions as the source layout.
+layouts using the |export_png| function. This functionality uses a headless
+browser called WebKit to render the layout in memory and then capture a
+screenshot. The generated image will be of the same dimensions as the source
+layout.
 
 In order to create a PNG with a transparent background, users should set the
 ``Plot.background_fill_color`` and ``Plot.border_fill_color`` properties to
@@ -48,9 +49,9 @@ Usage is similar to the |save| and |show| functions.
 
 .. code-block:: python
 
-    from bokeh.io import export
+    from bokeh.io import export_png
 
-    export(plot, filename="plot.png")
+    export_png(plot, filename="plot.png")
 
 .. image:: /_images/unemployment.png
 
@@ -119,7 +120,7 @@ SVG-enabled plots within a layout as distinct SVG files.
     plot.output_backend = "svg"
     export_svgs(plot, filename="plot.svg")
 
-.. image:: /_images/unemployment.png
+.. image:: /_images/unemployment.svg
 
 .. |export_svgs|     replace:: :func:`~bokeh.io.export_svgs`
 .. |export|          replace:: :func:`~bokeh.io.export`

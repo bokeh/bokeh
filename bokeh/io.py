@@ -601,11 +601,11 @@ def _crop_image(image, left=0, top=0, right=0, bottom=0, **kwargs):
 
 def _get_screenshot_as_png(obj):
     webdriver = import_required('selenium.webdriver',
-                                'To use bokeh.io.export you need selenium ' +
+                                'To use bokeh.io.export_png you need selenium ' +
                                 '("conda install -c bokeh selenium" or "pip install selenium")')
 
     Image = import_required('PIL.Image',
-                            'To use bokeh.io.export you need pillow ' +
+                            'To use bokeh.io.export_png you need pillow ' +
                             '("conda install pillow" or "pip install pillow")')
     # assert that phantomjs is in path for webdriver
     detect_phantomjs()
@@ -633,7 +633,7 @@ def _get_screenshot_as_png(obj):
 
     return cropped_image
 
-def export(obj, filename=None):
+def export_png(obj, filename=None):
     ''' Export the LayoutDOM object as a PNG.
 
     If the filename is not given, it is derived from the script name
@@ -667,7 +667,7 @@ def export(obj, filename=None):
 
 def _get_svgs(obj):
     webdriver = import_required('selenium.webdriver',
-                                'To use bokeh.io.export you need selenium ' +
+                                'To use bokeh.io.export_svgs you need selenium ' +
                                 '("conda install -c bokeh selenium" or "pip install selenium")')
     # assert that phantomjs is in path for webdriver
     detect_phantomjs()
