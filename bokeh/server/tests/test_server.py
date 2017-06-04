@@ -348,6 +348,10 @@ def autoload_url(server):
         "autoload.js?bokeh-protocol-version=1.0&bokeh-autoload-element=foo"
 
 def resource_files_requested(response, requested=True):
+    from six import string_types
+    if not isinstance(response, string_types):
+        import codecs
+        response = codecs.decode(response, 'utf-8')
     for file in [
         'static/css/bokeh.min.css', 'static/css/bokeh-widgets.min.css',
         'static/js/bokeh.min.js', 'static/js/bokeh-widgets.min.js']:
