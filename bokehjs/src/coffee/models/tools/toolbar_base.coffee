@@ -30,7 +30,8 @@ export class ToolbarBaseView extends LayoutDOMView
 
     buttons = @el.querySelector(".bk-button-bar-list[type='inspectors']")
     for obj in @model.inspectors
-      buttons.appendChild(new OnOffButtonView({model: obj, parent: @}).el)
+      if obj.toggleable
+        buttons.appendChild(new OnOffButtonView({model: obj, parent: @}).el)
 
     buttons = @el.querySelector(".bk-button-bar-list[type='help']")
     for obj in @model.help
