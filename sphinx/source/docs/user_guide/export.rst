@@ -95,20 +95,33 @@ to ``"svg"``.
     # option two
     plot.output_backend = "svg"
 
-.. image:: /_images/unemployment.svg
-
 Exporting a SVG Image
 ~~~~~~~~~~~~~~~~~~~~~
 
-The simplest way to export a SVG plot is to install a browser bookmarklet from
-the New York Times called `SVG-Crowbar`_. When clicked, it runs a snippet of
-JavaScript and adds a prompt on the page to download the plot. It's written to
-work with Chrome and should work with Firefox in most cases.
+The simplest method to manually export a SVG plot is to install a browser
+bookmarklet from the New York Times called `SVG-Crowbar`_. When clicked, it
+runs a snippet of JavaScript and adds a prompt on the page to download the
+plot. It's written to work with Chrome and should work with Firefox in most
+cases.
 
 Alternatively, it's possible to download a SVG plot using the ``SaveTool``, but
 the toolbar isn't captured though it figures into the plot layout solver
 calculations. It's not great, but a workable option.
 
+For headless export, there's a utility function, |export_svgs|, which similar
+usage to the |save| and |show| functions. This function will download all of
+SVG-enabled plots within a layout as distinct SVG files.
+
+.. code-block:: python
+
+    from bokeh.io import export_svgs
+
+    plot.output_backend = "svg"
+    export_svgs(plot, filename="plot.svg")
+
+.. image:: /_images/unemployment.png
+
+.. |export_svgs|     replace:: :func:`~bokeh.io.export_svgs`
 .. |export|          replace:: :func:`~bokeh.io.export`
 .. |save|            replace:: :func:`~bokeh.io.save`
 .. |show|            replace:: :func:`~bokeh.io.show`
