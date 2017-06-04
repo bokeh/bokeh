@@ -360,7 +360,7 @@ def test_Whisker():
     assert whisker.lower_units == 'data'
     assert whisker.upper is None
     assert whisker.upper_units == 'data'
-    assert whisker.length == 5
+    assert whisker.length == 20
     assert whisker.base is None
     assert whisker.dimension == 'height'
     assert isinstance(whisker.source, ColumnDataSource)

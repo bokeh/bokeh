@@ -997,7 +997,7 @@ class Whisker(Annotation):
     The coordinations of the upper end of the whiskers.
     """)
 
-    length = Int(5, help="""
+    length = Int(20, help="""
     The length (in pixels) of the whisker ends.
     """)
 
