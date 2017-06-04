@@ -52,7 +52,7 @@ export class SelectionManager extends HasProps
     if source != view.source
       logger.warn('inspect called with view and data source mismatch')
 
-    indices = renderer_view.hit_test(geometry)
+    indices = renderer_view.model.view.convert_selection(renderer_view.hit_test(geometry))
 
     if indices?
       r_id = renderer_view.model.id
@@ -70,7 +70,7 @@ export class SelectionManager extends HasProps
       inspector = @_get_inspector(renderer_view)
       inspector.update(indices, true, false, true)
 
-      @source.setv({inspected: view.convert_selection(inspector.indices)}, {"silent": true })
+      @source.setv({inspected: inspector.indices}, {"silent": true })
 
       source.inspect.emit([indices, tool, renderer_view, source, data])
       return not indices.is_empty()
