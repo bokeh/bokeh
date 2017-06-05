@@ -42,7 +42,7 @@ class BokehGalleryDirective(BokehDirective):
             src_path = abspath(join("..", detail['path']))
             dest_path = join(dest_dir, detail['name'] + ".py")
 
-            # sphinx pickeled env works only with backslash
+            # sphinx pickled env works only with forward slash
             docname = join(env.app.config.bokeh_gallery_dir, detail['name']).replace("\\","/")
 
             try:
