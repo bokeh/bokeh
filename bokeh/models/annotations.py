@@ -984,6 +984,11 @@ class Tooltip(Annotation):
     Whether tooltip's arrow should be showed.
     """)
 
+# This only exists to prevent a circular import.
+def _DEFAULT_TEE():
+    from .arrow_heads import TeeHead
+    return TeeHead()
+
 class Whisker(Annotation):
     ''' Render a whisker along a dimension.
 
@@ -993,12 +998,16 @@ class Whisker(Annotation):
     The coordinates of the lower end of the whiskers.
     """)
 
+    lower_head = Instance('.models.arrow_heads.ArrowHead', default=_DEFAULT_TEE, help="""
+    Instance of ArrowHead.
+    """)
+
     upper = DistanceSpec(help="""
     The coordinations of the upper end of the whiskers.
     """)
 
-    length = Int(20, help="""
-    The length (in pixels) of the whisker ends.
+    upper_head = Instance('.models.arrow_heads.ArrowHead', default=_DEFAULT_TEE, help="""
+    Instance of ArrowHead.
     """)
 
     base = DistanceSpec(help="""
@@ -1023,10 +1032,6 @@ class Whisker(Annotation):
     rendering annotations on the plot. If unset, use the default y-range.
     """)
 
-    whisker_props = Include(LineProps, use_prefix=True, help="""
-    The %s values for the whisker.
-    """)
-
-    body_props = Include(LineProps, use_prefix=True, help="""
+    line_props = Include(LineProps, use_prefix=False, help="""
     The %s values for the whisker body.
     """)

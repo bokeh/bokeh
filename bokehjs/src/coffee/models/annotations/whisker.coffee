@@ -1,5 +1,6 @@
 import {Annotation, AnnotationView} from "./annotation"
 import {ColumnDataSource} from "../sources/column_data_source"
+import {TeeHead} from "./arrow_head"
 
 import * as p from "core/properties"
 
@@ -41,16 +42,15 @@ export class WhiskerView extends AnnotationView
     else
       _base_vx = @_base
 
-    @_canvas = @plot_model.canvas
     [i, j] = @model._normals()
     _lower = [_lower_vx, _base_vx]
     _upper = [_upper_vx, _base_vx]
 
-    @_lower_sx = @_canvas.v_vx_to_sx(_lower[i])
-    @_lower_sy = @_canvas.v_vy_to_sy(_lower[j])
+    @_lower_sx = @plot_model.canvas.v_vx_to_sx(_lower[i])
+    @_lower_sy = @plot_model.canvas.v_vy_to_sy(_lower[j])
 
-    @_upper_sx = @_canvas.v_vx_to_sx(_upper[i])
-    @_upper_sy = @_canvas.v_vy_to_sy(_upper[j])
+    @_upper_sx = @plot_model.canvas.v_vx_to_sx(_upper[i])
+    @_upper_sy = @plot_model.canvas.v_vy_to_sy(_upper[j])
 
   render: () ->
     if not @model.visible
@@ -60,50 +60,42 @@ export class WhiskerView extends AnnotationView
 
     ctx = @plot_view.canvas_view.ctx
 
-    # draw the whisker bodies
-    if @visuals.body_line.doit
+    if @visuals.line.doit
       for i in [0...@_lower_sx.length]
         ctx.beginPath()
         ctx.moveTo(@_lower_sx[i], @_lower_sy[i])
         ctx.lineTo(@_upper_sx[i], @_upper_sy[i])
         ctx.stroke()
 
-    if @visuals.whisker_line.doit
-      mid_length = @model.length / 2
+    angle = if @model.dimension == "height" then 0 else Math.PI / 2
+
+    if @model.lower_head?
       for i in [0...@_lower_sx.length]
+        ctx.save()
+        ctx.translate(@_lower_sx[i], @_lower_sy[i])
+        ctx.rotate(angle + Math.PI)
+        @model.lower_head.render(ctx, i)
+        ctx.restore()
 
-        # draw the bottom whiskers
-        ctx.beginPath()
-        switch @model.dimension
-          when "height"
-            ctx.moveTo(@_lower_sx[i] - mid_length, @_lower_sy[i])
-            ctx.lineTo(@_lower_sx[i] + mid_length, @_lower_sy[i])
-          when "width"
-            ctx.moveTo(@_lower_sx[i], @_lower_sy[i] - mid_length)
-            ctx.lineTo(@_lower_sx[i], @_lower_sy[i] + mid_length)
-        ctx.stroke()
-
-        # draw the top whiskers
-        ctx.beginPath()
-        switch @model.dimension
-          when "height"
-            ctx.moveTo(@_upper_sx[i] - mid_length, @_upper_sy[i])
-            ctx.lineTo(@_upper_sx[i] + mid_length, @_upper_sy[i])
-          when "width"
-            ctx.moveTo(@_upper_sx[i], @_upper_sy[i] - mid_length)
-            ctx.lineTo(@_upper_sx[i], @_upper_sy[i] + mid_length)
-        ctx.stroke()
+    if @model.upper_head?
+      for i in [0...@_upper_sx.length]
+        ctx.save()
+        ctx.translate(@_upper_sx[i], @_upper_sy[i])
+        ctx.rotate(angle)
+        @model.upper_head.render(ctx, i)
+        ctx.restore()
 
 export class Whisker extends Annotation
   default_view: WhiskerView
   type: 'Whisker'
 
-  @mixins ['line:whisker_', 'line:body_']
+  @mixins ['line']
 
   @define {
     lower:        [ p.DistanceSpec                    ]
+    lower_head:   [ p.Instance,     new TeeHead()     ]
     upper:        [ p.DistanceSpec                    ]
-    length:       [ p.Int,           20               ]
+    upper_head:   [ p.Instance,     new TeeHead()     ]
     base:         [ p.DistanceSpec                    ]
     dimension:    [ p.Dimension,    'height'          ]
     source:       [ p.Instance,     () -> new ColumnDataSource()  ]

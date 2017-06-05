@@ -358,33 +358,33 @@ def test_Whisker():
     assert whisker.level == 'annotation'
     assert whisker.lower is None
     assert whisker.lower_units == 'data'
+    assert isinstance(whisker.lower_head, ArrowHead)
     assert whisker.upper is None
     assert whisker.upper_units == 'data'
-    assert whisker.length == 20
+    assert isinstance(whisker.upper_head, ArrowHead)
     assert whisker.base is None
     assert whisker.dimension == 'height'
     assert isinstance(whisker.source, ColumnDataSource)
     assert whisker.x_range_name == 'default'
     assert whisker.y_range_name == 'default'
-    check_line_properties(whisker, "whisker_")
-    check_line_properties(whisker, "body_")
+    check_line_properties(whisker, "")
     check_properties_existence(whisker, [
         "plot",
         "visible",
         "level",
         "lower",
         "lower_units",
+        "lower_head",
         "upper",
         "upper_units",
-        "length",
+        "upper_head",
         "base",
         "base_units",
         "dimension",
         "source",
         "x_range_name",
         "y_range_name"],
-        prefix('whisker_', LINE),
-        prefix('body_', LINE))
+        LINE)
 
 
 def test_can_add_multiple_glyph_renderers_to_legend_item():

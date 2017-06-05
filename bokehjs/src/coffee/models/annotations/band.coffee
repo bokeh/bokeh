@@ -41,16 +41,15 @@ export class BandView extends AnnotationView
     else
       _base_vx = @_base
 
-    @_canvas = @plot_model.canvas
     [i, j] = @model._normals()
     _lower = [_lower_vx, _base_vx]
     _upper = [_upper_vx, _base_vx]
 
-    @_lower_sx = @_canvas.v_vx_to_sx(_lower[i])
-    @_lower_sy = @_canvas.v_vy_to_sy(_lower[j])
+    @_lower_sx = @plot_model.canvas.v_vx_to_sx(_lower[i])
+    @_lower_sy = @plot_model.canvas.v_vy_to_sy(_lower[j])
 
-    @_upper_sx = @_canvas.v_vx_to_sx(_upper[i])
-    @_upper_sy = @_canvas.v_vy_to_sy(_upper[j])
+    @_upper_sx = @plot_model.canvas.v_vx_to_sx(_upper[i])
+    @_upper_sy = @plot_model.canvas.v_vy_to_sy(_upper[j])
 
   render: () ->
     if not @model.visible
