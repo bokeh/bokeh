@@ -3,46 +3,20 @@ mixin classes for adding ``on_change`` and ``on_event`` callback
 interfaces to classes.
 '''
 from __future__ import absolute_import
-from functools import partial
-from inspect import formatargspec, getargspec, isfunction, ismethod
-from types import FunctionType
+
 from ..events import Event
-
-def _callback_argspec(callback):
-    '''Bokeh-internal function to get argspec for a callable'''
-    if not callable(callback):
-        raise ValueError("Callbacks must be callables")
-
-    if isfunction(callback) or ismethod(callback):
-        return getargspec(callback)
-    elif isinstance(callback, partial):
-        return getargspec(callback.func)
-    else:
-        return getargspec(callback.__call__)
+from ..util.future import get_param_info, format_signature, signature
 
 def _check_callback(callback, fargs, what="Callback functions"):
     '''Bokeh-internal function to check callback signature'''
-    argspec = _callback_argspec(callback)
-    formatted_args = formatargspec(*argspec)
-    margs = ('self',) + fargs
+    sig = signature(callback)
+    formatted_args = format_signature(sig)
     error_msg = what + " must have signature func(%s), got func%s"
-    defaults_length = len(argspec.defaults) if argspec.defaults else 0
 
-    if isinstance(callback, FunctionType):
-        if len(argspec.args) - defaults_length != len(fargs):
-            raise ValueError(error_msg % (", ".join(fargs), formatted_args))
+    all_names, default_values = get_param_info(sig)
 
-    elif isinstance(callback, partial):
-        expected_args = margs if ismethod(callback.func) else fargs
-        keyword_length = len(callback.keywords.keys()) if callback.keywords else 0
-        args_length = len(callback.args) if callback.args else 0
-        if len(argspec.args) - args_length - keyword_length != len(expected_args):
-            raise ValueError(error_msg % (", ".join(expected_args), formatted_args))
-    # testing against MethodType misses callable objects, assume everything
-    # else is a normal method, or __call__ here
-    elif len(argspec.args) - defaults_length != len(margs):
-        raise ValueError(error_msg % (", ".join(margs), formatted_args))
-
+    if len(all_names) - len(default_values) != len(fargs):
+        raise ValueError(error_msg % (", ".join(fargs), formatted_args))
 
 class EventCallbackManager(object):
     ''' A mixin class to provide an interface for registering and

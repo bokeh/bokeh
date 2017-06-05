@@ -1,5 +1,7 @@
 import pytest
 
+import numpy as np
+
 from bokeh.core.has_props import HasProps
 
 import bokeh.core.property.bases as pb
@@ -42,3 +44,24 @@ def test_property_assert_msg_funcs():
     with pytest.raises(ValueError) as e:
         p.prepare_value(hp, "foo", 10)
         assert str(e) == "bad True name, 10"
+
+def test_property_matches_compatible_arrays(capsys):
+    p = pb.Property()
+    a = np.arange(5)
+    b = np.arange(5)
+    assert p.matches(a, b) is True
+    assert p.matches(a, b+1) is False
+    for x in [1, 1.2, "a", np.arange(4), None, False]:
+        assert p.matches(a, x) is False
+        assert p.matches(x, b) is False
+    out, err = capsys.readouterr()
+    assert err == ""
+
+def test_property_matches_incompatible_arrays(capsys):
+    p = pb.Property()
+    a = np.arange(5)
+    b = np.arange(5).astype(str)
+    assert p.matches(a, b) is False
+    out, err = capsys.readouterr()
+    # no way to suppress FutureWarning in this case
+    # assert err == ""
