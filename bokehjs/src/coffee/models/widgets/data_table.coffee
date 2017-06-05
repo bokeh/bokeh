@@ -103,7 +103,7 @@ export class DataTableView extends WidgetView
     @in_selection_update = false
 
   updateGrid: () ->
-    @data.constructor(@model.source)
+    @data.constructor(@model.source, @model.view)
     @grid.invalidate()
     @grid.render()
 
