@@ -983,3 +983,57 @@ class Tooltip(Annotation):
     show_arrow = Bool(default=True, help="""
     Whether tooltip's arrow should be showed.
     """)
+
+# This only exists to prevent a circular import.
+def _DEFAULT_TEE():
+    from .arrow_heads import TeeHead
+    return TeeHead(level="underlay", size=10)
+
+class Whisker(Annotation):
+    ''' Render a whisker along a dimension.
+
+    '''
+
+    lower = DistanceSpec(help="""
+    The coordinates of the lower end of the whiskers.
+    """)
+
+    lower_head = Instance('.models.arrow_heads.ArrowHead', default=_DEFAULT_TEE, help="""
+    Instance of ArrowHead.
+    """)
+
+    upper = DistanceSpec(help="""
+    The coordinations of the upper end of the whiskers.
+    """)
+
+    upper_head = Instance('.models.arrow_heads.ArrowHead', default=_DEFAULT_TEE, help="""
+    Instance of ArrowHead.
+    """)
+
+    base = DistanceSpec(help="""
+    The orthogonal coordinates of the upper and lower values.
+    """)
+
+    dimension = Enum(Dimension, default='height', help="""
+    The direction of the band.
+    """)
+
+    source = Instance(DataSource, default=lambda: ColumnDataSource(), help="""
+    Local data source to use when rendering annotations on the plot.
+    """)
+
+    x_range_name = String('default', help="""
+    A particular (named) x-range to use for computing screen locations when
+    rendering annotations on the plot. If unset, use the default x-range.
+    """)
+
+    y_range_name = String('default', help="""
+    A particular (named) y-range to use for computing screen locations when
+    rendering annotations on the plot. If unset, use the default y-range.
+    """)
+
+    line_props = Include(LineProps, use_prefix=False, help="""
+    The %s values for the whisker body.
+    """)
+
+    level = Override(default="underlay")

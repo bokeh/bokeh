@@ -48,6 +48,19 @@ class NormalHead(ArrowHead):
 
     fill_color = Override(default="black")
 
+class TeeHead(ArrowHead):
+    ''' Render a tee-style arrow head.
+
+    '''
+
+    size = Float(default=25, help="""
+    The size, in pixels, of the arrow head.
+    """)
+
+    line_props = Include(LineProps, use_prefix=False, help="""
+    The %s values for the arrow head outline.
+    """)
+
 class VeeHead(ArrowHead):
     ''' Render a vee-style arrow head.
 

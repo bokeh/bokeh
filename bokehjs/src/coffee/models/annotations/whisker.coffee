@@ -1,9 +1,10 @@
 import {Annotation, AnnotationView} from "./annotation"
 import {ColumnDataSource} from "../sources/column_data_source"
+import {TeeHead} from "./arrow_head"
 
 import * as p from "core/properties"
 
-export class BandView extends AnnotationView
+export class WhiskerView extends AnnotationView
   initialize: (options) ->
     super(options)
     @set_data(@model.source)
@@ -59,63 +60,52 @@ export class BandView extends AnnotationView
 
     ctx = @plot_view.canvas_view.ctx
 
-    # Draw the band body
-    ctx.beginPath()
-    ctx.moveTo(@_lower_sx[0], @_lower_sy[0])
-
-    for i in [0...@_lower_sx.length]
-      ctx.lineTo(@_lower_sx[i], @_lower_sy[i])
-    # iterate backwards so that the upper end is below the lower start
-    for i in [@_upper_sx.length-1..0]
-      ctx.lineTo(@_upper_sx[i], @_upper_sy[i])
-
-    ctx.closePath()
-
-    if @visuals.fill.doit
-      @visuals.fill.set_value(ctx)
-      ctx.fill()
-
-    # Draw the lower band edge
-    ctx.beginPath()
-    ctx.moveTo(@_lower_sx[0], @_lower_sy[0])
-    for i in [0...@_lower_sx.length]
-      ctx.lineTo(@_lower_sx[i], @_lower_sy[i])
-
     if @visuals.line.doit
-      @visuals.line.set_value(ctx)
-      ctx.stroke()
+      for i in [0...@_lower_sx.length]
+        @visuals.line.set_vectorize(ctx, i)
+        ctx.beginPath()
+        ctx.moveTo(@_lower_sx[i], @_lower_sy[i])
+        ctx.lineTo(@_upper_sx[i], @_upper_sy[i])
+        ctx.stroke()
 
-    # Draw the upper band edge
-    ctx.beginPath()
-    ctx.moveTo(@_upper_sx[0], @_upper_sy[0])
-    for i in [0...@_upper_sx.length]
-      ctx.lineTo(@_upper_sx[i], @_upper_sy[i])
+    angle = if @model.dimension == "height" then 0 else Math.PI / 2
 
-    if @visuals.line.doit
-      @visuals.line.set_value(ctx)
-      ctx.stroke()
+    if @model.lower_head?
+      for i in [0...@_lower_sx.length]
+        ctx.save()
+        ctx.translate(@_lower_sx[i], @_lower_sy[i])
+        ctx.rotate(angle + Math.PI)
+        @model.lower_head.render(ctx, i)
+        ctx.restore()
 
-export class Band extends Annotation
-  default_view: BandView
-  type: 'Band'
+    if @model.upper_head?
+      for i in [0...@_upper_sx.length]
+        ctx.save()
+        ctx.translate(@_upper_sx[i], @_upper_sy[i])
+        ctx.rotate(angle)
+        @model.upper_head.render(ctx, i)
+        ctx.restore()
 
-  @mixins ['line', 'fill']
+export class Whisker extends Annotation
+  default_view: WhiskerView
+  type: 'Whisker'
+
+  @mixins ['line']
 
   @define {
     lower:        [ p.DistanceSpec                    ]
+    lower_head:   [ p.Instance,     () -> new TeeHead({level: "underlay", size: 10}) ]
     upper:        [ p.DistanceSpec                    ]
+    upper_head:   [ p.Instance,     () -> new TeeHead({level: "underlay", size: 10}) ]
     base:         [ p.DistanceSpec                    ]
     dimension:    [ p.Dimension,    'height'          ]
-    source:       [ p.Instance,     () -> new ColumnDataSource()  ]
+    source:       [ p.Instance,     () -> new ColumnDataSource()                     ]
     x_range_name: [ p.String,       'default'         ]
     y_range_name: [ p.String,       'default'         ]
   }
 
   @override {
-    fill_color: "#fff9ba"
-    fill_alpha: 0.4
-    line_color: "#cccccc"
-    line_alpha: 0.3
+    level: 'underlay'
   }
 
   _normals: () ->
