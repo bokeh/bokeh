@@ -111,9 +111,7 @@ export class GMapPlotCanvasView extends PlotCanvasView
     @map = new maps.Map(@canvas_view.map_el, map_options)
 
     # update bokeh ranges whenever the map idles, which should be after most UI action
-    maps.event.addListener(@map, 'idle',
-      @_set_bokeh_ranges
-      @render())
+    maps.event.addListener(@map, 'idle', () => @_set_bokeh_ranges())
 
     # also need an event when bounds change so that map resizes trigger renders too
     maps.event.addListener(@map, 'bounds_changed', () => @_set_bokeh_ranges())
