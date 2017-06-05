@@ -62,6 +62,7 @@ export class WhiskerView extends AnnotationView
 
     if @visuals.line.doit
       for i in [0...@_lower_sx.length]
+        @visuals.line.set_vectorize(ctx, i)
         ctx.beginPath()
         ctx.moveTo(@_lower_sx[i], @_lower_sy[i])
         ctx.lineTo(@_upper_sx[i], @_upper_sy[i])
