@@ -104,6 +104,10 @@ export class Whisker extends Annotation
     y_range_name: [ p.String,       'default'         ]
   }
 
+  @override {
+    level: 'underlay'
+  }
+
   _normals: () ->
     if @dimension == 'height'
       [i, j] = [1, 0]
