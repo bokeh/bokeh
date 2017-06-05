@@ -355,13 +355,17 @@ def test_Title():
 def test_Whisker():
     whisker = Whisker()
     assert whisker.plot is None
-    assert whisker.level == 'annotation'
+    assert whisker.level == 'underlay'
     assert whisker.lower is None
     assert whisker.lower_units == 'data'
     assert isinstance(whisker.lower_head, ArrowHead)
+    assert whisker.lower_head.size == 10
+    assert whisker.lower_head.level == 'underlay'
     assert whisker.upper is None
     assert whisker.upper_units == 'data'
     assert isinstance(whisker.upper_head, ArrowHead)
+    assert whisker.upper_head.size == 10
+    assert whisker.upper_head.level == 'underlay'
     assert whisker.base is None
     assert whisker.dimension == 'height'
     assert isinstance(whisker.source, ColumnDataSource)
