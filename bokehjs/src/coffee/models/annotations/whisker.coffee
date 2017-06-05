@@ -94,12 +94,12 @@ export class Whisker extends Annotation
 
   @define {
     lower:        [ p.DistanceSpec                    ]
-    lower_head:   [ p.Instance,     new TeeHead()     ]
+    lower_head:   [ p.Instance,     () -> new TeeHead({level: "underlay", size: 10}) ]
     upper:        [ p.DistanceSpec                    ]
-    upper_head:   [ p.Instance,     new TeeHead()     ]
+    upper_head:   [ p.Instance,     () -> new TeeHead({level: "underlay", size: 10}) ]
     base:         [ p.DistanceSpec                    ]
     dimension:    [ p.Dimension,    'height'          ]
-    source:       [ p.Instance,     () -> new ColumnDataSource()  ]
+    source:       [ p.Instance,     () -> new ColumnDataSource()                     ]
     x_range_name: [ p.String,       'default'         ]
     y_range_name: [ p.String,       'default'         ]
   }

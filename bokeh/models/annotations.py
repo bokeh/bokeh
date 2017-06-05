@@ -987,7 +987,7 @@ class Tooltip(Annotation):
 # This only exists to prevent a circular import.
 def _DEFAULT_TEE():
     from .arrow_heads import TeeHead
-    return TeeHead()
+    return TeeHead(level="underlay", size=10)
 
 class Whisker(Annotation):
     ''' Render a whisker along a dimension.
@@ -1035,3 +1035,5 @@ class Whisker(Annotation):
     line_props = Include(LineProps, use_prefix=False, help="""
     The %s values for the whisker body.
     """)
+
+    level = Override(default="underlay")
