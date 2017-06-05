@@ -29,8 +29,8 @@ it's suggested to use the default ``Plot.webgl=True`` attribute.
 Additional dependencies
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-In order to use the |export| function, users have to install some additional
-dependencies. These dependencies can be installed via conda:
+In order to use the |export_png| function, users have to install some 
+additional dependencies. These dependencies can be installed via conda:
 
 .. code-block:: sh
 
@@ -123,7 +123,7 @@ SVG-enabled plots within a layout as distinct SVG files.
 .. image:: /_images/unemployment.svg
 
 .. |export_svgs|     replace:: :func:`~bokeh.io.export_svgs`
-.. |export|          replace:: :func:`~bokeh.io.export`
+.. |export_png|      replace:: :func:`~bokeh.io.export`
 .. |save|            replace:: :func:`~bokeh.io.save`
 .. |show|            replace:: :func:`~bokeh.io.show`
 
