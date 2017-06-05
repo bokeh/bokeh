@@ -29,7 +29,7 @@ it's suggested to use the default ``Plot.webgl=True`` attribute.
 Additional dependencies
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-In order to use the |export_png| function, users have to install some 
+In order to use the |export_png| function, users have to install some
 additional dependencies. These dependencies can be installed via conda:
 
 .. code-block:: sh
