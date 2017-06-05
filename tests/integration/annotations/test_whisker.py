@@ -35,7 +35,7 @@ def test_whisker(output_file_url, selenium, screenshot):
 
     whisker2 = Whisker(base='x2', lower='lower2', upper='upper2', upper_head=OpenHead(),
                        base_units='screen', lower_units='screen', upper_units='screen',
-                       dimension='width', line_width=3, fill_color='blue', line_color='green',
+                       dimension='width', line_width=3, line_color='green',
                        source=source)
 
     plot.add_layout(whisker1)
