@@ -74,7 +74,7 @@
     "@types/node": "^7.0.18",
     "@types/mocha": "^2.2.41",
     "@types/chai": "^3.5.2",
-    "@types/gulp": "^4.0.2",
+    "@types/gulp": "<=4.0.3",
     "@types/gulp-util": "^3.0.31",
     "@types/gulp-less": "^0.0.30",
     "@types/gulp-rename": "^0.0.32",
