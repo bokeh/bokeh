@@ -45,6 +45,14 @@ def test_property_assert_msg_funcs():
         p.prepare_value(hp, "foo", 10)
         assert str(e) == "bad True name, 10"
 
+def test_property_matches_basic_types(capsys):
+    p = pb.Property()
+    for x in [1, 1.2, "a", np.arange(4), None, False, True, {}, []]:
+        assert p.matches(x, x) is True
+        assert p.matches(x, "junk") is False
+    out, err = capsys.readouterr()
+    assert err == ""
+
 def test_property_matches_compatible_arrays(capsys):
     p = pb.Property()
     a = np.arange(5)
@@ -65,3 +73,35 @@ def test_property_matches_incompatible_arrays(capsys):
     out, err = capsys.readouterr()
     # no way to suppress FutureWarning in this case
     # assert err == ""
+
+def test_property_matches_dicts_with_array_values(capsys):
+    p = pb.Property()
+    d1 = dict(foo=np.arange(10))
+    d2 = dict(foo=np.arange(10))
+
+    assert p.matches(d1, d1) is True
+    assert p.matches(d1, d2) is True
+
+    # XXX not sure if this is preferable to have match, or not
+    assert p.matches(d1, dict(foo=list(range(10)))) is True
+
+    assert p.matches(d1, dict(foo=np.arange(11))) is False
+    assert p.matches(d1, dict(bar=np.arange(10))) is False
+    assert p.matches(d1, dict(bar=10)) is False
+    out, err = capsys.readouterr()
+    assert err == ""
+
+def test_property_matches_non_dict_containers_with_array_false(capsys):
+    p = pb.Property()
+    d1 = [np.arange(10)]
+    d2 = [np.arange(10)]
+    assert p.matches(d1, d1) is True  # because object identity
+    assert p.matches(d1, d2) is False
+
+    t1 = (np.arange(10),)
+    t2 = (np.arange(10),)
+    assert p.matches(t1, t1) is True  # because object identity
+    assert p.matches(t1, t2) is False
+
+    out, err = capsys.readouterr()
+    assert err == ""
