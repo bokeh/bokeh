@@ -26,7 +26,7 @@ export class SelectionManager extends HasProps
     #if source != view.source
     #  logger.warn('select called with view and data source mismatch')
 
-    indices_renderers = (r.model.view.convert_selection(r.hit_test(geometry)) for r in renderer_views)
+    indices_renderers = (r.model.view.convert_selection_from_subset(r.hit_test(geometry)) for r in renderer_views)
 
     if indices_renderers?
       indices = indices_renderers[0]
@@ -52,7 +52,7 @@ export class SelectionManager extends HasProps
     if source != view.source
       logger.warn('inspect called with view and data source mismatch')
 
-    indices = renderer_view.model.view.convert_selection(renderer_view.hit_test(geometry))
+    indices = renderer_view.model.view.convert_selection_from_subset(renderer_view.hit_test(geometry))
 
     if indices?
       r_id = renderer_view.model.id

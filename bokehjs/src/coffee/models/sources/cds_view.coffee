@@ -36,15 +36,15 @@ export class CDSView extends Model
     for i in [0...@indices.length]
       @indices_map[@indices[i]] = i
 
-  convert_selection: (selection) ->
+  convert_selection_from_subset: (selection) ->
     indices_1d = (@indices[i] for i in selection['1d']['indices'])
     selection['1d']['indices'] = indices_1d
     return selection
 
-  subset_selection: (selection) ->
+  convert_selection_to_subset: (selection) ->
     indices_1d = (@indices_map[i] for i in selection['1d']['indices'])
     selection['1d']['indices'] = indices_1d
     return selection
 
-  convert_indices: (indices) ->
+  convert_indices_from_subset: (indices) ->
     return (@indices[i] for i in indices)
