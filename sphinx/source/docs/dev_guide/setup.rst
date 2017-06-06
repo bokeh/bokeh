@@ -43,7 +43,7 @@ Git Hooks
 
 In order to help prevent some accidental situations, here are some git hooks
 that may be useful. The scripts below should be places in the ``.git/hooks``
-directory in th top level of the cloned GitHub repository, and be marked
+directory in the top level of the cloned GitHub repository and be marked
 executable with e.g. ``chmod +x pre-commit``. For more information on git
 hooks, see `this reference`_.
 
@@ -51,7 +51,7 @@ hooks, see `this reference`_.
 ``pre-commit``
 
     This git hook runs the code quality tests before allowing a commit to
-    proceed. Note that all the standard testing dependencies musts be installed
+    proceed. Note that all the standard testing dependencies must be installed
     in order for this hook to function.
 
     .. code-block:: sh
@@ -146,8 +146,8 @@ subdirectory (and list them as ``devDependencies`` in ``package.json``).
 
 If ``bokehjs`` fails, please check if you are working inside the ``bokehjs`` directory.
 
-At this point you can typically use the ``setup.py`` script at the top level
-of the source checkout to manage building and installing BokehJS as part of
+At this point, you can typically use the ``setup.py`` script at the top level
+of the source checkout to manage the building and installing BokehJS as part of
 the complete Bokeh library (see :ref:`devguide_python_setup`).
 
 However, if you want to work on the BokehJS sources or use BokehJS as a
@@ -367,7 +367,7 @@ In the case of statically generated HTML or IPython notebooks, you should set
 
 This enables the development mode, which uses absolute paths to development
 (non-minified) BokehJS components, sets logging to ``debug``, makes generated
-HTML and JSON human-readable, etc. Alternatively you can enable each part of
+HTML and JSON human-readable, etc. Alternatively, you can enable each part of
 the development mode with a specific shell variable. For example, to configure
 Bokeh to use relative paths to development resources, issue:
 
@@ -395,7 +395,7 @@ found here:
 * `Safari <https://developer.apple.com/library/mac/documentation/AppleApplications/Conceptual/Safari_Developer_Guide/TheDevelopMenu/TheDevelopMenu.html>`_
 * `Internet Explorer <http://msdn.microsoft.com/en-us/library/hh968260(v=vs.85).aspx#cacheMenu>`__
 
-Additionally some browsers also provide a "private mode" that may disable
+Additionally, some browsers also provide a "private mode" that may disable
 caching automatically.
 
 Even with caching disabled, on some browsers, it may still be required to
