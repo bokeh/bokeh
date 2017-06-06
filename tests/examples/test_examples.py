@@ -170,11 +170,14 @@ def _print_phantomjs_output(result):
 def _assert_snapshot(example, url, example_type):
     screenshot_path = example.img_path
 
+    width = 1000
     height = 2000 if example_type == 'notebook' else 1000
-    wait = 30000
+
+    local_wait = 100
+    global_wait = 30000
 
     start = time.time()
-    result = get_phantomjs_screenshot(url, screenshot_path, 1000, wait, 1000, height)
+    result = get_phantomjs_screenshot(url, screenshot_path, local_wait, global_wait, width, height)
     end = time.time()
 
     info("Example rendered in %s" % white("%.3fs" % (end - start)))
@@ -188,7 +191,7 @@ def _assert_snapshot(example, url, example_type):
     no_resources = len(resources) == 0
 
     if timeout:
-        warn("%s: %s" % (red("TIMEOUT: "), "bokehjs did not finish in %s ms" % wait))
+        warn("%s %s" % (red("TIMEOUT:"), "bokehjs did not finish in %s ms" % global_wait))
 
     if pytest.config.option.verbose:
         _print_phantomjs_output(result)

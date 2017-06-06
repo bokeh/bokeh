@@ -38,6 +38,25 @@ export class LayoutDOMView extends DOMView
 
     super()
 
+  has_finished: () ->
+    if not super()
+      return false
+
+    for _, child of @child_views
+      if not child.has_finished()
+        return false
+
+    return true
+
+  notify_finished: () ->
+    if not @is_root
+      super()
+    else
+      if not @_idle_notified and @has_finished()
+        if @model.document?
+          @_idle_notified = true
+          @model.document.notify_idle(@model)
+
   _reset_solver: () ->
     if not @is_root
       @parent._reset_solver()
@@ -108,6 +127,8 @@ export class LayoutDOMView extends DOMView
       @_layout()
       @_layout(true)
 
+      @notify_finished()
+
   _layout: (final=false) ->
     for child in @model.get_layoutable_children()
       child_view = @child_views[child.id]
@@ -115,6 +136,9 @@ export class LayoutDOMView extends DOMView
         child_view._layout(final)
 
     @render()
+
+    if final
+      @_has_finished = true
 
   rebuild_child_views: () ->
     @_reset_solver()

@@ -519,6 +519,17 @@ export class PlotCanvasView extends DOMView
 
       @paint()
 
+  has_finished: () ->
+    if not super()
+      return false
+
+    for _, renderer_views of @levels
+      for _, view of renderer_views
+        if not view.has_finished()
+          return false
+
+    return true
+
   render: () ->
     # Set the plot and canvas to the current model's size
     # This gets called upon solver resize events
@@ -614,11 +625,7 @@ export class PlotCanvasView extends DOMView
 
     ctx.restore()  # Restore to default state
 
-    try
-      event = new Event("bokeh:rendered", {detail: @})
-      window.dispatchEvent(event)
-    catch
-      # new Event() is not supported on IE.
+    @_has_finished = true
 
   _paint_levels: (ctx, levels, clip_region) ->
     ctx.save()

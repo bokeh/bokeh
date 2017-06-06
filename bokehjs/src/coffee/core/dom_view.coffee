@@ -7,6 +7,7 @@ export class DOMView extends View
 
   initialize: (options) ->
     super(options)
+    @_has_finished = false
     @el = @_createElement()
 
   remove: () ->
@@ -25,8 +26,14 @@ export class DOMView extends View
 
     @layout()
 
+  has_finished: () -> @_has_finished
+
+  notify_finished: () ->
+    @root.notify_finished()
+
   @getters {
     solver:  () -> if @is_root then @_solver else @parent.solver
+    is_idle: () -> @has_finished()
   }
 
   _createElement: () ->
