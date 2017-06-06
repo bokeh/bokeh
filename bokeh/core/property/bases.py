@@ -181,8 +181,9 @@ class Property(PropertyDescriptorFactory):
         # this handles the special but common case where there is a dict with numpy
         # arrays as values (e.g. the .data property of a ColumnDataSource)
         if isinstance(new, dict) and isinstance(old, dict):
-            return list(new.keys()) == list(old.keys()) and \
-                all(self.matches(*args) for args in zip(new.values(), old.values()))
+            if set(new.keys()) != set(old.keys()):
+                return False
+            return all(self.matches(new[k], old[k]) for k in new)
 
         try:
             return new == old
