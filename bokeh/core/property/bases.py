@@ -178,7 +178,19 @@ class Property(PropertyDescriptorFactory):
         if isinstance(new, np.ndarray) or isinstance(old, np.ndarray):
             return np.array_equal(new, old)
 
-        return new == old
+        # this handles the special but common case where there is a dict with numpy
+        # arrays as values (e.g. the .data property of a ColumnDataSource)
+        if isinstance(new, dict) and isinstance(old, dict):
+            if set(new.keys()) != set(old.keys()):
+                return False
+            return all(self.matches(new[k], old[k]) for k in new)
+
+        try:
+            return new == old
+
+        # if the comparison fails for some reason, just punt and return no-match
+        except ValueError:
+            return False
 
     def from_json(self, json, models=None):
         ''' Convert from JSON-compatible values into a value for this property.
