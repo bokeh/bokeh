@@ -196,12 +196,15 @@ class Document(object):
     def title(self, title):
         self._set_title(title)
 
-    def add_next_tick_callback(self, callback):
+    def add_next_tick_callback(self, callback, *args, **kwargs):
         ''' Add callback to be invoked once on the next tick of the event loop.
 
         Args:
             callback (callable) :
                 A callback function to execute on the next tick.
+
+        Any additional arguments or keyword arguments will be applied when
+        the callback is invoked.
 
         Returns:
             NextTickCallback :
@@ -214,9 +217,9 @@ class Document(object):
         '''
         from .server.callbacks import NextTickCallback
         cb = NextTickCallback(self, None)
-        return self._add_session_callback(cb, callback, one_shot=True)
+        return self._add_session_callback(cb, callback, one_shot=True, args=args, kwargs=kwargs)
 
-    def add_periodic_callback(self, callback, period_milliseconds):
+    def add_periodic_callback(self, callback, period_milliseconds, *args, **kwargs):
         ''' Add a callback to be invoked on a session periodically.
 
         Args:
@@ -225,6 +228,9 @@ class Document(object):
 
             period_milliseconds (int) :
                 Number of milliseconds between each callback execution.
+
+        Any additional arguments or keyword arguments will be applied when
+        the callback is invoked.
 
         Returns:
             PeriodicCallback :
@@ -239,7 +245,7 @@ class Document(object):
         cb = PeriodicCallback(self,
                               None,
                               period_milliseconds)
-        return self._add_session_callback(cb, callback, one_shot=False)
+        return self._add_session_callback(cb, callback, one_shot=False, args=args, kwargs=kwargs)
 
     def add_root(self, model, setter=None):
         ''' Add a model as a root of this Document.
@@ -279,7 +285,7 @@ class Document(object):
             self._pop_all_models_freeze()
         self._trigger_on_change(RootAddedEvent(self, model, setter))
 
-    def add_timeout_callback(self, callback, timeout_milliseconds):
+    def add_timeout_callback(self, callback, timeout_milliseconds, *args, **kwargs):
         ''' Add callback to be invoked once, after a specified timeout passes.
 
         Args:
@@ -288,6 +294,9 @@ class Document(object):
 
             timeout_milliseconds (int) :
                 Number of milliseconds before callback execution.
+
+        Any additional arguments or keyword arguments will be applied when
+        the callback is invoked.
 
         Returns:
             TimeoutCallback :
@@ -302,7 +311,7 @@ class Document(object):
         cb = TimeoutCallback(self,
                              None,
                              timeout_milliseconds)
-        return self._add_session_callback(cb, callback, one_shot=True)
+        return self._add_session_callback(cb, callback, one_shot=True, args=args, kwargs=kwargs)
 
     def apply_json_event(self, json):
         for obj in self.event_manager.subscribed_models:
@@ -773,7 +782,7 @@ class Document(object):
             refs = r.references()
             check_integrity(refs)
 
-    def _add_session_callback(self, callback_obj, callback, one_shot):
+    def _add_session_callback(self, callback_obj, callback, one_shot, args, kwargs):
         ''' Internal implementation for adding session callbacks.
 
         Args:
@@ -787,6 +796,12 @@ class Document(object):
             one_shot (bool) :
                 Whether the callback should immediately auto-remove itself
                 after one execution.
+
+            args (tuple) :
+                Arguments to apply when the callback is invoked
+
+            kwargs (tuple) :
+                Keywoard Arguments to apply when the callback is invoked
 
         Returns:
             SessionCallback : passed in as ``callback_obj``.
@@ -813,6 +828,8 @@ class Document(object):
             actual_callback = callback
 
         callback_obj._callback = self._wrap_with_self_as_curdoc(actual_callback)
+        callback_obj._args = args
+        callback_obj._kwargs = kwargs
         self._session_callbacks[callback] = callback_obj
 
         # emit event so the session is notified of the new callback
@@ -1227,14 +1244,17 @@ class _UnlockedDocumentProxy(object):
             "to make other changes to the document, add a next tick callback and make your changes "
             "from that callback.")
 
-    def add_next_tick_callback(self, callback):
+    def add_next_tick_callback(self, callback, *args, **kwargs):
         ''' Add a "next tick" callback.
 
         Args:
             callback (callable) :
 
+        Any additional arguments or keyword arguments will be applied when
+        the callback is invoked.
+
         '''
-        return self._doc.add_next_tick_callback(callback)
+        return self._doc.add_next_tick_callback(callback, *args, **kwargs)
 
     def remove_next_tick_callback(self, callback):
         ''' Remove a "next tick" callback.
