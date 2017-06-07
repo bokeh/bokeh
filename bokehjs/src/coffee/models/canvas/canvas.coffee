@@ -28,7 +28,7 @@ export class CanvasView extends DOMView
     @overlays_el = @el.appendChild(div({class: "bk-canvas-overlays"}))
 
     switch @model.output_backend
-      when "canvas"
+      when "canvas", "webgl"
         @canvas_el = @el.appendChild(canvas({class: "bk-canvas"}))
         @_ctx = @canvas_el.getContext('2d')
       when "svg"
