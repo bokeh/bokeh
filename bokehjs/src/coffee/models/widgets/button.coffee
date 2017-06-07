@@ -3,14 +3,10 @@ import {register_with_event, ButtonClick} from "core/bokeh_events"
 
 import {AbstractButton, AbstractButtonView} from "./abstract_button"
 
-
 export class ButtonView extends AbstractButtonView
 
   change_input: () ->
-    @model.trigger_event(new ButtonClick({}))
-    @model.clicks = @model.clicks + 1
-    super()
-
+    @model.click()
 
 export class Button extends AbstractButton
   type: "Button"
@@ -19,5 +15,10 @@ export class Button extends AbstractButton
   @define {
     clicks: [ p.Number, 0 ]
   }
+
+  click: () ->
+    if not @disabled
+      @trigger_event(new ButtonClick({}))
+      @clicks += 1
 
 register_with_event(ButtonClick, Button)
