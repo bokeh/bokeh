@@ -135,8 +135,9 @@ export class GlyphRendererView extends RendererView
     if not @model.visible
       return
 
-    t0 = Date.now()
+    extend(@glyph, @model.glyph.materialize_dataspecs(@model.data_source))
 
+    t0 = Date.now()
     glsupport = @glyph.glglyph
 
     tmap = Date.now()
