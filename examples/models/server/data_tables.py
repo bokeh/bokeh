@@ -22,7 +22,7 @@ class DataTables(object):
         self.drive_filter = None
         self.class_filter = None
 
-        self.source = ColumnDataSource()
+        self.source = ColumnDataSource(data=mpg)
         self.update_data()
 
         self.document.add_root((self.create()))
