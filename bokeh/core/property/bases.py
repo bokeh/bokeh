@@ -18,10 +18,13 @@ import types
 from six import string_types
 import numpy as np
 
+from ...util.dependencies import import_optional
 from ...util.string import nice_join
 from .containers import PropertyValueList, PropertyValueDict
 from .descriptor_factory import PropertyDescriptorFactory
 from .descriptors import BasicPropertyDescriptor
+
+pd = import_optional('pandas')
 
 class DeserializationError(Exception):
     pass
@@ -166,8 +169,8 @@ class Property(PropertyDescriptorFactory):
     def matches(self, new, old):
         ''' Whether two parameters match values.
 
-        If either ``new`` or ``old`` is a NumPy array, then the result of
-        ``np.array_equal`` will determine if the values match..
+        If either ``new`` or ``old`` is a NumPy array or Pandas Series or Index,
+        then the result of ``np.array_equal`` will determine if the values match.
 
         Otherwise, the result of standard Python equality will be returned.
 
@@ -178,14 +181,21 @@ class Property(PropertyDescriptorFactory):
         if isinstance(new, np.ndarray) or isinstance(old, np.ndarray):
             return np.array_equal(new, old)
 
-        # this handles the special but common case where there is a dict with numpy
-        # arrays as values (e.g. the .data property of a ColumnDataSource)
-        if isinstance(new, dict) and isinstance(old, dict):
-            if set(new.keys()) != set(old.keys()):
-                return False
-            return all(self.matches(new[k], old[k]) for k in new)
+        if pd and isinstance(new, pd.Series) or isinstance(old, pd.Series):
+            return np.array_equal(new, old)
+
+        if pd and isinstance(new, pd.Index) or isinstance(old, pd.Index):
+            return np.array_equal(new, old)
 
         try:
+
+            # this handles the special but common case where there is a dict with array
+            # or series as values (e.g. the .data property of a ColumnDataSource)
+            if isinstance(new, dict) and isinstance(old, dict):
+                if set(new.keys()) != set(old.keys()):
+                    return False
+                return all(self.matches(new[k], old[k]) for k in new)
+
             return new == old
 
         # if the comparison fails for some reason, just punt and return no-match
