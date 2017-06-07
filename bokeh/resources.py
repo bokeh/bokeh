@@ -330,6 +330,9 @@ class JSResources(BaseResources):
         if self.log_level is not None:
             raw.append('Bokeh.set_log_level("%s");' % self.log_level)
 
+        if self.dev:
+            raw.append('Bokeh.settings.dev = true')
+
         return raw
 
     def render_js(self):
