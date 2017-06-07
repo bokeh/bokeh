@@ -1,6 +1,7 @@
 import pytest
 
 import numpy as np
+import pandas as pd
 
 from bokeh.core.has_props import HasProps
 
@@ -103,5 +104,39 @@ def test_property_matches_non_dict_containers_with_array_false(capsys):
     assert p.matches(t1, t1) is True  # because object identity
     assert p.matches(t1, t2) is False
 
+    out, err = capsys.readouterr()
+    assert err == ""
+
+def test_property_matches_dicts_with_series_values(capsys):
+    p = pb.Property()
+    d1 = pd.DataFrame(dict(foo=np.arange(10)))
+    d2 = pd.DataFrame(dict(foo=np.arange(10)))
+
+    assert p.matches(d1.foo, d1.foo) is True
+    assert p.matches(d1.foo, d2.foo) is True
+
+    # XXX not sure if this is preferable to have match, or not
+    assert p.matches(d1.foo, (range(10))) is True
+
+    assert p.matches(d1.foo, np.arange(11)) is False
+    assert p.matches(d1.foo, np.arange(10)+1) is False
+    assert p.matches(d1.foo, 10) is False
+    out, err = capsys.readouterr()
+    assert err == ""
+
+def test_property_matches_dicts_with_index_values(capsys):
+    p = pb.Property()
+    d1 = pd.DataFrame(dict(foo=np.arange(10)))
+    d2 = pd.DataFrame(dict(foo=np.arange(10)))
+
+    assert p.matches(d1.index, d1.index) is True
+    assert p.matches(d1.index, d2.index) is True
+
+    # XXX not sure if this is preferable to have match, or not
+    assert p.matches(d1.index, list(range(10))) is True
+
+    assert p.matches(d1.index, np.arange(11)) is False
+    assert p.matches(d1.index, np.arange(10)+1) is False
+    assert p.matches(d1.index, 10) is False
     out, err = capsys.readouterr()
     assert err == ""
