@@ -431,6 +431,29 @@ class TestAutoloadServer(unittest.TestCase):
                                    'src' : src },
                                  attrs)
 
+    def test_script_attrs_arguments_provided(self):
+        r = embed.server_document(arguments=dict(foo=10))
+        self.assertTrue('foo=10' in r)
+        html = bs4.BeautifulSoup(r)
+        scripts = html.findAll(name='script')
+        self.assertEqual(len(scripts), 1)
+        attrs = scripts[0].attrs
+        self.assertTrue(set(attrs), set([
+            'src',
+            'data-bokeh-doc-id',
+            'data-bokeh-model-id',
+            'id'
+        ]))
+        divid = attrs['id']
+        src = "%s/autoload.js?bokeh-autoload-element=%s&bokeh-absolute-url=%s&foo=10" % \
+              ("http://localhost:5006", divid, "http://localhost:5006")
+        self.assertDictEqual({ 'data-bokeh-doc-id' : '',
+                               'data-bokeh-model-id' : '',
+                               'id' : divid,
+                               'src' : src },
+                             attrs)
+
+
 @mock.patch('bokeh.document.check_integrity')
 def test_modelindocument_validates_document_by_default(check_integrity):
     p = figure()
