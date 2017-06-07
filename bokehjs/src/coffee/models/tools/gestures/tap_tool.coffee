@@ -28,9 +28,9 @@ export class TapToolView extends SelectToolView
 
       renderers_by_source = @model._computed_renderers_by_data_source()
 
-      for ds_id, renderers of renderers_by_source
+      for _, renderers of renderers_by_source
         ds = renderers[0].data_source
-        sm = renderers[0].data_source.selection_manager
+        sm = ds.selection_manager
         did_hit = sm.select(@, (@plot_view.renderer_views[r.id] for r in renderers), geometry, final, append)
 
         if did_hit and callback?
