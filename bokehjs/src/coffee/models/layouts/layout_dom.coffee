@@ -16,7 +16,6 @@ export class LayoutDOMView extends DOMView
     # this is a root view
     if @is_root
       @_solver = new Solver()
-      @_init_solver()
 
     if @model.sizing_mode? # because toolbar uses null
       @el.classList.add("bk-layout-#{@model.sizing_mode}")
@@ -57,12 +56,21 @@ export class LayoutDOMView extends DOMView
           @_idle_notified = true
           @model.document.notify_idle(@model)
 
-  _reset_solver: () ->
-    if not @is_root
-      @parent._reset_solver()
-    else
-      @_solver.clear()
-      @_init_solver()
+  _calc_width_height: () ->
+    measuring = @el
+
+    while true
+      measuring = measuring.parentNode
+      if not measuring?
+        logger.warn("detached element")
+        width = height = null
+        break
+
+      {width, height} = measuring.getBoundingClientRect()
+      if height != 0
+        break
+
+    return [width, height]
 
   _init_solver: () ->
     @_root_width = new Variable("root_width")
@@ -88,46 +96,46 @@ export class LayoutDOMView extends DOMView
 
     @_solver.update_variables()
 
-  _calc_width_height: () ->
-    measuring = @el
+  _suggest_dims: (width, height) ->
+    variables = @model.get_constrained_variables()
 
-    while true
-      measuring = measuring.parentNode
-      if not measuring?
-        logger.warn("detached element")
-        width = height = null
-        break
+    if variables.width? or variables.height?
+      if width == null or height == null
+        [width, height] = @_calc_width_height()
 
-      {width, height} = measuring.getBoundingClientRect()
-      if height != 0
-        break
-
-    return [width, height]
-
-  layout: (width=null, height=null) ->
-    if not @is_root
-      @parent.layout(width, height)
-    else
-      variables = @model.get_constrained_variables()
-
-      if variables.width? or variables.height?
-        if width == null or height == null
-          [width, height] = @_calc_width_height()
-
-        if variables.width? and width?
-          @_solver.suggest_value(@_root_width, width)
-        if variables.height? and height?
-          @_solver.suggest_value(@_root_height, height)
+      if variables.width? and width?
+        @_solver.suggest_value(@_root_width, width)
+      if variables.height? and height?
+        @_solver.suggest_value(@_root_height, height)
 
       @_solver.update_variables()
 
-      # XXX: do layout twice, because there are interdependencies between views,
-      # which currently cannot be resolved with one pass. The second pass also
-      # triggers (expensive) painting.
-      @_layout()
-      @_layout(true)
+  resize: (width=null, height=null) ->
+    if not @is_root
+      @root.resize(width, height)
+    else
+      @_do_layout(false, width, height)
 
-      @notify_finished()
+  layout: (full=true) ->
+    if not @is_root
+      @root.layout(full)
+    else
+      @_do_layout(full)
+
+  _do_layout: (full, width=null, height=null) ->
+    if full
+      @_solver.clear()
+      @_init_solver()
+
+    @_suggest_dims(width, height)
+
+    # XXX: do layout twice, because there are interdependencies between views,
+    # which currently cannot be resolved with one pass. The second pass also
+    # triggers (expensive) painting.
+    @_layout()
+    @_layout(true)
+
+    @notify_finished()
 
   _layout: (final=false) ->
     for child in @model.get_layoutable_children()
@@ -141,7 +149,7 @@ export class LayoutDOMView extends DOMView
       @_has_finished = true
 
   rebuild_child_views: () ->
-    @_reset_solver()
+    @solver.clear()
     @build_child_views()
     @layout()
 
@@ -162,7 +170,7 @@ export class LayoutDOMView extends DOMView
     super()
 
     if @is_root
-      window.addEventListener("resize", () => @layout())
+      window.addEventListener("resize", () => @resize())
 
     @connect(@model.change, () => @render())
 
