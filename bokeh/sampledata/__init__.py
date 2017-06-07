@@ -75,6 +75,7 @@ def download(progress=True):
         (s3, 'world_cities.zip'),
         (s3, 'airports.json'),
         (s3, 'movies.db.zip'),
+        (s3, 'countries.kml.zip'),
     ]
 
     for base_url, file_name in files:
