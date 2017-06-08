@@ -67,7 +67,11 @@ export class PlotView extends LayoutDOMView
     return @model._height.value * @model.get_aspect_ratio()
 
   save: (name) ->
-    (view for view in values(@child_views) when view instanceof PlotCanvasView)[0].save(name)
+    @plot_canvas_view.save(name)
+
+  @getters {
+    plot_canvas_view: () -> (view for view in values(@child_views) when view instanceof PlotCanvasView)[0]
+  }
 
 export class Plot extends LayoutDOM
   type: 'Plot'
