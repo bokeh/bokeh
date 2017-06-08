@@ -15,8 +15,9 @@ export class Model extends HasProps
     subscribed_events:     [ p.Array, [] ]
   }
 
-  initialize: (options) ->
-    super(options)
+  connect_signals: () ->
+    super()
+
     for evt, callbacks of @js_property_callbacks
       [evt, attr=null] = evt.split(':')
       for cb in callbacks
