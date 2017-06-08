@@ -69,12 +69,15 @@ export const
   a      = _createElement("a"),
   p      = _createElement("p"),
   pre    = _createElement("pre"),
+  button = _createElement("button"),
   input  = _createElement("input"),
   label  = _createElement("label"),
   canvas = _createElement("canvas"),
   ul     = _createElement("ul"),
   ol     = _createElement("ol"),
   li     = _createElement("li");
+
+export const nbsp = document.createTextNode("\u00a0")
 
 export function removeElement(element: HTMLElement): void {
   const parent = element.parentNode
@@ -83,10 +86,18 @@ export function removeElement(element: HTMLElement): void {
   }
 }
 
-export function replaceWith(element: HTMLElement, replacement: HTMLElement) {
+export function replaceWith(element: HTMLElement, replacement: HTMLElement): void {
   const parent = element.parentNode
   if (parent != null) {
     parent.replaceChild(replacement, element)
+  }
+}
+
+
+export function prepend(element: HTMLElement, ...nodes: HTMLElement[]): void {
+  const first = element.firstChild
+  for (const node of nodes) {
+    element.insertBefore(node, first)
   }
 }
 
