@@ -7,6 +7,7 @@ import {build_views} from "core/build_views"
 import {DOMView} from "core/dom_view"
 import {logger} from "core/logging"
 import {extend} from "core/util/object"
+import {startsWith} from "core/util/string"
 
 export class LayoutDOMView extends DOMView
 
@@ -17,8 +18,6 @@ export class LayoutDOMView extends DOMView
     if @is_root
       @_solver = new Solver()
 
-    if @model.sizing_mode? # because toolbar uses null
-      @el.classList.add("bk-layout-#{@model.sizing_mode}")
     if @model.css_classes?
       for cls in @model.css_classes
         @el.classList.add(cls)
@@ -172,17 +171,18 @@ export class LayoutDOMView extends DOMView
     if @is_root
       window.addEventListener("resize", () => @resize())
 
-    @connect(@model.change, () => @render())
-
-    # Note: `sizing_mode` update is not supported because changing the
-    # sizing_mode mode necessitates stripping out all the relevant constraints
-    # from solver and re-adding the new correct ones.  We don't currently have
-    # a machinery for this. Other things with a similar problem are axes and
-    # title.
-    sizing_mode_msg = "Changing sizing_mode after initialization is not currently supported."
-    @connect(@model.properties.sizing_mode.change, () -> logger.warn(sizing_mode_msg))
+    # XXX: @connect(@model.change, () => @layout())
+    @connect(@model.properties.sizing_mode.change, () => @layout())
 
   render: () ->
+    for i in [0...@el.classList.length]
+      cls = @el.classList.item(i)
+      if cls? and startsWith(cls, "bk-layout")
+        @el.classList.remove(cls)
+
+    if @model.sizing_mode? # XXX: because toolbar uses null
+      @el.classList.add("bk-layout-#{@model.sizing_mode}")
+
     switch @model.sizing_mode
       when 'fixed'
         # If the width or height is unset:
@@ -195,6 +195,7 @@ export class LayoutDOMView extends DOMView
         else
           width = @get_width()
           @model.setv({width: width}, {silent: true})
+
         if @model.height?
           height = @model.height
         else
@@ -204,6 +205,10 @@ export class LayoutDOMView extends DOMView
         @solver.suggest_value(@model._width, width)
         @solver.suggest_value(@model._height, height)
         @solver.update_variables()
+
+        @el.style.position = "relative"
+        @el.style.left = ""
+        @el.style.top = ""
         @el.style.width = "#{width}px"
         @el.style.height = "#{height}px"
 
@@ -212,6 +217,10 @@ export class LayoutDOMView extends DOMView
 
         @solver.suggest_value(@model._height, height)
         @solver.update_variables()
+
+        @el.style.position = "relative"
+        @el.style.left = ""
+        @el.style.top = ""
         @el.style.width = "#{@model._width.value}px"
         @el.style.height = "#{@model._height.value}px"
 
@@ -220,11 +229,15 @@ export class LayoutDOMView extends DOMView
 
         @solver.suggest_value(@model._width, width)
         @solver.update_variables()
+
+        @el.style.position = "relative"
+        @el.style.left = ""
+        @el.style.top = ""
         @el.style.width = "#{@model._width.value}px"
         @el.style.height = "#{@model._height.value}px"
 
       when 'stretch_both'
-        @el.style.position = 'absolute'
+        @el.style.position = "absolute"
         @el.style.left = "#{@model._dom_left.value}px"
         @el.style.top = "#{@model._dom_top.value}px"
         @el.style.width = "#{@model._width.value}px"

@@ -29,7 +29,7 @@ export class PlotView extends LayoutDOMView
   render: () ->
     super()
 
-    if @model.sizing_mode is 'scale_both'
+    if @model.sizing_mode == 'scale_both'
       [width, height] = @get_width_height()
       @solver.suggest_value(@model._width, width)
       @solver.suggest_value(@model._height, height)

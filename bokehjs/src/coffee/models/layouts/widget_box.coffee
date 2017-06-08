@@ -1,6 +1,7 @@
 import {logger} from "core/logging"
 import * as p from "core/properties"
 import {extend} from "core/util/object"
+import {startsWith} from "core/util/string"
 
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
 
@@ -12,7 +13,17 @@ export class WidgetBoxView extends LayoutDOMView
     @connect(@model.properties.children.change, () => @rebuild_child_views())
 
   render: () ->
-    if @model.sizing_mode is 'fixed' or @model.sizing_mode == 'scale_height'
+    # {{{ because no super()
+    for i in [0...@el.classList.length]
+      cls = @el.classList.item(i)
+      if cls? and startsWith(cls, "bk-layout")
+        @el.classList.remove(cls)
+
+    if @model.sizing_mode? # XXX: because toolbar uses null
+      @el.classList.add("bk-layout-#{@model.sizing_mode}")
+    # }}}
+
+    if @model.sizing_mode == 'fixed' or @model.sizing_mode == 'scale_height'
       width = @get_width()
       if @model._width.value != width
         @solver.suggest_value(@model._width, width)
@@ -24,7 +35,7 @@ export class WidgetBoxView extends LayoutDOMView
 
     @solver.update_variables()
 
-    if @model.sizing_mode is 'stretch_both'
+    if @model.sizing_mode == 'stretch_both'
       @el.style.position = 'absolute'
       @el.style.left = "#{@model._dom_left.value}px"
       @el.style.top = "#{@model._dom_top.value}px"
@@ -60,7 +71,6 @@ export class WidgetBoxView extends LayoutDOMView
         if child_width > width
           width = child_width
       return width
-
 
 export class WidgetBox extends LayoutDOM
   type: 'WidgetBox'
