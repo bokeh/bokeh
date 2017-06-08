@@ -53,8 +53,11 @@ export class PlotCanvasView extends DOMView
       @request_render()
 
   request_render: () ->
+    @request_paint()
+
+  request_paint: () ->
     if not @is_paused
-      @throttled_render()
+      @throttled_paint()
     return
 
   remove: () ->
@@ -71,7 +74,7 @@ export class PlotCanvasView extends DOMView
 
     super(options)
 
-    @force_render = new Signal(this, "force_render")
+    @force_paint = new Signal(this, "force_paint")
     @state_changed = new Signal(this, "state_changed")
 
     @lod_started = false
@@ -98,7 +101,7 @@ export class PlotCanvasView extends DOMView
     if @model.plot.output_backend == "webgl"
       @init_webgl()
 
-    @throttled_render = throttle((() => @force_render.emit()), 15) # TODO (bev) configurable
+    @throttled_paint = throttle((() => @force_paint.emit()), 15) # TODO (bev) configurable
 
     @ui_event_bus = new UIEvents(@, @model.toolbar, @canvas_view.el, @model.plot)
 
@@ -460,7 +463,7 @@ export class PlotCanvasView extends DOMView
 
   connect_signals: () ->
     super()
-    @connect(@force_render, () => @repaint())
+    @connect(@force_paint, () => @paint())
     for name, rng of @model.frame.x_ranges
       @connect(rng.change, () -> @request_render())
     for name, rng of @model.frame.y_ranges
@@ -539,10 +542,6 @@ export class PlotCanvasView extends DOMView
     @canvas_view.set_dims([width, height])
     @update_constraints()
 
-    # Prepare the canvas size, taking HIDPI into account. Note that this may cause a resize
-    # of the canvas, which means that any previous calls to ctx.save() will be undone.
-    @canvas_view.prepare_canvas()
-
     # This allows the plot canvas to be positioned around the toolbar
     @el.style.position = 'absolute'
     @el.style.left     = "#{@model._dom_left.value}px"
@@ -550,15 +549,15 @@ export class PlotCanvasView extends DOMView
     @el.style.width    = "#{@model._width.value}px"
     @el.style.height   = "#{@model._height.value}px"
 
-  repaint: () ->
-    @render()
-    @paint()
-
   paint: () ->
     if @is_paused
       return
 
     logger.trace("PlotCanvas.render() for #{@model.id}")
+
+    # Prepare the canvas size, taking HIDPI into account. Note that this may cause a resize
+    # of the canvas, which means that any previous calls to ctx.save() will be undone.
+    @canvas_view.prepare_canvas()
 
     if Date.now() - @interactive_timestamp < @model.plot.lod_interval
       if not @lod_started
