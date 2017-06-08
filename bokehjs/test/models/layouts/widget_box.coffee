@@ -9,6 +9,7 @@ sinon = require 'sinon'
 {LayoutDOMView} = utils.require("models/layouts/layout_dom")
 {Panel} = utils.require("models/widgets/panel")
 {Plot} = utils.require("models/plots/plot")
+{Button} = utils.require("models/widgets/button")
 {Tabs} = utils.require("models/widgets/tabs")
 {Toolbar} = utils.require("models/tools/toolbar")
 {WidgetBox} = utils.require("models/layouts/widget_box")
@@ -95,7 +96,7 @@ describe "WidgetBox", ->
       expect(widget_box_view.get_width()).to.be.equal 99 + 20
 
     it "should call build_child_views if children change", ->
-      child_widget = new Tabs()
+      child_widget = new Button()
       spy = sinon.spy(LayoutDOMView.prototype, 'build_child_views')
       new @widget_box.default_view({ model: @widget_box, parent: null })
       expect(spy.callCount).is.equal 1  # Expect one from initialization
