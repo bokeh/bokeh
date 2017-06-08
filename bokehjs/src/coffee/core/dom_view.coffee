@@ -15,6 +15,11 @@ export class DOMView extends View
 
   render: () ->
 
+  has_render_finished: () -> true
+
+  notify_finished: () ->
+    @root.notify_finished()
+
   @getters {
     solver:  () -> if @is_root then @_solver else @parent.solver
   }

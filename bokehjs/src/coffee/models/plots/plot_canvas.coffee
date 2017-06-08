@@ -507,6 +507,17 @@ export class PlotCanvasView extends DOMView
     else
       logger.warn('could not set initial ranges')
 
+  has_render_finished: () ->
+    if not super()
+      return false
+
+    for _, renderer_views of @levels
+      for _, view of renderer_views
+        if not view.has_render_finished()
+          return false
+
+    return true
+
   render: () ->
     if @is_paused
       return
@@ -591,12 +602,6 @@ export class PlotCanvasView extends DOMView
       @set_initial_range()
 
     ctx.restore()  # Restore to default state
-
-    try
-      event = new Event("bokeh:rendered", {detail: @})
-      window.dispatchEvent(event)
-    catch
-      # new Event() is not supported on IE.
 
   _on_resize: () ->
     # Set the plot and canvas to the current model's size

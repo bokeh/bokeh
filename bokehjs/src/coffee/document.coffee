@@ -2,6 +2,7 @@ import {Models} from "./base"
 import {version as js_version} from "./version"
 import {logger} from "./core/logging"
 import {HasProps} from "./core/has_props"
+import {Signal} from "./core/signaling"
 import {is_ref} from "./core/util/refs"
 import {decode_column_data} from "./core/util/serialization"
 import {MultiDict, Set} from "./core/util/data_structures"
@@ -9,6 +10,8 @@ import {difference, intersection} from "./core/util/array"
 import {extend, values} from "./core/util/object"
 import {isEqual} from "./core/util/eq"
 import {isArray, isObject} from "./core/util/types"
+import {defer} from "./core/util/callback"
+import {LayoutDOM} from "./models/layouts/layout_dom"
 import {ColumnDataSource} from "./models/sources/column_data_source"
 
 class EventManager
@@ -104,6 +107,31 @@ export class Document
     @_all_models_freeze_count = 0
     @_callbacks = []
     @event_manager = new EventManager(@)
+    @idle = new Signal(this, "idle") # <void, this>
+    @_idle_roots = new WeakMap() # TODO: WeakSet would be better
+
+  Object.defineProperty(@prototype, "layoutables", {
+    get: () -> (root for root in @_roots when root instanceof LayoutDOM)
+  })
+
+  notify_idle: (model) ->
+    @_idle_roots.set(model, true)
+
+    for root in @layoutables
+      if not @_idle_roots.has(root)
+        return
+
+    # Make sure this is emitted in the next stack frame, because otherwise
+    # handlers, e.g. in tests, won't be able to set up in time if idle
+    # notification isn't deferred by other means (loading images, maps).
+    defer () =>
+      @idle.emit()
+
+      try
+        event = new Event("bokeh:idle", {detail: {document: @}})
+        window.dispatchEvent(event)
+      catch
+        # new Event() is not supported on IE.
 
   clear : () ->
     @_push_all_models_freeze()

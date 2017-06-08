@@ -52,6 +52,11 @@ export class GlyphView extends View
 
     @_render(ctx, indices, data)
 
+  has_render_finished: () -> true
+
+  notify_finished: () ->
+    @renderer.notify_finished()
+
   bounds: () ->
     if not @index?
       return bbox.empty()

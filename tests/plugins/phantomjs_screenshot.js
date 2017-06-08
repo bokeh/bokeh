@@ -70,7 +70,7 @@ page.open(url, function(status) {
   page.evaluate(function() {
     document.body.bgColor = 'white';
 
-    window.addEventListener("bokeh:rendered", function() {
+    window.addEventListener("bokeh:idle", function() {
       window.callPhantom('working');
     });
   });

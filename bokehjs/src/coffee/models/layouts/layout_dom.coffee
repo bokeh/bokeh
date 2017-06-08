@@ -42,6 +42,28 @@ export class LayoutDOMView extends DOMView
 
     super()
 
+  has_render_finished: () ->
+    if not super()
+      return false
+
+    if not @_did_render
+      return false
+
+    for _, child of @child_views
+      if not child.has_render_finished()
+        return false
+
+    return true
+
+  notify_finished: () ->
+    if not @is_root
+      super()
+    else
+      if not @_idle_notified and @has_render_finished()
+        if @model.document?
+          @model.document.notify_idle(@model)
+        @_idle_notified = true
+
   _reset_solver: () ->
     if not @is_root
       @parent._reset_solver()
@@ -137,8 +159,9 @@ export class LayoutDOMView extends DOMView
 
     @connect @solver.resize, () =>
       if @model.sizing_mode != 'fixed' or not @_did_render
-        @_did_render = true
         @render()
+        @_did_render = true
+        @notify_finished()
 
     # Note: `sizing_mode` update is not supported because changing the
     # sizing_mode mode necessitates stripping out all the relevant constraints
