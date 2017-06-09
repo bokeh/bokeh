@@ -50,7 +50,7 @@ describe "LayoutDOMView", ->
       @test_layout.css_classes = ['FOO', 'BAR']
       layout_view = new LayoutDOMView({model: @test_layout, parent: null})
       layout_view.layout()
-      expect(layout_view.el.className).to.be.equal 'FOO BAR bk-layout-fixed'
+      expect(layout_view.el.className).to.be.equal 'bk-layout-fixed FOO BAR'
 
     it.skip "should build the child views", ->
       # needs a test

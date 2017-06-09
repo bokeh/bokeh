@@ -7,7 +7,6 @@ import {build_views} from "core/build_views"
 import {DOMView} from "core/dom_view"
 import {logger} from "core/logging"
 import {extend} from "core/util/object"
-import {startsWith} from "core/util/string"
 
 export class LayoutDOMView extends DOMView
 
@@ -17,10 +16,6 @@ export class LayoutDOMView extends DOMView
     # this is a root view
     if @is_root
       @_solver = new Solver()
-
-    if @model.css_classes?
-      for cls in @model.css_classes
-        @el.classList.add(cls)
 
     @child_views = {}
     @build_child_views()
@@ -174,14 +169,21 @@ export class LayoutDOMView extends DOMView
     # XXX: @connect(@model.change, () => @layout())
     @connect(@model.properties.sizing_mode.change, () => @layout())
 
-  render: () ->
-    for i in [0...@el.classList.length]
-      cls = @el.classList.item(i)
-      if cls? and startsWith(cls, "bk-layout")
-        @el.classList.remove(cls)
+  _render_classes: () ->
+    @el.className = "" # removes all classes
+
+    if @className?
+      @el.classList.add(@className)
 
     if @model.sizing_mode? # XXX: because toolbar uses null
       @el.classList.add("bk-layout-#{@model.sizing_mode}")
+
+    if @model.css_classes?
+      for cls in @model.css_classes
+        @el.classList.add(cls)
+
+  render: () ->
+    @_render_classes()
 
     switch @model.sizing_mode
       when 'fixed'

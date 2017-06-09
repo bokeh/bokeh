@@ -1,7 +1,6 @@
 import {logger} from "core/logging"
 import * as p from "core/properties"
 import {extend} from "core/util/object"
-import {startsWith} from "core/util/string"
 
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
 
@@ -13,15 +12,7 @@ export class WidgetBoxView extends LayoutDOMView
     @connect(@model.properties.children.change, () => @rebuild_child_views())
 
   render: () ->
-    # {{{ because no super()
-    for i in [0...@el.classList.length]
-      cls = @el.classList.item(i)
-      if cls? and startsWith(cls, "bk-layout")
-        @el.classList.remove(cls)
-
-    if @model.sizing_mode? # XXX: because toolbar uses null
-      @el.classList.add("bk-layout-#{@model.sizing_mode}")
-    # }}}
+    @_render_classes() # XXX: because no super()
 
     if @model.sizing_mode == 'fixed' or @model.sizing_mode == 'scale_height'
       width = @get_width()
