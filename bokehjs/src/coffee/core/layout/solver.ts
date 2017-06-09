@@ -1,5 +1,4 @@
 import {Variable, Expression, Constraint, Operator, Strength, Solver as ConstraintSolver} from "kiwi"
-import {Signal} from "../signaling"
 
 export type Term = number | Variable | [number, Variable]
 
@@ -23,10 +22,6 @@ export const WEAK_GE = _weak_constrainer(Operator.Ge)
 
 export class Solver {
 
-  readonly layout_update = new Signal<void, Solver>(this, "layout_update")
-  readonly layout_reset = new Signal<void, Solver>(this, "layout_reset")
-  readonly resize = new Signal<void, Solver>(this, "resize")
-
   protected solver: ConstraintSolver
 
   constructor() {
@@ -35,7 +30,6 @@ export class Solver {
 
   clear(): void {
     this.solver = new ConstraintSolver()
-    this.layout_reset.emit(undefined)
   }
 
   toString(): string {
@@ -50,11 +44,8 @@ export class Solver {
     return this.solver.numEditVariables
   }
 
-  update_variables(trigger: boolean = true): void {
+  update_variables(): void {
     this.solver.updateVariables()
-    if (trigger) {
-      this.layout_update.emit(undefined)
-    }
   }
 
   has_constraint(constraint: Constraint): boolean {
@@ -65,16 +56,16 @@ export class Solver {
     this.solver.addConstraint(constraint)
   }
 
-  remove_constraint(constraint: Constraint, silent: boolean = false): void {
-    this.solver.removeConstraint(constraint, silent)
+  remove_constraint(constraint: Constraint): void {
+    this.solver.removeConstraint(constraint)
   }
 
   add_edit_variable(variable: Variable, strength: number): void {
     this.solver.addEditVariable(variable, strength)
   }
 
-  remove_edit_variable(variable: Variable, silent: boolean = false): void {
-    this.solver.removeEditVariable(variable, silent)
+  remove_edit_variable(variable: Variable): void {
+    this.solver.removeEditVariable(variable)
   }
 
   suggest_value(variable: Variable, value: number): void {

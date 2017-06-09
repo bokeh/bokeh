@@ -2,6 +2,7 @@ import {Models} from "./base"
 import {version as js_version} from "./version"
 import {logger} from "./core/logging"
 import {HasProps} from "./core/has_props"
+import {Signal} from "./core/signaling"
 import {is_ref} from "./core/util/refs"
 import {decode_column_data} from "./core/util/serialization"
 import {MultiDict, Set} from "./core/util/data_structures"
@@ -9,6 +10,7 @@ import {difference, intersection} from "./core/util/array"
 import {extend, values} from "./core/util/object"
 import {isEqual} from "./core/util/eq"
 import {isArray, isObject} from "./core/util/types"
+import {LayoutDOM} from "./models/layouts/layout_dom"
 import {ColumnDataSource} from "./models/sources/column_data_source"
 
 class EventManager
@@ -90,13 +92,16 @@ export class RootRemovedEvent extends DocumentChangedEvent
       'model' : @model.ref()
     }
 
+export documents = []
+
 export DEFAULT_TITLE = "Bokeh Application"
 
 # This class should match the API of the Python Document class
 # as much as possible.
 export class Document
 
-  constructor : () ->
+  constructor: () ->
+    documents.push(this)
     @_title = DEFAULT_TITLE
     @_roots = []
     @_all_models = {}
@@ -104,6 +109,27 @@ export class Document
     @_all_models_freeze_count = 0
     @_callbacks = []
     @event_manager = new EventManager(@)
+    @idle = new Signal(this, "idle") # <void, this>
+    @_idle_roots = new WeakMap() # TODO: WeakSet would be better
+
+  Object.defineProperty(@prototype, "layoutables", {
+    get: () -> (root for root in @_roots when root instanceof LayoutDOM)
+  })
+
+  Object.defineProperty(@prototype, "is_idle", {
+    get: () ->
+      for root in @layoutables
+        if not @_idle_roots.has(root)
+          return false
+
+      return true
+  })
+
+  notify_idle: (model) ->
+    @_idle_roots.set(model, true)
+
+    if @is_idle
+      @idle.emit()
 
   clear : () ->
     @_push_all_models_freeze()

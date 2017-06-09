@@ -100,6 +100,7 @@ class Document(object):
         self._all_models_freeze_count = 0
         self._all_models = dict()
         self._all_models_by_name = MultiValuedDict()
+        self._all_former_model_ids = set()
         self._callbacks = {}
         self._session_callbacks = {}
         self._session_context = None
@@ -355,7 +356,11 @@ class Document(object):
             if event_json['kind'] == 'ModelChanged':
                 patched_id = event_json['model']['id']
                 if patched_id not in self._all_models:
-                    raise RuntimeError("Cannot apply patch to %s which is not in the document" % (str(patched_id)))
+                    if patched_id not in self._all_former_model_ids:
+                        raise RuntimeError("Cannot apply patch to %s which is not in the document" % (str(patched_id)))
+                    else:
+                        logger.warn("Cannot apply patch to %s which is not in the document anymore" % (str(patched_id)))
+                        break
                 patched_obj = self._all_models[patched_id]
                 attr = event_json['attr']
                 value = event_json['new']
@@ -1095,6 +1100,7 @@ class Document(object):
             if m.name is not None:
                 recomputed_by_name.add_value(m.name, m)
         for d in to_detach:
+            self._all_former_model_ids.add(d._id)
             d._detach_document()
         for a in to_attach:
             a._attach_document(self)

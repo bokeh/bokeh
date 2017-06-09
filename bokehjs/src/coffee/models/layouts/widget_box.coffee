@@ -7,33 +7,26 @@ import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
 export class WidgetBoxView extends LayoutDOMView
   className: "bk-widget-box"
 
-  initialize: (options) ->
-    super(options)
-    @render()
-
   connect_signals: () ->
     super()
     @connect(@model.properties.children.change, () => @rebuild_child_views())
 
   render: () ->
-    update_layout = false
+    @_render_classes() # XXX: because no super()
 
-    if @model.sizing_mode is 'fixed' or @model.sizing_mode == 'scale_height'
+    if @model.sizing_mode == 'fixed' or @model.sizing_mode == 'scale_height'
       width = @get_width()
       if @model._width.value != width
         @solver.suggest_value(@model._width, width)
-        update_layout = true
 
     if @model.sizing_mode == 'fixed' or @model.sizing_mode == 'scale_width'
       height = @get_height()
       if @model._height.value != height
         @solver.suggest_value(@model._height, height)
-        update_layout = true
 
-    if update_layout
-      @solver.update_variables()
+    @solver.update_variables()
 
-    if @model.sizing_mode is 'stretch_both'
+    if @model.sizing_mode == 'stretch_both'
       @el.style.position = 'absolute'
       @el.style.left = "#{@model._dom_left.value}px"
       @el.style.top = "#{@model._dom_top.value}px"
@@ -69,7 +62,6 @@ export class WidgetBoxView extends LayoutDOMView
         if child_width > width
           width = child_width
       return width
-
 
 export class WidgetBox extends LayoutDOM
   type: 'WidgetBox'

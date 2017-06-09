@@ -16,7 +16,7 @@ export class CustomJS extends Model
   }
 
   execute: (cb_obj, cb_data) ->
-    @func(@values..., cb_obj, cb_data, require, {})
+    @func.apply(cb_obj, @values.concat(cb_obj, cb_data, require, {}))
 
   _make_values: () -> values(@args)
 
