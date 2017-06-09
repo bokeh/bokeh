@@ -624,7 +624,9 @@ export class PlotCanvasView extends DOMView
 
     ctx.restore()  # Restore to default state
 
-    @_has_finished = true
+    if not @_has_finished
+      @_has_finished = true
+      @notify_finished()
 
   _paint_levels: (ctx, levels, clip_region) ->
     ctx.save()
