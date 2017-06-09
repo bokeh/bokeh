@@ -520,7 +520,7 @@ export class PlotCanvasView extends DOMView
         layout_height: Math.round(@canvas._height.value)
       }, {no_change: true})
 
-      @paint()
+      @request_paint()
 
   has_finished: () ->
     if not super()
