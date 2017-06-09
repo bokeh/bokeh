@@ -88,7 +88,7 @@ describe "LayoutDOMView", ->
       spy = sinon.spy(layout_view, 'get_height')
       expect(spy.called).is.false
       layout_view.layout()
-      expect(spy.callCount).is.equal(2)
+      expect(spy.callCount).is.equal(3)
 
     it "should call get_width if sizing_mode is 'scale_height'", ->
       layout = make_layout({sizing_mode: 'scale_height'})
@@ -96,14 +96,14 @@ describe "LayoutDOMView", ->
       spy = sinon.spy(layout_view, 'get_width')
       expect(spy.called).is.false
       layout_view.layout()
-      expect(spy.callCount).is.equal(2)
+      expect(spy.callCount).is.equal(3)
 
     it "should call suggest value with the model height and width if sizing_mode is fixed", ->
       layout = make_layout({sizing_mode: 'fixed', width: 22, height: 33})
       layout_view = new LayoutDOMView({ model: layout, parent: null })
       suggest_value = sinon.spy(layout_view.solver, 'suggest_value')
       layout_view.layout()
-      expect(suggest_value.callCount).is.equal(4)
+      expect(suggest_value.callCount).is.equal(6)
       expect(suggest_value.args[0]).to.be.deep.equal [layout._width, 22]
       expect(suggest_value.args[1]).to.be.deep.equal [layout._height, 33]
 
@@ -113,7 +113,7 @@ describe "LayoutDOMView", ->
       suggest_value = sinon.spy(layout_view.solver, 'suggest_value')
       sinon.stub(layout_view, 'get_height').returns(89)
       layout_view.layout()
-      expect(suggest_value.callCount).is.equal(2)
+      expect(suggest_value.callCount).is.equal(3)
       expect(suggest_value.args[0]).to.be.deep.equal [layout._height, 89]
 
     it "should call suggest value with the value from get_width if sizing_mode is scale_height", ->
@@ -122,7 +122,7 @@ describe "LayoutDOMView", ->
       suggest_value = sinon.spy(layout_view.solver, 'suggest_value')
       sinon.stub(layout_view, 'get_width').returns(222)
       layout_view.layout()
-      expect(suggest_value.callCount).is.equal(2)
+      expect(suggest_value.callCount).is.equal(3)
       expect(suggest_value.args[0]).to.be.deep.equal [layout._width, 222]
 
     it "should set the value of model.width from get_width if mode is fixed and if model.width is null", ->

@@ -124,10 +124,11 @@ export class LayoutDOMView extends DOMView
     @_suggest_dims(width, height)
 
     # XXX: do layout twice, because there are interdependencies between views,
-    # which currently cannot be resolved with one pass. The second pass also
-    # triggers (expensive) painting.
-    @_layout()
-    @_layout(true)
+    # which currently cannot be resolved with one pass. The third one triggers
+    # rendering and (expensive) painting.
+    @_layout()     # layout (1)
+    @_layout()     # layout (2)
+    @_layout(true) # render & paint
 
     @notify_finished()
 
