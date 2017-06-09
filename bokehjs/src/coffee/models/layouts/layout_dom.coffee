@@ -279,6 +279,26 @@ export class LayoutDOM extends Model
     @_whitespace_left = new Variable()
     @_whitespace_right = new Variable()
 
+  @getters {
+    layout_bbox: () ->
+      return {
+        top: @_top.value,
+        left: @_left.value,
+        width: @_width.value,
+        height: @_height.value,
+        right: @_right.value,
+        bottom: @_bottom.value,
+        dom_top: @_dom_top.value,
+        dom_left: @_dom_left.value,
+      }
+  }
+
+  dump_layout: () ->
+    console.log(this.toString(), @layout_bbox)
+
+    for child in @get_layoutable_children()
+      child.dump_layout()
+
   get_constraints: () ->
     return [
       # Make sure things dont squeeze out of their bounding box
