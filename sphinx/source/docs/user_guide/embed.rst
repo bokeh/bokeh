@@ -320,7 +320,7 @@ with a command like:
 .. code-block:: python
 
     from bokeh.embed import autoload_server
-    script = autoload_server(url="https://demo.bokehplots.com/apps/slider")
+    script = autoload_server("https://demo.bokehplots.com/apps/slider")
 
 The resulting ``<script>`` tag that you can use to embed the plot inside
 your HTML document looks like:
@@ -383,7 +383,7 @@ Here is an example using ``server_document``:
 .. code-block:: python
 
     from bokeh.embed import server_document
-    script = server_document(url="https://demo.bokehplots.com/apps/slider")
+    script = server_document("https://demo.bokehplots.com/apps/slider")
 
 And here is an example using ``server_session``:
 

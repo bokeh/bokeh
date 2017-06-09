@@ -340,7 +340,8 @@ In brief:
 - ``/app_path/`` serves a page that displays a new session
 - ``/app_path/ws`` is the websocket connection URL
 - ``/app_path/autoload.js`` serves a chunk of JavaScript that
-  backs the ``bokeh.embed.autoload_server()`` functionality
+  backs the ``bokeh.embed.server_document()`` and ``bokeh.embed.server_session()``
+  functionality
 
 Bokeh server isn't intended to be a general-purpose web framework. You can
 however pass new endpoints to ``Server`` using the ``extra_patterns`` parameter

@@ -111,14 +111,3 @@ has been corrected. In case there is code that depends on the erroneous
 behavior, please note that the new behavior is effective immediately and is
 now maintained under test to be consistent with NumPy values. See the issue
 https://github.com/bokeh/bokeh/issues/5499 for more details.
-
-New embed methods
-~~~~~~~~~~~~~~~~~
-
-Two new embed methods were added: ``server_document`` and ``server_session``.
-Those methods work similarly to ``autoload_server`` except for a few differences:
-with ``server_document`` a new session will systematically be generated and
-an entire document will be returned; with ``server_session`` an existing session
-id and model must be provided. Another difference from ``autoload_server`` is
-that with those two new methods one may choose to not load the JS/CSS resource
-files by passing a ``resources="none"`` parameter.

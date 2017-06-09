@@ -97,7 +97,7 @@ def pull_session(session_id=None, url='default', app_path=None, io_loop=None):
 
     If you don't plan to modify ``session.document`` you probably
     don't need to use this function; instead you can directly
-    ``show_session()`` or ``autoload_server()`` without downloading
+    ``show_session()`` or ``server_session()`` without downloading
     the session's document into your process first. It's much
     more efficient to avoid downloading the session if you don't need
     to.

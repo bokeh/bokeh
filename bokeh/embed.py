@@ -652,6 +652,7 @@ def autoload_server(model=None, app_path=None, session_id=None, url="default", r
     ''' Return a script tag that embeds content from a Bokeh server and loads
     all the necessary JS/CSS resource files.
     '''
+    deprecated((0, 12, 7), 'bokeh.embed.autoload_server', 'bokeh.embed.server_document or bokeh.embed.server_session')
     return _connect_session_or_document(model=model, app_path=app_path, session_id=session_id, url=url, relative_urls=relative_urls, resources="default")
 
 def server_document(url="default", relative_urls=False, resources="default"):
