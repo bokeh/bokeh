@@ -56,16 +56,16 @@ export class Solver {
     this.solver.addConstraint(constraint)
   }
 
-  remove_constraint(constraint: Constraint, silent: boolean = false): void {
-    this.solver.removeConstraint(constraint, silent)
+  remove_constraint(constraint: Constraint): void {
+    this.solver.removeConstraint(constraint)
   }
 
   add_edit_variable(variable: Variable, strength: number): void {
     this.solver.addEditVariable(variable, strength)
   }
 
-  remove_edit_variable(variable: Variable, silent: boolean = false): void {
-    this.solver.removeEditVariable(variable, silent)
+  remove_edit_variable(variable: Variable): void {
+    this.solver.removeEditVariable(variable)
   }
 
   suggest_value(variable: Variable, value: number): void {
