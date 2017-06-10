@@ -169,6 +169,7 @@ export update_panel_constraints = (view) ->
   s.add_constraint(view._full_constraint)
 
 export class SidePanel extends LayoutCanvas
+  type: "SidePanel"
 
   @internal {
     side: [ p.String ]
