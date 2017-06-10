@@ -1,4 +1,4 @@
-import {Variable, Strength} from "./solver"
+import {GE, Variable, Strength} from "./solver"
 import {Model} from "../../model"
 import * as p from "../properties"
 
@@ -22,7 +22,15 @@ export class LayoutCanvas extends Model
     editables.push({edit_variable: @_height, strength: Strength.strong})
     return editables
 
-  get_constraints: () -> []
+  get_constraints: () ->
+    return [
+      GE(@_top),
+      GE(@_bottom),
+      GE(@_left),
+      GE(@_right),
+      GE(@_width),
+      GE(@_height),
+    ]
 
   @getters {
     layout_bbox: () ->

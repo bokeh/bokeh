@@ -116,13 +116,7 @@ export class CartesianFrame extends LayoutCanvas
   }
 
   get_constraints: () ->
-    return [
-      GE(@_top),
-      GE(@_bottom),
-      GE(@_left),
-      GE(@_right),
-      GE(@_width),
-      GE(@_height),
+    return super().concat([
       EQ(@_left, @_width, [-1, @_right]),
       EQ(@_bottom, @_height, [-1, @_top]),
-    ]
+    ])
