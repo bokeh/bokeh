@@ -3,14 +3,16 @@ import {register_with_event, ButtonClick} from "core/bokeh_events"
 
 import {AbstractButton, AbstractButtonView} from "./abstract_button"
 
-
 export class ButtonView extends AbstractButtonView
+
+  render: () ->
+    super()
+    @buttonEl.addEventListener("click", () => @change_input())
 
   change_input: () ->
     @model.trigger_event(new ButtonClick({}))
     @model.clicks = @model.clicks + 1
     super()
-
 
 export class Button extends AbstractButton
   type: "Button"

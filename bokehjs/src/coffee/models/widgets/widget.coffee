@@ -7,6 +7,8 @@ export class WidgetView extends LayoutDOMView
   className: "bk-widget"
 
   render: () ->
+    @_render_classes() # XXX: because no super()
+
     # LayoutDOMView sets up lots of helpful things, but
     # it's render method is not suitable for widgets - who
     # should provide their own.

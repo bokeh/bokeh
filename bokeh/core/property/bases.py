@@ -16,11 +16,15 @@ from copy import copy
 import types
 
 from six import string_types
+import numpy as np
 
+from ...util.dependencies import import_optional
 from ...util.string import nice_join
 from .containers import PropertyValueList, PropertyValueDict
 from .descriptor_factory import PropertyDescriptorFactory
 from .descriptors import BasicPropertyDescriptor
+
+pd = import_optional('pandas')
 
 class DeserializationError(Exception):
     pass
@@ -163,20 +167,41 @@ class Property(PropertyDescriptorFactory):
         return self._readonly
 
     def matches(self, new, old):
-        # XXX: originally this code warned about not being able to compare values, but that
-        # doesn't make sense, because most comparisons involving numpy arrays will fail with
-        # ValueError exception, thus warning about inevitable.
+        ''' Whether two parameters match values.
+
+        If either ``new`` or ``old`` is a NumPy array or Pandas Series or Index,
+        then the result of ``np.array_equal`` will determine if the values match.
+
+        Otherwise, the result of standard Python equality will be returned.
+
+        Returns:
+            True, if new and old match, False otherwise
+
+        '''
+        if isinstance(new, np.ndarray) or isinstance(old, np.ndarray):
+            return np.array_equal(new, old)
+
+        if pd:
+            if isinstance(new, pd.Series) or isinstance(old, pd.Series):
+                return np.array_equal(new, old)
+
+            if isinstance(new, pd.Index) or isinstance(old, pd.Index):
+                return np.array_equal(new, old)
+
         try:
-            if new is None or old is None:
-                return new is old           # XXX: silence FutureWarning from NumPy
-            else:
-                return new == old
-        except (KeyboardInterrupt, SystemExit):
-            raise
-        except Exception:
-            # if we cannot compare (e.g. arrays) just punt return False for match
-            pass
-        return False
+
+            # this handles the special but common case where there is a dict with array
+            # or series as values (e.g. the .data property of a ColumnDataSource)
+            if isinstance(new, dict) and isinstance(old, dict):
+                if set(new.keys()) != set(old.keys()):
+                    return False
+                return all(self.matches(new[k], old[k]) for k in new)
+
+            return new == old
+
+        # if the comparison fails for some reason, just punt and return no-match
+        except ValueError:
+            return False
 
     def from_json(self, json, models=None):
         ''' Convert from JSON-compatible values into a value for this property.

@@ -4,6 +4,7 @@ utils = require "../utils"
 {SelectionManager} = utils.require "core/selection_manager"
 
 SomeMarker = utils.require("models/markers/index").CircleX
+NullMarker = utils.require("models/glyphs/index").MultiLine
 {GlyphRenderer} = utils.require("models/renderers/glyph_renderer")
 {GlyphRendererView} = utils.require("models/renderers/glyph_renderer")
 {ColumnDataSource} = utils.require("models/sources/column_data_source")
@@ -104,6 +105,24 @@ describe "SelectionManager", ->
     model: glyph_renderer2
   })
 
+  column_data_source_null = new ColumnDataSource({
+    data:
+      x: [0, 1, 2, 3, 4]
+      y: [0, 1, 2, 3, 4]
+      z: [5, 6, 7, 8, 9]
+  })
+
+  glyph_renderer_null = new GlyphRenderer({
+    data_source:  column_data_source_null
+    glyph:        new NullMarker({xs: {field: "x"}, ys: {field: "y"}})
+  })
+
+  glyph_renderer_view_null = new GlyphRendererView({
+    plot_model: plot_model_stub
+    plot_view: plot_view_stub_normal
+    model: glyph_renderer_null
+  })
+
   sm = new SelectionManager()
 
   describe "using rect geometry (like that from box select tool)", ->
@@ -147,3 +166,11 @@ describe "SelectionManager", ->
       expect(sm.source.selected).to.deep.equal empty_selection
       sm.select('tool', [glyph_renderer_view_normal, glyph_renderer_view2], geometry2, true)
       expect(sm.source.selected).not.to.deep.equal empty_selection
+
+    # TODO (bev) if hit tests are changed to uniformly return lists, this can be removed
+    it "should ignore null hit test results", ->
+      sm = new SelectionManager({'source': column_data_source_null})
+      expect(sm.source.selected).to.deep.equal empty_selection
+      r = sm.select('tool', [glyph_renderer_view_null], geometry, true)
+      expect(r).to.be.false
+      expect(sm.source.selected).to.deep.equal empty_selection

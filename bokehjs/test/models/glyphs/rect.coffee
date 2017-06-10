@@ -19,12 +19,10 @@ describe "Glyph (using Rect as a concrete Glyph)", ->
 
     afterEach ->
       utils.unstub_canvas()
-      utils.unstub_solver()
       @stub.restore()
 
     beforeEach ->
       utils.stub_canvas()
-      utils.stub_solver()
 
       @stub = sinon.stub(RectView.prototype, '_bounds', (bounds) -> bounds )
 
@@ -60,11 +58,9 @@ describe "Rect", ->
 
     afterEach ->
       utils.unstub_canvas()
-      utils.unstub_solver()
 
     beforeEach ->
       utils.stub_canvas()
-      utils.stub_solver()
 
       @glyph = new Rect({
         x: {field: "x"}
@@ -178,21 +174,6 @@ describe "Rect", ->
       expect(glyph_view.sy1).to.be.deep.equal({'0': -176})
 
     describe "hit-testing", ->
-
-      afterEach ->
-        @canvas_set_dims_stub.restore()
-        @plot_canvas_resize_stub.restore()
-
-      beforeEach ->
-        set_dims = (dims) ->
-          @model._width.setValue(dims[0])
-          @model._height.setValue(dims[1])
-        @canvas_set_dims_stub = sinon.stub(CanvasView.prototype, 'set_dims', set_dims)
-
-        resize = () ->
-          @frame._width.setValue(@canvas._width.value)
-          @frame._height.setValue(@canvas._height.value)
-        @plot_canvas_resize_stub = sinon.stub(PlotCanvasView.prototype, '_on_resize', resize)
 
       describe "_hit_point", ->
 

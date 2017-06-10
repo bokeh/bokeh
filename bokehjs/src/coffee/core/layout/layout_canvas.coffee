@@ -23,3 +23,18 @@ export class LayoutCanvas extends Model
     return editables
 
   get_constraints: () -> []
+
+  @getters {
+    layout_bbox: () ->
+      return {
+        top: @_top.value,
+        left: @_left.value,
+        width: @_width.value,
+        height: @_height.value,
+        right: @_right.value,
+        bottom: @_bottom.value,
+      }
+  }
+
+  dump_layout: () ->
+    console.log(this.toString(), @layout_bbox)

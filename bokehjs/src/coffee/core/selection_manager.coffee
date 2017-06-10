@@ -28,6 +28,12 @@ export class SelectionManager extends HasProps
 
     indices_renderers = (r.model.view.convert_selection_from_subset(r.hit_test(geometry)) for r in renderer_views)
 
+    # renderers that don't support hit testing a particular kind of geometry
+    # will return null, need to filter those out and see if anything is left
+    indices_renderers = (i for i in indices_renderers when i != null)
+    if indices_renderers.length == 0
+      return false
+
     if indices_renderers?
       indices = indices_renderers[0]
       for indices_other in indices_renderers

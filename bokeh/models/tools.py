@@ -90,7 +90,11 @@ class Inspection(Tool):
     ''' A base class for tools that perform "inspections", e.g. ``HoverTool``.
 
     '''
-    pass
+    toggleable = Bool(True, help="""
+    Whether an on/off toggle button should appear in the toolbar for this
+    inpection tool. If ``False``, the viewers of a plot will not be able to
+    toggle the inspector on or off using the toolbar.
+    """)
 
 @abstract
 class ToolbarBase(LayoutDOM):

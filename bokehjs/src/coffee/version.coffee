@@ -1,1 +1,1 @@
-export version = '0.12.6dev7'
+export version = '0.12.6rc4'

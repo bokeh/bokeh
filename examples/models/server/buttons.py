@@ -32,8 +32,11 @@ def checkbox_button_group_handler(active):
 def radio_button_group_handler(active):
     print("radio_button_group_handler: %s" % active)
 
-button = Button(label="Button (disabled) - still has click event", button_type="primary", disabled=True)
+button = Button(label="Button (enabled) - has click event", button_type="primary")
 button.on_click(button_handler)
+
+button_disabled = Button(label="Button (disabled) - no click event", button_type="primary", disabled=True)
+button_disabled.on_click(button_handler)
 
 toggle = Toggle(label="Toggle button", button_type="success")
 toggle.on_click(toggle_handler)
@@ -58,7 +61,7 @@ checkbox_button_group.on_click(checkbox_button_group_handler)
 radio_button_group = RadioButtonGroup(labels=["Option 1", "Option 2", "Option 3"], active=0)
 radio_button_group.on_click(radio_button_group_handler)
 
-widgetBox = WidgetBox(children=[button, toggle, dropdown, split, checkbox_group, radio_group, checkbox_button_group, radio_button_group])
+widgetBox = WidgetBox(children=[button, button_disabled, toggle, dropdown, split, checkbox_group, radio_group, checkbox_button_group, radio_button_group])
 
 document = Document()
 document.add_root(widgetBox)

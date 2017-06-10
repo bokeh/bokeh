@@ -304,11 +304,29 @@ def test__crop_image():
 
 def test__get_screenshot_as_png():
     layout = Plot(x_range=Range1d(), y_range=Range1d(),
-                  plot_height=2, plot_width=2, toolbar_location=None,
+                  plot_height=20, plot_width=20, toolbar_location=None,
                   outline_line_color=None, background_fill_color=None,
                   border_fill_color=None)
 
     png = io._get_screenshot_as_png(layout)
-    assert png.size == (2, 2)
-    # a 2x2px image of transparent pixels
-    assert png.tobytes() == b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+    assert png.size == (20, 20)
+    # a 20x20px image of transparent pixels
+    assert png.tobytes() == ("\x00"*1600).encode()
+
+def test__get_svgs_no_svg_present():
+    layout = Plot(x_range=Range1d(), y_range=Range1d(),
+              plot_height=20, plot_width=20, toolbar_location=None)
+
+    svgs = io._get_svgs(layout)
+    assert svgs == []
+
+def test__get_svgs_with_svg_present():
+    layout = Plot(x_range=Range1d(), y_range=Range1d(),
+                  plot_height=20, plot_width=20, toolbar_location=None,
+                  outline_line_color=None, border_fill_color=None,
+                  background_fill_color=None, output_backend="svg")
+
+    svgs = io._get_svgs(layout)
+    assert svgs[0] == ('<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" '
+                       'width="20" height="20" style="width: 20px; height: 20px;"><defs/><g><g/><g transform="scale(1,1) '
+                       'translate(0.5,0.5)"><rect fill="#FFFFFF" stroke="none" x="0" y="0" width="20" height="20"/><g/><g/><g/><g/></g></g></svg>')

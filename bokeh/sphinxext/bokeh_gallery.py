@@ -41,7 +41,9 @@ class BokehGalleryDirective(BokehDirective):
         for detail in details_iter:
             src_path = abspath(join("..", detail['path']))
             dest_path = join(dest_dir, detail['name'] + ".py")
-            docname = join("docs", "gallery", detail['name'])
+
+            # sphinx pickled env works only with forward slash
+            docname = join(env.app.config.bokeh_gallery_dir, detail['name']).replace("\\","/")
 
             try:
                 copyfile(src_path, dest_path)
@@ -66,5 +68,6 @@ def env_updated_handler(app, env):
     return getattr(env, 'gallery_updated', [])
 
 def setup(app):
+    app.add_config_value('bokeh_gallery_dir', join("docs", "gallery"), 'html')
     app.connect('env-updated', env_updated_handler)
     app.add_directive('bokeh-gallery', BokehGalleryDirective)

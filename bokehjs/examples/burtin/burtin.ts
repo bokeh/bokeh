@@ -7,6 +7,7 @@ namespace Burtin {
 
   console.log(`Bokeh ${Bokeh.version}`);
   Bokeh.set_log_level("info");
+  Bokeh.settings.dev = true
 
   type Gram = "negative" | "positive";
 
