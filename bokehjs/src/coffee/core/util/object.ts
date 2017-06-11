@@ -33,7 +33,7 @@ export function merge<T>(obj1: {[key: string] : Array<T>}, obj2: {[key: string]:
   /*
    * Returns an object with the array values for obj1 and obj2 unioned by key.
    */
-  const result: {[key: string]: Array<T>} = Object.create(null);
+  const result: {[key: string]: Array<T>} = Object.create(Object.prototype);
 
   const keys = concat([Object.keys(obj1), Object.keys(obj2)])
 
