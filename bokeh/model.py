@@ -279,7 +279,7 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
     help="""A mapping of event names to lists of CustomJS callbacks.
 
     Typically, rather then modifying this property directly, callbacks should be
-    added using the ``Model.js_on_event`` method:)
+    added using the ``Model.js_on_event`` method:
 
     .. code:: python
 
@@ -291,7 +291,7 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
     List of events that are subscribed to by Python callbacks. This is
     the set of events that will be communicated from BokehJS back to
     Python for this model.
-     """   )
+    """)
 
     js_property_callbacks = Dict(String, List(Instance("bokeh.models.callbacks.CustomJS")), help="""
     A mapping of attribute names to lists of CustomJS callbacks, to be set up on

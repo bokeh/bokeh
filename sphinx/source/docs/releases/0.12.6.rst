@@ -140,4 +140,21 @@ behavior, please note that the new behavior is effective immediately and is
 now maintained under test to be consistent with NumPy values. See the issue
 :bokeh-issue:`5499` for more details.
 
+Layout API and behaviour changes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Layout was previously handled on document level and there was one solver per
+document. This was changed to one solver per root, so document isn't anymore
+responsible for any layout related stuff. All logic and APIs were moved to
+views, specifically to ``LayoutDOM``. For example, if your code relied on
+``document.resize(width, height)``, then you should use ``view.resize(width, height)``,
+where ``view`` is an associated view of any of ``document``'s root models.
+Views can be obtained through ``Bokeh.index``. To resize all roots use
+
+.. code-block:: javascript
+
+    for (var key in Bokeh.index) {
+        Bokeh.index[key].resize(width, height);
+    }
+
 .. _project roadmap: http://bokehplots.com/pages/roadmap.html

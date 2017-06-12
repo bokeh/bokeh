@@ -181,11 +181,12 @@ class Property(PropertyDescriptorFactory):
         if isinstance(new, np.ndarray) or isinstance(old, np.ndarray):
             return np.array_equal(new, old)
 
-        if pd and isinstance(new, pd.Series) or isinstance(old, pd.Series):
-            return np.array_equal(new, old)
+        if pd:
+            if isinstance(new, pd.Series) or isinstance(old, pd.Series):
+                return np.array_equal(new, old)
 
-        if pd and isinstance(new, pd.Index) or isinstance(old, pd.Index):
-            return np.array_equal(new, old)
+            if isinstance(new, pd.Index) or isinstance(old, pd.Index):
+                return np.array_equal(new, old)
 
         try:
 

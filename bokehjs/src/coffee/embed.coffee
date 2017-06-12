@@ -52,8 +52,8 @@ _render_document_to_element = (element, document, use_for_title) ->
   views = {}
   render_model = (model) ->
     view = _create_view(model)
+    view.renderTo(element)
     views[model.id] = view
-    element.appendChild(view.el)
   unrender_model = (model) ->
     if model.id of views
       view = views[model.id]
@@ -83,7 +83,7 @@ add_model_static = (element, model_id, doc) ->
   if not model?
     throw new Error("Model #{model_id} was not in document #{doc}")
   view = _create_view(model)
-  replaceWith(element, view.el)
+  view.renderTo(element, true)
 
 # Fill element with the roots from doc
 export add_document_static = (element, doc, use_for_title) ->
@@ -127,7 +127,7 @@ add_model_from_session = (element, websocket_url, model_id, session_id) ->
       if not model?
         throw new Error("Did not find model #{model_id} in session")
       view = _create_view(model)
-      replaceWith(element, view.el)
+      view.renderTo(element, true)
     (error) ->
       logger.error("Failed to load Bokeh session " + session_id + ": " + error)
       throw error

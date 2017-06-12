@@ -156,13 +156,13 @@ class TestResources(unittest.TestCase):
         self.assertEqual(r.mode, "server")
         self.assertEqual(r.dev, True)
 
-        self.assertEqual(len(r.js_raw), 1)
+        self.assertEqual(len(r.js_raw), 2)
         self.assertEqual(r.css_raw, [])
         self.assertEqual(r.messages, [])
 
         r = resources.Resources(mode="server-dev", root_url="http://foo/")
 
-        self.assertEqual(r.js_raw, [DEFAULT_LOG_JS_RAW])
+        self.assertEqual(r.js_raw, [DEFAULT_LOG_JS_RAW, "Bokeh.settings.dev = true"])
         self.assertEqual(r.css_raw, [])
         self.assertEqual(r.messages, [])
 
@@ -180,7 +180,7 @@ class TestResources(unittest.TestCase):
         self.assertEqual(r.mode, "relative")
         self.assertEqual(r.dev, True)
 
-        self.assertEqual(r.js_raw, [DEFAULT_LOG_JS_RAW])
+        self.assertEqual(r.js_raw, [DEFAULT_LOG_JS_RAW, "Bokeh.settings.dev = true"])
         self.assertEqual(r.css_raw, [])
         self.assertEqual(r.messages, [])
 
@@ -198,7 +198,7 @@ class TestResources(unittest.TestCase):
         self.assertEqual(r.mode, "absolute")
         self.assertEqual(r.dev, True)
 
-        self.assertEqual(r.js_raw, [DEFAULT_LOG_JS_RAW])
+        self.assertEqual(r.js_raw, [DEFAULT_LOG_JS_RAW, "Bokeh.settings.dev = true"])
         self.assertEqual(r.css_raw, [])
         self.assertEqual(r.messages, [])
 

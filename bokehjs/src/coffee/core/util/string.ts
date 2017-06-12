@@ -1,3 +1,5 @@
+import {settings} from "../settings"
+
 export function startsWith(str: string, searchString: string, position: number = 0): boolean {
   return str.substr(position, searchString.length) == searchString
 }
@@ -16,11 +18,10 @@ export function uuid4(): string {
   return s.join("")
 }
 
-const dev = false
 let counter = 1000
 
 export function uniqueId(prefix?: string): string {
-  const id = dev ? `j${counter++}` : uuid4()
+  const id = settings.dev ? `j${counter++}` : uuid4()
 
   if (prefix != null)
     return `${prefix}-${id}`

@@ -7,7 +7,6 @@ import {build_views} from "core/build_views"
 import {DOMView} from "core/dom_view"
 import {logger} from "core/logging"
 import {extend} from "core/util/object"
-import {defer} from "core/util/callback"
 
 export class LayoutDOMView extends DOMView
 
@@ -17,19 +16,9 @@ export class LayoutDOMView extends DOMView
     # this is a root view
     if @is_root
       @_solver = new Solver()
-      @_init_solver()
-
-    if @model.sizing_mode? # because toolbar uses null
-      @el.classList.add("bk-layout-#{@model.sizing_mode}")
-    if @model.css_classes?
-      for cls in @model.css_classes
-        @el.classList.add(cls)
 
     @child_views = {}
     @build_child_views()
-
-    if @is_root
-      defer(() => @resize())
 
     @connect_signals()
 
@@ -42,12 +31,40 @@ export class LayoutDOMView extends DOMView
 
     super()
 
-  _reset_solver: () ->
+  has_finished: () ->
+    if not super()
+      return false
+
+    for _, child of @child_views
+      if not child.has_finished()
+        return false
+
+    return true
+
+  notify_finished: () ->
     if not @is_root
-      @parent._reset_solver()
+      super()
     else
-      @_solver.clear()
-      @_init_solver()
+      if not @_idle_notified and @has_finished()
+        if @model.document?
+          @_idle_notified = true
+          @model.document.notify_idle(@model)
+
+  _calc_width_height: () ->
+    measuring = @el
+
+    while true
+      measuring = measuring.parentNode
+      if not measuring?
+        logger.warn("detached element")
+        width = height = null
+        break
+
+      {width, height} = measuring.getBoundingClientRect()
+      if height != 0
+        break
+
+    return [width, height]
 
   _init_solver: () ->
     @_root_width = new Variable("root_width")
@@ -73,46 +90,63 @@ export class LayoutDOMView extends DOMView
 
     @_solver.update_variables()
 
-  resize: (width=null, height=null) ->
-    if not @is_root
-      @parent.resize(width, height)
-    else
-      # Ideally the solver would settle in one pass (can that be done?),
-      # but it currently needs two passes to get it right.
-      # Seems to be needed everywhere on initialization, and on Windows
-      # it seems necessary on each Draw
-      @_resize(width, height)
-      @_resize(width, height)
-
-  _resize: (width=null, height=null) ->
+  _suggest_dims: (width, height) ->
     variables = @model.get_constrained_variables()
 
     if variables.width? or variables.height?
       if width == null or height == null
-        measuring = @el
-
-        while true
-          measuring = measuring.parentNode
-          if not measuring?
-            logger.warn("detached element")
-            width = height = null
-            break
-
-          {width, height} = measuring.getBoundingClientRect()
-          if height != 0
-            break
+        [width, height] = @_calc_width_height()
 
       if variables.width? and width?
         @_solver.suggest_value(@_root_width, width)
       if variables.height? and height?
         @_solver.suggest_value(@_root_height, height)
 
-    @_solver.update_variables(false)
-    @_solver.resize.emit()
+      @_solver.update_variables()
+
+  resize: (width=null, height=null) ->
+    if not @is_root
+      @root.resize(width, height)
+    else
+      @_do_layout(false, width, height)
+
+  layout: (full=true) ->
+    if not @is_root
+      @root.layout(full)
+    else
+      @_do_layout(full)
+
+  _do_layout: (full, width=null, height=null) ->
+    if full
+      @_solver.clear()
+      @_init_solver()
+
+    @_suggest_dims(width, height)
+
+    # XXX: do layout twice, because there are interdependencies between views,
+    # which currently cannot be resolved with one pass. The third one triggers
+    # rendering and (expensive) painting.
+    @_layout()     # layout (1)
+    @_layout()     # layout (2)
+    @_layout(true) # render & paint
+
+    @notify_finished()
+
+  _layout: (final=false) ->
+    for child in @model.get_layoutable_children()
+      child_view = @child_views[child.id]
+      if child_view._layout?
+        child_view._layout(final)
+
+    @render()
+
+    if final
+      @_has_finished = true
 
   rebuild_child_views: () ->
-    @_reset_solver()
+    @solver.clear()
     @build_child_views()
+    @layout()
 
   build_child_views: () ->
     children = @model.get_layoutable_children()
@@ -133,22 +167,25 @@ export class LayoutDOMView extends DOMView
     if @is_root
       window.addEventListener("resize", () => @resize())
 
-    @connect(@model.change, () => @render())
+    # XXX: @connect(@model.change, () => @layout())
+    @connect(@model.properties.sizing_mode.change, () => @layout())
 
-    @connect @solver.resize, () =>
-      if @model.sizing_mode != 'fixed' or not @_did_render
-        @_did_render = true
-        @render()
+  _render_classes: () ->
+    @el.className = "" # removes all classes
 
-    # Note: `sizing_mode` update is not supported because changing the
-    # sizing_mode mode necessitates stripping out all the relevant constraints
-    # from solver and re-adding the new correct ones.  We don't currently have
-    # a machinery for this. Other things with a similar problem are axes and
-    # title.
-    sizing_mode_msg = "Changing sizing_mode after initialization is not currently supported."
-    @connect(@model.properties.sizing_mode.change, () -> logger.warn(sizing_mode_msg))
+    if @className?
+      @el.classList.add(@className)
+
+    if @model.sizing_mode? # XXX: because toolbar uses null
+      @el.classList.add("bk-layout-#{@model.sizing_mode}")
+
+    if @model.css_classes?
+      for cls in @model.css_classes
+        @el.classList.add(cls)
 
   render: () ->
+    @_render_classes()
+
     switch @model.sizing_mode
       when 'fixed'
         # If the width or height is unset:
@@ -160,16 +197,21 @@ export class LayoutDOMView extends DOMView
           width = @model.width
         else
           width = @get_width()
-          @model.width = width
+          @model.setv({width: width}, {silent: true})
+
         if @model.height?
           height = @model.height
         else
           height = @get_height()
-          @model.height = height
+          @model.setv({height: height}, {silent: true})
 
         @solver.suggest_value(@model._width, width)
         @solver.suggest_value(@model._height, height)
         @solver.update_variables()
+
+        @el.style.position = "relative"
+        @el.style.left = ""
+        @el.style.top = ""
         @el.style.width = "#{width}px"
         @el.style.height = "#{height}px"
 
@@ -178,6 +220,10 @@ export class LayoutDOMView extends DOMView
 
         @solver.suggest_value(@model._height, height)
         @solver.update_variables()
+
+        @el.style.position = "relative"
+        @el.style.left = ""
+        @el.style.top = ""
         @el.style.width = "#{@model._width.value}px"
         @el.style.height = "#{@model._height.value}px"
 
@@ -186,11 +232,15 @@ export class LayoutDOMView extends DOMView
 
         @solver.suggest_value(@model._width, width)
         @solver.update_variables()
+
+        @el.style.position = "relative"
+        @el.style.left = ""
+        @el.style.top = ""
         @el.style.width = "#{@model._width.value}px"
         @el.style.height = "#{@model._height.value}px"
 
       when 'stretch_both'
-        @el.style.position = 'absolute'
+        @el.style.position = "absolute"
         @el.style.left = "#{@model._dom_left.value}px"
         @el.style.top = "#{@model._dom_top.value}px"
         @el.style.width = "#{@model._width.value}px"
@@ -229,6 +279,26 @@ export class LayoutDOM extends Model
     @_whitespace_bottom = new Variable()
     @_whitespace_left = new Variable()
     @_whitespace_right = new Variable()
+
+  @getters {
+    layout_bbox: () ->
+      return {
+        top: @_top.value,
+        left: @_left.value,
+        width: @_width.value,
+        height: @_height.value,
+        right: @_right.value,
+        bottom: @_bottom.value,
+        dom_top: @_dom_top.value,
+        dom_left: @_dom_left.value,
+      }
+  }
+
+  dump_layout: () ->
+    console.log(this.toString(), @layout_bbox)
+
+    for child in @get_layoutable_children()
+      child.dump_layout()
 
   get_constraints: () ->
     return [
