@@ -1,4 +1,4 @@
-import {WEAK_EQ, GE, EQ, Strength} from "core/layout/solver"
+import {WEAK_EQ, GE, EQ} from "core/layout/solver"
 import {logger} from "core/logging"
 import * as p from "core/properties"
 import {extend, values, clone} from "core/util/object"
@@ -186,9 +186,8 @@ export class Plot extends LayoutDOM
 
   get_editables: () ->
     editables = super()
-    if @sizing_mode is 'scale_both'
-      editables.push({edit_variable: @_width, strength: Strength.strong})
-      editables.push({edit_variable: @_height, strength: Strength.strong})
+    if @sizing_mode == 'scale_both'
+      editables = editables.concat([@_width, @_height])
     return editables
 
   get_constraints: () ->

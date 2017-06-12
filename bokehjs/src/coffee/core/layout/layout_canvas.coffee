@@ -1,4 +1,4 @@
-import {GE, Variable, Strength} from "./solver"
+import {GE, Variable} from "./solver"
 import {Model} from "../../model"
 import * as p from "../properties"
 
@@ -15,12 +15,7 @@ export class LayoutCanvas extends Model
     @_bottom = new Variable("#{@toString()}.bottom")
 
   get_editables: () ->
-    editables = []
-    editables.push({edit_variable: @_top, strength: Strength.strong})
-    editables.push({edit_variable: @_left, strength: Strength.strong})
-    editables.push({edit_variable: @_width, strength: Strength.strong})
-    editables.push({edit_variable: @_height, strength: Strength.strong})
-    return editables
+    return [@_top, @_left, @_width, @_height]
 
   get_constraints: () ->
     return [

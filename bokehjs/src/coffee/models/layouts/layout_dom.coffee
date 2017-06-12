@@ -71,19 +71,21 @@ export class LayoutDOMView extends DOMView
     @_root_width = new Variable("#{@toString()}.root_width")
     @_root_height = new Variable("#{@toString()}.root_height")
 
+    # XXX: this relies on the fact that missing `strength` argument results
+    # in strength being NaN, which behaves like `Strength.required`. However,
+    # this is banned by the API.
     @_solver.add_edit_variable(@_root_width)
     @_solver.add_edit_variable(@_root_height)
 
     editables = @model.get_all_editables()
+    for edit_variable in editables
+      @_solver.add_edit_variable(edit_variable, Strength.strong)
+
     constraints = @model.get_all_constraints()
-    variables = @model.get_constrained_variables()
-
-    for {edit_variable, strength} in editables
-      @_solver.add_edit_variable(edit_variable, strength)
-
     for constraint in constraints
       @_solver.add_constraint(constraint)
 
+    variables = @model.get_constrained_variables()
     if variables.width?
       @_solver.add_constraint(EQ(variables.width, @_root_width))
     if variables.height?
@@ -343,15 +345,15 @@ export class LayoutDOM extends Model
   get_layoutable_children: () -> []
 
   get_editables: () ->
-    editables = []
-    if @sizing_mode is 'fixed'
-      editables.push({edit_variable: @_height, strength: Strength.strong})
-      editables.push({edit_variable: @_width, strength: Strength.strong})
-    if @sizing_mode is 'scale_width'
-      editables.push({edit_variable: @_height, strength: Strength.strong})
-    if @sizing_mode is 'scale_height'
-      editables.push({edit_variable: @_width, strength: Strength.strong})
-    return editables
+    switch @sizing_mode
+      when 'fixed'
+        return [@_height, @_width]
+      when 'scale_width'
+        return [@_height]
+      when 'scale_height'
+        return [@_width]
+      else
+        return []
 
   get_constrained_variables: () ->
     # THE FOLLOWING ARE OPTIONAL VARS THAT
