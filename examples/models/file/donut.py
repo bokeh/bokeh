@@ -62,7 +62,8 @@ for browser, start_angle, end_angle in zip(browsers, start_angles, end_angles):
     start = [start_angle] + end[:-1]
     base_color = colors[browser]
     fill = [ base_color.lighten(i*0.05) for i in range(len(versions) + 1) ]
-    text = [ number if share >= 1 else "" for number, share in zip(versions.VersionNumber, versions.Share) ]
+    # extra empty string accounts for all versions with share < 0.5 together
+    text = [ number if share >= 1 else "" for number, share in zip(versions.VersionNumber, versions.Share) ] + [""]
     x, y = polar_to_cartesian(1.25, start, end)
 
     source = ColumnDataSource(dict(start=start, end=end, fill=fill))
@@ -84,9 +85,10 @@ for browser, start_angle, end_angle in zip(browsers, start_angles, end_angles):
         x, y = polar_to_cartesian(1.25, start, end)
         first = False
 
+
     text_source = ColumnDataSource(dict(text=text, x=x, y=y, angle=text_angle))
     glyph = Text(x="x", y="y", text="text", angle="angle",
-        text_align="center", text_baseline="middle")
+        text_align="center", text_baseline="middle", text_font_size="8pt")
     plot.add_glyph(text_source, glyph)
 
 
@@ -109,11 +111,10 @@ plot.add_glyph(text_source, glyph)
 
 doc = Document()
 doc.add_root(plot)
+doc.validate()
 
-if __name__ == "__main__":
-    doc.validate()
-    filename = "donut.html"
-    with open(filename, "w") as f:
-        f.write(file_html(doc, INLINE, "Donut Chart"))
-    print("Wrote %s" % filename)
-    view(filename)
+filename = "donut.html"
+with open(filename, "w") as f:
+    f.write(file_html(doc, INLINE, "Donut Chart"))
+print("Wrote %s" % filename)
+view(filename)
