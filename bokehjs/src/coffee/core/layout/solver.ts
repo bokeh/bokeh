@@ -33,14 +33,14 @@ export class Solver {
   }
 
   toString(): string {
-    return `Solver(num_constraints=${this.num_constraints}, num_edit_variables=${this.num_edit_variables})`
+    return `Solver(num_constraints=${this.num_constraints}, num_editables=${this.num_editables})`
   }
 
   get num_constraints(): number {
     return this.solver.numConstraints
   }
 
-  get num_edit_variables(): number {
+  get num_editables(): number {
     return this.solver.numEditVariables
   }
 

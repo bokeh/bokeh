@@ -1,6 +1,7 @@
 import {Model} from "../../model"
 import {empty} from "core/dom"
 import * as p from "core/properties"
+import {LayoutCanvas} from "core/layout/layout_canvas"
 import {Solver, GE, EQ, Strength, Variable} from "core/layout/solver"
 
 import {build_views} from "core/build_views"
@@ -73,8 +74,8 @@ export class LayoutDOMView extends DOMView
     @_solver.add_edit_variable(@_root_width)
     @_solver.add_edit_variable(@_root_height)
 
-    editables = @model.get_edit_variables()
-    constraints = @model.get_constraints()
+    editables = @model.get_all_editables()
+    constraints = @model.get_all_constraints()
     variables = @model.get_constrained_variables()
 
     for {edit_variable, strength} in editables
@@ -300,6 +301,28 @@ export class LayoutDOM extends Model
     for child in @get_layoutable_children()
       child.dump_layout()
 
+  get_all_constraints: () ->
+    constraints = @get_constraints()
+
+    for child in @get_layoutable_children()
+      if child instanceof LayoutCanvas
+        constraints = constraints.concat(child.get_constraints())
+      else
+        constraints = constraints.concat(child.get_all_constraints())
+
+    return constraints
+
+  get_all_editables: () ->
+    editables = @get_editables()
+
+    for child in @get_layoutable_children()
+      if child instanceof LayoutCanvas
+        editables = editables.concat(child.get_editables())
+      else
+        editables = editables.concat(child.get_all_editables())
+
+    return editables
+
   get_constraints: () ->
     return [
       # Make sure things dont squeeze out of their bounding box
@@ -319,16 +342,16 @@ export class LayoutDOM extends Model
 
   get_layoutable_children: () -> []
 
-  get_edit_variables: () ->
-    edit_variables = []
+  get_editables: () ->
+    editables = []
     if @sizing_mode is 'fixed'
-      edit_variables.push({edit_variable: @_height, strength: Strength.strong})
-      edit_variables.push({edit_variable: @_width, strength: Strength.strong})
+      editables.push({edit_variable: @_height, strength: Strength.strong})
+      editables.push({edit_variable: @_width, strength: Strength.strong})
     if @sizing_mode is 'scale_width'
-      edit_variables.push({edit_variable: @_height, strength: Strength.strong})
+      editables.push({edit_variable: @_height, strength: Strength.strong})
     if @sizing_mode is 'scale_height'
-      edit_variables.push({edit_variable: @_width, strength: Strength.strong})
-    return edit_variables
+      editables.push({edit_variable: @_width, strength: Strength.strong})
+    return editables
 
   get_constrained_variables: () ->
     # THE FOLLOWING ARE OPTIONAL VARS THAT

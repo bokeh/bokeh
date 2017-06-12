@@ -198,13 +198,11 @@ export class SidePanel extends LayoutCanvas
       else
         logger.error("unrecognized side: '#{ @side }'")
 
+  # TODO (bird): Investigate changing the convention of when constraints are added
+  # so that if a side panel was added later, then these constraints would be
+  # picked up. (This would also play into the ability to remove a panel from
+  # the canvas).
   get_constraints: () ->
-    #
-    # TODO (bird): Investigate changing the convention of when constraints are added
-    # so that if a side panel was added later, then these constraints would be
-    # picked up. (This would also play into the ability to remove a panel from
-    # the canvas).
-    #
     return super().concat([
       EQ(@_left, @_width, [-1, @_right]),
       EQ(@_bottom, @_height, [-1, @_top]),

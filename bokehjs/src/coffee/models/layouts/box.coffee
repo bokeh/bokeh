@@ -66,14 +66,7 @@ export class Box extends LayoutDOM
     spacing:  [ p.Number, 6 ]
   }
 
-  get_layoutable_children: () ->
-    @children
-
-  get_edit_variables: () ->
-    edit_variables = super()
-    for child in @get_layoutable_children()
-      edit_variables = edit_variables.concat(child.get_edit_variables())
-    return edit_variables
+  get_layoutable_children: () -> @children
 
   get_constrained_variables: () ->
     return extend({}, super(), {
@@ -121,9 +114,6 @@ export class Box extends LayoutDOM
       else
         if vars.box_equal_size_top? and vars.box_equal_size_bottom? and vars.height?
           constraints.push(EQ([-1, vars.box_equal_size_top], [-1, vars.box_equal_size_bottom], vars.height, @_child_equal_size_height))
-
-      # Pull child constraints up recursively
-      constraints = constraints.concat(child.get_constraints())
 
     # TODO(bird) - This is the second time we loop through children
     last = @_info(children[0].get_constrained_variables())

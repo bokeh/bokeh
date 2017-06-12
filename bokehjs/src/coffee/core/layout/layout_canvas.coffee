@@ -14,7 +14,7 @@ export class LayoutCanvas extends Model
     @_right = new Variable("#{@toString()}.right")
     @_bottom = new Variable("#{@toString()}.bottom")
 
-  get_edit_variables: () ->
+  get_editables: () ->
     editables = []
     editables.push({edit_variable: @_top, strength: Strength.strong})
     editables.push({edit_variable: @_left, strength: Strength.strong})

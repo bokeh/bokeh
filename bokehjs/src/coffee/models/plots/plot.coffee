@@ -184,14 +184,12 @@ export class Plot extends LayoutDOM
       children = [@toolbar, @plot_canvas]
     return children
 
-  get_edit_variables: () ->
-    edit_variables = super()
+  get_editables: () ->
+    editables = super()
     if @sizing_mode is 'scale_both'
-      edit_variables.push({edit_variable: @_width, strength: Strength.strong})
-      edit_variables.push({edit_variable: @_height, strength: Strength.strong})
-    for child in @get_layoutable_children()
-      edit_variables = edit_variables.concat(child.get_edit_variables())
-    return edit_variables
+      editables.push({edit_variable: @_width, strength: Strength.strong})
+      editables.push({edit_variable: @_height, strength: Strength.strong})
+    return editables
 
   get_constraints: () ->
     constraints = super()
@@ -262,10 +260,6 @@ export class Plot extends LayoutDOM
       # If we don't have a toolbar just set them
       constraints.push(EQ(@_width, [-1, @plot_canvas._width]))
       constraints.push(EQ(@_height, [-1, @plot_canvas._height]))
-
-    # Get all the child constraints
-    for child in @get_layoutable_children()
-      constraints = constraints.concat(child.get_constraints())
 
     return constraints
 
