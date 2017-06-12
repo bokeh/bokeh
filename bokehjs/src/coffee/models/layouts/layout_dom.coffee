@@ -67,8 +67,8 @@ export class LayoutDOMView extends DOMView
     return [width, height]
 
   _init_solver: () ->
-    @_root_width = new Variable("root_width")
-    @_root_height = new Variable("root_height")
+    @_root_width = new Variable("#{@toString()}.root_width")
+    @_root_height = new Variable("#{@toString()}.root_height")
 
     @_solver.add_edit_variable(@_root_width)
     @_solver.add_edit_variable(@_root_height)
@@ -261,24 +261,24 @@ export class LayoutDOM extends Model
 
   initialize: (attrs, options) ->
     super(attrs, options)
-    @_width = new Variable("_width #{@id}")
-    @_height = new Variable("_height #{@id}")
+    @_width = new Variable("#{@toString()}.width")
+    @_height = new Variable("#{@toString()}.height")
     # These are the COORDINATES of the four plot sides
-    @_left = new Variable("_left #{@id}")
-    @_right = new Variable("_right #{@id}")
-    @_top = new Variable("_top #{@id}")
-    @_bottom = new Variable("_bottom #{@id}")
+    @_left = new Variable("#{@toString()}.left")
+    @_right = new Variable("#{@toString()}.right")
+    @_top = new Variable("#{@toString()}.top")
+    @_bottom = new Variable("#{@toString()}.bottom")
     # This is the dom position
-    @_dom_top = new Variable("_dom_top #{@id}")
-    @_dom_left = new Variable("_dom_left #{@id}")
+    @_dom_top = new Variable("#{@toString()}.dom_top")
+    @_dom_left = new Variable("#{@toString()}.dom_left")
     # This is the distance from the side of the right and bottom,
-    @_width_minus_right = new Variable("_width_minus_right #{@id}")
-    @_height_minus_bottom = new Variable("_height_minus_bottom #{@id}")
+    @_width_minus_right = new Variable("#{@toString()}.width_minus_right")
+    @_height_minus_bottom = new Variable("#{@toString()}.height_minus_bottom")
     # Whitespace variables
-    @_whitespace_top = new Variable()
-    @_whitespace_bottom = new Variable()
-    @_whitespace_left = new Variable()
-    @_whitespace_right = new Variable()
+    @_whitespace_top = new Variable("#{@toString()}.whitespace_top")
+    @_whitespace_bottom = new Variable("#{@toString()}.whitespace_bottom")
+    @_whitespace_left = new Variable("#{@toString()}.whitespace_left")
+    @_whitespace_right = new Variable("#{@toString()}.whitespace_right")
 
   @getters {
     layout_bbox: () ->

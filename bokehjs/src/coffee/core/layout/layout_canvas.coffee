@@ -7,12 +7,12 @@ export class LayoutCanvas extends Model
 
   initialize: (attrs, options)->
     super(attrs, options)
-    @_top = new Variable("top #{@id}")
-    @_left = new Variable("left #{@id}")
-    @_width = new Variable("width #{@id}")
-    @_height = new Variable("height #{@id}")
-    @_right = new Variable("right #{@id}")
-    @_bottom = new Variable("bottom #{@id}")
+    @_top = new Variable("#{@toString()}.top")
+    @_left = new Variable("#{@toString()}.left")
+    @_width = new Variable("#{@toString()}.width")
+    @_height = new Variable("#{@toString()}.height")
+    @_right = new Variable("#{@toString()}.right")
+    @_bottom = new Variable("#{@toString()}.bottom")
 
   get_edit_variables: () ->
     editables = []
