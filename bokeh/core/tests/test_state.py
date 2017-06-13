@@ -21,6 +21,7 @@ def test_creation():
     assert s.file == None
     assert s.notebook == False
     assert s.watching_cells == False
+    assert s.notebook_type == 'jupyter'
 
 def test_default_file_resources():
     s = state.State()
