@@ -39,16 +39,19 @@ describe "BoxView", ->
 
 describe "Box", ->
 
-  describe "get_edit_variables", ->
+  describe "get_editables", ->
 
     it "should get edit_variables of children", ->
       child1 = new Box(sizing_mode: 'fixed')
       child2 = new Box(sizing_mode: 'fixed')
       parent_box = new Box({children: [child1, child2], sizing_mode: 'fixed'})
-      ev = parent_box.get_edit_variables()
-      expect(ev.length).to.be.equal 6
 
-      evs = (item.edit_variable for item in ev)
+      evs = parent_box.get_editables()
+      expect(evs.length).to.be.equal(2)
+
+      evs = parent_box.get_all_editables()
+      expect(evs.length).to.be.equal(6)
+
       expect(parent_box._height in evs).is.true
       expect(parent_box._width in evs).is.true
       expect(child1._height in evs).is.true
