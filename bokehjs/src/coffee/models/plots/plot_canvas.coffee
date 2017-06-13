@@ -686,6 +686,18 @@ export class PlotCanvasView extends DOMView
       document.body.appendChild(downloadLink)
       downloadLink.click()
 
+class AbovePanel extends LayoutCanvas
+  type: "AbovePanel"
+
+class BelowPanel extends LayoutCanvas
+  type: "BelowPanel"
+
+class LeftPanel extends LayoutCanvas
+  type: "LeftPanel"
+
+class RightPanel extends LayoutCanvas
+  type: "RightPanel"
+
 export class PlotCanvas extends LayoutDOM
   type: 'PlotCanvas'
   default_view: PlotCanvasView
@@ -710,10 +722,10 @@ export class PlotCanvas extends LayoutDOM
       y_scale: @plot.y_scale
     })
 
-    @above_panel = new LayoutCanvas()
-    @below_panel = new LayoutCanvas()
-    @left_panel = new LayoutCanvas()
-    @right_panel = new LayoutCanvas()
+    @above_panel = new AbovePanel()
+    @below_panel = new BelowPanel()
+    @left_panel  = new LeftPanel()
+    @right_panel = new RightPanel()
 
     logger.debug("PlotCanvas initialized")
 
