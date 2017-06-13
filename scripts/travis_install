@@ -36,16 +36,16 @@ print(" ".join([s.replace(" ", "") for s in MetaData("conda.recipe").get_value("
 EOF
 )
 
-conda install --yes $DEPS_BUILD
+time conda install --yes $DEPS_BUILD
 
 pushd bokehjs
-npm install
+time npm install
 popd
 
 python setup.py --quiet install --build-js
 
 pushd bokehjs
-node_modules/.bin/gulp examples --no-build
+time node_modules/.bin/gulp examples --no-build
 popd
 
 DEPS_RUN=$(cat <<EOF | python -
@@ -60,8 +60,8 @@ print(" ".join([s.replace(" ", "") for s in MetaData("conda.recipe").get_value("
 EOF
 )
 
-conda install --yes $DEPS_RUN
-conda install --yes $DEPS_TEST
+time conda install --yes $DEPS_RUN
+time conda install --yes $DEPS_TEST
 
 echo "node version: $(node -v)"
 echo "npm version: $(npm -v)"
