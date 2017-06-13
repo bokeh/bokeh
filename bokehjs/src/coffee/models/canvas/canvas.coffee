@@ -1,7 +1,7 @@
 import {LayoutCanvas} from "core/layout/layout_canvas"
 
 import {DOMView} from "core/dom_view"
-import {GE, EQ} from "core/layout/solver"
+import {EQ} from "core/layout/solver"
 import {logger} from "core/logging"
 import * as p from "core/properties"
 import {div, canvas} from "core/dom"
@@ -138,9 +138,3 @@ export class Canvas extends LayoutCanvas
     for y, idx in yy
       _yy[idx] = height - (y + 1)
     return _yy
-
-  get_constraints: () ->
-    return super().concat([
-      EQ(@_width, [-1, @_right]),
-      EQ(@_height, [-1, @_top]),
-    ])

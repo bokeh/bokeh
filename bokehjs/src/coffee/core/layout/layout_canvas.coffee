@@ -1,4 +1,4 @@
-import {GE, Variable} from "./solver"
+import {GE, EQ, Variable} from "./solver"
 import {Model} from "../../model"
 import * as p from "../properties"
 
@@ -25,6 +25,8 @@ export class LayoutCanvas extends Model
       GE(@_right),
       GE(@_width),
       GE(@_height),
+      EQ(@_left, @_width, [-1, @_right]),
+      EQ(@_bottom, @_height, [-1, @_top]),
     ]
 
   @getters {

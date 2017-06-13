@@ -8,7 +8,7 @@ describe "LayoutCanvas", ->
 
   it "should should return no constraints", ->
     c = new LayoutCanvas()
-    expect(c.get_constraints().length).to.be.equal 6
+    expect(c.get_constraints().length).to.be.equal(8)
 
   it "should get new variables on initialize", ->
     c = new LayoutCanvas()
