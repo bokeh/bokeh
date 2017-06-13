@@ -32,8 +32,12 @@ calls it with the rendered model.
   {% endblock %}
 
   function run_callbacks() {
-    window._bokeh_onload_callbacks.forEach(function(callback) { callback() });
-    delete window._bokeh_onload_callbacks
+    try {
+      window._bokeh_onload_callbacks.forEach(function(callback) { callback() });
+    }
+    finally {
+      delete window._bokeh_onload_callbacks
+    }
     console.info("Bokeh: all callbacks have finished");
   }
 
