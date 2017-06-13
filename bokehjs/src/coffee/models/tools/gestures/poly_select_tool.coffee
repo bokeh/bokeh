@@ -45,7 +45,7 @@ export class PolySelectToolView extends SelectToolView
       vy: vy
     }
 
-    renderers_by_source = @model._computed_renderers_by_data_source()
+    renderers_by_source = @_computed_renderers_by_data_source()
 
     for ds, renderers of renderers_by_source
       sm = renderers[0].data_source.selection_manager

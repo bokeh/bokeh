@@ -169,20 +169,11 @@ export class Plot extends LayoutDOM
     return renderer
 
   add_tools: (tools...) ->
-    new_tools = for tool in tools
+    for tool in tools
       if tool.overlay?
         @add_renderers(tool.overlay)
 
-      if tool.plot?
-        tool
-      else
-        # XXX: this part should be unnecessary, but you can't configure tool.plot
-        # after construting a tool. When this limitation is lifted, remove this code.
-        attrs = clone(tool.attributes)
-        attrs.plot = this
-        new tool.constructor(attrs)
-
-    @toolbar.tools = @toolbar.tools.concat(new_tools)
+    @toolbar.tools = @toolbar.tools.concat(tools)
 
   get_aspect_ratio: () ->
     return @width / @height

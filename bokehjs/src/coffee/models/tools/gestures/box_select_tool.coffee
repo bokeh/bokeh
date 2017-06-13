@@ -60,7 +60,7 @@ export class BoxSelectToolView extends SelectToolView
       vy1: vy1
     }
 
-    renderers_by_source = @model._computed_renderers_by_data_source()
+    renderers_by_source = @_computed_renderers_by_data_source()
 
     for ds, renderers of renderers_by_source
       sm = renderers[0].data_source.selection_manager
@@ -74,7 +74,7 @@ export class BoxSelectToolView extends SelectToolView
     return null
 
   _emit_callback: (geometry) ->
-    r = @model.computed_renderers[0]
+    r = @computed_renderers[0]
     canvas = @plot_model.canvas
     frame = @plot_model.frame
 

@@ -52,10 +52,6 @@ class Tool(Model):
 
     '''
 
-    plot = Instance(".models.plots.Plot", help="""
-    The Plot that this tool will act on.
-    """)
-
 @abstract
 class Action(Tool):
     ''' A base class for tools that are buttons in the toolbar.

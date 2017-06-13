@@ -181,8 +181,8 @@ plot.add_layout(CategoricalAxis(), 'left')
 url = "http://www.colors.commutercreative.com/@names/"
 tooltips = """Click the color to go to:<br /><a href="{url}">{url}</a>""".format(url=url)
 
-tap = TapTool(plot=plot, renderers=[rect_renderer], callback=OpenURL(url=url))
-hover = HoverTool(plot=plot, renderers=[rect_renderer], tooltips=tooltips)
+tap = TapTool(renderers=[rect_renderer], callback=OpenURL(url=url))
+hover = HoverTool(renderers=[rect_renderer], tooltips=tooltips)
 plot.tools.extend([tap, hover])
 
 doc = Document()

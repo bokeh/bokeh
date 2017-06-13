@@ -30,7 +30,7 @@ describe "ResizeTool", ->
       plot_view = new plot.default_view({model: plot, parent: null})
       doc.add_root(plot)
       @plot_canvas_view = new plot.plot_canvas.default_view({model: plot.plot_canvas, parent: plot_view})
-      @resizetool = new ResizeTool({ plot: plot })
+      @resizetool = new ResizeTool()
       @resizetool_view = new @resizetool.default_view({
         model: @resizetool
         plot_view: @plot_canvas_view
