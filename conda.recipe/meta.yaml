@@ -8,6 +8,7 @@ source:
   path: ..
 
 build:
+  noarch: python
   entry_points:
     - bokeh = bokeh.__main__:main
 
@@ -40,9 +41,8 @@ requirements:
     - {{ dep.lower() }}
     {% endfor %}
 
-    # meta-package installs futures for py 2.7 but not for py 3.x
-    # NOTE: once https://github.com/conda/conda-build/issues/1662 is fixed then
-    # this should be able to be removed
+    # meta-package installs futures for 2.7 but not for 3.x
+    # needed in order to be able to build no-arch conda packages
     - futures-compat
 
 test:
