@@ -66,7 +66,4 @@ conda install --yes $DEPS_TEST
 echo "node version: $(node -v)"
 echo "npm version: $(npm -v)"
 
-MATPLOTLIB_RC=$(python -c "import matplotlib; print(matplotlib.matplotlib_fname())")
-sed -i 's/^backend\s*:.*$/backend: agg/' $MATPLOTLIB_RC
-
 python -c 'import bokeh; bokeh.sampledata.download(progress=False)'
