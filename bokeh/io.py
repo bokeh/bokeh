@@ -606,7 +606,7 @@ def _crop_image(image, left=0, top=0, right=0, bottom=0, **kwargs):
 
     return cropped_image
 
-def _get_screenshot_as_png(obj):
+def _get_screenshot_as_png(obj, driver):
     webdriver = import_required('selenium.webdriver',
                                 'To use bokeh.io.export_png you need selenium ' +
                                 '("conda install -c bokeh selenium" or "pip install selenium")')
@@ -620,37 +620,46 @@ def _get_screenshot_as_png(obj):
     html_path = tempfile.NamedTemporaryFile(suffix=".html").name
     save(obj, filename=html_path, resources=INLINE, title="")
 
-    driver = webdriver.PhantomJS()
-    driver.get("file:///" + html_path)
+    if driver is None:
+        web_driver = webdriver.PhantomJS()
+    else:
+        web_driver = driver
+
+    web_driver.get("file:///" + html_path)
 
     ## resize for PhantomJS compat
-    driver.execute_script("document.body.style.width = '100%';")
+    web_driver.execute_script("document.body.style.width = '100%';")
 
-    _wait_until_render_complete(driver)
+    _wait_until_render_complete(web_driver)
 
-    png = driver.get_screenshot_as_png()
+    png = web_driver.get_screenshot_as_png()
 
     bounding_rect_script = "return document.getElementsByClassName('bk-root')[0].children[0].getBoundingClientRect()"
-    b_rect = driver.execute_script(bounding_rect_script)
+    b_rect = web_driver.execute_script(bounding_rect_script)
 
-    driver.quit()
+    if driver is None: # only quit webdriver if not passed in as arg
+        web_driver.quit()
 
     image = Image.open(io.BytesIO(png))
     cropped_image = _crop_image(image, **b_rect)
 
     return cropped_image
 
-def export_png(obj, filename=None):
-    ''' Export the LayoutDOM object as a PNG.
+def export_png(obj, filename=None, driver=None):
+    ''' Export the LayoutDOM object or document as a PNG.
 
     If the filename is not given, it is derived from the script name
     (e.g. ``/foo/myplot.py`` will create ``/foo/myplot.png``)
 
     Args:
-        obj (LayoutDOM object) : a Layout (Row/Column), Plot or Widget object to display
+        obj (LayoutDOM or Document) : a Layout (Row/Column), Plot or Widget
+            object or Document to export.
 
         filename (str, optional) : filename to save document under (default: None)
             If None, infer from the filename.
+
+        driver (selenium.webdriver.WebDriver) : an instance of a WebDriver to
+            render the document.
 
     Returns:
         filename (str) : the filename where the static file is saved.
@@ -663,7 +672,7 @@ def export_png(obj, filename=None):
         Glyphs that are rendered via webgl won't be included in the generated PNG.
 
     '''
-    image = _get_screenshot_as_png(obj)
+    image = _get_screenshot_as_png(obj, driver)
 
     if filename is None:
         filename = _detect_filename("png")

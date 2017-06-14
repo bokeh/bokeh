@@ -8,8 +8,10 @@
 
 from __future__ import absolute_import
 from mock import patch, Mock, PropertyMock
+
 from PIL import Image
 import pytest
+import selenium.webdriver as webdriver
 import unittest
 
 import bokeh.io as io
@@ -308,7 +310,24 @@ def test__get_screenshot_as_png():
                   outline_line_color=None, background_fill_color=None,
                   border_fill_color=None)
 
-    png = io._get_screenshot_as_png(layout)
+    png = io._get_screenshot_as_png(layout, None)
+    assert png.size == (20, 20)
+    # a 20x20px image of transparent pixels
+    assert png.tobytes() == ("\x00"*1600).encode()
+
+def test__get_screenshot_as_png_with_driver():
+    layout = Plot(x_range=Range1d(), y_range=Range1d(),
+                  plot_height=20, plot_width=20, toolbar_location=None,
+                  outline_line_color=None, background_fill_color=None,
+                  border_fill_color=None)
+
+    driver = webdriver.PhantomJS()
+
+    png = io._get_screenshot_as_png(layout, driver)
+
+    # Have to manually clean up the driver session
+    driver.quit()
+
     assert png.size == (20, 20)
     # a 20x20px image of transparent pixels
     assert png.tobytes() == ("\x00"*1600).encode()
