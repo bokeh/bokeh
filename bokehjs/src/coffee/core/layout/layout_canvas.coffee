@@ -15,7 +15,7 @@ export class LayoutCanvas extends Model
     @_bottom = new Variable("#{@toString()}.bottom")
 
   get_editables: () ->
-    return [@_top, @_left, @_width, @_height]
+    return [@_width, @_height]
 
   get_constraints: () ->
     return [

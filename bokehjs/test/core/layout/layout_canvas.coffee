@@ -24,4 +24,4 @@ describe "LayoutCanvas", ->
   it "should should return four strong edit variables", ->
     c = new LayoutCanvas()
     ev = c.get_editables()
-    expect(ev.length).to.be.equal 4
+    expect(ev.length).to.be.equal(2)
