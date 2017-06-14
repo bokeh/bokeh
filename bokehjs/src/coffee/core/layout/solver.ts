@@ -44,6 +44,10 @@ export class Solver {
     return this.solver.numEditVariables
   }
 
+  get_constraints(): Constraint[] {
+    return this.solver.getConstraints()
+  }
+
   update_variables(): void {
     this.solver.updateVariables()
   }
