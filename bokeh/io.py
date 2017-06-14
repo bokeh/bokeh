@@ -645,7 +645,7 @@ def _get_screenshot_as_png(obj, driver):
 
     return cropped_image
 
-def export_png(obj, filename=None, driver=None):
+def export_png(obj, filename=None):
     ''' Export the LayoutDOM object or document as a PNG.
 
     If the filename is not given, it is derived from the script name
@@ -658,9 +658,6 @@ def export_png(obj, filename=None, driver=None):
         filename (str, optional) : filename to save document under (default: None)
             If None, infer from the filename.
 
-        driver (selenium.webdriver.WebDriver) : an instance of a WebDriver to
-            render the document.
-
     Returns:
         filename (str) : the filename where the static file is saved.
 
@@ -672,7 +669,7 @@ def export_png(obj, filename=None, driver=None):
         Glyphs that are rendered via webgl won't be included in the generated PNG.
 
     '''
-    image = _get_screenshot_as_png(obj, driver)
+    image = _get_screenshot_as_png(obj, None)
 
     if filename is None:
         filename = _detect_filename("png")
