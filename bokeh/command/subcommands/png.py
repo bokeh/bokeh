@@ -43,6 +43,9 @@ It is possible to generate PNG pages for multiple applications at once:
 '''
 from __future__ import absolute_import
 
+import io
+import sys
+
 import selenium.webdriver as webdriver
 
 from bokeh.io import _get_screenshot_as_png
@@ -71,6 +74,18 @@ class PNG(FileOutputSubcommand):
         super(PNG, self).invoke(args)
         self.driver.quit()
 
+    def write_file(self, args, filename, doc):
+        contents = self.file_contents(args, doc)
+        if filename == '-':
+            sys.stdout.buffer.write(contents)
+        else:
+            with io.open(filename, "w+b") as f:
+                f.write(contents)
+        self.after_write_file(args, filename, doc)
+
     def file_contents(self, args, doc):
         image = _get_screenshot_as_png(doc, self.driver)
-        return image.tobytes().decode()
+        buf = io.BytesIO()
+        image.save(buf, "png")
+        buf.seek(0)
+        return buf.read()
