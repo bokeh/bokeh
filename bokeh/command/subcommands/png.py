@@ -44,6 +44,7 @@ It is possible to generate PNG pages for multiple applications at once:
 from __future__ import absolute_import
 
 import io
+import os
 import sys
 
 import selenium.webdriver as webdriver
@@ -70,7 +71,7 @@ class PNG(FileOutputSubcommand):
     ) + FileOutputSubcommand.other_args()
 
     def invoke(self, args):
-        self.driver = webdriver.PhantomJS()
+        self.driver = webdriver.PhantomJS(service_log_path=os.path.devnull)
         super(PNG, self).invoke(args)
         self.driver.quit()
 

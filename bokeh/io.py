@@ -621,7 +621,7 @@ def _get_screenshot_as_png(obj, driver):
     save(obj, filename=html_path, resources=INLINE, title="")
 
     if driver is None:
-        web_driver = webdriver.PhantomJS()
+        web_driver = webdriver.PhantomJS(service_log_path=os.path.devnull)
     else:
         web_driver = driver
 
@@ -688,7 +688,7 @@ def _get_svgs(obj):
     html_path = tempfile.NamedTemporaryFile(suffix=".html").name
     save(obj, filename=html_path, resources=INLINE, title="")
 
-    driver = webdriver.PhantomJS()
+    driver = webdriver.PhantomJS(service_log_path=os.path.devnull)
     driver.get("file:///" + html_path)
 
     _wait_until_render_complete(driver)
