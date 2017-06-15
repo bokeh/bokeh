@@ -21,6 +21,11 @@ def test_python_execution_with_OO():
             if file.endswith("__main__.py"):
                 continue
 
+            # XXX This is so we can avoid the cost of installing MPL on Travis.
+            # Can be removed on Bokeh 1.0 when MPL compat is fully removed
+            if file.endswith("mpl.py"):
+                continue
+
             if file.endswith("__init__.py"):
                 mod = path.replace("/", ".")
             else:
