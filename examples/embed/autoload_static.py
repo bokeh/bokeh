@@ -20,7 +20,7 @@ template = Template("""
 <body>
   <div>
     The plot embedded below is a standalone plot that was embedded using
-    <fixed>autoload_server</fixed>. For more information see the
+    <fixed>autoload_static</fixed>. For more information see the
     <a target="_blank" href="http://bokeh.pydata.org/en/latest/docs/user_guide/embed.html#static-data">
     documentation</a>.
   </div>

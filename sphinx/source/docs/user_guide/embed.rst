@@ -319,7 +319,8 @@ with a command like:
 
 .. code-block:: python
 
-    script = autoload_server(url="https://demo.bokehplots.com/apps/slider")
+    from bokeh.embed import autoload_server
+    script = autoload_server("https://demo.bokehplots.com/apps/slider")
 
 The resulting ``<script>`` tag that you can use to embed the plot inside
 your HTML document looks like:
@@ -368,6 +369,35 @@ will look something like this:
     ></script>
 
 For full details read the autoload_server reference here: |autoload_server|.
+
+Alternatively, two other methods allow to embed content from a bokeh server
+in a similar fashion to ``autoload_server`` but with some subtle differences:
+with ``server_document`` a new session will systematically be generated and
+an entire document will be returned; with ``server_session`` an existing session
+id and model must be provided. Another difference from ``autoload_server`` is
+that with those two methods one may choose to not load the JS/CSS resource
+files by passing a ``resources="none"`` parameter.
+
+Here is an example using ``server_document``:
+
+.. code-block:: python
+
+    from bokeh.embed import server_document
+    script = server_document("https://demo.bokehplots.com/apps/slider")
+
+And here is an example using ``server_session``:
+
+.. code-block:: python
+
+    from bokeh.client import push_session
+    from bokeh.embed import server_session
+    from bokeh.plotting import figure, curdoc
+
+    plot = figure()
+    plot.circle([1,2], [3,4])
+
+    session = push_session(curdoc())
+    script = server_session(plot, session_id=session.id)
 
 .. _userguide_embed_autoload_static:
 
