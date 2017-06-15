@@ -8,6 +8,7 @@
 
 from __future__ import absolute_import
 from mock import patch, Mock, PropertyMock
+import os
 
 from PIL import Image
 import pytest
