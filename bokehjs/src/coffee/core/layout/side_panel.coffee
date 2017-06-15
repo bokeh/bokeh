@@ -198,6 +198,11 @@ export class SidePanel extends LayoutCanvas
       else
         logger.error("unrecognized side: '#{ @side }'")
 
+  @getters {
+    is_horizontal: () -> @side == "above" or @side == "below"
+    is_vertical: () -> @side == "left" or @side == "right"
+  }
+
   apply_label_text_heuristics: (ctx, orient) ->
     side = @side
 
