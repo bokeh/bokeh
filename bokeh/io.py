@@ -678,20 +678,25 @@ def export_png(obj, filename=None):
 
     return os.path.abspath(filename)
 
-def _get_svgs(obj):
+def _get_svgs(obj, driver):
     webdriver = import_required('selenium.webdriver',
                                 'To use bokeh.io.export_svgs you need selenium ' +
                                 '("conda install -c bokeh selenium" or "pip install selenium")')
     # assert that phantomjs is in path for webdriver
     detect_phantomjs()
 
+    if driver is None:
+        web_driver = webdriver.PhantomJS(service_log_path=os.path.devnull)
+    else:
+        web_driver = driver
+
     html_path = tempfile.NamedTemporaryFile(suffix=".html").name
     save(obj, filename=html_path, resources=INLINE, title="")
 
-    driver = webdriver.PhantomJS(service_log_path=os.path.devnull)
-    driver.get("file:///" + html_path)
+    web_driver = webdriver.PhantomJS(service_log_path=os.path.devnull)
+    web_driver.get("file:///" + html_path)
 
-    _wait_until_render_complete(driver)
+    _wait_until_render_complete(web_driver)
 
     svg_script = """
     var serialized_svgs = [];
@@ -703,9 +708,10 @@ def _get_svgs(obj):
     return serialized_svgs
     """
 
-    svgs = driver.execute_script(svg_script)
+    svgs = web_driver.execute_script(svg_script)
 
-    driver.quit()
+    if driver is None: # only quit webdriver if not passed in as arg
+        web_driver.quit()
 
     return svgs
 
@@ -731,7 +737,7 @@ def export_svgs(obj, filename=None):
         aspect ratios. It is recommended to use the default ``fixed`` sizing mode.
 
     '''
-    svgs = _get_svgs(obj)
+    svgs = _get_svgs(obj, None)
 
     if len(svgs) == 0:
         logger.warn("No SVG Plots were found.")

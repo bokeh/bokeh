@@ -336,7 +336,7 @@ def test__get_svgs_no_svg_present():
     layout = Plot(x_range=Range1d(), y_range=Range1d(),
               plot_height=20, plot_width=20, toolbar_location=None)
 
-    svgs = io._get_svgs(layout)
+    svgs = io._get_svgs(layout, None)
     assert svgs == []
 
 def test__get_svgs_with_svg_present():
@@ -345,7 +345,24 @@ def test__get_svgs_with_svg_present():
                   outline_line_color=None, border_fill_color=None,
                   background_fill_color=None, output_backend="svg")
 
-    svgs = io._get_svgs(layout)
+    svgs = io._get_svgs(layout, None)
+    assert svgs[0] == ('<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" '
+                       'width="20" height="20" style="width: 20px; height: 20px;"><defs/><g><g/><g transform="scale(1,1) '
+                       'translate(0.5,0.5)"><rect fill="#FFFFFF" stroke="none" x="0" y="0" width="20" height="20"/><g/><g/><g/><g/></g></g></svg>')
+
+def test__get_svgs_with_svg_present_with_driver():
+    layout = Plot(x_range=Range1d(), y_range=Range1d(),
+                  plot_height=20, plot_width=20, toolbar_location=None,
+                  outline_line_color=None, border_fill_color=None,
+                  background_fill_color=None, output_backend="svg")
+
+    driver = webdriver.PhantomJS()
+
+    svgs = io._get_svgs(layout, driver)
+
+    # Have to manually clean up the driver session
+    driver.quit()
+
     assert svgs[0] == ('<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" '
                        'width="20" height="20" style="width: 20px; height: 20px;"><defs/><g><g/><g transform="scale(1,1) '
                        'translate(0.5,0.5)"><rect fill="#FFFFFF" stroke="none" x="0" y="0" width="20" height="20"/><g/><g/><g/><g/></g></g></svg>')
