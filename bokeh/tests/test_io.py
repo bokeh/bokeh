@@ -321,7 +321,7 @@ def test__get_screenshot_as_png_with_driver():
                   outline_line_color=None, background_fill_color=None,
                   border_fill_color=None)
 
-    driver = webdriver.PhantomJS()
+    driver = webdriver.PhantomJS(service_log_path=os.path.devnull)
 
     png = io._get_screenshot_as_png(layout, driver)
 
@@ -356,7 +356,7 @@ def test__get_svgs_with_svg_present_with_driver():
                   outline_line_color=None, border_fill_color=None,
                   background_fill_color=None, output_backend="svg")
 
-    driver = webdriver.PhantomJS()
+    driver = webdriver.PhantomJS(service_log_path=os.path.devnull)
 
     svgs = io._get_svgs(layout, driver)
 
