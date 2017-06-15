@@ -1,49 +1,75 @@
-export AngleUnits = ["deg", "rad"]
+export type AngleUnits = "deg" | "rad"
+export const AngleUnits: AngleUnits[] = ["deg", "rad"]
 
-export Dimension = ["width", "height"]
+export type Dimension = "width" | "height"
+export const Dimension: Dimension[] = ["width", "height"]
 
-export Dimensions = ["width", "height", "both"]
+export type Dimensions = "width" | "height" | "both"
+export const Dimensions: Dimensions[] = ["width", "height", "both"]
 
-export Direction = ["clock", "anticlock"]
+export type Direction = "clock" | "anticlock"
+export const Direction: Direction[] = ["clock", "anticlock"]
 
-export FontStyle = ["normal", "italic", "bold"]
+export type FontStyle = "normal" | "italic" | "bold"
+export const FontStyle: FontStyle[] = ["normal", "italic", "bold"]
 
-export LatLon = ["lat", "lon"]
+export type LatLon = "lat" | "lon"
+export const LatLon: LatLon[] = ["lat", "lon"]
 
-export LineCap = ["butt", "round", "square"]
+export type LineCap = "butt" | "round" | "square"
+export const LineCap: LineCap[] = ["butt", "round", "square"]
 
-export LineJoin = ["miter", "round", "bevel"]
+export type LineJoin = "miter" | "round" | "bevel"
+export const LineJoin: LineJoin[] = ["miter", "round", "bevel"]
 
-export Location = ["above", "below", "left", "right"]
+export type Location = "above" | "below" | "left" | "right"
+export const Location: Location[] = ["above", "below", "left", "right"]
 
-export LegendLocation = [
+export type LegendLocation =
+  "top_left"    | "top_center"    | "top_right"    |
+  "center_left" | "center"        | "center_right" |
+  "bottom_left" | "bottom_center" | "bottom_right"
+export const LegendLocation: LegendLocation[] = [
   "top_left",    "top_center",    "top_right",
   "center_left", "center",        "center_right",
   "bottom_left", "bottom_center", "bottom_right",
 ]
 
-export Orientation = ["vertical", "horizontal"]
+export type Orientation = "vertical" | "horizontal"
+export const Orientation: Orientation[] = ["vertical", "horizontal"]
 
-export OutputBackend = ["canvas", "svg", "webgl"]
+export type OutputBackend = "canvas" | "svg" | "webgl"
+export const OutputBackend: OutputBackend[] = ["canvas", "svg", "webgl"]
 
-export RenderLevel = ["image", "underlay", "glyph", "annotation", "overlay"]
+export type RenderLevel = "image" | "underlay" | "glyph" | "annotation" | "overlay"
+export const RenderLevel: RenderLevel[] = ["image", "underlay", "glyph", "annotation", "overlay"]
 
-export RenderMode = ["canvas", "css"]
+export type RenderMode = "canvas" | "css"
+export const RenderMode: RenderMode[] = ["canvas", "css"]
 
-export Side = ["left", "right"]
+export type Side = "left" | "right"
+export const Side: Side[] = ["left", "right"]
 
-export SpatialUnits = ["screen", "data"]
+export type SpatialUnits = "screen" | "data"
+export const SpatialUnits: SpatialUnits[] = ["screen", "data"]
 
-export StartEnd = ["start", "end"]
+export type StartEnd = "start" | "end"
+export const StartEnd: StartEnd[] = ["start", "end"]
 
-export TextAlign = ["left", "right", "center"]
+export type TextAlign = "left" | "right" | "center"
+export const TextAlign: TextAlign[] = ["left", "right", "center"]
 
-export TextBaseline = ["top", "middle", "bottom", "alphabetic", "hanging", "ideographic"]
+export type TextBaseline = "top" | "middle" | "bottom" | "alphabetic" | "hanging" | "ideographic"
+export const TextBaseline: TextBaseline[] = ["top", "middle", "bottom", "alphabetic", "hanging", "ideographic"]
 
-export DistributionTypes = ["uniform", "normal"]
+export type DistributionTypes = "uniform" | "normal"
+export const DistributionTypes: DistributionTypes[] = ["uniform", "normal"]
 
-export TransformStepModes = ["after", "before", "center"]
+export type TransformStepModes = "after" | "before" | "center"
+export const TransformStepModes: TransformStepModes[] = ["after", "before", "center"]
 
-export SizingMode = ["stretch_both", "scale_width", "scale_height", "scale_both", "fixed"]
+export type SizingMode = "stretch_both" | "scale_width" | "scale_height" | "scale_both" | "fixed"
+export const SizingMode: SizingMode[] = ["stretch_both", "scale_width", "scale_height", "scale_both", "fixed"]
 
-export PaddingUnits = ["percent", "absolute"]
+export type PaddingUnits = "percent" | "absolute"
+export const PaddingUnits: PaddingUnits[] = ["percent", "absolute"]
