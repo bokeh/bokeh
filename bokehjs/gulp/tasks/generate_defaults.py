@@ -56,7 +56,7 @@ for leaf in leaves(all_tree, model_class):
             raw_attrs = default._to_json_like(include_defaults=True)
             attrs = loads(serialize_json(raw_attrs))
             ref['attributes'] = attrs
-            del ref['id'] # there's no way the ID will match coffee
+            del ref['id'] # there's no way the ID will match bokehjs
             default = ref
         elif isinstance(default, float) and default == float('inf'):
             default = None
@@ -73,21 +73,19 @@ for leaf_widget in leaves(all_tree, widget_class):
 
 def output_defaults_module(filename, defaults):
     output = serialize_json(defaults, indent=2)
-    coffee_template = """\
-all_defaults = %s
+    ts_template = """\
+const all_defaults: {[key: string]: any} = %s
 
-get_defaults = (name) ->
-  if name of all_defaults
-    all_defaults[name]
-  else
-    null
+export function get_defaults(name: string): {[key: string]: any} | null {
+  if (name in all_defaults) {
+    return all_defaults[name]
+  } else {
+    return null
+  }
+}
 
-all_view_model_names = () ->
-  Object.keys(all_defaults)
-
-module.exports = {
-  get_defaults: get_defaults
-  all_view_model_names: all_view_model_names
+export function all_view_model_names(): string[] {
+  return Object.keys(all_defaults)
 }
 """
     try:
@@ -95,13 +93,13 @@ module.exports = {
     except OSError:
         pass
     f = codecs.open(filename, 'w', 'utf-8')
-    f.write(coffee_template % output)
+    f.write(ts_template % output)
     f.close()
 
     print("Wrote %s with %d model classes" % (filename, len(defaults)))
 
 
-output_defaults_module(filename = os.path.join(dest_dir, '.generated_defaults/models_defaults.coffee'),
+output_defaults_module(filename = os.path.join(dest_dir, '.generated_defaults/models_defaults.ts'),
                        defaults = all_json)
-output_defaults_module(filename = os.path.join(dest_dir, '.generated_defaults/widgets_defaults.coffee'),
+output_defaults_module(filename = os.path.join(dest_dir, '.generated_defaults/widgets_defaults.ts'),
                        defaults = widgets_json)
