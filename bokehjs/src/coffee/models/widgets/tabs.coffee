@@ -1,5 +1,3 @@
-import {tab} from "bootstrap/tab"
-
 import * as p from "core/properties"
 import {empty} from "core/dom"
 import {zip, findIndex} from "core/util/array"
@@ -28,7 +26,7 @@ export class TabsView extends WidgetView
     html.querySelectorAll(".bk-bs-nav a").addEventListener "click", (event) =>
       el = event.currentTarget
       event.preventDefault()
-      tab(el, 'show')
+      @show(el)
       panelId = el.href.replace('#tab-', '')
       tabs = @model.tabs
       panelIdx = findIndex(tabs, (panel) -> panel.id == panelId)
@@ -43,6 +41,9 @@ export class TabsView extends WidgetView
 
     @el.appendChild(html)
     return @
+
+  show: (tab) ->
+    # TODO
 
 export class Tabs extends Widget
   type: "Tabs"

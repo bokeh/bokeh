@@ -1,5 +1,3 @@
-import {dropdown} from "bootstrap/dropdown"
-
 import {button, span, ul, li, a} from "core/dom"
 import * as p from "core/properties"
 
@@ -37,7 +35,6 @@ export class DropdownView extends AbstractButtonView
     menuEl = ul({class: "bk-bs-dropdown-menu"}, items)
     @el.appendChild(menuEl)
 
-    dropdown(@buttonEl)
     return @
 
   set_value: (value) ->

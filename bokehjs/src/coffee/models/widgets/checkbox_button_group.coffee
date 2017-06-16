@@ -1,5 +1,3 @@
-import {button} from "bootstrap/button"
-
 import {Widget, WidgetView} from "./widget"
 import * as p from "core/properties"
 import {empty, input, label} from "core/dom"
