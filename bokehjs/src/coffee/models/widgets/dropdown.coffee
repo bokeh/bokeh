@@ -28,7 +28,7 @@ export class DropdownView extends AbstractButtonView
         [label, value] = item
         link = a({}, label)
         link.dataset.value = value
-        link.addEventListener("click", (e) => @set_value(event.currentTarget.dataset.value))
+        link.addEventListener("click", (event) => @set_value(event.currentTarget.dataset.value))
         itemEl = li({}, link)
       else
         itemEl = li({class: "bk-bs-divider"})
