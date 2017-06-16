@@ -144,7 +144,7 @@ describe "data_table module", ->
       expect(r).to.equal null
       expect(dp.source.data).to.deep.equal {index: [0,1,100,10], bar: [3.4, 1.2, 200, -10]}
 
-    it "should set fields when sorted", ->
+    it "should set items when sorted", ->
       source = new ColumnDataSource({data: {index: [0,1,2,10], bar: [3.4, 1.2, 0, -10]}})
       dp = new DataProvider(source)
       fake_col = {sortAsc: true, sortCol: {field: "bar"}}

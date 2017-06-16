@@ -99,6 +99,11 @@ export class DataTableView extends WidgetView
     @grid.invalidate()
     @grid.render()
 
+    # XXX: Workaround for `@model.source.trigger('change')` not triggering an event within python.
+    # But we still need it to trigger render updates
+    @model.source.data = @model.source.data
+    @model.source.change.emit()
+
   updateSelection: () ->
     if @in_selection_update
       return
