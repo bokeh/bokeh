@@ -8,11 +8,8 @@ import {extend} from "core/util/object"
 import {DOMView} from "core/dom_view"
 import {Model} from "../../model"
 import {DTINDEX_NAME} from "./data_table"
-import {JQueryable} from "./jqueryable"
 
 export class CellEditorView extends DOMView
-  @prototype extends JQueryable
-
   className: "bk-cell-editor"
 
   inputEl: null
