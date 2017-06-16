@@ -62,6 +62,10 @@ class Button(AbstractButton):
         '''
         self.on_change('clicks', lambda attr, old, new: handler())
 
+    def js_on_click(self, handler):
+        ''' Set up a JavaScript handler for button clicks. '''
+        self.js_on_change('clicks', handler)
+
 
 class Toggle(AbstractButton):
     ''' A two-state toggle button.
@@ -86,6 +90,10 @@ class Toggle(AbstractButton):
 
         """
         self.on_change('active', lambda attr, old, new: handler(new))
+
+    def js_on_click(self, handler):
+        """ Set up a JavaScript handler for button state changes (clicks). """
+        self.js_on_change('active', handler)
 
 class Dropdown(AbstractButton):
     ''' A dropdown button.
@@ -118,3 +126,7 @@ class Dropdown(AbstractButton):
 
         '''
         self.on_change('value', lambda attr, old, new: handler(new))
+
+    def js_on_click(self, handler):
+        ''' Set up a JavaScript handler for button or menu item clicks. '''
+        self.js_on_change('value', handler)
