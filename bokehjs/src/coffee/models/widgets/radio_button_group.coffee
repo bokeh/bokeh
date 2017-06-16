@@ -2,11 +2,9 @@ import {button} from "bootstrap/button"
 
 import {empty, input, label} from "core/dom"
 import * as p from "core/properties"
-import {uniqueId} from "core/util/string"
 
 import {Widget, WidgetView} from "./widget"
 import template from "./button_group_template"
-
 
 export class RadioButtonGroupView extends WidgetView
   template: template
@@ -23,10 +21,9 @@ export class RadioButtonGroupView extends WidgetView
     html = @template()
     @el.appendChild(html)
 
-    name = uniqueId("RadioButtonGroup")
     active = @model.active
     for text, i in @model.labels
-      inputEl = input({type: "radio", name: name, value: "#{i}", checked: i == active})
+      inputEl = input({type: "radio", value: "#{i}", checked: i == active})
       inputEl.addEventListener("change", () => @change_input())
       labelEl = label({class: ["bk-bs-btn", "bk-bs-btn-#{@model.button_type}"]}, inputEl, text)
       if i == active then labelEl.classList.add("bk-bs-active")
