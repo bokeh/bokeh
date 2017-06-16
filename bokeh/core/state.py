@@ -45,6 +45,7 @@ class State(object):
         self.last_comms_handle = None
         self.uuid_to_server = {} # Mapping from uuid to server instance
         self.watching_cells = False
+        self._notebook_type = State.NOTEBOOK_TYPES[0]
         self.reset()
 
     @property
