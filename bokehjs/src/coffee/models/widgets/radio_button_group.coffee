@@ -9,8 +9,6 @@ import template from "./button_group_template"
 
 
 export class RadioButtonGroupView extends WidgetView
-  events:
-    "change input": "change_input"
   template: template
 
   initialize: (options) ->
@@ -29,6 +27,7 @@ export class RadioButtonGroupView extends WidgetView
     active = @model.active
     for text, i in @model.labels
       inputEl = input({type: "radio", name: name, value: "#{i}", checked: i == active})
+      inputEl.addEventListener("change", () => @change_input())
       labelEl = label({class: ["bk-bs-btn", "bk-bs-btn-#{@model.button_type}"]}, inputEl, text)
       if i == active then labelEl.classList.add("bk-bs-active")
       @el.querySelector('.bk-bs-btn-group').appendChild(labelEl)

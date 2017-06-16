@@ -3,9 +3,6 @@ import * as p from "core/properties"
 import {empty, input, label, div} from "core/dom"
 
 export class CheckboxGroupView extends WidgetView
-  events:
-    "change input": "change_input"
-
   initialize: (options) ->
     super(options)
     @render()
@@ -18,6 +15,8 @@ export class CheckboxGroupView extends WidgetView
     active = @model.active
     for label, i in @model.labels
       inputEl = input({type: "checkbox", value: "#{i}"})
+      inputEl.addEventListener("change", () => @change_input())
+
       if @model.disabled then inputEl.disabled = true
       if i in active then inputEl.checked = true
 

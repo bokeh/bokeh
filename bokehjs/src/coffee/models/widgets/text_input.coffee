@@ -1,15 +1,13 @@
 import {logger} from "core/logging"
 import * as p from "core/properties"
+import {empty} from "core/dom"
 
 import {InputWidget, InputWidgetView} from "./input_widget"
 import template from "./text_input_template"
 
-
 export class TextInputView extends InputWidgetView
   className: "bk-widget-form-group"
   template: template
-  events:
-    "change input": "change_input"
 
   initialize: (options) ->
     super(options)
@@ -18,7 +16,13 @@ export class TextInputView extends InputWidgetView
 
   render: () ->
     super()
-    @el.appendChild(@template(@model.attributes))
+
+    empty(@el)
+    html = @template(@model.attributes)
+    inputEl = html.querySelector("input")
+    inputEl.addEventListener("change", () => @change_input())
+    @el.appendChild(html)
+
     # TODO - This 35 is a hack we should be able to compute it
     if @model.height
       @el.querySelector('input').style.height = "#{@model.height - 35}px"

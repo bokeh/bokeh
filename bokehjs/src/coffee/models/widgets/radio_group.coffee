@@ -5,9 +5,6 @@ import {uniqueId} from "core/util/string"
 import {Widget, WidgetView} from "./widget"
 
 export class RadioGroupView extends WidgetView
-  events:
-    "change input": "change_input"
-
   initialize: (options) ->
     super(options)
     @render()
@@ -21,6 +18,8 @@ export class RadioGroupView extends WidgetView
     active = @model.active
     for label, i in @model.labels
       inputEl = input({type: "radio", name: name, value: "#{i}"})
+      inputEl.addEventListener("change", () => @change_input())
+
       if @model.disabled then inputEl.disabled = true
       if i == active then inputEl.checked = true
 

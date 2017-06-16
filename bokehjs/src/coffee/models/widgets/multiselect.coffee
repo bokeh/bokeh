@@ -8,8 +8,6 @@ import multiselecttemplate from "./multiselecttemplate"
 
 export class MultiSelectView extends InputWidgetView
   template: multiselecttemplate
-  events:
-    "change select": "change_input"
 
   initialize: (options) ->
     super(options)
@@ -24,6 +22,8 @@ export class MultiSelectView extends InputWidgetView
     super()
     empty(@el)
     html = @template(@model.attributes)
+    selectEl = html.querySelector("select")
+    selectEl.addEventListener("change", () => @change_input())
     @el.appendChild(html)
     @render_selection()
     return @

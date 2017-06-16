@@ -9,8 +9,6 @@ import template from "./selecttemplate"
 
 export class SelectView extends InputWidgetView
   template: template
-  events:
-    "change select": "change_input"
 
   initialize: (options) ->
     super(options)
@@ -21,6 +19,8 @@ export class SelectView extends InputWidgetView
     super()
     empty(@el)
     html = @template(@model.attributes)
+    selectEl = html.querySelector("select")
+    selectEl.addEventListener("change", () => @change_input())
     @el.appendChild(html)
     return @
 

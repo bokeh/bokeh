@@ -6,8 +6,6 @@ import {empty, input, label} from "core/dom"
 import template from "./button_group_template"
 
 export class CheckboxButtonGroupView extends WidgetView
-  events:
-    "change input": "change_input"
   template: template
 
   initialize: (options) ->
@@ -25,6 +23,7 @@ export class CheckboxButtonGroupView extends WidgetView
     active = @model.active
     for label, i in @model.labels
       inputEl = input({type: "checkbox", value: "#{i}"})
+      inputEl.addEventListener("change", () => @change_input())
       if i in active then inputEl.checked = true
       labelEl = label({class: "bk-bs-btn"}, inputEl, label)
       labelEl.classList.add("bk-bs-btn-" + @model.button_type)
