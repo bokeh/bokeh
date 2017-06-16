@@ -483,7 +483,8 @@ def autoload_static(model, resources, script_path):
 
     return encode_utf8(js), encode_utf8(tag)
 
-def _connect_session_or_document(model=None, app_path=None, session_id=None, url="default", relative_urls=False, resources="default"):
+
+def _connect_session_or_document(model=None, app_path=None, session_id=None, url="default", relative_urls=False, resources="default", arguments=None):
     ''' Return a script tag that embeds content from a Bokeh server. This is
     a private method not meant to be called directly. Instead it is meant to be
     called by other methods that thinly wrap around it for different use cases:
@@ -541,6 +542,10 @@ def _connect_session_or_document(model=None, app_path=None, session_id=None, url
             files you'll load separately are of the same version as that of the
             server's, otherwise the rendering may not work correctly.
 
+        arguments (dict[str, str], optional) : A dictionary of the arguments to
+            be passed to Bokeh (default: None)
+
+
     Returns:
         A ``<script>`` tag that will embed content from a Bokeh Server.
 
@@ -594,6 +599,8 @@ def _connect_session_or_document(model=None, app_path=None, session_id=None, url
             typically not desired.
 
     '''
+    from .client.session import _encode_query_param
+
     if app_path is not None:
         deprecated((0, 12, 5), "app_path", "url", "Now pass entire app URLS in the url arguments, e.g. 'url=http://foo.com:5010/bar/myapp'")
         if not app_path.startswith("/"):
@@ -637,6 +644,11 @@ def _connect_session_or_document(model=None, app_path=None, session_id=None, url
     if resources is None:
         src_path = src_path + "&resources=none"
 
+    if arguments is not None:
+        for key, value in arguments.items():
+            if not key.startswith("bokeh-"):
+                src_path = src_path + "&{}={}".format(_encode_query_param(str(key)), _encode_query_param(str(value)))
+
     tag = AUTOLOAD_TAG.render(
         src_path = src_path,
         app_path = app_path,
@@ -648,27 +660,33 @@ def _connect_session_or_document(model=None, app_path=None, session_id=None, url
 
 _connect_session_or_document.__doc__ = format_docstring(_connect_session_or_document.__doc__, DEFAULT_SERVER_HTTP_URL=DEFAULT_SERVER_HTTP_URL)
 
-def autoload_server(model=None, app_path=None, session_id=None, url="default", relative_urls=False):
+def autoload_server(model=None, app_path=None, session_id=None, url="default", relative_urls=False, arguments=None):
     ''' Return a script tag that embeds content from a Bokeh server and loads
-    all the necessary JS/CSS resource files.
+    all the necessary JS/CSS resource files. Also accepts an optional dictionary
+    of arguments to be passed to Bokeh.
     '''
     deprecated((0, 12, 7), 'bokeh.embed.autoload_server', 'bokeh.embed.server_document or bokeh.embed.server_session')
-    return _connect_session_or_document(model=model, app_path=app_path, session_id=session_id, url=url, relative_urls=relative_urls, resources="default")
+    return _connect_session_or_document(model=model, app_path=app_path, session_id=session_id, url=url, relative_urls=relative_urls,
+                                        resources="default", arguments=arguments)
 
-def server_document(url="default", relative_urls=False, resources="default"):
+def server_document(url="default", relative_urls=False, resources="default", arguments=None):
     ''' Works similarly to ``autoload_server`` except a new session will be
-    systematically generated and an entire document will be returned. Also the
+    systematically generated and an entire document will be returned. Also
+    accepts an optional dictionary of arguments to be passed to Bokeh, and
     resources files may optionally be omitted from loading by passing
     resources="none".
     '''
-    return _connect_session_or_document(model=None, session_id=None, url=url, relative_urls=relative_urls, resources=resources)
+    return _connect_session_or_document(model=None, session_id=None, url=url, relative_urls=relative_urls,
+                                        resources=resources, arguments=arguments)
 
-def server_session(model, session_id, url="default", relative_urls=False, resources="default"):
+def server_session(model, session_id, url="default", relative_urls=False, resources="default", arguments=None):
     ''' Works similarly to ``autoload_server`` except an existing session id and
-    model must be provided. Also the resources files may optionally be omitted
-    from loading by passing resources="none".
+    model must be provided. Also accepts an optional dictionary of arguments to
+    be passed to Bokeh, and resources files may optionally be omitted from
+    loading by passing resources="none".
     '''
-    return _connect_session_or_document(model, session_id=session_id, url=url, relative_urls=relative_urls, resources=resources)
+    return _connect_session_or_document(model, session_id=session_id, url=url, relative_urls=relative_urls,
+                                        resources=resources, arguments=arguments)
 
 def _script_for_render_items(docs_json, render_items, app_path=None, absolute_url=None):
     js = DOC_JS.render(

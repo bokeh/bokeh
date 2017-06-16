@@ -368,6 +368,30 @@ will look something like this:
     data-bokeh-doc-id=""
     ></script>
 
+You can also pass arguments to your Bokeh server by passing them in a dictionary to ``arguments``.
+The following illustrates how to pass and retrieve arguments.
+
+.. code-block:: python
+
+    # An example web server route (Flask)
+    # This will set the 'foo' argument to 'foo_id' and pass it to the Bokeh server
+    @app.route('/slider/<int:foo_id>')
+    def slider(foo_id):
+        bokeh_script = autoload_server(None, url="https://demo.bokehplots.com/apps/slider", arguments=dict(foo=foo_id))
+        return render_template_string(some_html, bokeh_script=bokeh_script)
+
+.. code-block:: python
+
+    # Bokeh server
+    # request.arguments is a dict that maps argument names to lists of strings,
+    args = curdoc().session_context.request.arguments
+
+    try:
+        foo = int(args.get('foo_id')[0])
+    except (ValueError, TypeError):
+        foo = 1
+
+
 For full details read the autoload_server reference here: |autoload_server|.
 
 Alternatively, two other methods allow to embed content from a bokeh server
