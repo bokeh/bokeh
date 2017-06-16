@@ -1,4 +1,4 @@
-# requires jquery ui's autocomplete
+# requires $.autocomplete()
 
 import {TextInput, TextInputView} from "./text_input"
 import * as p from "core/properties"

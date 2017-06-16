@@ -1,4 +1,5 @@
-# requires jquery ui's sortable
+# requires $.sortable()
+
 import * as SlickGrid from "slick_grid/slick.grid"
 import * as RowSelectionModel from "slick_grid/plugins/slick.rowselectionmodel"
 import * as CheckboxSelectColumn from "slick_grid/plugins/slick.checkboxselectcolumn"

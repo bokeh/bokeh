@@ -1,4 +1,4 @@
-# requires jquery ui's slider
+# requires $.slider()
 
 import {logger} from "core/logging"
 import * as p from "core/properties"

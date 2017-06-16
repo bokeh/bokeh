@@ -1,4 +1,4 @@
-# requires jquery ui's datepicker
+# requires $.datepicker()
 
 import {empty} from "core/dom"
 import * as p from "core/properties"
