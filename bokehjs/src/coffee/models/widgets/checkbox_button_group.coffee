@@ -21,11 +21,11 @@ export class CheckboxButtonGroupView extends WidgetView
     @el.appendChild(html)
 
     active = @model.active
-    for label, i in @model.labels
+    for text, i in @model.labels
       inputEl = input({type: "checkbox", value: "#{i}"})
       inputEl.addEventListener("change", () => @change_input())
       if i in active then inputEl.checked = true
-      labelEl = label({class: "bk-bs-btn"}, inputEl, label)
+      labelEl = label({class: "bk-bs-btn"}, inputEl, text)
       labelEl.classList.add("bk-bs-btn-" + @model.button_type)
       if i in active then labelEl.classList.add("bk-bs-active")
       @el.querySelector('.bk-bs-btn-group').appendChild(labelEl)

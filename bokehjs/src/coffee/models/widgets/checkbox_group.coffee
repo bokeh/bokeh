@@ -13,14 +13,14 @@ export class CheckboxGroupView extends WidgetView
     empty(@el)
 
     active = @model.active
-    for label, i in @model.labels
+    for text, i in @model.labels
       inputEl = input({type: "checkbox", value: "#{i}"})
       inputEl.addEventListener("change", () => @change_input())
 
       if @model.disabled then inputEl.disabled = true
       if i in active then inputEl.checked = true
 
-      labelEl = label({}, inputEl, label)
+      labelEl = label({}, inputEl, text)
       if @model.inline
         labelEl.classList.add("bk-bs-checkbox-inline")
         @el.appendChild(labelEl)

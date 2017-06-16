@@ -16,14 +16,14 @@ export class RadioGroupView extends WidgetView
 
     name = uniqueId("RadioGroup")
     active = @model.active
-    for label, i in @model.labels
+    for text, i in @model.labels
       inputEl = input({type: "radio", name: name, value: "#{i}"})
       inputEl.addEventListener("change", () => @change_input())
 
       if @model.disabled then inputEl.disabled = true
       if i == active then inputEl.checked = true
 
-      labelEl = label({}, inputEl, label)
+      labelEl = label({}, inputEl, text)
       if @model.inline
         labelEl.classList.add("bk-bs-radio-inline")
         @el.appendChild(labelEl)
