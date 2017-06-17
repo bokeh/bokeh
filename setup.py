@@ -95,7 +95,7 @@ REQUIRES = [
     'tornado >=4.3',
 
     # this will be removed when Bokeh hits 1.0
-    'bkcharts >=0.1',
+    'bkcharts >=0.2',
 ]
 
 # handle the compat difference for futures (meta.yaml handles differently)

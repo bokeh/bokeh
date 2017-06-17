@@ -16,7 +16,7 @@ export function concat<T>(arrays: Array<Array<T>>): Array<T> {
 }
 
 export function contains<T>(array: Array<T>, value: T): boolean {
-  return array.indexOf(value) >= 0
+  return array.indexOf(value) !== -1
 }
 
 export function nth<T>(array: Array<T>, index: number): T {

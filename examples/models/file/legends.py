@@ -23,7 +23,7 @@ xdr = DataRange1d()
 ydr = DataRange1d()
 
 HEIGHT = 400
-plot = Plot(x_range=xdr, y_range=ydr, min_border=50, plot_width=1000, plot_height=HEIGHT)
+plot = Plot(x_range=xdr, y_range=ydr, min_border=50, plot_width=1000, plot_height=HEIGHT, toolbar_location=None)
 
 line_glyph = Line(x="x", y="y", line_color="navy", line_width=2, line_dash="dashed")
 line = plot.add_glyph(source, line_glyph)

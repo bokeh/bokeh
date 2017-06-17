@@ -483,11 +483,14 @@ def autoload_static(model, resources, script_path):
 
     return encode_utf8(js), encode_utf8(tag)
 
-def autoload_server(model=None, app_path=None, session_id=None, url="default", relative_urls=False):
-    ''' Return a script tag that embeds content from a Bokeh server session.
 
-    Bokeh apps embedded using ``autoload_server`` will NOT set the browser
-    window title.
+def _connect_session_or_document(model=None, app_path=None, session_id=None, url="default", relative_urls=False, resources="default", arguments=None):
+    ''' Return a script tag that embeds content from a Bokeh server. This is
+    a private method not meant to be called directly. Instead it is meant to be
+    called by other methods that thinly wrap around it for different use cases:
+    autoload_server, server_document and server_session.
+
+    Bokeh apps embedded using these methods will NOT set the browser window title.
 
     .. note::
         Typically you will not want to save or re-use the output of this
@@ -528,9 +531,23 @@ def autoload_server(model=None, app_path=None, session_id=None, url="default", r
             when running the Bokeh behind reverse-proxies under certain
             configurations
 
+        resources (str) : A string specifying what resources need to be loaded
+            along with the document.
+
+            If ``default`` then the default JS/CSS bokeh files will be loaded.
+
+            If None then none of the resource files will be loaded. This is
+            useful if you prefer to serve those resource files via other means
+            (e.g. from a caching server). Be careful, however, that the resource
+            files you'll load separately are of the same version as that of the
+            server's, otherwise the rendering may not work correctly.
+
+        arguments (dict[str, str], optional) : A dictionary of the arguments to
+            be passed to Bokeh (default: None)
+
+
     Returns:
-        A ``<script>`` tag that will execute an autoload script loaded
-        from the Bokeh Server.
+        A ``<script>`` tag that will embed content from a Bokeh Server.
 
     Examples:
 
@@ -582,6 +599,8 @@ def autoload_server(model=None, app_path=None, session_id=None, url="default", r
             typically not desired.
 
     '''
+    from .client.session import _encode_query_param
+
     if app_path is not None:
         deprecated((0, 12, 5), "app_path", "url", "Now pass entire app URLS in the url arguments, e.g. 'url=http://foo.com:5010/bar/myapp'")
         if not app_path.startswith("/"):
@@ -598,7 +617,7 @@ def autoload_server(model=None, app_path=None, session_id=None, url="default", r
         model_id = model._id
 
     if model_id and session_id is None:
-        raise ValueError("A specific model was passed to autoload_server() but no session_id; "
+        raise ValueError("A specific model was passed to _connect_session_or_document() but no session_id; "
                          "this doesn't work because the server will generate a fresh session "
                          "which won't have the model in it.")
 
@@ -620,6 +639,16 @@ def autoload_server(model=None, app_path=None, session_id=None, url="default", r
     if coords.session_id_allowing_none is not None:
         src_path = src_path + "&bokeh-session-id=" + session_id
 
+    if resources not in ("default", None):
+        raise ValueError("`resources` must be either 'default' or None.")
+    if resources is None:
+        src_path = src_path + "&resources=none"
+
+    if arguments is not None:
+        for key, value in arguments.items():
+            if not key.startswith("bokeh-"):
+                src_path = src_path + "&{}={}".format(_encode_query_param(str(key)), _encode_query_param(str(value)))
+
     tag = AUTOLOAD_TAG.render(
         src_path = src_path,
         app_path = app_path,
@@ -629,7 +658,35 @@ def autoload_server(model=None, app_path=None, session_id=None, url="default", r
 
     return encode_utf8(tag)
 
-autoload_server.__doc__ = format_docstring(autoload_server.__doc__, DEFAULT_SERVER_HTTP_URL=DEFAULT_SERVER_HTTP_URL)
+_connect_session_or_document.__doc__ = format_docstring(_connect_session_or_document.__doc__, DEFAULT_SERVER_HTTP_URL=DEFAULT_SERVER_HTTP_URL)
+
+def autoload_server(model=None, app_path=None, session_id=None, url="default", relative_urls=False, arguments=None):
+    ''' Return a script tag that embeds content from a Bokeh server and loads
+    all the necessary JS/CSS resource files. Also accepts an optional dictionary
+    of arguments to be passed to Bokeh.
+    '''
+    deprecated((0, 12, 7), 'bokeh.embed.autoload_server', 'bokeh.embed.server_document or bokeh.embed.server_session')
+    return _connect_session_or_document(model=model, app_path=app_path, session_id=session_id, url=url, relative_urls=relative_urls,
+                                        resources="default", arguments=arguments)
+
+def server_document(url="default", relative_urls=False, resources="default", arguments=None):
+    ''' Works similarly to ``autoload_server`` except a new session will be
+    systematically generated and an entire document will be returned. Also
+    accepts an optional dictionary of arguments to be passed to Bokeh, and
+    resources files may optionally be omitted from loading by passing
+    resources="none".
+    '''
+    return _connect_session_or_document(model=None, session_id=None, url=url, relative_urls=relative_urls,
+                                        resources=resources, arguments=arguments)
+
+def server_session(model, session_id, url="default", relative_urls=False, resources="default", arguments=None):
+    ''' Works similarly to ``autoload_server`` except an existing session id and
+    model must be provided. Also accepts an optional dictionary of arguments to
+    be passed to Bokeh, and resources files may optionally be omitted from
+    loading by passing resources="none".
+    '''
+    return _connect_session_or_document(model, session_id=session_id, url=url, relative_urls=relative_urls,
+                                        resources=resources, arguments=arguments)
 
 def _script_for_render_items(docs_json, render_items, app_path=None, absolute_url=None):
     js = DOC_JS.render(

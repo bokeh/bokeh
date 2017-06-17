@@ -49,9 +49,17 @@ class AutoloadJsHandler(SessionHandler):
         render_items = [dict(sessionid=session.id, elementid=element_id, use_for_title=False)]
         script = _script_for_render_items(None, render_items, app_path=app_path, absolute_url=absolute_url)
 
+        resources_param = self.get_argument("resources", "default")
+        if resources_param == "none":
+            js_urls = []
+            css_urls = []
+        else:
+            js_urls = resources.js_files
+            css_urls = resources.css_files
+
         js = AUTOLOAD_JS.render(
-            js_urls = resources.js_files,
-            css_urls = resources.css_files,
+            js_urls = js_urls,
+            css_urls = css_urls,
             js_raw = resources.js_raw + [bundle, script],
             css_raw = resources.css_raw_str,
             elementid = element_id,

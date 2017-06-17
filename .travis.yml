@@ -86,12 +86,12 @@ script:
     fi
   - if [[ -z "$TRAVIS_TAG" && "$GROUP" == flake_docs ]]; then
       CONDA_PY="${TRAVIS_PYTHON_VERSION/./}" conda build --quiet --no-test conda.recipe;
-      LINUX64_DIR="$HOME/miniconda/conda-bld/linux-64";
-      echo "linux-64 build output contents:";
-      ls -l $LINUX64_DIR;
-      BUILD_FILE_COUNT="$(ls $LINUX64_DIR | wc -l)";
+      NOARCH_DIR="$HOME/miniconda/conda-bld/noarch";
+      echo "noarch build output contents:";
+      ls -l $NOARCH_DIR;
+      BUILD_FILE_COUNT="$(ls $NOARCH_DIR | wc -l)";
       if [ $BUILD_FILE_COUNT != 3 ]; then
-         echo "linux-64 build has wrong number of files";
+         echo "noarch build has wrong number of files";
          exit 1;
       fi
     fi

@@ -9,8 +9,6 @@ MINICONDA="Miniconda-$MINICONDA_VERSION-Linux-x86_64"
 MINICONDA_URL="http://repo.continuum.io/miniconda/$MINICONDA.sh"
 
 PINNED_PKGS=$(cat <<EOF
-notebook ==4.2.3
-matplotlib ==1.5.3
 EOF
 )
 
@@ -22,7 +20,7 @@ python -V
 
 echo -e "$PINNED_PKGS" > $HOME/miniconda/conda-meta/pinned
 
-DEPS_TRAVIS="python=$TRAVIS_PYTHON_VERSION conda=4.3.11 conda-env=2.6.0 conda-build=2.1.4"
+DEPS_TRAVIS="python=$TRAVIS_PYTHON_VERSION conda=4.3.21 conda-env=2.6.0 conda-build=2.1.15"
 conda install --yes $DEPS_TRAVIS
 
 conda config --set auto_update_conda off
@@ -36,16 +34,16 @@ print(" ".join([s.replace(" ", "") for s in MetaData("conda.recipe").get_value("
 EOF
 )
 
-conda install --yes $DEPS_BUILD
+time conda install --yes $DEPS_BUILD
 
 pushd bokehjs
-npm install
+time npm install
 popd
 
 python setup.py --quiet install --build-js
 
 pushd bokehjs
-node_modules/.bin/gulp examples --no-build
+time node_modules/.bin/gulp examples --no-build
 popd
 
 DEPS_RUN=$(cat <<EOF | python -
@@ -60,13 +58,10 @@ print(" ".join([s.replace(" ", "") for s in MetaData("conda.recipe").get_value("
 EOF
 )
 
-conda install --yes $DEPS_RUN
-conda install --yes $DEPS_TEST
+time conda install --yes $DEPS_RUN
+time conda install --yes $DEPS_TEST
 
 echo "node version: $(node -v)"
 echo "npm version: $(npm -v)"
-
-MATPLOTLIB_RC=$(python -c "import matplotlib; print(matplotlib.matplotlib_fname())")
-sed -i 's/^backend\s*:.*$/backend: agg/' $MATPLOTLIB_RC
 
 python -c 'import bokeh; bokeh.sampledata.download(progress=False)'

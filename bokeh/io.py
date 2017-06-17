@@ -606,7 +606,7 @@ def _crop_image(image, left=0, top=0, right=0, bottom=0, **kwargs):
 
     return cropped_image
 
-def _get_screenshot_as_png(obj):
+def _get_screenshot_as_png(obj, driver):
     webdriver = import_required('selenium.webdriver',
                                 'To use bokeh.io.export_png you need selenium ' +
                                 '("conda install -c bokeh selenium" or "pip install selenium")')
@@ -620,20 +620,25 @@ def _get_screenshot_as_png(obj):
     html_path = tempfile.NamedTemporaryFile(suffix=".html").name
     save(obj, filename=html_path, resources=INLINE, title="")
 
-    driver = webdriver.PhantomJS()
-    driver.get("file:///" + html_path)
+    if driver is None:
+        web_driver = webdriver.PhantomJS(service_log_path=os.path.devnull)
+    else:
+        web_driver = driver
+
+    web_driver.get("file:///" + html_path)
 
     ## resize for PhantomJS compat
-    driver.execute_script("document.body.style.width = '100%';")
+    web_driver.execute_script("document.body.style.width = '100%';")
 
-    _wait_until_render_complete(driver)
+    _wait_until_render_complete(web_driver)
 
-    png = driver.get_screenshot_as_png()
+    png = web_driver.get_screenshot_as_png()
 
     bounding_rect_script = "return document.getElementsByClassName('bk-root')[0].children[0].getBoundingClientRect()"
-    b_rect = driver.execute_script(bounding_rect_script)
+    b_rect = web_driver.execute_script(bounding_rect_script)
 
-    driver.quit()
+    if driver is None: # only quit webdriver if not passed in as arg
+        web_driver.quit()
 
     image = Image.open(io.BytesIO(png))
     cropped_image = _crop_image(image, **b_rect)
@@ -641,13 +646,14 @@ def _get_screenshot_as_png(obj):
     return cropped_image
 
 def export_png(obj, filename=None):
-    ''' Export the LayoutDOM object as a PNG.
+    ''' Export the LayoutDOM object or document as a PNG.
 
     If the filename is not given, it is derived from the script name
     (e.g. ``/foo/myplot.py`` will create ``/foo/myplot.png``)
 
     Args:
-        obj (LayoutDOM object) : a Layout (Row/Column), Plot or Widget object to display
+        obj (LayoutDOM or Document) : a Layout (Row/Column), Plot or Widget
+            object or Document to export.
 
         filename (str, optional) : filename to save document under (default: None)
             If None, infer from the filename.
@@ -663,7 +669,7 @@ def export_png(obj, filename=None):
         Glyphs that are rendered via webgl won't be included in the generated PNG.
 
     '''
-    image = _get_screenshot_as_png(obj)
+    image = _get_screenshot_as_png(obj, None)
 
     if filename is None:
         filename = _detect_filename("png")
@@ -672,20 +678,25 @@ def export_png(obj, filename=None):
 
     return os.path.abspath(filename)
 
-def _get_svgs(obj):
+def _get_svgs(obj, driver):
     webdriver = import_required('selenium.webdriver',
                                 'To use bokeh.io.export_svgs you need selenium ' +
                                 '("conda install -c bokeh selenium" or "pip install selenium")')
     # assert that phantomjs is in path for webdriver
     detect_phantomjs()
 
+    if driver is None:
+        web_driver = webdriver.PhantomJS(service_log_path=os.path.devnull)
+    else:
+        web_driver = driver
+
     html_path = tempfile.NamedTemporaryFile(suffix=".html").name
     save(obj, filename=html_path, resources=INLINE, title="")
 
-    driver = webdriver.PhantomJS()
-    driver.get("file:///" + html_path)
+    web_driver = webdriver.PhantomJS(service_log_path=os.path.devnull)
+    web_driver.get("file:///" + html_path)
 
-    _wait_until_render_complete(driver)
+    _wait_until_render_complete(web_driver)
 
     svg_script = """
     var serialized_svgs = [];
@@ -697,9 +708,10 @@ def _get_svgs(obj):
     return serialized_svgs
     """
 
-    svgs = driver.execute_script(svg_script)
+    svgs = web_driver.execute_script(svg_script)
 
-    driver.quit()
+    if driver is None: # only quit webdriver if not passed in as arg
+        web_driver.quit()
 
     return svgs
 
@@ -725,7 +737,7 @@ def export_svgs(obj, filename=None):
         aspect ratios. It is recommended to use the default ``fixed`` sizing mode.
 
     '''
-    svgs = _get_svgs(obj)
+    svgs = _get_svgs(obj, None)
 
     if len(svgs) == 0:
         logger.warn("No SVG Plots were found.")

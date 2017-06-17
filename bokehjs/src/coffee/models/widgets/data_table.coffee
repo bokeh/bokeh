@@ -99,6 +99,10 @@ export class DataTableView extends WidgetView
     @grid.invalidate()
     @grid.render()
 
+    # This is only needed to call @_tell_document_about_change()
+    @model.source.data = @model.source.data
+    @model.source.change.emit()
+
   updateSelection: () ->
     if @in_selection_update
       return
