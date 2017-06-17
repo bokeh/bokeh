@@ -5,7 +5,7 @@ export class InputWidgetView extends WidgetView
 
   render: () ->
     super()
-    @el.querySelector('input').disabled = @model.disabled
+    #@el.querySelector('input').disabled = @model.disabled
 
   change_input: () ->
     @model.callback?.execute(@model)
