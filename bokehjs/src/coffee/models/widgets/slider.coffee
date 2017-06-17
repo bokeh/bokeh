@@ -19,7 +19,7 @@ export class Slider extends AbstractSlider
   default_view: SliderView
 
   behaviour: 'tap'
-  connect: [true, false]
+  connected: [true, false]
 
   _formatter: format
 
