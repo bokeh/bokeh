@@ -59,7 +59,6 @@ from __future__ import absolute_import
 from six import string_types
 
 from .. import colors, palettes
-from ..util.deprecation import deprecated
 
 class Enumeration(object):
     ''' Represent an enumerated collection of values.
@@ -176,21 +175,6 @@ LegendLocation = Anchor = enumeration(
     "top_left",    "top_center",    "top_right",
     "center_left", "center",        "center_right",
     "bottom_left", "bottom_center", "bottom_right")
-
-#: Deprecated legend location/anchor
-DeprecatedLegendLocation = DeprecatedAnchor = enumeration("left_center", "right_center")
-def accept_left_right_center(value):
-    ''' Accept and convert deprecated location values.
-
-    NOT FOR GENERAL USE
-
-    This is a temporary function to support a deprecation, and will be removed
-    when the deprecation is completed.
-
-    '''
-    deprecated((0, 12, 4), "'left_center' and 'right_center' enumerations",
-                           "'center_left' or 'center_right' respectively")
-    return {"left_center": "center_left", "right_center": "center_right"}[value]
 
 #: Specify a location in plot layouts
 Location = enumeration("above", "below", "left", "right")
