@@ -308,7 +308,7 @@ def check_cdn_creds():
 
 @build_wrapper('conda')
 def build_conda_packages():
-    run("conda build conda.recipe --quiet --build-only")
+    run("conda build conda.recipe --quiet --no-test")
 
 @build_wrapper('sdist')
 def build_sdist_packages():
