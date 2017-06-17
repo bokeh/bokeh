@@ -90,9 +90,6 @@
     "@types/event-stream": "^3.3.31"
   },
   "browser": {
-    "bootstrap/button": "./src/vendor/bootstrap-3.1.1/js/button.js",
-    "bootstrap/dropdown": "./src/vendor/bootstrap-3.1.1/js/dropdown.js",
-    "bootstrap/tab": "./src/vendor/bootstrap-3.1.1/js/tab.js",
     "slick_grid/slick.grid": "./src/vendor/slick-grid-2.1.0/slick.grid.js",
     "slick_grid/plugins/slick.rowselectionmodel": "./src/vendor/slick-grid-2.1.0/plugins/slick.rowselectionmodel.js",
     "slick_grid/plugins/slick.checkboxselectcolumn": "./src/vendor/slick-grid-2.1.0/plugins/slick.checkboxselectcolumn.js",

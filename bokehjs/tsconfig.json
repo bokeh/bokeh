@@ -21,9 +21,6 @@
     "baseUrl": "./build/js/tree_ts/",
     "paths": {
       "gloo2": "./src/vendor/gloo/gloo2",
-      "bootstrap/button": "./src/vendor/bootstrap-3.1.1/js/button",
-      "bootstrap/dropdown": "./src/vendor/bootstrap-3.1.1/js/dropdown",
-      "bootstrap/tab": "./src/vendor/bootstrap-3.1.1/js/tab",
       "slick_grid/slick.grid": "./src/vendor/slick-grid-2.1.0/slick.grid",
       "slick_grid/plugins/slick.rowselectionmodel": "./src/vendor/slick-grid-2.1.0/plugins/slick.rowselectionmodel",
       "slick_grid/plugins/slick.checkboxselectcolumn": "./src/vendor/slick-grid-2.1.0/plugins/slick.checkboxselectcolumn"
