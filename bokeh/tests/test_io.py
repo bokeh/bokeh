@@ -305,6 +305,7 @@ def test__crop_image():
     cropped = io._crop_image(image, **rect)
     assert cropped.size == (6,4)
 
+@pytest.mark.selenium
 def test__get_screenshot_as_png():
     layout = Plot(x_range=Range1d(), y_range=Range1d(),
                   plot_height=20, plot_width=20, toolbar_location=None,
@@ -316,6 +317,7 @@ def test__get_screenshot_as_png():
     # a 20x20px image of transparent pixels
     assert png.tobytes() == ("\x00"*1600).encode()
 
+@pytest.mark.selenium
 def test__get_screenshot_as_png_with_driver():
     layout = Plot(x_range=Range1d(), y_range=Range1d(),
                   plot_height=20, plot_width=20, toolbar_location=None,
@@ -333,6 +335,7 @@ def test__get_screenshot_as_png_with_driver():
     # a 20x20px image of transparent pixels
     assert png.tobytes() == ("\x00"*1600).encode()
 
+@pytest.mark.selenium
 def test__get_svgs_no_svg_present():
     layout = Plot(x_range=Range1d(), y_range=Range1d(),
               plot_height=20, plot_width=20, toolbar_location=None)
@@ -340,6 +343,7 @@ def test__get_svgs_no_svg_present():
     svgs = io._get_svgs(layout, None)
     assert svgs == []
 
+@pytest.mark.selenium
 def test__get_svgs_with_svg_present():
     layout = Plot(x_range=Range1d(), y_range=Range1d(),
                   plot_height=20, plot_width=20, toolbar_location=None,
@@ -351,6 +355,7 @@ def test__get_svgs_with_svg_present():
                        'width="20" height="20" style="width: 20px; height: 20px;"><defs/><g><g/><g transform="scale(1,1) '
                        'translate(0.5,0.5)"><rect fill="#FFFFFF" stroke="none" x="0" y="0" width="20" height="20"/><g/><g/><g/><g/></g></g></svg>')
 
+@pytest.mark.selenium
 def test__get_svgs_with_svg_present_with_driver():
     layout = Plot(x_range=Range1d(), y_range=Range1d(),
                   plot_height=20, plot_width=20, toolbar_location=None,

@@ -10,14 +10,19 @@ file descriptors as some of our tests open many files to test the server.
 
     ulimit -n 1024
 
-To run just the python unit tests, run either command:
+To run all the basic python unit tests, run the following command at the top
+level of the repository:
 
 .. code-block:: sh
 
-    py.test -m 'not (js or examples or integration or quality)'
+    py.test -m unit
 
-    python -c 'import bokeh; bokeh.test()'
+Note that this excludes unit tests that require Selenium. To execute those
+as well, run the command:
 
+.. code-block:: sh
+
+    py.test -m "unit or selenium"
 
 To run just the BokehJS unit tests, execute:
 
@@ -25,7 +30,8 @@ To run just the BokehJS unit tests, execute:
 
     py.test -m js
 
-Or, in the `bokehjs` subdirectory of the source checkout.
+Alternatively, you can also navigate to the `bokehjs` subdirectory of the
+source checkout and execute:
 
 .. code-block:: sh
 
