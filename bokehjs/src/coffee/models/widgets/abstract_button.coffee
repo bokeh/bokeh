@@ -16,18 +16,18 @@ export class AbstractButtonView extends WidgetView
     remove_views(@icon_views)
     super()
 
-  template: () ->
+  _render_button: (children...) ->
     return button({
       type: "button",
       disabled: @model.disabled,
       class: ["bk-bs-btn", "bk-bs-btn-#{@model.button_type}"],
-    }, @model.label)
+    }, children...)
 
   render: () ->
     super()
 
     empty(@el)
-    @buttonEl = @template()
+    @buttonEl = @_render_button(@model.label)
     @buttonEl.addEventListener("click", (event) => @_button_click(event))
     @el.appendChild(@buttonEl)
 

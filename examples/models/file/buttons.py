@@ -24,13 +24,13 @@ toggle_active.js_on_click(CustomJS(code="console.log('toggle_active: ' + this.ac
 
 menu = [("Item 1", "item_1_value"), ("Item 2", "item_2_value"), None, ("Item 3", "item_3_value")]
 
-dropdown = Dropdown(label="Dropdown button", button_type="warning", menu=menu, default_value="item_1_value")
+dropdown = Dropdown(label="Dropdown button", button_type="warning", menu=menu)
 dropdown.js_on_click(CustomJS(code="console.log('dropdown: ' + this.value, this.toString())"))
 
-dropdown_disabled = Dropdown(label="Dropdown button (disabled)", button_type="warning", menu=menu, default_value="item_1_value")
+dropdown_disabled = Dropdown(label="Dropdown button (disabled)", button_type="warning", disabled=True, menu=menu)
 dropdown_disabled.js_on_click(CustomJS(code="console.log('dropdown_disabled: ' + this.value, this.toString())"))
 
-dropdown_split = Dropdown(label="Split button", button_type="danger", menu=menu) #, default_value="default")
+dropdown_split = Dropdown(label="Split button", button_type="danger", menu=menu, default_value="default")
 dropdown_split.js_on_click(CustomJS(code="console.log('dropdown_split: ' + this.value, this.toString())"))
 
 checkbox_group = CheckboxGroup(labels=["Option 1", "Option 2", "Option 3"], active=[0, 1])

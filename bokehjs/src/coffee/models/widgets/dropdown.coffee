@@ -1,11 +1,10 @@
-import {button, span, ul, li, a} from "core/dom"
+import {span, ul, li, a} from "core/dom"
 import * as p from "core/properties"
 
 import {AbstractButton, AbstractButtonView} from "./abstract_button"
 import {Signal} from "core/signaling"
 
 clear_menus = new Signal(this, "clear_menus")
-
 document.addEventListener("click", (event) -> clear_menus.emit())
 
 export class DropdownView extends AbstractButtonView
@@ -14,19 +13,20 @@ export class DropdownView extends AbstractButtonView
     super()
     clear_menus.connect(() => @_clear_menu())
 
-  template: () ->
-    el = button({
-      type: "button",
-      disabled: @model.disabled,
-      value: @model.default_value,
-      class: ["bk-bs-btn", "bk-bs-btn-#{@model.button_type}", "bk-bs-dropdown-toggle"],
-    }, @model.label, " ", span({class: "bk-bs-caret"}))
-    return el
-
   render: () ->
     super()
 
-    @el.classList.add("bk-bs-dropdown")
+    if not @model.is_split_button
+      @el.classList.add("bk-bs-dropdown")
+      @buttonEl.classList.add("bk-bs-dropdown-toggle")
+      @buttonEl.appendChild(span({class: "bk-bs-caret"}))
+    else
+      @el.classList.add("bk-bs-btn-group")
+      caretEl = @_render_button(span({class: "bk-bs-caret"}))
+      caretEl.classList.add("bk-bs-dropdown-toggle")
+      caretEl.addEventListener("click", (event) => @_caret_click(event))
+      @el.appendChild(caretEl)
+
     if @model.active
       @el.classList.add("bk-bs-open")
 
@@ -59,11 +59,21 @@ export class DropdownView extends AbstractButtonView
   _button_click: (event) ->
     event.preventDefault()
     event.stopPropagation()
+
+    if not @model.is_split_button
+      @_toggle_menu()
+    else
+      @_clear_menu()
+      @set_value(@model.default_value)
+
+  _caret_click: (event) ->
+    event.preventDefault()
+    event.stopPropagation()
     @_toggle_menu()
 
   _item_click: (event) ->
     event.preventDefault()
-    @_toggle_menu()
+    @_clear_menu()
     @set_value(event.currentTarget.dataset.value)
 
   set_value: (value) ->
@@ -86,4 +96,8 @@ export class Dropdown extends AbstractButton
 
   @internal {
     active: [p.Boolean, false]
+  }
+
+  @getters {
+    is_split_button: () -> @default_value?
   }
