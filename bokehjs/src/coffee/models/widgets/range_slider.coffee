@@ -19,7 +19,7 @@ export class RangeSlider extends AbstractSlider
   default_view: RangeSliderView
 
   behaviour: 'drag'
-  connect: [false, true, false]
+  connected: [false, true, false]
 
   _formatter: format
 

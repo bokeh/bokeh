@@ -19,7 +19,7 @@ export class DateSlider extends AbstractSlider
   default_view: DateSliderView
 
   behaviour: 'tap'
-  connect: [true, false]
+  connected: [true, false]
 
   _formatter: tz
 
