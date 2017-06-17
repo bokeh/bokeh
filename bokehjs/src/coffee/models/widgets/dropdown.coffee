@@ -2,8 +2,17 @@ import {button, span, ul, li, a} from "core/dom"
 import * as p from "core/properties"
 
 import {AbstractButton, AbstractButtonView} from "./abstract_button"
+import {Signal} from "core/signaling"
+
+clear_menus = new Signal(this, "clear_menus")
+
+document.addEventListener("click", (event) -> clear_menus.emit())
 
 export class DropdownView extends AbstractButtonView
+
+  connect_signals: () ->
+    super()
+    clear_menus.connect(() => @_clear_menu())
 
   template: () ->
     el = button({
@@ -12,13 +21,14 @@ export class DropdownView extends AbstractButtonView
       value: @model.default_value,
       class: ["bk-bs-btn", "bk-bs-btn-#{@model.button_type}", "bk-bs-dropdown-toggle"],
     }, @model.label, " ", span({class: "bk-bs-caret"}))
-    el.dataset.bkBsToggle = "dropdown"
     return el
 
   render: () ->
     super()
 
     @el.classList.add("bk-bs-dropdown")
+    if @model.active
+      @el.classList.add("bk-bs-open")
 
     items = []
     for item in @model.menu
@@ -26,7 +36,7 @@ export class DropdownView extends AbstractButtonView
         [label, value] = item
         link = a({}, label)
         link.dataset.value = value
-        link.addEventListener("click", (event) => @set_value(event.currentTarget.dataset.value))
+        link.addEventListener("click", (event) => @_item_click(event))
         itemEl = li({}, link)
       else
         itemEl = li({class: "bk-bs-divider"})
@@ -36,6 +46,25 @@ export class DropdownView extends AbstractButtonView
     @el.appendChild(menuEl)
 
     return @
+
+  _clear_menu: () ->
+    @model.active = false
+
+  _toggle_menu: () ->
+    active = @model.active
+    clear_menus.emit()
+    if not active
+      @model.active = true
+
+  _button_click: (event) ->
+    event.preventDefault()
+    event.stopPropagation()
+    @_toggle_menu()
+
+  _item_click: (event) ->
+    event.preventDefault()
+    @_toggle_menu()
+    @set_value(event.currentTarget.dataset.value)
 
   set_value: (value) ->
     @buttonEl.value = @model.value = value
@@ -53,4 +82,8 @@ export class Dropdown extends AbstractButton
 
   @override {
     label: "Dropdown"
+  }
+
+  @internal {
+    active: [p.Boolean, false]
   }

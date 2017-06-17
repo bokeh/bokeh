@@ -27,15 +27,20 @@ export class AbstractButtonView extends WidgetView
     super()
 
     empty(@el)
-    @buttonEl = buttonEl = @template()
-    @el.appendChild(buttonEl)
+    @buttonEl = @template()
+    @buttonEl.addEventListener("click", (event) => @_button_click(event))
+    @el.appendChild(@buttonEl)
 
     icon = @model.icon
     if icon?
       build_views(@icon_views, [icon], {parent: @})
-      prepend(buttonEl, @icon_views[icon.id].el, nbsp)
+      prepend(@buttonEl, @icon_views[icon.id].el, nbsp)
 
     return @
+
+  _button_click: (event) ->
+    event.preventDefault()
+    @change_input()
 
   change_input: () ->
     @model.callback?.execute(@model)
