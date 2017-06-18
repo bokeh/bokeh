@@ -44,11 +44,13 @@ export class MultiSelectView extends InputWidgetView
 
   change_input: () ->
     is_focused = @el.querySelector('select:focus') != null
-    value = @el.querySelector('select').value
-    if value
-      @model.value = value
-    else
-      @model.value = []
+
+    values = []
+    for el in @el.querySelectorAll('option')
+      if el.selected
+        values.push(el.value)
+
+    @model.value = values
     super()
     # Restore focus back to the <select> afterwards,
     # so that even if python on_change callback is invoked,
