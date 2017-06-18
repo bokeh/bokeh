@@ -317,11 +317,8 @@ class JSResources(BaseResources):
     @property
     def js_files(self):
         files, _ = self._resolve('js')
-
         external_resources = self._collect_external_resources('__javascript__')
-        files.extend(external_resources)
-
-        return files
+        return external_resources + files
 
     @property
     def js_raw(self):
@@ -385,11 +382,8 @@ class CSSResources(BaseResources):
     @property
     def css_files(self):
         files, _ = self._resolve('css')
-
         external_resources = self._collect_external_resources("__css__")
-        files.extend(external_resources)
-
-        return files
+        return external_resources + files
 
     @property
     def css_raw(self):
