@@ -6,6 +6,7 @@ import base64
 import pytest
 import numpy as np
 import pandas as pd
+import pytz
 
 import bokeh.util.serialization as bus
 
@@ -59,6 +60,12 @@ def test_convert_datetime_type():
     assert bus.convert_datetime_type(np.timedelta64(3000, 'ms')) == 3000.0
     assert bus.convert_datetime_type(pd.Timedelta("3000ms")) == 3000.0
     assert bus.convert_datetime_type(bus._pd_timestamp(3000000)) == 3.0
+
+def test_convert_datetime_type_with_tz():
+    # This ensures datetimes are sent to BokehJS timezone-naive
+    # see https://github.com/bokeh/bokeh/issues/6480
+    for tz in pytz.all_timezones:
+        assert bus.convert_datetime_type(datetime.datetime(2016, 5, 11, tzinfo=datetime.tzinfo(tz))) == 1462924800000.0
 
 testing = [[float('nan'), 3], [float('-inf'), [float('inf')]]]
 expected = [['NaN', 3.0], ['-Infinity', ['Infinity']]]
