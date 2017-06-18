@@ -1,16 +1,15 @@
 /*!
- * jquery.event.drop - v 2.2
+ * jquery.event.drop - v 2.3.0
  * Copyright (c) 2010 Three Dub Media - http://threedubmedia.com
  * Open Source MIT License - http://threedubmedia.com/code/license
  */
 // Created: 2008-06-04
 // Updated: 2012-05-21
-// REQUIRES: jquery 1.7.x, event.drag 2.2
+// Updated: 2016-08-16   Luiz Gonzaga dos Santos Filho
+// REQUIRES: jquery 1.8 +, , event.drag 2.3.0
+// TESTED WITH: jQuery 1.8.3, 1.11.2, 2.2.4, and 3.1.0
 
-if (typeof $ !== "function")
-  return
-
-require("./drag");
+;(function($){ // secure $ jQuery alias
 
 // Events: drop, dropstart, dropend
 
@@ -26,7 +25,7 @@ $.fn.drop = function( str, arg, opts ){
 	// were options passed
 	opts = ( str == fn ? arg : opts ) || {};
 	// trigger or bind event handler
-	return fn ? this.bind( type, opts, fn ) : this.trigger( type );
+	return fn ? this.on( type, opts, fn ) : this.trigger( type );
 };
 
 // DROP MANAGEMENT UTILITY
@@ -301,3 +300,5 @@ drop = $.event.special.drop = {
 
 // share the same special event configuration with related events...
 $special.dropinit = $special.dropstart = $special.dropend = drop;
+
+})(jQuery); // confine scope
