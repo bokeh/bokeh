@@ -50,7 +50,7 @@ export class SliderView extends InputWidgetView
     }
     $(@el.querySelector('.slider')).slider(opts)
     if @model.title?
-      @el.querySelector( "##{ @model.id }" ).value = $(@el.querySelector('.slider')).slider('value')
+      @el.querySelector("input").value = $(@el.querySelector('.slider')).slider('value')
     @el.querySelector('.bk-slider-parent').style.height = "#{@model.height}px"
     return @
 
@@ -62,7 +62,7 @@ export class SliderView extends InputWidgetView
     value = ui.value
     logger.debug("slide value = #{value}")
     if @model.title?
-      @el.querySelector( "##{ @model.id }" ).value = ui.value
+      @el.querySelector("input").value = ui.value
     @model.value = value
     if @callbackWrapper then @callbackWrapper()
 

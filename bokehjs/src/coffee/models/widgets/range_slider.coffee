@@ -54,7 +54,7 @@ export class RangeSliderView extends InputWidgetView
     }
     $(@el.querySelector('.slider')).slider(opts)
     if @model.title?
-      @el.querySelector( "##{ @model.id }" ).value = $(@el.querySelector('.slider')).slider('values').join(' - ')
+      @el.querySelector("input").value = $(@el.querySelector('.slider')).slider('values').join(' - ')
     @el.querySelector('.bk-slider-parent').style.height = "#{@model.height}px"
     return @
 
@@ -67,7 +67,7 @@ export class RangeSliderView extends InputWidgetView
     values_str = values.join(' - ')
     logger.debug("range-slide value = #{values_str}")
     if @model.title?
-      @el.querySelector( "##{ @model.id }" ).value = values_str
+      @el.querySelector("input").value = values_str
     @model.range = values
     if @callbackWrapper then @callbackWrapper()
 
