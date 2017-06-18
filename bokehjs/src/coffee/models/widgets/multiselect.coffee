@@ -1,13 +1,10 @@
+import {empty, label, select, option} from "core/dom"
+import {isString} from "core/util/types"
 import * as p from "core/properties"
-import {empty} from "core/dom"
 
 import {InputWidget, InputWidgetView} from "./input_widget"
 
-import multiselecttemplate from "./multiselecttemplate"
-
-
 export class MultiSelectView extends InputWidgetView
-  template: multiselecttemplate
 
   initialize: (options) ->
     super(options)
@@ -24,11 +21,28 @@ export class MultiSelectView extends InputWidgetView
   render: () ->
     super()
     empty(@el)
-    html = @template(@model.attributes)
-    selectEl = html.querySelector("select")
-    selectEl.addEventListener("change", () => @change_input())
-    @el.appendChild(html)
-    @render_selection()
+
+    labelEl = label({for: @model.id}, @model.title)
+    @el.appendChild(labelEl)
+
+    options = @model.options.map (opt) =>
+      if isString(opt)
+        value = _label  = opt
+      else
+        [value, _label] = opt
+
+      selected = value in @model.value
+      return option({selected: selected, value: value}, _label)
+
+    @selectEl = select({
+      multiple: true,
+      class: "bk-widget-form-input",
+      id: @model.id,
+      name: @model.name,
+      size: @model.size}, options)
+    @selectEl.addEventListener("change", () => @change_input())
+    @el.appendChild(@selectEl)
+
     return @
 
   render_selection: () =>
@@ -40,7 +54,7 @@ export class MultiSelectView extends InputWidgetView
         el.selected = 'selected'
     # Note that some browser implementations might not reduce
     # the number of visible options for size <= 3.
-    @el.querySelector('select').size = @model.size
+    @selectEl.size = @model.size
 
   change_input: () ->
     is_focused = @el.querySelector('select:focus') != null
@@ -57,7 +71,7 @@ export class MultiSelectView extends InputWidgetView
     # focus remains on <select> and one can seamlessly scroll
     # up/down.
     if is_focused
-      @el.querySelector('select').focus()
+      @selectEl.focus()
 
 export class MultiSelect extends InputWidget
   type: "MultiSelect"
