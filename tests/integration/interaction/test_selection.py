@@ -130,5 +130,5 @@ def test_line_rendering_with_selected_points(output_file_url, selenium, screensh
     assert has_no_console_errors(selenium)
 
     # Perform selection and take screenshot
-    perform_box_selection(selenium, (50, 200), (300, 400))
+    perform_box_selection(selenium, (0, 100), (400, 250))
     screenshot.assert_is_valid()
