@@ -1,45 +1,48 @@
+import {empty, ul, li, span, div} from "core/dom"
+import {zip} from "core/util/array"
 import * as p from "core/properties"
-import {empty} from "core/dom"
-import {zip, findIndex} from "core/util/array"
 
-import tabs_template from "./tabs_template"
 import {Widget, WidgetView} from "./widget"
 
 export class TabsView extends WidgetView
 
   render: () ->
     super()
-    for own _key, child of @child_views
-      child.el.parentNode?.removeChild(child.el)
 
     empty(@el)
 
-    tabs = @model.tabs
-    active = @model.active
-    children = @model.children
+    tabs = @model.tabs.map((tab, i) -> li({}, span({data: {index: i}}, tab.title)))
+    tabs[@model.active].classList.add("bk-bs-active")
+    tabsEl = ul({class: ["bk-bs-nav", "bk-bs-nav-tabs"]}, tabs)
+    @el.appendChild(tabsEl)
 
-    html = tabs_template({
-      tabs: tabs
-      active_tab_id: tabs[active].id
-    })
+    panels = @model.tabs.map((tab) -> div({class: "bk-bs-tab-pane"}))
+    panels[@model.active].classList.add("bk-bs-active")
+    panelsEl = div({class: "bk-bs-tab-content"}, panels)
+    @el.appendChild(panelsEl)
 
-    html.querySelectorAll(".bk-bs-nav a").addEventListener "click", (event) =>
-      el = event.currentTarget
+    tabsEl.addEventListener "click", (event) =>
       event.preventDefault()
-      @show(el)
-      panelId = el.href.replace('#tab-', '')
-      tabs = @model.tabs
-      panelIdx = findIndex(tabs, (panel) -> panel.id == panelId)
-      @model.active = panelIdx
-      @model.callback?.execute(@model)
 
-    panels = html.querySelectorAll(".bk-bs-tab-pane")
+      if event.target != event.currentTarget
+        el = event.target
 
-    for [child, panel] in zip(children, panels)
-      empty(panel)
-      panel.appendChild(@child_views[child.id].el)
+        old_active = @model.active
+        new_active = parseInt(el.dataset.index)
 
-    @el.appendChild(html)
+        if old_active != new_active
+          tabs[old_active].classList.remove("bk-bs-active")
+          panels[old_active].classList.remove("bk-bs-active")
+
+          tabs[new_active].classList.add("bk-bs-active")
+          panels[new_active].classList.add("bk-bs-active")
+
+          @model.active = new_active
+          @model.callback?.execute(@model)
+
+    for [child, panelEl] in zip(@model.children, panels)
+      panelEl.appendChild(@child_views[child.id].el)
+
     return @
 
   show: (tab) ->

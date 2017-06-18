@@ -16,7 +16,7 @@
     position: relative;
     display: block;
 
-    > a {
+    > span {
       position: relative;
       display: block;
       padding: @nav-link-padding;
@@ -28,7 +28,7 @@
     }
 
     // Disabled state sets text to gray and nukes hover/tab effects
-    &.bk-bs-disabled > a {
+    &.bk-bs-disabled > span {
       color: @nav-disabled-link-color;
 
       &:hover,
@@ -81,18 +81,19 @@
     margin-bottom: -1px;
 
     // Actual tabs (as links)
-    > a {
+    > span {
       margin-right: 2px;
       line-height: @line-height-base;
       border: 1px solid transparent;
       border-radius: @border-radius-base @border-radius-base 0 0;
       &:hover {
         border-color: @nav-tabs-link-hover-border-color @nav-tabs-link-hover-border-color @nav-tabs-border-color;
+        cursor: pointer;
       }
     }
 
     // Active state, and its :hover to override normal :hover
-    &.bk-bs-active > a {
+    &.bk-bs-active > span {
       &,
       &:hover,
       &:focus {
