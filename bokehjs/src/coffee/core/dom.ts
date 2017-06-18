@@ -6,42 +6,36 @@ export type HTMLAttrs = { [name: string]: any }
 export type HTMLChild = string | HTMLElement | (string | HTMLElement)[]
 
 const _createElement = (tag: string) => (attrs: HTMLAttrs = {}, ...children: HTMLChild[]): HTMLElement => {
-  let element: HTMLElement
-  if (tag === "fragment") {
-    // XXX: this is wrong, but the the common super type of DocumentFragment and HTMLElement is
-    // Node, which doesn't support classList, style, etc. attributes.
-    element = (document.createDocumentFragment() as any) as HTMLElement
-  } else {
-    element = document.createElement(tag)
-    for (const attr in attrs) {
-      const value = attrs[attr]
+  const element: HTMLElement = document.createElement(tag)
 
-      if (value == null || isBoolean(value) && !value)
-        continue
+  for (const attr in attrs) {
+    const value = attrs[attr]
 
-      if (attr === "class" && isArray(value)) {
-        for (const cls of (value as string[])) {
-          if (cls != null) element.classList.add(cls)
-        }
-        continue
+    if (value == null || isBoolean(value) && !value)
+      continue
+
+    if (attr === "class" && isArray(value)) {
+      for (const cls of (value as string[])) {
+        if (cls != null) element.classList.add(cls)
       }
-
-      if (attr === "style" && isObject(value)) {
-        for (const prop in value) {
-          (element.style as any)[prop] = value[prop]
-        }
-        continue
-      }
-
-      if (attr === "data" && isObject(value)) {
-        for (const key in value) {
-          element.dataset[key] = value[key]
-        }
-        continue
-      }
-
-      element.setAttribute(attr, value)
+      continue
     }
+
+    if (attr === "style" && isObject(value)) {
+      for (const prop in value) {
+        (element.style as any)[prop] = value[prop]
+      }
+      continue
+    }
+
+    if (attr === "data" && isObject(value)) {
+      for (const key in value) {
+        element.dataset[key] = value[key]
+      }
+      continue
+    }
+
+    element.setAttribute(attr, value)
   }
 
   function append(child: HTMLElement | string) {
