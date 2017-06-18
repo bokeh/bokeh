@@ -16,6 +16,9 @@
  *     and do proper cleanup.
  */
 
+if (typeof $ !== "function")
+  return
+
 require("./event/drag");
 require("./event/drop");
 var Slick = require("./slick.core");
