@@ -33,6 +33,13 @@ const _createElement = (tag: string) => (attrs: HTMLAttrs = {}, ...children: HTM
         continue
       }
 
+      if (attr === "data" && isObject(value)) {
+        for (const key in value) {
+          element.dataset[key] = value[key]
+        }
+        continue
+      }
+
       element.setAttribute(attr, value)
     }
   }
