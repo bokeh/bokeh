@@ -15,7 +15,6 @@ export class SliderView extends InputWidgetView
 
   initialize: (options) ->
     super(options)
-    @connect(@model.change, () -> @render())
     empty(@el)
     html = @template(@model.attributes)
     @el.appendChild(html)
@@ -28,6 +27,10 @@ export class SliderView extends InputWidgetView
         @model.callback?.execute(@model)
       , @model.callback_throttle)
     @render()
+
+  connect_signals: () ->
+    super()
+    @connect(@model.change, () -> @render())
 
   render: () ->
     super()

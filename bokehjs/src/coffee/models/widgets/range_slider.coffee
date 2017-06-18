@@ -15,10 +15,6 @@ export class RangeSliderView extends InputWidgetView
 
   initialize: (options) ->
     super(options)
-    @connect(@model.properties.start.change, () -> @_render())
-    @connect(@model.properties.end.change, () -> @_render())
-    @connect(@model.properties.step.change, () -> @_render())
-    @connect(@model.properties.orientation.change, () -> @_render())
     empty(@el)
     html = @template(@model.attributes)
     @el.appendChild(html)
@@ -31,6 +27,13 @@ export class RangeSliderView extends InputWidgetView
         @model.callback?.execute(@model)
       , @model.callback_throttle)
     @_render()
+
+  connect_signals: () ->
+    super()
+    @connect(@model.properties.start.change, () -> @_render())
+    @connect(@model.properties.end.change, () -> @_render())
+    @connect(@model.properties.step.change, () -> @_render())
+    @connect(@model.properties.orientation.change, () -> @_render())
 
   _render: () ->
     @render()

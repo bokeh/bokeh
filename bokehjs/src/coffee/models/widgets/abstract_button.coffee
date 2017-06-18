@@ -9,8 +9,11 @@ export class AbstractButtonView extends WidgetView
   initialize: (options) ->
     super(options)
     @icon_views = {}
-    @connect(@model.change, () -> @render())
     @render()
+
+  connect_signals: () ->
+    super()
+    @connect(@model.change, () -> @render())
 
   remove: () ->
     remove_views(@icon_views)

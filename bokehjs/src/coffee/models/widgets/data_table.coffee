@@ -89,6 +89,7 @@ export class DataTableView extends WidgetView
     @in_selection_update = false
 
   connect_signals: () ->
+    super()
     @connect(@model.change, () => @render())
     @connect(@model.source.properties.data.change, () => @updateGrid())
     @connect(@model.source.streaming, () => @updateGrid())

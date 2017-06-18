@@ -13,6 +13,9 @@ export class SelectView extends InputWidgetView
   initialize: (options) ->
     super(options)
     @render()
+
+  connect_signals: () ->
+    super()
     @connect(@model.change, () -> @render())
 
   render: () ->
