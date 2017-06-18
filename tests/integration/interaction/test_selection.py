@@ -6,6 +6,7 @@ from selenium.webdriver.common.keys import Keys
 
 from bokeh.io import save
 from bokeh.plotting import figure
+from bokeh.models import ColumnDataSource, Plot, Circle, Line, Range1d, BoxSelectTool
 from tests.integration.utils import has_no_console_errors, wait_for_canvas_resize
 
 pytestmark = pytest.mark.integration
@@ -107,3 +108,27 @@ def test_selection_tool_multiselection_with_shift(output_file_url, selenium):
     code = "return Bokeh.index['plot-id'].model.select_one('rect-glyph').data_source.selected['1d'].indices"
     selected = selenium.execute_script(code)
     assert selected == [0, 2]
+
+@pytest.mark.screenshot
+def test_line_rendering_with_selected_points(output_file_url, selenium, screenshot):
+    plot = Plot(plot_height=400, plot_width=400,
+        x_range=Range1d(0, 4), y_range=Range1d(-1, 1))
+
+    x = [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4]
+    y = [ 0.        ,  0.84147098,  0.90929743,  0.14112001, -0.7568025 ,
+       -0.95892427, -0.2794155 ,  0.6569866 ,  0.98935825] # sin(2*x)
+
+    source = ColumnDataSource(data=dict(x=x,y=y))
+    plot.add_glyph(source, Circle(x='x', y='y'))
+    plot.add_glyph(source, Line(x='x', y='y'))
+
+    plot.add_tools(BoxSelectTool())
+
+    # Save the plot and start the test
+    save(plot)
+    selenium.get(output_file_url)
+    assert has_no_console_errors(selenium)
+
+    # Perform selection and take screenshot
+    perform_box_selection(selenium, (50, 200), (300, 400))
+    screenshot.assert_is_valid()
