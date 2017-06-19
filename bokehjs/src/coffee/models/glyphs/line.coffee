@@ -6,13 +6,20 @@ export class LineView extends XYGlyphView
   _render: (ctx, indices, {sx, sy}) ->
     drawing = false
     @visuals.line.set_value(ctx)
+    last_index = null
 
     for i in indices
-      if !isFinite(sx[i]+sy[i]) and drawing
-        ctx.stroke()
-        ctx.beginPath()
-        drawing = false
-        continue
+      if drawing
+        if !isFinite(sx[i]+sy[i])
+          ctx.stroke()
+          ctx.beginPath()
+          drawing = false
+          last_index = i
+          continue
+
+        if last_index != null and i-last_index > 1
+          ctx.stroke()
+          drawing = false
 
       if drawing
         ctx.lineTo(sx[i], sy[i])
@@ -20,6 +27,8 @@ export class LineView extends XYGlyphView
         ctx.beginPath()
         ctx.moveTo(sx[i], sy[i])
         drawing = true
+
+      last_index = i
 
     if drawing
       ctx.stroke()
