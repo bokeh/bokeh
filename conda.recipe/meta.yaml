@@ -77,7 +77,7 @@ test:
     # jinja2 installed by bokeh
 
     # examples
-    - jupyter
+    - notebook
     - sympy
     - scikit-learn
     - networkx

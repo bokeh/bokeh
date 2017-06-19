@@ -183,8 +183,6 @@ def test_ImageRGBA():
     assert glyph.y is None
     assert glyph.dw is None
     assert glyph.dh is None
-    assert glyph.rows is None
-    assert glyph.cols is None
     assert glyph.dilate is False
     check_properties_existence(glyph, [
         "image",
@@ -194,8 +192,6 @@ def test_ImageRGBA():
         "dw_units",
         "dh",
         "dh_units",
-        "rows",
-        "cols",
         "dilate",
     ], GLYPH)
 

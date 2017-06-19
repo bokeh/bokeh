@@ -36,13 +36,12 @@ All these glyphs share a minimal common interface through their base class
 '''
 from __future__ import absolute_import
 
-from ..core.enums import accept_left_right_center, Anchor, DeprecatedAnchor, Direction
+from ..core.enums import Anchor, Direction
 from ..core.has_props import abstract
 from ..core.properties import (AngleSpec, Bool, DistanceSpec, Enum, Float,
                                Include, Instance, Int, NumberSpec, StringSpec)
 from ..core.property_mixins import FillProps, LineProps, TextProps
 from ..model import Model
-from ..util.deprecation import deprecated
 
 from .mappers import ColorMapper, LinearColorMapper
 
@@ -405,14 +404,6 @@ class ImageRGBA(Glyph):
     The y-coordinates to locate the image anchors.
     """)
 
-    rows = NumberSpec(None, accept_datetime=False, help="""
-    The numbers of rows in the images
-    """).asserts(False, lambda obj, name, value: deprecated((0, 12, 4), "ImageRGBA.rows", "2D array representation"))
-
-    cols = NumberSpec(None, accept_datetime=False, help="""
-    The numbers of columns in the images
-    """).asserts(False, lambda obj, name, value: deprecated((0, 12, 4), "ImageRGBA.cols", "2D array representation"))
-
     dw = DistanceSpec(help="""
     The widths of the plot regions that the images will occupy.
 
@@ -502,7 +493,7 @@ class ImageURL(Glyph):
     anchor = Enum(Anchor, help="""
     What position of the image should be anchored at the `x`, `y`
     coordinates.
-    """).accepts(Enum(DeprecatedAnchor), accept_left_right_center)
+    """)
 
     retry_attempts = Int(0, help="""
     Number of attempts to retry loading the images from the specified URL.
