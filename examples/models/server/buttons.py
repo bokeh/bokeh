@@ -27,44 +27,33 @@ toggle_active.js_on_click(CustomJS(code="console.log('toggle_active: ' + this.ac
 
 menu = [("Item 1", "item_1_value"), ("Item 2", "item_2_value"), None, ("Item 3", "item_3_value")]
 
-dropdown = Dropdown(label="Dropdown button", button_type="warning", menu=menu, default_value="item_1_value")
+dropdown = Dropdown(label="Dropdown button", button_type="warning", menu=menu)
 dropdown.on_click(lambda value: print('dropdown: %s' % value))
 dropdown.js_on_click(CustomJS(code="console.log('dropdown: ' + this.value, this.toString())"))
 
-dropdown_disabled = Dropdown(label="Dropdown button (disabled)", button_type="warning", menu=menu, default_value="item_1_value")
+dropdown_disabled = Dropdown(label="Dropdown button (disabled)", button_type="warning", menu=menu)
 dropdown_disabled.on_click(lambda value: print('dropdown_disabled: %s' % value))
 dropdown_disabled.js_on_click(CustomJS(code="console.log('dropdown_disabled: ' + this.value, this.toString())"))
 
-dropdown_split = Dropdown(label="Split button", button_type="danger", menu=menu) #, default_value="default")
+dropdown_split = Dropdown(label="Split button", button_type="danger", menu=menu, default_value="default")
 dropdown_split.on_click(lambda value: print('dropdown_split: %s' % value))
 dropdown_split.js_on_click(CustomJS(code="console.log('dropdown_split: ' + this.value, this.toString())"))
 
-
-
-
-def checkbox_group_handler(active):
-    print("checkbox_group_handler: %s" % active)
-
-def radio_group_handler(active):
-    print("radio_group_handler: %s" % active)
-
-def checkbox_button_group_handler(active):
-    print("checkbox_button_group_handler: %s" % active)
-
-def radio_button_group_handler(active):
-    print("radio_button_group_handler: %s" % active)
-
 checkbox_group = CheckboxGroup(labels=["Option 1", "Option 2", "Option 3"], active=[0, 1])
-checkbox_group.on_click(checkbox_group_handler)
+checkbox_group.on_click(lambda value: print('checkbox_group: %s' % value))
+checkbox_group.js_on_click(CustomJS(code="console.log('checkbox_group: ' + this.active, this.toString())"))
 
 radio_group = RadioGroup(labels=["Option 1", "Option 2", "Option 3"], active=0)
-radio_group.on_click(radio_group_handler)
+radio_group.on_click(lambda value: print('radio_group: %s' % value))
+radio_group.js_on_click(CustomJS(code="console.log('radio_group: ' + this.active, this.toString())"))
 
 checkbox_button_group = CheckboxButtonGroup(labels=["Option 1", "Option 2", "Option 3"], active=[0, 1])
-checkbox_button_group.on_click(checkbox_button_group_handler)
+checkbox_button_group.on_click(lambda value: print('checkbox_button_group: %s' % value))
+checkbox_button_group.js_on_click(CustomJS(code="console.log('checkbox_button_group: ' + this.active, this.toString())"))
 
 radio_button_group = RadioButtonGroup(labels=["Option 1", "Option 2", "Option 3"], active=0)
-radio_button_group.on_click(radio_button_group_handler)
+radio_button_group.on_click(lambda value: print('radio_button_group: %s' % value))
+radio_button_group.js_on_click(CustomJS(code="console.log('radio_button_group: ' + this.active, this.toString())"))
 
 widgetBox = WidgetBox(children=[
     button, button_disabled,

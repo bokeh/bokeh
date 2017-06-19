@@ -22,21 +22,17 @@ from bokeh.plotting import figure
 from bokeh.sampledata.iris import flowers
 
 button = Button(label="Button (disabled) - still has click event", button_type="primary", disabled=True)
-
 toggle = Toggle(label="Toggle button", button_type="success")
 
 menu = [("Item 1", "item_1_value"), ("Item 2", "item_2_value"), ("Item 3", "item_3_value")]
-dropdown = Dropdown(label="Dropdown button", button_type="warning", menu=menu, default_value="item_1_value")
 
-split_menu = [("Item 1", "item_1_value"), ("Item 2", "item_2_value"), None, ("Item 3", "item_3_value")]
-split = Dropdown(label="Split button", button_type="danger", menu=split_menu)
+dropdown = Dropdown(label="Dropdown button", button_type="warning", menu=menu)
+split = Dropdown(label="Split button", button_type="danger", menu=menu, default_value="default"))
 
 checkbox_group = CheckboxGroup(labels=["Option 1", "Option 2", "Option 3"], active=[0, 1])
-
 radio_group = RadioGroup(labels=["Option 1", "Option 2", "Option 3"], active=0)
 
 checkbox_button_group = CheckboxButtonGroup(labels=["Option 1", "Option 2", "Option 3"], active=[0, 1])
-
 radio_button_group = RadioButtonGroup(labels=["Option 1", "Option 2", "Option 3"], active=0)
 
 text_input = TextInput(placeholder="Enter value ...")
