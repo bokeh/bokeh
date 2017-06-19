@@ -34,16 +34,16 @@ dropdown_split = Dropdown(label="Split button", button_type="danger", menu=menu,
 dropdown_split.js_on_click(CustomJS(code="console.log('dropdown_split: ' + this.value, this.toString())"))
 
 checkbox_group = CheckboxGroup(labels=["Option 1", "Option 2", "Option 3"], active=[0, 1])
-#checkbox_group.js_on_click(CustomJS(code="console.log('checkbox_group: ' + this.value, this.toString())"))
+checkbox_group.js_on_click(CustomJS(code="console.log('checkbox_group: ' + this.active, this.toString())"))
 
 radio_group = RadioGroup(labels=["Option 1", "Option 2", "Option 3"], active=0)
-#radio_group.js_on_click(CustomJS(code="console.log('radio_group: ' + this.value, this.toString())"))
+radio_group.js_on_click(CustomJS(code="console.log('radio_group: ' + this.active, this.toString())"))
 
 checkbox_button_group = CheckboxButtonGroup(labels=["Option 1", "Option 2", "Option 3"], active=[0, 1])
-#checkbox_button_group.js_on_click(CustomJS(code="console.log('checkbox_button_group: ' + this.value, this.toString())"))
+checkbox_button_group.js_on_click(CustomJS(code="console.log('checkbox_button_group: ' + this.active, this.toString())"))
 
 radio_button_group = RadioButtonGroup(labels=["Option 1", "Option 2", "Option 3"], active=0)
-#radio_button_group.js_on_click(CustomJS(code="console.log('radio_button_group: ' + this.value, this.toString())"))
+radio_button_group.js_on_click(CustomJS(code="console.log('radio_button_group: ' + this.active, this.toString())"))
 
 widget_box = WidgetBox(children=[
     button, button_disabled,
