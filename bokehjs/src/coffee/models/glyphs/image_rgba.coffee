@@ -22,20 +22,7 @@ export class ImageRGBAView extends XYGlyphView
       if @_image_shape?
         shape = @_image_shape[i]
 
-      # Note specifying rows and cols is deprecated and this can soon
-      # be removed.
-      if @_rows?
-        @_height[i] = @_rows[i]
-        @_width[i] = @_cols[i]
-        if shape.length > 0
-          buf = @_image[i].buffer
-        else
-          flat = @_image[i]
-          buf = new ArrayBuffer(flat.length * 4)
-          color = new Uint32Array(buf)
-          for j in [0...flat.length]
-            color[j] = flat[j]
-      else if shape.length > 0
+      if shape.length > 0
         buf = @_image[i].buffer
         @_height[i] = shape[0]
         @_width[i] = shape[1]
@@ -111,14 +98,7 @@ export class ImageRGBA extends XYGlyph
 
   @define {
       image:  [ p.NumberSpec       ] # TODO (bev) array spec?
-      rows:   [ p.NumberSpec       ]
-      cols:   [ p.NumberSpec       ]
       dw:     [ p.DistanceSpec     ]
       dh:     [ p.DistanceSpec     ]
       dilate: [ p.Bool,      false ]
   }
-
-  initialize: (attrs, options) ->
-    super(attrs, options)
-    @properties.rows.optional = true
-    @properties.cols.optional = true
