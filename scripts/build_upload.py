@@ -173,9 +173,10 @@ def cdn_upload(local_path, cdn_path, content_type, cdn_token, cdn_id, binary=Fal
                             "Origin: https://mycloud.rackspace.com",
                             "Content-Type: %s" % content_type])
     if binary:
-        c.setopt(pycurl.POSTFIELDS, open(local_path, "rb").read())
+        data = open(local_path, "rb").read()
     else:
-        c.setopt(pycurl.POSTFIELDS, open(local_path).read().encode('utf-8'))
+        data = open(local_path).read().encode('utf-8')
+    c.setopt(pycurl.POSTFIELDS, data)
     c.perform()
     c.close()
 
