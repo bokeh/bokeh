@@ -1,7 +1,7 @@
 language: python
 
-sudo:
-  false
+sudo: false
+dist: trusty
 
 env:
   global:
