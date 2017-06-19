@@ -161,7 +161,7 @@ def upload_wrapper(name):
         return wrapper
     return decorator
 
-def cdn_upload(local_path, cdn_path, content_type, cdn_token, cdn_id):
+def cdn_upload(local_path, cdn_path, content_type, cdn_token, cdn_id, binary=False):
     print(":uploading to CDN: %s" % cdn_path)
     if CONFIG.dry_run: return
     url = 'https://storage101.dfw1.clouddrive.com/v1/%s/%s' % (cdn_id, cdn_path)
@@ -172,7 +172,11 @@ def cdn_upload(local_path, cdn_path, content_type, cdn_token, cdn_id):
     c.setopt(c.HTTPHEADER, ["X-Auth-Token: %s" % cdn_token,
                             "Origin: https://mycloud.rackspace.com",
                             "Content-Type: %s" % content_type])
-    c.setopt(pycurl.POSTFIELDS, open(local_path).read().encode('utf-8'))
+    if binary:
+        data = open(local_path, "rb").read()
+    else:
+        data = open(local_path).read().encode('utf-8')
+    c.setopt(pycurl.POSTFIELDS, data)
     c.perform()
     c.close()
 
@@ -382,7 +386,7 @@ def upload_docs():
 def upload_examples(cdn_token, cdn_id):
     local_path = "examples-%s.zip" % CONFIG.version
     cdn_path = 'bokeh/bokeh/examples/%s' % local_path
-    cdn_upload(local_path, cdn_path, 'application/zip', cdn_token, cdn_id)
+    cdn_upload(local_path, cdn_path, 'application/zip', cdn_token, cdn_id, binary=True)
 
 @upload_wrapper('npm')
 def upload_npm():
@@ -472,8 +476,8 @@ if __name__ == '__main__':
         print(blue("[SKIP] ") + "Not updating Examples tarball for pre-releases")
     else:
         upload_pypi()
-        upload_examples(cdn_token, cdn_id)
         upload_npm()
+        upload_examples(cdn_token, cdn_id)
 
     # finish ----------------------------------------------------------------
 
