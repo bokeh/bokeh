@@ -37,7 +37,8 @@ radio_button_group = RadioButtonGroup(labels=["Option 1", "Option 2", "Option 3"
 
 text_input = TextInput(placeholder="Enter value ...")
 
-autocomplete_input = AutocompleteInput()
+completions = ["aaa", "aab", "aac", "baa", "caa"]
+autocomplete_input = AutocompleteInput(placeholder="Enter value ...", completions=completions)
 
 select = Select(options=["Option 1", "Option 2", "Option 3"])
 

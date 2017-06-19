@@ -2,10 +2,7 @@ import {span, ul, li, a} from "core/dom"
 import * as p from "core/properties"
 
 import {AbstractButton, AbstractButtonView} from "./abstract_button"
-import {Signal} from "core/signaling"
-
-clear_menus = new Signal(this, "clear_menus")
-document.addEventListener("click", (event) -> clear_menus.emit())
+import {clear_menus} from "./common"
 
 export class DropdownView extends AbstractButtonView
 

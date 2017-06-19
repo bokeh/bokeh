@@ -139,3 +139,11 @@ export function matches(el: HTMLElement, selector: string): boolean {
   const f = p.matches || p.webkitMatchesSelector || p.mozMatchesSelector || p.msMatchesSelector
   return f.call(el, selector)
 }
+
+export enum Keys {
+  Tab   =  9,
+  Enter = 13,
+  Esc   = 27,
+  Up    = 38,
+  Down  = 40,
+}
