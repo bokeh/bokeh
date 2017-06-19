@@ -1,10 +1,9 @@
-import {Widget, WidgetView} from "./widget"
+import {empty, input, label, div} from "core/dom"
 import * as p from "core/properties"
-import {empty, input, label} from "core/dom"
-import template from "./button_group_template"
+
+import {Widget, WidgetView} from "./widget"
 
 export class CheckboxButtonGroupView extends WidgetView
-  template: template
 
   initialize: (options) ->
     super(options)
@@ -18,18 +17,16 @@ export class CheckboxButtonGroupView extends WidgetView
     super()
 
     empty(@el)
-    html = @template()
-    @el.appendChild(html)
+    divEl = div({class: "bk-bs-btn-group"})
+    @el.appendChild(divEl)
 
     active = @model.active
     for text, i in @model.labels
-      inputEl = input({type: "checkbox", value: "#{i}"})
+      inputEl = input({type: "checkbox", value: "#{i}", checked: i in active})
       inputEl.addEventListener("change", () => @change_input())
-      if i in active then inputEl.checked = true
-      labelEl = label({class: "bk-bs-btn"}, inputEl, text)
-      labelEl.classList.add("bk-bs-btn-" + @model.button_type)
+      labelEl = label({class: ["bk-bs-btn", "bk-bs-btn-#{@model.button_type}"]}, inputEl, text)
       if i in active then labelEl.classList.add("bk-bs-active")
-      @el.querySelector('.bk-bs-btn-group').appendChild(labelEl)
+      divEl.appendChild(labelEl)
 
     return @
 

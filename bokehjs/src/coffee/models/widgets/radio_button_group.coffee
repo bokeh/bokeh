@@ -1,11 +1,10 @@
-import {empty, input, label} from "core/dom"
+import {empty, input, label, div} from "core/dom"
+import {uniqueId} from "core/util/string"
 import * as p from "core/properties"
 
 import {Widget, WidgetView} from "./widget"
-import template from "./button_group_template"
 
 export class RadioButtonGroupView extends WidgetView
-  template: template
 
   initialize: (options) ->
     super(options)
@@ -19,16 +18,18 @@ export class RadioButtonGroupView extends WidgetView
     super()
 
     empty(@el)
-    html = @template()
-    @el.appendChild(html)
+    divEl = div({class: "bk-bs-btn-group"})
+    @el.appendChild(divEl)
+
+    name = uniqueId()
 
     active = @model.active
     for text, i in @model.labels
-      inputEl = input({type: "radio", value: "#{i}", checked: i == active})
+      inputEl = input({type: "radio", name: name, value: "#{i}", checked: i == active})
       inputEl.addEventListener("change", () => @change_input())
       labelEl = label({class: ["bk-bs-btn", "bk-bs-btn-#{@model.button_type}"]}, inputEl, text)
       if i == active then labelEl.classList.add("bk-bs-active")
-      @el.querySelector('.bk-bs-btn-group').appendChild(labelEl)
+      divEl.appendChild(labelEl)
 
     return @
 

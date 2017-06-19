@@ -1,5 +1,6 @@
-import * as p from "core/properties"
 import {empty, input, label, div} from "core/dom"
+import {uniqueId} from "core/util/string"
+import * as p from "core/properties"
 
 import {Widget, WidgetView} from "./widget"
 
@@ -16,9 +17,11 @@ export class RadioGroupView extends WidgetView
     super()
     empty(@el)
 
+    name = uniqueId()
+
     active = @model.active
     for text, i in @model.labels
-      inputEl = input({type: "radio", value: "#{i}"})
+      inputEl = input({type: "radio", name: name, value: "#{i}"})
       inputEl.addEventListener("change", () => @change_input())
 
       if @model.disabled then inputEl.disabled = true
