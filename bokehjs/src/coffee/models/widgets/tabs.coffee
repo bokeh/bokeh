@@ -6,10 +6,19 @@ import {Widget, WidgetView} from "./widget"
 
 export class TabsView extends WidgetView
 
+  connect_signals: () ->
+    super()
+    @connect(@model.properties.tabs.change, () => @rebuild_child_views())
+
   render: () ->
     super()
-
     empty(@el)
+
+    len = @model.tabs.length
+    if len == 0
+      return
+    else if @model.active >= len
+      @model.active = len - 1
 
     tabs = @model.tabs.map((tab, i) -> li({}, span({data: {index: i}}, tab.title)))
     tabs[@model.active].classList.add("bk-bs-active")
@@ -44,9 +53,6 @@ export class TabsView extends WidgetView
       panelEl.appendChild(@child_views[child.id].el)
 
     return @
-
-  show: (tab) ->
-    # TODO
 
 export class Tabs extends Widget
   type: "Tabs"
