@@ -17,12 +17,12 @@ level of the repository:
 
     py.test -m unit
 
-Note that this excludes unit tests that require Selenium. To execute those
-as well, run the command:
+Note that this includes unit tests that require Selenium to be installed. To
+exclude those unit tests, you can run the command:
 
 .. code-block:: sh
 
-    py.test -m "unit or selenium"
+    py.test -m "unit and not selenium"
 
 To run just the BokehJS unit tests, execute:
 

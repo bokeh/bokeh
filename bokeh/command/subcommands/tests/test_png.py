@@ -67,6 +67,7 @@ bokeh png: error: %s
 """ % (too_few)
         assert out == ""
 
+@pytest.mark.unit
 @pytest.mark.selenium
 def test_basic_script(capsys):
     def run(dirname):
@@ -81,6 +82,7 @@ def test_basic_script(capsys):
     with_directory_contents({ 'scatter.py' : basic_scatter_script },
                             run)
 
+@pytest.mark.unit
 @pytest.mark.selenium
 def test_basic_script_with_output_after(capsys):
     def run(dirname):
@@ -94,6 +96,8 @@ def test_basic_script_with_output_after(capsys):
 
     with_directory_contents({ 'scatter.py' : basic_scatter_script },
                             run)
+
+@pytest.mark.unit
 @pytest.mark.selenium
 def test_basic_script_with_output_before(capsys):
     def run(dirname):
