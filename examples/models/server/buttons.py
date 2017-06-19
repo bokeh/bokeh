@@ -35,9 +35,9 @@ dropdown_disabled = Dropdown(label="Dropdown button (disabled)", button_type="wa
 dropdown_disabled.on_click(lambda value: print('dropdown_disabled: %s' % value))
 dropdown_disabled.js_on_click(CustomJS(code="console.log('dropdown_disabled: ' + this.value, this.toString())"))
 
-dropdown_split = Dropdown(label="Split button", button_type="danger", menu=menu, default_value="default")
-dropdown_split.on_click(lambda value: print('dropdown_split: %s' % value))
-dropdown_split.js_on_click(CustomJS(code="console.log('dropdown_split: ' + this.value, this.toString())"))
+#dropdown_split = Dropdown(label="Split button", button_type="danger", menu=menu, default_value="default")
+#dropdown_split.on_click(lambda value: print('dropdown_split: %s' % value))
+#dropdown_split.js_on_click(CustomJS(code="console.log('dropdown_split: ' + this.value, this.toString())"))
 
 checkbox_group = CheckboxGroup(labels=["Option 1", "Option 2", "Option 3"], active=[0, 1])
 checkbox_group.on_click(lambda value: print('checkbox_group: %s' % value))
@@ -58,7 +58,7 @@ radio_button_group.js_on_click(CustomJS(code="console.log('radio_button_group: '
 widgetBox = WidgetBox(children=[
     button, button_disabled,
     toggle_inactive, toggle_active,
-    dropdown, dropdown_disabled, dropdown_split,
+    dropdown, dropdown_disabled, #dropdown_split,
     checkbox_group, radio_group,
     checkbox_button_group, radio_button_group,
 ])

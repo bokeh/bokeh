@@ -30,8 +30,8 @@ dropdown.js_on_click(CustomJS(code="console.log('dropdown: ' + this.value, this.
 dropdown_disabled = Dropdown(label="Dropdown button (disabled)", button_type="warning", disabled=True, menu=menu)
 dropdown_disabled.js_on_click(CustomJS(code="console.log('dropdown_disabled: ' + this.value, this.toString())"))
 
-dropdown_split = Dropdown(label="Split button", button_type="danger", menu=menu, default_value="default")
-dropdown_split.js_on_click(CustomJS(code="console.log('dropdown_split: ' + this.value, this.toString())"))
+#dropdown_split = Dropdown(label="Split button", button_type="danger", menu=menu, default_value="default")
+#dropdown_split.js_on_click(CustomJS(code="console.log('dropdown_split: ' + this.value, this.toString())"))
 
 checkbox_group = CheckboxGroup(labels=["Option 1", "Option 2", "Option 3"], active=[0, 1])
 checkbox_group.js_on_click(CustomJS(code="console.log('checkbox_group: ' + this.active, this.toString())"))
@@ -48,7 +48,7 @@ radio_button_group.js_on_click(CustomJS(code="console.log('radio_button_group: '
 widget_box = WidgetBox(children=[
     button, button_disabled,
     toggle_inactive, toggle_active,
-    dropdown, dropdown_disabled, dropdown_split,
+    dropdown, dropdown_disabled, #dropdown_split,
     checkbox_group, radio_group,
     checkbox_button_group, radio_button_group,
 ])

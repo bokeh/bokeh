@@ -27,7 +27,7 @@ toggle = Toggle(label="Toggle button", button_type="success")
 menu = [("Item 1", "item_1_value"), ("Item 2", "item_2_value"), ("Item 3", "item_3_value")]
 
 dropdown = Dropdown(label="Dropdown button", button_type="warning", menu=menu)
-split = Dropdown(label="Split button", button_type="danger", menu=menu, default_value="default"))
+#dropdown_split = Dropdown(label="Split button", button_type="danger", menu=menu, default_value="default"))
 
 checkbox_group = CheckboxGroup(labels=["Option 1", "Option 2", "Option 3"], active=[0, 1])
 radio_group = RadioGroup(labels=["Option 1", "Option 2", "Option 3"], active=0)
@@ -66,7 +66,7 @@ tabs = Tabs(tabs=[mk_tab("red"), mk_tab("green"), mk_tab("blue")])
 
 widgets = Row(children=[
     WidgetBox(children=[
-        button, toggle, dropdown, split,
+        button, toggle, dropdown, #dropdown_split,
         checkbox_group, radio_group,
         checkbox_button_group, radio_button_group,
     ]),
