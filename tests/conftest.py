@@ -6,10 +6,10 @@ pytest_plugins = (
     "tests.examples.examples_report_plugin",
     "tests.integration.integration_tests_plugin",
     "tests.plugins.bokeh_server",
-    "tests.plugins.jupyter_notebook",
-    "tests.plugins.phantomjs_screenshot",
     "tests.plugins.image_diff",
+    "tests.plugins.jupyter_notebook",
     "tests.plugins.file_server",
+    "tests.plugins.phantomjs_screenshot",
 )
 
 
