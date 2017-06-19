@@ -249,9 +249,6 @@ class Plot(LayoutDOM):
             raise ValueError("All arguments to add_tool must be Tool subclasses.")
 
         for tool in tools:
-            if tool.plot is not None:
-                raise ValueError("tool %s to be added already has 'plot' attribute set" % tool)
-            tool.plot = self
             if hasattr(tool, 'overlay'):
                 self.renderers.append(tool.overlay)
             self.toolbar.tools.append(tool)

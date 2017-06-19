@@ -6,9 +6,33 @@ import {clone} from "core/util/object"
 
 export class SelectToolView extends GestureToolView
 
+  @getters {
+    computed_renderers: () ->
+      renderers = @model.renderers
+      names = @model.names
+
+      if renderers.length == 0
+        all_renderers = @plot_model.plot.renderers
+        renderers = (r for r in all_renderers when r instanceof GlyphRenderer)
+
+      if names.length > 0
+        renderers = (r for r in renderers when names.indexOf(r.name) >= 0)
+
+      return renderers
+  }
+
+  _computed_renderers_by_data_source: () ->
+    renderers_by_source = {}
+    for r in @computed_renderers
+      if !(r.data_source.id of renderers_by_source)
+        renderers_by_source[r.data_source.id] = [r]
+      else
+        renderers_by_source[r.data_source.id] = renderers_by_source[r.data_source.id].concat([r])
+    return renderers_by_source
+
   _keyup: (e) ->
     if e.keyCode == 27
-      for r in @model.computed_renderers
+      for r in @computed_renderers
         ds = r.data_source
         sm = ds.selection_manager
         sm.clear()
@@ -56,38 +80,3 @@ export class SelectTool extends GestureTool
   @internal {
     multi_select_modifier: [ p.String, "shift" ]
   }
-
-  connect_signals: () ->
-    super()
-    # TODO: @connect(@plot.properties.renderers.change, () -> @_computed_renderers = null)
-    @connect(@properties.renderers.change,      () -> @_computed_renderers = null)
-    @connect(@properties.names.change,          () -> @_computed_renderers = null)
-    @connect(@properties.plot.change,           () -> @_computed_renderers = null)
-
-  _compute_renderers: () ->
-    renderers = @renderers
-    names = @names
-
-    if renderers.length == 0
-      all_renderers = @plot.renderers
-      renderers = (r for r in all_renderers when r instanceof GlyphRenderer)
-
-    if names.length > 0
-      renderers = (r for r in renderers when names.indexOf(r.name) >= 0)
-
-    return renderers
-
-  @getters {
-    computed_renderers: () ->
-      if not @_computed_renderers? then @_computed_renderers = @_compute_renderers()
-      return @_computed_renderers
-  }
-
-  _computed_renderers_by_data_source: () ->
-    renderers_by_source = {}
-    for r in @computed_renderers
-      if !(r.data_source.id of renderers_by_source)
-        renderers_by_source[r.data_source.id] = [r]
-      else
-        renderers_by_source[r.data_source.id] = renderers_by_source[r.data_source.id].concat([r])
-    return renderers_by_source
