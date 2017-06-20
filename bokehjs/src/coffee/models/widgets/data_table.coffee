@@ -1,8 +1,5 @@
-# requires $.sortable()
-
-import * as SlickGrid from "slick_grid/slick.grid"
-import * as RowSelectionModel from "slick_grid/plugins/slick.rowselectionmodel"
-import * as CheckboxSelectColumn from "slick_grid/plugins/slick.checkboxselectcolumn"
+import {Grid as SlickGrid} from "slickgrid"
+import {RowSelectionModel, CheckboxSelectColumn} from "slickgrid/plugins"
 
 import * as hittest from "core/hittest"
 import * as p from "core/properties"

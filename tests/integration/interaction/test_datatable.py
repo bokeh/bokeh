@@ -33,7 +33,7 @@ def test_editable_changes_data(output_file_url, selenium):
     selenium.set_window_size(width=800, height=800)
 
     # Click row_1 (which triggers first alert)
-    row_1_cell = selenium.find_element_by_css_selector('.grid-canvas .bk-slick-row:first-child .r1')
+    row_1_cell = selenium.find_element_by_css_selector('.grid-canvas .slick-row:first-child .r1')
     row_1_cell.click()
     alert = selenium.switch_to_alert()
     assert alert.text == '1,2'
@@ -47,7 +47,7 @@ def test_editable_changes_data(output_file_url, selenium):
     actions.perform()
 
     # Click row_2 (which triggers alert again so we can inspect the data)
-    row_2_cell = selenium.find_element_by_css_selector('.grid-canvas .bk-slick-row:nth-child(2) .r1')
+    row_2_cell = selenium.find_element_by_css_selector('.grid-canvas .slick-row:nth-child(2) .r1')
     row_2_cell.click()
     alert = selenium.switch_to_alert()
     assert alert.text == '33,2'
