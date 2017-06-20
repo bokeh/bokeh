@@ -5,6 +5,7 @@ import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {uniqueId} from "core/util/string"
 import {any} from "core/util/array"
+import {logger} from "core/logging"
 
 import {TableWidget} from "./table_widget"
 import {WidgetView} from "./widget"
@@ -148,9 +149,15 @@ export class DataTableView extends WidgetView
     if @model.row_headers
       columns.unshift(@newIndexColumn())
 
+    reorderable = @model.reorderable
+
+    if reorderable and not $?.fn?.sortable?
+      logger.warn("jquery-ui is required to enable DataTable.reorderable")
+      reorderable = false
+
     options =
       enableCellNavigation: @model.selectable != false
-      enableColumnReorder: @model.reorderable
+      enableColumnReorder: reorderable
       forceFitColumns: @model.fit_columns
       autoHeight: @model.height == "auto"
       multiColumnSort: @model.sortable
