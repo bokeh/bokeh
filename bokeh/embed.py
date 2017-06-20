@@ -312,18 +312,18 @@ def _bundle_for_objs_and_resources(objs, resources):
 
     if js_resources:
         js_resources = deepcopy(js_resources)
-        if not use_widgets and "bokeh-widgets" in js_resources.components:
-            js_resources.components.remove("bokeh-widgets")
-        if use_gl and "bokeh-gl" not in js_resources.components:
-            js_resources.components.append("bokeh-gl")
+        if not use_widgets and "bokeh-widgets" in js_resources.js_components:
+            js_resources.js_components.remove("bokeh-widgets")
+        if not use_gl and "bokeh-gl" in js_resources.js_components:
+            js_resources.js_components.remove("bokeh-gl")
         bokeh_js = js_resources.render_js()
     else:
         bokeh_js = None
 
     if css_resources:
         css_resources = deepcopy(css_resources)
-        if not use_widgets and "bokeh-widgets" in css_resources.components:
-            css_resources.components.remove("bokeh-widgets")
+        if not use_widgets and "bokeh-widgets" in css_resources.css_components:
+            css_resources.css_components.remove("bokeh-widgets")
         bokeh_css = css_resources.render_css()
     else:
         bokeh_css = None
