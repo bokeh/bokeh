@@ -141,9 +141,11 @@ export function matches(el: HTMLElement, selector: string): boolean {
 }
 
 export enum Keys {
-  Tab   =  9,
-  Enter = 13,
-  Esc   = 27,
-  Up    = 38,
-  Down  = 40,
+  Tab      = 9,
+  Enter    = 13,
+  Esc      = 27,
+  PageUp   = 33,
+  PageDown = 34,
+  Up       = 38,
+  Down     = 40,
 }

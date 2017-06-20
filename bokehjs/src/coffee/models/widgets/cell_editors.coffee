@@ -2,7 +2,7 @@
 # requires $.spinner()
 
 import * as p from "core/properties"
-import {input, select, option} from "core/dom"
+import {input, select, option, Keys} from "core/dom"
 import {extend} from "core/util/object"
 
 import {DOMView} from "core/dom_view"
@@ -37,14 +37,9 @@ export class CellEditorView extends DOMView
 
   disableNavigation: () ->
     @inputEl.addEventListener "keydown", (event) =>
-      stop = () -> event.stopImmediatePropagation()
       switch event.keyCode
-        when $.ui.keyCode.LEFT      then stop()
-        when $.ui.keyCode.RIGHT     then stop()
-        when $.ui.keyCode.UP        then stop()
-        when $.ui.keyCode.DOWN      then stop()
-        when $.ui.keyCode.PAGE_UP   then stop()
-        when $.ui.keyCode.PAGE_DOWN then stop()
+        when Keys.Left, Keys.Right, Keys.Up, Keys.Down, Keys.PageUp, Keys.PageDown
+          event.stopImmediatePropagation()
 
   destroy: () -> @remove()
 
