@@ -339,6 +339,23 @@ def test__get_screenshot_as_png_with_driver():
 
 @pytest.mark.unit
 @pytest.mark.selenium
+def test__get_screenshot_as_png_large_plot():
+    layout = Plot(x_range=Range1d(), y_range=Range1d(),
+                  plot_height=800, plot_width=800, toolbar_location=None,
+                  outline_line_color=None, background_fill_color=None,
+                  border_fill_color=None)
+
+    driver = webdriver.PhantomJS(service_log_path=os.path.devnull)
+    assert driver.get_window_size() == {'width': 400, 'height': 300}
+
+    io._get_screenshot_as_png(layout, driver)
+
+    # LC: Although the window size doesn't match the plot dimensions (unclear
+    # why), the window resize allows for the whole plot to be captured
+    assert driver.get_window_size() == {'width': 1366, 'height': 768}
+
+@pytest.mark.unit
+@pytest.mark.selenium
 def test__get_svgs_no_svg_present():
     layout = Plot(x_range=Range1d(), y_range=Range1d(),
               plot_height=20, plot_width=20, toolbar_location=None)

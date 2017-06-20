@@ -626,6 +626,7 @@ def _get_screenshot_as_png(obj, driver):
         web_driver = driver
 
     web_driver.get("file:///" + html_path)
+    web_driver.maximize_window()
 
     ## resize for PhantomJS compat
     web_driver.execute_script("document.body.style.width = '100%';")
