@@ -11,6 +11,7 @@ from ..models import Plot, Range, Title, Tool
 from ..models import glyphs, markers
 from ..models.tools import Drag, Inspection, Scroll, Tap
 from ..util.options import Options
+from ..util.string import format_docstring
 from ..util._plot_arg_helpers import _convert_responsive
 from .helpers import (
     _get_range, _get_scale, _process_axis_and_grid, _process_tools_arg,
@@ -84,6 +85,14 @@ class FigureOptions(Options):
 class Figure(Plot):
     ''' A subclass of :class:`~bokeh.models.plots.Plot` that simplifies plot
     creation with default axes, grids, tools, etc.
+
+    Figure objects have many glyph methods that can be used to draw
+    vectorized graphical glyphs:
+
+    .. hlist::
+        :columns: 3
+
+{glyph_methods}
 
     In addition to all the Bokeh model property attributes documented below,
     the ``Figure`` initializer also accepts the following options, which can
@@ -413,7 +422,7 @@ Examples:
 
        p = figure(plot_width=300, plot_height=300)
        p.patches(xs=[[1,2,3],[4,5,6,5]], ys=[[1,2,1],[4,5,5,4]],
-                color=["#43a2ca", "#a8ddb5"])
+                 color=["#43a2ca", "#a8ddb5"])
 
        show(p)
 
@@ -429,7 +438,7 @@ Examples:
 
         plot = figure(plot_width=300, plot_height=300)
         plot.quad(top=[2, 3, 4], bottom=[1, 2, 3], left=[1, 2, 3],
-            right=[1.2, 2.5, 3.7], color="#B3DE69")
+                  right=[1.2, 2.5, 3.7], color="#B3DE69")
 
         show(plot)
 
@@ -463,7 +472,7 @@ Examples:
 
         plot = figure(plot_width=300, plot_height=300)
         plot.rect(x=[1, 2, 3], y=[1, 2, 3], width=10, height=20, color="#CAB2D6",
-            width_units="screen", height_units="screen")
+                  width_units="screen", height_units="screen")
 
         show(plot)
 
@@ -479,8 +488,8 @@ Examples:
 
         plot = figure(plot_width=300, plot_height=300)
         plot.segment(x0=[1, 2, 3], y0=[1, 2, 3], x1=[1, 2, 3],
-                    y1=[1.2, 2.5, 3.7], color="#F4A582",
-                    line_width=3)
+                     y1=[1.2, 2.5, 3.7], color="#F4A582",
+                     line_width=3)
 
         show(plot)
 
@@ -511,7 +520,7 @@ Examples:
 
         plot = figure(plot_width=300, plot_height=300)
         plot.square_cross(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,25],
-                         color="#7FC97F",fill_color=None, line_width=2)
+                          color="#7FC97F",fill_color=None, line_width=2)
 
         show(plot)
 
@@ -527,7 +536,7 @@ Examples:
 
         plot = figure(plot_width=300, plot_height=300)
         plot.square_x(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,25],
-                     color="#FDAE6B",fill_color=None, line_width=2)
+                      color="#FDAE6B",fill_color=None, line_width=2)
 
         show(plot)
 
@@ -553,7 +562,7 @@ Examples:
 
         plot = figure(plot_width=300, plot_height=300)
         plot.triangle(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,25],
-                     color="#99D594", line_width=2)
+                      color="#99D594", line_width=2)
 
         show(plot)
 
@@ -584,7 +593,7 @@ Examples:
 
         plot = figure(plot_width=300, plot_height=300)
         plot.wedge(x=[1, 2, 3], y=[1, 2, 3], radius=15, start_angle=0.6,
-                     end_angle=4.1, radius_units="screen", color="#2b8cbe")
+                   end_angle=4.1, radius_units="screen", color="#2b8cbe")
 
         show(plot)
 
@@ -647,6 +656,14 @@ Examples:
 def figure(**kwargs):
     ''' Create a new :class:`~bokeh.plotting.figure.Figure` for plotting.
 
+    Figure objects have many glyph methods that can be used to draw
+    vectorized graphical glyphs:
+
+    .. hlist::
+        :columns: 3
+
+{glyph_methods}
+
     In addition to the standard :class:`~bokeh.plotting.figure.Figure`
     property values (e.g. ``plot_width`` or ``sizing_mode``) the following
     additional options can be passed as well:
@@ -693,3 +710,8 @@ def markers():
 
 _color_fields = set(["color", "fill_color", "line_color"])
 _alpha_fields = set(["alpha", "fill_alpha", "line_alpha"])
+
+_gms = sorted(x for x in dir(Figure) if getattr(getattr(Figure, x), 'glyph_method', False))
+_gms = "\n".join("        * :func:`~bokeh.plotting.figure.Figure.%s`" % x for x in _gms)
+Figure.__doc__ = format_docstring(Figure.__doc__, glyph_methods=_gms)
+figure.__doc__ = format_docstring(figure.__doc__, glyph_methods=_gms)
