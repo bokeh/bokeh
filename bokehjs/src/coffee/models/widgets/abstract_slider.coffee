@@ -20,7 +20,9 @@ export class AbstractSliderView extends WidgetView
   _calc_from: (values) ->
 
   render: () ->
-    super()
+    if not @el.noUiSlider?
+      # XXX: temporary workaround for _render_css()
+      super()
 
     if @model.callback?
       callback = () => @model.callback.execute(@model)
