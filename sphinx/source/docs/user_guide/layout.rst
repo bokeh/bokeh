@@ -37,6 +37,13 @@ Widget boxes
     widgets in a``WidgetBox`` using |widgetbox| as then you can be sure about
     how your widgets are getting arranged.
 
+Toolbars
+--------
+
+For information about changing the position or orientation of plot toolbars,
+see :ref:`userguide_tools_toolbar` section in the :ref:`userguide_tools`
+chapter of the User's Guide.
+
 .. _userguide_layout_layout_columns:
 
 Columns
