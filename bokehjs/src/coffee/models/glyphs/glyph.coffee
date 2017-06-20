@@ -7,6 +7,7 @@ import {Visuals} from "core/visuals"
 import {logger} from "core/logging"
 import {extend} from "core/util/object"
 import {isString, isArray} from "core/util/types"
+import {LineView} from "./line"
 
 export class GlyphView extends View
 
@@ -173,7 +174,7 @@ export class GlyphView extends View
   set_data: (source, indices, indices_to_update) ->
     data = @model.materialize_dataspecs(source)
 
-    if indices
+    if indices and not (@ instanceof LineView)
       data_subset = {}
       for k, v of data
         if k.charAt(0) == '_'

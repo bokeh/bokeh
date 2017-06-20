@@ -1,4 +1,5 @@
 import {Renderer, RendererView} from "./renderer"
+import {LineView} from "../glyphs/line"
 import {RemoteDataSource} from "../sources/remote_data_source"
 import {CDSView} from "../sources/cds_view"
 import {logger} from "core/logging"
@@ -156,7 +157,10 @@ export class GlyphRendererView extends RendererView
       selected = []
     else
       if selected['0d'].glyph
-        selected = indices
+        if @glyph instanceof LineView
+          selected = indices
+        else
+          selected = @model.view.convert_indices_from_subset(indices)
       else if selected['1d'].indices.length > 0
         selected = selected['1d'].indices
       else
@@ -168,7 +172,10 @@ export class GlyphRendererView extends RendererView
       inspected = []
     else
       if inspected['0d'].glyph
-        inspected = indices
+        if @glyph instanceof LineView
+          inspected = indices
+        else
+          inspected = @model.view.convert_indices_from_subset(indices)
       else if inspected['1d'].indices.length > 0
         inspected = inspected['1d'].indices
       else
@@ -209,11 +216,17 @@ export class GlyphRendererView extends RendererView
       selected = new Array()
       nonselected = new Array()
       for i in indices
-        # now, selected is changed to subset space
-        if selected_mask[@all_indices[i]]?
-          selected.push(i)
+        # now, selected is changed to subset space, except for Line glyph
+        if @glyph instanceof LineView
+          if selected_mask[i]?
+            selected.push(i)
+          else
+            nonselected.push(i)
         else
-          nonselected.push(i)
+          if selected_mask[@all_indices[i]]?
+            selected.push(i)
+          else
+            nonselected.push(i)
       dtselect = Date.now() - tselect
 
       trender = Date.now()
