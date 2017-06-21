@@ -6,9 +6,9 @@ import {expect} from "chai"
 const build_dir = path.normalize(`${__dirname}/../build`)
 
 const LIMITS: {[key: string]: number} = {
-  "css/bokeh-widgets.min.css": 160,
+  "css/bokeh-widgets.min.css":  90,
   "css/bokeh.min.css":          60,
-  "js/bokeh-widgets.min.js":   380,
+  "js/bokeh-widgets.min.js":   225,
   "js/bokeh-api.min.js":        75,
   "js/bokeh-gl.min.js":         70,
   "js/bokeh.min.js":           750,
