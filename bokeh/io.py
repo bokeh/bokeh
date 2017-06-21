@@ -685,15 +685,14 @@ def _get_svgs(obj, driver):
     # assert that phantomjs is in path for webdriver
     detect_phantomjs()
 
+    html_path = tempfile.NamedTemporaryFile(suffix=".html").name
+    save(obj, filename=html_path, resources=INLINE, title="")
+
     if driver is None:
         web_driver = webdriver.PhantomJS(service_log_path=os.path.devnull)
     else:
         web_driver = driver
 
-    html_path = tempfile.NamedTemporaryFile(suffix=".html").name
-    save(obj, filename=html_path, resources=INLINE, title="")
-
-    web_driver = webdriver.PhantomJS(service_log_path=os.path.devnull)
     web_driver.get("file:///" + html_path)
 
     _wait_until_render_complete(web_driver)
