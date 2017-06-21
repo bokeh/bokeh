@@ -442,7 +442,7 @@ def _check_slice(s):
        (s.step  is not None and s.step < 1):
         raise ValueError("Patch slices must have positive (start, stop, step) values, got %s" % s)
 
-class GeoJSONDataSource(DataSource):
+class GeoJSONDataSource(ColumnarDataSource):
     '''
 
     '''
