@@ -1,8 +1,8 @@
-import {format} from "numbro"
+import * as tz from "timezone"
 
 import {AbstractSlider, AbstractSliderView} from "./abstract_slider"
 
-export class SliderView extends AbstractSliderView
+export class DateSliderView extends AbstractSliderView
 
   _calc_to: () ->
     return {
@@ -14,15 +14,15 @@ export class SliderView extends AbstractSliderView
 
   _calc_from: ([value]) -> value
 
-export class Slider extends AbstractSlider
-  type: "Slider"
-  default_view: SliderView
+export class DateSlider extends AbstractSlider
+  type: "DateSlider"
+  default_view: DateSliderView
 
   behaviour: 'tap'
   connected: [true, false]
 
-  _formatter: format
+  _formatter: tz
 
   @override {
-    format: "0,0.00"
+    format: "%d %b %G"
   }
