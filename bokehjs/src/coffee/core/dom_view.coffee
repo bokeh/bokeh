@@ -32,6 +32,7 @@ export class DOMView extends View
     @root.notify_finished()
 
   @getters {
+    _root_element: () -> DOM.parent(@el, ".bk-root")
     solver:  () -> if @is_root then @_solver else @parent.solver
     is_idle: () -> @has_finished()
   }

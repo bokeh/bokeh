@@ -140,6 +140,17 @@ export function matches(el: HTMLElement, selector: string): boolean {
   return f.call(el, selector)
 }
 
+export function parent(el: HTMLElement, selector: string): HTMLElement | null {
+  let node: HTMLElement | null = el
+
+  while (node = node.parentElement) {
+    if (matches(node, selector))
+      return node
+  }
+
+  return null
+}
+
 export enum Keys {
   Tab      = 9,
   Enter    = 13,

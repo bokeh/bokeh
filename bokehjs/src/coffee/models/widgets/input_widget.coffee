@@ -3,10 +3,6 @@ import * as p from "core/properties"
 
 export class InputWidgetView extends WidgetView
 
-  render: () ->
-    super()
-    #@el.querySelector('input').disabled = @model.disabled
-
   change_input: () ->
     @model.callback?.execute(@model)
 
