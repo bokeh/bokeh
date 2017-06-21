@@ -150,6 +150,7 @@ gulp.task("scripts:bundle", ["scripts:compile"], (cb: (arg?: any) => void) => {
         paths: ['./node_modules', paths.buildDir.jsTree],
       }
       const plugin = browserify(pluginOpts)
+      plugin.exclude(path.resolve("node_modules/moment/moment.js"))
       labels[plugin_name] = namedLabeler(plugin, labels.bokehjs)
       for (const file in labels.bokehjs) {
         const name = labels.bokehjs[file]
