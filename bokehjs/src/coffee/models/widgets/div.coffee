@@ -11,7 +11,7 @@ export class DivView extends MarkupView
       content.textContent = @model.text
     else
       content.innerHTML = @model.text
-    @el.querySelector('.bk-markup').appendChild(content)
+    @markupEl.appendChild(content)
     return @
 
 export class Div extends Markup

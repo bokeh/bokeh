@@ -1,12 +1,10 @@
 import * as p from "core/properties"
-import {empty} from "core/dom"
+import {empty, div} from "core/dom"
+import {extend} from "core/util/object"
 
 import {Widget, WidgetView} from "./widget"
-import template from "./markup_template"
-
 
 export class MarkupView extends WidgetView
-  template: template
 
   initialize: (options) ->
     super(options)
@@ -19,7 +17,12 @@ export class MarkupView extends WidgetView
   render: () ->
     super()
     empty(@el)
-    @el.appendChild(@template())
+    style = extend({
+      width: "#{@model.width}px",
+      height: "#{@model.height}px",
+    }, @model.style)
+    @markupEl = div({style: style})
+    @el.appendChild(@markupEl)
 
 export class Markup extends Widget
   type: "Markup"
@@ -29,4 +32,5 @@ export class Markup extends Widget
 
   @define {
     text: [ p.String, '' ]
+    style: [ p.Any, {} ]
   }
