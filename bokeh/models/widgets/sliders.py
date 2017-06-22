@@ -13,6 +13,14 @@ from .widget import Widget
 class AbstractSlider(Widget):
     """ """
 
+    title = String(default="", help="""
+    Slider's label.
+    """)
+
+    show_value = Bool(default=True, help="""
+    Whether or not show slider's value.
+    """)
+
     format = String(help="""
     """)
 

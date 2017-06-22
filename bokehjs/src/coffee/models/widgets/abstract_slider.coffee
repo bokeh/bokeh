@@ -1,8 +1,9 @@
 import * as noUiSlider from "nouislider"
 
-import * as p from "../../core/properties"
-import {logger} from "../../core/logging"
-import {throttle} from "../../core/util/callback"
+import * as p from "core/properties"
+import {label, input, div} from "core/dom"
+import {logger} from "core/logging"
+import {throttle} from "core/util/callback"
 
 import {Widget, WidgetView} from "./widget"
 
@@ -20,7 +21,7 @@ export class AbstractSliderView extends WidgetView
   _calc_from: (values) ->
 
   render: () ->
-    if not @el.noUiSlider?
+    if not @sliderEl?
       # XXX: temporary workaround for _render_css()
       super()
 
@@ -46,8 +47,22 @@ export class AbstractSliderView extends WidgetView
     else
       tooltips = false
 
-    if not @el.noUiSlider?
-      noUiSlider.create(@el, {
+    @el.classList.add("bk-slider")
+
+    if not @sliderEl?
+      if @model.title?
+        if @model.title.length != 0
+          titleEl = label({}, "#{@model.title}:")
+          @el.appendChild(titleEl)
+
+        if @model.show_value
+          @valueEl = div({class: "bk-slider-value"})
+          @el.appendChild(@valueEl)
+
+      @sliderEl = div()
+      @el.appendChild(@sliderEl)
+
+      noUiSlider.create(@sliderEl, {
         cssPrefix: prefix
         range: {min: start, max: end}
         start: value
@@ -59,44 +74,54 @@ export class AbstractSliderView extends WidgetView
         direction: @model.direction
       })
 
-      @el.noUiSlider.on('slide',  (_, __, values) => @_slide(values))
-      @el.noUiSlider.on('change', (_, __, values) => @_change(values))
+      @sliderEl.noUiSlider.on('slide',  (_, __, values) => @_slide(values))
+      @sliderEl.noUiSlider.on('change', (_, __, values) => @_change(values))
 
       toggleTooltip = (i, show) =>
-        handle = @el.querySelectorAll(".#{prefix}handle")[i]
+        handle = @sliderEl.querySelectorAll(".#{prefix}handle")[i]
         tooltip = handle.querySelector(".#{prefix}tooltip")
         tooltip.style.display = if show then 'block' else ''
 
-      @el.noUiSlider.on('start', (_, i) => toggleTooltip(i, true))
-      @el.noUiSlider.on('end',   (_, i) => toggleTooltip(i, false))
+      @sliderEl.noUiSlider.on('start', (_, i) => toggleTooltip(i, true))
+      @sliderEl.noUiSlider.on('end',   (_, i) => toggleTooltip(i, false))
     else
-      @el.noUiSlider.updateOptions({
+      @sliderEl.noUiSlider.updateOptions({
         range: {min: start, max: end}
         start: value
         step: step
       })
 
+    if @valueEl?
+      pretty = (@model.pretty(v) for v in value).join(" .. ")
+      @valueEl.textContent = pretty
+
     if not @model.disabled
-      @el.querySelector(".#{prefix}connect")
-         .style
-         .backgroundColor = @model.bar_color
+      @sliderEl.querySelector(".#{prefix}connect")
+               .style
+               .backgroundColor = @model.bar_color
 
     if @model.disabled
-      @el.setAttribute('disabled', true)
+      @sliderEl.setAttribute('disabled', true)
     else
-      @el.removeAttribute('disabled')
+      @sliderEl.removeAttribute('disabled')
 
     return @
 
   _slide: (values) ->
     value = @_calc_from(values)
-    logger.debug("[slider slide] value = #{(@model.pretty(v) for v in values).join(", ")}")
+    pretty = (@model.pretty(v) for v in values).join(" .. ")
+    logger.debug("[slider slide] value = #{pretty}")
+    if @valueEl?
+      @valueEl.textContent = pretty
     @model.value = value
     @callback_wrapper?()
 
   _change: (values) ->
     value = @_calc_from(values)
-    logger.debug("[slider change] value = #{(@model.pretty(v) for v in values).join(", ")}")
+    pretty = (@model.pretty(v) for v in values).join(" .. ")
+    logger.debug("[slider change] value = #{pretty}")
+    if @valueEl?
+      @valueEl.value = pretty
     @model.value = value
     switch @model.callback_policy
       when 'mouseup', 'throttle'
@@ -107,6 +132,8 @@ export class AbstractSlider extends Widget
   default_view: AbstractSliderView
 
   @define {
+    title:             [ p.String,      ""           ]
+    show_value:        [ p.Bool,        true         ]
     start:             [ p.Any                       ]
     end:               [ p.Any                       ]
     value:             [ p.Any                       ]
