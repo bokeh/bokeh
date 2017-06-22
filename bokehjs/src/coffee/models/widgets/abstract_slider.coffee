@@ -50,15 +50,6 @@ export class AbstractSliderView extends WidgetView
     @el.classList.add("bk-slider")
 
     if not @sliderEl?
-      if @model.title?
-        if @model.title.length != 0
-          titleEl = label({}, "#{@model.title}:")
-          @el.appendChild(titleEl)
-
-        if @model.show_value
-          @valueEl = div({class: "bk-slider-value"})
-          @el.appendChild(@valueEl)
-
       @sliderEl = div()
       @el.appendChild(@sliderEl)
 
@@ -91,9 +82,20 @@ export class AbstractSliderView extends WidgetView
         step: step
       })
 
+    if @titleEl?
+      @el.removeChild(@titleEl)
     if @valueEl?
-      pretty = (@model.pretty(v) for v in value).join(" .. ")
-      @valueEl.textContent = pretty
+      @el.removeChild(@valueEl)
+
+    if @model.title?
+      if @model.title.length != 0
+        @titleEl = label({}, "#{@model.title}:")
+        @el.insertBefore(@titleEl, @sliderEl)
+
+      if @model.show_value
+        pretty = (@model.pretty(v) for v in value).join(" .. ")
+        @valueEl = div({class: "bk-slider-value"}, pretty)
+        @el.insertBefore(@valueEl, @sliderEl)
 
     if not @model.disabled
       @sliderEl.querySelector(".#{prefix}connect")
