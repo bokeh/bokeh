@@ -65,11 +65,12 @@ import sys
 
 from setuptools import find_packages, setup
 
-from _setup_support import (build_or_install_bokehjs, fixup_building_sdist,
-                            fixup_for_packaged, fixup_old_jsargs, get_cmdclass,
-                            get_package_data, get_version, install_js,
-                            package_files, package_path, ROOT, SERVER,
-                            show_bokehjs, show_help)
+from _setup_support import (
+    build_or_install_bokehjs, conda_rendering, fixup_building_sdist,
+    fixup_for_packaged, fixup_old_jsargs, get_cmdclass, get_package_data,
+    get_version, install_js, package_files, package_path, ROOT, SERVER,
+    show_bokehjs, show_help
+)
 
 # immediately bail for ancient pythons
 if sys.version_info[:2] < (2, 7):
@@ -103,7 +104,7 @@ if sys.version_info[:2] == (2, 7):
     REQUIRES.append('futures >=3.0.3')
 
 # if this is just conda-build skimming information, skip all this actual work
-if "conda-build" not in sys.argv[0]:
+if not conda_rendering():
     fixup_old_jsargs()     # handle --build_js and --install_js
     fixup_for_packaged()   # --build_js and --install_js not valid FROM sdist
     fixup_building_sdist() # must build BokehJS when MAKING sdists
@@ -143,7 +144,7 @@ setup(
 )
 
 # if this is just conda-build skimming information, skip all this actual work
-if "conda-build" not in sys.argv[0]:
+if not conda_rendering():
     if '--help'  in sys.argv: show_help(bokehjs_action)
     if 'develop' in sys.argv: show_bokehjs(bokehjs_action, develop=True)
     if 'install' in sys.argv: show_bokehjs(bokehjs_action)
