@@ -1,5 +1,7 @@
 import {Grid as SlickGrid} from "slickgrid"
-import {RowSelectionModel, CheckboxSelectColumn} from "slickgrid/plugins"
+
+import {RowSelectionModel} from "slickgrid/plugins/slick.rowselectionmodel"
+import {CheckboxSelectColumn} from "slickgrid/plugins/slick.checkboxselectcolumn"
 
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
