@@ -41,6 +41,7 @@ def test_editable_changes_data(output_file_url, selenium):
 
     # Now double click, enter the text 33
     actions = ActionChains(selenium)
+    row_1_cell = selenium.find_element_by_css_selector('.grid-canvas .slick-row:first-child .r1')
     actions.move_to_element(row_1_cell)
     actions.double_click()
     actions.send_keys(u"33\ue007")  # After the backslash is ENTER key
