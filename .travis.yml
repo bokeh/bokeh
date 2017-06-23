@@ -1,7 +1,6 @@
 language: python
 
 sudo: false
-dist: trusty
 
 env:
   global:
@@ -67,7 +66,7 @@ script:
       py.test -s -m js;
     fi
   - if [[ -z "$TRAVIS_TAG" && "$GROUP" == unit ]]; then
-      py.test --rerun=5 -m 'unit or selenium' --cov=bokeh --cov-config=bokeh/.coveragerc;
+      py.test --rerun=5 -m 'unit' --cov=bokeh --cov-config=bokeh/.coveragerc;
     fi
 
   # examples tests
