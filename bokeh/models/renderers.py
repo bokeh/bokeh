@@ -15,7 +15,7 @@ from ..core.validation.errors import BAD_COLUMN_NAME, MISSING_GLYPH, NO_SOURCE_F
 from ..model import Model
 
 from .glyphs import Glyph, Marker, Circle, MultiLine
-from .graphs import GraphDataSource, LayoutProvider
+from .graphs import GraphDataSource
 from .images import ImageSource
 from .sources import ColumnDataSource, DataSource, RemoteSource
 from .tiles import TileSource, WMTSTileSource
@@ -178,6 +178,18 @@ class GraphRenderer(DataRenderer):
 
     '''
 
+    x_range_name = String('default', help="""
+    A particular (named) x-range to use for computing screen
+    locations when rendering glyphs on the plot. If unset, use the
+    default x-range.
+    """)
+
+    y_range_name = String('default', help="""
+    A particular (named) y-range to use for computing screen
+    locations when rendering glyphs on the plot. If unset, use the
+    default y-range.
+    """)
+
     graph_source = Instance(GraphDataSource, help="""
     Stuff and things
     """)
@@ -190,9 +202,7 @@ class GraphRenderer(DataRenderer):
     Stuff and things
     """)
 
-    layout_provider = Instance(LayoutProvider, help="""
-    Stuff and things
-    """)
+    level = Override(default="glyph")
 
 @abstract
 class GuideRenderer(Renderer):

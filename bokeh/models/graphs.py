@@ -1,4 +1,4 @@
-from .sources import DataSource, ColumnDataSource
+from .sources import ColumnDataSource
 
 from ..core.has_props import abstract
 from ..core.properties import Any, Instance, Seq
@@ -8,27 +8,20 @@ _DEFAULT_NODE_SOURCE = lambda: ColumnDataSource(data=dict(index=[]))
 
 _DEFAULT_EDGE_SOURCE = lambda: ColumnDataSource(data=dict(start=[], end=[]))
 
-class GraphDataSource(DataSource):
-    '''
-
-    '''
-
-    nodes = Instance(ColumnDataSource, default=_DEFAULT_NODE_SOURCE, help="""
-    Stuff and things
-    """)
-
-    edges = Instance(ColumnDataSource, default=_DEFAULT_EDGE_SOURCE, help="""
-    Stuff and things
-    """)
 
 @abstract
 class LayoutProvider(Model):
     '''
 
     '''
+
     pass
 
+
 class StaticLayoutProvider(LayoutProvider):
+    '''
+
+    '''
 
     node_x = Seq(Any, default=[], help="""
     stuff and things
@@ -44,4 +37,22 @@ class StaticLayoutProvider(LayoutProvider):
 
     edge_ys = Seq(Any, default=[[]], help="""
     stuff and things
+    """)
+
+
+class GraphDataSource(Model):
+    '''
+
+    '''
+
+    nodes = Instance(ColumnDataSource, default=_DEFAULT_NODE_SOURCE, help="""
+    Stuff and things
+    """)
+
+    edges = Instance(ColumnDataSource, default=_DEFAULT_EDGE_SOURCE, help="""
+    Stuff and things
+    """)
+
+    layout_provider = Instance(LayoutProvider, help="""
+    Stuff and things
     """)
