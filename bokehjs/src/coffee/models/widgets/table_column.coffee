@@ -25,7 +25,7 @@ export class TableColumn extends Model
       name: @title
       width: @width
       formatter: @formatter?.doFormat.bind(@formatter)
-      editor: @editor
+      editor: @editor.default_view
       sortable: @sortable
       defaultSortAsc: @default_sort == "ascending"
     }
