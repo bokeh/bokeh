@@ -96,11 +96,13 @@ export class DateFormatter extends CellFormatter
       when "TICKS"                               then "TICKS"
       when "TIMESTAMP"                           then "TIMESTAMP"
       else                                       null
-    if name? then $.datepicker[name] else format
+    #if name? then $.datepicker[name] else format
+    format
 
   doFormat: (row, cell, value, columnDef, dataContext) ->
     value = if isString(value) then parseInt(value, 10) else value
-    date = $.datepicker.formatDate(@getFormat(), new Date(value))
+    #date = $.datepicker.formatDate(@getFormat(), new Date(value))
+    date = value
     return super(row, cell, date, columnDef, dataContext)
 
 export class HTMLTemplateFormatter extends CellFormatter

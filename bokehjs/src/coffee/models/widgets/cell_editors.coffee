@@ -1,6 +1,3 @@
-# requires $.autocomplete()
-# requires $.spinner()
-
 import * as p from "core/properties"
 import {input, select, option, Keys} from "core/dom"
 import {extend} from "core/util/object"
@@ -88,11 +85,11 @@ export class StringEditorView extends CellEditorView
   inputEl: input({type: "text"})
 
   renderEditor: () ->
-    completions = @model.completions
-    if completions.length != 0
-      @inputEl.classList.add("bk-cell-editor-completion")
-      $(@inputEl).autocomplete({source: completions})
-      $(@inputEl).autocomplete("widget")
+    #completions = @model.completions
+    #if completions.length != 0
+    #  @inputEl.classList.add("bk-cell-editor-completion")
+    #  $(@inputEl).autocomplete({source: completions})
+    #  $(@inputEl).autocomplete("widget")
     @inputEl.focus()
     @inputEl.select()
 
@@ -162,12 +159,12 @@ export class IntEditorView extends CellEditorView
   inputEl: input({type: "text"})
 
   renderEditor: () ->
-    $(@inputEl).spinner({step: @model.step})
+    #$(@inputEl).spinner({step: @model.step})
     @inputEl.focus()
     @inputEl.select()
 
   remove: () ->
-    $(@inputEl).spinner("destroy")
+    #$(@inputEl).spinner("destroy")
     super()
 
   serializeValue: () ->
@@ -196,12 +193,12 @@ export class NumberEditorView extends CellEditorView
   inputEl: input({type: "text"})
 
   renderEditor: () ->
-    $(@inputEl).spinner({step: @model.step})
+    #$(@inputEl).spinner({step: @model.step})
     @inputEl.focus()
     @inputEl.select()
 
   remove: () ->
-    $(@inputEl).spinner("destroy")
+    #$(@inputEl).spinner("destroy")
     super()
 
   serializeValue: () ->
@@ -240,41 +237,43 @@ export class DateEditorView extends CellEditorView
   renderEditor: () ->
     @calendarOpen = false
 
-    @$datepicker = $(@inputEl).datepicker({
-      showOn: "button"
-      buttonImageOnly: true
-      beforeShow: () => @calendarOpen = true
-      onClose: () => @calendarOpen = false
-    })
-    @$datepicker.siblings(".ui-datepicker-trigger").css("vertical-align": "middle")
-    @$datepicker.width(@$datepicker.width() - (14 + 2*4 + 4)) # img width + margins + edge distance
+    #@$datepicker = $(@inputEl).datepicker({
+    #  showOn: "button"
+    #  buttonImageOnly: true
+    #  beforeShow: () => @calendarOpen = true
+    #  onClose: () => @calendarOpen = false
+    #})
+    #@$datepicker.siblings(".ui-datepicker-trigger").css("vertical-align": "middle")
+    #@$datepicker.width(@$datepicker.width() - (14 + 2*4 + 4)) # img width + margins + edge distance
     @inputEl.focus()
     @inputEl.select()
 
   destroy: () ->
-    $.datepicker.dpDiv.stop(true, true)
-    @$datepicker.datepicker("hide")
-    @$datepicker.datepicker("destroy")
+    #$.datepicker.dpDiv.stop(true, true)
+    #@$datepicker.datepicker("hide")
+    #@$datepicker.datepicker("destroy")
     super()
 
   show: () ->
-    if @calendarOpen
-      $.datepicker.dpDiv.stop(true, true).show()
+    #if @calendarOpen
+    #  $.datepicker.dpDiv.stop(true, true).show()
     super()
 
   hide: () ->
-    if @calendarOpen
-      $.datepicker.dpDiv.stop(true, true).hide()
+    #if @calendarOpen
+    #  $.datepicker.dpDiv.stop(true, true).hide()
     super()
 
   position: (position) ->
-    if @calendarOpen
-      $.datepicker.dpDiv.css(top: position.top + 30, left: position.left)
+    #if @calendarOpen
+    #  $.datepicker.dpDiv.css(top: position.top + 30, left: position.left)
     super()
 
-  getValue: () -> return @$datepicker.datepicker("getDate").getTime()
+  getValue: () ->
+    #return @$datepicker.datepicker("getDate").getTime()
 
-  setValue: (val) -> @$datepicker.datepicker("setDate", new Date(val))
+  setValue: (val) ->
+    #@$datepicker.datepicker("setDate", new Date(val))
 
 export class DateEditor extends CellEditor
   type: 'DateEditor'
