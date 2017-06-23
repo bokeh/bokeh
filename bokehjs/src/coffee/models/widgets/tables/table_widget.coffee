@@ -1,4 +1,4 @@
-import {Widget} from "./widget"
+import {Widget} from "../widget"
 import * as p from "core/properties"
 
 export class TableWidget extends Widget

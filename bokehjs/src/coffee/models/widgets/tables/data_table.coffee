@@ -10,7 +10,7 @@ import {any} from "core/util/array"
 import {logger} from "core/logging"
 
 import {TableWidget} from "./table_widget"
-import {WidgetView} from "./widget"
+import {WidgetView} from "../widget"
 
 export DTINDEX_NAME = "__bkdt_internal_index__"
 

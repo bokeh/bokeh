@@ -3,7 +3,7 @@ import {input, select, option, Keys} from "core/dom"
 import {extend} from "core/util/object"
 
 import {DOMView} from "core/dom_view"
-import {Model} from "../../model"
+import {Model} from "../../../model"
 import {DTINDEX_NAME} from "./data_table"
 
 export class CellEditorView extends DOMView
