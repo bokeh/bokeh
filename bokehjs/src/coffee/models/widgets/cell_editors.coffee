@@ -93,7 +93,8 @@ export class StringEditorView extends CellEditorView
       @inputEl.classList.add("bk-cell-editor-completion")
       $(@inputEl).autocomplete({source: completions})
       $(@inputEl).autocomplete("widget")
-    @inputEl.focus().select()
+    @inputEl.focus()
+    @inputEl.select()
 
   loadValue: (item) ->
     super(item)
@@ -162,7 +163,8 @@ export class IntEditorView extends CellEditorView
 
   renderEditor: () ->
     $(@inputEl).spinner({step: @model.step})
-    @inputEl.focus().select()
+    @inputEl.focus()
+    @inputEl.select()
 
   remove: () ->
     $(@inputEl).spinner("destroy")
@@ -195,7 +197,8 @@ export class NumberEditorView extends CellEditorView
 
   renderEditor: () ->
     $(@inputEl).spinner({step: @model.step})
-    @inputEl.focus().select()
+    @inputEl.focus()
+    @inputEl.select()
 
   remove: () ->
     $(@inputEl).spinner("destroy")
@@ -245,7 +248,8 @@ export class DateEditorView extends CellEditorView
     })
     @$datepicker.siblings(".ui-datepicker-trigger").css("vertical-align": "middle")
     @$datepicker.width(@$datepicker.width() - (14 + 2*4 + 4)) # img width + margins + edge distance
-    @inputEl.focus().select()
+    @inputEl.focus()
+    @inputEl.select()
 
   destroy: () ->
     $.datepicker.dpDiv.stop(true, true)
