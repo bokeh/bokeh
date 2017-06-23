@@ -49,7 +49,7 @@ test:
   requires:
     # docs
     - pygments
-    - sphinx >=1.4
+    - sphinx <1.6
     # pyyaml installed by bokeh
     # packaging installed by bokeh
 
