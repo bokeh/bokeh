@@ -3,9 +3,8 @@
 '''
 from __future__ import absolute_import
 
-from ...core.enums import SliderCallbackPolicy
 from ...core.has_props import abstract
-from ...core.properties import Bool, Date, Either, Enum, Float, Instance, Int, List, RelativeDelta, String, Tuple
+from ...core.properties import Date, Either, Float, Instance, Int, List, String, Tuple
 
 from ..callbacks import Callback
 
