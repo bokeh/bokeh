@@ -336,8 +336,6 @@ class DataTable(TableWidget):
 
     '''
 
-    __javascript__ = ["https://code.jquery.com/jquery-3.2.1.min.js"]
-
     columns = List(Instance(TableColumn), help="""
     The list of child column widgets.
     """)

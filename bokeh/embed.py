@@ -258,37 +258,28 @@ def components(models, wrap_script=True, wrap_plot_info=True, theme=FromCurdoc):
     else:
         return script, tuple(results)
 
-def _use_widgets(objs):
-    from .models.widgets import Widget
-
-    def _needs_widgets(obj):
-        return isinstance(obj, Widget)
-
+def _any(objs, query):
     for obj in objs:
         if isinstance(obj, Document):
-            if _use_widgets(obj.roots):
+            if _any(obj.roots, query):
                 return True
         else:
-            if any(_needs_widgets(ref) for ref in obj.references()):
+            if any(query(ref) for ref in obj.references()):
                 return True
     else:
         return False
+
+def _use_widgets(objs):
+    from .models.widgets import Widget
+    return _any(objs, lambda obj: isinstance(obj, Widget))
+
+def _use_tables(objs):
+    from .models.widgets import TableWidget
+    return _any(objs, lambda obj: isinstance(obj, TableWidget))
 
 def _use_gl(objs):
     from .models.plots import Plot
-
-    def _needs_gl(obj):
-        return isinstance(obj, Plot) and obj.output_backend == "webgl"
-
-    for obj in objs:
-        if isinstance(obj, Document):
-            if _use_gl(obj.roots):
-                return True
-        else:
-            if any(_needs_gl(ref) for ref in obj.references()):
-                return True
-    else:
-        return False
+    return _any(objs, lambda obj: isinstance(obj, Plot) and obj.output_backend == "webgl")
 
 def _bundle_for_objs_and_resources(objs, resources):
     if isinstance(resources, BaseResources):
@@ -308,12 +299,15 @@ def _bundle_for_objs_and_resources(objs, resources):
 
     # XXX: force all components on server and in notebook, because we don't know in advance what will be used
     use_widgets =  _use_widgets(objs) if objs else True
+    use_tables  =  _use_tables(objs)  if objs else True
     use_gl      =  _use_gl(objs)      if objs else True
 
     if js_resources:
         js_resources = deepcopy(js_resources)
         if not use_widgets and "bokeh-widgets" in js_resources.js_components:
             js_resources.js_components.remove("bokeh-widgets")
+        if not use_tables and "bokeh-tables" in js_resources.js_components:
+            js_resources.js_components.remove("bokeh-tables")
         if not use_gl and "bokeh-gl" in js_resources.js_components:
             js_resources.js_components.remove("bokeh-gl")
         bokeh_js = js_resources.render_js()
@@ -324,6 +318,8 @@ def _bundle_for_objs_and_resources(objs, resources):
         css_resources = deepcopy(css_resources)
         if not use_widgets and "bokeh-widgets" in css_resources.css_components:
             css_resources.css_components.remove("bokeh-widgets")
+        if not use_tables and "bokeh-tables" in css_resources.css_components:
+            css_resources.css_components.remove("bokeh-tables")
         bokeh_css = css_resources.render_css()
     else:
         bokeh_css = None

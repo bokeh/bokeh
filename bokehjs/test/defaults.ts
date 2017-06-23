@@ -14,7 +14,8 @@ import {HasProps} from "core/has_props"
 import {models as widget_models} from "models/widgets/main"
 Models.register_models(widget_models as {[key: string]: any}, false, undefined)
 
-const all_view_model_names = concat([core_defaults.all_view_model_names(), widget_defaults.all_view_model_names()])
+import {models as table_models} from "models/widgets/tables/main"
+Models.register_models(table_models as {[key: string]: any}, false, undefined)
 
 function get_defaults(name: string) {
   const defaults = core_defaults.get_defaults(name) || widget_defaults.get_defaults(name)
@@ -189,7 +190,7 @@ describe("Defaults", () => {
   it("have all Widget view models from Python in widget locations registry", () => {
     const missing = []
     for (const name of widget_defaults.all_view_model_names()) {
-      if (!(name in widget_models)) {
+      if (!(name in widget_models || name in table_models)) {
         missing.push(name)
       }
     }

@@ -49,6 +49,13 @@ export const coffee = {
       minified: "bokeh-widgets.min.js",
     },
   },
+  tables: {
+    destination: {
+      full: "bokeh-tables.js",
+      fullWithPath: path.join(JS_BUILD_DIR, "bokeh-tables.js"),
+      minified: "bokeh-tables.min.js",
+    },
+  },
   gl: {
     destination: {
       full: "bokeh-gl.js",
@@ -69,10 +76,12 @@ export const css = {
   sources: [
     path.join(CSS_BUILD_DIR, "bokeh.css"),
     path.join(CSS_BUILD_DIR, "bokeh-widgets.css"),
+    path.join(CSS_BUILD_DIR, "bokeh-tables.css"),
   ],
   watchSources: [
     path.join(CSS_BUILD_DIR, "bokeh.css"),
     path.join(CSS_BUILD_DIR, "bokeh-widgets.css"),
+    path.join(CSS_BUILD_DIR, "bokeh-tables.css"),
   ],
 }
 
@@ -80,6 +89,7 @@ export const less = {
   sources: [
     "./src/less/bokeh.less",
     "./src/less/bokeh-widgets.less",
+    "./src/less/bokeh-tables.less",
   ],
   watchSources: [
     "./src/less/**/**",

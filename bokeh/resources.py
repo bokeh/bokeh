@@ -321,7 +321,7 @@ class JSResources(BaseResources):
 
     '''
 
-    _js_components = ["bokeh", "bokeh-widgets", "bokeh-gl"]
+    _js_components = ["bokeh", "bokeh-widgets", "bokeh-tables", "bokeh-gl"]
 
     @property
     def js_files(self):
@@ -388,7 +388,7 @@ class CSSResources(BaseResources):
 
     '''
 
-    _css_components = ["bokeh", "bokeh-widgets"]
+    _css_components = ["bokeh", "bokeh-widgets", "bokeh-tables"]
 
     @property
     def css_files(self):

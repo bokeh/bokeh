@@ -28,7 +28,7 @@ def test_js_resources_inline_has_no_css_resources():
     assert r.mode == "inline"
     assert r.dev is False
 
-    assert len(r.js_raw) == 4
+    assert len(r.js_raw) == 5
     assert r.js_raw[-1] == DEFAULT_LOG_JS_RAW
     assert hasattr(r, 'css_raw') is False
     assert r.messages == []
@@ -46,7 +46,7 @@ def test_inline_css_resources():
     assert r.mode == "inline"
     assert r.dev is False
 
-    assert len(r.css_raw) == 2
+    assert len(r.css_raw) == 3
     assert hasattr(r, 'js_raw') is False
     assert r.messages == []
 
@@ -75,9 +75,9 @@ class TestResources(unittest.TestCase):
         self.assertEqual(r.mode, "inline")
         self.assertEqual(r.dev, False)
 
-        self.assertEqual(len(r.js_raw), 4)
+        self.assertEqual(len(r.js_raw), 5)
         self.assertEqual(r.js_raw[-1], DEFAULT_LOG_JS_RAW)
-        self.assertEqual(len(r.css_raw), 2)
+        self.assertEqual(len(r.css_raw), 3)
         self.assertEqual(r.messages, [])
 
     def test_get_cdn_urls(self):
@@ -113,9 +113,11 @@ class TestResources(unittest.TestCase):
         self.assertEqual(r.messages, [])
         self.assertEqual(r.js_files, ['http://localhost:5006/static/js/bokeh.min.js',
                                       'http://localhost:5006/static/js/bokeh-widgets.min.js',
+                                      'http://localhost:5006/static/js/bokeh-tables.min.js',
                                       'http://localhost:5006/static/js/bokeh-gl.min.js'])
         self.assertEqual(r.css_files, ['http://localhost:5006/static/css/bokeh.min.css',
-                                       'http://localhost:5006/static/css/bokeh-widgets.min.css'])
+                                       'http://localhost:5006/static/css/bokeh-widgets.min.css',
+                                       'http://localhost:5006/static/css/bokeh-tables.min.css'])
 
     def test_server_root_url(self):
         r = resources.Resources(mode="server", root_url="http://foo/")
@@ -125,9 +127,11 @@ class TestResources(unittest.TestCase):
         self.assertEqual(r.messages, [])
         self.assertEqual(r.js_files, ['http://foo/static/js/bokeh.min.js',
                                       'http://foo/static/js/bokeh-widgets.min.js',
+                                      'http://foo/static/js/bokeh-tables.min.js',
                                       'http://foo/static/js/bokeh-gl.min.js'])
         self.assertEqual(r.css_files, ['http://foo/static/css/bokeh.min.css',
-                                       'http://foo/static/css/bokeh-widgets.min.css'])
+                                       'http://foo/static/css/bokeh-widgets.min.css',
+                                       'http://foo/static/css/bokeh-tables.min.css'])
 
     def test_server_root_url_empty(self):
         r = resources.Resources(mode="server", root_url="")
@@ -137,9 +141,11 @@ class TestResources(unittest.TestCase):
         self.assertEqual(r.messages, [])
         self.assertEqual(r.js_files, ['static/js/bokeh.min.js',
                                       'static/js/bokeh-widgets.min.js',
+                                      'static/js/bokeh-tables.min.js',
                                       'static/js/bokeh-gl.min.js'])
         self.assertEqual(r.css_files, ['static/css/bokeh.min.css',
-                                       'static/css/bokeh-widgets.min.css'])
+                                       'static/css/bokeh-widgets.min.css',
+                                       'static/css/bokeh-tables.min.css'])
 
 
     def test_server_with_versioner(self):
@@ -151,9 +157,11 @@ class TestResources(unittest.TestCase):
 
         self.assertEqual(r.js_files, ['http://foo/static/js/bokeh.min.js?v=VERSIONED',
                                       'http://foo/static/js/bokeh-widgets.min.js?v=VERSIONED',
+                                      'http://foo/static/js/bokeh-tables.min.js?v=VERSIONED',
                                       'http://foo/static/js/bokeh-gl.min.js?v=VERSIONED'])
         self.assertEqual(r.css_files, ['http://foo/static/css/bokeh.min.css?v=VERSIONED',
-                                       'http://foo/static/css/bokeh-widgets.min.css?v=VERSIONED'])
+                                       'http://foo/static/css/bokeh-widgets.min.css?v=VERSIONED',
+                                       'http://foo/static/css/bokeh-tables.min.css?v=VERSIONED'])
 
     def test_server_dev(self):
         r = resources.Resources(mode="server-dev")
