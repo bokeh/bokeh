@@ -49,10 +49,11 @@ class TextInput(InputWidget):
     placeholder = String(default="", help="""
     Placeholder for empty input field
     """)
-    
+
+
 class PasswordInput(InputWidget):
     ''' Single-line password input widget.
-    
+
     '''
     callback = Instance(Callback, help="""
     A callback to run in the browser whenever the user unfocuses the TextInput
