@@ -25,12 +25,12 @@ verify_pwd = CustomJS(args=dict(user=user, pwd=pwd, secret=secret),
                                      secret.text = 'Right Password. The Secret is 42.';
                                       return;
                                      }
-                               } 
+                               }
                                secret.text = "Wrong Password."; """)
-#user.callback = verify_pwd # Check password pressing enter. -BUG Works also with tab :( 
-pwd.callback = verify_pwd # Check password pressing enter.  -BUG Works also with tab :( 
+#user.callback = verify_pwd # Check password pressing enter. -BUG Works also with tab :(
+pwd.callback = verify_pwd # Check password pressing enter.  -BUG Works also with tab :(
 btn.callback = verify_pwd # Check password clicking on the Button.
-        
-output_file("password.html", title="Password Field")   
+
+output_file("password.html", title="Password Field")
 page = row(column(text,user, pwd,btn),secret)
 show(page)
