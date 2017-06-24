@@ -166,6 +166,14 @@ A widget for collecting a line of text from a user:
 .. bokeh-plot:: docs/user_guide/examples/interaction_textinput.py
     :source-position: below
 
+TextareaInput
+~~~~~~~~~~~~~
+
+A widget for collecting a multiple lines of text from a user:
+
+.. bokeh-plot:: docs/user_guide/examples/interaction_textareainput.py
+    :source-position: below
+
 Toggle Button
 ~~~~~~~~~~~~~
 
