@@ -89,9 +89,6 @@
     "@types/browserify": "^12.0.30",
     "@types/event-stream": "^3.3.31"
   },
-  "browser": {
-    "gloo2": "./src/vendor/gloo/gloo2.js"
-  },
   "dependencies": {
     "es6-promise":"3.0.2",
     "es6-weak-map": "^2.0.2",
