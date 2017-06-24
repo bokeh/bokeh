@@ -50,11 +50,8 @@ import io
 import os
 import sys
 
-import selenium.webdriver as webdriver
-
 from bokeh.io import _get_screenshot_as_png
 from .file_output import FileOutputSubcommand
-
 
 class PNG(FileOutputSubcommand):
     ''' Subcommand to output applications as standalone PNG files.
@@ -74,6 +71,7 @@ class PNG(FileOutputSubcommand):
     ) + FileOutputSubcommand.other_args()
 
     def invoke(self, args):
+        import selenium.webdriver as webdriver
         self.driver = webdriver.PhantomJS(service_log_path=os.path.devnull)
         super(PNG, self).invoke(args)
         self.driver.quit()

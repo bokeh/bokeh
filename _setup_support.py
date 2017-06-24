@@ -149,6 +149,10 @@ def build_or_install_bokehjs():
         install_js()
         return "installed"
 
+def conda_rendering():
+    return os.getenv("CONDA_BUILD_STATE" ,"junk") == "RENDER"
+
+
 def fixup_building_sdist():
     ''' Check for 'sdist' and ensure we always build BokehJS when packaging
 
