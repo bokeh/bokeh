@@ -34,12 +34,7 @@ function customLabeler(bundle: Bundle, parentLabels: Labels, fn: (row: any) => s
       let dep = row.deps[name]
 
       if (dep == null) {
-        dep = pkg.browser[name]
-
-        if (dep != null)
-          dep = path.resolve(dep)
-        else
-          dep = resolve.sync(name, opts)
+        dep = resolve.sync(name, opts)
       }
 
       row.deps[name] = labels[dep] || parentLabels[dep]
@@ -58,13 +53,7 @@ function customLabeler(bundle: Bundle, parentLabels: Labels, fn: (row: any) => s
 export function namedLabeler(bundle: Bundle, parentLabels: Labels) {
   return customLabeler(bundle, parentLabels, (row) => {
     const cwd = process.cwd()
-    const revModMap: {[key: string]: string} = {}
     const depModMap: {[key: string]: string} = {}
-
-    for (const key in pkg.browser) {
-      const val = pkg.browser[key]
-      revModMap[path.resolve(val)] = key
-    }
 
     for (const dep in pkg.dependencies) {
       const depPkg = rootRequire(path.join("node_modules", dep, "package.json"))
@@ -78,10 +67,7 @@ export function namedLabeler(bundle: Bundle, parentLabels: Labels) {
     }
 
     const modPath = row.id
-    let modName  = revModMap[modPath]
-
-    if (modName == null)
-      modName = depModMap[modPath]
+    let modName  = depModMap[modPath]
 
     if (modName == null)
       modName = path
