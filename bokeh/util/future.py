@@ -82,8 +82,9 @@ if sys.version_info[:2] < (3, 4):
         elif isinstance(func, partial):
             sig = getargspec(func.func)
             if 'self' in sig.args: sig.args.remove('self')
-            for name in func.keywords.keys():
-                sig.args.remove(name)
+            if func.keywords is not None:
+                for name in func.keywords.keys():
+                    sig.args.remove(name)
             for val in func.args:
                 del sig.args[0]
             return sig

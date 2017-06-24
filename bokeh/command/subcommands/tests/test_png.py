@@ -111,3 +111,20 @@ def test_basic_script_with_output_before(capsys):
 
     with_directory_contents({ 'scatter.py' : basic_scatter_script },
                             run)
+
+@pytest.mark.unit
+@pytest.mark.selenium
+def test_basic_script_with_multiple_png_plots(capsys):
+    def run(dirname):
+        with WorkingDir(dirname):
+            main(["bokeh", "png", "scatter1.py", "scatter2.py", "scatter3.py"])
+        out, err = capsys.readouterr()
+        assert err == ""
+        assert out == ""
+
+        assert set(["scatter1.png", "scatter2.png", "scatter3.png", "scatter1.py", "scatter2.py", "scatter3.py"]) == set(os.listdir(dirname))
+
+    with_directory_contents({ 'scatter1.py' : basic_scatter_script,
+                              'scatter2.py' : basic_scatter_script,
+                              'scatter3.py' : basic_scatter_script, },
+                            run)

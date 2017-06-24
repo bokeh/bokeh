@@ -64,9 +64,6 @@ script:
 
   # unit tests
   - if [[ -z "$TRAVIS_TAG" && "$GROUP" == unit ]]; then
-      py.test -s -m js;
-    fi
-  - if [[ -z "$TRAVIS_TAG" && "$GROUP" == unit ]]; then
       py.test --rerun=5 -m 'unit or selenium' --cov=bokeh --cov-config=bokeh/.coveragerc;
     fi
 
@@ -81,6 +78,12 @@ script:
     fi
 
   # linting, package and docs building
+
+  # TEMP MOVE OF JS TESTS TO NON-PYTHON 2 BUILD
+  - if [[ -z "$TRAVIS_TAG" && "$GROUP" == flake_docs ]]; then
+      py.test -s -m js;
+    fi
+
   - if [[ -z "$TRAVIS_TAG" && "$GROUP" == flake_docs ]]; then
       py.test -m quality;
     fi
