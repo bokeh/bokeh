@@ -1,27 +1,31 @@
-import * as $ from "jquery"
-import "bootstrap/dropdown"
-
-import {button, span, ul, li, a} from "core/dom"
+import {span, ul, li, a} from "core/dom"
 import * as p from "core/properties"
 
 import {AbstractButton, AbstractButtonView} from "./abstract_button"
+import {clear_menus} from "./common"
 
 export class DropdownView extends AbstractButtonView
 
-  template: () ->
-    el = button({
-      type: "button",
-      disabled: @model.disabled,
-      value: @model.default_value,
-      class: ["bk-bs-btn", "bk-bs-btn-#{@model.button_type}", "bk-bs-dropdown-toggle"],
-    }, @model.label, " ", span({class: "bk-bs-caret"}))
-    el.dataset.bkBsToggle = "dropdown"
-    return el
+  connect_signals: () ->
+    super()
+    clear_menus.connect(() => @_clear_menu())
 
   render: () ->
     super()
 
-    @el.classList.add("bk-bs-dropdown")
+    if not @model.is_split_button
+      @el.classList.add("bk-bs-dropdown")
+      @buttonEl.classList.add("bk-bs-dropdown-toggle")
+      @buttonEl.appendChild(span({class: "bk-bs-caret"}))
+    else
+      @el.classList.add("bk-bs-btn-group")
+      caretEl = @_render_button(span({class: "bk-bs-caret"}))
+      caretEl.classList.add("bk-bs-dropdown-toggle")
+      caretEl.addEventListener("click", (event) => @_caret_click(event))
+      @el.appendChild(caretEl)
+
+    if @model.active
+      @el.classList.add("bk-bs-open")
 
     items = []
     for item in @model.menu
@@ -29,7 +33,7 @@ export class DropdownView extends AbstractButtonView
         [label, value] = item
         link = a({}, label)
         link.dataset.value = value
-        link.addEventListener("click", (e) => @set_value(event.currentTarget.dataset.value))
+        link.addEventListener("click", (event) => @_item_click(event))
         itemEl = li({}, link)
       else
         itemEl = li({class: "bk-bs-divider"})
@@ -38,8 +42,36 @@ export class DropdownView extends AbstractButtonView
     menuEl = ul({class: "bk-bs-dropdown-menu"}, items)
     @el.appendChild(menuEl)
 
-    $(@buttonEl).dropdown()
     return @
+
+  _clear_menu: () ->
+    @model.active = false
+
+  _toggle_menu: () ->
+    active = @model.active
+    clear_menus.emit()
+    if not active
+      @model.active = true
+
+  _button_click: (event) ->
+    event.preventDefault()
+    event.stopPropagation()
+
+    if not @model.is_split_button
+      @_toggle_menu()
+    else
+      @_clear_menu()
+      @set_value(@model.default_value)
+
+  _caret_click: (event) ->
+    event.preventDefault()
+    event.stopPropagation()
+    @_toggle_menu()
+
+  _item_click: (event) ->
+    event.preventDefault()
+    @_clear_menu()
+    @set_value(event.currentTarget.dataset.value)
 
   set_value: (value) ->
     @buttonEl.value = @model.value = value
@@ -57,4 +89,12 @@ export class Dropdown extends AbstractButton
 
   @override {
     label: "Dropdown"
+  }
+
+  @internal {
+    active: [p.Boolean, false]
+  }
+
+  @getters {
+    is_split_button: () -> @default_value?
   }

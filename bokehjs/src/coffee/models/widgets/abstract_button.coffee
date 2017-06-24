@@ -9,33 +9,41 @@ export class AbstractButtonView extends WidgetView
   initialize: (options) ->
     super(options)
     @icon_views = {}
-    @connect(@model.change, () -> @render())
     @render()
+
+  connect_signals: () ->
+    super()
+    @connect(@model.change, () -> @render())
 
   remove: () ->
     remove_views(@icon_views)
     super()
 
-  template: () ->
+  _render_button: (children...) ->
     return button({
       type: "button",
       disabled: @model.disabled,
       class: ["bk-bs-btn", "bk-bs-btn-#{@model.button_type}"],
-    }, @model.label)
+    }, children...)
 
   render: () ->
     super()
 
     empty(@el)
-    @buttonEl = buttonEl = @template()
-    @el.appendChild(buttonEl)
+    @buttonEl = @_render_button(@model.label)
+    @buttonEl.addEventListener("click", (event) => @_button_click(event))
+    @el.appendChild(@buttonEl)
 
     icon = @model.icon
     if icon?
       build_views(@icon_views, [icon], {parent: @})
-      prepend(buttonEl, @icon_views[icon.id].el, nbsp)
+      prepend(@buttonEl, @icon_views[icon.id].el, nbsp)
 
     return @
+
+  _button_click: (event) ->
+    event.preventDefault()
+    @change_input()
 
   change_input: () ->
     @model.callback?.execute(@model)

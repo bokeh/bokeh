@@ -352,6 +352,11 @@ def build_js():
         print("  - bokeh-widgets.min.js  : %6.1f KB" % size("js", "bokeh-widgets.min.js"))
         print("  - bokeh-widgets.min.css : %6.1f KB" % size("css", "bokeh-widgets.min.css"))
 
+        print("  - bokeh-tables.js       : %6.1f KB" % size("js", "bokeh-tables.js"))
+        print("  - bokeh-tables.css      : %6.1f KB" % size("css", "bokeh-tables.css"))
+        print("  - bokeh-tables.min.js   : %6.1f KB" % size("js", "bokeh-tables.min.js"))
+        print("  - bokeh-tables.min.css  : %6.1f KB" % size("css", "bokeh-tables.min.css"))
+
         print("  - bokeh-api.js          : %6.1f KB" % size("js", "bokeh-api.js"))
         print("  - bokeh-api.min.js      : %6.1f KB" % size("js", "bokeh-api.min.js"))
     except Exception as e:
