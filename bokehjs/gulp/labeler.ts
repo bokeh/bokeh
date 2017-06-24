@@ -74,7 +74,7 @@ export function namedLabeler(bundle: Bundle, parentLabels: Labels) {
         .relative(cwd, modPath)
         .replace(/\.(coffee|js)$/, "")
         .split(path.sep).join("/")
-        .replace(/^(src\/(coffee|vendor)|node_modules|build\/js\/tree)\//, "")
+        .replace(/^(src\/coffee|node_modules|build\/js\/tree)\//, "")
 
     if (modName.indexOf("process/browser") != -1)
       modName = "_process"
