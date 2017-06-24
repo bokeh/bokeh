@@ -31,7 +31,6 @@ requirements:
     - yaml
     - pyyaml
     - jinja2
-    - twine
     - tornado >=4.3
 
   run:
