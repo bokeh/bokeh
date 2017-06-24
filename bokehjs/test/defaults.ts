@@ -206,6 +206,7 @@ describe("Defaults", () => {
       registered[name] = true
     }
     const missing = []
+    const all_view_model_names = concat([core_defaults.all_view_model_names(), widget_defaults.all_view_model_names()])
     for (const name of all_view_model_names) {
       if (!(name in registered)) {
         missing.push(name)
@@ -219,6 +220,7 @@ describe("Defaults", () => {
 
   it("match between Python and bokehjs", () => {
     let fail_count = 0
+    const all_view_model_names = concat([core_defaults.all_view_model_names(), widget_defaults.all_view_model_names()])
     for (const name of all_view_model_names) {
       const model = Models(name)
       const instance = new model({}, {silent: true, defer_initialization: true})
