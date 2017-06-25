@@ -36,6 +36,7 @@ class TextInput(InputWidget):
     ''' Single-line input widget.
 
     '''
+
     value = String(default="", help="""
     Initial or entered text value.
     """)
@@ -54,6 +55,7 @@ class PasswordInput(InputWidget):
     ''' Single-line password input widget.
 
     '''
+
     callback = Instance(Callback, help="""
     A callback to run in the browser whenever the user unfocuses the TextInput
     widget by hitting Enter or clicking outside of the text box area.
