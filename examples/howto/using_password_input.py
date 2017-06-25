@@ -12,8 +12,8 @@ PASSWD = "Bok3h"
 
 ## Create Texts, inputs and button
 text = PreText(text="LOGIN TO KNOW\nTHE SECRET:")
-user = TextInput(placeholder="username")#, title="(UserName: "+USER+")")
-pwd = PasswordInput(placeholder="password")#, title="(Password: "+PASSWD+")")
+user = TextInput(placeholder="username", title="(UserName: "+USER+")")
+pwd = PasswordInput(placeholder="password", title="(Password: "+PASSWD+")")
 btn = Button(label="GO!",width=150)
 
 secret = PreText() # Secret information displayed if correct password entered

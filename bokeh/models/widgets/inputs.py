@@ -51,7 +51,7 @@ class TextInput(InputWidget):
     """)
 
 
-class PasswordInput(TextInputWidget):
+class PasswordInput(TextInput):
     ''' Single-line password input widget.
 
     '''
