@@ -1,7 +1,5 @@
 declare namespace JSX {
   interface IntrinsicElements {
-    fragment: any
-
     div     : any
     span    : any
     link    : any

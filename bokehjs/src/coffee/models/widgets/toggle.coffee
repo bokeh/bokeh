@@ -6,7 +6,6 @@ export class ToggleView extends AbstractButtonView
 
   render: () ->
     super()
-    @buttonEl.addEventListener("click", () => @change_input())
     if @model.active
       @buttonEl.classList.add("bk-bs-active")
     return @

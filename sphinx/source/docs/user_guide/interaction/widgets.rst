@@ -145,7 +145,7 @@ RangeSlider
 ~~~~~~~~~~~
 
 The Bokeh range-slider can be configured with ``start`` and ``end`` values, a ``step`` size,
-an initial ``range`` and a ``title``:
+an initial ``value`` and a ``title``:
 
 .. bokeh-plot:: source/docs/user_guide/source_examples/interaction_range_slider.py
     :source-position: below

@@ -1,0 +1,65 @@
+@slickgrid: "../../../node_modules/slickgrid";
+
+@import (less) "@{slickgrid}/slick.grid.css";
+@import (less) "@{slickgrid}/slick-default-theme.css";
+@import (less) "@{slickgrid}/plugins/slick.headerbuttons.css";
+@import (less) "@{slickgrid}/plugins/slick.headermenu.css";
+@import (less) "@{slickgrid}/controls/slick.columnpicker.css";
+@import (less) "@{slickgrid}/controls/slick.pager.css";
+
+// XXX: we need to provide this again, because data-uri() uses different
+// resolution algorithm than @import, and uses `src/less` as the base,
+// contrary to @import's src/less/widgets. Note that data-uri() fails
+// silently on errors, so always verify build artifacts if contents
+// are properly included.
+@slickgrid_images: "../../node_modules/slickgrid/images";
+
+// slick-default-theme.css
+.slick-header-columns {
+  background-image: data-uri("@{slickgrid_images}/header-columns-bg.gif");
+}
+
+.slick-header-column {
+  background-image: data-uri("@{slickgrid_images}/header-columns-bg.gif");
+}
+
+.slick-header-column:hover, .slick-header-column-active {
+  background-image: data-uri("@{slickgrid_images}/header-columns-over-bg.gif");
+}
+
+.slick-group-toggle.expanded {
+  background-image: data-uri("@{slickgrid_images}/collapse.gif");
+}
+
+.slick-group-toggle.collapsed {
+  background-image: data-uri("@{slickgrid_images}/expand.gif");
+}
+
+.slick-group-select-checkbox.checked {
+  background-image: data-uri("@{slickgrid_images}/GrpCheckboxY.png");
+}
+
+.slick-group-select-checkbox.unchecked {
+  background-image: data-uri("@{slickgrid_images}/GrpCheckboxN.png");
+}
+
+// slick.grid.css
+.slick-sort-indicator-desc {
+  background-image: data-uri("@{slickgrid_images}/sort-desc.gif");
+}
+
+.slick-sort-indicator-asc {
+  background-image: data-uri("@{slickgrid_images}/sort-asc.gif");
+}
+
+// plugins/slick.headermenu.css
+
+.slick-header-menubutton {
+  background-image: data-uri("@{slickgrid_images}/down.gif");
+}
+
+// controls/slick.pager.css
+
+.slick-pager {
+  background-image: data-uri("@{slickgrid_images}/header-columns-bg.gif");
+}

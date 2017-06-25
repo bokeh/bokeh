@@ -13,6 +13,11 @@ import ionslidertemplate from "./extensions_ion_range_slider_template"
 export class IonRangeSliderView extends InputWidgetView
   template: ionslidertemplate
 
+  _createElement: () ->
+    el = super()
+    @$el = $(el)
+    return el
+
   initialize: (options) ->
     super(options)
     @connect(@model.change, @render)

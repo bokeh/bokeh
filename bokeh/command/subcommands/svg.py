@@ -51,12 +51,9 @@ from __future__ import absolute_import
 import io
 import os
 
-import selenium.webdriver as webdriver
-
 from bokeh.io import _get_svgs
 from bokeh.util.string import decode_utf8
 from .file_output import FileOutputSubcommand
-
 
 class SVG(FileOutputSubcommand):
     ''' Subcommand to output applications as standalone PNG files.
@@ -76,6 +73,7 @@ class SVG(FileOutputSubcommand):
     ) + FileOutputSubcommand.other_args()
 
     def invoke(self, args):
+        import selenium.webdriver as webdriver
         self.driver = webdriver.PhantomJS(service_log_path=os.path.devnull)
         super(SVG, self).invoke(args)
         self.driver.quit()

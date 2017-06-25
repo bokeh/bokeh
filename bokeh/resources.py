@@ -78,7 +78,7 @@ def _cdn_base_url():
     return "https://cdn.pydata.org"
 
 
-def _get_cdn_urls(components, version=None, minified=True):
+def _get_cdn_urls(version=None, minified=True):
     if version is None:
         if settings.docs_cdn():
             version = settings.docs_cdn()
@@ -102,7 +102,7 @@ def _get_cdn_urls(components, version=None, minified=True):
         return '%s/%s/%s-%s%s.%s' % (base_url, container, comp, version, _min, kind)
 
     result = {
-        'urls'     : lambda kind: [ mk_url(component, kind) for component in components ],
+        'urls'     : lambda components, kind: [ mk_url(component, kind) for component in components ],
         'messages' : [],
     }
 
@@ -116,7 +116,7 @@ def _get_cdn_urls(components, version=None, minified=True):
     return result
 
 
-def _get_server_urls(components, root_url, minified=True, path_versioner=None):
+def _get_server_urls(root_url, minified=True, path_versioner=None):
     _min = ".min" if minified else ""
 
     def mk_url(comp, kind):
@@ -126,7 +126,7 @@ def _get_server_urls(components, root_url, minified=True, path_versioner=None):
         return '%sstatic/%s' % (root_url, path)
 
     return {
-        'urls'     : lambda kind: [ mk_url(component, kind) for component in components ],
+        'urls'     : lambda components, kind: [ mk_url(component, kind) for component in components ],
         'messages' : [],
     }
 
@@ -139,7 +139,12 @@ class BaseResources(object):
                  minified=True, log_level="info", root_url=None,
                  path_versioner=None, components=None):
 
-        self.components = components if components is not None else ["bokeh", "bokeh-widgets"]
+        self._components = components
+
+        if hasattr(self, '_js_components'):
+            self.js_components = self._js_components
+        if hasattr(self, '_css_components'):
+            self.css_components = self._css_components
 
         self.mode = settings.resources(mode);           del mode
         self.root_dir = settings.rootdir(root_dir);     del root_dir
@@ -198,10 +203,16 @@ class BaseResources(object):
         else:
             return self._default_root_url
 
+    def components(self, kind):
+        components = self.js_components if kind == 'js' else self.css_components
+        if self._components is not None:
+            components = [ c for c in components if c in self._components ]
+        return components
+
     def _file_paths(self, kind):
         bokehjs_dir = bokehjsdir(self.dev)
         minified = ".min" if not self.dev and self.minified else ""
-        files = [ "%s%s.%s" % (component, minified, kind) for component in self.components ]
+        files = [ "%s%s.%s" % (component, minified, kind) for component in self.components(kind) ]
         paths = [ join(bokehjs_dir, kind, file) for file in files ]
         return paths
 
@@ -223,12 +234,11 @@ class BaseResources(object):
 
         return external_resources
 
-
     def _cdn_urls(self):
-        return _get_cdn_urls(self.components, self.version, self.minified)
+        return _get_cdn_urls(self.version, self.minified)
 
     def _server_urls(self):
-        return _get_server_urls(self.components, self.root_url, False if self.dev else self.minified, self.path_versioner)
+        return _get_server_urls(self.root_url, False if self.dev else self.minified, self.path_versioner)
 
     def _resolve(self, kind):
         paths = self._file_paths(kind)
@@ -243,10 +253,10 @@ class BaseResources(object):
             files = list(paths)
         elif self.mode == "cdn":
             cdn = self._cdn_urls()
-            files = list(cdn['urls'](kind))
+            files = list(cdn['urls'](self.components(kind), kind))
         elif self.mode == "server":
             server = self._server_urls()
-            files = list(server['urls'](kind))
+            files = list(server['urls'](self.components(kind), kind))
 
         return (files, raw)
 
@@ -311,17 +321,13 @@ class JSResources(BaseResources):
 
     '''
 
-    def _autoload_path(self, elementid):
-        return self.root_url + "bokeh/autoload.js/%s" % elementid
+    _js_components = ["bokeh", "bokeh-widgets", "bokeh-tables", "bokeh-gl"]
 
     @property
     def js_files(self):
         files, _ = self._resolve('js')
-
         external_resources = self._collect_external_resources('__javascript__')
-        files.extend(external_resources)
-
-        return files
+        return external_resources + files
 
     @property
     def js_raw(self):
@@ -382,14 +388,13 @@ class CSSResources(BaseResources):
 
     '''
 
+    _css_components = ["bokeh", "bokeh-widgets", "bokeh-tables"]
+
     @property
     def css_files(self):
         files, _ = self._resolve('css')
-
         external_resources = self._collect_external_resources("__css__")
-        files.extend(external_resources)
-
-        return files
+        return external_resources + files
 
     @property
     def css_raw(self):
