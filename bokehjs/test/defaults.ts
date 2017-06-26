@@ -14,7 +14,8 @@ import {HasProps} from "core/has_props"
 import {models as widget_models} from "models/widgets/main"
 Models.register_models(widget_models as {[key: string]: any}, false, undefined)
 
-const all_view_model_names = concat([core_defaults.all_view_model_names(), widget_defaults.all_view_model_names()])
+import {models as table_models} from "models/widgets/tables/main"
+Models.register_models(table_models as {[key: string]: any}, false, undefined)
 
 function get_defaults(name: string) {
   const defaults = core_defaults.get_defaults(name) || widget_defaults.get_defaults(name)
@@ -189,7 +190,7 @@ describe("Defaults", () => {
   it("have all Widget view models from Python in widget locations registry", () => {
     const missing = []
     for (const name of widget_defaults.all_view_model_names()) {
-      if (!(name in widget_models)) {
+      if (!(name in widget_models || name in table_models)) {
         missing.push(name)
       }
     }
@@ -205,6 +206,7 @@ describe("Defaults", () => {
       registered[name] = true
     }
     const missing = []
+    const all_view_model_names = concat([core_defaults.all_view_model_names(), widget_defaults.all_view_model_names()])
     for (const name of all_view_model_names) {
       if (!(name in registered)) {
         missing.push(name)
@@ -218,6 +220,7 @@ describe("Defaults", () => {
 
   it("match between Python and bokehjs", () => {
     let fail_count = 0
+    const all_view_model_names = concat([core_defaults.all_view_model_names(), widget_defaults.all_view_model_names()])
     for (const name of all_view_model_names) {
       const model = Models(name)
       const instance = new model({}, {silent: true, defer_initialization: true})

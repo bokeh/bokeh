@@ -150,6 +150,7 @@ gulp.task("scripts:bundle", ["scripts:compile"], (cb: (arg?: any) => void) => {
         paths: ['./node_modules', paths.buildDir.jsTree],
       }
       const plugin = browserify(pluginOpts)
+      plugin.exclude(path.resolve("node_modules/moment/moment.js"))
       labels[plugin_name] = namedLabeler(plugin, labels.bokehjs)
       for (const file in labels.bokehjs) {
         const name = labels.bokehjs[file]
@@ -178,6 +179,8 @@ gulp.task("scripts:bundle", ["scripts:compile"], (cb: (arg?: any) => void) => {
 
   const buildWidgets = mkBuildPlugin("widgets", 'models/widgets/main.js')
 
+  const buildTables = mkBuildPlugin("tables", 'models/widgets/tables/main.js')
+
   const buildGL = mkBuildPlugin("gl", "models/glyphs/webgl/main.js")
 
   function writeLabels(next: (arg?: any) => void) {
@@ -190,7 +193,7 @@ gulp.task("scripts:bundle", ["scripts:compile"], (cb: (arg?: any) => void) => {
     fs.writeFile(modulesPath, JSON.stringify(data), () => next())
   }
 
-  buildBokehjs(() => buildAPI(() => buildWidgets(() => buildGL(() => writeLabels(cb)))))
+  buildBokehjs(() => buildAPI(() => buildWidgets(() => buildTables(() => buildGL(() => writeLabels(cb))))))
 })
 
 gulp.task("scripts:build", ["scripts:bundle"])
@@ -218,7 +221,7 @@ gulp.task("compiler:build", () => {
 })
 
 gulp.task("scripts:minify", ["scripts:bundle"], () => {
-  const tasks = [paths.coffee.bokehjs, paths.coffee.api, paths.coffee.widgets, paths.coffee.gl].map((entry) => {
+  const tasks = [paths.coffee.bokehjs, paths.coffee.api, paths.coffee.widgets, paths.coffee.tables, paths.coffee.gl].map((entry) => {
     return gulp.src(entry.destination.fullWithPath)
       .pipe(rename((path) => path.basename += '.min'))
       .pipe(uglify({ output: {comments: /^!|copyright|license|\(c\)/i} }))

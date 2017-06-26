@@ -1,11 +1,12 @@
 import {Widget, WidgetView} from "./widget"
 import * as p from "core/properties"
+import {empty} from "core/dom"
 
 export class PanelView extends WidgetView
 
   render: () ->
     super()
-    @$el.empty()
+    empty(@el)
     return @
 
 export class Panel extends Widget

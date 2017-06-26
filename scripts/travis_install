@@ -8,33 +8,27 @@ git fetch origin master
 MINICONDA="Miniconda-$MINICONDA_VERSION-Linux-x86_64"
 MINICONDA_URL="http://repo.continuum.io/miniconda/$MINICONDA.sh"
 
-PINNED_PKGS=$(cat <<EOF
-EOF
-)
-
-wget $MINICONDA_URL
+wget -nv $MINICONDA_URL
 bash $MINICONDA.sh -b -f -p $HOME/miniconda
 rm -rf $MINICONDA.sh
 
 python -V
 
+PINNED_PKGS=$(cat <<EOF
+EOF
+)
+
 echo -e "$PINNED_PKGS" > $HOME/miniconda/conda-meta/pinned
 
 DEPS_TRAVIS="python=$TRAVIS_PYTHON_VERSION conda=4.3.21 conda-env=2.6.0 conda-build=2.1.15"
-conda install --yes $DEPS_TRAVIS
+time conda install --yes $DEPS_TRAVIS
 
 conda config --set auto_update_conda off
 conda config --append channels bokeh
 conda config --append channels conda-forge
 conda config --get channels
 
-DEPS_BUILD=$(cat <<EOF | python -
-from conda_build.metadata import MetaData
-print(" ".join([s.replace(" ", "") for s in MetaData("conda.recipe").get_value("requirements/build")]))
-EOF
-)
-
-time conda install --yes $DEPS_BUILD
+time conda install --yes `python scripts/deps.py build`
 
 pushd bokehjs
 time npm install
@@ -46,20 +40,7 @@ pushd bokehjs
 time node_modules/.bin/gulp examples --no-build
 popd
 
-DEPS_RUN=$(cat <<EOF | python -
-from conda_build.metadata import MetaData
-print(" ".join([s.replace(" ", "") for s in MetaData("conda.recipe").get_value("requirements/run")]))
-EOF
-)
-
-DEPS_TEST=$(cat <<EOF | python -
-from conda_build.metadata import MetaData
-print(" ".join([s.replace(" ", "") for s in MetaData("conda.recipe").get_value("test/requires")]))
-EOF
-)
-
-time conda install --yes $DEPS_RUN
-time conda install --yes $DEPS_TEST
+time conda install --yes `python scripts/deps.py run test`
 
 echo "node version: $(node -v)"
 echo "npm version: $(npm -v)"

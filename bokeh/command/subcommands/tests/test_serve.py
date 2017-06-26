@@ -255,7 +255,7 @@ def test_port_not_available():
 
 def test_actual_port_printed_out():
     with run_bokeh_serve(["--port", "0"]) as p:
-        pat = re.compile(r'Starting Bokeh server on port (\d+) with applications at paths')
+        pat = re.compile(r'Bokeh app running at: http://localhost:(\d+)')
         while True:
             line = p.stdout.readline()
             print("child stdout>", line)

@@ -73,14 +73,14 @@ class TestComponents(unittest.TestCase):
 
     def test_result_attrs(self):
         script, div = embed.components(_embed_test_plot)
-        html = bs4.BeautifulSoup(script)
+        html = bs4.BeautifulSoup(script, "lxml")
         scripts = html.findAll(name='script')
         self.assertEqual(len(scripts), 1)
         self.assertTrue(scripts[0].attrs, {'type': 'text/javascript'})
 
     def test_div_attrs(self):
         script, div = embed.components(_embed_test_plot)
-        html = bs4.BeautifulSoup(div)
+        html = bs4.BeautifulSoup(div, "lxml")
 
         divs = html.findAll(name='div')
         self.assertEqual(len(divs), 2)
@@ -102,7 +102,7 @@ class TestComponents(unittest.TestCase):
     @mock.patch('bokeh.embed.make_id', new_callable=lambda: _stable_id)
     def test_output_is_without_script_tag_when_wrap_script_is_false(self, mock_make_id):
         script, div = embed.components(_embed_test_plot)
-        html = bs4.BeautifulSoup(script)
+        html = bs4.BeautifulSoup(script, "lxml")
         scripts = html.findAll(name='script')
         self.assertEqual(len(scripts), 1)
         script_content = scripts[0].getText()
@@ -119,14 +119,14 @@ class TestNotebookDiv(unittest.TestCase):
 
     def test_result_attrs(self):
         r = embed.notebook_div(_embed_test_plot)
-        html = bs4.BeautifulSoup(r)
+        html = bs4.BeautifulSoup(r, "lxml")
         scripts = html.findAll(name='script')
         self.assertEqual(len(scripts), 1)
         self.assertTrue(scripts[0].attrs, {'type': 'text/javascript'})
 
     def test_div_attrs(self):
         r = embed.notebook_div(_embed_test_plot)
-        html = bs4.BeautifulSoup(r)
+        html = bs4.BeautifulSoup(r, "lxml")
         divs = html.findAll(name='div')
         self.assertEqual(len(divs), 2)
 
@@ -226,7 +226,7 @@ class TestAutoloadStatic(unittest.TestCase):
     @mock.patch('bokeh.embed.make_id', new_callable=lambda: _stable_id)
     def test_script_attrs(self, mock_make_id):
         js, tag = embed.autoload_static(_embed_test_plot, CDN, "some/path")
-        html = bs4.BeautifulSoup(tag)
+        html = bs4.BeautifulSoup(tag, "lxml")
         scripts = html.findAll(name='script')
         self.assertEqual(len(scripts), 1)
         attrs = scripts[0].attrs
@@ -262,7 +262,7 @@ class TestServerDocument(unittest.TestCase):
         r = embed.server_document(url="http://localhost:8081/foo/bar/sliders")
         self.assertTrue('bokeh-app-path=/foo/bar/sliders' in r)
         self.assertTrue('bokeh-absolute-url=http://localhost:8081/foo/bar/sliders' in r)
-        html = bs4.BeautifulSoup(r)
+        html = bs4.BeautifulSoup(r, "lxml")
         scripts = html.findAll(name='script')
         self.assertEqual(len(scripts), 1)
         attrs = scripts[0].attrs
@@ -294,7 +294,7 @@ class TestServerSession(unittest.TestCase):
     def test_ensure_session_and_model(self):
         r = embed.server_session(_embed_test_plot, session_id='fakesession')
         self.assertTrue('bokeh-session-id=fakesession' in r)
-        html = bs4.BeautifulSoup(r)
+        html = bs4.BeautifulSoup(r, "lxml")
         scripts = html.findAll(name='script')
         self.assertEqual(len(scripts), 1)
         attrs = scripts[0].attrs
@@ -322,7 +322,7 @@ class TestAutoloadServer(unittest.TestCase):
     def test_script_attrs_session_id_provided(self):
         r = embed.autoload_server(_embed_test_plot, session_id='fakesession')
         self.assertTrue('bokeh-session-id=fakesession' in r)
-        html = bs4.BeautifulSoup(r)
+        html = bs4.BeautifulSoup(r, "lxml")
         scripts = html.findAll(name='script')
         self.assertEqual(len(scripts), 1)
         attrs = scripts[0].attrs
@@ -344,7 +344,7 @@ class TestAutoloadServer(unittest.TestCase):
     def test_script_attrs_no_session_id_provided(self):
         r = embed.autoload_server(None)
         self.assertFalse('bokeh-session-id' in r)
-        html = bs4.BeautifulSoup(r)
+        html = bs4.BeautifulSoup(r, "lxml")
         scripts = html.findAll(name='script')
         self.assertEqual(len(scripts), 1)
         attrs = scripts[0].attrs
@@ -366,7 +366,7 @@ class TestAutoloadServer(unittest.TestCase):
     def test_script_attrs_url_provided(self):
         r = embed.autoload_server(url="http://localhost:8081/foo/bar/sliders", relative_urls=True)
         self.assertTrue('bokeh-app-path=/foo/bar/sliders' in r)
-        html = bs4.BeautifulSoup(r)
+        html = bs4.BeautifulSoup(r, "lxml")
         scripts = html.findAll(name='script')
         self.assertEqual(len(scripts), 1)
         attrs = scripts[0].attrs
@@ -389,7 +389,7 @@ class TestAutoloadServer(unittest.TestCase):
         r = embed.autoload_server(url="http://localhost:8081/foo/bar/sliders")
         self.assertTrue('bokeh-app-path=/foo/bar/sliders' in r)
         self.assertTrue('bokeh-absolute-url=http://localhost:8081/foo/bar/sliders' in r)
-        html = bs4.BeautifulSoup(r)
+        html = bs4.BeautifulSoup(r, "lxml")
         scripts = html.findAll(name='script')
         self.assertEqual(len(scripts), 1)
         attrs = scripts[0].attrs
@@ -412,7 +412,7 @@ class TestAutoloadServer(unittest.TestCase):
         for path in ("/foo/bar/sliders", "/foo/bar/sliders/", "foo/bar/sliders", "foo/bar/sliders"):
             r = embed.autoload_server(url="http://localhost:8081", app_path=path, relative_urls=True)
             self.assertTrue('bokeh-app-path=/foo/bar/sliders' in r)
-            html = bs4.BeautifulSoup(r)
+            html = bs4.BeautifulSoup(r, "lxml")
             scripts = html.findAll(name='script')
             self.assertEqual(len(scripts), 1)
             attrs = scripts[0].attrs
@@ -434,7 +434,7 @@ class TestAutoloadServer(unittest.TestCase):
     def test_script_attrs_arguments_provided(self):
         r = embed.server_document(arguments=dict(foo=10))
         self.assertTrue('foo=10' in r)
-        html = bs4.BeautifulSoup(r)
+        html = bs4.BeautifulSoup(r, "lxml")
         scripts = html.findAll(name='script')
         self.assertEqual(len(scripts), 1)
         attrs = scripts[0].attrs

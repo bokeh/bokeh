@@ -80,11 +80,18 @@ page.open(url, function(status) {
       window.callPhantom('done');
     }
 
-    var doc = Bokeh.documents[0];
+    var docs = Bokeh.documents;
 
-    if (doc.is_idle)
+    if (docs.length == 0) {
+      console.error("no documents were created")
       done();
-    else
-      doc.idle.connect(done);
+    } else {
+      var doc = docs[0];
+
+      if (doc.is_idle)
+        done();
+      else
+        doc.idle.connect(done);
+    }
   });
 });

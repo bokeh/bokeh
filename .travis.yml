@@ -33,11 +33,11 @@ matrix:
       env: GROUP=examples EXTRA_CMD=--no-js
 
     # linting, package and docs building (python 3.4)
-    - python: 3.4
+    - python: 3.6
       env: GROUP=flake_docs
 
     # integration tests (python 3.4)
-    - python: 3.4
+    - python: 3.6
       env: GROUP=integration
       addons:
         sauce_connect: true
@@ -64,10 +64,7 @@ script:
 
   # unit tests
   - if [[ -z "$TRAVIS_TAG" && "$GROUP" == unit ]]; then
-      py.test -s -m js;
-    fi
-  - if [[ -z "$TRAVIS_TAG" && "$GROUP" == unit ]]; then
-      py.test --rerun=5 -m 'unit or selenium' --cov=bokeh --cov-config=bokeh/.coveragerc;
+      py.test --rerun=5 -m 'unit' --cov=bokeh --cov-config=bokeh/.coveragerc;
     fi
 
   # examples tests
@@ -76,11 +73,17 @@ script:
         echo "Examples run disabled by commit";
       else
         export IPYTHON_ALLOW_DRAFT_WEBSOCKETS_FOR_PHANTOMJS=1;
-        time py.test -s -v --tb line -m examples --diff-ref FETCH_HEAD --upload --report-path=examples.html $EXTRA_CMD;
+        time py.test -s -v --tb line -m examples --diff-ref FETCH_HEAD --self-contained-html --upload --report-path=examples.html $EXTRA_CMD;
       fi;
     fi
 
   # linting, package and docs building
+
+  # TEMP MOVE OF JS TESTS TO NON-PYTHON 2 BUILD
+  - if [[ -z "$TRAVIS_TAG" && "$GROUP" == flake_docs ]]; then
+      py.test -s -m js;
+    fi
+
   - if [[ -z "$TRAVIS_TAG" && "$GROUP" == flake_docs ]]; then
       py.test -m quality;
     fi
@@ -103,7 +106,7 @@ script:
   # integration tests
   - if [[ -z "$TRAVIS_TAG" && "$GROUP" == integration ]]; then
       if [ "$SAUCELABS" == "true" ]; then
-        py.test -m integration --driver SauceLabs --html=tests/pytest-report.html -n4 -r3 --upload;
+        py.test -m integration --driver SauceLabs --self-contained-html --html=tests/pytest-report.html -n4 -r3 --upload;
       fi;
     fi
 
@@ -125,6 +128,7 @@ after_success: |
   if [[ ! -z "$TRAVIS_TAG" && "$TRAVIS_PYTHON_VERSION" == '3.4' && "$GROUP" == flake_docs ]]; then
       # Install some additional dependencies
       conda install anaconda-client --yes
+      conda install -c bokeh twine --yes
       conda install -c defaults -c conda-forge fabric3 --yes
       # Decrypt some files and place them in the correct location
       openssl aes-256-cbc -K $encrypted_c19429b59af5_key -iv $encrypted_c19429b59af5_iv -in secrets.tar.enc -out secrets.tar -d
