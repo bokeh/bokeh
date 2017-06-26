@@ -106,7 +106,7 @@ script:
   # integration tests
   - if [[ -z "$TRAVIS_TAG" && "$GROUP" == integration ]]; then
       if [ "$SAUCELABS" == "true" ]; then
-        py.test -m integration --driver SauceLabs --html=tests/pytest-report.html -n4 -r3 --upload;
+        py.test -m integration --driver SauceLabs --self-contained-html --html=tests/pytest-report.html -n4 -r3 --upload;
       fi;
     fi
 
