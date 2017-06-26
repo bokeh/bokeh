@@ -15,7 +15,7 @@ from ..core.validation.errors import BAD_COLUMN_NAME, MISSING_GLYPH, NO_SOURCE_F
 from ..model import Model
 
 from .glyphs import Glyph, Marker, Circle, MultiLine
-from .graphs import GraphDataSource
+from .graphs import GraphDataSource, LayoutProvider
 from .images import ImageSource
 from .sources import ColumnDataSource, DataSource, RemoteSource
 from .tiles import TileSource, WMTSTileSource
@@ -169,9 +169,9 @@ class GlyphRenderer(DataRenderer):
 
     level = Override(default="glyph")
 
-_DEFAULT_NODE = lambda: Circle(x="x", y="y")
+_DEFAULT_NODE = lambda: Circle()
 
-_DEFAULT_EDGE = lambda: MultiLine(xs="x", ys="y")
+_DEFAULT_EDGE = lambda: MultiLine()
 
 class GraphRenderer(DataRenderer):
     '''
@@ -199,6 +199,10 @@ class GraphRenderer(DataRenderer):
     """)
 
     edges = Instance(MultiLine, default=_DEFAULT_EDGE, help="""
+    Stuff and things
+    """)
+
+    layout_provider = Instance(LayoutProvider, help="""
     Stuff and things
     """)
 

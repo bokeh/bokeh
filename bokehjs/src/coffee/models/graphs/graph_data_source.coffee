@@ -9,10 +9,4 @@ export class GraphDataSource extends Model
   @define {
     nodes: [ p.Instance, new ColumnDataSource({data: {index: []}})          ]
     edges: [ p.Instance, new ColumnDataSource({data: {start: [], end: []}}) ]
-    layout_provider: [ p.Instance                                           ]
   }
-
-  # initialize: (options) ->
-  #   super(options)
-  #   @_update_data()
-  #   @connect(@properties.geojson.change, () => @_update_data())
