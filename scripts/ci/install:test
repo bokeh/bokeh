@@ -1,0 +1,27 @@
+#!/bin/bash
+
+set -e # exit on error
+set -x # echo commands
+
+# download the pre-built Bokeh package from the build phase
+pushd ${HOME}
+wget -nv "https://s3.amazonaws.com/bokeh-travis/${TRAVIS_BUILD_ID}/conda-bld-noarch.tgz"
+tar xzf conda-bld-noarch.tgz
+popd
+
+# install the pre-built Bokeh package plus all test and runtime dependencies
+conda install --yes --use-local bokeh `python scripts/deps.py run test`
+
+# download the previous BokehJS build directory to run tests
+pushd ${HOME}
+wget -nv "https://s3.amazonaws.com/bokeh-travis/${TRAVIS_BUILD_ID}/bokehjs-build.tgz"
+tar xzf bokehjs-build.tgz
+popd
+
+# regrettably need to have previous JS build in the source tree
+python setup.py --install-js
+
+# execute any test-specific install scripts
+if [[ -f "scripts/ci/install:${GROUP}" ]]; then
+    bash "scripts/ci/install:${GROUP}"
+fi

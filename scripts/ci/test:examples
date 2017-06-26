@@ -1,0 +1,19 @@
+#!/bin/bash
+
+set -e # exit on error
+set -x # echo commands
+
+if [[ $TRAVIS_COMMIT_MSG == *"[ci disable examples]"* ]]; then
+    echo
+    echo " SKIPPING EXAMPLES TESTS --- disabled by commit message"
+    echo
+    exit 0
+fi
+
+py.test -s -v -m examples       \
+    --tb line                   \
+    --diff-ref FETCH_HEAD       \
+    --self-contained-html       \
+    --upload                    \
+    --report-path=examples.html \
+    ${EXTRA_CMD}

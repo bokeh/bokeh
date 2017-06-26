@@ -3,6 +3,9 @@ from __future__ import print_function
 import os
 import subprocess
 
+import pytest
+
+@pytest.mark.quality
 def test_python_execution_with_OO():
 
     # running python with -OO will discard docstrings -> __doc__ is None
