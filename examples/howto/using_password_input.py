@@ -1,13 +1,16 @@
+"""This example using a PasswordInput is purely for demonstration.
+
+Putting a password plaintext in a CustomJS is not advised since it would expose the password.
+"""
+
 from bokeh.models.widgets import PasswordInput, TextInput, PreText, Button
 from bokeh.layouts import column, row
 from bokeh.plotting import show, output_file
 from bokeh.models.callbacks import CustomJS
 
-# Set User and Password:
 USER = "Mau"
 PASSWD = "Bok3h"
 
-## Create Texts, inputs and button
 text = PreText(text="LOGIN TO KNOW\nTHE SECRET:")
 user = TextInput(placeholder="username", title="(UserName: "+USER+")")
 pwd = PasswordInput(placeholder="password", title="(Password: "+PASSWD+")")
@@ -23,8 +26,9 @@ verify_pwd = CustomJS(args=dict(user=user, pwd=pwd, secret=secret),
                                }}
                                secret.text = 'Wrong Password.';
                                """.format(USER, PASSWD))
-#user.callback = verify_pwd # Check password pressing enter. -BUG Works also with tab :(
-pwd.callback = verify_pwd # Check password pressing enter.  -BUG Works also with tab :(
+
+#user.callback = verify_pwd # Check password pressing enter.
+pwd.callback = verify_pwd # Check password pressing enter.
 btn.callback = verify_pwd # Check password clicking on the Button.
 
 output_file("using_password_input.html", title="Password Field")
