@@ -37,10 +37,9 @@ export class HoverToolView extends InspectToolView
     for r in @computed_renderers
       @connect(r.data_source.inspect, @_update)
 
-    # TODO: @connect(@plot.properties.renderers.change, () -> @_computed_renderers = @_ttmodels = null)
+    # TODO: @connect(@plot_model.plot.properties.renderers.change, () -> @_computed_renderers = @_ttmodels = null)
     @connect(@model.properties.renderers.change,      () -> @_computed_renderers = @_ttmodels = null)
     @connect(@model.properties.names.change,          () -> @_computed_renderers = @_ttmodels = null)
-    @connect(@model.properties.plot.change,           () -> @_computed_renderers = @_ttmodels = null)
     @connect(@model.properties.tooltips.change,       () -> @_ttmodels = null)
 
   _compute_renderers: () ->
@@ -48,7 +47,7 @@ export class HoverToolView extends InspectToolView
     names = @model.names
 
     if renderers.length == 0
-      all_renderers = @model.plot.renderers
+      all_renderers = @plot_model.plot.renderers
       renderers = (r for r in all_renderers when r instanceof GlyphRenderer)
 
     if names.length > 0

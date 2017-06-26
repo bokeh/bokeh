@@ -4,6 +4,7 @@ from collections import Iterable, OrderedDict, Sequence
 import difflib
 import itertools
 import re
+import textwrap
 import warnings
 
 import numpy as np
@@ -433,15 +434,15 @@ def _get_argspecs(glyphclass):
     argspecs = OrderedDict()
     for arg in glyphclass._args:
         spec = {}
-        prop = getattr(glyphclass, arg)
+        descriptor = getattr(glyphclass, arg)
 
         # running python with -OO will discard docstrings -> __doc__ is None
-        if prop.__doc__:
-            spec['desc'] = " ".join(x.strip() for x in prop.__doc__.strip().split("\n\n")[0].split('\n'))
+        if descriptor.__doc__:
+            spec['desc'] = "\n        ".join(textwrap.dedent(descriptor.__doc__).split("\n"))
         else:
             spec['desc'] = ""
-        spec['default'] = prop.class_default(glyphclass)
-        spec['type'] = prop.__class__.__name__
+        spec['default'] = descriptor.class_default(glyphclass)
+        spec['type'] = descriptor.property._sphinx_type()
         argspecs[arg] = spec
     return argspecs
 
@@ -478,7 +479,9 @@ def _get_sigfunc(func_name, func, argspecs):
     eval(func_code, {"func": func}, func_globals)
     return func_globals[func_name]
 
-_arg_template = "    %s (%s) : %s (default %r)"
+_arg_template = """    %s (%s) : %s
+        (default: %r)
+"""
 _doc_template = """ Configure and add %s glyphs to this Figure.
 
 Args:
@@ -507,17 +510,21 @@ Returns:
 def _add_sigfunc_info(func, argspecs, glyphclass, extra_docs):
     func.__name__ = glyphclass.__name__.lower()
 
+    omissions = {'js_event_callbacks', 'js_property_callbacks', 'subscribed_events'}
+
     kwlines = []
     kws = glyphclass.properties() - set(argspecs)
     for kw in kws:
-        prop = getattr(glyphclass, kw)
-        if prop.__doc__:
-            typ = prop.__class__.__name__
-            desc = " ".join(x.strip() for x in prop.__doc__.strip().split("\n\n")[0].split('\n'))
+        # these are not really useful, and should also really be private, just skip them
+        if kw in omissions: continue
+
+        descriptor = getattr(glyphclass, kw)
+        typ = descriptor.property._sphinx_type()
+        if descriptor.__doc__:
+            desc = "\n        ".join(textwrap.dedent(descriptor.__doc__).split("\n"))
         else:
-            typ = str(prop)
             desc = ""
-        kwlines.append(_arg_template % (kw, typ, desc, prop.class_default(glyphclass)))
+        kwlines.append(_arg_template % (kw, typ, desc, descriptor.class_default(glyphclass)))
     extra_kws = getattr(glyphclass, '_extra_kws', {})
     for kw, (typ, desc) in extra_kws.items():
         kwlines.append("    %s (%s) : %s" % (kw, typ, desc))
@@ -608,6 +615,8 @@ def _glyph_function(glyphclass, extra_docs=None):
     argspecs = _get_argspecs(glyphclass)
 
     sigfunc = _get_sigfunc(glyphclass.__name__.lower(), func, argspecs)
+
+    sigfunc.glyph_method = True
 
     _add_sigfunc_info(sigfunc, argspecs, glyphclass, extra_docs)
 

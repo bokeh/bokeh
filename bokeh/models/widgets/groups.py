@@ -34,6 +34,10 @@ class AbstractGroup(Widget):
         '''
         self.on_change('active', lambda attr, old, new: handler(new))
 
+    def js_on_click(self, handler):
+        ''' Set up a handler for button check/radio box clicks including the selected indices. '''
+        self.js_on_change('active', handler)
+
     callback = Instance(Callback, help="""
     A callback to run in the browser whenever a button group is manipulated.
     """)

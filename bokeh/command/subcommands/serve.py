@@ -554,14 +554,13 @@ class Serve(Subcommand):
                         server.show(route)
                 server.io_loop.add_callback(show_callback)
 
-            address_string = ''
+            address_string = 'localhost'
             if server.address is not None and server.address != '':
-                address_string = ' address ' + server.address
+                address_string = server.address
 
-            log.info("Starting Bokeh server on port %d%s with applications at paths %r",
-                     server.port,
-                     address_string,
-                     sorted(applications.keys()))
+            for route in sorted(applications.keys()):
+                url = "http://%s:%d%s%s" % (address_string, server.port, server.prefix, route)
+                log.info("Bokeh app running at: %s" % url)
 
             log.info("Starting Bokeh server with process id: %d" % getpid())
             server.run_until_shutdown()

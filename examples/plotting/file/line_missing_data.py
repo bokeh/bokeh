@@ -14,8 +14,8 @@ y1[y1>+0.9] = +np.inf
 y1[y1<-0.9] = -np.inf
 
 # Set high values to nan and mask the low
-y2[y2>0.9] = np.nan
 y2 = np.ma.masked_array(y2, y2<-0.9)
+y2[y2>0.9] = np.nan
 
 p = figure(title="lines with missing/inf values")
 

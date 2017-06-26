@@ -1,44 +1,45 @@
-import * as $ from "jquery"
-
-import * as p from "core/properties"
+import {empty, input, label, div} from "core/dom"
 import {uniqueId} from "core/util/string"
+import * as p from "core/properties"
 
 import {Widget, WidgetView} from "./widget"
 
 export class RadioGroupView extends WidgetView
-  events:
-    "change input": "change_input"
-
   initialize: (options) ->
     super(options)
     @render()
+
+  connect_signals: () ->
+    super()
     @connect(@model.change, () -> @render())
 
   render: () ->
     super()
-    @$el.empty()
+    empty(@el)
 
-    name = uniqueId("RadioGroup")
+    name = uniqueId()
+
     active = @model.active
-    for label, i in @model.labels
-      $input = $('<input type="radio">').attr(name: name, value: "#{i}")
-      if @model.disabled then $input.prop("disabled", true)
-      if i == active then $input.prop("checked", true)
+    for text, i in @model.labels
+      inputEl = input({type: "radio", name: name, value: "#{i}"})
+      inputEl.addEventListener("change", () => @change_input())
 
-      $label = $('<label></label>').text(label).prepend($input)
+      if @model.disabled then inputEl.disabled = true
+      if i == active then inputEl.checked = true
+
+      labelEl = label({}, inputEl, text)
       if @model.inline
-          $label.addClass("bk-bs-radio-inline")
-          @$el.append($label)
+        labelEl.classList.add("bk-bs-radio-inline")
+        @el.appendChild(labelEl)
       else
-          $div = $('<div class="bk-bs-radio"></div>').append($label)
-          @$el.append($div)
+        divEl = div({class: "bk-bs-radio"}, labelEl)
+        @el.appendChild(divEl)
     return @
 
   change_input: () ->
-    active = (i for radio, i in @$el.find("input") when radio.checked)
+    active = (i for radio, i in @el.querySelectorAll("input") when radio.checked)
     @model.active = active[0]
     @model.callback?.execute(@model)
-
 
 export class RadioGroup extends Widget
   type: "RadioGroup"

@@ -1,0 +1,57 @@
+@noUi-css-prefix: bk-noUi;
+@nouislider: "../../../node_modules/nouislider/src";
+@import "@{nouislider}/nouislider.base.less";
+
+.@{noUi-css-prefix}-handle {
+  cursor: grab;
+  cursor: -webkit-grab;
+  &.@{noUi-css-prefix}-active {
+    cursor: grabbing;
+    cursor: -webkit-grabbing;
+  }
+}
+
+.@{noUi-css-prefix}-tooltip {
+  display: none;
+  white-space: nowrap;
+}
+
+.@{noUi-css-prefix}-handle:hover {
+  .@{noUi-css-prefix}-tooltip {
+    display: block;
+  }
+}
+
+@slider_size: 10px;
+
+@handle_width: 8px;
+@handle_height: 18px;
+@handle_left: -@handle_width/2;
+@handle_top: -(@handle_height - @slider_size)/2 - 1;
+
+.@{noUi-css-prefix}-horizontal {
+  width: 100%;
+  height: @slider_size;
+}
+.@{noUi-css-prefix}-horizontal .@{noUi-css-prefix}-handle {
+  width: @handle_width;
+  height: @handle_height;
+  left: @handle_left;
+  top: @handle_top;
+}
+.@{noUi-css-prefix}-vertical {
+  width: @slider_size;
+  height: 100%;
+}
+.@{noUi-css-prefix}-vertical .@{noUi-css-prefix}-handle {
+  width: @handle_height;
+  height: @handle_width;
+  left: @handle_top;
+  top: @handle_left;
+}
+
+.@{noUi-css-prefix}-handle {
+  &:after, &:before {
+    display: none;
+  }
+}

@@ -13,15 +13,10 @@ module.constructor.prototype.require = (modulePath) ->
   assert(typeof modulePath == 'string', 'path must be a string')
 
   if not modulePath.startsWith(".")
-    overridePath = pkg.browser[modulePath]
+    overridePath = path.join(root, path.dirname(pkg.main), modulePath + ".js")
 
-    if overridePath?
-      modulePath = path.join(root, overridePath)
-    else
-      overridePath = path.join(root, path.dirname(pkg.main), modulePath + ".js")
-
-      if fs.existsSync(overridePath)
-        modulePath = overridePath
+    if fs.existsSync(overridePath)
+      modulePath = overridePath
 
   try
     return this.constructor._load(modulePath, this)

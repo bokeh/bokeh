@@ -1,7 +1,6 @@
-import * as gloo2 from "gloo2"
-import {logger} from "core/logging"
+import {Program, VertexBuffer, IndexBuffer} from "./gloo2"
 import {BaseGLGlyph, attach_float, attach_color} from "./base"
-
+import {logger} from "core/logging"
 
 class MarkerGLGlyph extends BaseGLGlyph
   # Base class for markers. All markers share the same GLSL, except for one
@@ -116,22 +115,22 @@ class MarkerGLGlyph extends BaseGLGlyph
     @last_trans = {}  # Keep track of transform
 
     # The program
-    @prog = new gloo2.Program(gl)
+    @prog = new Program(gl)
     @prog.set_shaders(@VERT, frag)
     # Real attributes
-    @vbo_x = new gloo2.VertexBuffer(gl)
+    @vbo_x = new VertexBuffer(gl)
     @prog.set_attribute('a_x', 'float', @vbo_x)
-    @vbo_y = new gloo2.VertexBuffer(gl)
+    @vbo_y = new VertexBuffer(gl)
     @prog.set_attribute('a_y', 'float', @vbo_y)
-    @vbo_s = new gloo2.VertexBuffer(gl)
+    @vbo_s = new VertexBuffer(gl)
     @prog.set_attribute('a_size', 'float', @vbo_s)
-    @vbo_a = new gloo2.VertexBuffer(gl)
+    @vbo_a = new VertexBuffer(gl)
     @prog.set_attribute('a_angle', 'float', @vbo_a)
     # VBO's for attributes (they may not be used if value is singleton)
-    @vbo_linewidth = new gloo2.VertexBuffer(gl)
-    @vbo_fg_color = new gloo2.VertexBuffer(gl)
-    @vbo_bg_color = new gloo2.VertexBuffer(gl)
-    @index_buffer = new gloo2.IndexBuffer(gl)
+    @vbo_linewidth = new VertexBuffer(gl)
+    @vbo_fg_color = new VertexBuffer(gl)
+    @vbo_bg_color = new VertexBuffer(gl)
+    @index_buffer = new IndexBuffer(gl)
 
   draw: (indices, mainGlyph, trans) ->
 

@@ -4,7 +4,7 @@ utils = require "../../utils"
 {ColumnDataSource} = utils.require("models/sources/column_data_source")
 {CDSView} = utils.require("models/sources/cds_view")
 
-{DataProvider, DataTable, DTINDEX_NAME} = utils.require("models/widgets/data_table")
+{DataProvider, DataTable, DTINDEX_NAME} = utils.require("models/widgets/tables/data_table")
 
 describe "data_table module", ->
 

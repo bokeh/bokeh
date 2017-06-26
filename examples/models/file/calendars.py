@@ -75,7 +75,7 @@ def make_calendar(year, month, firstweekday="Mon"):
     xaxis.axis_line_color = None
     plot.add_layout(xaxis, 'above')
 
-    hover_tool = HoverTool(plot=plot, renderers=[rect_renderer], tooltips=[("Holiday", "@month_holidays")])
+    hover_tool = HoverTool(renderers=[rect_renderer], tooltips=[("Holiday", "@month_holidays")])
     plot.tools.append(hover_tool)
 
     return plot

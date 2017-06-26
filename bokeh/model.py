@@ -277,7 +277,8 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
     """)
 
     js_event_callbacks = Dict(String, List(Instance("bokeh.models.callbacks.CustomJS")),
-    help="""A mapping of event names to lists of CustomJS callbacks.
+    help="""
+    A mapping of event names to lists of CustomJS callbacks.
 
     Typically, rather then modifying this property directly, callbacks should be
     added using the ``Model.js_on_event`` method:

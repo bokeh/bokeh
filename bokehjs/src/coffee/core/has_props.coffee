@@ -90,7 +90,6 @@ export class HasProps
 
     @destroyed = new Signal(this, "destroyed")
     @change = new Signal(this, "change")
-    @propchange = new Signal(this, "propchange")
     @transformchange = new Signal(this, "transformchange")
 
     this.attributes = {}

@@ -1,6 +1,6 @@
-import * as gloo2 from "gloo2"
-import {color2rgba} from "core/util/color"
+import {Program, VertexBuffer, IndexBuffer, Texture2D} from "./gloo2"
 import {BaseGLGlyph} from "./base"
+import {color2rgba} from "core/util/color"
 
 class DashAtlas
 
@@ -10,7 +10,7 @@ class DashAtlas
     @_width = 256
     @_height = 256
     # Init texture
-    @tex = new gloo2.Texture2D(gl)
+    @tex = new Texture2D(gl)
     @tex.set_wrapping(gl.REPEAT, gl.REPEAT)
     @tex.set_interpolation(gl.NEAREST, gl.NEAREST)
     @tex.set_size([@_height, @_width], gl.RGBA)
@@ -638,15 +638,15 @@ export class LineGLGlyph extends BaseGLGlyph
       @_scale_aspect = 0  # keep track, so we know when we need to update segment data
 
       # The program
-      @prog = new gloo2.Program(gl)
+      @prog = new Program(gl)
       @prog.set_shaders(@VERT, @FRAG)
-      @index_buffer = new gloo2.IndexBuffer(gl)
+      @index_buffer = new IndexBuffer(gl)
       # Buffers
-      @vbo_position = new gloo2.VertexBuffer(gl)
-      @vbo_tangents = new gloo2.VertexBuffer(gl)
-      @vbo_segment = new gloo2.VertexBuffer(gl)
-      @vbo_angles = new gloo2.VertexBuffer(gl)
-      @vbo_texcoord = new gloo2.VertexBuffer(gl)
+      @vbo_position = new VertexBuffer(gl)
+      @vbo_tangents = new VertexBuffer(gl)
+      @vbo_segment = new VertexBuffer(gl)
+      @vbo_angles = new VertexBuffer(gl)
+      @vbo_texcoord = new VertexBuffer(gl)
       # Dash atlas
       @dash_atlas = new DashAtlas(gl)
 

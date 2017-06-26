@@ -74,6 +74,7 @@ export class GlyphRendererView extends RendererView
   connect_signals: () ->
     super()
     @connect(@model.change, () -> @request_render())
+    @connect(@model.glyph.change, () -> @set_data())
     @connect(@model.data_source.change, () -> @set_data())
     @connect(@model.data_source.streaming, () -> @set_data())
     @connect(@model.data_source.patching, (indices) -> @set_data(true, indices))
@@ -84,16 +85,6 @@ export class GlyphRendererView extends RendererView
     @connect(@model.view.change, () -> @set_data())
 
     @connect(@model.glyph.transformchange, () -> @set_data())
-
-    # TODO (bev) This is a quick change that  allows the plot to be
-    # update/re-rendered when properties change on the JS side. It would
-    # be better to make this more fine grained in terms of setting visuals
-    # and also could potentially be improved by making proper models out
-    # of "Spec" properties. See https://github.com/bokeh/bokeh/pull/2684
-    @connect(@model.glyph.propchange, () ->
-        @glyph.set_visuals(@model.data_source)
-        @request_render()
-    )
 
   have_selection_glyphs: () -> @selection_glyph? && @nonselection_glyph?
 
