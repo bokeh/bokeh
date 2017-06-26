@@ -80,6 +80,8 @@ export class GlyphRendererView extends RendererView
     @connect(@model.data_source.select, () -> @request_render())
     if @hover_glyph?
       @connect(@model.data_source.inspect, () -> @request_render())
+    @connect(@model.properties.view.change, () -> @set_data())
+    @connect(@model.view.change, () -> @set_data())
 
     @connect(@model.glyph.transformchange, () -> @set_data())
 
