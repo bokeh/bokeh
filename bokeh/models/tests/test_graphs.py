@@ -7,4 +7,4 @@ def test_graphdatasource_init_props():
 
 def test_staticlayoutprovider_init_props():
     provider = StaticLayoutProvider()
-    assert provider.layout == {}
+    assert provider.graph_layout == {}
