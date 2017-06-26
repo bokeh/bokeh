@@ -10,8 +10,11 @@ export class GraphRendererView extends RendererView
 
   initialize: (options) ->
     super(options)
-    @nodes = @build_glyph_view(@model.nodes)
     @edges = @build_glyph_view(@model.edges)
+    @nodes = @build_glyph_view(@model.nodes)
+
+    # hackery
+    @edges._index_data = () -> null
 
     @set_data()
 
@@ -25,27 +28,27 @@ export class GraphRendererView extends RendererView
   set_data: () ->
     # TODO (bev) this is a bit clunky, need to make sure glyphs use the correct ranges when they call
     # mapping functions on the base Renderer class
+    @edges.model.setv({x_range_name: @model.x_range_name, y_range_name: @model.y_range_name}, {silent: true})
+    @edges.set_data(@model.graph_source.edges)
+    @edges.set_visuals(@model.graph_source.edges)
 
     @nodes.model.setv({x_range_name: @model.x_range_name, y_range_name: @model.y_range_name}, {silent: true})
     @nodes.set_data(@model.graph_source.nodes)
     @nodes.set_visuals(@model.graph_source.nodes)
 
-    # @edges.model.setv({x_range_name: @model.x_range_name, y_range_name: @model.y_range_name}, {silent: true})
-    # @edges.set_data(@model.graph_source.edges)
-    # @edges.set_visuals(@model.graph_source.edges)
-
-    [@nodes._x, @nodes._y] = @model.layout_provider.get_node_locations(@model.graph_source)
     [@edges._xs, @edges._ys] = @model.layout_provider.get_edge_locations(@model.graph_source)
+    [@nodes._x, @nodes._y] = @model.layout_provider.get_node_locations(@model.graph_source)
 
   render: () ->
+    @edges.map_data()
     @nodes.map_data()
-    # @edges.map_data()
 
     ctx = @plot_view.canvas_view.ctx
-    indices = range(@nodes.sx.length)
+    edge_indices = range(@edges.sxs.length)
+    node_indices = range(@nodes.sx.length)
 
-    @nodes.render(ctx, indices, @nodes)
-    # @edges.render(ctx, new Array(4), @edges)
+    @edges.render(ctx, edge_indices, @edges)
+    @nodes.render(ctx, node_indices, @nodes)
 
 export class GraphRenderer extends Renderer
   default_view: GraphRendererView

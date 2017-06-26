@@ -12,7 +12,12 @@ export class StaticLayoutProvider extends LayoutProvider
     return [x, y]
 
   get_edge_locations: (graph_source) ->
-    return @layout
+    edges = graph_source.edges.data
+    [xs, ys] = [[], []]
+    for i in [0...edges.start.length]
+      xs.push([@layout[edges.start[i]][0], @layout[edges.end[i]][0]])
+      ys.push([@layout[edges.start[i]][1], @layout[edges.end[i]][1]])
+    return [xs, ys]
 
   @define {
     layout: [ p.Any, {} ]
