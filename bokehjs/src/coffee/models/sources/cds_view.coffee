@@ -22,12 +22,13 @@ export class CDSView extends Model
     }
 
   compute_indices: () ->
-    if @filters.length == 0
+    indices = (filter.compute_indices(@source) for filter in @filters)
+    indices = (inds for inds in indices when inds?)
+    if indices.length > 0
+      @indices = intersection.apply(this, indices)
+    else
       if @source instanceof ColumnarDataSource
         @indices = @source?.get_indices()
-    else
-      indices = (filter.compute_indices(@source) for filter in @filters)
-      @indices = intersection.apply(this, indices)
 
     @indices_map_to_subset()
 

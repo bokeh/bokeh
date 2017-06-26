@@ -14,7 +14,7 @@ export class GroupFilter extends Filter
     column = source.get_column(@column_name)
     if !column?
       logger.warn("group filter: groupby column not found in data source")
-      return source.get_indices()
+      return null
     else
       @indices = (i for i in [0...source.get_length()] when column[i] == @group)
       if @indices.length == 0
