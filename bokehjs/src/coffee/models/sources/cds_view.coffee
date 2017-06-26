@@ -21,6 +21,13 @@ export class CDSView extends Model
       indices_map: [ p.Any,   {} ]
     }
 
+  connect_signals: () ->
+    super()
+    @connect(@properties.filters.change, () ->
+      @compute_indices()
+      @change.emit()
+    )
+
   compute_indices: () ->
     indices = (filter.compute_indices(@source) for filter in @filters)
     indices = (inds for inds in indices when inds?)
