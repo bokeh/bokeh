@@ -73,7 +73,7 @@ script:
         echo "Examples run disabled by commit";
       else
         export IPYTHON_ALLOW_DRAFT_WEBSOCKETS_FOR_PHANTOMJS=1;
-        time py.test -s -v --tb line -m examples --diff-ref FETCH_HEAD --upload --report-path=examples.html $EXTRA_CMD;
+        time py.test -s -v --tb line -m examples --diff-ref FETCH_HEAD --self-contained-html --upload --report-path=examples.html $EXTRA_CMD;
       fi;
     fi
 
