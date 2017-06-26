@@ -1,4 +1,4 @@
-import {TextInputWidget, TextInputWidgetView} from "./text_input_widget"
+import {TextInput, TextInputView} from "./text_input"
 
 export class PasswordInputView extends TextInputView
   render: () ->
