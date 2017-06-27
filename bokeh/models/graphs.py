@@ -26,9 +26,9 @@ class StaticLayoutProvider(LayoutProvider):
 
     .. code-block:: python
         {
-        0 : [0.5, 0.5],
-        1 : [1.0, 0.86],
-        2 : [0.86, 1],
+            0 : [0.5, 0.5],
+            1 : [1.0, 0.86],
+            2 : [0.86, 1],
         }
     """)
 

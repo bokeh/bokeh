@@ -191,19 +191,25 @@ class GraphRenderer(DataRenderer):
     """)
 
     graph_source = Instance(GraphDataSource, help="""
-    Stuff and things
+    Instance of a GraphDataSource which contains the information about the
+    nodes and edges of a network graph.
     """)
 
     nodes = Instance(Marker, default=_DEFAULT_NODE, help="""
-    Stuff and things
+    Instance of a Marker glyph that will be rendered as the graph nodes. The
+    marker attribute fields will be matched against columns in the
+    ``graph_source.nodes`` ColumnDataSource.
     """)
 
     edges = Instance(MultiLine, default=_DEFAULT_EDGE, help="""
-    Stuff and things
+    Instance of a MultiLine glyph that will be rendered as the graph edges. The
+    multiline attribute fields will be matched against columns in the
+    ``graph_source.edges`` ColumnDataSource.
     """)
 
     layout_provider = Instance(LayoutProvider, help="""
-    Stuff and things
+    An instance of a LayoutProvider that supplies the layout of the network
+    graph in cartesian space.
     """)
 
     level = Override(default="glyph")
