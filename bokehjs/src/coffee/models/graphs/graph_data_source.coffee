@@ -7,6 +7,6 @@ export class GraphDataSource extends Model
   type: 'GraphDataSource'
 
   @define {
-    nodes: [ p.Instance, new ColumnDataSource({data: {index: []}})          ]
-    edges: [ p.Instance, new ColumnDataSource({data: {start: [], end: []}}) ]
+    nodes: [ p.Instance, () -> new ColumnDataSource({data: {index: []}})          ]
+    edges: [ p.Instance, () -> new ColumnDataSource({data: {start: [], end: []}}) ]
   }
