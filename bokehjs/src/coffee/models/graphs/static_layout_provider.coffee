@@ -4,14 +4,14 @@ import * as p from "../../core/properties"
 export class StaticLayoutProvider extends LayoutProvider
   type: "StaticLayoutProvider"
 
-  get_node_locations: (graph_source) ->
+  get_node_coordinates: (graph_source) ->
     [x, y] = [[], []]
     for i in graph_source.nodes.data.index
-      x.push(@graph_layout[i][0] ? null)
-      y.push(@graph_layout[i][1] ? null)
+      x.push(@graph_layout[i]?[0] | null)
+      y.push(@graph_layout[i]?[1] | null)
     return [x, y]
 
-  get_edge_locations: (graph_source) ->
+  get_edge_coordinates: (graph_source) ->
     edges = graph_source.edges.data
     [xs, ys] = [[], []]
     for i in [0...edges.start.length]

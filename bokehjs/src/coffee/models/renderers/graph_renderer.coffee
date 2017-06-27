@@ -23,7 +23,7 @@ export class GraphRendererView extends RendererView
     @connect(@model.change, () -> @request_render())
 
   build_glyph_view: (model) ->
-    new model.default_view({model: model, renderer: @, plot_view: @plot_view, parent: @})
+    return new model.default_view({model: model, renderer: @, plot_view: @plot_view, parent: @})
 
   set_data: () ->
     # TODO (bev) this is a bit clunky, need to make sure glyphs use the correct ranges when they call
@@ -36,8 +36,8 @@ export class GraphRendererView extends RendererView
     @nodes.set_data(@model.graph_source.nodes)
     @nodes.set_visuals(@model.graph_source.nodes)
 
-    [@edges._xs, @edges._ys] = @model.layout_provider.get_edge_locations(@model.graph_source)
-    [@nodes._x, @nodes._y] = @model.layout_provider.get_node_locations(@model.graph_source)
+    [@edges._xs, @edges._ys] = @model.layout_provider.get_edge_coordinates(@model.graph_source)
+    [@nodes._x, @nodes._y] = @model.layout_provider.get_node_coordinates(@model.graph_source)
 
   render: () ->
     @edges.map_data()
