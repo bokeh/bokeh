@@ -354,6 +354,9 @@ def test__get_screenshot_as_png_large_plot():
     # why), the window resize allows for the whole plot to be captured
     assert driver.get_window_size() == {'width': 1366, 'height': 768}
 
+    # Have to manually clean up the driver session
+    driver.quit()
+
 @pytest.mark.unit
 @pytest.mark.selenium
 def test__get_svgs_no_svg_present():
