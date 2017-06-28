@@ -76,9 +76,6 @@ export function namedLabeler(bundle: Bundle, parentLabels: Labels) {
         .join("/")
         .replace(/^(node_modules|build\/js\/tree)\//, "")
 
-    if (modName.indexOf("process/browser") != -1)
-      modName = "_process"
-
     if (argv.verbose)
       gutil.log(`Processing ${modName}`)
 

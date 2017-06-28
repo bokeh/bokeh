@@ -99,18 +99,25 @@ gulp.task("scripts:tsjs", ["scripts:coffee", "scripts:js", "scripts:ts"], () => 
 
 gulp.task("scripts:compile", ["scripts:tsjs"])
 
+const commonOpts = {
+  extensions: [".js"],
+  paths: ['./node_modules', paths.buildDir.jsTree],
+  insertGlobals: false,
+  insertGlobalVars: {
+   process: undefined,
+  },
+  debug: true,
+}
+
 gulp.task("scripts:bundle", ["scripts:compile"], (cb: (arg?: any) => void) => {
   const preludePath = path.resolve("./src/js/prelude.js")
   const preludeText = fs.readFileSync(preludePath, { encoding: 'utf8' })
 
-  const bokehjsOpts = {
+  const bokehjsOpts = Object.assign({
     entries: [path.resolve(path.join(paths.buildDir.jsTree, 'main.js'))],
-    extensions: [".js"],
-    debug: true,
     preludePath: preludePath,
     prelude: preludeText,
-    paths: ['./node_modules', paths.buildDir.jsTree],
-  }
+  }, commonOpts)
 
   const bokehjs = browserify(bokehjsOpts)
   const labels: {[key: string]: Labels} = {}
@@ -145,21 +152,16 @@ gulp.task("scripts:bundle", ["scripts:compile"], (cb: (arg?: any) => void) => {
   function mkBuildPlugin(plugin_name: string, main: string) {
     return (next: (arg?: any) => void) => {
       if (argv.verbose) gutil.log(`Building ${plugin_name}`)
-      const pluginOpts = {
+      const pluginOpts = Object.assign({
         entries: [path.resolve(path.join(paths.buildDir.jsTree, main))],
-        extensions: [".js"],
-        debug: true,
         preludePath: pluginPreludePath,
         prelude: pluginPreludeText,
-        paths: ['./node_modules', paths.buildDir.jsTree],
-      }
+      }, commonOpts)
       const plugin = browserify(pluginOpts)
       plugin.exclude(path.resolve("node_modules/moment/moment.js"))
       labels[plugin_name] = namedLabeler(plugin, labels.bokehjs)
       for (const file in labels.bokehjs) {
-        const name = labels.bokehjs[file]
-        if (name !== "_process")
-          plugin.external(file)
+        plugin.external(file)
       }
       plugin
         .bundle()
