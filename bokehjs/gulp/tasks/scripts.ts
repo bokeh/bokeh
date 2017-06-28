@@ -87,9 +87,14 @@ gulp.task("scripts:tsjs", ["scripts:coffee", "scripts:js", "scripts:ts"], () => 
     gutil.log(err.message)
   }
 
-  const prefix = paths.buildDir.jsTree + '_ts/**'
-  return gulp.src([`${prefix}/*.ts`, `${prefix}/*.tsx`])
+  const tree_ts = paths.buildDir.jsTree + '_ts'
+  return gulp.src([`${tree_ts}/**/*.ts`, `${tree_ts}/**/*.tsx`])
     .pipe(ts(tsconfig.compilerOptions, ts.reporter.nullReporter()).on('error', error))
+    .pipe(change(function(this: {file: {path: string}}, content: string) {
+      const prefix = path.relative(path.dirname(this.file.path), tree_ts)
+      content = content.replace(/((import|from|require\s*\()\s*['"])core\//g, `$1${prefix}/core/`)
+      return content
+    }))
     .pipe(gulp.dest(paths.buildDir.jsTree))
 })
 
