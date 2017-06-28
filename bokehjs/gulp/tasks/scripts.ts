@@ -8,7 +8,6 @@ const source = require('vinyl-source-stream')
 const buffer = require('vinyl-buffer')
 import * as paths from "../paths"
 const change = require("gulp-change")
-import * as es from "event-stream"
 import * as fs from "fs"
 import * as path from "path"
 import {argv} from "yargs"
@@ -26,22 +25,22 @@ import {namedLabeler, Labels} from "../labeler"
 
 gulp.task("scripts:coffee", () => {
   return gulp.src('./src/coffee/**/*.coffee')
-    .pipe(gulpif(argv.incremental, newer({dest: paths.buildDir.jsTree, ext: '.js'})))
+    .pipe(gulpif(argv.incremental, newer({dest: paths.build_dir.tree_js, ext: '.js'})))
     .pipe(coffee({bare: true}))
     .pipe(rename((path) => path.extname = '.ts'))
-    .pipe(gulp.dest(paths.buildDir.jsTree + '_ts'))
+    .pipe(gulp.dest(paths.build_dir.tree_ts))
 })
 
 gulp.task("scripts:js", () => {
   return gulp.src('./src/coffee/**/*.js')
     .pipe(rename((path) => path.extname = '.ts'))
-    .pipe(gulp.dest(paths.buildDir.jsTree + '_ts'))
+    .pipe(gulp.dest(paths.build_dir.tree_ts))
 })
 
 gulp.task("scripts:ts", () => {
   const prefix = "./src/coffee/**"
   return gulp.src([`${prefix}/*.ts`, `${prefix}/*.tsx`])
-    .pipe(gulp.dest(paths.buildDir.jsTree + '_ts'))
+    .pipe(gulp.dest(paths.build_dir.tree_ts))
 })
 
 const tsconfig = require("../../tsconfig.json")
@@ -86,7 +85,7 @@ gulp.task("scripts:tsjs", ["scripts:coffee", "scripts:js", "scripts:ts"], () => 
     gutil.log(err.message)
   }
 
-  const tree_ts = paths.buildDir.jsTree + '_ts'
+  const tree_ts = paths.build_dir.tree_ts
   return gulp.src([`${tree_ts}/**/*.ts`, `${tree_ts}/**/*.tsx`])
     .pipe(ts(tsconfig.compilerOptions, ts.reporter.nullReporter()).on('error', error))
     .pipe(change(function(this: {file: {path: string}}, content: string) {
@@ -94,14 +93,14 @@ gulp.task("scripts:tsjs", ["scripts:coffee", "scripts:js", "scripts:ts"], () => 
       content = content.replace(/((import|from|require\s*\()\s*['"])core\//g, `$1${prefix}/core/`)
       return content
     }))
-    .pipe(gulp.dest(paths.buildDir.jsTree))
+    .pipe(gulp.dest(paths.build_dir.tree_js))
 })
 
 gulp.task("scripts:compile", ["scripts:tsjs"])
 
 const commonOpts = {
   extensions: [".js"],
-  paths: ['./node_modules', paths.buildDir.jsTree],
+  paths: ['./node_modules', paths.build_dir.tree_js],
   insertGlobals: false,
   insertGlobalVars: {
    process: undefined,
@@ -114,7 +113,7 @@ gulp.task("scripts:bundle", ["scripts:compile"], (cb: (arg?: any) => void) => {
   const preludeText = fs.readFileSync(preludePath, { encoding: 'utf8' })
 
   const bokehjsOpts = Object.assign({
-    entries: [path.resolve(path.join(paths.buildDir.jsTree, 'main.js'))],
+    entries: [path.resolve(path.join(paths.build_dir.tree_js, 'main.js'))],
     preludePath: preludePath,
     prelude: preludeText,
   }, commonOpts)
@@ -128,7 +127,7 @@ gulp.task("scripts:bundle", ["scripts:compile"], (cb: (arg?: any) => void) => {
     labels.bokehjs = namedLabeler(bokehjs, {})
     bokehjs
       .bundle()
-      .pipe(source(paths.coffee.bokehjs.destination.full))
+      .pipe(source(paths.coffee.bokehjs.destination.name))
       .pipe(buffer())
       .pipe(sourcemaps.init({loadMaps: true}))
       // This solves a conflict when requirejs is loaded on the page. Backbone
@@ -142,7 +141,7 @@ gulp.task("scripts:bundle", ["scripts:compile"], (cb: (arg?: any) => void) => {
       }))
       .pipe(insert.append(license))
       .pipe(sourcemaps.write('./'))
-      .pipe(gulp.dest(paths.buildDir.js))
+      .pipe(gulp.dest(paths.build_dir.js))
       .on('end', () => next())
   }
 
@@ -153,7 +152,7 @@ gulp.task("scripts:bundle", ["scripts:compile"], (cb: (arg?: any) => void) => {
     return (next: (arg?: any) => void) => {
       if (argv.verbose) gutil.log(`Building ${plugin_name}`)
       const pluginOpts = Object.assign({
-        entries: [path.resolve(path.join(paths.buildDir.jsTree, main))],
+        entries: [path.resolve(path.join(paths.build_dir.tree_js, main))],
         preludePath: pluginPreludePath,
         prelude: pluginPreludeText,
       }, commonOpts)
@@ -165,7 +164,7 @@ gulp.task("scripts:bundle", ["scripts:compile"], (cb: (arg?: any) => void) => {
       }
       plugin
         .bundle()
-        .pipe(source((paths.coffee as any)[plugin_name].destination.full))
+        .pipe(source((paths.coffee as any)[plugin_name].destination.name))
         .pipe(buffer())
         .pipe(sourcemaps.init({loadMaps: true}))
         // This solves a conflict when requirejs is loaded on the page. Backbone
@@ -176,7 +175,7 @@ gulp.task("scripts:bundle", ["scripts:compile"], (cb: (arg?: any) => void) => {
         }))
         .pipe(insert.append(license))
         .pipe(sourcemaps.write('./'))
-        .pipe(gulp.dest(paths.buildDir.js))
+        .pipe(gulp.dest(paths.build_dir.js))
         .on('end', () => next())
     }
   }
@@ -195,7 +194,7 @@ gulp.task("scripts:bundle", ["scripts:compile"], (cb: (arg?: any) => void) => {
       const module_labels = labels[name]
       data[name] = Object.keys(module_labels).map((key) => module_labels[key]).sort()
     }
-    const modulesPath = path.join(paths.buildDir.js, "modules.json")
+    const modulesPath = path.join(paths.build_dir.js, "modules.json")
     fs.writeFile(modulesPath, JSON.stringify(data), () => next())
   }
 
@@ -223,19 +222,16 @@ gulp.task("compiler:build", () => {
     .transform("coffeeify")
     .bundle()
     .pipe(source("compile.js"))
-    .pipe(gulp.dest(paths.buildDir.js))
+    .pipe(gulp.dest(paths.build_dir.js))
 })
 
 gulp.task("scripts:minify", ["scripts:bundle"], () => {
-  const tasks = [paths.coffee.bokehjs, paths.coffee.api, paths.coffee.widgets, paths.coffee.tables, paths.coffee.gl].map((entry) => {
-    return gulp.src(entry.destination.fullWithPath)
-      .pipe(rename((path) => path.basename += '.min'))
-      .pipe(uglify({ output: {comments: /^!|copyright|license|\(c\)/i} }))
-      .pipe(insert.append(license))
-      .pipe(sourcemaps.write('./'))
-      .pipe(gulp.dest(paths.buildDir.js))
-  })
-  return es.merge.apply(null, tasks)
+  return gulp.src(`${paths.build_dir.js}/!(*.min|compile).js`)
+    .pipe(rename((path) => path.basename += '.min'))
+    .pipe(uglify({ output: { comments: /^!|copyright|license|\(c\)/i } }))
+    .pipe(insert.append(license))
+    .pipe(sourcemaps.write('./'))
+    .pipe(gulp.dest(paths.build_dir.js))
 })
 
 gulp.task("scripts", ["scripts:build", "scripts:minify", "compiler:build"])

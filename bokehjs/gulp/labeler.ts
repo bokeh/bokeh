@@ -26,16 +26,11 @@ function customLabeler(bundle: Bundle, parentLabels: Labels, fn: (row: any) => s
     const opts = {
       basedir: path.dirname(row.file),
       extensions: ['.js'],
-      paths: ['./node_modules', paths.buildDir.jsTree],
+      paths: ['./node_modules', paths.build_dir.tree_js],
     }
 
     for (const name in row.deps) {
-      let dep = row.deps[name]
-
-      if (dep == null) {
-        dep = resolve.sync(name, opts)
-      }
-
+      const dep = row.deps[name] || resolve.sync(name, opts)
       row.deps[name] = labels[dep] || parentLabels[dep]
     }
 
