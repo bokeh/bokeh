@@ -1,5 +1,6 @@
 import "./build"
 import "./clean"
+import "./compiler"
 import "./default"
 import "./defaults"
 import "./examples"

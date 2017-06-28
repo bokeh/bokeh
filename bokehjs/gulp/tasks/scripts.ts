@@ -203,28 +203,6 @@ gulp.task("scripts:bundle", ["scripts:compile"], (cb: (arg?: any) => void) => {
 
 gulp.task("scripts:build", ["scripts:bundle"])
 
-gulp.task("compiler:build", () => {
-  const compilerOpts = {
-    entries: [path.resolve(path.join('src', 'js', 'compile.coffee'))],
-    extensions: [".js", ".coffee"],
-    browserField: false,
-    builtins: false,
-    commondir: false,
-    insertGlobals: false,
-    insertGlobalVars: {
-     process: undefined,
-     global: undefined,
-     'Buffer.isBuffer': undefined,
-     Buffer: undefined,
-    }
-  }
-  return browserify(compilerOpts)
-    .transform("coffeeify")
-    .bundle()
-    .pipe(source("compile.js"))
-    .pipe(gulp.dest(paths.build_dir.js))
-})
-
 gulp.task("scripts:minify", ["scripts:bundle"], () => {
   return gulp.src(`${paths.build_dir.js}/!(*.min|compile).js`)
     .pipe(rename((path) => path.basename += '.min'))
@@ -234,4 +212,4 @@ gulp.task("scripts:minify", ["scripts:bundle"], () => {
     .pipe(gulp.dest(paths.build_dir.js))
 })
 
-gulp.task("scripts", ["scripts:build", "scripts:minify", "compiler:build"])
+gulp.task("scripts", ["scripts:build", "scripts:minify"])
