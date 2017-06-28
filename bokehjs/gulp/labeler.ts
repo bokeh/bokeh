@@ -25,7 +25,7 @@ function customLabeler(bundle: Bundle, parentLabels: Labels, fn: (row: any) => s
 
     const opts = {
       basedir: path.dirname(row.file),
-      extensions: ['.js', '.coffee'],
+      extensions: ['.js'],
       paths: ['./node_modules', paths.buildDir.jsTree],
     }
 
@@ -71,9 +71,10 @@ export function namedLabeler(bundle: Bundle, parentLabels: Labels) {
     if (modName == null)
       modName = path
         .relative(cwd, modPath)
-        .replace(/\.(coffee|js)$/, "")
-        .split(path.sep).join("/")
-        .replace(/^(src\/coffee|node_modules|build\/js\/tree)\//, "")
+        .replace(/\.js$/, "")
+        .split(path.sep)
+        .join("/")
+        .replace(/^(node_modules|build\/js\/tree)\//, "")
 
     if (modName.indexOf("process/browser") != -1)
       modName = "_process"
