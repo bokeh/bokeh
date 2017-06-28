@@ -14,7 +14,6 @@ import * as path from "path"
 import {argv} from "yargs"
 import * as insert from 'gulp-insert'
 const stripAnsi = require('strip-ansi')
-const rootRequire = require("root-require")
 
 const license = '/*\n' + fs.readFileSync('../LICENSE.txt', 'utf-8') + '*/\n';
 
@@ -45,7 +44,7 @@ gulp.task("scripts:ts", () => {
     .pipe(gulp.dest(paths.buildDir.jsTree + '_ts'))
 })
 
-const tsconfig = rootRequire("./tsconfig.json")
+const tsconfig = require("../../tsconfig.json")
 
 gulp.task("scripts:tsjs", ["scripts:coffee", "scripts:js", "scripts:ts"], () => {
   function error(err: {message: string}) {

@@ -4,10 +4,9 @@ import * as resolve from "resolve"
 import * as through from "through2"
 import * as gutil from "gulp-util"
 import {argv} from "yargs"
-const rootRequire = require("root-require") // XXX: no typings
 import * as paths from "./paths"
 
-const pkg = rootRequire("./package.json")
+const pkg = require("../package.json")
 
 type Bundle = {pipeline: any}
 export type Labels = {[key: string]: string}
@@ -56,7 +55,7 @@ export function namedLabeler(bundle: Bundle, parentLabels: Labels) {
     const depModMap: {[key: string]: string} = {}
 
     for (const dep in pkg.dependencies) {
-      const depPkg = rootRequire(path.join("node_modules", dep, "package.json"))
+      const depPkg = require(path.resolve(path.join("node_modules", dep, "package.json")))
       if (depPkg.main != null) {
         let depPath = path.resolve(path.join("node_modules", dep, depPkg.main))
         if (!fs.existsSync(depPath)) {
