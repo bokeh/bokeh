@@ -36,8 +36,8 @@ export class GraphRendererView extends RendererView
     @nodes.set_data(@model.graph_source.nodes)
     @nodes.set_visuals(@model.graph_source.nodes)
 
-    [@edges._xs, @edges._ys] = @model.layout_provider.get_edge_coordinates(@model.graph_source)
-    [@nodes._x, @nodes._y] = @model.layout_provider.get_node_coordinates(@model.graph_source)
+    [@edges._xs, @edges._ys] = @model.graph_source.layout_provider.get_edge_coordinates(@model.graph_source)
+    [@nodes._x, @nodes._y] = @model.graph_source.layout_provider.get_node_coordinates(@model.graph_source)
 
   render: () ->
     @edges.map_data()
@@ -55,12 +55,11 @@ export class GraphRenderer extends Renderer
   type: 'GraphRenderer'
 
   @define {
-      x_range_name:    [ p.String,   "default"        ]
-      y_range_name:    [ p.String,   "default"        ]
+      x_range_name:    [ p.String,   "default"                   ]
+      y_range_name:    [ p.String,   "default"                   ]
       graph_source:    [ p.Instance, () -> new GraphDataSource() ]
       nodes:           [ p.Instance, () -> new Circle()          ]
       edges:           [ p.Instance, () -> new MultiLine()       ]
-      layout_provider: [ p.Instance                   ]
     }
 
   @override {

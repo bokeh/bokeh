@@ -2,6 +2,8 @@ from .sources import ColumnDataSource
 
 from ..core.has_props import abstract
 from ..core.properties import Any, Dict, Either, Instance, Int, Seq, String
+from ..core.validation import error
+from ..core.validation.errors import MISSING_GRAPH_DATA_SOURCE_SUBCOLUMN
 from ..model import Model
 
 
@@ -44,6 +46,19 @@ class GraphDataSource(Model):
 
     '''
 
+    @error(MISSING_GRAPH_DATA_SOURCE_SUBCOLUMN)
+    def _check_missing_subcolumns(self):
+        missing = []
+        if "index" not in self.nodes.column_names:
+            missing.append("index")
+        if "start" not in self.edges.column_names:
+            missing.append("start")
+        if "end" not in self.edges.column_names:
+            missing.append("end")
+
+        if missing:
+            return " ,".join(missing) + " [%s]" % self
+
     nodes = Instance(ColumnDataSource, default=_DEFAULT_NODE_SOURCE, help="""
     A ColumnDataSource corresponding the graph nodes. It's required that the
     source have a column named ``index``, which contain the lookup values of
@@ -54,4 +69,9 @@ class GraphDataSource(Model):
     A ColumnDataSource corresponding to the graph edges. It's required that the
     source have two columns named ``start`` and ``edge``, which contain the
     start and edge nodes of an edge.
+    """)
+
+    layout_provider = Instance(LayoutProvider, help="""
+    An instance of a LayoutProvider that supplies the layout of the network
+    graph in cartesian space.
     """)

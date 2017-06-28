@@ -37,6 +37,9 @@ validation checks.
     A |Scale| type is incompatible with one or more ranges on the same plot
     dimension (will result in blank plot).
 
+1010 *(MISSING_GRAPH_DATA_SOURCE_SUBCOLUMN)*
+    A required GraphDataSource subcolumn is missing.
+
 9999 *(EXT)*
     Indicates that a custom error check has failed.
 
@@ -52,6 +55,7 @@ codes = {
     1007: ("MISSING_MERCATOR_DIMENSION", "Mercator Tickers and Formatters must have their dimension property set to 'lat' or 'lon'"),
     1008: ("REQUIRED_SCALE",         "A required Scale object is missing"),
     1009: ("INCOMPATIBLE_SCALE_AND_RANGE", "A Scale is incompatible with one or more ranges on the same plot dimension"),
+    1010: ("MISSING_GRAPH_DATA_SOURCE_SUBCOLUMN", "A required GraphDataSource subcolumn is missing"),
     9999: ("EXT",                    "Custom extension reports error"),
 }
 

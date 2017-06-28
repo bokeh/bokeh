@@ -15,7 +15,7 @@ from ..core.validation.errors import BAD_COLUMN_NAME, MISSING_GLYPH, NO_SOURCE_F
 from ..model import Model
 
 from .glyphs import Glyph, Marker, Circle, MultiLine
-from .graphs import GraphDataSource, LayoutProvider
+from .graphs import GraphDataSource
 from .images import ImageSource
 from .sources import ColumnDataSource, DataSource, RemoteSource
 from .tiles import TileSource, WMTSTileSource
@@ -205,11 +205,6 @@ class GraphRenderer(DataRenderer):
     Instance of a MultiLine glyph that will be rendered as the graph edges. The
     multiline attribute fields will be matched against columns in the
     ``graph_source.edges`` ColumnDataSource.
-    """)
-
-    layout_provider = Instance(LayoutProvider, help="""
-    An instance of a LayoutProvider that supplies the layout of the network
-    graph in cartesian space.
     """)
 
     level = Override(default="glyph")
