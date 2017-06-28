@@ -5,7 +5,7 @@ from ..core.properties import Any, Dict, Either, Instance, Int, Seq, String
 from ..core.validation import error
 from ..core.validation.errors import MISSING_GRAPH_DATA_SOURCE_SUBCOLUMN
 from ..model import Model
-
+from ..util.dependencies import import_required
 
 @abstract
 class LayoutProvider(Model):
@@ -45,6 +45,31 @@ class GraphDataSource(Model):
     '''
 
     '''
+
+    @classmethod
+    def from_networkx(cls, G):
+        '''
+        Generate a GraphDataSource from a networkx.Graph object
+        '''
+        nx = import_required('networkx',
+                             'To use GraphDataSource.from_networkx you need network ' +
+                             '("conda install networkx" or "pip install networkx")')
+
+        nodes = G.nodes()
+        edges = G.edges()
+        edges_start = [edge[0] for edge in edges]
+        edges_end = [edge[1] for edge in edges]
+
+        node_source = ColumnDataSource(data=dict(index=nodes))
+        edge_source = ColumnDataSource(data=dict(
+            start=edges_start,
+            end=edges_end
+        ))
+
+        graph_layout = nx.circular_layout(G)
+        layout_provider = StaticLayoutProvider(graph_layout=graph_layout)
+
+        return cls(nodes=node_source, edges=edge_source, layout_provider=layout_provider)
 
     @error(MISSING_GRAPH_DATA_SOURCE_SUBCOLUMN)
     def _check_missing_subcolumns(self):
