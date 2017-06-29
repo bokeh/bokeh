@@ -14,7 +14,7 @@ fi
 bash scripts/ci/install
 
 # install build time dependencies
-BUILD_DEPS=`python scripts/deps.py build`
+BUILD_DEPS=`python scripts/deps.py build test run`
 conda install --yes ${BUILD_DEPS}
 
 # install NPM dependencies
