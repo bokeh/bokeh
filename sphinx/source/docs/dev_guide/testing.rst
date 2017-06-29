@@ -3,8 +3,28 @@
 Testing
 =======
 
-Before running the unit tests set, please increase the maximum number of open
-file descriptors as some of our tests open many files to test the server.
+Bokeh is a large, multi-language project, and relies on varied and extensive
+tests and testing tools in order to maintain capability and prevent
+regressions. This chapter describes how to run various tests locally in
+a development environment, guidelines for writing tests, and information
+regarding the continuous testing infrastructure.
+
+.. contents::
+    :local:
+    :depth: 2
+
+Running Tests Locally
+---------------------
+
+Before attempting to run Bokeh tests, make sure you have successfully run
+through all of the instructions in the :ref:`devguide_setup` section of the
+Developer's Guide.
+
+Test Selection
+~~~~~~~~~~~~~~
+
+Additionally, on some platforms you may need to increase the maximum number
+of open file descriptors as some tests open many files to test the server.
 
 .. code-block:: sh
 
@@ -45,12 +65,18 @@ and integration tests) **from the top level directory** by executing:
     py.test
 
 To learn more about marking test functions and selecting/deselecting them for
-a run, please consult the pytest documentation for `custom markers`_.
+a run, please consult the pytest documentation for `custom markers`_. The list
+of currently defined test markers is below:
 
-To help the test script choose the appropriate test runner, there are some
-naming conventions that examples should adhere to. Non-IPython notebook
-example scripts that rely on the Bokeh server should have 'server' or
-'animate' in their filenames.
+* ``examples``: an examples image-diff test
+* ``integration``: an integration test that runs on `SauceLabs`_
+* ``js``: a javascript test
+* ``quality``: a code quality test
+* ``selenium``: a test requiring selenium
+* ``unit``: a python unit test (implicitly assigned for tests otherwise unmarked)
+
+Code Coverage
+~~~~~~~~~~~~~
 
 To run any of the tests with coverage use the following:
 
@@ -58,24 +84,30 @@ To run any of the tests with coverage use the following:
 
   py.test --cov=bokeh
 
+To report on a subset of the Bokeh package, pass e.g. ``-cov=bokeh/models``.
+
+Other Options
+~~~~~~~~~~~~~
+
 To run any of the tests without standard output captured use:
 
 .. code-block:: sh
 
   py.test -s
 
-To run a subset of tests by name:
-
-.. code-block:: sh
-
-  py.test -k EXPRESSION
-
-This will run only the tests that include ``EXPRESSION`` in their names (function or class names).
-
-See the py.test documentation at http://pytest.org/latest/ for further information on py.test and it's options.
+See the `pytest`_ documentation for further information on ``py.test`` and
+its options.
 
 Examples tests
---------------
+~~~~~~~~~~~~~~
+
+The ``examples`` tests run a selection of the Bokeh examples and generate
+images to compare against previous releases. A report is generated that
+displays the current and previous images, as well as any image difference.
+
+.. note::
+    The tests do not currently fail if the images are different, the test
+    report must be inspected manually.
 
 To run just the examples tests, run the command:
 
@@ -83,16 +115,9 @@ To run just the examples tests, run the command:
 
     py.test -m examples --report-path=examples.html
 
-The examples tests run through most of the bokeh examples and perform a visual
-diff to check how the examples are running. To run the examples tests you need:
-- phantomjs
-
-On linux systems, ``conda install phantomjs``.
-On OSX, with homebrew ``brew install phantomjs``.
-
 After the tests have run, you will be able to see the test report at
-examples.html. On your local machine, you can name the test report wherever you
-want. On TravisCI, the examples report is always examples.html.
+``examples.html``. Running locally, you can name the test report whatever
+you want. On TravisCI, the examples report is always ``examples.html``.
 
 The examples tests can run slowly, to speed them up, you can parallelize them:
 
@@ -100,32 +125,28 @@ The examples tests can run slowly, to speed them up, you can parallelize them:
 
     py.test -m examples --report-path=examples.html -n 5
 
-Where the number is the number of cores you want to use.
+Where ``n`` is the number is the number of cores you want to use.
 
 In addition, the examples tests generate a log file, examples.log which you
-can view at ``examples.log`` in the same level you ran the tests from.
+can view at ``examples.log`` in the same directory that you the tests
+were run from.
 
 .. warning::
     Server examples do get run, but phantomJS cannot currently capture
     the output, so they are always blank in the test results
 
-.. warning::
-    The tests do not currently fail if the images are different, the test
-    report must be inspected manually.
-
 Integration tests
------------------
+~~~~~~~~~~~~~~~~~
 
-The integration tests use `selenium webdriver`_ to test bokeh in the browser.
+Integration tests use the `selenium webdriver`_ to test bokeh in the browser.
+Some of the selenium tests run on Firefox and can be run locally.
 
-A proportion of the selenium tests run on Firefox and can be run on your local
-machine. However, due to current limitations in the test suite these tests must
-be run with a specific combination of dependencies. In particular, only Firefox
-47 and Firefox 45 are known to work. For more information see the open issue:
-https://github.com/bokeh/bokeh/issues/5559
+.. note::
+    Only Firefox 47 and Firefox 45 are currently known to work. For more
+    information see the :bokeh-issue:`5559`.
 
-To download a specific version of firefox go to https://ftp.mozilla.org/pub/firefox/releases/
-
+To download a specific version of Firefox, go to
+https://ftp.mozilla.org/pub/firefox/releases/
 Unzip the release and note the location of the application under ``bin``
 directory.
 
@@ -133,10 +154,13 @@ To run just the integration tests, run the command:
 
 .. code-block:: sh
 
-    py.test -m integration --html=tests/pytest-report.html --driver Firefox --firefox-path /path/to/firefox/application
+    py.test -m integration                  \
+        --driver Firefox                    \
+        --firefox-path /path/to/firefox/app \
+        --html=tests/pytest-report.html
 
-The --html is optional, but it will allow you to see the report that will also
-be generated on TravisCI.
+The ``--html`` is optional, but it will allow you to see the same report that
+is generated on TravisCI.
 
 Many of these tests can be run locally, and you will see browser windows open
 and close on your machine as you run them. When we run the tests on TravisCI we
@@ -144,19 +168,15 @@ use the selenium service SauceLabs_ which provides free testing for open source
 projects.
 
 It is strongly recommended to run ``python setup.py develop`` before running
-the integration tests to make sure that the latest version of bokehjs, which you are
-developing, is available for the integration tests.
+the integration tests to ensure that the latest version of BokehJS (with any
+changes you may have made), is available for the integration tests.
 
-Screenshot tests
-~~~~~~~~~~~~~~~~
+----
 
 Some of the integration tests are screenshot tests that take a screenshot of
 the bokehplot and compare it against a reference image that is stored in the
-repository.
-
-In addition, because all machines and browsers are slightly different, the
-screenshot tests must be run on SauceLabs_ so that we can be confident that
-any changes are real.
+repository. These tests must be run on SauceLabs_ so that comparisons can be
+made consistently.
 
 To run the integration tests on SauceLabs, run the command:
 
@@ -164,64 +184,232 @@ To run the integration tests on SauceLabs, run the command:
 
     py.test -m integration --driver=SauceLabs --html=tests/pytest-report.html
 
-For this command to be successful you will need the following:
- - ``SAUCELABS_USERNAME`` environment variable
- - ``SAUCELABS_API_KEY`` environment variable
- - Sauce Connect tunnel running
+For this command to be successful you must have the following:
 
-To start up a Sauce Connect tunnel, download Sauce Connect from
-https://wiki.saucelabs.com/display/DOCS/Setting+Up+Sauce+Connect+Proxy. Extract
-the files and go into the install directory. Then you can establish the tunnel with:
+* ``SAUCELABS_USERNAME`` environment variable
+
+* ``SAUCELABS_API_KEY`` environment variable
+
+* Sauce Connect tunnel running
+
+To start up the tunnel, first download `Sauce Connect`_. Next, extract the
+files and navigate to the install directory. Then you can establish the tunnel
+by running:
 
 .. code-block:: sh
 
     bin/sc -u SAUCELABS_USERNAME -k SAUCELABS_API_KEY
 
-For the ``SAUCELABS_USERNAME`` and ``SAUCELABS_API_KEY`` talk to the Bokeh Core
-Developers.
+To obtain the ``SAUCELABS_USERNAME`` and ``SAUCELABS_API_KEY`` please
+`contact the developers`_.
 
-Adding (or updating) a screenshot test
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Writing Tests
+-------------
 
-If you'd like to add a new screenshot test to the Bokeh repo, first make sure
-you can run the existing screenshot tests. Assuming this runs, then you'll be
-able to make a new screenshot test. Check-out the existing screenshot tests to
-see how to set-up your new test. Ideally, tests should contain the minimal amount
-of code to test specific features. This means that you should use the low-level models
-interface rather than the plotting interface (i.e. don't use ``bokeh.plotting.figure``).
+In order to help keep Bokeh maintainable, all Pull Requests that touch code
+should normally be accompanied by relevant tests. While exceptions may be
+made for specific circumstances, the default assumption should be that a
+Pull Request without tests may not be merged.
 
-Once you're set up and have written your test, you need to generate a base image.
+Python Unit Tests
+~~~~~~~~~~~~~~~~~
 
-To do this add ``--set-new-base-screenshot`` to your test command. This will
-generate an image in a screenshots directory with the name
-``base__<name_of_your_test>.png``. You then check this image into git and all
-future screenshot tests will be compared against this base.
+Python unit tests maintain the basic functionality of the Python portion of
+the Bokeh library. A few general guidelines will help you write Python unit
+tests:
+
+absolute imports
+    In order to ensure that Bokeh's unit tests as relocatable and unambiguous
+    as possible, always prefer absolute imports in test files. When convenient,
+    import and use the entire module under test:
+
+    * **GOOD**: ``import bokeh.models.transforms as bmt``
+    * **GOOD**: ``from bokeh.embed import components``
+    * **BAD**: ``from ..document import Document``
+
+markers
+    By default any unmarked test is considered part of the ``unit`` group. If
+    a unit test needs an additional mark (e.g. ``selenium``) then the ``unit``
+    marker must be supplied explicitly:
+
+    .. code-block:: python
+
+        @pytest.mark.unit
+        @pytest.mark.selenium
+        def test_basic_script(capsys):
+            # test code here
+
+pytest
+    All new tests should use and assume `pytest`_ for test running, fixtures,
+    parameterized testing, etc. New tests should *not* use the ``unittest``
+    module of the Python standard library.
+
+JavaScript Unit Tests
+~~~~~~~~~~~~~~~~~~~~~
+
+These tests maintain the functionality of the BokehJS portion of the Bokeh
+project. The BokehJS tests are located in :bokeh-tree:`bokehjs/test`. They
+are written using Chai "expect" style. If new test files are added, an
+appropriate entry in the directory ``index`` file should be added.
+
+Integration Tests
+~~~~~~~~~~~~~~~~~
+
+To add a new screen shot integration test, first make sure you can run
+existing screen shot tests, for example
+:bokeh-tree:`tests/integration/annotations/test_whisker.py`. New screen
+shot tests should follow the general guidelines:
+
+* Be as simple as possible (only include things under test and nothing extra)
+
+* Prefer the ``bokeh.models`` API
+
+Once a new test is written, a base image for comparison is needed. To create
+a new base image, add ``--set-new-base-screenshot`` to your the standard
+``py.test`` command to run the test. This will generate an image with the name
+``base__<name_of_your_test>.png`` in the appropriate directory. Use ``git``
+to check this image into the repository, and then all future screen shot tests
+will be compared against this base image.
+
+Continuous Integration
+----------------------
+
+Every push to the `master` branch or any Pull Request branch on GitHub
+automatically triggers a full test build on the `TravisCI`_ continuous
+integration service. This is most often useful for running the full Bokeh
+test suite continuously, but also triggers automated scripts for publishing
+releases when a tagged branch is pushed.
+
+You can see the list of all current and previous builds at this URL:
+https://travis-ci.org/bokeh/bokeh
+
+From there you can navigate to the build page for any specific build (e.g.
+for the latest merge to master, or a particular Pull Request). A typical
+build page looks like the image below:
+
+.. figure:: /_images/travisci.png
+    :align: center
+    :width: 85%
+
+As seen, the status of all build stages and jobs can be quickly inspected.
+When everything is running smoothly, all jobs will have a green check mark.
+
+Configuration
+~~~~~~~~~~~~~
+
+There are a number of files that affect the build configuration:
+
+* :bokeh-tree:`.travis.yml`
+    Defines the build matrix and global configurations for the stages
+    described below.
+
+* :bokeh-tree:`conda.recipe/meta.yaml`
+    Instructions for building a conda noarch package for Bokeh. This
+    file is the single source of truth for build and test (but not
+    runtime) dependencies.
+
+* :bokeh-tree:`setup.py`
+    Used to build sdist packages and "dev" installs. This file is also
+    the single source of truth for runtime dependencies.
+
+* :bokeh-tree:`setup.cfg`
+    Contains some global configuration for build and test tools such as
+    ``versioneer`` and ``pytest``.
+
+Build Stages
+~~~~~~~~~~~~
+
+Build
+'''''
+
+The ``Build`` stage has a single job that is responsible for creating a
+``noarch`` conda package for Bokeh. This ensures both that the BokehJS can
+be built correctly, and that important release packaging machinery is
+always functional. Additionally artifacts from this build, such as the conda
+package, and the BokehJS build directory, are saved to be re-used by future
+jobs, speeding up the entire build.
+
+The controlling script is :bokeh-tree:`scripts/ci/build`
+
+Test
+''''
+
+The ``Test`` stage is comprised of several jobs that run all the various
+Bokeh tests.
+
+The controlling script is :bokeh-tree:`scripts/ci/test`, which calls a
+separate ``test:<GROUP>`` script for each of the following test groups:
+
+``examples``
+    This job executes a large portion of the Bokeh examples to ensure that
+    they run without any Python or JavaScript errors. Additionally, the job
+    for ``PYTHON=2.7`` generates images for the examples and a report that
+    compares the images to previous versions.
+
+``integration``
+    This job executes the integration tests on `SauceLabs`_. Additionally
+    a report is uploaded to see the detailed results.
+
+``js``
+    This job runs all the JavaScript unit tests (i.e. ``gulp test``)
 
 
-Testing on TravisCI
--------------------
+``unit``
+    This job runs all the Python unit tests (i.e. ``py.test -m unit``). The
+    tests are run on different jobs for Python versions 2.7 and 3.4+.
 
-There is a TravisCI project configured to execute on every GitHub push, it can
-be viewed at: https://travis-ci.org/bokeh/bokeh.
+``docs``
+    This job runs the documentation build. For more information about building
+    or contributing documentation see the :ref:`devguide_documentation` section
+    of the Developer's guide.
 
-TravisCI runs all the available test but also run most of the examples in the
-repository. Running the examples tests takes a long time. If it is appropriate
-to skip these examples runs (e.g. on a documentation pull request), you can disable them by
-adding `[ci disable examples]` to your commit message before pushing.
+``quality``
+    This job runs tests that maintain code quality and package integrity.
 
-The reports from the examples tests and the integration tests are uploaded to
-s3 for viewing after a TravisCI run. To find the link to the test reports,
-scroll to the bottom of the TravisCI test log and find the **POOR MAN LOGGER**.
+Deploy
+''''''
 
-The test results always take the same format
-"https://s3.amazonaws.com/bokeh-travis/<travis job_id>/<report name>" The
-report names currently used are: ``examples.html``, ``examples.log``,
-``tests/pytest-report.html``.
+The ``Deploy`` stage has a single job that is responsible for executing all
+the work necessary to complete a Bokeh release. This includes tasks such as:
 
-The examples.log link does not get reported in the POOR MAN LOGGER. To find it,
-either search for ``EXAMPLES LOG SUCCESSFULLY UPLOADED`` in the test log, or
-just click on the html report and then change html for log.
+* Building and publishing conda and sdist packages
+* Making BokehJS assets available on CDN
+* Building and deploying the Bokeh documentation site
+* Generating and uploading Bokeh examples tarballs
+* Publishing BokehJS NPM packages
 
+All of these steps are performed for full releases, however some may be omitted
+for dev builds and release candidates.
+
+The controlling script is :bokeh-tree:`scripts/ci/deploy`
+
+
+Etiquette
+~~~~~~~~~
+
+TravisCI provides five free build workers to Open Source projects. A few
+considerations will help you be considerate of others needing these limited
+resources:
+
+* Group commits into meaningful chunks of work before pushing to GitHub (i.e.
+  don't push on every commit).
+
+* If you must make multiple commits in succession, navigate to TravisCI and
+  cancel all but the last build, in order to free up build workers.
+
+* If expensive ``examples`` tests are not needed (e.g. for a docs-only Pull
+  Request), they may be disabled by adding the text
+
+  .. code-block:: none
+
+    [ci disable examples]
+
+  to your commit message.
+
+.. _contact the developers: http://bokehplots.com/pages/contact.html
 .. _custom markers: http://pytest.org/latest/example/markers.html#working-with-custom-markers
+.. _pytest: https://docs.pytest.org
 .. _SauceLabs: http://saucelabs.com/
+.. _Sauce Connect: https://wiki.saucelabs.com/display/DOCS/Setting+Up+Sauce+Connect+Proxy
 .. _selenium webdriver: http://docs.seleniumhq.org/docs/03_webdriver.jsp
+.. _TravisCI: https://travis-ci.org/
