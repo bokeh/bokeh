@@ -1,0 +1,28 @@
+#!/bin/bash
+
+set -e # exit on error
+set -x # echo commands
+
+if  [[ -z "${TRAVIS_TAG}" ]]; then
+    echo
+    echo "SKIPPING RELEASE DEPLOY --- not a tagged release"
+    echo
+    exit 0
+fi
+
+# install some additional dependencies needed only for deploys
+conda install anaconda-client --yes
+conda install -c bokeh twine --yes
+conda install -c defaults -c conda-forge fabric3 --yes
+
+# decrypt secrets files and place them in the correct location
+openssl aes-256-cbc -K $encrypted_c19429b59af5_key -iv $encrypted_c19429b59af5_iv -in secrets.tar.enc -out secrets.tar -d
+tar xvf secrets.tar
+cp known_hosts ~/.ssh/known_hosts
+cp .npmrc ~/.npmrc
+cp .pypirc ~/.pypirc
+chmod 600 bokeh_key
+eval `ssh-agent -s`
+ssh-add bokeh_key
+
+python scripts/build_upload.py $TRAVIS_TAG

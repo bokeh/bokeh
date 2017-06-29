@@ -196,30 +196,6 @@ def fixup_for_packaged():
         if "--existing-js" not in sys.argv:
             sys.argv.append('--existing-js')
 
-def fixup_old_jsargs():
-    ''' Fixup (and warn about) old style command line options with underscores.
-
-    This function modifies ``sys.argv`` to make the replacements:
-
-    * ``--build_js`` to --build-js
-    * ``--install_js`` to --install-js
-
-    and prints a warning about their deprecation.
-
-    Returns:
-        None
-
-    '''
-    for i in range(len(sys.argv)):
-
-        if sys.argv[i] == '--build_js':
-            print("WARNING: --build_js (with underscore) is deprecated, use --build-js")
-            sys.argv[i] = '--build-js'
-
-        if sys.argv[i] == '--install_js':
-            print("WARNING: --install_js (with underscore) is deprecated, use --install-js")
-            sys.argv[i] = '--install-js'
-
 # Horrible hack: workaround to allow creation of bdist_wheel on pip
 # installation. Why, for God's sake, is pip forcing the generation of wheels
 # when installing a package?

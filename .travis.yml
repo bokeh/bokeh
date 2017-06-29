@@ -1,46 +1,16 @@
-language: python
-
+language: generic
 sudo: false
 dist: trusty
 
 env:
   global:
     - BOTO_CONFIG="/tmp/nowhere"
-    - MINICONDA_VERSION="latest"
     - secure: nLrUq2h59KN3k3hnid+Ub4RHDcVkZyrVmuMLoM6NbwKA0bwpDltaoSg5cj2dzdXKBwvv+3VP38oXLhEGLhVi7kDmyX3ICcza6Usy8zgK3s1NBgl6hFjqaJ7RjCu9OP1I42ThMTLfCQMRrYul7s74sGdZa+HfMCZcl+3Co5IzraI=
     - secure: oI7Up9HuHSBw8k9LBNC6pLEUJONj+5NeEGFpSLSVXvqPPmyXJZ4qRE/dZ/HxZp6xyBze5GLYmdXXAdhrZyNjmU1ZA0rbBLDWLXuAW8eJm5xAXZ0NRFlHMXMkwvbG9hPTOTFtxKNS4lG/Fo5AXwE4MgT5uzQS4I7HuuNkcZOoInY=
     - secure: Nyfo1sKNXJPEbR0QF+S/Sbr1OnDl6kRfjKAXVupD83QeLJ2e6gj7R1TpucngUhDluqp2iJ/1DZDXnA9AP+xl8kordIXjEv2FYdijxKAUk3G5BVPm9n6GudsIKYNUpDOiZupZrcKoJtfpIiWOOOgn4uftI7X/ATazudUKeMNjOvQ=
     - secure: nqoKfXZTHhJ0ieffqS+5mi5crivUeFeIgohqUaeTCnaOGI5XFMLR8rZPjhMHyFx5vNTp08pbg3Mg4i7iaQn+3dqu25HBwnfhar3TFXfOCQQLJBZstoWSGEDkJKDPwwqZrdFzw+EDxlA0tlLXvV8X0DlArYKhRcAOJF01cCJ7L1c=
     - secure: ii7ssdfEDYtc4Ph24mVzyq7JVTkjrn/h36HZn1oZak+HuiYtVbcCjqomKj2n1kPuKJWajOwHGu7d7ymCvK4tQ37keiMRvku/Yz4HELT5IUU1hD+w7mKomc2taKKvddGnbR4I4oZe+SBfwfeQCq5/Ha+koadSQI05Aco/nLNZP3M=
     - secure: MAaYB6RV2a9tZ61Olatv52Yi4EqEh+wMkX6y20Ja1yyY3I+2sFT1NZ8ZwPFCKkDdMeSna7z4ROKk3CDMK0JkbUJrqnZgo6Fy7w6GZPcZlzUPrgH04Or0v94upMh2i0lh8wcz88VuR0i+GxnqUsP18W5AJfO/FXmU4VgDAOJfKrQ=
-
-matrix:
-  include:
-    # unit tests (python 2.7, 3.4, and 3.5)
-    - python: 2.7
-      env: GROUP=unit
-    - python: 3.4
-      env: GROUP=unit
-    - python: 3.5
-      env: GROUP=unit
-    - python: 3.6
-      env: GROUP=unit
-
-    # examples tests (python 2.7 and 3.4)
-    - python: 2.7
-      env: GROUP=examples
-    - python: 3.4
-      env: GROUP=examples EXTRA_CMD=--no-js
-
-    # linting, package and docs building (python 3.4)
-    - python: 3.6
-      env: GROUP=flake_docs
-
-    # integration tests (python 3.4)
-    - python: 3.6
-      env: GROUP=integration
-      addons:
-        sauce_connect: true
 
 branches:
   only:
@@ -49,108 +19,75 @@ branches:
   - "/^\\d+.\\d+.\\d+rc\\d+$/"
   - "/^\\d+.\\d+.\\d+$/"
 
-before_install:
-  - export PATH="$HOME/miniconda/bin:$PATH"
-  - export PATH="$HOME/build/bokeh/bokeh/bokehjs/node_modules/phantomjs-prebuilt/bin:$PATH"
-  - export TRAVIS_COMMIT_MSG="$(git log --format=%B --no-merges -n 1)"
-  - if [[ -z "${SAUCE_USERNAME}" ]] || [[ -z "${SAUCE_ACCESS_KEY}" ]]; then echo "External committer, not using saucelabs"; else export SAUCELABS=true; fi
-
-install:
-- scripts/travis_install
-
-script:
-  # preamble
-  - python -m bokeh info
-
-  # unit tests
-  - if [[ -z "$TRAVIS_TAG" && "$GROUP" == unit ]]; then
-      py.test --rerun=5 -m 'unit' --cov=bokeh --cov-config=bokeh/.coveragerc;
-    fi
-
-  # examples tests
-  - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples ]]; then
-      if [[ $TRAVIS_COMMIT_MSG == *"[ci disable examples]"* ]]; then
-        echo "Examples run disabled by commit";
-      else
-        export IPYTHON_ALLOW_DRAFT_WEBSOCKETS_FOR_PHANTOMJS=1;
-        time py.test -s -v --tb line -m examples --diff-ref FETCH_HEAD --self-contained-html --upload --report-path=examples.html $EXTRA_CMD;
-      fi;
-    fi
-
-  # linting, package and docs building
-
-  # TEMP MOVE OF JS TESTS TO NON-PYTHON 2 BUILD
-  - if [[ -z "$TRAVIS_TAG" && "$GROUP" == flake_docs ]]; then
-      py.test -s -m js;
-    fi
-
-  - if [[ -z "$TRAVIS_TAG" && "$GROUP" == flake_docs ]]; then
-      py.test -m quality;
-    fi
-  - if [[ -z "$TRAVIS_TAG" && "$GROUP" == flake_docs ]]; then
-      CONDA_PY="${TRAVIS_PYTHON_VERSION/./}" conda build --quiet --no-test conda.recipe;
-      NOARCH_DIR="$HOME/miniconda/conda-bld/noarch";
-      echo "noarch build output contents:";
-      ls -l $NOARCH_DIR;
-      BUILD_FILE_COUNT="$(ls $NOARCH_DIR | wc -l)";
-      if [ $BUILD_FILE_COUNT != 3 ]; then
-         echo "noarch build has wrong number of files";
-         exit 1;
-      fi
-    fi
-  - if [[ -z "$TRAVIS_TAG" && "$GROUP" == flake_docs ]]; then
-      cd sphinx;
-      GOOGLE_API_KEY=${GOOGLE_API_KEY:-"junk"} make SPHINXOPTS=-v all;
-    fi
-
-  # integration tests
-  - if [[ -z "$TRAVIS_TAG" && "$GROUP" == integration ]]; then
-      if [ "$SAUCELABS" == "true" ]; then
-        py.test -m integration --driver SauceLabs --self-contained-html --html=tests/pytest-report.html -n4 -r3 --upload;
-      fi;
-    fi
-
-  # Simple build log
-  - echo "********** SIMPLE BUILD LOG **********";
-    echo $TRAVIS_COMMIT_MSG;
-    echo $TRAVIS_PULL_REQUEST;
-    if [[ "$GROUP" == integration ]]; then
-      echo "https://s3.amazonaws.com/bokeh-travis/$TRAVIS_JOB_ID/tests/pytest-report.html";
-    fi;
-    if [[ "$GROUP" == examples ]]; then
-      echo "https://s3.amazonaws.com/bokeh-travis/$TRAVIS_JOB_ID/examples.html";
-    fi;
-    killall python;
-    ps -efw;
-    echo "********** END SIMPLE BUILD LOG **********";
-
-after_success: |
-  if [[ ! -z "$TRAVIS_TAG" && "$TRAVIS_PYTHON_VERSION" == '3.4' && "$GROUP" == flake_docs ]]; then
-      # Install some additional dependencies
-      conda install anaconda-client --yes
-      conda install -c bokeh twine --yes
-      conda install -c defaults -c conda-forge fabric3 --yes
-      # Decrypt some files and place them in the correct location
-      openssl aes-256-cbc -K $encrypted_c19429b59af5_key -iv $encrypted_c19429b59af5_iv -in secrets.tar.enc -out secrets.tar -d
-      tar xvf secrets.tar
-      cp known_hosts ~/.ssh/known_hosts
-      cp .npmrc ~/.npmrc
-      cp .pypirc ~/.pypirc
-      chmod 600 bokeh_key
-      eval `ssh-agent -s`
-      ssh-add bokeh_key
-      # Signal the correct build
-      if [[ "$TRAVIS_TAG" == *"dev"* ]] || [[ "$TRAVIS_TAG" == *"rc"* ]]; then
-        echo "Building a DEV or RC package: $TRAVIS_TAG"
-      else
-        echo "Building a FULL RELEASE package: $TRAVIS_TAG"
-      fi
-      python scripts/build_upload.py $TRAVIS_TAG
-      exit $?
-  else
-      echo "No tag present, not building a release package."
-  fi
-
 notifications:
   flowdock:
     secure: ZisceYtV2b7LWNUz0wEtiR9TRk+i8x5m/N6+Htn4IFr+bBcBi79ESO0u6DWiJA5rHt+Yq7Yf49vl7UO9HZCF+8n5B1nKpfivJKngVuMYLnhYifNmwCD7vQ8aaF9DTfOqvm2hJrHwtieX8BUGs2KWd8igt3f8LCXVWVBBvkqc2L0=
+
+before_install:
+  - export PATH="$HOME/miniconda/bin:$PATH"
+  - export PATH="$HOME/build/bokeh/bokeh/bokehjs/node_modules/phantomjs-prebuilt/lib/phantom/bin:$PATH"
+  - export PATH="$HOME/bin:$PATH"
+  - export TRAVIS_COMMIT_MSG="$(git log --format=%B --no-merges -n 1)"
+
+install:
+  - scripts/ci/install
+
+jobs:
+  include:
+    - stage: build
+      script: scripts/ci/build
+
+    - stage: test
+
+      script: scripts/ci/test
+      env:
+      - GROUP=examples
+      - PYTHON=2.7
+
+    - script: scripts/ci/test
+      env:
+      - GROUP=examples
+      - PYTHON=3.4
+      - EXTRA_CMD=--no-js
+
+    - script: scripts/ci/test
+      addons:
+        sauce_connect: true
+      env:
+      - GROUP=integration
+
+
+    - script: scripts/ci/test
+      env:
+      - GROUP=js
+
+    - script: scripts/ci/test
+      env:
+      - GROUP=unit
+      - PYTHON=2.7
+
+    - script: scripts/ci/test
+      env:
+      - GROUP=unit
+      - PYTHON=3.4
+
+    - script: scripts/ci/test
+      env:
+      - GROUP=unit
+      - PYTHON=3.5
+
+    - script: scripts/ci/test
+      env:
+      - GROUP=unit
+      - PYTHON=3.6
+
+    - script: scripts/ci/test
+      env:
+      - GROUP=docs
+
+    - script: scripts/ci/test
+      env:
+      - GROUP=quality
+
+    - stage: deploy
+      script: scripts/ci/deploy
