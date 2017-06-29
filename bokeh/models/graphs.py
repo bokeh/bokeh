@@ -3,7 +3,7 @@ from .sources import ColumnDataSource
 from ..core.has_props import abstract
 from ..core.properties import Any, Dict, Either, Instance, Int, Seq, String
 from ..core.validation import error
-from ..core.validation.errors import MISSING_GRAPH_SOURCE_SUBCOLUMN
+from ..core.validation.errors import MALFORMED_GRAPH_SOURCE
 from ..model import Model
 from ..util.dependencies import import_required
 
@@ -71,15 +71,24 @@ class GraphSource(Model):
 
         return cls(nodes=node_source, edges=edge_source, layout_provider=layout_provider)
 
-    @error(MISSING_GRAPH_SOURCE_SUBCOLUMN)
-    def _check_missing_subcolumns(self):
+    @error(MALFORMED_GRAPH_SOURCE)
+    def _check_malformed_graph_source(self):
         missing = []
         if "index" not in self.nodes.column_names:
-            missing.append("index")
+            missing.append("Column 'index' is missing in GraphSource.nodes source")
         if "start" not in self.edges.column_names:
-            missing.append("start")
+            missing.append("Column 'start' is missing in GraphSource.edges source")
         if "end" not in self.edges.column_names:
-            missing.append("end")
+            missing.append("Column 'end' is missing in GraphSource.edges source")
+
+        indexes = self.nodes.data.get('index', [])
+        for i in self.edges.data.get('start', []):
+            if i not in indexes:
+                missing.append("GraphSource.edge 'start' value '%s' missing from GraphSource.nodes 'index' column" % i)
+
+        for i in self.edges.data.get('end', []):
+            if i not in indexes:
+                missing.append("GraphSource.edge 'end' value '%s' missing from GraphSource.nodes 'index' column" % i)
 
         if missing:
             return " ,".join(missing) + " [%s]" % self
