@@ -5,7 +5,7 @@ set -x # echo commands
 
 if  [[ -z "${TRAVIS_TAG}" ]]; then
     echo
-    echo "SKIPPING RELEASE DEPLOY --- not a tagged release"
+    echo "SKIPPING DEPLOY STAGE SCRIPT--- This is a NOT build for a release tag"
     echo
     exit 0
 fi
