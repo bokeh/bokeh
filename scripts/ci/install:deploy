@@ -13,7 +13,7 @@ fi
 # do the base install
 bash scripts/ci/install
 
-# install build time dependencies
+# install all dependencies
 BUILD_DEPS=`python scripts/deps.py build test run`
 conda install --yes ${BUILD_DEPS}
 
@@ -21,3 +21,6 @@ conda install --yes ${BUILD_DEPS}
 pushd bokehjs
 npm install
 popd
+
+# install sampledata
+python -c 'import bokeh; bokeh.sampledata.download(progress=False)'
