@@ -67,9 +67,9 @@ from setuptools import find_packages, setup
 
 from _setup_support import (
     build_or_install_bokehjs, conda_rendering, fixup_building_sdist,
-    fixup_for_packaged, fixup_old_jsargs, get_cmdclass, get_package_data,
-    get_version, install_js, package_files, package_path, ROOT, SERVER,
-    show_bokehjs, show_help
+    fixup_for_packaged, get_cmdclass, get_package_data, get_version,
+    install_js, package_files, package_path, ROOT, SERVER, show_bokehjs,
+    show_help
 )
 
 # immediately bail for ancient pythons
@@ -105,7 +105,6 @@ if sys.version_info[:2] == (2, 7):
 
 # if this is just conda-build skimming information, skip all this actual work
 if not conda_rendering():
-    fixup_old_jsargs()     # handle --build_js and --install_js
     fixup_for_packaged()   # --build_js and --install_js not valid FROM sdist
     fixup_building_sdist() # must build BokehJS when MAKING sdists
 
