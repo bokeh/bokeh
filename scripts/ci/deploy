@@ -25,4 +25,10 @@ chmod 600 bokeh_key
 eval `ssh-agent -s`
 ssh-add bokeh_key
 
+# build BokehJS and install into source tree, build_upload script assumes this
+pushd bokehjs
+node_modules/.bin/gulp build
+popd
+python setup.py --install-js
+
 python scripts/build_upload.py $TRAVIS_TAG
