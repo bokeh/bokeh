@@ -16,6 +16,14 @@ popd
 # build a noarch conda package for Bokeh using the just-built BokehJS
 conda build conda.recipe --quiet --no-test --no-anaconda-upload
 
+# if this is an external contributor then the uploads below will fail
+if [[ -z "${SAUCE_USERNAME}" ]]; then
+    echo
+    echo "SKIPPING BUILD ASSET UPLOAD --- external committer"
+    echo
+    exit 0
+fi
+
 cd ${HOME}
 
 # upload the noarch directory for later jobs in this build
