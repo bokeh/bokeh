@@ -1,0 +1,32 @@
+#!/bin/bash
+
+set -e # exit on error
+set -x # echo commands
+
+git fetch origin master
+
+# install TravisCI "artifacts" util, see https://github.com/travis-ci/artifacts
+wget -qO- "https://raw.githubusercontent.com/travis-ci/artifacts/master/install" |bash
+
+# install Miniconda3
+wget -nv "http://repo.continuum.io/miniconda/${MINICONDA_FILENAME}"
+bash ${MINICONDA_FILENAME} -b -f -p ${HOME}/miniconda
+
+# if emergency, temporary package pins are necessary, they can go here
+PINNED_PKGS=$(cat <<EOF
+EOF
+)
+echo -e "$PINNED_PKGS" > $HOME/miniconda/conda-meta/pinned
+
+# install conda packages
+conda install --yes python=${PYTHON:-3.6} ${CONDA_REQS}
+
+# set default conda channels
+conda config --set auto_update_conda off
+conda config --append channels bokeh
+conda config --append channels conda-forge
+conda config --get channels
+
+if [[ -v GROUP ]]; then
+    bash "scripts/ci/install:test"
+fi

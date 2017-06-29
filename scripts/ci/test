@@ -1,0 +1,15 @@
+#!/bin/bash
+
+set -e # exit on error
+set -x # echo commands
+
+if  [[ ! -z "${TRAVIS_TAG}" ]]; then
+    echo
+    echo "SKIPPING TEST JOBS --- This is a build for release tag ${TRAVIS_TAG}"
+    echo
+    exit 0
+fi
+
+bokeh info
+
+bash "scripts/ci/test:${GROUP}"

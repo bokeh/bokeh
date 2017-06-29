@@ -1,0 +1,41 @@
+#!/bin/bash
+
+set -e # exit on error
+set -x # echo commands
+
+# install build time dependencies
+BUILD_DEPS=`python scripts/deps.py build`
+conda install --yes ${BUILD_DEPS}
+
+# install NPM dependencies and build BokehJS
+pushd bokehjs
+npm install
+node_modules/.bin/gulp build
+popd
+
+# build a noarch conda package for Bokeh using the just-built BokehJS
+conda build conda.recipe --quiet --no-test --no-anaconda-upload
+
+# if this is an external contributor then the uploads below will fail
+if [[ -z "${SAUCE_USERNAME}" ]]; then
+    echo
+    echo "SKIPPING BUILD ASSET UPLOAD --- external committer"
+    echo
+    exit 0
+fi
+
+cd ${HOME}
+
+# upload the noarch directory for later jobs in this build
+tar czf conda-bld-noarch.tgz "miniconda/conda-bld/noarch"
+artifacts upload                        \
+    --bucket "bokeh-travis"             \
+    --target-paths "${TRAVIS_BUILD_ID}" \
+    conda-bld-noarch.tgz
+
+# upload the BokehJS build directory for later jobs in this build
+tar czf bokehjs-build.tgz "build/bokeh/bokeh/bokehjs/build"
+artifacts upload                        \
+    --bucket "bokeh-travis"             \
+    --target-paths "${TRAVIS_BUILD_ID}" \
+    bokehjs-build.tgz

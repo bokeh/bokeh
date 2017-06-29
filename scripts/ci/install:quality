@@ -1,0 +1,7 @@
+#!/bin/bash
+
+set -e # exit on error
+set -x # echo commands
+
+# install Bokeh sample data needed by -OO module scan test
+python -c 'import bokeh; bokeh.sampledata.download(progress=False)'
