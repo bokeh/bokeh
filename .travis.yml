@@ -29,65 +29,73 @@ before_install:
   - export PATH="$HOME/bin:$PATH"
   - export TRAVIS_COMMIT_MSG="$(git log --format=%B --no-merges -n 1)"
 
-install:
-  - scripts/ci/install
-
 jobs:
   include:
     - stage: build
+      install: scripts/ci/install:build
       script: scripts/ci/build
 
     - stage: test
 
+      install: scripts/ci/install:test
       script: scripts/ci/test
       env:
       - GROUP=examples
       - PYTHON=2.7
 
-    - script: scripts/ci/test
+    - install: scripts/ci/install:test
+      script: scripts/ci/test
       env:
       - GROUP=examples
       - PYTHON=3.4
       - EXTRA_CMD=--no-js
 
-    - script: scripts/ci/test
+    - install: scripts/ci/install:test
+      script: scripts/ci/test
       addons:
         sauce_connect: true
       env:
       - GROUP=integration
 
-
-    - script: scripts/ci/test
+    - install: scripts/ci/install:test
+      script: scripts/ci/test
       env:
       - GROUP=js
 
-    - script: scripts/ci/test
+    - install: scripts/ci/install:test
+      script: scripts/ci/test
       env:
       - GROUP=unit
       - PYTHON=2.7
 
-    - script: scripts/ci/test
+    - install: scripts/ci/install:test
+      script: scripts/ci/test
       env:
       - GROUP=unit
       - PYTHON=3.4
 
-    - script: scripts/ci/test
+    - install: scripts/ci/install:test
+      script: scripts/ci/test
       env:
       - GROUP=unit
       - PYTHON=3.5
 
-    - script: scripts/ci/test
+    - install: scripts/ci/install:test
+      script: scripts/ci/test
       env:
       - GROUP=unit
       - PYTHON=3.6
 
-    - script: scripts/ci/test
+    - install: scripts/ci/install:test
+      script: scripts/ci/test
       env:
       - GROUP=docs
 
-    - script: scripts/ci/test
+    - install: scripts/ci/install:test
+      script: scripts/ci/test
       env:
       - GROUP=quality
 
-    - stage: deploy
+    - install: scripts/ci/install:deploy
+      stage: deploy
       script: scripts/ci/deploy

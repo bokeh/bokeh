@@ -3,13 +3,15 @@
 set -e # exit on error
 set -x # echo commands
 
-# install build time dependencies
-BUILD_DEPS=`python scripts/deps.py build`
-conda install --yes ${BUILD_DEPS}
+if  [[ ! -z "${TRAVIS_TAG}" ]]; then
+    echo
+    echo "SKIPPING BUILD STAGE SCRIPT --- This is a build for release tag ${TRAVIS_TAG}"
+    echo
+    exit 0
+fi
 
-# install NPM dependencies and build BokehJS
+# build BokehJS
 pushd bokehjs
-npm install
 node_modules/.bin/gulp build
 popd
 
