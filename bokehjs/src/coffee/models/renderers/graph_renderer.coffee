@@ -1,6 +1,6 @@
 import {Circle} from "../glyphs/circle"
 import {MultiLine} from "../glyphs/multi_line"
-import {GraphDataSource} from "../graphs/graph_data_source"
+import {GraphSource} from "../graphs/graph_source"
 import {Renderer, RendererView} from "../renderers/renderer"
 
 import * as p from "core/properties"
@@ -57,7 +57,7 @@ export class GraphRenderer extends Renderer
   @define {
       x_range_name:    [ p.String,   "default"                   ]
       y_range_name:    [ p.String,   "default"                   ]
-      graph_source:    [ p.Instance, () -> new GraphDataSource() ]
+      graph_source:    [ p.Instance, () -> new GraphSource()     ]
       nodes:           [ p.Instance, () -> new Circle()          ]
       edges:           [ p.Instance, () -> new MultiLine()       ]
     }

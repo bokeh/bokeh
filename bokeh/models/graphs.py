@@ -3,7 +3,7 @@ from .sources import ColumnDataSource
 from ..core.has_props import abstract
 from ..core.properties import Any, Dict, Either, Instance, Int, Seq, String
 from ..core.validation import error
-from ..core.validation.errors import MISSING_GRAPH_DATA_SOURCE_SUBCOLUMN
+from ..core.validation.errors import MISSING_GRAPH_SOURCE_SUBCOLUMN
 from ..model import Model
 from ..util.dependencies import import_required
 
@@ -41,7 +41,7 @@ _DEFAULT_NODE_SOURCE = lambda: ColumnDataSource(data=dict(index=[]))
 _DEFAULT_EDGE_SOURCE = lambda: ColumnDataSource(data=dict(start=[], end=[]))
 
 
-class GraphDataSource(Model):
+class GraphSource(Model):
     '''
 
     '''
@@ -49,10 +49,10 @@ class GraphDataSource(Model):
     @classmethod
     def from_networkx(cls, G):
         '''
-        Generate a GraphDataSource from a networkx.Graph object
+        Generate a GraphSource from a networkx.Graph object
         '''
         nx = import_required('networkx',
-                             'To use GraphDataSource.from_networkx you need network ' +
+                             'To use GraphSource.from_networkx you need network ' +
                              '("conda install networkx" or "pip install networkx")')
 
         nodes = G.nodes()
@@ -71,7 +71,7 @@ class GraphDataSource(Model):
 
         return cls(nodes=node_source, edges=edge_source, layout_provider=layout_provider)
 
-    @error(MISSING_GRAPH_DATA_SOURCE_SUBCOLUMN)
+    @error(MISSING_GRAPH_SOURCE_SUBCOLUMN)
     def _check_missing_subcolumns(self):
         missing = []
         if "index" not in self.nodes.column_names:

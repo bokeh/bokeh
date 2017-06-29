@@ -3,8 +3,8 @@ import {ColumnDataSource} from "../sources/column_data_source"
 import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
 
-export class GraphDataSource extends Model
-  type: 'GraphDataSource'
+export class GraphSource extends Model
+  type: 'GraphSource'
 
   @define {
     nodes:           [ p.Instance, () -> new ColumnDataSource({data: {index: []}})          ]

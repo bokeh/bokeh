@@ -15,7 +15,7 @@ from ..core.validation.errors import BAD_COLUMN_NAME, MISSING_GLYPH, NO_SOURCE_F
 from ..model import Model
 
 from .glyphs import Glyph, Marker, Circle, MultiLine
-from .graphs import GraphDataSource
+from .graphs import GraphSource
 from .images import ImageSource
 from .sources import ColumnDataSource, DataSource, RemoteSource
 from .tiles import TileSource, WMTSTileSource
@@ -190,8 +190,8 @@ class GraphRenderer(DataRenderer):
     default y-range.
     """)
 
-    graph_source = Instance(GraphDataSource, help="""
-    Instance of a GraphDataSource which contains the information about the
+    graph_source = Instance(GraphSource, help="""
+    Instance of a GraphSource which contains the information about the
     nodes and edges of a network graph.
     """)
 
