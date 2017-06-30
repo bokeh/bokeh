@@ -372,7 +372,7 @@ class Image(Glyph):
     images to have a gap between them, when they should appear flush.
     """)
 
-    color_mapper = Instance(ColorMapper, help="""
+    color_mapper = Instance(ColorMapper, default=lambda: LinearColorMapper(palette='Greys9'), help="""
     A ``ColorMapper`` to use to map the scalar data from ``image``
     into RGBA values for display.
 
