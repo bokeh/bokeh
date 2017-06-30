@@ -14,7 +14,7 @@ fi
 bash scripts/ci/install
 
 # install all build, test, and run dependencies
-conda install --yes `python scripts/deps.py build test run
+conda install --yes `python scripts/deps.py build test run`
 
 # install some additional dependencies needed only for deploys
 conda install anaconda-client --yes
