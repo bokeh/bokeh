@@ -261,8 +261,9 @@ export class GlyphRenderer extends Renderer
   initialize: (options) ->
     super(options)
 
-    if not @view?
-      @view = new CDSView({'source': @data_source})
+    if not @view.source?
+      @view.source = @data_source
+      @view.compute_indices()
 
   get_reference_point: (field, value) ->
     index = 0  # This is the default to return
@@ -285,7 +286,7 @@ export class GlyphRenderer extends Renderer
       x_range_name:       [ p.String,  'default' ]
       y_range_name:       [ p.String,  'default' ]
       data_source:        [ p.Instance           ]
-      view:               [ p.Instance           ]
+      view:               [ p.Instance, () -> new CDSView() ]
       glyph:              [ p.Instance           ]
       hover_glyph:        [ p.Instance           ]
       nonselection_glyph: [ p.Any,      'auto'   ] # Instance or "auto"

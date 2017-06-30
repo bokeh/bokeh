@@ -14,7 +14,7 @@ class Filter(Model):
     data when applied to a ColumnDataSource.
     '''
 
-    filter = Either(Seq(Int), Seq(Bool), default=[])
+    filter = Either(Seq(Int), Seq(Bool))
 
 class IndexFilter(Filter):
     ''' An IndexFilter filters data by returning the subset of data at a given set of indices.

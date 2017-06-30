@@ -8,10 +8,11 @@ export class TableWidget extends Widget
   initialize: (options) ->
     super(options)
 
-    if not @view?
-      @view = new CDSView({'source': @data_source})
+    if not @view.source?
+      @view.source = @source
+      @view.compute_indices()
 
   @define {
       source: [ p.Instance ]
-      view:   [ p.Instance ]
+      view:   [ p.Instance, () -> new CDSView() ]
     }
