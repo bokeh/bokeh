@@ -48,9 +48,11 @@ for leaf in leaves(all_tree, model_class):
     if vm_name in all_json:
         continue
     defaults = {}
-    instance = klass()
-    props_with_values = instance.query_properties_with_values(lambda prop: prop.readonly or prop.serialized)
-    for name, default in props_with_values.items():
+    descriptors = [ klass.lookup(name) for name in klass.properties() ]
+    props = {descriptor.name: descriptor.property for descriptor in descriptors}
+    props_serialized = {name: prop for name, prop in props.items() if prop.readonly or prop.serialized}
+    props_with_defaults = {name: prop.themed_default(klass, name, {}) for name, prop in props_serialized.items()}
+    for name, default in props_with_defaults.items():
         if isinstance(default, Model):
             ref = default.ref
             raw_attrs = default._to_json_like(include_defaults=True)
