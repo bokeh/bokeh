@@ -88,7 +88,6 @@ copy("LICENSE.txt", "bokeh/")
 # state our runtime deps here, also used by meta.yaml (so KEEP the spaces)
 REQUIRES = [
     'six >=1.5.2',
-    'requests >=1.2.3',
     'PyYAML >=3.10',
     'python-dateutil >=2.1',
     'Jinja2 >=2.7',
