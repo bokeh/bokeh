@@ -5,5 +5,5 @@ set -x # echo commands
 
 cd sphinx
 
-GOOGLE_API_KEY=${GOOGLE_API_KEY:-"unset"}
+export GOOGLE_API_KEY=${GOOGLE_API_KEY:-"unset"}
 make SPHINXOPTS=-v all
