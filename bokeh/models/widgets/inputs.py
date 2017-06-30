@@ -51,6 +51,17 @@ class TextInput(InputWidget):
     """)
 
 
+class PasswordInput(TextInput):
+    ''' Single-line password input widget.
+        Note: Despite PasswordInput inheriting from TextInput the password
+        cannot be inspected on the field ``value``. Also, note that this field
+        functionally just hides the input on the browser, transmiting safely a
+        password as a callback, e.g., to the a bokeh server would require
+        some secure connection.
+
+    '''
+
+
 class AutocompleteInput(TextInput):
     ''' Single-line input widget with auto-completion.
 
