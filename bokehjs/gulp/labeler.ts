@@ -4,10 +4,9 @@ import * as resolve from "resolve"
 import * as through from "through2"
 import * as gutil from "gulp-util"
 import {argv} from "yargs"
-const rootRequire = require("root-require") // XXX: no typings
 import * as paths from "./paths"
 
-const pkg = rootRequire("./package.json")
+const pkg = require("../package.json")
 
 type Bundle = {pipeline: any}
 export type Labels = {[key: string]: string}
@@ -26,17 +25,12 @@ function customLabeler(bundle: Bundle, parentLabels: Labels, fn: (row: any) => s
 
     const opts = {
       basedir: path.dirname(row.file),
-      extensions: ['.js', '.coffee'],
-      paths: ['./node_modules', paths.buildDir.jsTree],
+      extensions: ['.js'],
+      paths: ['./node_modules', paths.build_dir.tree_js],
     }
 
     for (const name in row.deps) {
-      let dep = row.deps[name]
-
-      if (dep == null) {
-        dep = resolve.sync(name, opts)
-      }
-
+      const dep = row.deps[name] || resolve.sync(name, opts)
       row.deps[name] = labels[dep] || parentLabels[dep]
     }
 
@@ -56,7 +50,7 @@ export function namedLabeler(bundle: Bundle, parentLabels: Labels) {
     const depModMap: {[key: string]: string} = {}
 
     for (const dep in pkg.dependencies) {
-      const depPkg = rootRequire(path.join("node_modules", dep, "package.json"))
+      const depPkg = require(path.resolve(path.join("node_modules", dep, "package.json")))
       if (depPkg.main != null) {
         let depPath = path.resolve(path.join("node_modules", dep, depPkg.main))
         if (!fs.existsSync(depPath)) {
@@ -72,12 +66,10 @@ export function namedLabeler(bundle: Bundle, parentLabels: Labels) {
     if (modName == null)
       modName = path
         .relative(cwd, modPath)
-        .replace(/\.(coffee|js)$/, "")
-        .split(path.sep).join("/")
-        .replace(/^(src\/coffee|node_modules|build\/js\/tree)\//, "")
-
-    if (modName.indexOf("process/browser") != -1)
-      modName = "_process"
+        .replace(/\.js$/, "")
+        .split(path.sep)
+        .join("/")
+        .replace(/^(node_modules|build\/js\/tree)\//, "")
 
     if (argv.verbose)
       gutil.log(`Processing ${modName}`)
