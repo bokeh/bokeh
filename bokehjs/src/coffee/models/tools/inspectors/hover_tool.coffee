@@ -141,6 +141,8 @@ export class HoverToolView extends InspectToolView
       return
     tooltip.clear()
 
+    indices = renderer.model.view.convert_selection_to_subset(indices)
+
     if indices['0d'].glyph == null and indices['1d'].indices.length == 0
       return
 
@@ -272,6 +274,8 @@ export class HoverToolView extends InspectToolView
         vars = {index: i, x: x, y: y, vx: vx, vy: vy, sx: sx, sy: sy, data_x: data_x, data_y: data_y}
 
         tooltip.add(rx, ry, @_render_tooltips(ds, i, vars))
+
+    indices = renderer.model.view.convert_selection_from_subset(indices)
 
     return null
 
