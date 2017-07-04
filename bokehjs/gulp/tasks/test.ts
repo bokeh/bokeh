@@ -31,7 +31,7 @@ function mocha(options: {coverage?: boolean} = {}) {
         args.unshift("debug")
 
       args = args.concat(
-        ["--compilers", "coffee:coffee-script/register,ts:ts-node/register"],
+        ["--compilers", "coffee:coffee-script/register,ts:./ts-node/register"],
         ["--reporter", argv.reporter || "spec"],
         ["--slow", "5s"],
         ["./test/index.coffee"],
