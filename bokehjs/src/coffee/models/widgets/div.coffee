@@ -11,7 +11,7 @@ export class DivView extends MarkupView
       content.textContent = @model.text
     else
       content.innerHTML = @model.text
-    @$el.find('.bk-markup').append(content)
+    @markupEl.appendChild(content)
     return @
 
 export class Div extends Markup

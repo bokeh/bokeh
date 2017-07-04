@@ -1,8 +1,8 @@
-const chalk = require("chalk")
 const {TSError} = require("ts-node")
+const chalk = require("chalk")
 
 function prettyTSError(error) {
-  const title = `${chalk.red('⨯')} Unable to compile TypeScript`
+  const title = `${chalk.red('⨯')} Unable to compile TypeScript:`
   return `${chalk.bold(title)}\n${error.diagnostics.map((line) => line.message).join('\n')}`
 }
 

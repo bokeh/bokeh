@@ -67,17 +67,31 @@ page.open(url, function(status) {
     finalize(false, false);
   }
 
-  page.evaluate(function() {
-    document.body.bgColor = 'white';
-
-    window.addEventListener("bokeh:rendered", function() {
-      window.callPhantom('working');
-    });
-  });
-
   page.onCallback = function(data) {
-    if (data === 'working') {
+    if (data === 'done') {
       resetLocalTimer();
     }
   };
+
+  page.evaluate(function() {
+    document.body.bgColor = 'white';
+
+    function done() {
+      window.callPhantom('done');
+    }
+
+    var docs = Bokeh.documents;
+
+    if (docs.length == 0) {
+      console.error("no documents were created")
+      done();
+    } else {
+      var doc = docs[0];
+
+      if (doc.is_idle)
+        done();
+      else
+        doc.idle.connect(done);
+    }
+  });
 });

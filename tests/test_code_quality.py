@@ -38,7 +38,7 @@ exclude_paths = ("CHANGELOG",)
 
 exclude_exts = (".png", ".jpg", ".pxm", ".ico", ".ics", ".gz", ".gif", ".enc", ".svg", ".xml")
 
-exclude_dirs = ("bokehjs/src/vendor", "sphinx/draw.io")
+exclude_dirs = ("sphinx/draw.io",)
 
 def collect_errors():
     errors = []

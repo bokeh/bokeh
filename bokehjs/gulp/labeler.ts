@@ -4,10 +4,9 @@ import * as resolve from "resolve"
 import * as through from "through2"
 import * as gutil from "gulp-util"
 import {argv} from "yargs"
-const rootRequire = require("root-require") // XXX: no typings
 import * as paths from "./paths"
 
-const pkg = rootRequire("./package.json")
+const pkg = require("../package.json")
 
 type Bundle = {pipeline: any}
 export type Labels = {[key: string]: string}
@@ -26,22 +25,12 @@ function customLabeler(bundle: Bundle, parentLabels: Labels, fn: (row: any) => s
 
     const opts = {
       basedir: path.dirname(row.file),
-      extensions: ['.js', '.coffee'],
-      paths: ['./node_modules', paths.buildDir.jsTree],
+      extensions: ['.js'],
+      paths: ['./node_modules', paths.build_dir.tree_js],
     }
 
     for (const name in row.deps) {
-      let dep = row.deps[name]
-
-      if (dep == null) {
-        dep = pkg.browser[name]
-
-        if (dep != null)
-          dep = path.resolve(dep)
-        else
-          dep = resolve.sync(name, opts)
-      }
-
+      const dep = row.deps[name] || resolve.sync(name, opts)
       row.deps[name] = labels[dep] || parentLabels[dep]
     }
 
@@ -58,16 +47,10 @@ function customLabeler(bundle: Bundle, parentLabels: Labels, fn: (row: any) => s
 export function namedLabeler(bundle: Bundle, parentLabels: Labels) {
   return customLabeler(bundle, parentLabels, (row) => {
     const cwd = process.cwd()
-    const revModMap: {[key: string]: string} = {}
     const depModMap: {[key: string]: string} = {}
 
-    for (const key in pkg.browser) {
-      const val = pkg.browser[key]
-      revModMap[path.resolve(val)] = key
-    }
-
     for (const dep in pkg.dependencies) {
-      const depPkg = rootRequire(path.join("node_modules", dep, "package.json"))
+      const depPkg = require(path.resolve(path.join("node_modules", dep, "package.json")))
       if (depPkg.main != null) {
         let depPath = path.resolve(path.join("node_modules", dep, depPkg.main))
         if (!fs.existsSync(depPath)) {
@@ -78,20 +61,15 @@ export function namedLabeler(bundle: Bundle, parentLabels: Labels) {
     }
 
     const modPath = row.id
-    let modName  = revModMap[modPath]
-
-    if (modName == null)
-      modName = depModMap[modPath]
+    let modName  = depModMap[modPath]
 
     if (modName == null)
       modName = path
         .relative(cwd, modPath)
-        .replace(/\.(coffee|js)$/, "")
-        .split(path.sep).join("/")
-        .replace(/^(src\/(coffee|vendor)|node_modules|build\/js\/tree)\//, "")
-
-    if (modName.indexOf("process/browser") != -1)
-      modName = "_process"
+        .replace(/\.js$/, "")
+        .split(path.sep)
+        .join("/")
+        .replace(/^(node_modules|build\/js\/tree)\//, "")
 
     if (argv.verbose)
       gutil.log(`Processing ${modName}`)

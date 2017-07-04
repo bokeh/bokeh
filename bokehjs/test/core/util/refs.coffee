@@ -69,13 +69,3 @@ describe "refs module", ->
       expect(refs.is_ref(true)).to.be.false
       expect(refs.is_ref("foo")).to.be.false
       expect(refs.is_ref([])).to.be.false
-
-  describe "convert_to_ref", ->
-    it "should return a ref for a HasProps ", ->
-      obj = new Foo()
-      expect(refs.convert_to_ref(obj)).to.be.deep.equal obj.ref()
-
-    it "should return an array refs for an array of HasProps ", ->
-      foo1 = new Foo()
-      foo2 = new Foo()
-      expect(refs.convert_to_ref([foo1, foo2])).to.be.deep.equal [foo1.ref(), foo2.ref()]

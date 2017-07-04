@@ -7,6 +7,7 @@ import {Visuals} from "core/visuals"
 import {logger} from "core/logging"
 import {extend} from "core/util/object"
 import {isString, isArray} from "core/util/types"
+import {LineView} from "./line"
 
 export class GlyphView extends View
 
@@ -51,6 +52,11 @@ export class GlyphView extends View
         return
 
     @_render(ctx, indices, data)
+
+  has_finished: () -> true
+
+  notify_finished: () ->
+    @renderer.notify_finished()
 
   bounds: () ->
     if not @index?
@@ -165,8 +171,18 @@ export class GlyphView extends View
 
     return result
 
-  set_data: (source, indices) ->
+  set_data: (source, indices, indices_to_update) ->
     data = @model.materialize_dataspecs(source)
+
+    if indices and not (@ instanceof LineView)
+      data_subset = {}
+      for k, v of data
+        if k.charAt(0) == '_'
+          data_subset[k] = (v[i] for i in indices)
+        else
+          data_subset[k] = v
+      data = data_subset
+
     extend(@, data)
 
     if @renderer.plot_view.model.use_map
@@ -178,7 +194,7 @@ export class GlyphView extends View
     if @glglyph?
       @glglyph.set_data_changed(@_x.length)
 
-    @_set_data(source, indices)
+    @_set_data(source, indices_to_update) #TODO doesn't take subset indices into account
 
     @index = @_index_data()
 

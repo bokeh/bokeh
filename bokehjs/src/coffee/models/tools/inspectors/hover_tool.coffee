@@ -37,10 +37,9 @@ export class HoverToolView extends InspectToolView
     for r in @computed_renderers
       @connect(r.data_source.inspect, @_update)
 
-    # TODO: @connect(@plot.properties.renderers.change, () -> @_computed_renderers = @_ttmodels = null)
+    # TODO: @connect(@plot_model.plot.properties.renderers.change, () -> @_computed_renderers = @_ttmodels = null)
     @connect(@model.properties.renderers.change,      () -> @_computed_renderers = @_ttmodels = null)
     @connect(@model.properties.names.change,          () -> @_computed_renderers = @_ttmodels = null)
-    @connect(@model.properties.plot.change,           () -> @_computed_renderers = @_ttmodels = null)
     @connect(@model.properties.tooltips.change,       () -> @_ttmodels = null)
 
   _compute_renderers: () ->
@@ -48,7 +47,7 @@ export class HoverToolView extends InspectToolView
     names = @model.names
 
     if renderers.length == 0
-      all_renderers = @model.plot.renderers
+      all_renderers = @plot_model.plot.renderers
       renderers = (r for r in all_renderers when r instanceof GlyphRenderer)
 
     if names.length > 0
@@ -142,6 +141,8 @@ export class HoverToolView extends InspectToolView
       return
     tooltip.clear()
 
+    indices = renderer.model.view.convert_selection_to_subset(indices)
+
     if indices['0d'].glyph == null and indices['1d'].indices.length == 0
       return
 
@@ -230,12 +231,12 @@ export class HoverToolView extends InspectToolView
               jj = j+1
 
             when "nearest"
-              d1x = renderer.glyph.sx[i][j]
-              d1y = renderer.glyph.sy[i][j]
+              d1x = renderer.glyph.sxs[i][j]
+              d1y = renderer.glyph.sys[i][j]
               dist1 = hittest.dist_2_pts(d1x, d1y, sx, sy)
 
-              d2x = renderer.glyph.sx[i][j+1]
-              d2y = renderer.glyph.sy[i][j+1]
+              d2x = renderer.glyph.sxs[i][j+1]
+              d2y = renderer.glyph.sys[i][j+1]
               dist2 = hittest.dist_2_pts(d2x, d2y, sx, sy)
 
               if dist1 < dist2
@@ -244,8 +245,8 @@ export class HoverToolView extends InspectToolView
                 [sdatax, sdatay] = [d2x, d2y]
                 jj = j+1
 
-              data_x = renderer.glyph._x[i][j]
-              data_y = renderer.glyph._y[i][j]
+              data_x = renderer.glyph._xs[i][j]
+              data_y = renderer.glyph._ys[i][j]
               rx = canvas.sx_to_vx(sdatax)
               ry = canvas.sy_to_vy(sdatay)
 
@@ -273,6 +274,8 @@ export class HoverToolView extends InspectToolView
         vars = {index: i, x: x, y: y, vx: vx, vy: vy, sx: sx, sy: sy, data_x: data_x, data_y: data_y}
 
         tooltip.add(rx, ry, @_render_tooltips(ds, i, vars))
+
+    indices = renderer.model.view.convert_selection_from_subset(indices)
 
     return null
 

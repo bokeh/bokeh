@@ -224,6 +224,18 @@ and extend to the edge of the plot area.
 .. bokeh-plot:: docs/user_guide/examples/plotting_span.py
     :source-position: above
 
+.. _userguide_plotting_whiskers:
+
+Whiskers
+~~~~~~~~
+
+A |Whisker| will create a dimensionally-linked "stem", either located in data
+or screen coordinates. Indicating error or uncertainty for measurements at a
+single point would be one common use for the Whisker annotation.
+
+.. bokeh-plot:: docs/user_guide/examples/plotting_whisker.py
+    :source-position: above
+
 .. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`
 
 .. |Plot| replace:: :class:`~bokeh.models.plots.Plot`
@@ -244,3 +256,4 @@ and extend to the edge of the plot area.
 .. |Legend|        replace:: :class:`~bokeh.models.annotations.Legend`
 .. |Span|          replace:: :class:`~bokeh.models.annotations.Span`
 .. |Title|         replace:: :class:`~bokeh.models.annotations.Title`
+.. |Whisker|       replace:: :class:`~bokeh.models.annotations.Whisker`

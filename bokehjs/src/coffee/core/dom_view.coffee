@@ -7,16 +7,34 @@ export class DOMView extends View
 
   initialize: (options) ->
     super(options)
+    @_has_finished = false
     @el = @_createElement()
 
   remove: () ->
     DOM.removeElement(@el)
     super()
 
+  layout: () ->
+
   render: () ->
 
+  renderTo: (element, replace=false) -> # HTMLElement, boolean
+    if not replace
+      element.appendChild(@el)
+    else
+      DOM.replaceWith(element, @el)
+
+    @layout()
+
+  has_finished: () -> @_has_finished
+
+  notify_finished: () ->
+    @root.notify_finished()
+
   @getters {
+    _root_element: () -> DOM.parent(@el, ".bk-root")
     solver:  () -> if @is_root then @_solver else @parent.solver
+    is_idle: () -> @has_finished()
   }
 
   _createElement: () ->

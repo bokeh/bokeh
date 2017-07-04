@@ -6,7 +6,7 @@ export class SpacerView extends LayoutDOMView
 
   render: () ->
     super()
-    if @sizing_mode is 'fixed'
+    if @sizing_mode == "fixed"
       @el.style.width = "#{@model.width}px"
       @el.style.height = "#{@model.height}px"
 

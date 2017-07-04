@@ -6,13 +6,13 @@ import * as paths from "../paths"
 gulp.task("clean", ["clean:scripts", "clean:styles"])
 
 gulp.task("clean:all", () => {
-  return del(paths.buildDir.all)
+  return del(paths.build_dir.all)
 })
 
 gulp.task("clean:scripts", () => {
-  return del(paths.buildDir.js)
+  return del(paths.build_dir.js)
 })
 
 gulp.task("clean:styles", () => {
-  return del(paths.buildDir.css)
+  return del(paths.build_dir.css)
 })

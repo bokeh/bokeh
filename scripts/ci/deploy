@@ -1,0 +1,27 @@
+#!/bin/bash
+
+set -e # exit on error
+set -x # echo commands
+
+if  [[ -z "${TRAVIS_TAG}" ]]; then
+    echo
+    echo "SKIPPING DEPLOY STAGE SCRIPT--- This is a NOT build for a release tag"
+    echo
+    exit 0
+fi
+
+# decrypt secrets files and place them in the correct location
+openssl aes-256-cbc -K $encrypted_c19429b59af5_key -iv $encrypted_c19429b59af5_iv -in secrets.tar.enc -out secrets.tar -d
+tar xvf secrets.tar
+cp known_hosts ~/.ssh/known_hosts
+cp .npmrc ~/.npmrc
+cp .pypirc ~/.pypirc
+chmod 600 bokeh_key
+eval `ssh-agent -s`
+ssh-add bokeh_key
+
+# build BokehJS and install, build_upload script assumes this
+python setup.py --quiet install --build-js
+
+# run the build_upload script to deploy a release
+python scripts/build_upload.py $TRAVIS_TAG

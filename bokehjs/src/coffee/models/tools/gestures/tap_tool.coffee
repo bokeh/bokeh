@@ -26,10 +26,11 @@ export class TapToolView extends SelectToolView
 
     if @model.behavior == "select"
 
-      renderers_by_source = @model._computed_renderers_by_data_source()
+      renderers_by_source = @_computed_renderers_by_data_source()
 
-      for ds, renderers of renderers_by_source
-        sm = renderers[0].data_source.selection_manager
+      for _, renderers of renderers_by_source
+        ds = renderers[0].data_source
+        sm = ds.selection_manager
         did_hit = sm.select(@, (@plot_view.renderer_views[r.id] for r in renderers), geometry, final, append)
 
         if did_hit and callback?
@@ -41,7 +42,7 @@ export class TapToolView extends SelectToolView
       @plot_view.push_state('tap', {selection: @plot_view.get_selection()})
 
     else # @model.behavior == "inspect"
-      for r in @model.computed_renderers
+      for r in @computed_renderers
         ds = r.data_source
         sm = ds.selection_manager
         view = @plot_view.renderer_views[r.id]

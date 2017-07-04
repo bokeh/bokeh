@@ -14,7 +14,7 @@ gulp.task("styles:build", () => {
     }))
     .pipe(less())
     .pipe(sourcemaps.write('./'))
-    .pipe(gulp.dest(paths.buildDir.css))
+    .pipe(gulp.dest(paths.build_dir.css))
 })
 
 gulp.task("styles:minify", () => {
@@ -25,7 +25,7 @@ gulp.task("styles:minify", () => {
     }))
     .pipe(uglifycss())
     .pipe(sourcemaps.write('./'))
-    .pipe(gulp.dest(paths.buildDir.css))
+    .pipe(gulp.dest(paths.build_dir.css))
 })
 
 gulp.task("styles", (cb: (arg?: any) => void) => {

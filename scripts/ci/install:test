@@ -1,0 +1,46 @@
+#!/bin/bash
+
+set -e # exit on error
+set -x # echo commands
+
+if  [[ ! -z "${TRAVIS_TAG}" ]]; then
+    echo
+    echo "SKIPPING TEST STAGE INSTALL --- This is a build for release tag ${TRAVIS_TAG}"
+    echo
+    exit 0
+fi
+
+# do the base install
+bash scripts/ci/install
+
+# if this is an external contributor then build assets were not uploaded
+if [[ -z "${SAUCE_USERNAME}" ]]; then
+    echo
+    echo "RE-RUNNING BUILD STEPS --- external committer"
+    echo
+    bash "scripts/ci/install:build"
+    bash "scripts/ci/build"
+else
+    pushd ${HOME}
+
+    # download the pre-built Bokeh package from the build phase
+    wget -nv "https://s3.amazonaws.com/bokeh-travis/${TRAVIS_BUILD_ID}/conda-bld-noarch.tgz"
+    tar xzf conda-bld-noarch.tgz
+
+    # download the previous BokehJS build directory to run tests
+    wget -nv "https://s3.amazonaws.com/bokeh-travis/${TRAVIS_BUILD_ID}/bokehjs-build.tgz"
+    tar xzf bokehjs-build.tgz
+
+    popd
+fi
+
+# install the pre-built Bokeh package plus all test and runtime dependencies
+conda install --yes --use-local bokeh `python scripts/deps.py run test`
+
+# regrettably need to have previous JS build in the source tree
+python setup.py --install-js
+
+# execute any test-specific install scripts
+if [[ -f "scripts/ci/install:${GROUP}" ]]; then
+    bash "scripts/ci/install:${GROUP}"
+fi

@@ -4,7 +4,7 @@
 from __future__ import absolute_import
 
 from ...core.has_props import abstract
-from ...core.properties import Bool, String
+from ...core.properties import Any, Bool, String, Dict
 
 from .widget import Widget
 
@@ -18,6 +18,10 @@ class Markup(Widget):
 
     text = String(default="", help="""
     The contents of the widget.
+    """)
+
+    style = Dict(String, Any, default={}, help="""
+    Raw CSS style declaration. Note this may be web browser dependent.
     """)
 
 class Paragraph(Markup):

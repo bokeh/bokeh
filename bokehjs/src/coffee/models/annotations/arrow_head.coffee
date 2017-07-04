@@ -126,3 +126,20 @@ export class VeeHead extends ArrowHead
   @override {
     fill_color: 'black'
   }
+
+export class TeeHead extends ArrowHead
+  type: 'TeeHead'
+
+  render: (ctx, i) ->
+    if @visuals.line.doit
+      @visuals.line.set_vectorize(ctx, i)
+      ctx.beginPath()
+      ctx.moveTo(0.5*@size, 0)
+      ctx.lineTo(-0.5*@size, 0)
+      ctx.stroke()
+
+  @mixins ['line']
+
+  @define {
+    size: [ p.Number, 25 ]
+  }

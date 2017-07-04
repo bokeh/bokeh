@@ -1,26 +1,28 @@
 import * as p from "core/properties"
+import {empty, div} from "core/dom"
+import {extend} from "core/util/object"
 
 import {Widget, WidgetView} from "./widget"
-import template from "./markup_template"
-
 
 export class MarkupView extends WidgetView
-  template: template
 
   initialize: (options) ->
     super(options)
     @render()
+
+  connect_signals: () ->
+    super()
     @connect(@model.change, () -> @render())
 
   render: () ->
     super()
-    @$el.empty()
-    @$el.html(@template())
-    if @model.height
-      @$el.height(@model.height)
-    if @model.width
-      @$el.width(@model.width)
-
+    empty(@el)
+    style = extend({
+      width: "#{@model.width}px",
+      height: "#{@model.height}px",
+    }, @model.style)
+    @markupEl = div({style: style})
+    @el.appendChild(@markupEl)
 
 export class Markup extends Widget
   type: "Markup"
@@ -30,4 +32,5 @@ export class Markup extends Widget
 
   @define {
     text: [ p.String, '' ]
+    style: [ p.Any, {} ]
   }

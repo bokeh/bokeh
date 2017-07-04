@@ -5,7 +5,7 @@ from bokeh.core.properties import field, value
 from bokeh.core.validation import check_integrity
 from bokeh.models.annotations import (
     Legend, LegendItem, ColorBar, Arrow, BoxAnnotation, Span, LabelSet, Label,
-    Title, Band
+    Title, Band, Whisker
 )
 from bokeh.models import (
     ColumnDataSource, ArrowHead, BasicTicker, BasicTickFormatter, GlyphRenderer
@@ -350,6 +350,45 @@ def test_Title():
         "render_mode"],
         prefix('border_', LINE),
         prefix('background_', FILL))
+
+
+def test_Whisker():
+    whisker = Whisker()
+    assert whisker.plot is None
+    assert whisker.level == 'underlay'
+    assert whisker.lower is None
+    assert whisker.lower_units == 'data'
+    assert isinstance(whisker.lower_head, ArrowHead)
+    assert whisker.lower_head.size == 10
+    assert whisker.lower_head.level == 'underlay'
+    assert whisker.upper is None
+    assert whisker.upper_units == 'data'
+    assert isinstance(whisker.upper_head, ArrowHead)
+    assert whisker.upper_head.size == 10
+    assert whisker.upper_head.level == 'underlay'
+    assert whisker.base is None
+    assert whisker.dimension == 'height'
+    assert isinstance(whisker.source, ColumnDataSource)
+    assert whisker.x_range_name == 'default'
+    assert whisker.y_range_name == 'default'
+    check_line_properties(whisker, "")
+    check_properties_existence(whisker, [
+        "plot",
+        "visible",
+        "level",
+        "lower",
+        "lower_units",
+        "lower_head",
+        "upper",
+        "upper_units",
+        "upper_head",
+        "base",
+        "base_units",
+        "dimension",
+        "source",
+        "x_range_name",
+        "y_range_name"],
+        LINE)
 
 
 def test_can_add_multiple_glyph_renderers_to_legend_item():

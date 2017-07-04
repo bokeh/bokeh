@@ -9,6 +9,7 @@ export class TileRendererView extends RendererView
 
   initialize: (options) ->
     @attributionEl = null
+    @_tiles = []
     super
 
   connect_signals: () ->
@@ -77,9 +78,12 @@ export class TileRendererView extends RendererView
     tile_data = e.target.tile_data
     tile_data.img = e.target
     tile_data.loaded = true
+    tile_data.finished = true
+    @notify_finished()
 
   _on_tile_error: (e) =>
-    return ''
+    tile_data = e.target.tile_data
+    tile_data.finished = true
 
   _create_tile: (x, y, z, bounds, cache_only=false) ->
     normalized_coords = @model.tile_source.normalize_xyz(x, y, z)
@@ -93,18 +97,22 @@ export class TileRendererView extends RendererView
     tile.onerror = @_on_tile_error
     tile.alt = ''
 
-    tile.tile_data =
+    tile.tile_data = {
       tile_coords : [x, y, z]
       normalized_coords : normalized_coords
       quadkey : @model.tile_source.tile_xyz_to_quadkey(x, y, z)
       cache_key : @model.tile_source.tile_xyz_to_key(x, y, z)
       bounds : bounds
       loaded : false
+      finished : false
       x_coord : bounds[0]
       y_coord : bounds[3]
+    }
 
     @model.tile_source.tiles[tile.tile_data.cache_key] = tile.tile_data
     tile.src = @model.tile_source.get_image_url(normalized_coords...)
+
+    @_tiles.push(tile)
     return tile
 
   _enforce_aspect_ratio: () ->
@@ -120,6 +128,19 @@ export class TileRendererView extends RendererView
       @_last_width = @map_frame._width.value
       return true
     return false
+
+  has_finished: () ->
+    if not super()
+      return false
+
+    if @_tiles.length == 0
+      return false
+
+    for tile in @_tiles
+      if not tile.tile_data.finished
+        return false
+
+    return true
 
   render: (ctx, indices, args) ->
 
@@ -137,6 +158,8 @@ export class TileRendererView extends RendererView
 
     @prefetch_timer = setTimeout(@_prefetch_tiles, 500)
 
+    if @has_finished()
+      @notify_finished()
 
   _draw_tile: (tile_key) ->
     tile_obj = @model.tile_source.tiles[tile_key]

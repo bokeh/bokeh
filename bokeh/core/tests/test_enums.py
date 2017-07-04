@@ -27,11 +27,6 @@ def test_enumeration_default():
     e = enums.enumeration("foo", "bar", "baz")
     assert e._default == "foo"
 
-# This can be removed when deprecation is complete
-def test_accept_left_right_center():
-    assert enums.accept_left_right_center("left_center") == "center_left"
-    assert enums.accept_left_right_center("right_center") == "center_right"
-
 # any changes to contents of enums.py easily trackable here
 def test_enums_contents():
     assert [x for x in dir(enums) if x[0].isupper()] == [
@@ -42,8 +37,6 @@ def test_enums_contents():
         'DashPattern',
         'DateFormat',
         'DatetimeUnits',
-        'DeprecatedAnchor',
-        'DeprecatedLegendLocation',
         'Dimension',
         'Dimensions',
         'Direction',

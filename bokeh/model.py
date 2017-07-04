@@ -20,6 +20,7 @@ from .themes import default as default_theme
 from .util.callback_manager import PropertyCallbackManager, EventCallbackManager
 from .util.future import with_metaclass
 from .util.serialization import make_id
+from .util.deprecation import deprecated
 from .events import Event
 
 def collect_models(*input_values):
@@ -276,10 +277,11 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
     """)
 
     js_event_callbacks = Dict(String, List(Instance("bokeh.models.callbacks.CustomJS")),
-    help="""A mapping of event names to lists of CustomJS callbacks.
+    help="""
+    A mapping of event names to lists of CustomJS callbacks.
 
     Typically, rather then modifying this property directly, callbacks should be
-    added using the ``Model.js_on_event`` method:)
+    added using the ``Model.js_on_event`` method:
 
     .. code:: python
 
@@ -291,7 +293,7 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
     List of events that are subscribed to by Python callbacks. This is
     the set of events that will be communicated from BokehJS back to
     Python for this model.
-     """   )
+    """)
 
     js_property_callbacks = Dict(String, List(Instance("bokeh.models.callbacks.CustomJS")), help="""
     A mapping of attribute names to lists of CustomJS callbacks, to be set up on
@@ -377,7 +379,7 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
 
         .. code:: python
 
-            source.js_on_change('stream', callback)
+            source.js_on_change('streaming', callback)
 
         '''
         if len(callbacks) == 0:
@@ -390,6 +392,15 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
 
         if event in self.properties():
             event = "change:%s" % event
+
+        from bokeh.models.sources import ColumnarDataSource
+        if isinstance(self, ColumnarDataSource):
+            if event == 'stream':
+                deprecated((0, 12, 6), "ColumnarDataSource.js_on_change('stream', ...)", "'streaming'")
+                event = 'streaming'
+            elif event == 'patch':
+                event = 'patching'
+                deprecated((0, 12, 6), "ColumnarDataSource.js_on_change('patch', ...)", "'patching'")
 
         if event not in self.js_property_callbacks:
             self.js_property_callbacks[event] = []

@@ -65,11 +65,12 @@ import sys
 
 from setuptools import find_packages, setup
 
-from _setup_support import (build_or_install_bokehjs, fixup_building_sdist,
-                            fixup_for_packaged, fixup_old_jsargs, get_cmdclass,
-                            get_package_data, get_version, install_js,
-                            package_files, package_path, ROOT, SERVER,
-                            show_bokehjs, show_help)
+from _setup_support import (
+    build_or_install_bokehjs, conda_rendering, fixup_building_sdist,
+    fixup_for_packaged, get_cmdclass, get_package_data, get_version,
+    install_js, package_files, package_path, ROOT, SERVER, show_bokehjs,
+    show_help
+)
 
 # immediately bail for ancient pythons
 if sys.version_info[:2] < (2, 7):
@@ -87,7 +88,6 @@ copy("LICENSE.txt", "bokeh/")
 # state our runtime deps here, also used by meta.yaml (so KEEP the spaces)
 REQUIRES = [
     'six >=1.5.2',
-    'requests >=1.2.3',
     'PyYAML >=3.10',
     'python-dateutil >=2.1',
     'Jinja2 >=2.7',
@@ -95,7 +95,7 @@ REQUIRES = [
     'tornado >=4.3',
 
     # this will be removed when Bokeh hits 1.0
-    'bkcharts >=0.1',
+    'bkcharts >=0.2',
 ]
 
 # handle the compat difference for futures (meta.yaml handles differently)
@@ -103,8 +103,7 @@ if sys.version_info[:2] == (2, 7):
     REQUIRES.append('futures >=3.0.3')
 
 # if this is just conda-build skimming information, skip all this actual work
-if "conda-build" not in sys.argv[0]:
-    fixup_old_jsargs()     # handle --build_js and --install_js
+if not conda_rendering():
     fixup_for_packaged()   # --build_js and --install_js not valid FROM sdist
     fixup_building_sdist() # must build BokehJS when MAKING sdists
 
@@ -143,7 +142,7 @@ setup(
 )
 
 # if this is just conda-build skimming information, skip all this actual work
-if "conda-build" not in sys.argv[0]:
+if not conda_rendering():
     if '--help'  in sys.argv: show_help(bokehjs_action)
     if 'develop' in sys.argv: show_bokehjs(bokehjs_action, develop=True)
     if 'install' in sys.argv: show_bokehjs(bokehjs_action)

@@ -103,7 +103,7 @@ def test_scale_width_maintains_a_minimum_height(output_file_url, selenium):
     assert canvas.size['height'] < 600
     assert canvas.size['height'] >= 100
 
-
+@pytest.mark.xfail
 def test_scale_width_plot_starts_at_correct_size(output_file_url, selenium):
     plot = make_sizing_mode_plot(600, 600, sizing_mode='scale_width')
     save(plot)

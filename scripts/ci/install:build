@@ -1,0 +1,23 @@
+#!/bin/bash
+
+set -e # exit on error
+set -x # echo commands
+
+if  [[ ! -z "${TRAVIS_TAG}" ]]; then
+    echo
+    echo "SKIPPING BUILD STAGE INSTALL --- This is a build for release tag ${TRAVIS_TAG}"
+    echo
+    exit 0
+fi
+
+# do the base install
+bash scripts/ci/install
+
+# install build time dependencies
+BUILD_DEPS=`python scripts/deps.py build`
+conda install --yes ${BUILD_DEPS}
+
+# install NPM dependencies
+pushd bokehjs
+npm install
+popd

@@ -237,9 +237,15 @@ see the documentation for :ref:`bokeh.models.layouts`, in particular the
 Title
 ~~~~~
 
-The styling of the plot title is controlled by a set of `Text Properties`_
-on a |Title| annotation available as the ``.title`` property of the |Plot|.
-For instance, to set the color of the title text, use ``plot.title.text_color``:
+The styling of the plot title is controlled by the properties of |Title|
+annotation, which is available as the ``.title`` property on the |Plot|.
+Most of the standard `Text Properties`_ are available, with the exception
+of ``text_align`` and ``text_baseline`` which do not apply. For positioning
+the title relative to the entire plot, use the properties ``align`` and
+``offset``.
+
+As an example, to set the color and font style of the title text, use
+``plot.title.text_color``:
 
 .. bokeh-plot:: docs/user_guide/examples/styling_title.py
     :source-position: above

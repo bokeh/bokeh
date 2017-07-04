@@ -1,0 +1,31 @@
+0.12.7
+======
+
+Bokeh Version ``0.12.7`` is an incremental update that adds a few important
+features and fixes several bugs. Some of the highlights include:
+
+New embed methods
+~~~~~~~~~~~~~~~~~
+
+Two new embed methods were added: ``server_document`` and ``server_session``.
+Those methods work similarly to ``autoload_server`` except for a few differences:
+with ``server_document`` a new session will systematically be generated and
+an entire document will be returned; with ``server_session`` an existing session
+id and model must be provided. Another difference from ``autoload_server`` is
+that with those two new methods one may choose to not load the JS/CSS resource
+files by passing a ``resources="none"`` parameter.
+
+New Deprecations
+~~~~~~~~~~~~~~~~
+
+``bokeh.embed.autoload_server`` has been deprecated in place of
+``bokeh.embed.server_document`` and ``bokeh.embed.server_session``.
+
+bokeh-widgets' split
+~~~~~~~~~~~~~~~~~~~~
+
+`bokeh-widgets` bundle was split into `bokeh-widgets` and `bokeh-tables`. This
+is to reduce the weight of the main widgets' bundle. bokeh includes `bokeh-tables`
+automatically when necessary, so this change should be transparent for most users.
+However, users of custom templates or some advanced embedding scenarios may be
+affected.

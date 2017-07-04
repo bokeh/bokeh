@@ -8,6 +8,7 @@ source:
   path: ..
 
 build:
+  noarch: python
   entry_points:
     - bokeh = bokeh.__main__:main
 
@@ -30,7 +31,6 @@ requirements:
     - yaml
     - pyyaml
     - jinja2
-    - twine
     - tornado >=4.3
 
   run:
@@ -40,16 +40,15 @@ requirements:
     - {{ dep.lower() }}
     {% endfor %}
 
-    # meta-package installs futures for py 2.7 but not for py 3.x
-    # NOTE: once https://github.com/conda/conda-build/issues/1662 is fixed then
-    # this should be able to be removed
+    # meta-package installs futures for 2.7 but not for 3.x
+    # needed in order to be able to build no-arch conda packages
     - futures-compat
 
 test:
   requires:
     # docs
     - pygments
-    - sphinx >=1.4
+    - sphinx <1.6
     # pyyaml installed by bokeh
     # packaging installed by bokeh
 
@@ -62,13 +61,14 @@ test:
     - packaging
     - pandas
     - pytest >=3.0.2
-    - pytest-cov >=1.8.1     [unix]
-    - pytest-selenium==1.6.0 [unix]
-    - pytest-html==1.7       [unix]
-    - selenium==2.53.5
+    - pytest-cov >=1.8.1
+    - pytest-selenium >=1.6.0 [unix]
+    - pytest-html
+    - selenium >=3
     - pytest-xdist
     - pytest-rerunfailures
-    - beautiful-soup         [unix]
+    - requests >=1.2.3
+    - beautifulsoup4
     - scipy
     - pillow
     - boto
@@ -77,12 +77,11 @@ test:
     # jinja2 installed by bokeh
 
     # examples
-    - jupyter
-    - matplotlib
+    - notebook
     - sympy
     - scikit-learn
     - networkx
-    - icalendar          [unix]
+    - icalendar
     - flask
     - flexx
 

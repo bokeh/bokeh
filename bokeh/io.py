@@ -565,39 +565,24 @@ def _destroy_server(div_id):
     except Exception as e:
         logger.debug("Could not destroy server for id %r: %s" % (div_id, e))
 
-def _crop_image(image, left=0, top=0, right=0, bottom=0, **kwargs):
-    '''Crop the border from the layout'''
-    cropped_image = image.crop((left, top, right, bottom))
-
-    return cropped_image
-
-def _get_screenshot_as_png(obj):
-    webdriver = import_required('selenium.webdriver',
-                                'To use bokeh.io.export you need selenium ' +
-                                '("conda install -c bokeh selenium" or "pip install selenium")')
+def _wait_until_render_complete(driver):
     from selenium.webdriver.support.ui import WebDriverWait
     from selenium.common.exceptions import TimeoutException
 
-    Image = import_required('PIL.Image',
-                            'To use bokeh.io.export you need pillow ' +
-                            '("conda install pillow" or "pip install pillow")')
-    # assert that phantomjs is in path for webdriver
-    detect_phantomjs()
-
-    html_path = tempfile.NamedTemporaryFile(suffix=".html").name
-    save(obj, filename=html_path, resources=INLINE, title="")
-
-    driver = webdriver.PhantomJS()
-    driver.get("file:///" + html_path)
     script = """
-        // override body width CSS for PhantomJS compat
-        document.body.style.width = '100%';
-        // add private window prop to check that render is complete
-        window._bokeh_render_complete = false;
-        window.addEventListener("bokeh:rendered", function() {
-            window._bokeh_render_complete = true;
-        });
-        """
+    // add private window prop to check that render is complete
+    window._bokeh_render_complete = false;
+    function done() {
+      window._bokeh_render_complete = true;
+    }
+
+    var doc = window.Bokeh.documents[0];
+
+    if (doc.is_idle)
+      done();
+    else
+      doc.idle.connect(done);
+    """
     driver.execute_script(script)
 
     def is_bokeh_render_complete(driver):
@@ -607,7 +592,7 @@ def _get_screenshot_as_png(obj):
         WebDriverWait(driver, 5, poll_frequency=0.1).until(is_bokeh_render_complete)
     except TimeoutException:
         logger.warn("The webdriver raised a TimeoutException while waiting for \
-                     a 'bokeh:rendered' event to signify that the layout has rendered. \
+                     a 'bokeh:idle' event to signify that the layout has rendered. \
                      Something may have gone wrong.")
     finally:
         browser_logs = driver.get_log('browser')
@@ -615,26 +600,61 @@ def _get_screenshot_as_png(obj):
         if len(severe_errors) > 0:
             logger.warn("There were severe browser errors that may have affected your export: {}".format(severe_errors))
 
-    png = driver.get_screenshot_as_png()
+def _crop_image(image, left=0, top=0, right=0, bottom=0, **kwargs):
+    '''Crop the border from the layout'''
+    cropped_image = image.crop((left, top, right, bottom))
+
+    return cropped_image
+
+def _get_screenshot_as_png(obj, driver):
+    webdriver = import_required('selenium.webdriver',
+                                'To use bokeh.io.export_png you need selenium ' +
+                                '("conda install -c bokeh selenium" or "pip install selenium")')
+
+    Image = import_required('PIL.Image',
+                            'To use bokeh.io.export_png you need pillow ' +
+                            '("conda install pillow" or "pip install pillow")')
+    # assert that phantomjs is in path for webdriver
+    detect_phantomjs()
+
+    html_path = tempfile.NamedTemporaryFile(suffix=".html").name
+    save(obj, filename=html_path, resources=INLINE, title="")
+
+    if driver is None:
+        web_driver = webdriver.PhantomJS(service_log_path=os.path.devnull)
+    else:
+        web_driver = driver
+
+    web_driver.get("file:///" + html_path)
+    web_driver.maximize_window()
+
+    ## resize for PhantomJS compat
+    web_driver.execute_script("document.body.style.width = '100%';")
+
+    _wait_until_render_complete(web_driver)
+
+    png = web_driver.get_screenshot_as_png()
 
     bounding_rect_script = "return document.getElementsByClassName('bk-root')[0].children[0].getBoundingClientRect()"
-    b_rect = driver.execute_script(bounding_rect_script)
+    b_rect = web_driver.execute_script(bounding_rect_script)
 
-    driver.quit()
+    if driver is None: # only quit webdriver if not passed in as arg
+        web_driver.quit()
 
     image = Image.open(io.BytesIO(png))
     cropped_image = _crop_image(image, **b_rect)
 
     return cropped_image
 
-def export(obj, filename=None):
-    ''' Export the LayoutDOM object as a PNG.
+def export_png(obj, filename=None):
+    ''' Export the LayoutDOM object or document as a PNG.
 
     If the filename is not given, it is derived from the script name
     (e.g. ``/foo/myplot.py`` will create ``/foo/myplot.png``)
 
     Args:
-        obj (LayoutDOM object) : a Layout (Row/Column), Plot or Widget object to display
+        obj (LayoutDOM or Document) : a Layout (Row/Column), Plot or Widget
+            object or Document to export.
 
         filename (str, optional) : filename to save document under (default: None)
             If None, infer from the filename.
@@ -650,7 +670,7 @@ def export(obj, filename=None):
         Glyphs that are rendered via webgl won't be included in the generated PNG.
 
     '''
-    image = _get_screenshot_as_png(obj)
+    image = _get_screenshot_as_png(obj, None)
 
     if filename is None:
         filename = _detect_filename("png")
@@ -658,3 +678,86 @@ def export(obj, filename=None):
     image.save(filename)
 
     return os.path.abspath(filename)
+
+def _get_svgs(obj, driver):
+    webdriver = import_required('selenium.webdriver',
+                                'To use bokeh.io.export_svgs you need selenium ' +
+                                '("conda install -c bokeh selenium" or "pip install selenium")')
+    # assert that phantomjs is in path for webdriver
+    detect_phantomjs()
+
+    html_path = tempfile.NamedTemporaryFile(suffix=".html").name
+    save(obj, filename=html_path, resources=INLINE, title="")
+
+    if driver is None:
+        web_driver = webdriver.PhantomJS(service_log_path=os.path.devnull)
+    else:
+        web_driver = driver
+
+    web_driver.get("file:///" + html_path)
+
+    _wait_until_render_complete(web_driver)
+
+    svg_script = """
+    var serialized_svgs = [];
+    var svgs = document.getElementsByClassName('bk-root')[0].getElementsByTagName("svg");
+    for (var i = 0; i < svgs.length; i++) {
+        var source = (new XMLSerializer()).serializeToString(svgs[i]);
+        serialized_svgs.push(source);
+    };
+    return serialized_svgs
+    """
+
+    svgs = web_driver.execute_script(svg_script)
+
+    if driver is None: # only quit webdriver if not passed in as arg
+        web_driver.quit()
+
+    return svgs
+
+def export_svgs(obj, filename=None):
+    ''' Export the SVG-enabled plots within a layout. Each plot will result
+    in a distinct SVG file.
+
+    If the filename is not given, it is derived from the script name
+    (e.g. ``/foo/myplot.py`` will create ``/foo/myplot.svg``)
+
+    Args:
+        obj (LayoutDOM object) : a Layout (Row/Column), Plot or Widget object to display
+
+        filename (str, optional) : filename to save document under (default: None)
+            If None, infer from the filename.
+
+    Returns:
+        filenames (list(str)) : the list of filenames where the SVGs files
+            are saved.
+
+    .. warning::
+        Responsive sizing_modes may generate layouts with unexpected size and
+        aspect ratios. It is recommended to use the default ``fixed`` sizing mode.
+
+    '''
+    svgs = _get_svgs(obj, None)
+
+    if len(svgs) == 0:
+        logger.warn("No SVG Plots were found.")
+        return
+
+    if filename is None:
+        filename = _detect_filename("svg")
+
+    filenames = []
+
+    for i, svg in enumerate(svgs):
+        if i == 0:
+            filename = filename
+        else:
+            idx = filename.find(".svg")
+            filename = filename[:idx] + "_{}".format(i) + filename[idx:]
+
+        with io.open(filename, mode="w", encoding="utf-8") as f:
+            f.write(svg)
+
+        filenames.append(filename)
+
+    return filenames

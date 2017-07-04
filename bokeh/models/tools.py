@@ -22,18 +22,20 @@ always be active regardless of what other tools are currently active.
 '''
 from __future__ import absolute_import
 
-from ..core.enums import accept_left_right_center, Anchor, DeprecatedAnchor, Dimension, Dimensions, Location, TooltipFieldFormatter
+from ..core.enums import Anchor, Dimension, Dimensions, Location, TooltipFieldFormatter
 from ..core.has_props import abstract
 from ..core.properties import (
     Any, Auto, Bool, Color, Dict, Either, Enum, Float, Percent, Instance, List,
     Override, Seq, String, Tuple
 )
 from ..model import Model
+from ..util.deprecation import deprecated
 
 from .annotations import BoxAnnotation, PolyAnnotation
 from .callbacks import Callback
 from .renderers import Renderer
 from .layouts import Box, LayoutDOM
+
 
 class ToolEvents(Model):
     ''' A class for reporting tools geometries from BokehJS.
@@ -52,9 +54,17 @@ class Tool(Model):
 
     '''
 
-    plot = Instance(".models.plots.Plot", help="""
-    The Plot that this tool will act on.
-    """)
+    __deprecated_attributes__ = ["plot"]
+
+    @property
+    def plot(self):
+        deprecated("Tool.plot property is no longer needed, and any use deprecated. In the future, accessing Tool.plot will result in an AttributeError")
+        return None
+
+    @plot.setter
+    def plot(self, val):
+        deprecated("Tool.plot property is no longer needed, and any use is deprecated. In the future, accessing Tool.plot will result in an AttributeError")
+        return None
 
 @abstract
 class Action(Tool):
@@ -90,7 +100,11 @@ class Inspection(Tool):
     ''' A base class for tools that perform "inspections", e.g. ``HoverTool``.
 
     '''
-    pass
+    toggleable = Bool(True, help="""
+    Whether an on/off toggle button should appear in the toolbar for this
+    inpection tool. If ``False``, the viewers of a plot will not be able to
+    toggle the inspector on or off using the toolbar.
+    """)
 
 @abstract
 class ToolbarBase(LayoutDOM):
@@ -818,7 +832,7 @@ class HoverTool(Inspection):
     anchor = Enum(Anchor, default="center", help="""
     If point policy is set to `"snap_to_data"`, `anchor` defines the attachment
     point of a tooltip. The default is to attach to the center of a glyph.
-    """).accepts(Enum(DeprecatedAnchor), accept_left_right_center)
+    """)
 
     attachment = Enum("horizontal", "vertical", help="""
     Whether tooltip's arrow should appear in the horizontal or vertical dimension.

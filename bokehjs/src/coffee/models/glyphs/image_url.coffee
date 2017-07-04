@@ -37,6 +37,9 @@ export class ImageURLView extends GlyphView
           @renderer.request_render()
       img.src = @_url[i]
 
+  has_finished: () ->
+    return super() and @_images_rendered == true
+
   _map_data: () ->
     # Better to check @model.w and @model.h for null since the set_data
     # machinery will have converted @_w and @_w to lists of null
@@ -61,6 +64,8 @@ export class ImageURLView extends GlyphView
     )
     ctx.clip()
 
+    finished = true
+
     for i in indices
       if isNaN(sx[i]+sy[i]+_angle[i])
         continue
@@ -69,9 +74,14 @@ export class ImageURLView extends GlyphView
         continue
 
       if not image[i]?
+        finished = false
         continue
 
       @_render_image(ctx, i, image[i], sx, sy, sw, sh, _angle)
+
+    if finished and not @_images_rendered
+      @_images_rendered = true
+      @notify_finished()
 
   _final_sx_sy: (anchor, sx, sy, sw, sh) ->
     switch anchor
