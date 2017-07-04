@@ -1,7 +1,7 @@
-import {join} from "path"
+import {resolve, join} from "path"
 import {argv} from "yargs"
 
-const BUILD_DIR = argv.buildDir || "./build"
+const BUILD_DIR = resolve(argv.buildDir || "./build")
 const JS_BUILD_DIR = join(BUILD_DIR, "js")
 const CSS_BUILD_DIR = join(BUILD_DIR, "css")
 
