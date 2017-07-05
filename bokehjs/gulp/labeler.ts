@@ -1,4 +1,3 @@
-import * as fs from "fs"
 import * as path from "path"
 import * as resolve from "resolve"
 import * as through from "through2"
@@ -6,27 +5,25 @@ import * as gutil from "gulp-util"
 import {argv} from "yargs"
 import * as paths from "./paths"
 
-const pkg = require("../package.json")
-
 type Bundle = {pipeline: any}
 export type Labels = {[key: string]: string}
 
 function customLabeler(bundle: Bundle, parentLabels: Labels, fn: (row: any) => string): Labels {
   const labels: Labels = {}
 
-  const namer = through.obj(function(this: any, row, _enc, next) {
+  const namer = through.obj(function(row, _enc, next) {
     labels[row.id] = fn(row)
     this.push(row)
     next()
   })
 
-  const labeler = through.obj(function(this: any, row, _enc, next) {
+  const labeler = through.obj(function(row, _enc, next) {
     row.id = labels[row.id]
 
     const opts = {
       basedir: path.dirname(row.file),
       extensions: ['.js'],
-      paths: ['./node_modules', paths.build_dir.tree_js],
+      paths: [paths.build_dir.tree_js, './node_modules'],
     }
 
     for (const name in row.deps) {
@@ -46,34 +43,17 @@ function customLabeler(bundle: Bundle, parentLabels: Labels, fn: (row: any) => s
 
 export function namedLabeler(bundle: Bundle, parentLabels: Labels) {
   return customLabeler(bundle, parentLabels, (row) => {
-    const cwd = process.cwd()
-    const depModMap: {[key: string]: string} = {}
-
-    for (const dep in pkg.dependencies) {
-      const depPkg = require(path.resolve(path.join("node_modules", dep, "package.json")))
-      if (depPkg.main != null) {
-        let depPath = path.resolve(path.join("node_modules", dep, depPkg.main))
-        if (!fs.existsSync(depPath)) {
-          depPath = `${depPath}.js`
-        }
-        depModMap[depPath] = dep
-      }
-    }
-
-    const modPath = row.id
-    let modName  = depModMap[modPath]
-
-    if (modName == null)
-      modName = path
-        .relative(cwd, modPath)
+    const mod_path = row.id
+    const mod_name = path
+        .relative(paths.base_dir, mod_path)
         .replace(/\.js$/, "")
         .split(path.sep)
         .join("/")
         .replace(/^(node_modules|build\/js\/tree)\//, "")
 
     if (argv.verbose)
-      gutil.log(`Processing ${modName}`)
+      gutil.log(`Processing ${mod_name}`)
 
-    return modName
+    return mod_name
   })
 }

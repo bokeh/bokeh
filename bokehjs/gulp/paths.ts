@@ -1,7 +1,9 @@
 import {resolve, join} from "path"
 import {argv} from "yargs"
 
-const BUILD_DIR = resolve(argv.buildDir || "./build")
+export const base_dir = resolve("./")
+
+const BUILD_DIR = argv.buildDir ? resolve(argv.buildDir) : join(base_dir, "build")
 const JS_BUILD_DIR = join(BUILD_DIR, "js")
 const CSS_BUILD_DIR = join(BUILD_DIR, "css")
 
@@ -45,7 +47,7 @@ export const coffee = {
     },
   },
   watchSources: [
-    "./src/coffee/**/**",
+    join(base_dir, "src/coffee/**/**"),
   ],
 }
 
@@ -64,18 +66,18 @@ export const css = {
 
 export const less = {
   sources: [
-    "./src/less/bokeh.less",
-    "./src/less/bokeh-widgets.less",
-    "./src/less/bokeh-tables.less",
+    join(base_dir, "src/less/bokeh.less"),
+    join(base_dir, "src/less/bokeh-widgets.less"),
+    join(base_dir, "src/less/bokeh-tables.less"),
   ],
   watchSources: [
-    "./src/less/**/**",
+    join(base_dir, "src/less/**/**"),
   ],
 }
 
 export const test = {
   watchSources: [
-    "./test/**/**",
-    "./src/coffee/**/**",
+    join(base_dir, "test/**/**"),
+    join(base_dir, "src/coffee/**/**"),
   ]
 }

@@ -100,7 +100,7 @@ gulp.task("scripts:compile", ["scripts:tsjs"])
 
 const commonOpts = {
   extensions: [".js"],
-  paths: ['./node_modules', paths.build_dir.tree_js],
+  paths: [paths.build_dir.tree_js, './node_modules'],
   insertGlobals: false,
   insertGlobalVars: {
    process: undefined,
