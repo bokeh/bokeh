@@ -37,39 +37,6 @@ export class SelectToolView extends GestureToolView
         sm = ds.selection_manager
         sm.clear()
 
-  _save_geometry: (geometry, final, append) ->
-    g = clone(geometry)
-    xm = @plot_view.frame.xscales['default']
-    ym = @plot_view.frame.yscales['default']
-    switch g.type
-      when 'point'
-        g.x = xm.invert(g.vx)
-        g.y = ym.invert(g.vy)
-      when 'rect'
-        g.x0 = xm.invert(g.vx0)
-        g.y0 = ym.invert(g.vy0)
-        g.x1 = xm.invert(g.vx1)
-        g.y1 = ym.invert(g.vy1)
-      when 'poly'
-        g.x = new Array(g.vx.length)
-        g.y = new Array(g.vy.length)
-        for i in [0...g.vx.length]
-          g.x[i] = xm.invert(g.vx[i])
-          g.y[i] = ym.invert(g.vy[i])
-      else
-        logger.debug("Unrecognized selection geometry type: '#{g.type}'")
-
-    if final
-      tool_events = @plot_model.plot.tool_events
-      if append
-        geoms = tool_events.geometries
-        geoms.push(g)
-      else
-        geoms = [g]
-
-      tool_events.geometries = geoms
-    return null
-
 export class SelectTool extends GestureTool
 
   @define {

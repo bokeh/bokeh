@@ -19,10 +19,9 @@ export class TapToolView extends SelectToolView
     }
 
     callback = @model.callback
-    @_save_geometry(geometry, final, append)
 
     cb_data =
-      geometries: @plot_model.plot.tool_events.geometries
+      geometries: geometry
 
     if @model.behavior == "select"
 
