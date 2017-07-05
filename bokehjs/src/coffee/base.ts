@@ -46,7 +46,7 @@ Models.register_models = (models, force = false, errorFn?) => {
     else if (errorFn != null)
       errorFn(name)
     else
-      console.warn(`Module '${name}' was already registered`)
+      console.warn(`Model '${name}' was already registered`)
   }
 }
 

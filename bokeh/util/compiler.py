@@ -22,21 +22,9 @@ from .string import snakify
 # XXX: this is the same as bokehjs/src/js/plugin-prelude.js
 _plugin_prelude = \
 """
-(function outer(modules, cache, entry) {
+(function outer(modules, cache, entries) {
   if (Bokeh != null) {
-    for (var name in modules) {
-      Bokeh.require.modules[name] = modules[name];
-    }
-
-    for (var i = 0; i < entry.length; i++) {
-      var plugin = Bokeh.require(entry[i]);
-
-      for (var name in plugin) {
-        if (name !== "models") {
-          Bokeh[name] = plugin[name];
-        }
-      }
-    }
+    Bokeh.register_plugin(modules, entries[0]);
   } else {
     throw new Error("Cannot find Bokeh. You have to load it prior to loading plugins.");
   }
