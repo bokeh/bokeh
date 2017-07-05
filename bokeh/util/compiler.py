@@ -19,9 +19,25 @@ from ..model import Model
 from ..settings import settings
 from .string import snakify
 
+_plugin_umd = \
+"""\
+(function(root, factory) {
+  if(typeof exports === 'object' && typeof module === 'object')
+    factory(require("bokeh"));
+  else if(typeof define === 'function' && define.amd)
+    define(["bokeh"], factory);
+  else if(typeof exports === 'object')
+    factory(require("Bokeh"));
+  else
+    factory(root["Bokeh"]);
+})(this, function(Bokeh, define /* void 0 */) {
+  return %(content)s;
+});
+"""
+
 # XXX: this is the same as bokehjs/src/js/plugin-prelude.js
 _plugin_prelude = \
-"""
+"""\
 (function outer(modules, cache, entries) {
   if (Bokeh != null) {
     Bokeh.register_plugin(modules, entries[0]);
@@ -32,8 +48,8 @@ _plugin_prelude = \
 """
 
 _plugin_template = \
-"""
-%(prelude)s
+"""\
+%(prelude)s\
 ({
   "custom/main": [function(require, module, exports) {
     var models = {
@@ -47,7 +63,7 @@ _plugin_template = \
 """
 
 _style_template = \
-"""
+"""\
 (function() {
   var head = document.getElementsByTagName('head')[0];
   var style = document.createElement('style');
@@ -380,7 +396,8 @@ def bundle_models(models):
     exports = sep.join([ _export_template % dict(name=name, module=module) for (name, module) in exports ])
     modules = sep.join([ _module_template % dict(module=module, code=code, deps=json.dumps(deps)) for (module, code, deps) in modules ])
 
-    return _plugin_template % dict(prelude=_plugin_prelude, exports=exports, modules=modules)
+    content = _plugin_template % dict(prelude=_plugin_prelude, exports=exports, modules=modules)
+    return _plugin_umd % dict(content=content)
 
 def bundle_all_models():
     return bundle_models(Model.model_class_reverse_map.values()) or ""

@@ -1,4 +1,4 @@
-(function outer(modules, cache, entries) {
+(function(modules, cache, entries) {
   var require = function(name) {
     if (!cache[name]) {
       if (!modules[name]) {

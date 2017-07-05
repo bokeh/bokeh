@@ -95,6 +95,40 @@ gulp.task("scripts:tsjs", ["scripts:coffee", "scripts:js", "scripts:ts"], () => 
 
 gulp.task("scripts:compile", ["scripts:tsjs"])
 
+const umd = (content: string) => {
+  return `\
+(function(root, factory) {
+  if(typeof exports === 'object' && typeof module === 'object')
+    module.exports = factory();
+  else if(typeof define === 'function' && define.amd)
+    define([], factory);
+  else if(typeof exports === 'object')
+    exports["Bokeh"] = factory();
+  else
+    root["Bokeh"] = factory();
+})(this, function(define /* void 0 */) {
+  return ${content};
+});
+`
+  }
+
+const plugin_umd = (content: string) => {
+  return `\
+(function(root, factory) {
+  if(typeof exports === 'object' && typeof module === 'object')
+    factory(require("bokeh"));
+  else if(typeof define === 'function' && define.amd)
+    define(["bokeh"], factory);
+  else if(typeof exports === 'object')
+    factory(require("Bokeh"));
+  else
+    factory(root["Bokeh"]);
+})(this, function(Bokeh, define /* void 0 */) {
+  return ${content};
+});
+`
+  }
+
 const commonOpts = {
   extensions: [".js"],
   paths: [paths.build_dir.tree_js, './node_modules'],
@@ -127,15 +161,7 @@ gulp.task("scripts:bundle", ["scripts:compile"], (cb: (arg?: any) => void) => {
       .pipe(source(paths.coffee.bokehjs.destination.name))
       .pipe(buffer())
       .pipe(sourcemaps.init({loadMaps: true}))
-      // This solves a conflict when requirejs is loaded on the page. Backbone
-      // looks for `define` before looking for `module.exports`, which eats up
-      // our backbone.
-      .pipe(change((content: string) => {
-        return `(function() { var define = undefined; return ${content} })()`
-      }))
-      .pipe(change((content: string) => {
-        return `window.Bokeh = Bokeh = ${content}`
-      }))
+      .pipe(change(umd))
       .pipe(insert.append(license))
       .pipe(sourcemaps.write('./'))
       .pipe(gulp.dest(paths.build_dir.js))
@@ -164,12 +190,7 @@ gulp.task("scripts:bundle", ["scripts:compile"], (cb: (arg?: any) => void) => {
         .pipe(source((paths.coffee as any)[plugin_name].destination.name))
         .pipe(buffer())
         .pipe(sourcemaps.init({loadMaps: true}))
-        // This solves a conflict when requirejs is loaded on the page. Backbone
-        // looks for `define` before looking for `module.exports`, which eats up
-        // our backbone.
-        .pipe(change((content: string) => {
-          return `(function() { var define = undefined; return ${content} })()`
-        }))
+        .pipe(change(plugin_umd))
         .pipe(insert.append(license))
         .pipe(sourcemaps.write('./'))
         .pipe(gulp.dest(paths.build_dir.js))
