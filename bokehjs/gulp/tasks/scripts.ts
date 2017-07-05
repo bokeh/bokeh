@@ -171,7 +171,7 @@ gulp.task("scripts:bundle", ["scripts:compile"], (cb: (arg?: any) => void) => {
   const pluginPreludePath = path.resolve("./src/js/plugin-prelude.js")
   const pluginPreludeText = fs.readFileSync(pluginPreludePath, { encoding: 'utf8' })
 
-  function mkBuildPlugin(plugin_name: string, main: string) {
+  function mkBuildPlugin(plugin_name: string, main: string, exclude: string[] = []) {
     return (next: (arg?: any) => void) => {
       if (argv.verbose) gutil.log(`Building ${plugin_name}`)
       const pluginOpts = Object.assign({
@@ -180,7 +180,9 @@ gulp.task("scripts:bundle", ["scripts:compile"], (cb: (arg?: any) => void) => {
         prelude: pluginPreludeText,
       }, commonOpts)
       const plugin = browserify(pluginOpts)
-      plugin.exclude(path.resolve("node_modules/moment/moment.js"))
+      for (const file of exclude) {
+        plugin.exclude(path.resolve(file))
+      }
       labels[plugin_name] = named_labeler(plugin)
       for (const file in labels.bokehjs) {
         plugin.external(file)
@@ -198,13 +200,10 @@ gulp.task("scripts:bundle", ["scripts:compile"], (cb: (arg?: any) => void) => {
     }
   }
 
-  const buildAPI = mkBuildPlugin("api", "api/main.js")
-
-  const buildWidgets = mkBuildPlugin("widgets", 'models/widgets/main.js')
-
-  const buildTables = mkBuildPlugin("tables", 'models/widgets/tables/main.js')
-
-  const buildGL = mkBuildPlugin("gl", "models/glyphs/webgl/main.js")
+  const buildAPI     = mkBuildPlugin("api",     "api/main.js")
+  const buildWidgets = mkBuildPlugin("widgets", "models/widgets/main.js", ["node_modules/moment/moment.js"])
+  const buildTables  = mkBuildPlugin("tables",  "models/widgets/tables/main.js")
+  const buildGL      = mkBuildPlugin("gl",      "models/glyphs/webgl/main.js")
 
   function writeLabels(next: (arg?: any) => void) {
     const data: {[key: string]: any} = {}
