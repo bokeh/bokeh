@@ -16,8 +16,6 @@ const stripAnsi = require('strip-ansi')
 
 const license = '/*\n' + fs.readFileSync('../LICENSE.txt', 'utf-8') + '*/\n';
 
-const gulpif = require('gulp-if')
-const newer = require('gulp-newer')
 const coffee = require('gulp-coffee')
 const ts = require('gulp-typescript')
 
@@ -25,7 +23,6 @@ import {namedLabeler, Labels} from "../labeler"
 
 gulp.task("scripts:coffee", () => {
   return gulp.src('./src/coffee/**/*.coffee')
-    .pipe(gulpif(argv.incremental, newer({dest: paths.build_dir.tree_js, ext: '.js'})))
     .pipe(coffee({bare: true}))
     .pipe(rename((path) => path.extname = '.ts'))
     .pipe(gulp.dest(paths.build_dir.tree_ts))
