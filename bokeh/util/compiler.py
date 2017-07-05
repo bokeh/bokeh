@@ -30,7 +30,6 @@ _plugin_prelude = \
 
     for (var i = 0; i < entry.length; i++) {
       var plugin = Bokeh.require(entry[i]);
-      Bokeh.Models.register_models(plugin.models);
 
       for (var name in plugin) {
         if (name !== "models") {
@@ -49,11 +48,11 @@ _plugin_template = \
 %(prelude)s
 ({
   "custom/main": [function(require, module, exports) {
-    module.exports = {
-      models: {
-        %(exports)s
-      }
+    var models = {
+      %(exports)s
     };
+    require("base").register_models(models);
+    module.exports = models;
   }, {}],
   %(modules)s
 }, {}, ["custom/main"]);

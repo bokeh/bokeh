@@ -6,7 +6,6 @@
 
     for (var i = 0; i < entry.length; i++) {
       var plugin = Bokeh.require(entry[0]);
-      Bokeh.Models.register_models(plugin.models);
 
       for (var name in plugin) {
         if (name !== "models") {

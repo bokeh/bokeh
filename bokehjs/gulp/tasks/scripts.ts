@@ -180,7 +180,7 @@ gulp.task("scripts:bundle", ["scripts:compile"], (cb: (arg?: any) => void) => {
     }
   }
 
-  const buildAPI = mkBuildPlugin("api", "api.js")
+  const buildAPI = mkBuildPlugin("api", "api/main.js")
 
   const buildWidgets = mkBuildPlugin("widgets", 'models/widgets/main.js')
 

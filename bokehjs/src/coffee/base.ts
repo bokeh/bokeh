@@ -11,7 +11,7 @@ export interface Models {
   (name: string): Model
   register(name: string, model: Model): void
   unregister(name: string): void
-  register_models(models: {[key: string]: Model} | null | undefined, force: boolean, errorFn?: (name: string) => void): void
+  register_models(models: {[key: string]: Model} | null | undefined, force?: boolean, errorFn?: (name: string) => void): void
   registered_names(): string[]
 }
 
@@ -45,8 +45,12 @@ Models.register_models = (models, force = false, errorFn?) => {
       _all_models[name] = model
     else if (errorFn != null)
       errorFn(name)
+    else
+      console.warn(`Module '${name}' was already registered`)
   }
 }
+
+export const register_models = Models.register_models
 
 Models.registered_names = () => Object.keys(_all_models)
 

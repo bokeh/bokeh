@@ -1,21 +1,21 @@
 // api/bokeh.d.ts
-import * as LinAlg from "./api/linalg"
+import * as LinAlg from "./linalg"
 export {LinAlg}
 
 // api/charts.d.ts
-import * as Charts from "./api/charts"
+import * as Charts from "./charts"
 export {Charts}
 
 // api/plotting.d.ts
-import * as Plotting from "./api/plotting"
+import * as Plotting from "./plotting"
 export {Plotting}
 
 // api/typings/models/document.d.ts
-export {Document} from "./document"
+export {Document} from "../document"
 
 // api/typings/bokeh.d.ts
 import * as sprintf from "sprintf"
 export {sprintf}
 
 // api/typings/models/*.d.ts
-export * from "./api/models"
+export * from "./models"
