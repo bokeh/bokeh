@@ -3,6 +3,7 @@ import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {logger} from "core/logging"
 import * as p from "core/properties"
 import {clone} from "core/util/object"
+import {Selection} from "core/bokeh_events"
 
 export class SelectToolView extends GestureToolView
 
@@ -36,6 +37,30 @@ export class SelectToolView extends GestureToolView
         ds = r.data_source
         sm = ds.selection_manager
         sm.clear()
+
+  _emit_selection_event: (geometry) ->
+    g = clone(geometry)
+    xm = @plot_view.frame.xscales['default']
+    ym = @plot_view.frame.yscales['default']
+    switch g.type
+      when 'point'
+        g.x = xm.invert(g.vx)
+        g.y = ym.invert(g.vy)
+      when 'rect'
+        g.x0 = xm.invert(g.vx0)
+        g.y0 = ym.invert(g.vy0)
+        g.x1 = xm.invert(g.vx1)
+        g.y1 = ym.invert(g.vy1)
+      when 'poly'
+        g.x = new Array(g.vx.length)
+        g.y = new Array(g.vy.length)
+        for i in [0...g.vx.length]
+          g.x[i] = xm.invert(g.vx[i])
+          g.y[i] = ym.invert(g.vy[i])
+      else
+        logger.debug("Unrecognized selection geometry type: '#{g.type}'")
+
+    @plot_model.plot.trigger_event(new Selection({geometry: g}))
 
 export class SelectTool extends GestureTool
 

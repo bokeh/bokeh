@@ -38,6 +38,8 @@ export class TapToolView extends SelectToolView
           else
             callback.execute(ds, cb_data)
 
+      @_emit_selection_event(geometry)
+
       @plot_view.push_state('tap', {selection: @plot_view.get_selection()})
 
     else # @model.behavior == "inspect"

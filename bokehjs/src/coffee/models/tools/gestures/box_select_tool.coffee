@@ -69,6 +69,8 @@ export class BoxSelectToolView extends SelectToolView
     if @model.callback?
       @_emit_callback(geometry)
 
+    @_emit_selection_event(geometry)
+
     return null
 
   _emit_callback: (geometry) ->
