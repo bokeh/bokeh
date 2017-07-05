@@ -25,7 +25,7 @@ from __future__ import absolute_import
 from ..core.enums import Anchor, Dimension, Dimensions, Location, TooltipFieldFormatter
 from ..core.has_props import abstract
 from ..core.properties import (
-    Any, Auto, Bool, Color, Dict, Either, Enum, Float, Percent, Instance, List,
+    Auto, Bool, Color, Dict, Either, Enum, Float, Percent, Instance, List,
     Override, Seq, String, Tuple
 )
 from ..model import Model
@@ -36,17 +36,6 @@ from .callbacks import Callback
 from .renderers import Renderer
 from .layouts import Box, LayoutDOM
 
-
-class ToolEvents(Model):
-    ''' A class for reporting tools geometries from BokehJS.
-
-    .. warning::
-        This class will be superceded by a new general events system in the
-        near future.
-
-    '''
-
-    geometries = List(Dict(String, Any))
 
 @abstract
 class Tool(Model):

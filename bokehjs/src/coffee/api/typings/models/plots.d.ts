@@ -58,8 +58,6 @@ declare namespace Bokeh {
   x_scale?: Scale;
   y_scale?: Scale;
 
-  tool_events?: ToolEvents;
-
   min_border_top?: Int;
   min_border_bottom?: Int;
   min_border_left?: Int;

@@ -8,7 +8,6 @@ import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
 import {Title} from "../annotations/title"
 import {LinearScale} from "../scales/linear_scale"
 import {Toolbar} from "../tools/toolbar"
-import {ToolEvents} from "../tools/tool_events"
 import {PlotCanvas, PlotCanvasView} from "./plot_canvas"
 
 import {ColumnDataSource} from "../sources/column_data_source"
@@ -326,8 +325,6 @@ export class Plot extends LayoutDOM
       x_scale:           [ p.Instance, () -> new LinearScale() ]
       y_scale:           [ p.Instance, () -> new LinearScale() ]
 
-      tool_events:       [ p.Instance, () -> new ToolEvents() ]
-
       lod_factor:        [ p.Number,   10                     ]
       lod_interval:      [ p.Number,   300                    ]
       lod_threshold:     [ p.Number,   2000                   ]
@@ -369,6 +366,9 @@ export class Plot extends LayoutDOM
     webgl: () ->
       log.warning("webgl attr is deprecated, use output_backend")
       return @output_backend == "webgl"
+    tool_events: () ->
+      log.warning("tool_events attr is deprecated, use Selection Event")
+      return null
   }
 
 register_with_event(UIEvent, Plot)
