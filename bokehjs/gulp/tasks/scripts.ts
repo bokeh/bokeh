@@ -14,7 +14,7 @@ import {argv} from "yargs"
 import * as insert from 'gulp-insert'
 const stripAnsi = require('strip-ansi')
 
-const license = '/*\n' + fs.readFileSync('../LICENSE.txt', 'utf-8') + '*/\n';
+const license = `/*!\n${fs.readFileSync('../LICENSE.txt', 'utf-8')}*/\n`
 
 const coffee = require('gulp-coffee')
 const ts = require('gulp-typescript')
