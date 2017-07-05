@@ -14,8 +14,7 @@ export {Plotting}
 export {Document} from "../document"
 
 // api/typings/bokeh.d.ts
-import * as sprintf from "sprintf"
-export {sprintf}
+export {sprintf} from "sprintf-js"
 
 // api/typings/models/*.d.ts
 export * from "./models"
