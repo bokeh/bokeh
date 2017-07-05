@@ -77,6 +77,16 @@ export class LODStart extends UIEvent {}
 @register_event_class("lodend")
 export class LODEnd extends UIEvent {}
 
+@register_event_class("selection")
+export class Selection extends UIEvent {
+  geometry: any
+
+  constructor(options: any) {
+    super(options)
+    this.geometry = options.geometry
+  }
+}
+
 export /* TODO abstract */ class PointEvent extends UIEvent {
 
   sx: number

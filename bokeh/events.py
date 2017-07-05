@@ -178,6 +178,16 @@ class LODEnd(PlotEvent):
     '''
     event_name = 'lodend'
 
+class Selection(PlotEvent):
+    ''' Announce the selection event
+
+    '''
+    event_name = "selection"
+
+    def __init__(self, model, geometry):
+        self.geometry = geometry
+        super(Selection, self).__init__(model=model)
+
 class PointEvent(PlotEvent):
     ''' Base class for UI events associated with a specific (x,y) point.
 
