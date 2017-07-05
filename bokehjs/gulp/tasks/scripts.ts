@@ -19,7 +19,7 @@ const license = `/*!\n${fs.readFileSync('../LICENSE.txt', 'utf-8')}*/\n`
 const coffee = require('gulp-coffee')
 const ts = require('gulp-typescript')
 
-import {namedLabeler, Labels} from "../labeler"
+import {named_labeler, Labels} from "../labeler"
 
 gulp.task("scripts:coffee", () => {
   return gulp.src('./src/coffee/**/*.coffee')
@@ -155,7 +155,7 @@ gulp.task("scripts:bundle", ["scripts:compile"], (cb: (arg?: any) => void) => {
   function buildBokehjs(next: (arg?: any) => void) {
     if (argv.verbose) gutil.log("Building bokehjs")
     bokehjs.exclude(path.resolve("build/js/tree/models/glyphs/webgl/index.js"))
-    labels.bokehjs = namedLabeler(bokehjs, {})
+    labels.bokehjs = named_labeler(bokehjs)
     bokehjs
       .bundle()
       .pipe(source(paths.coffee.bokehjs.destination.name))
@@ -181,7 +181,7 @@ gulp.task("scripts:bundle", ["scripts:compile"], (cb: (arg?: any) => void) => {
       }, commonOpts)
       const plugin = browserify(pluginOpts)
       plugin.exclude(path.resolve("node_modules/moment/moment.js"))
-      labels[plugin_name] = namedLabeler(plugin, labels.bokehjs)
+      labels[plugin_name] = named_labeler(plugin)
       for (const file in labels.bokehjs) {
         plugin.external(file)
       }
