@@ -1,10 +1,7 @@
-# You must first run "bokeh serve" to view this example
-
 import sys
 
 import numpy as np
 
-from bokeh.client import push_session
 from bokeh.palettes import RdYlBu3
 from bokeh.plotting import figure, curdoc
 
@@ -44,14 +41,10 @@ def make_callback(i):
 
 callbacks = [make_callback(i) for i in range(N)]
 
-# open a session to keep our local document in sync with server
-session = push_session(curdoc())
+doc = curdoc()
+doc.add_root(p)
 
 for callback in callbacks:
-    curdoc().add_timeout_callback(callback, callback.interval)
+    doc.add_timeout_callback(callback, callback.interval)
 
-curdoc().add_timeout_callback(sys.exit, (N+4)*100)
-
-session.show(p) # open the document in a browser
-
-session.loop_until_closed() # run forever
+doc.add_timeout_callback(sys.exit, (N+4)*100)

@@ -1,4 +1,3 @@
-# You must first run "bokeh serve" to view this example
 #
 # Example inspired by:
 #
@@ -11,7 +10,6 @@ from math import pi
 
 import numpy as np
 
-from bokeh.client import push_session
 from bokeh.driving import repeat
 from bokeh.layouts import column
 from bokeh.models.sources import ColumnDataSource as CDS
@@ -171,9 +169,6 @@ for k, p in fourier.items():
 
 layout = column(*[f['plot'] for f in fourier.values()] + [f['cplot'] for f in fourier.values()])
 
-# open a session to keep our local document in sync with server
-session = push_session(curdoc())
-
 @repeat(range(N))
 def cb(gind):
     global newx
@@ -184,8 +179,9 @@ def cb(gind):
         update_sources(p['sources'], p['fs'], newx, gind, p['cfs'])
         update_centric_sources(p['csources'], p['fs'], newx, gind, p['cfs'])
 
-curdoc().add_periodic_callback(cb, 100)
+# Manually call cb so plot loads with data
+cb()
 
-session.show(layout) # open the document in a browser
-
-session.loop_until_closed() # run forever
+doc = curdoc()
+doc.add_root(layout)
+doc.add_periodic_callback(cb, 100)

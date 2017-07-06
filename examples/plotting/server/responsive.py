@@ -2,9 +2,7 @@ from __future__ import print_function
 
 import random
 
-from bokeh.plotting import figure
-from bokeh.client import push_session
-from bokeh.io import curdoc
+from bokeh.plotting import figure, curdoc
 
 data = lambda: [ random.choice([ i for i in range(100) ]) for r in range(10) ]
 
@@ -19,6 +17,5 @@ show_inner_dimensions()
 p.on_change("inner_width", lambda attr, old, new: show_inner_dimensions())
 p.on_change("inner_height", lambda attr, old, new: show_inner_dimensions())
 
-session = push_session(curdoc())
-session.show(p)
-session.loop_until_closed()
+doc = curdoc()
+doc.add_root(p)

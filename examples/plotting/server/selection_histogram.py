@@ -1,13 +1,9 @@
-# You must first run "bokeh serve" to view this example
-
 import numpy as np
 
-from bokeh.client import push_session
 from bokeh.layouts import row, column
 from bokeh.models import BoxSelectTool, LassoSelectTool, Spacer
 from bokeh.plotting import curdoc, figure
 
-session = push_session(curdoc())
 
 # create three normal population samples with different parameters
 x1 = np.random.normal(loc=5.0, size=400) * 100
@@ -66,11 +62,6 @@ pv.quad(left=0, bottom=vedges[:-1], top=vedges[1:], right=vhist, color="white", 
 vh1 = pv.quad(left=0, bottom=vedges[:-1], top=vedges[1:], right=vzeros, alpha=0.5, **LINE_ARGS)
 vh2 = pv.quad(left=0, bottom=vedges[:-1], top=vedges[1:], right=vzeros, alpha=0.1, **LINE_ARGS)
 
-layout = column(row(p, pv), row(ph, Spacer(width=200, height=200)))
-
-curdoc().add_root(layout)
-curdoc().title = "Selection Histogram"
-
 def update(attr, old, new):
     inds = np.array(new['1d']['indices'])
     if len(inds) == 0 or len(inds) == len(x):
@@ -91,6 +82,8 @@ def update(attr, old, new):
 
 r.data_source.on_change('selected', update)
 
-session.show(layout) # open the document in a browser
+layout = column(row(p, pv), row(ph, Spacer(width=200, height=200)))
 
-session.loop_until_closed() # run forever
+doc = curdoc()
+doc.add_root(layout)
+doc.title = "Selection Histogram"

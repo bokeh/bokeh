@@ -1,7 +1,6 @@
 from __future__ import print_function
 
-from bokeh.client import push_session
-from bokeh.document import Document
+from bokeh.io import curdoc
 from bokeh.models import CustomJS
 from bokeh.models.layouts import WidgetBox
 from bokeh.models.widgets import (
@@ -63,11 +62,5 @@ widgetBox = WidgetBox(children=[
     checkbox_button_group, radio_button_group,
 ])
 
-document = Document()
-document.add_root(widgetBox)
-session = push_session(document)
-session.show()
-
-if __name__ == "__main__":
-    document.validate()
-    session.loop_until_closed()
+doc = curdoc()
+doc.add_root(widgetBox)
