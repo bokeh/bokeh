@@ -9,7 +9,7 @@ pytest_plugins = (
     "tests.plugins.image_diff",
     "tests.plugins.jupyter_notebook",
     "tests.plugins.file_server",
-    "tests.plugins.phantomjs_screenshot",
+    "tests.plugins.screenshot",
 )
 
 
