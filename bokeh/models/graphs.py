@@ -5,7 +5,6 @@ from ..core.properties import Any, Dict, Either, Instance, Int, Seq, String
 from ..core.validation import error
 from ..core.validation.errors import MALFORMED_GRAPH_SOURCE
 from ..model import Model
-from ..util.dependencies import import_required
 
 @abstract
 class LayoutProvider(Model):
@@ -47,16 +46,26 @@ class GraphSource(Model):
     '''
 
     @classmethod
-    def from_networkx(cls, G):
+    def from_networkx(cls, graph, layout_function, **kwargs):
         '''
-        Generate a GraphSource from a networkx.Graph object
-        '''
-        nx = import_required('networkx',
-                             'To use GraphSource.from_networkx you need network ' +
-                             '("conda install networkx" or "pip install networkx")')
+        Generate a GraphSource from a networkx.Graph object and networkx
+        layout function. Any keyword arguments will be passed to the
+        layout function.
 
-        nodes = G.nodes()
-        edges = G.edges()
+        Args:
+            graph (networkx.Graph) : a networkx graph to render
+            layout_function (function) : a networkx layout function
+
+        Returns:
+            instance (GraphSource)
+
+        .. warning::
+            Only two dimensional layouts are currently supported.
+
+        '''
+
+        nodes = graph.nodes()
+        edges = graph.edges()
         edges_start = [edge[0] for edge in edges]
         edges_end = [edge[1] for edge in edges]
 
@@ -66,7 +75,7 @@ class GraphSource(Model):
             end=edges_end
         ))
 
-        graph_layout = nx.circular_layout(G)
+        graph_layout = layout_function(graph, **kwargs)
         layout_provider = StaticLayoutProvider(graph_layout=graph_layout)
 
         return cls(nodes=node_source, edges=edge_source, layout_provider=layout_provider)

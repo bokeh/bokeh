@@ -59,7 +59,7 @@ def test_graphsource_from_networkx():
     G.add_nodes_from([0,1,2,3])
     G.add_edges_from([[0,1], [0,2], [2,3]])
 
-    source = GraphSource.from_networkx(G)
+    source = GraphSource.from_networkx(G, nx.circular_layout)
     assert source.nodes.data["index"] == [0,1,2,3]
     assert source.edges.data["start"] == [0,0,2]
     assert source.edges.data["end"] == [1,2,3]
@@ -67,3 +67,18 @@ def test_graphsource_from_networkx():
     gl = source.layout_provider.graph_layout
     assert set(gl.keys()) == set([0,1,2,3])
     assert np.array_equal(gl[0], np.array([1., 0.]))
+
+def test_graphsource_from_networkx_with_kwargs():
+    G=nx.Graph()
+    G.add_nodes_from([0,1,2,3])
+    G.add_edges_from([[0,1], [0,2], [2,3]])
+
+    source = GraphSource.from_networkx(G, nx.circular_layout, scale=2)
+    assert source.nodes.data["index"] == [0,1,2,3]
+    assert source.edges.data["start"] == [0,0,2]
+    assert source.edges.data["end"] == [1,2,3]
+
+    gl = source.layout_provider.graph_layout
+    assert set(gl.keys()) == set([0,1,2,3])
+    assert np.array_equal(gl[0], np.array([2., 0.]))
+    assert False
