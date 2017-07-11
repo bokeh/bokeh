@@ -7,7 +7,7 @@ const build_dir = path.normalize(`${__dirname}/../build`)
 
 const LIMITS: {[key: string]: number} = {
   // js
-  "js/bokeh.min.js":           735,
+  "js/bokeh.min.js":           730,
   "js/bokeh-widgets.min.js":    90,
   "js/bokeh-tables.min.js":    200,
   "js/bokeh-api.min.js":        75,
