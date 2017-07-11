@@ -663,7 +663,7 @@ export class PlotCanvasView extends DOMView
       ctx.fillRect(frame_box...)
 
   save: (name) ->
-    if @model.plot.output_backend == "canvas"
+    if @model.plot.output_backend in ["canvas", "webgl"]
       canvas = @canvas_view.get_canvas_element()
       if canvas.msToBlob?
         blob = canvas.msToBlob()
