@@ -81,4 +81,3 @@ def test_graphsource_from_networkx_with_kwargs():
     gl = source.layout_provider.graph_layout
     assert set(gl.keys()) == set([0,1,2,3])
     assert np.array_equal(gl[0], np.array([2., 0.]))
-    assert False
