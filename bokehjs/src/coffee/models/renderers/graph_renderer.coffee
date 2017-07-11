@@ -12,10 +12,6 @@ export class GraphRendererView extends RendererView
     super(options)
     @edges = @build_glyph_view(@model.edges)
     @nodes = @build_glyph_view(@model.nodes)
-
-    # hackery
-    @edges._index_data = () -> null
-
     @set_data()
 
   connect_signals: () ->
