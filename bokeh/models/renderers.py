@@ -14,7 +14,7 @@ from ..core.validation import error
 from ..core.validation.errors import BAD_COLUMN_NAME, MISSING_GLYPH, NO_SOURCE_FOR_GLYPH, CDSVIEW_SOURCE_DOESNT_MATCH
 from ..model import Model
 
-from .glyphs import Glyph, Marker, Circle, MultiLine
+from .glyphs import Glyph, XYGlyph, Circle, MultiLine
 from .graphs import GraphSource
 from .images import ImageSource
 from .sources import ColumnDataSource, DataSource, RemoteSource, CDSView
@@ -210,9 +210,9 @@ class GraphRenderer(DataRenderer):
     nodes and edges of a network graph.
     """)
 
-    nodes = Instance(Marker, default=_DEFAULT_NODE, help="""
-    Instance of a Marker glyph that will be rendered as the graph nodes. The
-    marker attribute fields will be matched against columns in the
+    nodes = Instance(XYGlyph, default=_DEFAULT_NODE, help="""
+    Instance of an XYGlyph subclass that will be rendered as the graph nodes.
+    The marker attribute fields will be matched against columns in the
     ``graph_source.nodes`` ColumnDataSource.
     """)
 

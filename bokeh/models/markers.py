@@ -35,10 +35,10 @@ from ..core.has_props import abstract
 from ..core.properties import AngleSpec, DistanceSpec, Enum, Include, NumberSpec, ScreenDistanceSpec
 from ..core.property_mixins import FillProps, LineProps
 
-from .glyphs import Glyph
+from .glyphs import XYGlyph
 
 @abstract
-class Marker(Glyph):
+class Marker(XYGlyph):
     ''' Base class for glyphs that are simple markers with line and
     fill properties, located at an (x, y) location with a specified
     size.
