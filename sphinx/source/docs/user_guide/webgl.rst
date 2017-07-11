@@ -67,7 +67,7 @@ Examples
 
     output_file("scatter10k.html", title="scatter 10k points (no WebGL)")
 
-    p = figure(output_backend="webgl")
+    p = figure(output_backend="canvas")
     p.scatter(x, y, alpha=0.1)
     show(p)
 
