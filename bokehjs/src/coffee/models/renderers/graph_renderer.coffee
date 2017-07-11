@@ -17,11 +17,15 @@ export class GraphRendererView extends RendererView
   connect_signals: () ->
     super()
     @connect(@model.change, () -> @request_render())
+    @connect(@model.edges.change, () -> @set_data())
+    @connect(@model.nodes.change, () -> @set_data())
+    @connect(@model.graph_source.change, () -> @set_data())
+    @connect(@model.graph_source.layout_provider.change, () -> @set_data())
 
   build_glyph_view: (model) ->
     return new model.default_view({model: model, renderer: @, plot_view: @plot_view, parent: @})
 
-  set_data: () ->
+  set_data: (request_render=true) ->
     # TODO (bev) this is a bit clunky, need to make sure glyphs use the correct ranges when they call
     # mapping functions on the base Renderer class
     @edges.model.setv({x_range_name: @model.x_range_name, y_range_name: @model.y_range_name}, {silent: true})
@@ -35,6 +39,9 @@ export class GraphRendererView extends RendererView
     [@edges._xs, @edges._ys] = @model.graph_source.layout_provider.get_edge_coordinates(@model.graph_source)
     [@nodes._x, @nodes._y] = @model.graph_source.layout_provider.get_node_coordinates(@model.graph_source)
 
+    if request_render
+      @request_render()
+
   render: () ->
     @edges.map_data()
     @nodes.map_data()
@@ -45,6 +52,7 @@ export class GraphRendererView extends RendererView
 
     @edges.render(ctx, edge_indices, @edges)
     @nodes.render(ctx, node_indices, @nodes)
+
 
 export class GraphRenderer extends Renderer
   default_view: GraphRendererView
