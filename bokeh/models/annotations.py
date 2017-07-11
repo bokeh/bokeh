@@ -9,7 +9,7 @@ from six import string_types
 from ..core.enums import (AngleUnits, Dimension, FontStyle, LegendClickPolicy, LegendLocation,
                           Orientation, RenderMode, SpatialUnits, TextAlign)
 from ..core.has_props import abstract
-from ..core.properties import (Angle, AngleSpec, Auto, Bool, ColorSpec, Datetime, DistanceSpec, Either,
+from ..core.properties import (Angle, AngleSpec, Auto, Bool, ColorSpec, Datetime, Dict, DistanceSpec, Either,
                                Enum, Float, FontSizeSpec, Include, Instance, Int, List, NumberSpec, Override,
                                Seq, String, StringSpec, Tuple, value)
 from ..core.property_mixins import FillProps, LineProps, TextProps
@@ -246,6 +246,11 @@ class ColorBar(Annotation):
 
     formatter = Instance(TickFormatter, default=lambda: BasicTickFormatter(), help="""
     A TickFormatter to use for formatting the visual appearance of ticks.
+    """)
+
+    major_label_overrides = Dict(Either(Float, String), String, default={}, help="""
+    Provide explicit tick label values for specific tick locations that
+    override normal formatting.
     """)
 
     color_mapper = Instance(ContinuousColorMapper, help="""

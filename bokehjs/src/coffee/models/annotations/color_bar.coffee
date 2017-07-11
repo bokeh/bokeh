@@ -257,6 +257,11 @@ export class ColorBarView extends AnnotationView
     # will not function properly in conjunction with colorbars
     formatted_labels = @model.formatter.doFormat(labels, null)
 
+    ticks = @model._tick_coordinates().major_ticks
+    for i in [0...ticks.length]
+      if ticks[i] of @model.major_label_overrides
+        formatted_labels[i] = @model.major_label_overrides[ticks[i]]
+
     @visuals.major_label_text.set_value(ctx)
 
     ctx.save()
@@ -337,6 +342,7 @@ export class ColorBar extends Annotation
       scale_alpha:    [ p.Number,         1.0         ]
       ticker:         [ p.Instance,    () -> new BasicTicker()         ]
       formatter:      [ p.Instance,    () -> new BasicTickFormatter()  ]
+      major_label_overrides:   [ p.Any,      {}           ]
       color_mapper:   [ p.Instance                    ]
       label_standoff: [ p.Number,         5           ]
       margin:         [ p.Number,         30          ]
@@ -486,6 +492,7 @@ export class ColorBar extends Annotation
     # will not function properly in conjunction with colorbars
     ticks = @ticker.get_ticks(start, end, null, null, @ticker.desired_num_ticks)
 
+    major_ticks = ticks.major
     majors = ticks.major
     minors = ticks.minor
 
@@ -515,6 +522,7 @@ export class ColorBar extends Annotation
       minor_coords[i] = new Float64Array((scale_length - coord for coord in minor_coords[i]))
 
     return {
+      "major_ticks": major_ticks
       "major": major_coords
       "minor": minor_coords
       "major_labels": major_labels
