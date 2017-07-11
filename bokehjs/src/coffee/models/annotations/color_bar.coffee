@@ -203,7 +203,8 @@ export class ColorBarView extends AnnotationView
     image = @model._computed_image_dimensions()
     [x_offset, y_offset] = [image.width * nx, image.height * ny]
 
-    [sx, sy] = @model._tick_coordinates().major
+    tick_coords = @model._tick_coordinates()
+    [sx, sy] = tick_coords.coords.major
     tin = @model.major_tick_in
     tout = @model.major_tick_out
 
@@ -225,7 +226,8 @@ export class ColorBarView extends AnnotationView
     image = @model._computed_image_dimensions()
     [x_offset, y_offset] = [image.width * nx, image.height * ny]
 
-    [sx, sy] = @model._tick_coordinates().minor
+    tick_coords = @model._tick_coordinates()
+    [sx, sy] = tick_coords.coords.minor
     tin = @model.minor_tick_in
     tout = @model.minor_tick_out
 
@@ -249,14 +251,10 @@ export class ColorBarView extends AnnotationView
     standoff = (@model.label_standoff + @model._tick_extent())
     [x_standoff, y_standoff] = [standoff*nx, standoff*ny]
 
-    [sx, sy] = @model._tick_coordinates().major
+    tick_coords = @model._tick_coordinates()
+    [sx, sy] = tick_coords.coords.major
 
-    labels = @model._tick_coordinates().major_labels
-
-    # note: passing null as cross_loc probably means MercatorTickFormatters, etc
-    # will not function properly in conjunction with colorbars
-    formatted_labels = @model.formatter.doFormat(labels, null)
-
+    formatted_labels = tick_coords.labels.major
     @visuals.major_label_text.set_value(ctx)
 
     ctx.save()
@@ -277,15 +275,15 @@ export class ColorBarView extends AnnotationView
     ctx.restore()
 
   _get_label_extent: () ->
-    major_labels = @model._tick_coordinates().major_labels
+    tick_coords = @model._tick_coordinates()
+    major_labels = tick_coords.labels.major
     if @model.color_mapper.low? and @model.color_mapper.high? and not isEmpty(major_labels)
       ctx = @plot_view.canvas_view.ctx
       ctx.save()
       @visuals.major_label_text.set_value(ctx)
       switch @model.orientation
         when "vertical"
-          formatted_labels = @model.formatter.doFormat(major_labels)
-          label_extent = max((ctx.measureText(label.toString()).width for label in formatted_labels))
+          label_extent = max((ctx.measureText(label.toString()).width for label in major_labels))
         when "horizontal"
           label_extent = text_util.get_text_height(@visuals.major_label_text.font_value()).height
 
@@ -337,6 +335,7 @@ export class ColorBar extends Annotation
       scale_alpha:    [ p.Number,         1.0         ]
       ticker:         [ p.Instance,    () -> new BasicTicker()         ]
       formatter:      [ p.Instance,    () -> new BasicTickFormatter()  ]
+      major_label_overrides:   [ p.Any,      {}           ]
       color_mapper:   [ p.Instance                    ]
       label_standoff: [ p.Number,         5           ]
       margin:         [ p.Number,         30          ]
@@ -470,6 +469,20 @@ export class ColorBar extends Annotation
 
     return scale
 
+  _format_major_labels: (initial_labels, major_ticks) ->
+
+    labels = initial_labels
+
+    # note: passing null as cross_loc probably means MercatorTickFormatters, etc
+    # will not function properly in conjunction with colorbars
+    formatted_labels = @formatter.doFormat(labels, null)
+
+    for i in [0...major_ticks.length]
+      if major_ticks[i] of @major_label_overrides
+        formatted_labels[i] = @major_label_overrides[major_ticks[i]]
+
+    return formatted_labels
+
   _tick_coordinates: () ->
     image_dimensions = @_computed_image_dimensions()
     switch @orientation
@@ -486,11 +499,15 @@ export class ColorBar extends Annotation
     # will not function properly in conjunction with colorbars
     ticks = @ticker.get_ticks(start, end, null, null, @ticker.desired_num_ticks)
 
+    coords =
+      major: [[], []]
+      minor: [[], []]
+
     majors = ticks.major
     minors = ticks.minor
 
-    major_coords = [[], []]
-    minor_coords = [[], []]
+    major_coords = coords.major
+    minor_coords = coords.minor
 
     for ii in [0...majors.length]
       if majors[ii] < start or majors[ii] > end
@@ -504,7 +521,9 @@ export class ColorBar extends Annotation
       minor_coords[i].push(minors[ii])
       minor_coords[j].push(0)
 
-    major_labels = major_coords[i].slice(0) # make deep copy
+
+    labels =
+        major:@_format_major_labels(major_coords[i].slice(0), majors) # make deep copy
 
     major_coords[i] = scale.v_compute(major_coords[i])
     minor_coords[i] = scale.v_compute(minor_coords[i])
@@ -515,7 +534,7 @@ export class ColorBar extends Annotation
       minor_coords[i] = new Float64Array((scale_length - coord for coord in minor_coords[i]))
 
     return {
-      "major": major_coords
-      "minor": minor_coords
-      "major_labels": major_labels
+      "ticks":ticks
+      "coords":coords
+      "labels":labels
     }
