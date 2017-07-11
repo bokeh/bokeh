@@ -3,11 +3,22 @@
 set -e # exit on error
 set -x # echo commands
 
+if  [[ ! -z "${TRAVIS_TAG}" ]]; then
+    echo
+    echo "SKIPPING TEST STAGE INSTALL --- This is a build for release tag ${TRAVIS_TAG}"
+    echo
+    exit 0
+fi
+
+# do the base install
+bash scripts/ci/install
+
 # if this is an external contributor then build assets were not uploaded
 if [[ -z "${SAUCE_USERNAME}" ]]; then
     echo
     echo "RE-RUNNING BUILD STEPS --- external committer"
     echo
+    bash "scripts/ci/install:build"
     bash "scripts/ci/build"
 else
     pushd ${HOME}

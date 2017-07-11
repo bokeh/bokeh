@@ -1,23 +1,11 @@
-fs = require "fs"
-path = require "path"
-assert = require "assert"
-rootRequire = require "root-require"
-chalk = require "chalk"
 {TSError} = require "ts-node"
+chalk = require "chalk"
 
-root = rootRequire.packpath.parent()
-pkg = rootRequire("./package.json")
+prettyTSError = (error) ->
+  title = "#{chalk.red('⨯')} Unable to compile TypeScript:"
+  return "#{chalk.bold(title)}\n#{error.diagnostics.map((x) -> x.message).join('\n')}"
 
 module.constructor.prototype.require = (modulePath) ->
-  assert(modulePath, 'missing path')
-  assert(typeof modulePath == 'string', 'path must be a string')
-
-  if not modulePath.startsWith(".")
-    overridePath = path.join(root, path.dirname(pkg.main), modulePath + ".js")
-
-    if fs.existsSync(overridePath)
-      modulePath = overridePath
-
   try
     return this.constructor._load(modulePath, this)
   catch err
@@ -26,10 +14,6 @@ module.constructor.prototype.require = (modulePath) ->
       process.exit(1)
     else
       throw err
-
-prettyTSError = (error) ->
-  title = "#{chalk.red('⨯')} Unable to compile TypeScript"
-  return "#{chalk.bold(title)}\n#{error.diagnostics.map((x) -> x.message).join('\n')}"
 
 jsdom = require('jsdom').jsdom
 

@@ -1,6 +1,6 @@
 {
   "name": "bokehjs",
-  "version": "0.12.7dev3",
+  "version": "0.12.7dev10",
   "description": "Interactive, novel data visualization",
   "keywords": [
     "bokeh",
@@ -55,7 +55,6 @@
     "yargs": "^3.11.0",
     "through2": "^2.0.0",
     "shasum": "^1.0.1",
-    "event-stream": "^3.3.1",
     "jsdom": "^9.8.3",
     "websocket":"^1.0.22",
     "typescript": "^2.4.1",
@@ -86,8 +85,7 @@
     "@types/run-sequence": "^0.0.29",
     "@types/del": "^2.2.32",
     "@types/resolve": "^0.0.4",
-    "@types/browserify": "^12.0.30",
-    "@types/event-stream": "^3.3.31"
+    "@types/browserify": "^12.0.30"
   },
   "dependencies": {
     "es6-promise":"3.0.2",
@@ -114,8 +112,7 @@
     "canvas2svg": "https://github.com/bokeh/canvas2svg#v1.0.21",
     "numbro": "https://github.com/bokeh/numbro.git#e1b6c52",
     "kiwi": "https://github.com/bokeh/kiwi.git#6941045",
-    "slickgrid": "https://github.com/bokeh/SlickGrid.git#6bf8899",
-    "root-require": "^0.3.1"
+    "slickgrid": "https://github.com/bokeh/SlickGrid.git#6bf8899"
   },
   "scripts": {
     "build": "gulp build",

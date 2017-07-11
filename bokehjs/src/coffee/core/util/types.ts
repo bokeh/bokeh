@@ -13,6 +13,10 @@ export function isNumber(obj: any): obj is number {
   return toString.call(obj) === "[object Number]"
 }
 
+export function isInteger(obj: any): obj is number {
+  return isNumber(obj) && isFinite(obj) && Math.floor(obj) === obj
+}
+
 export function isString(obj: any): obj is string {
   return toString.call(obj) === "[object String]"
 }

@@ -1,72 +1,49 @@
-import * as path from "path"
+import {join} from "path"
 import {argv} from "yargs"
 
 const BUILD_DIR = argv.buildDir || "./build"
-const JS_BUILD_DIR = path.join(BUILD_DIR, "js")
-const CSS_BUILD_DIR = path.join(BUILD_DIR, "css")
+const JS_BUILD_DIR = join(BUILD_DIR, "js")
+const CSS_BUILD_DIR = join(BUILD_DIR, "css")
 
-// TODO FIXME how can we generate coffeescript and have require
-// find it without putting it in src/ ? The browserify docs
-// seem to say we have to put it in node_modules... maybe
-// that's the answer, I don't know. Doesn't seem much better
-// than putting it in src though.
-const COFFEE_BUILD_DIR = path.join("./src", "coffee")
-const SERVER_DIR = "../bokeh/server/static/"
-
-export const buildDir = {
+export const build_dir = {
   all: BUILD_DIR,
   js: JS_BUILD_DIR,
-  jsTree: path.join(JS_BUILD_DIR, "tree"),
-  coffee: COFFEE_BUILD_DIR,
   css: CSS_BUILD_DIR,
-}
-
-export const serverDir = {
-  all: SERVER_DIR,
-  js: path.join(SERVER_DIR, "js"),
-  css: path.join(SERVER_DIR, "css"),
+  tree_js: join(JS_BUILD_DIR, "tree"),
+  tree_ts: join(JS_BUILD_DIR, "tree_ts"),
 }
 
 export const coffee = {
   bokehjs: {
     destination: {
-      full: "bokeh.js",
-      fullWithPath: path.join(JS_BUILD_DIR, "bokeh.js"),
-      minified: "bokeh.min.js",
+      name: "bokeh.js",
+      path: join(build_dir.js, "bokeh.js"),
     },
   },
   api: {
     destination: {
-      full: "bokeh-api.js",
-      fullWithPath: path.join(JS_BUILD_DIR, "bokeh-api.js"),
-      minified: "bokeh-api.min.js",
+      name: "bokeh-api.js",
+      path: join(build_dir.js, "bokeh-api.js"),
     },
   },
   widgets: {
     destination: {
-      full: "bokeh-widgets.js",
-      fullWithPath: path.join(JS_BUILD_DIR, "bokeh-widgets.js"),
-      minified: "bokeh-widgets.min.js",
+      name: "bokeh-widgets.js",
+      path: join(build_dir.js, "bokeh-widgets.js"),
     },
   },
   tables: {
     destination: {
-      full: "bokeh-tables.js",
-      fullWithPath: path.join(JS_BUILD_DIR, "bokeh-tables.js"),
-      minified: "bokeh-tables.min.js",
+      name: "bokeh-tables.js",
+      path: join(build_dir.js, "bokeh-tables.js"),
     },
   },
   gl: {
     destination: {
-      full: "bokeh-gl.js",
-      fullWithPath: path.join(JS_BUILD_DIR, "bokeh-gl.js"),
-      minified: "bokeh-gl.min.js",
+      name: "bokeh-gl.js",
+      path: join(build_dir.js, "bokeh-gl.js"),
     },
   },
-  sources: [
-    "./src/coffee/main.coffee",
-    "./src/coffee/widget/main.coffee",
-  ],
   watchSources: [
     "./src/coffee/**/**",
   ],
@@ -74,14 +51,14 @@ export const coffee = {
 
 export const css = {
   sources: [
-    path.join(CSS_BUILD_DIR, "bokeh.css"),
-    path.join(CSS_BUILD_DIR, "bokeh-widgets.css"),
-    path.join(CSS_BUILD_DIR, "bokeh-tables.css"),
+    join(build_dir.css, "bokeh.css"),
+    join(build_dir.css, "bokeh-widgets.css"),
+    join(build_dir.css, "bokeh-tables.css"),
   ],
   watchSources: [
-    path.join(CSS_BUILD_DIR, "bokeh.css"),
-    path.join(CSS_BUILD_DIR, "bokeh-widgets.css"),
-    path.join(CSS_BUILD_DIR, "bokeh-tables.css"),
+    join(build_dir.css, "bokeh.css"),
+    join(build_dir.css, "bokeh-widgets.css"),
+    join(build_dir.css, "bokeh-tables.css"),
   ],
 }
 

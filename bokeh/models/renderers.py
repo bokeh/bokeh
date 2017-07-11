@@ -11,13 +11,13 @@ from ..core.enums import RenderLevel
 from ..core.has_props import abstract
 from ..core.properties import Auto, Bool, Either, Enum, Float, Instance, Override, String
 from ..core.validation import error
-from ..core.validation.errors import BAD_COLUMN_NAME, MISSING_GLYPH, NO_SOURCE_FOR_GLYPH
+from ..core.validation.errors import BAD_COLUMN_NAME, MISSING_GLYPH, NO_SOURCE_FOR_GLYPH, CDSVIEW_SOURCE_DOESNT_MATCH
 from ..model import Model
 
 from .glyphs import Glyph, Marker, Circle, MultiLine
 from .graphs import GraphSource
 from .images import ImageSource
-from .sources import ColumnDataSource, DataSource, RemoteSource
+from .sources import ColumnDataSource, DataSource, RemoteSource, CDSView
 from .tiles import TileSource, WMTSTileSource
 
 @abstract
@@ -103,6 +103,10 @@ class GlyphRenderer(DataRenderer):
     def _check_no_source_for_glyph(self):
         if not self.data_source: return str(self)
 
+    @error(CDSVIEW_SOURCE_DOESNT_MATCH)
+    def _check_cdsview_source(self):
+        if self.data_source is not self.view.source: return str(self)
+
     @error(BAD_COLUMN_NAME)
     def _check_bad_column_name(self):
         if not self.glyph: return
@@ -119,8 +123,19 @@ class GlyphRenderer(DataRenderer):
         if missing:
             return "%s [renderer: %s]" % (", ".join(sorted(missing)), self)
 
+    def __init__(self, **kw):
+        super(GlyphRenderer, self).__init__(**kw)
+        if "view" not in kw:
+            self.view = CDSView(source=self.data_source)
+
     data_source = Instance(DataSource, help="""
     Local data source to use when rendering glyphs on the plot.
+    """)
+
+    view = Instance(CDSView, help="""
+    A view into the data source to use when rendering glyphs. A default view
+    of the entire data source is created when a view is not passed in during
+    initialization.
     """)
 
     x_range_name = String('default', help="""

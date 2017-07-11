@@ -26,7 +26,3 @@ conda config --set auto_update_conda off
 conda config --append channels bokeh
 conda config --append channels conda-forge
 conda config --get channels
-
-if [[ -v GROUP ]]; then
-    bash "scripts/ci/install:test"
-fi
