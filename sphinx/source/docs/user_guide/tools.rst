@@ -639,7 +639,7 @@ properties on |Plot| objects that control LOD behavior:
     :height: 14pt
 .. |save_icon| image:: /_images/icons/Save.png
     :height: 14pt
-.. |tap_select_icon| image:: /_images/icons/TapSelect.png
+.. |tap_icon| image:: /_images/icons/TapSelect.png
     :height: 14pt
 .. |undo_icon| image:: /_images/icons/Undo.png
     :height: 14pt
