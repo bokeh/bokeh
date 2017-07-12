@@ -601,6 +601,27 @@ def _wait_until_render_complete(driver):
         if len(severe_errors) > 0:
             logger.warn("There were severe browser errors that may have affected your export: {}".format(severe_errors))
 
+def _save_layout_html(obj, resources=INLINE, **kwargs):
+    resize = False
+    if kwargs.get('height') is not None or kwargs.get('width') is not None:
+        if not isinstance(obj, Plot):
+            warnings.warn("Export method called with height or width kwargs on a non-Plot layout. The size values will be ignored.")
+        else:
+            resize = True
+            old_height = obj.plot_height
+            old_width = obj.plot_width
+            obj.plot_height = kwargs.get('height', old_height)
+            obj.plot_width = kwargs.get('width', old_width)
+
+    html_path = tempfile.NamedTemporaryFile(suffix=".html").name
+    save(obj, filename=html_path, resources=resources, title="")
+
+    if resize:
+        obj.plot_height = old_height
+        obj.plot_width = old_width
+
+    return html_path
+
 def _crop_image(image, left=0, top=0, right=0, bottom=0, **kwargs):
     '''Crop the border from the layout'''
     cropped_image = image.crop((left, top, right, bottom))
@@ -618,23 +639,7 @@ def _get_screenshot_as_png(obj, **kwargs):
     # assert that phantomjs is in path for webdriver
     detect_phantomjs()
 
-    resize = False
-    if kwargs.get('height') is not None or kwargs.get('width') is not None:
-        if not isinstance(obj, Plot):
-            warnings.warn("export_png() called with height or width kwargs but on a non-Plot layout. The size values will be ignored.")
-        else:
-            resize = True
-            old_height = obj.plot_height
-            old_width = obj.plot_width
-            obj.plot_height = kwargs.get('height', old_height)
-            obj.plot_width = kwargs.get('width', old_width)
-
-    html_path = tempfile.NamedTemporaryFile(suffix=".html").name
-    save(obj, filename=html_path, resources=INLINE, title="")
-
-    if resize:
-        obj.plot_height = old_height
-        obj.plot_width = old_width
+    html_path = _save_layout_html(obj, **kwargs)
 
     web_driver = kwargs.get('driver', webdriver.PhantomJS(service_log_path=os.path.devnull))
 
@@ -706,8 +711,7 @@ def _get_svgs(obj, **kwargs):
     # assert that phantomjs is in path for webdriver
     detect_phantomjs()
 
-    html_path = tempfile.NamedTemporaryFile(suffix=".html").name
-    save(obj, filename=html_path, resources=INLINE, title="")
+    html_path = _save_layout_html(obj, **kwargs)
 
     web_driver = kwargs.get('driver', webdriver.PhantomJS(service_log_path=os.path.devnull))
     web_driver.get("file:///" + html_path)
@@ -731,7 +735,7 @@ def _get_svgs(obj, **kwargs):
 
     return svgs
 
-def export_svgs(obj, filename=None):
+def export_svgs(obj, filename=None, height=None, width=None):
     ''' Export the SVG-enabled plots within a layout. Each plot will result
     in a distinct SVG file.
 
@@ -753,7 +757,7 @@ def export_svgs(obj, filename=None):
         aspect ratios. It is recommended to use the default ``fixed`` sizing mode.
 
     '''
-    svgs = _get_svgs(obj)
+    svgs = _get_svgs(obj, height=height, width=width)
 
     if len(svgs) == 0:
         logger.warn("No SVG Plots were found.")

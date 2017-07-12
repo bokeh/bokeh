@@ -305,6 +305,16 @@ def test__crop_image():
     cropped = io._crop_image(image, **rect)
     assert cropped.size == (6,4)
 
+def test__save_layout_html_resets_plot_dims():
+    initial_height, initial_width = 200, 250
+
+    layout = Plot(x_range=Range1d(), y_range=Range1d(),
+                  plot_height=initial_height, plot_width=initial_width)
+
+    io._save_layout_html(layout, height=100, width=100)
+    assert layout.plot_height == initial_height
+    assert layout.plot_width == initial_width
+
 @pytest.mark.unit
 @pytest.mark.selenium
 def test__get_screenshot_as_png():
@@ -320,7 +330,7 @@ def test__get_screenshot_as_png():
 
 @pytest.mark.unit
 @pytest.mark.selenium
-def test__get_screenshot_as_png_with_driver_kwargs():
+def test__get_screenshot_as_png_with_driver():
     layout = Plot(x_range=Range1d(), y_range=Range1d(),
                   plot_height=20, plot_width=20, toolbar_location=None,
                   outline_line_color=None, background_fill_color=None,
@@ -336,20 +346,6 @@ def test__get_screenshot_as_png_with_driver_kwargs():
     assert png.size == (20, 20)
     # a 20x20px image of transparent pixels
     assert png.tobytes() == ("\x00"*1600).encode()
-
-@pytest.mark.unit
-@pytest.mark.selenium
-def test__get_screenshot_as_png_with_height_width_kwargs():
-    initial_height, initial_width = 200, 250
-    png_height, png_width = 100, 150
-
-    layout = Plot(x_range=Range1d(), y_range=Range1d(),
-                  plot_height=initial_height, plot_width=initial_width)
-
-    png = io._get_screenshot_as_png(layout, height=png_height, width=png_width)
-    assert png.size == (png_width, png_height)
-    assert layout.plot_height == initial_height
-    assert layout.plot_width == initial_width
 
 @pytest.mark.unit
 @pytest.mark.selenium
