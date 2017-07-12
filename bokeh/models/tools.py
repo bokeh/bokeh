@@ -294,7 +294,7 @@ class ResizeTool(Drag):
 
 
 class TapTool(Tap):
-    ''' *toolbar icon*: |tap_select_icon|
+    ''' *toolbar icon*: |tap_icon|
 
     The tap selection tool allows the user to select at single points by
     left-clicking a mouse, or tapping with a finger.
