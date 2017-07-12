@@ -50,8 +50,10 @@ from __future__ import absolute_import
 
 import io
 import os
+import warnings
 
 from bokeh.io import _get_svgs
+from bokeh.models import Plot
 from bokeh.util.string import decode_utf8
 from .file_output import FileOutputSubcommand
 
@@ -69,6 +71,20 @@ class SVG(FileOutputSubcommand):
     args = (
 
         FileOutputSubcommand.files_arg("SVG"),
+
+        ('--height', dict(
+            metavar='HEIGHT',
+            type=int,
+            help="The desired height of the exported layout obj only if it's a Plot instance",
+            default=None,
+        )),
+
+        ('--width', dict(
+            metavar='WIDTH',
+            type=int,
+            help="The desired width of the exported layout obj only if it's a Plot instance",
+            default=None,
+        )),
 
     ) + FileOutputSubcommand.other_args()
 
@@ -94,4 +110,12 @@ class SVG(FileOutputSubcommand):
             self.after_write_file(args, filename, doc)
 
     def file_contents(self, args, doc):
+        if args.width is not None or args.height is not None:
+            layout = doc.roots
+            if len(layout) != 1 or not isinstance(layout[0], Plot):
+                warnings.warn("Export called with height or width kwargs on a non-single Plot layout. The size values will be ignored.")
+            else:
+                plot = layout[0]
+                plot.plot_height = args.height or plot.plot_height
+                plot.plot_width  = args.width or plot.plot_width
         return _get_svgs(doc, driver=self.driver)
