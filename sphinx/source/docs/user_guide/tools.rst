@@ -240,7 +240,7 @@ locations.
     ESC key.
 
 TapTool
-~~~~~~~~~~~~~
+~~~~~~~
 
 * name: ``'tap'``
 * icon: |tap_icon|
