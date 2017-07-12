@@ -10,6 +10,7 @@ import * as paths from "../paths"
 const change = require("gulp-change")
 import * as fs from "fs"
 import * as path from "path"
+import {join} from "path"
 import {argv} from "yargs"
 import * as insert from 'gulp-insert'
 const stripAnsi = require('strip-ansi')
@@ -110,7 +111,7 @@ const umd = (content: string) => {
   return ${content};
 });
 `
-  }
+}
 
 const plugin_umd = (content: string) => {
   return `\
@@ -127,7 +128,8 @@ const plugin_umd = (content: string) => {
   return ${content};
 });
 `
-  }
+}
+
 
 const commonOpts = {
   extensions: [".js"],
@@ -230,3 +232,32 @@ gulp.task("scripts:minify", ["scripts:bundle"], () => {
 })
 
 gulp.task("scripts", ["scripts:build", "scripts:minify"])
+
+import {Linker} from "../linker"
+
+gulp.task("scripts:deps", (next: () => void) => {
+  const tree_js = (name: string) => join(paths.build_dir.tree_js, name)
+
+  const entries = [
+    tree_js("main.js"),
+    tree_js("api/main.js"),
+    tree_js("models/widgets/main.js"),
+    tree_js("models/widgets/tables/main.js"),
+    tree_js("models/glyphs/webgl/main.js"),
+  ]
+  const bases = [paths.build_dir.tree_js, './node_modules']
+  const excludes = ["node_modules/moment/moment.js"]
+
+  const linker = new Linker({entries, bases, excludes})
+  const {bundles: [bokehjs, api, widgets, tables, gl], modules} = linker.link()
+
+  fs.writeFileSync(join(paths.build_dir.js, "modules.json"), JSON.stringify(modules))
+
+  fs.writeFileSync(paths.coffee.bokehjs.destination.path,        umd(bokehjs))
+  fs.writeFileSync(paths.coffee.api.destination.path,     plugin_umd(api))
+  fs.writeFileSync(paths.coffee.widgets.destination.path, plugin_umd(widgets))
+  fs.writeFileSync(paths.coffee.tables.destination.path,  plugin_umd(tables))
+  fs.writeFileSync(paths.coffee.gl.destination.path,      plugin_umd(gl))
+
+  next()
+})
