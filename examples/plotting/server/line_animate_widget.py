@@ -4,11 +4,10 @@ from math import pi
 
 import numpy as np
 
-from bokeh.client import push_session
 from bokeh.driving import cosine
 from bokeh.models.widgets import Button
 from bokeh.layouts import row, column
-from bokeh.plotting import figure, curdoc
+from bokeh.plotting import curdoc, figure
 
 x = np.linspace(0, 4*pi, 100)
 y = np.sin(x)
@@ -16,9 +15,6 @@ y = np.sin(x)
 p = figure()
 r1 = p.line([0, 4*pi], [-1, 1], color="firebrick")
 r2 = p.line(x, y, color="navy", line_width=4)
-
-# open a session to keep our local document in sync with server
-session = push_session(curdoc())
 
 def start_handler():
     global playing
@@ -48,8 +44,7 @@ def update(step):
         r2.glyph.line_alpha = 1 - 0.8 * abs(step)
 
 playing = True
-curdoc().add_periodic_callback(update, 50)
 
-session.show(layout) # open the document in a browser
-
-session.loop_until_closed() # run forever
+doc = curdoc()
+doc.add_root(layout)
+doc.add_periodic_callback(update, 50)

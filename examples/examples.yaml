@@ -4,7 +4,7 @@
 
 - path: "models/server"
   type: server
-  skip: all
+  skip: ["linked_tap.py"]
 
 - path: "custom"
 
@@ -16,7 +16,6 @@
 
 - path: "plotting/server"
   type: server
-  skip: all
 
 - path: "plotting/notebook"
   skip: all

@@ -565,7 +565,7 @@ def _destroy_server(div_id):
     except Exception as e:
         logger.debug("Could not destroy server for id %r: %s" % (div_id, e))
 
-def _wait_until_render_complete(driver):
+def _wait_until_render_complete(driver, timeout=5, poll_frequency=0.1):
     from selenium.webdriver.support.ui import WebDriverWait
     from selenium.common.exceptions import TimeoutException
 
@@ -576,12 +576,15 @@ def _wait_until_render_complete(driver):
       window._bokeh_render_complete = true;
     }
 
-    var doc = window.Bokeh.documents[0];
+    var documents = window.Bokeh.documents;
+    if (documents.length > 0) {
+      var doc = documents[0];
 
-    if (doc.is_idle)
-      done();
-    else
-      doc.idle.connect(done);
+      if (doc.is_idle)
+        done();
+      else
+        doc.idle.connect(done);
+    }
     """
     driver.execute_script(script)
 
@@ -589,16 +592,16 @@ def _wait_until_render_complete(driver):
         return driver.execute_script('return window._bokeh_render_complete;')
 
     try:
-        WebDriverWait(driver, 5, poll_frequency=0.1).until(is_bokeh_render_complete)
+        WebDriverWait(driver, timeout, poll_frequency=poll_frequency).until(is_bokeh_render_complete)
     except TimeoutException:
-        logger.warn("The webdriver raised a TimeoutException while waiting for \
-                     a 'bokeh:idle' event to signify that the layout has rendered. \
-                     Something may have gone wrong.")
+        logger.warn("The webdriver raised a TimeoutException while waiting for "
+                    "a 'bokeh:idle' event to signify that the layout has rendered. "
+                    "Something may have gone wrong.")
     finally:
         browser_logs = driver.get_log('browser')
         severe_errors = [l for l in browser_logs if l.get('level') == 'SEVERE']
         if len(severe_errors) > 0:
-            logger.warn("There were severe browser errors that may have affected your export: {}".format(severe_errors))
+            logger.warn("There were severe browser errors that may have affected your rendering: {}".format(severe_errors))
 
 def _crop_image(image, left=0, top=0, right=0, bottom=0, **kwargs):
     '''Crop the border from the layout'''
@@ -606,7 +609,7 @@ def _crop_image(image, left=0, top=0, right=0, bottom=0, **kwargs):
 
     return cropped_image
 
-def _get_screenshot_as_png(obj, driver):
+def _get_screenshot_as_png(obj, driver=None):
     webdriver = import_required('selenium.webdriver',
                                 'To use bokeh.io.export_png you need selenium ' +
                                 '("conda install -c bokeh selenium" or "pip install selenium")')
@@ -670,7 +673,7 @@ def export_png(obj, filename=None):
         Glyphs that are rendered via webgl won't be included in the generated PNG.
 
     '''
-    image = _get_screenshot_as_png(obj, None)
+    image = _get_screenshot_as_png(obj)
 
     if filename is None:
         filename = _detect_filename("png")
@@ -737,7 +740,7 @@ def export_svgs(obj, filename=None):
         aspect ratios. It is recommended to use the default ``fixed`` sizing mode.
 
     '''
-    svgs = _get_svgs(obj, None)
+    svgs = _get_svgs(obj)
 
     if len(svgs) == 0:
         logger.warn("No SVG Plots were found.")

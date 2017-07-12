@@ -10,6 +10,7 @@ pytest_plugins = (
     "tests.plugins.jupyter_notebook",
     "tests.plugins.file_server",
     "tests.plugins.phantomjs_screenshot",
+    "tests.plugins.phantomjs_webdriver",
 )
 
 

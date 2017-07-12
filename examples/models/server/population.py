@@ -2,8 +2,7 @@ from __future__ import print_function
 
 from math import pi
 
-from bokeh.client import push_session
-from bokeh.document import Document
+from bokeh.io import curdoc
 from bokeh.models.glyphs import Line, HBar
 from bokeh.models import (Plot, ColumnDataSource, DataRange1d, FactorRange,
                           LinearAxis, CategoricalAxis, Grid, Legend, CategoricalScale)
@@ -11,8 +10,6 @@ from bokeh.sampledata.population import load_population
 from bokeh.models.widgets import Select
 from bokeh.models.layouts import WidgetBox, Column
 
-document = Document()
-session = push_session(document)
 
 df = load_population()
 revision = 2012
@@ -133,10 +130,5 @@ layout = create_layout()
 
 update_data()
 
-document.add_root(layout)
-session.show(layout)
-
-if __name__ == "__main__":
-    document.validate()
-    print("\npress ctrl-C to exit")
-    session.loop_until_closed()
+doc = curdoc()
+doc.add_root(layout)
