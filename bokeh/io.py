@@ -748,6 +748,12 @@ def export_svgs(obj, filename=None, height=None, width=None):
         filename (str, optional) : filename to save document under (default: None)
             If None, infer from the filename.
 
+        height (int) : the desired height of the exported layout obj only if
+            it's a Plot instance. Otherwise the height kwarg is ignored.
+
+        width (int) : the desired width of the exported layout obj only if
+            it's a Plot instance. Otherwise the width kwarg is ignored.
+
     Returns:
         filenames (list(str)) : the list of filenames where the SVGs files
             are saved.
