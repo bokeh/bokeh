@@ -1,12 +1,10 @@
 import * as fs from "fs"
-import {resolve, join, dirname} from "path"
+import {resolve, relative, join, dirname} from "path"
 
 import * as esprima from "esprima"
 import * as escodegen from "escodegen"
 import * as estraverse from "estraverse"
 import {Program, Node, CallExpression} from "estree"
-
-import {canonical} from "./labeler"
 
 const str = JSON.stringify
 const exists = fs.existsSync
@@ -174,7 +172,7 @@ export class Linker {
       const file = pending.values().next().value
       pending.delete(file)
 
-      const mod = new Module(file, this.resolve.bind(this))
+      const mod = new Module(file, this)
       visited.set(mod.file, mod)
 
       for (const [_, file] of mod.deps) {
@@ -243,21 +241,29 @@ export class Linker {
 }
 
 export type Resolver = (dep: string, parent: Module) => string
+export type Canonical = (file: string) => string
 
 export class Module {
   readonly ast: Program
   readonly deps = new Map<string, string>()
 
-  constructor(readonly file: string, resolve: Resolver) {
+  constructor(readonly file: string, protected readonly linker: Linker) {
     this.ast = this.parse()
 
     for (const dep of this.collect_deps()) {
-      this.deps.set(dep, resolve(dep, this))
+      this.deps.set(dep, linker.resolve(dep, this))
     }
   }
 
   get canonical(): string {
-    return canonical(this.file)
+    for (const base of this.linker.bases) {
+      const path = relative(base, this.file)
+      if (!path.startsWith("..")) {
+        return path.replace(/\.js$/, "")
+      }
+    }
+
+    throw new Error(`unable to compute canonical representation of ${this.file}`)
   }
 
   get dir(): string {
