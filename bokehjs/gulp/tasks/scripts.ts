@@ -1,11 +1,8 @@
-import * as browserify from "browserify"
 import * as gulp from "gulp"
 import * as gutil from "gulp-util"
 import * as rename from "gulp-rename"
 const uglify = require("gulp-uglify")
 import * as sourcemaps from "gulp-sourcemaps"
-const source = require('vinyl-source-stream')
-const buffer = require('vinyl-buffer')
 import * as paths from "../paths"
 const change = require("gulp-change")
 import * as fs from "fs"
@@ -20,7 +17,8 @@ const license = `/*!\n${fs.readFileSync('../LICENSE.txt', 'utf-8')}*/\n`
 const coffee = require('gulp-coffee')
 const ts = require('gulp-typescript')
 
-import {named_labeler, Labels} from "../labeler"
+import {Linker} from "../linker"
+import {umd, plugin_umd} from "../umd"
 
 gulp.task("scripts:coffee", () => {
   return gulp.src('./src/coffee/**/*.coffee')
@@ -96,146 +94,7 @@ gulp.task("scripts:tsjs", ["scripts:coffee", "scripts:js", "scripts:ts"], () => 
 
 gulp.task("scripts:compile", ["scripts:tsjs"])
 
-const umd = (content: string) => {
-  return `\
-(function(root, factory) {
-  if(typeof exports === 'object' && typeof module === 'object')
-    module.exports = factory();
-  else if(typeof define === 'function' && define.amd)
-    define([], factory);
-  else if(typeof exports === 'object')
-    exports["Bokeh"] = factory();
-  else
-    root["Bokeh"] = factory();
-})(this, function(define /* void 0 */) {
-  return ${content};
-});
-`
-}
-
-const plugin_umd = (content: string) => {
-  return `\
-(function(root, factory) {
-  if(typeof exports === 'object' && typeof module === 'object')
-    factory(require("bokeh"));
-  else if(typeof define === 'function' && define.amd)
-    define(["bokeh"], factory);
-  else if(typeof exports === 'object')
-    factory(require("Bokeh"));
-  else
-    factory(root["Bokeh"]);
-})(this, function(Bokeh, define /* void 0 */) {
-  return ${content};
-});
-`
-}
-
-
-const commonOpts = {
-  extensions: [".js"],
-  paths: [paths.build_dir.tree_js, './node_modules'],
-  insertGlobals: false,
-  insertGlobalVars: {
-   process: undefined,
-  },
-  debug: true,
-}
-
-gulp.task("scripts:bundle", ["scripts:compile"], (cb: (arg?: any) => void) => {
-  const preludePath = path.resolve("./src/js/prelude.js")
-  const preludeText = fs.readFileSync(preludePath, { encoding: 'utf8' })
-
-  const bokehjsOpts = Object.assign({
-    entries: [path.resolve(path.join(paths.build_dir.tree_js, 'main.js'))],
-    preludePath: preludePath,
-    prelude: preludeText,
-  }, commonOpts)
-
-  const bokehjs = browserify(bokehjsOpts)
-  const labels: {[key: string]: Labels} = {}
-
-  function buildBokehjs(next: (arg?: any) => void) {
-    if (argv.verbose) gutil.log("Building bokehjs")
-    bokehjs.exclude(path.resolve("build/js/tree/models/glyphs/webgl/index.js"))
-    labels.bokehjs = named_labeler(bokehjs)
-    bokehjs
-      .bundle()
-      .pipe(source(paths.coffee.bokehjs.destination.name))
-      .pipe(buffer())
-      .pipe(sourcemaps.init({loadMaps: true}))
-      .pipe(change(umd))
-      .pipe(insert.append(license))
-      .pipe(sourcemaps.write('./'))
-      .pipe(gulp.dest(paths.build_dir.js))
-      .on('end', () => next())
-  }
-
-  const pluginPreludePath = path.resolve("./src/js/plugin-prelude.js")
-  const pluginPreludeText = fs.readFileSync(pluginPreludePath, { encoding: 'utf8' })
-
-  function mkBuildPlugin(plugin_name: string, main: string, exclude: string[] = []) {
-    return (next: (arg?: any) => void) => {
-      if (argv.verbose) gutil.log(`Building ${plugin_name}`)
-      const pluginOpts = Object.assign({
-        entries: [path.resolve(path.join(paths.build_dir.tree_js, main))],
-        preludePath: pluginPreludePath,
-        prelude: pluginPreludeText,
-      }, commonOpts)
-      const plugin = browserify(pluginOpts)
-      for (const file of exclude) {
-        plugin.exclude(path.resolve(file))
-      }
-      labels[plugin_name] = named_labeler(plugin)
-      for (const file in labels.bokehjs) {
-        plugin.external(file)
-      }
-      plugin
-        .bundle()
-        .pipe(source((paths.coffee as any)[plugin_name].destination.name))
-        .pipe(buffer())
-        .pipe(sourcemaps.init({loadMaps: true}))
-        .pipe(change(plugin_umd))
-        .pipe(insert.append(license))
-        .pipe(sourcemaps.write('./'))
-        .pipe(gulp.dest(paths.build_dir.js))
-        .on('end', () => next())
-    }
-  }
-
-  const buildAPI     = mkBuildPlugin("api",     "api/main.js")
-  const buildWidgets = mkBuildPlugin("widgets", "models/widgets/main.js", ["node_modules/moment/moment.js"])
-  const buildTables  = mkBuildPlugin("tables",  "models/widgets/tables/main.js")
-  const buildGL      = mkBuildPlugin("gl",      "models/glyphs/webgl/main.js")
-
-  function writeLabels(next: (arg?: any) => void) {
-    const data: {[key: string]: any} = {}
-    for (const name in labels) {
-      const module_labels = labels[name]
-      data[name] = Object.keys(module_labels).map((key) => module_labels[key]).sort()
-    }
-    const modulesPath = path.join(paths.build_dir.js, "modules.json")
-    fs.writeFile(modulesPath, JSON.stringify(data), () => next())
-  }
-
-  buildBokehjs(() => buildAPI(() => buildWidgets(() => buildTables(() => buildGL(() => writeLabels(cb))))))
-})
-
-gulp.task("scripts:build", ["scripts:bundle"])
-
-gulp.task("scripts:minify", ["scripts:bundle"], () => {
-  return gulp.src(`${paths.build_dir.js}/!(*.min|compile).js`)
-    .pipe(rename((path) => path.basename += '.min'))
-    .pipe(uglify({ output: { comments: /^!|copyright|license|\(c\)/i } }))
-    .pipe(insert.append(license))
-    .pipe(sourcemaps.write('./'))
-    .pipe(gulp.dest(paths.build_dir.js))
-})
-
-gulp.task("scripts", ["scripts:build", "scripts:minify"])
-
-import {Linker} from "../linker"
-
-gulp.task("scripts:deps", (next: () => void) => {
+gulp.task("scripts:bundle", ["scripts:compile"], (next: () => void) => {
   const tree_js = (name: string) => join(paths.build_dir.tree_js, name)
 
   const entries = [
@@ -261,3 +120,16 @@ gulp.task("scripts:deps", (next: () => void) => {
 
   next()
 })
+
+gulp.task("scripts:build", ["scripts:bundle"])
+
+gulp.task("scripts:minify", ["scripts:bundle"], () => {
+  return gulp.src(`${paths.build_dir.js}/!(*.min|compile).js`)
+    .pipe(rename((path) => path.basename += '.min'))
+    .pipe(uglify({ output: { comments: /^!|copyright|license|\(c\)/i } }))
+    .pipe(insert.append(license))
+    .pipe(sourcemaps.write('./'))
+    .pipe(gulp.dest(paths.build_dir.js))
+})
+
+gulp.task("scripts", ["scripts:build", "scripts:minify"])
