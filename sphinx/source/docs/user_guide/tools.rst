@@ -239,11 +239,11 @@ locations.
     multiple selection, press the SHIFT key. To clear the selection, press the
     ESC key.
 
-TapSelectTool
+TapTool
 ~~~~~~~~~~~~~
 
 * name: ``'tap'``
-* icon: |tap_select_icon|
+* icon: |tap_icon|
 
 The tap selection tool allows the user to select at single points by clicking
 a left mouse button, or tapping with a finger.
