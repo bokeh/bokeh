@@ -8,7 +8,7 @@ y = np.sin(x)
 p1 = figure()
 p1.scatter(x,y, color="#FF00FF")
 doc = curdoc()
-doc.add_root(Row(p1, p2))
+doc.add_root(p1)
 """
 
 basic_svg_scatter_script = """
