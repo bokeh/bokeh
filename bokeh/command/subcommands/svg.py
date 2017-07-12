@@ -94,4 +94,4 @@ class SVG(FileOutputSubcommand):
             self.after_write_file(args, filename, doc)
 
     def file_contents(self, args, doc):
-        return _get_svgs(doc, self.driver)
+        return _get_svgs(doc, driver=self.driver)

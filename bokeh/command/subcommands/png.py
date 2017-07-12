@@ -86,7 +86,7 @@ class PNG(FileOutputSubcommand):
         self.after_write_file(args, filename, doc)
 
     def file_contents(self, args, doc):
-        image = _get_screenshot_as_png(doc, self.driver)
+        image = _get_screenshot_as_png(doc, driver=self.driver)
         buf = io.BytesIO()
         image.save(buf, "png")
         buf.seek(0)
