@@ -3,7 +3,6 @@ path = require "path"
 ts = require "typescript"
 coffee = require "coffee-script"
 detective = require "detective"
-jslint = require "jslint"
 less = require "less"
 argv = require("yargs").argv
 
