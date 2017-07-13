@@ -303,7 +303,7 @@ def _show_notebook_app_with_state(app, state, app_path, notebook_url):
     loop = IOLoop.current()
     server = Server({app_path: app}, io_loop=loop, port=0,  allow_websocket_origin=[notebook_url])
     server.start()
-    script = autoload_server(url='http://127.0.0.1:%d%s' % (server.port, app_path))
+    script = autoload_server(url='http://%s:%d%s' % (notebook_url.split(':')[0], server.port, app_path))
     display(HTML(_server_cell(server, script)))
 
 def _show_with_state(obj, state, browser, new, notebook_handle=False):
