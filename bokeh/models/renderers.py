@@ -14,7 +14,8 @@ from ..core.validation import error
 from ..core.validation.errors import BAD_COLUMN_NAME, MISSING_GLYPH, NO_SOURCE_FOR_GLYPH, CDSVIEW_SOURCE_DOESNT_MATCH
 from ..model import Model
 
-from .glyphs import Glyph
+from .glyphs import Glyph, XYGlyph, Circle, MultiLine
+from .graphs import GraphSource
 from .images import ImageSource
 from .sources import ColumnDataSource, DataSource, RemoteSource, CDSView
 from .tiles import TileSource, WMTSTileSource
@@ -179,6 +180,46 @@ class GlyphRenderer(DataRenderer):
     """)
 
     muted = Bool(False, help="""
+    """)
+
+    level = Override(default="glyph")
+
+_DEFAULT_NODE = lambda: Circle()
+
+_DEFAULT_EDGE = lambda: MultiLine()
+
+class GraphRenderer(DataRenderer):
+    '''
+
+    '''
+
+    x_range_name = String('default', help="""
+    A particular (named) x-range to use for computing screen
+    locations when rendering glyphs on the plot. If unset, use the
+    default x-range.
+    """)
+
+    y_range_name = String('default', help="""
+    A particular (named) y-range to use for computing screen
+    locations when rendering glyphs on the plot. If unset, use the
+    default y-range.
+    """)
+
+    graph_source = Instance(GraphSource, help="""
+    Instance of a GraphSource which contains the information about the
+    nodes and edges of a network graph.
+    """)
+
+    nodes = Instance(XYGlyph, default=_DEFAULT_NODE, help="""
+    Instance of an XYGlyph subclass that will be rendered as the graph nodes.
+    The marker attribute fields will be matched against columns in the
+    ``graph_source.nodes`` ColumnDataSource.
+    """)
+
+    edges = Instance(MultiLine, default=_DEFAULT_EDGE, help="""
+    Instance of a MultiLine glyph that will be rendered as the graph edges. The
+    multiline attribute fields will be matched against columns in the
+    ``graph_source.edges`` ColumnDataSource.
     """)
 
     level = Override(default="glyph")

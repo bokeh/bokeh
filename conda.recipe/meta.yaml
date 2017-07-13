@@ -57,6 +57,7 @@ test:
     - coverage
     - flake8
     - lxml
+    - networkx
     - mock
     - packaging
     - pandas
