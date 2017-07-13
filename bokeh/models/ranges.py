@@ -75,6 +75,14 @@ class Range1d(Range):
     maximum visible interval. Can be a timedelta. Note that ``bounds`` can
     impose an implicit constraint on the maximum interval as well. """)
 
+    initial_start = Either(Float, Datetime, Int, default=0, help="""
+    The default start of the range. (When user hits reset)
+    """)
+
+    initial_end = Either(Float, Datetime, Int, default=1, help="""
+    The default end of the range. (When user hits reset)
+    """)
+
     def __init__(self, *args, **kwargs):
         if args and ('start' in kwargs or 'end' in kwargs):
             raise ValueError("'start' and 'end' keywords cannot be used with positional arguments")
