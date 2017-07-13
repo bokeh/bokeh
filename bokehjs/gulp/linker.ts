@@ -1,5 +1,5 @@
 import * as fs from "fs"
-import {resolve, relative, join, dirname} from "path"
+import {resolve, relative, join, dirname, sep} from "path"
 
 import * as esprima from "esprima"
 import * as escodegen from "escodegen"
@@ -105,7 +105,9 @@ export class Linker {
 
     const _modules: {[key: string]: number} = {}
     for (const [file, id] of module_map) {
-      _modules[modules.get(file)!.canonical] = id
+      const mod = modules.get(file)!
+      if (!mod.is_external)
+        _modules[mod.canonical] = id
     }
 
     return {
@@ -203,6 +205,10 @@ export class Module {
     for (const dep of this.collect_deps()) {
       this.deps.set(dep, linker.resolve(dep, this))
     }
+  }
+
+  get is_external(): boolean {
+    return this.file.split(sep).indexOf("node_modules") !== -1
   }
 
   get canonical(): string {
