@@ -38,9 +38,9 @@ _plugin_umd = \
 # XXX: this is the same as bokehjs/src/js/plugin-prelude.js
 _plugin_prelude = \
 """\
-(function outer(modules, cache, entries) {
+(function outer(modules, entry) {
   if (Bokeh != null) {
-    Bokeh.register_plugin(modules, entries[0]);
+    Bokeh.register_plugin(modules, entry);
   } else {
     throw new Error("Cannot find Bokeh. You have to load it prior to loading plugins.");
   }
@@ -51,15 +51,15 @@ _plugin_template = \
 """\
 %(prelude)s\
 ({
-  "custom/main": [function(require, module, exports) {
+  "custom/main": function(require, module, exports) {
     var models = {
       %(exports)s
     };
     require("base").register_models(models);
     module.exports = models;
-  }, {}],
+  },
   %(modules)s
-}, {}, ["custom/main"]);
+}, "custom/main");
 """
 
 _style_template = \
@@ -82,7 +82,7 @@ _export_template = \
 """"%(name)s": require("%(module)s").%(name)s"""
 
 _module_template = \
-""""%(module)s": [function(require, module, exports) {\n%(code)s\n}, %(deps)s]"""
+""""%(module)s": function(require, module, exports) {\n%(source)s\n}"""
 
 class AttrDict(dict):
     ''' Provide a dict subclass that supports access by named attributes.
@@ -306,9 +306,9 @@ def bundle_models(models):
     modules = []
 
     with io.open(join(bokehjs_dir, "js", "modules.json"), encoding="utf-8") as f:
-        known_modules = json.loads(f.read())
+        bokehjs_modules = json.loads(f.read())
 
-    known_modules = set(known_modules["bokehjs"] + known_modules["widgets"])
+    known_modules = set(bokehjs_modules.keys())
     custom_impls = {}
 
     dependencies = []
@@ -394,7 +394,7 @@ def bundle_models(models):
     sep = ",\n"
 
     exports = sep.join([ _export_template % dict(name=name, module=module) for (name, module) in exports ])
-    modules = sep.join([ _module_template % dict(module=module, code=code, deps=json.dumps(deps)) for (module, code, deps) in modules ])
+    modules = sep.join([ _module_template % dict(module=module, source=code) for (module, code, _) in modules ])
 
     content = _plugin_template % dict(prelude=_plugin_prelude, exports=exports, modules=modules)
     return _plugin_umd % dict(content=content)
