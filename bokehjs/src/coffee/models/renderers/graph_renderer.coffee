@@ -12,6 +12,10 @@ export class GraphRendererView extends RendererView
     super(options)
     @edges = @build_glyph_view(@model.edges)
     @nodes = @build_glyph_view(@model.nodes)
+
+    @xscale = @plot_view.frame.xscales[@model.x_range_name]
+    @yscale = @plot_view.frame.yscales[@model.y_range_name]
+
     @set_data()
 
   connect_signals: () ->
@@ -52,7 +56,6 @@ export class GraphRendererView extends RendererView
 
     @edges.render(ctx, edge_indices, @edges)
     @nodes.render(ctx, node_indices, @nodes)
-
 
 export class GraphRenderer extends Renderer
   default_view: GraphRendererView
