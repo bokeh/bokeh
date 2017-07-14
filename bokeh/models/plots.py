@@ -469,6 +469,7 @@ class Plot(LayoutDOM):
     @tool_events.setter
     def tool_events(self, tool_events):
         deprecated((0, 12, 7), "tool_events", "bokeh.events.Selection")
+        pass
 
     @property
     def webgl(self):

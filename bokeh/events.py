@@ -179,12 +179,16 @@ class LODEnd(PlotEvent):
     event_name = 'lodend'
 
 class Selection(PlotEvent):
-    ''' Announce the selection event
+    ''' Announce the completion of a selection event on a plot.
+
+    Attributes:
+        geometry (dict) : a dictionary containing the coordinates of the
+            selection event.
 
     '''
     event_name = "selection"
 
-    def __init__(self, model, geometry):
+    def __init__(self, model, geometry=None):
         self.geometry = geometry
         super(Selection, self).__init__(model=model)
 
