@@ -15,6 +15,10 @@ export const build_dir = {
   tree_ts: join(JS_BUILD_DIR, "tree_ts"),
 }
 
+export const src_dir = {
+  coffee: join(base_dir, "src", "coffee"),
+}
+
 export const coffee = {
   bokehjs: {
     destination: {

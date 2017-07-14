@@ -39,7 +39,7 @@ gulp.task("scripts:ts", () => {
     .pipe(gulp.dest(paths.build_dir.tree_ts))
 })
 
-const tsconfig = require("../../tsconfig.json")
+const tsconfig = require(join(paths.src_dir.coffee, "tsconfig.json"))
 
 gulp.task("scripts:tsjs", ["scripts:coffee", "scripts:js", "scripts:ts"], () => {
   function error(err: {message: string}) {
