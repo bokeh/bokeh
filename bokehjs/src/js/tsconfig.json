@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "noImplicitAny": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitThis": true,
+    "noImplicitReturns": true,
+    "strictNullChecks": true,
+    "alwaysStrict": true,
+    "noEmitOnError": true,
+    "declaration": false,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "target": "ES6",
+    "lib": ["es6"],
+    "types": ["node"],
+    "baseUrl": "."
+  }
+}
