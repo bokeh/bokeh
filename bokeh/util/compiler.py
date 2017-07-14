@@ -171,7 +171,7 @@ def npmjs_version():
     return _version(_run_npmjs)
 
 def nodejs_compile(code, lang="javascript", file=None):
-    compilejs_script = join(bokehjs_dir, "js", "compile.js")
+    compilejs_script = join(bokehjs_dir, "js", "compiler.js")
     output = _run_nodejs([compilejs_script], dict(code=code, lang=lang, file=file))
     return AttrDict(json.loads(output))
 

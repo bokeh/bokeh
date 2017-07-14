@@ -13,10 +13,12 @@ export const build_dir = {
   css: CSS_BUILD_DIR,
   tree_js: join(JS_BUILD_DIR, "tree"),
   tree_ts: join(JS_BUILD_DIR, "tree_ts"),
+  compiler: join(JS_BUILD_DIR, "compiler"),
 }
 
 export const src_dir = {
   coffee: join(base_dir, "src", "coffee"),
+  compiler: join(base_dir, "src", "compiler"),
 }
 
 export const coffee = {

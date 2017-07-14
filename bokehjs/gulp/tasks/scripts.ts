@@ -124,7 +124,7 @@ gulp.task("scripts:bundle", ["scripts:compile"], (next: () => void) => {
 gulp.task("scripts:build", ["scripts:bundle"])
 
 gulp.task("scripts:minify", ["scripts:bundle"], () => {
-  return gulp.src(`${paths.build_dir.js}/!(*.min|compile).js`)
+  return gulp.src(`${paths.build_dir.js}/!(*.min|compiler).js`)
     .pipe(rename((path) => path.basename += '.min'))
     .pipe(uglify({ output: { comments: /^!|copyright|license|\(c\)/i } }))
     .pipe(insert.append(license))
