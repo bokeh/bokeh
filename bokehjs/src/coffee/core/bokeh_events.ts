@@ -80,10 +80,12 @@ export class LODEnd extends UIEvent {}
 @register_event_class("selection")
 export class Selection extends UIEvent {
   geometry: any
+  final: boolean
 
   constructor(options: any) {
     super(options)
     this.geometry = options.geometry
+    this.final = options.final
   }
 }
 

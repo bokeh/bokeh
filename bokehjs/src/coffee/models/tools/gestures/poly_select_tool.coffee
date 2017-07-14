@@ -51,7 +51,7 @@ export class PolySelectToolView extends SelectToolView
       sm = renderers[0].data_source.selection_manager
       sm.select(@, (@plot_view.renderer_views[r.id] for r in renderers), geometry, final, append)
 
-    @_emit_selection_event(geometry)
+    @_emit_selection_event(geometry, final)
 
     @plot_view.push_state('poly_select', {selection: @plot_view.get_selection()})
 

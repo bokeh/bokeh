@@ -38,7 +38,7 @@ export class SelectToolView extends GestureToolView
         sm = ds.selection_manager
         sm.clear()
 
-  _emit_selection_event: (geometry) ->
+  _emit_selection_event: (geometry, final=true) ->
     g = clone(geometry)
     xm = @plot_view.frame.xscales['default']
     ym = @plot_view.frame.yscales['default']
@@ -60,7 +60,7 @@ export class SelectToolView extends GestureToolView
       else
         logger.debug("Unrecognized selection geometry type: '#{g.type}'")
 
-    @plot_model.plot.trigger_event(new Selection({geometry: g}))
+    @plot_model.plot.trigger_event(new Selection({geometry: g, final: final}))
 
 export class SelectTool extends GestureTool
 

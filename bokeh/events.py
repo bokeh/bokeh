@@ -184,12 +184,15 @@ class Selection(PlotEvent):
     Attributes:
         geometry (dict) : a dictionary containing the coordinates of the
             selection event.
+        final (bool) : whether the selection event is the last selection event
+            in the case of selections on every mousemove.
 
     '''
     event_name = "selection"
 
-    def __init__(self, model, geometry=None):
+    def __init__(self, model, geometry=None, final=True):
         self.geometry = geometry
+        self.final = final
         super(Selection, self).__init__(model=model)
 
 class PointEvent(PlotEvent):
