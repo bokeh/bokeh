@@ -42,7 +42,7 @@ namespace Burtin {
   }
 
   const df: Antibiotics = {
-    index:        antibiotics.map((v, i) => i),
+    index:        antibiotics.map((_, i) => i),
     length:       antibiotics.length,
 
     bacteria:     antibiotics.map((row) => row[0]),
