@@ -28,7 +28,7 @@ import uuid
 # Bokeh imports
 from .core.state import State
 from .document import Document
-from .embed import autoload_server, notebook_div, file_html
+from .embed import server_document, notebook_div, file_html
 from .layouts import gridplot, GridSpec ; gridplot, GridSpec
 from .models import Plot
 from .resources import INLINE
@@ -303,7 +303,7 @@ def _show_notebook_app_with_state(app, state, app_path, notebook_url):
     loop = IOLoop.current()
     server = Server({app_path: app}, io_loop=loop, port=0,  allow_websocket_origin=[notebook_url])
     server.start()
-    script = autoload_server(url='http://%s:%d%s' % (notebook_url.split(':')[0], server.port, app_path))
+    script = server_document(url='http://%s:%d%s' % (notebook_url.split(':')[0], server.port, app_path))
     display(HTML(_server_cell(server, script)))
 
 def _show_with_state(obj, state, browser, new, notebook_handle=False):
