@@ -120,9 +120,21 @@ const compile_and_resolve_deps = (input: {code: string, lang: string, file: stri
   }
 }
 
-const input = {
-  code: fs.readFileSync(argv.file, "utf-8"),
-  lang: argv.lang || "coffeescript",
-  file: argv.file,
+if (argv.file != null) {
+  const input = {
+    code: fs.readFileSync(argv.file, "utf-8"),
+    lang: argv.lang || "coffeescript",
+    file: argv.file,
+  }
+  compile_and_resolve_deps(input)
+} else {
+  const stdin = process.stdin
+
+  stdin.resume()
+  stdin.setEncoding("utf-8")
+
+  let data = ""
+
+  stdin.on("data", (chunk: string) => data += chunk)
+  stdin.on("end", () => compile_and_resolve_deps(JSON.parse(data)))
 }
-compile_and_resolve_deps(input)
