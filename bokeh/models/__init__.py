@@ -8,6 +8,7 @@ from .axes import *
 from .callbacks import *
 from .formatters import *
 from .glyphs import *
+from .graphs import *
 from .grids import *
 from .layouts import *
 from .images import *

@@ -37,7 +37,7 @@ class CustomJS(Callback):
     @classmethod
     def from_py_func(cls, func):
         """ Create a CustomJS instance from a Python function. The
-        function is translated to Python using PyScript.
+        function is translated to JavaScript using PyScript.
         """
         if not isinstance(func, FunctionType):
             raise ValueError('CustomJS.from_py_func needs function object.')

@@ -37,6 +37,13 @@ validation checks.
     A |Scale| type is incompatible with one or more ranges on the same plot
     dimension (will result in blank plot).
 
+1010 *(CDSVIEW_SOURCE_DOESNT_MATCH)*
+    A |GlyphRenderer| has a CDSView whose source doesn't match the GlyphRenderer's
+    data source.
+
+1011 *(MALFORMED_GRAPH_SOURCE)*
+    The ``GraphSource`` is incorrectly configured.
+
 9999 *(EXT)*
     Indicates that a custom error check has failed.
 
@@ -52,6 +59,8 @@ codes = {
     1007: ("MISSING_MERCATOR_DIMENSION", "Mercator Tickers and Formatters must have their dimension property set to 'lat' or 'lon'"),
     1008: ("REQUIRED_SCALE",         "A required Scale object is missing"),
     1009: ("INCOMPATIBLE_SCALE_AND_RANGE", "A Scale is incompatible with one or more ranges on the same plot dimension"),
+    1010: ("CDSVIEW_SOURCE_DOESNT_MATCH", "CDSView used by Glyph renderer must have a source that matches the Glyph renderer's data source"),
+    1011: ("MALFORMED_GRAPH_SOURCE", "The GraphSource is incorrectly configured"),
     9999: ("EXT",                    "Custom extension reports error"),
 }
 

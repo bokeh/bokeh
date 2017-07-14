@@ -22,11 +22,19 @@ export class SelectionManager extends HasProps
     if source != renderer_views[0].model.data_source
       logger.warn('select called with mis-matched data sources')
 
-    indices_renderers = (r.hit_test(geometry) for r in renderer_views)
+    #view = renderer_view.model.view
+    #if source != view.source
+    #  logger.warn('select called with view and data source mismatch')
 
-    # renderers that don't support hit testing a particular kind of geometry
-    # will return null, need to filter those out and see if anything is left
-    indices_renderers = (i for i in indices_renderers when i != null)
+    indices_renderers = []
+
+    for r in renderer_views
+      hit_test_result = r.hit_test(geometry)
+      # renderers that don't support hit testing a particular kind of geometry
+      # will return null, need to filter those out and see if anything is left
+      if hit_test_result != null
+        indices_renderers.push(r.model.view.convert_selection_from_subset(hit_test_result))
+
     if indices_renderers.length == 0
       return false
 
@@ -50,7 +58,11 @@ export class SelectionManager extends HasProps
     if source != renderer_view.model.data_source
       logger.warn('inspect called with mis-matched data sources')
 
-    indices = renderer_view.hit_test(geometry)
+    view = renderer_view.model.view
+    if source != view.source
+      logger.warn('inspect called with view and data source mismatch')
+
+    indices = renderer_view.model.view.convert_selection_from_subset(renderer_view.hit_test(geometry))
 
     if indices?
       r_id = renderer_view.model.id

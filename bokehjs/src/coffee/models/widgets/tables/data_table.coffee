@@ -16,12 +16,12 @@ export DTINDEX_NAME = "__bkdt_internal_index__"
 
 export class DataProvider
 
-  constructor: (@source) ->
+  constructor: (@source, @view) ->
     if DTINDEX_NAME of @source.data
       throw new Error("special name #{DTINDEX_NAME} cannot be used as a data table column")
-    @index = [0...@getLength()]
+    @index = @view.indices
 
-  getLength: () -> @source.get_length()
+  getLength: () -> @index.length
 
   getItem: (offset) ->
     item = {}
@@ -97,7 +97,7 @@ export class DataTableView extends WidgetView
     @connect(@model.source.properties.selected.change, () => @updateSelection())
 
   updateGrid: () ->
-    @data.constructor(@model.source)
+    @data.constructor(@model.source, @model.view)
     @grid.invalidate()
     @grid.render()
 
@@ -174,7 +174,7 @@ export class DataTableView extends WidgetView
     if @model.height? and @model.height != "auto"
       @el.style.height = "#{@model.height}px"
 
-    @data = new DataProvider(@model.source)
+    @data = new DataProvider(@model.source, @model.view)
     @grid = new SlickGrid(@el, @data, columns, options)
 
     @grid.onSort.subscribe (event, args) =>

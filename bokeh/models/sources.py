@@ -9,6 +9,7 @@ from ..util.dependencies import import_optional
 from ..util.warnings import BokehUserWarning
 
 from .callbacks import Callback
+from .filters import Filter
 
 pd = import_optional('pandas')
 
@@ -441,6 +442,20 @@ def _check_slice(s):
        (s.stop  is not None and s.stop < 1) or \
        (s.step  is not None and s.step < 1):
         raise ValueError("Patch slices must have positive (start, stop, step) values, got %s" % s)
+
+class CDSView(Model):
+    ''' A view into a ColumnDataSource that represents a row-wise subset.
+
+    '''
+
+    filters = List(Instance(Filter), default=[], help="""
+    List of filters that the view comprises.
+    """)
+
+    source = Instance(ColumnarDataSource, help="""
+    The ColumnDataSource associated with this view. Used to determine
+    the length of the columns.
+    """)
 
 class GeoJSONDataSource(ColumnarDataSource):
     '''

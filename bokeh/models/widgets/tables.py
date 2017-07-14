@@ -8,7 +8,7 @@ from ...core.has_props import abstract
 from ...core.properties import Bool, Color, Either, Enum, Float, Instance, Int, List, Override, String
 from ...model import Model
 
-from ..sources import DataSource
+from ..sources import DataSource, CDSView
 
 from .widget import Widget
 
@@ -329,6 +329,17 @@ class TableWidget(Widget):
     source = Instance(DataSource, help="""
     The source of data for the widget.
     """)
+
+    view = Instance(CDSView, help="""
+    A view into the data source to use when rendering table rows. A default view
+    of the entire data source is created if a view is not passed in during
+    initialization.
+    """)
+
+    def __init__(self, **kw):
+        super(TableWidget, self).__init__(**kw)
+        if "view" not in kw:
+            self.view = CDSView(source=self.source)
 
 class DataTable(TableWidget):
     ''' Two dimensional grid for visualisation and editing large amounts

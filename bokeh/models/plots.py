@@ -23,7 +23,7 @@ from .glyphs import Glyph
 from .grids import Grid
 from .layouts import LayoutDOM
 from .ranges import Range, FactorRange, DataRange1d, Range1d
-from .renderers import DataRenderer, DynamicImageRenderer, GlyphRenderer, Renderer, TileRenderer
+from .renderers import DataRenderer, DynamicImageRenderer, GlyphRenderer, Renderer, TileRenderer, GraphRenderer
 from .scales import Scale, CategoricalScale, LinearScale, LogScale
 from .sources import DataSource, ColumnDataSource
 from .tools import Tool, Toolbar
@@ -300,6 +300,24 @@ class Plot(LayoutDOM):
         tile_renderer = TileRenderer(tile_source=tile_source, **kw)
         self.renderers.append(tile_renderer)
         return tile_renderer
+
+    def add_graph(self, graph_source, **kw):
+        ''' Adds a new GraphRenderer into the Plot.renderers
+
+        Args:
+            graph_source (GraphDataSource) : a graph source instance which contains the graph configuration
+
+        Keyword Arguments:
+            Additional keyword arguments are passed as-is to the graph renderer
+
+        Returns:
+            GraphRenderer
+
+        '''
+
+        graph_renderer = GraphRenderer(graph_source=graph_source, **kw)
+        self.renderers.append(graph_renderer)
+        return graph_renderer
 
     def add_dynamic_image(self, image_source, **kw):
         ''' Adds new DynamicImageRenderer into the Plot.renderers

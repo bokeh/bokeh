@@ -1,26 +1,3 @@
-`
-/// <reference path="./node.d.ts" />
-`
-import * as fs from "fs"
-import * as path from "path"
-import * as assert from "assert"
-import * as rootRequire from "root-require"
-
-root = rootRequire.packpath.parent()
-pkg = rootRequire("./package.json")
-
-module.constructor.prototype.require = (modulePath) ->
-  assert(modulePath, 'missing path')
-  assert(typeof modulePath == 'string', 'path must be a string')
-
-  if not modulePath.startsWith(".")
-    overridePath = path.join(root, path.dirname(pkg.main), modulePath + ".js")
-
-    if fs.existsSync(overridePath)
-      modulePath = overridePath
-
-  return this.constructor._load(modulePath, this)
-
 bokehjs = () ->
   if not window?.document?
     throw new Error("bokehjs requires a window with a document. If your

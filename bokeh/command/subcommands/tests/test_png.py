@@ -36,6 +36,21 @@ def test_args():
             default=None,
         )),
 
+
+        ('--height', dict(
+            metavar='HEIGHT',
+            type=int,
+            help="The desired height of the exported layout obj only if it's a Plot instance",
+            default=None,
+        )),
+
+        ('--width', dict(
+            metavar='WIDTH',
+            type=int,
+            help="The desired width of the exported layout obj only if it's a Plot instance",
+            default=None,
+        )),
+
         (('-o', '--output'), dict(
             metavar='FILENAME',
             action='append',
@@ -61,7 +76,8 @@ def test_no_script(capsys):
             too_few = "too few arguments"
         else:
             too_few = "the following arguments are required: DIRECTORY-OR-SCRIPT"
-        assert err == """usage: bokeh png [-h] [-o FILENAME] [--args ...]
+        assert err == """usage: bokeh png [-h] [--height HEIGHT] [--width WIDTH] [-o FILENAME]
+                 [--args ...]
                  DIRECTORY-OR-SCRIPT [DIRECTORY-OR-SCRIPT ...]
 bokeh png: error: %s
 """ % (too_few)

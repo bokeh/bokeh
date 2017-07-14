@@ -283,7 +283,7 @@ class ResizeTool(Drag):
 
 
 class TapTool(Tap):
-    ''' *toolbar icon*: |tap_select_icon|
+    ''' *toolbar icon*: |tap_icon|
 
     The tap selection tool allows the user to select at single points by
     left-clicking a mouse, or tapping with a finger.
@@ -291,7 +291,7 @@ class TapTool(Tap):
     See :ref:`userguide_styling_selected_unselected_glyphs` for information
     on styling selected and unselected glyphs.
 
-    .. |tap_select_icon| image:: /_images/icons/TapSelect.png
+    .. |tap_icon| image:: /_images/icons/Tap.png
         :height: 18pt
 
     .. note::

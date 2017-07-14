@@ -239,11 +239,11 @@ locations.
     multiple selection, press the SHIFT key. To clear the selection, press the
     ESC key.
 
-TapSelectTool
-~~~~~~~~~~~~~
+TapTool
+~~~~~~~
 
 * name: ``'tap'``
-* icon: |tap_select_icon|
+* icon: |tap_icon|
 
 The tap selection tool allows the user to select at single points by clicking
 a left mouse button, or tapping with a finger.
@@ -639,7 +639,7 @@ properties on |Plot| objects that control LOD behavior:
     :height: 14pt
 .. |save_icon| image:: /_images/icons/Save.png
     :height: 14pt
-.. |tap_select_icon| image:: /_images/icons/TapSelect.png
+.. |tap_icon| image:: /_images/icons/Tap.png
     :height: 14pt
 .. |undo_icon| image:: /_images/icons/Undo.png
     :height: 14pt

@@ -9,10 +9,10 @@ export class MultiLineView extends GlyphView
   _index_data: () ->
     points = []
     for i in [0...@_xs.length]
+      if @_xs[i] == null or @_xs[i].length == 0
+        continue
       xs = (x for x in @_xs[i] when not isStrictNaN(x))
       ys = (y for y in @_ys[i] when not isStrictNaN(y))
-      if xs.length == 0
-        continue
       points.push({
         minX: min(xs),
         minY: min(ys),
