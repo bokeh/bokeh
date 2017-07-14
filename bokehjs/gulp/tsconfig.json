@@ -13,6 +13,7 @@
     "moduleResolution": "node",
     "target": "ES6",
     "lib": ["es6"],
+    "types": ["node"],
     "baseUrl": "."
   }
 }

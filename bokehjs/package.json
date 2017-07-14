@@ -43,6 +43,7 @@
     "vinyl-source-stream": "^1.1.0",
     "yargs": "^3.11.0",
     "through2": "^2.0.0",
+    "@types/through2": "^2.0.33",
     "jsdom": "^9.8.3",
     "websocket":"^1.0.22",
     "typescript": "^2.4.1",

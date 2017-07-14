@@ -1,24 +1,21 @@
 import * as gulp from "gulp"
 import * as gutil from "gulp-util"
-import * as through from "through"
+import * as through from "through2"
 import * as cp from "child_process"
-import {Stream} from "stream"
 import {argv} from "yargs"
 
 import * as paths from "../paths"
 import {buildWatchTask} from "../utils"
 
 function mocha(options: {coverage?: boolean} = {}) {
-  type This = Stream & {_files: string[] | null}
+  const files: string[] = []
 
-  return through(
-    function(this: This, file: {path: string}) {
-      if (this._files == null)
-        this._files = [file.path]
-      else
-        this._files.push(file.path)
+  return through.obj(
+    function(file: {path: string}, _enc, next) {
+      files.push(file.path)
+      next()
     },
-    function(this: This) {
+    function(next) {
       const _mocha = "node_modules/mocha/bin/_mocha"
 
       let args: string[]
@@ -35,7 +32,7 @@ function mocha(options: {coverage?: boolean} = {}) {
         ["--reporter", argv.reporter || "spec"],
         ["--slow", "5s"],
         ["./test/index.coffee"],
-        this._files!,
+        files,
       )
 
       const env = Object.assign({}, process.env, {
@@ -54,7 +51,7 @@ function mocha(options: {coverage?: boolean} = {}) {
           const comment = signal === "SIGINT" ? "interrupted" : "failed"
           this.emit("error", new gutil.PluginError("mocha", `tests ${comment}`))
         } else
-          this.emit("end")
+          next()
       })
 
       process.on('exit',    () => proc.kill())
