@@ -5,7 +5,7 @@
     "noUnusedParameters": true,
     "noImplicitThis": true,
     "noImplicitReturns": true,
-    "strictNullChecks": true,
+    "strictNullChecks": false,
     "alwaysStrict": true,
     "noEmitOnError": true,
     "module": "commonjs",
