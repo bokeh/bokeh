@@ -128,7 +128,8 @@ class TestColumnDataSource(unittest.TestCase):
             stuff['args'] = args
             stuff['kw'] = kw
         ds.data._stream = mock
-        ds.stream(dict(a=[11, 12], b=[21, 22]), "foo", mock_setter)
+        #internal implementation of stream
+        ds._stream(dict(a=[11, 12], b=[21, 22]), "foo", mock_setter)
         self.assertEqual(stuff['args'], ("doc", ds, dict(a=[11, 12], b=[21, 22]), "foo", mock_setter))
         self.assertEqual(stuff['kw'], {})
 

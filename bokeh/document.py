@@ -372,7 +372,7 @@ class Document(object):
                 source = self._all_models[source_id]
                 data = event_json['data']
                 rollover = event_json['rollover']
-                source.stream(data, rollover, setter)
+                source._stream(data, rollover, setter)
             elif event_json['kind'] == 'ColumnsPatched':
                 source_id = event_json['column_source']['id']
                 if source_id not in self._all_models:
