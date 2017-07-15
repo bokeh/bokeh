@@ -119,18 +119,33 @@ class TestColumnDataSource(unittest.TestCase):
             str(cm.exception).startswith("stream(...) only supports 1d sequences, got ndarray with size (")
         )
 
-    def test_stream_good_data(self):
+    def test__stream_good_data(self):
         ds = ColumnDataSource(data=dict(a=[10], b=[20]))
         ds._document = "doc"
         stuff = {}
         mock_setter = object()
+
         def mock(*args, **kw):
             stuff['args'] = args
             stuff['kw'] = kw
         ds.data._stream = mock
-        #internal implementation of stream
+        # internal implementation of stream
         ds._stream(dict(a=[11, 12], b=[21, 22]), "foo", mock_setter)
         self.assertEqual(stuff['args'], ("doc", ds, dict(a=[11, 12], b=[21, 22]), "foo", mock_setter))
+        self.assertEqual(stuff['kw'], {})
+
+    def test_stream_good_data(self):
+        ds = ColumnDataSource(data=dict(a=[10], b=[20]))
+        ds._document = "doc"
+        stuff = {}
+
+        def mock(*args, **kw):
+            stuff['args'] = args
+            stuff['kw'] = kw
+        ds.data._stream = mock
+        # public implementation of stream
+        ds._stream(dict(a=[11, 12], b=[21, 22]), "foo")
+        self.assertEqual(stuff['args'], ("doc", ds, dict(a=[11, 12], b=[21, 22]), "foo", None))
         self.assertEqual(stuff['kw'], {})
 
     def test_patch_bad_columns(self):
