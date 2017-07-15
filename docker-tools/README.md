@@ -4,8 +4,8 @@ repository.
 
 To build the container for Python 2 or 3:
 
-    $ docker build -t bokeh-dev:py2 -f Dockerfile-py2 .
-    $ docker build -t bokeh-dev:py3 -f Dockerfile-py3 .
+    $ docker build -t bokeh-dev:py2 -f docker-tools/Dockerfile-py2 .
+    $ docker build -t bokeh-dev:py3 -f docker-tools/Dockerfile-py3 .
 
 To install JS dependencies:
 
