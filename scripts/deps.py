@@ -1,12 +1,6 @@
 import jinja2
 import yaml
 
-# section = {
-#     'build': '["requirements"]["build"]',
-#     'run':   '["requirements"]["run"]',
-#     'test':  '["test"]["requires"]',
-# }
-
 
 def load_setup_py_data():
     import os
