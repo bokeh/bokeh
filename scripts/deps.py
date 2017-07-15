@@ -1,24 +1,28 @@
-import sys
+import jinja2
+import yaml
 
-from conda_build import api
+# section = {
+#     'build': '["requirements"]["build"]',
+#     'run':   '["requirements"]["run"]',
+#     'test':  '["test"]["requires"]',
+# }
 
-section = {
-    'build': 'requirements/build',
-    'run':   'requirements/run',
-    'test':  'test/requires',
-}
 
-names = set(sys.argv[1:])
+def load_setup_py_data():
+    import os
+    import setuptools
+    os.environ['CONDA_BUILD_STATE'] = 'RENDER'
+    data = {}
 
-if not all(name in section for name in names):
-    print("Got unknown section name. Valid section names are: build, run, or test")
-    sys.exit(1)
+    def _setup(**kw): data.update(kw)
+    setuptools.setup = _setup
+    return data
 
-metadata, _, _ = api.render('conda.recipe')
+meta = jinja2.Template(open("conda.recipe/meta.yaml").read())
+out = meta.render(load_setup_py_data=load_setup_py_data)
+yam = yaml.load(out)
 
 deps = ""
-
-for name in sys.argv[1:]:
-    deps += " ".join(s.replace(" ", "") for s in metadata.get_value(section[name])) + " "
-
+_list = yam["requirements"]["build"] + yam["requirements"]["run"] + yam["test"]["requires"]
+deps += " ".join(s for s in _list)
 print(deps)
