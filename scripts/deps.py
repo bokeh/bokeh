@@ -23,6 +23,19 @@ out = meta.render(load_setup_py_data=load_setup_py_data)
 yam = yaml.load(out)
 
 deps = ""
-_list = yam["requirements"]["build"] + yam["requirements"]["run"] + yam["test"]["requires"]
+_list = yam["requirements"]["build"]
+for item in yam["test"]["requires"] + yam["requirements"]["run"]:
+    if item not in _list:
+        _list.append(item)
+
 deps += " ".join(s for s in _list)
+deps = deps.replace(',', '')
+deps = deps.replace(' >=', '>=')
+deps = deps.replace(' <', '<')
+deps = deps.replace(' [unix]', ' ')
+
+
 print(deps)
+
+
+
