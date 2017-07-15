@@ -31,9 +31,10 @@ widgets, or other content it desires. The application can also set up
 callbacks, to run periodically or to run when the document changes.
 
 Applications are represented by the ``Application`` class. This class is
-little more than a list of ``Handler`` instances. Handlers can be created
-in lots of ways; from JSON files, from Python functions, from Python files,
-and perhaps many more ways in the future.
+contains list of ``Handler`` instances and optional metainformation. Handlers
+can be created in lots of ways; from JSON files, from Python functions, from
+Python files, and perhaps many more ways in the future.  The optional metadata
+is available as a json blob via the ``/metadata`` endpoint.
 
 Around each application, the server creates an ``ApplicationContext``. Its
 primary role is to hold the set of sessions for the application.

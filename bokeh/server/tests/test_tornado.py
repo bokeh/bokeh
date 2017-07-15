@@ -1,6 +1,7 @@
 from __future__ import absolute_import, print_function
 
 import logging
+import json
 
 import bokeh.server.tornado as tornado
 
@@ -8,7 +9,7 @@ from bokeh.application import Application
 from bokeh.client import pull_session
 from bokeh.server.views.static_handler import StaticHandler
 
-from .utils import ManagedServerLoop, url
+from .utils import ManagedServerLoop, url, http_get
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -113,3 +114,24 @@ def test_log_stats():
         session1.close()
         session2.close()
         server._tornado.log_stats()
+
+def test_metadata():
+    application = Application(metadata=dict(hi="hi", there="there"))
+    with ManagedServerLoop(application) as server:
+        t = tornado.BokehTornado({}, "", [])
+        meta_url = url(server) + 'metadata'
+        meta_resp = http_get(server.io_loop, meta_url)
+        meta_json = json.loads(meta_resp.buffer.read())
+        assert meta_json == {'data': {'hi': 'hi', 'there': 'there'}, 'url': '/'}
+
+    def meta_func():
+        return dict(name='myname', value='no value')
+
+    application1 = Application(metadata=meta_func)
+
+    with ManagedServerLoop(application1) as server:
+        t = tornado.BokehTornado({}, "", [])
+        meta_url = url(server) + 'metadata'
+        meta_resp = http_get(server.io_loop, meta_url)
+        meta_json = json.loads(meta_resp.buffer.read())
+        assert meta_json == {'data': {'name': 'myname', 'value': 'no value'}, 'url': '/'}
