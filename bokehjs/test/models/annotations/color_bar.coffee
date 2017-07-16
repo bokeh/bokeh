@@ -198,9 +198,9 @@ describe "ColorBar module", ->
 
         tick_coords = @color_bar._tick_coordinates()
 
-        expect(tick_coords.major[0]).to.be.deep.equal([0, 0, 0, 0, 0, 0])
-        expect(tick_coords.major[1]).to.be.deep.equal(new Float64Array([100, 80, 60, 40, 20, 0]))
-        expect(tick_coords.major_labels).to.be.deep.equal([10, 12, 14, 16, 18, 20])
+        expect(tick_coords.coords.major[0]).to.be.deep.equal([0, 0, 0, 0, 0, 0])
+        expect(tick_coords.coords.major[1]).to.be.deep.equal(new Float64Array([100, 80, 60, 40, 20, 0]))
+        expect(tick_coords.labels.major).to.be.deep.equal(['10', '12', '14', '16', '18', '20'])
 
       it "Should correctly determine tick coords and labels for LinearColorMapperif orientation='horizontal'", ->
         @color_bar.color_mapper = new LinearColorMapper({low: 10, high: 20, palette: Viridis.Viridis10})
@@ -209,9 +209,9 @@ describe "ColorBar module", ->
 
         tick_coords = @color_bar._tick_coordinates()
 
-        expect(tick_coords.major[1]).to.be.deep.equal([0, 0, 0, 0, 0, 0])
-        expect(tick_coords.major[0]).to.be.deep.equal(new Float64Array([0, 20, 40, 60, 80, 100]))
-        expect(tick_coords.major_labels).to.be.deep.equal([10, 12, 14, 16, 18, 20])
+        expect(tick_coords.coords.major[1]).to.be.deep.equal([0, 0, 0, 0, 0, 0])
+        expect(tick_coords.coords.major[0]).to.be.deep.equal(new Float64Array([0, 20, 40, 60, 80, 100]))
+        expect(tick_coords.labels.major).to.be.deep.equal(['10', '12', '14', '16', '18', '20'])
 
       it "Should correctly determine tick coords and labels for LogColorMapper if orientation='vertical'", ->
         @color_bar.color_mapper = new LogColorMapper({low: 1, high: 1000, palette: Viridis.Viridis10})
@@ -220,9 +220,9 @@ describe "ColorBar module", ->
 
         tick_coords = @color_bar._tick_coordinates()
 
-        expect(tick_coords.major[0]).to.be.deep.equal([0, 0, 0, 0, 0])
-        expect(tick_coords.major[1]).to.be.deep.equal(new Float64Array([23.299000144533963, 13.264666955734583, 7.394958320545214, 3.2303337669352175, 0]))
-        expect(tick_coords.major_labels).to.be.deep.equal([200, 400, 600, 800, 1000])
+        expect(tick_coords.coords.major[0]).to.be.deep.equal([0, 0, 0, 0, 0])
+        expect(tick_coords.coords.major[1]).to.be.deep.equal(new Float64Array([23.299000144533963, 13.264666955734583, 7.394958320545214, 3.2303337669352175, 0]))
+        expect(tick_coords.labels.major).to.be.deep.equal(['200', '400', '600', '800', '1000'])
 
       it "Should correctly determine tick coords and labels for LogColorMapper if orientation='horizontal'", ->
         @color_bar.color_mapper = new LogColorMapper({low: 1, high: 1000, palette: Viridis.Viridis10})
@@ -231,18 +231,18 @@ describe "ColorBar module", ->
 
         tick_coords = @color_bar._tick_coordinates()
 
-        expect(tick_coords.major[1]).to.be.deep.equal([0, 0, 0, 0, 0])
-        expect(tick_coords.major[0]).to.be.deep.equal(new Float64Array([76.70099985546604, 86.73533304426542, 92.60504167945479, 96.76966623306478, 100]))
-        expect(tick_coords.major_labels).to.be.deep.equal([200, 400, 600, 800, 1000])
+        expect(tick_coords.coords.major[1]).to.be.deep.equal([0, 0, 0, 0, 0])
+        expect(tick_coords.coords.major[0]).to.be.deep.equal(new Float64Array([76.70099985546604, 86.73533304426542, 92.60504167945479, 96.76966623306478, 100]))
+        expect(tick_coords.labels.major).to.be.deep.equal(['200', '400', '600', '800', '1000'])
 
       it "Should correctly return empty tick coords and labels for LogColorMapper if log(high)/log(low) are non-numeric", ->
         @color_bar.color_mapper = new LogColorMapper({low: -1, high: 0, palette: Viridis.Viridis10})
         @color_bar.ticker = new LogTicker()
         tick_coords = @color_bar._tick_coordinates()
 
-        expect(tick_coords.major[0]).to.be.deep.equal([])
-        expect(tick_coords.major[1]).to.be.deep.equal(new Float64Array([]))
-        expect(tick_coords.major_labels).to.be.deep.equal([])
+        expect(tick_coords.coords.major[0]).to.be.deep.equal([])
+        expect(tick_coords.coords.major[1]).to.be.deep.equal(new Float64Array([]))
+        expect(tick_coords.labels.major).to.be.deep.equal([])
 
   describe "ColorBarView", ->
 
@@ -282,7 +282,7 @@ describe "ColorBar module", ->
 
     it "ColorBarView._get_label_extent method (orientation='vertical') and no major_labels", ->
       # Handle case where scale start/end causes no ticks to exist (usually for a logticker)
-      stub = sinon.stub(@color_bar_view.model, "_tick_coordinates").returns({"major_labels": []})
+      stub = sinon.stub(@color_bar_view.model, "_tick_coordinates").returns({"labels.major": []})
       expect(@color_bar_view._get_label_extent()).to.be.equal(0)
       stub.restore()
 
