@@ -3,7 +3,9 @@
 set -e # exit on error
 set -x # echo commands
 
-git fetch origin master
+if  [ "${NO_GIT_FETCH}" != "1" ]; then
+    git fetch origin master
+fi
 
 # install TravisCI "artifacts" util, see https://github.com/travis-ci/artifacts
 wget -qO- "https://raw.githubusercontent.com/travis-ci/artifacts/master/install" |bash

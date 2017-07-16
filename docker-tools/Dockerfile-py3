@@ -1,0 +1,16 @@
+FROM travisci/ci-garnet:packer-1496954857
+
+ENV PYTHON=3.6
+ENV NO_GIT_FETCH=1
+ENV PATH="/home/travis/miniconda/bin:${PATH}"
+ENV MINICONDA_FILENAME="Miniconda3-latest-Linux-x86_64.sh"
+ENV CONDA_REQS="conda=4.3.21 conda-env=2.6.0 conda-build=2.1.15"
+
+ADD . /tmp/bokeh
+RUN chown -R travis /tmp/bokeh
+
+USER travis
+
+RUN cd /tmp/bokeh && scripts/ci/install:test
+
+RUN rm -rf /tmp/bokeh
