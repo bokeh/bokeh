@@ -30,6 +30,3 @@ deps = deps.replace(' [unix]', ' ')
 
 
 print(deps)
-
-
-
