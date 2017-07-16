@@ -255,6 +255,7 @@ export class ColorBarView extends AnnotationView
     [sx, sy] = tick_coords.coords.major
 
     formatted_labels = tick_coords.labels.major
+
     @visuals.major_label_text.set_value(ctx)
 
     ctx.save()
