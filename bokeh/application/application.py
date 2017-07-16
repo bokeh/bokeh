@@ -101,7 +101,7 @@ class Application(object):
     # will function without bringing in tornado.
     _is_a_bokeh_application_class = True
 
-    def __init__(self, *handlers, metadata=None):
+    def __init__(self, *handlers, **kwargs):
         '''
         Application factory.
 
@@ -114,7 +114,10 @@ class Application(object):
                 May be requested by http://applicationurl/metadata as a json
                 blob.
         '''
-
+        metadata = kwargs.pop('metadata', None)
+        if kwargs:
+            raise TypeError("Invalid keyword argument: %s" %
+                kwargs.keys()[0])
         self._static_path = None
         self._handlers = []
         self._metadata = metadata

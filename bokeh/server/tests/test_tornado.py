@@ -118,10 +118,9 @@ def test_log_stats():
 def test_metadata():
     application = Application(metadata=dict(hi="hi", there="there"))
     with ManagedServerLoop(application) as server:
-        t = tornado.BokehTornado({}, "", [])
         meta_url = url(server) + 'metadata'
         meta_resp = http_get(server.io_loop, meta_url)
-        meta_json = json.loads(meta_resp.buffer.read())
+        meta_json = json.loads(meta_resp.buffer.read().decode())
         assert meta_json == {'data': {'hi': 'hi', 'there': 'there'}, 'url': '/'}
 
     def meta_func():
@@ -130,8 +129,7 @@ def test_metadata():
     application1 = Application(metadata=meta_func)
 
     with ManagedServerLoop(application1) as server:
-        t = tornado.BokehTornado({}, "", [])
         meta_url = url(server) + 'metadata'
         meta_resp = http_get(server.io_loop, meta_url)
-        meta_json = json.loads(meta_resp.buffer.read())
+        meta_json = json.loads(meta_resp.buffer.read().decode())
         assert meta_json == {'data': {'name': 'myname', 'value': 'no value'}, 'url': '/'}

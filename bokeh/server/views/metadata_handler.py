@@ -24,7 +24,6 @@ class MetadataHandler(SessionHandler):
 
     @gen.coroutine
     def get(self, *args, **kwargs):
-        session = yield self.get_session()
         url = self.application_context.url
         userdata = self.application_context.application.metadata
         if callable(userdata):
