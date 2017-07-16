@@ -184,7 +184,7 @@ describe "ColorBar module", ->
             expect(image_dimensions.width).to.be.equal(480)
             expect(image_dimensions.height).to.be.equal(25)
 
-    describe "ColorBar._tick_coordinates method", ->
+    describe "ColorBar.tick_info method", ->
 
       beforeEach ->
         @plot.add_layout(@color_bar)
@@ -196,7 +196,7 @@ describe "ColorBar module", ->
         @color_bar.height = 100
         @color_bar.orientation = 'vertical'
 
-        tick_coords = @color_bar._tick_coordinates()
+        tick_coords = @color_bar.tick_info()
 
         expect(tick_coords.coords.major[0]).to.be.deep.equal([0, 0, 0, 0, 0, 0])
         expect(tick_coords.coords.major[1]).to.be.deep.equal(new Float64Array([100, 80, 60, 40, 20, 0]))
@@ -207,7 +207,7 @@ describe "ColorBar module", ->
         @color_bar.width = 100
         @color_bar.orientation = 'horizontal'
 
-        tick_coords = @color_bar._tick_coordinates()
+        tick_coords = @color_bar.tick_info()
 
         expect(tick_coords.coords.major[1]).to.be.deep.equal([0, 0, 0, 0, 0, 0])
         expect(tick_coords.coords.major[0]).to.be.deep.equal(new Float64Array([0, 20, 40, 60, 80, 100]))
@@ -218,7 +218,7 @@ describe "ColorBar module", ->
         @color_bar.height = 100
         @color_bar.orientation = 'vertical'
 
-        tick_coords = @color_bar._tick_coordinates()
+        tick_coords = @color_bar.tick_info()
 
         expect(tick_coords.coords.major[0]).to.be.deep.equal([0, 0, 0, 0, 0])
         expect(tick_coords.coords.major[1]).to.be.deep.equal(new Float64Array([23.299000144533963, 13.264666955734583, 7.394958320545214, 3.2303337669352175, 0]))
@@ -229,7 +229,7 @@ describe "ColorBar module", ->
         @color_bar.width = 100
         @color_bar.orientation = 'horizontal'
 
-        tick_coords = @color_bar._tick_coordinates()
+        tick_coords = @color_bar.tick_info()
 
         expect(tick_coords.coords.major[1]).to.be.deep.equal([0, 0, 0, 0, 0])
         expect(tick_coords.coords.major[0]).to.be.deep.equal(new Float64Array([76.70099985546604, 86.73533304426542, 92.60504167945479, 96.76966623306478, 100]))
@@ -238,7 +238,7 @@ describe "ColorBar module", ->
       it "Should correctly return empty tick coords and labels for LogColorMapper if log(high)/log(low) are non-numeric", ->
         @color_bar.color_mapper = new LogColorMapper({low: -1, high: 0, palette: Viridis.Viridis10})
         @color_bar.ticker = new LogTicker()
-        tick_coords = @color_bar._tick_coordinates()
+        tick_coords = @color_bar.tick_info()
 
         expect(tick_coords.coords.major[0]).to.be.deep.equal([])
         expect(tick_coords.coords.major[1]).to.be.deep.equal(new Float64Array([]))
@@ -282,7 +282,7 @@ describe "ColorBar module", ->
 
     it "ColorBarView._get_label_extent method (orientation='vertical') and no major_labels", ->
       # Handle case where scale start/end causes no ticks to exist (usually for a logticker)
-      stub = sinon.stub(@color_bar_view.model, "_tick_coordinates").returns({"labels.major": []})
+      stub = sinon.stub(@color_bar_view.model, "tick_info").returns({labels: {major: []}})
       expect(@color_bar_view._get_label_extent()).to.be.equal(0)
       stub.restore()
 

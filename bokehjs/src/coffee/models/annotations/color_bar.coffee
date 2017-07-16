@@ -165,9 +165,10 @@ export class ColorBarView extends AnnotationView
     @_draw_image(ctx)
 
     if @model.color_mapper.low? and @model.color_mapper.high?
-      @_draw_major_ticks(ctx)
-      @_draw_minor_ticks(ctx)
-      @_draw_major_labels(ctx)
+      tick_info = @model.tick_info()
+      @_draw_major_ticks(ctx, tick_info)
+      @_draw_minor_ticks(ctx, tick_info)
+      @_draw_major_labels(ctx, tick_info)
 
     if @model.title
       @_draw_title(ctx)
@@ -195,7 +196,7 @@ export class ColorBarView extends AnnotationView
         ctx.strokeRect(0, 0, image.width, image.height)
     ctx.restore()
 
-  _draw_major_ticks: (ctx) ->
+  _draw_major_ticks: (ctx, tick_info) ->
     if not @visuals.major_tick_line.doit
       return
 
@@ -203,8 +204,7 @@ export class ColorBarView extends AnnotationView
     image = @model._computed_image_dimensions()
     [x_offset, y_offset] = [image.width * nx, image.height * ny]
 
-    tick_coords = @model._tick_coordinates()
-    [sx, sy] = tick_coords.coords.major
+    [sx, sy] = tick_info.coords.major
     tin = @model.major_tick_in
     tout = @model.major_tick_out
 
@@ -218,7 +218,7 @@ export class ColorBarView extends AnnotationView
       ctx.stroke()
     ctx.restore()
 
-  _draw_minor_ticks: (ctx) ->
+  _draw_minor_ticks: (ctx, tick_info) ->
     if not @visuals.minor_tick_line.doit
       return
 
@@ -226,8 +226,7 @@ export class ColorBarView extends AnnotationView
     image = @model._computed_image_dimensions()
     [x_offset, y_offset] = [image.width * nx, image.height * ny]
 
-    tick_coords = @model._tick_coordinates()
-    [sx, sy] = tick_coords.coords.minor
+    [sx, sy] = tick_info.coords.minor
     tin = @model.minor_tick_in
     tout = @model.minor_tick_out
 
@@ -241,7 +240,7 @@ export class ColorBarView extends AnnotationView
       ctx.stroke()
     ctx.restore()
 
-  _draw_major_labels: (ctx) ->
+  _draw_major_labels: (ctx, tick_info) ->
     if not @visuals.major_label_text.doit
       return
 
@@ -251,10 +250,9 @@ export class ColorBarView extends AnnotationView
     standoff = (@model.label_standoff + @model._tick_extent())
     [x_standoff, y_standoff] = [standoff*nx, standoff*ny]
 
-    tick_coords = @model._tick_coordinates()
-    [sx, sy] = tick_coords.coords.major
+    [sx, sy] = tick_info.coords.major
 
-    formatted_labels = tick_coords.labels.major
+    formatted_labels = tick_info.labels.major
 
     @visuals.major_label_text.set_value(ctx)
 
@@ -276,8 +274,7 @@ export class ColorBarView extends AnnotationView
     ctx.restore()
 
   _get_label_extent: () ->
-    tick_coords = @model._tick_coordinates()
-    major_labels = tick_coords.labels.major
+    major_labels = @model.tick_info().labels.major
     if @model.color_mapper.low? and @model.color_mapper.high? and not isEmpty(major_labels)
       ctx = @plot_view.canvas_view.ctx
       ctx.save()
@@ -327,24 +324,24 @@ export class ColorBar extends Annotation
   ]
 
   @define {
-      location:       [ p.Any,            'top_right' ]
-      orientation:    [ p.Orientation,    'vertical'  ]
-      title:          [ p.String,                     ]
-      title_standoff: [ p.Number,         2           ]
-      height:         [ p.Any,            'auto'      ]
-      width:          [ p.Any,            'auto'      ]
-      scale_alpha:    [ p.Number,         1.0         ]
-      ticker:         [ p.Instance,    () -> new BasicTicker()         ]
-      formatter:      [ p.Instance,    () -> new BasicTickFormatter()  ]
+      location:                [ p.Any,            'top_right' ]
+      orientation:             [ p.Orientation,    'vertical'  ]
+      title:                   [ p.String,                     ]
+      title_standoff:          [ p.Number,         2           ]
+      height:                  [ p.Any,            'auto'      ]
+      width:                   [ p.Any,            'auto'      ]
+      scale_alpha:             [ p.Number,         1.0         ]
+      ticker:                  [ p.Instance,    () -> new BasicTicker()         ]
+      formatter:               [ p.Instance,    () -> new BasicTickFormatter()  ]
       major_label_overrides:   [ p.Any,      {}           ]
-      color_mapper:   [ p.Instance                    ]
-      label_standoff: [ p.Number,         5           ]
-      margin:         [ p.Number,         30          ]
-      padding:        [ p.Number,         10          ]
-      major_tick_in:  [ p.Number,         5           ]
-      major_tick_out: [ p.Number,         0           ]
-      minor_tick_in:  [ p.Number,         0           ]
-      minor_tick_out: [ p.Number,         0           ]
+      color_mapper:            [ p.Instance                    ]
+      label_standoff:          [ p.Number,         5           ]
+      margin:                  [ p.Number,         30          ]
+      padding:                 [ p.Number,         10          ]
+      major_tick_in:           [ p.Number,         5           ]
+      major_tick_out:          [ p.Number,         0           ]
+      minor_tick_in:           [ p.Number,         0           ]
+      minor_tick_out:          [ p.Number,         0           ]
   }
 
   @override {
@@ -484,7 +481,7 @@ export class ColorBar extends Annotation
 
     return formatted_labels
 
-  _tick_coordinates: () ->
+  tick_info: () ->
     image_dimensions = @_computed_image_dimensions()
     switch @orientation
       when "vertical" then scale_length = image_dimensions.height
