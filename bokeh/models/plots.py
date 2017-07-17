@@ -36,9 +36,6 @@ class Plot(LayoutDOM):
     __deprecated_attributes__ = ["webgl", "x_mapper_type", "y_mapper_type"]
 
     def __init__(self, **kwargs):
-        if "tool_events" not in kwargs:
-            kwargs["tool_events"] = ToolEvents()
-
         if "toolbar" in kwargs and "logo" in kwargs:
             raise ValueError("Conflicting properties set on plot: toolbar, logo.")
 
@@ -529,7 +526,7 @@ class Plot(LayoutDOM):
     setup is performed.
     """)
 
-    toolbar = Instance(Toolbar, help="""
+    toolbar = Instance(Toolbar, default=lambda: Toolbar(), help="""
         The toolbar associated with this plot which holds all the tools.
 
         The toolbar is automatically created with the plot.
@@ -545,7 +542,7 @@ class Plot(LayoutDOM):
     the toolbar will be outside of the axes, titles etc.
     """)
 
-    tool_events = Instance(ToolEvents, help="""
+    tool_events = Instance(ToolEvents, default=lambda: ToolEvents(), help="""
     A ToolEvents object to share and report tool events.
     """)
 
