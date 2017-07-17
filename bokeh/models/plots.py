@@ -26,19 +26,16 @@ from .ranges import Range, FactorRange, DataRange1d, Range1d
 from .renderers import DataRenderer, DynamicImageRenderer, GlyphRenderer, Renderer, TileRenderer, GraphRenderer
 from .scales import Scale, CategoricalScale, LinearScale, LogScale
 from .sources import DataSource, ColumnDataSource
-from .tools import Tool, Toolbar, ToolEvents
+from .tools import Tool, Toolbar
 
 class Plot(LayoutDOM):
     ''' Model representing a plot, containing glyphs, guides, annotations.
 
     '''
 
-    __deprecated_attributes__ = ["webgl", "x_mapper_type", "y_mapper_type"]
+    __deprecated_attributes__ = ["webgl", "x_mapper_type", "y_mapper_type", "tool_events"]
 
     def __init__(self, **kwargs):
-        if "tool_events" not in kwargs:
-            kwargs["tool_events"] = ToolEvents()
-
         if "toolbar" in kwargs and "logo" in kwargs:
             raise ValueError("Conflicting properties set on plot: toolbar, logo.")
 
@@ -465,6 +462,16 @@ class Plot(LayoutDOM):
         self.y_scale = self._scale(mapper_type)
 
     @property
+    def tool_events(self):
+        deprecated((0, 12, 7), "tool_events", "bokeh.events.SelectionGeometry")
+        return None
+
+    @tool_events.setter
+    def tool_events(self, tool_events):
+        deprecated((0, 12, 7), "tool_events", "bokeh.events.SelectionGeometry")
+        pass
+
+    @property
     def webgl(self):
         deprecated((0, 12, 6), "webgl", "output_backend")
         return self.output_backend == "webgl"
@@ -543,10 +550,6 @@ class Plot(LayoutDOM):
     toolbar_sticky = Bool(default=True, help="""
     Stick the toolbar to the edge of the plot. Default: True. If False,
     the toolbar will be outside of the axes, titles etc.
-    """)
-
-    tool_events = Instance(ToolEvents, help="""
-    A ToolEvents object to share and report tool events.
     """)
 
     left = List(Instance(Renderer), help="""

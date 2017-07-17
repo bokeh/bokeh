@@ -77,7 +77,7 @@ export class LassoSelectToolView extends SelectToolView
     if @model.callback?
       @_emit_callback(geometry)
 
-    @_save_geometry(geometry, final, append)
+    @_emit_selection_event(geometry, final)
 
     return null
 
