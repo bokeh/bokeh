@@ -1,4 +1,3 @@
-import pandas as pd
 from tornado.ioloop import IOLoop
 import yaml
 

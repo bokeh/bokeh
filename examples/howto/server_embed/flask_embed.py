@@ -1,5 +1,4 @@
 from flask import Flask, render_template
-import pandas as pd
 import yaml
 
 from tornado.ioloop import IOLoop
