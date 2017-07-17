@@ -17,11 +17,15 @@ meta_src = jinja2.Template(open("conda.recipe/meta.yaml").read())
 meta_src = yaml.load(meta_src.render(load_setup_py_data=load_setup_py_data))
 
 section = {
-    "['build']": meta_src["requirements"]["build"],
-    "['run']":   meta_src["requirements"]["run"],
-    "['test']":  meta_src["test"]["requires"],
+    "build": meta_src["requirements"]["build"],
+    "run":   meta_src["requirements"]["run"],
+    "test":  meta_src["test"]["requires"],
 }
-spec = section[str(sys.argv[1:])]
+
+spec = []
+for name in sys.argv[1:]:
+    spec += [s for s in section[name]]
+
 deps = ""
 deps += " ".join(s for s in spec)
 deps = deps.replace(' >=', '>=')  # conda syntax doesn't allow spaces b/w pkg name and version spec
