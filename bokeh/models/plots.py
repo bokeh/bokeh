@@ -332,6 +332,7 @@ class Plot(LayoutDOM):
             DynamicImageRenderer : DynamicImageRenderer
 
         '''
+        deprecated((0, 12, 7), "add_dynamic_image", "GeoViews for GIS functions on top of Bokeh (http://geo.holoviews.org)")
         image_renderer = DynamicImageRenderer(image_source=image_source, **kw)
         self.renderers.append(image_renderer)
         return image_renderer

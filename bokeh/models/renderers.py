@@ -13,6 +13,7 @@ from ..core.properties import Auto, Bool, Either, Enum, Float, Instance, Overrid
 from ..core.validation import error
 from ..core.validation.errors import BAD_COLUMN_NAME, MISSING_GLYPH, NO_SOURCE_FOR_GLYPH, CDSVIEW_SOURCE_DOESNT_MATCH
 from ..model import Model
+from ..util.deprecation import deprecated
 
 from .glyphs import Glyph, XYGlyph, Circle, MultiLine
 from .graphs import GraphSource
@@ -75,6 +76,10 @@ class DynamicImageRenderer(DataRenderer):
     '''
 
     '''
+
+    def __init__(self, *args, **kw):
+        super(DynamicImageRenderer, self).__init__(*args, **kw)
+        deprecated((0, 12, 7), "DynamicImageRenderer", "GeoViews for GIS functions on top of Bokeh (http://geo.holoviews.org)")
 
     image_source = Instance(ImageSource, help="""
     Image source to use when rendering on the plot.
