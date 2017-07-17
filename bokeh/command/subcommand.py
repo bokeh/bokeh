@@ -14,16 +14,20 @@ class Subcommand(with_metaclass(ABCMeta)):
 
     Subclasses should also define the following class attributes:
 
-        * ``name`` a name for this subcommand
-        * ``help`` a help string for argparse to use for this subcommand
-        * ``args`` the parameters to pass to ``parser.add_argument``
+    ``name`` a name for this subcommand
 
-        The format of the ``args`` should be a sequence of tuples of the form:
+    ``help`` a help string for argparse to use for this subcommand
 
-            ('argname', dict(
-                metavar='ARGNAME',
-                nargs='+',
-            ))
+    ``args`` the parameters to pass to ``parser.add_argument``
+
+    The format of the ``args`` should be a sequence of tuples of the form:
+
+    .. code-block: python
+
+        ('argname', dict(
+            metavar='ARGNAME',
+            nargs='+',
+        ))
 
     '''
 
