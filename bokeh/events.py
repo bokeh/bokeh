@@ -178,8 +178,8 @@ class LODEnd(PlotEvent):
     '''
     event_name = 'lodend'
 
-class Selection(PlotEvent):
-    ''' Announce the completion of a selection event on a plot.
+class SelectionGeometry(PlotEvent):
+    ''' Announce the coordinates of a selection event on a plot.
 
     Attributes:
         geometry (dict) : a dictionary containing the coordinates of the
@@ -188,12 +188,12 @@ class Selection(PlotEvent):
             in the case of selections on every mousemove.
 
     '''
-    event_name = "selection"
+    event_name = "selectiongeometry"
 
     def __init__(self, model, geometry=None, final=True):
         self.geometry = geometry
         self.final = final
-        super(Selection, self).__init__(model=model)
+        super(SelectionGeometry, self).__init__(model=model)
 
 class PointEvent(PlotEvent):
     ''' Base class for UI events associated with a specific (x,y) point.

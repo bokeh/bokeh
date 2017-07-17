@@ -3,7 +3,7 @@ import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {logger} from "core/logging"
 import * as p from "core/properties"
 import {clone} from "core/util/object"
-import {Selection} from "core/bokeh_events"
+import {SelectionGeometry} from "core/bokeh_events"
 
 export class SelectToolView extends GestureToolView
 
@@ -60,7 +60,7 @@ export class SelectToolView extends GestureToolView
       else
         logger.debug("Unrecognized selection geometry type: '#{g.type}'")
 
-    @plot_model.plot.trigger_event(new Selection({geometry: g, final: final}))
+    @plot_model.plot.trigger_event(new SelectionGeometry({geometry: g, final: final}))
 
 export class SelectTool extends GestureTool
 

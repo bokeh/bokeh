@@ -463,12 +463,12 @@ class Plot(LayoutDOM):
 
     @property
     def tool_events(self):
-        deprecated((0, 12, 7), "tool_events", "bokeh.events.Selection")
+        deprecated((0, 12, 7), "tool_events", "bokeh.events.SelectionGeometry")
         return None
 
     @tool_events.setter
     def tool_events(self, tool_events):
-        deprecated((0, 12, 7), "tool_events", "bokeh.events.Selection")
+        deprecated((0, 12, 7), "tool_events", "bokeh.events.SelectionGeometry")
         pass
 
     @property

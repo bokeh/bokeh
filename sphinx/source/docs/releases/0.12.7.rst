@@ -22,7 +22,7 @@ New Deprecations
 ``bokeh.embed.server_document`` and ``bokeh.embed.server_session``.
 
 ``bokeh.models.tools.tool_events`` has been deprecated. Users should instead
-use the ``Selection`` Bokeh Event on ``Plot`` or ``Figure``.
+use the ``SelectionGeometry`` Event present on ``Plot`` or ``Figure``.
 
 bokeh-widgets' split
 ~~~~~~~~~~~~~~~~~~~~

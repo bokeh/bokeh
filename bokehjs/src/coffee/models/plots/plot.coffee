@@ -367,7 +367,7 @@ export class Plot extends LayoutDOM
       log.warning("webgl attr is deprecated, use output_backend")
       return @output_backend == "webgl"
     tool_events: () ->
-      log.warning("tool_events attr is deprecated, use Selection Event")
+      log.warning("tool_events attr is deprecated, use SelectionGeometry Event")
       return null
   }
 

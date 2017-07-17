@@ -77,8 +77,8 @@ export class LODStart extends UIEvent {}
 @register_event_class("lodend")
 export class LODEnd extends UIEvent {}
 
-@register_event_class("selection")
-export class Selection extends UIEvent {
+@register_event_class("selectiongeometry")
+export class SelectionGeometry extends UIEvent {
   geometry: any
   final: boolean
 
