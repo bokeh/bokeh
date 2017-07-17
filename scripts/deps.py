@@ -24,7 +24,7 @@ section = {
 
 spec = []
 for name in sys.argv[1:]:
-    spec += [s for s in section[name]]
+    spec += section[name]
 
 deps = ""
 deps += " ".join(s for s in spec)
