@@ -1,6 +1,7 @@
 import {InspectTool, InspectToolView} from "./inspect_tool"
 import {Tooltip} from "../../annotations/tooltip"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
+import {GraphRenderer} from "../../renderers/graph_renderer"
 import * as hittest from "core/hittest"
 import {replace_placeholders} from "core/util/templating"
 import {div, span} from "core/dom"
@@ -35,7 +36,8 @@ export class HoverToolView extends InspectToolView
     super()
 
     for r in @computed_renderers
-      @connect(r.data_source.inspect, @_update)
+      if r instanceof GlyphRenderer then @connect(r.data_source.inspect, @_update)
+      else if r instanceof GraphRenderer then @connect(r.node_renderer.data_source.inspect, @_update)
 
     # TODO: @connect(@plot_model.plot.properties.renderers.change, () -> @_computed_renderers = @_ttmodels = null)
     @connect(@model.properties.renderers.change,      () -> @_computed_renderers = @_ttmodels = null)
@@ -48,7 +50,7 @@ export class HoverToolView extends InspectToolView
 
     if renderers.length == 0
       all_renderers = @plot_model.plot.renderers
-      renderers = (r for r in all_renderers when r instanceof GlyphRenderer)
+      renderers = (r for r in all_renderers when r instanceof GlyphRenderer or r instanceof GraphRenderer)
 
     if names.length > 0
       renderers = (r for r in renderers when names.indexOf(r.name) >= 0)
@@ -124,7 +126,8 @@ export class HoverToolView extends InspectToolView
     hovered_renderers = []
 
     for r in @computed_renderers
-      sm = r.data_source.selection_manager
+      if r instanceof GlyphRenderer then sm = r.data_source.selection_manager
+      else if r instanceof GraphRenderer then sm = r.node_renderer.data_source.selection_manager
       sm.inspect(@, @plot_view.renderer_views[r.id], geometry, {"geometry": geometry})
 
     if @model.callback?
@@ -133,6 +136,9 @@ export class HoverToolView extends InspectToolView
     return
 
   _update: ([indices, tool, renderer, ds, {geometry}]) ->
+    if renderer.node_view?
+      renderer = renderer.node_view
+
     if not @model.active
       return
 

@@ -3,6 +3,7 @@ import {logger} from "./logging"
 import {Selector} from "./selector"
 import * as hittest from "./hittest"
 import * as p from "./properties"
+import {GraphRendererView} from "../models/renderers/graph_renderer"
 
 export class SelectionManager extends HasProps
   type: 'SelectionManager'
@@ -55,14 +56,20 @@ export class SelectionManager extends HasProps
 
   inspect: (tool, renderer_view, geometry, data) ->
     source = @source
-    if source != renderer_view.model.data_source
-      logger.warn('inspect called with mis-matched data sources')
 
-    view = renderer_view.model.view
-    if source != view.source
-      logger.warn('inspect called with view and data source mismatch')
+    # if source != renderer_view.model.data_source
+    #   logger.warn('inspect called with mis-matched data sources')
+    #
+    # view = renderer_view.model.view
+    # if source != view.source
+    #   logger.warn('inspect called with view and data source mismatch')
 
-    indices = renderer_view.model.view.convert_selection_from_subset(renderer_view.hit_test(geometry))
+    hit_test_result = renderer_view.hit_test(geometry)
+
+    if renderer_view instanceof GraphRendererView
+      indices = renderer_view.model.node_renderer.view.convert_selection_from_subset(hit_test_result)
+    else
+      indices = renderer_view.model.view.convert_selection_from_subset(hit_test_result)
 
     if indices?
       r_id = renderer_view.model.id

@@ -8,6 +8,9 @@ export class GraphRendererView extends RendererView
   initialize: (options) ->
     super(options)
 
+    @xscale = @plot_view.frame.xscales["default"]
+    @yscale = @plot_view.frame.yscales["default"]
+
     @_renderer_views = {}
     @node_view = build_views(@_renderer_views, [@model.node_renderer,], @plot_view.view_options())[0]
     @edge_view = build_views(@_renderer_views, [@model.edge_renderer,], @plot_view.view_options())[0]
@@ -29,10 +32,20 @@ export class GraphRendererView extends RendererView
     @edge_view.render()
     @node_view.render()
 
+  hit_test: (geometry) ->
+    return @model.hit_test_helper(geometry, @node_view.glyph)
+
 
 export class GraphRenderer extends Renderer
   default_view: GraphRendererView
   type: 'GraphRenderer'
+
+  # TODO (bev) this is just to make testing easier. Might be better on a view model
+  hit_test_helper: (geometry, glyph) ->
+    if @visible
+      return glyph.hit_test(geometry)
+    else
+      return null
 
   @define {
       layout_provider: [ p.Instance                              ]
