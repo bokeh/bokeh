@@ -1,24 +1,35 @@
 import sys
+import jinja2
+import yaml
 
-from conda_build import api
+
+def load_setup_py_data():
+    import os
+    import setuptools
+    os.environ['CONDA_BUILD_STATE'] = 'RENDER'
+    data = {}
+
+    def _setup(**kw): data.update(kw)
+    setuptools.setup = _setup
+    return data
+
+meta_src = jinja2.Template(open("conda.recipe/meta.yaml").read())
+meta_src = yaml.load(meta_src.render(load_setup_py_data=load_setup_py_data))
 
 section = {
-    'build': 'requirements/build',
-    'run':   'requirements/run',
-    'test':  'test/requires',
+    "build": meta_src["requirements"]["build"],
+    "run":   meta_src["requirements"]["run"],
+    "test":  meta_src["test"]["requires"],
 }
 
-names = set(sys.argv[1:])
-
-if not all(name in section for name in names):
-    print("Got unknown section name. Valid section names are: build, run, or test")
-    sys.exit(1)
-
-metadata, _, _ = api.render('conda.recipe')
+spec = []
+for name in sys.argv[1:]:
+    spec += section[name]
 
 deps = ""
-
-for name in sys.argv[1:]:
-    deps += " ".join(s.replace(" ", "") for s in metadata.get_value(section[name])) + " "
+deps += " ".join(s for s in spec)
+deps = deps.replace(' >=', '>=')  # conda syntax doesn't allow spaces b/w pkg name and version spec
+deps = deps.replace(' <', '<')
+deps = deps.replace(' [unix]', ' ')
 
 print(deps)
