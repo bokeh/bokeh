@@ -109,7 +109,7 @@ class Application(object):
                         },
                         "url": "/myapp"
                     }
-                    
+
     '''
 
     # This is so that bokeh.io.show can check if a passed in object is an
