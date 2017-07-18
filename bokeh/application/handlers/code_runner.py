@@ -1,3 +1,6 @@
+'''
+
+'''
 from __future__ import absolute_import, print_function
 
 from types import ModuleType
@@ -7,8 +10,10 @@ import traceback
 
 from bokeh.util.serialization import make_id
 
-class _CodeRunner(object):
-    """ Compile and run a Python source code."""
+class CodeRunner(object):
+    ''' Compile and run a Python source code.
+
+    '''
 
     def __init__(self, source, path, argv):
         self._failed = False
@@ -43,21 +48,21 @@ class _CodeRunner(object):
 
     @property
     def failed(self):
-        """True if the handler failed to modify the doc"""
+        ''' True if the handler failed to modify the doc. '''
         return self._failed
 
     @property
     def error(self):
-        """Error message if the handler failed"""
+        ''' Error message if the handler failed. '''
         return self._error
 
     @property
     def error_detail(self):
-        """Traceback or other details if the handler failed"""
+        ''' Traceback or other details if the handler failed. '''
         return self._error_detail
 
     def new_module(self):
-        """Make a fresh module to run in."""
+        ''' Make a fresh module to run in. '''
         if self.failed:
             return None
 
@@ -68,6 +73,9 @@ class _CodeRunner(object):
         return module
 
     def run(self, module, post_check):
+        '''
+
+        '''
         try:
             # Simulate the sys.path behaviour decribed here:
             #

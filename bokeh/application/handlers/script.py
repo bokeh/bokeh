@@ -1,14 +1,17 @@
+'''
+
+'''
 from __future__ import absolute_import, print_function
 
 from .code import CodeHandler
 
 class ScriptHandler(CodeHandler):
-    """ Run a script which modifies a Document
+    ''' Run a script which modifies a Document
 
     Keywords:
         filename (str) : a path to a Python source (".py") file
 
-    """
+    '''
 
     _logger_text = "%s: call to %s() ignored when running scripts with the 'bokeh' command."
 

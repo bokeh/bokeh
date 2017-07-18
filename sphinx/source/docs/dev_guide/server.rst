@@ -230,8 +230,6 @@ triple-check that the lock is held.**
 Session Security
 ^^^^^^^^^^^^^^^^
 
-For background on session IDs, refer to :ref:`userguide_cli_serve_session_id_options`.
-
 We rely on session IDs being cryptographically random and difficult to guess.
 If an attacker knows someone's session ID, they can eavesdrop on or modify
 the session. If you're writing a larger web app with a Bokeh app embedded

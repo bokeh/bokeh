@@ -1,3 +1,6 @@
+'''
+
+'''
 from __future__ import absolute_import, print_function
 
 import logging
@@ -12,7 +15,9 @@ from .script import ScriptHandler
 from .server_lifecycle import ServerLifecycleHandler
 
 class DirectoryHandler(Handler):
-    """ Load an application directory which modifies a Document """
+    ''' Load an application directory which modifies a Document.
+
+    '''
 
     def __init__(self, *args, **kwargs):
         super(DirectoryHandler, self).__init__(*args, **kwargs)

@@ -1,3 +1,6 @@
+'''
+
+'''
 from __future__ import absolute_import
 
 import logging
@@ -8,21 +11,26 @@ import sys
 
 from bokeh.io import set_curdoc, curdoc
 
-from .code_runner import _CodeRunner
+from .code_runner import CodeRunner
 from .handler import Handler
 
 class CodeHandler(Handler):
-    """ Run source code which modifies a Document
+    ''' Run source code which modifies a Document
 
-    Args:
-        source (str) : python source code
-        filename (str) : a filename to use in any debugging or error output
 
-    """
+
+    '''
 
     _io_functions = ['output_notebook', 'output_file', 'show', 'save', 'reset_output']
 
     def __init__(self, *args, **kwargs):
+        '''
+
+        Args:
+            source (str) : python source code
+            filename (str) : a filename to use in any debugging or error output
+
+        '''
         super(CodeHandler, self).__init__(*args, **kwargs)
 
         if 'source' not in kwargs:
@@ -35,7 +43,7 @@ class CodeHandler(Handler):
 
         argv = kwargs.get('argv', [])
 
-        self._runner = _CodeRunner(source, filename, argv)
+        self._runner = CodeRunner(source, filename, argv)
 
         self._loggers = {}
         for f in CodeHandler._io_functions:

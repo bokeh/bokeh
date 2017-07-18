@@ -1,10 +1,13 @@
+'''
+
+'''
 from __future__ import absolute_import, print_function
 
 import codecs
 import os
 
 from .handler import Handler
-from .code_runner import _CodeRunner
+from .code_runner import CodeRunner
 
 from bokeh.util.callback_manager import _check_callback
 
@@ -12,7 +15,10 @@ def _do_nothing(ignored):
     pass
 
 class ServerLifecycleHandler(Handler):
-    """ Load a script which contains server lifecycle callbacks. """
+    ''' Load a script which contains server lifecycle callbacks.
+
+
+    '''
 
     def __init__(self, *args, **kwargs):
         super(ServerLifecycleHandler, self).__init__(*args, **kwargs)
@@ -24,7 +30,7 @@ class ServerLifecycleHandler(Handler):
 
         source = codecs.open(filename, 'r', 'UTF-8').read()
 
-        self._runner = _CodeRunner(source, filename, argv)
+        self._runner = CodeRunner(source, filename, argv)
 
         self._on_server_loaded = _do_nothing
         self._on_server_unloaded = _do_nothing

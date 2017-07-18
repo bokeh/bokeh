@@ -3,20 +3,8 @@
 bokeh.command
 =============
 
-.. automodule:: bokeh.command
-    :members:
+.. toctree::
+    :maxdepth: 2
+    :glob:
 
-.. automodule:: bokeh.command.bootstrap
-    :members:
-
-.. automodule:: bokeh.command.subcommand
-    :members:
-
-.. automodule:: bokeh.command.util
-    :members:
-
-Subcommands
------------
-
-.. automodule:: bokeh.command.subcommands
-  :members:
+    command/*

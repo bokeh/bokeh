@@ -4,10 +4,9 @@ bokeh.application
 =================
 
 .. automodule:: bokeh.application
-  :members:
 
-Handlers
---------
+.. toctree::
+    :maxdepth: 2
+    :glob:
 
-.. automodule:: bokeh.application.handlers
-  :members:
+    application/*

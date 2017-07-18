@@ -1,3 +1,6 @@
+'''
+
+'''
 from __future__ import absolute_import, print_function
 
 from bokeh.util.dependencies import import_required
@@ -5,12 +8,12 @@ from bokeh.util.dependencies import import_required
 from .code import CodeHandler
 
 class NotebookHandler(CodeHandler):
-    """ Run a notebook which modifies a Document
+    ''' Run a notebook which modifies a Document
 
     Keywords:
         filename (str) : a path to a Jupyter notebook (".ipynb") file
 
-    """
+    '''
 
     _logger_text = "%s: call to %s() ignored when running notebooks with the 'bokeh' command."
 
