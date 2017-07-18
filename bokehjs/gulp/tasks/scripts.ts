@@ -4,7 +4,6 @@ import * as rename from "gulp-rename"
 const uglify = require("gulp-uglify")
 import * as sourcemaps from "gulp-sourcemaps"
 import * as paths from "../paths"
-const change = require("gulp-change")
 import * as fs from "fs"
 import * as path from "path"
 import {join} from "path"
@@ -18,7 +17,6 @@ const coffee = require('gulp-coffee')
 const ts = require('gulp-typescript')
 
 import {Linker} from "../linker"
-import {umd, plugin_umd} from "../umd"
 
 gulp.task("scripts:coffee", () => {
   return gulp.src('./src/coffee/**/*.coffee')
@@ -83,40 +81,34 @@ gulp.task("scripts:tsjs", ["scripts:coffee", "scripts:js", "scripts:ts"], () => 
 
   const tree_ts = paths.build_dir.tree_ts
   return gulp.src([`${tree_ts}/**/*.ts`, `${tree_ts}/**/*.tsx`])
+    .pipe(sourcemaps.init())
     .pipe(ts(tsconfig.compilerOptions, ts.reporter.nullReporter()).on('error', error))
-    .pipe(change(function(this: {file: {path: string}}, content: string) {
-      const prefix = path.relative(path.dirname(this.file.path), tree_ts)
-      content = content.replace(/((import|from|require\s*\()\s*['"])core\//g, `$1${prefix}/core/`)
-      return content
-    }))
+    .pipe(sourcemaps.write("."))
     .pipe(gulp.dest(paths.build_dir.tree_js))
 })
 
 gulp.task("scripts:compile", ["scripts:tsjs"])
 
 gulp.task("scripts:bundle", ["scripts:compile"], (next: () => void) => {
-  const tree_js = (name: string) => join(paths.build_dir.tree_js, name)
-
   const entries = [
-    tree_js("main.js"),
-    tree_js("api/main.js"),
-    tree_js("models/widgets/main.js"),
-    tree_js("models/widgets/tables/main.js"),
-    tree_js("models/glyphs/webgl/main.js"),
+    paths.coffee.bokehjs.main,
+    paths.coffee.api.main,
+    paths.coffee.widgets.main,
+    paths.coffee.tables.main,
+    paths.coffee.gl.main,
   ]
   const bases = [paths.build_dir.tree_js, './node_modules']
   const excludes = ["node_modules/moment/moment.js"]
+  const sourcemaps = argv.sourcemaps === true
 
-  const linker = new Linker({entries, bases, excludes})
-  const {bundles: [bokehjs, api, widgets, tables, gl], modules} = linker.link()
+  const linker = new Linker({entries, bases, excludes, sourcemaps})
+  const [bokehjs, api, widgets, tables, gl] = linker.link()
 
-  fs.writeFileSync(join(paths.build_dir.js, "modules.json"), JSON.stringify(modules))
-
-  fs.writeFileSync(paths.coffee.bokehjs.destination.path,        umd(bokehjs))
-  fs.writeFileSync(paths.coffee.api.destination.path,     plugin_umd(api))
-  fs.writeFileSync(paths.coffee.widgets.destination.path, plugin_umd(widgets))
-  fs.writeFileSync(paths.coffee.tables.destination.path,  plugin_umd(tables))
-  fs.writeFileSync(paths.coffee.gl.destination.path,      plugin_umd(gl))
+  bokehjs.write(paths.coffee.bokehjs.output)
+  api.write(paths.coffee.api.output)
+  widgets.write(paths.coffee.widgets.output)
+  tables.write(paths.coffee.tables.output)
+  gl.write(paths.coffee.gl.output)
 
   next()
 })
@@ -125,10 +117,11 @@ gulp.task("scripts:build", ["scripts:bundle"])
 
 gulp.task("scripts:minify", ["scripts:bundle"], () => {
   return gulp.src(`${paths.build_dir.js}/!(*.min|compiler).js`)
+    .pipe(sourcemaps.init({loadMaps: true}))
     .pipe(rename((path) => path.basename += '.min'))
     .pipe(uglify({ output: { comments: /^!|copyright|license|\(c\)/i } }))
     .pipe(insert.append(license))
-    .pipe(sourcemaps.write('./'))
+    .pipe(sourcemaps.write("."))
     .pipe(gulp.dest(paths.build_dir.js))
 })
 

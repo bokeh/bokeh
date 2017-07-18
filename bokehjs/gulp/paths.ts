@@ -23,34 +23,24 @@ export const src_dir = {
 
 export const coffee = {
   bokehjs: {
-    destination: {
-      name: "bokeh.js",
-      path: join(build_dir.js, "bokeh.js"),
-    },
+    main: join(build_dir.tree_js, "main.js"),
+    output: join(build_dir.js, "bokeh.js"),
   },
   api: {
-    destination: {
-      name: "bokeh-api.js",
-      path: join(build_dir.js, "bokeh-api.js"),
-    },
+    main: join(build_dir.tree_js, "api/main.js"),
+    output: join(build_dir.js, "bokeh-api.js"),
   },
   widgets: {
-    destination: {
-      name: "bokeh-widgets.js",
-      path: join(build_dir.js, "bokeh-widgets.js"),
-    },
+    main: join(build_dir.tree_js, "models/widgets/main.js"),
+    output: join(build_dir.js, "bokeh-widgets.js"),
   },
   tables: {
-    destination: {
-      name: "bokeh-tables.js",
-      path: join(build_dir.js, "bokeh-tables.js"),
-    },
+    main: join(build_dir.tree_js, "models/widgets/tables/main.js"),
+    output: join(build_dir.js, "bokeh-tables.js"),
   },
   gl: {
-    destination: {
-      name: "bokeh-gl.js",
-      path: join(build_dir.js, "bokeh-gl.js"),
-    },
+    main: join(build_dir.tree_js, "models/glyphs/webgl/main.js"),
+    output: join(build_dir.js, "bokeh-gl.js"),
   },
   watchSources: [
     join(base_dir, "src/coffee/**/**"),

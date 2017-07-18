@@ -1,32 +1,60 @@
 import * as fs from "fs"
-import {resolve, relative, join, dirname, sep} from "path"
+import {resolve, relative, join, dirname, basename, sep} from "path"
 
 import * as esprima from "esprima"
 import * as escodegen from "escodegen"
 import * as estraverse from "estraverse"
 import {Program, Node, CallExpression} from "estree"
 
+import * as combine from "combine-source-map"
+import * as convert from "convert-source-map"
+const merge = require("merge-source-map")
+
 import {prelude, plugin_prelude} from "./prelude"
 
 const str = JSON.stringify
 const exists = fs.existsSync
+const write = fs.writeFileSync
 const is_dir = (path: string) => fs.statSync(path).isDirectory()
+
+export class Bundle {
+  constructor(readonly source: string, readonly sourcemap: any, readonly modules: Map<string, number>) {}
+
+  full_source(name: string) {
+    return `${this.source}\n${convert.generateMapFileComment(name)}\n`
+  }
+
+  get module_names() {
+    return Array.from(this.modules.keys())
+  }
+
+  write(path: string): void {
+    const dir = dirname(path)
+    const name = basename(path, ".js")
+    write(path, this.full_source(name + ".js.map"))
+    write(join(dir, name + ".js.map"), JSON.stringify(this.sourcemap))
+    write(join(dir, name + ".json"), JSON.stringify(this.module_names))
+  }
+}
 
 export interface LinkerOpts {
   entries: string[]
   bases?: string[]
   excludes?: string[]
+  sourcemaps?: boolean
 }
 
 export class Linker {
   readonly entries: string[]
   readonly bases: string[]
   readonly excludes: Set<string>
+  readonly sourcemaps: boolean
 
   constructor(opts: LinkerOpts) {
     this.entries = opts.entries
     this.bases = (opts.bases || []).map((path) => resolve(path))
     this.excludes = new Set((opts.excludes || []).map((path) => resolve(path)))
+    this.sourcemaps = opts.sourcemaps || false
 
     for (const base of this.bases) {
       if (!exists(base) || !is_dir(base))
@@ -54,7 +82,7 @@ export class Linker {
     return Array.from(visited).sort()
   }
 
-  link(): {bundles: string[], modules: {[key: string]: number}} {
+  link(): Bundle[] {
     const modules = this.walk()
 
     const [main, ...plugins] = this.entries
@@ -64,56 +92,80 @@ export class Linker {
       return dirnames.filter((e) => file.startsWith(e)).length !== 0
     }
 
-    const main_bundle = this.reachable(modules, main, is_excluded)
-    const parents = new Set(main_bundle)
+    const main_files = this.reachable(modules, main, is_excluded)
+    const parents = new Set(main_files)
 
-    const plugin_bundles: string[][] = []
+    const plugin_files: string[][] = []
 
     for (const plugin of plugins) {
-      const bundle = this.reachable(modules, plugin, parents.has.bind(parents))
-      plugin_bundles.push(bundle)
+      const files = this.reachable(modules, plugin, parents.has.bind(parents))
+      plugin_files.push(files)
     }
 
     const module_map = new Map<string, number>()
     let i = 0
 
-    for (const file of main_bundle.concat(...plugin_bundles)) {
+    for (const file of main_files.concat(...plugin_files)) {
       module_map.set(file, i++)
     }
 
-    const sources = (bundle: string[]): [number, string][] => {
-      const result: [number, string][] = []
-      for (const file of bundle) {
+    const newlines = (source: string): number => {
+      const result = source.match(/\n/g)
+      return result != null ? result.length : 0
+    }
+
+    const bundle = (entry: string, files: string[], prelude: string,
+        prefix: string, suffix: string, wrap: (id: number, source: string) => string) => {
+      let line = 0
+      let sources: string = ""
+      const sourcemap = combine.create()
+      const exported = new Map<string, number>()
+
+      sources += `${prelude}(${prefix}\n`
+      line += newlines(sources)
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i]
+        const last = i === files.length - 1
+
         const mod = modules.get(file)!
         mod.rewrite_deps(module_map)
-        result.push([module_map.get(file)!, mod.closure])
+
+        const id = module_map.get(file)!
+        if (!mod.is_external)
+          exported.set(mod.canonical, id)
+
+        const start = wrap(id, `/* ${mod.canonical} */ function(require, module, exports) {\n`)
+        sources += start
+        line += newlines(start)
+
+        const source_with_sourcemap = mod.source
+        const source = combine.removeComments(source_with_sourcemap)
+        sources += source
+        sourcemap.addFile({source: source_with_sourcemap, sourceFile: file}, {line: line})
+        line += newlines(source)
+
+        const end = `}${last ? "" : ","}\n`
+        sources += end
+        line += newlines(end)
       }
-      return result
+
+      const entry_id = module_map.get(entry)!
+      sources += `${suffix}, ${entry_id});\n})\n`
+
+      const obj = convert.fromBase64(sourcemap.base64()).toObject()
+      return new Bundle(sources, obj, exported)
     }
 
-    const source = `[\n${sources(main_bundle).map(([_, code]) => code).join(",\n")}\n]`
-    const main_source = prelude(module_map.get(main)!, source)
+    const main_bundle = bundle(main, main_files, prelude, "[", "]", (_, source) => source)
 
-    const plugin_sources: string[] = []
+    const plugin_bundles: Bundle[] = []
     for (let j = 0; j < plugins.length; j++) {
-      const plugin = plugins[j]
-      const bundle = plugin_bundles[j]
-      const source = `{\n${sources(bundle).map(([id, code]) => `${id}: ${code}`).join(",\n")}\n}`
-      const plugin_source = plugin_prelude(module_map.get(plugin)!, source)
-      plugin_sources.push(plugin_source)
+      const plugin_bundle = bundle(plugins[j], plugin_files[j], plugin_prelude, "{", "}", (id, source) => `${id}: ${source}`)
+      plugin_bundles.push(plugin_bundle)
     }
 
-    const _modules: {[key: string]: number} = {}
-    for (const [file, id] of module_map) {
-      const mod = modules.get(file)!
-      if (!mod.is_external)
-        _modules[mod.canonical] = id
-    }
-
-    return {
-      bundles: [main_source].concat(plugin_sources),
-      modules: _modules,
-    }
+    return [main_bundle].concat(plugin_bundles)
   }
 
   walk(): Map<string, Module> {
@@ -196,10 +248,12 @@ export type Resolver = (dep: string, parent: Module) => string
 export type Canonical = (file: string) => string
 
 export class Module {
+  readonly input: string
   readonly ast: Program
   readonly deps = new Map<string, string>()
 
   constructor(readonly file: string, protected readonly linker: Linker) {
+    this.input = fs.readFileSync(this.file, "utf8")
     this.ast = this.parse()
 
     for (const dep of this.collect_deps()) {
@@ -235,8 +289,7 @@ export class Module {
   }
 
   protected parse(): Program {
-    const source = fs.readFileSync(this.file, "utf8")
-    const ast: any = esprima.parse(source, {comment: true, range: true, tokens: true})
+    const ast: any = esprima.parse(this.input, {comment: true, loc: true, range: true, tokens: true})
     return escodegen.attachComments(ast, ast.comments, ast.tokens)
   }
 
@@ -261,7 +314,7 @@ export class Module {
   }
 
   rewrite_deps(module_map: Map<string, number>): void {
-    estraverse.traverse(this.ast, {
+    estraverse.replace(this.ast, {
       enter: (node) => {
         if (this.is_require(node)) {
           const [arg] = node.arguments
@@ -276,15 +329,28 @@ export class Module {
               arg.trailingComments.push(comment)
           }
         }
+        return node
       }
     })
   }
 
   get source(): string {
-    return escodegen.generate(this.ast, {comment: true})
-  }
-
-  get closure(): string {
-    return `/* ${this.canonical} */ function(require, module, exports) {\n${this.source}\n}`
+    if (!this.linker.sourcemaps || this.is_external) {
+      const source = escodegen.generate(this.ast, {comment: true})
+      return convert.removeMapFileComments(source)
+    } else {
+      const old_map = convert.fromMapFileSource(this.input, dirname(this.file))
+      const result: any = escodegen.generate(this.ast, {
+        comment: true,
+        sourceMap: old_map ? old_map.getProperty("sources")[0] : basename(this.file),
+        sourceMapWithCode: true,
+        sourceContent: this.input,
+      })
+      const new_map = JSON.parse(result.map.toString())
+      const map = old_map ? merge(old_map.toObject(), new_map) : new_map
+      const source = convert.removeMapFileComments(result.code)
+      const comment = convert.fromObject(map).toComment()
+      return `${source}\n${comment}\n`
+    }
   }
 }
