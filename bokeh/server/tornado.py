@@ -168,7 +168,7 @@ class BokehTornado(TornadoApplication):
         # Wrap applications in ApplicationContext
         self._applications = dict()
         for k,v in applications.items():
-            self._applications[k] = ApplicationContext(v)
+            self._applications[k] = ApplicationContext(v,url=k)
 
         extra_patterns = extra_patterns or []
         all_patterns = []

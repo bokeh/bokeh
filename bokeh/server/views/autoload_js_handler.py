@@ -20,12 +20,6 @@ class AutoloadJsHandler(SessionHandler):
     ''' Implements a custom Tornado handler for the autoload JS chunk
 
     '''
-    def __init__(self, tornado_app, *args, **kw):
-        super(AutoloadJsHandler, self).__init__(tornado_app, *args, **kw)
-
-    def initialize(self, *args, **kw):
-        pass
-
     @gen.coroutine
     def get(self, *args, **kwargs):
         session = yield self.get_session()
