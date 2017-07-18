@@ -39,8 +39,8 @@ export class VBarView extends GlyphView
     for i in [0...x.length]
       l = x[i] - width[i]/2
       r = x[i] + width[i]/2
-      t = top[i]
-      b = bottom[i]
+      t = Math.max(top[i], bottom[i])
+      b = Math.min(top[i], bottom[i])
       if isNaN(l+r+t+b) or not isFinite(l+r+t+b)
         continue
       points.push({minX: l, minY: b, maxX: r, maxY: t, i: i})
