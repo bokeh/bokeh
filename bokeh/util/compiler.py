@@ -305,10 +305,13 @@ def bundle_models(models):
     exports = []
     modules = []
 
-    with io.open(join(bokehjs_dir, "js", "modules.json"), encoding="utf-8") as f:
-        bokehjs_modules = json.loads(f.read())
+    def read_json(name):
+        with io.open(join(bokehjs_dir, "js", name + ".json"), encoding="utf-8") as f:
+            return json.loads(f.read())
 
-    known_modules = set(bokehjs_modules.keys())
+
+    bundles = ["bokeh", "bokeh-api", "bokeh-widgets", "bokeh-tables", "bokeh-gl"]
+    known_modules = set(sum([ read_json(name) for name in bundles ], []))
     custom_impls = {}
 
     dependencies = []
