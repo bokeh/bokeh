@@ -93,6 +93,23 @@ class Application(object):
     '''
     An Application is a factory for Document instances.
 
+        Args:
+            handlers (`bokeh.server.views.doc_handler.DocHandler`):
+                List of handlers called.  The url is taken from the first one
+                only.
+
+            metadata (dict):
+                May be requested by http://applicationurl/metadata as a json
+                blob which will look like::
+
+                    {
+                        "data": {
+                            "hi": "hi",
+                            "there": "there"
+                        },
+                        "url": "/myapp"
+                    }
+                    
     '''
 
     # This is so that bokeh.io.show can check if a passed in object is an
@@ -105,14 +122,6 @@ class Application(object):
         '''
         Application factory.
 
-        Args:
-            handlers (`bokeh.server.views.doc_handler.DocHandler`):
-                List of handlers called.  The url is taken from the first one
-                only.
-
-            metadata (dict):
-                May be requested by http://applicationurl/metadata as a json
-                blob.
         '''
         metadata = kwargs.pop('metadata', None)
         if kwargs:

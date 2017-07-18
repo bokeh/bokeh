@@ -16,11 +16,6 @@ class MetadataHandler(SessionHandler):
     ''' Implements a custom Tornado handler for document display page
 
     '''
-    def __init__(self, tornado_app, *args, **kw):
-        super(MetadataHandler, self).__init__(tornado_app, *args, **kw)
-
-    def initialize(self, *args, **kw):
-        pass
 
     @gen.coroutine
     def get(self, *args, **kwargs):
