@@ -16,6 +16,13 @@ const str = JSON.stringify
 const exists = fs.existsSync
 const write = fs.writeFileSync
 const is_dir = (path: string) => fs.statSync(path).isDirectory()
+const to_obj = <T>(map: Map<string, T>): {[key: string]: T} => {
+  const obj = Object.create(null)
+  for (const [key, val] of map) {
+    obj[key] = val
+  }
+  return obj
+}
 
 export class Bundle {
   constructor(readonly source: string, readonly sourcemap: any, readonly modules: Map<string, number>) {}
@@ -150,8 +157,9 @@ export class Linker {
         line += newlines(end)
       }
 
+      const aliases = JSON.stringify(to_obj(exported))
       const entry_id = module_map.get(entry)!
-      sources += `${suffix}, ${entry_id});\n})\n`
+      sources += `${suffix}, ${aliases}, ${entry_id});\n})\n`
 
       const obj = convert.fromBase64(sourcemap.base64()).toObject()
       return new Bundle(sources, obj, exported)

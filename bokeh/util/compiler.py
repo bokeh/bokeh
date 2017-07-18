@@ -40,7 +40,7 @@ _plugin_prelude = \
 """\
 (function outer(modules, entry) {
   if (Bokeh != null) {
-    Bokeh.register_plugin(modules, entry);
+    return Bokeh.register_plugin(modules, {}, entry);
   } else {
     throw new Error("Cannot find Bokeh. You have to load it prior to loading plugins.");
   }
@@ -394,10 +394,16 @@ def bundle_models(models):
     exports = sorted(exports, key=lambda spec: spec[1])
     modules = sorted(modules, key=lambda spec: spec[0])
 
+    for i, (module, code, deps) in enumerate(modules):
+        for name, ref in deps.items():
+            code = code.replace("""require("%s")""" % name, """require("%s")""" % ref)
+            code = code.replace("""require('%s')""" % name, """require('%s')""" % ref)
+        modules[i] = (module, code)
+
     sep = ",\n"
 
     exports = sep.join([ _export_template % dict(name=name, module=module) for (name, module) in exports ])
-    modules = sep.join([ _module_template % dict(module=module, source=code) for (module, code, _) in modules ])
+    modules = sep.join([ _module_template % dict(module=module, source=code) for (module, code) in modules ])
 
     content = _plugin_template % dict(prelude=_plugin_prelude, exports=exports, modules=modules)
     return _plugin_umd % dict(content=content)
