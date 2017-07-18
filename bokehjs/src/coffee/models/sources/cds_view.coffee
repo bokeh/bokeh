@@ -27,6 +27,8 @@ export class CDSView extends Model
       @compute_indices()
       @change.emit()
     )
+    if @source?.streaming?
+      @connect(@source.streaming, () -> @compute_indices())
 
   compute_indices: () ->
     indices = (filter.compute_indices(@source) for filter in @filters)
