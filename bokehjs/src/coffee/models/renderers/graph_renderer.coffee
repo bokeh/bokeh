@@ -1,74 +1,45 @@
-import {Circle} from "../glyphs/circle"
-import {MultiLine} from "../glyphs/multi_line"
-import {GraphSource} from "../graphs/graph_source"
 import {Renderer, RendererView} from "../renderers/renderer"
 
 import * as p from "core/properties"
-import {range} from "core/util/array"
+import {build_views} from "core/build_views"
 
 export class GraphRendererView extends RendererView
 
   initialize: (options) ->
     super(options)
-    @edges = @build_glyph_view(@model.edges)
-    @nodes = @build_glyph_view(@model.nodes)
 
-    @xscale = @plot_view.frame.xscales[@model.x_range_name]
-    @yscale = @plot_view.frame.yscales[@model.y_range_name]
+    @_renderer_views = {}
+    @node_view = build_views(@_renderer_views, [@model.node_renderer,], @plot_view.view_options())[0]
+    @edge_view = build_views(@_renderer_views, [@model.edge_renderer,], @plot_view.view_options())[0]
 
     @set_data()
 
   connect_signals: () ->
     super()
-    @connect(@model.change, () -> @request_render())
-    @connect(@model.edges.change, () -> @set_data())
-    @connect(@model.nodes.change, () -> @set_data())
-    @connect(@model.graph_source.change, () -> @set_data())
-    @connect(@model.graph_source.layout_provider.change, () -> @set_data())
-
-  build_glyph_view: (model) ->
-    return new model.default_view({model: model, renderer: @, plot_view: @plot_view, parent: @})
+    @connect(@model.layout_provider.change, () -> @set_data())
 
   set_data: (request_render=true) ->
-    # TODO (bev) this is a bit clunky, need to make sure glyphs use the correct ranges when they call
-    # mapping functions on the base Renderer class
-    @edges.model.setv({x_range_name: @model.x_range_name, y_range_name: @model.y_range_name}, {silent: true})
-    @edges.set_data(@model.graph_source.edges)
-    @edges.set_visuals(@model.graph_source.edges)
-
-    @nodes.model.setv({x_range_name: @model.x_range_name, y_range_name: @model.y_range_name}, {silent: true})
-    @nodes.set_data(@model.graph_source.nodes)
-    @nodes.set_visuals(@model.graph_source.nodes)
-
-    [@edges._xs, @edges._ys] = @model.graph_source.layout_provider.get_edge_coordinates(@model.graph_source)
-    [@nodes._x, @nodes._y] = @model.graph_source.layout_provider.get_node_coordinates(@model.graph_source)
+    [@node_view.glyph._x, @node_view.glyph._y] = @model.layout_provider.get_node_coordinates(@model.node_renderer.data_source)
+    [@edge_view.glyph._xs, @edge_view.glyph._ys] = @model.layout_provider.get_edge_coordinates(@model.edge_renderer.data_source)
 
     if request_render
       @request_render()
 
   render: () ->
-    @edges.map_data()
-    @nodes.map_data()
+    @edge_view.render()
+    @node_view.render()
 
-    ctx = @plot_view.canvas_view.ctx
-    edge_indices = range(@edges.sxs.length)
-    node_indices = range(@nodes.sx.length)
-
-    @edges.render(ctx, edge_indices, @edges)
-    @nodes.render(ctx, node_indices, @nodes)
 
 export class GraphRenderer extends Renderer
   default_view: GraphRendererView
   type: 'GraphRenderer'
 
   @define {
-      x_range_name:    [ p.String,   "default"                   ]
-      y_range_name:    [ p.String,   "default"                   ]
-      graph_source:    [ p.Instance, () -> new GraphSource()     ]
-      nodes:           [ p.Instance, () -> new Circle()          ]
-      edges:           [ p.Instance, () -> new MultiLine()       ]
+      layout_provider: [ p.Instance                              ]
+      node_renderer:   [ p.Instance                              ]
+      edge_renderer:   [ p.Instance                              ]
     }
 
-  @override {
+  @override { # todo prop into renderers?
     level: 'glyph'
   }

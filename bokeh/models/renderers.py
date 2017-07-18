@@ -208,6 +208,7 @@ class GraphRenderer(DataRenderer):
     rendered as the graph edges.
     """)
 
+    level = Override(default="underlay") # need to fixup (prop to renderers?)
 
 @abstract
 class GuideRenderer(Renderer):
