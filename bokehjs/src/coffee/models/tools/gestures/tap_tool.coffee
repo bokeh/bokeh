@@ -33,10 +33,11 @@ export class TapToolView extends SelectToolView
         did_hit = sm.select(@, (@plot_view.renderer_views[r.id] for r in renderers), geometry, final, append)
 
         if did_hit and callback?
+          cb_data.source = ds
           if isFunction(callback)
-            callback(ds, cb_data)
+            callback(@, cb_data)
           else
-            callback.execute(ds, cb_data)
+            callback.execute(@, cb_data)
 
       @_emit_selection_event(geometry)
 
@@ -50,10 +51,11 @@ export class TapToolView extends SelectToolView
         did_hit = sm.inspect(@, view, geometry, {geometry: geometry})
 
         if did_hit and callback?
+          cb_data.source = ds
           if isFunction(callback)
-            callback(ds, cb_data)
+            callback(@, cb_data)
           else
-            callback.execute(ds, cb_data)
+            callback.execute(@, cb_data)
 
     return null
 
