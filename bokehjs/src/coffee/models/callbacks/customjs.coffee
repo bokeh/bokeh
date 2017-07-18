@@ -6,9 +6,9 @@ export class CustomJS extends Model
   type: 'CustomJS'
 
   @define {
-      args: [ p.Any,     {}           ] # TODO (bev) better type
-      code: [ p.String,  ''           ]
-    }
+    args: [ p.Any,     {} ] # TODO (bev) better type
+    code: [ p.String,  '' ]
+  }
 
   @getters {
     values: () -> @_make_values()
