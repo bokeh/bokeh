@@ -3,16 +3,13 @@
 '''
 from __future__ import absolute_import
 
-from six import string_types
-
 from ..core.enums import Location, OutputBackend
 from ..core.properties import Bool, Dict, Enum, Include, Instance, Int, List, Override, String
 from ..core.property_mixins import LineProps, FillProps
 from ..core.query import find
 from ..core.validation import error, warning
 from ..core.validation.errors import REQUIRED_RANGE, REQUIRED_SCALE, INCOMPATIBLE_SCALE_AND_RANGE
-from ..core.validation.warnings import (MISSING_RENDERERS, NO_DATA_RENDERERS,
-                                        MALFORMED_CATEGORY_LABEL, SNAPPED_TOOLBAR_ANNOTATIONS)
+from ..core.validation.warnings import MISSING_RENDERERS, NO_DATA_RENDERERS, SNAPPED_TOOLBAR_ANNOTATIONS
 from ..util.deprecation import deprecated
 from ..util.plot_utils import _list_attr_splat, _select_helper
 from ..util.string import nice_join
@@ -373,28 +370,6 @@ class Plot(LayoutDOM):
     def _check_no_data_renderers(self):
         if len(self.select(DataRenderer)) == 0:
             return str(self)
-
-    @warning(MALFORMED_CATEGORY_LABEL)
-    def _check_colon_in_category_label(self):
-        if not self.x_range: return
-        if not self.y_range: return
-
-        broken = []
-
-        for range_name in ['x_range', 'y_range']:
-            category_range = getattr(self, range_name)
-            if not isinstance(category_range, FactorRange): continue
-
-            for value in category_range.factors:
-                if not isinstance(value, string_types): break
-                if ':' in value:
-                    broken.append((range_name, value))
-                    break
-
-        if broken:
-            field_msg = ' '.join('[range:%s] [first_value: %s]' % (field, value)
-                                 for field, value in broken)
-            return '%s [renderer: %s]' % (field_msg, self)
 
     @warning(SNAPPED_TOOLBAR_ANNOTATIONS)
     def _check_snapped_toolbar_and_axis(self):
