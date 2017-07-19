@@ -209,7 +209,7 @@ class ColumnDataSource(ColumnarDataSource):
             import warnings
             warnings.warn("Unable to find column '%s' in data source" % name)
 
-    def stream(self, new_data, rollover=None, setter=None):
+    def stream(self, new_data, rollover=None):
         ''' Efficiently update data source columns with new append-only data.
 
         In cases where it is necessary to update data columns in, this method
@@ -227,6 +227,58 @@ class ColumnDataSource(ColumnarDataSource):
                 from the start of the column begins to be discarded. If None,
                 then columns will continue to grow unbounded (default: None)
 
+        Returns:
+            None
+
+        Raises:
+            ValueError
+
+        Example:
+
+        .. code-block:: python
+
+            source = ColumnDataSource(data=dict(foo=[], bar=[]))
+
+            # has new, identical-length updates for all columns in source
+            new_data = {
+                'foo' : [10, 20],
+                'bar' : [100, 200],
+            }
+
+            source.stream(new_data)
+
+        '''
+        # calls internal implementation
+        self._stream(new_data, rollover)
+
+    def _stream(self, new_data, rollover=None, setter=None):
+        ''' Internal implementation to efficiently update data source columns
+        with new append-only data.   The interal implementation adds the setter
+        attribute.  [https://github.com/bokeh/bokeh/issues/6577]
+
+        In cases where it is necessary to update data columns in, this method
+        can efficiently send only the new data, instead of requiring the
+        entire data set to be re-sent.
+
+        Args:
+            new_data (dict[str, seq]) : a mapping of column names to sequences of
+                new data to append to each column.
+
+                All columns of the data source must be present in ``new_data``,
+                with identical-length append data.
+
+            rollover (int, optional) : A maximum column size, above which data
+                from the start of the column begins to be discarded. If None,
+                then columns will continue to grow unbounded (default: None)
+            setter (ClientSession or ServerSession or None, optional) :
+                This is used to prevent "boomerang" updates to Bokeh apps.
+                (default: None)
+                In the context of a Bokeh server application, incoming updates
+                to properties will be annotated with the session that is
+                doing the updating. This value is propagated through any
+                subsequent change notifications that the update triggers.
+                The session can compare the event setter to itself, and
+                suppress any updates that originate from itself.
         Returns:
             None
 
