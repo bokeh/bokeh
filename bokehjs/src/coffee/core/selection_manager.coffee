@@ -20,8 +20,8 @@ export class SelectionManager extends HasProps
 
   select: (tool, renderer_views, geometry, final, append=false) ->
     source = @source
-    if source != renderer_views[0].model.data_source
-      logger.warn('select called with mis-matched data sources')
+    # if source != renderer_views[0].model.data_source
+    #   logger.warn('select called with mis-matched data sources')
 
     #view = renderer_view.model.view
     #if source != view.source
@@ -30,6 +30,8 @@ export class SelectionManager extends HasProps
     indices_renderers = []
 
     for r in renderer_views
+      if r.node_view?
+        r = r.node_view
       hit_test_result = r.hit_test(geometry)
       # renderers that don't support hit testing a particular kind of geometry
       # will return null, need to filter those out and see if anything is left
@@ -68,6 +70,7 @@ export class SelectionManager extends HasProps
 
     if renderer_view instanceof GraphRendererView
       indices = renderer_view.model.node_renderer.view.convert_selection_from_subset(hit_test_result)
+      renderer_view = renderer_view.node_view
     else
       indices = renderer_view.model.view.convert_selection_from_subset(hit_test_result)
 

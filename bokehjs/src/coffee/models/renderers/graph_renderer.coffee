@@ -20,10 +20,14 @@ export class GraphRendererView extends RendererView
   connect_signals: () ->
     super()
     @connect(@model.layout_provider.change, () -> @set_data())
+    @connect(@model.node_renderer.data_source.select, () -> @set_data())
 
   set_data: (request_render=true) ->
     [@node_view.glyph._x, @node_view.glyph._y] = @model.layout_provider.get_node_coordinates(@model.node_renderer.data_source)
     [@edge_view.glyph._xs, @edge_view.glyph._ys] = @model.layout_provider.get_edge_coordinates(@model.edge_renderer.data_source)
+
+    @node_view.glyph.index = @node_view.glyph._index_data()
+    @edge_view.glyph.index = @edge_view.glyph._index_data()
 
     if request_render
       @request_render()

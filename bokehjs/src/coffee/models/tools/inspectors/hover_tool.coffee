@@ -63,6 +63,8 @@ export class HoverToolView extends InspectToolView
 
     if tooltips?
       for r in @computed_renderers
+        if r.node_renderer?
+          r = r.node_renderer
         tooltip = new Tooltip({
           custom: isString(tooltips) or isFunction(tooltips)
           attachment: @model.attachment
@@ -136,9 +138,6 @@ export class HoverToolView extends InspectToolView
     return
 
   _update: ([indices, tool, renderer, ds, {geometry}]) ->
-    if renderer.node_view?
-      renderer = renderer.node_view
-
     if not @model.active
       return
 

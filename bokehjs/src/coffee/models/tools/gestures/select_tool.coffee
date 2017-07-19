@@ -1,5 +1,6 @@
 import {GestureTool, GestureToolView} from "./gesture_tool"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
+import {GraphRenderer} from "../../renderers/graph_renderer"
 import {logger} from "core/logging"
 import * as p from "core/properties"
 import {clone} from "core/util/object"
@@ -13,7 +14,7 @@ export class SelectToolView extends GestureToolView
 
       if renderers.length == 0
         all_renderers = @plot_model.plot.renderers
-        renderers = (r for r in all_renderers when r instanceof GlyphRenderer)
+        renderers = (r for r in all_renderers when r instanceof GlyphRenderer or r instanceof GraphRenderer)
 
       if names.length > 0
         renderers = (r for r in renderers when names.indexOf(r.name) >= 0)
@@ -24,6 +25,8 @@ export class SelectToolView extends GestureToolView
   _computed_renderers_by_data_source: () ->
     renderers_by_source = {}
     for r in @computed_renderers
+      if r.node_renderer?
+        r = r.node_renderer
       if !(r.data_source.id of renderers_by_source)
         renderers_by_source[r.data_source.id] = [r]
       else
