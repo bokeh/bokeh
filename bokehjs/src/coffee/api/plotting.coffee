@@ -71,6 +71,9 @@ export class Figure extends models.Plot
     delete attrs.x_axis_type
     delete attrs.y_axis_type
 
+    attrs.x_scale = @_get_scale(attrs.x_range, x_axis_type)
+    attrs.y_scale = @_get_scale(attrs.y_range, y_axis_type)
+
     x_minor_ticks = attrs.x_minor_ticks ? "auto"
     y_minor_ticks = attrs.y_minor_ticks ? "auto"
     delete attrs.x_minor_ticks
@@ -102,8 +105,8 @@ export class Figure extends models.Plot
 
     super(attrs, options)
 
-    @_process_guides(0, x_axis_type, x_axis_location, x_minor_ticks, x_axis_label)
-    @_process_guides(1, y_axis_type, y_axis_location, y_minor_ticks, y_axis_label)
+    @_process_axis_and_grid(x_axis_type, x_axis_location, x_minor_ticks, x_axis_label, attrs.x_range, 0)
+    @_process_axis_and_grid(y_axis_type, y_axis_location, y_minor_ticks, y_axis_label, attrs.y_range, 1)
 
     @add_tools(@_process_tools(tools)...)
 
@@ -299,10 +302,21 @@ export class Figure extends models.Plot
       if range.length == 2
         return new models.Range1d({start: range[0], end: range[1]})
 
-  _process_guides: (dim, axis_type, axis_location, minor_ticks, axis_label) ->
-    range = if dim == 0 then @x_range else @y_range
-    axiscls = @_get_axis_class(axis_type, range)
+  _get_scale: (range_input, axis_type) ->
+    if range_input instanceof models.DataRange1d or range_input instanceof models.Range1d
+      switch axis_type
+        when "linear", "datetime", "auto", null
+          return new models.LinearScale()
+        when "log"
+          return new models.LogScale()
 
+    if range_input instanceof models.FactorRange
+      return new models.CategoricalScale()
+
+    throw new Error("unable to determine proper scale for: '#{range_input}'")
+
+  _process_axis_and_grid: (axis_type, axis_location, minor_ticks, axis_label, rng, dim) ->
+    axiscls = @_get_axis_class(axis_type, rng)
     if axiscls?
       if axiscls == models.LogAxis
         if dim == 0
@@ -319,7 +333,8 @@ export class Figure extends models.Plot
 
       grid = new models.Grid({dimension: dim, ticker: axis.ticker})
 
-      @add_layout(axis, axis_location)
+      if axis_location != null
+        @add_layout(axis, axis_location)
       @add_layout(grid)
 
   _get_axis_class: (axis_type, range) ->
@@ -352,11 +367,14 @@ export class Figure extends models.Plot
 
   _process_tools: (tools) ->
     if isString(tools)
-      tools = tools.split(/\s*,\s*/)
+      tools = tools.split(/\s*,\s*/).filter((tool) -> tool.length > 0)
 
     objs = for tool in tools
       if isString(tool)
-        _known_tools[tool]()
+        if _known_tools.hasOwnProperty(tool)
+          _known_tools[tool]()
+        else
+          throw new Error("unknown tool type: #{tool}")
       else
         tool
 
