@@ -2,11 +2,6 @@ language: generic
 sudo: false
 dist: trusty
 
-# This does not show secret variables, but only disables a filter for accidental spillage. The filter
-# is causing problems with log trunction and TravisCI support advised to turn it off for now. See the
-# issue https://github.com/bokeh/bokeh/issues/6568 for more information.
-filter_secrets: false
-
 env:
   global:
     - BOTO_CONFIG="/tmp/nowhere"
