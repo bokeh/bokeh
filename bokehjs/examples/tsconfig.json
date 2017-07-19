@@ -5,15 +5,18 @@
     "noUnusedParameters": true,
     "noImplicitThis": true,
     "noImplicitReturns": true,
-    "strictNullChecks": true,
+    "strictNullChecks": false,
     "alwaysStrict": true,
     "noEmitOnError": true,
-    "declaration": false,
     "module": "commonjs",
     "moduleResolution": "node",
-    "target": "ES6",
-    "lib": ["es6"],
-    "types": ["node"],
-    "baseUrl": "."
+    "target": "ES5",
+    "lib": ["es5", "dom", "es2015.collection"],
+    "declaration": false,
+    "importHelpers": false,
+    "jsx": "react",
+    "reactNamespace": "DOM",
+    "experimentalDecorators": true,
+    "types": []
   }
 }

@@ -11,11 +11,8 @@ import {isEqual} from "core/util/eq"
 import {Models} from "base"
 import {HasProps} from "core/has_props"
 
-import {models as widget_models} from "models/widgets/main"
-Models.register_models(widget_models as {[key: string]: any}, false, undefined)
-
-import {models as table_models} from "models/widgets/tables/main"
-Models.register_models(table_models as {[key: string]: any}, false, undefined)
+import {Widgets as widget_models} from "models/widgets/main"
+import {Tables as table_models} from "models/widgets/tables/main"
 
 function get_defaults(name: string) {
   const defaults = core_defaults.get_defaults(name) || widget_defaults.get_defaults(name)

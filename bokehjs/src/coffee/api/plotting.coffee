@@ -1,4 +1,4 @@
-import * as sprintf from "sprintf"
+import {sprintf} from "sprintf-js"
 import {Document} from "../document"
 import * as embed from "../embed"
 import {BOKEH_ROOT} from "../embed"

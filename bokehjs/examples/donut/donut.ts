@@ -97,7 +97,6 @@ namespace WebBrowserMarketShare {
       }
     })
 
-    const shares = item.shares
     const end_angles = cumsum(item.shares.map(to_radians))
     const start_angles = [0].concat(end_angles.slice(0, -1))
     const half_angles = zip(start_angles, end_angles).map(([start, end]) => (start + end)/2)

@@ -1,14 +1,23 @@
 import * as browserify from "browserify"
 import * as gulp from "gulp"
-import * as path from "path"
+import * as gutil from "gulp-util"
+const ts = require('gulp-typescript')
+import {join} from "path"
 const source = require('vinyl-source-stream')
 
 import * as paths from "../paths"
 
-gulp.task("compiler:build", () => {
+gulp.task("compiler:ts", () => {
+  const error = (err: {message: string}) => gutil.log(err.message)
+  const tsconfig = require(join(paths.src_dir.compiler, "tsconfig.json"))
+  return gulp.src(join(paths.src_dir.compiler, "compile.ts"))
+    .pipe(ts(tsconfig.compilerOptions, ts.reporter.nullReporter()).on('error', error))
+    .pipe(gulp.dest(paths.build_dir.compiler))
+})
+
+gulp.task("compiler:build", ["compiler:ts"], () => {
   const compilerOpts = {
-    entries: [path.resolve(path.join('src', 'js', 'compile.coffee'))],
-    extensions: [".js", ".coffee"],
+    entries: [join(paths.build_dir.compiler, "compile.js")],
     browserField: false,
     builtins: false,
     commondir: false,
@@ -21,8 +30,7 @@ gulp.task("compiler:build", () => {
     }
   }
   return browserify(compilerOpts)
-    .transform("coffeeify")
     .bundle()
-    .pipe(source("compile.js"))
+    .pipe(source("compiler.js"))
     .pipe(gulp.dest(paths.build_dir.js))
 })

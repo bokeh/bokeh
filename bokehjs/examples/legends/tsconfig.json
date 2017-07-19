@@ -1,11 +1,5 @@
 {
-  "compilerOptions": {
-    "noImplicitAny": true,
-    "noEmitOnError": true,
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "target": "ES5"
-  },
+  "extends": "../tsconfig.json",
   "files": [
     "../../src/coffee/api/typings.d.ts",
     "legends.ts"
