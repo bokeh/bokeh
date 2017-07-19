@@ -1,17 +1,18 @@
 require("./ts-node").register({project: "./gulp/tsconfig.json"});
 
-const {build_dir} = require("./gulp/paths");
+const paths = require("./gulp/paths");
+const {build_dir} = paths;
 
 const webpack = require("webpack");
 const {join} = require("path");
 
 const config = {
   entry: {
-    "bokeh":         join(build_dir.tree_js, "main.js"),
-    "bokeh-api":     join(build_dir.tree_js, "api/main.js"),
-    "bokeh-widgets": join(build_dir.tree_js, "models/widgets/main.js"),
-    "bokeh-tables":  join(build_dir.tree_js, "models/widgets/tables/main.js"),
-    "bokeh-gl":      join(build_dir.tree_js, "models/glyphs/webgl/main.js")
+    "bokeh":         paths.coffee.bokehjs.main,
+    "bokeh-api":     paths.coffee.api.main,
+    "bokeh-widgets": paths.coffee.widgets.main,
+    "bokeh-tables":  paths.coffee.tables.main,
+    "bokeh-gl":      paths.coffee.gl.main
   },
   output: {
     filename: "[name].js",
