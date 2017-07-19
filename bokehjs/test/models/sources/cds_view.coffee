@@ -61,3 +61,12 @@ describe "CDSView", ->
     it "convert_indices_from_subset", ->
       view = new CDSView({source: cds, filters: [filter1, filter2]})
       expect(view.convert_indices_from_subset([0, 1])).to.be.deep.equal [1, 2]
+
+  it "should update its indices when its source streams new data", ->
+    cds = new ColumnDataSource({data: {x: [], y: []}})
+    new_data = {x: [1], y: [1]}
+
+    view = new CDSView({source: cds})
+    expect(view.indices).to.be.deep.equal([])
+    cds.stream(new_data)
+    expect(view.indices).to.be.deep.equal([0])
