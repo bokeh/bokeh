@@ -4,6 +4,7 @@ utils = require "../../utils"
 {CDSView} = utils.require("models/sources/cds_view")
 {ColumnDataSource} = utils.require("models/sources/column_data_source")
 {Filter} = utils.require("models/filters/filter")
+{GroupFilter} = utils.require("models/filters/group_filter")
 hittest = utils.require("core/hittest")
 
 describe "CDSView", ->
@@ -69,4 +70,13 @@ describe "CDSView", ->
     view = new CDSView({source: cds})
     expect(view.indices).to.be.deep.equal([])
     cds.stream(new_data)
+    expect(view.indices).to.be.deep.equal([0])
+
+  it "should update its indices when its source patches new data", ->
+    cds = new ColumnDataSource({data: {x: ["a"], y: [1]}})
+    group_filter = new GroupFilter({column_name: "x", group: "b"})
+
+    view = new CDSView({source: cds, filters: [group_filter]})
+    expect(view.indices).to.be.deep.equal([])
+    cds.patch({"x" :[[0, "b"]]})
     expect(view.indices).to.be.deep.equal([0])
