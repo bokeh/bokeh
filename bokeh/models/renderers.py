@@ -11,7 +11,10 @@ from ..core.enums import RenderLevel
 from ..core.has_props import abstract
 from ..core.properties import Auto, Bool, Either, Enum, Float, Instance, Override, String
 from ..core.validation import error
-from ..core.validation.errors import BAD_COLUMN_NAME, MISSING_GLYPH, NO_SOURCE_FOR_GLYPH, CDSVIEW_SOURCE_DOESNT_MATCH
+from ..core.validation.errors import (
+    BAD_COLUMN_NAME, MISSING_GLYPH, NO_SOURCE_FOR_GLYPH, CDSVIEW_SOURCE_DOESNT_MATCH,
+    MALFORMED_GRAPH_SOURCE
+)
 from ..model import Model
 
 from .glyphs import Glyph, Circle, MultiLine
@@ -184,14 +187,40 @@ class GlyphRenderer(DataRenderer):
 
     level = Override(default="glyph")
 
-_DEFAULT_NODE_RENDERER = lambda: GlyphRenderer(glyph=Circle(), data_source=ColumnDataSource())
+_DEFAULT_NODE_RENDERER = lambda: GlyphRenderer(
+    glyph=Circle(), data_source=ColumnDataSource(data=dict(index=[]))
+)
 
-_DEFAULT_EDGE_RENDERER = lambda: GlyphRenderer(glyph=MultiLine(), data_source=ColumnDataSource())
+_DEFAULT_EDGE_RENDERER = lambda: GlyphRenderer(
+    glyph=MultiLine(), data_source=ColumnDataSource(data=dict(start=[], end=[]))
+)
 
 class GraphRenderer(DataRenderer):
     '''
 
     '''
+
+    @error(MALFORMED_GRAPH_SOURCE)
+    def _check_malformed_graph_source(self):
+        missing = []
+        if "index" not in self.node_renderer.data_source.column_names:
+            missing.append("Column 'index' is missing in GraphSource.node_renderer.data_source")
+        if "start" not in self.edge_renderer.data_source.column_names:
+            missing.append("Column 'start' is missing in GraphSource.edge_renderer.data_source")
+        if "end" not in self.edge_renderer.data_source.column_names:
+            missing.append("Column 'end' is missing in GraphSource.edge_renderer.data_source")
+
+        indexes = self.node_renderer.data_source.data.get('index', [])
+        for i in self.edge_renderer.data_source.data.get('start', []):
+            if i not in indexes:
+                missing.append("GraphSource.edge_renderer.data_source 'start' value '%s' missing from GraphSource.node_renderer.data_source 'index' column" % i)
+
+        for i in self.edge_renderer.data_source.data.get('end', []):
+            if i not in indexes:
+                missing.append("GraphSource.edge_renderer.data_source 'end' value '%s' missing from GraphSource.node_renderer.data_source 'index' column" % i)
+
+        if missing:
+            return " ,".join(missing) + " [%s]" % self
 
     x_range_name = String('default', help="""
     A particular (named) x-range to use for computing screen
@@ -220,7 +249,7 @@ class GraphRenderer(DataRenderer):
     rendered as the graph edges.
     """)
 
-    level = Override(default="glyph") # need to fixup (prop to renderers?)
+    level = Override(default="glyph")
 
 @abstract
 class GuideRenderer(Renderer):
