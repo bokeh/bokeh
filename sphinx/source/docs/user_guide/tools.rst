@@ -375,6 +375,10 @@ the current mouse position. The crosshair tool may be configured to draw
 across only one dimension by setting the ``dimensions`` property to a
 list containing ``width`` or ``height``.
 
+The crosshair tool draw dimensions may be configured by setting the 
+``dimensions`` property to a String of ``width``, ``height``, or 
+``both``.
+
 HoverTool
 ~~~~~~~~~
 
