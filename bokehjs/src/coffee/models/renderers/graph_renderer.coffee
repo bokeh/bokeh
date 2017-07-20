@@ -36,20 +36,33 @@ export class GraphRendererView extends RendererView
     @edge_view.render()
     @node_view.render()
 
-  hit_test: (geometry) ->
-    return @model.hit_test_helper(geometry, @node_view.glyph)
+  hit_test: (geometry, final, append) ->
+    return @model.hit_test_helper(geometry, @node_view.glyph, final, append)
 
 
 export class GraphRenderer extends Renderer
   default_view: GraphRendererView
   type: 'GraphRenderer'
 
-  # TODO (bev) this is just to make testing easier. Might be better on a view model
-  hit_test_helper: (geometry, glyph) ->
-    if @visible
-      return glyph.hit_test(geometry)
-    else
-      return null
+  hit_test_helper: (geometry, glyph, final, append) ->
+    if not @visible
+      return false
+
+    hit_test_result = glyph.hit_test(geometry)
+
+    # glyphs that don't have hit-testing implemented will return null
+    if hit_test_result == null
+      return false
+
+    indices = @node_renderer.view.convert_selection_from_subset(hit_test_result)
+    selector = @node_renderer.data_source.selection_manager.selector
+    selector.update(indices, final, append)
+    @node_renderer.data_source.selected = selector.indices
+
+    return not indices.is_empty()
+
+  get_selection_manager: () ->
+    return @node_renderer.data_source.selection_manager
 
   @define {
       layout_provider: [ p.Instance                              ]
