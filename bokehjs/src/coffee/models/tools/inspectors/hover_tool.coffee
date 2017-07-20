@@ -124,7 +124,7 @@ export class HoverToolView extends InspectToolView
 
     for r in @computed_renderers
       sm = r.get_selection_manager()
-      sm.inspect(@, @plot_view.renderer_views[r.id], geometry, {"geometry": geometry})
+      sm.inspect(@plot_view.renderer_views[r.id], geometry)
 
     if @model.callback?
       @_emit_callback(geometry)

@@ -72,7 +72,8 @@ export class LassoSelectToolView extends SelectToolView
 
     for _, renderers of renderers_by_source
       sm = renderers[0].get_selection_manager()
-      sm.select(@, (@plot_view.renderer_views[r.id] for r in renderers), geometry, final, append)
+      r_views = (@plot_view.renderer_views[r.id] for r in renderers)
+      sm.select(r_views, geometry, final, append)
 
     if @model.callback?
       @_emit_callback(geometry)

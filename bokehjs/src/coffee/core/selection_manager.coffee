@@ -18,7 +18,7 @@ export class SelectionManager extends HasProps
     @inspectors = {}
     @last_inspection_was_empty = {}
 
-  select: (tool, renderer_views, geometry, final, append=false) ->
+  select: (renderer_views, geometry, final, append=false) ->
     did_hit = false
 
     for r in renderer_views
@@ -28,8 +28,8 @@ export class SelectionManager extends HasProps
 
     return did_hit
 
-  inspect: (tool, renderer_view, geometry, data) ->
-    inspector = @_get_inspector(renderer_view.model.id)
+  inspect: (renderer_view, geometry) ->
+    inspector = @_get_inspector(renderer_view)
 
     did_hit = false
     did_hit ||= renderer_view.hit_test(geometry, false, false, "inspect")
@@ -43,7 +43,8 @@ export class SelectionManager extends HasProps
     @selector.clear()
     @source.selected = hittest.create_hit_test_result()
 
-  _get_inspector: (id) ->
+  _get_inspector: (rview) ->
+    id = review.model.id
     if @inspectors[id]?
       return @inspectors[id]
     else
