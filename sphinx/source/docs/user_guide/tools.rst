@@ -371,9 +371,9 @@ CrosshairTool
 * menu icon: |crosshair_icon|
 
 Th crosshair tool draws a crosshair annotation over the plot, centered on
-the current mouse position. The crosshair tool may be configured to draw
-across only one dimension by setting the ``dimensions`` property to a
-list containing ``width`` or ``height``.
+the current mouse position. The crosshair tool draw dimensions may be
+configured by setting the ``dimensions`` property to one of the
+enumerated values ``width``, ``height``, or ``both``.
 
 HoverTool
 ~~~~~~~~~
