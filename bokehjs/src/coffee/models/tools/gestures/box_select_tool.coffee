@@ -60,22 +60,11 @@ export class BoxSelectToolView extends SelectToolView
       vy1: vy1
     }
 
-    # renderers_by_source = @_computed_renderers_by_data_source()
-    #
-    # for ds, renderers of renderers_by_source
-    #   sm = renderers[0].data_source.selection_manager
-    #   sm.select(@, (@plot_view.renderer_views[r.id] for r in renderers), geometry, final, append)
+    renderers_by_source = @_computed_renderers_by_data_source()
 
-    renderers = @computed_renderers
-
-    for renderer in renderers
-      if renderer.node_renderer?
-        sm = renderer.node_renderer.data_source.selection_manager
-        sm.select(@, [@plot_view.renderer_views[renderer.id],], geometry, final, append)
-
-      else
-        sm = renderer.data_source.selection_manager
-        sm.select(@, (@plot_view.renderer_views[r.id] for r in renderers), geometry, final, append)
+    for _, renderers of renderers_by_source
+      sm = renderers[0].get_selection_manager()
+      sm.select(@, (@plot_view.renderer_views[r.id] for r in renderers), geometry, final, append)
 
     if @model.callback?
       @_emit_callback(geometry)

@@ -25,12 +25,13 @@ export class SelectToolView extends GestureToolView
   _computed_renderers_by_data_source: () ->
     renderers_by_source = {}
     for r in @computed_renderers
-      if r.node_renderer?
-        r = r.node_renderer
-      if !(r.data_source.id of renderers_by_source)
-        renderers_by_source[r.data_source.id] = [r]
-      else
-        renderers_by_source[r.data_source.id] = renderers_by_source[r.data_source.id].concat([r])
+      if r instanceof GraphRenderer
+        renderers_by_source[r.node_renderer.data_source.id] = [r]
+      else if r instanceof GlyphRenderer
+        if !(r.data_source.id of renderers_by_source)
+          renderers_by_source[r.data_source.id] = [r]
+        else
+          renderers_by_source[r.data_source.id] = renderers_by_source[r.data_source.id].concat([r])
     return renderers_by_source
 
   _keyup: (e) ->

@@ -47,8 +47,8 @@ export class PolySelectToolView extends SelectToolView
 
     renderers_by_source = @_computed_renderers_by_data_source()
 
-    for ds, renderers of renderers_by_source
-      sm = renderers[0].data_source.selection_manager
+    for _, renderers of renderers_by_source
+      sm = renderers[0].get_selection_manager()
       sm.select(@, (@plot_view.renderer_views[r.id] for r in renderers), geometry, final, append)
 
     @_save_geometry(geometry, final, append)

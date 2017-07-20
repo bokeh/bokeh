@@ -249,8 +249,8 @@ export class GlyphRendererView extends RendererView
     index = @model.get_reference_point(field, label)
     @glyph.draw_legend_for_index(ctx, x0, x1, y0, y1, index)
 
-  hit_test: (geometry) ->
-    return @model.hit_test_helper(geometry, @glyph)
+  hit_test: (geometry, final, append) ->
+    return @model.hit_test_helper(geometry, @glyph, final, append)
 
 
 export class GlyphRenderer extends Renderer
@@ -275,12 +275,25 @@ export class GlyphRenderer extends Renderer
           index = i
     return index
 
-  # TODO (bev) this is just to make testing easier. Might be better on a view model
-  hit_test_helper: (geometry, glyph) ->
-    if @visible
-      return glyph.hit_test(geometry)
-    else
-      return null
+  hit_test_helper: (geometry, glyph, final, append) ->
+    if not @visible
+      return false
+
+    hit_test_result = glyph.hit_test(geometry)
+
+    # glyphs that don't have hit-testing implemented will return null
+    if hit_test_result == null
+      return false
+
+    indices = @view.convert_selection_from_subset(hit_test_result)
+    selector = @data_source.selection_manager.selector
+    selector.update(indices, final, append)
+    @data_source.selected = selector.indices
+
+    return not indices.is_empty()
+
+  get_selection_manager: () ->
+    return @data_source.selection_manager
 
   @define {
       x_range_name:       [ p.String,  'default' ]

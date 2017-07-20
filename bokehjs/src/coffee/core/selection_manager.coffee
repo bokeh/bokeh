@@ -19,42 +19,14 @@ export class SelectionManager extends HasProps
     @last_inspection_was_empty = {}
 
   select: (tool, renderer_views, geometry, final, append=false) ->
-    source = @source
-    # if source != renderer_views[0].model.data_source
-    #   logger.warn('select called with mis-matched data sources')
-
-    #view = renderer_view.model.view
-    #if source != view.source
-    #  logger.warn('select called with view and data source mismatch')
-
-    indices_renderers = []
+    did_hit = false
 
     for r in renderer_views
-      if r.node_view?
-        r = r.node_view
-      hit_test_result = r.hit_test(geometry)
-      # renderers that don't support hit testing a particular kind of geometry
-      # will return null, need to filter those out and see if anything is left
-      if hit_test_result != null
-        indices_renderers.push(r.model.view.convert_selection_from_subset(hit_test_result))
+      did_hit ||= r.hit_test(geometry, final, append)
 
-    if indices_renderers.length == 0
-      return false
+    @source.select.emit()
 
-    if indices_renderers?
-      indices = indices_renderers[0]
-      for indices_other in indices_renderers
-        indices.update_through_union(indices_other)
-
-      @selector.update(indices, final, append)
-
-      @source.selected = @selector.indices
-
-      source.select.emit()
-
-      return not indices.is_empty()
-    else
-      return false
+    return did_hit
 
   inspect: (tool, renderer_view, geometry, data) ->
     source = @source
