@@ -71,8 +71,8 @@ export class GraphRenderer extends Renderer
     return @node_renderer.data_source.selection_manager
 
   @define {
-      x_range_name:       [ p.String,  'default' ]
-      y_range_name:       [ p.String,  'default' ]
+      x_range_name:    [ p.String,        'default'              ]
+      y_range_name:    [ p.String,        'default'              ]
       layout_provider: [ p.Instance                              ]
       node_renderer:   [ p.Instance                              ]
       edge_renderer:   [ p.Instance                              ]

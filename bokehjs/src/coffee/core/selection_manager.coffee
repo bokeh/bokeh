@@ -44,7 +44,7 @@ export class SelectionManager extends HasProps
     @source.selected = hittest.create_hit_test_result()
 
   _get_inspector: (rview) ->
-    id = review.model.id
+    id = rview.model.id
     if @inspectors[id]?
       return @inspectors[id]
     else
