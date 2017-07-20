@@ -27,10 +27,10 @@ source = ColumnDataSource(
     data=dict(
         group=[str(x) for x in elements["group"]],
         period=[str(y) for y in elements["period"]],
-        symx=[str(x)+":0.1" for x in elements["group"]],
-        numbery=[str(x)+":0.8" for x in elements["period"]],
-        massy=[str(x)+":0.15" for x in elements["period"]],
-        namey=[str(x)+":0.3" for x in elements["period"]],
+        symx=[(str(x), -0.4) for x in elements["group"]],
+        numbery=[(str(x), 0.3) for x in elements["period"]],
+        massy=[(str(x), -0.2) for x in elements["period"]],
+        namey=[(str(x), -0.35) for x in elements["period"]],
         sym=elements["symbol"],
         name=elements["name"],
         cpk=elements["CPK"],
@@ -42,13 +42,13 @@ source = ColumnDataSource(
     )
 )
 
-p = figure(title="Periodic Table", tools="hover,save",
+p = figure(title="Periodic Table", tools="save",
            x_range=group_range, y_range=list(reversed(romans)))
 p.plot_width = 1200
 p.toolbar_location = None
 p.outline_line_color = None
 
-p.rect("group", "period", 0.9, 0.9, source=source,
+r = p.rect("group", "period", 0.9, 0.9, source=source,
        fill_alpha=0.6, color="type_color")
 
 text_props = {
@@ -73,13 +73,15 @@ p.text(x="symx", y="massy", text="mass",
 
 p.grid.grid_line_color = None
 
-p.select_one(HoverTool).tooltips = [
+hover = HoverTool(renderers=[r], tooltips = [
     ("name", "@name"),
     ("atomic number", "@atomic_number"),
     ("type", "@type"),
     ("atomic mass", "@mass"),
     ("CPK color", "$color[hex, swatch]:cpk"),
     ("electronic configuration", "@electronic"),
-]
+])
+
+p.add_tools(hover)
 
 show(p)  # Change to save(p) to save but not show the HTML file

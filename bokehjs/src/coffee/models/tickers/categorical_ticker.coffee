@@ -5,11 +5,10 @@ export class CategoricalTicker extends Ticker
 
   get_ticks: (start, end, range, cross_loc, {desired_n_ticks}) ->
     majors = []
-    factors = range.factors
-    for i in [0...factors.length]
-      ii = i + range.offset
-      if (ii+1) > start and (ii+1) < end
-        majors.push(factors[i])
+    coords = range.v_synthetic(range.factors)
+    for i in [0...coords.length]
+      if coords[i] > start and coords[i] < end
+        majors.push(range.factors[i])
     return {
       "major": majors
       "minor": []

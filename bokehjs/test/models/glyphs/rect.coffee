@@ -87,7 +87,7 @@ describe "Rect", ->
           })
         else
           scale = new CategoricalScale({
-            source_range: new FactorRange({factors:['a', 'b']})
+            source_range: new FactorRange({factors:['a', 'b'], range_padding: 0})
             target_range: new Range1d({start: 0, end: 200})
           })
         glyph_view.renderer.xscale = scale

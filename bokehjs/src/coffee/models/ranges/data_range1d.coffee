@@ -8,21 +8,21 @@ export class DataRange1d extends DataRange
   type: 'DataRange1d'
 
   @define {
-      start:               [ p.Number                  ]
-      end:                 [ p.Number                  ]
-      range_padding:       [ p.Number,       0.1       ]
-      range_padding_units: [ p.PaddingUnits, "percent" ]
-      flipped:             [ p.Bool,         false     ]
-      follow:              [ p.StartEnd,               ]
-      follow_interval:     [ p.Number                  ]
-      default_span:        [ p.Number,       2         ]
-      bounds:              [ p.Any                     ]
-      min_interval:        [ p.Any                     ]
-      max_interval:        [ p.Any                     ]
+    start:               [ p.Number                  ]
+    end:                 [ p.Number                  ]
+    range_padding:       [ p.Number,       0.1       ]
+    range_padding_units: [ p.PaddingUnits, "percent" ]
+    flipped:             [ p.Bool,         false     ]
+    follow:              [ p.StartEnd,               ]
+    follow_interval:     [ p.Number                  ]
+    default_span:        [ p.Number,       2         ]
+    bounds:              [ p.Any                     ]
+    min_interval:        [ p.Any                     ]
+    max_interval:        [ p.Any                     ]
   }
 
   @internal {
-      scale_hint:     [ p.String, 'auto' ]
+    scale_hint:     [ p.String, 'auto' ]
   }
 
   initialize: (attrs, options) ->

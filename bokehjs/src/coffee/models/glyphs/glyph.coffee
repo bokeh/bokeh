@@ -6,7 +6,7 @@ import {Model} from "../../model"
 import {Visuals} from "core/visuals"
 import {logger} from "core/logging"
 import {extend} from "core/util/object"
-import {isString, isArray} from "core/util/types"
+import {isArray} from "core/util/types"
 import {LineView} from "./line"
 
 export class GlyphView extends View
@@ -104,8 +104,8 @@ export class GlyphView extends View
   scy: (i) -> return @sy[i]
 
   sdist: (scale, pts, spans, pts_location="edge", dilate=false) ->
-    if isString(pts[0])
-      pts = scale.v_compute(pts)
+    if scale.source_range.v_synthetic?
+      pts = scale.source_range.v_synthetic(pts)
 
     if pts_location == 'center'
       halfspan = (d / 2 for d in spans)
@@ -190,6 +190,18 @@ export class GlyphView extends View
         [@_x, @_y] = proj.project_xy(@_x, @_y)
       if @_xs?
         [@_xs, @_ys] = proj.project_xsys(@_xs, @_ys)
+
+    # if we have any coordinates that are categorical, convert them to
+    # synthetic coords here
+    xr = @renderer.plot_view.frame.x_ranges[@model.x_range_name]
+    yr = @renderer.plot_view.frame.y_ranges[@model.y_range_name]
+    for [xname, yname] in @model._coords
+      xname = "_#{xname}"
+      yname = "_#{yname}"
+      if xr.v_synthetic?
+        @[xname] = xr.v_synthetic(@[xname])
+      if yr.v_synthetic?
+        @[yname] = yr.v_synthetic(@[yname])
 
     if @glglyph?
       @glglyph.set_data_changed(@_x.length)

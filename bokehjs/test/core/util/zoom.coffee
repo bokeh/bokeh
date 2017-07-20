@@ -25,26 +25,26 @@ describe "zoom module", ->
       expect(zoom.scale_highlow(r, 0, 12)).to.deep.equal([10, 20])
 
     it "should scale factor ranges around average center if no center is provided", ->
-      r = new FactorRange({factors: ['a', 'b', 'c', 'd', 'e']})
-      expect(zoom.scale_highlow(r, 0.1)).to.deep.equal([0.75, 5.25])
-      expect(zoom.scale_highlow(r, -0.1)).to.deep.equal([0.25, 5.75])
-      expect(zoom.scale_highlow(r, 0)).to.deep.equal([0.5, 5.5])
+      r = new FactorRange({factors: ['a', 'b', 'c', 'd', 'e'], range_padding: 0 })
+      expect(zoom.scale_highlow(r, 0.1)).to.deep.equal([0.25, 4.75])
+      expect(zoom.scale_highlow(r, -0.1)).to.deep.equal([-0.25, 5.25])
+      expect(zoom.scale_highlow(r, 0)).to.deep.equal([0.0, 5.0])
 
     it "should scale factor ranges around given center if center is provided", ->
-      r = new FactorRange({factors: ['a', 'b', 'c', 'd', 'e']})
-      expect(zoom.scale_highlow(r, 0.1, 2)).to.deep.equal([0.65, 5.15])
-      expect(zoom.scale_highlow(r, -0.1, 2)).to.deep.equal([0.35, 5.85])
-      expect(zoom.scale_highlow(r, 0, 2)).to.deep.equal([0.5, 5.5])
+      r = new FactorRange({factors: ['a', 'b', 'c', 'd', 'e'], range_padding: 0 })
+      expect(zoom.scale_highlow(r, 0.1, 2)).to.deep.equal([0.2, 4.7])
+      expect(zoom.scale_highlow(r, -0.1, 2)).to.deep.equal([-0.2, 5.3])
+      expect(zoom.scale_highlow(r, 0, 2)).to.deep.equal([0, 5])
 
   describe "get_info", ->
 
     it "should work with categorical scales", ->
       cm = new CategoricalScale({
-        source_range: new FactorRange({factors: ['foo', 'bar', 'baz']})
+        source_range: new FactorRange({factors: ['foo', 'bar', 'baz'], range_padding: 0 })
         target_range: Range1d(20, 80)
       })
       info = zoom.get_info({foo: cm}, [20, 80])
-      expect(info).to.deep.equal({foo: {start: 0.5, end: 3.5}})
+      expect(info).to.deep.equal({foo: {start: 0, end: 3}})
 
       info = zoom.get_info({foo: cm}, [50, 60])
-      expect(info).to.deep.equal({foo: {start: 2, end: 2.5}})
+      expect(info).to.deep.equal({foo: {start: 1.5, end: 2}})

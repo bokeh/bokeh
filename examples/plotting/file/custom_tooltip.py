@@ -22,7 +22,7 @@ source = ColumnDataSource(
         atomic_number=elements["atomic number"],
         sym=elements["symbol"],
         name=elements["name"],
-        atomic_mass=elements["atomic mass"],
+        atomic_mass = elements['atomic mass'].convert_objects(convert_numeric=True),
         density=elements['density'],
         metal=[x.title() for x in elements["metal"]],
         type_color=[colormap[x] for x in elements["metal"]]

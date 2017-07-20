@@ -12,7 +12,7 @@ export scale_highlow = (range, factor, center=null) ->
 export get_info = (scales, [x0, x1]) ->
   info = {}
   for name, scale of scales
-    [start, end] = scale.v_invert([x0, x1], true)
+    [start, end] = scale.v_invert([x0, x1])
     info[name] = {start: start, end: end}
   return info
 
