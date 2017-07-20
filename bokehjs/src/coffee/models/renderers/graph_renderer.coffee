@@ -23,6 +23,11 @@ export class GraphRendererView extends RendererView
     @connect(@model.node_renderer.data_source.select, () -> @set_data())
 
   set_data: (request_render=true) ->
+    # TODO (bev) this is a bit clunky, need to make sure glyphs use the correct ranges when they call
+    # mapping functions on the base Renderer class
+    @node_view.glyph.model.setv({x_range_name: @model.x_range_name, y_range_name: @model.y_range_name}, {silent: true})
+    @edge_view.glyph.model.setv({x_range_name: @model.x_range_name, y_range_name: @model.y_range_name}, {silent: true})
+
     [@node_view.glyph._x, @node_view.glyph._y] = @model.layout_provider.get_node_coordinates(@model.node_renderer.data_source)
     [@edge_view.glyph._xs, @edge_view.glyph._ys] = @model.layout_provider.get_edge_coordinates(@model.edge_renderer.data_source)
 

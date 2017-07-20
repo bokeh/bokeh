@@ -1,9 +1,7 @@
 import {HasProps} from "./has_props"
-import {logger} from "./logging"
 import {Selector} from "./selector"
 import * as hittest from "./hittest"
 import * as p from "./properties"
-import {GraphRendererView} from "../models/renderers/graph_renderer"
 
 export class SelectionManager extends HasProps
   type: 'SelectionManager'
@@ -29,9 +27,9 @@ export class SelectionManager extends HasProps
     return did_hit
 
   inspect: (renderer_view, geometry) ->
-    inspector = @_get_inspector(renderer_view)
-
     did_hit = false
+    @_set_inspector(renderer_view)
+
     did_hit ||= renderer_view.hit_test(geometry, false, false, "inspect")
 
     @last_inspection_was_empty[renderer_view.model.id] = did_hit
@@ -43,9 +41,7 @@ export class SelectionManager extends HasProps
     @selector.clear()
     @source.selected = hittest.create_hit_test_result()
 
-  _get_inspector: (rview) ->
+  _set_inspector: (rview) ->
     id = rview.model.id
-    if @inspectors[id]?
-      return @inspectors[id]
-    else
-      return @inspectors[id] = new Selector()
+    if not @inspectors[id]?
+      @inspectors[id] = new Selector()
