@@ -63,8 +63,6 @@ export class HoverToolView extends InspectToolView
 
     if tooltips?
       for r in @computed_renderers
-        if r.node_renderer?
-          r = r.node_renderer
         tooltip = new Tooltip({
           custom: isString(tooltips) or isFunction(tooltips)
           attachment: @model.attachment
@@ -143,6 +141,10 @@ export class HoverToolView extends InspectToolView
     tooltip.clear()
 
     indices = renderer_view.model.get_selection_manager().inspectors[renderer_view.model.id].indices
+    ds = renderer_view.model.get_selection_manager.source
+
+    if renderer_view.node_view?
+      renderer_view = renderer_view.node_view
 
     if indices['0d'].glyph == null and indices['1d'].indices.length == 0
       return
@@ -206,7 +208,7 @@ export class HoverToolView extends InspectToolView
 
       vars = {index: ii, x: x, y: y, vx: vx, vy: vy, sx: sx, sy: sy, data_x: data_x, data_y: data_y, rx:rx, ry:ry}
 
-      ds = renderer_view.model.get_selection_manager.source
+
       tooltip.add(rx, ry, @_render_tooltips(ds, ii, vars))
 
     for i in indices['1d'].indices

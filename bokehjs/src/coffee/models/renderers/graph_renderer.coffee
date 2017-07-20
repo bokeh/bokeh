@@ -36,15 +36,15 @@ export class GraphRendererView extends RendererView
     @edge_view.render()
     @node_view.render()
 
-  hit_test: (geometry, final, append) ->
-    return @model.hit_test_helper(geometry, @node_view.glyph, final, append)
+  hit_test: (geometry, final, append, mode="select") ->
+    return @model.hit_test_helper(geometry, @node_view.glyph, final, append, mode)
 
 
 export class GraphRenderer extends Renderer
   default_view: GraphRendererView
   type: 'GraphRenderer'
 
-  hit_test_helper: (geometry, glyph, final, append) ->
+  hit_test_helper: (geometry, glyph, final, append, mode) ->
     if not @visible
       return false
 
@@ -55,9 +55,15 @@ export class GraphRenderer extends Renderer
       return false
 
     indices = @node_renderer.view.convert_selection_from_subset(hit_test_result)
-    selector = @node_renderer.data_source.selection_manager.selector
-    selector.update(indices, final, append)
-    @node_renderer.data_source.selected = selector.indices
+
+    if mode == "select"
+      selector = @node_renderer.data_source.selection_manager.selector
+      selector.update(indices, final, append)
+      @node_renderer.data_source.selected = selector.indices
+    else ## if mode=="inspect"
+      inspector = @node_renderer.data_source.selection_manager.inspectors[@id]
+      inspector.update(indices, true, false, true)
+      @node_renderer.data_source.inspected = inspector.indices
 
     return not indices.is_empty()
 
@@ -65,6 +71,8 @@ export class GraphRenderer extends Renderer
     return @node_renderer.data_source.selection_manager
 
   @define {
+      x_range_name:       [ p.String,  'default' ]
+      y_range_name:       [ p.String,  'default' ]
       layout_provider: [ p.Instance                              ]
       node_renderer:   [ p.Instance                              ]
       edge_renderer:   [ p.Instance                              ]
