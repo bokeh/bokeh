@@ -249,8 +249,8 @@ export class GlyphRendererView extends RendererView
     index = @model.get_reference_point(field, label)
     @glyph.draw_legend_for_index(ctx, x0, x1, y0, y1, index)
 
-  hit_test: (geometry, final, append) ->
-    return @model.hit_test_helper(geometry, @glyph, final, append)
+  hit_test: (geometry, final, append, mode="select") ->
+    return @model.hit_test_helper(geometry, @glyph, final, append, mode)
 
 
 export class GlyphRenderer extends Renderer
@@ -275,7 +275,7 @@ export class GlyphRenderer extends Renderer
           index = i
     return index
 
-  hit_test_helper: (geometry, glyph, final, append) ->
+  hit_test_helper: (geometry, glyph, final, append, mode) ->
     if not @visible
       return false
 
@@ -286,9 +286,15 @@ export class GlyphRenderer extends Renderer
       return false
 
     indices = @view.convert_selection_from_subset(hit_test_result)
-    selector = @data_source.selection_manager.selector
-    selector.update(indices, final, append)
-    @data_source.selected = selector.indices
+
+    if mode == "select"
+      selector = @data_source.selection_manager.selector
+      selector.update(indices, final, append)
+      @data_source.selected = selector.indices
+    else # mode == "inspect"
+      inspector = @data_source.selection_manager.inspectors[@id]
+      inspector.update(indices, true, false, true)
+      @data_source.inspected = inspector.indices
 
     return not indices.is_empty()
 

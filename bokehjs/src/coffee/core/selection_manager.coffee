@@ -29,52 +29,21 @@ export class SelectionManager extends HasProps
     return did_hit
 
   inspect: (tool, renderer_view, geometry, data) ->
-    source = @source
+    inspector = @_get_inspector(renderer_view.model.id)
 
-    # if source != renderer_view.model.data_source
-    #   logger.warn('inspect called with mis-matched data sources')
-    #
-    # view = renderer_view.model.view
-    # if source != view.source
-    #   logger.warn('inspect called with view and data source mismatch')
+    did_hit = false
+    did_hit ||= renderer_view.hit_test(geometry, false, false, "inspect")
 
-    hit_test_result = renderer_view.hit_test(geometry)
+    @last_inspection_was_empty[renderer_view.model.id] = did_hit
 
-    if renderer_view instanceof GraphRendererView
-      indices = renderer_view.model.node_renderer.view.convert_selection_from_subset(hit_test_result)
-      renderer_view = renderer_view.node_view
-    else
-      indices = renderer_view.model.view.convert_selection_from_subset(hit_test_result)
-
-    if indices?
-      r_id = renderer_view.model.id
-
-      if indices.is_empty()
-        if not @last_inspection_was_empty[r_id]?
-          @last_inspection_was_empty[r_id] = false
-        if @last_inspection_was_empty[r_id]
-          return
-        else
-          @last_inspection_was_empty[r_id] = true
-      else
-        @last_inspection_was_empty[r_id] = false
-
-      inspector = @_get_inspector(renderer_view)
-      inspector.update(indices, true, false, true)
-
-      @source.setv({inspected: inspector.indices}, {"silent": true })
-
-      source.inspect.emit([indices, tool, renderer_view, source, data])
-      return not indices.is_empty()
-    else
-      return false
+    @source.inspect.emit([renderer_view, {"geometry": geometry}])
+    return did_hit
 
   clear: (rview) ->
     @selector.clear()
     @source.selected = hittest.create_hit_test_result()
 
-  _get_inspector: (rview) ->
-    id = rview.model.id
+  _get_inspector: (id) ->
     if @inspectors[id]?
       return @inspectors[id]
     else
