@@ -138,17 +138,17 @@ describe "SelectionManager", ->
     it "should update its data source's selected property", ->
       sm = new SelectionManager({'source': column_data_source})
       expect(sm.source.selected).to.deep.equal empty_selection
-      sm.select('tool', [glyph_renderer_view_normal], geometry, true)
+      sm.select([glyph_renderer_view_normal], geometry, true)
       expect(sm.source.selected).to.not.deep.equal empty_selection
 
     it "should update its selector", ->
       sm = new SelectionManager({'source': column_data_source})
-      sm.select('tool', [glyph_renderer_view_normal], geometry, true)
+      sm.select([glyph_renderer_view_normal], geometry, true)
       expect(sm.selector).to.not.deep.equal empty_selection
 
     it "should work when scales are reversed", ->
       sm = new SelectionManager({'source': column_data_source})
-      sm.select('tool', [glyph_renderer_view_reverse], geometry, true)
+      sm.select([glyph_renderer_view_reverse], geometry, true)
       expect(sm.source.selected).to.not.deep.equal empty_selection
       expect(sm.selector).to.not.deep.equal empty_selection
 
@@ -162,15 +162,15 @@ describe "SelectionManager", ->
 
     it "should select from multiple renderers", ->
       sm = new SelectionManager({'source': column_data_source})
-      sm.select('tool', [glyph_renderer_view_normal], geometry2, true)
+      sm.select([glyph_renderer_view_normal], geometry2, true)
       expect(sm.source.selected).to.deep.equal empty_selection
-      sm.select('tool', [glyph_renderer_view_normal, glyph_renderer_view2], geometry2, true)
+      sm.select([glyph_renderer_view_normal, glyph_renderer_view2], geometry2, true)
       expect(sm.source.selected).not.to.deep.equal empty_selection
 
     # TODO (bev) if hit tests are changed to uniformly return lists, this can be removed
     it "should ignore null hit test results", ->
       sm = new SelectionManager({'source': column_data_source_null})
       expect(sm.source.selected).to.deep.equal empty_selection
-      r = sm.select('tool', [glyph_renderer_view_null], geometry, true)
+      r = sm.select([glyph_renderer_view_null], geometry, true)
       expect(r).to.be.false
       expect(sm.source.selected).to.deep.equal empty_selection
