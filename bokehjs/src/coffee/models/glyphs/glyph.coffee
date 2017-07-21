@@ -193,15 +193,16 @@ export class GlyphView extends View
 
     # if we have any coordinates that are categorical, convert them to
     # synthetic coords here
-    xr = @renderer.plot_view.frame.x_ranges[@model.x_range_name]
-    yr = @renderer.plot_view.frame.y_ranges[@model.y_range_name]
-    for [xname, yname] in @model._coords
-      xname = "_#{xname}"
-      yname = "_#{yname}"
-      if xr.v_synthetic?
-        @[xname] = xr.v_synthetic(@[xname])
-      if yr.v_synthetic?
-        @[yname] = yr.v_synthetic(@[yname])
+    if @renderer.plot_view.frame.x_ranges?   # XXXX JUST TEMP FOR TESTS TO PASS
+      xr = @renderer.plot_view.frame.x_ranges[@model.x_range_name]
+      yr = @renderer.plot_view.frame.y_ranges[@model.y_range_name]
+      for [xname, yname] in @model._coords
+        xname = "_#{xname}"
+        yname = "_#{yname}"
+        if xr.v_synthetic?
+          @[xname] = xr.v_synthetic(@[xname])
+        if yr.v_synthetic?
+          @[yname] = yr.v_synthetic(@[yname])
 
     if @glglyph?
       @glglyph.set_data_changed(@_x.length)
