@@ -92,3 +92,9 @@ class TestSessionId(unittest.TestCase):
         key2 = generate_secret_key()
         self.assertEqual(44, len(key2))
         self.assertNotEqual(key, key2)
+
+    def test_string_encoding_does_not_affect_session_id_check(self):
+        # originates from #6653 
+        session_id = generate_session_id(signed=True, secret_key="abc")
+        self.assertTrue(check_session_id_signature(session_id, secret_key="abc", signed=True))
+        self.assertTrue(check_session_id_signature(session_id.decode('utf-8'), secret_key="abc", signed=True))
