@@ -17,6 +17,7 @@ import time
 from six import binary_type
 
 from bokeh.settings import settings
+from bokeh.util.string import encode_utf8
 
 # Use the system PRNG for session id generation (if possible)
 # NOTE: secure random string generation implementation is adapted
@@ -153,6 +154,7 @@ def check_session_id_signature(session_id, secret_key=settings.secret_key_bytes(
         expected_signature = _signature(base_id, secret_key)
         # hmac.compare_digest() uses a string compare algorithm that doesn't
         # short-circuit so we don't allow timing analysis
-        return hmac.compare_digest(expected_signature, provided_signature)
+        # encode_utf8 is used to ensure that strings have same encoding
+        return hmac.compare_digest(encode_utf8(expected_signature), encode_utf8(provided_signature))
     else:
         return True
