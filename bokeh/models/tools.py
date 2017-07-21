@@ -25,7 +25,7 @@ from __future__ import absolute_import
 from ..core.enums import Anchor, Dimension, Dimensions, Location, TooltipFieldFormatter
 from ..core.has_props import abstract
 from ..core.properties import (
-    Any, Auto, Bool, Color, Dict, Either, Enum, Float, Percent, Instance, List,
+    Auto, Bool, Color, Dict, Either, Enum, Float, Percent, Instance, List,
     Override, Seq, String, Tuple
 )
 from ..model import Model
@@ -36,17 +36,6 @@ from .callbacks import Callback
 from .renderers import Renderer
 from .layouts import Box, LayoutDOM
 
-
-class ToolEvents(Model):
-    ''' A class for reporting tools geometries from BokehJS.
-
-    .. warning::
-        This class will be superceded by a new general events system in the
-        near future.
-
-    '''
-
-    geometries = List(Dict(String, Any))
 
 @abstract
 class Tool(Model):
@@ -332,8 +321,25 @@ class TapTool(Tap):
     """)
 
     callback = Instance(Callback, help="""
-    A client-side action specification, like opening a URL, showing
-    a dialog box, etc. See :class:`~bokeh.models.actions.Action` for details.
+    A callback to execute *whenever a glyph is "hit"* by a mouse click
+    or tap.
+
+    This is often useful with the  :class:`~bokeh.models.callbacks.OpenURL`
+    model to open URLs based on a user clicking or tapping a specific glyph.
+
+    However, it may also be a :class:`~bokeh.models.callbacks.CustomJS`
+    which can execute arbitrary JavaScript code in response to clicking or
+    tapping glyphs. The callback will be executed for each individual glyph
+    that is it hit by a click or tap, and will receive the ``TapTool`` model
+    as  ``cb_obj``. The optional ``cb_data`` will have the data source as
+    its ``.source`` attribute and the selection geometry as its
+    ``.geometries`` attribute.
+
+    .. note::
+        This callback does *not* execute on every tap, only when a glyphs is
+        "hit". If you would like to execute a callback on every mouse tap,
+        please see :ref:`userguide_interaction_jscallbacks_customjs_interactions`.
+
     """)
 
 

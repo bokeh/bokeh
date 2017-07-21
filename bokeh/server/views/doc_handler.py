@@ -16,12 +16,6 @@ class DocHandler(SessionHandler):
     ''' Implements a custom Tornado handler for document display page
 
     '''
-    def __init__(self, tornado_app, *args, **kw):
-        super(DocHandler, self).__init__(tornado_app, *args, **kw)
-
-    def initialize(self, *args, **kw):
-        pass
-
     @gen.coroutine
     def get(self, *args, **kwargs):
         session = yield self.get_session()

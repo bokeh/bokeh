@@ -1,7 +1,9 @@
-import {join} from "path"
+import {resolve, join} from "path"
 import {argv} from "yargs"
 
-const BUILD_DIR = argv.buildDir || "./build"
+export const base_dir = resolve("./")
+
+const BUILD_DIR = argv.buildDir ? resolve(argv.buildDir) : join(base_dir, "build")
 const JS_BUILD_DIR = join(BUILD_DIR, "js")
 const CSS_BUILD_DIR = join(BUILD_DIR, "css")
 
@@ -11,41 +13,37 @@ export const build_dir = {
   css: CSS_BUILD_DIR,
   tree_js: join(JS_BUILD_DIR, "tree"),
   tree_ts: join(JS_BUILD_DIR, "tree_ts"),
+  compiler: join(JS_BUILD_DIR, "compiler"),
+}
+
+export const src_dir = {
+  coffee: join(base_dir, "src", "coffee"),
+  compiler: join(base_dir, "src", "compiler"),
 }
 
 export const coffee = {
   bokehjs: {
-    destination: {
-      name: "bokeh.js",
-      path: join(build_dir.js, "bokeh.js"),
-    },
+    main: join(build_dir.tree_js, "main.js"),
+    output: join(build_dir.js, "bokeh.js"),
   },
   api: {
-    destination: {
-      name: "bokeh-api.js",
-      path: join(build_dir.js, "bokeh-api.js"),
-    },
+    main: join(build_dir.tree_js, "api/main.js"),
+    output: join(build_dir.js, "bokeh-api.js"),
   },
   widgets: {
-    destination: {
-      name: "bokeh-widgets.js",
-      path: join(build_dir.js, "bokeh-widgets.js"),
-    },
+    main: join(build_dir.tree_js, "models/widgets/main.js"),
+    output: join(build_dir.js, "bokeh-widgets.js"),
   },
   tables: {
-    destination: {
-      name: "bokeh-tables.js",
-      path: join(build_dir.js, "bokeh-tables.js"),
-    },
+    main: join(build_dir.tree_js, "models/widgets/tables/main.js"),
+    output: join(build_dir.js, "bokeh-tables.js"),
   },
   gl: {
-    destination: {
-      name: "bokeh-gl.js",
-      path: join(build_dir.js, "bokeh-gl.js"),
-    },
+    main: join(build_dir.tree_js, "models/glyphs/webgl/main.js"),
+    output: join(build_dir.js, "bokeh-gl.js"),
   },
   watchSources: [
-    "./src/coffee/**/**",
+    join(base_dir, "src/coffee/**/**"),
   ],
 }
 
@@ -64,18 +62,18 @@ export const css = {
 
 export const less = {
   sources: [
-    "./src/less/bokeh.less",
-    "./src/less/bokeh-widgets.less",
-    "./src/less/bokeh-tables.less",
+    join(base_dir, "src/less/bokeh.less"),
+    join(base_dir, "src/less/bokeh-widgets.less"),
+    join(base_dir, "src/less/bokeh-tables.less"),
   ],
   watchSources: [
-    "./src/less/**/**",
+    join(base_dir, "src/less/**/**"),
   ],
 }
 
 export const test = {
   watchSources: [
-    "./test/**/**",
-    "./src/coffee/**/**",
+    join(base_dir, "test/**/**"),
+    join(base_dir, "src/coffee/**/**"),
   ]
 }

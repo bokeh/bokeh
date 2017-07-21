@@ -1,2 +1,5 @@
 import * as Tables from "./index"
-export const models = Tables
+export {Tables}
+
+import {register_models} from "../../../base"
+register_models(Tables)

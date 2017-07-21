@@ -1,4 +1,4 @@
-import * as sprintf from "sprintf"
+import {sprintf} from "sprintf-js"
 import * as models from "./models"
 import * as palettes from "./palettes"
 import {zip, unzip, sum, cumsum, copy} from "../core/util/array"

@@ -19,10 +19,9 @@ export class TapToolView extends SelectToolView
     }
 
     callback = @model.callback
-    @_save_geometry(geometry, final, append)
 
     cb_data =
-      geometries: @plot_model.plot.tool_events.geometries
+      geometries: geometry
 
     if @model.behavior == "select"
 
@@ -34,10 +33,13 @@ export class TapToolView extends SelectToolView
         did_hit = sm.select(r_views, geometry, final, append)
 
         if did_hit and callback?
+          cb_data.source = sm.source
           if isFunction(callback)
-            callback(sm.source, cb_data)
+            callback(@, cb_data)
           else
-            callback.execute(sm.source, cb_data)
+            callback.execute(@, cb_data)
+
+      @_emit_selection_event(geometry)
 
       @plot_view.push_state('tap', {selection: @plot_view.get_selection()})
 
@@ -47,10 +49,11 @@ export class TapToolView extends SelectToolView
         did_hit = sm.inspect(@plot_view.renderer_views[r.id], geometry)
 
         if did_hit and callback?
+          cb_data.source = sm.source
           if isFunction(callback)
-            callback(sm.source, cb_data)
+            callback(@, cb_data)
           else
-            callback.execute(sm.source, cb_data)
+            callback.execute(@, cb_data)
 
     return null
 

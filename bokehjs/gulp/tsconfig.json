@@ -11,8 +11,9 @@
     "declaration": false,
     "module": "commonjs",
     "moduleResolution": "node",
-    "target": "ES5",
+    "target": "ES6",
     "lib": ["es6"],
+    "types": ["node"],
     "baseUrl": "."
   }
 }

@@ -6,6 +6,7 @@ from __future__ import absolute_import
 from .views.ws import WSHandler
 from .views.root_handler import RootHandler
 from .views.doc_handler import DocHandler
+from .views.metadata_handler import MetadataHandler
 from .views.static_handler import StaticHandler
 from .views.autoload_js_handler import AutoloadJsHandler
 
@@ -20,5 +21,6 @@ toplevel_patterns = [
 per_app_patterns = [
     (r'/?', DocHandler),
     (r'/ws', WSHandler),
+    (r'/metadata', MetadataHandler),
     (r'/autoload.js', AutoloadJsHandler)
 ]

@@ -4,6 +4,7 @@ import {GraphRenderer} from "../../renderers/graph_renderer"
 import {logger} from "core/logging"
 import * as p from "core/properties"
 import {clone} from "core/util/object"
+import {SelectionGeometry} from "core/bokeh_events"
 
 export class SelectToolView extends GestureToolView
 
@@ -41,7 +42,7 @@ export class SelectToolView extends GestureToolView
         sm = ds.selection_manager
         sm.clear()
 
-  _save_geometry: (geometry, final, append) ->
+  _emit_selection_event: (geometry, final=true) ->
     g = clone(geometry)
     xm = @plot_view.frame.xscales['default']
     ym = @plot_view.frame.yscales['default']
@@ -63,16 +64,7 @@ export class SelectToolView extends GestureToolView
       else
         logger.debug("Unrecognized selection geometry type: '#{g.type}'")
 
-    if final
-      tool_events = @plot_model.plot.tool_events
-      if append
-        geoms = tool_events.geometries
-        geoms.push(g)
-      else
-        geoms = [g]
-
-      tool_events.geometries = geoms
-    return null
+    @plot_model.plot.trigger_event(new SelectionGeometry({geometry: g, final: final}))
 
 export class SelectTool extends GestureTool
 

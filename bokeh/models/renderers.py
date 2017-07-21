@@ -16,6 +16,7 @@ from ..core.validation.errors import (
     MALFORMED_GRAPH_SOURCE
 )
 from ..model import Model
+from ..util.deprecation import deprecated
 
 from .glyphs import Glyph, Circle, MultiLine
 from .graphs import LayoutProvider
@@ -39,7 +40,7 @@ class Renderer(Model):
 
 @abstract
 class DataRenderer(Renderer):
-    ''' An abstract base class for data renderer types (e.g. ``GlyphRenderer``, ``TileRenderer``).
+    ''' An abstract base class for data renderer types (e.g. ``GlyphRenderer``, ``TileRenderer``, ``GraphRenderer``).
 
     '''
 
@@ -78,6 +79,10 @@ class DynamicImageRenderer(DataRenderer):
     '''
 
     '''
+
+    def __init__(self, *args, **kw):
+        super(DynamicImageRenderer, self).__init__(*args, **kw)
+        deprecated((0, 12, 7), "DynamicImageRenderer", "GeoViews for GIS functions on top of Bokeh (http://geo.holoviews.org)")
 
     image_source = Instance(ImageSource, help="""
     Image source to use when rendering on the plot.

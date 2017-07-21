@@ -65,8 +65,8 @@ def from_networkx(graph, layout_function, **kwargs):
         ))
 
         graph_renderer = GraphRenderer()
-        graph_renderer.node_renderer.data_source = node_source
-        graph_renderer.edge_renderer.data_source = edge_source
+        graph_renderer.node_renderer.data_source.data = node_source.data
+        graph_renderer.edge_renderer.data_source.data = edge_source.data
 
         graph_layout = layout_function(graph, **kwargs)
         graph_renderer.layout_provider = StaticLayoutProvider(graph_layout=graph_layout)

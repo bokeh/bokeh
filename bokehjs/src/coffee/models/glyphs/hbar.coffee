@@ -40,8 +40,8 @@ export class HBarView extends GlyphView
     points = []
 
     for i in [0...y.length]
-      l = left[i]
-      r = right[i]
+      l = Math.min(left[i], right[i])
+      r = Math.max(left[i], right[i])
       t = y[i] + 0.5 * height[i]
       b = y[i] - 0.5 * height[i]
       if isNaN(l+r+t+b) or not isFinite(l+r+t+b)

@@ -1,4 +1,4 @@
-import * as SPrintf from "sprintf"
+import {sprintf} from "sprintf-js"
 import * as Numbro from "numbro"
 import * as tz from "timezone"
 
@@ -15,7 +15,7 @@ _format_number = (number) ->
       else
         "%0.3e"
 
-    return SPrintf.sprintf(format, number)
+    return sprintf(format, number)
   else
     return "#{number}" # get strings for categorical types
 
@@ -50,7 +50,7 @@ export replace_placeholders = (string, data_source, i, formatters, special_vars 
           else if formatters[name] == "datetime"
             replacement = tz(value, format)
           else if formatters[name] == "printf"
-            replacement = SPrintf(format, value)
+            replacement = sprintf(format, value)
           else
             throw new Error("Unknown tooltip field formatter type '#{ formatters[name] }'")
 

@@ -1,5 +1,4 @@
 from jinja2 import Environment, FileSystemLoader
-import pandas as pd
 import yaml
 
 from tornado.ioloop import IOLoop
@@ -14,6 +13,8 @@ from bokeh.plotting import figure
 from bokeh.server.server import Server
 from bokeh.themes import Theme
 
+from bokeh.sampledata.sea_surface_temperature import sea_surface_temperature
+
 env = Environment(loader=FileSystemLoader('templates'))
 
 class IndexHandler(RequestHandler):
@@ -23,11 +24,7 @@ class IndexHandler(RequestHandler):
         self.write(template.render(script=script, template="Tornado"))
 
 def modify_doc(doc):
-    data_url = "http://www.neracoos.org/erddap/tabledap/B01_sbe37_all.csvp?time,temperature&depth=1&temperature_qc=0&time>=2016-02-15&time<=2017-03-22"
-    df = pd.read_csv(data_url, parse_dates=True, index_col=0)
-    df = df.rename(columns={'temperature (celsius)': 'temperature'})
-    df.index.name = 'time'
-
+    df = sea_surface_temperature.copy()
     source = ColumnDataSource(data=df)
 
     plot = figure(x_axis_type='datetime', y_range=(0, 25), y_axis_label='Temperature (Celsius)',

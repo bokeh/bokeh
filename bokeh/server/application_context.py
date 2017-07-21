@@ -98,13 +98,14 @@ class ApplicationContext(object):
         data specific to an "instance" of the application.
     '''
 
-    def __init__(self, application, io_loop=None):
+    def __init__(self, application, io_loop=None, url=None):
         self._application = application
         self._loop = io_loop
         self._sessions = dict()
         self._pending_sessions = dict()
         self._session_contexts = dict()
         self._server_context = None
+        self._url = url
 
     @property
     def io_loop(self):
@@ -113,6 +114,10 @@ class ApplicationContext(object):
     @property
     def application(self):
         return self._application
+
+    @property
+    def url(self):
+        return self._url
 
     @property
     def server_context(self):

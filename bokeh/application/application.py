@@ -90,7 +90,25 @@ class SessionContext(with_metaclass(ABCMeta)):
         raise NotImplementedError("locked_document")
 
 class Application(object):
-    ''' An Application is a factory for Document instances.
+    '''
+    An Application is a factory for Document instances.
+
+        Args:
+            handlers (`bokeh.server.views.doc_handler.DocHandler`):
+                List of handlers called.  The url is taken from the first one
+                only.
+
+            metadata (dict):
+                May be requested by http://applicationurl/metadata as a json
+                blob which will look like::
+
+                    {
+                        "data": {
+                            "hi": "hi",
+                            "there": "there"
+                        },
+                        "url": "/myapp"
+                    }
 
     '''
 
@@ -100,9 +118,18 @@ class Application(object):
     # will function without bringing in tornado.
     _is_a_bokeh_application_class = True
 
-    def __init__(self, *handlers):
+    def __init__(self, *handlers, **kwargs):
+        '''
+        Application factory.
+
+        '''
+        metadata = kwargs.pop('metadata', None)
+        if kwargs:
+            raise TypeError("Invalid keyword argument: %s" %
+                kwargs.keys()[0])
         self._static_path = None
         self._handlers = []
+        self._metadata = metadata
         for h in handlers:
             self.add(h)
 
@@ -151,6 +178,10 @@ class Application(object):
     @property
     def safe_to_fork(self):
         return all(handler.safe_to_fork for handler in self._handlers)
+
+    @property
+    def metadata(self):
+        return self._metadata
 
     @property
     def static_path(self):

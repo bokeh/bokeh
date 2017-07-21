@@ -26,7 +26,7 @@ namespace HoverfulScatter {
 
   const N = xx.length
   const indices = range(N).map((i) => i.toString())
-  const radii = range(N).map((i) => random()*0.4 + 1.7)
+  const radii = range(N).map((_) => random()*0.4 + 1.7)
 
   const colors: Array<string> = []
   for (const [r, g] of zip(xx.map((x) => 50 + 2*x), yy.map((y) => 30 + 2*y)))
@@ -40,11 +40,11 @@ namespace HoverfulScatter {
 
   const p = plt.figure({title: "Hoverful Scatter", tools: tools})
 
-  const circles = p.circle({field: "x"}, {field: "y"}, {source: source, radius: radii,
-              fill_color: colors, fill_alpha: 0.6, line_color: null})
+  p.circle({field: "x"}, {field: "y"}, {source: source, radius: radii,
+    fill_color: colors, fill_alpha: 0.6, line_color: null})
 
   p.text({field: "x"}, {field: "y"}, indices, {source: source, alpha: 0.5,
-     text_font_size: "5pt", text_baseline: "middle", text_align: "center"})
+    text_font_size: "5pt", text_baseline: "middle", text_align: "center"})
 
   const hover = p.toolbar.select_one(Bokeh.HoverTool)
   hover.tooltips = (source, info) => {

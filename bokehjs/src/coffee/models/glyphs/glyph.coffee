@@ -25,7 +25,7 @@ export class GlyphView extends View
 
     if ctx.glcanvas?
       try
-        glglyphs = require("models/glyphs/webgl/index")
+        glglyphs = require("./webgl/index")
       catch e
         if e.code == 'MODULE_NOT_FOUND'
           logger.warn('WebGL was requested and is supported, but bokeh-gl(.min).js is not available, falling back to 2D rendering.')
