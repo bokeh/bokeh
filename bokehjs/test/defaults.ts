@@ -64,8 +64,12 @@ function check_matching_defaults(name: string, python_defaults: {[key: string]: 
   for (const k in bokehjs_defaults) {
     const js_v = bokehjs_defaults[k]
 
-    // special case for graph renderer sources
-    if (name === "GraphRenderer" && k === "graph_source")
+    // special case for graph renderer node_renderer
+    if (name === "GraphRenderer" && k === "node_renderer")
+      continue
+
+    // special case for graph renderer node_renderer
+    if (name === "GraphRenderer" && k === "edge_renderer")
       continue
 
     // special case for date picker, default is "now"
