@@ -83,6 +83,6 @@ export class GraphRenderer extends Renderer
       edge_renderer:   [ p.Instance                              ]
     }
 
-  @override { # todo prop into renderers?
+  @override {
     level: 'glyph'
   }

@@ -42,6 +42,21 @@ export class SelectToolView extends GestureToolView
         sm = ds.selection_manager
         sm.clear()
 
+  _select: (geometry, final, append) ->
+    renderers_by_source = @_computed_renderers_by_data_source()
+
+    for _, renderers of renderers_by_source
+      sm = renderers[0].get_selection_manager()
+      r_views = (@plot_view.renderer_views[r.id] for r in renderers)
+      sm.select(r_views, geometry, final, append)
+
+    if @model.callback?
+      @_emit_callback(geometry)
+
+    @_emit_selection_event(geometry, final)
+
+    return null
+
   _emit_selection_event: (geometry, final=true) ->
     g = clone(geometry)
     xm = @plot_view.frame.xscales['default']
