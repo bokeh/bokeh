@@ -19,7 +19,7 @@ def update():
         'years_experience' : current.years_experience,
     }
 
-slider = Slider(title="Max Salary", start=10000, end=250000, value=150000, step=1000)
+slider = Slider(title="Max Salary", start=10000, end=110000, value=50000, step=1000, format="0,0")
 slider.on_change('value', lambda attr, old, new: update())
 
 button = Button(label="Download", button_type="success")
