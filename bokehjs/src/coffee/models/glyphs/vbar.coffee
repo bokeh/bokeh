@@ -71,10 +71,10 @@ export class VBar extends Glyph
   default_view: VBarView
   type: 'VBar'
 
+  @coords [['x', 'bottom']]
   @mixins ['line', 'fill']
   @define {
-      x:      [ p.NumberSpec    ]
-      width:  [ p.DistanceSpec  ]
-      top:    [ p.NumberSpec    ]
-      bottom: [ p.NumberSpec, 0 ]
-    }
+    width:  [ p.DistanceSpec  ]
+    top:    [ p.NumberSpec    ]
+  }
+  @override { bottom: 0 }

@@ -72,10 +72,10 @@ export class HBar extends Glyph
   default_view: HBarView
   type: 'HBar'
 
+  @coords [['y', 'left']]
   @mixins ['line', 'fill']
   @define {
-      y:      [ p.NumberSpec    ]
-      height: [ p.DistanceSpec  ]
-      left:   [ p.NumberSpec, 0 ]
-      right:  [ p.NumberSpec    ]
-    }
+    height: [ p.DistanceSpec  ]
+    right:  [ p.NumberSpec    ]
+  }
+  @override { left: 0 }
