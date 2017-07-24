@@ -1,5 +1,6 @@
 import {GestureTool, GestureToolView} from "./gesture_tool"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
+import {GraphRenderer} from "../../renderers/graph_renderer"
 import {logger} from "core/logging"
 import * as p from "core/properties"
 import {clone} from "core/util/object"
@@ -14,7 +15,7 @@ export class SelectToolView extends GestureToolView
 
       if renderers.length == 0
         all_renderers = @plot_model.plot.renderers
-        renderers = (r for r in all_renderers when r instanceof GlyphRenderer)
+        renderers = (r for r in all_renderers when r instanceof GlyphRenderer or r instanceof GraphRenderer)
 
       if names.length > 0
         renderers = (r for r in renderers when names.indexOf(r.name) >= 0)
@@ -25,10 +26,17 @@ export class SelectToolView extends GestureToolView
   _computed_renderers_by_data_source: () ->
     renderers_by_source = {}
     for r in @computed_renderers
-      if !(r.data_source.id of renderers_by_source)
-        renderers_by_source[r.data_source.id] = [r]
+
+      if r instanceof GraphRenderer
+        source = r.node_renderer.data_source.id
+      else if r instanceof GlyphRenderer
+        source = r.data_source.id
+
+      if !(source of renderers_by_source)
+        renderers_by_source[source] = [r]
       else
-        renderers_by_source[r.data_source.id] = renderers_by_source[r.data_source.id].concat([r])
+        renderers_by_source[source] = renderers_by_source[source].concat([r])
+
     return renderers_by_source
 
   _keyup: (e) ->
@@ -37,6 +45,21 @@ export class SelectToolView extends GestureToolView
         ds = r.data_source
         sm = ds.selection_manager
         sm.clear()
+
+  _select: (geometry, final, append) ->
+    renderers_by_source = @_computed_renderers_by_data_source()
+
+    for _, renderers of renderers_by_source
+      sm = renderers[0].get_selection_manager()
+      r_views = (@plot_view.renderer_views[r.id] for r in renderers)
+      sm.select(r_views, geometry, final, append)
+
+    if @model.callback?
+      @_emit_callback(geometry)
+
+    @_emit_selection_event(geometry, final)
+
+    return null
 
   _emit_selection_event: (geometry, final=true) ->
     g = clone(geometry)

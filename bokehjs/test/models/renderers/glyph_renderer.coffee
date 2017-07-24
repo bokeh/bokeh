@@ -1,9 +1,11 @@
 {expect} = require "chai"
 utils = require "../../utils"
 
+{create_1d_hit_test_result} = utils.require("core/hittest")
+{Selector} = utils.require("core/selector")
+
 {ColumnDataSource} = utils.require("models/sources/column_data_source")
 {DataSource} = utils.require("models/sources/data_source")
-{Glyph} = utils.require("models/glyphs/glyph")
 {GlyphRenderer} = utils.require("models/renderers/glyph_renderer")
 
 describe "GlyphRenderer", ->
@@ -45,6 +47,66 @@ describe "GlyphRenderer", ->
 
   describe "hit_test_helper", ->
 
-    it "should return null if @visible is false", ->
+    ## Dummy GlyphView classes that implement `hit_test` method
+    class HitTestNotImplemented
+      hit_test: (geometry) -> return null
+
+    class HitTestMiss
+      hit_test: (geometry) -> return create_1d_hit_test_result([])
+
+    class HitTestHit
+      hit_test: (geometry) -> return create_1d_hit_test_result([0, 1])
+
+    it "should return false if @visible is false", ->
       @gr.visible = false
-      expect(@gr.hit_test_helper("junk", "junk")).to.be.equal null
+      glyph_view = new HitTestHit()
+      expect(@gr.hit_test_helper("geometry", glyph_view, true, false, "select")).to.be.false
+
+    it "should return false if GlyphView doesn't have hit-testing and returns null", ->
+      glyph_view = new HitTestNotImplemented()
+      expect(@gr.hit_test_helper("geometry", glyph_view, true, false, "select")).to.be.false
+
+    describe "mode='select'", ->
+
+      it "should return false and clear selections if hit_test result is empty", ->
+        initial_selection = create_1d_hit_test_result([1,2])
+        @source.selected = initial_selection
+        @source.selection_manager.selector.indices = initial_selection
+
+        glyph_view = new HitTestMiss()
+        expect(@gr.hit_test_helper("geometry", glyph_view, true, false, "select")).to.be.false
+        indices = @source.selection_manager.selector.indices
+        expect(indices.is_empty()).to.be.true
+        expect(@source.selected.is_empty()).to.be.true
+
+      it "should return true if hit_test result is not empty", ->
+        glyph_view = new HitTestHit()
+        expect(@gr.hit_test_helper("geometry", glyph_view, true, false, "select")).to.be.true
+        indices = @source.selection_manager.selector.indices
+        expect(indices.is_empty()).to.be.false
+        expect(@source.selected.is_empty()).to.be.false
+
+    describe "mode='inspect'", ->
+
+      beforeEach ->
+        @id = @gr.id
+        # Have to manually add this. It's normally added selection_manager.inspect
+        @source.selection_manager.inspectors[@id] = new Selector()
+
+      it "should return false and clear inspections if hit_test result is empty", ->
+        initial_inspection = create_1d_hit_test_result([1,2])
+        @source.inspected = initial_inspection
+        @source.selection_manager.inspectors[@id].indices = initial_inspection
+
+        glyph_view = new HitTestMiss()
+        expect(@gr.hit_test_helper("geometry", glyph_view, true, false, "inspect")).to.be.false
+        indices = @source.selection_manager.inspectors[@id].indices
+        expect(indices.is_empty()).to.be.true
+        expect(@source.inspected.is_empty()).to.be.true
+
+      it "should return true if hit_test result is not empty", ->
+        glyph_view = new HitTestHit()
+        expect(@gr.hit_test_helper("geometry", glyph_view, true, false, "inspect")).to.be.true
+        indices = @source.selection_manager.inspectors[@id].indices
+        expect(indices.is_empty()).to.be.false
+        expect(@source.inspected.is_empty()).to.be.false

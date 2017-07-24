@@ -28,12 +28,12 @@ export class TapToolView extends SelectToolView
       renderers_by_source = @_computed_renderers_by_data_source()
 
       for _, renderers of renderers_by_source
-        ds = renderers[0].data_source
-        sm = ds.selection_manager
-        did_hit = sm.select(@, (@plot_view.renderer_views[r.id] for r in renderers), geometry, final, append)
+        sm = renderers[0].get_selection_manager()
+        r_views = (@plot_view.renderer_views[r.id] for r in renderers)
+        did_hit = sm.select(r_views, geometry, final, append)
 
         if did_hit and callback?
-          cb_data.source = ds
+          cb_data.source = sm.source
           if isFunction(callback)
             callback(@, cb_data)
           else
@@ -45,13 +45,11 @@ export class TapToolView extends SelectToolView
 
     else # @model.behavior == "inspect"
       for r in @computed_renderers
-        ds = r.data_source
-        sm = ds.selection_manager
-        view = @plot_view.renderer_views[r.id]
-        did_hit = sm.inspect(@, view, geometry, {geometry: geometry})
+        sm = r.get_selection_manager()
+        did_hit = sm.inspect(@plot_view.renderer_views[r.id], geometry)
 
         if did_hit and callback?
-          cb_data.source = ds
+          cb_data.source = sm.source
           if isFunction(callback)
             callback(@, cb_data)
           else

@@ -50,36 +50,25 @@ export class LassoSelectToolView extends SelectToolView
 
     if @model.select_every_mousemove
       append = e.srcEvent.shiftKey ? false
-      @_select(@data.vx, @data.vy, false, append)
+      @_do_select(@data.vx, @data.vy, false, append)
 
   _pan_end: (e) ->
     @_clear_overlay()
     append = e.srcEvent.shiftKey ? false
-    @_select(@data.vx, @data.vy, true, append)
+    @_do_select(@data.vx, @data.vy, true, append)
     @plot_view.push_state('lasso_select', {selection: @plot_view.get_selection()})
 
   _clear_overlay: () ->
     @model.overlay.update({xs:[], ys:[]})
 
-  _select: (vx, vy, final, append) ->
+  _do_select: (vx, vy, final, append) ->
     geometry = {
       type: 'poly'
       vx: vx
       vy: vy
     }
 
-    renderers_by_source = @_computed_renderers_by_data_source()
-
-    for ds, renderers of renderers_by_source
-      sm = renderers[0].data_source.selection_manager
-      sm.select(@, (@plot_view.renderer_views[r.id] for r in renderers), geometry, final, append)
-
-    if @model.callback?
-      @_emit_callback(geometry)
-
-    @_emit_selection_event(geometry, final)
-
-    return null
+    @_select(geometry, final, append)
 
   _emit_callback: (geometry) ->
     r = @computed_renderers[0]

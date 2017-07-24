@@ -1,10 +1,8 @@
-from .sources import ColumnDataSource
-
 from ..core.has_props import abstract
-from ..core.properties import Any, Dict, Either, Instance, Int, Seq, String
-from ..core.validation import error
-from ..core.validation.errors import MALFORMED_GRAPH_SOURCE
+from ..core.properties import Any, Dict, Either, Int, Seq, String
 from ..model import Model
+from ..models.sources import ColumnDataSource
+
 
 @abstract
 class LayoutProvider(Model):
@@ -33,22 +31,9 @@ class StaticLayoutProvider(LayoutProvider):
         }
     """)
 
-
-_DEFAULT_NODE_SOURCE = lambda: ColumnDataSource(data=dict(index=[]))
-
-
-_DEFAULT_EDGE_SOURCE = lambda: ColumnDataSource(data=dict(start=[], end=[]))
-
-
-class GraphSource(Model):
-    '''
-
-    '''
-
-    @classmethod
-    def from_networkx(cls, graph, layout_function, **kwargs):
+def from_networkx(graph, layout_function, **kwargs):
         '''
-        Generate a GraphSource from a networkx.Graph object and networkx
+        Generate a GraphRenderer from a networkx.Graph object and networkx
         layout function. Any keyword arguments will be passed to the
         layout function.
 
@@ -57,12 +42,16 @@ class GraphSource(Model):
             layout_function (function) : a networkx layout function
 
         Returns:
-            instance (GraphSource)
+            instance (GraphRenderer)
 
         .. warning::
             Only two dimensional layouts are currently supported.
 
         '''
+
+        # inline import to prevent circular imports
+        from ..models.renderers import GraphRenderer
+        from ..models.graphs import StaticLayoutProvider
 
         nodes = graph.nodes()
         edges = graph.edges()
@@ -75,46 +64,11 @@ class GraphSource(Model):
             end=edges_end
         ))
 
+        graph_renderer = GraphRenderer()
+        graph_renderer.node_renderer.data_source.data = node_source.data
+        graph_renderer.edge_renderer.data_source.data = edge_source.data
+
         graph_layout = layout_function(graph, **kwargs)
-        layout_provider = StaticLayoutProvider(graph_layout=graph_layout)
+        graph_renderer.layout_provider = StaticLayoutProvider(graph_layout=graph_layout)
 
-        return cls(nodes=node_source, edges=edge_source, layout_provider=layout_provider)
-
-    @error(MALFORMED_GRAPH_SOURCE)
-    def _check_malformed_graph_source(self):
-        missing = []
-        if "index" not in self.nodes.column_names:
-            missing.append("Column 'index' is missing in GraphSource.nodes source")
-        if "start" not in self.edges.column_names:
-            missing.append("Column 'start' is missing in GraphSource.edges source")
-        if "end" not in self.edges.column_names:
-            missing.append("Column 'end' is missing in GraphSource.edges source")
-
-        indexes = self.nodes.data.get('index', [])
-        for i in self.edges.data.get('start', []):
-            if i not in indexes:
-                missing.append("GraphSource.edge 'start' value '%s' missing from GraphSource.nodes 'index' column" % i)
-
-        for i in self.edges.data.get('end', []):
-            if i not in indexes:
-                missing.append("GraphSource.edge 'end' value '%s' missing from GraphSource.nodes 'index' column" % i)
-
-        if missing:
-            return " ,".join(missing) + " [%s]" % self
-
-    nodes = Instance(ColumnDataSource, default=_DEFAULT_NODE_SOURCE, help="""
-    A ColumnDataSource corresponding the graph nodes. It's required that the
-    source have a column named ``index``, which contain the lookup values of
-    the nodes.
-    """)
-
-    edges = Instance(ColumnDataSource, default=_DEFAULT_EDGE_SOURCE, help="""
-    A ColumnDataSource corresponding to the graph edges. It's required that the
-    source have two columns named ``start`` and ``edge``, which contain the
-    start and edge nodes of an edge.
-    """)
-
-    layout_provider = Instance(LayoutProvider, help="""
-    An instance of a LayoutProvider that supplies the layout of the network
-    graph in cartesian space.
-    """)
+        return graph_renderer

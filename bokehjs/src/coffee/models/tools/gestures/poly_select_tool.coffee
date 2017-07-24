@@ -20,7 +20,8 @@ export class PolySelectToolView extends SelectToolView
 
   _doubletap: (e)->
     append = e.srcEvent.shiftKey ? false
-    @_select(@data.vx, @data.vy, true, append)
+    @_do_select(@data.vx, @data.vy, true, append)
+    @plot_view.push_state('poly_select', {selection: @plot_view.get_selection()})
 
     @_clear_data()
 
@@ -38,24 +39,13 @@ export class PolySelectToolView extends SelectToolView
 
     @model.overlay.update({xs: copy(@data.vx), ys: copy(@data.vy)})
 
-  _select: (vx, vy, final, append) ->
+  _do_select: (vx, vy, final, append) ->
     geometry = {
       type: 'poly'
       vx: vx
       vy: vy
     }
-
-    renderers_by_source = @_computed_renderers_by_data_source()
-
-    for ds, renderers of renderers_by_source
-      sm = renderers[0].data_source.selection_manager
-      sm.select(@, (@plot_view.renderer_views[r.id] for r in renderers), geometry, final, append)
-
-    @_emit_selection_event(geometry, final)
-
-    @plot_view.push_state('poly_select', {selection: @plot_view.get_selection()})
-
-    return null
+    @_select(geometry, final, append)
 
 DEFAULT_POLY_OVERLAY = () -> new PolyAnnotation({
   level: "overlay"
