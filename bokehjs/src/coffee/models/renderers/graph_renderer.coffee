@@ -12,8 +12,9 @@ export class GraphRendererView extends RendererView
     @yscale = @plot_view.frame.yscales["default"]
 
     @_renderer_views = {}
-    @node_view = build_views(@_renderer_views, [@model.node_renderer,], @plot_view.view_options())[0]
-    @edge_view = build_views(@_renderer_views, [@model.edge_renderer,], @plot_view.view_options())[0]
+    [@node_view, @edge_view] = build_views(@_renderer_views,
+                                           [@model.node_renderer, @model.edge_renderer],
+                                           @plot_view.view_options())
 
     @set_data()
 

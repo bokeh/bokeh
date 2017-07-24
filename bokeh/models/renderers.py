@@ -11,10 +11,8 @@ from ..core.enums import RenderLevel
 from ..core.has_props import abstract
 from ..core.properties import Auto, Bool, Either, Enum, Float, Instance, Override, String
 from ..core.validation import error
-from ..core.validation.errors import (
-    BAD_COLUMN_NAME, MISSING_GLYPH, NO_SOURCE_FOR_GLYPH, CDSVIEW_SOURCE_DOESNT_MATCH,
-    MALFORMED_GRAPH_SOURCE
-)
+from ..core.validation.errors import (BAD_COLUMN_NAME, MISSING_GLYPH, NO_SOURCE_FOR_GLYPH,
+                                      CDSVIEW_SOURCE_DOESNT_MATCH, MALFORMED_GRAPH_SOURCE)
 from ..model import Model
 from ..util.deprecation import deprecated
 
@@ -214,16 +212,6 @@ class GraphRenderer(DataRenderer):
             missing.append("Column 'start' is missing in GraphSource.edge_renderer.data_source")
         if "end" not in self.edge_renderer.data_source.column_names:
             missing.append("Column 'end' is missing in GraphSource.edge_renderer.data_source")
-
-        indexes = self.node_renderer.data_source.data.get('index', [])
-        for i in self.edge_renderer.data_source.data.get('start', []):
-            if i not in indexes:
-                missing.append("GraphSource.edge_renderer.data_source 'start' value '%s' missing from GraphSource.node_renderer.data_source 'index' column" % i)
-
-        for i in self.edge_renderer.data_source.data.get('end', []):
-            if i not in indexes:
-                missing.append("GraphSource.edge_renderer.data_source 'end' value '%s' missing from GraphSource.node_renderer.data_source 'index' column" % i)
-
         if missing:
             return " ,".join(missing) + " [%s]" % self
 
@@ -245,12 +233,12 @@ class GraphRenderer(DataRenderer):
     """)
 
     node_renderer = Instance(GlyphRenderer, default=_DEFAULT_NODE_RENDERER, help="""
-    Instance of an GlyphRenderer containing an XYGlyph that will be rendered
+    Instance of a GlyphRenderer containing an XYGlyph that will be rendered
     as the graph nodes.
     """)
 
     edge_renderer = Instance(GlyphRenderer, default=_DEFAULT_EDGE_RENDERER, help="""
-    Instance of an GlyphRenderer containing an MultiLine Glyph that will be
+    Instance of a GlyphRenderer containing an MultiLine Glyph that will be
     rendered as the graph edges.
     """)
 

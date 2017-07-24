@@ -75,29 +75,3 @@ def test_graphrenderer_check_malformed_graph_source_no_edge_start_or_end():
 
     check = renderer._check_malformed_graph_source()
     assert check != []
-
-def test_graphrenderer_check_malformed_missing_index_in_start():
-    edge_source = ColumnDataSource(data=dict(
-        start=[1,2,5],
-        end=[1,2,3]))
-    edge_renderer = GlyphRenderer(data_source=edge_source, glyph=MultiLine())
-    node_source = ColumnDataSource(data=dict(index=[1,2,3]))
-    node_renderer = GlyphRenderer(data_source=node_source, glyph=Circle())
-
-    renderer = GraphRenderer(node_renderer=node_renderer, edge_renderer=edge_renderer)
-
-    check = renderer._check_malformed_graph_source()
-    assert check != []
-
-def test_graphrenderer_check_malformed_missing_index_in_end():
-    edge_source = ColumnDataSource(data=dict(
-        start=[1,2,3],
-        end=[1,2,6]))
-    edge_renderer = GlyphRenderer(data_source=edge_source, glyph=MultiLine())
-    node_source = ColumnDataSource(data=dict(index=[1,2,3]))
-    node_renderer = GlyphRenderer(data_source=node_source, glyph=Circle())
-
-    renderer = GraphRenderer(node_renderer=node_renderer, edge_renderer=edge_renderer)
-
-    check = renderer._check_malformed_graph_source()
-    assert check != []
