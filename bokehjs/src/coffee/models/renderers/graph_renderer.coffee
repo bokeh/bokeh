@@ -70,43 +70,46 @@ export class GraphRenderer extends Renderer
       selector = @node_renderer.data_source.selection_manager.selector
       selector.update(indices, final, append)
       @node_renderer.data_source.selected = selector.indices
+
       if @selection_mode == "linked"
-        node_indices = indices["1d"].indices
-        node_vals = (@node_renderer.data_source.data.index[i] for i in node_indices)
-        edge_indices = []
+        node_indices = (@node_renderer.data_source.data.index[i] for i in indices["1d"].indices)
         edge_source = @edge_renderer.data_source
+        edge_indices = []
         for i in [0...edge_source.data.start.length]
-          if contains(node_vals, edge_source.data.start[i]) or contains(node_vals, edge_source.data.end[i])
+          if contains(node_indices, edge_source.data.start[i]) or contains(node_indices, edge_source.data.end[i])
             edge_indices.push(i)
-        _hit_test_result = create_hit_test_result()
+
+        linked_index = create_hit_test_result()
         for i in edge_indices
-          _hit_test_result["2d"].indices[i] = [0]
-        _indices = _hit_test_result
-        _selector = @edge_renderer.data_source.selection_manager.selector
-        _selector.update(_indices, final, append)
-        @edge_renderer.data_source.selected = _selector.indices
+          linked_index["2d"].indices[i] = [0]
+
+        edge_selector = @edge_renderer.data_source.selection_manager.selector
+        edge_selector.update(linked_index, final, append)
+        @edge_renderer.data_source.selected = edge_selector.indices
         @edge_renderer.data_source.select.emit()
 
     else ## if mode=="inspect"
       inspector = @node_renderer.data_source.selection_manager.inspectors[@id]
       inspector.update(indices, true, false, true)
       @node_renderer.data_source.inspected = inspector.indices
+
       if @inspection_mode == "linked"
-        node_indices = indices["1d"].indices
-        node_vals = (@node_renderer.data_source.data.index[i] for i in node_indices)
-        edge_indices = []
+        node_indices = (@node_renderer.data_source.data.index[i] for i in indices["1d"].indices)
         edge_source = @edge_renderer.data_source
+        edge_indices = []
         for i in [0...edge_source.data.start.length]
-          if contains(node_vals, edge_source.data.start[i]) or contains(node_vals, edge_source.data.end[i])
+          if contains(node_indices, edge_source.data.start[i]) or contains(node_indices, edge_source.data.end[i])
             edge_indices.push(i)
-        _hit_test_result = create_hit_test_result()
+
+        linked_index = create_hit_test_result()
         for i in edge_indices
-          _hit_test_result["2d"].indices[i] = [0, 1]
-        _indices = _hit_test_result
+          linked_index["2d"].indices[i] = [0]
+
+        # manually get or create inspector
         @edge_renderer.data_source.selection_manager._set_inspector(@edge_renderer)
-        _inspector = @edge_renderer.data_source.selection_manager.inspectors[@edge_renderer.id]
-        _inspector.update(_indices, final, append)
-        @edge_renderer.data_source.inspected = _inspector.indices
+        edge_inspector = @edge_renderer.data_source.selection_manager.inspectors[@edge_renderer.id]
+        edge_inspector.update(linked_index, final, append)
+        @edge_renderer.data_source.inspected = edge_inspector.indices
         @edge_renderer.data_source.inspect.emit()
 
     return not indices.is_empty()
