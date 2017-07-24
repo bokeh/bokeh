@@ -242,6 +242,12 @@ class GraphRenderer(DataRenderer):
     rendered as the graph edges.
     """)
 
+    selection_mode = Enum("default", "linked", help="""
+    """)
+
+    inspection_mode = Enum("default", "linked", help="""
+    """)
+
     level = Override(default="glyph")
 
 @abstract

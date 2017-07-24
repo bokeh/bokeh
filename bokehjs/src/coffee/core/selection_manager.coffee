@@ -24,7 +24,7 @@ export class SelectionManager extends HasProps
 
   inspect: (renderer_view, geometry) ->
     did_hit = false
-    @_set_inspector(renderer_view)
+    @_set_inspector(renderer_view.model)
     did_hit ||= renderer_view.hit_test(geometry, false, false, "inspect")
     @source.inspect.emit([renderer_view, {"geometry": geometry}])
     return did_hit
@@ -33,7 +33,7 @@ export class SelectionManager extends HasProps
     @selector.clear()
     @source.selected = hittest.create_hit_test_result()
 
-  _set_inspector: (rview) ->
-    id = rview.model.id
+  _set_inspector: (rmodel) ->
+    id = rmodel.id
     if not @inspectors[id]?
       @inspectors[id] = new Selector()

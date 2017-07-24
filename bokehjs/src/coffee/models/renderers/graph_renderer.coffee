@@ -2,6 +2,8 @@ import {Renderer, RendererView} from "../renderers/renderer"
 
 import * as p from "core/properties"
 import {build_views} from "core/build_views"
+import {contains} from "core/util/array"
+import {create_hit_test_result} from "core/hittest"
 
 export class GraphRendererView extends RendererView
 
@@ -22,6 +24,9 @@ export class GraphRendererView extends RendererView
     super()
     @connect(@model.layout_provider.change, () -> @set_data())
     @connect(@model.node_renderer.data_source.select, () -> @set_data())
+    @connect(@model.node_renderer.data_source.inspect, () -> @set_data())
+    @connect(@model.edge_renderer.data_source.select, () -> @set_data())
+    @connect(@model.edge_renderer.data_source.inspect, () -> @set_data())
 
   set_data: (request_render=true) ->
     # TODO (bev) this is a bit clunky, need to make sure glyphs use the correct ranges when they call
@@ -31,7 +36,6 @@ export class GraphRendererView extends RendererView
 
     [@node_view.glyph._x, @node_view.glyph._y] = @model.layout_provider.get_node_coordinates(@model.node_renderer.data_source)
     [@edge_view.glyph._xs, @edge_view.glyph._ys] = @model.layout_provider.get_edge_coordinates(@model.edge_renderer.data_source)
-
     @node_view.glyph.index = @node_view.glyph._index_data()
     @edge_view.glyph.index = @edge_view.glyph._index_data()
 
@@ -66,10 +70,44 @@ export class GraphRenderer extends Renderer
       selector = @node_renderer.data_source.selection_manager.selector
       selector.update(indices, final, append)
       @node_renderer.data_source.selected = selector.indices
+      if @selection_mode == "linked"
+        node_indices = indices["1d"].indices
+        node_vals = (@node_renderer.data_source.data.index[i] for i in node_indices)
+        edge_indices = []
+        edge_source = @edge_renderer.data_source
+        for i in [0...edge_source.data.start.length]
+          if contains(node_vals, edge_source.data.start[i]) or contains(node_vals, edge_source.data.end[i])
+            edge_indices.push(i)
+        _hit_test_result = create_hit_test_result()
+        for i in edge_indices
+          _hit_test_result["2d"].indices[i] = [0]
+        _indices = _hit_test_result
+        _selector = @edge_renderer.data_source.selection_manager.selector
+        _selector.update(_indices, final, append)
+        @edge_renderer.data_source.selected = _selector.indices
+        @edge_renderer.data_source.select.emit()
+
     else ## if mode=="inspect"
       inspector = @node_renderer.data_source.selection_manager.inspectors[@id]
       inspector.update(indices, true, false, true)
       @node_renderer.data_source.inspected = inspector.indices
+      if @inspection_mode == "linked"
+        node_indices = indices["1d"].indices
+        node_vals = (@node_renderer.data_source.data.index[i] for i in node_indices)
+        edge_indices = []
+        edge_source = @edge_renderer.data_source
+        for i in [0...edge_source.data.start.length]
+          if contains(node_vals, edge_source.data.start[i]) or contains(node_vals, edge_source.data.end[i])
+            edge_indices.push(i)
+        _hit_test_result = create_hit_test_result()
+        for i in edge_indices
+          _hit_test_result["2d"].indices[i] = [0, 1]
+        _indices = _hit_test_result
+        @edge_renderer.data_source.selection_manager._set_inspector(@edge_renderer)
+        _inspector = @edge_renderer.data_source.selection_manager.inspectors[@edge_renderer.id]
+        _inspector.update(_indices, final, append)
+        @edge_renderer.data_source.inspected = _inspector.indices
+        @edge_renderer.data_source.inspect.emit()
 
     return not indices.is_empty()
 
@@ -82,6 +120,8 @@ export class GraphRenderer extends Renderer
       layout_provider: [ p.Instance                              ]
       node_renderer:   [ p.Instance                              ]
       edge_renderer:   [ p.Instance                              ]
+      selection_mode:  [ p.String,        'default'              ]
+      inspection_mode: [ p.String,        'default'              ]
     }
 
   @override {
