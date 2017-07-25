@@ -243,9 +243,15 @@ class GraphRenderer(DataRenderer):
     """)
 
     selection_mode = Enum("default", "linked", help="""
+    With the "default" selection mode, node glyphs will be selected in the same
+    way as normal glyphs. With "linked" mode, selecting a node will also select
+    the attached edges.
     """)
 
     inspection_mode = Enum("default", "linked", help="""
+    With the "default" inspection mode, node glyphs will be inspected in the same
+    way as normal glyphs. With "linked" mode, inspecting a node will also inspect
+    the attached edges.
     """)
 
     level = Override(default="glyph")
