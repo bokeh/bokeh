@@ -38,7 +38,7 @@ describe "GraphRenderer", ->
       hit_test: (geometry) -> return create_1d_hit_test_result([])
 
     class HitTestHit
-      hit_test: (geometry) -> return create_1d_hit_test_result([[0], [1]])
+      hit_test: (geometry) -> return create_1d_hit_test_result([[0],])
 
     it "should return false if @visible is false", ->
       @gr.visible = false
@@ -93,8 +93,8 @@ describe "GraphRenderer", ->
           @gr.hit_test_helper("geometry", node_view, true, false, "select")
 
           indices = @edge_source.selection_manager.selector.indices
-          expect(indices.is_empty()).to.be.false
-          expect(@edge_source.selected.is_empty()).to.be.false
+          expect(indices['2d'].indices).to.be.deep.equal({ '0': [ 0 ], '1': [ 0 ] })
+          expect(@edge_source.selected['2d'].indices).to.be.deep.equal({ '0': [ 0 ], '1': [ 0 ] })
 
     describe "mode='inspect'", ->
 
@@ -145,9 +145,9 @@ describe "GraphRenderer", ->
           @edge_source.selection_manager.inspectors[@edge_renderer.id] = new Selector()
 
           node_view = new HitTestHit()
-          @gr.selection_mode = "linked"
-          @gr.hit_test_helper("geometry", node_view, true, false, "select")
+          @gr.inspection_mode = "linked"
+          @gr.hit_test_helper("geometry", node_view, true, false, "inspect")
 
-          indices = @edge_source.selection_manager.selector.indices
-          expect(indices.is_empty()).to.be.false
-          expect(@edge_source.selected.is_empty()).to.be.false
+          indices = @edge_source.selection_manager.inspectors[@edge_renderer.id].indices
+          expect(indices['2d'].indices).to.be.deep.equal({ '0': [ 0 ], '1': [ 0 ] })
+          expect(@edge_source.inspected['2d'].indices).to.be.deep.equal({ '0': [ 0 ], '1': [ 0 ] })

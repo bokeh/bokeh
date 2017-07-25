@@ -81,7 +81,7 @@ export class GraphRenderer extends Renderer
 
         linked_index = create_hit_test_result()
         for i in edge_indices
-          linked_index["2d"].indices[i] = [0]
+          linked_index["2d"].indices[i] = [0] #currently only supports 2-element multilines, so this is all of it
 
         edge_selector = @edge_renderer.data_source.selection_manager.selector
         edge_selector.update(linked_index, final, append)
@@ -103,7 +103,7 @@ export class GraphRenderer extends Renderer
 
         linked_index = create_hit_test_result()
         for i in edge_indices
-          linked_index["2d"].indices[i] = [0]
+          linked_index["2d"].indices[i] = [0] #currently only supports 2-element multilines, so this is all of it
 
         # manually get or create inspector
         @edge_renderer.data_source.selection_manager._set_inspector(@edge_renderer)
