@@ -157,8 +157,7 @@ export class GlyphRendererView extends RendererView
       else if selected['1d'].indices.length > 0
         selected = selected['1d'].indices
       else
-        selected = Object.keys(selected["2d"].indices)
-        selected = (parseInt(i) for i in selected)
+        selected = (parseInt(i) for i in Object.keys(selected["2d"].indices))
 
     # inspected is in full set space
     inspected = @model.data_source.inspected
@@ -173,8 +172,7 @@ export class GlyphRendererView extends RendererView
       else if inspected['1d'].indices.length > 0
         inspected = inspected['1d'].indices
       else
-        inspected = Object.keys(inspected["2d"].indices)
-        inspected = (parseInt(i) for i in inspected)
+        inspected = (parseInt(i) for i in Object.keys(inspected["2d"].indices))
 
     # inspected is transformed to subset space
     inspected = (i for i in indices when @all_indices[i] in inspected)
