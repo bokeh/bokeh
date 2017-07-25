@@ -55,7 +55,7 @@ describe "GlyphRenderer", ->
       hit_test: (geometry) -> return create_1d_hit_test_result([])
 
     class HitTestHit
-      hit_test: (geometry) -> return create_1d_hit_test_result([0, 1])
+      hit_test: (geometry) -> return create_1d_hit_test_result([[0], [1]])
 
     it "should return false if @visible is false", ->
       @gr.visible = false
