@@ -80,3 +80,14 @@ describe "CDSView", ->
     expect(view.indices).to.be.deep.equal([])
     cds.patch({"x" :[[0, "b"]]})
     expect(view.indices).to.be.deep.equal([0])
+
+  it "should update its indices when its source's data changes", ->
+    data1 = {x: ["a"], y: [1]}
+    data2 = {x: ["b"], y: [1]}
+    cds = new ColumnDataSource({data: data1})
+    group_filter = new GroupFilter({column_name: "x", group: "b"})
+
+    view = new CDSView({source: cds, filters: [group_filter]})
+    expect(view.indices).to.be.deep.equal([])
+    cds.data = data2
+    expect(view.indices).to.be.deep.equal([0])

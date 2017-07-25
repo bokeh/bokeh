@@ -4,7 +4,7 @@ import pandas as pd
 
 from bokeh.layouts import row, widgetbox
 from bokeh.models import ColumnDataSource, CustomJS
-from bokeh.models.widgets import Slider, Button, DataTable, TableColumn, NumberFormatter
+from bokeh.models.widgets import RangeSlider, Button, DataTable, TableColumn, NumberFormatter
 from bokeh.io import curdoc
 
 df = pd.read_csv(join(dirname(__file__), 'salary_data.csv'))
@@ -12,14 +12,14 @@ df = pd.read_csv(join(dirname(__file__), 'salary_data.csv'))
 source = ColumnDataSource(data=dict())
 
 def update():
-    current = df[df['salary'] <= slider.value].dropna()
+    current = df[(df['salary'] >= slider.value[0]) & (df['salary'] <= slider.value[1])].dropna()
     source.data = {
         'name'             : current.name,
         'salary'           : current.salary,
         'years_experience' : current.years_experience,
     }
 
-slider = Slider(title="Max Salary", start=10000, end=250000, value=150000, step=1000)
+slider = RangeSlider(title="Max Salary", start=10000, end=110000, value=(10000, 50000), step=1000, format="0,0")
 slider.on_change('value', lambda attr, old, new: update())
 
 button = Button(label="Download", button_type="success")
