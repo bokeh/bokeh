@@ -104,7 +104,7 @@ calls it with the rendered model.
   function run_inline_js() {
     {% block run_inline_js %}
     for (var i = 0; i < inline_js.length; i++) {
-      inline_js[i](root.Bokeh);
+      inline_js[i].call(root, root.Bokeh);
     }
     {% endblock %}
   }

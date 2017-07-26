@@ -42,7 +42,7 @@
 {% block run_inline_js %}
     if ((root.Bokeh !== undefined) || (force === true)) {
       for (var i = 0; i < inline_js.length; i++) {
-        inline_js[i](root.Bokeh);
+        inline_js[i].call(root, root.Bokeh);
       }
       {%- if elementid -%}
       if (force === true) {
