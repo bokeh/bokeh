@@ -85,6 +85,8 @@ class GraphHitTestPolicy(Model):
 
 class NodesOnly(GraphHitTestPolicy):
     '''
+    With the NodesOnly policy, only graph nodes are able to be selected and
+    inspected. There is no selection or inspection of graph edges.
 
     '''
 
@@ -92,6 +94,10 @@ class NodesOnly(GraphHitTestPolicy):
 
 class NodesAndLinkedEdges(GraphHitTestPolicy):
     '''
+    With the NodesAndLinkedEdges policy, inspection or selection of graph
+    nodes will result in the inspection or selection of the node and of the
+    linked graph edges. There is no direct selection or inspection of graph
+    edges.
 
     '''
 
