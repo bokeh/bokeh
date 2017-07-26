@@ -1,4 +1,5 @@
 import {Renderer, RendererView} from "../renderers/renderer"
+import {NodesOnly} from "../graphs/graph_hit_test_policy"
 
 import * as p from "core/properties"
 import {build_views} from "core/build_views"
@@ -71,8 +72,8 @@ export class GraphRenderer extends Renderer
       layout_provider:    [ p.Instance                              ]
       node_renderer:      [ p.Instance                              ]
       edge_renderer:      [ p.Instance                              ]
-      selection_policy:   [ p.Instance,                             ]
-      inspection_policy:  [ p.Instance,                             ]
+      selection_policy:   [ p.Instance,      () -> new NodesOnly()  ]
+      inspection_policy:  [ p.Instance,      () -> new NodesOnly()  ]
     }
 
   @override {
