@@ -40,6 +40,7 @@ the :ref:`devguide`.
     docs/user_guide/layout
     docs/user_guide/notebook
     docs/user_guide/interaction
+    docs/user_guide/data
     docs/user_guide/cli
     docs/user_guide/server
     docs/user_guide/embed

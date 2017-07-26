@@ -45,6 +45,10 @@ topic:
     Create more sophisticated interactions including widgets or linked
     panning and selection.
 
+:ref:`userguide_data`
+    Share data between plots and have plots render subsets of data while
+    keeping linked selection.
+
 :ref:`userguide_cli`
     Quickly create and iterate on Bokeh applications with the ``bokeh``
     command line tool.
