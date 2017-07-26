@@ -72,3 +72,27 @@ def from_networkx(graph, layout_function, **kwargs):
         graph_renderer.layout_provider = StaticLayoutProvider(graph_layout=graph_layout)
 
         return graph_renderer
+
+
+@abstract
+class GraphHitTestPolicy(Model):
+    '''
+
+    '''
+
+    pass
+
+
+class NodesOnly(GraphHitTestPolicy):
+    '''
+
+    '''
+
+    pass
+
+class NodesAndLinkedEdges(GraphHitTestPolicy):
+    '''
+
+    '''
+
+    pass

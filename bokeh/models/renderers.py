@@ -17,7 +17,7 @@ from ..model import Model
 from ..util.deprecation import deprecated
 
 from .glyphs import Glyph, Circle, MultiLine
-from .graphs import LayoutProvider
+from .graphs import LayoutProvider, GraphHitTestPolicy
 from .images import ImageSource
 from .sources import ColumnDataSource, DataSource, RemoteSource, CDSView
 from .tiles import TileSource, WMTSTileSource
@@ -242,13 +242,13 @@ class GraphRenderer(DataRenderer):
     rendered as the graph edges.
     """)
 
-    selection_mode = Enum("default", "linked", help="""
+    selection_policy = Instance(GraphHitTestPolicy, help="""
     With the "default" selection mode, node glyphs will be selected in the same
     way as normal glyphs. With "linked" mode, selecting a node will also select
     the attached edges.
     """)
 
-    inspection_mode = Enum("default", "linked", help="""
+    inspection_policy = Instance(GraphHitTestPolicy, help="""
     With the "default" inspection mode, node glyphs will be inspected in the same
     way as normal glyphs. With "linked" mode, inspecting a node will also inspect
     the attached edges.
