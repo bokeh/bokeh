@@ -65,8 +65,6 @@ export class NodesAndLinkedEdges extends GraphHitTestPolicy
 
     @_edge_selector = edge_view.model.data_source.selection_manager.selector
     @_edge_selector.update(linked_index, final, append)
-    console.log('loop')
-    console.log(@_edge_selector.indices.is_empty())
 
     return not @_node_selector.indices.is_empty()
 
