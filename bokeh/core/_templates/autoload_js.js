@@ -118,4 +118,4 @@ calls it with the rendered model.
       run_inline_js();
     });
   }
-}(this));
+}(window));
