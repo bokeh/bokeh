@@ -23,9 +23,9 @@ _plugin_umd = \
 """\
 (function(root, factory) {
   if(typeof exports === 'object' && typeof module === 'object')
-    factory(require("bokeh"));
+    factory(require("Bokeh"));
   else if(typeof define === 'function' && define.amd)
-    define(["bokeh"], factory);
+    define(["Bokeh"], factory);
   else if(typeof exports === 'object')
     factory(require("Bokeh"));
   else
