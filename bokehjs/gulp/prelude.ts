@@ -8,7 +8,8 @@ export const prelude = `\
     exports["Bokeh"] = factory();
   else
     root["Bokeh"] = factory();
-})(this, function(define /* void 0 */) {
+})(this, function() {
+  var define;
   return (function(modules, aliases, entry) {
     var cache = {};
 
@@ -64,7 +65,8 @@ export const plugin_prelude = `\
     factory(require("Bokeh"));
   else
     factory(root["Bokeh"]);
-})(this, function(Bokeh, define /* void 0 */) {
+})(this, function(Bokeh) {
+  var define;
   return (function(modules, aliases, entry) {
     if (Bokeh != null) {
       return Bokeh.register_plugin(modules, aliases, entry);

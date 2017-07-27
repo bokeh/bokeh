@@ -30,7 +30,8 @@ _plugin_umd = \
     factory(require("Bokeh"));
   else
     factory(root["Bokeh"]);
-})(this, function(Bokeh, define /* void 0 */) {
+})(this, function(Bokeh) {
+  var define;
   return %(content)s;
 });
 """
