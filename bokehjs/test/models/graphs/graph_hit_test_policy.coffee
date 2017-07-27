@@ -9,19 +9,20 @@ utils = require "../../utils"
 {Plot} = utils.require("models/plots/plot")
 {Range1d} = utils.require("models/ranges/range1d")
 
-{LayoutProvider} = utils.require("models/graphs/layout_provider")
 {Circle} = utils.require("models/glyphs/circle")
 {MultiLine} = utils.require("models/glyphs/multi_line")
-{ColumnDataSource} = utils.require("models/sources/column_data_source")
-{DataSource} = utils.require("models/sources/data_source")
+{NodesOnly, NodesAndLinkedEdges} = utils.require("models/graphs/graph_hit_test_policy")
+{LayoutProvider} = utils.require("models/graphs/layout_provider")
 {GlyphRenderer} = utils.require("models/renderers/glyph_renderer")
 {GraphRenderer} = utils.require("models/renderers/graph_renderer")
-{NodesOnly, NodesAndLinkedEdges} = utils.require("models/graphs/graph_hit_test_policy")
+{ColumnDataSource} = utils.require("models/sources/column_data_source")
+
 
 describe "GraphHitTestPolicy", ->
 
   afterEach ->
     utils.unstub_canvas()
+    @gv.node_view.glyph.hit_test.restore()
 
   beforeEach ->
     utils.stub_canvas()
@@ -30,8 +31,8 @@ describe "GraphHitTestPolicy", ->
        x_range: new Range1d({start: 0, end: 1})
        y_range: new Range1d({start: 0, end: 1})
     })
-
     @plot_view = new @plot.default_view({model: @plot, parent: null})
+    @plot_canvas_view = new @plot.plot_canvas.default_view({model: @plot.plot_canvas, parent: @plot_view})
 
     @node_source = new ColumnDataSource({
       data: {
@@ -47,9 +48,11 @@ describe "GraphHitTestPolicy", ->
     @node_renderer = new GlyphRenderer({data_source: @node_source, glyph: new Circle()})
     @edge_renderer = new GlyphRenderer({data_source: @edge_source, glyph: new MultiLine()})
 
-    @gr = new GraphRenderer({node_renderer: @node_renderer, edge_renderer: @edge_renderer, layout_provider: new LayoutProvider()})
-
-    @plot_canvas_view = new @plot.plot_canvas.default_view({model: @plot.plot_canvas, parent: @plot_view})
+    @gr = new GraphRenderer({
+      node_renderer: @node_renderer
+      edge_renderer: @edge_renderer
+      layout_provider: new LayoutProvider()
+    })
 
     @gv = new @gr.default_view({
       model: @gr
@@ -57,13 +60,9 @@ describe "GraphHitTestPolicy", ->
       parent: @plot_canvas_view
     })
 
+    @stub = sinon.stub(@gv.node_view.glyph, "hit_test")
+
   describe "NodesOnly", ->
-
-    afterEach ->
-      @gv.node_view.glyph.hit_test.restore()
-
-    beforeEach ->
-      @stub = sinon.stub(@gv.node_view.glyph, "hit_test")
 
     describe "do_selection method", ->
 
@@ -124,12 +123,6 @@ describe "GraphHitTestPolicy", ->
         expect(@node_source.inspected.is_empty()).to.be.false
 
   describe "NodesAndLinkedEdges", ->
-
-    afterEach ->
-      @gv.node_view.glyph.hit_test.restore()
-
-    beforeEach ->
-      @stub = sinon.stub(@gv.node_view.glyph, "hit_test")
 
     describe "do_selection method", ->
 
