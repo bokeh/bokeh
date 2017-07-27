@@ -72,3 +72,33 @@ def from_networkx(graph, layout_function, **kwargs):
         graph_renderer.layout_provider = StaticLayoutProvider(graph_layout=graph_layout)
 
         return graph_renderer
+
+
+@abstract
+class GraphHitTestPolicy(Model):
+    '''
+
+    '''
+
+    pass
+
+
+class NodesOnly(GraphHitTestPolicy):
+    '''
+    With the NodesOnly policy, only graph nodes are able to be selected and
+    inspected. There is no selection or inspection of graph edges.
+
+    '''
+
+    pass
+
+class NodesAndLinkedEdges(GraphHitTestPolicy):
+    '''
+    With the NodesAndLinkedEdges policy, inspection or selection of graph
+    nodes will result in the inspection or selection of the node and of the
+    linked graph edges. There is no direct selection or inspection of graph
+    edges.
+
+    '''
+
+    pass

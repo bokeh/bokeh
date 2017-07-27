@@ -49,7 +49,7 @@ export class HitTestResult
   Object.defineProperty(this.prototype, '_2d', { get: () -> @['2d'] })
 
   is_empty: () ->
-    @_0d.indices.length == 0 && @_1d.indices.length == 0
+    @_0d.indices.length == 0 && @_1d.indices.length == 0 && Object.keys(@_2d.indices).length == 0
 
   update_through_union: (other) ->
     @['0d'].indices = union(other['0d'].indices, @['0d'].indices)

@@ -17,7 +17,7 @@ from ..model import Model
 from ..util.deprecation import deprecated
 
 from .glyphs import Glyph, Circle, MultiLine
-from .graphs import LayoutProvider
+from .graphs import LayoutProvider, GraphHitTestPolicy, NodesOnly
 from .images import ImageSource
 from .sources import ColumnDataSource, DataSource, RemoteSource, CDSView
 from .tiles import TileSource, WMTSTileSource
@@ -240,6 +240,16 @@ class GraphRenderer(DataRenderer):
     edge_renderer = Instance(GlyphRenderer, default=_DEFAULT_EDGE_RENDERER, help="""
     Instance of a GlyphRenderer containing an MultiLine Glyph that will be
     rendered as the graph edges.
+    """)
+
+    selection_policy = Instance(GraphHitTestPolicy, default=lambda: NodesOnly(), help="""
+    An instance of a GraphHitTestPolicy that provides the logic for selection
+    of graph components.
+    """)
+
+    inspection_policy = Instance(GraphHitTestPolicy, default=lambda: NodesOnly(), help="""
+    An instance of a GraphHitTestPolicy that provides the logic for inspection
+    of graph components.
     """)
 
     level = Override(default="glyph")

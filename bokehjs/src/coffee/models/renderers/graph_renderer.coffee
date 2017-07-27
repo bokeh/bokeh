@@ -1,7 +1,10 @@
 import {Renderer, RendererView} from "../renderers/renderer"
+import {NodesOnly} from "../graphs/graph_hit_test_policy"
 
 import * as p from "core/properties"
 import {build_views} from "core/build_views"
+import {contains} from "core/util/array"
+import {create_hit_test_result} from "core/hittest"
 
 export class GraphRendererView extends RendererView
 
@@ -22,6 +25,9 @@ export class GraphRendererView extends RendererView
     super()
     @connect(@model.layout_provider.change, () -> @set_data())
     @connect(@model.node_renderer.data_source.select, () -> @set_data())
+    @connect(@model.node_renderer.data_source.inspect, () -> @set_data())
+    @connect(@model.edge_renderer.data_source.select, () -> @set_data())
+    @connect(@model.edge_renderer.data_source.inspect, () -> @set_data())
 
   set_data: (request_render=true) ->
     # TODO (bev) this is a bit clunky, need to make sure glyphs use the correct ranges when they call
@@ -31,7 +37,6 @@ export class GraphRendererView extends RendererView
 
     [@node_view.glyph._x, @node_view.glyph._y] = @model.layout_provider.get_node_coordinates(@model.node_renderer.data_source)
     [@edge_view.glyph._xs, @edge_view.glyph._ys] = @model.layout_provider.get_edge_coordinates(@model.edge_renderer.data_source)
-
     @node_view.glyph.index = @node_view.glyph._index_data()
     @edge_view.glyph.index = @edge_view.glyph._index_data()
 
@@ -43,45 +48,32 @@ export class GraphRendererView extends RendererView
     @node_view.render()
 
   hit_test: (geometry, final, append, mode="select") ->
-    return @model.hit_test_helper(geometry, @node_view.glyph, final, append, mode)
+    if not @model.visible
+      return false
+
+    if mode == "select"
+      did_hit = @model.selection_policy.do_selection(geometry, @, final, append)
+    else # if mode == "inspect"
+      did_hit = @model.inspection_policy.do_inspection(geometry, @, final, append)
+
+    return did_hit
 
 
 export class GraphRenderer extends Renderer
   default_view: GraphRendererView
   type: 'GraphRenderer'
 
-  hit_test_helper: (geometry, glyph, final, append, mode) ->
-    if not @visible
-      return false
-
-    hit_test_result = glyph.hit_test(geometry)
-
-    # glyphs that don't have hit-testing implemented will return null
-    if hit_test_result == null
-      return false
-
-    indices = @node_renderer.view.convert_selection_from_subset(hit_test_result)
-
-    if mode == "select"
-      selector = @node_renderer.data_source.selection_manager.selector
-      selector.update(indices, final, append)
-      @node_renderer.data_source.selected = selector.indices
-    else ## if mode=="inspect"
-      inspector = @node_renderer.data_source.selection_manager.inspectors[@id]
-      inspector.update(indices, true, false, true)
-      @node_renderer.data_source.inspected = inspector.indices
-
-    return not indices.is_empty()
-
   get_selection_manager: () ->
     return @node_renderer.data_source.selection_manager
 
   @define {
-      x_range_name:    [ p.String,        'default'              ]
-      y_range_name:    [ p.String,        'default'              ]
-      layout_provider: [ p.Instance                              ]
-      node_renderer:   [ p.Instance                              ]
-      edge_renderer:   [ p.Instance                              ]
+      x_range_name:       [ p.String,        'default'              ]
+      y_range_name:       [ p.String,        'default'              ]
+      layout_provider:    [ p.Instance                              ]
+      node_renderer:      [ p.Instance                              ]
+      edge_renderer:      [ p.Instance                              ]
+      selection_policy:   [ p.Instance,      () -> new NodesOnly()  ]
+      inspection_policy:  [ p.Instance,      () -> new NodesOnly()  ]
     }
 
   @override {
