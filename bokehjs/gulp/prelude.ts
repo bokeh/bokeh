@@ -1,12 +1,12 @@
 export const prelude = `\
 (function(root, factory) {
-  if(typeof exports === 'object' && typeof module === 'object')
-    module.exports = factory();
-  else if(typeof define === 'function' && define.amd)
-    define("Bokeh", [], factory);
-  else if(typeof exports === 'object')
-    exports["Bokeh"] = factory();
-  else
+//  if(typeof exports === 'object' && typeof module === 'object')
+//    module.exports = factory();
+//  else if(typeof define === 'function' && define.amd)
+//    define("Bokeh", [], factory);
+//  else if(typeof exports === 'object')
+//    exports["Bokeh"] = factory();
+//  else
     root["Bokeh"] = factory();
 })(this, function() {
   var define;
@@ -57,13 +57,13 @@ export const prelude = `\
 
 export const plugin_prelude = `\
 (function(root, factory) {
-  if(typeof exports === 'object' && typeof module === 'object')
-    factory(require("Bokeh"));
-  else if(typeof define === 'function' && define.amd)
-    define(["Bokeh"], factory);
-  else if(typeof exports === 'object')
-    factory(require("Bokeh"));
-  else
+//  if(typeof exports === 'object' && typeof module === 'object')
+//    factory(require("Bokeh"));
+//  else if(typeof define === 'function' && define.amd)
+//    define(["Bokeh"], factory);
+//  else if(typeof exports === 'object')
+//    factory(require("Bokeh"));
+//  else
     factory(root["Bokeh"]);
 })(this, function(Bokeh) {
   var define;
