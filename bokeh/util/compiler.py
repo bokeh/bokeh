@@ -22,15 +22,16 @@ from .string import snakify
 _plugin_umd = \
 """\
 (function(root, factory) {
-  if(typeof exports === 'object' && typeof module === 'object')
-    factory(require("bokeh"));
-  else if(typeof define === 'function' && define.amd)
-    define(["bokeh"], factory);
-  else if(typeof exports === 'object')
-    factory(require("Bokeh"));
-  else
+//  if(typeof exports === 'object' && typeof module === 'object')
+//    factory(require("Bokeh"));
+//  else if(typeof define === 'function' && define.amd)
+//    define(["Bokeh"], factory);
+//  else if(typeof exports === 'object')
+//    factory(require("Bokeh"));
+//  else
     factory(root["Bokeh"]);
-})(this, function(Bokeh, define /* void 0 */) {
+})(this, function(Bokeh) {
+  var define;
   return %(content)s;
 });
 """
