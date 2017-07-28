@@ -92,7 +92,6 @@ export class NodesAndLinkedEdges extends GraphHitTestPolicy
     graph_view.node_view.model.data_source.inspected = @_node_selector.indices
     graph_view.edge_view.model.data_source.inspected = @_edge_selector.indices
     graph_view.node_view.model.data_source.inspect.emit([graph_view.node_view, {"geometry": geometry}])
-    # graph_view.edge_view.model.data_source.inspect.emit([graph_view.edge_view, {"geometry": geometry}])
 
     return did_hit
 
