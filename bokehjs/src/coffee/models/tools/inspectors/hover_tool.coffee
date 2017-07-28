@@ -36,8 +36,11 @@ export class HoverToolView extends InspectToolView
     super()
 
     for r in @computed_renderers
-      if r instanceof GlyphRenderer then @connect(r.data_source.inspect, @_update)
-      else if r instanceof GraphRenderer then @connect(r.node_renderer.data_source.inspect, @_update)
+      if r instanceof GlyphRenderer
+        @connect(r.data_source.inspect, @_update)
+      else if r instanceof GraphRenderer
+        @connect(r.node_renderer.data_source.inspect, @_update)
+        @connect(r.edge_renderer.data_source.inspect, @_update)
 
     # TODO: @connect(@plot_model.plot.properties.renderers.change, () -> @_computed_renderers = @_ttmodels = null)
     @connect(@model.properties.renderers.change,      () -> @_computed_renderers = @_ttmodels = null)
@@ -63,12 +66,21 @@ export class HoverToolView extends InspectToolView
 
     if tooltips?
       for r in @computed_renderers
-        tooltip = new Tooltip({
-          custom: isString(tooltips) or isFunction(tooltips)
-          attachment: @model.attachment
-          show_arrow: @model.show_arrow
-        })
-        ttmodels[r.id] = tooltip
+        if r instanceof GlyphRenderer
+          tooltip = new Tooltip({
+            custom: isString(tooltips) or isFunction(tooltips)
+            attachment: @model.attachment
+            show_arrow: @model.show_arrow
+          })
+          ttmodels[r.id] = tooltip
+        else if r instanceof GraphRenderer
+          tooltip = new Tooltip({
+            custom: isString(tooltips) or isFunction(tooltips)
+            attachment: @model.attachment
+            show_arrow: @model.show_arrow
+          })
+          ttmodels[r.node_renderer.id] = tooltip
+          ttmodels[r.edge_renderer.id] = tooltip
 
     new_views = build_views(@ttviews, values(ttmodels), {parent: @, plot_view: @plot_view})
     # XXX: we shouldn't maintain this, but currently connection of signals is a mess.
@@ -141,12 +153,9 @@ export class HoverToolView extends InspectToolView
     tooltip.clear()
 
     indices = renderer_view.model.get_selection_manager().inspectors[renderer_view.model.id].indices
-    ds = renderer_view.model.get_selection_manager.source
+    ds = renderer_view.model.get_selection_manager().source
 
-    if renderer_view.node_view?
-      renderer_view = renderer_view.node_view
-
-    if indices['0d'].glyph == null and indices['1d'].indices.length == 0
+    if indices.is_empty()
       return
 
     vx = geometry.vx
