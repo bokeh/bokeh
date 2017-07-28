@@ -31,12 +31,14 @@ export class NodesOnly extends GraphHitTestPolicy
     @_node_selector = graph_view.node_view.model.data_source.selection_manager.selector
     did_hit = @_do(geometry, graph_view, final, append)
     graph_view.node_view.model.data_source.selected = @_node_selector.indices
+    graph_view.node_view.model.data_source.select.emit()
     return did_hit
 
   do_inspection: (geometry, graph_view, final, append) ->
-    @_node_selector = graph_view.node_view.model.data_source.selection_manager.inspectors[graph_view.model.id]
+    @_node_selector = graph_view.model.get_selection_manager().get_or_create_inspector(graph_view.node_view.model)
     did_hit = @_do(geometry, graph_view, final, append)
     graph_view.node_view.model.data_source.inspected = @_node_selector.indices
+    graph_view.node_view.model.data_source.inspect.emit([graph_view.node_view, {"geometry": geometry}])
     return did_hit
 
 
@@ -64,7 +66,6 @@ export class NodesAndLinkedEdges extends GraphHitTestPolicy
     for i in edge_indices
       linked_index["2d"].indices[i] = [0] #currently only supports 2-element multilines, so this is all of it
 
-    @_edge_selector = edge_view.model.data_source.selection_manager.selector
     @_edge_selector.update(linked_index, final, append)
 
     return not @_node_selector.indices.is_empty()
@@ -77,19 +78,21 @@ export class NodesAndLinkedEdges extends GraphHitTestPolicy
 
     graph_view.node_view.model.data_source.selected = @_node_selector.indices
     graph_view.edge_view.model.data_source.selected = @_edge_selector.indices
+    graph_view.node_view.model.data_source.select.emit()
     graph_view.edge_view.model.data_source.select.emit()
 
     return did_hit
 
   do_inspection: (geometry, graph_view, final, append) ->
-    @_node_selector = graph_view.node_view.model.data_source.selection_manager.inspectors[graph_view.model.id]
-    @_edge_selector = graph_view.edge_view.model.data_source.selection_manager.inspectors[graph_view.edge_view.model.id]
+    @_node_selector = graph_view.node_view.model.data_source.selection_manager.get_or_create_inspector(graph_view.node_view.model)
+    @_edge_selector = graph_view.edge_view.model.data_source.selection_manager.get_or_create_inspector(graph_view.edge_view.model)
 
     did_hit = @_do(geometry, graph_view, final, append)
 
     graph_view.node_view.model.data_source.inspected = @_node_selector.indices
     graph_view.edge_view.model.data_source.inspected = @_edge_selector.indices
-    graph_view.edge_view.model.data_source.inspect.emit()
+    graph_view.node_view.model.data_source.inspect.emit([graph_view.node_view, {"geometry": geometry}])
+    # graph_view.edge_view.model.data_source.inspect.emit([graph_view.edge_view, {"geometry": geometry}])
 
     return did_hit
 
@@ -131,18 +134,19 @@ export class EdgesAndLinkedNodes extends GraphHitTestPolicy
 
     graph_view.edge_view.model.data_source.selected = @_edge_selector.indices
     graph_view.node_view.model.data_source.selected = @_node_selector.indices
+    graph_view.edge_view.model.data_source.select.emit()
     graph_view.node_view.model.data_source.select.emit()
 
     return did_hit
 
   do_inspection: (geometry, graph_view, final, append) ->
-    @_edge_selector = graph_view.edge_view.model.data_source.selection_manager.inspectors[graph_view.edge_view.model.id] = new Selector()
-    @_node_selector = graph_view.node_view.model.data_source.selection_manager.inspectors[graph_view.model.id]
+    @_edge_selector = graph_view.edge_view.model.data_source.selection_manager.get_or_create_inspector(graph_view.edge_view.model)
+    @_node_selector = graph_view.node_view.model.data_source.selection_manager.get_or_create_inspector(graph_view.node_view.model)
 
     did_hit = @_do(geometry, graph_view, final, append)
 
     graph_view.edge_view.model.data_source.inspected = @_edge_selector.indices
     graph_view.node_view.model.data_source.inspected = @_node_selector.indices
-    graph_view.node_view.model.data_source.inspect.emit()
+    graph_view.edge_view.model.data_source.inspect.emit([graph_view.edge_view, {'geometry': geometry}])
 
     return did_hit
