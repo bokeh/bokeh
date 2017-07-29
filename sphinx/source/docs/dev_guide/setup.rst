@@ -93,12 +93,12 @@ sources:
     basis with the ``-c`` command line option to ``conda``, e.g.
     ``conda install -c bokeh -c conda-forge <pkgs>``
 
-It's also necessary to install `conda-build` first, to bootstrap the rest
-of these instructions. To do that, execute:
+It's also necessary to install `jinja2` and `pyyaml` first, to bootstrap
+the rest of these instructions. To do that, execute:
 
 .. code-block:: sh
 
-    conda install conda-build
+    conda install jinja2 pyyaml
 
 From the top level of the *source checkout* directory, execute the following
 command at your command prompt to install all the required packages:
