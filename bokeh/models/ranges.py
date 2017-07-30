@@ -230,8 +230,13 @@ class FactorRange(Range):
     """)
 
     factor_padding = Float(default=0.0, help="""
-    How much padding to add *in between* top-level factors. This is often
-    useful, e.g. to add extra space in between groups of nested factors.
+    How much padding to add *in between* lowest-level factors. .
+    """)
+
+    subgroup_padding = Float(default=0.8, help="""
+    """)
+
+    group_padding = Float(default=1.4, help="""
     """)
 
     range_padding = Float(default=0.1, help="""

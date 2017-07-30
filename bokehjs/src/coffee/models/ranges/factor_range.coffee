@@ -4,7 +4,8 @@ import {all, sum} from "core/util/array"
 import {keys} from "core/util/object"
 import {isArray, isNumber, isString} from "core/util/types"
 
-_map_one = (factors, padding, offset=0) ->
+# exported for testing
+export map_one_level = (factors, padding, offset=0) ->
   mapping = {}
 
   for f, i in factors
@@ -14,7 +15,8 @@ _map_one = (factors, padding, offset=0) ->
 
   return [mapping, (factors.length-1)*padding]
 
-_map_two = (factors, padding, offset=0) ->
+# exported for testing
+export map_two_levels = (factors, outer_pad, factor_pad, offset=0) ->
   mapping = {}
 
   tops = {}
@@ -29,15 +31,16 @@ _map_two = (factors, padding, offset=0) ->
   total_subpad = 0
   for f0 in tops_order
     n = tops[f0].length
-    [submap, subpad] = _map_one(tops[f0], 0, suboffset) # TODO (bev) propagate padding option?
+    [submap, subpad] = map_one_level(tops[f0], factor_pad, suboffset)
     total_subpad += subpad
     subtot = sum(submap[f1].value for f1 in tops[f0])
     mapping[f0] = {value: subtot/n, mapping: submap}
-    suboffset += (n + padding + subpad)
+    suboffset += (n + outer_pad + subpad)
 
-  return [mapping, (tops_order.length-1)*padding + total_subpad]
+  return [mapping, (tops_order.length-1)*outer_pad + total_subpad]
 
-_map_three = (factors, padding, offset=0) ->
+# exported for testing
+export map_three_levels = (factors, outer_pad, inner_pad, factor_pad, offset=0) ->
   mapping = {}
 
   tops = {}
@@ -52,19 +55,22 @@ _map_three = (factors, padding, offset=0) ->
   total_subpad = 0
   for f0 in tops_order
     n = tops[f0].length
-    [submap, subpad] = _map_two(tops[f0], 0, suboffset) # TODO (bev) propagate padding option?
+    [submap, subpad] = map_two_levels(tops[f0], inner_pad, factor_pad, suboffset)
     total_subpad += subpad
     subtot = sum(submap[f1].value for [f1, f2] in tops[f0])
     mapping[f0] = {value: subtot/n, mapping: submap}
-    suboffset += (n + padding + subpad)
+    suboffset += (n + outer_pad + subpad)
 
-  return [mapping, (tops_order.length-1)*padding + total_subpad]
+  return [mapping, (tops_order.length-1)*outer_pad + total_subpad]
 
 export class FactorRange extends Range
   type: 'FactorRange'
 
   @define {
     factors:             [ p.Array,        []        ]
+    factor_padding:      [ p.Number,       0         ]
+    subgroup_padding:    [ p.Number,       0.8       ]
+    group_padding:       [ p.Number,       1.4       ]
     factor_padding:      [ p.Number,       0         ]
     range_padding:       [ p.Number,       0.1       ]
     range_padding_units: [ p.PaddingUnits, "percent" ]
@@ -86,6 +92,8 @@ export class FactorRange extends Range
     @_init()
     @connect(@properties.factors.change, () -> @_init())
     @connect(@properties.factor_padding.change, () -> @_init())
+    @connect(@properties.group_padding.change, () -> @_init())
+    @connect(@properties.subgroup_padding.change, () -> @_init())
     @connect(@properties.range_padding.change, () -> @_init())
     @connect(@properties.range_padding_units.change, () -> @_init())
 
@@ -116,15 +124,15 @@ export class FactorRange extends Range
 
     if all(@factors, isString)
       levels = 1
-      [@_mapping, inside_padding] = _map_one(@factors, @factor_padding)
+      [@_mapping, inside_padding] = map_one_level(@factors, @factor_padding)
 
     else if all(@factors, (x) -> isArray(x) and x.length==2 and isString(x[0]) and isString(x[1]))
       levels = 2
-      [@_mapping, inside_padding] = _map_two(@factors, @factor_padding)
+      [@_mapping, inside_padding] = map_two_levels(@factors, @group_padding, @factor_padding)
 
     else if all(@factors, (x) -> isArray(x) and x.length==3  and isString(x[0]) and isString(x[1]) and isString(x[2]))
       levels = 3
-      [@_mapping, inside_padding] = _map_three(@factors, @factor_padding)
+      [@_mapping, inside_padding] = map_three_levels(@factors, @group_padding, @subgroup_padding, @factor_padding)
 
     else
       throw new Error("")
