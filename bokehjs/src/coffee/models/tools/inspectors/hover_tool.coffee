@@ -288,8 +288,6 @@ export class HoverToolView extends InspectToolView
 
         tooltip.add(rx, ry, @_render_tooltips(ds, i, vars))
 
-    indices = renderer_view.model.view.convert_selection_from_subset(indices)
-
     return null
 
   _emit_callback: (geometry) ->

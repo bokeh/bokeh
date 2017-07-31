@@ -79,7 +79,6 @@ export class NodesAndLinkedEdges extends GraphHitTestPolicy
     graph_view.node_view.model.data_source.selected = @_node_selector.indices
     graph_view.edge_view.model.data_source.selected = @_edge_selector.indices
     graph_view.node_view.model.data_source.select.emit()
-    graph_view.edge_view.model.data_source.select.emit()
 
     return did_hit
 
@@ -134,7 +133,6 @@ export class EdgesAndLinkedNodes extends GraphHitTestPolicy
     graph_view.edge_view.model.data_source.selected = @_edge_selector.indices
     graph_view.node_view.model.data_source.selected = @_node_selector.indices
     graph_view.edge_view.model.data_source.select.emit()
-    graph_view.node_view.model.data_source.select.emit()
 
     return did_hit
 
