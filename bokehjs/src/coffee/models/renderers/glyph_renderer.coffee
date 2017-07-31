@@ -294,7 +294,7 @@ export class GlyphRenderer extends Renderer
       @data_source.selected = selector.indices
       @data_source.select.emit()
     else # mode == "inspect"
-      inspector = @data_source.selection_manager.get_or_create_inspector(@id)
+      inspector = @data_source.selection_manager.get_or_create_inspector(@)
       inspector.update(indices, true, false, true)
       @data_source.inspected = inspector.indices
       @data_source.inspect.emit([renderer_view, {"geometry": geometry}])
