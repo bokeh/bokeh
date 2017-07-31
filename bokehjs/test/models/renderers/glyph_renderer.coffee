@@ -100,7 +100,7 @@ describe "GlyphRenderer", ->
     describe "mode='inspect'", ->
 
       beforeEach ->
-        @selector = @source.selection_manager.get_or_create_inspector(@gr.id)
+        @selector = @source.selection_manager.get_or_create_inspector(@gr)
 
       it "should return false and clear inspections if hit_test result is empty", ->
         initial_inspection = create_1d_hit_test_result([1,2])
