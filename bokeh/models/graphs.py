@@ -102,3 +102,14 @@ class NodesAndLinkedEdges(GraphHitTestPolicy):
     '''
 
     pass
+
+class EdgesAndLinkedNodes(GraphHitTestPolicy):
+    '''
+    With the NodesAndLinkedEdges policy, inspection or selection of graph
+    edges will result in the inspection or selection of the edge and of the
+    linked graph nodes. There is no direct selection or inspection of graph
+    nodes.
+
+    '''
+
+    pass

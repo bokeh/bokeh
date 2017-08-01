@@ -51,10 +51,12 @@ export class GraphRendererView extends RendererView
     if not @model.visible
       return false
 
+    did_hit = false
+
     if mode == "select"
-      did_hit = @model.selection_policy.do_selection(geometry, @, final, append)
+      did_hit = @model.selection_policy?.do_selection(geometry, @, final, append)
     else # if mode == "inspect"
-      did_hit = @model.inspection_policy.do_inspection(geometry, @, final, append)
+      did_hit = @model.inspection_policy?.do_inspection(geometry, @, final, append)
 
     return did_hit
 
