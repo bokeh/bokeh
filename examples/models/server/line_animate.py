@@ -1,18 +1,14 @@
 from __future__ import print_function
 
-import time
-
 from numpy import pi, sin, cos, linspace
 
 from bokeh.client import push_session
-from bokeh.document import Document
+from bokeh.driving import count
+from bokeh.io import curdoc
 from bokeh.models import (
     Plot, DataRange1d, LinearAxis, Range1d,
     ColumnDataSource, PanTool, WheelZoomTool, Line
 )
-
-document = Document()
-session = push_session(document)
 
 x = linspace(-6*pi, 6*pi, 1000)
 y = sin(x)
@@ -33,12 +29,19 @@ plot.add_layout(LinearAxis(), 'left')
 
 plot.add_tools(PanTool(), WheelZoomTool())
 
-document.add_root(plot)
-document.validate()
-print("\nanimating... press ctrl-C to stop")
-session.show(plot)
+@count()
+def update(t):
+    x = linspace(-6*pi, 6*pi, 1000)
+    y = sin(x + t * 0.1)
+    z = cos(x + t * 0.1)
+    source.data = dict(x=x, y=y, z=z)
 
-while True:
-    for i in linspace(-2*pi, 2*pi, 50):
-        source.data['x'] = x + i
-        time.sleep(0.1)
+document = curdoc()
+document.add_root(plot)
+document.add_periodic_callback(update, 100)
+
+if __name__ == "__main__":
+    print("\nanimating... press ctrl-C to stop")
+    session = push_session(document)
+    session.show()
+    session.loop_until_closed()

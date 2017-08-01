@@ -4,7 +4,7 @@ from datetime import date
 from random import randint
 
 from bokeh.client import push_session
-from bokeh.document import Document
+from bokeh.io import curdoc
 from bokeh.models.glyphs import Line, Circle
 from bokeh.models import (
     Plot, ColumnDataSource, DataRange1d,
@@ -15,8 +15,6 @@ from bokeh.models.widgets import (
     DateEditor, DateFormatter, IntEditor)
 from bokeh.models.layouts import WidgetBox, Column
 
-document = Document()
-session = push_session(document)
 
 def make_data():
     n = randint(5, 10)
@@ -70,11 +68,12 @@ def make_layout():
     return column
 
 layout = make_layout()
+
+document = curdoc()
 document.add_root(layout)
 
-session.show(layout)
-
 if __name__ == "__main__":
-    document.validate()
     print("\npress ctrl-C to exit")
+    session = push_session(document)
+    session.show()
     session.loop_until_closed()

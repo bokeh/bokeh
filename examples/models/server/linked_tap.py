@@ -3,13 +3,10 @@ from __future__ import print_function
 import numpy as np
 
 from bokeh.client import push_session
-from bokeh.document import Document
+from bokeh.io import curdoc
 from bokeh.models import (
     ColumnDataSource, DataRange1d, Plot, Circle, WidgetBox, Row, Button, TapTool
 )
-
-document = Document()
-session = push_session(document)
 
 
 N = 9
@@ -74,10 +71,11 @@ reset.on_click(on_reset_click)
 widgetBox = WidgetBox(children=[reset], width=150)
 row = Row(children=[widgetBox, plot1, plot2])
 
+document = curdoc()
 document.add_root(row)
-session.show(row)
 
 if __name__ == "__main__":
-    document.validate()
     print("\npress ctrl-C to exit")
+    session = push_session(document)
+    session.show()
     session.loop_until_closed()

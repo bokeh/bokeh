@@ -1,7 +1,7 @@
 from __future__ import print_function
 
 from bokeh.client import push_session
-from bokeh.document import Document
+from bokeh.io import curdoc
 from bokeh.models import (
     ColumnDataSource, DataRange1d, Plot, LinearAxis, Grid,
     Circle, HoverTool, BoxSelectTool
@@ -15,7 +15,7 @@ from bokeh.sampledata.autompg2 import autompg2 as mpg
 class DataTables(object):
 
     def __init__(self):
-        self.document = Document()
+        self.document = curdoc()
         self.manufacturer_filter = None
         self.model_filter = None
         self.transmission_filter = None
@@ -25,8 +25,7 @@ class DataTables(object):
         self.source = ColumnDataSource(data=mpg)
         self.update_data()
 
-        self.document.add_root((self.create()))
-        self.session = push_session(self.document)
+        self.document.add_root(self.create())
 
     def create(self):
         manufacturers = sorted(mpg["manufacturer"].unique())
@@ -130,13 +129,14 @@ class DataTables(object):
             df = df[df["class"] == self.class_filter]
         self.source.data = ColumnDataSource.from_df(df)
 
-    def run(self, do_view=False, poll_interval=0.5):
+    def run(self, do_view=True):
+        self.session = push_session(self.document)
         if do_view:
             self.session.show()
 
         self.session.loop_until_closed()
 
+data_tables = DataTables()
+
 if __name__ == "__main__":
-    data_tables = DataTables()
-    data_tables.document.validate()
-    data_tables.run(True)
+    data_tables.run()
