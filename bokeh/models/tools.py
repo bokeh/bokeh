@@ -640,6 +640,14 @@ class PolySelectTool(Tap):
     defaults to all renderers on a plot.
     """)
 
+    callback = Instance(Callback, help="""
+    A callback to run in the browser on completion of drawing a polygon.
+    The cb_data parameter that is available to the Callback code will contain
+    one PolySelectTool-specific field:
+
+    :geometry: object containing the coordinates of the polygon
+    """)
+
     overlay = Instance(PolyAnnotation, default=DEFAULT_POLY_OVERLAY, help="""
     A shaded annotation drawn to indicate the selection region.
     """)
