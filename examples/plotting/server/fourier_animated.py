@@ -184,7 +184,7 @@ document.add_root(layout)
 document.add_periodic_callback(cb, 100)
 
 if __name__ == "__main__":
-    print("\nanimating... press ctrl-C to stop")
+    print("\npress ctrl-C to exit")
     session = push_session(document)
     session.show()
     session.loop_until_closed()
