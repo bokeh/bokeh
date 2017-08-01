@@ -61,7 +61,7 @@ export class MultiLineView extends GlyphView
       if points
         hits[i] = points
 
-    result['1d'].indices = Object.keys(hits)
+    result['1d'].indices = (parseInt(i) for i in Object.keys(hits))
     result['2d'].indices = hits
 
     return result
@@ -86,7 +86,7 @@ export class MultiLineView extends GlyphView
       if points.length > 0
         hits[i] = points
 
-    result['1d'].indices = Object.keys(hits)
+    result['1d'].indices = (parseInt(i) for i in Object.keys(hits))
     result['2d'].indices = hits
 
     return result
