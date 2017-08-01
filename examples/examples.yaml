@@ -4,7 +4,9 @@
 
 - path: "models/server"
   type: server
-  skip: ["buttons.py", "linked_tap.py", "line_animate.py"]
+  # linked_tap has a property bug that should be resolved
+  # line_animate renders poorly on phantomjs (but not firefox)
+  skip: ["linked_tap.py", "line_animate.py"]
 
 - path: "custom"
 

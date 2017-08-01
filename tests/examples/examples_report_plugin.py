@@ -8,7 +8,6 @@ import re
 import jinja2
 import pytest
 from py.xml import html
-from selenium.webdriver import PhantomJS
 
 from tests.plugins.constants import __version__
 from tests.plugins.utils import get_version_from_git as resolve_ref
@@ -93,17 +92,6 @@ def pytest_unconfigure(config):
     if examples_report:
         del config.examples_report
         config.pluginmanager.unregister(html)
-
-
-@pytest.fixture(scope="session")
-def phantomjs(request):
-    driver = PhantomJS(service_log_path=os.path.devnull)
-    driver.implicitly_wait(10)
-    driver.set_window_size(width=1200, height=600)
-    def tearDown():
-        driver.quit()
-    request.addfinalizer(tearDown)
-    return driver
 
 
 @pytest.fixture(scope="session")

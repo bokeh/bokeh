@@ -67,7 +67,7 @@ def test_file_examples(file_example, example, report):
 
 
 @pytest.mark.examples
-def test_server_examples(server_example, example, bokeh_server, report, phantomjs):
+def test_server_examples(server_example, example, report, bokeh_server):
     if example.is_skip:
         pytest.skip("skipping %s" % example.relpath)
 
@@ -81,24 +81,7 @@ def test_server_examples(server_example, example, bokeh_server, report, phantomj
     session_id = "session_id"
     push_session(doc, session_id=session_id)
 
-    phantomjs.get("http://localhost:5006/?bokeh-session-id=%s" % session_id)
-    phantomjs.set_window_size(1200, 800)
-    phantomjs.execute_script("document.body.bgColor = 'white';")
-
-    import time; time.sleep(2)
-
-    if pytest.config.option.verbose:
-        logs = phantomjs.get_log('browser')
-        for log in logs:
-            print("%s : %s" % (log["level"], log["message"]))
-
-    png = phantomjs.get_screenshot_as_png()
-
-    if not os.path.isdir(example.imgs_dir):
-        os.mkdir(example.imgs_dir)
-
-    with open(example.img_path, 'wb') as f:
-        f.write(png)
+    _assert_snapshot(example, "http://localhost:5006/?bokeh-session-id=%s" % session_id, 'server')
 
     if example.no_diff:
         warn("skipping image diff for %s" % example.relpath)
@@ -218,7 +201,9 @@ def _assert_snapshot(example, url, example_type):
 
     assert success, "%s failed to load" % example.relpath
     assert no_resources, "%s failed with %d missing resources" % (example.relpath, len(resources))
-    assert no_errors, "%s failed with %d errors" % (example.relpath, len(errors))
+
+    if example_type != "server":
+        assert no_errors, "%s failed with %d errors" % (example.relpath, len(errors))
 
 
 def _run_example(example):
