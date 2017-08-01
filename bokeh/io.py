@@ -567,7 +567,7 @@ def _destroy_server(div_id):
     except Exception as e:
         logger.debug("Could not destroy server for id %r: %s" % (div_id, e))
 
-def _wait_until_render_complete(driver):
+def _wait_until_render_complete(driver, timeout=5, poll_frequency=0.1):
     from selenium.webdriver.support.ui import WebDriverWait
     from selenium.common.exceptions import TimeoutException
 
@@ -580,10 +580,11 @@ def _wait_until_render_complete(driver):
 
     var doc = window.Bokeh.documents[0];
 
-    if (doc.is_idle)
+    if (doc.is_idle) {
       done();
-    else
+    } else {
       doc.idle.connect(done);
+    }
     """
     driver.execute_script(script)
 
@@ -591,16 +592,16 @@ def _wait_until_render_complete(driver):
         return driver.execute_script('return window._bokeh_render_complete;')
 
     try:
-        WebDriverWait(driver, 5, poll_frequency=0.1).until(is_bokeh_render_complete)
+        WebDriverWait(driver, timeout, poll_frequency=poll_frequency).until(is_bokeh_render_complete)
     except TimeoutException:
-        logger.warn("The webdriver raised a TimeoutException while waiting for \
-                     a 'bokeh:idle' event to signify that the layout has rendered. \
-                     Something may have gone wrong.")
+        logger.warn("The webdriver raised a TimeoutException while waiting for "
+                    "a 'bokeh:idle' event to signify that the layout has rendered. "
+                    "Something may have gone wrong.")
     finally:
         browser_logs = driver.get_log('browser')
         severe_errors = [l for l in browser_logs if l.get('level') == 'SEVERE']
         if len(severe_errors) > 0:
-            logger.warn("There were severe browser errors that may have affected your export: {}".format(severe_errors))
+            logger.warn("There were severe browser errors that may have affected your rendering: {}".format(severe_errors))
 
 def _save_layout_html(obj, resources=INLINE, **kwargs):
     resize = False
