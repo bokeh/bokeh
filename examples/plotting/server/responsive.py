@@ -19,6 +19,11 @@ show_inner_dimensions()
 p.on_change("inner_width", lambda attr, old, new: show_inner_dimensions())
 p.on_change("inner_height", lambda attr, old, new: show_inner_dimensions())
 
-session = push_session(curdoc())
-session.show(p)
-session.loop_until_closed()
+document = curdoc()
+document.add_root(p)
+
+if __name__ == "__main__":
+    print("\nanimating... press ctrl-C to stop")
+    session = push_session(document)
+    session.show()
+    session.loop_until_closed()

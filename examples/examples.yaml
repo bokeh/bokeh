@@ -6,7 +6,8 @@
   type: server
   # linked_tap has a property bug that should be resolved
   # line_animate renders poorly on phantomjs (but not firefox)
-  skip: ["linked_tap.py", "line_animate.py"]
+  # skip: ["linked_tap.py", "line_animate.py"]
+  skip: all
 
 - path: "custom"
 
@@ -18,7 +19,9 @@
 
 - path: "plotting/server"
   type: server
-  skip: all
+  # animated renders poorly on phantomjs (but not firefox)
+  # timeout starts with an empty frame and isn't a useful example
+  skip: ["animated.py", "timeout.py"]
 
 - path: "plotting/notebook"
   skip: all

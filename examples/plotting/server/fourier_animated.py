@@ -171,9 +171,6 @@ for k, p in fourier.items():
 
 layout = column(*[f['plot'] for f in fourier.values()] + [f['cplot'] for f in fourier.values()])
 
-# open a session to keep our local document in sync with server
-session = push_session(curdoc())
-
 @repeat(range(N))
 def cb(gind):
     global newx
@@ -184,8 +181,12 @@ def cb(gind):
         update_sources(p['sources'], p['fs'], newx, gind, p['cfs'])
         update_centric_sources(p['csources'], p['fs'], newx, gind, p['cfs'])
 
-curdoc().add_periodic_callback(cb, 100)
+document = curdoc()
+document.add_root(layout)
+document.add_periodic_callback(cb, 100)
 
-session.show(layout) # open the document in a browser
-
-session.loop_until_closed() # run forever
+if __name__ == "__main__":
+    print("\nanimating... press ctrl-C to stop")
+    session = push_session(document)
+    session.show()
+    session.loop_until_closed()

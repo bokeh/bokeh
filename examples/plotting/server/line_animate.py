@@ -22,8 +22,12 @@ def update(step):
     r2.data_source.data["y"] = y * step
     r2.glyph.line_alpha = 1 - 0.8 * abs(step)
 
-curdoc().add_periodic_callback(update, 50)
+document = curdoc()
+document.add_root(p)
+document.add_periodic_callback(update, 50)
 
-session.show(p) # open the document in a browser
-
-session.loop_until_closed() # run forever
+if __name__ == "__main__":
+    print("\nanimating... press ctrl-C to stop")
+    session = push_session(document)
+    session.show()
+    session.loop_until_closed()

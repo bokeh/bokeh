@@ -44,14 +44,14 @@ def make_callback(i):
 
 callbacks = [make_callback(i) for i in range(N)]
 
-# open a session to keep our local document in sync with server
-session = push_session(curdoc())
-
+document = curdoc()
+document.add_root(p)
 for callback in callbacks:
-    curdoc().add_timeout_callback(callback, callback.interval)
+    document.add_timeout_callback(callback, callback.interval)
+document.add_timeout_callback(sys.exit, (N+4)*100)
 
-curdoc().add_timeout_callback(sys.exit, (N+4)*100)
-
-session.show(p) # open the document in a browser
-
-session.loop_until_closed() # run forever
+if __name__ == "__main__":
+    print("\nanimating... press ctrl-C to stop")
+    session = push_session(document)
+    session.show()
+    session.loop_until_closed()
