@@ -1,5 +1,3 @@
-# You must first run "bokeh serve" to view this example
-
 import numpy as np
 from numpy import pi
 
@@ -13,9 +11,6 @@ y = np.sin(x)
 p = figure()
 r1 = p.line([0, 4*pi], [-1, 1], color="firebrick")
 r2 = p.line(x, y, color="navy", line_width=4)
-
-# open a session to keep our local document in sync with server
-session = push_session(curdoc())
 
 @cosine(w=0.03)
 def update(step):

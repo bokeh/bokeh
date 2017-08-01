@@ -1,14 +1,9 @@
-from __future__ import print_function
-
 from bokeh.client import push_session
 from bokeh.io import curdoc
-from bokeh.models import (
-    ColumnDataSource, DataRange1d, Plot, LinearAxis, Grid,
-    Circle, HoverTool, BoxSelectTool
-)
-from bokeh.models.widgets import (
-    Select, DataTable, TableColumn, StringFormatter,
-    NumberFormatter, StringEditor, IntEditor, NumberEditor, SelectEditor)
+from bokeh.models import (ColumnDataSource, DataRange1d, Plot, LinearAxis, Grid,
+                          Circle, HoverTool, BoxSelectTool)
+from bokeh.models.widgets import (Select, DataTable, TableColumn, StringFormatter, NumberFormatter,
+                                  StringEditor, IntEditor, NumberEditor, SelectEditor)
 from bokeh.models.layouts import Row, Column, WidgetBox
 from bokeh.sampledata.autompg2 import autompg2 as mpg
 

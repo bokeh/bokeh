@@ -1,5 +1,3 @@
-# You must first run "bokeh serve" to view this example
-
 import numpy as np
 
 from bokeh.client import push_session
@@ -92,7 +90,7 @@ document.add_root(layout)
 document.title = "Selection Histogram"
 
 if __name__ == "__main__":
-    print("\nanimating... press ctrl-C to stop")
+    print("\npress ctrl-C to exit")
     session = push_session(document)
     session.show()
     session.loop_until_closed()

@@ -2,9 +2,8 @@ from __future__ import print_function
 
 import random
 
-from bokeh.plotting import figure
+from bokeh.plotting import figure, curdoc
 from bokeh.client import push_session
-from bokeh.io import curdoc
 
 data = lambda: [ random.choice([ i for i in range(100) ]) for r in range(10) ]
 
@@ -23,7 +22,7 @@ document = curdoc()
 document.add_root(p)
 
 if __name__ == "__main__":
-    print("\nanimating... press ctrl-C to stop")
+    print("\npress ctrl-C to exit")
     session = push_session(document)
     session.show()
     session.loop_until_closed()

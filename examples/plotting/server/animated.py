@@ -1,5 +1,3 @@
-# You must first run "bokeh serve" to view this example
-
 from numpy import pi, cos, sin, linspace, roll
 
 from bokeh.client import push_session

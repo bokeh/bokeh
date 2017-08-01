@@ -1,5 +1,3 @@
-# You must first run "bokeh serve" to view this example
-
 from math import pi
 
 import numpy as np

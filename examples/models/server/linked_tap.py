@@ -4,9 +4,8 @@ import numpy as np
 
 from bokeh.client import push_session
 from bokeh.io import curdoc
-from bokeh.models import (
-    ColumnDataSource, DataRange1d, Plot, Circle, WidgetBox, Row, Button, TapTool
-)
+from bokeh.models import (ColumnDataSource, DataRange1d, Plot, Circle, WidgetBox,
+                          Row, Button, TapTool)
 
 
 N = 9

@@ -1,5 +1,3 @@
-# You must first run "bokeh serve" to view this example
-
 import json
 
 from bokeh.client import push_session
@@ -37,7 +35,7 @@ document.add_root(p)
 document.add_periodic_callback(update, 300)
 
 if __name__ == "__main__":
-    print("\nanimating... press ctrl-C to stop")
+    print("\npress ctrl-C to exit")
     session = push_session(document)
     session.show()
     session.loop_until_closed()

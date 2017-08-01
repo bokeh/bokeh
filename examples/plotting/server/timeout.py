@@ -1,5 +1,3 @@
-# You must first run "bokeh serve" to view this example
-
 import sys
 
 import numpy as np
@@ -51,7 +49,7 @@ for callback in callbacks:
 document.add_timeout_callback(sys.exit, (N+4)*100)
 
 if __name__ == "__main__":
-    print("\nanimating... press ctrl-C to stop")
+    print("\npress ctrl-C to exit")
     session = push_session(document)
     session.show()
     session.loop_until_closed()

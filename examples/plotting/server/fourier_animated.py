@@ -1,5 +1,3 @@
-# You must first run "bokeh serve" to view this example
-#
 # Example inspired by:
 #
 #   https://www.youtube.com/watch?v=LznjC4Lo7lE
