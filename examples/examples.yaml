@@ -6,8 +6,7 @@
   type: server
   # linked_tap has a property bug that should be resolved
   # line_animate renders poorly on phantomjs (but not firefox)
-  # skip: ["linked_tap.py", "line_animate.py"]
-  skip: all
+  skip: ["linked_tap.py", "line_animate.py"]
 
 - path: "custom"
 
