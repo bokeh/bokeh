@@ -1,6 +1,7 @@
 ''' Provide a base class for all objects (called Bokeh Models) that can go in
 a Bokeh |Document|.
 
+
 '''
 from __future__ import absolute_import, print_function
 
