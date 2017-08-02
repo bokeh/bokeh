@@ -37,7 +37,7 @@ export map_two_levels = (factors, outer_pad, factor_pad, offset=0) ->
     mapping[f0] = {value: subtot/n, mapping: submap}
     suboffset += (n + outer_pad + subpad)
 
-  return [mapping, (tops_order.length-1)*outer_pad + total_subpad]
+  return [mapping, tops_order, (tops_order.length-1)*outer_pad + total_subpad]
 
 # exported for testing
 export map_three_levels = (factors, outer_pad, inner_pad, factor_pad, offset=0) ->
@@ -51,17 +51,21 @@ export map_three_levels = (factors, outer_pad, inner_pad, factor_pad, offset=0) 
       tops_order.push(f0)
     tops[f0].push([f1, f2])
 
+  mids_order = []
+
   suboffset = offset
   total_subpad = 0
   for f0 in tops_order
     n = tops[f0].length
-    [submap, subpad] = map_two_levels(tops[f0], inner_pad, factor_pad, suboffset)
+    [submap, submids_order, subpad] = map_two_levels(tops[f0], inner_pad, factor_pad, suboffset)
+    for f1 in submids_order
+      mids_order.push([f0, f1])
     total_subpad += subpad
     subtot = sum(submap[f1].value for [f1, f2] in tops[f0])
     mapping[f0] = {value: subtot/n, mapping: submap}
     suboffset += (n + outer_pad + subpad)
 
-  return [mapping, (tops_order.length-1)*outer_pad + total_subpad]
+  return [mapping, tops_order, mids_order, (tops_order.length-1)*outer_pad + total_subpad]
 
 export class FactorRange extends Range
   type: 'FactorRange'
@@ -84,7 +88,9 @@ export class FactorRange extends Range
   }
 
   @internal {
-    levels: [ p.Number ]
+    levels: [ p.Number ] # how many levels of
+    tops:   [ p.Array  ] # top level factors (whether 2 or 3 total levels)
+    mids:   [ p.Array  ] # mid level factors (if 3 total levels)
   }
 
   initialize: (attrs, options) ->
@@ -128,11 +134,11 @@ export class FactorRange extends Range
 
     else if all(@factors, (x) -> isArray(x) and x.length==2 and isString(x[0]) and isString(x[1]))
       levels = 2
-      [@_mapping, inside_padding] = map_two_levels(@factors, @group_padding, @factor_padding)
+      [@_mapping, @tops, inside_padding] = map_two_levels(@factors, @group_padding, @factor_padding)
 
     else if all(@factors, (x) -> isArray(x) and x.length==3  and isString(x[0]) and isString(x[1]) and isString(x[2]))
       levels = 3
-      [@_mapping, inside_padding] = map_three_levels(@factors, @group_padding, @subgroup_padding, @factor_padding)
+      [@_mapping, @tops, @mids, inside_padding] = map_three_levels(@factors, @group_padding, @subgroup_padding, @factor_padding)
 
     else
       throw new Error("")
