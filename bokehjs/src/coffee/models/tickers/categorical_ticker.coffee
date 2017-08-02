@@ -6,18 +6,23 @@ export class CategoricalTicker extends Ticker
   type: 'CategoricalTicker'
 
   get_ticks: (start, end, range, cross_loc, {desired_n_ticks}) ->
-    majors = []
+    majors = @_collect(range.factors, range, start, end)
+    tops = @_collect(range.tops ? [], range, start, end)
+    mids = @_collect(range.mids ? [], range, start, end)
 
-    for i in [0...range.factors.length]
-      factor = range.factors[i]
-      if isArray(factor) and factor.length==2 and factor[1]==null
-        continue
-      if isArray(factor) and factor.length==3 and factor[2]==null
-        continue
-      coord = range.synthetic(factor)
-      if coord > start and coord < end
-        majors.push(range.factors[i])
     return {
-      "major": majors
-      "minor": []
+      major : majors
+      tops  : tops
+      mids  : mids
+      minor : []
     }
+
+  _collect: (factors, range, start, end) ->
+    result = []
+
+    for f in factors
+      coord = range.synthetic(f)
+      if coord > start and coord < end
+        result.push(f)
+
+    return result

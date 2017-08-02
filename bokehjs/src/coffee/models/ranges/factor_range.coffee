@@ -75,8 +75,7 @@ export class FactorRange extends Range
     factor_padding:      [ p.Number,       0         ]
     subgroup_padding:    [ p.Number,       0.8       ]
     group_padding:       [ p.Number,       1.4       ]
-    factor_padding:      [ p.Number,       0         ]
-    range_padding:       [ p.Number,       0.1       ]
+    range_padding:       [ p.Number,       0         ]
     range_padding_units: [ p.PaddingUnits, "percent" ]
     start:               [ p.Number                  ]
     end:                 [ p.Number                  ]
@@ -88,9 +87,10 @@ export class FactorRange extends Range
   }
 
   @internal {
-    levels: [ p.Number ] # how many levels of
-    tops:   [ p.Array  ] # top level factors (whether 2 or 3 total levels)
-    mids:   [ p.Array  ] # mid level factors (if 3 total levels)
+    levels:      [ p.Number ] # how many levels of
+    mids:        [ p.Array  ] # mid level factors (if 3 total levels)
+    tops:        [ p.Array  ] # top level factors (whether 2 or 3 total levels)
+    tops_groups: [ p.Array  ] # ordered list of full factors for each top level factor in tops
   }
 
   initialize: (attrs, options) ->

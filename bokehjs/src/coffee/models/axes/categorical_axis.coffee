@@ -7,164 +7,96 @@ import {isArray, isString} from "core/util/types"
 
 export class CategoricalAxisView extends AxisView
 
-  _render: (ctx, extents) ->
-    @_draw_group_separators(ctx, extents)
+  _render: (ctx, extents, tick_coords) ->
+    @_draw_group_separators(ctx, extents, tick_coords)
 
-  _draw_group_separators: (ctx, extents) ->
-    if not @visuals.separator_line.doit
-      return
+  _draw_group_separators: (ctx, extents, tick_coords) ->
+    [range, cross_range] = @model.ranges
+    [start, end] = @model.computed_bounds
+    loc = @model.loc
+
+    ticks = @model.ticker.get_ticks(start, end, range, loc, {})
 
     [range, cross_range] = @model.ranges
-    if range.levels == 1
+
+    if not range.tops or range.tops.length < 2 or not @visuals.separator_line.doit
       return
 
-    tick_coords = @model.tick_coords.major
-    info = @model.label_info(tick_coords)
-    labels = @model.compute_labels(info.coords[info.dim])
+    dim = @model.dimension
+    alt = (dim + 1) % 2
 
-    tops = {}
-    tops_order = []
-    if range.levels == 2
-      for [f0, f1] in range.factors
-        if f0 not of tops
-          tops_order.push(f0)
-          tops[f0] = {first: range.synthetic([f0, f1])}
-        tops[f0].last = range.synthetic([f0, f1])
-    else if range.levels == 3
-      for [f0, f1, f2] in range.factors
-        if f0 not of tops
-          tops_order.push(f0)
-          tops[f0] = {first: range.synthetic([f0, f1, f2])}
-        tops[f0].last = range.synthetic([f0, f1, f2])
+    coords = [[], []]
 
-    if tops_order.length < 2
-      return
+    ind = 0
+    for i in [0...range.tops.length-1]
+      for j in [ind...range.factors.length]
+        if range.factors[j][0] == range.tops[i+1]
+          [first, last] = [range.factors[j-1], range.factors[j]]
+          ind = j
+          break
 
-    [pt0, pt1] = [[], []]
-    for i in [0...tops_order.length-1]
-      pt0.push(@model.loc)
-      pt1.push((tops[tops_order[i]].last+tops[tops_order[i+1]].first)/2)
+      pt = (range.synthetic(first) + range.synthetic(last))/2
+      if pt > start and pt < end
+        coords[dim].push(pt)
+        coords[alt].push(@model.loc)
 
-    if @model.dim == 0
-      [sx, sy] = @plot_view.map_to_screen(pt0, pt1, @_x_range_name, @_y_range_name)
-    else
-      [sx, sy] = @plot_view.map_to_screen(pt1, pt0, @_x_range_name, @_y_range_name)
+    tex = @_tick_label_extent()
 
-    ex = @_tick_label_extent()
-    [nx, ny] = @model.normals
-    [xoff, yoff]  = @model.offsets
+    @_draw_ticks(ctx, coords, -3, (tex-6), @visuals.separator_line)
 
-    @visuals.separator_line.set_value(ctx)
-    for i in [0...sx.length]
-      ctx.beginPath()
-      ctx.moveTo(Math.round(sx[i]+nx*(xoff+3)),    Math.round(sy[i]+ny*(yoff+3)))
-      ctx.lineTo(Math.round(sx[i]+nx*(xoff+3+ex)), Math.round(sy[i]+ny*(yoff+3+ex)))
-      ctx.stroke()
+    return
 
-  _draw_major_labels: (ctx, extents) ->
-    [range, cross_range] = @model.ranges
-    tick_coords = @model.tick_coords.major
-    info = @model.label_info(tick_coords)
+  _draw_major_labels: (ctx, extents, tick_coords) ->
+    info = @_get_factor_info()
 
-    labels = @model.compute_labels(info.coords[info.dim])
-    if labels.length == 0
-      return
+    loc = @model.loc
+    dim = @model.dimension
+    alt = (dim + 1) % 2
 
-    @visuals.major_label_text.set_value(ctx)
+    standoff = extents.tick + @model.major_label_standoff
+    for i in [0...info.length]
+      [labels, coords, orient, visuals] = info[i]
+      @_draw_oriented_labels(ctx, labels, coords, orient, @model.panel_side, standoff, visuals)
+      standoff += extents.tick_label[i]
 
-    if range.levels == 1
-      @_draw_oriented_labels(labels, info, extents)
-
-    else if range.levels == 2
-      l1 = (x[1] for x in labels)
-      @_draw_oriented_labels(l1, info, extents)
-
-      @visuals.group_text.set_value(ctx)
-      l0 = uniq(x[0] for x in labels)
-      tick_coords[info.dim] = l0
-      info = @model.label_info(tick_coords)
-      info.orient = "parallel"
-      info.standoff += extents.tick_label[0]
-      @_draw_oriented_labels(l0, info, extents)
-
-    else if range.levels == 3
-      l2 = (x[2] for x in labels)
-      @_draw_oriented_labels(l2, info, extents)
-
-      @visuals.subgroup_text.set_value(ctx)
-
-      # This sucks but then so does JavaScript
-      l1 = []
-      l1_seen = []
-      for x in labels
-        subx = x.slice(0, 2)
-        if subx.toString() not in l1_seen
-          l1_seen.push(subx.toString())
-          l1.push(subx)
-
-      tick_coords[info.dim] = l1
-      info = @model.label_info(tick_coords)
-      info.orient = "parallel"
-      info.standoff += extents.tick_label[0]
-      @_draw_oriented_labels((x[1] for x in l1), info, extents)
-
-      @visuals.group_text.set_value(ctx)
-      l0 = uniq(x[0] for x in labels)
-      tick_coords[info.dim] = l0
-      info = @model.label_info(tick_coords)
-      info.orient = "parallel"
-      info.standoff += extents.tick_label[0] + extents.tick_label[1]
-      @_draw_oriented_labels(l0, info, extents)
+    return
 
   _tick_label_extents: () ->
-    [range, cross_range] = @model.ranges
-    tick_coords = @model.tick_coords.major
-    info = @model.label_info(tick_coords)
-
-    labels = @model.compute_labels(info.coords[info.dim])
-    if labels.length == 0
-      return 0
-
-    ctx = @plot_view.canvas_view.ctx
-    @visuals.major_label_text.set_value(ctx)
+    info = @_get_factor_info()
 
     extents = []
-
-    if range.levels == 1
-      extent = @_oriented_label_extent(labels, info)
+    for [labels, dim_coords, orient, visuals] in info
+      extent = @_oriented_labels_extent(labels, orient, @model.panel_side, @model.major_label_standoff, visuals)
       extents.push(extent)
 
+    return extents
+
+  _get_factor_info: () ->
+    [range, cross_range] = @model.ranges
+    [start, end] = @model.computed_bounds
+    loc = @model.loc
+
+    ticks = @model.ticker.get_ticks(start, end, range, loc, {})
+    coords = @model.tick_coords
+
+    info = []
+
+    if range.levels == 1
+      info.push([ ticks.major, coords.major, @model.major_label_orientation, @visuals.major_label_text ])
+
     else if range.levels == 2
-      l1 = (x[1] for x in labels)
-      extents.push(@_oriented_label_extent(l1, info))
-
-      @visuals.group_text.set_value(ctx)
-      l0 = uniq(x[0] for x in labels)
-      tick_coords[info.dim] = l0
-      info = @model.label_info(tick_coords)
-      info.orient = "parallel"
-
-      extents.push(@_oriented_label_extent(l0, info))
+      labels = (x[1] for x in ticks.major)
+      info.push([ labels,     coords.major, @model.major_label_orientation, @visuals.major_label_text ])
+      info.push([ ticks.tops, coords.tops,  'parallel',                     @visuals.group_text       ])
 
     else if range.levels == 3
-      l2 = (x[2] for x in labels)
-      extents.push(@_oriented_label_extent(l2, info))
+      labels = (x[2] for x in ticks.major)
+      mid_labels = (x[1] for x in ticks.mids)
+      info.push([ labels,     coords.major, @model.major_label_orientation, @visuals.major_label_text ])
+      info.push([ mid_labels, coords.mids,  'parallel',                     @visuals.subgroup_text    ])
+      info.push([ ticks.tops, coords.tops,  'parallel',                     @visuals.group_text       ])
 
-      @visuals.subgroup_text.set_value(ctx)
-      l1 = (x.slice(0, 2) for x in labels)
-      tick_coords[info.dim] = l1
-      info = @model.label_info(tick_coords)
-      info.orient = "parallel"
-      extents.push(@_oriented_label_extent((x[1] for x in l1), info))
-
-      @visuals.group_text.set_value(ctx)
-      l0 = uniq(x[0] for x in labels)
-      tick_coords[info.dim] = l0
-      info = @model.label_info(tick_coords)
-      info.orient = "parallel"
-      extents.push(@_oriented_label_extent(l0, info))
-
-    return extents
+    return info
 
 export class CategoricalAxis extends Axis
   default_view: CategoricalAxisView
@@ -188,3 +120,31 @@ export class CategoricalAxis extends Axis
     subgroup_text_font_style: "bold"
     subgroup_text_font_size: "8pt"
   }
+
+  _tick_coords: () ->
+    i = @dimension
+    j = (i + 1) % 2
+    [range, cross_range] = @ranges
+    [start, end] = @computed_bounds
+
+    ticks = @ticker.get_ticks(start, end, range, @loc, {})
+
+    coords = {
+      major: [ [], [] ]
+      mids:  [ [], [] ]
+      tops:  [ [], [] ]
+      minor: []
+    }
+
+    coords.major[i] = ticks.major
+    coords.major[j] = (@loc for x in ticks.major)
+
+    if range.levels == 3
+      coords.mids[i] = ticks.mids
+      coords.mids[j] = (@loc for x in ticks.mids)
+
+    if range.levels > 1
+      coords.tops[i] = ticks.tops
+      coords.tops[j] = (@loc for x in ticks.tops)
+
+    return coords

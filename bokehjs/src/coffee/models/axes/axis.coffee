@@ -8,10 +8,6 @@ import {sum} from "core/util/array"
 import {isString, isArray} from "core/util/types"
 
 export class AxisView extends RendererView
-  initialize: (options) ->
-    super(options)
-    @_x_range_name = @model.x_range_name
-    @_y_range_name = @model.y_range_name
 
   render: () ->
     if @model.visible == false
@@ -22,18 +18,19 @@ export class AxisView extends RendererView
       tick_label: @_tick_label_extents(),
       axis_label: @_axis_label_extent()
     }
+    tick_coords  = @model.tick_coords
 
     ctx = @plot_view.canvas_view.ctx
     ctx.save()
 
     @_draw_rule(ctx, extents)
-    @_draw_major_ticks(ctx, extents)
-    @_draw_minor_ticks(ctx, extents)
-    @_draw_major_labels(ctx, extents)
-    @_draw_axis_label(ctx, extents)
+    @_draw_major_ticks(ctx, extents, tick_coords)
+    @_draw_minor_ticks(ctx, extents, tick_coords)
+    @_draw_major_labels(ctx, extents, tick_coords)
+    @_draw_axis_label(ctx, extents, tick_coords)
 
     if @_render?
-      @_render(ctx, extents)
+      @_render(ctx, extents, tick_coords)
 
     ctx.restore()
 
@@ -44,203 +41,198 @@ export class AxisView extends RendererView
   _get_size: () ->
     return @_tick_extent() + @_tick_label_extent() + @_axis_label_extent()
 
-  _draw_rule: (ctx) ->
+  # drawing sub functions -----------------------------------------------------
+
+  _draw_rule: (ctx, extents, tick_coords) ->
     if not @visuals.axis_line.doit
       return
-    [x, y] = coords = @model.rule_coords
-    [sx, sy] = @plot_view.map_to_screen(x, y, @_x_range_name, @_y_range_name)
-    [nx, ny] = @model.normals
-    [xoff, yoff]  = @model.offsets
+
+    [x, y]       = @model.rule_coords
+    [sx, sy]     = @plot_view.map_to_screen(x, y, @model.x_range_name, @model.y_range_name)
+    [nx, ny]     = @model.normals
+    [xoff, yoff] = @model.offsets
+
     @visuals.axis_line.set_value(ctx)
+
     ctx.beginPath()
-    ctx.moveTo(Math.round(sx[0]+nx*xoff), Math.round(sy[0]+ny*yoff))
+    ctx.moveTo(Math.round(sx[0] + nx*xoff), Math.round(sy[0] + ny*yoff))
     for i in [1...sx.length]
-      ctx.lineTo(Math.round(sx[i]+nx*xoff), Math.round(sy[i]+ny*yoff))
+      sx = Math.round(sx[i] + nx*xoff)
+      sy = Math.round(sy[i] + ny*yoff)
+      ctx.lineTo(sx, sy)
     ctx.stroke()
 
-  _draw_major_ticks: (ctx, extents) ->
-    if not @visuals.major_tick_line.doit
-      return
-    coords = @model.tick_coords
-    [x, y] = coords.major
-    [sx, sy] = @plot_view.map_to_screen(x, y, @_x_range_name, @_y_range_name)
-    [nx, ny] = @model.normals
-    [xoff, yoff]  = @model.offsets
+    return
 
-    tin = @model.major_tick_in
-    tout = @model.major_tick_out
-    @visuals.major_tick_line.set_value(ctx)
-    for i in [0...sx.length]
-      ctx.beginPath()
-      ctx.moveTo(Math.round(sx[i]+nx*tout+nx*xoff), Math.round(sy[i]+ny*tout+ny*yoff))
-      ctx.lineTo(Math.round(sx[i]-nx*tin+nx*xoff), Math.round(sy[i]-ny*tin+ny*yoff))
-      ctx.stroke()
+  _draw_major_ticks: (ctx, extents, tick_coords) ->
+    tin     = @model.major_tick_in
+    tout    = @model.major_tick_out
+    visuals = @visuals.major_tick_line
 
-  _draw_minor_ticks: (ctx, extents) ->
-    if not @visuals.minor_tick_line.doit
-      return
-    coords = @model.tick_coords
-    [x, y] = coords.minor
-    [sx, sy] = @plot_view.map_to_screen(x, y, @_x_range_name, @_y_range_name)
-    [nx, ny] = @model.normals
-    [xoff, yoff]  = @model.offsets
-    tin = @model.minor_tick_in
-    tout = @model.minor_tick_out
-    @visuals.minor_tick_line.set_value(ctx)
-    for i in [0...sx.length]
-      ctx.beginPath()
-      ctx.moveTo(Math.round(sx[i]+nx*tout+nx*xoff), Math.round(sy[i]+ny*tout+ny*yoff))
-      ctx.lineTo(Math.round(sx[i]-nx*tin+nx*xoff), Math.round(sy[i]-ny*tin+ny*yoff))
-      ctx.stroke()
+    @_draw_ticks(ctx, tick_coords.major, tin, tout, visuals)
 
-  _draw_major_labels: (ctx, extents) ->
-    ctx = @plot_view.canvas_view.ctx
-    info = @model.label_info(@model.tick_coords.major)
+    return
 
-    labels = @model.compute_labels(info.coords[info.dim])
-    if labels.length == 0
+  _draw_minor_ticks: (ctx, extents, tick_coords) ->
+    tin     = @model.minor_tick_in
+    tout    = @model.minor_tick_out
+    visuals = @visuals.minor_tick_line
+
+    @_draw_ticks(ctx, tick_coords.minor, tin, tout, visuals)
+
+    return
+
+  _draw_major_labels: (ctx, extents, tick_coords) ->
+    coords   = tick_coords.major
+    labels   = @model.compute_labels(coords[@model.dimension])
+    orient   = @model.major_label_orientation
+    standoff = extents.tick + @model.major_label_standoff
+    visuals  = @visuals.major_label_text
+
+    @_draw_oriented_labels(ctx, labels, coords, orient, @model.panel_side, standoff, visuals)
+
+    return
+
+  _draw_axis_label: (ctx, extents, tick_coords) ->
+    if not @model.axis_label?
       return
 
-    @visuals.major_label_text.set_value(ctx)
-    @_draw_oriented_labels(labels, info, extents)
-
-  _draw_oriented_labels: (labels, info, extents) ->
-    ctx = @plot_view.canvas_view.ctx
-
-    [x, y] = info.coords
-    [sx, sy] = @plot_view.map_to_screen(x, y, @_x_range_name, @_y_range_name)
-    [nx, ny] = @model.normals
-    [xoff, yoff]  = @model.offsets
-
-    standoff = extents.tick + info.standoff
-
-    @model.panel.apply_label_text_heuristics(ctx, info.orient)
-
-    if isString(info.orient)
-      angle = @model.panel.get_label_angle_heuristic(info.orient)
-    else
-      angle = -info.orient
-
-    if angle
-      for i in [0...sx.length]
-        ctx.translate(sx[i]+nx*standoff+nx*xoff, sy[i]+ny*standoff+ny*yoff)
-        ctx.rotate(angle)
-        ctx.fillText(labels[i], 0, 0)
-        ctx.rotate(-angle)
-        ctx.translate(-sx[i]-nx*standoff+nx*xoff, -sy[i]-ny*standoff+ny*yoff)
-    else
-      for i in [0...sx.length]
-        ctx.fillText(labels[i], Math.round(sx[i]+nx*standoff+nx*xoff), Math.round(sy[i]+ny*standoff+ny*yoff))
-
-    return null
-
-  _draw_axis_label: (ctx, extents) ->
-    label = @model.axis_label
-    if not label?
-      return
     [x, y] = @model.rule_coords
-    [sx, sy] = @plot_view.map_to_screen(x, y, @_x_range_name, @_y_range_name)
-    [nx, ny] = @model.normals
-    [xoff, yoff]  = @model.offsets
-    side = @model.panel_side
-    orient = 'parallel'
-    angle = @model.panel.get_label_angle_heuristic(orient)
+    xm = (x[0] + x[x.length-1])/2
+    ym = (y[0] + y[y.length-1])/2
+
+    coords = [[xm], [ym]]
     standoff = extents.tick + sum(extents.tick_label) + @model.axis_label_standoff
-    sx = (sx[0] + sx[sx.length-1])/2
-    sy = (sy[0] + sy[sy.length-1])/2
-    @visuals.axis_label_text.set_value(ctx)
+    visuals  = @visuals.axis_label_text
+
+    @_draw_oriented_labels(ctx, [@model.axis_label], coords, 'parallel', @model.panel_side, standoff, visuals)
+
+    return
+
+  _draw_ticks: (ctx, coords, tin, tout, visuals) ->
+    if not visuals.doit or coords.length == 0
+      return
+
+    [x, y]       = coords
+    [sxs, sys]   = @plot_view.map_to_screen(x, y, @model.x_range_name, @model.y_range_name)
+    [nx, ny]     = @model.normals
+    [xoff, yoff] = @model.offsets
+
+    [nxin,  nyin]  = [nx * (xoff-tin),  ny * (yoff-tin)]
+    [nxout, nyout] = [nx * (xoff+tout), ny * (yoff+tout)]
+
+    visuals.set_value(ctx)
+
+    for i in [0...sxs.length]
+      sx0 = Math.round(sxs[i] + nxout)
+      sy0 = Math.round(sys[i] + nyout)
+      sx1 = Math.round(sxs[i] + nxin)
+      sy1 = Math.round(sys[i] + nyin)
+      ctx.beginPath()
+      ctx.moveTo(sx0, sy0)
+      ctx.lineTo(sx1, sy1)
+      ctx.stroke()
+
+    return
+
+  _draw_oriented_labels: (ctx, labels, coords, orient, side, standoff, visuals) ->
+    if not visuals.doit or labels.length == 0
+      return
+
+    [x, y]       = coords
+    [sxs, sys]   = @plot_view.map_to_screen(x, y, @model.x_range_name, @model.y_range_name)
+    [nx, ny]     = @model.normals
+    [xoff, yoff] = @model.offsets
+
+    nxd = nx * (xoff + standoff)
+    nyd = ny * (yoff + standoff)
+
+    visuals.set_value(ctx)
     @model.panel.apply_label_text_heuristics(ctx, orient)
 
-    x = sx+nx*standoff+nx*xoff
-    y = sy+ny*standoff+ny*yoff
-
-    if isNaN(x) or isNaN(y)
-      return
-
-    if angle
-      ctx.translate(x, y)
-      ctx.rotate(angle)
-      ctx.fillText(label, 0, 0)
-      ctx.rotate(-angle)
-      ctx.translate(-x, -y)
+    if isString(orient)
+      angle = @model.panel.get_label_angle_heuristic(orient)
     else
-      ctx.fillText(label, x, y)
+      angle = -orient
 
-    return null
+    for i in [0...sxs.length]
+      sx = Math.round(sxs[i] + nxd)
+      sy = Math.round(sys[i] + nyd)
+
+      ctx.translate(sx, sy)
+      ctx.rotate(angle)
+      ctx.fillText(labels[i], 0, 0)
+      ctx.rotate(-angle)
+      ctx.translate(-sx, -sy)
+
+    return
+
+  # extents sub functions -----------------------------------------------------
+
+  _axis_label_extent: () ->
+    if not @model.axis_label? or @model.axis_label == ""
+      return 0
+    standoff = @model.axis_label_standoff
+    visuals = @visuals.axis_label_text
+    @_oriented_labels_extent([@model.axis_label], "parallel", @model.panel_side, standoff, visuals)
 
   _tick_extent: () ->
     return @model.major_tick_out
 
+  _tick_label_extent: () ->
+    return sum(@_tick_label_extents())
+
   _tick_label_extents: () ->
-    info = @model.label_info(@model.tick_coords.major)
+    coords = @model.tick_coords.major
+    labels = @model.compute_labels(coords[@model.dimension])
 
-    labels = @model.compute_labels(info.coords[info.dim])
-    if labels.length == 0
-      return 0
+    orient = @model.major_label_orientation
+    standoff = @model.major_label_standoff
+    visuals = @visuals.major_label_text
 
-    ctx = @plot_view.canvas_view.ctx
-    @visuals.major_label_text.set_value(ctx)
-
-    return [@_oriented_label_extent(labels, info)]
+    return [@_oriented_labels_extent(labels, orient, @model.panel_side, standoff, visuals)]
 
   _tick_label_extent: () ->
     return sum(@_tick_label_extents())
 
-  _oriented_label_extent: (labels, info) ->
+  _oriented_labels_extent: (labels, orient, side, standoff, visuals) ->
+    if labels.length == 0
+      return 0
+
     ctx = @plot_view.canvas_view.ctx
-    if isString(info.orient)
+    visuals.set_value(ctx)
+
+    if isString(orient)
       hscale = 1
+      angle = @model.panel.get_label_angle_heuristic(orient)
     else
       hscale = 2
-
-    if isString(info.orient)
-      angle = @model.panel.get_label_angle_heuristic(info.orient)
-    else
-      angle = -info.orient
+      angle = -orient
     angle = Math.abs(angle)
 
     c = Math.cos(angle)
     s = Math.sin(angle)
-    if info.side == "above" or info.side == "below"
-      [wfactor, hfactor] = [s, c]
-    else
-      [wfactor, hfactor] = [c, s]
 
     extent = 0
+
     for i in [0...labels.length]
-      if not labels[i]?
-        continue
       w = ctx.measureText(labels[i]).width * 1.1
       h = ctx.measureText(labels[i]).ascent * 0.9
-      val = w*wfactor + (h/hscale)*hfactor
+
+      if side == "above" or side == "below"
+        val = w*s + (h/hscale)*c
+      else
+        val = w*c + (h/hscale)*s
+
+      # update extent if current value is larger
       if val > extent
         extent = val
+
+    # only apply the standoff if we already have non-zero extent
     if extent > 0
-      extent += info.standoff
+      extent += standoff
+
     return extent
-
-  _axis_label_extent: () ->
-    extent = 0
-
-    side = @model.panel_side
-    axis_label = @model.axis_label
-    orient = 'parallel'
-    ctx = @plot_view.canvas_view.ctx
-    @visuals.axis_label_text.set_value(ctx)
-    angle = Math.abs(@model.panel.get_label_angle_heuristic(orient))
-    c = Math.cos(angle)
-    s = Math.sin(angle)
-    if axis_label
-      extent += @model.axis_label_standoff
-      @visuals.axis_label_text.set_value(ctx)
-      w = ctx.measureText(axis_label).width * 1.1
-      h = ctx.measureText(axis_label).ascent * 0.9
-      if side == "above" or side == "below"
-        extent += w*s + h*c
-      else
-        extent += w*c + h*s
-    return extent
-
 
 export class Axis extends GuideRenderer
   default_view: AxisView
@@ -413,24 +405,19 @@ export class Axis extends GuideRenderer
     minor_ys = []
     minor_coords = [minor_xs, minor_ys]
 
-    if range.type == "FactorRange"
-      for ii in [0...majors.length]
-        coords[i].push(majors[ii])
-        coords[j].push(@loc)
-    else
-      [range_min, range_max] = [range.min, range.max]
+    [range_min, range_max] = [range.min, range.max]
 
-      for ii in [0...majors.length]
-        if majors[ii] < range_min or majors[ii] > range_max
-          continue
-        coords[i].push(majors[ii])
-        coords[j].push(@loc)
+    for ii in [0...majors.length]
+      if majors[ii] < range_min or majors[ii] > range_max
+        continue
+      coords[i].push(majors[ii])
+      coords[j].push(@loc)
 
-      for ii in [0...minors.length]
-        if minors[ii] < range_min or minors[ii] > range_max
-          continue
-        minor_coords[i].push(minors[ii])
-        minor_coords[j].push(@loc)
+    for ii in [0...minors.length]
+      if minors[ii] < range_min or minors[ii] > range_max
+        continue
+      minor_coords[i].push(minors[ii])
+      minor_coords[j].push(@loc)
 
     return {
       "major": coords,

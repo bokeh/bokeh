@@ -230,16 +230,35 @@ class FactorRange(Range):
     """)
 
     factor_padding = Float(default=0.0, help="""
-    How much padding to add *in between* lowest-level factors. .
+    How much padding to add in between lowest-level factors. In the
     """)
 
     subgroup_padding = Float(default=0.8, help="""
+    How much padding to add in between mid-level groups of factors. This
+    property only applies when the overall factors have three levels. For
+    example with a range defined as this:
+
+    .. code-block: python
+
+        FactorRange(factors=[
+            ['foo', 'A', '1'],  ['foo', 'A', '2'], ['foo', 'A', '3'],
+            ['foo', 'B', '2'],
+            ['bar', 'A', '1'],  ['bar', 'A', '2']
+        ])
+
+    This property dictates how much padding to add between the three factors
+    in the `['foo', 'A']` group, and betwee the two factors in the the
+    [`bar`]
+
     """)
 
     group_padding = Float(default=1.4, help="""
+    How much padding to add in between top-level groups of factors. This
+    property only applies when the overall range factors have either two or
+    three levels.
     """)
 
-    range_padding = Float(default=0.1, help="""
+    range_padding = Float(default=0, help="""
     How much padding to add around the outside of computed range bounds.
 
     When ``range_padding_units`` is set to ``"percent"``, the span of the
