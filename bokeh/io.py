@@ -376,10 +376,6 @@ def save(obj, filename=None, resources=None, title=None, state=None, **kwargs):
 
     '''
 
-    if 'validate' in kwargs:
-        deprecated((0, 12, 5), 'The `validate` keyword argument', 'None', """
-        The keyword argument has been removed and the document will always be validated.""")
-
     if state is None:
         state = _state
 
