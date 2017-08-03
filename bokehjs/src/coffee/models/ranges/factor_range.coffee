@@ -79,6 +79,9 @@ export class FactorRange extends Range
     range_padding_units: [ p.PaddingUnits, "percent" ]
     start:               [ p.Number                  ]
     end:                 [ p.Number                  ]
+    bounds:              [ p.Any                     ]
+    min_interval:        [ p.Any                     ]
+    max_interval:        [ p.Any                     ]
   }
 
   @getters {
@@ -155,6 +158,9 @@ export class FactorRange extends Range
       end += @range_padding
 
     @setv({start: start, end: end, levels: levels}, {silent: true})
+
+    if @bounds == 'auto'
+      @setv({bounds: [start, end]}, {silent: true})
 
   _lookup: (x) ->
     if x.length == 1

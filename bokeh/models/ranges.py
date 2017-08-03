@@ -285,6 +285,30 @@ class FactorRange(Range):
     capable of bidirectional communication (server, notebook).
     """)
 
+    bounds = MinMaxBounds(accept_datetime=False, default=None, help="""
+    The bounds that the range is allowed to go to - typically used to prevent
+    the user from panning/zooming/etc away from the data.
+
+    By default, the bounds will be None, allowing your plot to pan/zoom as far
+    as you want. If bounds are 'auto' they will be computed to be the same as
+    the start and end of the DataRange1d.
+
+    Bounds are provided as a tuple of ``(min, max)`` so regardless of whether
+    your range is increasing or decreasing, the first item should be the
+    minimum value of the range and the second item should be the maximum.
+    Setting ``min > max`` will result in a ``ValueError``.
+    """)
+
+    min_interval = Float(default=None, help="""
+    The level that the range is allowed to zoom in, expressed as the
+    minimum visible interval. If set to ``None`` (default), the minimum
+    interval is not bound.""")
+
+    max_interval = Float(default=None, help="""
+    The level that the range is allowed to zoom out, expressed as the
+    maximum visible interval. Note that ``bounds`` can impose an
+    implicit constraint on the maximum interval as well.""")
+
     def __init__(self, *args, **kwargs):
         if args and "factors" in kwargs:
             raise ValueError("'factors' keyword cannot be used with positional arguments")

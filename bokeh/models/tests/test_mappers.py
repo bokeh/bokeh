@@ -1,12 +1,8 @@
 from __future__ import absolute_import
 
-from bokeh.models.mappers import (
-    LinearColorMapper, LogColorMapper, CategoricalColorMapper
-)
+from bokeh.models.mappers import LinearColorMapper, LogColorMapper, CategoricalColorMapper
 
-from .utils.property_utils import (
-    check_properties_existence,
-)
+from .utils.property_utils import check_properties_existence
 
 
 def test_LinearColorMapper():

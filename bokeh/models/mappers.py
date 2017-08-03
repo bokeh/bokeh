@@ -40,7 +40,7 @@ class CategoricalColorMapper(ColorMapper):
 
     '''
 
-    factors = Either(List(String), List(Tuple(String, String)), List(Tuple(String, String, String)), help="""
+    factors = Either(List(String), List(Tuple(String, String)), List(Tuple(String, String, String)), default=None, help="""
     A sequence of factors / categories that map to the color palette.
     """)
 
