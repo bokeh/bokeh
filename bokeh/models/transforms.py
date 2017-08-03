@@ -219,6 +219,10 @@ class Jitter(Transform):
     The random distribution upon which to pull the random scatter
     """)
 
+    range = Instance("bokeh.models.ranges.Range", help="""
+
+    """)
+
 @abstract
 class Interpolator(Transform):
     ''' Base class for interpolator transforms.

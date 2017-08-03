@@ -3,6 +3,7 @@ utils = require "../../utils"
 sinon = require "sinon"
 
 {Collections} = utils.require "base"
+{FactorRange} = utils.require("models/ranges/factor_range")
 {Jitter} = utils.require("models/transforms/jitter")
 bokeh_math  = utils.require("core/util/math")
 
@@ -59,4 +60,23 @@ describe "Jitter transform module", ->
       , 0)
       thediff = (thesum/N) - 5
       # We can set this deterministically because we've stubbed rnorm
+      expect(thediff).to.equal 0
+
+  describe "Jitter with FactorRange", ->
+    transform = generate_jitter()
+    transform.distribution = 'uniform'
+    transform.range = new FactorRange({factors: ["a", "b"]})
+
+    it "should work with a supplied range", ->
+
+      N = 100
+      vals =  Array.apply(null, Array(N)).map ->
+                "b"
+      rets = transform.v_compute(vals)
+
+      thesum = rets.reduce((a,b) ->
+        return a+b
+      , 0)
+      thediff = (thesum/N) - 1.5 # relies on standard synthetic mapping
+      # We can set this deterministically because we've stubbed random
       expect(thediff).to.equal 0
