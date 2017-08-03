@@ -105,6 +105,8 @@ class ColumnDataSource(ColumnarDataSource):
         if not isinstance(raw_data, dict):
             if pd and isinstance(raw_data, pd.DataFrame):
                 raw_data = self._data_from_df(raw_data)
+            elif pd and isinstance(raw_data, pd.core.groupby.GroupBy):
+                raw_data = self._data_from_groupby(raw_data)
             else:
                 raise ValueError("expected a dict or pandas.DataFrame, got %s" % raw_data)
         super(ColumnDataSource, self).__init__(**kw)
@@ -125,7 +127,13 @@ class ColumnDataSource(ColumnarDataSource):
         '''
         _df = df.copy()
         index = _df.index
-        new_data = _df.to_dict('series')
+        tmp_data = _df.to_dict('series')
+
+        new_data = {}
+        for k, v in tmp_data.items():
+            if isinstance(k, tuple):
+                k = "_".join(k)
+            new_data[k] = v
 
         if index.name:
             new_data[index.name] = index.values
@@ -134,6 +142,23 @@ class ColumnDataSource(ColumnarDataSource):
         else:
             new_data["index"] = index.values
         return new_data
+
+    @staticmethod
+    def _data_from_groupby(group):
+        ''' Create a ``dict`` of columns from a Pandas GroupBy,
+        suitable for creating a ColumnDataSource.
+
+        The data generated is the result of running ``describe``
+        on the group.
+
+        Args:
+            group (GroupBy) : data to convert
+
+        Returns:
+            dict[str, np.array]
+
+        '''
+        return ColumnDataSource._data_from_df(group.describe())
 
     @classmethod
     def from_df(cls, data):
@@ -148,6 +173,23 @@ class ColumnDataSource(ColumnarDataSource):
 
         '''
         return cls._data_from_df(data)
+
+    @classmethod
+    def from_groupby(cls, data):
+        ''' Create a ``dict`` of columns from a Pandas GroupBy,
+        suitable for creating a ColumnDataSource.
+
+        The data generated is the result of running ``describe``
+        on the group.
+
+        Args:
+            data (Groupby) : data to convert
+
+        Returns:
+            dict[str, np.array]
+
+        '''
+        return cls._data_from_df(data.describe())
 
     def to_df(self):
         ''' Convert this data source to pandas dataframe.
