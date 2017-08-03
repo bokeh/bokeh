@@ -7,7 +7,7 @@ import warnings
 
 from .. import palettes
 from ..core.has_props import abstract
-from ..core.properties import Color, Date, Datetime, Either, Enum, Float, Int, Seq, String
+from ..core.properties import Color, Either, Enum, Float, List, Int, Seq, String, Tuple
 from ..core.enums import Palette
 from .transforms import Transform
 
@@ -40,10 +40,17 @@ class CategoricalColorMapper(ColorMapper):
 
     '''
 
-    factors = Either(Seq(String), Seq(Int), Seq(Float), Seq(Datetime), Seq(Date), help="""
+    factors = Either(List(String), List(Tuple(String, String)), List(Tuple(String, String, String)), help="""
     A sequence of factors / categories that map to the color palette.
     """)
 
+    start = Int(default=0, help="""
+
+    """)
+
+    end = Int(help="""
+
+    """)
 
     def __init__(self, **kwargs):
         super(ColorMapper, self).__init__(**kwargs)
