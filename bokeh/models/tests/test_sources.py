@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 
+import sys
 import unittest
 from unittest import skipIf
 import warnings
@@ -59,6 +60,7 @@ class TestColumnDataSource(unittest.TestCase):
         self.assertEqual(set(ds.column_names) - set(df.columns), set(["index"]))
 
     @skipIf(not is_pandas, "pandas not installed")
+    @skipIf(sys.version_info[:2]==(3,4), "only old brokeb pandas available for 3.4")
     def test_init_groupby_arg(self):
         from bokeh.sampledata.autompg import autompg as df
         group = df.groupby(('origin', 'cyl'))
@@ -72,6 +74,7 @@ class TestColumnDataSource(unittest.TestCase):
             self.assertEquals(list(s[key]), list(ds.data[k2]))
 
     @skipIf(not is_pandas, "pandas not installed")
+    @skipIf(sys.version_info[:2]==(3,4), "only old brokeb pandas available for 3.4")
     def test_init_groupby_data_kwarg(self):
         from bokeh.sampledata.autompg import autompg as df
         group = df.groupby(('origin', 'cyl'))

@@ -222,7 +222,7 @@ class FactorRange(Range):
 
     '''
 
-    factors = Either(Seq(String), Seq(Tuple(String, String)), Seq(Tuple(String, String, String)), help="""
+    factors = Either(Seq(String), Seq(Tuple(String, String)), Seq(Tuple(String, String, String)), default=[], help="""
     A list of factors to define this categorical range.
 
     Note that factors and sub-factors may only be strings.

@@ -193,7 +193,7 @@ def _get_range(range_input):
     if range_input is None:
         return DataRange1d()
     if pd and isinstance(range_input, pd.core.groupby.GroupBy):
-        return FactorRange(factors=list(range_input.groups.keys()))
+        return FactorRange(factors=sorted(list(range_input.groups.keys())))
     if isinstance(range_input, Range):
         return range_input
     if isinstance(range_input, Sequence):

@@ -68,7 +68,7 @@ describe "CategoricalColorMapper module", ->
         factors = [["a", "1"], ["d", "2"], ["b", "3"], ["c", "4"]]
         cm = new CategoricalColorMapper({
           palette: palette
-          factors: (x.slice(0,1) for x in factors)
+          factors: (x.slice(0,1)[0] for x in factors)
           end: 1
         })
         vals = cm._get_values(factors, palette)
@@ -79,15 +79,15 @@ describe "CategoricalColorMapper module", ->
         factors = [["a", "1"], ["d", "2"], ["b", "3"], ["c", "4"]]
         cm = new CategoricalColorMapper({
           palette: palette
-          factors: (x.slice(1,2) for x in factors)
+          factors: (x.slice(1,2)[0] for x in factors)
           start: 1
           end: 2
         })
         vals = cm._get_values(factors, palette)
         expect(vals).to.be.deep.equal(palette)
 
-      for i in [0..2]
-        for j in [i..2]
+      for i in [0..1]
+        for j in [(i+1)..2]
 
           # skip the combination that works
           if i==0 and j==1 or i==1 and j==2
@@ -99,34 +99,22 @@ describe "CategoricalColorMapper module", ->
 
             cm = new CategoricalColorMapper({
               palette: palette
-              factors: (x.slice(0,1) for x in factors)
+              factors: (x.slice(0,1)[0] for x in factors)
               start: i
               end: j
             })
 
-            vals = cm._get_values(["a"], palette)
-            expect(vals).to.be.deep.equal(["gray"])
-
             vals = cm._get_values([["a", "1"]], palette)
-            expect(vals).to.be.deep.equal(["gray"])
-
-            vals = cm._get_values([["a", "1", "foo"]], palette)
             expect(vals).to.be.deep.equal(["gray"])
 
             cm = new CategoricalColorMapper({
               palette: palette
-              factors: (x.slice(1,2) for x in factors)
+              factors: (x.slice(1,2)[0] for x in factors)
               start: i
               end: j
             })
 
-            vals = cm._get_values(["a"], palette)
-            expect(vals).to.be.deep.equal(["gray"])
-
             vals = cm._get_values([["a", "1"]], palette)
-            expect(vals).to.be.deep.equal(["gray"])
-
-            vals = cm._get_values([["a", "1", "foo"]], palette)
             expect(vals).to.be.deep.equal(["gray"])
 
     describe "and 2-level palette factors", ->
@@ -153,8 +141,8 @@ describe "CategoricalColorMapper module", ->
         vals = cm._get_values(factors, palette)
         expect(vals).to.be.deep.equal(palette)
 
-      for i in [0..2]
-        for j in [i..2]
+      for i in [0..1]
+        for j in [(i+1)..2]
 
           # skip the combination that works
           if i==0 and j==2
@@ -171,13 +159,7 @@ describe "CategoricalColorMapper module", ->
               end: j
             })
 
-            vals = cm._get_values(["a"], palette)
-            expect(vals).to.be.deep.equal(["gray"])
-
             vals = cm._get_values([["a", "1"]], palette)
-            expect(vals).to.be.deep.equal(["gray"])
-
-            vals = cm._get_values([["a", "1", "foo"]], palette)
             expect(vals).to.be.deep.equal(["gray"])
 
   describe "with 3-level data factors", ->
@@ -189,7 +171,7 @@ describe "CategoricalColorMapper module", ->
         factors = [["a", "1", "foo"], ["d", "2", "foo"], ["b", "2", "baz"], ["c", "1", "bar"]]
         cm = new CategoricalColorMapper({
           palette: palette
-          factors: (x.slice(0,1) for x in factors)
+          factors: (x.slice(0,1)[0] for x in factors)
           end: 1
         })
         vals = cm._get_values(factors, palette)
@@ -200,7 +182,7 @@ describe "CategoricalColorMapper module", ->
         factors = [["a", "1", "foo"], ["a", "2", "foo"], ["b", "3", "baz"], ["c", "4", "bar"]]
         cm = new CategoricalColorMapper({
           palette: palette
-          factors: (x.slice(1,2) for x in factors)
+          factors: (x.slice(1,2)[0] for x in factors)
           start: 1
           end: 2
         })
@@ -212,15 +194,15 @@ describe "CategoricalColorMapper module", ->
         factors = [["a", "1", "foo"], ["a", "2", "quux"], ["b", "2", "baz"], ["c", "1", "bar"]]
         cm = new CategoricalColorMapper({
           palette: palette
-          factors: (x.slice(2,3) for x in factors)
+          factors: (x.slice(2,3)[0] for x in factors)
           start: 2
           end: 3
         })
         vals = cm._get_values(factors, palette)
         expect(vals).to.be.deep.equal(palette)
 
-      for i in [0..3]
-        for j in [i..3]
+      for i in [0..2]
+        for j in [(i+1)..3]
 
           # skip the combination that works
           if i==0 and j==1 or i==1 and j==2 or i==2 and j==3
@@ -232,16 +214,10 @@ describe "CategoricalColorMapper module", ->
 
             cm = new CategoricalColorMapper({
               palette: palette
-              factors: (x.slice(0,1) for x in factors)
+              factors: (x.slice(0,1)[0] for x in factors)
               start: i
               end: j
             })
-
-            vals = cm._get_values(["a"], palette)
-            expect(vals).to.be.deep.equal(["gray"])
-
-            vals = cm._get_values([["a", "1"]], palette)
-            expect(vals).to.be.deep.equal(["gray"])
 
             vals = cm._get_values([["a", "1", "foo"]], palette)
             expect(vals).to.be.deep.equal(["gray"])
@@ -251,16 +227,10 @@ describe "CategoricalColorMapper module", ->
 
             cm = new CategoricalColorMapper({
               palette: palette
-              factors: (x.slice(1,2) for x in factors)
+              factors: (x.slice(1,2)[0] for x in factors)
               start: i
               end: j
             })
-
-            vals = cm._get_values(["a"], palette)
-            expect(vals).to.be.deep.equal(["gray"])
-
-            vals = cm._get_values([["a", "1"]], palette)
-            expect(vals).to.be.deep.equal(["gray"])
 
             vals = cm._get_values([["a", "1", "foo"]], palette)
             expect(vals).to.be.deep.equal(["gray"])
@@ -270,16 +240,10 @@ describe "CategoricalColorMapper module", ->
 
             cm = new CategoricalColorMapper({
               palette: palette
-              factors: (x.slice(2,3) for x in factors)
+              factors: (x.slice(2,3)[0] for x in factors)
               start: i
               end: j
             })
-
-            vals = cm._get_values(["a"], palette)
-            expect(vals).to.be.deep.equal(["gray"])
-
-            vals = cm._get_values([["a", "1"]], palette)
-            expect(vals).to.be.deep.equal(["gray"])
 
             vals = cm._get_values([["a", "1", "foo"]], palette)
             expect(vals).to.be.deep.equal(["gray"])
@@ -313,8 +277,8 @@ describe "CategoricalColorMapper module", ->
         vals = cm._get_values(factors, palette)
         expect(vals).to.be.deep.equal(palette)
 
-      for i in [0..3]
-        for j in [i..3]
+      for i in [0..2]
+        for j in [(i+1)..3]
 
           # skip the combination that works
           if i==0 and j==2 or i==1 and j==3
@@ -386,8 +350,8 @@ describe "CategoricalColorMapper module", ->
         vals = cm._get_values(factors, palette)
         expect(vals).to.be.deep.equal(palette)
 
-      for i in [0..3]
-        for j in [i..3]
+      for i in [0..2]
+        for j in [(i+1)..3]
 
           # skip the combination that works
           if i==0 and j==3

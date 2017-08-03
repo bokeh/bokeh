@@ -37,7 +37,10 @@ export class CategoricalColorMapper extends ColorMapper
             d = d.slice(@start)
         else if @end?
           d = d.slice(0, @end)
-        key = findIndex(@factors, (x) -> _equals(x, d))
+        if d.length == 1
+          key = @factors.indexOf(d[0])
+        else
+          key = findIndex(@factors, (x) -> _equals(x, d))
 
       if key < 0 or key >= palette.length
         color = @nan_color

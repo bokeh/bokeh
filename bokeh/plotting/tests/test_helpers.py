@@ -91,4 +91,4 @@ def test_get_range_with_pandas_group():
     g = flowers.groupby('species')
     r = _get_range(g)
     assert isinstance(r, FactorRange)
-    assert r.factors == ['setosa', 'versicolor', 'virginica']
+    assert r.factors == ['setosa', 'versicolor', 'virginica'] # should always be sorted
