@@ -2,9 +2,8 @@ from bokeh.models import ColumnDataSource
 from bokeh.models.ranges import Range1d, DataRange1d, FactorRange
 from bokeh.models.scales import LinearScale, LogScale, CategoricalScale
 from bokeh.plotting.helpers import (
-    _get_legend_item_label, _get_scale
+    _get_legend_item_label, _get_scale, _get_range
 )
-
 
 # _get_legend_item_label
 def test_if_legend_is_something_exotic_that_it_is_passed_directly_to_label():
@@ -57,3 +56,39 @@ def test__get_scale_numeric_range_log_axis():
 def test__get_scale_factor_range():
     s = _get_scale(FactorRange(), "auto")
     assert isinstance(s, CategoricalScale)
+
+def test__get_range_with_None():
+    r = _get_range(None)
+    assert isinstance(r, DataRange1d)
+
+def test__get_range_with_Range():
+    for t in [Range1d, DataRange1d, FactorRange]:
+        rng = t()
+        r = _get_range(rng)
+        assert r is rng
+
+def test__get_range_with_string_seq():
+    f = ["foo" ,"bar", "baz"]
+    for t in [list, tuple]:
+        r = _get_range(t(f))
+        assert isinstance(r, FactorRange)
+        # FactorRange accepts Seq, but _get_range always sets a list copy
+        assert r.factors == f
+
+def test__get_range_with_float_bounds():
+    r = _get_range((1.2, 10))
+    assert isinstance(r, Range1d)
+    assert r.start == 1.2
+    assert r.end == 10
+
+    r = _get_range([1.2, 10])
+    assert isinstance(r, Range1d)
+    assert r.start == 1.2
+    assert r.end == 10
+
+def test_get_range_with_pandas_group():
+    from bokeh.sampledata.iris import flowers
+    g = flowers.groupby('species')
+    r = _get_range(g)
+    assert isinstance(r, FactorRange)
+    assert r.factors == ['setosa', 'versicolor', 'virginica']

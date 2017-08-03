@@ -21,8 +21,11 @@ from ..models import (
     LogScale, LinearScale, CategoricalScale)
 
 from ..core.properties import ColorSpec, Datetime, value, field
+from ..util.dependencies import import_optional
 from ..util.deprecation import deprecated
 from ..util.string import nice_join
+
+pd = import_optional('pandas')
 
 DEFAULT_PALETTE = ["#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33ff3"]
 
@@ -189,11 +192,13 @@ def _update_legend(plot, legend_item_label, glyph_renderer):
 def _get_range(range_input):
     if range_input is None:
         return DataRange1d()
+    if pd and isinstance(range_input, pd.core.groupby.GroupBy):
+        return FactorRange(factors=list(range_input.groups.keys()))
     if isinstance(range_input, Range):
         return range_input
     if isinstance(range_input, Sequence):
         if all(isinstance(x, string_types) for x in range_input):
-            return FactorRange(factors=range_input)
+            return FactorRange(factors=list(range_input))
         if len(range_input) == 2:
             try:
                 return Range1d(start=range_input[0], end=range_input[1])

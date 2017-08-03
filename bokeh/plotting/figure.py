@@ -5,9 +5,9 @@ logger = logging.getLogger(__name__)
 
 from six import string_types
 
-from ..core.properties import Auto, Either, Enum, Float, Int, Seq, Instance, String, Tuple
+from ..core.properties import Any, Auto, Either, Enum, Int, Seq, Instance, String
 from ..core.enums import HorizontalLocation, VerticalLocation
-from ..models import Plot, Range, Title, Tool
+from ..models import Plot, Title, Tool
 from ..models import glyphs, markers
 from ..models.tools import Drag, Inspection, Scroll, Tap
 from ..util.options import Options
@@ -26,11 +26,11 @@ class FigureOptions(Options):
     Tools the plot should start with.
     """)
 
-    x_range = Either(Tuple(Float, Float), Seq(String), Instance(Range), help="""
+    x_range = Any(help="""
     Customize the x-range of the plot.
     """)
 
-    y_range = Either(Tuple(Float, Float), Seq(String), Instance(Range), help="""
+    y_range = Any(help="""
     Customize the x-range of the plot.
     """)
 

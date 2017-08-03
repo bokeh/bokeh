@@ -8,7 +8,7 @@ from __future__ import absolute_import
 from ..core.enums import PaddingUnits, StartEnd
 from ..core.has_props import abstract
 from ..core.properties import (Bool, Datetime, Either, Enum, Float, Instance, Int,
-                               List, MinMaxBounds, String, TimeDelta, Tuple)
+                               List, MinMaxBounds, Seq, String, TimeDelta, Tuple)
 from ..model import Model
 
 from .callbacks import Callback
@@ -222,7 +222,7 @@ class FactorRange(Range):
 
     '''
 
-    factors = Either(List(String), List(Tuple(String, String)), List(Tuple(String, String, String)), help="""
+    factors = Either(Seq(String), Seq(Tuple(String, String)), Seq(Tuple(String, String, String)), help="""
     A list of factors to define this categorical range.
 
     Note that factors and sub-factors may only be strings.
