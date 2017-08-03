@@ -208,65 +208,20 @@ supported, only the subset of Python that can be translated to Javascript using 
 For more information about the subset of Python that is supported,
 see the `PyScript documentation`_.
 
-Full example
-''''''''''''
-
-.. bokeh-plot::
-    :source-position: above
-
-    from bokeh.plotting import figure, output_file, show
-    from bokeh.layouts import row
-    from bokeh.models import ColumnDataSource, CDSView, CustomJSFilter
-
-    output_file("customjs_filter.html")
-
-    data = {'x': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-            'y': [10, 5, 2, 6, 1, 4, 8, 2, 7, 3],
-            'z': ['a', 'a', 'a', 'b', 'b', 'b', 'c', 'c', 'c', 'c']}
-
-    custom_filter = CustomJSFilter(code='''
-    var indices = [];
-    for (var i = 0; i <= source.data['z'].length; i++){
-        if (source.data['z'][i] == 'a') {
-            indices.push(true);
-        } else {
-            indices.push(false);
-        }
-
-    }
-    return indices;
-    ''')
-
-    custom_filter_coffee = CustomJSFilter.from_coffeescript(code='''
-    z = source.data['z']
-    indices = (i for i in [0...source.get_length()] when z[i] == 'b')
-    return indices
-    ''')
-
-    def custom_python_filter():
-        z = source.data['z']
-        indices = [True if z[i] == 'c' else False for i in range(len(z)) ]
-        return indices
-
-    #custom_filter_pyscript = CustomJSFilter.from_py_func(custom_python_filter)
-
-    cds = ColumnDataSource(data)
-    view1 = CDSView(source=cds, filters=[custom_filter])
-    view2 = CDSView(source=cds, filters=[custom_filter_coffee])
-    #view3 = CDSView(source=cds, filters=[custom_filter_pyscript])
-
-    plot_size_and_tools = {'plot_height': 300, 'plot_width': 300,
-                            'x_range':[0, 11], 'y_range':[0, 11]}
-
-    p = figure(title="CustomJSFilter", **plot_size_and_tools)
-    c1 = p.circle(x='x', y='y', source=cds, view=view1)
-    c2 = p.circle(x='x', y='y', source=cds, view=view2)
-    #c3 = p.circle(x='x', y='y', source=cds, view=view3)
-
-    show(p)
+.. _userguide_data_linked_selection_with_filtering:
 
 Linked selection with filtered data
 -----------------------------------
+
+With the ability to specify a subset of data to be used for each glyph renderer, it is
+easy to share data between plots even when the plots use different subsets of data.
+By using the same |ColumnDataSource|, selections and hovered inspections of that data source
+are automatically shared.
+
+In the example below, a |CDSView| is created for the second plot that specifies the subset
+of data in which the y values are either greater than 250 or less than 100. Selections in either
+plot are automatically reflected in the other. And hovering on a point in one plot will highlight
+the corresponding point in the other plot if it exists.
 
 .. bokeh-plot:: docs/user_guide/examples/data_linked_brushing_subsets.py
     :source-position: above
