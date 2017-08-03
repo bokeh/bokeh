@@ -38,6 +38,8 @@ def test_CategoricalColorMapper():
     check_properties_existence(mapper, [
         "factors",
         "palette",
+        "start",
+        "end",
         "nan_color"],
     )
 

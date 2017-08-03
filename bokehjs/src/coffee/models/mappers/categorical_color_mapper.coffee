@@ -1,7 +1,8 @@
 import {ColorMapper} from "./color_mapper"
 
 import * as p from "core/properties"
-import {isArray} from "core/util/types"
+import {findIndex} from "core/util/array"
+import {isString} from "core/util/types"
 
 _equals = (a, b) ->
   if a.length != b.length
@@ -11,19 +12,13 @@ _equals = (a, b) ->
       return false
   return true
 
-_find = (a, b) ->
-  for i in [0...b.length]
-    if _equals(a, b[i])
-      return i
-  return -1
-
 export class CategoricalColorMapper extends ColorMapper
   type: "CategoricalColorMapper"
 
   @define {
-    factors: [ p.Array ]
-    start:   [ p.Number ]
-    end:   [ p.Number ]
+    factors: [ p.Array     ]
+    start:   [ p.Number, 0 ]
+    end:     [ p.Number    ]
   }
 
   _get_values: (data, palette) ->
@@ -31,21 +26,18 @@ export class CategoricalColorMapper extends ColorMapper
 
     for d in data
 
-      if not isArray(d)
-        d = [d]
+      if isString(d)
+        key = @factors.indexOf(d)
 
-      if @start?
-        if @end?
-          d = d.slice(@start, @end)
-        else
-          d = d.slice(@start)
-      else if @end?
-        d = d.slice(0, @end)
-
-      if d.length == 1
-        key = @factors.indexOf(d[0])
       else
-        key = _find(d, @factors)
+        if @start?
+          if @end?
+            d = d.slice(@start, @end)
+          else
+            d = d.slice(@start)
+        else if @end?
+          d = d.slice(0, @end)
+        key = findIndex(@factors, (x) -> _equals(x, d))
 
       if key < 0 or key >= palette.length
         color = @nan_color

@@ -542,7 +542,7 @@ describe "factor_range module", ->
         expect(r.tops).to.be.equal null
 
     describe "min/max properties", ->
-      r = new FactorRange({factors: ['FOO'], range_padding: 0})
+      r = new FactorRange({factors: ['FOO']})
 
       it "should return values from synthetic range", ->
 
@@ -567,7 +567,7 @@ describe "factor_range module", ->
         expect(r.max).to.be.equal r.end
 
     describe "start/end properties", ->
-      r = new FactorRange({factors: ['FOO'], range_padding: 0})
+      r = new FactorRange({factors: ['FOO']})
 
       it "should return values from synthetic range", ->
 
@@ -587,14 +587,14 @@ describe "factor_range module", ->
 
     describe "range_padding", ->
 
-      it "should pad start/end by 10 percent by default", ->
+      it "should not pad start/end by  by default", ->
         r = new FactorRange({factors: ['A', 'B', 'C', 'D']}) # default range padding
 
-        expect(r.start).to.be.equal -0.2
-        expect(r.end).to.be.equal 4.2
+        expect(r.start).to.be.equal 0
+        expect(r.end).to.be.equal 4
 
       it "should update start/end when changed", ->
-        r = new FactorRange({factors: ['A', 'B', 'C', 'D']}) # default range padding
+        r = new FactorRange({factors: ['A', 'B', 'C', 'D'], range_padding: 0.1})
         expect(r.start).to.be.equal -0.2
         expect(r.end).to.be.equal 4.2
 
@@ -603,7 +603,7 @@ describe "factor_range module", ->
         expect(r.end).to.be.equal 4.4
 
       it "should update start/end when factors changed", ->
-        r = new FactorRange({factors: ['A', 'B']}) # default range padding
+        r = new FactorRange({factors: ['A', 'B'], range_padding: 0.1})
         expect(r.start).to.be.equal -0.1
         expect(r.end).to.be.equal 2.1
 
@@ -620,13 +620,13 @@ describe "factor_range module", ->
     describe "factor_padding", ->
 
       it "should pad all factors", ->
-        r = new FactorRange({factors: ['A', 'B', 'C'], range_padding: 0, factor_padding: 0.1})
+        r = new FactorRange({factors: ['A', 'B', 'C'], factor_padding: 0.1})
         expect(r.start).to.be.equal 0
         expect(r.end).to.be.equal 3.2
         expect(r.v_synthetic(['A', 'B', 'C'])).to.deep.equal [0.5, 1.6, 2.7]
 
       it "should update range when changed", ->
-        r = new FactorRange({factors: ['A', 'B', 'C'], range_padding: 0, factor_padding: 0.1})
+        r = new FactorRange({factors: ['A', 'B', 'C'], factor_padding: 0.1})
         expect(r.start).to.be.equal 0
         expect(r.end).to.be.equal 3.2
         expect(r.v_synthetic(['A', 'B', 'C'])).to.deep.equal [0.5, 1.6, 2.7]
@@ -637,7 +637,7 @@ describe "factor_range module", ->
         expect(r.v_synthetic(['A', 'B', 'C'])).to.deep.equal [0.5, 1.7, 2.9]
 
       it "should update start/end when factors changed", ->
-        r = new FactorRange({factors: ['A', 'B'], range_padding: 0, factor_padding: 0.1})
+        r = new FactorRange({factors: ['A', 'B'], factor_padding: 0.1})
         expect(r.start).to.be.equal 0
         expect(r.end).to.be.equal 2.1
         expect(r.v_synthetic(['A', 'B'])).to.deep.equal [0.5, 1.6]
@@ -743,7 +743,7 @@ describe "factor_range module", ->
         expect(r.tops).to.deep.equal ['A', 'C', 'D']
 
     describe "min/max properties", ->
-      r = new FactorRange({factors: [['FOO', 'a']], range_padding: 0, group_padding: 0})
+      r = new FactorRange({factors: [['FOO', 'a']], group_padding: 0})
 
       it "should return values from synthetic range", ->
 
@@ -768,7 +768,7 @@ describe "factor_range module", ->
         expect(r.max).to.be.equal r.end
 
     describe "start/end properties", ->
-      r = new FactorRange({factors: [['FOO', 'a']], range_padding: 0, group_padding: 0})
+      r = new FactorRange({factors: [['FOO', 'a']], group_padding: 0})
 
       it "should return values from synthetic range", ->
 
@@ -788,14 +788,14 @@ describe "factor_range module", ->
 
     describe "range_padding", ->
 
-      it "should pad start/end by 10 percent by default", ->
-        r = new FactorRange({factors: [['A', '1'], ['A', '2'], ['C', '1'], ['D', '2']], group_padding: 0}) # default range padding
+      it "should not pad start/end by default", ->
+        r = new FactorRange({factors: [['A', '1'], ['A', '2'], ['C', '1'], ['D', '2']], group_padding: 0})
 
-        expect(r.start).to.be.equal -0.2
-        expect(r.end).to.be.equal 4.2
+        expect(r.start).to.be.equal 0
+        expect(r.end).to.be.equal 4
 
       it "should update start/end when changed", ->
-        r = new FactorRange({factors: [['A', '1'], ['A', '2'], ['C', '1'], ['D', '2']], group_padding: 0}) # default range padding
+        r = new FactorRange({factors: [['A', '1'], ['A', '2'], ['C', '1'], ['D', '2']], group_padding: 0, range_padding: 0.1})
         expect(r.start).to.be.equal -0.2
         expect(r.end).to.be.equal 4.2
 
@@ -804,7 +804,7 @@ describe "factor_range module", ->
         expect(r.end).to.be.equal 4.4
 
       it "should update start/end when factors changed", ->
-        r = new FactorRange({factors: [['A', '1'], ['A', '2']], group_padding: 0}) # default range padding
+        r = new FactorRange({factors: [['A', '1'], ['A', '2']], group_padding: 0, range_padding: 0.1})
         expect(r.start).to.be.equal -0.1
         expect(r.end).to.be.equal 2.1
 
@@ -821,13 +821,13 @@ describe "factor_range module", ->
     describe "factor_padding", ->
 
       it "should pad all low-level factors", ->
-        r = new FactorRange({factors: [['A', '1'], ['A', '2'], ['C', '1']], range_padding: 0, factor_padding: 0.1, group_padding: 0})
+        r = new FactorRange({factors: [['A', '1'], ['A', '2'], ['C', '1']], factor_padding: 0.1, group_padding: 0})
         expect(r.start).to.be.equal 0
         expect(r.end).to.be.equal 3.1
         expect(r.v_synthetic([['A', '1'], ['A', '2'], ['C', '1']])).to.deep.equal [0.5, 1.6, 2.6]
 
       it "should update range when changed", ->
-        r = new FactorRange({factors: [['A', '1'], ['A', '2'], ['C', '1']], range_padding: 0, factor_padding: 0.1, group_padding: 0})
+        r = new FactorRange({factors: [['A', '1'], ['A', '2'], ['C', '1']], factor_padding: 0.1, group_padding: 0})
         expect(r.start).to.be.equal 0
         expect(r.end).to.be.equal 3.1
         expect(r.v_synthetic([['A', '1'], ['A', '2'], ['C', '1']])).to.deep.equal [0.5, 1.6, 2.6]
@@ -838,7 +838,7 @@ describe "factor_range module", ->
         expect(r.v_synthetic([['A', '1'], ['A', '2'], ['C', '1']])).to.deep.equal [0.5, 1.7, 2.7]
 
       it "should update start/end when factors changed", ->
-        r = new FactorRange({factors: [['A', '1'], ['A', '2'], ['C', '1']], range_padding: 0, factor_padding: 0.1, group_padding: 0})
+        r = new FactorRange({factors: [['A', '1'], ['A', '2'], ['C', '1']], factor_padding: 0.1, group_padding: 0})
         expect(r.start).to.be.equal 0
         expect(r.end).to.be.equal 3.1
         expect(r.v_synthetic([['A', '1'], ['A', '2'], ['C', '1']])).to.deep.equal [0.5, 1.6, 2.6]
@@ -852,13 +852,13 @@ describe "factor_range module", ->
     describe "group_padding", ->
 
       it "should pad all top-level groups", ->
-        r = new FactorRange({factors: [['A', '1'], ['A', '2'], ['C', '1']], range_padding: 0, group_padding: 0.1})
+        r = new FactorRange({factors: [['A', '1'], ['A', '2'], ['C', '1']], group_padding: 0.1})
         expect(r.start).to.be.equal 0
         expect(r.end).to.be.equal 3.1
         expect(r.v_synthetic([['A', '1'], ['A', '2'], ['C', '1']])).to.deep.equal [0.5, 1.5, 2.6]
 
       it "should update range when changed", ->
-        r = new FactorRange({factors: [['A', '1'], ['A', '2'], ['C', '1']], range_padding: 0, group_padding: 0.1})
+        r = new FactorRange({factors: [['A', '1'], ['A', '2'], ['C', '1']], group_padding: 0.1})
         expect(r.start).to.be.equal 0
         expect(r.end).to.be.equal 3.1
         expect(r.v_synthetic([['A', '1'], ['A', '2'], ['C', '1']])).to.deep.equal [0.5, 1.5, 2.6]
@@ -869,7 +869,7 @@ describe "factor_range module", ->
         expect(r.v_synthetic([['A', '1'], ['A', '2'], ['C', '1']])).to.deep.equal [0.5, 1.5, 2.7]
 
       it "should update start/end when factors changed", ->
-        r = new FactorRange({factors: [['A', '1'], ['A', '2'], ['C', '1']], range_padding: 0, group_padding: 0.1})
+        r = new FactorRange({factors: [['A', '1'], ['A', '2'], ['C', '1']], group_padding: 0.1})
         expect(r.start).to.be.equal 0
         expect(r.end).to.be.equal 3.1
         expect(r.v_synthetic([['A', '1'], ['A', '2'], ['C', '1']])).to.deep.equal [0.5, 1.5, 2.6]
@@ -1007,7 +1007,7 @@ describe "factor_range module", ->
         expect(r.tops).to.deep.equal ['A', 'C']
 
     describe "min/max properties", ->
-      r = new FactorRange({factors: [['FOO', 'a', '1']], range_padding: 0, group_padding: 0, subgroup_padding: 0})
+      r = new FactorRange({factors: [['FOO', 'a', '1']], group_padding: 0, subgroup_padding: 0})
 
       it "should return values from synthetic range", ->
 
@@ -1032,7 +1032,7 @@ describe "factor_range module", ->
         expect(r.max).to.be.equal r.end
 
     describe "start/end properties", ->
-      r = new FactorRange({factors: [['FOO', 'a', 'foo']], range_padding: 0, group_padding: 0, subgroup_padding: 0})
+      r = new FactorRange({factors: [['FOO', 'a', 'foo']], group_padding: 0, subgroup_padding: 0})
 
       it "should return values from synthetic range", ->
 
@@ -1052,14 +1052,14 @@ describe "factor_range module", ->
 
     describe "range_padding", ->
 
-      it "should pad start/end by 10 percent by default", ->
+      it "should not pad start/end by by default", ->
         r = new FactorRange({factors: [['A', '1', 'foo'], ['A', '2', 'foo'], ['C', '1', 'foo'], ['D', '2', 'foo']], group_padding: 0, subgroup_padding: 0}) # default range padding
 
-        expect(r.start).to.be.equal -0.2
-        expect(r.end).to.be.equal 4.2
+        expect(r.start).to.be.equal 0
+        expect(r.end).to.be.equal 4
 
       it "should update start/end when changed", ->
-        r = new FactorRange({factors: [['A', '1', 'foo'], ['A', '2', 'foo'], ['C', '1', 'foo'], ['D', '2', 'foo']], group_padding: 0, subgroup_padding: 0}) # default range padding
+        r = new FactorRange({factors: [['A', '1', 'foo'], ['A', '2', 'foo'], ['C', '1', 'foo'], ['D', '2', 'foo']], group_padding: 0, subgroup_padding: 0, range_padding:0.1})
         expect(r.start).to.be.equal -0.2
         expect(r.end).to.be.equal 4.2
 
@@ -1068,7 +1068,7 @@ describe "factor_range module", ->
         expect(r.end).to.be.equal 4.4
 
       it "should update start/end when factors changed", ->
-        r = new FactorRange({factors: [['A', '1', 'foo'], ['A', '2', 'foo']], group_padding: 0, subgroup_padding: 0}) # default range padding
+        r = new FactorRange({factors: [['A', '1', 'foo'], ['A', '2', 'foo']], group_padding: 0, subgroup_padding: 0, range_padding: 0.1})
         expect(r.start).to.be.equal -0.1
         expect(r.end).to.be.equal 2.1
 
@@ -1085,13 +1085,13 @@ describe "factor_range module", ->
     describe "factor_padding", ->
 
       it "should pad all lowest-level factors", ->
-        r = new FactorRange({factors: [['A', '1', 'foo'], ['A', '1', 'bar'], ['C', '1', 'foo']], range_padding: 0, factor_padding: 0.1, group_padding: 0, subgroup_padding: 0})
+        r = new FactorRange({factors: [['A', '1', 'foo'], ['A', '1', 'bar'], ['C', '1', 'foo']], factor_padding: 0.1, group_padding: 0, subgroup_padding: 0})
         expect(r.start).to.be.equal 0
         expect(r.end).to.be.equal 3.1
         expect(r.v_synthetic([['A', '1', 'foo'], ['A', '1', 'bar'], ['C', '1', 'foo']])).to.deep.equal [0.5, 1.6, 2.6]
 
       it "should update range when changed", ->
-        r = new FactorRange({factors: [['A', '1', 'foo'], ['A', '1', 'bar'], ['C', '1', 'foo']], range_padding: 0, factor_padding: 0.1, group_padding: 0, subgroup_padding: 0})
+        r = new FactorRange({factors: [['A', '1', 'foo'], ['A', '1', 'bar'], ['C', '1', 'foo']], factor_padding: 0.1, group_padding: 0, subgroup_padding: 0})
         expect(r.start).to.be.equal 0
         expect(r.end).to.be.equal 3.1
         expect(r.v_synthetic([['A', '1', 'foo'], ['A', '1', 'bar'], ['C', '1', 'foo']])).to.deep.equal [0.5, 1.6, 2.6]
@@ -1102,7 +1102,7 @@ describe "factor_range module", ->
         expect(r.v_synthetic([['A', '1', 'foo'], ['A', '1', 'bar'], ['C', '1', 'foo']])).to.deep.equal [0.5, 1.7, 2.7]
 
       it "should update start/end when factors changed", ->
-        r = new FactorRange({factors: [['A', '1', 'foo'], ['A', '1', 'bar'], ['C', '1', 'foo']], range_padding: 0, factor_padding: 0.1, group_padding: 0, subgroup_padding: 0})
+        r = new FactorRange({factors: [['A', '1', 'foo'], ['A', '1', 'bar'], ['C', '1', 'foo']], factor_padding: 0.1, group_padding: 0, subgroup_padding: 0})
         expect(r.start).to.be.equal 0
         expect(r.end).to.be.equal 3.1
         expect(r.v_synthetic([['A', '1', 'foo'], ['A', '1', 'bar'], ['C', '1', 'foo']])).to.deep.equal [0.5, 1.6, 2.6]
@@ -1115,13 +1115,13 @@ describe "factor_range module", ->
     describe "subgroup_padding", ->
 
       it "should pad all middle-level groups", ->
-        r = new FactorRange({factors: [['A', '1', 'foo'], ['A', '2', 'foo'], ['C', '1', 'foo']], range_padding: 0, factor_padding: 0, group_padding: 0, subgroup_padding: 0.1})
+        r = new FactorRange({factors: [['A', '1', 'foo'], ['A', '2', 'foo'], ['C', '1', 'foo']], factor_padding: 0, group_padding: 0, subgroup_padding: 0.1})
         expect(r.start).to.be.equal 0
         expect(r.end).to.be.equal 3.1
         expect(r.v_synthetic([['A', '1', 'foo'], ['A', '2', 'foo'], ['C', '1', 'foo']])).to.deep.equal [0.5, 1.6, 2.6]
 
       it "should update range when changed", ->
-        r = new FactorRange({factors: [['A', '1', 'foo'], ['A', '2', 'foo'], ['C', '1', 'foo']], range_padding: 0, factor_padding: 0, group_padding: 0, subgroup_padding: 0.1})
+        r = new FactorRange({factors: [['A', '1', 'foo'], ['A', '2', 'foo'], ['C', '1', 'foo']], factor_padding: 0, group_padding: 0, subgroup_padding: 0.1})
         expect(r.start).to.be.equal 0
         expect(r.end).to.be.equal 3.1
         expect(r.v_synthetic([['A', '1', 'foo'], ['A', '2', 'foo'], ['C', '1', 'foo']])).to.deep.equal [0.5, 1.6, 2.6]
@@ -1132,7 +1132,7 @@ describe "factor_range module", ->
         expect(r.v_synthetic([['A', '1', 'foo'], ['A', '2', 'foo'], ['C', '1', 'foo']])).to.deep.equal [0.5, 1.7, 2.7]
 
       it "should update start/end when factors changed", ->
-        r = new FactorRange({factors: [['A', '1', 'foo'], ['A', '2', 'foo'], ['C', '1', 'foo']], range_padding: 0, factor_padding: 0, group_padding: 0, subgroup_padding: 0.1})
+        r = new FactorRange({factors: [['A', '1', 'foo'], ['A', '2', 'foo'], ['C', '1', 'foo']], factor_padding: 0, group_padding: 0, subgroup_padding: 0.1})
         expect(r.start).to.be.equal 0
         expect(r.end).to.be.equal 3.1
         expect(r.v_synthetic([['A', '1', 'foo'], ['A', '2', 'foo'], ['C', '1', 'foo']])).to.deep.equal [0.5, 1.6, 2.6]
@@ -1145,13 +1145,13 @@ describe "factor_range module", ->
     describe "group_padding", ->
 
       it "should pad all top-level groups", ->
-        r = new FactorRange({factors: [['A', '1', 'foo'], ['A', '2', 'foo'], ['C', '1', 'foo']], range_padding: 0, factor_padding: 0, subgroup_padding: 0, group_padding: 0.1})
+        r = new FactorRange({factors: [['A', '1', 'foo'], ['A', '2', 'foo'], ['C', '1', 'foo']], factor_padding: 0, subgroup_padding: 0, group_padding: 0.1})
         expect(r.start).to.be.equal 0
         expect(r.end).to.be.equal 3.1
         expect(r.v_synthetic([['A', '1', 'foo'], ['A', '2', 'foo'], ['C', '1', 'foo']])).to.deep.equal [0.5, 1.5, 2.6]
 
       it "should update range when changed", ->
-        r = new FactorRange({factors: [['A', '1', 'foo'], ['A', '2', 'foo'], ['C', '1', 'foo']], range_padding: 0, factor_padding: 0, subgroup_padding: 0, group_padding: 0.1})
+        r = new FactorRange({factors: [['A', '1', 'foo'], ['A', '2', 'foo'], ['C', '1', 'foo']], factor_padding: 0, subgroup_padding: 0, group_padding: 0.1})
         expect(r.start).to.be.equal 0
         expect(r.end).to.be.equal 3.1
         expect(r.v_synthetic([['A', '1', 'foo'], ['A', '2', 'foo'], ['C', '1', 'foo']])).to.deep.equal [0.5, 1.5, 2.6]
@@ -1162,7 +1162,7 @@ describe "factor_range module", ->
         expect(r.v_synthetic([['A', '1', 'foo'], ['A', '2', 'foo'], ['C', '1', 'foo']])).to.deep.equal [0.5, 1.5, 2.7]
 
       it "should update start/end when factors changed", ->
-        r = new FactorRange({factors: [['A', '1', 'foo'], ['A', '2', 'foo'], ['C', '1', 'foo']], range_padding: 0, factor_padding: 0, subgroup_padding: 0, group_padding: 0.1})
+        r = new FactorRange({factors: [['A', '1', 'foo'], ['A', '2', 'foo'], ['C', '1', 'foo']], factor_padding: 0, subgroup_padding: 0, group_padding: 0.1})
         expect(r.start).to.be.equal 0
         expect(r.end).to.be.equal 3.1
         expect(r.v_synthetic([['A', '1', 'foo'], ['A', '2', 'foo'], ['C', '1', 'foo']])).to.deep.equal [0.5, 1.5, 2.6]
