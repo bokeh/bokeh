@@ -14,7 +14,9 @@ class Filter(Model):
     data when applied to a ColumnDataSource.
     '''
 
-    filter = Either(Seq(Int), Seq(Bool))
+    filter = Either(Seq(Int), Seq(Bool), help="""
+    A list that can be either integer indices or booleans representing a row-wise subset of data.
+    """)
 
     def __init__(self, *args, **kw):
         if len(args) == 1 and "filter" not in kw:
@@ -26,7 +28,9 @@ class IndexFilter(Filter):
     ''' An IndexFilter filters data by returning the subset of data at a given set of indices.
     '''
 
-    indices = Seq(Int, default=[])
+    indices = Seq(Int, help="""
+    A list of integer indices representing the subset of data to select.
+    """)
 
     def __init__(self, *args, **kw):
         if len(args) == 1 and "indices" not in kw:
@@ -39,7 +43,9 @@ class BooleanFilter(Filter):
     where the values of the booleans array is True.
     '''
 
-    booleans = Seq(Bool, default=[])
+    booleans = Seq(Bool, help="""
+    A list of booleans indicating which rows of data to select.
+    """)
 
     def __init__(self, *args, **kw):
         if len(args) == 1 and "booleans" not in kw:
@@ -52,9 +58,13 @@ class GroupFilter(Filter):
     column column_name match the group variable.
     '''
 
-    column_name = String()
+    column_name = String(help="""
+    The name of the column to perform the group filtering operation on.
+    """)
 
-    group = String()
+    group = String(help="""
+    The value of the column indicating the rows of data to keep.
+    """)
 
     def __init__(self, *args, **kw):
         if len(args) == 2 and "column_name" not in kw and "group" not in kw:
