@@ -19,6 +19,21 @@ simpler APIs and are more focused:
 Additionally, with these new methods one may choose to not load the JS/CSS
 resource files by passing ``resources="none"`` as a parameter.
 
+Deprecations Removed
+~~~~~~~~~~~~~~~~~~~~
+
+The following previously deprecated modules or features have been removed:
+
+* ``bokeh.icons`` module
+
+* Legacy anchor and legend locations ``left_center`` and ``right_center``
+
+* ``ImageRGBA.rows`` and ``ImageRGBA.cols`` properties
+
+* ``HBox`` and ``VBox`` in ``bokeh.layouts``
+
+* ``validate`` keyword argument for ``bokeh.io.save``
+
 New Deprecations
 ~~~~~~~~~~~~~~~~
 

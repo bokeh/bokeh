@@ -34,7 +34,6 @@ from .models import Plot
 from .resources import INLINE
 import bokeh.util.browser as browserlib  # full import needed for test mocking to work
 from .util.dependencies import import_required, detect_phantomjs
-from .util.deprecation import deprecated
 from .util.notebook import get_comms, load_notebook, publish_display_data, watch_server_cells
 from .util.string import decode_utf8
 from .util.serialization import make_id
@@ -375,10 +374,6 @@ def save(obj, filename=None, resources=None, title=None, state=None, **kwargs):
         str: the filename where the HTML file is saved.
 
     '''
-
-    if 'validate' in kwargs:
-        deprecated((0, 12, 5), 'The `validate` keyword argument', 'None', """
-        The keyword argument has been removed and the document will always be validated.""")
 
     if state is None:
         state = _state
