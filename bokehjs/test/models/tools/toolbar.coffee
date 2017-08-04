@@ -20,14 +20,6 @@ describe "ToolbarView", ->
     @test_tb = new Toolbar()
     @test_tb.attach_document(doc)
 
-  it "render should call template with toolbar_location", ->
-    @test_tb.toolbar_location = 'below'
-    tb_view = new @test_tb.default_view({ model: @test_tb, parent: null })
-    spy = sinon.spy(tb_view, 'template')
-    tb_view.render()
-    expect(spy.calledOnce).is.true
-    expect(spy.args[0][0]['location']).is.equal 'below'
-
   it "render should set the appropriate positions and paddings on the element in box mode", ->
     dom_left = 12
     dom_top = 44
