@@ -1787,13 +1787,14 @@ class ColorSpec(DataSpec):
 # DataSpec helpers
 #------------------------------------------------------------------------------
 
-def field(name):
+def field(name, transform=None):
     ''' Convenience function to explicitly return a "field" specification for
     a Bokeh :class:`~bokeh.core.properties.DataSpec` property.
 
     Args:
         name (str) : name of a data source field to reference for a
             ``DataSpec`` property.
+        transform (Tansform)  an optional transform to apply
 
     Returns:
         dict : ``{ "field": name }``
@@ -1803,15 +1804,17 @@ def field(name):
         property specifications are by default interpreted as field names.
 
     '''
+    if transform:
+        return dict(field=name, transform=transform)
     return dict(field=name)
 
-def value(val):
+def value(val, transform=None):
     ''' Convenience function to explicitly return a "value" specification for
     a Bokeh :class:`~bokeh.core.properties.DataSpec` property.
 
     Args:
         val (any) : a fixed value to specify for a ``DataSpec`` property.
-
+        transform (Transform) : an optional transform to apply
     Returns:
         dict : ``{ "value": name }``
 
@@ -1830,6 +1833,8 @@ def value(val):
                    text_font_size=value("12pt"), source=source)
 
     '''
+    if transform:
+        return dict(value=val, transform=transform)
     return dict(value=val)
 
 #------------------------------------------------------------------------------
