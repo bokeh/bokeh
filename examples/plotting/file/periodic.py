@@ -1,87 +1,75 @@
-from bokeh.models import HoverTool, ColumnDataSource
-from bokeh.plotting import figure, show
+from bokeh.io import output_file, show
+from bokeh.models import ColumnDataSource, HoverTool
+from bokeh.plotting import figure
 from bokeh.sampledata.periodic_table import elements
+from bokeh.transform import dodge, factor_cmap
 
-romans = ["I", "II", "III", "IV", "V", "VI", "VII"]
+output_file("periodic.html")
 
-elements = elements.copy()
-elements["atomic mass"] = elements["atomic mass"].astype(str)
+periods = ["I", "II", "III", "IV", "V", "VI", "VII"]
+groups = [str(x) for x in range(1, 19)]
 
-elements["period"] = [romans[x-1] for x in elements.period]
-elements = elements[elements.group != "-"]
+df = elements.copy()
+df["atomic mass"] = df["atomic mass"].astype(str)
+df["group"] = df["group"].astype(str)
+df["period"] = [periods[x-1] for x in df.period]
+df = df[df.group != "-"]
+df = df[df.symbol != "Lr"]
+df = df[df.symbol != "Lu"]
 
-group_range = [str(x) for x in range(1, 19)]
-
-colormap = {
+cmap = {
     "alkali metal"         : "#a6cee3",
     "alkaline earth metal" : "#1f78b4",
     "halogen"              : "#fdbf6f",
     "metal"                : "#b2df8a",
     "metalloid"            : "#33a02c",
-    "noble gas"            : "#bbbb88",
+    "noble gas"            : "#eaeaea",
     "nonmetal"             : "#baa2a6",
     "transition metal"     : "#e08e79",
 }
 
-source = ColumnDataSource(
-    data=dict(
-        group=[str(x) for x in elements["group"]],
-        period=[str(y) for y in elements["period"]],
-        symx=[(str(x), -0.4) for x in elements["group"]],
-        numbery=[(str(x), 0.3) for x in elements["period"]],
-        massy=[(str(x), -0.2) for x in elements["period"]],
-        namey=[(str(x), -0.35) for x in elements["period"]],
-        sym=elements["symbol"],
-        name=elements["name"],
-        cpk=elements["CPK"],
-        atomic_number=elements["atomic number"],
-        electronic=elements["electronic configuration"],
-        mass=elements["atomic mass"],
-        type=elements["metal"],
-        type_color=[colormap[x] for x in elements["metal"]],
-    )
-)
+source = ColumnDataSource(df)
 
-p = figure(title="Periodic Table", tools="save",
-           x_range=group_range, y_range=list(reversed(romans)))
-p.plot_width = 1200
-p.toolbar_location = None
+p = figure(title="Periodic Table (omitting LA and AC Series)", plot_width=1000, plot_height=450,
+           tools="", toolbar_location=None,
+           x_range=groups, y_range=list(reversed(periods)))
+
+p.rect("group", "period", 0.95, 0.95, source=source, fill_alpha=0.6, legend="metal",
+       color=factor_cmap('metal', palette=list(cmap.values()), factors=list(cmap.keys())))
+
+text_props = {"source": source, "text_align": "left", "text_baseline": "middle"}
+
+x = dodge("group", -0.4, range=p.x_range)
+
+r = p.text(x=x, y="period", text="symbol", **text_props)
+r.glyph.text_font_style="bold"
+
+r = p.text(x=x, y=dodge("period", 0.3, range=p.y_range), text="atomic number", **text_props)
+r.glyph.text_font_size="8pt"
+
+r = p.text(x=x, y=dodge("period", -0.35, range=p.y_range), text="name", **text_props)
+r.glyph.text_font_size="5pt"
+
+r = p.text(x=x, y=dodge("period", -0.2, range=p.y_range), text="atomic mass", **text_props)
+r.glyph.text_font_size="5pt"
+
+p.text(x=["3", "3"], y=["VI", "VII"], text=["LA", "AC"], text_align="center", text_baseline="middle")
+
+p.add_tools(HoverTool(tooltips = [
+    ("Name", "@name"),
+    ("Atomic number", "@{atomic number}"),
+    ("Atomic mass", "@{atomic mass}"),
+    ("Type", "@metal"),
+    ("CPK color", "$color[hex, swatch]:CPK"),
+    ("Electronic configuration", "@{electronic configuration}"),
+]))
+
 p.outline_line_color = None
-
-r = p.rect("group", "period", 0.9, 0.9, source=source,
-       fill_alpha=0.6, color="type_color")
-
-text_props = {
-    "source": source,
-    "angle": 0,
-    "color": "black",
-    "text_align": "left",
-    "text_baseline": "middle"
-}
-
-p.text(x="symx", y="period", text="sym",
-       text_font_style="bold", text_font_size="15pt", **text_props)
-
-p.text(x="symx", y="numbery", text="atomic_number",
-       text_font_size="9pt", **text_props)
-
-p.text(x="symx", y="namey", text="name",
-       text_font_size="6pt", **text_props)
-
-p.text(x="symx", y="massy", text="mass",
-       text_font_size="5pt", **text_props)
-
 p.grid.grid_line_color = None
+p.axis.axis_line_color = None
+p.axis.major_tick_line_color = None
+p.axis.major_label_standoff = 0
+p.legend.orientation = "horizontal"
+p.legend.location ="top_center"
 
-hover = HoverTool(renderers=[r], tooltips = [
-    ("name", "@name"),
-    ("atomic number", "@atomic_number"),
-    ("type", "@type"),
-    ("atomic mass", "@mass"),
-    ("CPK color", "$color[hex, swatch]:cpk"),
-    ("electronic configuration", "@electronic"),
-])
-
-p.add_tools(hover)
-
-show(p)  # Change to save(p) to save but not show the HTML file
+show(p)
