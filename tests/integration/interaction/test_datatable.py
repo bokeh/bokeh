@@ -7,7 +7,9 @@ from bokeh.models import (
     DataTable,
     IntEditor,
     TableColumn,
+    Button,
 )
+from bokeh.layouts import column
 from selenium.webdriver.common.action_chains import ActionChains
 from tests.integration.utils import has_no_console_errors
 
@@ -52,3 +54,28 @@ def test_editable_changes_data(output_file_url, selenium):
     row_2_cell.click()
     alert = selenium.switch_to_alert()
     assert alert.text == '33,2'
+
+@pytest.mark.screenshot
+def test_data_table_selected_highlighting(output_file_url, selenium, screenshot):
+
+    # Create a DataTable and Button that sets a selection
+    data = dict(x = list(range(10)))
+    source = ColumnDataSource(data=data)
+    columns = [TableColumn(field="x", title="X")]
+    data_table = DataTable(source=source, columns=columns)
+    button = Button(label="Click")
+    button.callback = CustomJS(args=dict(source=source), code="""
+        source['selected']['1d'].indices = [1, 2]
+        source.trigger('change');
+    """)
+
+    # Save the table and start the test
+    save(column(data_table, button))
+    selenium.get(output_file_url)
+    assert has_no_console_errors(selenium)
+
+    # Click the button to select the rows
+    button = selenium.find_element_by_class_name('bk-bs-btn')
+    button.click()
+
+    screenshot.assert_is_valid()
