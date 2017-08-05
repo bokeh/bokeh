@@ -1,11 +1,14 @@
-import * as _ from "underscore"
-import * as $ from "jquery"
-import * as sprintf from "sprintf"
+import {sprintf} from "sprintf-js"
 import {Document} from "../document"
 import * as embed from "../embed"
 import {BOKEH_ROOT} from "../embed"
 import * as models from "./models"
+import {div} from "../core/dom"
 import {startsWith} from "../core/util/string"
+import {isEqual} from "../core/util/eq"
+import {any, all} from "../core/util/array"
+import {extend, clone} from "../core/util/object"
+import {isNumber, isString, isArray} from "../core/util/types"
 
 _default_tooltips = [
   ["index", "$index"],
@@ -16,37 +19,37 @@ _default_tooltips = [
 _default_tools = "pan,wheel_zoom,box_zoom,save,reset,help"
 
 _known_tools = {
-  pan:          (plot) -> new models.PanTool(plot: plot, dimensions: 'both')
-  xpan:         (plot) -> new models.PanTool(plot: plot, dimensions: 'width')
-  ypan:         (plot) -> new models.PanTool(plot: plot, dimensions: 'height')
-  wheel_zoom:   (plot) -> new models.WheelZoomTool(plot: plot, dimensions: 'both')
-  xwheel_zoom:  (plot) -> new models.WheelZoomTool(plot: plot, dimensions: 'width')
-  ywheel_zoom:  (plot) -> new models.WheelZoomTool(plot: plot, dimensions: 'height')
-  zoom_in:      (plot) -> new models.ZoomInTool(plot: plot, dimensions: 'both')
-  xzoom_in:     (plot) -> new models.ZoomInTool(plot: plot, dimensions: 'width')
-  yzoom_in:     (plot) -> new models.ZoomInTool(plot: plot, dimensions: 'height')
-  zoom_out:     (plot) -> new models.ZoomOutTool(plot: plot, dimensions: 'both')
-  xzoom_out:    (plot) -> new models.ZoomOutTool(plot: plot, dimensions: 'width')
-  yzoom_out:    (plot) -> new models.ZoomOutTool(plot: plot, dimensions: 'height')
-  resize:       (plot) -> new models.ResizeTool(plot: plot)
-  click:        (plot) -> new models.TapTool(plot: plot, behavior: "inspect")
-  tap:          (plot) -> new models.TapTool(plot: plot)
-  crosshair:    (plot) -> new models.CrosshairTool(plot: plot)
-  box_select:   (plot) -> new models.BoxSelectTool(plot: plot)
-  xbox_select:  (plot) -> new models.BoxSelectTool(plot: plot, dimensions: 'width')
-  ybox_select:  (plot) -> new models.BoxSelectTool(plot: plot, dimensions: 'height')
-  poly_select:  (plot) -> new models.PolySelectTool(plot: plot)
-  lasso_select: (plot) -> new models.LassoSelectTool(plot: plot)
-  box_zoom:     (plot) -> new models.BoxZoomTool(plot: plot, dimensions: 'both')
-  xbox_zoom:    (plot) -> new models.BoxZoomTool(plot: plot, dimensions: 'width')
-  ybox_zoom:    (plot) -> new models.BoxZoomTool(plot: plot, dimensions: 'height')
-  hover:        (plot) -> new models.HoverTool(plot: plot, tooltips: _default_tooltips)
-  save:         (plot) -> new models.SaveTool(plot: plot)
-  previewsave:  (plot) -> new models.SaveTool(plot: plot)
-  undo:         (plot) -> new models.UndoTool(plot: plot)
-  redo:         (plot) -> new models.RedoTool(plot: plot)
-  reset:        (plot) -> new models.ResetTool(plot: plot)
-  help:         (plot) -> new models.HelpTool(plot: plot)
+  pan:          () -> new models.PanTool(dimensions: 'both')
+  xpan:         () -> new models.PanTool(dimensions: 'width')
+  ypan:         () -> new models.PanTool(dimensions: 'height')
+  wheel_zoom:   () -> new models.WheelZoomTool(dimensions: 'both')
+  xwheel_zoom:  () -> new models.WheelZoomTool(dimensions: 'width')
+  ywheel_zoom:  () -> new models.WheelZoomTool(dimensions: 'height')
+  zoom_in:      () -> new models.ZoomInTool(dimensions: 'both')
+  xzoom_in:     () -> new models.ZoomInTool(dimensions: 'width')
+  yzoom_in:     () -> new models.ZoomInTool(dimensions: 'height')
+  zoom_out:     () -> new models.ZoomOutTool(dimensions: 'both')
+  xzoom_out:    () -> new models.ZoomOutTool(dimensions: 'width')
+  yzoom_out:    () -> new models.ZoomOutTool(dimensions: 'height')
+  resize:       () -> new models.ResizeTool()
+  click:        () -> new models.TapTool(behavior: "inspect")
+  tap:          () -> new models.TapTool()
+  crosshair:    () -> new models.CrosshairTool()
+  box_select:   () -> new models.BoxSelectTool()
+  xbox_select:  () -> new models.BoxSelectTool(dimensions: 'width')
+  ybox_select:  () -> new models.BoxSelectTool(dimensions: 'height')
+  poly_select:  () -> new models.PolySelectTool()
+  lasso_select: () -> new models.LassoSelectTool()
+  box_zoom:     () -> new models.BoxZoomTool(dimensions: 'both')
+  xbox_zoom:    () -> new models.BoxZoomTool(dimensions: 'width')
+  ybox_zoom:    () -> new models.BoxZoomTool(dimensions: 'height')
+  hover:        () -> new models.HoverTool(tooltips: _default_tooltips)
+  save:         () -> new models.SaveTool()
+  previewsave:  () -> new models.SaveTool()
+  undo:         () -> new models.UndoTool()
+  redo:         () -> new models.RedoTool()
+  reset:        () -> new models.ResetTool()
+  help:         () -> new models.HelpTool()
 }
 
 _with_default = (value, default_value) ->
@@ -55,7 +58,7 @@ _with_default = (value, default_value) ->
 export class Figure extends models.Plot
 
   constructor: (attributes={}, options={}) ->
-    attrs = _.clone(attributes)
+    attrs = clone(attributes)
 
     tools = _with_default(attrs.tools, _default_tools)
     delete attrs.tools
@@ -63,10 +66,13 @@ export class Figure extends models.Plot
     attrs.x_range = @_get_range(attrs.x_range)
     attrs.y_range = @_get_range(attrs.y_range)
 
-    x_axis_type = if _.isUndefined(attrs.x_axis_type) then "auto" else attrs.x_axis_type
-    y_axis_type = if _.isUndefined(attrs.y_axis_type) then "auto" else attrs.y_axis_type
+    x_axis_type = if attrs.x_axis_type == undefined then "auto" else attrs.x_axis_type
+    y_axis_type = if attrs.y_axis_type == undefined then "auto" else attrs.y_axis_type
     delete attrs.x_axis_type
     delete attrs.y_axis_type
+
+    attrs.x_scale = @_get_scale(attrs.x_range, x_axis_type)
+    attrs.y_scale = @_get_scale(attrs.y_range, y_axis_type)
 
     x_minor_ticks = attrs.x_minor_ticks ? "auto"
     y_minor_ticks = attrs.y_minor_ticks ? "auto"
@@ -83,15 +89,15 @@ export class Figure extends models.Plot
     delete attrs.x_axis_label
     delete attrs.y_axis_label
 
-    if not _.isUndefined(attrs.width)
-      if _.isUndefined(attrs.plot_width)
+    if attrs.width != undefined
+      if attrs.plot_width == undefined
         attrs.plot_width = attrs.width
       else
         throw new Error("both 'width' and 'plot_width' can't be given at the same time")
       delete attrs.width
 
-    if not _.isUndefined(attrs.height)
-      if _.isUndefined(attrs.plot_height)
+    if attrs.height != undefined
+      if attrs.plot_height == undefined
         attrs.plot_height = attrs.height
       else
         throw new Error("both 'height' and 'plot_height' can't be given at the same time")
@@ -99,8 +105,8 @@ export class Figure extends models.Plot
 
     super(attrs, options)
 
-    @_process_guides(0, x_axis_type, x_axis_location, x_minor_ticks, x_axis_label)
-    @_process_guides(1, y_axis_type, y_axis_location, y_minor_ticks, y_axis_label)
+    @_process_axis_and_grid(x_axis_type, x_axis_location, x_minor_ticks, x_axis_label, attrs.x_range, 0)
+    @_process_axis_and_grid(y_axis_type, y_axis_location, y_minor_ticks, y_axis_label, attrs.y_range, 1)
 
     @add_tools(@_process_tools(tools)...)
 
@@ -208,7 +214,7 @@ export class Figure extends models.Plot
         if prop?
           if prop.type.prototype.dataspec
             if value?
-              if _.isArray(value)
+              if isArray(value)
                 if data[name]?
                   if data[name] != value
                     field = @_find_uniq_name(data, name)
@@ -220,7 +226,7 @@ export class Figure extends models.Plot
                   data[field] = value
 
                 attrs[name] = { field: field }
-              else if _.isNumber(value) or _.isString(value) # or Date?
+              else if isNumber(value) or isString(value) # or Date?
                 attrs[name] = { value: value }
 
   _glyph: (cls, params, args) ->
@@ -228,10 +234,10 @@ export class Figure extends models.Plot
 
     if args.length == 1
       [attrs] = args
-      attrs = _.clone(attrs)
+      attrs = clone(attrs)
     else
       [args..., opts] = args
-      attrs = _.clone(opts)
+      attrs = clone(opts)
       for param, i in params
         do (param, i) ->
           attrs[param] = args[i]
@@ -239,8 +245,8 @@ export class Figure extends models.Plot
     legend = @_process_legend(attrs.legend, attrs.source)
     delete attrs.legend
 
-    has_sglyph = _.any(_.keys(attrs), (key) -> startsWith(key, "selection_"))
-    has_hglyph = _.any(_.keys(attrs), (key) -> startsWith(key, "hover_"))
+    has_sglyph = any(Object.keys(attrs), (key) -> startsWith(key, "selection_"))
+    has_hglyph = any(Object.keys(attrs), (key) -> startsWith(key, "hover_"))
 
     glyph_ca   = @_pop_colors_and_alpha(cls, attrs)
     nsglyph_ca = @_pop_colors_and_alpha(cls, attrs, "nonselection_", undefined, 0.1)
@@ -248,7 +254,7 @@ export class Figure extends models.Plot
     hglyph_ca  = if has_hglyph then @_pop_colors_and_alpha(cls, attrs, "hover_") else {}
 
     source = attrs.source ? new models.ColumnDataSource()
-    data = _.clone(source.data)
+    data = clone(source.data)
     delete attrs.source
 
     @_fixup_values(cls, data,   glyph_ca)
@@ -261,7 +267,7 @@ export class Figure extends models.Plot
     source.data = data
 
     _make_glyph = (cls, attrs, extra_attrs) =>
-      new cls(_.extend({}, attrs, extra_attrs))
+      new cls(extend({}, attrs, extra_attrs))
 
     glyph   = _make_glyph(cls, attrs,   glyph_ca)
     nsglyph = _make_glyph(cls, attrs, nsglyph_ca)
@@ -290,22 +296,33 @@ export class Figure extends models.Plot
       return new models.DataRange1d()
     if range instanceof models.Range
       return range
-    if _.isArray(range)
-      if _.all((x) -> _.isString(x) for x in range)
+    if isArray(range)
+      if all(range, isString)
         return new models.FactorRange({factors: range})
       if range.length == 2
         return new models.Range1d({start: range[0], end: range[1]})
 
-  _process_guides: (dim, axis_type, axis_location, minor_ticks, axis_label) ->
-    range = if dim == 0 then @x_range else @y_range
-    axiscls = @_get_axis_class(axis_type, range)
+  _get_scale: (range_input, axis_type) ->
+    if range_input instanceof models.DataRange1d or range_input instanceof models.Range1d
+      switch axis_type
+        when "linear", "datetime", "auto", null
+          return new models.LinearScale()
+        when "log"
+          return new models.LogScale()
 
+    if range_input instanceof models.FactorRange
+      return new models.CategoricalScale()
+
+    throw new Error("unable to determine proper scale for: '#{range_input}'")
+
+  _process_axis_and_grid: (axis_type, axis_location, minor_ticks, axis_label, rng, dim) ->
+    axiscls = @_get_axis_class(axis_type, rng)
     if axiscls?
       if axiscls == models.LogAxis
         if dim == 0
-          @x_mapper_type = 'log'
+          @x_scale = new models.LogScale()
         else
-          @y_mapper_type = 'log'
+          @y_scale = new models.LogScale()
 
       axis = new axiscls()
 
@@ -316,7 +333,8 @@ export class Figure extends models.Plot
 
       grid = new models.Grid({dimension: dim, ticker: axis.ticker})
 
-      @add_layout(axis, axis_location)
+      if axis_location != null
+        @add_layout(axis, axis_location)
       @add_layout(grid)
 
   _get_axis_class: (axis_type, range) ->
@@ -336,7 +354,7 @@ export class Figure extends models.Plot
         return models.LinearAxis
 
   _get_num_minor_ticks: (axis_class, num_minor_ticks) ->
-    if _.isNumber(num_minor_ticks)
+    if isNumber(num_minor_ticks)
       if num_minor_ticks <= 1
         throw new Error("num_minor_ticks must be > 1")
       return num_minor_ticks
@@ -348,12 +366,15 @@ export class Figure extends models.Plot
       return 5
 
   _process_tools: (tools) ->
-    if _.isString(tools)
-      tools = tools.split(/\s*,\s*/)
+    if isString(tools)
+      tools = tools.split(/\s*,\s*/).filter((tool) -> tool.length > 0)
 
     objs = for tool in tools
-      if _.isString(tool)
-        _known_tools[tool](this)
+      if isString(tool)
+        if _known_tools.hasOwnProperty(tool)
+          _known_tools[tool]()
+        else
+          throw new Error("unknown tool type: #{tool}")
       else
         tool
 
@@ -362,7 +383,7 @@ export class Figure extends models.Plot
   _process_legend: (legend, source) ->
     legend_item_label = null
     if legend?
-      if _.isString(legend)
+      if isString(legend)
         legend_item_label = { value: legend }
         if source? and source.column_names?
           if legend in source.column_names
@@ -374,7 +395,7 @@ export class Figure extends models.Plot
   _update_legend: (legend_item_label, glyph_renderer) ->
     added = false
     for item in @_legend.items
-      if _.isEqual(item.label, legend_item_label)
+      if isEqual(item.label, legend_item_label)
         if item.label.value?
           item.renderers.push(glyph_renderer)
           added = true
@@ -392,7 +413,7 @@ export figure = (attributes={}, options={}) ->
   new Figure(attributes, options)
 
 export show = (obj, target) ->
-  multiple = _.isArray(obj)
+  multiple = isArray(obj)
 
   doc = new Document()
 
@@ -402,10 +423,23 @@ export show = (obj, target) ->
     for _obj in obj
       doc.add_root(_obj)
 
-  div = $("<div class=#{BOKEH_ROOT}>")
-  $(target ? "body").append(div)
+  if not target?
+    element = document.body
+  else if isString(target)
+    element = document.querySelector(target)
+    if not element?
+      throw new Error("'#{target}' selector didn't match any elements")
+  else if target instanceof HTMLElement
+    element = target
+  else if $? and target instanceof $
+    element = target[0]
+  else
+    throw new Error("target should be HTMLElement, string selector, $ or null")
 
-  views = embed.add_document_standalone(doc, div)
+  root = div({class: BOKEH_ROOT})
+  element.appendChild(root)
+
+  views = embed.add_document_standalone(doc, root)
 
   if not multiple
     return views[obj.id]
@@ -415,8 +449,8 @@ export show = (obj, target) ->
 export color = (r, g, b) -> sprintf("#%02x%02x%02x", r, g, b)
 
 export gridplot = (children, options={}) ->
-  toolbar_location = if _.isUndefined(options.toolbar_location) then 'above' else options.toolbar_location
-  sizing_mode = if _.isUndefined(options.sizing_mode) then 'fixed' else options.sizing_mode
+  toolbar_location = if options.toolbar_location == undefined then 'above' else options.toolbar_location
+  sizing_mode = if options.sizing_mode == undefined then 'fixed' else options.sizing_mode
   toolbar_sizing_mode = if options.sizing_mode == 'fixed' then 'scale_width' else sizing_mode
 
   tools = []

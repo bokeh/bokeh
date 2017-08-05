@@ -1,7 +1,5 @@
-_ = require "underscore"
 {expect} = require "chai"
 utils = require "../../../utils"
-sinon = require 'sinon'
 
 {Document} = utils.require("document")
 {WheelZoomTool} = utils.require("models/tools/gestures/wheel_zoom_tool")
@@ -37,24 +35,19 @@ describe "WheelZoomTool", ->
          x_range: new Range1d({start: -1, end: 1})
          y_range: new Range1d({start: -1, end: 1})
       })
-
       document = new Document()
       document.add_root(@plot)
 
-      @plot_canvas_view = new @plot.plot_canvas.default_view({
-        model: @plot.plot_canvas
-      })
+      @plot_view = new @plot.default_view({model: @plot, parent: null})
+      @plot_view.layout()
+
+      @plot_canvas_view = @plot_view.plot_canvas_view
 
     it "should zoom in both ranges", ->
       wheel_zoom = new WheelZoomTool()
-
       @plot.add_tools(wheel_zoom)
 
-      wheel_zoom_view = new wheel_zoom.default_view({
-        model: wheel_zoom
-        plot_model: @plot.plot_canvas
-        plot_view: @plot_canvas_view
-      })
+      wheel_zoom_view = @plot_canvas_view.tool_views[wheel_zoom.id]
 
       # positive delta will zoom in
       zoom_event = {"bokeh": {sx: 300, sy: 300, delta: 100}}
@@ -71,14 +64,9 @@ describe "WheelZoomTool", ->
 
     it "should zoom out both ranges", ->
       wheel_zoom = new WheelZoomTool()
-
       @plot.add_tools(wheel_zoom)
 
-      wheel_zoom_view = new wheel_zoom.default_view({
-        model: wheel_zoom
-        plot_model: @plot.plot_canvas
-        plot_view: @plot_canvas_view
-      })
+      wheel_zoom_view = @plot_canvas_view.tool_views[wheel_zoom.id]
 
       # positive delta will zoom out
       zoom_event = {"bokeh": {sx: 300, sy: 300, delta: -100}}
@@ -95,14 +83,9 @@ describe "WheelZoomTool", ->
 
     it "should zoom the x-axis only because dimensions arg is set", ->
       wheel_zoom = new WheelZoomTool({dimensions: 'width'})
-
       @plot.add_tools(wheel_zoom)
 
-      wheel_zoom_view = new wheel_zoom.default_view({
-        model: wheel_zoom
-        plot_model: @plot.plot_canvas
-        plot_view: @plot_canvas_view
-      })
+      wheel_zoom_view = @plot_canvas_view.tool_views[wheel_zoom.id]
 
       # positive delta will zoom in
       zoom_event = {"bokeh": {sx: 300, sy: 300, delta: 100}}
@@ -118,14 +101,9 @@ describe "WheelZoomTool", ->
 
     it "should zoom the x-axis only because sy is off frame", ->
       wheel_zoom = new WheelZoomTool({dimensions: 'both'})
-
       @plot.add_tools(wheel_zoom)
 
-      wheel_zoom_view = new wheel_zoom.default_view({
-        model: wheel_zoom
-        plot_model: @plot.plot_canvas
-        plot_view: @plot_canvas_view
-      })
+      wheel_zoom_view = @plot_canvas_view.tool_views[wheel_zoom.id]
 
       # positive delta will zoom in
       zoom_event = {"bokeh": {sx: 300, sy: 0, delta: 100}}
@@ -141,14 +119,9 @@ describe "WheelZoomTool", ->
 
     it "should zoom the y-axis only because dimensions arg is set", ->
       wheel_zoom = new WheelZoomTool({dimensions: 'height'})
-
       @plot.add_tools(wheel_zoom)
 
-      wheel_zoom_view = new wheel_zoom.default_view({
-        model: wheel_zoom
-        plot_model: @plot.plot_canvas
-        plot_view: @plot_canvas_view
-      })
+      wheel_zoom_view = @plot_canvas_view.tool_views[wheel_zoom.id]
 
       # positive delta will zoom in
       zoom_event = {"bokeh": {sx: 300, sy: 300, delta: 100}}
@@ -164,14 +137,9 @@ describe "WheelZoomTool", ->
 
     it "should zoom the y-axis only because sx is off frame", ->
       wheel_zoom = new WheelZoomTool({dimensions: 'both'})
-
       @plot.add_tools(wheel_zoom)
 
-      wheel_zoom_view = new wheel_zoom.default_view({
-        model: wheel_zoom
-        plot_model: @plot.plot_canvas
-        plot_view: @plot_canvas_view
-      })
+      wheel_zoom_view = @plot_canvas_view.tool_views[wheel_zoom.id]
 
       # positive delta will zoom in
       zoom_event = {"bokeh": {sx: 0, sy: 300, delta: 100}}
@@ -187,14 +155,9 @@ describe "WheelZoomTool", ->
 
     it "should zoom centered around the zoom point", ->
       wheel_zoom = new WheelZoomTool({dimensions: 'both'})
-
       @plot.add_tools(wheel_zoom)
 
-      wheel_zoom_view = new wheel_zoom.default_view({
-        model: wheel_zoom
-        plot_model: @plot.plot_canvas
-        plot_view: @plot_canvas_view
-      })
+      wheel_zoom_view = @plot_canvas_view.tool_views[wheel_zoom.id]
 
       # positive delta will zoom in
       zoom_event = {"bokeh": {sx: 100, sy: 100, delta: 100}}

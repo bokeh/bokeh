@@ -33,7 +33,6 @@ the :ref:`devguide`.
     docs/user_guide/setup
     docs/user_guide/concepts
     docs/user_guide/plotting
-    docs/user_guide/charts
     docs/user_guide/compat
     docs/user_guide/annotations
     docs/user_guide/styling
@@ -44,6 +43,7 @@ the :ref:`devguide`.
     docs/user_guide/cli
     docs/user_guide/server
     docs/user_guide/embed
+    docs/user_guide/export
     docs/user_guide/webgl
     docs/user_guide/geo
     docs/user_guide/bokehjs

@@ -62,7 +62,7 @@ hover = HoverTool(
 # Select the tools that will be available to the chart
 TOOLS = ['pan,wheel_zoom,box_zoom,reset,save'] + [hover]
 
-bplot = figure(tools=TOOLS, width=800, height=500, x_axis_type=None)
+bplot = figure(tools=TOOLS, plot_width=800, plot_height=500, x_axis_type=None)
 
 # Create a custom x-axis with 10-year intervals
 ticker = SingleIntervalTicker(interval=10, num_minor_ticks=0)

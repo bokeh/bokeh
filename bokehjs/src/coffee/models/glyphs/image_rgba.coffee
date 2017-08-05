@@ -1,16 +1,10 @@
-import * as _ from "underscore"
+import {XYGlyph, XYGlyphView} from "./xy_glyph"
+import * as p from "core/properties"
+import {max, concat} from "core/util/array"
 
-import {Glyph, GlyphView} from "./glyph"
-import * as p from "../../core/properties"
+export class ImageRGBAView extends XYGlyphView
 
-export class ImageRGBAView extends GlyphView
-
-  _index_data: () ->
-    @_xy_index()
-
-  # TODO (bev) to improve. Currently, if only one image has changed, can
-  # pass index as "arg" to prevent full re-preocessing (useful for streaming)
-  _set_data: (source, arg) ->
+  _set_data: (source, indices) ->
     if not @image_data? or @image_data.length != @_image.length
       @image_data = new Array(@_image.length)
 
@@ -21,33 +15,19 @@ export class ImageRGBAView extends GlyphView
       @_height = new Array(@_image.length)
 
     for i in [0...@_image.length]
-      if arg?
-        if i != arg
-          continue
+      if indices? and indices.indexOf(i) < 0
+        continue
 
       shape = []
       if @_image_shape?
         shape = @_image_shape[i]
 
-      # Note specifying rows and cols is deprecated and this can soon
-      # be removed.
-      if @_rows?
-        @_height[i] = @_rows[i]
-        @_width[i] = @_cols[i]
-        if shape.length > 0
-          buf = @_image[i].buffer
-        else
-          flat = @_image[i]
-          buf = new ArrayBuffer(flat.length * 4)
-          color = new Uint32Array(buf)
-          for j in [0...flat.length]
-            color[j] = flat[j]
-      else if shape.length > 0
+      if shape.length > 0
         buf = @_image[i].buffer
         @_height[i] = shape[0]
         @_width[i] = shape[1]
       else
-        flat = _.flatten(@_image[i])
+        flat = concat(@_image[i])
         buf = new ArrayBuffer(flat.length * 4)
         color = new Uint32Array(buf)
         for j in [0...flat.length]
@@ -70,18 +50,18 @@ export class ImageRGBAView extends GlyphView
 
       @max_dw = 0
       if @_dw.units == "data"
-        @max_dw = _.max(@_dw)
+        @max_dw = max(@_dw)
       @max_dh = 0
       if @_dh.units == "data"
-        @max_dh = _.max(@_dh)
+        @max_dh = max(@_dh)
 
   _map_data: () ->
     switch @model.properties.dw.units
-      when "data" then @sw = @sdist(@renderer.xmapper, @_x, @_dw, 'edge', @model.dilate)
+      when "data" then @sw = @sdist(@renderer.xscale, @_x, @_dw, 'edge', @model.dilate)
       when "screen" then @sw = @_dw
 
     switch @model.properties.dh.units
-      when "data" then @sh = @sdist(@renderer.ymapper, @_y, @_dh, 'edge', @model.dilate)
+      when "data" then @sh = @sdist(@renderer.yscale, @_y, @_dh, 'edge', @model.dilate)
       when "screen" then @sh = @_dh
 
   _render: (ctx, indices, {image_data, sx, sy, sw, sh}) ->
@@ -106,31 +86,19 @@ export class ImageRGBAView extends GlyphView
     ctx.setImageSmoothingEnabled(old_smoothing)
 
   bounds: () ->
-    d = @index.data
-    return {
-      minX: d.minX,
-      minY: d.minY,
-      maxX: d.maxX + @max_dw,
-      maxY: d.maxY + @max_dh
-    }
+    bbox = @index.bbox
+    bbox.maxX += @max_dw
+    bbox.maxY += @max_dh
+    return bbox
 
-export class ImageRGBA extends Glyph
+export class ImageRGBA extends XYGlyph
   default_view: ImageRGBAView
 
   type: 'ImageRGBA'
 
-  @coords [['x', 'y']]
-  @mixins []
   @define {
       image:  [ p.NumberSpec       ] # TODO (bev) array spec?
-      rows:   [ p.NumberSpec       ]
-      cols:   [ p.NumberSpec       ]
       dw:     [ p.DistanceSpec     ]
       dh:     [ p.DistanceSpec     ]
       dilate: [ p.Bool,      false ]
   }
-
-  initialize: (attrs, options) ->
-    super(attrs, options)
-    @properties.rows.optional = true
-    @properties.cols.optional = true

@@ -17,19 +17,14 @@ DIRECTORIES = {
     'plotting-notebook': '../../examples/plotting/notebook',
     'server'           : '../../examples/plotting/server',
     'webgl'            : '../../examples/webgl',
-    'compat'           : '../../examples/compat',
-    'models'           : '../../examples/models',
-    'charts-file'      : '../../examples/charts/file',
-    'charts-notebook'  : '../../examples/charts/notebook'
+    'models-file'      : '../../examples/models/file',
+    'models-server'    : '../../examples/models/server',
 }
 
 DEFAULT_TEST_FILES = [
     '../../examples/plotting/file/stocks.py',
     '../../examples/plotting/file/glucose.py',
-    '../../examples/compat/ggplot_density.py',
-    '../../examples/compat/seaborn_violin.py',
     '../../examples/plotting/server/hover.py',
-    '../../examples/charts/boxplot.py',
 ]
 
 SESSION_FILE = os.path.abspath("INTERACTIVE_TESTER_SESSION.json")
@@ -52,10 +47,8 @@ def get_parser():
                         - plotting-file
                         - plotting-notebook
                         - server
-                        - compat
-                        - models
-                        - charts-file
-                        - charts-notebook
+                        - models-file
+                        - models-server
                     """), formatter_class=argparse.RawTextHelpFormatter)
 
     parser.add_argument('--no-log', action='store_true', dest='nolog', default=False,
@@ -255,10 +248,6 @@ if __name__ == '__main__':
     if results.location:
         if results.location and results.location in DIRECTORIES:
             target = results.location
-
-            if target == 'compat':
-                for dep in ['ggplot', 'pandas', 'seaborn']:
-                    if not depend_check(dep): sys.exit(1)
 
             test_dir = DIRECTORIES[target]
 

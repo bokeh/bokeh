@@ -22,7 +22,7 @@ def pytest_addoption(parser):
 def bokeh_server(request, log_file):
     bokeh_port = pytest.config.option.bokeh_port
 
-    cmd = ["bin/bokeh", "serve"]
+    cmd = ["python", "-m", "bokeh", "serve"]
     argv = ["--port=%s" % bokeh_port]
     bokeh_server_url = 'http://localhost:%s' % bokeh_port
 

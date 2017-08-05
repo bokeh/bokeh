@@ -1,45 +1,40 @@
-import * as _ from "underscore"
-import * as $ from "jquery"
-import "bootstrap/button"
-
-import * as p from "../../core/properties"
+import {empty, input, label, div} from "core/dom"
+import {uniqueId} from "core/util/string"
+import * as p from "core/properties"
 
 import {Widget, WidgetView} from "./widget"
-import template from "./button_group_template"
-
 
 export class RadioButtonGroupView extends WidgetView
-  events:
-    "change input": "change_input"
-  template: template
 
   initialize: (options) ->
     super(options)
     @render()
-    @listenTo(@model, 'change', @render)
+
+  connect_signals: () ->
+    super()
+    @connect(@model.change, () -> @render())
 
   render: () ->
     super()
 
-    @$el.empty()
-    html = @template()
-    @$el.append(html)
+    empty(@el)
+    divEl = div({class: "bk-bs-btn-group"})
+    @el.appendChild(divEl)
 
-    name = _.uniqueId("RadioButtonGroup")
+    name = uniqueId()
+
     active = @model.active
-    for label, i in @model.labels
-      $input = $('<input type="radio">').attr(name: name, value: "#{i}")
-      if i == active then $input.prop("checked", true)
-      $label = $('<label class="bk-bs-btn"></label>')
-      $label.text(label).prepend($input)
-      $label.addClass("bk-bs-btn-" + @model.button_type)
-      if i == active then $label.addClass("bk-bs-active")
-      @$el.find('.bk-bs-btn-group').append($label)
+    for text, i in @model.labels
+      inputEl = input({type: "radio", name: name, value: "#{i}", checked: i == active})
+      inputEl.addEventListener("change", () => @change_input())
+      labelEl = label({class: ["bk-bs-btn", "bk-bs-btn-#{@model.button_type}"]}, inputEl, text)
+      if i == active then labelEl.classList.add("bk-bs-active")
+      divEl.appendChild(labelEl)
 
     return @
 
   change_input: () ->
-    active = (i for radio, i in @$el.find("input") when radio.checked)
+    active = (i for radio, i in @el.querySelectorAll("input") when radio.checked)
     @model.active = active[0]
     @model.callback?.execute(@model)
 

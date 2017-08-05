@@ -1,7 +1,5 @@
-import * as _ from "underscore"
-
 import {Range} from "./range"
-import * as p from "../../core/properties"
+import * as p from "core/properties"
 
 export class DataRange extends Range
   type: 'DataRange'

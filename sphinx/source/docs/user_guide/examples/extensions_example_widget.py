@@ -89,7 +89,7 @@ callback_single = CustomJS(args=dict(source=source), code="""
         for (i = 0; i < x.length; i++) {
             y[i] = Math.pow(x[i], f)
         }
-        source.trigger('change');
+        source.change.emit();
     """)
 
 
@@ -105,12 +105,13 @@ callback_ion = CustomJS(args=dict(source=source), code="""
             x[i] = delta*i + f[0]
             y[i] = Math.pow(x[i], pow)
         }
-        source.trigger('change');
+        source.change.emit();
     """)
 
 
 slider = Slider(start=0, end=5, step=0.1, value=1, title="Bokeh Slider - Power", callback=callback_single)
-ion_range_slider = IonRangeSlider(start=0.01, end=0.99, step=0.01, range=(min(x), max(x)), title='Ion Range Slider - Range', callback=callback_ion, callback_policy='continuous')
+ion_range_slider = IonRangeSlider(start=0.01, end=0.99, step=0.01, range=(min(x), max(x)),
+    title='Ion Range Slider - Range', callback=callback_ion, callback_policy='continuous')
 
 layout = column(plot, slider, ion_range_slider)
 show(layout)

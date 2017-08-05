@@ -1,4 +1,3 @@
-import * as _ from "underscore"
 import * as mixins from "./property_mixins"
 import {color2rgba} from "./util/color"
 
@@ -11,7 +10,7 @@ class ContextProperties
     @cache = {}
 
     do_spec = obj.properties[prefix+@do_attr].spec
-    @doit = not _.isNull(do_spec.value)
+    @doit = do_spec.value != null
 
     for attr in @attrs
       @[attr] = obj.properties[prefix+attr]
@@ -19,21 +18,21 @@ class ContextProperties
   warm_cache: (source) ->
     for attr in @attrs
       prop = @obj.properties[@prefix+attr]
-      if not _.isUndefined(prop.spec.value) # TODO (bev) better test?
+      if prop.spec.value != undefined # TODO (bev) better test?
         @cache[attr] = prop.spec.value
       else
         @cache[attr+"_array"] = prop.array(source)
 
   cache_select: (attr, i) ->
     prop = @obj.properties[@prefix+attr]
-    if not _.isUndefined(prop.spec.value) # TODO (bev) better test?
+    if prop.spec.value != undefined # TODO (bev) better test?
       @cache[attr] = prop.spec.value
     else
       @cache[attr] = @cache[attr+"_array"][i]
 
 export class Line extends ContextProperties
 
-  attrs: _.keys(mixins.line())
+  attrs: Object.keys(mixins.line())
   do_attr: "line_color"
 
   set_value: (ctx) ->
@@ -80,7 +79,7 @@ export class Line extends ContextProperties
 
 export class Fill extends ContextProperties
 
-  attrs: _.keys(mixins.fill())
+  attrs: Object.keys(mixins.fill())
   do_attr: "fill_color"
 
   set_value: (ctx) ->
@@ -102,7 +101,7 @@ export class Fill extends ContextProperties
 
 export class Text extends ContextProperties
 
-  attrs: _.keys(mixins.text())
+  attrs: Object.keys(mixins.text())
   do_attr: "text_color"
 
   cache_select: (name, i) ->

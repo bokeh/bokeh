@@ -23,31 +23,49 @@
       }
     </style>
     <body>
-      <h2><a name="top">Examples test report <small>(comparing against {{ diff }})</small></a></h2>
+      <h2><a name="top">Examples test report <small>(comparing against {{ diff_ref }})</small></a></h2>
         <p><strong>Table of contents</strong></p>
+        <p>Image differences</p>
+        <ul>
+        {% for (example, failed, skipped) in entries %}
+            {% if not failed and not skipped and example.images_differ %}
+            <li> <a href="#{{ example.relpath_no_ext }}">{{ example.relpath_no_ext }}</a> </li>
+            {% endif %}
+        {% endfor %}
+        </ul>
         <p>Failures</p>
         <ul>
-        {% for (example, diff, fail, skip, png_url, diff_url, ref_url, images_differ) in entries %}
-            {% if fail %}
-            <li> <a href="#{{ example }}">{{ example }}</a> </li>
+        {% for (example, failed, skipped) in entries %}
+            {% if failed %}
+            <li> <a href="#{{ example.relpath_no_ext }}">{{ example.relpath_no_ext }}</a> </li>
             {% endif %}
         {% endfor %}
         </ul>
         <p>Successes</p>
         <ul>
-        {% for (example, diff, fail, skip, png_url, diff_url, ref_url, images_differ) in entries %}
-            {% if not fail %}
-            <li> <a href="#{{ example }}">{{ example }}</a> </li>
+        {% for (example, failed, skipped) in entries %}
+            {% if not failed and not skipped and not example.images_differ  %}
+            <li> <a href="#{{ example.relpath_no_ext }}">{{ example.relpath_no_ext }}</a> </li>
             {% endif %}
         {% endfor %}
         </ul>
-        <h3>Results</h3>
-          {% for (example, diff, fail, skip, png_url, diff_url, ref_url, images_differ) in entries %}
-          <h5><a name="{{ example }}">{{ example }}</a>
+        <p>Skipped</p>
+        <ul>
+        {% for (example, failed, skipped) in entries %}
+            {% if skipped %}
+            <li> <a href="#{{ example.relpath_no_ext }}">{{ example.relpath_no_ext }}</a> </li>
+            {% endif %}
+        {% endfor %}
+        </ul>
+        <h3>Results (current, diff, reference)</h3>
+          {% for (example, failed, skipped) in entries %}
+          <h5>
+            <a name="{{ example.relpath_no_ext }}">{{ example.relpath_no_ext }}</a>
+            <a href="#{{ example.relpath_no_ext }}">(link)</a>
             <span class="header">
-                [{% if fail %}
+                [{% if failed %}
                 <span class="fail">example failed to run</span>
-                {% elif skip %}
+                {% elif skipped %}
                 <span class="skip">example skipped</span>
                 {% else %}
                 <span class="ok">example ran</span>
@@ -56,15 +74,21 @@
             <a href="#top">Top</a>
           </h5>
             <div>
-              {% if not skip %}
-                <a href="{{ png_url }}"><img class="thumbnail" src="{{ png_url }}"></img></a>
-                {% if diff %}
-                  {% if images_differ %}
-                  <a href="{{ diff_url }}"><img class="thumbnail" src="{{ diff_url }}"></img></a>
+              {% if not skipped and not example.no_js %}
+                <a href="{{ example.img_path_or_url }}"><img class="thumbnail" src="{{ example.img_path_or_url }}"></img></a>
+                {% if not example.no_diff %}
+                  {% if example.dimensions_differ %}
+                  <div class="thumbnail">Dimensions differ</div>
+                  {% elif example.images_differ %}
+                  <a href="{{ example.diff_path_or_url }}"><img class="thumbnail" src="{{ example.diff_path_or_url }}"></img></a>
                   {% else %}
                   <div class="thumbnail">No diff</div>
                   {% endif %}
-                  <a href="{{ ref_url }}"><img class="thumbnail" src="{{ ref_url }}"></img></a>
+                  {% if example.has_ref %}
+                  <a href="{{ example.ref_path_or_url }}"><img class="thumbnail" src="{{ example.ref_path_or_url }}"></img></a>
+                  {% else %}
+                  <div class="thumbnail">No ref</div>
+                  {% endif %}
                 {% endif %}
               {% endif %}
             </div>

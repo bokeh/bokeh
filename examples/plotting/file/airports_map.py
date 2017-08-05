@@ -26,12 +26,18 @@ def plot(tile_source, filename):
     p.add_tile(tile_source)
 
     # create point glyphs
-    p.circle(x='x', y='y', size=9, fill_color="#60ACA1", line_color="#D2C4C1", line_width=1.5, source=points_source)
+    p.circle(x='x', y='y', size=9, fill_color="#F46B42", line_color="#D2C4C1", line_width=1.5, source=points_source)
     return p
 
 # create a tile source
 tile_options = {}
-tile_options['url'] = 'http://otile2.mqcdn.com/tiles/1.0.0/sat/{Z}/{X}/{Y}.png'
+tile_options['url'] = 'http://tile.stamen.com/terrain/{Z}/{X}/{Y}.png'
+tile_options['attribution'] = """
+    Map tiles by <a href="http://stamen.com">Stamen Design</a>, under
+    <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>.
+    Data by <a href="http://openstreetmap.org">OpenStreetMap</a>,
+    under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.
+    """
 mq_tile_source = WMTSTileSource(**tile_options)
 
 carto = plot(CARTODBPOSITRON, 'airports_map_cartodb.html')

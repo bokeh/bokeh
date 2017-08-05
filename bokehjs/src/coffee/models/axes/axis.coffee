@@ -1,12 +1,10 @@
-import * as _ from "underscore"
-
-import {SidePanel} from "../../core/layout/side_panel"
+import {SidePanel} from "core/layout/side_panel"
 import {GuideRenderer} from "../renderers/guide_renderer"
 import {RendererView} from "../renderers/renderer"
 
-import {GE} from "../../core/layout/solver"
-import {logger} from "../../core/logging"
-import * as p from "../../core/properties"
+import {logger} from "core/logging"
+import * as p from "core/properties"
+import {isString, isArray} from "core/util/types"
 
 export class AxisView extends RendererView
   initialize: (options) ->
@@ -27,8 +25,9 @@ export class AxisView extends RendererView
     @_draw_axis_label(ctx)
     ctx.restore()
 
-  bind_bokeh_events: () ->
-    @listenTo(@model, 'change', @plot_view.request_render)
+  connect_signals: () ->
+    super()
+    @connect(@model.change, () => @plot_view.request_render())
 
   _get_size: () ->
     return @_tick_extent() + @_tick_label_extent() + @_axis_label_extent()
@@ -91,12 +90,13 @@ export class AxisView extends RendererView
     dim = @model.dimension
     side = @model.panel_side
     orient = @model.major_label_orientation
-    if _.isString(orient)
+    if isString(orient)
       angle = @model.panel.get_label_angle_heuristic(orient)
     else
       angle = -orient
     standoff = @_tick_extent() + @model.major_label_standoff
-    labels = @model.formatter.doFormat(coords.major[dim])
+
+    labels = @model.compute_labels(coords.major[dim])
 
     @visuals.major_label_text.set_value(ctx)
     @model.panel.apply_label_text_heuristics(ctx, orient)
@@ -153,10 +153,11 @@ export class AxisView extends RendererView
     coords = @model.tick_coords.major
     side = @model.panel_side
     orient = @model.major_label_orientation
-    labels = @model.formatter.doFormat(coords[dim])
+    labels = @model.compute_labels(coords[dim])
+
     @visuals.major_label_text.set_value(ctx)
 
-    if _.isString(orient)
+    if isString(orient)
       hscale = 1
       angle = @model.panel.get_label_angle_heuristic(orient)
     else
@@ -220,19 +221,20 @@ export class Axis extends GuideRenderer
   ]
 
   @define {
-      bounds:         [ p.Any,      'auto'    ] # TODO (bev)
-      ticker:         [ p.Instance, null      ]
-      formatter:      [ p.Instance, null      ]
-      x_range_name:   [ p.String,   'default' ]
-      y_range_name:   [ p.String,   'default' ]
-      axis_label:     [ p.String,   ''        ]
-      axis_label_standoff:     [ p.Int,         5 ]
-      major_label_standoff:    [ p.Int,         5 ]
-      major_label_orientation: [ p.Any, "horizontal" ] # TODO: p.Orientation | p.Number
-      major_tick_in:  [ p.Number,   2         ]
-      major_tick_out: [ p.Number,   6         ]
-      minor_tick_in:  [ p.Number,   0         ]
-      minor_tick_out: [ p.Number,   4         ]
+      bounds:                  [ p.Any,      'auto'       ] # TODO (bev)
+      ticker:                  [ p.Instance, null         ]
+      formatter:               [ p.Instance, null         ]
+      x_range_name:            [ p.String,   'default'    ]
+      y_range_name:            [ p.String,   'default'    ]
+      axis_label:              [ p.String,   ''           ]
+      axis_label_standoff:     [ p.Int,      5            ]
+      major_label_standoff:    [ p.Int,      5            ]
+      major_label_orientation: [ p.Any,      "horizontal" ] # TODO: p.Orientation | p.Number
+      major_label_overrides:   [ p.Any,      {}           ]
+      major_tick_in:           [ p.Number,   2            ]
+      major_tick_out:          [ p.Number,   6            ]
+      minor_tick_in:           [ p.Number,   0            ]
+      minor_tick_out:          [ p.Number,   4            ]
   }
 
   @override {
@@ -253,21 +255,22 @@ export class Axis extends GuideRenderer
     panel_side: [ p.Any ]
   }
 
-  initialize: (attrs, options)->
-    super(attrs, options)
-
-    @define_computed_property('computed_bounds', @_computed_bounds, false)
-    @add_dependencies('computed_bounds', this, ['bounds'])
-    @add_dependencies('computed_bounds', @plot, ['x_range', 'y_range'])
+  compute_labels: (ticks) ->
+    labels = @formatter.doFormat(ticks, @)
+    for i in [0...ticks.length]
+      if ticks[i] of @major_label_overrides
+        labels[i] = @major_label_overrides[ticks[i]]
+    return labels
 
   @getters {
-    computed_bounds: () -> @_get_computed('computed_bounds')
+    computed_bounds: () -> @_computed_bounds()
     rule_coords: () -> @_rule_coords()
     tick_coords: () -> @_tick_coords()
     ranges: () -> @_ranges()
     normals: () -> @panel._normals
     dimension: () -> @panel._dim
     offsets: () -> @_offsets()
+    loc: () ->@_get_loc()
   }
 
   add_panel: (side) ->
@@ -282,13 +285,13 @@ export class Axis extends GuideRenderer
 
     switch side
       when "below"
-        yoff = Math.abs(@panel.top - frame.bottom)
+        yoff = Math.abs(@panel._top.value - frame._bottom.value)
       when "above"
-        yoff = Math.abs(@panel.bottom - frame.top)
+        yoff = Math.abs(@panel._bottom.value - frame._top.value)
       when "right"
-        xoff = Math.abs(@panel.left - frame.right)
+        xoff = Math.abs(@panel._left.value - frame._right.value)
       when "left"
-        xoff = Math.abs(@panel.right - frame.left)
+        xoff = Math.abs(@panel._right.value - frame._left.value)
 
     return [xoff, yoff]
 
@@ -311,7 +314,7 @@ export class Axis extends GuideRenderer
     if user_bounds == 'auto'
       return range_bounds
 
-    if _.isArray(user_bounds)
+    if isArray(user_bounds)
       if Math.abs(user_bounds[0]-user_bounds[1]) >
                   Math.abs(range_bounds[0]-range_bounds[1])
         start = Math.max(Math.min(user_bounds[0], user_bounds[1]),
@@ -336,15 +339,13 @@ export class Axis extends GuideRenderer
     ys = new Array(2)
     coords = [xs, ys]
 
-    loc = @_get_loc(cross_range)
-
     coords[i][0] = Math.max(start, range.min)
     coords[i][1] = Math.min(end, range.max)
     if coords[i][0] > coords[i][1]
       coords[i][0] = coords[i][1] = NaN
 
-    coords[j][0] = loc
-    coords[j][1] = loc
+    coords[j][0] = @loc
+    coords[j][1] = @loc
 
     return coords
 
@@ -354,11 +355,9 @@ export class Axis extends GuideRenderer
     [range, cross_range] = @ranges
     [start, end] = @computed_bounds
 
-    ticks = @ticker.get_ticks(start, end, range, {})
+    ticks = @ticker.get_ticks(start, end, range, @loc, {})
     majors = ticks.major
     minors = ticks.minor
-
-    loc = @_get_loc(cross_range)
 
     xs = []
     ys = []
@@ -371,7 +370,7 @@ export class Axis extends GuideRenderer
     if range.type == "FactorRange"
       for ii in [0...majors.length]
         coords[i].push(majors[ii])
-        coords[j].push(loc)
+        coords[j].push(@loc)
     else
       [range_min, range_max] = [range.min, range.max]
 
@@ -379,20 +378,21 @@ export class Axis extends GuideRenderer
         if majors[ii] < range_min or majors[ii] > range_max
           continue
         coords[i].push(majors[ii])
-        coords[j].push(loc)
+        coords[j].push(@loc)
 
       for ii in [0...minors.length]
         if minors[ii] < range_min or minors[ii] > range_max
           continue
         minor_coords[i].push(minors[ii])
-        minor_coords[j].push(loc)
+        minor_coords[j].push(@loc)
 
     return {
       "major": coords,
       "minor": minor_coords
     }
 
-  _get_loc: (cross_range) ->
+  _get_loc: () ->
+    [range, cross_range] = @ranges
     cstart = cross_range.start
     cend = cross_range.end
     side = @panel_side

@@ -32,22 +32,19 @@ operations.
 
 .. note::
     This is a fairly low-level, explicit way to generate an HTML file.
-    When using the |bokeh.plotting| or |bokeh.charts| interfaces, users will
-    typically call the function |output_file| in conjunction with |show| or
-    |save| instead.
+    When using the |bokeh.plotting| interface, users will typically call
+    the function |output_file| in conjunction with |show| or |save| instead.
 
-You can also provide your own template and pass in custom, or additional, template variables.
-See the |file_html| function for more details. You can see an example of this
-in the `gapminder example plot`_.
-
-.. _gapminder example plot: https://github.com/bokeh/bokeh/blob/master/examples/howto/interactive_bubble/gapminder.py
+You can also provide your own template and pass in custom, or additional,
+template variables. See the |file_html| function for more details.
 
 .. _userguide_embed_components:
 
 Components
 ----------
 
-It is also possible to ask Bokeh to return the individual components for a
+For standalone Bokeh documents (i.e. not served by a Bokeh server), it
+is also possible to ask Bokeh to return the individual components for a
 inline embedding using the |components| function. This function returns a
 ``<script>`` that contains the data for your plot, together with an
 accompanying ``<div>`` tag that the plot view is loaded into. These tags
@@ -68,33 +65,34 @@ The returned ``<script>`` will look something like:
 .. code-block:: html
 
     <script type="text/javascript">
-        $(function() {
-            var modelid = "fba97329-a355-499e-9252-0adc64b19d2e";
-            var modeltype = "Plot";
-            var elementid = "8ed68feb-d258-4953-9dfb-fb1c13326509";
-            Bokeh.logger.info("Realizing plot:")
-            Bokeh.logger.info(" - modeltype: Plot");
-            Bokeh.logger.info(" - modelid: fba97329-a355-499e-9252-0adc64b19d2e");
-            Bokeh.logger.info(" - elementid: 8ed68feb-d258-4953-9dfb-fb1c13326509");
+        (function() {
+      var fn = function() {
+        Bokeh.safely(function() {
+          var docs_json = { DOCUMENT DATA HERE };
+          var render_items = [{
+            "docid":"6833819f-9b5b-4904-821e-3f5eec77de9b",
+            "elementid":"9574d123-9332-4b5f-96cc-6323bef37f40",
+            "modelid":"7b328b27-9b14-4f7b-a5d8-0138bc7b0f59"
+          }];
 
-            var all_models = [ JSON PLOT MODELS AND DATA ARE HERE ];
-
-            Bokeh.load_models(all_models);
-            var model = Bokeh.Collections(modeltype).get(modelid);
-            var view = new model.default_view({
-                model: model, el: '#8ed68feb-d258-4953-9dfb-fb1c13326509'
-            });
-            Bokeh.index[modelid] = view
+          Bokeh.embed.embed_items(docs_json, render_items);
         });
+      };
+      if (document.readyState != "loading") fn();
+      else document.addEventListener("DOMContentLoaded", fn);
+    })();
+
     </script>
 
-All of the data and plot objects are contained in the ``all_models`` variable
-(contents omitted here for brevity). The resulting ``<div>`` will look
-something like:
+All of the data and plot or widget objects are contained in the ``docs_json``
+variable (contents omitted here for brevity). The resulting ``<div>`` will
+look something like:
 
 .. code-block:: html
 
-    <div class="bk-plotdiv" id="8ed68feb-d258-4953-9dfb-fb1c13326509"></div>
+    <div class="bk-root">
+        <div class="bk-plotdiv" id="9574d123-9332-4b5f-96cc-6323bef37f40"></div>
+    </div>
 
 These two elements can be inserted or templated into your HTML text, and the
 script, when executed, will replace the div with the plot.
@@ -118,19 +116,19 @@ appropriate version replacing ``x.y.z``:
 
 The ``"-widgets"`` files are only necessary if your document includes Bokeh widgets.
 
-For example, to use version ``0.12.0``, including widgets support:
+For example, to use version ``0.12.6``, including widgets support:
 
 .. code-block:: html
 
     <link
-        href="http://cdn.pydata.org/bokeh/release/bokeh-0.12.0.min.css"
+        href="http://cdn.pydata.org/bokeh/release/bokeh-0.12.6.min.css"
         rel="stylesheet" type="text/css">
     <link
-        href="http://cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.0.min.css"
+        href="http://cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.6.min.css"
         rel="stylesheet" type="text/css">
 
-    <script src="http://cdn.pydata.org/bokeh/release/bokeh-0.12.0.min.js"></script>
-    <script src="http://cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.0.min.js"></script>
+    <script src="http://cdn.pydata.org/bokeh/release/bokeh-0.12.6.min.js"></script>
+    <script src="http://cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.6.min.js"></script>
 
 .. note::
     You must provide the closing `</script>` tag. This is required by all
@@ -210,22 +208,28 @@ Running ``python scatter.py`` will print out:
 
     script type="text/javascript">
         var docs_json = { DOCUMENT DATA HERE }
-        var render_items = [
-          {"docid":"33961aa6-fd96-4055-886f-b2afec7ff193",
-           "elementid":"e89297cf-a2dc-4edd-8993-e16f0ca6af04",
-           "modelid":"4eff3fdb-80f4-4b4c-a592-f99911e14398"},
-          {"docid":"33961aa6-fd96-4055-886f-b2afec7ff193",
-           "elementid":"eeb9a417-02a1-47e3-ab82-221abe8a1644",
-           "modelid":"0e5ccbaf-62af-42cc-98de-7c597d83747a"},
-          {"docid":"33961aa6-fd96-4055-886f-b2afec7ff193",
-           "elementid":"c311f123-368f-43ba-88b6-4e3ecd9aed94",
-           "modelid":"57f18497-9598-4c70-a251-6072baf223ff"}
-        ];
+        var render_items = [{
+          "docid":"33961aa6-fd96-4055-886f-b2afec7ff193",
+          "elementid":"e89297cf-a2dc-4edd-8993-e16f0ca6af04",
+          "modelid":"4eff3fdb-80f4-4b4c-a592-f99911e14398"
+        },{
+          "docid":"33961aa6-fd96-4055-886f-b2afec7ff193",
+          "elementid":"eeb9a417-02a1-47e3-ab82-221abe8a1644",
+          "modelid":"0e5ccbaf-62af-42cc-98de-7c597d83747a"
+        },{
+          "docid":"33961aa6-fd96-4055-886f-b2afec7ff193",
+          "elementid":"c311f123-368f-43ba-88b6-4e3ecd9aed94",
+          "modelid":"57f18497-9598-4c70-a251-6072baf223ff"
+        }];
 
         Bokeh.embed.embed_items(docs_json, render_items);
     </script>
 
-        {'Green': '\n<div class="bk-root">\n    <div class="bk-plotdiv" id="e89297cf-a2dc-4edd-8993-e16f0ca6af04"></div>\n</div>', 'Blue': '\n<div class="bk-root">\n    <div class="bk-plotdiv" id="eeb9a417-02a1-47e3-ab82-221abe8a1644"></div>\n</div>', 'Red': '\n<div class="bk-root">\n    <div class="bk-plotdiv" id="c311f123-368f-43ba-88b6-4e3ecd9aed94"></div>\n</div>'}
+        {
+            'Green': '\n<div class="bk-root">\n    <div class="bk-plotdiv" id="e89297cf-a2dc-4edd-8993-e16f0ca6af04"></div>\n</div>',
+            'Blue': '\n<div class="bk-root">\n    <div class="bk-plotdiv" id="eeb9a417-02a1-47e3-ab82-221abe8a1644"></div>\n</div>',
+            'Red': '\n<div class="bk-root">\n    <div class="bk-plotdiv" id="c311f123-368f-43ba-88b6-4e3ecd9aed94"></div>\n</div>'
+        }
 
 Then inserting the script and div elements into this boilerplate:
 
@@ -237,8 +241,8 @@ Then inserting the script and div elements into this boilerplate:
             <meta charset="utf-8">
             <title>Bokeh Scatter Plots</title>
 
-            <link rel="stylesheet" href="http://cdn.pydata.org/bokeh/release/bokeh-0.12.0.min.css" type="text/css" />
-            <script type="text/javascript" src="http://cdn.pydata.org/bokeh/release/bokeh-0.12.0.min.js"></script>
+            <link rel="stylesheet" href="http://cdn.pydata.org/bokeh/release/bokeh-0.12.6.min.css" type="text/css" />
+            <script type="text/javascript" src="http://cdn.pydata.org/bokeh/release/bokeh-0.12.6.min.js"></script>
 
             <!-- COPY/PASTE SCRIPT HERE -->
 
@@ -264,7 +268,7 @@ IPython Notebook
 ----------------
 
 Bokeh can also generate ``<div>`` tags suitable for inline display in the
-IPython notebook using the |notebook_div| function:
+Jupyter notebook using the |notebook_div| function:
 
 .. code-block:: python
 
@@ -280,10 +284,10 @@ The returned div contains the same sort of ``<script>`` and ``<div>`` that
 the |components| function above returns.
 
 .. note::
-    This is a fairly low-level, explicit way to generate an IPython
-    notebook div. When using the |bokeh.plotting| or |bokeh.charts|
-    interfaces, users will typically call the function |output_notebook|
-    in conjunction with |show| instead.
+    This is a fairly low-level, explicit way to generate a Jupyter
+    notebook div. When using the |bokeh.plotting| interface, users will
+    typically call the function |output_notebook| in conjunction with
+    |show| instead.
 
 .. _userguide_embed_autoloading:
 
@@ -315,9 +319,8 @@ with a command like:
 
 .. code-block:: python
 
-    script = autoload_server(model=None,
-                             app_path="/apps/slider",
-                             url="https://demo.bokehplots.com")
+    from bokeh.embed import autoload_server
+    script = autoload_server("https://demo.bokehplots.com/apps/slider")
 
 The resulting ``<script>`` tag that you can use to embed the plot inside
 your HTML document looks like:
@@ -325,8 +328,8 @@ your HTML document looks like:
 .. code-block:: html
 
     <script
-        src="https://demo.bokehplots.com/apps/slider/autoload.js?bokeh-autoload-element=c5c9bdb5-40e8-46a2-9bf0-40a9d396ce97"
-        id="c5c9bdb5-40e8-46a2-9bf0-40a9d396ce97"
+        src="https://demo.bokehplots.com/apps/slider/autoload.js?bokeh-autoload-element=aee6d395-d079-4e02-ae72-8e70e617990d&bokeh-app-path=/apps/slider&bokeh-absolute-url=https://demo.bokehplots.com/apps/slider"
+        id="aee6d395-d079-4e02-ae72-8e70e617990d"
         data-bokeh-model-id=""
         data-bokeh-doc-id=""
     ></script>
@@ -365,7 +368,60 @@ will look something like this:
     data-bokeh-doc-id=""
     ></script>
 
+You can also pass arguments to your Bokeh server by passing them in a dictionary to ``arguments``.
+The following illustrates how to pass and retrieve arguments.
+
+.. code-block:: python
+
+    # An example web server route (Flask)
+    # This will set the 'foo' argument to 'foo_id' and pass it to the Bokeh server
+    @app.route('/slider/<int:foo_id>')
+    def slider(foo_id):
+        bokeh_script = autoload_server(None, url="https://demo.bokehplots.com/apps/slider", arguments=dict(foo=foo_id))
+        return render_template_string(some_html, bokeh_script=bokeh_script)
+
+.. code-block:: python
+
+    # Bokeh server
+    # request.arguments is a dict that maps argument names to lists of strings,
+    args = curdoc().session_context.request.arguments
+
+    try:
+        foo = int(args.get('foo_id')[0])
+    except (ValueError, TypeError):
+        foo = 1
+
+
 For full details read the autoload_server reference here: |autoload_server|.
+
+Alternatively, two other methods allow to embed content from a bokeh server
+in a similar fashion to ``autoload_server`` but with some subtle differences:
+with ``server_document`` a new session will systematically be generated and
+an entire document will be returned; with ``server_session`` an existing session
+id and model must be provided. Another difference from ``autoload_server`` is
+that with those two methods one may choose to not load the JS/CSS resource
+files by passing a ``resources="none"`` parameter.
+
+Here is an example using ``server_document``:
+
+.. code-block:: python
+
+    from bokeh.embed import server_document
+    script = server_document("https://demo.bokehplots.com/apps/slider")
+
+And here is an example using ``server_session``:
+
+.. code-block:: python
+
+    from bokeh.client import push_session
+    from bokeh.embed import server_session
+    from bokeh.plotting import figure, curdoc
+
+    plot = figure()
+    plot.circle([1,2], [3,4])
+
+    session = push_session(curdoc())
+    script = server_session(plot, session_id=session.id)
 
 .. _userguide_embed_autoload_static:
 
@@ -415,7 +471,6 @@ on the server at `"some/path"`, from the document that has the plot embedded.
     In both cases the ``<script>`` tag loads a ``<div>`` in place, so it must
     be placed under ``<head>``.
 
-.. |bokeh.charts|   replace:: :ref:`bokeh.charts <bokeh.charts>`
 .. |bokeh.models|   replace:: :ref:`bokeh.models <bokeh.models>`
 .. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`
 

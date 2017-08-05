@@ -1,4 +1,3 @@
-_ = require "underscore"
 {expect} = require "chai"
 utils = require "../../utils"
 
@@ -13,10 +12,10 @@ describe "LayoutCanvas", ->
 
   it "should get new variables on initialize", ->
     c = new LayoutCanvas()
-    expect(_.has(c, '_top')).to.be.true
-    expect(_.has(c, '_left')).to.be.true
-    expect(_.has(c, '_width')).to.be.true
-    expect(_.has(c, '_height')).to.be.true
+    expect(c).to.have.property('_top')
+    expect(c).to.have.property('_left')
+    expect(c).to.have.property('_width')
+    expect(c).to.have.property('_height')
     expect(c._top).to.be.an.instanceOf(Variable)
     expect(c._left).to.be.an.instanceOf(Variable)
     expect(c._width).to.be.an.instanceOf(Variable)
@@ -30,7 +29,7 @@ describe "LayoutCanvas", ->
     for e in ev
       variables.push(e.edit_variable._name)
       expect(e.strength._strength).to.be.equal Strength.strong._strength
-    expect(_.contains(variables, "top #{c.id}")).to.be.true
-    expect(_.contains(variables, "left #{c.id}")).to.be.true
-    expect(_.contains(variables, "width #{c.id}")).to.be.true
-    expect(_.contains(variables, "height #{c.id}")).to.be.true
+    expect("top #{c.id}"    in variables).to.be.true
+    expect("left #{c.id}"   in variables).to.be.true
+    expect("width #{c.id}"  in variables).to.be.true
+    expect("height #{c.id}" in variables).to.be.true

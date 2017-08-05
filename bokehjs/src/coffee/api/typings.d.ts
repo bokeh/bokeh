@@ -1,15 +1,8 @@
-/// <reference types="@types/es6-promise" />
-/// <reference types="@types/underscore" />
-/// <reference types="@types/jquery" />
-/// <reference types="@types/jquery-mousewheel" />
-/// <reference types="@types/jqueryui" />
 /// <reference types="@types/rbush" />
 /// <reference types="@types/proj4" />
-/// <reference types="@types/sprintf" />
+/// <reference types="@types/sprintf-js" />
 /// <reference types="@types/timezone-js" />
 /// <reference types="@types/hammerjs" />
-
-/// <reference path="../../vendor/kiwi/kiwi.d.ts" />
 
 /// <reference path="./typings/bokeh.d.ts" />
 /// <reference path="./typings/charts.d.ts" />
@@ -40,8 +33,10 @@
 /// <reference path="./typings/models/plots.d.ts" />
 /// <reference path="./typings/models/ranges.d.ts" />
 /// <reference path="./typings/models/renderers.d.ts" />
+/// <reference path="./typings/models/scales.d.ts" />
 /// <reference path="./typings/models/sources.d.ts" />
 /// <reference path="./typings/models/tickers.d.ts" />
 /// <reference path="./typings/models/tiles.d.ts" />
 /// <reference path="./typings/models/toolbars.d.ts" />
 /// <reference path="./typings/models/tools.d.ts" />
+/// <reference path="./typings/models/transforms.d.ts" />

@@ -12,6 +12,9 @@ import requests
 
 import bokeh.command.subcommands.serve as scserve
 
+from bokeh.resources import DEFAULT_SERVER_PORT
+
+
 
 def test_create():
     import argparse
@@ -37,7 +40,7 @@ def test_args():
             metavar = 'PORT',
             type    = int,
             help    = "Port to listen on",
-            default = None
+            default = DEFAULT_SERVER_PORT
         )),
 
         ('--address', dict(
@@ -91,7 +94,7 @@ def test_args():
             metavar='HOST[:PORT]',
             action='append',
             type=str,
-            help="Public hostnames to allow in requests",
+            help="*** DEPRECATED ***",
         )),
 
         ('--prefix', dict(
@@ -190,6 +193,49 @@ def check_error(args):
         pytest.fail("command %s unexpected successful" % (cmd,))
     return out
 
+def test__fixup_deprecated_host_args():
+    from argparse import Namespace
+
+    args = Namespace(host=None, allow_websocket_origin=None)
+    scserve._fixup_deprecated_host_args(args)
+    assert args.allow_websocket_origin == None
+
+    args = Namespace(host=[], allow_websocket_origin=None)
+    scserve._fixup_deprecated_host_args(args)
+    assert args.allow_websocket_origin == None
+
+    args = Namespace(host=[], allow_websocket_origin=[])
+    scserve._fixup_deprecated_host_args(args)
+    assert set(args.allow_websocket_origin) == set([])
+
+    args = Namespace(host=['*'], allow_websocket_origin=[])
+    scserve._fixup_deprecated_host_args(args)
+    assert set(args.allow_websocket_origin) == set(['*'])
+
+    args = Namespace(host=['*'], allow_websocket_origin=['*'])
+    scserve._fixup_deprecated_host_args(args)
+    assert set(args.allow_websocket_origin) == set(['*'])
+
+    args = Namespace(host=['*'], allow_websocket_origin=['*', 'foo'])
+    scserve._fixup_deprecated_host_args(args)
+    assert set(args.allow_websocket_origin) == set(['*', 'foo'])
+
+    args = Namespace(host=[], allow_websocket_origin=['*'])
+    scserve._fixup_deprecated_host_args(args)
+    assert set(args.allow_websocket_origin) == set(['*'])
+
+    args = Namespace(host=[], allow_websocket_origin=['*', 'foo'])
+    scserve._fixup_deprecated_host_args(args)
+    assert set(args.allow_websocket_origin) == set(['*', 'foo'])
+
+    args = Namespace(host=None, allow_websocket_origin=['*'])
+    scserve._fixup_deprecated_host_args(args)
+    assert set(args.allow_websocket_origin) == set(['*'])
+
+    args = Namespace(host=None, allow_websocket_origin=['*', 'foo'])
+    scserve._fixup_deprecated_host_args(args)
+    assert set(args.allow_websocket_origin) == set(['*', 'foo'])
+
 def test_host_not_available():
     host = "8.8.8.8"
     out = check_error(["--address", host])
@@ -209,7 +255,7 @@ def test_port_not_available():
 
 def test_actual_port_printed_out():
     with run_bokeh_serve(["--port", "0"]) as p:
-        pat = re.compile(r'Starting Bokeh server on port (\d+) with applications at paths')
+        pat = re.compile(r'Bokeh app running at: http://localhost:(\d+)')
         while True:
             line = p.stdout.readline()
             print("child stdout>", line)

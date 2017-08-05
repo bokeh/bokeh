@@ -1,8 +1,6 @@
-import * as _ from "underscore"
-
 import {SelectTool, SelectToolView} from "./select_tool"
 import {BoxAnnotation} from "../../annotations/box_annotation"
-import * as p from "../../../core/properties"
+import * as p from "core/properties"
 
 export class BoxSelectToolView extends SelectToolView
 
@@ -28,7 +26,7 @@ export class BoxSelectToolView extends SelectToolView
 
     if @model.select_every_mousemove
       append = e.srcEvent.shiftKey ? false
-      @_select(vxlim, vylim, false, append)
+      @_do_select(vxlim, vylim, false, append)
 
     return null
 
@@ -43,7 +41,7 @@ export class BoxSelectToolView extends SelectToolView
 
     [vxlim, vylim] = @model._get_dim_limits(@_baseboint, curpoint, frame, dims)
     append = e.srcEvent.shiftKey ? false
-    @_select(vxlim, vylim, true, append)
+    @_do_select(vxlim, vylim, true, append)
 
     @model.overlay.update({left: null, right: null, top: null, bottom: null})
 
@@ -53,7 +51,7 @@ export class BoxSelectToolView extends SelectToolView
 
     return null
 
-  _select: ([vx0, vx1], [vy0, vy1], final, append=false) ->
+  _do_select: ([vx0, vx1], [vy0, vy1], final, append=false) ->
     geometry = {
       type: 'rect'
       vx0: vx0
@@ -61,21 +59,10 @@ export class BoxSelectToolView extends SelectToolView
       vy0: vy0
       vy1: vy1
     }
-
-    for r in @model.computed_renderers
-      ds = r.data_source
-      sm = ds.selection_manager
-      sm.select(@, @plot_view.renderer_views[r.id], geometry, final, append)
-
-    if @model.callback?
-      @_emit_callback(geometry)
-
-    @_save_geometry(geometry, final, append)
-
-    return null
+    @_select(geometry, final, append)
 
   _emit_callback: (geometry) ->
-    r = @model.computed_renderers[0]
+    r = @computed_renderers[0]
     canvas = @plot_model.canvas
     frame = @plot_model.frame
 
@@ -84,12 +71,12 @@ export class BoxSelectToolView extends SelectToolView
     geometry['sy0'] = canvas.vy_to_sy(geometry.vy0)
     geometry['sy1'] = canvas.vy_to_sy(geometry.vy1)
 
-    xmapper = frame.x_mappers[r.x_range_name]
-    ymapper = frame.y_mappers[r.y_range_name]
-    geometry['x0'] = xmapper.map_from_target(geometry.vx0)
-    geometry['x1'] = xmapper.map_from_target(geometry.vx1)
-    geometry['y0'] = ymapper.map_from_target(geometry.vy0)
-    geometry['y1'] = ymapper.map_from_target(geometry.vy1)
+    xscale = frame.xscales[r.x_range_name]
+    yscale = frame.yscales[r.y_range_name]
+    geometry['x0'] = xscale.invert(geometry.vx0)
+    geometry['x1'] = xscale.invert(geometry.vx1)
+    geometry['y0'] = yscale.invert(geometry.vy0)
+    geometry['y1'] = yscale.invert(geometry.vy1)
 
     @model.callback.execute(@model, {geometry: geometry})
 
@@ -102,12 +89,12 @@ DEFAULT_BOX_OVERLAY = () -> new BoxAnnotation({
   left_units: "screen"
   bottom_units: "screen"
   right_units: "screen"
-  fill_color: "lightgrey"
-  fill_alpha: 0.5
-  line_color: "black"
-  line_alpha: 1.0
-  line_width: 2
-  line_dash: [4, 4]
+  fill_color: {value: "lightgrey"}
+  fill_alpha: {value: 0.5}
+  line_color: {value: "black"}
+  line_alpha: {value: 1.0}
+  line_width: {value: 2}
+  line_dash: {value: [4, 4]}
 })
 
 export class BoxSelectTool extends SelectTool

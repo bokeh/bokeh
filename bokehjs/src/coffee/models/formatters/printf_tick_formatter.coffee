@@ -1,17 +1,16 @@
-import * as _ from "underscore"
-import * as SPrintf from "sprintf"
+import {sprintf} from "sprintf-js"
 
 import {TickFormatter} from "./tick_formatter"
-import * as p from "../../core/properties"
+import * as p from "core/properties"
 
 export class PrintfTickFormatter extends TickFormatter
   type: 'PrintfTickFormatter'
 
   @define {
-      format: [ p.String, '%s' ]
-    }
+    format: [ p.String, '%s' ]
+  }
 
-  doFormat: (ticks) ->
+  doFormat: (ticks, axis) ->
     format = @format
-    labels = ( SPrintf.sprintf(format, tick) for tick in ticks )
+    labels = ( sprintf(format, tick) for tick in ticks )
     return labels

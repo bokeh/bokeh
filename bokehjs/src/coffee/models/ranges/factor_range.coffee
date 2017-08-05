@@ -1,7 +1,5 @@
-import * as _ from "underscore"
-
 import {Range} from "./range"
-import * as p from "../../core/properties"
+import * as p from "core/properties"
 
 export class FactorRange extends Range
   type: 'FactorRange'
@@ -31,8 +29,8 @@ export class FactorRange extends Range
       @setv({_bounds_as_factors: @factors}, {silent: true})
 
     @_init()
-    @listenTo(@, 'change:factors', @_update_factors)
-    @listenTo(@, 'change:offset', @_init)
+    @connect(@properties.factors.change, () -> @_update_factors())
+    @connect(@properties.offset.change, () -> @_init())
 
   @getters {
     min: () -> @start
@@ -41,7 +39,7 @@ export class FactorRange extends Range
 
   reset: () ->
     @_init()
-    @trigger('change')
+    @change.emit()
 
   _update_factors: () ->
     # Factors have been changed, need to update the factored version of the bounds

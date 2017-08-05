@@ -1,28 +1,27 @@
-import * as _ from "underscore"
-import * as rbush from "rbush"
-
-import * as hittest from "../../core/hittest"
+import {RBush} from "core/util/spatial"
+import * as hittest from "core/hittest"
+import {min, max} from "core/util/array"
+import {isStrictNaN} from "core/util/types"
 import {Glyph, GlyphView} from "./glyph"
 
 export class MultiLineView extends GlyphView
 
   _index_data: () ->
-    index = rbush()
-    pts = []
+    points = []
     for i in [0...@_xs.length]
-      xs = (x for x in @_xs[i] when not _.isNaN(x))
-      ys = (y for y in @_ys[i] when not _.isNaN(y))
-      if xs.length == 0
+      if @_xs[i] == null or @_xs[i].length == 0
         continue
-      pts.push({
-        minX: _.min(xs),
-        minY: _.min(ys),
-        maxX: _.max(xs),
-        maxY: _.max(ys),
+      xs = (x for x in @_xs[i] when not isStrictNaN(x))
+      ys = (y for y in @_ys[i] when not isStrictNaN(y))
+      points.push({
+        minX: min(xs),
+        minY: min(ys),
+        maxX: max(xs),
+        maxY: max(ys),
         i: i
       })
-    index.load(pts)
-    return index
+
+    return new RBush(points)
 
   _render: (ctx, indices, {sxs, sys}) ->
     for i in indices
@@ -48,10 +47,10 @@ export class MultiLineView extends GlyphView
       x: this.renderer.plot_view.canvas.vx_to_sx(geometry.vx)
       y: this.renderer.plot_view.canvas.vy_to_sy(geometry.vy)
     shortest = 9999
-    threshold = Math.max(2, @visuals.line.line_width.value() / 2)
 
     hits = {}
     for i in [0...@sxs.length]
+      threshold = Math.max(2, @visuals.line.cache_select('line_width', i) / 2)
       points = null
       for j in [0...@sxs[i].length-1]
         [p0, p1] = [{x: @sxs[i][j], y: @sys[i][j]}, {x: @sxs[i][j+1], y: @sys[i][j+1]}]
@@ -62,8 +61,8 @@ export class MultiLineView extends GlyphView
       if points
         hits[i] = points
 
-    result['1d'].indices = _.keys(hits)
-    result['2d'] = hits
+    result['1d'].indices = (parseInt(i) for i in Object.keys(hits))
+    result['2d'].indices = hits
 
     return result
 
@@ -72,10 +71,10 @@ export class MultiLineView extends GlyphView
     result = hittest.create_hit_test_result()
 
     if geometry.direction == 'v'
-      val = @renderer.ymapper.map_from_target(vy)
+      val = @renderer.yscale.invert(vy)
       values = @_ys
     else
-      val = @renderer.xmapper.map_from_target(vx)
+      val = @renderer.xscale.invert(vx)
       values = @_xs
 
     hits = {}
@@ -87,8 +86,8 @@ export class MultiLineView extends GlyphView
       if points.length > 0
         hits[i] = points
 
-    result['1d'].indices = _.keys(hits)
-    result['2d'] = hits
+    result['1d'].indices = (parseInt(i) for i in Object.keys(hits))
+    result['2d'].indices = hits
 
     return result
 
@@ -97,14 +96,14 @@ export class MultiLineView extends GlyphView
     [x2, y2, x3, y3] = [@_xs[i][point_i], @_ys[i][point_i], @_xs[i][point_i+1], @_ys[i][point_i+1]]
 
     if geometry.type == 'point'
-      [y0, y1] = @renderer.ymapper.v_map_from_target([vy-1, vy+1])
-      [x0, x1] = @renderer.xmapper.v_map_from_target([vx-1, vx+1])
+      [y0, y1] = @renderer.yscale.v_invert([vy-1, vy+1])
+      [x0, x1] = @renderer.xscale.v_invert([vx-1, vx+1])
     else
       if geometry.direction == 'v'
-        [y0, y1] = @renderer.ymapper.v_map_from_target([vy, vy])
+        [y0, y1] = @renderer.yscale.v_invert([vy, vy])
         [x0, x1] = [x2, x3]
       else
-        [x0, x1] = @renderer.xmapper.v_map_from_target([vx, vx])
+        [x0, x1] = @renderer.xscale.v_invert([vx, vx])
         [y0, y1] = [y2, y3]
 
     res = hittest.check_2_segments_intersect(x0, y0, x1, y1, x2, y2, x3, y3)

@@ -1,6 +1,4 @@
-import * as _ from "underscore"
 import {HasProps} from "./has_props"
-import {logger} from "./logging"
 import {Selector} from "./selector"
 import * as hittest from "./hittest"
 import * as p from "./properties"
@@ -14,79 +12,25 @@ export class SelectionManager extends HasProps
 
   initialize: (attrs, options) ->
     super(attrs, options)
-    @selectors = {}
+    @selector = new Selector()
     @inspectors = {}
-    @last_inspection_was_empty = {}
 
-  select: (tool, renderer_view, geometry, final, append=false) ->
-    source = @source
-    if source != renderer_view.model.data_source
-      logger.warn('select called with mis-matched data sources')
+  select: (renderer_views, geometry, final, append=false) ->
+    did_hit = false
+    for r in renderer_views
+      did_hit ||= r.hit_test(geometry, final, append)
+    return did_hit
 
-    indices = renderer_view.hit_test(geometry)
-
-    if indices?
-      selector = @_get_selector(renderer_view)
-      selector.update(indices, final, append)
-
-      @source.selected = selector.indices
-
-      source.trigger('select')
-      source.trigger('select-' + renderer_view.model.id)
-
-      return not indices.is_empty()
-    else
-      return false
-
-  inspect: (tool, renderer_view, geometry, data) ->
-    source = @source
-    if source != renderer_view.model.data_source
-      logger.warn('inspect called with mis-matched data sources')
-
-    indices = renderer_view.hit_test(geometry)
-
-    if indices?
-      r_id = renderer_view.model.id
-
-      if indices.is_empty()
-        if not @last_inspection_was_empty[r_id]?
-          @last_inspection_was_empty[r_id] = false
-        if @last_inspection_was_empty[r_id]
-          return
-        else
-          @last_inspection_was_empty[r_id] = true
-      else
-        @last_inspection_was_empty[r_id] = false
-
-      inspector = @_get_inspector(renderer_view)
-      inspector.update(indices, true, false, true)
-
-      @source.setv({inspected: inspector.indices}, {"silent": true })
-
-      source.trigger(
-        'inspect', indices, tool, renderer_view, source, data
-      )
-      source.trigger(
-        "inspect#{renderer_view.model.id}", indices, tool, renderer_view,
-        source, data
-      )
-      return not indices.is_empty()
-    else
-      return false
+  inspect: (renderer_view, geometry) ->
+    did_hit = false
+    did_hit ||= renderer_view.hit_test(geometry, false, false, "inspect")
+    return did_hit
 
   clear: (rview) ->
-    if rview?
-      selector = @_get_selector(rview)
-      selector.clear()
-    else
-      for k, s of @selectors
-        s.clear()
+    @selector.clear()
     @source.selected = hittest.create_hit_test_result()
 
-  _get_selector: (rview) ->
-    _.setdefault(@selectors, rview.model.id, new Selector())
-    return @selectors[rview.model.id]
-
-  _get_inspector: (rview) ->
-    _.setdefault(@inspectors, rview.model.id, new Selector())
-    return @inspectors[rview.model.id]
+  get_or_create_inspector: (rmodel) ->
+    if not @inspectors[rmodel.id]?
+      @inspectors[rmodel.id] = new Selector()
+    return @inspectors[rmodel.id]

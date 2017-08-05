@@ -1,16 +1,11 @@
-import * as _ from "underscore"
+import {XYGlyph, XYGlyphView} from "./xy_glyph"
+import * as p from "core/properties"
 
-import {Glyph, GlyphView} from "./glyph"
-import * as p from "../../core/properties"
-
-export class ArcView extends GlyphView
-
-  _index_data: () ->
-    @_xy_index()
+export class ArcView extends XYGlyphView
 
   _map_data: () ->
     if @model.properties.radius.units == "data"
-      @sradius = @sdist(@renderer.xmapper, @_x, @_radius)
+      @sradius = @sdist(@renderer.xscale, @_x, @_radius)
     else
       @sradius = @_radius
 
@@ -30,12 +25,11 @@ export class ArcView extends GlyphView
   draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
     @_generic_line_legend(ctx, x0, x1, y0, y1, index)
 
-export class Arc extends Glyph
+export class Arc extends XYGlyph
   default_view: ArcView
 
   type: 'Arc'
 
-  @coords [['x', 'y']]
   @mixins ['line']
   @define {
       direction:   [ p.Direction,   'anticlock' ]

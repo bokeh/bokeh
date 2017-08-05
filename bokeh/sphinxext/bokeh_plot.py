@@ -9,6 +9,10 @@ The ``bokeh-plot`` directive can be used by either supplying:
 
     .. bokeh-plot:: path/to/plot.py
 
+.. note::
+    .py scripts are not scanned automatically! In order to include
+    certain directories into .py scanning process use following directive
+    in sphinx conf.py file: bokeh_plot_pyfile_include_dirs = ["dir1","dir2"]
 
 **Inline code** as the content of the directive::
 
@@ -36,7 +40,7 @@ source-position : enum('above', 'below', 'none')
     Where to locate the the block of formatted source
     code (if anywhere).
 
-linenos : bool
+linenos : flag
     Whether to display line numbers along with the source.
 
 Examples
@@ -70,7 +74,7 @@ import re
 
 from docutils import nodes
 from docutils.parsers.rst import Directive, Parser
-from docutils.parsers.rst.directives import choice
+from docutils.parsers.rst.directives import choice, flag
 
 from sphinx.errors import SphinxError
 from sphinx.util import console, copyfile, ensuredir
@@ -182,6 +186,7 @@ class BokehPlotDirective(Directive):
 
     option_spec = {
         'source-position': lambda x: choice(x, ('below', 'above', 'none')),
+        'linenos': lambda x: True if flag(x) is None else False,
     }
 
     def run(self):
@@ -232,7 +237,8 @@ class BokehPlotDirective(Directive):
         target = nodes.target('', '', ids=[target_id])
         result = [target]
 
-        code = nodes.literal_block(source, source, language="python", linenos=False, classes=[])
+        linenos = self.options.get('linenos', False)
+        code = nodes.literal_block(source, source, language="python", linenos=linenos, classes=[])
         set_source_info(self, code)
 
         source_position = self.options.get('source-position', 'below')
@@ -247,6 +253,10 @@ class BokehPlotDirective(Directive):
 
 def env_before_read_docs(app, env, docnames):
     docnames.sort(key=lambda x: 2 if "extension" in x else 0 if "examples" in x else 1)
+    for name in [x for x in docnames if env.doc2path(x).endswith(".py")]:
+        if not name.startswith(tuple(env.app.config.bokeh_plot_pyfile_include_dirs)):
+            env.found_docs.remove(name)
+            docnames.remove(name)
 
 def builder_inited(app):
     app.env.bokeh_plot_auxdir = join(app.env.doctreedir, 'bokeh_plot')
@@ -291,6 +301,9 @@ def env_purge_doc(app, env, docname):
         del env.bokeh_plot_files[docname]
 
 def setup(app):
+    """ sphinx config variable to scan .py files in provided directories only """
+    app.add_config_value('bokeh_plot_pyfile_include_dirs', [], 'html')
+
     app.add_source_parser('.py', PlotScriptParser)
 
     app.add_directive('bokeh-plot', BokehPlotDirective)

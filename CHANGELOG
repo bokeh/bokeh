@@ -1,3 +1,335 @@
+2017-06-13   0.12.6:
+--------------------
+  * bugfixes:
+    - #2136 Selections only work on the last of two series in one plot
+    - #2680 Non-unit specs accept still allow `units` field
+    - #3386 `property.__delete__` does not send a change notification
+    - #3564 [component: bokehjs] [widgets] Getting values of selected rows from a datatable after reordering with sort
+    - #3838 Push_notebook doesn't seem to work display updated table content
+    - #4294 [notebook] Replace table source
+    - #4433 [layout] Gallery example issues
+    - #4657 [regression] Adding an unwrapped widget to document, may not render properly
+    - #4764 [component: server] [layout] Issue with interactions between widgets and plots using bokeh server
+    - #4810 [component: server] [layout] Trouble swapping out layout contents when using server
+    - #4829 [layout] Tabs only consisting of datatables not drawn correctly
+    - #4872 [component: server] Arrows not updating from streaming data source
+    - #5044 Shift selection in linked brushing plots
+    - #5131 [layout] [widgets] Unexpected initial layout with datatable and layout()
+    - #5198 Hovertool line_policy 'nearest' 'next' not working
+    - #5207 [widgets] Need to resize window before datatable row labels show up
+    - #5246 [component: tests] [regression] Py.test prints garbage when there is a syntax error in *.py files
+    - #5499 [component: bokehjs] Datetimes on plot are always treated as local time and shifted to utc
+    - #5518 [layout] Add new child to existing column
+    - #5634 [component: docs] Fix documentation of 'bokeh html foo.py'
+    - #5811 [component: bokehjs] Vbar width not updating correctly when too many things updated through `push_notebook`
+    - #5856 [component: bokehjs] [layout] Plot becomes unresponsive when button widget is appended to layout
+    - #5907 Hover inspection does not work for all glyphs
+    - #5914 [component: bokehjs] Unable to right align tick labels 
+    - #5967 [layout] Unexpected behavior when deleting from layout.children
+    - #6005 [component: bokehjs] Box select rendered incorrectly on bokehjs linked example
+    - #6035 Na values correctly skipped in linear scale but not in log scale
+    - #6047 [component: docs] User_guide/embed.rst still references collections
+    - #6080 [component: server] Prefix bug on "active bokeh applications" page
+    - #6085 [component: bokehjs] Hover tooltips update impossible
+    - #6091 [layout] Sizing_mode breaks gmap alignment
+    - #6095 `imageurl.{w,h}` use data units by default
+    - #6104 [component: build] Twine upload in build/upload release script incorrect
+    - #6105 [component: build] Setup.py auto-generates a bad empty string classifier
+    - #6108 [component: bokehjs] [component: tests] Error using datarange1d with auto start/end and datetimeaxis
+    - #6111 [component: docs] Fix typo in selection documentation
+    - #6115 [component: bokehjs] [widgets] Descending order with tablecolumn still ascending
+    - #6120 [component: bokehjs] Hover responds to hidden data when legend.click_policy = 'hide'
+    - #6123 [component: bokehjs] [regression] [widgets] Rangeslider bug
+    - #6124 [component: bokehjs] Update core/dom.ts to work with upcoming typescript 2.3.0
+    - #6127 [component: bokehjs] [regression] Issue upgrading from bokeh 0.12.4 to 0.12.5 with ie 11
+    - #6130 [component: bokehjs] Multiline hit_test fails if line_width property utilized
+    - #6142 [component: bokehjs] [regression] Regression in legend positioning
+    - #6152 [component: bokehjs] [component: server] Bokeh server is incompatible with tornado=4.5
+    - #6156 [component: build] [component: docs] Optimized python execution fails due to missing __doc__ instantiation
+    - #6199 [component: server] Client.coffee sets binary type incorrectly 
+    - #6205 [component: tests] Typescript 2.3.0 breaks customjs tests
+    - #6207 [component: bokehjs] [regression] [widgets] Htmltemplateformatter still uses underscore
+    - #6208 [component: bokehjs] [regression] Possible to use gesture tools after disabling in toolbar
+    - #6210 [component: bokehjs] [regression] Bokehjs doesn't work in notebook
+    - #6212 [regression] Issue with test build 0.12.6dev3 on windows 7 with ie11
+    - #6213 [component: bokehjs] [layout] [regression] Appending layout regression 
+    - #6226 [component: bokehjs] [component: build] Update coffee-script's version to 0.12.5+
+    - #6238 [component: bokehjs] Mousewheel event: delta=none at all times
+    - #6244 [component: build] Fails to build in windows 7
+    - #6248 [API: plotting] [regression] Gmap not configuring mercator tick formatter
+    - #6252 [component: examples] Embed multiple sample data mismatch length
+    - #6261 [component: bokehjs] [layout] [regression] Adding new sub-layouts fails to set documemt
+    - #6263 [regression] Plot validation doesn't happen for non-application layouts
+    - #6301 Yahoo ichart api is failing, should use stock data from bokeh.sampledata.stocks
+    - #6311 [regression] Spectrogram performance regression
+    - #6316 Bug in screendistancespec serialization
+    - #6319 [component: server] Bokeh server does not close http sockets
+    - #6328 [component: bokehjs] [notebook] Gmap in notebook unreliable again
+    - #6343 [component: examples] Scale/range incompatibility in examples/models/server/population.py
+    - #6365 [component: bokehjs] [regression] Imagergba error during change events
+    - #6366 Webgl isn't correctly deprecated bokeh 0.12.6dev7
+    - #6388 [component: bokehjs] [regression] Selection tool regression
+    - #6391 [component: build] Bokehjs' build uses gulp 3.x but @types/gulp 4.x
+    - #6393 [regression] Modifying datasources broken
+    - #6397 [component: server] More explicit match cases
+    - #6398 [regression] [webgl] All webgl examples fail
+    - #6400 [component: bokehjs] [regression] Line_select.py example broken
+    - #6402 [widgets] Disabled button raises button click protocol event
+    - #6411 [regression] Matches() is broken when pandas is not installed
+    - #6416 [component: bokehjs] [regression] Hovertool broken with multi_line plots in 0.12.5
+    - #6433 [component: bokehjs] [regression] Selecting a line from a multi-line when one is already selected causes an error
+    - #6443 Svg images are incorrectly smoothed
+    - #6449 [component: bokehjs] [notebook] Protect against exceptions when running inline code
+  * features:
+    - #538 Headless static (svg, png) image generation 
+    - #1239 Hover.tooltip convenience function for 'datetime' info
+    - #1482 [starter] Datarange1d.rangepadding should allow "fixed" values
+    - #1671 [starter] Allow users to specify explicit tick labels
+    - #2352 Feature request: error bar plots
+    - #5430 [component: docs] [enh] help widget tuned for end user
+    - #5599 [component: bokehjs] Feature: hover tool inspector default
+    - #5831 Numberspec coordinates should accept datetimes
+    - #5885 [notebook] Support embed bokeh into apache zeppelin
+    - #6044 "columns must be of the same length" warning does not show context
+    - #6064 [component: bokehjs] Remove the hover menu item, and keep the hover function working
+    - #6081 Feature request: add support for user-defined custom mappers
+    - #6161 [component: bokehjs] Extend hit testing and hover support to segment
+    - #6186 Themes not applied in `file_html`
+    - #6285 [component: bokehjs] Extend patching to sub-items
+    - #6286 [component: bokehjs] [widgets] Enabling/ disabling re-ordering of columns in datatable (freezing columns in place)
+  * tasks:
+    - #1833 Make get_version consistent between pip-intalled and conda-intalled devel builds
+    - #2595 [component: docs] Update hovertool's documentation with field formatting, etc
+    - #2984 [component: docs] Update sphinx version to fix documentation parsing issues for google style docstrings
+    - #3016 [component: docs] Axis location must be set on creation (documentation fix)
+    - #3656 [component: docs] Docs on widgets & interactions should link to the callbacks & events section
+    - #4153 [component: bokehjs] Strict trigger() and listento()
+    - #4449 [component: bokehjs] Ensure canvas state reset at start of drawing
+    - #4948 [starter] Plot title ignores sizing and appears italicized if number is provided but no units are specified
+    - #5007 [component: examples] [starter] Update unemployment examples
+    - #5268 [component: bokehjs] Improve mappers' inheritance structure
+    - #5694 [component: bokehjs] [component: tests] Report code coverage for bokehjs unit tests
+    - #5819 [component: docs] Why i can't use operurl in widget callback (e.g. button callback)?
+    - #5854 [component: bokehjs] Enable typescript's strictnullchecks
+    - #5879 [component: examples] [component: tests] Make "bokeh finished rendering heuristic" work with non-plot examples
+    - #5950 [component: docs] Expose all json representations in one place
+    - #5951 [component: docs] Sphinxext.bokeh_plot broken
+    - #6040 [component: docs] Callback.rst documentation incomplete
+    - #6079 [component: docs] Clarify docs for hovertool
+    - #6088 [component: examples] Fixing up examples/models/file/
+    - #6102 [component: build] Have deploy script use github api token to avoid rate-limiting issues
+    - #6113 [component: build] Pypi release includes `scripts`?
+    - #6125 [component: bokehjs] Use nounusedlocals to discover unused imports, etc
+    - #6129 [component: docs] Fix typo in issue_template.md
+    - #6139 [component: bokehjs] [component: build] Use tslib to reduce size of bokehjs
+    - #6145 Update obsolete output examples in bokeh.embed docs
+    - #6158 [component: docs] For interactive legends, a note about `muted_color` would be helpful
+    - #6164 Remove deprecations up to 0.12.3
+    - #6184 [component: docs] Bokeh-api documentation improvement suggestions
+    - #6188 [component: docs] Missing docstring description of ``state`` arg in bokeh.io.save
+    - #6191 Fix deprecated datetime64 use for np_epoch
+    - #6197 [component: bokehjs] Remove confusing aliases from layoutcanvas
+    - #6228 [component: docs] Task: add missing `packaging` dependency to documentation requirements
+    - #6242 [component: bokehjs] Task: remove computed properties implementation
+    - #6245 Html title is not escaped
+    - #6247 [component: bokehjs] [component: tests] Allow to write bokehjs unit tests in typescript
+    - #6251 [component: bokehjs] [component: build] Allow to write bokehjs build files in typescript
+    - #6254 Revert "deprecate x/y_mapper_type plot kwargs in place of first-class scale models"
+    - #6267 [component: bokehjs] [component: tests] Merge tests/common into tests/core
+    - #6269 [component: docs] Bokeh-github directive should not check urls by default
+    - #6274 Futurewarning from pandas in bokehjsonencoder 
+    - #6287 [component: bokehjs] Add migration note for removal of document.resize()
+    - #6295 [component: build] Update manifest.in
+    - #6309 [component: server] Report tornado version on bokeh server startup
+    - #6317 Deprecationwarnings on python 3.6
+    - #6323 Add bkcharts shim and dependency
+    - #6325 Downstream url for dynamic_map.py has ssl issue
+    - #6326 [component: bokehjs] Passing renderer object in cb_data on hovertool customjs callback
+    - #6331 [component: docs] Re-building docs - keyerror gallery exception
+    - #6336 [component: bokehjs] Silence all change signals during initialization of models
+    - #6338 [component: server] Feature request: configurable maximum upload size for tornado server
+    - #6385 [component: bokehjs] Rely on request_render and fix up cs code
+    - #6387 [component: docs] Fixed typos in setup doc
+    - #6408 [component: docs] [component: examples] General 0.12.6 examples and docs tasks
+    - #6419 [component: bokehjs] Restore events for "patch", "stream" and "do"
+    - #6445 Bump required bkcharts version to 0.2
+
+2017-04-05   0.12.5:
+--------------------
+  * bugfixes:
+    - #2058 [component: bokehjs] Point hit testing for rects broken with screen space widths 
+    - #2288 [API: charts] Handle nan as input to bar()
+    - #2822 [component: bokehjs] [geo] [starter] Gmapplot resets to (0, 0)
+    - #2964 [component: bokehjs] Gmap alignment still off in 0.10
+    - #3461 [component: server] Notebook + server not working
+    - #3737 [regression] Gmapplot doesn't display anything in jupyter v.4
+    - #4135 [component: bokehjs] [component: build] Don't expose external typings beyond bokeh namespace
+    - #4539 [component: tests] Js tests reporting as failed even when they all passed
+    - #4667 [component: bokehjs] Arrow and line_width
+    - #4722 [notebook] Curdoc().theme = theme(json=yaml.load()) is not applied to charts when used in jupyter notebook
+    - #4835 Multiple gmap plots whiting out  in notebook. 
+    - #4875 [component: bokehjs] Graph 'running off'
+    - #4952 Theme doesn't apply when using components
+    - #4979 [component: bokehjs] [component: server] Cannot add renderers within a callback
+    - #5063 [component: tests] Bokehjs tests are failing on regular basis
+    - #5152 [component: examples] Wrong data shown in gapminder example app / slider update failing
+    - #5185 [layout] [starter] Reset tool fails when figure passed width instead of plot_width, etc. 
+    - #5336 [component: bokehjs] Strange behaviour of rect-glyph
+    - #5353 [component: bokehjs] Extensions do not render when using bokeh.embed.components / bokeh.embed.file_html apis
+    - #5416 [component: bokehjs] Multiple model sync in one callback can fail
+    - #5488 [component: bokehjs] [starter] Hide annotations via callback
+    - #5582 [component: server] --num-procs x and curdoc().session_context.request.arguments don't go well together
+    - #5629 [component: server] [starter] Bokeh server reports "none" port when there is a port conflict. 
+    - #5644 Hasprops.apply_theme does not work on container values
+    - #5670 [component: tests] Integration test reports are garbled
+    - #5695 [component: docs] Typo in palettes docs
+    - #5700 [component: bokehjs] Safe-tag-fix
+    - #5706 [API: plotting] Bokeh 0.12.4: columndatasource does not work anymore with bokeh.plotting.image
+    - #5720 [component: bokehjs] [component: tests] [regression] It's not possible to debug tests anymore since #5659
+    - #5731 [component: tests] Tests broken again, this time due to `attributeerror`
+    - #5732 [component: bokehjs] [widgets] Datatable not wired up to respond to streaming patching
+    - #5742 [component: examples] Missing template in flask_embed.py and tornado_embed.py
+    - #5778 [component: bokehjs] [regression] Autoload_static uses jquery .data() 
+    - #5789 [component: tests] Some integration tests fail when run with python 2.7
+    - #5818 [component: build] Conda convert windows packages cause an error
+    - #5848 [component: server] Memory leak in bokeh application
+    - #5861 [component: bokehjs] [regression] Instance of figure class in bokehjs does not have reference to xaxis and yaxis
+    - #5887 [component: docs] Transform docstring ends abruptly
+    - #5888 [component: tests] [regression] Tests/examples/examples_report_plugin.py assumes clone has a remote named origin
+    - #5891 [component: docs] Dev_guide/server.html has broken link to user_guide/server.html
+    - #5900 [component: bokehjs] Attempt to make layout less fragile
+    - #5905 Embed components performance
+    - #5910 [component: build] All ci jobs failing due to some change affecting js compilation
+    - #5916 Cannot import from .ts in a custom extension
+    - #5921 [component: bokehjs] Fix for small bug in array intersection method
+    - #5936 [component: bokehjs] [component: build] Bokehjs builds are broken because of dependency update
+    - #5954 [component: bokehjs] [regression] Latex label example is broken in dev docs
+    - #5956 [component: docs] [regression] Sphinxext.bokeh_plot missing linenos option implementation
+    - #5959 [layout] [regression] Notebook comms "basic usage.ipynb" broken
+    - #5963 [component: bokehjs] [regression] Js error on callback
+    - #5977 Themes aren't applied to document when using `save`
+    - #5986 [component: bokehjs] Bug with firefox hover tool coordinates
+    - #6006 Toolbar tooltips are blank in examples/app/crossfilter
+    - #6012 Importing bokeh.models creates zombie process
+    - #6014 [component: build] [regression] Sdists prompting for bokehjs build will block pip installs
+    - #6015 [component: bokehjs] Fixed bug in model._process_event method
+    - #6018 [regression] Hover tool broken due to undefined roundingfunction
+    - #6023 [component: server] Accept server connections from any origin
+    - #6030 Boxzoomtool and boxselecttool doesn't clear the overlay when end event is off the plot frame
+    - #6032 [component: bokehjs] [regression] Multiple selections via shift+select don't work
+    - #6037 [notebook] [regression] Repeatedly displaying a plot degrades performance
+    - #6045 [component: examples] Fixed hover on gapminder to display country
+    - #6051 [component: bokehjs] [regression] Middle and bottom plot won't pan in y-dimension in custom/gears/gears.py demo on firefox
+    - #6054 Issues with examples/plotting/server/animated.py
+    - #6059 [component: server] Python event callback not called if no js event callback is registered
+    - #6063 [component: docs] Fixed href
+    - #6069 [component: docs] Fixed broken link to gapminder example
+    - #6075 Resettool does not trigger change events on range1d
+    - #6100 Correct cursor handling
+  * features:
+    - #2274 [component: bokehjs] Interactive legends
+    - #2414 [starter] Use [non]selection_glyph="auto" to generate automatically, not none 
+    - #3715 Interactively hide or show lines after plot finished by clicking (without re-ploting like plot browser feature in matlab)
+    - #3748 [component: bokehjs] [component: server] Trigger python event when `level_of_detail` mode finishes
+    - #4241 [component: docs] [starter] Create a custom 404 page for bokeh docs
+    - #4694 [component: bokehjs] [starter] Angle of glyphs in legend doesn't match glyphs in plot
+    - #4927 [component: bokehjs] [starter] Event handler for width/height change of plot
+    - #5015 [component: bokehjs] [starter] Customjstransform
+    - #5278 [component: bokehjs] [component: server] Feature: emitting tool and ui events and attaching callbacks
+    - #5442 [component: bokehjs] [starter] Add scale control to gmaps
+    - #5592 [component: bokehjs] [geo] [starter] Gmapoptions are not dynamically applied
+    - #5692 [component: server]   make it possible to use relative urls  
+    - #5973 Cds creation from dataframes should not use tolist()
+    - #6043 Avoid isinstance checks in _visit_value_and_its_immediate_references
+    - #6055 Use math library instead of numpy for nan/inf checks
+  * tasks:
+    - #2933 [component: bokehjs] Use only `div` and `canvas` in the generated html
+    - #2940 Gmapplot coordinate axes
+    - #3210 [component: bokehjs] [component: server] [widgets] Improvements to events
+    - #3270 [API: charts] General charts examples improvements
+    - #4111 [component: bokehjs] [component: tests] [regression] Check js logs in tests
+    - #4285 [component: tests] Testing infrastructure bug/wish list
+    - #4321 [component: bokehjs] [webgl] Put webgl functionality in separate bokeh-gl.js?
+    - #4854 Code of conduct needed
+    - #5060 Limit imports of client/server code to only when necessary
+    - #5102 [component: bokehjs] Hovertool tooltip css is vunerable to being overridden by other page css
+    - #5121 [component: bokehjs] [component: tests] Fix skipped js tests as result of getter/setter work
+    - #5174 [component: bokehjs] [starter] Task: support updating computed transforms fields if dependencies change
+    - #5209 [component: build] Stop building noarch conda packages
+    - #5232 [component: tests] Intermittently failing examples tests - ggplot_density and graphs
+    - #5238 [component: build] [component: docs] Help make examples more visible and easy to use
+    - #5254 [component: bokehjs] [component: examples] [component: tests] Examples involving transforms using math.random() fail image diff
+    - #5495 [component: docs] [component: server] Document non-script and programmatic use 
+    - #5541 [component: build] Label image diff results "expected" vs "actual"
+    - #5613 [component: build] Windows setup.py build from source and versioneer
+    - #5625 [component: bokehjs] Drop jquery from core bokehjs
+    - #5638 [component: docs] Examples / charts/ readme states incorrect location for jupyter notebook example code
+    - #5640 [component: examples] New app example: exploding pivot charts
+    - #5647 [API: charts] Make the default hover tooltip work for donut charts
+    - #5664 Remove old deprecations 
+    - #5666 [py3] Python 3.6 compatibility
+    - #5677 Permission denied error when invoking show() from inside jupyter notebook
+    - #5679 [component: build] Deploy script should automatically create and upload examples tarballs
+    - #5691 [component: docs] Fix a typo in layoutdom
+    - #5699 [component: examples] Not necessary loop in weather example? 
+    - #5704 Move abstract out of properties.py
+    - #5705 [notebook] Print bokeh version in notebook "bokehjs loaded" message
+    - #5710 [API: models] Deprecate bokeh.models.layouts hbox and vbox
+    - #5712 [component: tests] Make sure examples' tests wait until bokeh finished rendering
+    - #5718 [component: docs] Bad formatting in selected docstring
+    - #5726 [component: bokehjs] Tooltip font color can be turned white by outside css because it's not specified by bokeh
+    - #5729 [component: bokehjs] Use only what we need from underscore
+    - #5748 [component: tests] Bokehjs/examples/electron/node_modules interfere with code quality tests
+    - #5754 Revert "clean up and refactor build"
+    - #5756 Revert "bryanv/refactor build"
+    - #5757 [component: bokehjs] [component: build] Remove bokehjs/src/vendor/kiwi and use bokeh/kiwi
+    - #5759 [component: docs] Typo in axes docs
+    - #5770 [component: build] Bryanv/build fixups
+    - #5771 [component: build] Break up conda operations to prevent timeout
+    - #5772 [component: build] Need to call chdir for persistent effect
+    - #5773 [component: build] Fix path for css upload
+    - #5775 [component: build] Try token with repr, add some diagnostics
+    - #5776 [component: build] Globs don't work in subprocesses w/o shell=true
+    - #5777 [component: build] Correctly implement put
+    - #5787 [component: build] Pin mpl < 2.0
+    - #5788 [component: docs] Migration notes and exceptions about mpl compat. 
+    - #5793 Bokeh calls logging.basicconfig()
+    - #5796 [component: docs] Bokeh 0.12.4 needs python 3.3 but this isn't documented anywhere
+    - #5799 Revert "fix rect rendering with log axis"
+    - #5810 [component: bokehjs] Don't rely on typedarray.map
+    - #5822 Hovertool for last value of a line plot sticks on second last value (works fine with circles)
+    - #5826 [API: models] Add bokeh.plotting.gmap to create gmapplot correctly and easily
+    - #5827 [component: build] Restore pip installable dev builds
+    - #5834 [component: docs] Need to use different sintaxis when using command "bokeh serve" in windows command line
+    - #5835 [component: examples] County data: most independent cities in virginia have 'city' left out, which causes confusion when trying to match based on county name
+    - #5858 [component: docs] Update install.rst documentation
+    - #5871 [API: models] Columndatasource constructor slow
+    - #5878 [component: examples] Move models' file examples and add migration notes
+    - #5880 [component: tests] Flake8 everything
+    - #5882 [component: bokehjs] [component: examples] [component: tests] Test bokehjs/examples and run them on travis ci
+    - #5895 [component: docs] Give feedback on bokeh server docs
+    - #5896 [component: docs] Typo corrections and clarifications for user_guide/server (#5895)
+    - #5902 [component: docs] Typo (missing comma) in example code for labels
+    - #5915 [component: examples] Including the color option in the embed simple example
+    - #5928 [component: tests] Test_api_crawler assumes it is run in the source directory
+    - #5930 [component: bokehjs] Align bokehjs' imports with custom models
+    - #5934 [component: bokehjs] Enable typescripts' noimplicitany
+    - #5946 [component: build] [component: tests] Disable saucelabs tests for now
+    - #5947 [component: build] [component: tests] Re-enable saucelabs tests
+    - #5965 [component: bokehjs] Legend should have pointer cursor only when `click_policy != "none"`
+    - #5969 Tweak defaults for interactive legend inactive labels
+    - #5989 Remove deprecated output_server
+    - #5998 [component: build] Update docs upload to work now that host site is behind cloudflare
+    - #6010 Revert "deprecate mpl compat"
+    - #6016 [component: examples] Sprint prints nan for seleted names set to none
+    - #6024 [component: bokehjs] Use `throw new error(...)` instead of `throw error(...)`
+    - #6036 [component: examples] Updating embed examples
+    - #6039 [component: examples] When embedding with autoload into a page with a different public url need relative_urls=false
+    - #6048 [component: docs] Leveraging other libraries should include datashader
+    - #6058 [component: examples] Added a tiler with a valid url for second plot in plotting/file/airport_map
+    - #6066 Change default for 
+    - #6071 [component: examples] Update element names and symbols in elements.csv
+
 2017-01-09   0.12.4:
 --------------------
   * bugfixes:
@@ -11,7 +343,7 @@
     - #3931 [component: docs] Update datetimetickformatter docstring with actual default formats from the js side
     - #4602 [API: charts] No x-axis labels on bar graphs with a single bar
     - #4680 [component: bokehjs] [widgets] Datatable header height not large enough to fit header text - in jupyter notebook
-    - #4861 [component: bokehjs] Hovertool showing canvas coordinates not data coordinates 
+    - #4861 [component: bokehjs] Hovertool showing canvas coordinates not data coordinates
     - #5305 [component: docs] [component: examples] [component: server] Embed/animated fails with "did not find model"
     - #5306 [component: examples] [py2] Embed/embed_multiple fails with unicode error on py2
     - #5315 [component: examples] [component: server] [regression] Extension implementation load path problems in apps
@@ -27,13 +359,13 @@
     - #5377 [component: docs] Correct comment in dimension example plot
     - #5382 [component: bokehjs] Help tool icon doesn't have transparent background
     - #5389 Creating a line plot with `x_axis_type='log'` fails when `x_max < 1`
-    - #5392 [component: bokehjs] [regression] Tools cause hard crash on safari after import/export pr 
+    - #5392 [component: bokehjs] [regression] Tools cause hard crash on safari after import/export pr
     - #5398 Datatable css conflict with bootstrap css
     - #5404 Functickformatter.from_py_func() example valueerror
     - #5413 [component: bokehjs] Can't use categorical axis with figure using rects
     - #5453 [py2] Tabe completion on bokeh.palettes doesn't work in python 2
     - #5467 [component: docs] Docstring not reflecting correct function signature
-    - #5479 [layout] Merged toolbar is not created properly when row/column layouts added to gridplot 
+    - #5479 [layout] Merged toolbar is not created properly when row/column layouts added to gridplot
     - #5490 Some named palettes raise valueerror
     - #5522 [component: docs] Bokeh doc website not rendered correctly in ie 11 on win 7
     - #5524 [component: server] [regression] --num-procs broken
@@ -64,7 +396,7 @@
     - #5199 [API: models] Add support bokehjs writable and bokeh readonly properties
     - #5317 Add a colorblind and d3 palettes
     - #5329 Ability to remove tools from plot generated by mpl.to_bokeh
-    - #5417 [component: bokehjs] [widgets] Extend textinput with `placeholder` 
+    - #5417 [component: bokehjs] [widgets] Extend textinput with `placeholder`
     - #5435 [component: bokehjs] [enh] add js callback for streaming data
     - #5446 [API: plotting] [component: docs] Improve glyph method function signatures
     - #5471 [component: bokehjs] [enh] add custom classes to elements
@@ -93,7 +425,7 @@
     - #5362 [component: build] Remove old bokeh-server
     - #5372 [component: server] Remove develop mode stub
     - #5375 [component: tests] [notebook] Notebook image diff tests broken due to "missing kernel"
-    - #5376 Change palette references for the brewer qualitative palettes to be slices 
+    - #5376 Change palette references for the brewer qualitative palettes to be slices
     - #5384 [component: docs] Small docs fixes
     - #5395 [component: build] Please consider adding classifiers to setup.py
     - #5400 [component: examples] Add imdb usage notice to movies app
@@ -2677,7 +3009,7 @@
     - #395 Added script for load and install the extension.
     - #396 Added a little notebook to explain some ways to use the bokeh extension.
     - #397 Added script to generate changelog.
-	  - #399 let figure() accept keyword arguments for next plot
+    - #399 let figure() accept keyword arguments for next plot
     - #411 Add point hit testing to other circle-like glyphs
   * bugfixes:
     - #377 np not imported, zeros_like is

@@ -1,8 +1,6 @@
-import * as _ from "underscore"
-
 import {ColumnarDataSource} from "./columnar_data_source"
-import {logger} from "../../core/logging"
-import * as p from "../../core/properties"
+import {logger} from "core/logging"
+import * as p from "core/properties"
 
 export class GeoJSONDataSource extends ColumnarDataSource
   type: 'GeoJSONDataSource'
@@ -18,7 +16,7 @@ export class GeoJSONDataSource extends ColumnarDataSource
   initialize: (options) ->
     super(options)
     @_update_data()
-    @listenTo(@, 'change:geojson', () => @_update_data())
+    @connect(@properties.geojson.change, () => @_update_data())
 
   _update_data: () -> @data = @geojson_to_column_data()
 

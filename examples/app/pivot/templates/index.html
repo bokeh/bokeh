@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <style>
+          {% include 'styles.css' %}
+        </style>
+        <meta charset="utf-8">
+        {{ bokeh_css }}
+        {{ bokeh_js }}
+    </head>
+    <body>
+        <div id="header">
+            <p>This tool creates pivot charts from csv files. An example csv and widget configuration is shown on the left. The widgets of each section may be expanded or collapsed by clicking on the blue headers. For pre-configured axes, series, and explode widgets, select <em>None</em> to free up the column for use in the other widgets. Changes to widgets will automatically trigger plot updates, except for <em>Filters</em>, for which you must press the <em>Update Filters</em> button to apply your changes.<em></p>
+            <p>Chart Type</em> (<em>Dot, Line, Bar, Area</em>) is in the <em>Plot Adjustments</em> section, along with many more plot adjustments. Click the <em>Download csv</em> button at the bottom to download the data you are viewing to a timestamped csv in the <em>downloads/</em> folder, and the <em>Export Config to URL</em> button to save your current widget configuration to a URL in the address bar that you can use to load the same view immediately.</p>
+            <p>Try pointing to your own csv file in the <em>Data Source</em> widget at the top, and make sure to select required <em>X-axis</em> and <em>Y-axis</em> to see a chart. More information/features are described in <em>README.md</em>.</p>
+        </div>
+        {{ plot_div|indent(8) }}
+        {{ plot_script|indent(8) }}
+        <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js'></script>
+        <script>
+          {% include 'scripts.js' %}
+        </script>
+    </body>
+</html>

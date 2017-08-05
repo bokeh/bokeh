@@ -1,9 +1,7 @@
-import * as _ from "underscore"
-import * as $ from "jquery"
-
-import {logger} from "../../core/logging"
-import {EQ, Variable} from "../../core/layout/solver"
-import * as p from "../../core/properties"
+import {logger} from "core/logging"
+import {EQ} from "core/layout/solver"
+import {empty} from "core/dom"
+import * as p from "core/properties"
 
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
 
@@ -16,37 +14,38 @@ export class ToolbarBaseView extends LayoutDOMView
   template: toolbar_template
 
   render: () ->
-    if @model.sizing_mode != 'fixed'
-      @$el.css({
-        left: @model._dom_left._value
-        top: @model._dom_top._value
-        width: @model._width._value
-        height: @model._height._value
-      })
+    empty(@el)
 
-    @$el.html(@template({
+    if @model.sizing_mode != 'fixed'
+      @el.style.left = "#{@model._dom_left.value}px"
+      @el.style.top = "#{@model._dom_top.value}px"
+      @el.style.width = "#{@model._width.value}px"
+      @el.style.height = "#{@model._height.value}px"
+
+    @el.appendChild(@template({
       logo: @model.logo
       location: @model.toolbar_location
       sticky: if @model.toolbar_sticky then 'sticky' else 'not-sticky'
     }))
 
-    buttons = @$el.find(".bk-button-bar-list[type='inspectors']")
+    buttons = @el.querySelector(".bk-button-bar-list[type='inspectors']")
     for obj in @model.inspectors
-      buttons.append(new OnOffButtonView({model: obj}).el)
+      if obj.toggleable
+        buttons.appendChild(new OnOffButtonView({model: obj, parent: @}).el)
 
-    buttons = @$el.find(".bk-button-bar-list[type='help']")
+    buttons = @el.querySelector(".bk-button-bar-list[type='help']")
     for obj in @model.help
-      buttons.append(new ActionToolButtonView({model: obj}).el)
+      buttons.appendChild(new ActionToolButtonView({model: obj, parent: @}).el)
 
-    buttons = @$el.find(".bk-button-bar-list[type='actions']")
+    buttons = @el.querySelector(".bk-button-bar-list[type='actions']")
     for obj in @model.actions
-      buttons.append(new ActionToolButtonView({model: obj}).el)
+      buttons.appendChild(new ActionToolButtonView({model: obj, parent: @}).el)
 
     gestures = @model.gestures
     for et of gestures
-      buttons = @$el.find(".bk-button-bar-list[type='#{et}']")
+      buttons = @el.querySelector(".bk-button-bar-list[type='#{et}']")
       for obj in gestures[et].tools
-        buttons.append(new OnOffButtonView({model: obj}).el)
+        buttons.appendChild(new OnOffButtonView({model: obj, parent: @}).el)
 
     return @
 
@@ -54,28 +53,38 @@ export class ToolbarBase extends LayoutDOM
   type: 'ToolbarBase'
   default_view: ToolbarBaseView
 
+  initialize: (attrs, options) ->
+    super(attrs, options)
+    @_set_sizeable()
+    @connect(@properties.toolbar_location.change, () => @_set_sizeable())
+
+  _set_sizeable: () ->
+    horizontal = @toolbar_location in ['left', 'right']
+    @_sizeable = if not horizontal then @_height else @_width
+
   _active_change: (tool) =>
     event_type = tool.event_type
-    gestures = @gestures
 
-    # Toggle between tools of the same type by deactivating any active ones
-    currently_active_tool = gestures[event_type].active
-    if currently_active_tool? and currently_active_tool != tool
-      logger.debug("Toolbar: deactivating tool: #{currently_active_tool.type} (#{currently_active_tool.id}) for event type '#{event_type}'")
-      currently_active_tool.active = false
+    if tool.active
+      # Toggle between tools of the same type by deactivating any active ones
+      currently_active_tool = @gestures[event_type].active
+      if currently_active_tool?
+        logger.debug("Toolbar: deactivating tool: #{currently_active_tool.type} (#{currently_active_tool.id}) for event type '#{event_type}'")
+        currently_active_tool.active = false
+      # Update the gestures with the new active tool
+      @gestures[event_type].active = tool
+      logger.debug("Toolbar: activating tool: #{tool.type} (#{tool.id}) for event type '#{event_type}'")
+    else
+      @gestures[event_type].active = null
 
-    # Update the gestures with the new active tool
-    gestures[event_type].active = tool
-    @gestures = gestures
-    logger.debug("Toolbar: activating tool: #{tool.type} (#{tool.id}) for event type '#{event_type}'")
     return null
 
   get_constraints: () ->
     # Get the constraints from widget
-    constraints = super()
-    # Set the fixed size of toolbar
-    constraints.push(EQ(@_sizeable, -30))
-    return constraints
+    return super().concat([
+      # Set the fixed size of toolbar
+      EQ(@_sizeable, -30),
+    ])
 
   @define {
       tools: [ p.Array,    []       ]

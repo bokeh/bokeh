@@ -234,16 +234,16 @@ describe "properties module", ->
 
     describe "changing the property attribute value", ->
       it "should trigger change on the property", ->
-        obj = new SomeHasProps(a: {value: "foo"})
-        prop = new properties.Property({obj: obj, attr: 'a'})
+        obj = new SomeHasProps({a: {value: "foo"}})
+        prop = obj.properties.a
         stuff = {called: false}
-        prop.listenTo(prop, 'change', () -> stuff.called = true)
+        prop.change.connect(() -> stuff.called = true)
         obj.a = {value: "bar"}
         expect(stuff.called).to.be.true
 
       it "should update the spec", ->
         obj = new SomeHasProps(a: {value: "foo"})
-        prop = new properties.Property({obj: obj, attr: 'a'})
+        prop = obj.properties.a
         obj.a = {value: "bar"}
         expect(prop.spec).to.be.deep.equal {value: "bar"}
 
@@ -531,7 +531,7 @@ describe "properties module", ->
         expect(prop.transform).to.be.equal properties.Property.prototype.transform
 
   describe "Instance", ->
-    prop = new properties.Instance({obj: new SomeHasProps(a: {value: null}), attr: 'a'})
+    prop = new properties.Instance({obj: new SomeHasProps({a: null}), attr: 'a'})
 
     it "should be an instance of Property", ->
       expect(prop).to.be.instanceof properties.Property

@@ -1,7 +1,4 @@
-import * as _ from "underscore"
-
-import {logger} from "../../core/logging"
-import * as p from "../../core/properties"
+import * as p from "core/properties"
 import {Model} from "../../model"
 
 export class ImageSource extends Model

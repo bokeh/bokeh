@@ -13,7 +13,7 @@
     "start": "node_modules/.bin/electron ."
   },
   "devDependencies": {
-    "electron": "^1.3.4"
+    "electron": "^1.4.13"
   },
   "dependencies": {
     "bokehjs": "../.."

@@ -1,7 +1,5 @@
-import * as _ from "underscore"
-
 import {ColumnDataSource} from "./column_data_source"
-import * as p from "../../core/properties"
+import * as p from "core/properties"
 
 export class RemoteDataSource extends ColumnDataSource
   type: 'RemoteDataSource'

@@ -1,6 +1,5 @@
-import * as _ from "underscore"
-
-import * as p from "../../core/properties"
+import * as p from "core/properties"
+import {any, sortBy} from "core/util/array"
 
 import {ActionTool} from "./actions/action_tool"
 import {HelpTool} from "./actions/help_tool"
@@ -15,19 +14,19 @@ export class Toolbar extends ToolbarBase
 
   initialize: (attrs, options) ->
     super(attrs, options)
-    @listenTo(@, 'change:tools', @_init_tools)
+    @connect(@properties.tools.change, () -> @_init_tools())
     @_init_tools()
 
   _init_tools: () ->
     for tool in @tools
       if tool instanceof InspectTool
-        if not _.some(@inspectors, (t) => t.id == tool.id)
+        if not any(@inspectors, (t) => t.id == tool.id)
           @inspectors = @inspectors.concat([tool])
       else if tool instanceof HelpTool
-        if not _.some(@help, (t) => t.id == tool.id)
+        if not any(@help, (t) => t.id == tool.id)
           @help = @help.concat([tool])
       else if tool instanceof ActionTool
-        if not _.some(@actions, (t) => t.id == tool.id)
+        if not any(@actions, (t) => t.id == tool.id)
           @actions = @actions.concat([tool])
       else if tool instanceof GestureTool
         et = tool.event_type
@@ -37,15 +36,25 @@ export class Toolbar extends ToolbarBase
                       #{tool.type} (#{tool.id})")
           continue
 
-        if not _.some(@gestures[et].tools, (t) => t.id == tool.id)
+        if not any(@gestures[et].tools, (t) => t.id == tool.id)
           @gestures[et].tools = @gestures[et].tools.concat([tool])
-        @listenTo(tool, 'change:active', @_active_change.bind(tool))
+        @connect(tool.properties.active.change, @_active_change.bind(null, tool))
+
+    if @active_inspect == 'auto'
+      # do nothing as all tools are active be default
+      ;
+    else if @active_inspect instanceof InspectTool
+      @inspectors.map((inspector) => if inspector != @active_inspect then inspector.active = false)
+    else if @active_inspect instanceof Array
+      @inspectors.map((inspector) => if inspector not in @active_inspect then inspector.active = false)
+    else if @active_inspect is null
+      @inspectors.map((inspector) -> inspector.active = false)
 
     for et of @gestures
       tools = @gestures[et].tools
       if tools.length == 0
         continue
-      @gestures[et].tools = _.sortBy(tools, (tool) -> tool.default_order)
+      @gestures[et].tools = sortBy(tools, (tool) -> tool.default_order)
 
       if et == 'tap'
         if @active_tap is null
@@ -69,7 +78,8 @@ export class Toolbar extends ToolbarBase
         @active_scroll.active = true
 
   @define {
-      active_drag:   [ p.Any, 'auto' ]
-      active_scroll: [ p.Any, 'auto' ]
-      active_tap:    [ p.Any, 'auto' ]
+      active_drag:     [ p.Any, 'auto' ]
+      active_inspect:  [ p.Any, 'auto' ]
+      active_scroll:   [ p.Any, 'auto' ]
+      active_tap:      [ p.Any, 'auto' ]
   }

@@ -73,22 +73,27 @@ class TestComponents(unittest.TestCase):
 
     def test_result_attrs(self):
         script, div = embed.components(_embed_test_plot)
-        html = bs4.BeautifulSoup(script)
+        html = bs4.BeautifulSoup(script, "lxml")
         scripts = html.findAll(name='script')
         self.assertEqual(len(scripts), 1)
         self.assertTrue(scripts[0].attrs, {'type': 'text/javascript'})
 
     def test_div_attrs(self):
         script, div = embed.components(_embed_test_plot)
-        html = bs4.BeautifulSoup(div)
+        html = bs4.BeautifulSoup(div, "lxml")
 
         divs = html.findAll(name='div')
         self.assertEqual(len(divs), 2)
 
         div = divs[0]
-        self.assertTrue(set(div.attrs), set(['class', 'id']))
+        self.assertEqual(set(div.attrs), set(['class']))
         self.assertEqual(div.attrs['class'], ['bk-root'])
         self.assertEqual(div.text, '\n\n')
+
+        div = divs[1]
+        self.assertEqual(set(div.attrs), set(['id', 'class']))
+        self.assertEqual(div.attrs['class'], ['bk-plotdiv'])
+        self.assertEqual(div.text, '')
 
     def test_script_is_utf8_encoded(self):
         script, div = embed.components(_embed_test_plot)
@@ -97,7 +102,7 @@ class TestComponents(unittest.TestCase):
     @mock.patch('bokeh.embed.make_id', new_callable=lambda: _stable_id)
     def test_output_is_without_script_tag_when_wrap_script_is_false(self, mock_make_id):
         script, div = embed.components(_embed_test_plot)
-        html = bs4.BeautifulSoup(script)
+        html = bs4.BeautifulSoup(script, "lxml")
         scripts = html.findAll(name='script')
         self.assertEqual(len(scripts), 1)
         script_content = scripts[0].getText()
@@ -114,29 +119,26 @@ class TestNotebookDiv(unittest.TestCase):
 
     def test_result_attrs(self):
         r = embed.notebook_div(_embed_test_plot)
-        html = bs4.BeautifulSoup(r)
+        html = bs4.BeautifulSoup(r, "lxml")
         scripts = html.findAll(name='script')
         self.assertEqual(len(scripts), 1)
         self.assertTrue(scripts[0].attrs, {'type': 'text/javascript'})
 
     def test_div_attrs(self):
         r = embed.notebook_div(_embed_test_plot)
-        html = bs4.BeautifulSoup(r)
+        html = bs4.BeautifulSoup(r, "lxml")
         divs = html.findAll(name='div')
         self.assertEqual(len(divs), 2)
 
         div = divs[0]
-        self.assertTrue(set(div.attrs), set(['class', 'id']))
+        self.assertEqual(set(div.attrs), set(['class']))
         self.assertEqual(div.attrs['class'], ['bk-root'])
         self.assertEqual(div.text, '\n\n')
 
-    def test_model_in_empty_document_context_manager_is_used(self):
-        m = mock.MagicMock(name='_ModelInEmptyDocument')
-        plot1 = figure()
-        curdoc().add_root(plot1)
-        with mock.patch('bokeh.embed._ModelInEmptyDocument', m):
-            embed.notebook_div(plot1)
-        m.assert_called_once_with(plot1)
+        div = divs[1]
+        self.assertEqual(set(div.attrs), set(['id', 'class']))
+        self.assertEqual(div.attrs['class'], ['bk-plotdiv'])
+        self.assertEqual(div.text, '')
 
 
 class TestFileHTML(unittest.TestCase):
@@ -210,6 +212,11 @@ def test_file_html_provides_warning_if_no_js(mock_warn):
     )
 
 
+def test_file_html_title_is_escaped():
+    r = embed.file_html(_embed_test_plot, CDN, "&<")
+    assert "<title>&amp;&lt;</title>" in r
+
+
 class TestAutoloadStatic(unittest.TestCase):
 
     def test_return_type(self):
@@ -219,7 +226,7 @@ class TestAutoloadStatic(unittest.TestCase):
     @mock.patch('bokeh.embed.make_id', new_callable=lambda: _stable_id)
     def test_script_attrs(self, mock_make_id):
         js, tag = embed.autoload_static(_embed_test_plot, CDN, "some/path")
-        html = bs4.BeautifulSoup(tag)
+        html = bs4.BeautifulSoup(tag, "lxml")
         scripts = html.findAll(name='script')
         self.assertEqual(len(scripts), 1)
         attrs = scripts[0].attrs
@@ -232,6 +239,80 @@ class TestAutoloadStatic(unittest.TestCase):
         self.assertEqual(attrs['src'], 'some/path')
 
 
+class TestConnectSessionOrDocument(unittest.TestCase):
+
+    def test_invalid_resources_param(self):
+        with self.assertRaises(ValueError):
+            embed._connect_session_or_document(url="http://localhost:8081/foo/bar/sliders", resources=123)
+        with self.assertRaises(ValueError):
+            embed._connect_session_or_document(url="http://localhost:8081/foo/bar/sliders", resources="whatever")
+
+    def test_resources_default_is_implicit(self):
+        r = embed._connect_session_or_document(url="http://localhost:8081/foo/bar/sliders", resources="default")
+        self.assertFalse('resources=' in r)
+
+    def test_resources_none(self):
+        r = embed._connect_session_or_document(url="http://localhost:8081/foo/bar/sliders", resources=None)
+        self.assertTrue('resources=none' in r)
+
+
+class TestServerDocument(unittest.TestCase):
+
+    def test_ensure_no_session_do_model(self):
+        r = embed.server_document(url="http://localhost:8081/foo/bar/sliders")
+        self.assertTrue('bokeh-app-path=/foo/bar/sliders' in r)
+        self.assertTrue('bokeh-absolute-url=http://localhost:8081/foo/bar/sliders' in r)
+        html = bs4.BeautifulSoup(r, "lxml")
+        scripts = html.findAll(name='script')
+        self.assertEqual(len(scripts), 1)
+        attrs = scripts[0].attrs
+        self.assertTrue(set(attrs), set([
+            'src',
+            'data-bokeh-doc-id',
+            'data-bokeh-model-id',
+            'id'
+        ]))
+        divid = attrs['id']
+        src = "%s/autoload.js?bokeh-autoload-element=%s&bokeh-app-path=/foo/bar/sliders&bokeh-absolute-url=%s" % \
+              ("http://localhost:8081/foo/bar/sliders", divid, "http://localhost:8081/foo/bar/sliders")
+        self.assertDictEqual({ 'data-bokeh-doc-id' : '',
+                               'data-bokeh-model-id' : '',
+                               'id' : divid,
+                               'src' : src },
+                             attrs)
+
+class TestServerSession(unittest.TestCase):
+
+    def test_model_and_session_both_required(self):
+        with self.assertRaises(TypeError):
+            embed.server_session()
+        with self.assertRaises(TypeError):
+            embed.server_session(_embed_test_plot)
+        with self.assertRaises(TypeError):
+            embed.server_session(session_id='fakesession')
+
+    def test_ensure_session_and_model(self):
+        r = embed.server_session(_embed_test_plot, session_id='fakesession')
+        self.assertTrue('bokeh-session-id=fakesession' in r)
+        html = bs4.BeautifulSoup(r, "lxml")
+        scripts = html.findAll(name='script')
+        self.assertEqual(len(scripts), 1)
+        attrs = scripts[0].attrs
+        self.assertTrue(set(attrs), set([
+            'src',
+            'data-bokeh-doc-id',
+            'data-bokeh-model-id',
+            'id'
+        ]))
+        divid = attrs['id']
+        src = "%s/autoload.js?bokeh-autoload-element=%s&bokeh-absolute-url=%s&bokeh-session-id=fakesession" % \
+              ("http://localhost:5006", divid, "http://localhost:5006")
+        self.assertDictEqual({ 'data-bokeh-doc-id' : '',
+                               'data-bokeh-model-id' : str(_embed_test_plot._id),
+                               'id' : divid,
+                               'src' : src },
+                             attrs)
+
 class TestAutoloadServer(unittest.TestCase):
 
     def test_return_type(self):
@@ -241,7 +322,7 @@ class TestAutoloadServer(unittest.TestCase):
     def test_script_attrs_session_id_provided(self):
         r = embed.autoload_server(_embed_test_plot, session_id='fakesession')
         self.assertTrue('bokeh-session-id=fakesession' in r)
-        html = bs4.BeautifulSoup(r)
+        html = bs4.BeautifulSoup(r, "lxml")
         scripts = html.findAll(name='script')
         self.assertEqual(len(scripts), 1)
         attrs = scripts[0].attrs
@@ -252,8 +333,8 @@ class TestAutoloadServer(unittest.TestCase):
             'id'
         ]))
         divid = attrs['id']
-        src = "%s/autoload.js?bokeh-autoload-element=%s&bokeh-session-id=fakesession" % \
-              ("http://localhost:5006", divid)
+        src = "%s/autoload.js?bokeh-autoload-element=%s&bokeh-absolute-url=%s&bokeh-session-id=fakesession" % \
+              ("http://localhost:5006", divid, "http://localhost:5006")
         self.assertDictEqual({ 'data-bokeh-doc-id' : '',
                                'data-bokeh-model-id' : str(_embed_test_plot._id),
                                'id' : divid,
@@ -263,7 +344,7 @@ class TestAutoloadServer(unittest.TestCase):
     def test_script_attrs_no_session_id_provided(self):
         r = embed.autoload_server(None)
         self.assertFalse('bokeh-session-id' in r)
-        html = bs4.BeautifulSoup(r)
+        html = bs4.BeautifulSoup(r, "lxml")
         scripts = html.findAll(name='script')
         self.assertEqual(len(scripts), 1)
         attrs = scripts[0].attrs
@@ -274,13 +355,131 @@ class TestAutoloadServer(unittest.TestCase):
             'id'
         ]))
         divid = attrs['id']
-        src = "%s/autoload.js?bokeh-autoload-element=%s" % \
-              ("http://localhost:5006", divid)
+        src = "%s/autoload.js?bokeh-autoload-element=%s&bokeh-absolute-url=%s" % \
+              ("http://localhost:5006", divid, "http://localhost:5006")
         self.assertDictEqual({ 'data-bokeh-doc-id' : '',
                                'data-bokeh-model-id' : '',
                                'id' : divid,
                                'src' : src },
                              attrs)
 
-    def test_autoload_server_value_error_on_model_id_without_session_id(self):
-        self.assertRaises(ValueError, embed.autoload_server, _embed_test_plot)
+    def test_script_attrs_url_provided(self):
+        r = embed.autoload_server(url="http://localhost:8081/foo/bar/sliders", relative_urls=True)
+        self.assertTrue('bokeh-app-path=/foo/bar/sliders' in r)
+        html = bs4.BeautifulSoup(r, "lxml")
+        scripts = html.findAll(name='script')
+        self.assertEqual(len(scripts), 1)
+        attrs = scripts[0].attrs
+        self.assertTrue(set(attrs), set([
+            'src',
+            'data-bokeh-doc-id',
+            'data-bokeh-model-id',
+            'id'
+        ]))
+        divid = attrs['id']
+        src = "%s/autoload.js?bokeh-autoload-element=%s&bokeh-app-path=/foo/bar/sliders" % \
+              ("http://localhost:8081/foo/bar/sliders", divid)
+        self.assertDictEqual({ 'data-bokeh-doc-id' : '',
+                               'data-bokeh-model-id' : '',
+                               'id' : divid,
+                               'src' : src },
+                             attrs)
+
+    def test_script_attrs_url_provided_absolute_resources(self):
+        r = embed.autoload_server(url="http://localhost:8081/foo/bar/sliders")
+        self.assertTrue('bokeh-app-path=/foo/bar/sliders' in r)
+        self.assertTrue('bokeh-absolute-url=http://localhost:8081/foo/bar/sliders' in r)
+        html = bs4.BeautifulSoup(r, "lxml")
+        scripts = html.findAll(name='script')
+        self.assertEqual(len(scripts), 1)
+        attrs = scripts[0].attrs
+        self.assertTrue(set(attrs), set([
+            'src',
+            'data-bokeh-doc-id',
+            'data-bokeh-model-id',
+            'id'
+        ]))
+        divid = attrs['id']
+        src = "%s/autoload.js?bokeh-autoload-element=%s&bokeh-app-path=/foo/bar/sliders&bokeh-absolute-url=%s" % \
+              ("http://localhost:8081/foo/bar/sliders", divid, "http://localhost:8081/foo/bar/sliders")
+        self.assertDictEqual({ 'data-bokeh-doc-id' : '',
+                               'data-bokeh-model-id' : '',
+                               'id' : divid,
+                               'src' : src },
+                             attrs)
+
+    def test_script_attrs_url_and_app_path_provided(self):
+        for path in ("/foo/bar/sliders", "/foo/bar/sliders/", "foo/bar/sliders", "foo/bar/sliders"):
+            r = embed.autoload_server(url="http://localhost:8081", app_path=path, relative_urls=True)
+            self.assertTrue('bokeh-app-path=/foo/bar/sliders' in r)
+            html = bs4.BeautifulSoup(r, "lxml")
+            scripts = html.findAll(name='script')
+            self.assertEqual(len(scripts), 1)
+            attrs = scripts[0].attrs
+            self.assertTrue(set(attrs), set([
+                'src',
+                'data-bokeh-doc-id',
+                'data-bokeh-model-id',
+                'id'
+            ]))
+            divid = attrs['id']
+            src = "%s/autoload.js?bokeh-autoload-element=%s&bokeh-app-path=/foo/bar/sliders" % \
+                  ("http://localhost:8081/foo/bar/sliders", divid)
+            self.assertDictEqual({ 'data-bokeh-doc-id' : '',
+                                   'data-bokeh-model-id' : '',
+                                   'id' : divid,
+                                   'src' : src },
+                                 attrs)
+
+    def test_script_attrs_arguments_provided(self):
+        r = embed.server_document(arguments=dict(foo=10))
+        self.assertTrue('foo=10' in r)
+        html = bs4.BeautifulSoup(r, "lxml")
+        scripts = html.findAll(name='script')
+        self.assertEqual(len(scripts), 1)
+        attrs = scripts[0].attrs
+        self.assertTrue(set(attrs), set([
+            'src',
+            'data-bokeh-doc-id',
+            'data-bokeh-model-id',
+            'id'
+        ]))
+        divid = attrs['id']
+        src = "%s/autoload.js?bokeh-autoload-element=%s&bokeh-absolute-url=%s&foo=10" % \
+              ("http://localhost:5006", divid, "http://localhost:5006")
+        self.assertDictEqual({ 'data-bokeh-doc-id' : '',
+                               'data-bokeh-model-id' : '',
+                               'id' : divid,
+                               'src' : src },
+                             attrs)
+
+
+@mock.patch('bokeh.document.check_integrity')
+def test_modelindocument_validates_document_by_default(check_integrity):
+    p = figure()
+    with embed._ModelInDocument([p]):
+        pass
+    assert check_integrity.called
+
+@mock.patch('bokeh.document.check_integrity')
+def test_modelindocument_doesnt_validate_doc_due_to_env_var(check_integrity, monkeypatch):
+    monkeypatch.setenv("BOKEH_VALIDATE_DOC", "false")
+    p = figure()
+    with embed._ModelInDocument([p]):
+        pass
+    assert not check_integrity.called
+
+@mock.patch('bokeh.document.check_integrity')
+def test_modelinemptydocument_validates_document_by_default(check_integrity):
+    p = figure()
+    with embed._ModelInEmptyDocument(p):
+        pass
+    assert check_integrity.called
+
+@mock.patch('bokeh.document.check_integrity')
+def test_modelinemptydocument_doesnt_validate_document_due_to_env_var(check_integrity, monkeypatch):
+    monkeypatch.setenv("BOKEH_VALIDATE_DOC", "false")
+    p = figure()
+    with embed._ModelInEmptyDocument(p):
+        pass
+    assert not check_integrity.called

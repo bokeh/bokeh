@@ -1,53 +1,46 @@
-""" Models for representing top-level plot objects.
+''' Models for representing top-level plot objects.
 
-"""
+'''
 from __future__ import absolute_import
 
 from six import string_types
 
-from ..core.query import find
-from ..core import validation
-from ..core.validation.errors import REQUIRED_RANGE
-from ..core.validation.warnings import (
-    MISSING_RENDERERS, NO_DATA_RENDERERS, MALFORMED_CATEGORY_LABEL,
-    SNAPPED_TOOLBAR_ANNOTATIONS)
-from ..core.enums import Location
+from ..core.enums import Location, OutputBackend
+from ..core.properties import Bool, Dict, Enum, Include, Instance, Int, List, Override, String
 from ..core.property_mixins import LineProps, FillProps
-from ..core.properties import (
-    Bool, Int, String, Enum, Auto, Instance, Either,
-    List, Dict, Include, Override, TitleProp)
-from ..util.string import nice_join
+from ..core.query import find
+from ..core.validation import error, warning
+from ..core.validation.errors import REQUIRED_RANGE, REQUIRED_SCALE, INCOMPATIBLE_SCALE_AND_RANGE
+from ..core.validation.warnings import (MISSING_RENDERERS, NO_DATA_RENDERERS,
+                                        MALFORMED_CATEGORY_LABEL, SNAPPED_TOOLBAR_ANNOTATIONS)
 from ..util.deprecation import deprecated
+from ..util.plot_utils import _list_attr_splat, _select_helper
+from ..util.string import nice_join
 
 from .annotations import Legend, Title
 from .axes import Axis
 from .glyphs import Glyph
 from .grids import Grid
-from .ranges import Range, FactorRange
-from .renderers import Renderer, GlyphRenderer, DataRenderer, TileRenderer, DynamicImageRenderer
-from .sources import DataSource, ColumnDataSource
-from .tools import Tool, ToolEvents, Toolbar
 from .layouts import LayoutDOM
-
-from ..util.plot_utils import _list_attr_splat, _select_helper
-
-# We create an empty title by default
-DEFAULT_TITLE = lambda: Title(text="")
+from .ranges import Range, FactorRange, DataRange1d, Range1d
+from .renderers import DataRenderer, DynamicImageRenderer, GlyphRenderer, Renderer, TileRenderer
+from .scales import Scale, CategoricalScale, LinearScale, LogScale
+from .sources import DataSource, ColumnDataSource
+from .tools import Tool, Toolbar
 
 class Plot(LayoutDOM):
-    """ Model representing a plot, containing glyphs, guides, annotations.
+    ''' Model representing a plot, containing glyphs, guides, annotations.
 
-    """
+    '''
+
+    __deprecated_attributes__ = ["webgl", "x_mapper_type", "y_mapper_type", "tool_events"]
 
     def __init__(self, **kwargs):
-        if "tool_events" not in kwargs:
-            kwargs["tool_events"] = ToolEvents()
-
         if "toolbar" in kwargs and "logo" in kwargs:
-            raise ValueError("Conflicing properties set on plot: toolbar, logo.")
+            raise ValueError("Conflicting properties set on plot: toolbar, logo.")
 
         if "toolbar" in kwargs and "tools" in kwargs:
-            raise ValueError("Conflicing properties set on plot: toolbar, tools.")
+            raise ValueError("Conflicting properties set on plot: toolbar, tools.")
 
         if "toolbar" not in kwargs:
             tools = kwargs.pop('tools', [])
@@ -55,11 +48,11 @@ class Plot(LayoutDOM):
 
             kwargs["toolbar"] = Toolbar(tools=tools, logo=logo)
 
-        if "border_fill" in kwargs and "border_fill_color" in kwargs:
-            raise ValueError("Conflicting properties set on plot: border_fill, border_fill_color.")
+        if "x_mapper_type" in kwargs and "x_scale" in kwargs:
+            raise ValueError("Conflicting properties set on plot: x_mapper_type, x_scale.")
 
-        if "background_fill" in kwargs and "background_fill_color" in kwargs:
-            raise ValueError("Conflicting properties set on plot: background_fill, background_fill_color.")
+        if "y_mapper_type" in kwargs and "y_scale" in kwargs:
+            raise ValueError("Conflicting properties set on plot: y_mapper_type, y_scale")
 
         super(LayoutDOM, self).__init__(**kwargs)
 
@@ -150,30 +143,30 @@ class Plot(LayoutDOM):
 
     @property
     def xaxis(self):
-        """ Splattable list of :class:`~bokeh.models.axes.Axis` objects for the x dimension.
+        ''' Splattable list of :class:`~bokeh.models.axes.Axis` objects for the x dimension.
 
-        """
+        '''
         return self._axis("above", "below")
 
     @property
     def yaxis(self):
-        """ Splattable list of :class:`~bokeh.models.axes.Axis` objects for the y dimension.
+        ''' Splattable list of :class:`~bokeh.models.axes.Axis` objects for the y dimension.
 
-        """
+        '''
         return self._axis("left", "right")
 
     @property
     def axis(self):
-        """ Splattable list of :class:`~bokeh.models.axes.Axis` objects.
+        ''' Splattable list of :class:`~bokeh.models.axes.Axis` objects.
 
-        """
+        '''
         return _list_attr_splat(self.xaxis + self.yaxis)
 
     @property
     def legend(self):
-        """Splattable list of :class:`~bokeh.models.annotations.Legend` objects.
+        ''' Splattable list of :class:`~bokeh.models.annotations.Legend` objects.
 
-        """
+        '''
         legends = [obj for obj in self.renderers if isinstance(obj, Legend)]
         return _list_attr_splat(legends)
 
@@ -183,23 +176,23 @@ class Plot(LayoutDOM):
 
     @property
     def xgrid(self):
-        """ Splattable list of :class:`~bokeh.models.grids.Grid` objects for the x dimension.
+        ''' Splattable list of :class:`~bokeh.models.grids.Grid` objects for the x dimension.
 
-        """
+        '''
         return self._grid(0)
 
     @property
     def ygrid(self):
-        """ Splattable list of :class:`~bokeh.models.grids.Grid` objects for the y dimension.
+        ''' Splattable list of :class:`~bokeh.models.grids.Grid` objects for the y dimension.
 
-        """
+        '''
         return self._grid(1)
 
     @property
     def grid(self):
-        """ Splattable list of :class:`~bokeh.models.grids.Grid` objects.
+        ''' Splattable list of :class:`~bokeh.models.grids.Grid` objects.
 
-        """
+        '''
         return _list_attr_splat(self.xgrid + self.ygrid)
 
     @property
@@ -253,9 +246,6 @@ class Plot(LayoutDOM):
             raise ValueError("All arguments to add_tool must be Tool subclasses.")
 
         for tool in tools:
-            if tool.plot is not None:
-                raise ValueError("tool %s to be added already has 'plot' attribute set" % tool)
-            tool.plot = self
             if hasattr(tool, 'overlay'):
                 self.renderers.append(tool.overlay)
             self.toolbar.tools.append(tool)
@@ -295,7 +285,7 @@ class Plot(LayoutDOM):
         return g
 
     def add_tile(self, tile_source, **kw):
-        '''Adds new TileRenderer into the Plot.renderers
+        ''' Adds new TileRenderer into the Plot.renderers
 
         Args:
             tile_source (TileSource) : a tile source instance which contain tileset configuration
@@ -312,7 +302,7 @@ class Plot(LayoutDOM):
         return tile_renderer
 
     def add_dynamic_image(self, image_source, **kw):
-        '''Adds new DynamicImageRenderer into the Plot.renderers
+        ''' Adds new DynamicImageRenderer into the Plot.renderers
 
         Args:
             image_source (ImageSource) : a image source instance which contain image configuration
@@ -324,11 +314,12 @@ class Plot(LayoutDOM):
             DynamicImageRenderer : DynamicImageRenderer
 
         '''
+        deprecated((0, 12, 7), "add_dynamic_image", "GeoViews for GIS functions on top of Bokeh (http://geo.holoviews.org)")
         image_renderer = DynamicImageRenderer(image_source=image_source, **kw)
         self.renderers.append(image_renderer)
         return image_renderer
 
-    @validation.error(REQUIRED_RANGE)
+    @error(REQUIRED_RANGE)
     def _check_required_range(self):
         missing = []
         if not self.x_range: missing.append('x_range')
@@ -336,17 +327,54 @@ class Plot(LayoutDOM):
         if missing:
             return ", ".join(missing) + " [%s]" % self
 
-    @validation.warning(MISSING_RENDERERS)
+    @error(REQUIRED_SCALE)
+    def _check_required_scale(self):
+        missing = []
+        if not self.x_scale: missing.append('x_scale')
+        if not self.y_scale: missing.append('y_scale')
+        if missing:
+            return ", ".join(missing) + " [%s]" % self
+
+    @error(INCOMPATIBLE_SCALE_AND_RANGE)
+    def _check_compatible_scale_and_ranges(self):
+        incompatible = []
+        x_ranges = list(self.extra_x_ranges.values())
+        if self.x_range: x_ranges.append(self.x_range)
+        y_ranges = list(self.extra_y_ranges.values())
+        if self.y_range: y_ranges.append(self.y_range)
+
+        for rng in x_ranges:
+            if isinstance(rng, (DataRange1d, Range1d)) and not isinstance(self.x_scale, (LinearScale, LogScale)):
+                incompatible.append("incompatibility on x-dimension: %s, %s" %(rng, self.x_scale))
+            elif isinstance(rng, FactorRange) and not isinstance(self.x_scale, CategoricalScale):
+                incompatible.append("incompatibility on x-dimension: %s/%s" %(rng, self.x_scale))
+            # special case because CategoricalScale is a subclass of LinearScale, should be removed in future
+            if isinstance(rng, (DataRange1d, Range1d)) and isinstance(self.x_scale, CategoricalScale):
+                incompatible.append("incompatibility on x-dimension: %s, %s" %(rng, self.x_scale))
+
+        for rng in y_ranges:
+            if isinstance(rng, (DataRange1d, Range1d)) and not isinstance(self.y_scale, (LinearScale, LogScale)):
+                incompatible.append("incompatibility on y-dimension: %s/%s" %(rng, self.y_scale))
+            elif isinstance(rng, FactorRange) and not isinstance(self.y_scale, CategoricalScale):
+                incompatible.append("incompatibility on y-dimension: %s/%s" %(rng, self.y_scale))
+            # special case because CategoricalScale is a subclass of LinearScale, should be removed in future
+            if isinstance(rng, (DataRange1d, Range1d)) and isinstance(self.y_scale, CategoricalScale):
+                incompatible.append("incompatibility on y-dimension: %s, %s" %(rng, self.y_scale))
+
+        if incompatible:
+            return ", ".join(incompatible) + " [%s]" % self
+
+    @warning(MISSING_RENDERERS)
     def _check_missing_renderers(self):
         if len(self.renderers) == 0:
             return str(self)
 
-    @validation.warning(NO_DATA_RENDERERS)
+    @warning(NO_DATA_RENDERERS)
     def _check_no_data_renderers(self):
         if len(self.select(DataRenderer)) == 0:
             return str(self)
 
-    @validation.warning(MALFORMED_CATEGORY_LABEL)
+    @warning(MALFORMED_CATEGORY_LABEL)
     def _check_colon_in_category_label(self):
         if not self.x_range: return
         if not self.y_range: return
@@ -368,7 +396,7 @@ class Plot(LayoutDOM):
                                  for field, value in broken)
             return '%s [renderer: %s]' % (field_msg, self)
 
-    @validation.warning(SNAPPED_TOOLBAR_ANNOTATIONS)
+    @warning(SNAPPED_TOOLBAR_ANNOTATIONS)
     def _check_snapped_toolbar_and_axis(self):
         if not self.toolbar_sticky: return
         if self.toolbar_location is None: return
@@ -376,12 +404,6 @@ class Plot(LayoutDOM):
         objs = getattr(self, self.toolbar_location)
         if len(objs) > 0:
             return str(self)
-
-    __deprecated_attributes__ = (
-        'background_fill', 'border_fill', 'logo', 'tools', 'responsive',
-        'title_text_baseline', 'title_text_align', 'title_text_alpha', 'title_text_color',
-        'title_text_font_style', 'title_text_font_size', 'title_text_font', 'title_standoff'
-    )
 
     x_range = Instance(Range, help="""
     The (default) data range of the horizontal dimension of the plot.
@@ -391,22 +413,70 @@ class Plot(LayoutDOM):
     The (default) data range of the vertical dimension of the plot.
     """)
 
-    x_mapper_type = Either(Auto, String, help="""
-    What kind of mapper to use to convert x-coordinates in data space
-    into x-coordinates in screen space.
+    @classmethod
+    def _scale(cls, scale):
+        if scale in ["auto", "linear"]:
+            return LinearScale()
+        elif scale == "log":
+            return LogScale()
+        if scale == "categorical":
+            return CategoricalScale()
+        else:
+            raise ValueError("Unknown mapper_type: %s" % scale)
 
-    Typically this can be determined automatically, but this property
-    can be useful to, e.g., show datetime values as floating point
-    "seconds since epoch" instead of formatted dates.
+    @property
+    def x_mapper_type(self):
+        deprecated((0, 12, 6), "x_mapper_type", "x_scale")
+        return self.x_scale
+
+    @x_mapper_type.setter
+    def x_mapper_type(self, mapper_type):
+        deprecated((0, 12, 6), "x_mapper_type", "x_scale")
+        self.x_scale = self._scale(mapper_type)
+
+    @property
+    def y_mapper_type(self):
+        deprecated((0, 12, 6), "y_mapper_type", "y_scale")
+        return self.y_scale
+
+    @y_mapper_type.setter
+    def y_mapper_type(self, mapper_type):
+        deprecated((0, 12, 6), "y_mapper_type", "y_scale")
+        self.y_scale = self._scale(mapper_type)
+
+    @property
+    def tool_events(self):
+        deprecated((0, 12, 7), "tool_events", "bokeh.events.SelectionGeometry")
+        return None
+
+    @tool_events.setter
+    def tool_events(self, tool_events):
+        deprecated((0, 12, 7), "tool_events", "bokeh.events.SelectionGeometry")
+        pass
+
+    @property
+    def webgl(self):
+        deprecated((0, 12, 6), "webgl", "output_backend")
+        return self.output_backend == "webgl"
+
+    @webgl.setter
+    def webgl(self, webgl):
+        deprecated((0, 12, 6), "webgl", "output_backend")
+        if not isinstance(webgl, bool):
+            raise ValueError('Attribute "webgl" must be a boolean')
+        if webgl is True:
+            self.output_backend = "webgl"
+        else:
+            self.output_backend = "canvas"
+
+    x_scale = Instance(Scale, default=lambda: LinearScale(), help="""
+    What kind of scale to use to convert x-coordinates in data space
+    into x-coordinates in screen space.
     """)
 
-    y_mapper_type = Either(Auto, String, help="""
-    What kind of mapper to use to convert y-coordinates in data space
+    y_scale = Instance(Scale, default=lambda: LinearScale(), help="""
+    What kind of scale to use to convert y-coordinates in data space
     into y-coordinates in screen space.
-
-    Typically this can be determined automatically, but this property
-    can be useful to, e.g., show datetime values as floating point
-    "seconds since epoch" instead of formatted dates
     """)
 
     extra_x_ranges = Dict(String, Instance(Range), help="""
@@ -425,8 +495,8 @@ class Plot(LayoutDOM):
     Whether to use HiDPI mode when available.
     """)
 
-    title = TitleProp(default=DEFAULT_TITLE, help="""
-    A title for the plot. Can be a text string or a Title annotation. Default is Title(text="").
+    title = Instance(Title, default=lambda: Title(text=""), help="""
+    A title for the plot. Can be a text string or a Title annotation.
     """)
 
     title_location = Enum(Location, default="above", help="""
@@ -463,10 +533,6 @@ class Plot(LayoutDOM):
     toolbar_sticky = Bool(default=True, help="""
     Stick the toolbar to the edge of the plot. Default: True. If False,
     the toolbar will be outside of the axes, titles etc.
-    """)
-
-    tool_events = Instance(ToolEvents, help="""
-    A ToolEvents object to share and report tool events.
     """)
 
     left = List(Instance(Renderer), help="""
@@ -519,6 +585,28 @@ class Plot(LayoutDOM):
     inner_height = Int(readonly=True, help="""
     This is the exact height of the plotting canvas, i.e. the height of
     the actual plot, without toolbars etc. Note this is computed in a
+    web browser, so this property will work only in backends capable of
+    bidirectional communication (server, notebook).
+
+    .. note::
+        This is an experimental feature and the API may change in near future.
+
+    """)
+
+    layout_width = Int(readonly=True, help="""
+    This is the exact width of the layout, i.e. the height of
+    the actual plot, with toolbars etc. Note this is computed in a
+    web browser, so this property will work only in backends capable of
+    bidirectional communication (server, notebook).
+
+    .. note::
+        This is an experimental feature and the API may change in near future.
+
+    """)
+
+    layout_height = Int(readonly=True, help="""
+    This is the exact height of the layout, i.e. the height of
+    the actual plot, with toolbars etc. Note this is computed in a
     web browser, so this property will work only in backends capable of
     bidirectional communication (server, notebook).
 
@@ -617,165 +705,10 @@ class Plot(LayoutDOM):
     level-of-detail mode is disabled.
     """)
 
-    webgl = Bool(False, help="""
-    Whether WebGL is enabled for this plot. If True, the glyphs that
-    support this will render via WebGL instead of the 2D canvas.
+    output_backend = Enum(OutputBackend, default="canvas", help="""
+    Specify the output backend for the plot area. Default is HTML5 Canvas.
+
+    .. note::
+        When set to ``webgl``, glyphs without a WebGL rendering implementation
+        will fall back to rendering onto 2D canvas.
     """)
-
-    #
-    # DEPRECATED PROPERTIES
-    #
-
-    @property
-    def responsive(self):
-        deprecated((0, 12, 0), 'Plot.responsive', 'Plot.sizing_mode')
-        return self.sizing_mode != "fixed"
-
-    @responsive.setter
-    def responsive(self, value):
-        deprecated((0, 12, 0), 'Plot.responsive', 'Plot.sizing_mode', """
-        Plot.sizing_mode which accepts one of five modes:
-
-            fixed, scale_width, scale_height, scale_both, stretch_both
-
-        'responsive = False' is the equivalent of 'sizing_mode = "fixed"'
-
-        'responsive = True' is the equivalent of 'sizing_mode = "scale_width"'
-        """)
-        if value is True:
-            self.sizing_mode = "scale_width"
-        elif value is False:
-            self.sizing_mode = "fixed"
-        else:
-            raise ValueError("Plot.responsive only accepts True or False, got: %r" % value)
-
-    @property
-    def background_fill(self):
-        deprecated((0, 11, 0), 'Plot.background_fill', 'Plot.background_fill_color')
-        return self.background_fill_color
-
-    @background_fill.setter
-    def background_fill(self, color):
-        deprecated((0, 11, 0), 'Plot.background_fill', 'Plot.background_fill_color')
-        self.background_fill_color = color
-
-    @property
-    def border_fill(self):
-        deprecated((0, 11, 0), 'Plot.border_fill', 'Plot.border_fill_color')
-        return self.border_fill_color
-
-    @border_fill.setter
-    def border_fill(self, color):
-        deprecated((0, 11, 0), 'Plot.border_fill', 'Plot.border_fill_color')
-        self.border_fill_color = color
-
-    @property
-    def logo(self):
-        deprecated((0, 12, 0), 'Plot.logo', 'Plot.toolbar.logo')
-        return self.toolbar.logo
-
-    @logo.setter
-    def logo(self, value):
-        deprecated((0, 12, 0), 'Plot.logo', 'Plot.toolbar.logo')
-        self.toolbar.logo = value
-
-    @property
-    def title_standoff(self):
-        deprecated((0, 12, 0), 'Plot.title_standoff', 'Plot.title.offset')
-        return self.title.offset
-
-    @title_standoff.setter
-    def title_standoff(self, value):
-        deprecated((0, 12, 0), 'Plot.title_standoff', 'Plot.title.offset')
-        self.title.offset = value
-
-    @property
-    def title_text_font(self):
-        deprecated((0, 12, 0), 'Plot.title_text_font', 'Plot.title.text_font')
-        return self.title.text_font
-
-    @title_text_font.setter
-    def title_text_font(self, value):
-        deprecated((0, 12, 0), 'Plot.title_text_font', 'Plot.title.text_font')
-        self.title.text_font = value
-
-    @property
-    def title_text_font_size(self):
-        deprecated((0, 12, 0), 'Plot.title_text_font_size', 'Plot.title.text_font_size')
-        return self.title.text_font_size
-
-    @title_text_font_size.setter
-    def title_text_font_size(self, value):
-        deprecated((0, 12, 0), 'Plot.title_text_font_size', 'Plot.title.text_font_size')
-        self.title.text_font_size = value
-
-    @property
-    def title_text_font_style(self):
-        deprecated((0, 12, 0), 'Plot.title_text_font_style', 'Plot.title.text_font_style')
-        return self.title.text_font_style
-
-    @title_text_font_style.setter
-    def title_text_font_style(self, value):
-        deprecated((0, 12, 0), 'Plot.title_text_font_style', 'Plot.title.text_font_style')
-        self.title.text_font_style = value
-
-    @property
-    def title_text_color(self):
-        deprecated((0, 12, 0), 'Plot.title_text_color', 'Plot.title.text_color')
-        return self.title.text_color
-
-    @title_text_color.setter
-    def title_text_color(self, value):
-        deprecated((0, 12, 0), 'Plot.title_text_color', 'Plot.title.text_color')
-        self.title.text_color = value
-
-    @property
-    def title_text_alpha(self):
-        deprecated((0, 12, 0), 'Plot.title_text_alpha', 'Plot.title.text_alpha')
-        return self.title.text_alpha
-
-    @title_text_alpha.setter
-    def title_text_alpha(self, value):
-        deprecated((0, 12, 0), 'Plot.title_text_alpha', 'Plot.title.text_alpha')
-        self.title.text_alpha = value
-
-    @property
-    def title_text_align(self):
-        deprecated((0, 12, 0), 'Plot.title_text_align', 'Plot.title.align')
-        deprecated("""``title_text_align`` was deprecated in 0.12.0 and is no longer
-        available on the new Title object. There is a new ``plot.title.title_align`` which is
-        similar but not exactly the same. The new ``title_align`` both positions and aligns the title.
-        If you need the exact ``title_text_align`` behavior, please add a title by creating a
-        Label (``bokeh.models.annotations.Label``) and manually adding
-        it to the plot by doing, for example ``plot.add_layout(Label(), 'above')``.
-        """)
-        return self.title.align
-
-    @title_text_align.setter
-    def title_text_align(self, value):
-        deprecated((0, 12, 0), 'Plot.title_text_align', 'Plot.title.align')
-        deprecated("""``title_text_align`` was deprecated in 0.12.0 and is no longer
-        available on the new Title object. There is a new ``plot.title.title_align`` which is
-        similar but not exactly the same. The new ``title_align`` both positions and aligns the title.
-        If you need the exact ``title_text_align`` behavior, please add a title by creating a
-        Label (``bokeh.models.annotations.Label``) and manually adding
-        it to the plot by doing, for example ``plot.add_layout(Label(), 'above')``.
-        """)
-        self.title.align = value
-
-    @property
-    def title_text_baseline(self):
-        deprecated("""title_text_baseline was deprecated in 0.12.0 and is no longer
-        available on the new Title object. If you need to alter the text_baseline, please
-        add a title by creating a Label (``bokeh.models.annotations.Label``) and manually adding
-        it to the plot by doing, for example ``plot.add_layout(Label(), 'above')``.
-        """)
-        return None
-
-    @title_text_baseline.setter
-    def title_text_baseline(self, value):
-        deprecated("""title_text_baseline was deprecated in 0.12.0 and is no longer
-        available on the new Title object. If you need to alter the text_baseline, please
-        add a title by creating a Label (``bokeh.models.annotations.Label``) and manually adding
-        it to the plot by doing, for example ``plot.add_layout(Label(), 'above')``.
-        """)

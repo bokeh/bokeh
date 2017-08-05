@@ -1,16 +1,14 @@
-import * as _ from "underscore"
-
 import {BasicTickFormatter} from "./basic_tick_formatter"
 import {TickFormatter} from "./tick_formatter"
-import {logger} from "../../core/logging"
-import * as p from "../../core/properties"
+import {logger} from "core/logging"
+import * as p from "core/properties"
 
 export class LogTickFormatter extends TickFormatter
   type: 'LogTickFormatter'
 
   @define {
-      ticker: [ p.Instance, null ]
-    }
+    ticker: [ p.Instance, null ]
+  }
 
   initialize: (attrs, options) ->
     super(attrs, options)
@@ -18,7 +16,7 @@ export class LogTickFormatter extends TickFormatter
     if not @ticker?
       logger.warn("LogTickFormatter not configured with a ticker, using default base of 10 (labels will be incorrect if ticker base is not 10)")
 
-  doFormat: (ticks) ->
+  doFormat: (ticks, axis) ->
     if ticks.length == 0
       return []
 

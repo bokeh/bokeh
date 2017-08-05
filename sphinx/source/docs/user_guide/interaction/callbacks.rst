@@ -1,4 +1,4 @@
-.. _userguide_interaction_callbacks:
+.. _userguide_interaction_jscallbacks:
 
 JavaScript Callbacks
 --------------------
@@ -7,19 +7,20 @@ While the main goal of Bokeh is to provide a path to create rich interactive
 visualizations in the browser, purely from python, there will always be
 specialized use-cases that are outside the capabilities of the core library.
 For this reason, Bokeh provides different ways for users to supply custom
-JavaScript when necessary, so that users
+JavaScript when necessary, so that users may add custom or specialized
+behaviours in response to property changes and other events.
 
 One mechanism is the ability to add entire new custom extension models,
 as described in :ref:`userguide_extensions`. However it is also possible
 to supply small snippets of JavaScript as callbacks to use, e.g when property
-values change. This kind of callback can be used to add interesting
-interactions to Bokeh documents without the need to use a Bokeh server (but
-can also be used in conjunction with a Bokeh server).
+values change, or when UI or other events occur. This kind of callback can be
+used to add interesting interactions to Bokeh documents without the need to
+use a Bokeh server (but can also be used in conjunction with a Bokeh server).
 
-.. _userguide_interaction_actions_customjs:
+.. _userguide_interaction_jscallbacks_customjs:
 
-CustomJS for Generic Events
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+CustomJS Callbacks
+~~~~~~~~~~~~~~~~~~
 
 To supply a snippet of JavaScript code that should be executed (in the
 browser) when some event occurs, use the ``CustomJS`` model:
@@ -50,6 +51,11 @@ automatically be available to the JavaScript code by the corresponding name.
 Additionally, the model that triggers the callback (i.e. the model that
 the callback is attached to) will be available as ``cb_obj``.
 
+.. _userguide_interaction_jscallbacks_customjs_properties:
+
+CustomJS for Model Property Events
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 These ``CustomJS`` callbacks can be attached to property change events on
 any Bokeh model, using the ``js_on_change`` method of Bokeh models:
 
@@ -76,11 +82,53 @@ is executed to update some data:
 .. bokeh-plot:: docs/user_guide/examples/interaction_callbacks_js_on_change.py
     :source-position: above
 
+.. _userguide_interaction_jscallbacks_customjs_interactions:
+
+CustomJS for User Interaction Events
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In addition to responding to property change events using js_on_change, Bokeh
+allows CustomJS callbacks to be triggered by specific interaction events with
+the plot canvas, on button click events, and on LOD events.
+
+These event callbacks are defined on models using the js_on_event method,
+with the callback receiving the event object as a locally defined cb_obj
+variable:
+
+.. code:: python
+
+    from bokeh.models.callbacks import CustomJS
+
+    callback = CustomJS(code="""
+    // the event that triggered the callback is cb_obj:
+    var event = cb_obj.value;
+    // The event type determines the relevant attributes
+    console.log('Tap event occured at x-position: ' + event.x)
+    """)
+
+    p = figure()
+    # execute a callback whenever the plot canvas is tapped
+    p.js_on_event('tap', callback)
+
+The event can be specified as a string such as ``'tap'`` above, or an event
+class import from the ``bokeh.events`` module
+(i.e. ``from bokeh.events import Tap``).
+
+The following code imports ``bokeh.events`` and registers all of the
+available event classes using the ``display_event`` function in order to
+generate the ``CustomJS`` objects. This function is used to update the ``Div``
+with the event name (always accessible from the ``event_name``
+attribute) as well as all the other applicable event attributes. The
+result is a plot that when interacted with, displays the corresponding
+event on the right:
+
+.. bokeh-plot:: docs/user_guide/examples/js_events.py
+    :source-position: above
 
 CustomJS for Specialized Events
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In addition to the generic mechanism described above for adding ``CustomJS``
+In addition to the generic mechanisms described above for adding ``CustomJS``
 callbacks to Bokeh models, there are also a some Bokeh models that have a
 ``.callback`` property specifically for executing ``CustomJS`` in response
 to specific events or situations.
@@ -90,8 +138,6 @@ to specific events or situations.
     fashion. Many of them can be accomplished with the generic mechanism
     described above, and as such, may be deprecated in favor of the generic
     mechanism in the future.
-
-.. _userguide_interaction_actions_widget_callbacks:
 
 CustomJS for Widgets
 ''''''''''''''''''''
@@ -110,8 +156,6 @@ changes the source of a plot when the slider is used.
 .. bokeh-plot:: docs/user_guide/examples/interaction_callbacks_for_widgets.py
     :source-position: above
 
-.. _userguide_interaction_actions_tool_callbacks:
-
 CustomJS for Tools
 ''''''''''''''''''
 
@@ -123,8 +167,6 @@ add a Rect glyph to the plot with identical dimensions.
 
 .. bokeh-plot:: docs/user_guide/examples/interaction_callbacks_for_tools.py
     :source-position: above
-
-.. _userguide_interaction_actions_selection_callbacks:
 
 CustomJS for Selections
 '''''''''''''''''''''''
@@ -145,8 +187,6 @@ a line through that value.
 .. bokeh-plot:: docs/user_guide/examples/interaction_callbacks_for_selections_lasso_mean.py
     :source-position: above
 
-.. _userguide_interaction_actions_hover_callbacks:
-
 CustomJS for Hover
 ''''''''''''''''''
 
@@ -157,8 +197,6 @@ hover tool is over.
 .. bokeh-plot:: docs/user_guide/examples/interaction_callbacks_for_hover.py
     :source-position: above
 
-.. _userguide_interaction_actions_range_update_callbacks:
-
 CustomJS for Range Update
 '''''''''''''''''''''''''
 
@@ -168,9 +206,6 @@ interactions such as a box zoom, wheel scroll or pan.
 
 .. bokeh-plot:: docs/user_guide/examples/interaction_callbacks_for_range_update.py
     :source-position: above
-
-
-.. _userguide_interaction_actions_in coffeescript:
 
 CustomJS with CoffeeScript code
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -184,8 +219,6 @@ the same ``args`` and ``code`` parameters:
     callback = CustomJS.from_coffeescript(args=dict(p=plot), code="""
     # coffeescript code here
     """)
-
-.. _userguide_interaction_actions_in_python:
 
 CustomJS with a Python function
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -234,7 +267,7 @@ to avoid confusion and help static code analysis tools. You can add
         x, y = data['x'], data['y']
         for i in range(len(x)):
             y[i] = window.Math.pow(x[i], f)
-        source.trigger('change')
+        source.change.emit()
 
     slider = Slider(start=0.1, end=4, value=1, step=.1, title="power",
                     callback=CustomJS.from_py_func(callback))
@@ -245,8 +278,6 @@ to avoid confusion and help static code analysis tools. You can add
 
 .. bokeh-plot:: docs/user_guide/examples/interaction_callbacks_for_widgets.py
     :source-position: none
-
-.. _userguide_interaction_actions_openurl:
 
 OpenURL
 ~~~~~~~
@@ -263,7 +294,9 @@ to open an URL whenever the user clicks on a circle.
     :source-position: above
 
 Please note that ``OpenURL`` callbacks specifically and only work with
-``TapTool``.
+``TapTool``, and are only invoked when a glyph is hit. That is, they do not
+execute on every tap. If you would like to execute a callback on every
+mouse tap, please see :ref:`userguide_interaction_jscallbacks_customjs_interactions`.
 
 .. _CoffeeScript: http://coffeescript.org
 .. _PyScript documentation: http://flexx.readthedocs.org/en/stable/pyscript

@@ -1,7 +1,5 @@
-import * as _ from "underscore"
-
-import {SidePanel} from "../../core/layout/side_panel"
-import * as p from "../../core/properties"
+import {SidePanel} from "core/layout/side_panel"
+import * as p from "core/properties"
 
 import {Renderer, RendererView} from "../renderers/renderer"
 
@@ -11,8 +9,8 @@ export class AnnotationView extends RendererView
     # Sub-classes may have to implement _get_panel_offset themselves
     # because different renderers draw themselves differently so
     # need the individual classes to determine the correct offset.
-    x = @model.panel._left._value
-    y = @model.panel._bottom._value
+    x = @model.panel._left.value
+    y = @model.panel._bottom.value
     return {x: x, y: -y}
 
   _get_size: () ->

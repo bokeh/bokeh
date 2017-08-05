@@ -1,4 +1,3 @@
-_ = require "underscore"
 chai = require "chai"
 chai.use(require "chai-as-promised")
 expect = chai.expect
@@ -52,21 +51,15 @@ with_server = (f) ->
   else
     pypath = basedir
   port = next_port()
-  env = _.extend({}, process.env, { PYTHONPATH: pypath })
+  env = Object.assign({}, process.env, { PYTHONPATH: pypath })
   handle = child_process.spawn("python", ["-m", "bokeh", "serve", "--port=#{port}"], {
     env: env,
     cwd: basedir
   })
-  handle.stdout.on 'data', (data) ->
-    console.log("server out: #{data}")
-  handle.stderr.on 'data', (data) ->
-    console.log("server err: #{data}")
   handle.on 'close', (code) ->
-    console.log("server exited #{code}")
     promise.reject(new Error("Server exited before test promise was resolved"))
 
   cleanup_process = (value_or_error) ->
-    console.log("Killing server process")
     handle.kill()
 
   promise.then(cleanup_process, cleanup_process)
@@ -124,34 +117,50 @@ describe "Client", ->
 
   it "should be able to connect", ->
     promise = with_server (server_process) ->
-      pull_session(url=server_process.url).then(
+      pull_session(server_process.url).then(
         (session) ->
-          console.log("Connection result #{session}")
           session.close()
           "OK"
         (error) ->
-          console.log("Connection error #{error}")
           throw error
       )
     expect(promise).eventually.to.equal("OK")
 
-  it "should get server info", ->
+  it "should pass request string to connection", ->
     promise = with_server (server_process) ->
-      pull_session(url=server_process.url).then(
+      pull_session(server_process.url, null, "foo=10&bar=20").then(
         (session) ->
-          console.log("Connection result #{session}")
-          session.request_server_info().then(
-            (info) ->
-              console.log("Server info ", info)
-              expect(info).to.have.property('version_info')
-              "OK"
-          )
+          expect(session._connection.args_string).to.be.equal "foo=10&bar=20"
+          "OK"
       )
     expect(promise).eventually.to.equal("OK")
 
+  it "should be able to connect", ->
+    promise = with_server (server_process) ->
+      pull_session(server_process.url).then(
+        (session) ->
+          session.close()
+          "OK"
+        (error) ->
+          throw error
+      )
+    expect(promise).eventually.to.equal("OK")
+
+   it "should get server info", ->
+     promise = with_server (server_process) ->
+       pull_session(server_process.url).then(
+         (session) ->
+           session.request_server_info().then(
+             (info) ->
+               expect(info).to.have.property('version_info')
+               "OK"
+           )
+        )
+     expect(promise).eventually.to.equal("OK")
+
   it "should sync a document between two connections", ->
     promise = with_server (server_process) ->
-      added_root = pull_session(url=server_process.url).then(
+      added_root = pull_session(server_process.url).then(
         (session) ->
           root1 = new Range1d({start: 123, end: 456})
           session.document.add_root(root1)
@@ -164,7 +173,7 @@ describe "Client", ->
 
       added_root.then(
         (session1) ->
-          ok = pull_session(url=server_process.url, session_id=session1.id).then(
+          ok = pull_session(server_process.url, session1.id).then(
             (session2) ->
               try
                 expect(session2.document.roots().length).to.equal 1
@@ -173,7 +182,6 @@ describe "Client", ->
                 expect(root.end).to.equal 456
                 expect(session2.document.title()).to.equal "Hello Title"
               catch e
-                console.log("Exception was ", e)
                 throw e
               finally
                 session1.close()

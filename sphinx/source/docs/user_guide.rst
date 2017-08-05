@@ -20,14 +20,8 @@ topic:
     Use the simple but flexible glyph methods from the |bokeh.plotting|
     interface to construct basic and custom plots.
 
-:ref:`userguide_charts`
-    Use the high-level |bokeh.charts| interface to create common
-    statistical charts quickly and easily.
-
 :ref:`userguide_compat`
-    Display a wide range of plots created using `Matplotlib`_, `Seaborn`_,
-    `pandas`_, or `ggplot.py`_ as Bokeh plots, or build Bokeh plots
-    using `HoloViews`_.
+    Use Bokeh together with libraries such as `Datashader`_ and  `HoloViews`_.
 
 :ref:`userguide_annotations`
     Add informational annotations, such as labels, arrows, and legends to
@@ -75,6 +69,9 @@ topic:
 :ref:`userguide_extensions`
     Adding new capability to Bokeh with custom user extensions.
 
+:ref:`userguide_export`
+    Learn how to export Bokeh layouts as PNGs and SVGs.
+
 :ref:`userguide_info`
     See where to go next for more information and examples.
 
@@ -88,11 +85,7 @@ Blaze are required to run the examples as written. However, Bokeh works
 well with NumPy, Pandas, Blaze, or almost any array or table-like data
 structure.
 
-.. |bokeh.charts|   replace:: :ref:`bokeh.charts <bokeh.charts>`
 .. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`
 
-.. _ggplot.py: https://github.com/yhat/ggplot
+.. _Datashader: http://datashader.readthedocs.io
 .. _HoloViews: http://holoviews.org
-.. _Matplotlib: http://matplotlib.org
-.. _Pandas: http://pandas.pydata.org
-.. _Seaborn: http://web.stanford.edu/~mwaskom/software/seaborn

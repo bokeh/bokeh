@@ -1,0 +1,212 @@
+0.12.5 (March 2017)
+===================
+
+Bokeh Version ``0.12.5`` is an incremental update that adds a few important
+features and fixes several bugs. Some of the highlights include:
+
+* New general capability for Python/JS events (:bokeh-issue:`3210`,
+  :bokeh-issue:`3748`, :bokeh-issue:`5278`)
+* Bokeh apps easily viewable inline in Jupyter Notebooks (:bokeh-issue:`3461`)
+* Confusing ``--host`` parameter no longer necessary (:bokeh-issue:`5692`)
+* Interactive legends can now control glyph visibility (:bokeh-issue:`2274`,
+  :bokeh-issue:`3715`)
+* Many fixes and improvements to ``GMapPlot`` including a new ``gmap``
+  function for creating Google Maps plots easily (:bokeh-issue:`2822`,
+  :bokeh-issue:`2940`, :bokeh-issue:`3737`, :bokeh-issue:`4835`,
+  :bokeh-issue:`5592`, :bokeh-issue:`5826`, :bokeh-issue:`5845`)
+* ``CustomJSTransform`` now available for CDS columns (:bokeh-issue:`5015`)
+* Sophisticated "pivot" example app contributed (:bokeh-issue:`5894`)
+* Themes now work with ``components`` and in Jupyter notebooks
+  (:bokeh-issue:`4722`, :bokeh-issue:`4952`, )
+
+Many other bugfixes and docs additions are also included. For full details
+see the :bokeh-tree:`CHANGELOG`.
+
+NOTE: the 0.12.x series is the last planned release series before a
+version 1.0 release. The focus of the 1.0 release will be implementing
+build automation to enforce API stability, and a very small number of
+high value features. For more information see the `project roadmap`_.
+
+Known Issues
+------------
+
+The ClientSession APIs defined in `bokeh.client.session`, such as
+`push_session`, don't currently support the new `on_event` interface for
+UI event callbacks in Bokeh Server application. You may track the issue on
+GitHub (:bokeh-issue:`6092`).
+
+Migration Guide
+---------------
+
+As the project approaches a 1.0 release, it is necessary to make some changes
+to bring interfaces and functionality up to a point that can be maintained
+long-term. We try to limit such changes as much as possible, and have a
+period of deprecation.
+
+New Deprecations
+~~~~~~~~~~~~~~~~
+
+**MPL COMPATIBLITY IS DEPRECATED**
+
+Bokeh's MPL compatibility was implemented using a third-party library that
+only exposes a small fraction of all Matplotlib functionality, and is
+now no longer being actively maintained. The Bokeh team unfortunately does
+not have the resources to continue supporting this functionality, which
+was never more than *extremely* limited in capability, and often produced
+substandard results. Accordingly, in order to support the long term health
+of the project, it has been decided to remove all MPL compatibility support
+on the occasion of a 1.0 release. Any code that currently uses ``to_bokeh``
+will continue to work with a deprecation warning until that time.
+
+The ``bokeh.embed.standalone_html_page_for_models`` method has been deprecated
+in place of ``bokeh.embed.file_html``. For details see :bokeh-pull:`5978`.
+
+The ``validate`` keyword argument to ``bokeh.io.save`` has been deprecated.
+Future usage of ``bokeh.io.save`` will always validate the document before
+outputting a file.
+
+Deprecations removed
+~~~~~~~~~~~~~~~~~~~~
+
+All previous deprecations up to ``0.12.0`` have be removed. Below is the
+complete list of removals.
+
+Modules and functions and classes that have been removed:
+
+============================ ========================== ===================================
+Functions Removed            Modules Removed            Classes Removed
+============================ ========================== ===================================
+``bokeh.embed.components``   ``bokeh.browserlib``       ``bokeh.core.properties.TitleProp``
+``bokeh.charts.hplot``       ``bokeh.mixins``           ``bokeh.models.layouts.GridPlot``
+``bokeh.charts.vplot``       ``bokeh.plotting_helpers`` ``bokeh.models.layouts.VBoxForm``
+``bokeh.io.hplot``           ``bokeh.properties``
+``bokeh.io.vplot``           ``bokeh.templates``
+``bokeh.io.vform``
+``bokeh.plotting.hplot``
+``bokeh.plotting.vplot``
+============================ ========================== ===================================
+
+The methods ``bokeh.document.add`` and ``push_notebook`` of
+``ColumnDataSource`` have been removed.
+
+The ``bokeh.io.output_server`` function has been also been removed.
+Additionally, ``bokeh.io.push`` and other supporting functions or
+properties that are useless without ``output_server`` have been
+removed. This includes any transitive imports of these functions
+from other modules.
+
+Additionally, the property ``bokeh.charts.builder.Builder.sort_legend`` was
+removed, as well as the following properties of ``Plot``
+
+* ``border_fill``
+* ``background_fill``
+* ``logo``
+* ``responsive``
+* ``title_text_align``
+* ``title_text_alpha``
+* ``title_text_baseline``
+* ``title_text_color``
+* ``title_text_font``
+* ``title_text_font_size``
+
+Host Parameter Obsoleted
+~~~~~~~~~~~~~~~~~~~~~~~~
+The ``--host`` parameter is now unnecessary. For compatibility, supplying
+it will currently cause a warning to be displayed, but it will otherwise
+be ignored, and apps will run as normal. In a future release, supplying it
+will result in an error.
+
+The ``--host`` parameter for the Bokeh server was confusing and difficult to
+explain. As long as the Bokeh server relied on the HTTP "host" header to
+provide URLs to resources, the ``--host`` parameter was a necessary precaution
+against certain kinds of HTTP spoofing attacks. However, the Bokeh server
+has been updated to no longer require the use of the "host" header (and this
+is maintained under test). Accordingly, there is no need to have any check
+on the value of the "host" header, and so ``--host`` is no longer needed.
+
+Document and Model Refactoring
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In order that ``document.py`` and ``models.py`` only contain things that might
+be of usual interest to users, some changes and rearrangements were made.
+
+The ``abstract`` class decorator was moved from ``models.py`` to
+``has_props.py``. The class decorator now also adds an admonition to the
+docstring of any class marked abstract that it is not useful to instantiate
+directly.
+
+The metaclass ``Viewable`` has been renamed to ``MetaModel``.
+
+The ``document.py`` module has been split up, and parts that would not be of
+normal interest to most users have been moved to better locations.
+
+These changes are not expected to impact user code in any way. For complete
+details see :bokeh-pull:`5786`.
+
+JQuery and underscore.js removed from BokehJS
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+JQuery has been removed as a build dependency of BokehJS. The variable
+`Bokeh.$` is no longer available. If you require JQuery (i.e. for a custom
+extension or when using the JavaScript API) you will need to provide it
+explicitly.
+
+underscore.js has been removed as a build dependency of BokehJS. The variable
+`Bokeh._` is no longer available. If you require underscore.js (i.e. for a
+custom extension or when using the JavaScript API) you will need to provide it
+explicitly.
+
+Both of these removals together result in a ~10% reduction in the size of
+the minified BokehJS library.
+
+Default tooltip position for lines changed to nearest point
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When showing tooltips for lines, the new default is to label the nearest point,
+instead of the previous point, which used to be the default.
+
+HTTP Request information for apps limited to query arguments
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The ``request`` previously attribute was added to session contexts as a way to
+expose HTTP query parameters. It was discovered that providing the entire
+request is not compatible with the usage of ``--num-procs``. A method was
+found to satisfy the original feature request for query arguments, together
+with ``--num-procs`` (but *only* for query arguments). Accordingly the only
+attribute that can now be accessed on ``request`` is ``.arguments``, e.g.:
+
+.. code-block:: python
+
+    curdoc().session_context.request.arguments
+
+Attempting to access any other attribute on ``request`` will result in an
+error.
+
+.. _project roadmap: http://bokehplots.com/pages/roadmap.html
+
+Default save file
+~~~~~~~~~~~~~~~~~
+
+If user-specified or default destination cannot be written to, a temporary
+file is generated instead. This mostly affects using ``output_file`` in an
+interactive session which formerly could result in a ``PermissionError``.
+For details see :bokeh-pull:`5942`.
+
+The ``bokeh.io.save`` method will now only accept a ``LayoutDOM`` object and
+no longer a ``Document`` object for its ``obj`` argument. This aligns the
+``bokeh.io.save`` argument types with ``bokeh.io.show``.
+
+Reorganization of bokeh's examples
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Low-level examples, located under ``examples/models``, were split into ``file``
+and ``server`` examples and are available under ``examples/models/file`` and
+``examples/models/server`` respectively (similarly to plotting examples).
+
+Enabling WebGL via URL parameters disallowed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Previously it was possible to enable WebGL with ``?webgl=1`` URL parameter.
+With addition of a separate ``bokeh-gl`` bundle, this usage is no longer
+supportable. WebGL rendering is still configurable using the ``Plot.webgl``
+property.

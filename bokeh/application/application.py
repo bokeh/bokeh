@@ -13,6 +13,7 @@ from abc import ABCMeta, abstractmethod
 from ..util.future import with_metaclass
 from ..util.tornado import yield_for_all_futures
 from ..document import Document
+from ..settings import settings
 
 class ServerContext(with_metaclass(ABCMeta)):
     @property
@@ -89,13 +90,46 @@ class SessionContext(with_metaclass(ABCMeta)):
         raise NotImplementedError("locked_document")
 
 class Application(object):
-    ''' An Application is a factory for Document instances.
+    '''
+    An Application is a factory for Document instances.
+
+        Args:
+            handlers (`bokeh.server.views.doc_handler.DocHandler`):
+                List of handlers called.  The url is taken from the first one
+                only.
+
+            metadata (dict):
+                May be requested by http://applicationurl/metadata as a json
+                blob which will look like::
+
+                    {
+                        "data": {
+                            "hi": "hi",
+                            "there": "there"
+                        },
+                        "url": "/myapp"
+                    }
 
     '''
 
-    def __init__(self, *handlers):
+    # This is so that bokeh.io.show can check if a passed in object is an
+    # Application without having to import Application directly. This module
+    # depends on tornado and we have made a commitment that "basic" modules
+    # will function without bringing in tornado.
+    _is_a_bokeh_application_class = True
+
+    def __init__(self, *handlers, **kwargs):
+        '''
+        Application factory.
+
+        '''
+        metadata = kwargs.pop('metadata', None)
+        if kwargs:
+            raise TypeError("Invalid keyword argument: %s" %
+                kwargs.keys()[0])
         self._static_path = None
         self._handlers = []
+        self._metadata = metadata
         for h in handlers:
             self.add(h)
 
@@ -115,9 +149,8 @@ class Application(object):
             if h.failed:
                 log.error("Error running application handler %r: %s %s ", h, h.error, h.error_detail)
 
-        # A future server setting could make it configurable whether to do this,
-        # since it has some performance impact probably. Let's see if we need to.
-        doc.validate()
+        if settings.perform_document_validation():
+            doc.validate()
 
     def add(self, handler):
         ''' Add a handler to the pipeline used to initialize new documents.
@@ -145,6 +178,10 @@ class Application(object):
     @property
     def safe_to_fork(self):
         return all(handler.safe_to_fork for handler in self._handlers)
+
+    @property
+    def metadata(self):
+        return self._metadata
 
     @property
     def static_path(self):

@@ -23,7 +23,7 @@ jscode="""
     var end = cb_obj.end;
     data['%s'] = [start + (end - start) / 2];
     data['%s'] = [end - start];
-    source.trigger('change');
+    source.change.emit();
 """
 
 p1 = figure(title='Pan and Zoom Here', x_range=(0, 100), y_range=(0, 100),

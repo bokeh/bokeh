@@ -1,10 +1,9 @@
-import * as _ from "underscore"
-import * as p from "../../core/properties"
+import * as p from "core/properties"
 
-import {Model} from "../../model"
+import {Transform} from "../transforms/transform"
+import {isNumber} from "core/util/types"
 
-
-export class ColorMapper extends Model
+export class ColorMapper extends Transform
   type: "ColorMapper"
 
   @define {
@@ -17,10 +16,11 @@ export class ColorMapper extends Model
     @_little_endian = @_is_little_endian()
     @_palette       = @_build_palette(@palette)
 
-    @listenTo(this, 'change', () ->
+    @connect(@change, () ->
       @_palette = @_build_palette(@palette)
     )
 
+  # TODO (bev) This should not be needed, everything should use v_compute
   v_map_screen: (data, image_glyph=false) ->
     values = @_get_values(data, @_palette, image_glyph)
     buf = new ArrayBuffer(data.length * 4)
@@ -67,7 +67,7 @@ export class ColorMapper extends Model
   _build_palette: (palette) ->
     new_palette = new Uint32Array(palette.length)
     _convert = (value) ->
-      if _.isNumber(value)
+      if isNumber(value)
         return value
       else
         return parseInt(value.slice(1), 16)

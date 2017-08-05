@@ -83,7 +83,17 @@ If you do not want this automatic behavior, you can use the ``field()`` or
 your  intentions. See :bokeh-tree:`examples/app/gapminder/main.py` for an
 example. Alternatively, you can not specify any legend argument, and manually
 build a :class:`~bokeh.models.annotations.Legend` by hand. You can see an
-example of this in :bokeh-tree:`examples/models/legends.py`:
+example of this in :bokeh-tree:`examples/models/file/legends.py`:
+
+It's also possible to configure legends to be interactive, so that clicking
+or tapping on legend entries affects the corresponding glyph visibility. See
+the :ref:`userguide_interaction_legends` section of the User's Guide for more
+information and examples.
+
+.. note::
+    :ref:`userguide_interaction_legends` features currently work on the first,
+    "per-glyph" style legends. Legends that are created by specifying a column
+    to automatically group do no yet support interactive features.
 
 .. _userguide_plotting_color_bars:
 
@@ -137,6 +147,18 @@ and the fill properties control the interior of the arrow head (if applicable).
 .. bokeh-plot:: docs/user_guide/examples/plotting_arrow.py
     :source-position: above
 
+.. _userguide_plotting_bands:
+
+Bands
+~~~~~
+
+A |Band| will create a dimensionally-linked "stripe", either located in data
+or screen coordinates. One common use for the Band annotation is to indicate
+uncertainty related to a series of measurements.
+
+.. bokeh-plot:: docs/user_guide/examples/plotting_band.py
+    :source-position: above
+
 .. _userguide_plotting_box_annotations:
 
 Box Annotations
@@ -168,7 +190,7 @@ text, as well as the border and background of the bounding box for the text:
 
 .. code-block:: python
 
-    Label(x=70, y=70, x_units='screen' text='Some Stuff', render_mode='css',
+    Label(x=70, y=70, x_units='screen', text='Some Stuff', render_mode='css',
           border_line_color='black', border_line_alpha=1.0,
           background_fill_color='white', background_fill_alpha=1.0)
 
@@ -202,6 +224,18 @@ and extend to the edge of the plot area.
 .. bokeh-plot:: docs/user_guide/examples/plotting_span.py
     :source-position: above
 
+.. _userguide_plotting_whiskers:
+
+Whiskers
+~~~~~~~~
+
+A |Whisker| will create a dimensionally-linked "stem", either located in data
+or screen coordinates. Indicating error or uncertainty for measurements at a
+single point would be one common use for the Whisker annotation.
+
+.. bokeh-plot:: docs/user_guide/examples/plotting_whisker.py
+    :source-position: above
+
 .. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`
 
 .. |Plot| replace:: :class:`~bokeh.models.plots.Plot`
@@ -214,6 +248,7 @@ and extend to the edge of the plot area.
 
 .. |Arrow|         replace:: :class:`~bokeh.models.annotations.Arrow`
 .. |ArrowHead|     replace:: :class:`~bokeh.models.arrow_heads.ArrowHead`
+.. |Band|          replace:: :class:`~bokeh.models.annotations.Band`
 .. |BoxAnnotation| replace:: :class:`~bokeh.models.annotations.BoxAnnotation`
 .. |ColorBar|      replace:: :class:`~bokeh.models.annotations.ColorBar`
 .. |Label|         replace:: :class:`~bokeh.models.annotations.Label`
@@ -221,3 +256,4 @@ and extend to the edge of the plot area.
 .. |Legend|        replace:: :class:`~bokeh.models.annotations.Legend`
 .. |Span|          replace:: :class:`~bokeh.models.annotations.Span`
 .. |Title|         replace:: :class:`~bokeh.models.annotations.Title`
+.. |Whisker|       replace:: :class:`~bokeh.models.annotations.Whisker`

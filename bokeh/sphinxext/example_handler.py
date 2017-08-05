@@ -10,8 +10,8 @@ class ExampleHandler(Handler):
 
     """
 
-    _output_funcs = ['output_server', 'output_notebook', 'output_file', 'reset_output']
-    _io_funcs = ['show', 'save', 'push']
+    _output_funcs = ['output_notebook', 'output_file', 'reset_output']
+    _io_funcs = ['show', 'save']
 
     def __init__(self, source, filename):
         super(ExampleHandler, self).__init__(self)
@@ -46,19 +46,23 @@ class ExampleHandler(Handler):
         def _curdoc(*args, **kw):
             return curdoc()
 
-        # these functions are transitively imported from io into plotting, and
-        # charts, so we have to patch them all. Assumption is that no other
-        # patching has occurred, i.e. we can just save the funcs being patched
-        # once, from io, and use those as the originals to replace everywhere
+        # these functions are transitively imported from io into plotting,
+        # so we have to patch them all. Assumption is that no other patching
+        # has occurred, i.e. we can just save the funcs being patched once,
+        # from io, and use those as the originals to replace everywhere
         import bokeh.io as io
         import bokeh.plotting as p
-        import bokeh.charts as c
+        mods = [io, p]
+
+        # TODO (bev) restore when bkcharts package is ready (but remove at 1.0 release)
+        # import bkcharts as c
+        # mods.append(c)
 
         old_io = {}
         for f in self._output_funcs + self._io_funcs:
             old_io[f] = getattr(io, f)
 
-        for mod in [io, p, c]:
+        for mod in mods:
             for f in self._output_funcs:
                 setattr(mod, f, _pass)
             for f in self._io_funcs:
@@ -73,8 +77,13 @@ class ExampleHandler(Handler):
     def _unmonkeypatch(self, old_io, old_doc):
         import bokeh.io as io
         import bokeh.plotting as p
-        import bokeh.charts as c
-        for mod in [io, p, c]:
+        mods = [io, p]
+
+        # TODO (bev) restore when bkcharts package is ready (but remove at 1.0 release)
+        # import bkcharts as c
+        # mods.append(c)
+
+        for mod in mods:
             for f in old_io:
                 setattr(mod, f, old_io[f])
 

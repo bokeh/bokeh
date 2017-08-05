@@ -1,7 +1,6 @@
 .. autoclass::  {{ module_name }}.{{ name }}
     :members:
     :undoc-members:
-    :exclude-members: get_class
     :show-inheritance:
 
 .. _{{ name }}.json:

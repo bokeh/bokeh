@@ -1,0 +1,77 @@
+0.12.7
+======
+
+Bokeh Version ``0.12.7`` is an incremental update that adds a few important
+features and fixes several bugs. Some of the highlights include:
+
+Better Embed Functions for Applications
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Two new embed functions similar to ``autoload_server`` are added, that have
+simpler APIs and are more focused:
+
+* :func:`bokeh.embed.server_document` for embedding new sessions for entire
+  Bokeh documents in HTML pages. (More common)
+
+* :func:`bokeh.embed.server_session` for embedding existing sessions for
+  specified Bokeh models in HTML pages (Less common)
+
+Additionally, with these new methods one may choose to not load the JS/CSS
+resource files by passing ``resources="none"`` as a parameter.
+
+Deprecations Removed
+~~~~~~~~~~~~~~~~~~~~
+
+The following previously deprecated modules or features have been removed:
+
+* ``bokeh.icons`` module
+
+* Legacy anchor and legend locations ``left_center`` and ``right_center``
+
+* ``ImageRGBA.rows`` and ``ImageRGBA.cols`` properties
+
+* ``HBox`` and ``VBox`` in ``bokeh.layouts``
+
+* ``validate`` keyword argument for ``bokeh.io.save``
+
+New Deprecations
+~~~~~~~~~~~~~~~~
+
+``bokeh.embed.autoload_server`` has been deprecated and replaced with the
+two simpler functions :func:`~bokeh.embed.server_document` and
+:func:`~bokeh.embed.server_session` described above.
+
+``bokeh.models.tools.tool_events`` has been deprecated. Users should instead
+use the ``SelectionGeometry`` event present on ``Plot`` or ``Figure``.
+
+``DynamicImageRenderer`` and ``Plot.add_dyanamic_image`` have been deprecated.
+For GIS-related use-cases built on top of Bokeh, consider using
+GeoViews_, or creating a `Custom Extension`_.
+
+BokehJS Widgets Bundle Split
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The `bokeh-widgets` bundle was split into ``bokeh-widgets`` and
+``bokeh-tables``. This is to reduce the weight of the main widgets' bundle.
+Bokeh includes ``bokeh-tables`` automatically when necessary, so this change
+should be transparent for most users. However, users of custom templates or
+other advanced embedding scenarios may be affected.
+
+`bokeh-widgets` bundle was split into `bokeh-widgets` and `bokeh-tables`. This
+is to reduce the weight of the main widgets' bundle. bokeh includes `bokeh-tables`
+automatically when necessary, so this change should be transparent for most users.
+However, users of custom templates or some advanced embedding scenarios may be
+affected.
+
+TapTool Callback Calling Convention
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The TapTool strayed from usual callback calling convention by passing a glyph
+data source as ``cb_obj``. This has been rectified, and now the tool follows the
+usual convetion: the tool itself is passed as ``cb_obj`` and the data source is
+passed as part of the optional ``cb_data``. Existing usage of ``OpenURL`` is
+unaffected by this change, but any ``CustomJS`` callbacks used with the tap tool
+will need to be updated to reflect this change.
+
+.. _Custom Extension: http://bokeh.pydata.org/en/latest/docs/user_guide/extensions.html
+.. _GeoViews: http://geo.holoviews.org

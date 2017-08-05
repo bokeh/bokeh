@@ -9,7 +9,7 @@ x = np.random.random(size=200)
 y = np.random.random(size=200)
 
 # Basic plot setup
-plot = figure(width=400, height=400, title='Select and Zoom',
+plot = figure(plot_width=400, plot_height=400, title='Select and Zoom',
               tools="box_select,box_zoom,lasso_select,reset")
 
 plot.circle(x, y, size=5)

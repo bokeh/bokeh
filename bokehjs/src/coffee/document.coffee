@@ -1,15 +1,35 @@
-import * as _ from "underscore"
-import * as $ from "jquery"
-
 import {Models} from "./base"
 import {version as js_version} from "./version"
-import {EQ, Solver, Variable} from "./core/layout/solver"
 import {logger} from "./core/logging"
 import {HasProps} from "./core/has_props"
+import {Signal} from "./core/signaling"
 import {is_ref} from "./core/util/refs"
 import {decode_column_data} from "./core/util/serialization"
 import {MultiDict, Set} from "./core/util/data_structures"
+import {difference, intersection} from "./core/util/array"
+import {extend, values} from "./core/util/object"
+import {isEqual} from "./core/util/eq"
+import {isArray, isObject} from "./core/util/types"
+import {LayoutDOM} from "./models/layouts/layout_dom"
 import {ColumnDataSource} from "./models/sources/column_data_source"
+
+class EventManager
+    # Dispatches events to the subscribed models
+
+  constructor: (@document) ->
+    @session = null
+    @subscribed_models = new Set()
+
+  send_event: (event) ->
+    # Send message to Python via session
+    @session?.send_event(event)
+
+  trigger: (event) ->
+    for model_id in @subscribed_models.values
+      if event.model_id != null and event.model_id != model_id
+        continue
+      model = @document._all_models[model_id]
+      model?._process_event(event)
 
 export class DocumentChangedEvent
   constructor : (@document) ->
@@ -20,7 +40,7 @@ export class ModelChangedEvent extends DocumentChangedEvent
   json : (references) ->
 
     if @attr == 'id'
-      console.log("'id' field is immutable and should never be in a ModelChangedEvent ", @)
+      logger.warn("'id' field is immutable and should never be in a ModelChangedEvent ", @)
       throw new Error("'id' field should never change, whatever code just set it is wrong")
 
     value = @new_
@@ -72,85 +92,44 @@ export class RootRemovedEvent extends DocumentChangedEvent
       'model' : @model.ref()
     }
 
+export documents = []
+
 export DEFAULT_TITLE = "Bokeh Application"
 
 # This class should match the API of the Python Document class
 # as much as possible.
 export class Document
 
-  constructor : () ->
+  constructor: () ->
+    documents.push(this)
     @_title = DEFAULT_TITLE
     @_roots = []
     @_all_models = {}
     @_all_models_by_name = new MultiDict()
     @_all_models_freeze_count = 0
     @_callbacks = []
-    @_doc_width = new Variable("document_width")
-    @_doc_height = new Variable("document_height")
-    @_solver = new Solver()
-    @_init_solver()
+    @event_manager = new EventManager(@)
+    @idle = new Signal(this, "idle") # <void, this>
+    @_idle_roots = new WeakMap() # TODO: WeakSet would be better
 
-    $(window).on("resize", () => @resize())
+  Object.defineProperty(@prototype, "layoutables", {
+    get: () -> (root for root in @_roots when root instanceof LayoutDOM)
+  })
 
-  _init_solver : () ->
-    @_solver.clear()
-    @_solver.add_edit_variable(@_doc_width)
-    @_solver.add_edit_variable(@_doc_height)
-    for model in @_roots
-      if model.layoutable
-        @_add_layoutable(model)
+  Object.defineProperty(@prototype, "is_idle", {
+    get: () ->
+      for root in @layoutables
+        if not @_idle_roots.has(root)
+          return false
 
-  solver: () ->
-    @_solver
+      return true
+  })
 
-  resize: (width=null, height=null) ->
-    # Notes on resizing (xx:yy means event yy on object xx):
-    # window:event -> document.resize() -> solver:resize
-    #   -> LayoutDOM.render()
-    #   -> PlotCanvas.resize() -> solver:update_layout
+  notify_idle: (model) ->
+    @_idle_roots.set(model, true)
 
-    # Ideally the solver would settle in one pass (can that be done?),
-    # but it currently needs two passes to get it right.
-    # Seems to be needed everywhere on initialization, and on Windows
-    # it seems necessary on each Draw
-    @_resize(width, height)
-    @_resize(width, height)
-
-  _resize: (width=null, height=null) ->
-    for root in @_roots
-      if root.layoutable isnt true
-        continue
-
-      vars = root.get_constrained_variables()
-      if not vars.width? and not vars.height?
-        continue
-
-      # Find the html element
-      root_div = $("#modelid_#{root.id}")
-
-      # Start working upwards until you find a height to pin against - usually .bk-root
-      if _.isNull(width)
-        target_height = 0
-        measuring = root_div
-        while target_height == 0
-          measuring = measuring.parent()
-          target_height = measuring.height()
-
-        # Once we've found that grab the width of this element
-        width = measuring.width()
-        height = target_height
-
-      # Set the constraints on root
-      if vars.width?
-        logger.debug("Suggest width on Document -- #{width}")
-        @_solver.suggest_value(@_doc_width, width)
-      if vars.height?
-        logger.debug("Suggest height on Document -- #{height}")
-        @_solver.suggest_value(@_doc_height, height)
-
-    # Finally update everything only once.
-    @_solver.update_variables(false)
-    @_solver.trigger('resize')
+    if @is_idle
+      @idle.emit()
 
   clear : () ->
     @_push_all_models_freeze()
@@ -176,7 +155,7 @@ export class Document
     for r in roots
       if r.document != null
         throw new Error("Somehow we didn't detach #{r}")
-    if _.size(@_all_models) != 0
+    if Object.keys(@_all_models).length != 0
       throw new Error("@_all_models still had stuff in it: #{ @_all_models }")
 
     for r in roots
@@ -203,7 +182,7 @@ export class Document
 
     for r in @_roots
       new_all_models_set = new_all_models_set.union(r.references())
-    old_all_models_set = new Set(_.values(@_all_models))
+    old_all_models_set = new Set(values(@_all_models))
     to_detach = old_all_models_set.diff(new_all_models_set)
     to_attach = new_all_models_set.diff(old_all_models_set)
 
@@ -226,29 +205,7 @@ export class Document
 
     @_all_models = recomputed
 
-  roots : () ->
-    @_roots
-
-  _add_layoutable: (model) ->
-    if model.layoutable isnt true
-      throw new Error("Cannot add non-layoutable - #{model}")
-
-    editables = model.get_edit_variables()
-    constraints = model.get_constraints()
-    vars = model.get_constrained_variables()
-
-    for {edit_variable, strength} in editables
-      @_solver.add_edit_variable(edit_variable, strength)
-
-    for constraint in constraints
-      @_solver.add_constraint(constraint)
-
-    if vars.width?
-      @_solver.add_constraint(EQ(vars.width, @_doc_width))
-    if vars.height?
-      @_solver.add_constraint(EQ(vars.height, @_doc_height))
-
-    @_solver.update_variables()
+  roots: () -> @_roots
 
   add_root : (model, setter_id) ->
     logger.debug("Adding root: #{model}")
@@ -259,11 +216,8 @@ export class Document
     @_push_all_models_freeze()
     try
       @_roots.push(model)
-      model._is_root = true # TODO get rid of this?
     finally
       @_pop_all_models_freeze()
-
-    @_init_solver()
 
     @_trigger_on_change(new RootAddedEvent(@, model, setter_id))
 
@@ -275,11 +229,8 @@ export class Document
     @_push_all_models_freeze()
     try
       @_roots.splice(i, 1)
-      model._is_root = false
     finally
       @_pop_all_models_freeze()
-
-    @_init_solver()
 
     @_trigger_on_change(new RootRemovedEvent(@, model, setter_id))
 
@@ -334,7 +285,7 @@ export class Document
     references_json
 
   @_instantiate_object: (obj_id, obj_type, obj_attrs) ->
-    full_attrs = _.extend({}, obj_attrs, {id: obj_id})
+    full_attrs = extend({}, obj_attrs, {id: obj_id})
     model = Models(obj_type)
     new model(full_attrs, {silent: true, defer_initialization: true})
 
@@ -370,9 +321,9 @@ export class Document
           new_references[v['id']]
         else
           throw new Error("reference #{JSON.stringify(v)} isn't known (not in Document?)")
-      else if _.isArray(v)
+      else if isArray(v)
         resolve_array(v)
-      else if _.isObject(v)
+      else if isObject(v)
         resolve_dict(v)
       else
         v
@@ -424,10 +375,10 @@ export class Document
             for a, e of attrs
               foreach_value(e, f)
             f(v, attrs, was_new)
-        else if _.isArray(v)
+        else if isArray(v)
           for e in v
             foreach_value(e, f)
-        else if _.isObject(v)
+        else if isObject(v)
           for k, e of v
             foreach_value(e, f)
       for k, v of items
@@ -436,12 +387,12 @@ export class Document
     # this first pass removes all 'refs' replacing them with real instances
     foreach_depth_first to_update, (instance, attrs, was_new) ->
       if was_new
-        instance.setv(attrs)
+        instance.setv(attrs, {silent: true})
 
     # after removing all the refs, we can run the initialize code safely
     foreach_depth_first to_update, (instance, attrs, was_new) ->
       if was_new
-        instance.initialize(attrs)
+        instance.finalize(attrs)
 
   @_event_for_attribute_change: (changed_obj, key, new_value, doc, value_refs) ->
       changed_model = doc.get_model_by_id(changed_obj.id)
@@ -460,9 +411,9 @@ export class Document
   @_events_to_sync_objects: (from_obj, to_obj, to_doc, value_refs) ->
     from_keys = Object.keys(from_obj.attributes)
     to_keys = Object.keys(to_obj.attributes)
-    removed = _.difference(from_keys, to_keys)
-    added = _.difference(to_keys, from_keys)
-    shared = _.intersection(from_keys, to_keys)
+    removed = difference(from_keys, to_keys)
+    added = difference(to_keys, from_keys)
+    shared = intersection(from_keys, to_keys)
 
     events = []
     for key in removed
@@ -484,7 +435,7 @@ export class Document
       else if old_value == null or new_value == null
         events.push(Document._event_for_attribute_change(from_obj, key, new_value, to_doc, value_refs))
       else
-        if not _.isEqual(old_value, new_value)
+        if not isEqual(old_value, new_value)
           events.push(Document._event_for_attribute_change(from_obj, key, new_value, to_doc, value_refs))
 
     events.filter((e) -> e != null)
@@ -517,8 +468,8 @@ export class Document
     from_root_ids.sort()
     to_root_ids.sort()
 
-    if _.difference(from_root_ids, to_root_ids).length > 0 or
-       _.difference(to_root_ids, from_root_ids).length > 0
+    if difference(from_root_ids, to_root_ids).length > 0 or
+       difference(to_root_ids, from_root_ids).length > 0
       # this would arise if someone does add_root/remove_root during
       # document deserialization, hopefully they won't ever do so.
       throw new Error("Not implemented: computing add/remove of document roots")
@@ -537,7 +488,7 @@ export class Document
 
     {
       'events' : events,
-      'references' : Document._references_json(_.values(value_refs), include_defaults=false)
+      'references' : Document._references_json(values(value_refs), include_defaults=false)
     }
 
   to_json_string : (include_defaults=true) ->
@@ -548,7 +499,7 @@ export class Document
     for r in @_roots
       root_ids.push(r.id)
 
-    root_references = _.values(@_all_models)
+    root_references = values(@_all_models)
 
     {
       'title' : @_title
@@ -568,9 +519,13 @@ export class Document
     logger.debug("Creating Document from JSON")
     if typeof json != 'object'
       throw new Error("JSON object has wrong type #{typeof json}")
+
     py_version = json['version']
+    is_dev = py_version.indexOf('+') != -1 or py_version.indexOf('-') != -1
+
     versions_string = "Library versions: JS (#{js_version})  /  Python (#{py_version})"
-    if py_version.indexOf('-') < 0 and js_version != py_version
+
+    if not is_dev and js_version != py_version
       logger.warn("JS/Python version mismatch")
       logger.warn(versions_string)
     else
@@ -604,14 +559,14 @@ export class Document
     for event in events
 
       if event.document != @
-        console.log("Cannot create a patch using events from a different document, event had ", event.document, " we are ", @)
+        logger.warn("Cannot create a patch using events from a different document, event had ", event.document, " we are ", @)
         throw new Error("Cannot create a patch using events from a different document")
 
       json_events.push(event.json(references))
 
     result =
       events: json_events,
-      references: Document._references_json(_.values(references))
+      references: Document._references_json(values(references))
 
   apply_json_patch_string: (patch) ->
     @apply_json_patch(JSON.parse(patch))
@@ -629,7 +584,7 @@ export class Document
           references[model_id] = @_all_models[model_id]
         else
           if model_id not of references
-            console.log("Got an event for unknown model ", event_json['model'])
+            logger.warn("Got an event for unknown model ", event_json['model'])
             throw new Error("event model wasn't known")
 
     # split references into old and new so we know whether to initialize or update

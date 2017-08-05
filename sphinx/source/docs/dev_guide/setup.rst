@@ -5,12 +5,48 @@ Getting Set Up
 
 The Bokeh project encompasses two major components: the Bokeh package source
 code, written in Python, and the BokehJS client-side library, written in
-CoffeeScript. Accordingly, development of Bokeh is slightly complicated by
-the fact that BokehJS requires an explicit compilation step to render the
-CoffeeScript source into deployable JavaScript.
+CoffeeScript and TypeScript. Accordingly, development of Bokeh is slightly
+complicated by the explicit compilation step required to generate deployable
+JavaScript.
 
 For this reason, in order to develop Bokeh from a source checkout, you must
-first be able to build BokehJS.
+first be able to build BokehJS. This chapter will walk you through getting a
+full development environment set up.
+
+.. contents::
+    :local:
+    :depth: 2
+
+.. dev_guide_preliminaries:
+
+Preliminaries
+-------------
+
+Git
+~~~
+
+The Bokeh source code is stored in a `Git`_ source control repository.
+The first step to working on Bokeh is to install Git on to your system.
+There are different ways to do this depending on whether, you are using
+Windows, OSX, or Linux.
+
+To install Git on any platform, refer to the `Installing Git`_ section of
+the `Pro Git Book`_.
+
+Conda
+~~~~~
+
+Developing Bokeh requires installing some software packages that are not
+Python packages (e.g. Selenium, nodejs, etc.). To make this more manageable,
+core developers rely heavily on the `conda package manager`_ for the free
+`Anaconda`_ Python distribution. However, ``conda`` can also install
+non-Python package dependencies, which helps streamline Bokeh development
+greatly. It is *strongly* recommended that anyone developing Bokeh also use
+``conda``, and the remainder of the instructions will assume that ``conda``
+is available.
+
+To install Conda on any platform, see the `Download conda`_ section of the
+`conda documentation`_.
 
 .. _devguide_cloning:
 
@@ -24,9 +60,102 @@ source repository, issue the following command:
 
     git clone https://github.com/bokeh/bokeh.git
 
-This will create a ``bokeh`` directory at your location. This ``bokeh``
-directory is referred to as the "source checkout" for the remainder of
-this document.
+This will create a ``bokeh`` directory at your file system location. This
+``bokeh`` directory is referred to as the *source checkout* for the remainder
+of this document.
+
+.. _dev_guide_installing_dependencies:
+
+Installing Dependencies
+-----------------------
+
+Bokeh requires many additional packages for development and testing. Many
+of these are on the main Anaconda default channel, but others are only
+available from additional conda channels, or via the Node Package Manager.
+
+.. _dev_guide_installing_dependencies_conda:
+
+Conda Packages
+~~~~~~~~~~~~~~
+
+On all platforms, execute the following two commands at your command prompt
+to add the "bokeh" and "conda-forge" channels to your list of package
+sources:
+
+.. code-block:: sh
+
+    conda config --append channels bokeh
+    conda config --append channels conda-forge
+
+.. note::
+    If you do not wish to make configuration changes to your ``conda``
+    configuration, then the channels above can be added on a per-command
+    basis with the ``-c`` command line option to ``conda``, e.g.
+    ``conda install -c bokeh -c conda-forge <pkgs>``
+
+It's also necessary to install `jinja2` and `pyyaml` first, to bootstrap
+the rest of these instructions. To do that, execute:
+
+.. code-block:: sh
+
+    conda install jinja2 pyyaml
+
+From the top level of the *source checkout* directory, execute the following
+command at your command prompt to install all the required packages:
+
+* OSX / Linux
+
+    .. code-block:: sh
+
+        conda install `python scripts/deps.py build run test`
+
+    Note the required backticks in the command.
+
+* Windows (Powershell)
+
+    .. code-block:: sh
+
+        conda install $(python scripts/deps.py build run).split() | where {$_}
+
+* Winows (DOS Command Prompt)
+
+    .. code-block:: sh
+
+        for /F "delims=" %i in ('python scripts\deps.py build run') do (conda install %i)
+
+.. note::
+    The ``test`` category has been omitted from the Windows installs above
+    because not all of the testing packages are easily installable on Windows
+    yet. The commands above will install everything necessary to build and run,
+    however. If you are interested in helping out and becoming a Windows
+    maintainer for Bokeh, please `contact the developers`_.
+
+.. _dev_guide_installing_dependencies_node:
+
+Node Packages
+~~~~~~~~~~~~~
+
+Building BokehJS also requires installing  JavaScript dependencies using
+the Node Package Manager. If you have followed the instructions above,
+``conda`` has already installed the necessary ``npm`` and ``node.js``
+packages to your system.
+
+Starting from the top level of the *source checkout* directory, execute
+the following commands
+
+.. code-block:: sh
+
+    cd bokehjs
+    npm install
+
+This command will install the necessary packages into the ``node_modules``
+subdirectory.
+
+----
+
+Typically, these instructions only need to be followed once, when you are
+first getting set up. Occasionally, however, dependencies may be added or
+changed, in which case these instructions will need to be followed again.
 
 .. _devguide_configuring_git:
 
@@ -36,22 +165,25 @@ Configuring Git
 There are a few configurations you can make locally that will help make
 working with the repository safer and easier.
 
+.. note::
+    The optional instructions in this section are specific to **OSX** and
+    **Linux**.
+
 .. _devguide_suggested_git_hooks:
 
 Git Hooks
 ~~~~~~~~~
 
-In order to help prevent some accidental situations, here are some git hooks
-that may be useful. The scripts below should be places in the ``.git/hooks``
-directory in th top level of the cloned GitHub repository, and be marked
-executable with e.g. ``chmod +x pre-commit``. For more information on git
-hooks, see `this reference`_.
-
+In order to help prevent some accidental errors, here are some git hooks
+that may be useful. The scripts below should be placed in the ``.git/hooks``
+subdirectory in the top level of the *source checkout* directory and be
+marked executable with e.g. ``chmod +x pre-commit``. For more information
+on git hooks, see `this turorial`_.
 
 ``pre-commit``
 
     This git hook runs the code quality tests before allowing a commit to
-    proceed. Note that all the standard testing dependencies musts be installed
+    proceed. Note that all the standard testing dependencies must be installed
     in order for this hook to function.
 
     .. code-block:: sh
@@ -101,144 +233,35 @@ The following alias adds a ``git resolve`` command that will automatically open 
 
 You can replace ``vim`` with whatever your favorite editor command is.
 
-.. _devguide_building_bokehjs:
-
-Building BokehJS
-----------------
-
-The BokehJS build process is handled by Gulp_, which in turn depends on
-`Node.js <NodeJS>`_. Gulp is used to compile CoffeeScript and Less (CSS)
-sources, and to combine these resources into optimized and minified
-``bokeh.js`` and ``bokeh.css`` files.
-
-Install npm and node
-~~~~~~~~~~~~~~~~~~~~
-
-First, install Node.js and npm (node package manager).
-You can download and install these directly, or use
-`conda <http://conda.pydata.org/>`_ to install them
-from the Bokeh channel on `anaconda.org <https://anaconda.org>`_:
-
-.. code-block:: sh
-
-    conda install -c bokeh nodejs
-
-Alternatively, on Ubuntu you can use ``apt-get``:
-
-.. code-block:: sh
-
-    apt-get install npm node
-
-Install Gulp and necessary plugins
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Once you have npm and Node.js installed, you must use them to install
-the required dependencies before you can build BokehJS.
-Execute the following commands:
-
-.. code-block:: sh
-
-    cd bokehjs
-    npm install
-
-This command will install the necessary packages into the ``node_modules``
-subdirectory (and list them as ``devDependencies`` in ``package.json``).
-
-If ``bokehjs`` fails, please check if you are working inside the ``bokehjs`` directory.
-
-At this point you can typically use the ``setup.py`` script at the top level
-of the source checkout to manage building and installing BokehJS as part of
-the complete Bokeh library (see :ref:`devguide_python_setup`).
-
-However, if you want to work on the BokehJS sources or use BokehJS as a
-standalone library, then you need to use Gulp to build the BokehJS library
-as shown below.
-
-Building BokehJS with Gulp
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Below are the main Gulp commands for development (to be executed from
-the ``bokehjs`` subdirectory). To run these commands, you can either
-use ``bokehjs/node_modules/.bin/gulp``, install Gulp globally via
-`npm`:
-
-.. code-block:: sh
-
-    npm install -g gulp
-
-or install gulp via conda (recommended):
-
-.. code-block:: sh
-
-    conda install -c javascript gulp
-
-To generate the compiled and optimized BokehJS libraries with source maps,
-and deploy them to the ``build`` subdirectory:
-
-.. code-block:: sh
-
-    gulp build
-
-Additionally, ``gulp build`` accepts a ``--build-dir`` argument to specify
-where the built resources should be produced:
-
-.. code-block:: sh
-
-    gulp build --build-dir=/home/bokeh/mybuilddir
-
-For faster development turnaround, you can skip the very slow minification
-step of the build by issuing:
-
-.. code-block:: sh
-
-    gulp dev-build
-
-The non-minified javascript can be used by setting the environment variable
-``BOKEH_MINIFIED=false`` in the shell.
-
-To direct Gulp to automatically watch the source tree for changes and
-trigger a recompile if any source file changes:
-
-.. code-block:: sh
-
-    gulp watch
-
-A Gulp build will automatically generate the sources and their associated source
-maps. With "source mapping" enabled in your browser, you will be able to:
-
-* debug the original .coffeescript files when using ``js/bokeh.js``
-* debug the compiled non-minified javascript when using ``js/bokeh.min.js``
-* debug the original .less files when using ``css/bokeh.css`` or ``css/bokeh.min.css``
-
-in your developer console.
-
 .. _devguide_python_setup:
 
-Python Setup
-------------
+Building and Installing
+-----------------------
 
-Once you have a working BokehJS build (which you can verify by completing
-the steps described in :ref:`devguide_building_bokehjs`), you can use the
-``setup.py`` script at the top level of the source checkout to install or
-develop the full Bokeh library from source.
+Once you have all the required depencies installed, the simplest way to
+build and install Bokeh and BokehJS is to use the ``setup.py`` script at
+the top level of the *source checkout* directory.
 
-The ``setup.py`` script has two main modes of operation: ``install`` and
-``develop``.
+The ``setup.py`` script has two main modes of operation:
 
-When ``python setup.py install`` is used, Bokeh will be installed in your
-local ``site-packages`` directory. In this mode, any changes to the python
-source code will not show up until ``setup.py install`` is run again.
+``python setup.py install``
 
-When ``python setup.py develop`` is used, a path file ``bokeh.pth`` will be
-written to your ``site-packages`` directory that points to the ``bokeh``
-subdirectory of your source checkout. Any changes to the python source code
-will be available immediately without any additional steps.
+    Bokeh will be installed in your Python ``site-packages`` directory.
+    In this mode, any changes to the python source code will not show up
+    until ``setup.py install`` is run again.
+
+``python setup.py develop``
+
+    A ``bokeh.pth`` path file will be written to your Python ``site-packages``
+    directory that points to the ``bokeh`` subdirectory of your *source
+    checkout*. Any changes you make to the python source code will be available
+    immediately without any additional steps.
 
 With either mode, you will be prompted for how to install BokehJS, e.g.:
 
 .. code-block:: sh
 
-    python setup.py install
+    python setup.py develop
 
     Bokeh includes a JavaScript library (BokehJS) that has its own
     build process. How would you like to handle BokehJS:
@@ -249,169 +272,53 @@ With either mode, you will be prompted for how to install BokehJS, e.g.:
     Choice?
 
 You may skip this prompt by supplying the appropriate command line option
-to ``setup.py``:
+to ``setup.py``, e.g.
 
-* ``--build-js``
-* ``--install-js``
+* ``python setup.py develop --build-js``
+* ``python setup.py develop --install-js``
+
+Note that you will need to build BokehJS any time that the BokehJS source
+code changes (either by you or by pulling new revisions from GitHub). In
+particular, at the very least, you must build BokehJS the first time you
+install.
+
+.. note::
+    Occasionally the list of JavaScript dependencies also changes. If this
+    occurs, you will also need to re-run the instructions in the
+    :ref:`dev_guide_installing_dependencies_node` section above.
+
+
+Next Steps
+----------
+
+You can check that everything is installed and set up correctly by executing
+the command:
+
+.. code-block:: sh
+
+    python -m bokeh info
+
+You should see output similar to:
+
+.. code-block:: sh
+
+    Python version      :  3.6.1 |Continuum Analytics, Inc.| (default, May 11 2017, 13:04:09)
+    IPython version     :  5.3.0
+    Bokeh version       :  0.12.7dev3-17-g184f1ed7a
+    BokehJS static path :  /Users/bryan/work/bokeh/bokeh/server/static
+    node.js version     :  v6.10.3
+    npm version         :  3.10.10
 
 If you have any problems with the steps here, please `contact the developers`_.
 
-Dependencies
-~~~~~~~~~~~~
-
-In order to build Bokeh from its source, you'll have to install the project's
-python dependencies. If you're using Conda or pip + virtualenv to setup a
-development environment, you'll be able to install these via ``conda install``
-or ``pip install`` for the packages references at :ref:`install_dependencies`.
-
-There are additional testing dependencies required to run the unit tests,
-which include:
-
-* beautiful-soup
-* colorama
-* pytest
-* pytest-cov
-* pytest-selenium >= 1.0
-* mock
-* websocket-client
-* flake8
-* boto
-
-Both the build and test dependencies can potentially change between releases
-and be out of sync with the hosted Bokeh site documentation, so the best way
-to view the current required packages is the review the meta.yaml_ file included
-in the Github repository.
-
-In addition to the build and test dependencies, you must also have the base
-dependencies for Bokeh installed. A simple way to install these dependencies
-is to install Bokeh via ``conda install`` or ``pip install`` before running
-``setup.py``.  Alternatively, you can download them individually. The
-dependencies include:
-
-* jinja2
-* numpy
-* dateutil
-* pyyaml
-* requests
-* tornado
-
-.. This comment is just here to fix a weird Sphinx formatting bug
-
-----
-
-To quickly and easily confirm that your environment contains all of the
-necessary dependencies to build both the docs and the development version
-of Bokeh, run the ``devdeps.py`` file inside the ``bokeh/scripts`` directory.
-
-If any needed packages are missing, you will be given output like this
-
-.. code-block:: sh
-
-    ------------------------------------------------------------------
-    You are missing the following Dev dependencies:
-     *  beautiful-soup
-
-    ------------------------------------------------------------------
-    You are missing the following Docs dependencies:
-     *  sphinx
-     *  pygments
-
-Otherwise, you should see this message
-
-.. code-block:: sh
-
-    ------------------------------------------------------------------
-    All Dev dependencies installed!  You are good to go!
-
-    ------------------------------------------------------------------
-    All Docs dependencies installed!  You are good to go!
-
-
-Additionally, ``devdeps.py`` will check that the ``bokehjs/node_modules``
-directory exists, which is where npm packages are installed.
-
-If this directory is not found, it will provide instructions on how and where to
-install npm packages.
-
-
-Windows Notes
-~~~~~~~~~~~~~
-
-If you build Bokeh on a Windows machine in a Conda environment with either
-``setup.py install`` or ``setup.py develop``, running ``bokeh serve`` will
-not work correctly. The .exe will not be available within the Conda
-environment, which means you will use the version available in the base
-install, if it is available. Instead, you can make sure you use the Python
-version within the environment by making use of Python's ``-m`` flag,
-as in the following example:
-
-.. code-block:: sh
-
-    python -m bokeh serve path\to\<yourapp>.py
-
-Developing Examples
--------------------
-
-The processes described so far, discussed solely building BokehJS' components.
-When using them in the development repository, you must be cautious about which
-components are picked by Bokeh, especially when working on examples. Failing
-to do so, may result in you testing wrong version, specifically CDN version of
-BokehJS.
-
-In the case of statically generated HTML or IPython notebooks, you should set
-``BOKEH_DEV=true`` in the shell, e.g.:
-
-.. code-block:: sh
-
-    BOKEH_DEV=true python example.py
-
-This enables the development mode, which uses absolute paths to development
-(non-minified) BokehJS components, sets logging to ``debug``, makes generated
-HTML and JSON human-readable, etc. Alternatively you can enable each part of
-the development mode with a specific shell variable. For example, to configure
-Bokeh to use relative paths to development resources, issue:
-
-.. code-block:: sh
-
-    BOKEH_RESOURCES=relative-dev python example.py
-
-For Bokeh server examples, add ``BOKEH_DEV=true`` to the server invocation:
-
-.. code-block:: sh
-
-    BOKEH_DEV=true bokeh serve example-server.py
-
-Browser caching
----------------
-
-During development, depending on the type of configured resources,
-aggressive browser caching can sometimes cause new BokehJS code changes to
-not be picked up. It is recommended that during normal development,
-browser caching be disabled. Instructions for different browsers can be
-found here:
-
-* `Chrome <https://developer.chrome.com/devtools/docs/settings>`__
-* `Firefox <https://developer.mozilla.org/en-US/docs/Mozilla/Preferences/Mozilla_networking_preferences#Cache>`__
-* `Safari <https://developer.apple.com/library/mac/documentation/AppleApplications/Conceptual/Safari_Developer_Guide/TheDevelopMenu/TheDevelopMenu.html>`_
-* `Internet Explorer <http://msdn.microsoft.com/en-us/library/hh968260(v=vs.85).aspx#cacheMenu>`__
-
-Additionally some browsers also provide a "private mode" that may disable
-caching automatically.
-
-Even with caching disabled, on some browsers, it may still be required to
-sometimes force a page reload. Keyboard shortcuts for forcing page
-refreshes can be found here:
-
-* Chrome `Windows <https://support.google.com/chrome/answer/157179?hl=en&ref_topic=25799>`__ / `OSX <https://support.google.com/chrome/answer/165450?hl=en&ref_topic=25799>`__ / `Linux <https://support.google.com/chrome/answer/171571?hl=en&ref_topic=25799>`__
-* `Firefox <https://support.mozilla.org/en-US/kb/keyboard-shortcuts-perform-firefox-tasks-quickly#w_navigation>`__
-* `Safari <https://developer.apple.com/library/mac/documentation/AppleApplications/Conceptual/Safari_Developer_Guide/KeyboardShortcuts/KeyboardShortcuts.html>`__
-* Internet Explorer `10 <http://msdn.microsoft.com/en-us/library/dd565630(v=vs.85).aspx>`__ / `11 <http://msdn.microsoft.com/en-us/library/ie/dn322041(v=vs.85).aspx>`__
-
-If it appears that new changes are not being executed when they should be, it
-is recommended to try this first.
-
+.. _Anaconda: https://www.continuum.io/downloads
 .. _contact the developers: http://bokehplots.com/pages/contact.html
+.. _conda package manager: https://conda.io/docs/intro.html
+.. _conda documentation: https://conda.io/docs/index.html
+.. _Download conda: https://conda.io/docs/download.html
+.. _Git: https://git-scm.com
 .. _GitHub: https://github.com
-.. _Gulp: http://gulpjs.com/
+.. _Installing Git: https://git-scm.com/book/en/v2/Getting-Started-Installing-Git
 .. _meta.yaml: http://github.com/bokeh/bokeh/blob/master/conda.recipe/meta.yaml
-.. _this reference: https://www.digitalocean.com/community/tutorials/how-to-use-git-hooks-to-automate-development-and-deployment-tasks
+.. _Pro Git Book: https://git-scm.com/book/en/v2
+.. _this turorial: https://www.digitalocean.com/community/tutorials/how-to-use-git-hooks-to-automate-development-and-deployment-tasks

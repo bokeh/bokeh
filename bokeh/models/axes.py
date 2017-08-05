@@ -1,25 +1,22 @@
-""" Guide renderers for various kinds of axes that can be added to
+''' Guide renderers for various kinds of axes that can be added to
 Bokeh plots
 
-"""
+'''
 from __future__ import absolute_import
 
-from ..core.properties import abstract
-from ..core.properties import (Int, Float, String, Enum, Datetime, Auto, Instance,
-                          Tuple, Either, Include, Override)
+from ..core.has_props import abstract
+from ..core.properties import Auto, Datetime, Dict, Either, Enum, Float, Include, Instance, Int, Override, Seq, String, Tuple
 from ..core.property_mixins import LineProps, TextProps
 
+from .formatters import BasicTickFormatter, CategoricalTickFormatter, DatetimeTickFormatter, LogTickFormatter, TickFormatter
 from .renderers import GuideRenderer
-from .tickers import Ticker, BasicTicker, LogTicker, CategoricalTicker, DatetimeTicker
-from .formatters import (TickFormatter, BasicTickFormatter, LogTickFormatter,
-                         CategoricalTickFormatter, DatetimeTickFormatter)
+from .tickers import Ticker, BasicTicker, LogTicker, CategoricalTicker, DatetimeTicker, FixedTicker
 
 @abstract
 class Axis(GuideRenderer):
-    """ A base class that defines common properties for all axis types.
-    ``Axis`` is not generally useful to instantiate on its own.
+    ''' A base class that defines common properties for all axis types.
 
-    """
+    '''
 
     bounds = Either(Auto, Tuple(Float, Float), Tuple(Datetime, Datetime), help="""
     Bounds for the rendered axis. If unset, the axis will span the
@@ -40,7 +37,29 @@ class Axis(GuideRenderer):
 
     ticker = Instance(Ticker, help="""
     A Ticker to use for computing locations of axis components.
-    """)
+
+    The property may also be passed a sequence of floating point numbers as
+    a shorthand for creating and configuring a ``FixedTicker``, e.g. the
+    following code
+
+    .. code-block:: python
+
+        from bokeh.plotting import figure
+
+        p = figure()
+        p.xaxis.ticker = [10, 20, 37.4]
+
+    is equivalent to:
+
+    .. code-block:: python
+
+        from bokeh.plotting import figure
+        from bokeh.models.tickers import FixedTicker
+
+        p = figure()
+        p.xaxis.ticker = FixedTicker(ticks=[10, 20, 37.4])
+
+    """).accepts(Seq(Float), lambda ticks: FixedTicker(ticks=ticks))
 
     formatter = Instance(TickFormatter, help="""
     A TickFormatter to use for formatting the visual appearance
@@ -75,8 +94,13 @@ class Axis(GuideRenderer):
     """)
 
     major_label_orientation = Either(Enum("horizontal", "vertical"), Float, help="""
-    What direction the major label text should be oriented. If a i
+    What direction the major label text should be oriented. If a
     number is supplied, the angle of the text is measured from horizontal.
+    """)
+
+    major_label_overrides = Dict(Either(Float, String), String, default={}, help="""
+    Provide explicit tick label values for specific tick locations that
+    override normal formatting.
     """)
 
     major_label_props = Include(TextProps, help="""
@@ -123,45 +147,44 @@ class Axis(GuideRenderer):
 
 @abstract
 class ContinuousAxis(Axis):
-    """ A base class for all numeric, non-categorical axes types.
-    ``ContinuousAxis`` is not generally useful to instantiate on its own.
+    ''' A base class for all numeric, non-categorical axes types.
 
-    """
+    '''
     pass
 
 class LinearAxis(ContinuousAxis):
-    """ An axis that picks nice numbers for tick locations on a
+    ''' An axis that picks nice numbers for tick locations on a
     linear scale. Configured with a ``BasicTickFormatter`` by default.
 
-    """
+    '''
     ticker = Override(default=lambda: BasicTicker())
 
     formatter = Override(default=lambda: BasicTickFormatter())
 
 class LogAxis(ContinuousAxis):
-    """ An axis that picks nice numbers for tick locations on a
+    ''' An axis that picks nice numbers for tick locations on a
     log scale. Configured with a ``LogTickFormatter`` by default.
 
-    """
+    '''
     ticker = Override(default=lambda: LogTicker())
 
     formatter = Override(default=lambda: LogTickFormatter())
 
 class CategoricalAxis(Axis):
-    """ An axis that picks evenly spaced tick locations for a
+    ''' An axis that picks evenly spaced tick locations for a
     collection of categories/factors.
 
-    """
+    '''
     ticker = Override(default=lambda: CategoricalTicker())
 
     formatter = Override(default=lambda: CategoricalTickFormatter())
 
 class DatetimeAxis(LinearAxis):
-    """ An LinearAxis that picks nice numbers for tick locations on
+    ''' An LinearAxis that picks nice numbers for tick locations on
     a datetime scale. Configured with a ``DatetimeTickFormatter`` by
     default.
 
-    """
+    '''
 
     ticker = Override(default=lambda: DatetimeTicker())
 

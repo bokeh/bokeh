@@ -6,6 +6,7 @@ import bokeh.document as document
 from bokeh.model import Model
 from bokeh.models.sources import ColumnDataSource
 from bokeh.core.properties import Int, Instance
+from bokeh.server.events import ColumnsPatchedEvent, ColumnsStreamedEvent, ModelChangedEvent, RootAddedEvent, RootRemovedEvent
 from bokeh.server.protocol import Protocol
 
 class AnotherModelInTestPatchDoc(Model):
@@ -27,7 +28,7 @@ class TestPatchDocument(unittest.TestCase):
     def test_create_model_changed(self):
         sample = self._sample_doc()
         obj = next(iter(sample.roots))
-        event = document.ModelChangedEvent(sample, obj, 'foo', obj.foo, 42, 42)
+        event = ModelChangedEvent(sample, obj, 'foo', obj.foo, 42, 42)
         Protocol("1.0").create("PATCH-DOC", [event])
 
     def test_create_then_apply_model_changed(self):
@@ -40,7 +41,7 @@ class TestPatchDocument(unittest.TestCase):
 
         obj = next(iter(sample.roots))
         assert obj.foo == 2
-        event = document.ModelChangedEvent(sample, obj, 'foo', obj.foo, 42, 42)
+        event = ModelChangedEvent(sample, obj, 'foo', obj.foo, 42, 42)
         msg = Protocol("1.0").create("PATCH-DOC", [event])
 
         copy = document.Document.from_json_string(sample.to_json_string())
@@ -75,28 +76,28 @@ class TestPatchDocument(unittest.TestCase):
         sample.on_change(sample_document_callback_assert)
 
         # Model property changed
-        event = document.ModelChangedEvent(sample, root, 'child', root.child, new_child, new_child)
+        event = ModelChangedEvent(sample, root, 'child', root.child, new_child, new_child)
         msg = Protocol("1.0").create("PATCH-DOC", [event])
         msg.apply_to_document(sample, mock_session)
 
         # RootAdded
-        event2 = document.RootAddedEvent(sample, root)
+        event2 = RootAddedEvent(sample, root)
         msg2 = Protocol("1.0").create("PATCH-DOC", [event2])
         msg2.apply_to_document(sample, mock_session)
 
         # RootRemoved
-        event3 = document.RootRemovedEvent(sample, root)
+        event3 = RootRemovedEvent(sample, root)
         msg3 = Protocol("1.0").create("PATCH-DOC", [event3])
         msg3.apply_to_document(sample, mock_session)
 
         # ColumnsStreamed
-        event4 = document.ModelChangedEvent(sample, cds, 'data', 10, None, None,
-                                            hint=document.ColumnsStreamedEvent(sample, cds, {"a": [3]}, None, mock_session))
+        event4 = ModelChangedEvent(sample, cds, 'data', 10, None, None,
+                                   hint=ColumnsStreamedEvent(sample, cds, {"a": [3]}, None, mock_session))
         msg4 = Protocol("1.0").create("PATCH-DOC", [event4])
         msg4.apply_to_document(sample, mock_session)
 
         # ColumnsPatched
-        event5 = document.ModelChangedEvent(sample, cds, 'data', 10, None, None,
-                                            hint=document.ColumnsPatchedEvent(sample, cds, {"a": [(0, 11)]}))
+        event5 = ModelChangedEvent(sample, cds, 'data', 10, None, None,
+                                   hint=ColumnsPatchedEvent(sample, cds, {"a": [(0, 11)]}))
         msg5 = Protocol("1.0").create("PATCH-DOC", [event5])
         msg5.apply_to_document(sample, mock_session)

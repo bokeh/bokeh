@@ -1,23 +1,25 @@
-import * as _ from "underscore"
+import {XYGlyph, XYGlyphView} from "./xy_glyph"
+import * as hittest from "core/hittest"
 
-import {Glyph, GlyphView} from "./glyph"
-import * as hittest from "../../core/hittest"
-
-export class LineView extends GlyphView
-
-  _index_data: () ->
-    @_xy_index()
+export class LineView extends XYGlyphView
 
   _render: (ctx, indices, {sx, sy}) ->
     drawing = false
     @visuals.line.set_value(ctx)
+    last_index = null
 
     for i in indices
-      if !isFinite(sx[i]+sy[i]) and drawing
-        ctx.stroke()
-        ctx.beginPath()
-        drawing = false
-        continue
+      if drawing
+        if !isFinite(sx[i]+sy[i])
+          ctx.stroke()
+          ctx.beginPath()
+          drawing = false
+          last_index = i
+          continue
+
+        if last_index != null and i-last_index > 1
+          ctx.stroke()
+          drawing = false
 
       if drawing
         ctx.lineTo(sx[i], sy[i])
@@ -25,6 +27,8 @@ export class LineView extends GlyphView
         ctx.beginPath()
         ctx.moveTo(sx[i], sy[i])
         drawing = true
+
+      last_index = i
 
     if drawing
       ctx.stroke()
@@ -67,14 +71,14 @@ export class LineView extends GlyphView
     result = hittest.create_hit_test_result()
 
     if geometry.direction == 'v'
-      val = @renderer.ymapper.map_from_target(vy)
+      val = @renderer.yscale.invert(vy)
       values = @_y
     else
-      val = @renderer.xmapper.map_from_target(vx)
+      val = @renderer.xscale.invert(vx)
       values = @_x
 
     for i in [0...values.length-1]
-      if values[i]<=val<=values[i+1]
+      if values[i]<=val<=values[i+1] or values[i+1]<=val<=values[i]
         result['0d'].glyph = this.model
         result['0d'].get_view = (() -> this).bind(this);
         result['0d'].flag = true  # backward compat
@@ -87,14 +91,14 @@ export class LineView extends GlyphView
     [x2, y2, x3, y3] = [@_x[i], @_y[i], @_x[i+1], @_y[i+1]]
 
     if geometry.type == 'point'
-      [y0, y1] = @renderer.ymapper.v_map_from_target([vy-1, vy+1])
-      [x0, x1] = @renderer.xmapper.v_map_from_target([vx-1, vx+1])
+      [y0, y1] = @renderer.yscale.v_invert([vy-1, vy+1])
+      [x0, x1] = @renderer.xscale.v_invert([vx-1, vx+1])
     else
       if geometry.direction == 'v'
-        [y0, y1] = @renderer.ymapper.v_map_from_target([vy, vy])
+        [y0, y1] = @renderer.yscale.v_invert([vy, vy])
         [x0, x1] = [x2, x3]
       else
-        [x0, x1] = @renderer.xmapper.v_map_from_target([vx, vx])
+        [x0, x1] = @renderer.xscale.v_invert([vx, vx])
         [y0, y1] = [y2, y3]
 
     res = hittest.check_2_segments_intersect(x0, y0, x1, y1, x2, y2, x3, y3)
@@ -103,10 +107,9 @@ export class LineView extends GlyphView
   draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
     @_generic_line_legend(ctx, x0, x1, y0, y1, index)
 
-export class Line extends Glyph
+export class Line extends XYGlyph
   default_view: LineView
 
   type: 'Line'
 
-  @coords [['x', 'y']]
   @mixins ['line']

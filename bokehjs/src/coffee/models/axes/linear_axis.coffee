@@ -1,5 +1,3 @@
-import * as _ from "underscore"
-
 import {AxisView} from "./axis"
 import {ContinuousAxis} from "./continuous_axis"
 import {BasicTickFormatter} from "../formatters/basic_tick_formatter"

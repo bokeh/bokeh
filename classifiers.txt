@@ -1,0 +1,22 @@
+Intended Audience :: Developers
+Intended Audience :: Education
+Intended Audience :: End Users/Desktop
+Intended Audience :: Financial and Insurance Industry
+Intended Audience :: Healthcare Industry
+Intended Audience :: Information Technology
+Intended Audience :: Legal Industry
+Intended Audience :: Other Audience
+Intended Audience :: Science/Research
+License :: Freely Distributable
+License :: OSI Approved
+Topic :: Office/Business
+Topic :: Office/Business :: Financial
+Topic :: Scientific/Engineering
+Topic :: Scientific/Engineering :: Visualization
+Topic :: Scientific/Engineering :: Mathematics
+Topic :: Scientific/Engineering :: Information Analysis
+Topic :: Utilities
+Programming Language :: Python
+Programming Language :: Python :: 2
+Programming Language :: Python :: 3
+Programming Language :: JavaScript

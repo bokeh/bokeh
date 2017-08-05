@@ -1,7 +1,5 @@
-_ = require "underscore"
 {expect} = require "chai"
 utils = require "../../../utils"
-sinon = require 'sinon'
 
 {Document} = utils.require("document")
 {WheelPanTool} = utils.require("models/tools/gestures/wheel_pan_tool")
@@ -33,23 +31,18 @@ describe "WheelPanTool", ->
          x_range: new Range1d({start: 0, end: 1})
          y_range: new Range1d({start: 0, end: 1})
       })
-
       document = new Document()
       document.add_root(@plot)
+      @plot_view = new @plot.default_view({model: @plot, parent: null})
+      @plot_view.layout()
 
-      @plot_canvas_view = new @plot.plot_canvas.default_view({
-        model: @plot.plot_canvas
-      })
+      @plot_canvas_view = @plot_view.plot_canvas_view
 
     it "should translate x-range in positive direction", ->
       x_wheel_pan_tool = new WheelPanTool()
-
       @plot.add_tools(x_wheel_pan_tool)
 
-      wheel_pan_tool_view = new x_wheel_pan_tool.default_view({
-        model: x_wheel_pan_tool
-        plot_view: @plot_canvas_view
-      })
+      wheel_pan_tool_view = @plot_canvas_view.tool_views[x_wheel_pan_tool.id]
 
       # negative factors move in positive x-data direction
       wheel_pan_tool_view._update_ranges(-0.5)
@@ -62,13 +55,9 @@ describe "WheelPanTool", ->
 
     it "should translate y-range in negative direction", ->
       x_wheel_pan_tool = new WheelPanTool({dimension: 'height'})
-
       @plot.add_tools(x_wheel_pan_tool)
 
-      wheel_pan_tool_view = new x_wheel_pan_tool.default_view({
-        model: x_wheel_pan_tool
-        plot_view: @plot_canvas_view
-      })
+      wheel_pan_tool_view = @plot_canvas_view.tool_views[x_wheel_pan_tool.id]
 
       # positive factors move in positive y-data direction
       wheel_pan_tool_view._update_ranges(0.75)

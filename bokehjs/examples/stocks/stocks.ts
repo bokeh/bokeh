@@ -2,7 +2,7 @@ namespace Stocks {
   import plt = Bokeh.Plotting;
 
   console.log(`Bokeh ${Bokeh.version}`);
-  Bokeh.set_log_level("debug");
+  Bokeh.set_log_level("info");
 
   function make_plot(title: string, source: Bokeh.ColumnDataSource) {
     // Create plot

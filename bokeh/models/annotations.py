@@ -1,42 +1,34 @@
-""" Renderers for various kinds of annotations that can be added to
+''' Renderers for various kinds of annotations that can be added to
 Bokeh plots
 
-"""
+'''
 from __future__ import absolute_import
 
 from six import string_types
 
-from ..core.enums import (
-    Orientation, LegendLocation, SpatialUnits, Dimension, RenderMode,
-    AngleUnits, TextAlign, FontStyle, DeprecatedLegendLocation, accept_left_right_center,
-)
-from ..core.property_mixins import LineProps, FillProps, TextProps
-from ..core.properties import abstract, value
-from ..core.properties import (
-    Bool, Int, String, Enum, Instance, List, Tuple,
-    Include, NumberSpec, Either, Auto, Float, Override, Seq, StringSpec,
-    AngleSpec, Angle, FontSizeSpec, ColorSpec
-)
-from ..core import validation
-from ..core.validation.errors import (
-    BAD_COLUMN_NAME,
-    NON_MATCHING_DATA_SOURCES_ON_LEGEND_ITEM_RENDERERS
-)
+from ..core.enums import (AngleUnits, Dimension, FontStyle, LegendClickPolicy, LegendLocation,
+                          Orientation, RenderMode, SpatialUnits, TextAlign)
+from ..core.has_props import abstract
+from ..core.properties import (Angle, AngleSpec, Auto, Bool, ColorSpec, Datetime, Dict, DistanceSpec, Either,
+                               Enum, Float, FontSizeSpec, Include, Instance, Int, List, NumberSpec, Override,
+                               Seq, String, StringSpec, Tuple, value)
+from ..core.property_mixins import FillProps, LineProps, TextProps
+from ..core.validation import error
+from ..core.validation.errors import BAD_COLUMN_NAME, NON_MATCHING_DATA_SOURCES_ON_LEGEND_ITEM_RENDERERS
 from ..model import Model
-from ..util.deprecation import deprecated
+from ..util.serialization import convert_datetime_type
 
-from .formatters import TickFormatter, BasicTickFormatter
+from .formatters import BasicTickFormatter, TickFormatter
 from .mappers import ContinuousColorMapper
-from .renderers import Renderer, GlyphRenderer
-from .sources import DataSource, ColumnDataSource
-from .tickers import Ticker, BasicTicker
-
+from .renderers import GlyphRenderer, Renderer
+from .sources import ColumnDataSource, DataSource
+from .tickers import BasicTicker, Ticker
 
 @abstract
 class Annotation(Renderer):
-    """ Base class for annotation models.
+    ''' Base class for all annotation models.
 
-    """
+    '''
 
     plot = Instance(".models.plots.Plot", help="""
     The plot to which this annotation is attached.
@@ -44,16 +36,16 @@ class Annotation(Renderer):
 
     level = Override(default="annotation")
 
-
 @abstract
 class TextAnnotation(Annotation):
-    """ Base class for annotation models.
+    ''' Base class for text annotation models such as labels and titles.
 
-    """
-
+    '''
 
 class LegendItem(Model):
+    '''
 
+    '''
     def __init__(self, *args, **kwargs):
         super(LegendItem, self).__init__(*args, **kwargs)
         if isinstance(self.label, string_types):
@@ -71,13 +63,13 @@ class LegendItem(Model):
     then all data_sources of renderers must be the same.
     """)
 
-    @validation.error(NON_MATCHING_DATA_SOURCES_ON_LEGEND_ITEM_RENDERERS)
+    @error(NON_MATCHING_DATA_SOURCES_ON_LEGEND_ITEM_RENDERERS)
     def _check_data_sources_on_renderers(self):
         if self.label and 'field' in self.label:
             if len({r.data_source for r in self.renderers}) != 1:
                 return str(self)
 
-    @validation.error(BAD_COLUMN_NAME)
+    @error(BAD_COLUMN_NAME)
     def _check_field_label_on_data_source(self):
         if self.label and 'field' in self.label:
             if len(self.renderers) < 1:
@@ -86,26 +78,21 @@ class LegendItem(Model):
             if self.label.get('field') not in source.column_names:
                 return str(self)
 
-
 class Legend(Annotation):
-    """ Render informational legends for a plot.
+    ''' Render informational legends for a plot.
 
-    """
-
-    __deprecated_attributes__ = (
-        'legends', 'legend_margin', 'legend_padding', 'legend_spacing'
-    )
+    '''
 
     location = Either(Enum(LegendLocation), Tuple(Float, Float), default="top_right", help="""
     The location where the legend should draw itself. It's either one of
     ``bokeh.core.enums.LegendLocation``'s enumerated values, or a ``(x, y)``
     tuple indicating an absolute location absolute location in screen
     coordinates (pixels from the bottom-left corner).
-    """).accepts(Enum(DeprecatedLegendLocation), accept_left_right_center)
+    """)
 
     orientation = Enum(Orientation, default="vertical", help="""
     Whether the legend entries should be placed vertically or horizontally
-    when they are layed out.
+    when they are drawn.
     """)
 
     border_props = Include(LineProps, help="""
@@ -120,9 +107,21 @@ class Legend(Annotation):
     The %s for the legend background style.
     """)
 
+    inactive_props = Include(FillProps, help="""
+    The %s for the legend background style when inactive.
+    """)
+
+    click_policy = Enum(LegendClickPolicy, default="none", help="""
+    Defines what happens when a lengend's item is clicked.
+    """)
+
     background_fill_color = Override(default="#ffffff")
 
     background_fill_alpha = Override(default=0.95)
+
+    inactive_fill_color = Override(default="white")
+
+    inactive_fill_alpha = Override(default=0.9)
 
     label_props = Include(TextProps, help="""
     The %s for the legend labels.
@@ -161,23 +160,24 @@ class Legend(Annotation):
     """)
 
     spacing = Int(3, help="""
-    Amount of spacing between legend entries.
+    Amount of spacing (in pixles) between legend entries.
     """)
 
     items = List(Instance(LegendItem), help="""
-    A list of legend items to be rendered in the legend.
+    A list of :class:`~bokeh.model.annotations.LegendItem` instances to be
+    rendered in the legend.
 
     This can be specified explicitly, for instance:
 
     .. code-block:: python
 
         legend = Legend(items=[
-            LegendItem(label="sin(x)", renderers=[r0, r1]),
-            LegendItem(label="2*sin(x)", renderers=[r2]),
-            LegendItem(label="3*sin(x)", renderers=[r3, r4])
+            LegendItem(label="sin(x)"   , renderers=[r0, r1]),
+            LegendItem(label="2*sin(x)" , renderers=[r2]),
+            LegendItem(label="3*sin(x)" , renderers=[r3, r4])
         ])
 
-    But can also be given more compactly as a list of tuples:
+    But as a convenience, can also be given more compactly as a list of tuples:
 
     .. code-block:: python
 
@@ -191,60 +191,10 @@ class Legend(Annotation):
 
     """).accepts(List(Tuple(String, List(Instance(GlyphRenderer)))), lambda items: [LegendItem(label=item[0], renderers=item[1]) for item in items])
 
-    @property
-    def legends(self):
-        deprecated((0, 12, 3), 'legends', 'Legend.items')
-        return self.items
-
-    @legends.setter
-    def legends(self, legends):
-        deprecated((0, 12, 3), 'legends', 'Legend.items')
-        # Legends are [('label', [glyph_renderer_1, glyph_renderer_2]), ....]
-        # Or {'label', [glyph_renderer_1, glyph_renderer_2], ....}
-        if isinstance(legends, dict):
-            legends = list(legends.items())
-        items_list = []
-        for legend in legends:
-            item = LegendItem()
-            item.label = value(legend[0])
-            item.renderers = legend[1]
-            items_list.append(item)
-        self.items = items_list
-
-    @property
-    def legend_margin(self):
-        deprecated((0, 12, 3), 'legend_margin', 'Legend.margin')
-        return self.margin
-
-    @legend_margin.setter
-    def legend_margin(self, margin):
-        deprecated((0, 12, 3), 'legend_margin', 'Legend.margin')
-        self.margin = margin
-
-    @property
-    def legend_padding(self):
-        deprecated((0, 12, 3), 'legend_padding', 'Legend.padding')
-        return self.padding
-
-    @legend_padding.setter
-    def legend_padding(self, padding):
-        deprecated((0, 12, 3), 'legend_padding', 'Legend.padding')
-        self.padding = padding
-
-    @property
-    def legend_spacing(self):
-        deprecated((0, 12, 3), 'legend_spacing', 'Legend.spacing')
-        return self.spacing
-
-    @legend_spacing.setter
-    def legend_spacing(self, spacing):
-        deprecated((0, 12, 3), 'legend_spacing', 'Legend.spacing')
-        self.spacing = spacing
-
-
 class ColorBar(Annotation):
-    """ Render a color bar based on a color mapper for a plot.
-    """
+    ''' Render a color bar based on a color mapper.
+
+    '''
 
     location = Either(Enum(LegendLocation), Tuple(Float, Float),
         default="top_right", help="""
@@ -298,12 +248,20 @@ class ColorBar(Annotation):
     A TickFormatter to use for formatting the visual appearance of ticks.
     """)
 
+    major_label_overrides = Dict(Either(Float, String), String, default={}, help="""
+    Provide explicit tick label values for specific tick locations that
+    override normal formatting.
+    """)
+
     color_mapper = Instance(ContinuousColorMapper, help="""
     A continuous color mapper containing a color palette to render.
 
     .. warning::
         If the `low` and `high` attributes of the ColorMapper aren't set, ticks
-        and tick labels won't be rendered.
+        and tick labels won't be rendered. Additionally, if a LogTicker is
+        passed to the `ticker` argument and either or both of the logarithms
+        of `low` and `high` values of the color_mapper are non-numeric
+        (i.e. `low=0`), the tick and tick labels won't be rendered.
     """)
 
     margin = Int(30, help="""
@@ -380,16 +338,15 @@ class ColorBar(Annotation):
 
     background_fill_alpha = Override(default=0.95)
 
-
+# This only exists to prevent a circular import.
 def _DEFAULT_ARROW():
     from .arrow_heads import OpenHead
     return OpenHead()
 
-
 class Arrow(Annotation):
-    """ Render an arrow as an annotation.
+    ''' Render an arrow as an annotation.
 
-    """
+    '''
 
     x_start = NumberSpec(help="""
     The x-coordinates to locate the start of the arrows.
@@ -444,12 +401,15 @@ class Arrow(Annotation):
     """)
 
 class BoxAnnotation(Annotation):
-    """ Render a shaded rectangular region as an annotation.
+    ''' Render a shaded rectangular region as an annotation.
 
-    """
+    '''
 
     left = Either(Auto, NumberSpec(), default=None, help="""
     The x-coordinates of the left edge of the box annotation.
+
+    Datetime values are also accepted, but note that they are immediately
+    converted to milliseconds-since-epoch.
     """)
 
     left_units = Enum(SpatialUnits, default='data', help="""
@@ -459,6 +419,9 @@ class BoxAnnotation(Annotation):
 
     right = Either(Auto, NumberSpec(), default=None, help="""
     The x-coordinates of the right edge of the box annotation.
+
+    Datetime values are also accepted, but note that they are immediately
+    converted to milliseconds-since-epoch.
     """)
 
     right_units = Enum(SpatialUnits, default='data', help="""
@@ -468,6 +431,9 @@ class BoxAnnotation(Annotation):
 
     bottom = Either(Auto, NumberSpec(), default=None, help="""
     The y-coordinates of the bottom edge of the box annotation.
+
+    Datetime values are also accepted, but note that they are immediately
+    converted to milliseconds-since-epoch.
     """)
 
     bottom_units = Enum(SpatialUnits, default='data', help="""
@@ -477,6 +443,9 @@ class BoxAnnotation(Annotation):
 
     top = Either(Auto, NumberSpec(), default=None, help="""
     The y-coordinates of the top edge of the box annotation.
+
+    Datetime values are also accepted, but note that they are immediately
+    converted to milliseconds-since-epoch.
     """)
 
     top_units = Enum(SpatialUnits, default='data', help="""
@@ -520,14 +489,81 @@ class BoxAnnotation(Annotation):
 
     """)
 
-class Label(TextAnnotation):
-    """ Render a single text box as an annotation.
+class Band(Annotation):
+    ''' Render a filled area band along a dimension.
 
-    """
+    '''
+
+    lower = DistanceSpec(help="""
+    The coordinates of the lower portion of the filled area band.
+    """)
+
+    upper = DistanceSpec(help="""
+    The coordinations of the upper portion of the filled area band.
+    """)
+
+    base = DistanceSpec(help="""
+    The orthogonal coordinates of the upper and lower values.
+    """)
+
+    dimension = Enum(Dimension, default='height', help="""
+    The direction of the band.
+    """)
+
+    source = Instance(DataSource, default=lambda: ColumnDataSource(), help="""
+    Local data source to use when rendering annotations on the plot.
+    """)
+
+    x_range_name = String('default', help="""
+    A particular (named) x-range to use for computing screen locations when
+    rendering annotations on the plot. If unset, use the default x-range.
+    """)
+
+    y_range_name = String('default', help="""
+    A particular (named) y-range to use for computing screen locations when
+    rendering annotations on the plot. If unset, use the default y-range.
+    """)
+
+    line_props = Include(LineProps, use_prefix=False, help="""
+    The %s values for the band.
+    """)
+
+    line_alpha = Override(default=0.3)
+
+    line_color = Override(default="#cccccc")
+
+    fill_props = Include(FillProps, use_prefix=False, help="""
+    The %s values for the band.
+    """)
+
+    fill_alpha = Override(default=0.4)
+
+    fill_color = Override(default="#fff9ba")
+
+class Label(TextAnnotation):
+    ''' Render a single text label as an annotation.
+
+    ``Label`` will render a single text label at given ``x`` and ``y``
+    coordinates, which can be in either screen (pixel) space, or data (axis
+    range) space.
+
+    The label can also be configured with a screen space offset from ``x`` and
+    ``y``, by using the ``x_offset`` and ``y_offset`` properties.
+
+    Additionally, the label can be rotated with the ``angle`` property.
+
+    There are also standard text, fill, and line properties to control the
+    appearance of the text, its background, as well as the rectangular bounding
+    box border.
+
+    '''
 
     x = Float(help="""
     The x-coordinate in screen coordinates to locate the text anchors.
-    """)
+
+    Datetime values are also accepted, but note that they are immediately
+    converted to milliseconds-since-epoch.
+    """).accepts(Datetime, convert_datetime_type)
 
     x_units = Enum(SpatialUnits, default='data', help="""
     The unit type for the x attribute. Interpreted as "data space" units
@@ -536,7 +572,10 @@ class Label(TextAnnotation):
 
     y = Float(help="""
     The y-coordinate in screen coordinates to locate the text anchors.
-    """)
+
+    Datetime values are also accepted, but note that they are immediately
+    converted to milliseconds-since-epoch.
+    """).accepts(Datetime, convert_datetime_type)
 
     y_units = Enum(SpatialUnits, default='data', help="""
     The unit type for the y attribute. Interpreted as "data space" units
@@ -575,16 +614,19 @@ class Label(TextAnnotation):
     distance in screen units from a given data position.
     """)
 
+    # TODO (bev) these should probably not be dataspec properties
     text_props = Include(TextProps, use_prefix=False, help="""
     The %s values for the text.
     """)
 
+    # TODO (bev) these should probably not be dataspec properties
     background_props = Include(FillProps, use_prefix=True, help="""
     The %s values for the text bounding box.
     """)
 
     background_fill_color = Override(default=None)
 
+    # TODO (bev) these should probably not be dataspec properties
     border_props = Include(LineProps, use_prefix=True, help="""
     The %s values for the text bounding box.
     """)
@@ -619,9 +661,29 @@ class Label(TextAnnotation):
     """)
 
 class LabelSet(TextAnnotation):
-    """ Render a group of text boxes as annotations.
+    ''' Render multiple text labels as annotations.
 
-    """
+    ``LabelSet`` will render multiple text labels at given ``x`` and ``y``
+    coordinates, which can be in either screen (pixel) space, or data (axis
+    range) space. In this case (as opposed to the single ``Label`` model),
+    ``x`` and ``y`` can also be the name of a column from a
+    :class:`~bokeh.models.sources.ColumnDataSource`, in which case the labels
+    will be "vectorized" using coordinate values from the specified columns.
+
+    The label can also be configured with a screen space offset from ``x`` and
+    ``y``, by using the ``x_offset`` and ``y_offset`` properties. These offsets
+    may be vectorized by giving the name of a data source column.
+
+    Additionally, the label can be rotated with the ``angle`` property (which
+    may also be a column name.)
+
+    There are also standard text, fill, and line properties to control the
+    appearance of the text, its background, as well as the rectangular bounding
+    box border.
+
+    The data source is provided by setting the ``source`` property.
+
+    '''
 
     x = NumberSpec(help="""
     The x-coordinates to locate the text anchors.
@@ -717,9 +779,9 @@ class LabelSet(TextAnnotation):
     """)
 
 class PolyAnnotation(Annotation):
-    """ Render a shaded polygonal region as an annotation.
+    ''' Render a shaded polygonal region as an annotation.
 
-    """
+    '''
 
     xs = Seq(Float, default=[], help="""
     The x-coordinates of the region to draw.
@@ -808,9 +870,9 @@ class Span(Annotation):
     """)
 
 class Title(TextAnnotation):
-    """ Render a single title box as an annotation.
+    ''' Render a single title box as an annotation.
 
-    """
+    '''
 
     text = String(help="""
     The text value to render.
@@ -903,13 +965,13 @@ class Title(TextAnnotation):
     """)
 
 class Tooltip(Annotation):
-    """ Render a tooltip.
+    ''' Render a tooltip.
 
     .. note::
         This model is currently managed by BokehJS and is not useful
         directly from python.
 
-    """
+    '''
     level = Override(default="overlay")
 
     attachment = Enum("horizontal", "vertical", "left", "right", "above", "below", help="""
@@ -925,3 +987,57 @@ class Tooltip(Annotation):
     show_arrow = Bool(default=True, help="""
     Whether tooltip's arrow should be showed.
     """)
+
+# This only exists to prevent a circular import.
+def _DEFAULT_TEE():
+    from .arrow_heads import TeeHead
+    return TeeHead(level="underlay", size=10)
+
+class Whisker(Annotation):
+    ''' Render a whisker along a dimension.
+
+    '''
+
+    lower = DistanceSpec(help="""
+    The coordinates of the lower end of the whiskers.
+    """)
+
+    lower_head = Instance('.models.arrow_heads.ArrowHead', default=_DEFAULT_TEE, help="""
+    Instance of ArrowHead.
+    """)
+
+    upper = DistanceSpec(help="""
+    The coordinations of the upper end of the whiskers.
+    """)
+
+    upper_head = Instance('.models.arrow_heads.ArrowHead', default=_DEFAULT_TEE, help="""
+    Instance of ArrowHead.
+    """)
+
+    base = DistanceSpec(help="""
+    The orthogonal coordinates of the upper and lower values.
+    """)
+
+    dimension = Enum(Dimension, default='height', help="""
+    The direction of the band.
+    """)
+
+    source = Instance(DataSource, default=lambda: ColumnDataSource(), help="""
+    Local data source to use when rendering annotations on the plot.
+    """)
+
+    x_range_name = String('default', help="""
+    A particular (named) x-range to use for computing screen locations when
+    rendering annotations on the plot. If unset, use the default x-range.
+    """)
+
+    y_range_name = String('default', help="""
+    A particular (named) y-range to use for computing screen locations when
+    rendering annotations on the plot. If unset, use the default y-range.
+    """)
+
+    line_props = Include(LineProps, use_prefix=False, help="""
+    The %s values for the whisker body.
+    """)
+
+    level = Override(default="underlay")

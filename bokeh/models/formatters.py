@@ -1,35 +1,35 @@
-""" Models for controlling the text and visual formatting of tick
+''' Models for controlling the text and visual formatting of tick
 labels on Bokeh plot axes.
 
-"""
+'''
 from __future__ import absolute_import
 
 from types import FunctionType
-import inspect
 
-from .tickers import Ticker
+from bokeh.util.string import format_docstring
+from ..core.enums import LatLon, NumeralLanguage, RoundingFunction
+from ..core.has_props import abstract
+from ..core.properties import Auto, Bool, Dict, Either, Enum, Instance, Int, List, String
+from ..core.validation import error
+from ..core.validation.errors import MISSING_MERCATOR_DIMENSION
 from ..model import Model
-from ..core.properties import abstract
-from ..core.properties import (Bool, Int, String, Enum, Auto, List, Dict,
-    Either, Instance)
-from ..core.enums import RoundingFunction, NumeralLanguage
-from ..util.dependencies import import_required
-from ..util.deprecation import deprecated
 from ..util.compiler import nodejs_compile, CompilationError
+from ..util.dependencies import import_required
+from ..util.future import get_param_info, signature
+from .tickers import Ticker
 
 @abstract
 class TickFormatter(Model):
-    """ A base class for all tick formatter types. ``TickFormatter`` is
-    not generally useful to instantiate on its own.
+    ''' A base class for all tick formatter types.
 
-    """
+    '''
     pass
 
 class BasicTickFormatter(TickFormatter):
-    """ Display tick values from continuous ranges as "basic numbers",
+    ''' Display tick values from continuous ranges as "basic numbers",
     using scientific notation when appropriate by default.
 
-    """
+    '''
     precision = Either(Auto, Int, help="""
     How many digits of precision to display in tick labels.
     """)
@@ -54,8 +54,40 @@ class BasicTickFormatter(TickFormatter):
 
     """)
 
+class MercatorTickFormatter(BasicTickFormatter):
+    ''' TickFormatter for values in WebMercator units.
+
+    Some map plot types internally use WebMercator to describe coordinates,
+    plot bounds, etc. These units are not very human-friendly. This tick
+    formatter will convert WebMercator units into Latitude and Longitude
+    for display on axes.
+
+    '''
+
+    dimension = Enum(LatLon, default=None, help="""
+    Specify whether to format ticks for Latitude or Longitude.
+
+    Projected coordinates are not separable, computing Latitude and Longitude
+    tick labels from Web Mercator requires considering coordinates from both
+    dimensions together. Use this property to specify which result should be
+    used for display.
+
+    Typically, if the formatter is for an x-axis, then dimension should be
+    ``"lon"`` and if the formatter is for a y-axis, then the dimension
+    should be `"lat"``.
+
+    In order to prevent hard to debug errors, there is no default value for
+    dimension. Using an un-configured MercatorTickFormatter will result in
+    a validation error and a JavaScript console error.
+    """)
+
+    @error(MISSING_MERCATOR_DIMENSION)
+    def _check_missing_dimension(self):
+        if self.dimension is None:
+            return str(self)
+
 class NumeralTickFormatter(TickFormatter):
-    """ Tick formatter based on a human-readable format string. """
+    ''' Tick formatter based on a human-readable format string. '''
 
     format = String("0,0", help="""
     The number format, as defined in the following tables:
@@ -142,7 +174,7 @@ class NumeralTickFormatter(TickFormatter):
     """)
 
 class PrintfTickFormatter(TickFormatter):
-    """ Tick formatter based on a printf-style format string. """
+    ''' Tick formatter based on a printf-style format string. '''
 
     format = String("%s", help="""
     The number format, as defined as follows: the placeholder in the format
@@ -189,32 +221,32 @@ class PrintfTickFormatter(TickFormatter):
     """)
 
 class LogTickFormatter(TickFormatter):
-    """ Display tick values from continuous ranges as powers
+    ''' Display tick values from continuous ranges as powers
     of some base.
 
     Most often useful in conjunction with a ``LogTicker``.
 
-    """
+    '''
     ticker = Instance(Ticker, help="""
     The corresponding ``LogTicker``, used to determine the correct
     base to use. If unset, the formatter will use base 10 as a default.
     """)
 
 class CategoricalTickFormatter(TickFormatter):
-    """ Display tick values from categorical ranges as string
+    ''' Display tick values from categorical ranges as string
     values.
 
-    """
+    '''
     pass
 
 class FuncTickFormatter(TickFormatter):
-    """ Display tick values that are formatted by a user-defined function.
+    ''' Display tick values that are formatted by a user-defined function.
 
-    """
+    '''
 
     @classmethod
     def from_py_func(cls, func):
-        """ Create a FuncTickFormatter instance from a Python function. The
+        ''' Create a FuncTickFormatter instance from a Python function. The
         function is translated to JavaScript using PyScript. The variable
         ``tick`` will contain the unformatted tick value and can be expected to
         be present in the function namespace at render time.
@@ -223,43 +255,42 @@ class FuncTickFormatter(TickFormatter):
 
         .. code-block:: python
 
-            code = '''
-                def ticker():
-                    return "{:.0f} + {:.2f}".format(tick, tick % 1)
-            '''
+            code = """
+            def ticker():
+                return "{:.0f} + {:.2f}".format(tick, tick % 1)
+            """
 
         The python function must have no positional arguments. It's
         possible to pass Bokeh models (e.g. a ColumnDataSource) as keyword
         arguments to the function.
 
-        """
+        '''
         if not isinstance(func, FunctionType):
             raise ValueError('CustomJS.from_py_func needs function object.')
         pyscript = import_required('flexx.pyscript',
                                    'To use Python functions for CustomJS, you need Flexx ' +
                                    '("conda install -c bokeh flexx" or "pip install flexx")')
-        argspec = inspect.getargspec(func)
+        sig = signature(func)
 
-        default_names = argspec.args
-        default_values = argspec.defaults or []
+        all_names, default_values = get_param_info(sig)
 
-        if len(default_names) - len(default_values) != 0:
+        if len(all_names) - len(default_values) != 0:
             raise ValueError("Function `func` may only contain keyword arguments.")
 
         if default_values and not any([isinstance(value, Model) for value in default_values]):
-            raise ValueError("Default value must be a plot object.")
+            raise ValueError("Default value must be a Bokeh Model.")
 
-        func_kwargs = dict(zip(default_names, default_values))
+        func_kwargs = dict(zip(all_names, default_values))
 
         # Wrap the code attr in a function named `formatter` and call it
         # with arguments that match the `args` attr
-        code = pyscript.py2js(func, 'formatter') + 'return formatter(%s);\n' % ', '.join(default_names)
+        code = pyscript.py2js(func, 'formatter') + 'return formatter(%s);\n' % ', '.join(all_names)
 
         return cls(code=code, args=func_kwargs)
 
     @classmethod
     def from_coffeescript(cls, code, args={}):
-        """ Create a FuncTickFormatter instance from a CoffeeScript snippet.
+        ''' Create a FuncTickFormatter instance from a CoffeeScript snippet.
         The function body is translated to JavaScript using node. The variable
         ``tick`` will contain the unformatted tick value and can be expected to
         be present in the code snippet namespace at render time.
@@ -268,10 +299,10 @@ class FuncTickFormatter(TickFormatter):
 
         .. code-block:: coffeescript
 
-            code = '''
-                return Math.floor(tick) + " + " + (tick % 1).toFixed(2)
-            '''
-        """
+            code = """
+            return Math.floor(tick) + " + " + (tick % 1).toFixed(2)
+            """
+        '''
         compiled = nodejs_compile(code, lang="coffeescript", file="???")
         if "error" in compiled:
             raise CompilationError(compiled.error)
@@ -294,24 +325,9 @@ class FuncTickFormatter(TickFormatter):
         .. code-block:: javascript
 
             code = '''
-                return Math.floor(tick) + " + " + (tick % 1).toFixed(2)
+            return Math.floor(tick) + " + " + (tick % 1).toFixed(2)
             '''
     """)
-
-def DEFAULT_DATETIME_FORMATS():
-    deprecated((0, 12, 3), 'DEFAULT_DATETIME_FORMATS', 'individual DatetimeTickFormatter fields')
-    return {
-        'microseconds': ['%fus'],
-        'milliseconds': ['%3Nms', '%S.%3Ns'],
-        'seconds':      ['%Ss'],
-        'minsec':       [':%M:%S'],
-        'minutes':      [':%M', '%Mm'],
-        'hourmin':      ['%H:%M'],
-        'hours':        ['%Hh', '%H:%M'],
-        'days':         ['%m/%d', '%a%d'],
-        'months':       ['%m/%Y', '%b%y'],
-        'years':        ['%Y'],
-    }
 
 def _DATETIME_TICK_FORMATTER_HELP(field):
     return """
@@ -321,7 +337,7 @@ def _DATETIME_TICK_FORMATTER_HELP(field):
     """ % field
 
 class DatetimeTickFormatter(TickFormatter):
-    """ A ``TickFormatter`` for displaying datetime values nicely across a
+    ''' A ``TickFormatter`` for displaying datetime values nicely across a
     range of scales.
 
     ``DatetimeTickFormatter`` has the following properties (listed together
@@ -523,7 +539,7 @@ class DatetimeTickFormatter(TickFormatter):
     .. _timezone: http://bigeasy.github.io/timezone/
     .. _github issue: https://github.com/bokeh/bokeh/issues
 
-    """
+    '''
     microseconds = List(String,
                         help=_DATETIME_TICK_FORMATTER_HELP("``microseconds``"),
                         default=['%fus']).accepts(String, lambda fmt: [fmt])
@@ -564,46 +580,11 @@ class DatetimeTickFormatter(TickFormatter):
                         help=_DATETIME_TICK_FORMATTER_HELP("``years``"),
                         default=['%Y']).accepts(String, lambda fmt: [fmt])
 
-    __deprecated_attributes__ = ('formats',)
-
-    @property
-    def formats(self):
-        ''' A dictionary containing formats for all scales.
-
-        THIS PROPERTY IS DEPRECTATED. Use individual DatetimeTickFormatter fields instead.
-
-        '''
-        deprecated((0, 12, 3), 'DatetimeTickFormatter.formats', 'individual DatetimeTickFormatter fields')
-        return dict(
-            microseconds = self.microseconds,
-            milliseconds = self.milliseconds,
-            seconds      = self.seconds,
-            minsec       = self.minsec,
-            minutes      = self.minutes,
-            hourmin      = self.hourmin,
-            hours        = self.hours,
-            days         = self.days,
-            months       = self.months,
-            years        = self.years)
-
-    @formats.setter
-    def formats(self, value):
-        deprecated((0, 12, 3), 'DatetimeTickFormatter.formats', 'individual DatetimeTickFormatter fields')
-        if 'microseconds' in value: self.microseconds = value['microseconds']
-        if 'milliseconds' in value: self.milliseconds = value['milliseconds']
-        if 'seconds'      in value: self.seconds      = value['seconds']
-        if 'minsec'       in value: self.minsec       = value['minsec']
-        if 'minutes'      in value: self.minutes      = value['minutes']
-        if 'hourmin'      in value: self.hourmin      = value['hourmin']
-        if 'hours'        in value: self.hours        = value['hours']
-        if 'days'         in value: self.days         = value['days']
-        if 'months'       in value: self.months       = value['months']
-        if 'years'        in value: self.years        = value['years']
-
 # This is to automate documentation of DatetimeTickFormatter formats and their defaults
 _df = DatetimeTickFormatter()
 _df_fields = ['microseconds', 'milliseconds', 'seconds', 'minsec', 'minutes', 'hourmin', 'hours', 'days', 'months', 'years']
 _df_defaults = _df.properties_with_values()
 _df_defaults_string = "\n\n        ".join("%s = %s" % (name, _df_defaults[name]) for name in _df_fields)
-DatetimeTickFormatter.__doc__ = DatetimeTickFormatter.__doc__.format(defaults=_df_defaults_string)
+
+DatetimeTickFormatter.__doc__ = format_docstring(DatetimeTickFormatter.__doc__, defaults=_df_defaults_string)
 del _df, _df_fields, _df_defaults, _df_defaults_string

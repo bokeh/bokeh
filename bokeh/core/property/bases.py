@@ -16,11 +16,15 @@ from copy import copy
 import types
 
 from six import string_types
+import numpy as np
 
+from ...util.dependencies import import_optional
 from ...util.string import nice_join
 from .containers import PropertyValueList, PropertyValueDict
 from .descriptor_factory import PropertyDescriptorFactory
 from .descriptors import BasicPropertyDescriptor
+
+pd = import_optional('pandas')
 
 class DeserializationError(Exception):
     pass
@@ -100,16 +104,13 @@ class Property(PropertyDescriptorFactory):
         '''
         return [ BasicPropertyDescriptor(base_name, self) ]
 
-    def _has_stable_default(self):
-        ''' True if we have a default that is immutable, and will be the
+    def _may_have_unstable_default(self):
+        ''' False if we have a default that is immutable, and will be the
         same every time (some defaults are generated on demand by a function
         to be called).
 
         '''
-        if isinstance(self._default, types.FunctionType):
-            return False
-        else:
-            return True
+        return isinstance(self._default, types.FunctionType)
 
     @classmethod
     def _copy_default(cls, default):
@@ -166,20 +167,41 @@ class Property(PropertyDescriptorFactory):
         return self._readonly
 
     def matches(self, new, old):
-        # XXX: originally this code warned about not being able to compare values, but that
-        # doesn't make sense, because most comparisons involving numpy arrays will fail with
-        # ValueError exception, thus warning about inevitable.
+        ''' Whether two parameters match values.
+
+        If either ``new`` or ``old`` is a NumPy array or Pandas Series or Index,
+        then the result of ``np.array_equal`` will determine if the values match.
+
+        Otherwise, the result of standard Python equality will be returned.
+
+        Returns:
+            True, if new and old match, False otherwise
+
+        '''
+        if isinstance(new, np.ndarray) or isinstance(old, np.ndarray):
+            return np.array_equal(new, old)
+
+        if pd:
+            if isinstance(new, pd.Series) or isinstance(old, pd.Series):
+                return np.array_equal(new, old)
+
+            if isinstance(new, pd.Index) or isinstance(old, pd.Index):
+                return np.array_equal(new, old)
+
         try:
-            if new is None or old is None:
-                return new is old           # XXX: silence FutureWarning from NumPy
-            else:
-                return new == old
-        except (KeyboardInterrupt, SystemExit):
-            raise
-        except Exception:
-            # if we cannot compare (e.g. arrays) just punt return False for match
-            pass
-        return False
+
+            # this handles the special but common case where there is a dict with array
+            # or series as values (e.g. the .data property of a ColumnDataSource)
+            if isinstance(new, dict) and isinstance(old, dict):
+                if set(new.keys()) != set(old.keys()):
+                    return False
+                return all(self.matches(new[k], old[k]) for k in new)
+
+            return new == old
+
+        # if the comparison fails for some reason, just punt and return no-match
+        except ValueError:
+            return False
 
     def from_json(self, json, models=None):
         ''' Convert from JSON-compatible values into a value for this property.
@@ -279,17 +301,13 @@ class Property(PropertyDescriptorFactory):
                 else:
                     result = fn(obj, value)
 
-                if isinstance(result, bool):
-                    if not result:
-                        if isinstance(msg_or_fn, string_types):
-                            raise ValueError(msg_or_fn)
-                        else:
-                            msg_or_fn()
-                elif result is not None:
+                assert isinstance(result, bool)
+
+                if not result:
                     if isinstance(msg_or_fn, string_types):
-                        raise ValueError(msg_or_fn % result)
+                        raise ValueError(msg_or_fn)
                     else:
-                        msg_or_fn(result)
+                        msg_or_fn(obj, name, value)
 
         return self._wrap_container(value)
 
@@ -298,11 +316,48 @@ class Property(PropertyDescriptorFactory):
         return False
 
     def accepts(self, tp, converter):
+        ''' Declare that other types may be converted to this property type.
+
+        Args:
+            tp (Property) :
+                A type that may be converted automatically to this property
+                type.
+
+            converter (callable) :
+                A function accepting ``value`` to perform conversion of the
+                value to this property type.
+
+        Returns:
+            self
+
+        '''
+
         tp = ParameterizedProperty._validate_type_param(tp)
         self.alternatives.append((tp, converter))
         return self
 
     def asserts(self, fn, msg_or_fn):
+        ''' Assert that prepared values satisfy given conditions.
+
+        Assertions are intended in enforce conditions beyond simple value
+        type validation. For instance, this method can be use to assert that
+        the columns of a ``ColumnDataSource`` all collectively have the same
+        length at all times.
+
+        Args:
+            fn (callable) :
+                A function accepting ``(obj, value)`` that returns True if the value
+                passes the assertion, or False othwise
+
+            msg_or_fn (str or callable) :
+                A message to print in case the assertion fails, or a function
+                accepting ``(obj, name, value)`` to call in in case the assertion
+                fails.
+
+        Returns:
+            self
+
+        '''
         self.assertions.append((fn, msg_or_fn))
         return self
 
@@ -373,6 +428,6 @@ class ContainerProperty(ParameterizedProperty):
 
     '''
 
-    def _has_stable_default(self):
+    def _may_have_unstable_default(self):
         # all containers are mutable, so the default can be modified
-        return False
+        return True

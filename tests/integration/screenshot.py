@@ -1,7 +1,13 @@
 import base64
 
 from os.path import exists
-from tests.plugins.image_diff import process_image_diff
+from tests.plugins.image_diff import image_diff
+
+
+class ScreenshotMismatchError(AssertionError):
+    """ Custom assertion error for report handling. """
+    def __init__(self, *args, **kwargs):
+        super(AssertionError, self).__init__(*args, **kwargs)
 
 
 class Screenshot(object):
@@ -57,16 +63,15 @@ class Screenshot(object):
         if exists(self.base_screenshot_path):
             return self.get_screenshot_as_b64(self.current_screenshot_path)
 
-    def is_valid(self):
+    def assert_is_valid(self):
         self.set_current_screenshot()
         if self.set_new_base:
             self.set_base_screenshot()
-        image_diff_result = process_image_diff(
+        image_diff_result = image_diff(
             self.diff_screenshot_path,
             self.base_screenshot_path,
             self.current_screenshot_path
         )
-        if image_diff_result == 0:
-            return True
-        else:
-            return False
+        if image_diff_result != 0:
+            __tracebackhide__ = True
+            raise ScreenshotMismatchError("The current screenshot doesn't match the base image.")

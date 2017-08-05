@@ -36,27 +36,33 @@ All these glyphs share a minimal common interface through their base class
 '''
 from __future__ import absolute_import
 
-from ..core.enums import Direction, Anchor, DeprecatedAnchor, accept_left_right_center
+from ..core.enums import Anchor, Direction
+from ..core.has_props import abstract
+from ..core.properties import (AngleSpec, Bool, DistanceSpec, Enum, Float,
+                               Include, Instance, Int, NumberSpec, StringSpec)
 from ..core.property_mixins import FillProps, LineProps, TextProps
 from ..model import Model
-from ..core.properties import (abstract, AngleSpec, Bool, DistanceSpec, Enum, Float,
-                          Include, Instance, Int, NumberSpec, StringSpec)
-from ..util.deprecation import deprecated
 
 from .mappers import ColorMapper, LinearColorMapper
 
 @abstract
 class Glyph(Model):
-    """ Base class for all glyph models. """
+    ''' Base class for all glyph models.
 
-    visible = Bool(True, help="""
-    Whether the glyph should render or not.
-    """)
+    '''
 
-class AnnularWedge(Glyph):
-    """ Render annular wedges. """
+@abstract
+class XYGlyph(Glyph):
+    ''' Base class of glyphs with `x` and `y` coordinate attributes.
 
-    __example__ = "tests/glyphs/AnnularWedge.py"
+    '''
+
+class AnnularWedge(XYGlyph):
+    ''' Render annular wedges.
+
+    '''
+
+    __example__ = "examples/reference/models/AnnularWedge.py"
 
     # a canonical order for positional args that can be used for any
     # functions derived from this class
@@ -98,10 +104,12 @@ class AnnularWedge(Glyph):
     The %s values for the annular wedges.
     """)
 
-class Annulus(Glyph):
-    """ Render annuli. """
+class Annulus(XYGlyph):
+    ''' Render annuli.
 
-    __example__ = "tests/glyphs/Annulus.py"
+    '''
+
+    __example__ = "examples/reference/models/Annulus.py"
 
     # a canonical order for positional args that can be used for any
     # functions derived from this class
@@ -131,10 +139,12 @@ class Annulus(Glyph):
     The %s values for the annuli.
     """)
 
-class Arc(Glyph):
-    """ Render arcs. """
+class Arc(XYGlyph):
+    ''' Render arcs.
 
-    __example__ = "tests/glyphs/Arc.py"
+    '''
+
+    __example__ = "examples/reference/models/Arc.py"
 
     # a canonical order for positional args that can be used for any
     # functions derived from this class
@@ -169,14 +179,15 @@ class Arc(Glyph):
     """)
 
 class Bezier(Glyph):
-    u""" Render Bézier curves.
+    u''' Render Bézier curves.
 
     For more information consult the `Wikipedia article for Bézier curve`_.
 
     .. _Wikipedia article for Bézier curve: http://en.wikipedia.org/wiki/Bézier_curve
-    """
 
-    __example__ = "tests/glyphs/Bezier.py"
+    '''
+
+    __example__ = "examples/reference/models/Bezier.py"
 
     # a canonical order for positional args that can be used for any
     # functions derived from this class
@@ -218,10 +229,12 @@ class Bezier(Glyph):
     The %s values for the Bézier curves.
     """)
 
-class Ellipse(Glyph):
-    u""" Render ellipses. """
+class Ellipse(XYGlyph):
+    u''' Render ellipses.
 
-    __example__ = "tests/glyphs/Ellipse.py"
+    '''
+
+    __example__ = "examples/reference/models/Ellipse.py"
 
     # a canonical order for positional args that can be used for any
     # functions derived from this class
@@ -256,9 +269,12 @@ class Ellipse(Glyph):
     """)
 
 class HBar(Glyph):
-    """ Render horizontal bars, given a center coordinate, height and (left, right) coordinates. """
+    ''' Render horizontal bars, given a center coordinate, ``height`` and
+    (``left``, ``right``) coordinates.
 
-    __example__ = "tests/glyphs/HBar.py"
+    '''
+
+    __example__ = "examples/reference/models/HBar.py"
 
     # a canonical order for positional args that can be used for any
     # functions derived from this class
@@ -288,8 +304,8 @@ class HBar(Glyph):
     The %s values for the horizontal bars.
     """)
 
-class Image(Glyph):
-    """ Render images given as scalar data together with a color mapper.
+class Image(XYGlyph):
+    ''' Render images given as scalar data together with a color mapper.
 
     In addition to the defined model properties, ``Image`` also can accept
     a keyword argument ``palette`` in place of an explicit ``color_mapper``.
@@ -297,12 +313,11 @@ class Image(Glyph):
     palettes in ``bokeh.palettes``. This palette will be used to automatically
     construct a ``ColorMapper`` model for the ``color_mapper`` property.
 
-    .. note::
-        If both ``palette`` and ``color_mapper`` are passed, a ``ValueError``
-        exception will be raised. If neither is passed, then the ``Greys9``
-        palette will be used as a default.
+    If both ``palette`` and ``color_mapper`` are passed, a ``ValueError``
+    exception will be raised. If neither is passed, then the ``Greys9``
+    palette will be used as a default.
 
-    """
+    '''
 
     def __init__(self, **kwargs):
         if 'palette' in kwargs and 'color_mapper' in kwargs:
@@ -374,8 +389,10 @@ class Image(Glyph):
     # TODO: (bev) support anchor property for Image
     # ref: https://github.com/bokeh/bokeh/issues/1763
 
-class ImageRGBA(Glyph):
-    """ Render images given as RGBA data. """
+class ImageRGBA(XYGlyph):
+    ''' Render images given as RGBA data.
+
+    '''
 
     # a canonical order for positional args that can be used for any
     # functions derived from this class
@@ -392,14 +409,6 @@ class ImageRGBA(Glyph):
     y = NumberSpec(help="""
     The y-coordinates to locate the image anchors.
     """)
-
-    rows = NumberSpec(None, help="""
-    The numbers of rows in the images
-    """).asserts(False, lambda: deprecated((0, 12, 4), "ImageRGBA.rows", "2D array representation"))
-
-    cols = NumberSpec(None, help="""
-    The numbers of columns in the images
-    """).asserts(False, lambda: deprecated((0, 12, 4), "ImageRGBA.cols", "2D array representation"))
 
     dw = DistanceSpec(help="""
     The widths of the plot regions that the images will occupy.
@@ -428,16 +437,19 @@ class ImageRGBA(Glyph):
     # TODO: (bev) support anchor property for ImageRGBA
     # ref: https://github.com/bokeh/bokeh/issues/1763
 
-class ImageURL(Glyph):
-    """ Render images loaded from given URLs. """
+class ImageURL(XYGlyph):
+    ''' Render images loaded from given URLs.
 
-    __example__ = "tests/glyphs/ImageURL.py"
+    '''
+
+    __example__ = "examples/reference/models/ImageURL.py"
 
     # a canonical order for positional args that can be used for any
     # functions derived from this class
     _args = ('url', 'x', 'y', 'w', 'h', 'angle', 'global_alpha', 'dilate')
 
-    url = NumberSpec(help="""
+    # TODO (bev) Why is this a NumberSpec??
+    url = NumberSpec(accept_datetime=False, help="""
     The URLs to retrieve images from.
 
     .. note::
@@ -453,28 +465,18 @@ class ImageURL(Glyph):
     The y-coordinates to locate the image anchors.
     """)
 
-    # TODO: (bev) rename to "dw" for consistency
-    w = DistanceSpec(help="""
-    The widths of the plot regions that the images will occupy.
+    w = DistanceSpec(default=None, help="""
+    The height of the plot region that the image will occupy in data space.
 
-    .. note::
-        This is not the number of pixels that an image is wide.
-        That number is fixed by the image itself.
-
-    .. note::
-        This may be renamed to "dw" in the future.
+    The default value is ``None``, in which case the image will be displayed
+    at its actual image size (regardless of the units specified here).
     """)
 
-    # TODO: (bev) rename to "dh" for consistency
-    h = DistanceSpec(help="""
-    The height of the plot region that the image will occupy.
+    h = DistanceSpec(default=None, help="""
+    The height of the plot region that the image will occupy in data space.
 
-    .. note::
-        This is not the number of pixels that an image is tall.
-        That number is fixed by the image itself.
-
-    .. note::
-        This may be renamed to "dh" in the future.
+    The default value is ``None``, in which case the image will be displayed
+    at its actual image size (regardless of the units specified here).
     """)
 
     angle = AngleSpec(default=0, help="""
@@ -497,7 +499,7 @@ class ImageURL(Glyph):
     anchor = Enum(Anchor, help="""
     What position of the image should be anchored at the `x`, `y`
     coordinates.
-    """).accepts(Enum(DeprecatedAnchor), accept_left_right_center)
+    """)
 
     retry_attempts = Int(0, help="""
     Number of attempts to retry loading the images from the specified URL.
@@ -509,18 +511,18 @@ class ImageURL(Glyph):
     specified URL. Default is zero ms.
     """)
 
-class Line(Glyph):
-    """ Render a single line.
+class Line(XYGlyph):
+    ''' Render a single line.
 
-    .. note::
-        The ``Line`` glyph is different from most other glyphs in that
-        the vector of values only produces one glyph on the Plot.
-    """
+    The ``Line`` glyph is different from most other glyphs in that the vector
+    of values only produces one glyph on the Plot.
+
+    '''
     # a canonical order for positional args that can be used for any
     # functions derived from this class
     _args = ('x', 'y')
 
-    __example__ = "tests/glyphs/Line.py"
+    __example__ = "examples/reference/models/Line.py"
 
     x = NumberSpec(help="""
     The x-coordinates for the points of the line.
@@ -535,15 +537,14 @@ class Line(Glyph):
     """)
 
 class MultiLine(Glyph):
-    """ Render several lines.
+    ''' Render several lines.
 
-    .. note::
-        The data for the ``MultiLine`` glyph is different in that the
-        vector of values is not a vector of scalars. Rather, it is a
-        "list of lists".
-    """
+    The data for the ``MultiLine`` glyph is different in that the vector of
+    values is not a vector of scalars. Rather, it is a "list of lists".
 
-    __example__ = "tests/glyphs/MultiLine.py"
+    '''
+
+    __example__ = "examples/reference/models/MultiLine.py"
 
     # a canonical order for positional args that can be used for any
     # functions derived from this class
@@ -561,16 +562,16 @@ class MultiLine(Glyph):
     The %s values for the lines.
     """)
 
-class Oval(Glyph):
-    u""" Render ovals.
+class Oval(XYGlyph):
+    u''' Render ovals.
 
-    .. note::
-        This glyph renders ovals using Bézier curves, which are similar,
-        but not identical to ellipses. In particular, widths equal to heights
-        will not render circles. Use the ``Ellipse`` glyph for that.
-    """
+    This glyph renders ovals using Bézier curves, which are similar,
+    but not identical to ellipses. In particular, widths equal to heights
+    will not render circles. Use the ``Ellipse`` glyph for that.
 
-    __example__ = "tests/glyphs/Oval.py"
+    '''
+
+    __example__ = "examples/reference/models/Oval.py"
 
     # a canonical order for positional args that can be used for any
     # functions derived from this class
@@ -604,15 +605,15 @@ class Oval(Glyph):
     The %s values for the ovals.
     """)
 
-class Patch(Glyph):
-    """ Render a single patch.
+class Patch(XYGlyph):
+    ''' Render a single patch.
 
-    .. note::
-        The ``Patch`` glyph is different from most other glyphs in that
-        the vector of values only produces one glyph on the Plot.
-    """
+    The ``Patch`` glyph is different from most other glyphs in that the vector
+    of values only produces one glyph on the Plot.
 
-    __example__ = "tests/glyphs/Patch.py"
+    '''
+
+    __example__ = "examples/reference/models/Patch.py"
 
     # a canonical order for positional args that can be used for any
     # functions derived from this class
@@ -645,15 +646,14 @@ class Patch(Glyph):
     """)
 
 class Patches(Glyph):
-    """ Render several patches.
+    ''' Render several patches.
 
-    .. note::
-        The data for the ``Patches`` glyph is different in that the
-        vector of values is not a vector of scalars. Rather, it is a
-        "list of lists".
-    """
+    The data for the ``Patches`` glyph is different in that the vector of
+    values is not a vector of scalars. Rather, it is a "list of lists".
 
-    __example__ = "tests/glyphs/Patches.py"
+    '''
+
+    __example__ = "examples/reference/models/Patches.py"
 
     # a canonical order for positional args that can be used for any
     # functions derived from this class
@@ -686,9 +686,11 @@ class Patches(Glyph):
     """)
 
 class Quad(Glyph):
-    """ Render axis-aligned quads. """
+    ''' Render axis-aligned quads.
 
-    __example__ = "tests/glyphs/Quad.py"
+    '''
+
+    __example__ = "examples/reference/models/Quad.py"
 
     # a canonical order for positional args that can be used for any
     # functions derived from this class
@@ -719,9 +721,11 @@ class Quad(Glyph):
     """)
 
 class Quadratic(Glyph):
-    """ Render parabolas. """
+    ''' Render parabolas.
 
-    __example__ = "tests/glyphs/Quadratic.py"
+    '''
+
+    __example__ = "examples/reference/models/Quadratic.py"
 
     # a canonical order for positional args that can be used for any
     # functions derived from this class
@@ -755,10 +759,12 @@ class Quadratic(Glyph):
     The %s values for the parabolas.
     """)
 
-class Ray(Glyph):
-    """ Render rays. """
+class Ray(XYGlyph):
+    ''' Render rays.
 
-    __example__ = "tests/glyphs/Ray.py"
+    '''
+
+    __example__ = "examples/reference/models/Ray.py"
 
     # a canonical order for positional args that can be used for any
     # functions derived from this class
@@ -785,10 +791,12 @@ class Ray(Glyph):
     The %s values for the rays.
     """)
 
-class Rect(Glyph):
-    """ Render rectangles. """
+class Rect(XYGlyph):
+    ''' Render rectangles.
 
-    __example__ = "tests/glyphs/Rect.py"
+    '''
+
+    __example__ = "examples/reference/models/Rect.py"
 
     # a canonical order for positional args that can be used for any
     # functions derived from this class
@@ -832,9 +840,11 @@ class Rect(Glyph):
     """)
 
 class Segment(Glyph):
-    """ Render segments. """
+    ''' Render segments.
 
-    __example__ = "tests/glyphs/Segment.py"
+    '''
+
+    __example__ = "examples/reference/models/Segment.py"
 
     # a canonical order for positional args that can be used for any
     # functions derived from this class
@@ -860,10 +870,12 @@ class Segment(Glyph):
     The %s values for the segments.
     """)
 
-class Text(Glyph):
-    """ Render text. """
+class Text(XYGlyph):
+    ''' Render text.
 
-    __example__ = "tests/glyphs/Text.py"
+    '''
+
+    __example__ = "examples/reference/models/Text.py"
 
     # a canonical order for positional args that can be used for any
     # functions derived from this class
@@ -904,9 +916,11 @@ class Text(Glyph):
     """)
 
 class VBar(Glyph):
-    """ Render vertical bars, given a center coordinate, width and (top, bottom) coordinates. """
+    ''' Render vertical bars, given a center coordinate, width and (top, bottom) coordinates.
 
-    __example__ = "tests/glyphs/VBar.py"
+    '''
+
+    __example__ = "examples/reference/models/VBar.py"
 
     # a canonical order for positional args that can be used for any
     # functions derived from this class
@@ -936,11 +950,12 @@ class VBar(Glyph):
     The %s values for the vertical bars.
     """)
 
-class Wedge(Glyph):
-    """ Render wedges.
-    """
+class Wedge(XYGlyph):
+    ''' Render wedges.
 
-    __example__ = "tests/glyphs/Wedge.py"
+    '''
+
+    __example__ = "examples/reference/models/Wedge.py"
 
     # a canonical order for positional args that can be used for any
     # functions derived from this class
@@ -979,10 +994,9 @@ class Wedge(Glyph):
     """)
 
 # XXX: allow `from bokeh.models.glyphs import *`
-from .markers import (Marker, Asterisk, Circle, CircleCross, CircleX, Cross,
-                      Diamond, DiamondCross, InvertedTriangle, Square,
-                      SquareCross, SquareX, Triangle, X)
+from .markers import (Asterisk, Circle, CircleCross, CircleX, Cross, Diamond, DiamondCross,
+                      InvertedTriangle, Marker, Square, SquareCross, SquareX, Triangle, X)
 
 # Fool pyflakes
-(Marker, Asterisk, Circle, CircleCross, CircleX, Cross, Diamond, DiamondCross,
-InvertedTriangle, Square, SquareCross, SquareX, Triangle, X)
+(Asterisk, Circle, CircleCross, CircleX, Cross, Diamond, DiamondCross,
+InvertedTriangle, Marker, Square, SquareCross, SquareX, Triangle, X)

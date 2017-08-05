@@ -1,7 +1,5 @@
-import * as _ from "underscore"
-
 import {Renderer} from "./renderer"
-import * as p from "../../core/properties"
+import * as p from "core/properties"
 
 export class GuideRenderer extends Renderer
   type: 'GuideRenderer'

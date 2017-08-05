@@ -18,7 +18,7 @@ colors1 = [colormap1[x] for x in flowers['species']]
 colormap2 = {'setosa': '#0f0', 'versicolor': '#0f0', 'virginica': '#f00'}
 colors2 = [colormap2[x] for x in flowers['species']]
 
-p = figure(title = "Iris Morphology", webgl=True)
+p = figure(title = "Iris Morphology", output_backend="webgl")
 p.xaxis.axis_label = 'Petal Length'
 p.yaxis.axis_label = 'Petal Width'
 

@@ -44,14 +44,14 @@ def polynomial():
     args = flask.request.args
 
     # Get all the form arguments in the url with defaults
-    color = colors[getitem(args, 'color', 'Black')]
+    color = getitem(args, 'color', 'Black')
     _from = int(getitem(args, '_from', 0))
     to = int(getitem(args, 'to', 10))
 
     # Create a polynomial line graph with those arguments
     x = list(range(_from, to + 1))
     fig = figure(title="Polynomial")
-    fig.line(x, [i ** 2 for i in x], color=color, line_width=2)
+    fig.line(x, [i ** 2 for i in x], color=colors[color], line_width=2)
 
     js_resources = INLINE.render_js()
     css_resources = INLINE.render_css()

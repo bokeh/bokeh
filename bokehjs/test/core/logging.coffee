@@ -8,7 +8,6 @@ describe "logging module", ->
 
   describe "logger", ->
     it "should default to log level 'info'", ->
-      debugger;
       expect(logger.level).to.be.equal(Logger.INFO)
 
   describe "set_log_level", ->

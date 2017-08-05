@@ -1,21 +1,16 @@
-import * as _ from "underscore"
+import {XYGlyph, XYGlyphView} from "./xy_glyph"
+import * as p from "core/properties"
 
-import {Glyph, GlyphView} from "./glyph"
-import * as p from "../../core/properties"
-
-export class RayView extends GlyphView
-
-  _index_data: () ->
-    @_xy_index()
+export class RayView extends XYGlyphView
 
   _map_data: () ->
-    @slength = @sdist(@renderer.xmapper, @_x, @_length)
+    @slength = @sdist(@renderer.xscale, @_x, @_length)
 
   _render: (ctx, indices, {sx, sy, slength, _angle}) ->
     if @visuals.line.doit
 
-      width = @renderer.plot_view.frame.width
-      height = @renderer.plot_view.frame.height
+      width = @renderer.plot_view.frame._width.value
+      height = @renderer.plot_view.frame._height.value
       inf_len = 2 * (width + height)
       for i in [0...slength.length]
         if slength[i] == 0
@@ -41,12 +36,11 @@ export class RayView extends GlyphView
   draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
     @_generic_line_legend(ctx, x0, x1, y0, y1, index)
 
-export class Ray extends Glyph
+export class Ray extends XYGlyph
   default_view: RayView
 
   type: 'Ray'
 
-  @coords [['x', 'y']]
   @mixins ['line']
   @define {
       length: [ p.DistanceSpec ]

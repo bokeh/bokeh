@@ -1,7 +1,5 @@
-import * as _ from "underscore"
-
 import {Range} from "./range"
-import * as p from "../../core/properties"
+import * as p from "core/properties"
 
 export class Range1d extends Range
   type: 'Range1d'
@@ -42,6 +40,8 @@ export class Range1d extends Range
   }
 
   reset: () ->
-    @setv({start: @_initial_start, end: @_initial_end}, {silent: true})
     @_set_auto_bounds()
-    @trigger('change')
+    if @start != @_initial_start or @end != @_initial_end
+      @setv({start: @_initial_start, end: @_initial_end})
+    else
+      @change.emit()

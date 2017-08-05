@@ -5,6 +5,7 @@ import codecs
 import unittest
 
 import bokeh.util.session_id
+from bokeh.util.string import decode_utf8
 from bokeh.util.session_id import ( generate_session_id,
                                     generate_secret_key,
                                     check_session_id_signature,
@@ -92,3 +93,9 @@ class TestSessionId(unittest.TestCase):
         key2 = generate_secret_key()
         self.assertEqual(44, len(key2))
         self.assertNotEqual(key, key2)
+
+    def test_string_encoding_does_not_affect_session_id_check(self):
+        # originates from #6653
+        session_id = generate_session_id(signed=True, secret_key="abc")
+        self.assertTrue(check_session_id_signature(session_id, secret_key="abc", signed=True))
+        self.assertTrue(check_session_id_signature(decode_utf8(session_id), secret_key="abc", signed=True))

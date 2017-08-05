@@ -15,6 +15,16 @@ from bokeh.application.application import ServerContext, SessionContext
 from bokeh.document import Document
 from bokeh.util.tornado import _CallbackGroup, yield_for_all_futures
 
+class _RequestProxy(object):
+    def __init__(self, request):
+        args_copy = dict(request.arguments)
+        if 'bokeh-protocol-version' in args_copy: del args_copy['bokeh-protocol-version']
+        if 'bokeh-session-id' in args_copy: del args_copy['bokeh-session-id']
+        self._args = args_copy
+    @property
+    def arguments(self):
+        return self._args
+
 class BokehServerContext(ServerContext):
     def __init__(self, application_context):
         self.application_context = application_context
@@ -88,13 +98,14 @@ class ApplicationContext(object):
         data specific to an "instance" of the application.
     '''
 
-    def __init__(self, application, io_loop=None):
+    def __init__(self, application, io_loop=None, url=None):
         self._application = application
         self._loop = io_loop
         self._sessions = dict()
         self._pending_sessions = dict()
         self._session_contexts = dict()
         self._server_context = None
+        self._url = url
 
     @property
     def io_loop(self):
@@ -103,6 +114,10 @@ class ApplicationContext(object):
     @property
     def application(self):
         return self._application
+
+    @property
+    def url(self):
+        return self._url
 
     @property
     def server_context(self):
@@ -152,7 +167,7 @@ class ApplicationContext(object):
                                                   self.server_context,
                                                   doc)
             # using private attr so users only have access to a read-only property
-            session_context._request = request
+            session_context._request = _RequestProxy(request)
 
             # expose the session context to the document
             # use the _attribute to set the public property .session_context

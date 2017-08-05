@@ -1,8 +1,7 @@
-import * as _ from "underscore"
-
 import {GuideRenderer} from "../renderers/guide_renderer"
 import {RendererView} from "../renderers/renderer"
-import * as p from "../../core/properties"
+import * as p from "core/properties"
+import {isArray} from "core/util/types"
 
 export class GridView extends RendererView
   initialize: (attrs, options) ->
@@ -21,8 +20,9 @@ export class GridView extends RendererView
     @_draw_grids(ctx)
     ctx.restore()
 
-  bind_bokeh_events: () ->
-    @listenTo(@model, 'change', @request_render)
+  connect_signals: () ->
+    super()
+    @connect(@model.change, () -> @request_render())
 
   _draw_regions: (ctx) ->
     if not @visuals.band_fill.doit
@@ -99,7 +99,7 @@ export class Grid extends GuideRenderer
     user_bounds = @bounds
     range_bounds = [range.min, range.max]
 
-    if _.isArray(user_bounds)
+    if isArray(user_bounds)
       start = Math.min(user_bounds[0], user_bounds[1])
       end = Math.max(user_bounds[0], user_bounds[1])
       if start < range_bounds[0]
@@ -126,7 +126,11 @@ export class Grid extends GuideRenderer
     end = Math.max(start, end)
     start = tmp
 
-    ticks = @ticker.get_ticks(start, end, range, {})[location]
+    # TODO: (bev) using cross_range.min for cross_loc is a bit of a cheat. Since we
+    # currently only support "straight line" grids, this should be OK for now. If
+    # we ever want to support "curved" grids, e.g. for some projections, we may
+    # have to communicate more than just a single cross location.
+    ticks = @ticker.get_ticks(start, end, range, cross_range.min, {})[location]
 
     min = range.min
     max = range.max

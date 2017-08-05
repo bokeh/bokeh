@@ -85,7 +85,7 @@ argument:
 
 .. code-block:: sh
 
-    bokeh serve app_script.py --port=8080
+    bokeh serve app_script.py --port 8080
 
 To listen on an arbitrary port, pass ``0`` as the port number.  The actual
 port number will be logged at startup.
@@ -95,47 +95,9 @@ Similarly, a specific network address can be specified with the
 
 .. code-block:: sh
 
-    bokeh serve app_script.py --address=0.0.0.0
+    bokeh serve app_script.py --address 0.0.0.0
 
 will have the Bokeh server listen all available network addresses.
-
-Additionally, it is possible to configure a hosts whitelist that must be
-matched by the ``Host`` header in new requests. You can specify multiple
-acceptable host values with the ``--host`` option:
-
-.. code-block:: sh
-
-    bokeh serve app_script.py --host foo.com:8081 --host bar.com
-
-If no port is specified in a host value, then port 80 will be used. In
-the example above Bokeh server will accept requests from ``foo.com:8081``
-and ``bar.com:80``.
-
-If no host values are specified, then by default the Bokeh server will
-accept requests from ``localhost:<port>`` where ``<port>`` is the port
-that the server is configured to listen on (by default: {DEFAULT_PORT}).
-
-If an asterix ``*`` is used in the host value then it will be treated as a
-wildcard:
-
-.. code-block:: sh
-
-    bokeh serve app_script.py --address=0.0.0.0 --host='*'
-
-Using the wildcard can be helpful when testing applications that are deployed
-with cloud orchestration tools and when the public endpoint is not known ahead
-of time: for instance if the public IP is dynamically allocated during the
-deployment process and no public DNS has been configured for the testing
-environment.
-
-As a warning, using permissive host values like ``*`` may be insecure and open
-your application to HTTP host header attacks. Production deployments should
-always set the ``--host`` flag to use the DNS name of the public endpoint such
-as a TLS-enabled load balancer or reverse proxy that serves the application to
-the end users.
-
-Also note that the host whitelist applies to all request handlers,
-including any extra ones added to extend the Bokeh server.
 
 Bokeh server can fork the underlying tornado server into multiprocess.  This is
 useful when trying to handle multiple connections especially in the context of
@@ -163,7 +125,7 @@ This can often be useful in conjunction with "reverse proxy" setups.
 
 .. code-block:: sh
 
-    bokeh serve app_script.py --prefix=foobar
+    bokeh serve app_script.py --prefix foobar
 
 Then the application will be served under the following URL:
 
@@ -207,6 +169,10 @@ that is SSL-terminated.
     It is not advised to set this option on a Bokeh server directly facing
     the Internet.
 
+
+
+.. _userguide_cli_serve_session_id_options:
+
 Session ID Options
 ~~~~~~~~~~~~~~~~~~
 
@@ -222,7 +188,7 @@ argument:
 
 .. code-block:: sh
 
-    bokeh serve app_script.py --session-ids=signed
+    bokeh serve app_script.py --session-ids signed
 
 The available modes are: {SESSION_ID_MODES}
 
@@ -305,7 +271,7 @@ The logging level can be controlled by the ``--log-level`` argument:
 
 .. code-block:: sh
 
-    bokeh serve app_script.py --log-level=debug
+    bokeh serve app_script.py --log-level debug
 
 The available log levels are: {LOGLEVELS}
 
@@ -313,7 +279,7 @@ The log format can be controlled by the ``--log-format`` argument:
 
 .. code-block:: sh
 
-    bokeh serve app_script.py --log-format="%(levelname)s: %(message)s"
+    bokeh serve app_script.py --log-format "%(levelname)s: %(message)s"
 
 The default log format is ``"{DEFAULT_LOG_FORMAT}"``
 
@@ -324,11 +290,13 @@ import logging
 log = logging.getLogger(__name__)
 
 import argparse
+import warnings
 
 from bokeh.application import Application
 from bokeh.resources import DEFAULT_SERVER_PORT
 from bokeh.server.server import Server
-from bokeh.util.string import nice_join
+from bokeh.util.logconfig import basicConfig
+from bokeh.util.string import nice_join, format_docstring
 from bokeh.settings import settings
 
 from os import getpid
@@ -340,19 +308,33 @@ LOGLEVELS = ('debug', 'info', 'warning', 'error', 'critical')
 SESSION_ID_MODES = ('unsigned', 'signed', 'external-signed')
 DEFAULT_LOG_FORMAT = "%(asctime)s %(message)s"
 
-__doc__ = __doc__.format(
+__doc__ = format_docstring(__doc__,
     DEFAULT_PORT=DEFAULT_SERVER_PORT,
     LOGLEVELS=nice_join(LOGLEVELS),
     SESSION_ID_MODES=nice_join(SESSION_ID_MODES),
     DEFAULT_LOG_FORMAT=DEFAULT_LOG_FORMAT
 )
 
+def _fixup_deprecated_host_args(args):
+    if args.host is not None and len(args.host) > 0:
+        if args.allow_websocket_origin is None:
+            args.allow_websocket_origin = []
+        args.allow_websocket_origin += args.host
+        args.allow_websocket_origin = list(set(args.allow_websocket_origin))
+        warnings.warn(
+            "The --host parameter is deprecated because it is no longer needed. "
+            "It will be removed and trigger an error in a future release. "
+            "Values set now will be copied to --allow-websocket-origin. "
+            "Depending on your use case, you may need to set current --host "
+            "values for 'allow_websocket_origin' instead."
+        )
+
 base_serve_args = (
     ('--port', dict(
         metavar = 'PORT',
         type    = int,
         help    = "Port to listen on",
-        default = None
+        default = DEFAULT_SERVER_PORT
     )),
 
     ('--address', dict(
@@ -416,7 +398,7 @@ class Serve(Subcommand):
             metavar='HOST[:PORT]',
             action='append',
             type=str,
-            help="Public hostnames to allow in requests",
+            help="*** DEPRECATED ***",
         )),
 
         ('--prefix', dict(
@@ -493,10 +475,13 @@ class Serve(Subcommand):
         applications = build_single_handler_applications(args.files, argvs)
 
         log_level = getattr(logging, args.log_level.upper())
-        logging.basicConfig(level=log_level, format=args.log_format)
+        basicConfig(level=log_level, format=args.log_format)
+
+        # This should remain here until --host is removed entirely
+        _fixup_deprecated_host_args(args)
 
         if len(applications) == 0:
-            # create an empty application by default, typically used with output_server
+            # create an empty application by default
             applications['/'] = Application()
 
         if args.keep_alive is not None:
@@ -525,7 +510,6 @@ class Serve(Subcommand):
         server_kwargs = { key: getattr(args, key) for key in ['port',
                                                               'address',
                                                               'allow_websocket_origin',
-                                                              'host',
                                                               'num_procs',
                                                               'prefix',
                                                               'keep_alive_milliseconds',
@@ -570,14 +554,13 @@ class Serve(Subcommand):
                         server.show(route)
                 server.io_loop.add_callback(show_callback)
 
-            address_string = ''
+            address_string = 'localhost'
             if server.address is not None and server.address != '':
-                address_string = ' address ' + server.address
+                address_string = server.address
 
-            log.info("Starting Bokeh server on port %d%s with applications at paths %r",
-                     server.port,
-                     address_string,
-                     sorted(applications.keys()))
+            for route in sorted(applications.keys()):
+                url = "http://%s:%d%s%s" % (address_string, server.port, server.prefix, route)
+                log.info("Bokeh app running at: %s" % url)
 
             log.info("Starting Bokeh server with process id: %d" % getpid())
             server.run_until_shutdown()

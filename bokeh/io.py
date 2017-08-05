@@ -22,22 +22,21 @@ import io
 import json
 import os
 import warnings
-
-# Third-party imports
+import tempfile
+import uuid
 
 # Bokeh imports
 from .core.state import State
 from .document import Document
-from .embed import notebook_div, standalone_html_page_for_models, autoload_server
-from .models.layouts import LayoutDOM, Row, Column, VBoxForm
+from .embed import server_document, notebook_div, file_html
 from .layouts import gridplot, GridSpec ; gridplot, GridSpec
-from .model import _ModelInDocument
-from .util.deprecation import deprecated
-from .util.notebook import load_notebook, publish_display_data, get_comms
+from .models import Plot
+from .resources import INLINE
+import bokeh.util.browser as browserlib  # full import needed for test mocking to work
+from .util.dependencies import import_required, detect_phantomjs
+from .util.notebook import get_comms, load_notebook, publish_display_data, watch_server_cells
 from .util.string import decode_utf8
 from .util.serialization import make_id
-import bokeh.util.browser as browserlib  # full import needed for test mocking to work
-from .client import DEFAULT_SESSION_ID, push_session, show_session
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -101,10 +100,9 @@ def output_file(filename, title="Bokeh Plot", mode="cdn", root_dir=None):
     '''Configure the default output state to generate output saved
     to a file when :func:`show` is called.
 
-    Does not change the current Document from curdoc(). File,
-    server, and notebook output may be active at the same time, so
-    this does not clear the effects of output_server() or
-    output_notebook().
+    Does not change the current Document from curdoc(). File and notebook
+    output may be active at the same time, so e.g., this does not clear the
+    effects of ``output_notebook()``.
 
     Args:
         filename (str) : a filename for saving the HTML document
@@ -138,13 +136,9 @@ def output_file(filename, title="Bokeh Plot", mode="cdn", root_dir=None):
         root_dir=root_dir
     )
 
-def output_notebook(resources=None, verbose=False, hide_banner=False, load_timeout=5000):
+def output_notebook(resources=None, verbose=False, hide_banner=False, load_timeout=5000, notebook_type='jupyter'):
     ''' Configure the default output state to generate output in
-    Jupyter/IPython notebook cells when :func:`show` is called.
-
-    If output_server() has also been called, the notebook cells
-    are loaded from the configured server; otherwise, Bokeh pushes
-    HTML to the notebook directly.
+    Jupyter/Zeppelin notebook cells when :func:`show` is called.
 
     Args:
         resources (Resource, optional) :
@@ -159,6 +153,8 @@ def output_notebook(resources=None, verbose=False, hide_banner=False, load_timeo
         load_timeout (int, optional) :
             Timeout in milliseconds when plots assume load timed out (default: 5000)
 
+        notebook_type (string, optional):
+            Notebook type (default: jupyter)
     Returns:
         None
 
@@ -167,71 +163,18 @@ def output_notebook(resources=None, verbose=False, hide_banner=False, load_timeo
         session or the top of a script.
 
     '''
-    load_notebook(resources, verbose, hide_banner, load_timeout)
-    _state.output_notebook()
-
-# usually we default session_id to "generate a random one" but
-# here we default to a hardcoded one. This is to support local
-# usage e.g. with a notebook.
-def output_server(session_id=DEFAULT_SESSION_ID, url="default", app_path="/"):
-    """ Configure the default output state to push its document to a
-    session on a Bokeh server.
-
-    Sessions are in-memory and not persisted to disk; in a typical
-    production deployment, you would have a fresh session ID for each
-    browser tab. If different users share the same session ID, it will
-    create security and scalability problems.
-
-    ``output_server()`` defaults to always using the
-    ``session_id`` ``"default"``, which is useful for running
-    local demos or notebooks. However, if you are creating
-    production sessions, you'll need to set ``session_id`` to None
-    (to generate a fresh ID) or to a session ID generated elsewhere.
-
-    File, server, and notebook output may be active at the same
-    time, so output_server() does not clear the effects of
-    output_file() or output_notebook(). output_server() changes
-    the behavior of output_notebook(), so the notebook will load
-    output cells from the server rather than receiving them as
-    inline HTML.
-
-    Args:
-        session_id (str, optional) : Name of session to push on Bokeh server (default: "default")
-            Any existing session with the same name will be overwritten.
-
-        url (str, optional) : base URL of the Bokeh server (default: "default")
-            If "default" use the default localhost URL.
-
-        app_path (str, optional) : relative path of the app on the Bokeh server (default: "/")
-
-    Returns:
-        None
-
-    .. warning::
-        Calling this function will replace any existing server-side document in the named session.
-
-    """
-    deprecated((0, 12, 3), 'bokeh.io.output_server()', """
-    bokeh.client sessions as described at http://bokeh.pydata.org/en/latest/docs/user_guide/server.html#connecting-with-bokeh-client"
-    """)
-
-    _state.output_server(session_id=session_id, url=url, app_path=app_path)
+    # verify notebook_type first in _state.output_notebook
+    _state.output_notebook(notebook_type)
+    load_notebook(resources, verbose, hide_banner, load_timeout, notebook_type)
 
 def set_curdoc(doc):
     '''Configure the current document (returned by curdoc()).
-
-    This is the document we will save or push according to
-    output_file(), output_server(), etc. configuration.
 
     Args:
         doc (Document) : Document we will output.
 
     Returns:
         None
-
-    .. note::
-        Generally, this should be called at the beginning of an interactive
-        session or the top of a script.
 
     .. warning::
         Calling this function will replace any existing document.
@@ -243,7 +186,7 @@ def curdoc():
     ''' Return the document for the current default state.
 
     Returns:
-        doc : the current default document object.
+        Document : the current default document object.
 
     '''
     return _state.document
@@ -252,53 +195,116 @@ def curstate():
     ''' Return the current State object
 
     Returns:
-      state : the current default State object
+      State : the current default State object
+
     '''
     return _state
 
-def show(obj, browser=None, new="tab", notebook_handle=False):
-    ''' Immediately display a plot object.
-
-    In an IPython/Jupyter notebook, the output is displayed in an output
-    cell. Otherwise, a browser window or tab is autoraised to display the
-    plot object.
-
-    If both a server session and notebook output have been configured on
-    the default output state then the notebook output will be generated to
-    load the plot from that server session.
+def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="localhost:8888"):
+    ''' Immediately display a Bokeh object or application.
 
     Args:
-        obj (LayoutDOM object) : a Layout (Row/Column), Plot or Widget object to display
+        obj (LayoutDOM or Application) :
+            A Bokeh object to display.
 
-        browser (str, optional) : browser to show with (default: None)
-            For systems that support it, the **browser** argument allows
-            specifying which browser to display in, e.g. "safari", "firefox",
-            "opera", "windows-default" (see the ``webbrowser`` module
-            documentation in the standard lib for more details).
+            Bokeh plots, widgets, layouts (i.e. rows and columns) may be
+            passed to ``show`` in order to display them. When ``output_file``
+            has been called, the output will be to an HTML file, which is also
+            opened in a new browser window or tab. When ``output_notebook``
+            has been called in a Jupyter notebook, the output will be inline
+            in the associated notebook output cell.
 
-        new (str, optional) : new file output mode (default: "tab")
-            For file-based output, opens or raises the browser window
-            showing the current output file.  If **new** is 'tab', then
-            opens a new tab. If **new** is 'window', then opens a new window.
+            In a Jupyter notebook, a Bokeh application may also be passed.
+            The application will be run and displayed inline in the associated
+            notebook output cell.
 
-        notebook_handle (bool, optional): create notebook interaction handle (default: False)
-            For notebook output, toggles whether a handle which can be
-            used with ``push_notebook`` is returned.
+        browser (str, optional) :
+            Specify the browser to use to open output files(default: None)
+
+            For file output, the **browser** argument allows for specifying
+            which browser to display in, e.g. "safari", "firefox", "opera",
+            "windows-default". Not all platforms may support this option, see
+            the documentation for the standard library webbrowser_ module for
+            more information
+
+        new (str, optional) :
+            Specify the browser mode to use for output files (default: "tab")
+
+            For file output, opens or raises the browser window showing the
+            current output file.  If **new** is 'tab', then opens a new tab.
+            If **new** is 'window', then opens a new window.
+
+        notebook_handle (bool, optional) :
+            Whether to create a notebook interaction handle (default: False)
+
+            For notebook output, toggles whether a handle which can be used
+            with ``push_notebook`` is returned. Note that notebook handles
+            only apply to standalone plots, layouts, etc. They do not apply
+            when showing Applications in the notebook.
+
+        notebook_url (URL, optional) :
+            Location of the Jupyter notebook page (default: "localhost:8888")
+
+            When showing Bokeh applications, the Bokeh server must be
+            explicitly configured to allow connections originating from
+            different URLs. This parameter defaults to the standard notebook
+            host and port. If you are running on a differnet location, you
+            will need to supply this value for the application to display
+            properly.
+
+            It is also possible to pass ``notebook_url="*"`` to disable the
+            standard checks, so that applications will display regardless of
+            the current notebook location, however a warning will appear.
+
+
+    Some parameters are only useful when certain output modes are active:
+
+    * The ``browser`` and ``new`` parameters only apply when ``output_file``
+      is active.
+
+    * The ``notebook_handle`` parameter only applies when ``output_notebook``
+      is active, and non-Application objects are being shown. It is only supported to Jupyter notebook,
+      raise exception for other notebook types when it is True.
+
+    * The ``notebook_url`` parameter only applies when showing Bokeh
+      Applications in a Jupyter notebook.
 
     Returns:
-        when in a jupyter notebook (with ``output_notebook`` enabled)
+        When in a Jupyter notebook (with ``output_notebook`` enabled)
         and ``notebook_handle=True``, returns a handle that can be used by
         ``push_notebook``, None otherwise.
 
-    .. note::
-        The ``browser`` and ``new`` parameters are ignored when showing in
-        an IPython/Jupyter notebook.
+    .. _webbrowser: https://docs.python.org/2/library/webbrowser.html
 
     '''
+
+    # This ugliness is to prevent importing bokeh.application (which would bring
+    # in Tornado) just in order to show a non-server object
+    if getattr(obj, '_is_a_bokeh_application_class', False):
+        return _show_notebook_app_with_state(obj, _state, "/", notebook_url)
+
     if obj not in _state.document.roots:
         _state.document.add_root(obj)
     return _show_with_state(obj, _state, browser, new, notebook_handle=notebook_handle)
 
+def _show_notebook_app_with_state(app, state, app_path, notebook_url):
+    if state.notebook_type == 'zeppelin':
+        raise ValueError("Zeppelin doesn't support show bokeh app.")
+
+    if not state.watching_cells:
+        watch_server_cells(_destroy_server_js)
+        state.watching_cells = True
+
+    logging.basicConfig()
+    from IPython.display import HTML, display
+    from tornado.ioloop import IOLoop
+    from .server.server import Server
+    loop = IOLoop.current()
+    server = Server({app_path: app}, io_loop=loop, port=0,  allow_websocket_origin=[notebook_url])
+    server.start()
+    url = 'http://%s:%d%s' % (notebook_url.split(':')[0], server.port, app_path)
+    script = server_document(url)
+    display(HTML(_server_cell(server, script)))
 
 def _show_with_state(obj, state, browser, new, notebook_handle=False):
     controller = browserlib.get_browser_controller(browser=browser)
@@ -307,11 +313,10 @@ def _show_with_state(obj, state, browser, new, notebook_handle=False):
     shown = False
 
     if state.notebook:
-        comms_handle = _show_notebook_with_state(obj, state, notebook_handle)
-        shown = True
-
-    elif state.server_enabled:
-        _show_server_with_state(obj, state, new, controller)
+        if state.notebook_type == 'jupyter':
+            comms_handle = _show_jupyter_with_state(obj, state, notebook_handle)
+        else:
+            comms_handle = _show_zeppelin_with_state(obj, state, notebook_handle)
         shown = True
 
     if state.file or not shown:
@@ -323,26 +328,22 @@ def _show_file_with_state(obj, state, new, controller):
     filename = save(obj, state=state)
     controller.open("file://" + filename, new=_new_param[new])
 
-def _show_notebook_with_state(obj, state, notebook_handle):
-    if state.server_enabled:
-        push(state=state)
-        snippet = autoload_server(obj, session_id=state.session_id_allowing_none, url=state.url, app_path=state.app_path)
-        publish_display_data({'text/html': snippet})
-    else:
-        comms_target = make_id() if notebook_handle else None
-        publish_display_data({'text/html': notebook_div(obj, comms_target)})
-        if comms_target:
-            handle = _CommsHandle(get_comms(comms_target), state.document,
-                                  state.document.to_json())
-            state.last_comms_handle = handle
-            return handle
+def _show_jupyter_with_state(obj, state, notebook_handle):
+    comms_target = make_id() if notebook_handle else None
+    publish_display_data({'text/html': notebook_div(obj, comms_target)})
+    if comms_target:
+        handle = _CommsHandle(get_comms(comms_target), state.document,
+                              state.document.to_json())
+        state.last_comms_handle = handle
+        return handle
 
-def _show_server_with_state(obj, state, new, controller):
-    push(state=state)
-    show_session(session_id=state.session_id_allowing_none, url=state.url, app_path=state.app_path,
-                 new=new, controller=controller)
+def _show_zeppelin_with_state(obj, state, notebook_handle):
+    if notebook_handle:
+        raise ValueError("Zeppelin doesn't support notebook_handle.")
+    print("%html " + notebook_div(obj))
+    return None
 
-def save(obj, filename=None, resources=None, title=None, state=None, validate=True):
+def save(obj, filename=None, resources=None, title=None, state=None, **kwargs):
     ''' Save an HTML file with the data for the current document.
 
     Will fall back to the default output state (or an explicitly provided
@@ -352,11 +353,10 @@ def save(obj, filename=None, resources=None, title=None, state=None, validate=Tr
     ``/foo/myplot.html``)
 
     Args:
-        obj (Document or model object) : a plot object to save
+        obj (LayoutDOM object) : a Layout (Row/Column), Plot or Widget object to display
 
         filename (str, optional) : filename to save document under (default: None)
-            If None, use the default state configuration, otherwise raise a
-            ``RuntimeError``.
+            If None, use the default state configuration.
 
         resources (Resources, optional) : A Resources config to use (default: None)
             If None, use the default state configuration, if there is one.
@@ -366,37 +366,41 @@ def save(obj, filename=None, resources=None, title=None, state=None, validate=Tr
             If None, use the default state title value, if there is one.
             Otherwise, use "Bokeh Plot"
 
-        validate (bool, optional) : True to check integrity of the models
+         state (State, optional) :
+            A :class:`State` object. If None, then the current default
+            implicit state is used. (default: None).
 
     Returns:
-        filename (str) : the filename where the HTML file is saved.
-
-    Raises:
-        RuntimeError
+        str: the filename where the HTML file is saved.
 
     '''
+
     if state is None:
         state = _state
 
     filename, resources, title = _get_save_args(state, filename, resources, title)
-    _save_helper(obj, filename, resources, title, validate)
+    _save_helper(obj, filename, resources, title)
     return os.path.abspath(filename)
 
 def _detect_filename(ext):
     """ Detect filename from the name of the script being run. Returns
-    None if the script could not be found (e.g. interactive mode).
+    temporary file if the script could not be found or the location of the
+    script does not have write permission (e.g. interactive mode).
     """
     import inspect
-    from os.path import isfile, dirname, basename, splitext, join
+    from os.path import dirname, basename, splitext, join, curdir
 
     frame = inspect.currentframe()
     while frame.f_back and frame.f_globals.get('name') != '__main__':
         frame = frame.f_back
 
     filename = frame.f_globals.get('__file__')
-    if filename and isfile(filename):
-        name, _ = splitext(basename(filename))
-        return join(dirname(filename), name + "." + ext)
+
+    if filename is None or not os.access(dirname(filename) or curdir, os.W_OK | os.X_OK):
+        return tempfile.NamedTemporaryFile(suffix="." + ext).name
+
+    name, _ = splitext(basename(filename))
+    return join(dirname(filename), name + "." + ext)
 
 def _get_save_args(state, filename, resources, title):
     warn = True
@@ -407,9 +411,6 @@ def _get_save_args(state, filename, resources, title):
     if filename is None:
         warn = False
         filename = _detect_filename("html")
-
-    if filename is None:
-        raise RuntimeError("save() called but no filename was supplied or detected, and output_file(...) was never called, nothing saved")
 
     if resources is None and state.file:
         resources = state.file['resources']
@@ -432,83 +433,11 @@ def _get_save_args(state, filename, resources, title):
 
     return filename, resources, title
 
-def _save_helper(obj, filename, resources, title, validate):
-    with _ModelInDocument(obj):
-        if isinstance(obj, LayoutDOM):
-            doc = obj.document
-        elif isinstance(obj, Document):
-            doc = obj
-        else:
-            raise RuntimeError("Unable to save object of type '%s'" % type(obj))
+def _save_helper(obj, filename, resources, title):
+    html = file_html(obj, resources, title=title)
 
-        if validate:
-            doc.validate()
-
-        html = standalone_html_page_for_models(obj, resources, title)
-
-        with io.open(filename, "w", encoding="utf-8") as f:
-            f.write(decode_utf8(html))
-
-# this function exists mostly to be mocked in tests
-def _push_to_server(session_id, url, app_path, document, io_loop):
-    session = push_session(document, session_id=session_id, url=url, app_path=app_path, io_loop=io_loop)
-    session.close()
-    session.loop_until_closed()
-
-def push(session_id=None, url=None, app_path=None, document=None, state=None, io_loop=None, validate=True):
-    ''' Update the server with the data for the current document.
-
-    Will fall back to the default output state (or an explicitly
-    provided :class:`State` object) for ``session_id``, ``url``,
-    ``app_path``, or ``document`` if they are not provided.
-
-    Args:
-        session_id (str, optional) : a Bokeh server session ID to push objects to
-
-        url (str, optional) : a Bokeh server URL to push objects to
-
-        app_path (str, optional) : Relative application path to push objects to
-
-        document (Document, optional) : A :class:`bokeh.document.Document` to use
-
-        state (State, optional) : A state to use for any output_server() configuration of session or url
-
-        io_loop (tornado.ioloop.IOLoop, optional) : Tornado IOLoop to use for connecting to server
-
-        validate (bool, optional) : True to check integrity of the document we are pushing
-
-    Returns:
-        None
-
-    '''
-    if state is None:
-        state = _state
-
-    if not session_id:
-        session_id = state.session_id_allowing_none
-
-    if not url:
-        url = state.url
-
-    if not app_path:
-        app_path = state.app_path
-
-    # State is supposed to ensure these are set
-    assert session_id is not None
-    assert url is not None
-    assert app_path is not None
-
-    if not document:
-        document = state.document
-
-    if not document:
-        warnings.warn("No document to push")
-
-    if validate:
-        document.validate()
-
-    _push_to_server(session_id=session_id, url=url, app_path=app_path,
-                    document=document, io_loop=io_loop)
+    with io.open(filename, mode="w", encoding="utf-8") as f:
+        f.write(decode_utf8(html))
 
 def push_notebook(document=None, state=None, handle=None):
     ''' Update Bokeh plots in a Jupyter notebook output cells with new data
@@ -529,10 +458,11 @@ def push_notebook(document=None, state=None, handle=None):
 
         document (Document, optional) :
             A :class:`~bokeh.document.Document` to push from. If None,
-            uses ``curdoc()``.
+            uses ``curdoc()``. (default: None)
 
         state (State, optional) :
-            A Bokeh State object
+            A :class:`State` object. If None, then the current default
+            state (set by ``output_file``, etc.) is used. (default: None)
 
     Returns:
         None
@@ -560,9 +490,6 @@ def push_notebook(document=None, state=None, handle=None):
     '''
     if state is None:
         state = _state
-
-    if state.server_enabled:
-        raise RuntimeError("output_server() has been called, which is incompatible with push_notebook")
 
     if not document:
         document = state.document
@@ -602,20 +529,257 @@ def _remove_roots(subplots):
         if sub in doc.roots:
             doc.remove_root(sub)
 
-def hplot(*children, **kwargs):
-    deprecated((0, 12, 0), 'bokeh.io.hplot()', 'bokeh.models.layouts.Row')
-    layout = Row(children=list(children), **kwargs)
-    return layout
+def _server_cell(server, script):
+    ''' Wrap a script returned by ``autoload_server`` in a div that allows cell
+    destruction/replacement to be detected.
 
+    '''
+    divid = uuid.uuid4().hex
+    _state.uuid_to_server[divid] = server
+    div_html = "<div class='bokeh_class' id='{divid}'>{script}</div>"
+    return div_html.format(script=script, divid=divid)
 
-def vplot(*children, **kwargs):
-    deprecated((0, 12, 0), 'bokeh.io.vplot()', 'bokeh.models.layouts.Column')
-    layout = Column(children=list(children), **kwargs)
-    return layout
+_destroy_server_js = """
+var cmd = "from bokeh import io; io._destroy_server('<%= destroyed_id %>')";
+var command = _.template(cmd)({destroyed_id:destroyed_id});
+Jupyter.notebook.kernel.execute(command);
+"""
 
+def _destroy_server(div_id):
+    ''' Given a UUID id of a div removed or replaced in the Jupyter
+    notebook, destroy the corresponding server sessions and stop it.
 
-def vform(*children, **kwargs):
-    deprecated((0, 12, 0), 'bokeh.io.vform()', 'bokeh.models.layouts.WidgetBox')
-    # Returning a VBoxForm, because it has helpers so that
-    # Bokeh deprecates gracefully.
-    return VBoxForm(*children, **kwargs)
+    '''
+    server = _state.uuid_to_server.get(div_id, None)
+    if server is None:
+        logger.debug("No server instance found for uuid: %r" % div_id)
+        return
+
+    try:
+        for session in server.get_sessions():
+            session.destroy()
+
+    except Exception as e:
+        logger.debug("Could not destroy server for id %r: %s" % (div_id, e))
+
+def _wait_until_render_complete(driver):
+    from selenium.webdriver.support.ui import WebDriverWait
+    from selenium.common.exceptions import TimeoutException
+
+    script = """
+    // add private window prop to check that render is complete
+    window._bokeh_render_complete = false;
+    function done() {
+      window._bokeh_render_complete = true;
+    }
+
+    var doc = window.Bokeh.documents[0];
+
+    if (doc.is_idle)
+      done();
+    else
+      doc.idle.connect(done);
+    """
+    driver.execute_script(script)
+
+    def is_bokeh_render_complete(driver):
+        return driver.execute_script('return window._bokeh_render_complete;')
+
+    try:
+        WebDriverWait(driver, 5, poll_frequency=0.1).until(is_bokeh_render_complete)
+    except TimeoutException:
+        logger.warn("The webdriver raised a TimeoutException while waiting for \
+                     a 'bokeh:idle' event to signify that the layout has rendered. \
+                     Something may have gone wrong.")
+    finally:
+        browser_logs = driver.get_log('browser')
+        severe_errors = [l for l in browser_logs if l.get('level') == 'SEVERE']
+        if len(severe_errors) > 0:
+            logger.warn("There were severe browser errors that may have affected your export: {}".format(severe_errors))
+
+def _save_layout_html(obj, resources=INLINE, **kwargs):
+    resize = False
+    if kwargs.get('height') is not None or kwargs.get('width') is not None:
+        if not isinstance(obj, Plot):
+            warnings.warn("Export method called with height or width kwargs on a non-Plot layout. The size values will be ignored.")
+        else:
+            resize = True
+            old_height = obj.plot_height
+            old_width = obj.plot_width
+            obj.plot_height = kwargs.get('height', old_height)
+            obj.plot_width = kwargs.get('width', old_width)
+
+    html_path = tempfile.NamedTemporaryFile(suffix=".html").name
+    save(obj, filename=html_path, resources=resources, title="")
+
+    if resize:
+        obj.plot_height = old_height
+        obj.plot_width = old_width
+
+    return html_path
+
+def _crop_image(image, left=0, top=0, right=0, bottom=0, **kwargs):
+    '''Crop the border from the layout'''
+    cropped_image = image.crop((left, top, right, bottom))
+
+    return cropped_image
+
+def _get_screenshot_as_png(obj, **kwargs):
+    webdriver = import_required('selenium.webdriver',
+                                'To use bokeh.io.export_png you need selenium ' +
+                                '("conda install -c bokeh selenium" or "pip install selenium")')
+
+    Image = import_required('PIL.Image',
+                            'To use bokeh.io.export_png you need pillow ' +
+                            '("conda install pillow" or "pip install pillow")')
+    # assert that phantomjs is in path for webdriver
+    detect_phantomjs()
+
+    html_path = _save_layout_html(obj, **kwargs)
+
+    web_driver = kwargs.get('driver', webdriver.PhantomJS(service_log_path=os.path.devnull))
+
+    web_driver.get("file:///" + html_path)
+    web_driver.maximize_window()
+
+    ## resize for PhantomJS compat
+    web_driver.execute_script("document.body.style.width = '100%';")
+
+    _wait_until_render_complete(web_driver)
+
+    png = web_driver.get_screenshot_as_png()
+
+    bounding_rect_script = "return document.getElementsByClassName('bk-root')[0].children[0].getBoundingClientRect()"
+    b_rect = web_driver.execute_script(bounding_rect_script)
+
+    if kwargs.get('driver') is None: # only quit webdriver if not passed in as arg
+        web_driver.quit()
+
+    image = Image.open(io.BytesIO(png))
+    cropped_image = _crop_image(image, **b_rect)
+
+    return cropped_image
+
+def export_png(obj, filename=None, height=None, width=None):
+    ''' Export the LayoutDOM object or document as a PNG.
+
+    If the filename is not given, it is derived from the script name
+    (e.g. ``/foo/myplot.py`` will create ``/foo/myplot.png``)
+
+    Args:
+        obj (LayoutDOM or Document) : a Layout (Row/Column), Plot or Widget
+            object or Document to export.
+
+        filename (str, optional) : filename to save document under (default: None)
+            If None, infer from the filename.
+
+        height (int) : the desired height of the exported layout obj only if
+            it's a Plot instance. Otherwise the height kwarg is ignored.
+
+        width (int) : the desired width of the exported layout obj only if
+            it's a Plot instance. Otherwise the width kwarg is ignored.
+
+    Returns:
+        filename (str) : the filename where the static file is saved.
+
+    .. warning::
+        Responsive sizing_modes may generate layouts with unexpected size and
+        aspect ratios. It is recommended to use the default ``fixed`` sizing mode.
+
+    .. warning::
+        Glyphs that are rendered via webgl won't be included in the generated PNG.
+
+    '''
+
+    image = _get_screenshot_as_png(obj, height=height, width=width)
+
+    if filename is None:
+        filename = _detect_filename("png")
+
+    image.save(filename)
+
+    return os.path.abspath(filename)
+
+def _get_svgs(obj, **kwargs):
+    webdriver = import_required('selenium.webdriver',
+                                'To use bokeh.io.export_svgs you need selenium ' +
+                                '("conda install -c bokeh selenium" or "pip install selenium")')
+    # assert that phantomjs is in path for webdriver
+    detect_phantomjs()
+
+    html_path = _save_layout_html(obj, **kwargs)
+
+    web_driver = kwargs.get('driver', webdriver.PhantomJS(service_log_path=os.path.devnull))
+    web_driver.get("file:///" + html_path)
+
+    _wait_until_render_complete(web_driver)
+
+    svg_script = """
+    var serialized_svgs = [];
+    var svgs = document.getElementsByClassName('bk-root')[0].getElementsByTagName("svg");
+    for (var i = 0; i < svgs.length; i++) {
+        var source = (new XMLSerializer()).serializeToString(svgs[i]);
+        serialized_svgs.push(source);
+    };
+    return serialized_svgs
+    """
+
+    svgs = web_driver.execute_script(svg_script)
+
+    if kwargs.get('driver') is None: # only quit webdriver if not passed in as arg
+        web_driver.quit()
+
+    return svgs
+
+def export_svgs(obj, filename=None, height=None, width=None):
+    ''' Export the SVG-enabled plots within a layout. Each plot will result
+    in a distinct SVG file.
+
+    If the filename is not given, it is derived from the script name
+    (e.g. ``/foo/myplot.py`` will create ``/foo/myplot.svg``)
+
+    Args:
+        obj (LayoutDOM object) : a Layout (Row/Column), Plot or Widget object to display
+
+        filename (str, optional) : filename to save document under (default: None)
+            If None, infer from the filename.
+
+        height (int) : the desired height of the exported layout obj only if
+            it's a Plot instance. Otherwise the height kwarg is ignored.
+
+        width (int) : the desired width of the exported layout obj only if
+            it's a Plot instance. Otherwise the width kwarg is ignored.
+
+    Returns:
+        filenames (list(str)) : the list of filenames where the SVGs files
+            are saved.
+
+    .. warning::
+        Responsive sizing_modes may generate layouts with unexpected size and
+        aspect ratios. It is recommended to use the default ``fixed`` sizing mode.
+
+    '''
+    svgs = _get_svgs(obj, height=height, width=width)
+
+    if len(svgs) == 0:
+        logger.warn("No SVG Plots were found.")
+        return
+
+    if filename is None:
+        filename = _detect_filename("svg")
+
+    filenames = []
+
+    for i, svg in enumerate(svgs):
+        if i == 0:
+            filename = filename
+        else:
+            idx = filename.find(".svg")
+            filename = filename[:idx] + "_{}".format(i) + filename[idx:]
+
+        with io.open(filename, mode="w", encoding="utf-8") as f:
+            f.write(svg)
+
+        filenames.append(filename)
+
+    return filenames

@@ -22,6 +22,9 @@ describe "enums module", ->
   it "should have Location", ->
     expect(enums.Location).to.be.deep.equal ["above", "below", "left", "right"]
 
+  it "should have OutputBackend", ->
+    expect(enums.OutputBackend).to.be.deep.equal ["canvas", "svg", "webgl"]
+
   it "should have RenderMode", ->
     expect(enums.RenderMode).to.be.deep.equal ["canvas", "css"]
 

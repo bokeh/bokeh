@@ -1,26 +1,32 @@
-import * as _ from "underscore"
-
 import {Annotation, AnnotationView} from "./annotation"
-import * as p from "../../core/properties"
+import {show, hide} from "core/dom"
+import * as p from "core/properties"
 
 export class SpanView extends AnnotationView
 
   initialize: (options) ->
     super(options)
-    @$el.appendTo(@plot_view.$el.find('div.bk-canvas-overlays'))
-    @$el.css({position: 'absolute'})
-    @$el.hide()
+    @plot_view.canvas_overlays.appendChild(@el)
+    @el.style.position = "absolute"
+    hide(@el)
 
-  bind_bokeh_events: () ->
+  connect_signals: () ->
+    super()
     if @model.for_hover
-      @listenTo(@model, 'change:computed_location', @_draw_span)
+      @connect(@model.properties.computed_location.change, () -> @_draw_span())
     else
       if @model.render_mode == 'canvas'
-        @listenTo(@model, 'change:location', @plot_view.request_render)
+        @connect(@model.change, () => @plot_view.request_render())
+        @connect(@model.properties.location.change, () => @plot_view.request_render())
       else
-        @listenTo(@model, 'change:location', @_draw_span)
+        @connect(@model.change, () -> @render())
+        @connect(@model.properties.location.change, () -> @_draw_span())
 
   render: () ->
+    if not @model.visible and @model.render_mode == 'css'
+      hide(@el)
+    if not @model.visible
+      return
     @_draw_span()
 
   _draw_span: () ->
@@ -30,36 +36,34 @@ export class SpanView extends AnnotationView
       loc = @model.location
 
     if not loc?
-      @$el.hide()
+      hide(@el)
       return
 
     frame = @plot_model.frame
     canvas = @plot_model.canvas
-    xmapper = @plot_view.frame.x_mappers[@model.x_range_name]
-    ymapper = @plot_view.frame.y_mappers[@model.y_range_name]
+    xscale = @plot_view.frame.xscales[@model.x_range_name]
+    yscale = @plot_view.frame.yscales[@model.y_range_name]
 
     if @model.dimension == 'width'
-      stop = canvas.vy_to_sy(@_calc_dim(loc, ymapper))
-      sleft = canvas.vx_to_sx(frame.left)
-      width = frame.width
+      stop = canvas.vy_to_sy(@_calc_dim(loc, yscale))
+      sleft = canvas.vx_to_sx(frame._left.value)
+      width = frame._width.value
       height = @model.properties.line_width.value()
     else
-      stop = canvas.vy_to_sy(frame.top)
-      sleft = canvas.vx_to_sx(@_calc_dim(loc, xmapper))
+      stop = canvas.vy_to_sy(frame._top.value)
+      sleft = canvas.vx_to_sx(@_calc_dim(loc, xscale))
       width = @model.properties.line_width.value()
-      height = frame.height
+      height = frame._height.value
 
     if @model.render_mode == "css"
-      @$el.css({
-        'top': stop,
-        'left': sleft,
-        'width': "#{width}px",
-        'height': "#{height}px"
-        'z-index': 1000
-        'background-color': @model.properties.line_color.value()
-        'opacity': @model.properties.line_alpha.value()
-      })
-      @$el.show()
+      @el.style.top = "#{stop}px"
+      @el.style.left = "#{sleft}px"
+      @el.style.width = "#{width}px"
+      @el.style.height = "#{height}px"
+      @el.style.zIndex = 1000
+      @el.style.backgroundColor = @model.properties.line_color.value()
+      @el.style.opacity = @model.properties.line_alpha.value()
+      show(@el)
 
     else if @model.render_mode == "canvas"
       ctx = @plot_view.canvas_view.ctx
@@ -76,9 +80,9 @@ export class SpanView extends AnnotationView
 
       ctx.restore()
 
-  _calc_dim: (location, mapper) ->
+  _calc_dim: (location, scale) ->
       if @model.location_units == 'data'
-        vdim = mapper.map_to_target(location)
+        vdim = scale.compute(location)
       else
         vdim = location
       return vdim

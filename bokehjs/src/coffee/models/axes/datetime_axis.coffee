@@ -1,5 +1,3 @@
-import * as _ from "underscore"
-
 import {LinearAxis, LinearAxisView} from "./linear_axis"
 import {DatetimeTickFormatter} from "../formatters/datetime_tick_formatter"
 import {DatetimeTicker} from "../tickers/datetime_ticker"

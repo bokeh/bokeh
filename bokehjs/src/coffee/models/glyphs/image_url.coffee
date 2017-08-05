@@ -1,13 +1,11 @@
-import * as _ from "underscore"
-
 import {Glyph, GlyphView} from "./glyph"
-import {logger} from "../../core/logging"
-import * as p from "../../core/properties"
+import {logger} from "core/logging"
+import * as p from "core/properties"
 
 export class ImageURLView extends GlyphView
   initialize: (options) ->
     super(options)
-    @listenTo(@model, 'change:global_alpha', @renderer.request_render)
+    @connect(@model.properties.global_alpha.change, () => @renderer.request_render())
 
   _index_data: () ->
 
@@ -39,17 +37,21 @@ export class ImageURLView extends GlyphView
           @renderer.request_render()
       img.src = @_url[i]
 
+  has_finished: () ->
+    return super() and @_images_rendered == true
+
   _map_data: () ->
-    # XXX: remove this when `null` handling is improved.
-    ws = (if @_w? then @_w else NaN for x in @_x)
-    hs = (if @_h? then @_h else NaN for x in @_x)
+    # Better to check @model.w and @model.h for null since the set_data
+    # machinery will have converted @_w and @_w to lists of null
+    ws = (if @model.w? then @_w else NaN for x in @_x)
+    hs = (if @model.h? then @_h else NaN for x in @_x)
 
     switch @model.properties.w.units
-      when "data" then @sw = @sdist(@renderer.xmapper, @_x, ws, 'edge', @model.dilate)
+      when "data" then @sw = @sdist(@renderer.xscale, @_x, ws, 'edge', @model.dilate)
       when "screen" then @sw = ws
 
     switch @model.properties.h.units
-      when "data" then @sh = @sdist(@renderer.ymapper, @_y, hs, 'edge', @model.dilate)
+      when "data" then @sh = @sdist(@renderer.yscale, @_y, hs, 'edge', @model.dilate)
       when "screen" then @sh = hs
 
   _render: (ctx, indices, {_url, image, sx, sy, sw, sh, _angle}) ->
@@ -57,10 +59,12 @@ export class ImageURLView extends GlyphView
     # TODO (bev): take actual border width into account when clipping
     frame = @renderer.plot_view.frame
     ctx.rect(
-      frame.left+1, frame.bottom+1,
-      frame.width-2, frame.height-2,
+      frame._left.value+1, frame._bottom.value+1,
+      frame._width.value-2, frame._height.value-2,
     )
     ctx.clip()
+
+    finished = true
 
     for i in indices
       if isNaN(sx[i]+sy[i]+_angle[i])
@@ -70,9 +74,14 @@ export class ImageURLView extends GlyphView
         continue
 
       if not image[i]?
+        finished = false
         continue
 
       @_render_image(ctx, i, image[i], sx, sy, sw, sh, _angle)
+
+    if finished and not @_images_rendered
+      @_images_rendered = true
+      @notify_finished()
 
   _final_sx_sy: (anchor, sx, sy, sw, sh) ->
     switch anchor

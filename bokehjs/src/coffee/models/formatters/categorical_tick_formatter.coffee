@@ -1,7 +1,7 @@
-import {TickFormatter} from "../formatters/tick_formatter"
+import {TickFormatter} from "./tick_formatter"
 
 export class CategoricalTickFormatter extends TickFormatter
   type: 'CategoricalTickFormatter'
 
-  doFormat: (ticks) ->
+  doFormat: (ticks, axis) ->
     return ticks

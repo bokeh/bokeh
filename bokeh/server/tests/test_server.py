@@ -228,6 +228,52 @@ def test__lifecycle_hooks():
     assert client_hook_list.hooks == ["session_created", "modify"]
     assert server_hook_list.hooks == ["session_created", "modify", "session_destroyed"]
 
+def test_get_sessions():
+    application = Application()
+    with ManagedServerLoop(application) as server:
+        server_sessions = server.get_sessions('/')
+        assert len(server_sessions) == 0
+
+        http_get(server.io_loop, url(server))
+        server_sessions = server.get_sessions('/')
+        assert len(server_sessions) == 1
+
+        http_get(server.io_loop, url(server))
+        server_sessions = server.get_sessions('/')
+        assert len(server_sessions) == 2
+
+        server_sessions = server.get_sessions()
+        assert len(server_sessions) == 2
+
+        with pytest.raises(ValueError):
+            server.get_sessions("/foo")
+
+    with ManagedServerLoop({"/foo": application, "/bar": application}) as server:
+        http_get(server.io_loop, url(server) + "foo")
+        server_sessions = server.get_sessions('/foo')
+        assert len(server_sessions) == 1
+        server_sessions = server.get_sessions('/bar')
+        assert len(server_sessions) == 0
+        server_sessions = server.get_sessions()
+        assert len(server_sessions) == 1
+
+
+        http_get(server.io_loop, url(server) + "foo")
+        server_sessions = server.get_sessions('/foo')
+        assert len(server_sessions) == 2
+        server_sessions = server.get_sessions('/bar')
+        assert len(server_sessions) == 0
+        server_sessions = server.get_sessions()
+        assert len(server_sessions) == 2
+
+        http_get(server.io_loop, url(server) + "bar")
+        server_sessions = server.get_sessions('/foo')
+        assert len(server_sessions) == 2
+        server_sessions = server.get_sessions('/bar')
+        assert len(server_sessions) == 1
+        server_sessions = server.get_sessions()
+        assert len(server_sessions) == 3
+
 def test__request_in_session_context():
     application = Application()
     with ManagedServerLoop(application) as server:
@@ -301,10 +347,40 @@ def autoload_url(server):
     return url(server) + \
         "autoload.js?bokeh-protocol-version=1.0&bokeh-autoload-element=foo"
 
+def resource_files_requested(response, requested=True):
+    from six import string_types
+    if not isinstance(response, string_types):
+        import codecs
+        response = codecs.decode(response, 'utf-8')
+    for file in [
+        'static/css/bokeh.min.css', 'static/css/bokeh-widgets.min.css',
+        'static/js/bokeh.min.js', 'static/js/bokeh-widgets.min.js']:
+        if requested:
+            assert file in response
+        else:
+            assert file not in response
+
 def test_use_xheaders():
     application = Application()
     with ManagedServerLoop(application, use_xheaders=True) as server:
         assert server._http.xheaders == True
+
+@pytest.mark.parametrize("querystring,requested", [
+    ("", True),
+    ("&resources=default", True),
+    ("&resources=whatever", True),
+    ("&resources=none", False),
+])
+def test__resource_files_requested(querystring, requested):
+    """
+    Checks if the loading of resource files is requested by the autoload.js
+    response based on the value of the "resources" parameter.
+    """
+    application = Application()
+    with ManagedServerLoop(application) as server:
+        response = http_get(server.io_loop,
+                            autoload_url(server) + querystring)
+        resource_files_requested(response.body, requested=requested)
 
 def test__autocreate_session_autoload():
     application = Application()

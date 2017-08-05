@@ -1,38 +1,47 @@
-import * as _ from "underscore"
-import * as $ from "jquery"
-
 import {TextAnnotation, TextAnnotationView} from "./text_annotation"
 import {ColumnDataSource} from "../sources/column_data_source"
-import * as p from "../../core/properties"
+import {div, show, hide} from "core/dom"
+import * as p from "core/properties"
+import {isString, isArray} from "core/util/types"
 
 export class LabelSetView extends TextAnnotationView
   initialize: (options) ->
     super(options)
 
-    @xmapper = @plot_view.frame.x_mappers[@model.x_range_name]
-    @ymapper = @plot_view.frame.y_mappers[@model.y_range_name]
-
     @set_data(@model.source)
 
     if @model.render_mode == 'css'
       for i in [0...@_text.length]
-        @title_div = $("<div>").addClass('bk-annotation-child').hide()
-        @title_div.appendTo(@$el)
+        @title_div = div({class: 'bk-annotation-child', style: {display: "none"}})
+        @el.appendChild(@title_div)
 
-  bind_bokeh_events: () ->
+  connect_signals: () ->
+    super()
     if @model.render_mode == 'css'
       # dispatch CSS update immediately
-      @listenTo(@model, 'change', () ->
+      @connect(@model.change, () ->
         @set_data(@model.source)
         @render())
-      @listenTo(@model.source, 'change', () ->
+      @connect(@model.source.streaming, () ->
+        @set_data(@model.source)
+        @render())
+      @connect(@model.source.patching, () ->
+        @set_data(@model.source)
+        @render())
+      @connect(@model.source.change, () ->
         @set_data(@model.source)
         @render())
     else
-      @listenTo(@model, 'change', () ->
+      @connect(@model.change, () ->
         @set_data(@model.source)
         @plot_view.request_render())
-      @listenTo(@model.source, 'change', () ->
+      @connect(@model.source.streaming, () ->
+        @set_data(@model.source)
+        @plot_view.request_render())
+      @connect(@model.source.patching, () ->
+        @set_data(@model.source)
+        @plot_view.request_render())
+      @connect(@model.source.change, () ->
         @set_data(@model.source)
         @plot_view.request_render())
 
@@ -41,14 +50,17 @@ export class LabelSetView extends TextAnnotationView
     @visuals.warm_cache(source)
 
   _map_data: () ->
+    xscale = @plot_view.frame.xscales[@model.x_range_name]
+    yscale = @plot_view.frame.yscales[@model.y_range_name]
+
     if @model.x_units == "data"
-      vx = @xmapper.v_map_to_target(@_x)
+      vx = xscale.v_compute(@_x)
     else
       vx = @_x.slice(0) # make deep copy to not mutate
     sx = @canvas.v_vx_to_sx(vx)
 
     if @model.y_units == "data"
-      vy = @ymapper.v_map_to_target(@_y)
+      vy = yscale.v_compute(@_y)
     else
       vy = @_y.slice(0) # make deep copy to not mutate
     sy = @canvas.v_vy_to_sy(vy)
@@ -56,6 +68,10 @@ export class LabelSetView extends TextAnnotationView
     return [sx, sy]
 
   render: () ->
+    if not @model.visible and @model.render_mode == 'css'
+      hide(@el)
+    if not @model.visible
+      return
     ctx = @plot_view.canvas_view.ctx
 
     [sx, sy] = @_map_data()
@@ -106,53 +122,42 @@ export class LabelSetView extends TextAnnotationView
     ctx.restore()
 
   _v_css_text: (ctx, i, text, sx, sy, angle) ->
+    el = @el.childNodes[i]
+    el.textContent = text
+
     @visuals.text.set_vectorize(ctx, i)
     bbox_dims = @_calculate_bounding_box_dimensions(ctx, text)
 
     # attempt to support vector-style ("8 4 8") line dashing for css mode
     ld = @visuals.border_line.line_dash.value()
-    if _.isArray(ld)
-      if ld.length < 2
-        line_dash = "solid"
-      else
-        line_dash = "dashed"
-    if _.isString(ld)
-        line_dash = ld
+    if isArray(ld)
+      line_dash = if ld.length < 2 then "solid" else "dashed"
+    if isString(ld)
+      line_dash = ld
 
     @visuals.border_line.set_vectorize(ctx, i)
     @visuals.background_fill.set_vectorize(ctx, i)
 
-    div_style = {
-      'position': 'absolute'
-      'left': "#{sx + bbox_dims[0]}px"
-      'top': "#{sy + bbox_dims[1]}px"
-      'color': "#{@visuals.text.text_color.value()}"
-      'opacity': "#{@visuals.text.text_alpha.value()}"
-      'font': "#{@visuals.text.font_value()}"
-      'line-height': "normal" # needed to prevent ipynb css override
-      }
+    el.style.position = 'absolute'
+    el.style.left = "#{sx + bbox_dims[0]}px"
+    el.style.top = "#{sy + bbox_dims[1]}px"
+    el.style.color = "#{@visuals.text.text_color.value()}"
+    el.style.opacity = "#{@visuals.text.text_alpha.value()}"
+    el.style.font = "#{@visuals.text.font_value()}"
+    el.style.lineHeight = "normal" # needed to prevent ipynb css override
 
     if angle
-      _.extend(div_style, {
-        'transform': "rotate(#{angle}rad)"
-        })
+      el.style.transform = "rotate(#{angle}rad)"
 
     if @visuals.background_fill.doit
-      _.extend(div_style, {
-        'background-color': "#{@visuals.background_fill.color_value()}"
-      })
+      el.style.backgroundColor = "#{@visuals.background_fill.color_value()}"
 
     if @visuals.border_line.doit
-      _.extend(div_style, {
-        'border-style': "#{line_dash}"
-        'border-width': "#{@visuals.border_line.line_width.value()}"
-        'border-color': "#{@visuals.border_line.color_value()}"
-      })
+      el.style.borderStyle = "#{line_dash}"
+      el.style.borderWidth = "#{@visuals.border_line.line_width.value()}px"
+      el.style.borderColor = "#{@visuals.border_line.color_value()}"
 
-    @$el.children().eq(i)
-                   .html(text)
-                   .css(div_style)
-                   .show()
+    show(el)
 
 export class LabelSet extends TextAnnotation
   default_view: LabelSetView

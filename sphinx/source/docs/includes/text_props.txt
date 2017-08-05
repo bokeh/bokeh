@@ -1,4 +1,3 @@
-
 ``text_font``
     font name, e.g., ``'times'``, ``'helvetica'``
 

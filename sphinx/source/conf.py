@@ -99,8 +99,9 @@ all_versions = [x.strip() for x in reversed(f.readlines())]
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 #
-# NOTE: in these docs all .py script are assumed to be bokeh plot scripts
-exclude_patterns = ['conf.py']
+# NOTE: in these docs all .py script are assumed to be bokeh plot scripts!
+# with bokeh_plot_pyfile_include_dirs set desired folder to look for .py files
+bokeh_plot_pyfile_include_dirs = ['docs']
 
 # The reST default role (used for this markup: `text`) to use for all documents.
 #default_role = None
@@ -130,7 +131,9 @@ autodoc_member_order = 'groupwise'
 rst_prolog = """
 .. |Color|              replace:: :py:class:`~bokeh.core.properties.Color`
 .. |DataSpec|           replace:: :py:class:`~bokeh.core.properties.DataSpec`
+.. |Document|           replace:: :py:class:`~bokeh.document.Document`
 .. |HasProps|           replace:: :py:class:`~bokeh.core.has_props.HasProps`
+.. |Model|              replace:: :py:class:`~bokeh.model.Model`
 .. |Property|           replace:: :py:class:`~bokeh.core.property.bases.Property`
 .. |PropertyContainer|  replace:: :py:class:`~bokeh.core.property.containers.PropertyContainer`
 .. |PropertyDescriptor| replace:: :py:class:`~bokeh.core.property.descriptor.PropertyDescriptor`

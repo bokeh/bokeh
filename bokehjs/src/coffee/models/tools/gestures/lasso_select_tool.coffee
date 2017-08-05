@@ -1,14 +1,12 @@
-import * as _ from "underscore"
-
 import {SelectTool, SelectToolView} from "./select_tool"
 import {PolyAnnotation} from "../../annotations/poly_annotation"
-import * as p from "../../../core/properties"
+import * as p from "core/properties"
 
 export class LassoSelectToolView extends SelectToolView
 
   initialize: (options) ->
     super(options)
-    @listenTo(@model, 'change:active', @_active_change)
+    @connect(@model.properties.active.change, () -> @_active_change())
     @data = null
 
   _active_change: () ->
@@ -52,48 +50,38 @@ export class LassoSelectToolView extends SelectToolView
 
     if @model.select_every_mousemove
       append = e.srcEvent.shiftKey ? false
-      @_select(@data.vx, @data.vy, false, append)
+      @_do_select(@data.vx, @data.vy, false, append)
 
   _pan_end: (e) ->
     @_clear_overlay()
     append = e.srcEvent.shiftKey ? false
-    @_select(@data.vx, @data.vy, true, append)
+    @_do_select(@data.vx, @data.vy, true, append)
     @plot_view.push_state('lasso_select', {selection: @plot_view.get_selection()})
 
   _clear_overlay: () ->
     @model.overlay.update({xs:[], ys:[]})
 
-  _select: (vx, vy, final, append) ->
+  _do_select: (vx, vy, final, append) ->
     geometry = {
       type: 'poly'
       vx: vx
       vy: vy
     }
 
-    for r in @model.computed_renderers
-      ds = r.data_source
-      sm = ds.selection_manager
-      sm.select(@, @plot_view.renderer_views[r.id], geometry, final, append)
-
-    if @model.callback?
-      @_emit_callback(geometry)
-
-    @_save_geometry(geometry, final, append)
-
-    return null
+    @_select(geometry, final, append)
 
   _emit_callback: (geometry) ->
-    r = @model.computed_renderers[0]
+    r = @computed_renderers[0]
     canvas = @plot_model.canvas
     frame = @plot_model.frame
 
     geometry['sx'] = canvas.v_vx_to_sx(geometry.vx)
     geometry['sy'] = canvas.v_vy_to_sy(geometry.vy)
 
-    xmapper = frame.x_mappers[r.x_range_name]
-    ymapper = frame.y_mappers[r.y_range_name]
-    geometry['x'] = xmapper.v_map_from_target(geometry.vx)
-    geometry['y'] = ymapper.v_map_from_target(geometry.vy)
+    xscale = frame.xscales[r.x_range_name]
+    yscale = frame.yscales[r.y_range_name]
+    geometry['x'] = xscale.v_invert(geometry.vx)
+    geometry['y'] = yscale.v_invert(geometry.vy)
 
     @model.callback.execute(@model, {geometry: geometry})
 
@@ -103,12 +91,12 @@ DEFAULT_POLY_OVERLAY = () -> new PolyAnnotation({
   level: "overlay"
   xs_units: "screen"
   ys_units: "screen"
-  fill_color: "lightgrey"
-  fill_alpha: 0.5
-  line_color: "black"
-  line_alpha: 1.0
-  line_width: 2
-  line_dash: [4, 4]
+  fill_color: {value: "lightgrey"}
+  fill_alpha: {value: 0.5}
+  line_color: {value: "black"}
+  line_alpha: {value: 1.0}
+  line_width: {value: 2}
+  line_dash: {value: [4, 4]}
 })
 
 export class LassoSelectTool extends SelectTool

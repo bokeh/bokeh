@@ -47,7 +47,7 @@ describe "ImageURL module", ->
       image_url_view = create_glyph_view(@image_url)
 
       image_url_view.map_data()
-      # sw and sh will be equal to zero because the mapper state isn't complete
+      # sw and sh will be equal to zero because the scale state isn't complete
       # this is ok - it just shouldn't be equal to the initial values
       expect(image_url_view.sw).to.be.deep.equal([0])
       expect(image_url_view.sh).to.be.deep.equal([0])
@@ -63,3 +63,20 @@ describe "ImageURL module", ->
       image_url_view.map_data()
       expect(image_url_view.sw).to.be.deep.equal([100])
       expect(image_url_view.sh).to.be.deep.equal([200])
+
+    it "`_map_data` should map data to NaN if w and h are null, regardless of units", ->
+      # if sw, sh are NaN, then the image width or height are used during render
+      @image_url.w = null
+      @image_url.h = null
+
+      image_url_view = create_glyph_view(@image_url)
+      image_url_view.map_data()
+      expect(image_url_view.sw).to.be.deep.equal([NaN])
+      expect(image_url_view.sh).to.be.deep.equal([NaN])
+
+      @image_url.properties.w.units = "screen"
+      @image_url.properties.h.units = "screen"
+      image_url_view = create_glyph_view(@image_url)
+      image_url_view.map_data()
+      expect(image_url_view.sw).to.be.deep.equal([NaN])
+      expect(image_url_view.sh).to.be.deep.equal([NaN])

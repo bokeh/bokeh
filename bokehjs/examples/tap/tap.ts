@@ -1,9 +1,17 @@
 namespace TappyScatter {
   import plt = Bokeh.Plotting;
-  import _ = Bokeh._;
+  const {range, zip} = Bokeh.LinAlg;
 
   Bokeh.set_log_level("info");
   Bokeh.logger.info(`Bokeh ${Bokeh.version}`);
+
+  const random = (function() {
+    let seed = 1
+    return function() { // Park-Miller LCG
+      seed = (seed*48271) % 2147483647 // 1 <= seed < 2^31 - 1
+      return (seed - 1) / 2147483646
+    }
+  })()
 
   const M = 100
   const xx: Array<number> = []
@@ -17,11 +25,11 @@ namespace TappyScatter {
   }
 
   const N = xx.length
-  const indices = _.range(N).map((i) => i.toString())
-  const radii = _.range(N).map((i) => Math.random()*0.4 + 1.7)
+  const indices = range(N).map((i) => i.toString())
+  const radii = range(N).map((_) => random()*0.4 + 1.7)
 
   const colors: Array<string> = []
-  for (const [r, g] of _.zip(xx.map((x) => 50 + 2*x), yy.map((y) => 30 + 2*y)))
+  for (const [r, g] of zip(xx.map((x) => 50 + 2*x), yy.map((y) => 30 + 2*y)))
     colors.push(plt.color(r, g, 150))
 
   const source = new Bokeh.ColumnDataSource({

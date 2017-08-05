@@ -1,0 +1,30 @@
+#!/bin/bash
+
+set -e # exit on error
+set -x # echo commands
+
+if  [[ -z "${TRAVIS_TAG}" ]]; then
+    echo
+    echo "SKIPPING DEPLOY STAGE INSTALL --- This is a NOT build for a release tag"
+    echo
+    exit 0
+fi
+
+# do the base install
+bash scripts/ci/install
+
+# install all build, test, and run dependencies
+conda install --yes `python scripts/deps.py build test run`
+
+# install some additional dependencies needed only for deploys
+conda install anaconda-client --yes
+conda install -c bokeh twine --yes
+conda install -c defaults -c conda-forge fabric3 --yes
+
+# install NPM dependencies
+pushd bokehjs
+npm install
+popd
+
+# install sampledata
+python -c 'import bokeh; bokeh.sampledata.download(progress=False)'

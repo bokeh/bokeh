@@ -1,5 +1,5 @@
-import * as _ from "underscore"
-import * as p from "../../core/properties"
+import * as p from "core/properties"
+import {any, sortBy} from "core/util/array"
 
 import {ActionTool} from "./actions/action_tool"
 import {HelpTool} from "./actions/help_tool"
@@ -27,17 +27,17 @@ export class ToolbarBoxToolbar extends ToolbarBase
   _init_tools: () ->
     for tool in @tools
       if tool instanceof InspectTool
-        if not _.some(@inspectors, (t) => t.id == tool.id)
+        if not any(@inspectors, (t) => t.id == tool.id)
           @inspectors = @inspectors.concat([tool])
       else if tool instanceof HelpTool
-        if not _.some(@help, (t) => t.id == tool.id)
+        if not any(@help, (t) => t.id == tool.id)
           @help = @help.concat([tool])
       else if tool instanceof ActionTool
-        if not _.some(@actions, (t) => t.id == tool.id)
+        if not any(@actions, (t) => t.id == tool.id)
           @actions = @actions.concat([tool])
       else if tool instanceof GestureTool
         et = tool.event_type
-        if not _.some(@gestures[et].tools, (t) => t.id == tool.id)
+        if not any(@gestures[et].tools, (t) => t.id == tool.id)
           @gestures[et].tools = @gestures[et].tools.concat([tool])
 
   _merge_tools: () ->
@@ -52,7 +52,7 @@ export class ToolbarBoxToolbar extends ToolbarBase
     new_help_tools = []
     new_help_urls = []
     for helptool in @help
-      if not _.contains(new_help_urls, helptool.redirect)
+      if helptool.redirect not in new_help_urls
         new_help_tools.push(helptool)
         new_help_urls.push(helptool.redirect)
     @help = new_help_tools
@@ -92,7 +92,7 @@ export class ToolbarBoxToolbar extends ToolbarBase
         if tools.length > 0
           proxy = make_proxy(tools)
           @gestures[event_type].tools.push(proxy)
-          @listenTo(proxy, 'change:active', @_active_change.bind(proxy))
+          @connect(proxy.properties.active.change, @_active_change.bind(null, proxy))
 
     @actions = []
     for tool_type, tools of actions
@@ -108,7 +108,7 @@ export class ToolbarBoxToolbar extends ToolbarBase
       tools = @gestures[et].tools
       if tools.length == 0
         continue
-      @gestures[et].tools = _.sortBy(tools, (tool) -> tool.default_order)
+      @gestures[et].tools = sortBy(tools, (tool) -> tool.default_order)
       if et not in ['pinch', 'scroll']
         @gestures[et].tools[0].active = true
 
@@ -135,15 +135,13 @@ export class ToolbarBox extends Box
   initialize: (options) ->
     super(options)
     @_toolbar = new ToolbarBoxToolbar(options)
-    if @toolbar_location in ['left', 'right']
-      @_horizontal = true
-      @_toolbar._sizeable = @_toolbar._width
-    else
-      @_horizontal = false
-      @_toolbar._sizeable = @_toolbar._height
+
+    @_horizontal = @toolbar_location in ['left', 'right']
+    @_sizeable = if not @_horizontal then @_height else @_width
 
   _doc_attached: () ->
     @_toolbar.attach_document(@document)
+    super()
 
   get_layoutable_children: () ->
     return [@_toolbar]

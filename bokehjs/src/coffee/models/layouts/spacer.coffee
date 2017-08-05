@@ -1,18 +1,14 @@
-import * as _ from "underscore"
-
 import {LayoutDOM, LayoutDOMView} from "./layout_dom"
-
+import {extend} from "core/util/object"
 
 export class SpacerView extends LayoutDOMView
   className: "bk-spacer-box"
 
   render: () ->
     super()
-    if @sizing_mode is 'fixed'
-      @$el.css({
-        width: @model.width
-        height: @model.height
-      })
+    if @sizing_mode == "fixed"
+      @el.style.width = "#{@model.width}px"
+      @el.style.height = "#{@model.height}px"
 
   get_height: () ->
     # spacer must always have some height
@@ -24,21 +20,19 @@ export class Spacer extends LayoutDOM
   default_view: SpacerView
 
   get_constrained_variables: () ->
-    constrained_variables = super()
-    constrained_variables = _.extend(constrained_variables, {
-      'on-edge-align-top'    : @_top
-      'on-edge-align-bottom' : @_height_minus_bottom
-      'on-edge-align-left'   : @_left
-      'on-edge-align-right'  : @_width_minus_right
+    return extend({}, super(), {
+      on_edge_align_top    : @_top
+      on_edge_align_bottom : @_height_minus_bottom
+      on_edge_align_left   : @_left
+      on_edge_align_right  : @_width_minus_right
 
-      'box-cell-align-top'   : @_top
-      'box-cell-align-bottom': @_height_minus_bottom
-      'box-cell-align-left'  : @_left
-      'box-cell-align-right' : @_width_minus_right
+      box_cell_align_top   : @_top
+      box_cell_align_bottom: @_height_minus_bottom
+      box_cell_align_left  : @_left
+      box_cell_align_right : @_width_minus_right
 
-      'box-equal-size-top'   : @_top
-      'box-equal-size-bottom': @_height_minus_bottom
-      'box-equal-size-left'  : @_left
-      'box-equal-size-right' : @_width_minus_right
+      box_equal_size_top   : @_top
+      box_equal_size_bottom: @_height_minus_bottom
+      box_equal_size_left  : @_left
+      box_equal_size_right : @_width_minus_right
     })
-    return constrained_variables

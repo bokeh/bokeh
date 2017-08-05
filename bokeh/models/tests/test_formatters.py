@@ -58,7 +58,6 @@ def test_functickformatter_from_coffeescript_no_arg():
     formatter = FuncTickFormatter.from_coffeescript(code=coffee_code)
 
     assert formatter.code == dedent("""\
-        "use strict";
         var square;
         square = function (x) {
             return x * x;
@@ -76,7 +75,6 @@ def test_functickformatter_from_coffeescript_with_args():
     formatter = FuncTickFormatter.from_coffeescript(code=coffee_code, args={"slider": slider})
 
     assert formatter.code == dedent("""\
-        "use strict";
         return Math.floor(slider.get("value") / 2) + tick;
         """)
     assert formatter.args == {"slider": slider}

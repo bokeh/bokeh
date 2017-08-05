@@ -1,12 +1,13 @@
 namespace Burtin {
-  import _ = Bokeh._;
   import plt = Bokeh.Plotting;
-  import arange = Bokeh.LinAlg.arange;
+  const {range, values} = Bokeh.LinAlg;
+
   import Color = Bokeh.Color;
   import Map = Bokeh.Map;
 
   console.log(`Bokeh ${Bokeh.version}`);
-  Bokeh.set_log_level("debug");
+  Bokeh.set_log_level("info");
+  Bokeh.settings.dev = true
 
   type Gram = "negative" | "positive";
 
@@ -41,7 +42,7 @@ namespace Burtin {
   }
 
   const df: Antibiotics = {
-    index:        antibiotics.map((v, i) => i),
+    index:        antibiotics.map((_, i) => i),
     length:       antibiotics.length,
 
     bacteria:     antibiotics.map((row) => row[0]),
@@ -110,7 +111,7 @@ namespace Burtin {
           {color: drug_color['Neomycin']})
 
   // circular axes and lables
-  const labels = arange(-3, 4).map((v) => 10**v)
+  const labels = range(-3, 4).map((v) => 10**v)
   const radii = labels.map((label) => a * Math.sqrt(Math.log(label * 1E4)) + b)
 
   p.circle(0, 0, {radius: radii, fill_color: null, line_color: "white"})
@@ -132,11 +133,11 @@ namespace Burtin {
      text_font_size: "9pt", text_align: "center", text_baseline: "middle"})
 
   // OK, these hand drawn legends are pretty clunky, will be improved in future release
-  p.circle([-40, -40], [-370, -390], {color: _.values(gram_color), radius: 5})
+  p.circle([-40, -40], [-370, -390], {color: values(gram_color), radius: 5})
   p.text([-30, -30], [-370, -390], Object.keys(gram_color).map((gram) => `Gram-${gram}`),
      {text_font_size: "7pt", text_align: "left", text_baseline: "middle"})
 
-  p.rect([-40, -40, -40], [18, 0, -18], 30, 13, {color: _.values(drug_color)})
+  p.rect([-40, -40, -40], [18, 0, -18], 30, 13, {color: values(drug_color)})
   p.text([-15, -15, -15], [18, 0, -18], Object.keys(drug_color),
      {text_font_size: "9pt", text_align: "left", text_baseline: "middle"})
 

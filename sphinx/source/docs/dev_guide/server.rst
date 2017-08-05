@@ -4,7 +4,7 @@ Server Architecture
 ===================
 
 This chapter is a "deep dive" into Bokeh server's internals. It assumes you're
-already familiar with the information on Bokeh server in the :ref`userguide`.
+already familiar with the information on Bokeh server in :ref:`userguide_server`.
 
 You might want to read this if you are:
 
@@ -31,9 +31,23 @@ widgets, or other content it desires. The application can also set up
 callbacks, to run periodically or to run when the document changes.
 
 Applications are represented by the ``Application`` class. This class is
-little more than a list of ``Handler`` instances. Handlers can be created
-in lots of ways; from JSON files, from Python functions, from Python files,
-and perhaps many more ways in the future.
+contains list of ``Handler`` instances and optional metadata. Handlers
+can be created in lots of ways; from JSON files, from Python functions, from
+Python files, and perhaps many more ways in the future.  The optional metadata
+is available as a json blob via the ``/metadata`` endpoint.  For example,
+creating a ``Application`` instance with::
+
+    Application(metadata=dict(hi="hi", there="there"))
+
+will have ``http://server/myapp/metadata`` return (``application/json``)::
+
+  {
+      "data": {
+          "hi": "hi",
+          "there": "there"
+      },
+      "url": "/myapp"
+  }
 
 Around each application, the server creates an ``ApplicationContext``. Its
 primary role is to hold the set of sessions for the application.
@@ -191,20 +205,22 @@ identical; but race conditions can only happen at "yield points" (when we
 return to the ``IOLoop``) rather than at any point, and the lock is a Tornado
 lock rather than a thread lock.
 
-The rule is: *to touch ServerSession.document code must
-hold ServerSession._lock*.
+The rule is: *to touch* ``ServerSession.document`` *code must
+hold* ``ServerSession._lock``.
 
 For callbacks added through the ``Document`` API, we automatically
 acquire the lock on the callback's behalf before we execute the
 callback, and release it afterward.
 
-For callbacks added through the ``ServerContext`` API, they can only obtain
-a reference to the session document using the method ``with_locked_document()``
-on ``SessionContext``. ``with_locked_document()`` executes a function with
-the document lock held, passing the document to that function. The lock is
-held while the function runs (even if the function is asynchronous! if the
-function returns a ``Future``, the lock is held until the ``Future``
-completes).
+Callbacks added through the ``ServerContext`` API, can only obtain
+a reference to the session document using ``SessionContext.with_locked_document()``.
+It executes a provided function with
+the document lock held, passing the document to that function.
+
+.. warning::
+  The lock is held while the function runs *even if the function is asynchronous*! If the
+  function returns a ``Future``, the lock is held until the ``Future``
+  completes.
 
 **It is very easy to modify the server code in such a way that you're
 touching the document without holding the lock. If you do this, things will
@@ -214,8 +230,7 @@ triple-check that the lock is held.**
 Session Security
 ^^^^^^^^^^^^^^^^
 
-For background on session IDs, check out the ``bokeh serve`` documentation on
-it.
+For background on session IDs, refer to :ref:`userguide_cli_serve_session_id_options`.
 
 We rely on session IDs being cryptographically random and difficult to guess.
 If an attacker knows someone's session ID, they can eavesdrop on or modify
@@ -229,8 +244,8 @@ what the ID is.
 Session Timeout
 ^^^^^^^^^^^^^^^^
 
-To avoid resource exhaustion, the server times out unused sessions. You can
-find the code for this in ``application_context.py``
+To avoid resource exhaustion, unused sessions will time out according to code in
+in ``application_context.py``
 
 Websocket Protocol
 ------------------
@@ -258,8 +273,10 @@ two sequences of frames, one sequence in each direction ("full duplex").
 On top of websocket frames, we implement our own ``Message`` concept. A Bokeh
 ``Message`` spans multiple websocket frames. It always contains a header frame,
 metadata frame, and content frame. These three frames each contain a JSON
-string. The code permits these three frames to be followed by binary data
-frames, but currently in Bokeh binary data frames are not used.
+string. The code permits these three frames to be followed by optional binary data
+frames. In principle this could allow for example, for sending numpy arrays
+directly from their memory buffers to the websocket with no additional copies.
+However, the binary data frames are not yet used in Bokeh.
 
 The header frame indicates the message type and gives messages an ID. Message
 IDs are used to match replies with requests (the reply contains a field saying
@@ -314,7 +331,15 @@ Some Current Protocol Caveats
    changes.
 
 3. At the moment, we do not optimize binary data by sending it
-   over binary websocket frames.
+   over binary websocket frames.  However, NumPy arrays of
+   dtype ``float32``, ``float64`` and integer types smaller than ``int32``
+   are base64 encoded in content frame to avoid performance
+   limitations of naiive JSON string searliazation.
+   JavaScript's lack of native 64-bit integer support precludes
+   them from inclusion in this optimization.
+   The base64 encoding should be entirely transparent to all
+   but those who look at the actual wire protocol. For more
+   information, refer to ``bokah.util.serialization``.
 
 
 HTTP Endpoints
@@ -329,7 +354,8 @@ In brief:
 - ``/app_path/`` serves a page that displays a new session
 - ``/app_path/ws`` is the websocket connection URL
 - ``/app_path/autoload.js`` serves a chunk of JavaScript that
-  backs the ``bokeh.embed.autoload_server()`` functionality
+  backs the ``bokeh.embed.server_document()`` and ``bokeh.embed.server_session()``
+  functionality
 
 Bokeh server isn't intended to be a general-purpose web framework. You can
 however pass new endpoints to ``Server`` using the ``extra_patterns`` parameter

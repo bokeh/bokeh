@@ -1,17 +1,16 @@
-import * as _ from "underscore"
-
 import {TickFormatter} from "./tick_formatter"
-import * as p from "../../core/properties"
+import * as p from "core/properties"
+import {isNumber} from "core/util/types"
 
 export class BasicTickFormatter extends TickFormatter
   type: 'BasicTickFormatter'
 
   @define {
-      precision:        [ p.Any,    'auto' ] # TODO (bev) better
-      use_scientific:   [ p.Bool,   true   ]
-      power_limit_high: [ p.Number, 5      ]
-      power_limit_low:  [ p.Number, -3     ]
-    }
+    precision:        [ p.Any,    'auto' ] # TODO (bev) better
+    use_scientific:   [ p.Bool,   true   ]
+    power_limit_high: [ p.Number, 5      ]
+    power_limit_low:  [ p.Number, -3     ]
+  }
 
   @getters {
     scientific_limit_low: () -> Math.pow(10.0, @power_limit_low)
@@ -22,7 +21,7 @@ export class BasicTickFormatter extends TickFormatter
     super(attrs, options)
     @last_precision = 3
 
-  doFormat: (ticks) ->
+  doFormat: (ticks, axis) ->
     if ticks.length == 0
       return []
 
@@ -42,7 +41,7 @@ export class BasicTickFormatter extends TickFormatter
 
     precision = @precision
 
-    if not precision? or _.isNumber(precision)
+    if not precision? or isNumber(precision)
       labels = new Array(ticks.length)
       if need_sci
         for i in [0...ticks.length]

@@ -2,20 +2,17 @@ declare namespace Bokeh {
  interface ViewOptions<ModelType extends Model> {
    model: ModelType;
    id?: string;
-   el?: HTMLElement | JQuery;
+   el?: HTMLElement;
   }
 
-  class BokehView<ModelType extends Model> {
+  class View<ModelType extends Model> {
     constructor(options?: ViewOptions<ModelType>);
 
     model: ModelType;
     id: string;
     el: HTMLElement;
-    $el: JQuery;
 
     render(): this;
     remove(): this;
   }
-
-  type View<ModelType extends Model> = BokehView<ModelType>;
 }

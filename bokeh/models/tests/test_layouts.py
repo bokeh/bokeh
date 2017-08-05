@@ -1,6 +1,6 @@
 import pytest
 from bokeh.plotting import Figure
-from bokeh.models.layouts import HBox, VBox, VBoxForm, Row, Column, WidgetBox
+from bokeh.models.layouts import Row, Column, WidgetBox
 from bokeh.models.widgets import Slider
 from bokeh.models.sources import ColumnDataSource
 
@@ -20,7 +20,7 @@ def check_props_with_sizing_mode(layout):
 
 def check_children_prop(layout_callable):
     ## component subclasses are layouts, widgets and plots
-    components = [HBox(), VBox(), VBoxForm(), Figure()]
+    components = [Row(), Column(), Figure()]
 
     # Test layout accepts splatted components
     layout1 = layout_callable(*components)
@@ -45,22 +45,10 @@ def check_widget_wrapped_in_widget_box(layout_callable):
     assert layout.children[0].children == components
 
 
-def test_VBox():
-    check_props(VBox())
-    check_children_prop(VBox)
-    check_widget_wrapped_in_widget_box(VBox)
-
-
-def test_HBox():
-    check_props(HBox())
-    check_children_prop(HBox)
-    check_widget_wrapped_in_widget_box(HBox)
-
-
 def test_Row():
     check_props_with_sizing_mode(Row())
     check_children_prop(Row)
-    check_widget_wrapped_in_widget_box(HBox)
+    check_widget_wrapped_in_widget_box(Row)
 
 
 def test_Column():
@@ -83,11 +71,6 @@ def check_widget_box_children_prop(layout_callable):
     # Test value error raised when non-layout is provided as children
     with pytest.raises(ValueError):
         layout_callable(children=[ColumnDataSource()])
-
-
-def test_VBoxForm():
-    check_props(VBoxForm())
-    check_widget_box_children_prop(VBoxForm)
 
 
 def test_WidgetBox():

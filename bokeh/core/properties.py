@@ -63,17 +63,17 @@ easily and automatically extracted with the Sphinx extensions in the
 Basic Properties
 ----------------
 
-%s
+{basic_properties}
 
 Container Properties
 --------------------
 
-%s
+{container_properties}
 
 DataSpec Properties
 -------------------
 
-%s
+{dataspec_properties}
 
 Helpers
 ~~~~~~~
@@ -106,24 +106,15 @@ from six import string_types, iteritems
 
 from ..colors import RGB
 from ..util.dependencies import import_optional
-from ..util.deprecation import deprecated
-from ..util.serialization import transform_column_source_data, decode_base64_dict
-from ..util.string import nice_join
+from ..util.serialization import convert_datetime_type, decode_base64_dict, transform_column_source_data
+from ..util.string import nice_join, format_docstring
+
 from .property.bases import ContainerProperty, DeserializationError, ParameterizedProperty, Property, PrimitiveProperty
 from .property.descriptor_factory import PropertyDescriptorFactory
 from .property.descriptors import BasicPropertyDescriptor, DataSpecPropertyDescriptor, UnitsSpecPropertyDescriptor
 from . import enums
 
 pd = import_optional('pandas')
-
-# TODO: this should really be moved elsewhere, has_props.py or model.py
-def abstract(cls):
-    from .has_props import HasProps
-    ''' A phony decorator to mark abstract base classes. '''
-    if not issubclass(cls, HasProps):
-        raise TypeError("%s is not a subclass of HasProps" % cls.__name__)
-
-    return cls
 
 bokeh_bool_types = (bool,)
 try:
@@ -476,9 +467,9 @@ class Instance(Property):
                 raise ValueError("expected an instance of type %s, got %s of type %s" %
                     (self.instance_type.__name__, value, type(value).__name__))
 
-    def _has_stable_default(self):
+    def _may_have_unstable_default(self):
         # because the instance value is mutable
-        return False
+        return True
 
     def _sphinx_type(self):
         fullname = "%s.%s" % (self.instance_type.__module__, self.instance_type.__name__)
@@ -645,6 +636,9 @@ class Either(ParameterizedProperty):
             return self._type_params[0]._raw_default()
         default = kwargs.get("default", choose_default)
         super(Either, self).__init__(default=default, help=help)
+        self.alternatives = []
+        for tp in self._type_params:
+            self.alternatives.extend(tp.alternatives)
 
     # TODO (bev) get rid of this?
     def __or__(self, other):
@@ -680,6 +674,10 @@ class Either(ParameterizedProperty):
 
         if not (value is None or any(param.is_valid(value) for param in self.type_params)):
             raise ValueError("expected an element of either %s, got %r" % (nice_join(self.type_params), value))
+
+    # TODO (bev) implement this
+    # def _may_have_unstable_default(self):
+    #     return any(tp._may_have_unstable_default() for tp in self.type_params)
 
     def _sphinx_type(self):
         return self._sphinx_prop_link() + "( %s )" % ", ".join(x._sphinx_type() for x in self.type_params)
@@ -1034,10 +1032,10 @@ class Angle(Float):
     pass
 
 class Date(Property):
-    ''' Accept Date (not datetime) values.
+    ''' Accept Date (but not DateTime) values.
 
     '''
-    def __init__(self, default=datetime.date.today(), help=None):
+    def __init__(self, default=None, help=None):
         super(Date, self).__init__(default=default, help=help)
 
     def transform(self, value):
@@ -1134,35 +1132,6 @@ class TimeDelta(Property):
             return
 
         raise ValueError("Expected a timedelta instance, got %r" % value)
-
-class TitleProp(Either):
-    ''' Accept a title value for a plot (possibly transforming a plain string).
-
-    .. note::
-        This property exists only to support a deprecation, and will be removed
-        in the future once the deprecation is completed.
-
-    '''
-    def __init__(self, default=None, help=None):
-        types = (Instance('bokeh.models.annotations.Title'), String)
-        super(TitleProp, self).__init__(*types, default=default, help=help)
-
-    def transform(self, value):
-        if isinstance(value, str):
-            from bokeh.models.annotations import Title
-            deprecated('''Setting Plot property 'title' using a string was deprecated in 0.12.0,
-            and will be removed. The title is now an object on Plot (which holds all of it's
-            styling properties). Please use Plot.title.text instead.
-
-            SERVER USERS: If you were using plot.title to have the server update the plot title
-            in a callback, you MUST update to plot.title.text as the title object cannot currently
-            be replaced after initialization.
-            ''')
-            value = Title(text=value)
-        return value
-
-    def _sphinx_type(self):
-        return self._sphinx_prop_link()
 
 #------------------------------------------------------------------------------
 # Container properties
@@ -1466,21 +1435,20 @@ class DataSpec(Either):
             color = ColorSpec(help="docs for color") # defaults to None
 
     '''
-    def __init__(self, typ, default, help=None):
+    def __init__(self, key_type, value_type, default, help=None):
         super(DataSpec, self).__init__(
             String,
             Dict(
-                String,
+                key_type,
                 Either(
                     String,
                     Instance('bokeh.models.transforms.Transform'),
-                    Instance('bokeh.models.mappers.ColorMapper'),
-                    typ)),
-            typ,
+                    value_type)),
+            value_type,
             default=default,
             help=help
         )
-        self._type = self._validate_type_param(typ)
+        self._type = self._validate_type_param(value_type)
 
     # TODO (bev) add stricter validation on keys
 
@@ -1490,7 +1458,7 @@ class DataSpec(Either):
         property.
 
         Args:
-            name (str) : the name of the property these descriptors are for
+            base_name (str) : the name of the property these descriptors are for
 
         Returns:
             list[DataSpecPropertyDescriptor]
@@ -1517,14 +1485,22 @@ class DataSpec(Either):
         if isinstance(val, string_types):
             return dict(field=val)
 
-        # Must be dict, return as-is
-        return val
+        # Must be dict, return a new dict
+        return dict(val)
 
     def _sphinx_type(self):
         return self._sphinx_prop_link()
 
+_FieldValueTransform = Enum("field", "value", "transform")
+
 class NumberSpec(DataSpec):
-    ''' A |DataSpec| property that accepts numeric fixed values.
+    ''' A |DataSpec| property that accepts numeric and datetime fixed values.
+
+    By default, date and datetime values are immediately converted to
+    milliseconds since epoch. It it possible to disable processing of datetime
+    values by passing ``accept_datetime=False``.
+
+    Timedelta values are interpreted as absolute milliseconds.
 
     .. code-block:: python
 
@@ -1533,8 +1509,12 @@ class NumberSpec(DataSpec):
         m.location = "foo" # field
 
     '''
-    def __init__(self, default=None, help=None):
-        super(NumberSpec, self).__init__(Float, default=default, help=help)
+    def __init__(self, default=None, help=None, key_type=_FieldValueTransform, accept_datetime=True):
+        super(NumberSpec, self).__init__(key_type, Float, default=default, help=help)
+        self.accepts(TimeDelta, convert_datetime_type)
+        if accept_datetime:
+            self.accepts(Datetime, convert_datetime_type)
+
 
 class StringSpec(DataSpec):
     ''' A |DataSpec| property that accepts string fixed values.
@@ -1551,8 +1531,8 @@ class StringSpec(DataSpec):
         m.title = "foo"        # field
 
     '''
-    def __init__(self, default, help=None):
-        super(StringSpec, self).__init__(List(String), default=default, help=help)
+    def __init__(self, default, help=None, key_type=_FieldValueTransform):
+        super(StringSpec, self).__init__(key_type, List(String), default=default, help=help)
 
     def prepare_value(self, cls, name, value):
         if isinstance(value, list):
@@ -1581,15 +1561,29 @@ class FontSizeSpec(DataSpec):
     https://drafts.csswg.org/css-values/#lengths
 
     '''
-    _font_size_re = re.compile("^[0-9]+(\.[0-9]+)?(%|em|ex|ch|ic|rem|vw|vh|vi|vb|vmin|vmax|cm|mm|q|in|pc|pt|px)$", re.I)
+    _font_size_re = re.compile(r"^[0-9]+(.[0-9]+)?(%|em|ex|ch|ic|rem|vw|vh|vi|vb|vmin|vmax|cm|mm|q|in|pc|pt|px)$", re.I)
 
-    def __init__(self, default, help=None):
-        super(FontSizeSpec, self).__init__(List(String), default=default, help=help)
+    def __init__(self, default, help=None, key_type=_FieldValueTransform):
+        super(FontSizeSpec, self).__init__(key_type, List(String), default=default, help=help)
 
     def prepare_value(self, cls, name, value):
         if isinstance(value, string_types) and self._font_size_re.match(value) is not None:
             value = dict(value=value)
         return super(FontSizeSpec, self).prepare_value(cls, name, value)
+
+    def validate(self, value):
+        super(FontSizeSpec, self).validate(value)
+
+        if isinstance(value, dict) and 'value' in value:
+            value = value['value']
+
+        if isinstance(value, string_types):
+            if len(value) == 0:
+                raise ValueError("empty string is not a valid font size value")
+            elif value[0].isdigit() and self._font_size_re.match(value) is None:
+                raise ValueError("%r is not a valid font size value" % value)
+
+_FieldValueTransformUnits = Enum("field", "value", "transform", "units")
 
 class UnitsSpec(NumberSpec):
     ''' A |DataSpec| property that accepts numeric fixed values, and also
@@ -1597,7 +1591,7 @@ class UnitsSpec(NumberSpec):
 
     '''
     def __init__(self, default, units_type, units_default, help=None):
-        super(UnitsSpec, self).__init__(default=default, help=help)
+        super(UnitsSpec, self).__init__(default=default, help=help, key_type=_FieldValueTransformUnits)
         self._units_type = self._validate_type_param(units_type)
         # this is a hack because we already constructed units_type
         self._units_type.validate(units_default)
@@ -1708,7 +1702,7 @@ class DataDistanceSpec(NumberSpec):
         return super(DataDistanceSpec, self).prepare_value(cls, name, value)
 
     def to_serializable(self, obj, name, val):
-        d = super(ScreenDistanceSpec, self).to_serializable(obj, name, val)
+        d = super(DataDistanceSpec, self).to_serializable(obj, name, val)
         d["units"] = "data"
         return d
 
@@ -1737,8 +1731,8 @@ class ColorSpec(DataSpec):
         m.color = field("firebrick")       # field (named "firebrick")
 
     '''
-    def __init__(self, default, help=None):
-        super(ColorSpec, self).__init__(Color, default=default, help=help)
+    def __init__(self, default, help=None, key_type=_FieldValueTransform):
+        super(ColorSpec, self).__init__(key_type, Color, default=default, help=help)
 
     @classmethod
     def isconst(cls, val):
@@ -1772,8 +1766,8 @@ class ColorSpec(DataSpec):
         if isinstance(val, string_types):
             return dict(field=val)
 
-        # Must be dict, return as-is
-        return val
+        # Must be dict, return new dict
+        return dict(val)
 
     def prepare_value(self, cls, name, value):
         # Some explanation is in order. We want to accept tuples like
@@ -1901,6 +1895,6 @@ _data_specs = "\n".join(sorted(".. autoclass:: %s" % x.__name__ for x in _find_a
 _containers = "\n".join(sorted(".. autoclass:: %s" % x.__name__ for x in _find_and_remove(ContainerProperty)))
 _basic = "\n".join(sorted(".. autoclass:: %s" % x.__name__ for x in _all_props))
 
-__doc__ = __doc__ % (_basic, _containers, _data_specs)
+__doc__ = format_docstring(__doc__, basic_properties=_basic, container_properties=_containers, dataspec_properties=_data_specs)
 
 del _all_props, _data_specs, _containers, _basic, _find_and_remove

@@ -1,18 +1,13 @@
-import * as _ from "underscore"
+import {XYGlyph, XYGlyphView} from "./xy_glyph"
+import * as hittest from "core/hittest"
+import * as p from "core/properties"
+import {angle_between} from "core/util/math"
 
-import {Glyph, GlyphView} from "./glyph"
-import * as hittest from "../../core/hittest"
-import * as p from "../../core/properties"
-import {angle_between} from "../../core/util/math"
-
-export class WedgeView extends GlyphView
-
-  _index_data: () ->
-    @_xy_index()
+export class WedgeView extends XYGlyphView
 
   _map_data: () ->
     if @model.properties.radius.units == "data"
-      @sradius = @sdist(@renderer.xmapper, @_x, @_radius)
+      @sradius = @sdist(@renderer.xscale, @_x, @_radius)
     else
       @sradius = @_radius
 
@@ -37,8 +32,8 @@ export class WedgeView extends GlyphView
 
   _hit_point: (geometry) ->
     [vx, vy] = [geometry.vx, geometry.vy]
-    x = @renderer.xmapper.map_from_target(vx, true)
-    y = @renderer.ymapper.map_from_target(vy, true)
+    x = @renderer.xscale.invert(vx, true)
+    y = @renderer.yscale.invert(vy, true)
 
     # check radius first
     if @model.properties.radius.units == "data"
@@ -51,21 +46,21 @@ export class WedgeView extends GlyphView
     else
       vx0 = vx - @max_radius
       vx1 = vx + @max_radius
-      [x0, x1] = @renderer.xmapper.v_map_from_target([vx0, vx1], true)
+      [x0, x1] = @renderer.xscale.v_invert([vx0, vx1], true)
 
       vy0 = vy - @max_radius
       vy1 = vy + @max_radius
-      [y0, y1] = @renderer.ymapper.v_map_from_target([vy0, vy1], true)
+      [y0, y1] = @renderer.yscale.v_invert([vy0, vy1], true)
 
     candidates = []
 
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
-    for i in (pt.i for pt in @index.search(bbox))
+    for i in @index.indices(bbox)
       r2 = Math.pow(@sradius[i], 2)
-      sx0 = @renderer.xmapper.map_to_target(x, true)
-      sx1 = @renderer.xmapper.map_to_target(@_x[i], true)
-      sy0 = @renderer.ymapper.map_to_target(y, true)
-      sy1 = @renderer.ymapper.map_to_target(@_y[i], true)
+      sx0 = @renderer.xscale.compute(x, true)
+      sx1 = @renderer.xscale.compute(@_x[i], true)
+      sy0 = @renderer.yscale.compute(y, true)
+      sy1 = @renderer.yscale.compute(@_y[i], true)
       dist = Math.pow(sx0-sx1, 2) + Math.pow(sy0-sy1, 2)
       if dist <= r2
         candidates.push([i, dist])
@@ -80,22 +75,16 @@ export class WedgeView extends GlyphView
       if angle_between(-angle, -@_start_angle[i], -@_end_angle[i], direction)
         hits.push([i, dist])
 
-    result = hittest.create_hit_test_result()
-    result['1d'].indices = _.chain(hits)
-      .sortBy((elt) -> return elt[1])
-      .map((elt) -> return elt[0])
-      .value()
-    return result
+    return hittest.create_1d_hit_test_result(hits)
 
   draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
     @_generic_area_legend(ctx, x0, x1, y0, y1, index)
 
-export class Wedge extends Glyph
+export class Wedge extends XYGlyph
   default_view: WedgeView
 
   type: 'Wedge'
 
-  @coords [['x', 'y']]
   @mixins ['line', 'fill']
   @define {
       direction:    [ p.Direction,   'anticlock' ]

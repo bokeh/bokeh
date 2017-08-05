@@ -1,10 +1,14 @@
+{% set data = load_setup_py_data() %}
+
 package:
   name: bokeh
-  version: 'nightly'
+  version: {{ data['version'] }}
+
+source:
+  path: ..
 
 build:
-  number: {{ environ.get('BINSTAR_BUILD', 1) }}
-  noarch_python: True
+  noarch: python
   entry_points:
     - bokeh = bokeh.__main__:main
 
@@ -17,9 +21,11 @@ requirements:
   build:
     - python
     - setuptools
-    - nodejs >=4.1
-    - six
+    - nodejs >=6.6.0
+    - certifi
+    - pycurl
     - packaging
+    - six
     - python-dateutil
     - numpy
     - yaml
@@ -28,57 +34,55 @@ requirements:
     - tornado >=4.3
 
   run:
-    # bokeh
     - python
-    - six
-    - requests
-    - pyyaml
-    - python-dateutil
-    - jinja2
-    - numpy
 
-    # server
-    - tornado >=4.3
-    # meta-package installs futures for py 2.7 but not for py 3.x
+    {% for dep in data['install_requires'] %}
+    - {{ dep.lower() }}
+    {% endfor %}
+
+    # meta-package installs futures for 2.7 but not for 3.x
+    # needed in order to be able to build no-arch conda packages
     - futures-compat
 
 test:
   requires:
     # docs
     - pygments
-    - sphinx >=1.3.1
+    - sphinx <1.6
+    # pyyaml installed by bokeh
+    # packaging installed by bokeh
 
     # tests
-    # pyyaml installed by bokeh
-    # jinja2 installed by bokeh
     - colorama
     - coverage
     - flake8
+    - lxml
+    - networkx
     - mock
     - packaging
     - pandas
     - pytest >=3.0.2
-    - pytest-cov >=1.8.1     [unix]
-    - pytest-selenium==1.6.0 [unix]
-    - selenium==2.53.5
+    - pytest-cov >=1.8.1
+    - pytest-selenium >=1.6.0 [unix]
+    - pytest-html
+    - selenium >=3
     - pytest-xdist
     - pytest-rerunfailures
-    - beautiful-soup         [unix]
+    - requests >=1.2.3
+    - beautifulsoup4
     - scipy
     - pillow
     - boto
-    - pdiff                  [unix]
-    - nodejs >=4.1
+    - nodejs >=6.6.0
+    # pyyaml installed by bokeh
+    # jinja2 installed by bokeh
 
     # examples
-    - jupyter
-    - matplotlib
+    - notebook
     - sympy
     - scikit-learn
-    - ggplot <=0.9.4
-    - seaborn
     - networkx
-    - icalendar          [unix]
+    - icalendar
     - flask
     - flexx
 
@@ -90,5 +94,6 @@ test:
     - bokeh
 
 about:
-  home: https://github.com/bokeh/bokeh
-  license: New BSD
+  home: {{ data['url'] }}
+  license: {{ data['license'] }}
+  summary: {{ data['description'] }}

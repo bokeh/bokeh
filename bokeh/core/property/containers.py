@@ -91,8 +91,6 @@ class PropertyValueContainer(object):
     '''
     def __init__(self, *args, **kwargs):
         self._owners = set()
-        # this flag is set to True by HasProps when it wraps a default value
-        self._unmodified_default_value = False
         super(PropertyValueContainer, self).__init__(*args, **kwargs)
 
     def _register_owner(self, owner, prop):
@@ -102,7 +100,6 @@ class PropertyValueContainer(object):
         self._owners.discard((owner, prop))
 
     def _notify_owners(self, old, hint=None):
-        self._unmodified_default_value = False
         for (owner, prop) in self._owners:
             prop._notify_mutated(owner, old, hint)
 
@@ -339,7 +336,7 @@ class PropertyValueDict(PropertyValueContainer, dict):
                 if rollover is not None:
                     del L[:-rollover]
 
-        from ...document import ColumnsStreamedEvent
+        from ...server.events import ColumnsStreamedEvent
 
         self._notify_owners(old,
                             hint=ColumnsStreamedEvent(doc, source, new_data, rollover, setter))
@@ -366,17 +363,22 @@ class PropertyValueDict(PropertyValueContainer, dict):
         synchronize.
 
         .. warning::
-            This function assumes the integrity of ``new_data`` has already
+            This function assumes the integrity of ``patches`` has already
             been verified.
 
         '''
+        import numpy as np
         old = self._saved_copy()
 
         for name, patch in patches.items():
             for ind, value in patch:
-                self[name][ind] = value
+                if isinstance(ind, (int, slice)):
+                    self[name][ind] = value
+                else:
+                    shape = self[name][ind[0]][ind[1:]].shape
+                    self[name][ind[0]][ind[1:]] = np.array(value, copy=False).reshape(shape)
 
-        from ...document import ColumnsPatchedEvent
+        from ...server.events import ColumnsPatchedEvent
 
         self._notify_owners(old,
                             hint=ColumnsPatchedEvent(doc, source, patches, setter))

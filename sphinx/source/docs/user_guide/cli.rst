@@ -11,11 +11,11 @@ often offer a more flexible way to generate different kinds of output
 from the same source code, as well as making it easier to and faster
 to iterate.
 
-There are three basic ``bokeh`` commands:
+There are five basic ``bokeh`` commands:
 
 The ``bokeh html`` command can create standalone HTML documents from any
 kind of Bokeh application source: e.g., python scripts, app directories,
-JSON files, jupyter notebooks and others. For example:
+JSON files, Jupyter/Zeppelin notebooks and others. For example:
 
 .. code-block:: bash
 
@@ -27,6 +27,23 @@ of a Bokeh document from any kind of Bokeh application source. For example:
 .. code-block:: bash
 
     bokeh json myapp.py
+
+
+The ``bokeh png`` command will generate a static PNG screenshot of a Bokeh
+document from any kind of Bokeh application source. For example:
+
+.. code-block:: bash
+
+    bokeh png myapp.py
+
+
+The ``bokeh svg`` command will generate individual static SVGs of any plots
+with the attribute ``output_backend="svg"`` within a Bokeh document from any
+kind of Bokeh application source. For example:
+
+.. code-block:: bash
+
+    bokeh svg myapp.py
 
 
 Finally, the ``bokeh serve`` command let's you instantly turn Bokeh documents
@@ -62,6 +79,24 @@ Serialized JSON
 ---------------
 
 .. automodule:: bokeh.command.subcommands.json
+
+
+
+.. _userguide_cli_png:
+
+PNG Generation
+--------------
+
+.. automodule:: bokeh.command.subcommands.png
+
+
+
+.. _userguide_cli_svg:
+
+SVG Generation
+--------------
+
+.. automodule:: bokeh.command.subcommands.svg
 
 
 

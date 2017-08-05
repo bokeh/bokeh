@@ -1,7 +1,6 @@
-import * as _ from "underscore"
-
 import {SelectTool, SelectToolView} from "./select_tool"
-import * as p from "../../../core/properties"
+import * as p from "core/properties"
+import {isFunction} from "core/util/types"
 
 export class TapToolView extends SelectToolView
 
@@ -20,29 +19,41 @@ export class TapToolView extends SelectToolView
     }
 
     callback = @model.callback
-    @_save_geometry(geometry, final, append)
 
     cb_data =
-      geometries: @plot_model.plot.tool_events.geometries
-
-    for r in @model.computed_renderers
-      ds = r.data_source
-      sm = ds.selection_manager
-
-      view = @plot_view.renderer_views[r.id]
-      if @model.behavior == "select"
-        did_hit = sm.select(@, view, geometry, final, append)
-      else
-        did_hit = sm.inspect(@, view, geometry, {geometry: geometry})
-
-      if did_hit and callback?
-        if _.isFunction(callback)
-          callback(ds, cb_data)
-        else
-          callback.execute(ds, cb_data)
+      geometries: geometry
 
     if @model.behavior == "select"
+
+      renderers_by_source = @_computed_renderers_by_data_source()
+
+      for _, renderers of renderers_by_source
+        sm = renderers[0].get_selection_manager()
+        r_views = (@plot_view.renderer_views[r.id] for r in renderers)
+        did_hit = sm.select(r_views, geometry, final, append)
+
+        if did_hit and callback?
+          cb_data.source = sm.source
+          if isFunction(callback)
+            callback(@, cb_data)
+          else
+            callback.execute(@, cb_data)
+
+      @_emit_selection_event(geometry)
+
       @plot_view.push_state('tap', {selection: @plot_view.get_selection()})
+
+    else # @model.behavior == "inspect"
+      for r in @computed_renderers
+        sm = r.get_selection_manager()
+        did_hit = sm.inspect(@plot_view.renderer_views[r.id], geometry)
+
+        if did_hit and callback?
+          cb_data.source = sm.source
+          if isFunction(callback)
+            callback(@, cb_data)
+          else
+            callback.execute(@, cb_data)
 
     return null
 

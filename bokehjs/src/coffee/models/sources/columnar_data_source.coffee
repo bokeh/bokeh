@@ -1,9 +1,9 @@
-import * as _ from "underscore"
-
 import {DataSource} from "./data_source"
-import {logger} from "../../core/logging"
-import {SelectionManager} from "../../core/selection_manager"
-import * as p from "../../core/properties"
+import {Signal} from "core/signaling"
+import {logger} from "core/logging"
+import {SelectionManager} from "core/selection_manager"
+import * as p from "core/properties"
+import {uniq} from "core/util/array"
 
 # Abstract baseclass for column based data sources, where the column
 # based data may be supplied directly or be computed from an attribute
@@ -20,15 +20,24 @@ export class ColumnarDataSource extends DataSource
     _shapes:      [ p.Any, {}]
   }
 
+  initialize: (options) ->
+    super(options)
+
+    @select = new Signal(this, "select")
+    @inspect = new Signal(this, "inspect") # XXX: <[indices, tool, renderer-view, source, data], this>
+
+    @streaming = new Signal(this, "streaming")
+    @patching = new Signal(this, "patching") # <number[], ColumnarDataSource>
+
   get_column: (colname) ->
     return @data[colname] ? null
 
   columns: () ->
     # return the column names in this data source
-    return _.keys(@data)
+    return Object.keys(@data)
 
   get_length: (soft=true) ->
-    lengths = _.uniq((val.length for _key, val of @data))
+    lengths = uniq((val.length for _key, val of @data))
 
     switch lengths.length
       when 0
@@ -42,3 +51,8 @@ export class ColumnarDataSource extends DataSource
           return lengths.sort()[0]
         else
           throw new Error(msg)
+
+  get_indices: () ->
+    length = @get_length()
+    length = 1 if not length?
+    return [0...length]

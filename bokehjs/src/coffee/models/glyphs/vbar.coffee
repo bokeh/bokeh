@@ -1,56 +1,51 @@
-import * as _ from "underscore"
-import * as rbush from "rbush"
-import * as Quad from "./quad"
+import {RBush} from "core/util/spatial"
 import {Glyph, GlyphView} from "./glyph"
-import {CategoricalMapper} from "../mappers/categorical_mapper"
-import * as hittest from "../../core/hittest"
-import * as p from "../../core/properties"
+import {CategoricalScale} from "../scales/categorical_scale"
+import * as hittest from "core/hittest"
+import * as p from "core/properties"
 
 export class VBarView extends GlyphView
 
   _map_data: () ->
-    @sx = @renderer.xmapper.v_map_to_target(@_x)
+    @sx = @renderer.xscale.v_compute(@_x)
 
-    vtop = @renderer.ymapper.v_map_to_target(@_top)
-    vbottom = (@renderer.ymapper.v_map_to_target(@_bottom))
+    vtop = @renderer.yscale.v_compute(@_top)
+    vbottom = (@renderer.yscale.v_compute(@_bottom))
     @stop = @renderer.plot_view.canvas.v_vy_to_sy(vtop)
     @sbottom = @renderer.plot_view.canvas.v_vy_to_sy(vbottom)
 
     @sleft = []
     @sright = []
-    @sw = @sdist(@renderer.xmapper, @_x, @_width, 'center')
+    @sw = @sdist(@renderer.xscale, @_x, @_width, 'center')
     for i in [0...@sx.length]
       @sleft.push(@sx[i] - @sw[i]/2)
       @sright.push(@sx[i] + @sw[i]/2)
     return null
 
   _index_data: () ->
-    map_to_synthetic = (mapper, array) ->
-      if mapper instanceof CategoricalMapper
-        mapper.v_map_to_target(array, true)
+    map_to_synthetic = (scale, array) ->
+      if scale instanceof CategoricalScale
+        scale.v_compute(array, true)
       else
         array
 
-    x = map_to_synthetic(@renderer.xmapper, @_x)
-    width = map_to_synthetic(@renderer.xmapper, @_width)
+    x = map_to_synthetic(@renderer.xscale, @_x)
+    width = map_to_synthetic(@renderer.xscale, @_width)
 
-    top = map_to_synthetic(@renderer.ymapper, @_top)
-    bottom = map_to_synthetic(@renderer.ymapper, @_bottom)
+    top = map_to_synthetic(@renderer.yscale, @_top)
+    bottom = map_to_synthetic(@renderer.yscale, @_bottom)
 
-    index = rbush()
-    pts = []
-
+    points = []
     for i in [0...x.length]
       l = x[i] - width[i]/2
       r = x[i] + width[i]/2
-      t = top[i]
-      b = bottom[i]
+      t = Math.max(top[i], bottom[i])
+      b = Math.min(top[i], bottom[i])
       if isNaN(l+r+t+b) or not isFinite(l+r+t+b)
         continue
-      pts.push({minX: l, minY: b, maxX: r, maxY: t, i: i})
+      points.push({minX: l, minY: b, maxX: r, maxY: t, i: i})
 
-    index.load(pts)
-    return index
+    return new RBush(points)
 
   _render: (ctx, indices, {sleft, sright, stop, sbottom}) ->
     for i in indices
@@ -69,10 +64,10 @@ export class VBarView extends GlyphView
 
   _hit_point: (geometry) ->
     [vx, vy] = [geometry.vx, geometry.vy]
-    x = @renderer.xmapper.map_from_target(vx, true)
-    y = @renderer.ymapper.map_from_target(vy, true)
+    x = @renderer.xscale.invert(vx, true)
+    y = @renderer.yscale.invert(vy, true)
 
-    hits = (x.i for x in @index.search({minX: x, minY: y, maxX: x, maxY: y}))
+    hits = @index.indices({minX: x, minY: y, maxX: x, maxY: y})
 
     result = hittest.create_hit_test_result()
     result['1d'].indices = hits

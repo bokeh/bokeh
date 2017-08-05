@@ -1,6 +1,6 @@
 from bokeh.core.properties import Instance
 from bokeh.io import output_file, show
-from bokeh.models import ColumnDataSource, Tool, CustomJS
+from bokeh.models import ColumnDataSource, Tool
 from bokeh.plotting import figure
 
 output_file('tool.html')
@@ -25,12 +25,12 @@ export class DrawToolView extends GestureToolView
     if not frame.contains(vx, vy)
       return null
 
-    x = frame.x_mappers['default'].map_from_target(vx)
-    y = frame.y_mappers['default'].map_from_target(vy)
+    x = frame.xscales['default'].invert(vx)
+    y = frame.yscales['default'].invert(vy)
 
     @model.source.data.x.push(x)
     @model.source.data.y.push(y)
-    @model.source.trigger('change')
+    @model.source.change.emit()
 
   # this is executed then the pan/drag ends
   _pan_end: (e) -> return null

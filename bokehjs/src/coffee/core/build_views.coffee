@@ -1,4 +1,5 @@
-import * as _ from "underscore"
+import {difference} from "./util/array"
+import {keys, extend} from "./util/object"
 
 export build_views = (view_storage, view_models, options, view_types=[]) ->
   # ## function: build_views
@@ -17,33 +18,24 @@ export build_views = (view_storage, view_models, options, view_types=[]) ->
   # * options: any additional option to be used in the construction of views
   # * view_option: array, optional view specific options passed in to the construction of the view
 
+  to_remove = difference(Object.keys(view_storage), (model.id for model in view_models))
+
+  for model_id in to_remove
+    view_storage[model_id].remove()
+    delete view_storage[model_id]
+
   created_views = []
-  newmodels = view_models.filter((x) -> not _.has(view_storage, x.id))
+  new_models = view_models.filter((model) -> not view_storage[model.id]?)
 
-  for model, i_model in newmodels
-    view_specific_option = _.extend({}, options, {'model': model})
-
-    if i_model < view_types.length
-      view_storage[model.id] = new view_types[i_model](view_specific_option)
-    else
-      view_storage[model.id] = new model.default_view(view_specific_option)
-
-    view_storage[model.id].$el.find("*[class*='ui-']").each (idx, el) ->
-      el.className = jQueryUIPrefixer(el)
-    created_views.push(view_storage[model.id])
-
-  to_remove = _.difference(_.keys(view_storage), _.pluck(view_models, 'id'))
-
-  for key in to_remove
-    view_storage[key].remove()
-    delete view_storage[key]
+  for model, i in new_models
+    view_cls = view_types[i] ? model.default_view
+    view_options = extend({model: model}, options)
+    view_storage[model.id] = view = new view_cls(view_options)
+    created_views.push(view)
 
   return created_views
 
-export jQueryUIPrefixer = (el) ->
-  return unless el.className?
-  classList = el.className.split " "
-  prefixedClassList = classList.map (a) ->
-    a = a.trim()
-    return if a.indexOf("ui-") is 0 then "bk-#{a}" else a
-  return prefixedClassList.join " "
+export remove_views = (view_storage) ->
+  for id in keys(view_storage)
+    view_storage[id].remove()
+    delete view_storage[id]

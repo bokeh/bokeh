@@ -15,6 +15,23 @@ sinon = require 'sinon'
 
 describe "Axis", ->
 
+  it "should compute labels with overrides", ->
+    doc = new Document()
+    p = new Plot({
+      x_range: new Range1d({start: 0, end: 10})
+      y_range: new Range1d({start: 0, end: 10})
+    })
+    doc.add_root(p)
+    ticker = new BasicTicker()
+    formatter = new BasicTickFormatter()
+    axis = new Axis({
+      ticker: ticker
+      formatter: formatter
+      plot: p
+      major_label_overrides: {0: "zero", 4: "four", 10: "ten"}
+    })
+    expect(axis.compute_labels([0,2,4.0,6,8,10])).to.be.deep.equal ["zero", "2", "four", "6", "8", "ten"]
+
   it "should have a SidePanel after add_panel is called", ->
     doc = new Document()
     p = new Plot({
@@ -75,13 +92,15 @@ describe "AxisView", ->
       y_range: new Range1d({start: 0, end: 1})
       toolbar: new Toolbar()
     })
+    plot_view = new plot.default_view({model: plot, parent: null})
     plot.add_layout(@axis, 'below')
     doc.add_root(plot)
-    plot_canvas_view = new plot.plot_canvas.default_view({ 'model': plot.plot_canvas })
+    plot_canvas_view = new plot.plot_canvas.default_view({model: plot.plot_canvas, parent: plot_view})
     sinon.stub(plot_canvas_view, 'update_constraints')
     @axis_view = new @axis.default_view({
       model: @axis
       plot_view: plot_canvas_view
+      parent: plot_canvas_view
     })
 
   it "_tick_extent should return the major_tick_out property", ->
@@ -102,8 +121,8 @@ describe "AxisView", ->
   it "_axis_label_extent should be 0 if no axis_label", ->
     expect(@axis_view._axis_label_extent()).to.be.equal 0
 
-  it "_get_size should return sum of _tick_extent, _axis_label_extent, and _tick_label_extent", ->
-    sinon.stub(@axis_view, '_tick_extent', () -> 0.11)
-    sinon.stub(@axis_view, '_axis_label_extent', () -> 0.11)
-    sinon.stub(@axis_view, '_tick_label_extent', () -> 0.11)
+  it "_get_size should return sum of _tick_extent, _axis_label_extent, and _tick_label_extent", sinon.test ->
+    this.stub(@axis_view, '_tick_extent', () -> 0.11)
+    this.stub(@axis_view, '_axis_label_extent', () -> 0.11)
+    this.stub(@axis_view, '_tick_label_extent', () -> 0.11)
     expect(@axis_view._get_size()).to.be.equal 0.33

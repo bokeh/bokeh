@@ -1,27 +1,32 @@
-import * as _ from "underscore"
-import {Events} from "./events"
+import {Signal, Signalable} from "./signaling"
 import * as enums from "./enums"
 import * as svg_colors from "./util/svg_colors"
 import {valid_rgb} from "./util/color"
+import {copy} from "./util/array"
+import {isBoolean, isNumber, isString, isFunction, isArray, isObject} from "./util/types"
+
+valueToString = (value) ->
+  try
+    return JSON.stringify(value)
+  catch
+    return value.toString()
 
 #
 # Property base class
 #
 
-export class Property
-  _.extend(@prototype, Events)
+export class Property # <T>
+  @prototype extends Signalable
 
   dataspec: false
-  specifiers: ['field', 'value']
 
   constructor: ({@obj, @attr, @default_value}) ->
-    @_init(false)
+    @_init()
 
-    # TODO (bev) Quick fix, see https://github.com/bokeh/bokeh/pull/2684
-    @listenTo(@obj, "change:#{@attr}", () =>
-      @_init()
-      @obj.trigger("propchange")
-    )
+    # Signal<T, HasProps>
+    @change = new Signal(@obj, "change")
+
+    @connect(@change, () => @_init())
 
   update: () -> @_init()
 
@@ -36,7 +41,7 @@ export class Property
   # ----- property accessors
 
   value: (do_spec_transform=true) ->
-    if _.isUndefined(@spec.value)
+    if @spec.value == undefined
       throw new Error("attempted to retrieve property value for property without value specification")
     ret = @transform([@spec.value])[0]
     if @spec.transform? and do_spec_transform
@@ -64,7 +69,7 @@ export class Property
 
   # ----- private methods
 
-  _init: (trigger=true) ->
+  _init: () ->
     obj = @obj
     if not obj?
       throw new Error("missing property object")
@@ -79,33 +84,27 @@ export class Property
 
     attr_value = obj.getv(attr)
 
-    if _.isUndefined(attr_value)
+    if attr_value == undefined
       default_value = @default_value
 
       attr_value = switch
-        when _.isUndefined(default_value) then null
-        when _.isArray(default_value)     then _.clone(default_value)
-        when _.isFunction(default_value)  then default_value(obj)
-        else                                   default_value
+        when default_value == undefined then null
+        when isArray(default_value)     then copy(default_value)
+        when isFunction(default_value)  then default_value(obj)
+        else                                 default_value
 
       obj.setv(attr, attr_value, {silent: true, defaults: true})
 
-    # if _.isObject(attr_value) and not _.isArray(attr_value) and not attr_value.properties?
-    #   @spec = attr_value
-    #   if _.size(_.pick.apply(null, [@spec].concat(@specifiers))) != 1
-    #     throw new Error("Invalid property specifier #{JSON.stringify(@spec)}, must have exactly one of #{@specifiers}")
-
-    if _.isArray(attr_value)
+    if isArray(attr_value)
       @spec = {value: attr_value}
 
-    # is there a better way to check for "specs" ? this seems fragile
-    else if _.isObject(attr_value) and _.size(_.pick.apply(null, [attr_value].concat(@specifiers))) == 1
+    else if isObject(attr_value) and ((attr_value.value == undefined) != (attr_value.field == undefined))
       @spec = attr_value
 
     else
       @spec = {value: attr_value}
 
-    if @spec.field? and not _.isString(@spec.field)
+    if @spec.field? and not isString(@spec.field)
       throw new Error("field value for property '#{attr}' is not a string")
 
     if @spec.value?
@@ -113,8 +112,8 @@ export class Property
 
     @init()
 
-    if trigger
-      @trigger("change")
+
+  toString: () -> "#{@name}(#{@obj}.#{@attr}, spec: #{valueToString(@spec)})"
 
 #
 # Simple Properties
@@ -122,16 +121,16 @@ export class Property
 
 export simple_prop = (name, pred) ->
   class Prop extends Property
-    toString: () -> "#{name}(obj: #{@obj.id}, spec: #{JSON.stringify(@spec)})"
+    name: name
     validate: (value) ->
       if not pred(value)
-        throw new Error("#{name} property '#{@attr}' given invalid value: #{value}")
+        throw new Error("#{name} property '#{@attr}' given invalid value: #{valueToString(value)}")
 
 export class Any extends simple_prop("Any", (x) -> true)
 
-export class Array extends simple_prop("Array", (x) -> _.isArray(x) or x instanceof Float64Array)
+export class Array extends simple_prop("Array", (x) -> isArray(x) or x instanceof Float64Array)
 
-export class Bool extends simple_prop("Bool", _.isBoolean)
+export class Bool extends simple_prop("Bool", isBoolean)
 export Boolean = Bool
 
 export class Color extends simple_prop("Color", (x) ->
@@ -141,14 +140,14 @@ export class Color extends simple_prop("Color", (x) ->
 export class Instance extends simple_prop("Instance", (x) -> x.properties?)
 
 # TODO (bev) separate booleans?
-export class Number extends simple_prop("Number", (x) -> _.isNumber(x) or _.isBoolean(x))
+export class Number extends simple_prop("Number", (x) -> isNumber(x) or isBoolean(x))
 export Int = Number
 
 # TODO extend Number instead of copying it's predicate
 #class Percent extends Number("Percent", (x) -> 0 <= x <= 1.0)
-export class Percent extends simple_prop("Number", (x) -> (_.isNumber(x) or _.isBoolean(x)) and (0 <= x <= 1.0) )
+export class Percent extends simple_prop("Number", (x) -> (isNumber(x) or isBoolean(x)) and (0 <= x <= 1.0) )
 
-export class String extends simple_prop("String", _.isString)
+export class String extends simple_prop("String", isString)
 
 # TODO (bev) don't think this exists python side
 export class Font extends String
@@ -160,7 +159,7 @@ export class Font extends String
 
 export enum_prop = (name, enum_values) ->
   class Enum extends simple_prop(name, (x) -> x in enum_values)
-    toString: () -> "#{name}(obj: #{@obj.id}, spec: #{JSON.stringify(@spec)})"
+    name: name
 
 export class Anchor extends enum_prop("Anchor", enums.LegendLocation)
 
@@ -181,6 +180,8 @@ export class Dimensions extends enum_prop("Dimensions", enums.Dimensions)
 
 export class FontStyle extends enum_prop("FontStyle", enums.FontStyle)
 
+export class LatLon extends enum_prop("LatLon", enums.LatLon)
+
 export class LineCap extends enum_prop("LineCap", enums.LineCap)
 
 export class LineJoin extends enum_prop("LineJoin", enums.LineJoin)
@@ -188,6 +189,8 @@ export class LineJoin extends enum_prop("LineJoin", enums.LineJoin)
 export class LegendLocation extends enum_prop("LegendLocation", enums.LegendLocation)
 
 export class Location extends enum_prop("Location", enums.Location)
+
+export class OutputBackend extends enum_prop("OutputBackend", enums.OutputBackend)
 
 export class Orientation extends enum_prop("Orientation", enums.Orientation)
 
@@ -207,13 +210,16 @@ export class Distribution extends enum_prop("Distribution", enums.DistributionTy
 
 export class TransformStepMode extends enum_prop("TransformStepMode", enums.TransformStepModes)
 
+export class PaddingUnits extends enum_prop("PaddingUnits", enums.PaddingUnits)
+
+export class StartEnd extends enum_prop("StartEnd", enums.StartEnd)
+
 #
 # Units Properties
 #
-
 export units_prop = (name, valid_units, default_units) ->
   class UnitsProp extends Number
-    toString: () -> "#{name}(obj: #{@obj.id}, spec: #{JSON.stringify(@spec)})"
+    name: name
     init: () ->
       if not @spec.units?
         @spec.units = default_units

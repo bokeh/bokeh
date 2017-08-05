@@ -1,5 +1,3 @@
-@import "data_table.less";
-
 .bk-widget-box {
   overflow: visible;
   padding: 5px 10px;
@@ -49,18 +47,8 @@
 }
 
 /* dropdown */
-.bk-bs-dropdown-btn .bk-bs-caret {
-  margin-right: 5px;
-  margin-bottom: 5px;
-  left: 0px;
-  color: #A1A6A9;
-}
-
-.bk-bs-dropdown-btn.bk-bs-btn-danger .bk-bs-caret,
-.bk-bs-dropdown-btn.bk-bs-btn-warning .bk-bs-caret,
-.bk-bs-dropdown-btn.bk-bs-btn-primary .bk-bs-caret,
-.bk-bs-dropdown-btn.bk-bs-btn-success .bk-bs-caret {
-  color: white;
+.bk-bs-dropdown-toggle .bk-bs-caret {
+  margin-left: 5px;
 }
 
 .bk-bs-dropdown-menu {
@@ -75,40 +63,17 @@
   float: left;
 }
 
-/* slider - start */
-.bk-slider-parent input[type="text"] {
-  display: inline-block;
-  border: 0;
-  font-weight: 600;
-  margin-left: 4px;
-  font-size: 13px;
-  vertical-align: text-bottom;
-  padding: 0;
-  min-width: 20px;
-  /* Add in defaults to counteract bokehplots.com css */
-  background-color: inherit;
-  border-radius: inherit;
-  box-shadow: inherit;
-  box-sizing: inherit;
-  font-family: inherit;
-  margin-bottom: inherit;
-  transition: inherit;
-  width: inherit;
-}
+.bk-slider {
+  label {
+    margin-right: 5px;
+  }
 
-.bk-widget .bk-slider-horizontal {
-  width: 93%;
-  margin-left: 8px;
-  height: 10px;
-}
+  .bk-slider-value {
+    display: inline-block;
+    font-weight: 600;
+  }
 
-.bk-slider-vertical {
-  height: 100%;
-  width: 16px;
-}
-/* slider - end */
-
-/* Tweak for slick grid edit widgets */
-.ui-spinner-button.ui-spinner-up.ui-corner-tr {
-  margin-left: -40px;
+  input, .bk-slider-value {
+    margin-bottom: 5px;
+  }
 }

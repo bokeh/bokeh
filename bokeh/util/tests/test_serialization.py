@@ -1,9 +1,12 @@
 from __future__ import absolute_import
 
+import datetime
 import base64
 
+import pytest
 import numpy as np
 import pandas as pd
+import pytz
 
 import bokeh.util.serialization as bus
 
@@ -17,6 +20,52 @@ def test_id_with_simple_ids():
     assert bus.make_id() == "1001"
     assert bus.make_id() == "1002"
     del os.environ["BOKEH_SIMPLE_IDS"]
+
+def test_np_consts():
+    assert bus.NP_EPOCH == np.datetime64(0, 'ms')
+    assert bus.NP_MS_DELTA == np.timedelta64(1, 'ms')
+
+def test_binary_array_types():
+    assert len(bus.BINARY_ARRAY_TYPES) == 8
+    for typ in [np.dtype(np.float32),
+                np.dtype(np.float64),
+                np.dtype(np.uint8),
+                np.dtype(np.int8),
+                np.dtype(np.uint16),
+                np.dtype(np.int16),
+                np.dtype(np.uint32),
+                np.dtype(np.int32)]:
+        assert typ in bus.BINARY_ARRAY_TYPES
+
+def test_datetime_types():
+    # includes pandas types during tests
+    assert len(bus.DATETIME_TYPES) == 8
+
+def test_is_datetime_type():
+    assert bus.is_datetime_type(datetime.datetime(2016, 5, 11))
+    assert bus.is_datetime_type(datetime.timedelta(3000))
+    assert bus.is_datetime_type(datetime.date(2016, 5, 11))
+    assert bus.is_datetime_type(datetime.time(3, 54))
+    assert bus.is_datetime_type(np.datetime64("2011-05-11"))
+    assert bus.is_datetime_type(np.timedelta64(3000, 'ms'))
+    assert bus.is_datetime_type(pd.Timedelta("3000ms"))
+    assert bus.is_datetime_type(bus._pd_timestamp(3000000))
+
+def test_convert_datetime_type():
+    assert bus.convert_datetime_type(datetime.datetime(2016, 5, 11)) == 1462924800000.0
+    assert bus.convert_datetime_type(datetime.timedelta(3000)) == 259200000000.0
+    assert bus.convert_datetime_type(datetime.date(2016, 5, 11)) == 1462924800000.0
+    assert bus.convert_datetime_type(datetime.time(3, 54)) == 14040000.0
+    assert bus.convert_datetime_type(np.datetime64("2016-05-11")) == 1462924800000.0
+    assert bus.convert_datetime_type(np.timedelta64(3000, 'ms')) == 3000.0
+    assert bus.convert_datetime_type(pd.Timedelta("3000ms")) == 3000.0
+    assert bus.convert_datetime_type(bus._pd_timestamp(3000000)) == 3.0
+
+def test_convert_datetime_type_with_tz():
+    # This ensures datetimes are sent to BokehJS timezone-naive
+    # see https://github.com/bokeh/bokeh/issues/6480
+    for tz in pytz.all_timezones:
+        assert bus.convert_datetime_type(datetime.datetime(2016, 5, 11, tzinfo=datetime.tzinfo(tz))) == 1462924800000.0
 
 testing = [[float('nan'), 3], [float('-inf'), [float('inf')]]]
 expected = [['NaN', 3.0], ['-Infinity', ['Infinity']]]
@@ -87,6 +136,13 @@ def test_transform_array_to_list():
         a = np.empty(shape=10, dtype=dt)
         out = bus.transform_array_to_list(a)
         assert isinstance(out, list)
+
+@pytest.mark.parametrize('values', [(['cat', 'dog']), ([1.2, 'apple'])])
+def test_transform_array_with_nans_to_list(values):
+    s = pd.Series([np.nan, values[0], values[1]])
+    out = bus.transform_array_to_list(s)
+    assert isinstance(out, list)
+    assert out == ['NaN', values[0], values[1]]
 
 def test_array_encoding_disabled_by_dtype():
 

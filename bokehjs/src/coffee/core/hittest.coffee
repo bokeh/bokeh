@@ -1,3 +1,6 @@
+import {union, concat, sortBy} from "./util/array"
+import {merge} from "./util/object"
+
 export point_in_poly = (x, y, px, py) ->
   inside = false
 
@@ -38,6 +41,7 @@ export class HitTestResult
     @['2d'] = {
       # mapping of indices of the multiglyph to array of glyph indices that were hit
       # e.g. {3: [5, 6], 4, [5]}
+      indices: {}
     }
 
   Object.defineProperty(this.prototype, '_0d', { get: () -> @['0d'] })
@@ -45,9 +49,20 @@ export class HitTestResult
   Object.defineProperty(this.prototype, '_2d', { get: () -> @['2d'] })
 
   is_empty: () ->
-    @_0d.indices.length == 0 && @_1d.indices.length == 0
+    @_0d.indices.length == 0 && @_1d.indices.length == 0 && Object.keys(@_2d.indices).length == 0
+
+  update_through_union: (other) ->
+    @['0d'].indices = union(other['0d'].indices, @['0d'].indices)
+    @['0d'].glyph = other['0d'].glyph or @['0d'].glyph
+    @['1d'].indices = union(other['1d'].indices, @['1d'].indices)
+    @['2d'].indices = merge(other['2d'].indices, @['2d'].indices)
 
 export create_hit_test_result = () -> new HitTestResult()
+
+export create_1d_hit_test_result = (hits) ->
+  result = new HitTestResult()
+  result['1d'].indices = (i for [i, _dist] in sortBy(hits, ([_i, dist]) -> dist))
+  return result
 
 export validate_bbox_coords = ([x0, x1], [y0, y1]) ->
   # rbush expects x0, y0 to be min, x1, y1 max

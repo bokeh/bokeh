@@ -1,10 +1,10 @@
 import {ActionTool, ActionToolView} from "./action_tool"
 
-import * as p from "../../../core/properties"
+import * as p from "core/properties"
 
 export class ResetToolView extends ActionToolView
 
-  do: () ->
+  doit: () ->
     @plot_view.clear_state()
     @plot_view.reset_range()
     @plot_view.reset_selection()

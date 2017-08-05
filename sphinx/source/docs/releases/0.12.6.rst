@@ -1,0 +1,160 @@
+0.12.6 (Jun 2017)
+=================
+
+Bokeh Version ``0.12.6`` is an incremental update that adds a few important
+features and fixes several bugs. Some of the highlights include:
+
+* Headless, programmatic export of SVG and PNG images (:bokeh-issue:`538`)
+* New annotations ``Band`` and ``Whisker`` for displaying error estimates
+  (:bokeh-issue:`2352`)
+* Fine-grained sub-element patching for images and other "multi" glyphs
+  (:bokeh-issue:`6285`)
+* Hover hit-testing extended to segments and all markers (:bokeh-issue:`5907`,
+  :bokeh-issue:`5907`)
+* Fixes for sorting and selecting from DataTables (:bokeh-issue:`3564`,
+  :bokeh-issue:`6115`)
+* Large cleanup and refactor of the layout system (:bokeh-issue:`4764`,
+  :bokeh-issue:`4810`, :bokeh-issue:`5131`, :bokeh-issue:`5518`,
+  :bokeh-issue:`6213`, :bokeh-issue:`6287`)
+* Improved formatting options for hover tool fields and axis tick labels
+  (:bokeh-issue:`1239`, :bokeh-issue:`1671`, :bokeh-issue:`2595`,
+  :bokeh-issue:`6079`)
+
+Many other bugfixes and docs additions are also included. For full details
+see the :bokeh-tree:`CHANGELOG`.
+
+NOTE: the 0.12.x series is the last planned release series before a
+version 1.0 release. The focus of the 1.0 release will be implementing
+build automation to enforce API stability, and a very small number of
+high value features. For more information see the `project roadmap`_.
+
+Migration Guide
+---------------
+
+As the project approaches a 1.0 release, it is necessary to make some changes
+to bring interfaces and functionality up to a point that can be maintained
+long-term. We try to limit such changes as much as possible, and have a
+period of deprecation.
+
+New deprecations
+~~~~~~~~~~~~~~~~
+
+The ``Plot.webgl`` property has been deprecated in place of a new property
+``Plot.output_backend`` in order to avoid conflicts between WebGL and a new
+SVG backend. If you are using ``plot.webgl = True``, you should switch to
+setting ``plot.output_backend = "webgl"`` for the future.
+
+Old deprecations removed
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+All previous deprecations up to ``0.12.3`` have be removed. Below is the
+complete list of removals.
+
+* Deprecated ``Button.type`` property has been removed.
+* Deprecated ``Legend`` properties: ``legends``, ``legend_margin``,
+  ``legend_padding``, ``legend_spacing`` have been removed.
+* Deprecated ``DatetimeTickFormatter.formats`` property has been removed.
+* ``Tool`` dimensions may not only be specified with enum values.
+
+New models for Scales
+~~~~~~~~~~~~~~~~~~~~~
+
+The following BokehJS classes have been moved and renamed:
+
+============================== ==============================
+Old                            New
+============================== ==============================
+``mappers/LinearMapper``       ``scales/LinearScale``
+``mappers/LogMapper``          ``scales/LogScale``
+``mappers/CategoricalMapper``  ``scales/CategoricalScale``
+============================== ==============================
+
+Previously, these Mapper classes were internal implementation details.
+The new Scale classes are first-class Bokeh models and are accessible from
+Python. This was done to facilitate future work supporting custom,
+user-defined scales.
+
+There is a new Plot validation check to ensure that Scales and Ranges on a
+dimension are compatible. By default, ``Plot`` models are configured with
+``LinearScale`` models which (along with ``LogScale`` models) are compatible
+with ``Range1d`` and ``DataRange1d`` range models.
+
+One inevitable breaking change is that users employing a ``FactorRange`` in
+the ``bokeh.model`` API will have to specify a ``CategoricalScale`` on the same
+dimension. For example:
+
+.. code-block:: python
+
+    plot = Plot()
+    plot.x_range = DataRange1d()
+    plot.y_range = FactorRange(["Mon", "Tues", "Wed", "Thurs", "Fri"])
+    plot.y_scale = CategoricalScale()
+
+The ``bokeh.plotting.figure`` function should this range and scale
+compatibility handling automagically in most cases.
+
+As part of this work, some BokehJS attributes were renamed to be consistent
+with the new terminology:
+
+============================== ==============================
+Old                            New
+============================== ==============================
+``CartesianFrame.x_mappers``   ``CartesianFrame.xscales``
+``CartesianFrame.y_mappers``   ``CartesianFrame.yscales``
+``GlyphRenderer.xmapper``      ``GlyphRenderer.xscale``
+``GlyphRenderer.ymapper``      ``GlyphRenderer.yscale``
+============================== ==============================
+
+Since these attributes may be present in user code (e.g CustomJS callbacks
+or extensions), the old names will continue to work for some time, with a
+deprecation warning in the JS console.
+
+New signaling API
+~~~~~~~~~~~~~~~~~
+
+Previously BokehJS used Backbone events for communication between models.
+As part of an ongoing migration to TypeScript, the Backbone dependency was
+removed, and the relevant portion replaces with a minimal, type-safe API
+for signaling.
+
+This change primarily affects contributors working on BokehJS and writers of
+extensions.
+
+===================================== ==============================================
+Old                                   New
+===================================== ==============================================
+``@listenTo(obj, 'change', fn)``      ``@connect(obj.change, fn)``
+``@listenTo(obj, 'change:attr', fn)`` ``@connect(obj.properties.attr.change, fn)``
+``obj.trigger('change', arg)``        ``obj.change.emit(arg)``
+``obj.trigger('change:attr', arg)``   ``obj.properties.attr.change.emit(arg)``
+===================================== ==============================================
+
+Python Datetime handling
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Bokeh has not handled Python datetime values consistently with NumPy
+``datetime64``. Bokeh aims to treat all datetime values "as-is", but in some
+cases a local timezone conversion could affect Python datetime values. This
+has been corrected. In case there is code that depends on the erroneous
+behavior, please note that the new behavior is effective immediately and is
+now maintained under test to be consistent with NumPy values. See the issue
+:bokeh-issue:`5499` for more details.
+
+Layout API and behaviour changes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Layout was previously handled on document level and there was one solver per
+document. This was changed to one solver per root, so document isn't anymore
+responsible for any layout related stuff. All logic and APIs were moved to
+views, specifically to ``LayoutDOM``. For example, if your code relied on
+``document.resize(width, height)``, then you should use ``view.resize(width, height)``,
+where ``view`` is an associated view of any of ``document``'s root models.
+Views can be obtained through ``Bokeh.index``. To resize all roots use
+
+.. code-block:: javascript
+
+    for (var key in Bokeh.index) {
+        Bokeh.index[key].resize(width, height);
+    }
+
+.. _project roadmap: http://bokehplots.com/pages/roadmap.html

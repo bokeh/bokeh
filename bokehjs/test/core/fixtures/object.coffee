@@ -1,4 +1,3 @@
-_ = require "underscore"
 utils = require "../../utils"
 {HasProps} = utils.require "core/has_props"
 

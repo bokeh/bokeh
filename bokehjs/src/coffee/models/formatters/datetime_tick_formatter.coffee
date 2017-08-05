@@ -1,10 +1,11 @@
-import * as _ from "underscore"
-import * as SPrintf from "sprintf"
+import {sprintf} from "sprintf-js"
 import * as tz from "timezone"
 
 import {TickFormatter} from "./tick_formatter"
-import {logger} from "../../core/logging"
-import * as p from "../../core/properties"
+import {logger} from "core/logging"
+import * as p from "core/properties"
+import {zip, unzip, sortBy} from "core/util/array"
+import {isFunction} from "core/util/types"
 
 _us = (t) ->
   # From double-precision unix (millisecond) timestamp get
@@ -18,14 +19,14 @@ _array = (t) ->
   return tz(t, "%Y %m %d %H %M %S").split(/\s+/).map( (e) -> return parseInt(e, 10) );
 
 _strftime = (t, format) ->
-  if _.isFunction(format)
+  if isFunction(format)
     return format(t)
   else
     # Python's datetime library augments the microsecond directive %f, which is not
     # supported by the javascript library timezone: http://bigeasy.github.io/timezone/.
     # Use a regular expression to replace %f directive with microseconds.
     # TODO: what should we do for negative microsecond strings?
-    microsecond_replacement_string = SPrintf.sprintf("$1%06d", _us(t))
+    microsecond_replacement_string = sprintf("$1%06d", _us(t))
     format = format.replace(/((^|[^%])(%%)*)%f/, microsecond_replacement_string)
 
     if format.indexOf("%") == -1
@@ -70,8 +71,8 @@ export class DatetimeTickFormatter extends TickFormatter
 
     _widths = (fmt_strings) ->
       sizes = (_strftime(now, fmt_string).length for fmt_string in fmt_strings)
-      sorted = _.sortBy(_.zip(sizes, fmt_strings), ([size, fmt]) -> size)
-      return _.zip.apply(_, sorted)
+      sorted = sortBy(zip(sizes, fmt_strings), ([size, fmt]) -> size)
+      return unzip(sorted)
 
     @_width_formats = {
       microseconds: _widths(@microseconds)
@@ -107,7 +108,8 @@ export class DatetimeTickFormatter extends TickFormatter
       when adjusted_secs < 365*24*3600 then "months"
       else                                  "years"
 
-  doFormat: (ticks, num_labels=null, char_width=null, fill_ratio=0.3, ticker=null) ->
+  # TODO (bev) remove these unused "default" params and associated logic
+  doFormat: (ticks, axis, num_labels=null, char_width=null, fill_ratio=0.3, ticker=null) ->
 
     # In order to pick the right set of labels, we need to determine
     # the resolution of the ticks.  We can do this using a ticker if
@@ -135,7 +137,7 @@ export class DatetimeTickFormatter extends TickFormatter
         if widths[i] * ticks.length < fill_ratio * char_width
           good_formats.push(@_width_formats[i])
       if good_formats.length > 0
-        format = _.last(good_formats)
+        format = good_formats[good_formats.length-1]
 
     # Apply the format to the tick values
     labels = []

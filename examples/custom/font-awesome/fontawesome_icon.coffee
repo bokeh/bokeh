@@ -1,5 +1,3 @@
-import * as _ from "underscore"
-
 import * as p from "core/properties"
 
 import {AbstractIcon} from "models/widgets/abstract_icon"
@@ -8,26 +6,28 @@ import {WidgetView} from "models/widgets/widget"
 import "./fontawesome.less"
 
 export class FontAwesomeIconView extends WidgetView
-  tagName: "i"
+  tagName: "span"
 
   initialize: (options) ->
     super(options)
     @render()
-    @listenTo(@model, 'change', @render)
+    @connect(@model.change, @render)
 
   render: () ->
-    @$el.empty()
-    @$el.addClass("bk-u-fa")
-    @$el.addClass("bk-u-fa-" + @model.icon_name)
-    size = @model.size
-    if size? then @$el.css("font-size": size + "em")
-    flip = @model.flip
-    if flip? then @$el.addClass("bk-u-fa-flip-" + flip)
-    if @model.spin
-      @$el.addClass("bk-u-fa-spin")
-    return @
+    @el.className = "" # erase all CSS classes if re-rendering
 
-  update_constraints: () -> null
+    @el.classList.add("bk-u-fa")
+    @el.classList.add("bk-u-fa-#{@model.icon_name}")
+
+    @el.style.fontSize = "#{@model.size}em"
+
+    if @model.flip?
+      @el.classList.add("bk-u-fa-flip-#{@model.flip}")
+
+    if @model.spin
+      @el.classList.add("bk-u-fa-spin")
+
+    return @
 
 export class FontAwesomeIcon extends AbstractIcon
   type: "FontAwesomeIcon"
@@ -35,7 +35,7 @@ export class FontAwesomeIcon extends AbstractIcon
 
   @define {
     icon_name: [ p.String, "check" ] # TODO (bev) enum?
-    size:      [ p.Number          ]
+    size:      [ p.Number, 1       ]
     flip:      [ p.Any             ] # TODO (bev)
     spin:      [ p.Bool,   false   ]
   }

@@ -1,55 +1,68 @@
-''' Provides ``CallbackManager`` mixin class for adding an ``on_change``
-callback interface to classes.
-
+''' Provides ``PropertyCallbackManager`` and ``EventCallbackManager``
+mixin classes for adding ``on_change`` and ``on_event`` callback
+interfaces to classes.
 '''
 from __future__ import absolute_import
-from functools import partial
-from inspect import formatargspec, getargspec, isfunction, ismethod
-from types import FunctionType
 
-def _callback_argspec(callback):
-    '''Bokeh-internal function to get argspec for a callable'''
-    if not callable(callback):
-        raise ValueError("Callbacks must be callables")
-
-    if isfunction(callback) or ismethod(callback):
-        return getargspec(callback)
-    elif isinstance(callback, partial):
-        return getargspec(callback.func)
-    else:
-        return getargspec(callback.__call__)
+from ..events import Event
+from ..util.future import get_param_info, format_signature, signature
 
 def _check_callback(callback, fargs, what="Callback functions"):
     '''Bokeh-internal function to check callback signature'''
-    argspec = _callback_argspec(callback)
-    formatted_args = formatargspec(*argspec)
-    margs = ('self',) + fargs
+    sig = signature(callback)
+    formatted_args = format_signature(sig)
     error_msg = what + " must have signature func(%s), got func%s"
-    defaults_length = len(argspec.defaults) if argspec.defaults else 0
 
-    if isinstance(callback, FunctionType):
-        if len(argspec.args) - defaults_length != len(fargs):
-            raise ValueError(error_msg % (", ".join(fargs), formatted_args))
+    all_names, default_values = get_param_info(sig)
 
-    elif isinstance(callback, partial):
-        expected_args = margs if ismethod(callback.func) else fargs
-        keyword_length = len(callback.keywords.keys()) if callback.keywords else 0
-        args_length = len(callback.args) if callback.args else 0
-        if len(argspec.args) - args_length - keyword_length != len(expected_args):
-            raise ValueError(error_msg % (", ".join(expected_args), formatted_args))
-    # testing against MethodType misses callable objects, assume everything
-    # else is a normal method, or __call__ here
-    elif len(argspec.args) - defaults_length != len(margs):
-        raise ValueError(error_msg % (", ".join(margs), formatted_args))
+    if len(all_names) - len(default_values) != len(fargs):
+        raise ValueError(error_msg % (", ".join(fargs), formatted_args))
 
-class CallbackManager(object):
+class EventCallbackManager(object):
+    ''' A mixin class to provide an interface for registering and
+    triggering event callbacks on the Python side.
+
+    '''
+    def __init__(self, *args, **kw):
+        super(EventCallbackManager, self).__init__(*args, **kw)
+        self._event_callbacks = dict()
+
+    def on_event(self, event, *callbacks):
+        if not isinstance(event, str) and issubclass(event, Event):
+            event = event.event_name
+
+        for callback in callbacks:
+            _check_callback(callback, ('event',), what='Event callback')
+
+        if event not in self._event_callbacks:
+            self._event_callbacks[event] = [cb for cb in callbacks]
+        else:
+            self._event_callbacks[event].extend(callbacks)
+
+        if event not in self.subscribed_events:
+            self.subscribed_events.append(event)
+
+    def _trigger_event(self, event):
+        for callback in self._event_callbacks.get(event.event_name,[]):
+            if event._model_id is not None and self._id == event._model_id:
+                callback(event)
+
+    def _update_event_callbacks(self):
+        if self.document is None:
+            return
+
+        if self._event_callbacks.keys():
+            self.document.event_manager.subscribed_models.add(self)
+
+
+class PropertyCallbackManager(object):
     ''' A mixin class to provide an interface for registering and
     triggering callbacks.
 
     '''
 
     def __init__(self, *args, **kw):
-        super(CallbackManager, self).__init__(*args, **kw)
+        super(PropertyCallbackManager, self).__init__(*args, **kw)
         self._callbacks = dict()
 
     def on_change(self, attr, *callbacks):

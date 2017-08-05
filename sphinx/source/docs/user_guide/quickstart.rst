@@ -8,18 +8,16 @@ Introduction
 
 Bokeh is a Python interactive visualization library that targets modern web
 browsers for presentation. Bokeh provides elegant, concise construction of
-novel graphics with high-performance interactivity over very large or streaming
-datasets in a quick and easy way.
+novel graphics with high-performance interactivity over very large or
+streaming datasets in a quick and easy way.
 
 To offer both simplicity and the powerful and flexible features needed for
-advanced customizations, Bokeh exposes three interface levels to users:
+advanced customizations, Bokeh exposes two interface levels to users:
 
 * a *low-level* |bokeh.models| interface that provides the most flexibility to
   application developers.
-* an *intermediate-level* |bokeh.plotting| interface centered around composing
+* an *higher-level* |bokeh.plotting| interface centered around composing
   visual glyphs.
-* a *high-level* |bokeh.charts| interface to build complex statistical plots
-  quickly and simply.
 
 This Quickstart focuses on the |bokeh.plotting| interface.
 
@@ -59,7 +57,7 @@ detailed information please consult the full :ref:`userguide`.
 
 Let's begin with some examples.
 
-Plotting data in basic Python lists as a line chart including zoom,
+Plotting data in basic Python lists as a line plot including zoom,
 pan, resize, save, and other tools is simple and straightforward:
 
 .. bokeh-plot::
@@ -166,6 +164,21 @@ which show how Bokeh can be used together with Jupyter interactive widgets:
 :bokeh-tree:`examples/howto/notebook_comms/Jupyter Interactors.ipynb`
 
 :bokeh-tree:`examples/howto/notebook_comms/Numba Image Example.ipynb`
+
+Zeppelin Notebooks
+==================
+
+At this point we should mention `Apache Zeppelin`_ notebooks.
+
+`Apache Zeppelin`_ is a web-based notebook that enables interactive data analytics.
+You can make beautiful data-driven, interactive and collaborative documents with
+SQL, Scala and more. It is widely used across the Spark community. Bokeh integrates
+seamlessly with Zeppelin notebooks. To view the above examples in a notebook, you
+would only need change |output_file| to |output_notebook| (notebook_type='zeppelin')
+instead.
+
+The usage of bokeh in Zeppelin notebook is no difference from Jupyter except you
+need to specify notebook_type as zeppelin.
 
 .. _quickstart_other_languages:
 
@@ -543,8 +556,8 @@ Be sure to follow us on Twitter `@bokehplots <Twitter_>`_, as well as on
 .. _Twitter: http://twitter.com/BokehPlots
 .. _Vine: https://vine.co/bokehplots
 .. _YouTube: https://www.youtube.com/channel/UCK0rSk29mmg4UT4bIOvPYhw
+.. _Apache Zeppelin: http://zeppelin.apache.org
 
-.. |bokeh.charts|   replace:: :ref:`bokeh.charts <bokeh.charts>`
 .. |bokeh.models|   replace:: :ref:`bokeh.models <bokeh.models>`
 .. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`
 

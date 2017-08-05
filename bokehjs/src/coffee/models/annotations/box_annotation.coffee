@@ -1,41 +1,48 @@
-import * as _ from "underscore"
-
 import {Annotation, AnnotationView} from "./annotation"
-import * as p from "../../core/properties"
+import {Signal} from "core/signaling"
+import {show, hide} from "core/dom"
+import * as p from "core/properties"
+import {isString, isArray} from "core/util/types"
 
 export class BoxAnnotationView extends AnnotationView
   initialize: (options) ->
     super(options)
-    @$el.appendTo(@plot_view.$el.find('div.bk-canvas-overlays'))
-    @$el.addClass('bk-shading')
-    @$el.hide()
+    @plot_view.canvas_overlays.appendChild(@el)
+    @el.classList.add("bk-shading")
+    hide(@el)
 
-  bind_bokeh_events: () ->
+  connect_signals: () ->
+    super()
     # need to respond to either normal BB change events or silent
     # "data only updates" that tools might want to use
     if @model.render_mode == 'css'
       # dispatch CSS update immediately
-      @listenTo(@model, 'change', @render)
-      @listenTo(@model, 'data_update', @render)
+      @connect(@model.change, () -> @render())
+      @connect(@model.data_update, () -> @render())
     else
-      @listenTo(@model, 'change', @plot_view.request_render)
-      @listenTo(@model, 'data_update', @plot_view.request_render)
+      @connect(@model.change, () => @plot_view.request_render())
+      @connect(@model.data_update, () => @plot_view.request_render())
 
   render: () ->
+    if not @model.visible and @model.render_mode == 'css'
+      hide(@el)
+    if not @model.visible
+      return
+
     # don't render if *all* position are null
     if not @model.left? and not @model.right? and not @model.top? and not @model.bottom?
-      @$el.hide()
+      hide(@el)
       return null
 
-    @frame = @plot_model.frame
-    @canvas = @plot_model.canvas
-    @xmapper = @plot_view.frame.x_mappers[@model.x_range_name]
-    @ymapper = @plot_view.frame.y_mappers[@model.y_range_name]
+    frame = @plot_model.frame
+    canvas = @plot_model.canvas
+    xscale = @plot_view.frame.xscales[@model.x_range_name]
+    yscale = @plot_view.frame.yscales[@model.y_range_name]
 
-    sleft   = @canvas.vx_to_sx(@_calc_dim(@model.left,   @model.left_units,   @xmapper, @frame.h_range.start))
-    sright  = @canvas.vx_to_sx(@_calc_dim(@model.right,  @model.right_units,  @xmapper, @frame.h_range.end))
-    sbottom = @canvas.vy_to_sy(@_calc_dim(@model.bottom, @model.bottom_units, @ymapper, @frame.v_range.start))
-    stop    = @canvas.vy_to_sy(@_calc_dim(@model.top,    @model.top_units,    @ymapper, @frame.v_range.end))
+    sleft   = canvas.vx_to_sx(@_calc_dim(@model.left,   @model.left_units,   xscale, frame.h_range.start))
+    sright  = canvas.vx_to_sx(@_calc_dim(@model.right,  @model.right_units,  xscale, frame.h_range.end))
+    sbottom = canvas.vy_to_sy(@_calc_dim(@model.bottom, @model.bottom_units, yscale, frame.v_range.start))
+    stop    = canvas.vy_to_sy(@_calc_dim(@model.top,    @model.top_units,    yscale, frame.v_range.end))
 
     if @model.render_mode == 'css'
       @_css_box(sleft, sright, sbottom, stop)
@@ -46,22 +53,23 @@ export class BoxAnnotationView extends AnnotationView
     sw = Math.abs(sright-sleft)
     sh = Math.abs(sbottom-stop)
 
-    lw = @model.line_width.value
-    lc = @model.line_color.value
-    bc = @model.fill_color.value
-    ba = @model.fill_alpha.value
-    style = "left:#{sleft}px; width:#{sw}px; top:#{stop}px; height:#{sh}px; border-width:#{lw}px; border-color:#{lc}; background-color:#{bc}; opacity:#{ba};"
+    @el.style.left = "#{sleft}px"
+    @el.style.width = "#{sw}px"
+    @el.style.top = "#{stop}px"
+    @el.style.height = "#{sh}px"
+    @el.style.borderWidth = "#{@model.line_width.value}px"
+    @el.style.borderColor = @model.line_color.value
+    @el.style.backgroundColor = @model.fill_color.value
+    @el.style.opacity = @model.fill_alpha.value
+
     # try our best to honor line dashing in some way, if we can
     ld = @model.line_dash
-    if _.isArray(ld)
-      if ld.length < 2
-        ld = "solid"
-      else
-        ld = "dashed"
-    if _.isString(ld)
-      style += " border-style:#{ld};"
-    @$el.attr('style', style)
-    @$el.show()
+    if isArray(ld)
+      ld = if ld.length < 2 then "solid" else "dashed"
+    if isString(ld)
+      @el.style.borderStyle = ld
+
+    show(@el)
 
   _canvas_box: (sleft, sright, sbottom, stop) ->
     ctx = @plot_view.canvas_view.ctx
@@ -78,10 +86,10 @@ export class BoxAnnotationView extends AnnotationView
 
     ctx.restore()
 
-  _calc_dim: (dim, dim_units, mapper, frame_extrema) ->
+  _calc_dim: (dim, dim_units, scale, frame_extrema) ->
     if dim?
       if dim_units == 'data'
-        vdim = mapper.map_to_target(dim)
+        vdim = scale.compute(dim)
       else
         vdim = dim
     else
@@ -116,6 +124,10 @@ export class BoxAnnotation extends Annotation
     line_alpha: 0.3
   }
 
+  initialize: (attrs, options) ->
+    super(attrs, options)
+    @data_update = new Signal(this, "data_update")
+
   update:({left, right, top, bottom}) ->
     @setv({left: left, right: right, top: top, bottom: bottom}, {silent: true})
-    @trigger('data_update')
+    @data_update.emit()

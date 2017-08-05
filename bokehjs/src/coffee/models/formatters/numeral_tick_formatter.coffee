@@ -1,20 +1,19 @@
-import * as _ from "underscore"
 import * as Numbro from "numbro"
 
 import {TickFormatter} from "./tick_formatter"
-import * as p from "../../core/properties"
+import * as p from "core/properties"
 
 export class NumeralTickFormatter extends TickFormatter
   type: 'NumeralTickFormatter'
 
   @define {
-      # TODO (bev) all of these could be tightened up
-      format:   [ p.String, '0,0'   ]
-      language: [ p.String, 'en'    ]
-      rounding: [ p.String, 'round' ]
-    }
+    # TODO (bev) all of these could be tightened up
+    format:   [ p.String, '0,0'   ]
+    language: [ p.String, 'en'    ]
+    rounding: [ p.String, 'round' ]
+  }
 
-  doFormat: (ticks) ->
+  doFormat: (ticks, axis) ->
     format = @format
     language = @language
     rounding = switch @rounding

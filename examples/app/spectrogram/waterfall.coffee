@@ -23,11 +23,11 @@ export class WaterfallRendererView extends RendererView
 
     [@col, @tile] = [0, 0]
     @cmap = new LinearColorMapper({'palette': @model.palette, low: 0, high: 5})
-    @xmapper = @plot_view.frame.x_mappers['default']
-    @ymapper = @plot_view.frame.y_mappers['default']
-    @max_freq = @plot_view.y_range.end
+    @xscale = @plot_view.frame.xscales['default']
+    @yscale = @plot_view.frame.yscales['default']
+    @max_freq = @plot_view.frame.y_range.end
 
-    @listenTo(@model, 'change', @request_render)
+    @connect(@model.change, @request_render)
 
   render: () ->
     ctx = @plot_view.canvas_view.ctx
@@ -47,10 +47,10 @@ export class WaterfallRendererView extends RendererView
     for i in [0...@model.gram_length]
       @image[@tile][i*@model.tile_width+@col] = buf32[i]
 
-    sx = @plot_view.canvas.v_vx_to_sx(@xmapper.v_map_to_target(@x))
-    sy = @plot_view.canvas.vy_to_sy(@ymapper.map_to_target(0))
-    sw = Math.ceil(@xmapper.map_to_target(@model.tile_width) - @xmapper.map_to_target(0))
-    sh = Math.ceil(@ymapper.map_to_target(@max_freq))
+    sx = @plot_view.canvas.v_vx_to_sx(@xscale.v_map_to_target(@x))
+    sy = @plot_view.canvas.vy_to_sy(@yscale.map_to_target(0))
+    sw = Math.ceil(@xscale.map_to_target(@model.tile_width) - @xscale.map_to_target(0))
+    sh = Math.ceil(@yscale.map_to_target(@max_freq))
 
     ctx.save()
 

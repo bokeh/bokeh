@@ -1,15 +1,19 @@
-""" Bokeh can present many kinds of UI widgets alongside plots.
-When used in conjunction with the Bokeh server, it is possible to
-trigger events, updates, etc. based on a user's interaction with
-these widgets.
+''' Provide a base class for all Bokeh widget models.
 
-"""
+In addition to different kinds of plots, various kinds of UI controls (e.g.
+sliders, buttons, inputs, etc.) can be included in Bokeh documents. These
+widgets can be used in conjunction with ``CustomJS`` callbacks that execute
+in the browser,  or with python callbacks that execute on a Bokeh server.
+
+'''
 from __future__ import absolute_import
 
-from ...core.properties import abstract
-from ..layouts import LayoutDOM
+from ...core.has_props import abstract
 
+from ..layouts import LayoutDOM
 
 @abstract
 class Widget(LayoutDOM):
-    """ A base class for all interactive widget types. """
+    ''' A base class for all interactive widget types.
+
+    '''

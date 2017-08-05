@@ -6,16 +6,18 @@ import numpy as np
 import pandas as pd
 from copy import copy
 
+import pytest
+
 from bokeh.core.properties import (field, value,
     NumberSpec, ColorSpec, Bool, Int, Float, Complex, String,
-    Regex, Seq, List, Dict, Tuple, Array, Instance, Any, Interval, Either,
-    Enum, Color, DashPattern, Size, Percent, Angle, AngleSpec,
-    DistanceSpec, FontSizeSpec, Override, Include, MinMaxBounds, TitleProp)
+    Regex, Seq, List, Dict, Tuple, Instance, Any, Interval, Either,
+    Enum, Color, DashPattern, Size, Percent, Angle, AngleSpec, StringSpec,
+    DistanceSpec, FontSizeSpec, Override, Include, MinMaxBounds,
+    DataDistanceSpec, ScreenDistanceSpec)
 
 from bokeh.core.has_props import HasProps
 
 from bokeh.models import Plot
-from bokeh.models.annotations import Title
 
 class Basictest(unittest.TestCase):
 
@@ -23,7 +25,8 @@ class Basictest(unittest.TestCase):
         class Foo(HasProps):
             x = Int(12)
             y = String("hello")
-            z = Array(Int, np.array([1, 2, 3]))
+            z = List(Int, [1, 2, 3])
+            zz = Dict(String, Int)
             s = String(None)
 
         f = Foo()
@@ -33,14 +36,10 @@ class Basictest(unittest.TestCase):
         self.assertEqual(f.s, None)
 
 
-        self.assertEqual(set(["x", "y", "z", "s"]), f.properties())
+        self.assertEqual(set(["x", "y", "z", "zz", "s"]), f.properties())
         with_defaults = f.properties_with_values(include_defaults=True)
-        del with_defaults['z'] # can't compare equality on the np array
-        self.assertDictEqual(dict(x=12, y="hello", s=None), with_defaults)
+        self.assertDictEqual(dict(x=12, y="hello", z=[1,2,3], zz={}, s=None), with_defaults)
         without_defaults = f.properties_with_values(include_defaults=False)
-        # the Array is in here because it's mutable
-        self.assertTrue('z' in without_defaults)
-        del without_defaults['z']
         self.assertDictEqual(dict(), without_defaults)
 
         f.x = 18
@@ -50,8 +49,17 @@ class Basictest(unittest.TestCase):
         self.assertEqual(f.y, "bar")
 
         without_defaults = f.properties_with_values(include_defaults=False)
-        del without_defaults['z']
         self.assertDictEqual(dict(x=18, y="bar"), without_defaults)
+
+        f.z[0] = 100
+
+        without_defaults = f.properties_with_values(include_defaults=False)
+        self.assertDictEqual(dict(x=18, y="bar", z=[100,2,3]), without_defaults)
+
+        f.zz = {'a': 10}
+
+        without_defaults = f.properties_with_values(include_defaults=False)
+        self.assertDictEqual(dict(x=18, y="bar", z=[100,2,3], zz={'a': 10}), without_defaults)
 
     def test_enum(self):
         class Foo(HasProps):
@@ -445,6 +453,61 @@ class TestNumberSpec(unittest.TestCase):
         f.x = None
         self.assertIs(Foo.__dict__["x"].serializable_value(f), None)
 
+    def tests_accepts_timedelta(self):
+        class Foo(HasProps):
+            dt = NumberSpec("dt", accept_datetime=True)
+            ndt = NumberSpec("ndt", accept_datetime=False)
+
+        f = Foo()
+
+        f.dt = datetime.timedelta(3, 54)
+        self.assertEqual(f.dt, 259254000.0)
+
+        # counts as number.Real out of the box
+        f.dt = np.timedelta64(3000, "ms")
+        self.assertEqual(f.dt, np.timedelta64(3000, "ms"))
+
+        # counts as number.Real out of the box
+        f.dt = pd.Timedelta("3000ms")
+        self.assertEqual(f.dt, 3000.0)
+
+
+        f.ndt = datetime.timedelta(3, 54)
+        self.assertEqual(f.ndt, 259254000.0)
+
+        # counts as number.Real out of the box
+        f.ndt = np.timedelta64(3000, "ms")
+        self.assertEqual(f.ndt, np.timedelta64(3000, "ms"))
+
+        f.ndt = pd.Timedelta("3000ms")
+        self.assertEqual(f.ndt, 3000.0)
+
+    def test_accepts_datetime(self):
+        class Foo(HasProps):
+            dt = NumberSpec("dt", accept_datetime=True)
+            ndt = NumberSpec("ndt", accept_datetime=False)
+
+        f = Foo()
+
+        f.dt = datetime.datetime(2016, 5, 11)
+        self.assertEqual(f.dt, 1462924800000.0)
+
+        f.dt = datetime.date(2016, 5, 11)
+        self.assertEqual(f.dt, 1462924800000.0)
+
+        f.dt = np.datetime64("2016-05-11")
+        self.assertEqual(f.dt, 1462924800000.0)
+
+
+        with self.assertRaises(ValueError):
+            f.ndt = datetime.datetime(2016, 5, 11)
+
+        with self.assertRaises(ValueError):
+            f.ndt = datetime.date(2016, 5, 11)
+
+        with self.assertRaises(ValueError):
+            f.ndt = np.datetime64("2016-05-11")
+
     def test_default(self):
         class Foo(HasProps):
             y = NumberSpec(default=12)
@@ -564,6 +627,39 @@ class TestFontSizeSpec(unittest.TestCase):
             a.x = f
             self.assertEqual(a.x, f)
             self.assertEqual(a.lookup('x').serializable_value(a), dict(field=f))
+
+    def test_bad_font_size_values(self):
+        class Foo(HasProps):
+            x = FontSizeSpec(default=None)
+
+        a = Foo()
+
+        with self.assertRaises(ValueError):
+            a.x = "6"
+
+        with self.assertRaises(ValueError):
+            a.x = 6
+
+        with self.assertRaises(ValueError):
+            a.x = ""
+
+    def test_fields(self):
+        class Foo(HasProps):
+            x = FontSizeSpec(default=None)
+
+        a = Foo()
+
+        a.x = "_120"
+        self.assertEqual(a.x, "_120")
+
+        a.x = dict(field="_120")
+        self.assertEqual(a.x, dict(field="_120"))
+
+        a.x = "foo"
+        self.assertEqual(a.x, "foo")
+
+        a.x = dict(field="foo")
+        self.assertEqual(a.x, dict(field="foo"))
 
 class TestAngleSpec(unittest.TestCase):
     def test_default_none(self):
@@ -1652,13 +1748,6 @@ bokeh.core.tests.test_properties.Foo5(
     foo6=bokeh.core.tests.test_properties.Foo6(
         foo5=bokeh.core.tests.test_properties.Foo5(...)))"""
 
-def test_titleprop_transforms_string_into_title_object():
-    class Foo(HasProps):
-        title = TitleProp
-    f = Foo(title="hello")
-    assert isinstance(f.title, Title)
-    assert f.title.text == "hello"
-
 def test_field_function():
     assert field("foo") == dict(field="foo")
     # TODO (bev) would like this to work I think
@@ -1668,3 +1757,38 @@ def test_value_function():
     assert value("foo") == dict(value="foo")
     # TODO (bev) would like this to work I think
     #assert value("foo", transform="junk") == dict(value="foo", transform="junk")
+
+def test_strict_dataspec_key_values():
+    for typ in (NumberSpec, StringSpec, FontSizeSpec, ColorSpec, DataDistanceSpec, ScreenDistanceSpec):
+        class Foo(HasProps):
+            x = typ("x")
+        f = Foo()
+        with pytest.raises(ValueError):
+            f.x = dict(field="foo", units="junk")
+
+def test_dataspec_dict_to_serializable():
+    for typ in (NumberSpec, StringSpec, FontSizeSpec, ColorSpec, DataDistanceSpec, ScreenDistanceSpec):
+        class Foo(HasProps):
+            x = typ("x")
+        foo = Foo(x=dict(field='foo'))
+        props = foo.properties_with_values(include_defaults=False)
+        if typ is DataDistanceSpec:
+            assert props['x']['units'] == 'data'
+        elif typ is ScreenDistanceSpec:
+            assert props['x']['units'] == 'screen'
+        assert props['x']['field'] == 'foo'
+        assert props['x'] is not foo.x
+
+def test_strict_unitspec_key_values():
+    class FooUnits(HasProps):
+        x = DistanceSpec("x")
+    f = FooUnits()
+    f.x = dict(field="foo", units="screen")
+    with pytest.raises(ValueError):
+        f.x = dict(field="foo", units="junk", foo="crap")
+    class FooUnits(HasProps):
+        x = AngleSpec("x")
+    f = FooUnits()
+    f.x = dict(field="foo", units="deg")
+    with pytest.raises(ValueError):
+        f.x = dict(field="foo", units="junk", foo="crap")

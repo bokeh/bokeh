@@ -1,20 +1,20 @@
-""" Various kinds of input widgets and form controls.
+''' Various kinds of input widgets and form controls.
 
-"""
+'''
 from __future__ import absolute_import
 
-from ...core.properties import abstract
-from ...core.properties import Bool, Int, Float, String, Date, RelativeDelta, Enum, List, Tuple, Either, Instance
+from ...core.has_props import abstract
+from ...core.properties import Date, Either, Float, Instance, Int, List, String, Tuple
+
 from ..callbacks import Callback
+
 from .widget import Widget
-from ...core.enums import SliderCallbackPolicy
 
 @abstract
 class InputWidget(Widget):
-    """ Abstract base class for input widgets. `InputWidget`` is not
-    generally useful to instantiate on its own.
+    ''' Abstract base class for input widgets.
 
-    """
+    '''
 
     title = String(default="", help="""
     Widget's label.
@@ -33,7 +33,9 @@ class InputWidget(Widget):
             return val
 
 class TextInput(InputWidget):
-    """ Single-line input widget. """
+    ''' Single-line input widget.
+
+    '''
 
     value = String(default="", help="""
     Initial or entered text value.
@@ -49,8 +51,21 @@ class TextInput(InputWidget):
     """)
 
 
+class PasswordInput(TextInput):
+    ''' Single-line password input widget.
+        Note: Despite PasswordInput inheriting from TextInput the password
+        cannot be inspected on the field ``value``. Also, note that this field
+        functionally just hides the input on the browser, transmiting safely a
+        password as a callback, e.g., to the a bokeh server would require
+        some secure connection.
+
+    '''
+
+
 class AutocompleteInput(TextInput):
-    """ Single-line input widget with auto-completion. """
+    ''' Single-line input widget with auto-completion.
+
+    '''
 
     completions = List(String, help="""
     A list of completion strings. This will be used to guide the
@@ -59,9 +74,9 @@ class AutocompleteInput(TextInput):
 
 
 class Select(InputWidget):
-    """ Single-select widget.
+    ''' Single-select widget.
 
-    """
+    '''
 
     options = List(Either(String, Tuple(String, String)), help="""
     Available selection options. Options may be provided either as a list of
@@ -80,9 +95,9 @@ class Select(InputWidget):
     """)
 
 class MultiSelect(InputWidget):
-    """ Multi-select widget.
+    ''' Multi-select widget.
 
-    """
+    '''
 
     options = List(Either(String, Tuple(String, String)), help="""
     Available selection options. Options may be provided either as a list of
@@ -106,142 +121,10 @@ class MultiSelect(InputWidget):
     show less than 3 options.)
     """)
 
-class Slider(InputWidget):
-    """ Slider-based number selection widget.
-
-    """
-
-    value = Float(default=0.5, help="""
-    Initial or selected value.
-    """)
-
-    start = Float(default=0, help="""
-    The minimum allowable value.
-    """)
-
-    end = Float(default=1, help="""
-    The maximum allowable value.
-    """)
-
-    step = Float(default=0.1, help="""
-    The step between consecutive values.
-    """)
-
-    orientation = Enum("horizontal", "vertical", help="""
-    Orient the slider either horizontally (default) or vertically.
-    """)
-
-    callback = Instance(Callback, help="""
-    A callback to run in the browser whenever the current Slider value changes.
-    """)
-
-    callback_throttle = Float(default=200, help="""
-    Number of microseconds to pause between callback calls as the slider is moved.
-    """)
-
-    callback_policy = Enum(SliderCallbackPolicy, default="throttle", help="""
-    When the callback is initiated. This parameter can take on only one of three options:
-
-    * "continuous": the callback will be executed immediately for each movement of the slider
-    * "throttle": the callback will be executed at most every ``callback_throttle`` milliseconds.
-    * "mouseup": the callback will be executed only once when the slider is released.
-
-    The "mouseup" policy is intended for scenarios in which the callback is expensive in time.
-    """)
-
-class RangeSlider(InputWidget):
-    """ Range-slider based range selection widget
-
-    """
-
-    range = Tuple(Float, Float, default=(0.1, 0.9), help="""
-    Initial or selected range.
-    """)
-
-    start = Float(default=0, help="""
-    The minimum allowable value.
-    """)
-
-    end = Float(default=1, help="""
-    The maximum allowable value.
-    """)
-
-    step = Float(default=0.1, help="""
-    The step between consecutive values.
-    """)
-
-    orientation = Enum("horizontal", "vertical", help="""
-    Orient the slider either horizontally (default) or vertically.
-    """)
-
-    callback = Instance(Callback, help="""
-    A callback to run in the browser whenever the current Slider value changes.
-    """)
-
-    callback_throttle = Float(default=200, help="""
-    Number of microseconds to pause between callback calls as the slider is moved.
-    """)
-
-    callback_policy = Enum(SliderCallbackPolicy, default="throttle", help="""
-    When the callback is initiated. This parameter can take on only one of three options:
-
-    * "continuous": the callback will be executed immediately for each movement of the slider
-    * "throttle": the callback will be executed at most every ``callback_throttle`` milliseconds.
-    * "mouseup": the callback will be executed only once when the slider is released.
-
-    The "mouseup" policy is intended for scenarios in which the callback is expensive in time.
-    """)
-
-
-class DateRangeSlider(InputWidget):
-    """ Slider-based date range selection widget.
-
-    """
-
-    value = Tuple(Date, Date, help="""
-    The initial or selected date range.
-    """)
-
-    bounds = Tuple(Date, Date, help="""
-    The earliest and latest allowable dates.
-    """)
-
-    range = Tuple(RelativeDelta, RelativeDelta, help="""
-    [TDB]
-    """)
-
-    step = RelativeDelta(help="""
-    The step between consecutive dates.
-    """)
-
-    # formatter = Either(String, Function(Date))
-    # scales = DateRangeSliderScales ... # first, next, stop, label, format
-
-    enabled = Bool(True, help="""
-    Enable or disable this widget.
-    """)
-
-    arrows = Bool(True, help="""
-    Whether to show clickable arrows on both ends of the slider.
-    """)
-
-    value_labels = Enum("show", "hide", "change", help="""
-    Show or hide value labels on both sides of the slider.
-    """)
-
-    wheel_mode = Enum("scroll", "zoom", default=None, help="""
-    Whether mouse zoom should scroll or zoom selected range (or
-    do nothing).
-    """)
-
-    callback = Instance(Callback, help="""
-    A callback to run in the browser whenever either slider's value changes.
-    """)
-
 class DatePicker(InputWidget):
-    """ Calendar-based date picker widget.
+    ''' Calendar-based date picker widget.
 
-    """
+    '''
 
     value = Date(help="""
     The initial or picked date.

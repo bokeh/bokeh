@@ -29,11 +29,11 @@ from numpy import pi
 
 from bokeh.client import push_session
 from bokeh.document import Document
-from bokeh.embed import autoload_server
+from bokeh.embed import server_session
 from bokeh.layouts import row, column
 from bokeh.models import (Plot, DataRange1d, LinearAxis, CategoricalAxis,
                           Legend, ColumnDataSource, Grid, Line,
-                          HBar, Select, FactorRange)
+                          HBar, Select, FactorRange, CategoricalScale)
 from bokeh.sampledata.population import load_population
 
 document = Document()
@@ -56,8 +56,9 @@ source_pyramid_f = ColumnDataSource(data=dict(value=[], group=[]))
 def pyramid():
     xdr = DataRange1d()
     ydr = FactorRange(factors=groups)
+    y_scale = CategoricalScale()
 
-    plot = Plot(x_range=xdr, y_range=ydr, plot_width=600, plot_height=500, toolbar_location=None)
+    plot = Plot(x_range=xdr, y_range=ydr, y_scale=y_scale, plot_width=600, plot_height=500, toolbar_location=None)
 
     xaxis = LinearAxis()
     plot.add_layout(xaxis, 'below')
@@ -81,8 +82,9 @@ source_predicted = ColumnDataSource(data=dict(x=[], y=[]))
 def population():
     xdr = FactorRange(factors=years)
     ydr = DataRange1d()
+    x_scale = CategoricalScale()
 
-    plot = Plot(x_range=xdr, y_range=ydr, plot_width=600, plot_height=150, toolbar_location=None)
+    plot = Plot(x_range=xdr, y_range=ydr, x_scale=x_scale, plot_width=600, plot_height=150, toolbar_location=None)
 
     plot.add_layout(CategoricalAxis(major_label_orientation=pi / 4), 'below')
 
@@ -164,7 +166,7 @@ html = """
         %s
     </body>
 </html>
-""" % autoload_server(layout, session_id=session.id)
+""" % server_session(layout, session_id=session.id, relative_urls=False)
 
 with io.open("widget.html", mode='w+', encoding='utf-8') as f:
     f.write(html)

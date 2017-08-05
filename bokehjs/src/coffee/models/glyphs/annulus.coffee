@@ -1,21 +1,16 @@
-import * as _ from "underscore"
+import {XYGlyph, XYGlyphView} from "./xy_glyph"
+import * as hittest from "core/hittest"
+import * as p from "core/properties"
 
-import {Glyph, GlyphView} from "./glyph"
-import * as hittest from "../../core/hittest"
-import * as p from "../../core/properties"
-
-export class AnnulusView extends GlyphView
-
-  _index_data: () ->
-    @_xy_index()
+export class AnnulusView extends XYGlyphView
 
   _map_data: () ->
     if @model.properties.inner_radius.units == "data"
-      @sinner_radius = @sdist(@renderer.xmapper, @_x, @_inner_radius)
+      @sinner_radius = @sdist(@renderer.xscale, @_x, @_inner_radius)
     else
       @sinner_radius = @_inner_radius
     if @model.properties.outer_radius.units == "data"
-      @souter_radius = @sdist(@renderer.xmapper, @_x, @_outer_radius)
+      @souter_radius = @sdist(@renderer.xscale, @_x, @_outer_radius)
     else
       @souter_radius = @_outer_radius
 
@@ -60,34 +55,29 @@ export class AnnulusView extends GlyphView
 
   _hit_point: (geometry) ->
     [vx, vy] = [geometry.vx, geometry.vy]
-    x = @renderer.xmapper.map_from_target(vx, true)
+    x = @renderer.xscale.invert(vx, true)
     x0 = x - @max_radius
     x1 = x + @max_radius
 
-    y = @renderer.ymapper.map_from_target(vy, true)
+    y = @renderer.yscale.invert(vy, true)
     y0 = y - @max_radius
     y1 = y + @max_radius
 
     hits = []
 
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
-    for i in (pt.i for pt in @index.search(bbox))
+    for i in @index.indices(bbox)
       or2 = Math.pow(@souter_radius[i], 2)
       ir2 = Math.pow(@sinner_radius[i], 2)
-      sx0 = @renderer.xmapper.map_to_target(x)
-      sx1 = @renderer.xmapper.map_to_target(@_x[i])
-      sy0 = @renderer.ymapper.map_to_target(y)
-      sy1 = @renderer.ymapper.map_to_target(@_y[i])
+      sx0 = @renderer.xscale.compute(x)
+      sx1 = @renderer.xscale.compute(@_x[i])
+      sy0 = @renderer.yscale.compute(y)
+      sy1 = @renderer.yscale.compute(@_y[i])
       dist = Math.pow(sx0-sx1, 2) + Math.pow(sy0-sy1, 2)
       if dist <= or2 and dist >= ir2
         hits.push([i, dist])
 
-    result = hittest.create_hit_test_result()
-    result['1d'].indices = _.chain(hits)
-      .sortBy((elt) -> return elt[1])
-      .map((elt) -> return elt[0])
-      .value()
-    return result
+    return hittest.create_1d_hit_test_result(hits)
 
   draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
     indices = [index]
@@ -106,12 +96,11 @@ export class AnnulusView extends GlyphView
 
     @_render(ctx, indices, data)
 
-export class Annulus extends Glyph
+export class Annulus extends XYGlyph
   default_view: AnnulusView
 
   type: 'Annulus'
 
-  @coords [['x', 'y']]
   @mixins ['line', 'fill']
   @define {
       inner_radius: [ p.DistanceSpec ]

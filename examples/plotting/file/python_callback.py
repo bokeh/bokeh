@@ -21,14 +21,14 @@ plot = figure(y_range=(-10, 10), plot_width=400, plot_height=400)
 
 plot.line('x', 'y', source=source, line_width=3, line_alpha=0.6)
 
-def callback(source=source, window=None):
+def callback(source=source, window=None, amp=None, freq=None, phase=None, offset=None):
     data = source.data
     A, B = amp.value, offset.value
     k, phi = freq.value, phase.value
     x, y = data['x'], data['y']
     for i in range(len(x)):
         y[i] = B + A * window.Math.sin(k * x[i] + phi)
-    source.trigger('change')
+    source.change.emit()
 
 # turn our function into a CustomJS object.
 # print(callback.code) to see the generated JavaScript code

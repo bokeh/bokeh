@@ -1,11 +1,6 @@
-import * as _ from "underscore"
+import {XYGlyph, XYGlyphView} from "./xy_glyph"
 
-import {Glyph, GlyphView} from "./glyph"
-
-export class PatchView extends GlyphView
-
-  _index_data: () ->
-    @_xy_index()
+export class PatchView extends XYGlyphView
 
   _render: (ctx, indices, {sx, sy}) ->
     if @visuals.fill.doit
@@ -49,10 +44,9 @@ export class PatchView extends GlyphView
   draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
     @_generic_area_legend(ctx, x0, x1, y0, y1, index)
 
-export class Patch extends Glyph
+export class Patch extends XYGlyph
   default_view: PatchView
 
   type: 'Patch'
 
-  @coords [['x', 'y']]
   @mixins ['line', 'fill']

@@ -1,8 +1,8 @@
-import * as _ from "underscore"
 import {Promise} from "es6-promise"
 
-import {HasProps} from "./core/has_props"
 import {logger} from "./core/logging"
+import {uniqueId} from "./core/util/string"
+import {extend} from "./core/util/object"
 import {Document, ModelChangedEvent} from "./document"
 
 export DEFAULT_SERVER_WEBSOCKET_URL = "ws://localhost:5006/ws"
@@ -13,21 +13,17 @@ class Message
     @buffers = []
 
   @assemble : (header_json, metadata_json, content_json) ->
-    try
-      header = JSON.parse(header_json)
-      metadata = JSON.parse(metadata_json)
-      content = JSON.parse(content_json)
-      new Message(header, metadata, content)
-    catch e
-      logger.error("Failure parsing json #{e} #{header_json} #{metadata_json} #{content_json}", e)
-      throw e
+    header = JSON.parse(header_json)
+    metadata = JSON.parse(metadata_json)
+    content = JSON.parse(content_json)
+    new Message(header, metadata, content)
 
   @create_header : (msgtype, options) ->
     header = {
-      'msgid'   : _.uniqueId()
+      'msgid'   : uniqueId()
       'msgtype' : msgtype
     }
-    _.extend(header, options)
+    extend(header, options)
 
   @create : (msgtype, header_options, content) ->
     if not content?
@@ -36,16 +32,12 @@ class Message
     new Message(header, {}, content)
 
   send : (socket) ->
-    try
-      header_json = JSON.stringify(@header)
-      metadata_json = JSON.stringify(@metadata)
-      content_json = JSON.stringify(@content)
-      socket.send(header_json)
-      socket.send(metadata_json)
-      socket.send(content_json)
-    catch e
-      logger.error("Error sending ", @, e)
-      throw e
+    header_json = JSON.stringify(@header)
+    metadata_json = JSON.stringify(@metadata)
+    content_json = JSON.stringify(@content)
+    socket.send(header_json)
+    socket.send(metadata_json)
+    socket.send(content_json)
 
   complete : ->
     if @header? and @metadata? and @content?
@@ -88,7 +80,7 @@ message_handlers = {
       session._handle_patch(message)
 
   'OK' : (connection, message) ->
-    logger.debug("Unhandled OK reply to #{message.reqid()}")
+    logger.trace("Unhandled OK reply to #{message.reqid()}")
 
   'ERROR' : (connection, message) ->
     logger.error("Unhandled ERROR reply to #{message.reqid()}: #{message.content['text']}")
@@ -98,7 +90,7 @@ class ClientConnection
 
   @_connection_count : 0
 
-  constructor : (@url, @id, @_on_have_session_hook, @_on_closed_permanently_hook) ->
+  constructor : (@url, @id, @args_string, @_on_have_session_hook, @_on_closed_permanently_hook) ->
     @_number = ClientConnection._connection_count
     ClientConnection._connection_count = @_number + 1
     if not @url?
@@ -133,6 +125,8 @@ class ClientConnection
 
     try
       versioned_url = "#{@url}?bokeh-protocol-version=1.0&bokeh-session-id=#{@id}"
+      if @args_string?.length > 0
+        versioned_url += "&#{@args_string}"
       if window.MozWebSocket?
         @socket = new MozWebSocket(versioned_url)
       else
@@ -141,7 +135,7 @@ class ClientConnection
       new Promise (resolve, reject) =>
         # "arraybuffer" gives us binary data we can look at;
         # if we just needed an opaque blob we could use "blob"
-        @socket.binarytype = "arraybuffer"
+        @socket.binaryType = "arraybuffer"
         @socket.onopen = () => @_on_open(resolve, reject)
         @socket.onmessage = (event) => @_on_message(event)
         @socket.onclose = (event) => @_on_close(event)
@@ -178,12 +172,13 @@ class ClientConnection
     setTimeout retry, milliseconds
 
   send : (message) ->
-    try
-      if @socket == null
-        throw new Error("not connected so cannot send #{message}")
-      message.send(@socket)
-    catch e
-      logger.error("Error sending message ", e, message)
+    if @socket == null
+      throw new Error("not connected so cannot send #{message}")
+    message.send(@socket)
+
+  send_event : (event) ->
+    message = Message.create('EVENT', {}, JSON.stringify(event))
+    @send(message)
 
   send_with_reply : (message) ->
     promise = new Promise (resolve, reject) =>
@@ -260,10 +255,7 @@ class ClientConnection
       @_awaiting_ack_handler(message)
 
   _on_message : (event) ->
-    try
-      @_on_message_unchecked(event)
-    catch e
-      logger.error("Error handling message: #{e}, #{event}")
+    @_on_message_unchecked(event)
 
   _on_message_unchecked : (event) ->
     if not @_current_handler?
@@ -353,8 +345,14 @@ class ClientSession
     @document_listener = (event) => @_document_changed(event)
     @document.on_change(@document_listener)
 
+    @event_manager = @document.event_manager
+    @event_manager.session = @
+
   close : () ->
     @_connection.close()
+
+  send_event : (type) ->
+    @_connection.send_event(type)
 
   _connection_closed : () ->
     @document.remove_on_change(@document_listener)
@@ -403,11 +401,11 @@ class ClientSession
 # The returned promise has a close() method
 # in case you want to close before getting a session;
 # session.close() works too once you have a session.
-export pull_session = (url, session_id) ->
+export pull_session = (url, session_id, args_string) ->
   rejecter = null
   connection = null
   promise = new Promise (resolve, reject) ->
-    connection = new ClientConnection(url, session_id,
+    connection = new ClientConnection(url, session_id, args_string,
       (session) ->
         try
           resolve(session)

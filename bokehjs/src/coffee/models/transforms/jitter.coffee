@@ -1,7 +1,6 @@
-import * as _ from "underscore"
 import {Transform} from "./transform"
-import * as p from "../../core/properties"
-import * as bokeh_math from "../../core/util/math"
+import * as p from "core/properties"
+import * as bokeh_math from "core/util/math"
 
 export class Jitter extends Transform
   @define {

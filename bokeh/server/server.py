@@ -8,6 +8,7 @@ import logging
 log = logging.getLogger(__name__)
 import signal
 
+import tornado
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
 from tornado import netutil
@@ -27,9 +28,10 @@ def _create_hosts_whitelist(host_list, port):
     hosts = []
     for host in host_list:
         if '*' in host:
-            log.warning('Host wildcard %r can expose the application to HTTP '
-                        'host header attacks. Host wildcard should only be '
-                        'used for testing purpose.', host)
+            log.warning(
+                "Host wildcard %r will allow websocket connections originating "
+                "from multiple (or possibly all) hostnames or IPs. Use non-wildcard "
+                "values to restrict access explicitly", host)
         if host == '*':
             # do not append the :80 port suffix in that case: any port is
             # accepted
@@ -78,10 +80,15 @@ class Server(object):
     Kwargs:
         num_procs (str):
             Number of worker processes for an app. Default to one. Using 0 will autodetect number of cores
+        tornado_server_kwargs (dict):
+            Additional arguments passed to tornado.httpserver.HTTPServer. E.g. max_buffer_size to
+            specify the maximum upload size. More details can be found at:
+
+            http://www.tornadoweb.org/en/stable/httpserver.html#http-server
     '''
 
-    def __init__(self, applications, io_loop=None, **kwargs):
-        log.info("Starting Bokeh server version %s" % __version__)
+    def __init__(self, applications, io_loop=None, tornado_server_kwargs=None, **kwargs):
+        log.info("Starting Bokeh server version %s (running on Tornado %s)" % (__version__, tornado.version))
 
         if isinstance(applications, Application):
             self._applications = { '/' : applications }
@@ -95,7 +102,8 @@ class Server(object):
                                                         'keep_alive_milliseconds',
                                                         'check_unused_sessions_milliseconds',
                                                         'unused_session_lifetime_milliseconds',
-                                                        'stats_log_frequency_milliseconds']
+                                                        'stats_log_frequency_milliseconds',
+                                                        ]
                            if key in kwargs }
 
         prefix = kwargs.get('prefix')
@@ -112,6 +120,10 @@ class Server(object):
         port = kwargs.get('port', DEFAULT_SERVER_PORT)
         self._address = kwargs.get('address') or None
 
+        if tornado_server_kwargs is None:
+            tornado_server_kwargs = {}
+        tornado_server_kwargs.setdefault('xheaders', kwargs.get('use_xheaders', False))
+
         self._num_procs = kwargs.get('num_procs', 1)
         if self._num_procs != 1:
             assert all(app.safe_to_fork for app in self._applications.values()), (
@@ -120,13 +132,12 @@ class Server(object):
 
         sockets, self._port = _bind_sockets(self._address, port)
         try:
-            tornado_kwargs['hosts'] = _create_hosts_whitelist(kwargs.get('host'), self._port)
             tornado_kwargs['extra_websocket_origins'] = _create_hosts_whitelist(kwargs.get('allow_websocket_origin'), self._port)
             tornado_kwargs['use_index'] = kwargs.get('use_index', True)
             tornado_kwargs['redirect_root'] = kwargs.get('redirect_root', True)
 
             self._tornado = BokehTornado(self._applications, self.prefix, **tornado_kwargs)
-            self._http = HTTPServer(self._tornado, xheaders=kwargs.get('use_xheaders', False))
+            self._http = HTTPServer(self._tornado, **tornado_server_kwargs)
             self._http.start(self._num_procs)
             self._http.add_sockets(sockets)
 
@@ -187,6 +198,7 @@ class Server(object):
         assert not self._stopped, "Already stopped"
         self._stopped = True
         self._tornado.stop(wait)
+        self._http.stop()
 
     def run_until_shutdown(self):
         ''' Run the Bokeh Server until shutdown is requested by the user,
@@ -232,10 +244,14 @@ class Server(object):
 
         return self._tornado.get_session(app_path, session_id)
 
-    def get_sessions(self, app_path):
+    def get_sessions(self, app_path=None):
         '''Gets all live sessions for an application.'''
-
-        return self._tornado.get_sessions(app_path)
+        if app_path is not None:
+            return self._tornado.get_sessions(app_path)
+        all_sessions = []
+        for path in self._tornado.app_paths:
+            all_sessions += self._tornado.get_sessions(path)
+        return all_sessions
 
     def show(self, app_path, browser=None, new='tab'):
         ''' Opens an app in a browser window or tab.
@@ -262,6 +278,12 @@ class Server(object):
         '''
         if not app_path.startswith("/"):
             raise ValueError("app_path must start with a /")
+
+
+        address_string = 'localhost'
+        if self.address is not None and self.address != '':
+            address_string = self.address
+        url = "http://%s:%d%s%s" % (address_string, self.port, self.prefix, app_path)
+
         from bokeh.util.browser import view
-        url = "http://localhost:%d%s%s" % (self.port, self.prefix, app_path)
         view(url, browser=browser, new=new)

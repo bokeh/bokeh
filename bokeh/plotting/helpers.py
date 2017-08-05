@@ -4,6 +4,7 @@ from collections import Iterable, OrderedDict, Sequence
 import difflib
 import itertools
 import re
+import textwrap
 import warnings
 
 import numpy as np
@@ -16,7 +17,8 @@ from ..models import (
     FactorRange, Grid, HelpTool, HoverTool, LassoSelectTool, Legend, LegendItem, LinearAxis,
     LogAxis, PanTool, ZoomInTool, ZoomOutTool, PolySelectTool, ContinuousTicker,
     SaveTool, Range, Range1d, UndoTool, RedoTool, ResetTool, ResizeTool, Tool,
-    WheelPanTool, WheelZoomTool, ColumnarDataSource, ColumnDataSource, GlyphRenderer)
+    WheelPanTool, WheelZoomTool, ColumnarDataSource, ColumnDataSource, GlyphRenderer,
+    LogScale, LinearScale, CategoricalScale)
 
 from ..core.properties import ColorSpec, Datetime, value, field
 from ..util.deprecation import deprecated
@@ -53,7 +55,7 @@ def get_default_alpha(plot=None):
 
 def _pop_renderer_args(kwargs):
     result = dict(data_source=kwargs.pop('source', ColumnDataSource()))
-    for attr in ['name', 'x_range_name', 'y_range_name', 'level']:
+    for attr in ['name', 'x_range_name', 'y_range_name', 'level', 'view', 'visible', 'muted']:
         val = kwargs.pop(attr, None)
         if val:
             result[attr] = val
@@ -200,6 +202,17 @@ def _get_range(range_input):
     raise ValueError("Unrecognized range input: '%s'" % str(range_input))
 
 
+def _get_scale(range_input, axis_type):
+    if isinstance(range_input, (DataRange1d, Range1d)) and axis_type in ["linear", "datetime", "auto", None]:
+        return LinearScale()
+    elif isinstance(range_input, (DataRange1d, Range1d)) and axis_type == "log":
+        return LogScale()
+    elif isinstance(range_input, FactorRange):
+        return CategoricalScale()
+    else:
+        raise ValueError("Unable to determine proper scale for: '%s'" % str(range_input))
+
+
 def _get_axis_class(axis_type, range_input):
     if axis_type is None:
         return None
@@ -302,11 +315,10 @@ def _process_axis_and_grid(plot, axis_type, axis_location, minor_ticks, axis_lab
     if axiscls:
 
         if axiscls is LogAxis:
-            # TODO (bev) this mapper type hinting is ugly
             if dim == 0:
-                plot.x_mapper_type = 'log'
+                plot.x_scale = LogScale()
             elif dim == 1:
-                plot.y_mapper_type = 'log'
+                plot.y_scale = LogScale()
             else:
                 raise ValueError("received invalid dimension value: %r" % dim)
 
@@ -373,13 +385,14 @@ def _process_tools_arg(plot, tools):
     return tool_objs, tool_map
 
 
-def _process_active_tools(toolbar, tool_map, active_drag, active_scroll, active_tap):
+def _process_active_tools(toolbar, tool_map, active_drag, active_inspect, active_scroll, active_tap):
     """ Adds tools to the plot object
 
     Args:
         toolbar (Toolbar): instance of a Toolbar object
         tools_map (dict[str]|Tool): tool_map from _process_tools_arg
         active_drag (str or Tool): the tool to set active for drag
+        active_inspect (str or Tool): the tool to set active for inspect
         active_scroll (str or Tool): the tool to set active for scroll
         active_tap (str or Tool): the tool to set active for tap
 
@@ -395,6 +408,13 @@ def _process_active_tools(toolbar, tool_map, active_drag, active_scroll, active_
         toolbar.active_drag = tool_map[active_drag]
     else:
         raise ValueError("Got unknown %r for 'active_drag', which was not a string supplied in 'tools' argument" % active_drag)
+
+    if active_inspect in ['auto', None] or isinstance(active_inspect, Tool) or all([isinstance(t, Tool) for t in active_inspect]):
+        toolbar.active_inspect = active_inspect
+    elif active_inspect in tool_map:
+        toolbar.active_inspect = tool_map[active_inspect]
+    else:
+        raise ValueError("Got unknown %r for 'active_inspect', which was not a string supplied in 'tools' argument" % active_scroll)
 
     if active_scroll in ['auto', None] or isinstance(active_scroll, Tool):
         toolbar.active_scroll = active_scroll
@@ -414,10 +434,15 @@ def _get_argspecs(glyphclass):
     argspecs = OrderedDict()
     for arg in glyphclass._args:
         spec = {}
-        prop = getattr(glyphclass, arg)
-        spec['desc'] = " ".join(x.strip() for x in prop.__doc__.strip().split("\n\n")[0].split('\n'))
-        spec['default'] = prop.class_default(glyphclass)
-        spec['type'] = prop.__class__.__name__
+        descriptor = getattr(glyphclass, arg)
+
+        # running python with -OO will discard docstrings -> __doc__ is None
+        if descriptor.__doc__:
+            spec['desc'] = "\n        ".join(textwrap.dedent(descriptor.__doc__).split("\n"))
+        else:
+            spec['desc'] = ""
+        spec['default'] = descriptor.class_default(glyphclass)
+        spec['type'] = descriptor.property._sphinx_type()
         argspecs[arg] = spec
     return argspecs
 
@@ -454,7 +479,9 @@ def _get_sigfunc(func_name, func, argspecs):
     eval(func_code, {"func": func}, func_globals)
     return func_globals[func_name]
 
-_arg_template = "    %s (%s) : %s (default %r)"
+_arg_template = """    %s (%s) : %s
+        (default: %r)
+"""
 _doc_template = """ Configure and add %s glyphs to this Figure.
 
 Args:
@@ -483,17 +510,21 @@ Returns:
 def _add_sigfunc_info(func, argspecs, glyphclass, extra_docs):
     func.__name__ = glyphclass.__name__.lower()
 
+    omissions = {'js_event_callbacks', 'js_property_callbacks', 'subscribed_events'}
+
     kwlines = []
     kws = glyphclass.properties() - set(argspecs)
     for kw in kws:
-        prop = getattr(glyphclass, kw)
-        if prop.__doc__:
-            typ = prop.__class__.__name__
-            desc = " ".join(x.strip() for x in prop.__doc__.strip().split("\n\n")[0].split('\n'))
+        # these are not really useful, and should also really be private, just skip them
+        if kw in omissions: continue
+
+        descriptor = getattr(glyphclass, kw)
+        typ = descriptor.property._sphinx_type()
+        if descriptor.__doc__:
+            desc = "\n        ".join(textwrap.dedent(descriptor.__doc__).split("\n"))
         else:
-            typ = str(prop)
             desc = ""
-        kwlines.append(_arg_template % (kw, typ, desc, prop.class_default(glyphclass)))
+        kwlines.append(_arg_template % (kw, typ, desc, descriptor.class_default(glyphclass)))
     extra_kws = getattr(glyphclass, '_extra_kws', {})
     for kw, (typ, desc) in extra_kws.items():
         kwlines.append("    %s (%s) : %s" % (kw, typ, desc))
@@ -552,15 +583,23 @@ def _glyph_function(glyphclass, extra_docs=None):
         else:
             hglyph_ca = None
 
+        # handle the mute glyph, if any properties were given
+        if any(x.startswith('muted_') for x in kwargs):
+            mglyph_ca = _pop_colors_and_alpha(glyphclass, kwargs, prefix='muted_')
+        else:
+            mglyph_ca = None
+
         glyph = _make_glyph(glyphclass, kwargs, glyph_ca)
         nsglyph = _make_glyph(glyphclass, kwargs, nsglyph_ca)
-        hglyph = _make_glyph(glyphclass, kwargs, hglyph_ca)
         sglyph = _make_glyph(glyphclass, kwargs, sglyph_ca)
+        hglyph = _make_glyph(glyphclass, kwargs, hglyph_ca)
+        mglyph = _make_glyph(glyphclass, kwargs, mglyph_ca)
 
         glyph_renderer = GlyphRenderer(glyph=glyph,
                                        nonselection_glyph=nsglyph,
                                        selection_glyph=sglyph,
                                        hover_glyph=hglyph,
+                                       muted_glyph=mglyph,
                                        **renderer_kws)
 
         if legend_item_label:
@@ -576,6 +615,8 @@ def _glyph_function(glyphclass, extra_docs=None):
     argspecs = _get_argspecs(glyphclass)
 
     sigfunc = _get_sigfunc(glyphclass.__name__.lower(), func, argspecs)
+
+    sigfunc.glyph_method = True
 
     _add_sigfunc_info(sigfunc, argspecs, glyphclass, extra_docs)
 

@@ -1,10 +1,4 @@
 declare namespace Bokeh {
-  export var ToolEvents: { new(attributes?: IToolEvents, options?: ModelOpts): ToolEvents };
-  export interface ToolEvents extends Model, IToolEvents {}
-  export interface IToolEvents extends IModel {
-    geometries?: Array<any>;
-  }
-
   export interface Tool extends Model, ITool {}
   export interface ITool extends IModel, IBackRef {}
 

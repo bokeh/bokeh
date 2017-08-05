@@ -1,11 +1,8 @@
-import * as $ from "jquery"
-import * as _ from "underscore"
-import {Promise} from "es6-promise"
-
 import * as base from "./base"
 import {pull_session} from "./client"
 import {logger, set_log_level} from "./core/logging"
 import {Document, RootAddedEvent, RootRemovedEvent, TitleChangedEvent} from "./document"
+import {div, link, style, replaceWith} from "./core/dom"
 
 # Matches Bokeh CSS class selector. Setting all Bokeh parent element class names
 # with this var prevents user configurations where css styling is unset.
@@ -30,7 +27,7 @@ _init_comms = (target, doc) ->
   if Jupyter? and Jupyter.notebook.kernel?
     logger.info("Registering Jupyter comms for target #{target}")
     comm_manager = Jupyter.notebook.kernel.comm_manager
-    update_comms = _.partial(_update_comms_callback, target, doc)
+    update_comms = (comm) -> _update_comms_callback(target, doc, comm)
     for id, promise of comm_manager.comms
       promise.then(update_comms)
     try
@@ -44,7 +41,7 @@ _init_comms = (target, doc) ->
     console.warn('Jupyter notebooks comms not available. push_notebook() will not function');
 
 _create_view = (model) ->
-  view = new model.default_view({model : model})
+  view = new model.default_view({model: model, parent: null})
   base.index[model.id] = view
   view
 
@@ -55,12 +52,12 @@ _render_document_to_element = (element, document, use_for_title) ->
   views = {}
   render_model = (model) ->
     view = _create_view(model)
+    view.renderTo(element)
     views[model.id] = view
-    $(element).append(view.$el)
   unrender_model = (model) ->
     if model.id of views
       view = views[model.id]
-      $(element).remove(view.$el)
+      element.removeChild(view.el)
       delete views[model.id]
       delete base.index[model.id]
 
@@ -86,31 +83,32 @@ add_model_static = (element, model_id, doc) ->
   if not model?
     throw new Error("Model #{model_id} was not in document #{doc}")
   view = _create_view(model)
-  _.delay(-> $(element).replaceWith(view.$el))
+  view.renderTo(element, true)
 
 # Fill element with the roots from doc
 export add_document_static = (element, doc, use_for_title) ->
-  _.delay(-> _render_document_to_element($(element), doc, use_for_title))
+  _render_document_to_element(element, doc, use_for_title)
 
 export add_document_standalone = (document, element, use_for_title=false) ->
-  return _render_document_to_element($(element), document, use_for_title)
+  return _render_document_to_element(element, document, use_for_title)
 
 # map { websocket url to map { session id to promise of ClientSession } }
 _sessions = {}
-_get_session = (websocket_url, session_id) ->
-  if not websocket_url? or websocket_url == null
+_get_session = (websocket_url, session_id, args_string) ->
+  if not websocket_url?
     throw new Error("Missing websocket_url")
   if websocket_url not of _sessions
     _sessions[websocket_url] = {}
   subsessions = _sessions[websocket_url]
   if session_id not of subsessions
-    subsessions[session_id] = pull_session(websocket_url, session_id)
+    subsessions[session_id] = pull_session(websocket_url, session_id, args_string)
 
   subsessions[session_id]
 
 # Fill element with the roots from session_id
 add_document_from_session = (element, websocket_url, session_id, use_for_title) ->
-  promise = _get_session(websocket_url, session_id)
+  args_string = window.location.search.substr(1)
+  promise = _get_session(websocket_url, session_id, args_string)
   promise.then(
     (session) ->
       _render_document_to_element(element, session.document, use_for_title)
@@ -121,30 +119,31 @@ add_document_from_session = (element, websocket_url, session_id, use_for_title) 
 
 # Replace element with a view of model_id from the given session
 add_model_from_session = (element, websocket_url, model_id, session_id) ->
-  promise = _get_session(websocket_url, session_id)
+  args_string = window.location.search.substr(1)
+  promise = _get_session(websocket_url, session_id, args_string)
   promise.then(
     (session) ->
       model = session.document.get_model_by_id(model_id)
       if not model?
         throw new Error("Did not find model #{model_id} in session")
       view = _create_view(model)
-      $(element).replaceWith(view.$el)
+      view.renderTo(element, true)
     (error) ->
       logger.error("Failed to load Bokeh session " + session_id + ": " + error)
       throw error
   )
 
 export inject_css = (url) ->
-  link = $("<link href='#{url}' rel='stylesheet' type='text/css'>")
-  $('body').append(link)
+  element = link({href: url, rel: "stylesheet", type: "text/css"})
+  document.body.appendChild(element)
 
 export inject_raw_css = (css) ->
-  style = $("<style>").html(css)
-  $('body').append(style)
+  element = style({}, css)
+  document.body.appendChild(element)
 
 # pull missing render item fields from data- attributes
 fill_render_item_from_script_tag = (script, item) ->
-  info = script.data()
+  info = script.dataset
   # length checks are because we put all the attributes on the tag
   # but sometimes set them to empty string
   if info.bokehLogLevel? and info.bokehLogLevel.length > 0
@@ -158,7 +157,29 @@ fill_render_item_from_script_tag = (script, item) ->
 
   logger.info("Will inject Bokeh script tag with params #{JSON.stringify(item)}")
 
-export embed_items = (docs_json, render_items, websocket_url=null) ->
+# TODO (bev) this is currently clunky. Standalone embeds (e.g. notebook) only provide
+# the first two args, whereas server provide the app_app, and *may* prove and
+# absolute_url as well if non-relative links are needed for resources. This function
+# should probably be split in to two pieces to reflect the different usage patterns
+export embed_items = (docs_json, render_items, app_path, absolute_url) ->
+  protocol = 'ws:'
+  if (window.location.protocol == 'https:')
+    protocol = 'wss:'
+
+  if absolute_url?
+    loc = new URL(absolute_url)
+  else
+    loc = window.location
+
+  if app_path?
+    if app_path == "/"
+      app_path = ""
+  else
+    app_path = loc.pathname.replace(/\/+$/, '')
+
+  websocket_url = protocol + '//' + loc.host + app_path + '/ws'
+  logger.debug("embed: computed ws url: #{websocket_url}")
+
   docs = {}
   for docid of docs_json
     docs[docid] = Document.from_json(docs_json[docid])
@@ -169,25 +190,23 @@ export embed_items = (docs_json, render_items, websocket_url=null) ->
       _init_comms(item.notebook_comms_target, docs[docid])
 
     element_id = item['elementid']
-    elem = $('#' + element_id);
-    if elem.length == 0
+    elem = document.getElementById(element_id)
+    if not elem?
       throw new Error("Error rendering Bokeh model: could not find tag with id: #{element_id}")
-    if elem.length > 1
-      throw new Error("Error rendering Bokeh model: found too many tags with id: #{element_id}")
-    if not document.body.contains(elem[0])
+    if not document.body.contains(elem)
       throw new Error("Error rendering Bokeh model: element with id '#{element_id}' must be under <body>")
 
-    if elem.prop("tagName") == "SCRIPT"
+    if elem.tagName == "SCRIPT"
       fill_render_item_from_script_tag(elem, item)
-      container = $('<div>', {class: BOKEH_ROOT})
-      elem.replaceWith(container)
-      child = $('<div>')
-      container.append(child)
+      container = div({class: BOKEH_ROOT})
+      replaceWith(elem, container)
+      child = div()
+      container.appendChild(child)
       elem = child
 
     use_for_title = item.use_for_title? and item.use_for_title
 
-    promise = null;
+    promise = null
     if item.modelid?
       if item.docid?
         add_model_static(elem, item.modelid, docs[item.docid])

@@ -56,6 +56,12 @@ The demos container here are:
     <td>A simulated streaming <a href=https://en.wikipedia.org/wiki/Open-high-low-close_chart>OHLC chart</a> with <a href=https://en.wikipedia.org/wiki/MACD>MACD indicator</a> and selectable moving averages using periodic callbacks nad the efficient streaming API</td>
   </tr>
 
+  <tr><td colspan="2">pivot</td></tr>
+  <tr>
+    <td><img src="http://bokeh.pydata.org/static/pivot.png" width=400></img></td>
+    <td>A tool for creating pivot charts from CSVs.</td>
+  </tr>
+
   <tr><td colspan="2">selection_histogram</td></tr>
   <tr>
     <td><img src="http://bokeh.pydata.org/static/selection_histogram_t.png" width=400></img></td>

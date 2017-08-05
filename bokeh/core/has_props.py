@@ -1,4 +1,5 @@
-'''
+''' Provide a base class for objects that can have declarative, typed,
+serializable properties.
 
 .. note::
     These classes form part of the very low-level machinery that implements
@@ -35,7 +36,14 @@ if IPython:
     class _BokehPrettyPrinter(RepresentationPrinter):
         def __init__(self, output, verbose=False, max_width=79, newline='\n'):
             super(_BokehPrettyPrinter, self).__init__(output, verbose, max_width, newline)
-            self.type_pprinters[HasProps] = lambda obj, p, cycle: obj._bokeh_repr_pretty_(p, cycle)
+            self.type_pprinters[HasProps] = lambda obj, p, cycle: obj._repr_pretty(p, cycle)
+
+_ABSTRACT_ADMONITION = '''
+    .. note::
+        This is an abstract base class used to help organize the hierarchy of Bokeh
+        model types. **It is not useful to instantiate on its own.**
+
+'''
 
 _EXAMPLE_TEMPLATE = '''
 
@@ -43,11 +51,22 @@ _EXAMPLE_TEMPLATE = '''
     -------
 
     .. bokeh-plot:: ../%(path)s
-        :source-position: none
-
-    *source:* :bokeh-tree:`%(path)s`
+        :source-position: below
 
 '''
+
+def abstract(cls):
+    ''' A decorator to mark abstract base classes derived from |HasProps|.
+
+    '''
+    if not issubclass(cls, HasProps):
+        raise TypeError("%s is not a subclass of HasProps" % cls.__name__)
+
+    # running python with -OO will discard docstrings -> __doc__ is None
+    if cls.__doc__ is not None:
+        cls.__doc__ += _ABSTRACT_ADMONITION
+
+    return cls
 
 class MetaHasProps(type):
     ''' Specialize the construction of |HasProps| classes.
@@ -124,7 +143,10 @@ class MetaHasProps(type):
 
         if "__example__" in class_dict:
             path = class_dict["__example__"]
-            class_dict["__doc__"] += _EXAMPLE_TEMPLATE % dict(path=path)
+
+            # running python with -OO will discard docstrings -> __doc__ is None
+            if "__doc__" in class_dict and class_dict["__doc__"] is not None:
+                class_dict["__doc__"] += _EXAMPLE_TEMPLATE % dict(path=path)
 
         return super(MetaHasProps, meta_cls).__new__(meta_cls, class_name, bases, class_dict)
 
@@ -217,6 +239,8 @@ class HasProps(with_metaclass(MetaHasProps, object)):
         '''
         super(HasProps, self).__init__()
         self._property_values = dict()
+        self._unstable_default_values = dict()
+        self._unstable_themed_values = dict()
 
         for name, value in properties.items():
             setattr(self, name, value)
@@ -272,6 +296,7 @@ class HasProps(with_metaclass(MetaHasProps, object)):
             True, if properties are structurally equal, otherwise False
 
         '''
+
         # NOTE: don't try to use this to implement __eq__. Because then
         # you will be tempted to implement __hash__, which would interfere
         # with mutability of models. However, not implementing __hash__
@@ -312,8 +337,8 @@ class HasProps(with_metaclass(MetaHasProps, object)):
         '''
         if name in self.properties():
             #logger.debug("Patching attribute %s of %r", attr, patched_obj)
-            prop = self.lookup(name)
-            prop.set_from_json(self, json, models, setter)
+            descriptor = self.lookup(name)
+            descriptor.set_from_json(self, json, models, setter)
         else:
             logger.warn("JSON had attr %r on obj %r, which is a client-only or invalid attribute that shouldn't have been sent", name, self)
 
@@ -511,28 +536,33 @@ class HasProps(with_metaclass(MetaHasProps, object)):
             dict : mapping of property names and values for matching properties
 
         '''
+        themed_keys = set()
         result = dict()
         if include_defaults:
             keys = self.properties()
         else:
-            keys = set(self._property_values.keys())
+            # TODO (bev) For now, include unstable default values. Things rely on Instances
+            # always getting serialized, even defaults, and adding unstable defaults here
+            # accomplishes that. Unmodified defaults for property value containers will be
+            # weeded out below.
+            keys = set(self._property_values.keys()) | set(self._unstable_default_values.keys())
             if self.themed_values():
-                keys |= set(self.themed_values().keys())
+                themed_keys = set(self.themed_values().keys())
+                keys |= themed_keys
 
         for key in keys:
-            prop = self.lookup(key)
-            if not query(prop):
+            descriptor = self.lookup(key)
+            if not query(descriptor):
                 continue
 
-            value = prop.serializable_value(self)
-            if not include_defaults:
-                if isinstance(value, PropertyValueContainer) and value._unmodified_default_value:
+            value = descriptor.serializable_value(self)
+            if not include_defaults and key not in themed_keys:
+                if isinstance(value, PropertyValueContainer) and key in self._unstable_default_values:
                     continue
             result[key] = value
 
         return result
 
-    # TODO (bev) could this return an empty dict instead of None?
     def themed_values(self):
         ''' Get any theme-provided overrides.
 
@@ -543,10 +573,7 @@ class HasProps(with_metaclass(MetaHasProps, object)):
             dict or None
 
         '''
-        if hasattr(self, '__themed_values__'):
-            return getattr(self, '__themed_values__')
-        else:
-            return None
+        return getattr(self, '__themed_values__', None)
 
     def apply_theme(self, property_values):
         ''' Apply a set of theme values which will be used rather than
@@ -563,12 +590,9 @@ class HasProps(with_metaclass(MetaHasProps, object)):
             None
 
         '''
-        old_dict = None
-        if hasattr(self, '__themed_values__'):
-            old_dict = getattr(self, '__themed_values__')
+        old_dict = self.themed_values()
 
-        # if the same theme is set again, it should reuse the
-        # same dict
+        # if the same theme is set again, it should reuse the same dict
         if old_dict is property_values:
             return
 
@@ -587,10 +611,16 @@ class HasProps(with_metaclass(MetaHasProps, object)):
         elif hasattr(self, '__themed_values__'):
             delattr(self, '__themed_values__')
 
+        # Property container values might be cached even if unmodified. Invalidate
+        # any cached values that are not modified at this point.
+        for k, v in old_values.items():
+            if k in self._unstable_themed_values:
+                del self._unstable_themed_values[k]
+
         # Emit any change notifications that result
         for k, v in old_values.items():
-            prop = self.lookup(k)
-            prop.trigger_if_changed(self, v)
+            descriptor = self.lookup(k)
+            descriptor.trigger_if_changed(self, v)
 
     def unapply_theme(self):
         ''' Remove any themed values and restore defaults.
@@ -674,7 +704,7 @@ class HasProps(with_metaclass(MetaHasProps, object)):
                     bounds=None,
                     callback=None,
                     end=20,
-                    js_callbacks={},
+                    js_property_callbacks={},
                     max_interval=None,
                     min_interval=None,
                     name=None,
@@ -694,7 +724,7 @@ class HasProps(with_metaclass(MetaHasProps, object)):
         '''
         return self.__class__(**self._property_values)
 
-    def _bokeh_repr_pretty_(self, p, cycle):
+    def _repr_pretty(self, p, cycle):
         '''
 
         '''

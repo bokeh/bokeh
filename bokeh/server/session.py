@@ -6,10 +6,13 @@ from __future__ import absolute_import
 import logging
 log = logging.getLogger(__name__)
 
-from tornado import gen, locks
-from bokeh.util.tornado import _DocumentCallbackGroup, yield_for_all_futures
-
 import time
+
+from tornado import gen, locks
+
+from ..util.tornado import yield_for_all_futures
+
+from .callbacks import _DocumentCallbackGroup
 
 def current_time():
     '''Return the time in milliseconds since the epoch as a floating
@@ -109,6 +112,7 @@ class ServerSession(object):
 
     def destroy(self):
         self._destroyed = True
+        self._document.delete_modules()
         self._document.remove_on_change(self)
         self._callbacks.remove_all_callbacks()
 
@@ -216,6 +220,16 @@ class ServerSession(object):
             self._current_patch_connection = None
 
         return connection.ok(message)
+
+    @_needs_document_lock
+    def _handle_event(self, message, connection):
+        message.notify_event(self.document)
+        return connection.ok(message)
+
+    @classmethod
+    def event(cls, message, connection):
+        return connection.session._handle_event(message, connection)
+
 
     @classmethod
     def patch(cls, message, connection):

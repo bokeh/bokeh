@@ -23,6 +23,7 @@ class ServerHandler(object):
         self._handlers['PUSH-DOC'] = ServerSession.push
         self._handlers['PATCH-DOC'] = ServerSession.patch
         self._handlers['SERVER-INFO-REQ'] = self._server_info_req
+        self._handlers['EVENT'] = ServerSession.event
 
     @gen.coroutine
     def handle(self, message, connection):

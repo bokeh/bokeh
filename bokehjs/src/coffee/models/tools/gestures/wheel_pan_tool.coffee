@@ -1,23 +1,10 @@
-import * as _ from "underscore"
-
 import {GestureTool, GestureToolView} from "./gesture_tool"
-import * as p from "../../../core/properties"
+import * as p from "core/properties"
 
 export class WheelPanToolView extends GestureToolView
 
   _scroll: (e) ->
-    # we need a browser-specific multiplier to have similar experiences
-    if navigator.userAgent.toLowerCase().indexOf("firefox") > -1
-      multiplier = 20
-    else
-      multiplier = 1
-
-    if e.originalEvent?.deltaY?
-      delta = -e.originalEvent.deltaY * multiplier
-    else
-      delta = e.bokeh.delta
-
-    factor  = @model.speed * delta
+    factor = @model.speed * e.bokeh.delta
 
     # clamp the magnitude of factor, if it is > 1 bad things happen
     if factor > 0.9
@@ -50,13 +37,13 @@ export class WheelPanToolView extends GestureToolView
         sy1 = vy_high
 
     xrs = {}
-    for name, mapper of frame.x_mappers
-      [start, end] = mapper.v_map_from_target([sx0, sx1], true)
+    for name, scale of frame.xscales
+      [start, end] = scale.v_invert([sx0, sx1], true)
       xrs[name] = {start: start, end: end}
 
     yrs = {}
-    for name, mapper of frame.y_mappers
-      [start, end] = mapper.v_map_from_target([sy0, sy1], true)
+    for name, scale of frame.yscales
+      [start, end] = scale.v_invert([sy0, sy1], true)
       yrs[name] = {start: start, end: end}
 
     # OK this sucks we can't set factor independently in each direction. It is used

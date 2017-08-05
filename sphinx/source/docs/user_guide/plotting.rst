@@ -439,6 +439,6 @@ The section on adding annotations to plots has moved.  Please see
 .. |square_cross|      replace:: :func:`~bokeh.plotting.figure.Figure.square_cross`
 .. |square_x|          replace:: :func:`~bokeh.plotting.figure.Figure.square_x`
 .. |triangle|          replace:: :func:`~bokeh.plotting.figure.Figure.triangle`
-.. |vbar|              replace:: :func:`~bokeh.plotting.figure.Figure.rect`
+.. |vbar|              replace:: :func:`~bokeh.plotting.figure.Figure.vbar`
 .. |wedge|             replace:: :func:`~bokeh.plotting.figure.Figure.wedge`
 .. |x|                 replace:: :func:`~bokeh.plotting.figure.Figure.x`

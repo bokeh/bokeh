@@ -1,10 +1,9 @@
-import * as _ from "underscore"
-
 import {EQ, GE} from "./solver"
 import {LayoutCanvas} from "./layout_canvas"
 
-import * as p from "../../core/properties"
-import {logger} from "../../core/logging"
+import * as p from "core/properties"
+import {logger} from "core/logging"
+import {isString} from "core/util/types"
 
 # This table lays out the rules for configuring the baseline, alignment, etc. of
 # title text, based on it's location and orientation
@@ -107,7 +106,7 @@ _align_lookup = {
     parallel   : CENTER
     normal     : LEFT
     horizontal : CENTER
-    vertical   : RIGHT
+    vertical   : LEFT
   left:
     justified  : CENTER
     parallel   : CENTER
@@ -144,44 +143,30 @@ _align_lookup_positive = {
 #         height or width. Extending to full height or width means it's easy to
 #         calculate mid-way for alignment.
 
-export update_constraints = (view) ->
-  v = view
-
-  if v.model.props.visible?
-    if v.model.visible is false
-      # if not visible, avoid applying constraints until visible again
-      return
-
-  # Constrain size based on contents (may not have changed)
-  size = v._get_size()
-
-  if not v._last_size?
-    v._last_size = -1
-
-  if size == v._last_size
+export update_panel_constraints = (view) ->
+  if view.model.props.visible? and not view.model.visible
+    # if not visible, avoid applying constraints until visible again
     return
 
-  s = v.model.document.solver()
+  s = view.solver
 
-  v._last_size = size
-  if v._size_constraint?
-      s.remove_constraint(v._size_constraint)
-  v._size_constraint = GE(v.model.panel._size, -size)
-  s.add_constraint(v._size_constraint)
+  if view._size_constraint? and s.has_constraint(view._size_constraint)
+    s.remove_constraint(view._size_constraint)
+  view._size_constraint = GE(view.model.panel._size, -view._get_size())
+  s.add_constraint(view._size_constraint)
 
   # Constrain Full Dimension - link it to the plot (only needs to be done once)
   # If axis is on the left, then it is the full height of the plot.
   # If axis is on the top, then it is the full width of the plot.
-  if not v._full_set?
-    v._full_set = false
-  if not v._full_set
-    side = v.model.panel.side
-    if side in ['above', 'below']
-      s.add_constraint(EQ(v.model.panel._width, [-1, v.plot_model.canvas._width]))
-    if side in ['left', 'right']
-      s.add_constraint(EQ(v.model.panel._height, [-1, v.plot_model.canvas._height]))
-    v._full_set = true
 
+  if view._full_constraint? and s.has_constraint(view._full_constraint)
+    s.remove_constraint(view._full_constraint)
+
+  view._full_constraint = switch view.model.panel.side
+    when 'above', 'below' then EQ(view.model.panel._width,  [-1, view.plot_model.canvas._width])
+    when 'left', 'right'  then EQ(view.model.panel._height, [-1, view.plot_model.canvas._height])
+
+  s.add_constraint(view._full_constraint)
 
 export class SidePanel extends LayoutCanvas
 
@@ -197,22 +182,18 @@ export class SidePanel extends LayoutCanvas
         @_dim = 0
         @_normals = [0, -1]
         @_size = @_height
-        @_anchor = @_bottom
       when "below"
         @_dim = 0
         @_normals = [0, 1]
         @_size = @_height
-        @_anchor = @_top
       when "left"
         @_dim = 1
         @_normals = [-1, 0]
         @_size = @_width
-        @_anchor = @_right
       when "right"
         @_dim = 1
         @_normals = [1, 0]
         @_size = @_width
-        @_anchor = @_left
       else
         logger.error("unrecognized side: '#{ @side }'")
 
@@ -223,21 +204,21 @@ export class SidePanel extends LayoutCanvas
     # picked up. (This would also play into the ability to remove a panel from
     # the canvas).
     #
-    constraints = []
-    constraints.push(GE(@_top))
-    constraints.push(GE(@_bottom))
-    constraints.push(GE(@_left))
-    constraints.push(GE(@_right))
-    constraints.push(GE(@_width))
-    constraints.push(GE(@_height))
-    constraints.push(EQ(@_left, @_width, [-1, @_right]))
-    constraints.push(EQ(@_bottom, @_height, [-1, @_top]))
-    return constraints
+    return [
+      GE(@_top),
+      GE(@_bottom),
+      GE(@_left),
+      GE(@_right),
+      GE(@_width),
+      GE(@_height),
+      EQ(@_left, @_width, [-1, @_right]),
+      EQ(@_bottom, @_height, [-1, @_top]),
+    ]
 
   apply_label_text_heuristics: (ctx, orient) ->
     side = @side
 
-    if _.isString(orient)
+    if isString(orient)
       baseline = _baseline_lookup[side][orient]
       align = _align_lookup[side][orient]
 

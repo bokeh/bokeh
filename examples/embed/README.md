@@ -1,5 +1,5 @@
-This directory contains examples that demonstrate how to embed Bokeh plots and widgets as 
-DOM elements of larger documents. Typically, this is accomplished using the [`bokeh.embed`](http://bokeh.pydata.org/en/latest/docs/user_guide/embed.html) interface. 
+This directory contains examples that demonstrate how to embed Bokeh plots and widgets as
+DOM elements of larger documents. Typically, this is accomplished using the [`bokeh.embed`](http://bokeh.pydata.org/en/latest/docs/user_guide/embed.html) interface.
 
 Specific instructions for each demo are below:
 
@@ -82,14 +82,3 @@ or
 in this directory. Navigate to
 
     http://localhost:8000/widget.html
-
-
-
-
-
-
-
-
-
-
-

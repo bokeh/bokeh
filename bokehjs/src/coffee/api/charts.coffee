@@ -1,18 +1,8 @@
-import * as _ from "underscore"
-import * as $ from "jquery"
-import * as sprintf from "sprintf"
-import {Document} from "../document"
-import * as embed from "../embed"
+import {sprintf} from "sprintf-js"
 import * as models from "./models"
 import * as palettes from "./palettes"
-
-sum = (array) ->
-  return array.reduce(((a, b) => a + b), 0)
-
-cumsum = (array) ->
-  result = []
-  array.reduce(((a, b, i) -> result[i] = a + b), 0)
-  return result
+import {zip, unzip, sum, cumsum, copy} from "../core/util/array"
+import {isArray} from "../core/util/types"
 
 num2hexcolor = (num) -> sprintf("#%06x", num)
 hexcolor2rgb = (color) ->
@@ -46,12 +36,12 @@ export pie = (data, opts={}) ->
 
   end_angles = cumulative_values.map((v) -> start_angle + to_radians(v))
   start_angles = [start_angle].concat(end_angles.slice(0, -1))
-  half_angles = _.zip(start_angles, end_angles).map(([start, end]) => (start + end)/2)
+  half_angles = zip(start_angles, end_angles).map(([start, end]) => (start + end)/2)
 
   if not opts.center?
     cx = 0
     cy = 0
-  else if _.isArray(opts.center)
+  else if isArray(opts.center)
     cx = opts.center[0]
     cy = opts.center[1]
   else
@@ -61,7 +51,7 @@ export pie = (data, opts={}) ->
   inner_radius = opts.inner_radius ? 0
   outer_radius = opts.outer_radius ? 1
 
-  if _.isArray(opts.palette)
+  if isArray(opts.palette)
     palette = opts.palette
   else
     palette = palettes[opts.palette ? "Spectral11"].map(num2hexcolor)
@@ -72,7 +62,7 @@ export pie = (data, opts={}) ->
   to_cartesian = (r, alpha) -> [r*Math.cos(alpha), r*Math.sin(alpha)]
 
   half_radius = (inner_radius+outer_radius)/2
-  [text_cx, text_cy] = _.unzip(half_angles.map((half_angle) => to_cartesian(half_radius, half_angle)))
+  [text_cx, text_cy] = unzip(half_angles.map((half_angle) => to_cartesian(half_radius, half_angle)))
   text_cx = text_cx.map((x) -> x + cx)
   text_cy = text_cy.map((y) -> y + cy)
 
@@ -156,6 +146,7 @@ export bar = (data, opts={}) ->
 
   yaxis = new models.CategoricalAxis()
   ydr = new models.FactorRange({factors: labels})
+  yscale = new models.CategoricalScale()
 
   if opts.axis_number_format?
     xformatter = new models.NumeralTickFormatter({format: opts.axis_number_format})
@@ -163,8 +154,9 @@ export bar = (data, opts={}) ->
     xformatter = new models.BasicTickFormatter()
   xaxis = new models.LinearAxis({formatter: xformatter})
   xdr = new models.DataRange1d({start: 0})
+  xscale = new models.LinearScale()
 
-  if _.isArray(opts.palette)
+  if isArray(opts.palette)
     palette = opts.palette
   else
     palette = palettes[opts.palette ? "Spectral11"].map(num2hexcolor)
@@ -193,8 +185,8 @@ export bar = (data, opts={}) ->
 
       source = new Bokeh.ColumnDataSource({
         data: {
-          left: _.clone(left)
-          right: _.clone(right)
+          left: copy(left)
+          right: copy(right)
           top: top
           bottom: bottom
           labels: labels
@@ -247,13 +239,14 @@ export bar = (data, opts={}) ->
   if orientation == "vertical"
     [xdr, ydr] = [ydr, xdr]
     [xaxis, yaxis] = [yaxis, xaxis]
+    [xscale, yscale] = [yscale, xscale]
 
     for r in renderers
       data = r.data_source.data
       [data.left, data.bottom] = [data.bottom, data.left]
       [data.right, data.top] = [data.top, data.right]
 
-  plot = new models.Plot({x_range: xdr, y_range: ydr})
+  plot = new models.Plot({x_range: xdr, y_range: ydr, x_scale: xscale, y_scale: yscale})
 
   if opts.width? then plot.plot_width = opts.width
   if opts.height? then plot.plot_height = opts.height

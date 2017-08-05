@@ -1,7 +1,5 @@
-import * as _ from "underscore"
-
 import {Ticker} from "./ticker"
-import * as p from "../../core/properties"
+import * as p from "core/properties"
 
 # The base class for all Ticker objects.  It needs to be subclassed before
 # being used.  The simplest subclass is SingleIntervalTicker.

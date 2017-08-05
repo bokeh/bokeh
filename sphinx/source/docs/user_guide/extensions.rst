@@ -67,72 +67,72 @@ JavaScript Models and Views
 
 While the Python side is mostly declarative, without much or any real code, the
 JavaScript side requires code to implement the model. When appropriate, code
-for a corresponding view must also be provided. Currently BokehJS models and
-views are subclasses of Models and View from the Backbone JavaScript library.
+for a corresponding view must also be provided.
 
-Below is an annotated JavaScript implementation for ``Custom`` and its
+Below is an annotated TypeScript implementation for ``Custom`` and its
 ``CustomView``. For built-in models, this code is included directly in the
-final ``bokeh.js`` library. We will see how to connect this code to custom
+final BokehJS scripts. We will see how to connect this code to custom
 extensions in the next section.
 
 .. note::
-    BokehJS is largely written in `CoffeeScript`_. Accordingly, the examples
-    and guidance here are presented in CoffeeScript. However, custom extensions
-    can be written in pure JavaScript as well.
+    BokehJS was originally written in `CoffeeScript`_, but is being ported
+    to `TypeScript`_. Accordingly, the guidance here is presented in TypeScript.
+    However, custom extensions can be written in CoffeeScript or pure JavaScript
+    as well.
 
-.. code-block:: coffeescript
+.. code-block:: typescript
 
-    # These are similar to python imports. BokehJS vendors its own versions
-    # of Underscore and JQuery. They are available as show here.
-    import * as _ from "underscore"
-    import * as $ from "jquery"
-
-    # The "core/properties" module has all the property types
+    import {div, empty} from "core/dom"
     import * as p from "core/properties"
-
-    # We will subclass in JavaScript from the same class that was subclassed
-    # from in Python
     import {LayoutDOM, LayoutDOMView} from "models/layouts/layout_dom"
 
-    # This model will actually need to render things, so we must provide
-    # view. The LayoutDOM model has a view already, so we will start with that
-    export class CustomView extends LayoutDOMView
+    export class CustomView extends LayoutDOMView {
 
-      initialize: (options) ->
-        super(options)
+      initialize(options) {
+        super.initialize(options)
 
-        @render()
+        this.render()
 
-        # Set Backbone listener so that when the Bokeh slider has a change
-        # event, we can process the new data
-        @listenTo(@model.slider, 'change', () => @render())
-
-      render: () ->
-        # Backbone Views create <div> elements by default, accessible as @$el.
-        # Many Bokeh views ignore this default <div>, and instead do things
-        # like draw to the HTML canvas. In this case though, we change the
-        # contents of the <div>, based on the current slider value.
-        @$el.html("<h1>#{ @model.text }: #{ @model.slider.value }</h1>")
-        @$el.find('h1').css({ 'color': '#686d8e', 'background-color': '#2a3153' })
-
-    export class Custom extends LayoutDOM
-
-      # If there is an associated view, this is boilerplate.
-      default_view: CustomView
-
-      # The ``type`` class attribute should generally match exactly the name
-      # of the corresponding Python class.
-      type: "Custom"
-
-      # The @define block adds corresponding "properties" to the JS model. These
-      # should basically line up 1-1 with the Python model class. Most property
-      # types have counterparts, e.g. bokeh.core.properties.String will be
-      # p.String in the JS implementation. Where the JS type system is not yet
-      # as rich, you can use p.Any as a "wildcard" property type.
-      @define {
-        text:   [ p.String ]
-        slider: [ p.Any    ]
+        // Set BokehJS listener so that when the Bokeh slider has a change
+        // event, we can process the new data
+        this.connect(this.model.slider.change, () => this.render())
       }
+
+      render() {
+        // BokehjS Views create <div> elements by default, accessible as
+        // ``this.el``. Many Bokeh views ignore this default <div>, and instead
+        // do things like draw to the HTML canvas. In this case though, we change
+        // the contents of the <div>, based on the current slider value.
+        empty(this.el)
+        this.el.appendChild(div({
+          style: {
+            'padding': '2px',
+            'color': '#b88d8e',
+            'background-color': '#2a3153',
+          },
+        }, `${this.model.text}: ${this.model.slider.value}`))
+      }
+    }
+
+    export class Custom extends LayoutDOM {
+
+      // If there is an associated view, this is typically boilerplate.
+      default_view = CustomView
+
+      // The ``type`` class attribute should generally match exactly the name
+      // of the corresponding Python class.
+      type = "Custom"
+    }
+
+    // The @define block adds corresponding "properties" to the JS model. These
+    // should normally line up 1-1 with the Python model class. Most property
+    // types have counterparts, e.g. bokeh.core.properties.String will be
+    // ``p.String`` in the JS implementation. Any time the JS type system is not
+    // yet as complete, you can use ``p.Any`` as a "wildcard" property type.
+    Custom.define({
+      text:   [ p.String ],
+      slider: [ p.Any    ],
+    })
 
 .. _userguide_extensions_structure_putting_together:
 
@@ -143,10 +143,11 @@ For built-in Bokeh models, the implementation in BokehJS is automatically
 matched with the corresponding Python model by the build process. In order
 connect JavaScript implementations to Python models, one additional step
 is needed. The Python class should have have a class attribute called
-``__implementation__`` whose value is the JavaScript (or CoffeeScript) code
-that the defined the client-side model (and optional view).
+``__implementation__`` whose value is the TypeScript (or JavaScript or
+CoffeeScript) code that the defines the client-side model as well as any
+optional views.
 
-Assuming the CoffeeScript code above was saved in a file ``custom.coffee``,
+Assuming the TypeScript code above was saved in a file ``custom.ts``,
 then the complete Python class might look like:
 
 .. code-block:: python
@@ -156,7 +157,7 @@ then the complete Python class might look like:
 
     class Custom(LayoutDOM):
 
-        __implementation__ = "custom.coffee"
+        __implementation__ = "custom.ts"
 
         text = String(default="Custom text")
 
@@ -167,11 +168,9 @@ extension can now be used exactly like any built-in Bokeh model:
 
 .. code-block:: python
 
-    from bokeh.io import show
+    from bokeh.io import show, output_file
     from bokeh.layouts import column
     from bokeh.models import Slider
-
-    from custom import Custom
 
     slider = Slider(start=0, end=10, step=0.1, value=0, title="value")
 
@@ -185,7 +184,7 @@ Which results in the output below. The JavaScript code for the implementation
 is automatically included in the rendered document. Scrub the slider to see
 the special header update as the slider moves:
 
-.. bokeh-plot:: docs/user_guide/examples/extensions_putting_together.py
+.. bokeh-plot:: docs/user_guide/examples/extensions_putting_together_ts.py
     :source-position: none
 
 .. _userguide_extensions_supplying_external_resources:
@@ -275,3 +274,4 @@ and improvements to this section for future users.
 
 .. _CoffeeScript: http://coffeescript.org
 .. _KaTex: https://khan.github.io/KaTeX/
+.. _TypeScript: https://www.typescriptlang.org/

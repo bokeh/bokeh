@@ -38,7 +38,7 @@ hover = p.select_one(HoverTool).tooltips = [
     ("index", "$index"),
     ("(x,y)", "($x, $y)"),
     ("radius", "@radius"),
-    ("fill color", "$color[hex, swatch]:fill_color"),
+    ("fill color", "$color[hex, swatch]:colors"),
     ("foo", "@foo"),
     ("bar", "@bar"),
 ]

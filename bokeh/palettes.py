@@ -134,7 +134,7 @@ In addition to all the palettes shown above, which are available in the
 ``small_palettes`` attribute, the ``bokeh.palettes`` module also has some
 larger palettes with 256 colors. These are shown below:
 
-:Grey256: :bokeh-palette:`grey(256)` (brewer)
+:Greys256: :bokeh-palette:`grey(256)` (brewer)
 
 :Inferno256: :bokeh-palette:`inferno(256)` (mpl)
 

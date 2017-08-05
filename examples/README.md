@@ -10,25 +10,6 @@ the version of Bokeh you are running**.
 
 This directory contains examples of Bokeh Apps, which are simple and easy to create web applications for data visualization or exploration.
 
-### [`charts`](charts/)
-
-This directory includes examples that use the high level
-[`bokeh.charts`](http://bokeh.pydata.org/en/latest/docs/user_guide/charts.html)
-interface of Bokeh. This interface can be for easily building high-level
-statistical or scientific charts such as
-[histograms](http://bokeh.pydata.org/en/latest/docs/user_guide/charts.html#histograms),
-[bar charts](http://bokeh.pydata.org/en/latest/docs/user_guide/charts.html#bar-charts) or
-[box plots](http://bokeh.pydata.org/en/latest/docs/user_guide/charts.html#box-plots).
-
-### [`compat`](compat/)
-
-This directory contains examples of plots that use Bokeh's [compatibility
-layer](http://bokeh.pydata.org/en/latest/docs/user_guide/compat.html) to allow
-users to create Bokeh plots using other plotting libraries such as
-[matplotlib](http://matplotlib.org),
-[seaborn](http://stanford.edu/~mwaskom/software/seaborn/), or
-[ggplot.py](http://ggplot.yhathq.com).
-
 ### [`embed`](embed/)
 
 This directory includes examples that show how to embed Bokeh plots and widget in HTML documents.

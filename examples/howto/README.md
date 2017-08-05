@@ -1,4 +1,4 @@
-The examples in this directory show off various kinds of interactions that are easily 
+The examples in this directory show off various kinds of interactions that are easily
 possible using Bokeh, including:
 
 * linked panning/zooming

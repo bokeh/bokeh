@@ -1,9 +1,7 @@
-import * as _ from "underscore"
+import {XYGlyph, XYGlyphView} from "./xy_glyph"
+import * as p from "core/properties"
 
-import {Glyph, GlyphView} from "./glyph"
-import * as p from "../../core/properties"
-
-export class OvalView extends GlyphView
+export class OvalView extends XYGlyphView
 
   _set_data: () ->
     @max_w2 = 0
@@ -13,16 +11,13 @@ export class OvalView extends GlyphView
     if @model.properties.height.units == "data"
       @max_h2 = @max_height/2
 
-  _index_data: () ->
-    @_xy_index()
-
   _map_data: () ->
     if @model.properties.width.units == "data"
-      @sw = @sdist(@renderer.xmapper, @_x, @_width, 'center')
+      @sw = @sdist(@renderer.xscale, @_x, @_width, 'center')
     else
       @sw = @_width
     if @model.properties.height.units == "data"
-      @sh = @sdist(@renderer.ymapper, @_y, @_height, 'center')
+      @sh = @sdist(@renderer.yscale, @_y, @_height, 'center')
     else
       @sh = @_height
 
@@ -75,12 +70,11 @@ export class OvalView extends GlyphView
   _bounds: (bds) ->
     return @max_wh2_bounds(bds)
 
-export class Oval extends Glyph
+export class Oval extends XYGlyph
   default_view: OvalView
 
   type: 'Oval'
 
-  @coords [['x', 'y']]
   @mixins ['line', 'fill']
   @define {
       angle:  [ p.AngleSpec,   0.0 ]

@@ -1,28 +1,24 @@
-import * as _ from "underscore"
-import * as rbush from "rbush"
-
+import {RBush} from "core/util/spatial"
 import {Glyph, GlyphView} from "./glyph"
-import {CategoricalMapper} from "../mappers/categorical_mapper"
-import * as hittest from "../../core/hittest"
+import {CategoricalScale} from "../scales/categorical_scale"
+import * as hittest from "core/hittest"
 
 export class QuadView extends GlyphView
 
   _index_data: () ->
-    map_to_synthetic = (mapper, array) ->
-      if mapper instanceof CategoricalMapper
-        mapper.v_map_to_target(array, true)
+    map_to_synthetic = (scale, array) ->
+      if scale instanceof CategoricalScale
+        scale.v_compute(array, true)
       else
         array
 
-    left = map_to_synthetic(@renderer.xmapper, @_left)
-    right = map_to_synthetic(@renderer.xmapper, @_right)
+    left = map_to_synthetic(@renderer.xscale, @_left)
+    right = map_to_synthetic(@renderer.xscale, @_right)
 
-    top = map_to_synthetic(@renderer.ymapper, @_top)
-    bottom = map_to_synthetic(@renderer.ymapper, @_bottom)
+    top = map_to_synthetic(@renderer.yscale, @_top)
+    bottom = map_to_synthetic(@renderer.yscale, @_bottom)
 
-    index = rbush()
-    pts = []
-
+    points = []
     for i in [0...left.length]
       l = left[i]
       r = right[i]
@@ -30,10 +26,9 @@ export class QuadView extends GlyphView
       b = bottom[i]
       if isNaN(l+r+t+b) or not isFinite(l+r+t+b)
         continue
-      pts.push({minX: l, minY: b, maxX: r, maxY: t, i: i})
+      points.push({minX: l, minY: b, maxX: r, maxY: t, i: i})
 
-    index.load(pts)
-    return index
+    return new RBush(points)
 
   _render: (ctx, indices, {sleft, sright, stop, sbottom}) ->
     for i in indices
@@ -52,10 +47,10 @@ export class QuadView extends GlyphView
 
   _hit_point: (geometry) ->
     [vx, vy] = [geometry.vx, geometry.vy]
-    x = @renderer.xmapper.map_from_target(vx, true)
-    y = @renderer.ymapper.map_from_target(vy, true)
+    x = @renderer.xscale.invert(vx, true)
+    y = @renderer.yscale.invert(vy, true)
 
-    hits = (x.i for x in @index.search({minX: x, minY: y, maxX: x, maxY: y}))
+    hits = @index.indices({minX: x, minY: y, maxX: x, maxY: y})
 
     result = hittest.create_hit_test_result()
     result['1d'].indices = hits
