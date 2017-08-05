@@ -484,7 +484,7 @@ def push_notebook(document=None, state=None, handle=None):
             handle = show(plot, notebook_handle=True)
 
             # Update the plot title in the earlier cell
-            plot.title = "New Title"
+            plot.title.text = "New Title"
             push_notebook(handle=handle)
 
     '''
