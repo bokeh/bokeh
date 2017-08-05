@@ -94,7 +94,7 @@ export class DataTableView extends WidgetView
     @connect(@model.source.properties.data.change, () => @updateGrid())
     @connect(@model.source.streaming, () => @updateGrid())
     @connect(@model.source.patching, () => @updateGrid())
-    @connect(@model.source.properties.selected.change, () => @updateSelection())
+    @connect(@model.source.change, () => @updateSelection())
 
   updateGrid: () ->
     @data.constructor(@model.source, @model.view)
