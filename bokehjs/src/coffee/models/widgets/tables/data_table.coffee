@@ -196,6 +196,8 @@ export class DataTableView extends WidgetView
         selected['1d'].indices = (@data.index[i] for i in args.rows)
         @model.source.selected = selected
 
+      @updateSelection()
+
     return @
 
 export class DataTable extends TableWidget
