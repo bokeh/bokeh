@@ -2,10 +2,8 @@
 utils = require "../../utils"
 sinon = require "sinon"
 
-{Collections} = utils.require "base"
 {FactorRange} = utils.require("models/ranges/factor_range")
 {Dodge} = utils.require("models/transforms/dodge")
-bokeh_math  = utils.require("core/util/math")
 
 describe "Dodge transform module", ->
   source = {start: 0, end: 10}

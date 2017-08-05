@@ -2,7 +2,6 @@
 utils = require "../../utils"
 sinon = require "sinon"
 
-{Collections} = utils.require "base"
 {FactorRange} = utils.require("models/ranges/factor_range")
 {Jitter} = utils.require("models/transforms/jitter")
 bokeh_math  = utils.require("core/util/math")

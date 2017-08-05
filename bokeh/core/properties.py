@@ -1443,6 +1443,7 @@ class DataSpec(Either):
                 Either(
                     String,
                     Instance('bokeh.models.transforms.Transform'),
+                    Instance('bokeh.models.expressions.Expression'),
                     value_type)),
             value_type,
             default=default,
@@ -1491,7 +1492,7 @@ class DataSpec(Either):
     def _sphinx_type(self):
         return self._sphinx_prop_link()
 
-_FieldValueTransform = Enum("field", "value", "transform")
+_ExprFieldValueTransform = Enum("expr", "field", "value", "transform")
 
 class NumberSpec(DataSpec):
     ''' A |DataSpec| property that accepts numeric and datetime fixed values.
@@ -1509,7 +1510,7 @@ class NumberSpec(DataSpec):
         m.location = "foo" # field
 
     '''
-    def __init__(self, default=None, help=None, key_type=_FieldValueTransform, accept_datetime=True):
+    def __init__(self, default=None, help=None, key_type=_ExprFieldValueTransform, accept_datetime=True):
         super(NumberSpec, self).__init__(key_type, Float, default=default, help=help)
         self.accepts(TimeDelta, convert_datetime_type)
         if accept_datetime:
@@ -1531,7 +1532,7 @@ class StringSpec(DataSpec):
         m.title = "foo"        # field
 
     '''
-    def __init__(self, default, help=None, key_type=_FieldValueTransform):
+    def __init__(self, default, help=None, key_type=_ExprFieldValueTransform):
         super(StringSpec, self).__init__(key_type, List(String), default=default, help=help)
 
     def prepare_value(self, cls, name, value):
@@ -1563,7 +1564,7 @@ class FontSizeSpec(DataSpec):
     '''
     _font_size_re = re.compile(r"^[0-9]+(.[0-9]+)?(%|em|ex|ch|ic|rem|vw|vh|vi|vb|vmin|vmax|cm|mm|q|in|pc|pt|px)$", re.I)
 
-    def __init__(self, default, help=None, key_type=_FieldValueTransform):
+    def __init__(self, default, help=None, key_type=_ExprFieldValueTransform):
         super(FontSizeSpec, self).__init__(key_type, List(String), default=default, help=help)
 
     def prepare_value(self, cls, name, value):
@@ -1583,7 +1584,7 @@ class FontSizeSpec(DataSpec):
             elif value[0].isdigit() and self._font_size_re.match(value) is None:
                 raise ValueError("%r is not a valid font size value" % value)
 
-_FieldValueTransformUnits = Enum("field", "value", "transform", "units")
+_ExprFieldValueTransformUnits = Enum("expr", "field", "value", "transform", "units")
 
 class UnitsSpec(NumberSpec):
     ''' A |DataSpec| property that accepts numeric fixed values, and also
@@ -1591,7 +1592,7 @@ class UnitsSpec(NumberSpec):
 
     '''
     def __init__(self, default, units_type, units_default, help=None):
-        super(UnitsSpec, self).__init__(default=default, help=help, key_type=_FieldValueTransformUnits)
+        super(UnitsSpec, self).__init__(default=default, help=help, key_type=_ExprFieldValueTransformUnits)
         self._units_type = self._validate_type_param(units_type)
         # this is a hack because we already constructed units_type
         self._units_type.validate(units_default)
@@ -1731,7 +1732,7 @@ class ColorSpec(DataSpec):
         m.color = field("firebrick")       # field (named "firebrick")
 
     '''
-    def __init__(self, default, help=None, key_type=_FieldValueTransform):
+    def __init__(self, default, help=None, key_type=_ExprFieldValueTransform):
         super(ColorSpec, self).__init__(key_type, Color, default=default, help=help)
 
     @classmethod
@@ -1787,6 +1788,29 @@ class ColorSpec(DataSpec):
 # DataSpec helpers
 #------------------------------------------------------------------------------
 
+def expr(expression, transform=None):
+    ''' Convenience function to explicitly return an "expr" specification for
+    a Bokeh :class:`~bokeh.core.properties.DataSpec` property.
+
+    Args:
+        expression (Expression) : a computed expression for a
+            ``DataSpec`` property.
+
+        transform (Transform, optional) : a transform to apply (default: None)
+
+    Returns:
+        dict : ``{ "expr": expression }``
+
+    .. note::
+        This function is included for completeness. String values for
+        property specifications are by default interpreted as field names.
+
+    '''
+    if transform:
+        return dict(expr=expression, transform=transform)
+    return dict(expr=expression)
+
+
 def field(name, transform=None):
     ''' Convenience function to explicitly return a "field" specification for
     a Bokeh :class:`~bokeh.core.properties.DataSpec` property.
@@ -1794,7 +1818,8 @@ def field(name, transform=None):
     Args:
         name (str) : name of a data source field to reference for a
             ``DataSpec`` property.
-        transform (Tansform)  an optional transform to apply
+
+        transform (Transform, optional) : a transform to apply (default: None)
 
     Returns:
         dict : ``{ "field": name }``
@@ -1814,7 +1839,9 @@ def value(val, transform=None):
 
     Args:
         val (any) : a fixed value to specify for a ``DataSpec`` property.
-        transform (Transform) : an optional transform to apply
+
+        transform (Transform, optional) : a transform to apply (default: None)
+
     Returns:
         dict : ``{ "value": name }``
 

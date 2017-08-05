@@ -3,7 +3,8 @@
 '''
 from __future__ import absolute_import
 
-from bokeh.core.properties import field
+from bokeh.core.properties import expr, field
+from bokeh.models.expressions import Stack
 from bokeh.models.mappers import CategoricalColorMapper, LinearColorMapper, LogColorMapper
 from bokeh.models.transforms import Dodge, Jitter
 
@@ -70,6 +71,13 @@ def dodge(field_name, value, range=None):
 
     '''
     return field(field_name, Dodge(value=value, range=range))
+
+
+def stack(*fields):
+    '''
+
+    '''
+    return expr(Stack(fields=fields))
 
 
 def factor_cmap(field_name, palette, factors, start=0, end=None, nan_color="gray"):
