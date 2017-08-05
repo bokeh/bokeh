@@ -1,6 +1,6 @@
 from __future__ import print_function
 
-#from datetime import date
+from datetime import date
 
 from bokeh.document import Document
 from bokeh.embed import file_html
@@ -55,7 +55,7 @@ range_slider = RangeSlider(value=[10, 90], start=0, end=100, step=0.5)
 
 #date_range_slider = DateRangeSlider(value=(date(2016, 1, 1), date(2016, 12, 31)))
 
-date_picker = DatePicker()
+date_picker = DatePicker(value=date(2017, 8, 1))
 
 paragraph = Paragraph(text="some text")
 
