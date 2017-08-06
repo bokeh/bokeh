@@ -30,9 +30,8 @@ cmap = {
 
 source = ColumnDataSource(df)
 
-p = figure(title="Periodic Table (omitting LA and AC Series)", plot_width=1000, plot_height=450,
-           tools="", toolbar_location=None,
-           x_range=groups, y_range=list(reversed(periods)))
+p = figure(plot_width=900, plot_height=500, title="Periodic Table (omitting LA and AC Series)",
+           x_range=groups, y_range=list(reversed(periods)), toolbar_location=None, tools="")
 
 p.rect("group", "period", 0.95, 0.95, source=source, fill_alpha=0.6, legend="metal",
        color=factor_cmap('metal', palette=list(cmap.values()), factors=list(cmap.keys())))

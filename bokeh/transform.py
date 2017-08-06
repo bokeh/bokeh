@@ -1,4 +1,5 @@
-''' Helper functions for applying client-side transformations to data fields.
+''' Helper functions for applying client-side computations such as
+transformations to data fields or ``ColumnDataSource`` expressions.
 
 '''
 from __future__ import absolute_import
@@ -74,7 +75,18 @@ def dodge(field_name, value, range=None):
 
 
 def stack(*fields):
-    '''
+    ''' Create a Create a ``DataSpec`` dict to generate a ``Stack`` expression
+    for a ``ColumnDataSource``.
+
+    Examples:
+
+        .. code-block:: python
+
+            p.vbar(bottom=stack("sales", "marketing"), ...
+
+        will generate a ``Stack`` that sums the ``"sales"`` and ``"marketing"``
+        columns of a data source, and use those values as the ``top``
+        coordinate for a ``VBar``.
 
     '''
     return expr(Stack(fields=fields))
