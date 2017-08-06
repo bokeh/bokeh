@@ -15,7 +15,7 @@ from ..util.string import format_docstring
 from ..util._plot_arg_helpers import _convert_responsive
 from .helpers import (
     _get_range, _get_scale, _process_axis_and_grid, _process_tools_arg,
-    _glyph_function, _process_active_tools)
+    _glyph_function, _process_active_tools, _stack)
 
 DEFAULT_TOOLS = "pan,wheel_zoom,box_zoom,save,reset,help"
 
@@ -93,6 +93,11 @@ class Figure(Plot):
         :columns: 3
 
 {glyph_methods}
+
+    There are also two specialized methods for stacking bars:
+    :func:`~bokeh.plotting.figure.Figure.hbar_stack` and
+    :func:`~bokeh.plotting.figure.Figure.vbar_stack`
+
 
     In addition to all the Bokeh model property attributes documented below,
     the ``Figure`` initializer also accepts the following options, which can
@@ -614,6 +619,8 @@ Examples:
 
 """)
 
+    # -------------------------------------------------------------------------
+
     def scatter(self, *args, **kwargs):
         """ Creates a scatter plot of the given x and y items.
 
@@ -652,6 +659,72 @@ Examples:
 
         return getattr(self, markertype)(*args, **kwargs)
 
+    def hbar_stack(self, stackers, **kw):
+        ''' Generate multiple ``HBar`` renderers for levels stacked left to right.
+
+        Args:
+            stackers (seq[str]) : a list of data source field names to stack
+                successively for ``left`` and ``right`` bar coordinates.
+
+        Any additional keyword arguments are passed to each call to ``hbar``.
+        If a keyword value is a list or tuple, then each call will get one
+        value from the sequence.
+
+        Examples:
+
+            Assuming a ``ColumnDataSource`` named ``source`` with columns
+            *2106* and *2017*, then the following call to ``hbar_stack`` will
+            will create two ``HBar`` renderers that stack:
+
+            .. code-block:: python
+
+                p.hbar_stack(['2016', '2017'], x=10, width=0.9, color=['blue', 'red'], source=source)
+
+            This is equivalent to the following two separate calls:
+
+            .. code-block:: python
+
+                p.hbar(bottom=stack(),       top=stack('2016'),         x=10, width=0.9, color='blue', source=source)
+                p.hbar(bottom=stack('2016'), top=stack('2016', '2017'), x=10, width=0.9, color='red', source=source)
+
+        '''
+        for kw in _stack(stackers, "left", "right", **kw):
+            self.hbar(**kw)
+
+    def vbar_stack(self, stackers, **kw):
+        ''' Generate multiple ``VBar`` renderers for levels stacked bottom
+        to top.
+
+        Args:
+            stackers (seq[str]) : a list of data source field names to stack
+                successively for ``left`` and ``right`` bar coordinates.
+
+        Any additional keyword arguments are passed to each call to ``vbar``.
+        If a keyword value is a list or tuple, then each call will get one
+        value from the sequence.
+
+        Examples:
+
+            Assuming a ``ColumnDataSource`` named ``source`` with columns
+            *2106* and *2017*, then the following call to ``vbar_stack`` will
+            will create two ``VBar`` renderers that stack:
+
+            .. code-block:: python
+
+                p.vbar_stack(['2016', '2017'], x=10, width=0.9, color=['blue', 'red'], source=source)
+
+            This is equivalent to the following two separate calls:
+
+            .. code-block:: python
+
+                p.vbar(bottom=stack(),       top=stack('2016'),         x=10, width=0.9, color='blue', source=source)
+                p.vbar(bottom=stack('2016'), top=stack('2016', '2017'), x=10, width=0.9, color='red', source=source)
+
+
+        '''
+        for kw in _stack(stackers, "bottom", "top", **kw):
+            self.vbar(**kw)
+
 
 def figure(**kwargs):
     ''' Create a new :class:`~bokeh.plotting.figure.Figure` for plotting.
@@ -663,6 +736,10 @@ def figure(**kwargs):
         :columns: 3
 
 {glyph_methods}
+
+    There are also two specialized methods for stacking bars:
+    :func:`~bokeh.plotting.figure.Figure.hbar_stack` and
+    :func:`~bokeh.plotting.figure.Figure.vbar_stack`
 
     In addition to the standard :class:`~bokeh.plotting.figure.Figure`
     property values (e.g. ``plot_width`` or ``sizing_mode``) the following

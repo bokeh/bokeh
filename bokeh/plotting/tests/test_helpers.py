@@ -1,9 +1,63 @@
+import pytest
+
 from bokeh.models import ColumnDataSource
 from bokeh.models.ranges import Range1d, DataRange1d, FactorRange
 from bokeh.models.scales import LinearScale, LogScale, CategoricalScale
-from bokeh.plotting.helpers import (
-    _get_legend_item_label, _get_scale, _get_range
-)
+from bokeh.plotting.helpers import _get_legend_item_label, _get_scale, _get_range, _stack
+
+def test__stack_raises_when_spec_in_kwargs():
+    with pytest.raises(ValueError) as e:
+        _stack(['a', 'b'], 'foo', 'bar', foo=10)
+
+    assert str(e).endswith("Stack property 'foo' cannot appear in keyword args")
+
+    with pytest.raises(ValueError) as e:
+        _stack(['a', 'b'], 'foo', 'bar', bar=10)
+
+    assert str(e).endswith("Stack property 'bar' cannot appear in keyword args")
+
+def test__stack_raises_when_kwargs_list_lengths_differ():
+    with pytest.raises(ValueError) as e:
+        _stack(['a', 'b'], 'foo', 'bar', baz=[1, 2], quux=[3,4,5])
+
+    assert str(e).endswith("Keyword argument sequences for broadcasting must all be the same lengths. Got lengths: [2, 3]")
+
+def test__stack_raises_when_kwargs_list_lengths_and_stackers_lengths_differ():
+    with pytest.raises(ValueError) as e:
+        _stack(['a', 'b', 'c'], 'foo', 'bar', baz=[1, 2], quux=[3,4])
+
+    assert str(e).endswith("Keyword argument sequences for broadcasting must be the same length as stackers")
+
+def test__stack_broadcast_with_no_kwargs():
+    stackers = ['a', 'b', 'c', 'd']
+    kws = _stack(stackers, 'start', 'end')
+    assert len(kws) == len(stackers)
+    for i, kw in enumerate(kws):
+        assert set(['start', 'end']) == set(kw.keys())
+        assert list(kw['start']['expr'].fields) == stackers[:i]
+        assert list(kw['end']['expr'].fields) == stackers[:(i+1)]
+
+def test__stack_broadcast_with_scalar_kwargs():
+    stackers = ['a', 'b', 'c', 'd']
+    kws = _stack(stackers, 'start', 'end', foo=10, bar="baz")
+    assert len(kws) == len(stackers)
+    for i, kw in enumerate(kws):
+        assert set(['start', 'end', 'foo', 'bar']) == set(kw.keys())
+        assert list(kw['start']['expr'].fields) == stackers[:i]
+        assert list(kw['end']['expr'].fields) == stackers[:(i+1)]
+        assert kw['foo'] == 10
+        assert kw['bar'] == "baz"
+
+def test__stack_broadcast_with_list_kwargs():
+    stackers = ['a', 'b', 'c', 'd']
+    kws = _stack(stackers, 'start', 'end', foo=[10, 20, 30, 40], bar="baz")
+    assert len(kws) == len(stackers)
+    for i, kw in enumerate(kws):
+        assert set(['start', 'end', 'foo', 'bar']) == set(kw.keys())
+        assert list(kw['start']['expr'].fields) == stackers[:i]
+        assert list(kw['end']['expr'].fields) == stackers[:(i+1)]
+        assert kw['foo'] == [10, 20, 30, 40][i]
+        assert kw['bar'] == "baz"
 
 # _get_legend_item_label
 def test_if_legend_is_something_exotic_that_it_is_passed_directly_to_label():
@@ -68,7 +122,7 @@ def test__get_range_with_Range():
         assert r is rng
 
 def test__get_range_with_string_seq():
-    f = ["foo" ,"bar", "baz"]
+    f = ["foo" ,"end", "baz"]
     for t in [list, tuple]:
         r = _get_range(t(f))
         assert isinstance(r, FactorRange)
