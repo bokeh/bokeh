@@ -66,7 +66,7 @@ def test_data_table_selected_highlighting(output_file_url, selenium, screenshot)
     button = Button(label="Click")
     button.callback = CustomJS(args=dict(source=source), code="""
         source['selected']['1d'].indices = [1, 2]
-        source.trigger('change');
+        source.change.emit();
     """)
 
     # Save the table and start the test
