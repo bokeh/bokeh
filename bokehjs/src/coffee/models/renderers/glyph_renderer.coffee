@@ -57,7 +57,7 @@ export class GlyphRendererView extends RendererView
     @set_data(false)
 
     if @model.data_source instanceof RemoteDataSource
-      @model.data_source.setup(@plot_view, @glyph)
+      @model.data_source.setup()
 
   @getters {
     xmapper: () ->
