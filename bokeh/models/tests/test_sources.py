@@ -87,6 +87,19 @@ class TestColumnDataSource(unittest.TestCase):
             self.assertIsInstance(ds.data[k2], pd.Series)
             self.assertEquals(list(s[key]), list(ds.data[k2]))
 
+    @skipIf(not is_pandas, "pandas not installed")
+    def test_init_groupby_with_None_subindex_name(self):
+        df = pd.DataFrame({"A": [1, 2, 3, 4] * 2, "B": [10, 20, 30, 40] * 2, "C": range(8)})
+        group = df.groupby(['A', [10, 20, 30, 40] * 2])
+        ds = ColumnDataSource(data=group)
+        s = group.describe()
+        self.assertTrue(len(ds.column_names)) == 41
+        self.assertIsInstance(ds.data['index'], np.ndarray)
+        for key in s.columns.values:
+            k2 = "_".join(key)
+            self.assertIsInstance(ds.data[k2], pd.Series)
+            self.assertEquals(list(s[key]), list(ds.data[k2]))
+
     def test_add_with_name(self):
         ds = ColumnDataSource()
         name = ds.add([1,2,3], name="foo")

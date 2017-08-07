@@ -70,16 +70,61 @@ class ColumnarDataSource(DataSource):
 class ColumnDataSource(ColumnarDataSource):
     ''' Maps names of columns to sequences or arrays.
 
-    If the ColumnDataSource initializer is called with a single argument that
-    is a dict or pandas.DataFrame, that argument is used as the value for the
-    "data" attribute. For example::
+    The ``ColumnDataSource`` is a fundamental data structure of Bokeh. Most
+    plots, data tables, etc. will be driven by a ``ColumnDataSource``.
 
-        ColumnDataSource(mydict) # same as ColumnDataSource(data=mydict)
-        ColumnDataSource(df) # same as ColumnDataSource(data=df)
+    If the ColumnDataSource initializer is called with a single argument that
+    can be any of the following:
+
+    * A Python ``dict`` that maps string names to sequences of values, e.g.
+      lists, arrays, etc.
+
+      .. code-block:: python
+
+          data = {'x': [1,2,3,4], 'y': np.ndarray([10.0, 20.0, 30.0, 40.0])}
+
+          source = ColumnDataSource(data)
+
+    * A Pandas ``DataFrame`` object
+
+      .. code-block:: python
+
+          source = ColumnDataSource(df)
+
+      In this case the CDS will have columns corresponding to the columns of
+      the ``DataFrame``. If the ``DataFrame`` has a named index column, then
+      CDS will also have a column with this name. However, if the index name
+      (or any subname of a ``MultiIndex``) is ``None``, then the CDS will have
+      a column generically named ``index`` for the index.
+
+    * A Pandas ``GroupBy`` object
+
+      .. code-block:: python
+
+          group = df.groupby(('colA', 'ColB'))
+
+      In this case the CDS will have columns corresponding to the result of
+      calling ``group.describe()``. The ``describe`` method generates columns
+      for statistical measures such as ``mean`` and ``count`` for all the
+      non-grouped orginal columns. The CDS columns are formed by joining
+      original column names with the computed measure. For example, if a
+      ``DataFrame`` has columns ``'year'`` and ``'mpg'``. Then passing
+      ``df.groupby('year')`` to a CDS will result in columns such as
+      ``'mpg_mean'``
+
+      If the ``GroupBy.describe`` result has a named index column, then
+      CDS will also have a column with this name. However, if the index name
+      (or any subname of a ``MultiIndex``) is ``None``, then the CDS will have
+      a column generically named ``index`` for the index.
+
+      Note this capability to adapt ``GroupBy`` objects may only work with
+      Pandas ``>=0.20.0``.
 
     .. note::
-        There is an implicit assumption that all the columns in a
-        a given ColumnDataSource have the same length.
+        There is an implicit assumption that all the columns in a given
+        ``ColumnDataSource`` all have the same length at all times. For this
+        reason, it is usually preferable to update the ``.data`` property
+        of a data source "all at once".
 
     '''
 
@@ -137,8 +182,11 @@ class ColumnDataSource(ColumnarDataSource):
 
         if index.name:
             new_data[index.name] = index.values
-        elif index.names and not all([x is None for x in index.names]):
-            new_data["_".join(index.names)] = index.values
+        elif index.names:
+            try:
+                new_data["_".join(index.names)] = index.values
+            except TypeError:
+                new_data["index"] = index.values
         else:
             new_data["index"] = index.values
         return new_data
