@@ -172,7 +172,7 @@ class ColumnDataSource(ColumnarDataSource):
         '''
         _df = df.copy()
         index = _df.index
-        tmp_data = _df.to_dict('series')
+        tmp_data = {c: v.values for c, v in _df.iteritems()}
 
         new_data = {}
         for k, v in tmp_data.items():
@@ -351,8 +351,10 @@ class ColumnDataSource(ColumnarDataSource):
         entire data set to be re-sent.
 
         Args:
-            new_data (dict[str, seq]) : a mapping of column names to sequences of
-                new data to append to each column.
+            new_data (dict[str, seq] or DataFrame or Series) : a mapping of
+                column names to sequences of new data to append to each column,
+                a pandas DataFrame, or a pandas Series in case of a single row -
+                in this case the Series index is used as column names
 
                 All columns of the data source must be present in ``new_data``,
                 with identical-length append data.
@@ -390,9 +392,12 @@ class ColumnDataSource(ColumnarDataSource):
             source.stream(new_data)
 
         '''
-        import numpy as np
-
-        newkeys = set(new_data.keys())
+        if pd and isinstance(new_data, pd.Series):
+            new_data = new_data.to_frame().T
+        if pd and isinstance(new_data, pd.DataFrame):
+            newkeys = set(new_data.columns)
+        else:
+            newkeys = set(new_data.keys())
         oldkeys = set(self.data.keys())
         if newkeys != oldkeys:
             missing = oldkeys - newkeys
@@ -406,17 +411,20 @@ class ColumnDataSource(ColumnarDataSource):
             else:
                 raise ValueError("Must stream updates to all existing columns (extra: %s)" % ", ".join(sorted(extra)))
 
-        lengths = set()
-        for x in new_data.values():
-            if isinstance(x, np.ndarray):
-                if len(x.shape) != 1:
-                    raise ValueError("stream(...) only supports 1d sequences, got ndarray with size %r" % (x.shape,))
-                lengths.add(x.shape[0])
-            else:
-                lengths.add(len(x))
+        if not (pd and isinstance(new_data, pd.DataFrame)):
+            import numpy as np
 
-        if len(lengths) > 1:
-            raise ValueError("All streaming column updates must be the same length")
+            lengths = set()
+            for x in new_data.values():
+                if isinstance(x, np.ndarray):
+                    if len(x.shape) != 1:
+                        raise ValueError("stream(...) only supports 1d sequences, got ndarray with size %r" % (x.shape,))
+                    lengths.add(x.shape[0])
+                else:
+                    lengths.add(len(x))
+
+            if len(lengths) > 1:
+                raise ValueError("All streaming column updates must be the same length")
 
         self.data._stream(self.document, self, new_data, rollover, setter)
 

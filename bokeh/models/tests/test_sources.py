@@ -40,7 +40,7 @@ class TestColumnDataSource(unittest.TestCase):
         ds = ColumnDataSource(df)
         self.assertTrue(set(df.columns).issubset(set(ds.column_names)))
         for key in data.keys():
-            self.assertIsInstance(ds.data[key], pd.Series)
+            self.assertIsInstance(ds.data[key], np.ndarray)
             self.assertEquals(list(df[key]), list(ds.data[key]))
         self.assertIsInstance(ds.data['index'], np.ndarray)
         self.assertEquals([0, 1], list(ds.data['index']))
@@ -53,7 +53,7 @@ class TestColumnDataSource(unittest.TestCase):
         ds = ColumnDataSource(data=df)
         self.assertTrue(set(df.columns).issubset(set(ds.column_names)))
         for key in data.keys():
-            self.assertIsInstance(ds.data[key], pd.Series)
+            self.assertIsInstance(ds.data[key], np.ndarray)
             self.assertEquals(list(df[key]), list(ds.data[key]))
         self.assertIsInstance(ds.data['index'], np.ndarray)
         self.assertEquals([0, 1], list(ds.data['index']))

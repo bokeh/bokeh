@@ -45,6 +45,10 @@ The classes in this module provide this functionality.
 
 '''
 from __future__ import absolute_import, print_function
+from ...util.dependencies import import_optional
+
+pd = import_optional('pandas')
+
 
 def notify_owner(func):
     ''' A decorator for mutating methods of property container classes
@@ -320,11 +324,17 @@ class PropertyValueDict(PropertyValueContainer, dict):
 
         import numpy as np
 
+        # pandas/issues/13918
+        if pd and isinstance(new_data, pd.DataFrame):
+            new_items = new_data.iteritems()
+        else:
+            new_items = new_data.items()
+
         # TODO (bev) Currently this reports old differently for array vs list
         # For arrays is reports the actual old value. For lists, the old value
         # is actually the already updated value. This is because the method
         # self._saved_copy() makes a shallow copy.
-        for k, v in new_data.items():
+        for k, v in new_items:
             if isinstance(self[k], np.ndarray):
                 data = np.append(self[k], new_data[k])
                 if rollover and len(data) > rollover:
