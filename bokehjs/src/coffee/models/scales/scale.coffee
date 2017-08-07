@@ -1,17 +1,20 @@
 import {Transform} from "../transforms"
-import {isNumber} from "core/util/types"
+import * as p from "core/properties"
 
 export class Scale extends Transform
 
-  # map to/from methods provided for back compat, should be
-  # considered deprecated.
+  @internal {
+    source_range: [ p.Any ]
+    target_range: [ p.Any ]
+  }
 
-  # TODO (bev) "rest" args can be removed when categoricals fixed up
-  map_to_target: (x, rest...) ->
-    @compute(x, rest...)
+  # map to/from methods are deprecated (provided for back compat)
 
-  v_map_to_target: (xs, rest...) ->
-    @v_compute(xs, rest...)
+  map_to_target: (x) ->
+    @compute(x)
+
+  v_map_to_target: (xs) ->
+    @v_compute(xs)
 
   map_from_target: (xprime) ->
     @invert(xprime)

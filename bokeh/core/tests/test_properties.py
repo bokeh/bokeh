@@ -1750,13 +1750,13 @@ bokeh.core.tests.test_properties.Foo5(
 
 def test_field_function():
     assert field("foo") == dict(field="foo")
-    # TODO (bev) would like this to work I think
-    #assert field("foo", transform="junk") == dict(field="foo", transform="junk")
+    assert field("foo", "junk") == dict(field="foo", transform="junk")
+    assert field("foo", transform="junk") == dict(field="foo", transform="junk")
 
 def test_value_function():
     assert value("foo") == dict(value="foo")
-    # TODO (bev) would like this to work I think
-    #assert value("foo", transform="junk") == dict(value="foo", transform="junk")
+    assert value("foo", "junk") == dict(value="foo", transform="junk")
+    assert value("foo", transform="junk") == dict(value="foo", transform="junk")
 
 def test_strict_dataspec_key_values():
     for typ in (NumberSpec, StringSpec, FontSizeSpec, ColorSpec, DataDistanceSpec, ScreenDistanceSpec):

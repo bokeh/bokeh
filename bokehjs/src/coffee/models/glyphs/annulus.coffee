@@ -55,11 +55,11 @@ export class AnnulusView extends XYGlyphView
 
   _hit_point: (geometry) ->
     [vx, vy] = [geometry.vx, geometry.vy]
-    x = @renderer.xscale.invert(vx, true)
+    x = @renderer.xscale.invert(vx)
     x0 = x - @max_radius
     x1 = x + @max_radius
 
-    y = @renderer.yscale.invert(vy, true)
+    y = @renderer.yscale.invert(vy)
     y0 = y - @max_radius
     y1 = y + @max_radius
 

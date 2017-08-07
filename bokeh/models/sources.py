@@ -70,16 +70,61 @@ class ColumnarDataSource(DataSource):
 class ColumnDataSource(ColumnarDataSource):
     ''' Maps names of columns to sequences or arrays.
 
-    If the ColumnDataSource initializer is called with a single argument that
-    is a dict or pandas.DataFrame, that argument is used as the value for the
-    "data" attribute. For example::
+    The ``ColumnDataSource`` is a fundamental data structure of Bokeh. Most
+    plots, data tables, etc. will be driven by a ``ColumnDataSource``.
 
-        ColumnDataSource(mydict) # same as ColumnDataSource(data=mydict)
-        ColumnDataSource(df) # same as ColumnDataSource(data=df)
+    If the ColumnDataSource initializer is called with a single argument that
+    can be any of the following:
+
+    * A Python ``dict`` that maps string names to sequences of values, e.g.
+      lists, arrays, etc.
+
+      .. code-block:: python
+
+          data = {'x': [1,2,3,4], 'y': np.ndarray([10.0, 20.0, 30.0, 40.0])}
+
+          source = ColumnDataSource(data)
+
+    * A Pandas ``DataFrame`` object
+
+      .. code-block:: python
+
+          source = ColumnDataSource(df)
+
+      In this case the CDS will have columns corresponding to the columns of
+      the ``DataFrame``. If the ``DataFrame`` has a named index column, then
+      CDS will also have a column with this name. However, if the index name
+      (or any subname of a ``MultiIndex``) is ``None``, then the CDS will have
+      a column generically named ``index`` for the index.
+
+    * A Pandas ``GroupBy`` object
+
+      .. code-block:: python
+
+          group = df.groupby(('colA', 'ColB'))
+
+      In this case the CDS will have columns corresponding to the result of
+      calling ``group.describe()``. The ``describe`` method generates columns
+      for statistical measures such as ``mean`` and ``count`` for all the
+      non-grouped orginal columns. The CDS columns are formed by joining
+      original column names with the computed measure. For example, if a
+      ``DataFrame`` has columns ``'year'`` and ``'mpg'``. Then passing
+      ``df.groupby('year')`` to a CDS will result in columns such as
+      ``'mpg_mean'``
+
+      If the ``GroupBy.describe`` result has a named index column, then
+      CDS will also have a column with this name. However, if the index name
+      (or any subname of a ``MultiIndex``) is ``None``, then the CDS will have
+      a column generically named ``index`` for the index.
+
+      Note this capability to adapt ``GroupBy`` objects may only work with
+      Pandas ``>=0.20.0``.
 
     .. note::
-        There is an implicit assumption that all the columns in a
-        a given ColumnDataSource have the same length.
+        There is an implicit assumption that all the columns in a given
+        ``ColumnDataSource`` all have the same length at all times. For this
+        reason, it is usually preferable to update the ``.data`` property
+        of a data source "all at once".
 
     '''
 
@@ -105,6 +150,8 @@ class ColumnDataSource(ColumnarDataSource):
         if not isinstance(raw_data, dict):
             if pd and isinstance(raw_data, pd.DataFrame):
                 raw_data = self._data_from_df(raw_data)
+            elif pd and isinstance(raw_data, pd.core.groupby.GroupBy):
+                raw_data = self._data_from_groupby(raw_data)
             else:
                 raise ValueError("expected a dict or pandas.DataFrame, got %s" % raw_data)
         super(ColumnDataSource, self).__init__(**kw)
@@ -125,15 +172,41 @@ class ColumnDataSource(ColumnarDataSource):
         '''
         _df = df.copy()
         index = _df.index
-        new_data = _df.to_dict('series')
+        tmp_data = _df.to_dict('series')
+
+        new_data = {}
+        for k, v in tmp_data.items():
+            if isinstance(k, tuple):
+                k = "_".join(k)
+            new_data[k] = v
 
         if index.name:
             new_data[index.name] = index.values
-        elif index.names and not all([x is None for x in index.names]):
-            new_data["_".join(index.names)] = index.values
+        elif index.names:
+            try:
+                new_data["_".join(index.names)] = index.values
+            except TypeError:
+                new_data["index"] = index.values
         else:
             new_data["index"] = index.values
         return new_data
+
+    @staticmethod
+    def _data_from_groupby(group):
+        ''' Create a ``dict`` of columns from a Pandas GroupBy,
+        suitable for creating a ColumnDataSource.
+
+        The data generated is the result of running ``describe``
+        on the group.
+
+        Args:
+            group (GroupBy) : data to convert
+
+        Returns:
+            dict[str, np.array]
+
+        '''
+        return ColumnDataSource._data_from_df(group.describe())
 
     @classmethod
     def from_df(cls, data):
@@ -148,6 +221,23 @@ class ColumnDataSource(ColumnarDataSource):
 
         '''
         return cls._data_from_df(data)
+
+    @classmethod
+    def from_groupby(cls, data):
+        ''' Create a ``dict`` of columns from a Pandas GroupBy,
+        suitable for creating a ColumnDataSource.
+
+        The data generated is the result of running ``describe``
+        on the group.
+
+        Args:
+            data (Groupby) : data to convert
+
+        Returns:
+            dict[str, np.array]
+
+        '''
+        return cls._data_from_df(data.describe())
 
     def to_df(self):
         ''' Convert this data source to pandas dataframe.

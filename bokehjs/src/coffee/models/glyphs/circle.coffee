@@ -25,24 +25,24 @@ export class CircleView extends XYGlyphView
     if @_radius? and @model.properties.radius.units == "data"
       sx0 = hr.start
       sx1 = hr.end
-      [x0, x1] = @renderer.xscale.v_invert([sx0, sx1], true)
+      [x0, x1] = @renderer.xscale.v_invert([sx0, sx1])
       x0 -= @max_radius
       x1 += @max_radius
 
       sy0 = vr.start
       sy1 = vr.end
-      [y0, y1] = @renderer.yscale.v_invert([sy0, sy1], true)
+      [y0, y1] = @renderer.yscale.v_invert([sy0, sy1])
       y0 -= @max_radius
       y1 += @max_radius
 
     else
       sx0 = hr.start - @max_size
       sx1 = hr.end + @max_size
-      [x0, x1] = @renderer.xscale.v_invert([sx0, sx1], true)
+      [x0, x1] = @renderer.xscale.v_invert([sx0, sx1])
 
       sy0 = vr.start - @max_size
       sy1 = vr.end + @max_size
-      [y0, y1] = @renderer.yscale.v_invert([sy0, sy1], true)
+      [y0, y1] = @renderer.yscale.v_invert([sy0, sy1])
 
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
     return @index.indices(bbox)
@@ -66,8 +66,8 @@ export class CircleView extends XYGlyphView
 
   _hit_point: (geometry) ->
     [vx, vy] = [geometry.vx, geometry.vy]
-    x = @renderer.xscale.invert(vx, true)
-    y = @renderer.yscale.invert(vy, true)
+    x = @renderer.xscale.invert(vx)
+    y = @renderer.yscale.invert(vy)
 
     # check radius first
     if @_radius? and @model.properties.radius.units == "data"
@@ -80,12 +80,12 @@ export class CircleView extends XYGlyphView
     else
       vx0 = vx - @max_size
       vx1 = vx + @max_size
-      [x0, x1] = @renderer.xscale.v_invert([vx0, vx1], true)
+      [x0, x1] = @renderer.xscale.v_invert([vx0, vx1])
       [x0, x1] = [Math.min(x0, x1), Math.max(x0, x1)]
 
       vy0 = vy - @max_size
       vy1 = vy + @max_size
-      [y0, y1] = @renderer.yscale.v_invert([vy0, vy1], true)
+      [y0, y1] = @renderer.yscale.v_invert([vy0, vy1])
       [y0, y1] = [Math.min(y0, y1), Math.max(y0, y1)]
 
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
@@ -95,10 +95,10 @@ export class CircleView extends XYGlyphView
     if @_radius? and @model.properties.radius.units == "data"
       for i in candidates
         r2 = Math.pow(@sradius[i], 2)
-        sx0 = @renderer.xscale.compute(x, true)
-        sx1 = @renderer.xscale.compute(@_x[i], true)
-        sy0 = @renderer.yscale.compute(y, true)
-        sy1 = @renderer.yscale.compute(@_y[i], true)
+        sx0 = @renderer.xscale.compute(x)
+        sx1 = @renderer.xscale.compute(@_x[i])
+        sy0 = @renderer.yscale.compute(y)
+        sy1 = @renderer.yscale.compute(@_y[i])
         dist = Math.pow(sx0-sx1, 2) + Math.pow(sy0-sy1, 2)
         if dist <= r2
           hits.push([i, dist])
@@ -130,7 +130,7 @@ export class CircleView extends XYGlyphView
           ms = @max_size/2
           vx0 = vx - ms
           vx1 = vx + ms
-          [x0, x1] = @renderer.xscale.v_invert([vx0, vx1], true)
+          [x0, x1] = @renderer.xscale.v_invert([vx0, vx1])
       else
         # use circle bounds instead of current pointer x coordinates
         x0 = minX
@@ -143,7 +143,7 @@ export class CircleView extends XYGlyphView
           ms = @max_size/2
           vy0 = vy - ms
           vy1 = vy + ms
-          [y0, y1] = @renderer.yscale.v_invert([vy0, vy1], true)
+          [y0, y1] = @renderer.yscale.v_invert([vy0, vy1])
 
       bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
       hits = @index.indices(bbox)
@@ -152,8 +152,8 @@ export class CircleView extends XYGlyphView
       return result
 
   _hit_rect: (geometry) ->
-    [x0, x1] = @renderer.xscale.v_invert([geometry.vx0, geometry.vx1], true)
-    [y0, y1] = @renderer.yscale.v_invert([geometry.vy0, geometry.vy1], true)
+    [x0, x1] = @renderer.xscale.v_invert([geometry.vx0, geometry.vx1])
+    [y0, y1] = @renderer.yscale.v_invert([geometry.vy0, geometry.vy1])
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
     result = hittest.create_hit_test_result()
     result['1d'].indices = @index.indices(bbox)

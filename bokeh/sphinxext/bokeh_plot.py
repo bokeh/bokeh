@@ -88,8 +88,12 @@ from ..util.string import decode_utf8
 from .example_handler import ExampleHandler
 from .templates import PLOT_PAGE
 
-if settings.docs_cdn() == "local":
-    resources = Resources(mode="server", root_url="/en/latest/")
+if settings.docs_cdn() is not None:
+    docs_cdn = settings.docs_cdn()
+    if docs_cdn == "local":
+        resources = Resources(mode="server", root_url="/en/latest/")
+    else:
+        resources = Resources(mode="server", root_url="/en/%s/" % docs_cdn)
 else:
     resources = Resources(mode="cdn")
 

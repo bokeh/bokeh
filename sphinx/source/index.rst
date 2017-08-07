@@ -33,6 +33,7 @@ the :ref:`devguide`.
     docs/user_guide/setup
     docs/user_guide/concepts
     docs/user_guide/plotting
+    docs/user_guide/categorical
     docs/user_guide/compat
     docs/user_guide/annotations
     docs/user_guide/styling
