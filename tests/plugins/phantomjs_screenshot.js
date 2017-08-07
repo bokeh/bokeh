@@ -90,9 +90,8 @@ page.open(url, function(status) {
         // check that document is done rendering
         var docs = window.Bokeh.documents;
         if (docs.length == 0) {
-          console.error("no documents were created")
-          window.callPhantom('done')
-        }
+          return false
+        };
         return docs[0].is_idle
       });
     }, function() {
