@@ -498,9 +498,8 @@ export class PlotCanvasView extends DOMView
       logger.warn('could not set initial ranges')
 
   update_constraints: () ->
-    # Note: -1 to effectively dilate the canvas by 1px
-    @solver.suggest_value(@frame._width, @canvas._width.value - 1)
-    @solver.suggest_value(@frame._height, @canvas._height.value - 1)
+    @solver.suggest_value(@frame._width, @canvas._width.value)
+    @solver.suggest_value(@frame._height, @canvas._height.value)
 
     for _, view of @renderer_views
       if view.model.panel?
@@ -611,7 +610,8 @@ export class PlotCanvasView extends DOMView
     ctx.save()
     if @visuals.outline_line.doit
       @visuals.outline_line.set_value(ctx)
-      ctx.strokeRect.apply(ctx, frame_box)
+      [x0, y0, w, h] = frame_box
+      ctx.strokeRect(x0, y0, w-1, h-1)
     ctx.restore()
 
     @_paint_levels(ctx, ['image', 'underlay', 'glyph'], frame_box)
