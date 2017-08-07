@@ -20,8 +20,8 @@
   type: server
   # animated renders poorly on phantomjs (but not firefox)
   # timeout starts with an empty frame and isn't a useful example
-  skip: ["animated.py", "timeout.py"]
-  no_diff: ["fourier_animted.py", "geojson_points.py", "line_animate.py", "line_animate_width.py"]
+  skip: ["timeout.py"]
+  no_diff: ["fourier_animted.py", "geojson_points.py", "line_animate.py", "line_animate_width.py", "animated.py"]
 
 - path: "plotting/notebook"
   skip: all

@@ -201,9 +201,7 @@ def _assert_snapshot(example, url, example_type):
 
     assert success, "%s failed to load" % example.relpath
     assert no_resources, "%s failed with %d missing resources" % (example.relpath, len(resources))
-
-    if example_type != "server":
-        assert no_errors, "%s failed with %d errors" % (example.relpath, len(errors))
+    assert no_errors, "%s failed with %d errors" % (example.relpath, len(errors))
 
 
 def _run_example(example):
