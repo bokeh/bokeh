@@ -20,7 +20,3 @@ Coffeescript for ion range slider:
 
 .. literalinclude:: ../examples/extensions_ion_range_slider.coffee
    :language: coffee
-
-Template for ion range slider:
-
-.. literalinclude:: ../examples/extensions_ion_range_slider_template.tsx
