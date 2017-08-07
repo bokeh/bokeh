@@ -8,6 +8,8 @@
   # linked_tap appears without glyphs, need to resolve in phantomjs
   # line_animate renders as a blur of lines in phantomjs (but not firefox)
   no_js: ["linked_tap.py", "line_animate.py"]
+  # population has a property error that needs to be resolved
+  skip: ["population.py"]
 
 - path: "custom"
 

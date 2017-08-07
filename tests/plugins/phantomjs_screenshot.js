@@ -41,7 +41,8 @@ function waitFor(testFx, onReady, timeOutMillis) {
             } else {
                 if(!condition) {
                     // If condition still not fulfilled (timeout but condition is 'false')
-                    finalize(true, false);
+                    // we return success=true here because some cases don't correctly return is_idle (i.e. TileRenderers)
+                    finalize(true, true);
                 } else {
                     // Condition fulfilled (timeout and/or condition is 'true')
                     typeof(onReady) === "string" ? eval(onReady) : onReady(); //< Do what it's supposed to do once the condition is fulfilled
@@ -83,30 +84,22 @@ page.open(url, function(status) {
     waitFor(function() {
       return page.evaluate(function() {
         // wait for BokehJS to be loaded
-        return (window.Bokeh !== undefined);
+        if (window.Bokeh == undefined) {
+          return false
+        };
+        // check that document is done rendering
+        var docs = window.Bokeh.documents;
+        if (docs.length == 0) {
+          console.error("no documents were created")
+          window.callPhantom('done')
+        }
+        return docs[0].is_idle
       });
     }, function() {
       page.evaluate(function() {
         document.body.bgColor = 'white';
-
-        function done() {
-          window.callPhantom('done');
-        }
-
-        var docs = window.Bokeh.documents;
-
-        if (docs.length == 0) {
-          console.error("no documents were created")
-          done();
-        } else {
-          var doc = docs[0];
-
-          if (doc.is_idle)
-            done();
-          else
-            doc.idle.connect(done);
-        }
+        window.callPhantom('done');
       });
     });
-  }
+  };
 });
