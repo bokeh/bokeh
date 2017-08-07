@@ -47,7 +47,7 @@ def test_reset_triggers_range1d_callback(output_file_url, selenium):
 def test_reset_triggers_factorrange_callback(output_file_url, selenium):
     x_range = FactorRange(factors=["a", "b", "c"])
     x_range.callback = CustomJS(code='alert("plot reset")')
-    y_range = FactorRange()
+    y_range = Range1d()
 
     # Make plot and add a range callback that generates an alert
     plot = make_plot(x_range, y_range, tools='reset')

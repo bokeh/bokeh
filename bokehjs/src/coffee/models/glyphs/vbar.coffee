@@ -1,6 +1,5 @@
 import {RBush} from "core/util/spatial"
 import {Glyph, GlyphView} from "./glyph"
-import {CategoricalScale} from "../scales/categorical_scale"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
 
@@ -10,8 +9,9 @@ export class VBarView extends GlyphView
     @sx = @renderer.xscale.v_compute(@_x)
 
     vtop = @renderer.yscale.v_compute(@_top)
-    vbottom = (@renderer.yscale.v_compute(@_bottom))
     @stop = @renderer.plot_view.canvas.v_vy_to_sy(vtop)
+
+    vbottom = (@renderer.yscale.v_compute(@_bottom))
     @sbottom = @renderer.plot_view.canvas.v_vy_to_sy(vbottom)
 
     @sleft = []
@@ -23,24 +23,13 @@ export class VBarView extends GlyphView
     return null
 
   _index_data: () ->
-    map_to_synthetic = (scale, array) ->
-      if scale instanceof CategoricalScale
-        scale.v_compute(array, true)
-      else
-        array
-
-    x = map_to_synthetic(@renderer.xscale, @_x)
-    width = map_to_synthetic(@renderer.xscale, @_width)
-
-    top = map_to_synthetic(@renderer.yscale, @_top)
-    bottom = map_to_synthetic(@renderer.yscale, @_bottom)
-
     points = []
-    for i in [0...x.length]
-      l = x[i] - width[i]/2
-      r = x[i] + width[i]/2
-      t = Math.max(top[i], bottom[i])
-      b = Math.min(top[i], bottom[i])
+
+    for i in [0...@_x.length]
+      l = @_x[i] - @_width[i]/2
+      r = @_x[i] + @_width[i]/2
+      t = Math.max(@_top[i], @_bottom[i])
+      b = Math.min(@_top[i], @_bottom[i])
       if isNaN(l+r+t+b) or not isFinite(l+r+t+b)
         continue
       points.push({minX: l, minY: b, maxX: r, maxY: t, i: i})
@@ -64,8 +53,8 @@ export class VBarView extends GlyphView
 
   _hit_point: (geometry) ->
     [vx, vy] = [geometry.vx, geometry.vy]
-    x = @renderer.xscale.invert(vx, true)
-    y = @renderer.yscale.invert(vy, true)
+    x = @renderer.xscale.invert(vx)
+    y = @renderer.yscale.invert(vy)
 
     hits = @index.indices({minX: x, minY: y, maxX: x, maxY: y})
 
@@ -82,10 +71,10 @@ export class VBar extends Glyph
   default_view: VBarView
   type: 'VBar'
 
+  @coords [['x', 'bottom']]
   @mixins ['line', 'fill']
   @define {
-      x:      [ p.NumberSpec    ]
-      width:  [ p.DistanceSpec  ]
-      top:    [ p.NumberSpec    ]
-      bottom: [ p.NumberSpec, 0 ]
-    }
+    width:  [ p.DistanceSpec  ]
+    top:    [ p.NumberSpec    ]
+  }
+  @override { bottom: 0 }

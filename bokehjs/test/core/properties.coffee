@@ -8,6 +8,7 @@ enums = utils.require "core/enums"
 {ColumnDataSource} = utils.require("models/sources/column_data_source")
 svg_colors = utils.require "core/util/svg_colors"
 {Transform} = utils.require "models/transforms/transform"
+{Expression} = utils.require "models/expressions/expression"
 
 class TestTransform extends Transform
   compute: (x) -> x+1
@@ -15,6 +16,13 @@ class TestTransform extends Transform
     ret = []
     for i in [0...xs.length]
       ret.push(xs[i]+i)
+    ret
+
+class TestExpression extends Expression
+  v_compute: (source) ->
+    ret = []
+    for i in [0...source.get_length()]
+      ret.push(i)
     ret
 
 class SomeHasProps extends HasProps
@@ -44,6 +52,7 @@ describe "properties module", ->
     validation_error prop, new SomeHasProps()
 
   fixed            = {a: 1}
+  spec_expr        = {a: {expr: new TestExpression()}}
   spec_field       = {a: {field: 'foo'}, b: 30}
   spec_field_only  = {a: {field: 'foo'}}
   spec_field_trans = {a: {field: 'foo', transform: new TestTransform()}}
@@ -135,6 +144,7 @@ describe "properties module", ->
           arr = prop.array(source)
         expect(fn).to.throw Error, /attempted to retrieve property array for non-dataspec property/
 
+      it "should return a computed array if there is an expr spec", ->
 
       it "should return an array if there is a value spec", ->
         source = new ColumnDataSource({data: {foo: [0,1,2,3,10]}})
@@ -159,6 +169,19 @@ describe "properties module", ->
         expect(arr[2]).to.be.equal 2
         expect(arr[3]).to.be.equal 2
         expect(arr[4]).to.be.equal 2
+
+      it "should return an array if there is a valid expr spec", ->
+        source = new ColumnDataSource({data: {foo: [0,1,2,3,10]}})
+        prop = new properties.Property({obj: new SomeHasProps(spec_expr), attr: 'a'})
+        prop.dataspec = true
+        arr = prop.array(source)
+        expect(arr).to.be.instanceof Array
+        expect(arr.length).to.be.equal 5
+        expect(arr[0]).to.be.equal 0
+        expect(arr[1]).to.be.equal 1
+        expect(arr[2]).to.be.equal 2
+        expect(arr[3]).to.be.equal 3
+        expect(arr[4]).to.be.equal 4
 
       it "should return an array if there is a valid field spec", ->
         source = new ColumnDataSource({data: {foo: [0,1,2,3,10]}})

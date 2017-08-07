@@ -57,6 +57,8 @@ export class Property # <T>
         ret = @transform(source.get_column(@spec.field))
       else
         throw new Error("attempted to retrieve property array for nonexistent field '#{@spec.field}'")
+    else if @spec.expr?
+      ret = @transform(@spec.expr._v_compute(source))
     else
       length = source.get_length()
       length = 1 if not length?
@@ -98,7 +100,7 @@ export class Property # <T>
     if isArray(attr_value)
       @spec = {value: attr_value}
 
-    else if isObject(attr_value) and ((attr_value.value == undefined) != (attr_value.field == undefined))
+    else if isObject(attr_value) and ((if attr_value.value == undefined then 0 else 1) + (if attr_value.field == undefined then 0 else 1) + (if attr_value.expr == undefined then 0 else 1) == 1) # garbage JS XOR
       @spec = attr_value
 
     else

@@ -47,6 +47,23 @@ export class PolySelectToolView extends SelectToolView
     }
     @_select(geometry, final, append)
 
+  _emit_callback: (geometry) ->
+    r = @computed_renderers[0]
+    canvas = @plot_model.canvas
+    frame = @plot_model.frame
+
+    geometry['sx'] = canvas.v_vx_to_sx(geometry.vx)
+    geometry['sy'] = canvas.v_vx_to_sx(geometry.vy)
+
+    xscale = frame.xscales[r.x_range_name]
+    yscale = frame.yscales[r.y_range_name]
+    geometry['x'] = xscale.v_invert(geometry.vx)
+    geometry['y'] = xscale.v_invert(geometry.vy)
+
+    @model.callback.execute(@model, {geometry: geometry})
+
+    return
+
 DEFAULT_POLY_OVERLAY = () -> new PolyAnnotation({
   level: "overlay"
   xs_units: "screen"
@@ -68,5 +85,6 @@ export class PolySelectTool extends SelectTool
   default_order: 11
 
   @define {
-      overlay: [ p.Instance, DEFAULT_POLY_OVERLAY ]
+      callback:   [ p.Instance                       ]
+      overlay:    [ p.Instance, DEFAULT_POLY_OVERLAY ]
     }

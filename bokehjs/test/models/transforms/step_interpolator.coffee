@@ -1,8 +1,6 @@
 {expect} = require "chai"
 utils = require "../../utils"
 
-{Collections} = utils.require "base"
-
 {StepInterpolator} = utils.require('models/transforms/step_interpolator')
 {ColumnDataSource} = utils.require('models/sources/column_data_source')
 

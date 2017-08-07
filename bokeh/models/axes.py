@@ -179,6 +179,30 @@ class CategoricalAxis(Axis):
 
     formatter = Override(default=lambda: CategoricalTickFormatter())
 
+    separator_props = Include(LineProps, help="""
+    The %s of the separator line between top-level categorical groups.
+    """)
+
+    separator_line_color = Override(default="lightgrey")
+
+    separator_line_width = Override(default=2)
+
+    group_props = Include(TextProps, help="""
+    The %s of the group top-level categorical groups.
+    """)
+
+    group_text_font_size = Override(default={'value': "8pt"})
+    group_text_font_style = Override(default="bold")
+    group_text_color = Override(default="grey")
+
+    subgroup_props = Include(TextProps, help="""
+    The %s of the group top-level categorical groups.
+    """)
+
+    subgroup_text_font_size = Override(default={'value': "8pt"})
+    subgroup_text_font_style = Override(default="bold")
+
+
 class DatetimeAxis(LinearAxis):
     ''' An LinearAxis that picks nice numbers for tick locations on
     a datetime scale. Configured with a ``DatetimeTickFormatter`` by

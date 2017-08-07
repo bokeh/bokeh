@@ -48,8 +48,8 @@ export class AnnularWedgeView extends XYGlyphView
 
   _hit_point: (geometry) ->
     [vx, vy] = [geometry.vx, geometry.vy]
-    x = @renderer.xscale.invert(vx, true)
-    y = @renderer.yscale.invert(vy, true)
+    x = @renderer.xscale.invert(vx)
+    y = @renderer.yscale.invert(vy)
 
     # check radius first
     if @model.properties.outer_radius.units == "data"
@@ -62,11 +62,11 @@ export class AnnularWedgeView extends XYGlyphView
     else
       vx0 = vx - @max_outer_radius
       vx1 = vx + @max_outer_radius
-      [x0, x1] = @renderer.xscale.v_invert([vx0, vx1], true)
+      [x0, x1] = @renderer.xscale.v_invert([vx0, vx1])
 
       vy0 = vy - @max_outer_radius
       vy1 = vy + @max_outer_radius
-      [y0, y1] = @renderer.yscale.v_invert([vy0, vy1], true)
+      [y0, y1] = @renderer.yscale.v_invert([vy0, vy1])
 
     candidates = []
 
@@ -74,10 +74,10 @@ export class AnnularWedgeView extends XYGlyphView
     for i in @index.indices(bbox)
       or2 = Math.pow(@souter_radius[i], 2)
       ir2 = Math.pow(@sinner_radius[i], 2)
-      sx0 = @renderer.xscale.compute(x, true)
-      sx1 = @renderer.xscale.compute(@_x[i], true)
-      sy0 = @renderer.yscale.compute(y, true)
-      sy1 = @renderer.yscale.compute(@_y[i], true)
+      sx0 = @renderer.xscale.compute(x)
+      sx1 = @renderer.xscale.compute(@_x[i])
+      sy0 = @renderer.yscale.compute(y)
+      sy1 = @renderer.yscale.compute(@_y[i])
       dist = Math.pow(sx0-sx1, 2) + Math.pow(sy0-sy1, 2)
       if dist <= or2 and dist >= ir2
         candidates.push([i, dist])
