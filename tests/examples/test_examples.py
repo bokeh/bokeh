@@ -71,22 +71,23 @@ def test_server_examples(server_example, example, report, bokeh_server):
     if example.is_skip:
         pytest.skip("skipping %s" % example.relpath)
 
-    if example.no_js:
-        if not pytest.config.option.no_js:
-            pytest.skip("skipping bokehjs for %s" % example.relpath)
-
     app = build_single_handler_application(example.path)
     doc = app.create_document()
 
     session_id = "session_id"
     push_session(doc, session_id=session_id)
 
-    _assert_snapshot(example, "http://localhost:5006/?bokeh-session-id=%s" % session_id, 'server')
+    if example.no_js:
+        if not pytest.config.option.no_js:
+            warn("skipping bokehjs for %s" % example.relpath)
 
-    if example.no_diff:
-        warn("skipping image diff for %s" % example.relpath)
     else:
-        _get_pdiff(example)
+        _assert_snapshot(example, "http://localhost:5006/?bokeh-session-id=%s" % session_id, 'server')
+
+        if example.no_diff:
+            warn("skipping image diff for %s" % example.relpath)
+        else:
+            _get_pdiff(example)
 
 
 ### {{{ THIS IS BROKEN and all examples are skipped in examples.yaml

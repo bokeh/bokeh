@@ -13,13 +13,13 @@ N = 9
 x = np.linspace(-2, 2, N)
 y = x**2
 
-source1 = ColumnDataSource(dict(x = x, y = y, size = [20]*N))
+source1 = ColumnDataSource(dict(x = x, y = y, radius = [0.1]*N))
 xdr1 = DataRange1d()
 ydr1 = DataRange1d()
 plot1 = Plot(x_range=xdr1, y_range=ydr1, plot_width=400, plot_height=400)
 plot1.title.text = "Plot1"
 plot1.tools.append(TapTool(plot=plot1))
-plot1.add_glyph(source1, Circle(x="x", y="y", size="size", fill_color="red"))
+plot1.add_glyph(source1, Circle(x="x", y="y", radius="radius", fill_color="red"))
 
 source2 = ColumnDataSource(dict(x = x, y = y, color = ["blue"]*N))
 xdr2 = DataRange1d()
@@ -27,7 +27,7 @@ ydr2 = DataRange1d()
 plot2 = Plot(x_range=xdr2, y_range=ydr2, plot_width=400, plot_height=400)
 plot2.title.text = "Plot2"
 plot2.tools.append(TapTool(plot=plot2))
-plot2.add_glyph(source2, Circle(x="x", y="y", size=20, fill_color="color"))
+plot2.add_glyph(source2, Circle(x="x", y="y", radius=0.1, fill_color="color"))
 
 def on_selection_change1(attr, _, inds):
     color = ["blue"]*N
@@ -43,11 +43,11 @@ def on_selection_change2(attr, _, inds):
     inds = inds['1d']['indices']
     if inds:
         [index] = inds
-        size = [10]*N
-        size[index] = 40
+        radius = [0.1]*N
+        radius[index] = 0.2
     else:
-        size = [20]*N
-    source1.data["size"] = size
+        radius = [0.1]*N
+    source1.data["radius"] = radius
 
 source2.on_change('selected', on_selection_change2)
 
