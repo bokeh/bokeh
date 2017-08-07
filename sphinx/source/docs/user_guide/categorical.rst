@@ -72,7 +72,7 @@ coordinate, the bar height as the ``top`` coordinate, and optionally any
 All put together, we see the output:
 
 .. bokeh-plot:: docs/user_guide/examples/categorical_bar_basic.py
-    :source-position: below
+    :source-position: above
 
 As usual, the data could also be put into a ``ColumnDataSource`` supplied as
 the ``source`` parameter to ``vbar`` instead of passing the data directly
@@ -91,7 +91,7 @@ is passed to ``figure`` as the ``color`` (or ``line_color``/``fill_color``)
 arguments. This is shown below:
 
 .. bokeh-plot:: docs/user_guide/examples/categorical_bar_colors.py
-    :source-position: below
+    :source-position: above
 
 Another way to shade the bars is to use a ``CategoricalColorMapper`` that
 colormaps the bars inside the browser. There is a function
@@ -106,7 +106,7 @@ previous example. Putting everything together we obtain the same plot in
 a different way:
 
 .. bokeh-plot:: docs/user_guide/examples/categorical_bar_colormapped.py
-    :source-position: below
+    :source-position: above
 
 
 .. _userguide_categorical_bars_grouped:
@@ -136,7 +136,7 @@ coordinates that are each 2-tuples of the form ``(fruit, year)``. Accordingly,
 the plot groups the axes by fruit type, with a single call to ``vbar``:
 
 .. bokeh-plot:: docs/user_guide/examples/categorical_bar_nested.py
-    :source-position: below
+    :source-position: above
 
 We can also apply a color mapping, similar to the earlier example. To obtain
 same grouped bar plot of fruits data as above, except with the bars shaded by
@@ -176,7 +176,7 @@ visually by using the :func:`~bokeh.transform.dodge` function to provide an
 offset for each different call to ``vbar``:
 
 .. bokeh-plot:: docs/user_guide/examples/categorical_bar_dodged.py
-    :source-position: below
+    :source-position: above
 
 .. _userguide_categorical_bars_stacked:
 
@@ -191,7 +191,7 @@ below shows the fruits data from above, but with the bars for each
 fruit type stacked instead of grouped:
 
 .. bokeh-plot:: docs/user_guide/examples/categorical_bar_stacked.py
-    :source-position: below
+    :source-position: above
 
 Note that behing the scenes, these functions work by stacking up the
 successive columns in separate calls to ``vbar`` or ``hbar``. This kind of
@@ -203,11 +203,35 @@ operation is akin the to dodge example above (i.e. the data in this case is
 Pandas
 ~~~~~~
 
+`Pandas`_ is a powerful and common tool for doing data analysis on tabular and
+timeseries data in Python. Although it is not *required* by Bokeh, Bokeh tries
+to make life easier when you do.
+
+Below is a plot that demonstrates some advantages when using Pandas with
+Bokeh:
+
+* Pandas ``GroupBy`` objects can be used to initialize a ``CoumnDataSource``,
+  automatically creating columns for many statistical measures such as the
+  group mean or count
+
+* ``GroupBy`` objects may also be passed directly as a range argument to
+  ``figure``.
+
 .. bokeh-plot:: docs/user_guide/examples/categorical_bar_pandas_groupby_colormapped.py
-    :source-position: below
+    :source-position: above
+
+Not that in the example above, we grouped by the column ``'cyl'`` so our CDS
+has a column ``'cyl'`` for this index. Additionally, other non-grouped columns
+like ``'mpg'`` have had associated columns such ``'mpg_mean'`` added, that
+give the mean MPG value for each group.
+
+This usage also works when the grouping is multi-level. The example below shows
+how grouping the same data by ``('cyl', 'mfr')`` results in a hierarchical
+nested axis. In this case, the index column name ``'cyl_mfr'`` is made by
+joining the names of the grouped columns together.
 
 .. bokeh-plot:: docs/user_guide/examples/categorical_bar_pandas_groupby_nested.py
-    :source-position: below
+    :source-position: above
 
 .. _userguide_categorical_bars_intervals:
 
@@ -223,7 +247,7 @@ supplied, to show the spread in times between bronze and gold medalists in
 Olympic sprinting over many years:
 
 .. bokeh-plot:: docs/user_guide/examples/categorical_bar_intervals.py
-    :source-position: below
+    :source-position: above
 
 .. _userguide_categorical_scatters:
 
@@ -231,7 +255,7 @@ Scatters
 --------
 
 .. .. bokeh-plot:: docs/user_guide/examples/categorical_scatter.py
-..     :source-position: below
+..     :source-position: above
 
 .. _userguide_categorical_scatters_jitter:
 
@@ -249,7 +273,7 @@ would result in thousands of points overlapping in a narrow line for each day.
 By using ``jitter`` we can differentiate the points to obtain a useful plot:
 
 .. bokeh-plot:: docs/user_guide/examples/categorical_scatter_jitter.py
-    :source-position: below
+    :source-position: above
 
 .. _userguide_categorical_heatmaps:
 
@@ -270,7 +294,7 @@ to colormap the plot, and is also passed to a color bar to provide a visual
 legend on the right:
 
 .. bokeh-plot:: docs/user_guide/examples/categorical_heatmap_unemployment.py
-    :source-position: below
+    :source-position: above
 
 A final example combines many of the techniques in this chapter: color mappers,
 visual dodges, and Pandas DataFrames. These are used to create a different
@@ -279,7 +303,7 @@ tool as also been added so that additional information about each element
 can be inspected:
 
 .. bokeh-plot:: docs/user_guide/examples/categorical_heatmap_periodic.py
-    :source-position: below
+    :source-position: above
 
 
 .. _Pandas: http://pandas.pydata.org
