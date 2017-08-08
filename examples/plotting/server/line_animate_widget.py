@@ -1,5 +1,3 @@
-# You must first run "bokeh serve" to view this example
-
 from math import pi
 
 import numpy as np
@@ -16,9 +14,6 @@ y = np.sin(x)
 p = figure()
 r1 = p.line([0, 4*pi], [-1, 1], color="firebrick")
 r2 = p.line(x, y, color="navy", line_width=4)
-
-# open a session to keep our local document in sync with server
-session = push_session(curdoc())
 
 def start_handler():
     global playing
@@ -48,8 +43,13 @@ def update(step):
         r2.glyph.line_alpha = 1 - 0.8 * abs(step)
 
 playing = True
-curdoc().add_periodic_callback(update, 50)
 
-session.show(layout) # open the document in a browser
+document = curdoc()
+document.add_root(layout)
+document.add_periodic_callback(update, 50)
 
-session.loop_until_closed() # run forever
+if __name__ == "__main__":
+    print("\nanimating... press ctrl-C to stop")
+    session = push_session(document)
+    session.show()
+    session.loop_until_closed()

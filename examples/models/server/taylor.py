@@ -5,14 +5,12 @@ import sympy as sy
 
 from bokeh.core.properties import value
 from bokeh.client import push_session
-from bokeh.document import Document
+from bokeh.io import curdoc
 from bokeh.models.glyphs import Line
 from bokeh.models import Plot, Range1d, LinearAxis, ColumnDataSource, Grid, Legend, LegendItem
 from bokeh.models.widgets import Slider, TextInput, PreText
 from bokeh.models.layouts import WidgetBox, Column
 
-document = Document()
-session = push_session(document)
 
 xs = sy.Symbol('x')
 expr = sy.exp(-xs)*sy.sin(xs)
@@ -100,10 +98,12 @@ errbox = PreText()
 inputs = WidgetBox(children=[slider, text, errbox], width=600)
 layout = Column(children=[inputs, plot])
 update_data()
+
+document = curdoc()
 document.add_root(layout)
-session.show(layout)
 
 if __name__ == "__main__":
-    document.validate()
     print("\npress ctrl-C to exit")
+    session = push_session(document)
+    session.show()
     session.loop_until_closed()
