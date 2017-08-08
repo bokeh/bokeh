@@ -309,6 +309,41 @@ You should see output similar to:
     node.js version     :  v6.10.3
     npm version         :  3.10.10
 
+The next check that can be made is to generate one of the example figures. 
+There are a examples for the different ways in which bokeh can be used.
+
+To create an html file,
+
+.. code-block:: sh
+
+    env BOKEH_RESOURCES=inline python examples/plotting/file/iris.py
+
+which will create a file ``iris.html`` locally and open up a web browser.
+
+.. image:: /_images/bokeh_iris_html.png
+    :scale: 50 %
+    :align: center
+
+The variable ``BOKEH_RESOURCES`` determines where the css and JavaScript
+resources required by bokeh are found. In this case they are included inline in
+the html file. Another possible value is ``BOKEH_RESOURCES=cdn`` which will fetch the resources
+from http://cdn.pydata.org Other options can be found in the
+`resources reference`_.
+
+Another method of running bokeh is as a server. An example of this mode of operation can be run
+using the command 
+
+.. code-block:: sh
+
+    python -m bokeh serve &
+    python examples/plotting/server/line_animate_widget.py
+
+which will open up an animated figure with start and stop widget.
+
+.. image:: /_images/bokeh_server_line.png
+    :scale: 50 %
+    :align: center
+
 If you have any problems with the steps here, please `contact the developers`_.
 
 .. _Anaconda: https://www.continuum.io/downloads
@@ -322,3 +357,4 @@ If you have any problems with the steps here, please `contact the developers`_.
 .. _meta.yaml: http://github.com/bokeh/bokeh/blob/master/conda.recipe/meta.yaml
 .. _Pro Git Book: https://git-scm.com/book/en/v2
 .. _this turorial: https://www.digitalocean.com/community/tutorials/how-to-use-git-hooks-to-automate-development-and-deployment-tasks
+.. _resources reference: http://bokeh.pydata.org/en/latest/docs/reference/resources.html
