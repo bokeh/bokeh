@@ -309,7 +309,7 @@ You should see output similar to:
     node.js version     :  v6.10.3
     npm version         :  3.10.10
 
-The next check that can be made is to generate one of the example figures. 
+The next check that can be made is to generate one of the example figures.
 There are a examples for the different ways in which bokeh can be used.
 
 To create an html file,
@@ -331,7 +331,7 @@ from http://cdn.pydata.org Other options can be found in the
 `resources reference`_.
 
 Another method of running bokeh is as a server. An example of this mode of operation can be run
-using the command 
+using the command
 
 .. code-block:: sh
 
