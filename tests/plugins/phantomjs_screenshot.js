@@ -83,6 +83,8 @@ page.open(url, function(status) {
   } else {
     waitFor(function() {
       return page.evaluate(function() {
+        // this will annoying be set repeatedly, but we need to make sure it happens
+        document.body.bgColor = 'white';
         // wait for BokehJS to be loaded
         if (window.Bokeh == undefined) {
           return false
@@ -96,7 +98,6 @@ page.open(url, function(status) {
       });
     }, function() {
       page.evaluate(function() {
-        document.body.bgColor = 'white';
         window.callPhantom('done');
       });
     });
