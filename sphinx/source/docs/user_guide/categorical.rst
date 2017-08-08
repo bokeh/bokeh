@@ -198,6 +198,13 @@ successive columns in separate calls to ``vbar`` or ``hbar``. This kind of
 operation is akin the to dodge example above (i.e. the data in this case is
 *not* in a "tidy" data format).
 
+Sometimes we may want to stack bars that have both positive and negative
+extents. The example below shows how it is possible to create such a
+stacked bar chart that is split by positive and negative values:
+
+.. bokeh-plot:: docs/user_guide/examples/categorical_bar_stacked_split.py
+    :source-position: above
+
 .. _userguide_categorical_bars_pandas:
 
 Pandas
@@ -236,7 +243,7 @@ joining the names of the grouped columns together.
 .. _userguide_categorical_bars_intervals:
 
 Intervals
-~~~~~~~~~
+---------
 
 So far we have seen the bar glyphs used to create bar charts, which imply
 bars drawn from a common baseline. However, the bar glyphs can also be used
