@@ -207,15 +207,6 @@ just the y-axis by setting the ``dimensions`` property to a list containing ``wi
 or ``height``. Additionally, there are tool aliases ``'xpan'`` and ``'ypan'``,
 respectively.
 
-ResizeTool
-~~~~~~~~~~
-
-* name: ``'resize'``
-* icon: |resize_icon|
-
-The resize tool allows the user to left-drag a mouse or drag a finger to resize
-the entire plot.
-
 .. _userguide_tools_clicktap:
 
 Click/Tap Tools
@@ -634,8 +625,6 @@ properties on |Plot| objects that control LOD behavior:
 .. |redo_icon| image:: /_images/icons/Redo.png
     :height: 14pt
 .. |reset_icon| image:: /_images/icons/Reset.png
-    :height: 14pt
-.. |resize_icon| image:: /_images/icons/Resize.png
     :height: 14pt
 .. |save_icon| image:: /_images/icons/Save.png
     :height: 14pt

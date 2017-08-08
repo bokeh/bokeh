@@ -100,6 +100,9 @@ use the ``SelectionGeometry`` event present on ``Plot`` or ``Figure``.
 For GIS-related use-cases built on top of Bokeh, consider using
 GeoViews_, or creating a `Custom Extension`_.
 
+``ResizeTool`` is deprecated and also *immediately* is a NO-OP on the Python
+side. ``ResizeTool`` has been removed from BokehJS entirely.
+
 BokehJS Widgets Bundle Split
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
