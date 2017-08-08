@@ -611,7 +611,13 @@ export class PlotCanvasView extends DOMView
     if @visuals.outline_line.doit
       @visuals.outline_line.set_value(ctx)
       [x0, y0, w, h] = frame_box
-      ctx.strokeRect(x0, y0, w-1, h-1)
+      # XXX: shrink outline region by 1px to make right and bottom lines visible
+      # if they are on the edge of the canvas.
+      if x0 + w == @canvas._width.value
+        w -= 1
+      if y0 + h == @canvas._height.value
+        h -= 1
+      ctx.strokeRect(x0, y0, w, h)
     ctx.restore()
 
     @_paint_levels(ctx, ['image', 'underlay', 'glyph'], frame_box)
