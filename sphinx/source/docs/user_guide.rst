@@ -63,6 +63,9 @@ topic:
 :ref:`userguide_geo`
     Working with geographical data - Google Maps, GeoJSON, Tile Rendering.
 
+:ref:`userguide_graph`
+    Create network graph visualizations with configurable node and edge interactions.
+
 :ref:`userguide_bokehjs`
     Create plots in JavaScript by using BokehJS directly.
 
