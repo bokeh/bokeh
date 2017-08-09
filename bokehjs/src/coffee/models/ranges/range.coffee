@@ -9,8 +9,8 @@ export class Range extends Model
     @connect(@change, () -> @callback?.execute(@))
 
   @define {
-      callback: [ p.Instance ]
-    }
+    callback: [ p.Instance ]
+  }
 
   @internal {
     plots: [ p.Array, [] ]

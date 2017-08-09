@@ -162,25 +162,3 @@ describe "WidgetBox", ->
       delete expected_constrained_variables.box_equal_size_right
       constrained_variables = @widget_box.get_constrained_variables()
       expect(constrained_variables).to.be.deep.equal expected_constrained_variables
-
-  describe "should pull things from children", ->
-    afterEach ->
-      LayoutDOM.prototype.get_constraints.restore()
-      LayoutDOM.prototype.get_edit_variables.restore()
-
-    beforeEach ->
-      sinon.stub(LayoutDOM.prototype, 'get_constraints').returns([])
-      sinon.stub(LayoutDOM.prototype, 'get_edit_variables').returns([])
-      tab_plot = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d(), toolbar: new Toolbar()})
-      tab_plot.attach_document(new Document())
-      panel = new Panel({child: tab_plot})
-      @tabs = new Tabs({tabs: [panel]})
-      @widget_box.children = [@tabs]
-
-    it "get_edit_variables", ->
-      sinon.stub(@tabs, 'get_edit_variables', () -> [{'a': 1, 'b': 2}, {'a': 3, 'b': 4}])
-      expect(@widget_box.get_edit_variables()).to.be.deep.equal @tabs.get_edit_variables()
-
-    it "get_constraints", ->
-      sinon.stub(@tabs, 'get_constraints', () -> [{'a': 1, 'b': 2}, {'a': 3, 'b': 4}])
-      expect(@widget_box.get_constraints()).to.be.deep.equal @tabs.get_constraints()

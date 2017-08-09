@@ -31,7 +31,6 @@ _known_tools = {
   zoom_out:     () -> new models.ZoomOutTool(dimensions: 'both')
   xzoom_out:    () -> new models.ZoomOutTool(dimensions: 'width')
   yzoom_out:    () -> new models.ZoomOutTool(dimensions: 'height')
-  resize:       () -> new models.ResizeTool()
   click:        () -> new models.TapTool(behavior: "inspect")
   tap:          () -> new models.TapTool()
   crosshair:    () -> new models.CrosshairTool()

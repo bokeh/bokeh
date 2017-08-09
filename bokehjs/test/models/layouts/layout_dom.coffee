@@ -197,7 +197,7 @@ describe "LayoutDOM", ->
   it "should have have layoutable methods", ->
     l = new LayoutDOM()
     expect(l.get_constraints).is.a 'function'
-    expect(l.get_edit_variables).is.a 'function'
+    expect(l.get_editables).is.a 'function'
     expect(l.get_constrained_variables).is.a 'function'
     expect(l.get_layoutable_children).is.a 'function'
 
@@ -267,31 +267,27 @@ describe "LayoutDOM", ->
   it "should set edit_variable height if sizing_mode is scale_width", ->
     l = new LayoutDOM()
     l.sizing_mode = 'scale_width'
-    ev = l.get_edit_variables()
+    ev = l.get_editables()
     expect(ev.length).to.be.equal 1
-    expect(ev[0].edit_variable).to.be.equal l._height
-    expect(ev[0].strength._strength).to.be.equal Strength.strong._strength
+    expect(ev[0]).to.be.equal l._height
 
   it "should set edit_variable width if sizing_mode is scale_height", ->
     l = new LayoutDOM()
     l.sizing_mode = 'scale_height'
-    ev = l.get_edit_variables()
+    ev = l.get_editables()
     expect(ev.length).to.be.equal 1
-    expect(ev[0].edit_variable).to.be.equal l._width
-    expect(ev[0].strength._strength).to.be.equal Strength.strong._strength
+    expect(ev[0]).to.be.equal l._width
 
   it "should not set edit_variables if sizing_mode is box", ->
     l = new LayoutDOM()
     l.sizing_mode = 'stretch_both'
-    ev = l.get_edit_variables()
+    ev = l.get_editables()
     expect(ev.length).to.be.equal 0
 
   it "should set edit_variable height and width if sizing_mode is fixed", ->
     l = new LayoutDOM()
     l.sizing_mode = 'fixed'
-    ev = l.get_edit_variables()
+    ev = l.get_editables()
     expect(ev.length).to.be.equal 2
-    expect(ev[0].edit_variable).to.be.equal l._height
-    expect(ev[0].strength._strength).to.be.equal Strength.strong._strength
-    expect(ev[1].edit_variable).to.be.equal l._width
-    expect(ev[1].strength._strength).to.be.equal Strength.strong._strength
+    expect(ev[0]).to.be.equal l._height
+    expect(ev[1]).to.be.equal l._width

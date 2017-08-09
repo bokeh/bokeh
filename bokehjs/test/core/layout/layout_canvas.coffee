@@ -8,7 +8,7 @@ describe "LayoutCanvas", ->
 
   it "should should return no constraints", ->
     c = new LayoutCanvas()
-    expect(c.get_constraints().length).to.be.equal 0
+    expect(c.get_constraints().length).to.be.equal(8)
 
   it "should get new variables on initialize", ->
     c = new LayoutCanvas()
@@ -23,13 +23,5 @@ describe "LayoutCanvas", ->
 
   it "should should return four strong edit variables", ->
     c = new LayoutCanvas()
-    ev = c.get_edit_variables()
-    expect(ev.length).to.be.equal 4
-    variables = []
-    for e in ev
-      variables.push(e.edit_variable._name)
-      expect(e.strength._strength).to.be.equal Strength.strong._strength
-    expect("top #{c.id}"    in variables).to.be.true
-    expect("left #{c.id}"   in variables).to.be.true
-    expect("width #{c.id}"  in variables).to.be.true
-    expect("height #{c.id}" in variables).to.be.true
+    ev = c.get_editables()
+    expect(ev.length).to.be.equal(2)

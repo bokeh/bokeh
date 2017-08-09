@@ -1,7 +1,7 @@
 import {LayoutCanvas} from "core/layout/layout_canvas"
 
 import {DOMView} from "core/dom_view"
-import {GE, EQ} from "core/layout/solver"
+import {EQ} from "core/layout/solver"
 import {logger} from "core/logging"
 import * as p from "core/properties"
 import {div, canvas} from "core/dom"
@@ -106,8 +106,7 @@ export class Canvas extends LayoutCanvas
   vx_to_sx: (x) -> x
 
   vy_to_sy: (y) ->
-    # Note: +1 to account for 1px canvas dilation
-    return @_height.value - (y + 1)
+    return @_height.value - y
 
   # vectorized versions of vx_to_sx/vy_to_sy
   v_vx_to_sx: (xx) ->
@@ -116,16 +115,14 @@ export class Canvas extends LayoutCanvas
   v_vy_to_sy: (yy) ->
     _yy = new Float64Array(yy.length)
     height = @_height.value
-    # Note: +1 to account for 1px canvas dilation
     for y, idx in yy
-      _yy[idx] = height - (y + 1)
+      _yy[idx] = height - y
     return _yy
 
   sx_to_vx: (x) -> x
 
   sy_to_vy: (y) ->
-    # Note: +1 to account for 1px canvas dilation
-    return @_height.value - (y + 1)
+    return @_height.value - y
 
   # vectorized versions of sx_to_vx/sy_to_vy
   v_sx_to_vx: (xx) ->
@@ -134,19 +131,6 @@ export class Canvas extends LayoutCanvas
   v_sy_to_vy: (yy) ->
     _yy = new Float64Array(yy.length)
     height = @_height.value
-    # Note: +1 to account for 1px canvas dilation
     for y, idx in yy
-      _yy[idx] = height - (y + 1)
+      _yy[idx] = height - y
     return _yy
-
-  get_constraints: () ->
-    return super().concat([
-      GE(@_top),
-      GE(@_bottom),
-      GE(@_left),
-      GE(@_right),
-      GE(@_width),
-      GE(@_height),
-      EQ(@_width, [-1, @_right]),
-      EQ(@_height, [-1, @_top]),
-    ])

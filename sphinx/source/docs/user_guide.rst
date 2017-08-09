@@ -8,17 +8,21 @@ you might want to accomplish using Bokeh. The guide is arranged by
 topic:
 
 :ref:`userguide_quickstart`
-    Read the Quickstart guide to Bokeh to get up and running fast.
+    Get set up and running quickly.
 
 :ref:`userguide_setup`
     Install Bokeh and verify your installation is working correctly.
 
 :ref:`userguide_concepts`
-    Define and explain important preliminary concepts.
+    Learn important foundational concepts about how Bokeh is organized.
 
 :ref:`userguide_plotting`
-    Use the simple but flexible glyph methods from the |bokeh.plotting|
-    interface to construct basic and custom plots.
+    Make different kinds of plots using the simple but flexible glyph
+    methods from the |bokeh.plotting| interface.
+
+:ref:`userguide_categorical`
+    Handle categorical data with a variety of different techniques such
+    as bar charts, categorical heatmaps, visual dodging, and jitter.
 
 :ref:`userguide_compat`
     Use Bokeh together with libraries such as `Datashader`_ and  `HoloViews`_.
@@ -38,16 +42,19 @@ topic:
 :ref:`userguide_layout`
     Combine multiple plots and widgets into specified layouts.
 
+:ref:`userguide_export`
+    Learn how to export Bokeh layouts as PNGs and SVGs.
+
 :ref:`userguide_notebook`
-    Create and display interactive plots inside Jupyter/IPython notebooks.
+    Display interactive plots inside Jupyter notebooks.
 
 :ref:`userguide_interaction`
     Create more sophisticated interactions including widgets or linked
     panning and selection.
 
 :ref:`userguide_cli`
-    Quickly create and iterate on Bokeh applications with the ``bokeh``
-    command line tool.
+    Use Bokeh's capabilites from the command line with the ``bokeh``
+    command.
 
 :ref:`userguide_server`
     Deploy the Bokeh Server to build and publish sophisticated data
@@ -61,7 +68,7 @@ topic:
     Improve performance for large datasets by using WebGL.
 
 :ref:`userguide_geo`
-    Working with geographical data - Google Maps, GeoJSON, Tile Rendering.
+    Working with geographical data---Google Maps, GeoJSON, Tile Rendering.
 
 :ref:`userguide_graphs`
     Create network graph visualizations with configurable node and edge interactions.
@@ -70,10 +77,7 @@ topic:
     Create plots in JavaScript by using BokehJS directly.
 
 :ref:`userguide_extensions`
-    Adding new capability to Bokeh with custom user extensions.
-
-:ref:`userguide_export`
-    Learn how to export Bokeh layouts as PNGs and SVGs.
+    Add new capability to Bokeh with custom user extensions.
 
 :ref:`userguide_info`
     See where to go next for more information and examples.

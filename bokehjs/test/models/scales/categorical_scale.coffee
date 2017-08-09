@@ -8,243 +8,133 @@ utils = require "../../utils"
 close = (a, b) -> Math.abs(a-b)<10e-7
 
 describe "categorical_scale module", ->
-  factors = ["foo", "bar", "baz"]
-  start = 20
-  end = 80
 
-  generate_scale = (offset=0) ->
-    new CategoricalScale({
-      source_range: new FactorRange({factors: factors, offset: offset})
-      target_range: new Range1d({start: start, end: end})
-    })
+  describe "basic factors", ->
+    factors = ["foo", "bar", "baz"]
 
-  describe "mapping", ->
-    scale = generate_scale()
-    oscale = generate_scale(-1)
+    beforeEach ->
+      @scale = new CategoricalScale({
+        source_range: new FactorRange({factors: factors, range_padding: 0})
+        target_range: new Range1d({start: 20, end: 80})
+      })
 
-    test_mapping = (scale, key, expected) ->
-      expect(scale.compute key).to.equal expected
+    describe "forward mapping", ->
+      it "should map factors evenly", ->
+        expect(@scale.compute "foo").to.equal 30
+        expect(@scale.compute "bar").to.equal 50
+        expect(@scale.compute "baz").to.equal 70
 
-    test_synthetic_mapping = (scale, key, expected) ->
-      expect(scale.compute key, true).to.equal expected
+    describe "forward vector mapping", ->
+      beforeEach ->
+        @values = @scale.v_compute factors
 
-    it "should map factors evenly", ->
-      test_mapping scale, "foo", 30
-      test_mapping scale, "bar", 50
-      test_mapping scale, "baz", 70
+      it "should return a Float64Array", ->
+        expect(@values).to.be.an.instanceof Float64Array
 
-      test_mapping oscale, "foo", 30
-      test_mapping oscale, "bar", 50
-      test_mapping oscale, "baz", 70
+      it "should map factors evenly", ->
+        expect(@values).to.deep.equal new Float64Array [30, 50, 70]
 
-    it "should expose synthetic range values", ->
-      test_synthetic_mapping scale, "foo", 1
-      test_synthetic_mapping scale, "bar", 2
-      test_synthetic_mapping scale, "baz", 3
+    describe "inverse mapping", ->
+      it "should map factors evenly", ->
+        expect(@scale.invert 20).to.equal 0
+        expect(@scale.invert 30).to.equal 0.5
+        expect(@scale.invert 40).to.equal 1
+        expect(@scale.invert 50).to.equal 1.5
+        expect(@scale.invert 60).to.equal 2
+        expect(@scale.invert 70).to.equal 2.5
+        expect(@scale.invert 80).to.equal 3
 
-      test_synthetic_mapping oscale, "foo", 0
-      test_synthetic_mapping oscale, "bar", 1
-      test_synthetic_mapping oscale, "baz", 2
+    describe "inverse vector mapping", ->
+      beforeEach ->
+        @values = @scale.v_invert [18, 20, 26, 28, 30, 32, 34, 38, 40, 42]
 
-    it "should map synthetic values to synthetic values", ->
-      test_synthetic_mapping scale, 1, 1
-      test_synthetic_mapping scale, 2, 2
-      test_synthetic_mapping scale, 3, 3
+      it "should return a Float64Arrayy", ->
+        expect(@values).to.be.an.instanceof Float64Array
 
-      test_synthetic_mapping oscale, 1, 1
-      test_synthetic_mapping oscale, 2, 2
-      test_synthetic_mapping oscale, 3, 3
+      it "should map factors evenly", ->
+        expect(@values).to.deep.equal new Float64Array [-0.1, 0, 0.3, 0.4, 0.5, 0.6, 0.7, 0.9, 1.0, 1.1]
 
-  describe "vector mapping", ->
-    values = generate_scale().v_compute factors
+    describe "factor updates", ->
+      new_factors = ['a', 'b', 'c', 'd']
 
-    it "should return a Float64Array", ->
-      expect(values).to.be.an.instanceof Float64Array
+      beforeEach ->
+        @scale.source_range.factors = new_factors
 
-    it "should be evenly distributed", ->
-      expect(values).to.deep.equal new Float64Array [30, 50, 70]
+      it "should cause updated mapped values", ->
+        expect(@scale.compute 'a').to.equal 27.5
+        expect(@scale.compute 'b').to.equal 42.5
+        expect(@scale.compute 'c').to.equal 57.5
+        expect(@scale.compute 'd').to.equal 72.5
 
-    it "should expose synthetic range values", ->
-      synthetic = generate_scale().v_compute factors, true
-      expect(synthetic).to.deep.equal [1, 2, 3]
+      it "should cause updated vector mapped values", ->
+        values = @scale.v_compute new_factors
+        expect(values).to.deep.equal new Float64Array [27.5, 42.5, 57.5, 72.5]
 
-      osynthetic = generate_scale(-1).v_compute factors, true
-      expect(osynthetic).to.deep.equal [0, 1, 2]
+      it "should cause updated inverse mapped values", ->
+        expect(@scale.invert 20).to.equal 0
+        expect(@scale.invert 27.5).to.equal 0.5
+        expect(@scale.invert 35).to.equal 1
 
-    it "should map synthetic values to synthetic values", ->
-      synthetic = generate_scale().v_compute [1,2,3], true
-      expect(synthetic).to.deep.equal [1, 2, 3]
+        expect(@scale.invert 35).to.equal 1
+        expect(@scale.invert 42.5).to.equal 1.5
+        expect(@scale.invert 50).to.equal 2
 
-      osynthetic = generate_scale().v_compute [1,2,3], true
-      expect(osynthetic).to.deep.equal [1, 2, 3]
+        expect(@scale.invert 50).to.equal 2
+        expect(@scale.invert 57.5).to.equal 2.5
+        expect(@scale.invert 65).to.equal 3
 
-  describe "inverse mapping", ->
-    scale = generate_scale()
-    oscale = generate_scale(-1)
-    close = (a, b) -> Math.abs(a-b)<10e-7
+        expect(@scale.invert 65).to.equal 3
+        expect(@scale.invert 72.5).to.equal 3.5
+        expect(@scale.invert 80).to.equal 4
 
-    test_inverse_mapping = (scale, key, expected) ->
-      expect(scale.invert key).to.equal expected
+      it "should cause updated inverse vector mapped values", ->
+        values = @scale.v_invert [20, 27.5, 35, 42.5, 50, 57.5, 65, 72.5, 80]
+        expect(values).to.deep.equal new Float64Array [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4]
 
-    test_synthetic_inverse_mapping = (scale, key, expected) ->
-      val = scale.invert key, true
-      expect(close(val, expected)).to.be.ok
+    describe "categorical offsets", ->
+      it "should apply offsets to mappings", ->
+        expect(@scale.compute ['foo', -0.6]).to.equal 18
+        expect(@scale.compute ['foo', -0.5]).to.equal 20
+        expect(@scale.compute ['foo', -0.2]).to.equal 26
+        expect(@scale.compute ['foo', -0.1]).to.equal 28
+        expect(@scale.compute ['foo',  0.0]).to.equal 30
+        expect(@scale.compute ['foo',  0.1]).to.equal 32
+        expect(@scale.compute ['foo',  0.2]).to.equal 34
+        expect(@scale.compute ['foo',  0.5]).to.equal 40
+        expect(@scale.compute ['foo',  0.6]).to.equal 42
 
-    it "should bin inverses evenly", ->
-      test_inverse_mapping scale, 21, 'foo'
-      test_inverse_mapping scale, 30, 'foo'
-      test_inverse_mapping scale, 39, 'foo'
-      test_inverse_mapping scale, 41, 'bar'
-      test_inverse_mapping scale, 50, 'bar'
-      test_inverse_mapping scale, 59, 'bar'
-      test_inverse_mapping scale, 61, 'baz'
-      test_inverse_mapping scale, 70, 'baz'
-      test_inverse_mapping scale, 79, 'baz'
+        expect(@scale.compute ['bar', -0.6]).to.equal 38
+        expect(@scale.compute ['bar', -0.5]).to.equal 40
+        expect(@scale.compute ['bar', -0.2]).to.equal 46
+        expect(@scale.compute ['bar', -0.1]).to.equal 48
+        expect(@scale.compute ['bar',  0.0]).to.equal 50
+        expect(@scale.compute ['bar',  0.1]).to.equal 52
+        expect(@scale.compute ['bar',  0.2]).to.equal 54
+        expect(@scale.compute ['bar',  0.5]).to.equal 60
+        expect(@scale.compute ['bar',  0.6]).to.equal 62
 
-      test_inverse_mapping oscale, 21, 'foo'
-      test_inverse_mapping oscale, 30, 'foo'
-      test_inverse_mapping oscale, 39, 'foo'
-      test_inverse_mapping oscale, 41, 'bar'
-      test_inverse_mapping oscale, 50, 'bar'
-      test_inverse_mapping oscale, 59, 'bar'
-      test_inverse_mapping oscale, 61, 'baz'
-      test_inverse_mapping oscale, 70, 'baz'
-      test_inverse_mapping oscale, 79, 'baz'
+        expect(@scale.compute ['baz', -0.6]).to.equal 58
+        expect(@scale.compute ['baz', -0.5]).to.equal 60
+        expect(@scale.compute ['baz', -0.2]).to.equal 66
+        expect(@scale.compute ['baz', -0.1]).to.equal 68
+        expect(@scale.compute ['baz',  0.0]).to.equal 70
+        expect(@scale.compute ['baz',  0.1]).to.equal 72
+        expect(@scale.compute ['baz',  0.2]).to.equal 74
+        expect(@scale.compute ['baz',  0.5]).to.equal 80
+        expect(@scale.compute ['baz',  0.6]).to.equal 82
 
+      it "should apply offsets to vector mappings", ->
+        values = @scale.v_compute [
+          ['foo',-0.6], ['foo',-0.5], ['foo',-0.2], ['foo',-0.1], ['foo',0.0], ['foo',0.1], ['foo',0.2], ['foo',0.5], ['foo',0.6]
+        ]
+        expect(values).to.deep.equal new Float64Array [18,20,26,28,30,32,34,40,42]
 
-    it "should expose synthetic range values", ->
-      test_synthetic_inverse_mapping scale, 21, 0.55
-      test_synthetic_inverse_mapping scale, 30, 1.0
-      test_synthetic_inverse_mapping scale, 39, 1.45
-      test_synthetic_inverse_mapping scale, 41, 1.55
-      test_synthetic_inverse_mapping scale, 50, 2.0
-      test_synthetic_inverse_mapping scale, 59, 2.45
-      test_synthetic_inverse_mapping scale, 61, 2.55
-      test_synthetic_inverse_mapping scale, 70, 3.0
-      test_synthetic_inverse_mapping scale, 79, 3.45
+        values = @scale.v_compute [
+          ['bar',-0.6], ['bar',-0.5], ['bar',-0.2], ['bar',-0.1], ['bar',0.0], ['bar',0.1], ['bar',0.2], ['bar',0.5], ['bar',0.6]
+        ]
+        expect(values).to.deep.equal new Float64Array [38,40,46,48,50,52,54,60,62]
 
-      test_synthetic_inverse_mapping oscale, 21, -0.45
-      test_synthetic_inverse_mapping oscale, 30, 0.0
-      test_synthetic_inverse_mapping oscale, 39, 0.45
-      test_synthetic_inverse_mapping oscale, 41, 0.55
-      test_synthetic_inverse_mapping oscale, 50, 1.0
-      test_synthetic_inverse_mapping oscale, 59, 1.45
-      test_synthetic_inverse_mapping oscale, 61, 1.55
-      test_synthetic_inverse_mapping oscale, 70, 2.0
-      test_synthetic_inverse_mapping oscale, 79, 2.45
-
-  describe "inverse vector mapping", ->
-    values = [21,30,39,41,50,59,61,70,79]
-    result = generate_scale().v_invert values
-    oresult = generate_scale(-1).v_invert values
-
-    it "should return an Array", ->
-      expect(result).to.be.an.instanceof Array
-      expect(oresult).to.be.an.instanceof Array
-
-    it "should be evenly distributed", ->
-      expect(result).to.deep.equal ['foo','foo','foo','bar','bar','bar','baz','baz','baz']
-      expect(oresult).to.deep.equal ['foo','foo','foo','bar','bar','bar','baz','baz','baz']
-
-    it "should expose synthetic range values", ->
-      synthetic = generate_scale().v_invert values, true
-      expected = [0.55, 1.0, 1.45, 1.55, 2.0, 2.45, 2.55, 3.0, 3.45]
-      for i in [0...values.length]
-        expect(close(synthetic[i], expected[i])).to.be.ok
-
-      osynthetic = generate_scale(-1).v_invert values, true
-      expected = [-0.45, 0.0, 0.45, 0.55, 1.0, 1.45, 1.55, 2.0, 2.45]
-      for i in [0...values.length]
-        expect(close(osynthetic[i], expected[i])).to.be.ok
-
-  describe "source updates", ->
-    new_factors = ['a', 'b', 'c', 'd']
-    scale = generate_scale()
-    scale.source_range.factors = new_factors
-
-    test_mapping = (key, expected) ->
-      expect(scale.compute key).to.equal expected
-
-    test_inverse_mapping = (key, expected) ->
-      expect(scale.invert key).to.equal expected
-
-    it "should cause updated mapped values", ->
-      test_mapping 'a', 27.5
-      test_mapping 'b', 42.5
-      test_mapping 'c', 57.5
-      test_mapping 'd', 72.5
-
-    it "should cause updated vector mapped values", ->
-      new_values =  scale.v_compute new_factors
-      expect(new_values).to.deep.equal new Float64Array [27.5, 42.5, 57.5, 72.5]
-
-    it "should cause updated inverse mapped values", ->
-      test_inverse_mapping 20,   'a'
-      test_inverse_mapping 27.5, 'a'
-      test_inverse_mapping 34,   'a'
-
-      test_inverse_mapping 35,   'b'
-      test_inverse_mapping 42.5, 'b'
-      test_inverse_mapping 49,   'b'
-
-      test_inverse_mapping 50,   'c'
-      test_inverse_mapping 57.5, 'c'
-      test_inverse_mapping 64,   'c'
-
-      test_inverse_mapping 65,   'd'
-      test_inverse_mapping 72.5, 'd'
-      test_inverse_mapping 79,   'd'
-
-    it "should cause updated inverse vector mapped values", ->
-      values = [25,27.5,30,40,42.5,45,55,57.5,60,70,72.5,75]
-      result = scale.v_invert values
-      expect(result).to.deep.equal ['a','a','a','b','b','b','c','c','c','d','d','d']
-
-  describe "categorical coordinates", ->
-    scale = generate_scale()
-    oscale = generate_scale(-1)
-
-    test_mapping = (scale, key, expected) ->
-      expect(scale.compute key).to.equal expected
-
-    it "should apply map percentages to mappings", ->
-      test_mapping scale, 'foo:0.1', 22
-      test_mapping scale, 'foo:0.5', 30
-      test_mapping scale, 'foo:0.9', 38
-      test_mapping scale, 'bar:0.2', 44
-      test_mapping scale, 'bar:0.4', 48
-      test_mapping scale, 'bar:0.6', 52
-      test_mapping scale, 'bar:0.8', 56
-      test_mapping scale, 'baz:0.3', 66
-      test_mapping scale, 'baz:0.7', 74
-
-    it "should apply map percentages to mappings with offset synthetic ranges", ->
-      test_mapping oscale, 'foo:0.1', 22
-      test_mapping oscale, 'foo:0.5', 30
-      test_mapping oscale, 'foo:0.9', 38
-      test_mapping oscale, 'bar:0.2', 44
-      test_mapping oscale, 'bar:0.4', 48
-      test_mapping oscale, 'bar:0.6', 52
-      test_mapping oscale, 'bar:0.8', 56
-      test_mapping oscale, 'baz:0.3', 66
-      test_mapping oscale, 'baz:0.7', 74
-
-    it "should apply percentages to vector mappings", ->
-      values = generate_scale().v_compute ['foo:0.1', 'foo:0.5', 'foo:0.9']
-      expect(values).to.deep.equal new Float64Array [22,30,38]
-
-      values = generate_scale().v_compute ['bar:0.2', 'bar:0.4', 'bar:0.6', 'bar:0.8']
-      expect(values).to.deep.equal new Float64Array [44,48,52,56]
-
-      values = generate_scale().v_compute ['baz:0.3', 'baz:0.7']
-      expect(values).to.deep.equal new Float64Array [66, 74]
-
-    it "should apply percentages to vector mappings with offset synthetic ranges", ->
-      values = generate_scale(-1).v_compute ['foo:0.1', 'foo:0.5', 'foo:0.9']
-      expect(values).to.deep.equal new Float64Array [22,30,38]
-
-      values = generate_scale(-1).v_compute ['bar:0.2', 'bar:0.4', 'bar:0.6', 'bar:0.8']
-      expect(values).to.deep.equal new Float64Array [44,48,52,56]
-
-      values = generate_scale(-1).v_compute ['baz:0.3', 'baz:0.7']
-      expect(values).to.deep.equal new Float64Array [66, 74]
+        values = @scale.v_compute [
+          ['baz',-0.6], ['baz',-0.5], ['baz',-0.2], ['baz',-0.1], ['baz',0.0], ['baz',0.1], ['baz',0.2], ['baz',0.5], ['baz',0.6]
+        ]
+        expect(values).to.deep.equal new Float64Array [58,60,66,68,70,72,74,80,82]

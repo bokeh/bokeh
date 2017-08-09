@@ -15,8 +15,6 @@
     "declaration": true,
     "sourceMap": true,
     "importHelpers": true,
-    "jsx": "react",
-    "reactNamespace": "DOM",
     "experimentalDecorators": true,
     "types": [],
     "baseUrl": "./build/js/tree_ts/"

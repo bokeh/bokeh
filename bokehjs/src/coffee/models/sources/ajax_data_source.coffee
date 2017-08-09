@@ -18,12 +18,13 @@ export class AjaxDataSource extends RemoteDataSource
     if @interval?
       clearInterval(@interval)
 
-  setup : (plot_view, glyph) =>
-    @pv = plot_view
-    @get_data(@mode)
-    if @polling_interval
-      @interval = setInterval(@get_data, @polling_interval,
-                              @mode, @max_size, @if_modified)
+  setup : () =>
+    if not @initialized?
+      @initialized = true
+      @get_data(@mode)
+      if @polling_interval
+        @interval = setInterval(@get_data, @polling_interval,
+                                @mode, @max_size, @if_modified)
 
   get_data : (mode, max_size=0, if_modified=false) =>
     xhr = new XMLHttpRequest()

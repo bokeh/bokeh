@@ -14,8 +14,6 @@
     "lib": ["es5", "dom", "es2015.collection"],
     "declaration": false,
     "importHelpers": false,
-    "jsx": "react",
-    "reactNamespace": "DOM",
     "experimentalDecorators": true,
     "types": []
   }

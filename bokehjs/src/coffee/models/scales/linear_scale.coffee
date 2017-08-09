@@ -42,8 +42,3 @@ export class LinearScale extends Scale
     factor = (target_end - target_start)/(source_end - source_start)
     offset = -(factor * source_start) + target_start
     return [factor, offset]
-
-  @internal {
-    source_range: [ p.Any ]
-    target_range: [ p.Any ]
-  }
