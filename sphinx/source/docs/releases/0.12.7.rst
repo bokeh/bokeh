@@ -122,6 +122,28 @@ passed as part of the optional ``cb_data``. Existing usage of ``OpenURL`` is
 unaffected by this change, but any ``CustomJS`` callbacks used with the tap tool
 will need to be updated to reflect this change.
 
+DataTable Selection Highlighting Signal
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The DataTable now responds to the signal ``source.change.emit()``, instead of
+``source.properties.selected.change.emit()``, to visually highlight the rows in the
+DataTable that are part of the selection. If you have used
+``source.properties.selected.change.emit()`` in CustomJS code, you will need to
+change it to ``source.change.emit()``.
+
+The DataTable responds automatically to changes in its data source's ``selected``
+property. However, because of Bokeh's change detection machinery, only a replacement
+of the ``selected`` property causes a change signal to be emitted, and not a partial update
+(e.g. ``source.selected['1d']['indices'] = [1, 2]``). If you use a partial update in CustomJS
+code, you will need to emit the change signal yourself:
+
+.. code-block:: python
+
+    customjs = CustomJS(args=dict(source=source), code="""
+        source['selected']['1d'].indices = [1, 2]
+        source.change.emit();
+    """)
+
 .. _Custom Extension: http://bokeh.pydata.org/en/latest/docs/user_guide/extensions.html
 .. _GeoViews: http://geo.holoviews.org
 .. _project roadmap: http://bokehplots.com/pages/roadmap.html
