@@ -9,7 +9,7 @@ configurable interactions between edges and nodes.
 Edge and Node Renderers
 -----------------------
 
-The key feature of the GraphRenderer is that it maintains separate
+The key feature of the ``GraphRenderer`` is that it maintains separate
 sub-GlyphRenderers for the graph nodes and the graph edges. This allows for
 customizing the nodes by modifying the GraphRenderer's ``node_renderer``
 property. It's possible to replace the default Circle node glyph with any
@@ -21,10 +21,10 @@ There are a couple requirements for the data sources belonging to these
 sub-renderers:
 
 - The ColumnDataSource associated with the node sub-renderer must have a column
-named ``"index"`` that contains the unique indices of the nodes.
+  named ``"index"`` that contains the unique indices of the nodes.
 - The ColumnDataSource associated with the edge sub-renderer has two required
-columns: ``"start"`` and ``"end"``. These columns contain the node indices of
-for the start and end of the edges.
+  columns: ``"start"`` and ``"end"``. These columns contain the node indices of
+  for the start and end of the edges.
 
 It's possible to add extra meta-data to these data sources to in order to
 add vectorized glyph styling or make data available for callbacks or hover
@@ -34,7 +34,8 @@ Here's a code snippet that:
 
 - replaces the node glyph with an Oval
 - sets the ``height`` and ``width`` attributes of the Oval as scalar values
-- sets the ``fill_color`` attribute of the Oval as a vectorized field and adds the values to the node data source.
+- sets the ``fill_color`` attribute of the Oval as a vectorized field and adds
+  the values to the node data source.
 
 .. code-block:: python
 
@@ -68,10 +69,10 @@ in the following section.
 Layout Providers
 ----------------
 
-Bokeh uses a separate LayoutProvider model in order to supply the coordinates
+Bokeh uses a separate ``LayoutProvider`` model in order to supply the coordinates
 of a graph in Cartesian space. Currently the only built-in provider is the
-StaticLayoutProvider model, which contains a dictionary of (x,y) coordinates
-for the nodes.
+:class:`~bokeh.models.graphs.StaticLayoutProvider` model, which contains a
+dictionary of (x,y) coordinates for the nodes.
 
 This example adds a provider to the above code snippet:
 
