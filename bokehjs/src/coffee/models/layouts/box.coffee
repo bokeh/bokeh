@@ -41,22 +41,22 @@ export class Box extends LayoutDOM
 
     # for children that want to be the same size
     # as other children, make them all equal to these
-    @_child_equal_size_width = new Variable()
-    @_child_equal_size_height = new Variable()
+    @_child_equal_size_width = new Variable("#{@toString()}.child_equal_size_width")
+    @_child_equal_size_height = new Variable("#{@toString()}.child_equal_size_height")
 
     # these are passed up to our parent after basing
     # them on the child box_equal_size vars
-    @_box_equal_size_top = new Variable()
-    @_box_equal_size_bottom = new Variable()
-    @_box_equal_size_left = new Variable()
-    @_box_equal_size_right = new Variable()
+    @_box_equal_size_top = new Variable("#{@toString()}.box_equal_size_top")
+    @_box_equal_size_bottom = new Variable("#{@toString()}.box_equal_size_bottom")
+    @_box_equal_size_left = new Variable("#{@toString()}.box_equal_size_left")
+    @_box_equal_size_right = new Variable("#{@toString()}.box_equal_size_right")
 
     # these are passed up to our parent after basing
     # them on the child box_cell_align vars
-    @_box_cell_align_top = new Variable()
-    @_box_cell_align_bottom = new Variable()
-    @_box_cell_align_left = new Variable()
-    @_box_cell_align_right = new Variable()
+    @_box_cell_align_top = new Variable("#{@toString()}.box_cell_align_top")
+    @_box_cell_align_bottom = new Variable("#{@toString()}.box_cell_align_bottom")
+    @_box_cell_align_left = new Variable("#{@toString()}.box_cell_align_left")
+    @_box_cell_align_right = new Variable("#{@toString()}.box_cell_align_right")
 
   @define {
     children: [ p.Array, [] ]
@@ -66,14 +66,7 @@ export class Box extends LayoutDOM
     spacing:  [ p.Number, 6 ]
   }
 
-  get_layoutable_children: () ->
-    @children
-
-  get_edit_variables: () ->
-    edit_variables = super()
-    for child in @get_layoutable_children()
-      edit_variables = edit_variables.concat(child.get_edit_variables())
-    return edit_variables
+  get_layoutable_children: () -> @children
 
   get_constrained_variables: () ->
     return extend({}, super(), {
@@ -121,9 +114,6 @@ export class Box extends LayoutDOM
       else
         if vars.box_equal_size_top? and vars.box_equal_size_bottom? and vars.height?
           constraints.push(EQ([-1, vars.box_equal_size_top], [-1, vars.box_equal_size_bottom], vars.height, @_child_equal_size_height))
-
-      # Pull child constraints up recursively
-      constraints = constraints.concat(child.get_constraints())
 
     # TODO(bird) - This is the second time we loop through children
     last = @_info(children[0].get_constrained_variables())

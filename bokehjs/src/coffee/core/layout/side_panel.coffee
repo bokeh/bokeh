@@ -169,6 +169,7 @@ export update_panel_constraints = (view) ->
   s.add_constraint(view._full_constraint)
 
 export class SidePanel extends LayoutCanvas
+  type: "SidePanel"
 
   @internal {
     side: [ p.String ]
@@ -197,23 +198,10 @@ export class SidePanel extends LayoutCanvas
       else
         logger.error("unrecognized side: '#{ @side }'")
 
-  get_constraints: () ->
-    #
-    # TODO (bird): Investigate changing the convention of when constraints are added
-    # so that if a side panel was added later, then these constraints would be
-    # picked up. (This would also play into the ability to remove a panel from
-    # the canvas).
-    #
-    return [
-      GE(@_top),
-      GE(@_bottom),
-      GE(@_left),
-      GE(@_right),
-      GE(@_width),
-      GE(@_height),
-      EQ(@_left, @_width, [-1, @_right]),
-      EQ(@_bottom, @_height, [-1, @_top]),
-    ]
+  @getters {
+    is_horizontal: () -> @side == "above" or @side == "below"
+    is_vertical: () -> @side == "left" or @side == "right"
+  }
 
   apply_label_text_heuristics: (ctx, orient) ->
     side = @side

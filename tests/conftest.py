@@ -27,7 +27,7 @@ def pytest_sessionfinish(session, exitstatus):
     seleniumreport = session.config.option.htmlpath
     is_slave = hasattr(session.config, 'slaveinput')
     if try_upload and seleniumreport and not is_slave:
-        upload_file_to_s3_by_job_id(seleniumreport)
+        upload_file_to_s3_by_job_id(seleniumreport, "text/html", "INTEGRATION TESTS REPORT")
 
 
 @pytest.yield_fixture(scope="session")
