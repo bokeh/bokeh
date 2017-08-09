@@ -5,7 +5,6 @@ import {Range1d} from "../ranges/range1d"
 import {DataRange1d} from "../ranges/data_range1d"
 import {FactorRange} from "../ranges/factor_range"
 
-import {EQ, GE} from "core/layout/solver"
 import {LayoutCanvas} from "core/layout/layout_canvas"
 import {logger} from "core/logging"
 import * as p from "core/properties"
@@ -114,15 +113,3 @@ export class CartesianFrame extends LayoutCanvas
     x_scale:        [ p.Instance ]
     y_scale:        [ p.Instance ]
   }
-
-  get_constraints: () ->
-    return [
-      GE(@_top),
-      GE(@_bottom),
-      GE(@_left),
-      GE(@_right),
-      GE(@_width),
-      GE(@_height),
-      EQ(@_left, @_width, [-1, @_right]),
-      EQ(@_bottom, @_height, [-1, @_top]),
-    ]

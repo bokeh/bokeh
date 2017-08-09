@@ -119,6 +119,10 @@ describe "AxisView", ->
     expect(@axis_view._axis_label_extent()).to.be.below 10
 
   it "_axis_label_extent should be 0 if no axis_label", ->
+    @axis.axis_label = null
+    expect(@axis_view._axis_label_extent()).to.be.equal 0
+
+    @axis.axis_label = ""
     expect(@axis_view._axis_label_extent()).to.be.equal 0
 
   it "_get_size should return sum of _tick_extent, _axis_label_extent, and _tick_label_extent", sinon.test ->

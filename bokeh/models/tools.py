@@ -270,14 +270,8 @@ class ResetTool(Action):
     """)
 
 
-class ResizeTool(Drag):
-    ''' *toolbar icon*: |resize_icon|
-
-    The resize tool allows the user to left-drag a mouse or drag a finger
-    to resize the entire plot area on the screen.
-
-    .. |resize_icon| image:: /_images/icons/Resize.png
-        :height: 18pt
+class ResizeTool(object):
+    ''' DEPRECATED in 0.12.7, attempting to use will be a NO-OP
 
     '''
 

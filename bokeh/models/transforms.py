@@ -1,4 +1,4 @@
-'''
+''' Represent transformations of data to happen on the client (browser) side.
 
 '''
 from __future__ import absolute_import
@@ -201,22 +201,42 @@ class CustomJSTransform(Transform):
     """)
 
 
+class Dodge(Transform):
+    ''' Apply either fixed dodge amount to data.
+
+    '''
+
+    value = Float(default=0, help="""
+    The amount to dodge the input data.
+    """)
+
+    range = Instance("bokeh.models.ranges.Range", help="""
+    When applying ``Dodge`` to categorical data values, the corresponding
+    ``FactorRange`` must be supplied as the ``range`` property.
+    """)
+
+
 class Jitter(Transform):
     ''' Apply either a uniform or normally sampled random jitter to data.
 
     '''
-
 
     mean = Float(default=0, help="""
     The central value for the random sample
     """)
 
     width = Float(default=1, help="""
-    The width (absolute for uniform distribution and sigma for the normal distribution) of the random sample.
+    The width (absolute for uniform distribution and sigma for the normal
+    distribution) of the random sample.
     """)
 
     distribution = Enum(JitterRandomDistribution, default='uniform', help="""
     The random distribution upon which to pull the random scatter
+    """)
+
+    range = Instance("bokeh.models.ranges.Range", help="""
+    When applying Jitter to Categorical data values, the corresponding
+    ``FactorRange`` must be supplied as the ``range`` property.
     """)
 
 @abstract

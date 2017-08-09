@@ -38,12 +38,12 @@ export class WheelPanToolView extends GestureToolView
 
     xrs = {}
     for name, scale of frame.xscales
-      [start, end] = scale.v_invert([sx0, sx1], true)
+      [start, end] = scale.v_invert([sx0, sx1])
       xrs[name] = {start: start, end: end}
 
     yrs = {}
     for name, scale of frame.yscales
-      [start, end] = scale.v_invert([sy0, sy1], true)
+      [start, end] = scale.v_invert([sy0, sy1])
       yrs[name] = {start: start, end: end}
 
     # OK this sucks we can't set factor independently in each direction. It is used

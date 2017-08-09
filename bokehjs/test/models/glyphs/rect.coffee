@@ -87,7 +87,7 @@ describe "Rect", ->
           })
         else
           scale = new CategoricalScale({
-            source_range: new FactorRange({factors:['a', 'b']})
+            source_range: new FactorRange({factors:['a', 'b'], range_padding: 0})
             target_range: new Range1d({start: 0, end: 200})
           })
         glyph_view.renderer.xscale = scale
@@ -136,7 +136,7 @@ describe "Rect", ->
 
       glyph_view.map_data()
       expect(glyph_view.sx0).to.be.deep.equal({'0': 0})
-      expect(glyph_view.sy1).to.be.deep.equal({'0': -1})
+      expect(glyph_view.sy1).to.be.deep.equal({'0': 0})
 
     it "`_map_data` should map values for x0 and y1 when width/height units are 'screen'", ->
       data = {x: [1], y: [2]}
@@ -147,7 +147,7 @@ describe "Rect", ->
 
       glyph_view.map_data()
       expect(glyph_view.sx0).to.be.deep.equal([-5])
-      expect(glyph_view.sy1).to.be.deep.equal([-11])
+      expect(glyph_view.sy1).to.be.deep.equal([-10])
 
     it "`_map_data` should map values for x0 and y1 with reversed ranges", ->
       data = {x: [1], y: [2]}
@@ -156,7 +156,7 @@ describe "Rect", ->
       @set_scales(glyph_view, "reverse")
       glyph_view.map_data()
       expect(glyph_view.sx0).to.be.deep.equal({'0': 188})
-      expect(glyph_view.sy1).to.be.deep.equal({'0': -217})
+      expect(glyph_view.sy1).to.be.deep.equal({'0': -216})
 
     it "`_map_data` should map values for x0 and y1 with FactorRanges", ->
       glyph = new Rect({
@@ -171,7 +171,7 @@ describe "Rect", ->
       @set_scales(glyph_view, "categorical")
       glyph_view.map_data()
       expect(glyph_view.sx0).to.be.deep.equal({'0': 25})
-      expect(glyph_view.sy1).to.be.deep.equal({'0': -176})
+      expect(glyph_view.sy1).to.be.deep.equal({'0': -175})
 
     describe "hit-testing", ->
 

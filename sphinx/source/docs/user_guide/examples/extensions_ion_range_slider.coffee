@@ -3,27 +3,42 @@ import {throttle} from "core/util/callback"
 # The "core/properties" module has all the property types
 import * as p from "core/properties"
 
+# HTML construction and manipulation functions
+import {empty, label, input, div} from "core/dom"
+
 # We will subclass in JavaScript from the same class that was subclassed
 # from in Python
 import {InputWidget, InputWidgetView} from "models/widgets/input_widget"
-import ionslidertemplate from "./extensions_ion_range_slider_template"
 
 # This model will actually need to render things, so we must provide
 # view. The LayoutDOM model has a view already, so we will start with that
 export class IonRangeSliderView extends InputWidgetView
-  template: ionslidertemplate
-
   _createElement: () ->
     el = super()
     @$el = $(el)
     return el
 
+  template: () ->
+    if @model.title?
+      if @model.title.length != 0
+        title = label({for: @model.id}, " #{@model.title}: ")
+      value = input({type: "text", id: @model.id, readonly: true})
+
+    return (
+      div({class: "bk-slider-parent"},
+        title,
+        value,
+        div({class: "bk-slider-horizontal"},
+          input({type: "text", class: "slider", id: @model.id})
+        )
+      )
+    )
+
   initialize: (options) ->
     super(options)
     @connect(@model.change, @render)
-    @$el.empty()
-    html = @template(@model.attributes)
-    @$el.html(html)
+    empty(@el)
+    @el.appendChild(@template())
     @callbackWrapper = null
     if @model.callback_policy == 'continuous'
       @callbackWrapper = () ->

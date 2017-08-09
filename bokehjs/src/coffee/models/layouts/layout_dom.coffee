@@ -1,6 +1,7 @@
 import {Model} from "../../model"
 import {empty} from "core/dom"
 import * as p from "core/properties"
+import {LayoutCanvas} from "core/layout/layout_canvas"
 import {Solver, GE, EQ, Strength, Variable} from "core/layout/solver"
 
 import {build_views} from "core/build_views"
@@ -67,22 +68,24 @@ export class LayoutDOMView extends DOMView
     return [width, height]
 
   _init_solver: () ->
-    @_root_width = new Variable("root_width")
-    @_root_height = new Variable("root_height")
+    @_root_width = new Variable("#{@toString()}.root_width")
+    @_root_height = new Variable("#{@toString()}.root_height")
 
+    # XXX: this relies on the fact that missing `strength` argument results
+    # in strength being NaN, which behaves like `Strength.required`. However,
+    # this is banned by the API.
     @_solver.add_edit_variable(@_root_width)
     @_solver.add_edit_variable(@_root_height)
 
-    editables = @model.get_edit_variables()
-    constraints = @model.get_constraints()
-    variables = @model.get_constrained_variables()
+    editables = @model.get_all_editables()
+    for edit_variable in editables
+      @_solver.add_edit_variable(edit_variable, Strength.strong)
 
-    for {edit_variable, strength} in editables
-      @_solver.add_edit_variable(edit_variable, strength)
-
+    constraints = @model.get_all_constraints()
     for constraint in constraints
       @_solver.add_constraint(constraint)
 
+    variables = @model.get_constrained_variables()
     if variables.width?
       @_solver.add_constraint(EQ(variables.width, @_root_width))
     if variables.height?
@@ -261,24 +264,24 @@ export class LayoutDOM extends Model
 
   initialize: (attrs, options) ->
     super(attrs, options)
-    @_width = new Variable("_width #{@id}")
-    @_height = new Variable("_height #{@id}")
+    @_width = new Variable("#{@toString()}.width")
+    @_height = new Variable("#{@toString()}.height")
     # These are the COORDINATES of the four plot sides
-    @_left = new Variable("_left #{@id}")
-    @_right = new Variable("_right #{@id}")
-    @_top = new Variable("_top #{@id}")
-    @_bottom = new Variable("_bottom #{@id}")
+    @_left = new Variable("#{@toString()}.left")
+    @_right = new Variable("#{@toString()}.right")
+    @_top = new Variable("#{@toString()}.top")
+    @_bottom = new Variable("#{@toString()}.bottom")
     # This is the dom position
-    @_dom_top = new Variable("_dom_top #{@id}")
-    @_dom_left = new Variable("_dom_left #{@id}")
+    @_dom_top = new Variable("#{@toString()}.dom_top")
+    @_dom_left = new Variable("#{@toString()}.dom_left")
     # This is the distance from the side of the right and bottom,
-    @_width_minus_right = new Variable("_width_minus_right #{@id}")
-    @_height_minus_bottom = new Variable("_height_minus_bottom #{@id}")
+    @_width_minus_right = new Variable("#{@toString()}.width_minus_right")
+    @_height_minus_bottom = new Variable("#{@toString()}.height_minus_bottom")
     # Whitespace variables
-    @_whitespace_top = new Variable()
-    @_whitespace_bottom = new Variable()
-    @_whitespace_left = new Variable()
-    @_whitespace_right = new Variable()
+    @_whitespace_top = new Variable("#{@toString()}.whitespace_top")
+    @_whitespace_bottom = new Variable("#{@toString()}.whitespace_bottom")
+    @_whitespace_left = new Variable("#{@toString()}.whitespace_left")
+    @_whitespace_right = new Variable("#{@toString()}.whitespace_right")
 
   @getters {
     layout_bbox: () ->
@@ -300,6 +303,28 @@ export class LayoutDOM extends Model
     for child in @get_layoutable_children()
       child.dump_layout()
 
+  get_all_constraints: () ->
+    constraints = @get_constraints()
+
+    for child in @get_layoutable_children()
+      if child instanceof LayoutCanvas
+        constraints = constraints.concat(child.get_constraints())
+      else
+        constraints = constraints.concat(child.get_all_constraints())
+
+    return constraints
+
+  get_all_editables: () ->
+    editables = @get_editables()
+
+    for child in @get_layoutable_children()
+      if child instanceof LayoutCanvas
+        editables = editables.concat(child.get_editables())
+      else
+        editables = editables.concat(child.get_all_editables())
+
+    return editables
+
   get_constraints: () ->
     return [
       # Make sure things dont squeeze out of their bounding box
@@ -319,16 +344,16 @@ export class LayoutDOM extends Model
 
   get_layoutable_children: () -> []
 
-  get_edit_variables: () ->
-    edit_variables = []
-    if @sizing_mode is 'fixed'
-      edit_variables.push({edit_variable: @_height, strength: Strength.strong})
-      edit_variables.push({edit_variable: @_width, strength: Strength.strong})
-    if @sizing_mode is 'scale_width'
-      edit_variables.push({edit_variable: @_height, strength: Strength.strong})
-    if @sizing_mode is 'scale_height'
-      edit_variables.push({edit_variable: @_width, strength: Strength.strong})
-    return edit_variables
+  get_editables: () ->
+    switch @sizing_mode
+      when 'fixed'
+        return [@_height, @_width]
+      when 'scale_width'
+        return [@_height]
+      when 'scale_height'
+        return [@_width]
+      else
+        return []
 
   get_constrained_variables: () ->
     # THE FOLLOWING ARE OPTIONAL VARS THAT

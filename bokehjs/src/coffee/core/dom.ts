@@ -1,7 +1,5 @@
 import {isBoolean, isString, isArray, isObject} from "./util/types"
 
-/// <reference path="./jsx.d.ts" />
-
 export type HTMLAttrs = { [name: string]: any }
 export type HTMLChild = string | HTMLElement | (string | HTMLElement)[]
 

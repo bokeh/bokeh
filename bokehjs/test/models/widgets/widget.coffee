@@ -13,4 +13,4 @@ describe "Widget", ->
     w = new Widget()
     # This is two more than LayoutDOM - we moved some constraints out of
     # LayoutDOM specifically onto Widget.
-    expect(w.get_constraints().length).to.be.equal 8
+    expect(w.get_all_constraints().length).to.be.equal(8)
