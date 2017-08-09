@@ -34,6 +34,8 @@ the :ref:`devguide`.
     docs/user_guide/concepts
     docs/user_guide/plotting
     docs/user_guide/categorical
+    docs/user_guide/graph
+    docs/user_guide/geo
     docs/user_guide/compat
     docs/user_guide/annotations
     docs/user_guide/styling
@@ -46,8 +48,6 @@ the :ref:`devguide`.
     docs/user_guide/embed
     docs/user_guide/export
     docs/user_guide/webgl
-    docs/user_guide/geo
-    docs/user_guide/graph
     docs/user_guide/bokehjs
     docs/user_guide/extensions
     docs/user_guide/info
