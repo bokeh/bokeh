@@ -24,6 +24,12 @@ topic:
     Handle categorical data with a variety of different techniques such
     as bar charts, categorical heatmaps, visual dodging, and jitter.
 
+:ref:`userguide_graph`
+    Create network graph visualizations with configurable node and edge interactions.
+
+:ref:`userguide_geo`
+    Working with geographical data---Google Maps, GeoJSON, Tile Rendering.
+
 :ref:`userguide_compat`
     Use Bokeh together with libraries such as `Datashader`_ and  `HoloViews`_.
 
@@ -66,9 +72,6 @@ topic:
 
 :ref:`userguide_webgl`
     Improve performance for large datasets by using WebGL.
-
-:ref:`userguide_geo`
-    Working with geographical data---Google Maps, GeoJSON, Tile Rendering.
 
 :ref:`userguide_bokehjs`
     Create plots in JavaScript by using BokehJS directly.

@@ -24,6 +24,7 @@ class StaticLayoutProvider(LayoutProvider):
     containing the x and y coordinates of the node.
 
     .. code-block:: python
+
         {
             0 : [0.5, 0.5],
             1 : [1.0, 0.86],
