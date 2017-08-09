@@ -47,7 +47,7 @@ the :ref:`devguide`.
     docs/user_guide/export
     docs/user_guide/webgl
     docs/user_guide/geo
-    docs/user_guide/graphs
+    docs/user_guide/graph
     docs/user_guide/bokehjs
     docs/user_guide/extensions
     docs/user_guide/info
