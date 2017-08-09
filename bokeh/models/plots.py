@@ -23,7 +23,7 @@ from .ranges import Range, FactorRange, DataRange1d, Range1d
 from .renderers import DataRenderer, DynamicImageRenderer, GlyphRenderer, Renderer, TileRenderer
 from .scales import Scale, CategoricalScale, LinearScale, LogScale
 from .sources import DataSource, ColumnDataSource
-from .tools import Tool, Toolbar
+from .tools import ResizeTool, Tool, Toolbar
 
 class Plot(LayoutDOM):
     ''' Model representing a plot, containing glyphs, guides, annotations.
@@ -239,12 +239,17 @@ class Plot(LayoutDOM):
             None
 
         '''
-        if not all(isinstance(tool, Tool) for tool in tools):
-            raise ValueError("All arguments to add_tool must be Tool subclasses.")
-
         for tool in tools:
+            if isinstance(tool, ResizeTool):
+                deprecated("ResizeTool is removed in Bokeh 0.12.7, adding it is a no-op. In the future, accessing ResizeTool will be an error")
+                continue
+
+            if not isinstance(tool, Tool):
+                raise ValueError("All arguments to add_tool must be Tool subclasses.")
+
             if hasattr(tool, 'overlay'):
                 self.renderers.append(tool.overlay)
+
             self.toolbar.tools.append(tool)
 
     def add_glyph(self, source_or_glyph, glyph=None, **kw):

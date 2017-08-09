@@ -16,7 +16,6 @@ declare namespace Bokeh.Plotting {
     "pan" | "xpan" | "ypan" |
     "wheel_zoom" | "xwheel_zoom" | "ywheel_zoom" |
     "save" |
-    "resize" |
     "click" | "tap" |
     "crosshair" |
     "box_select" | "xbox_select" | "ybox_select" |

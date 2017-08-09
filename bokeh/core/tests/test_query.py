@@ -6,7 +6,7 @@ import bokeh.core.query as q
 
 from bokeh.models import (
     Axis, BoxZoomTool, ColumnDataSource, DatetimeAxis, GlyphRenderer, Grid, LinearAxis,
-    LogAxis, PanTool, Plot, SaveTool, Range1d, ResetTool, ResizeTool, Tool, WheelZoomTool,
+    LogAxis, PanTool, Plot, SaveTool, Range1d, ResetTool, Tool, WheelZoomTool,
 )
 from bokeh.models.glyphs import Glyph, Circle, Line, Rect
 
@@ -43,7 +43,7 @@ def large_plot():
     plot.add_layout(Grid(dimension=1), 'left')
 
     plot.add_tools(
-        BoxZoomTool(), PanTool(), SaveTool(), ResetTool(), ResizeTool(), WheelZoomTool(),
+        BoxZoomTool(), PanTool(), SaveTool(), ResetTool(), WheelZoomTool(),
     )
 
     return plot
@@ -61,12 +61,11 @@ typcases = {
 
     Grid: 2,
 
-    Tool: 6,
+    Tool: 5,
     BoxZoomTool: 1,
     PanTool: 1,
     SaveTool: 1,
     ResetTool: 1,
-    ResizeTool: 1,
     WheelZoomTool: 1,
 }
 
@@ -151,7 +150,7 @@ def test_in():
 
     # count adjusted by hand to account for duplicates/subclasses
     res = list(q.find(plot.references(), dict(type={q.IN: list(typcases.keys())})))
-    assert len(res) == 18
+    assert len(res) == 17
 
 def test_disjuction():
     res = list(
