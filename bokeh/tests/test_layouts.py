@@ -60,7 +60,7 @@ def test_layout_nested():
 def test_layout_sizing_mode(sizing_mode):
     p1, p2, p3, p4 = figure(), figure(), figure(), figure()
 
-    grid = lyt.layout([[p1, p2], [p3, p4]], sizing_mode=sizing_mode)
+    lyt.layout([[p1, p2], [p3, p4]], sizing_mode=sizing_mode)
 
     for p in p1, p2, p3, p4:
         assert p1.sizing_mode == sizing_mode
