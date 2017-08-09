@@ -63,7 +63,7 @@ topic:
 :ref:`userguide_geo`
     Working with geographical data - Google Maps, GeoJSON, Tile Rendering.
 
-:ref:`userguide_graph`
+:ref:`userguide_graphs`
     Create network graph visualizations with configurable node and edge interactions.
 
 :ref:`userguide_bokehjs`
