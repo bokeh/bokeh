@@ -325,10 +325,10 @@ which will create a file ``iris.html`` locally and open up a web browser.
     :align: center
 
 The variable ``BOKEH_RESOURCES`` determines where the css and JavaScript
-resources required by bokeh are found. In this case they are included inline in
+resources required by bokeh are found. By specifying ``inline`` we are using
+the version of BokehJS we just built to include the resources inline as part of
 the html file. The ``BOKEH_RESOURCES`` variable is required as the default
 behaviour is to use CDN resources.
-`resources reference`_.
 
 Another method of running bokeh is as a server. An example of this mode of
 operation can be run using the command
@@ -360,4 +360,3 @@ If you have any problems with the steps here, please `contact the developers`_.
 .. _meta.yaml: http://github.com/bokeh/bokeh/blob/master/conda.recipe/meta.yaml
 .. _Pro Git Book: https://git-scm.com/book/en/v2
 .. _this turorial: https://www.digitalocean.com/community/tutorials/how-to-use-git-hooks-to-automate-development-and-deployment-tasks
-.. _resources reference: http://bokeh.pydata.org/en/latest/docs/reference/resources.html
