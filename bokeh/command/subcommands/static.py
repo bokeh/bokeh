@@ -14,6 +14,7 @@ from .serve import base_serve_args
 class Static(Subcommand):
     ''' Subcommand to launch the Bokeh static server. '''
 
+    #: name for this subcommand
     name = "static"
 
     help = "Serve bokehjs' static assets (JavaScript, CSS, images, fonts, etc.)"
@@ -21,6 +22,9 @@ class Static(Subcommand):
     args = base_serve_args
 
     def invoke(self, args):
+        '''
+
+        '''
         log_level = getattr(logging, args.log_level.upper())
         basicConfig(level=log_level, format=args.log_format)
 

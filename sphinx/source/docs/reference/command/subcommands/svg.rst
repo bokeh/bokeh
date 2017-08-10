@@ -4,3 +4,4 @@ bokeh.command.subcommands.svg
 -----------------------------
 
 .. automodule:: bokeh.command.subcommands.svg
+    :members:

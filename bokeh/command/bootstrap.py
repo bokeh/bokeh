@@ -1,4 +1,26 @@
-''' Provides a main function to run the ``bokeh`` command.
+''' Provide a ``main`` function to run bokeh commands.
+
+The following are equivalent:
+
+* Running the ``bokeh`` command line script:
+
+  .. code-block:: sh
+
+      bokeh serve --show app.py
+
+* Using ``python -m bokeh``:
+
+  .. code-block:: sh
+
+      python -m bokeh serve --show app.py
+
+* Executing ``main`` programmatically:
+
+  .. code-block:: python
+
+      from bokeh.command.bootstrap import main
+
+      main(["bokeh", "serve", "--show", "app.py"])
 
 '''
 from __future__ import absolute_import
@@ -6,7 +28,7 @@ from __future__ import absolute_import
 import argparse
 
 from bokeh import __version__
-from bokeh.util.string import nice_join
+from bokeh.util.string import format_docstring, nice_join
 
 from .util import die
 from . import subcommands
@@ -19,6 +41,11 @@ def main(argv):
 
     Returns:
         None
+
+    The first item in ``argv`` is typically "bokeh", and the second should
+    be the name of one of the available subcommands:
+
+    * {subcmds}
 
     '''
     if len(argv) == 1:
@@ -43,3 +70,5 @@ def main(argv):
         args.invoke(args)
     except Exception as e:
         die("ERROR:" + str(e))
+
+main.__doc__ = format_docstring(main.__doc__, subcmds="\n    * ".join(":ref:`%s <bokeh.command.subcommands.%s>`" % (x.name, x.name) for x in subcommands.all))

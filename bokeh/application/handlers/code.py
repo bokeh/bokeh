@@ -1,4 +1,23 @@
-'''
+''' Provide a Bokeh Application Handler to build up documents by compiling
+and executing Python source code.
+
+This Handler is used by the Bokeh server command line tool to build
+applications that run off scripts and notebooks.
+
+.. code-block:: python
+
+    def make_doc(doc):
+
+        # do work to modify the document, add plots, widgets, etc.
+
+        return doc
+
+    app = Application(FunctionHandler(make_doc))
+
+    server = Server({'/bkapp': app}, io_loop=IOLoop.current())
+
+    server.start()
+
 
 '''
 from __future__ import absolute_import
@@ -17,8 +36,6 @@ from .handler import Handler
 class CodeHandler(Handler):
     ''' Run source code which modifies a Document
 
-
-
     '''
 
     _io_functions = ['output_notebook', 'output_file', 'show', 'save', 'reset_output']
@@ -28,7 +45,11 @@ class CodeHandler(Handler):
 
         Args:
             source (str) : python source code
+
             filename (str) : a filename to use in any debugging or error output
+
+            argv (list[str], optional) : a list of string arguments to make
+                available as ``sys.argv`` when the code executes
 
         '''
         super(CodeHandler, self).__init__(*args, **kwargs)
@@ -50,6 +71,9 @@ class CodeHandler(Handler):
             self._loggers[f] = self._make_io_logger(f)
 
     def url_path(self):
+        ''' The last path component for the basename of the configured filename.
+
+        '''
         if self.failed:
             return None
         else:
@@ -57,6 +81,9 @@ class CodeHandler(Handler):
             return '/' + os.path.splitext(os.path.basename(self._runner.path))[0]
 
     def modify_document(self, doc):
+        '''
+
+        '''
         if self.failed:
             return
 
@@ -110,16 +137,30 @@ class CodeHandler(Handler):
 
     @property
     def failed(self):
+        ''' ``True`` if the handler failed to modify the doc
+
+        '''
         return self._runner.failed
 
     @property
     def error(self):
+        ''' If the handler fails, may contain a related error message.
+
+        '''
         return self._runner.error
 
     @property
     def error_detail(self):
+        ''' If the handler fails, may contain a traceback or other details.
+
+        '''
         return self._runner.error_detail
 
     @property
     def safe_to_fork(self):
+        ''' hether it is still safe for the Bokeh server to fork new workers.
+
+        ``False`` if the code has already been executed.
+
+        '''
         return not self._runner.ran
