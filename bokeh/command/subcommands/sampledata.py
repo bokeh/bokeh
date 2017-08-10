@@ -1,7 +1,20 @@
-'''
+''' Download the Bokeh sample data sets to local disk.
 
-To download the bokeh sample data sets, run ``bokeh sampledata`` on the
-command line.
+To download the Bokeh sample data sets, execute
+
+.. code-block:: sh
+
+    bokeh sampledata
+
+on the command line.
+
+Executing this command is equivalent to running the Python code
+
+.. code-block:: python
+
+    import bokeh.sampledata
+
+    bokeh.sampledata.download()
 
 '''
 from __future__ import absolute_import
@@ -15,6 +28,7 @@ class Sampledata(Subcommand):
 
     '''
 
+    #: name for this subcommand
     name = "sampledata"
 
     help = "Download the bokeh sample data sets"
@@ -23,4 +37,7 @@ class Sampledata(Subcommand):
     )
 
     def invoke(self, args):
+        '''
+
+        '''
         sampledata.download()

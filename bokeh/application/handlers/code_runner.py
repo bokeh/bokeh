@@ -1,3 +1,7 @@
+''' Provide a utility class ``CodeRunner`` for use by handlers that execute
+Python source code.
+
+'''
 from __future__ import absolute_import, print_function
 
 from types import ModuleType
@@ -7,10 +11,23 @@ import traceback
 
 from bokeh.util.serialization import make_id
 
-class _CodeRunner(object):
-    """ Compile and run a Python source code."""
+class CodeRunner(object):
+    ''' Compile and run Python source code.
+
+    '''
 
     def __init__(self, source, path, argv):
+        '''
+
+        Args:
+            source (str) : python source code
+
+            path (str) : a filename to use in any debugging or error output
+
+            argv (list[str]) : a list of string arguments to make available
+                as ``sys.argv`` when the code executes
+
+        '''
         self._failed = False
         self._error = None
         self._error_detail = None
@@ -34,30 +51,47 @@ class _CodeRunner(object):
 
     @property
     def source(self):
-        return self._source
+        ''' The configured source code that will be executed when ``run`` is
+        called.
 
+        '''
+        return self._source
 
     @property
     def path(self):
+        ''' The path that new modules will be configured with.
+
+        '''
         return self._path
 
     @property
     def failed(self):
-        """True if the handler failed to modify the doc"""
+        ''' ``True`` if code execution failed
+
+        '''
         return self._failed
 
     @property
     def error(self):
-        """Error message if the handler failed"""
+        ''' If code execution fails, may contain a related error message.
+
+        '''
         return self._error
 
     @property
     def error_detail(self):
-        """Traceback or other details if the handler failed"""
+        ''' If code execution fails, may contain a traceback or other details.
+
+        '''
         return self._error_detail
 
     def new_module(self):
-        """Make a fresh module to run in."""
+        ''' Make a fresh module to run in.
+
+        Returns:
+            Module
+
+        '''
         if self.failed:
             return None
 
@@ -68,6 +102,16 @@ class _CodeRunner(object):
         return module
 
     def run(self, module, post_check):
+        ''' Execute the configured source code in a module and run any post
+        checks.
+
+        Args:
+            module (Module) : a module to execute the configured code in.
+
+            post_check(callable) : a function that can raise an exception
+                if expected post-conditions are not met after code execution.
+
+        '''
         try:
             # Simulate the sys.path behaviour decribed here:
             #

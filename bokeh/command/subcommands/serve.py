@@ -169,10 +169,6 @@ that is SSL-terminated.
     It is not advised to set this option on a Bokeh server directly facing
     the Internet.
 
-
-
-.. _userguide_cli_serve_session_id_options:
-
 Session ID Options
 ~~~~~~~~~~~~~~~~~~
 
@@ -365,9 +361,11 @@ class Serve(Subcommand):
 
     '''
 
+    #: name for this subcommand
     name = "serve"
 
     help = "Run a Bokeh server hosting one or more applications"
+
     args = base_serve_args + (
         ('files', dict(
             metavar='DIRECTORY-OR-SCRIPT',
@@ -471,6 +469,9 @@ class Serve(Subcommand):
 
 
     def invoke(self, args):
+        '''
+
+        '''
         argvs = { f : args.args for f in args.files}
         applications = build_single_handler_applications(args.files, argvs)
 

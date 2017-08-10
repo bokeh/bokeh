@@ -1,3 +1,33 @@
+'''  Provide a Bokeh Application Handler to build up documents by running
+the code from ``main.py`` or `main.ipynb`` files in specified directories.
+
+The directory may also optionally contain:
+
+* A ``server_lifecyle.py`` module to provide lifecycle callbacks for the
+  application and sessions.
+
+* A ``static`` subdirectory containing app-specific static resources to
+  serve.
+
+* A ``theme.yaml`` file containing a Bokeh theme to automatically apply to
+  all new documents.
+
+* A ``tempates`` subdirectory containing templates for app display
+
+A full directory layout might look like:
+
+.. code-block:: none
+
+    myapp
+       |
+       +---main.py
+       +---server_lifecycle.py
+       +---static
+       +---theme.yaml
+       +---templates
+            +---index.html
+
+'''
 from __future__ import absolute_import, print_function
 
 import logging
@@ -12,9 +42,14 @@ from .script import ScriptHandler
 from .server_lifecycle import ServerLifecycleHandler
 
 class DirectoryHandler(Handler):
-    """ Load an application directory which modifies a Document """
+    ''' Load an application directory which modifies a Document.
+
+    '''
 
     def __init__(self, *args, **kwargs):
+        '''
+
+        '''
         super(DirectoryHandler, self).__init__(*args, **kwargs)
 
         if 'filename' not in kwargs:
@@ -62,6 +97,10 @@ class DirectoryHandler(Handler):
             self._template = env.get_template('index.html')
 
     def url_path(self):
+        ''' The last path component for the basename of the path to the
+        configured directory.
+
+        '''
         if self.failed:
             return None
         else:
@@ -69,6 +108,14 @@ class DirectoryHandler(Handler):
             return '/' + basename(self._path)
 
     def modify_document(self, doc):
+        ''' Execute the configured ``main.py`` or ``main.ipynb`` to modify the
+        document.
+
+        This method will also search the app directory for any theme or
+        template files, and automatically configure the document with them
+        if they are found.
+
+        '''
         if self.failed:
             return
         # Note: we do NOT copy self._theme, which assumes the Theme
@@ -84,28 +131,77 @@ class DirectoryHandler(Handler):
 
     @property
     def failed(self):
+        ''' ``True`` if the handler failed to modify the doc
+
+        '''
         return self._main_handler.failed or self._lifecycle_handler.failed
 
     @property
     def error(self):
+        ''' If the handler fails, may contain a related error message.
+
+        '''
         return self._main_handler.error or self._lifecycle_handler.error
 
     @property
     def safe_to_fork(self):
+        ''' Whether it is still safe for the Bokeh server to fork new workers.
+
+        ``False`` if the configured code (script, notebook, etc.) has already
+        been run.
+
+        '''
         return self._main_handler.safe_to_fork
 
     @property
     def error_detail(self):
+        ''' If the handler fails, may contain a traceback or other details.
+
+        '''
         return self._main_handler.error_detail or self._lifecycle_handler.error_detail
 
     def on_server_loaded(self, server_context):
+        ''' Execute `on_server_unloaded`` from ``server_lifecycle.py`` (if
+        it is defined) when the server is first started.
+
+        Args:
+            server_context (ServerContext) :
+
+        '''
         return self._lifecycle_handler.on_server_loaded(server_context)
 
     def on_server_unloaded(self, server_context):
+        ''' Execute ``on_server_unloaded`` from ``server_lifecycle.py`` (if
+        it is defined) when the server cleanly exits. (Before stopping the
+        server's ``IOLoop``.)
+
+        Args:
+            server_context (ServerContext) :
+
+        .. warning::
+            In practice this code may not run, since servers are often killed
+            by a signal.
+
+
+        '''
         return self._lifecycle_handler.on_server_unloaded(server_context)
 
     def on_session_created(self, session_context):
+        ''' Execute ``on_session_created`` from ``server_lifecycle.py`` (if
+        it is defined) when a new session is created.
+
+        Args:
+            session_context (SessionContext) :
+
+        '''
         return self._lifecycle_handler.on_session_created(session_context)
 
     def on_session_destroyed(self, session_context):
+        ''' Execute ``on_session_destroyed`` from ``server_lifecycle.py`` (if
+        it is defined) when a session is destroyed.
+
+        Args:
+            session_context (SessionContext) :
+
+        '''
         return self._lifecycle_handler.on_session_destroyed(session_context)
