@@ -23,7 +23,7 @@ try:
         stream = pa.open(
             format=pyaudio.paInt16,
             channels=1,
-            rate=SAMPLING_RATE,
+            rate=int(SAMPLING_RATE),
             input=True,
             frames_per_buffer=NUM_SAMPLES
         )
