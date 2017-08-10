@@ -31,7 +31,7 @@ export class ColorMapper extends Transform
         ind = i*4
         # Bitwise math in JS is limited to 31-bits, to handle 32-bit value
         # this uses regular math to compute alpha instead (see issue #6755)
-        color[ind] = parseInt((value/4278190080.0) * 255)
+        color[ind] = Math.floor((value/4278190080.0) * 255)
         color[ind+1] = (value & 0xff0000) >> 16
         color[ind+2] = (value & 0xff00) >> 8
         color[ind+3] = value & 0xff
