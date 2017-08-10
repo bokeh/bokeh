@@ -248,21 +248,28 @@ def layout(*args, **kwargs):
     children = _handle_children(*args, children=children)
 
     # Make the grid
-    rows = []
-    for r in children:
-        row_children = []
-        for item in r:
-            if isinstance(item, LayoutDOM):
-                item.sizing_mode = sizing_mode
-                row_children.append(item)
-            else:
-                raise ValueError(
-                    """Only LayoutDOM items can be inserted into a layout.
-                    Tried to insert: %s of type %s""" % (item, type(item))
-                )
-        rows.append(row(children=row_children, sizing_mode=sizing_mode))
-    grid = column(children=rows, sizing_mode=sizing_mode)
-    return grid
+    return _create_grid(children, sizing_mode)
+
+
+def _create_grid(iterable, sizing_mode, layer=0):
+    """Recursively create grid from input lists."""
+    return_list = []
+    for item in iterable:
+        if isinstance(item, list):
+            return_list.append(_create_grid(item, sizing_mode, layer+1))
+        elif isinstance(item, LayoutDOM):
+            item.sizing_mode = sizing_mode
+            return_list.append(item)
+        else:
+            raise ValueError(
+                """Only LayoutDOM items can be inserted into a layout.
+                Tried to insert: %s of type %s""" % (item, type(item))
+            )
+    if layer % 2 == 0:
+        return column(children=return_list, sizing_mode=sizing_mode)
+    return row(children=return_list, sizing_mode=sizing_mode)
+
+    return return_list
 
 
 def _chunks(l, ncols):
