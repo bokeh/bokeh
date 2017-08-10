@@ -309,14 +309,14 @@ You should see output similar to:
     node.js version     :  v6.10.3
     npm version         :  3.10.10
 
-The next check that can be made is to generate one of the example figures.
-There are a examples for the different ways in which bokeh can be used.
+The next check that can be made is to run some of the examples. There are
+different ways in which bokeh can be used which suit a variety of use cases.
 
 To create an html file,
 
 .. code-block:: sh
 
-    env BOKEH_RESOURCES=inline python examples/plotting/file/iris.py
+    BOKEH_RESOURCES=inline python examples/plotting/file/iris.py
 
 which will create a file ``iris.html`` locally and open up a web browser.
 
@@ -326,23 +326,26 @@ which will create a file ``iris.html`` locally and open up a web browser.
 
 The variable ``BOKEH_RESOURCES`` determines where the css and JavaScript
 resources required by bokeh are found. In this case they are included inline in
-the html file. Another possible value is ``BOKEH_RESOURCES=cdn`` which will fetch the resources
-from http://cdn.pydata.org Other options can be found in the
+the html file. The ``BOKEH_RESOURCES`` variable is required as the default
+behaviour is to use CDN resources.
 `resources reference`_.
 
-Another method of running bokeh is as a server. An example of this mode of operation can be run
-using the command
+Another method of running bokeh is as a server. An example of this mode of
+operation can be run using the command
 
 .. code-block:: sh
 
-    python -m bokeh serve &
-    python examples/plotting/server/line_animate_widget.py
+    python -m bokeh serve --show examples/app/sliders.py
 
-which will open up an animated figure with start and stop widget.
+which will open up a browser with an interactive figure.
 
-.. image:: /_images/bokeh_server_line.png
+.. image:: /_images/bokeh_app_sliders.png
     :scale: 50 %
     :align: center
+
+All the sliders allow interactive control of the sine wave, with each update
+redrawing the line with the new parameters. The ``--show`` option opens the
+web browser to the appropriate address, the default is ``localhost:5006``.
 
 If you have any problems with the steps here, please `contact the developers`_.
 
