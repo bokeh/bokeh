@@ -1,6 +1,7 @@
 from __future__ import print_function
 
 import random
+random.seed(1)
 
 from bokeh.plotting import figure, curdoc
 from bokeh.client import push_session

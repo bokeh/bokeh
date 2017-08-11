@@ -1,7 +1,8 @@
 from __future__ import print_function
 
 from datetime import date
-from random import randint
+import random
+random.seed(1)
 
 from bokeh.client import push_session
 from bokeh.io import curdoc
@@ -17,10 +18,10 @@ from bokeh.models.layouts import WidgetBox, Column
 
 
 def make_data():
-    n = randint(5, 10)
+    n = random.randint(5, 10)
     return dict(
         dates=[ date(2014, 3, i+1) for i in range(n) ],
-        downloads=[ randint(0, 100) for i in range(n) ],
+        downloads=[ random.randint(0, 100) for i in range(n) ],
     )
 
 source = ColumnDataSource(make_data())
