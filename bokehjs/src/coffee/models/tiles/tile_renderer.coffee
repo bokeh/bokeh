@@ -35,17 +35,17 @@ export class TileRendererView extends RendererView
 
     if isString(attribution) and attribution.length > 0
       if not @attributionEl?
-        border_width = @map_plot.outline_line_width
-        bottom_offset = @map_plot.min_border_bottom + border_width
-        right_offset = @map_frame._right.value - @map_frame._width.value
-        max_width = @map_frame._width.value - border_width
+        right = @plot_model.canvas._right.value - @plot_model.frame._right.value
+        bottom = @plot_model.frame._bottom.value
+        max_width = @map_frame._width.value
         @attributionEl = div({
           class: 'bk-tile-attribution'
           style: {
-            position: 'absolute'
-            bottom: "#{bottom_offset}px"
-            right: "#{right_offset}px"
+            position: "absolute"
+            bottom: "#{bottom}px"
+            right: "#{right}px"
             'max-width': "#{max_width}px"
+            padding: "2px"
             'background-color': 'rgba(255,255,255,0.8)'
             'font-size': '9pt'
             'font-family': 'sans-serif'
