@@ -200,16 +200,17 @@ def add_examples(list_of_examples, path, examples_dir, example_type=None, slow=N
         elif name.endswith(".ipynb"):
             flags |= Flags.notebook
         elif os.path.isdir(join(example_path, name)):
-            full_path = join(example_path, name, name + ".html")
-            if os.path.exists(full_path):
+            if os.path.exists(join(example_path, name, name + ".html")):
                 name = join(name, name + ".html")
                 flags |= example_type if example_type else Flags.js
-            else:
-                full_path = join(example_path, name, name + ".py")
-                if not os.path.exists(full_path):
-                    continue
+            elif os.path.exists(join(example_path, name, name + ".py")):
                 name = join(name, name + ".py")
                 flags |= example_type if example_type else Flags.file
+            elif os.path.exists(join(example_path, name, "main.py")):
+                name = join(name, "main.py")
+                flags |= example_type if example_type else Flags.server
+            else:
+                continue
         else:
             continue
 
