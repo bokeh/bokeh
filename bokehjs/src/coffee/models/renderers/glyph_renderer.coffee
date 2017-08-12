@@ -57,7 +57,7 @@ export class GlyphRendererView extends RendererView
     @set_data(false)
 
     if @model.data_source instanceof RemoteDataSource
-      @model.data_source.setup(@plot_view, @glyph)
+      @model.data_source.setup()
 
   @getters {
     xmapper: () ->
@@ -157,7 +157,7 @@ export class GlyphRendererView extends RendererView
       else if selected['1d'].indices.length > 0
         selected = selected['1d'].indices
       else
-        selected = []
+        selected = (parseInt(i) for i in Object.keys(selected["2d"].indices))
 
     # inspected is in full set space
     inspected = @model.data_source.inspected
@@ -172,7 +172,8 @@ export class GlyphRendererView extends RendererView
       else if inspected['1d'].indices.length > 0
         inspected = inspected['1d'].indices
       else
-        inspected = []
+        inspected = (parseInt(i) for i in Object.keys(inspected["2d"].indices))
+
     # inspected is transformed to subset space
     inspected = (i for i in indices when @all_indices[i] in inspected)
 
@@ -250,7 +251,7 @@ export class GlyphRendererView extends RendererView
     @glyph.draw_legend_for_index(ctx, x0, x1, y0, y1, index)
 
   hit_test: (geometry, final, append, mode="select") ->
-    return @model.hit_test_helper(geometry, @glyph, final, append, mode)
+    return @model.hit_test_helper(geometry, @, final, append, mode)
 
 
 export class GlyphRenderer extends Renderer
@@ -275,11 +276,11 @@ export class GlyphRenderer extends Renderer
           index = i
     return index
 
-  hit_test_helper: (geometry, glyph, final, append, mode) ->
+  hit_test_helper: (geometry, renderer_view, final, append, mode) ->
     if not @visible
       return false
 
-    hit_test_result = glyph.hit_test(geometry)
+    hit_test_result = renderer_view.glyph.hit_test(geometry)
 
     # glyphs that don't have hit-testing implemented will return null
     if hit_test_result == null
@@ -291,10 +292,12 @@ export class GlyphRenderer extends Renderer
       selector = @data_source.selection_manager.selector
       selector.update(indices, final, append)
       @data_source.selected = selector.indices
+      @data_source.select.emit()
     else # mode == "inspect"
-      inspector = @data_source.selection_manager.inspectors[@id]
+      inspector = @data_source.selection_manager.get_or_create_inspector(@)
       inspector.update(indices, true, false, true)
       @data_source.inspected = inspector.indices
+      @data_source.inspect.emit([renderer_view, {"geometry": geometry}])
 
     return not indices.is_empty()
 

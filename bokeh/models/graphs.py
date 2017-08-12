@@ -24,6 +24,7 @@ class StaticLayoutProvider(LayoutProvider):
     containing the x and y coordinates of the node.
 
     .. code-block:: python
+
         {
             0 : [0.5, 0.5],
             1 : [1.0, 0.86],
@@ -72,3 +73,44 @@ def from_networkx(graph, layout_function, **kwargs):
         graph_renderer.layout_provider = StaticLayoutProvider(graph_layout=graph_layout)
 
         return graph_renderer
+
+
+@abstract
+class GraphHitTestPolicy(Model):
+    '''
+
+    '''
+
+    pass
+
+
+class NodesOnly(GraphHitTestPolicy):
+    '''
+    With the NodesOnly policy, only graph nodes are able to be selected and
+    inspected. There is no selection or inspection of graph edges.
+
+    '''
+
+    pass
+
+class NodesAndLinkedEdges(GraphHitTestPolicy):
+    '''
+    With the NodesAndLinkedEdges policy, inspection or selection of graph
+    nodes will result in the inspection or selection of the node and of the
+    linked graph edges. There is no direct selection or inspection of graph
+    edges.
+
+    '''
+
+    pass
+
+class EdgesAndLinkedNodes(GraphHitTestPolicy):
+    '''
+    With the NodesAndLinkedEdges policy, inspection or selection of graph
+    edges will result in the inspection or selection of the edge and of the
+    linked graph nodes. There is no direct selection or inspection of graph
+    nodes.
+
+    '''
+
+    pass

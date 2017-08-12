@@ -180,8 +180,8 @@ export bar = (data, opts={}) ->
         else
           left[j] += columns[i-1][j]
           right[j] += columns[i][j]
-        bottom.push("#{label}:0")
-        top.push("#{label}:1")
+        bottom.push([label,-0.5])
+        top.push([label, 0.5])
 
       source = new Bokeh.ColumnDataSource({
         data: {
@@ -213,8 +213,8 @@ export bar = (data, opts={}) ->
       for label, j in labels
         left.push(0)
         right.push(columns[i][j])
-        bottom.push("#{label}:#{i*dy}")
-        top.push("#{label}:#{(i+1)*dy}")
+        bottom.push([label, i*dy-0.5])
+        top.push([label, (i+1)*dy-0.5])
 
       source = new Bokeh.ColumnDataSource({
         data: {

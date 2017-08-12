@@ -339,7 +339,7 @@ In this case you might have code similar to:
     from os.path import dirname, join
     from helpers import load_data
 
-    load_data(join(dirname(__file__), 'data', 'things.csv')
+    load_data(join(dirname(__file__), 'data', 'things.csv'))
 
 And similar code to load the JavaScript implementation for a custom model
 from ``models/custom.js``

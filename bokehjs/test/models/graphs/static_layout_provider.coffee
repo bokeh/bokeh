@@ -28,13 +28,13 @@ describe "StaticLayoutProvider", ->
         expect(xs).to.be.deep.equal([-1,0,1,0])
         expect(ys).to.be.deep.equal([0,1,0,-1])
 
-      it "should return nulls if coords don't exist", ->
+      it "should return NaNs if coords don't exist", ->
         node_source = new ColumnDataSource()
         node_source.data.index = [4,5,6]
 
         [xs, ys] = @layout_provider.get_node_coordinates(node_source)
-        expect(xs).to.be.deep.equal([null, null, null])
-        expect(ys).to.be.deep.equal([null, null, null])
+        expect(xs).to.be.deep.equal([NaN, NaN, NaN])
+        expect(ys).to.be.deep.equal([NaN, NaN, NaN])
 
     describe "get_edge_coordinates method", ->
 
@@ -47,11 +47,11 @@ describe "StaticLayoutProvider", ->
         expect(xs).to.be.deep.equal([ [ -1, 0 ], [ -1, 1 ], [ -1, 0 ] ])
         expect(ys).to.be.deep.equal([ [ 0, 1 ], [ 0, 0 ], [ 0, -1 ] ])
 
-      it "should return nulls if coords don't exist", ->
+      it "should return NaNs if coords don't exist", ->
         edge_source = new ColumnDataSource()
         edge_source.data.start = [4,4,4]
         edge_source.data.end = [5,6,7]
 
         [xs, ys] = @layout_provider.get_edge_coordinates(edge_source)
-        expect(xs).to.be.deep.equal([ [ null, null ], [ null, null ], [ null, null ] ])
-        expect(ys).to.be.deep.equal([ [ null, null ], [ null, null ], [ null, null ] ])
+        expect(xs).to.be.deep.equal([ [ NaN, NaN ], [ NaN, NaN ], [ NaN, NaN ] ])
+        expect(ys).to.be.deep.equal([ [ NaN, NaN ], [ NaN, NaN ], [ NaN, NaN ] ])

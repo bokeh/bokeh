@@ -270,14 +270,8 @@ class ResetTool(Action):
     """)
 
 
-class ResizeTool(Drag):
-    ''' *toolbar icon*: |resize_icon|
-
-    The resize tool allows the user to left-drag a mouse or drag a finger
-    to resize the entire plot area on the screen.
-
-    .. |resize_icon| image:: /_images/icons/Resize.png
-        :height: 18pt
+class ResizeTool(object):
+    ''' DEPRECATED in 0.12.7, attempting to use will be a NO-OP
 
     '''
 
@@ -638,6 +632,14 @@ class PolySelectTool(Tap):
     renderers = List(Instance(Renderer), help="""
     An explicit list of renderers to hit test again. If unset,
     defaults to all renderers on a plot.
+    """)
+
+    callback = Instance(Callback, help="""
+    A callback to run in the browser on completion of drawing a polygon.
+    The cb_data parameter that is available to the Callback code will contain
+    one PolySelectTool-specific field:
+
+    :geometry: object containing the coordinates of the polygon
     """)
 
     overlay = Instance(PolyAnnotation, default=DEFAULT_POLY_OVERLAY, help="""

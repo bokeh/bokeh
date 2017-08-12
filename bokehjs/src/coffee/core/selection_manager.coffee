@@ -19,21 +19,18 @@ export class SelectionManager extends HasProps
     did_hit = false
     for r in renderer_views
       did_hit ||= r.hit_test(geometry, final, append)
-    @source.select.emit()
     return did_hit
 
   inspect: (renderer_view, geometry) ->
     did_hit = false
-    @_set_inspector(renderer_view)
     did_hit ||= renderer_view.hit_test(geometry, false, false, "inspect")
-    @source.inspect.emit([renderer_view, {"geometry": geometry}])
     return did_hit
 
   clear: (rview) ->
     @selector.clear()
     @source.selected = hittest.create_hit_test_result()
 
-  _set_inspector: (rview) ->
-    id = rview.model.id
-    if not @inspectors[id]?
-      @inspectors[id] = new Selector()
+  get_or_create_inspector: (rmodel) ->
+    if not @inspectors[rmodel.id]?
+      @inspectors[rmodel.id] = new Selector()
+    return @inspectors[rmodel.id]

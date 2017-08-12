@@ -4,8 +4,60 @@
 Bokeh Version ``0.12.7`` is an incremental update that adds a few important
 features and fixes several bugs. Some of the highlights include:
 
-Better Embed Functions for Applications
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+* Support graphs/trees/networks (:bokeh-issue:`187`) including configurable
+  and extendable policies for highlighting and selection.
+* Filterable/Sliceable CDS views (:bokeh-issue:`4070`)
+* Pass HTTP request args to embedded sessions (:bokeh-issue:`5992`)
+* New :class:`~bokeh.models.expressions.Expression` models for client-side
+  computations, including :class:`~bokeh.models.expressions.Stack`, for
+  stacking CDS columns.
+* New module :ref:`bokeh.transform` with helper functions for simplifying
+  ``DataSpec`` expressions, including  :func:`~bokeh.transform.jitter`,
+  :func:`~bokeh.transform.dodge`, :func:`~bokeh.transform.factor_cmap`, etc.
+* Added :func:`~bokeh.plotting.figure.Figure.hbar_stack` and
+  :func:`~bokeh.plotting.figure.Figure.vbar_stack` to greatly simplify
+  creation of stacked bar charts.
+* Improvements for using Bokeh with Categorical data:
+
+  - Support multi-level categories and hierarchical axes
+  - Arbitrary limits on category names (e.g. no ``':'``) have been lifted
+  - Optional Pandas integration creates CDS from directly from ``GroupBy``
+    objects
+  - Categorical Bar, Heatmap and Scatter plots easier to create with stable
+    ``bokeh.plotting`` APIs
+  - New User's Guide chapter :ref:`userguide_categorical`
+
+ Many other small bugfixes and docs additions. For full details see the
+ :bokeh-tree:`CHANGELOG`.
+
+Migration Guide
+---------------
+
+NOTE: the 0.12.x series is the last planned release series before a
+version 1.0 release. The focus of the 1.0 release will be implementing
+build automation to enforce API stability, and a very small number of
+high value features. For more information see the `project roadmap`_.
+
+Breakage Related to Categoricals Overhaul
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Bokeh support for Categorical data has needed attention for some time.
+The release brings improvements that *dramatically* improve the user
+experience when using categorical data with Bokeh. For details and
+examples, see the new User's Guide chapter :ref:`userguide_categorical`.
+
+At this point we endeavor to minimize breakage, and to provide managed
+deprecation cycles when things must change. However, in this instance,
+some minor *immediate* breaking changes were unavoidable:
+
+* ``min_interval`` and ``max_interval`` on ``FactorRange`` are now
+  given in synthetic coordinate units.
+
+* ``bounds`` on ``FactorRange`` are now given in synthetic coordinate
+  units.
+
+New Embed Functions for Bokeh Applications
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Two new embed functions similar to ``autoload_server`` are added, that have
 simpler APIs and are more focused:
@@ -18,6 +70,21 @@ simpler APIs and are more focused:
 
 Additionally, with these new methods one may choose to not load the JS/CSS
 resource files by passing ``resources="none"`` as a parameter.
+
+Deprecations Removed
+~~~~~~~~~~~~~~~~~~~~
+
+The following previously deprecated modules or features have been removed:
+
+* ``bokeh.icons`` module
+
+* Legacy anchor and legend locations ``left_center`` and ``right_center``
+
+* ``ImageRGBA.rows`` and ``ImageRGBA.cols`` properties
+
+* ``HBox`` and ``VBox`` in ``bokeh.layouts``
+
+* ``validate`` keyword argument for ``bokeh.io.save``
 
 New Deprecations
 ~~~~~~~~~~~~~~~~
@@ -33,6 +100,9 @@ use the ``SelectionGeometry`` event present on ``Plot`` or ``Figure``.
 For GIS-related use-cases built on top of Bokeh, consider using
 GeoViews_, or creating a `Custom Extension`_.
 
+``ResizeTool`` is deprecated and also *immediately* is a NO-OP on the Python
+side. ``ResizeTool`` has been removed from BokehJS entirely.
+
 BokehJS Widgets Bundle Split
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -41,12 +111,6 @@ The `bokeh-widgets` bundle was split into ``bokeh-widgets`` and
 Bokeh includes ``bokeh-tables`` automatically when necessary, so this change
 should be transparent for most users. However, users of custom templates or
 other advanced embedding scenarios may be affected.
-
-`bokeh-widgets` bundle was split into `bokeh-widgets` and `bokeh-tables`. This
-is to reduce the weight of the main widgets' bundle. bokeh includes `bokeh-tables`
-automatically when necessary, so this change should be transparent for most users.
-However, users of custom templates or some advanced embedding scenarios may be
-affected.
 
 TapTool Callback Calling Convention
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -58,5 +122,28 @@ passed as part of the optional ``cb_data``. Existing usage of ``OpenURL`` is
 unaffected by this change, but any ``CustomJS`` callbacks used with the tap tool
 will need to be updated to reflect this change.
 
+DataTable Selection Highlighting Signal
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The DataTable now responds to the signal ``source.change.emit()``, instead of
+``source.properties.selected.change.emit()``, to visually highlight the rows in the
+DataTable that are part of the selection. If you have used
+``source.properties.selected.change.emit()`` in CustomJS code, you will need to
+change it to ``source.change.emit()``.
+
+The DataTable responds automatically to changes in its data source's ``selected``
+property. However, because of Bokeh's change detection machinery, only a replacement
+of the ``selected`` property causes a change signal to be emitted, and not a partial update
+(e.g. ``source.selected['1d']['indices'] = [1, 2]``). If you use a partial update in CustomJS
+code, you will need to emit the change signal yourself:
+
+.. code-block:: python
+
+    customjs = CustomJS(args=dict(source=source), code="""
+        source['selected']['1d'].indices = [1, 2]
+        source.change.emit();
+    """)
+
 .. _Custom Extension: http://bokeh.pydata.org/en/latest/docs/user_guide/extensions.html
 .. _GeoViews: http://geo.holoviews.org
+.. _project roadmap: http://bokehplots.com/pages/roadmap.html

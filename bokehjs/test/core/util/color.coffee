@@ -51,7 +51,8 @@ describe "color module", ->
   it "should turn rgba() colors to tuples, overriding alpha", ->
     expect(color.color2rgba('rgba(0, 0, 0, 0)')).to.eql [0, 0, 0, 0]
     expect(color.color2rgba('rgba(0, 0, 0, 0)', 0.5)).to.eql [0, 0, 0, 0]
-    expect(color.color2rgba('rgba(255, 0, 0, 255)', 0.5)).to.eql [1, 0, 0, 1]
+    expect(color.color2rgba('rgba(255, 0, 0, 1)', 0.5)).to.eql [1, 0, 0, 1]
+    expect(color.color2rgba('rgba(255, 0, 0, 0.4)', 0.5)).to.eql [1, 0, 0, 0.4]
 
   it "should turn NaN or null to transparent color", ->
     expect(color.color2rgba(null)).to.eql [0, 0, 0, 0]

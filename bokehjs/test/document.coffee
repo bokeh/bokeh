@@ -79,14 +79,12 @@ Models.register('ComplicatedModelWithConstructTimeChanges', ComplicatedModelWith
 class LayoutableModel extends LayoutDOM
   type: 'LayoutableModel'
 
-  get_constraints: () ->
-    []
+  get_constraints: () -> []
 
-  get_edit_variables: () ->
-    []
+  get_editables: () -> []
 
-  get_constrained_variables: () ->
-    {}
+  get_constrained_variables: () -> {}
+
 Models.register('LayoutableModel', LayoutableModel)
 
 class ModelWithConstraint extends LayoutableModel
@@ -97,9 +95,7 @@ class ModelWithConstraint extends LayoutableModel
     @_left = new Variable('ModelWithConstraint._left')
 
   get_constraints: () ->
-    constraints = []
-    constraints.push(GE(@_left))
-    return constraints
+    return [GE(@_left)]
 
 Models.register('ModelWithConstraint', ModelWithConstraint)
 
@@ -111,10 +107,8 @@ class ModelWithEditVariable extends LayoutableModel
     super(attrs, options)
     @_left = new Variable('ModelWithEditVariable._left')
 
-  get_edit_variables: () ->
-    editables = []
-    editables.push({edit_variable: @_left, strength: Strength.strong})
-    return editables
+  get_editables: () ->
+    return [@_left]
 
 Models.register('ModelWithEditVariable', ModelWithEditVariable)
 
@@ -182,15 +176,11 @@ class ModelWithEditVariableAndConstraint extends LayoutableModel
     super(attrs, options)
     @_left = new Variable('ModelWithEditVariableAndConstraint._left')
 
-  get_edit_variables: () ->
-    editables = []
-    editables.push({edit_variable: @_left, strength: Strength.strong})
-    return editables
+  get_editables: () ->
+    return [@_left]
 
   get_constraints: () ->
-    constraints = []
-    constraints.push(GE(@_left))
-    return constraints
+    return [GE(@_left)]
 
 Models.register('ModelWithEditVariableAndConstraint', ModelWithEditVariableAndConstraint)
 

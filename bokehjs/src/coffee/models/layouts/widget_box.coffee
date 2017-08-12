@@ -76,20 +76,6 @@ export class WidgetBox extends LayoutDOM
     if @sizing_mode == 'scale_height'
       logger.warn("sizing_mode `scale_height` is not experimental for WidgetBox. Please report your results to the bokeh dev team so we can improve.")
 
-  get_edit_variables: () ->
-    edit_variables = super()
-    # Go down the children to pick up any more constraints
-    for child in @get_layoutable_children()
-      edit_variables = edit_variables.concat(child.get_edit_variables())
-    return edit_variables
-
-  get_constraints: () ->
-    constraints = super()
-    # Go down the children to pick up any more constraints
-    for child in @get_layoutable_children()
-      constraints = constraints.concat(child.get_constraints())
-    return constraints
-
   get_constrained_variables: () ->
     vars = extend({}, super(), {
       on_edge_align_top    : @_top
@@ -112,8 +98,7 @@ export class WidgetBox extends LayoutDOM
 
     return vars
 
-  get_layoutable_children: () ->
-    return @children
+  get_layoutable_children: () -> @children
 
   @define {
     children: [ p.Array, [] ]

@@ -7,8 +7,8 @@ export class StaticLayoutProvider extends LayoutProvider
   get_node_coordinates: (node_source) ->
     [xs, ys] = [[], []]
     for i in node_source.data.index
-      x = if @graph_layout[i]? then @graph_layout[i][0] else null
-      y = if @graph_layout[i]? then @graph_layout[i][1] else null
+      x = if @graph_layout[i]? then @graph_layout[i][0] else NaN
+      y = if @graph_layout[i]? then @graph_layout[i][1] else NaN
       xs.push(x)
       ys.push(y)
     return [xs, ys]
@@ -18,8 +18,10 @@ export class StaticLayoutProvider extends LayoutProvider
     starts = edge_source.data.start
     ends = edge_source.data.end
     for i in [0...starts.length]
-      start = if @graph_layout[starts[i]]? then @graph_layout[starts[i]] else [null, null]
-      end = if @graph_layout[ends[i]]? then @graph_layout[ends[i]] else [null, null]
+      if @graph_layout[starts[i]]? and @graph_layout[ends[i]]?
+        [start, end] = [@graph_layout[starts[i]], @graph_layout[ends[i]]]
+      else
+        [start, end] = [[NaN, NaN], [NaN, NaN]]
       xs.push([start[0], end[0]])
       ys.push([start[1], end[1]])
     return [xs, ys]

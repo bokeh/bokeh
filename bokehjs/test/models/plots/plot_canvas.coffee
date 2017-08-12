@@ -86,18 +86,18 @@ describe "PlotCanvas", ->
     expect(left_axis.panel  in layoutable_children).to.be.true
     expect(right_axis.panel in layoutable_children).to.be.true
 
-  it "should call get_edit_variables on layoutable children", sinon.test () ->
+  it "should call get_editables on layoutable children", sinon.test () ->
     plot = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d(), title: null})
     @doc.add_root(plot)
     plot_canvas = plot.plot_canvas
     children = plot_canvas.get_layoutable_children()
     expect(children.length).to.be.equal 6
     for child in children
-      child.get_edit_variables = this.spy()
-      expect(child.get_edit_variables.callCount).to.be.equal 0
-    plot_canvas.get_edit_variables()
+      child.get_editables = this.spy()
+      expect(child.get_editables.callCount).to.be.equal 0
+    plot_canvas.get_all_editables()
     for child in children
-      expect(child.get_edit_variables.callCount).to.be.equal 1
+      expect(child.get_editables.callCount).to.be.equal 1
 
 describe "PlotCanvasView pause", ->
 
@@ -183,7 +183,7 @@ describe "PlotCanvas constraints", ->
     for child in children
       child.get_constraints = this.spy()
       expect(child.get_constraints.callCount).to.be.equal 0
-    @plot_canvas.get_constraints()
+    @plot_canvas.get_all_constraints()
     for child in children
       expect(child.get_constraints.callCount).to.be.equal 1
 

@@ -18,19 +18,21 @@ from subprocess import Popen, PIPE
 from ..model import Model
 from ..settings import settings
 from .string import snakify
+from .deprecation import deprecated
 
 _plugin_umd = \
 """\
 (function(root, factory) {
-  if(typeof exports === 'object' && typeof module === 'object')
-    factory(require("bokeh"));
-  else if(typeof define === 'function' && define.amd)
-    define(["bokeh"], factory);
-  else if(typeof exports === 'object')
-    factory(require("Bokeh"));
-  else
+//  if(typeof exports === 'object' && typeof module === 'object')
+//    factory(require("Bokeh"));
+//  else if(typeof define === 'function' && define.amd)
+//    define(["Bokeh"], factory);
+//  else if(typeof exports === 'object')
+//    factory(require("Bokeh"));
+//  else
     factory(root["Bokeh"]);
-})(this, function(Bokeh, define /* void 0 */) {
+})(this, function(Bokeh) {
+  var define;
   return %(content)s;
 });
 """
@@ -212,6 +214,9 @@ class Less(Inline):
 class FromFile(Implementation):
 
     def __init__(self, path):
+        if path.endswith(".tsx"):
+            deprecated((0, 12, 7), "TSX templates", "core/dom APIs")
+
         with io.open(path, encoding="utf-8") as f:
             self.code = f.read()
         self.file = path

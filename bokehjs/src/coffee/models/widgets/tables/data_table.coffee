@@ -94,7 +94,7 @@ export class DataTableView extends WidgetView
     @connect(@model.source.properties.data.change, () => @updateGrid())
     @connect(@model.source.streaming, () => @updateGrid())
     @connect(@model.source.patching, () => @updateGrid())
-    @connect(@model.source.properties.selected.change, () => @updateSelection())
+    @connect(@model.source.change, () => @updateSelection())
 
   updateGrid: () ->
     @data.constructor(@model.source, @model.view)
@@ -195,6 +195,8 @@ export class DataTableView extends WidgetView
         selected = hittest.create_hit_test_result()
         selected['1d'].indices = (@data.index[i] for i in args.rows)
         @model.source.selected = selected
+
+      @updateSelection()
 
     return @
 

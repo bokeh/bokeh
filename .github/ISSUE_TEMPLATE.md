@@ -13,6 +13,11 @@ For defects or deficiencies, please provide ALL OF THE FOLLOWING:
 
 #### Complete, minimal, self-contained example code that reproduces the issue
 
+```
+# code goes here between backticks
+
+```
+
 #### Stack traceback and/or browser JavaScript console output
 
 #### Screenshots or screencasts of the bug in action

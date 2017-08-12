@@ -33,7 +33,7 @@ gulp.task("scripts:js", () => {
 
 gulp.task("scripts:ts", () => {
   const prefix = "./src/coffee/**"
-  return gulp.src([`${prefix}/*.ts`, `${prefix}/*.tsx`])
+  return gulp.src(`${prefix}/*.ts`)
     .pipe(gulp.dest(paths.build_dir.tree_ts))
 })
 
@@ -80,7 +80,7 @@ gulp.task("scripts:tsjs", ["scripts:coffee", "scripts:js", "scripts:ts"], () => 
   }
 
   const tree_ts = paths.build_dir.tree_ts
-  return gulp.src([`${tree_ts}/**/*.ts`, `${tree_ts}/**/*.tsx`])
+  return gulp.src(`${tree_ts}/**/*.ts`)
     .pipe(sourcemaps.init())
     .pipe(ts(tsconfig.compilerOptions, ts.reporter.nullReporter()).on('error', error))
     .pipe(sourcemaps.write("."))

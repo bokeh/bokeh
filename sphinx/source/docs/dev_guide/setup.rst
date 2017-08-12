@@ -93,12 +93,12 @@ sources:
     basis with the ``-c`` command line option to ``conda``, e.g.
     ``conda install -c bokeh -c conda-forge <pkgs>``
 
-It's also necessary to install `conda-build` first, to bootstrap the rest
-of these instructions. To do that, execute:
+It's also necessary to install `jinja2` and `pyyaml` first, to bootstrap
+the rest of these instructions. To do that, execute:
 
 .. code-block:: sh
 
-    conda install conda-build
+    conda install jinja2 pyyaml
 
 From the top level of the *source checkout* directory, execute the following
 command at your command prompt to install all the required packages:
@@ -308,6 +308,44 @@ You should see output similar to:
     BokehJS static path :  /Users/bryan/work/bokeh/bokeh/server/static
     node.js version     :  v6.10.3
     npm version         :  3.10.10
+
+The next check that can be made is to run some of the examples. There are
+different ways in which bokeh can be used which suit a variety of use cases.
+
+To create an html file,
+
+.. code-block:: sh
+
+    BOKEH_RESOURCES=inline python examples/plotting/file/iris.py
+
+which will create a file ``iris.html`` locally and open up a web browser.
+
+.. image:: /_images/bokeh_iris_html.png
+    :scale: 50 %
+    :align: center
+
+The variable ``BOKEH_RESOURCES`` determines where the css and JavaScript
+resources required by bokeh are found. By specifying ``inline`` we are using
+the version of BokehJS we just built to include the resources inline as part of
+the html file. The ``BOKEH_RESOURCES`` variable is required as the default
+behaviour is to use CDN resources.
+
+Another method of running bokeh is as a server. An example of this mode of
+operation can be run using the command
+
+.. code-block:: sh
+
+    python -m bokeh serve --show examples/app/sliders.py
+
+which will open up a browser with an interactive figure.
+
+.. image:: /_images/bokeh_app_sliders.png
+    :scale: 50 %
+    :align: center
+
+All the sliders allow interactive control of the sine wave, with each update
+redrawing the line with the new parameters. The ``--show`` option opens the
+web browser to the appropriate address, the default is ``localhost:5006``.
 
 If you have any problems with the steps here, please `contact the developers`_.
 

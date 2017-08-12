@@ -1,6 +1,5 @@
 import {RBush} from "core/util/spatial"
 import {Glyph, GlyphView} from "./glyph"
-import {CategoricalScale} from "../scales/categorical_scale"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
 
@@ -11,9 +10,9 @@ export class HBarView extends GlyphView
     @sy = @renderer.plot_view.canvas.v_vy_to_sy(vy)
 
     vright = @renderer.xscale.v_compute(@_right)
-    vleft = @renderer.xscale.v_compute(@_left)
-
     @sright = @renderer.plot_view.canvas.v_vx_to_sx(vright)
+
+    vleft = @renderer.xscale.v_compute(@_left)
     @sleft = @renderer.plot_view.canvas.v_vx_to_sx(vleft)
 
     @stop = []
@@ -25,25 +24,13 @@ export class HBarView extends GlyphView
     return null
 
   _index_data: () ->
-    map_to_synthetic = (scale, array) ->
-      if scale instanceof CategoricalScale
-        scale.v_compute(array, true)
-      else
-        array
-
-    left = map_to_synthetic(@renderer.xscale, @_left)
-    right = map_to_synthetic(@renderer.xscale, @_right)
-
-    y = map_to_synthetic(@renderer.yscale, @_y)
-    height = map_to_synthetic(@renderer.yscale, @_height)
-
     points = []
 
-    for i in [0...y.length]
-      l = Math.min(left[i], right[i])
-      r = Math.max(left[i], right[i])
-      t = y[i] + 0.5 * height[i]
-      b = y[i] - 0.5 * height[i]
+    for i in [0...@_y.length]
+      l = Math.min(@_left[i], @_right[i])
+      r = Math.max(@_left[i], @_right[i])
+      t = @_y[i] + 0.5 * @_height[i]
+      b = @_y[i] - 0.5 * @_height[i]
       if isNaN(l+r+t+b) or not isFinite(l+r+t+b)
         continue
       points.push({minX: l, minY: b, maxX: r, maxY: t, i: i})
@@ -67,8 +54,8 @@ export class HBarView extends GlyphView
 
   _hit_point: (geometry) ->
     [vx, vy] = [geometry.vx, geometry.vy]
-    x = @renderer.xscale.invert(vx, true)
-    y = @renderer.yscale.invert(vy, true)
+    x = @renderer.xscale.invert(vx)
+    y = @renderer.yscale.invert(vy)
 
     hits = @index.indices({minX: x, minY: y, maxX: x, maxY: y})
 
@@ -85,10 +72,10 @@ export class HBar extends Glyph
   default_view: HBarView
   type: 'HBar'
 
+  @coords [['y', 'left']]
   @mixins ['line', 'fill']
   @define {
-      y:      [ p.NumberSpec    ]
-      height: [ p.DistanceSpec  ]
-      left:   [ p.NumberSpec, 0 ]
-      right:  [ p.NumberSpec    ]
-    }
+    height: [ p.DistanceSpec  ]
+    right:  [ p.NumberSpec    ]
+  }
+  @override { left: 0 }

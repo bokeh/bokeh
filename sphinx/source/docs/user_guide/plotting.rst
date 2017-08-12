@@ -331,6 +331,11 @@ when using |bokeh.plotting| interface.
 Categorical Axes
 ~~~~~~~~~~~~~~~~
 
+Categorical axes are created by specifying a
+:class:`~bokeh.models.ranges.FactorRange` for one of the plot ranges (or a
+lists of factors to be converted to one). Below is a simple example, for
+complete details see :ref:`userguide_categorical`.
+
 .. bokeh-plot:: docs/user_guide/examples/plotting_categorical_axis.py
     :source-position: above
 

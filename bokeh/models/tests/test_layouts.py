@@ -1,6 +1,6 @@
 import pytest
 from bokeh.plotting import Figure
-from bokeh.models.layouts import HBox, VBox, Row, Column, WidgetBox
+from bokeh.models.layouts import Row, Column, WidgetBox
 from bokeh.models.widgets import Slider
 from bokeh.models.sources import ColumnDataSource
 
@@ -43,18 +43,6 @@ def check_widget_wrapped_in_widget_box(layout_callable):
     assert isinstance(layout.children[0], WidgetBox)
     assert len(layout.children[0].children) == 1
     assert layout.children[0].children == components
-
-
-def test_VBox():
-    check_props(VBox())
-    check_children_prop(VBox)
-    check_widget_wrapped_in_widget_box(VBox)
-
-
-def test_HBox():
-    check_props(HBox())
-    check_children_prop(HBox)
-    check_widget_wrapped_in_widget_box(HBox)
 
 
 def test_Row():
