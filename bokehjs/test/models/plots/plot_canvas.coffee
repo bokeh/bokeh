@@ -447,16 +447,3 @@ describe "PlotCanvasView dimensions", ->
     })
     @plot_canvas.attach_document(@doc)
     @plot_canvas_view = new @plot_canvas.default_view({model: @plot_canvas, parent: @plot_view})
-
-  it "reset_dimensions should set plot width and height to initial width and height", sinon.test () ->
-    # Explicitly set to 1 to make sure they're being set
-    @plot_canvas.plot.width = 1
-    @plot_canvas.plot.height = 1
-    @plot_canvas_view.reset_dimensions()
-    expect(@plot_canvas.plot.width).to.be.equal 444 # Comes from plot_width
-    expect(@plot_canvas.plot.height).to.be.equal 555
-
-  it "update_dimensions should set plot width and height to requested width and height", sinon.test () ->
-    @plot_canvas_view.update_dimensions(22, 33)
-    expect(@plot_canvas.plot.width).to.be.equal 22
-    expect(@plot_canvas.plot.height).to.be.equal 33

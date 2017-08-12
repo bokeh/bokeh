@@ -304,19 +304,6 @@ export class PlotCanvasView extends DOMView
     if info.selection?
       @update_selection(info.selection)
 
-    if info.dimensions?
-      @canvas_view.set_dims([info.dimensions.width, info.dimensions.height])
-
-  reset_dimensions: () ->
-    @update_dimensions(@canvas.initial_width, @canvas.initial_height)
-
-  update_dimensions: (width, height) ->
-    @pause()
-    @model.plot.width = width
-    @model.plot.height = height
-    @parent.layout()  # XXX: parent because this view doesn't participate in layout hierarchy
-    @unpause()
-
   get_selection: () ->
     selection = []
     for renderer in @model.plot.renderers

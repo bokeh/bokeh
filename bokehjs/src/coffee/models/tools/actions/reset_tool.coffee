@@ -8,8 +8,6 @@ export class ResetToolView extends ActionToolView
     @plot_view.clear_state()
     @plot_view.reset_range()
     @plot_view.reset_selection()
-    if @model.reset_size
-      @plot_view.reset_dimensions()
 
 export class ResetTool extends ActionTool
   default_view: ResetToolView
