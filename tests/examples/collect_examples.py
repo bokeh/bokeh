@@ -207,7 +207,7 @@ def add_examples(list_of_examples, path, examples_dir, example_type=None, slow=N
                 name = join(name, name + ".py")
                 flags |= example_type if example_type else Flags.file
             elif os.path.exists(join(example_path, name, "main.py")):
-                name = join(name, "main.py")
+                # name is unchanged and passed as the example name
                 flags |= example_type if example_type else Flags.server
             else:
                 continue
