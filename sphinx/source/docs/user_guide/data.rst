@@ -1,32 +1,144 @@
 .. _userguide_data:
 
-Sharing Data Between Plots
-==========================
+Providing Data for Plots and Tables
+===================================
 
-The |ColumnDataSource| is the core of most Bokeh plots, holding the data
+No data visualization is possible without the underlying data to be represented.
+In this section, the various ways of providing data for plots is explained, from
+passing data values directly to creating a |ColumnDataSource| and filtering using
+a |CDSView|.
+
+Providing data directly
+-----------------------
+
+In Bokeh, it is possible to pass lists of values directly into plotting functions.
+In the example below, the data, ``x_values`` and ``y_values``, are passed directly
+to the ``circle`` plotting method (see :ref:`userguide_plotting` for more examples).
+
+.. code-block:: python
+
+    from bokeh.plotting import figure
+
+    x_values = [1, 2, 3, 4, 5]
+    y_values = [6, 7, 2, 3, 6]
+
+    p = figure()
+    p.circle(x=x_values, y=y_values)
+
+When you pass in data like this, Bokeh works behind the scenes to make a
+|ColumnDataSource| for you. But learning to create and use the |ColumnDataSource|
+will enable you access more advanced capabilites, such as streaming data,
+sharing data between plots, and filtering data.
+
+ColumnDataSource
+----------------
+
+The |ColumnDataSource| is the core of most Bokeh plots, providing the data
 that is visualized by the glyphs of the plot. With the |ColumnDataSource|,
 it is easy to share data between multiple plots and widgets, such as the
 |DataTable|. When the same |ColumnDataSource| is used to drive multiple
 renderers, selections of the data source are also shared. Thus it is possible
 to use a select tool to choose data points from one plot and have them automatically
-highlighted in a second plot.
+highlighted in a second plot (:ref:`userguide_data_linked_selection`).
 
-It is also possible to filter the data and create a view of the |ColumnDataSource|
-to render only a portion of the full data set. By filtering the data source
-instead of creating a new data source, it is possible to link plots with different
-row-wise subsets of a |ColumnDataSource| and share selections between them.
+At the most basic level, a |ColumnDataSource| is simply a mapping between column
+names and lists of data. The |ColumnDataSource| takes a ``data`` parameter which is a dict,
+with string column names as keys and lists (or arrays) of data values as values. If one positional
+argument is passed in to the |ColumnDataSource| initializer, it will be taken as ``data``. Once the
+|ColumnDataSource| has been created, it can be passed into the ``source`` parameter of
+plotting methods which allows you to pass a column's name as a stand in for the data values:
 
-Linked selection
-----------------
+.. code-block:: python
 
-Using the same |ColumnDataSource| in the two plots below allows their selections to be
-shared.
+    from bokeh.plotting import figure
+    from bokeh.models import ColumnDataSource
 
-.. bokeh-plot:: docs/user_guide/examples/interaction_linked_brushing.py
-    :source-position: above
+    data = {'x_values': [1, 2, 3, 4, 5],
+            'y_values': [6, 7, 2, 3, 6]}
 
-Filtering data
---------------
+    source = ColumnDataSource(data=data)
+
+    p = figure()
+    p.circle(x='x_values', y='y_values', source=source)
+
+The ``data`` parameter can also be a Pandas ``DataFrame`` or ``GroupBy`` object.
+
+.. code-block:: python
+
+   source = ColumnDataSource(df)
+
+If a ``DataFrame`` is used, the CDS will have columns corresponding to the columns of
+the ``DataFrame``. If the ``DataFrame`` has a named index column, then CDS will also have
+a column with this name. However, if the index name (or any subname of a ``MultiIndex``)
+is ``None``, then the CDS will have a column generically named ``index`` for the index.
+
+.. code-block:: python
+
+    group = df.groupby(('colA', 'ColB'))
+    source = ColumnDataSource(group)
+
+If a ``GroupBy`` object is used, the CDS will have columns corresponding to the result of
+calling ``group.describe()``. The ``describe`` method generates columns for statistical measures
+such as ``mean`` and ``count`` for all the non-grouped orginal columns. The CDS columns are
+formed by joining original column names with the computed measure. For example, if a
+``DataFrame`` has columns ``'year'`` and ``'mpg'``. Then passing ``df.groupby('year')``
+to a CDS will result in columns such as ``'mpg_mean'``
+
+If the ``GroupBy.describe`` result has a named index column, then the CDS will also have a
+column with this name. However, if the index name (or any subname of a ``MultiIndex``) is
+``None``, then the CDS will have a column generically named ``index`` for the index.
+
+Note this capability to adapt ``GroupBy`` objects may only work with Pandas ``>=0.20.0``.
+
+.. note::
+    There is an implicit assumption that all the columns in a given ``ColumnDataSource``
+    all have the same length at all times. For this reason, it is usually preferable to
+    update the ``.data`` property of a data source "all at once".
+
+Streaming
+~~~~~~~~~
+
+|ColumnDataSource| streaming is an efficient way to append new data to a CDS. By using the
+``stream`` method, Bokeh only sends new data to the browser instead of the entire dataset.
+The ``stream`` method takes a ``new_data`` parameter containing a dict mapping column names
+to sequences of data to be appended to the respective columns. It additionally takes an optional
+argument ``rollover``, which is the maximum length of data to keep (data from the beginning of the
+column will be discarded). The default ``rollover`` value of None allows data to grow unbounded.
+
+.. code-block:: python
+
+    source = ColumnDataSource(data=dict(foo=[], bar=[]))
+
+    # has new, identical-length updates for all columns in source
+    new_data = {
+        'foo' : [10, 20],
+        'bar' : [100, 200],
+    }
+
+    source.stream(new_data)
+
+Patching
+~~~~~~~~
+
+|ColumnDataSource| patching is an efficient way to update slices of a data source. By using the
+``patch`` method, Bokeh only needs to send new data to the browser instead of the entire dataset.
+The ``patch`` method should be passed a dict mapping column names to list of tuples that represent
+a patch change to apply.
+
+The tuples that describe patch changes are of the form:
+
+.. code-block:: python
+
+    (index, new_value)  # replace a single column value
+
+    # or
+
+    (slice, new_values) # replace several column values
+
+For a full example, see :bokeh-tree:`examples/howto/patch_app.py`.
+
+Filtering data with CDSView
+---------------------------
 
 It's often desirable to focus in on a portion of data that has been subsampled or filtered
 from a larger dataset. Bokeh allows you to specify a view of a data source that represents
@@ -207,6 +319,17 @@ supported, only the subset of Python that can be translated to Javascript using 
 
 For more information about the subset of Python that is supported,
 see the `PyScript documentation`_.
+
+.. _userguide_data_linked_selection:
+
+Linked selection
+----------------
+
+Using the same |ColumnDataSource| in the two plots below allows their selections to be
+shared.
+
+.. bokeh-plot:: docs/user_guide/examples/interaction_linked_brushing.py
+    :source-position: above
 
 .. _userguide_data_linked_selection_with_filtering:
 
