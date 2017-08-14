@@ -85,8 +85,6 @@ test:
     - icalendar
     - flask
     - flexx
-    - h5py
-    - scikit-learn
 
   commands:
     - bokeh -h
