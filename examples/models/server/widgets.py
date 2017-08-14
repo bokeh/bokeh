@@ -16,12 +16,12 @@ from bokeh.models.widgets import (
     DateEditor, DateFormatter, IntEditor)
 from bokeh.models.layouts import WidgetBox, Column
 
+N = 5
 
 def make_data():
-    n = random.randint(5, 10)
     return dict(
-        dates=[ date(2014, 3, i+1) for i in range(n) ],
-        downloads=[ random.randint(0, 100) for i in range(n) ],
+        dates=[ date(2014, 3, i+1) for i in range(N) ],
+        downloads=[ random.randint(0, 100) for i in range(N) ],
     )
 
 source = ColumnDataSource(make_data())
