@@ -1,5 +1,5 @@
-from numpy import asarray, cumprod, convolve, exp, ones
-from numpy.random import lognormal, gamma, uniform
+import numpy as np
+np.random.seed(1)
 
 from bokeh.layouts import row, column, gridplot
 from bokeh.models import ColumnDataSource, Slider, Select
@@ -35,27 +35,27 @@ mavg = Select(value=MA12, options=[MA12, MA26, EMA12, EMA26])
 
 def _create_prices(t):
     last_average = 100 if t==0 else source.data['average'][-1]
-    returns = asarray(lognormal(mean.value, stddev.value, 1))
-    average =  last_average * cumprod(returns)
-    high = average * exp(abs(gamma(1, 0.03, size=1)))
-    low = average / exp(abs(gamma(1, 0.03, size=1)))
+    returns = np.asarray(np.random.lognormal(mean.value, stddev.value, 1))
+    average =  last_average * np.cumprod(returns)
+    high = average * np.exp(abs(np.random.gamma(1, 0.03, size=1)))
+    low = average / np.exp(abs(np.random.gamma(1, 0.03, size=1)))
     delta = high - low
-    open = low + delta * uniform(0.05, 0.95, size=1)
-    close = low + delta * uniform(0.05, 0.95, size=1)
+    open = low + delta * np.random.uniform(0.05, 0.95, size=1)
+    close = low + delta * np.random.uniform(0.05, 0.95, size=1)
     return open[0], high[0], low[0], close[0], average[0]
 
 def _moving_avg(prices, days=10):
     if len(prices) < days: return [100]
-    return convolve(prices[-days:], ones(days, dtype=float), mode="valid") / days
+    return np.convolve(prices[-days:], np.ones(days, dtype=float), mode="valid") / days
 
 def _ema(prices, days=10):
     if len(prices) < days or days < 2: return [prices[-1]]
     a = 2.0 / (days+1)
-    kernel = ones(days, dtype=float)
+    kernel = np.ones(days, dtype=float)
     kernel[1:] = 1 - a
-    kernel = a * cumprod(kernel)
+    kernel = a * np.cumprod(kernel)
     # The 0.8647 normalizes out that we stop the EMA after a finite number of terms
-    return convolve(prices[-days:], kernel, mode="valid") / (0.8647)
+    return np.convolve(prices[-days:], kernel, mode="valid") / (0.8647)
 
 @count()
 def update(t):
@@ -94,6 +94,5 @@ def update(t):
     source.stream(new_data, 300)
 
 curdoc().add_root(column(row(mean, stddev, mavg), gridplot([[p], [p2]], toolbar_location="left", plot_width=1000)))
-
 curdoc().add_periodic_callback(update, 50)
 curdoc().title = "OHLC"

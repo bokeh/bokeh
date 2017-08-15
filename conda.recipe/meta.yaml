@@ -86,7 +86,6 @@ test:
     - flask
     - flexx
 
-
   commands:
     - bokeh -h
 
