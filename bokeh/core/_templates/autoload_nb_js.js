@@ -1,5 +1,102 @@
 {% extends "autoload_js.js" %}
 
+{% block register_mimetype %}
+
+  var MIME_TYPE = 'application/vnd.bokehjs_exec.v0+json';
+  var CLASS_NAME = 'output_bokeh rendered_html';
+
+  /**
+   * Render data to the DOM node
+   */
+  function render(props, node) {
+    var div = document.createElement("div")
+    div.innerHTML = props["data"]["div"]
+    var script = document.createElement("script")
+    script.textContent = props["data"]["script"]
+
+    node.appendChild(div);
+    node.appendChild(script);
+  }
+
+  /**
+   * Handle when an output is cleared or removed
+   */
+  function handleClearOutput(event, { cell: { output_area } }) {
+    /* Get rendered DOM node */
+    var toinsert = output_area.element.find(CLASS_NAME.split(' ')[0]);
+    /* e.g. Dispose of resources used by renderer library */
+    // if (toinsert) renderLibrary.dispose(toinsert[0]);
+  }
+
+  /**
+   * Handle when a new output is added
+   */
+  function handleAddOutput(event,  { output, output_area }) {
+    /* Get rendered DOM node */
+    var toinsert = output_area.element.find(CLASS_NAME.split(' ')[0]);
+    /** e.g. Inject a static image representation into the mime bundle for
+     *  endering on Github, etc.
+     */
+    // if (toinsert) {
+    //   renderLibrary.toPng(toinsert[0]).then(url => {
+    //     const data = url.split(',')[1];
+    //     output_area.outputs
+    //       .filter(output => output.data[MIME_TYPE])
+    //       .forEach(output => {
+    //         output.data['image/png'] = data;
+    //       });
+    //   });
+    // }
+  }
+
+  function register_renderer(notebook, OutputArea) {
+
+    // get OutputArea instance
+    var code_cell = notebook.get_cells().reduce(function(result, cell) { return cell.output_area ? cell : result })
+    var output_area = code_cell.output_area
+
+    // function to render output of bk mime renderer
+    function append_mime(data, metadata, element) {
+      // create a DOM node to render to
+      var toinsert = this.create_output_subarea(
+        metadata,
+        CLASS_NAME,
+        MIME_TYPE
+      );
+      this.keyboard_manager.register_events(toinsert);
+      // Render to node
+      var props = {data, metadata: metadata[MIME_TYPE]}
+      render(props, toinsert[0])
+      element.append(toinsert)
+      return toinsert;
+    }
+
+    /* Handle when an output is cleared or removed */
+    output_area.events.on('clear_output.CodeCell', handleClearOutput);
+
+    /* Handle when a new output is added */
+    output_area.events.on('output_added.OutputArea', handleAddOutput);
+
+    // renderer priority
+    /* ...or just insert it at the top */
+    var index = 0;
+
+    /**
+     * Register the mime type and append_mime function with output_area
+     */
+    OutputArea.prototype.register_mime_type(MIME_TYPE, append_mime, {
+      /* Is output safe? */
+      safe: true,
+      /* Index of renderer in `output_area.display_order` */
+      index: index
+    });
+  }
+
+  // do the thing
+  register_renderer(root.Jupyter.notebook, root.Jupyter.OutputArea)
+
+{% endblock %}
+
 {% block autoload_init %}
   if (typeof (root._bokeh_timeout) === "undefined" || force === true) {
     root._bokeh_timeout = Date.now() + {{ timeout|default(0)|json }};

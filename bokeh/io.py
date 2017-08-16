@@ -330,7 +330,8 @@ def _show_file_with_state(obj, state, new, controller):
 
 def _show_jupyter_with_state(obj, state, notebook_handle):
     comms_target = make_id() if notebook_handle else None
-    publish_display_data({'text/html': notebook_div(obj, comms_target)})
+    (script, div) = notebook_div(obj, comms_target)
+    publish_display_data({'application/vnd.bokehjs_exec.v0+json': {"script": script, "div": div}})
     if comms_target:
         handle = _CommsHandle(get_comms(comms_target), state.document,
                               state.document.to_json())

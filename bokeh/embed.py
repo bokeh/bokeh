@@ -23,7 +23,7 @@ from six.moves.urllib.parse import urlparse
 
 from .core.templates import (
     AUTOLOAD_JS, AUTOLOAD_NB_JS, AUTOLOAD_TAG,
-    FILE, NOTEBOOK_DIV, PLOT_DIV, DOC_JS, SCRIPT_TAG
+    FILE, PLOT_DIV, DOC_JS, SCRIPT_TAG
 )
 from .core.json_encoder import serialize_json
 from .document import Document, DEFAULT_TITLE
@@ -379,11 +379,7 @@ def notebook_div(model, notebook_comms_target=None, theme=FromCurdoc):
     )
     div = _div_for_render_item(item)
 
-    html = NOTEBOOK_DIV.render(
-        plot_script = js,
-        plot_div = div,
-    )
-    return encode_utf8(html)
+    return (js, div)
 
 def file_html(models,
               resources,
