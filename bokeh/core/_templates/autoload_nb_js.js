@@ -93,7 +93,10 @@
   }
 
   // do the thing
-  register_renderer(root.Jupyter.notebook, root.Jupyter.OutputArea)
+  var OutputArea = root.Jupyter.OutputArea
+  if ((root.Jupyter !== undefined) && (!OutputArea.prototype.mime_types().includes(MIME_TYPE))) {
+    register_renderer(root.Jupyter.notebook, OutputArea)
+  }
 
 {% endblock %}
 
