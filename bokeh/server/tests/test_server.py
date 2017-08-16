@@ -25,41 +25,6 @@ from .utils import ManagedServerLoop, url, ws_url, http_get, websocket_open
 
 logging.basicConfig(level=logging.DEBUG)
 
-def test__create_hosts_whitelist_no_host():
-    hosts = server._create_hosts_whitelist(None, 1000)
-    assert hosts == ["localhost:1000"]
-
-    hosts = server._create_hosts_whitelist([], 1000)
-    assert hosts == ["localhost:1000"]
-
-def test__create_hosts_whitelist_host_value_with_port_use_port():
-    hosts = server._create_hosts_whitelist(["foo:1000"], 1000)
-    assert hosts == ["foo:1000"]
-
-    hosts = server._create_hosts_whitelist(["foo:1000","bar:2100"], 1000)
-    assert hosts == ["foo:1000","bar:2100"]
-
-def test__create_hosts_whitelist_host_without_port_use_port_80():
-    hosts = server._create_hosts_whitelist(["foo"], 1000)
-    assert hosts == ["foo:80"]
-
-    hosts = server._create_hosts_whitelist(["foo","bar"], 1000)
-    assert hosts == ["foo:80","bar:80"]
-
-def test__create_hosts_whitelist_host_non_int_port_raises():
-    with pytest.raises(ValueError):
-        server._create_hosts_whitelist(["foo:xyz"], 1000)
-
-def test__create_hosts_whitelist_bad_host_raises():
-    with pytest.raises(ValueError):
-        server._create_hosts_whitelist([""], 1000)
-
-    with pytest.raises(ValueError):
-        server._create_hosts_whitelist(["a:b:c"], 1000)
-
-    with pytest.raises(ValueError):
-        server._create_hosts_whitelist([":80"], 1000)
-
 @gen.coroutine
 def async_value(value):
     yield gen.moment # this ensures we actually return to the loop
@@ -593,10 +558,12 @@ def test__no_generate_session_doc():
         assert 0 == len(sessions)
 
 def test__server_multiple_processes():
-    with mock.patch('tornado.process.fork_processes') as tornado_fp:
-        application = Application()
-        with ManagedServerLoop(application, num_procs=3):
-            pass
+
+    # Can't use an ioloop in this test
+    with mock.patch('tornado.httpserver.HTTPServer.add_sockets'):
+        with mock.patch('tornado.process.fork_processes') as tornado_fp:
+            application = Application()
+            server.Server(application, num_procs=3, port=0)
 
         tornado_fp.assert_called_with(3)
 
@@ -619,7 +586,7 @@ def test__ioloop_not_forcibly_stopped():
     application = Application()
     loop = IOLoop()
     loop.make_current()
-    server = Server(application, ioloop=loop)
+    server = Server(application, io_loop=loop)
     server.start()
     result = []
 

@@ -13,41 +13,6 @@ from .utils import ManagedServerLoop, url, http_get
 
 logging.basicConfig(level=logging.DEBUG)
 
-def test_check_whitelist_rejects_port_mismatch():
-    assert False == tornado.check_whitelist("foo:100", ["foo:101", "foo:102"])
-
-def test_check_whitelist_rejects_name_mismatch():
-    assert False == tornado.check_whitelist("foo:100", ["bar:100", "baz:100"])
-
-def test_check_whitelist_accepts_name_port_match():
-    assert True == tornado.check_whitelist("foo:100", ["foo:100", "baz:100"])
-
-def test_check_whitelist_accepts_implicit_port_80():
-    assert True == tornado.check_whitelist("foo", ["foo:80"])
-
-def test_check_whitelist_accepts_all_on_star():
-    assert True == tornado.check_whitelist("192.168.0.1", ['*'])
-    assert True == tornado.check_whitelist("192.168.0.1:80", ['*'])
-    assert True == tornado.check_whitelist("192.168.0.1:5006", ['*'])
-    assert True == tornado.check_whitelist("192.168.0.1:80", ['*:80'])
-    assert False == tornado.check_whitelist("192.168.0.1:80", ['*:81'])
-    assert True == tornado.check_whitelist("192.168.0.1:5006", ['*:*'])
-    assert True == tornado.check_whitelist("192.168.0.1", ['192.168.0.*'])
-    assert True == tornado.check_whitelist("192.168.0.1:5006", ['192.168.0.*'])
-    assert False == tornado.check_whitelist("192.168.1.1", ['192.168.0.*'])
-    assert True == tornado.check_whitelist("foobarbaz", ['*'])
-    assert True == tornado.check_whitelist("192.168.0.1", ['192.168.0.*'])
-    assert False == tornado.check_whitelist("192.168.1.1", ['192.168.0.*'])
-    assert False == tornado.check_whitelist("192.168.0.1", ['192.168.0.*:5006'])
-    assert True == tornado.check_whitelist("192.168.0.1", ['192.168.0.*:80'])
-    assert True == tornado.check_whitelist("foobarbaz", ['*'])
-    assert True == tornado.check_whitelist("foobarbaz", ['*:*'])
-    assert True == tornado.check_whitelist("foobarbaz", ['*:80'])
-    assert False == tornado.check_whitelist("foobarbaz", ['*:5006'])
-    assert True == tornado.check_whitelist("foobarbaz:5006", ['*'])
-    assert True == tornado.check_whitelist("foobarbaz:5006", ['*:*'])
-    assert True == tornado.check_whitelist("foobarbaz:5006", ['*:5006'])
-
 def test_default_resources():
     application = Application()
     with ManagedServerLoop(application) as server:
@@ -103,17 +68,17 @@ def test_default_app_paths():
 def test_log_stats():
     application = Application()
     with ManagedServerLoop(application) as server:
-        server._tornado.log_stats()
+        server._tornado._log_stats()
         session1 = pull_session(session_id='session1',
                                 url=url(server),
                                 io_loop=server.io_loop)
         session2 = pull_session(session_id='session2',
                                 url=url(server),
                                 io_loop=server.io_loop)
-        server._tornado.log_stats()
+        server._tornado._log_stats()
         session1.close()
         session2.close()
-        server._tornado.log_stats()
+        server._tornado._log_stats()
 
 def test_metadata():
     application = Application(metadata=dict(hi="hi", there="there"))

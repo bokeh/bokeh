@@ -144,6 +144,26 @@ code, you will need to emit the change signal yourself:
         source.change.emit();
     """)
 
+Refactoring of ``bokeh.server`` contents
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The ``bokeh.server`` module was refactored in order to be easier to document
+and maintain, as well as simpler for user's to use in more sophisticated use
+cases. These changes are not expected to impact standard usage of Bokeh in any
+way:
+
+* All protocol-related code was moved to a new module ``bokeh.protocol``
+
+* The ``Server`` class was split into ``Server`` (no API changes) and a new
+  ``BaseServer`` that can be used when explicit coordination of low level
+  Tornado components is required.
+
+* Missing sections added to reference guide, and docsctring coverage greatly
+  expanded.
+
+* Old cruft code to handle Tornado < 4.3 (which is no longer supported) was
+  removed.
+
 .. _Custom Extension: http://bokeh.pydata.org/en/latest/docs/user_guide/extensions.html
 .. _GeoViews: http://geo.holoviews.org
 .. _project roadmap: http://bokehplots.com/pages/roadmap.html

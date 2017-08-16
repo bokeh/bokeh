@@ -12,13 +12,12 @@ from six.moves.urllib.parse import urlparse
 
 from tornado import gen, locks
 from tornado.websocket import WebSocketHandler, WebSocketClosedError
-from tornado.concurrent import Future
 
-from ..exceptions import MessageError, ProtocolError, ValidationError
-from ..protocol import Protocol
-from ..protocol.message import Message
-from ..protocol.receiver import Receiver
-from ..protocol.server_handler import ServerHandler
+from ..protocol_handler import ProtocolHandler
+from ...protocol import Protocol
+from ...protocol.exceptions import MessageError, ProtocolError, ValidationError
+from ...protocol.message import Message
+from ...protocol.receiver import Receiver
 
 from bokeh.util.session_id import check_session_id_signature
 
@@ -42,7 +41,7 @@ class WSHandler(WebSocketHandler):
         pass
 
     def check_origin(self, origin):
-        from ..tornado import check_whitelist
+        from ..util import check_whitelist
         parsed_origin = urlparse(origin)
         origin_host = parsed_origin.netloc.lower()
 
@@ -101,8 +100,8 @@ class WSHandler(WebSocketHandler):
             self.receiver = Receiver(protocol)
             log.debug("Receiver created for %r", protocol)
 
-            self.handler = ServerHandler()
-            log.debug("ServerHandler created for %r", protocol)
+            self.handler = ProtocolHandler()
+            log.debug("ProtocolHandler created for %r", protocol)
 
             self.connection = self.application.new_connection(protocol, self, self.application_context, session)
             log.info("ServerConnection created")
@@ -146,12 +145,7 @@ class WSHandler(WebSocketHandler):
 
         try:
             if message:
-
-                #log.debug("Received message: %r", message)
                 work = yield self._handle(message)
-
-                #log.debug("work from message %r was %r", message, work)
-
                 if work:
                     yield self._schedule(work)
         except Exception as e:
@@ -187,14 +181,12 @@ class WSHandler(WebSocketHandler):
 
     @gen.coroutine
     def write_message(self, message, binary=False, locked=True):
-        ''' Override parent write_message with a version that consistently returns Future across Tornado versions '''
+        ''' Override parent write_message with a version that acquires a
+        write lock before writing.
+
+        '''
         def write_message_unlocked():
             future = super(WSHandler, self).write_message(message, binary)
-            if future is None:
-                # tornado >= 4.3 gives us a Future, simulate that
-                # with this fake Future on < 4.3
-                future = Future()
-                future.set_result(None)
             # don't yield this future or we're blocking on ourselves!
             raise gen.Return(future)
         if locked:
@@ -202,7 +194,6 @@ class WSHandler(WebSocketHandler):
                 write_message_unlocked()
         else:
             write_message_unlocked()
-
 
     def on_close(self):
         ''' Clean up when the connection is closed.

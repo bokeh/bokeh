@@ -336,7 +336,7 @@ class PropertyValueDict(PropertyValueContainer, dict):
                 if rollover is not None:
                     del L[:-rollover]
 
-        from ...server.events import ColumnsStreamedEvent
+        from ...protocol.events import ColumnsStreamedEvent
 
         self._notify_owners(old,
                             hint=ColumnsStreamedEvent(doc, source, new_data, rollover, setter))
@@ -378,7 +378,7 @@ class PropertyValueDict(PropertyValueContainer, dict):
                     shape = self[name][ind[0]][ind[1:]].shape
                     self[name][ind[0]][ind[1:]] = np.array(value, copy=False).reshape(shape)
 
-        from ...server.events import ColumnsPatchedEvent
+        from ...protocol.events import ColumnsPatchedEvent
 
         self._notify_owners(old,
                             hint=ColumnsPatchedEvent(doc, source, patches, setter))
