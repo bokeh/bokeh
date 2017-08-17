@@ -156,6 +156,8 @@ describe "datarange1d module", ->
       expect(r._compute_range(3, 3)).to.be.deep.equal [2, 4]
       r.default_span = 4
       expect(r._compute_range(3, 3)).to.be.deep.equal [1, 5]
+      r.range_padding = 0
+      expect(r._compute_range(3, 3)).to.be.deep.equal [1, 5]
 
     it "should use default_span as powers of 10 when scale_hint='log'", ->
       r = new DataRange1d()
@@ -211,12 +213,16 @@ describe "datarange1d module", ->
       r = new DataRange1d()
       r.range_padding = 0.5
       expect(r._compute_range(1, 3)).to.be.deep.equal [0.5, 3.5]
+      r.range_padding = 0
+      expect(r._compute_range(1, 3)).to.be.deep.equal [1, 3]
 
     it "should apply absolute range_padding", ->
       r = new DataRange1d()
       r.range_padding = 0.2
       r.range_padding_units = "absolute"
       expect(r._compute_range(1, 3)).to.be.deep.equal [0.8, 3.2]
+      r.range_padding = 0
+      expect(r._compute_range(1, 3)).to.be.deep.equal [1, 3]
 
     it "should apply range_padding logly when scale_hint='log'", ->
       r = new DataRange1d()
@@ -225,11 +231,20 @@ describe "datarange1d module", ->
       [a, b] = r._compute_range(0.01, 10)
       expect(a).to.be.closeTo(0.0017782794100389264, 1e-12)
       expect(b).to.be.closeTo(56.23413251903488, 1e-12)
+      r.range_padding = 0
+      [a, b] = r._compute_range(0.01, 10)
+      expect(a).to.be.closeTo(0.01, 1e-12)
+      expect(b).to.be.closeTo(10, 1e-12)
 
+      r.range_padding = 0.5
       r.range_padding_units = "absolute"
       [a, b] = r._compute_range(1, 10)
       expect(a).to.be.closeTo(0.5, 1e-12)
       expect(b).to.be.closeTo(10.5, 1e-12)
+      r.range_padding = 0
+      [a, b] = r._compute_range(1, 10)
+      expect(a).to.be.closeTo(1, 1e-12)
+      expect(b).to.be.closeTo(10, 1e-12)
 
   describe "_compute_min_max", ->
 
