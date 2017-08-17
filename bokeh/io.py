@@ -25,7 +25,7 @@ import warnings
 import tempfile
 import uuid
 
-from IPython.display import publish_display_data
+import IPython
 
 # Bokeh imports
 from .core.state import State
@@ -335,7 +335,7 @@ MIME_TYPE = 'application/vnd.bokehjs_exec.v0+json'
 def _show_jupyter_with_state(obj, state, notebook_handle):
     comms_target = make_id() if notebook_handle else None
     (script, div) = notebook_content(obj, comms_target)
-    publish_display_data({MIME_TYPE: {"script": script, "div": div}}, metadata={MIME_TYPE: {"id": obj._id}})
+    IPython.display.publish_display_data({MIME_TYPE: {"script": script, "div": div}}, metadata={MIME_TYPE: {"id": obj._id}})
     if comms_target:
         handle = _CommsHandle(get_comms(comms_target), state.document,
                               state.document.to_json())

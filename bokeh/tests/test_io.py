@@ -262,17 +262,24 @@ class Test_ShowFileWithState(DefaultStateTester):
 class Test_ShowJupyterWithState(DefaultStateTester):
 
     @patch('bokeh.io.get_comms')
-    @patch('bokeh.io.publish_display_data')
-    @patch('bokeh.io.notebook_div')
-    def test_no_server(self, mock_notebook_div, mock_publish_display_data, mock_get_comms):
+    @patch('IPython.display.publish_display_data')
+    @patch('bokeh.io.notebook_content')
+    def test_no_server(self, mock_notebook_content, mock_publish_display_data, mock_get_comms):
         mock_get_comms.return_value = "comms"
         s = io.State()
-        mock_notebook_div.return_value = "notebook_div"
+        mock_notebook_content.return_value = ["notebook_script", "notebook_div"]
+
+        class Obj(object):
+            _id = None
 
         io._nb_loaded = True
-        io._show_jupyter_with_state("obj", s, True)
+        io._show_jupyter_with_state(Obj(), s, True)
         io._nb_loaded = False
-        self._check_func_called(mock_publish_display_data, ({"text/html": "notebook_div"},), {})
+
+        expected_args = ({'application/vnd.bokehjs_exec.v0+json': {"script": "notebook_script", "div": "notebook_div"}},)
+        expected_kwargs = {'metadata': {'application/vnd.bokehjs_exec.v0+json': {'id': None}}}
+
+        self._check_func_called(mock_publish_display_data, expected_args, expected_kwargs)
 
 class TestResetOutput(DefaultStateTester):
 
