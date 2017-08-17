@@ -9,10 +9,10 @@
    * Render data to the DOM node
    */
   function render(props, node) {
-    var div = document.createElement("div")
-    div.innerHTML = props["data"]["div"]
-    var script = document.createElement("script")
-    script.textContent = props["data"]["script"]
+    var div = document.createElement("div");
+    div.innerHTML = props["data"]["div"];
+    var script = document.createElement("script");
+    script.textContent = props["data"]["script"];
 
     node.appendChild(div);
     node.appendChild(script);
@@ -23,6 +23,11 @@
    */
   function handleClearOutput(event, { cell: { output_area } }) {
     /* Get rendered DOM node */
+    var id = output_area._bokeh_element_id
+    var bk_element = Bokeh.index[id]
+    bk_element.remove()
+    delete Bokeh.index[id]
+
     var toinsert = output_area.element.find(CLASS_NAME.split(' ')[0]);
     /* e.g. Dispose of resources used by renderer library */
     // if (toinsert) renderLibrary.dispose(toinsert[0]);
@@ -32,6 +37,9 @@
    * Handle when a new output is added
    */
   function handleAddOutput(event,  { output, output_area }) {
+    // store reference to embedded id on output_area
+    output_area._bokeh_element_id = output.metadata[MIME_TYPE]["id"]
+
     /* Get rendered DOM node */
     var toinsert = output_area.element.find(CLASS_NAME.split(' ')[0]);
     /** e.g. Inject a static image representation into the mime bundle for
@@ -73,6 +81,7 @@
 
     /* Handle when an output is cleared or removed */
     output_area.events.on('clear_output.CodeCell', handleClearOutput);
+    output_area.events.on('delete.Cell', handleClearOutput);
 
     /* Handle when a new output is added */
     output_area.events.on('output_added.OutputArea', handleAddOutput);
