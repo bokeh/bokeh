@@ -415,8 +415,9 @@ class ColumnDataSource(ColumnarDataSource):
             import numpy as np
 
             lengths = set()
-            for x in new_data.values():
-                if isinstance(x, np.ndarray):
+            arr_types = (np.ndarray, pd.Series) if pd else np.ndarray
+            for k, x in new_data.items():
+                if isinstance(x, arr_types):
                     if len(x.shape) != 1:
                         raise ValueError("stream(...) only supports 1d sequences, got ndarray with size %r" % (x.shape,))
                     lengths.add(x.shape[0])
