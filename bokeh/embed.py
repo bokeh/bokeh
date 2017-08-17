@@ -23,7 +23,7 @@ from six.moves.urllib.parse import urlparse
 
 from .core.templates import (
     AUTOLOAD_JS, AUTOLOAD_NB_JS, AUTOLOAD_TAG,
-    FILE, PLOT_DIV, DOC_JS, SCRIPT_TAG
+    FILE, PLOT_DIV, DOC_JS, SCRIPT_TAG, NOTEBOOK_DIV
 )
 from .core.json_encoder import serialize_json
 from .document import Document, DEFAULT_TITLE
@@ -326,10 +326,10 @@ def _bundle_for_objs_and_resources(objs, resources):
 
     return bokeh_js, bokeh_css
 
-def notebook_div(model, notebook_comms_target=None, theme=FromCurdoc):
-    ''' Return HTML for a div that will display a Bokeh plot in a
-    Jupyter/Zeppelin Notebook. notebook_comms_target is only supported
-    in Jupyter for now.
+def notebook_content(model, notebook_comms_target=None, theme=FromCurdoc):
+    ''' Return script and div that will display a Bokeh plot in a Jupyter/
+    Zeppelin Notebook. notebook_comms_target is only supported in Jupyter for
+    now.
 
     The data for the plot is stored directly in the returned HTML.
 
@@ -345,7 +345,7 @@ def notebook_div(model, notebook_comms_target=None, theme=FromCurdoc):
             instance of the ``Theme`` class.
 
     Returns:
-        UTF-8 encoded HTML text for a ``<div>``
+        script, div
 
     .. note::
         Assumes :func:`~bokeh.util.notebook.load_notebook` or the equivalent
@@ -380,6 +380,41 @@ def notebook_div(model, notebook_comms_target=None, theme=FromCurdoc):
     div = _div_for_render_item(item)
 
     return (js, div)
+
+
+def notebook_div(model, notebook_comms_target=None, theme=FromCurdoc):
+    ''' Return HTML for a div that will display a Bokeh plot in a
+    Jupyter/Zeppelin Notebook. notebook_comms_target is only supported
+    in Jupyter for now.
+
+    The data for the plot is stored directly in the returned HTML.
+
+    Args:
+        model (Model) : Bokeh object to render
+        notebook_comms_target (str, optional) :
+            A target name for a Jupyter Comms object that can update
+            the document that is rendered to this notebook div
+        theme (Theme, optional) :
+            Defaults to the ``Theme`` instance in the current document.
+            Setting this to ``None`` uses the default theme or the theme
+            already specified in the document. Any other value must be an
+            instance of the ``Theme`` class.
+
+    Returns:
+        UTF-8 encoded HTML text for a ``<div>``
+
+    .. note::
+        Assumes :func:`~bokeh.util.notebook.load_notebook` or the equivalent
+        has already been executed.
+
+    '''
+    (js, div) = notebook_content(model, notebook_comms_target=notebook_comms_target, theme=theme)
+
+    html = NOTEBOOK_DIV.render(
+        plot_script = js,
+        plot_div = div,
+    )
+    return encode_utf8(html)
 
 def file_html(models,
               resources,

@@ -30,7 +30,7 @@ from IPython.display import publish_display_data
 # Bokeh imports
 from .core.state import State
 from .document import Document
-from .embed import server_document, notebook_div, file_html
+from .embed import server_document, notebook_div, notebook_content, file_html
 from .layouts import gridplot, GridSpec ; gridplot, GridSpec
 from .models import Plot
 from .resources import INLINE
@@ -334,7 +334,7 @@ MIME_TYPE = 'application/vnd.bokehjs_exec.v0+json'
 
 def _show_jupyter_with_state(obj, state, notebook_handle):
     comms_target = make_id() if notebook_handle else None
-    (script, div) = notebook_div(obj, comms_target)
+    (script, div) = notebook_content(obj, comms_target)
     publish_display_data({MIME_TYPE: {"script": script, "div": div}}, metadata={MIME_TYPE: {"id": obj._id}})
     if comms_target:
         handle = _CommsHandle(get_comms(comms_target), state.document,

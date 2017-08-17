@@ -111,6 +111,13 @@ class TestComponents(unittest.TestCase):
         self.maxDiff = None
         self.assertEqual(rawscript.strip(), script_content.strip())
 
+class TestNotebookContent(unittest.TestCase):
+
+    def test_return_type(self):
+        r = embed.notebook_content(_embed_test_plot)
+        self.assertTrue(isinstance(r, tuple))
+        self.assertTrue(len(r), 2)
+
 class TestNotebookDiv(unittest.TestCase):
 
     def test_return_type(self):
