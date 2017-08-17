@@ -9,13 +9,17 @@
    * Render data to the DOM node
    */
   function render(props, node) {
-    var div = document.createElement("div");
-    div.innerHTML = props["data"]["div"];
-    var script = document.createElement("script");
-    script.textContent = props["data"]["script"];
+    if (props.data['div'] !== undefined) {
+      var div = document.createElement("div");
+      div.innerHTML = props["data"]["div"];
+      node.appendChild(div);
+    }
 
-    node.appendChild(div);
-    node.appendChild(script);
+    if (props.data['script'] !== undefined) {
+      var script = document.createElement("script");
+      script.textContent = props["data"]["script"];
+      node.appendChild(script);
+    }
   }
 
   /**
@@ -23,9 +27,17 @@
    */
   function handleClearOutput(event, { cell: { output_area } }) {
     var id = output_area._bokeh_element_id;
+    var server_id = output_area._server_id;
     // Clean up Bokeh references
-    Bokeh.index[id].remove();
-    delete Bokeh.index[id];
+    if (id !== undefined) {
+      Bokeh.index[id].remove();
+      delete Bokeh.index[id];
+    }
+    if (server_id !== undefined) {
+      var cmd = "from bokeh import io; io._destroy_server('" + server_id + "')";
+      var command = _.template(cmd)({server_id:server_id});
+      root.Jupyter.notebook.kernel.execute(command);
+    }
 
     /* Get rendered DOM node */
     var toinsert = output_area.element.find(CLASS_NAME.split(' ')[0]);
@@ -39,6 +51,7 @@
   function handleAddOutput(event,  { output, output_area }) {
     // store reference to embed id on output_area
     output_area._bokeh_element_id = output.metadata[MIME_TYPE]["id"];
+    output_area._server_id = output.metadata[MIME_TYPE]["server_id"]
 
     /* Get rendered DOM node */
     var toinsert = output_area.element.find(CLASS_NAME.split(' ')[0]);

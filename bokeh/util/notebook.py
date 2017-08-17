@@ -2,7 +2,6 @@
 
 '''
 from __future__ import absolute_import
-from bokeh.core.templates import NOTEBOOK_CELL_OBSERVER
 
 _notebook_loaded = None
 
@@ -102,6 +101,7 @@ def _load_notebook_html(resources=None, verbose=False, hide_banner=False,
 
     return html, js
 
+### This polyfill needs to be removed and pin to jupyter>=4.3
 def publish_display_data(data, source='bokeh'):
     ''' Compatibility wrapper for Jupyter ``publish_display_data``
 
@@ -133,16 +133,3 @@ def get_comms(target_name):
     '''
     from ipykernel.comm import Comm
     return Comm(target_name=target_name, data={})
-
-
-def watch_server_cells(inner_block):
-    ''' Installs a MutationObserver that detects deletion of cells using
-    io.server_cell to wrap the output.
-
-    The inner_block is a Javascript block that is executed when a server
-    cell is removed from the DOM. The id of the destroyed div is in
-    scope as the variable destroyed_id.
-    '''
-    js = NOTEBOOK_CELL_OBSERVER.render(inner_block=inner_block)
-    script = "<script type='text/javascript'>{js}</script>".format(js=js)
-    publish_display_data({'text/html': script}, source='bokeh')
