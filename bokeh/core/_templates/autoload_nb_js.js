@@ -22,12 +22,12 @@
    * Handle when an output is cleared or removed
    */
   function handleClearOutput(event, { cell: { output_area } }) {
-    /* Get rendered DOM node */
-    var id = output_area._bokeh_element_id
-    var bk_element = Bokeh.index[id]
-    bk_element.remove()
-    delete Bokeh.index[id]
+    var id = output_area._bokeh_element_id;
+    // Clean up Bokeh references
+    Bokeh.index[id].remove();
+    delete Bokeh.index[id];
 
+    /* Get rendered DOM node */
     var toinsert = output_area.element.find(CLASS_NAME.split(' ')[0]);
     /* e.g. Dispose of resources used by renderer library */
     // if (toinsert) renderLibrary.dispose(toinsert[0]);
@@ -37,8 +37,8 @@
    * Handle when a new output is added
    */
   function handleAddOutput(event,  { output, output_area }) {
-    // store reference to embedded id on output_area
-    output_area._bokeh_element_id = output.metadata[MIME_TYPE]["id"]
+    // store reference to embed id on output_area
+    output_area._bokeh_element_id = output.metadata[MIME_TYPE]["id"];
 
     /* Get rendered DOM node */
     var toinsert = output_area.element.find(CLASS_NAME.split(' ')[0]);
@@ -58,12 +58,10 @@
   }
 
   function register_renderer(notebook, OutputArea) {
-
     // get OutputArea instance
-    var code_cell = notebook.get_cells().reduce(function(result, cell) { return cell.output_area ? cell : result })
-    var output_area = code_cell.output_area
+    var code_cell = notebook.get_cells().reduce(function(result, cell) { return cell.output_area ? cell : result });
+    var output_area = code_cell.output_area;
 
-    // function to render output of bk mime renderer
     function append_mime(data, metadata, element) {
       // create a DOM node to render to
       var toinsert = this.create_output_subarea(
@@ -73,9 +71,9 @@
       );
       this.keyboard_manager.register_events(toinsert);
       // Render to node
-      var props = {data, metadata: metadata[MIME_TYPE]}
-      render(props, toinsert[0])
-      element.append(toinsert)
+      var props = {data, metadata: metadata[MIME_TYPE]};
+      render(props, toinsert[0]);
+      element.append(toinsert);
       return toinsert;
     }
 
@@ -86,10 +84,6 @@
     /* Handle when a new output is added */
     output_area.events.on('output_added.OutputArea', handleAddOutput);
 
-    // renderer priority
-    /* ...or just insert it at the top */
-    var index = 0;
-
     /**
      * Register the mime type and append_mime function with output_area
      */
@@ -97,14 +91,14 @@
       /* Is output safe? */
       safe: true,
       /* Index of renderer in `output_area.display_order` */
-      index: index
+      index: 0
     });
   }
 
-  // do the thing
-  var OutputArea = root.Jupyter.OutputArea
+  // register the mime type if in Jupyter Notebook environment and previously unregistered
+  var OutputArea = root.Jupyter.OutputArea;
   if ((root.Jupyter !== undefined) && (!OutputArea.prototype.mime_types().includes(MIME_TYPE))) {
-    register_renderer(root.Jupyter.notebook, OutputArea)
+    register_renderer(root.Jupyter.notebook, OutputArea);
   }
 
 {% endblock %}
