@@ -11,7 +11,7 @@ notebook code is executed, the Document being modified will be available as
 '''
 from __future__ import absolute_import, print_function
 
-from bokeh.util.dependencies import import_required
+from bokeh.util.dependencies import import_required, import_optional
 
 from .code import CodeHandler
 
@@ -32,17 +32,55 @@ class NotebookHandler(CodeHandler):
             filename (str) : a path to a Jupyter notebook (".ipynb") file
 
         '''
-        nbformat = import_required('nbformat', 'The Bokeh notebook application handler requires Jupyter Notebook to be installed.')
-        nbconvert = import_required('nbconvert', 'The Bokeh notebook application handler requires Jupyter Notebook to be installed.')
-
         if 'filename' not in kwargs:
             raise ValueError('Must pass a filename to NotebookHandler')
         filename = kwargs['filename']
 
+        preprocessors = self._preprocessors()
+        try:
+            source, meta = self.export_python(filename, preprocessors)
+        except:
+            # If any preprocessors resulted in an exception, convert without them
+            source, meta = self.export_python(filename, preprocessors=[])
+
+        kwargs['source'] = source
+        super(NotebookHandler, self).__init__(*args, **kwargs)
+
+
+    def export_python(self, filename, preprocessors):
+        '''
+        Given an .ipynb notebook, convert to plain Python syntax using
+        the supplied list of nbconvert preprocessors.
+        '''
+        nbformat = import_required('nbformat', 'The Bokeh notebook application handler requires Jupyter Notebook to be installed.')
+        nbconvert = import_required('nbconvert', 'The Bokeh notebook application handler requires Jupyter Notebook to be installed.')
+
         with open(filename) as f:
             nb = nbformat.read(f, nbformat.NO_CONVERT)
             exporter = nbconvert.PythonExporter()
-            source, meta = exporter.from_notebook_node(nb)
-            kwargs['source'] = source
+            for preprocessor in preprocessors:
+                exporter.register_preprocessor(preprocessor)
+            return exporter.from_notebook_node(nb)
 
-        super(NotebookHandler, self).__init__(*args, **kwargs)
+
+    def _preprocessors(self):
+        '''
+        Returns a list of suitable nbconvert preprocessors. Attempts to
+        apply HoloViews preprocessors that convert HoloViews magics to
+        pure Python equivalents.
+        '''
+        holoviews = import_optional('holoviews')
+        if holoviews is None:
+            return []
+
+        elif holoviews.__version__.release < (1,8,0):
+            return []
+        try:
+            from holoviews.ipython.preprocessors import (OptsMagicProcessor,
+                                                         OutputMagicProcessor,
+                                                         StripMagicsProcessor)
+            return [OptsMagicProcessor(), OutputMagicProcessor(), StripMagicsProcessor()]
+        except:
+            return []
+
+
