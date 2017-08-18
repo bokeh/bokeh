@@ -4,7 +4,7 @@
 from __future__ import absolute_import
 
 from ..core.enums import Location, OutputBackend
-from ..core.properties import Bool, Dict, Enum, Include, Instance, Int, List, Override, String
+from ..core.properties import Bool, Dict, Enum, Include, Instance, Int, List, Override, String, Either, Float
 from ..core.property_mixins import LineProps, FillProps
 from ..core.query import find
 from ..core.validation import error, warning
@@ -691,4 +691,11 @@ class Plot(LayoutDOM):
     .. note::
         When set to ``webgl``, glyphs without a WebGL rendering implementation
         will fall back to rendering onto 2D canvas.
+    """)
+
+    aspect_ratio = Either(Bool, Float, default=False, help="""
+    Specify the aspect ratio behavior of the plot. Default is ``False`` which
+    means that the glyph will fill the whole plot area. ``True`` indicates that
+    the glyphs should maintain the an aspect ratio of 1. A ``Float``value can
+    also be given for arbitrary aspect_ratio control.
     """)
