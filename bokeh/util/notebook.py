@@ -5,6 +5,8 @@ from __future__ import absolute_import
 
 from IPython.display import publish_display_data
 
+from ..embed import _wrap_in_script_tag
+
 _notebook_loaded = None
 
 def load_notebook(resources=None, verbose=False, hide_banner=False, load_timeout=5000, notebook_type='jupyter'):
@@ -36,8 +38,7 @@ def load_notebook(resources=None, verbose=False, hide_banner=False, load_timeout
     '''
     html, js = _load_notebook_html(resources, verbose, hide_banner, load_timeout)
     if notebook_type=='jupyter':
-        publish_display_data({'text/html': html})
-        publish_display_data({'application/javascript': js})
+        publish_display_data({'text/html': html + _wrap_in_script_tag(js)})
     else:
         _publish_zeppelin_data(html, js)
 
