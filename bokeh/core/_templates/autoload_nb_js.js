@@ -39,9 +39,9 @@
     if (server_id !== undefined) {
       // Clean up Bokeh references
       var cmd = "from bokeh.io import _state; print(_state.uuid_to_server['" + server_id + "'].get_sessions()[0].document.roots[0]._id)";
-      root.Jupyter.notebook.kernel.execute(cmd, {
-        "iopub": {
-          "output": function(msg) {
+      cell.notebook.kernel.execute(cmd, {
+        iopub: {
+          output: function(msg) {
             Bokeh.index[msg.content.text.trim()].remove();
             delete Bokeh.index[msg.content.text.trim()];
           }
@@ -49,8 +49,8 @@
       });
       // Destroy server and session
       var cmd = "from bokeh import io; io._destroy_server('" + server_id + "')";
-      var command = _.template(cmd)({server_id:server_id});
-      root.Jupyter.notebook.kernel.execute(command);
+      var command = _.template(cmd)({server_id: server_id});
+      cell.notebook.kernel.execute(command);
     }
   }
 
@@ -79,7 +79,7 @@
       );
       this.keyboard_manager.register_events(toinsert);
       // Render to node
-      var props = {data, metadata: metadata[MIME_TYPE]};
+      var props = {data: data, metadata: metadata[MIME_TYPE]};
       render(props, toinsert[0]);
       element.append(toinsert);
       return toinsert
