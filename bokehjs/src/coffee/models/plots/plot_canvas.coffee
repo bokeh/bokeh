@@ -210,6 +210,32 @@ export class PlotCanvasView extends DOMView
     follow_enabled = false
     has_bounds = false
 
+    if @model.plot.aspect_ratio != false
+      aspect = if @model.plot.aspect_ratio is true then 1 else @model.plot.aspect_ratio
+      r = aspect*(@model.plot.width/@model.plot.height)
+
+      for k, v of bounds
+        width = v.maxX - v.minX
+        if width <= 0
+          width = 1.0
+
+        height = v.maxY - v.minY
+        if height <= 0
+          height = 1.0
+
+        xcenter = 0.5*(v.maxX + v.minX)
+        ycenter = 0.5*(v.maxY + v.minY)
+
+        if width < r*height
+          width = r*height
+        else
+          height = width/r
+
+        bounds[k].maxX = xcenter+0.5*width
+        bounds[k].minX = xcenter-0.5*width
+        bounds[k].maxY = ycenter+0.5*height
+        bounds[k].minY = ycenter-0.5*height
+
     for xr in values(frame.x_ranges)
       if xr instanceof DataRange1d
         bounds_to_use = if xr.scale_hint == "log" then log_bounds else bounds
