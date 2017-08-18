@@ -82,5 +82,3 @@ class NotebookHandler(CodeHandler):
             return [OptsMagicProcessor(), OutputMagicProcessor(), StripMagicsProcessor()]
         except:
             return []
-
-
