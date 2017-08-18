@@ -33,11 +33,24 @@
       Bokeh.index[id].remove();
       delete Bokeh.index[id];
     }
+
     if (server_id !== undefined) {
+      var cmd = "from bokeh.io import _state; print(_state.uuid_to_server['" + server_id + "'].get_sessions()[0].document.roots[0]._id)";
+      root.Jupyter.notebook.kernel.execute(cmd, {
+        "iopub": {
+          "output": function(msg) {
+            Bokeh.index[msg.content.text.trim()].remove();
+            delete Bokeh.index[msg.content.text.trim()];
+          }
+        }
+      });
+
       var cmd = "from bokeh import io; io._destroy_server('" + server_id + "')";
       var command = _.template(cmd)({server_id:server_id});
       root.Jupyter.notebook.kernel.execute(command);
     }
+
+
 
     /* Get rendered DOM node */
     var toinsert = output_area.element.find(CLASS_NAME.split(' ')[0]);
@@ -51,7 +64,7 @@
   function handleAddOutput(event,  { output, output_area }) {
     // store reference to embed id on output_area
     output_area._bokeh_element_id = output.metadata[MIME_TYPE]["id"];
-    output_area._server_id = output.metadata[MIME_TYPE]["server_id"]
+    output_area._server_id = output.metadata[MIME_TYPE]["server_id"];
 
     /* Get rendered DOM node */
     var toinsert = output_area.element.find(CLASS_NAME.split(' ')[0]);
