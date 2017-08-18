@@ -25,7 +25,7 @@ import warnings
 import tempfile
 import uuid
 
-import IPython
+from IPython.display import publish_display_data
 
 # Bokeh imports
 from .core.state import State
@@ -306,7 +306,7 @@ def _show_notebook_app_with_state(app, state, app_path, notebook_url):
     url = 'http://%s:%d%s' % (notebook_url.split(':')[0], server.port, app_path)
     script = server_document(url)
 
-    IPython.display.publish_display_data({MIME_TYPE: {"div": script}}, metadata={MIME_TYPE: {"server_id": server_id}})
+    publish_display_data({MIME_TYPE: {"div": script}}, metadata={MIME_TYPE: {"server_id": server_id}})
 
 def _show_with_state(obj, state, browser, new, notebook_handle=False):
     controller = browserlib.get_browser_controller(browser=browser)
@@ -335,7 +335,7 @@ MIME_TYPE = 'application/vnd.bokehjs_exec.v0+json'
 def _show_jupyter_with_state(obj, state, notebook_handle):
     comms_target = make_id() if notebook_handle else None
     (script, div) = notebook_content(obj, comms_target)
-    IPython.display.publish_display_data({MIME_TYPE: {"script": script, "div": div}}, metadata={MIME_TYPE: {"id": obj._id}})
+    publish_display_data({MIME_TYPE: {"script": script, "div": div}}, metadata={MIME_TYPE: {"id": obj._id}})
     if comms_target:
         handle = _CommsHandle(get_comms(comms_target), state.document,
                               state.document.to_json())

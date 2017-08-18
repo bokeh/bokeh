@@ -3,6 +3,8 @@
 '''
 from __future__ import absolute_import
 
+from IPython.display import publish_display_data
+
 _notebook_loaded = None
 
 def load_notebook(resources=None, verbose=False, hide_banner=False, load_timeout=5000, notebook_type='jupyter'):
@@ -100,25 +102,6 @@ def _load_notebook_html(resources=None, verbose=False, hide_banner=False,
     )
 
     return html, js
-
-### This polyfill needs to be removed and pin to jupyter>=4.3
-def publish_display_data(data, source='bokeh'):
-    ''' Compatibility wrapper for Jupyter ``publish_display_data``
-
-    Later versions of Jupyter remove the ``source`` (first) argument. This
-    function insulates Bokeh library code from this change.
-
-    Args:
-        source (str, optional) : the source arg for Jupyter (default: "bokeh")
-        data (dict) : the data dict to pass to ``publish_display_data``
-            Typically has the form ``{'text/html': html}``
-
-    '''
-    import IPython.core.displaypub as displaypub
-    try:
-        displaypub.publish_display_data(source, data)
-    except TypeError:
-        displaypub.publish_display_data(data)
 
 def get_comms(target_name):
     ''' Create a Jupyter comms object for a specific target, that can
