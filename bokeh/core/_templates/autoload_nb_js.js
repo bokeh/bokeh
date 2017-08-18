@@ -25,9 +25,11 @@
   /**
    * Handle when an output is cleared or removed
    */
-  function handleClearOutput(event, { cell: { output_area } }) {
-    var id = output_area._bokeh_element_id;
-    var server_id = output_area._server_id;
+  function handleClearOutput(event, handle) {
+    var cell = handle.cell;
+
+    var id = cell.output_area._bokeh_element_id;
+    var server_id = cell.output_area._server_id;
     // Clean up Bokeh references
     if (id !== undefined) {
       Bokeh.index[id].remove();
@@ -35,6 +37,7 @@
     }
 
     if (server_id !== undefined) {
+      // Clean up Bokeh references
       var cmd = "from bokeh.io import _state; print(_state.uuid_to_server['" + server_id + "'].get_sessions()[0].document.roots[0]._id)";
       root.Jupyter.notebook.kernel.execute(cmd, {
         "iopub": {
@@ -44,43 +47,22 @@
           }
         }
       });
-
+      // Destroy server and session
       var cmd = "from bokeh import io; io._destroy_server('" + server_id + "')";
       var command = _.template(cmd)({server_id:server_id});
       root.Jupyter.notebook.kernel.execute(command);
     }
-
-
-
-    /* Get rendered DOM node */
-    var toinsert = output_area.element.find(CLASS_NAME.split(' ')[0]);
-    /* e.g. Dispose of resources used by renderer library */
-    // if (toinsert) renderLibrary.dispose(toinsert[0]);
   }
 
   /**
    * Handle when a new output is added
    */
-  function handleAddOutput(event,  { output, output_area }) {
-    // store reference to embed id on output_area
+  function handleAddOutput(event,  handle) {
+    var output_area = handle.output_area;
+    var output = handle.output;
+    // store reference to embed id or server id on output_area
     output_area._bokeh_element_id = output.metadata[MIME_TYPE]["id"];
     output_area._server_id = output.metadata[MIME_TYPE]["server_id"];
-
-    /* Get rendered DOM node */
-    var toinsert = output_area.element.find(CLASS_NAME.split(' ')[0]);
-    /** e.g. Inject a static image representation into the mime bundle for
-     *  endering on Github, etc.
-     */
-    // if (toinsert) {
-    //   renderLibrary.toPng(toinsert[0]).then(url => {
-    //     const data = url.split(',')[1];
-    //     output_area.outputs
-    //       .filter(output => output.data[MIME_TYPE])
-    //       .forEach(output => {
-    //         output.data['image/png'] = data;
-    //       });
-    //   });
-    // }
   }
 
   function register_renderer(notebook, OutputArea) {
@@ -100,7 +82,7 @@
       var props = {data, metadata: metadata[MIME_TYPE]};
       render(props, toinsert[0]);
       element.append(toinsert);
-      return toinsert;
+      return toinsert
     }
 
     /* Handle when an output is cleared or removed */
