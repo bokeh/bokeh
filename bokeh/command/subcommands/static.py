@@ -3,7 +3,6 @@ from __future__ import absolute_import
 import logging
 log = logging.getLogger(__name__)
 
-from bokeh.server.server import Server
 from bokeh.util.logconfig import basicConfig
 
 from ..subcommand import Subcommand
@@ -25,6 +24,10 @@ class Static(Subcommand):
         '''
 
         '''
+        # protect this import inside a function so that "bokeh info" can work
+        # even if Tornado is not installed
+        from bokeh.server.server import Server
+
         log_level = getattr(logging, args.log_level.upper())
         basicConfig(level=log_level, format=args.log_format)
 
