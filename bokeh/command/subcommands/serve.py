@@ -290,7 +290,6 @@ import warnings
 
 from bokeh.application import Application
 from bokeh.resources import DEFAULT_SERVER_PORT
-from bokeh.server.server import Server
 from bokeh.util.logconfig import basicConfig
 from bokeh.util.string import nice_join, format_docstring
 from bokeh.settings import settings
@@ -472,6 +471,11 @@ class Serve(Subcommand):
         '''
 
         '''
+
+        # protect this import inside a function so that "bokeh info" can work
+        # even if Tornado is not installed
+        from bokeh.server.server import Server
+
         argvs = { f : args.args for f in args.files}
         applications = build_single_handler_applications(args.files, argvs)
 
