@@ -10,6 +10,7 @@ import mock
 from tornado import gen
 from tornado.ioloop import PeriodicCallback, IOLoop
 from tornado.httpclient import HTTPError
+from tornado.httpserver import HTTPServer
 
 import bokeh.server.server as server
 
@@ -18,7 +19,8 @@ from bokeh.application.handlers import Handler
 from bokeh.model import Model
 from bokeh.core.properties import List, String
 from bokeh.client import pull_session
-from bokeh.server.server import Server
+from bokeh.server.server import BaseServer, Server
+from bokeh.server.tornado import BokehTornado
 from bokeh.util.session_id import check_session_id_signature
 
 from .utils import ManagedServerLoop, url, ws_url, http_get, websocket_open
@@ -192,6 +194,14 @@ def test__lifecycle_hooks():
     # we shut down at that point.
     assert client_hook_list.hooks == ["session_created", "modify"]
     assert server_hook_list.hooks == ["session_created", "modify", "session_destroyed"]
+
+def test_prefix():
+    application = Application()
+    with ManagedServerLoop(application) as server:
+        assert server.prefix == ""
+
+    with ManagedServerLoop(application, prefix="foo") as server:
+        assert server.prefix == "foo"
 
 def test_get_sessions():
     application = Application()
@@ -604,3 +614,23 @@ def test__ioloop_not_forcibly_stopped():
     loop.add_callback(f)
     loop.start()
     assert result == [None]
+
+# This test just maintains basic creation and setup, detailed functionality
+# is exercised by Server tests above
+def test_base_server():
+    app = BokehTornado(Application())
+    httpserver = HTTPServer(app)
+    httpserver.start()
+
+    loop = IOLoop()
+    loop.make_current()
+
+    server = BaseServer(loop, app, httpserver)
+    server.start()
+
+    assert server.io_loop == loop
+    assert server._tornado.io_loop == loop
+
+    httpserver.stop()
+    server.stop()
+    server.io_loop.close()

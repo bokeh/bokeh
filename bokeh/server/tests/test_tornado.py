@@ -51,6 +51,32 @@ def test_default_resources():
         assert r.root_url == "/foo/bar/"
         assert r.path_versioner == StaticHandler.append_version
 
+def test_prefix():
+    application = Application()
+    with ManagedServerLoop(application) as server:
+        assert server._tornado.prefix == ""
+
+    for prefix in ["foo", "/foo", "/foo/", "foo/"]:
+        with ManagedServerLoop(application, prefix=prefix) as server:
+            assert server._tornado.prefix == "/foo"
+
+def test_websocket_origins():
+    application = Application()
+    with ManagedServerLoop(application) as server:
+        assert server._tornado.websocket_origins == set(["localhost:5006"])
+
+    # OK this is a bit of a confusing mess. The user-facing arg for server is
+    # "allow_websocket_origin" which gets converted to "extra_websocket_origins"
+    # for BokehTornado, which is exposed as a property "websocket_origins"...
+    with ManagedServerLoop(application, allow_websocket_origin=["foo"]) as server:
+        assert server._tornado.websocket_origins == set(["foo:80"])
+
+    with ManagedServerLoop(application, allow_websocket_origin=["foo:8080"]) as server:
+        assert server._tornado.websocket_origins == set(["foo:8080"])
+
+    with ManagedServerLoop(application, allow_websocket_origin=["foo:8080", "bar"]) as server:
+        assert server._tornado.websocket_origins == set(["foo:8080", "bar:80"])
+
 def test_default_app_paths():
     app = Application()
     t = tornado.BokehTornado({}, "", [])
