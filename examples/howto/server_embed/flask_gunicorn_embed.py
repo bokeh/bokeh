@@ -1,13 +1,27 @@
 from flask import Flask, render_template
 
+from tornado.httpserver import HTTPServer
+from tornado.ioloop import IOLoop
+
 from bokeh.application import Application
 from bokeh.application.handlers import FunctionHandler
 from bokeh.embed import server_document
 from bokeh.layouts import column
 from bokeh.models import ColumnDataSource, Slider
 from bokeh.plotting import figure
-from bokeh.server.server import Server
+from bokeh.server.server import BaseServer
+from bokeh.server.tornado import BokehTornado
+from bokeh.server.util import bind_sockets
 from bokeh.themes import Theme
+
+if __name__ == '__main__':
+    print('This script is intended to be run with gunicorn. e.g.')
+    print()
+    print('    gunicorn -w 4 flask_gunicorn_embed:app')
+    print()
+    print('will start the app on four processes')
+    import sys
+    sys.exit()
 
 from bokeh.sampledata.sea_surface_temperature import sea_surface_temperature
 
@@ -37,24 +51,24 @@ def modify_doc(doc):
 
 bkapp = Application(FunctionHandler(modify_doc))
 
+bokeh_tornado = BokehTornado({'/bkapp': bkapp}, extra_websocket_origins=["localhost:8000"])
+bokeh_http = HTTPServer(bokeh_tornado)
+
+# This is so that if this app is run using something like "gunicorn -w 4" then
+# each process will listen on its own port
+sockets, port = bind_sockets("localhost", 0)
+bokeh_http.add_sockets(sockets)
+
 @app.route('/', methods=['GET'])
 def bkapp_page():
-    script = server_document('http://localhost:5006/bkapp')
+    script = server_document('http://localhost:%d/bkapp' % port)
     return render_template("embed.html", script=script, template="Flask")
 
 def bk_worker():
-    # Can't pass num_procs > 1 in this configuration. If you need to run multiple
-    # processes, see e.g. flask_gunicorn_embed.py
-    server = Server({'/bkapp': bkapp}, allow_websocket_origin=["localhost:8000"])
+    io_loop = IOLoop.current()
+    server = BaseServer(io_loop, bokeh_tornado, bokeh_http)
     server.start()
     server.io_loop.start()
 
 from threading import Thread
 Thread(target=bk_worker).start()
-
-if __name__ == '__main__':
-    print('Opening single process Flask app with embedded Bokeh application on http://localhost:8000/')
-    print()
-    print('Multiple connections may block the Bokeh app in this configuration!')
-    print('See "flask_gunicorn_embed.py" for one way to run multi-process')
-    app.run(port=8000)
