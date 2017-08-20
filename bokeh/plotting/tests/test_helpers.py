@@ -1,9 +1,15 @@
+from mock import mock
+
 import pytest
 
-from bokeh.models import ColumnDataSource
+from bokeh.models import ColumnDataSource, CDSView, Marker
 from bokeh.models.ranges import Range1d, DataRange1d, FactorRange
 from bokeh.models.scales import LinearScale, LogScale, CategoricalScale
-from bokeh.plotting.helpers import _get_legend_item_label, _get_scale, _get_range, _stack
+from bokeh.plotting import Figure
+from bokeh.plotting.helpers import (_get_legend_item_label, _get_scale,
+                                    _get_range, _stack, _glyph_function,
+                                    _RENDERER_ARGS)
+
 
 def test__stack_raises_when_spec_in_kwargs():
     with pytest.raises(ValueError) as e:
@@ -146,3 +152,25 @@ def test_get_range_with_pandas_group():
     r = _get_range(g)
     assert isinstance(r, FactorRange)
     assert r.factors == ['setosa', 'versicolor', 'virginica'] # should always be sorted
+
+# TODO: ideally, the list of arguments should be received directly from
+# GlyphRenderer, but such case requires a system that would be able to generate
+# acceptable values for parameters
+_renderer_args_values = {
+    'name': [None, '', 'test name'],
+    'x_range_name': [None, '', 'x range'],
+    'y_range_name': [None, '', 'y range'],
+    'level': [None, 'overlay'],
+    'view': [None, CDSView(source=None)],
+    'visible': [None, False, True],
+    'muted': [None, False, True]
+}
+@pytest.mark.parametrize('arg,values', [(arg, _renderer_args_values[arg])
+                                        for arg in _RENDERER_ARGS])
+def test__glyph_receives_renderer_arg(arg, values):
+    for value in values:
+        with mock.patch('bokeh.plotting.helpers.GlyphRenderer', autospec=True) as gr_mock:
+            fn = _glyph_function(Marker)
+            fn(Figure(), x=0, y=0, **{arg: value})
+            _, kwargs = gr_mock.call_args
+            assert arg in kwargs and kwargs[arg] == value
