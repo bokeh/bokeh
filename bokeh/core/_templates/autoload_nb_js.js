@@ -11,13 +11,13 @@
   function render(props, node) {
     if (props.data['div'] !== undefined) {
       var div = document.createElement("div");
-      div.innerHTML = props["data"]["div"];
+      div.innerHTML = props.data["div"];
       node.appendChild(div);
     }
 
     if (props.data['script'] !== undefined) {
       var script = document.createElement("script");
-      script.textContent = props["data"]["script"];
+      script.textContent = props.data["script"];
       node.appendChild(script);
     }
   }
@@ -42,8 +42,9 @@
       cell.notebook.kernel.execute(cmd, {
         iopub: {
           output: function(msg) {
-            Bokeh.index[msg.content.text.trim()].remove();
-            delete Bokeh.index[msg.content.text.trim()];
+            var element_id = msg.content.text.trim();
+            Bokeh.index[element_id].remove();
+            delete Bokeh.index[element_id];
           }
         }
       });
