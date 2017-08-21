@@ -695,7 +695,8 @@ class Plot(LayoutDOM):
 
     aspect_ratio = Either(Bool, Float, default=False, help="""
     Specify the aspect ratio behavior of the plot. Default is ``False`` which
-    means that the glyph will fill the whole plot area. ``True`` indicates that
-    the glyphs should maintain the an aspect ratio of 1. A ``Float``value can
-    also be given for arbitrary aspect_ratio control.
+    means that axis range will be set to the glyph's bounds. ``True`` indicates
+    that the axis range should maintain an aspect ratio of 1. A ``Float`` value
+    can also be given for arbitrary aspect_ratio control. Aspect ratio is
+    defined as the ratio of width over height.
     """)
