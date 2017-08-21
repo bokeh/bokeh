@@ -308,7 +308,7 @@ def test__destroy_server():
     io._destroy_server(server_id)
 
     assert server._stopped is True
-    assert server_id not in io._state.uuid_to_server
+    assert server_id not in list(io._state.uuid_to_server.keys())
 
 def _test_layout_added_to_root(layout_generator, children=None):
     layout = layout_generator(Plot() if children is None else children)
