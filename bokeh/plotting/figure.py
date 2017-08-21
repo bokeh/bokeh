@@ -19,7 +19,8 @@ from .helpers import (
 
 DEFAULT_TOOLS = "pan,wheel_zoom,box_zoom,save,reset,help"
 
-
+# This class itself is intentionally undocumented (it is used to generate
+# documentation elsewhere)
 class FigureOptions(Options):
 
     tools = Either(String, Seq(Either(String, Instance(Tool))), default=DEFAULT_TOOLS, help="""

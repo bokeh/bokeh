@@ -14,9 +14,9 @@ from tornado.ioloop import IOLoop
 from tornado.websocket import websocket_connect, WebSocketError
 from tornado.concurrent import Future
 
-from bokeh.server.exceptions import MessageError, ProtocolError, ValidationError
-from bokeh.server.protocol.receiver import Receiver
-from bokeh.server.protocol import Protocol
+from bokeh.protocol import Protocol
+from bokeh.protocol.exceptions import MessageError, ProtocolError, ValidationError
+from bokeh.protocol.receiver import Receiver
 
 class _WebSocketClientConnectionWrapper(object):
     ''' Used for compat across Tornado versions and to add write_lock'''

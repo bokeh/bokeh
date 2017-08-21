@@ -1,6 +1,3 @@
-from tornado.ioloop import IOLoop
-import yaml
-
 from bokeh.application.handlers import FunctionHandler
 from bokeh.application import Application
 from bokeh.layouts import column
@@ -10,8 +7,6 @@ from bokeh.server.server import Server
 from bokeh.themes import Theme
 
 from bokeh.sampledata.sea_surface_temperature import sea_surface_temperature
-
-io_loop = IOLoop.current()
 
 def modify_doc(doc):
     df = sea_surface_temperature.copy()
@@ -33,26 +28,18 @@ def modify_doc(doc):
 
     doc.add_root(column(slider, plot))
 
-    doc.theme = Theme(json=yaml.load("""
-        attrs:
-            Figure:
-                background_fill_color: "#DDDDDD"
-                outline_line_color: white
-                toolbar_location: above
-                height: 500
-                width: 800
-            Grid:
-                grid_line_dash: [6, 4]
-                grid_line_color: white
-    """))
+    doc.theme = Theme(filename="theme.yaml")
 
 bokeh_app = Application(FunctionHandler(modify_doc))
 
-server = Server({'/': bokeh_app}, io_loop=io_loop)
+# Setting num_procs here means we can't touch the IOLoop before now, we must
+# let Server handle that. If you need to explicitly handle IOLoops then you
+# will need to use the lower level BaseServer class.
+server = Server({'/': bokeh_app}, num_procs=4)
 server.start()
 
 if __name__ == '__main__':
     print('Opening Bokeh application on http://localhost:5006/')
 
-    io_loop.add_callback(server.show, "/")
-    io_loop.start()
+    server.io_loop.add_callback(server.show, "/")
+    server.io_loop.start()

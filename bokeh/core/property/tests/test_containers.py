@@ -68,7 +68,7 @@ def test_PropertyValueDict_mutators(mock_notify):
 
 @patch('bokeh.core.property.containers.PropertyValueContainer._notify_owners')
 def test_PropertyValueDict__stream_list(mock_notify):
-    from bokeh.server.events import ColumnsStreamedEvent
+    from bokeh.protocol.events import ColumnsStreamedEvent
 
     source = ColumnDataSource(data=dict(foo=[10]))
     pvd = pc.PropertyValueDict(source.data)
@@ -84,7 +84,7 @@ def test_PropertyValueDict__stream_list(mock_notify):
 
 @patch('bokeh.core.property.containers.PropertyValueContainer._notify_owners')
 def test_PropertyValueDict__stream_list_with_rollover(mock_notify):
-    from bokeh.server.events import ColumnsStreamedEvent
+    from bokeh.protocol.events import ColumnsStreamedEvent
 
     source = ColumnDataSource(data=dict(foo=[10, 20, 30]))
     pvd = pc.PropertyValueDict(source.data)
@@ -100,7 +100,7 @@ def test_PropertyValueDict__stream_list_with_rollover(mock_notify):
 
 @patch('bokeh.core.property.containers.PropertyValueContainer._notify_owners')
 def test_PropertyValueDict__stream_array(mock_notify):
-    from bokeh.server.events import ColumnsStreamedEvent
+    from bokeh.protocol.events import ColumnsStreamedEvent
     import numpy as np
 
     source = ColumnDataSource(data=dict(foo=np.array([10])))
@@ -119,7 +119,7 @@ def test_PropertyValueDict__stream_array(mock_notify):
 
 @patch('bokeh.core.property.containers.PropertyValueContainer._notify_owners')
 def test_PropertyValueDict__stream_array_with_rollover(mock_notify):
-    from bokeh.server.events import ColumnsStreamedEvent
+    from bokeh.protocol.events import ColumnsStreamedEvent
     import numpy as np
 
     source = ColumnDataSource(data=dict(foo=np.array([10, 20, 30])))
@@ -138,7 +138,7 @@ def test_PropertyValueDict__stream_array_with_rollover(mock_notify):
 
 @patch('bokeh.core.property.containers.PropertyValueContainer._notify_owners')
 def test_PropertyValueDict__patch_with_simple_indices(mock_notify):
-    from bokeh.server.events import ColumnsPatchedEvent
+    from bokeh.protocol.events import ColumnsPatchedEvent
     source = ColumnDataSource(data=dict(foo=[10, 20]))
     pvd = pc.PropertyValueDict(source.data)
 
@@ -153,7 +153,7 @@ def test_PropertyValueDict__patch_with_simple_indices(mock_notify):
 
 @patch('bokeh.core.property.containers.PropertyValueContainer._notify_owners')
 def test_PropertyValueDict__patch_with_repeated_simple_indices(mock_notify):
-    from bokeh.server.events import ColumnsPatchedEvent
+    from bokeh.protocol.events import ColumnsPatchedEvent
     source = ColumnDataSource(data=dict(foo=[10, 20]))
     pvd = pc.PropertyValueDict(source.data)
 
@@ -169,7 +169,7 @@ def test_PropertyValueDict__patch_with_repeated_simple_indices(mock_notify):
 
 @patch('bokeh.core.property.containers.PropertyValueContainer._notify_owners')
 def test_PropertyValueDict__patch_with_slice_indices(mock_notify):
-    from bokeh.server.events import ColumnsPatchedEvent
+    from bokeh.protocol.events import ColumnsPatchedEvent
     source = ColumnDataSource(data=dict(foo=[10, 20, 30, 40, 50]))
     pvd = pc.PropertyValueDict(source.data)
 
@@ -184,7 +184,7 @@ def test_PropertyValueDict__patch_with_slice_indices(mock_notify):
 
 @patch('bokeh.core.property.containers.PropertyValueContainer._notify_owners')
 def test_PropertyValueDict__patch_with_overlapping_slice_indices(mock_notify):
-    from bokeh.server.events import ColumnsPatchedEvent
+    from bokeh.protocol.events import ColumnsPatchedEvent
     source = ColumnDataSource(data=dict(foo=[10, 20, 30, 40, 50]))
     pvd = pc.PropertyValueDict(source.data)
 

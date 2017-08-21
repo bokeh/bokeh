@@ -4,7 +4,7 @@ bokeh.command
 =============
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 3
     :glob:
 
     command/*
