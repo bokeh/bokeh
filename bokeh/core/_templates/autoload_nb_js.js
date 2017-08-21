@@ -105,7 +105,7 @@
 
   // register the mime type if in Jupyter Notebook environment and previously unregistered
   var OutputArea = root.Jupyter.OutputArea;
-  if ((root.Jupyter !== undefined) && (!OutputArea.prototype.mime_types().includes(MIME_TYPE))) {
+  if ((root.Jupyter !== undefined) && (OutputArea.prototype.mime_types().indexOf(MIME_TYPE) == -1)) {
     register_renderer(root.Jupyter.notebook, OutputArea);
   }
 
