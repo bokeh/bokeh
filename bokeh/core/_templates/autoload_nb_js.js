@@ -141,13 +141,6 @@
       setTimeout(display_loaded, 100)
     }
   }
-
-  {%- if comms_target -%}
-  if ((root.Jupyter !== undefined) && Jupyter.notebook.kernel) {
-    comm_manager = Jupyter.notebook.kernel.comm_manager
-    comm_manager.register_target({{ comms_target|json }}, function () {});
-  }
-  {%- endif -%}
 {% endblock %}
 
 {% block run_inline_js %}

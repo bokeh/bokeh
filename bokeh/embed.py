@@ -22,8 +22,8 @@ from six import string_types
 from six.moves.urllib.parse import urlparse
 
 from .core.templates import (
-    AUTOLOAD_JS, AUTOLOAD_NB_JS, AUTOLOAD_TAG,
-    FILE, PLOT_DIV, DOC_JS, SCRIPT_TAG, NOTEBOOK_DIV
+    AUTOLOAD_JS, AUTOLOAD_TAG, FILE, PLOT_DIV, DOC_JS, SCRIPT_TAG,
+    NOTEBOOK_DIV, NOTEBOOK_JS
 )
 from .core.json_encoder import serialize_json
 from .document import Document, DEFAULT_TITLE
@@ -364,19 +364,12 @@ def notebook_content(model, notebook_comms_target=None, theme=FromCurdoc):
     else:
         notebook_comms_target = ''
 
-    script = _wrap_in_onload(DOC_JS.render(
+    js = _wrap_in_onload(NOTEBOOK_JS.render(
         docs_json=serialize_json(docs_json),
-        render_items=serialize_json(render_items)
+        render_items=serialize_json(render_items),
+        comms_target = notebook_comms_target
     ))
 
-    js = AUTOLOAD_NB_JS.render(
-        comms_target = notebook_comms_target,
-        js_urls = [],
-        css_urls = [],
-        js_raw = [script],
-        css_raw = "",
-        elementid = item['elementid']
-    )
     div = _div_for_render_item(item)
 
     return (js, div)
