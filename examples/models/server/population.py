@@ -3,7 +3,7 @@ from __future__ import print_function
 from math import pi
 
 from bokeh.client import push_session
-from bokeh.document import Document
+from bokeh.io import curdoc
 from bokeh.models.glyphs import Line, HBar
 from bokeh.models import (Plot, ColumnDataSource, DataRange1d, FactorRange,
                           LinearAxis, CategoricalAxis, Grid, Legend, CategoricalScale)
@@ -11,8 +11,6 @@ from bokeh.sampledata.population import load_population
 from bokeh.models.widgets import Select
 from bokeh.models.layouts import WidgetBox, Column
 
-document = Document()
-session = push_session(document)
 
 df = load_population()
 revision = 2012
@@ -56,9 +54,9 @@ source_predicted = ColumnDataSource(data=dict(x=[], y=[]))
 def population():
     xdr = FactorRange(factors=years)
     ydr = DataRange1d()
-    y_scale = CategoricalScale()
+    x_scale = CategoricalScale()
 
-    plot = Plot(x_range=xdr, y_range=ydr, y_scale=y_scale, plot_width=600, plot_height=150, toolbar_location=None)
+    plot = Plot(x_range=xdr, y_range=ydr, x_scale=x_scale, plot_width=600, plot_height=150, toolbar_location=None)
 
     plot.add_layout(CategoricalAxis(major_label_orientation=pi / 4), 'below')
 
@@ -133,10 +131,11 @@ layout = create_layout()
 
 update_data()
 
+document = curdoc()
 document.add_root(layout)
-session.show(layout)
 
 if __name__ == "__main__":
-    document.validate()
     print("\npress ctrl-C to exit")
+    session = push_session(document)
+    session.show()
     session.loop_until_closed()

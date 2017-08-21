@@ -210,7 +210,7 @@ class Settings(object):
         js_files = []
         for root, dirnames, files in os.walk(bokehjsdir):
             for fname in files:
-                if fname.endswith(".js") and 'vendor' not in root:
+                if fname.endswith(".js"):
                     js_files.append(join(root, fname))
         return js_files
 
@@ -222,7 +222,7 @@ class Settings(object):
         js_files = []
         for root, dirnames, files in os.walk(bokehjsdir):
             for fname in files:
-                if fname.endswith(".css") and 'vendor' not in root:
+                if fname.endswith(".css"):
                     js_files.append(join(root, fname))
         return js_files
 

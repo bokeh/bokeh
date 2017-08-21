@@ -15,7 +15,7 @@ def large_plot(n):
     from bokeh.models import (
         Plot, LinearAxis, Grid, GlyphRenderer,
         ColumnDataSource, DataRange1d, PanTool, ZoomInTool, ZoomOutTool, WheelZoomTool, BoxZoomTool,
-        BoxSelectTool, ResizeTool, SaveTool, ResetTool
+        BoxSelectTool, SaveTool, ResetTool
     )
     from bokeh.models.layouts import Column
     from bokeh.models.glyphs import Line
@@ -42,15 +42,14 @@ def large_plot(n):
         wheel_zoom = WheelZoomTool()
         box_zoom = BoxZoomTool()
         box_select = BoxSelectTool()
-        resize = ResizeTool()
         save = SaveTool()
         reset = ResetTool()
-        tools = [pan, zoom_in, zoom_out, wheel_zoom, box_zoom, box_select, resize, save, reset]
+        tools = [pan, zoom_in, zoom_out, wheel_zoom, box_zoom, box_select, save, reset]
         plot.add_tools(*tools)
         col.children.append(plot)
         objects |= set([
-            source, xdr, ydr, plot, xaxis, yaxis, xgrid, ygrid, renderer, glyph, plot.x_scale, plot.y_scale,
-            plot.toolbar, plot.tool_events, plot.title, box_zoom.overlay, box_select.overlay] +
+            source, xdr, ydr, plot, xaxis, yaxis, xgrid, ygrid, renderer, renderer.view, glyph, plot.x_scale, plot.y_scale,
+            plot.toolbar, plot.title, box_zoom.overlay, box_select.overlay] +
             tickers + tools)
 
     return col, objects

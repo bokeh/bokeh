@@ -18,26 +18,31 @@ from subprocess import Popen, PIPE
 from ..model import Model
 from ..settings import settings
 from .string import snakify
+from .deprecation import deprecated
+
+_plugin_umd = \
+"""\
+(function(root, factory) {
+//  if(typeof exports === 'object' && typeof module === 'object')
+//    factory(require("Bokeh"));
+//  else if(typeof define === 'function' && define.amd)
+//    define(["Bokeh"], factory);
+//  else if(typeof exports === 'object')
+//    factory(require("Bokeh"));
+//  else
+    factory(root["Bokeh"]);
+})(this, function(Bokeh) {
+  var define;
+  return %(content)s;
+});
+"""
 
 # XXX: this is the same as bokehjs/src/js/plugin-prelude.js
 _plugin_prelude = \
-"""
-(function outer(modules, cache, entry) {
+"""\
+(function outer(modules, entry) {
   if (Bokeh != null) {
-    for (var name in modules) {
-      Bokeh.require.modules[name] = modules[name];
-    }
-
-    for (var i = 0; i < entry.length; i++) {
-      var plugin = Bokeh.require(entry[i]);
-      Bokeh.Models.register_models(plugin.models);
-
-      for (var name in plugin) {
-        if (name !== "models") {
-          Bokeh[name] = plugin[name];
-        }
-      }
-    }
+    return Bokeh.register_plugin(modules, {}, entry);
   } else {
     throw new Error("Cannot find Bokeh. You have to load it prior to loading plugins.");
   }
@@ -45,22 +50,22 @@ _plugin_prelude = \
 """
 
 _plugin_template = \
-"""
-%(prelude)s
+"""\
+%(prelude)s\
 ({
-  "custom/main": [function(require, module, exports) {
-    module.exports = {
-      models: {
-        %(exports)s
-      }
+  "custom/main": function(require, module, exports) {
+    var models = {
+      %(exports)s
     };
-  }, {}],
+    require("base").register_models(models);
+    module.exports = models;
+  },
   %(modules)s
-}, {}, ["custom/main"]);
+}, "custom/main");
 """
 
 _style_template = \
-"""
+"""\
 (function() {
   var head = document.getElementsByTagName('head')[0];
   var style = document.createElement('style');
@@ -79,7 +84,7 @@ _export_template = \
 """"%(name)s": require("%(module)s").%(name)s"""
 
 _module_template = \
-""""%(module)s": [function(require, module, exports) {\n%(code)s\n}, %(deps)s]"""
+""""%(module)s": function(require, module, exports) {\n%(source)s\n}"""
 
 class AttrDict(dict):
     ''' Provide a dict subclass that supports access by named attributes.
@@ -168,7 +173,7 @@ def npmjs_version():
     return _version(_run_npmjs)
 
 def nodejs_compile(code, lang="javascript", file=None):
-    compilejs_script = join(bokehjs_dir, "js", "compile.js")
+    compilejs_script = join(bokehjs_dir, "js", "compiler.js")
     output = _run_nodejs([compilejs_script], dict(code=code, lang=lang, file=file))
     return AttrDict(json.loads(output))
 
@@ -209,6 +214,9 @@ class Less(Inline):
 class FromFile(Implementation):
 
     def __init__(self, path):
+        if path.endswith(".tsx"):
+            deprecated((0, 12, 7), "TSX templates", "core/dom APIs")
+
         with io.open(path, encoding="utf-8") as f:
             self.code = f.read()
         self.file = path
@@ -302,10 +310,13 @@ def bundle_models(models):
     exports = []
     modules = []
 
-    with io.open(join(bokehjs_dir, "js", "modules.json"), encoding="utf-8") as f:
-        known_modules = json.loads(f.read())
+    def read_json(name):
+        with io.open(join(bokehjs_dir, "js", name + ".json"), encoding="utf-8") as f:
+            return json.loads(f.read())
 
-    known_modules = set(known_modules["bokehjs"] + known_modules["widgets"])
+
+    bundles = ["bokeh", "bokeh-api", "bokeh-widgets", "bokeh-tables", "bokeh-gl"]
+    known_modules = set(sum([ read_json(name) for name in bundles ], []))
     custom_impls = {}
 
     dependencies = []
@@ -388,12 +399,19 @@ def bundle_models(models):
     exports = sorted(exports, key=lambda spec: spec[1])
     modules = sorted(modules, key=lambda spec: spec[0])
 
+    for i, (module, code, deps) in enumerate(modules):
+        for name, ref in deps.items():
+            code = code.replace("""require("%s")""" % name, """require("%s")""" % ref)
+            code = code.replace("""require('%s')""" % name, """require('%s')""" % ref)
+        modules[i] = (module, code)
+
     sep = ",\n"
 
     exports = sep.join([ _export_template % dict(name=name, module=module) for (name, module) in exports ])
-    modules = sep.join([ _module_template % dict(module=module, code=code, deps=json.dumps(deps)) for (module, code, deps) in modules ])
+    modules = sep.join([ _module_template % dict(module=module, source=code) for (module, code) in modules ])
 
-    return _plugin_template % dict(prelude=_plugin_prelude, exports=exports, modules=modules)
+    content = _plugin_template % dict(prelude=_plugin_prelude, exports=exports, modules=modules)
+    return _plugin_umd % dict(content=content)
 
 def bundle_all_models():
     return bundle_models(Model.model_class_reverse_map.values()) or ""

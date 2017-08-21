@@ -1,19 +1,67 @@
 import {GestureTool, GestureToolView} from "./gesture_tool"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
+import {GraphRenderer} from "../../renderers/graph_renderer"
 import {logger} from "core/logging"
 import * as p from "core/properties"
 import {clone} from "core/util/object"
+import {SelectionGeometry} from "core/bokeh_events"
 
 export class SelectToolView extends GestureToolView
 
+  @getters {
+    computed_renderers: () ->
+      renderers = @model.renderers
+      names = @model.names
+
+      if renderers.length == 0
+        all_renderers = @plot_model.plot.renderers
+        renderers = (r for r in all_renderers when r instanceof GlyphRenderer or r instanceof GraphRenderer)
+
+      if names.length > 0
+        renderers = (r for r in renderers when names.indexOf(r.name) >= 0)
+
+      return renderers
+  }
+
+  _computed_renderers_by_data_source: () ->
+    renderers_by_source = {}
+    for r in @computed_renderers
+
+      if r instanceof GraphRenderer
+        source = r.node_renderer.data_source.id
+      else if r instanceof GlyphRenderer
+        source = r.data_source.id
+
+      if !(source of renderers_by_source)
+        renderers_by_source[source] = [r]
+      else
+        renderers_by_source[source] = renderers_by_source[source].concat([r])
+
+    return renderers_by_source
+
   _keyup: (e) ->
     if e.keyCode == 27
-      for r in @model.computed_renderers
+      for r in @computed_renderers
         ds = r.data_source
         sm = ds.selection_manager
         sm.clear()
 
-  _save_geometry: (geometry, final, append) ->
+  _select: (geometry, final, append) ->
+    renderers_by_source = @_computed_renderers_by_data_source()
+
+    for _, renderers of renderers_by_source
+      sm = renderers[0].get_selection_manager()
+      r_views = (@plot_view.renderer_views[r.id] for r in renderers)
+      sm.select(r_views, geometry, final, append)
+
+    if @model.callback?
+      @_emit_callback(geometry)
+
+    @_emit_selection_event(geometry, final)
+
+    return null
+
+  _emit_selection_event: (geometry, final=true) ->
     g = clone(geometry)
     xm = @plot_view.frame.xscales['default']
     ym = @plot_view.frame.yscales['default']
@@ -35,16 +83,7 @@ export class SelectToolView extends GestureToolView
       else
         logger.debug("Unrecognized selection geometry type: '#{g.type}'")
 
-    if final
-      tool_events = @plot_model.plot.tool_events
-      if append
-        geoms = tool_events.geometries
-        geoms.push(g)
-      else
-        geoms = [g]
-
-      tool_events.geometries = geoms
-    return null
+    @plot_model.plot.trigger_event(new SelectionGeometry({geometry: g, final: final}))
 
 export class SelectTool extends GestureTool
 
@@ -56,38 +95,3 @@ export class SelectTool extends GestureTool
   @internal {
     multi_select_modifier: [ p.String, "shift" ]
   }
-
-  connect_signals: () ->
-    super()
-    # TODO: @connect(@plot.properties.renderers.change, () -> @_computed_renderers = null)
-    @connect(@properties.renderers.change,      () -> @_computed_renderers = null)
-    @connect(@properties.names.change,          () -> @_computed_renderers = null)
-    @connect(@properties.plot.change,           () -> @_computed_renderers = null)
-
-  _compute_renderers: () ->
-    renderers = @renderers
-    names = @names
-
-    if renderers.length == 0
-      all_renderers = @plot.renderers
-      renderers = (r for r in all_renderers when r instanceof GlyphRenderer)
-
-    if names.length > 0
-      renderers = (r for r in renderers when names.indexOf(r.name) >= 0)
-
-    return renderers
-
-  @getters {
-    computed_renderers: () ->
-      if not @_computed_renderers? then @_computed_renderers = @_compute_renderers()
-      return @_computed_renderers
-  }
-
-  _computed_renderers_by_data_source: () ->
-    renderers_by_source = {}
-    for r in @computed_renderers
-      if !(r.data_source.id of renderers_by_source)
-        renderers_by_source[r.data_source.id] = [r]
-      else
-        renderers_by_source[r.data_source.id] = renderers_by_source[r.data_source.id].concat([r])
-    return renderers_by_source

@@ -4,6 +4,7 @@ from collections import Iterable, OrderedDict, Sequence
 import difflib
 import itertools
 import re
+import textwrap
 import warnings
 
 import numpy as np
@@ -20,11 +21,52 @@ from ..models import (
     LogScale, LinearScale, CategoricalScale)
 
 from ..core.properties import ColorSpec, Datetime, value, field
+from ..transform import stack
+from ..util.dependencies import import_optional
 from ..util.deprecation import deprecated
 from ..util.string import nice_join
 
+pd = import_optional('pandas')
+
 DEFAULT_PALETTE = ["#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33ff3"]
 
+
+def _stack(stackers, spec0, spec1, **kw):
+    for name in (spec0, spec1):
+        if name in kw:
+            raise ValueError("Stack property '%s' cannot appear in keyword args" % name)
+
+    lengths = { len(x) for x in kw.values() if isinstance(x, (list, tuple)) }
+
+    # lengths will be empty if there are no kwargs supplied at all
+    if len(lengths) > 0:
+        if len(lengths) != 1:
+            raise ValueError("Keyword argument sequences for broadcasting must all be the same lengths. Got lengths: %r" % sorted(list(lengths)))
+        if lengths.pop() != len(stackers):
+            raise ValueError("Keyword argument sequences for broadcasting must be the same length as stackers")
+
+    s0 = []
+    s1 = []
+
+    _kw = []
+
+    for i, val in enumerate(stackers):
+        d  = {}
+        s0 = list(s1)
+        s1.append(val)
+
+        d[spec0] = stack(*s0)
+        d[spec1] = stack(*s1)
+
+        for k, v in kw.items():
+            if isinstance(v, (list, tuple)):
+                d[k] = v[i]
+            else:
+                d[k] = v
+
+        _kw.append(d)
+
+    return _kw
 
 def get_default_color(plot=None):
     colors = [
@@ -52,12 +94,15 @@ def get_default_alpha(plot=None):
     return 1.0
 
 
+_RENDERER_ARGS = ['name', 'x_range_name', 'y_range_name',
+                  'level', 'view', 'visible', 'muted']
+
+
 def _pop_renderer_args(kwargs):
-    result = dict(data_source=kwargs.pop('source', ColumnDataSource()))
-    for attr in ['name', 'x_range_name', 'y_range_name', 'level', 'visible', 'muted']:
-        val = kwargs.pop(attr, None)
-        if val:
-            result[attr] = val
+    result = {attr: kwargs.pop(attr)
+              for attr in _RENDERER_ARGS
+              if attr in kwargs}
+    result['data_source'] = kwargs.pop('source', ColumnDataSource())
     return result
 
 
@@ -188,11 +233,13 @@ def _update_legend(plot, legend_item_label, glyph_renderer):
 def _get_range(range_input):
     if range_input is None:
         return DataRange1d()
+    if pd and isinstance(range_input, pd.core.groupby.GroupBy):
+        return FactorRange(factors=sorted(list(range_input.groups.keys())))
     if isinstance(range_input, Range):
         return range_input
     if isinstance(range_input, Sequence):
         if all(isinstance(x, string_types) for x in range_input):
-            return FactorRange(factors=range_input)
+            return FactorRange(factors=list(range_input))
         if len(range_input) == 2:
             try:
                 return Range1d(start=range_input[0], end=range_input[1])
@@ -433,15 +480,15 @@ def _get_argspecs(glyphclass):
     argspecs = OrderedDict()
     for arg in glyphclass._args:
         spec = {}
-        prop = getattr(glyphclass, arg)
+        descriptor = getattr(glyphclass, arg)
 
         # running python with -OO will discard docstrings -> __doc__ is None
-        if prop.__doc__:
-            spec['desc'] = " ".join(x.strip() for x in prop.__doc__.strip().split("\n\n")[0].split('\n'))
+        if descriptor.__doc__:
+            spec['desc'] = "\n        ".join(textwrap.dedent(descriptor.__doc__).split("\n"))
         else:
             spec['desc'] = ""
-        spec['default'] = prop.class_default(glyphclass)
-        spec['type'] = prop.__class__.__name__
+        spec['default'] = descriptor.class_default(glyphclass)
+        spec['type'] = descriptor.property._sphinx_type()
         argspecs[arg] = spec
     return argspecs
 
@@ -478,7 +525,9 @@ def _get_sigfunc(func_name, func, argspecs):
     eval(func_code, {"func": func}, func_globals)
     return func_globals[func_name]
 
-_arg_template = "    %s (%s) : %s (default %r)"
+_arg_template = """    %s (%s) : %s
+        (default: %r)
+"""
 _doc_template = """ Configure and add %s glyphs to this Figure.
 
 Args:
@@ -507,17 +556,21 @@ Returns:
 def _add_sigfunc_info(func, argspecs, glyphclass, extra_docs):
     func.__name__ = glyphclass.__name__.lower()
 
+    omissions = {'js_event_callbacks', 'js_property_callbacks', 'subscribed_events'}
+
     kwlines = []
     kws = glyphclass.properties() - set(argspecs)
     for kw in kws:
-        prop = getattr(glyphclass, kw)
-        if prop.__doc__:
-            typ = prop.__class__.__name__
-            desc = " ".join(x.strip() for x in prop.__doc__.strip().split("\n\n")[0].split('\n'))
+        # these are not really useful, and should also really be private, just skip them
+        if kw in omissions: continue
+
+        descriptor = getattr(glyphclass, kw)
+        typ = descriptor.property._sphinx_type()
+        if descriptor.__doc__:
+            desc = "\n        ".join(textwrap.dedent(descriptor.__doc__).split("\n"))
         else:
-            typ = str(prop)
             desc = ""
-        kwlines.append(_arg_template % (kw, typ, desc, prop.class_default(glyphclass)))
+        kwlines.append(_arg_template % (kw, typ, desc, descriptor.class_default(glyphclass)))
     extra_kws = getattr(glyphclass, '_extra_kws', {})
     for kw, (typ, desc) in extra_kws.items():
         kwlines.append("    %s (%s) : %s" % (kw, typ, desc))
@@ -608,6 +661,8 @@ def _glyph_function(glyphclass, extra_docs=None):
     argspecs = _get_argspecs(glyphclass)
 
     sigfunc = _get_sigfunc(glyphclass.__name__.lower(), func, argspecs)
+
+    sigfunc.glyph_method = True
 
     _add_sigfunc_info(sigfunc, argspecs, glyphclass, extra_docs)
 

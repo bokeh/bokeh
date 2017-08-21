@@ -1,4 +1,5 @@
-''' Provides different ways to create a Document
+''' Provides different ways for Bokeh applications to modify Bokeh
+Documents when sessions are created.
 
 '''
 from __future__ import absolute_import

@@ -1,7 +1,3 @@
-import pandas as pd
-from tornado.ioloop import IOLoop
-import yaml
-
 from bokeh.application.handlers import FunctionHandler
 from bokeh.application import Application
 from bokeh.layouts import column
@@ -10,14 +6,10 @@ from bokeh.plotting import figure
 from bokeh.server.server import Server
 from bokeh.themes import Theme
 
-io_loop = IOLoop.current()
+from bokeh.sampledata.sea_surface_temperature import sea_surface_temperature
 
 def modify_doc(doc):
-    data_url = "http://www.neracoos.org/erddap/tabledap/B01_sbe37_all.csvp?time,temperature&depth=1&temperature_qc=0&time>=2016-02-15&time<=2017-03-22"
-    df = pd.read_csv(data_url, parse_dates=True, index_col=0)
-    df = df.rename(columns={'temperature (celsius)': 'temperature'})
-    df.index.name = 'time'
-
+    df = sea_surface_temperature.copy()
     source = ColumnDataSource(data=df)
 
     plot = figure(x_axis_type='datetime', y_range=(0, 25), y_axis_label='Temperature (Celsius)',
@@ -36,26 +28,18 @@ def modify_doc(doc):
 
     doc.add_root(column(slider, plot))
 
-    doc.theme = Theme(json=yaml.load("""
-        attrs:
-            Figure:
-                background_fill_color: "#DDDDDD"
-                outline_line_color: white
-                toolbar_location: above
-                height: 500
-                width: 800
-            Grid:
-                grid_line_dash: [6, 4]
-                grid_line_color: white
-    """))
+    doc.theme = Theme(filename="theme.yaml")
 
 bokeh_app = Application(FunctionHandler(modify_doc))
 
-server = Server({'/': bokeh_app}, io_loop=io_loop)
+# Setting num_procs here means we can't touch the IOLoop before now, we must
+# let Server handle that. If you need to explicitly handle IOLoops then you
+# will need to use the lower level BaseServer class.
+server = Server({'/': bokeh_app}, num_procs=4)
 server.start()
 
 if __name__ == '__main__':
     print('Opening Bokeh application on http://localhost:5006/')
 
-    io_loop.add_callback(server.show, "/")
-    io_loop.start()
+    server.io_loop.add_callback(server.show, "/")
+    server.io_loop.start()

@@ -1,33 +1,28 @@
 from jinja2 import Environment, FileSystemLoader
-import pandas as pd
-import yaml
 
-from tornado.ioloop import IOLoop
 from tornado.web import RequestHandler
 
 from bokeh.application import Application
 from bokeh.application.handlers import FunctionHandler
-from bokeh.embed import autoload_server
+from bokeh.embed import server_document
 from bokeh.layouts import column
 from bokeh.models import ColumnDataSource, Slider
 from bokeh.plotting import figure
 from bokeh.server.server import Server
 from bokeh.themes import Theme
 
+from bokeh.sampledata.sea_surface_temperature import sea_surface_temperature
+
 env = Environment(loader=FileSystemLoader('templates'))
 
 class IndexHandler(RequestHandler):
     def get(self):
         template = env.get_template('embed.html')
-        script = autoload_server(url='http://localhost:5006/bkapp')
+        script = server_document('http://localhost:5006/bkapp')
         self.write(template.render(script=script, template="Tornado"))
 
 def modify_doc(doc):
-    data_url = "http://www.neracoos.org/erddap/tabledap/B01_sbe37_all.csvp?time,temperature&depth=1&temperature_qc=0&time>=2016-02-15&time<=2017-03-22"
-    df = pd.read_csv(data_url, parse_dates=True, index_col=0)
-    df = df.rename(columns={'temperature (celsius)': 'temperature'})
-    df.index.name = 'time'
-
+    df = sea_surface_temperature.copy()
     source = ColumnDataSource(data=df)
 
     plot = figure(x_axis_type='datetime', y_range=(0, 25), y_axis_label='Temperature (Celsius)',
@@ -46,24 +41,14 @@ def modify_doc(doc):
 
     doc.add_root(column(slider, plot))
 
-    doc.theme = Theme(json=yaml.load("""
-        attrs:
-            Figure:
-                background_fill_color: "#DDDDDD"
-                outline_line_color: white
-                toolbar_location: above
-                height: 500
-                width: 800
-            Grid:
-                grid_line_dash: [6, 4]
-                grid_line_color: white
-    """))
+    doc.theme = Theme(filename="theme.yaml")
 
 bokeh_app = Application(FunctionHandler(modify_doc))
 
-io_loop = IOLoop.current()
-
-server = Server({'/bkapp': bokeh_app}, io_loop=io_loop, extra_patterns=[('/', IndexHandler)])
+# Setting num_procs here means we can't touch the IOLoop before now, we must
+# let Server handle that. If you need to explicitly handle IOLoops then you
+# will need to use the lower level BaseServer class.
+server = Server({'/bkapp': bokeh_app}, num_procs=4, extra_patterns=[('/', IndexHandler)])
 server.start()
 
 if __name__ == '__main__':
@@ -71,5 +56,5 @@ if __name__ == '__main__':
 
     print('Opening Tornado app with embedded Bokeh application on http://localhost:5006/')
 
-    io_loop.add_callback(view, "http://localhost:5006/")
-    io_loop.start()
+    server.io_loop.add_callback(view, "http://localhost:5006/")
+    server.io_loop.start()

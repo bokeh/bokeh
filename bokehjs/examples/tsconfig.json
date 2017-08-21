@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "noImplicitAny": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitThis": true,
+    "noImplicitReturns": true,
+    "strictNullChecks": false,
+    "alwaysStrict": true,
+    "noEmitOnError": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "target": "ES5",
+    "lib": ["es5", "dom", "es2015.collection"],
+    "declaration": false,
+    "importHelpers": false,
+    "experimentalDecorators": true,
+    "types": []
+  }
+}

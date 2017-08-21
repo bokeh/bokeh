@@ -1,10 +1,11 @@
 from __future__ import print_function
 
 from datetime import date
-from random import randint
+import random
+random.seed(1)
 
 from bokeh.client import push_session
-from bokeh.document import Document
+from bokeh.io import curdoc
 from bokeh.models.glyphs import Line, Circle
 from bokeh.models import (
     Plot, ColumnDataSource, DataRange1d,
@@ -15,14 +16,12 @@ from bokeh.models.widgets import (
     DateEditor, DateFormatter, IntEditor)
 from bokeh.models.layouts import WidgetBox, Column
 
-document = Document()
-session = push_session(document)
+N = 5
 
 def make_data():
-    n = randint(5, 10)
     return dict(
-        dates=[ date(2014, 3, i+1) for i in range(n) ],
-        downloads=[ randint(0, 100) for i in range(n) ],
+        dates=[ date(2014, 3, i+1) for i in range(N) ],
+        downloads=[ random.randint(0, 100) for i in range(N) ],
     )
 
 source = ColumnDataSource(make_data())
@@ -70,11 +69,12 @@ def make_layout():
     return column
 
 layout = make_layout()
+
+document = curdoc()
 document.add_root(layout)
 
-session.show(layout)
-
 if __name__ == "__main__":
-    document.validate()
     print("\npress ctrl-C to exit")
+    session = push_session(document)
+    session.show()
     session.loop_until_closed()

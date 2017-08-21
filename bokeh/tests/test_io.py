@@ -8,8 +8,11 @@
 
 from __future__ import absolute_import
 from mock import patch, Mock, PropertyMock
+import os
+
 from PIL import Image
 import pytest
+import selenium.webdriver as webdriver
 import unittest
 
 import bokeh.io as io
@@ -302,13 +305,105 @@ def test__crop_image():
     cropped = io._crop_image(image, **rect)
     assert cropped.size == (6,4)
 
+def test__save_layout_html_resets_plot_dims():
+    initial_height, initial_width = 200, 250
+
+    layout = Plot(x_range=Range1d(), y_range=Range1d(),
+                  plot_height=initial_height, plot_width=initial_width)
+
+    io._save_layout_html(layout, height=100, width=100)
+    assert layout.plot_height == initial_height
+    assert layout.plot_width == initial_width
+
+@pytest.mark.unit
+@pytest.mark.selenium
 def test__get_screenshot_as_png():
     layout = Plot(x_range=Range1d(), y_range=Range1d(),
-                  plot_height=2, plot_width=2, toolbar_location=None,
+                  plot_height=20, plot_width=20, toolbar_location=None,
                   outline_line_color=None, background_fill_color=None,
                   border_fill_color=None)
 
     png = io._get_screenshot_as_png(layout)
-    assert png.size == (2, 2)
-    # a 2x2px image of transparent pixels
-    assert png.tobytes() == b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+    assert png.size == (20, 20)
+    # a 20x20px image of transparent pixels
+    assert png.tobytes() == ("\x00"*1600).encode()
+
+@pytest.mark.unit
+@pytest.mark.selenium
+def test__get_screenshot_as_png_with_driver():
+    layout = Plot(x_range=Range1d(), y_range=Range1d(),
+                  plot_height=20, plot_width=20, toolbar_location=None,
+                  outline_line_color=None, background_fill_color=None,
+                  border_fill_color=None)
+
+    driver = webdriver.PhantomJS(service_log_path=os.path.devnull)
+
+    png = io._get_screenshot_as_png(layout, driver=driver)
+
+    # Have to manually clean up the driver session
+    driver.quit()
+
+    assert png.size == (20, 20)
+    # a 20x20px image of transparent pixels
+    assert png.tobytes() == ("\x00"*1600).encode()
+
+@pytest.mark.unit
+@pytest.mark.selenium
+def test__get_screenshot_as_png_large_plot():
+    layout = Plot(x_range=Range1d(), y_range=Range1d(),
+                  plot_height=800, plot_width=800, toolbar_location=None,
+                  outline_line_color=None, background_fill_color=None,
+                  border_fill_color=None)
+
+    driver = webdriver.PhantomJS(service_log_path=os.path.devnull)
+    assert driver.get_window_size() == {'width': 400, 'height': 300}
+
+    io._get_screenshot_as_png(layout, driver=driver)
+
+    # LC: Although the window size doesn't match the plot dimensions (unclear
+    # why), the window resize allows for the whole plot to be captured
+    assert driver.get_window_size() == {'width': 1366, 'height': 768}
+
+    # Have to manually clean up the driver session
+    driver.quit()
+
+@pytest.mark.unit
+@pytest.mark.selenium
+def test__get_svgs_no_svg_present():
+    layout = Plot(x_range=Range1d(), y_range=Range1d(),
+              plot_height=20, plot_width=20, toolbar_location=None)
+
+    svgs = io._get_svgs(layout)
+    assert svgs == []
+
+@pytest.mark.unit
+@pytest.mark.selenium
+def test__get_svgs_with_svg_present():
+    layout = Plot(x_range=Range1d(), y_range=Range1d(),
+                  plot_height=20, plot_width=20, toolbar_location=None,
+                  outline_line_color=None, border_fill_color=None,
+                  background_fill_color=None, output_backend="svg")
+
+    svgs = io._get_svgs(layout)
+    assert svgs[0] == ('<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" '
+                       'width="20" height="20" style="width: 20px; height: 20px;"><defs/><g><g/><g transform="scale(1,1) '
+                       'translate(0.5,0.5)"><rect fill="#FFFFFF" stroke="none" x="0" y="0" width="20" height="20"/><g/><g/><g/><g/></g></g></svg>')
+
+@pytest.mark.unit
+@pytest.mark.selenium
+def test__get_svgs_with_svg_present_with_driver():
+    layout = Plot(x_range=Range1d(), y_range=Range1d(),
+                  plot_height=20, plot_width=20, toolbar_location=None,
+                  outline_line_color=None, border_fill_color=None,
+                  background_fill_color=None, output_backend="svg")
+
+    driver = webdriver.PhantomJS(service_log_path=os.path.devnull)
+
+    svgs = io._get_svgs(layout)
+
+    # Have to manually clean up the driver session
+    driver.quit()
+
+    assert svgs[0] == ('<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" '
+                       'width="20" height="20" style="width: 20px; height: 20px;"><defs/><g><g/><g transform="scale(1,1) '
+                       'translate(0.5,0.5)"><rect fill="#FFFFFF" stroke="none" x="0" y="0" width="20" height="20"/><g/><g/><g/><g/></g></g></svg>')

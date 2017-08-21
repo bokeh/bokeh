@@ -12,6 +12,7 @@ export class RendererView extends DOMView
     super(options)
     @plot_view = options.plot_view
     @visuals = new Visuals(@model)
+    @_has_finished = true # XXX: should be in render() but subclasses don't respect super()
 
   @getters {
     plot_model: () -> @plot_view.model

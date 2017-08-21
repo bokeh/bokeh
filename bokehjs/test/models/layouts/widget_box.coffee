@@ -9,6 +9,7 @@ sinon = require 'sinon'
 {LayoutDOMView} = utils.require("models/layouts/layout_dom")
 {Panel} = utils.require("models/widgets/panel")
 {Plot} = utils.require("models/plots/plot")
+{Button} = utils.require("models/widgets/button")
 {Tabs} = utils.require("models/widgets/tabs")
 {Toolbar} = utils.require("models/tools/toolbar")
 {WidgetBox} = utils.require("models/layouts/widget_box")
@@ -95,7 +96,7 @@ describe "WidgetBox", ->
       expect(widget_box_view.get_width()).to.be.equal 99 + 20
 
     it "should call build_child_views if children change", ->
-      child_widget = new Tabs()
+      child_widget = new Button()
       spy = sinon.spy(LayoutDOMView.prototype, 'build_child_views')
       new @widget_box.default_view({ model: @widget_box, parent: null })
       expect(spy.callCount).is.equal 1  # Expect one from initialization
@@ -161,25 +162,3 @@ describe "WidgetBox", ->
       delete expected_constrained_variables.box_equal_size_right
       constrained_variables = @widget_box.get_constrained_variables()
       expect(constrained_variables).to.be.deep.equal expected_constrained_variables
-
-  describe "should pull things from children", ->
-    afterEach ->
-      LayoutDOM.prototype.get_constraints.restore()
-      LayoutDOM.prototype.get_edit_variables.restore()
-
-    beforeEach ->
-      sinon.stub(LayoutDOM.prototype, 'get_constraints').returns([])
-      sinon.stub(LayoutDOM.prototype, 'get_edit_variables').returns([])
-      tab_plot = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d(), toolbar: new Toolbar()})
-      tab_plot.attach_document(new Document())
-      panel = new Panel({child: tab_plot})
-      @tabs = new Tabs({tabs: [panel]})
-      @widget_box.children = [@tabs]
-
-    it "get_edit_variables", ->
-      sinon.stub(@tabs, 'get_edit_variables', () -> [{'a': 1, 'b': 2}, {'a': 3, 'b': 4}])
-      expect(@widget_box.get_edit_variables()).to.be.deep.equal @tabs.get_edit_variables()
-
-    it "get_constraints", ->
-      sinon.stub(@tabs, 'get_constraints', () -> [{'a': 1, 'b': 2}, {'a': 3, 'b': 4}])
-      expect(@widget_box.get_constraints()).to.be.deep.equal @tabs.get_constraints()

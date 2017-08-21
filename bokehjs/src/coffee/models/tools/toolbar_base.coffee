@@ -1,17 +1,41 @@
 import {logger} from "core/logging"
 import {EQ} from "core/layout/solver"
-import {empty} from "core/dom"
+import {empty, div, a} from "core/dom"
 import * as p from "core/properties"
 
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
 
 import {ActionToolButtonView} from "./actions/action_tool"
 import {OnOffButtonView} from "./on_off_button"
-import toolbar_template from "./toolbar_template"
 
 export class ToolbarBaseView extends LayoutDOMView
   className: "bk-toolbar-wrapper"
-  template: toolbar_template
+
+  template: () ->
+    if @model.logo?
+      cls = if @model.logo == "grey" then "bk-grey" else null
+      logo = a({href: "http://bokeh.pydata.org/", target: "_blank", class: ["bk-logo", "bk-logo-small", cls]})
+    else
+      logo = null
+
+    sticky = if @model.toolbar_sticky then 'sticky' else 'not-sticky'
+
+    return (
+      div({class: ["bk-toolbar-#{@model.toolbar_location}", "bk-toolbar-#{sticky}"]},
+        logo,
+        div({class: 'bk-button-bar'},
+          div({class: "bk-button-bar-list", type: "pan"}),
+          div({class: "bk-button-bar-list", type: "scroll"}),
+          div({class: "bk-button-bar-list", type: "pinch"}),
+          div({class: "bk-button-bar-list", type: "tap"}),
+          div({class: "bk-button-bar-list", type: "press"}),
+          div({class: "bk-button-bar-list", type: "rotate"}),
+          div({class: "bk-button-bar-list", type: "actions"}),
+          div({class: "bk-button-bar-list", type: "inspectors"}),
+          div({class: "bk-button-bar-list", type: "help"}),
+        )
+      )
+    )
 
   render: () ->
     empty(@el)
@@ -22,15 +46,12 @@ export class ToolbarBaseView extends LayoutDOMView
       @el.style.width = "#{@model._width.value}px"
       @el.style.height = "#{@model._height.value}px"
 
-    @el.appendChild(@template({
-      logo: @model.logo
-      location: @model.toolbar_location
-      sticky: if @model.toolbar_sticky then 'sticky' else 'not-sticky'
-    }))
+    @el.appendChild(@template())
 
     buttons = @el.querySelector(".bk-button-bar-list[type='inspectors']")
     for obj in @model.inspectors
-      buttons.appendChild(new OnOffButtonView({model: obj, parent: @}).el)
+      if obj.toggleable
+        buttons.appendChild(new OnOffButtonView({model: obj, parent: @}).el)
 
     buttons = @el.querySelector(".bk-button-bar-list[type='help']")
     for obj in @model.help
@@ -79,11 +100,7 @@ export class ToolbarBase extends LayoutDOM
     return null
 
   get_constraints: () ->
-    # Get the constraints from widget
-    return super().concat([
-      # Set the fixed size of toolbar
-      EQ(@_sizeable, -30),
-    ])
+    return super().concat(EQ(@_sizeable, -30))
 
   @define {
       tools: [ p.Array,    []       ]

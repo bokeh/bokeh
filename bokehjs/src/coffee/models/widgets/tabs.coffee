@@ -1,45 +1,57 @@
-import * as $ from "jquery"
-import "bootstrap/tab"
-
+import {empty, ul, li, span, div} from "core/dom"
+import {zip} from "core/util/array"
 import * as p from "core/properties"
-import {zip, findIndex} from "core/util/array"
 
-import tabs_template from "./tabs_template"
 import {Widget, WidgetView} from "./widget"
 
 export class TabsView extends WidgetView
 
+  connect_signals: () ->
+    super()
+    @connect(@model.properties.tabs.change, () => @rebuild_child_views())
+
   render: () ->
     super()
-    for own _key, child of @child_views
-      child.el.parentNode?.removeChild(child.el)
-    @$el.empty()
+    empty(@el)
 
-    tabs = @model.tabs
-    active = @model.active
-    children = @model.children
+    len = @model.tabs.length
+    if len == 0
+      return
+    else if @model.active >= len
+      @model.active = len - 1
 
-    html = $(tabs_template({
-      tabs: tabs
-      active_tab_id: tabs[active].id
-    }))
+    tabs = @model.tabs.map((tab, i) -> li({}, span({data: {index: i}}, tab.title)))
+    tabs[@model.active].classList.add("bk-bs-active")
+    tabsEl = ul({class: ["bk-bs-nav", "bk-bs-nav-tabs"]}, tabs)
+    @el.appendChild(tabsEl)
 
-    that = this
-    html.find(".bk-bs-nav a").click (event) ->
+    panels = @model.tabs.map((tab) -> div({class: "bk-bs-tab-pane"}))
+    panels[@model.active].classList.add("bk-bs-active")
+    panelsEl = div({class: "bk-bs-tab-content"}, panels)
+    @el.appendChild(panelsEl)
+
+    tabsEl.addEventListener "click", (event) =>
       event.preventDefault()
-      $(this).tab('show')
-      panelId = $(this).attr('href').replace('#tab-','')
-      tabs = that.model.tabs
-      panelIdx = findIndex(tabs, (panel) -> panel.id == panelId)
-      that.model.active = panelIdx
-      that.model.callback?.execute(that.model)
 
-    $panels = html.find(".bk-bs-tab-pane")
+      if event.target != event.currentTarget
+        el = event.target
 
-    for [child, panel] in zip(children, $panels)
-      $(panel).html(@child_views[child.id].el)
+        old_active = @model.active
+        new_active = parseInt(el.dataset.index)
 
-    @$el.append(html)
+        if old_active != new_active
+          tabs[old_active].classList.remove("bk-bs-active")
+          panels[old_active].classList.remove("bk-bs-active")
+
+          tabs[new_active].classList.add("bk-bs-active")
+          panels[new_active].classList.add("bk-bs-active")
+
+          @model.active = new_active
+          @model.callback?.execute(@model)
+
+    for [child, panelEl] in zip(@model.children, panels)
+      panelEl.appendChild(@child_views[child.id].el)
+
     return @
 
 export class Tabs extends Widget
@@ -56,19 +68,4 @@ export class Tabs extends Widget
     children: () -> (tab.child for tab in @tabs)
   }
 
-  get_layoutable_children: () ->
-    return @children
-
-  get_edit_variables: () ->
-    edit_variables = super()
-    # Go down the children to pick up any more constraints
-    for child in @get_layoutable_children()
-      edit_variables = edit_variables.concat(child.get_edit_variables())
-    return edit_variables
-
-  get_constraints: () ->
-    constraints = super()
-    # Go down the children to pick up any more constraints
-    for child in @get_layoutable_children()
-      constraints = constraints.concat(child.get_constraints())
-    return constraints
+  get_layoutable_children: () -> @children

@@ -21,17 +21,17 @@ export class TitleView extends TextAnnotationView
     [width, height] = @_calculate_text_dimensions(@plot_view.canvas_view.ctx, @text)
     switch @model.panel.side
       when 'left'
-        vx = 0
+        vx = @model.panel._left.value
         vy = @_get_text_location(@model.align, @frame.v_range) + @model.offset
       when 'right'
-        vx = @canvas._right.value - 1 #fudge factor due to error in text height measurement
+        vx = @model.panel._right.value
         vy = @canvas._height.value - @_get_text_location(@model.align, @frame.v_range) - @model.offset
       when 'above'
         vx = @_get_text_location(@model.align, @frame.h_range) + @model.offset
-        vy = @canvas._top.value - 10 # Corresponds to the +10 added in get_size
+        vy = @model.panel._top.value - 10 # Corresponds to the +10 added in get_size
       when 'below'
         vx = @_get_text_location(@model.align, @frame.h_range) + @model.offset
-        vy = 0
+        vy = @model.panel._bottom.value
 
     sx = @canvas.vx_to_sx(vx)
     sy = @canvas.vy_to_sy(vy)

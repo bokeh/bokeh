@@ -10,8 +10,8 @@ export class CustomJS extends Model
     @connect(@change, () -> @_func = null)
 
   @define {
-    args: [ p.Any,     {}           ] # TODO (bev) better type
-    code: [ p.String,  ''           ]
+    args: [ p.Any,     {} ] # TODO (bev) better type
+    code: [ p.String,  '' ]
   }
 
   @getters {

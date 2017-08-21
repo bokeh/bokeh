@@ -14,9 +14,9 @@ const compile = (name: string) => {
   const project = ts.createProject(join(BASE_DIR, name, "tsconfig.json"), {
     typescript: require('typescript')
   })
-  project.src()
-         .pipe(project(reporter).on('error', (err: {message: string}) => gutil.log(err.message)))
-         .pipe(gulp.dest(join(BASE_DIR, name)))
+  return project.src()
+   .pipe(project(reporter).on('error', (err: {message: string}) => gutil.log(err.message)))
+   .pipe(gulp.dest(join(BASE_DIR, name)))
 }
 
 const examples: string[] = []

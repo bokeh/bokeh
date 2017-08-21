@@ -207,15 +207,6 @@ just the y-axis by setting the ``dimensions`` property to a list containing ``wi
 or ``height``. Additionally, there are tool aliases ``'xpan'`` and ``'ypan'``,
 respectively.
 
-ResizeTool
-~~~~~~~~~~
-
-* name: ``'resize'``
-* icon: |resize_icon|
-
-The resize tool allows the user to left-drag a mouse or drag a finger to resize
-the entire plot.
-
 .. _userguide_tools_clicktap:
 
 Click/Tap Tools
@@ -239,11 +230,11 @@ locations.
     multiple selection, press the SHIFT key. To clear the selection, press the
     ESC key.
 
-TapSelectTool
-~~~~~~~~~~~~~
+TapTool
+~~~~~~~
 
 * name: ``'tap'``
-* icon: |tap_select_icon|
+* icon: |tap_icon|
 
 The tap selection tool allows the user to select at single points by clicking
 a left mouse button, or tapping with a finger.
@@ -371,9 +362,9 @@ CrosshairTool
 * menu icon: |crosshair_icon|
 
 Th crosshair tool draws a crosshair annotation over the plot, centered on
-the current mouse position. The crosshair tool may be configured to draw
-across only one dimension by setting the ``dimensions`` property to a
-list containing ``width`` or ``height``.
+the current mouse position. The crosshair tool draw dimensions may be
+configured by setting the ``dimensions`` property to one of the
+enumerated values ``width``, ``height``, or ``both``.
 
 HoverTool
 ~~~~~~~~~
@@ -635,11 +626,9 @@ properties on |Plot| objects that control LOD behavior:
     :height: 14pt
 .. |reset_icon| image:: /_images/icons/Reset.png
     :height: 14pt
-.. |resize_icon| image:: /_images/icons/Resize.png
-    :height: 14pt
 .. |save_icon| image:: /_images/icons/Save.png
     :height: 14pt
-.. |tap_select_icon| image:: /_images/icons/TapSelect.png
+.. |tap_icon| image:: /_images/icons/Tap.png
     :height: 14pt
 .. |undo_icon| image:: /_images/icons/Undo.png
     :height: 14pt

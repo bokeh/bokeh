@@ -10,6 +10,7 @@ import mock
 from tornado import gen
 from tornado.ioloop import PeriodicCallback, IOLoop
 from tornado.httpclient import HTTPError
+from tornado.httpserver import HTTPServer
 
 import bokeh.server.server as server
 
@@ -18,47 +19,13 @@ from bokeh.application.handlers import Handler
 from bokeh.model import Model
 from bokeh.core.properties import List, String
 from bokeh.client import pull_session
-from bokeh.server.server import Server
+from bokeh.server.server import BaseServer, Server
+from bokeh.server.tornado import BokehTornado
 from bokeh.util.session_id import check_session_id_signature
 
 from .utils import ManagedServerLoop, url, ws_url, http_get, websocket_open
 
 logging.basicConfig(level=logging.DEBUG)
-
-def test__create_hosts_whitelist_no_host():
-    hosts = server._create_hosts_whitelist(None, 1000)
-    assert hosts == ["localhost:1000"]
-
-    hosts = server._create_hosts_whitelist([], 1000)
-    assert hosts == ["localhost:1000"]
-
-def test__create_hosts_whitelist_host_value_with_port_use_port():
-    hosts = server._create_hosts_whitelist(["foo:1000"], 1000)
-    assert hosts == ["foo:1000"]
-
-    hosts = server._create_hosts_whitelist(["foo:1000","bar:2100"], 1000)
-    assert hosts == ["foo:1000","bar:2100"]
-
-def test__create_hosts_whitelist_host_without_port_use_port_80():
-    hosts = server._create_hosts_whitelist(["foo"], 1000)
-    assert hosts == ["foo:80"]
-
-    hosts = server._create_hosts_whitelist(["foo","bar"], 1000)
-    assert hosts == ["foo:80","bar:80"]
-
-def test__create_hosts_whitelist_host_non_int_port_raises():
-    with pytest.raises(ValueError):
-        server._create_hosts_whitelist(["foo:xyz"], 1000)
-
-def test__create_hosts_whitelist_bad_host_raises():
-    with pytest.raises(ValueError):
-        server._create_hosts_whitelist([""], 1000)
-
-    with pytest.raises(ValueError):
-        server._create_hosts_whitelist(["a:b:c"], 1000)
-
-    with pytest.raises(ValueError):
-        server._create_hosts_whitelist([":80"], 1000)
 
 @gen.coroutine
 def async_value(value):
@@ -228,6 +195,14 @@ def test__lifecycle_hooks():
     assert client_hook_list.hooks == ["session_created", "modify"]
     assert server_hook_list.hooks == ["session_created", "modify", "session_destroyed"]
 
+def test_prefix():
+    application = Application()
+    with ManagedServerLoop(application) as server:
+        assert server.prefix == ""
+
+    with ManagedServerLoop(application, prefix="foo") as server:
+        assert server.prefix == "foo"
+
 def test_get_sessions():
     application = Application()
     with ManagedServerLoop(application) as server:
@@ -347,10 +322,40 @@ def autoload_url(server):
     return url(server) + \
         "autoload.js?bokeh-protocol-version=1.0&bokeh-autoload-element=foo"
 
+def resource_files_requested(response, requested=True):
+    from six import string_types
+    if not isinstance(response, string_types):
+        import codecs
+        response = codecs.decode(response, 'utf-8')
+    for file in [
+        'static/css/bokeh.min.css', 'static/css/bokeh-widgets.min.css',
+        'static/js/bokeh.min.js', 'static/js/bokeh-widgets.min.js']:
+        if requested:
+            assert file in response
+        else:
+            assert file not in response
+
 def test_use_xheaders():
     application = Application()
     with ManagedServerLoop(application, use_xheaders=True) as server:
         assert server._http.xheaders == True
+
+@pytest.mark.parametrize("querystring,requested", [
+    ("", True),
+    ("&resources=default", True),
+    ("&resources=whatever", True),
+    ("&resources=none", False),
+])
+def test__resource_files_requested(querystring, requested):
+    """
+    Checks if the loading of resource files is requested by the autoload.js
+    response based on the value of the "resources" parameter.
+    """
+    application = Application()
+    with ManagedServerLoop(application) as server:
+        response = http_get(server.io_loop,
+                            autoload_url(server) + querystring)
+        resource_files_requested(response.body, requested=requested)
 
 def test__autocreate_session_autoload():
     application = Application()
@@ -563,10 +568,12 @@ def test__no_generate_session_doc():
         assert 0 == len(sessions)
 
 def test__server_multiple_processes():
-    with mock.patch('tornado.process.fork_processes') as tornado_fp:
-        application = Application()
-        with ManagedServerLoop(application, num_procs=3):
-            pass
+
+    # Can't use an ioloop in this test
+    with mock.patch('tornado.httpserver.HTTPServer.add_sockets'):
+        with mock.patch('tornado.process.fork_processes') as tornado_fp:
+            application = Application()
+            server.Server(application, num_procs=3, port=0)
 
         tornado_fp.assert_called_with(3)
 
@@ -589,7 +596,7 @@ def test__ioloop_not_forcibly_stopped():
     application = Application()
     loop = IOLoop()
     loop.make_current()
-    server = Server(application, ioloop=loop)
+    server = Server(application, io_loop=loop)
     server.start()
     result = []
 
@@ -607,3 +614,23 @@ def test__ioloop_not_forcibly_stopped():
     loop.add_callback(f)
     loop.start()
     assert result == [None]
+
+# This test just maintains basic creation and setup, detailed functionality
+# is exercised by Server tests above
+def test_base_server():
+    app = BokehTornado(Application())
+    httpserver = HTTPServer(app)
+    httpserver.start()
+
+    loop = IOLoop()
+    loop.make_current()
+
+    server = BaseServer(loop, app, httpserver)
+    server.start()
+
+    assert server.io_loop == loop
+    assert server._tornado.io_loop == loop
+
+    httpserver.stop()
+    server.stop()
+    server.io_loop.close()

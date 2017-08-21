@@ -1,9 +1,8 @@
-'''
+''' Represent transformations of data to happen on the client (browser) side.
 
 '''
 from __future__ import absolute_import
 
-import inspect
 from textwrap import dedent
 from types import FunctionType
 
@@ -13,6 +12,7 @@ from ..core.properties import Bool, Dict, Either, Enum, Float, Instance, Seq, St
 from ..model import Model
 from ..util.compiler import nodejs_compile, CompilationError
 from ..util.dependencies import import_required
+from ..util.future import get_param_info, signature
 
 from .sources import ColumnarDataSource
 
@@ -92,22 +92,21 @@ class CustomJSTransform(Transform):
             )
 
         def pyscript_compile(func):
-            argspec = inspect.getargspec(func)
+            sig = signature(func)
 
-            default_names = argspec.args
-            default_values = argspec.defaults or []
+            all_names, default_values = get_param_info(sig)
 
-            if len(default_names) - len(default_values) != 0:
+            if len(all_names) - len(default_values) != 0:
                 raise ValueError("Function may only contain keyword arguments.")
 
             if default_values and not any([isinstance(value, Model) for value in default_values]):
-                raise ValueError("Default value must be a plot object.")
+                raise ValueError("Default value must be a Bokeh Model.")
 
-            func_kwargs = dict(zip(default_names, default_values))
+            func_kwargs = dict(zip(all_names, default_values))
 
             # Wrap the code attr in a function named `formatter` and call it
             # with arguments that match the `args` attr
-            code = pyscript.py2js(func, 'transformer') + 'return transformer(%s);\n' % ', '.join(default_names)
+            code = pyscript.py2js(func, 'transformer') + 'return transformer(%s);\n' % ', '.join(all_names)
             return code, func_kwargs
 
         jsfunc, func_kwargs = pyscript_compile(func)
@@ -202,22 +201,42 @@ class CustomJSTransform(Transform):
     """)
 
 
+class Dodge(Transform):
+    ''' Apply either fixed dodge amount to data.
+
+    '''
+
+    value = Float(default=0, help="""
+    The amount to dodge the input data.
+    """)
+
+    range = Instance("bokeh.models.ranges.Range", help="""
+    When applying ``Dodge`` to categorical data values, the corresponding
+    ``FactorRange`` must be supplied as the ``range`` property.
+    """)
+
+
 class Jitter(Transform):
     ''' Apply either a uniform or normally sampled random jitter to data.
 
     '''
-
 
     mean = Float(default=0, help="""
     The central value for the random sample
     """)
 
     width = Float(default=1, help="""
-    The width (absolute for uniform distribution and sigma for the normal distribution) of the random sample.
+    The width (absolute for uniform distribution and sigma for the normal
+    distribution) of the random sample.
     """)
 
     distribution = Enum(JitterRandomDistribution, default='uniform', help="""
     The random distribution upon which to pull the random scatter
+    """)
+
+    range = Instance("bokeh.models.ranges.Range", help="""
+    When applying Jitter to Categorical data values, the corresponding
+    ``FactorRange`` must be supplied as the ``range`` property.
     """)
 
 @abstract

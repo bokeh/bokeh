@@ -130,12 +130,12 @@ export class BoxZoomToolView extends GestureToolView
 
     xrs = {}
     for name, scale of @plot_view.frame.xscales
-      [start, end] = scale.v_invert(vx, true)
+      [start, end] = scale.v_invert(vx)
       xrs[name] = {start: start, end: end}
 
     yrs = {}
     for name, scale of @plot_view.frame.yscales
-      [start, end] = scale.v_invert(vy, true)
+      [start, end] = scale.v_invert(vy)
       yrs[name] = {start: start, end: end}
 
     zoom_info = {

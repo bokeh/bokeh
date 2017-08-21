@@ -7,6 +7,7 @@ namespace Burtin {
 
   console.log(`Bokeh ${Bokeh.version}`);
   Bokeh.set_log_level("info");
+  Bokeh.settings.dev = true
 
   type Gram = "negative" | "positive";
 
@@ -41,7 +42,7 @@ namespace Burtin {
   }
 
   const df: Antibiotics = {
-    index:        antibiotics.map((v, i) => i),
+    index:        antibiotics.map((_, i) => i),
     length:       antibiotics.length,
 
     bacteria:     antibiotics.map((row) => row[0]),

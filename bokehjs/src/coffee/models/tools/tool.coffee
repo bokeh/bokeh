@@ -34,10 +34,6 @@ export class Tool extends Model
     synthetic_renderers: () -> []
   }
 
-  @define {
-    plot: [ p.Instance ]
-  }
-
   @internal {
     active: [ p.Boolean, false ]
   }

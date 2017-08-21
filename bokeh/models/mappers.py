@@ -7,7 +7,7 @@ import warnings
 
 from .. import palettes
 from ..core.has_props import abstract
-from ..core.properties import Color, Date, Datetime, Either, Enum, Float, Int, Seq, String
+from ..core.properties import Color, Either, Enum, Float, Int, Seq, String, Tuple
 from ..core.enums import Palette
 from .transforms import Transform
 
@@ -20,8 +20,8 @@ class ColorMapper(Transform):
     palette = Seq(Color, help="""
     A sequence of colors to use as the target palette for mapping.
 
-    This property can also be set as a ``String``, to the name of
-    any of the palettes shown in :ref:`bokeh.palettes`.
+    This property can also be set as a ``String``, to the name of any of the
+    palettes shown in :ref:`bokeh.palettes`.
     """).accepts(Enum(Palette), lambda pal: getattr(palettes, pal))
 
     nan_color = Color(default="gray", help="""
@@ -40,10 +40,37 @@ class CategoricalColorMapper(ColorMapper):
 
     '''
 
-    factors = Either(Seq(String), Seq(Int), Seq(Float), Seq(Datetime), Seq(Date), help="""
-    A sequence of factors / categories that map to the color palette.
+    factors = Either(Seq(String), Seq(Tuple(String, String)), Seq(Tuple(String, String, String)), default=None, help="""
+    A sequence of factors / categories that map to the color palette. For
+    example the following color mapper:
+
+    .. code-block:: python
+
+        mapper = CategoricalColorMapper(palette=["red", "blue"], factors=["foo", "bar"])
+
+    will map the factor ``"foo"`` to red and the factor ``"bar"`` to blue.
     """)
 
+    start = Int(default=0, help="""
+    A start index to "slice" data factors with before color mapping.
+
+    For example, if the data to color map consists of 2-level factors such
+    as ``["2016", "sales"]`` and ``["2016", "marketing"]``, then setting
+    ``start=1`` will perform color mapping only based on the second sub-factor
+    (i.e. in this case based on the department ``"sales"`` or ``"marketing"``)
+    """)
+
+    end = Int(help="""
+    A start index to "slice" data factors with before color mapping.
+
+    For example, if the data to color map consists of 2-level factors such
+    as ``["2016", "sales"]`` and ``["2017", "marketing"]``, then setting
+    ``end=1`` will perform color mapping only based on the first sub-factor
+    (i.e. in this case based on the year ``"2016"`` or ``"2017"``)
+
+    If ``None`` then all sub-factors from ``start`` to the end of the
+    factor will be used for color mapping.
+    """)
 
     def __init__(self, **kwargs):
         super(ColorMapper, self).__init__(**kwargs)
@@ -52,8 +79,7 @@ class CategoricalColorMapper(ColorMapper):
         if palette and factors:
             if len(palette) < len(factors):
                 extra_factors = factors[len(palette):]
-                warnings.warn("""Palette length does not match number of
-factors. %s will be assigned to `nan_color` %s""" % (extra_factors, self.nan_color))
+                warnings.warn("Palette length does not match number of factors. %s will be assigned to `nan_color` %s" % (extra_factors, self.nan_color))
 
 
 @abstract
@@ -83,12 +109,11 @@ class ContinuousColorMapper(ColorMapper):
     """)
 
 class LinearColorMapper(ContinuousColorMapper):
-    ''' Map numbers in a range [*low*, *high*] linearly into a
-    sequence of colors (a palette).
+    ''' Map numbers in a range [*low*, *high*] linearly into a sequence of
+    colors (a palette).
 
     For example, if the range is [0, 99] and the palette is
-    ``['red', 'green', 'blue']``, the values would be mapped as
-    follows::
+    ``['red', 'green', 'blue']``, the values would be mapped as follows::
 
              x < 0  : 'red'     # values < low are clamped
         0 >= x < 33 : 'red'
@@ -99,12 +124,11 @@ class LinearColorMapper(ContinuousColorMapper):
     '''
 
 class LogColorMapper(ContinuousColorMapper):
-    ''' Map numbers in a range [*low*, *high*] into a
-    sequence of colors (a palette) on a natural logarithm scale.
+    ''' Map numbers in a range [*low*, *high*] into a sequence of colors
+    (a palette) on a natural logarithm scale.
 
     For example, if the range is [0, 25] and the palette is
-    ``['red', 'green', 'blue']``, the values would be mapped as
-    follows::
+    ``['red', 'green', 'blue']``, the values would be mapped as follows::
 
                 x < 0     : 'red'     # values < low are clamped
        0     >= x < 2.72  : 'red'     # math.e ** 1

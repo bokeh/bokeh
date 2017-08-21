@@ -7,33 +7,26 @@ import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
 export class WidgetBoxView extends LayoutDOMView
   className: "bk-widget-box"
 
-  initialize: (options) ->
-    super(options)
-    @render()
-
   connect_signals: () ->
     super()
     @connect(@model.properties.children.change, () => @rebuild_child_views())
 
   render: () ->
-    update_layout = false
+    @_render_classes() # XXX: because no super()
 
-    if @model.sizing_mode is 'fixed' or @model.sizing_mode == 'scale_height'
+    if @model.sizing_mode == 'fixed' or @model.sizing_mode == 'scale_height'
       width = @get_width()
       if @model._width.value != width
         @solver.suggest_value(@model._width, width)
-        update_layout = true
 
     if @model.sizing_mode == 'fixed' or @model.sizing_mode == 'scale_width'
       height = @get_height()
       if @model._height.value != height
         @solver.suggest_value(@model._height, height)
-        update_layout = true
 
-    if update_layout
-      @solver.update_variables()
+    @solver.update_variables()
 
-    if @model.sizing_mode is 'stretch_both'
+    if @model.sizing_mode == 'stretch_both'
       @el.style.position = 'absolute'
       @el.style.left = "#{@model._dom_left.value}px"
       @el.style.top = "#{@model._dom_top.value}px"
@@ -70,7 +63,6 @@ export class WidgetBoxView extends LayoutDOMView
           width = child_width
       return width
 
-
 export class WidgetBox extends LayoutDOM
   type: 'WidgetBox'
   default_view: WidgetBoxView
@@ -83,20 +75,6 @@ export class WidgetBox extends LayoutDOM
       logger.info("WidgetBox mode is fixed, but no width specified. Using default of 300.")
     if @sizing_mode == 'scale_height'
       logger.warn("sizing_mode `scale_height` is not experimental for WidgetBox. Please report your results to the bokeh dev team so we can improve.")
-
-  get_edit_variables: () ->
-    edit_variables = super()
-    # Go down the children to pick up any more constraints
-    for child in @get_layoutable_children()
-      edit_variables = edit_variables.concat(child.get_edit_variables())
-    return edit_variables
-
-  get_constraints: () ->
-    constraints = super()
-    # Go down the children to pick up any more constraints
-    for child in @get_layoutable_children()
-      constraints = constraints.concat(child.get_constraints())
-    return constraints
 
   get_constrained_variables: () ->
     vars = extend({}, super(), {
@@ -120,8 +98,7 @@ export class WidgetBox extends LayoutDOM
 
     return vars
 
-  get_layoutable_children: () ->
-    return @children
+  get_layoutable_children: () -> @children
 
   @define {
     children: [ p.Array, [] ]

@@ -21,7 +21,10 @@ def display_event(div, attributes=[]):
         var attrs = %s;
         var args = [];
         for (var i=0; i<attrs.length; i++ ) {
-            args.push(attrs[i] + '=' + Number(cb_obj[attrs[i]]).toFixed(2));
+            val = JSON.stringify(cb_obj[attrs[i]], function(key, val) {
+                return val.toFixed ? Number(val.toFixed(2)) : val;
+            })
+            args.push(attrs[i] + '=' + val)
         }
         var line = "<span style=%r><b>" + cb_obj.event_name + "</b>(" + args.join(", ") + ")</span>\\n";
         var text = div.text.concat(line);
@@ -40,7 +43,7 @@ colors = [
     "#%02x%02x%02x" % (int(r), int(g), 150) for r, g in zip(50+2*x, 30+2*y)
 ]
 
-p = figure(tools="pan,wheel_zoom,zoom_in,zoom_out,reset")
+p = figure(tools="pan,wheel_zoom,zoom_in,zoom_out,reset,tap,lasso_select,box_select")
 
 p.scatter(x, y, radius=radii,
           fill_color=colors, fill_alpha=0.6,
@@ -87,6 +90,9 @@ pinch_attributes = point_attributes + ['scale']
 p.js_on_event(events.Pinch,      display_event(div, attributes=pinch_attributes))
 p.js_on_event(events.PinchStart, display_event(div, attributes=point_attributes))
 p.js_on_event(events.PinchEnd,   display_event(div, attributes=point_attributes))
+
+# Selection events
+p.js_on_event(events.SelectionGeometry, display_event(div, attributes=['geometry', 'final']))
 
 output_file("js_events.html", title="JS Events Example")
 show(layout)

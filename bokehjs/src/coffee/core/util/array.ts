@@ -7,6 +7,10 @@ import {randomIn} from "./math"
 
 const slice = Array.prototype.slice
 
+export function last<T>(array: Array<T>): T | undefined {
+  return array[array.length-1]
+}
+
 export function copy<T>(array: Array<T> /*| TypedArray*/): Array<T> {
   return slice.call(array)
 }
@@ -16,7 +20,7 @@ export function concat<T>(arrays: Array<Array<T>>): Array<T> {
 }
 
 export function contains<T>(array: Array<T>, value: T): boolean {
-  return array.indexOf(value) >= 0
+  return array.indexOf(value) !== -1
 }
 
 export function nth<T>(array: Array<T>, index: number): T {
@@ -307,4 +311,15 @@ export function shuffle<T>(array: T[]): T[] {
     shuffled[rand] = array[i]
   }
   return shuffled
+}
+
+export function pairwise<T, U>(array: T[], fn: (prev: T, next: T) => U): U[] {
+  const n = array.length
+  const result = new Array<U>(n-1)
+
+  for (let i = 0; i < n - 1; i++) {
+    result[i] = fn(array[i], array[i+1])
+  }
+
+  return result
 }

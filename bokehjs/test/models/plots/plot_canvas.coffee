@@ -86,19 +86,61 @@ describe "PlotCanvas", ->
     expect(left_axis.panel  in layoutable_children).to.be.true
     expect(right_axis.panel in layoutable_children).to.be.true
 
-  it "should call get_edit_variables on layoutable children", sinon.test () ->
+  it "should call get_editables on layoutable children", sinon.test () ->
     plot = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d(), title: null})
     @doc.add_root(plot)
     plot_canvas = plot.plot_canvas
     children = plot_canvas.get_layoutable_children()
     expect(children.length).to.be.equal 6
     for child in children
-      child.get_edit_variables = this.spy()
-      expect(child.get_edit_variables.callCount).to.be.equal 0
-    plot_canvas.get_edit_variables()
+      child.get_editables = this.spy()
+      expect(child.get_editables.callCount).to.be.equal 0
+    plot_canvas.get_all_editables()
     for child in children
-      expect(child.get_edit_variables.callCount).to.be.equal 1
+      expect(child.get_editables.callCount).to.be.equal 1
 
+describe "PlotCanvasView pause", ->
+
+  afterEach ->
+    utils.unstub_canvas()
+    utils.unstub_solver()
+
+  beforeEach ->
+    utils.stub_canvas()
+    utils.stub_solver()
+    @doc = new Document()
+    @plot = new Plot({
+      x_range: new Range1d({start: 0, end: 1})
+      y_range: new Range1d({start: 0, end: 1})
+      toolbar: new Toolbar()
+      title: null
+    })
+    @plot_view = new @plot.default_view({model: @plot, parent: null})
+    @doc.add_root(@plot)
+    @plot_canvas = new PlotCanvas({plot: @plot})
+    @plot_canvas.attach_document(@doc)
+    @plot_canvas_view = new @plot_canvas.default_view({model: @plot_canvas, parent: @plot_view})
+
+  it "should start unpaused", ->
+    expect(@plot_canvas_view.is_paused).to.be.false
+
+  it "should toggle on/off in pairs", ->
+    expect(@plot_canvas_view.is_paused).to.be.false
+    @plot_canvas_view.pause()
+    expect(@plot_canvas_view.is_paused).to.be.true
+    @plot_canvas_view.unpause()
+    expect(@plot_canvas_view.is_paused).to.be.false
+
+  it "should toggle off only on last unpause with nested pairs", ->
+    expect(@plot_canvas_view.is_paused).to.be.false
+    @plot_canvas_view.pause()
+    expect(@plot_canvas_view.is_paused).to.be.true
+    @plot_canvas_view.pause()
+    expect(@plot_canvas_view.is_paused).to.be.true
+    @plot_canvas_view.unpause()
+    expect(@plot_canvas_view.is_paused).to.be.true
+    @plot_canvas_view.unpause()
+    expect(@plot_canvas_view.is_paused).to.be.false
 
 describe "PlotCanvas constraints", ->
 
@@ -141,7 +183,7 @@ describe "PlotCanvas constraints", ->
     for child in children
       child.get_constraints = this.spy()
       expect(child.get_constraints.callCount).to.be.equal 0
-    @plot_canvas.get_constraints()
+    @plot_canvas.get_all_constraints()
     for child in children
       expect(child.get_constraints.callCount).to.be.equal 1
 
@@ -289,12 +331,12 @@ describe "PlotCanvasView resize", ->
     @plot_canvas_view._on_resize()
     expect(spy.calledOnce, 'set_dims was not called').to.be.true
     expect(spy.calledWith([width, height], true)).to.be.true
-  """
 
   it "should throw an error if height is 0", sinon.test () ->
     @plot_canvas._height.setValue(0)
     @plot_canvas.sizing_mode = 'stretch_both'
     expect(@plot_canvas_view._on_resize).to.throw Error
+  """
 
 
 describe "PlotCanvasView update_constraints", ->
@@ -339,6 +381,7 @@ describe "PlotCanvasView update_constraints", ->
     test_plot_canvas_view.update_constraints()
     expect(@solver_suggest_stub.callCount).to.be.equal initial_count + 2
 
+  """
   it "should call solver update_variables with false for trigger", sinon.test () ->
     test_plot_canvas_view = new @plot_canvas.default_view({model: @plot_canvas, parent: @plot_view})
 
@@ -346,6 +389,7 @@ describe "PlotCanvasView update_constraints", ->
     test_plot_canvas_view.update_constraints()
     expect(@solver_update_stub.calledWith(false)).to.be.true
     expect(@solver_update_stub.callCount).to.be.equal initial_count + 1
+  """
 
 
 describe "PlotCanvasView get_canvas_element", ->

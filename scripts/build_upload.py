@@ -45,8 +45,6 @@ NOT_STARTED = "NOT STARTED"
 STARTED = "STARTED BUT NOT COMPLETED"
 COMPLETED = "COMPLETED"
 
-PLATFORMS = "osx-64 win-32 win-64 linux-32 linux-64".split()
-
 class config(object):
 
     # This excludes "local" build versions, e.g. 0.12.4+19.gf85560a
@@ -129,8 +127,6 @@ def cd(dir):
     print("+cd %s    [now: %s]" % (dir, os.getcwd()))
 
 def clean():
-    for plat in PLATFORMS:
-        run("rm -rf %s" % plat)
     run("rm -rf dist/")
     run("rm -rf build/")
     run("rm -rf bokeh.egg-info/")
@@ -165,7 +161,7 @@ def upload_wrapper(name):
         return wrapper
     return decorator
 
-def cdn_upload(local_path, cdn_path, content_type, cdn_token, cdn_id):
+def cdn_upload(local_path, cdn_path, content_type, cdn_token, cdn_id, binary=False):
     print(":uploading to CDN: %s" % cdn_path)
     if CONFIG.dry_run: return
     url = 'https://storage101.dfw1.clouddrive.com/v1/%s/%s' % (cdn_id, cdn_path)
@@ -176,7 +172,11 @@ def cdn_upload(local_path, cdn_path, content_type, cdn_token, cdn_id):
     c.setopt(c.HTTPHEADER, ["X-Auth-Token: %s" % cdn_token,
                             "Origin: https://mycloud.rackspace.com",
                             "Content-Type: %s" % content_type])
-    c.setopt(pycurl.POSTFIELDS, open(local_path).read().encode('utf-8'))
+    if binary:
+        data = open(local_path, "rb").read()
+    else:
+        data = open(local_path).read().encode('utf-8')
+    c.setopt(pycurl.POSTFIELDS, data)
     c.perform()
     c.close()
 
@@ -312,17 +312,7 @@ def check_cdn_creds():
 
 @build_wrapper('conda')
 def build_conda_packages():
-    for v in "27 34 35 36".split():
-        # TODO (bev) remove --no-test when conda problems resolved
-        run("conda build conda.recipe --quiet --no-test", CONDA_PY=v)
-        # TODO (bev) make platform detected or configurable
-
-    # TravisCI will time out if this is all run with one command, problem
-    # should go away when new no-arch pkgs canbe used
-    files = glob.glob('/home/travis/miniconda/conda-bld/linux-64/bokeh*')
-    for file in files:
-        for plat in PLATFORMS:
-            run("conda convert -p %s %s" % (plat, file))
+    run("conda build conda.recipe --quiet --no-test")
 
 @build_wrapper('sdist')
 def build_sdist_packages():
@@ -350,14 +340,14 @@ def upload_cdn(cdn_token, cdn_id):
     version = CONFIG.version
 
     content_type = "application/javascript"
-    for name in ('bokeh', 'bokeh-api', 'bokeh-widgets', 'bokeh-gl'):
+    for name in ('bokeh', 'bokeh-api', 'bokeh-widgets', 'bokeh-tables', 'bokeh-gl'):
         for suffix in ('js', 'min.js'):
             local_path = 'bokehjs/build/js/%s.%s' % (name, suffix)
             cdn_path = 'bokeh/bokeh/%s/%s-%s.%s' % (subdir, name, version, suffix)
             cdn_upload(local_path, cdn_path, content_type, cdn_token, cdn_id)
 
     content_type = "text/css"
-    for name in ('bokeh', 'bokeh-widgets'):
+    for name in ('bokeh', 'bokeh-widgets', 'bokeh-tables'):
         for suffix in ('css', 'min.css'):
             local_path = 'bokehjs/build/css/%s.%s' % (name, suffix)
             cdn_path = 'bokeh/bokeh/%s/%s-%s.%s' % (subdir, name, version, suffix)
@@ -370,10 +360,9 @@ def upload_anaconda(token, dev):
     else:
         cmd = "anaconda -t %s upload -u bokeh %s --force --no-progress"
 
-    for plat in PLATFORMS:
-        files = glob.glob("%s/bokeh*.tar.bz2" % plat)
-        for file in files:
-            run(cmd % (token, file), fake_cmd=cmd % ("<hidden>", file))
+    files = glob.glob("/home/travis/miniconda/conda-bld/noarch/bokeh*.tar.bz2")
+    for file in files:
+        run(cmd % (token, file), fake_cmd=cmd % ("<hidden>", file))
 
     files = glob.glob("dist/bokeh*.tar.gz")
     for file in files:
@@ -397,7 +386,7 @@ def upload_docs():
 def upload_examples(cdn_token, cdn_id):
     local_path = "examples-%s.zip" % CONFIG.version
     cdn_path = 'bokeh/bokeh/examples/%s' % local_path
-    cdn_upload(local_path, cdn_path, 'application/zip', cdn_token, cdn_id)
+    cdn_upload(local_path, cdn_path, 'application/zip', cdn_token, cdn_id, binary=True)
 
 @upload_wrapper('npm')
 def upload_npm():
@@ -487,8 +476,8 @@ if __name__ == '__main__':
         print(blue("[SKIP] ") + "Not updating Examples tarball for pre-releases")
     else:
         upload_pypi()
-        upload_examples(cdn_token, cdn_id)
         upload_npm()
+        upload_examples(cdn_token, cdn_id)
 
     # finish ----------------------------------------------------------------
 

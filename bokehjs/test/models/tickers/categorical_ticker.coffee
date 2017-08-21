@@ -19,19 +19,13 @@ describe "CategoricalTicker Model", ->
 
     it "should handle case where range has factors", ->
       range = new FactorRange({factors:["foo", "bar", "bat"]})
-      ticks = @ticker.get_ticks(0.5, 3.5, range, null, {}) #cross_loc is null
+      ticks = @ticker.get_ticks(0, 3, range, null, {}) #cross_loc is null
       expect(ticks.major).to.be.deep.equal([ "foo", "bar", "bat" ])
       expect(ticks.minor).to.be.deep.equal([ ])
 
     it "should handle partial range correctly", ->
       range = new FactorRange({factors:["foo", "bar", "bat"]})
       # should just show middle factor (index=2)
-      ticks = @ticker.get_ticks(1.5, 2.5, range, null, {}) #cross_loc is null
+      ticks = @ticker.get_ticks(1, 2, range, null, {}) #cross_loc is null
       expect(ticks.major).to.be.deep.equal([ "bar" ])
-      expect(ticks.minor).to.be.deep.equal([ ])
-
-    it "should handle range offset correctly", ->
-      range = new FactorRange({factors:["foo", "bar", "bat"], offset:10})
-      ticks = @ticker.get_ticks(10.5, 13.5, range, null, {}) #cross_loc is null
-      expect(ticks.major).to.be.deep.equal([ "foo", "bar", "bat" ])
       expect(ticks.minor).to.be.deep.equal([ ])

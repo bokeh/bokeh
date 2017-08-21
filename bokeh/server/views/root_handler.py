@@ -1,6 +1,6 @@
-'''
-Provide a Request handler that lists the application (if more than one)
-or (if only one) redirects to the route of that applications
+''' Provide a Request handler that lists the application (if more than one)
+or (if only one) redirects to the route of that applications.
+
 '''
 from __future__ import absolute_import, print_function
 
@@ -10,7 +10,6 @@ log = logging.getLogger(__name__)
 from tornado import gen
 
 from tornado.web import RequestHandler
-
 
 class RootHandler(RequestHandler):
     ''' Implements a custom Tornado handler to display the available applications

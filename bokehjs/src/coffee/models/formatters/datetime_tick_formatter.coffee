@@ -1,4 +1,4 @@
-import * as SPrintf from "sprintf"
+import {sprintf} from "sprintf-js"
 import * as tz from "timezone"
 
 import {TickFormatter} from "./tick_formatter"
@@ -26,7 +26,7 @@ _strftime = (t, format) ->
     # supported by the javascript library timezone: http://bigeasy.github.io/timezone/.
     # Use a regular expression to replace %f directive with microseconds.
     # TODO: what should we do for negative microsecond strings?
-    microsecond_replacement_string = SPrintf.sprintf("$1%06d", _us(t))
+    microsecond_replacement_string = sprintf("$1%06d", _us(t))
     format = format.replace(/((^|[^%])(%%)*)%f/, microsecond_replacement_string)
 
     if format.indexOf("%") == -1

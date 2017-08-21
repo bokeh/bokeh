@@ -33,27 +33,18 @@ describe "ZoomInTool", ->
          x_range: new Range1d({start: -1, end: 1})
          y_range: new Range1d({start: -1, end: 1})
       })
-      @plot_view = new @plot.default_view({model: @plot, parent: null})
-
       document = new Document()
       document.add_root(@plot)
+      @plot_view = new @plot.default_view({model: @plot, parent: null})
+      @plot_view.layout()
 
-      @plot_canvas_view = new @plot.plot_canvas.default_view({
-        model: @plot.plot_canvas
-        parent: @plot_view
-      })
+      @plot_canvas_view = @plot_view.plot_canvas_view
 
     it "should zoom into both ranges", ->
       zoom_in_tool = new ZoomInTool()
-
       @plot.add_tools(zoom_in_tool)
 
-      zoom_in_tool_view = new zoom_in_tool.default_view({
-        model: zoom_in_tool
-        plot_model: @plot.plot_canvas
-        plot_view: @plot_canvas_view
-        parent: null # wrong
-      })
+      zoom_in_tool_view = @plot_canvas_view.tool_views[zoom_in_tool.id]
 
       # perform the tool action
       zoom_in_tool_view.doit()
@@ -65,15 +56,9 @@ describe "ZoomInTool", ->
 
     it "should zoom the x-axis only", ->
       zoom_in_tool = new ZoomInTool({dimensions: 'width'})
-
       @plot.add_tools(zoom_in_tool)
 
-      zoom_in_tool_view = new zoom_in_tool.default_view({
-        model: zoom_in_tool
-        plot_model: @plot.plot_canvas
-        plot_view: @plot_canvas_view
-        parent: null # wrong
-      })
+      zoom_in_tool_view = @plot_canvas_view.tool_views[zoom_in_tool.id]
 
       # perform the tool action
       zoom_in_tool_view.doit()
@@ -85,15 +70,9 @@ describe "ZoomInTool", ->
 
     it "should zoom the y-axis only", ->
       zoom_in_tool = new ZoomInTool({dimensions: 'height'})
-
       @plot.add_tools(zoom_in_tool)
 
-      zoom_in_tool_view = new zoom_in_tool.default_view({
-        model: zoom_in_tool
-        plot_model: @plot.plot_canvas
-        plot_view: @plot_canvas_view
-        parent: null # wrong
-      })
+      zoom_in_tool_view = @plot_canvas_view.tool_views[zoom_in_tool.id]
 
       # perform the tool action
       zoom_in_tool_view.doit()

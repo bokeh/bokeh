@@ -1,45 +1,39 @@
-import * as $ from "jquery"
-import "bootstrap/button"
+import {empty, input, label, div} from "core/dom"
+import * as p from "core/properties"
 
 import {Widget, WidgetView} from "./widget"
-import * as p from "core/properties"
-import template from "./button_group_template"
-
 
 export class CheckboxButtonGroupView extends WidgetView
-  events:
-    "change input": "change_input"
-  template: template
 
   initialize: (options) ->
     super(options)
     @render()
-    @connect(@model.change, @render)
+
+  connect_signals: () ->
+    super()
+    @connect(@model.change, () -> @render())
 
   render: () ->
     super()
 
-    @$el.empty()
-    html = @template()
-    @el.appendChild(html)
+    empty(@el)
+    divEl = div({class: "bk-bs-btn-group"})
+    @el.appendChild(divEl)
 
     active = @model.active
-    for label, i in @model.labels
-      $input = $('<input type="checkbox">').attr(value: "#{i}")
-      if i in active then $input.prop("checked", true)
-      $label = $('<label class="bk-bs-btn"></label>')
-      $label.text(label).prepend($input)
-      $label.addClass("bk-bs-btn-" + @model.button_type)
-      if i in active then $label.addClass("bk-bs-active")
-      @$el.find('.bk-bs-btn-group').append($label)
+    for text, i in @model.labels
+      inputEl = input({type: "checkbox", value: "#{i}", checked: i in active})
+      inputEl.addEventListener("change", () => @change_input())
+      labelEl = label({class: ["bk-bs-btn", "bk-bs-btn-#{@model.button_type}"]}, inputEl, text)
+      if i in active then labelEl.classList.add("bk-bs-active")
+      divEl.appendChild(labelEl)
 
     return @
 
   change_input: () ->
-    active = (i for checkbox, i in @$el.find("input") when checkbox.checked)
+    active = (i for checkbox, i in @el.querySelectorAll("input") when checkbox.checked)
     @model.active = active
     @model.callback?.execute(@model)
-
 
 export class CheckboxButtonGroup extends Widget
   type: "CheckboxButtonGroup"

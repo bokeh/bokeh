@@ -16,7 +16,7 @@ export class MercatorTileSource extends TileSource
 
   initialize: (options) ->
     super(options)
-    @_resolutions = (@get_resolution(z) for z in [0..30])
+    @_resolutions = (@get_resolution(z) for z in [@min_zoom..@max_zoom])
 
   _computed_initial_resolution: () ->
     if @initial_resolution?

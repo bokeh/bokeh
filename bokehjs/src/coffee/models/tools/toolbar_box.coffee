@@ -143,8 +143,7 @@ export class ToolbarBox extends Box
     @_toolbar.attach_document(@document)
     super()
 
-  get_layoutable_children: () ->
-    return [@_toolbar]
+  get_layoutable_children: () -> [@_toolbar]
 
   @define {
     toolbar_location: [ p.Location, "right"  ]

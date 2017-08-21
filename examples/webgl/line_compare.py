@@ -1,4 +1,4 @@
-""" Compare WebGL with canvas line.
+""" Compare WebGL, SVG with canvas line.
 
 """
 import numpy as np
@@ -7,14 +7,16 @@ from bokeh.layouts import row, column
 from bokeh.models import Slider, Dropdown, CustomJS
 from bokeh.plotting import figure, show, output_file
 
-p1 = figure(title="Canvas", webgl=False)
+p1 = figure(title="Canvas", output_backend="canvas")
 
-p2 = figure(title="WebGL", webgl=True)
+p2 = figure(title="SVG", output_backend="svg")
+
+p3 = figure(title="WebGL", output_backend="webgl")
 
 ys = 10  # yscale, to increase anisotropy
 
 lines = []
-for p in (p1, p2):
+for p in (p1, p2, p3):
 
     t = np.linspace(0, 2 * np.pi, 50)
     x = np.sin(t) * 10
@@ -75,4 +77,4 @@ sliders = column(*sliders)
 
 output_file("line_compare.html", title="line_compare.py example")
 
-show(row(sliders, p1, p2))
+show(row(sliders, p1, p2, p3))

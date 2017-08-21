@@ -3,6 +3,9 @@ from __future__ import print_function
 import os
 import subprocess
 
+import pytest
+
+@pytest.mark.quality
 def test_python_execution_with_OO():
 
     # running python with -OO will discard docstrings -> __doc__ is None
@@ -20,6 +23,12 @@ def test_python_execution_with_OO():
                 continue
             if file.endswith("__main__.py"):
                 continue
+
+            # XXX These are so we can avoid the cost of installing MPL on Travis.
+            # Can be removed on Bokeh 1.0 when MPL compat is fully removed
+            if file.endswith("mpl.py") or "compat" in path:
+                continue
+            if "charts" in path: continue
 
             if file.endswith("__init__.py"):
                 mod = path.replace("/", ".")

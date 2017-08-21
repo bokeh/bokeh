@@ -31,6 +31,7 @@ describe "Tabs", ->
   it "should return children from get_layoutable_children", ->
     expect(@tabs.get_layoutable_children()).to.be.deep.equal @tabs.children
 
+  ###
   it "get_constraints should return constraints from children", ->
     # The panel's constraints have come from the widget, so need to stub that.
     sinon.stub(Widget.prototype, 'get_constraints', () -> [{'a': 9, 'b': 10}])
@@ -42,15 +43,15 @@ describe "Tabs", ->
     # Restore widget
     Widget.prototype.get_constraints.restore()
 
-  it "get_edit_variables should return edit_variables from children", ->
+  it "get_editables should return edit_variables from children", ->
     # Stub out LayoutDOM to focus on tabs
-    sinon.stub(LayoutDOM.prototype, 'get_edit_variables').returns([])
+    sinon.stub(LayoutDOM.prototype, 'get_editables').returns([])
 
-    # The tab plot has edit variables that should be returned by get_edit_variables
-    sinon.stub(@tab_plot, 'get_edit_variables', () -> [{'a': 1, 'b': 2}, {'a': 3, 'b': 4}])
-    expect(@tabs.get_edit_variables()).to.be.deep.equal @tab_plot.get_edit_variables()
+    # The tab plot has edit variables that should be returned by get_editables
+    sinon.stub(@tab_plot, 'get_editables', () -> [{'a': 1, 'b': 2}, {'a': 3, 'b': 4}])
+    expect(@tabs.get_editables()).to.be.deep.equal @tab_plot.get_editables()
 
-    LayoutDOM.prototype.get_edit_variables.restore()
+    LayoutDOM.prototype.get_editables.restore()
 
   it "get_constraints should return constraints from children", ->
     # Stub out LayoutDOM to focus on tabs
@@ -61,3 +62,4 @@ describe "Tabs", ->
     expect(@tabs.get_constraints()).to.be.deep.equal @tab_plot.get_constraints()
 
     LayoutDOM.prototype.get_constraints.restore()
+  ###

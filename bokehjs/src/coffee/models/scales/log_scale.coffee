@@ -1,5 +1,6 @@
 import {Scale} from "./scale"
 import * as p from "core/properties"
+import {isString} from "core/util/types"
 
 export class LogScale extends Scale
   type: "LogScale"
@@ -95,8 +96,3 @@ export class LogScale extends Scale
     offset = target_start
 
     return [factor, offset, inter_factor, inter_offset]
-
-  @internal {
-    source_range: [ p.Any ]
-    target_range: [ p.Any ]
-  }

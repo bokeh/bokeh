@@ -12,6 +12,9 @@ from tests.plugins.utils import trace, info, fail, ok, red, warn, white
 from tests.plugins.phantomjs_screenshot import get_phantomjs_screenshot
 from tests.plugins.image_diff import image_diff
 
+from bokeh.client import push_session
+from bokeh.command.util import build_single_handler_application
+
 from .utils import deal_with_output_cells
 
 @pytest.mark.examples
@@ -63,23 +66,27 @@ def test_file_examples(file_example, example, report):
             _get_pdiff(example)
 
 
-### {{{ THIS IS BROKEN and all examples are skipped in examples.yaml
 @pytest.mark.examples
-def test_server_examples(server_example, example, bokeh_server, report):
+def test_server_examples(server_example, example, report, bokeh_server):
     if example.is_skip:
         pytest.skip("skipping %s" % example.relpath)
 
-    # Note this is currently broken - server uses random sessions but we're
-    # calling for "default" here - this has been broken for a while.
-    # https://github.com/bokeh/bokeh/issues/3897
-    url = '%s/?bokeh-session-id=%s' % (bokeh_server, example.name)
-    assert _run_example(example) == 0, 'Example did not run'
+    app = build_single_handler_application(example.path)
+    doc = app.create_document()
+
+    # remove all periodic and timeout callbacks
+    for session_callback in list(doc._session_callbacks.keys()):
+        doc._remove_session_callback(session_callback)
+
+    session_id = "session_id"
+    push_session(doc, session_id=session_id)
 
     if example.no_js:
         if not pytest.config.option.no_js:
             warn("skipping bokehjs for %s" % example.relpath)
+
     else:
-        _assert_snapshot(example, url, 'server')
+        _assert_snapshot(example, "http://localhost:5006/?bokeh-session-id=%s" % session_id, 'server')
 
         if example.no_diff:
             warn("skipping image diff for %s" % example.relpath)
@@ -87,6 +94,7 @@ def test_server_examples(server_example, example, bokeh_server, report):
             _get_pdiff(example)
 
 
+### {{{ THIS IS BROKEN and all examples are skipped in examples.yaml
 @pytest.mark.examples
 def test_notebook_examples(notebook_example, example, jupyter_notebook, report):
     if example.is_skip:
@@ -170,11 +178,14 @@ def _print_phantomjs_output(result):
 def _assert_snapshot(example, url, example_type):
     screenshot_path = example.img_path
 
+    width = 1000
     height = 2000 if example_type == 'notebook' else 1000
-    wait = 30000
+
+    local_wait = 100
+    global_wait = 30000
 
     start = time.time()
-    result = get_phantomjs_screenshot(url, screenshot_path, 1000, wait, 1000, height)
+    result = get_phantomjs_screenshot(url, screenshot_path, local_wait, global_wait, width, height)
     end = time.time()
 
     info("Example rendered in %s" % white("%.3fs" % (end - start)))
@@ -188,7 +199,7 @@ def _assert_snapshot(example, url, example_type):
     no_resources = len(resources) == 0
 
     if timeout:
-        warn("%s: %s" % (red("TIMEOUT: "), "bokehjs did not finish in %s ms" % wait))
+        warn("%s %s" % (red("TIMEOUT:"), "bokehjs did not finish in %s ms" % global_wait))
 
     if pytest.config.option.verbose:
         _print_phantomjs_output(result)

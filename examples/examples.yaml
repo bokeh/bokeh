@@ -1,10 +1,15 @@
 - path: "models/file"
   slow: ["choropleth.py"]
   no_js: ["maps_cities.py", "maps.py", "trail.py"]
+  no_diff: ["graphs.py"]
 
 - path: "models/server"
   type: server
-  skip: all
+  # linked_tap appears without glyphs, need to resolve in phantomjs
+  # line_animate renders as a blur of lines in phantomjs (but not firefox)
+  no_js: ["linked_tap.py", "line_animate.py"]
+  # population has a property error that needs to be resolved
+  skip: ["population.py"]
 
 - path: "custom"
 
@@ -16,9 +21,12 @@
 
 - path: "plotting/server"
   type: server
-  skip: all
 
 - path: "plotting/notebook"
   skip: all
 
 - path: "howto/layouts"
+
+- path: "app"
+  type: server
+  skip: ["gapminder", "pivot", "simple_hdf5", "spectrogram", "surface3d", "stocks"]

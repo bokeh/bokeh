@@ -12,11 +12,10 @@ export class LabelView extends TextAnnotationView
     ctx = @plot_view.canvas_view.ctx
     @visuals.text.set_value(ctx)
 
-    side = @model.panel.side
-    if side == "above" or side == "below"
+    if @model.panel.is_horizontal
       height = ctx.measureText(@model.text).ascent
       return height
-    if side == 'left' or side == 'right'
+    else
       width = ctx.measureText(@model.text).width
       return width
 

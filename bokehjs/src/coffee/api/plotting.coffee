@@ -1,4 +1,4 @@
-import * as sprintf from "sprintf"
+import {sprintf} from "sprintf-js"
 import {Document} from "../document"
 import * as embed from "../embed"
 import {BOKEH_ROOT} from "../embed"
@@ -19,37 +19,36 @@ _default_tooltips = [
 _default_tools = "pan,wheel_zoom,box_zoom,save,reset,help"
 
 _known_tools = {
-  pan:          (plot) -> new models.PanTool(plot: plot, dimensions: 'both')
-  xpan:         (plot) -> new models.PanTool(plot: plot, dimensions: 'width')
-  ypan:         (plot) -> new models.PanTool(plot: plot, dimensions: 'height')
-  wheel_zoom:   (plot) -> new models.WheelZoomTool(plot: plot, dimensions: 'both')
-  xwheel_zoom:  (plot) -> new models.WheelZoomTool(plot: plot, dimensions: 'width')
-  ywheel_zoom:  (plot) -> new models.WheelZoomTool(plot: plot, dimensions: 'height')
-  zoom_in:      (plot) -> new models.ZoomInTool(plot: plot, dimensions: 'both')
-  xzoom_in:     (plot) -> new models.ZoomInTool(plot: plot, dimensions: 'width')
-  yzoom_in:     (plot) -> new models.ZoomInTool(plot: plot, dimensions: 'height')
-  zoom_out:     (plot) -> new models.ZoomOutTool(plot: plot, dimensions: 'both')
-  xzoom_out:    (plot) -> new models.ZoomOutTool(plot: plot, dimensions: 'width')
-  yzoom_out:    (plot) -> new models.ZoomOutTool(plot: plot, dimensions: 'height')
-  resize:       (plot) -> new models.ResizeTool(plot: plot)
-  click:        (plot) -> new models.TapTool(plot: plot, behavior: "inspect")
-  tap:          (plot) -> new models.TapTool(plot: plot)
-  crosshair:    (plot) -> new models.CrosshairTool(plot: plot)
-  box_select:   (plot) -> new models.BoxSelectTool(plot: plot)
-  xbox_select:  (plot) -> new models.BoxSelectTool(plot: plot, dimensions: 'width')
-  ybox_select:  (plot) -> new models.BoxSelectTool(plot: plot, dimensions: 'height')
-  poly_select:  (plot) -> new models.PolySelectTool(plot: plot)
-  lasso_select: (plot) -> new models.LassoSelectTool(plot: plot)
-  box_zoom:     (plot) -> new models.BoxZoomTool(plot: plot, dimensions: 'both')
-  xbox_zoom:    (plot) -> new models.BoxZoomTool(plot: plot, dimensions: 'width')
-  ybox_zoom:    (plot) -> new models.BoxZoomTool(plot: plot, dimensions: 'height')
-  hover:        (plot) -> new models.HoverTool(plot: plot, tooltips: _default_tooltips)
-  save:         (plot) -> new models.SaveTool(plot: plot)
-  previewsave:  (plot) -> new models.SaveTool(plot: plot)
-  undo:         (plot) -> new models.UndoTool(plot: plot)
-  redo:         (plot) -> new models.RedoTool(plot: plot)
-  reset:        (plot) -> new models.ResetTool(plot: plot)
-  help:         (plot) -> new models.HelpTool(plot: plot)
+  pan:          () -> new models.PanTool(dimensions: 'both')
+  xpan:         () -> new models.PanTool(dimensions: 'width')
+  ypan:         () -> new models.PanTool(dimensions: 'height')
+  wheel_zoom:   () -> new models.WheelZoomTool(dimensions: 'both')
+  xwheel_zoom:  () -> new models.WheelZoomTool(dimensions: 'width')
+  ywheel_zoom:  () -> new models.WheelZoomTool(dimensions: 'height')
+  zoom_in:      () -> new models.ZoomInTool(dimensions: 'both')
+  xzoom_in:     () -> new models.ZoomInTool(dimensions: 'width')
+  yzoom_in:     () -> new models.ZoomInTool(dimensions: 'height')
+  zoom_out:     () -> new models.ZoomOutTool(dimensions: 'both')
+  xzoom_out:    () -> new models.ZoomOutTool(dimensions: 'width')
+  yzoom_out:    () -> new models.ZoomOutTool(dimensions: 'height')
+  click:        () -> new models.TapTool(behavior: "inspect")
+  tap:          () -> new models.TapTool()
+  crosshair:    () -> new models.CrosshairTool()
+  box_select:   () -> new models.BoxSelectTool()
+  xbox_select:  () -> new models.BoxSelectTool(dimensions: 'width')
+  ybox_select:  () -> new models.BoxSelectTool(dimensions: 'height')
+  poly_select:  () -> new models.PolySelectTool()
+  lasso_select: () -> new models.LassoSelectTool()
+  box_zoom:     () -> new models.BoxZoomTool(dimensions: 'both')
+  xbox_zoom:    () -> new models.BoxZoomTool(dimensions: 'width')
+  ybox_zoom:    () -> new models.BoxZoomTool(dimensions: 'height')
+  hover:        () -> new models.HoverTool(tooltips: _default_tooltips)
+  save:         () -> new models.SaveTool()
+  previewsave:  () -> new models.SaveTool()
+  undo:         () -> new models.UndoTool()
+  redo:         () -> new models.RedoTool()
+  reset:        () -> new models.ResetTool()
+  help:         () -> new models.HelpTool()
 }
 
 _with_default = (value, default_value) ->
@@ -70,6 +69,9 @@ export class Figure extends models.Plot
     y_axis_type = if attrs.y_axis_type == undefined then "auto" else attrs.y_axis_type
     delete attrs.x_axis_type
     delete attrs.y_axis_type
+
+    attrs.x_scale = @_get_scale(attrs.x_range, x_axis_type)
+    attrs.y_scale = @_get_scale(attrs.y_range, y_axis_type)
 
     x_minor_ticks = attrs.x_minor_ticks ? "auto"
     y_minor_ticks = attrs.y_minor_ticks ? "auto"
@@ -102,8 +104,8 @@ export class Figure extends models.Plot
 
     super(attrs, options)
 
-    @_process_guides(0, x_axis_type, x_axis_location, x_minor_ticks, x_axis_label)
-    @_process_guides(1, y_axis_type, y_axis_location, y_minor_ticks, y_axis_label)
+    @_process_axis_and_grid(x_axis_type, x_axis_location, x_minor_ticks, x_axis_label, attrs.x_range, 0)
+    @_process_axis_and_grid(y_axis_type, y_axis_location, y_minor_ticks, y_axis_label, attrs.y_range, 1)
 
     @add_tools(@_process_tools(tools)...)
 
@@ -299,10 +301,21 @@ export class Figure extends models.Plot
       if range.length == 2
         return new models.Range1d({start: range[0], end: range[1]})
 
-  _process_guides: (dim, axis_type, axis_location, minor_ticks, axis_label) ->
-    range = if dim == 0 then @x_range else @y_range
-    axiscls = @_get_axis_class(axis_type, range)
+  _get_scale: (range_input, axis_type) ->
+    if range_input instanceof models.DataRange1d or range_input instanceof models.Range1d
+      switch axis_type
+        when "linear", "datetime", "auto", null
+          return new models.LinearScale()
+        when "log"
+          return new models.LogScale()
 
+    if range_input instanceof models.FactorRange
+      return new models.CategoricalScale()
+
+    throw new Error("unable to determine proper scale for: '#{range_input}'")
+
+  _process_axis_and_grid: (axis_type, axis_location, minor_ticks, axis_label, rng, dim) ->
+    axiscls = @_get_axis_class(axis_type, rng)
     if axiscls?
       if axiscls == models.LogAxis
         if dim == 0
@@ -319,7 +332,8 @@ export class Figure extends models.Plot
 
       grid = new models.Grid({dimension: dim, ticker: axis.ticker})
 
-      @add_layout(axis, axis_location)
+      if axis_location != null
+        @add_layout(axis, axis_location)
       @add_layout(grid)
 
   _get_axis_class: (axis_type, range) ->
@@ -352,11 +366,14 @@ export class Figure extends models.Plot
 
   _process_tools: (tools) ->
     if isString(tools)
-      tools = tools.split(/\s*,\s*/)
+      tools = tools.split(/\s*,\s*/).filter((tool) -> tool.length > 0)
 
     objs = for tool in tools
       if isString(tool)
-        _known_tools[tool](this)
+        if _known_tools.hasOwnProperty(tool)
+          _known_tools[tool]()
+        else
+          throw new Error("unknown tool type: #{tool}")
       else
         tool
 

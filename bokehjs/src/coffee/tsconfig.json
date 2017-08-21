@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "noImplicitAny": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitThis": true,
+    "noImplicitReturns": true,
+    "strictNullChecks": true,
+    "alwaysStrict": true,
+    "noEmitOnError": false,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "target": "ES5",
+    "lib": ["es5", "dom", "es2015.collection"],
+    "declaration": true,
+    "sourceMap": true,
+    "importHelpers": true,
+    "experimentalDecorators": true,
+    "types": [],
+    "baseUrl": "./build/js/tree_ts/"
+  }
+}

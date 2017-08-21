@@ -1,40 +1,39 @@
 import {isBoolean, isString, isArray, isObject} from "./util/types"
 
-/// <reference path="./jsx.d.ts" />
-
 export type HTMLAttrs = { [name: string]: any }
-export type HTMLChildren = Array<string | HTMLElement | Array<string | HTMLElement>>
+export type HTMLChild = string | HTMLElement | (string | HTMLElement)[]
 
-const _createElement = (tag: string) => (attrs: HTMLAttrs = {}, ...children: HTMLChildren): HTMLElement => {
-  let element: HTMLElement
-  if (tag === "fragment") {
-    // XXX: this is wrong, but the the common super type of DocumentFragment and HTMLElement is
-    // Node, which doesn't support classList, style, etc. attributes.
-    element = (document.createDocumentFragment() as any) as HTMLElement
-  } else {
-    element = document.createElement(tag)
-    for (const attr in attrs) {
-      const value = attrs[attr]
+const _createElement = (tag: string) => (attrs: HTMLAttrs = {}, ...children: HTMLChild[]): HTMLElement => {
+  const element: HTMLElement = document.createElement(tag)
 
-      if (value == null || isBoolean(value) && !value)
-        continue
+  for (const attr in attrs) {
+    const value = attrs[attr]
 
-      if (attr === "class" && isArray(value)) {
-        for (const cls of (value as string[])) {
-          if (cls != null) element.classList.add(cls)
-        }
-        continue
+    if (value == null || isBoolean(value) && !value)
+      continue
+
+    if (attr === "class" && isArray(value)) {
+      for (const cls of (value as string[])) {
+        if (cls != null) element.classList.add(cls)
       }
-
-      if (attr === "style" && isObject(value)) {
-        for (const prop in value) {
-          (element.style as any)[prop] = value[prop]
-        }
-        continue
-      }
-
-      element.setAttribute(attr, value)
+      continue
     }
+
+    if (attr === "style" && isObject(value)) {
+      for (const prop in value) {
+        (element.style as any)[prop] = value[prop]
+      }
+      continue
+    }
+
+    if (attr === "data" && isObject(value)) {
+      for (const key in value) {
+        element.dataset[key] = value[key]
+      }
+      continue
+    }
+
+    element.setAttribute(attr, value)
   }
 
   function append(child: HTMLElement | string) {
@@ -57,7 +56,7 @@ const _createElement = (tag: string) => (attrs: HTMLAttrs = {}, ...children: HTM
   return element
 }
 
-export function createElement(tag: string, attrs: HTMLAttrs, ...children: HTMLChildren): HTMLElement {
+export function createElement(tag: string, attrs: HTMLAttrs, ...children: HTMLChild[]): HTMLElement {
   return _createElement(tag)(attrs, ...children)
 }
 
@@ -69,12 +68,17 @@ export const
   a      = _createElement("a"),
   p      = _createElement("p"),
   pre    = _createElement("pre"),
-  input  = _createElement("input"),
+  button = _createElement("button"),
   label  = _createElement("label"),
+  input  = _createElement("input"),
+  select = _createElement("select"),
+  option = _createElement("option"),
   canvas = _createElement("canvas"),
   ul     = _createElement("ul"),
   ol     = _createElement("ol"),
   li     = _createElement("li");
+
+export const nbsp = document.createTextNode("\u00a0")
 
 export function removeElement(element: HTMLElement): void {
   const parent = element.parentNode
@@ -83,10 +87,18 @@ export function removeElement(element: HTMLElement): void {
   }
 }
 
-export function replaceWith(element: HTMLElement, replacement: HTMLElement) {
+export function replaceWith(element: HTMLElement, replacement: HTMLElement): void {
   const parent = element.parentNode
   if (parent != null) {
     parent.replaceChild(replacement, element)
+  }
+}
+
+
+export function prepend(element: HTMLElement, ...nodes: HTMLElement[]): void {
+  const first = element.firstChild
+  for (const node of nodes) {
+    element.insertBefore(node, first)
   }
 }
 
@@ -118,4 +130,31 @@ export function offset(element: HTMLElement) {
     top:  rect.top  + window.pageYOffset - document.documentElement.clientTop,
     left: rect.left + window.pageXOffset - document.documentElement.clientLeft,
   }
+}
+
+export function matches(el: HTMLElement, selector: string): boolean {
+  const p: any = Element.prototype
+  const f = p.matches || p.webkitMatchesSelector || p.mozMatchesSelector || p.msMatchesSelector
+  return f.call(el, selector)
+}
+
+export function parent(el: HTMLElement, selector: string): HTMLElement | null {
+  let node: HTMLElement | null = el
+
+  while (node = node.parentElement) {
+    if (matches(node, selector))
+      return node
+  }
+
+  return null
+}
+
+export enum Keys {
+  Tab      = 9,
+  Enter    = 13,
+  Esc      = 27,
+  PageUp   = 33,
+  PageDown = 34,
+  Up       = 38,
+  Down     = 40,
 }

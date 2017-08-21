@@ -19,12 +19,10 @@ describe "Glyph (using Rect as a concrete Glyph)", ->
 
     afterEach ->
       utils.unstub_canvas()
-      utils.unstub_solver()
       @stub.restore()
 
     beforeEach ->
       utils.stub_canvas()
-      utils.stub_solver()
 
       @stub = sinon.stub(RectView.prototype, '_bounds', (bounds) -> bounds )
 
@@ -60,11 +58,9 @@ describe "Rect", ->
 
     afterEach ->
       utils.unstub_canvas()
-      utils.unstub_solver()
 
     beforeEach ->
       utils.stub_canvas()
-      utils.stub_solver()
 
       @glyph = new Rect({
         x: {field: "x"}
@@ -91,7 +87,7 @@ describe "Rect", ->
           })
         else
           scale = new CategoricalScale({
-            source_range: new FactorRange({factors:['a', 'b']})
+            source_range: new FactorRange({factors:['a', 'b'], range_padding: 0})
             target_range: new Range1d({start: 0, end: 200})
           })
         glyph_view.renderer.xscale = scale
@@ -140,7 +136,7 @@ describe "Rect", ->
 
       glyph_view.map_data()
       expect(glyph_view.sx0).to.be.deep.equal({'0': 0})
-      expect(glyph_view.sy1).to.be.deep.equal({'0': -1})
+      expect(glyph_view.sy1).to.be.deep.equal({'0': 0})
 
     it "`_map_data` should map values for x0 and y1 when width/height units are 'screen'", ->
       data = {x: [1], y: [2]}
@@ -151,7 +147,7 @@ describe "Rect", ->
 
       glyph_view.map_data()
       expect(glyph_view.sx0).to.be.deep.equal([-5])
-      expect(glyph_view.sy1).to.be.deep.equal([-11])
+      expect(glyph_view.sy1).to.be.deep.equal([-10])
 
     it "`_map_data` should map values for x0 and y1 with reversed ranges", ->
       data = {x: [1], y: [2]}
@@ -160,7 +156,7 @@ describe "Rect", ->
       @set_scales(glyph_view, "reverse")
       glyph_view.map_data()
       expect(glyph_view.sx0).to.be.deep.equal({'0': 188})
-      expect(glyph_view.sy1).to.be.deep.equal({'0': -217})
+      expect(glyph_view.sy1).to.be.deep.equal({'0': -216})
 
     it "`_map_data` should map values for x0 and y1 with FactorRanges", ->
       glyph = new Rect({
@@ -175,24 +171,9 @@ describe "Rect", ->
       @set_scales(glyph_view, "categorical")
       glyph_view.map_data()
       expect(glyph_view.sx0).to.be.deep.equal({'0': 25})
-      expect(glyph_view.sy1).to.be.deep.equal({'0': -176})
+      expect(glyph_view.sy1).to.be.deep.equal({'0': -175})
 
     describe "hit-testing", ->
-
-      afterEach ->
-        @canvas_set_dims_stub.restore()
-        @plot_canvas_resize_stub.restore()
-
-      beforeEach ->
-        set_dims = (dims) ->
-          @model._width.setValue(dims[0])
-          @model._height.setValue(dims[1])
-        @canvas_set_dims_stub = sinon.stub(CanvasView.prototype, 'set_dims', set_dims)
-
-        resize = () ->
-          @frame._width.setValue(@canvas._width.value)
-          @frame._height.setValue(@canvas._height.value)
-        @plot_canvas_resize_stub = sinon.stub(PlotCanvasView.prototype, '_on_resize', resize)
 
       describe "_hit_point", ->
 

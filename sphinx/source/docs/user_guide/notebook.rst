@@ -26,6 +26,24 @@ to `zeppelin` in |output_notebook|. Here's one Zeppelin screenshot.
     :scale: 50 %
     :align: center
 
+.. _userguide_notebook_slides:
+
+Notebook Slides
+---------------
+
+It is possible to use the Jupyter notebook in conjunction with `Reveal.js`_
+to generate slideshows from notebook cell content. It is also possible to
+include standalone (i.e. non-server) Bokeh plots in such sideshows, however
+some steps must be followed for output to correctly display. Primarily:
+
+**The cell containing** ``output_notebook`` **must not be skipped**.
+
+The rendered cell output of the ``output_notebook`` call is responsible
+for making sure the BokehJS library is loaded. Without that, Bokeh plots
+cannot function. If this cell type is marked *"skip"* then BokehJS will
+not be loaded, and Bokeh plots will not display. An alternative, if you
+wish to hide this cell, is to mark it as the *"notes"* slide type.
+
 .. _userguide_notebook_notebook_handles:
 
 Notebook Handles
@@ -105,5 +123,7 @@ notebook is shown below:
 .. |ColumnDataSource| replace:: :class:`~bokeh.models.sources.ColumnDataSource`
 .. |push_notebook| replace:: :func:`~bokeh.io.push_notebook`
 .. |show| replace:: :func:`~bokeh.io.show`
+
+.. _Reveal.js: http://lab.hakim.se/reveal-js/#/
 
 .. _interactors: http://ipywidgets.readthedocs.io/en/latest/examples/Using%20Interact.html

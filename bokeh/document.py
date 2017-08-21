@@ -100,6 +100,7 @@ class Document(object):
         self._all_models_freeze_count = 0
         self._all_models = dict()
         self._all_models_by_name = MultiValuedDict()
+        self._all_former_model_ids = set()
         self._callbacks = {}
         self._session_callbacks = {}
         self._session_context = None
@@ -285,7 +286,7 @@ class Document(object):
                 suppress any updates that originate from itself.
 
         '''
-        from .server.events import RootAddedEvent
+        from .protocol.events import RootAddedEvent
 
         if model in self._roots:
             return
@@ -376,7 +377,11 @@ class Document(object):
             if event_json['kind'] == 'ModelChanged':
                 patched_id = event_json['model']['id']
                 if patched_id not in self._all_models:
-                    raise RuntimeError("Cannot apply patch to %s which is not in the document" % (str(patched_id)))
+                    if patched_id not in self._all_former_model_ids:
+                        raise RuntimeError("Cannot apply patch to %s which is not in the document" % (str(patched_id)))
+                    else:
+                        logger.warn("Cannot apply patch to %s which is not in the document anymore" % (str(patched_id)))
+                        break
                 patched_obj = self._all_models[patched_id]
                 attr = event_json['attr']
                 value = event_json['new']
@@ -388,7 +393,7 @@ class Document(object):
                 source = self._all_models[source_id]
                 data = event_json['data']
                 rollover = event_json['rollover']
-                source.stream(data, rollover, setter)
+                source._stream(data, rollover, setter)
             elif event_json['kind'] == 'ColumnsPatched':
                 source_id = event_json['column_source']['id']
                 if source_id not in self._all_models:
@@ -447,7 +452,7 @@ class Document(object):
           str :  JSON string which can be applied to make the given updates to obj
 
         '''
-        from .server.events import (ColumnsPatchedEvent, ColumnsStreamedEvent, ModelChangedEvent,
+        from .protocol.events import (ColumnsPatchedEvent, ColumnsStreamedEvent, ModelChangedEvent,
                                     RootAddedEvent, RootRemovedEvent, TitleChangedEvent)
         references = set()
         json_events = []
@@ -651,7 +656,7 @@ class Document(object):
                 suppress any updates that originate from itself.
 
         '''
-        from bokeh.server.events import RootRemovedEvent
+        from bokeh.protocol.events import RootRemovedEvent
 
         if model not in self._roots:
             return # TODO (bev) ValueError?
@@ -816,7 +821,7 @@ class Document(object):
             ValueError, if the callback has been previously added
 
         '''
-        from .server.events import SessionCallbackAdded
+        from .protocol.events import SessionCallbackAdded
 
         if callback in self._session_callbacks:
             raise ValueError("callback has already been added")
@@ -1069,7 +1074,7 @@ class Document(object):
 
         '''
 
-        from .server.events import ModelChangedEvent
+        from .protocol.events import ModelChangedEvent
 
         # if name changes, update by-name index
         if attr == 'name':
@@ -1116,6 +1121,7 @@ class Document(object):
             if m.name is not None:
                 recomputed_by_name.add_value(m.name, m)
         for d in to_detach:
+            self._all_former_model_ids.add(d._id)
             d._detach_document()
         for a in to_attach:
             a._attach_document(self)
@@ -1148,7 +1154,7 @@ class Document(object):
             KeyError, if the callback was never added
 
         '''
-        from bokeh.server.events import SessionCallbackRemoved
+        from bokeh.protocol.events import SessionCallbackRemoved
 
         if callback not in self._session_callbacks:
             raise ValueError("callback already ran or was already removed, cannot be removed again")
@@ -1160,7 +1166,7 @@ class Document(object):
         '''
 
         '''
-        from bokeh.server.events import TitleChangedEvent
+        from bokeh.protocol.events import TitleChangedEvent
 
         if title is None:
             raise ValueError("Document title may not be None")

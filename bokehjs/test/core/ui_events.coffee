@@ -283,7 +283,7 @@ describe "ui_events module", ->
 
       @ui_events._tap(e)
 
-      assert(@spy_plot.calledOnce)
+      expect(@spy_plot.callCount).to.be.equal(2) # tap event and selection event
       assert(@spy_uievent.calledOnce)
 
     it "_doubletap method should handle doubletap event", ->
@@ -295,7 +295,7 @@ describe "ui_events module", ->
 
       @ui_events._doubletap(e)
 
-      assert(@spy_plot.calledOnce)
+      expect(@spy_plot.callCount).to.be.equal(2) # tap event and selection event
       assert(@spy_uievent.calledOnce)
 
     it "_press method should handle press event", ->

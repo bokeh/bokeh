@@ -1,26 +1,20 @@
 from flask import Flask, render_template
-import pandas as pd
-import yaml
-
-from tornado.ioloop import IOLoop
 
 from bokeh.application import Application
 from bokeh.application.handlers import FunctionHandler
-from bokeh.embed import autoload_server
+from bokeh.embed import server_document
 from bokeh.layouts import column
 from bokeh.models import ColumnDataSource, Slider
 from bokeh.plotting import figure
 from bokeh.server.server import Server
 from bokeh.themes import Theme
 
-flask_app = Flask(__name__)
+from bokeh.sampledata.sea_surface_temperature import sea_surface_temperature
+
+app = Flask(__name__)
 
 def modify_doc(doc):
-    data_url = "http://www.neracoos.org/erddap/tabledap/B01_sbe37_all.csvp?time,temperature&depth=1&temperature_qc=0&time>=2016-02-15&time<=2017-03-22"
-    df = pd.read_csv(data_url, parse_dates=True, index_col=0)
-    df = df.rename(columns={'temperature (celsius)': 'temperature'})
-    df.index.name = 'time'
-
+    df = sea_surface_temperature.copy()
     source = ColumnDataSource(data=df)
 
     plot = figure(x_axis_type='datetime', y_range=(0, 25), y_axis_label='Temperature (Celsius)',
@@ -39,42 +33,28 @@ def modify_doc(doc):
 
     doc.add_root(column(slider, plot))
 
-    doc.theme = Theme(json=yaml.load("""
-        attrs:
-            Figure:
-                background_fill_color: "#DDDDDD"
-                outline_line_color: white
-                toolbar_location: above
-                height: 500
-                width: 800
-            Grid:
-                grid_line_dash: [6, 4]
-                grid_line_color: white
-    """))
+    doc.theme = Theme(filename="theme.yaml")
 
-bokeh_app = Application(FunctionHandler(modify_doc))
+bkapp = Application(FunctionHandler(modify_doc))
 
-io_loop = IOLoop.current()
-
-server = Server({'/bkapp': bokeh_app}, io_loop=io_loop, allow_websocket_origin=["localhost:8080"])
-server.start()
-
-@flask_app.route('/', methods=['GET'])
+@app.route('/', methods=['GET'])
 def bkapp_page():
-    script = autoload_server(url='http://localhost:5006/bkapp')
+    script = server_document('http://localhost:5006/bkapp')
     return render_template("embed.html", script=script, template="Flask")
 
+def bk_worker():
+    # Can't pass num_procs > 1 in this configuration. If you need to run multiple
+    # processes, see e.g. flask_gunicorn_embed.py
+    server = Server({'/bkapp': bkapp}, allow_websocket_origin=["localhost:8000"])
+    server.start()
+    server.io_loop.start()
+
+from threading import Thread
+Thread(target=bk_worker).start()
+
 if __name__ == '__main__':
-    from tornado.httpserver import HTTPServer
-    from tornado.wsgi import WSGIContainer
-    from bokeh.util.browser import view
-
-    print('Opening Flask app with embedded Bokeh application on http://localhost:8080/')
-
-    # This uses Tornado to server the WSGI app that flask provides. Presumably the IOLoop
-    # could also be started in a thread, and Flask could server its own app directly
-    http_server = HTTPServer(WSGIContainer(flask_app))
-    http_server.listen(8080)
-
-    io_loop.add_callback(view, "http://localhost:8080/")
-    io_loop.start()
+    print('Opening single process Flask app with embedded Bokeh application on http://localhost:8000/')
+    print()
+    print('Multiple connections may block the Bokeh app in this configuration!')
+    print('See "flask_gunicorn_embed.py" for one way to run multi-process')
+    app.run(port=8000)

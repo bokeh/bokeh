@@ -25,6 +25,12 @@ declare namespace Bokeh {
   }
   var logger: Logger;
 
+  class Settings {
+    dev: boolean;
+  }
+
+  var settings: Settings;
+
   function sprintf(fmt: string, ...args: any[]): string;
 
   namespace embed {

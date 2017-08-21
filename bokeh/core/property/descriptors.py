@@ -544,7 +544,7 @@ class BasicPropertyDescriptor(PropertyDescriptor):
         Args:
             obj (HasProps) :
 
-            json (JSON) :
+            json (JSON-dict) :
 
             models(seq[Model], optional) :
 
@@ -875,7 +875,7 @@ class DataSpecPropertyDescriptor(BasicPropertyDescriptor):
         Args:
             obj (HasProps) :
 
-            json (JSON) :
+            json (JSON-dict) :
 
             models(seq[Model], optional) :
 

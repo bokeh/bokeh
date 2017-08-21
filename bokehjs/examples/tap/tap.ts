@@ -26,7 +26,7 @@ namespace TappyScatter {
 
   const N = xx.length
   const indices = range(N).map((i) => i.toString())
-  const radii = range(N).map((i) => random()*0.4 + 1.7)
+  const radii = range(N).map((_) => random()*0.4 + 1.7)
 
   const colors: Array<string> = []
   for (const [r, g] of zip(xx.map((x) => 50 + 2*x), yy.map((y) => 30 + 2*y)))

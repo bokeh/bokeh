@@ -81,7 +81,7 @@ class BokehOptionsDirective(BokehDirective):
             opts.append(dict(
                 name=prop_name,
                 type=descriptor.property._sphinx_type(),
-                default=None,
+                default=repr(descriptor.instance_default(options_obj)),
                 doc="" if descriptor.__doc__ is None else textwrap.dedent(descriptor.__doc__),
             ))
 

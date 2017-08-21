@@ -7,8 +7,8 @@ from __future__ import absolute_import
 
 from ..core.enums import PaddingUnits, StartEnd
 from ..core.has_props import abstract
-from ..core.properties import (Auto, Bool, Datetime, Either, Enum, Float, Instance, Int,
-                               List, MinMaxBounds, String, TimeDelta)
+from ..core.properties import (Bool, Datetime, Either, Enum, Float, Instance, Int,
+                               List, MinMaxBounds, Seq, String, TimeDelta, Tuple)
 from ..model import Model
 
 from .callbacks import Callback
@@ -47,7 +47,7 @@ class Range1d(Range):
     """)
 
     bounds = MinMaxBounds(accept_datetime=True, default=None, help="""
-    The bounds that the range is allowed to go to - typically used to prevent
+    The bounds that the range is allowed to go to. Typically used to prevent
     the user from panning/zooming/etc away from the data.
 
     If set to ``'auto'``, the bounds will be computed to the start and end of the Range.
@@ -138,7 +138,7 @@ class DataRange1d(DataRange):
     """)
 
     bounds = MinMaxBounds(accept_datetime=False, default=None, help="""
-    The bounds that the range is allowed to go to - typically used to prevent
+    The bounds that the range is allowed to go to. Typically used to prevent
     the user from panning/zooming/etc away from the data.
 
     By default, the bounds will be None, allowing your plot to pan/zoom as far
@@ -210,93 +210,179 @@ class DataRange1d(DataRange):
 
 
 class FactorRange(Range):
-    ''' A range in a categorical dimension.
+    ''' A Range of values for a categorical dimension.
 
-    In addition to supplying ``factors`` keyword argument to the
-    ``FactorRange`` initializer, you can also instantiate with
-    the convenience syntax::
+    In addition to supplying ``factors`` as a keyword argument to the
+    ``FactorRange`` initializer, you may also instantiate with a sequence of
+    positional arguments:
+
+    .. code-block:: python
 
         FactorRange("foo", "bar") # equivalent to FactorRange(factors=["foo", "bar"])
 
-    .. note::
-        ``FactorRange`` may be renamed to ``CategoricalRange`` in
-        the future.
+    Users will normally supply categorical values directly:
+
+    .. code-block:: python
+
+        p.circle(x=["foo", "bar"], ...)
+
+    BokehJS will create a mapping from ``"foo"`` and ``"bar"`` to a numerical
+    coordinate system called *synthetic coordinates*. In the simplest cases,
+    factors are separated by a distance of 1.0 in synthetic coordinates,
+    however the exact mapping from factors to synthetic coordinates is
+    affected by he padding properties as well as whether the number of levels
+    the factors have.
+
+    Users typically do not need to worry about the details of this mapping,
+    however it can be useful to fine tune positions by adding offsets. When
+    supplying factors as coordinates or values, it is possible to add an
+    offset in the synthetic coordinate space by adding a final number value
+    to a factor tuple. For example:
+
+    .. code-block:: python
+
+        p.circle(x=[("foo", 0.3), ...], ...)
+
+    will position the first circle at an ``x`` position that is offset by
+    adding 0.3 to the synthetic coordinate for ``"foo"``.
 
     '''
 
-    offset = Float(0, help="""
-    An offset to the (synthetic) range (default: 0)
+    factors = Either(Seq(String), Seq(Tuple(String, String)), Seq(Tuple(String, String, String)), default=[], help="""
+    A sequence of factors to define this categorical range.
+
+    Factors may have 1, 2, or 3 levels. For 1-level factors, each factor is
+    simply a string. For example:
+
+    .. code-block: python
+
+        FactorRange(factors=["sales", "marketing", "engineering"])
+
+    defines a range with three simple factors that might represent different
+    units of a business.
+
+    For 2- and 3- level factors, each factor is a tuple of strings:
+
+    .. code-block:: python
+
+        FactorRange(factors=[
+            ["2016", "sales'], ["2016", "marketing'], ["2016", "engineering"],
+            ["2017", "sales'], ["2017", "marketing'], ["2017", "engineering"],
+        ])
+
+    defines a range with six 2-level factors that might represent the three
+    business units, grouped by year.
+
+    Note that factors and sub-factors *may only be strings*.
+
+    """)
+
+    factor_padding = Float(default=0.0, help="""
+    How much padding to add in between all lowest-level factors. When
+    ``factor_padding`` is non-zero, every factor in every group will have the
+    padding value applied.
+    """)
+
+    subgroup_padding = Float(default=0.8, help="""
+    How much padding to add in between mid-level groups of factors. This
+    property only applies when the overall factors have three levels. For
+    example with:
+
+    .. code-block:: python
+
+        FactorRange(factors=[
+            ['foo', 'A', '1'],  ['foo', 'A', '2'], ['foo', 'A', '3'],
+            ['foo', 'B', '2'],
+            ['bar', 'A', '1'],  ['bar', 'A', '2']
+        ])
+
+    This property dictates how much padding to add between the three factors
+    in the `['foo', 'A']` group, and between the two factors in the the
+    [`bar`]
+    """)
+
+    group_padding = Float(default=1.4, help="""
+    How much padding to add in between top-level groups of factors. This
+    property only applies when the overall range factors have either two or
+    three levels. For example, with:
+
+    .. code-block:: python
+
+        FactorRange(factors=[["foo", "1'], ["foo", "2'], ["bar", "1"]])
+
+    The top level groups correspond to ``"foo"` and ``"bar"``, and the
+    group padding will be applied between the factors``["foo", "2']`` and
+    ``["bar", "1"]``
+    """)
+
+    range_padding = Float(default=0, help="""
+    How much padding to add around the outside of computed range bounds.
+
+    When ``range_padding_units`` is set to ``"percent"``, the span of the
+    range span is expanded to make the range ``range_padding`` percent larger.
+
+    When ``range_padding_units`` is set to ``"absolute"``, the start and end
+    of the range span are extended by the amount ``range_padding``.
+    """)
+
+    range_padding_units = Enum(PaddingUnits, default="percent", help="""
+    Whether the ``range_padding`` should be interpreted as a percentage, or
+    as an absolute quantity. (default: ``"percent"``)
+    """)
+
+    start = Float(readonly=True, help="""
+    The start of the range, in synthetic coordinates.
+
+        Synthetic coordinates are only computed in the browser, based on the
+        factors and various padding properties. The value of ``end`` will only
+        be available in situations where bidirectional communication is
+        available (e.g. server, notebook).
+    """)
+
+    end = Float(readonly=True, help="""
+    The end of the range, in synthetic coordinates.
 
     .. note::
-        The primary usage of this is to support compatibility and integration
-        with other plotting systems, and will not generally of interest to
-        most users.
-
+        Synthetic coordinates are only computed in the browser, based on the
+        factors and various padding properties. The value of ``end`` will only
+        be available in situations where bidirectional communication is
+        available (e.g. server, notebook).
     """)
 
-    factors = Either(List(String), List(Int), help="""
-    A list of string or integer factors (categories) to comprise
-    this categorical range.
+    bounds = MinMaxBounds(accept_datetime=False, default=None, help="""
+    The bounds (in synthetic coordinates) that the range is allowed to go to.
+    Typically used to prevent the user from panning/zooming/etc away from the
+    data.
+
+    .. note::
+        Synthetic coordinates are only computed in the browser, based on the
+        factors and various padding properties. Some experimentation may be
+        required to arrive at bounds suitable for specific situations.
+
+    By default, the bounds will be None, allowing your plot to pan/zoom as far
+    as you want. If bounds are 'auto' they will be computed to be the same as
+    the start and end of the FactorRange.
     """)
 
-    bounds = Either(Auto, List(String), List(Int), default=None, help="""
-    The bounds that the range is allowed to go to - typically used to prevent
-    the user from panning/zooming/etc away from the data.
-
-    Unlike Range1d and DataRange1d, factors do not have an order and so a
-    min and max cannot be proved in the same way. bounds accepts a list of
-    factors, that constrain the displayed factors.
-
-    By default, bounds are ``None``, allows unlimited panning or zooming.
-
-    If ``bounds='auto'``, bounds will be the same as factors and the plot
-    will not be able to pan or zoom beyond the first and last factors.
-
-    If you provide a list, then only the factors that are in that list will
-    be displayed on the plot and the plot will not pan or zoom outside the
-    first and last items in the shortened factors list. Note the order of
-    factors is the defining order for your plot.
-
-    Values of bounds that are not in factors are acceptable and will simply
-    have no impact on the plot.
-
-    Examples:
-
-    Auto behavior:
-
-    .. code-block:: python
-
-        x_range = FactorRange(
-            factors=["apples", "dogs", "peaches", "bananas", "pigs"],
-            bounds='auto'
-        )
-
-        The plot will display all the factors and you will not be able to
-        pan left of apples or right of pigs.
-
-    Constraining behavior:
-
-    .. code-block:: python
-
-        x_range = FactorRange(
-            factors=["apples", "dogs", "peaches", "bananas", "pigs"],
-            bounds=["apples", "bananas", "peaches"]
-        )
-
-        Only the factors ``["apples", "peaches", "bananas"]`` (in that
-        order) will appear in the plot, and the plot will not pan left of
-        ``"apples"`` or right of ``"bananas"``.
-    """)
-
-    min_interval = Int(default=None, help="""
+    min_interval = Float(default=None, help="""
     The level that the range is allowed to zoom in, expressed as the
-    minimum number of visible categories. If set to ``None`` (default),
-    the minimum interval is not bound.""")
+    minimum visible interval in synthetic coordinates. If set to ``None``
+    (default), the minimum interval is not bounded.
 
-    max_interval = Int(default=None, help="""
+    The default "width" of a category is 1.0 in synthetic coordinates.
+    However, the distance between factors is affected by the various
+    padding properties and whether or not factors are grouped.
+    """)
+
+    max_interval = Float(default=None, help="""
     The level that the range is allowed to zoom out, expressed as the
-    maximum number of visible categories. Note that ``bounds`` can
-    impose an implicit constraint on the maximum interval as well.""")
+    maximum visible interval in synthetic coordinates.. Note that ``bounds``
+    can impose an implicit constraint on the maximum interval as well.
+
+    The default "width" of a category is 1.0 in synthetic coordinates.
+    However, the distance between factors is affected by the various
+    padding properties and whether or not factors are grouped.
+    """)
 
     def __init__(self, *args, **kwargs):
         if args and "factors" in kwargs:

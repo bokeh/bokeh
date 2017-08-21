@@ -17,7 +17,11 @@ load_google_api = (api_key) ->
 export class GMapPlotCanvasView extends PlotCanvasView
 
   initialize: (options) ->
+    @pause()
+
     super(options)
+
+    @_tiles_loaded = false
     @zoom_count = 0
 
     mo = @model.plot.map_options
@@ -31,6 +35,8 @@ export class GMapPlotCanvasView extends PlotCanvasView
       if not window._bokeh_gmaps_callback?
         load_google_api(@model.plot.api_key)
       gmaps_ready.connect(() => @request_render())
+
+    @unpause()
 
   update_range: (range_info) ->
     # RESET -------------------------
@@ -47,13 +53,14 @@ export class GMapPlotCanvasView extends PlotCanvasView
 
     # ZOOM ---------------------------
     else if range_info.factor?
-      @pause()
 
       # The zoom count decreases the sensitivity of the zoom. (We could make this user configurable)
       if @zoom_count != 10
         @zoom_count += 1
         return
       @zoom_count = 0
+
+      @pause()
 
       super(range_info)
 
@@ -104,8 +111,13 @@ export class GMapPlotCanvasView extends PlotCanvasView
     # create the map with above options in div
     @map = new maps.Map(@canvas_view.map_el, map_options)
 
-    # update bokeh ranges whenever the map idles, which should be after any UI action
-    maps.event.addListenerOnce(@map, 'idle', @_set_bokeh_ranges)
+    # update bokeh ranges whenever the map idles, which should be after most UI action
+    maps.event.addListener(@map, 'idle', () => @_set_bokeh_ranges())
+
+    # also need an event when bounds change so that map resizes trigger renders too
+    maps.event.addListener(@map, 'bounds_changed', () => @_set_bokeh_ranges())
+
+    maps.event.addListenerOnce(@map, 'tilesloaded', () => @_render_finished())
 
     # wire up listeners so that changes to properties are reflected
     @connect(@model.plot.properties.map_options.change, () => @_update_options())
@@ -115,6 +127,13 @@ export class GMapPlotCanvasView extends PlotCanvasView
     @connect(@model.plot.map_options.properties.zoom.change, () => @_update_zoom())
     @connect(@model.plot.map_options.properties.map_type.change, () => @_update_map_type())
     @connect(@model.plot.map_options.properties.scale_control.change, () => @_update_scale_control())
+
+  _render_finished: () ->
+    @_tiles_loaded = true
+    @notify_finished()
+
+  has_finished: () ->
+    return super() and @_tiles_loaded == true
 
   _get_latlon_bounds: () =>
     bounds = @map.getBounds()
@@ -166,7 +185,7 @@ export class GMapPlotCanvasView extends PlotCanvasView
     @map.setOptions({zoom: @model.plot.map_options.zoom})
     @_set_bokeh_ranges()
 
-  # this method is expected and called by PlotView.render
+  # this method is expected and called by PlotCanvasView.render
   _map_hook: (ctx, frame_box) ->
     [left, top, width, height] = frame_box
     @canvas_view.map_el.style.top    = "#{top}px"

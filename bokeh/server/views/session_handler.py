@@ -21,6 +21,9 @@ class SessionHandler(RequestHandler):
         # Note: tornado_app is stored as self.application
         super(SessionHandler, self).__init__(tornado_app, *args, **kw)
 
+    def initialize(self, *args, **kw):
+        pass
+
     @gen.coroutine
     def get_session(self):
         session_id = self.get_argument("bokeh-session-id", default=None)

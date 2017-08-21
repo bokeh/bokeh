@@ -26,7 +26,7 @@ export class BoxSelectToolView extends SelectToolView
 
     if @model.select_every_mousemove
       append = e.srcEvent.shiftKey ? false
-      @_select(vxlim, vylim, false, append)
+      @_do_select(vxlim, vylim, false, append)
 
     return null
 
@@ -41,7 +41,7 @@ export class BoxSelectToolView extends SelectToolView
 
     [vxlim, vylim] = @model._get_dim_limits(@_baseboint, curpoint, frame, dims)
     append = e.srcEvent.shiftKey ? false
-    @_select(vxlim, vylim, true, append)
+    @_do_select(vxlim, vylim, true, append)
 
     @model.overlay.update({left: null, right: null, top: null, bottom: null})
 
@@ -51,7 +51,7 @@ export class BoxSelectToolView extends SelectToolView
 
     return null
 
-  _select: ([vx0, vx1], [vy0, vy1], final, append=false) ->
+  _do_select: ([vx0, vx1], [vy0, vy1], final, append=false) ->
     geometry = {
       type: 'rect'
       vx0: vx0
@@ -59,22 +59,10 @@ export class BoxSelectToolView extends SelectToolView
       vy0: vy0
       vy1: vy1
     }
-
-    renderers_by_source = @model._computed_renderers_by_data_source()
-
-    for ds, renderers of renderers_by_source
-      sm = renderers[0].data_source.selection_manager
-      sm.select(@, (@plot_view.renderer_views[r.id] for r in renderers), geometry, final, append)
-
-    if @model.callback?
-      @_emit_callback(geometry)
-
-    @_save_geometry(geometry, final, append)
-
-    return null
+    @_select(geometry, final, append)
 
   _emit_callback: (geometry) ->
-    r = @model.computed_renderers[0]
+    r = @computed_renderers[0]
     canvas = @plot_model.canvas
     frame = @plot_model.frame
 

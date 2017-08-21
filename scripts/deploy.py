@@ -307,7 +307,7 @@ def commit(filename, version):
 def update_bokehjs_versions():
 
     filenames = [
-        'bokehjs/src/coffee/version.coffee',
+        'bokehjs/src/coffee/version.ts',
         'bokehjs/package.json',
     ]
 

@@ -22,29 +22,20 @@ always be active regardless of what other tools are currently active.
 '''
 from __future__ import absolute_import
 
-from ..core.enums import accept_left_right_center, Anchor, DeprecatedAnchor, Dimension, Dimensions, Location, TooltipFieldFormatter
+from ..core.enums import Anchor, Dimension, Dimensions, Location, TooltipFieldFormatter
 from ..core.has_props import abstract
 from ..core.properties import (
-    Any, Auto, Bool, Color, Dict, Either, Enum, Float, Percent, Instance, List,
+    Auto, Bool, Color, Dict, Either, Enum, Float, Percent, Instance, List,
     Override, Seq, String, Tuple
 )
 from ..model import Model
+from ..util.deprecation import deprecated
 
 from .annotations import BoxAnnotation, PolyAnnotation
 from .callbacks import Callback
 from .renderers import Renderer
 from .layouts import Box, LayoutDOM
 
-class ToolEvents(Model):
-    ''' A class for reporting tools geometries from BokehJS.
-
-    .. warning::
-        This class will be superceded by a new general events system in the
-        near future.
-
-    '''
-
-    geometries = List(Dict(String, Any))
 
 @abstract
 class Tool(Model):
@@ -52,9 +43,17 @@ class Tool(Model):
 
     '''
 
-    plot = Instance(".models.plots.Plot", help="""
-    The Plot that this tool will act on.
-    """)
+    __deprecated_attributes__ = ["plot"]
+
+    @property
+    def plot(self):
+        deprecated("Tool.plot property is no longer needed, and any use deprecated. In the future, accessing Tool.plot will result in an AttributeError")
+        return None
+
+    @plot.setter
+    def plot(self, val):
+        deprecated("Tool.plot property is no longer needed, and any use is deprecated. In the future, accessing Tool.plot will result in an AttributeError")
+        return None
 
 @abstract
 class Action(Tool):
@@ -90,7 +89,11 @@ class Inspection(Tool):
     ''' A base class for tools that perform "inspections", e.g. ``HoverTool``.
 
     '''
-    pass
+    toggleable = Bool(True, help="""
+    Whether an on/off toggle button should appear in the toolbar for this
+    inpection tool. If ``False``, the viewers of a plot will not be able to
+    toggle the inspector on or off using the toolbar.
+    """)
 
 @abstract
 class ToolbarBase(LayoutDOM):
@@ -267,20 +270,14 @@ class ResetTool(Action):
     """)
 
 
-class ResizeTool(Drag):
-    ''' *toolbar icon*: |resize_icon|
-
-    The resize tool allows the user to left-drag a mouse or drag a finger
-    to resize the entire plot area on the screen.
-
-    .. |resize_icon| image:: /_images/icons/Resize.png
-        :height: 18pt
+class ResizeTool(object):
+    ''' DEPRECATED in 0.12.7, attempting to use will be a NO-OP
 
     '''
 
 
 class TapTool(Tap):
-    ''' *toolbar icon*: |tap_select_icon|
+    ''' *toolbar icon*: |tap_icon|
 
     The tap selection tool allows the user to select at single points by
     left-clicking a mouse, or tapping with a finger.
@@ -288,7 +285,7 @@ class TapTool(Tap):
     See :ref:`userguide_styling_selected_unselected_glyphs` for information
     on styling selected and unselected glyphs.
 
-    .. |tap_select_icon| image:: /_images/icons/TapSelect.png
+    .. |tap_icon| image:: /_images/icons/Tap.png
         :height: 18pt
 
     .. note::
@@ -318,8 +315,25 @@ class TapTool(Tap):
     """)
 
     callback = Instance(Callback, help="""
-    A client-side action specification, like opening a URL, showing
-    a dialog box, etc. See :class:`~bokeh.models.actions.Action` for details.
+    A callback to execute *whenever a glyph is "hit"* by a mouse click
+    or tap.
+
+    This is often useful with the  :class:`~bokeh.models.callbacks.OpenURL`
+    model to open URLs based on a user clicking or tapping a specific glyph.
+
+    However, it may also be a :class:`~bokeh.models.callbacks.CustomJS`
+    which can execute arbitrary JavaScript code in response to clicking or
+    tapping glyphs. The callback will be executed for each individual glyph
+    that is it hit by a click or tap, and will receive the ``TapTool`` model
+    as  ``cb_obj``. The optional ``cb_data`` will have the data source as
+    its ``.source`` attribute and the selection geometry as its
+    ``.geometries`` attribute.
+
+    .. note::
+        This callback does *not* execute on every tap, only when a glyphs is
+        "hit". If you would like to execute a callback on every mouse tap,
+        please see :ref:`userguide_interaction_jscallbacks_customjs_interactions`.
+
     """)
 
 
@@ -620,6 +634,14 @@ class PolySelectTool(Tap):
     defaults to all renderers on a plot.
     """)
 
+    callback = Instance(Callback, help="""
+    A callback to run in the browser on completion of drawing a polygon.
+    The cb_data parameter that is available to the Callback code will contain
+    one PolySelectTool-specific field:
+
+    :geometry: object containing the coordinates of the polygon
+    """)
+
     overlay = Instance(PolyAnnotation, default=DEFAULT_POLY_OVERLAY, help="""
     A shaded annotation drawn to indicate the selection region.
     """)
@@ -818,7 +840,7 @@ class HoverTool(Inspection):
     anchor = Enum(Anchor, default="center", help="""
     If point policy is set to `"snap_to_data"`, `anchor` defines the attachment
     point of a tooltip. The default is to attach to the center of a glyph.
-    """).accepts(Enum(DeprecatedAnchor), accept_left_right_center)
+    """)
 
     attachment = Enum("horizontal", "vertical", help="""
     Whether tooltip's arrow should appear in the horizontal or vertical dimension.

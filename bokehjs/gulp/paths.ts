@@ -1,94 +1,79 @@
-import * as path from "path"
+import {resolve, join} from "path"
 import {argv} from "yargs"
 
-const BUILD_DIR = argv.buildDir || "./build"
-const JS_BUILD_DIR = path.join(BUILD_DIR, "js")
-const CSS_BUILD_DIR = path.join(BUILD_DIR, "css")
+export const base_dir = resolve("./")
 
-// TODO FIXME how can we generate coffeescript and have require
-// find it without putting it in src/ ? The browserify docs
-// seem to say we have to put it in node_modules... maybe
-// that's the answer, I don't know. Doesn't seem much better
-// than putting it in src though.
-const COFFEE_BUILD_DIR = path.join("./src", "coffee")
-const SERVER_DIR = "../bokeh/server/static/"
+const BUILD_DIR = argv.buildDir ? resolve(argv.buildDir) : join(base_dir, "build")
+const JS_BUILD_DIR = join(BUILD_DIR, "js")
+const CSS_BUILD_DIR = join(BUILD_DIR, "css")
 
-export const buildDir = {
+export const build_dir = {
   all: BUILD_DIR,
   js: JS_BUILD_DIR,
-  jsTree: path.join(JS_BUILD_DIR, "tree"),
-  coffee: COFFEE_BUILD_DIR,
   css: CSS_BUILD_DIR,
+  tree_js: join(JS_BUILD_DIR, "tree"),
+  tree_ts: join(JS_BUILD_DIR, "tree_ts"),
+  compiler: join(JS_BUILD_DIR, "compiler"),
 }
 
-export const serverDir = {
-  all: SERVER_DIR,
-  js: path.join(SERVER_DIR, "js"),
-  css: path.join(SERVER_DIR, "css"),
+export const src_dir = {
+  coffee: join(base_dir, "src", "coffee"),
+  compiler: join(base_dir, "src", "compiler"),
 }
 
 export const coffee = {
   bokehjs: {
-    destination: {
-      full: "bokeh.js",
-      fullWithPath: path.join(JS_BUILD_DIR, "bokeh.js"),
-      minified: "bokeh.min.js",
-    },
+    main: join(build_dir.tree_js, "main.js"),
+    output: join(build_dir.js, "bokeh.js"),
   },
   api: {
-    destination: {
-      full: "bokeh-api.js",
-      fullWithPath: path.join(JS_BUILD_DIR, "bokeh-api.js"),
-      minified: "bokeh-api.min.js",
-    },
+    main: join(build_dir.tree_js, "api/main.js"),
+    output: join(build_dir.js, "bokeh-api.js"),
   },
   widgets: {
-    destination: {
-      full: "bokeh-widgets.js",
-      fullWithPath: path.join(JS_BUILD_DIR, "bokeh-widgets.js"),
-      minified: "bokeh-widgets.min.js",
-    },
+    main: join(build_dir.tree_js, "models/widgets/main.js"),
+    output: join(build_dir.js, "bokeh-widgets.js"),
+  },
+  tables: {
+    main: join(build_dir.tree_js, "models/widgets/tables/main.js"),
+    output: join(build_dir.js, "bokeh-tables.js"),
   },
   gl: {
-    destination: {
-      full: "bokeh-gl.js",
-      fullWithPath: path.join(JS_BUILD_DIR, "bokeh-gl.js"),
-      minified: "bokeh-gl.min.js",
-    },
+    main: join(build_dir.tree_js, "models/glyphs/webgl/main.js"),
+    output: join(build_dir.js, "bokeh-gl.js"),
   },
-  sources: [
-    "./src/coffee/main.coffee",
-    "./src/coffee/widget/main.coffee",
-  ],
   watchSources: [
-    "./src/coffee/**/**",
+    join(base_dir, "src/coffee/**/**"),
   ],
 }
 
 export const css = {
   sources: [
-    path.join(CSS_BUILD_DIR, "bokeh.css"),
-    path.join(CSS_BUILD_DIR, "bokeh-widgets.css"),
+    join(build_dir.css, "bokeh.css"),
+    join(build_dir.css, "bokeh-widgets.css"),
+    join(build_dir.css, "bokeh-tables.css"),
   ],
   watchSources: [
-    path.join(CSS_BUILD_DIR, "bokeh.css"),
-    path.join(CSS_BUILD_DIR, "bokeh-widgets.css"),
+    join(build_dir.css, "bokeh.css"),
+    join(build_dir.css, "bokeh-widgets.css"),
+    join(build_dir.css, "bokeh-tables.css"),
   ],
 }
 
 export const less = {
   sources: [
-    "./src/less/bokeh.less",
-    "./src/less/bokeh-widgets.less",
+    join(base_dir, "src/less/bokeh.less"),
+    join(base_dir, "src/less/bokeh-widgets.less"),
+    join(base_dir, "src/less/bokeh-tables.less"),
   ],
   watchSources: [
-    "./src/less/**/**",
+    join(base_dir, "src/less/**/**"),
   ],
 }
 
 export const test = {
   watchSources: [
-    "./test/**/**",
-    "./src/coffee/**/**",
+    join(base_dir, "test/**/**"),
+    join(base_dir, "src/coffee/**/**"),
   ]
 }

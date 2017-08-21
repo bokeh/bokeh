@@ -1,5 +1,7 @@
 import {Renderer, RendererView} from "./renderer"
+import {LineView} from "../glyphs/line"
 import {RemoteDataSource} from "../sources/remote_data_source"
+import {CDSView} from "../sources/cds_view"
 import {logger} from "core/logging"
 import * as p from "core/properties"
 import {difference} from "core/util/array"
@@ -55,7 +57,7 @@ export class GlyphRendererView extends RendererView
     @set_data(false)
 
     if @model.data_source instanceof RemoteDataSource
-      @model.data_source.setup(@plot_view, @glyph)
+      @model.data_source.setup()
 
   @getters {
     xmapper: () ->
@@ -71,25 +73,18 @@ export class GlyphRendererView extends RendererView
 
   connect_signals: () ->
     super()
-    @connect(@model.change, @request_render)
-    @connect(@model.data_source.change, @set_data)
-    @connect(@model.data_source.streaming, @set_data)
+    @connect(@model.change, () -> @request_render())
+    @connect(@model.glyph.change, () -> @set_data())
+    @connect(@model.data_source.change, () -> @set_data())
+    @connect(@model.data_source.streaming, () -> @set_data())
     @connect(@model.data_source.patching, (indices) -> @set_data(true, indices))
-    @connect(@model.data_source.select, @request_render)
+    @connect(@model.data_source.select, () -> @request_render())
     if @hover_glyph?
-      @connect(@model.data_source.inspect, @request_render)
+      @connect(@model.data_source.inspect, () -> @request_render())
+    @connect(@model.properties.view.change, () -> @set_data())
+    @connect(@model.view.change, () -> @set_data())
 
     @connect(@model.glyph.transformchange, () -> @set_data())
-
-    # TODO (bev) This is a quick change that  allows the plot to be
-    # update/re-rendered when properties change on the JS side. It would
-    # be better to make this more fine grained in terms of setting visuals
-    # and also could potentially be improved by making proper models out
-    # of "Spec" properties. See https://github.com/bokeh/bokeh/pull/2684
-    @connect(@model.glyph.propchange, () ->
-        @glyph.set_visuals(@model.data_source)
-        @request_render()
-    )
 
   have_selection_glyphs: () -> @selection_glyph? && @nonselection_glyph?
 
@@ -99,10 +94,12 @@ export class GlyphRendererView extends RendererView
     t0 = Date.now()
     source = @model.data_source
 
+    @all_indices = @model.view.indices
+
     # TODO (bev) this is a bit clunky, need to make sure glyphs use the correct ranges when they call
     # mapping functions on the base Renderer class
     @glyph.model.setv({x_range_name: @model.x_range_name, y_range_name: @model.y_range_name}, {silent: true})
-    @glyph.set_data(source, indices)
+    @glyph.set_data(source, @all_indices, indices)
 
     @glyph.set_visuals(source)
     @decimated_glyph.set_visuals(source)
@@ -113,10 +110,6 @@ export class GlyphRendererView extends RendererView
       @hover_glyph.set_visuals(source)
     if @muted_glyph?
       @muted_glyph.set_visuals(source)
-
-    length = source.get_length()
-    length = 1 if not length?
-    @all_indices = [0...length]
 
     lod_factor = @plot_model.plot.lod_factor
     @decimated = []
@@ -144,33 +137,45 @@ export class GlyphRendererView extends RendererView
     dtmap = Date.now() - t0
 
     tmask = Date.now()
+    # all_indices and indices are in cdsview subset space
     indices = @glyph.mask_data(@all_indices)
     dtmask = Date.now() - tmask
 
     ctx = @plot_view.canvas_view.ctx
     ctx.save()
 
+    # selected is in full set space
     selected = @model.data_source.selected
     if !selected or selected.length == 0
       selected = []
     else
       if selected['0d'].glyph
-        selected = indices
+        if @glyph instanceof LineView
+          selected = indices
+        else
+          selected = @model.view.convert_indices_from_subset(indices)
       else if selected['1d'].indices.length > 0
         selected = selected['1d'].indices
       else
-        selected = []
+        selected = (parseInt(i) for i in Object.keys(selected["2d"].indices))
 
+    # inspected is in full set space
     inspected = @model.data_source.inspected
     if !inspected or inspected.length == 0
       inspected = []
     else
       if inspected['0d'].glyph
-        inspected = indices
+        if @glyph instanceof LineView
+          inspected = indices
+        else
+          inspected = @model.view.convert_indices_from_subset(indices)
       else if inspected['1d'].indices.length > 0
         inspected = inspected['1d'].indices
       else
-        inspected = []
+        inspected = (parseInt(i) for i in Object.keys(inspected["2d"].indices))
+
+    # inspected is transformed to subset space
+    inspected = (i for i in indices when @all_indices[i] in inspected)
 
     lod_threshold = @plot_model.plot.lod_threshold
     if @plot_view.interactive and !glsupport and lod_threshold? and @all_indices.length > lod_threshold
@@ -205,10 +210,17 @@ export class GlyphRendererView extends RendererView
       selected = new Array()
       nonselected = new Array()
       for i in indices
-        if selected_mask[i]?
-          selected.push(i)
+        # now, selected is changed to subset space, except for Line glyph
+        if @glyph instanceof LineView
+          if selected_mask[i]?
+            selected.push(i)
+          else
+            nonselected.push(i)
         else
-          nonselected.push(i)
+          if selected_mask[@all_indices[i]]?
+            selected.push(i)
+          else
+            nonselected.push(i)
       dtselect = Date.now() - tselect
 
       trender = Date.now()
@@ -238,14 +250,21 @@ export class GlyphRendererView extends RendererView
     index = @model.get_reference_point(field, label)
     @glyph.draw_legend_for_index(ctx, x0, x1, y0, y1, index)
 
-  hit_test: (geometry) ->
-    return @model.hit_test_helper(geometry, @glyph)
+  hit_test: (geometry, final, append, mode="select") ->
+    return @model.hit_test_helper(geometry, @, final, append, mode)
 
 
 export class GlyphRenderer extends Renderer
   default_view: GlyphRendererView
 
   type: 'GlyphRenderer'
+
+  initialize: (options) ->
+    super(options)
+
+    if not @view.source?
+      @view.source = @data_source
+      @view.compute_indices()
 
   get_reference_point: (field, value) ->
     index = 0  # This is the default to return
@@ -257,17 +276,39 @@ export class GlyphRenderer extends Renderer
           index = i
     return index
 
-  # TODO (bev) this is just to make testing easier. Might be better on a view model
-  hit_test_helper: (geometry, glyph) ->
-    if @visible
-      return glyph.hit_test(geometry)
-    else
-      return null
+  hit_test_helper: (geometry, renderer_view, final, append, mode) ->
+    if not @visible
+      return false
+
+    hit_test_result = renderer_view.glyph.hit_test(geometry)
+
+    # glyphs that don't have hit-testing implemented will return null
+    if hit_test_result == null
+      return false
+
+    indices = @view.convert_selection_from_subset(hit_test_result)
+
+    if mode == "select"
+      selector = @data_source.selection_manager.selector
+      selector.update(indices, final, append)
+      @data_source.selected = selector.indices
+      @data_source.select.emit()
+    else # mode == "inspect"
+      inspector = @data_source.selection_manager.get_or_create_inspector(@)
+      inspector.update(indices, true, false, true)
+      @data_source.inspected = inspector.indices
+      @data_source.inspect.emit([renderer_view, {"geometry": geometry}])
+
+    return not indices.is_empty()
+
+  get_selection_manager: () ->
+    return @data_source.selection_manager
 
   @define {
       x_range_name:       [ p.String,  'default' ]
       y_range_name:       [ p.String,  'default' ]
       data_source:        [ p.Instance           ]
+      view:               [ p.Instance, () -> new CDSView() ]
       glyph:              [ p.Instance           ]
       hover_glyph:        [ p.Instance           ]
       nonselection_glyph: [ p.Any,      'auto'   ] # Instance or "auto"

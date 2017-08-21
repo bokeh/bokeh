@@ -28,7 +28,7 @@ import io
 from numpy import pi, cos, sin, linspace, roll
 
 from bokeh.client import push_session
-from bokeh.embed import autoload_server
+from bokeh.embed import server_session
 from bokeh.plotting import figure, curdoc
 
 M = 5
@@ -59,7 +59,7 @@ html = """
     %s
   </body>
 </html>
-""" % autoload_server(p, session_id=session.id, relative_urls=False)
+""" % server_session(p, session_id=session.id, relative_urls=False)
 
 with io.open("animated.html", mode='w+', encoding='utf-8') as f:
     f.write(html)

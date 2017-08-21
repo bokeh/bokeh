@@ -3,16 +3,13 @@
 '''
 from __future__ import absolute_import
 
-from six import string_types
-
-from ..core.enums import Location
+from ..core.enums import Location, OutputBackend
 from ..core.properties import Bool, Dict, Enum, Include, Instance, Int, List, Override, String
 from ..core.property_mixins import LineProps, FillProps
 from ..core.query import find
 from ..core.validation import error, warning
 from ..core.validation.errors import REQUIRED_RANGE, REQUIRED_SCALE, INCOMPATIBLE_SCALE_AND_RANGE
-from ..core.validation.warnings import (MISSING_RENDERERS, NO_DATA_RENDERERS,
-                                        MALFORMED_CATEGORY_LABEL, SNAPPED_TOOLBAR_ANNOTATIONS)
+from ..core.validation.warnings import MISSING_RENDERERS, NO_DATA_RENDERERS, SNAPPED_TOOLBAR_ANNOTATIONS
 from ..util.deprecation import deprecated
 from ..util.plot_utils import _list_attr_splat, _select_helper
 from ..util.string import nice_join
@@ -26,17 +23,16 @@ from .ranges import Range, FactorRange, DataRange1d, Range1d
 from .renderers import DataRenderer, DynamicImageRenderer, GlyphRenderer, Renderer, TileRenderer
 from .scales import Scale, CategoricalScale, LinearScale, LogScale
 from .sources import DataSource, ColumnDataSource
-from .tools import Tool, Toolbar, ToolEvents
+from .tools import ResizeTool, Tool, Toolbar
 
 class Plot(LayoutDOM):
     ''' Model representing a plot, containing glyphs, guides, annotations.
 
     '''
 
-    def __init__(self, **kwargs):
-        if "tool_events" not in kwargs:
-            kwargs["tool_events"] = ToolEvents()
+    __deprecated_attributes__ = ["webgl", "x_mapper_type", "y_mapper_type", "tool_events"]
 
+    def __init__(self, **kwargs):
         if "toolbar" in kwargs and "logo" in kwargs:
             raise ValueError("Conflicting properties set on plot: toolbar, logo.")
 
@@ -52,14 +48,8 @@ class Plot(LayoutDOM):
         if "x_mapper_type" in kwargs and "x_scale" in kwargs:
             raise ValueError("Conflicting properties set on plot: x_mapper_type, x_scale.")
 
-        elif "x_mapper_type" in kwargs:
-            kwargs["x_scale"] = self._scale(kwargs.pop("x_mapper_type"))
-
         if "y_mapper_type" in kwargs and "y_scale" in kwargs:
             raise ValueError("Conflicting properties set on plot: y_mapper_type, y_scale")
-
-        elif "y_mapper_type" in kwargs:
-            kwargs["y_scale"] = self._scale(kwargs.pop("y_mapper_type"))
 
         super(LayoutDOM, self).__init__(**kwargs)
 
@@ -249,15 +239,17 @@ class Plot(LayoutDOM):
             None
 
         '''
-        if not all(isinstance(tool, Tool) for tool in tools):
-            raise ValueError("All arguments to add_tool must be Tool subclasses.")
-
         for tool in tools:
-            if tool.plot is not None:
-                raise ValueError("tool %s to be added already has 'plot' attribute set" % tool)
-            tool.plot = self
+            if isinstance(tool, ResizeTool):
+                deprecated("ResizeTool is removed in Bokeh 0.12.7, adding it is a no-op. In the future, accessing ResizeTool will be an error")
+                continue
+
+            if not isinstance(tool, Tool):
+                raise ValueError("All arguments to add_tool must be Tool subclasses.")
+
             if hasattr(tool, 'overlay'):
                 self.renderers.append(tool.overlay)
+
             self.toolbar.tools.append(tool)
 
     def add_glyph(self, source_or_glyph, glyph=None, **kw):
@@ -324,6 +316,7 @@ class Plot(LayoutDOM):
             DynamicImageRenderer : DynamicImageRenderer
 
         '''
+        deprecated((0, 12, 7), "add_dynamic_image", "GeoViews for GIS functions on top of Bokeh (http://geo.holoviews.org)")
         image_renderer = DynamicImageRenderer(image_source=image_source, **kw)
         self.renderers.append(image_renderer)
         return image_renderer
@@ -383,28 +376,6 @@ class Plot(LayoutDOM):
         if len(self.select(DataRenderer)) == 0:
             return str(self)
 
-    @warning(MALFORMED_CATEGORY_LABEL)
-    def _check_colon_in_category_label(self):
-        if not self.x_range: return
-        if not self.y_range: return
-
-        broken = []
-
-        for range_name in ['x_range', 'y_range']:
-            category_range = getattr(self, range_name)
-            if not isinstance(category_range, FactorRange): continue
-
-            for value in category_range.factors:
-                if not isinstance(value, string_types): break
-                if ':' in value:
-                    broken.append((range_name, value))
-                    break
-
-        if broken:
-            field_msg = ' '.join('[range:%s] [first_value: %s]' % (field, value)
-                                 for field, value in broken)
-            return '%s [renderer: %s]' % (field_msg, self)
-
     @warning(SNAPPED_TOOLBAR_ANNOTATIONS)
     def _check_snapped_toolbar_and_axis(self):
         if not self.toolbar_sticky: return
@@ -452,6 +423,31 @@ class Plot(LayoutDOM):
     def y_mapper_type(self, mapper_type):
         deprecated((0, 12, 6), "y_mapper_type", "y_scale")
         self.y_scale = self._scale(mapper_type)
+
+    @property
+    def tool_events(self):
+        deprecated((0, 12, 7), "tool_events", "bokeh.events.SelectionGeometry")
+        return None
+
+    @tool_events.setter
+    def tool_events(self, tool_events):
+        deprecated((0, 12, 7), "tool_events", "bokeh.events.SelectionGeometry")
+        pass
+
+    @property
+    def webgl(self):
+        deprecated((0, 12, 6), "webgl", "output_backend")
+        return self.output_backend == "webgl"
+
+    @webgl.setter
+    def webgl(self, webgl):
+        deprecated((0, 12, 6), "webgl", "output_backend")
+        if not isinstance(webgl, bool):
+            raise ValueError('Attribute "webgl" must be a boolean')
+        if webgl is True:
+            self.output_backend = "webgl"
+        else:
+            self.output_backend = "canvas"
 
     x_scale = Instance(Scale, default=lambda: LinearScale(), help="""
     What kind of scale to use to convert x-coordinates in data space
@@ -517,10 +513,6 @@ class Plot(LayoutDOM):
     toolbar_sticky = Bool(default=True, help="""
     Stick the toolbar to the edge of the plot. Default: True. If False,
     the toolbar will be outside of the axes, titles etc.
-    """)
-
-    tool_events = Instance(ToolEvents, help="""
-    A ToolEvents object to share and report tool events.
     """)
 
     left = List(Instance(Renderer), help="""
@@ -693,7 +685,10 @@ class Plot(LayoutDOM):
     level-of-detail mode is disabled.
     """)
 
-    webgl = Bool(False, help="""
-    Whether WebGL is enabled for this plot. If True, the glyphs that
-    support this will render via WebGL instead of the 2D canvas.
+    output_backend = Enum(OutputBackend, default="canvas", help="""
+    Specify the output backend for the plot area. Default is HTML5 Canvas.
+
+    .. note::
+        When set to ``webgl``, glyphs without a WebGL rendering implementation
+        will fall back to rendering onto 2D canvas.
     """)
