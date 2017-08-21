@@ -210,9 +210,9 @@ export class PlotCanvasView extends DOMView
     follow_enabled = false
     has_bounds = false
 
-    if @model.plot.aspect_ratio != false
+    if @model.plot.aspect_ratio != false and @frame._width.value != 0 and @frame._height.value != 0
       aspect = if @model.plot.aspect_ratio is true then 1 else @model.plot.aspect_ratio
-      r = aspect*(@model.plot.width/@model.plot.height)
+      r = aspect*(@frame._width.value/@frame._height.value)
 
       for k, v of bounds
         width = v.maxX - v.minX
@@ -566,6 +566,7 @@ export class PlotCanvasView extends DOMView
 
     @canvas_view.set_dims([width, height])
     @update_constraints()
+    @update_dataranges()
 
     # This allows the plot canvas to be positioned around the toolbar
     @el.style.position = 'absolute'
