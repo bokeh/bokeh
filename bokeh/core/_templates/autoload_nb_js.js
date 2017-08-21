@@ -32,7 +32,7 @@
     var server_id = cell.output_area._bokeh_server_id;
     // Clean up Bokeh references
     if (id !== undefined) {
-      Bokeh.index[id].remove();
+      Bokeh.index[id].model.document.clear();
       delete Bokeh.index[id];
     }
 
@@ -43,7 +43,7 @@
         iopub: {
           output: function(msg) {
             var element_id = msg.content.text.trim();
-            Bokeh.index[element_id].remove();
+            Bokeh.index[element_id].model.document.clear();
             delete Bokeh.index[element_id];
           }
         }
