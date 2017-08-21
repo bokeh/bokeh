@@ -15,10 +15,13 @@ import pytest
 import selenium.webdriver as webdriver
 import unittest
 
+from bokeh.application.handlers import FunctionHandler
+from bokeh.application import Application
 import bokeh.io as io
 from bokeh.resources import Resources
 from bokeh.models.plots import Plot
 from bokeh.models import Range1d
+from bokeh.server.server import Server
 
 class TestDefaultState(unittest.TestCase):
 
@@ -286,6 +289,26 @@ class TestResetOutput(DefaultStateTester):
     def test(self):
         io.reset_output()
         self.assertTrue(io._state.reset.called)
+
+def test__destroy_server():
+    server_id = "foo"
+
+    def modify_doc(doc):
+        return doc
+
+    handler = FunctionHandler(modify_doc)
+    app = Application(handler)
+    server = Server(app)
+
+    io._state.uuid_to_server[server_id] = server
+    server.start()
+
+    assert server._started is True
+
+    io._destroy_server(server_id)
+
+    assert server._stopped is True
+    assert server_id not in io._state.uuid_to_server
 
 def _test_layout_added_to_root(layout_generator, children=None):
     layout = layout_generator(Plot() if children is None else children)
