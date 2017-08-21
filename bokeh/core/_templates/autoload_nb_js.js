@@ -29,7 +29,7 @@
     var cell = handle.cell;
 
     var id = cell.output_area._bokeh_element_id;
-    var server_id = cell.output_area._server_id;
+    var server_id = cell.output_area._bokeh_server_id;
     // Clean up Bokeh references
     if (id !== undefined) {
       Bokeh.index[id].remove();
@@ -62,7 +62,7 @@
     var output = handle.output;
     // store reference to embed id or server id on output_area
     output_area._bokeh_element_id = output.metadata[MIME_TYPE]["id"];
-    output_area._server_id = output.metadata[MIME_TYPE]["server_id"];
+    output_area._bokeh_server_id = output.metadata[MIME_TYPE]["server_id"];
   }
 
   function register_renderer(notebook, OutputArea) {
