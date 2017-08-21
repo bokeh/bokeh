@@ -1,6 +1,3 @@
-{% block comms_target %}
-{% endblock %}
-
 var docs_json = {{ docs_json }};
 var render_items = {{ render_items }};
 
