@@ -49,8 +49,7 @@
       });
       // Destroy server and session
       var cmd = "from bokeh import io; io._destroy_server('" + server_id + "')";
-      var command = _.template(cmd)({server_id: server_id});
-      cell.notebook.kernel.execute(command);
+      cell.notebook.kernel.execute(cmd);
     }
   }
 
