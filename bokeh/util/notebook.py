@@ -2,7 +2,10 @@
 
 '''
 from __future__ import absolute_import
-from bokeh.core.templates import NOTEBOOK_CELL_OBSERVER
+
+from IPython.display import publish_display_data
+
+from ..embed import _wrap_in_script_tag
 
 _notebook_loaded = None
 
@@ -35,8 +38,7 @@ def load_notebook(resources=None, verbose=False, hide_banner=False, load_timeout
     '''
     html, js = _load_notebook_html(resources, verbose, hide_banner, load_timeout)
     if notebook_type=='jupyter':
-        publish_display_data({'text/html': html})
-        publish_display_data({'application/javascript': js})
+        publish_display_data({'text/html': html + _wrap_in_script_tag(js)})
     else:
         _publish_zeppelin_data(html, js)
 
@@ -102,24 +104,6 @@ def _load_notebook_html(resources=None, verbose=False, hide_banner=False,
 
     return html, js
 
-def publish_display_data(data, source='bokeh'):
-    ''' Compatibility wrapper for Jupyter ``publish_display_data``
-
-    Later versions of Jupyter remove the ``source`` (first) argument. This
-    function insulates Bokeh library code from this change.
-
-    Args:
-        source (str, optional) : the source arg for Jupyter (default: "bokeh")
-        data (dict) : the data dict to pass to ``publish_display_data``
-            Typically has the form ``{'text/html': html}``
-
-    '''
-    import IPython.core.displaypub as displaypub
-    try:
-        displaypub.publish_display_data(source, data)
-    except TypeError:
-        displaypub.publish_display_data(data)
-
 def get_comms(target_name):
     ''' Create a Jupyter comms object for a specific target, that can
     be used to update Bokeh documents in the Jupyter notebook.
@@ -133,16 +117,3 @@ def get_comms(target_name):
     '''
     from ipykernel.comm import Comm
     return Comm(target_name=target_name, data={})
-
-
-def watch_server_cells(inner_block):
-    ''' Installs a MutationObserver that detects deletion of cells using
-    io.server_cell to wrap the output.
-
-    The inner_block is a Javascript block that is executed when a server
-    cell is removed from the DOM. The id of the destroyed div is in
-    scope as the variable destroyed_id.
-    '''
-    js = NOTEBOOK_CELL_OBSERVER.render(inner_block=inner_block)
-    script = "<script type='text/javascript'>{js}</script>".format(js=js)
-    publish_display_data({'text/html': script}, source='bokeh')
