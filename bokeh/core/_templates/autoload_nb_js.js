@@ -2,6 +2,7 @@
 
 {% block register_mimetype %}
 
+  {%- if register_mimetype -%}
   var MIME_TYPE = 'application/vnd.bokehjs_exec.v0+json';
   var CLASS_NAME = 'output_bokeh rendered_html';
 
@@ -108,6 +109,7 @@
   if ((root.Jupyter !== undefined) && (OutputArea.prototype.mime_types().indexOf(MIME_TYPE) == -1)) {
     register_renderer(root.Jupyter.notebook, OutputArea);
   }
+  {%- endif -%}
 
 {% endblock %}
 
