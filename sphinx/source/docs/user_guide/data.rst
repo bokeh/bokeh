@@ -84,10 +84,6 @@ formed by joining original column names with the computed measure. For example, 
 ``DataFrame`` has columns ``'year'`` and ``'mpg'``. Then passing ``df.groupby('year')``
 to a CDS will result in columns such as ``'mpg_mean'``
 
-If the ``GroupBy.describe`` result has a named index column, then the CDS will also have a
-column with this name. However, if the index name (or any subname of a ``MultiIndex``) is
-``None``, then the CDS will have a column generically named ``index`` for the index.
-
 Note this capability to adapt ``GroupBy`` objects may only work with Pandas ``>=0.20.0``.
 
 .. note::
@@ -116,6 +112,8 @@ column will be discarded). The default ``rollover`` value of None allows data to
     }
 
     source.stream(new_data)
+
+For an example that uses streaming, see :bokeh-tree:`examples/app/ohlc`.
 
 Patching
 ~~~~~~~~
@@ -257,9 +255,8 @@ either ``setosa``, ``versicolor``, or ``virginica``.
 CustomJSFilter
 ~~~~~~~~~~~~~~
 
-You can also create a filter with custom functionality. This type of filter, the
-|CustomJSFilter|, can be written in three ways, using Javascript, Coffeescript, or Python.
-For all three, the custom code needs to return either a list of indices or a list of
+You can also create a |CustomJSFilter| with your own functionality. To do this, use JavaScript
+or CoffeeScript to write code that returns either a list of indices or a list of
 booleans that represents the filtered subset. The |ColumnDataSource| that is associated
 with the |CDSView| this filter is added to will be available at render time with the
 variable ``source``.
@@ -300,26 +297,6 @@ use the ``from_coffeescript`` class method, which accepts the ``code`` parameter
     return indices
     ''')
 
-Python
-''''''
-
-A CustomJSFilter can also be created from a Python function. To use this functionality
-you need the Flexx library (install with ``conda install -c bokeh flexx`` or
-``pip install flexx``). It is also important to note that not all Python code is
-supported, only the subset of Python that can be translated to Javascript using PyScript.
-
-.. code-block:: python
-
-    def custom_python_filter():
-        z = source.data['z']
-        indices = [True if z[i] == 'c' else False for i in range(len(z)) ]
-        return indices
-
-    custom_filter_pyscript = CustomJSFilter.from_py_func(custom_python_filter)
-
-For more information about the subset of Python that is supported,
-see the `PyScript documentation`_.
-
 .. _userguide_data_linked_selection:
 
 Linked selection
@@ -348,6 +325,13 @@ the corresponding point in the other plot if it exists.
 
 .. bokeh-plot:: docs/user_guide/examples/data_linked_brushing_subsets.py
     :source-position: above
+
+Other Data Types
+----------------
+
+Bokeh also has the capability to render network graph data and geographical data.
+For more information about how to set up the data for these types of plots, see
+:ref:`userguide_graph` and :ref:`userguide_geo`.
 
 .. |ColumnDataSource| replace:: :class:`~bokeh.models.sources.ColumnDataSource`
 .. |CDSView| replace:: :class:`~bokeh.models.sources.CDSView`
