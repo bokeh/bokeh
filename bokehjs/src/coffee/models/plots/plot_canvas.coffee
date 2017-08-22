@@ -212,6 +212,7 @@ export class PlotCanvasView extends DOMView
 
     if @model.plot.aspect? and @frame._width.value != 0 and @frame._height.value != 0
       aspect = if @model.plot.aspect == "auto" then 1 else @model.plot.aspect
+      r = 1/aspect*(@frame._width.value/@frame._height.value)
 
       for k, v of bounds
         width = v.maxX - v.minX
