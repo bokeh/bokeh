@@ -336,6 +336,9 @@ export class Plot extends LayoutDOM
       inner_height:      [ p.Number                           ]
       layout_width:      [ p.Number                           ]
       layout_height:     [ p.Number                           ]
+
+      match_aspect:      [ p.Bool,     false                  ]
+      aspect_scale:      [ p.Number,   1                      ]
     }
 
   @override {
