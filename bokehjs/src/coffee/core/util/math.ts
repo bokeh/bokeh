@@ -71,3 +71,7 @@ export function clamp(val: number, min: number, max: number): number {
     return min
   return val
 }
+
+export function isInteger(value: number): boolean {
+  return isFinite(value) && Math.floor(value) === value
+}

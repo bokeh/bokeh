@@ -22,7 +22,4 @@ export class DateRangeSlider extends AbstractSlider
   connected: [false, true, false]
 
   _formatter: tz
-
-  @override {
-    format: "%d %b %G"
-  }
+  _default_format: "%d %b %G"

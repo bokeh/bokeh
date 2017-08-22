@@ -4,7 +4,7 @@
 from __future__ import absolute_import
 
 from ...core.has_props import abstract
-from ...core.properties import Bool, Int, Float, String, Date, Enum, Tuple, Instance, Color, Override
+from ...core.properties import Bool, Int, Float, String, Date, Enum, Tuple, Instance, Color, Auto, Either
 from ...core.enums import SliderCallbackPolicy
 from ..callbacks import Callback
 from .widget import Widget
@@ -21,7 +21,7 @@ class AbstractSlider(Widget):
     Whether or not show slider's value.
     """)
 
-    format = String(help="""
+    format = Either(Auto, String, help="""
     """)
 
     orientation = Enum("horizontal", "vertical", help="""
@@ -74,8 +74,6 @@ class Slider(AbstractSlider):
     The step between consecutive values.
     """)
 
-    format = Override(default="0,0.00")
-
 class RangeSlider(AbstractSlider):
     """ Range-slider based number range selection widget. """
 
@@ -94,8 +92,6 @@ class RangeSlider(AbstractSlider):
     step = Float(default=1, help="""
     The step between consecutive values.
     """)
-
-    format = Override(default="0,0.00")
 
 class DateSlider(AbstractSlider):
     """ Slider-based date selection widget. """
@@ -116,8 +112,6 @@ class DateSlider(AbstractSlider):
     The step between consecutive values.
     """)
 
-    format = Override(default="%d %b %G")
-
 class DateRangeSlider(AbstractSlider):
     """ Slider-based date range selection widget. """
 
@@ -136,5 +130,3 @@ class DateRangeSlider(AbstractSlider):
     step = Int(default=1, help="""
     The step between consecutive values.
     """)
-
-    format = Override(default="%d %b %G")
