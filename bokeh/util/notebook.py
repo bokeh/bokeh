@@ -7,6 +7,9 @@ from IPython.display import publish_display_data
 
 from ..embed import _wrap_in_script_tag
 
+LOAD_MIME_TYPE = 'application/vnd.bokehjs_load.v0+json'
+EXEC_MIME_TYPE = 'application/vnd.bokehjs_exec.v0+json'
+
 _notebook_loaded = None
 
 def load_notebook(resources=None, verbose=False, hide_banner=False, load_timeout=5000, notebook_type='jupyter'):
@@ -36,11 +39,13 @@ def load_notebook(resources=None, verbose=False, hide_banner=False, load_timeout
         None
 
     '''
-    html, js = _load_notebook_html(resources, verbose, hide_banner, load_timeout)
+    nb_html, nb_js = _load_notebook_html(resources, verbose, hide_banner, load_timeout)
+    lab_html, lab_js = _load_notebook_html(resources, verbose, hide_banner, load_timeout, register_mime=False)
     if notebook_type=='jupyter':
-        publish_display_data({'text/html': html + _wrap_in_script_tag(js)})
+        publish_display_data({'text/html': nb_html + _wrap_in_script_tag(nb_js),
+                              LOAD_MIME_TYPE: {"script": lab_js, "div": lab_html}})
     else:
-        _publish_zeppelin_data(html, js)
+        _publish_zeppelin_data(lab_html, lab_js)
 
 
 FINALIZE_JS = """
@@ -52,7 +57,7 @@ def _publish_zeppelin_data(html, js):
     print('%html ' + '<script type="text/javascript">' + js + "</script>")
 
 def _load_notebook_html(resources=None, verbose=False, hide_banner=False,
-                        load_timeout=5000):
+                        load_timeout=5000, register_mime=True):
     global _notebook_loaded
 
     from .. import __version__
@@ -99,7 +104,8 @@ def _load_notebook_html(resources=None, verbose=False, hide_banner=False,
         js_raw   = resources.js_raw + [custom_models_js] + ([] if hide_banner else [FINALIZE_JS % element_id]),
         css_raw  = resources.css_raw_str,
         force    = True,
-        timeout  = load_timeout
+        timeout  = load_timeout,
+        register_mime = register_mime
     )
 
     return html, js
