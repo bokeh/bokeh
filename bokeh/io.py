@@ -292,9 +292,6 @@ def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="loca
     return _show_with_state(obj, _state, browser, new, notebook_handle=notebook_handle)
 
 def _show_notebook_app_with_state(app, state, app_path, notebook_url):
-    if state.notebook_type == 'zeppelin':
-        raise ValueError("Zeppelin doesn't support show bokeh app.")
-
     logging.basicConfig()
     from tornado.ioloop import IOLoop
     from .server.server import Server
@@ -307,8 +304,13 @@ def _show_notebook_app_with_state(app, state, app_path, notebook_url):
     server.start()
     url = 'http://%s:%d%s' % (notebook_url.split(':')[0], server.port, app_path)
     script = server_document(url)
-
-    publish_display_data({LOAD_MIME_TYPE: {"div": script}}, metadata={LOAD_MIME_TYPE: {"server_id": server_id}})
+    if state.notebook_type == 'jupyter':
+        publish_display_data({LOAD_MIME_TYPE: {"div": script}}, metadata={LOAD_MIME_TYPE: {"server_id": server_id}})
+    elif state.notebook_type == 'zeppelin':
+        div_html = "<div class='bokeh_class' id='{divid}'>{script}</div>"
+        print('%html ' + div_html.format(script=script, divid=server_id))
+    else:
+        raise ValueError(state.notebook_type + " doesn't support to embed bokeh app.")
 
 def _show_with_state(obj, state, browser, new, notebook_handle=False):
     controller = browserlib.get_browser_controller(browser=browser)

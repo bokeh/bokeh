@@ -609,7 +609,7 @@ any or all of the following conventionally named functions:
 Embedding Bokeh Server as a Library
 -----------------------------------
 
-It can be useful to embed the Bokeh Server in a larger Tornado application, or the
+It can be useful to embed the Bokeh Server in a larger Tornado application, Zeppelin notebook or the
 Jupyter notebook, and use the already existing Tornado ``IOloop``.  Here is the
 basis of how to integrate Bokeh in such a scenario:
 
