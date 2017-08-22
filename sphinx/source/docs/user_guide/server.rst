@@ -37,7 +37,7 @@ this.
 
     <div>
     <iframe
-        src="http://demo.bokehplots.com/apps/sliders/#"
+        src="https://demo.bokehplots.com/apps/sliders/#"
         frameborder="0"
         style="overflow:hidden;height:400px;width: 90%;
 
