@@ -4,7 +4,7 @@
 from __future__ import absolute_import
 
 from ..core.enums import Location, OutputBackend
-from ..core.properties import Bool, Dict, Enum, Include, Instance, Int, List, Override, String, Either, Float, Auto
+from ..core.properties import Bool, Dict, Enum, Include, Instance, Int, List, Override, String, Float
 from ..core.property_mixins import LineProps, FillProps
 from ..core.query import find
 from ..core.validation import error, warning
