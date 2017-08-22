@@ -4,7 +4,7 @@
 from __future__ import absolute_import
 
 from ..core.enums import Location, OutputBackend
-from ..core.properties import Bool, Dict, Enum, Include, Instance, Int, List, Override, String, Either, Float
+from ..core.properties import Bool, Dict, Enum, Include, Instance, Int, List, Override, String, Either, Float, Auto
 from ..core.property_mixins import LineProps, FillProps
 from ..core.query import find
 from ..core.validation import error, warning
@@ -693,10 +693,12 @@ class Plot(LayoutDOM):
         will fall back to rendering onto 2D canvas.
     """)
 
-    aspect_ratio = Either(Bool, Float, default=False, help="""
-    Specify the aspect ratio behavior of the plot. Default is ``False`` which
-    means that axis range will be set to the glyph's bounds. ``True`` indicates
-    that the axis range should maintain an aspect ratio of 1. A ``Float`` value
-    can also be given for arbitrary aspect_ratio control. Aspect ratio is
-    defined as the ratio of width over height.
+    aspect = Either(Auto, Float, default=None, help="""
+    Specify the aspect ratio behavior of the plot. Aspect ratio is defined as
+    the physical distance relationship between a figure's width and height. It
+    is defined by the ratio of the width over the height.
+
+    Default is ``None`` which indicates no aspect ratio. ``"auto"`` indicates
+    that the plot should maintain an aspect ratio of 1. A ``Float`` value can
+    be given for arbitrary aspect ratio control.
     """)
