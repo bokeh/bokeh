@@ -693,12 +693,34 @@ class Plot(LayoutDOM):
         will fall back to rendering onto 2D canvas.
     """)
 
-    aspect = Either(Auto, Float, default=None, help="""
+    match_aspect = Bool(default=False, help="""
     Specify the aspect ratio behavior of the plot. Aspect ratio is defined as
-    the physical distance relationship between a figure's width and height. It
-    is defined by the ratio of the width over the height.
+    the ratio of width over height. This property controls whether Bokeh should
+    attempt the match the (width/height) of *data space* to the (width/height)
+    in pixels of *screen space*.
 
-    Default is ``None`` which indicates no aspect ratio. ``"auto"`` indicates
-    that the plot should maintain an aspect ratio of 1. A ``Float`` value can
-    be given for arbitrary aspect ratio control.
+    Default is ``False`` which indicates that the *data* aspect ratio and the
+    *screen* aspect ratio vary independently. ``True`` indicates that the plot
+    aspect ratio of the axes will match the aspect ratio of the pixel extent
+    the axes. The end result is that a 1x1 area in data space is a square in
+    pixels, and conversely that a 1x1 pixel is a square in data units.
+
+    .. note::
+        This setting only takes effect when there are two dataranges. This
+        setting only sets the initial plot draw and subsequent resets. It is
+        possible for tools (single axis zoom, unconstrained box zoom) to
+        change the aspect ratio.
+    """)
+
+    aspect_scale = Float(default=1, help="""
+    A value to be given for increased aspect ratio control. This value is added
+    multiplicatively to the calculated value required for ``match_aspect``.
+    ``aspect_scale`` is defined as the ratio of width over height of the figure.
+
+    For example, a plot with ``aspect_scale`` value of 2 will result in a
+    square in *data units* to be drawn on the screen as a rectangle with a
+    pixel width twice as long as its pixel height.
+
+    .. note::
+        This setting only takes effect if ``match_aspect`` is set to ``True``.
     """)
