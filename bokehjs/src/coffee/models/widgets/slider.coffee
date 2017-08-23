@@ -1,6 +1,7 @@
 import {format} from "numbro"
 
 import {AbstractSlider, AbstractSliderView} from "./abstract_slider"
+import {isInteger} from "core/util/math"
 
 export class SliderView extends AbstractSliderView
 
@@ -23,6 +24,7 @@ export class Slider extends AbstractSlider
 
   _formatter: format
 
-  @override {
-    format: "0,0.00"
+  @getters {
+    _default_format: () ->
+      if isInteger(@start) and isInteger(@end) and isInteger(@step) then "0,0" else "0,0.00"
   }

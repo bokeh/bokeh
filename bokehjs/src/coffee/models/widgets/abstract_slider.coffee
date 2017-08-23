@@ -140,7 +140,7 @@ export class AbstractSlider extends Widget
     end:               [ p.Any                       ]
     value:             [ p.Any                       ]
     step:              [ p.Number,      1            ]
-    format:            [ p.String                    ]
+    format:            [ p.String,      "auto"       ]
     orientation:       [ p.Orientation, "horizontal" ]
     direction:         [ p.Any,         "ltr"        ]
     tooltips:          [ p.Boolean,     true         ]
@@ -155,4 +155,6 @@ export class AbstractSlider extends Widget
 
   _formatter: (value, format) -> "#{value}"
 
-  pretty: (value) -> @_formatter(value, @format)
+  _get_format: () -> if @format == "auto" then @_default_format else @format
+
+  pretty: (value) -> @_formatter(value, @_get_format())
