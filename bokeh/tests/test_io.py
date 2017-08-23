@@ -16,6 +16,8 @@ import selenium.webdriver as webdriver
 import unittest
 
 import bokeh.io as io
+
+from bokeh.application.application import Application
 from bokeh.resources import Resources
 from bokeh.models.plots import Plot
 from bokeh.models import Range1d
@@ -82,23 +84,6 @@ class TestOutputJupyter(DefaultStateTester):
         io.output_notebook(*load_jupyter_args)
         self._check_func_called(io._state.output_notebook, ('jupyter',), {})
         self._check_func_called(mock_load_notebook, load_jupyter_args, {})
-
-class TestOutputZeppelin(DefaultStateTester):
-
-    @patch('bokeh.io.load_notebook')
-    def test_args(self, mock_load_notebook):
-        load_zeppelin_args = (Resources(), True, True, 1000, 'zeppelin')
-        io.output_notebook(*load_zeppelin_args)
-        self._check_func_called(io._state.output_notebook, ('zeppelin',), {})
-        self._check_func_called(mock_load_notebook, load_zeppelin_args, {})
-
-    def test_zeppelin_with_notebook_handle(self):
-        load_zeppelin_args = (Resources(), True, True, 1000, 'zeppelin')
-        io.output_notebook(*load_zeppelin_args)
-        with pytest.raises(Exception) as ex:
-            p = Plot()
-            io.show(p, notebook_handle=True)
-        assert "Zeppelin doesn't support notebook_handle." == str(ex.value)
 
 class TestSave(DefaultStateTester):
     pass
@@ -187,6 +172,15 @@ class TestShow(DefaultStateTester):
         io.show("obj", **default_kwargs)
         self._check_func_called(mock__show_with_state, ("obj", io._state, "browser", "new"), {'notebook_handle': True})
 
+    @patch('bokeh.io._run_notebook_hook')
+    def test_show_with_app(self, mock__run_notebook_hook):
+        app = Application()
+        io.show(app, notebook_url="baz")
+        io._state.notebook_type == "foo"
+        self.assertTrue(mock__run_notebook_hook.called)
+        self.assertEqual(mock__run_notebook_hook.call_args[0][0], io._state.notebook_type)
+        self.assertEqual(mock__run_notebook_hook.call_args[0][1:], ("app", app, io._state, "baz"))
+        self.assertEqual(mock__run_notebook_hook.call_args[1], {})
 
 @patch('bokeh.io._show_with_state')
 def test_show_adds_obj_to_document_if_not_already_there(m):
@@ -208,29 +202,29 @@ def test_show_doesnt_duplicate_if_already_there(m):
 
 class Test_ShowWithState(DefaultStateTester):
 
-    @patch('bokeh.io._show_jupyter_with_state')
+    @patch('bokeh.io._show_notebook_doc_with_state')
     @patch('bokeh.io._show_file_with_state')
     @patch('bokeh.util.browser.get_browser_controller')
     def test_notebook(self, mock_get_browser_controller,
-            mock__show_file_with_state, mock__show_jupyter_with_state):
+            mock__show_file_with_state, mock__show_notebook_doc_with_state):
         mock_get_browser_controller.return_value = "controller"
         s = io.State()
         s.output_notebook()
         io._show_with_state("obj", s, "browser", "new")
-        self._check_func_called(mock__show_jupyter_with_state, ("obj", s, False), {})
+        self._check_func_called(mock__show_notebook_doc_with_state, ("obj", s, False), {})
         self.assertFalse(mock__show_file_with_state.called)
 
         s.output_file("foo.html")
         io._show_with_state("obj", s, "browser", "new")
-        self._check_func_called(mock__show_jupyter_with_state, ("obj", s, False), {})
+        self._check_func_called(mock__show_notebook_doc_with_state, ("obj", s, False), {})
         self._check_func_called(mock__show_file_with_state, ("obj", s, "new", "controller"), {})
 
     @patch('bokeh.io.get_comms')
-    @patch('bokeh.io._show_jupyter_with_state')
+    @patch('bokeh.io._show_notebook_doc_with_state')
     @patch('bokeh.io._show_file_with_state')
     @patch('bokeh.util.browser.get_browser_controller')
     def test_no_notebook(self, mock_get_browser_controller,
-            mock__show_file_with_state, mock__show_jupyter_with_state,
+            mock__show_file_with_state, mock__show_notebook_doc_with_state,
             mock_get_comms):
         mock_get_browser_controller.return_value = "controller"
         mock_get_comms.return_value = "comms"
@@ -238,7 +232,7 @@ class Test_ShowWithState(DefaultStateTester):
 
         s.output_file("foo.html")
         io._show_with_state("obj", s, "browser", "new")
-        self.assertFalse(mock__show_jupyter_with_state.called)
+        self.assertFalse(mock__show_notebook_doc_with_state.called)
         self._check_func_called(mock__show_file_with_state, ("obj", s, "new", "controller"), {})
 
 class Test_ShowFileWithState(DefaultStateTester):
@@ -273,7 +267,7 @@ class Test_ShowJupyterWithState(DefaultStateTester):
             _id = None
 
         io._nb_loaded = True
-        io._show_jupyter_with_state(Obj(), s, True)
+        io._show_jupyter_doc_with_state(Obj(), s, True)
         io._nb_loaded = False
 
         expected_args = ({'application/vnd.bokehjs_exec.v0+json': {"script": "notebook_script", "div": "notebook_div"}},)
@@ -314,6 +308,25 @@ def test__save_layout_html_resets_plot_dims():
     io._save_layout_html(layout, height=100, width=100)
     assert layout.plot_height == initial_height
     assert layout.plot_width == initial_width
+
+def test__notebook_hooks():
+    assert "jupyter" in io._notebook_hooks
+    # TODO (bev) can be improved after load_notebook is simplified
+    assert "load" in io._notebook_hooks["jupyter"]
+    assert io._notebook_hooks["jupyter"]['doc'] == io._show_jupyter_doc_with_state
+    assert io._notebook_hooks["jupyter"]['app'] == io._show_jupyter_app_with_state
+
+def test_install_notebook_hook():
+    io.install_notebook_hook("foo", "load", "doc", "app")
+    assert io._notebook_hooks["foo"]['load'] == "load"
+    assert io._notebook_hooks["foo"]['doc'] == "doc"
+    assert io._notebook_hooks["foo"]['app'] == "app"
+    with pytest.raises(RuntimeError):
+        io.install_notebook_hook("foo", "load2", "doc2", "app2")
+    io.install_notebook_hook("foo", "load2", "doc2", "app2", overwrite=True)
+    assert io._notebook_hooks["foo"]['load'] == "load2"
+    assert io._notebook_hooks["foo"]['doc'] == "doc2"
+    assert io._notebook_hooks["foo"]['app'] == "app2"
 
 @pytest.mark.unit
 @pytest.mark.selenium
