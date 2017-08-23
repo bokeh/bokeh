@@ -41,7 +41,7 @@ def load_notebook(resources=None, verbose=False, hide_banner=False, load_timeout
 
     '''
     nb_html, nb_js = _load_notebook_html(resources, verbose, hide_banner, load_timeout)
-    lab_html, lab_js = _load_notebook_html(resources, verbose, hide_banner, load_timeout, register_mime=False)
+    lab_html, lab_js = _load_notebook_html(resources, verbose, hide_banner, load_timeout, register_mimetype=False)
     if notebook_type=='jupyter':
         publish_display_data({'text/html': nb_html + _wrap_in_script_tag(nb_js),
                               LOAD_MIME_TYPE: {"script": lab_js, "div": lab_html}})
@@ -59,7 +59,7 @@ def _publish_zeppelin_data(html, js):
     print('%html ' + '<script type="text/javascript">' + js + "</script>")
 
 def _load_notebook_html(resources=None, verbose=False, hide_banner=False,
-                        load_timeout=5000, register_mime=True):
+                        load_timeout=5000, register_mimetype=True):
     global _notebook_loaded
 
     from .. import __version__
@@ -107,7 +107,7 @@ def _load_notebook_html(resources=None, verbose=False, hide_banner=False,
         css_raw  = resources.css_raw_str,
         force    = True,
         timeout  = load_timeout,
-        register_mime = register_mime
+        register_mimetype = register_mimetype
     )
 
     return html, js
