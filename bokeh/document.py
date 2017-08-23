@@ -265,7 +265,7 @@ class Document(object):
                 suppress any updates that originate from itself.
 
         '''
-        from .server.events import RootAddedEvent
+        from .protocol.events import RootAddedEvent
 
         if model in self._roots:
             return
@@ -431,7 +431,7 @@ class Document(object):
           str :  JSON string which can be applied to make the given updates to obj
 
         '''
-        from .server.events import (ColumnsPatchedEvent, ColumnsStreamedEvent, ModelChangedEvent,
+        from .protocol.events import (ColumnsPatchedEvent, ColumnsStreamedEvent, ModelChangedEvent,
                                     RootAddedEvent, RootRemovedEvent, TitleChangedEvent)
         references = set()
         json_events = []
@@ -635,7 +635,7 @@ class Document(object):
                 suppress any updates that originate from itself.
 
         '''
-        from bokeh.server.events import RootRemovedEvent
+        from bokeh.protocol.events import RootRemovedEvent
 
         if model not in self._roots:
             return # TODO (bev) ValueError?
@@ -800,7 +800,7 @@ class Document(object):
             ValueError, if the callback has been previously added
 
         '''
-        from .server.events import SessionCallbackAdded
+        from .protocol.events import SessionCallbackAdded
 
         if callback in self._session_callbacks:
             raise ValueError("callback has already been added")
@@ -1053,7 +1053,7 @@ class Document(object):
 
         '''
 
-        from .server.events import ModelChangedEvent
+        from .protocol.events import ModelChangedEvent
 
         # if name changes, update by-name index
         if attr == 'name':
@@ -1133,7 +1133,7 @@ class Document(object):
             KeyError, if the callback was never added
 
         '''
-        from bokeh.server.events import SessionCallbackRemoved
+        from bokeh.protocol.events import SessionCallbackRemoved
 
         if callback not in self._session_callbacks:
             raise ValueError("callback already ran or was already removed, cannot be removed again")
@@ -1145,7 +1145,7 @@ class Document(object):
         '''
 
         '''
-        from bokeh.server.events import TitleChangedEvent
+        from bokeh.protocol.events import TitleChangedEvent
 
         if title is None:
             raise ValueError("Document title may not be None")

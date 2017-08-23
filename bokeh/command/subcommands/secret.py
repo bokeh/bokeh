@@ -1,8 +1,13 @@
-'''
+''' Generate new secret keys that can be used by the Bokeh server to
+cryptographically sign session IDs.
 
-To generate a new secret key for use with Bokeh server,
-type ``bokeh secret`` on the command line. The key will be printed
-to standard output.
+To generate a new secret key for use with Bokeh server, execute
+
+.. code-block:: sh
+
+    bokeh secret
+
+on the command line. The key will be printed to standard output.
 
 The secret key can be provided to the ``bokeh serve`` command with
 the ``BOKEH_SECRET_KEY`` environment variable.
@@ -22,6 +27,7 @@ class Secret(Subcommand):
 
     '''
 
+    #: name for this subcommand
     name = "secret"
 
     help = "Create a Bokeh secret key for use with Bokeh server"
@@ -30,5 +36,8 @@ class Secret(Subcommand):
     )
 
     def invoke(self, args):
+        '''
+
+        '''
         key = generate_secret_key()
         print(key)

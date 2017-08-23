@@ -3,7 +3,6 @@ from __future__ import absolute_import
 import logging
 log = logging.getLogger(__name__)
 
-from bokeh.server.server import Server
 from bokeh.util.logconfig import basicConfig
 
 from ..subcommand import Subcommand
@@ -14,6 +13,7 @@ from .serve import base_serve_args
 class Static(Subcommand):
     ''' Subcommand to launch the Bokeh static server. '''
 
+    #: name for this subcommand
     name = "static"
 
     help = "Serve bokehjs' static assets (JavaScript, CSS, images, fonts, etc.)"
@@ -21,6 +21,13 @@ class Static(Subcommand):
     args = base_serve_args
 
     def invoke(self, args):
+        '''
+
+        '''
+        # protect this import inside a function so that "bokeh info" can work
+        # even if Tornado is not installed
+        from bokeh.server.server import Server
+
         log_level = getattr(logging, args.log_level.upper())
         basicConfig(level=log_level, format=args.log_format)
 

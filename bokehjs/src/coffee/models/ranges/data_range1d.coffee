@@ -86,51 +86,47 @@ export class DataRange1d extends DataRange
     return [min, max]
 
   _compute_range: (min, max) ->
-    range_padding = @range_padding
-    if range_padding? and range_padding > 0
+    range_padding = @range_padding ? 0
 
-      if @scale_hint == "log"
-        if isNaN(min) or not isFinite(min) or min <= 0
-          if isNaN(max) or not isFinite(max) or max <= 0
-            min = 0.1
-          else
-            min = max / 100
-          logger.warn("could not determine minimum data value for log axis, DataRange1d using value #{min}")
+    if @scale_hint == "log"
+      if isNaN(min) or not isFinite(min) or min <= 0
         if isNaN(max) or not isFinite(max) or max <= 0
-          if isNaN(min) or not isFinite(min) or min <= 0
-            max = 10
-          else
-            max = min * 100
-          logger.warn("could not determine maximum data value for log axis, DataRange1d using value #{max}")
-
-        if max == min
-          span = @default_span + 0.001
-          center = Math.log(min) / Math.log(10)
+          min = 0.1
         else
-          if @range_padding_units == "percent"
-            log_min = Math.log(min) / Math.log(10)
-            log_max = Math.log(max) / Math.log(10)
-            span = (log_max-log_min)*(1+range_padding)
-          else
-            log_min = Math.log(min-range_padding) / Math.log(10)
-            log_max = Math.log(max+range_padding) / Math.log(10)
-            span = log_max-log_min
-          center = (log_min+log_max) / 2.0
-        [start, end] = [Math.pow(10, center-span / 2.0), Math.pow(10, center+span / 2.0)]
+          min = max / 100
+        logger.warn("could not determine minimum data value for log axis, DataRange1d using value #{min}")
+      if isNaN(max) or not isFinite(max) or max <= 0
+        if isNaN(min) or not isFinite(min) or min <= 0
+          max = 10
+        else
+          max = min * 100
+        logger.warn("could not determine maximum data value for log axis, DataRange1d using value #{max}")
 
+      if max == min
+        span = @default_span + 0.001
+        center = Math.log(min) / Math.log(10)
       else
-        if max == min
-          span = @default_span
+        if @range_padding_units == "percent"
+          log_min = Math.log(min) / Math.log(10)
+          log_max = Math.log(max) / Math.log(10)
+          span = (log_max-log_min)*(1+range_padding)
         else
-          if @range_padding_units == "percent"
-            span = (max-min)*(1+range_padding)
-          else
-            span = (max-min) + 2*range_padding
-        center = (max+min) / 2.0
-        [start, end] = [center-span / 2.0, center+span / 2.0]
+          log_min = Math.log(min-range_padding) / Math.log(10)
+          log_max = Math.log(max+range_padding) / Math.log(10)
+          span = log_max-log_min
+        center = (log_min+log_max) / 2.0
+      [start, end] = [Math.pow(10, center-span / 2.0), Math.pow(10, center+span / 2.0)]
 
     else
-      [start, end] = [min, max]
+      if max == min
+        span = @default_span
+      else
+        if @range_padding_units == "percent"
+          span = (max-min)*(1+range_padding)
+        else
+          span = (max-min) + 2*range_padding
+      center = (max+min) / 2.0
+      [start, end] = [center-span / 2.0, center+span / 2.0]
 
     follow_sign = +1
     if @flipped

@@ -24,5 +24,5 @@ export class RangeSlider extends AbstractSlider
   _formatter: format
 
   @override {
-    format: "0,0.00"
+    format: "0[.]00"
   }

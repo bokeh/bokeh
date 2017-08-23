@@ -29,8 +29,6 @@ This will produce output like what is shown below
 
     /opt/anaconda/lib/python3.4/site-packages/bokeh/server/static
 
-
-
 '''
 from __future__ import absolute_import
 
@@ -42,7 +40,7 @@ from bokeh.util.compiler import nodejs_version, npmjs_version
 
 from ..subcommand import Subcommand
 
-def ipython_version():
+def _ipython_version():
     try:
         import IPython
     except ImportError:
@@ -55,6 +53,7 @@ class Info(Subcommand):
 
     '''
 
+    #: name for this subcommand
     name = "info"
 
     help = "print information about Bokeh and Bokeh server configuration"
@@ -69,13 +68,16 @@ class Info(Subcommand):
     )
 
     def invoke(self, args):
+        '''
+
+        '''
         if args.static:
             print(settings.bokehjsdir())
         else:
             if_installed = lambda version_or_none: version_or_none or "(not installed)"
 
             print("Python version      :  %s" % sys.version.split('\n')[0])
-            print("IPython version     :  %s" % if_installed(ipython_version()))
+            print("IPython version     :  %s" % if_installed(_ipython_version()))
             print("Bokeh version       :  %s" % __version__)
             print("BokehJS static path :  %s" % settings.bokehjsdir())
             print("node.js version     :  %s" % if_installed(nodejs_version()))

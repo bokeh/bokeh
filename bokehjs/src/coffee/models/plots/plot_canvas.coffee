@@ -17,7 +17,7 @@ import * as enums from "core/enums"
 import * as p from "core/properties"
 import {throttle} from "core/util/throttle"
 import {isStrictNaN} from "core/util/types"
-import {difference, sortBy} from "core/util/array"
+import {difference, sortBy, pairwise, last} from "core/util/array"
 import {extend, values, isEmpty} from "core/util/object"
 import {update_panel_constraints} from "core/layout/side_panel"
 
@@ -209,6 +209,31 @@ export class PlotCanvasView extends DOMView
 
     follow_enabled = false
     has_bounds = false
+
+    if @model.plot.match_aspect != false and @frame._width.value != 0 and @frame._height.value != 0
+      r = 1/@model.plot.aspect_scale*(@frame._width.value/@frame._height.value)
+
+      for k, v of bounds
+        width = v.maxX - v.minX
+        if width <= 0
+          width = 1.0
+
+        height = v.maxY - v.minY
+        if height <= 0
+          height = 1.0
+
+        xcenter = 0.5*(v.maxX + v.minX)
+        ycenter = 0.5*(v.maxY + v.minY)
+
+        if width < r*height
+          width = r*height
+        else
+          height = width/r
+
+        bounds[k].maxX = xcenter+0.5*width
+        bounds[k].minX = xcenter-0.5*width
+        bounds[k].maxY = ycenter+0.5*height
+        bounds[k].minY = ycenter-0.5*height
 
     for xr in values(frame.x_ranges)
       if xr instanceof DataRange1d
@@ -498,9 +523,8 @@ export class PlotCanvasView extends DOMView
       logger.warn('could not set initial ranges')
 
   update_constraints: () ->
-    # Note: -1 to effectively dilate the canvas by 1px
-    @solver.suggest_value(@frame._width, @canvas._width.value - 1)
-    @solver.suggest_value(@frame._height, @canvas._height.value - 1)
+    @solver.suggest_value(@frame._width, @canvas._width.value)
+    @solver.suggest_value(@frame._height, @canvas._height.value)
 
     for _, view of @renderer_views
       if view.model.panel?
@@ -541,6 +565,8 @@ export class PlotCanvasView extends DOMView
 
     @canvas_view.set_dims([width, height])
     @update_constraints()
+    if @model.plot.match_aspect != false and @frame._width.value != 0 and @frame._height.value != 0
+      @update_dataranges()
 
     # This allows the plot canvas to be positioned around the toolbar
     @el.style.position = 'absolute'
@@ -611,7 +637,14 @@ export class PlotCanvasView extends DOMView
     ctx.save()
     if @visuals.outline_line.doit
       @visuals.outline_line.set_value(ctx)
-      ctx.strokeRect.apply(ctx, frame_box)
+      [x0, y0, w, h] = frame_box
+      # XXX: shrink outline region by 1px to make right and bottom lines visible
+      # if they are on the edge of the canvas.
+      if x0 + w == @canvas._width.value
+        w -= 1
+      if y0 + h == @canvas._height.value
+        h -= 1
+      ctx.strokeRect(x0, y0, w, h)
     ctx.restore()
 
     @_paint_levels(ctx, ['image', 'underlay', 'glyph'], frame_box)
@@ -686,6 +719,18 @@ export class PlotCanvasView extends DOMView
       document.body.appendChild(downloadLink)
       downloadLink.click()
 
+class AbovePanel extends LayoutCanvas
+  type: "AbovePanel"
+
+class BelowPanel extends LayoutCanvas
+  type: "BelowPanel"
+
+class LeftPanel extends LayoutCanvas
+  type: "LeftPanel"
+
+class RightPanel extends LayoutCanvas
+  type: "RightPanel"
+
 export class PlotCanvas extends LayoutDOM
   type: 'PlotCanvas'
   default_view: PlotCanvasView
@@ -710,10 +755,10 @@ export class PlotCanvas extends LayoutDOM
       y_scale: @plot.y_scale
     })
 
-    @above_panel = new LayoutCanvas()
-    @below_panel = new LayoutCanvas()
-    @left_panel = new LayoutCanvas()
-    @right_panel = new LayoutCanvas()
+    @above_panel = new AbovePanel()
+    @below_panel = new BelowPanel()
+    @left_panel  = new LeftPanel()
+    @right_panel = new RightPanel()
 
     logger.debug("PlotCanvas initialized")
 
@@ -758,21 +803,8 @@ export class PlotCanvas extends LayoutDOM
 
     return children
 
-  get_edit_variables: () ->
-    edit_variables = []
-    # Go down the children to pick up any more constraints
-    for child in @get_layoutable_children()
-      edit_variables = edit_variables.concat(child.get_edit_variables())
-    return edit_variables
-
   get_constraints: () ->
-    constraints = super()
-    constraints = constraints.concat(@_get_constant_constraints())
-    constraints = constraints.concat(@_get_side_constraints())
-    # Go down the children to pick up any more constraints
-    for child in @get_layoutable_children()
-      constraints = constraints.concat(child.get_constraints())
-    return constraints
+    return super().concat(@_get_constant_constraints(), @_get_side_constraints())
 
   _get_constant_constraints: () ->
     # Create the constraints that always apply for a plot
@@ -805,26 +837,25 @@ export class PlotCanvas extends LayoutDOM
     ]
 
   _get_side_constraints: () ->
-    constraints = []
-    sides = [['above', @plot.above], ['below', @plot.below],
-             ['left', @plot.left], ['right', @plot.right]]
-    for [side, layout_renderers] in sides
-      last = @frame
-      for r in layout_renderers
-        # Stack together the renderers
-        constraint = switch side
-          when "above" then EQ(last.panel._top, [-1, r.panel._bottom])
-          when "below" then EQ(last.panel._bottom, [-1, r.panel._top])
-          when "left"  then EQ(last.panel._left, [-1, r.panel._right])
-          when "right" then EQ(last.panel._right, [-1, r.panel._left])
-        constraints.push(constraint)
-        last = r
-      if layout_renderers.length != 0
-        # Set panel extent to match the side renderers (e.g. axes)
-        constraint = switch side
-          when "above" then EQ(last.panel._top, [-1, @above_panel._top])
-          when "below" then EQ(last.panel._bottom, [-1, @below_panel._bottom])
-          when "left"  then EQ(last.panel._left, [-1, @left_panel._left])
-          when "right" then EQ(last.panel._right, [-1, @right_panel._right])
-        constraints.push(constraint)
+    above = [@frame].concat(@plot.above)
+    below = [@frame].concat(@plot.below)
+    left  = [@frame].concat(@plot.left)
+    right = [@frame].concat(@plot.right)
+
+    cabove = pairwise(above, (prev, next) -> EQ(prev.panel._top,    [-1, next.panel._bottom]))
+    cbelow = pairwise(below, (prev, next) -> EQ(prev.panel._bottom, [-1, next.panel._top]))
+    cleft  = pairwise(left,  (prev, next) -> EQ(prev.panel._left,   [-1, next.panel._right]))
+    cright = pairwise(right, (prev, next) -> EQ(prev.panel._right,  [-1, next.panel._left]))
+
+    constraints = [].concat(cabove, cbelow, cleft, cright)
+
+    if @plot.above.length > 0
+      constraints.push(EQ(last(@plot.above).panel._top,    [-1, @above_panel._top]))
+    if @plot.below.length > 0
+      constraints.push(EQ(last(@plot.below).panel._bottom, [-1, @below_panel._bottom]))
+    if @plot.left.length > 0
+      constraints.push(EQ(last(@plot.left) .panel._left,   [-1, @left_panel._left]))
+    if @plot.right.length > 0
+      constraints.push(EQ(last(@plot.right).panel._right,  [-1, @right_panel._right]))
+
     return constraints

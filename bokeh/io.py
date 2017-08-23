@@ -18,6 +18,7 @@ from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__name__)
 
+from functools import partial
 import io
 import json
 import os
@@ -25,16 +26,18 @@ import warnings
 import tempfile
 import uuid
 
+from IPython.display import publish_display_data
+
 # Bokeh imports
 from .core.state import State
 from .document import Document
-from .embed import server_document, notebook_div, file_html
+from .embed import server_document, notebook_div, notebook_content, file_html
 from .layouts import gridplot, GridSpec ; gridplot, GridSpec
 from .models import Plot
 from .resources import INLINE
 import bokeh.util.browser as browserlib  # full import needed for test mocking to work
 from .util.dependencies import import_required, detect_phantomjs
-from .util.notebook import get_comms, load_notebook, publish_display_data, watch_server_cells
+from .util.notebook import get_comms, load_notebook, EXEC_MIME_TYPE
 from .util.string import decode_utf8
 from .util.serialization import make_id
 
@@ -46,9 +49,110 @@ _new_param = {'tab': 2, 'window': 1}
 
 _state = State()
 
+_notebook_hooks = {}
+
 #-----------------------------------------------------------------------------
 # Local utilities
 #-----------------------------------------------------------------------------
+
+def install_notebook_hook(notebook_type, load, show_doc, show_app, overwrite=False):
+    ''' Install a new notebook display hook.
+
+    Bokeh comes with support for Jupyter notebooks built-in. However, there are
+    other kinds of notebooks in use by different communities. This function
+    provides a mechanism for other projects to instruct Bokeh how to display
+    content in other notebooks.
+
+    This function is primarily of use to developers wishing to integrate Bokeh
+    with new notebook types.
+
+    Args:
+        notebook_type (str) :
+            A name for the notebook type, e.e. ``'Jupyter'`` or ``'Zeppelin'``
+
+            If the name has previously been installed, a ``RuntimeError`` will
+            be raised, unless ``overwrite=True``
+
+        load (callable) :
+            A function for loading BokehJS in a notebook type. The function
+            will be called with the following arguments:
+
+            .. code-block:: python
+
+                load(
+                    resources,   # A Resources object for how to load BokehJS
+                    verbose,     # Whether to display verbose loading banner
+                    hide_banner, # Whether to hide the output banner entirely
+                    load_timeout # Time after which to report a load fail error
+                )
+
+        show_doc (callable) :
+            A function for displaying Bokeh standalone documents in the
+            notebook type. This function will be called with the following
+            arguments:
+
+            .. code-block:: python
+
+                show_doc(
+                    obj,            # the Bokeh object to display
+                    state,          # current bokeh.io "state"
+                    notebook_handle # whether a notebook handle was requested
+                )
+
+        show_app (callable) :
+            A function for displaying Bokeh applications in the notebook
+            type. This function will be called with the following arguments:
+
+            .. code-block:: python
+
+                show_app(
+                    app,         # the Bokeh Application to display
+                    state,       # current bokeh.io "state"
+                    notebook_url # URL to the current active notebook page
+                )
+
+        overwrite (bool, optional) :
+            Whether to allow an existing hook to be overwritten by a new
+            definition (default: False)
+
+    Returns:
+        None
+
+    Raises:
+        RuntimeError
+            If ``notebook_type`` is already installed and ``overwrite=False``
+
+    '''
+    if notebook_type in _notebook_hooks and not overwrite:
+        raise RuntimeError("hook for notebook type %r already exists" % notebook_type)
+    _notebook_hooks[notebook_type] = dict(load=load, doc=show_doc, app=show_app)
+
+def _run_notebook_hook(notebook_type, action, *args, **kw):
+    ''' Run an installed notebook hook with supplied arguments.
+
+    Args:
+        noteboook_type (str) :
+            Name of an existing installed notebook hook
+
+        actions (str) :
+            Name of the hook action to execute, ``'doc'`` or ``'app'``
+
+    All other arguments and keyword arguments are passed to the hook action
+    exactly as supplied.
+
+    Returns:
+        Result of the hook action, as-is
+
+    Raises:
+        RunetimeError
+            If the hook or specific action is not installed
+
+    '''
+    if notebook_type not in _notebook_hooks:
+        raise RuntimeError("no display hook installed for notebook type %r" % notebook_type)
+    if _notebook_hooks[notebook_type][action] is None:
+        raise RuntimeError("notebook hook for %r did not install %r action" % notebook_type, action)
+    return _notebook_hooks[notebook_type][action](*args, **kw)
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -137,8 +241,8 @@ def output_file(filename, title="Bokeh Plot", mode="cdn", root_dir=None):
     )
 
 def output_notebook(resources=None, verbose=False, hide_banner=False, load_timeout=5000, notebook_type='jupyter'):
-    ''' Configure the default output state to generate output in
-    Jupyter/Zeppelin notebook cells when :func:`show` is called.
+    ''' Configure the default output state to generate output in notebook cells
+    when :func:`show` is called.
 
     Args:
         resources (Resource, optional) :
@@ -155,6 +259,7 @@ def output_notebook(resources=None, verbose=False, hide_banner=False, load_timeo
 
         notebook_type (string, optional):
             Notebook type (default: jupyter)
+
     Returns:
         None
 
@@ -281,30 +386,27 @@ def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="loca
     # This ugliness is to prevent importing bokeh.application (which would bring
     # in Tornado) just in order to show a non-server object
     if getattr(obj, '_is_a_bokeh_application_class', False):
-        return _show_notebook_app_with_state(obj, _state, "/", notebook_url)
+        return _run_notebook_hook(_state.notebook_type, 'app', obj, _state, notebook_url)
 
     if obj not in _state.document.roots:
         _state.document.add_root(obj)
     return _show_with_state(obj, _state, browser, new, notebook_handle=notebook_handle)
 
-def _show_notebook_app_with_state(app, state, app_path, notebook_url):
-    if state.notebook_type == 'zeppelin':
-        raise ValueError("Zeppelin doesn't support show bokeh app.")
-
-    if not state.watching_cells:
-        watch_server_cells(_destroy_server_js)
-        state.watching_cells = True
-
+def _show_jupyter_app_with_state(app, state, notebook_url):
     logging.basicConfig()
-    from IPython.display import HTML, display
     from tornado.ioloop import IOLoop
     from .server.server import Server
     loop = IOLoop.current()
-    server = Server({app_path: app}, io_loop=loop, port=0,  allow_websocket_origin=[notebook_url])
+    server = Server({"/": app}, io_loop=loop, port=0,  allow_websocket_origin=[notebook_url])
+
+    server_id = uuid.uuid4().hex
+    _state.uuid_to_server[server_id] = server
+
     server.start()
-    url = 'http://%s:%d%s' % (notebook_url.split(':')[0], server.port, app_path)
+    url = 'http://%s:%d%s' % (notebook_url.split(':')[0], server.port, "/")
     script = server_document(url)
-    display(HTML(_server_cell(server, script)))
+
+    publish_display_data({EXEC_MIME_TYPE: {"div": script}}, metadata={EXEC_MIME_TYPE: {"server_id": server_id}})
 
 def _show_with_state(obj, state, browser, new, notebook_handle=False):
     controller = browserlib.get_browser_controller(browser=browser)
@@ -313,10 +415,7 @@ def _show_with_state(obj, state, browser, new, notebook_handle=False):
     shown = False
 
     if state.notebook:
-        if state.notebook_type == 'jupyter':
-            comms_handle = _show_jupyter_with_state(obj, state, notebook_handle)
-        else:
-            comms_handle = _show_zeppelin_with_state(obj, state, notebook_handle)
+        _show_notebook_doc_with_state(obj, state, notebook_handle)
         shown = True
 
     if state.file or not shown:
@@ -324,20 +423,26 @@ def _show_with_state(obj, state, browser, new, notebook_handle=False):
 
     return comms_handle
 
+# Note: this function mostly exists so it can be mocked in tests
+def _show_notebook_doc_with_state(obj, state, notebook_handle):
+    _run_notebook_hook(state.notebook_type, 'doc', obj, state, notebook_handle)
+
 def _show_file_with_state(obj, state, new, controller):
     filename = save(obj, state=state)
     controller.open("file://" + filename, new=_new_param[new])
 
-def _show_jupyter_with_state(obj, state, notebook_handle):
+def _show_jupyter_doc_with_state(obj, state, notebook_handle):
     comms_target = make_id() if notebook_handle else None
-    publish_display_data({'text/html': notebook_div(obj, comms_target)})
+    (script, div) = notebook_content(obj, comms_target)
+    publish_display_data({EXEC_MIME_TYPE: {"script": script, "div": div}}, metadata={EXEC_MIME_TYPE: {"id": obj._id}})
     if comms_target:
         handle = _CommsHandle(get_comms(comms_target), state.document,
                               state.document.to_json())
         state.last_comms_handle = handle
         return handle
 
-def _show_zeppelin_with_state(obj, state, notebook_handle):
+# TODO (bev) This should eventually be removed, but install a basic built-in hook for docs or now
+def _show_zeppelin_doc_with_state(obj, state, notebook_handle):
     if notebook_handle:
         raise ValueError("Zeppelin doesn't support notebook_handle.")
     print("%html " + notebook_div(obj))
@@ -529,38 +634,24 @@ def _remove_roots(subplots):
         if sub in doc.roots:
             doc.remove_root(sub)
 
-def _server_cell(server, script):
-    ''' Wrap a script returned by ``autoload_server`` in a div that allows cell
-    destruction/replacement to be detected.
-
-    '''
-    divid = uuid.uuid4().hex
-    _state.uuid_to_server[divid] = server
-    div_html = "<div class='bokeh_class' id='{divid}'>{script}</div>"
-    return div_html.format(script=script, divid=divid)
-
-_destroy_server_js = """
-var cmd = "from bokeh import io; io._destroy_server('<%= destroyed_id %>')";
-var command = _.template(cmd)({destroyed_id:destroyed_id});
-Jupyter.notebook.kernel.execute(command);
-"""
-
-def _destroy_server(div_id):
+def _destroy_server(server_id):
     ''' Given a UUID id of a div removed or replaced in the Jupyter
     notebook, destroy the corresponding server sessions and stop it.
 
     '''
-    server = _state.uuid_to_server.get(div_id, None)
+    server = _state.uuid_to_server.get(server_id, None)
     if server is None:
-        logger.debug("No server instance found for uuid: %r" % div_id)
+        logger.debug("No server instance found for uuid: %r" % server_id)
         return
 
     try:
         for session in server.get_sessions():
             session.destroy()
+        server.stop()
+        del _state.uuid_to_server[server_id]
 
     except Exception as e:
-        logger.debug("Could not destroy server for id %r: %s" % (div_id, e))
+        logger.debug("Could not destroy server for id %r: %s" % (server_id, e))
 
 def _wait_until_render_complete(driver):
     from selenium.webdriver.support.ui import WebDriverWait
@@ -624,7 +715,7 @@ def _crop_image(image, left=0, top=0, right=0, bottom=0, **kwargs):
 
     return cropped_image
 
-def _get_screenshot_as_png(obj, **kwargs):
+def _get_screenshot_as_png(obj, driver=None, **kwargs):
     webdriver = import_required('selenium.webdriver',
                                 'To use bokeh.io.export_png you need selenium ' +
                                 '("conda install -c bokeh selenium" or "pip install selenium")')
@@ -637,7 +728,7 @@ def _get_screenshot_as_png(obj, **kwargs):
 
     html_path = _save_layout_html(obj, **kwargs)
 
-    web_driver = kwargs.get('driver', webdriver.PhantomJS(service_log_path=os.path.devnull))
+    web_driver = driver if driver is not None else webdriver.PhantomJS(service_log_path=os.path.devnull)
 
     web_driver.get("file:///" + html_path)
     web_driver.maximize_window()
@@ -652,7 +743,7 @@ def _get_screenshot_as_png(obj, **kwargs):
     bounding_rect_script = "return document.getElementsByClassName('bk-root')[0].children[0].getBoundingClientRect()"
     b_rect = web_driver.execute_script(bounding_rect_script)
 
-    if kwargs.get('driver') is None: # only quit webdriver if not passed in as arg
+    if driver is None: # only quit webdriver if not passed in as arg
         web_driver.quit()
 
     image = Image.open(io.BytesIO(png))
@@ -660,7 +751,7 @@ def _get_screenshot_as_png(obj, **kwargs):
 
     return cropped_image
 
-def export_png(obj, filename=None, height=None, width=None):
+def export_png(obj, filename=None, height=None, width=None, webdriver=None):
     ''' Export the LayoutDOM object or document as a PNG.
 
     If the filename is not given, it is derived from the script name
@@ -679,6 +770,9 @@ def export_png(obj, filename=None, height=None, width=None):
         width (int) : the desired width of the exported layout obj only if
             it's a Plot instance. Otherwise the width kwarg is ignored.
 
+        webdriver (selenium.webdriver) : a selenium webdriver instance to use
+            to export the image.
+
     Returns:
         filename (str) : the filename where the static file is saved.
 
@@ -691,7 +785,7 @@ def export_png(obj, filename=None, height=None, width=None):
 
     '''
 
-    image = _get_screenshot_as_png(obj, height=height, width=width)
+    image = _get_screenshot_as_png(obj, height=height, width=width, driver=webdriver)
 
     if filename is None:
         filename = _detect_filename("png")
@@ -700,7 +794,7 @@ def export_png(obj, filename=None, height=None, width=None):
 
     return os.path.abspath(filename)
 
-def _get_svgs(obj, **kwargs):
+def _get_svgs(obj, driver=None, **kwargs):
     webdriver = import_required('selenium.webdriver',
                                 'To use bokeh.io.export_svgs you need selenium ' +
                                 '("conda install -c bokeh selenium" or "pip install selenium")')
@@ -709,7 +803,7 @@ def _get_svgs(obj, **kwargs):
 
     html_path = _save_layout_html(obj, **kwargs)
 
-    web_driver = kwargs.get('driver', webdriver.PhantomJS(service_log_path=os.path.devnull))
+    web_driver = driver if driver is not None else webdriver.PhantomJS(service_log_path=os.path.devnull)
     web_driver.get("file:///" + html_path)
 
     _wait_until_render_complete(web_driver)
@@ -726,12 +820,12 @@ def _get_svgs(obj, **kwargs):
 
     svgs = web_driver.execute_script(svg_script)
 
-    if kwargs.get('driver') is None: # only quit webdriver if not passed in as arg
+    if driver is None: # only quit webdriver if not passed in as arg
         web_driver.quit()
 
     return svgs
 
-def export_svgs(obj, filename=None, height=None, width=None):
+def export_svgs(obj, filename=None, height=None, width=None, webdriver=None):
     ''' Export the SVG-enabled plots within a layout. Each plot will result
     in a distinct SVG file.
 
@@ -750,6 +844,9 @@ def export_svgs(obj, filename=None, height=None, width=None):
         width (int) : the desired width of the exported layout obj only if
             it's a Plot instance. Otherwise the width kwarg is ignored.
 
+        webdriver (selenium.webdriver) : a selenium webdriver instance to use
+            to export the image.
+
     Returns:
         filenames (list(str)) : the list of filenames where the SVGs files
             are saved.
@@ -759,7 +856,7 @@ def export_svgs(obj, filename=None, height=None, width=None):
         aspect ratios. It is recommended to use the default ``fixed`` sizing mode.
 
     '''
-    svgs = _get_svgs(obj, height=height, width=width)
+    svgs = _get_svgs(obj, height=height, width=width, driver=webdriver)
 
     if len(svgs) == 0:
         logger.warn("No SVG Plots were found.")
@@ -783,3 +880,9 @@ def export_svgs(obj, filename=None, height=None, width=None):
         filenames.append(filename)
 
     return filenames
+
+
+install_notebook_hook('jupyter', partial(load_notebook, notebook_type='jupyter'), _show_jupyter_doc_with_state, _show_jupyter_app_with_state)
+
+# TODO (bev) These should eventually be removed, but install a basic built-in hook for docs or now
+install_notebook_hook('zeppelin', partial(load_notebook, notebook_type='zeppelin'), _show_zeppelin_doc_with_state, None)

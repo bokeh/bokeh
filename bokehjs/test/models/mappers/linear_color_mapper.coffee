@@ -16,9 +16,9 @@ describe "LinearColorMapper module", ->
         high_color: "#5F9EA0"
         })
 
-      expect(color_mapper._nan_color).to.be.equal(6266528)
-      expect(color_mapper._low_color).to.be.equal(6266528)
-      expect(color_mapper._high_color).to.be.equal(6266528)
+      expect(color_mapper._nan_color).to.be.equal(1604231423)
+      expect(color_mapper._low_color).to.be.equal(1604231423)
+      expect(color_mapper._high_color).to.be.equal(1604231423)
 
     it "If unset _low_color, _high_color should be undefined", ->
       color_mapper = new LinearColorMapper({
@@ -144,9 +144,9 @@ describe "LinearColorMapper module", ->
           low: 0
           high: 2
           palette: palette
-          low_color: "pink" # converts to 16761035
-          high_color: "orange" # converts to 16753920
+          low_color: "pink" # converts to 4290825215
+          high_color: "orange" # converts to 4289003775
         })
 
       vals = color_mapper._get_values([-1, 0, 1, 2, 3], palette, true)
-      expect(vals).to.be.deep.equal([16761035, 1, 2, 3, 16753920])
+      expect(vals).to.be.deep.equal([4290825215, 1, 2, 3, 4289003775])

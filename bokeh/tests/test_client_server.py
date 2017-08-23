@@ -11,8 +11,8 @@ from bokeh.client import pull_session, push_session, ClientSession
 from bokeh.document import Document
 from bokeh.model import Model
 from bokeh.models import Plot
-from bokeh.server.events import ModelChangedEvent, TitleChangedEvent
 from bokeh.core.properties import Int, Instance, Dict, String, Any, DistanceSpec, AngleSpec
+from bokeh.protocol.events import ModelChangedEvent, TitleChangedEvent
 from tornado import gen
 from tornado.httpclient import HTTPError
 
@@ -245,13 +245,13 @@ class TestClientServer(unittest.TestCase):
 
             connection = next(iter(server._tornado._clients))
             expected_pong = connection._ping_count
-            server._tornado.keep_alive() # send ping
+            server._tornado._keep_alive() # send ping
             session.force_roundtrip()
 
             self.assertEqual(expected_pong, connection._socket.latest_pong)
 
             # check that each ping increments by 1
-            server._tornado.keep_alive()
+            server._tornado._keep_alive()
             session.force_roundtrip()
 
             self.assertEqual(expected_pong + 1, connection._socket.latest_pong)

@@ -13,7 +13,6 @@ from bokeh.models import (
     LogScale,
     PanTool,
     ResetTool,
-    ResizeTool,
     Title,
 )
 
@@ -140,9 +139,9 @@ class TestFigure(unittest.TestCase):
         self.assertEqual(len(p.grid), 2)
 
     def test_tools(self):
-        TOOLS = "resize,pan,box_zoom,reset,lasso_select"
+        TOOLS = "pan,box_zoom,reset,lasso_select"
         fig = plt.figure(tools=TOOLS)
-        expected = [ResizeTool, PanTool, BoxZoomTool, ResetTool, LassoSelectTool]
+        expected = [PanTool, BoxZoomTool, ResetTool, LassoSelectTool]
 
         self.assertEqual(len(fig.tools), len(expected))
         for i, _type in enumerate(expected):

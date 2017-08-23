@@ -1,6 +1,6 @@
 {
   "name": "bokehjs",
-  "version": "0.12.7dev15",
+  "version": "0.12.7dev17",
   "description": "Interactive, novel data visualization",
   "keywords": [
     "bokeh",
@@ -107,7 +107,7 @@
 
     "canvas2svg": "https://github.com/bokeh/canvas2svg#v1.0.21",
     "numbro": "https://github.com/bokeh/numbro.git#e1b6c52",
-    "kiwi": "https://github.com/bokeh/kiwi.git#6941045",
+    "kiwi": "https://github.com/bokeh/kiwi.git#1a3dabb",
     "slickgrid": "https://github.com/bokeh/SlickGrid.git#6bf8899"
   },
   "scripts": {

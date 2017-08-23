@@ -100,6 +100,9 @@ use the ``SelectionGeometry`` event present on ``Plot`` or ``Figure``.
 For GIS-related use-cases built on top of Bokeh, consider using
 GeoViews_, or creating a `Custom Extension`_.
 
+``ResizeTool`` is deprecated and also *immediately* is a NO-OP on the Python
+side. ``ResizeTool`` has been removed from BokehJS entirely.
+
 BokehJS Widgets Bundle Split
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -118,6 +121,48 @@ usual convetion: the tool itself is passed as ``cb_obj`` and the data source is
 passed as part of the optional ``cb_data``. Existing usage of ``OpenURL`` is
 unaffected by this change, but any ``CustomJS`` callbacks used with the tap tool
 will need to be updated to reflect this change.
+
+DataTable Selection Highlighting Signal
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The DataTable now responds to the signal ``source.change.emit()``, instead of
+``source.properties.selected.change.emit()``, to visually highlight the rows in the
+DataTable that are part of the selection. If you have used
+``source.properties.selected.change.emit()`` in CustomJS code, you will need to
+change it to ``source.change.emit()``.
+
+The DataTable responds automatically to changes in its data source's ``selected``
+property. However, because of Bokeh's change detection machinery, only a replacement
+of the ``selected`` property causes a change signal to be emitted, and not a partial update
+(e.g. ``source.selected['1d']['indices'] = [1, 2]``). If you use a partial update in CustomJS
+code, you will need to emit the change signal yourself:
+
+.. code-block:: python
+
+    customjs = CustomJS(args=dict(source=source), code="""
+        source['selected']['1d'].indices = [1, 2]
+        source.change.emit();
+    """)
+
+Refactoring of ``bokeh.server`` contents
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The ``bokeh.server`` module was refactored in order to be easier to document
+and maintain, as well as simpler for user's to use in more sophisticated use
+cases. These changes are not expected to impact standard usage of Bokeh in any
+way:
+
+* All protocol-related code was moved to a new module ``bokeh.protocol``
+
+* The ``Server`` class was split into ``Server`` (no API changes) and a new
+  ``BaseServer`` that can be used when explicit coordination of low level
+  Tornado components is required.
+
+* Missing sections added to reference guide, and docsctring coverage greatly
+  expanded.
+
+* Old cruft code to handle Tornado < 4.3 (which is no longer supported) was
+  removed.
 
 .. _Custom Extension: https://bokeh.pydata.org/en/latest/docs/user_guide/extensions.html
 .. _GeoViews: http://geo.holoviews.org

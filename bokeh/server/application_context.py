@@ -9,11 +9,11 @@ log = logging.getLogger(__name__)
 from tornado import gen
 
 from .session import ServerSession
-from .exceptions import ProtocolError
 
-from bokeh.application.application import ServerContext, SessionContext
-from bokeh.document import Document
-from bokeh.util.tornado import _CallbackGroup, yield_for_all_futures
+from ..application.application import ServerContext, SessionContext
+from ..document import Document
+from ..protocol.exceptions import ProtocolError
+from ..util.tornado import _CallbackGroup, yield_for_all_futures
 
 class _RequestProxy(object):
     def __init__(self, request):
@@ -242,7 +242,7 @@ class ApplicationContext(object):
         raise gen.Return(None)
 
     @gen.coroutine
-    def cleanup_sessions(self, unused_session_linger_milliseconds):
+    def _cleanup_sessions(self, unused_session_linger_milliseconds):
         def should_discard_ignoring_block(session):
             return session.connection_count == 0 and \
                 (session.milliseconds_since_last_unsubscribe > unused_session_linger_milliseconds or \

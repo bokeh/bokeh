@@ -13,7 +13,7 @@ def _build_docstring():
         # running python with -OO will discard docstrings -> __doc__ is None
         if __doc__ is None:
             __doc__ = ''
-        __doc__ += "%8s : %s\n" % (cls.name, cls.help)
+        __doc__ += "%s\n    %s\n\n" % (cls.name, cls.help)
 
 _build_docstring()
 del _build_docstring

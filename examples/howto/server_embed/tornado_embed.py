@@ -1,7 +1,5 @@
 from jinja2 import Environment, FileSystemLoader
-import yaml
 
-from tornado.ioloop import IOLoop
 from tornado.web import RequestHandler
 
 from bokeh.application import Application
@@ -43,24 +41,14 @@ def modify_doc(doc):
 
     doc.add_root(column(slider, plot))
 
-    doc.theme = Theme(json=yaml.load("""
-        attrs:
-            Figure:
-                background_fill_color: "#DDDDDD"
-                outline_line_color: white
-                toolbar_location: above
-                height: 500
-                width: 800
-            Grid:
-                grid_line_dash: [6, 4]
-                grid_line_color: white
-    """))
+    doc.theme = Theme(filename="theme.yaml")
 
 bokeh_app = Application(FunctionHandler(modify_doc))
 
-io_loop = IOLoop.current()
-
-server = Server({'/bkapp': bokeh_app}, io_loop=io_loop, extra_patterns=[('/', IndexHandler)])
+# Setting num_procs here means we can't touch the IOLoop before now, we must
+# let Server handle that. If you need to explicitly handle IOLoops then you
+# will need to use the lower level BaseServer class.
+server = Server({'/bkapp': bokeh_app}, num_procs=4, extra_patterns=[('/', IndexHandler)])
 server.start()
 
 if __name__ == '__main__':
@@ -68,5 +56,5 @@ if __name__ == '__main__':
 
     print('Opening Tornado app with embedded Bokeh application on http://localhost:5006/')
 
-    io_loop.add_callback(view, "http://localhost:5006/")
-    io_loop.start()
+    server.io_loop.add_callback(view, "http://localhost:5006/")
+    server.io_loop.start()

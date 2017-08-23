@@ -1,6 +1,6 @@
 import sys
 
-from ..application.handlers.code_runner import _CodeRunner
+from ..application.handlers.code_runner import CodeRunner
 from ..application.handlers.handler import Handler
 from ..io import set_curdoc, curdoc
 
@@ -15,7 +15,7 @@ class ExampleHandler(Handler):
 
     def __init__(self, source, filename):
         super(ExampleHandler, self).__init__(self)
-        self._runner = _CodeRunner(source, filename, [])
+        self._runner = CodeRunner(source, filename, [])
 
     def modify_document(self, doc):
         if self.failed:

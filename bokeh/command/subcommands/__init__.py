@@ -1,3 +1,7 @@
+''' Subcommands for the Bokeh command class
+
+'''
+
 def _collect():
     from importlib import import_module
     from os import listdir

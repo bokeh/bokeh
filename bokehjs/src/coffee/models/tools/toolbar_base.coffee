@@ -100,11 +100,7 @@ export class ToolbarBase extends LayoutDOM
     return null
 
   get_constraints: () ->
-    # Get the constraints from widget
-    return super().concat([
-      # Set the fixed size of toolbar
-      EQ(@_sizeable, -30),
-    ])
+    return super().concat(EQ(@_sizeable, -30))
 
   @define {
       tools: [ p.Array,    []       ]

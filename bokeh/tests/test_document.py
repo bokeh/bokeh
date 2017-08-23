@@ -10,8 +10,8 @@ from bokeh.io import curdoc
 from bokeh.model import Model
 from bokeh.models import ColumnDataSource
 from bokeh.core.properties import Int, Instance, String, DistanceSpec
-from bokeh.server.events import (ColumnsPatchedEvent, ColumnsStreamedEvent, ModelChangedEvent, RootAddedEvent,
-                                 RootRemovedEvent, SessionCallbackAdded, SessionCallbackRemoved, TitleChangedEvent)
+from bokeh.protocol.events import (ColumnsPatchedEvent, ColumnsStreamedEvent, ModelChangedEvent, RootAddedEvent,
+                                   RootRemovedEvent, SessionCallbackAdded, SessionCallbackRemoved, TitleChangedEvent)
 
 class AnotherModelInTestDocument(Model):
     bar = Int(1)

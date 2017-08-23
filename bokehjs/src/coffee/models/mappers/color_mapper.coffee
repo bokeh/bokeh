@@ -24,17 +24,19 @@ export class ColorMapper extends Transform
   v_map_screen: (data, image_glyph=false) ->
     values = @_get_values(data, @_palette, image_glyph)
     buf = new ArrayBuffer(data.length * 4)
-    color = new Uint32Array(buf)
-
     if @_little_endian
+      color = new Uint8Array(buf)
       for i in [0...data.length]
         value = values[i]
-        color[i] =
-          (0xff << 24)                   | # alpha
-          ((value & 0xff0000) >> 16)     | # blue
-          (value & 0xff00)               | # green
-          ((value & 0xff) << 16);          # red
+        ind = i*4
+        # Bitwise math in JS is limited to 31-bits, to handle 32-bit value
+        # this uses regular math to compute alpha instead (see issue #6755)
+        color[ind] = Math.floor((value/4278190080.0) * 255)
+        color[ind+1] = (value & 0xff0000) >> 16
+        color[ind+2] = (value & 0xff00) >> 8
+        color[ind+3] = value & 0xff
     else
+      color = new Uint32Array(buf)
       for i in [0...data.length]
         value = values[i]
         color[i] = (value << 8) | 0xff     # alpha
@@ -70,6 +72,8 @@ export class ColorMapper extends Transform
       if isNumber(value)
         return value
       else
+        if value.length != 9
+          value = value + 'ff'
         return parseInt(value.slice(1), 16)
     for i in [0...palette.length]
       new_palette[i] = _convert(palette[i])

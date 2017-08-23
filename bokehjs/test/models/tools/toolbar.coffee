@@ -71,7 +71,7 @@ describe "Toolbar", ->
 
   it "should not set edit_variables", ->
     tb = new Toolbar()
-    ev = tb.get_edit_variables()
+    ev = tb.get_editables()
     expect(ev.length).to.be.equal 0
 
   describe "_init_tools method", ->
