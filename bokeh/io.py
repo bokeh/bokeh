@@ -77,7 +77,7 @@ def install_notebook_hook(notebook_type, load, show_doc, show_app, overwrite=Fal
             A function for loading BokehJS in a notebook type. The function
             will be called with the following arguments:
 
-            .. code-block:: pythonm
+            .. code-block:: python
 
                 load(
                     resources,   # A Resources object for how to load BokehJS
