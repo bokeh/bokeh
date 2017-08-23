@@ -312,7 +312,7 @@ You should see output similar to:
 If you have any problems with the steps here, please `contact the developers`_.
 
 .. _Anaconda: https://www.continuum.io/downloads
-.. _contact the developers: http://bokehplots.com/pages/contact.html
+.. _contact the developers: https://bokehplots.com/pages/contact.html
 .. _conda package manager: https://conda.io/docs/intro.html
 .. _conda documentation: https://conda.io/docs/index.html
 .. _Download conda: https://conda.io/docs/download.html

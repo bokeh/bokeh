@@ -24,7 +24,7 @@ If you get a message that says
 ERROR: Must specify subcommand...
 ```
 you already have Bokeh. If not, here are the Bokeh installation instructions:
-http://bokeh.pydata.org/en/latest/docs/installation.html. The easiest way,
+https://bokeh.pydata.org/en/latest/docs/installation.html. The easiest way,
 from the command line:
 ```
 conda install bokeh
@@ -68,7 +68,7 @@ new window/tab to prove that it works.
 
 ## Resources
 This tool uses bokeh, built on python:
-http://bokeh.pydata.org/en/latest/.
+https://bokeh.pydata.org/en/latest/.
 The site has good documentation in the User Guide and Reference.
 
 There is also an active google group for issues:

@@ -7,7 +7,7 @@ interactivity over very large or streaming datasets. Bokeh can help anyone
 who would like to quickly and easily create interactive plots, dashboards,
 and data applications.
 
-For full documentation, please visit: http://bokeh.pydata.org
+For full documentation, please visit: https://bokeh.pydata.org
 
 """
 from __future__ import absolute_import, print_function

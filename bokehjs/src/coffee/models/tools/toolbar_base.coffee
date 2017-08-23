@@ -14,7 +14,7 @@ export class ToolbarBaseView extends LayoutDOMView
   template: () ->
     if @model.logo?
       cls = if @model.logo == "grey" then "bk-grey" else null
-      logo = a({href: "http://bokeh.pydata.org/", target: "_blank", class: ["bk-logo", "bk-logo-small", cls]})
+      logo = a({href: "https://bokeh.pydata.org/", target: "_blank", class: ["bk-logo", "bk-logo-small", cls]})
     else
       logo = null
 

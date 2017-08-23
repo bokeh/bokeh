@@ -119,6 +119,6 @@ passed as part of the optional ``cb_data``. Existing usage of ``OpenURL`` is
 unaffected by this change, but any ``CustomJS`` callbacks used with the tap tool
 will need to be updated to reflect this change.
 
-.. _Custom Extension: http://bokeh.pydata.org/en/latest/docs/user_guide/extensions.html
+.. _Custom Extension: https://bokeh.pydata.org/en/latest/docs/user_guide/extensions.html
 .. _GeoViews: http://geo.holoviews.org
-.. _project roadmap: http://bokehplots.com/pages/roadmap.html
+.. _project roadmap: https://bokehplots.com/pages/roadmap.html

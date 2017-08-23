@@ -4,7 +4,7 @@ from bokeh.models import ColumnDataSource, Range1d, Plot, LinearAxis, Grid
 from bokeh.models.glyphs import ImageURL
 from bokeh.io import curdoc, show
 
-url = "http://bokeh.pydata.org/en/latest/_static/images/logo.png"
+url = "https://bokeh.pydata.org/en/latest/_static/images/logo.png"
 N = 5
 
 source = ColumnDataSource(dict(

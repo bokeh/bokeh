@@ -31,7 +31,7 @@ can be processed to trigger more visual updates.
       <div class="row">
         <div class="col-sm-6">
           <a target="_blank" href="//demo.bokehplots.com/apps/movies">
-          <img src="http://bokeh.pydata.org/static/movies_t.png" class="img-responsive img-thumbnail">
+          <img src="https://bokeh.pydata.org/static/movies_t.png" class="img-responsive img-thumbnail">
           </a>
         </div>
         <div class="col-sm-6">
@@ -49,7 +49,7 @@ can be processed to trigger more visual updates.
       <div class="row">
         <div class="col-sm-6">
           <a target="_blank" href="//demo.bokehplots.com/apps/selection_histogram">
-            <img src="http://bokeh.pydata.org/static/selection_histogram_t.png" class="img-responsive img-thumbnail">
+            <img src="https://bokeh.pydata.org/static/selection_histogram_t.png" class="img-responsive img-thumbnail">
           </a>
         </div>
         <div class="col-sm-6">
@@ -67,7 +67,7 @@ can be processed to trigger more visual updates.
       <div class="row">
         <div class="col-sm-6">
           <a target="_blank" href="//demo.bokehplots.com/apps/weather">
-            <img src="http://bokeh.pydata.org/static/weather_t.png" class="img-responsive img-thumbnail">
+            <img src="https://bokeh.pydata.org/static/weather_t.png" class="img-responsive img-thumbnail">
           </a>
         </div>
         <div class="col-sm-6">
@@ -89,7 +89,7 @@ can be processed to trigger more visual updates.
       <div class="row">
         <div class="col-sm-6">
           <a target="_blank" href="//demo.bokehplots.com/apps/sliders">
-            <img src="http://bokeh.pydata.org/static/sliders_t.png" class="img-responsive img-thumbnail"></img>
+            <img src="https://bokeh.pydata.org/static/sliders_t.png" class="img-responsive img-thumbnail"></img>
           </a>
         </div>
         <div class="col-sm-6">
@@ -107,7 +107,7 @@ can be processed to trigger more visual updates.
       <div class="row">
         <div class="col-sm-6">
           <a target="_blank" href="//demo.bokehplots.com/apps/crossfilter">
-            <img src="http://bokeh.pydata.org/static/crossfilter_t.png" class="img-responsive img-thumbnail">
+            <img src="https://bokeh.pydata.org/static/crossfilter_t.png" class="img-responsive img-thumbnail">
           </a>
         </div>
         <div class="col-sm-6">
@@ -125,7 +125,7 @@ can be processed to trigger more visual updates.
       <div class="row">
         <div class="col-sm-6">
           <a target="_blank" href="//demo.bokehplots.com/apps/gapminder">
-            <img src="http://bokeh.pydata.org/static/gapminder_t.png" class="img-responsive img-thumbnail"></img>
+            <img src="https://bokeh.pydata.org/static/gapminder_t.png" class="img-responsive img-thumbnail"></img>
           </a>
         </div>
         <div class="col-sm-6">
@@ -147,7 +147,7 @@ can be processed to trigger more visual updates.
       <div class="row">
         <div class="col-sm-6">
           <a target="_blank" href="//demo.bokehplots.com/apps/stocks">
-            <img src="http://bokeh.pydata.org/static/stocks_t.png" class="img-responsive img-thumbnail"></img>
+            <img src="https://bokeh.pydata.org/static/stocks_t.png" class="img-responsive img-thumbnail"></img>
           </a>
         </div>
         <div class="col-sm-6">
@@ -165,7 +165,7 @@ can be processed to trigger more visual updates.
       <div class="row">
         <div class="col-sm-6">
           <a target="_blank" href="//demo.bokehplots.com/apps/export_csv">
-            <img src="http://bokeh.pydata.org/static/export_csv_t.png" class="img-responsive img-thumbnail">
+            <img src="https://bokeh.pydata.org/static/export_csv_t.png" class="img-responsive img-thumbnail">
           </a>
         </div>
         <div class="col-sm-6">
@@ -183,7 +183,7 @@ can be processed to trigger more visual updates.
       <div class="row">
         <div class="col-sm-6">
           <a target="_blank" href="//demo.bokehplots.com/apps/surface3d">
-            <img src="http://bokeh.pydata.org/static/surface3d_t.png" class="img-responsive img-thumbnail"></img>
+            <img src="https://bokeh.pydata.org/static/surface3d_t.png" class="img-responsive img-thumbnail"></img>
           </a>
         </div>
         <div class="col-sm-6">

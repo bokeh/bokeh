@@ -12,8 +12,8 @@ supplied by a separate Bokeh Plot server.
 Building
 --------
 
-Please refer to the [BokehJS section](http://bokeh.pydata.org/docs/dev_guide.html#bokehjs)
-of the [Bokeh Developer Guide](http://bokeh.pydata.org/docs/dev_guide.html)
+Please refer to the [BokehJS section](https://bokeh.pydata.org/docs/dev_guide.html#bokehjs)
+of the [Bokeh Developer Guide](https://bokeh.pydata.org/docs/dev_guide.html)
 for information about building, testing and demoing BokehJS.
 
 Contributing
