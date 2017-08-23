@@ -151,7 +151,7 @@ def _run_notebook_hook(notebook_type, action, *args, **kw):
     if notebook_type not in _notebook_hooks:
         raise RuntimeError("no display hook installed for notebook type %r" % notebook_type)
     if _notebook_hooks[notebook_type][action] is None:
-        raise RuntimeError("notebook hook for %r did not install %r action" % notebook_type, action)
+        raise RuntimeError("notebook hook for %r did not install %r action" % (notebook_type, action))
     return _notebook_hooks[notebook_type][action](*args, **kw)
 
 #-----------------------------------------------------------------------------
@@ -407,6 +407,23 @@ def _show_jupyter_app_with_state(app, state, notebook_url):
     script = server_document(url)
 
     publish_display_data({EXEC_MIME_TYPE: {"div": script}}, metadata={EXEC_MIME_TYPE: {"server_id": server_id}})
+
+def _show_zeppelin_app_with_state(app, state, notebook_url):
+    logging.basicConfig()
+    from tornado.ioloop import IOLoop
+    from .server.server import Server
+    loop = IOLoop.current()
+    server = Server({"/": app}, io_loop=loop, port=0,  allow_websocket_origin=[notebook_url])
+
+    server_id = uuid.uuid4().hex
+    _state.uuid_to_server[server_id] = server
+
+    server.start()
+    url = 'http://%s:%d%s' % (notebook_url.split(':')[0], server.port, "/")
+    script = server_document(url)
+
+    div_html = "<div class='bokeh_class' id='{divid}'>{script}</div>"
+    print('%html ' + div_html.format(script=script, divid=server_id))
 
 def _show_with_state(obj, state, browser, new, notebook_handle=False):
     controller = browserlib.get_browser_controller(browser=browser)
@@ -885,4 +902,4 @@ def export_svgs(obj, filename=None, height=None, width=None, webdriver=None):
 install_notebook_hook('jupyter', partial(load_notebook, notebook_type='jupyter'), _show_jupyter_doc_with_state, _show_jupyter_app_with_state)
 
 # TODO (bev) These should eventually be removed, but install a basic built-in hook for docs or now
-install_notebook_hook('zeppelin', partial(load_notebook, notebook_type='zeppelin'), _show_zeppelin_doc_with_state, None)
+install_notebook_hook('zeppelin', partial(load_notebook, notebook_type='zeppelin'), _show_zeppelin_doc_with_state, _show_zeppelin_app_with_state)
