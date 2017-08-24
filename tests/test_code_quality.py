@@ -36,7 +36,7 @@ def use_tab_rule(fname):
 
 exclude_paths = ("CHANGELOG",)
 
-exclude_exts = (".png", ".jpg", ".pxm", ".ico", ".ics", ".gz", ".gif", ".enc", ".svg", ".xml")
+exclude_exts = (".png", ".jpg", ".pxm", ".ico", ".ics", ".gz", ".gif", ".enc", ".svg", ".xml", ".shp", ".dbf")
 
 exclude_dirs = ("sphinx/draw.io",)
 
