@@ -22,7 +22,9 @@ from six import string_types
 from six.moves.urllib.parse import urlparse
 
 from .core.templates import (
-    AUTOLOAD_JS, AUTOLOAD_TAG, DOC_JS, FILE, NOTEBOOK_DIV, PLOT_DIV, SCRIPT_TAG)
+    AUTOLOAD_JS, AUTOLOAD_NB_JS, AUTOLOAD_TAG,
+    FILE, NOTEBOOK_DIV, PLOT_DIV, DOC_JS, SCRIPT_TAG
+)
 from .core.json_encoder import serialize_json
 from .document import Document, DEFAULT_TITLE
 from .model import Model
@@ -324,49 +326,6 @@ def _bundle_for_objs_and_resources(objs, resources):
 
     return bokeh_js, bokeh_css
 
-def notebook_content(model, notebook_comms_target=None, theme=FromCurdoc):
-    ''' Return script tag and div that will display a Bokeh plot in a Jupyter/
-    Zeppelin Notebook. notebook_comms_target is only supported in Jupyter for
-    now.
-
-    The data for the plot is stored directly in the returned HTML.
-
-    Args:
-        model (Model) : Bokeh object to render
-        notebook_comms_target (str, optional) :
-            A target name for a Jupyter Comms object that can update
-            the document that is rendered to this notebook div
-        theme (Theme, optional) :
-            Defaults to the ``Theme`` instance in the current document.
-            Setting this to ``None`` uses the default theme or the theme
-            already specified in the document. Any other value must be an
-            instance of the ``Theme`` class.
-
-    Returns:
-        script, div
-
-    .. note::
-        Assumes :func:`~bokeh.util.notebook.load_notebook` or the equivalent
-        has already been executed.
-
-    '''
-    model = _check_one_model(model)
-
-    # Append models to one document. Either pre-existing or new and render
-    with _ModelInEmptyDocument(model, apply_theme=theme):
-        (docs_json, render_items) = _standalone_docs_json_and_render_items([model])
-
-    item = render_items[0]
-    if notebook_comms_target:
-        item['notebook_comms_target'] = notebook_comms_target
-    else:
-        notebook_comms_target = ''
-
-    script = _script_for_render_items(docs_json, render_items)
-    div = _div_for_render_item(item)
-
-    return (script, div)
-
 def notebook_div(model, notebook_comms_target=None, theme=FromCurdoc):
     ''' Return HTML for a div that will display a Bokeh plot in a
     Jupyter/Zeppelin Notebook. notebook_comms_target is only supported
@@ -393,7 +352,32 @@ def notebook_div(model, notebook_comms_target=None, theme=FromCurdoc):
         has already been executed.
 
     '''
-    (js, div) = notebook_content(model, notebook_comms_target=notebook_comms_target, theme=theme)
+    model = _check_one_model(model)
+
+    # Append models to one document. Either pre-existing or new and render
+    with _ModelInEmptyDocument(model, apply_theme=theme):
+        (docs_json, render_items) = _standalone_docs_json_and_render_items([model])
+
+    item = render_items[0]
+    if notebook_comms_target:
+        item['notebook_comms_target'] = notebook_comms_target
+    else:
+        notebook_comms_target = ''
+
+    script = _wrap_in_onload(DOC_JS.render(
+        docs_json=serialize_json(docs_json),
+        render_items=serialize_json(render_items)
+    ))
+
+    js = AUTOLOAD_NB_JS.render(
+        comms_target = notebook_comms_target,
+        js_urls = [],
+        css_urls = [],
+        js_raw = [script],
+        css_raw = "",
+        elementid = item['elementid']
+    )
+    div = _div_for_render_item(item)
 
     html = NOTEBOOK_DIV.render(
         plot_script = js,
