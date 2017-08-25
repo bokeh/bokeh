@@ -2,7 +2,7 @@
 
 {% block register_mimetype %}
 
-  {%- if register_mimetype -%}
+  {%- if register_mime -%}
   var MIME_TYPE = 'application/vnd.bokehjs_exec.v0+json';
   var CLASS_NAME = 'output_bokeh rendered_html';
 
@@ -62,8 +62,10 @@
     var output_area = handle.output_area;
     var output = handle.output;
     // store reference to embed id or server id on output_area
-    output_area._bokeh_element_id = output.metadata[MIME_TYPE]["id"];
-    output_area._bokeh_server_id = output.metadata[MIME_TYPE]["server_id"];
+    if (output.metadata[MIME_TYPE] !== undefined) {
+      output_area._bokeh_element_id = output.metadata[MIME_TYPE]["id"];
+      output_area._bokeh_server_id = output.metadata[MIME_TYPE]["server_id"];
+    }
   }
 
   function register_renderer(notebook, OutputArea) {
@@ -138,7 +140,9 @@
   function display_loaded() {
     if (root.Bokeh !== undefined) {
       var el = document.getElementById({{ elementid|json }});
-      el.textContent = "BokehJS " + Bokeh.version + " successfully loaded.";
+      if (el != null) {
+        el.textContent = "BokehJS " + Bokeh.version + " successfully loaded.";
+      }
     } else if (Date.now() < root._bokeh_timeout) {
       setTimeout(display_loaded, 100)
     }

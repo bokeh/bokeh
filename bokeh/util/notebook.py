@@ -5,8 +5,7 @@ from __future__ import absolute_import
 
 from IPython.display import publish_display_data
 
-from ..embed import _wrap_in_script_tag
-
+JS_MIME_TYPE   = 'application/javascript'
 LOAD_MIME_TYPE = 'application/vnd.bokehjs_load.v0+json'
 EXEC_MIME_TYPE = 'application/vnd.bokehjs_exec.v0+json'
 
@@ -40,33 +39,14 @@ def load_notebook(resources=None, verbose=False, hide_banner=False, load_timeout
         None
 
     '''
-    nb_html, nb_js = _load_notebook_html(resources, verbose, hide_banner, load_timeout)
-    lab_html, lab_js = _load_notebook_html(resources, verbose, hide_banner, load_timeout, register_mimetype=False)
-    if notebook_type=='jupyter':
-        publish_display_data({'text/html': nb_html + _wrap_in_script_tag(nb_js),
-                              LOAD_MIME_TYPE: {"script": lab_js, "div": lab_html}})
-    else:
-        _publish_zeppelin_data(lab_html, lab_js)
 
-
-FINALIZE_JS = """
-document.getElementById("%s").textContent = "BokehJS is loading...";
-"""
-
-# TODO (bev) This will eventually go away
-def _publish_zeppelin_data(html, js):
-    print('%html ' + html)
-    print('%html ' + '<script type="text/javascript">' + js + "</script>")
-
-def _load_notebook_html(resources=None, verbose=False, hide_banner=False,
-                        load_timeout=5000, register_mimetype=True):
     global _notebook_loaded
 
     from .. import __version__
-    from ..core.templates import AUTOLOAD_NB_JS, NOTEBOOK_LOAD
+    from ..core.templates import NOTEBOOK_LOAD
     from ..util.serialization import make_id
-    from ..util.compiler import bundle_all_models
     from ..resources import CDN
+    from ..util.compiler import bundle_all_models
 
     if resources is None:
         resources = CDN
@@ -99,18 +79,48 @@ def _load_notebook_html(resources=None, verbose=False, hide_banner=False,
 
     custom_models_js = bundle_all_models()
 
+    nb_js = _loading_js(resources, element_id, custom_models_js, load_timeout, register_mime=True)
+    jl_js = _loading_js(resources, element_id, custom_models_js, load_timeout, register_mime=False)
+
+    if notebook_type=='jupyter':
+
+        if not hide_banner:
+            publish_display_data({'text/html': html})
+
+        publish_display_data({
+            JS_MIME_TYPE   : nb_js,
+            LOAD_MIME_TYPE : {"script": jl_js}
+        })
+
+    else:
+        _publish_zeppelin_data(html, jl_js)
+
+
+FINALIZE_JS = """
+document.getElementById("%s").textContent = "BokehJS is loading...";
+"""
+
+# TODO (bev) This will eventually go away
+def _publish_zeppelin_data(html, js):
+    print('%html ' + html)
+    print('%html ' + '<script type="text/javascript">' + js + "</script>")
+
+def _loading_js(resources, element_id, custom_models_js, load_timeout=5000, register_mime=True):
+
+    from ..core.templates import AUTOLOAD_NB_JS
+
     js = AUTOLOAD_NB_JS.render(
-        elementid = '' if hide_banner else element_id,
-        js_urls  = resources.js_files,
-        css_urls = resources.css_files,
-        js_raw   = resources.js_raw + [custom_models_js] + ([] if hide_banner else [FINALIZE_JS % element_id]),
-        css_raw  = resources.css_raw_str,
-        force    = True,
-        timeout  = load_timeout,
-        register_mimetype = register_mimetype
+        elementid = element_id,
+        js_urls   = resources.js_files,
+        css_urls  = resources.css_files,
+        js_raw    = resources.js_raw + [custom_models_js] + [FINALIZE_JS % element_id],
+        css_raw   = resources.css_raw_str,
+        force     = True,
+        timeout   = load_timeout,
+        register_mime = register_mime
     )
 
-    return html, js
+    return js
 
 def get_comms(target_name):
     ''' Create a Jupyter comms object for a specific target, that can
