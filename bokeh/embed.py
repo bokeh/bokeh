@@ -370,7 +370,6 @@ def notebook_div(model, notebook_comms_target=None, theme=FromCurdoc):
     ))
 
     js = AUTOLOAD_NB_JS.render(
-        comms_target = notebook_comms_target,
         js_urls = [],
         css_urls = [],
         js_raw = [script],
