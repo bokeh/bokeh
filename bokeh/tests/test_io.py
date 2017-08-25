@@ -73,17 +73,23 @@ class TestOutputJupyter(DefaultStateTester):
 
     @patch('bokeh.io.load_notebook')
     def test_noarg(self, mock_load_notebook):
+        # call _install_notebook_hook to register the patched `bokeh.io.load_notebook`
+        from bokeh.io import _install_notebook_hook
+        _install_notebook_hook()
         default_load_jupyter_args = (None, False, False, 5000)
         io.output_notebook()
         self._check_func_called(io._state.output_notebook, ('jupyter',), {})
-        self._check_func_called(mock_load_notebook, default_load_jupyter_args + ('jupyter',), {})
+        self._check_func_called(mock_load_notebook, default_load_jupyter_args, {'notebook_type': 'jupyter'})
 
     @patch('bokeh.io.load_notebook')
     def test_args(self, mock_load_notebook):
-        load_jupyter_args = (Resources(), True, True, 1000, 'jupyter')
+        # call _install_notebook_hook to register the patched `bokeh.io.load_notebook`
+        from bokeh.io import _install_notebook_hook
+        _install_notebook_hook()
+        load_jupyter_args = (Resources(), True, True, 1000)
         io.output_notebook(*load_jupyter_args)
         self._check_func_called(io._state.output_notebook, ('jupyter',), {})
-        self._check_func_called(mock_load_notebook, load_jupyter_args, {})
+        self._check_func_called(mock_load_notebook, load_jupyter_args, {'notebook_type': 'jupyter'})
 
 class TestSave(DefaultStateTester):
     pass

@@ -270,7 +270,7 @@ def output_notebook(resources=None, verbose=False, hide_banner=False, load_timeo
     '''
     # verify notebook_type first in _state.output_notebook
     _state.output_notebook(notebook_type)
-    _run_notebook_hook(_state.notebook_type, 'load', resources, verbose, hide_banner, load_timeout)
+    _run_notebook_hook(notebook_type, 'load', resources, verbose, hide_banner, load_timeout)
 
 def set_curdoc(doc):
     '''Configure the current document (returned by curdoc()).
@@ -882,7 +882,9 @@ def export_svgs(obj, filename=None, height=None, width=None, webdriver=None):
     return filenames
 
 
-install_notebook_hook('jupyter', partial(load_notebook, notebook_type='jupyter'), _show_jupyter_doc_with_state, _show_jupyter_app_with_state)
+def _install_notebook_hook():
+    install_notebook_hook('jupyter', partial(load_notebook, notebook_type='jupyter'), _show_jupyter_doc_with_state, _show_jupyter_app_with_state, overwrite=True)
+    # TODO (bev) These should eventually be removed, but install a basic built-in hook for docs or now
+    install_notebook_hook('zeppelin', partial(load_notebook, notebook_type='zeppelin'), _show_zeppelin_doc_with_state, None, overwrite=True)
 
-# TODO (bev) These should eventually be removed, but install a basic built-in hook for docs or now
-install_notebook_hook('zeppelin', partial(load_notebook, notebook_type='zeppelin'), _show_zeppelin_doc_with_state, None)
+_install_notebook_hook()
