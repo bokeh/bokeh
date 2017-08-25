@@ -140,7 +140,7 @@
   function display_loaded() {
     if (root.Bokeh !== undefined) {
       var el = document.getElementById({{ elementid|json }});
-      if (el !== undefined) {
+      if (el != null) {
         el.textContent = "BokehJS " + Bokeh.version + " successfully loaded.";
       }
     } else if (Date.now() < root._bokeh_timeout) {
