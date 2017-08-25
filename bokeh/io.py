@@ -270,7 +270,7 @@ def output_notebook(resources=None, verbose=False, hide_banner=False, load_timeo
     '''
     # verify notebook_type first in _state.output_notebook
     _state.output_notebook(notebook_type)
-    load_notebook(resources, verbose, hide_banner, load_timeout, notebook_type)
+    _run_notebook_hook(_state.notebook_type, 'load', resources, verbose, hide_banner, load_timeout)
 
 def set_curdoc(doc):
     '''Configure the current document (returned by curdoc()).
