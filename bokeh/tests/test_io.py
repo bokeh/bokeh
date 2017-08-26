@@ -259,18 +259,33 @@ class Test_ShowFileWithState(DefaultStateTester):
         self._check_func_called(mock_save, ("obj",), {"state": s})
         self._check_func_called(controller.open, ("file://savepath",), {"new": 2})
 
+class Test_ShowJupyterWithState(DefaultStateTester):
+
+    @patch('bokeh.io.get_comms')
+    @patch('bokeh.io.publish_display_data')
+    @patch('bokeh.io.notebook_content')
+    def test_no_server(self, mock_notebook_content, mock_publish_display_data, mock_get_comms):
+        mock_get_comms.return_value = "comms"
+        s = io.State()
+        mock_notebook_content.return_value = ["notebook_script", "notebook_div"]
+
+        class Obj(object):
+            _id = None
+
+        io._nb_loaded = True
+        io._show_jupyter_doc_with_state(Obj(), s, True)
+        io._nb_loaded = False
+
+        expected_args = ({'application/vnd.bokehjs_exec.v0+json': {"script": "notebook_script", "div": "notebook_div"}},)
+        expected_kwargs = {'metadata': {'application/vnd.bokehjs_exec.v0+json': {'id': None}}}
+
+        self._check_func_called(mock_publish_display_data, expected_args, expected_kwargs)
+
 class TestResetOutput(DefaultStateTester):
 
     def test(self):
         io.reset_output()
         self.assertTrue(io._state.reset.called)
-
-def test__server_cell():
-    io._state.uuid_to_server = {}
-    html = io._server_cell("server", "script123")
-    assert list(io._state.uuid_to_server.values()) == ['server']
-    assert html.startswith("<div class='bokeh_class' id='")
-    assert html.endswith("'>script123</div>")
 
 def _test_layout_added_to_root(layout_generator, children=None):
     layout = layout_generator(Plot() if children is None else children)
