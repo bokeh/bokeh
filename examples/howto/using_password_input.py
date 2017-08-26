@@ -19,13 +19,12 @@ btn = Button(label="GO!",width=150)
 secret = PreText() # Secret information displayed if correct password entered
 
 ## Verify if the password typed is bokeh using a JS script
-verify_pwd = CustomJS(args=dict(user=user, pwd=pwd, secret=secret),
-                      code=""" if (user.value = '{}') & (pwd.value == '{}') {{
-                                   secret.text = 'Right Password. The Secret is 42.';
-                                   return;
-                               }}
-                               secret.text = 'Wrong Password.';
-                               """.format(USER, PASSWD))
+verify_pwd = CustomJS(args=dict(user=user, pwd=pwd, secret=secret), code="""
+    secret.text = 'Wrong Password.';
+    if ( user.value == %r && pwd.value == %r) {
+        secret.text = 'Right Password. The Secret is 42.';
+    }
+""" % (USER, PASSWD))
 
 #user.callback = verify_pwd # Check password pressing enter.
 pwd.callback = verify_pwd # Check password pressing enter.
