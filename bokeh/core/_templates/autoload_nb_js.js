@@ -113,9 +113,12 @@
   }
 
   // register the mime type if in Jupyter Notebook environment and previously unregistered
-  var OutputArea = root.Jupyter.OutputArea;
-  if ((root.Jupyter !== undefined) && (OutputArea.prototype.mime_types().indexOf(EXEC_MIME_TYPE) == -1)) {
-    register_renderer(root.Jupyter.notebook, OutputArea);
+
+  if (root.Jupyter !== undefined) {
+    var OutputArea = root.Jupyter.OutputArea;
+    if (OutputArea.prototype.mime_types().indexOf(EXEC_MIME_TYPE) == -1) {
+      register_renderer(root.Jupyter.notebook, OutputArea);
+    }
   }
   {%- endif -%}
 
