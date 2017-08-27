@@ -5,6 +5,7 @@ from __future__ import absolute_import
 
 from IPython.display import publish_display_data
 
+HTML_MIME_TYPE = 'text/html'
 JS_MIME_TYPE   = 'application/javascript'
 LOAD_MIME_TYPE = 'application/vnd.bokehjs_load.v0+json'
 EXEC_MIME_TYPE = 'application/vnd.bokehjs_exec.v0+json'

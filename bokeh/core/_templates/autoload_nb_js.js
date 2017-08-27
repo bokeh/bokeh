@@ -3,24 +3,17 @@
 {% block register_mimetype %}
 
   {%- if register_mime -%}
-  var MIME_TYPE = 'application/vnd.bokehjs_exec.v0+json';
+  var JS_MIME = 'application/javascript';
+  var HTML_MIME = 'text/html';
+  var EXEC_MIME_TYPE = 'application/vnd.bokehjs_exec.v0+json';
   var CLASS_NAME = 'output_bokeh rendered_html';
 
   /**
    * Render data to the DOM node
    */
   function render(props, node) {
-    if (props.data['div'] !== undefined) {
-      var div = document.createElement("div");
-      div.innerHTML = props.data["div"];
-      node.appendChild(div);
-    }
-
-    if (props.data['script'] !== undefined) {
-      var script = document.createElement("script");
-      script.textContent = props.data["script"];
-      node.appendChild(script);
-    }
+    var script = document.createElement("script");
+    node.appendChild(script);
   }
 
   /**
@@ -58,13 +51,26 @@
   /**
    * Handle when a new output is added
    */
-  function handleAddOutput(event,  handle) {
+  function handleAddOutput(event, handle) {
     var output_area = handle.output_area;
     var output = handle.output;
-    // store reference to embed id or server id on output_area
-    if (output.metadata[MIME_TYPE] !== undefined) {
-      output_area._bokeh_element_id = output.metadata[MIME_TYPE]["id"];
-      output_area._bokeh_server_id = output.metadata[MIME_TYPE]["server_id"];
+
+    var toinsert = output_area.element.find(`.${"output_bokeh"}`)
+
+    if (output.metadata[EXEC_MIME_TYPE]["id"] !== undefined) {
+      toinsert[0].firstChild.textContent = output.data[JS_MIME]
+      // store reference to embed id on output_area
+      output_area._bokeh_element_id = output.metadata[EXEC_MIME_TYPE]["id"];
+    }
+    if (output.metadata[EXEC_MIME_TYPE]["server_id"] !== undefined) {
+      var bk_div = document.createElement("div")
+      bk_div.innerHTML = output.data[HTML_MIME];
+      var script_attrs = bk_div.children[0].attributes;
+      for (var i = 0; i < script_attrs.length; i++) {
+        toinsert[0].firstChild.setAttribute(script_attrs[i].name, script_attrs[i].value)
+      }
+      // store reference to server id on output_area
+      output_area._bokeh_server_id = output.metadata[EXEC_MIME_TYPE]["server_id"];
     }
   }
 
@@ -78,11 +84,11 @@
       var toinsert = this.create_output_subarea(
         metadata,
         CLASS_NAME,
-        MIME_TYPE
+        EXEC_MIME_TYPE
       );
       this.keyboard_manager.register_events(toinsert);
       // Render to node
-      var props = {data: data, metadata: metadata[MIME_TYPE]};
+      var props = {data: data, metadata: metadata[EXEC_MIME_TYPE]};
       render(props, toinsert[0]);
       element.append(toinsert);
       return toinsert
@@ -98,7 +104,7 @@
     /**
      * Register the mime type and append_mime function with output_area
      */
-    OutputArea.prototype.register_mime_type(MIME_TYPE, append_mime, {
+    OutputArea.prototype.register_mime_type(EXEC_MIME_TYPE, append_mime, {
       /* Is output safe? */
       safe: true,
       /* Index of renderer in `output_area.display_order` */
@@ -108,7 +114,7 @@
 
   // register the mime type if in Jupyter Notebook environment and previously unregistered
   var OutputArea = root.Jupyter.OutputArea;
-  if ((root.Jupyter !== undefined) && (OutputArea.prototype.mime_types().indexOf(MIME_TYPE) == -1)) {
+  if ((root.Jupyter !== undefined) && (OutputArea.prototype.mime_types().indexOf(EXEC_MIME_TYPE) == -1)) {
     register_renderer(root.Jupyter.notebook, OutputArea);
   }
   {%- endif -%}

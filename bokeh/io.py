@@ -37,7 +37,7 @@ from .models import Plot
 from .resources import INLINE
 import bokeh.util.browser as browserlib  # full import needed for test mocking to work
 from .util.dependencies import import_required, detect_phantomjs
-from .util.notebook import get_comms, load_notebook, EXEC_MIME_TYPE
+from .util.notebook import get_comms, load_notebook, EXEC_MIME_TYPE, JS_MIME_TYPE, HTML_MIME_TYPE
 from .util.string import decode_utf8
 from .util.serialization import make_id
 
@@ -406,7 +406,7 @@ def _show_jupyter_app_with_state(app, state, notebook_url):
     url = 'http://%s:%d%s' % (notebook_url.split(':')[0], server.port, "/")
     script = server_document(url)
 
-    publish_display_data({EXEC_MIME_TYPE: {"div": script}}, metadata={EXEC_MIME_TYPE: {"server_id": server_id}})
+    publish_display_data({HTML_MIME_TYPE: script, EXEC_MIME_TYPE: ""}, metadata={EXEC_MIME_TYPE: {"server_id": server_id}})
 
 def _show_with_state(obj, state, browser, new, notebook_handle=False):
     controller = browserlib.get_browser_controller(browser=browser)
@@ -434,7 +434,8 @@ def _show_file_with_state(obj, state, new, controller):
 def _show_jupyter_doc_with_state(obj, state, notebook_handle):
     comms_target = make_id() if notebook_handle else None
     (script, div) = notebook_content(obj, comms_target)
-    publish_display_data({EXEC_MIME_TYPE: {"script": script, "div": div}}, metadata={EXEC_MIME_TYPE: {"id": obj._id}})
+    publish_display_data({HTML_MIME_TYPE: div})
+    publish_display_data({JS_MIME_TYPE: script, EXEC_MIME_TYPE: ""}, metadata={EXEC_MIME_TYPE: {"id": obj._id}})
     if comms_target:
         handle = _CommsHandle(get_comms(comms_target), state.document,
                               state.document.to_json())
