@@ -34,12 +34,6 @@ It is possible to generate PNG files for multiple applications at once:
 
     bokeh png app_script.py app_dir
 
-.. warning::
-    Applications that use ``on_change`` callbacks require using the Bokeh
-    server to execute the callback code. Though the application may render,
-    the callbacks will not function. See :ref:`userguide_cli_serve` for
-    more information on using ``bokeh serve``.
-
 For all cases, it's required to explicitly add a Bokeh layout to
 ``bokeh.io.curdoc`` for it to appear in the output.
 

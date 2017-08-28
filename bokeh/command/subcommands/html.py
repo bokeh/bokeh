@@ -46,9 +46,7 @@ respectively.
 
 .. warning::
     Applications that use ``on_change`` callbacks require using the Bokeh
-    server to execute the callback code. Though the application may render,
-    the callbacks will not function. See :ref:`userguide_cli_serve` for
-    more information on using ``bokeh serve``.
+    server to execute the callback code.
 
 '''
 from __future__ import absolute_import
