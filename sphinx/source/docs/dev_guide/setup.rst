@@ -302,7 +302,7 @@ You should see output similar to:
 
 .. code-block:: sh
 
-    Python version      :  3.6.1 |Continuum Analytics, Inc.| (default, May 11 2017, 13:04:09)
+    Python version      :  3.6.1 |Anaconda, Inc.| (default, May 11 2017, 13:04:09)
     IPython version     :  5.3.0
     Bokeh version       :  0.12.7dev3-17-g184f1ed7a
     BokehJS static path :  /Users/bryan/work/bokeh/bokeh/server/static
@@ -349,7 +349,7 @@ web browser to the appropriate address, the default is ``localhost:5006``.
 
 If you have any problems with the steps here, please `contact the developers`_.
 
-.. _Anaconda: https://www.continuum.io/downloads
+.. _Anaconda: https://anaconda.com/downloads
 .. _contact the developers: https://bokehplots.com/pages/contact.html
 .. _conda package manager: https://conda.io/docs/intro.html
 .. _conda documentation: https://conda.io/docs/index.html

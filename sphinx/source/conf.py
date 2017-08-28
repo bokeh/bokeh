@@ -66,7 +66,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'Bokeh'
-copyright = '© Copyright 2015, Continuum Analytics.'
+copyright = '© Copyright 2015, Anaconda.'
 
 # Get the standard computed Bokeh version string to use for |version|
 # and |release|
@@ -181,7 +181,7 @@ html_context = {
     # Social links
     'SOCIAL': (
         ('Contribute', MAIN_SITE + '/pages/contribute.html'),
-        ('Mailing list', '//groups.google.com/a/continuum.io/forum/#!forum/bokeh'),
+        ('Mailing list', '//groups.google.com/a/anaconda.com/forum/#!forum/bokeh'),
         ('Github', '//github.com/bokeh/bokeh'),
         ('Twitter', '//twitter.com/BokehPlots'),
         ('YouTube', '//www.youtube.com/channel/UCK0rSk29mmg4UT4bIOvPYhw')
@@ -221,7 +221,7 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-    ('index', 'Bokeh.tex', u'Bokeh Documentation', u'Continuum Analytics', 'manual'),
+    ('index', 'Bokeh.tex', u'Bokeh Documentation', u'Anaconda', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -251,7 +251,7 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     ('index', 'bokeh', u'Bokeh Documentation',
-     [u'Continuum Analytics'], 1)
+     [u'Anaconda'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -264,7 +264,7 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    ('index', 'Bokeh', u'Bokeh Documentation', u'Continuum Analytics', 'Bokeh', 'Interactive Web Plotting for Python', 'Graphics'),
+    ('index', 'Bokeh', u'Bokeh Documentation', u'Anaconda', 'Bokeh', 'Interactive Web Plotting for Python', 'Graphics'),
 ]
 
 # Documents to append as an appendix to all manuals.

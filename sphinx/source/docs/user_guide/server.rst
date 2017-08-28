@@ -1255,7 +1255,7 @@ in :ref:`devguide_server`
 
 .. _Ansible: http://www.ansible.com
 .. _Chef: https://www.chef.io/chef/
-.. _contact us on the mailing list: https://groups.google.com/a/continuum.io/forum/#!forum/bokeh
+.. _contact us on the mailing list: https://groups.google.com/a/anaconda.com/forum/#!forum/bokeh
 .. _demo.bokehplots.com: https://demo.bokehplots.com
 .. _HTTPServerRequest: http://www.tornadoweb.org/en/stable/httputil.html#tornado.httputil.HTTPServerRequest
 .. _Puppet: https://puppetlabs.com

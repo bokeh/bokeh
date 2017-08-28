@@ -1,6 +1,6 @@
 "Supporting objects and functions to convert Matplotlib objects into Bokeh."
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2014, Continuum Analytics, Inc. All rights reserved.
+# Copyright (c) 2012 - 2014, Anaconda, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #

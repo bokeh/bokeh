@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2015, Continuum Analytics, Inc. All rights reserved.
+# Copyright (c) 2012 - 2015, Anaconda, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #
