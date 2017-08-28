@@ -108,7 +108,7 @@ With the GMapPlot, you can plot any bokeh glyphs over a Google Map.
     of Bokeh with Google Maps must be within Google's Terms of Service
 
 
-.. _mailing list: https://groups.google.com/a/continuum.io/forum/#!forum/bokeh
+.. _mailing list: https://groups.google.com/a/anaconda.com/forum/#!forum/bokeh
 .. _github: https://github.com/bokeh/bokeh
 .. _GeoJSON: http://geojson.org
 .. _open issue: https://github.com/bokeh/bokeh/issues/2964

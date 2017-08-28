@@ -1,6 +1,6 @@
 "Helpers function for mpl module."
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2014, Continuum Analytics, Inc. All rights reserved.
+# Copyright (c) 2012 - 2014, Anaconda, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #

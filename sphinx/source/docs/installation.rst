@@ -60,7 +60,7 @@ If you are already an Anaconda user, you can simply run the command:
     conda install bokeh
 
 This will install the most recent published Bokeh release from the
-`Continuum Analytics`_ Anaconda repository, along with all dependencies.
+`Anaconda, Inc.`_ package repository, along with all dependencies.
 
 Alternatively, it is possible to install from PyPI using ``pip``:
 
@@ -184,7 +184,7 @@ and
     It is also available for download from CDN at pydata.org under the name bokeh-api using
     the above naming scheme. It must be loaded *after* the JavaScript library.
 
-.. _Anaconda Python Distribution: http://continuum.io/anaconda
+.. _Anaconda Python Distribution: http://anaconda.com/anaconda
 .. _anaconda.org: http://anaconda.org
-.. _Continuum Analytics: http://continuum.io
+.. _Anaconda, Inc.: http://anaconda.com
 .. _npmjs.org: https://www.npmjs.org/package/bokehjs

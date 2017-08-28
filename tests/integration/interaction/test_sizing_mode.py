@@ -145,7 +145,7 @@ def test_stretch_both_plot_is_not_taller_than_page(output_file_url, selenium):
     assert canvas_width <= window_width
     assert canvas_height <= window_height
 
-
+@pytest.mark.xfail
 def test_scale_both_resizes_width_and_height_with_fixed_aspect_ratio(output_file_url, selenium):
     # Test that a Bokeh plot embedded in a desktop-ish setting (e.g.
     # a Phosphor widget) behaves well w.r.t. resizing.

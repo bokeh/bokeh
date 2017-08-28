@@ -21,11 +21,11 @@ $(document).ready(function() {
       loc = window.location.pathname;
       dev = /^\/en\/dev/
       if (dev.exec(loc)) {
-        content = $('<div>The documentation on this page refers to a DEVELOPMENT VERSION. For the latest release, go to <a href="http://bokeh.pydata.org/en/latest/">http://bokeh.pydata.org/en/latest/</a></div>').attr('style', style);
+        content = $('<div>The documentation on this page refers to a DEVELOPMENT VERSION. For the latest release, go to <a href="https://bokeh.pydata.org/en/latest/">https://bokeh.pydata.org/en/latest/</a></div>').attr('style', style);
         $('html:first').prepend(content);
       }
       else if (v != window._BOKEH_CURRENT_VERSION) {
-        content = $('<div>The documentation on this page refers to a PREVIOUS VERSION. For the latest release, go to <a href="http://bokeh.pydata.org/en/latest/">http://bokeh.pydata.org/en/latest/</a></div>').attr('style', style);
+        content = $('<div>The documentation on this page refers to a PREVIOUS VERSION. For the latest release, go to <a href="https://bokeh.pydata.org/en/latest/">https://bokeh.pydata.org/en/latest/</a></div>').attr('style', style);
         $('body').prepend(content);
       }
     }

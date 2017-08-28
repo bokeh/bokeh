@@ -406,7 +406,7 @@ resources:
 
   to your commit message.
 
-.. _contact the developers: http://bokehplots.com/pages/contact.html
+.. _contact the developers: https://bokehplots.com/pages/contact.html
 .. _custom markers: http://pytest.org/latest/example/markers.html#working-with-custom-markers
 .. _pytest: https://docs.pytest.org
 .. _SauceLabs: http://saucelabs.com/

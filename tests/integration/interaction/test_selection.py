@@ -109,6 +109,7 @@ def test_selection_tool_multiselection_with_shift(output_file_url, selenium):
     selected = selenium.execute_script(code)
     assert selected == [0, 2]
 
+@pytest.mark.xfail
 @pytest.mark.screenshot
 def test_line_rendering_with_selected_points(output_file_url, selenium, screenshot):
     plot = Plot(plot_height=400, plot_width=400,
