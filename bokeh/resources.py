@@ -262,11 +262,8 @@ class BaseResources(object):
 
     def _inline(self, path):
         begin = "/* BEGIN %s */" % basename(path)
-        try:
-            with open(path, 'rb') as f:
-                middle = f.read().decode("utf-8")
-        except IOError:
-            middle = ""
+        with open(path, 'rb') as f:
+            middle = f.read().decode("utf-8")
         end = "/* END %s */"  % basename(path)
         return "%s\n%s\n%s" % (begin, middle, end)
 
