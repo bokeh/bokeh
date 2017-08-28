@@ -222,6 +222,7 @@ def test_autorange_prevents_panning_but_can_zoom_in_with_datarange1d(output_file
     _assert_autorange_prevents_panning_but_can_zoom(output_file_url, selenium)
 
 
+@pytest.mark.xfail
 def test_autorange_prevents_panning_but_can_zoom_in_with_range1d(output_file_url, selenium):
     plot = make_plot(xr=Range1d(0.45, 3, bounds='auto'), yr=DataRange1d(0, 3, bounds='auto'))
     save(plot)
