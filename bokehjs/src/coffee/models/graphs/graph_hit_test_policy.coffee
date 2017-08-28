@@ -37,8 +37,8 @@ export class NodesOnly extends GraphHitTestPolicy
   do_inspection: (geometry, graph_view, final, append) ->
     @_node_selector = graph_view.model.get_selection_manager().get_or_create_inspector(graph_view.node_view.model)
     did_hit = @_do(geometry, graph_view, final, append)
-    graph_view.node_view.model.data_source.inspected = @_node_selector.indices
-    graph_view.node_view.model.data_source.inspect.emit([graph_view.node_view, {"geometry": geometry}])
+    graph_view.node_view.model.data_source.setv({inspected: @_node_selector.indices}, {silent: true})
+    graph_view.node_view.model.data_source.inspect.emit([graph_view.node_view, {geometry: geometry}])
     return did_hit
 
 
@@ -88,9 +88,9 @@ export class NodesAndLinkedEdges extends GraphHitTestPolicy
 
     did_hit = @_do(geometry, graph_view, final, append)
 
-    graph_view.node_view.model.data_source.inspected = @_node_selector.indices
-    graph_view.edge_view.model.data_source.inspected = @_edge_selector.indices
-    graph_view.node_view.model.data_source.inspect.emit([graph_view.node_view, {"geometry": geometry}])
+    graph_view.node_view.model.data_source.setv({inspected: @_node_selector.indices}, {silent: true})
+    graph_view.edge_view.model.data_source.setv({inspected: @_edge_selector.indices}, {silent: true})
+    graph_view.node_view.model.data_source.inspect.emit([graph_view.node_view, {geometry: geometry}])
 
     return did_hit
 
@@ -142,8 +142,8 @@ export class EdgesAndLinkedNodes extends GraphHitTestPolicy
 
     did_hit = @_do(geometry, graph_view, final, append)
 
-    graph_view.edge_view.model.data_source.inspected = @_edge_selector.indices
-    graph_view.node_view.model.data_source.inspected = @_node_selector.indices
-    graph_view.edge_view.model.data_source.inspect.emit([graph_view.edge_view, {'geometry': geometry}])
+    graph_view.edge_view.model.data_source.setv({inspected: @_edge_selector.indices}, {silent: true})
+    graph_view.node_view.model.data_source.setv({inspected: @_node_selector.indices}, {silent: true})
+    graph_view.edge_view.model.data_source.inspect.emit([graph_view.edge_view, {geometry: geometry}])
 
     return did_hit
