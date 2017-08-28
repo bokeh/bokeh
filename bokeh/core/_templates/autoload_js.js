@@ -27,8 +27,6 @@ calls it with the rendered model.
     root._bokeh_is_loading = undefined;
   }
 
-  {% block register_mimetype %}
-  {% endblock %}
 
   {% block autoload_init %}
   {% endblock %}

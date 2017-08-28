@@ -73,17 +73,23 @@ class TestOutputJupyter(DefaultStateTester):
 
     @patch('bokeh.io.load_notebook')
     def test_noarg(self, mock_load_notebook):
+        # call _install_notebook_hook to register the patched `bokeh.io.load_notebook`
+        from bokeh.io import _install_notebook_hook
+        _install_notebook_hook()
         default_load_jupyter_args = (None, False, False, 5000)
         io.output_notebook()
         self._check_func_called(io._state.output_notebook, ('jupyter',), {})
-        self._check_func_called(mock_load_notebook, default_load_jupyter_args + ('jupyter',), {})
+        self._check_func_called(mock_load_notebook, default_load_jupyter_args, {'notebook_type': 'jupyter'})
 
     @patch('bokeh.io.load_notebook')
     def test_args(self, mock_load_notebook):
-        load_jupyter_args = (Resources(), True, True, 1000, 'jupyter')
+        # call _install_notebook_hook to register the patched `bokeh.io.load_notebook`
+        from bokeh.io import _install_notebook_hook
+        _install_notebook_hook()
+        load_jupyter_args = (Resources(), True, True, 1000)
         io.output_notebook(*load_jupyter_args)
         self._check_func_called(io._state.output_notebook, ('jupyter',), {})
-        self._check_func_called(mock_load_notebook, load_jupyter_args, {})
+        self._check_func_called(mock_load_notebook, load_jupyter_args, {'notebook_type': 'jupyter'})
 
 class TestSave(DefaultStateTester):
     pass
@@ -253,33 +259,18 @@ class Test_ShowFileWithState(DefaultStateTester):
         self._check_func_called(mock_save, ("obj",), {"state": s})
         self._check_func_called(controller.open, ("file://savepath",), {"new": 2})
 
-class Test_ShowJupyterWithState(DefaultStateTester):
-
-    @patch('bokeh.io.get_comms')
-    @patch('bokeh.io.publish_display_data')
-    @patch('bokeh.io.notebook_content')
-    def test_no_server(self, mock_notebook_content, mock_publish_display_data, mock_get_comms):
-        mock_get_comms.return_value = "comms"
-        s = io.State()
-        mock_notebook_content.return_value = ["notebook_script", "notebook_div"]
-
-        class Obj(object):
-            _id = None
-
-        io._nb_loaded = True
-        io._show_jupyter_doc_with_state(Obj(), s, True)
-        io._nb_loaded = False
-
-        expected_args = ({'application/vnd.bokehjs_exec.v0+json': {"script": "notebook_script", "div": "notebook_div"}},)
-        expected_kwargs = {'metadata': {'application/vnd.bokehjs_exec.v0+json': {'id': None}}}
-
-        self._check_func_called(mock_publish_display_data, expected_args, expected_kwargs)
-
 class TestResetOutput(DefaultStateTester):
 
     def test(self):
         io.reset_output()
         self.assertTrue(io._state.reset.called)
+
+def test__server_cell():
+    io._state.uuid_to_server = {}
+    html = io._server_cell("server", "script123")
+    assert list(io._state.uuid_to_server.values()) == ['server']
+    assert html.startswith("<div class='bokeh_class' id='")
+    assert html.endswith("'>script123</div>")
 
 def _test_layout_added_to_root(layout_generator, children=None):
     layout = layout_generator(Plot() if children is None else children)
