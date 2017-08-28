@@ -55,12 +55,12 @@ jobs:
       - PYTHON=3.4
       - EXTRA_CMD=--no-js
 
-    - install: scripts/ci/install:test
-      script: scripts/ci/test
-      addons:
-        sauce_connect: true
-      env:
-      - GROUP=integration
+#    - install: scripts/ci/install:test
+#      script: scripts/ci/test
+#      addons:
+#        sauce_connect: true
+#      env:
+#      - GROUP=integration
 
     - install: scripts/ci/install:test
       script: scripts/ci/test
