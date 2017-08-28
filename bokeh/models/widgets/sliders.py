@@ -52,7 +52,7 @@ class AbstractSlider(Widget):
     The "mouseup" policy is intended for scenarios in which the callback is expensive in time.
     """)
 
-    bar_color = Color(default="#3fb8af", help="""
+    bar_color = Color(default="#e6e6e6", help="""
     """)
 
 class Slider(AbstractSlider):

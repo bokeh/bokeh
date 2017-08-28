@@ -147,7 +147,7 @@ export class AbstractSlider extends Widget
     callback:          [ p.Instance                  ]
     callback_throttle: [ p.Number,      200          ]
     callback_policy:   [ p.String,      "throttle"   ] # TODO (bev) enum
-    bar_color:         [ p.Color,       "#3fb8af"    ]
+    bar_color:         [ p.Color,       "#e6e6e6"    ]
   }
 
   behaviour: null
