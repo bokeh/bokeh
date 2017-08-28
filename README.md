@@ -208,7 +208,7 @@ very large or streaming datasets.
 
 Installation
 ------------
-We recommend using the [Anaconda Python distribution](https://anconda.com/why-anaconda) and conda to install Bokeh. Enter this command at a Bash or Windows command prompt:
+We recommend using the [Anaconda Python distribution](https://anaconda.com/why-anaconda) and conda to install Bokeh. Enter this command at a Bash or Windows command prompt:
 
 ```
 conda install bokeh
