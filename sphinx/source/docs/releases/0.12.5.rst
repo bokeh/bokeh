@@ -182,7 +182,7 @@ attribute that can now be accessed on ``request`` is ``.arguments``, e.g.:
 Attempting to access any other attribute on ``request`` will result in an
 error.
 
-.. _project roadmap: http://bokehplots.com/pages/roadmap.html
+.. _project roadmap: https://bokehplots.com/pages/roadmap.html
 
 Default save file
 ~~~~~~~~~~~~~~~~~

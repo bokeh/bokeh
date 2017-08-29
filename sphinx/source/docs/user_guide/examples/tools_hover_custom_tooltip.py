@@ -8,11 +8,11 @@ source = ColumnDataSource(data=dict(
     y=[2, 5, 8, 2, 7],
     desc=['A', 'b', 'C', 'd', 'E'],
     imgs=[
-        'http://bokeh.pydata.org/static/snake.jpg',
-        'http://bokeh.pydata.org/static/snake2.png',
-        'http://bokeh.pydata.org/static/snake3D.png',
-        'http://bokeh.pydata.org/static/snake4_TheRevenge.png',
-        'http://bokeh.pydata.org/static/snakebite.jpg'
+        'https://bokeh.pydata.org/static/snake.jpg',
+        'https://bokeh.pydata.org/static/snake2.png',
+        'https://bokeh.pydata.org/static/snake3D.png',
+        'https://bokeh.pydata.org/static/snake4_TheRevenge.png',
+        'https://bokeh.pydata.org/static/snakebite.jpg'
     ],
     fonts=[
         '<i>italics</i>',

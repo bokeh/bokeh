@@ -29,4 +29,4 @@ from ...util.deprecation import deprecated
 deprecated(
     "MPL compatibility can no longer be successfully maintained, and is now deprecated. " +
     "All MPL compat functions will be removed completely on the release of Bokeh 1.0. " +
-    "See http://bokeh.pydata.org/en/latest/docs/releases/0.12.5.html for more information")
+    "See https://bokeh.pydata.org/en/latest/docs/releases/0.12.5.html for more information")

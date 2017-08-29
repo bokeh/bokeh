@@ -18,7 +18,7 @@ export class HelpTool extends ActionTool
     ]
     redirect:     [
       p.String
-      'http://bokeh.pydata.org/en/latest/docs/user_guide/tools.html#built-in-tools'
+      'https://bokeh.pydata.org/en/latest/docs/user_guide/tools.html#built-in-tools'
     ]
   }
 

@@ -69,7 +69,7 @@ def test_wheel_zoom_can_be_selected(output_file_url, selenium):
     scroll_classes = scroll_button.get_attribute('class')
     assert 'active' in scroll_classes
 
-
+@pytest.mark.xfail
 @pytest.mark.cross_browser
 def test_wheel_zoom_can_be_selected_and_deselected(output_file_url, selenium):
 

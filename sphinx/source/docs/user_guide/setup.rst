@@ -82,6 +82,6 @@ running the basic example code above, please ask for assistance on the
 `Bokeh mailing list`_ or submit an issue on the `Bokeh GitHub issue tracker`_.
 
 
-.. _Anaconda: http://continuum.io/anaconda
+.. _Anaconda: http://anaconda.com/anaconda
 .. _Bokeh GitHub issue tracker: https://github.com/bokeh/bokeh/issues
-.. _Bokeh mailing list: https://groups.google.com/a/continuum.io/forum/#!forum/bokeh
+.. _Bokeh mailing list: https://groups.google.com/a/anaconda.com/forum/#!forum/bokeh

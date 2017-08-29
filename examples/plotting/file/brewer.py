@@ -16,7 +16,7 @@ df = df.set_index(['x'])
 
 def stacked(df, categories):
     areas = dict()
-    last = np.zeros(len(df[categories[0]]))
+    last = np.zeros(len(df))
     for cat in categories:
         next = last + df[cat]
         areas[cat] = np.hstack((last[::-1], next))

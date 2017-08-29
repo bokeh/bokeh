@@ -24,15 +24,15 @@ or walk through a particular example in additional detail.
 ### [`models`](models/)
 
 This directory contains examples that use the lowest-level
-[`bokeh.models`](http://bokeh.pydata.org/en/latest/docs/reference/models.html)
+[`bokeh.models`](https://bokeh.pydata.org/en/latest/docs/reference/models.html)
 interface. For more understanding of the bokeh.models interface see [the
 concepts section of the
-user_guide](http://bokeh.pydata.org/en/latest/docs/user_guide/concepts.html#bokeh-models)
+user_guide](https://bokeh.pydata.org/en/latest/docs/user_guide/concepts.html#bokeh-models)
 
 ### [`plotting`](plotting/)
 
 This directory contains example using the
-[`bokeh.plotting`](http://bokeh.pydata.org/en/latest/docs/user_guide/plotting.html)
+[`bokeh.plotting`](https://bokeh.pydata.org/en/latest/docs/user_guide/plotting.html)
 interface. There are three subdirectories illustrating output in three
 different modes:
 
@@ -52,9 +52,9 @@ test another aspect of WebGL (e.g. blending of transparent glyphs).
 
 ## Other sources for examples
 
-* There are many examples in the [Bokeh Gallery](http://bokeh.pydata.org/en/latest/docs/gallery.html) on main documentation site http://bokeh.pydata.org.
+* There are many examples in the [Bokeh Gallery](https://bokeh.pydata.org/en/latest/docs/gallery.html) on main documentation site https://bokeh.pydata.org.
 
-* The [Bokeh User's Guide](http://bokeh.pydata.org/en/latest/docs/user_guide.html) has many plots with corresponding code samples throughout.
+* The [Bokeh User's Guide](https://bokeh.pydata.org/en/latest/docs/user_guide.html) has many plots with corresponding code samples throughout.
 
 * Many examples of Bokeh being used with the [Jupyter](http://jupyter.org) notebook, including a set or tutorial notebooks, are collected in the [`bokeh-notebooks`](https://github.com/bokeh/bokeh-notebooks) repository. These notebooks are available statically rendered on the [Bokeh NBViewer page](http://nbviewer.jupyter.org/github/bokeh/bokeh-notebooks/blob/master/index.ipynb).
 

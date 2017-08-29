@@ -157,4 +157,4 @@ Views can be obtained through ``Bokeh.index``. To resize all roots use
         Bokeh.index[key].resize(width, height);
     }
 
-.. _project roadmap: http://bokehplots.com/pages/roadmap.html
+.. _project roadmap: https://bokehplots.com/pages/roadmap.html
