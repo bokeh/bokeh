@@ -54,10 +54,6 @@ class ExampleHandler(Handler):
         import bokeh.plotting as p
         mods = [io, p]
 
-        # TODO (bev) restore when bkcharts package is ready (but remove at 1.0 release)
-        # import bkcharts as c
-        # mods.append(c)
-
         old_io = {}
         for f in self._output_funcs + self._io_funcs:
             old_io[f] = getattr(io, f)
@@ -78,10 +74,6 @@ class ExampleHandler(Handler):
         import bokeh.io as io
         import bokeh.plotting as p
         mods = [io, p]
-
-        # TODO (bev) restore when bkcharts package is ready (but remove at 1.0 release)
-        # import bkcharts as c
-        # mods.append(c)
 
         for mod in mods:
             for f in old_io:
