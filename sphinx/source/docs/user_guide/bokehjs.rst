@@ -94,8 +94,8 @@ Python to JavaScript at this level is nearly one-to-one:
     plot.add_layout(yaxis, "left");
 
     // add grids to the plot
-    var xgrid = new Bokeh.Grid({ ticker: xaxis.ticker, dimension: 0 });
-    var ygrid = new Bokeh.Grid({ ticker: yaxis.ticker, dimension: 1 });
+    var xgrid = new Bokeh.Grid({ ticker: xaxis.ticker, dimension: "width" });
+    var ygrid = new Bokeh.Grid({ ticker: yaxis.ticker, dimension: "height" });
     plot.add_layout(xgrid);
     plot.add_layout(ygrid);
 

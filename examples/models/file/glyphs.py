@@ -89,8 +89,8 @@ def make_tab(title, glyph):
     yaxis = LinearAxis()
     plot.add_layout(yaxis, 'left')
 
-    plot.add_layout(Grid(dimension=0, ticker=xaxis.ticker))
-    plot.add_layout(Grid(dimension=1, ticker=yaxis.ticker))
+    plot.add_layout(Grid(dimension="width", ticker=xaxis.ticker))
+    plot.add_layout(Grid(dimension="height", ticker=yaxis.ticker))
 
     plot.add_tools(HoverTool())
 

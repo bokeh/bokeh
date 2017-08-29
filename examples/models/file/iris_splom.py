@@ -47,14 +47,14 @@ def make_plot(xname, yname, xax=False, yax=False):
         xaxis = LinearAxis()
         plot.add_layout(xaxis, 'below')
         xticker = xaxis.ticker
-    plot.add_layout(Grid(dimension=0, ticker=xticker))
+    plot.add_layout(Grid(dimension="width", ticker=xticker))
 
     yticker = BasicTicker()
     if yax:
         yaxis = LinearAxis()
         plot.add_layout(yaxis, 'left')
         yticker = yaxis.ticker
-    plot.add_layout(Grid(dimension=1, ticker=yticker))
+    plot.add_layout(Grid(dimension="height", ticker=yticker))
 
     plot.add_tools(PanTool(), WheelZoomTool())
 

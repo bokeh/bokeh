@@ -42,8 +42,8 @@ plot.add_layout(xaxis, 'below')
 yaxis = LinearAxis(axis_label="petal width", major_tick_in=0)
 plot.add_layout(yaxis, 'left')
 
-plot.add_layout(Grid(dimension=0, ticker=xaxis.ticker))
-plot.add_layout(Grid(dimension=1, ticker=yaxis.ticker))
+plot.add_layout(Grid(dimension="width", ticker=xaxis.ticker))
+plot.add_layout(Grid(dimension="height", ticker=yaxis.ticker))
 
 plot.add_tools(PanTool(), WheelZoomTool())
 

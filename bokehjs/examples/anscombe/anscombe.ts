@@ -49,8 +49,8 @@ namespace Anscombe {
     const yaxis = new Bokeh.LinearAxis({axis_line_color: null});
     plot.add_layout(xaxis, "below");
     plot.add_layout(yaxis, "left");
-    const xgrid = new Bokeh.Grid({ticker: xaxis.ticker, dimension: 0});
-    const ygrid = new Bokeh.Grid({ticker: yaxis.ticker, dimension: 1});
+    const xgrid = new Bokeh.Grid({ticker: xaxis.ticker, dimension: "width"});
+    const ygrid = new Bokeh.Grid({ticker: yaxis.ticker, dimension: "height"});
     plot.add_layout(xgrid);
     plot.add_layout(ygrid);
     const line = new Bokeh.Line({x: {field: "x"}, y: {field: "y"}, line_color: "#666699", line_width: 2});

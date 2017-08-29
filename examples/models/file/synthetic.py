@@ -12,8 +12,8 @@ plot = Plot(x_range=Range1d(-10, 10), y_range=Range1d(-10, 10), plot_width=500, 
 
 xaxis = LinearAxis()
 yaxis = LinearAxis()
-xgrid = Grid(dimension=0, ticker=xaxis.ticker)
-ygrid = Grid(dimension=1, ticker=yaxis.ticker)
+xgrid = Grid(dimension="width", ticker=xaxis.ticker)
+ygrid = Grid(dimension="height", ticker=yaxis.ticker)
 
 plot.add_layout(xaxis, "below")
 plot.add_layout(yaxis, "left")

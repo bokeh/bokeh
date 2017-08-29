@@ -36,7 +36,7 @@ def pyramid():
     plot.add_layout(xaxis, 'below')
     plot.add_layout(CategoricalAxis(), 'left')
 
-    plot.add_layout(Grid(dimension=0, ticker=xaxis.ticker))
+    plot.add_layout(Grid(dimension="width", ticker=xaxis.ticker))
 
     m = HBar(left="value", right=0, y="group", height=1, fill_color="#3B8686")
     mglyph = plot.add_glyph(source_pyramid_m, m)

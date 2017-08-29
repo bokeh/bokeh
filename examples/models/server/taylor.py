@@ -61,8 +61,8 @@ plot.add_layout(xaxis, 'below')
 yaxis = LinearAxis()
 plot.add_layout(yaxis, 'left')
 
-xgrid = Grid(dimension=0, ticker=xaxis.ticker)
-ygrid = Grid(dimension=1, ticker=yaxis.ticker)
+xgrid = Grid(dimension="width", ticker=xaxis.ticker)
+ygrid = Grid(dimension="height", ticker=yaxis.ticker)
 
 legend = Legend(location="top_right")
 legend.items = [

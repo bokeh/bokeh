@@ -60,7 +60,7 @@ class DataTables(object):
         plot.add_layout(LinearAxis(), 'below')
         yaxis = LinearAxis()
         plot.add_layout(yaxis, 'left')
-        plot.add_layout(Grid(dimension=1, ticker=yaxis.ticker))
+        plot.add_layout(Grid(dimension="height", ticker=yaxis.ticker))
 
         # Add Glyphs
         cty_glyph = Circle(x="index", y="cty", fill_color="#396285", size=8, fill_alpha=0.5, line_alpha=0.5)
