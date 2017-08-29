@@ -17,8 +17,9 @@ from ..models import (
     FactorRange, Grid, HelpTool, HoverTool, LassoSelectTool, Legend, LegendItem, LinearAxis,
     LogAxis, PanTool, ZoomInTool, ZoomOutTool, PolySelectTool, ContinuousTicker,
     SaveTool, Range, Range1d, UndoTool, RedoTool, ResetTool, ResizeTool, Tool,
-    WheelPanTool, WheelZoomTool, ColumnarDataSource, ColumnDataSource, GlyphRenderer,
-    LogScale, LinearScale, CategoricalScale)
+    WheelPanTool, WheelZoomTool, ColumnarDataSource, ColumnDataSource,
+    LogScale, LinearScale, CategoricalScale, Circle, MultiLine)
+from ..models.renderers import GlyphRenderer
 
 from ..core.properties import ColorSpec, Datetime, value, field
 from ..transform import stack
@@ -67,6 +68,35 @@ def _stack(stackers, spec0, spec1, **kw):
         _kw.append(d)
 
     return _kw
+
+def _graph(node_source, edge_source, node_glyph=Circle(), node_selection_glyph="auto",
+           node_nonselection_glyph="auto", node_hover_glyph=None, node_muted_glyph=None,
+           edge_glyph=MultiLine(), edge_selection_glyph="auto", edge_nonselection_glyph="auto",
+           edge_hover_glyph=None, edge_muted_glyph=None, **kwargs):
+
+    if pd and isinstance(node_source, pd.DataFrame):
+        node_source = ColumnDataSource(node_source)
+    if pd and isinstance(edge_source, pd.DataFrame):
+        edge_source = ColumnDataSource(edge_source)
+
+    node_renderer = GlyphRenderer(glyph=node_glyph,
+                                  nonselection_glyph=node_nonselection_glyph,
+                                  selection_glyph=node_selection_glyph,
+                                  hover_glyph=node_hover_glyph,
+                                  muted_glyph=node_hover_glyph,
+                                  data_source=node_source)
+
+    edge_renderer = GlyphRenderer(glyph=edge_glyph,
+                                  nonselection_glyph=edge_nonselection_glyph,
+                                  selection_glyph=edge_selection_glyph,
+                                  hover_glyph=edge_hover_glyph,
+                                  muted_glyph=edge_hover_glyph,
+                                  data_source=edge_source)
+
+    kwargs["node_renderer"] = node_renderer
+    kwargs["edge_renderer"] = edge_renderer
+
+    return kwargs
 
 def get_default_color(plot=None):
     colors = [
