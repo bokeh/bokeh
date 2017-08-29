@@ -52,7 +52,7 @@ jobs:
       script: scripts/ci/test
       env:
       - GROUP=examples
-      - PYTHON=3.4
+      - PYTHON=3.5
       - EXTRA_CMD=--no-js
 
 #    - install: scripts/ci/install:test
@@ -72,12 +72,6 @@ jobs:
       env:
       - GROUP=unit
       - PYTHON=2.7
-
-    - install: scripts/ci/install:test
-      script: scripts/ci/test
-      env:
-      - GROUP=unit
-      - PYTHON=3.4
 
     - install: scripts/ci/install:test
       script: scripts/ci/test

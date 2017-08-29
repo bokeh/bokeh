@@ -29,3 +29,10 @@ The ``bokeh.mpl`` module and all supporting code in ``bokeh.core.compat`` has
 been removed. Bokeh no longer offers or attempts any automatic MPL conversion.
 
 .. _project roadmap: https://bokehplots.com/pages/roadmap.html
+
+End of support for Python 3.4
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Starting with this release, Bokeh is no longer continuously tested against 
+Python 3.4. Use of Bokeh with Python 3.4 will very likely still work, but 
+there are no longer any guarantees backed by CI testing. 

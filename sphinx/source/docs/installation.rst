@@ -13,7 +13,7 @@ Dependencies
 ============
 
 Bokeh is officially supported (and continuously tested) on CPython versions 2.7
-and 3.4+ only. Other Python versions may function, possibly in limited capacity.
+and 3.5+ only. Other Python versions may function, possibly in limited capacity.
 In particular, converting NumPy arrays to lists may be useful with other versions.
 However, this guidance is only provided as-is, in case it happens to be useful,
 and does not imply any level of official support for other Python versions. All
