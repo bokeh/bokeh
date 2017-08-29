@@ -197,10 +197,9 @@ The code above generates the following plot:
 ``Bokeh.Charts``
 ~~~~~~~~~~~~~~~~
 
-The JavaScript ``Bokeh.Charts`` API is a high-level interface for
-charting that is unique to BokehJS. Generally, it does *not* share any
-similarity to the Python ``bokeh.charts`` interface. Currently , there are
-two high level charts supported: ``pie`` and ``bar``.
+The JavaScript ``Bokeh.Charts`` API is a high-level interface for charting
+that is unique to BokehJS. Currently , there are two high level charts
+supported: ``pie`` and ``bar``.
 
 .. _userguide_bokehjs_interfaces_charts_pie:
 

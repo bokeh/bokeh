@@ -1,0 +1,23 @@
+0.12.7
+======
+
+Bokeh Version ``0.12.8`` is an incremental update that adds a few important
+features and fixes several bugs. Some of the highlights include:
+
+
+ Many other small bugfixes and docs additions. For full details see the
+ :bokeh-tree:`CHANGELOG`.
+
+Migration Guide
+---------------
+
+NOTE: the 0.12.x series is the last planned release series before a version
+1.0 release. For more information see the `project roadmap`_.
+
+Deprecated ``bokeh.charts`` support removed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The ``bokeh.charts`` module, which was simply a compatibility shim to load the
+separate ``bkcharts` package, has been removed. Additionlaly, Bokeh itself no
+longer lists ``bkcharts`` as a dependency. In order to continue using
+``bkcharts`` code, the ``bkcharts`` package must be installed separately.
