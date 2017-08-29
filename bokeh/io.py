@@ -489,15 +489,34 @@ def save(obj, filename=None, resources=None, title=None, state=None, **kwargs):
     _save_helper(obj, filename, resources, title)
     return os.path.abspath(filename)
 
-def _detect_filename(ext):
-    """ Detect filename from the name of the script being run. Returns
-    temporary file if the script could not be found or the location of the
-    script does not have write permission (e.g. interactive mode).
-    """
-    import sys
-    import inspect
-    from os.path import dirname, basename, splitext, join
+def _no_access(basedir):
+    ''' Return True if the given base dir is not accessible or writeable
 
+    '''
+    return not os.access(basedir, os.W_OK | os.X_OK)
+
+def _shares_exec_prefix(basedir):
+    ''' Whether a give base directory is on the system exex prefix
+
+    '''
+    import sys
+    prefix = sys.exec_prefix
+    return (prefix is not None and basedir.startswith(prefix))
+
+def _temp_filename(ext):
+    ''' Generate a temporary, writable filename with the given extension
+
+    '''
+    return tempfile.NamedTemporaryFile(suffix="." + ext).name
+
+def _detect_current_filename():
+    ''' Attempt to return the filename of the currently running Python process
+
+    Returns None if the filename cannot be detected.
+    '''
+    import inspect
+
+    filename = None
     frame = inspect.currentframe()
     try:
         while frame.f_back and frame.f_globals.get('name') != '__main__':
@@ -506,24 +525,42 @@ def _detect_filename(ext):
         filename = frame.f_globals.get('__file__')
     finally:
         del frame
+        return filename
 
-    def default():
-        return tempfile.NamedTemporaryFile(suffix="." + ext).name
+def default_filename(ext):
+    ''' Generate a default filename with a given extension, attempting to use
+    the filename of the currently running process, if possible.
+
+    If the filename of the current process is not available (or would not be
+    writable), then a temporary file with the given extension is returned.
+
+    Args:
+        ext (str) : the desired extension for the filename
+
+    Returns:
+        str
+
+    Raises:
+        RuntimeError
+            If the extensions requested is ".py"
+
+    '''
+    if ext == "py":
+        raise RuntimeError("asked for a default filename with 'py' extension")
+
+    from os.path import dirname, basename, splitext, join
+
+    filename = _detect_current_filename()
 
     if filename is None:
-        return default()
+        return _temp_filename(ext)
 
     basedir = dirname(filename) or os.getcwd()
 
-    if not os.access(basedir, os.W_OK | os.X_OK):
-        return default()
+    if _no_access(basedir) or _shares_exec_prefix(basedir):
+        return _temp_filename(ext)
 
-    prefix = sys.exec_prefix
-
-    if prefix and basedir.startswith(prefix):
-        return default()
-
-    name, _ = splitext(basename(filename))
+    name, current_ext = splitext(basename(filename))
     return join(basedir, name + "." + ext)
 
 def _get_save_args(state, filename, resources, title):
@@ -534,7 +571,7 @@ def _get_save_args(state, filename, resources, title):
 
     if filename is None:
         warn = False
-        filename = _detect_filename("html")
+        filename = default_filename("html")
 
     if resources is None and state.file:
         resources = state.file['resources']
@@ -821,7 +858,7 @@ def export_png(obj, filename=None, height=None, width=None, webdriver=None):
     image = _get_screenshot_as_png(obj, height=height, width=width, driver=webdriver)
 
     if filename is None:
-        filename = _detect_filename("png")
+        filename = default_filename("png")
 
     image.save(filename)
 
@@ -896,7 +933,7 @@ def export_svgs(obj, filename=None, height=None, width=None, webdriver=None):
         return
 
     if filename is None:
-        filename = _detect_filename("svg")
+        filename = default_filename("svg")
 
     filenames = []
 
