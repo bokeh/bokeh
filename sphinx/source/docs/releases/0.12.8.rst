@@ -1,4 +1,4 @@
-0.12.7
+0.12.8
 ======
 
 Bokeh Version ``0.12.8`` is an incremental update that adds a few important
@@ -21,3 +21,9 @@ The ``bokeh.charts`` module, which was simply a compatibility shim to load the
 separate ``bkcharts` package, has been removed. Additionlaly, Bokeh itself no
 longer lists ``bkcharts`` as a dependency. In order to continue using
 ``bkcharts`` code, the ``bkcharts`` package must be installed separately.
+
+MPL compatibility removed
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The ``bokeh.mpl`` module and all supporting code in ``bokeh.core.compat`` has
+been removed. Bokeh no longer offers or attempts any automatic MPL conversion.
