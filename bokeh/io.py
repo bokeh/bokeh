@@ -494,20 +494,37 @@ def _detect_filename(ext):
     temporary file if the script could not be found or the location of the
     script does not have write permission (e.g. interactive mode).
     """
+    import sys
     import inspect
-    from os.path import dirname, basename, splitext, join, curdir
+    from os.path import dirname, basename, splitext, join
 
     frame = inspect.currentframe()
-    while frame.f_back and frame.f_globals.get('name') != '__main__':
-        frame = frame.f_back
+    try:
+        while frame.f_back and frame.f_globals.get('name') != '__main__':
+            frame = frame.f_back
 
-    filename = frame.f_globals.get('__file__')
+        filename = frame.f_globals.get('__file__')
+    finally:
+        del frame
 
-    if filename is None or not os.access(dirname(filename) or curdir, os.W_OK | os.X_OK):
+    def default():
         return tempfile.NamedTemporaryFile(suffix="." + ext).name
 
+    if filename is None:
+        return default()
+
+    basedir = dirname(filename) or os.getcwd()
+
+    if not os.access(basedir, os.W_OK | os.X_OK):
+        return default()
+
+    prefix = sys.exec_prefix
+
+    if prefix and basedir.startswith(prefix):
+        return default()
+
     name, _ = splitext(basename(filename))
-    return join(dirname(filename), name + "." + ext)
+    return join(basedir, name + "." + ext)
 
 def _get_save_args(state, filename, resources, title):
     warn = True
