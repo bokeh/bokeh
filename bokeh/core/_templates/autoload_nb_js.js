@@ -3,8 +3,8 @@
 {% block register_mimetype %}
 
   {%- if register_mime -%}
-  var JS_MIME = 'application/javascript';
-  var HTML_MIME = 'text/html';
+  var JS_MIME_TYPE = 'application/javascript';
+  var HTML_MIME_TYPE = 'text/html';
   var EXEC_MIME_TYPE = 'application/vnd.bokehjs_exec.v0+json';
   var CLASS_NAME = 'output_bokeh rendered_html';
 
@@ -55,19 +55,19 @@
     var output_area = handle.output_area;
     var output = handle.output;
 
-    var toinsert = output_area.element.find(`.${"output_bokeh"}`)
+    var toinsert = output_area.element.find(`.${CLASS_NAME.split(' ')[0]}`);
 
     if (output.metadata[EXEC_MIME_TYPE]["id"] !== undefined) {
-      toinsert[0].firstChild.textContent = output.data[JS_MIME]
+      toinsert[0].firstChild.textContent = output.data[JS_MIME_TYPE];
       // store reference to embed id on output_area
       output_area._bokeh_element_id = output.metadata[EXEC_MIME_TYPE]["id"];
     }
     if (output.metadata[EXEC_MIME_TYPE]["server_id"] !== undefined) {
-      var bk_div = document.createElement("div")
-      bk_div.innerHTML = output.data[HTML_MIME];
+      var bk_div = document.createElement("div");
+      bk_div.innerHTML = output.data[HTML_MIME_TYPE];
       var script_attrs = bk_div.children[0].attributes;
       for (var i = 0; i < script_attrs.length; i++) {
-        toinsert[0].firstChild.setAttribute(script_attrs[i].name, script_attrs[i].value)
+        toinsert[0].firstChild.setAttribute(script_attrs[i].name, script_attrs[i].value);
       }
       // store reference to server id on output_area
       output_area._bokeh_server_id = output.metadata[EXEC_MIME_TYPE]["server_id"];

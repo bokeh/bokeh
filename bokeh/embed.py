@@ -22,7 +22,8 @@ from six import string_types
 from six.moves.urllib.parse import urlparse
 
 from .core.templates import (
-    AUTOLOAD_NB_JS, AUTOLOAD_JS, AUTOLOAD_TAG, DOC_JS, FILE, NOTEBOOK_DIV, PLOT_DIV, SCRIPT_TAG)
+    AUTOLOAD_JS, AUTOLOAD_TAG, DOC_JS, FILE, NOTEBOOK_DIV, PLOT_DIV,
+    SCRIPT_TAG, ONLOAD_JS)
 from .core.json_encoder import serialize_json
 from .document import Document, DEFAULT_TITLE
 from .model import Model
@@ -325,7 +326,7 @@ def _bundle_for_objs_and_resources(objs, resources):
     return bokeh_js, bokeh_css
 
 def notebook_content(model, notebook_comms_target=None, theme=FromCurdoc):
-    ''' Return script tag and div that will display a Bokeh plot in a Jupyter/
+    ''' Return script and div that will display a Bokeh plot in a Jupyter/
     Zeppelin Notebook. notebook_comms_target is only supported in Jupyter for
     now.
 
@@ -350,22 +351,6 @@ def notebook_content(model, notebook_comms_target=None, theme=FromCurdoc):
         has already been executed.
 
     '''
-    # model = _check_one_model(model)
-
-    # # Append models to one document. Either pre-existing or new and render
-    # with _ModelInEmptyDocument(model, apply_theme=theme):
-    #     (docs_json, render_items) = _standalone_docs_json_and_render_items([model])
-
-    # item = render_items[0]
-    # if notebook_comms_target:
-    #     item['notebook_comms_target'] = notebook_comms_target
-    # else:
-    #     notebook_comms_target = ''
-
-    # script = _script_for_render_items(docs_json, render_items)
-    # div = _div_for_render_item(item)
-
-    # return (script, div)
 
     model = _check_one_model(model)
 
@@ -379,21 +364,14 @@ def notebook_content(model, notebook_comms_target=None, theme=FromCurdoc):
     else:
         notebook_comms_target = ''
 
-    script = _wrap_in_onload(DOC_JS.render(
+    script = _wrap_in_onload(ONLOAD_JS.render(
         docs_json=serialize_json(docs_json),
         render_items=serialize_json(render_items)
     ))
 
-    js = AUTOLOAD_NB_JS.render(
-        js_urls = [],
-        css_urls = [],
-        js_raw = [script],
-        css_raw = "",
-        elementid = item['elementid']
-    )
     div = _div_for_render_item(item)
 
-    return js, encode_utf8(div)
+    return script, encode_utf8(div)
 
 def notebook_div(model, notebook_comms_target=None, theme=FromCurdoc):
     ''' Return HTML for a div that will display a Bokeh plot in a
