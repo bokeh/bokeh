@@ -27,3 +27,5 @@ MPL compatibility removed
 
 The ``bokeh.mpl`` module and all supporting code in ``bokeh.core.compat`` has
 been removed. Bokeh no longer offers or attempts any automatic MPL conversion.
+
+.. _project roadmap: https://bokehplots.com/pages/roadmap.html
