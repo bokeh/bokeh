@@ -361,9 +361,9 @@ def _process_axis_and_grid(plot, axis_type, axis_location, minor_ticks, axis_lab
     if axiscls:
 
         if axiscls is LogAxis:
-            if dim == 0:
+            if dim == "width":
                 plot.x_scale = LogScale()
-            elif dim == 1:
+            elif dim == "height":
                 plot.y_scale = LogScale()
             else:
                 raise ValueError("received invalid dimension value: %r" % dim)

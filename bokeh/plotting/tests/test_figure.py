@@ -125,13 +125,13 @@ class TestFigure(unittest.TestCase):
         p = plt.figure()
         p.circle([1, 2, 3], [1, 2, 3])
         self.assertEqual(len(p.xgrid), 1)
-        self.assertEqual(p.xgrid[0].dimension, 0)
+        self.assertEqual(p.xgrid[0].dimension, "width")
 
     def test_ygrid(self):
         p = plt.figure()
         p.circle([1, 2, 3], [1, 2, 3])
         self.assertEqual(len(p.ygrid), 1)
-        self.assertEqual(p.ygrid[0].dimension, 1)
+        self.assertEqual(p.ygrid[0].dimension, "height")
 
     def test_grid(self):
         p = plt.figure()

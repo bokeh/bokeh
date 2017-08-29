@@ -3,22 +3,29 @@
 '''
 from __future__ import absolute_import
 
-from ..core.properties import Auto, Either, Float, Include, Instance, Int, Override, String, Tuple
+from ..core.enums import Dimension
+from ..core.properties import Auto, Either, Enum, Float, Include, Instance, Int, Override, String, Tuple
 from ..core.property_mixins import FillProps, LineProps
 
 from .renderers import GuideRenderer
 from .tickers import Ticker
+
+from ..util.deprecation import deprecated
+
+def _int_dimension(dim):
+    deprecated((0, 12, 8), "Support for integer values in Grid.dimension", "Dimension enumeration")
+    return {0: "width", 1: "height"}[dim]
 
 class Grid(GuideRenderer):
     ''' Display horizontal or vertical grid lines at locations
     given by a supplied ``Ticker``.
 
     '''
-    dimension = Int(0, help="""
-    Which dimension the Axis Grid lines will intersect. The
-    x-axis is dimension 0 (vertical Grid lines) and the y-axis
-    is dimension 1 (horizontal Grid lines).
-    """)
+    dimension = Enum(Dimension, default="width", help="""
+    Which dimension the Axis Grid lines will intersect. The x-axis is
+    dimension "width" (vertical Grid lines) and the y-axis is dimension
+    "height" (horizontal Grid lines).
+    """).accepts(Int, _int_dimension)
 
     bounds = Either(Auto, Tuple(Float, Float), help="""
     Bounds for the rendered grid lines. If unset, the grid

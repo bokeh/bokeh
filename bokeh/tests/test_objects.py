@@ -30,8 +30,8 @@ def large_plot(n):
         plot = Plot(x_range=xdr, y_range=ydr)
         xaxis = LinearAxis(plot=plot)
         yaxis = LinearAxis(plot=plot)
-        xgrid = Grid(plot=plot, dimension=0)
-        ygrid = Grid(plot=plot, dimension=1)
+        xgrid = Grid(plot=plot, dimension="width")
+        ygrid = Grid(plot=plot, dimension="height")
         tickers = [xaxis.ticker, xaxis.formatter, yaxis.ticker, yaxis.formatter]
         glyph = Line(x='x', y='y')
         renderer = GlyphRenderer(data_source=source, glyph=glyph)
