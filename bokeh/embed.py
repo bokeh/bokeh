@@ -370,7 +370,7 @@ def notebook_content(model, notebook_comms_target=None, theme=FromCurdoc):
 
     div = _div_for_render_item(item)
 
-    return script, encode_utf8(div)
+    return encode_utf8(script), encode_utf8(div)
 
 def notebook_div(model, notebook_comms_target=None, theme=FromCurdoc):
     ''' Return HTML for a div that will display a Bokeh plot in a

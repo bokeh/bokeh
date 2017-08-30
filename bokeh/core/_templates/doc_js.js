@@ -17,6 +17,7 @@
       }
       attempts++;
       if (attempts > 10) {
+        console.log("Bokeh: ERROR: Unable to embed document because BokehJS library is missing")
         clearInterval(timer);
       }
     }, 100, root)
