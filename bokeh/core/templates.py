@@ -8,7 +8,6 @@
 .. bokeh-jinja:: bokeh.core.templates.DOC_JS
 .. bokeh-jinja:: bokeh.core.templates.FILE
 .. bokeh-jinja:: bokeh.core.templates.JS_RESOURCES
-.. bokeh-jinja:: bokeh.core.templates.ONLOAD_JS
 .. bokeh-jinja:: bokeh.core.templates.NOTEBOOK_LOAD
 .. bokeh-jinja:: bokeh.core.templates.NOTEBOOK_DIV
 .. bokeh-jinja:: bokeh.core.templates.PLOT_DIV
@@ -35,8 +34,6 @@ PLOT_DIV = _env.get_template("plot_div.html")
 DOC_JS = _env.get_template("doc_js.js")
 
 FILE = _env.get_template("file.html")
-
-ONLOAD_JS = _env.get_template("onload_js.js")
 
 NOTEBOOK_LOAD = _env.get_template("notebook_load.html")
 

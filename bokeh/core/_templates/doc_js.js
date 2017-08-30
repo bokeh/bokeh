@@ -1,4 +1,24 @@
-var docs_json = {{ docs_json }};
-var render_items = {{ render_items }};
+(function(root) {
+  function embed_document(root) {
+    var docs_json = {{ docs_json }};
+    var render_items = {{ render_items }};
 
-Bokeh.embed.embed_items(docs_json, render_items{%- if app_path -%}, "{{ app_path }}" {%- endif -%}{%- if absolute_url -%}, "{{ absolute_url }}" {%- endif -%});
+    root.Bokeh.embed.embed_items(docs_json, render_items{%- if app_path -%}, "{{ app_path }}" {%- endif -%}{%- if absolute_url -%}, "{{ absolute_url }}" {%- endif -%});
+  }
+
+  if (root.Bokeh !== undefined) {
+    embed_document(root);
+  } else {
+    var attempts = 0;
+    var timer = setInterval(function(root) {
+      if (root.Bokeh !== undefined) {
+        embed_document(root);
+        clearInterval(timer);
+      }
+      attempts++;
+      if (attempts > 10) {
+        clearInterval(timer);
+      }
+    }, 100, root)
+  }
+})(window);
