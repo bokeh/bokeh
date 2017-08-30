@@ -525,7 +525,8 @@ def _detect_current_filename():
         filename = frame.f_globals.get('__file__')
     finally:
         del frame
-        return filename
+
+    return filename
 
 def default_filename(ext):
     ''' Generate a default filename with a given extension, attempting to use
@@ -560,7 +561,7 @@ def default_filename(ext):
     if _no_access(basedir) or _shares_exec_prefix(basedir):
         return _temp_filename(ext)
 
-    name, current_ext = splitext(basename(filename))
+    name, _ = splitext(basename(filename))
     return join(basedir, name + "." + ext)
 
 def _get_save_args(state, filename, resources, title):
