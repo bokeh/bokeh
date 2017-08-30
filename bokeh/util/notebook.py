@@ -90,16 +90,11 @@ def load_notebook(resources=None, verbose=False, hide_banner=False, load_timeout
 
         publish_display_data({
             JS_MIME_TYPE   : nb_js,
-            LOAD_MIME_TYPE : {"script": jl_js}
+            LOAD_MIME_TYPE : jl_js
         })
 
     else:
         _publish_zeppelin_data(html, jl_js)
-
-
-FINALIZE_JS = """
-document.getElementById("%s").textContent = "BokehJS is loading...";
-"""
 
 # TODO (bev) This will eventually go away
 def _publish_zeppelin_data(html, js):
@@ -114,7 +109,7 @@ def _loading_js(resources, element_id, custom_models_js, load_timeout=5000, regi
         elementid = element_id,
         js_urls   = resources.js_files,
         css_urls  = resources.css_files,
-        js_raw    = resources.js_raw + [custom_models_js] + [FINALIZE_JS % element_id],
+        js_raw    = resources.js_raw + [custom_models_js],
         css_raw   = resources.css_raw_str,
         force     = True,
         timeout   = load_timeout,
