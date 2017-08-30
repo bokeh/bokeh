@@ -55,6 +55,11 @@
     var output_area = handle.output_area;
     var output = handle.output;
 
+    // limit handleAddOutput to EXEC_MIME_TYPE content only
+    if (!output.data.hasOwnProperty(EXEC_MIME_TYPE)) {
+      return
+    }
+
     var toinsert = output_area.element.find(`.${CLASS_NAME.split(' ')[0]}`);
 
     if (output.metadata[EXEC_MIME_TYPE]["id"] !== undefined) {
@@ -147,10 +152,13 @@
      "</div>"}};
 
   function display_loaded() {
+    var el = document.getElementById({{ elementid|json }});
+    if (el != null) {
+      el.textContent = "BokehJS is loading...";
+    }
     if (root.Bokeh !== undefined) {
-      var el = document.getElementById({{ elementid|json }});
       if (el != null) {
-        el.textContent = "BokehJS " + Bokeh.version + " successfully loaded.";
+        el.textContent = "BokehJS " + root.Bokeh.version + " successfully loaded.";
       }
     } else if (Date.now() < root._bokeh_timeout) {
       setTimeout(display_loaded, 100)
