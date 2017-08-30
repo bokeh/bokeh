@@ -276,7 +276,7 @@ class Test_ShowJupyterWithState(DefaultStateTester):
         io._show_jupyter_doc_with_state(Obj(), s, True)
         io._nb_loaded = False
 
-        expected_args = ({'application/vnd.bokehjs_exec.v0+json': {"script": "notebook_script", "div": "notebook_div"}},)
+        expected_args = ({'application/javascript': 'notebook_script', 'application/vnd.bokehjs_exec.v0+json': ''},)
         expected_kwargs = {'metadata': {'application/vnd.bokehjs_exec.v0+json': {'id': None}}}
 
         self._check_func_called(mock_publish_display_data, expected_args, expected_kwargs)
