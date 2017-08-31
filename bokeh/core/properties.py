@@ -111,7 +111,8 @@ from ..util.string import nice_join, format_docstring
 
 from .property.bases import ContainerProperty, DeserializationError, ParameterizedProperty, Property, PrimitiveProperty
 from .property.descriptor_factory import PropertyDescriptorFactory
-from .property.descriptors import BasicPropertyDescriptor, DataSpecPropertyDescriptor, UnitsSpecPropertyDescriptor
+from .property.descriptors import (BasicPropertyDescriptor, ColumnDataPropertyDescriptor, DataSpecPropertyDescriptor,
+                                   UnitsSpecPropertyDescriptor)
 from . import enums
 
 pd = import_optional('pandas')
@@ -1270,6 +1271,23 @@ class ColumnData(Dict):
     encoding columns that are NumPy arrays.
 
     '''
+
+    def make_descriptors(self, base_name):
+        ''' Return a list of ``ColumnDataPropertyDescriptor`` instances to
+        install on a class, in order to delegate attribute access to this
+        property.
+
+        Args:
+            base_name (str) : the name of the property these descriptors are for
+
+        Returns:
+            list[ColumnDataPropertyDescriptor]
+
+        The descriptors returned are collected by the ``MetaHasProps``
+        metaclass and added to ``HasProps`` subclasses during class creation.
+        '''
+        return [ ColumnDataPropertyDescriptor(base_name, self) ]
+
 
     def from_json(self, json, models=None):
         ''' Decodes column source data encoded as lists or base64 strings.
