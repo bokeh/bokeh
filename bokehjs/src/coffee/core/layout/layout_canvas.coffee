@@ -13,6 +13,8 @@ export class LayoutCanvas extends Model
     @_height = new Variable("#{@toString()}.height")
     @_right = new Variable("#{@toString()}.right")
     @_bottom = new Variable("#{@toString()}.bottom")
+    @_hcenter = new Variable("#{@toString()}.hcenter")
+    @_vcenter = new Variable("#{@toString()}.vcenter")
 
   get_editables: () ->
     return [@_width, @_height]
@@ -27,6 +29,8 @@ export class LayoutCanvas extends Model
       GE(@_height),
       EQ(@_left, @_width, [-1, @_right]),
       EQ(@_bottom, @_height, [-1, @_top]),
+      EQ([2, @_hcenter], [-1, @_left], [-1, @_right])
+      EQ([2, @_vcenter], [-1, @_bottom], [-1, @_top])
     ]
 
   @getters {
