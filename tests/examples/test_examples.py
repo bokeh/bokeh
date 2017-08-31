@@ -192,6 +192,11 @@ def _assert_snapshot(example, url, example_type):
     errors = result['errors']
     resources = result['resources']
 
+    # filter resource errors from hard-coded jupyter-js-widgets resource loading in notebooks
+    # https://github.com/jupyter/notebook/blob/5e5e41b06644c1e3aa814ac969c4117332eaa2b6/notebook/static/notebook/js/main.js#L222-L234
+    if example_type == "notebook":
+        resources = [resource for resource in resources if "widgets/notebook/js/extension.js" not in resource['url']]
+
     no_errors = len(errors) == 0
     no_resources = len(resources) == 0
 

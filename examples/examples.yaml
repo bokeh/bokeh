@@ -23,8 +23,13 @@
   type: server
 
 - path: "plotting/notebook"
+  type: notebook
 
 - path: "howto/layouts"
+
+- path: "howto/notebook_comms"
+  type: notebook
+  skip: ["Continuous Updating.ipynb", "Jupyter Interactors.ipynb", "Numba Image Example.ipynb"]
 
 - path: "app"
   type: server
