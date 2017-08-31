@@ -93,10 +93,8 @@ def test_server_examples(server_example, example, report, bokeh_server):
         else:
             _get_pdiff(example)
 
-
-### {{{ THIS IS BROKEN and all examples are skipped in examples.yaml
 @pytest.mark.examples
-def test_notebook_examples(notebook_example, example, jupyter_notebook, report):
+def test_notebook_examples(notebook_example, example, jupyter_notebook, bokeh_server, report):
     if example.is_skip:
         pytest.skip("skipping %s" % example.relpath)
 
@@ -107,7 +105,6 @@ def test_notebook_examples(notebook_example, example, jupyter_notebook, report):
     _assert_snapshot(example, url, 'notebook')
     if not example.no_diff:
         _get_pdiff(example)
-# }}}
 
 def _get_pdiff(example):
     img_path, ref_path, diff_path = example.img_path, example.ref_path, example.diff_path

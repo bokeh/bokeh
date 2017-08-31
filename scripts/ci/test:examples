@@ -10,6 +10,9 @@ if [[ $TRAVIS_COMMIT_MSG == *"[ci disable examples]"* ]]; then
     exit 0
 fi
 
+jupyter notebook --generate-config
+echo "c.NotebookApp.token = u''" >> ~/.jupyter/jupyter_notebook_config.py
+
 py.test -s -v -m examples       \
     --tb line                   \
     --diff-ref FETCH_HEAD       \

@@ -23,7 +23,6 @@
   type: server
 
 - path: "plotting/notebook"
-  skip: all
 
 - path: "howto/layouts"
 
