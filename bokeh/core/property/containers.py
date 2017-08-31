@@ -97,15 +97,15 @@ class PropertyValueContainer(object):
         self._owners = set()
         super(PropertyValueContainer, self).__init__(*args, **kwargs)
 
-    def _register_owner(self, owner, prop):
-        self._owners.add((owner, prop))
+    def _register_owner(self, owner, descriptor):
+        self._owners.add((owner, descriptor))
 
-    def _unregister_owner(self, owner, prop):
-        self._owners.discard((owner, prop))
+    def _unregister_owner(self, owner, descriptor):
+        self._owners.discard((owner, descriptor))
 
     def _notify_owners(self, old, hint=None):
-        for (owner, prop) in self._owners:
-            prop._notify_mutated(owner, old, hint)
+        for (owner, descriptor) in self._owners:
+            descriptor._notify_mutated(owner, old, hint)
 
     def _saved_copy(self):
         raise RuntimeError("Subtypes must implement this to make a backup copy")
