@@ -83,6 +83,7 @@ test:
     - scikit-learn
     - networkx
     - icalendar
+    - ipywidgets
     - flask
     - flexx
     - pyshp
