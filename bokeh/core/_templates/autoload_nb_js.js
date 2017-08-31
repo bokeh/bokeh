@@ -79,10 +79,7 @@
     }
   }
 
-  function register_renderer(notebook, OutputArea) {
-    // get OutputArea instance
-    var code_cell = notebook.get_cells().reduce(function(result, cell) { return cell.output_area ? cell : result });
-    var output_area = code_cell.output_area;
+  function register_renderer(events, OutputArea) {
 
     function append_mime(data, metadata, element) {
       // create a DOM node to render to
@@ -100,11 +97,11 @@
     }
 
     /* Handle when an output is cleared or removed */
-    output_area.events.on('clear_output.CodeCell', handleClearOutput);
-    output_area.events.on('delete.Cell', handleClearOutput);
+    events.on('clear_output.CodeCell', handleClearOutput);
+    events.on('delete.Cell', handleClearOutput);
 
     /* Handle when a new output is added */
-    output_area.events.on('output_added.OutputArea', handleAddOutput);
+    events.on('output_added.OutputArea', handleAddOutput);
 
     /**
      * Register the mime type and append_mime function with output_area
@@ -118,11 +115,12 @@
   }
 
   // register the mime type if in Jupyter Notebook environment and previously unregistered
-
   if (root.Jupyter !== undefined) {
-    var OutputArea = root.Jupyter.OutputArea;
+    var events = require('base/js/events');
+    var OutputArea = require('notebook/js/outputarea').OutputArea;
+
     if (OutputArea.prototype.mime_types().indexOf(EXEC_MIME_TYPE) == -1) {
-      register_renderer(root.Jupyter.notebook, OutputArea);
+      register_renderer(events, OutputArea);
     }
   }
   {%- endif -%}
