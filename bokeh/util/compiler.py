@@ -135,10 +135,11 @@ def _detect_nodejs():
 
             if version >= nodejs_min_version:
                 return nodejs_path
-    else:
-        version = ".".join(map(str, nodejs_min_version))
-        raise RuntimeError('node.js v%s or higher is needed to allow compilation of custom models ' % version +
-                           '("conda install -c bokeh nodejs" or follow https://nodejs.org/en/download/)')
+
+    # if we've reached here, no valid version was found
+    version = ".".join(map(str, nodejs_min_version))
+    raise RuntimeError('node.js v%s or higher is needed to allow compilation of custom models ' % version +
+                       '("conda install -c bokeh nodejs" or follow https://nodejs.org/en/download/)')
 
 _nodejs = None
 _npmjs = None
