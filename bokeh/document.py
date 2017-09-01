@@ -489,8 +489,8 @@ class Document(object):
 
         json = {
             'events' : json_events,
-            'references' : self._references_json(references)
-            }
+            'references' : self.references_json(references)
+        }
 
         return serialize_json(json)
 
@@ -577,6 +577,28 @@ class Document(object):
     def on_change_dispatch_to(self, receiver):
         if not receiver in self._callbacks:
             self._callbacks[receiver] = lambda event: event.dispatch(receiver)
+
+    @classmethod
+    def references_json(cls, references):
+        ''' Given a list of all models in a graph, return JSON representing
+        them and their properties.
+
+        Args:
+            references (seq[Model]) :
+                A list of models to convert to JSON
+
+        Returns:
+            list
+
+        '''
+
+        references_json = []
+        for r in references:
+            ref = r.ref
+            ref['attributes'] = r._to_json_like(include_defaults=False)
+            references_json.append(ref)
+
+        return references_json
 
     def remove_next_tick_callback(self, callback):
         ''' Remove a callback added earlier with ``add_next_tick_callback``.
@@ -760,7 +782,7 @@ class Document(object):
             'title' : self.title,
             'roots' : {
                 'root_ids' : root_ids,
-                'references' : self._references_json(root_references)
+                'references' : self.references_json(root_references)
             },
             'version' : __version__
         }
@@ -1106,21 +1128,6 @@ class Document(object):
             a._attach_document(self)
         self._all_models = recomputed
         self._all_models_by_name = recomputed_by_name
-
-    @classmethod
-    def _references_json(cls, references):
-        ''' Given a list of all models in a graph, return JSON representing
-        them and their properties.
-
-        '''
-
-        references_json = []
-        for r in references:
-            ref = r.ref
-            ref['attributes'] = r._to_json_like(include_defaults=False)
-            references_json.append(ref)
-
-        return references_json
 
     def _remove_session_callback(self, callback):
         ''' Remove a callback added earlier with ``add_periodic_callback``
