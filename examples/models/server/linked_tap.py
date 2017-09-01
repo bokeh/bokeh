@@ -18,7 +18,7 @@ xdr1 = DataRange1d()
 ydr1 = DataRange1d()
 plot1 = Plot(x_range=xdr1, y_range=ydr1, plot_width=400, plot_height=400)
 plot1.title.text = "Plot1"
-plot1.tools.append(TapTool(plot=plot1))
+plot1.tools.append(TapTool())
 plot1.add_glyph(source1, Circle(x="x", y="y", radius="radius", fill_color="red"))
 
 source2 = ColumnDataSource(dict(x = x, y = y, color = ["blue"]*N))
@@ -26,7 +26,7 @@ xdr2 = DataRange1d()
 ydr2 = DataRange1d()
 plot2 = Plot(x_range=xdr2, y_range=ydr2, plot_width=400, plot_height=400)
 plot2.title.text = "Plot2"
-plot2.tools.append(TapTool(plot=plot2))
+plot2.tools.append(TapTool())
 plot2.add_glyph(source2, Circle(x="x", y="y", radius=0.1, fill_color="color"))
 
 def on_selection_change1(attr, _, inds):
