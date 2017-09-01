@@ -162,9 +162,6 @@ describe "PlotCanvas constraints", ->
     @plot_canvas = new PlotCanvas({ 'plot': plot })
     @plot_canvas.attach_document(doc)
 
-  it "should return 20 constraints from _get_constant_constraints", sinon.test () ->
-    expect(@plot_canvas._get_constant_constraints().length).to.be.equal 20
-
   it "should return 0 constraints from _get_side_constraints if there are no side renderers", sinon.test () ->
     expect(@plot_canvas._get_side_constraints().length).to.be.equal 0
 
@@ -186,56 +183,6 @@ describe "PlotCanvas constraints", ->
     @plot_canvas.get_all_constraints()
     for child in children
       expect(child.get_constraints.callCount).to.be.equal 1
-
-describe "PlotCanvas constraints with different layouts", ->
-
-  beforeEach ->
-    @doc = new Document()
-    @plot = new Plot({
-      x_range: new Range1d({start: 0, end: 1})
-      y_range: new Range1d({start: 0, end: 1})
-      toolbar: new Toolbar()
-      title: null
-    })
-
-  it "should return 2 constraints from _get_side_constraints if there is one side renderer on above", sinon.test () ->
-    @plot.add_layout(new LinearAxis(), 'above')
-    @plot.attach_document(@doc)
-    plot_canvas = new PlotCanvas({ 'plot': @plot })
-    expect(plot_canvas._get_side_constraints().length).to.be.equal 2
-
-  it "should return 3 constraints from _get_side_constraints if there are two side renderers on one side", sinon.test () ->
-    @plot.add_layout(new LinearAxis(), 'left')
-    @plot.add_layout(new LinearAxis(), 'left')
-    @plot.attach_document(@doc)
-    plot_canvas = new PlotCanvas({ 'plot': @plot })
-    expect(plot_canvas._get_side_constraints().length).to.be.equal 3
-
-  it "should return 2 constraints from _get_side_constraints if there is one side renderer on below", sinon.test () ->
-    @plot.add_layout(new LinearAxis(), 'below')
-    @plot.attach_document(@doc)
-    plot_canvas = new PlotCanvas({ 'plot': @plot })
-    expect(plot_canvas._get_side_constraints().length).to.be.equal 2
-
-  it "should return 2 constraints from _get_side_constraints if there is one side renderer on left", sinon.test () ->
-    @plot.add_layout(new LinearAxis(), 'left')
-    @plot.attach_document(@doc)
-    plot_canvas = new PlotCanvas({ 'plot': @plot })
-    expect(plot_canvas._get_side_constraints().length).to.be.equal 2
-
-  it "should return 2 constraints from _get_side_constraints if there is one side renderer on right", sinon.test () ->
-    @plot.add_layout(new LinearAxis(), 'right')
-    @plot.attach_document(@doc)
-    plot_canvas = new PlotCanvas({ 'plot': @plot })
-    expect(plot_canvas._get_side_constraints().length).to.be.equal 2
-
-  it "should return 4 constraints from _get_side_constraints if there are two side renderers", sinon.test () ->
-    @plot.add_layout(new LinearAxis(), 'left')
-    @plot.add_layout(new LinearAxis(), 'right')
-    @plot.attach_document(@doc)
-    plot_canvas = new PlotCanvas({ 'plot': @plot })
-    expect(plot_canvas._get_side_constraints().length).to.be.equal 4
-
 
 describe "PlotCanvasView render", ->
 
