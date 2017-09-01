@@ -12,7 +12,7 @@ from bokeh.models import ColumnDataSource
 from bokeh.core.properties import Int, Instance, String, DistanceSpec
 from bokeh.protocol.events import (ColumnsPatchedEvent, ColumnsStreamedEvent, ModelChangedEvent, RootAddedEvent,
                                    RootRemovedEvent, SessionCallbackAdded, SessionCallbackRemoved, TitleChangedEvent)
-from bokeh.protocol.messages.patch_doc import create_json_patch_string
+from bokeh.protocol.messages.patch_doc import process_document_events
 
 class AnotherModelInTestDocument(Model):
     bar = Int(1)
@@ -664,13 +664,13 @@ class TestDocument(unittest.TestCase):
         assert len(d.roots) == 2
 
         event1 = ModelChangedEvent(d, root1, 'foo', root1.foo, 57, 57)
-        patch1 = create_json_patch_string([event1])
+        patch1 = process_document_events([event1])
         d.apply_json_patch_string(patch1)
 
         assert root1.foo == 57
 
         event2 = ModelChangedEvent(d, child1, 'foo', child1.foo, 67, 67)
-        patch2 = create_json_patch_string([event2])
+        patch2 = process_document_events([event2])
         d.apply_json_patch_string(patch2)
 
         assert child1.foo == 67
@@ -688,7 +688,7 @@ class TestDocument(unittest.TestCase):
                                                                               'foo',
                                                                               new_value)
             event1 = ModelChangedEvent(d, root1, 'foo', root1.foo, new_value, serializable_new)
-            patch1 = create_json_patch_string([event1])
+            patch1 = process_document_events([event1])
             d.apply_json_patch_string(patch1)
             if isinstance(new_value, dict):
                 expected = copy(new_value)
@@ -748,7 +748,7 @@ class TestDocument(unittest.TestCase):
         assert child3._id not in d._all_models
 
         event1 = ModelChangedEvent(d, root1, 'child', root1.child, child3, child3)
-        patch1 = create_json_patch_string([event1])
+        patch1 = process_document_events([event1])
         d.apply_json_patch_string(patch1)
 
         assert root1.child._id == child3._id
@@ -759,7 +759,7 @@ class TestDocument(unittest.TestCase):
 
         # put it back how it was before
         event2 = ModelChangedEvent(d, root1, 'child', root1.child, child1, child1)
-        patch2 = create_json_patch_string([event2])
+        patch2 = process_document_events([event2])
         d.apply_json_patch_string(patch2)
 
         assert root1.child._id == child1._id
@@ -786,7 +786,7 @@ class TestDocument(unittest.TestCase):
 
         event1 = ModelChangedEvent(d, root1, 'foo', root1.foo, 57, 57)
         event2 = ModelChangedEvent(d, root1, 'child', root1.child, child2, child2)
-        patch1 = create_json_patch_string([event1, event2])
+        patch1 = process_document_events([event1, event2])
         d.apply_json_patch_string(patch1)
 
         assert root1.foo == 57

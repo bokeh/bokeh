@@ -3,6 +3,8 @@
 '''
 from __future__ import absolute_import
 
+from ..model import collect_models
+
 class DocumentChangedEvent(object):
     '''
 
@@ -35,6 +37,12 @@ class DocumentPatchedEvent(DocumentChangedEvent):
         if hasattr(receiver, '_document_patched'):
             receiver._document_patched(self)
 
+    def generate(self, references):
+        '''
+
+        '''
+        raise NotImplementedError()
+
 class ModelChangedEvent(DocumentPatchedEvent):
     '''
 
@@ -62,6 +70,40 @@ class ModelChangedEvent(DocumentPatchedEvent):
         if hasattr(receiver, '_document_model_changed'):
             receiver._document_model_changed(self)
 
+    def generate(self, references):
+        '''
+
+        '''
+        if self.hint is not None:
+            return self.hint.generate(references)
+
+        value = self.serializable_new
+
+        # the new value is an object that may have
+        # not-yet-in-the-remote-doc references, and may also
+        # itself not be in the remote doc yet.  the remote may
+        # already have some of the references, but
+        # unfortunately we don't have an easy way to know
+        # unless we were to check BEFORE the attr gets changed
+        # (we need the old _all_models before setting the
+        # property). So we have to send all the references the
+        # remote could need, even though it could be inefficient.
+        # If it turns out we need to fix this we could probably
+        # do it by adding some complexity.
+        value_refs = set(collect_models(value))
+
+        # we know we don't want a whole new copy of the obj we're patching
+        # unless it's also the new value
+        if self.model != value:
+            value_refs.discard(self.model)
+
+        references.update(value_refs)
+
+        return { 'kind'  : 'ModelChanged',
+                 'model' : self.model.ref,
+                 'attr'  : self.attr,
+                 'new'   : value }
+
 class ColumnsStreamedEvent(DocumentPatchedEvent):
     '''
 
@@ -84,6 +126,15 @@ class ColumnsStreamedEvent(DocumentPatchedEvent):
         if hasattr(receiver, '_columns_streamed'):
             receiver._columns_streamed(self)
 
+    def generate(self, references):
+        '''
+
+        '''
+        return { 'kind'          : 'ColumnsStreamed',
+                 'column_source' : self.column_source.ref,
+                 'data'          : self.data,
+                 'rollover'      : self.rollover }
+
 class ColumnsPatchedEvent(DocumentPatchedEvent):
     '''
 
@@ -105,6 +156,11 @@ class ColumnsPatchedEvent(DocumentPatchedEvent):
         if hasattr(receiver, '_columns_patched'):
             receiver._columns_patched(self)
 
+    def generate(self, references):
+        return { 'kind'          : 'ColumnsPatched',
+                 'column_source' : self.column_source.ref,
+                 'patches'       : self.patches }
+
 class TitleChangedEvent(DocumentPatchedEvent):
     '''
 
@@ -116,6 +172,10 @@ class TitleChangedEvent(DocumentPatchedEvent):
         '''
         super(TitleChangedEvent, self).__init__(document, setter)
         self.title = title
+
+    def generate(self, references):
+        return { 'kind'  : 'TitleChanged',
+                 'title' : self.title }
 
 class RootAddedEvent(DocumentPatchedEvent):
     '''
@@ -129,6 +189,14 @@ class RootAddedEvent(DocumentPatchedEvent):
         super(RootAddedEvent, self).__init__(document, setter)
         self.model = model
 
+    def generate(self, references):
+        '''
+
+        '''
+        references.update(self.model.references())
+        return { 'kind'  : 'RootAdded',
+                 'model' : self.model.ref }
+
 class RootRemovedEvent(DocumentPatchedEvent):
     '''
 
@@ -140,6 +208,13 @@ class RootRemovedEvent(DocumentPatchedEvent):
         '''
         super(RootRemovedEvent, self).__init__(document, setter)
         self.model = model
+
+    def generate(self, references):
+        '''
+
+        '''
+        return { 'kind'  : 'RootRemoved',
+                 'model' : self.model.ref }
 
 class SessionCallbackAdded(DocumentChangedEvent):
     '''
