@@ -2,6 +2,8 @@ from __future__ import absolute_import, print_function
 
 import unittest
 
+import pytest
+
 import bokeh.document as document
 from bokeh.model import Model
 from bokeh.models.sources import ColumnDataSource
@@ -24,6 +26,21 @@ class TestPatchDocument(unittest.TestCase):
         doc.add_root(SomeModelInTestPatchDoc(child=another))
         doc.add_root(SomeModelInTestPatchDoc())
         return doc
+
+    def test_create_no_events(self):
+        with pytest.raises(ValueError):
+            Protocol("1.0").create("PATCH-DOC", [])
+
+    def test_create_multiple_docs(self):
+        sample1 = self._sample_doc()
+        obj1 = next(iter(sample1.roots))
+        event1 = ModelChangedEvent(sample1, obj1, 'foo', obj1.foo, 42, 42)
+
+        sample2 = self._sample_doc()
+        obj2 = next(iter(sample2.roots))
+        event2 = ModelChangedEvent(sample2, obj2, 'foo', obj2.foo, 42, 42)
+        with pytest.raises(ValueError):
+            Protocol("1.0").create("PATCH-DOC", [event1, event2])
 
     def test_create_model_changed(self):
         sample = self._sample_doc()

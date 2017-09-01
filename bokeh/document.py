@@ -29,7 +29,7 @@ from .core.json_encoder import serialize_json
 from .core.query import find
 from .core.templates import FILE
 from .core.validation import check_integrity
-from .model import collect_models, get_class
+from .model import get_class
 from .themes import default as default_theme
 from .themes import Theme
 from .util.callback_manager import _check_callback
@@ -420,79 +420,6 @@ class Document(object):
                 self.remove_root(r)
         finally:
             self._pop_all_models_freeze()
-
-    def create_json_patch_string(self, events):
-        ''' Create a JSON string describing a patch to be applied.
-
-        Args:
-          events : list of events to be translated into patches
-
-        Returns:
-          str :  JSON string which can be applied to make the given updates to obj
-
-        '''
-        from .protocol.events import (ColumnsPatchedEvent, ColumnsStreamedEvent, ModelChangedEvent,
-                                    RootAddedEvent, RootRemovedEvent, TitleChangedEvent)
-        references = set()
-        json_events = []
-        for event in events:
-            if event.document is not self:
-                raise ValueError("Cannot create a patch using events from a different document " + repr(event))
-
-            if isinstance(event, ModelChangedEvent):
-                if isinstance(event.hint, ColumnsStreamedEvent):
-                    json_events.append({ 'kind' : 'ColumnsStreamed',
-                                         'column_source' : event.hint.column_source.ref,
-                                         'data' : event.hint.data,
-                                         'rollover' : event.hint.rollover })
-
-                elif isinstance(event.hint, ColumnsPatchedEvent):
-                    json_events.append({ 'kind' : 'ColumnsPatched',
-                                         'column_source' : event.hint.column_source.ref,
-                                         'patches' : event.hint.patches })
-                else:
-                    value = event.serializable_new
-
-                    # the new value is an object that may have
-                    # not-yet-in-the-remote-doc references, and may also
-                    # itself not be in the remote doc yet.  the remote may
-                    # already have some of the references, but
-                    # unfortunately we don't have an easy way to know
-                    # unless we were to check BEFORE the attr gets changed
-                    # (we need the old _all_models before setting the
-                    # property). So we have to send all the references the
-                    # remote could need, even though it could be inefficient.
-                    # If it turns out we need to fix this we could probably
-                    # do it by adding some complexity.
-                    value_refs = set(collect_models(value))
-
-                    # we know we don't want a whole new copy of the obj we're patching
-                    # unless it's also the new value
-                    if event.model != value:
-                        value_refs.discard(event.model)
-                    references = references.union(value_refs)
-
-                    json_events.append({ 'kind' : 'ModelChanged',
-                                         'model' : event.model.ref,
-                                         'attr' : event.attr,
-                                         'new' : value })
-            elif isinstance(event, RootAddedEvent):
-                references = references.union(event.model.references())
-                json_events.append({ 'kind' : 'RootAdded',
-                                     'model' : event.model.ref })
-            elif isinstance(event, RootRemovedEvent):
-                json_events.append({ 'kind' : 'RootRemoved',
-                                     'model' : event.model.ref })
-            elif isinstance(event, TitleChangedEvent):
-                json_events.append({ 'kind' : 'TitleChanged',
-                                     'title' : event.title })
-
-        json = {
-            'events' : json_events,
-            'references' : self.references_json(references)
-        }
-
-        return serialize_json(json)
 
     @classmethod
     def from_json(cls, json):
