@@ -28,6 +28,9 @@ p.line(x, 10**(x**2), legend="y=10^(x^2)",
 
 p.legend.location = "top_left"
 
+p.xaxis.axis_label = 'Domain'
+p.yaxis.axis_label = 'Values (log scale)'
+
 output_file("logplot.html", title="log plot example")
 
 show(p)  # open a browser
