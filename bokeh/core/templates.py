@@ -12,7 +12,6 @@
 .. bokeh-jinja:: bokeh.core.templates.NOTEBOOK_DIV
 .. bokeh-jinja:: bokeh.core.templates.PLOT_DIV
 .. bokeh-jinja:: bokeh.core.templates.SCRIPT_TAG
-.. bokeh-jinja:: bokeh.core.templates.NOTEBOOK_CELL_OBSERVER
 
 '''
 from __future__ import absolute_import
@@ -45,5 +44,3 @@ AUTOLOAD_JS = _env.get_template("autoload_js.js")
 AUTOLOAD_NB_JS = _env.get_template("autoload_nb_js.js")
 
 AUTOLOAD_TAG = _env.get_template("autoload_tag.html")
-
-NOTEBOOK_CELL_OBSERVER = _env.get_template("notebook_cell_observer.js")
