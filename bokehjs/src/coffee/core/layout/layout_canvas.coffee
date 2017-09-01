@@ -17,7 +17,7 @@ export class LayoutCanvas extends Model
     @_vcenter = new Variable("#{@toString()}.vcenter")
 
   get_editables: () ->
-    return [@_width, @_height]
+    return []
 
   get_constraints: () ->
     return [
