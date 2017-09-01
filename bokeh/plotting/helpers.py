@@ -69,28 +69,92 @@ def _stack(stackers, spec0, spec1, **kw):
 
     return _kw
 
-def _graph(node_source, edge_source, node_glyph=Circle(), node_selection_glyph="auto",
-           node_nonselection_glyph="auto", node_hover_glyph=None, node_muted_glyph=None,
-           edge_glyph=MultiLine(), edge_selection_glyph="auto", edge_nonselection_glyph="auto",
-           edge_hover_glyph=None, edge_muted_glyph=None, **kwargs):
+def _graph(node_source, edge_source, **kwargs):
 
-    if pd and isinstance(node_source, pd.DataFrame):
-        node_source = ColumnDataSource(node_source)
-    if pd and isinstance(edge_source, pd.DataFrame):
-        edge_source = ColumnDataSource(edge_source)
+    if not isinstance(node_source, ColumnarDataSource):
+        try:
+            # try converting the soruce to ColumnDataSource
+            node_source = ColumnDataSource(node_source)
+        except ValueError as err:
+            msg = "Failed to auto-convert {curr_type} to ColumnDataSource.\n Original error: {err}".format(
+                curr_type=str(type(node_source)),
+                err=err.message
+            )
+            reraise(ValueError, ValueError(msg), sys.exc_info()[2])
+
+    if not isinstance(edge_source, ColumnarDataSource):
+        try:
+            # try converting the soruce to ColumnDataSource
+            edge_source = ColumnDataSource(edge_source)
+        except ValueError as err:
+            msg = "Failed to auto-convert {curr_type} to ColumnDataSource.\n Original error: {err}".format(
+                curr_type=str(type(edge_source)),
+                err=err.message
+            )
+            reraise(ValueError, ValueError(msg), sys.exc_info()[2])
+
+    ## node stuff
+    if any(x.startswith('node_selection_') for x in kwargs):
+        snode_ca = _pop_colors_and_alpha(Circle, kwargs, prefix="node_selection_")
+    else:
+        snode_ca = None
+
+    if any(x.startswith('node_hover_') for x in kwargs):
+        hnode_ca = _pop_colors_and_alpha(Circle, kwargs, prefix="node_hover_")
+    else:
+        hnode_ca = None
+
+    if any(x.startswith('node_muted_') for x in kwargs):
+        mnode_ca = _pop_colors_and_alpha(Circle, kwargs, prefix="node_muted_")
+    else:
+        mnode_ca = None
+
+    node_ca = _pop_colors_and_alpha(Circle, kwargs, prefix="node_")
+    nsnode_ca = _pop_colors_and_alpha(Circle, kwargs, prefix="node_nonselection_")
+
+    node_glyph = _make_glyph(Circle, kwargs, node_ca)
+    nsnode_glyph = _make_glyph(Circle, kwargs, nsnode_ca)
+    snode_glyph = _make_glyph(Circle, kwargs, snode_ca)
+    hnode_glyph = _make_glyph(Circle, kwargs, hnode_ca)
+    mnode_glyph = _make_glyph(Circle, kwargs, mnode_ca)
 
     node_renderer = GlyphRenderer(glyph=node_glyph,
-                                  nonselection_glyph=node_nonselection_glyph,
-                                  selection_glyph=node_selection_glyph,
-                                  hover_glyph=node_hover_glyph,
-                                  muted_glyph=node_hover_glyph,
+                                  nonselection_glyph=nsnode_glyph,
+                                  selection_glyph=snode_glyph,
+                                  hover_glyph=hnode_glyph,
+                                  muted_glyph=mnode_glyph,
                                   data_source=node_source)
 
+    ## edge stuff
+    if any(x.startswith('edge_selection_') for x in kwargs):
+        sedge_ca = _pop_colors_and_alpha(MultiLine, kwargs, prefix="edge_selection_")
+    else:
+        sedge_ca = None
+
+    if any(x.startswith('edge_hover_') for x in kwargs):
+        hedge_ca = _pop_colors_and_alpha(MultiLine, kwargs, prefix="edge_hover_")
+    else:
+        hedge_ca = None
+
+    if any(x.startswith('edge_muted_') for x in kwargs):
+        medge_ca = _pop_colors_and_alpha(MultiLine, kwargs, prefix="edge_muted_")
+    else:
+        medge_ca = None
+
+    edge_ca = _pop_colors_and_alpha(MultiLine, kwargs, prefix="edge_")
+    nsedge_ca = _pop_colors_and_alpha(MultiLine, kwargs, prefix="edge_nonselection_")
+
+    edge_glyph = _make_glyph(MultiLine, kwargs, edge_ca)
+    nsedge_glyph = _make_glyph(MultiLine, kwargs, nsedge_ca)
+    sedge_glyph = _make_glyph(MultiLine, kwargs, sedge_ca)
+    hedge_glyph = _make_glyph(MultiLine, kwargs, hedge_ca)
+    medge_glyph = _make_glyph(MultiLine, kwargs, medge_ca)
+
     edge_renderer = GlyphRenderer(glyph=edge_glyph,
-                                  nonselection_glyph=edge_nonselection_glyph,
-                                  selection_glyph=edge_selection_glyph,
-                                  hover_glyph=edge_hover_glyph,
-                                  muted_glyph=edge_hover_glyph,
+                                  nonselection_glyph=nsedge_glyph,
+                                  selection_glyph=sedge_glyph,
+                                  hover_glyph=hedge_glyph,
+                                  muted_glyph=medge_glyph,
                                   data_source=edge_source)
 
     kwargs["node_renderer"] = node_renderer
