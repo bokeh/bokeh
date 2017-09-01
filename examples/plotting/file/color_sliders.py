@@ -62,7 +62,7 @@ callback = CustomJS(args=dict(source=source), code="""
         return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
     }
     function toInt(v) {
-       return v | 0; 
+       return v | 0;
     }
     var data = source.data;
     color = data['color'];
