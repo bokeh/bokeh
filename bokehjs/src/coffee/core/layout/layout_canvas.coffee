@@ -42,8 +42,7 @@ export class LayoutCanvas extends Model
         height: @_height.value,
         right: @_right.value,
         bottom: @_bottom.value,
+        hcenter: @_hcenter.value,
+        vcenter: @_vcenter.value,
       }
   }
-
-  dump_layout: () ->
-    console.log(this.toString(), @layout_bbox)
