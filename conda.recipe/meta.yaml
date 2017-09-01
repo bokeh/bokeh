@@ -85,7 +85,7 @@ test:
     - icalendar
     - flask
     - flexx
-
+    - pyshp
 
   commands:
     - bokeh -h

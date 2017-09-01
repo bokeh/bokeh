@@ -498,7 +498,7 @@ but you can see (and interact with) a simple Bokeh server app below:
 
     <div>
     <iframe
-        src="http://demo.bokehplots.com/apps/sliders/#"
+        src="https://demo.bokehplots.com/apps/sliders/#"
         frameborder="0"
         style="overflow:hidden;height:460px;width: 120%;
         -moz-transform: scale(0.85, 0.85);
@@ -546,12 +546,12 @@ Visit the `Bokeh GitHub repository`_ and try the examples.
 Be sure to follow us on Twitter `@bokehplots <Twitter_>`_, as well as on
 `Vine`_, and `Youtube`_!
 
-.. _Anaconda Python distribution: http://continuum.io/anaconda
+.. _Anaconda Python distribution: http://anaconda.com/anaconda
 .. _Bokeh for Julia: https://github.com/bokeh/Bokeh.jl
 .. _Bokeh for R: http://hafen.github.io/rbokeh/
 .. _Bokeh for Scala: https://github.com/bokeh/bokeh-scala
 .. _Bokeh GitHub repository: https://github.com/bokeh/bokeh
-.. _Bokeh mailing list: https://groups.google.com/a/continuum.io/forum/#!forum/bokeh
+.. _Bokeh mailing list: https://groups.google.com/a/anaconda.com/forum/#!forum/bokeh
 .. _Bokeh NBViewer Gallery: http://nbviewer.ipython.org/github/bokeh/bokeh-notebooks/blob/master/index.ipynb
 .. _Twitter: http://twitter.com/BokehPlots
 .. _Vine: https://vine.co/bokehplots

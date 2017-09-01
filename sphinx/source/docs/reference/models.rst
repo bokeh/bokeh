@@ -3,17 +3,29 @@
 bokeh.models
 ============
 
-One of the central design principals of Bokeh is that, regardless of
-how the plot creation code is spelled in Python (or other languages),
-the result is an object graph that encompasses all the visual and
-data aspects of the scene. Furthermore, this *scene graph* is to be
-serialized, and it is this serialized graph that the client library
-BokehJS uses to render the plot. The low-level objects that comprise
-a Bokeh scene graph are called :ref:`Models <bokeh.model>`.
+.. automodule:: bokeh.models
 
-This reference documents all the Bokeh models, together with their
-property attributes, as well as a JSON prototype illustrating what
-a serialized version of the model looks like.
+These models are accumulatd into :class:`~bokeh.document.Document` instances,
+which can be serialized and sent to clients (typically browsers) for display
+or use there.
+
+As a concrete example, consider a column layout with ``Slider`` and ``Select``
+widgets, and a plot with some tools, an axis and grid, and a glyph renderer
+for circles. A simplified representation oh this document might look like the
+figure below:
+
+.. figure:: /_images/document.svg
+    :align: center
+    :width: 65%
+
+    A Bokeh Document collects of Bokeh Models (e.g. plots, tools,
+    glyphs, etc.) so that can be serialized as a single collection.
+
+All of the rectangular boxes above are Bokeh models.
+
+This reference links in the sidebar document all built-in Bokeh models,
+together with their property attributes, as well as a JSON prototype
+illustrating what a serialized version of the model looks like.
 
 .. toctree::
    :maxdepth: 3

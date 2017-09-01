@@ -188,12 +188,15 @@ def get_default_alpha(plot=None):
     return 1.0
 
 
+_RENDERER_ARGS = ['name', 'x_range_name', 'y_range_name',
+                  'level', 'view', 'visible', 'muted']
+
+
 def _pop_renderer_args(kwargs):
-    result = dict(data_source=kwargs.pop('source', ColumnDataSource()))
-    for attr in ['name', 'x_range_name', 'y_range_name', 'level', 'view', 'visible', 'muted']:
-        val = kwargs.pop(attr, None)
-        if val:
-            result[attr] = val
+    result = {attr: kwargs.pop(attr)
+              for attr in _RENDERER_ARGS
+              if attr in kwargs}
+    result['data_source'] = kwargs.pop('source', ColumnDataSource())
     return result
 
 

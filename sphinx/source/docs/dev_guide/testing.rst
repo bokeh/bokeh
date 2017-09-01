@@ -356,7 +356,7 @@ separate ``test:<GROUP>`` script for each of the following test groups:
 
 ``unit``
     This job runs all the Python unit tests (i.e. ``py.test -m unit``). The
-    tests are run on different jobs for Python versions 2.7 and 3.4+.
+    tests are run on different jobs for Python versions 2.7 and 3.5+.
 
 ``docs``
     This job runs the documentation build. For more information about building
@@ -406,7 +406,7 @@ resources:
 
   to your commit message.
 
-.. _contact the developers: http://bokehplots.com/pages/contact.html
+.. _contact the developers: https://bokehplots.com/pages/contact.html
 .. _custom markers: http://pytest.org/latest/example/markers.html#working-with-custom-markers
 .. _pytest: https://docs.pytest.org
 .. _SauceLabs: http://saucelabs.com/

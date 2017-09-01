@@ -1,11 +1,6 @@
-Options
--------
+Keyword Args:
 
 {% for opt in opts %}
-{{ opt['name'] }}
-    *type*: {{ opt['type'] }}
-    {% if opt['default'] %} default: {{ opt['default']}} {% endif %}
-
-    {{ opt['doc']|indent(4) }}
+    {{ opt['name'] }} ({{ opt['type'] }}) : {{ opt['doc']|indent(8) }} (default: {{ opt['default']}})
 
 {% endfor %}

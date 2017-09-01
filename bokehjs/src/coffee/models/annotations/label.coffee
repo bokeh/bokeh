@@ -34,22 +34,20 @@ export class LabelView extends TextAnnotationView
       when "rad" then angle = -1 * @model.angle
       when "deg" then angle = -1 * @model.angle * Math.PI/180.0
 
+    panel = @model.panel ? @plot_view.frame
+
     if @model.x_units == "data"
       vx = xscale.compute(@model.x)
     else
-      vx = @model.x
-    sx = @canvas.vx_to_sx(vx)
+      vx = @model.x + panel._left.value
 
     if @model.y_units == "data"
       vy = yscale.compute(@model.y)
     else
-      vy = @model.y
-    sy = @canvas.vy_to_sy(vy)
+      vy = @model.y + panel._bottom.value
 
-    if @model.panel?
-      panel_offset = @_get_panel_offset()
-      sx += panel_offset.x
-      sy += panel_offset.y
+    sx = @canvas.vx_to_sx(vx)
+    sy = @canvas.vy_to_sy(vy)
 
     if @model.render_mode == 'canvas'
       @_canvas_text(ctx, @model.text, sx + @model.x_offset, sy - @model.y_offset, angle)

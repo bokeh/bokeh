@@ -248,10 +248,6 @@ cases of using the |bokeh.plotting| interface.
 .. |save|            replace:: :func:`~bokeh.io.save`
 .. |show|            replace:: :func:`~bokeh.io.show`
 
-.. |bokeh html|      replace:: :ref:`bokeh html <userguide_cli_html>`
-.. |bokeh json|      replace:: :ref:`bokeh json <userguide_cli_json>`
-.. |bokeh serve|     replace:: :ref:`bokeh serve <userguide_cli_serve>`
-
 .. |figure|          replace:: :func:`~bokeh.plotting.figure`
 .. |Figure|          replace:: :class:`~bokeh.plotting.Figure`
 .. |Figure.circle|   replace:: :func:`Figure.circle <bokeh.plotting.Figure.circle>`

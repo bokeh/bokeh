@@ -230,7 +230,7 @@ see the documentation for :ref:`bokeh.models.layouts`, in particular the
     Please report these issues on the  `Bokeh GitHub repository`_ or the `Bokeh mailing list`_.
 
 .. _Bokeh GitHub repository: https://github.com/bokeh/bokeh
-.. _Bokeh mailing list: https://groups.google.com/a/continuum.io/forum/#!forum/bokeh
+.. _Bokeh mailing list: https://groups.google.com/a/anaconda.com/forum/#!forum/bokeh
 
 .. _userguide_styling_plot_title:
 

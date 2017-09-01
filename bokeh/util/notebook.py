@@ -6,6 +6,7 @@ from bokeh.core.templates import NOTEBOOK_CELL_OBSERVER
 
 _notebook_loaded = None
 
+# TODO (bev) notebook_type and zeppelin bits should be removed after external zeppelin hook available
 def load_notebook(resources=None, verbose=False, hide_banner=False, load_timeout=5000, notebook_type='jupyter'):
     ''' Prepare the IPython notebook for displaying Bokeh plots.
 
@@ -45,6 +46,7 @@ FINALIZE_JS = """
 document.getElementById("%s").textContent = "BokehJS is loading...";
 """
 
+# TODO (bev) This will eventually go away
 def _publish_zeppelin_data(html, js):
     print('%html ' + html)
     print('%html ' + '<script type="text/javascript">' + js + "</script>")

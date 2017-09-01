@@ -11,32 +11,4 @@ often offer a more flexible way to generate different kinds of output
 from the same source code, as well as making it easier to and faster
 to iterate.
 
-
-.. _userguide_cli_serve:
-
-Bokeh Server Applications
--------------------------
-
-
-.. _userguide_cli_html:
-
-Standalone HTML
----------------
-
-
-.. _userguide_cli_json:
-
-Serialized JSON
----------------
-
-
-.. _userguide_cli_png:
-
-PNG Generation
---------------
-
-
-.. _userguide_cli_svg:
-
-SVG Generation
---------------
+See the Reference Guide section :ref:`bokeh.command` for details.

@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2015, Continuum Analytics, Inc. All rights reserved.
+# Copyright (c) 2012 - 2015, Anaconda, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #
@@ -18,6 +18,7 @@ from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__name__)
 
+from functools import partial
 import io
 import json
 import os
@@ -46,9 +47,110 @@ _new_param = {'tab': 2, 'window': 1}
 
 _state = State()
 
+_notebook_hooks = {}
+
 #-----------------------------------------------------------------------------
 # Local utilities
 #-----------------------------------------------------------------------------
+
+def install_notebook_hook(notebook_type, load, show_doc, show_app, overwrite=False):
+    ''' Install a new notebook display hook.
+
+    Bokeh comes with support for Jupyter notebooks built-in. However, there are
+    other kinds of notebooks in use by different communities. This function
+    provides a mechanism for other projects to instruct Bokeh how to display
+    content in other notebooks.
+
+    This function is primarily of use to developers wishing to integrate Bokeh
+    with new notebook types.
+
+    Args:
+        notebook_type (str) :
+            A name for the notebook type, e.e. ``'Jupyter'`` or ``'Zeppelin'``
+
+            If the name has previously been installed, a ``RuntimeError`` will
+            be raised, unless ``overwrite=True``
+
+        load (callable) :
+            A function for loading BokehJS in a notebook type. The function
+            will be called with the following arguments:
+
+            .. code-block:: python
+
+                load(
+                    resources,   # A Resources object for how to load BokehJS
+                    verbose,     # Whether to display verbose loading banner
+                    hide_banner, # Whether to hide the output banner entirely
+                    load_timeout # Time after which to report a load fail error
+                )
+
+        show_doc (callable) :
+            A function for displaying Bokeh standalone documents in the
+            notebook type. This function will be called with the following
+            arguments:
+
+            .. code-block:: python
+
+                show_doc(
+                    obj,            # the Bokeh object to display
+                    state,          # current bokeh.io "state"
+                    notebook_handle # whether a notebook handle was requested
+                )
+
+        show_app (callable) :
+            A function for displaying Bokeh applications in the notebook
+            type. This function will be called with the following arguments:
+
+            .. code-block:: python
+
+                show_app(
+                    app,         # the Bokeh Application to display
+                    state,       # current bokeh.io "state"
+                    notebook_url # URL to the current active notebook page
+                )
+
+        overwrite (bool, optional) :
+            Whether to allow an existing hook to be overwritten by a new
+            definition (default: False)
+
+    Returns:
+        None
+
+    Raises:
+        RuntimeError
+            If ``notebook_type`` is already installed and ``overwrite=False``
+
+    '''
+    if notebook_type in _notebook_hooks and not overwrite:
+        raise RuntimeError("hook for notebook type %r already exists" % notebook_type)
+    _notebook_hooks[notebook_type] = dict(load=load, doc=show_doc, app=show_app)
+
+def _run_notebook_hook(notebook_type, action, *args, **kw):
+    ''' Run an installed notebook hook with supplied arguments.
+
+    Args:
+        noteboook_type (str) :
+            Name of an existing installed notebook hook
+
+        actions (str) :
+            Name of the hook action to execute, ``'doc'`` or ``'app'``
+
+    All other arguments and keyword arguments are passed to the hook action
+    exactly as supplied.
+
+    Returns:
+        Result of the hook action, as-is
+
+    Raises:
+        RunetimeError
+            If the hook or specific action is not installed
+
+    '''
+    if notebook_type not in _notebook_hooks:
+        raise RuntimeError("no display hook installed for notebook type %r" % notebook_type)
+    if _notebook_hooks[notebook_type][action] is None:
+        raise RuntimeError("notebook hook for %r did not install %r action" % notebook_type, action)
+    return _notebook_hooks[notebook_type][action](*args, **kw)
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -137,8 +239,8 @@ def output_file(filename, title="Bokeh Plot", mode="cdn", root_dir=None):
     )
 
 def output_notebook(resources=None, verbose=False, hide_banner=False, load_timeout=5000, notebook_type='jupyter'):
-    ''' Configure the default output state to generate output in
-    Jupyter/Zeppelin notebook cells when :func:`show` is called.
+    ''' Configure the default output state to generate output in notebook cells
+    when :func:`show` is called.
 
     Args:
         resources (Resource, optional) :
@@ -155,6 +257,7 @@ def output_notebook(resources=None, verbose=False, hide_banner=False, load_timeo
 
         notebook_type (string, optional):
             Notebook type (default: jupyter)
+
     Returns:
         None
 
@@ -165,7 +268,7 @@ def output_notebook(resources=None, verbose=False, hide_banner=False, load_timeo
     '''
     # verify notebook_type first in _state.output_notebook
     _state.output_notebook(notebook_type)
-    load_notebook(resources, verbose, hide_banner, load_timeout, notebook_type)
+    _run_notebook_hook(notebook_type, 'load', resources, verbose, hide_banner, load_timeout)
 
 def set_curdoc(doc):
     '''Configure the current document (returned by curdoc()).
@@ -281,16 +384,14 @@ def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="loca
     # This ugliness is to prevent importing bokeh.application (which would bring
     # in Tornado) just in order to show a non-server object
     if getattr(obj, '_is_a_bokeh_application_class', False):
-        return _show_notebook_app_with_state(obj, _state, "/", notebook_url)
+        return _run_notebook_hook(_state.notebook_type, 'app', obj, _state, notebook_url)
 
     if obj not in _state.document.roots:
         _state.document.add_root(obj)
     return _show_with_state(obj, _state, browser, new, notebook_handle=notebook_handle)
 
-def _show_notebook_app_with_state(app, state, app_path, notebook_url):
-    if state.notebook_type == 'zeppelin':
-        raise ValueError("Zeppelin doesn't support show bokeh app.")
 
+def _show_jupyter_app_with_state(app, state, notebook_url):
     if not state.watching_cells:
         watch_server_cells(_destroy_server_js)
         state.watching_cells = True
@@ -300,9 +401,13 @@ def _show_notebook_app_with_state(app, state, app_path, notebook_url):
     from tornado.ioloop import IOLoop
     from .server.server import Server
     loop = IOLoop.current()
-    server = Server({app_path: app}, io_loop=loop, port=0,  allow_websocket_origin=[notebook_url])
+    server = Server({"/": app}, io_loop=loop, port=0,  allow_websocket_origin=[notebook_url])
+
+    server_id = uuid.uuid4().hex
+    _state.uuid_to_server[server_id] = server
+
     server.start()
-    url = 'http://%s:%d%s' % (notebook_url.split(':')[0], server.port, app_path)
+    url = 'http://%s:%d%s' % (notebook_url.split(':')[0], server.port, "/")
     script = server_document(url)
     display(HTML(_server_cell(server, script)))
 
@@ -313,10 +418,7 @@ def _show_with_state(obj, state, browser, new, notebook_handle=False):
     shown = False
 
     if state.notebook:
-        if state.notebook_type == 'jupyter':
-            comms_handle = _show_jupyter_with_state(obj, state, notebook_handle)
-        else:
-            comms_handle = _show_zeppelin_with_state(obj, state, notebook_handle)
+        _show_notebook_doc_with_state(obj, state, notebook_handle)
         shown = True
 
     if state.file or not shown:
@@ -324,11 +426,15 @@ def _show_with_state(obj, state, browser, new, notebook_handle=False):
 
     return comms_handle
 
+# Note: this function mostly exists so it can be mocked in tests
+def _show_notebook_doc_with_state(obj, state, notebook_handle):
+    _run_notebook_hook(state.notebook_type, 'doc', obj, state, notebook_handle)
+
 def _show_file_with_state(obj, state, new, controller):
     filename = save(obj, state=state)
     controller.open("file://" + filename, new=_new_param[new])
 
-def _show_jupyter_with_state(obj, state, notebook_handle):
+def _show_jupyter_doc_with_state(obj, state, notebook_handle):
     comms_target = make_id() if notebook_handle else None
     publish_display_data({'text/html': notebook_div(obj, comms_target)})
     if comms_target:
@@ -337,7 +443,8 @@ def _show_jupyter_with_state(obj, state, notebook_handle):
         state.last_comms_handle = handle
         return handle
 
-def _show_zeppelin_with_state(obj, state, notebook_handle):
+# TODO (bev) This should eventually be removed, but install a basic built-in hook for docs or now
+def _show_zeppelin_doc_with_state(obj, state, notebook_handle):
     if notebook_handle:
         raise ValueError("Zeppelin doesn't support notebook_handle.")
     print("%html " + notebook_div(obj))
@@ -382,25 +489,80 @@ def save(obj, filename=None, resources=None, title=None, state=None, **kwargs):
     _save_helper(obj, filename, resources, title)
     return os.path.abspath(filename)
 
-def _detect_filename(ext):
-    """ Detect filename from the name of the script being run. Returns
-    temporary file if the script could not be found or the location of the
-    script does not have write permission (e.g. interactive mode).
-    """
+def _no_access(basedir):
+    ''' Return True if the given base dir is not accessible or writeable
+
+    '''
+    return not os.access(basedir, os.W_OK | os.X_OK)
+
+def _shares_exec_prefix(basedir):
+    ''' Whether a give base directory is on the system exex prefix
+
+    '''
+    import sys
+    prefix = sys.exec_prefix
+    return (prefix is not None and basedir.startswith(prefix))
+
+def _temp_filename(ext):
+    ''' Generate a temporary, writable filename with the given extension
+
+    '''
+    return tempfile.NamedTemporaryFile(suffix="." + ext).name
+
+def _detect_current_filename():
+    ''' Attempt to return the filename of the currently running Python process
+
+    Returns None if the filename cannot be detected.
+    '''
     import inspect
-    from os.path import dirname, basename, splitext, join, curdir
 
+    filename = None
     frame = inspect.currentframe()
-    while frame.f_back and frame.f_globals.get('name') != '__main__':
-        frame = frame.f_back
+    try:
+        while frame.f_back and frame.f_globals.get('name') != '__main__':
+            frame = frame.f_back
 
-    filename = frame.f_globals.get('__file__')
+        filename = frame.f_globals.get('__file__')
+    finally:
+        del frame
 
-    if filename is None or not os.access(dirname(filename) or curdir, os.W_OK | os.X_OK):
-        return tempfile.NamedTemporaryFile(suffix="." + ext).name
+    return filename
+
+def default_filename(ext):
+    ''' Generate a default filename with a given extension, attempting to use
+    the filename of the currently running process, if possible.
+
+    If the filename of the current process is not available (or would not be
+    writable), then a temporary file with the given extension is returned.
+
+    Args:
+        ext (str) : the desired extension for the filename
+
+    Returns:
+        str
+
+    Raises:
+        RuntimeError
+            If the extensions requested is ".py"
+
+    '''
+    if ext == "py":
+        raise RuntimeError("asked for a default filename with 'py' extension")
+
+    from os.path import dirname, basename, splitext, join
+
+    filename = _detect_current_filename()
+
+    if filename is None:
+        return _temp_filename(ext)
+
+    basedir = dirname(filename) or os.getcwd()
+
+    if _no_access(basedir) or _shares_exec_prefix(basedir):
+        return _temp_filename(ext)
 
     name, _ = splitext(basename(filename))
-    return join(dirname(filename), name + "." + ext)
+    return join(basedir, name + "." + ext)
 
 def _get_save_args(state, filename, resources, title):
     warn = True
@@ -410,7 +572,7 @@ def _get_save_args(state, filename, resources, title):
 
     if filename is None:
         warn = False
-        filename = _detect_filename("html")
+        filename = default_filename("html")
 
     if resources is None and state.file:
         resources = state.file['resources']
@@ -697,7 +859,7 @@ def export_png(obj, filename=None, height=None, width=None, webdriver=None):
     image = _get_screenshot_as_png(obj, height=height, width=width, driver=webdriver)
 
     if filename is None:
-        filename = _detect_filename("png")
+        filename = default_filename("png")
 
     image.save(filename)
 
@@ -772,7 +934,7 @@ def export_svgs(obj, filename=None, height=None, width=None, webdriver=None):
         return
 
     if filename is None:
-        filename = _detect_filename("svg")
+        filename = default_filename("svg")
 
     filenames = []
 
@@ -789,3 +951,11 @@ def export_svgs(obj, filename=None, height=None, width=None, webdriver=None):
         filenames.append(filename)
 
     return filenames
+
+
+def _install_notebook_hook():
+    install_notebook_hook('jupyter', partial(load_notebook, notebook_type='jupyter'), _show_jupyter_doc_with_state, _show_jupyter_app_with_state, overwrite=True)
+    # TODO (bev) These should eventually be removed, but install a basic built-in hook for docs or now
+    install_notebook_hook('zeppelin', partial(load_notebook, notebook_type='zeppelin'), _show_zeppelin_doc_with_state, None, overwrite=True)
+
+_install_notebook_hook()

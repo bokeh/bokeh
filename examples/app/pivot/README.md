@@ -12,7 +12,7 @@ be used in place of the default CSV (see Data Source below).
 
 ## Setting Up From Scratch (if you don't already have Bokeh)
 Easiest way is to get Anaconda for python 2.7 or 3.5 at:
-https://www.continuum.io/downloads
+https://anaconda.com/downloads
 
 You can check if Anaconda automatically installed bokeh by going to
 command line and simply entering:
@@ -24,7 +24,7 @@ If you get a message that says
 ERROR: Must specify subcommand...
 ```
 you already have Bokeh. If not, here are the Bokeh installation instructions:
-http://bokeh.pydata.org/en/latest/docs/installation.html. The easiest way,
+https://bokeh.pydata.org/en/latest/docs/installation.html. The easiest way,
 from the command line:
 ```
 conda install bokeh
@@ -68,11 +68,11 @@ new window/tab to prove that it works.
 
 ## Resources
 This tool uses bokeh, built on python:
-http://bokeh.pydata.org/en/latest/.
+https://bokeh.pydata.org/en/latest/.
 The site has good documentation in the User Guide and Reference.
 
 There is also an active google group for issues:
-https://groups.google.com/a/continuum.io/forum/#!forum/bokeh
+https://groups.google.com/a/anaconda.com/forum/#!forum/bokeh
 
 And of course, python has good documentation too:
 https://docs.python.org/2.7/tutorial/

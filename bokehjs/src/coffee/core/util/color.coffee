@@ -11,9 +11,12 @@ export color2hex = (color) ->
   else if svg_colors[color]?
     return svg_colors[color]
   else if color.indexOf('rgb') == 0
-    rgb = color.match(/\d+/g)
-    hex = (_component2hex(v) for v in rgb).join('')
-    return '#' + hex.slice(0, 8)  # can also be rgba
+    rgb = color.replace(/^rgba?\(|\s+|\)$/g,'').split(',')
+    hex = (_component2hex(v) for v in rgb.slice(0, 3)).join('')
+    if rgb.length == 4
+      hex = hex + _component2hex(Math.floor(parseFloat(rgb.slice(3)) * 255))
+    hex_string = '#' + hex.slice(0, 8)  # can also be rgba
+    return hex_string
   else
     return color
 

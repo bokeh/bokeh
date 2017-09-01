@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Continuum Analytics, Inc. All rights reserved.
+# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #
@@ -93,9 +93,6 @@ REQUIRES = [
     'Jinja2 >=2.7',
     'numpy >=1.7.1',
     'tornado >=4.3',
-
-    # this will be removed when Bokeh hits 1.0
-    'bkcharts >=0.2',
 ]
 
 # handle the compat difference for futures (meta.yaml handles differently)
@@ -126,8 +123,8 @@ setup(
     version=get_version(),
     description='Interactive plots and applications in the browser from Python',
     license='New BSD',
-    author='Continuum Analytics',
-    author_email='info@continuum.io',
+    author='Anaconda',
+    author_email='info@anaconda.com',
     url='http://github.com/bokeh/bokeh',
     classifiers=open("classifiers.txt").read().strip().split('\n'),
 

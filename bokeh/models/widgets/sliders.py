@@ -52,7 +52,7 @@ class AbstractSlider(Widget):
     The "mouseup" policy is intended for scenarios in which the callback is expensive in time.
     """)
 
-    bar_color = Color(default="#3fb8af", help="""
+    bar_color = Color(default="#e6e6e6", help="""
     """)
 
 class Slider(AbstractSlider):
@@ -74,7 +74,7 @@ class Slider(AbstractSlider):
     The step between consecutive values.
     """)
 
-    format = Override(default="0,0.00")
+    format = Override(default="0[.]00")
 
 class RangeSlider(AbstractSlider):
     """ Range-slider based number range selection widget. """
@@ -95,7 +95,7 @@ class RangeSlider(AbstractSlider):
     The step between consecutive values.
     """)
 
-    format = Override(default="0,0.00")
+    format = Override(default="0[.]00")
 
 class DateSlider(AbstractSlider):
     """ Slider-based date selection widget. """

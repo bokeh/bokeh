@@ -296,8 +296,9 @@ export class GlyphRenderer extends Renderer
     else # mode == "inspect"
       inspector = @data_source.selection_manager.get_or_create_inspector(@)
       inspector.update(indices, true, false, true)
-      @data_source.inspected = inspector.indices
-      @data_source.inspect.emit([renderer_view, {"geometry": geometry}])
+      # silently set inspected attr to avoid triggering data_source.change event and rerender
+      @data_source.setv({inspected: inspector.indices}, {silent: true})
+      @data_source.inspect.emit([renderer_view, {geometry: geometry}])
 
     return not indices.is_empty()
 

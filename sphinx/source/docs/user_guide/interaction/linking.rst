@@ -28,7 +28,9 @@ Linked Brushing
 
 Linked brushing in Bokeh is expressed by sharing data sources between glyph
 renderers. This is all Bokeh needs to understand that selections acted on one
-glyph must pass to all other glyphs that share that same source.
+glyph must pass to all other glyphs that share that same source. To see how linked
+selection extends to glyph renderers that plot only a subset of data from a data
+source, see :ref:`userguide_data_linked_selection_with_filtering`.
 
 The following code shows an example of linked brushing between circle glyphs on
 two different |figure| calls.

@@ -1,4 +1,5 @@
 import numpy as np
+np.random.seed(1)
 
 from bokeh.client import push_session
 from bokeh.layouts import row, column

@@ -1,6 +1,5 @@
 from __future__ import absolute_import
 
-import sys
 import unittest
 from unittest import skipIf
 import warnings
@@ -40,7 +39,7 @@ class TestColumnDataSource(unittest.TestCase):
         ds = ColumnDataSource(df)
         self.assertTrue(set(df.columns).issubset(set(ds.column_names)))
         for key in data.keys():
-            self.assertIsInstance(ds.data[key], pd.Series)
+            self.assertIsInstance(ds.data[key], np.ndarray)
             self.assertEquals(list(df[key]), list(ds.data[key]))
         self.assertIsInstance(ds.data['index'], np.ndarray)
         self.assertEquals([0, 1], list(ds.data['index']))
@@ -53,14 +52,13 @@ class TestColumnDataSource(unittest.TestCase):
         ds = ColumnDataSource(data=df)
         self.assertTrue(set(df.columns).issubset(set(ds.column_names)))
         for key in data.keys():
-            self.assertIsInstance(ds.data[key], pd.Series)
+            self.assertIsInstance(ds.data[key], np.ndarray)
             self.assertEquals(list(df[key]), list(ds.data[key]))
         self.assertIsInstance(ds.data['index'], np.ndarray)
         self.assertEquals([0, 1], list(ds.data['index']))
         self.assertEqual(set(ds.column_names) - set(df.columns), set(["index"]))
 
     @skipIf(not is_pandas, "pandas not installed")
-    @skipIf(sys.version_info[:2]==(3,4), "only old brokeb pandas available for 3.4")
     def test_init_groupby_arg(self):
         from bokeh.sampledata.autompg import autompg as df
         group = df.groupby(('origin', 'cyl'))
@@ -70,11 +68,10 @@ class TestColumnDataSource(unittest.TestCase):
         self.assertIsInstance(ds.data['origin_cyl'], np.ndarray)
         for key in s.columns.values:
             k2 = "_".join(key)
-            self.assertIsInstance(ds.data[k2], pd.Series)
+            self.assertIsInstance(ds.data[k2], np.ndarray)
             self.assertEquals(list(s[key]), list(ds.data[k2]))
 
     @skipIf(not is_pandas, "pandas not installed")
-    @skipIf(sys.version_info[:2]==(3,4), "only old brokeb pandas available for 3.4")
     def test_init_groupby_data_kwarg(self):
         from bokeh.sampledata.autompg import autompg as df
         group = df.groupby(('origin', 'cyl'))
@@ -84,7 +81,7 @@ class TestColumnDataSource(unittest.TestCase):
         self.assertIsInstance(ds.data['origin_cyl'], np.ndarray)
         for key in s.columns.values:
             k2 = "_".join(key)
-            self.assertIsInstance(ds.data[k2], pd.Series)
+            self.assertIsInstance(ds.data[k2], np.ndarray)
             self.assertEquals(list(s[key]), list(ds.data[k2]))
 
     @skipIf(not is_pandas, "pandas not installed")
@@ -97,7 +94,7 @@ class TestColumnDataSource(unittest.TestCase):
         self.assertIsInstance(ds.data['index'], np.ndarray)
         for key in s.columns.values:
             k2 = "_".join(key)
-            self.assertIsInstance(ds.data[k2], pd.Series)
+            self.assertIsInstance(ds.data[k2], np.ndarray)
             self.assertEquals(list(s[key]), list(ds.data[k2]))
 
     def test_add_with_name(self):
@@ -189,6 +186,170 @@ class TestColumnDataSource(unittest.TestCase):
         ds._stream(dict(a=[11, 12], b=[21, 22]), "foo")
         self.assertEqual(stuff['args'], ("doc", ds, dict(a=[11, 12], b=[21, 22]), "foo", None))
         self.assertEqual(stuff['kw'], {})
+
+    def _assert_equal_dicts_of_arrays(self, d1, d2):
+        self.assertEqual(d1.keys(), d2.keys())
+        for k, v in d1.items():
+            self.assertEqual(type(v), type(d2[k]))
+            self.assertTrue(np.array_equal(v, d2[k]))
+
+    @skipIf(not is_pandas, "pandas not installed")
+    def test_stream_dict_to_ds_created_from_df(self):
+        data = pd.DataFrame(dict(a=[10], b=[20], c=[30])).set_index('c')
+        ds = ColumnDataSource(data)
+        ds._document = "doc"
+
+        notify_owners_stuff = {}
+
+        def notify_owners_mock(*args, **kw):
+            notify_owners_stuff['args'] = args
+            notify_owners_stuff['kw'] = kw
+        ds.data._notify_owners = notify_owners_mock
+
+        stream_stuff = {}
+        data_stream = ds.data._stream
+
+        def stream_wrapper(*args, **kwargs):
+            stream_stuff['args'] = args
+            stream_stuff['kwargs'] = kwargs
+            data_stream(*args, **kwargs)
+        ds.data._stream = stream_wrapper
+
+        ds._stream(dict(a=[11, 12],
+                        b=np.array([21, 22]),
+                        c=pd.Series([31, 32])), 7)
+
+        self.assertEqual(len(stream_stuff['args']), 5)
+        expected_stream_args = ("doc", ds, dict(a=[11, 12],
+                                                b=np.array([21, 22]),
+                                                c=pd.Series([31, 32])), 7, None)
+        for i, (arg, ex_arg) in enumerate(zip(stream_stuff['args'],
+                                              expected_stream_args)):
+            if i == 2:
+                self.assertEqual(arg['a'], ex_arg['a'])
+                del arg['a'], ex_arg['a']
+                self._assert_equal_dicts_of_arrays(arg, ex_arg)
+            else:
+                self.assertEqual(arg, ex_arg)
+
+        self.assertEqual(stream_stuff['kwargs'], {})
+
+        self.assertEqual(len(notify_owners_stuff['args']), 1)
+        self._assert_equal_dicts_of_arrays(notify_owners_stuff['args'][0],
+                                           dict(a=np.array([10]),
+                                                b=np.array([20]),
+                                                c=np.array([30])))
+
+        self._assert_equal_dicts_of_arrays(dict(ds.data),
+                                           dict(a=np.array([10, 11, 12]),
+                                                b=np.array([20, 21, 22]),
+                                                c=np.array([30, 31, 32])))
+
+    @skipIf(not is_pandas, "pandas not installed")
+    def test_stream_series_to_ds_created_from_df(self):
+        data = pd.DataFrame(dict(a=[10], b=[20], c=[30])).set_index('c')
+        ds = ColumnDataSource(data)
+        ds._document = "doc"
+
+        notify_owners_stuff = {}
+
+        def notify_owners_mock(*args, **kw):
+            notify_owners_stuff['args'] = args
+            notify_owners_stuff['kw'] = kw
+
+        ds.data._notify_owners = notify_owners_mock
+
+        stream_stuff = {}
+        data_stream = ds.data._stream
+
+        def stream_wrapper(*args, **kwargs):
+            stream_stuff['args'] = args
+            stream_stuff['kwargs'] = kwargs
+            data_stream(*args, **kwargs)
+
+        ds.data._stream = stream_wrapper
+
+        ds._stream(pd.Series([11, 21, 31], index=list('abc')), 7)
+
+        self.assertEqual(len(stream_stuff['args']), 5)
+        expected_stream_args = ("doc", ds, dict(a=np.array([11]),
+                                                b=np.array([21]),
+                                                c=np.array([31])), 7, None)
+        for i, (arg, ex_arg) in enumerate(zip(stream_stuff['args'],
+                                              expected_stream_args)):
+            if i == 2:
+                arg = {k: v.values for k, v in arg.to_dict('series').items()}
+                self._assert_equal_dicts_of_arrays(arg, ex_arg)
+            else:
+                self.assertEqual(arg, ex_arg)
+
+        self.assertEqual(stream_stuff['kwargs'], {})
+
+        self.assertEqual(len(notify_owners_stuff['args']), 1)
+        self._assert_equal_dicts_of_arrays(notify_owners_stuff['args'][0],
+                                           dict(a=np.array([10]),
+                                                b=np.array([20]),
+                                                c=np.array([30])))
+
+        self._assert_equal_dicts_of_arrays(dict(ds.data),
+                                           dict(a=np.array([10, 11]),
+                                                b=np.array([20, 21]),
+                                                c=np.array([30, 31])))
+
+    @skipIf(not is_pandas, "pandas not installed")
+    def test_stream_df_to_ds_created_from_df(self):
+        data = pd.DataFrame(dict(a=[10], b=[20], c=[30])).set_index('c')
+        ds = ColumnDataSource(data)
+        ds._document = "doc"
+
+        notify_owners_stuff = {}
+
+        def notify_owners_mock(*args, **kw):
+            notify_owners_stuff['args'] = args
+            notify_owners_stuff['kw'] = kw
+
+        ds.data._notify_owners = notify_owners_mock
+
+        stream_stuff = {}
+        data_stream = ds.data._stream
+
+        def stream_wrapper(*args, **kwargs):
+            stream_stuff['args'] = args
+            stream_stuff['kwargs'] = kwargs
+            data_stream(*args, **kwargs)
+
+        ds.data._stream = stream_wrapper
+
+        ds._stream(pd.DataFrame(dict(a=[11, 12],
+                                     b=[21, 22],
+                                     c=[31, 32])), 7)
+
+        self.assertEqual(len(stream_stuff['args']), 5)
+        expected_steam_data = dict(a=np.array([11, 12]),
+                                   b=np.array([21, 22]),
+                                   c=np.array([31, 32]))
+        expected_args = ("doc", ds, expected_steam_data, 7, None)
+        for i, (arg, ex_arg) in enumerate(zip(stream_stuff['args'], expected_args)):
+            if i == 2:
+                arg = {k: v.values for k, v in arg.to_dict('series').items()}
+                self.assertEqual(arg.keys(), ex_arg.keys())
+                for k, v in arg.items():
+                    self.assertTrue(np.array_equal(v, ex_arg[k]))
+            else:
+                self.assertEqual(stream_stuff['args'][i], expected_args[i])
+
+        self.assertEqual(stream_stuff['kwargs'], {})
+
+        self.assertEqual(len(notify_owners_stuff['args']), 1)
+        self._assert_equal_dicts_of_arrays(notify_owners_stuff['args'][0],
+                                           dict(a=np.array([10]),
+                                                b=np.array([20]),
+                                                c=np.array([30])))
+
+        self._assert_equal_dicts_of_arrays(dict(ds.data),
+                                           dict(a=np.array([10, 11, 12]),
+                                                b=np.array([20, 21, 22]),
+                                                c=np.array([30, 31, 32])))
 
     def test_patch_bad_columns(self):
         ds = ColumnDataSource(data=dict(a=[10, 11], b=[20, 21]))
