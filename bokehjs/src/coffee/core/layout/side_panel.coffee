@@ -1,4 +1,4 @@
-import {EQ, GE} from "./solver"
+import {EQ} from "./solver"
 import {LayoutCanvas} from "./layout_canvas"
 
 import * as p from "core/properties"
@@ -152,21 +152,8 @@ export update_panel_constraints = (view) ->
 
   if view._size_constraint? and s.has_constraint(view._size_constraint)
     s.remove_constraint(view._size_constraint)
-  view._size_constraint = GE(view.model.panel._size, -view._get_size())
+  view._size_constraint = EQ(view.model.panel._size, -view._get_size())
   s.add_constraint(view._size_constraint)
-
-  # Constrain Full Dimension - link it to the plot (only needs to be done once)
-  # If axis is on the left, then it is the full height of the plot.
-  # If axis is on the top, then it is the full width of the plot.
-
-  if view._full_constraint? and s.has_constraint(view._full_constraint)
-    s.remove_constraint(view._full_constraint)
-
-  view._full_constraint = switch view.model.panel.side
-    when 'above', 'below' then EQ(view.model.panel._width,  [-1, view.plot_model.canvas._width])
-    when 'left', 'right'  then EQ(view.model.panel._height, [-1, view.plot_model.canvas._height])
-
-  s.add_constraint(view._full_constraint)
 
 export class SidePanel extends LayoutCanvas
   type: "SidePanel"
@@ -175,6 +162,9 @@ export class SidePanel extends LayoutCanvas
     side: [ p.String ]
     plot: [ p.Instance ]
   }
+
+  toString: () ->
+    return "#{@type}(#{@id}, #{@side})"
 
   initialize: (attrs, options)->
     super(attrs, options)
