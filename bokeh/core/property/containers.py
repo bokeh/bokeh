@@ -294,6 +294,11 @@ class PropertyValueDict(PropertyValueContainer, dict):
     def update(self, *args, **kwargs):
         return super(PropertyValueDict, self).update(*args, **kwargs)
 
+class PropertyValueColumnData(PropertyValueDict):
+    '''
+
+    '''
+
     # don't wrap with notify_owner --- notifies owners explicitly
     def _stream(self, doc, source, new_data, rollover=None, setter=None):
         ''' Internal implementation to handle special-casing stream events

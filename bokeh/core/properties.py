@@ -110,7 +110,7 @@ from ..util.serialization import convert_datetime_type, decode_base64_dict, tran
 from ..util.string import nice_join, format_docstring
 
 from .property.bases import ContainerProperty, DeserializationError, ParameterizedProperty, Property, PrimitiveProperty
-from .property.containers import PropertyValueDict, PropertyValueList
+from .property.containers import PropertyValueColumnData, PropertyValueDict, PropertyValueList
 from .property.descriptor_factory import PropertyDescriptorFactory
 from .property.descriptors import (BasicPropertyDescriptor, ColumnDataPropertyDescriptor, DataSpecPropertyDescriptor,
                                    UnitsSpecPropertyDescriptor)
@@ -1349,10 +1349,10 @@ class ColumnData(Dict):
 
         '''
         if isinstance(value, dict):
-            if isinstance(value, PropertyValueDict):
+            if isinstance(value, PropertyValueColumnData):
                 return value
             else:
-                return PropertyValueDict(value)
+                return PropertyValueColumnData(value)
         else:
             return value
 
