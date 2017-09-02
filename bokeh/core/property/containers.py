@@ -105,7 +105,7 @@ class PropertyValueContainer(object):
 
     def _notify_owners(self, old, hint=None):
         for (owner, descriptor) in self._owners:
-            descriptor._notify_mutated(owner, old, hint)
+            descriptor._notify_mutated(owner, old, hint=hint)
 
     def _saved_copy(self):
         raise RuntimeError("Subtypes must implement this to make a backup copy")

@@ -768,10 +768,10 @@ class BasicPropertyDescriptor(PropertyDescriptor):
             None
 
         '''
-        # As of Bokeh 0.11.1, all hinted events modify in place. However this
-        # may need refining later if this assumption changes.
-        unchanged = self.property.matches(value, old) and (hint is None)
-        if unchanged:
+        # Normally we want a "no-op" if the new value and old value are identical
+        # but some hinted events are in-place. This check will allow those cases
+        # to continue on to the notification machinery
+        if self.property.matches(value, old) and (hint is None):
             return
 
         was_set = self.name in obj._property_values
@@ -799,7 +799,7 @@ class BasicPropertyDescriptor(PropertyDescriptor):
             obj._property_values[self.name] = value
 
         # for notification purposes, "old" should be the logical old
-        self._trigger(obj, old, value, hint, setter)
+        self._trigger(obj, old, value, hint=hint, setter=setter)
 
     # called when a container is mutated "behind our back" and
     # we detect it with our collection wrappers.
@@ -836,7 +836,7 @@ class BasicPropertyDescriptor(PropertyDescriptor):
         # in some cases this could give us a new object for the value
         value = self.property.prepare_value(obj, self.name, value)
 
-        self._real_set(obj, old, value, hint)
+        self._real_set(obj, old, value, hint=hint)
 
     def _trigger(self, obj, old, value, hint=None, setter=None):
         ''' Unconditionally send a change event notification for the property.
@@ -927,7 +927,14 @@ class ColumnDataPropertyDescriptor(BasicPropertyDescriptor):
         if self.property._readonly:
             raise RuntimeError("%s.%s is a readonly property" % (obj.__class__.__name__, self.name))
 
-        self._internal_set(obj, value, setter=setter, hint=None)
+        from ...protocol.events import ColumnDataChangedEvent
+
+        if obj.document:
+            hint = ColumnDataChangedEvent(obj.document, obj, setter=setter)
+        else:
+            hint = None
+
+        self._internal_set(obj, value, hint=hint, setter=setter)
 
 class DataSpecPropertyDescriptor(BasicPropertyDescriptor):
     ''' A PropertyDescriptor for Bokeh |DataSpec| properties that serialize to

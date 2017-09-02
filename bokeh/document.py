@@ -353,6 +353,7 @@ class Document(object):
         self._initialize_references_json(references_json, references)
 
         for event_json in events_json:
+
             if event_json['kind'] == 'ModelChanged':
                 patched_id = event_json['model']['id']
                 if patched_id not in self._all_models:
@@ -365,6 +366,15 @@ class Document(object):
                 attr = event_json['attr']
                 value = event_json['new']
                 patched_obj.set_from_json(attr, value, models=references, setter=setter)
+
+            elif event_json['kind'] == 'ColumnDataChanged':
+                source_id = event_json['column_source']['id']
+                if source_id not in self._all_models:
+                    raise RuntimeError("Cannot apply patch to %s which is not in the document" % (str(source_id)))
+                source = self._all_models[source_id]
+                value = event_json['new']
+                source.set_from_json('data', value, models=references, setter=setter)
+
             elif event_json['kind'] == 'ColumnsStreamed':
                 source_id = event_json['column_source']['id']
                 if source_id not in self._all_models:
@@ -373,6 +383,7 @@ class Document(object):
                 data = event_json['data']
                 rollover = event_json['rollover']
                 source._stream(data, rollover, setter)
+
             elif event_json['kind'] == 'ColumnsPatched':
                 source_id = event_json['column_source']['id']
                 if source_id not in self._all_models:
@@ -380,16 +391,20 @@ class Document(object):
                 source = self._all_models[source_id]
                 patches = event_json['patches']
                 source.patch(patches, setter)
+
             elif event_json['kind'] == 'RootAdded':
                 root_id = event_json['model']['id']
                 root_obj = references[root_id]
                 self.add_root(root_obj, setter)
+
             elif event_json['kind'] == 'RootRemoved':
                 root_id = event_json['model']['id']
                 root_obj = references[root_id]
                 self.remove_root(root_obj, setter)
+
             elif event_json['kind'] == 'TitleChanged':
                 self._set_title(event_json['title'], setter)
+
             else:
                 raise RuntimeError("Unknown patch event " + repr(event_json))
 
@@ -1015,7 +1030,9 @@ class Document(object):
             serializable_new = model.lookup(attr).serializable_value(model)
         else:
             serializable_new = None
-        self._trigger_on_change(ModelChangedEvent(self, model, attr, old, new, serializable_new, hint, setter))
+
+        event = ModelChangedEvent(self, model, attr, old, new, serializable_new, hint, setter)
+        self._trigger_on_change(event)
 
     def _push_all_models_freeze(self):
         '''

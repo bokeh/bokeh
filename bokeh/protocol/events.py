@@ -3,6 +3,7 @@
 '''
 from __future__ import absolute_import
 
+from ..util.serialization import transform_column_source_data
 from ..model import collect_models
 
 class DocumentChangedEvent(object):
@@ -37,7 +38,7 @@ class DocumentPatchedEvent(DocumentChangedEvent):
         if hasattr(receiver, '_document_patched'):
             receiver._document_patched(self)
 
-    def generate(self, references):
+    def generate(self, references, buffers):
         '''
 
         '''
@@ -70,12 +71,12 @@ class ModelChangedEvent(DocumentPatchedEvent):
         if hasattr(receiver, '_document_model_changed'):
             receiver._document_model_changed(self)
 
-    def generate(self, references):
+    def generate(self, references, buffers):
         '''
 
         '''
         if self.hint is not None:
-            return self.hint.generate(references)
+            return self.hint.generate(references, buffers)
 
         value = self.serializable_new
 
@@ -104,6 +105,34 @@ class ModelChangedEvent(DocumentPatchedEvent):
                  'attr'  : self.attr,
                  'new'   : value }
 
+class ColumnDataChangedEvent(DocumentPatchedEvent):
+    '''
+
+    '''
+
+    def __init__(self, document, column_source, setter=None):
+        '''
+
+        '''
+        super(ColumnDataChangedEvent, self).__init__(document, setter)
+        self.column_source = column_source
+
+    def dispatch(self, receiver):
+        '''
+
+        '''
+        super(ColumnDataChangedEvent, self).dispatch(receiver)
+        if hasattr(receiver, '_column_data_changed)'):
+            receiver._column_data_changed(self)
+
+    def generate(self, references, buffers):
+        '''
+
+        '''
+        return { 'kind'          : 'ColumnDataChanged',
+                 'column_source' : self.column_source.ref,
+                 'new'          : transform_column_source_data(self.column_source.data) }
+
 class ColumnsStreamedEvent(DocumentPatchedEvent):
     '''
 
@@ -122,11 +151,11 @@ class ColumnsStreamedEvent(DocumentPatchedEvent):
         '''
 
         '''
-        super(ModelChangedEvent, self).dispatch(receiver)
+        super(ColumnsStreamedEvent, self).dispatch(receiver)
         if hasattr(receiver, '_columns_streamed'):
             receiver._columns_streamed(self)
 
-    def generate(self, references):
+    def generate(self, references, buffers):
         '''
 
         '''
@@ -152,11 +181,11 @@ class ColumnsPatchedEvent(DocumentPatchedEvent):
         '''
 
         '''
-        super(ModelChangedEvent, self).dispatch(receiver)
+        super(ColumnsPatchedEvent, self).dispatch(receiver)
         if hasattr(receiver, '_columns_patched'):
             receiver._columns_patched(self)
 
-    def generate(self, references):
+    def generate(self, references, buffers):
         return { 'kind'          : 'ColumnsPatched',
                  'column_source' : self.column_source.ref,
                  'patches'       : self.patches }
@@ -173,7 +202,7 @@ class TitleChangedEvent(DocumentPatchedEvent):
         super(TitleChangedEvent, self).__init__(document, setter)
         self.title = title
 
-    def generate(self, references):
+    def generate(self, references, buffers):
         return { 'kind'  : 'TitleChanged',
                  'title' : self.title }
 
@@ -189,7 +218,7 @@ class RootAddedEvent(DocumentPatchedEvent):
         super(RootAddedEvent, self).__init__(document, setter)
         self.model = model
 
-    def generate(self, references):
+    def generate(self, references, buffers):
         '''
 
         '''
@@ -209,7 +238,7 @@ class RootRemovedEvent(DocumentPatchedEvent):
         super(RootRemovedEvent, self).__init__(document, setter)
         self.model = model
 
-    def generate(self, references):
+    def generate(self, references, buffers):
         '''
 
         '''

@@ -52,10 +52,13 @@ class patch_doc_1(Message):
 
         # this roundtrip is fortunate, but is needed because there are type conversions
         # in BokehJSONEncoder which keep us from easily generating non-string JSON
-        patch_json = process_document_events(events)
+        patch_json, buffers = process_document_events(events)
         content = loads(patch_json)
 
         msg = cls(header, metadata, content)
+
+        for (header, payload) in buffers:
+            msg.add_buffer(header, payload)
 
         return msg
 
@@ -66,21 +69,25 @@ class patch_doc_1(Message):
         doc.apply_json_patch(self.content, setter)
 
 def process_document_events(events):
-    ''' Create a JSON string describing a patch to be applied.
+    ''' Create a JSON string describing a patch to be applied as well as
+    any optional buffers.
 
     Args:
       events : list of events to be translated into patches
 
     Returns:
-      str :  JSON string which can be applied to make the given updates to obj
+      str, list :
+        JSON string which can be applied to make the given updates to obj
+        as well as any optional buffers
 
     '''
 
-    references = set()
     json_events = []
+    references = set()
+    buffers = []
 
     for event in events:
-        json_events.append(event.generate(references))
+        json_events.append(event.generate(references, buffers))
 
     json_references = Document.references_json(references)
 
@@ -89,4 +96,4 @@ def process_document_events(events):
         'references' : json_references,
     }
 
-    return serialize_json(json)
+    return serialize_json(json), buffers
