@@ -220,9 +220,9 @@ export class LegendView extends AnnotationView
     bbox = @compute_legend_bbox()
     side = @model.panel.side
     if side == 'above' or side == 'below'
-      return bbox.height
+      return bbox.height + 2*@model.margin
     if side == 'left' or side == 'right'
-      return bbox.width
+      return bbox.width + 2*@model.margin
 
 export class Legend extends Annotation
   default_view: LegendView
