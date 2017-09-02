@@ -9,7 +9,7 @@ import {Model} from "../../../model"
 
 export class CellFormatter extends Model
   doFormat: (row, cell, value, columnDef, dataContext) ->
-    if value == null
+    if not value?
       return ""
     else
       return (value + "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
@@ -24,27 +24,23 @@ export class StringFormatter extends CellFormatter
   }
 
   doFormat: (row, cell, value, columnDef, dataContext) ->
-    text = super(row, cell, value, columnDef, dataContext)
-
     font_style = @font_style
     text_align = @text_align
     text_color = @text_color
 
-    if font_style? or text_align? or text_color?
-      text = span({}, text)
-      switch font_style
-        when "bold"
-          text.style.fontWeight = "bold"
-        when "italic"
-          text.style.fontStyle = "italic"
+    text = span({}, if not value? then "" else "#{value}")
+    switch font_style
+      when "bold"
+        text.style.fontWeight = "bold"
+      when "italic"
+        text.style.fontStyle = "italic"
 
-      if text_align?
-        text.style.textAlign = text_align
-      if text_color?
-        text.style.color = text_color
+    if text_align?
+      text.style.textAlign = text_align
+    if text_color?
+      text.style.color = text_color
 
-      text = text.outerHTML
-
+    text = text.outerHTML
     return text
 
 export class NumberFormatter extends StringFormatter
