@@ -58,7 +58,7 @@ detailed information please consult the full :ref:`userguide`.
 Let's begin with some examples.
 
 Plotting data in basic Python lists as a line plot including zoom,
-pan, resize, save, and other tools is simple and straightforward:
+pan, save, and other tools is simple and straightforward:
 
 .. bokeh-plot::
     :source-position: above
@@ -309,7 +309,7 @@ for in this example:
     # output to static HTML file (with CDN resources)
     output_file("color_scatter.html", title="color_scatter.py example", mode="cdn")
 
-    TOOLS="resize,crosshair,pan,wheel_zoom,box_zoom,reset,box_select,lasso_select"
+    TOOLS="crosshair,pan,wheel_zoom,box_zoom,reset,box_select,lasso_select"
 
     # create a new plot with the tools above, and explicit ranges
     p = figure(tools=TOOLS, x_range=(0,100), y_range=(0,100))
