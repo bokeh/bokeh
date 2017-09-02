@@ -88,12 +88,8 @@ export class LegendView extends AnnotationView
           y = (v_range.end + v_range.start)/2 + legend_height/2
     else if isArray(location) and location.length == 2
       [x, y] = location   # left, bottom wrt panel
-      if panel.side in ["left", "right", "above", "below"]
-        x += h_range.start
-        y += v_range.end
-      else
-        x += h_range.start
-        y += v_range.start
+      x += h_range.start
+      y += v_range.start + legend_height
 
     x = @plot_view.canvas.vx_to_sx(x)
     y = @plot_view.canvas.vy_to_sy(y)
