@@ -22,7 +22,7 @@ export class TextView extends XYGlyphView
     @text_props.set_value(ctx)
     # override some features so we fit inside the legend
     ctx.font = @text_props.font_value()
-    ctx.font = ctx.font.replace(/\b[\d\.]+[\w]+\b/, '10pt')
+    ctx.font = ctx.font.replace(/\b[\d\.]+[\w]+\b/, '14px')
     ctx.textAlign = "right"
     ctx.textBaseline = "middle"
     ctx.fillText("text", x2, (y1+y2)/2)

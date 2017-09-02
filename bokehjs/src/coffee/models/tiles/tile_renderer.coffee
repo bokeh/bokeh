@@ -47,7 +47,7 @@ export class TileRendererView extends RendererView
             right: "#{right_offset}px"
             'max-width': "#{max_width}px"
             'background-color': 'rgba(255,255,255,0.8)'
-            'font-size': '9pt'
+            'font-size': '12px'
             'font-family': 'sans-serif'
           }
         })
