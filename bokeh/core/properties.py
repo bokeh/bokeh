@@ -110,6 +110,7 @@ from ..util.serialization import convert_datetime_type, decode_base64_dict, tran
 from ..util.string import nice_join, format_docstring
 
 from .property.bases import ContainerProperty, DeserializationError, ParameterizedProperty, Property, PrimitiveProperty
+from .property.containers import PropertyValueDict, PropertyValueList
 from .property.descriptor_factory import PropertyDescriptorFactory
 from .property.descriptors import (BasicPropertyDescriptor, ColumnDataPropertyDescriptor, DataSpecPropertyDescriptor,
                                    UnitsSpecPropertyDescriptor)
@@ -1205,6 +1206,19 @@ class List(Seq):
         super(List, self).__init__(item_type, default=default, help=help)
 
     @classmethod
+    def wrap(cls, value):
+        ''' Some property types need to wrap their values in special containers, etc.
+
+        '''
+        if isinstance(value, list):
+            if isinstance(value, PropertyValueList):
+                return value
+            else:
+                return PropertyValueList(value)
+        else:
+            return value
+
+    @classmethod
     def _is_seq(cls, value):
         return isinstance(value, list)
 
@@ -1259,9 +1273,21 @@ class Dict(ContainerProperty):
                     all(self.keys_type.is_valid(key) and self.values_type.is_valid(val) for key, val in iteritems(value))):
                 raise ValueError("expected an element of %s, got %r" % (self, value))
 
+    @classmethod
+    def wrap(cls, value):
+        ''' Some property types need to wrap their values in special containers, etc.
+
+        '''
+        if isinstance(value, dict):
+            if isinstance(value, PropertyValueDict):
+                return value
+            else:
+                return PropertyValueDict(value)
+        else:
+            return value
+
     def _sphinx_type(self):
         return self._sphinx_prop_link() + "( %s, %s )" % (self.keys_type._sphinx_type(), self.values_type._sphinx_type())
-
 
 class ColumnData(Dict):
     ''' Accept a Python dictionary suitable as the ``data`` attribute of a
@@ -1314,9 +1340,21 @@ class ColumnData(Dict):
                 new_data[key] = self.values_type.from_json(value, models)
         return new_data
 
-
     def serialize_value(self, value):
         return transform_column_source_data(value)
+
+    @classmethod
+    def wrap(cls, value):
+        ''' Some property types need to wrap their values in special containers, etc.
+
+        '''
+        if isinstance(value, dict):
+            if isinstance(value, PropertyValueDict):
+                return value
+            else:
+                return PropertyValueDict(value)
+        else:
+            return value
 
 class Tuple(ContainerProperty):
     ''' Accept Python tuple values.
