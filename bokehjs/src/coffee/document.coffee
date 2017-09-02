@@ -568,9 +568,6 @@ export class Document
       events: json_events,
       references: Document._references_json(values(references))
 
-  apply_json_patch_string: (patch) ->
-    @apply_json_patch(JSON.parse(patch))
-
   apply_json_patch: (patch, setter_id) ->
     references_json = patch['references']
     events_json = patch['events']

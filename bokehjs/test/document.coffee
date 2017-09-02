@@ -674,13 +674,13 @@ describe "Document", ->
 
     event1 = new ModelChangedEvent(d, root1, 'foo', root1.foo, 57)
     patch1 = d.create_json_patch_string([event1])
-    d.apply_json_patch_string(patch1)
+    d.apply_json_patch(JSON.parse(patch1))
 
     expect(root1.foo).to.equal 57
 
     event2 = new ModelChangedEvent(d, child1, 'foo', child1.foo, 67)
     patch2 = d.create_json_patch_string([event2])
-    d.apply_json_patch_string(patch2)
+    d.apply_json_patch(JSON.parse(patch2))
 
     expect(child1.foo).to.equal 67
 
@@ -706,7 +706,7 @@ describe "Document", ->
 
     event1 = new ModelChangedEvent(d, root1, 'child', root1.child, child3)
     patch1 = d.create_json_patch_string([event1])
-    d.apply_json_patch_string(patch1)
+    d.apply_json_patch(JSON.parse(patch1))
 
     expect(root1.child.id).to.equal child3.id
     expect(root1.child.child.id).to.equal child2.id
@@ -717,7 +717,7 @@ describe "Document", ->
     # put it back how it was before
     event2 = new ModelChangedEvent(d, root1, 'child', child1.child, child1)
     patch2 = d.create_json_patch_string([event2])
-    d.apply_json_patch_string(patch2)
+    d.apply_json_patch(JSON.parse(patch2))
 
     expect(root1.child.id).to.equal child1.id
     expect(root1.child.child).to.be.equal null
@@ -741,7 +741,7 @@ describe "Document", ->
     event1 = new ModelChangedEvent(d, root1, 'foo', root1.foo, 57)
     event2 = new ModelChangedEvent(d, root1, 'child', root1.child, child2)
     patch1 = d.create_json_patch_string([event1, event2])
-    d.apply_json_patch_string(patch1)
+    d.apply_json_patch(JSON.parse(patch1))
 
 
     expect(root1.foo).to.equal 57
@@ -767,7 +767,7 @@ describe "Document", ->
 
     event1 = new ModelChangedEvent(d, root1, 'child', root1.child, child1)
     patch1 = d.create_json_patch_string([event1])
-    d.apply_json_patch_string(patch1)
+    d.apply_json_patch(JSON.parse(patch1))
 
     expect(root1.document.roots().length).equal 1
     expect(root1.child.document.roots().length).equal 1
