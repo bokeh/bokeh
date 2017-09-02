@@ -3,7 +3,7 @@ from __future__ import absolute_import
 from json import loads
 
 from ...core.json_encoder import serialize_json
-from ...document import Document
+from ...document.util import references_json
 from ..message import Message
 from . import register
 
@@ -89,11 +89,9 @@ def process_document_events(events):
     for event in events:
         json_events.append(event.generate(references, buffers))
 
-    json_references = Document.references_json(references)
-
     json = {
         'events'     : json_events,
-        'references' : json_references,
+        'references' : references_json(references),
     }
 
     return serialize_json(json), buffers

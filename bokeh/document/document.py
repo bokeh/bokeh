@@ -30,16 +30,17 @@ from ..core.json_encoder import serialize_json
 from ..core.query import find
 from ..core.templates import FILE
 from ..core.validation import check_integrity
-from ..model import get_class
+from ..events import Event
 from ..themes import default as default_theme
 from ..themes import Theme
 from ..util.callback_manager import _check_callback
 from ..util.datatypes import MultiValuedDict
 from ..util.future import wraps
 from ..util.version import __version__
-from ..events import Event
 
+from .events import ModelChangedEvent, RootAddedEvent, RootRemovedEvent, SessionCallbackAdded, SessionCallbackRemoved, TitleChangedEvent
 from .locking import UnlockedDocumentProxy
+from .util import initialize_references_json, instantiate_references_json, references_json
 
 DEFAULT_TITLE = "Bokeh Application"
 
@@ -73,12 +74,7 @@ class Document(object):
         # set of models subscribed to user events
         self._subscribed_models = defaultdict(set)
 
-    def delete_modules(self):
-        ''' Clean up sys.modules after the session is destroyed.
-        '''
-        for module in self._modules:
-            if module.__name__ in sys.modules:
-                del sys.modules[module.__name__]
+    # Properties --------------------------------------------------------------
 
     @property
     def roots(self):
@@ -161,6 +157,8 @@ class Document(object):
     def title(self, title):
         self._set_title(title)
 
+    # Public methods ----------------------------------------------------------
+
     def add_next_tick_callback(self, callback):
         ''' Add callback to be invoked once on the next tick of the event loop.
 
@@ -229,8 +227,6 @@ class Document(object):
                 suppress any updates that originate from itself.
 
         '''
-        from ..document.events import RootAddedEvent
-
         if model in self._roots:
             return
         self._push_all_models_freeze()
@@ -301,7 +297,7 @@ class Document(object):
         '''
         references_json = patch['references']
         events_json = patch['events']
-        references = self._instantiate_references_json(references_json)
+        references = instantiate_references_json(references_json)
 
         # Use our existing model instances whenever we have them
         for obj in references.values():
@@ -315,7 +311,7 @@ class Document(object):
                 if model_id in self._all_models:
                     references[model_id] = self._all_models[model_id]
 
-        self._initialize_references_json(references_json, references)
+        initialize_references_json(references_json, references)
 
         for event_json in events_json:
 
@@ -401,6 +397,14 @@ class Document(object):
         finally:
             self._pop_all_models_freeze()
 
+    def delete_modules(self):
+        ''' Clean up sys.modules after the session is destroyed.
+
+        '''
+        for module in self._modules:
+            if module.__name__ in sys.modules:
+                del sys.modules[module.__name__]
+
     @classmethod
     def from_json(cls, json):
         ''' Load a document from JSON.
@@ -416,8 +420,8 @@ class Document(object):
         root_ids = roots_json['root_ids']
         references_json = roots_json['references']
 
-        references = cls._instantiate_references_json(references_json)
-        cls._initialize_references_json(references_json, references)
+        references = instantiate_references_json(references_json)
+        initialize_references_json(references_json, references)
 
         doc = Document()
         for r in root_ids:
@@ -485,28 +489,6 @@ class Document(object):
         if not receiver in self._callbacks:
             self._callbacks[receiver] = lambda event: event.dispatch(receiver)
 
-    @classmethod
-    def references_json(cls, references):
-        ''' Given a list of all models in a graph, return JSON representing
-        them and their properties.
-
-        Args:
-            references (seq[Model]) :
-                A list of models to convert to JSON
-
-        Returns:
-            list
-
-        '''
-
-        references_json = []
-        for r in references:
-            ref = r.ref
-            ref['attributes'] = r._to_json_like(include_defaults=False)
-            references_json.append(ref)
-
-        return references_json
-
     def remove_next_tick_callback(self, callback):
         ''' Remove a callback added earlier with ``add_next_tick_callback``.
 
@@ -564,8 +546,6 @@ class Document(object):
                 suppress any updates that originate from itself.
 
         '''
-        from bokeh.document.events import RootRemovedEvent
-
         if model not in self._roots:
             return # TODO (bev) ValueError?
         self._push_all_models_freeze()
@@ -689,7 +669,7 @@ class Document(object):
             'title' : self.title,
             'roots' : {
                 'root_ids' : root_ids,
-                'references' : self.references_json(root_references)
+                'references' : references_json(root_references)
             },
             'version' : __version__
         }
@@ -706,6 +686,8 @@ class Document(object):
         for r in self.roots:
             refs = r.references()
             check_integrity(refs)
+
+    # Private methods ---------------------------------------------------------
 
     def _add_session_callback(self, callback_obj, callback, one_shot):
         ''' Internal implementation for adding session callbacks.
@@ -729,8 +711,6 @@ class Document(object):
             ValueError, if the callback has been previously added
 
         '''
-        from ..document.events import SessionCallbackAdded
-
         if callback in self._session_callbacks:
             raise ValueError("callback has already been added")
 
@@ -753,79 +733,6 @@ class Document(object):
         self._trigger_on_change(SessionCallbackAdded(self, callback_obj))
 
         return callback_obj
-
-    # we use this to send changes that happened between show() and
-    # push_notebook()
-    @classmethod
-    def _compute_patch_between_json(cls, from_json, to_json):
-        '''
-
-        '''
-
-        def refs(json):
-            result = {}
-            for obj in json['roots']['references']:
-                result[obj['id']] = obj
-            return result
-
-        from_references = refs(from_json)
-        from_roots = {}
-        from_root_ids = []
-        for r in from_json['roots']['root_ids']:
-            from_roots[r] = from_references[r]
-            from_root_ids.append(r)
-
-        to_references = refs(to_json)
-        to_roots = {}
-        to_root_ids = []
-        for r in to_json['roots']['root_ids']:
-            to_roots[r] = to_references[r]
-            to_root_ids.append(r)
-
-        from_root_ids.sort()
-        to_root_ids.sort()
-
-        from_set = set(from_root_ids)
-        to_set = set(to_root_ids)
-        removed = from_set - to_set
-        added = to_set - from_set
-
-        combined_references = dict(from_references)
-        for k in to_references.keys():
-            combined_references[k] = to_references[k]
-
-        value_refs = {}
-        events = []
-
-        for removed_root_id in removed:
-            model = dict(combined_references[removed_root_id])
-            del model['attributes']
-            events.append({ 'kind' : 'RootRemoved',
-                            'model' : model })
-
-        for added_root_id in added:
-            Document._value_record_references(combined_references,
-                                              combined_references[added_root_id],
-                                              value_refs)
-            model = dict(combined_references[added_root_id])
-            del model['attributes']
-            events.append({ 'kind' : 'RootAdded',
-                            'model' : model })
-
-        for id in to_references:
-            if id in from_references:
-                update_model_events = Document._events_to_sync_objects(
-                    combined_references,
-                    from_references[id],
-                    to_references[id],
-                    value_refs
-                )
-                events.extend(update_model_events)
-
-        return dict(
-            events=events,
-            references=list(value_refs.values())
-        )
 
     def _destructively_move(self, dest_doc):
         ''' Move all data in this doc to the dest_doc, leaving this doc empty.
@@ -865,98 +772,6 @@ class Document(object):
 
         dest_doc.title = self.title
 
-    @classmethod
-    def _event_for_attribute_change(cls, all_references, changed_obj, key, new_value, value_refs):
-        '''
-
-        '''
-
-        event = dict(
-            kind='ModelChanged',
-            model=dict(id=changed_obj['id'], type=changed_obj['type']),
-            attr=key,
-            new=new_value,
-        )
-        Document._value_record_references(all_references, new_value, value_refs)
-        return event
-
-    @classmethod
-    def _events_to_sync_objects(cls, all_references, from_obj, to_obj, value_refs):
-        '''
-
-        '''
-
-        from_keys = set(from_obj['attributes'].keys())
-        to_keys = set(to_obj['attributes'].keys())
-        removed = from_keys - to_keys
-        added = to_keys - from_keys
-        shared = from_keys & to_keys
-
-        events = []
-        for key in removed:
-            raise RuntimeError("internal error: should not be possible to delete attribute %s" % key)
-
-        for key in added:
-            new_value = to_obj['attributes'][key]
-            events.append(Document._event_for_attribute_change(all_references,
-                                                               from_obj,
-                                                               key,
-                                                               new_value,
-                                                               value_refs))
-
-        for key in shared:
-            old_value = from_obj['attributes'].get(key)
-            new_value = to_obj['attributes'].get(key)
-
-            if old_value is None and new_value is None:
-                continue
-
-            if old_value is None or new_value is None or old_value != new_value:
-                event = Document._event_for_attribute_change(all_references,
-                                                             from_obj,
-                                                             key,
-                                                             new_value,
-                                                             value_refs)
-                events.append(event)
-
-        return events
-
-    @classmethod
-    def _initialize_references_json(cls, references_json, references, setter=None):
-        ''' Given a JSON representation of the models in a graph and new model objects,
-        set the properties on the models from the JSON
-
-        '''
-
-        for obj in references_json:
-            obj_id = obj['id']
-            obj_attrs = obj['attributes']
-
-            instance = references[obj_id]
-
-            instance.update_from_json(obj_attrs, models=references, setter=setter)
-
-    @classmethod
-    def _instantiate_references_json(cls, references_json):
-        ''' Given a JSON representation of all the models in a graph, return a
-        dict of new model objects.
-
-        '''
-
-        # Create all instances, but without setting their props
-        references = {}
-        for obj in references_json:
-            obj_id = obj['id']
-            obj_type = obj.get('subtype', obj['type'])
-
-            cls = get_class(obj_type)
-            instance = cls(id=obj_id, _block_events=True)
-            if instance is None:
-                raise RuntimeError('Error loading model from JSON (type: %s, id: %s)' % (obj_type, obj_id))
-            references[instance._id] = instance
-
-        return references
-
     def _invalidate_all_models(self):
         '''
 
@@ -981,9 +796,6 @@ class Document(object):
         ''' Called by Model when it changes
 
         '''
-
-        from ..document.events import ModelChangedEvent
-
         # if name changes, update by-name index
         if attr == 'name':
             if old is not None:
@@ -1049,8 +861,6 @@ class Document(object):
             KeyError, if the callback was never added
 
         '''
-        from bokeh.document.events import SessionCallbackRemoved
-
         if callback not in self._session_callbacks:
             raise ValueError("callback already ran or was already removed, cannot be removed again")
         cb = self._session_callbacks.pop(callback)
@@ -1061,8 +871,6 @@ class Document(object):
         '''
 
         '''
-        from bokeh.document.events import TitleChangedEvent
-
         if title is None:
             raise ValueError("Document title may not be None")
         if self._title != title:
@@ -1078,26 +886,6 @@ class Document(object):
             for cb in self._callbacks.values():
                 cb(event)
         self._with_self_as_curdoc(invoke_callbacks)
-
-    @classmethod
-    def _value_record_references(cls, all_references, v, result):
-        '''
-
-        '''
-
-        if v is None: return
-
-        if isinstance(v, dict) and set(['id', 'type']).issubset(set(v.keys())):
-            if v['id'] not in result:
-                ref = all_references[v['id']]
-                result[v['id']] = ref
-                Document._value_record_references(all_references, ref['attributes'], result)
-        elif isinstance(v, (list, tuple)):
-            for elem in v:
-                Document._value_record_references(all_references, elem, result)
-        elif isinstance(v, dict):
-            for k, elem in v.items():
-                Document._value_record_references(all_references, elem, result)
 
     def _with_self_as_curdoc(self, f):
         '''

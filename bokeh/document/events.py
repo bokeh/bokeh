@@ -3,9 +3,6 @@
 '''
 from __future__ import absolute_import
 
-from ..util.serialization import transform_column_source_data
-from ..model import collect_models
-
 class DocumentChangedEvent(object):
     '''
 
@@ -75,6 +72,8 @@ class ModelChangedEvent(DocumentPatchedEvent):
         '''
 
         '''
+        from ..model import collect_models
+
         if self.hint is not None:
             return self.hint.generate(references, buffers)
 
@@ -129,6 +128,8 @@ class ColumnDataChangedEvent(DocumentPatchedEvent):
         '''
 
         '''
+        from ..util.serialization import transform_column_source_data
+
         return { 'kind'          : 'ColumnDataChanged',
                  'column_source' : self.column_source.ref,
                  'new'          : transform_column_source_data(self.column_source.data) }
