@@ -14,6 +14,9 @@ export class StaticLayoutProvider extends LayoutProvider
     return [xs, ys]
 
   get_edge_coordinates: (edge_source) ->
+    if edge_source.data.xs? and edge_source.data.ys?
+      return [edge_source.data.xs, edge_source.data.ys]
+
     [xs, ys] = [[], []]
     starts = edge_source.data.start
     ends = edge_source.data.end
