@@ -203,7 +203,7 @@ class Reset(PlotEvent):
 
     def __init__(self, model):
         super(Reset, self).__init__(model=model)
-        
+
 class PointEvent(PlotEvent):
     ''' Base class for UI events associated with a specific (x,y) point.
 
