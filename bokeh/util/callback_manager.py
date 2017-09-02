@@ -51,8 +51,8 @@ class EventCallbackManager(object):
         if self.document is None:
             return
 
-        if self._event_callbacks.keys():
-            self.document.event_manager.subscribed_models.add(self)
+        for key in self._event_callbacks:
+            self.document._subscribed_models[key].add(self)
 
 
 class PropertyCallbackManager(object):

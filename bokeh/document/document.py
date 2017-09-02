@@ -19,6 +19,7 @@ from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__file__)
 
+from collections import defaultdict
 from json import loads
 import sys
 
@@ -41,14 +42,6 @@ from ..events import Event
 from .locking import UnlockedDocumentProxy
 
 DEFAULT_TITLE = "Bokeh Application"
-
-
-class EventManager(object):
-
-    def __init__(self, document):
-        self.document = document
-        self.subscribed_models = set() # Models subscribed to events
-
 
 class Document(object):
     ''' The basic unit of serialization for Bokeh.
@@ -77,7 +70,8 @@ class Document(object):
         self._modules = []
         self._template_variables = {}
 
-        self.event_manager = EventManager(self)
+        # set of models subscribed to user events
+        self._subscribed_models = defaultdict(set)
 
     def delete_modules(self):
         ''' Clean up sys.modules after the session is destroyed.
@@ -276,11 +270,12 @@ class Document(object):
         return self._add_session_callback(cb, callback, one_shot=True)
 
     def apply_json_event(self, json):
-        for obj in self.event_manager.subscribed_models:
-            event = loads(json, object_hook=Event.decode_json)
-            if not isinstance(event, Event):
-                logger.warn('Could not decode event json: %s' % json)
-            obj._trigger_event(event)
+        event = loads(json, object_hook=Event.decode_json)
+        if not isinstance(event, Event):
+            logger.warn('Could not decode event json: %s' % json)
+        else:
+            for obj in self._subscribed_models[event.event_name]:
+                obj._trigger_event(event)
 
     def apply_json_patch(self, patch, setter=None):
         ''' Apply a JSON patch object and process any resulting events.
