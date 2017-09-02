@@ -90,7 +90,7 @@ def test_excess_static_path():
         a.add(handler2)
     assert "More than one static path" in str(e)
 
-@mock.patch('bokeh.document.check_integrity')
+@mock.patch('bokeh.document.document.check_integrity')
 def test_application_validates_document_by_default(check_integrity):
     a = Application()
     d = Document()
@@ -98,7 +98,7 @@ def test_application_validates_document_by_default(check_integrity):
     a.initialize_document(d)
     assert check_integrity.called
 
-@mock.patch('bokeh.document.check_integrity')
+@mock.patch('bokeh.document.document.check_integrity')
 def test_application_doesnt_validate_document_due_to_env_var(check_integrity, monkeypatch):
     monkeypatch.setenv("BOKEH_VALIDATE_DOC", "false")
     a = Application()

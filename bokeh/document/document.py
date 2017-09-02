@@ -25,52 +25,22 @@ import sys
 import jinja2
 from six import string_types
 
-from .core.json_encoder import serialize_json
-from .core.query import find
-from .core.templates import FILE
-from .core.validation import check_integrity
-from .model import get_class
-from .themes import default as default_theme
-from .themes import Theme
-from .util.callback_manager import _check_callback
-from .util.datatypes import MultiValuedDict
-from .util.future import wraps
-from .util.version import __version__
-from .events import Event
+from ..core.json_encoder import serialize_json
+from ..core.query import find
+from ..core.templates import FILE
+from ..core.validation import check_integrity
+from ..model import get_class
+from ..themes import default as default_theme
+from ..themes import Theme
+from ..util.callback_manager import _check_callback
+from ..util.datatypes import MultiValuedDict
+from ..util.future import wraps
+from ..util.version import __version__
+from ..events import Event
+
+from .locking import UnlockedDocumentProxy
 
 DEFAULT_TITLE = "Bokeh Application"
-
-def without_document_lock(func):
-    ''' Wrap a callback function to execute without first obtaining the
-    document lock.
-
-    Args:
-        func (callable) : The function to wrap
-
-    Returns:
-        callable : a function wrapped to execute without a |Document| lock.
-
-    While inside an unlocked callback, it is completely *unsafe* to modify
-    ``curdoc()``. The value of ``curdoc()`` inside the callback will be a
-    specially wrapped version of |Document| that only allows safe operations,
-    which are:
-
-    * :func:`~bokeh.document.Document.add_next_tick_callback`
-    * :func:`~bokeh.document.Document.remove_next_tick_callback`
-
-    Only these may be used safely without taking the document lock. To make
-    other changes to the document, you must add a next tick callback and make
-    your changes to ``curdoc()`` from that second callback.
-
-    Attempts to otherwise access or change the Document will result in an
-    exception being raised.
-
-    '''
-    @wraps(func)
-    def wrapper(*args, **kw):
-        return func(*args, **kw)
-    wrapper.nolock = True
-    return wrapper
 
 
 class EventManager(object):
@@ -213,7 +183,7 @@ class Document(object):
             standalone HTML or Jupyter notebook cells.
 
         '''
-        from .server.callbacks import NextTickCallback
+        from ..server.callbacks import NextTickCallback
         cb = NextTickCallback(self, None)
         return self._add_session_callback(cb, callback, one_shot=True)
 
@@ -236,7 +206,7 @@ class Document(object):
             standalone HTML or Jupyter notebook cells.
 
         '''
-        from .server.callbacks import PeriodicCallback
+        from ..server.callbacks import PeriodicCallback
         cb = PeriodicCallback(self,
                               None,
                               period_milliseconds)
@@ -265,7 +235,7 @@ class Document(object):
                 suppress any updates that originate from itself.
 
         '''
-        from .protocol.events import RootAddedEvent
+        from ..document.events import RootAddedEvent
 
         if model in self._roots:
             return
@@ -299,7 +269,7 @@ class Document(object):
             standalone HTML or Jupyter notebook cells.
 
         '''
-        from .server.callbacks import TimeoutCallback
+        from ..server.callbacks import TimeoutCallback
         cb = TimeoutCallback(self,
                              None,
                              timeout_milliseconds)
@@ -599,7 +569,7 @@ class Document(object):
                 suppress any updates that originate from itself.
 
         '''
-        from bokeh.protocol.events import RootRemovedEvent
+        from bokeh.document.events import RootRemovedEvent
 
         if model not in self._roots:
             return # TODO (bev) ValueError?
@@ -764,7 +734,7 @@ class Document(object):
             ValueError, if the callback has been previously added
 
         '''
-        from .protocol.events import SessionCallbackAdded
+        from ..document.events import SessionCallbackAdded
 
         if callback in self._session_callbacks:
             raise ValueError("callback has already been added")
@@ -1017,7 +987,7 @@ class Document(object):
 
         '''
 
-        from .protocol.events import ModelChangedEvent
+        from ..document.events import ModelChangedEvent
 
         # if name changes, update by-name index
         if attr == 'name':
@@ -1084,7 +1054,7 @@ class Document(object):
             KeyError, if the callback was never added
 
         '''
-        from bokeh.protocol.events import SessionCallbackRemoved
+        from bokeh.document.events import SessionCallbackRemoved
 
         if callback not in self._session_callbacks:
             raise ValueError("callback already ran or was already removed, cannot be removed again")
@@ -1096,7 +1066,7 @@ class Document(object):
         '''
 
         '''
-        from bokeh.protocol.events import TitleChangedEvent
+        from bokeh.document.events import TitleChangedEvent
 
         if title is None:
             raise ValueError("Document title may not be None")
@@ -1142,7 +1112,7 @@ class Document(object):
         old_doc = curdoc()
         try:
             if getattr(f, "nolock", False):
-                set_curdoc(_UnlockedDocumentProxy(self))
+                set_curdoc(UnlockedDocumentProxy(self))
             else:
                 set_curdoc(self)
             return f()
@@ -1161,43 +1131,3 @@ class Document(object):
                 return f(*args, **kwargs)
             return doc._with_self_as_curdoc(invoke)
         return wrapper
-
-class _UnlockedDocumentProxy(object):
-    ''' Wrap a Document object so that only methods that can safely be used
-    from unlocked callbacks or threads are exposed. Attempts to otherwise
-    access or change the Document results in an exception.
-
-    '''
-
-    def __init__(self, doc):
-        '''
-
-        '''
-        self._doc = doc
-
-    def __getattr__(self, attr):
-        '''
-
-        '''
-        raise RuntimeError(
-            "Only 'add_next_tick_callback' may be used safely without taking the document lock; "
-            "to make other changes to the document, add a next tick callback and make your changes "
-            "from that callback.")
-
-    def add_next_tick_callback(self, callback):
-        ''' Add a "next tick" callback.
-
-        Args:
-            callback (callable) :
-
-        '''
-        return self._doc.add_next_tick_callback(callback)
-
-    def remove_next_tick_callback(self, callback):
-        ''' Remove a "next tick" callback.
-
-        Args:
-            callback (callable) :
-
-        '''
-        return self._doc.remove_next_tick_callback(callback)

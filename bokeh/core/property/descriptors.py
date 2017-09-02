@@ -927,7 +927,7 @@ class ColumnDataPropertyDescriptor(BasicPropertyDescriptor):
         if self.property._readonly:
             raise RuntimeError("%s.%s is a readonly property" % (obj.__class__.__name__, self.name))
 
-        from ...protocol.events import ColumnDataChangedEvent
+        from ...document.events import ColumnDataChangedEvent
 
         if obj.document:
             hint = ColumnDataChangedEvent(obj.document, obj, setter=setter)

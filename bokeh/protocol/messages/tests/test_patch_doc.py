@@ -9,7 +9,7 @@ from bokeh.model import Model
 from bokeh.models.sources import ColumnDataSource
 from bokeh.core.properties import Int, Instance
 from bokeh.protocol import Protocol
-from bokeh.protocol.events import ColumnsPatchedEvent, ColumnsStreamedEvent, ModelChangedEvent, RootAddedEvent, RootRemovedEvent
+from bokeh.document.events import ColumnsPatchedEvent, ColumnsStreamedEvent, ModelChangedEvent, RootAddedEvent, RootRemovedEvent
 
 class AnotherModelInTestPatchDoc(Model):
     bar = Int(1)

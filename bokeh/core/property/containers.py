@@ -351,7 +351,7 @@ class PropertyValueColumnData(PropertyValueDict):
                 if rollover is not None:
                     del L[:-rollover]
 
-        from ...protocol.events import ColumnsStreamedEvent
+        from ...document.events import ColumnsStreamedEvent
 
         self._notify_owners(old,
                             hint=ColumnsStreamedEvent(doc, source, new_data, rollover, setter))
@@ -393,7 +393,7 @@ class PropertyValueColumnData(PropertyValueDict):
                     shape = self[name][ind[0]][ind[1:]].shape
                     self[name][ind[0]][ind[1:]] = np.array(value, copy=False).reshape(shape)
 
-        from ...protocol.events import ColumnsPatchedEvent
+        from ...document.events import ColumnsPatchedEvent
 
         self._notify_owners(old,
                             hint=ColumnsPatchedEvent(doc, source, patches, setter))
