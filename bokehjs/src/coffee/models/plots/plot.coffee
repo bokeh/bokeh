@@ -25,41 +25,6 @@ export class PlotView extends LayoutDOMView
     title_msg = "Title object cannot be replaced. Try changing properties on title to update it after initialization."
     @connect(@model.properties.title.change, () => logger.warn(title_msg))
 
-  render: () ->
-    super()
-
-    if @model.sizing_mode == 'scale_both'
-      [width, height] = @get_width_height()
-      @solver.suggest_value(@model._width, width)
-      @solver.suggest_value(@model._height, height)
-      @solver.update_variables()
-      @el.style.position = 'absolute'
-      @el.style.left = "#{@model._dom_left.value}px"
-      @el.style.top = "#{@model._dom_top.value}px"
-      @el.style.width = "#{@model._width.value}px"
-      @el.style.height = "#{@model._height.value}px"
-
-  get_width_height: () ->
-    parent_height = @el.parentNode.clientHeight
-    parent_width = @el.parentNode.clientWidth
-
-    ar = @model.get_aspect_ratio()
-
-    new_width_1 = parent_width
-    new_height_1 = parent_width / ar
-
-    new_width_2 = parent_height * ar
-    new_height_2 = parent_height
-
-    if new_width_1 < new_width_2
-      width = new_width_1
-      height = new_height_1
-    else
-      width = new_width_2
-      height = new_height_2
-
-    return [width, height]
-
   get_height: () ->
     return @model._width.value / @model.get_aspect_ratio()
 
@@ -174,21 +139,12 @@ export class Plot extends LayoutDOM
 
     @toolbar.tools = @toolbar.tools.concat(tools)
 
-  get_aspect_ratio: () ->
-    return @width / @height
-
   get_layoutable_children: () ->
     # Default if toolbar_location is None
     children = [@plot_canvas]
     if @toolbar_location?
       children = [@toolbar, @plot_canvas]
     return children
-
-  get_editables: () ->
-    editables = super()
-    if @sizing_mode == 'scale_both'
-      editables = editables.concat([@_width, @_height])
-    return editables
 
   get_constraints: () ->
     constraints = super()

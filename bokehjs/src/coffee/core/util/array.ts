@@ -315,11 +315,16 @@ export function shuffle<T>(array: T[]): T[] {
 
 export function pairwise<T, U>(array: T[], fn: (prev: T, next: T) => U): U[] {
   const n = array.length
-  const result = new Array<U>(n-1)
 
-  for (let i = 0; i < n - 1; i++) {
-    result[i] = fn(array[i], array[i+1])
+  if (n <= 1)
+    return []
+  else {
+    const result = new Array<U>(n-1)
+
+    for (let i = 0; i < n - 1; i++) {
+      result[i] = fn(array[i], array[i+1])
+    }
+
+    return result
   }
-
-  return result
 }
