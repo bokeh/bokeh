@@ -41,7 +41,7 @@ def scatter():
     legend = s.legend[0]
     legend.border_line_color = None
     legend.orientation = 'horizontal'
-    legend.location = (0, 0)
+    legend.location = 'center_left'
     s.above.append(legend)
     return s
 

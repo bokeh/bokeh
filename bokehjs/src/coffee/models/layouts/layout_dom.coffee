@@ -298,10 +298,18 @@ export class LayoutDOM extends Model
   }
 
   dump_layout: () ->
-    console.log(this.toString(), @layout_bbox)
+    layoutables = {}
+    pending = [this]
 
-    for child in @get_layoutable_children()
-      child.dump_layout()
+    while pending.length > 0
+      obj = pending.shift()
+
+      if obj instanceof LayoutDOM
+        pending.push(obj.get_layoutable_children()...)
+
+      layoutables[obj.toString()] = obj.layout_bbox
+
+    console.table(layoutables)
 
   get_all_constraints: () ->
     constraints = @get_constraints()

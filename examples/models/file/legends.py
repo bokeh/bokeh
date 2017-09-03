@@ -3,15 +3,13 @@ from __future__ import print_function
 from numpy import pi, sin, cos
 import numpy as np
 
-from bokeh.util.browser import view
-from bokeh.document import Document
-from bokeh.embed import file_html
+from bokeh.io import show, output_file
 from bokeh.models.glyphs import Line, Circle
 from bokeh.models import (
     Plot, DataRange1d, LinearAxis, ColumnDataSource,
-    PanTool, WheelZoomTool, SaveTool, Legend
+    PanTool, WheelZoomTool, SaveTool, Legend,
 )
-from bokeh.resources import INLINE
+from bokeh.core.enums import LegendLocation
 
 x = np.linspace(-2*pi, 2*pi, 400)
 y = sin(x)
@@ -22,8 +20,14 @@ source = ColumnDataSource(data=dict(x=x, y=y, y2=y2))
 xdr = DataRange1d()
 ydr = DataRange1d()
 
-HEIGHT = 400
-plot = Plot(x_range=xdr, y_range=ydr, min_border=50, plot_width=1000, plot_height=HEIGHT, toolbar_location=None)
+plot = Plot(
+    x_range=xdr, y_range=ydr,
+    plot_width=1000, plot_height=600,
+    min_border=0,
+    toolbar_location=None,
+    background_fill_color='#F0F0F0',
+    border_fill_color='lightgray',
+)
 
 line_glyph = Line(x="x", y="y", line_color="navy", line_width=2, line_dash="dashed")
 line = plot.add_glyph(source, line_glyph)
@@ -39,57 +43,29 @@ plot.add_tools(pan, wheel_zoom, preview_save)
 # Add axes (Note it's important to add these before adding legends in side panels)
 plot.add_layout(LinearAxis(), 'below')
 plot.add_layout(LinearAxis(), 'left')
-#plot.add_layout(LinearAxis(), 'right') - Due to a bug cannot have two things on the right side
+plot.add_layout(LinearAxis(), 'right')
 
-from bokeh.core.enums import LegendLocation
+def add_legend(location, orientation, side):
+    legend = Legend(
+        # TODO: title
+        items=[("line", [line]), ("circle", [circle])],
+        location=location, orientation=orientation,
+        border_line_color="black",
+    )
+    plot.add_layout(legend, side)
 
 # Add legends in names positions e.g. 'top_right', 'top_left' (see plot for all)
 for location in LegendLocation:
-    legend = Legend(items=[
-        (location, [line]),
-        ("other", [circle]),
-    ], location=location, orientation="vertical")
-    plot.add_layout(legend)
+    add_legend(location, "vertical", "center")
 
 # Add legend at fixed positions
-legend = Legend(items=[
-    ("x: 300px, y: 150px (horizontal)", [line]),
-    ("other", [circle]),
-], location=(300, 150), orientation="horizontal")
-plot.add_layout(legend)
+add_legend((150, 50), "horizontal", "center")
 
 # Add legend in side panels
-legend = Legend(items=[
-    ("x: 0px, y: 0px (horizontal | above panel)", [line]),
-    ("other", [circle]),
-], location=(0, 0), orientation="horizontal")
-plot.add_layout(legend, 'above')
+add_legend("center_left", "horizontal", "above")
+add_legend("center", "horizontal", "below")
+add_legend("center", "vertical", "left")
+add_legend("bottom_center", "vertical", "right")
 
-legend = Legend(items=[
-    ("x: 0px, y: 0px (horizontal | below panel)", [line]),
-    ("other", [circle]),
-], location=(0, 0), orientation="horizontal")
-plot.add_layout(legend, 'below')
-
-legend = Legend(items=[
-    ("x: 0px, y: 0px (vertical | left)", [line]),
-    ("other", [circle]),
-], location=(0, -HEIGHT/2), orientation="vertical")
-plot.add_layout(legend, 'left')
-
-legend = Legend(items=[
-    ("x: 0px, y: 0px (vertical | right)", [line]),
-    ("other", [circle]),
-], location=(0, -HEIGHT/2), orientation="vertical")
-plot.add_layout(legend, 'right')
-
-doc = Document()
-doc.add_root(plot)
-
-if __name__ == "__main__":
-    doc.validate()
-    filename = "legends.html"
-    with open(filename, "w") as f:
-        f.write(file_html(doc, INLINE, "Legends Example"))
-    print("Wrote %s" % filename)
-    view(filename)
+output_file("legends.html")
+show(plot)

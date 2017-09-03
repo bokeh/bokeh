@@ -156,7 +156,8 @@ class Legend(Annotation):
     """)
 
     padding = Int(10, help="""
-    Amount of padding around the contents of the legend.
+    Amount of padding around the contents of the legend. Only applicable when
+    when border is visible, otherwise collapses to 0.
     """)
 
     spacing = Int(3, help="""

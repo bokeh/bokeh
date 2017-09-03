@@ -8,7 +8,7 @@ from bokeh.models.glyphs import Circle, Line
 from bokeh.models import (ColumnDataSource, Range1d, Plot, LinearAxis, Grid,
     HoverTool, CrosshairTool, TapTool, WheelZoomTool, Legend, LegendItem, CustomJS)
 
-plot = Plot(x_range=Range1d(-10, 10), y_range=Range1d(-10, 10), plot_width=500, plot_height=500, toolbar_sticky=False)
+plot = Plot(x_range=Range1d(-10, 10), y_range=Range1d(-10, 10), plot_width=600, plot_height=600, toolbar_sticky=False)
 
 xaxis = LinearAxis()
 yaxis = LinearAxis()

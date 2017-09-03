@@ -51,19 +51,19 @@ describe "LegendView", ->
   it "_get_size should return legend_height if side is above", ->
     @legend.add_panel('above')
     legend_view = new @legend.default_view({ model: @legend })
-    expect(legend_view._get_size()).to.be.equal HEIGHT
+    expect(legend_view._get_size()).to.be.equal(HEIGHT+20)
 
   it "_get_size should return legend_height if side is below", ->
     @legend.add_panel('below')
     legend_view = new @legend.default_view({ model: @legend })
-    expect(legend_view._get_size()).to.be.equal HEIGHT
+    expect(legend_view._get_size()).to.be.equal(HEIGHT+20)
 
   it "_get_size should return legend_height if side is left", ->
     @legend.add_panel('left')
     legend_view = new @legend.default_view({ model: @legend })
-    expect(legend_view._get_size()).to.be.equal WIDTH
+    expect(legend_view._get_size()).to.be.equal(WIDTH+20)
 
   it "_get_size should return legend_height if side is right", ->
     @legend.add_panel('right')
     legend_view = new @legend.default_view({ model: @legend })
-    expect(legend_view._get_size()).to.be.equal WIDTH
+    expect(legend_view._get_size()).to.be.equal(WIDTH+20)
