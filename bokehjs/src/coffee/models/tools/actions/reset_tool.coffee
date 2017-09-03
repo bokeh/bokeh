@@ -8,7 +8,6 @@ export class ResetToolView extends ActionToolView
     @plot_view.clear_state()
     @plot_view.reset_range()
     @plot_view.reset_selection()
-    console.log("emitting Reset event...")
     @plot_model.plot.trigger_event(new Reset())
 
 export class ResetTool extends ActionTool
