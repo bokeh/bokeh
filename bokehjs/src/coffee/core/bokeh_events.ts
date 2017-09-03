@@ -89,6 +89,9 @@ export class SelectionGeometry extends UIEvent {
   }
 }
 
+@register_event_class("reset")
+export class Reset extends UIEvent {}
+
 export /* TODO abstract */ class PointEvent extends UIEvent {
 
   sx: number

@@ -110,6 +110,9 @@ p.js_on_event(events.PinchEnd,   display_event(div, attributes=point_attributes)
 # Selection events
 p.js_on_event(events.SelectionGeometry, display_event(div, attributes=['geometry', 'final']))
 
+# Reset events
+p.js_on_event(events.Reset, display_event(div))
+
 
 ## Register Python event callbacks
 
@@ -147,5 +150,7 @@ p.on_event(events.PinchEnd,   print_event(attributes=point_attributes))
 # Selection events
 p.on_event(events.SelectionGeometry, print_event(attributes=['geometry', 'final']))
 
+# Reset events
+p.on_event(events.Reset, print_event())
 
 curdoc().add_root(layout)

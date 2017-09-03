@@ -195,6 +195,15 @@ class SelectionGeometry(PlotEvent):
         self.final = final
         super(SelectionGeometry, self).__init__(model=model)
 
+class Reset(PlotEvent):
+    ''' Announce a button click event on a plot ResetTool.
+
+    '''
+    event_name = "reset"
+
+    def __init__(self, model):
+        super(Reset, self).__init__(model=model)
+
 class PointEvent(PlotEvent):
     ''' Base class for UI events associated with a specific (x,y) point.
 
