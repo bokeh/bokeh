@@ -24,7 +24,7 @@ def test_label_set(output_file_url, selenium, screenshot):
 
     label_set1 = LabelSet(x='x1', y=2, x_offset=25, y_offset=25,
                           text="text", source=source,
-                          text_font_size='38pt', text_color='red', text_alpha=0.9,
+                          text_font_size='50px', text_color='red', text_alpha=0.9,
                           text_baseline='bottom', text_align='left',
                           background_fill_color='green', background_fill_alpha=0.2,
                           angle=15, angle_units='deg',
@@ -32,7 +32,7 @@ def test_label_set(output_file_url, selenium, screenshot):
 
     label_set2 = LabelSet(x='x2', y=4, x_units='screen', x_offset=25, y_offset=25,
                           text="text", source=source,
-                          text_font_size='38pt', text_color='red', text_alpha=0.9,
+                          text_font_size='50px', text_color='red', text_alpha=0.9,
                           text_baseline='bottom', text_align='left',
                           background_fill_color='green', background_fill_alpha=0.2,
                           angle=15, angle_units='deg',

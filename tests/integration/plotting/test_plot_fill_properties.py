@@ -50,10 +50,10 @@ def test_no_border_or_background_fill(output_file_url, selenium, screenshot):
     plot.add_glyph(Circle(x=6, y=6, size=50, fill_color='#ffffff'))
 
     plot.add_layout(LinearAxis(major_label_text_color='#ffffff',
-                               major_label_text_font_size="30pt"),
+                               major_label_text_font_size="40px"),
                     'left')
     plot.add_layout(LinearAxis(major_label_text_color='#ffffff',
-                               major_label_text_font_size="30pt"),
+                               major_label_text_font_size="40px"),
                     'below')
 
     html = file_html(plot, INLINE, template=template)

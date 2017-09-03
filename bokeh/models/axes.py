@@ -84,7 +84,7 @@ class Axis(GuideRenderer):
     The %s of the axis label.
     """)
 
-    axis_label_text_font_size = Override(default={'value': "10pt"})
+    axis_label_text_font_size = Override(default={'value': "14px"})
 
     axis_label_text_font_style = Override(default="italic")
 
@@ -111,7 +111,7 @@ class Axis(GuideRenderer):
 
     major_label_text_baseline = Override(default="alphabetic")
 
-    major_label_text_font_size = Override(default={'value': "8pt"})
+    major_label_text_font_size = Override(default={'value': "10px"})
 
     axis_props = Include(LineProps, help="""
     The %s of the axis line.
@@ -191,7 +191,7 @@ class CategoricalAxis(Axis):
     The %s of the group top-level categorical groups.
     """)
 
-    group_text_font_size = Override(default={'value': "8pt"})
+    group_text_font_size = Override(default={'value': "10px"})
     group_text_font_style = Override(default="bold")
     group_text_color = Override(default="grey")
 
@@ -199,7 +199,7 @@ class CategoricalAxis(Axis):
     The %s of the group top-level categorical groups.
     """)
 
-    subgroup_text_font_size = Override(default={'value': "8pt"})
+    subgroup_text_font_size = Override(default={'value': "10px"})
     subgroup_text_font_style = Override(default="bold")
 
 

@@ -169,7 +169,7 @@ class TextProps(HasProps):
 
     """)
 
-    text_font_size = FontSizeSpec(value("12pt"))
+    text_font_size = FontSizeSpec(value("16px"))
 
     text_font_style = Enum(FontStyle, help="""
     A style to use for rendering text.

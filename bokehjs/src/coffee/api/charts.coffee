@@ -110,7 +110,7 @@ export pie = (data, opts={}) ->
     text: {field: opts.slice_labels ? "labels"},
     angle: {field: "text_angles"},
     text_align: "center", text_baseline: "middle",
-    text_color: {field: "text_colors"}, text_font_size: "9pt",
+    text_color: {field: "text_colors"}, text_font_size: "12px",
   })
   r2 = new models.GlyphRenderer({
     data_source: source,

@@ -181,7 +181,7 @@ class PanTool(Drag):
     dimension kept fixed.
 
     .. |pan_icon| image:: /_images/icons/Pan.png
-        :height: 18pt
+        :height: 24px
 
     '''
 
@@ -199,7 +199,7 @@ class WheelPanTool(Scroll):
     dimension using the scroll wheel.
 
     .. |wheel_pan_icon| image:: /_images/icons/WheelPan.png
-        :height: 18pt
+        :height: 24px
 
     '''
 
@@ -221,7 +221,7 @@ class WheelZoomTool(Scroll):
     horizontal dimension kept fixed.
 
     .. |wheel_zoom_icon| image:: /_images/icons/WheelZoom.png
-        :height: 18pt
+        :height: 24px
 
     '''
 
@@ -244,7 +244,7 @@ class SaveTool(Action):
     menu item.
 
     .. |save_icon| image:: /_images/icons/Save.png
-        :height: 18pt
+        :height: 24px
 
     '''
 
@@ -260,7 +260,7 @@ class ResetTool(Action):
     their original size
 
     .. |reset_icon| image:: /_images/icons/Reset.png
-        :height: 18pt
+        :height: 24px
 
     '''
 
@@ -286,7 +286,7 @@ class TapTool(Tap):
     on styling selected and unselected glyphs.
 
     .. |tap_icon| image:: /_images/icons/Tap.png
-        :height: 18pt
+        :height: 24px
 
     .. note::
         Selections can be comprised of multiple regions, even those
@@ -352,7 +352,7 @@ class CrosshairTool(Inspection):
     ``dimension`` property to only ``width`` or ``height``.
 
     .. |crosshair_icon| image:: /_images/icons/Crosshair.png
-        :height: 18pt
+        :height: 24px
 
     '''
 
@@ -413,7 +413,7 @@ class BoxZoomTool(Drag):
     event indicates the selection region is ready.
 
     .. |box_zoom_icon| image:: /_images/icons/BoxZoom.png
-        :height: 18pt
+        :height: 24px
 
     '''
 
@@ -448,7 +448,7 @@ class ZoomInTool(Action):
     by a fixed amount.
 
     .. |zoom_in_icon| image:: /_images/icons/ZoomIn.png
-        :height: 18pt
+        :height: 24px
 
     '''
     # TODO ZoomInTool dimensions should probably be constrained to be the same as ZoomOutTool
@@ -470,7 +470,7 @@ class ZoomOutTool(Action):
     by a fixed amount.
 
     .. |zoom_out_icon| image:: /_images/icons/ZoomOut.png
-        :height: 18pt
+        :height: 24px
 
     '''
     dimensions = Enum(Dimensions, default="both", help="""
@@ -498,7 +498,7 @@ class BoxSelectTool(Drag):
 
 
     .. |box_select_icon| image:: /_images/icons/BoxSelect.png
-        :height: 18pt
+        :height: 24px
 
     '''
 
@@ -569,7 +569,7 @@ class LassoSelectTool(Drag):
         previous selection that might exist.
 
     .. |lasso_select_icon| image:: /_images/icons/LassoSelect.png
-        :height: 18pt
+        :height: 24px
 
     '''
 
@@ -620,7 +620,7 @@ class PolySelectTool(Tap):
         previous selection that might exist.
 
     .. |poly_select_icon| image:: /_images/icons/PolygonSelect.png
-        :height: 18pt
+        :height: 24px
 
     '''
 
@@ -698,7 +698,7 @@ class HoverTool(Inspection):
             * text
 
     .. |hover_icon| image:: /_images/icons/Hover.png
-        :height: 18pt
+        :height: 24px
 
     '''
 
@@ -875,7 +875,7 @@ class UndoTool(Action):
     Undo tool allows to restore previous state of the plot.
 
     .. |undo_icon| image:: /_images/icons/Undo.png
-        :height: 18pt
+        :height: 24px
 
     '''
 
@@ -885,6 +885,6 @@ class RedoTool(Action):
     Redo tool reverses the last action performed by undo tool.
 
     .. |redo_icon| image:: /_images/icons/Redo.png
-        :height: 18pt
+        :height: 24px
 
     '''

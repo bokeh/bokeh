@@ -607,36 +607,36 @@ properties on |Plot| objects that control LOD behavior:
 .. |hover_basic| image:: /_images/hover_basic.png
 
 .. |box_select_icon| image:: /_images/icons/BoxSelect.png
-    :height: 14pt
+    :height: 18px
 .. |box_zoom_icon| image:: /_images/icons/BoxZoom.png
-    :height: 14pt
+    :height: 18px
 .. |help_icon| image:: /_images/icons/Help.png
-    :height: 14pt
+    :height: 18px
 .. |crosshair_icon| image:: /_images/icons/Crosshair.png
-    :height: 14pt
+    :height: 18px
 .. |hover_icon| image:: /_images/icons/Hover.png
-    :height: 14pt
+    :height: 18px
 .. |lasso_select_icon| image:: /_images/icons/LassoSelect.png
-    :height: 14pt
+    :height: 18px
 .. |pan_icon| image:: /_images/icons/Pan.png
-    :height: 14pt
+    :height: 18px
 .. |poly_select_icon| image:: /_images/icons/PolygonSelect.png
-    :height: 14pt
+    :height: 18px
 .. |redo_icon| image:: /_images/icons/Redo.png
-    :height: 14pt
+    :height: 18px
 .. |reset_icon| image:: /_images/icons/Reset.png
-    :height: 14pt
+    :height: 18px
 .. |save_icon| image:: /_images/icons/Save.png
-    :height: 14pt
+    :height: 18px
 .. |tap_icon| image:: /_images/icons/Tap.png
-    :height: 14pt
+    :height: 18px
 .. |undo_icon| image:: /_images/icons/Undo.png
-    :height: 14pt
+    :height: 18px
 .. |wheel_pan_icon| image:: /_images/icons/WheelPan.png
-    :height: 14pt
+    :height: 18px
 .. |wheel_zoom_icon| image:: /_images/icons/WheelZoom.png
-    :height: 14pt
+    :height: 18px
 .. |zoom_in_icon| image:: /_images/icons/ZoomIn.png
-    :height: 14pt
+    :height: 18px
 .. |zoom_out_icon| image:: /_images/icons/ZoomOut.png
-    :height: 14pt
+    :height: 18px
