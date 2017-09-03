@@ -1,15 +1,29 @@
-'''
+''' Provide ancillary utility functions useful for manipulating Bokeh
+documents.
 
 '''
 from __future__ import absolute_import
 
 from ..model import get_class
 
-# This is used to send changes that happened between show() and push_notebook()
-# and should be removed when a better implementation based on the bokeh protocol
-# is available
+# TODO (bev) remove when push_notebook is re-implemented
 def compute_patch_between_json(from_json, to_json):
-    '''
+    ''' Compute a JSON diff between a two Bokeh document states.
+
+    .. note::
+        This function is used to send changes that happened between calls to
+        ``show()`` and ``push_notebook()`` and will be removed when a better
+        implementation based on the Bokeh protocol is available.
+
+    Args:
+        from_json (``JSON``)
+            JSON representing a "starting" Bokeh document state
+
+        to_json (``JSON``)
+            JSON representing a "final" Bokeh document state
+
+    Returns
+        ``JSON``
 
     '''
 
@@ -55,7 +69,7 @@ def compute_patch_between_json(from_json, to_json):
                         'model' : model })
 
     for added_root_id in added:
-        value_record_references(combined_references,
+        _value_record_references(combined_references,
                                 combined_references[added_root_id],
                                 value_refs)
         model = dict(combined_references[added_root_id])
@@ -65,7 +79,7 @@ def compute_patch_between_json(from_json, to_json):
 
     for id in to_references:
         if id in from_references:
-            update_model_events = events_to_sync_objects(
+            update_model_events = _events_to_sync_objects(
                 combined_references,
                 from_references[id],
                 to_references[id],
@@ -78,69 +92,32 @@ def compute_patch_between_json(from_json, to_json):
         references=list(value_refs.values())
     )
 
-# This is used to send changes that happened between show() and push_notebook()
-# and should be removed when a better implementation based on the bokeh protocol
-# is available
-def event_for_attribute_change(all_references, changed_obj, key, new_value, value_refs):
-    '''
-
-    '''
-
-    event = dict(
-        kind='ModelChanged',
-        model=dict(id=changed_obj['id'], type=changed_obj['type']),
-        attr=key,
-        new=new_value,
-    )
-    value_record_references(all_references, new_value, value_refs)
-    return event
-
-# This is used to send changes that happened between show() and push_notebook()
-# and should be removed when a better implementation based on the bokeh protocol
-# is available
-def events_to_sync_objects(all_references, from_obj, to_obj, value_refs):
-    '''
-
-    '''
-
-    from_keys = set(from_obj['attributes'].keys())
-    to_keys = set(to_obj['attributes'].keys())
-    removed = from_keys - to_keys
-    added = to_keys - from_keys
-    shared = from_keys & to_keys
-
-    events = []
-    for key in removed:
-        raise RuntimeError("internal error: should not be possible to delete attribute %s" % key)
-
-    for key in added:
-        new_value = to_obj['attributes'][key]
-        events.append(event_for_attribute_change(all_references,
-                                                 from_obj,
-                                                 key,
-                                                 new_value,
-                                                 value_refs))
-
-    for key in shared:
-        old_value = from_obj['attributes'].get(key)
-        new_value = to_obj['attributes'].get(key)
-
-        if old_value is None and new_value is None:
-            continue
-
-        if old_value is None or new_value is None or old_value != new_value:
-            event = event_for_attribute_change(all_references,
-                                               from_obj,
-                                               key,
-                                               new_value,
-                                               value_refs)
-            events.append(event)
-
-    return events
-
 def initialize_references_json(references_json, references, setter=None):
-    ''' Given a JSON representation of the models in a graph and new model objects,
-    set the properties on the models from the JSON
+    ''' Given a JSON representation of the models in a graph, and new model
+    objects, set the properties on the models from the JSON
+
+    Args:
+        references_json (``JSON``)
+            JSON specifying attributes and values to initialize new model
+            objects with.
+
+        references (dict[str, Model])
+            A dictionary mapping model IDs to newly created (but not yet
+            initialized) Bokeh models.
+
+            **This is an "out" parameter**. The values it contains will be
+            modified in-place.
+
+        setter (ClientSession or ServerSession or None, optional) :
+                This is used to prevent "boomerang" updates to Bokeh apps.
+                (default: None)
+
+                In the context of a Bokeh server application, incoming updates
+                to properties will be annotated with the session that is
+                doing the updating. This value is propagated through any
+                subsequent change notifications that the update triggers.
+                The session can compare the event setter to itself, and
+                suppress any updates that originate from itself.
 
     '''
 
@@ -155,6 +132,13 @@ def initialize_references_json(references_json, references, setter=None):
 def instantiate_references_json(references_json):
     ''' Given a JSON representation of all the models in a graph, return a
     dict of new model objects.
+
+    Args:
+        references_json (``JSON``)
+            JSON specifying new Bokeh models to create
+
+    Returns:
+        dict[str, Model]
 
     '''
 
@@ -193,22 +177,68 @@ def references_json(references):
 
     return references_json
 
-def value_record_references(all_references, v, result):
-    '''
+# TODO (bev) remove when push_notebook is re-implemented
+def _event_for_attribute_change(all_references, changed_obj, key, new_value, value_refs):
+    event = dict(
+        kind='ModelChanged',
+        model=dict(id=changed_obj['id'], type=changed_obj['type']),
+        attr=key,
+        new=new_value,
+    )
+    _value_record_references(all_references, new_value, value_refs)
+    return event
 
-    '''
-    if v is None: return
+# TODO (bev) remove when push_notebook is re-implemented
+def _events_to_sync_objects(all_references, from_obj, to_obj, value_refs):
+    from_keys = set(from_obj['attributes'].keys())
+    to_keys = set(to_obj['attributes'].keys())
+    removed = from_keys - to_keys
+    added = to_keys - from_keys
+    shared = from_keys & to_keys
 
-    if isinstance(v, dict) and set(['id', 'type']).issubset(set(v.keys())):
-        if v['id'] not in result:
-            ref = all_references[v['id']]
-            result[v['id']] = ref
-            value_record_references(all_references, ref['attributes'], result)
+    events = []
+    for key in removed:
+        raise RuntimeError("internal error: should not be possible to delete attribute %s" % key)
 
-    elif isinstance(v, (list, tuple)):
-        for elem in v:
-            value_record_references(all_references, elem, result)
+    for key in added:
+        new_value = to_obj['attributes'][key]
+        events.append(_event_for_attribute_change(all_references,
+                                                 from_obj,
+                                                 key,
+                                                 new_value,
+                                                 value_refs))
 
-    elif isinstance(v, dict):
-        for k, elem in v.items():
-            value_record_references(all_references, elem, result)
+    for key in shared:
+        old_value = from_obj['attributes'].get(key)
+        new_value = to_obj['attributes'].get(key)
+
+        if old_value is None and new_value is None:
+            continue
+
+        if old_value is None or new_value is None or old_value != new_value:
+            event = _event_for_attribute_change(all_references,
+                                               from_obj,
+                                               key,
+                                               new_value,
+                                               value_refs)
+            events.append(event)
+
+    return events
+
+# TODO (bev) remove when push_notebook is re-implemented
+def _value_record_references(all_references, value, result):
+    if value is None: return
+
+    if isinstance(value, dict) and set(['id', 'type']).issubset(set(value.keys())):
+        if value['id'] not in result:
+            ref = all_references[value['id']]
+            result[value['id']] = ref
+            _value_record_references(all_references, ref['attributes'], result)
+
+    elif isinstance(value, (list, tuple)):
+        for elem in value:
+            _value_record_references(all_references, elem, result)
+
+    elif isinstance(value, dict):
+        for k, elem in value.items():
+            _value_record_references(all_references, elem, result)

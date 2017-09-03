@@ -37,7 +37,7 @@ set operations to the ``Float`` property.
 
     # But can raise a validation exception if an attempt to set to a list
     # is made
-    rnd.end = [1,2,3]   # ValueError !
+    rng.end = [1,2,3]   # ValueError !
 
 More sophisticated properties such as ``DataSpec`` and its subclasses can
 exert control over how values are serialized. Consider this example with
