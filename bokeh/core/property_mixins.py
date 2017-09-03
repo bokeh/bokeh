@@ -43,7 +43,7 @@ from __future__ import absolute_import
 
 from .enums import LineJoin, LineCap, FontStyle, TextAlign, TextBaseline
 from .has_props import HasProps
-from .properties import ColorSpec, DashPattern, Enum, FontSizeSpec, Int, NumberSpec, String, value
+from .properties import ColorSpec, DashPattern, Enum, FontSizeSpec, Int, Float, NumberSpec, String, value
 
 class FillProps(HasProps):
     ''' Properties relevant to rendering fill regions.
@@ -227,4 +227,11 @@ class TextProps(HasProps):
     - ``'hanging'``
     - ``'ideographic'``
 
+    """)
+
+    text_line_height = Float(default=1.2, help="""
+    In multi-line text, how much additional space should be allocated for
+    each line. The value is provided as a number, but should be treated as
+    a percentage of font size. The default is 120%. Setting it to 1.0, so
+    100%, means no additional space will be used.
     """)

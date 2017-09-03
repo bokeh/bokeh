@@ -26,13 +26,14 @@ _fill_mixin =
 export fill = (prefix) -> _gen_mixin(_fill_mixin, prefix)
 
 _text_mixin =
-  text_font:       [ p.Font,         'helvetica' ]
-  text_font_size:  [ p.FontSizeSpec, '12pt'      ]
-  text_font_style: [ p.FontStyle,    'normal'    ]
-  text_color:      [ p.ColorSpec,    '#444444'   ]
-  text_alpha:      [ p.NumberSpec,   1.0         ]
-  text_align:      [ p.TextAlign,    'left'      ]
-  text_baseline:   [ p.TextBaseline, 'bottom'    ]
+  text_font:        [ p.Font,         'helvetica' ]
+  text_font_size:   [ p.FontSizeSpec, '12pt'      ]
+  text_font_style:  [ p.FontStyle,    'normal'    ]
+  text_color:       [ p.ColorSpec,    '#444444'   ]
+  text_alpha:       [ p.NumberSpec,   1.0         ]
+  text_align:       [ p.TextAlign,    'left'      ]
+  text_baseline:    [ p.TextBaseline, 'bottom'    ]
+  text_line_height: [ p.Number,       1.2         ]
 
 export text = (prefix) -> _gen_mixin(_text_mixin, prefix)
 
