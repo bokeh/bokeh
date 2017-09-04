@@ -27,6 +27,7 @@ from .images import *
 from .map_plots import *
 from .markers import *
 from .mappers import *
+from .namespaces import *
 from .plots import *
 from .ranges import *
 from .renderers import *
