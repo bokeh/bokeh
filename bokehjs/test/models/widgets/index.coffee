@@ -1,5 +1,5 @@
 require "./button"
-require "./data_table"
 require "./paragraph"
+require "./tables"
 require "./tabs"
 require "./widget"

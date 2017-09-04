@@ -145,56 +145,209 @@ class DateFormatter(CellFormatter):
 
     '''
 
-    format = Either(Enum(DateFormat), String, default='yy M d', help="""
-    The date format can be combinations of the following:
+    format = Either(Enum(DateFormat), String, default='ISO-8601', help="""
+    The date format can be any standard  `strftime`_ format string, as well
+    as any of the following predefined format names:
 
-    d
-        day of month (no leading zero)
+    ================================================ ================== ===================
+    Format name(s)                                   Format string      Example Output
+    ================================================ ================== ===================
+    ``ATOM`` / ``W3C`` / ``RFC-3339`` / ``ISO-8601`` ``"%Y-%m-%d"``     2014-03-01
+    ``COOKIE``                                       ``"%a, %d %b %Y"`` Sat, 01 Mar 2014
+    ``RFC-850``                                      ``"%A, %d-%b-%y"`` Saturday, 01-Mar-14
+    ``RFC-1123`` / ``RFC-2822``                      ``"%a, %e %b %Y"`` Sat, 1 Mar 2014
+    ``RSS`` / ``RFC-822`` / ``RFC-1036``             ``"%a, %e %b %y"`` Sat, 1 Mar 14
+    ``TIMESTAMP``                                    (ms since epoch)   1393632000000
+    ================================================ ================== ===================
 
-    dd
-        day of month (two digit)
+    Note that in the table some of the format names are synonymous, with
+    identical format names separated by slashes.
 
-    o
-        day of year (no leading zeros)
+    This list of supported `strftime`_ format codes is reproduced below.
 
-    oo
-        day of year (three digit)
+    %a
+        The abbreviated name of the day of the week according to the
+        current locale.
 
-    D
-        day name short
+    %A
+        The full name of the day of the week according to the current
+        locale.
 
-    DD
-        day name long
+    %b
+        The abbreviated month name according to the current locale.
 
-    m
-        month of year (no leading zero)
+    %B
+        The full month name according to the current locale.
 
-    mm
-        month of year (two digit)
+    %c
+        The preferred date and time representation for the current
+        locale.
 
-    M
-        month name short
+    %C
+        The century number (year/100) as a 2-digit integer.
 
-    MM
-        month name long
+    %d
+        The day of the month as a decimal number (range 01 to 31).
 
-    y
-        year (two digit)
+    %D
+        Equivalent to %m/%d/%y.  (Americans should note that in many
+        other countries %d/%m/%y is rather common. This means that in
+        international context this format is ambiguous and should not
+        be used.)
 
-    yy
-        year (four digit)
+    %e
+        Like %d, the day of the month as a decimal number, but a
+        leading zero is replaced by a space.
 
-    @
-        Unix timestamp (ms since 01/01/1970)
+    %f
+        Microsecond as a decimal number, zero-padded on the left (range
+        000000-999999). This is an extension to the set of directives
+        available to `timezone`_.
 
-    !
-        Windows ticks (100ns since 01/01/0001)
+    %F
+        Equivalent to %Y-%m-%d (the ISO 8601 date format).
 
-    "..."
-        literal text
+    %G
+        The ISO 8601 week-based year with century as a decimal number.
+        The 4-digit year corresponding to the ISO week number (see %V).
+        This has the same format and value as %Y, except that if the
+        ISO week number belongs to the previous or next year, that year
+        is used instead.
 
-    ''
-        single quote
+    %g
+        Like %G, but without century, that is, with a 2-digit year (00-99).
+
+    %h
+        Equivalent to %b.
+
+    %H
+        The hour as a decimal number using a 24-hour clock (range 00
+        to 23).
+
+    %I
+        The hour as a decimal number using a 12-hour clock (range 01
+        to 12).
+
+    %j
+        The day of the year as a decimal number (range 001 to 366).
+
+    %k
+        The hour (24-hour clock) as a decimal number (range 0 to 23).
+        Single digits are preceded by a blank.  (See also %H.)
+
+    %l
+        The hour (12-hour clock) as a decimal number (range 1 to 12).
+        Single digits are preceded by a blank.  (See also %I.)  (TZ)
+
+    %m
+        The month as a decimal number (range 01 to 12).
+
+    %M
+        The minute as a decimal number (range 00 to 59).
+
+    %n
+        A newline character. Bokeh text does not currently support
+        newline characters.
+
+    %N
+        Nanosecond as a decimal number, zero-padded on the left (range
+        000000000-999999999). Supports a padding width specifier, i.e.
+        %3N displays 3 leftmost digits. However, this is only accurate
+        to the millisecond level of precision due to limitations of
+        `timezone`_.
+
+    %p
+        Either "AM" or "PM" according to the given time value, or the
+        corresponding strings for the current locale.  Noon is treated
+        as "PM" and midnight as "AM".
+
+    %P
+        Like %p but in lowercase: "am" or "pm" or a corresponding
+        string for the current locale.
+
+    %r
+        The time in a.m. or p.m. notation.  In the POSIX locale this
+        is equivalent to %I:%M:%S %p.
+
+    %R
+        The time in 24-hour notation (%H:%M). For a version including
+        the seconds, see %T below.
+
+    %s
+        The number of seconds since the Epoch, 1970-01-01 00:00:00
+        +0000 (UTC).
+
+    %S
+        The second as a decimal number (range 00 to 60).  (The range
+        is up to 60 to allow for occasional leap seconds.)
+
+    %t
+        A tab character. Bokeh text does not currently support tab
+        characters.
+
+    %T
+        The time in 24-hour notation (%H:%M:%S).
+
+    %u
+        The day of the week as a decimal, range 1 to 7, Monday being 1.
+        See also %w.
+
+    %U
+        The week number of the current year as a decimal number, range
+        00 to 53, starting with the first Sunday as the first day of
+        week 01.  See also %V and %W.
+
+    %V
+        The ISO 8601 week number (see NOTES) of the current year as a
+        decimal number, range 01 to 53, where week 1 is the first week
+        that has at least 4 days in the new year.  See also %U and %W.
+
+    %w
+        The day of the week as a decimal, range 0 to 6, Sunday being 0.
+        See also %u.
+
+    %W
+        The week number of the current year as a decimal number, range
+        00 to 53, starting with the first Monday as the first day of
+        week 01.
+
+    %x
+        The preferred date representation for the current locale
+        without the time.
+
+    %X
+        The preferred time representation for the current locale
+        without the date.
+
+    %y
+        The year as a decimal number without a century (range 00 to 99).
+
+    %Y
+        The year as a decimal number including the century.
+
+    %z
+        The +hhmm or -hhmm numeric timezone (that is, the hour and
+        minute offset from UTC).
+
+    %Z
+        The timezone name or abbreviation.
+
+    %%
+        A literal '%' character.
+
+    .. warning::
+        The client library BokehJS uses the `timezone`_ library to
+        format datetimes. The inclusion of the list below is based on the
+        claim that `timezone`_ makes to support "the full compliment
+        of GNU date format specifiers." However, this claim has not
+        been tested exhaustively against this list. If you find formats
+        that do not function as expected, please submit a `github issue`_,
+        so that the documentation can be updated appropriately.
+
+    .. _strftime: http://man7.org/linux/man-pages/man3/strftime.3.html
+    .. _timezone: http://bigeasy.github.io/timezone/
+    .. _github issue: https://github.com/bokeh/bokeh/issues
+
     """)
 
 class HTMLTemplateFormatter(CellFormatter):
