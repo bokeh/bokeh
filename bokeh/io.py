@@ -99,6 +99,12 @@ def install_notebook_hook(notebook_type, load, show_doc, show_app, overwrite=Fal
                     notebook_handle # whether a notebook handle was requested
                 )
 
+            If the notebook platform is capable of supporting in-place updates
+            to plots then this function may return an opaque notebook handle
+            that can  be used for that purpose. The handle will be returned by
+            ``show()``, and can be used by as appropriate to update plots, etc.
+            by additional functions in the library that installed the hooks.
+
         show_app (callable) :
             A function for displaying Bokeh applications in the notebook
             type. This function will be called with the following arguments:
@@ -415,7 +421,7 @@ def _show_with_state(obj, state, browser, new, notebook_handle=False):
     shown = False
 
     if state.notebook:
-        _show_notebook_doc_with_state(obj, state, notebook_handle)
+        comms_handle = _show_notebook_doc_with_state(obj, state, notebook_handle)
         shown = True
 
     if state.file or not shown:
@@ -425,7 +431,7 @@ def _show_with_state(obj, state, browser, new, notebook_handle=False):
 
 # Note: this function mostly exists so it can be mocked in tests
 def _show_notebook_doc_with_state(obj, state, notebook_handle):
-    _run_notebook_hook(state.notebook_type, 'doc', obj, state, notebook_handle)
+    return _run_notebook_hook(state.notebook_type, 'doc', obj, state, notebook_handle)
 
 def _show_file_with_state(obj, state, new, controller):
     filename = save(obj, state=state)
