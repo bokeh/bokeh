@@ -1,51 +1,63 @@
+from bokeh.layouts import column
+from bokeh.models import CustomJS, Slider
 from bokeh.plotting import figure, show, output_file
 
-plot = figure(x_range=(-2, 12), y_range=(-1, 4), plot_width=1000, plot_height=1000, toolbar_location=None)
+aligns    = ["left", "center", "right"]
+baselines = ["bottom", "middle", "top" ]
 
-plot.xgrid.grid_line_color = None
-plot.ygrid.grid_line_color = None
+p = figure(x_range=aligns, y_range=baselines, plot_width=800, plot_height=600,
+           title="Variations of multi-line text", toolbar_location=None)
 
-texts = ["abc", "abc\ndefghi", "abc\ndefghi\nj", "abc\ndefghi\nj\nklmnpqr"]
+p.background_fill_color = "lightgrey"
+p.xaxis.axis_label = "align"
+p.yaxis.axis_label = "baseline"
+p.axis.major_label_text_font_size = "18px"
+p.axis.major_label_text_font_style = "bold"
 
-def xs(start):
-    return [ start + i*0.75 for i in range(0, len(texts)) ]
+p.xgrid.grid_line_color = None
+p.ygrid.grid_line_color = None
 
-plot.text([0, 4, 8], [-0.5]*3, ["baseline: bottom", "baseline: middle", "baseline: top"],
-          text_font_style="bold", text_font_size="16px")
+texts = [
 
-plot.text([-1]*4, [0, 1, 2, 3], ["align: left", "align: center", "align: right", "angle: 25deg"],
-          angle=dict(value=90, units="deg"),
-          text_font_style="bold", text_font_size="16px")
+'''one''',
 
-plot.text(xs(0), [0]*len(texts), texts,
-          text_align="left", text_baseline="bottom", text_font_size="14px", text_line_height=1.2)
-plot.text(xs(4), [0]*len(texts), texts,
-          text_align="left", text_baseline="middle", text_font_size="14px", text_line_height=1.2)
-plot.text(xs(8), [0]*len(texts), texts,
-          text_align="left", text_baseline="top", text_font_size="14px", text_line_height=1.2)
+'''two
+lines''',
 
-plot.text(xs(0), [1]*len(texts), texts,
-          text_align="center", text_baseline="bottom", text_font_size="14px", text_line_height=1.2)
-plot.text(xs(4), [1]*len(texts), texts,
-          text_align="center", text_baseline="middle", text_font_size="14px", text_line_height=1.2)
-plot.text(xs(8), [1]*len(texts), texts,
-          text_align="center", text_baseline="top", text_font_size="14px", text_line_height=1.2)
+'''lines
+here:
+3''',
 
-plot.text(xs(0), [2]*len(texts), texts,
-          text_align="right", text_baseline="bottom", text_font_size="14px", text_line_height=1.2)
-plot.text(xs(4), [2]*len(texts), texts,
-          text_align="right", text_baseline="middle", text_font_size="14px", text_line_height=1.2)
-plot.text(xs(8), [2]*len(texts), texts,
-          text_align="right", text_baseline="top", text_font_size="14px", text_line_height=1.2)
+'''here
+are
+4
+lines'''
 
-angle = dict(value=25, units="deg")
+]
 
-plot.text(xs(0), [3]*len(texts), texts, angle=angle,
-          text_align="left", text_baseline="bottom", text_font_size="14px", text_line_height=1.2)
-plot.text(xs(4), [3]*len(texts), texts, angle=angle,
-          text_align="left", text_baseline="middle", text_font_size="14px", text_line_height=1.2)
-plot.text(xs(8), [3]*len(texts), texts, angle=angle,
-          text_align="left", text_baseline="top", text_font_size="14px", text_line_height=1.2)
+def xs(cat):
+    return [(cat, -0.3), (cat, -0.1), (cat, 0.1), (cat, 0.3)]
 
-output_file("text.html", "Variations on the display of text")
-show(plot)
+def ys(cat):
+    return [cat] * 4
+
+renderers = {}
+i = 0
+
+for a in aligns:
+    for b in baselines:
+        r = p.text(xs(a), ys(b), texts, text_align=a, text_baseline=b,
+                   text_font_size="14px", text_line_height=1.2)
+        renderers["r" + str(i)] = r
+        i += 1
+
+slider = Slider(title="Text Angle", start=0, end=45, step=1, value=0)
+slider.js_on_change('value', CustomJS(args=renderers, code="""
+    rs = [r0, r1, r2 , r3, r4, r5, r6, r7, r8];
+    for (i=0; i<9; i++) {
+        rs[i].glyph.angle = {value: cb_obj.value, units: "deg"}
+    }
+"""))
+
+output_file("text.html")
+show(column(p, slider))
