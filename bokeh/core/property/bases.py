@@ -20,7 +20,6 @@ import numpy as np
 
 from ...util.dependencies import import_optional
 from ...util.string import nice_join
-from .containers import PropertyValueList, PropertyValueDict
 from .descriptor_factory import PropertyDescriptorFactory
 from .descriptors import BasicPropertyDescriptor
 
@@ -264,19 +263,11 @@ class Property(PropertyDescriptorFactory):
             return True
 
     @classmethod
-    def _wrap_container(cls, value):
-        if isinstance(value, list):
-            if isinstance(value, PropertyValueList):
-                return value
-            else:
-                return PropertyValueList(value)
-        elif isinstance(value, dict):
-            if isinstance(value, PropertyValueDict):
-                return value
-            else:
-                return PropertyValueDict(value)
-        else:
-            return value
+    def wrap(cls, value):
+        ''' Some property types need to wrap their values in special containers, etc.
+
+        '''
+        return value
 
     def prepare_value(self, obj_or_cls, name, value):
         try:
@@ -309,7 +300,7 @@ class Property(PropertyDescriptorFactory):
                     else:
                         msg_or_fn(obj, name, value)
 
-        return self._wrap_container(value)
+        return self.wrap(value)
 
     @property
     def has_ref(self):

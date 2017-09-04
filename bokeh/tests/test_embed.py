@@ -473,14 +473,14 @@ class TestAutoloadServer(unittest.TestCase):
                              attrs)
 
 
-@mock.patch('bokeh.document.check_integrity')
+@mock.patch('bokeh.document.document.check_integrity')
 def test_modelindocument_validates_document_by_default(check_integrity):
     p = figure()
     with embed._ModelInDocument([p]):
         pass
     assert check_integrity.called
 
-@mock.patch('bokeh.document.check_integrity')
+@mock.patch('bokeh.document.document.check_integrity')
 def test_modelindocument_doesnt_validate_doc_due_to_env_var(check_integrity, monkeypatch):
     monkeypatch.setenv("BOKEH_VALIDATE_DOC", "false")
     p = figure()
@@ -488,14 +488,14 @@ def test_modelindocument_doesnt_validate_doc_due_to_env_var(check_integrity, mon
         pass
     assert not check_integrity.called
 
-@mock.patch('bokeh.document.check_integrity')
+@mock.patch('bokeh.document.document.check_integrity')
 def test_modelinemptydocument_validates_document_by_default(check_integrity):
     p = figure()
     with embed._ModelInEmptyDocument(p):
         pass
     assert check_integrity.called
 
-@mock.patch('bokeh.document.check_integrity')
+@mock.patch('bokeh.document.document.check_integrity')
 def test_modelinemptydocument_doesnt_validate_document_due_to_env_var(check_integrity, monkeypatch):
     monkeypatch.setenv("BOKEH_VALIDATE_DOC", "false")
     p = figure()

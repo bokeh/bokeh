@@ -30,7 +30,7 @@ from IPython.display import publish_display_data
 
 # Bokeh imports
 from .core.state import State
-from .document import Document
+from .document.util import compute_patch_between_json
 from .embed import server_document, notebook_div, notebook_content, file_html
 from .layouts import gridplot, GridSpec ; gridplot, GridSpec
 from .models import Plot
@@ -676,7 +676,7 @@ def push_notebook(document=None, state=None, handle=None):
     if handle.doc is not document:
         msg = dict(doc=to_json)
     else:
-        msg = Document._compute_patch_between_json(handle.json, to_json)
+        msg = compute_patch_between_json(handle.json, to_json)
 
     handle.comms.send(json.dumps(msg))
     handle.update(document, to_json)

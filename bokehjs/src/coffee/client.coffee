@@ -255,9 +255,6 @@ class ClientConnection
       @_awaiting_ack_handler(message)
 
   _on_message : (event) ->
-    @_on_message_unchecked(event)
-
-  _on_message_unchecked : (event) ->
     if not @_current_handler?
       logger.error("got a message but haven't set _current_handler")
 

@@ -12,7 +12,7 @@ from bokeh.document import Document
 from bokeh.model import Model
 from bokeh.models import Plot
 from bokeh.core.properties import Int, Instance, Dict, String, Any, DistanceSpec, AngleSpec
-from bokeh.protocol.events import ModelChangedEvent, TitleChangedEvent
+from bokeh.document.events import ModelChangedEvent, TitleChangedEvent
 from tornado import gen
 from tornado.httpclient import HTTPError
 
