@@ -10,7 +10,6 @@ class TestContents(unittest.TestCase):
         self.assertTrue("__version__" in names)
         self.assertTrue("__base_version__" in names)
         self.assertTrue("license" in names)
-        self.assertTrue("test" in names)
         self.assertTrue("sampledata" in names)
 
     def test_version_defined(self):
