@@ -109,8 +109,8 @@ def _graph(node_source, edge_source, **kwargs):
     else:
         mnode_ca = None
 
-    node_ca = _pop_colors_and_alpha(Circle, kwargs, prefix="node_")
     nsnode_ca = _pop_colors_and_alpha(Circle, kwargs, prefix="node_nonselection_")
+    node_ca = _pop_colors_and_alpha(Circle, kwargs, prefix="node_")
 
     ## edge stuff
     if any(x.startswith('edge_selection_') for x in kwargs):
@@ -128,8 +128,8 @@ def _graph(node_source, edge_source, **kwargs):
     else:
         medge_ca = None
 
-    edge_ca = _pop_colors_and_alpha(MultiLine, kwargs, prefix="edge_")
     nsedge_ca = _pop_colors_and_alpha(MultiLine, kwargs, prefix="edge_nonselection_")
+    edge_ca = _pop_colors_and_alpha(MultiLine, kwargs, prefix="edge_")
 
     ## node stuff
     node_kwargs = {k: v for k, v in kwargs.copy().items() if k in Circle.properties()}

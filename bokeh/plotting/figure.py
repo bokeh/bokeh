@@ -737,16 +737,14 @@ Examples:
                 for the graph edges. An attempt will be made to convert the object to
                 :class:`~bokeh.models.sources.ColumnDataSource` if needed. If none is supplied, one is created
                 for the user automatically.
-            layout_provider (:class:`~bokeh.models.graphs.LayoutProvider`) : a thing.
-            **kwargs: :ref:`~bokeh.models.renderers.GraphRenderer`
+            layout_provider (:class:`~bokeh.models.graphs.LayoutProvider`) : a LayoutProvider instance to
+                provide the graph coordinates in Cartesian space.
             **kwargs: :ref:`userguide_styling_line_properties` and :ref:`userguide_styling_fill_properties`
         """
         kw = _graph(node_source, edge_source, **kwargs)
         graph_renderer = GraphRenderer(layout_provider=layout_provider, **kw)
         self.renderers.append(graph_renderer)
         return graph_renderer
-
-
 
 def figure(**kwargs):
     ''' Create a new :class:`~bokeh.plotting.figure.Figure` for plotting.
