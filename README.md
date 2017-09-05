@@ -23,6 +23,10 @@ Bokeh
   </td>
 </tr>
 <tr>
+  <td>Static Analyis</td>
+  <td><img src='https://bettercodehub.com/edge/badge/bokeh/bokeh?branch=master'></td>
+</tr>
+<tr>
   <td>Conda</td>
   <td>
     <a href="https://bokeh.pydata.org/en/latest/docs/installation.html">
