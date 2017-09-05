@@ -24,7 +24,11 @@ Bokeh
 </tr>
 <tr>
   <td>Static Analyis</td>
-  <td><img src='https://bettercodehub.com/edge/badge/bokeh/bokeh?branch=master'></td>
+  <td>
+    <a href="https://bettercodehub.com/edge/badge/bokeh/bokeh?branch=master">
+    <img src='https://bettercodehub.com/edge/badge/bokeh/bokeh?branch=master'>
+    </a>
+  </td>
 </tr>
 <tr>
   <td>Conda</td>
