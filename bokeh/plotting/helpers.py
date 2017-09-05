@@ -112,19 +112,6 @@ def _graph(node_source, edge_source, **kwargs):
     node_ca = _pop_colors_and_alpha(Circle, kwargs, prefix="node_")
     nsnode_ca = _pop_colors_and_alpha(Circle, kwargs, prefix="node_nonselection_")
 
-    node_glyph = _make_glyph(Circle, kwargs, node_ca)
-    nsnode_glyph = _make_glyph(Circle, kwargs, nsnode_ca)
-    snode_glyph = _make_glyph(Circle, kwargs, snode_ca)
-    hnode_glyph = _make_glyph(Circle, kwargs, hnode_ca)
-    mnode_glyph = _make_glyph(Circle, kwargs, mnode_ca)
-
-    node_renderer = GlyphRenderer(glyph=node_glyph,
-                                  nonselection_glyph=nsnode_glyph,
-                                  selection_glyph=snode_glyph,
-                                  hover_glyph=hnode_glyph,
-                                  muted_glyph=mnode_glyph,
-                                  data_source=node_source)
-
     ## edge stuff
     if any(x.startswith('edge_selection_') for x in kwargs):
         sedge_ca = _pop_colors_and_alpha(MultiLine, kwargs, prefix="edge_selection_")
@@ -144,11 +131,30 @@ def _graph(node_source, edge_source, **kwargs):
     edge_ca = _pop_colors_and_alpha(MultiLine, kwargs, prefix="edge_")
     nsedge_ca = _pop_colors_and_alpha(MultiLine, kwargs, prefix="edge_nonselection_")
 
-    edge_glyph = _make_glyph(MultiLine, kwargs, edge_ca)
-    nsedge_glyph = _make_glyph(MultiLine, kwargs, nsedge_ca)
-    sedge_glyph = _make_glyph(MultiLine, kwargs, sedge_ca)
-    hedge_glyph = _make_glyph(MultiLine, kwargs, hedge_ca)
-    medge_glyph = _make_glyph(MultiLine, kwargs, medge_ca)
+    ## node stuff
+    node_kwargs = {k: v for k, v in kwargs.copy().items() if k in Circle.properties()}
+
+    node_glyph = _make_glyph(Circle, node_kwargs, node_ca)
+    nsnode_glyph = _make_glyph(Circle, node_kwargs, nsnode_ca)
+    snode_glyph = _make_glyph(Circle, node_kwargs, snode_ca)
+    hnode_glyph = _make_glyph(Circle, node_kwargs, hnode_ca)
+    mnode_glyph = _make_glyph(Circle, node_kwargs, mnode_ca)
+
+    node_renderer = GlyphRenderer(glyph=node_glyph,
+                                  nonselection_glyph=nsnode_glyph,
+                                  selection_glyph=snode_glyph,
+                                  hover_glyph=hnode_glyph,
+                                  muted_glyph=mnode_glyph,
+                                  data_source=node_source)
+
+    ## edge stuff
+    edge_kwargs = {k: v for k, v in kwargs.copy().items() if k in MultiLine.properties()}
+
+    edge_glyph = _make_glyph(MultiLine, edge_kwargs, edge_ca)
+    nsedge_glyph = _make_glyph(MultiLine, edge_kwargs, nsedge_ca)
+    sedge_glyph = _make_glyph(MultiLine, edge_kwargs, sedge_ca)
+    hedge_glyph = _make_glyph(MultiLine, edge_kwargs, hedge_ca)
+    medge_glyph = _make_glyph(MultiLine, edge_kwargs, medge_ca)
 
     edge_renderer = GlyphRenderer(glyph=edge_glyph,
                                   nonselection_glyph=nsedge_glyph,

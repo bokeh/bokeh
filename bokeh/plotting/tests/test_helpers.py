@@ -1,5 +1,6 @@
 from mock import mock
 
+import pandas as pd
 import pytest
 
 from bokeh.models import ColumnDataSource, CDSView, Marker
@@ -7,7 +8,7 @@ from bokeh.models.ranges import Range1d, DataRange1d, FactorRange
 from bokeh.models.scales import LinearScale, LogScale, CategoricalScale
 from bokeh.plotting import Figure
 from bokeh.plotting.helpers import (_get_legend_item_label, _get_scale,
-                                    _get_range, _stack, _glyph_function,
+                                    _get_range, _stack, _graph, _glyph_function,
                                     _RENDERER_ARGS)
 
 
@@ -64,6 +65,65 @@ def test__stack_broadcast_with_list_kwargs():
         assert list(kw['end']['expr'].fields) == stackers[:(i+1)]
         assert kw['foo'] == [10, 20, 30, 40][i]
         assert kw['bar'] == "baz"
+
+def test__graph_will_convert_dataframes_to_sources():
+    node_source = pd.DataFrame(data=dict(foo=[]))
+    edge_source = pd.DataFrame(data=dict(start=[], end=[], bar=[]))
+
+    kw = _graph(node_source, edge_source)
+
+    # 'index' column is added from pandas df
+    assert set(kw['node_renderer'].data_source.data.keys()) == {"index", "foo"}
+    assert set(kw['edge_renderer'].data_source.data.keys()) == {"index", "start", "end", "bar"}
+
+def test__graph_will_handle_sources_correctly():
+    node_source = ColumnDataSource(data=dict(foo=[]))
+    edge_source = ColumnDataSource(data=dict(start=[], end=[], bar=[]))
+
+    kw = _graph(node_source, edge_source)
+
+    assert set(kw['node_renderer'].data_source.data.keys()) == {"foo"}
+    assert set(kw['edge_renderer'].data_source.data.keys()) == {"start", "end", "bar"}
+
+def test__graph_properly_handle_node_property_mixins():
+    kwargs = dict(node_fill_color="purple", node_selection_fill_color="blue",
+                  node_nonselection_fill_color="yellow", node_hover_fill_color="red",
+                  node_muted_fill_color="orange", radius=0.6)
+
+    kw = _graph({}, {}, **kwargs)
+
+    r = kw['node_renderer']
+    assert r.glyph.fill_color == "purple"
+    assert r.selection_glyph.fill_color == "blue"
+    assert r.nonselection_glyph.fill_color == "yellow"
+    assert r.hover_glyph.fill_color == "red"
+    assert r.muted_glyph.fill_color == "orange"
+
+    assert r.glyph.radius == 0.6
+    assert r.selection_glyph.radius == 0.6
+    assert r.nonselection_glyph.radius == 0.6
+    assert r.hover_glyph.radius == 0.6
+    assert r.muted_glyph.radius == 0.6
+
+def test__graph_properly_handle_edge_property_mixins():
+    kwargs = dict(edge_line_color="purple", edge_selection_line_color="blue",
+                  edge_nonselection_line_color="yellow", edge_hover_line_color="red",
+                  edge_muted_line_color="orange", line_width=23)
+
+    kw = _graph({}, {}, **kwargs)
+
+    r = kw['edge_renderer']
+    assert r.glyph.line_color == "purple"
+    assert r.selection_glyph.line_color == "blue"
+    assert r.nonselection_glyph.line_color == "yellow"
+    assert r.hover_glyph.line_color == "red"
+    assert r.muted_glyph.line_color == "orange"
+
+    assert r.glyph.line_width == 23
+    assert r.selection_glyph.line_width == 23
+    assert r.nonselection_glyph.line_width == 23
+    assert r.hover_glyph.line_width == 23
+    assert r.muted_glyph.line_width == 23
 
 # _get_legend_item_label
 def test_if_legend_is_something_exotic_that_it_is_passed_directly_to_label():
