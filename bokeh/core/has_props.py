@@ -11,7 +11,7 @@ serializable properties.
 from __future__ import absolute_import
 
 import logging
-logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 import difflib
 import inspect
@@ -336,11 +336,11 @@ class HasProps(with_metaclass(MetaHasProps, object)):
 
         '''
         if name in self.properties():
-            #logger.debug("Patching attribute %s of %r", attr, patched_obj)
+            log.trace("Patching attribute %r of %r with %r", name, self, json)
             descriptor = self.lookup(name)
             descriptor.set_from_json(self, json, models, setter)
         else:
-            logger.warn("JSON had attr %r on obj %r, which is a client-only or invalid attribute that shouldn't have been sent", name, self)
+            log.warn("JSON had attr %r on obj %r, which is a client-only or invalid attribute that shouldn't have been sent", name, self)
 
     def update(self, **kwargs):
         ''' Updates the object's properties from the given keyword arguments.

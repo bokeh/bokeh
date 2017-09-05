@@ -22,6 +22,14 @@ import sys
 
 from ..settings import settings
 
+TRACE = 9
+logging.addLevelName(TRACE, "TRACE")
+def trace(self, message, *args, **kws):
+    if self.isEnabledFor(TRACE):
+        self._log(TRACE, message, args, **kws)
+logging.Logger.trace = trace
+logging.TRACE = TRACE
+
 level = settings.py_log_level()
 bokeh_logger = logging.getLogger('bokeh')
 root_logger = logging.getLogger()
