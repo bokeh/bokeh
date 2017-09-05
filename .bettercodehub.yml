@@ -1,0 +1,12 @@
+exclude:
+- /conda.recipe/.*
+- /docker-tools/.*
+- /examples/.*
+- /scripts/.*
+- /sphinx/.*
+component_depth: 1
+languages:
+- javascript
+- python
+- script
+- typescript
