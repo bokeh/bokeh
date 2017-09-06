@@ -31,11 +31,11 @@ graph.layout_provider = StaticLayoutProvider(graph_layout=graph_layout)
 
 ### Draw quadratic bezier paths
 def bezier(start, end, control, steps):
-    return (1-steps)**2*start + 2*(1-steps)*steps*control + steps**2*end
+    return [(1-s)**2*start + 2*(1-s)*s*control + s**2*end for s in steps]
 
 xs, ys = [], []
 sx, sy = graph_layout[0]
-steps = np.linspace(0, 1, 100)
+steps = [i/100. for i in range(100)]
 for node_index in node_indices:
     ex, ey = graph_layout[node_index]
     xs.append(bezier(sx, ex, 0, steps))
