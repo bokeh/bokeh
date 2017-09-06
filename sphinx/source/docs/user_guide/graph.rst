@@ -98,7 +98,7 @@ This example extends the example from above to draw quadratic bezier
 paths between the nodes:
 
 .. bokeh-plot:: docs/user_guide/examples/graph_static_paths.py
-	:source-position: above
+    :source-position: above
 
 Networkx Integration
 --------------------
