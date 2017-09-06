@@ -29,8 +29,6 @@ from ..util.string import nice_join
 
 pd = import_optional('pandas')
 
-DEFAULT_PALETTE = ["#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33ff3"]
-
 
 def _stack(stackers, spec0, spec1, **kw):
     for name in (spec0, spec1):
@@ -163,10 +161,15 @@ def _graph(node_source, edge_source, **kwargs):
                                   muted_glyph=medge_glyph,
                                   data_source=edge_source)
 
-    kwargs["node_renderer"] = node_renderer
-    kwargs["edge_renderer"] = edge_renderer
+    _RENDERER_ARGS = ['name', 'level', 'visible', 'x_range_name', 'y_range_name',
+                      'selection_policy', 'inspection_policy']
 
-    return kwargs
+    renderer_kwargs = {attr: kwargs.pop(attr) for attr in _RENDERER_ARGS if attr in kwargs}
+
+    renderer_kwargs["node_renderer"] = node_renderer
+    renderer_kwargs["edge_renderer"] = edge_renderer
+
+    return renderer_kwargs
 
 def get_default_color(plot=None):
     colors = [
@@ -188,10 +191,6 @@ def get_default_color(plot=None):
         return colors[num_renderers]
     else:
         return colors[0]
-
-
-def get_default_alpha(plot=None):
-    return 1.0
 
 
 _RENDERER_ARGS = ['name', 'x_range_name', 'y_range_name',
