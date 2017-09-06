@@ -1,11 +1,9 @@
 exclude:
-- /_setup_support.py
+- /bokeh/sphinxext/.*
 - /conda.recipe/.*
 - /conftest.py
 - /docker-tools/.*
 - /examples/.*
-- /scripts/.*
-- /setup.py
 - /sphinx/.*
 - /versioneer.py
 component_depth: 1
