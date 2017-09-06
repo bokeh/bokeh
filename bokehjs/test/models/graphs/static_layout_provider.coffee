@@ -47,10 +47,32 @@ describe "StaticLayoutProvider", ->
         expect(xs).to.be.deep.equal([ [ -1, 0 ], [ -1, 1 ], [ -1, 0 ] ])
         expect(ys).to.be.deep.equal([ [ 0, 1 ], [ 0, 0 ], [ 0, -1 ] ])
 
+      it "should return explicit edge coords if exist", ->
+        edge_source = new ColumnDataSource()
+        edge_source.data.start = [0,0,0]
+        edge_source.data.end = [1,2,3]
+        edge_source.data.xs = [ [ -1, -0.5, 0 ], [ -1, 0, 1 ], [ -1, -0.5, 0 ] ]
+        edge_source.data.ys = [ [ 0, 0.5, 1 ], [ 0, 0, 0 ], [ 0, -0.5, -1 ] ]
+
+        [xs, ys] = @layout_provider.get_edge_coordinates(edge_source)
+        expect(xs).to.be.deep.equal([ [ -1, -0.5, 0 ], [ -1, 0, 1 ], [ -1, -0.5, 0 ] ])
+        expect(ys).to.be.deep.equal([ [ 0, 0.5, 1 ], [ 0, 0, 0 ], [ 0, -0.5, -1 ] ])
+
       it "should return NaNs if coords don't exist", ->
         edge_source = new ColumnDataSource()
         edge_source.data.start = [4,4,4]
         edge_source.data.end = [5,6,7]
+
+        [xs, ys] = @layout_provider.get_edge_coordinates(edge_source)
+        expect(xs).to.be.deep.equal([ [ NaN, NaN ], [ NaN, NaN ], [ NaN, NaN ] ])
+        expect(ys).to.be.deep.equal([ [ NaN, NaN ], [ NaN, NaN ], [ NaN, NaN ] ])
+
+      it "should not return explicit edge coords if coords don't exist", ->
+        edge_source = new ColumnDataSource()
+        edge_source.data.start = [4,4,4]
+        edge_source.data.end = [5,6,7]
+        edge_source.data.xs = [ [ -1, -0.5, 0 ], [ -1, 0, 1 ], [ -1, -0.5, 0 ] ]
+        edge_source.data.ys = [ [ 0, 0.5, 1 ], [ 0, 0, 0 ], [ 0, -0.5, -1 ] ]
 
         [xs, ys] = @layout_provider.get_edge_coordinates(edge_source)
         expect(xs).to.be.deep.equal([ [ NaN, NaN ], [ NaN, NaN ], [ NaN, NaN ] ])
