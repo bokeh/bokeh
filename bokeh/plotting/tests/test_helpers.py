@@ -88,7 +88,7 @@ def test__graph_will_handle_sources_correctly():
 def test__graph_properly_handle_node_property_mixins():
     kwargs = dict(node_fill_color="purple", node_selection_fill_color="blue",
                   node_nonselection_fill_color="yellow", node_hover_fill_color="red",
-                  node_muted_fill_color="orange", radius=0.6)
+                  node_muted_fill_color="orange", node_radius=0.6)
 
     kw = _graph({}, {}, **kwargs)
 
@@ -108,7 +108,7 @@ def test__graph_properly_handle_node_property_mixins():
 def test__graph_properly_handle_edge_property_mixins():
     kwargs = dict(edge_line_color="purple", edge_selection_line_color="blue",
                   edge_nonselection_line_color="yellow", edge_hover_line_color="red",
-                  edge_muted_line_color="orange", line_width=23)
+                  edge_muted_line_color="orange", edge_line_width=23)
 
     kw = _graph({}, {}, **kwargs)
 

@@ -130,7 +130,7 @@ def _graph(node_source, edge_source, **kwargs):
     edge_ca = _pop_colors_and_alpha(MultiLine, kwargs, prefix="edge_")
 
     ## node stuff
-    node_kwargs = {k: v for k, v in kwargs.copy().items() if k in Circle.properties()}
+    node_kwargs = {k.lstrip('node_'): v for k, v in kwargs.copy().items() if k.lstrip('node_') in Circle.properties()}
 
     node_glyph = _make_glyph(Circle, node_kwargs, node_ca)
     nsnode_glyph = _make_glyph(Circle, node_kwargs, nsnode_ca)
@@ -146,7 +146,7 @@ def _graph(node_source, edge_source, **kwargs):
                                   data_source=node_source)
 
     ## edge stuff
-    edge_kwargs = {k: v for k, v in kwargs.copy().items() if k in MultiLine.properties()}
+    edge_kwargs = {k.lstrip('edge_'): v for k, v in kwargs.copy().items() if k.lstrip('edge_') in MultiLine.properties()}
 
     edge_glyph = _make_glyph(MultiLine, edge_kwargs, edge_ca)
     nsedge_glyph = _make_glyph(MultiLine, edge_kwargs, nsedge_ca)
