@@ -155,7 +155,7 @@ def widgetbox(*args, **kwargs):
 
     Args:
         children (list of :class:`~bokeh.models.widgets.widget.Widget` ): A list
-        of widgets for the WidgetBox.
+            of widgets for the WidgetBox.
 
         sizing_mode (``"fixed"``, ``"stretch_both"``, ``"scale_width"``, ``"scale_height"``, ``"scale_both"`` ): How
             will the items in the layout resize to fill the available space.
