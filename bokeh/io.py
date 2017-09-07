@@ -26,16 +26,18 @@ import warnings
 import tempfile
 import uuid
 
+from IPython.display import publish_display_data
+
 # Bokeh imports
 from .core.state import State
-from .document import Document
-from .embed import server_document, notebook_div, file_html
+from .document.util import compute_patch_between_json
+from .embed import server_document, notebook_div, notebook_content, file_html
 from .layouts import gridplot, GridSpec ; gridplot, GridSpec
 from .models import Plot
 from .resources import INLINE
 import bokeh.util.browser as browserlib  # full import needed for test mocking to work
 from .util.dependencies import import_required, detect_phantomjs
-from .util.notebook import get_comms, load_notebook, publish_display_data, watch_server_cells
+from .util.notebook import get_comms, load_notebook, EXEC_MIME_TYPE, JS_MIME_TYPE, HTML_MIME_TYPE
 from .util.string import decode_utf8
 from .util.serialization import make_id
 
@@ -96,6 +98,12 @@ def install_notebook_hook(notebook_type, load, show_doc, show_app, overwrite=Fal
                     state,          # current bokeh.io "state"
                     notebook_handle # whether a notebook handle was requested
                 )
+
+            If the notebook platform is capable of supporting in-place updates
+            to plots then this function may return an opaque notebook handle
+            that can  be used for that purpose. The handle will be returned by
+            ``show()``, and can be used by as appropriate to update plots, etc.
+            by additional functions in the library that installed the hooks.
 
         show_app (callable) :
             A function for displaying Bokeh applications in the notebook
@@ -390,14 +398,8 @@ def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="loca
         _state.document.add_root(obj)
     return _show_with_state(obj, _state, browser, new, notebook_handle=notebook_handle)
 
-
 def _show_jupyter_app_with_state(app, state, notebook_url):
-    if not state.watching_cells:
-        watch_server_cells(_destroy_server_js)
-        state.watching_cells = True
-
     logging.basicConfig()
-    from IPython.display import HTML, display
     from tornado.ioloop import IOLoop
     from .server.server import Server
     loop = IOLoop.current()
@@ -409,7 +411,8 @@ def _show_jupyter_app_with_state(app, state, notebook_url):
     server.start()
     url = 'http://%s:%d%s' % (notebook_url.split(':')[0], server.port, "/")
     script = server_document(url)
-    display(HTML(_server_cell(server, script)))
+
+    publish_display_data({HTML_MIME_TYPE: script, EXEC_MIME_TYPE: ""}, metadata={EXEC_MIME_TYPE: {"server_id": server_id}})
 
 def _show_with_state(obj, state, browser, new, notebook_handle=False):
     controller = browserlib.get_browser_controller(browser=browser)
@@ -418,7 +421,7 @@ def _show_with_state(obj, state, browser, new, notebook_handle=False):
     shown = False
 
     if state.notebook:
-        _show_notebook_doc_with_state(obj, state, notebook_handle)
+        comms_handle = _show_notebook_doc_with_state(obj, state, notebook_handle)
         shown = True
 
     if state.file or not shown:
@@ -428,7 +431,7 @@ def _show_with_state(obj, state, browser, new, notebook_handle=False):
 
 # Note: this function mostly exists so it can be mocked in tests
 def _show_notebook_doc_with_state(obj, state, notebook_handle):
-    _run_notebook_hook(state.notebook_type, 'doc', obj, state, notebook_handle)
+    return _run_notebook_hook(state.notebook_type, 'doc', obj, state, notebook_handle)
 
 def _show_file_with_state(obj, state, new, controller):
     filename = save(obj, state=state)
@@ -436,7 +439,9 @@ def _show_file_with_state(obj, state, new, controller):
 
 def _show_jupyter_doc_with_state(obj, state, notebook_handle):
     comms_target = make_id() if notebook_handle else None
-    publish_display_data({'text/html': notebook_div(obj, comms_target)})
+    (script, div) = notebook_content(obj, comms_target)
+    publish_display_data({HTML_MIME_TYPE: div})
+    publish_display_data({JS_MIME_TYPE: script, EXEC_MIME_TYPE: ""}, metadata={EXEC_MIME_TYPE: {"id": obj._id}})
     if comms_target:
         handle = _CommsHandle(get_comms(comms_target), state.document,
                               state.document.to_json())
@@ -489,25 +494,80 @@ def save(obj, filename=None, resources=None, title=None, state=None, **kwargs):
     _save_helper(obj, filename, resources, title)
     return os.path.abspath(filename)
 
-def _detect_filename(ext):
-    """ Detect filename from the name of the script being run. Returns
-    temporary file if the script could not be found or the location of the
-    script does not have write permission (e.g. interactive mode).
-    """
+def _no_access(basedir):
+    ''' Return True if the given base dir is not accessible or writeable
+
+    '''
+    return not os.access(basedir, os.W_OK | os.X_OK)
+
+def _shares_exec_prefix(basedir):
+    ''' Whether a give base directory is on the system exex prefix
+
+    '''
+    import sys
+    prefix = sys.exec_prefix
+    return (prefix is not None and basedir.startswith(prefix))
+
+def _temp_filename(ext):
+    ''' Generate a temporary, writable filename with the given extension
+
+    '''
+    return tempfile.NamedTemporaryFile(suffix="." + ext).name
+
+def _detect_current_filename():
+    ''' Attempt to return the filename of the currently running Python process
+
+    Returns None if the filename cannot be detected.
+    '''
     import inspect
-    from os.path import dirname, basename, splitext, join, curdir
 
+    filename = None
     frame = inspect.currentframe()
-    while frame.f_back and frame.f_globals.get('name') != '__main__':
-        frame = frame.f_back
+    try:
+        while frame.f_back and frame.f_globals.get('name') != '__main__':
+            frame = frame.f_back
 
-    filename = frame.f_globals.get('__file__')
+        filename = frame.f_globals.get('__file__')
+    finally:
+        del frame
 
-    if filename is None or not os.access(dirname(filename) or curdir, os.W_OK | os.X_OK):
-        return tempfile.NamedTemporaryFile(suffix="." + ext).name
+    return filename
+
+def default_filename(ext):
+    ''' Generate a default filename with a given extension, attempting to use
+    the filename of the currently running process, if possible.
+
+    If the filename of the current process is not available (or would not be
+    writable), then a temporary file with the given extension is returned.
+
+    Args:
+        ext (str) : the desired extension for the filename
+
+    Returns:
+        str
+
+    Raises:
+        RuntimeError
+            If the extensions requested is ".py"
+
+    '''
+    if ext == "py":
+        raise RuntimeError("asked for a default filename with 'py' extension")
+
+    from os.path import dirname, basename, splitext, join
+
+    filename = _detect_current_filename()
+
+    if filename is None:
+        return _temp_filename(ext)
+
+    basedir = dirname(filename) or os.getcwd()
+
+    if _no_access(basedir) or _shares_exec_prefix(basedir):
+        return _temp_filename(ext)
 
     name, _ = splitext(basename(filename))
-    return join(dirname(filename), name + "." + ext)
+    return join(basedir, name + "." + ext)
 
 def _get_save_args(state, filename, resources, title):
     warn = True
@@ -517,7 +577,7 @@ def _get_save_args(state, filename, resources, title):
 
     if filename is None:
         warn = False
-        filename = _detect_filename("html")
+        filename = default_filename("html")
 
     if resources is None and state.file:
         resources = state.file['resources']
@@ -616,7 +676,7 @@ def push_notebook(document=None, state=None, handle=None):
     if handle.doc is not document:
         msg = dict(doc=to_json)
     else:
-        msg = Document._compute_patch_between_json(handle.json, to_json)
+        msg = compute_patch_between_json(handle.json, to_json)
 
     handle.comms.send(json.dumps(msg))
     handle.update(document, to_json)
@@ -636,38 +696,24 @@ def _remove_roots(subplots):
         if sub in doc.roots:
             doc.remove_root(sub)
 
-def _server_cell(server, script):
-    ''' Wrap a script returned by ``autoload_server`` in a div that allows cell
-    destruction/replacement to be detected.
-
-    '''
-    divid = uuid.uuid4().hex
-    _state.uuid_to_server[divid] = server
-    div_html = "<div class='bokeh_class' id='{divid}'>{script}</div>"
-    return div_html.format(script=script, divid=divid)
-
-_destroy_server_js = """
-var cmd = "from bokeh import io; io._destroy_server('<%= destroyed_id %>')";
-var command = _.template(cmd)({destroyed_id:destroyed_id});
-Jupyter.notebook.kernel.execute(command);
-"""
-
-def _destroy_server(div_id):
+def _destroy_server(server_id):
     ''' Given a UUID id of a div removed or replaced in the Jupyter
     notebook, destroy the corresponding server sessions and stop it.
 
     '''
-    server = _state.uuid_to_server.get(div_id, None)
+    server = _state.uuid_to_server.get(server_id, None)
     if server is None:
-        logger.debug("No server instance found for uuid: %r" % div_id)
+        logger.debug("No server instance found for uuid: %r" % server_id)
         return
 
     try:
         for session in server.get_sessions():
             session.destroy()
+        server.stop()
+        del _state.uuid_to_server[server_id]
 
     except Exception as e:
-        logger.debug("Could not destroy server for id %r: %s" % (div_id, e))
+        logger.debug("Could not destroy server for id %r: %s" % (server_id, e))
 
 def _wait_until_render_complete(driver):
     from selenium.webdriver.support.ui import WebDriverWait
@@ -804,7 +850,7 @@ def export_png(obj, filename=None, height=None, width=None, webdriver=None):
     image = _get_screenshot_as_png(obj, height=height, width=width, driver=webdriver)
 
     if filename is None:
-        filename = _detect_filename("png")
+        filename = default_filename("png")
 
     image.save(filename)
 
@@ -879,7 +925,7 @@ def export_svgs(obj, filename=None, height=None, width=None, webdriver=None):
         return
 
     if filename is None:
-        filename = _detect_filename("svg")
+        filename = default_filename("svg")
 
     filenames = []
 

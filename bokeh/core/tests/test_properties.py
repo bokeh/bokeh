@@ -13,7 +13,9 @@ from bokeh.core.properties import (field, value,
     Regex, Seq, List, Dict, Tuple, Instance, Any, Interval, Either,
     Enum, Color, DashPattern, Size, Percent, Angle, AngleSpec, StringSpec,
     DistanceSpec, FontSizeSpec, Override, Include, MinMaxBounds,
-    DataDistanceSpec, ScreenDistanceSpec)
+    DataDistanceSpec, ScreenDistanceSpec, ColumnData)
+
+from bokeh.core.property.containers import PropertyValueColumnData, PropertyValueDict, PropertyValueList
 
 from bokeh.core.has_props import HasProps
 
@@ -1792,3 +1794,45 @@ def test_strict_unitspec_key_values():
     f.x = dict(field="foo", units="deg")
     with pytest.raises(ValueError):
         f.x = dict(field="foo", units="junk", foo="crap")
+
+def test_Property_wrap():
+    for x in (Bool, Int, Float, Complex, String, Enum, Color,
+              Regex, Seq, Tuple, Instance, Any, Interval, Either,
+              DashPattern, Size, Percent, Angle, MinMaxBounds):
+        for y in (0, 1, 2.3, "foo", None, (), [], {}):
+            r = x.wrap(y)
+            assert r == y
+            assert isinstance(r, type(y))
+
+def test_List_wrap():
+    for y in (0, 1, 2.3, "foo", None, (), {}):
+        r = List.wrap(y)
+        assert r == y
+        assert isinstance(r, type(y))
+    r = List.wrap([1,2,3])
+    assert r == [1,2,3]
+    assert isinstance(r, PropertyValueList)
+    r2 = List.wrap(r)
+    assert r is r2
+
+def test_Dict_wrap():
+    for y in (0, 1, 2.3, "foo", None, (), []):
+        r = Dict.wrap(y)
+        assert r == y
+        assert isinstance(r, type(y))
+    r = Dict.wrap(dict(a=1, b=2))
+    assert r == dict(a=1, b=2)
+    assert isinstance(r, PropertyValueDict)
+    r2 = Dict.wrap(r)
+    assert r is r2
+
+def test_ColumnData_wrap():
+    for y in (0, 1, 2.3, "foo", None, (), []):
+        r = ColumnData.wrap(y)
+        assert r == y
+        assert isinstance(r, type(y))
+    r = ColumnData.wrap(dict(a=1, b=2))
+    assert r == dict(a=1, b=2)
+    assert isinstance(r, PropertyValueColumnData)
+    r2 = ColumnData.wrap(r)
+    assert r is r2

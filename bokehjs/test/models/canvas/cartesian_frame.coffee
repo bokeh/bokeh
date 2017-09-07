@@ -23,10 +23,6 @@ describe "CartesianFrame", ->
     expect(c._width).to.be.an.instanceOf(Variable)
     expect(c._height).to.be.an.instanceOf(Variable)
 
-  it "should should return 8 constraints", ->
-    c = new CartesianFrame({x_range: Range1d(0, 1), y_range: Range1d(0, 1), x_scale: new LinearScale(), y_scale: new LinearScale()})
-    expect(c.get_constraints().length).to.be.equal 8
-
   it "should report default scales", ->
     c = new CartesianFrame({x_range: Range1d(0, 1), y_range: Range1d(0, 1), x_scale: new LinearScale(), y_scale: new LinearScale()})
 

@@ -259,18 +259,33 @@ class Test_ShowFileWithState(DefaultStateTester):
         self._check_func_called(mock_save, ("obj",), {"state": s})
         self._check_func_called(controller.open, ("file://savepath",), {"new": 2})
 
+class Test_ShowJupyterWithState(DefaultStateTester):
+
+    @patch('bokeh.io.get_comms')
+    @patch('bokeh.io.publish_display_data')
+    @patch('bokeh.io.notebook_content')
+    def test_no_server(self, mock_notebook_content, mock_publish_display_data, mock_get_comms):
+        mock_get_comms.return_value = "comms"
+        s = io.State()
+        mock_notebook_content.return_value = ["notebook_script", "notebook_div"]
+
+        class Obj(object):
+            _id = None
+
+        io._nb_loaded = True
+        io._show_jupyter_doc_with_state(Obj(), s, True)
+        io._nb_loaded = False
+
+        expected_args = ({'application/javascript': 'notebook_script', 'application/vnd.bokehjs_exec.v0+json': ''},)
+        expected_kwargs = {'metadata': {'application/vnd.bokehjs_exec.v0+json': {'id': None}}}
+
+        self._check_func_called(mock_publish_display_data, expected_args, expected_kwargs)
+
 class TestResetOutput(DefaultStateTester):
 
     def test(self):
         io.reset_output()
         self.assertTrue(io._state.reset.called)
-
-def test__server_cell():
-    io._state.uuid_to_server = {}
-    html = io._server_cell("server", "script123")
-    assert list(io._state.uuid_to_server.values()) == ['server']
-    assert html.startswith("<div class='bokeh_class' id='")
-    assert html.endswith("'>script123</div>")
 
 def _test_layout_added_to_root(layout_generator, children=None):
     layout = layout_generator(Plot() if children is None else children)
@@ -411,3 +426,82 @@ def test__get_svgs_with_svg_present_with_driver():
     assert svgs[0] == ('<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" '
                        'width="20" height="20" style="width: 20px; height: 20px;"><defs/><g><g/><g transform="scale(1,1) '
                        'translate(0.5,0.5)"><rect fill="#FFFFFF" stroke="none" x="0" y="0" width="20" height="20"/><g/><g/><g/><g/></g></g></svg>')
+
+@patch('os.access')
+def test__no_access(mock_access):
+    import os
+    io._no_access("test")
+    assert mock_access.called
+    assert mock_access.call_args[0] == ("test", os.W_OK | os.X_OK)
+    assert mock_access.call_args[1] == {}
+
+@patch('tempfile.NamedTemporaryFile')
+def test__temp_filename(mock_tmp):
+    fn = Mock()
+    type(fn).name = PropertyMock(return_value="Junk.test")
+    mock_tmp.return_value = fn
+
+    r = io._temp_filename("test")
+    assert r == "Junk.test"
+    assert mock_tmp.called
+    assert mock_tmp.call_args[0] == ()
+    assert mock_tmp.call_args[1] == {'suffix': '.test'}
+
+def test__shares_exec_prefix():
+    import sys
+    old_ex = sys.exec_prefix
+    try:
+        sys.exec_prefix = "/foo/bar"
+        assert io._shares_exec_prefix("/foo/bar") == True
+        sys.exec_prefix = "/baz/bar"
+        assert io._shares_exec_prefix("/foo/bar") == False
+        sys.exec_prefix = None
+        assert io._shares_exec_prefix("/foo/bar") == False
+    finally:
+        sys.exec_prefix = old_ex
+
+def test__detect_current_filename():
+    assert io._detect_current_filename().endswith("py.test")
+
+def test_default_filename():
+    old__detect_current_filename = io._detect_current_filename
+    old__no_access = io._no_access
+    old__shares_exec_prefix = io._shares_exec_prefix
+
+    io._detect_current_filename = lambda : "/a/b/foo.py"
+
+    try:
+        # .py extension
+        with pytest.raises(RuntimeError):
+            io.default_filename("py")
+
+        # a current file, access, and no share exec
+        io._no_access = lambda x: False
+        r = io.default_filename("test")
+        assert r == "/a/b/foo.test"
+
+        # a current file, NO access, and no share exec
+        io._no_access = lambda x: True
+        r = io.default_filename("test")
+        assert r != "/a/b/foo.test"
+        assert r.endswith(".test")
+
+        # a current file, access, but WITH share exec
+        io._no_access = lambda x: False
+        io._shares_exec_prefix = lambda x: True
+        r = io.default_filename("test")
+        assert r != "/a/b/foo.test"
+        assert r.endswith(".test")
+
+        # no current file
+        io._detect_current_filename = lambda : None
+        io._no_access = lambda x: False
+        io._shares_exec_prefix = lambda x: False
+        r = io.default_filename("test")
+        assert r != "/a/b/foo.test"
+        assert r.endswith(".test")
+
+    finally:
+        io._detect_current_filename = old__detect_current_filename
+        io._no_access = old__no_access
+        io._shares_exec_prefix = old__shares_exec_prefix

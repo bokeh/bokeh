@@ -7,6 +7,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 import io
+import re
 import os
 import sys
 import six
@@ -109,6 +110,7 @@ class CompilationError(RuntimeError):
         return self.text
 
 bokehjs_dir = settings.bokehjsdir()
+nodejs_min_version = (6, 10, 0)
 
 def _detect_nodejs():
     if settings.nodejs_path() is not None:
@@ -119,14 +121,25 @@ def _detect_nodejs():
     for nodejs_path in nodejs_paths:
         try:
             proc = Popen([nodejs_path, "--version"], stdout=PIPE, stderr=PIPE)
-            proc.wait()
+            (stdout, _) = proc.communicate()
         except OSError:
-            pass
-        else:
-            return nodejs_path
-    else:
-        raise RuntimeError('node.js is needed to allow compilation of custom models ' +
-                           '("conda install -c bokeh nodejs" or follow https://nodejs.org/en/download/)')
+            continue
+
+        if proc.returncode != 0:
+            continue
+
+        match = re.match(r"^v(\d+)\.(\d+)\.(\d+).*$", stdout.decode("utf-8"))
+
+        if match is not None:
+            version = tuple(int(v) for v in match.groups())
+
+            if version >= nodejs_min_version:
+                return nodejs_path
+
+    # if we've reached here, no valid version was found
+    version = ".".join(map(str, nodejs_min_version))
+    raise RuntimeError('node.js v%s or higher is needed to allow compilation of custom models ' % version +
+                       '("conda install -c bokeh nodejs" or follow https://nodejs.org/en/download/)')
 
 _nodejs = None
 _npmjs = None

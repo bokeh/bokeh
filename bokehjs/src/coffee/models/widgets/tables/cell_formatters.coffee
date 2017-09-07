@@ -1,5 +1,6 @@
 import * as Numbro from "numbro"
 import * as compile_template from "underscore.template"
+import * as tz from "timezone"
 
 import * as p from "core/properties"
 import {span, i} from "core/dom"
@@ -9,7 +10,7 @@ import {Model} from "../../../model"
 
 export class CellFormatter extends Model
   doFormat: (row, cell, value, columnDef, dataContext) ->
-    if value == null
+    if not value?
       return ""
     else
       return (value + "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
@@ -24,27 +25,23 @@ export class StringFormatter extends CellFormatter
   }
 
   doFormat: (row, cell, value, columnDef, dataContext) ->
-    text = super(row, cell, value, columnDef, dataContext)
-
     font_style = @font_style
     text_align = @text_align
     text_color = @text_color
 
-    if font_style? or text_align? or text_color?
-      text = span({}, text)
-      switch font_style
-        when "bold"
-          text.style.fontWeight = "bold"
-        when "italic"
-          text.style.fontStyle = "italic"
+    text = span({}, if not value? then "" else "#{value}")
+    switch font_style
+      when "bold"
+        text.style.fontWeight = "bold"
+      when "italic"
+        text.style.fontStyle = "italic"
 
-      if text_align?
-        text.style.textAlign = text_align
-      if text_color?
-        text.style.color = text_color
+    if text_align?
+      text.style.textAlign = text_align
+    if text_color?
+      text.style.color = text_color
 
-      text = text.outerHTML
-
+    text = text.outerHTML
     return text
 
 export class NumberFormatter extends StringFormatter
@@ -80,29 +77,25 @@ export class DateFormatter extends CellFormatter
   type: 'DateFormatter'
 
   @define {
-    format: [ p.String, 'yy M d' ]
+    format: [ p.String, 'ISO-8601' ]
   }
 
   getFormat: () ->
-    format = @format
-    name = switch format
-      when "ATOM", "W3C", "RFC-3339", "ISO-8601" then "ISO-8601"
-      when "COOKIE"                              then "COOKIE"
-      when "RFC-850"                             then "RFC-850"
-      when "RFC-1036"                            then "RFC-1036"
-      when "RFC-1123"                            then "RFC-1123"
-      when "RFC-2822"                            then "RFC-2822"
-      when "RSS", "RFC-822"                      then "RFC-822"
-      when "TICKS"                               then "TICKS"
-      when "TIMESTAMP"                           then "TIMESTAMP"
-      else                                       null
-    #if name? then $.datepicker[name] else format
-    format
+    # using definitions provided here: https://api.jqueryui.com/datepicker/
+    # except not implementing TICKS
+    fmt = switch @format
+      when "ATOM", "W3C", "RFC-3339", "ISO-8601" then "%Y-%m-%d"
+      when "COOKIE"                              then "%a, %d %b %Y"
+      when "RFC-850"                             then "%A, %d-%b-%y"
+      when "RFC-1123", "RFC-2822"                then "%a, %e %b %Y"
+      when "RSS", "RFC-822", "RFC-1036"          then "%a, %e %b %y"
+      when "TIMESTAMP"                           then null
+      else                                       "__CUSTOM__"
+    if fmt == "__CUSTOM__" then @format else fmt
 
   doFormat: (row, cell, value, columnDef, dataContext) ->
     value = if isString(value) then parseInt(value, 10) else value
-    #date = $.datepicker.formatDate(@getFormat(), new Date(value))
-    date = value
+    date = tz(value, @getFormat())
     return super(row, cell, date, columnDef, dataContext)
 
 export class HTMLTemplateFormatter extends CellFormatter

@@ -20,7 +20,6 @@ def test_creation():
     assert isinstance(s.document, Document)
     assert s.file == None
     assert s.notebook == False
-    assert s.watching_cells == False
 
 def test_default_file_resources():
     s = state.State()

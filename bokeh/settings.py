@@ -120,7 +120,8 @@ class Settings(object):
 
         '''
         level = self._get_str("PY_LOG_LEVEL", default, "debug")
-        LEVELS = {'debug': logging.DEBUG,
+        LEVELS = {'trace': logging.TRACE,
+                  'debug': logging.DEBUG,
                   'info' : logging.INFO,
                   'warn' : logging.WARNING,
                   'error': logging.ERROR,
@@ -317,6 +318,7 @@ class Settings(object):
 #:
 #:   As in the JS side, valid values are, in order of increasing severity:
 #:
+#:   - ``trace``
 #:   - ``debug``
 #:   - ``info``
 #:   - ``warn``

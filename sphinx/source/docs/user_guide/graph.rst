@@ -79,6 +79,27 @@ This example adds a provider to the above code snippet:
 .. bokeh-plot:: docs/user_guide/examples/graph_customize.py
     :source-position: above
 
+Explicit Paths
+--------------
+
+By default the :class:`~bokeh.models.graphs.StaticLayoutProvider` will
+draw straight-line paths between the supplied node positions. In order
+to supply explicit edge paths you may also supply lists of paths to
+the ``edge_renderer``
+:class:`bokeh.models.sources.ColumnDataSource`. The
+:class:`~bokeh.models.graphs.StaticLayoutProvider` will look for these
+paths on the ``"xs"`` and ``"ys"`` columns of the data source. Note
+that these paths should be in the same order as the ``"start"`` and
+``"end"`` points. Also note that there is no validation that they
+match up with the node positions so be extra careful when setting
+explicit paths.
+
+This example extends the example from above to draw quadratic bezier
+paths between the nodes:
+
+.. bokeh-plot:: docs/user_guide/examples/graph_static_paths.py
+    :source-position: above
+
 Networkx Integration
 --------------------
 

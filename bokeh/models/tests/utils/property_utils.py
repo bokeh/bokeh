@@ -5,7 +5,7 @@ from bokeh.core.enums import NamedColor as Color, LineJoin, LineCap
 # enums
 FILL = ["fill_color", "fill_alpha"]
 LINE = ["line_color", "line_width", "line_alpha", "line_join", "line_cap", "line_dash", "line_dash_offset"]
-TEXT = ["text_font", "text_font_size", "text_font_style", "text_color", "text_alpha", "text_align", "text_baseline"]
+TEXT = ["text_font", "text_font_size", "text_font_style", "text_color", "text_alpha", "text_align", "text_baseline", "text_line_height"]
 
 ANGLE = ["angle", "angle_units"]
 

@@ -19,13 +19,6 @@ sinon = require 'sinon'
 
 describe "SidePanel", ->
 
-  it "should should return 8 constraints", ->
-    p = new SidePanel({side: "left"})
-    expect(p.get_constraints().length).to.be.equal 8
-    # TODO (bird) - it would be good if we could actually assert about the
-    # constraints, but this is hard (impossible?) at the moment, so will have to do some
-    # visual testing to make sure things line up.
-
   describe "apply_location_heuristics", ->
 
     it "should calculate appropriate axis_label text properties based on location", ->
@@ -98,7 +91,7 @@ describe "SidePanel", ->
     it "should add two constraints on first call (one for size, one for full)", ->
       add_constraint_call_count = @solver_add_constraint.callCount
       update_panel_constraints(@axis_view)
-      expect(@solver_add_constraint.callCount).to.be.equal add_constraint_call_count + 2
+      expect(@solver_add_constraint.callCount).to.be.equal add_constraint_call_count + 1
 
     it "should add and remove a constraint if the size changes", ->
       @axis_view._tick_extent = sinon.stub()
@@ -110,10 +103,10 @@ describe "SidePanel", ->
 
       update_panel_constraints(@axis_view)
 
-      expect(@solver_add_constraint.callCount).to.be.equal(add_constraint_call_count + 2)
+      expect(@solver_add_constraint.callCount).to.be.equal(add_constraint_call_count + 1)
       expect(@solver_remove_constraint.callCount).to.be.equal(remove_constraint_call_count + 0)
 
       update_panel_constraints(@axis_view)
 
-      expect(@solver_add_constraint.callCount).to.be.equal(add_constraint_call_count + 4)
+      expect(@solver_add_constraint.callCount).to.be.equal(add_constraint_call_count + 2)
       expect(@solver_remove_constraint.callCount).to.be.equal(remove_constraint_call_count + 0)

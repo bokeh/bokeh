@@ -103,6 +103,7 @@ Accepted values are ``yes``/``no``, ``true``/``false`` or ``0``/``1``.
 The Python logging level to set
 As in the JS side, valid values are, in order of increasing severity:
 
+  - ``trace``
   - ``debug``
   - ``info``
   - ``warn``
