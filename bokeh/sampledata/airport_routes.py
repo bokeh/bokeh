@@ -1,5 +1,5 @@
-""" The data in airports.csv and routes.csv is a subset of data available from
-OpenFlights.orgs, limited to US airports. The complete data was collected on
+""" The data in airports.csv and routes.csv is a subset (limited to US airports)
+of data available from OpenFlights.org. The complete data was collected on
 September 07, 2017 and is available from:
 
 .. code-block:: none
