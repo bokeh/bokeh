@@ -29,7 +29,8 @@
 
 - path: "howto/notebook_comms"
   type: notebook
-  skip: ["Continuous Updating.ipynb", "Jupyter Interactors.ipynb", "Numba Image Example.ipynb"]
+  # need to resolve screenshot timing w/ notebook containing multiple plot cells
+  skip: all
 
 - path: "app"
   type: server
