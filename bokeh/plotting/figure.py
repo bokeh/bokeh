@@ -727,7 +727,8 @@ Examples:
             self.vbar(**kw)
 
     def graph(self, node_source, edge_source, layout_provider, **kwargs):
-        """ Creates a network graph of the given node and edge values.
+        ''' Creates a network graph using the given node, edge and layout provider.
+
         Args:
             node_source (:class:`~bokeh.models.sources.ColumnDataSource`) : a user-supplied data source
                 for the graph nodes. An attempt will be made to convert the object to
@@ -740,7 +741,7 @@ Examples:
             layout_provider (:class:`~bokeh.models.graphs.LayoutProvider`) : a LayoutProvider instance to
                 provide the graph coordinates in Cartesian space.
             **kwargs: :ref:`userguide_styling_line_properties` and :ref:`userguide_styling_fill_properties`
-        """
+        '''
         kw = _graph(node_source, edge_source, **kwargs)
         graph_renderer = GraphRenderer(layout_provider=layout_provider, **kw)
         self.renderers.append(graph_renderer)
