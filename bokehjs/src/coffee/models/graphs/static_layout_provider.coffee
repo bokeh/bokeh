@@ -17,13 +17,19 @@ export class StaticLayoutProvider extends LayoutProvider
     [xs, ys] = [[], []]
     starts = edge_source.data.start
     ends = edge_source.data.end
+    has_paths = edge_source.data.xs? and edge_source.data.ys?
     for i in [0...starts.length]
-      if @graph_layout[starts[i]]? and @graph_layout[ends[i]]?
-        [start, end] = [@graph_layout[starts[i]], @graph_layout[ends[i]]]
+      in_layout = @graph_layout[starts[i]]? and @graph_layout[ends[i]]?
+      if has_paths and in_layout
+        xs.push(edge_source.data.xs[i])
+        ys.push(edge_source.data.ys[i])
       else
-        [start, end] = [[NaN, NaN], [NaN, NaN]]
-      xs.push([start[0], end[0]])
-      ys.push([start[1], end[1]])
+        if in_layout
+          [start, end] = [@graph_layout[starts[i]], @graph_layout[ends[i]]]
+        else
+          [start, end] = [[NaN, NaN], [NaN, NaN]]
+        xs.push([start[0], end[0]])
+        ys.push([start[1], end[1]])
     return [xs, ys]
 
   @define {

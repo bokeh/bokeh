@@ -550,7 +550,7 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
                 if dirty['count'] > 0:
                     self._document._invalidate_all_models()
         # chain up to invoke callbacks
-        super(Model, self).trigger(attr, old, new, hint, setter)
+        super(Model, self).trigger(attr, old, new, hint=hint, setter=setter)
 
     def _attach_document(self, doc):
         ''' Attach a model to a Bokeh |Document|.

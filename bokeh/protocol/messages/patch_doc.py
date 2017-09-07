@@ -1,6 +1,9 @@
 from __future__ import absolute_import
 
 from json import loads
+
+from ...core.json_encoder import serialize_json
+from ...document.util import references_json
 from ..message import Message
 from . import register
 
@@ -42,15 +45,20 @@ class patch_doc_1(Message):
 
         if not events:
             raise ValueError("PATCH-DOC message requires at least one event")
-        document = events[0].document
 
-        patch_json = document.create_json_patch_string(events)
-        # this is a total hack, the need for it is because we have magic
-        # type conversions in our BokehJSONEncoder which keep us from
-        # easily generating non-string JSON.
+        docs = { event.document for event in events }
+        if len(docs) != 1:
+            raise ValueError("PATCH-DOC message configured with events for more than one document")
+
+        # this roundtrip is fortunate, but is needed because there are type conversions
+        # in BokehJSONEncoder which keep us from easily generating non-string JSON
+        patch_json, buffers = process_document_events(events)
         content = loads(patch_json)
 
         msg = cls(header, metadata, content)
+
+        for (header, payload) in buffers:
+            msg.add_buffer(header, payload)
 
         return msg
 
@@ -59,3 +67,31 @@ class patch_doc_1(Message):
 
         '''
         doc.apply_json_patch(self.content, setter)
+
+def process_document_events(events):
+    ''' Create a JSON string describing a patch to be applied as well as
+    any optional buffers.
+
+    Args:
+      events : list of events to be translated into patches
+
+    Returns:
+      str, list :
+        JSON string which can be applied to make the given updates to obj
+        as well as any optional buffers
+
+    '''
+
+    json_events = []
+    references = set()
+    buffers = []
+
+    for event in events:
+        json_events.append(event.generate(references, buffers))
+
+    json = {
+        'events'     : json_events,
+        'references' : references_json(references),
+    }
+
+    return serialize_json(json), buffers

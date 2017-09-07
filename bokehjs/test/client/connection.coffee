@@ -1,7 +1,7 @@
 chai = require "chai"
 chai.use(require "chai-as-promised")
 expect = chai.expect
-utils = require "./utils"
+utils = require "../utils"
 child_process = require "child_process"
 {Promise} = require "es6-promise"
 path = require "path"
@@ -11,8 +11,8 @@ net = require "net"
 global.WebSocket = require("websocket").w3cwebsocket
 
 {Document, ModelChangedEvent} = utils.require "document"
-{pull_session} = utils.require "client"
-{Range1d} = utils.require("models/ranges/range1d")
+{pull_session} = utils.require "client/connection"
+{Range1d} = utils.require "models/ranges/range1d"
 
 # Promise works in a very annoying way, make it
 # have resolve and reject methods instead
@@ -107,7 +107,7 @@ with_server = (f) ->
 
   promise
 
-describe "Client", ->
+describe "ClientSession", ->
 
   # It takes time to spin up the server so without this things get
   # flaky on Travis. Lengthen if we keep getting Travis failures.

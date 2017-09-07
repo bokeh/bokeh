@@ -32,27 +32,6 @@ warnings.simplefilter('always', BokehUserWarning)
 
 from . import sampledata; sampledata
 
-
-def test(args=None):
-    ''' Run the Bokeh unit tests under the bokeh python directory using ``py.test``.
-
-    .. note::
-        Does not run any BokehJS, examples, or integration tests.
-
-    Args:
-        args(list, optional): command line arguments accepted by ``py.test``
-
-            For example, ``args=['-s', '-k plotting']`` prevents capture of standard out
-            and only runs tests that match ``"plotting"``. For more ``py.test`` options
-            see http://pytest.org/latest/usage.html.
-
-    Returns:
-        int: ``py.test`` exitcode
-
-    '''
-    from .util.testing import runtests
-    return runtests(args)
-
 def license():
     ''' Print the Bokeh license to the console.
 

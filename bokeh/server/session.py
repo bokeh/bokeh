@@ -179,7 +179,7 @@ class ServerSession(object):
         # other and their final states will differ.
         for connection in self._subscribed_connections:
             if may_suppress and connection is self._current_patch_connection:
-                pass #log.debug("Not sending notification back to client %r for a change it requested", connection)
+                log.trace("Not sending notification back to client %r for a change it requested", connection)
             else:
                 self._pending_writes.append(connection.send_patch_document(event))
 

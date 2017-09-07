@@ -5,6 +5,9 @@ import unittest
 
 import bs4
 
+from bokeh.core.templates import DOC_JS, PLOT_DIV, NOTEBOOK_DIV
+from bokeh.core.json_encoder import serialize_json
+
 import bokeh.embed as embed
 from bokeh.plotting import figure, curdoc
 from bokeh.resources import CDN, JSResources, CSSResources
@@ -111,35 +114,51 @@ class TestComponents(unittest.TestCase):
         self.maxDiff = None
         self.assertEqual(rawscript.strip(), script_content.strip())
 
+class TestNotebookContent(unittest.TestCase):
+
+    @mock.patch('bokeh.embed._standalone_docs_json_and_render_items')
+    def test_notebook_content(self, mock_standalone_docs_json_and_render_items):
+        (docs_json, render_items) = ("DOC_JSON", [dict(docid="foo", elementid="bar", modelid="bat")])
+        mock_standalone_docs_json_and_render_items.return_value = (docs_json, render_items)
+
+        expected_script = DOC_JS.render(docs_json=serialize_json(docs_json),
+                                        render_items=serialize_json(render_items))
+        expected_div = PLOT_DIV.render(elementid=render_items[0]['elementid'])
+
+        (script, div) = embed.notebook_content(_embed_test_plot)
+
+        self.assertEqual(script, expected_script)
+        self.assertEqual(div, expected_div)
+
+    @mock.patch('bokeh.embed._standalone_docs_json_and_render_items')
+    def test_notebook_content_with_notebook_comms_target(self, mock_standalone_docs_json_and_render_items):
+        (docs_json, render_items) = ("DOC_JSON", [dict(docid="foo", elementid="bar", modelid="bat")])
+        mock_standalone_docs_json_and_render_items.return_value = (docs_json, render_items)
+        comms_target = "NOTEBOOK_COMMS_TARGET"
+
+        ## assert that NOTEBOOK_COMMS_TARGET is added to render_items bundle
+        self.assertTrue('notebook_comms_target' not in render_items[0])
+        (script, _) = embed.notebook_content(_embed_test_plot, notebook_comms_target=comms_target)
+        self.assertTrue('notebook_comms_target' in render_items[0])
+
+        ## assert that NOTEBOOK_COMMS_TARGET ends up in generated script
+        expected_script = DOC_JS.render(docs_json=serialize_json(docs_json),
+                                        render_items=serialize_json(render_items))
+
+        self.assertEqual(script, expected_script)
+
 class TestNotebookDiv(unittest.TestCase):
 
-    def test_return_type(self):
-        r = embed.notebook_div(_embed_test_plot)
-        self.assertTrue(isinstance(r, str))
+    @mock.patch('bokeh.embed.notebook_content')
+    def test_notebook_div(self, mock_notebook_content):
+        (script, div) = ("(function(){})()", "<div></div>")
+        mock_notebook_content.return_value = (script, div)
 
-    def test_result_attrs(self):
-        r = embed.notebook_div(_embed_test_plot)
-        html = bs4.BeautifulSoup(r, "lxml")
-        scripts = html.findAll(name='script')
-        self.assertEqual(len(scripts), 1)
-        self.assertTrue(scripts[0].attrs, {'type': 'text/javascript'})
+        notebook_div = embed.notebook_div(_embed_test_plot)
 
-    def test_div_attrs(self):
-        r = embed.notebook_div(_embed_test_plot)
-        html = bs4.BeautifulSoup(r, "lxml")
-        divs = html.findAll(name='div')
-        self.assertEqual(len(divs), 2)
+        expected_notebook_div = NOTEBOOK_DIV.render(plot_script=script, plot_div=div)
 
-        div = divs[0]
-        self.assertEqual(set(div.attrs), set(['class']))
-        self.assertEqual(div.attrs['class'], ['bk-root'])
-        self.assertEqual(div.text, '\n\n')
-
-        div = divs[1]
-        self.assertEqual(set(div.attrs), set(['id', 'class']))
-        self.assertEqual(div.attrs['class'], ['bk-plotdiv'])
-        self.assertEqual(div.text, '')
-
+        self.assertEqual(notebook_div, expected_notebook_div)
 
 class TestFileHTML(unittest.TestCase):
 
@@ -454,14 +473,14 @@ class TestAutoloadServer(unittest.TestCase):
                              attrs)
 
 
-@mock.patch('bokeh.document.check_integrity')
+@mock.patch('bokeh.document.document.check_integrity')
 def test_modelindocument_validates_document_by_default(check_integrity):
     p = figure()
     with embed._ModelInDocument([p]):
         pass
     assert check_integrity.called
 
-@mock.patch('bokeh.document.check_integrity')
+@mock.patch('bokeh.document.document.check_integrity')
 def test_modelindocument_doesnt_validate_doc_due_to_env_var(check_integrity, monkeypatch):
     monkeypatch.setenv("BOKEH_VALIDATE_DOC", "false")
     p = figure()
@@ -469,14 +488,14 @@ def test_modelindocument_doesnt_validate_doc_due_to_env_var(check_integrity, mon
         pass
     assert not check_integrity.called
 
-@mock.patch('bokeh.document.check_integrity')
+@mock.patch('bokeh.document.document.check_integrity')
 def test_modelinemptydocument_validates_document_by_default(check_integrity):
     p = figure()
     with embed._ModelInEmptyDocument(p):
         pass
     assert check_integrity.called
 
-@mock.patch('bokeh.document.check_integrity')
+@mock.patch('bokeh.document.document.check_integrity')
 def test_modelinemptydocument_doesnt_validate_document_due_to_env_var(check_integrity, monkeypatch):
     monkeypatch.setenv("BOKEH_VALIDATE_DOC", "false")
     p = figure()

@@ -6,14 +6,6 @@ bokeh.protocol
 .. automodule:: bokeh.protocol
   :members:
 
-.. _bokeh.protocol.events:
-
-bokeh.protocol.events
----------------------
-
-.. automodule:: bokeh.protocol.events
-   :members:
-
 .. _bokeh.protocol.exceptions:
 
 bokeh.protocol.exceptions

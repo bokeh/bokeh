@@ -21,7 +21,7 @@ requirements:
   build:
     - python
     - setuptools
-    - nodejs >=6.6.0
+    - nodejs >=6.10.0
     - certifi
     - pycurl
     - packaging
@@ -73,7 +73,7 @@ test:
     - scipy
     - pillow
     - boto
-    - nodejs >=6.6.0
+    - nodejs >=6.10.0
     # pyyaml installed by bokeh
     # jinja2 installed by bokeh
 

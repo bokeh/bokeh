@@ -97,15 +97,15 @@ class PropertyValueContainer(object):
         self._owners = set()
         super(PropertyValueContainer, self).__init__(*args, **kwargs)
 
-    def _register_owner(self, owner, prop):
-        self._owners.add((owner, prop))
+    def _register_owner(self, owner, descriptor):
+        self._owners.add((owner, descriptor))
 
-    def _unregister_owner(self, owner, prop):
-        self._owners.discard((owner, prop))
+    def _unregister_owner(self, owner, descriptor):
+        self._owners.discard((owner, descriptor))
 
     def _notify_owners(self, old, hint=None):
-        for (owner, prop) in self._owners:
-            prop._notify_mutated(owner, old, hint)
+        for (owner, descriptor) in self._owners:
+            descriptor._notify_mutated(owner, old, hint=hint)
 
     def _saved_copy(self):
         raise RuntimeError("Subtypes must implement this to make a backup copy")
@@ -294,6 +294,11 @@ class PropertyValueDict(PropertyValueContainer, dict):
     def update(self, *args, **kwargs):
         return super(PropertyValueDict, self).update(*args, **kwargs)
 
+class PropertyValueColumnData(PropertyValueDict):
+    '''
+
+    '''
+
     # don't wrap with notify_owner --- notifies owners explicitly
     def _stream(self, doc, source, new_data, rollover=None, setter=None):
         ''' Internal implementation to handle special-casing stream events
@@ -346,7 +351,7 @@ class PropertyValueDict(PropertyValueContainer, dict):
                 if rollover is not None:
                     del L[:-rollover]
 
-        from ...protocol.events import ColumnsStreamedEvent
+        from ...document.events import ColumnsStreamedEvent
 
         self._notify_owners(old,
                             hint=ColumnsStreamedEvent(doc, source, new_data, rollover, setter))
@@ -388,7 +393,7 @@ class PropertyValueDict(PropertyValueContainer, dict):
                     shape = self[name][ind[0]][ind[1:]].shape
                     self[name][ind[0]][ind[1:]] = np.array(value, copy=False).reshape(shape)
 
-        from ...protocol.events import ColumnsPatchedEvent
+        from ...document.events import ColumnsPatchedEvent
 
         self._notify_owners(old,
                             hint=ColumnsPatchedEvent(doc, source, patches, setter))

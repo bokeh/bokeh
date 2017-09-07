@@ -1,7 +1,5 @@
 from __future__ import absolute_import
 
-from mock import Mock
-
 import bokeh.util.compiler as buc
 
 def test_nodejs_compile_coffeescript():
@@ -77,11 +75,3 @@ def test_nodejs_compile_less():
             text="some.less:1:21:Unrecognised input",
             extract=".bk-some-style color: green; }",
             annotated="some.less:1:21:Unrecognised input\n  .bk-some-style color: green; }"))
-
-def test__detect_nodejs_calls_wait():
-    m = Mock()
-    old_Popen = buc.Popen
-    buc.Popen = lambda *args, **kw: m
-    buc._detect_nodejs()
-    assert m.wait.called
-    buc.Popen = old_Popen

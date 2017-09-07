@@ -1,0 +1,14 @@
+exclude:
+- /bokeh/sphinxext/.*
+- /conda.recipe/.*
+- /conftest.py
+- /docker-tools/.*
+- /examples/.*
+- /sphinx/.*
+- /versioneer.py
+component_depth: 1
+languages:
+- javascript
+- python
+- script
+- typescript

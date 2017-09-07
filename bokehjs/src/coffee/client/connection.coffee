@@ -1,96 +1,19 @@
 import {Promise} from "es6-promise"
 
-import {logger} from "./core/logging"
-import {uniqueId} from "./core/util/string"
-import {extend} from "./core/util/object"
-import {Document, ModelChangedEvent} from "./document"
+import {logger} from "core/logging"
+import {Document} from "document"
+import {Message} from "protocol/message"
+import {Receiver} from "protocol/receiver"
+import {ClientSession} from "./session"
 
 export DEFAULT_SERVER_WEBSOCKET_URL = "ws://localhost:5006/ws"
 export DEFAULT_SESSION_ID = "default"
 
-class Message
-  constructor : (@header, @metadata, @content) ->
-    @buffers = []
+export class ClientConnection
 
-  @assemble : (header_json, metadata_json, content_json) ->
-    header = JSON.parse(header_json)
-    metadata = JSON.parse(metadata_json)
-    content = JSON.parse(content_json)
-    new Message(header, metadata, content)
+  @_connection_count: 0
 
-  @create_header : (msgtype, options) ->
-    header = {
-      'msgid'   : uniqueId()
-      'msgtype' : msgtype
-    }
-    extend(header, options)
-
-  @create : (msgtype, header_options, content) ->
-    if not content?
-      content = {}
-    header = Message.create_header(msgtype, header_options)
-    new Message(header, {}, content)
-
-  send : (socket) ->
-    header_json = JSON.stringify(@header)
-    metadata_json = JSON.stringify(@metadata)
-    content_json = JSON.stringify(@content)
-    socket.send(header_json)
-    socket.send(metadata_json)
-    socket.send(content_json)
-
-  complete : ->
-    if @header? and @metadata? and @content?
-      if 'num_buffers' of @header
-        @buffers.length == @header['num_buffers']
-      else
-        true
-    else
-      false
-
-  add_buffer : (buffer) ->
-    @buffers.push(buffer)
-
-  _header_field : (field) ->
-    if field of @header
-      @header[field]
-    else
-      null
-
-  msgid : () -> @_header_field('msgid')
-
-  msgtype : () -> @_header_field('msgtype')
-
-  sessid : () -> @_header_field('sessid')
-
-  reqid : () -> @_header_field('reqid')
-
-  # return the reason we should close on bad protocol, if there is one
-  problem : () ->
-    if 'msgid' not of @header
-      "No msgid in header"
-    else if 'msgtype' not of @header
-      "No msgtype in header"
-    else
-      null
-
-message_handlers = {
-  'PATCH-DOC' : (connection, message) ->
-    connection._for_session (session) ->
-      session._handle_patch(message)
-
-  'OK' : (connection, message) ->
-    logger.trace("Unhandled OK reply to #{message.reqid()}")
-
-  'ERROR' : (connection, message) ->
-    logger.error("Unhandled ERROR reply to #{message.reqid()}: #{message.content['text']}")
-}
-
-class ClientConnection
-
-  @_connection_count : 0
-
-  constructor : (@url, @id, @args_string, @_on_have_session_hook, @_on_closed_permanently_hook) ->
+  constructor: (@url, @id, @args_string, @_on_have_session_hook, @_on_closed_permanently_hook) ->
     @_number = ClientConnection._connection_count
     ClientConnection._connection_count = @_number + 1
     if not @url?
@@ -99,27 +22,21 @@ class ClientConnection
       @id = DEFAULT_SESSION_ID
 
     logger.debug("Creating websocket #{@_number} to '#{@url}' session '#{@id}'")
+
     @socket = null
+    @session = null
     @closed_permanently = false
-    @_fragments = []
-    @_partial = null
     @_current_handler = null
     @_pending_ack = null # null or [resolve,reject]
     @_pending_replies = {} # map reqid to [resolve,reject]
-    @session = null
+    @_receiver = new Receiver()
 
-  _for_session : (f) ->
-    if @session != null
-      f(@session)
-
-  connect : () ->
+  connect: () ->
     if @closed_permanently
       return Promise.reject(new Error("Cannot connect() a closed ClientConnection"))
     if @socket?
       return Promise.reject(new Error("Already connected"))
 
-    @_fragments = []
-    @_partial = null
     @_pending_replies = {}
     @_current_handler = null
 
@@ -145,19 +62,18 @@ class ClientConnection
       logger.error(" - #{error}")
       Promise.reject(error)
 
-  close : () ->
+  close: () ->
     if not @closed_permanently
       logger.debug("Permanently closing websocket connection #{@_number}")
       @closed_permanently = true
       if @socket?
         @socket.close(1000, "close method called on ClientConnection #{@_number}")
-      @_for_session (session) ->
-        session._connection_closed()
+      @session._connection_closed()
       if @_on_closed_permanently_hook?
         @_on_closed_permanently_hook()
         @_on_closed_permanently_hook = null
 
-  _schedule_reconnect : (milliseconds) ->
+  _schedule_reconnect: (milliseconds) ->
     retry = () =>
       # TODO "true or" below until we fix reconnection to repull
       # the document when required. Otherwise, we get a lot of
@@ -171,16 +87,12 @@ class ClientConnection
         @connect()
     setTimeout retry, milliseconds
 
-  send : (message) ->
+  send: (message) ->
     if @socket == null
       throw new Error("not connected so cannot send #{message}")
     message.send(@socket)
 
-  send_event : (event) ->
-    message = Message.create('EVENT', {}, JSON.stringify(event))
-    @send(message)
-
-  send_with_reply : (message) ->
+  send_with_reply: (message) ->
     promise = new Promise (resolve, reject) =>
       @_pending_replies[message.msgid()] = [resolve, reject]
       @send(message)
@@ -248,41 +160,33 @@ class ClientConnection
         console.trace(error)
       logger.error("Failed to repull session #{error}")
 
-  _on_open : (resolve, reject) ->
+  _on_open: (resolve, reject) ->
     logger.info("Websocket connection #{@_number} is now open")
     @_pending_ack = [resolve, reject]
     @_current_handler = (message) =>
       @_awaiting_ack_handler(message)
 
-  _on_message : (event) ->
-    @_on_message_unchecked(event)
-
-  _on_message_unchecked : (event) ->
+  _on_message: (event) ->
     if not @_current_handler?
-      logger.error("got a message but haven't set _current_handler")
+      logger.error("Got a message with no current handler set")
 
-    if event.data instanceof ArrayBuffer
-      if @_partial? and not @_partial.complete()
-        @_partial.add_buffer(event.data)
-      else
-        @_close_bad_protocol("Got binary from websocket but we were expecting text")
-    else if @_partial?
-      @_close_bad_protocol("Got text from websocket but we were expecting binary")
-    else
-      @_fragments.push(event.data)
-      if @_fragments.length == 3
-        @_partial = Message.assemble(@_fragments[0], @_fragments[1], @_fragments[2])
-        @_fragments = []
-        problem = @_partial.problem()
-        if problem != null
-          @_close_bad_protocol(problem)
+    try
+      @_receiver.consume(event.data)
+    catch e
+      @_close_bad_protocol(e.toString())
 
-    if @_partial? and @_partial.complete()
-      msg = @_partial
-      @_partial = null
-      @_current_handler(msg)
+    if @_receiver.message == null
+      return null
 
-  _on_close : (event) ->
+    msg = @_receiver.message
+
+    problem = msg.problem()
+    if problem != null
+      @_close_bad_protocol(problem)
+
+    @_current_handler(msg)
+
+  _on_close: (event) ->
     logger.info("Lost websocket #{@_number} connection, #{event.code} (#{event.reason})")
     @socket = null
 
@@ -302,17 +206,16 @@ class ClientConnection
     if not @closed_permanently
       @_schedule_reconnect(2000)
 
-  _on_error : (reject) ->
+  _on_error: (reject) ->
     logger.debug("Websocket error on socket  #{@_number}")
     reject(new Error("Could not open websocket"))
 
-  _close_bad_protocol : (detail) ->
+  _close_bad_protocol: (detail) ->
     logger.error("Closing connection: #{detail}")
-    # 1002 = protocol error
     if @socket?
-      @socket.close(1002, detail)
+      @socket.close(1002, detail) # 1002 = protocol error
 
-  _awaiting_ack_handler : (message) ->
+  _awaiting_ack_handler: (message) ->
     if message.msgtype() == "ACK"
       @_current_handler = (message) => @_steady_state_handler(message)
 
@@ -328,79 +231,17 @@ class ClientConnection
     else
       @_close_bad_protocol("First message was not an ACK")
 
-  _steady_state_handler : (message) ->
+  _steady_state_handler: (message) ->
     if message.reqid() of @_pending_replies
       promise_funcs = @_pending_replies[message.reqid()]
       delete @_pending_replies[message.reqid()]
       promise_funcs[0](message)
-    else if message.msgtype() of message_handlers
-      message_handlers[message.msgtype()](@, message)
     else
-      logger.debug("Doing nothing with message #{message.msgtype()}")
-
-class ClientSession
-
-  constructor : (@_connection, @document, @id) ->
-    # we save the bound function so we can remove it later
-    @document_listener = (event) => @_document_changed(event)
-    @document.on_change(@document_listener)
-
-    @event_manager = @document.event_manager
-    @event_manager.session = @
-
-  close : () ->
-    @_connection.close()
-
-  send_event : (type) ->
-    @_connection.send_event(type)
-
-  _connection_closed : () ->
-    @document.remove_on_change(@document_listener)
-
-  # Sends a request to the server for info about the
-  # server, such as its Bokeh version. Returns a promise,
-  # the value of the promise is a free-form dictionary
-  # of server details.
-  request_server_info : () ->
-    message = Message.create('SERVER-INFO-REQ', {})
-    promise = @_connection.send_with_reply(message)
-    promise.then((reply) -> reply.content)
-
-  # Sends some request to the server (no guarantee about which
-  # one) and returns a promise which is completed when the server
-  # replies. The purpose of this is that if you wait for the
-  # promise to be completed, you know the server has processed the
-  # request. This is useful when writing tests because once the
-  # server has processed this request it should also have
-  # processed any events or requests you sent previously, which
-  # means you can check for the results of that processing without
-  # a race condition. (This assumes the server processes events in
-  # sequence, which it mostly has to semantically - reordering
-  # events might change the final state.)
-  force_roundtrip : () ->
-    @request_server_info().then((ignored) -> undefined)
-
-  _document_changed : (event) ->
-    # Filter out events that were initiated by the ClientSession itself
-    if event.setter_id == @id
-      return
-
-    # Filter out changes to attributes that aren't server-visible
-    if event instanceof ModelChangedEvent and event.attr not of event.model.serializable_attributes()
-      return
-
-    # TODO (havocp) the connection may be closed here, which will
-    # cause this send to throw an error - need to deal with it more cleanly.
-    patch = Message.create('PATCH-DOC', {}, @document.create_json_patch([event]))
-    @_connection.send(patch)
-
-  _handle_patch : (message) ->
-    @document.apply_json_patch(message.content, @id)
+      @session.handle(message)
 
 # Returns a promise of a ClientSession
-# The returned promise has a close() method
-# in case you want to close before getting a session;
-# session.close() works too once you have a session.
+# The returned promise has a close() method in case you want to close before
+# getting a session; session.close() works too once you have a session.
 export pull_session = (url, session_id, args_string) ->
   rejecter = null
   connection = null

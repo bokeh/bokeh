@@ -21,11 +21,6 @@ describe "Canvas", ->
     expect(c._width).to.be.an.instanceOf(Variable)
     expect(c._height).to.be.an.instanceOf(Variable)
 
-  it "should should return 8 constraints", ->
-    c = new Canvas()
-    c.document = new Document()
-    expect(c.get_constraints().length).to.be.equal 8
-
   describe "Coordinate transforms", ->
     c = new Canvas()
     # stub solver property

@@ -21,6 +21,9 @@ export class CartesianFrame extends LayoutCanvas
 
     return null
 
+  get_editables: () ->
+    return super().concat([@_width, @_height])
+
   contains: (vx, vy) ->
     return (
       vx >= @_left.value   and vx <= @_right.value and
