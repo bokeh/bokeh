@@ -74,7 +74,7 @@ gulp.task("test:unit:coverage", () => {
 })
 
 gulp.task("test:client", () => {
-  return gulp.src(["./test/client.coffee"]).pipe(mocha())
+  return gulp.src(["./test/client"]).pipe(mocha())
 })
 
 gulp.task("test:core", () => {
@@ -93,12 +93,12 @@ gulp.task("test:models", () => {
   return gulp.src(["./test/models"]).pipe(mocha())
 })
 
-gulp.task("test:utils", () => {
-  return gulp.src(["./test/utils.coffee"]).pipe(mocha())
+gulp.task("test:protocol", () => {
+  return gulp.src(["./test/protocol"]).pipe(mocha())
 })
 
-gulp.task("test:common", () => {
-  return gulp.src(["./test/common"]).pipe(mocha())
+gulp.task("test:utils", () => {
+  return gulp.src(["./test/utils.coffee"]).pipe(mocha())
 })
 
 gulp.task("test:defaults", ["defaults:generate"], () => {
