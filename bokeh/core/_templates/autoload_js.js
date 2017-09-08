@@ -79,7 +79,7 @@ calls it with the rendered model.
   var element = document.getElementById({{ elementid|json }});
   if (element == null) {
     console.log("Bokeh: ERROR: autoload.js configured with elementid '{{ elementid }}' but no matching script tag was found. ")
-    return
+    return false;
   }
   {%- endif %}
 
