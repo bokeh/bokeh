@@ -74,10 +74,12 @@ calls it with the rendered model.
       document.getElementsByTagName("head")[0].appendChild(s);
     }
   };
+
   {%- if elementid -%}
   var element = document.getElementById({{ elementid|json }});
   if (element == null) {
     console.log("Bokeh: ERROR: autoload.js configured with elementid '{{ elementid }}' but no matching script tag was found. ")
+    return
   }
   {%- endif %}
 
