@@ -5,7 +5,7 @@ from __future__ import absolute_import
 
 from IPython.display import publish_display_data
 
-from ..core.templates import SCRIPT_TAG
+from ..core.templates import SCRIPT_TAG, AUTOLOAD_NB_JS
 
 HTML_MIME_TYPE = 'text/html'
 JS_MIME_TYPE   = 'application/javascript'
@@ -108,9 +108,7 @@ def _publish_zeppelin_data(html):
 
 def _loading_js(resources, element_id, custom_models_js, load_timeout=5000, register_mime=True):
 
-    from ..core.templates import AUTOLOAD_NB_JS
-
-    js = AUTOLOAD_NB_JS.render(
+    return AUTOLOAD_NB_JS.render(
         elementid = element_id,
         js_urls   = resources.js_files,
         css_urls  = resources.css_files,
@@ -120,8 +118,6 @@ def _loading_js(resources, element_id, custom_models_js, load_timeout=5000, regi
         timeout   = load_timeout,
         register_mime = register_mime
     )
-
-    return js
 
 def get_comms(target_name):
     ''' Create a Jupyter comms object for a specific target, that can
