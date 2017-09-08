@@ -1,5 +1,5 @@
 import * as base from "./base"
-import {pull_session} from "./client"
+import {pull_session} from "./client/connection"
 import {logger, set_log_level} from "./core/logging"
 import {Document, RootAddedEvent, RootRemovedEvent, TitleChangedEvent} from "./document"
 import {div, link, style, replaceWith} from "./core/dom"
