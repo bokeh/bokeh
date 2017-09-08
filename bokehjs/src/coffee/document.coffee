@@ -568,7 +568,7 @@ export class Document
       events: json_events,
       references: Document._references_json(values(references))
 
-  apply_json_patch: (patch, setter_id) ->
+  apply_json_patch: (patch, buffers, setter_id) ->
     references_json = patch['references']
     events_json = patch['events']
     references = Document._instantiate_references_json(references_json, @_all_models)
@@ -606,7 +606,7 @@ export class Document
           model_type = event_json['model']['type']
           # XXXX currently still need this first branch, some updates (initial?) go through here
           if attr == 'data' and model_type == 'ColumnDataSource'
-            [data, shapes] = decode_column_data(event_json['new'])
+            [data, shapes] = decode_column_data(event_json['new'], buffers)
             patched_obj.setv({_shapes: shapes, data: data}, {setter_id: setter_id})
           else
             value = Document._resolve_refs(event_json['new'], old_references, new_references)
@@ -617,7 +617,7 @@ export class Document
           if column_source_id not of @_all_models
             throw new Error("Cannot stream to #{column_source_id} which is not in the document")
           column_source = @_all_models[column_source_id]
-          [data, shapes] = decode_column_data(event_json['new'])
+          [data, shapes] = decode_column_data(event_json['new'], buffers)
           column_source.setv({_shapes: shapes, data: data}, {setter_id: setter_id})
 
         when 'ColumnsStreamed'

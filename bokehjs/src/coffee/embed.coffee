@@ -13,7 +13,7 @@ _handle_notebook_comms = (msg) ->
   # @ is bound to the doc
   data = JSON.parse(msg.content.data)
   if 'events' of data and 'references' of data
-    @apply_json_patch(data)
+    @apply_json_patch(data, []) # empty buffers for now
   else if 'doc' of data
     @replace_with_json(data['doc'])
   else

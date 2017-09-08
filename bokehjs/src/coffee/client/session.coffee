@@ -74,7 +74,7 @@ export class ClientSession
     @_connection.send(message)
 
   _handle_patch: (message) ->
-    @document.apply_json_patch(message.content, @id)
+    @document.apply_json_patch(message.content, message.buffers, @id)
 
   _handle_ok: (message) ->
     logger.trace("Unhandled OK reply to #{message.reqid()}")

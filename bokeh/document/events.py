@@ -271,9 +271,11 @@ class ColumnDataChangedEvent(DocumentPatchedEvent):
         '''
         from ..util.serialization import transform_column_source_data
 
+        data_dict = transform_column_source_data(self.column_source.data, buffers=buffers)
+
         return { 'kind'          : 'ColumnDataChanged',
                  'column_source' : self.column_source.ref,
-                 'new'          : transform_column_source_data(self.column_source.data) }
+                 'new'           : data_dict}
 
 class ColumnsStreamedEvent(DocumentPatchedEvent):
     ''' A concrete event representing efficiently streaming new data

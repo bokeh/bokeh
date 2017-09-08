@@ -44,16 +44,29 @@ export encode_base64 = (array, shape) ->
     dtype: dtype
   return data
 
-export decode_column_data = (data) ->
+export decode_column_data = (data, buffers) ->
   new_data = {}
   data_shapes = {}
+
   for k, v of data
+
     if isArray(v)
       arrays = []
       shapes = []
       for arr in v
         if isObject(arr) and '__ndarray__' of arr
           [arr, shape] = decode_base64(arr)
+          shapes.push(shape)
+          arrays.push(arr)
+        else if isObject(arr) and '__buffer__' of arr
+          shape = arr.shape
+          bytes = null
+          for buf in buffers
+            header = JSON.parse(buf[0])
+            if header.id == arr.__buffer__
+              bytes = buf[1]
+              break
+          arr = new ARRAY_TYPES[arr.dtype](bytes)
           shapes.push(shape)
           arrays.push(arr)
         else if isArray(arr)
@@ -64,10 +77,24 @@ export decode_column_data = (data) ->
         data_shapes[k] = shapes
       else
         new_data[k] = v
+
     else if isObject(v) and '__ndarray__' of v
       [arr, shape] = decode_base64(v)
       new_data[k] = arr
       data_shapes[k] = shape
+
+    else if isObject(v) and '__buffer__' of v
+      shape = v.shape
+      bytes = null
+      for buf in buffers
+        header = JSON.parse(buf[0])
+        if header.id == v.__buffer__
+          bytes = buf[1]
+          break
+      arr = new ARRAY_TYPES[v.dtype](bytes)
+      new_data[k] = arr
+      data_shapes[k] = shape
+
     else
       new_data[k] = v
       data_shapes[k] = []

@@ -169,7 +169,7 @@ array_encoding_disabled.__doc__ = format_docstring(array_encoding_disabled.__doc
                                                    binary_array_types="\n    ".join("* ``np." + str(x) + "``"
                                                                                     for x in BINARY_ARRAY_TYPES))
 
-def transform_array(array, force_list=False):
+def transform_array(array, force_list=False, buffers=None):
     ''' Transform a NumPy arrays into serialized format
 
     Converts un-serializable dtypes and returns JSON serializable
@@ -181,6 +181,19 @@ def transform_array(array, force_list=False):
             This function can encode some dtypes using a binary encoding, but
             setting this argument to True will override that and cause only
             standard Python lists to be emitted. (default: False)
+
+        buffers (set, optional) :
+            If binary buffers are desired, the buffers parameter may be
+            provided, and any columns that may be sent as binary buffers
+            will be added to the set. If None, then only base64 encodinfg
+            will be used (default: None)
+
+            If force_list is True, then this value will be ignored, and
+            no buffers will be generated.
+
+            **This is an "out" parameter**. The values it contains will be
+            modified in-place.
+
 
     Returns:
         JSON
@@ -215,7 +228,7 @@ def transform_array(array, force_list=False):
     elif array.dtype.kind == 'm':
         array = array.astype('timedelta64[us]').astype('int64') / 1000.
 
-    return serialize_array(array, force_list)
+    return serialize_array(array, force_list=force_list, buffers=buffers)
 
 def transform_array_to_list(array):
     ''' Transforms a NumPy array into a list of values
@@ -239,7 +252,7 @@ def transform_array_to_list(array):
         return transformed.tolist()
     return array.tolist()
 
-def transform_series(series, force_list=False):
+def transform_series(series, force_list=False, buffers=None):
     ''' Transforms a Pandas series into serialized form
 
     Args:
@@ -249,14 +262,26 @@ def transform_series(series, force_list=False):
             setting this argument to True will override that and cause only
             standard Python lists to be emitted. (default: False)
 
+        buffers (set, optional) :
+            If binary buffers are desired, the buffers parameter may be
+            provided, and any columns that may be sent as binary buffers
+            will be added to the set. If None, then only base64 encodinfg
+            will be used (default: None)
+
+            If force_list is True, then this value will be ignored, and
+            no buffers will be generated.
+
+            **This is an "out" parameter**. The values it contains will be
+            modified in-place.
+
     Returns:
         list or dict
 
     '''
     vals = series.values
-    return transform_array(vals, force_list)
+    return transform_array(vals, forece_list=force_list, buffers=buffers)
 
-def serialize_array(array, force_list=False):
+def serialize_array(array, force_list=False, buffers=None):
     ''' Transforms a NumPy array into serialized form.
 
     Args:
@@ -265,6 +290,18 @@ def serialize_array(array, force_list=False):
             This function can encode some dtypes using a binary encoding, but
             setting this argument to True will override that and cause only
             standard Python lists to be emitted. (default: False)
+
+        buffers (set, optional) :
+            If binary buffers are desired, the buffers parameter may be
+            provided, and any columns that may be sent as binary buffers
+            will be added to the set. If None, then only base64 encodinfg
+            will be used (default: None)
+
+            If force_list is True, then this value will be ignored, and
+            no buffers will be generated.
+
+            **This is an "out" parameter**. The values it contains will be
+            modified in-place.
 
     Returns:
         list or dict
@@ -276,9 +313,12 @@ def serialize_array(array, force_list=False):
         return transform_array_to_list(array)
     if not array.flags['C_CONTIGUOUS']:
         array = np.ascontiguousarray(array)
-    return encode_base64_dict(array)
+    if buffers is None:
+        return encode_base64_dict(array)
+    else:
+        return encode_binary_dict(array, buffers)
 
-def traverse_data(obj, use_numpy=True):
+def traverse_data(obj, use_numpy=True, buffers=None):
     ''' Recursively traverse an object until a flat list is found.
 
     If NumPy is available, the flat list is converted to a numpy array
@@ -293,7 +333,7 @@ def traverse_data(obj, use_numpy=True):
             This argument is only useful for testing (default: True)
     '''
     if use_numpy and all(isinstance(el, np.ndarray) for el in obj):
-        return [transform_array(el) for el in obj]
+        return [transform_array(el, buffers=buffers) for el in obj]
     obj_copy = []
     for item in obj:
         # Check the base/common case first for performance reasons
@@ -313,11 +353,20 @@ def traverse_data(obj, use_numpy=True):
             obj_copy.append(item)
     return obj_copy
 
-def transform_column_source_data(data):
+def transform_column_source_data(data, buffers=None):
     ''' Transform ColumnSourceData data to a serialized format
 
     Args:
         data (dict) : the mapping of names to data columns to transform
+
+        buffers (set, optional) :
+            If binary buffers are desired, the buffers parameter may be
+            provided, and any columns that may be sent as binary buffers
+            will be added to the set. If None, then only base64 encodinfg
+            will be used (default: None)
+
+            **This is an "out" parameter**. The values it contains will be
+            modified in-place.
 
     Returns:
         JSON compatible dict
@@ -326,12 +375,48 @@ def transform_column_source_data(data):
     data_copy = {}
     for key in iterkeys(data):
         if pd and isinstance(data[key], (pd.Series, pd.Index)):
-            data_copy[key] = transform_series(data[key])
+            data_copy[key] = transform_series(data[key], buffers=buffers)
         elif isinstance(data[key], np.ndarray):
-            data_copy[key] = transform_array(data[key])
+            data_copy[key] = transform_array(data[key], buffers=buffers)
         else:
-            data_copy[key] = traverse_data(data[key])
+            data_copy[key] = traverse_data(data[key], buffers=buffers)
     return data_copy
+
+def encode_binary_dict(array, buffers):
+    ''' Send a numpy array as an unencoded binary buffer
+
+    The encoded format is a dict with the following structure:
+
+    .. code:: python
+
+        {
+            '__buffer__' :  << an ID to locate the buffer >>,
+            'shape'      : << array shape >>,
+            'dtype'      : << dtype name >>,
+        }
+
+    Args:
+        array (np.ndarray) : an array to encode
+
+        buffers (set) :
+            Set to add buffers to
+
+            **This is an "out" parameter**. The values it contains will be
+            modified in-place.
+
+    Returns:
+        dict
+
+    '''
+    buffer_id = make_id()
+    buf = (dict(id=buffer_id), array.tobytes())
+    buffers.append(buf)
+
+    return {
+        '__buffer__'  : buffer_id,
+        'shape'       : array.shape,
+        'dtype'       : array.dtype.name
+    }
 
 def encode_base64_dict(array):
     ''' Encode a NumPy array using base64:
