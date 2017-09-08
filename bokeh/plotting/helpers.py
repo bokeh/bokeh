@@ -17,8 +17,9 @@ from ..models import (
     FactorRange, Grid, HelpTool, HoverTool, LassoSelectTool, Legend, LegendItem, LinearAxis,
     LogAxis, PanTool, ZoomInTool, ZoomOutTool, PolySelectTool, ContinuousTicker,
     SaveTool, Range, Range1d, UndoTool, RedoTool, ResetTool, ResizeTool, Tool,
-    WheelPanTool, WheelZoomTool, ColumnarDataSource, ColumnDataSource, GlyphRenderer,
-    LogScale, LinearScale, CategoricalScale)
+    WheelPanTool, WheelZoomTool, ColumnarDataSource, ColumnDataSource,
+    LogScale, LinearScale, CategoricalScale, Circle, MultiLine)
+from ..models.renderers import GlyphRenderer
 
 from ..core.properties import ColorSpec, Datetime, value, field
 from ..transform import stack
@@ -27,8 +28,6 @@ from ..util.deprecation import deprecated
 from ..util.string import nice_join
 
 pd = import_optional('pandas')
-
-DEFAULT_PALETTE = ["#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33ff3"]
 
 
 def _stack(stackers, spec0, spec1, **kw):
@@ -68,6 +67,110 @@ def _stack(stackers, spec0, spec1, **kw):
 
     return _kw
 
+def _graph(node_source, edge_source, **kwargs):
+
+    if not isinstance(node_source, ColumnarDataSource):
+        try:
+            # try converting the soruce to ColumnDataSource
+            node_source = ColumnDataSource(node_source)
+        except ValueError as err:
+            msg = "Failed to auto-convert {curr_type} to ColumnDataSource.\n Original error: {err}".format(
+                curr_type=str(type(node_source)),
+                err=err.message
+            )
+            reraise(ValueError, ValueError(msg), sys.exc_info()[2])
+
+    if not isinstance(edge_source, ColumnarDataSource):
+        try:
+            # try converting the soruce to ColumnDataSource
+            edge_source = ColumnDataSource(edge_source)
+        except ValueError as err:
+            msg = "Failed to auto-convert {curr_type} to ColumnDataSource.\n Original error: {err}".format(
+                curr_type=str(type(edge_source)),
+                err=err.message
+            )
+            reraise(ValueError, ValueError(msg), sys.exc_info()[2])
+
+    ## node stuff
+    if any(x.startswith('node_selection_') for x in kwargs):
+        snode_ca = _pop_colors_and_alpha(Circle, kwargs, prefix="node_selection_")
+    else:
+        snode_ca = None
+
+    if any(x.startswith('node_hover_') for x in kwargs):
+        hnode_ca = _pop_colors_and_alpha(Circle, kwargs, prefix="node_hover_")
+    else:
+        hnode_ca = None
+
+    if any(x.startswith('node_muted_') for x in kwargs):
+        mnode_ca = _pop_colors_and_alpha(Circle, kwargs, prefix="node_muted_")
+    else:
+        mnode_ca = None
+
+    nsnode_ca = _pop_colors_and_alpha(Circle, kwargs, prefix="node_nonselection_")
+    node_ca = _pop_colors_and_alpha(Circle, kwargs, prefix="node_")
+
+    ## edge stuff
+    if any(x.startswith('edge_selection_') for x in kwargs):
+        sedge_ca = _pop_colors_and_alpha(MultiLine, kwargs, prefix="edge_selection_")
+    else:
+        sedge_ca = None
+
+    if any(x.startswith('edge_hover_') for x in kwargs):
+        hedge_ca = _pop_colors_and_alpha(MultiLine, kwargs, prefix="edge_hover_")
+    else:
+        hedge_ca = None
+
+    if any(x.startswith('edge_muted_') for x in kwargs):
+        medge_ca = _pop_colors_and_alpha(MultiLine, kwargs, prefix="edge_muted_")
+    else:
+        medge_ca = None
+
+    nsedge_ca = _pop_colors_and_alpha(MultiLine, kwargs, prefix="edge_nonselection_")
+    edge_ca = _pop_colors_and_alpha(MultiLine, kwargs, prefix="edge_")
+
+    ## node stuff
+    node_kwargs = {k.lstrip('node_'): v for k, v in kwargs.copy().items() if k.lstrip('node_') in Circle.properties()}
+
+    node_glyph = _make_glyph(Circle, node_kwargs, node_ca)
+    nsnode_glyph = _make_glyph(Circle, node_kwargs, nsnode_ca)
+    snode_glyph = _make_glyph(Circle, node_kwargs, snode_ca)
+    hnode_glyph = _make_glyph(Circle, node_kwargs, hnode_ca)
+    mnode_glyph = _make_glyph(Circle, node_kwargs, mnode_ca)
+
+    node_renderer = GlyphRenderer(glyph=node_glyph,
+                                  nonselection_glyph=nsnode_glyph,
+                                  selection_glyph=snode_glyph,
+                                  hover_glyph=hnode_glyph,
+                                  muted_glyph=mnode_glyph,
+                                  data_source=node_source)
+
+    ## edge stuff
+    edge_kwargs = {k.lstrip('edge_'): v for k, v in kwargs.copy().items() if k.lstrip('edge_') in MultiLine.properties()}
+
+    edge_glyph = _make_glyph(MultiLine, edge_kwargs, edge_ca)
+    nsedge_glyph = _make_glyph(MultiLine, edge_kwargs, nsedge_ca)
+    sedge_glyph = _make_glyph(MultiLine, edge_kwargs, sedge_ca)
+    hedge_glyph = _make_glyph(MultiLine, edge_kwargs, hedge_ca)
+    medge_glyph = _make_glyph(MultiLine, edge_kwargs, medge_ca)
+
+    edge_renderer = GlyphRenderer(glyph=edge_glyph,
+                                  nonselection_glyph=nsedge_glyph,
+                                  selection_glyph=sedge_glyph,
+                                  hover_glyph=hedge_glyph,
+                                  muted_glyph=medge_glyph,
+                                  data_source=edge_source)
+
+    _RENDERER_ARGS = ['name', 'level', 'visible', 'x_range_name', 'y_range_name',
+                      'selection_policy', 'inspection_policy']
+
+    renderer_kwargs = {attr: kwargs.pop(attr) for attr in _RENDERER_ARGS if attr in kwargs}
+
+    renderer_kwargs["node_renderer"] = node_renderer
+    renderer_kwargs["edge_renderer"] = edge_renderer
+
+    return renderer_kwargs
+
 def get_default_color(plot=None):
     colors = [
         "#1f77b4",
@@ -88,10 +191,6 @@ def get_default_color(plot=None):
         return colors[num_renderers]
     else:
         return colors[0]
-
-
-def get_default_alpha(plot=None):
-    return 1.0
 
 
 _RENDERER_ARGS = ['name', 'x_range_name', 'y_range_name',
