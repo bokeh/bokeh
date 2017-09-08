@@ -279,7 +279,7 @@ def transform_series(series, force_list=False, buffers=None):
 
     '''
     vals = series.values
-    return transform_array(vals, forece_list=force_list, buffers=buffers)
+    return transform_array(vals, force_list=force_list, buffers=buffers)
 
 def serialize_array(array, force_list=False, buffers=None):
     ''' Transforms a NumPy array into serialized form.
