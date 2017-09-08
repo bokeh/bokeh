@@ -3,6 +3,9 @@
 """
 from __future__ import absolute_import
 
+from datetime import datetime
+import numbers
+
 from ...core.has_props import abstract
 from ...core.properties import Bool, Int, Float, String, Date, Enum, Tuple, Instance, Color, Override
 from ...core.enums import SliderCallbackPolicy
@@ -120,6 +123,21 @@ class DateSlider(AbstractSlider):
 
 class DateRangeSlider(AbstractSlider):
     """ Slider-based date range selection widget. """
+
+    @property
+    def value_as_datetime(self):
+        if self.value is None:
+            return None
+        v1, v2 = self.value
+        if isinstance(v1, numbers.Number):
+            d1 = datetime.fromtimestamp(v1 / 1000)
+        else:
+            d1 = v1
+        if isinstance(v2, numbers.Number):
+            d2 = datetime.fromtimestamp(v2 / 1000)
+        else:
+            d2 = v2
+        return d1, d2
 
     value = Tuple(Date, Date, help="""
     Initial or selected range.
