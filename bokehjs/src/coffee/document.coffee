@@ -618,7 +618,7 @@ export class Document
             throw new Error("Cannot stream to #{column_source_id} which is not in the document")
           column_source = @_all_models[column_source_id]
           [data, shapes] = decode_column_data(event_json['new'], buffers)
-          column_source.setv({_shapes: shapes, data: data}, {setter_id: setter_id})
+          column_source.setv({_shapes: shapes, data: data}, {setter_id: setter_id, check_eq: false})
 
         when 'ColumnsStreamed'
           column_source_id = event_json['column_source']['id']

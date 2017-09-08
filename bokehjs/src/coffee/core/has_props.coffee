@@ -153,6 +153,7 @@ export class HasProps
   # anyone who needs to know about the change in state. The heart of the beast.
   _setv: (attrs, options) ->
     # Extract attributes and options.
+    check_eq   = options.check_eq
     silent     = options.silent
     changes    = []
     changing   = this._changing
@@ -163,7 +164,10 @@ export class HasProps
     # For each `set` attribute, update or delete the current value.
     for attr, val of attrs
       val = attrs[attr]
-      if not isEqual(current[attr], val)
+      if check_eq != false
+        if not isEqual(current[attr], val)
+          changes.push(attr)
+      else
         changes.push(attr)
       current[attr] = val
 
