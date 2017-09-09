@@ -38,6 +38,29 @@ def server_url_for_websocket_url(url):
 
 DEFAULT_SERVER_WEBSOCKET_URL = websocket_url_for_server_url(DEFAULT_SERVER_HTTP_URL)
 
+BOKEH_CLIENT_APP_WARNING = """
+
+!!!! PLEASE NOTE !!!!
+
+The use of `session.loop_until_closed` and `push_session` to run Bokeh
+application code outside a Bokeh server is HIGHLY discouraged for any real use.
+
+Running application code outside a Bokeh server with bokeh.client in this way
+has (and always will have) several intrinsic drawbacks:
+
+* Fast binary array transport is NOT available! Base64 fallback is much slower
+* All network traffic is DOUBLED due to extra hop between client and server
+* Server *and* client process must be running at ALL TIMES for callbacks to work
+* App code run outside the Bokeh server is NOT SCALABLE behind a load balancer
+
+The bokeh.client API is recommended to use ONLY for testing, or for customizing
+individual sessions running in a full Bokeh server, before passing on to viewers.
+
+For information about different ways of running apps in a Bokeh server, see:
+
+    http://bokeh.pydata.org/en/latest/docs/user_guide/server.html
+"""
+
 def push_session(document, session_id=None, url='default', app_path=None, io_loop=None):
     ''' Create a session by pushing the given document to the server,
     overwriting any existing server-side document.
@@ -353,7 +376,10 @@ class ClientSession(object):
     def close(self, why="closed"):
         self._connection.close(why)
 
-    def loop_until_closed(self):
+    def loop_until_closed(self, suppress_warning=False):
+        import warnings
+        if not suppress_warning:
+            warnings.warn(BOKEH_CLIENT_APP_WARNING)
         self._connection.loop_until_closed()
 
     def request_server_info(self):

@@ -253,7 +253,7 @@ class PropertyDescriptor(object):
         value = self.__get__(obj, obj.__class__)
         return self.property.serialize_value(value)
 
-    def set_from_json(self, obj, json, models, setter=None):
+    def set_from_json(self, obj, json, models=None, setter=None):
         '''Sets the value of this property from a JSON value.
 
         Args:
