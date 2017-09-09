@@ -210,7 +210,7 @@ class ColumnDataChangedEvent(DocumentPatchedEvent):
 
     '''
 
-    def __init__(self, document, column_source, setter=None):
+    def __init__(self, document, column_source, cols=None, setter=None):
         '''
 
         Args:
@@ -218,6 +218,10 @@ class ColumnDataChangedEvent(DocumentPatchedEvent):
                 A Bokeh document that is to be updated.
 
             column_source (ColumnDataSource) :
+
+            cols (list[str]) :
+                optional explicit list of column names to update. If None, all
+                columns will be updated (default: None)
 
             setter (ClientSession or ServerSession or None, optional) :
                 This is used to prevent "boomerang" updates to Bokeh apps.
@@ -229,6 +233,7 @@ class ColumnDataChangedEvent(DocumentPatchedEvent):
         '''
         super(ColumnDataChangedEvent, self).__init__(document, setter)
         self.column_source = column_source
+        self.cols = cols
 
     def dispatch(self, receiver):
         ''' Dispatch handling of this event to a receiver.
@@ -250,6 +255,7 @@ class ColumnDataChangedEvent(DocumentPatchedEvent):
                 'kind'          : 'ColumnDataChanged'
                 'column_source' : <reference to a CDS>
                 'new'           : <new data to steam to column_source>
+                'cols'          : <specific columns to update>
             }
 
         Args:
@@ -271,11 +277,12 @@ class ColumnDataChangedEvent(DocumentPatchedEvent):
         '''
         from ..util.serialization import transform_column_source_data
 
-        data_dict = transform_column_source_data(self.column_source.data, buffers=buffers)
+        data_dict = transform_column_source_data(self.column_source.data, buffers=buffers, cols=self.cols)
 
         return { 'kind'          : 'ColumnDataChanged',
                  'column_source' : self.column_source.ref,
-                 'new'           : data_dict}
+                 'new'           : data_dict,
+                 'cols'          : self.cols}
 
 class ColumnsStreamedEvent(DocumentPatchedEvent):
     ''' A concrete event representing efficiently streaming new data

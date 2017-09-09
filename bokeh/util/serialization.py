@@ -17,8 +17,6 @@ import base64
 import datetime as dt
 import math
 
-from six import iterkeys
-
 import numpy as np
 
 from .string import format_docstring
@@ -353,7 +351,7 @@ def traverse_data(obj, use_numpy=True, buffers=None):
             obj_copy.append(item)
     return obj_copy
 
-def transform_column_source_data(data, buffers=None):
+def transform_column_source_data(data, buffers=None, cols=None):
     ''' Transform ColumnSourceData data to a serialized format
 
     Args:
@@ -368,18 +366,25 @@ def transform_column_source_data(data, buffers=None):
             **This is an "out" parameter**. The values it contains will be
             modified in-place.
 
+        cols (list[str], optional) :
+            Optional list of subset of columns to transform. If None, all
+            columns will be transformed (default: None)
+
     Returns:
         JSON compatible dict
 
     '''
+    to_transform = set(data) if cols is None else set(cols)
+
     data_copy = {}
-    for key in iterkeys(data):
+    for key in to_transform:
         if pd and isinstance(data[key], (pd.Series, pd.Index)):
             data_copy[key] = transform_series(data[key], buffers=buffers)
         elif isinstance(data[key], np.ndarray):
             data_copy[key] = transform_array(data[key], buffers=buffers)
         else:
             data_copy[key] = traverse_data(data[key], buffers=buffers)
+
     return data_copy
 
 def encode_binary_dict(array, buffers):
