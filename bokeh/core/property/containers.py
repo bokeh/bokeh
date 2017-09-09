@@ -350,7 +350,7 @@ class PropertyValueColumnData(PropertyValueDict):
         # we must loop ourselves here instead of calling _notify_owners
         # because the hint is customized for each owner separately
         for (owner, descriptor) in self._owners:
-            hint = ColumnDataChangedEvent(owner.document, owner, cols=cols)
+            hint = ColumnDataChangedEvent(owner.document, owner, cols=list(cols))
             descriptor._notify_mutated(owner, old, hint=hint)
 
         return result
