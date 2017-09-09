@@ -304,6 +304,7 @@ class PropertyValueColumnData(PropertyValueDict):
     the updates:
 
     .. code-block:: python
+
         x[i] = y
         x.update
 
