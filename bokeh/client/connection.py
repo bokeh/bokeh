@@ -5,116 +5,32 @@ Server. Users will always want to use ``bokeh.client.session`` instead.
 from __future__ import absolute_import, print_function
 
 import logging
-
 log = logging.getLogger(__name__)
 
-from tornado import gen, locks
+from tornado import gen
 from tornado.httpclient import HTTPRequest
 from tornado.ioloop import IOLoop
 from tornado.websocket import websocket_connect, WebSocketError
-from tornado.concurrent import Future
 
 from bokeh.protocol import Protocol
 from bokeh.protocol.exceptions import MessageError, ProtocolError, ValidationError
 from bokeh.protocol.receiver import Receiver
 
-class _WebSocketClientConnectionWrapper(object):
-    ''' Used for compat across Tornado versions and to add write_lock'''
-
-    def __init__(self, socket):
-        if socket is None:
-            raise ValueError("socket must not be None")
-        self._socket = socket
-        # write_lock allows us to lock the connection to send multiple
-        # messages atomically.
-        self.write_lock = locks.Lock()
-
-    @gen.coroutine
-    def write_message(self, message, binary=False, locked=True):
-        def write_message_unlocked():
-            if self._socket.protocol is None:
-                # Tornado is maybe supposed to do this, but in fact it
-                # tries to do _socket.protocol.write_message when protocol
-                # is None and throws AttributeError or something. So avoid
-                # trying to write to the closed socket. There doesn't seem
-                # to be an obvious public function to check if the socket
-                # is closed.
-                raise WebSocketError("Connection to the server has been closed")
-
-            future = self._socket.write_message(message, binary)
-            if future is None:
-                # tornado >= 4.3 gives us a Future, simulate that
-                # with this fake Future on < 4.3
-                future = Future()
-                future.set_result(None)
-            # don't yield this future or we're blocking on ourselves!
-            raise gen.Return(future)
-
-        if locked:
-            with (yield self.write_lock.acquire()):
-                write_message_unlocked()
-        else:
-            write_message_unlocked()
-
-    def close(self, code=None, reason=None):
-        return self._socket.close(code, reason)
-
-    def read_message(self, callback=None):
-        return self._socket.read_message(callback)
+from .states import NOT_YET_CONNECTED, CONNECTED_BEFORE_ACK, CONNECTED_AFTER_ACK, DISCONNECTED, WAITING_FOR_REPLY
+from .websocket import WebSocketClientConnectionWrapper
 
 class ClientConnection(object):
     """ A Bokeh-private class used to implement ClientSession; use ClientSession to connect to the server."""
 
-    class NOT_YET_CONNECTED(object):
-        @gen.coroutine
-        def run(self, connection):
-            yield connection._connect_async()
-
-    class CONNECTED_BEFORE_ACK(object):
-        @gen.coroutine
-        def run(self, connection):
-            yield connection._wait_for_ack()
-
-    class CONNECTED_AFTER_ACK(object):
-        @gen.coroutine
-        def run(self, connection):
-            yield connection._handle_messages()
-
-    class DISCONNECTED(object):
-        @gen.coroutine
-        def run(self, connection):
-            raise gen.Return(None)
-
-    class WAITING_FOR_REPLY(object):
-        def __init__(self, reqid):
-            self._reqid = reqid
-            self._reply = None
-
-        @property
-        def reply(self):
-            return self._reply
-
-        @gen.coroutine
-        def run(self, connection):
-            message = yield connection._pop_message()
-            if message is None:
-                yield connection._transition_to_disconnected()
-            elif 'reqid' in message.header and message.header['reqid'] == self._reqid:
-                self._reply = message
-                yield connection._transition(connection.CONNECTED_AFTER_ACK())
-            else:
-                yield connection._next()
-
     def __init__(self, session, websocket_url, io_loop=None):
-        '''
-          Opens a websocket connection to the server.
+        ''' Opens a websocket connection to the server.
         '''
         self._url = websocket_url
         self._session = session
         self._protocol = Protocol("1.0")
         self._receiver = Receiver(self._protocol)
         self._socket = None
-        self._state = self.NOT_YET_CONNECTED()
+        self._state = NOT_YET_CONNECTED()
         if io_loop is None:
             # We can't use IOLoop.current because then we break
             # when running inside a notebook since ipython also uses it
@@ -135,13 +51,13 @@ class ClientConnection(object):
     @property
     def connected(self):
         """True if we've connected the websocket and exchanged initial handshake messages."""
-        return isinstance(self._state, self.CONNECTED_AFTER_ACK)
+        return isinstance(self._state, CONNECTED_AFTER_ACK)
 
     def connect(self):
         def connected_or_closed():
             # we should be looking at the same state here as the 'connected' property above, so connected
             # means both connected and that we did our initial message exchange
-            return isinstance(self._state, self.CONNECTED_AFTER_ACK) or isinstance(self._state, self.DISCONNECTED)
+            return isinstance(self._state, CONNECTED_AFTER_ACK) or isinstance(self._state, DISCONNECTED)
         self._loop_until(connected_or_closed)
 
     def close(self, why="closed"):
@@ -149,14 +65,14 @@ class ClientConnection(object):
             self._socket.close(1000, why)
 
     def loop_until_closed(self):
-        if isinstance(self._state, self.NOT_YET_CONNECTED):
+        if isinstance(self._state, NOT_YET_CONNECTED):
             # we don't use self._transition_to_disconnected here
             # because _transition is a coroutine
             self._tell_session_about_disconnect()
-            self._state = self.DISCONNECTED()
+            self._state = DISCONNECTED()
         else:
             def closed():
-                return isinstance(self._state, self.DISCONNECTED)
+                return isinstance(self._state, DISCONNECTED)
             self._loop_until(closed)
 
     @gen.coroutine
@@ -204,7 +120,7 @@ class ClientConnection(object):
         self.send_message(msg)
 
     def _send_message_wait_for_reply(self, message):
-        waiter = self.WAITING_FOR_REPLY(message.header['msgid'])
+        waiter = WAITING_FOR_REPLY(message.header['msgid'])
         self._state = waiter
 
         send_result = []
@@ -319,7 +235,7 @@ class ClientConnection(object):
     @gen.coroutine
     def _transition_to_disconnected(self):
         self._tell_session_about_disconnect()
-        yield self._transition(self.DISCONNECTED())
+        yield self._transition(DISCONNECTED())
 
     @gen.coroutine
     def _connect_async(self):
@@ -327,14 +243,14 @@ class ClientConnection(object):
         request = HTTPRequest(versioned_url)
         try:
             socket = yield websocket_connect(request)
-            self._socket = _WebSocketClientConnectionWrapper(socket)
+            self._socket = WebSocketClientConnectionWrapper(socket)
         except Exception as e:
             log.info("Failed to connect to server: %r", e)
 
         if self._socket is None:
             yield self._transition_to_disconnected()
         else:
-            yield self._transition(self.CONNECTED_BEFORE_ACK())
+            yield self._transition(CONNECTED_BEFORE_ACK())
 
 
     @gen.coroutine
@@ -342,7 +258,7 @@ class ClientConnection(object):
         message = yield self._pop_message()
         if message and message.msgtype == 'ACK':
             log.debug("Received %r", message)
-            yield self._transition(self.CONNECTED_AFTER_ACK())
+            yield self._transition(CONNECTED_AFTER_ACK())
         elif message is None:
             yield self._transition_to_disconnected()
         else:

@@ -6,35 +6,17 @@ from __future__ import absolute_import, print_function
 import logging
 log = logging.getLogger(__name__)
 
+from six.moves.urllib.parse import quote_plus
+
 from ..document import Document
 from ..resources import _SessionCoordinates, DEFAULT_SERVER_HTTP_URL
+from ..util.browser import NEW_PARAM
 from ..util.deprecation import deprecated
 from ..util.session_id import generate_session_id
 
+from .util import server_url_for_websocket_url, websocket_url_for_server_url
+
 DEFAULT_SESSION_ID = "default"
-
-def websocket_url_for_server_url(url):
-    if url.startswith("http:"):
-        reprotocoled = "ws" + url[4:]
-    elif url.startswith("https:"):
-        reprotocoled = "wss" + url[5:]
-    else:
-        raise ValueError("URL has unknown protocol " + url)
-    if reprotocoled.endswith("/"):
-        return reprotocoled + "ws"
-    else:
-        return reprotocoled + "/ws"
-
-def server_url_for_websocket_url(url):
-    if url.startswith("ws:"):
-        reprotocoled = "http" + url[2:]
-    elif url.startswith("wss:"):
-        reprotocoled = "https" + url[3:]
-    else:
-        raise ValueError("URL has non-websocket protocol " + url)
-    if not reprotocoled.endswith("/ws"):
-        raise ValueError("websocket URL does not end in /ws")
-    return reprotocoled[:-2]
 
 DEFAULT_SERVER_WEBSOCKET_URL = websocket_url_for_server_url(DEFAULT_SERVER_HTTP_URL)
 
@@ -162,17 +144,6 @@ def pull_session(session_id=None, url='default', app_path=None, io_loop=None):
     session.pull()
     return session
 
-def _encode_query_param(s):
-    try:
-        import urllib
-        return urllib.quote_plus(s)
-    except:
-        # python 3
-        import urllib.parse as parse
-        return parse.quote_plus(s)
-
-_new_param = {'tab': 2, 'window': 1}
-
 def show_session(session_id=None, url='default', app_path=None, session=None, browser=None, new="tab", controller=None):
         ''' Open a browser displaying a session document.
 
@@ -220,8 +191,8 @@ def show_session(session_id=None, url='default', app_path=None, session=None, br
             from bokeh.util.browser import get_browser_controller
             controller = get_browser_controller(browser=browser)
 
-        controller.open(server_url + "?bokeh-session-id=" + _encode_query_param(session_id),
-                        new=_new_param[new])
+        controller.open(server_url + "?bokeh-session-id=" + quote_plus(session_id),
+                        new=NEW_PARAM[new])
 
 class ClientSession(object):
     ''' Represents a websocket connection to a server-side session.
@@ -257,7 +228,7 @@ class ClientSession(object):
         self._document = None
         self._id = self._ensure_session_id(session_id)
 
-        from ._connection import ClientConnection
+        from .connection import ClientConnection
         self._connection = ClientConnection(session=self, io_loop=io_loop, websocket_url=websocket_url)
 
         from ..server.callbacks import _DocumentCallbackGroup

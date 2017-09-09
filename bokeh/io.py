@@ -45,8 +45,6 @@ from .util.serialization import make_id
 # Globals and constants
 #-----------------------------------------------------------------------------
 
-_new_param = {'tab': 2, 'window': 1}
-
 _state = State()
 
 _notebook_hooks = {}
@@ -435,7 +433,7 @@ def _show_notebook_doc_with_state(obj, state, notebook_handle):
 
 def _show_file_with_state(obj, state, new, controller):
     filename = save(obj, state=state)
-    controller.open("file://" + filename, new=_new_param[new])
+    controller.open("file://" + filename, new=browserlib.NEW_PARAM[new])
 
 def _show_jupyter_doc_with_state(obj, state, notebook_handle):
     comms_target = make_id() if notebook_handle else None
