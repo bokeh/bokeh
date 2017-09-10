@@ -126,15 +126,19 @@ class DateRangeSlider(AbstractSlider):
 
     @property
     def value_as_datetime(self):
+        ''' Convenience property to retrieve the value tuple as a tuple of
+        datetime objects.
+
+        '''
         if self.value is None:
             return None
         v1, v2 = self.value
         if isinstance(v1, numbers.Number):
-            d1 = datetime.fromtimestamp(v1 / 1000)
+            d1 = datetime.utcfromtimestamp(v1 / 1000)
         else:
             d1 = v1
         if isinstance(v2, numbers.Number):
-            d2 = datetime.fromtimestamp(v2 / 1000)
+            d2 = datetime.utcfromtimestamp(v2 / 1000)
         else:
             d2 = v2
         return d1, d2
