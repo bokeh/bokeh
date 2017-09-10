@@ -313,19 +313,7 @@ class PropertyValueColumnData(PropertyValueDict):
     # x[i] = y
     # don't wrap with notify_owner --- notifies owners explicitly
     def __setitem__(self, i, y):
-        old = self._saved_copy()
-
-        result =  super(PropertyValueDict, self).__setitem__(i, y)
-
-        from ...document.events import ColumnDataChangedEvent
-
-        # we must loop ourselves here instead of calling _notify_owners
-        # because the hint is customized for each owner separately
-        for (owner, descriptor) in self._owners:
-            hint = ColumnDataChangedEvent(owner.document, owner, cols=[i])
-            descriptor._notify_mutated(owner, old, hint=hint)
-
-        return result
+        return self.update([(i, y)])
 
     # don't wrap with notify_owner --- notifies owners explicitly
     def update(self, *args, **kwargs):

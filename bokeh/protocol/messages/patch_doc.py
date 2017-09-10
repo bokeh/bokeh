@@ -57,9 +57,8 @@ class patch_doc_1(Message):
 
         msg = cls(header, metadata, content)
 
-        if use_buffers:
-            for (header, payload) in buffers:
-                msg.add_buffer(header, payload)
+        for (header, payload) in buffers:
+            msg.add_buffer(header, payload)
 
         return msg
 
@@ -96,4 +95,4 @@ def process_document_events(events, use_buffers=True):
         'references' : references_json(references),
     }
 
-    return serialize_json(json), buffers
+    return serialize_json(json), buffers if use_buffers else []
