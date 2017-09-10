@@ -4,9 +4,12 @@
 Bokeh Version ``0.12.8`` is an incremental update that adds a few important
 features and fixes several bugs. Some of the highlights include:
 
+* JupyterLab integration with the `jupyterlab_bokeh`_ extension
+* Efficient binary transport for sending arrays to clients
+* Improvements to new Graph/Network capability
 
- Many other small bugfixes and docs additions. For full details see the
- :bokeh-tree:`CHANGELOG`.
+Many other small bugfixes and docs additions. For full details see the
+:bokeh-tree:`CHANGELOG`.
 
 Migration Guide
 ---------------
@@ -18,12 +21,12 @@ Deprecated ``bokeh.charts`` support removed
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The ``bokeh.charts`` module, which was simply a compatibility shim to load the
-separate ``bkcharts` package, has been removed. Additionally, Bokeh itself no
+separate ``bkcharts`` package, has been removed. Additionally, Bokeh itself no
 longer lists ``bkcharts`` as a dependency. In order to continue using
 ``bkcharts`` code, the ``bkcharts`` package must be installed separately.
 
-MPL compatibility removed
-~~~~~~~~~~~~~~~~~~~~~~~~~
+Deprecated MPL compatibility removed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The ``bokeh.mpl`` module and all supporting code in ``bokeh.core.compat`` has
 been removed. Bokeh no longer offers or attempts any automatic MPL conversion.
@@ -64,13 +67,23 @@ The function ``bokeh.util.testing.print_versions`` has been removed
 immediately. The ``bokeh info`` command (or ``python -m bokeh info``) should be
 used instead.
 
-End of support for Python 3.4
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Refactor of ``bokeh.client`` and ``bokeh.document``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The ``bokeh.client`` and ``bokeh.document`` packages were refactored, to make
+maintenance and testing simpler, and to improve overall code quality. No
+commonly used or demonstrated public APIs were affected, (no example code
+required any changes). The other files that were moved or changed are not
+expected to impact user code.
+
+End of Official Support for Python 3.4
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Starting with this release, Bokeh is no longer continuously tested against
 Python 3.4. Use of Bokeh with Python 3.4 will very likely still work, but
 there are no longer any guarantees backed by CI testing.
 
+.. _jupyterlab_bokeh: https://github.com/bokeh/jupyterlab_bokeh
 .. _project roadmap: https://bokehplots.com/pages/roadmap.html
 .. _strftime: http://man7.org/linux/man-pages/man3/strftime.3.html
 .. _testing section: http://bokeh.pydata.org/en/latest/docs/dev_guide/testing.html

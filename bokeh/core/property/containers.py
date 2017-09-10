@@ -295,9 +295,54 @@ class PropertyValueDict(PropertyValueContainer, dict):
         return super(PropertyValueDict, self).update(*args, **kwargs)
 
 class PropertyValueColumnData(PropertyValueDict):
-    '''
+    ''' A property value container for ColumnData that supports change
+    notifications on mutating operations.
+
+    This property value container affords specialized code paths for
+    updating the .data dictionary for ColumnDataSource. When possible,
+    more efficient ColumnDataChangedEvent hints are generated to perform
+    the updates:
+
+    .. code-block:: python
+
+        x[i] = y
+        x.update
 
     '''
+
+    # x[i] = y
+    # don't wrap with notify_owner --- notifies owners explicitly
+    def __setitem__(self, i, y):
+        return self.update([(i, y)])
+
+    # don't wrap with notify_owner --- notifies owners explicitly
+    def update(self, *args, **kwargs):
+        old = self._saved_copy()
+
+        result = super(PropertyValueDict, self).update(*args, **kwargs)
+
+        from ...document.events import ColumnDataChangedEvent
+
+        # Grab keys to update according to  Python docstring for update([E, ]**F)
+        #
+        # If E is present and has a .keys() method, then does:  for k in E: D[k] = E[k]
+        # If E is present and lacks a .keys() method, then does:  for k, v in E: D[k] = v
+        # In either case, this is followed by: for k in F:  D[k] = F[k]
+        cols = set(kwargs.keys())
+        if len(args) == 1:
+            E = args[0]
+            if hasattr(E, 'keys'):
+                cols |= set(E.keys())
+            else:
+                cols |= { x[0] for x in E }
+
+        # we must loop ourselves here instead of calling _notify_owners
+        # because the hint is customized for each owner separately
+        for (owner, descriptor) in self._owners:
+            hint = ColumnDataChangedEvent(owner.document, owner, cols=list(cols))
+            descriptor._notify_mutated(owner, old, hint=hint)
+
+        return result
 
     # don't wrap with notify_owner --- notifies owners explicitly
     def _stream(self, doc, source, new_data, rollover=None, setter=None):

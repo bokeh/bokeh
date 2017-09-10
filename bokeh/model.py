@@ -540,7 +540,7 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
         # this may need to be further refined in the future, if the a
         # assumption does not hold for future hinted events (e.g. the hint
         # could specify explicitly whether to do normal invalidation or not)
-        if not hint:
+        if hint is None:
             dirty = { 'count' : 0 }
             def mark_dirty(obj):
                 dirty['count'] += 1

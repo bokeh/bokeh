@@ -19,7 +19,7 @@ from warnings import warn
 import re
 
 from six import string_types
-from six.moves.urllib.parse import urlparse
+from six.moves.urllib.parse import urlparse, quote_plus
 
 from .core.templates import (
     AUTOLOAD_JS, AUTOLOAD_TAG, DOC_JS, FILE, NOTEBOOK_DIV, PLOT_DIV, SCRIPT_TAG)
@@ -616,8 +616,6 @@ def _connect_session_or_document(model=None, app_path=None, session_id=None, url
             typically not desired.
 
     '''
-    from .client.session import _encode_query_param
-
     if app_path is not None:
         deprecated((0, 12, 5), "app_path", "url", "Now pass entire app URLS in the url arguments, e.g. 'url=http://foo.com:5010/bar/myapp'")
         if not app_path.startswith("/"):
@@ -664,7 +662,7 @@ def _connect_session_or_document(model=None, app_path=None, session_id=None, url
     if arguments is not None:
         for key, value in arguments.items():
             if not key.startswith("bokeh-"):
-                src_path = src_path + "&{}={}".format(_encode_query_param(str(key)), _encode_query_param(str(value)))
+                src_path = src_path + "&{}={}".format(quote_plus(str(key)), quote_plus(str(value)))
 
     tag = AUTOLOAD_TAG.render(
         src_path = src_path,

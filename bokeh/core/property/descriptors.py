@@ -253,7 +253,7 @@ class PropertyDescriptor(object):
         value = self.__get__(obj, obj.__class__)
         return self.property.serialize_value(value)
 
-    def set_from_json(self, obj, json, models, setter=None):
+    def set_from_json(self, obj, json, models=None, setter=None):
         '''Sets the value of this property from a JSON value.
 
         Args:
@@ -670,22 +670,17 @@ class BasicPropertyDescriptor(PropertyDescriptor):
         default = self.instance_default(obj)
 
         if is_themed:
-            if self.name in obj._unstable_themed_values:
-                return obj._unstable_themed_values[self.name]
+            unstable_dict = obj._unstable_themed_values
+        else:
+            unstable_dict = obj._unstable_default_values
 
-            if self.property._may_have_unstable_default():
-                if isinstance(default, PropertyValueContainer):
-                    default._register_owner(obj, self)
-                obj._unstable_themed_values[self.name] = default
-            return default
-
-        if self.name in obj._unstable_default_values:
-            return obj._unstable_default_values[self.name]
+        if self.name in unstable_dict:
+            return unstable_dict[self.name]
 
         if self.property._may_have_unstable_default():
             if isinstance(default, PropertyValueContainer):
                 default._register_owner(obj, self)
-            obj._unstable_default_values[self.name] = default
+            unstable_dict[self.name] = default
 
         return default
 
@@ -735,8 +730,7 @@ class BasicPropertyDescriptor(PropertyDescriptor):
         ''' Internal implementation helper to set property values.
 
         This function handles bookkeeping around noting whether values have
-        been explicitly set, or setting up |PropertyContainer| wrappers when
-        values are containers, etc.
+        been explicitly set, etc.
 
         Args:
             obj (HasProps)
@@ -776,9 +770,9 @@ class BasicPropertyDescriptor(PropertyDescriptor):
 
         was_set = self.name in obj._property_values
 
-        # "old" is the logical old value, but it may not be
-        # the actual current attribute value if our value
-        # was mutated behind our back and we got _notify_mutated.
+        # "old" is the logical old value, but it may not be the actual current
+        # attribute value if our value was mutated behind our back and we got
+        # _notify_mutated.
         if was_set:
             old_attr_value = obj._property_values[self.name]
         else:

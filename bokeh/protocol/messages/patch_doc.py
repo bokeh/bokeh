@@ -30,7 +30,7 @@ class patch_doc_1(Message):
         super(patch_doc_1, self).__init__(header, metadata, content)
 
     @classmethod
-    def create(cls, events, **metadata):
+    def create(cls, events, use_buffers=True, **metadata):
         ''' Create a ``PATCH-DOC`` message
 
         Args:
@@ -52,7 +52,7 @@ class patch_doc_1(Message):
 
         # this roundtrip is fortunate, but is needed because there are type conversions
         # in BokehJSONEncoder which keep us from easily generating non-string JSON
-        patch_json, buffers = process_document_events(events)
+        patch_json, buffers = process_document_events(events, use_buffers)
         content = loads(patch_json)
 
         msg = cls(header, metadata, content)
@@ -68,7 +68,7 @@ class patch_doc_1(Message):
         '''
         doc.apply_json_patch(self.content, setter)
 
-def process_document_events(events):
+def process_document_events(events, use_buffers=True):
     ''' Create a JSON string describing a patch to be applied as well as
     any optional buffers.
 
@@ -84,7 +84,8 @@ def process_document_events(events):
 
     json_events = []
     references = set()
-    buffers = []
+
+    buffers = [] if use_buffers else None
 
     for event in events:
         json_events.append(event.generate(references, buffers))
@@ -94,4 +95,4 @@ def process_document_events(events):
         'references' : references_json(references),
     }
 
-    return serialize_json(json), buffers
+    return serialize_json(json), buffers if use_buffers else []

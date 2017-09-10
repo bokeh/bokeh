@@ -8,6 +8,8 @@ import webbrowser
 
 from ..settings import settings
 
+NEW_PARAM = {'tab': 2, 'window': 1}
+
 class DummyWebBrowser(object):
     ''' A "no-op" web-browser controller.
 
