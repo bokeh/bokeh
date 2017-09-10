@@ -9,7 +9,7 @@ of this CoC is simply a reflection of the community values already evident in pr
 
 ## The Longer Version
 
-However, for the sake of decreasing any ambiguity, the details of this CoC are laid out explicitly 
+However, for the sake of decreasing any ambiguity, the details of this CoC are laid out explicitly
 here.
 
 ### Our Pledge
