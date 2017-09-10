@@ -21,12 +21,10 @@ Notebook according to a Resources object.
 :type warnings: list[str]
 
 #}
-    {%- if not hide_banner %}
     <div class="bk-root">
         <a href="https://bokeh.pydata.org" target="_blank" class="bk-logo bk-logo-small bk-logo-notebook"></a>
         <span id="{{ element_id }}">Loading BokehJS ...</span>
     </div>
-
     {%- if verbose %}
     <style>
         p.bokeh_notebook { margin-left: 24px; }
@@ -72,4 +70,3 @@ Notebook according to a Resources object.
     {%- for warning in warnings %}
     <p style="background-color: #f2d7dc;">{{ warning }}</p>
     {%- endfor %}
-    {%- endif %}
