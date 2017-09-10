@@ -16,6 +16,7 @@ log = logging.getLogger(__name__)
 import base64
 import datetime as dt
 import math
+import sys
 
 import numpy as np
 
@@ -205,7 +206,6 @@ def transform_array(array, force_list=False, buffers=None):
                              dt2001.astype('datetime64[ms]').astype('int64'))
     except AttributeError as e:
         if e.args == ("'module' object has no attribute 'datetime64'",):
-            import sys
             # for compatibility with PyPy that doesn't have datetime64
             if 'PyPy' in sys.version:
                 legacy_datetime64 = False
@@ -398,6 +398,7 @@ def encode_binary_dict(array, buffers):
             '__buffer__' :  << an ID to locate the buffer >>,
             'shape'      : << array shape >>,
             'dtype'      : << dtype name >>,
+            'order'      : << byte order at origin (little or big)>>
         }
 
     Args:
@@ -420,7 +421,8 @@ def encode_binary_dict(array, buffers):
     return {
         '__buffer__'  : buffer_id,
         'shape'       : array.shape,
-        'dtype'       : array.dtype.name
+        'dtype'       : array.dtype.name,
+        'order'       : sys.byteorder
     }
 
 def encode_base64_dict(array):
