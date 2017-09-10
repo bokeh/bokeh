@@ -71,6 +71,7 @@ test:
     - requests >=1.2.3
     - beautifulsoup4
     - scipy
+    - numba
     - pillow
     - boto
     - nodejs >=6.10.0
