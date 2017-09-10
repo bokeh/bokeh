@@ -1,4 +1,5 @@
-'''
+''' Provide a low-level wrapper for Tornado Websockets that adds locking
+and smooths some compatibility issues.
 
 '''
 from __future__ import absolute_import, print_function
@@ -19,6 +20,10 @@ class WebSocketClientConnectionWrapper(object):
 
     @gen.coroutine
     def write_message(self, message, binary=False, locked=True):
+        ''' Write a message to the websocket after obtaining the appropriate
+        Bokeh Document lock.
+
+        '''
         def write_message_unlocked():
             if self._socket.protocol is None:
                 # Tornado is maybe supposed to do this, but in fact it
@@ -41,7 +46,11 @@ class WebSocketClientConnectionWrapper(object):
             write_message_unlocked()
 
     def close(self, code=None, reason=None):
+        ''' Close the websocket. '''
         return self._socket.close(code, reason)
 
     def read_message(self, callback=None):
+        ''' Read a message from websocket and execute a callback.
+
+        '''
         return self._socket.read_message(callback)

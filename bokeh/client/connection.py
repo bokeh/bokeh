@@ -1,5 +1,8 @@
 ''' Implements a very low level facility for communicating with a Bokeh
-Server. Users will always want to use ``bokeh.client.session`` instead.
+Server.
+
+Users will always want to use :class:`~bokeh.client.session.ClientSession`
+instead for standard usage.
 
 '''
 from __future__ import absolute_import, print_function
@@ -20,10 +23,13 @@ from .states import NOT_YET_CONNECTED, CONNECTED_BEFORE_ACK, CONNECTED_AFTER_ACK
 from .websocket import WebSocketClientConnectionWrapper
 
 class ClientConnection(object):
-    """ A Bokeh-private class used to implement ClientSession; use ClientSession to connect to the server."""
+    ''' A Bokeh low-level class used to implement ClientSession; use ClientSession to connect to the server.
+
+    '''
 
     def __init__(self, session, websocket_url, io_loop=None):
         ''' Opens a websocket connection to the server.
+
         '''
         self._url = websocket_url
         self._session = session
@@ -42,15 +48,20 @@ class ClientConnection(object):
 
     @property
     def url(self):
+        ''' The URL of the websocket this Connection is to. '''
         return self._url
 
     @property
     def io_loop(self):
+        ''' The Tornado ``IOLoop`` this connection is using. '''
         return self._loop
 
     @property
     def connected(self):
-        """True if we've connected the websocket and exchanged initial handshake messages."""
+        ''' Whether we've connected the Websocket and have exchanged initial
+        handshake messages.
+
+        '''
         return isinstance(self._state, CONNECTED_AFTER_ACK)
 
     def connect(self):
@@ -61,10 +72,21 @@ class ClientConnection(object):
         self._loop_until(connected_or_closed)
 
     def close(self, why="closed"):
+        ''' Close the Websocket connection.
+
+        '''
         if self._socket is not None:
             self._socket.close(1000, why)
 
     def loop_until_closed(self):
+        ''' Execute a blocking loop that runs and exectutes event callbacks
+        until the connection is closed (e.g. by hitting Ctrl-C).
+
+        While this method can be used to run Bokeh application code "outside"
+        the Bokeh server, this practice is HIGHLY DISCOURAGED for any real
+        use case.
+
+        '''
         if isinstance(self._state, NOT_YET_CONNECTED):
             # we don't use self._transition_to_disconnected here
             # because _transition is a coroutine
@@ -142,10 +164,12 @@ class ClientConnection(object):
         ''' Push a document to the server, overwriting any existing server-side doc.
 
         Args:
-            document : bokeh.document.Document
-              the Document to push to the server
+            document : (Document)
+                A Document to push to the server
+
         Returns:
-             The server reply
+            The server reply
+
         '''
         msg = self._protocol.create('PUSH-DOC', document)
         reply = self._send_message_wait_for_reply(msg)
@@ -158,11 +182,14 @@ class ClientConnection(object):
 
     def pull_doc(self, document):
         ''' Pull a document from the server, overwriting the passed-in document
+
         Args:
-            document : bokeh.document.Document
+            document : (Document)
               The document to overwrite with server content.
+
         Returns:
             None
+
         '''
         msg = self._protocol.create('PULL-DOC-REQ')
         reply = self._send_message_wait_for_reply(msg)
@@ -181,24 +208,26 @@ class ClientConnection(object):
         return reply.content
 
     def request_server_info(self):
-        '''
-        Ask for information about the server.
+        ''' Ask for information about the server.
 
         Returns:
             A dictionary of server attributes.
+
         '''
         if self._server_info is None:
             self._server_info = self._send_request_server_info()
         return self._server_info
 
     def force_roundtrip(self):
-        '''
-        Force a round-trip request/reply to the server, sometimes needed to avoid race conditions.
+        ''' Force a round-trip request/reply to the server, sometimes needed to
+        avoid race conditions. Mostly useful for testing.
 
-        Outside of test suites, this method probably hurts performance and shouldn't be needed.
+        Outside of test suites, this method hurts performance and should not be
+        needed.
 
         Returns:
            None
+
         '''
         self._send_request_server_info()
 

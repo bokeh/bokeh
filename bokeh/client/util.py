@@ -1,9 +1,25 @@
-'''
+''' Internal utility functions used by ``bokeh.client``
 
 '''
 from __future__ import absolute_import, print_function
 
 def server_url_for_websocket_url(url):
+    ''' Convert an ``ws(s)`` URL for a Bokeh server into the appropriate
+    ``http(s)`` URL for the websocket endpoint.
+
+    Args:
+        url (str):
+            An ``ws(s)`` URL ending in ``/ws``
+
+    Returns:
+        str:
+            The corresponding ``http(s)`` URL.
+
+    Raises:
+        ValueError:
+            If the input URL is not of the proper form.
+
+    '''
     if url.startswith("ws:"):
         reprotocoled = "http" + url[2:]
     elif url.startswith("wss:"):
@@ -15,6 +31,22 @@ def server_url_for_websocket_url(url):
     return reprotocoled[:-2]
 
 def websocket_url_for_server_url(url):
+    ''' Convert an ``http(s)`` URL for a Bokeh server websocket endpoint into
+    the appropriate ``ws(s)`` URL
+
+    Args:
+        url (str):
+            An ``http(s)`` URL
+
+    Returns:
+        str:
+            The corresponding ``ws(s)`` URL ending in ``/ws``
+
+    Raises:
+        ValueError:
+            If the input URL is not of the proper form.
+
+    '''
     if url.startswith("http:"):
         reprotocoled = "ws" + url[4:]
     elif url.startswith("https:"):
