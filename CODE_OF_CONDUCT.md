@@ -2,10 +2,10 @@
 
 ## The Abridged Version
 
-The Bokeh community has been fantastic since the project's start. A one-line summary 
+The Bokeh community has been fantastic since the project's start. A one-line summary
 of this CoC is simply a reflection of the community values already evident in practice:
 
-> Please be always kind and courteous. There's never a need to be mean or rude or disrespectful. 
+> Please be always kind and courteous. There's never a need to be mean or rude or disrespectful.
 
 ## The Longer Version
 
@@ -14,8 +14,8 @@ here.
 
 ### Our Pledge
 
-We pledge to take responsibility for our own actions. If someone has been harmed 
-or offended, we will listen carefully and respectfully, and work to right the 
+We pledge to take responsibility for our own actions. If someone has been harmed
+or offended, we will listen carefully and respectfully, and work to right the
 wrong. In the interest of fostering an open and welcoming environment, we as
 contributors and maintainers pledge to making participation in our project and
 our community a harassment-free experience for everyone, regardless of age, body
@@ -34,14 +34,14 @@ include:
 * Focusing on what is best for the community
 * Showing empathy towards other community members
 
-All of these serve to help the make the project better, but also serve to make 
-the experience of participating in the project better as well.  
+All of these serve to help the make the project better, but also serve to make
+the experience of participating in the project better as well.
 
 Examples of unacceptable behavior by participants include:
 
 * Sexist, racist, and other exclusionary language.
 * The use of sexualized language or imagery and unwelcome sexual attention or
-advances
+  advances
 * Trolling, insulting/derogatory comments, and personal or political attacks
 * Public or private harassment or intimidation
 * Publishing others' private information, such as a physical or electronic
@@ -51,11 +51,11 @@ advances
 
 ### Our Responsibilities
 
-Project maintainers are responsible for clarifying the standards of acceptable 
-behavior and are expected to take appropriate and fair corrective action in 
-response to any instances of unacceptable behavior. Maintainers will seek input 
-from all parties following any reports in order to make final determinations, 
-and will encourage relevant individuals to right any harms committed to the 
+Project maintainers are responsible for clarifying the standards of acceptable
+behavior and are expected to take appropriate and fair corrective action in
+response to any instances of unacceptable behavior. Maintainers will seek input
+from all parties following any reports in order to make final determinations,
+and will encourage relevant individuals to right any harms committed to the
 extent possible.
 
 Project maintainers have the right and responsibility to remove, edit, or
@@ -78,8 +78,8 @@ further defined and clarified by project maintainers.
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
 reported by contacting the project team at bokeh-conduct@numfocus.org. All
 complaints will be reviewed and investigated and any appropriate measures
-will be taken. The project team commits to maintaining confidentiality 
-with regard to the reporter of an incident. Further details of specific 
+will be taken. The project team commits to maintaining confidentiality
+with regard to the reporter of an incident. Further details of specific
 enforcement policies may be posted separately.
 
 Project maintainers who do not follow or enforce the Code of Conduct in good
