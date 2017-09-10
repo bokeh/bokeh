@@ -1,6 +1,6 @@
 import {isArray, isObject} from "./types"
 
-ARRAY_TYPES =
+export ARRAY_TYPES =
   float32: Float32Array
   float64: Float64Array
   uint8: Uint8Array
@@ -10,7 +10,7 @@ ARRAY_TYPES =
   uint32: Uint32Array
   int32: Int32Array
 
-DTYPES = {}
+export DTYPES = {}
 for k, v of ARRAY_TYPES
     DTYPES[v.name] = k
 
@@ -21,20 +21,21 @@ buf16 = new Uint16Array(buf)
 buf8[0] = 0xAA
 buf8[1] = 0xBB
 if (buf16[0] == 0xBBAA)
-  BYTE_ORDER = "little"
+  _order = "little"
 else
-  BYTE_ORDER = "big"
+  _order = "big"
+export BYTE_ORDER = _order
 
-swap16 = (arr) ->
-  x = new Uint8Array(arr.buffer, arr.byteOffset, arr.length * 2)
+export swap16 = (a) ->
+  x = new Uint8Array(a.buffer, a.byteOffset, a.length * 2)
   for i in [0...x.length] by 2
     t = x[i]
     x[i] = x[i + 1]
     x[i + 1] = t
-    null
+  null
 
-swap32 = (arr) ->
-  x = new Uint8Array(arr.buffer, arr.byteOffset, arr.length * 4)
+export swap32 = (a) ->
+  x = new Uint8Array(a.buffer, a.byteOffset, a.length * 4)
   for i in [0...x.length] by 4
     t = x[i]
     x[i] = x[i + 3]
@@ -42,10 +43,10 @@ swap32 = (arr) ->
     t = x[i + 1]
     x[i + 1] = x[i + 2]
     x[i + 2] = t
-    null
+  null
 
-swap64 = (arr) ->
-  x = new Uint8Array(arr.buffer, arr.byteOffset, arr.length * 8)
+export swap64 = (a) ->
+  x = new Uint8Array(a.buffer, a.byteOffset, a.length * 8)
   for i in [0...x.length] by 8
     t = x[i]
     x[i] = x[i + 7];
@@ -59,9 +60,9 @@ swap64 = (arr) ->
     t = x[i + 3]
     x[i + 3] = x[i + 4]
     x[i + 4] = t
-    null
+  null
 
-_process_buffer = (spec, buffers) ->
+export process_buffer = (spec, buffers) ->
   need_swap = (spec.order != BYTE_ORDER)
   shape = spec.shape
   bytes = null
@@ -80,12 +81,20 @@ _process_buffer = (spec, buffers) ->
       swap64(arr)
   return [arr, shape]
 
-_arrayBufferToBase64 = (buffer) ->
+export process_array = (obj, buffers) ->
+  if isObject(obj) and '__ndarray__' of obj
+    return decode_base64(obj)
+  else if isObject(obj) and '__buffer__' of obj
+    return process_buffer(obj, buffers)
+  else if isArray(obj)
+    return [obj, []]
+
+export arrayBufferToBase64 = (buffer) ->
   bytes = new Uint8Array( buffer )
   binary = (String.fromCharCode(b) for b in bytes)
   return btoa( binary.join("") )
 
-_base64ToArrayBuffer = (base64) ->
+export base64ToArrayBuffer = (base64) ->
   binary_string = atob(base64)
   len = binary_string.length
   bytes = new Uint8Array( len )
@@ -94,7 +103,7 @@ _base64ToArrayBuffer = (base64) ->
   return bytes.buffer
 
 export decode_base64 = (input) ->
-  bytes = _base64ToArrayBuffer(input['__ndarray__'])
+  bytes = base64ToArrayBuffer(input['__ndarray__'])
   dtype = input['dtype']
   if dtype of ARRAY_TYPES
     array = new ARRAY_TYPES[dtype](bytes)
@@ -102,7 +111,7 @@ export decode_base64 = (input) ->
   return [array, shape]
 
 export encode_base64 = (array, shape) ->
-  b64 = _arrayBufferToBase64(array.buffer)
+  b64 = arrayBufferToBase64(array.buffer)
   dtype = DTYPES[array.constructor.name]
   data =
     __ndarray__: b64,
@@ -112,45 +121,36 @@ export encode_base64 = (array, shape) ->
 
 export decode_column_data = (data, buffers) ->
   new_data = {}
-  data_shapes = {}
+  new_shapes = {}
 
   for k, v of data
 
+    # might be array of scalars, or might be ragged array or arrays
     if isArray(v)
+
+      # v is just a regular array of scalars
+      if v.length == 0 or not (isObject(v[0]) or isArray(v[0]))
+        new_data[k] = v
+        continue
+
+      # v is a ragged array of arrays
       arrays = []
       shapes = []
-      for arr in v
-        if isObject(arr) and '__ndarray__' of arr
-          [arr, shape] = decode_base64(arr)
-          shapes.push(shape)
-          arrays.push(arr)
-        else if isObject(arr) and '__buffer__' of arr
-          [arr, shape] = _process_buffer(arr, buffers)
-          shapes.push(shape)
-          arrays.push(arr)
-        else if isArray(arr)
-          shapes.push([])
-          arrays.push(arr)
-      if shapes.length > 0
-        new_data[k] = arrays
-        data_shapes[k] = shapes
-      else
-        new_data[k] = v
+      for obj in v
+        [arr, shape] = process_array(obj, buffers)
+        arrays.push(arr)
+        shapes.push(shape)
 
-    else if isObject(v) and '__ndarray__' of v
-      [arr, shape] = decode_base64(v)
-      new_data[k] = arr
-      data_shapes[k] = shape
+      new_data[k] = arrays
+      new_shapes[k] = shapes
 
-    else if isObject(v) and '__buffer__' of v
-      [arr, shape] = _process_buffer(v, buffers)
-      new_data[k] = arr
-      data_shapes[k] = shape
-
+    # must be object or array (single array case)
     else
-      new_data[k] = v
-      data_shapes[k] = []
-  return [new_data, data_shapes]
+      [arr, shape] = process_array(v, buffers)
+      new_data[k] = arr
+      new_shapes[k] = shape
+
+  return [new_data, new_shapes]
 
 export encode_column_data = (data, shapes) ->
   new_data = {}
