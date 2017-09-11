@@ -2,6 +2,8 @@ from __future__ import absolute_import
 
 import bokeh.util.compiler as buc
 
+from mock import patch
+
 def test_nodejs_compile_coffeescript():
     assert buc.nodejs_compile("""(a, b) -> a + b""", "coffeescript", "some.coffee") == \
         dict(code="""\
@@ -75,3 +77,64 @@ def test_nodejs_compile_less():
             text="some.less:1:21:Unrecognised input",
             extract=".bk-some-style color: green; }",
             annotated="some.less:1:21:Unrecognised input\n  .bk-some-style color: green; }"))
+
+def test_Implementation():
+    obj = buc.Implementation()
+    assert obj.file == None
+
+def test_Inline():
+    obj = buc.Inline("code")
+    assert obj.code == "code"
+    assert obj.file == None
+
+    obj = buc.Inline("code", "file")
+    assert obj.code == "code"
+    assert obj.file == "file"
+
+def test_CoffeeScript():
+    obj = buc.CoffeeScript("code")
+    assert isinstance(obj, buc.Inline)
+    assert obj.code == "code"
+    assert obj.file == None
+    assert obj.lang == "coffeescript"
+
+def test_TypeScript():
+    obj = buc.TypeScript("code")
+    assert isinstance(obj, buc.Inline)
+    assert obj.code == "code"
+    assert obj.file == None
+    assert obj.lang == "typescript"
+
+def test_JavaScript():
+    obj = buc.JavaScript("code")
+    assert isinstance(obj, buc.Inline)
+    assert obj.code == "code"
+    assert obj.file == None
+    assert obj.lang == "javascript"
+
+def test_Less():
+    obj = buc.Less("code")
+    assert isinstance(obj, buc.Inline)
+    assert obj.code == "code"
+    assert obj.file == None
+    assert obj.lang == "less"
+
+@patch('io.open')
+def test_FromFile(mock_open):
+    obj = buc.FromFile("path.coffee")
+    assert obj.lang == "coffeescript"
+
+    obj = buc.FromFile("path.ts")
+    assert obj.lang == "typescript"
+
+    obj = buc.FromFile("path.js")
+    assert obj.lang == "javascript"
+
+    obj = buc.FromFile("path.css")
+    assert obj.lang == "less"
+
+    obj = buc.FromFile("path.less")
+    assert obj.lang == "less"
+
+def test_exts():
+    assert buc.exts == (".coffee", ".ts", ".tsx", ".js", ".css", ".less")

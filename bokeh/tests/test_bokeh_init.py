@@ -1,30 +1,23 @@
 from __future__ import absolute_import, print_function
 
-import unittest
+def test_dir():
+    import bokeh
+    names = dir(bokeh)
+    assert "__version__" in names
+    assert "__base_version__" in names
+    assert "license" in names
+    assert "sampledata" in names
 
-class TestContents(unittest.TestCase):
+def test_version_defined():
+    import bokeh
+    assert bokeh.__version__ != 'unknown'
 
-    def test_dir(self):
-        import bokeh
-        names = dir(bokeh)
-        self.assertTrue("__version__" in names)
-        self.assertTrue("__base_version__" in names)
-        self.assertTrue("license" in names)
-        self.assertTrue("sampledata" in names)
-
-    def test_version_defined(self):
-        import bokeh
-        self.assertTrue(bokeh.__version__ != 'unknown')
-
-    # XXX (bev) disable this for now due to tools stupidness. Missing LICENSE should
-    # be caught by failed setup.py in any case
-    # def test_license(self):
-    #     import bokeh
-    #     try:
-    #         bokeh.license()
-    #     except Exception as e:
-    #         print("If LICENSE.txt does not exist in bokeh/ subdir, one way to fix this may be to run 'python setup.py develop'", file=sys.stderr)
-    #         raise e
-
-if __name__ == "__main__":
-    unittest.main()
+# This is failing only on Travis for some reason
+# def test_license():
+#     import sys
+#     import bokeh
+#     try:
+#         bokeh.license()
+#     except Exception as e:
+#         print("If LICENSE.txt does not exist in bokeh/ subdir, one way to fix this may be to run 'python setup.py develop'", file=sys.stderr)
+#         raise e
