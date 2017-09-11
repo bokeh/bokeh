@@ -1,7 +1,7 @@
 {
     "details": [
         { "path": "examples/plotting/file/iris.py",            "name": "iris"               },
-        { "path": "examples/plotting/file/image_rgba.py",      "name": "image_rgba"         },
+        { "path": "examples/plotting/file/joyplot.py",         "name": "joyplot"            },
         { "path": "examples/plotting/file/candlestick.py",     "name": "candlestick"        },
         { "path": "examples/plotting/file/legend.py",          "name": "legend"             },
         { "path": "examples/plotting/file/box_annotation.py",  "name": "box_annotation"     },
@@ -10,6 +10,7 @@
         { "path": "examples/plotting/file/stocks.py",          "name": "stocks"             },
         { "path": "examples/plotting/file/vector.py",          "name": "streamline"         },
         { "path": "examples/plotting/file/vector.py",          "name": "quiver"             },
+        { "path": "examples/plotting/file/image_rgba.py",      "name": "image_rgba"         },
         { "path": "examples/plotting/file/categorical.py",     "name": "categorical"        },
         { "path": "examples/plotting/file/categorical.py",     "name": "dot"                },
         { "path": "examples/plotting/file/periodic.py",        "name": "periodic"           },

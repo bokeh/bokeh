@@ -3,25 +3,10 @@
 Handling Categorical Data
 =========================
 
-.. _userguide_categorical_data:
-
-Data Representation
--------------------
-
-.. _userguide_categorical_data_pandas:
-
-Pandas Integrations
-~~~~~~~~~~~~~~~~~~~
-
 .. note::
     Several examples in this chapter use `Pandas`_, for ease of presentation
     and because it is a common tool for data manipulation. However, ``Pandas``
     is not required to create anything shown here.
-
-.. _userguide_categorical_data_padding:
-
-Range Padding
-~~~~~~~~~~~~~
 
 .. _userguide_categorical_bars:
 
@@ -58,8 +43,7 @@ notation is:
     p = figure(x_range=FactorRange(field=fruits), ... )
 
 This more explicit for is useful when you want to customize the
-``FactorRange``, e.g. by changing the
-:ref:`userguide_categorical_data_padding`.
+``FactorRange``, e.g. by changing the range or category padding.
 
 Next we can call ``vbar`` with the list of fruit name factors as the ``x``
 coordinate, the bar height as the ``top`` coordinate, and optionally any
@@ -310,6 +294,46 @@ By using ``jitter`` we can differentiate the points to obtain a useful plot:
 .. bokeh-plot:: docs/user_guide/examples/categorical_scatter_jitter.py
     :source-position: above
 
+.. _userguide_categorical_offsets:
+
+Categorical Offsets
+-------------------
+
+We've seen above how categorical locations can be modified by operations like
+*dodge* and *jitter*.  It is also possible to supply an offset to a categorical
+location explicitly. This is done by adding a numeric value to the end of a
+category, e.g. ``["Jan", 0.2]`` is the category "Jan" offset by a value of 0.2.
+For hierachical categories, the value is added at the end of the existing
+list, e.g. ``["West", "Sales", -0,2]``. Any numeric value at the end of a
+list of categories is always interpreted as an offset.
+
+As an example, suppose we took our first example from the beginning and
+modified it like this:
+
+.. code-block:: python
+
+    fruits = ['Apples', 'Pears', 'Nectarines', 'Plums', 'Grapes', 'Strawberries']
+
+    offsets = [-0.5, -0.2, 0.0, 0.3, 0.1, 0.3]
+
+    # This results in [ ['Apples', -0.5], ['Pears', -0.2], ... ]
+    x = list(zip(fruits, offsets))
+
+    p.vbar(x=x, top=[5, 3, 4, 2, 4, 6], width=0.8)
+
+Then the resulting plot has bars that are horizontally shifted by the amount of
+each corresponding offset:
+
+.. bokeh-plot:: docs/user_guide/examples/categorical_offset.py
+    :source-position: none
+
+Below is a more sophisticated example of a Joy Plot that displays timeseries
+associated with different categories. It uses categorical offsets to specify
+patch coordinates for the timeseries inside each category.
+
+.. bokeh-plot:: docs/user_guide/examples/categorical_joyplot.py
+    :source-position: below
+
 .. _userguide_categorical_heatmaps:
 
 Heat Maps
@@ -329,7 +353,7 @@ to colormap the plot, and is also passed to a color bar to provide a visual
 legend on the right:
 
 .. bokeh-plot:: docs/user_guide/examples/categorical_heatmap_unemployment.py
-    :source-position: above
+    :source-position: below
 
 A final example combines many of the techniques in this chapter: color mappers,
 visual dodges, and Pandas DataFrames. These are used to create a different
@@ -338,7 +362,6 @@ tool as also been added so that additional information about each element
 can be inspected:
 
 .. bokeh-plot:: docs/user_guide/examples/categorical_heatmap_periodic.py
-    :source-position: above
-
+    :source-position: below
 
 .. _Pandas: http://pandas.pydata.org
