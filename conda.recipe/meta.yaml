@@ -47,6 +47,7 @@ requirements:
 test:
   requires:
     # docs
+    - colorcet
     - pygments
     - sphinx <1.6
     # pyyaml installed by bokeh
