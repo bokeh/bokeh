@@ -101,9 +101,8 @@ variable:
 
     callback = CustomJS(code="""
     // the event that triggered the callback is cb_obj:
-    var event = cb_obj.value;
     // The event type determines the relevant attributes
-    console.log('Tap event occured at x-position: ' + event.x)
+    console.log('Tap event occured at x-position: ' + cb_obj.x)
     """)
 
     p = figure()
