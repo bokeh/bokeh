@@ -18,6 +18,14 @@ the next notebook output cell. You can see a Jupyter screenshot below:
     :scale: 50 %
     :align: center
 
+In order to embed Bokeh plots inside of JupyterLab, you need to install
+the "jupyterlab_bokeh" JupyterLab extension. This can be done by running
+the command: ``jupyter labextension install jupyterlab_bokeh``.
+
+.. image:: /_images/joyplot_jupyter_lab.png
+    :scale: 25 %
+    :align: center
+
 By defaults, |output_notebook| apply to Juypter. If you want to use bokeh
 to display inline plots in Zeppelin, you need to specify `notebook_type`
 to `zeppelin` in |output_notebook|. Here's one Zeppelin screenshot.
@@ -53,7 +61,8 @@ It is possible to update a previously shown plot in-place. When the argument
 ``notebook_handle=True`` is passed to |show| then a handle object is returned.
 This handle object can be used with the |push_notebook| function to update
 the plot with any recent changes to plots properties, data source values, etc.
-But `notebook handle` is only supported in Jupyter, not supported by Zeppelin yet.
+This `notebook handle` functionality is only supported in classic Jupyter
+notebooks and is not implemented in JupyterLab or Zeppelin yet.
 
 The following screenshots walk through the basic usage of notebook handles.
 
