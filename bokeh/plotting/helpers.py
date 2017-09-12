@@ -24,7 +24,6 @@ from ..models.renderers import GlyphRenderer
 from ..core.properties import ColorSpec, Datetime, value, field
 from ..transform import stack
 from ..util.dependencies import import_optional
-from ..util.deprecation import deprecated
 from ..util.string import nice_join
 
 pd = import_optional('pandas')
@@ -255,9 +254,18 @@ def _get_legend_item_label(kwargs):
 
 
 _GLYPH_SOURCE_MSG = """
-Supplying a user-defined data source AND iterable values to glyph methods is deprecated.
+Supplying a user-defined data source AND iterable values to glyph methods is
+not possibe. Either:
 
-See https://github.com/bokeh/bokeh/issues/2056 for more information.
+Pass all data directly as literals:
+
+    p.circe(x=a_list, y=an_array, ...)
+
+Or, put all data in a ColumnDataSource and pass column names:
+
+    source = ColumnDataSource(data=dict(x=a_list, y=an_array))
+    p.circe(x='x', y='x', source=source, ...)
+
 """
 
 
@@ -285,7 +293,7 @@ def _process_sequence_literals(glyphclass, kwargs, source, is_user_source):
             raise RuntimeError("Columns need to be 1D (%s is not)" % var)
 
         if is_user_source:
-            deprecated(_GLYPH_SOURCE_MSG)
+            raise RuntimeError(_GLYPH_SOURCE_MSG)
 
         source.add(val, name=var)
         kwargs[var] = var
