@@ -25,22 +25,25 @@ from .scales import Scale, CategoricalScale, LinearScale, LogScale
 from .sources import DataSource, ColumnDataSource
 from .tools import ResizeTool, Tool, Toolbar
 
+def _check_conflicting_kwargs(a1, a2, kwargs):
+    if a1 in kwargs and a2 in kwargs:
+        raise ValueError("Conflicting properties set on plot: %r and %r" % (a1, a2))
+
 class Plot(LayoutDOM):
     ''' Model representing a plot, containing glyphs, guides, annotations.
 
     '''
 
     def __init__(self, **kwargs):
-        if "toolbar" in kwargs and "logo" in kwargs:
-            raise ValueError("Conflicting properties set on plot: toolbar, logo.")
+        '''
 
-        if "toolbar" in kwargs and "tools" in kwargs:
-            raise ValueError("Conflicting properties set on plot: toolbar, tools.")
+        '''
+        _check_conflicting_kwargs("toolbar", "tools", kwargs)
+        _check_conflicting_kwargs("toolbar", "logo", kwargs)
 
         if "toolbar" not in kwargs:
             tools = kwargs.pop('tools', [])
             logo = kwargs.pop('logo', 'normal')
-
             kwargs["toolbar"] = Toolbar(tools=tools, logo=logo)
 
         super(LayoutDOM, self).__init__(**kwargs)
