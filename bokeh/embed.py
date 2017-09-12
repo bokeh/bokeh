@@ -616,12 +616,6 @@ def _connect_session_or_document(model=None, app_path=None, session_id=None, url
             typically not desired.
 
     '''
-    if app_path is not None:
-        deprecated((0, 12, 5), "app_path", "url", "Now pass entire app URLS in the url arguments, e.g. 'url=http://foo.com:5010/bar/myapp'")
-        if not app_path.startswith("/"):
-            app_path = "/" + app_path
-        url = url + app_path
-
     coords = _SessionCoordinates(url=url, session_id=session_id)
 
     elementid = make_id()
