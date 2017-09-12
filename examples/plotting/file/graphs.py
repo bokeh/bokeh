@@ -1,56 +1,51 @@
-import networkx as nx
-from sympy import Symbol, symbols, Dummy, roots, solve
+from bokeh.models import StaticLayoutProvider, ColumnDataSource, HoverTool, TapTool
+from bokeh.models.graphs import NodesAndLinkedEdges
+from bokeh.palettes import Set3_12
+from bokeh.plotting import figure, show, output_file
+from bokeh.sampledata.us_states import data as us_states
+from bokeh.sampledata.airport_routes import airports, routes
 
-from bokeh.plotting import figure, gridplot, GridSpec, output_file, show
+import numpy as np
 
-def graph_draw(g, layout=nx.circular_layout, node_color="white", text_color="black"):
-    pos = layout(g)
-    labels = [ str(v) for v in g.nodes() ]
-    vx, vy = zip(*[ pos[v] for v in g.nodes() ])
-    xs, ys = [], []
-    for (a, b) in g.edges():
-        x0, y0 = pos[a]
-        x1, y1 = pos[b]
-        xs.append([x0, x1])
-        ys.append([y0, y1])
-    f = figure(plot_width=300, plot_height=300,
-               x_axis_type=None, y_axis_type=None,
-               outline_line_color=None,
-               tools=[], toolbar_location=None)
-    f.multi_line(xs, ys, line_color="black")
-    f.circle(vx, vy, size=16, line_color="black", fill_color=node_color)
-    f.text(vx, vy, text=labels, text_color=text_color,
-           text_font_size="10px", text_align="center", text_baseline="middle")
-    return f
+output_file("graphs.html")
 
-V = range(1, 12+1)
-E = [(1,2),(2,3),(1,4),(1,6),(1,12),(2,5),(2,7),(3,8),(3,10),(4,11),(4,9),(5,6),
-     (6,7),(7,8),(8,9),(9,10),(10,11),(11,12),(5,12),(5,9),(6,10),(7,11),(8,12)]
+airports.set_index("AirportID", inplace=True)
+airports.index.rename("index", inplace=True)
+routes.rename(columns={"SourceID": "start", "DestinationID": "end"}, inplace=True)
 
-g = nx.Graph()
-g.add_nodes_from(V)
-g.add_edges_from(E)
+lats, lons = [], []
+for k, v in us_states.items():
+    lats.append(np.array(v['lats']))
+    lons.append(np.array(v['lons']))
 
-Vx = [ Symbol('x%d' % i) for i in V ]
-Ex = [ (Vx[i-1], Vx[j-1]) for i, j in E ]
-F3 = [ xi**3 - 1 for xi in Vx ]
-Fg = [ xi**2 + xi*xj + xj**2 for xi, xj in Ex ]
-Fx = F3 + Fg
+source = ColumnDataSource(data=dict(lats=lats, lons=lons))
 
-colors = symbols('red,green,blue')
-roots_of_unity = roots(Dummy()**3 - 1, multiple=True)
-color_map = dict(zip(roots_of_unity, colors))
-solutions = solve(Fx, *Vx)
-colorings = [ [ color_map.get(zeta) for zeta in solution ] for solution in solutions ]
+graph_layout = dict(zip(airports.index.astype(str), zip(airports.Longitude, airports.Latitude)))
+layout_provider = StaticLayoutProvider(graph_layout=graph_layout)
 
-n, ncols = len(colorings), 2
-gs = GridSpec((n + 1)//ncols, 1 + ncols)
-gs[0, 0] = graph_draw(g)
+fig = figure(x_range=(-180, -60), y_range=(15,75),
+              x_axis_label="Longitude", y_axis_label="Latitude",
+              plot_width=800, plot_height=600, background_fill_color=Set3_12[4],
+              background_fill_alpha=0.2, tools='box_zoom,reset')
 
-for i, coloring in enumerate(colorings):
-    f = graph_draw(g, node_color=[ str(color) for color in coloring ], text_color="white")
-    gs[i//ncols, 1 + i%ncols] = f
-plot = gridplot(gs, toolbar_location=None)
+fig.patches(xs="lons", ys="lats", line_color='grey', line_width=1.0,
+             fill_color=Set3_12[10], source=source)
 
-output_file("graphs.html", title="Graph k-coloring with computer algebra")
-show(plot)
+r = fig.graph(airports, routes, layout_provider,
+              ## node style props
+              node_fill_color=Set3_12[3], node_fill_alpha=0.4, node_line_color="black", node_line_alpha=0.3,
+              node_nonselection_fill_color=Set3_12[3], node_nonselection_fill_alpha=0.2, node_nonselection_line_alpha=0.1,
+              node_selection_fill_color=Set3_12[3], node_selection_fill_alpha=0.8, node_selection_line_alpha=0.3,
+              ## edge style props
+              edge_line_color="black", edge_line_alpha=0.04,
+              edge_hover_line_alpha=0.6, edge_hover_line_color=Set3_12[1],
+              edge_nonselection_line_color="black", edge_nonselection_line_alpha=0.01,
+              edge_selection_line_alpha=0.6, edge_selection_line_color=Set3_12[1],
+              ## graph policies
+              inspection_policy=NodesAndLinkedEdges(), selection_policy=NodesAndLinkedEdges())
+
+hover = HoverTool(tooltips=[("Airport", "@Name (@IATA), @City ")], renderers=[r])
+tap = TapTool(renderers=[r])
+fig.add_tools(hover, tap)
+
+show(fig)

@@ -85,3 +85,6 @@ def test_view_args():
     assert _open_args == (('http://foo',), {'autoraise': True, 'new': 2})
 
     bub.DummyWebBrowser = db
+
+def test_NEW_PARAM():
+    assert bub.NEW_PARAM == {'tab': 2, 'window': 1}

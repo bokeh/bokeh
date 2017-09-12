@@ -28,16 +28,6 @@ from .property.containers import PropertyValueContainer
 from .property.descriptor_factory import PropertyDescriptorFactory
 from .property.override import Override
 
-IPython = import_optional('IPython')
-
-if IPython:
-    from IPython.lib.pretty import RepresentationPrinter
-
-    class _BokehPrettyPrinter(RepresentationPrinter):
-        def __init__(self, output, verbose=False, max_width=79, newline='\n'):
-            super(_BokehPrettyPrinter, self).__init__(output, verbose, max_width, newline)
-            self.type_pprinters[HasProps] = lambda obj, p, cycle: obj._repr_pretty(p, cycle)
-
 _ABSTRACT_ADMONITION = '''
     .. note::
         This is an abstract base class used to help organize the hierarchy of Bokeh
@@ -656,6 +646,16 @@ class HasProps(with_metaclass(MetaHasProps, object)):
             ValueError, if ``IPython`` cannot be imported
 
         '''
+        IPython = import_optional('IPython')
+
+        if IPython:
+            from IPython.lib.pretty import RepresentationPrinter
+
+        class _BokehPrettyPrinter(RepresentationPrinter):
+            def __init__(self, output, verbose=False, max_width=79, newline='\n'):
+                super(_BokehPrettyPrinter, self).__init__(output, verbose, max_width, newline)
+                self.type_pprinters[HasProps] = lambda obj, p, cycle: obj._repr_pretty(p, cycle)
+
         if not IPython:
             cls = self.__class__
             raise RuntimeError("%s.%s.pretty() requires IPython" % (cls.__module__, cls.__name__))

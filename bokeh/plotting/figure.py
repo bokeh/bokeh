@@ -7,7 +7,7 @@ from six import string_types
 
 from ..core.properties import Any, Auto, Either, Enum, Int, Seq, Instance, String
 from ..core.enums import HorizontalLocation, VerticalLocation
-from ..models import Plot, Title, Tool
+from ..models import Plot, Title, Tool, GraphRenderer
 from ..models import glyphs, markers
 from ..models.tools import Drag, Inspection, Scroll, Tap
 from ..util.options import Options
@@ -15,7 +15,7 @@ from ..util.string import format_docstring
 from ..util._plot_arg_helpers import _convert_responsive
 from .helpers import (
     _get_range, _get_scale, _process_axis_and_grid, _process_tools_arg,
-    _glyph_function, _process_active_tools, _stack)
+    _glyph_function, _process_active_tools, _stack, _graph)
 
 DEFAULT_TOOLS = "pan,wheel_zoom,box_zoom,save,reset,help"
 
@@ -726,6 +726,26 @@ Examples:
         for kw in _stack(stackers, "bottom", "top", **kw):
             self.vbar(**kw)
 
+    def graph(self, node_source, edge_source, layout_provider, **kwargs):
+        ''' Creates a network graph using the given node, edge and layout provider.
+
+        Args:
+            node_source (:class:`~bokeh.models.sources.ColumnDataSource`) : a user-supplied data source
+                for the graph nodes. An attempt will be made to convert the object to
+                :class:`~bokeh.models.sources.ColumnDataSource` if needed. If none is supplied, one is created
+                for the user automatically.
+            edge_source (:class:`~bokeh.models.sources.ColumnDataSource`) : a user-supplied data source
+                for the graph edges. An attempt will be made to convert the object to
+                :class:`~bokeh.models.sources.ColumnDataSource` if needed. If none is supplied, one is created
+                for the user automatically.
+            layout_provider (:class:`~bokeh.models.graphs.LayoutProvider`) : a LayoutProvider instance to
+                provide the graph coordinates in Cartesian space.
+            **kwargs: :ref:`userguide_styling_line_properties` and :ref:`userguide_styling_fill_properties`
+        '''
+        kw = _graph(node_source, edge_source, **kwargs)
+        graph_renderer = GraphRenderer(layout_provider=layout_provider, **kw)
+        self.renderers.append(graph_renderer)
+        return graph_renderer
 
 def figure(**kwargs):
     ''' Create a new :class:`~bokeh.plotting.figure.Figure` for plotting.

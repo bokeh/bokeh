@@ -5,10 +5,19 @@ import pytest
 
 from bokeh.application.handlers import FunctionHandler
 from bokeh.application import Application
+from bokeh.application.application import ServerContext, SessionContext
 from bokeh.document import Document
 from bokeh.model import Model
 from bokeh.plotting import figure
 from bokeh.core.properties import Int, Instance
+
+def test_ServerContext_abstract():
+    with pytest.raises(TypeError):
+        ServerContext()
+
+def test_SessionContext_abstract():
+    with pytest.raises(TypeError):
+        SessionContext()
 
 class AnotherModelInTestApplication(Model):
     bar = Int(1)

@@ -1,3 +1,49 @@
+2017-09-12   0.12.9:
+--------------------
+
+2017-09-12   0.12.8:
+--------------------
+  * bugfixes:
+    - #1329 [widgets] Daterangeslider re-sizing
+    - #2268 [widgets] Daterangeslider not rendering
+    - #4048 Bounds on axis causes axis labels to go off page
+    - #4876 [layout] Tile attribution misaligned (see toolbar on right-side example)
+    - #6842 [component: docs] Bokeh.models.widgets.sliders is missing from the reference documentation menu
+    - #6844 [notebook] Bug: bokeh.io.push_notebook is broken
+    - #6850 [layout] [regression] Log-axis label layout issue
+    - #6852 [component: bokehjs] [regression] Hovertool not rendering on hbar glyphs in 0.12.7
+    - #6859 [component: bokehjs] [regression] Dateformatter not working in tables
+    - #6860 [component: examples] Patch color_sliders.py
+    - #6873 [component: bokehjs] [widgets] Unable to render <, >, & in datatable
+    - #6880 [widgets] Datatable rendering broken in notebook
+    - #6885 [component: docs] Typo in edgesandlinkednodes docstring
+    - #6898 [component: docs] [doc] adjust docstring indentation
+    - #6908 [component: bokehjs] [notebook] [regression] Running output_notebook with hide_banner=true broken
+    - #6909 [notebook] Notebook output generates console errors
+    - #6922 [notebook] Unprotected ipython imports break bokeh without notebook installed 
+  * features:
+    - #994 Text doesn't respect new lines
+    - #5984 Improve data transfer, using a binary transfer protocol
+    - #6865 Allow supplying explicit edge paths to graphrenderer
+    - #6876 [component: bokehjs] New feature: add a "resettool clicked" event 
+    - #6895 Bokeh daterangeslider returns tuple of integers instead of dates
+  * tasks:
+    - #2458 [component: examples] Add examples for daterangeslider and datepicker
+    - #5065 Task: refactor select tools
+    - #6472 [layout] Make layout canvas' panels not overlap in corners
+    - #6560 Using ``export_png`` or ``save`` without filename from within jupyter notebook saves png file to lib/python
+    - #6612 Task: graph visualization improvements
+    - #6700 [component: bokehjs] [component: build] [notebook] Bokeh / jupyterlab integration 
+    - #6819 [component: tests] Switch examples tests to use python 3.5 or 3.6
+    - #6832 Simplify data frame length calculation
+    - #6837 Remove mpl and bokeh.charts
+    - #6847 Check nodejs version number and update documentation
+    - #6851 Plots which contain glyph's with infinite bounds fail to set initial ranges when match_aspect is set to true
+    - #6869 [component: bokehjs] Remove leftover code after pr #6752
+    - #6878 [component: bokehjs] [component: server] Bryanv/document cleanup
+    - #6888 Add trace log level on python side
+    - #6902 Add network-related sample data source
+
 2017-08-28   0.12.7:
 --------------------
   * bugfixes:

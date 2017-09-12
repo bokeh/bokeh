@@ -143,7 +143,7 @@ class Message(object):
 
         self._header_json = None
 
-        self._buffers.add((buf_header, buf_payload))
+        self._buffers.append((buf_header, buf_payload))
 
     def assemble_buffer(self, buf_header, buf_payload):
         ''' Add a buffer header and payload that we read from the socket.

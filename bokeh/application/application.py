@@ -16,7 +16,7 @@ log = logging.getLogger(__name__)
 
 from tornado import gen
 
-from abc import ABCMeta, abstractmethod
+from abc import ABCMeta, abstractmethod, abstractproperty
 
 from ..util.future import with_metaclass
 from ..util.tornado import yield_for_all_futures
@@ -31,15 +31,14 @@ class ServerContext(with_metaclass(ABCMeta)):
 
     '''
 
-    @property
-    @abstractmethod
+    @abstractproperty
     def sessions(self):
         ''' SessionContext instances belonging to this application.
 
          *Subclasses must implement this method.*
 
         '''
-        raise NotImplementedError("sessions property, should return SessionContext")
+        pass
 
     @abstractmethod
     def add_next_tick_callback(self, callback):
@@ -55,7 +54,7 @@ class ServerContext(with_metaclass(ABCMeta)):
                 not accept any arguments)
 
         '''
-        raise NotImplementedError("implement add_next_tick_callback")
+        pass
 
     @abstractmethod
     def remove_next_tick_callback(self, callback):
@@ -68,7 +67,7 @@ class ServerContext(with_metaclass(ABCMeta)):
             callback (callable) : the callback to remove
 
         '''
-        raise NotImplementedError("implement remove_next_tick_callback")
+        pass
 
     @abstractmethod
     def add_timeout_callback(self, callback, timeout_milliseconds):
@@ -87,7 +86,7 @@ class ServerContext(with_metaclass(ABCMeta)):
                 executing the callback.
 
         '''
-        raise NotImplementedError("implement add_timeout_callback")
+        pass
 
     @abstractmethod
     def remove_timeout_callback(self, callback):
@@ -100,7 +99,7 @@ class ServerContext(with_metaclass(ABCMeta)):
             callback (callable) : the callback to remove
 
         '''
-        raise NotImplementedError("implement remove_timeout_callback")
+        pass
 
     @abstractmethod
     def add_periodic_callback(self, callback, period_milliseconds):
@@ -119,7 +118,7 @@ class ServerContext(with_metaclass(ABCMeta)):
                 between executing the callback.
 
         '''
-        raise NotImplementedError("implement add_periodic_callback")
+        pass
 
     @abstractmethod
     def remove_periodic_callback(self, callback):
@@ -131,7 +130,7 @@ class ServerContext(with_metaclass(ABCMeta)):
             callback (callable) : the callback to remove
 
         '''
-        raise NotImplementedError("implement remove_periodic_callback")
+        pass
 
 class SessionContext(with_metaclass(ABCMeta)):
     ''' A harness for server-specific information and tasks related to

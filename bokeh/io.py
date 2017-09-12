@@ -26,8 +26,6 @@ import warnings
 import tempfile
 import uuid
 
-from IPython.display import publish_display_data
-
 # Bokeh imports
 from .core.state import State
 from .document.util import compute_patch_between_json
@@ -45,8 +43,6 @@ from .util.serialization import make_id
 # Globals and constants
 #-----------------------------------------------------------------------------
 
-_new_param = {'tab': 2, 'window': 1}
-
 _state = State()
 
 _notebook_hooks = {}
@@ -54,6 +50,12 @@ _notebook_hooks = {}
 #-----------------------------------------------------------------------------
 # Local utilities
 #-----------------------------------------------------------------------------
+
+# This exists only for testing
+def publish_display_data(*args, **kw):
+    # This import MUST be deferred or it introduces a hard dependency on ipython
+    from IPython.display import publish_display_data as pdd
+    return pdd(*args, **kw)
 
 def install_notebook_hook(notebook_type, load, show_doc, show_app, overwrite=False):
     ''' Install a new notebook display hook.
@@ -435,11 +437,12 @@ def _show_notebook_doc_with_state(obj, state, notebook_handle):
 
 def _show_file_with_state(obj, state, new, controller):
     filename = save(obj, state=state)
-    controller.open("file://" + filename, new=_new_param[new])
+    controller.open("file://" + filename, new=browserlib.NEW_PARAM[new])
 
 def _show_jupyter_doc_with_state(obj, state, notebook_handle):
     comms_target = make_id() if notebook_handle else None
     (script, div) = notebook_content(obj, comms_target)
+
     publish_display_data({HTML_MIME_TYPE: div})
     publish_display_data({JS_MIME_TYPE: script, EXEC_MIME_TYPE: ""}, metadata={EXEC_MIME_TYPE: {"id": obj._id}})
     if comms_target:

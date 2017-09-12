@@ -3,7 +3,7 @@
 '''
 from __future__ import absolute_import
 
-from IPython.display import publish_display_data
+from ..core.templates import SCRIPT_TAG, AUTOLOAD_NB_JS
 
 HTML_MIME_TYPE = 'text/html'
 JS_MIME_TYPE   = 'application/javascript'
@@ -43,6 +43,8 @@ def load_notebook(resources=None, verbose=False, hide_banner=False, load_timeout
 
     global _notebook_loaded
 
+    from IPython.display import publish_display_data
+
     from .. import __version__
     from ..core.templates import NOTEBOOK_LOAD
     from ..util.serialization import make_id
@@ -52,31 +54,34 @@ def load_notebook(resources=None, verbose=False, hide_banner=False, load_timeout
     if resources is None:
         resources = CDN
 
-    if resources.mode == 'inline':
-        js_info = 'inline'
-        css_info = 'inline'
+    if not hide_banner:
+
+        if resources.mode == 'inline':
+            js_info = 'inline'
+            css_info = 'inline'
+        else:
+            js_info = resources.js_files[0] if len(resources.js_files) == 1 else resources.js_files
+            css_info = resources.css_files[0] if len(resources.css_files) == 1 else resources.css_files
+
+        warnings = ["Warning: " + msg['text'] for msg in resources.messages if msg['type'] == 'warn']
+        if _notebook_loaded and verbose:
+            warnings.append('Warning: BokehJS previously loaded')
+
+        element_id = make_id()
+
+        html = NOTEBOOK_LOAD.render(
+            element_id    = element_id,
+            verbose       = verbose,
+            js_info       = js_info,
+            css_info      = css_info,
+            bokeh_version = __version__,
+            warnings      = warnings,
+        )
+
     else:
-        js_info = resources.js_files[0] if len(resources.js_files) == 1 else resources.js_files
-        css_info = resources.css_files[0] if len(resources.css_files) == 1 else resources.css_files
-
-    warnings = ["Warning: " + msg['text'] for msg in resources.messages if msg['type'] == 'warn']
-
-    if _notebook_loaded and verbose:
-        warnings.append('Warning: BokehJS previously loaded')
+        element_id = None
 
     _notebook_loaded = resources
-
-    element_id = make_id()
-
-    html = NOTEBOOK_LOAD.render(
-        element_id    = element_id,
-        verbose       = verbose,
-        js_info       = js_info,
-        css_info      = css_info,
-        bokeh_version = __version__,
-        warnings      = warnings,
-        hide_banner   = hide_banner,
-    )
 
     custom_models_js = bundle_all_models()
 
@@ -84,28 +89,26 @@ def load_notebook(resources=None, verbose=False, hide_banner=False, load_timeout
     jl_js = _loading_js(resources, element_id, custom_models_js, load_timeout, register_mime=False)
 
     if notebook_type=='jupyter':
-
         if not hide_banner:
             publish_display_data({'text/html': html})
-
         publish_display_data({
             JS_MIME_TYPE   : nb_js,
             LOAD_MIME_TYPE : jl_js
         })
 
     else:
-        _publish_zeppelin_data(html, jl_js)
+        if not hide_banner:
+            _publish_zeppelin_data(html)
+        _publish_zeppelin_data(SCRIPT_TAG.render(js_code=jl_js))
 
 # TODO (bev) This will eventually go away
-def _publish_zeppelin_data(html, js):
+def _publish_zeppelin_data(html):
+    '''Embed html content via %html magic'''
     print('%html ' + html)
-    print('%html ' + '<script type="text/javascript">' + js + "</script>")
 
 def _loading_js(resources, element_id, custom_models_js, load_timeout=5000, register_mime=True):
 
-    from ..core.templates import AUTOLOAD_NB_JS
-
-    js = AUTOLOAD_NB_JS.render(
+    return AUTOLOAD_NB_JS.render(
         elementid = element_id,
         js_urls   = resources.js_files,
         css_urls  = resources.css_files,
@@ -115,8 +118,6 @@ def _loading_js(resources, element_id, custom_models_js, load_timeout=5000, regi
         timeout   = load_timeout,
         register_mime = register_mime
     )
-
-    return js
 
 def get_comms(target_name):
     ''' Create a Jupyter comms object for a specific target, that can

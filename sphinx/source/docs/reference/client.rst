@@ -4,12 +4,9 @@ bokeh.client
 ============
 
 .. automodule:: bokeh.client
-  :members:
 
-.. _bokeh.client.session:
+.. toctree::
+    :maxdepth: 2
+    :glob:
 
-bokeh.client.session
---------------------
-
-.. automodule:: bokeh.client.session
-   :members:
+    client/*

@@ -55,8 +55,8 @@
     var output_area = handle.output_area;
     var output = handle.output;
 
-    // limit handleAddOutput to EXEC_MIME_TYPE content only
-    if (!output.data.hasOwnProperty(EXEC_MIME_TYPE)) {
+    // limit handleAddOutput to display_data with EXEC_MIME_TYPE content only
+    if ((output.output_type != "display_data") || (!output.data.hasOwnProperty(EXEC_MIME_TYPE))) {
       return
     }
 

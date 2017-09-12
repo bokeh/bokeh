@@ -1,4 +1,21 @@
-'''
+''' Provide a session object to service Bokeh documents in external Python
+clients to a Bokeh server.
+
+Use-Cases
+~~~~~~~~~
+
+A client session has two primary uses:
+
+* Implementing automated testing infrastructure around Bokeh server
+  applications.
+
+* Creating and customizing specific sessions of a Bokeh server application
+  (running *in the Bokeh server*) before passing them on to a specific
+  viewer.
+
+Note About "External" Applications
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+{warning}
 
 '''
 from __future__ import absolute_import, print_function
@@ -6,37 +23,43 @@ from __future__ import absolute_import, print_function
 import logging
 log = logging.getLogger(__name__)
 
+from six.moves.urllib.parse import quote_plus
+
 from ..document import Document
 from ..resources import _SessionCoordinates, DEFAULT_SERVER_HTTP_URL
+from ..util.browser import NEW_PARAM
 from ..util.deprecation import deprecated
 from ..util.session_id import generate_session_id
+from ..util.string import format_docstring
+
+from .util import server_url_for_websocket_url, websocket_url_for_server_url
 
 DEFAULT_SESSION_ID = "default"
 
-def websocket_url_for_server_url(url):
-    if url.startswith("http:"):
-        reprotocoled = "ws" + url[4:]
-    elif url.startswith("https:"):
-        reprotocoled = "wss" + url[5:]
-    else:
-        raise ValueError("URL has unknown protocol " + url)
-    if reprotocoled.endswith("/"):
-        return reprotocoled + "ws"
-    else:
-        return reprotocoled + "/ws"
-
-def server_url_for_websocket_url(url):
-    if url.startswith("ws:"):
-        reprotocoled = "http" + url[2:]
-    elif url.startswith("wss:"):
-        reprotocoled = "https" + url[3:]
-    else:
-        raise ValueError("URL has non-websocket protocol " + url)
-    if not reprotocoled.endswith("/ws"):
-        raise ValueError("websocket URL does not end in /ws")
-    return reprotocoled[:-2]
-
 DEFAULT_SERVER_WEBSOCKET_URL = websocket_url_for_server_url(DEFAULT_SERVER_HTTP_URL)
+
+_BOKEH_CLIENT_APP_WARNING_BODY = """
+The use of `session.loop_until_closed` and `push_session` to run Bokeh
+application code outside a Bokeh server is **HIGHLY DISCOURAGED** for any real
+use.
+
+Running application code outside a Bokeh server with bokeh.client in this way
+has (and always will have) several intrinsic drawbacks:
+
+* Fast binary array transport is NOT available! Base64 fallback is much slower
+* All network traffic is DOUBLED due to extra hop between client and server
+* Server *and* client process must be running at ALL TIMES for callbacks to work
+* App code run outside the Bokeh server is NOT SCALABLE behind a load balancer
+
+The bokeh.client API is recommended to use ONLY for testing, or for customizing
+individual sessions running in a full Bokeh server, before passing on to viewers.
+
+For information about different ways of running apps in a Bokeh server, see:
+
+    http://bokeh.pydata.org/en/latest/docs/user_guide/server.html
+"""
+
+BOKEH_CLIENT_APP_WARNING = "\n\n    !!!! PLEASE NOTE !!!!\n" + _BOKEH_CLIENT_APP_WARNING_BODY
 
 def push_session(document, session_id=None, url='default', app_path=None, io_loop=None):
     ''' Create a session by pushing the given document to the server,
@@ -125,6 +148,7 @@ def pull_session(session_id=None, url='default', app_path=None, io_loop=None):
 
         io_loop (``tornado.ioloop.IOLoop``, optional) :
             The IOLoop to use for the websocket
+
     Returns:
         ClientSession :
             A new ClientSession connected to the server
@@ -138,17 +162,6 @@ def pull_session(session_id=None, url='default', app_path=None, io_loop=None):
     session = ClientSession(session_id=session_id, websocket_url=websocket_url_for_server_url(coords.url), io_loop=io_loop)
     session.pull()
     return session
-
-def _encode_query_param(s):
-    try:
-        import urllib
-        return urllib.quote_plus(s)
-    except:
-        # python 3
-        import urllib.parse as parse
-        return parse.quote_plus(s)
-
-_new_param = {'tab': 2, 'window': 1}
 
 def show_session(session_id=None, url='default', app_path=None, session=None, browser=None, new="tab", controller=None):
         ''' Open a browser displaying a session document.
@@ -197,8 +210,8 @@ def show_session(session_id=None, url='default', app_path=None, session=None, br
             from bokeh.util.browser import get_browser_controller
             controller = get_browser_controller(browser=browser)
 
-        controller.open(server_url + "?bokeh-session-id=" + _encode_query_param(session_id),
-                        new=_new_param[new])
+        controller.open(server_url + "?bokeh-session-id=" + quote_plus(session_id),
+                        new=NEW_PARAM[new])
 
 class ClientSession(object):
     ''' Represents a websocket connection to a server-side session.
@@ -211,15 +224,16 @@ class ClientSession(object):
     '''
 
     def __init__(self, session_id=None, websocket_url=DEFAULT_SERVER_WEBSOCKET_URL, io_loop=None):
-        '''
-        A connection which attaches to a particular named session on the server.
+        ''' A connection which attaches to a particular named session on the
+        server.
 
-        Always call either pull() or push() immediately after creating the session
-        (until these are called session.document will be None).
+        Always call either pull() or push() immediately after creating the
+        session (until these are called ``session.document`` will be ``None``).
 
-        The bokeh.client.push_session() and bokeh.client.pull_session() functions
-        will construct a ClientSession and push or pull in one step, so they are
-        a good way to obtain a ClientSession.
+        The :func:`~bokeh.client.session.push_session` and
+        :func:`~bokeh.client.session.pull_session()` functions will construct a
+        ``ClientSession`` and push or pull in one step, so they are a good way to
+        obtain a ``ClientSession``.
 
         Args:
             session_id (str) :
@@ -228,13 +242,13 @@ class ClientSession(object):
             websocket_url (str) :
                 Websocket URL to connect to
 
-            io_loop (``tornado.ioloop.IOLoop``, optional) :
+            io_loop (IOLoop, optional) :
                 The IOLoop to use for the websocket
         '''
         self._document = None
         self._id = self._ensure_session_id(session_id)
 
-        from ._connection import ClientConnection
+        from .connection import ClientConnection
         self._connection = ClientConnection(session=self, io_loop=io_loop, websocket_url=websocket_url)
 
         from ..server.callbacks import _DocumentCallbackGroup
@@ -249,10 +263,10 @@ class ClientSession(object):
     def pull(self):
         ''' Pull the server's state and set it as session.document.
 
-            If this is called more than once, session.document will
-            be the same object instance but its contents will be overwritten.
+        If this is called more than once, session.document will be the same
+        object instance but its contents will be overwritten.
 
-            Automatically calls :func:`connect` before pulling.
+        Automatically calls :func:`connect` before pulling.
 
         '''
         self.connect()
@@ -332,28 +346,45 @@ class ClientSession(object):
 
     @property
     def document(self):
-        ''' :class:`~bokeh.document.Document` which will be kept in sync with the server document
+        ''' A :class:`~bokeh.document.Document` that will be kept in sync with
+        the corresponding Document on the server.
 
-        This is initialized when :func:`pull` or :func:`push` succeeds. It will be None until then.
+        This value is initialized when :func:`pull` or :func:`push` succeeds.
+        It will be ``None`` until then.
 
         '''
         return self._document
 
     @property
     def id(self):
+        ''' A unique ID for this session. '''
         return self._id
 
     @property
     def connected(self):
+        ''' Whether this session is currently connected. '''
         return self._connection.connected
 
     def connect(self):
+        ''' Connect to a Bokeh server at the configured URL. '''
         self._connection.connect()
 
     def close(self, why="closed"):
+        ''' Close the connection to the server. '''
         self._connection.close(why)
 
-    def loop_until_closed(self):
+    def loop_until_closed(self, suppress_warning=False):
+        ''' Execute a blocking loop that runs and exectutes event callbacks
+        until the connection is closed (e.g. by hitting Ctrl-C).
+
+        While this method can be used to run Bokeh application code "outside"
+        the Bokeh server, this practice is HIGHLY DISCOURAGED for any real
+        use case.
+
+        '''
+        import warnings
+        if not suppress_warning:
+            warnings.warn(BOKEH_CLIENT_APP_WARNING)
         self._connection.loop_until_closed()
 
     def request_server_info(self):
@@ -366,7 +397,14 @@ class ClientSession(object):
         return self._connection.request_server_info()
 
     def force_roundtrip(self):
-        ''' Used in unit testing to force a request/reply pair in order to avoid races
+        ''' Force a round-trip request/reply to the server, sometimes needed to
+        avoid race conditions. Mostly useful for testing.
+
+        Outside of test suites, this method hurts performance and should not be
+        needed.
+
+        Returns:
+           None
 
         '''
         self._connection.force_roundtrip()
@@ -398,3 +436,5 @@ class ClientSession(object):
 
     def _session_callback_removed(self, event):
         self._callbacks.remove_session_callback(event.callback)
+
+__doc__ = format_docstring(__doc__, warning=_BOKEH_CLIENT_APP_WARNING_BODY)
