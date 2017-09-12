@@ -3,8 +3,6 @@
 '''
 from __future__ import absolute_import
 
-from IPython.display import publish_display_data
-
 from ..core.templates import SCRIPT_TAG, AUTOLOAD_NB_JS
 
 HTML_MIME_TYPE = 'text/html'
@@ -44,6 +42,8 @@ def load_notebook(resources=None, verbose=False, hide_banner=False, load_timeout
     '''
 
     global _notebook_loaded
+
+    from IPython.display import publish_display_data
 
     from .. import __version__
     from ..core.templates import NOTEBOOK_LOAD
