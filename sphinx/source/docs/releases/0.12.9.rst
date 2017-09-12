@@ -1,5 +1,5 @@
-0.12.9
-======
+0.12.9 (Sep 2017)
+=================
 
 Bokeh Version ``0.12.9`` is an incremental update that adds a few important
 features and fixes several bugs. Some of the highlights include:

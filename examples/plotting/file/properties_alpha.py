@@ -1,7 +1,10 @@
 from itertools import product
 from math import pi
 
-from bokeh.plotting import figure, show, output_file
+from bokeh.io import output_file, show
+from bokeh.plotting import figure
+
+output_file('properties_alpha.html')
 
 cats = ['None', 'Alpha', 'RGB', 'RGBA', 'Alpha+RGB', 'Alpha+RGBA']
 
@@ -45,7 +48,5 @@ for comb in combinations:
     options.update(line_options)
 
     p.circle([cats[x]], [cats[y]], line_width=7, size=50, **options)
-
-output_file('properties_alpha.html', title="properties_alpha.py example")
 
 show(p)
