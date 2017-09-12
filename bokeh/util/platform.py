@@ -21,16 +21,3 @@ def is_pypy():
     """
     import platform
     return platform.python_implementation() == "PyPy"
-
-def is_notebook():
-    """ Test whether we are inside an IPython notebook.
-
-    Returns
-        True if we are inside a notebook, otherwise False
-
-    """
-    try:
-        get_ipython()
-        return True
-    except NameError:
-        return False
