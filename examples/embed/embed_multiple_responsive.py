@@ -15,13 +15,13 @@ SCATTER_OPTIONS = dict(size=12, alpha=0.5)
 
 data = lambda: [random.choice([i for i in range(100)]) for r in range(10)]
 
-red = figure(responsive=True, tools='pan', **PLOT_OPTIONS)
+red = figure(sizing_mode='scale_width', tools='pan', **PLOT_OPTIONS)
 red.scatter(data(), data(), color="red", **SCATTER_OPTIONS)
 
-blue = figure(responsive=False, tools='pan', **PLOT_OPTIONS)
+blue = figure(sizing_mode='fixed', tools='pan', **PLOT_OPTIONS)
 blue.scatter(data(), data(), color="blue", **SCATTER_OPTIONS)
 
-green = figure(responsive=True, tools='pan', **PLOT_OPTIONS)
+green = figure(sizing_mode='scale_width', tools='pan', **PLOT_OPTIONS)
 green.scatter(data(), data(), color="green", **SCATTER_OPTIONS)
 
 ########## RENDER PLOTS ################
@@ -37,11 +37,11 @@ template = Template('''<!DOCTYPE html>
     </head>
     <body>
     <h2>Resize the window to see some plots resizing</h2>
-    <h3>Red - pan tool, responsive</h3>
+    <h3>Red - pan tool, scale_width</h3>
     {{ plot_div.red }}
-    <h3>Green - pan tool, responsive (maintains new aspect ratio)</h3>
+    <h3>Green - pan tool, scale_width</h3>
     {{ plot_div.green }}
-    <h3>Blue - pan tool, not responsive</h3>
+    <h3>Blue - pan tool, fixed/h3>
     {{ plot_div.blue }}
 
     {{ plot_script }}
