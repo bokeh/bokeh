@@ -1,6 +1,6 @@
 exclude:
 - /bokeh/colors.py
-- bokeh/core/_templates/.*
+- /bokeh/core/_templates/.*
 - /bokeh/sphinxext/.*
 - /bokeh/_version.py
 - /bokehjs/src/coffee/api/palettes.ts
