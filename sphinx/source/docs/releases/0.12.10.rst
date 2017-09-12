@@ -24,6 +24,7 @@ The following previous deprecations have been removed:
 * ``bokeh.io.standalone_html_page_for_models`` from ``bokeh.embed``
 * ``'patch'`` and ``'stream'`` event names (use ``'patching'`` and ``'streaming'``)
 * ``webgl``, ``x_mapper_type``, ``y_mapper_type``, and ``tool_events`` from ``Plot``
+* Glyphs methods now only accept either all sequence literals, OR all column names
 
 New Deprecations
 ~~~~~~~~~~~~~~~~
