@@ -1,9 +1,9 @@
-''' Functions useful for loading Bokeh code and data in Jupyter/Zeppelin notebooks.
+''' Functions useful for loading Bokeh code and data in Jupyter notebooks.
 
 '''
 from __future__ import absolute_import
 
-from ..core.templates import SCRIPT_TAG, AUTOLOAD_NB_JS
+from ..core.templates import AUTOLOAD_NB_JS
 
 HTML_MIME_TYPE = 'text/html'
 JS_MIME_TYPE   = 'application/javascript'
@@ -12,8 +12,7 @@ EXEC_MIME_TYPE = 'application/vnd.bokehjs_exec.v0+json'
 
 _notebook_loaded = None
 
-# TODO (bev) notebook_type and zeppelin bits should be removed after external zeppelin hook available
-def load_notebook(resources=None, verbose=False, hide_banner=False, load_timeout=5000, notebook_type='jupyter'):
+def load_notebook(resources=None, verbose=False, hide_banner=False, load_timeout=5000):
     ''' Prepare the IPython notebook for displaying Bokeh plots.
 
     Args:
@@ -28,9 +27,6 @@ def load_notebook(resources=None, verbose=False, hide_banner=False, load_timeout
 
         load_timeout (int, optional) :
             Timeout in milliseconds when plots assume load timed out (default: 5000)
-
-        notebook_type (string):
-            notebook_type (default: jupyter)
 
     .. warning::
         Clearing the output cell containing the published BokehJS
@@ -88,23 +84,12 @@ def load_notebook(resources=None, verbose=False, hide_banner=False, load_timeout
     nb_js = _loading_js(resources, element_id, custom_models_js, load_timeout, register_mime=True)
     jl_js = _loading_js(resources, element_id, custom_models_js, load_timeout, register_mime=False)
 
-    if notebook_type=='jupyter':
-        if not hide_banner:
-            publish_display_data({'text/html': html})
-        publish_display_data({
-            JS_MIME_TYPE   : nb_js,
-            LOAD_MIME_TYPE : jl_js
-        })
-
-    else:
-        if not hide_banner:
-            _publish_zeppelin_data(html)
-        _publish_zeppelin_data(SCRIPT_TAG.render(js_code=jl_js))
-
-# TODO (bev) This will eventually go away
-def _publish_zeppelin_data(html):
-    '''Embed html content via %html magic'''
-    print('%html ' + html)
+    if not hide_banner:
+        publish_display_data({'text/html': html})
+    publish_display_data({
+        JS_MIME_TYPE   : nb_js,
+        LOAD_MIME_TYPE : jl_js
+    })
 
 def _loading_js(resources, element_id, custom_models_js, load_timeout=5000, register_mime=True):
 

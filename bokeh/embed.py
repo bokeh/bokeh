@@ -325,9 +325,8 @@ def _bundle_for_objs_and_resources(objs, resources):
     return bokeh_js, bokeh_css
 
 def notebook_content(model, notebook_comms_target=None, theme=FromCurdoc):
-    ''' Return script and div that will display a Bokeh plot in a Jupyter/
-    Zeppelin Notebook. notebook_comms_target is only supported in Jupyter for
-    now.
+    ''' Return script and div that will display a Bokeh plot in a Jupyter
+    Notebook.
 
     The data for the plot is stored directly in the returned HTML.
 
@@ -374,8 +373,7 @@ def notebook_content(model, notebook_comms_target=None, theme=FromCurdoc):
 
 def notebook_div(model, notebook_comms_target=None, theme=FromCurdoc):
     ''' Return HTML for a div that will display a Bokeh plot in a
-    Jupyter/Zeppelin Notebook. notebook_comms_target is only supported
-    in Jupyter for now.
+    Jupyter Notebook.
 
     The data for the plot is stored directly in the returned HTML.
 

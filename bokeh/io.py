@@ -29,7 +29,7 @@ import uuid
 # Bokeh imports
 from .core.state import State
 from .document.util import compute_patch_between_json
-from .embed import server_document, notebook_div, notebook_content, file_html
+from .embed import server_document, notebook_content, file_html
 from .layouts import gridplot, GridSpec ; gridplot, GridSpec
 from .models import Plot
 from .resources import INLINE
@@ -450,13 +450,6 @@ def _show_jupyter_doc_with_state(obj, state, notebook_handle):
                               state.document.to_json())
         state.last_comms_handle = handle
         return handle
-
-# TODO (bev) This should eventually be removed, but install a basic built-in hook for docs or now
-def _show_zeppelin_doc_with_state(obj, state, notebook_handle):
-    if notebook_handle:
-        raise ValueError("Zeppelin doesn't support notebook_handle.")
-    print("%html " + notebook_div(obj))
-    return None
 
 def save(obj, filename=None, resources=None, title=None, state=None, **kwargs):
     ''' Save an HTML file with the data for the current document.
@@ -949,7 +942,5 @@ def export_svgs(obj, filename=None, height=None, width=None, webdriver=None):
 
 def _install_notebook_hook():
     install_notebook_hook('jupyter', partial(load_notebook, notebook_type='jupyter'), _show_jupyter_doc_with_state, _show_jupyter_app_with_state, overwrite=True)
-    # TODO (bev) These should eventually be removed, but install a basic built-in hook for docs or now
-    install_notebook_hook('zeppelin', partial(load_notebook, notebook_type='zeppelin'), _show_zeppelin_doc_with_state, None, overwrite=True)
 
 _install_notebook_hook()
