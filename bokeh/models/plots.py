@@ -25,31 +25,26 @@ from .scales import Scale, CategoricalScale, LinearScale, LogScale
 from .sources import DataSource, ColumnDataSource
 from .tools import ResizeTool, Tool, Toolbar
 
+def _check_conflicting_kwargs(a1, a2, kwargs):
+    if a1 in kwargs and a2 in kwargs:
+        raise ValueError("Conflicting properties set on plot: %r and %r" % (a1, a2))
+
 class Plot(LayoutDOM):
     ''' Model representing a plot, containing glyphs, guides, annotations.
 
     '''
 
-    __deprecated_attributes__ = ["webgl", "x_mapper_type", "y_mapper_type", "tool_events"]
-
     def __init__(self, **kwargs):
-        if "toolbar" in kwargs and "logo" in kwargs:
-            raise ValueError("Conflicting properties set on plot: toolbar, logo.")
+        '''
 
-        if "toolbar" in kwargs and "tools" in kwargs:
-            raise ValueError("Conflicting properties set on plot: toolbar, tools.")
+        '''
+        _check_conflicting_kwargs("toolbar", "tools", kwargs)
+        _check_conflicting_kwargs("toolbar", "logo", kwargs)
 
         if "toolbar" not in kwargs:
             tools = kwargs.pop('tools', [])
             logo = kwargs.pop('logo', 'normal')
-
             kwargs["toolbar"] = Toolbar(tools=tools, logo=logo)
-
-        if "x_mapper_type" in kwargs and "x_scale" in kwargs:
-            raise ValueError("Conflicting properties set on plot: x_mapper_type, x_scale.")
-
-        if "y_mapper_type" in kwargs and "y_scale" in kwargs:
-            raise ValueError("Conflicting properties set on plot: y_mapper_type, y_scale")
 
         super(LayoutDOM, self).__init__(**kwargs)
 
@@ -403,51 +398,6 @@ class Plot(LayoutDOM):
             return CategoricalScale()
         else:
             raise ValueError("Unknown mapper_type: %s" % scale)
-
-    @property
-    def x_mapper_type(self):
-        deprecated((0, 12, 6), "x_mapper_type", "x_scale")
-        return self.x_scale
-
-    @x_mapper_type.setter
-    def x_mapper_type(self, mapper_type):
-        deprecated((0, 12, 6), "x_mapper_type", "x_scale")
-        self.x_scale = self._scale(mapper_type)
-
-    @property
-    def y_mapper_type(self):
-        deprecated((0, 12, 6), "y_mapper_type", "y_scale")
-        return self.y_scale
-
-    @y_mapper_type.setter
-    def y_mapper_type(self, mapper_type):
-        deprecated((0, 12, 6), "y_mapper_type", "y_scale")
-        self.y_scale = self._scale(mapper_type)
-
-    @property
-    def tool_events(self):
-        deprecated((0, 12, 7), "tool_events", "bokeh.events.SelectionGeometry")
-        return None
-
-    @tool_events.setter
-    def tool_events(self, tool_events):
-        deprecated((0, 12, 7), "tool_events", "bokeh.events.SelectionGeometry")
-        pass
-
-    @property
-    def webgl(self):
-        deprecated((0, 12, 6), "webgl", "output_backend")
-        return self.output_backend == "webgl"
-
-    @webgl.setter
-    def webgl(self, webgl):
-        deprecated((0, 12, 6), "webgl", "output_backend")
-        if not isinstance(webgl, bool):
-            raise ValueError('Attribute "webgl" must be a boolean')
-        if webgl is True:
-            self.output_backend = "webgl"
-        else:
-            self.output_backend = "canvas"
 
     x_scale = Instance(Scale, default=lambda: LinearScale(), help="""
     What kind of scale to use to convert x-coordinates in data space

@@ -31,6 +31,8 @@ logger = logging.getLogger(__name__)
 
 import os
 
+from six import string_types
+
 from ..document import Document
 from ..resources import Resources
 
@@ -38,9 +40,6 @@ class State(object):
     ''' Manage state related to controlling Bokeh output.
 
     '''
-
-    NOTEBOOK_TYPES = ('jupyter', 'zeppelin')
-
     def __init__(self):
         self.last_comms_handle = None
         self.uuid_to_server = {} # Mapping from uuid to server instance
@@ -91,11 +90,12 @@ class State(object):
 
     @notebook_type.setter
     def notebook_type(self, notebook_type):
-        ''' Notebook type, acceptable values are 'jupyter' and 'zeppelin'.
+        ''' Notebook type, acceptable values are 'jupyter' as well as any names
+        defined by external notebook hooks that have been installed.
 
         '''
-        if notebook_type is None or (notebook_type.lower() not in self.NOTEBOOK_TYPES):
-            raise ValueError("Unknown notebook type %r, valid notebook types are: %s" % (notebook_type, ', '.join(self.NOTEBOOK_TYPES)))
+        if notebook_type is None or not isinstance(notebook_type, string_types):
+            raise ValueError("Notebook type must be a string")
         self._notebook_type = notebook_type.lower()
 
     def _reset_keeping_doc(self):
@@ -164,7 +164,7 @@ class State(object):
             logger.info("Session output file '%s' already exists, will be overwritten." % filename)
 
     def output_notebook(self, notebook_type='jupyter'):
-        ''' Generate output in Jupyter/Zeppelin notebook cells.
+        ''' Generate output in notebook cells.
 
         Calling ``output_notebook`` not clear the effects of any other calls
         to ``output_file``, etc. It adds an additional output destination

@@ -11,13 +11,3 @@ def is_py3():
     """
     import sys
     return sys.version_info[0] == 3
-
-def is_pypy():
-    """ Test whether we are running PyPy.
-
-    Returns
-        True if we are inside PyPy, otherwise False
-
-    """
-    import platform
-    return platform.python_implementation() == "PyPy"

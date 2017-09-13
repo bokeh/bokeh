@@ -427,29 +427,6 @@ class TestAutoloadServer(unittest.TestCase):
                                'src' : src },
                              attrs)
 
-    def test_script_attrs_url_and_app_path_provided(self):
-        for path in ("/foo/bar/sliders", "/foo/bar/sliders/", "foo/bar/sliders", "foo/bar/sliders"):
-            r = embed.autoload_server(url="http://localhost:8081", app_path=path, relative_urls=True)
-            self.assertTrue('bokeh-app-path=/foo/bar/sliders' in r)
-            html = bs4.BeautifulSoup(r, "lxml")
-            scripts = html.findAll(name='script')
-            self.assertEqual(len(scripts), 1)
-            attrs = scripts[0].attrs
-            self.assertTrue(set(attrs), set([
-                'src',
-                'data-bokeh-doc-id',
-                'data-bokeh-model-id',
-                'id'
-            ]))
-            divid = attrs['id']
-            src = "%s/autoload.js?bokeh-autoload-element=%s&bokeh-app-path=/foo/bar/sliders" % \
-                  ("http://localhost:8081/foo/bar/sliders", divid)
-            self.assertDictEqual({ 'data-bokeh-doc-id' : '',
-                                   'data-bokeh-model-id' : '',
-                                   'id' : divid,
-                                   'src' : src },
-                                 attrs)
-
     def test_script_attrs_arguments_provided(self):
         r = embed.server_document(arguments=dict(foo=10))
         self.assertTrue('foo=10' in r)

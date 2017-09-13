@@ -20,7 +20,6 @@ from .themes import default as default_theme
 from .util.callback_manager import PropertyCallbackManager, EventCallbackManager
 from .util.future import with_metaclass
 from .util.serialization import make_id
-from .util.deprecation import deprecated
 from .events import Event
 
 def collect_models(*input_values):
@@ -385,15 +384,6 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
 
         if event in self.properties():
             event = "change:%s" % event
-
-        from bokeh.models.sources import ColumnarDataSource
-        if isinstance(self, ColumnarDataSource):
-            if event == 'stream':
-                deprecated((0, 12, 6), "ColumnarDataSource.js_on_change('stream', ...)", "'streaming'")
-                event = 'streaming'
-            elif event == 'patch':
-                event = 'patching'
-                deprecated((0, 12, 6), "ColumnarDataSource.js_on_change('patch', ...)", "'patching'")
 
         if event not in self.js_property_callbacks:
             self.js_property_callbacks[event] = []

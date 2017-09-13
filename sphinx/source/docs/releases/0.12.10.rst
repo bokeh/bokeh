@@ -1,0 +1,46 @@
+0.12.0 (Oct 2017)
+==================
+
+Bokeh Version ``0.12.10`` is an incremental update that adds a few important
+features and fixes several bugs. Some of the highlights include:
+
+
+
+Many other small bugfixes and docs additions. For full details see the
+:bokeh-tree:`CHANGELOG`.
+
+Migration Guide
+---------------
+
+NOTE: the 0.12.x series is the last planned release series before a version
+1.0 release. For more information see the `project roadmap`_.
+
+Deprecations Removed
+~~~~~~~~~~~~~~~~~~~~
+
+The following previous deprecations have been removed:
+
+* ``app_path`` from ``bokeh.client.session`` and ``bokeh.embed``
+* ``bokeh.io.standalone_html_page_for_models`` from ``bokeh.embed``
+* ``'patch'`` and ``'stream'`` event names (use ``'patching'`` and ``'streaming'``)
+* ``webgl``, ``x_mapper_type``, ``y_mapper_type``, and ``tool_events`` from ``Plot``
+* Glyphs methods now only accept either all sequence literals, OR all column names
+
+New Deprecations
+~~~~~~~~~~~~~~~~
+
+The boolean ``responsive`` parameter to ``Figure`` and ``bokeh.layouts`` has
+been deprecated. The ``sizing_mode`` enum should be used instead. Use
+``sizing_mode='fixed'`` for ``responsive=True`` and
+``sizing_mode='scale_width'`` for ``responsive=False`` instead.
+
+Dead Code Removal
+~~~~~~~~~~~~~~~~~
+
+The following unused code was removed immediately:
+
+* ``Aggregation`` from ``bokeh.core.enums``
+* PyPy detection functions from ``bokeh.util``
+* Zeppelin related code (support should come from external notebook hook)
+
+.. _project roadmap: https://bokehplots.com/pages/roadmap.html

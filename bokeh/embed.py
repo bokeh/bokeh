@@ -325,9 +325,8 @@ def _bundle_for_objs_and_resources(objs, resources):
     return bokeh_js, bokeh_css
 
 def notebook_content(model, notebook_comms_target=None, theme=FromCurdoc):
-    ''' Return script and div that will display a Bokeh plot in a Jupyter/
-    Zeppelin Notebook. notebook_comms_target is only supported in Jupyter for
-    now.
+    ''' Return script and div that will display a Bokeh plot in a Jupyter
+    Notebook.
 
     The data for the plot is stored directly in the returned HTML.
 
@@ -374,8 +373,7 @@ def notebook_content(model, notebook_comms_target=None, theme=FromCurdoc):
 
 def notebook_div(model, notebook_comms_target=None, theme=FromCurdoc):
     ''' Return HTML for a div that will display a Bokeh plot in a
-    Jupyter/Zeppelin Notebook. notebook_comms_target is only supported
-    in Jupyter for now.
+    Jupyter Notebook.
 
     The data for the plot is stored directly in the returned HTML.
 
@@ -616,12 +614,6 @@ def _connect_session_or_document(model=None, app_path=None, session_id=None, url
             typically not desired.
 
     '''
-    if app_path is not None:
-        deprecated((0, 12, 5), "app_path", "url", "Now pass entire app URLS in the url arguments, e.g. 'url=http://foo.com:5010/bar/myapp'")
-        if not app_path.startswith("/"):
-            app_path = "/" + app_path
-        url = url + app_path
-
     coords = _SessionCoordinates(url=url, session_id=session_id)
 
     elementid = make_id()
@@ -830,33 +822,6 @@ def _standalone_docs_json_and_render_items(models):
         docs_json[k] = v.to_json()
 
     return (docs_json, render_items)
-
-# TODO this is a theory about what file_html() "should" be,
-# with a more explicit name similar to the server names below,
-# and without the jinja2 entanglement. Thus this encapsulates that
-# we use jinja2 and encapsulates the exact template variables we require.
-# Anyway, we should deprecate file_html or else drop this version,
-# most likely.
-def standalone_html_page_for_models(models, resources, title):
-    ''' Return an HTML document that renders zero or more Bokeh documents or models.
-
-    The document for each model will be embedded directly in the HTML, so the
-    resulting HTML file is standalone (does not require a server). Depending
-    on the provided resources, the HTML file may be completely self-contained
-    or may have to load JS and CSS from different files.
-
-    Args:
-        models (Model or Document) : Bokeh object to render
-            typically a Model or a Document
-        resources (Resources) : a resource configuration for BokehJS assets
-        title (str) : a title for the HTML document ``<title>`` tags or None to use the document title
-
-    Returns:
-        UTF-8 encoded HTML
-
-    '''
-    deprecated((0, 12, 5), 'bokeh.io.standalone_html_page_for_models', 'bokeh.io.file_html')
-    return file_html(models, resources, title)
 
 def server_html_page_for_models(session_id, model_ids, resources, title, template=FILE):
     render_items = []

@@ -28,7 +28,6 @@ from six.moves.urllib.parse import quote_plus
 from ..document import Document
 from ..resources import _SessionCoordinates, DEFAULT_SERVER_HTTP_URL
 from ..util.browser import NEW_PARAM
-from ..util.deprecation import deprecated
 from ..util.session_id import generate_session_id
 from ..util.string import format_docstring
 
@@ -61,7 +60,7 @@ For information about different ways of running apps in a Bokeh server, see:
 
 BOKEH_CLIENT_APP_WARNING = "\n\n    !!!! PLEASE NOTE !!!!\n" + _BOKEH_CLIENT_APP_WARNING_BODY
 
-def push_session(document, session_id=None, url='default', app_path=None, io_loop=None):
+def push_session(document, session_id=None, url='default', io_loop=None):
     ''' Create a session by pushing the given document to the server,
     overwriting any existing server-side document.
 
@@ -100,16 +99,12 @@ def push_session(document, session_id=None, url='default', app_path=None, io_loo
             A new ClientSession connected to the server
 
     '''
-    if app_path is not None:
-        deprecated((0, 12, 5), "app_path", "url", "Now pass entire app URLS in the url arguments, e.g. 'url=http://foo.com:5010/bar/myapp''")
-        url = url + app_path
-
     coords = _SessionCoordinates(session_id=session_id, url=url)
     session = ClientSession(session_id=coords.session_id, websocket_url=websocket_url_for_server_url(coords.url), io_loop=io_loop)
     session.push(document)
     return session
 
-def pull_session(session_id=None, url='default', app_path=None, io_loop=None):
+def pull_session(session_id=None, url='default', io_loop=None):
     ''' Create a session by loading the current server-side document.
 
     ``session.document`` will be a fresh document loaded from
@@ -154,16 +149,12 @@ def pull_session(session_id=None, url='default', app_path=None, io_loop=None):
             A new ClientSession connected to the server
 
     '''
-    if app_path is not None:
-        deprecated((0, 12, 5), "app_path", "url", "Now pass entire app URLS in the url arguments, e.g. 'url=http://foo.com:5010/bar/myapp'")
-        url = url + app_path
-
     coords = _SessionCoordinates(session_id=session_id, url=url)
     session = ClientSession(session_id=session_id, websocket_url=websocket_url_for_server_url(coords.url), io_loop=io_loop)
     session.pull()
     return session
 
-def show_session(session_id=None, url='default', app_path=None, session=None, browser=None, new="tab", controller=None):
+def show_session(session_id=None, url='default', session=None, browser=None, new="tab", controller=None):
         ''' Open a browser displaying a session document.
 
         If you have a session from ``pull_session()`` or ``push_session`` you
@@ -193,11 +184,6 @@ def show_session(session_id=None, url='default', app_path=None, session=None, br
                 opens a new tab. If **new** is 'window', then opens a new window.
 
         '''
-
-        if app_path is not None:
-            deprecated((0, 12, 5), "app_path", "url", "Now pass entire app URLS in the url arguments, e.g. 'url=http://foo.com:5010/bar/myapp'")
-            url = url + app_path
-
         if session is not None:
             server_url = server_url_for_websocket_url(session._connection.url)
             session_id = session.id

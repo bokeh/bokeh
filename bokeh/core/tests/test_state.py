@@ -57,15 +57,16 @@ def test_output_notebook_noarg():
 
 def test_output_notebook_witharg():
     s = state.State()
-    s.output_notebook(notebook_type='zeppelin')
+    s.output_notebook(notebook_type='notjup')
     assert s.notebook == True
-    assert s.notebook_type == 'zeppelin'
+    assert s.notebook_type == 'notjup'
 
 def test_output_invalid_notebook():
     s = state.State()
-    with pytest.raises(Exception) as ex:
-        s.notebook_type="invalid_notebook"
-    assert "Unknown notebook type 'invalid_notebook', valid notebook types are: jupyter, zeppelin" == str(ex.value)
+    with pytest.raises(Exception):
+        s.notebook_type=None
+    with pytest.raises(Exception):
+        s.notebook_type=10
 
 def test_reset():
     s = state.State()
