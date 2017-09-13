@@ -565,34 +565,46 @@ def default_filename(ext):
     name, _ = splitext(basename(filename))
     return join(basedir, name + "." + ext)
 
+def _get_save_filename(state, filename):
+    if filename is not None:
+        return filename, False
+
+    if state.file:
+        return state.file['filename'], False
+
+    return default_filename("html"), True
+
+def _get_save_resources(state, resources, suppress_warning):
+    if resources is not None:
+        return resources
+
+    if state.file:
+        return state.file['resources']
+
+    if not suppress_warning:
+        warnings.warn("save() called but no resources were supplied and output_file(...) was never called, defaulting to resources.CDN")
+
+    from .resources import CDN
+    return CDN
+
+def _get_save_title(state, title, suppress_warning):
+    if title is not None:
+        return title
+
+    if state.file:
+        return state.file['title']
+
+    if not suppress_warning:
+        warnings.warn("save() called but no title was supplied and output_file(...) was never called, using default title 'Bokeh Plot'")
+
+    return "Bokeh Plot"
+
 def _get_save_args(state, filename, resources, title):
-    warn = True
+    filename, is_default_filename = _get_save_filename(state, filename)
 
-    if filename is None and state.file:
-        filename = state.file['filename']
+    resources = _get_save_resources(state, resources, is_default_filename)
 
-    if filename is None:
-        warn = False
-        filename = default_filename("html")
-
-    if resources is None and state.file:
-        resources = state.file['resources']
-
-    if resources is None:
-        if warn:
-            warnings.warn("save() called but no resources were supplied and output_file(...) was never called, defaulting to resources.CDN")
-
-        from .resources import CDN
-        resources = CDN
-
-    if title is None and state.file:
-        title = state.file['title']
-
-    if title is None:
-        if warn:
-            warnings.warn("save() called but no title was supplied and output_file(...) was never called, using default title 'Bokeh Plot'")
-
-        title = "Bokeh Plot"
+    title = _get_save_title(state, title, is_default_filename)
 
     return filename, resources, title
 
