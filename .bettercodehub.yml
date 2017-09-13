@@ -3,6 +3,7 @@ exclude:
 - /bokeh/core/_templates/.*
 - /bokeh/sphinxext/.*
 - /bokeh/_version.py
+- /bokehjs/examples/.*
 - /bokehjs/src/coffee/api/palettes.ts
 - /bokehjs/src/coffee/core/util/svg_colors.ts
 - /conda.recipe/.*
