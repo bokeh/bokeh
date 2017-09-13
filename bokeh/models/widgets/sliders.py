@@ -119,7 +119,7 @@ class DateSlider(AbstractSlider):
     The step between consecutive values.
     """)
 
-    format = Override(default="%d %b %G")
+    format = Override(default="%d %b %Y")
 
 class DateRangeSlider(AbstractSlider):
     """ Slider-based date range selection widget. """
