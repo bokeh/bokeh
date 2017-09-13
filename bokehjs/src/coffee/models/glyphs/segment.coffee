@@ -42,9 +42,13 @@ export class SegmentView extends GlyphView
 
     hits = []
     lw_voffset = 2 # FIXME: Use maximum of segments line_width/2 instead of magic constant 2
-    lw_sxoffset = @renderer.xscale.invert(vx-lw_voffset, true)
-    lw_syoffset = @renderer.yscale.invert(vy-lw_voffset, true)
-    candidates = @index.indices({minX: lw_sxoffset, minY: lw_syoffset, maxX: 2*x - lw_sxoffset, maxY: 2*y - lw_syoffset})
+    candidates = @index.indices({
+      minX: @renderer.xscale.invert(vx-lw_voffset, true), 
+      minY: @renderer.yscale.invert(vy-lw_voffset, true),
+      maxX: @renderer.xscale.invert(vx+lw_voffset, true),
+      maxY: @renderer.yscale.invert(vy+lw_voffset, true)
+    })
+
     for i in candidates
       threshold2 = Math.pow(Math.max(2, @visuals.line.cache_select('line_width', i) / 2), 2)
       [p0, p1] = [{x: @sx0[i], y: @sy0[i]}, {x: @sx1[i], y: @sy1[i]}]
