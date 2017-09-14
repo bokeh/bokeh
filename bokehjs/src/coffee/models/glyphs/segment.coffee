@@ -41,13 +41,19 @@ export class SegmentView extends GlyphView
       y: this.renderer.plot_view.canvas.vy_to_sy(vy)
 
     hits = []
+    lw_voffset = 2 # FIXME: Use maximum of segments line_width/2 instead of magic constant 2
+    candidates = @index.indices({
+      minX: @renderer.xscale.invert(vx-lw_voffset, true),
+      minY: @renderer.yscale.invert(vy-lw_voffset, true),
+      maxX: @renderer.xscale.invert(vx+lw_voffset, true),
+      maxY: @renderer.yscale.invert(vy+lw_voffset, true)
+    })
 
-    candidates = @index.indices({minX: x, minY: y, maxX: x, maxY: y})
     for i in candidates
-      threshold = Math.max(2, @visuals.line.cache_select('line_width', i) / 2)
+      threshold2 = Math.pow(Math.max(2, @visuals.line.cache_select('line_width', i) / 2), 2)
       [p0, p1] = [{x: @sx0[i], y: @sy0[i]}, {x: @sx1[i], y: @sy1[i]}]
-      dist = hittest.dist_to_segment(point, p0, p1)
-      if dist < threshold
+      dist2 = hittest.dist_to_segment_squared(point, p0, p1)
+      if dist2 < threshold2
         hits.push(i)
 
     result = hittest.create_hit_test_result()

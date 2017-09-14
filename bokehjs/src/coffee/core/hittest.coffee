@@ -73,7 +73,7 @@ export validate_bbox_coords = ([x0, x1], [y0, y1]) ->
 sqr = (x) -> x * x
 export dist_2_pts = (vx, vy, wx, wy) -> sqr(vx - wx) + sqr(vy - wy)
 
-dist_to_segment_squared = (p, v, w) ->
+export dist_to_segment_squared = (p, v, w) ->
   l2 = dist_2_pts(v.x, v.y, w.x, w.y)
   if (l2 == 0)
     return dist_2_pts(p.x, p.y, v.x, v.y)
