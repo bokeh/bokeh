@@ -48,7 +48,9 @@ api = {
 
     ), INTERNAL: (
 
-        ( 'destroy_server',         (1, 0, 0) ),
+        ( 'destroy_server', (1, 0, 0) ),
+        ( 'get_comms',      (1, 0, 0) ),
+        ( 'load_notebook',  (1, 0, 0) ),
 
     )
 

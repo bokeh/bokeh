@@ -28,9 +28,9 @@ from uuid import uuid4
 
 # Bokeh imports
 from ..util.browser import get_browser_controller, NEW_PARAM
-from ..util.notebook import get_comms, load_notebook, EXEC_MIME_TYPE, JS_MIME_TYPE, HTML_MIME_TYPE
 from ..util.serialization import make_id
-from .notebook import CommsHandle, install_notebook_hook, run_notebook_hook
+from .notebook import EXEC_MIME_TYPE, JS_MIME_TYPE, HTML_MIME_TYPE
+from .notebook import CommsHandle, get_comms, install_notebook_hook, load_notebook, run_notebook_hook
 from .saving import save
 from .state import curstate
 

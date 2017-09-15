@@ -345,7 +345,7 @@ def notebook_content(model, notebook_comms_target=None, theme=FromCurdoc):
         script, div
 
     .. note::
-        Assumes :func:`~bokeh.util.notebook.load_notebook` or the equivalent
+        Assumes :func:`~bokeh.io.notebook.load_notebook` or the equivalent
         has already been executed.
 
     '''
@@ -392,7 +392,7 @@ def notebook_div(model, notebook_comms_target=None, theme=FromCurdoc):
         UTF-8 encoded HTML text for a ``<div>``
 
     .. note::
-        Assumes :func:`~bokeh.util.notebook.load_notebook` or the equivalent
+        Assumes :func:`~bokeh.io.notebook.load_notebook` or the equivalent
         has already been executed.
 
     '''
