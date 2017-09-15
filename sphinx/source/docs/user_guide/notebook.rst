@@ -8,7 +8,7 @@ Working in the Notebook
 Inline Plots
 ------------
 
-To display Bokeh plots inline in an Jupyter/Zeppelin notebook, use the
+To display Bokeh plots inline in a Jupyter/Zeppelin notebook, use the
 |output_notebook| function from |bokeh.io| instead of (or in addition to)
 the |output_file| function we have seen previously. No other modifications
 are required. When |show| is called, the plot will be displayed inline in
