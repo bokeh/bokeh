@@ -2,7 +2,7 @@ import sys
 
 from ..application.handlers.code_runner import CodeRunner
 from ..application.handlers.handler import Handler
-from ..io import set_curdoc, curdoc
+from ..io.doc import set_curdoc, curdoc
 
 class ExampleHandler(Handler):
     """ A stripped-down handler similar to CodeHandler but that does

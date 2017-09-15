@@ -28,7 +28,7 @@ log = logging.getLogger(__name__)
 import os
 import sys
 
-from bokeh.io import set_curdoc, curdoc
+from bokeh.io.doc import set_curdoc, curdoc
 
 from .code_runner import CodeRunner
 from .handler import Handler

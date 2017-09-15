@@ -32,7 +32,7 @@
 
     if (server_id !== undefined) {
       // Clean up Bokeh references
-      var cmd = "from bokeh.io import _state; print(_state.uuid_to_server['" + server_id + "'].get_sessions()[0].document.roots[0]._id)";
+      var cmd = "from bokeh.io.state import curstate; print(curstate().uuid_to_server['" + server_id + "'].get_sessions()[0].document.roots[0]._id)";
       cell.notebook.kernel.execute(cmd, {
         iopub: {
           output: function(msg) {
@@ -43,7 +43,7 @@
         }
       });
       // Destroy server and session
-      var cmd = "from bokeh import io; io._destroy_server('" + server_id + "')";
+      var cmd = "import bokeh.io.notebook as ion; ion.destroy_server('" + server_id + "')";
       cell.notebook.kernel.execute(cmd);
     }
   }

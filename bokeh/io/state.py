@@ -1,3 +1,10 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Encapsulate implicit state that is useful for Bokeh plotting APIs.
 
 .. note::
@@ -24,18 +31,36 @@ This module provides a ``State`` class that encapsulates these objects and
 ensures their proper configuration in many common usage scenarios.
 
 '''
-from __future__ import absolute_import
+
+#-----------------------------------------------------------------------------
+# Boilerplate
+#----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
 logger = logging.getLogger(__name__)
 
+from bokeh.util.api import public, internal ; public, internal
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import os
 
+# External imports
 from six import string_types
 
+# Bokeh import
 from ..document import Document
 from ..resources import Resources
 
+#-----------------------------------------------------------------------------
+# Public API
+#-----------------------------------------------------------------------------
+
+@public((1,0,0))
 class State(object):
     ''' Manage state related to controlling Bokeh output.
 
@@ -45,7 +70,10 @@ class State(object):
         self.uuid_to_server = {} # Mapping from uuid to server instance
         self.reset()
 
+    # Properties --------------------------------------------------------------
+
     @property
+    @public((1,0,0))
     def document(self):
         ''' A default :class:`~bokeh.document.Document` to use for all
         output operations.
@@ -54,10 +82,12 @@ class State(object):
         return self._document
 
     @document.setter
+    @public((1,0,0))
     def document(self, doc):
         self._document = doc
 
     @property
+    @public((1,0,0))
     def file(self):
         ''' A dict with the default configuration for file output (READ ONLY)
 
@@ -75,6 +105,7 @@ class State(object):
         return self._file
 
     @property
+    @public((1,0,0))
     def notebook(self):
         ''' Whether to generate notebook output on show operations. (READ ONLY)
 
@@ -82,6 +113,7 @@ class State(object):
         return self._notebook
 
     @property
+    @public((1,0,0))
     def notebook_type(self):
         ''' Notebook type
 
@@ -89,6 +121,7 @@ class State(object):
         return self._notebook_type
 
     @notebook_type.setter
+    @public((1,0,0))
     def notebook_type(self, notebook_type):
         ''' Notebook type, acceptable values are 'jupyter' as well as any names
         defined by external notebook hooks that have been installed.
@@ -98,33 +131,9 @@ class State(object):
             raise ValueError("Notebook type must be a string")
         self._notebook_type = notebook_type.lower()
 
-    def _reset_keeping_doc(self):
-        ''' Reset output modes but DO NOT replace the default Document
+    # Public methods ----------------------------------------------------------
 
-        '''
-        self._file = None
-        self._notebook = False
-
-    def _reset_with_doc(self, doc):
-        ''' Reset output modes but DO replace the default Document
-
-        '''
-        self._document = doc
-        self._reset_keeping_doc()
-
-    def reset(self):
-        ''' Deactivate all currently active output modes and set ``curdoc()``
-        to a fresh empty ``Document``.
-
-        Subsequent calls to ``show()`` will not render until a new output mode
-        is activated.
-
-        Returns:
-            None
-
-        '''
-        self._reset_with_doc(Document())
-
+    @public((1,0,0))
     def output_file(self, filename, title="Bokeh Plot", mode="cdn", root_dir=None):
         ''' Configure output to a standalone HTML file.
 
@@ -163,6 +172,7 @@ class State(object):
         if os.path.isfile(filename):
             logger.info("Session output file '%s' already exists, will be overwritten." % filename)
 
+    @public((1,0,0))
     def output_notebook(self, notebook_type='jupyter'):
         ''' Generate output in notebook cells.
 
@@ -177,3 +187,53 @@ class State(object):
         '''
         self._notebook = True
         self.notebook_type = notebook_type
+
+    @public((1,0,0))
+    def reset(self):
+        ''' Deactivate all currently active output modes and set ``curdoc()``
+        to a fresh empty ``Document``.
+
+        Subsequent calls to ``show()`` will not render until a new output mode
+        is activated.
+
+        Returns:
+            None
+
+        '''
+        self._reset_with_doc(Document())
+
+    # Private methods ---------------------------------------------------------
+
+    def _reset_keeping_doc(self):
+        ''' Reset output modes but DO NOT replace the default Document
+
+        '''
+        self._file = None
+        self._notebook = False
+        self._notebook_type = None
+
+    def _reset_with_doc(self, doc):
+        ''' Reset output modes but DO replace the default Document
+
+        '''
+        self._document = doc
+        self._reset_keeping_doc()
+
+@public((1,0,0))
+def curstate():
+    ''' Return the current State object
+
+    Returns:
+      State : the current default State object
+
+    '''
+    global _STATE
+    if _STATE is None:
+        _STATE = State()
+    return _STATE
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+_STATE = None

@@ -45,8 +45,8 @@ import os
 import sys
 import warnings
 
-from bokeh.io import _get_screenshot_as_png
-from bokeh.models import Plot
+from ...io.export import get_screenshot_as_png
+from ...models.plots import Plot
 from .file_output import FileOutputSubcommand
 
 class PNG(FileOutputSubcommand):
@@ -116,7 +116,7 @@ class PNG(FileOutputSubcommand):
                 plot.plot_height = args.height or plot.plot_height
                 plot.plot_width  = args.width or plot.plot_width
 
-        image = _get_screenshot_as_png(doc, driver=self.driver)
+        image = get_screenshot_as_png(doc, driver=self.driver)
         buf = io.BytesIO()
         image.save(buf, "png")
         buf.seek(0)
