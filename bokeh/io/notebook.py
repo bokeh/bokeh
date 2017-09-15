@@ -26,9 +26,11 @@ from bokeh.util.api import public, internal ; public, internal
 # Standard library imports
 import json
 from warnings import warn
+from uuid import uuid4
 
 # Bokeh imports
 from .state import curstate
+from ..util.serialization import make_id
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -318,6 +320,13 @@ def get_comms(target_name):
     return Comm(target_name=target_name, data={})
 
 @internal((1,0,0))
+def install_jupyter_hooks():
+    '''
+
+    '''
+    install_notebook_hook('jupyter', load_notebook, show_doc, show_app)
+
+@internal((1,0,0))
 def load_notebook(resources=None, verbose=False, hide_banner=False, load_timeout=5000):
     ''' Prepare the IPython notebook for displaying Bokeh plots.
 
@@ -344,9 +353,6 @@ def load_notebook(resources=None, verbose=False, hide_banner=False, load_timeout
     '''
 
     global _NOTEBOOK_LOADED
-
-    # NOTE: must defer all IPython imports inside functions
-    from IPython.display import publish_display_data
 
     from .. import __version__
     from ..core.templates import NOTEBOOK_LOAD
@@ -398,6 +404,60 @@ def load_notebook(resources=None, verbose=False, hide_banner=False, load_timeout
         LOAD_MIME_TYPE : jl_js
     })
 
+@internal((1,0,0))
+def publish_display_data(*args, **kw):
+    '''
+
+    '''
+    # This import MUST be deferred or it will introduce a hard dependency on IPython
+    from IPython.display import publish_display_data
+    return publish_display_data(*args, **kw)
+
+@internal((1,0,0))
+def show_app(app, state, notebook_url):
+    '''
+
+    '''
+    logging.basicConfig()
+
+    from tornado.ioloop import IOLoop
+    from ..server.server import Server
+
+    loop = IOLoop.current()
+    server = Server({"/": app}, io_loop=loop, port=0,  allow_websocket_origin=[notebook_url])
+
+    server_id = uuid4().hex
+    curstate().uuid_to_server[server_id] = server
+
+    server.start()
+    url = 'http://%s:%d%s' % (notebook_url.split(':')[0], server.port, "/")
+
+    from ..embed import server_document
+    script = server_document(url)
+
+    publish_display_data({
+        HTML_MIME_TYPE: script,
+        EXEC_MIME_TYPE: ""
+    }, metadata={
+        EXEC_MIME_TYPE: {"server_id": server_id}
+    })
+
+@internal((1,0,0))
+def show_doc(obj, state, notebook_handle):
+    '''
+
+    '''
+    from ..embed import notebook_content
+    comms_target = make_id() if notebook_handle else None
+    (script, div) = notebook_content(obj, comms_target)
+
+    publish_display_data({HTML_MIME_TYPE: div})
+    publish_display_data({JS_MIME_TYPE: script, EXEC_MIME_TYPE: ""}, metadata={EXEC_MIME_TYPE: {"id": obj._id}})
+    if comms_target:
+        handle = CommsHandle(get_comms(comms_target), state.document,
+                             state.document.to_json())
+        state.last_comms_handle = handle
+        return handle
 
 #-----------------------------------------------------------------------------
 # Private API

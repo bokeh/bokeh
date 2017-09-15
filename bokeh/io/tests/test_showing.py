@@ -47,8 +47,6 @@ api = {
 
     ), INTERNAL: (
 
-        ( 'install_jupyter_hooks', (1, 0, 0) ),
-
     )
 
 }
@@ -120,44 +118,46 @@ def test_show_doesnt_duplicate_if_already_there(m):
 # Private API
 #-----------------------------------------------------------------------------
 
-@patch('bokeh.io.showing._show_notebook_doc_with_state')
+@patch('bokeh.io.showing.run_notebook_hook')
 @patch('bokeh.io.showing._show_file_with_state')
 @patch('bokeh.io.showing.get_browser_controller')
 def test__show_with_state_with_notebook(mock_get_browser_controller,
                                         mock__show_file_with_state,
-                                        mock__show_notebook_doc_with_state):
+                                        mock_run_notebook_hook):
     mock_get_browser_controller.return_value = "controller"
     s = State()
 
+    p = Plot()
+
     s.output_notebook()
-    bis._show_with_state("obj", s, "browser", "new")
+    bis._show_with_state(p, s, "browser", "new")
     assert s.notebook_type == "jupyter"
 
-    assert mock__show_notebook_doc_with_state.call_count == 1
-    assert mock__show_notebook_doc_with_state.call_args[0] == ("obj", s, False)
-    assert mock__show_notebook_doc_with_state.call_args[1] == {}
+    assert mock_run_notebook_hook.call_count == 1
+    assert mock_run_notebook_hook.call_args[0] == ("jupyter", "doc", p, s, False)
+    assert mock_run_notebook_hook.call_args[1] == {}
 
     assert mock__show_file_with_state.call_count == 0
 
     s.output_file("foo.html")
-    bis._show_with_state("obj", s, "browser", "new")
+    bis._show_with_state(p, s, "browser", "new")
     assert s.notebook_type == "jupyter"
 
-    assert mock__show_notebook_doc_with_state.call_count == 2
-    assert mock__show_notebook_doc_with_state.call_args[0] == ("obj", s, False)
-    assert mock__show_notebook_doc_with_state.call_args[1] == {}
+    assert mock_run_notebook_hook.call_count == 2
+    assert mock_run_notebook_hook.call_args[0] == ("jupyter", "doc", p, s, False)
+    assert mock_run_notebook_hook.call_args[1] == {}
 
     assert mock__show_file_with_state.call_count == 1
-    assert mock__show_file_with_state.call_args[0] == ("obj", s, "new", "controller")
+    assert mock__show_file_with_state.call_args[0] == (p, s, "new", "controller")
     assert mock__show_file_with_state.call_args[1] == {}
 
-@patch('bokeh.io.showing.get_comms')
-@patch('bokeh.io.showing._show_notebook_doc_with_state')
+@patch('bokeh.io.notebook.get_comms')
+@patch('bokeh.io.notebook.show_doc')
 @patch('bokeh.io.showing._show_file_with_state')
 @patch('bokeh.io.showing.get_browser_controller')
 def test__show_with_state_with_no_notebook(mock_get_browser_controller,
                                            mock__show_file_with_state,
-                                           mock__show_notebook_doc_with_state,
+                                           mock_show_doc,
                                            mock_get_comms):
     mock_get_browser_controller.return_value = "controller"
     mock_get_comms.return_value = "comms"
@@ -167,7 +167,7 @@ def test__show_with_state_with_no_notebook(mock_get_browser_controller,
     bis._show_with_state("obj", s, "browser", "new")
     assert s.notebook_type == None
 
-    assert mock__show_notebook_doc_with_state.call_count == 0
+    assert mock_show_doc.call_count == 0
 
     assert mock__show_file_with_state.call_count == 1
     assert mock__show_file_with_state.call_args[0] == ("obj", s, "new", "controller")
@@ -201,26 +201,3 @@ def test(mock_save, mock_abspath):
     assert controller.open.call_count == 2
     assert controller.open.call_args[0] == ("file://savepath",)
     assert controller.open.call_args[1] == {"new": 2}
-
-@patch('bokeh.io.showing.get_comms')
-@patch('bokeh.io.showing._publish_display_data')
-@patch('bokeh.embed.notebook_content')
-def test__show_jupyter_doc_with_state_no_server(mock_notebook_content,
-                                                mock__publish_display_data,
-                                                mock_get_comms):
-    mock_get_comms.return_value = "comms"
-    s = State()
-    mock_notebook_content.return_value = ["notebook_script", "notebook_div"]
-
-    class Obj(object):
-        _id = None
-
-    assert mock__publish_display_data.call_count == 0
-    bis._show_jupyter_doc_with_state(Obj(), s, True)
-
-    expected_args = ({'application/javascript': 'notebook_script', 'application/vnd.bokehjs_exec.v0+json': ''},)
-    expected_kwargs = {'metadata': {'application/vnd.bokehjs_exec.v0+json': {'id': None}}}
-
-    assert mock__publish_display_data.call_count == 2 # two mime types
-    assert mock__publish_display_data.call_args[0] == expected_args
-    assert mock__publish_display_data.call_args[1] == expected_kwargs

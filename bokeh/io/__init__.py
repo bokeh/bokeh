@@ -43,6 +43,6 @@ from .showing import show ; show
 # Code
 #-----------------------------------------------------------------------------
 
-from .showing import install_jupyter_hooks
+from .notebook import install_jupyter_hooks
 install_jupyter_hooks()
 del install_jupyter_hooks

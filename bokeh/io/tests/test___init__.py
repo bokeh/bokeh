@@ -26,13 +26,12 @@ from bokeh.util.testing import verify_api ; verify_api
 
 # Bokeh imports
 import bokeh.io.notebook as binb
-import bokeh.io.showing as bis
 
 # Module under test
 #import bokeh.io as bi
 
 def test_jupyter_notebook_hook_installed():
     assert list(binb._HOOKS) == ["jupyter"]
-    assert binb._HOOKS["jupyter"]['load'] == bis.load_notebook
-    assert binb._HOOKS["jupyter"]['doc'] == bis._show_jupyter_doc_with_state
-    assert binb._HOOKS["jupyter"]['app'] == bis._show_jupyter_app_with_state
+    assert binb._HOOKS["jupyter"]['load'] == binb.load_notebook
+    assert binb._HOOKS["jupyter"]['doc']  == binb.show_doc
+    assert binb._HOOKS["jupyter"]['app']  == binb.show_app

@@ -24,13 +24,10 @@ from bokeh.util.api import public, internal ; public, internal
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from uuid import uuid4
 
 # Bokeh imports
 from ..util.browser import get_browser_controller, NEW_PARAM
-from ..util.serialization import make_id
-from .notebook import EXEC_MIME_TYPE, JS_MIME_TYPE, HTML_MIME_TYPE
-from .notebook import CommsHandle, get_comms, install_notebook_hook, load_notebook, run_notebook_hook
+from .notebook import run_notebook_hook
 from .saving import save
 from .state import curstate
 
@@ -131,25 +128,9 @@ def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="loca
 # Internal API
 #-----------------------------------------------------------------------------
 
-@internal((1,0,0))
-def install_jupyter_hooks():
-    '''
-
-    '''
-    install_notebook_hook('jupyter', load_notebook, _show_jupyter_doc_with_state, _show_jupyter_app_with_state)
-
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
-
-# NOTE: This exists for testing, and for hiding the IPython import
-def _publish_display_data(*args, **kw):
-    '''
-
-    '''
-    # This import MUST be deferred or it will introduce a hard dependency on IPython
-    from IPython.display import publish_display_data
-    return publish_display_data(*args, **kw)
 
 def _show_file_with_state(obj, state, new, controller):
     '''
@@ -157,54 +138,6 @@ def _show_file_with_state(obj, state, new, controller):
     '''
     filename = save(obj, state=state)
     controller.open("file://" + filename, new=NEW_PARAM[new])
-
-def _show_jupyter_app_with_state(app, state, notebook_url):
-    '''
-
-    '''
-    logging.basicConfig()
-    from tornado.ioloop import IOLoop
-    from .server.server import Server
-    loop = IOLoop.current()
-    server = Server({"/": app}, io_loop=loop, port=0,  allow_websocket_origin=[notebook_url])
-
-    server_id = uuid4().hex
-    curstate().uuid_to_server[server_id] = server
-
-    server.start()
-    url = 'http://%s:%d%s' % (notebook_url.split(':')[0], server.port, "/")
-
-    from ..embed import server_document
-    script = server_document(url)
-
-    _publish_display_data({
-        HTML_MIME_TYPE: script,
-        EXEC_MIME_TYPE: ""
-    }, metadata={
-        EXEC_MIME_TYPE: {"server_id": server_id}
-    })
-
-def _show_jupyter_doc_with_state(obj, state, notebook_handle):
-    '''
-
-    '''
-    from ..embed import notebook_content
-    comms_target = make_id() if notebook_handle else None
-    (script, div) = notebook_content(obj, comms_target)
-
-    _publish_display_data({HTML_MIME_TYPE: div})
-    _publish_display_data({JS_MIME_TYPE: script, EXEC_MIME_TYPE: ""}, metadata={EXEC_MIME_TYPE: {"id": obj._id}})
-    if comms_target:
-        handle = CommsHandle(get_comms(comms_target), state.document,
-                             state.document.to_json())
-        state.last_comms_handle = handle
-        return handle
-
-def _show_notebook_doc_with_state(obj, state, notebook_handle):
-    '''
-
-    '''
-    return run_notebook_hook(state.notebook_type, 'doc', obj, state, notebook_handle)
 
 def _show_with_state(obj, state, browser, new, notebook_handle=False):
     '''
@@ -216,7 +149,7 @@ def _show_with_state(obj, state, browser, new, notebook_handle=False):
     shown = False
 
     if state.notebook:
-        comms_handle = _show_notebook_doc_with_state(obj, state, notebook_handle)
+        comms_handle = run_notebook_hook(state.notebook_type, 'doc', obj, state, notebook_handle)
         shown = True
 
     if state.file or not shown:

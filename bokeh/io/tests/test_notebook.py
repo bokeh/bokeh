@@ -21,10 +21,12 @@ from bokeh.util.testing import verify_api ; verify_api
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from mock import patch
 
 # External imports
 
 # Bokeh imports
+from bokeh.io.state import State
 
 # Module under test
 import bokeh.io.notebook as binb
@@ -48,9 +50,13 @@ api = {
 
     ), INTERNAL: (
 
-        ( 'destroy_server', (1, 0, 0) ),
-        ( 'get_comms',      (1, 0, 0) ),
-        ( 'load_notebook',  (1, 0, 0) ),
+        ( 'destroy_server',        (1, 0, 0) ),
+        ( 'get_comms',             (1, 0, 0) ),
+        ( 'install_jupyter_hooks', (1, 0, 0) ),
+        ( 'load_notebook',         (1, 0, 0) ),
+        ( 'publish_display_data',  (1, 0, 0) ),
+        ( 'show_app',              (1, 0, 0) ),
+        ( 'show_doc',              (1, 0, 0) ),
 
     )
 
@@ -73,6 +79,29 @@ def test_install_notebook_hook():
     assert binb._HOOKS["foo"]['load'] == "load2"
     assert binb._HOOKS["foo"]['doc'] == "doc2"
     assert binb._HOOKS["foo"]['app'] == "app2"
+
+@patch('bokeh.io.notebook.get_comms')
+@patch('bokeh.io.notebook.publish_display_data')
+@patch('bokeh.embed.notebook_content')
+def test_show_doc_no_server(mock_notebook_content,
+                            mock__publish_display_data,
+                            mock_get_comms):
+    mock_get_comms.return_value = "comms"
+    s = State()
+    mock_notebook_content.return_value = ["notebook_script", "notebook_div"]
+
+    class Obj(object):
+        _id = None
+
+    assert mock__publish_display_data.call_count == 0
+    binb.show_doc(Obj(), s, True)
+
+    expected_args = ({'application/javascript': 'notebook_script', 'application/vnd.bokehjs_exec.v0+json': ''},)
+    expected_kwargs = {'metadata': {'application/vnd.bokehjs_exec.v0+json': {'id': None}}}
+
+    assert mock__publish_display_data.call_count == 2 # two mime types
+    assert mock__publish_display_data.call_args[0] == expected_args
+    assert mock__publish_display_data.call_args[1] == expected_kwargs
 
 #-----------------------------------------------------------------------------
 # Internal API
