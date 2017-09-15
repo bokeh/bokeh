@@ -93,7 +93,7 @@ jobs:
     - install: scripts/ci/install:test
       script: scripts/ci/test
       env:
-      - GROUP=quality
+      - GROUP=codebase
 
     - install: scripts/ci/install:deploy
       stage: deploy
