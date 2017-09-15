@@ -43,4 +43,10 @@ The following unused code was removed immediately:
 * PyPy detection functions from ``bokeh.util``
 * Zeppelin related code (support should come from external notebook hook)
 
+Additionally the attribute ``bokeh.__base_version__`` was removed. Computing
+it at all times made importing Bokeh take substantial fractions of a second
+longer than necessary. It is not expected this change should affect any
+users, but if you need this value, the ``bokeh.util.version.base_version``
+function can be used.
+
 .. _project roadmap: https://bokehplots.com/pages/roadmap.html

@@ -4,7 +4,6 @@ def test_dir():
     import bokeh
     names = dir(bokeh)
     assert "__version__" in names
-    assert "__base_version__" in names
     assert "license" in names
     assert "sampledata" in names
 
