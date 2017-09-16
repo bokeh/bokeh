@@ -5,7 +5,11 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-'''
+''' Provide functions for declaring Bokeh API information.
+
+Within the Bokeh codebase, functions, classes, methods, and properties may
+be defined to be "public" or "internal", as well as note what Bokeh version
+the object was first introduced in.
 
 '''
 
@@ -25,6 +29,7 @@ logger = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
+from ..util.string import nice_join, format_docstring
 from .future import wraps
 
 #-----------------------------------------------------------------------------
@@ -49,7 +54,7 @@ def internal(version):
     .. code-block:: python
 
         __bkversion__ = version
-        __bklevel__ = 'internal'
+        __bklevel__ = {internal}
 
     Args:
         version (tuple) :
@@ -62,8 +67,16 @@ def internal(version):
     '''
     return _access(version, 'internal')
 
+internal.__doc__ = format_docstring(internal.__doc__, internal=repr(INTERNAL))
+
 def is_declared(obj):
     '''
+
+    Args:
+        obj (object) :
+            The function, class, method, or property to test
+    Returns:
+        bool
 
     '''
     return hasattr(obj, '__bklevel__') and hasattr(obj, '__bkversion__')
@@ -71,11 +84,32 @@ def is_declared(obj):
 def is_level(obj, level):
     '''
 
+    Args:
+        obj (object) :
+            The function, class, method, or property to declare a level for
+
+        level ({public} or {internal})
+            Whether to declare the object public or internal
+
+    Returns:
+        bool
+
     '''
+    if level not in _LEVELS:
+        raise ValueError("Unknown API level %r, expected %s" % (level, nice_join(_LEVELS)))
     return obj.__bklevel__ == level
+
+is_level.__doc__ = format_docstring(is_level.__doc__, public=repr(PUBLIC), internal=repr(INTERNAL))
 
 def is_version(obj, version):
     '''
+
+    Args:
+        obj (object) :
+            The function, class, method, or property to declare a version for
+
+    Returns:
+        bool
 
     '''
     return obj.__bkversion__ == version
@@ -90,7 +124,7 @@ def public(version):
     .. code-block:: python
 
         __bkversion__ = version
-        __bklevel__ = 'public'
+        __bklevel__ = {public}
 
     Args:
         version (tuple) :
@@ -103,9 +137,13 @@ def public(version):
     '''
     return _access(version, 'public')
 
+public.__doc__ = format_docstring(public.__doc__, public=repr(PUBLIC))
+
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
+
+_LEVELS = [PUBLIC, INTERNAL]
 
 def _access(version, level):
     ''' Declare an object to be ``{{ level }}``, introduced in ``version``.
@@ -132,18 +170,13 @@ def _access(version, level):
         Class or Function
 
     '''
-    assert level in [PUBLIC, INTERNAL]
+    assert level in _LEVELS
 
     def decorator(obj):
-        import sys
-        if isinstance(obj, property):
-            modname = obj.fget.__module__
-        else:
-            modname = obj.__module__
-        mod = sys.modules[modname]
-        if not hasattr(mod, '__bkapi__'):
-            mod.__bkapi__ = {PUBLIC: 0, INTERNAL:0}
-        mod.__bkapi__[level] += 1
+        # Keep track of how many public/internal things there are declared
+        # in a module so we can make sure api tests are comprehensive
+        mod = _get_module(obj)
+        _increment_api_count(mod, level)
 
         # If we are decorating a class
         if isinstance(obj, type):
@@ -161,3 +194,26 @@ def _access(version, level):
         return wrapper
 
     return decorator
+
+def _get_module(obj):
+    ''' Given an function, class, method, or property, return the module
+    that is was defined in.
+
+    This function is written with the usages of the Bokeh codebase in
+    mind, and may not work in general
+
+    '''
+    import sys
+    if isinstance(obj, property):
+        modname = obj.fget.__module__
+    else:
+        modname = obj.__module__
+    return sys.modules[modname]
+
+def _increment_api_count(mod, level):
+    ''' Updates the __bkapi__ dict on a module, creating a new one if necessary
+
+    '''
+    if not hasattr(mod, '__bkapi__'):
+        mod.__bkapi__ = {PUBLIC: 0, INTERNAL:0}
+    mod.__bkapi__[level] += 1
