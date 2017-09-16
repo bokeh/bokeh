@@ -20,8 +20,8 @@ Deprecations Removed
 
 The following previous deprecations have been removed:
 
-* ``app_path`` from ``bokeh.client.session`` and ``bokeh.embed``
-* ``bokeh.io.standalone_html_page_for_models`` from ``bokeh.embed``
+* ``app_path`` from functions in ``bokeh.client.session`` and ``bokeh.embed``
+* ``standalone_html_page_for_models`` from ``bokeh.embed``
 * ``'patch'`` and ``'stream'`` event names (use ``'patching'`` and ``'streaming'``)
 * ``webgl``, ``x_mapper_type``, ``y_mapper_type``, and ``tool_events`` from ``Plot``
 * Glyphs methods now only accept either all sequence literals, OR all column names
@@ -33,6 +33,14 @@ The boolean ``responsive`` parameter to ``Figure`` and ``bokeh.layouts`` has
 been deprecated. The ``sizing_mode`` enum should be used instead. Use
 ``sizing_mode='fixed'`` for ``responsive=True`` and
 ``sizing_mode='scale_width'`` for ``responsive=False`` instead.
+
+Code Moves
+~~~~~~~~~~
+
+The module ``bokeh.util.notebook`` has been deprecated. The functions it
+contains have been moved to ``bokeh.io.notebook``.
+
+The function ``bokeh.io.set_curdoc`` is now ``bokeh.io.doc.set_curdoc``.
 
 Dead Code Removal
 ~~~~~~~~~~~~~~~~~
