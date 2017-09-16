@@ -792,7 +792,7 @@ class Document(object):
             return False
         return isinstance(selector[field], string_types)
 
-    def _notify_change(self, model, attr, old, new, hint=None, setter=None):
+    def _notify_change(self, model, attr, old, new, hint=None, setter=None, callback_invoker=None):
         ''' Called by Model when it changes
 
         '''
@@ -808,7 +808,7 @@ class Document(object):
         else:
             serializable_new = None
 
-        event = ModelChangedEvent(self, model, attr, old, new, serializable_new, hint, setter)
+        event = ModelChangedEvent(self, model, attr, old, new, serializable_new, hint, setter, callback_invoker)
         self._trigger_on_change(event)
 
     def _push_all_models_freeze(self):
@@ -881,6 +881,9 @@ class Document(object):
         '''
 
         '''
+
+        if event.callback_invoker is not None:
+            self._with_self_as_curdoc(event.callback_invoker)
 
         def invoke_callbacks():
             for cb in self._callbacks.values():

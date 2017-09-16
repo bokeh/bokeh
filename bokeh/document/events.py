@@ -13,7 +13,7 @@ class DocumentChangedEvent(object):
 
     '''
 
-    def __init__(self, document, setter=None):
+    def __init__(self, document, setter=None, callback_invoker=None):
         '''
 
         Args:
@@ -31,9 +31,15 @@ class DocumentChangedEvent(object):
                 The session can compare the event setter to itself, and
                 suppress any updates that originate from itself.
 
+            callback_invoker (callable, optional) :
+                A callable that will invoke any Model callbacks that should
+                be executed in response to the change that triggered this
+                event. (default: None)
+
         '''
         self.document = document
         self.setter = setter
+        self.callback_invoker = callback_invoker
 
     def dispatch(self, receiver):
         ''' Dispatch handling of this event to a receiver.
@@ -94,7 +100,7 @@ class ModelChangedEvent(DocumentPatchedEvent):
 
     '''
 
-    def __init__(self, document, model, attr, old, new, serializable_new, hint=None, setter=None):
+    def __init__(self, document, model, attr, old, new, serializable_new, hint=None, setter=None, callback_invoker=None):
         '''
 
         Args:
@@ -130,10 +136,16 @@ class ModelChangedEvent(DocumentPatchedEvent):
                 See :class:`~bokeh.document.events.DocumentChangedEvent`
                 for more details.
 
+            callback_invoker (callable, optional) :
+                A callable that will invoke any Model callbacks that should
+                be executed in response to the change that triggered this
+                event. (default: None)
+
+
         '''
         if setter is None and isinstance(hint, (ColumnsStreamedEvent, ColumnsPatchedEvent)):
             setter = hint.setter
-        super(ModelChangedEvent, self).__init__(document, setter)
+        super(ModelChangedEvent, self).__init__(document, setter, callback_invoker)
         self.model = model
         self.attr = attr
         self.old = old
@@ -210,7 +222,7 @@ class ColumnDataChangedEvent(DocumentPatchedEvent):
 
     '''
 
-    def __init__(self, document, column_source, cols=None, setter=None):
+    def __init__(self, document, column_source, cols=None, setter=None, callback_invoker=None):
         '''
 
         Args:
@@ -230,8 +242,14 @@ class ColumnDataChangedEvent(DocumentPatchedEvent):
                 See :class:`~bokeh.document.events.DocumentChangedEvent`
                 for more details.
 
+            callback_invoker (callable, optional) :
+                A callable that will invoke any Model callbacks that should
+                be executed in response to the change that triggered this
+                event. (default: None)
+
+
         '''
-        super(ColumnDataChangedEvent, self).__init__(document, setter)
+        super(ColumnDataChangedEvent, self).__init__(document, setter, callback_invoker)
         self.column_source = column_source
         self.cols = cols
 
@@ -242,7 +260,7 @@ class ColumnDataChangedEvent(DocumentPatchedEvent):
 
         '''
         super(ColumnDataChangedEvent, self).dispatch(receiver)
-        if hasattr(receiver, '_column_data_changed)'):
+        if hasattr(receiver, '_column_data_changed'):
             receiver._column_data_changed(self)
 
     def generate(self, references, buffers):
@@ -290,7 +308,7 @@ class ColumnsStreamedEvent(DocumentPatchedEvent):
 
     '''
 
-    def __init__(self, document, column_source, data, rollover, setter=None):
+    def __init__(self, document, column_source, data, rollover, setter=None, callback_invoker=None):
         '''
 
         Args:
@@ -314,8 +332,14 @@ class ColumnsStreamedEvent(DocumentPatchedEvent):
                 See :class:`~bokeh.document.events.DocumentChangedEvent`
                 for more details.
 
+            callback_invoker (callable, optional) :
+                A callable that will invoke any Model callbacks that should
+                be executed in response to the change that triggered this
+                event. (default: None)
+
+
         '''
-        super(ColumnsStreamedEvent, self).__init__(document, setter)
+        super(ColumnsStreamedEvent, self).__init__(document, setter, callback_invoker)
         self.column_source = column_source
         self.data = data
         self.rollover = rollover
@@ -370,7 +394,7 @@ class ColumnsPatchedEvent(DocumentPatchedEvent):
 
     '''
 
-    def __init__(self, document, column_source, patches, setter=None):
+    def __init__(self, document, column_source, patches, setter=None, callback_invoker=None):
         '''
 
         Args:
@@ -389,8 +413,13 @@ class ColumnsPatchedEvent(DocumentPatchedEvent):
                 See :class:`~bokeh.document.events.DocumentChangedEvent`
                 for more details.
 
+            callback_invoker (callable, optional) :
+                A callable that will invoke any Model callbacks that should
+                be executed in response to the change that triggered this
+                event. (default: None)
+
         '''
-        super(ColumnsPatchedEvent, self).__init__(document, setter)
+        super(ColumnsPatchedEvent, self).__init__(document, setter, callback_invoker)
         self.column_source = column_source
         self.patches = patches
 
@@ -442,7 +471,7 @@ class TitleChangedEvent(DocumentPatchedEvent):
 
     '''
 
-    def __init__(self, document, title, setter=None):
+    def __init__(self, document, title, setter=None, callback_invoker=None):
         '''
 
         Args:
@@ -459,8 +488,14 @@ class TitleChangedEvent(DocumentPatchedEvent):
                 See :class:`~bokeh.document.events.DocumentChangedEvent`
                 for more details.
 
+            callback_invoker (callable, optional) :
+                A callable that will invoke any Model callbacks that should
+                be executed in response to the change that triggered this
+                event. (default: None)
+
+
         '''
-        super(TitleChangedEvent, self).__init__(document, setter)
+        super(TitleChangedEvent, self).__init__(document, setter, callback_invoker)
         self.title = title
 
     def generate(self, references, buffers):
@@ -499,7 +534,7 @@ class RootAddedEvent(DocumentPatchedEvent):
 
     '''
 
-    def __init__(self, document, model, setter=None):
+    def __init__(self, document, model, setter=None, callback_invoker=None):
         '''
 
         Args:
@@ -516,8 +551,13 @@ class RootAddedEvent(DocumentPatchedEvent):
                 See :class:`~bokeh.document.events.DocumentChangedEvent`
                 for more details.
 
+            callback_invoker (callable, optional) :
+                A callable that will invoke any Model callbacks that should
+                be executed in response to the change that triggered this
+                event. (default: None)
+
         '''
-        super(RootAddedEvent, self).__init__(document, setter)
+        super(RootAddedEvent, self).__init__(document, setter, callback_invoker)
         self.model = model
 
     def generate(self, references, buffers):
@@ -557,7 +597,7 @@ class RootRemovedEvent(DocumentPatchedEvent):
 
     '''
 
-    def __init__(self, document, model, setter=None):
+    def __init__(self, document, model, setter=None, callback_invoker=None):
         '''
 
         Args:
@@ -574,8 +614,14 @@ class RootRemovedEvent(DocumentPatchedEvent):
                 See :class:`~bokeh.document.events.DocumentChangedEvent`
                 for more details.
 
+            callback_invoker (callable, optional) :
+                A callable that will invoke any Model callbacks that should
+                be executed in response to the change that triggered this
+                event. (default: None)
+
+
         '''
-        super(RootRemovedEvent, self).__init__(document, setter)
+        super(RootRemovedEvent, self).__init__(document, setter, callback_invoker)
         self.model = model
 
     def generate(self, references, buffers):

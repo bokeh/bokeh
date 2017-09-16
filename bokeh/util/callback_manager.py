@@ -115,7 +115,6 @@ class PropertyCallbackManager(object):
                 for callback in callbacks:
                     callback(attr, old, new)
         if hasattr(self, '_document') and self._document is not None:
-            self._document._notify_change(self, attr, old, new, hint, setter)
-            self._document._with_self_as_curdoc(invoke)
+            self._document._notify_change(self, attr, old, new, hint, setter, invoke)
         else:
             invoke()
