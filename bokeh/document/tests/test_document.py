@@ -6,7 +6,7 @@ from copy import copy
 
 import bokeh.document.document as document
 
-from bokeh.io import curdoc
+from bokeh.io.doc import curdoc
 from bokeh.models import ColumnDataSource
 from bokeh.document.events import (ColumnsPatchedEvent, ColumnsStreamedEvent, ModelChangedEvent, RootAddedEvent,
                                    RootRemovedEvent, SessionCallbackAdded, SessionCallbackRemoved, TitleChangedEvent)
@@ -781,7 +781,7 @@ class TestDocument(unittest.TestCase):
 
     # a more realistic set of models instead of fake models
     def test_scatter(self):
-        from bokeh.io import set_curdoc
+        from bokeh.io.doc import set_curdoc
         from bokeh.plotting import figure
         import numpy as np
         d = document.Document()
