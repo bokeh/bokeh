@@ -35,7 +35,7 @@ class ServerContext(with_metaclass(ABCMeta)):
     def sessions(self):
         ''' SessionContext instances belonging to this application.
 
-         *Subclasses must implement this method.*
+        *Subclasses must implement this method.*
 
         '''
         pass
