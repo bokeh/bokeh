@@ -41,6 +41,7 @@ def test_enums_contents():
         'Direction',
         'Enumeration',
         'FontStyle',
+        'HoldPolicy',
         'HorizontalLocation',
         'JitterRandomDistribution',
         'LatLon',

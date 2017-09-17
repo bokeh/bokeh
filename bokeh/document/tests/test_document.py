@@ -1,5 +1,10 @@
 from __future__ import absolute_import, print_function
 
+import pytest
+
+from mock import patch
+
+import logging
 import unittest
 
 from copy import copy
@@ -13,6 +18,64 @@ from bokeh.document.events import (ColumnsPatchedEvent, ColumnsStreamedEvent, Mo
 from bokeh.protocol.messages.patch_doc import process_document_events
 
 from .setup import AnotherModelInTestDocument, SomeModelInTestDocument, ModelThatOverridesName, ModelWithSpecInTestDocument
+
+class TestDocumentHold(object):
+
+    @pytest.mark.parametrize('policy', document.HoldPolicy)
+    def test_hold(self, policy):
+        d = document.Document()
+        assert d._hold == None
+        assert d._held_events == []
+
+        d.hold(policy)
+        assert d._hold == policy
+
+    def test_hold_bad_policy(self):
+        d = document.Document()
+        with pytest.raises(ValueError):
+            d.hold("junk")
+
+    @pytest.mark.parametrize('first,second', [('combine', 'collect'), ('collect', 'combine')])
+    def test_rehold(self, first, second, caplog):
+        d = document.Document()
+        with caplog.at_level(logging.WARN):
+            d.hold(first)
+            assert caplog.text == ""
+            assert len(caplog.records) == 0
+
+            d.hold(first)
+            assert caplog.text == ""
+            assert len(caplog.records) == 0
+
+            d.hold(second)
+            assert caplog.text.strip().endswith("hold already active with '%s', ignoring '%s'" % (first, second))
+            assert len(caplog.records) == 1
+
+            d.unhold()
+
+            d.hold(second)
+            assert len(caplog.records) == 1
+
+    @pytest.mark.parametrize('policy', document.HoldPolicy)
+    def test_unhold(self, policy):
+        d = document.Document()
+        assert d._hold == None
+        assert d._held_events == []
+
+        d.hold(policy)
+        assert d._hold == policy
+        d.unhold()
+        assert d._hold == None
+
+    @patch("bokeh.document.document.Document._trigger_on_change")
+    def test_unhold_triggers_events(self, mock_trigger):
+        d = document.Document()
+        d.hold('collect')
+        d._held_events = [1,2,3]
+        d.unhold()
+        assert mock_trigger.call_count == 3
+        assert mock_trigger.call_args[0] == (3,)
+        assert mock_trigger.call_args[1] == {}
 
 class TestDocument(unittest.TestCase):
 

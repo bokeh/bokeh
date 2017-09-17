@@ -127,6 +127,9 @@ def enumeration(*values, **kwargs):
 
     return type("Enumeration", (Enumeration,), attrs)()
 
+#: Specify whether events should be combined or collected as-is when a Document hold is in effect
+HoldPolicy = enumeration( "combine", "collect")
+
 #: Specify whether a dimension or coordinate is latitude or longitude
 LatLon = enumeration("lat", "lon")
 
