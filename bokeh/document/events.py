@@ -41,6 +41,12 @@ class DocumentChangedEvent(object):
         self.setter = setter
         self.callback_invoker = callback_invoker
 
+    def combine(self, event):
+        '''
+
+        '''
+        return False
+
     def dispatch(self, receiver):
         ''' Dispatch handling of this event to a receiver.
 
@@ -152,6 +158,28 @@ class ModelChangedEvent(DocumentPatchedEvent):
         self.new = new
         self.serializable_new = serializable_new
         self.hint = hint
+
+    def combine(self, event):
+        '''
+
+        '''
+        if not isinstance(event, ModelChangedEvent): return False
+
+        # If these are not true something weird is going on, maybe updates from
+        # Python bokeh.client, don't try to combine
+        if self.setter != event.setter: return False
+        if self.document != event.document: return False
+
+        if self.hint:
+            return self.hint.combine(event.hint)
+
+        if (self.model == event.model) and (self.attr == event.attr):
+            self.new = event.new
+            self.serializable_new = event.serializable_new
+            self.callback_invoker = event.callback_invoker
+            return True
+
+        return False
 
     def dispatch(self, receiver):
         ''' Dispatch handling of this event to a receiver.
@@ -497,6 +525,21 @@ class TitleChangedEvent(DocumentPatchedEvent):
         '''
         super(TitleChangedEvent, self).__init__(document, setter, callback_invoker)
         self.title = title
+
+    def combine(self, event):
+        '''
+
+        '''
+        if not isinstance(event, TitleChangedEvent): return False
+
+        # If these are not true something weird is going on, maybe updates from
+        # Python bokeh.client, don't try to combine
+        if self.setter != event.setter: return False
+        if self.document != event.document: return False
+
+        self.title = event.title
+        self.callback_invoker = event.callback_invoker
+        return True
 
     def generate(self, references, buffers):
         ''' Create a JSON representation of this event suitable for sending

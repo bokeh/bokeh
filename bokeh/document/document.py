@@ -26,6 +26,7 @@ import sys
 import jinja2
 from six import string_types
 
+from ..core.enums import HoldPolicy
 from ..core.json_encoder import serialize_json
 from ..core.query import find
 from ..core.templates import FILE
@@ -70,6 +71,8 @@ class Document(object):
         self._session_context = None
         self._modules = []
         self._template_variables = {}
+        self._hold = None
+        self._held_events = []
 
         # set of models subscribed to user events
         self._subscribed_models = defaultdict(set)
@@ -472,8 +475,71 @@ class Document(object):
         '''
         return self._all_models_by_name.get_one(name, "Found more than one model named '%s'" % name)
 
+    def hold(self, policy="combine"):
+        ''' Activate a document hold.
+
+        While a hold is active, no model changes will be applied, or trigger
+        callbacks. Once ``unhold`` is called, the events collected during the
+        hold will be applied according to the hold policy.
+
+        Args:
+            hold ('combine' or 'collect', optional)
+                Whether events collected during a hold should attempt to be
+                combined (default: 'combine')
+
+                When set to ``'collect'`` all events will be collected and
+                replayed in order as-is when ``unhold`` is called.
+
+                When set to ``'combine'`` Bokeh will attempt to combine
+                compatible events together. Typically, different events that
+                change the same property on the same mode can be combined.
+                For example, if the following sequence occurs:
+
+                .. code-block:: python
+
+                    doc.hold('combine')
+                    slider.value = 10
+                    slider.value = 11
+                    slider.value = 12
+
+                Then only *one* callback, for the last ``slider.value = 12``
+                will be triggered.
+
+        Returns:
+            None
+
+        .. note::
+            ``hold`` only applies to document change events, i.e. setting
+            properties on models. It does not apply to events such as
+            ``ButtonClick``, etc.
+
+        '''
+        if self._hold is not None and self._hold != policy:
+            logger.warn("hold already active with '%s', ignoring '%s'" % (self._hold, policy))
+            return
+        if policy not in HoldPolicy:
+            raise ValueError("Unknown hold policy %r" % policy)
+        self._hold = policy
+
+    def unhold(self):
+        ''' Turn off any active document hold and apply any collected events.
+
+        Returns:
+            None
+
+        '''
+        # no-op if we are already no holding
+        if self._hold is None: return
+
+        self._hold = None
+        events = list(self._held_events)
+        self._held_events = []
+
+        for event in events:
+            self._trigger_on_change(event)
+
     def on_change(self, *callbacks):
-        ''' Provide callbacks to invovke if the document or any Model reachable
+        ''' Provide callbacks to invoke if the document or any Model reachable
         from its roots changes.
 
         '''
@@ -881,6 +947,12 @@ class Document(object):
         '''
 
         '''
+        if self._hold == "collect":
+            self._held_events.append(event)
+            return
+        elif self._hold == "combine":
+            _combine_document_events(event, self._held_events)
+            return
 
         if event.callback_invoker is not None:
             self._with_self_as_curdoc(event.callback_invoker)
@@ -917,3 +989,33 @@ class Document(object):
                 return f(*args, **kwargs)
             return doc._with_self_as_curdoc(invoke)
         return wrapper
+
+
+def _combine_document_events(new_event, old_events):
+    ''' Attempt to combine a new event with a list of previous events.
+
+    The ``old_event`` will be scanned in reverse, and ``.combine(new_event)``
+    will be called on each. If a combination can be made, the function
+    will return immediately. Otherwise, ``new_event`` will be appended to
+    ``old_events``.
+
+    Args:
+        new_event (DocumentChangedEvent) :
+            The new event to attempt to combine
+
+        old_events (list[DocumentChangedEvent])
+            A list of previous events to attempt to combine new_event with
+
+            **This is an "out" parameter**. The values it contains will be
+            modified in-place.
+
+    Returns:
+        None
+
+    '''
+    for event in reversed(old_events):
+        if event.combine(new_event):
+            return
+
+    # no combination was possible
+    old_events.append(new_event)
