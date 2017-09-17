@@ -158,7 +158,7 @@ class CodeHandler(Handler):
 
     @property
     def safe_to_fork(self):
-        ''' hether it is still safe for the Bokeh server to fork new workers.
+        ''' Whether it is still safe for the Bokeh server to fork new workers.
 
         ``False`` if the code has already been executed.
 
