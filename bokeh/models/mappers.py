@@ -104,8 +104,8 @@ class ContinuousColorMapper(ColorMapper):
     """)
 
     high_color = Color(default=None, help="""
-    Color to be used if data is lower than ``high`` value. If None,
-    values lower than ``high`` are mapped to the last color in the palette.
+    Color to be used if data is higher than ``high`` value. If None,
+    values higher than ``high`` are mapped to the last color in the palette.
     """)
 
 class LinearColorMapper(ContinuousColorMapper):
