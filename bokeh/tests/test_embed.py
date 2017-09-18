@@ -125,7 +125,7 @@ class TestNotebookContent(unittest.TestCase):
                                         render_items=serialize_json(render_items))
         expected_div = PLOT_DIV.render(elementid=render_items[0]['elementid'])
 
-        (script, div) = embed.notebook_content(_embed_test_plot)
+        (script, div, _) = embed.notebook_content(_embed_test_plot)
 
         self.assertEqual(script, expected_script)
         self.assertEqual(div, expected_div)
@@ -138,7 +138,7 @@ class TestNotebookContent(unittest.TestCase):
 
         ## assert that NOTEBOOK_COMMS_TARGET is added to render_items bundle
         self.assertTrue('notebook_comms_target' not in render_items[0])
-        (script, _) = embed.notebook_content(_embed_test_plot, notebook_comms_target=comms_target)
+        (script, _, _) = embed.notebook_content(_embed_test_plot, notebook_comms_target=comms_target)
         self.assertTrue('notebook_comms_target' in render_items[0])
 
         ## assert that NOTEBOOK_COMMS_TARGET ends up in generated script
@@ -151,8 +151,8 @@ class TestNotebookDiv(unittest.TestCase):
 
     @mock.patch('bokeh.embed.notebook_content')
     def test_notebook_div(self, mock_notebook_content):
-        (script, div) = ("(function(){})()", "<div></div>")
-        mock_notebook_content.return_value = (script, div)
+        (script, div, doc) = ("(function(){})()", "<div></div>", "doc")
+        mock_notebook_content.return_value = (script, div, doc)
 
         notebook_div = embed.notebook_div(_embed_test_plot)
 
