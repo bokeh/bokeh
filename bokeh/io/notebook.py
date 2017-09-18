@@ -55,7 +55,7 @@ class CommsHandle(object):
     '''
     _json = {}
 
-    def __init__(self, comms, doc, json):
+    def __init__(self, comms, cell_doc):
         self._cellno = None
         try:
             from IPython import get_ipython
@@ -67,8 +67,12 @@ class CommsHandle(object):
             logger.debug("Could not get Notebook cell number, reason: %s", e)
 
         self._comms = comms
-        self._doc = doc
-        self._json[doc] = json
+        self._doc = cell_doc
+
+        # Our internal copy of the doc is in perpetual "hold". Events from the
+        # originating doc will be triggered and collected it it. Events are
+        # processed/cleared when push_notebook is called for this comms handle
+        self._doc.hold()
 
     def _repr_html_(self):
         if self._cellno is not None:
@@ -77,24 +81,23 @@ class CommsHandle(object):
             return "<p><code>&lt;Bokeh Notebook handle&gt;</code></p>"
 
     @property
-    @public((1,0,0))
+    @internal((1,0,0))
     def comms(self):
         return self._comms
 
     @property
-    @public((1,0,0))
+    @internal((1,0,0))
     def doc(self):
         return self._doc
 
-    @property
-    @public((1,0,0))
-    def json(self):
-        return self._json[self._doc]
-
-    @public((1,0,0))
-    def update(self, doc, json):
-        self._doc = doc
-        self._json[doc] = json
+    # Adding this method makes curdoc dispatch to this Comms to handle
+    # and Document model changed events. If we find that the event is
+    # for a model in our internal copy of the docs, then trigger the
+    # internal doc with the event so that it is collected (until a
+    # call to push_notebook processes and clear colleted events)
+    def _document_model_changed(self, event):
+        if event.model._id in self.doc._all_models:
+            self.doc._trigger_on_change(event)
 
 @public((1,0,0))
 def install_notebook_hook(notebook_type, load, show_doc, show_app, overwrite=False):
@@ -225,6 +228,8 @@ def push_notebook(document=None, state=None, handle=None):
             push_notebook(handle=handle)
 
     '''
+    from ..protocol import Protocol
+
     if state is None:
         state = curstate()
 
@@ -242,14 +247,16 @@ def push_notebook(document=None, state=None, handle=None):
         warn("Cannot find a last shown plot to update. Call output_notebook() and show(..., notebook_handle=True) before push_notebook()")
         return
 
-    to_json = document.to_json()
-    if handle.doc is not document:
-        msg = dict(doc=to_json)
-    else:
-        msg = _compute_patch_between_json(handle.json, to_json)
+    events = list(handle.doc._held_events)
+    handle.doc._held_events = []
+    msg = Protocol("1.0").create("PATCH-DOC", events)
 
-    handle.comms.send(json.dumps(msg))
-    handle.update(document, to_json)
+    handle.comms.send(msg.header_json)
+    handle.comms.send(msg.metadata_json)
+    handle.comms.send(msg.content_json)
+    for header, payload in msg.buffers:
+        handle.comms.send(json.dumps(header))
+        handle.comms.send(buffers=[payload])
 
 @public((1,0,0))
 def run_notebook_hook(notebook_type, action, *args, **kw):
@@ -449,13 +456,17 @@ def show_doc(obj, state, notebook_handle):
     '''
     from ..embed import notebook_content
     comms_target = make_id() if notebook_handle else None
-    (script, div) = notebook_content(obj, comms_target)
+    (script, div, cell_doc) = notebook_content(obj, comms_target)
 
     publish_display_data({HTML_MIME_TYPE: div})
     publish_display_data({JS_MIME_TYPE: script, EXEC_MIME_TYPE: ""}, metadata={EXEC_MIME_TYPE: {"id": obj._id}})
+
+    # Comms handling relies on the fact that the cell_doc returned by
+    # notebook copy has models with the same IDs as the original curdoc
+    # they were copied from
     if comms_target:
-        handle = CommsHandle(get_comms(comms_target), state.document,
-                             state.document.to_json())
+        handle = CommsHandle(get_comms(comms_target), cell_doc)
+        state.document.on_change_dispatch_to(handle)
         state.last_comms_handle = handle
         return handle
 
@@ -480,155 +491,3 @@ def _loading_js(resources, element_id, custom_models_js, load_timeout=5000, regi
         timeout   = load_timeout,
         register_mime = register_mime
     )
-
-# TODO (bev) To be removed when push_notebook is re-implemented
-def _compute_patch_between_json(from_json, to_json):
-    ''' Compute a JSON diff between a two Bokeh document states.
-
-    .. note::
-        This function is used to send changes that happened between calls to
-        ``show()`` and ``push_notebook()`` and will be removed when a better
-        implementation based on the Bokeh protocol is available.
-
-    Args:
-        from_json (``JSON``)
-            JSON representing a "starting" Bokeh document state
-
-        to_json (``JSON``)
-            JSON representing a "final" Bokeh document state
-
-    Returns
-        ``JSON``
-
-    '''
-
-    def refs(json):
-        result = {}
-        for obj in json['roots']['references']:
-            result[obj['id']] = obj
-        return result
-
-    from_references = refs(from_json)
-    from_roots = {}
-    from_root_ids = []
-    for r in from_json['roots']['root_ids']:
-        from_roots[r] = from_references[r]
-        from_root_ids.append(r)
-
-    to_references = refs(to_json)
-    to_roots = {}
-    to_root_ids = []
-    for r in to_json['roots']['root_ids']:
-        to_roots[r] = to_references[r]
-        to_root_ids.append(r)
-
-    from_root_ids.sort()
-    to_root_ids.sort()
-
-    from_set = set(from_root_ids)
-    to_set = set(to_root_ids)
-    removed = from_set - to_set
-    added = to_set - from_set
-
-    combined_references = dict(from_references)
-    for k in to_references.keys():
-        combined_references[k] = to_references[k]
-
-    value_refs = {}
-    events = []
-
-    for removed_root_id in removed:
-        model = dict(combined_references[removed_root_id])
-        del model['attributes']
-        events.append({ 'kind' : 'RootRemoved',
-                        'model' : model })
-
-    for added_root_id in added:
-        _value_record_references(combined_references,
-                                combined_references[added_root_id],
-                                value_refs)
-        model = dict(combined_references[added_root_id])
-        del model['attributes']
-        events.append({ 'kind' : 'RootAdded',
-                        'model' : model })
-
-    for id in to_references:
-        if id in from_references:
-            update_model_events = _events_to_sync_objects(
-                combined_references,
-                from_references[id],
-                to_references[id],
-                value_refs
-            )
-            events.extend(update_model_events)
-
-    return dict(
-        events=events,
-        references=list(value_refs.values())
-    )
-
-# TODO (bev) To be removed when push_notebook is re-implemented
-def _event_for_attribute_change(all_references, changed_obj, key, new_value, value_refs):
-    event = dict(
-        kind='ModelChanged',
-        model=dict(id=changed_obj['id'], type=changed_obj['type']),
-        attr=key,
-        new=new_value,
-    )
-    _value_record_references(all_references, new_value, value_refs)
-    return event
-
-# TODO (bev) To be removed when push_notebook is re-implemented
-def _events_to_sync_objects(all_references, from_obj, to_obj, value_refs):
-    from_keys = set(from_obj['attributes'].keys())
-    to_keys = set(to_obj['attributes'].keys())
-    removed = from_keys - to_keys
-    added = to_keys - from_keys
-    shared = from_keys & to_keys
-
-    events = []
-    for key in removed:
-        raise RuntimeError("internal error: should not be possible to delete attribute %s" % key)
-
-    for key in added:
-        new_value = to_obj['attributes'][key]
-        events.append(_event_for_attribute_change(all_references,
-                                                 from_obj,
-                                                 key,
-                                                 new_value,
-                                                 value_refs))
-
-    for key in shared:
-        old_value = from_obj['attributes'].get(key)
-        new_value = to_obj['attributes'].get(key)
-
-        if old_value is None and new_value is None:
-            continue
-
-        if old_value is None or new_value is None or old_value != new_value:
-            event = _event_for_attribute_change(all_references,
-                                               from_obj,
-                                               key,
-                                               new_value,
-                                               value_refs)
-            events.append(event)
-
-    return events
-
-# TODO (bev) To be removed when push_notebook is re-implemented
-def _value_record_references(all_references, value, result):
-    if value is None: return
-
-    if isinstance(value, dict) and set(['id', 'type']).issubset(set(value.keys())):
-        if value['id'] not in result:
-            ref = all_references[value['id']]
-            result[value['id']] = ref
-            _value_record_references(all_references, ref['attributes'], result)
-
-    elif isinstance(value, (list, tuple)):
-        for elem in value:
-            _value_record_references(all_references, elem, result)
-
-    elif isinstance(value, dict):
-        for k, elem in value.items():
-            _value_record_references(all_references, elem, result)

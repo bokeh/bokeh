@@ -26,6 +26,7 @@ from mock import patch
 # External imports
 
 # Bokeh imports
+from bokeh.document.document import Document
 from bokeh.io.state import State
 
 # Module under test
@@ -39,24 +40,22 @@ api = {
 
     PUBLIC: (
 
-        ( 'CommsHandle',            (1, 0, 0) ),
-        ( 'CommsHandle.comms.fget', (1, 0, 0) ),
-        ( 'CommsHandle.doc.fget',   (1, 0, 0) ),
-        ( 'CommsHandle.json.fget',  (1, 0, 0) ),
-        ( 'CommsHandle.update',     (1, 0, 0) ),
-        ( 'install_notebook_hook',  (1, 0, 0) ),
-        ( 'push_notebook',          (1, 0, 0) ),
-        ( 'run_notebook_hook',      (1, 0, 0) ),
+        ( 'CommsHandle',           (1, 0, 0) ),
+        ( 'install_notebook_hook', (1, 0, 0) ),
+        ( 'push_notebook',         (1, 0, 0) ),
+        ( 'run_notebook_hook',     (1, 0, 0) ),
 
     ), INTERNAL: (
 
-        ( 'destroy_server',        (1, 0, 0) ),
-        ( 'get_comms',             (1, 0, 0) ),
-        ( 'install_jupyter_hooks', (1, 0, 0) ),
-        ( 'load_notebook',         (1, 0, 0) ),
-        ( 'publish_display_data',  (1, 0, 0) ),
-        ( 'show_app',              (1, 0, 0) ),
-        ( 'show_doc',              (1, 0, 0) ),
+        ( 'CommsHandle.comms.fget', (1, 0, 0) ),
+        ( 'CommsHandle.doc.fget',   (1, 0, 0) ),
+        ( 'destroy_server',         (1, 0, 0) ),
+        ( 'get_comms',              (1, 0, 0) ),
+        ( 'install_jupyter_hooks',  (1, 0, 0) ),
+        ( 'load_notebook',          (1, 0, 0) ),
+        ( 'publish_display_data',   (1, 0, 0) ),
+        ( 'show_app',               (1, 0, 0) ),
+        ( 'show_doc',               (1, 0, 0) ),
 
     )
 
@@ -88,7 +87,8 @@ def test_show_doc_no_server(mock_notebook_content,
                             mock_get_comms):
     mock_get_comms.return_value = "comms"
     s = State()
-    mock_notebook_content.return_value = ["notebook_script", "notebook_div"]
+    d = Document()
+    mock_notebook_content.return_value = ["notebook_script", "notebook_div", d]
 
     class Obj(object):
         _id = None
@@ -99,6 +99,7 @@ def test_show_doc_no_server(mock_notebook_content,
     expected_args = ({'application/javascript': 'notebook_script', 'application/vnd.bokehjs_exec.v0+json': ''},)
     expected_kwargs = {'metadata': {'application/vnd.bokehjs_exec.v0+json': {'id': None}}}
 
+    assert d._hold is not None
     assert mock__publish_display_data.call_count == 2 # two mime types
     assert mock__publish_display_data.call_args[0] == expected_args
     assert mock__publish_display_data.call_args[1] == expected_kwargs
@@ -110,159 +111,3 @@ def test_show_doc_no_server(mock_notebook_content,
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
-
-def test__compute_patch_between_json_one_attribute_patch():
-    from bokeh.document import Document
-    from bokeh.document.tests.setup import SomeModelInTestDocument
-    d = Document()
-    root1 = SomeModelInTestDocument(foo=42)
-    child1 = SomeModelInTestDocument(foo=43)
-    root1.child = child1
-    d.add_root(root1)
-
-    before = d.to_json()
-
-    root1.foo = 47
-
-    after = d.to_json()
-
-    patch = binb._compute_patch_between_json(before, after)
-
-    expected = dict(references=[],
-                    events=[
-                        {'attr': u'foo',
-                         'kind': 'ModelChanged',
-                         'model': {'id': None,
-                                   'type': 'SomeModelInTestDocument'},
-                         'new': 47}
-                    ])
-    expected['events'][0]['model']['id'] = root1._id
-    assert expected == patch
-
-    d2 = Document.from_json(before)
-    d2.apply_json_patch(patch)
-    assert root1.foo == d2.roots[0].foo
-
-def test__compute_patch_between_json_two_attribute_patch():
-    from bokeh.document import Document
-    from bokeh.document.tests.setup import AnotherModelInTestDocument, SomeModelInTestDocument
-    d = Document()
-    root1 = SomeModelInTestDocument(foo=42)
-    child1 = AnotherModelInTestDocument(bar=43)
-    root1.child = child1
-    d.add_root(root1)
-
-    before = d.to_json()
-
-    root1.foo=47
-    child1.bar=57
-
-    after = d.to_json()
-
-    patch = binb._compute_patch_between_json(before, after)
-
-    expected = dict(references=[],
-                    events=[
-                        {'attr': u'bar',
-                         'kind': 'ModelChanged',
-                         'model': {'id': None,
-                                   'type': 'AnotherModelInTestDocument'},
-                         'new': 57},
-                        {'attr': u'foo',
-                         'kind': 'ModelChanged',
-                         'model': {'id': None,
-                                   'type': 'SomeModelInTestDocument'},
-                         'new': 47}
-                        ])
-    expected['events'][0]['model']['id'] = child1._id
-    expected['events'][1]['model']['id'] = root1._id
-
-    # order is undefined, so fix our expectation if needed
-    assert len(patch['events']) == 2
-    if patch['events'][0]['model']['type'] == 'AnotherModelInTestDocument':
-        pass
-    else:
-        tmp = expected['events'][0]
-        expected['events'][0] = expected['events'][1]
-        expected['events'][1] = tmp
-
-    assert expected == patch
-
-    d2 = Document.from_json(before)
-    d2.apply_json_patch(patch)
-    assert root1.foo == d2.roots[0].foo
-    assert root1.child.bar == d2.roots[0].child.bar
-
-def test__compute_patch_between_json_remove_root_patch():
-    from bokeh.document import Document
-    from bokeh.document.tests.setup import AnotherModelInTestDocument, SomeModelInTestDocument
-    d = Document()
-    root1 = SomeModelInTestDocument(foo=42)
-    child1 = AnotherModelInTestDocument(bar=43)
-    root1.child = child1
-    d.add_root(root1)
-
-    before = d.to_json()
-
-    d.remove_root(root1)
-
-    after = d.to_json()
-
-    patch = binb._compute_patch_between_json(before, after)
-
-    expected = dict(references=[],
-                    events= [
-                        {'kind': 'RootRemoved',
-                         'model': {'id': None,
-                                   'type': 'SomeModelInTestDocument'}}
-                    ])
-    expected['events'][0]['model']['id'] = root1._id
-
-    assert expected == patch
-
-    d2 = Document.from_json(before)
-    d2.apply_json_patch(patch)
-    assert d2.roots == []
-
-def test__compute_patch_between_json_add_root_patch():
-    from bokeh.document import Document
-    from bokeh.document.tests.setup import AnotherModelInTestDocument, SomeModelInTestDocument
-    d = Document()
-    root1 = SomeModelInTestDocument(foo=42)
-    child1 = AnotherModelInTestDocument(bar=43)
-    root1.child = child1
-    d.add_root(root1)
-
-    before = d.to_json()
-
-    root2 = SomeModelInTestDocument(foo=57)
-    d.add_root(root2)
-
-    after = d.to_json()
-
-    patch = binb._compute_patch_between_json(before, after)
-
-    expected = {
-        'references' : [
-            { 'attributes': {'child': None, 'foo': 57},
-              'id': None,
-              'type': 'SomeModelInTestDocument'}
-        ],
-        'events' : [
-            { 'kind': 'RootAdded',
-              'model': {'id': None,
-                        'type': 'SomeModelInTestDocument'}
-            }
-        ]
-    }
-
-    expected['references'][0]['id'] = root2._id
-    expected['events'][0]['model']['id'] = root2._id
-
-    assert expected == patch
-
-    d2 = Document.from_json(before)
-    d2.apply_json_patch(patch)
-    assert len(d2.roots) == 2
-    assert d2.roots[0].foo == 42
-    assert d2.roots[1].foo == 57
