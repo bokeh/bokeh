@@ -784,7 +784,7 @@ class Ray(XYGlyph):
 
     length = DistanceSpec(help="""
     The length to extend the ray. Note that this ``length`` defaults
-    to screen units.
+    to data units (measured in the x-direction).
     """)
 
     line_props = Include(LineProps, use_prefix=False, help="""
