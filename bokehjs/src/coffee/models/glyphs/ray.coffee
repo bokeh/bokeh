@@ -4,7 +4,10 @@ import * as p from "core/properties"
 export class RayView extends XYGlyphView
 
   _map_data: () ->
-    @slength = @sdist(@renderer.xscale, @_x, @_length)
+    if @model.properties.length.units == "data"
+      @slength = @sdist(@renderer.xscale, @_x, @_length)
+    else
+      @slength = @_length
 
   _render: (ctx, indices, {sx, sy, slength, _angle}) ->
     if @visuals.line.doit
