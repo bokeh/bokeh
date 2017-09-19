@@ -53,40 +53,48 @@ api = {
 test_public_api, test_internal_api, test_all_declared, test_all_tested = verify_api(bio, api)
 
 #-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
 # Public API
 #-----------------------------------------------------------------------------
 
-@patch('bokeh.io.state.State.output_file')
-def test_output_file_no_args(mock_output_file):
-    default_kwargs = dict(title="Bokeh Plot", mode="cdn", root_dir=None)
-    bio.output_file("foo.html")
-    assert mock_output_file.call_count == 1
-    assert mock_output_file.call_args[0] == ("foo.html",)
-    assert mock_output_file.call_args[1] == default_kwargs
+class Test_output_file(object):
 
-@patch('bokeh.io.state.State.output_file')
-def test_output_file_with_args(mock_output_file):
-    kwargs = dict(title="title", mode="cdn", root_dir="foo")
-    bio.output_file("foo.html", **kwargs)
-    assert mock_output_file.call_count == 1
-    assert mock_output_file.call_args[0] == ("foo.html",)
-    assert mock_output_file.call_args[1] == kwargs
+    @patch('bokeh.io.state.State.output_file')
+    def test_no_args(self, mock_output_file):
+        default_kwargs = dict(title="Bokeh Plot", mode="cdn", root_dir=None)
+        bio.output_file("foo.html")
+        assert mock_output_file.call_count == 1
+        assert mock_output_file.call_args[0] == ("foo.html",)
+        assert mock_output_file.call_args[1] == default_kwargs
 
-@patch('bokeh.io.output.run_notebook_hook')
-def test_output_notebook_no_args(mock_run_notebook_hook):
-    default_load_jupyter_args = (None, False, False, 5000)
-    bio.output_notebook()
-    assert mock_run_notebook_hook.call_count == 1
-    assert mock_run_notebook_hook.call_args[0] == ("jupyter", "load") + default_load_jupyter_args
-    assert mock_run_notebook_hook.call_args[1] == {}
+    @patch('bokeh.io.state.State.output_file')
+    def test_with_args(self, mock_output_file):
+        kwargs = dict(title="title", mode="cdn", root_dir="foo")
+        bio.output_file("foo.html", **kwargs)
+        assert mock_output_file.call_count == 1
+        assert mock_output_file.call_args[0] == ("foo.html",)
+        assert mock_output_file.call_args[1] == kwargs
 
-@patch('bokeh.io.output.run_notebook_hook')
-def test_output_notebook_with_args(mock_run_notebook_hook):
-    load_jupyter_args = (Resources(), True, True, 1000)
-    bio.output_notebook(*load_jupyter_args)
-    assert mock_run_notebook_hook.call_count == 1
-    assert mock_run_notebook_hook.call_args[0] == ("jupyter", "load") + load_jupyter_args
-    assert mock_run_notebook_hook.call_args[1] == {}
+class Test_output_notebook(object):
+
+    @patch('bokeh.io.output.run_notebook_hook')
+    def test_no_args(self, mock_run_notebook_hook):
+        default_load_jupyter_args = (None, False, False, 5000)
+        bio.output_notebook()
+        assert mock_run_notebook_hook.call_count == 1
+        assert mock_run_notebook_hook.call_args[0] == ("jupyter", "load") + default_load_jupyter_args
+        assert mock_run_notebook_hook.call_args[1] == {}
+
+    @patch('bokeh.io.output.run_notebook_hook')
+    def test_with_args(self, mock_run_notebook_hook):
+        load_jupyter_args = (Resources(), True, True, 1000)
+        bio.output_notebook(*load_jupyter_args)
+        assert mock_run_notebook_hook.call_count == 1
+        assert mock_run_notebook_hook.call_args[0] == ("jupyter", "load") + load_jupyter_args
+        assert mock_run_notebook_hook.call_args[1] == {}
 
 @patch('bokeh.io.state.State.reset')
 def test_reset_output(mock_reset):

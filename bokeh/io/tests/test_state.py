@@ -60,79 +60,85 @@ api = {
 test_public_api, test_internal_api, test_all_declared, test_all_tested = verify_api(bis, api)
 
 #-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
 # Public API
 #-----------------------------------------------------------------------------
 
-def test_creation():
-    s = bis.State()
-    assert isinstance(s.document, Document)
-    assert s.file == None
-    assert s.notebook == False
+class Test_State(object):
 
-def test_default_file_resources():
-    s = bis.State()
-    s.output_file("foo.html")
-    assert s.file['resources'].minified, True
+    def test_creation(self):
+        s = bis.State()
+        assert isinstance(s.document, Document)
+        assert s.file == None
+        assert s.notebook == False
 
-def test_output_file():
-    s = bis.State()
-    s.output_file("foo.html")
-    assert s.file['filename'] == "foo.html"
-    assert s.file['title'] == "Bokeh Plot"
-    assert s.file['resources'].log_level == 'info'
-    assert s.file['resources'].minified == True
+    def test_default_file_resources(self):
+        s = bis.State()
+        s.output_file("foo.html")
+        assert s.file['resources'].minified, True
 
-@patch('bokeh.io.state.logger')
-@patch('os.path.isfile')
-def test_output_file_file_exists(mock_isfile, mock_logger):
-    mock_isfile.return_value = True
-    s = bis.State()
-    s.output_file("foo.html")
-    assert s.file['filename'] == "foo.html"
-    assert s.file['title'] == "Bokeh Plot"
-    assert s.file['resources'].log_level == 'info'
-    assert s.file['resources'].minified == True
-    assert bis.logger.info.call_count == 1
-    assert bis.logger.info.call_args[0] == (
-        "Session output file 'foo.html' already exists, will be overwritten.",
-    )
+    def test_output_file(self):
+        s = bis.State()
+        s.output_file("foo.html")
+        assert s.file['filename'] == "foo.html"
+        assert s.file['title'] == "Bokeh Plot"
+        assert s.file['resources'].log_level == 'info'
+        assert s.file['resources'].minified == True
 
-def test_output_notebook_noarg():
-    s = bis.State()
-    s.output_notebook()
-    assert s.notebook == True
-    assert s.notebook_type == 'jupyter'
+    @patch('bokeh.io.state.log')
+    @patch('os.path.isfile')
+    def test_output_file_file_exists(self, mock_isfile, mock_log):
+        mock_isfile.return_value = True
+        s = bis.State()
+        s.output_file("foo.html")
+        assert s.file['filename'] == "foo.html"
+        assert s.file['title'] == "Bokeh Plot"
+        assert s.file['resources'].log_level == 'info'
+        assert s.file['resources'].minified == True
+        assert mock_log.info.call_count == 1
+        assert mock_log.info.call_args[0] == (
+            "Session output file 'foo.html' already exists, will be overwritten.",
+        )
 
-def test_output_notebook_witharg():
-    s = bis.State()
-    s.output_notebook(notebook_type='notjup')
-    assert s.notebook == True
-    assert s.notebook_type == 'notjup'
+    def test_output_notebook_noarg(self):
+        s = bis.State()
+        s.output_notebook()
+        assert s.notebook == True
+        assert s.notebook_type == 'jupyter'
 
-def test_output_invalid_notebook():
-    s = bis.State()
-    with pytest.raises(Exception):
-        s.notebook_type=None
-    with pytest.raises(Exception):
-        s.notebook_type=10
+    def test_output_notebook_witharg(self):
+        s = bis.State()
+        s.output_notebook(notebook_type='notjup')
+        assert s.notebook == True
+        assert s.notebook_type == 'notjup'
 
-def test_reset():
-    s = bis.State()
-    d = s.document
-    s.output_file("foo.html")
-    s.output_notebook()
-    s.reset()
-    assert s.file == None
-    assert s.notebook == False
-    assert isinstance(s.document, Document)
-    assert s.document != d
+    def test_output_invalid_notebook(self):
+        s = bis.State()
+        with pytest.raises(Exception):
+            s.notebook_type=None
+        with pytest.raises(Exception):
+            s.notebook_type=10
 
-def test_doc_set():
-    s = bis.State()
-    d = Document()
-    s.document = d
-    assert isinstance(s.document, Document)
-    assert s.document == d
+    def test_reset(self):
+        s = bis.State()
+        d = s.document
+        s.output_file("foo.html")
+        s.output_notebook()
+        s.reset()
+        assert s.file == None
+        assert s.notebook == False
+        assert isinstance(s.document, Document)
+        assert s.document != d
+
+    def test_doc_set(self):
+        s = bis.State()
+        d = Document()
+        s.document = d
+        assert isinstance(s.document, Document)
+        assert s.document == d
 
 def test_curstate():
     cs = bis.curstate()

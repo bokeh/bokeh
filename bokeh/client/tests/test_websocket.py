@@ -23,13 +23,12 @@ from bokeh.util.testing import verify_api ; verify_api
 # Standard library imports
 
 # External imports
+from tornado import locks
 
 # Bokeh imports
-from bokeh.document import Document
-from bokeh.io.state import curstate
 
 # Module under test
-import bokeh.io.doc as bid
+import bokeh.client.websocket as bcw
 
 #-----------------------------------------------------------------------------
 # API Definition
@@ -39,16 +38,18 @@ api = {
 
     PUBLIC: (
 
-        ( 'curdoc', (1, 0, 0) ),
-
     ), INTERNAL: (
 
-        ( 'set_curdoc', (1, 0, 0) ),
+        ( 'WebSocketClientConnectionWrapper',               (1, 0, 0) ),
+        ( 'WebSocketClientConnectionWrapper.write_message', (1, 0, 0) ),
+        ( 'WebSocketClientConnectionWrapper.close',         (1, 0, 0) ),
+        ( 'WebSocketClientConnectionWrapper.read_message',  (1, 0, 0) ),
+
     )
 
 }
 
-test_public_api, test_internal_api, test_all_declared, test_all_tested = verify_api(bid, api)
+test_public_api, test_internal_api, test_all_declared, test_all_tested = verify_api(bcw, api)
 
 #-----------------------------------------------------------------------------
 # Setup
@@ -58,17 +59,20 @@ test_public_api, test_internal_api, test_all_declared, test_all_tested = verify_
 # Public API
 #-----------------------------------------------------------------------------
 
-def test_curdoc_from_curstate():
-    assert bid.curdoc() is curstate().document
-
 #-----------------------------------------------------------------------------
 # Internal API
 #-----------------------------------------------------------------------------
 
-def test_set_curdoc_sets_curstate():
-    d = Document()
-    bid.set_curdoc(d)
-    assert curstate().document is d
+class Test_WebSocketClientConnectionWrapper(object):
+
+    def test_creation_raises_with_None(self):
+        with pytest.raises(ValueError):
+            bcw.WebSocketClientConnectionWrapper(None)
+
+    def test_creation(self):
+        w = bcw.WebSocketClientConnectionWrapper("socket")
+        assert w._socket == "socket"
+        assert isinstance(w.write_lock, locks.Lock)
 
 #-----------------------------------------------------------------------------
 # Private API

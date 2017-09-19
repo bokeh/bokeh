@@ -38,7 +38,7 @@ ensures their proper configuration in many common usage scenarios.
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
-logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 from bokeh.util.api import public, internal ; public, internal
 
@@ -52,9 +52,13 @@ import os
 # External imports
 from six import string_types
 
-# Bokeh import
+# Bokeh imports
 from ..document import Document
 from ..resources import Resources
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
 # Public API
@@ -170,7 +174,7 @@ class State(object):
         }
 
         if os.path.isfile(filename):
-            logger.info("Session output file '%s' already exists, will be overwritten." % filename)
+            log.info("Session output file '%s' already exists, will be overwritten." % filename)
 
     @public((1,0,0))
     def output_notebook(self, notebook_type='jupyter'):
@@ -237,3 +241,7 @@ def curstate():
 #-----------------------------------------------------------------------------
 
 _STATE = None
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

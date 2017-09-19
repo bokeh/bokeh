@@ -25,51 +25,29 @@ from bokeh.util.testing import verify_api ; verify_api
 # External imports
 
 # Bokeh imports
-from bokeh.document import Document
-from bokeh.io.state import curstate
 
 # Module under test
-import bokeh.io.doc as bid
-
-#-----------------------------------------------------------------------------
-# API Definition
-#-----------------------------------------------------------------------------
-
-api = {
-
-    PUBLIC: (
-
-        ( 'curdoc', (1, 0, 0) ),
-
-    ), INTERNAL: (
-
-        ( 'set_curdoc', (1, 0, 0) ),
-    )
-
-}
-
-test_public_api, test_internal_api, test_all_declared, test_all_tested = verify_api(bid, api)
+import bokeh.client as bc
 
 #-----------------------------------------------------------------------------
 # Setup
 #-----------------------------------------------------------------------------
 
+ALL = (
+    'ClientSession',
+    'pull_session',
+    'push_session',
+    'show_session',
+    'DEFAULT_SESSION_ID'
+)
+
 #-----------------------------------------------------------------------------
 # Public API
 #-----------------------------------------------------------------------------
 
-def test_curdoc_from_curstate():
-    assert bid.curdoc() is curstate().document
+def test___all__():
+    assert bc.__all__ == ALL
 
-#-----------------------------------------------------------------------------
-# Internal API
-#-----------------------------------------------------------------------------
-
-def test_set_curdoc_sets_curstate():
-    d = Document()
-    bid.set_curdoc(d)
-    assert curstate().document is d
-
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
+@pytest.mark.parametrize('name', ALL)
+def test_contents(name):
+    assert hasattr(bc, name)

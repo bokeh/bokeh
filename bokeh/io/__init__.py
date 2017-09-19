@@ -15,7 +15,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
-logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 from bokeh.util.api import public, internal ; public, internal
 
@@ -23,21 +23,33 @@ from bokeh.util.api import public, internal ; public, internal
 # Public API
 #-----------------------------------------------------------------------------
 
-from .doc import curdoc ; curdoc
+from .doc import curdoc
 
-from .export import export_png ; export_png
-from .export import export_svgs ; export_svgs
+from .export import export_png
+from .export import export_svgs
 
-from .notebook import install_notebook_hook ; install_notebook_hook
-from .notebook import push_notebook ; push_notebook
+from .notebook import install_notebook_hook
+from .notebook import push_notebook
 
-from .output import output_file ; output_file
-from .output import output_notebook ; output_notebook
-from .output import reset_output ; reset_output
+from .output import output_file
+from .output import output_notebook
+from .output import reset_output
 
-from .saving import save ; save
+from .saving import save
 
-from .showing import show ; show
+from .showing import show
+
+__all__ = (
+    'curdoc',
+    'export_png',
+    'export_svgs',
+    'install_notebook_hook',
+    'push_notebook',
+    'output_file',
+    'output_notebook',
+    'save',
+    'show'
+)
 
 #-----------------------------------------------------------------------------
 # Code
