@@ -23,13 +23,13 @@ from bokeh.util.testing import verify_api ; verify_api
 # Standard library imports
 
 # External imports
+from tornado.ioloop import IOLoop
 
 # Bokeh imports
-from bokeh.document import Document
-from bokeh.io.state import curstate
+from bokeh.client.states import NOT_YET_CONNECTED
 
 # Module under test
-import bokeh.io.doc as bid
+import bokeh.client.connection as bcc
 
 #-----------------------------------------------------------------------------
 # API Definition
@@ -39,16 +39,26 @@ api = {
 
     PUBLIC: (
 
-        ( 'curdoc', (1, 0, 0) ),
-
     ), INTERNAL: (
 
-        ( 'set_curdoc', (1, 0, 0) ),
+        ( 'ClientConnection',                     (1, 0, 0) ),
+        ( 'ClientConnection.connected.fget',      (1, 0, 0) ),
+        ( 'ClientConnection.io_loop.fget',        (1, 0, 0) ),
+        ( 'ClientConnection.url.fget',            (1, 0, 0) ),
+        ( 'ClientConnection.connect',             (1, 0, 0) ),
+        ( 'ClientConnection.close',               (1, 0, 0) ),
+        ( 'ClientConnection.force_roundtrip',     (1, 0, 0) ),
+        ( 'ClientConnection.loop_until_closed',   (1, 0, 0) ),
+        ( 'ClientConnection.pull_doc',            (1, 0, 0) ),
+        ( 'ClientConnection.push_doc',            (1, 0, 0) ),
+        ( 'ClientConnection.request_server_info', (1, 0, 0) ),
+        ( 'ClientConnection.send_message',        (1, 0, 0) ),
+
     )
 
 }
 
-test_public_api, test_internal_api, test_all_declared, test_all_tested = verify_api(bid, api)
+test_public_api, test_internal_api, test_all_declared, test_all_tested = verify_api(bcc, api)
 
 #-----------------------------------------------------------------------------
 # Setup
@@ -58,17 +68,22 @@ test_public_api, test_internal_api, test_all_declared, test_all_tested = verify_
 # Public API
 #-----------------------------------------------------------------------------
 
-def test_curdoc_from_curstate():
-    assert bid.curdoc() is curstate().document
-
 #-----------------------------------------------------------------------------
 # Internal API
 #-----------------------------------------------------------------------------
 
-def test_set_curdoc_sets_curstate():
-    d = Document()
-    bid.set_curdoc(d)
-    assert curstate().document is d
+class Test_ClientConnection(object):
+
+    def test_creation(self):
+        c = bcc.ClientConnection("session", "wsurl")
+        assert c.url == "wsurl"
+        assert c.connected == False
+        assert isinstance(c.io_loop, IOLoop)
+
+        assert c._session == "session"
+        assert isinstance(c._state, NOT_YET_CONNECTED)
+        assert c._until_predicate == None
+        assert c._server_info == None
 
 #-----------------------------------------------------------------------------
 # Private API

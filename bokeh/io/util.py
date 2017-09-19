@@ -15,7 +15,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
-logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 from bokeh.util.api import public, internal ; public, internal
 
@@ -27,6 +27,18 @@ from bokeh.util.api import public, internal ; public, internal
 from os import getcwd
 from os.path import dirname, basename, splitext, join
 from tempfile import NamedTemporaryFile
+
+# External imports
+
+# Bokeh imports
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Public API
+#-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
 # Internal API
@@ -112,3 +124,7 @@ def _shares_exec_prefix(basedir):
     import sys
     prefix = sys.exec_prefix
     return (prefix is not None and basedir.startswith(prefix))
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

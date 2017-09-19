@@ -1,12 +1,50 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Provide a low-level wrapper for Tornado Websockets that adds locking
 and smooths some compatibility issues.
 
 '''
-from __future__ import absolute_import, print_function
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+from bokeh.util.api import public, internal ; public, internal
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
 from tornado import gen, locks
 from tornado.websocket import WebSocketError
 
+# Bokeh imports
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Public API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Internal API
+#-----------------------------------------------------------------------------
+
+@internal((1,0,0))
 class WebSocketClientConnectionWrapper(object):
     ''' Used for compat across Tornado versions and to add write_lock'''
 
@@ -18,7 +56,10 @@ class WebSocketClientConnectionWrapper(object):
         # messages atomically.
         self.write_lock = locks.Lock()
 
+    # Internal methods --------------------------------------------------------
+
     @gen.coroutine
+    @internal((1,0,0))
     def write_message(self, message, binary=False, locked=True):
         ''' Write a message to the websocket after obtaining the appropriate
         Bokeh Document lock.
@@ -45,12 +86,22 @@ class WebSocketClientConnectionWrapper(object):
         else:
             write_message_unlocked()
 
+    @internal((1,0,0))
     def close(self, code=None, reason=None):
         ''' Close the websocket. '''
         return self._socket.close(code, reason)
 
+    @internal((1,0,0))
     def read_message(self, callback=None):
         ''' Read a message from websocket and execute a callback.
 
         '''
         return self._socket.read_message(callback)
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

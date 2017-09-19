@@ -15,7 +15,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
-logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 from bokeh.util.api import public, internal ; public, internal
 
@@ -27,6 +27,8 @@ from bokeh.util.api import public, internal ; public, internal
 import io
 from os.path import abspath
 from warnings import warn
+
+# External imports
 
 # Bokeh imports
 from ..util.string import decode_utf8
@@ -82,6 +84,10 @@ def save(obj, filename=None, resources=None, title=None, state=None, **kwargs):
     filename, resources, title = _get_save_args(state, filename, resources, title)
     _save_helper(obj, filename, resources, title)
     return abspath(filename)
+
+#-----------------------------------------------------------------------------
+# Internal API
+#-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
 # Private API
@@ -142,3 +148,7 @@ def _save_helper(obj, filename, resources, title):
 
     with io.open(filename, mode="w", encoding="utf-8") as f:
         f.write(decode_utf8(html))
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

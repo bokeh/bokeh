@@ -15,7 +15,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
-logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 from bokeh.util.api import public, internal ; public, internal
 
@@ -27,6 +27,8 @@ from bokeh.util.api import public, internal ; public, internal
 import json
 from warnings import warn
 from uuid import uuid4
+
+# External imports
 
 # Bokeh imports
 from .state import curstate
@@ -64,7 +66,7 @@ class CommsHandle(object):
             p_prompt = list(hm.get_tail(1, include_latest=True))[0][1]
             self._cellno = p_prompt
         except Exception as e:
-            logger.debug("Could not get Notebook cell number, reason: %s", e)
+            log.debug("Could not get Notebook cell number, reason: %s", e)
 
         self._comms = comms
         self._doc = cell_doc
@@ -298,7 +300,7 @@ def destroy_server(server_id):
     '''
     server = curstate().uuid_to_server.get(server_id, None)
     if server is None:
-        logger.debug("No server instance found for uuid: %r" % server_id)
+        log.debug("No server instance found for uuid: %r" % server_id)
         return
 
     try:
@@ -308,7 +310,7 @@ def destroy_server(server_id):
         del curstate().uuid_to_server[server_id]
 
     except Exception as e:
-        logger.debug("Could not destroy server for id %r: %s" % (server_id, e))
+        log.debug("Could not destroy server for id %r: %s" % (server_id, e))
 
 @internal((1,0,0))
 def get_comms(target_name):
@@ -491,3 +493,7 @@ def _loading_js(resources, element_id, custom_models_js, load_timeout=5000, regi
         timeout   = load_timeout,
         register_mime = register_mime
     )
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

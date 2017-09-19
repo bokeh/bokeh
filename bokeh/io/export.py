@@ -15,7 +15,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
-logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 from bokeh.util.api import public, internal ; public, internal
 
@@ -29,11 +29,17 @@ from os.path import abspath, devnull
 from tempfile import NamedTemporaryFile
 from warnings import warn
 
+# External imports
+
 # Bokeh imports
 from ..resources import INLINE
 from ..util.dependencies import import_required, detect_phantomjs
 from .saving import save
 from .util import default_filename
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
 # Public API
@@ -119,7 +125,7 @@ def export_svgs(obj, filename=None, height=None, width=None, webdriver=None):
     svgs = get_svgs(obj, height=height, width=width, driver=webdriver)
 
     if len(svgs) == 0:
-        logger.warn("No SVG Plots were found.")
+        log.warn("No SVG Plots were found.")
         return
 
     if filename is None:
@@ -252,14 +258,14 @@ def wait_until_render_complete(driver):
     try:
         WebDriverWait(driver, 5, poll_frequency=0.1).until(is_bokeh_render_complete)
     except TimeoutException:
-        logger.warn("The webdriver raised a TimeoutException while waiting for \
+        log.warn("The webdriver raised a TimeoutException while waiting for \
                      a 'bokeh:idle' event to signify that the layout has rendered. \
                      Something may have gone wrong.")
     finally:
         browser_logs = driver.get_log('browser')
         severe_errors = [l for l in browser_logs if l.get('level') == 'SEVERE']
         if len(severe_errors) > 0:
-            logger.warn("There were severe browser errors that may have affected your export: {}".format(severe_errors))
+            log.warn("There were severe browser errors that may have affected your export: {}".format(severe_errors))
 
 #-----------------------------------------------------------------------------
 # Private API
@@ -299,3 +305,7 @@ def _crop_image(image, left=0, top=0, right=0, bottom=0, **kwargs):
 
     '''
     return image.crop((left, top, right, bottom))
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
