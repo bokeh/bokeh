@@ -344,7 +344,7 @@ def _get_range(range_input):
         return FactorRange(factors=sorted(list(range_input.groups.keys())))
     if isinstance(range_input, Range):
         return range_input
-    if isinstance(range_input, Sequence):
+    if isinstance(range_input, (Sequence, np.ndarray)):
         if all(isinstance(x, string_types) for x in range_input):
             return FactorRange(factors=list(range_input))
         if len(range_input) == 2:
