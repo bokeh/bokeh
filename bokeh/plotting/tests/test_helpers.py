@@ -177,6 +177,19 @@ def test__get_scale_factor_range():
     s = _get_scale(FactorRange(), "auto")
     assert isinstance(s, CategoricalScale)
 
+def test__get_range_with_ndarray():
+    import numpy as np
+    r = _get_range(np.array([10, 20]))
+    assert isinstance(r, Range1d)
+    assert r.start == 10
+    assert r.end == 20
+
+def test__get_range_with_ndarray_factors():
+    import numpy as np
+    f = np.array(["Crosby", "Stills", "Nash", "Young"])
+    r = _get_range(f)
+    assert isinstance(r, FactorRange)
+
 def test__get_range_with_None():
     r = _get_range(None)
     assert isinstance(r, DataRange1d)
