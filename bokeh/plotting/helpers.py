@@ -11,7 +11,7 @@ import numpy as np
 import sys
 from six import string_types, reraise
 
-from ..models import (
+from bokeh.models import (
     BoxSelectTool, BoxZoomTool, CategoricalAxis,
     TapTool, CrosshairTool, DataRange1d, DatetimeAxis,
     FactorRange, Grid, HelpTool, HoverTool, LassoSelectTool, Legend, LegendItem, LinearAxis,
@@ -19,12 +19,12 @@ from ..models import (
     SaveTool, Range, Range1d, UndoTool, RedoTool, ResetTool, ResizeTool, Tool,
     WheelPanTool, WheelZoomTool, ColumnarDataSource, ColumnDataSource,
     LogScale, LinearScale, CategoricalScale, Circle, MultiLine)
-from ..models.renderers import GlyphRenderer
+from bokeh.models.renderers import GlyphRenderer
 
-from ..core.properties import ColorSpec, Datetime, value, field
-from ..transform import stack
-from ..util.dependencies import import_optional
-from ..util.string import nice_join
+from bokeh.core.properties import ColorSpec, Datetime, value, field
+from bokeh.transform import stack
+from bokeh.util.dependencies import import_optional
+from bokeh.util.string import nice_join
 
 pd = import_optional('pandas')
 
