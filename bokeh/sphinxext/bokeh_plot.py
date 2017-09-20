@@ -67,10 +67,10 @@ The inline example code above produces the following output:
 from __future__ import absolute_import
 
 import ast
-import hashlib
 from os import getenv
 from os.path import basename, dirname, join
 import re
+from uuid import uuid4
 
 from docutils import nodes
 from docutils.parsers.rst import Directive, Parser
@@ -178,7 +178,7 @@ class PlotScriptParser(Parser):
             lineno = m.body[0].lineno # assumes docstring is m.body[0]
             source = "\n".join(lines[lineno:])
 
-        js_name = "bokeh-plot-%s.js" % hashlib.md5(env.docname.encode('utf-8')).hexdigest()
+        js_name = "bokeh-plot-%s.js" % uuid4().hex
 
         (script, js, js_path, source) = _process_script(source, filename, env.bokeh_plot_auxdir, js_name)
 
@@ -219,8 +219,7 @@ class BokehPlotDirective(Directive):
             source = '\n'.join(self.content)
             # need docname not to look like a path
             docname = env.docname.replace("/", "-")
-            serialno = env.new_serialno(env.docname)
-            js_name = "bokeh-plot-%s-inline-%d.js" % (docname, serialno)
+            js_name = "bokeh-plot-%s-inline-%s.js" % (docname, uuid4().hex)
             # the code runner just needs a real path to cd to, this will do
             path = join(env.bokeh_plot_auxdir, js_name)
 
@@ -242,8 +241,7 @@ class BokehPlotDirective(Directive):
                 source = open(self.arguments[0]).read()
                 source = decode_utf8(source)
                 docname = env.docname.replace("/", "-")
-                serialno = env.new_serialno(env.docname)
-                js_name = "bokeh-plot-%s-external-%d.js" % (docname, serialno)
+                js_name = "bokeh-plot-%s-external-%s.js" % (docname, uuid4().hex)
                 (script, js, js_path, source) = _process_script(source, self.arguments[0], env.bokeh_plot_auxdir, js_name)
                 env.bokeh_plot_files[js_name] = (script, js, js_path, source)
 
