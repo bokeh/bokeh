@@ -187,6 +187,20 @@ def test__get_range_with_Range():
         r = _get_range(rng)
         assert r is rng
 
+def test__get_range_with_ndarray():
+    import numpy as np
+    r = _get_range(np.array([10, 20]))
+    assert isinstance(r, Range1d)
+    assert r.start == 10
+    assert r.end == 20
+
+def test__get_range_with_ndarray_factors():
+    import numpy as np
+    f = np.array(["Crosby", "Stills", "Nash", "Young"])
+    r = _get_range(f)
+    assert isinstance(r, FactorRange)
+    assert r.factors == list(f)
+
 def test__get_range_with_string_seq():
     f = ["foo" ,"end", "baz"]
     for t in [list, tuple]:
