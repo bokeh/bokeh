@@ -301,7 +301,7 @@ def gridplot(*args, **kwargs):
             toolbar will be located, with respect to the grid. Default is
             ``above``. If set to None, no toolbar will be attached to the grid.
 
-        ncols ``Int`` (optional): Specify the number of columns you would like in your grid.
+        ncols (int, optional): Specify the number of columns you would like in your grid.
             You must only pass an un-nested list of plots (as opposed to a list of lists of plots)
             when using ncols.
 
