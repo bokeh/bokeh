@@ -11,7 +11,6 @@ from ..core.has_props import abstract
 from ..core.properties import Bool, Enum, Int, Instance, List, Seq, String
 from ..core.validation import warning
 from ..core.validation.warnings import BOTH_CHILD_AND_ROOT, EMPTY_LAYOUT
-from ..embed import notebook_div
 from ..model import Model
 
 @abstract
@@ -63,11 +62,6 @@ class LayoutDOM(Model):
     A list of css class names to add to this DOM element. Note: the class names are
     simply added as-is, no other guarantees are provided.
     """)
-
-    @property
-    def html(self):
-        from IPython.core.display import HTML
-        return HTML(notebook_div(self))
 
 
 class Spacer(LayoutDOM):

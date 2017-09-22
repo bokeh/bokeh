@@ -9,7 +9,6 @@
 .. bokeh-jinja:: bokeh.core.templates.FILE
 .. bokeh-jinja:: bokeh.core.templates.JS_RESOURCES
 .. bokeh-jinja:: bokeh.core.templates.NOTEBOOK_LOAD
-.. bokeh-jinja:: bokeh.core.templates.NOTEBOOK_DIV
 .. bokeh-jinja:: bokeh.core.templates.PLOT_DIV
 .. bokeh-jinja:: bokeh.core.templates.SCRIPT_TAG
 
@@ -36,8 +35,6 @@ DOC_JS = _env.get_template("doc_js.js")
 FILE = _env.get_template("file.html")
 
 NOTEBOOK_LOAD = _env.get_template("notebook_load.html")
-
-NOTEBOOK_DIV = _env.get_template("notebook_div.html")
 
 AUTOLOAD_JS = _env.get_template("autoload_js.js")
 

@@ -5,7 +5,7 @@ import unittest
 
 import bs4
 
-from bokeh.core.templates import DOC_JS, PLOT_DIV, NOTEBOOK_DIV
+from bokeh.core.templates import DOC_JS, PLOT_DIV
 from bokeh.core.json_encoder import serialize_json
 
 import bokeh.embed as embed
@@ -146,19 +146,6 @@ class TestNotebookContent(unittest.TestCase):
                                         render_items=serialize_json(render_items))
 
         self.assertEqual(script, expected_script)
-
-class TestNotebookDiv(unittest.TestCase):
-
-    @mock.patch('bokeh.embed.notebook_content')
-    def test_notebook_div(self, mock_notebook_content):
-        (script, div, doc) = ("(function(){})()", "<div></div>", "doc")
-        mock_notebook_content.return_value = (script, div, doc)
-
-        notebook_div = embed.notebook_div(_embed_test_plot)
-
-        expected_notebook_div = NOTEBOOK_DIV.render(plot_script=script, plot_div=div)
-
-        self.assertEqual(notebook_div, expected_notebook_div)
 
 class TestFileHTML(unittest.TestCase):
 

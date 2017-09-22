@@ -22,7 +22,7 @@ from six import string_types
 from six.moves.urllib.parse import urlparse, quote_plus
 
 from .core.templates import (
-    AUTOLOAD_JS, AUTOLOAD_TAG, DOC_JS, FILE, NOTEBOOK_DIV, PLOT_DIV, SCRIPT_TAG)
+    AUTOLOAD_JS, AUTOLOAD_TAG, DOC_JS, FILE, PLOT_DIV, SCRIPT_TAG)
 from .core.json_encoder import serialize_json
 from .document import Document, DEFAULT_TITLE
 from .model import Model
@@ -375,39 +375,6 @@ def notebook_content(model, notebook_comms_target=None, theme=FromCurdoc):
     div = _div_for_render_item(item)
 
     return encode_utf8(script), encode_utf8(div), new_doc
-
-def notebook_div(model, notebook_comms_target=None, theme=FromCurdoc):
-    ''' Return HTML for a div that will display a Bokeh plot in a
-    Jupyter Notebook.
-
-    The data for the plot is stored directly in the returned HTML.
-
-    Args:
-        model (Model) : Bokeh object to render
-        notebook_comms_target (str, optional) :
-            A target name for a Jupyter Comms object that can update
-            the document that is rendered to this notebook div
-        theme (Theme, optional) :
-            Defaults to the ``Theme`` instance in the current document.
-            Setting this to ``None`` uses the default theme or the theme
-            already specified in the document. Any other value must be an
-            instance of the ``Theme`` class.
-
-    Returns:
-        UTF-8 encoded HTML text for a ``<div>``
-
-    .. note::
-        Assumes :func:`~bokeh.io.notebook.load_notebook` or the equivalent
-        has already been executed.
-
-    '''
-    (js, div, _) = notebook_content(model, notebook_comms_target=notebook_comms_target, theme=theme)
-
-    html = NOTEBOOK_DIV.render(
-        plot_script = js,
-        plot_div = div,
-    )
-    return encode_utf8(html)
 
 def file_html(models,
               resources,
