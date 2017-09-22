@@ -38,7 +38,7 @@ ALL = (
     'pull_session',
     'push_session',
     'show_session',
-    'DEFAULT_SESSION_ID'
+    'DEFAULT_SESSION_ID',
 )
 
 #-----------------------------------------------------------------------------
