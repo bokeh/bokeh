@@ -174,6 +174,7 @@ export class GlyphView extends View
   set_data: (source, indices, indices_to_update) ->
     data = @model.materialize_dataspecs(source)
 
+    @visuals.set_all_indices(indices)
     if indices and not (@ instanceof LineView)
       data_subset = {}
       for k, v of data
