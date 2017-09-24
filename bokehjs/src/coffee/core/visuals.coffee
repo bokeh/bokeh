@@ -31,9 +31,9 @@ class ContextProperties
       @cache[attr] = @cache[attr+"_array"][i]
 
   set_vectorize: (ctx, i) ->
-    if @all_indices?
+    if @all_indices? #all_indices is set by a Visuals instance associated with a CDSView
       @_set_vectorize(ctx, @all_indices[i])
-    else
+    else #all_indices is not set for annotations which may have vectorized visual props
       @_set_vectorize(ctx, i)
 
 export class Line extends ContextProperties
