@@ -52,7 +52,7 @@ from ..util.string import encode_utf8, indent
 #-----------------------------------------------------------------------------
 
 @internal((1,0,0))
-class FromCurdoc:
+class FromCurdoc(object):
     ''' This class merely provides a non-None default value for ``theme``
     arguments, since ``None`` itself is a meaningful value for users to pass.
 
