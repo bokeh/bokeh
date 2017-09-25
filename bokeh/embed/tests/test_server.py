@@ -271,12 +271,16 @@ class Test__process_arguments(object):
 
     def test_args(self):
         args = dict(foo=10, bar="baz")
-        assert bes._process_arguments(args) == "&foo=10&bar=baz"
+        r = bes._process_arguments(args)
+        # order unspecified
+        assert r == "&foo=10&bar=baz" or r == "&bar=baz&foo=10"
 
     def test_args_ignores_bokeh_prefixed(self):
         args = dict(foo=10, bar="baz")
         args["bokeh-junk"] = 20
-        assert bes._process_arguments(args) == "&foo=10&bar=baz"
+        r = bes._process_arguments(args)
+        # order unspecified
+        assert r == "&foo=10&bar=baz" or r == "&bar=baz&foo=10"
 
 class Test__process_app_path(object):
 
