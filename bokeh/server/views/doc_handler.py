@@ -8,7 +8,7 @@ log = logging.getLogger(__name__)
 
 from tornado import gen
 
-from bokeh.embed import server_html_page_for_session
+from bokeh.embed.server import server_html_page_for_session
 
 from .session_handler import SessionHandler
 
