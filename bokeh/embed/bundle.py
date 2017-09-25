@@ -46,6 +46,18 @@ from ..resources import BaseResources
 
 @internal((1,0,0))
 def bundle_for_objs_and_resources(objs, resources):
+    ''' Generate rendered CSS and JS resources suitable for the given
+    collection of Bokeh objects
+
+    Args:
+        objs (seq[Model or Document]) :
+
+        resources (BaseResources or tuple[BaseResources])
+
+    Returns:
+        tuple
+
+    '''
     if isinstance(resources, BaseResources):
         js_resources = css_resources = resources
     elif isinstance(resources, tuple) and len(resources) == 2 and all(r is None or isinstance(r, BaseResources) for r in resources):
@@ -95,6 +107,17 @@ def bundle_for_objs_and_resources(objs, resources):
 #-----------------------------------------------------------------------------
 
 def _any(objs, query):
+    ''' Whether any of a collection of objects satisfies a given query predicate
+
+    Args:
+        objs (seq[Model or Document]) :
+
+        query (callable)
+
+    Returns:
+        True, if ``query(obj)`` is True for some object in ``objs``, else False
+
+    '''
     for obj in objs:
         if isinstance(obj, Document):
             if _any(obj.roots, query):
@@ -106,14 +129,41 @@ def _any(objs, query):
         return False
 
 def _use_gl(objs):
+    ''' Whether a collection of Bokeh objects contains a plot requesting WebGL
+
+    Args:
+        objs (seq[Model or Document]) :
+
+    Returns:
+        bool
+
+    '''
     from ..models.plots import Plot
     return _any(objs, lambda obj: isinstance(obj, Plot) and obj.output_backend == "webgl")
 
 def _use_tables(objs):
+    ''' Whether a collection of Bokeh objects contains a TableWidget
+
+    Args:
+        objs (seq[Model or Document]) :
+
+    Returns:
+        bool
+
+    '''
     from ..models.widgets import TableWidget
     return _any(objs, lambda obj: isinstance(obj, TableWidget))
 
 def _use_widgets(objs):
+    ''' Whether a collection of Bokeh objects contains a any Widget
+
+    Args:
+        objs (seq[Model or Document]) :
+
+    Returns:
+        bool
+
+    '''
     from ..models.widgets import Widget
     return _any(objs, lambda obj: isinstance(obj, Widget))
 

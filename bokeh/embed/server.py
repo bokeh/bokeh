@@ -195,29 +195,22 @@ def server_session(model, session_id, url="default", relative_urls=False, resour
 #-----------------------------------------------------------------------------
 
 @internal((1,0,0))
-def server_html_page_for_models(session_id, model_ids, resources, title, template=FILE):
-    '''
-
-    '''
-    render_items = []
-    for modelid in model_ids:
-        if modelid is None:
-            raise ValueError("None found in list of model_ids")
-
-        elementid = make_id()
-
-        render_items.append({
-            'sessionid' : session_id,
-            'elementid' : elementid,
-            'modelid' : modelid
-            })
-
-    bundle = bundle_for_objs_and_resources(None, resources)
-    return html_page_for_render_items(bundle, {}, render_items, title, template=template)
-
-@internal((1,0,0))
 def server_html_page_for_session(session_id, resources, title, template=FILE, template_variables=None):
     '''
+
+    Args:
+        session_id (str) :
+
+        resources (Resources) :
+
+        title (str) :
+
+        template (Template) :
+
+        template_variables (dict) :
+
+    Returns:
+        str
 
     '''
     elementid = make_id()
@@ -239,7 +232,15 @@ def server_html_page_for_session(session_id, resources, title, template=FILE, te
 #-----------------------------------------------------------------------------
 
 def _clean_url(url):
-    '''
+    ''' Produce a canonical Bokeh server URL.
+
+    Args:
+        url (str)
+            A URL to clean, or "defatul". If "default" then the
+            ``BOKEH_SERVER_HTTP_URL`` will be returned.
+
+    Returns:
+        str
 
     '''
     if url == 'default':
@@ -251,18 +252,29 @@ def _clean_url(url):
     return url.rstrip("/")
 
 def _get_app_path(url):
-    '''
+    ''' Extract the app path from a Bokeh server URL
+
+    Args:
+        url (str) :
+
+    Returns:
+        str
 
     '''
-    if url == "default": return ""
-
     app_path = urlparse(url).path.rstrip("/")
     if not app_path.startswith("/"):
         app_path = "/" + app_path
     return app_path
 
 def _process_arguments(arguments):
-    '''
+    ''' Return user-supplied HTML arguments to add to a Bokeh server URL.
+
+    Args:
+        arguments (dict[str, object]) :
+            Key/value pairs to add to the URL
+
+    Returns:
+        str
 
     '''
     if arguments is None: return ""
@@ -273,21 +285,44 @@ def _process_arguments(arguments):
     return result
 
 def _process_app_path(app_path):
-    '''
+    ''' Return an app path HTML argument to add to a Bokeh server URL.
+
+    Args:
+        app_path (str) :
+            The app path to add. If the app path is ``/`` then it will be
+            ignored and an empty string returned.
 
     '''
     if app_path == "/": return ""
     return "&bokeh-app-path=" + app_path
 
 def _process_relative_urls(relative_urls, url):
-    '''
+    ''' Return an absolute URL HTML argument to add to a Bokeh server URL, if
+    requested.
+
+    Args:
+        relative_urls (book) :
+            If false, generate an absolute URL to add.
+
+        url (str) :
+            The absolute URL to add as an HTML argument
+
+    Returns:
+        str
 
     '''
     if relative_urls: return ""
     return "&bokeh-absolute-url=" + url
 
 def _process_resources(resources):
-    '''
+    ''' Return an argument to suppress normal Bokeh server resources, if requested.
+
+    Args:
+        resources ("default" or None) :
+            If None, return an HTML argument to suppress default resources.
+
+    Returns:
+        str
 
     '''
     if resources not in ("default", None):
@@ -297,13 +332,30 @@ def _process_resources(resources):
     return ""
 
 def _process_session_id(session_id):
-    '''
+    ''' Return a session ID HTML argument to add to a Bokeh serrver URL
+
+    Args:
+        session_id (str) :
+            The session id to use
+
+    Returns:
+        str
 
     '''
     return "&bokeh-session-id=" + session_id
 
 def _src_path(url, elementid):
-    '''
+    ''' Return a base autoload URL for a given element ID
+
+    Args:
+        url (str) :
+            The base server URL
+
+        elementid (str) :
+            The div ID for autload to target
+
+    Returns:
+        str
 
     '''
     return url + "/autoload.js?bokeh-autoload-element=" + elementid

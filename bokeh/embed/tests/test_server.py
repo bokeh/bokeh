@@ -43,7 +43,6 @@ api = {
 
     ), INTERNAL: (
 
-        ( 'server_html_page_for_models',  (1, 0, 0) ),
         ( 'server_html_page_for_session', (1, 0, 0) ),
 
     )
@@ -253,9 +252,6 @@ class Test__clean_url(object):
         assert bes._clean_url("http://foo/bar/") == "http://foo/bar"
 
 class Test__get_app_path(object):
-
-    def test_default(self):
-        assert bes._get_app_path("default") == ""
 
     def test_arg(self):
         assert bes._get_app_path("foo") == "/foo"
