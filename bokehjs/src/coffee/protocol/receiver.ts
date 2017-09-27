@@ -1,62 +1,73 @@
-import {Message} from "protocol/message"
+import {Message, Header} from "protocol/message"
 
-export class Receiver
+export type Fragment = any
 
-  constructor: () ->
-    @message = null
-    @_current_consumer = @_HEADER
+export class Receiver {
 
-  consume: (fragment) ->
-    @_current_consumer(fragment)
-    return null
+  message: Message | null = null
 
-  _HEADER: (fragment) ->
-    @_assume_text(fragment)
-    @message = null
-    @_partial = null
-    @_fragments = [fragment]
-    @_buf_header = null
-    @_current_consumer = @_METADATA
-    return null
+  protected _partial: Message | null = null
 
-  _METADATA: (fragment) ->
-    @_assume_text(fragment)
-    @_fragments.push(fragment)
-    @_current_consumer = @_CONTENT
-    return null
+  protected _fragments: Fragment[] = []
 
-  _CONTENT: (fragment) ->
-    @_assume_text(fragment)
-    @_fragments.push(fragment)
-    [header_json, metadata_json, content_json] = @_fragments.slice(0, 3)
-    @_partial = Message.assemble(header_json, metadata_json, content_json)
-    @_check_complete()
-    return null
+  protected _buf_header: Header | null = null
 
-  _BUFFER_HEADER: (fragment) ->
-    @_assume_text(fragment)
-    @_buf_header = fragment
-    @_current_consumer = @_BUFFER_PAYLOAD
-    return null
+  protected _current_consumer: (fragment: Fragment) => void = this._HEADER
 
-  _BUFFER_PAYLOAD: (fragment) ->
-    @_assume_binary(fragment)
-    @_partial.assemble_buffer(@_buf_header, fragment)
-    @_check_complete()
-    return null
+  consume(fragment: Fragment): void {
+    this._current_consumer(fragment)
+  }
 
-  _assume_text: (fragment) ->
-    if fragment instanceof ArrayBuffer
+  _HEADER(fragment: Fragment): void {
+    this._assume_text(fragment)
+    this.message = null
+    this._partial = null
+    this._fragments = [fragment]
+    this._buf_header = null
+    this._current_consumer = this._METADATA
+  }
+
+  _METADATA(fragment: Fragment): void {
+    this._assume_text(fragment)
+    this._fragments.push(fragment)
+    this._current_consumer = this._CONTENT
+  }
+
+  _CONTENT(fragment: Fragment): void {
+    this._assume_text(fragment)
+    this._fragments.push(fragment)
+    const [header_json, metadata_json, content_json] = this._fragments.slice(0, 3)
+    this._partial = Message.assemble(header_json, metadata_json, content_json)
+    this._check_complete()
+  }
+
+  _BUFFER_HEADER(fragment: Fragment): void {
+    this._assume_text(fragment)
+    this._buf_header = fragment
+    this._current_consumer = this._BUFFER_PAYLOAD
+  }
+
+  _BUFFER_PAYLOAD(fragment: Fragment): void {
+    this._assume_binary(fragment)
+    this._partial!.assemble_buffer(this._buf_header!, fragment)
+    this._check_complete()
+  }
+
+  _assume_text(fragment: Fragment): void {
+    if (fragment instanceof ArrayBuffer)
       throw new Error("Expected text fragment but received binary fragment")
+  }
 
-  _assume_binary: (fragment) ->
-    if fragment not instanceof ArrayBuffer
+  _assume_binary(fragment: Fragment): void {
+    if (!(fragment instanceof ArrayBuffer))
       throw new Error("Expected binary fragment but received text fragment")
+  }
 
-  _check_complete: () ->
-    if @_partial.complete()
-      @message = @_partial
-      @_current_consumer = @_HEADER
-    else
-      @_current_consumer = @_BUFFER_HEADER
-    return null
+  _check_complete(): void {
+    if (this._partial!.complete()) {
+      this.message = this._partial
+      this._current_consumer = this._HEADER
+    } else
+      this._current_consumer = this._BUFFER_HEADER
+  }
+}
