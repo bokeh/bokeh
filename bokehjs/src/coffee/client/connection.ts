@@ -6,265 +6,322 @@ import {Message} from "protocol/message"
 import {Receiver} from "protocol/receiver"
 import {ClientSession} from "./session"
 
-export DEFAULT_SERVER_WEBSOCKET_URL = "ws://localhost:5006/ws"
-export DEFAULT_SESSION_ID = "default"
+export const DEFAULT_SERVER_WEBSOCKET_URL = "ws://localhost:5006/ws"
+export const DEFAULT_SESSION_ID = "default"
 
-export class ClientConnection
+let _connection_count: number = 0
 
-  @_connection_count: 0
+export type Rejecter = (error: Error | string) => void
 
-  constructor: (@url, @id, @args_string, @_on_have_session_hook, @_on_closed_permanently_hook) ->
-    @_number = ClientConnection._connection_count
-    ClientConnection._connection_count = @_number + 1
-    if not @url?
-      @url = DEFAULT_SERVER_WEBSOCKET_URL
-    if not @id?
-      @id = DEFAULT_SESSION_ID
+export class ClientConnection {
 
-    logger.debug("Creating websocket #{@_number} to '#{@url}' session '#{@id}'")
+  protected readonly _number = _connection_count++
 
-    @socket = null
-    @session = null
-    @closed_permanently = false
-    @_current_handler = null
-    @_pending_ack = null # null or [resolve,reject]
-    @_pending_replies = {} # map reqid to [resolve,reject]
-    @_receiver = new Receiver()
+  socket: WebSocket | null = null
+  session: ClientSession | null = null
 
-  connect: () ->
-    if @closed_permanently
+  closed_permanently: boolean = false
+
+  protected _current_handler: ((message: Message) => void) | null = null
+  protected _pending_ack: [(connection: ClientConnection) => void, Rejecter] | null = null // null or [resolve,reject]
+  protected _pending_replies: {[key: string]: [(message: Message) => void, Rejecter]} = {} // map reqid to [resolve,reject]
+  protected readonly _receiver: Receiver = new Receiver()
+
+  constructor(readonly url: string = DEFAULT_SERVER_WEBSOCKET_URL,
+              readonly id: string = DEFAULT_SESSION_ID,
+              readonly args_string: string | null = null,
+              protected _on_have_session_hook: ((session: ClientSession) => void) | null = null,
+              protected _on_closed_permanently_hook: (() => void) | null = null) {
+
+    logger.debug(`Creating websocket ${this._number} to '${this.url}' session '${this.id}'`)
+  }
+
+  connect(): Promise<ClientConnection> {
+    if (this.closed_permanently)
       return Promise.reject(new Error("Cannot connect() a closed ClientConnection"))
-    if @socket?
+    if (this.socket != null)
       return Promise.reject(new Error("Already connected"))
 
-    @_pending_replies = {}
-    @_current_handler = null
+    this._pending_replies = {}
+    this._current_handler = null
 
-    try
-      versioned_url = "#{@url}?bokeh-protocol-version=1.0&bokeh-session-id=#{@id}"
-      if @args_string?.length > 0
-        versioned_url += "&#{@args_string}"
-      if window.MozWebSocket?
-        @socket = new MozWebSocket(versioned_url)
-      else
-        @socket = new WebSocket(versioned_url)
+    try {
+      let versioned_url = `${this.url}?bokeh-protocol-version=1.0&bokeh-session-id=${this.id}`
+      if (this.args_string != null && this.args_string.length > 0)
+        versioned_url += `&${this.args_string}`
 
-      new Promise (resolve, reject) =>
-        # "arraybuffer" gives us binary data we can look at;
-        # if we just needed an opaque blob we could use "blob"
-        @socket.binaryType = "arraybuffer"
-        @socket.onopen = () => @_on_open(resolve, reject)
-        @socket.onmessage = (event) => @_on_message(event)
-        @socket.onclose = (event) => @_on_close(event)
-        @socket.onerror = () => @_on_error(reject)
-    catch error
-      logger.error("websocket creation failed to url: #{@url}")
-      logger.error(" - #{error}")
-      Promise.reject(error)
+      this.socket = new WebSocket(versioned_url)
 
-  close: () ->
-    if not @closed_permanently
-      logger.debug("Permanently closing websocket connection #{@_number}")
-      @closed_permanently = true
-      if @socket?
-        @socket.close(1000, "close method called on ClientConnection #{@_number}")
-      @session._connection_closed()
-      if @_on_closed_permanently_hook?
-        @_on_closed_permanently_hook()
-        @_on_closed_permanently_hook = null
+      return new Promise((resolve, reject) => {
+        // "arraybuffer" gives us binary data we can look at;
+        // if we just needed an opaque blob we could use "blob"
+        this.socket!.binaryType = "arraybuffer"
+        this.socket!.onopen = () => this._on_open(resolve, reject)
+        this.socket!.onmessage = (event) => this._on_message(event)
+        this.socket!.onclose = (event) => this._on_close(event)
+        this.socket!.onerror = () => this._on_error(reject)
+      })
+    } catch (error) {
+      logger.error(`websocket creation failed to url: ${this.url}`)
+      logger.error(` - ${error}`)
+      return Promise.reject(error)
+    }
+  }
 
-  _schedule_reconnect: (milliseconds) ->
-    retry = () =>
-      # TODO "true or" below until we fix reconnection to repull
-      # the document when required. Otherwise, we get a lot of
-      # confusing errors that are causing trouble when debugging.
-      if true or @closed_permanently
-        if not @closed_permanently
-          logger.info("Websocket connection #{@_number} disconnected, will not attempt to reconnect")
+  close(): void {
+    if (!this.closed_permanently) {
+      logger.debug(`Permanently closing websocket connection ${this._number}`)
+      this.closed_permanently = true
+      if (this.socket != null)
+        this.socket.close(1000, `close method called on ClientConnection ${this._number}`)
+      this.session!._connection_closed()
+      if (this._on_closed_permanently_hook != null) {
+        this._on_closed_permanently_hook()
+        this._on_closed_permanently_hook = null
+      }
+    }
+  }
+
+  protected _schedule_reconnect(milliseconds: number): void {
+    const retry = () => {
+      // TODO commented code below until we fix reconnection to repull
+      // the document when required. Otherwise, we get a lot of
+      // confusing errors that are causing trouble when debugging.
+      /*
+      if (this.closed_permanently) {
+      */
+        if (!this.closed_permanently)
+          logger.info(`Websocket connection ${this._number} disconnected, will not attempt to reconnect`)
         return
-      else
-        logger.debug("Attempting to reconnect websocket #{@_number}")
-        @connect()
-    setTimeout retry, milliseconds
+      /*
+      } else {
+        logger.debug(`Attempting to reconnect websocket ${this._number}`)
+        this.connect()
+      }
+      */
+    }
+    setTimeout(retry, milliseconds)
+  }
 
-  send: (message) ->
-    if @socket == null
-      throw new Error("not connected so cannot send #{message}")
-    message.send(@socket)
+  send(message: Message): void {
+    if (this.socket == null)
+      throw new Error(`not connected so cannot send ${message}`)
+    message.send(this.socket)
+  }
 
-  send_with_reply: (message) ->
-    promise = new Promise (resolve, reject) =>
-      @_pending_replies[message.msgid()] = [resolve, reject]
-      @send(message)
+  send_with_reply(message: Message): Promise<Message> {
+    const promise = new Promise((resolve, reject) => {
+      this._pending_replies[message.msgid()] = [resolve, reject]
+      this.send(message)
+    })
 
-    promise.then(
-      (message) ->
-        if message.msgtype() == 'ERROR'
-          throw new Error("Error reply #{message.content['text']}")
+    return promise.then(
+      (message: Message) => {
+        if (message.msgtype() === "ERROR")
+          throw new Error(`Error reply ${message.content['text']}`)
         else
-          message
-      (error) ->
+          return message
+      },
+      (error) => {
         throw error
+      }
     )
+  }
 
-  _pull_doc_json : () ->
-    message = Message.create('PULL-DOC-REQ', {})
-    promise = @send_with_reply(message)
-    promise.then(
-      (reply) ->
-        if 'doc' not of reply.content
+  protected _pull_doc_json(): Promise<Message> {
+    const message = Message.create("PULL-DOC-REQ", {})
+    const promise = this.send_with_reply(message)
+    return promise.then(
+      (reply) => {
+        if (!('doc' in reply.content))
           throw new Error("No 'doc' field in PULL-DOC-REPLY")
-        reply.content['doc']
-      (error) ->
+        return reply.content['doc']
+      },
+      (error) => {
         throw error
+      }
     )
+  }
 
-  _repull_session_doc : () ->
-    if @session == null
+  protected _repull_session_doc() {
+    if (this.session == null)
       logger.debug("Pulling session for first time")
     else
       logger.debug("Repulling session")
-    @_pull_doc_json().then(
-      (doc_json) =>
-        if @session == null
-          if @closed_permanently
+    this._pull_doc_json().then(
+      (doc_json) => {
+        if (this.session == null) {
+          if (this.closed_permanently)
             logger.debug("Got new document after connection was already closed")
-          else
-            document = Document.from_json(doc_json)
+          else {
+            const document = (Document as any).from_json(doc_json)
 
-            # Constructing models changes some of their attributes, we deal with that
-            # here. This happens when models set attributes during construction
-            # or initialization.
-            patch = Document._compute_patch_since_json(doc_json, document)
-            if patch.events.length > 0
-              logger.debug("Sending #{patch.events.length} changes from model construction back to server")
-              patch_message = Message.create('PATCH-DOC', {}, patch)
-              @send(patch_message)
+            // Constructing models changes some of their attributes, we deal with that
+            // here. This happens when models set attributes during construction
+            // or initialization.
+            const patch = (Document as any)._compute_patch_since_json(doc_json, document)
+            if (patch.events.length > 0) {
+              logger.debug(`Sending ${patch.events.length} changes from model construction back to server`)
+              const patch_message = Message.create('PATCH-DOC', {}, patch)
+              this.send(patch_message)
+            }
 
-            @session = new ClientSession(@, document, @id)
+            this.session = new ClientSession(this, document, this.id)
 
             logger.debug("Created a new session from new pulled doc")
-            if @_on_have_session_hook?
-              @_on_have_session_hook(@session)
-              @_on_have_session_hook = null
-        else
-          @session.document.replace_with_json(doc_json)
+            if (this._on_have_session_hook != null) {
+              this._on_have_session_hook(this.session)
+              this._on_have_session_hook = null
+            }
+          }
+        } else {
+          this.session.document.replace_with_json(doc_json)
           logger.debug("Updated existing session with new pulled doc")
-      (error) ->
-        # handling the error here is useless because we wouldn't
-        # get errors from the resolve handler above, so see
-        # the catch below instead
+        }
+      },
+      (error) => {
+        // handling the error here is useless because we wouldn't
+        // get errors from the resolve handler above, so see
+        // the catch below instead
         throw error
-    ).catch (error) ->
-      if console.trace?
+      }
+    ).catch((error) => {
+      if (console.trace != null)
         console.trace(error)
-      logger.error("Failed to repull session #{error}")
+      logger.error(`Failed to repull session ${error}`)
+    })
+  }
 
-  _on_open: (resolve, reject) ->
-    logger.info("Websocket connection #{@_number} is now open")
-    @_pending_ack = [resolve, reject]
-    @_current_handler = (message) =>
-      @_awaiting_ack_handler(message)
+  protected _on_open(resolve: (connection: ClientConnection) => void, reject: Rejecter): void {
+    logger.info(`Websocket connection ${this._number} is now open`)
+    this._pending_ack = [resolve, reject]
+    this._current_handler = (message: Message) => {
+      this._awaiting_ack_handler(message)
+    }
+  }
 
-  _on_message: (event) ->
-    if not @_current_handler?
+  protected _on_message(event: MessageEvent): void {
+    if (this._current_handler == null)
       logger.error("Got a message with no current handler set")
 
-    try
-      @_receiver.consume(event.data)
-    catch e
-      @_close_bad_protocol(e.toString())
+    try {
+      this._receiver.consume(event.data)
+    } catch (e) {
+      this._close_bad_protocol(e.toString())
+    }
 
-    if @_receiver.message == null
-      return null
+    if (this._receiver.message == null)
+      return
 
-    msg = @_receiver.message
+    const msg = this._receiver.message
 
-    problem = msg.problem()
-    if problem != null
-      @_close_bad_protocol(problem)
+    const problem = msg.problem()
+    if (problem != null)
+      this._close_bad_protocol(problem)
 
-    @_current_handler(msg)
+    this._current_handler!(msg)
+  }
 
-  _on_close: (event) ->
-    logger.info("Lost websocket #{@_number} connection, #{event.code} (#{event.reason})")
-    @socket = null
+  protected _on_close(event: CloseEvent): void {
+    logger.info(`Lost websocket ${this._number} connection, ${event.code} (${event.reason})`)
+    this.socket = null
 
-    if @_pending_ack?
-      @_pending_ack[1](new Error("Lost websocket connection, #{event.code} (#{event.reason})"))
-      @_pending_ack = null
+    if (this._pending_ack != null) {
+      this._pending_ack[1](new Error(`Lost websocket connection, ${event.code} (${event.reason})`))
+      this._pending_ack = null
+    }
 
-    pop_pending = () =>
-      for reqid, promise_funcs of @_pending_replies
-        delete @_pending_replies[reqid]
+    const pop_pending = () => {
+      for (const reqid in this._pending_replies) {
+        const promise_funcs = this._pending_replies[reqid]
+        delete this._pending_replies[reqid]
         return promise_funcs
+      }
       return null
-    promise_funcs = pop_pending()
-    while promise_funcs != null
+    }
+    let promise_funcs = pop_pending()
+    while (promise_funcs != null) {
       promise_funcs[1]("Disconnected")
       promise_funcs = pop_pending()
-    if not @closed_permanently
-      @_schedule_reconnect(2000)
+    }
+    if (!this.closed_permanently)
+      this._schedule_reconnect(2000)
+  }
 
-  _on_error: (reject) ->
-    logger.debug("Websocket error on socket  #{@_number}")
+  protected _on_error(reject: Rejecter): void {
+    logger.debug(`Websocket error on socket ${this._number}`)
     reject(new Error("Could not open websocket"))
+  }
 
-  _close_bad_protocol: (detail) ->
-    logger.error("Closing connection: #{detail}")
-    if @socket?
-      @socket.close(1002, detail) # 1002 = protocol error
+  protected _close_bad_protocol(detail: string): void {
+    logger.error(`Closing connection: ${detail}`)
+    if (this.socket != null)
+      this.socket.close(1002, detail) // 1002 = protocol error
+  }
 
-  _awaiting_ack_handler: (message) ->
-    if message.msgtype() == "ACK"
-      @_current_handler = (message) => @_steady_state_handler(message)
+  protected _awaiting_ack_handler(message: Message): void {
+    if (message.msgtype() === "ACK") {
+      this._current_handler = (message: Message) => this._steady_state_handler(message)
 
-      # Reload any sessions
-      # TODO (havocp) there's a race where we might get a PATCH before
-      # we send and get a reply to our pulls.
-      @_repull_session_doc()
+      // Reload any sessions
+      // TODO (havocp) there's a race where we might get a PATCH before
+      // we send and get a reply to our pulls.
+      this._repull_session_doc()
 
-      if @_pending_ack?
-        @_pending_ack[0](@)
-        @_pending_ack = null
+      if (this._pending_ack != null) {
+        this._pending_ack[0](this)
+        this._pending_ack = null
+      }
+    } else
+      this._close_bad_protocol("First message was not an ACK")
+  }
 
-    else
-      @_close_bad_protocol("First message was not an ACK")
-
-  _steady_state_handler: (message) ->
-    if message.reqid() of @_pending_replies
-      promise_funcs = @_pending_replies[message.reqid()]
-      delete @_pending_replies[message.reqid()]
+  protected _steady_state_handler(message: Message): void {
+    if (message.reqid() in this._pending_replies) {
+      const promise_funcs = this._pending_replies[message.reqid()]
+      delete this._pending_replies[message.reqid()]
       promise_funcs[0](message)
-    else
-      @session.handle(message)
+    } else
+      this.session!.handle(message)
+  }
+}
 
-# Returns a promise of a ClientSession
-# The returned promise has a close() method in case you want to close before
-# getting a session; session.close() works too once you have a session.
-export pull_session = (url, session_id, args_string) ->
-  rejecter = null
-  connection = null
-  promise = new Promise (resolve, reject) ->
+// Returns a promise of a ClientSession
+// The returned promise has a close() method in case you want to close before
+// getting a session; session.close() works too once you have a session.
+export function pull_session(url: string, session_id: string, args_string?: string) {
+  let connection: ClientConnection
+
+  const promise = new Promise((resolve, reject) => {
     connection = new ClientConnection(url, session_id, args_string,
-      (session) ->
-        try
+      (session) => {
+        try {
           resolve(session)
-        catch e
-          logger.error("Promise handler threw an error, closing session #{error}")
+        } catch (error) {
+          logger.error(`Promise handler threw an error, closing session ${error}`)
           session.close()
-          throw e
-      () ->
-        # we rely on reject() as a no-op if we already resolved
-        reject(new Error("Connection was closed before we successfully pulled a session")))
-    connection.connect().then(
-      (whatever) ->
-      (error) ->
-        logger.error("Failed to connect to Bokeh server #{error}")
-        throw error
+          throw error
+        }
+      },
+      () => {
+        // we rely on reject() as a no-op if we already resolved
+        reject(new Error("Connection was closed before we successfully pulled a session"))
+      }
     )
+    return connection.connect().then(
+      (_) => undefined,
+      (error) => {
+        logger.error(`Failed to connect to Bokeh server ${error}`)
+        throw error
+      }
+    )
+  })
 
-  # add a "close" method to the promise... too weird?
-  promise.close = () ->
+  /*
+  // add a "close" method to the promise... too weird?
+  promise.close = () => {
     connection.close()
-  promise
+  }
+  */
+  return promise
+}
