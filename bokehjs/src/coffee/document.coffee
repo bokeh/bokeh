@@ -13,23 +13,32 @@ import {isArray, isObject} from "./core/util/types"
 import {LayoutDOM} from "./models/layouts/layout_dom"
 import {ColumnDataSource} from "./models/sources/column_data_source"
 
-class EventManager
-    # Dispatches events to the subscribed models
+`
+export class EventManager {
+  // Dispatches events to the subscribed models
 
-  constructor: (@document) ->
-    @session = null
-    @subscribed_models = new Set()
+  session: ClientSession | null = null
+  subscribed_models: Set<string> = new Set()
 
-  send_event: (event) ->
-    # Send message to Python via session
-    @session?.send_event(event)
+  constructor(readonly document: any /* Document */) {}
 
-  trigger: (event) ->
-    for model_id in @subscribed_models.values
-      if event.model_id != null and event.model_id != model_id
+  send_event(event: any): void {
+    // Send message to Python via session
+    if (this.session != null)
+      this.session.send_event(event)
+  }
+
+  trigger(event: any): void {
+    for (const model_id of this.subscribed_models.values) {
+      if (event.model_id != null && event.model_id !== model_id)
         continue
-      model = @document._all_models[model_id]
-      model?._process_event(event)
+      const model = this.document._all_models[model_id]
+      if (model != null)
+        model._process_event(event)
+    }
+  }
+}
+`
 
 export class DocumentChangedEvent
   constructor : (@document) ->
