@@ -8,7 +8,7 @@ sinon = require 'sinon'
 {ColumnDataSource} = utils.require('models/sources/column_data_source')
 {PlotCanvasView} = utils.require('models/plots/plot_canvas')
 
-create_glyph_view = (glyph, data={}) ->
+create_glyph_view = (glyph, data={}, return_renderer_view=false) ->
   ###
   Requires stubbing the canvas and solver before calling
   ###
@@ -35,7 +35,10 @@ create_glyph_view = (glyph, data={}) ->
     parent: plot_canvas_view
   })
 
-  return glyph_renderer_view.glyph
+  if return_renderer_view
+    return glyph_renderer_view
+  else
+    return glyph_renderer_view.glyph
 
 module.exports = {
   create_glyph_view: create_glyph_view
