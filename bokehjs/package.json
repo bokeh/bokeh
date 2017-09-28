@@ -88,6 +88,8 @@
     "es6-weak-map": "^2.0.2",
     "es6-set": "^0.1.5",
 
+    "@types/es6-promise": "^0.0.33",
+
     "rbush": "^2.0.1",
     "proj4": "<2.4",
     "sprintf-js": "^1.1.1",
