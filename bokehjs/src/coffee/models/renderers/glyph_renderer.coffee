@@ -140,7 +140,7 @@ export class GlyphRendererView extends RendererView
     # all_indices is in full data space, indices is converted to subset space
     # either by mask_data (that uses the spatial index) or manually
     indices = @glyph.mask_data(@all_indices)
-    if '' + indices == '' + @all_indices
+    if indices.length == @all_indices.length
       indices = [0...@all_indices.length]
     dtmask = Date.now() - tmask
 
