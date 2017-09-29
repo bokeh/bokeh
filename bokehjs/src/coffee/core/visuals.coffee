@@ -30,6 +30,12 @@ class ContextProperties
     else
       @cache[attr] = @cache[attr+"_array"][i]
 
+  set_vectorize: (ctx, i) ->
+    if @all_indices? #all_indices is set by a Visuals instance associated with a CDSView
+      @_set_vectorize(ctx, @all_indices[i])
+    else #all_indices is not set for annotations which may have vectorized visual props
+      @_set_vectorize(ctx, i)
+
 export class Line extends ContextProperties
 
   attrs: Object.keys(mixins.line())
@@ -44,7 +50,7 @@ export class Line extends ContextProperties
     ctx.setLineDash(@line_dash.value())
     ctx.setLineDashOffset(@line_dash_offset.value())
 
-  set_vectorize: (ctx, i) ->
+  _set_vectorize: (ctx, i) ->
     @cache_select("line_color", i)
     if ctx.strokeStyle != @cache.line_color
       ctx.strokeStyle = @cache.line_color
@@ -86,7 +92,7 @@ export class Fill extends ContextProperties
     ctx.fillStyle   = @fill_color.value()
     ctx.globalAlpha = @fill_alpha.value()
 
-  set_vectorize: (ctx, i) ->
+  _set_vectorize: (ctx, i) ->
     @cache_select("fill_color", i)
     if ctx.fillStyle != @cache.fill_color
       ctx.fillStyle = @cache.fill_color
@@ -128,7 +134,7 @@ export class Text extends ContextProperties
     ctx.textAlign    = @text_align.value()
     ctx.textBaseline = @text_baseline.value()
 
-  set_vectorize: (ctx, i) ->
+  _set_vectorize: (ctx, i) ->
     @cache_select("font", i)
     if ctx.font != @cache.font
       ctx.font = @cache.font
@@ -164,3 +170,8 @@ export class Visuals
     for own name, prop of @
       if prop instanceof ContextProperties
         prop.warm_cache(source)
+
+  set_all_indices: (all_indices) ->
+    for own name, prop of @
+      if prop instanceof ContextProperties
+        prop.all_indices = all_indices
