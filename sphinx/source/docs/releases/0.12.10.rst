@@ -42,6 +42,11 @@ contains have been moved to ``bokeh.io.notebook``.
 
 The function ``bokeh.io.set_curdoc`` is now ``bokeh.io.doc.set_curdoc``.
 
+Named color *objects* now live in ``bokeh.colors.named`` instead of directly in
+``bokeh.colors``. Additionally color utilities such as ``NamedColor`` have been
+moved inside the package, and marked as internal API. Using string names for
+colors works exactly as before.
+
 Dead Code Removal
 ~~~~~~~~~~~~~~~~~
 

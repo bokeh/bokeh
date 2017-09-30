@@ -1,5 +1,5 @@
 exclude:
-- /bokeh/colors.py
+- /bokeh/colors/named.py
 - /bokeh/core/_templates/.*
 - /bokeh/sphinxext/.*
 - /bokeh/_version.py

@@ -35,6 +35,7 @@ extensions = [
     'sphinx.ext.intersphinx',
     'sphinx.ext.viewcode',
     'bokeh.sphinxext.bokeh_autodoc',
+    'bokeh.sphinxext.bokeh_color',
     'bokeh.sphinxext.bokeh_enum',
     'bokeh.sphinxext.bokeh_gallery',
     'bokeh.sphinxext.bokeh_github',
