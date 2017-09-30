@@ -18,11 +18,11 @@ export {proj4}
 export mercator = defs('GOOGLE')
 export wgs84    = defs('WGS84')
 
-mercator_bounds = {
+export mercator_bounds = {
   lon: [-20026376.39, 20026376.39],
   lat: [-20048966.10, 20048966.10]
 }
 
 export clip_mercator = (low, high, dimension) ->
   [min, max] = mercator_bounds[dimension]
-  return [Math.max(low, min), Math.min(high, max)] 
+  return [Math.max(low, min), Math.min(high, max)]
