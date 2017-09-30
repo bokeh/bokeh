@@ -23,6 +23,14 @@ export mercator_bounds = {
   lat: [-20048966.10, 20048966.10]
 }
 
+latlon_bounds = {
+  lon: [-180, 180],
+  lat: [-85.06, 85.06]
+}
+
 export clip_mercator = (low, high, dimension) ->
   [min, max] = mercator_bounds[dimension]
   return [Math.max(low, min), Math.min(high, max)]
+
+export in_bounds = (value, dimension) ->
+  return value > latlon_bounds[dimension][0] and value < latlon_bounds[dimension][1]

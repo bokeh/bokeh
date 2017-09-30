@@ -1,6 +1,6 @@
 import {BasicTicker} from "./basic_ticker"
 import * as p from "core/properties"
-import {proj4, mercator, clip_mercator} from "core/util/proj4"
+import {proj4, mercator, clip_mercator, in_bounds} from "core/util/proj4"
 
 export class MercatorTicker extends BasicTicker
   type: 'MercatorTicker'
@@ -31,17 +31,21 @@ export class MercatorTicker extends BasicTicker
 
     if @dimension == "lon"
       for tick in proj_ticks.major
-        [lon, _] = proj4(mercator).forward([tick, proj_cross_loc])
-        ticks.major.push(lon)
+        if in_bounds(tick, 'lon')
+          [lon, _] = proj4(mercator).forward([tick, proj_cross_loc])
+          ticks.major.push(lon)
       for tick in proj_ticks.minor
-        [lon, _] = proj4(mercator).forward([tick, proj_cross_loc])
-        ticks.minor.push(lon)
+        if in_bounds(tick, 'lon')
+          [lon, _] = proj4(mercator).forward([tick, proj_cross_loc])
+          ticks.minor.push(lon)
     else
       for tick in proj_ticks.major
-        [_, lat] = proj4(mercator).forward([proj_cross_loc, tick])
-        ticks.major.push(lat)
+        if in_bounds(tick, 'lat')
+          [_, lat] = proj4(mercator).forward([proj_cross_loc, tick])
+          ticks.major.push(lat)
       for tick in proj_ticks.minor
-        [_, lat] = proj4(mercator).forward([proj_cross_loc, tick])
-        ticks.minor.push(lat)
+        if in_bounds(tick, 'lat')
+          [_, lat] = proj4(mercator).forward([proj_cross_loc, tick])
+          ticks.minor.push(lat)
 
     return ticks
