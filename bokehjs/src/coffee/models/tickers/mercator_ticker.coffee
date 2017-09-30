@@ -1,6 +1,6 @@
 import {BasicTicker} from "./basic_ticker"
 import * as p from "core/properties"
-import {proj4, mercator} from "core/util/proj4"
+import {proj4, mercator, clip_mercator} from "core/util/proj4"
 
 export class MercatorTicker extends BasicTicker
   type: 'MercatorTicker'
@@ -14,6 +14,7 @@ export class MercatorTicker extends BasicTicker
     if not @dimension?
       throw new Error("MercatorTicker.dimension not configured")
 
+    [data_low, data_high] = clip_mercator(data_low, data_high, @dimension)
     if @dimension == "lon"
       [proj_low,  proj_cross_loc] = proj4(mercator).inverse([data_low,  cross_loc])
       [proj_high, proj_cross_loc] = proj4(mercator).inverse([data_high, cross_loc])
