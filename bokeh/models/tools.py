@@ -270,7 +270,7 @@ class ResetTool(Action):
     """)
 
 
-class ResizeTool(object):
+class ResizeTool(Tool):
     ''' DEPRECATED in 0.12.7, attempting to use will be a NO-OP
 
     '''
