@@ -168,7 +168,8 @@ export embed_items = (docs_json, render_items, app_path, absolute_url) ->
     protocol = 'wss:'
 
   if absolute_url?
-    loc = new URL(absolute_url)
+    loc = document.createElement('a')
+    loc.href = absolute_url
   else
     loc = window.location
 
