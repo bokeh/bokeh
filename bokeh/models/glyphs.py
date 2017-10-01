@@ -41,7 +41,7 @@ from ..core.enums import Anchor, Direction, StepMode
 from ..core.has_props import abstract
 from ..core.properties import (AngleSpec, Bool, DistanceSpec, Enum, Float,
                                Include, Instance, Int, NumberSpec, StringSpec)
-from ..core.property_mixins import FillProps, LineProps, TextProps
+from ..core.property_mixins import FillProps, LineProps, ScalarFillProps, ScalarLineProps, TextProps
 from ..model import Model
 
 from .mappers import ColorMapper, LinearColorMapper
@@ -533,7 +533,7 @@ class Line(XYGlyph):
     The y-coordinates for the points of the line.
     """)
 
-    line_props = Include(LineProps, use_prefix=False, help="""
+    line_props = Include(ScalarLineProps, use_prefix=False, help="""
     The %s values for the line.
     """)
 
@@ -638,11 +638,11 @@ class Patch(XYGlyph):
         values in the sequence.
     """)
 
-    line_props = Include(LineProps, use_prefix=False, help="""
+    line_props = Include(ScalarLineProps, use_prefix=False, help="""
     The %s values for the patch.
     """)
 
-    fill_props = Include(FillProps, use_prefix=False, help="""
+    fill_props = Include(ScalarFillProps, use_prefix=False, help="""
     The %s values for the patch.
     """)
 
