@@ -25,6 +25,7 @@ The following previous deprecations have been removed:
 * ``'patch'`` and ``'stream'`` event names (use ``'patching'`` and ``'streaming'``)
 * ``webgl``, ``x_mapper_type``, ``y_mapper_type``, and ``tool_events`` from ``Plot``
 * Glyphs methods now only accept either all sequence literals, OR all column names
+* ``ResizeTool`` (previously made a no-op) has been removed
 
 New Deprecations
 ~~~~~~~~~~~~~~~~
