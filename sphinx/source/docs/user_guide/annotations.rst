@@ -100,15 +100,14 @@ information and examples.
 Color Bars
 ~~~~~~~~~~
 
-Users can use a |ColorMapper| instance, which contain a color palette,
-to create a |ColorBar|. Both on and off-plot color bars are supported, users
-just need to specify their desired location when adding the ColorBar to the
-plot.
+A |ColorBar| can be created using a |ColorMapper| instance, which
+contains a color palette. Both on- and off-plot color bars are
+supported; the desired location can be specified when adding the
+|ColorBar| to the plot.
 
 .. note::
-    This example depends on the open source NumPy and matplotlib libraries in
-    order to more easily generate better data suitable for demonstrating
-    legends.
+    This example depends on the open-source NumPy library in order to
+    generate demonstration data.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_color_bars.py
     :source-position: above
