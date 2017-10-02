@@ -111,7 +111,8 @@ def components(models, wrap_script=True, wrap_plot_info=True, theme=FromCurdoc):
 
     .. note::
         The returned components assume that BokehJS resources are
-        **already loaded**.
+        **already loaded**. see :ref:`_userguide_embed_components` for an
+        important note regarding resource loading.
 
     Args:
         models (Model|list|dict|tuple) :

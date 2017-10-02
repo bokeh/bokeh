@@ -110,25 +110,33 @@ appropriate version replacing ``x.y.z``:
     <link
         href="http://cdn.pydata.org/bokeh/release/bokeh-widgets-x.y.z.min.css"
         rel="stylesheet" type="text/css">
+    <link
+        href="http://cdn.pydata.org/bokeh/release/bokeh-tables-x.y.z.min.css"
+        rel="stylesheet" type="text/css">
 
     <script src="http://cdn.pydata.org/bokeh/release/bokeh-x.y.z.min.js"></script>
     <script src="http://cdn.pydata.org/bokeh/release/bokeh-widgets-x.y.z.min.js"></script>
+    <script src="http://cdn.pydata.org/bokeh/release/bokeh-tables-x.y.z.min.js"></script>
 
 The ``"-widgets"`` files are only necessary if your document includes Bokeh widgets.
 
-For example, to use version ``0.12.6``, including widgets support:
+For example, to use version ``0.12.7``, including widgets support:
 
 .. code-block:: html
 
     <link
-        href="http://cdn.pydata.org/bokeh/release/bokeh-0.12.6.min.css"
+        href="http://cdn.pydata.org/bokeh/release/bokeh-0.12.7.min.css"
         rel="stylesheet" type="text/css">
     <link
-        href="http://cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.6.min.css"
+        href="http://cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.7.min.css"
+        rel="stylesheet" type="text/css">
+    <link
+        href="http://cdn.pydata.org/bokeh/release/bokeh-tables-0.12.7.min.css"
         rel="stylesheet" type="text/css">
 
-    <script src="http://cdn.pydata.org/bokeh/release/bokeh-0.12.6.min.js"></script>
-    <script src="http://cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.6.min.js"></script>
+    <script src="http://cdn.pydata.org/bokeh/release/bokeh-0.12.7.min.js"></script>
+    <script src="http://cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.7.min.js"></script>
+    <script src="http://cdn.pydata.org/bokeh/release/bokeh-tables-0.12.7.min.js"></script>
 
 .. note::
     You must provide the closing `</script>` tag. This is required by all

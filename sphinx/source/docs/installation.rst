@@ -156,11 +156,13 @@ pydata.org, under the following naming scheme::
 
     http://cdn.pydata.org/bokeh/release/bokeh-x.y.z.min.js
     http://cdn.pydata.org/bokeh/release/bokeh-widgets-x.y.z.min.js
+    http://cdn.pydata.org/bokeh/release/bokeh-tables-x.y.z.min.js
 
 for the BokehJS JavaScript files, and::
 
     http://cdn.pydata.org/bokeh/release/bokeh-x.y.z.min.css
     http://cdn.pydata.org/bokeh/release/bokeh-widgets-x.y.z.min.css
+    http://cdn.pydata.org/bokeh/release/bokeh-tables-x.y.z.min.css
 
 for the BokehJS CSS files.
 
@@ -168,17 +170,21 @@ for the BokehJS CSS files.
     The CSS must be loaded *before* the JavaScript library.
 
 The ``"-widgets"`` files are only necessary if you are using any of the widgets
-built into Bokeh in ``bokeh.models.widgets`` in your documents.
+built into Bokeh in ``bokeh.models.widgets`` in your documents. Similarly, the 
+``"-tables"`` files are only necessary if you are using Bokeh data tables in
+your document.
 
-As a concrete example, the links for version ``0.12`` are:
+As a concrete example, the links for version ``0.12.7`` are:
 
-* http://cdn.pydata.org/bokeh/release/bokeh-0.12.0.min.js
-* http://cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.0.min.js
+* http://cdn.pydata.org/bokeh/release/bokeh-0.12.7.min.js
+* http://cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.7.min.js
+* http://cdn.pydata.org/bokeh/release/bokeh-tables-0.12.7.min.js
 
 and
 
 * http://cdn.pydata.org/bokeh/release/bokeh-0.12.0.min.css
 * http://cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.0.min.css
+* http://cdn.pydata.org/bokeh/release/bokeh-tables-0.12.0.min.css
 
 .. note::
     For releases ``0.12.2`` and after, the BokehJS API has been branched to a separate file.
