@@ -195,7 +195,7 @@ DashPattern = enumeration("solid", "dashed", "dotted", "dotdash", "dashdot")
 ButtonType = enumeration("default", "primary", "success", "warning", "danger", "link")
 
 #: Specify one of the 137 named CSS colors
-NamedColor = enumeration(*colors.__colors__, case_sensitive=False)
+NamedColor = enumeration(*colors.named.__all__, case_sensitive=False)
 
 #: Specify the name of a palette from :ref:`bokeh.palettes`
 Palette = enumeration(*palettes.__palettes__)
