@@ -152,8 +152,6 @@ export class ColorBarView extends AnnotationView
     if @model.panel?
       panel_offset = @_get_panel_offset()
       ctx.translate(panel_offset.x, panel_offset.y)
-      frame_offset = @_get_frame_offset()
-      ctx.translate(frame_offset.x, frame_offset.y)
 
     location = @compute_legend_location()
     ctx.translate(location.sx, location.sy)
@@ -290,18 +288,6 @@ export class ColorBarView extends AnnotationView
     else
       label_extent = 0
     return label_extent
-
-  _get_frame_offset: () ->
-    # Return frame offset relative to plot so that colorbar can align with frame
-    [xoff, yoff] = [0, 0]
-    panel = @model.panel
-    frame = @plot_view.frame
-
-    switch panel.side
-      when "left", "right" then yoff = Math.abs(panel._top.value - frame._top.value)
-      when "above", "below" then xoff = Math.abs(frame._left.value)
-
-    return {x: xoff, y: yoff}
 
   _get_image_offset: () ->
     # Returns image offset relative to legend bounding box
