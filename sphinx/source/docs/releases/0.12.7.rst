@@ -110,7 +110,7 @@ The `bokeh-widgets` bundle was split into ``bokeh-widgets`` and
 ``bokeh-tables``. This is to reduce the weight of the main widgets' bundle.
 Bokeh includes ``bokeh-tables`` automatically when necessary, so this change
 should be transparent for most users. However, users of custom templates or
-other advanced embedding scenarios (including the use of ``components`` may
+other advanced embedding scenarios (including the use of ``components``) may
 be affected. In short, if your application is responsible for loading Bokeh
 resources, then it should take care of loading the ``bokeh-tables`` as well.
 

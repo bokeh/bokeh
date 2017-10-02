@@ -174,17 +174,17 @@ built into Bokeh in ``bokeh.models.widgets`` in your documents. Similarly, the
 ``"-tables"`` files are only necessary if you are using Bokeh data tables in
 your document.
 
-As a concrete example, the links for version ``0.12.7`` are:
+As a concrete example, the links for version ``0.12.9`` are:
 
-* http://cdn.pydata.org/bokeh/release/bokeh-0.12.7.min.js
-* http://cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.7.min.js
-* http://cdn.pydata.org/bokeh/release/bokeh-tables-0.12.7.min.js
+* http://cdn.pydata.org/bokeh/release/bokeh-0.12.9.min.js
+* http://cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.9.min.js
+* http://cdn.pydata.org/bokeh/release/bokeh-tables-0.12.9.min.js
 
 and
 
-* http://cdn.pydata.org/bokeh/release/bokeh-0.12.0.min.css
-* http://cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.0.min.css
-* http://cdn.pydata.org/bokeh/release/bokeh-tables-0.12.0.min.css
+* http://cdn.pydata.org/bokeh/release/bokeh-0.12.9.min.css
+* http://cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.9.min.css
+* http://cdn.pydata.org/bokeh/release/bokeh-tables-0.12.9.min.css
 
 .. note::
     For releases ``0.12.2`` and after, the BokehJS API has been branched to a separate file.
