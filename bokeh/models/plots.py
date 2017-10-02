@@ -23,7 +23,7 @@ from .ranges import Range, FactorRange, DataRange1d, Range1d
 from .renderers import DataRenderer, DynamicImageRenderer, GlyphRenderer, Renderer, TileRenderer
 from .scales import Scale, CategoricalScale, LinearScale, LogScale
 from .sources import DataSource, ColumnDataSource
-from .tools import ResizeTool, Tool, Toolbar
+from .tools import Tool, Toolbar
 
 def _check_conflicting_kwargs(a1, a2, kwargs):
     if a1 in kwargs and a2 in kwargs:
@@ -235,10 +235,6 @@ class Plot(LayoutDOM):
 
         '''
         for tool in tools:
-            if isinstance(tool, ResizeTool):
-                deprecated("ResizeTool is removed in Bokeh 0.12.7, adding it is a no-op. In the future, accessing ResizeTool will be an error")
-                continue
-
             if not isinstance(tool, Tool):
                 raise ValueError("All arguments to add_tool must be Tool subclasses.")
 

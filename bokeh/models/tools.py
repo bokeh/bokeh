@@ -270,12 +270,6 @@ class ResetTool(Action):
     """)
 
 
-class ResizeTool(object):
-    ''' DEPRECATED in 0.12.7, attempting to use will be a NO-OP
-
-    '''
-
-
 class TapTool(Tap):
     ''' *toolbar icon*: |tap_icon|
 

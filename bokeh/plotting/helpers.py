@@ -16,7 +16,7 @@ from ..models import (
     TapTool, CrosshairTool, DataRange1d, DatetimeAxis,
     FactorRange, Grid, HelpTool, HoverTool, LassoSelectTool, Legend, LegendItem, LinearAxis,
     LogAxis, PanTool, ZoomInTool, ZoomOutTool, PolySelectTool, ContinuousTicker,
-    SaveTool, Range, Range1d, UndoTool, RedoTool, ResetTool, ResizeTool, Tool,
+    SaveTool, Range, Range1d, UndoTool, RedoTool, ResetTool, Tool,
     WheelPanTool, WheelZoomTool, ColumnarDataSource, ColumnDataSource,
     LogScale, LinearScale, CategoricalScale, Circle, MultiLine)
 from ..models.renderers import GlyphRenderer
@@ -417,7 +417,6 @@ _known_tools = {
     "yzoom_out": lambda: ZoomOutTool(dimensions='height'),
     "xwheel_pan": lambda: WheelPanTool(dimension="width"),
     "ywheel_pan": lambda: WheelPanTool(dimension="height"),
-    "resize": lambda: ResizeTool(),
     "click": lambda: TapTool(behavior="inspect"),
     "tap": lambda: TapTool(),
     "crosshair": lambda: CrosshairTool(),
