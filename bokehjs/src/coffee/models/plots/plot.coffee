@@ -8,6 +8,7 @@ import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
 import {Title} from "../annotations/title"
 import {LinearScale} from "../scales/linear_scale"
 import {Toolbar} from "../tools/toolbar"
+import {ToolbarAnnotation} from "../annotations/toolbar_annotation"
 import {PlotCanvas, PlotCanvasView} from "./plot_canvas"
 
 import {ColumnDataSource} from "../sources/column_data_source"
@@ -111,6 +112,11 @@ export class Plot extends LayoutDOM
     @toolbar.toolbar_location = @toolbar_location
     @toolbar.toolbar_sticky = @toolbar_sticky
     @plot_canvas.toolbar = @toolbar
+
+    switch @toolbar_location
+      when "left", "right", "above", "below"
+        toolbar = new ToolbarAnnotation({toolbar: @toolbar})
+        @add_layout(toolbar, @toolbar_location)
 
     # Set width & height to be the passed in plot_width and plot_height
     # We may need to be more subtle about this - not sure why people use one
