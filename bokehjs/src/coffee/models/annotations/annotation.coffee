@@ -5,17 +5,8 @@ import {Renderer, RendererView} from "../renderers/renderer"
 
 export class AnnotationView extends RendererView
 
-  _get_panel_offset: () ->
-    # Sub-classes may have to implement _get_panel_offset themselves
-    # because different renderers draw themselves differently so
-    # need the individual classes to determine the correct offset.
-    x = @model.panel._left.value
-    y = @model.panel._bottom.value
-    return {x: x, y: -y}
-
   _get_size: () ->
-    # Sub-classes should implement _get_size if they want layout on side panels to work.
-    return -1
+    return new Error("not implemented")
 
 export class Annotation extends Renderer
   type: 'Annotation'
