@@ -128,6 +128,7 @@ export class PlotCanvasView extends DOMView
 
   @getters {
     canvas_overlays: () -> @canvas_view.overlays_el
+    canvas_events: () -> @canvas_view.events_el
     is_paused: () -> @_is_paused? and @_is_paused != 0
   }
 
