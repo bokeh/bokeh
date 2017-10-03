@@ -24,38 +24,33 @@ export class ToolbarBaseView extends DOMView
       logo = a({href: "https://bokeh.pydata.org/", target: "_blank", class: ["bk-logo", "bk-logo-small", cls]})
       @el.appendChild(logo)
 
-    button_bar =
-      div({class: 'bk-button-bar'},
-        div({class: "bk-button-bar-list", type: "pan"}),
-        div({class: "bk-button-bar-list", type: "scroll"}),
-        div({class: "bk-button-bar-list", type: "pinch"}),
-        div({class: "bk-button-bar-list", type: "tap"}),
-        div({class: "bk-button-bar-list", type: "press"}),
-        div({class: "bk-button-bar-list", type: "rotate"}),
-        div({class: "bk-button-bar-list", type: "actions"}),
-        div({class: "bk-button-bar-list", type: "inspectors"}),
-        div({class: "bk-button-bar-list", type: "help"}),
-      )
-    @el.appendChild(button_bar)
-
-    buttons = @el.querySelector(".bk-button-bar-list[type='inspectors']")
-    for obj in @model.inspectors
-      if obj.toggleable
-        buttons.appendChild(new OnOffButtonView({model: obj, parent: @}).el)
-
-    buttons = @el.querySelector(".bk-button-bar-list[type='help']")
-    for obj in @model.help
-      buttons.appendChild(new ActionToolButtonView({model: obj, parent: @}).el)
-
-    buttons = @el.querySelector(".bk-button-bar-list[type='actions']")
-    for obj in @model.actions
-      buttons.appendChild(new ActionToolButtonView({model: obj, parent: @}).el)
+    add_bar = (buttons) =>
+      if buttons.length != 0
+        bar = div({class: 'bk-button-bar'}, buttons)
+        @el.appendChild(bar)
 
     gestures = @model.gestures
     for et of gestures
-      buttons = @el.querySelector(".bk-button-bar-list[type='#{et}']")
+      buttons = []
       for obj in gestures[et].tools
-        buttons.appendChild(new OnOffButtonView({model: obj, parent: @}).el)
+        buttons.push(new OnOffButtonView({model: obj, parent: @}).el)
+      add_bar(buttons)
+
+    buttons = []
+    for obj in @model.actions
+      buttons.push(new ActionToolButtonView({model: obj, parent: @}).el)
+    add_bar(buttons)
+
+    buttons = []
+    for obj in @model.inspectors
+      if obj.toggleable
+        buttons.push(new OnOffButtonView({model: obj, parent: @}).el)
+    add_bar(buttons)
+
+    buttons = []
+    for obj in @model.help
+      buttons.push(new ActionToolButtonView({model: obj, parent: @}).el)
+    add_bar(buttons)
 
     return @
 
@@ -88,10 +83,10 @@ export class ToolbarBase extends Model
   @internal {
     gestures: [ p.Any, () -> {
       pan:       { tools: [], active: null }
-      tap:       { tools: [], active: null }
-      doubletap: { tools: [], active: null }
       scroll:    { tools: [], active: null }
       pinch:     { tools: [], active: null }
+      tap:       { tools: [], active: null }
+      doubletap: { tools: [], active: null }
       press:     { tools: [], active: null }
       rotate:    { tools: [], active: null }
     } ]
