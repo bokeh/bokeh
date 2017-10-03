@@ -90,8 +90,6 @@ export class Plot extends LayoutDOM
         plots = plots.concat(@)
         yr.setv('plots', plots, {silent: true})
 
-    @_horizontal = @toolbar_location in ['left', 'right']
-
     # Min border applies to the edge of everything
     if @min_border?
       if not @min_border_top?
@@ -127,12 +125,6 @@ export class Plot extends LayoutDOM
       layout_renderers = @getv(side)
       for renderer in layout_renderers
         renderer.add_panel(side)
-
-    _set_sizeable = (model) =>
-      model._sizeable = if not @_horizontal then model._height else model._width
-
-    _set_sizeable(@)
-    _set_sizeable(@plot_canvas)
 
   _init_plot_canvas: () ->
     return new PlotCanvas({plot: @})
@@ -178,11 +170,7 @@ export class Plot extends LayoutDOM
     return @width / @height
 
   get_layoutable_children: () ->
-    # Default if toolbar_location is None
-    children = [@plot_canvas]
-    if @toolbar_location?
-      children = [@toolbar, @plot_canvas]
-    return children
+    return [@plot_canvas]
 
   get_editables: () ->
     editables = super()
@@ -193,72 +181,8 @@ export class Plot extends LayoutDOM
   get_constraints: () ->
     constraints = super()
 
-    if @toolbar_location?
-      # Constraints if we have a toolbar
-      #
-      #  (1) COMPUTE THE VARIABLE PIECES (shrinks canvas): plot_height = plot_canvas_height + toolbar_height
-      #  (2) SIZE THE FIXED: plot_width = plot_canvas_width
-      #  (3) stack or stick to the side
-      #      - note that below and right also require a css offset (couldn't find another way)
-      #      - use canvas._top not canvas._dom_top as this lets us stick the
-      #      toolbar right to the edge of the plot
-      #  (4) nudge: set toolbar width to be almost full less that needed
-      #      to give a margin that lines up nicely with plot canvas edge
-
-
-      # (1) plot_height = plot_canvas_height + toolbar_height | plot_width = plot_canvas_width + toolbar_width
-      if @toolbar_sticky
-        constraints.push(EQ(@_sizeable, [-1, @plot_canvas._sizeable]))
-      else
-        constraints.push(EQ(@_sizeable, [-1, @plot_canvas._sizeable], [-1, @toolbar._sizeable]))
-
-      # (2) plot_width = plot_canvas_width | plot_height = plot_canvas_height | plot_height = plot_canvas_height
-      if not @_horizontal
-        constraints.push(EQ(@_width, [-1, @plot_canvas._width]))
-      else
-        constraints.push(EQ(@_height, [-1, @plot_canvas._height]))
-
-      if @toolbar_location is 'above'
-        # (3) stack: plot_canvas._top = toolbar._dom_top + toolbar._height
-        sticky_edge = if @toolbar_sticky then @plot_canvas._top else @plot_canvas._dom_top
-        constraints.push(EQ(sticky_edge, [-1, @toolbar._dom_top], [-1, @toolbar._height]))
-
-      if @toolbar_location is 'below'
-        # (3) stack: plot_canvas._dom_top = toolbar._bottom - toolbar._height
-        if not @toolbar_sticky
-          constraints.push(EQ(@toolbar._dom_top, [-1, @plot_canvas._height], @toolbar._bottom, [-1, @toolbar._height]))
-        else
-          constraints.push(GE(@plot_canvas.below_panel._height, [-1, @toolbar._height]))
-          constraints.push(WEAK_EQ(@toolbar._dom_top, [-1, @plot_canvas._height], @plot_canvas.below_panel._height))
-
-      if @toolbar_location is 'left'
-        # (3) stack: plot_canvas._dom_left = toolbar._dom_left + toolbar._width
-        sticky_edge = if @toolbar_sticky then @plot_canvas._left else @plot_canvas._dom_left
-        constraints.push(EQ(sticky_edge, [-1, @toolbar._dom_left], [-1, @toolbar._width]))
-
-      if @toolbar_location is 'right'
-        # (3) stack: plot_canvas._dom_left = plot_canvas._right - toolbar._width
-        if not @toolbar_sticky
-          constraints.push(EQ(@toolbar._dom_left, [-1, @plot_canvas._width], @toolbar._right, [-1, @toolbar._width]))
-        else
-          constraints.push(GE(@plot_canvas.right_panel._width, [-1, @toolbar._width]))
-          constraints.push(WEAK_EQ(@toolbar._dom_left, [-1, @plot_canvas._width], @plot_canvas.right_panel._width))
-
-      if @toolbar_location in ['above', 'below']
-        # (4) toolbar_width = full_width - plot_canvas._right
-        constraints.push(EQ(@_width, [-1, @toolbar._width], [-1, @plot_canvas._width_minus_right]))
-
-      if @toolbar_location in ['left', 'right']
-        # (4a) the following makes the toolbar as tall as the plot less the distance of the axis from the edge
-        constraints.push(EQ(@_height, [-1, @toolbar._height], [-1, @plot_canvas.above_panel._height]))
-        # (4b) nudge the toolbar down by that distance
-        constraints.push(EQ(@toolbar._dom_top, [-1, @plot_canvas.above_panel._height]))
-
-
-    if not @toolbar_location?
-      # If we don't have a toolbar just set them
-      constraints.push(EQ(@_width, [-1, @plot_canvas._width]))
-      constraints.push(EQ(@_height, [-1, @plot_canvas._height]))
+    constraints.push(EQ(@_width,  [-1, @plot_canvas._width ]))
+    constraints.push(EQ(@_height, [-1, @plot_canvas._height]))
 
     return constraints
 
