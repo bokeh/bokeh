@@ -1,52 +1,42 @@
 import {logger} from "core/logging"
-import {EQ} from "core/layout/solver"
 import {empty, div, a} from "core/dom"
 import * as p from "core/properties"
 
-import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
+import {DOMView} from "core/dom_view"
+import {Model} from "model"
 
 import {ActionToolButtonView} from "./actions/action_tool"
 import {OnOffButtonView} from "./on_off_button"
 
-export class ToolbarBaseView extends LayoutDOMView
-  className: "bk-toolbar-wrapper"
-
-  template: () ->
-    if @model.logo?
-      cls = if @model.logo == "grey" then "bk-grey" else null
-      logo = a({href: "https://bokeh.pydata.org/", target: "_blank", class: ["bk-logo", "bk-logo-small", cls]})
-    else
-      logo = null
-
-    sticky = if @model.toolbar_sticky then 'sticky' else 'not-sticky'
-
-    return (
-      div({class: ["bk-toolbar-#{@model.toolbar_location}", "bk-toolbar-#{sticky}"]},
-        logo,
-        div({class: 'bk-button-bar'},
-          div({class: "bk-button-bar-list", type: "pan"}),
-          div({class: "bk-button-bar-list", type: "scroll"}),
-          div({class: "bk-button-bar-list", type: "pinch"}),
-          div({class: "bk-button-bar-list", type: "tap"}),
-          div({class: "bk-button-bar-list", type: "press"}),
-          div({class: "bk-button-bar-list", type: "rotate"}),
-          div({class: "bk-button-bar-list", type: "actions"}),
-          div({class: "bk-button-bar-list", type: "inspectors"}),
-          div({class: "bk-button-bar-list", type: "help"}),
-        )
-      )
-    )
+export class ToolbarBaseView extends DOMView
 
   render: () ->
     empty(@el)
 
-    if @model.sizing_mode != 'fixed'
-      @el.style.left = "#{@model._dom_left.value}px"
-      @el.style.top = "#{@model._dom_top.value}px"
-      @el.style.width = "#{@model._width.value}px"
-      @el.style.height = "#{@model._height.value}px"
+    sticky = if @model.toolbar_sticky then 'sticky' else 'not-sticky'
 
-    @el.appendChild(@template())
+    @el.classList.add("bk-toolbar")
+    @el.classList.add("bk-toolbar-#{@model.toolbar_location}")
+    @el.classList.add("bk-toolbar-#{sticky}")
+
+    if @model.logo?
+      cls = if @model.logo == "grey" then "bk-grey" else null
+      logo = a({href: "https://bokeh.pydata.org/", target: "_blank", class: ["bk-logo", "bk-logo-small", cls]})
+      @el.appendChild(logo)
+
+    button_bar =
+      div({class: 'bk-button-bar'},
+        div({class: "bk-button-bar-list", type: "pan"}),
+        div({class: "bk-button-bar-list", type: "scroll"}),
+        div({class: "bk-button-bar-list", type: "pinch"}),
+        div({class: "bk-button-bar-list", type: "tap"}),
+        div({class: "bk-button-bar-list", type: "press"}),
+        div({class: "bk-button-bar-list", type: "rotate"}),
+        div({class: "bk-button-bar-list", type: "actions"}),
+        div({class: "bk-button-bar-list", type: "inspectors"}),
+        div({class: "bk-button-bar-list", type: "help"}),
+      )
+    @el.appendChild(button_bar)
 
     buttons = @el.querySelector(".bk-button-bar-list[type='inspectors']")
     for obj in @model.inspectors
@@ -69,18 +59,9 @@ export class ToolbarBaseView extends LayoutDOMView
 
     return @
 
-export class ToolbarBase extends LayoutDOM
+export class ToolbarBase extends Model
   type: 'ToolbarBase'
   default_view: ToolbarBaseView
-
-  initialize: (attrs, options) ->
-    super(attrs, options)
-    @_set_sizeable()
-    @connect(@properties.toolbar_location.change, () => @_set_sizeable())
-
-  _set_sizeable: () ->
-    horizontal = @toolbar_location in ['left', 'right']
-    @_sizeable = if not horizontal then @_height else @_width
 
   _active_change: (tool) =>
     event_type = tool.event_type
@@ -99,12 +80,9 @@ export class ToolbarBase extends LayoutDOM
 
     return null
 
-  get_constraints: () ->
-    return super().concat(EQ(@_sizeable, -30))
-
   @define {
-      tools: [ p.Array,    []       ]
-      logo:  [ p.String,   'normal' ] # TODO (bev)
+    tools: [ p.Array,    []       ]
+    logo:  [ p.String,   'normal' ] # TODO (bev)
   }
 
   @internal {
@@ -122,8 +100,4 @@ export class ToolbarBase extends LayoutDOM
     help:       [ p.Array, [] ]
     toolbar_location: [ p.Location, 'right' ]
     toolbar_sticky: [ p.Bool ]
-  }
-
-  @override {
-    sizing_mode: null
   }

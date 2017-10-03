@@ -179,8 +179,7 @@ export class LayoutDOMView extends DOMView
     if @className?
       @el.classList.add(@className)
 
-    if @model.sizing_mode? # XXX: because toolbar uses null
-      @el.classList.add("bk-layout-#{@model.sizing_mode}")
+    @el.classList.add("bk-layout-#{@model.sizing_mode}")
 
     if @model.css_classes?
       for cls in @model.css_classes
