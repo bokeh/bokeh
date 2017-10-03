@@ -9,7 +9,7 @@ from ..core.property_mixins import LineProps, FillProps
 from ..core.query import find
 from ..core.validation import error, warning
 from ..core.validation.errors import REQUIRED_RANGE, REQUIRED_SCALE, INCOMPATIBLE_SCALE_AND_RANGE
-from ..core.validation.warnings import MISSING_RENDERERS, NO_DATA_RENDERERS, SNAPPED_TOOLBAR_ANNOTATIONS
+from ..core.validation.warnings import MISSING_RENDERERS, NO_DATA_RENDERERS
 from ..util.deprecation import deprecated
 from ..util.plot_utils import _list_attr_splat, _select_helper
 from ..util.string import nice_join
@@ -365,15 +365,6 @@ class Plot(LayoutDOM):
     @warning(NO_DATA_RENDERERS)
     def _check_no_data_renderers(self):
         if len(self.select(DataRenderer)) == 0:
-            return str(self)
-
-    @warning(SNAPPED_TOOLBAR_ANNOTATIONS)
-    def _check_snapped_toolbar_and_axis(self):
-        if not self.toolbar_sticky: return
-        if self.toolbar_location is None: return
-
-        objs = getattr(self, self.toolbar_location)
-        if len(objs) > 0:
             return str(self)
 
     x_range = Instance(Range, help="""
