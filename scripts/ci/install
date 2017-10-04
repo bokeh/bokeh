@@ -4,7 +4,7 @@ set -e # exit on error
 set -x # echo commands
 
 if  [ "${NO_GIT_FETCH}" != "1" ]; then
-    git fetch origin master
+    git fetch --quiet origin master
 fi
 
 # install TravisCI "artifacts" util, see https://github.com/travis-ci/artifacts
