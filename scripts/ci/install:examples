@@ -5,6 +5,7 @@ set -x # echo commands
 
 # install NPM dependencies and build JS examples
 pushd bokehjs
+npm set progress=false
 npm install
 node_modules/.bin/gulp examples --no-build
 popd
