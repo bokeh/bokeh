@@ -95,56 +95,47 @@
 @activeToolHighlight: #26aae1;
 @activeToolBorder: 2px solid transparent;
 
-.bk-toolbar-above .bk-toolbar-button {
-  border-bottom: @activeToolBorder;
+.toolbar-button-border(@side) {
+  border-@{side}: @activeToolBorder;
   &.bk-active {
-    border-bottom-color: @activeToolHighlight;
+    border-@{side}-color: @activeToolHighlight;
   }
+}
+
+.bk-toolbar-above .bk-toolbar-button {
+  .toolbar-button-border(bottom);
 }
 
 .bk-toolbar-below .bk-toolbar-button {
-  border-top: @activeToolBorder;
-  &.bk-active {
-    border-top-color: @activeToolHighlight;
-  }
+  .toolbar-button-border(top);
 }
 
 .bk-toolbar-right .bk-toolbar-button {
-  border-left: @activeToolBorder;
-  &.bk-active {
-    border-left-color: @activeToolHighlight;
-  }
+  .toolbar-button-border(left);
 }
 
 .bk-toolbar-left .bk-toolbar-button {
-  border-right: @activeToolBorder;
-  &.bk-active {
-    border-right-color: @activeToolHighlight;
-  }
+  .toolbar-button-border(right);
+}
+
+.bk-button-bar + .bk-button-bar:before {
+  content: " ";
+  display: inline-block;
+  background-color: @buttonColor;
 }
 
 .bk-toolbar-above, .bk-toolbar-below {
-  .bk-button-bar + .bk-button-bar {
-    &:before {
-      content: " ";
-      display: inline-block;
-      background-color: @buttonColor;
-      height: 10px;
-      width: 1px;
-      margin: 0px 3px 0px 3px;
-    }
+  .bk-button-bar + .bk-button-bar:before {
+    height: 10px;
+    width: 1px;
+    margin: 0px 3px 0px 3px;
   }
 }
 
 .bk-toolbar-left, .bk-toolbar-right {
-  .bk-button-bar + .bk-button-bar {
-    &:before {
-      content: " ";
-      display: inline-block;
-      background-color: @buttonColor;
-      height: 1px;
-      width: 10px;
-      margin: 3px 0 3px 0px;
-    }
+  .bk-button-bar + .bk-button-bar:before {
+    height: 1px;
+    width: 10px;
+    margin: 3px 0 3px 0px;
   }
 }
