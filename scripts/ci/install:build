@@ -15,7 +15,7 @@ bash scripts/ci/install
 
 # install build time dependencies
 BUILD_DEPS=`python scripts/deps.py build`
-conda install --yes ${BUILD_DEPS}
+conda install --yes --quiet ${BUILD_DEPS}
 
 # install NPM dependencies
 pushd bokehjs
