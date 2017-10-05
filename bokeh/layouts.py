@@ -410,10 +410,13 @@ def gridplot(*args, **kwargs):
         if 'toolbar_location' not in toolbar_options:
             toolbar_options['toolbar_location'] = toolbar_location
 
-        # Fixed sizing mode needs scale_width for the toolbar
+        # Fixed sizing mode needs scale_{width,height} for the toolbar
         # for layout to work correctly.
         if sizing_mode == 'fixed':
-            toolbar_sizing_mode = 'scale_width'
+            if toolbar_location == "above" or toolbar_location == "below":
+                toolbar_sizing_mode = 'scale_width'
+            else:
+                toolbar_sizing_mode = 'scale_height'
         else:
             toolbar_sizing_mode = sizing_mode
         toolbar = ToolbarBox(
