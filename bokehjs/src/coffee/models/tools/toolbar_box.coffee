@@ -16,12 +16,7 @@ export class ProxyToolbar extends ToolbarBase
   initialize: (options) ->
     super(options)
     @_init_tools()
-    if @merge_tools is true
-      @_merge_tools()
-
-  @define {
-    merge_tools: [ p.Bool, true ]
-  }
+    @_merge_tools()
 
   _init_tools: () ->
     for tool in @tools
@@ -146,7 +141,6 @@ export class ToolbarBox extends Box
 
   @define {
     toolbar_location: [ p.Location, "right"  ]
-    merge_tools:      [ p.Bool,     true     ]
     tools:            [ p.Any,      []       ]
     logo:             [ p.String,   "normal" ]
   }

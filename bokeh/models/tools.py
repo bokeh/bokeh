@@ -158,10 +158,6 @@ class ToolbarBox(Box):
     A list of tools to add to the plot.
     """)
 
-    merge_tools = Bool(default=True, help="""
-        Merge all the tools together so there is one tool to control all the plots.
-    """)
-
     logo = Enum("normal", "grey", help="""
     What version of the Bokeh logo to display on the toolbar. If
     set to None, no logo will be displayed.

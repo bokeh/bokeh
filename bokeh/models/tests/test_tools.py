@@ -31,7 +31,6 @@ def test_toolbar_box_properties():
     assert tb_box.logo == "normal"
     assert tb_box.toolbar_location == "right"
     assert tb_box.tools == []
-    assert tb_box.merge_tools is True
 
 
 @mock.patch('bokeh.io.showing._show_with_state')
