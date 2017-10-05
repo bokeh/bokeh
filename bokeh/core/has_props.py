@@ -259,8 +259,9 @@ class HasProps(with_metaclass(MetaHasProps, object)):
 
         props = sorted(self.properties())
         deprecated = getattr(self, '__deprecated_attributes__', [])
+        descriptor = getattr(self.__class__, name, None)
 
-        if name in props or name in deprecated:
+        if name in props or name in deprecated or (descriptor is not None and descriptor.fset is not None):
             super(HasProps, self).__setattr__(name, value)
         else:
             matches, text = difflib.get_close_matches(name.lower(), props), "similar"
