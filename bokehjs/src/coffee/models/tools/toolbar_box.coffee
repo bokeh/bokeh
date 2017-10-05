@@ -5,14 +5,13 @@ import {ActionTool} from "./actions/action_tool"
 import {HelpTool} from "./actions/help_tool"
 import {GestureTool} from "./gestures/gesture_tool"
 import {InspectTool} from "./inspectors/inspect_tool"
-import {ToolbarBase, ToolbarBaseView} from "./toolbar_base"
+import {ToolbarBase} from "./toolbar_base"
 import {ToolProxy} from "./tool_proxy"
 
 import {Box, BoxView} from "../layouts/box"
 
-export class ToolbarBoxToolbar extends ToolbarBase
-  type: 'ToolbarBoxToolbar'
-  default_view: ToolbarBaseView
+export class ProxyToolbar extends ToolbarBase
+  type: 'ProxyToolbar'
 
   initialize: (options) ->
     super(options)
@@ -134,7 +133,7 @@ export class ToolbarBox extends Box
 
   initialize: (options) ->
     super(options)
-    @_toolbar = new ToolbarBoxToolbar(options)
+    @_toolbar = new ProxyToolbar(options)
 
     @_horizontal = @toolbar_location in ['left', 'right']
     @_sizeable = if not @_horizontal then @_height else @_width
