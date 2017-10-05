@@ -8,7 +8,7 @@
 from __future__ import absolute_import
 
 from .core.enums import Location, SizingMode
-from .models.tools import ToolbarBox
+from .models.tools import ProxyToolbar, ToolbarBox
 from .models.plots import Plot
 from .models.layouts import LayoutDOM, Row, Column, Spacer, WidgetBox
 from .models.widgets import Widget
@@ -419,11 +419,7 @@ def gridplot(*args, **kwargs):
                 toolbar_sizing_mode = 'scale_height'
         else:
             toolbar_sizing_mode = sizing_mode
-        toolbar = ToolbarBox(
-            tools=tools,
-            sizing_mode=toolbar_sizing_mode,
-            **toolbar_options
-        )
+        toolbar = ToolbarBox(toolbar=ProxyToolbar(tools=tools, **toolbar_options), sizing_mode=toolbar_sizing_mode)
 
     # Set up children
     if toolbar_location == 'above':

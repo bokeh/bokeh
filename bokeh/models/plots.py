@@ -447,9 +447,8 @@ class Plot(LayoutDOM):
     """)
 
     toolbar = Instance(Toolbar, help="""
-        The toolbar associated with this plot which holds all the tools.
-
-        The toolbar is automatically created with the plot.
+    The toolbar associated with this plot which holds all the tools. It is
+    automatically created with the plot if necessary.
     """)
 
     toolbar_location = Enum(Location, default="right", help="""

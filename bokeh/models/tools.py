@@ -34,7 +34,7 @@ from ..util.deprecation import deprecated
 from .annotations import BoxAnnotation, PolyAnnotation
 from .callbacks import Callback
 from .renderers import Renderer
-from .layouts import Box, LayoutDOM
+from .layouts import LayoutDOM
 
 
 @abstract
@@ -133,31 +133,18 @@ class Toolbar(ToolbarBase):
     Specify a tap/click tool to be active when the plot is displayed.
     """)
 
+class ProxyToolbar(ToolbarBase):
+    ''' A toolbar that allow to merge and proxy tools of toolbars in multiple plots. '''
 
-class ToolbarBox(Box):
+class ToolbarBox(LayoutDOM):
     ''' A layoutable toolbar that can accept the tools of multiple plots, and
     can merge the tools into a single button for convenience.
 
     '''
-    def _check_empty_layout(self):
-        # Overriding the children check from Box. As toolbarbox's children
-        # are normally set JS side.
-        return None
 
-    toolbar_location = Enum(Location, default='right', help="""
-        Should the toolbar be presented as if it was stuck to the `above`, `right`, `left`, `below`
-        edge of a plot. Default is `right`.
+    toolbar = Instance(ToolbarBase, help="""
+    A toolbar associated with a plot which holds all its tools.
     """)
-
-    tools = List(Instance(Tool), help="""
-    A list of tools to add to the plot.
-    """)
-
-    logo = Enum("normal", "grey", help="""
-    What version of the Bokeh logo to display on the toolbar. If
-    set to None, no logo will be displayed.
-    """)
-
 
 class PanTool(Drag):
     ''' *toolbar icon*: |pan_icon|
