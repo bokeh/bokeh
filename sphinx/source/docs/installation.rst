@@ -170,7 +170,7 @@ for the BokehJS CSS files.
     The CSS must be loaded *before* the JavaScript library.
 
 The ``"-widgets"`` files are only necessary if you are using any of the widgets
-built into Bokeh in ``bokeh.models.widgets`` in your documents. Similarly, the 
+built into Bokeh in ``bokeh.models.widgets`` in your documents. Similarly, the
 ``"-tables"`` files are only necessary if you are using Bokeh data tables in
 your document.
 
