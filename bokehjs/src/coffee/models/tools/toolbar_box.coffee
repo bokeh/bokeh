@@ -113,6 +113,7 @@ export class ToolbarBoxView extends LayoutDOMView
 
   initialize: (options) ->
     super(options)
+    @model.toolbar.toolbar_location = @model.toolbar_location
     @_toolbar_views = {}
     build_views(@_toolbar_views, [@model.toolbar], {parent: @})
 
@@ -141,4 +142,5 @@ export class ToolbarBox extends LayoutDOM
 
   @define {
     toolbar: [ p.Instance ]
+    toolbar_location: [ p.Location, "right" ]
   }

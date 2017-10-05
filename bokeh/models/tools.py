@@ -146,6 +146,8 @@ class ToolbarBox(LayoutDOM):
     A toolbar associated with a plot which holds all its tools.
     """)
 
+    toolbar_location = Enum(Location, default="right")
+
 class PanTool(Drag):
     ''' *toolbar icon*: |pan_icon|
 

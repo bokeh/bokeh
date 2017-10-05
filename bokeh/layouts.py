@@ -342,7 +342,7 @@ def gridplot(*args, **kwargs):
     sizing_mode = kwargs.get('sizing_mode', 'fixed')
     children = kwargs.get('children')
     responsive = kwargs.get('responsive')
-    toolbar_options = kwargs.get('toolbar_options')
+    toolbar_options = kwargs.get('toolbar_options', {})
     plot_width = kwargs.get('plot_width')
     plot_height = kwargs.get('plot_height')
     ncols = kwargs.get('ncols')
@@ -405,11 +405,6 @@ def gridplot(*args, **kwargs):
 
     # Make the toolbar
     if toolbar_location:
-        if not toolbar_options:
-            toolbar_options = {}
-        if 'toolbar_location' not in toolbar_options:
-            toolbar_options['toolbar_location'] = toolbar_location
-
         # Fixed sizing mode needs scale_{width,height} for the toolbar
         # for layout to work correctly.
         if sizing_mode == 'fixed':
@@ -419,7 +414,9 @@ def gridplot(*args, **kwargs):
                 toolbar_sizing_mode = 'scale_height'
         else:
             toolbar_sizing_mode = sizing_mode
-        toolbar = ToolbarBox(toolbar=ProxyToolbar(tools=tools, **toolbar_options), sizing_mode=toolbar_sizing_mode)
+
+        toolbar = ToolbarBox(toolbar=ProxyToolbar(tools=tools, **toolbar_options),
+            toolbar_location=toolbar_location, sizing_mode=toolbar_sizing_mode)
 
     # Set up children
     if toolbar_location == 'above':
