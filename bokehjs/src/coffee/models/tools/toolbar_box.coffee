@@ -1,4 +1,5 @@
 import * as p from "core/properties"
+import {empty} from "core/dom"
 import {any, sortBy} from "core/util/array"
 
 import {ActionTool} from "./actions/action_tool"
@@ -8,7 +9,8 @@ import {InspectTool} from "./inspectors/inspect_tool"
 import {ToolbarBase} from "./toolbar_base"
 import {ToolProxy} from "./tool_proxy"
 
-import {Box, BoxView} from "../layouts/box"
+import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
+import {build_views, remove_views} from "core/build_views"
 
 export class ProxyToolbar extends ToolbarBase
   type: 'ProxyToolbar'
@@ -106,41 +108,37 @@ export class ProxyToolbar extends ToolbarBase
       if et not in ['pinch', 'scroll']
         @gestures[et].tools[0].active = true
 
-
-export class ToolbarBoxView extends BoxView
+export class ToolbarBoxView extends LayoutDOMView
   className: 'bk-toolbar-box'
-
-  get_width: () ->
-    if @model._horizontal is true
-      return 30
-    else
-      return null
-
-  get_height: () ->
-    # Returning null from this causes
-    # Left toolbar to overlap in scale_width case
-    return 30
-
-
-export class ToolbarBox extends Box
-  type: 'ToolbarBox'
-  default_view: ToolbarBoxView
 
   initialize: (options) ->
     super(options)
-    @_toolbar = new ProxyToolbar(options)
+    @_toolbar_views = {}
+    build_views(@_toolbar_views, [@model.toolbar], {parent: @})
 
-    @_horizontal = @toolbar_location in ['left', 'right']
-    @_sizeable = if not @_horizontal then @_height else @_width
-
-  _doc_attached: () ->
-    @_toolbar.attach_document(@document)
+  remove: () ->
+    remove_views(@_toolbar_views)
     super()
 
-  get_layoutable_children: () -> [@_toolbar]
+  render: () ->
+    super()
+
+    toolbar = @_toolbar_views[@model.toolbar.id]
+    toolbar.render()
+
+    empty(@el)
+    @el.appendChild(toolbar.el)
+
+  get_width: () ->
+    return if @model.toolbar.vertical then 30 else return null
+
+  get_height: () ->
+    return if @model.toolbar.horizontal then 30 else return null
+
+export class ToolbarBox extends LayoutDOM
+  type: 'ToolbarBox'
+  default_view: ToolbarBoxView
 
   @define {
-    toolbar_location: [ p.Location, "right"  ]
-    tools:            [ p.Any,      []       ]
-    logo:             [ p.String,   "normal" ]
+    toolbar: [ p.Instance ]
   }

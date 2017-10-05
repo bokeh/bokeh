@@ -72,6 +72,13 @@ export class ToolbarBase extends Model
 
     return null
 
+  @getters {
+    horizontal: () ->
+      return @toolbar_location == "above" or @toolbar_location == "below"
+    vertical: () ->
+      return @toolbar_location == "left" or @toolbar_location == "right"
+  }
+
   @define {
     tools: [ p.Array,    []       ]
     logo:  [ p.String,   'normal' ] # TODO (bev)
