@@ -55,10 +55,13 @@ from six import string_types
 # Bokeh imports
 from ..document import Document
 from ..resources import Resources
+from ..util.dependencies import import_optional
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
+
+notebook = import_optional("notebook")
 
 #-----------------------------------------------------------------------------
 # Public API
@@ -189,6 +192,11 @@ class State(object):
             None
 
         '''
+        if not notebook:
+            raise RuntimeError("jupyter notebook is not installed")
+        if notebook.version_info < (5, 0, 0):
+            raise RuntimeError("jupyter notebook 5.0 or higher is required")
+
         self._notebook = True
         self.notebook_type = notebook_type
 
