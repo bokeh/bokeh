@@ -7,7 +7,7 @@ export class ToolbarAnnotationView extends AnnotationView
 
   initialize: (options) ->
     super(options)
-    @el.classList.add('bk-annotation')
+    @el.classList.add('bk-toolbar-annotation')
     @plot_view.canvas_events.appendChild(@el)
     @_toolbar_views = {}
     build_views(@_toolbar_views, [@model.toolbar], {parent: @})
