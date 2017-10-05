@@ -110,11 +110,6 @@ class ToolbarBase(LayoutDOM):
     A list of tools to add to the plot.
     """)
 
-    # This is an odd case. The sizing is custom handled. In the future we will
-    # probably set it as `stretch_width` or `stretch_height` depending on its
-    # orientation.
-    sizing_mode = Override(default=None)
-
 
 class Toolbar(ToolbarBase):
     ''' Collect tools to display for a single plot.
