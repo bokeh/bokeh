@@ -13,11 +13,8 @@ export class ToolbarBaseView extends DOMView
   render: () ->
     empty(@el)
 
-    sticky = if @model.toolbar_sticky then 'sticky' else 'not-sticky'
-
     @el.classList.add("bk-toolbar")
     @el.classList.add("bk-toolbar-#{@model.toolbar_location}")
-    @el.classList.add("bk-toolbar-#{sticky}")
 
     if @model.logo?
       cls = if @model.logo == "grey" then "bk-grey" else null
@@ -94,5 +91,4 @@ export class ToolbarBase extends Model
     inspectors: [ p.Array, [] ]
     help:       [ p.Array, [] ]
     toolbar_location: [ p.Location, 'right' ]
-    toolbar_sticky: [ p.Bool ]
   }

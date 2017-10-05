@@ -34,6 +34,8 @@ class Plot(LayoutDOM):
 
     '''
 
+    __deprecated_attributes__ = ["toolbar_sticky"]
+
     def __init__(self, **kwargs):
         '''
 
@@ -195,6 +197,14 @@ class Plot(LayoutDOM):
     def tools(self, tools):
         self.toolbar.tools = tools
 
+    @property
+    def toolbar_sticky(self):
+        deprecated("Plot.toolbar_sticky property is no longer needed, and its use is deprecated. In the future, accessing Plot.toolbar_sticky will result in an AttributeError.")
+        return True
+
+    @toolbar_sticky.setter
+    def toolbar_sticky(self, val):
+        deprecated("Plot.toolbar_sticky property is no longer needed, and its use is deprecated. In the future, accessing Plot.toolbar_sticky will result in an AttributeError.")
 
     def add_layout(self, obj, place='center'):
         ''' Adds an object to the plot in a specified place.
@@ -445,11 +455,6 @@ class Plot(LayoutDOM):
     toolbar_location = Enum(Location, default="right", help="""
     Where the toolbar will be located. If set to None, no toolbar
     will be attached to the plot.
-    """)
-
-    toolbar_sticky = Bool(default=True, help="""
-    Stick the toolbar to the edge of the plot. Default: True. If False,
-    the toolbar will be outside of the axes, titles etc.
     """)
 
     left = List(Instance(Renderer), help="""

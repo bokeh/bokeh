@@ -110,7 +110,6 @@ export class Plot extends LayoutDOM
     @_plot_canvas = @_init_plot_canvas()
 
     @toolbar.toolbar_location = @toolbar_location
-    @toolbar.toolbar_sticky = @toolbar_sticky
     @plot_canvas.toolbar = @toolbar
 
     switch @toolbar_location
@@ -222,7 +221,6 @@ export class Plot extends LayoutDOM
   @define {
       toolbar:           [ p.Instance, () -> new Toolbar() ]
       toolbar_location:  [ p.Location, 'right'                ]
-      toolbar_sticky:    [ p.Bool, true                       ]
 
       plot_width:        [ p.Number,   600                    ]
       plot_height:       [ p.Number,   600                    ]
