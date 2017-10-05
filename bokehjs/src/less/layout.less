@@ -4,22 +4,28 @@
   text-align: start;
 }
 
-.bk-layout-fixed, .bk-layout-scale_width, .bk-layout-scale_height {
-  position: relative;
-  &.bk-grid-row > div {
-    display: inline-block;
-    float: left;
-  }
+.bk-grid-row, .bk-grid-column {
+  display: flex;
+  display: -webkit-flex;
+  flex-wrap: nowrap;
+  -webkit-flex-wrap: nowrap;
 }
+
 .bk-grid-row {
-  clear: both;
+  flex-direction: row;
+  -webkit-flex-direction: row;
+}
+
+.bk-grid-column {
+  flex-direction: column;
+  -webkit-flex-direction: column;
 }
 
 // Set-up the plot canvas css
 .bk-canvas, .bk-canvas-overlays, .bk-canvas-events {
+  position: absolute;
   top: 0;
   left: 0;
-  position: absolute;
   width: 100%;
   height: 100%;
 }
