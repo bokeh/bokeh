@@ -36,13 +36,13 @@ before_install:
 
 stages:
   - name: build
-    if: tag is blank or NOT tag ~= ^(\d+\.\d+\.\d+)((?:dev|rc).*)?$
+    if: NOT tag ~= ^(\d+\.\d+\.\d+)((?:dev|rc).*)?$
 
   - name: test
-    if: tag is blank or NOT tag ~= ^(\d+\.\d+\.\d+)((?:dev|rc).*)?$
+    if: NOT tag ~= ^(\d+\.\d+\.\d+)((?:dev|rc).*)?$
 
   - name: deploy
-    if: branch = master AND tag ~= ^(\d+\.\d+\.\d+)((?:dev|rc).*)?$
+    if: tag ~= ^(\d+\.\d+\.\d+)((?:dev|rc).*)?$
 
 jobs:
   include:
