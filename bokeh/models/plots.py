@@ -199,12 +199,14 @@ class Plot(LayoutDOM):
 
     @property
     def toolbar_sticky(self):
-        deprecated("Plot.toolbar_sticky property is no longer needed, and its use is deprecated. In the future, accessing Plot.toolbar_sticky will result in an AttributeError.")
+        deprecated("Plot.toolbar_sticky property is no longer needed, and its use is deprecated."\
+                   "In the future, accessing Plot.toolbar_sticky will result in an AttributeError.")
         return True
 
     @toolbar_sticky.setter
     def toolbar_sticky(self, val):
-        deprecated("Plot.toolbar_sticky property is no longer needed, and its use is deprecated. In the future, accessing Plot.toolbar_sticky will result in an AttributeError.")
+        deprecated("Plot.toolbar_sticky property is no longer needed, and its use is deprecated."\
+                   "In the future, accessing Plot.toolbar_sticky will result in an AttributeError.")
 
     def add_layout(self, obj, place='center'):
         ''' Adds an object to the plot in a specified place.

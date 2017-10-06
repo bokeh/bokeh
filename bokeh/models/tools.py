@@ -26,7 +26,7 @@ from ..core.enums import Anchor, Dimension, Dimensions, Location, TooltipFieldFo
 from ..core.has_props import abstract
 from ..core.properties import (
     Auto, Bool, Color, Dict, Either, Enum, Float, Percent, Instance, List,
-    Override, Seq, String, Tuple
+    Seq, String, Tuple
 )
 from ..model import Model
 from ..util.deprecation import deprecated
