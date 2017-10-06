@@ -34,8 +34,6 @@ class Plot(LayoutDOM):
 
     '''
 
-    __deprecated_attributes__ = ["toolbar_sticky"]
-
     def __init__(self, **kwargs):
         '''
 

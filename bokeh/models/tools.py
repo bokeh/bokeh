@@ -43,8 +43,6 @@ class Tool(Model):
 
     '''
 
-    __deprecated_attributes__ = ["plot"]
-
     @property
     def plot(self):
         deprecated("Tool.plot property is no longer needed, and any use deprecated. In the future, accessing Tool.plot will result in an AttributeError")
