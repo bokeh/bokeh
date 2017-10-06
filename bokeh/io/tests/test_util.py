@@ -63,7 +63,7 @@ Test_api = verify_api(biu, api)
 #-----------------------------------------------------------------------------
 
 def test_detect_current_filename():
-    assert biu.detect_current_filename().endswith("py.test")
+    assert biu.detect_current_filename().endswith(("py.test", "pytest"))
 
 @patch('bokeh.io.util.NamedTemporaryFile')
 def test_temp_filename(mock_tmp):
