@@ -450,7 +450,7 @@ export color = (r, g, b) -> sprintf("#%02x%02x%02x", r, g, b)
 export gridplot = (children, options={}) ->
   toolbar_location = if options.toolbar_location == undefined then 'above' else options.toolbar_location
   sizing_mode = if options.sizing_mode == undefined then 'fixed' else options.sizing_mode
-  toolbar_sizing_mode = if options.sizing_mode == 'fixed' then 'scale_width' else sizing_mode
+  merge_tools = if options.merge_tools == undefined then true else options.merge_tools
 
   tools = []
   rows = []
@@ -478,8 +478,23 @@ export gridplot = (children, options={}) ->
 
   grid = new models.Column({children: rows, sizing_mode: sizing_mode})
 
+  if not merge_tools
+    return grid
+
   layout = if toolbar_location
-    toolbar = new models.ToolbarBox({tools: tools, sizing_mode: toolbar_sizing_mode, toolbar_location: toolbar_location})
+    if options.sizing_mode == 'fixed'
+      if toolbar_location == "above" or toolbar_location == "below"
+        toolbar_sizing_mode = 'scale_width'
+      else
+        toolbar_sizing_mode = 'scale_height'
+    else
+      toolbar_sizing_mode = sizing_mode
+
+    toolbar = new models.ToolbarBox({
+      toolbar: new models.ProxyToolbar({tools: tools}),
+      toolbar_location: toolbar_location,
+      sizing_mode: toolbar_sizing_mode,
+    })
 
     switch toolbar_location
       when 'above'
