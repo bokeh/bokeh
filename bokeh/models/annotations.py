@@ -1043,8 +1043,8 @@ class Whisker(Annotation):
 
     level = Override(default="underlay")
 
-class ToolbarAnnotation(Annotation):
+class ToolbarPanel(Annotation): # TODO: this shouldn't be an annotation
 
     toolbar = Instance(".models.tools.Toolbar", help="""
-    A toolbar to overlay in a plot's panel.
+    A toolbar to display.
     """)
