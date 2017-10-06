@@ -34,6 +34,16 @@ before_install:
   - export PATH="$HOME/bin:$PATH"
   - export TRAVIS_COMMIT_MSG="$(git log --format=%B --no-merges -n 1)"
 
+stages:
+  - name: build
+    if: tag is blank or NOT tag ~= ^(\d+\.\d+\.\d+)((?:dev|rc).*)?$
+
+  - name: test
+    if: tag is blank or NOT tag ~= ^(\d+\.\d+\.\d+)((?:dev|rc).*)?$
+
+  - name: deploy
+    if: branch = master AND tag ~= ^(\d+\.\d+\.\d+)((?:dev|rc).*)?$
+
 jobs:
   include:
     - stage: build
