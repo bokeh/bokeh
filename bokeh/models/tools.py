@@ -96,7 +96,7 @@ class Inspection(Tool):
     """)
 
 @abstract
-class ToolbarBase(LayoutDOM):
+class ToolbarBase(Model):
     ''' A base class for different toolbars.
 
     '''
