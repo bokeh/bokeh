@@ -482,7 +482,7 @@ export gridplot = (children, options={}) ->
     return grid
 
   layout = if toolbar_location
-    if options.sizing_mode == 'fixed'
+    if sizing_mode == 'fixed'
       if toolbar_location == "above" or toolbar_location == "below"
         toolbar_sizing_mode = 'scale_width'
       else
