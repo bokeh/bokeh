@@ -16,8 +16,7 @@ export class ButtonToolButtonView extends DOMView
     empty(@el)
     @el.disabled = @model.disabled
     @el.classList.add(@model.icon)
-    tip = span({class: 'bk-tip'}, @model.tooltip)
-    @el.appendChild(tip)
+    @el.title = @model.tooltip
 
   _clicked: (e) ->
 
