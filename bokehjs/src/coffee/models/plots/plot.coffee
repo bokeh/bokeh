@@ -1,6 +1,7 @@
 import {WEAK_EQ, GE, EQ} from "core/layout/solver"
 import {logger} from "core/logging"
 import * as p from "core/properties"
+import {removeBy} from "core/util/array"
 import {extend, values, clone} from "core/util/object"
 import {isString, isArray} from "core/util/types"
 
@@ -109,13 +110,8 @@ export class Plot extends LayoutDOM
 
     @_plot_canvas = @_init_plot_canvas()
 
-    @toolbar.toolbar_location = @toolbar_location
     @plot_canvas.toolbar = @toolbar
-
-    switch @toolbar_location
-      when "left", "right", "above", "below"
-        panel = new ToolbarPanel({toolbar: @toolbar})
-        @add_layout(panel, @toolbar_location)
+    @_init_toolbar_panel()
 
     # Set width & height to be the passed in plot_width and plot_height
     # We may need to be more subtle about this - not sure why people use one
@@ -133,6 +129,22 @@ export class Plot extends LayoutDOM
 
   _init_plot_canvas: () ->
     return new PlotCanvas({plot: @})
+
+  _init_toolbar_panel: () ->
+    if @_toolbar_panel?
+      for items in [@left, @right, @above, @below, @renderers]
+        removeBy(items, (item) => item == @_toolbar_panel)
+      @_toolbar_panel = null
+
+    switch @toolbar_location
+      when "left", "right", "above", "below"
+        @_toolbar_panel = new ToolbarPanel({toolbar: @toolbar})
+        @toolbar.toolbar_location = @toolbar_location
+        @add_layout(@_toolbar_panel, @toolbar_location)
+
+  connect_signals: () ->
+    super()
+    @connect(@properties.toolbar_location.change, () => @_init_toolbar_panel())
 
   @getters {
     plot_canvas: () -> @_plot_canvas
