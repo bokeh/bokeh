@@ -381,10 +381,13 @@ def gridplot(*args, **kwargs):
                         row_tools = row_tools + plot.toolbar.tools
                         plot.toolbar_location = None
             if item is None:
+                width, height = 0, 0
                 for neighbor in row:
                     if isinstance(neighbor, Plot):
+                        width = neighbor.plot_width
+                        height = neighbor.plot_height
                         break
-                item = Spacer(width=neighbor.plot_width, height=neighbor.plot_height)
+                item = Spacer(width=width, height=height)
             if isinstance(item, LayoutDOM):
                 item.sizing_mode = sizing_mode
                 if isinstance(item, Plot):

@@ -463,10 +463,14 @@ export gridplot = (children, options={}) ->
         row_tools = row_tools.concat(item.toolbar.tools)
         item.toolbar_location = null
       if item == null
+        width = 0
+        height = 0
         for neighbor in row
           if neighbor instanceof models.Plot
+            width = neighbor.plot_width
+            height = neighbor.plot_height
             break
-        item = new models.Spacer({width: neighbor.plot_width, height: neighbor.plot_height})
+        item = new models.Spacer({width: width, height: height})
       if item instanceof models.LayoutDOM
         item.sizing_mode = sizing_mode
         row_children.push(item)

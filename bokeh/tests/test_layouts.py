@@ -3,6 +3,8 @@ import pytest
 from bokeh.core.enums import SizingMode
 from bokeh.plotting import figure
 
+from bokeh.layouts import gridplot
+from bokeh.models import Column, Row, Spacer
 
 def test_gridplot_merge_tools_flat():
     p1, p2, p3, p4 = figure(), figure(), figure(), figure()
@@ -32,6 +34,28 @@ def test_gridplot_merge_tools_nested():
 
     for p in p1, p2, p3, p4, p5, p6, p7:
         assert p.toolbar_location is None
+
+
+def test_gridplot_None():
+    def p():
+        p = figure()
+        p.circle([1, 2, 3], [4, 5, 6])
+        return p
+
+    g = gridplot([[p(), p()], [None, None], [p(), p()]])
+
+    assert isinstance(g, Column) and len(g.children) == 2
+
+    c = g.children[1]
+    assert isinstance(c, Column) and len(c.children) == 3
+
+    r = c.children[1]
+    assert isinstance(r, Row) and len(r.children) == 2
+
+    s0 = r.children[0]
+    assert isinstance(s0, Spacer) and s0.width == 0 and s0.height == 0
+    s1 = r.children[1]
+    assert isinstance(s1, Spacer) and s1.width == 0 and s1.height == 0
 
 
 def test_layout_simple():
