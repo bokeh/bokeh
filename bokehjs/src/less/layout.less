@@ -1,9 +1,3 @@
-// Styles related to laying out bokeh.
-
-.bk-plot-layout {
-  text-align: start;
-}
-
 .bk-grid-row, .bk-grid-column {
   display: flex;
   display: -webkit-flex;
@@ -19,22 +13,4 @@
 .bk-grid-column {
   flex-direction: column;
   -webkit-flex-direction: column;
-}
-
-// Set-up the plot canvas css
-.bk-canvas, .bk-canvas-overlays, .bk-canvas-events {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-}
-.bk-canvas-wrapper {
-  z-index: 50;
-}
-.bk-canvas-overlays {
-  z-index: 75;
-}
-.bk-canvas-events {
-  z-index: 100;
 }

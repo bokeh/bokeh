@@ -23,9 +23,7 @@ export class CanvasView extends DOMView
   initialize: (options) ->
     super(options)
 
-    @map_el      = if @model.map then @el.appendChild(div({class: "bk-canvas-map"})) else null
-    @events_el   = @el.appendChild(div({class: "bk-canvas-events"}))
-    @overlays_el = @el.appendChild(div({class: "bk-canvas-overlays"}))
+    @map_el = if @model.map then @el.appendChild(div({class: "bk-canvas-map"})) else null
 
     switch @model.output_backend
       when "canvas", "webgl"
@@ -34,6 +32,9 @@ export class CanvasView extends DOMView
       when "svg"
         @_ctx = new canvas2svg()
         @canvas_el = @el.appendChild(@_ctx.getSvg())
+
+    @overlays_el = @el.appendChild(div({class: "bk-canvas-overlays"}))
+    @events_el   = @el.appendChild(div({class: "bk-canvas-events"}))
 
     @ctx = @get_ctx()
     # work around canvas incompatibilities
