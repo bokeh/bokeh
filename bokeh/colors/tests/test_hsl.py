@@ -52,7 +52,7 @@ api = {
 
 }
 
-test_public_api, test_internal_api, test_all_declared, test_all_tested = verify_api(bch, api)
+Test_api = verify_api(bch, api)
 
 #-----------------------------------------------------------------------------
 # Setup
