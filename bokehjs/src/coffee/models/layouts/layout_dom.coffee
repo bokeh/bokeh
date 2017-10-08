@@ -214,8 +214,8 @@ export class LayoutDOMView extends DOMView
         @el.style.position = "relative"
         @el.style.left = ""
         @el.style.top = ""
-        @el.style.width = "#{width}px"
-        @el.style.height = "#{height}px"
+        @el.style.width = "#{@model._width.value}px"
+        @el.style.height = "#{@model._height.value}px"
 
       when 'scale_width'
         height = @get_height()
