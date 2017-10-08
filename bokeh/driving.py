@@ -1,3 +1,10 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Provide a set of decorators useful for repeatedly updating a
 a function parameter in a specified way each time the function is
 called.
@@ -26,64 +33,47 @@ Example:
         0 1 2 2 1 0 0 1 2 2 1 ...
 
 '''
-from __future__ import absolute_import
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+from bokeh.util.api import public, internal ; public, internal
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 from functools import partial
 
-def sine(w, A=1, phi=0, offset=0):
-    ''' Return a driver function that can advance a sequence of sine values.
+# External imports
 
-    .. code-block:: none
+# Bokeh imports
 
-        value = A * sin(w*i + phi) + offset
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
 
-    Args:
-        w (float) : a frequency for the sine driver
-        A (float) : an amplitude for the sine driver
-        phi (float) : a phase offset to start the sine driver with
-        offset (float) : a global offset to add to the driver values
+__all__ = (
+    'bounce',
+    'cosine',
+    'count',
+    'force',
+    'linear',
+    'repeat',
+    'sine',
+)
 
-    '''
-    from math import sin
-    def f(i):
-        return A * sin(w*i + phi) + offset
-    return partial(_force, sequence=_advance(f))
+#-----------------------------------------------------------------------------
+# Public API
+#-----------------------------------------------------------------------------
 
-def cosine(w, A=1, phi=0, offset=0):
-    ''' Return a driver function that can advance a sequence of cosine values.
-
-    .. code-block:: none
-
-        value = A * cos(w*i + phi) + offset
-
-    Args:
-        w (float) : a frequency for the cosine driver
-        A (float) : an amplitude for the cosine driver
-        phi (float) : a phase offset to start the cosine driver with
-        offset (float) : a global offset to add to the driver values
-
-    '''
-    from math import cos
-    def f(i):
-        return A * cos(w*i + phi) + offset
-    return partial(_force, sequence=_advance(f))
-
-def linear(m=1, b=0):
-    ''' Return a driver function that can advance a sequence of linear values.
-
-    .. code-block:: none
-
-        value = m * i + b
-
-    Args:
-        m (float) : a slope for the linear driver
-        x (float) : an offset for the linear driver
-
-    '''
-    def f(i):
-        return m * i + b
-    return partial(_force, sequence=_advance(f))
-
+@public((1,0,0))
 def bounce(sequence):
     ''' Return a driver function that can advance a "bounced" sequence
     of values.
@@ -105,8 +95,70 @@ def bounce(sequence):
             return sequence[mod]
         else:
             return sequence[N-mod-1]
-    return partial(_force, sequence=_advance(f))
+    return partial(force, sequence=_advance(f))
 
+@public((1,0,0))
+def cosine(w, A=1, phi=0, offset=0):
+    ''' Return a driver function that can advance a sequence of cosine values.
+
+    .. code-block:: none
+
+        value = A * cos(w*i + phi) + offset
+
+    Args:
+        w (float) : a frequency for the cosine driver
+        A (float) : an amplitude for the cosine driver
+        phi (float) : a phase offset to start the cosine driver with
+        offset (float) : a global offset to add to the driver values
+
+    '''
+    from math import cos
+    def f(i):
+        return A * cos(w*i + phi) + offset
+    return partial(force, sequence=_advance(f))
+
+@public((1,0,0))
+def count():
+    ''' Return a driver function that can advance a simple count.
+
+    '''
+    return partial(force, sequence=_advance(lambda x: x))
+
+@public((1,0,0))
+def force(f, sequence):
+    ''' Return a decorator that can "force" a function with an arbitrary
+    supplied generator
+
+    Args:
+        sequence (iterable) :
+            generator to drive f with
+
+    Returns:
+        decorator
+
+    '''
+    def wrapper():
+        f(next(sequence))
+    return wrapper
+
+@public((1,0,0))
+def linear(m=1, b=0):
+    ''' Return a driver function that can advance a sequence of linear values.
+
+    .. code-block:: none
+
+        value = m * i + b
+
+    Args:
+        m (float) : a slope for the linear driver
+        x (float) : an offset for the linear driver
+
+    '''
+    def f(i):
+        return m * i + b
+    return partial(force, sequence=_advance(f))
+
+@public((1,0,0))
 def repeat(sequence):
     ''' Return a driver function that can advance a repeated of values.
 
@@ -123,21 +175,53 @@ def repeat(sequence):
     N = len(sequence)
     def f(i):
         return sequence[i%N]
-    return partial(_force, sequence=_advance(f))
+    return partial(force, sequence=_advance(f))
 
-def count():
-    ''' Return a driver function that can advance a simple count.
+@public((1,0,0))
+def sine(w, A=1, phi=0, offset=0):
+    ''' Return a driver function that can advance a sequence of sine values.
+
+    .. code-block:: none
+
+        value = A * sin(w*i + phi) + offset
+
+    Args:
+        w (float) : a frequency for the sine driver
+        A (float) : an amplitude for the sine driver
+        phi (float) : a phase offset to start the sine driver with
+        offset (float) : a global offset to add to the driver values
 
     '''
-    return partial(_force, sequence=_advance(lambda x: x))
+    from math import sin
+    def f(i):
+        return A * sin(w*i + phi) + offset
+    return partial(force, sequence=_advance(f))
 
-def _force(f, sequence):
-    def wrapper(*args, **kw):
-        f(next(sequence))
-    return wrapper
+#-----------------------------------------------------------------------------
+# Internal API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
 
 def _advance(f):
+    ''' Yield a sequence generated by calling a given function with
+    successively incremented integer values.
+
+    Args:
+        f (callable) :
+            The function to advance
+
+    Yields:
+        f(i) where i increases each call
+
+    '''
     i = 0
     while True:
         yield f(i)
         i += 1
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
