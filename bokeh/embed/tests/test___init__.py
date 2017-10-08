@@ -25,6 +25,7 @@ from bokeh.util.testing import verify_api ; verify_api
 # External imports
 
 # Bokeh imports
+from bokeh.util.testing import verify_all
 
 # Module under test
 import bokeh.embed as be
@@ -47,9 +48,4 @@ ALL = (
 # Public API
 #-----------------------------------------------------------------------------
 
-def test___all__():
-    assert be.__all__ == ALL
-
-@pytest.mark.parametrize('name', ALL)
-def test_contents(name):
-    assert hasattr(be, name)
+Test___all__ = verify_all(be, ALL)

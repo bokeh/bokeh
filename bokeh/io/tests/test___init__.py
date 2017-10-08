@@ -26,6 +26,7 @@ from bokeh.util.testing import verify_api ; verify_api
 
 # Bokeh imports
 import bokeh.io.notebook as binb
+from bokeh.util.testing import verify_all
 
 # Module under test
 import bokeh.io as bi
@@ -50,15 +51,10 @@ ALL = (
 # Public API
 #-----------------------------------------------------------------------------
 
+Test___all__ = verify_all(bi, ALL)
+
 def test_jupyter_notebook_hook_installed():
     assert list(binb._HOOKS) == ["jupyter"]
     assert binb._HOOKS["jupyter"]['load'] == binb.load_notebook
     assert binb._HOOKS["jupyter"]['doc']  == binb.show_doc
     assert binb._HOOKS["jupyter"]['app']  == binb.show_app
-
-def test___all__():
-    assert bi.__all__ == ALL
-
-@pytest.mark.parametrize('name', ALL)
-def test_contents(name):
-    assert hasattr(bi, name)

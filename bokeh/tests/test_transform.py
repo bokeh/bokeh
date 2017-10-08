@@ -26,6 +26,7 @@ from bokeh.util.testing import verify_api ; verify_api
 
 # Bokeh imports
 from bokeh.models import CategoricalColorMapper, Dodge, FactorRange, Jitter, LinearColorMapper, LogColorMapper, Stack
+from bokeh.util.testing import verify_all
 
 # Module under test
 import bokeh.transform as bt
@@ -72,12 +73,7 @@ ALL = (
 # Public API
 #-----------------------------------------------------------------------------
 
-def test___all__():
-    assert bt.__all__ == ALL
-
-@pytest.mark.parametrize('name', ALL)
-def test_contents(name):
-    assert hasattr(bt, name)
+Test___all__ = verify_all(bt, ALL)
 
 class Test_dodge(object):
 

@@ -15,6 +15,17 @@ import pytest
 from .api import INTERNAL, PUBLIC
 from .api import is_declared, is_level, is_version
 
+def verify_all(module, ALL):
+    class Test___all__(object):
+        def test___all__(self):
+            assert hasattr(module, "__all__")
+            assert module.__all__ == ALL
+
+        @pytest.mark.parametrize('name', ALL)
+        def test_contents(self, name):
+            assert hasattr(module, name)
+    return Test___all__
+
 def verify_api(module, api):
 
     test_public_api = _generate_api_check(module, api, PUBLIC)
