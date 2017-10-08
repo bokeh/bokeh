@@ -3,6 +3,11 @@
   display: -webkit-flex;
   flex-wrap: nowrap;
   -webkit-flex-wrap: nowrap;
+
+  &> * {
+    flex-shrink: 0;
+    -webkit-flex-shrink: 0;
+  }
 }
 
 .bk-grid-row {
