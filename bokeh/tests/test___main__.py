@@ -5,52 +5,53 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Enable execution of the "bokeh" command line program with the ``-m``
-switch. For example:
-
-.. code-block:: sh
-
-    python -m bokeh serve --show app.py
-
-is equivalent to
-
-.. code-block:: sh
-
-    bokeh serve --show app.py
-
-'''
 
 #-----------------------------------------------------------------------------
 # Boilerplate
 #----------------------------------------------------------------------------
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import logging
-log = logging.getLogger(__name__)
+import pytest ; pytest
 
-from bokeh.util.api import public, internal ; public, internal
+from bokeh.util.api import INTERNAL, PUBLIC ; INTERNAL, PUBLIC
+from bokeh.util.testing import verify_api ; verify_api
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+from mock import patch
+
+# External imports
+
+# Bokeh imports
+from bokeh.util.testing import verify_all
+
+# Module under test
+import bokeh.__main__ as bm
+
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
+
+ALL =  (
+    'main',
+)
 
 #-----------------------------------------------------------------------------
 # Public API
 #-----------------------------------------------------------------------------
 
-__all__ = (
-    'main',
-)
+Test___all__ = verify_all(bm, ALL)
 
-def main():
-    ''' Execute the "bokeh" command line program.
-
-    '''
+@patch('bokeh.command.bootstrap.main')
+def test_main(mock_main):
     import sys
-    from bokeh.command.bootstrap import main as _main
-
-   # Main entry point (see setup.py)
-    _main(sys.argv)
-
-#-----------------------------------------------------------------------------
-# Code
-#-----------------------------------------------------------------------------
-
-if __name__ == "__main__":
-    main()
+    old_argv = sys.argv
+    sys.argv = ["foo", "bar"]
+    bm.main()
+    assert mock_main.call_count == 1
+    assert mock_main.call_args[0] == (["foo", "bar"],)
+    assert mock_main.call_args[1] == {}
+    sys.argv = old_argv
