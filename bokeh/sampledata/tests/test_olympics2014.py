@@ -48,6 +48,7 @@ ALL = (
 
 Test___all__ = verify_all(bso, ALL)
 
+@pytest.mark.sampledata
 def test_data():
     assert isinstance(bso.data, dict)
 

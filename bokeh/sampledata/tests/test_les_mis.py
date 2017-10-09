@@ -48,6 +48,7 @@ ALL = (
 
 Test___all__ = verify_all(bsl, ALL)
 
+@pytest.mark.sampledata
 def test_data():
     assert isinstance(bsl.data, dict)
 

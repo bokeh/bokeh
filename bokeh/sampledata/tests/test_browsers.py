@@ -50,12 +50,14 @@ ALL = (
 
 Test___all__ = verify_all(bsb, ALL)
 
+@pytest.mark.sampledata
 def test_browsers_nov_2013():
     assert isinstance(bsb.browsers_nov_2013, pd.DataFrame)
 
     # check detail for package data
     assert len(bsb.browsers_nov_2013) == 118
 
+@pytest.mark.sampledata
 def test_icons():
     assert isinstance(bsb.icons, dict)
 

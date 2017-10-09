@@ -48,6 +48,7 @@ ALL = (
 
 Test___all__ = verify_all(bsu, ALL)
 
+@pytest.mark.sampledata
 def test_us_holidays():
     assert isinstance(bsu.us_holidays, list)
 

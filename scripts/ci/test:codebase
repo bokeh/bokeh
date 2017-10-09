@@ -5,4 +5,6 @@ set -x # echo commands
 
 py.test -m api
 
+py.test -m sampledata
+
 py.test -m quality

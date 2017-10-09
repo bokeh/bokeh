@@ -49,6 +49,7 @@ ALL = (
 
 Test___all__ = verify_all(bsm, ALL)
 
+@pytest.mark.sampledata
 def test_movie_path():
     assert isinstance(bsm.movie_path, string_types)
 

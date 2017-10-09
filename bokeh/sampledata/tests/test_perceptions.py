@@ -50,18 +50,19 @@ ALL = (
 
 Test___all__ = verify_all(bsp, ALL)
 
+@pytest.mark.sampledata
 def test_numberly():
     assert isinstance(bsp.numberly, pd.DataFrame)
 
     # check detail for package data
     assert len(bsp.numberly) == 46
 
+@pytest.mark.sampledata
 def test_probly():
     assert isinstance(bsp.probly, pd.DataFrame)
 
     # check detail for package data
     assert len(bsp.probly) == 46
-
 
 #-----------------------------------------------------------------------------
 # Internal API

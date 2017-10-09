@@ -49,6 +49,7 @@ ALL = (
 
 Test___all__ = verify_all(bss, ALL)
 
+@pytest.mark.sampledata
 def test_sprint():
     assert isinstance(bss.sprint, pd.DataFrame)
 

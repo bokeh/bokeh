@@ -50,6 +50,7 @@ ALL = (
 
 Test___all__ = verify_all(bsa, ALL)
 
+@pytest.mark.sampledata
 def test_autompg():
     assert isinstance(bsa.autompg, pd.DataFrame)
 
@@ -57,6 +58,7 @@ def test_autompg():
     assert len(bsa.autompg) == 392
     assert all(x in [1,2,3] for x in bsa.autompg.origin)
 
+@pytest.mark.sampledata
 def test_autompg_clean():
     assert isinstance(bsa.autompg_clean, pd.DataFrame)
 

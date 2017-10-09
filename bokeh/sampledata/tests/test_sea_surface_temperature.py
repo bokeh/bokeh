@@ -49,6 +49,7 @@ ALL = (
 
 Test___all__ = verify_all(bss, ALL)
 
+@pytest.mark.sampledata
 def test_sea_surface_temperature():
     assert isinstance(bss.sea_surface_temperature, pd.DataFrame)
 

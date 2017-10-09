@@ -53,6 +53,7 @@ ALL = (
 Test___all__ = verify_all(bsg, ALL)
 
 @pytest.mark.parametrize('name', ['fertility', 'life_expectancy', 'population', 'regions'])
+@pytest.mark.sampledata
 def test_data(name):
     data = getattr(bsg, name)
     assert isinstance(data, pd.DataFrame)

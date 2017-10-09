@@ -49,6 +49,7 @@ ALL = (
 
 Test___all__ = verify_all(bsa, ALL)
 
+@pytest.mark.sampledata
 def test_autompg2():
     assert isinstance(bsa.autompg2, pd.DataFrame)
 

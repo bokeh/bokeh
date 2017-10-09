@@ -49,6 +49,7 @@ ALL = (
 
 Test___all__ = verify_all(bsm, ALL)
 
+@pytest.mark.sampledata
 def test_obiszow_mtb_xcm():
     assert isinstance(bsm.obiszow_mtb_xcm, pd.DataFrame)
 

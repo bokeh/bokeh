@@ -49,6 +49,7 @@ ALL = (
 
 Test___all__ = verify_all(bsw, ALL)
 
+@pytest.mark.sampledata
 def test_data():
     assert isinstance(bsw.data, pd.DataFrame)
 

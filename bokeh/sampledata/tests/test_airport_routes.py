@@ -50,11 +50,13 @@ ALL = (
 
 Test___all__ = verify_all(bsa, ALL)
 
+@pytest.mark.sampledata
 def test_airports():
     assert isinstance(bsa.airports, pd.DataFrame)
 
     # don't check detail for external data
 
+@pytest.mark.sampledata
 def test_routes():
     assert isinstance(bsa.routes, pd.DataFrame)
 

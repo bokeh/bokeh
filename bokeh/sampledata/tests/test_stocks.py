@@ -53,6 +53,7 @@ ALL = (
 Test___all__ = verify_all(bss, ALL)
 
 @pytest.mark.parametrize('name', ['AAPL', 'FB', 'GOOG', 'IBM', 'MSFT'])
+@pytest.mark.sampledata
 def test_data(name):
     data = getattr(bss, name)
     assert isinstance(data, dict)
