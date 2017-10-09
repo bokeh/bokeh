@@ -1,3 +1,10 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Provide U.S. marriage and divorce statistics between 1867 and 2014
 
 Data from the CDC's National Center for Health Statistics (NHCS) database
@@ -6,16 +13,58 @@ Data from the CDC's National Center for Health Statistics (NHCS) database
 Data organized by Randal S. Olson (http://www.randalolson.com)
 
 '''
-from __future__ import absolute_import
 
-from bokeh.util.dependencies import import_required
-pd = import_required('pandas',
-              'us_marriages_divorces sample data requires Pandas (http://pandas.pydata.org) to be installed')
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from os.path import dirname, join
+import logging
+log = logging.getLogger(__name__)
 
-data = pd.read_csv(
-    join(dirname(__file__), 'us_marriages_divorces.csv'))
+from bokeh.util.api import public, internal ; public, internal
 
-# Fill in missing data with a simple linear interpolation
-data = data.interpolate(method='linear', axis=0).ffill().bfill()
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
+
+# Bokeh imports
+from ..util.sampledata import package_csv
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'data',
+)
+
+#-----------------------------------------------------------------------------
+# Public API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Internal API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+def _read_data():
+    '''
+
+    '''
+
+    data = package_csv('us_marriages_divorces', 'us_marriages_divorces.csv')
+    return data.interpolate(method='linear', axis=0).ffill().bfill()
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
+
+data = _read_data()

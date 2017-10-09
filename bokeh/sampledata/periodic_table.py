@@ -1,6 +1,14 @@
-'''
-This module provides the periodic table as a data set. It exposes an attribute 'elements'
-which is a pandas dataframe with the following fields
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
+''' Provide a periodic table data set. It exposes an attribute ``elements``
+which is a pandas Dataframe with the following fields:
+
+.. code-block:: python
 
     elements['atomic Number']        (units: g/cm^3)
     elements['symbol']
@@ -24,15 +32,64 @@ which is a pandas dataframe with the following fields
     elements['group']
     elements['period']
 
-element types: actinoid, alkali metal, alkaline earth metal, halogen, lanthanoid, metal, metalloid, noble gas, nonmetal, transition metalloid
+where element types are:
+
+    actinoid
+    alkali metal
+    alkaline earth metal
+    halogen,
+    lanthanoid
+    metal
+    metalloid
+    noble gas
+    nonmetal
+    transition metalloid
 
 '''
-from __future__ import absolute_import
 
-from bokeh.util.dependencies import import_required
-pd = import_required('pandas',
-              'periodic_table sample data requires Pandas (http://pandas.pydata.org) to be installed')
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from os.path import dirname, join
+import logging
+log = logging.getLogger(__name__)
 
-elements = pd.read_csv(join(dirname(__file__), 'elements.csv'))
+from bokeh.util.api import public, internal ; public, internal
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
+
+# Bokeh imports
+from ..util.sampledata import package_csv
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'elements',
+)
+
+#-----------------------------------------------------------------------------
+# Public API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Internal API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
+
+elements = package_csv('periodic_table', 'elements.csv')

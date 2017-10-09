@@ -35,6 +35,9 @@ been deprecated. The ``sizing_mode`` enum should be used instead. Use
 ``sizing_mode='fixed'`` for ``responsive=True`` and
 ``sizing_mode='scale_width'`` for ``responsive=False`` instead.
 
+The function ``bokeh.sampledata.population.load_population`` has been
+deprecated. Use the attribute ``bokeh.sampledata.population.data`` instead.
+
 Code Moves
 ~~~~~~~~~~
 

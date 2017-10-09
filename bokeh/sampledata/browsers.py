@@ -1,30 +1,79 @@
-"""
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
+'''
 
-"""
-from __future__ import absolute_import
+http://gs.statcounter.com/#browser_version-ww-monthly-201311-201311-bar
 
-from bokeh.util.dependencies import import_required
-pd = import_required('pandas',
-              'browsers sample data requires Pandas (http://pandas.pydata.org) to be installed')
+https://github.com/alrra/browser-logos
 
-from os.path import join, dirname
+'''
 
-_data_dir = dirname(__file__)
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-# http://gs.statcounter.com/#browser_version-ww-monthly-201311-201311-bar
-_csv_path = join(_data_dir, "browsers_nov_2013.csv")
-browsers_nov_2013 = pd.read_csv(_csv_path, names=["Version", "Share"], skiprows=1)
+import logging
+log = logging.getLogger(__name__)
 
-_versions = browsers_nov_2013.Version.map(lambda x: x.rsplit(" ", 1))
-browsers_nov_2013["Browser"] = _versions.map(lambda x: x[0])
-browsers_nov_2013["VersionNumber"] = _versions.map(lambda x: x[1] if len(x) == 2 else "0")
+from bokeh.util.api import public, internal ; public, internal
 
-# https://github.com/alrra/browser-logos
-_browsers = ["Chrome", "Firefox", "Safari", "Opera", "IE"]
-icons = {}
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
 
-for browser in _browsers:
-    icon_path = join(_data_dir, "icons", browser.lower() + "_32x32.png")
+# Standard library imports
+from os.path import join
 
-    with open(icon_path, "rb") as icon:
-        icons[browser] = icon.read()
+# External imports
+
+# Bokeh imports
+from ..util.sampledata import package_csv, package_path
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'browsers_nov_2013',
+    'icons',
+)
+
+#-----------------------------------------------------------------------------
+# Public API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Internal API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+def _read_data():
+    '''
+
+    '''
+    df = package_csv('browsers', 'browsers_nov_2013.csv', names=["Version", "Share"], skiprows=1)
+    _versions = df.Version.map(lambda x: x.rsplit(" ", 1))
+    df["Browser"] = _versions.map(lambda x: x[0])
+    df["VersionNumber"] = _versions.map(lambda x: x[1] if len(x) == 2 else "0")
+
+    icons = {}
+    for browser in ["Chrome", "Firefox", "Safari", "Opera", "IE"]:
+        with open(package_path(join("icons", browser.lower() + "_32x32.png")), "rb") as icon:
+            icons[browser] = icon.read()
+
+    return df, icons
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
+
+browsers_nov_2013, icons = _read_data()

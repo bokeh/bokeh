@@ -7,12 +7,10 @@ from bokeh.io import curdoc
 from bokeh.models.glyphs import Line, HBar
 from bokeh.models import (Plot, ColumnDataSource, DataRange1d, FactorRange,
                           LinearAxis, CategoricalAxis, Grid, Legend, CategoricalScale)
-from bokeh.sampledata.population import load_population
+from bokeh.sampledata.population import data as df
 from bokeh.models.widgets import Select
 from bokeh.models.layouts import WidgetBox, Column
 
-
-df = load_population()
 revision = 2012
 
 year, location = 2010, "World"

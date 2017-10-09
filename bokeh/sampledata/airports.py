@@ -1,4 +1,11 @@
-""" The data in airports.json is a subset of US airports with field
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
+''' The data in airports.json is a subset of US airports with field
 elevations > 1500 meters. The query result was taken from
 
 .. code-block:: none
@@ -6,22 +13,68 @@ elevations > 1500 meters. The query result was taken from
     http://services.nationalmap.gov/arcgis/rest/services/GlobalMap/GlobalMapWFS/MapServer/10/query
 
 on October 15, 2015.
-"""
-from __future__ import absolute_import
 
-from bokeh.util.dependencies import import_required
-pd = import_required('pandas',
-              'airports sample data requires Pandas (http://pandas.pydata.org) to be installed')
+'''
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+from bokeh.util.api import public, internal ; public, internal
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import json
-import os
 
-from . import _data_dir
+# External imports
 
-with open(os.path.join(_data_dir(), 'airports.json'), 'r') as data_file:
-    content = data_file.read()
-    airports = json.loads(content)
-    schema = [['attributes', 'nam'], ['attributes', 'zv3'], ['geometry', 'x'], ['geometry', 'y']]
-    data = pd.io.json.json_normalize(airports['features'], meta=schema)
-    data.rename(columns={'attributes.nam': 'name', 'attributes.zv3': 'elevation'}, inplace=True)
-    data.rename(columns={'geometry.x': 'x', 'geometry.y': 'y'}, inplace=True)
+# Bokeh imports
+from ..util.dependencies import import_required
+from ..util.sampledata import external_path
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'data',
+)
+
+#-----------------------------------------------------------------------------
+# Public API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Internal API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+def _read_data():
+    '''
+
+    '''
+    pd = import_required('pandas', 'airports sample data requires Pandas (http://pandas.pydata.org) to be installed')
+    with open(external_path('airports.json'), 'r') as f:
+        content = f.read()
+        airports = json.loads(content)
+        schema = [['attributes', 'nam'], ['attributes', 'zv3'], ['geometry', 'x'], ['geometry', 'y']]
+        data = pd.io.json.json_normalize(airports['features'], meta=schema)
+        data.rename(columns={'attributes.nam': 'name', 'attributes.zv3': 'elevation'}, inplace=True)
+        data.rename(columns={'geometry.x': 'x', 'geometry.y': 'y'}, inplace=True)
+    return data
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
+
+data = _read_data()
