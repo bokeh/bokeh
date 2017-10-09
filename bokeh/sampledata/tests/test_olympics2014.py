@@ -28,7 +28,7 @@ from bokeh.util.testing import verify_api ; verify_api
 from bokeh.util.testing import verify_all
 
 # Module under test
-import bokeh.sampledata.olympics2014 as bso
+#import bokeh.sampledata.olympics2014 as bso
 
 #-----------------------------------------------------------------------------
 # API Definition
@@ -46,10 +46,11 @@ ALL = (
 # Public API
 #-----------------------------------------------------------------------------
 
-Test___all__ = verify_all(bso, ALL)
+Test___all__ = pytest.mark.sampledata(verify_all("bokeh.sampledata.olympics2014", ALL))
 
 @pytest.mark.sampledata
 def test_data():
+    import bokeh.sampledata.olympics2014 as bso
     assert isinstance(bso.data, dict)
 
     # check detail for package data

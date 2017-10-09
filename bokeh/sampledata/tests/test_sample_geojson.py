@@ -23,12 +23,13 @@ from bokeh.util.testing import verify_api ; verify_api
 # Standard library imports
 
 # External imports
+from six import string_types
 
 # Bokeh imports
 from bokeh.util.testing import verify_all
 
 # Module under test
-import bokeh.sampledata.sample_geojson as bss
+#import bokeh.sampledata.sample_geojson as bss
 
 #-----------------------------------------------------------------------------
 # API Definition
@@ -46,7 +47,12 @@ ALL = (
 # Public API
 #-----------------------------------------------------------------------------
 
-Test___all__ = verify_all(bss, ALL)
+Test___all__ = pytest.mark.sampledata(verify_all("bokeh.sampledata.sample_geojson", ALL))
+
+@pytest.mark.sampledata
+def test_geojson():
+    import bokeh.sampledata.sample_geojson as bsg
+    assert isinstance(bsg.geojson, string_types)
 
 #-----------------------------------------------------------------------------
 # Internal API

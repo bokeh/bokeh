@@ -29,7 +29,7 @@ import pandas as pd
 from bokeh.util.testing import verify_all
 
 # Module under test
-import bokeh.sampledata.browsers as bsb
+#import bokeh.sampledata.browsers as bsb
 
 #-----------------------------------------------------------------------------
 # API Definition
@@ -48,10 +48,11 @@ ALL = (
 # Public API
 #-----------------------------------------------------------------------------
 
-Test___all__ = verify_all(bsb, ALL)
+Test___all__ = pytest.mark.sampledata(verify_all("bokeh.sampledata.browsers", ALL))
 
 @pytest.mark.sampledata
 def test_browsers_nov_2013():
+    import bokeh.sampledata.browsers as bsb
     assert isinstance(bsb.browsers_nov_2013, pd.DataFrame)
 
     # check detail for package data
@@ -59,6 +60,7 @@ def test_browsers_nov_2013():
 
 @pytest.mark.sampledata
 def test_icons():
+    import bokeh.sampledata.browsers as bsb
     assert isinstance(bsb.icons, dict)
 
     # check detail for package data

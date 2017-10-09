@@ -29,7 +29,7 @@ import pandas as pd
 from bokeh.util.testing import verify_all
 
 # Module under test
-import bokeh.sampledata.periodic_table as bsp
+#import bokeh.sampledata.periodic_table as bsp
 
 #-----------------------------------------------------------------------------
 # API Definition
@@ -47,10 +47,11 @@ ALL = (
 # Public API
 #-----------------------------------------------------------------------------
 
-Test___all__ = verify_all(bsp, ALL)
+Test___all__ = pytest.mark.sampledata(verify_all("bokeh.sampledata.periodic_table", ALL))
 
 @pytest.mark.sampledata
 def test_elements():
+    import bokeh.sampledata.periodic_table as bsp
     assert isinstance(bsp.elements, pd.DataFrame)
 
     # check detail for package data

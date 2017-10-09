@@ -29,7 +29,7 @@ import pandas as pd
 from bokeh.util.testing import verify_all
 
 # Module under test
-import bokeh.sampledata.degrees as bsd
+#import bokeh.sampledata.degrees as bsd
 
 #-----------------------------------------------------------------------------
 # API Definition
@@ -47,10 +47,11 @@ ALL = (
 # Public API
 #-----------------------------------------------------------------------------
 
-Test___all__ = verify_all(bsd, ALL)
+Test___all__ = pytest.mark.sampledata(verify_all("bokeh.sampledata.degrees", ALL))
 
 @pytest.mark.sampledata
 def test_data():
+    import bokeh.sampledata.degrees as bsd
     assert isinstance(bsd.data, pd.DataFrame)
 
     # check detail for package data

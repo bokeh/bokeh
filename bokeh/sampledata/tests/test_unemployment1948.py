@@ -29,7 +29,7 @@ import pandas as pd
 from bokeh.util.testing import verify_all
 
 # Module under test
-import bokeh.sampledata.unemployment1948 as bsu
+#import bokeh.sampledata.unemployment1948 as bsu
 
 #-----------------------------------------------------------------------------
 # API Definition
@@ -47,10 +47,11 @@ ALL = (
 # Public API
 #-----------------------------------------------------------------------------
 
-Test___all__ = verify_all(bsu, ALL)
+Test___all__ = pytest.mark.sampledata(verify_all("bokeh.sampledata.unemployment1948", ALL))
 
 @pytest.mark.sampledata
 def test_data():
+    import bokeh.sampledata.unemployment1948 as bsu
     assert isinstance(bsu.data, pd.DataFrame)
 
     # check detail for package data

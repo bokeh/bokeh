@@ -29,7 +29,7 @@ import pandas as pd
 from bokeh.util.testing import verify_all
 
 # Module under test
-import bokeh.sampledata.mtb as bsm
+#import bokeh.sampledata.mtb as bsm
 
 #-----------------------------------------------------------------------------
 # API Definition
@@ -47,10 +47,11 @@ ALL = (
 # Public API
 #-----------------------------------------------------------------------------
 
-Test___all__ = verify_all(bsm, ALL)
+Test___all__ = pytest.mark.sampledata(verify_all("bokeh.sampledata.mtb", ALL))
 
 @pytest.mark.sampledata
 def test_obiszow_mtb_xcm():
+    import bokeh.sampledata.mtb as bsm
     assert isinstance(bsm.obiszow_mtb_xcm, pd.DataFrame)
 
     # check detail for package data

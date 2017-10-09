@@ -29,7 +29,7 @@ from six import string_types
 from bokeh.util.testing import verify_all
 
 # Module under test
-import bokeh.sampledata.movies_data as bsm
+#import bokeh.sampledata.movies_data as bsm
 
 #-----------------------------------------------------------------------------
 # API Definition
@@ -47,10 +47,11 @@ ALL = (
 # Public API
 #-----------------------------------------------------------------------------
 
-Test___all__ = verify_all(bsm, ALL)
+Test___all__ = pytest.mark.sampledata(verify_all("bokeh.sampledata.movies_data", ALL))
 
 @pytest.mark.sampledata
 def test_movie_path():
+    import bokeh.sampledata.movies_data as bsm
     assert isinstance(bsm.movie_path, string_types)
 
     # don't check detail for external data

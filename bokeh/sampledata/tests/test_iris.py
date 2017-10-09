@@ -29,7 +29,7 @@ import pandas as pd
 from bokeh.util.testing import verify_all
 
 # Module under test
-import bokeh.sampledata.iris as bsi
+#import bokeh.sampledata.iris as bsi
 
 #-----------------------------------------------------------------------------
 # API Definition
@@ -47,10 +47,11 @@ ALL = (
 # Public API
 #-----------------------------------------------------------------------------
 
-Test___all__ = verify_all(bsi, ALL)
+Test___all__ = pytest.mark.sampledata(verify_all("bokeh.sampledata.iris", ALL))
 
 @pytest.mark.sampledata
 def test_flowers():
+    import bokeh.sampledata.iris as bsi
     assert isinstance(bsi.flowers, pd.DataFrame)
 
     # check detail for package data

@@ -28,7 +28,7 @@ from bokeh.util.testing import verify_api ; verify_api
 from bokeh.util.testing import verify_all
 
 # Module under test
-import bokeh.sampledata.unemployment as bsu
+#import bokeh.sampledata.unemployment as bsu
 
 #-----------------------------------------------------------------------------
 # API Definition
@@ -46,10 +46,11 @@ ALL = (
 # Public API
 #-----------------------------------------------------------------------------
 
-Test___all__ = verify_all(bsu, ALL)
+Test___all__ = pytest.mark.sampledata(verify_all("bokeh.sampledata.unemployment", ALL))
 
 @pytest.mark.sampledata
 def test_data():
+    import bokeh.sampledata.unemployment as bsu
     assert isinstance(bsu.data, dict)
 
     # don't check detail for external data

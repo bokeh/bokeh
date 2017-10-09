@@ -29,7 +29,7 @@ import pandas as pd
 from bokeh.util.testing import verify_all
 
 # Module under test
-import bokeh.sampledata.world_cities as bsw
+#import bokeh.sampledata.world_cities as bsw
 
 #-----------------------------------------------------------------------------
 # API Definition
@@ -47,10 +47,11 @@ ALL = (
 # Public API
 #-----------------------------------------------------------------------------
 
-Test___all__ = verify_all(bsw, ALL)
+Test___all__ = pytest.mark.sampledata(verify_all("bokeh.sampledata.world_cities", ALL))
 
 @pytest.mark.sampledata
 def test_data():
+    import bokeh.sampledata.world_cities as bsw
     assert isinstance(bsw.data, pd.DataFrame)
 
     # don't check detail for external data

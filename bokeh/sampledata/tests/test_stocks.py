@@ -28,7 +28,7 @@ from bokeh.util.testing import verify_api ; verify_api
 from bokeh.util.testing import verify_all
 
 # Module under test
-import bokeh.sampledata.stocks as bss
+#import bokeh.sampledata.stocks as bss
 
 #-----------------------------------------------------------------------------
 # API Definition
@@ -50,11 +50,12 @@ ALL = (
 # Public API
 #-----------------------------------------------------------------------------
 
-Test___all__ = verify_all(bss, ALL)
+Test___all__ = pytest.mark.sampledata(verify_all("bokeh.sampledata.stocks", ALL))
 
-@pytest.mark.parametrize('name', ['AAPL', 'FB', 'GOOG', 'IBM', 'MSFT'])
 @pytest.mark.sampledata
+@pytest.mark.parametrize('name', ['AAPL', 'FB', 'GOOG', 'IBM', 'MSFT'])
 def test_data(name):
+    import bokeh.sampledata.stocks as bss
     data = getattr(bss, name)
     assert isinstance(data, dict)
 

@@ -29,7 +29,7 @@ import pandas as pd
 from bokeh.util.testing import verify_all
 
 # Module under test
-import bokeh.sampledata.autompg2 as bsa
+#import bokeh.sampledata.autompg2 as bsa
 
 #-----------------------------------------------------------------------------
 # API Definition
@@ -47,10 +47,11 @@ ALL = (
 # Public API
 #-----------------------------------------------------------------------------
 
-Test___all__ = verify_all(bsa, ALL)
+Test___all__ = pytest.mark.sampledata(verify_all("bokeh.sampledata.autompg2", ALL))
 
 @pytest.mark.sampledata
 def test_autompg2():
+    import bokeh.sampledata.autompg2 as bsa
     assert isinstance(bsa.autompg2, pd.DataFrame)
 
     # check detail for package data

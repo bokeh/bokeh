@@ -29,7 +29,7 @@ import pandas as pd
 from bokeh.util.testing import verify_all
 
 # Module under test
-import bokeh.sampledata.airport_routes as bsa
+#import bokeh.sampledata.airport_routes as bsa
 
 #-----------------------------------------------------------------------------
 # API Definition
@@ -48,16 +48,18 @@ ALL = (
 # Public API
 #-----------------------------------------------------------------------------
 
-Test___all__ = verify_all(bsa, ALL)
+Test___all__ = pytest.mark.sampledata(verify_all("bokeh.sampledata.airport_routes", ALL))
 
 @pytest.mark.sampledata
 def test_airports():
+    import bokeh.sampledata.airport_routes as bsa
     assert isinstance(bsa.airports, pd.DataFrame)
 
     # don't check detail for external data
 
 @pytest.mark.sampledata
 def test_routes():
+    import bokeh.sampledata.airport_routes as bsa
     assert isinstance(bsa.routes, pd.DataFrame)
 
     # don't check detail for external data

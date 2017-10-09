@@ -29,7 +29,7 @@ import pandas as pd
 from bokeh.util.testing import verify_all
 
 # Module under test
-import bokeh.sampledata.commits as bsc
+#import bokeh.sampledata.commits as bsc
 
 #-----------------------------------------------------------------------------
 # API Definition
@@ -47,10 +47,11 @@ ALL = (
 # Public API
 #-----------------------------------------------------------------------------
 
-Test___all__ = verify_all(bsc, ALL)
+Test___all__ = pytest.mark.sampledata(verify_all("bokeh.sampledata.commits", ALL))
 
 @pytest.mark.sampledata
 def test_data():
+    import bokeh.sampledata.commits as bsc
     assert isinstance(bsc.data, pd.DataFrame)
 
     # check detail for package data

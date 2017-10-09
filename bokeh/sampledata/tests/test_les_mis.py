@@ -28,7 +28,7 @@ from bokeh.util.testing import verify_api ; verify_api
 from bokeh.util.testing import verify_all
 
 # Module under test
-import bokeh.sampledata.les_mis as bsl
+#import bokeh.sampledata.les_mis as bsl
 
 #-----------------------------------------------------------------------------
 # API Definition
@@ -46,10 +46,11 @@ ALL = (
 # Public API
 #-----------------------------------------------------------------------------
 
-Test___all__ = verify_all(bsl, ALL)
+Test___all__ = pytest.mark.sampledata(verify_all("bokeh.sampledata.les_mis", ALL))
 
 @pytest.mark.sampledata
 def test_data():
+    import bokeh.sampledata.les_mis as bsl
     assert isinstance(bsl.data, dict)
 
     # check detail for package data

@@ -29,7 +29,7 @@ import pandas as pd
 from bokeh.util.testing import verify_all
 
 # Module under test
-import bokeh.sampledata.gapminder as bsg
+#import bokeh.sampledata.gapminder as bsg
 
 #-----------------------------------------------------------------------------
 # API Definition
@@ -50,11 +50,12 @@ ALL = (
 # Public API
 #-----------------------------------------------------------------------------
 
-Test___all__ = verify_all(bsg, ALL)
+Test___all__ = pytest.mark.sampledata(verify_all("bokeh.sampledata.gapminder", ALL))
 
-@pytest.mark.parametrize('name', ['fertility', 'life_expectancy', 'population', 'regions'])
 @pytest.mark.sampledata
+@pytest.mark.parametrize('name', ['fertility', 'life_expectancy', 'population', 'regions'])
 def test_data(name):
+    import bokeh.sampledata.gapminder as bsg
     data = getattr(bsg, name)
     assert isinstance(data, pd.DataFrame)
 
