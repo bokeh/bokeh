@@ -1,12 +1,57 @@
-''' Provide US Unemployment rate data by year, from 1948 to 20013
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
+''' Provide US Unemployment rate data by year, from 1948 to 2013
 
 '''
-from __future__ import absolute_import
 
-from bokeh.util.dependencies import import_required
-pd = import_required('pandas',
-              'unemployment1948 sample data requires Pandas (http://pandas.pydata.org) to be installed')
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from os.path import dirname, join
+import logging
+log = logging.getLogger(__name__)
 
-data = pd.read_csv(join(dirname(__file__), 'unemployment1948.csv'))
+from bokeh.util.api import public, internal ; public, internal
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
+
+# Bokeh imports
+from ..util.sampledata import package_csv
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'data',
+)
+
+#-----------------------------------------------------------------------------
+# Public API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Internal API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
+
+data = package_csv('unemployment1948', 'unemployment1948.csv')

@@ -1,6 +1,14 @@
-'''
-This module provides Fisher's Iris flower data set. It exposes a an attribute 'flowers' which is
-a pandas dataframe with the following fields:
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
+''' Provide Fisher's Iris flower data set. This module has an attribute
+``flowers`` which is a pandas DataFrame with the following fields:
+
+.. code-block:: python
 
     flowers['petal_length']
     flowers['petal_width']
@@ -9,12 +17,50 @@ a pandas dataframe with the following fields:
     flowers['species']
 
 '''
-from __future__ import absolute_import
 
-from bokeh.util.dependencies import import_required
-pd = import_required('pandas',
-              'iris sample data requires Pandas (http://pandas.pydata.org) to be installed')
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from os.path import dirname, join
+import logging
+log = logging.getLogger(__name__)
 
-flowers = pd.read_csv(join(dirname(__file__), 'iris.csv'))
+from bokeh.util.api import public, internal ; public, internal
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
+
+# Bokeh imports
+from ..util.sampledata import package_csv
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'flowers',
+)
+
+#-----------------------------------------------------------------------------
+# Public API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Internal API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
+
+flowers = package_csv('iris', 'iris.csv')

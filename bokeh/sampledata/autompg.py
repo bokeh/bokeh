@@ -1,27 +1,80 @@
-"""
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
+'''
 
-"""
-from __future__ import absolute_import
+'''
 
-from bokeh.util.dependencies import import_required
-pd = import_required('pandas',
-              'autompg sample data requires Pandas (http://pandas.pydata.org) to be installed')
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from os.path import dirname, join
+import logging
+log = logging.getLogger(__name__)
 
-autompg = pd.read_csv(join(dirname(__file__), 'auto-mpg.csv'))
+from bokeh.util.api import public, internal ; public, internal
 
-autompg_clean = autompg.copy()
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
 
-autompg_clean['mfr'] = [x.split()[0] for x in autompg_clean.name]
-autompg_clean.loc[autompg_clean.mfr=='chevy', 'mfr'] = 'chevrolet'
-autompg_clean.loc[autompg_clean.mfr=='chevroelt', 'mfr'] = 'chevrolet'
-autompg_clean.loc[autompg_clean.mfr=='maxda', 'mfr'] = 'mazda'
-autompg_clean.loc[autompg_clean.mfr=='mercedes-benz', 'mfr'] = 'mercedes'
-autompg_clean.loc[autompg_clean.mfr=='toyouta', 'mfr'] = 'toyota'
-autompg_clean.loc[autompg_clean.mfr=='vokswagen', 'mfr'] = 'volkswagen'
-autompg_clean.loc[autompg_clean.mfr=='vw', 'mfr'] = 'volkswagen'
+# Standard library imports
 
-ORIGINS = ['North America', 'Europe', 'Asia']
+# External imports
 
-autompg_clean.origin = [ORIGINS[x-1] for x in autompg_clean.origin]
+# Bokeh imports
+from ..util.sampledata import package_csv
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'autompg',
+    'autompg_clean',
+)
+
+#-----------------------------------------------------------------------------
+# Public API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Internal API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+
+def _clean_data(df):
+    '''
+
+    '''
+    df = df.copy()
+    df['mfr'] = [x.split()[0] for x in df.name]
+    df.loc[df.mfr=='chevy', 'mfr'] = 'chevrolet'
+    df.loc[df.mfr=='chevroelt', 'mfr'] = 'chevrolet'
+    df.loc[df.mfr=='maxda', 'mfr'] = 'mazda'
+    df.loc[df.mfr=='mercedes-benz', 'mfr'] = 'mercedes'
+    df.loc[df.mfr=='toyouta', 'mfr'] = 'toyota'
+    df.loc[df.mfr=='vokswagen', 'mfr'] = 'volkswagen'
+    df.loc[df.mfr=='vw', 'mfr'] = 'volkswagen'
+
+    ORIGINS = ['North America', 'Europe', 'Asia']
+    df.origin = [ORIGINS[x-1] for x in df.origin]
+
+    return df
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
+
+autompg = package_csv('autompg', 'auto-mpg.csv')
+
+autompg_clean = _clean_data(autompg)

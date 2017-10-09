@@ -1,3 +1,10 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' The data in world_cities.csv was taken from GeoNames ``cities5000.zip``
 downloaded from
 
@@ -10,15 +17,50 @@ on Tuesday September 15, 2015.
 Under ``CC-BY`` license (creative commons attributions license).
 
 '''
-from __future__ import absolute_import
 
-from bokeh.util.dependencies import import_required
-pd = import_required('pandas',
-              'world_cities sample data requires Pandas (http://pandas.pydata.org) to be installed')
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from . import _data_dir
+import logging
+log = logging.getLogger(__name__)
 
-try:
-    data = pd.read_csv(_data_dir("world_cities.csv"))
-except (IOError, OSError):
-    raise RuntimeError('Could not load file "world_cities.csv". Please execute bokeh.sampledata.download()')
+from bokeh.util.api import public, internal ; public, internal
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
+
+# Bokeh imports
+from ..util.sampledata import external_csv
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'data',
+)
+
+#-----------------------------------------------------------------------------
+# Public API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Internal API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
+
+data = external_csv('world_cities', 'world_cities.csv')

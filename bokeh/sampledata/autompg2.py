@@ -1,19 +1,73 @@
-"""
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
+'''
 
-"""
-from __future__ import absolute_import
+'''
 
-from bokeh.util.dependencies import import_required
-pd = import_required('pandas',
-              'autompg2 sample data requires Pandas (http://pandas.pydata.org) to be installed')
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from os.path import dirname, join
+import logging
+log = logging.getLogger(__name__)
 
-autompg2 = pd.read_csv(join(dirname(__file__), 'auto-mpg2.csv'))
+from bokeh.util.api import public, internal ; public, internal
 
-def capitalize_words(string):
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
+
+# Bokeh imports
+from ..util.sampledata import package_csv
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'autompg2',
+)
+
+#-----------------------------------------------------------------------------
+# Public API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Internal API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+def _capitalize_words(string):
+    '''
+
+    '''
     return " ".join([ word.capitalize() for word in string.split(" ") ])
 
-autompg2["manufacturer"] = autompg2["manufacturer"].map(capitalize_words)
-autompg2["model"] = autompg2["model"].map(capitalize_words)
-autompg2["drv"] = autompg2["drv"].replace({"f": "front", "r": "rear", "4": "4x4"})
+def _read_data():
+    '''
+
+    '''
+    df = package_csv('autompg2', 'auto-mpg2.csv').copy()
+    df["manufacturer"] = df["manufacturer"].map(_capitalize_words)
+    df["model"] = df["model"].map(_capitalize_words)
+    df["drv"] = df["drv"].replace({"f": "front", "r": "rear", "4": "4x4"})
+    return df
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
+
+autompg2 = _read_data()

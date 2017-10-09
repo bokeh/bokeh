@@ -40,6 +40,9 @@ conda install --yes --quiet --use-local bokeh `python scripts/deps.py run test`
 # regrettably need to have previous JS build in the source tree
 python setup.py --install-js
 
+# install Bokeh sample data needed test collector
+python -c 'import bokeh; bokeh.sampledata.download(progress=False)'
+
 # execute any test-specific install scripts
 if [[ -f "scripts/ci/install:${GROUP}" ]]; then
     bash "scripts/ci/install:${GROUP}"

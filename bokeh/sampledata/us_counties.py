@@ -1,7 +1,20 @@
-'''
-This modules exposes geometry data for Unites States. It exposes a dictionary 'data' which is
-indexed by the two-tuple containing (state_id, county_id) and has the following dictionary as the
-associated value:
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
+''' This modules exposes geometry data for Unites States. It exposes a
+dictionary ``data``, which is indexed by the two-tuples:
+
+.. code-block:: python
+
+    (state_id, county_id)
+
+that have the following dictionaries as the associated value:
+
+.. code-block:: python
 
     data[(1,1)]['name']
     data[(1,1)]['state']
@@ -9,43 +22,90 @@ associated value:
     data[(1,1)]['lats']
     data[(1,1)]['lons']
 
-'name' can have duplicates for certain states (especially Virginia). 'detailed name' and 'state'
-combinations are unique.
-'''
-from __future__ import absolute_import
+Entries for ``'name'`` can have duplicates for certain states (e.g. Virginia).
+The combination of ``'detailed name'`` and ``'state'`` will always be unique.
 
+'''
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+from bokeh.util.api import public, internal ; public, internal
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import csv
 import xml.etree.cElementTree as et
-from os.path import join
-from . import _data_dir
-from . import _open_csv_file
 
-data_dir = _data_dir()
+# External imports
 
-nan = float('NaN')
+# Bokeh imports
+from ..util.sampledata import external_path, open_csv
 
-data = {}
-with _open_csv_file(join(data_dir, 'US_Counties.csv')) as f:
-    next(f)
-    reader = csv.reader(f, delimiter=',', quotechar='"')
-    for row in reader:
-        name, dummy, state, dummy, geometry, dummy, dummy, dummy, det_name, state_id, county_id, dummy, dummy = row
-        xml = et.fromstring(geometry)
-        lats = []
-        lons = []
-        for i, poly in enumerate(xml.findall('.//outerBoundaryIs/LinearRing/coordinates')):
-            if i > 0:
-                lats.append(nan)
-                lons.append(nan)
-            coords = (c.split(',')[:2] for c in poly.text.split())
-            lat, lon = list(zip(*[(float(lat), float(lon)) for lon, lat in
-                coords]))
-            lats.extend(lat)
-            lons.extend(lon)
-        data[(int(state_id), int(county_id))] = {
-            'name' : name,
-            'detailed name' : det_name,
-            'state' : state,
-            'lats' : lats,
-            'lons' : lons,
-        }
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'data',
+)
+
+#-----------------------------------------------------------------------------
+# Public API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Internal API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+def _read_data():
+    '''
+
+    '''
+    nan = float('NaN')
+
+    data = {}
+
+    with open_csv(external_path('US_Counties.csv')) as f:
+        next(f)
+        reader = csv.reader(f, delimiter=str(','), quotechar=str('"'))
+        for row in reader:
+            name, dummy, state, dummy, geometry, dummy, dummy, dummy, det_name, state_id, county_id, dummy, dummy = row
+            xml = et.fromstring(geometry)
+            lats = []
+            lons = []
+            for i, poly in enumerate(xml.findall('.//outerBoundaryIs/LinearRing/coordinates')):
+                if i > 0:
+                    lats.append(nan)
+                    lons.append(nan)
+                coords = (c.split(',')[:2] for c in poly.text.split())
+                lat, lon = list(zip(*[(float(lat), float(lon)) for lon, lat in
+                    coords]))
+                lats.extend(lat)
+                lons.extend(lon)
+            data[(int(state_id), int(county_id))] = {
+                'name' : name,
+                'detailed name' : det_name,
+                'state' : state,
+                'lats' : lats,
+                'lons' : lons,
+            }
+
+    return data
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
+
+data = _read_data()

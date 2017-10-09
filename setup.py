@@ -108,12 +108,11 @@ if not conda_rendering():
 
 # configuration to include all the special or non-python files in the package
 # directory that need to also be installed or included in a build
-sampledata_pats = ('.csv', '.conf', '.gz', '.json', '.png', '.ics', '.geojson')
 package_path(join(SERVER, 'static'))
 package_path(join(ROOT, 'bokeh', 'core', '_templates'))
 package_path(join(ROOT, 'bokeh', 'sphinxext', '_templates'))
 package_path(join(ROOT, 'bokeh', 'server', 'views'), ('.html'))
-package_path(join(ROOT, 'bokeh', 'sampledata'), sampledata_pats)
+package_path(join(ROOT, 'bokeh', 'sampledata', '_data'))
 package_files('LICENSE.txt', 'themes/*.yaml')
 
 setup(

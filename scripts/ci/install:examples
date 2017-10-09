@@ -9,6 +9,3 @@ npm set progress=false
 npm install
 node_modules/.bin/gulp examples --no-build
 popd
-
-# install Bokeh sample data needed by examples
-python -c 'import bokeh; bokeh.sampledata.download(progress=False)'
