@@ -15,57 +15,70 @@ import pytest
 from .api import INTERNAL, PUBLIC
 from .api import is_declared, is_level, is_version
 
+def verify_all(module, ALL):
+    class Test___all__(object):
+        def test___all__(self):
+            assert hasattr(module, "__all__")
+            assert module.__all__ == ALL
+
+        @pytest.mark.parametrize('name', ALL)
+        def test_contents(self, name):
+            assert hasattr(module, name)
+    return Test___all__
+
 def verify_api(module, api):
 
-    test_public_api = _generate_api_check(module, api, PUBLIC)
-    test_internal_api = _generate_api_check(module, api, INTERNAL)
+    class Test_api(object):
 
-    @pytest.mark.api
-    def test_all_declared():
-        to_check = []
-        for name, obj in getmembers(module):
+        test_public_api = _generate_api_check(module, api, PUBLIC)
+        test_internal_api = _generate_api_check(module, api, INTERNAL)
 
-            # only test objects defined in this module
-            if getattr(obj, '__module__', None) != module.__name__: continue
+        @pytest.mark.api
+        def test_all_declared(self):
+            to_check = []
+            for name, obj in getmembers(module):
 
-            # pure private objects are not versioned
-            if name.startswith('_'): continue
-            to_check.append((name, obj))
+                # only test objects defined in this module
+                if getattr(obj, '__module__', None) != module.__name__: continue
 
-            if isclass(obj):
-                for cname, cobj in getmembers(obj):
-                    # pure private methods are not versioned
-                    if cname.startswith('_'): continue
-                    to_check.append((name + "." + cname, cobj))
+                # pure private objects are not versioned
+                if name.startswith('_'): continue
+                to_check.append((name, obj))
 
-        for (name, obj) in to_check:
+                if isclass(obj):
+                    for cname, cobj in getmembers(obj):
+                        # pure private methods are not versioned
+                        if cname.startswith('_'): continue
+                        to_check.append((name + "." + cname, cobj))
 
-            if isfunction(obj):
-                assert is_declared(obj), "visible function %r is not API declared" % name
+            for (name, obj) in to_check:
 
-            elif isclass(obj):
-                assert is_declared(obj), "visible class %r is not API declared" % name
+                if isfunction(obj):
+                    assert is_declared(obj), "visible function %r is not API declared" % name
 
-            elif isinstance(obj, property):
-                assert is_declared(obj.fget), "visible Python property getter %r is not API declared" % name
-                if obj.fdel is not None:
-                    assert is_declared(obj.fset), "visible Python property getter %r is not API declared" % name
-                if obj.fdel is not None:
-                    assert is_declared(obj.fdel), "visible Python property getter %r is not API declared" % name
+                elif isclass(obj):
+                    assert is_declared(obj), "visible class %r is not API declared" % name
 
-    @pytest.mark.api
-    def test_all_tested():
-        for level in (INTERNAL, PUBLIC):
-            recorded = module.__bkapi__[level]
-            assert len(api[level]) == recorded, "expected %d tests for %s API objects in %s, got %d" % (recorded, level, module.__name__, len(api[level]))
+                elif isinstance(obj, property):
+                    assert is_declared(obj.fget), "visible Python property getter %r is not API declared" % name
+                    if obj.fdel is not None:
+                        assert is_declared(obj.fset), "visible Python property getter %r is not API declared" % name
+                    if obj.fdel is not None:
+                        assert is_declared(obj.fdel), "visible Python property getter %r is not API declared" % name
 
-    return test_public_api, test_internal_api, test_all_declared, test_all_tested
+        @pytest.mark.api
+        def test_all_tested(self):
+            for level in (INTERNAL, PUBLIC):
+                recorded = module.__bkapi__[level]
+                assert len(api[level]) == recorded, "expected %d tests for %s API objects in %s, got %d" % (recorded, level, module.__name__, len(api[level]))
+
+    return Test_api
 
 def _generate_api_check(module, api, level):
     if len(api[level]) > 0:
         @pytest.mark.parametrize('name,version', api[level], ids=str)
         @pytest.mark.api
-        def test_api(name, version):
+        def test_api(self, name, version):
             assert isinstance(version, tuple)
             assert len(version) == 3
             assert version >= (1, 0, 0)
@@ -88,7 +101,7 @@ def _generate_api_check(module, api, level):
 
     else:
         @pytest.mark.api
-        def test_api(): assert True
+        def test_api(self): assert True
 
     return test_api
 

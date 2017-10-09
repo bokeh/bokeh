@@ -21,40 +21,37 @@ from bokeh.util.testing import verify_api ; verify_api
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from mock import patch
 
 # External imports
 
 # Bokeh imports
-import bokeh.io.notebook as binb
 from bokeh.util.testing import verify_all
 
 # Module under test
-import bokeh.io as bi
+import bokeh.__main__ as bm
 
 #-----------------------------------------------------------------------------
 # Setup
 #-----------------------------------------------------------------------------
 
-ALL = (
-    'curdoc',
-    'export_png',
-    'export_svgs',
-    'install_notebook_hook',
-    'push_notebook',
-    'output_file',
-    'output_notebook',
-    'save',
-    'show',
+ALL =  (
+    'main',
 )
 
 #-----------------------------------------------------------------------------
 # Public API
 #-----------------------------------------------------------------------------
 
-Test___all__ = verify_all(bi, ALL)
+Test___all__ = verify_all(bm, ALL)
 
-def test_jupyter_notebook_hook_installed():
-    assert list(binb._HOOKS) == ["jupyter"]
-    assert binb._HOOKS["jupyter"]['load'] == binb.load_notebook
-    assert binb._HOOKS["jupyter"]['doc']  == binb.show_doc
-    assert binb._HOOKS["jupyter"]['app']  == binb.show_app
+@patch('bokeh.command.bootstrap.main')
+def test_main(mock_main):
+    import sys
+    old_argv = sys.argv
+    sys.argv = ["foo", "bar"]
+    bm.main()
+    assert mock_main.call_count == 1
+    assert mock_main.call_args[0] == (["foo", "bar"],)
+    assert mock_main.call_args[1] == {}
+    sys.argv = old_argv

@@ -57,7 +57,7 @@ class Stack(Expression):
 
     '''
 
-    fields = Seq(String, help="""
+    fields = Seq(String, default=[], help="""
     A sequence of fields from a ``ColumnDataSource`` to sum (elementwise). For
     example:
 
