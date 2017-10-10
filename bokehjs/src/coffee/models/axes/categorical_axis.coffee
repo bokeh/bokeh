@@ -83,15 +83,16 @@ export class CategoricalAxisView extends AxisView
     info = []
 
     if range.levels == 1
-      info.push([ ticks.major, coords.major, @model.major_label_orientation, @visuals.major_label_text ])
+      labels = @model.formatter.doFormat(ticks.major, @)
+      info.push([ labels, coords.major, @model.major_label_orientation, @visuals.major_label_text ])
 
     else if range.levels == 2
-      labels = (x[1] for x in ticks.major)
+      labels = @model.formatter.doFormat((x[1] for x in ticks.major), @)
       info.push([ labels,     coords.major, @model.major_label_orientation, @visuals.major_label_text ])
       info.push([ ticks.tops, coords.tops,  'parallel',                     @visuals.group_text       ])
 
     else if range.levels == 3
-      labels = (x[2] for x in ticks.major)
+      labels = @model.formatter.doFormat((x[2] for x in ticks.major), @)
       mid_labels = (x[1] for x in ticks.mids)
       info.push([ labels,     coords.major, @model.major_label_orientation, @visuals.major_label_text ])
       info.push([ mid_labels, coords.mids,  'parallel',                     @visuals.subgroup_text    ])
