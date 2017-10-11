@@ -1836,7 +1836,7 @@ class ColorSpec(DataSpec):
             return val.to_css()
 
         # Check for data source field name or rgb(a) string
-         if isinstance(val, string_types):
+        if isinstance(val, string_types):
             if val.startswith(("rgb(", "rgba(")):
                 return val
 
