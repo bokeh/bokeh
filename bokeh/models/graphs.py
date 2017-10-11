@@ -54,13 +54,9 @@ def from_networkx(graph, layout_function, **kwargs):
         from ..models.renderers import GraphRenderer
         from ..models.graphs import StaticLayoutProvider
         
-        # Handle nx 1.x vs 2.x data structure change
-        if isinstance(graph.nodes(), dict):
-            nodes = graph.nodes()
-            edges = graph.edges()
-        else: 
-            nodes = list(graph.nodes())
-            edges = list(graph.edges())
+        # Handles nx 1.x vs 2.x data structure change
+        nodes = list(graph.nodes())
+        edges = list(graph.edges())
     
         edges_start = [edge[0] for edge in edges]
         edges_end = [edge[1] for edge in edges]
