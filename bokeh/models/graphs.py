@@ -59,8 +59,8 @@ def from_networkx(graph, layout_function, **kwargs):
             nodes = graph.nodes()
             edges = graph.edges()
         else: 
-            nodes = dict(graph.nodes())
-            edges = dict(graph.edges())
+            nodes = list(graph.nodes())
+            edges = list(graph.edges())
     
         edges_start = [edge[0] for edge in edges]
         edges_end = [edge[1] for edge in edges]
