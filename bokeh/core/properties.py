@@ -104,7 +104,7 @@ import re
 
 from six import string_types, iteritems
 
-from ..colors import RGB
+from .. import colors
 from ..util.dependencies import import_optional
 from ..util.serialization import convert_datetime_type, decode_base64_dict, transform_column_source_data
 from ..util.string import nice_join, format_docstring
@@ -763,6 +763,17 @@ class Auto(Enum):
     def _sphinx_type(self):
         return self._sphinx_prop_link()
 
+class RGB(Property):
+    ''' Accept Date (but not DateTime) values.
+
+    '''
+
+    def validate(self, value):
+        super(RGB, self).validate(value)
+
+        if not (value is None or isinstance(value, colors.RGB)):
+            raise ValueError("expected RGB value, got %r" % value)
+
 # Properties useful for defining visual attributes
 class Color(Either):
     ''' Accept color values in a variety of ways.
@@ -804,7 +815,8 @@ class Color(Either):
         types = (Enum(enums.NamedColor),
                  Regex("^#[0-9a-fA-F]{6}$"),
                  Tuple(Byte, Byte, Byte),
-                 Tuple(Byte, Byte, Byte, Percent))
+                 Tuple(Byte, Byte, Byte, Percent),
+                 RGB)
         super(Color, self).__init__(*types, default=default, help=help)
 
     def __str__(self):
@@ -812,7 +824,7 @@ class Color(Either):
 
     def transform(self, value):
         if isinstance(value, tuple):
-            value = RGB(*value).to_css()
+            value = colors.RGB(*value).to_css()
         return value
 
     def _sphinx_type(self):
@@ -1817,10 +1829,17 @@ class ColorSpec(DataSpec):
 
         # Check for RGB or RGBa tuple
         if isinstance(val, tuple):
-            return dict(value=RGB(*val).to_css())
+            return dict(value=colors.RGB(*val).to_css())
 
         # Check for data source field name
-        if isinstance(val, string_types):
+        if isinstance(val, colors.RGB):
+            return val.to_css()
+
+        # Check for data source field name or rgb(a) string
+         if isinstance(val, string_types):
+            if val.startswith(("rgb(", "rgba(")):
+                return val
+
             return dict(field=val)
 
         # Must be dict, return new dict
