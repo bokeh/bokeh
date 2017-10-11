@@ -772,7 +772,7 @@ class RGB(Property):
         super(RGB, self).validate(value)
 
         if not (value is None or isinstance(value, colors.RGB)):
-            raise ValueError("expected RGB value, got %r" % value)
+            raise ValueError("expected RGB value, got %r" % (value,))
 
 # Properties useful for defining visual attributes
 class Color(Either):
