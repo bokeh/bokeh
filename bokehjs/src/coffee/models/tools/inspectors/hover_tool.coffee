@@ -300,10 +300,6 @@ export class HoverToolView extends InspectToolView
   _emit_callback: (geometry) ->
     for r in  @computed_renderers
 
-      did_hit = @plot_view.renderer_views[r.id].hit_test(geometry)
-      if not did_hit
-        continue
-
       index = r.data_source.inspected
 
       canvas = @plot_model.canvas
