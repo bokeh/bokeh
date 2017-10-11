@@ -70,7 +70,7 @@ export class DatePickerView extends InputWidgetView
     return @
 
   _on_select: (date) =>
-    @model.value = date.toString()
+    @model.value = date.toISOString()
     @change_input()
 
 export class DatePicker extends InputWidget
