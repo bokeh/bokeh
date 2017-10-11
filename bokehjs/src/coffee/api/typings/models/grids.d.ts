@@ -2,7 +2,7 @@ declare namespace Bokeh {
   export var Grid: { new(attributes?: IGrid, options?: ModelOpts): Grid };
   export interface Grid extends GuideRenderer, IGrid {}
   export interface IGrid extends IGuideRenderer {
-    dimension?: Int;
+    dimension?: Dimension;
     ticker?: Ticker;
 
     // {{{ grid = include[LineProps]

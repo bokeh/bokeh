@@ -110,8 +110,8 @@ def altitude_profile(data):
     yaxis = LinearAxis(axis_label="Altitude (m)")
     plot.add_layout(yaxis, 'left')
 
-    plot.add_layout(Grid(dimension=0, ticker=xaxis.ticker))  # x grid
-    plot.add_layout(Grid(dimension=1, ticker=yaxis.ticker))  # y grid
+    plot.add_layout(Grid(dimension="width", ticker=xaxis.ticker))  # x grid
+    plot.add_layout(Grid(dimension="height", ticker=yaxis.ticker))  # y grid
 
     plot.add_tools(PanTool(), WheelZoomTool(), ResetTool())
 

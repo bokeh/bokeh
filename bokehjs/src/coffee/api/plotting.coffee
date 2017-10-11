@@ -104,8 +104,8 @@ export class Figure extends models.Plot
 
     super(attrs, options)
 
-    @_process_axis_and_grid(x_axis_type, x_axis_location, x_minor_ticks, x_axis_label, attrs.x_range, 0)
-    @_process_axis_and_grid(y_axis_type, y_axis_location, y_minor_ticks, y_axis_label, attrs.y_range, 1)
+    @_process_axis_and_grid(x_axis_type, x_axis_location, x_minor_ticks, x_axis_label, attrs.x_range, "width")
+    @_process_axis_and_grid(y_axis_type, y_axis_location, y_minor_ticks, y_axis_label, attrs.y_range, "height")
 
     @add_tools(@_process_tools(tools)...)
 
@@ -113,11 +113,11 @@ export class Figure extends models.Plot
     @add_renderers(@_legend)
 
   Object.defineProperty this.prototype, "xgrid", {
-    get: () -> @renderers.filter((r) -> r instanceof models.Grid and r.dimension == 0)[0] # TODO
+    get: () -> @renderers.filter((r) -> r instanceof models.Grid and r.dimension == "width")[0] # TODO
   }
 
   Object.defineProperty this.prototype, "ygrid", {
-    get: () -> @renderers.filter((r) -> r instanceof models.Grid and r.dimension == 1)[0] # TODO
+    get: () -> @renderers.filter((r) -> r instanceof models.Grid and r.dimension == "height")[0] # TODO
   }
 
   Object.defineProperty this.prototype, "xaxis", {

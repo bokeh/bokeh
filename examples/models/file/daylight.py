@@ -82,8 +82,8 @@ plot.add_layout(xaxis, 'below')
 yaxis = DatetimeAxis()
 plot.add_layout(yaxis, 'left')
 
-plot.add_layout(Grid(dimension=0, ticker=xaxis.ticker))
-plot.add_layout(Grid(dimension=1, ticker=yaxis.ticker))
+plot.add_layout(Grid(dimension="width", ticker=xaxis.ticker))
+plot.add_layout(Grid(dimension="height", ticker=yaxis.ticker))
 
 legend = Legend(items=[
     LegendItem(label=value('sunrise'), renderers=[sunrise_line_renderer]),

@@ -171,14 +171,14 @@ class Plot(LayoutDOM):
         ''' Splattable list of :class:`~bokeh.models.grids.Grid` objects for the x dimension.
 
         '''
-        return self._grid(0)
+        return self._grid("width")
 
     @property
     def ygrid(self):
         ''' Splattable list of :class:`~bokeh.models.grids.Grid` objects for the y dimension.
 
         '''
-        return self._grid(1)
+        return self._grid("height")
 
     @property
     def grid(self):

@@ -68,12 +68,12 @@ export class Grid extends GuideRenderer
   @mixins ['line:grid_', 'line:minor_grid_', 'fill:band_']
 
   @define {
-      bounds:       [ p.Any,     'auto'    ] # TODO (bev)
-      dimension:    [ p.Number,  0         ]
-      ticker:       [ p.Instance           ]
-      x_range_name: [ p.String,  'default' ]
-      y_range_name: [ p.String,  'default' ]
-    }
+    bounds:       [ p.Any,        'auto'    ] # TODO (bev)
+    dimension:    [ p.Dimension,  "width"   ]
+    ticker:       [ p.Instance              ]
+    x_range_name: [ p.String,     'default' ]
+    y_range_name: [ p.String,     'default' ]
+  }
 
   @override {
     level: "underlay"
@@ -84,12 +84,12 @@ export class Grid extends GuideRenderer
   }
 
   ranges: () ->
-    i = @dimension
+    i = if @dimension == "width" then 0 else 1
     j = (i + 1) % 2
     frame = @plot.plot_canvas.frame
     ranges = [
       frame.x_ranges[@x_range_name],
-      frame.y_ranges[@y_range_name]
+      frame.y_ranges[@y_range_name],
     ]
     return [ranges[i], ranges[j]]
 
@@ -116,7 +116,7 @@ export class Grid extends GuideRenderer
     return [start, end]
 
   grid_coords: (location, exclude_ends=true) ->
-    i = @dimension
+    i = if @dimension == "width" then 0 else 1
     j = (i + 1) % 2
     [range, cross_range] = @ranges()
 

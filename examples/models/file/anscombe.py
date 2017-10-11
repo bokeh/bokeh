@@ -59,8 +59,8 @@ def make_plot(title, xname, yname):
     yaxis = LinearAxis(axis_line_color=None)
     plot.add_layout(yaxis, 'left')
 
-    plot.add_layout(Grid(dimension=0, ticker=xaxis.ticker))
-    plot.add_layout(Grid(dimension=1, ticker=yaxis.ticker))
+    plot.add_layout(Grid(dimension="width", ticker=xaxis.ticker))
+    plot.add_layout(Grid(dimension="height", ticker=yaxis.ticker))
 
     line = Line(x='x', y='y', line_color="#666699", line_width=2)
     plot.add_glyph(lines_source, line)

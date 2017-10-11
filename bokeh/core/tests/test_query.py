@@ -39,8 +39,8 @@ def large_plot():
     plot.add_layout(LogAxis(), 'left')
     plot.add_layout(LinearAxis(y_range_name="liny"), 'left')
 
-    plot.add_layout(Grid(dimension=0), 'left')
-    plot.add_layout(Grid(dimension=1), 'left')
+    plot.add_layout(Grid(dimension="width"), 'left')
+    plot.add_layout(Grid(dimension="height"), 'left')
 
     plot.add_tools(
         BoxZoomTool(), PanTool(), SaveTool(), ResetTool(), WheelZoomTool(),

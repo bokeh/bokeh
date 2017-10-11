@@ -19,8 +19,8 @@ namespace Stocks {
     const yaxis = new Bokeh.LinearAxis({axis_line_color: null, axis_label: 'price'});
     plot.add_layout(xaxis, "below");
     plot.add_layout(yaxis, "left");
-    plot.add_layout(new Bokeh.Grid({ticker: xaxis.ticker, dimension: 0}));
-    plot.add_layout(new Bokeh.Grid({ticker: yaxis.ticker, dimension: 1}));
+    plot.add_layout(new Bokeh.Grid({ticker: xaxis.ticker, dimension: "width"}));
+    plot.add_layout(new Bokeh.Grid({ticker: yaxis.ticker, dimension: "height"}));
 
     // Add a line for each entry in the source
     const colors = ['#aa0000','#00aa00', '#0000aa', '#aaaa00', '#aa00aa', '#00aaaa'];
