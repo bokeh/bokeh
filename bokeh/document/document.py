@@ -401,12 +401,43 @@ class Document(object):
             self._pop_all_models_freeze()
 
     def delete_modules(self):
-        ''' Clean up sys.modules after the session is destroyed.
+        ''' Clean up after any modules created by this Document when its session is
+        destroyed.
 
         '''
+        from gc import get_referrers
+        from types import FrameType
+
+        logger.debug("Deleting %s modules for %s" % (len(self._modules), self))
+
         for module in self._modules:
+
+            # Modules created for a Document should have three referrers at this point:
+            #
+            # - sys.modules
+            # - self._modules
+            # - a frame object
+            #
+            # This function will take care of removing these expected references.
+            #
+            # If there are any additional referrers, this probably means the module will be
+            # leaked. Here we perform a detailed check that the only referrers are expected
+            # ones. Otherwise issue an error log message with details.
+            referrers = get_referrers(module)
+            referrers = [x for x in referrers if x is not sys.modules]
+            referrers = [x for x in referrers if x is not self._modules]
+            referrers = [x for x in referrers if not isinstance(x, FrameType)]
+            if len(referrers) != 0:
+                logger.error("Module %r has extra unexpected referrers! This could indicate a serious memory leak. Extra referrers: %r" % (module, referrers))
+
+            # remove the reference from sys.modules
             if module.__name__ in sys.modules:
                 del sys.modules[module.__name__]
+
+        # remove the reference from self._modules
+        self._modules = None
+
+        # the frame reference will take care of itself
 
     @classmethod
     def from_json(cls, json):
