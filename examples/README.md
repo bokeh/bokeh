@@ -57,5 +57,3 @@ test another aspect of WebGL (e.g. blending of transparent glyphs).
 * The [Bokeh User's Guide](https://bokeh.pydata.org/en/latest/docs/user_guide.html) has many plots with corresponding code samples throughout.
 
 * Many examples of Bokeh being used with the [Jupyter](http://jupyter.org) notebook, including a set or tutorial notebooks, are collected in the [`bokeh-notebooks`](https://github.com/bokeh/bokeh-notebooks) repository. These notebooks are available statically rendered on the [Bokeh NBViewer page](http://nbviewer.jupyter.org/github/bokeh/bokeh-notebooks/blob/master/index.ipynb).
-
-* Larger examples, e.g. integrations with web application frameworks such as [Flask](http://flask.pocoo.org) or [Django](https://www.djangoproject.com), are collected in the [`bokeh-demos`](https://github.com/bokeh/bokeh-demos) repository.

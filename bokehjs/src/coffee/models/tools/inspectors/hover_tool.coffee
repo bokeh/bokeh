@@ -298,27 +298,28 @@ export class HoverToolView extends InspectToolView
     return null
 
   _emit_callback: (geometry) ->
-    r = @computed_renderers[0]
-    indices = @plot_view.renderer_views[r.id].hit_test(geometry)
+    for r in  @computed_renderers
 
-    canvas = @plot_model.canvas
-    frame = @plot_model.frame
+      index = r.data_source.inspected
 
-    geometry['sx'] = canvas.vx_to_sx(geometry.vx)
-    geometry['sy'] = canvas.vy_to_sy(geometry.vy)
+      canvas = @plot_model.canvas
+      frame = @plot_model.frame
 
-    xscale = frame.xscales[r.x_range_name]
-    yscale = frame.yscales[r.y_range_name]
-    geometry['x'] = xscale.invert(geometry.vx)
-    geometry['y'] = yscale.invert(geometry.vy)
+      geometry['sx'] = canvas.vx_to_sx(geometry.vx)
+      geometry['sy'] = canvas.vy_to_sy(geometry.vy)
 
-    callback = @model.callback
-    [obj, data] = [callback, {index: indices, geometry: geometry, renderer: r}]
+      xscale = frame.xscales[r.x_range_name]
+      yscale = frame.yscales[r.y_range_name]
+      geometry['x'] = xscale.invert(geometry.vx)
+      geometry['y'] = yscale.invert(geometry.vy)
 
-    if isFunction(callback)
-      callback(obj, data)
-    else
-      callback.execute(obj, data)
+      callback = @model.callback
+      [obj, data] = [callback, {index: index, geometry: geometry, renderer: r}]
+
+      if isFunction(callback)
+        callback(obj, data)
+      else
+        callback.execute(obj, data)
 
     return
 

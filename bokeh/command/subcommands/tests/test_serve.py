@@ -24,7 +24,7 @@ def test_create():
     assert isinstance(obj, Subcommand)
 
 def test_loglevels():
-    assert scserve.LOGLEVELS == ('debug', 'info', 'warning', 'error', 'critical')
+    assert scserve.LOGLEVELS == ('trace', 'debug', 'info', 'warning', 'error', 'critical')
 
 def test_name():
     assert scserve.Serve.name == "serve"
