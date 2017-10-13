@@ -45,7 +45,7 @@
     "@types/through2": "^2.0.33",
     "jsdom": "^9.8.3",
     "websocket":"^1.0.22",
-    "typescript": "^2.4.1",
+    "typescript": "^2.5.3",
     "tslib": "^1.6.0",
     "coffee-script": "^1.12.5",
     "detective": "^4.3.1",
