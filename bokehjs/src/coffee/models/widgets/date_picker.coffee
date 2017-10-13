@@ -70,7 +70,10 @@ export class DatePickerView extends InputWidgetView
     return @
 
   _on_select: (date) =>
-    @model.value = date.toISOString()
+    # Always use toDateString()!
+    # toString() breaks the websocket #4965.
+    # toISOString() returns the wrong day (IE on day earlier) #7048
+    @model.value = date.toDateString()
     @change_input()
 
 export class DatePicker extends InputWidget
