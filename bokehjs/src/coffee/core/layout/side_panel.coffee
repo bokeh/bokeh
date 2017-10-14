@@ -152,7 +152,6 @@ export class SidePanel extends LayoutCanvas
 
   @internal {
     side: [ p.String ]
-    plot: [ p.Instance ]
   }
 
   toString: () ->
