@@ -9,7 +9,10 @@ export class ButtonToolButtonView extends DOMView
   initialize: (options) ->
     super(options)
     @connect(@model.change, () => @render())
-    @el.addEventListener("click", (e) => @_clicked(e))
+    @el.addEventListener "click", (e) =>
+      e.stopPropagation()
+      e.preventDefault()
+      @_clicked()
     @render()
 
   render: () ->
@@ -18,7 +21,7 @@ export class ButtonToolButtonView extends DOMView
     @el.classList.add(@model.icon)
     @el.title = @model.tooltip
 
-  _clicked: (e) ->
+  _clicked: () ->
 
 export class ButtonToolView extends ToolView
 

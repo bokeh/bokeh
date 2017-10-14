@@ -31,8 +31,13 @@ export class PolySelectToolView extends SelectToolView
 
   _tap: (e) ->
     canvas = @plot_view.canvas
+    frame = @plot_view.frame
+
     vx = canvas.sx_to_vx(e.bokeh.sx)
     vy = canvas.sy_to_vy(e.bokeh.sy)
+
+    if not frame.contains(vx, vy)
+      return
 
     @data.vx.push(vx)
     @data.vy.push(vy)
