@@ -1224,7 +1224,7 @@ class _PalettesModule(_types.ModuleType):
         return self.linear_palette(self.Greys256, n)
 
 # need to explicitly transfer the docstring for Sphinx docs to build correctly
-_mod = _PalettesModule('bokeh.palettes')
+_mod = _PalettesModule(str('bokeh.palettes'))
 _mod.__doc__ = __doc__
 _mod.__all__ = dir(_mod)
 _sys.modules['bokeh.palettes'] = _mod
