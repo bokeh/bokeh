@@ -73,7 +73,6 @@ _STAMEN_LIC = {
 
 Test___all__ = verify_all(bt, ALL)
 
-
 @pytest.mark.parametrize('name', ['STAMEN_TONER', 'STAMEN_TONER_BACKGROUND', 'STAMEN_TONER_LABELS', 'STAMEN_TERRAIN'])
 class Test_StamenProviders(object):
     def test_type(self, name):
@@ -93,6 +92,11 @@ class Test_StamenProviders(object):
             'under %s.'
         ) % _STAMEN_LIC[name]
 
+    def test_copies(self, name):
+        p1 = getattr(bt, name)
+        p2 = getattr(bt, name)
+        assert p1 is not p2
+
 @pytest.mark.parametrize('name', ['CARTODBPOSITRON', 'CARTODBPOSITRON_RETINA'])
 class Test_CartoProviders(object):
     def test_type(self, name):
@@ -109,6 +113,11 @@ class Test_CartoProviders(object):
             '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors,'
             '&copy; <a href="https://cartodb.com/attributions">CartoDB</a>'
         )
+
+    def test_copies(self, name):
+        p1 = getattr(bt, name)
+        p2 = getattr(bt, name)
+        assert p1 is not p2
 
 #-----------------------------------------------------------------------------
 # Internal API
