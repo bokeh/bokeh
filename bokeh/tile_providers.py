@@ -56,7 +56,6 @@ import types
 # External imports
 
 # Bokeh imports
-from .models.tiles import WMTSTileSource
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -76,67 +75,73 @@ from .models.tiles import WMTSTileSource
 # Private API
 #-----------------------------------------------------------------------------
 
-_CARTO_ATTRIBUTION = (
-    '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors,'
-    '&copy; <a href="https://cartodb.com/attributions">CartoDB</a>'
-)
-
-_STAMEN_ATTRIBUTION = (
-    'Map tiles by <a href="http://stamen.com">Stamen Design</a>, '
-    'under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. '
-    'Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, '
-    'under %s.'
-)
-
 class _TileProvidersModule(types.ModuleType):
+
+    _CARTO_ATTRIBUTION = (
+        '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors,'
+        '&copy; <a href="https://cartodb.com/attributions">CartoDB</a>'
+    )
+
+    _STAMEN_ATTRIBUTION = (
+        'Map tiles by <a href="http://stamen.com">Stamen Design</a>, '
+        'under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. '
+        'Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, '
+        'under %s.'
+    )
 
     @property
     def STAMEN_TONER(self):
+        from bokeh.models.tiles import WMTSTileSource
         return WMTSTileSource(
             url='http://tile.stamen.com/toner/{Z}/{X}/{Y}.png',
-            attribution=_STAMEN_ATTRIBUTION % '<a href="http://www.openstreetmap.org/copyright">ODbL</a>'
+            attribution=self._STAMEN_ATTRIBUTION % '<a href="http://www.openstreetmap.org/copyright">ODbL</a>'
         )
 
     @property
     def STAMEN_TONER_BACKGROUND(self):
+        from bokeh.models.tiles import WMTSTileSource
         return WMTSTileSource(
             url='http://tile.stamen.com/toner-background/{Z}/{X}/{Y}.png',
-            attribution=_STAMEN_ATTRIBUTION % '<a href="http://www.openstreetmap.org/copyright">ODbL</a>'
+            attribution=self._STAMEN_ATTRIBUTION % '<a href="http://www.openstreetmap.org/copyright">ODbL</a>'
         )
 
     @property
     def STAMEN_TONER_LABELS(self):
+        from bokeh.models.tiles import WMTSTileSource
         return WMTSTileSource(
             url='http://tile.stamen.com/toner-labels/{Z}/{X}/{Y}.png',
-            attribution=_STAMEN_ATTRIBUTION % '<a href="http://www.openstreetmap.org/copyright">ODbL</a>'
+            attribution=self._STAMEN_ATTRIBUTION % '<a href="http://www.openstreetmap.org/copyright">ODbL</a>'
         )
 
     @property
     def STAMEN_TERRAIN(self):
+        from bokeh.models.tiles import WMTSTileSource
         return WMTSTileSource(
             url='http://tile.stamen.com/terrain/{Z}/{X}/{Y}.png',
-            attribution=_STAMEN_ATTRIBUTION % '<a href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>'
+            attribution=self._STAMEN_ATTRIBUTION % '<a href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>'
         )
 
     @property
     def CARTODBPOSITRON(self):
+        from bokeh.models.tiles import WMTSTileSource
         return WMTSTileSource(
             url='http://tiles.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
-            attribution=_CARTO_ATTRIBUTION
+            attribution=self._CARTO_ATTRIBUTION
         )
 
     @property
     def CARTODBPOSITRON_RETINA(self):
+        from bokeh.models.tiles import WMTSTileSource
         return WMTSTileSource(
             url='http://tiles.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png',
-            attribution=_CARTO_ATTRIBUTION
+            attribution=self._CARTO_ATTRIBUTION
         )
 
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
 
-_mod = _TileProvidersModule('bokeh.tile_providers')
+_mod = _TileProvidersModule(str('bokeh.tile_providers'))
 _mod.__doc__ = __doc__
 _mod.__all__ = (
     'STAMEN_TONER',
