@@ -115,7 +115,6 @@ export class PlotCanvasView extends DOMView
     @build_levels()
     @build_tools()
 
-    @connect_signals()
     @update_dataranges()
 
     @unpause(true)
@@ -459,7 +458,6 @@ export class PlotCanvasView extends DOMView
 
     for view in new_renderer_views
       @levels[view.model.level][view.model.id] = view
-      view.connect_signals()
 
     return @
 
@@ -471,7 +469,6 @@ export class PlotCanvasView extends DOMView
     new_tool_views = build_views(@tool_views, tool_models, @view_options())
 
     for tool_view in new_tool_views
-      tool_view.connect_signals()
       @ui_event_bus.register_tool(tool_view)
 
   connect_signals: () ->

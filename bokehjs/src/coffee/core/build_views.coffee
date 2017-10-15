@@ -13,9 +13,12 @@ export build_views = (view_storage, models, options, cls = (model) -> model.defa
 
   for model in new_models
     view_cls = cls(model)
-    view_options = extend({model: model}, options)
+    view_options = extend({}, options, {model: model, connect_signals: false})
     view_storage[model.id] = view = new view_cls(view_options)
     created_views.push(view)
+
+  for view in created_views
+    view.connect_signals()
 
   return created_views
 

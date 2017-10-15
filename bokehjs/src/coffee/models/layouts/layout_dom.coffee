@@ -21,8 +21,6 @@ export class LayoutDOMView extends DOMView
     @child_views = {}
     @build_child_views()
 
-    @connect_signals()
-
   remove: () ->
     for _, view of @child_views
       view.remove()
