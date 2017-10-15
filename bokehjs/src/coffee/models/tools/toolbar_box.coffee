@@ -37,9 +37,10 @@ export class ProxyToolbar extends ToolbarBase
           @gestures[et].tools = @gestures[et].tools.concat([tool])
 
   _merge_tools: () ->
-
     # Go through all the tools on the toolbar and replace them with
     # a proxy e.g. PanTool, BoxSelectTool, etc.
+
+    @_proxied_tools = []
 
     inspectors = {}
     actions = {}
@@ -51,6 +52,7 @@ export class ProxyToolbar extends ToolbarBase
       if helptool.redirect not in new_help_urls
         new_help_tools.push(helptool)
         new_help_urls.push(helptool.redirect)
+    @_proxied_tools.push(new_help_tools...)
     @help = new_help_tools
 
     for event_type, info of @gestures
@@ -72,8 +74,8 @@ export class ProxyToolbar extends ToolbarBase
       actions[tool.type].push(tool)
 
     # Add a proxy for each of the groups of tools.
-    make_proxy = (tools, active=false) ->
-      return new ToolProxy({
+    make_proxy = (tools, active=false) =>
+      proxy = new ToolProxy({
         tools: tools,
         event_type: tools[0].event_type,
         tooltip: tools[0].tool_name
@@ -81,6 +83,9 @@ export class ProxyToolbar extends ToolbarBase
         icon: tools[0].icon
         active: active
       })
+      proxy.button_view = tools[0].button_view
+      @_proxied_tools.push(proxy)
+      return proxy
 
     for event_type of gestures
       @gestures[event_type].tools = []

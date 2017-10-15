@@ -22,7 +22,8 @@ export class ToolbarBaseView extends DOMView
     super()
 
   _build_tool_button_views: () ->
-    build_views(@_tool_button_views, @model.tools, {parent: @}, (tool) -> tool.button_view)
+    tools = @model._proxied_tools ? @model.tools # XXX
+    build_views(@_tool_button_views, tools, {parent: @}, (tool) -> tool.button_view)
 
   render: () ->
     empty(@el)
