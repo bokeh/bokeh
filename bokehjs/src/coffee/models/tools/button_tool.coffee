@@ -26,6 +26,8 @@ export class ButtonToolButtonView extends DOMView
 export class ButtonToolView extends ToolView
 
 export class ButtonTool extends Tool
+  button_view: ButtonToolButtonView
+
   icon: null
 
   @getters {

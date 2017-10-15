@@ -1,14 +1,28 @@
 import {logger} from "core/logging"
 import {empty, div, a} from "core/dom"
+import {build_views, remove_views} from "core/build_views"
 import * as p from "core/properties"
 
 import {DOMView} from "core/dom_view"
 import {Model} from "model"
 
-import {ActionToolButtonView} from "./actions/action_tool"
-import {OnOffButtonView} from "./on_off_button"
-
 export class ToolbarBaseView extends DOMView
+
+  initialize: (options) ->
+    super(options)
+    @_tool_button_views = {}
+    @_build_tool_button_views()
+
+  connect_signals: () ->
+    super()
+    @connect(@model.properties.tools.change, () => @_build_tool_button_views())
+
+  remove: () ->
+    remove_views(@_tool_button_views)
+    super()
+
+  _build_tool_button_views: () ->
+    build_views(@_tool_button_views, @model.tools, {parent: @}, (tool) -> tool.button_view)
 
   render: () ->
     empty(@el)
@@ -21,33 +35,35 @@ export class ToolbarBaseView extends DOMView
       logo = a({href: "https://bokeh.pydata.org/", target: "_blank", class: ["bk-logo", "bk-logo-small", cls]})
       @el.appendChild(logo)
 
-    add_bar = (buttons) =>
-      if buttons.length != 0
-        bar = div({class: 'bk-button-bar'}, buttons)
-        @el.appendChild(bar)
+    bars = []
 
     gestures = @model.gestures
     for et of gestures
       buttons = []
-      for obj in gestures[et].tools
-        buttons.push(new OnOffButtonView({model: obj, parent: @}).el)
-      add_bar(buttons)
+      for tool in gestures[et].tools
+        buttons.push(@_tool_button_views[tool.id].el)
+      bars.push(buttons)
 
     buttons = []
-    for obj in @model.actions
-      buttons.push(new ActionToolButtonView({model: obj, parent: @}).el)
-    add_bar(buttons)
+    for tool in @model.actions
+      buttons.push(@_tool_button_views[tool.id].el)
+    bars.push(buttons)
 
     buttons = []
-    for obj in @model.inspectors
-      if obj.toggleable
-        buttons.push(new OnOffButtonView({model: obj, parent: @}).el)
-    add_bar(buttons)
+    for tool in @model.inspectors
+      if tool.toggleable
+        buttons.push(@_tool_button_views[tool.id].el)
+    bars.push(buttons)
 
     buttons = []
-    for obj in @model.help
-      buttons.push(new ActionToolButtonView({model: obj, parent: @}).el)
-    add_bar(buttons)
+    for tool in @model.help
+      buttons.push(@_tool_button_views[tool.id].el)
+    bars.push(buttons)
+
+    for buttons in bars
+      if buttons.length != 0
+        bar = div({class: 'bk-button-bar'}, buttons)
+        @el.appendChild(bar)
 
     return @
 
