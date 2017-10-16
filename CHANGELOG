@@ -1,3 +1,65 @@
+2017-10-16  0.12.10:
+--------------------
+  * bugfixes:
+    - #4247 [notebook] Performance issues after repeated `push_notebook` calls
+    - #4965 Datepicker errors on input from chrome on windows 8.1
+    - #5415 [notebook] Having multiple `push_notebook` calls in the same widget callback doesn't work
+    - #5452 [notebook] Plotting bug when using push_notebook() from customjs callback
+    - #6258 [regression] Colorspec processing is broken 
+    - #6590 [component: server] Tile sources cannot be shared between app sessions
+    - #6820 [component: bokehjs] Cdsview not working with text glyph
+    - #6831 [component: examples] [regression] Color slider example can show hex fp values
+    - #6846 [component: bokehjs] Categories on yaxis with hbar fails to set initial ranges
+    - #6863 [component: server] Datatables do not update properly for on_change events 0.12.7
+    - #6891 [component: bokehjs] [regression] Customjs for hover no longer working - bokeh 0.12.7
+    - #6910 [component: bokehjs] The new feature filter (cdsview) not behaving has expected
+    - #6921 [component: bokehjs] [notebook] [regression] Shared drag tools in grid plots only work on the last plot 
+    - #6926 [component: bokehjs] Daterangeslider incorrect value displayed
+    - #6947 [component: bokehjs] Color mapping in circle fill colors does not take current view (cdsview) into account
+    - #6949 [component: bokehjs] Length_units has no effect for rays
+    - #6955 Possible bug: hover tool does not work with filtered source
+    - #6982 [component: bokehjs] Bugfix: bokeh-server: ie fails with "object doesn't support this action"
+    - #6986 [component: bokehjs] Mercatorticker behavior poorly defined for ranges exceeding mercator bounds
+    - #6993 [component: bokehjs] [regression] Bad positioning of colorbar for 'above' and 'below'
+    - #7015 [component: bokehjs] [regression] Functickformatter broken with categorical axis
+    - #7035 [component: bokehjs] [regression] [widgets] Datatable with dynamic number of rows is unstable and breaks
+    - #7044 [component: server] Bokeh server sessions not released correctly
+    - #7048 [component: bokehjs] Datepicker returns one day earlier than picked in ie
+  * features:
+    - #3601 [component: bokehjs] Patchesview._mask_data() changes the draw order
+    - #4117 [component: bokehjs] Add support for client side filtering of data sources
+    - #4911 Updating two glyphs using periodic callback
+    - #6945 [component: bokehjs] [component: server] [notebook] Use bokeh protocol to implement push_notebook
+    - #6951 Y_range doesn't understand numpy arrays
+  * tasks:
+    - #4049 [component: docs] Improve documentation to support running unit tests locally
+    - #6666 [component: docs] [component: examples] Update sliders in examples 
+    - #6704 [component: bokehjs] Hovertool hit detection fails on vertical and near-vertical segment glyphs
+    - #6718 [notebook] Push_notebook updates at most one plot
+    - #6918 [component: docs] Js code error in documentation
+    - #6928 [component: docs] Bryanv/cleanups
+    - #6937 [component: docs] Fix typo in notebook.rst
+    - #6938 Stop computing unused and expensive bokeh.__base_version__
+    - #6943 [component: docs] Fix docstrings
+    - #6952 Canonicalize bokeh.client
+    - #6957 [component: docs] Generate uuids for sphinx docs js script names
+    - #6962 [component: docs] Gridplot doctext formatting error
+    - #6971 From_networkx fails with networkx 2.0
+    - #6978 Passing an index for factors throws value error
+    - #6991 [component: docs] Out of date reference to matplotlib in user guide for color bars?
+    - #6994 Canonicalize bokeh.colors
+    - #6999 [component: docs] Incomplete docs re embedding when using data tables
+    - #7009 [component: tests] Reduce size of travis ci logs
+    - #7016 Fix codebase issues
+    - #7021 Canonicalize more top level modules
+    - #7022 Clean up sampledata
+    - #7029 [component: examples] Fixed url typo in examples app & changed readme url to https
+    - #7031 [component: docs] Server docs are misleading
+    - #7033 [component: docs] `bokeh-demos` link doesn't exist
+    - #7041 Changed to handle nx2 scale "kwarg error
+    - #7052 [component: build] Upgrade typescript to version 2.5.3
+    - #7056 [component: bokehjs] Remove bk-logo-{medium,large}
+
 2017-09-12   0.12.9:
 --------------------
 
