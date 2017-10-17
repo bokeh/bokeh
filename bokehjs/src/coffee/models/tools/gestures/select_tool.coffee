@@ -51,7 +51,11 @@ export class SelectToolView extends GestureToolView
 
     for _, renderers of renderers_by_source
       sm = renderers[0].get_selection_manager()
-      r_views = (@plot_view.renderer_views[r.id] for r in renderers)
+
+      r_views = []
+      for r in renderers
+        if r.id of @plot_view.renderer_views
+          r_views.push(@plot_view.renderer_views[r.id])
       sm.select(r_views, geometry, final, append)
 
     if @model.callback?
