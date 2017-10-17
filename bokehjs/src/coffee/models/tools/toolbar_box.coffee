@@ -75,15 +75,7 @@ export class ProxyToolbar extends ToolbarBase
 
     # Add a proxy for each of the groups of tools.
     make_proxy = (tools, active=false) =>
-      proxy = new ToolProxy({
-        tools: tools,
-        event_type: tools[0].event_type,
-        tooltip: tools[0].tool_name
-        tool_name: tools[0].tool_name
-        icon: tools[0].icon
-        active: active
-      })
-      proxy.button_view = tools[0].button_view
+      proxy = new ToolProxy({tools: tools, active: active})
       @_proxied_tools.push(proxy)
       return proxy
 
