@@ -46,6 +46,6 @@ export class Ray extends XYGlyph
 
   @mixins ['line']
   @define {
-      length: [ p.DistanceSpec ]
-      angle:  [ p.AngleSpec    ]
-    }
+    length: [ p.DistanceSpec ]
+    angle:  [ p.AngleSpec    ]
+  }

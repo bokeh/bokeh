@@ -210,7 +210,7 @@ export class SpatialUnits extends enum_prop("SpatialUnits", enums.SpatialUnits)
 
 export class Distribution extends enum_prop("Distribution", enums.DistributionTypes)
 
-export class TransformStepMode extends enum_prop("TransformStepMode", enums.TransformStepModes)
+export class StepMode extends enum_prop("StepMode", enums.StepModes)
 
 export class PaddingUnits extends enum_prop("PaddingUnits", enums.PaddingUnits)
 
