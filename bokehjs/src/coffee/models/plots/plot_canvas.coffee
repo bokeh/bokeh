@@ -797,35 +797,35 @@ export class PlotCanvas extends LayoutDOM
       EQ(@canvas._left,   0),
       EQ(@canvas._bottom, 0),
 
-      LE( @above_panel._top,    [-1, @canvas._top]         ),
-      EQ( @above_panel._bottom, [-1, @frame._top]          ),
-      EQ( @above_panel._left,   [-1, @left_panel._right]   ),
-      EQ( @above_panel._right,  [-1, @right_panel._left]   ),
+      LE(@above_panel._top,    [-1, @canvas._top]        ),
+      EQ(@above_panel._bottom, [-1, @frame._top]         ),
+      EQ(@above_panel._left,   [-1, @left_panel._right]  ),
+      EQ(@above_panel._right,  [-1, @right_panel._left]  ),
 
-      EQ( @below_panel._top,    [-1, @frame._bottom]       ),
-      GE( @below_panel._bottom, [-1, @canvas._bottom]      ),
-      EQ( @below_panel._left,   [-1, @left_panel._right]   ),
-      EQ( @below_panel._right,  [-1, @right_panel._left]   ),
+      EQ(@below_panel._top,    [-1, @frame._bottom]      ),
+      GE(@below_panel._bottom, [-1, @canvas._bottom]     ),
+      EQ(@below_panel._left,   [-1, @left_panel._right]  ),
+      EQ(@below_panel._right,  [-1, @right_panel._left]  ),
 
-      EQ( @left_panel._top,    [-1, @above_panel._bottom]  ),
-      EQ( @left_panel._bottom, [-1, @below_panel._top]     ),
-      GE( @left_panel._left,   [-1, @canvas._left]         ),
-      EQ( @left_panel._right,  [-1, @frame._left]          ),
+      EQ(@left_panel._top,     [-1, @above_panel._bottom]),
+      EQ(@left_panel._bottom,  [-1, @below_panel._top]   ),
+      GE(@left_panel._left,    [-1, @canvas._left]       ),
+      EQ(@left_panel._right,   [-1, @frame._left]        ),
 
-      EQ( @right_panel._top,    [-1, @above_panel._bottom] ),
-      EQ( @right_panel._bottom, [-1, @below_panel._top]    ),
-      EQ( @right_panel._left,   [-1, @frame._right]        ),
-      LE( @right_panel._right,  [-1, @canvas._right]       ),
+      EQ(@right_panel._top,    [-1, @above_panel._bottom]),
+      EQ(@right_panel._bottom, [-1, @below_panel._top]   ),
+      EQ(@right_panel._left,   [-1, @frame._right]       ),
+      LE(@right_panel._right,  [-1, @canvas._right]      ),
 
       EQ(@_top,                    [-1, @canvas._top], @above_panel._bottom),
       EQ(@_left,                   [-1, @left_panel._right]),
       EQ(@_height, [-1, @_bottom], [-1, @below_panel._top]),
       EQ(@_width, [-1, @_right],   [-1, @canvas._right], @right_panel._left),
 
-      GE(@_top,                    -@plot.min_border_top    )
-      GE(@_left,                   -@plot.min_border_left   )
-      GE(@_height, [-1, @_bottom], -@plot.min_border_bottom )
-      GE(@_width, [-1, @_right],   -@plot.min_border_right  )
+      GE(@_top,                    -@plot.min_border_top   )
+      GE(@_left,                   -@plot.min_border_left  )
+      GE(@_height, [-1, @_bottom], -@plot.min_border_bottom)
+      GE(@_width, [-1, @_right],   -@plot.min_border_right )
     ]
 
   _get_side_constraints: () ->
