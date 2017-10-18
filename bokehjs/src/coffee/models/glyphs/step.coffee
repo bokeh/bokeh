@@ -16,18 +16,17 @@ export class StepView extends XYGlyphView
 
     for i in [1...L]
 
-      if @model.mode == "before"
-        [x1, y1] = [sx[i-1], sy[i]]
-        [x2, y2] = [sx[i],   sy[i]]
-
-      else if @model.mode == "after"
-        [x1, y1] = [sx[i], sy[i-1]]
-        [x2, y2] = [sx[i], sy[i]  ]
-
-      else if @model.mode == "center"
-        xm = (sx[i-1] + sx[i])/2
-        [x1, y1] = [xm, sy[i-1]]
-        [x2, y2] = [xm, sy[i]  ]
+      switch @model.mode
+        when "before"
+          [x1, y1] = [sx[i-1], sy[i]]
+          [x2, y2] = [sx[i],   sy[i]]
+        when "after"
+          [x1, y1] = [sx[i], sy[i-1]]
+          [x2, y2] = [sx[i], sy[i]  ]
+        when "center"
+          xm = (sx[i-1] + sx[i])/2
+          [x1, y1] = [xm, sy[i-1]]
+          [x2, y2] = [xm, sy[i]  ]
 
       ctx.lineTo(x1, y1)
       ctx.lineTo(x2, y2)

@@ -8,5 +8,4 @@ declare namespace Bokeh {
   export type FontSize = string;
   export type Map<T> = {[key: string]: T};
   export type JsObj = Map<any>;
-  export type StepType = "after" | "before" | "center";
 }
