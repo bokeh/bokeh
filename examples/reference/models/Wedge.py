@@ -18,7 +18,7 @@ plot = Plot(
     title=None, x_range=xdr, y_range=ydr, plot_width=300, plot_height=300,
     h_symmetry=False, v_symmetry=False, min_border=0, toolbar_location=None)
 
-glyph = Wedge(x="x", y="y", radius="r", start_angle=0.6, end_angle=4.1, fill_color="#B3DE69")
+glyph = Wedge(x="x", y="y", radius="r", start_angle=0.6, end_angle=4.1, fill_color="#b3de69")
 plot.add_glyph(source, glyph)
 
 xaxis = LinearAxis()

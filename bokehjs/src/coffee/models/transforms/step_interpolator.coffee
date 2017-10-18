@@ -6,8 +6,8 @@ import {min, findIndex, findLastIndex} from "core/util/array"
 export class StepInterpolator extends Interpolator
 
   @define {
-    mode: [ p.TransformStepMode, "after"]
-    }
+    mode: [ p.StepMode, "after"]
+  }
 
   compute: (x) ->
     # Apply the transform to a single value

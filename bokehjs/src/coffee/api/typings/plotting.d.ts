@@ -212,6 +212,11 @@ declare namespace Bokeh.Plotting {
       x1: DataAttr,
       y1: DataAttr,
       opts?: SegmentOpts):          GlyphRenderer;
+    step(
+      x: DataAttr,
+      y: DataAttr,
+      mode: StepType,
+      opts?: LineOpts):             GlyphRenderer;
     text(
       x: DataAttr,
       y: DataAttr,
