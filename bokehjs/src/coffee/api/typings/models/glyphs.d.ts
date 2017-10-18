@@ -183,7 +183,7 @@ declare namespace Bokeh {
 
   export var Step: { new(attributes?: IStep, options?: ModelOpts): Step };
   export interface Step extends Glyph, IStep {}
-  export interface IStep extends IGlyph, StepProps {
+  export interface IStep extends IGlyph, LineProps {
     x?: Numerical | Categorical;
     y?: Numerical | Categorical;
     mode?: StepType;
