@@ -341,7 +341,7 @@ export class PlotCanvasView extends DOMView
     hit_bound = false
     for [rng, range_info] in range_info_iter
       # Is this a reversed range?
-      reversed = (rng.start > rng.end)
+      is_reversed = (rng.start > rng.end)
 
       # Limit range interval first. Note that for scroll events,
       # the interval has already been limited for all ranges simultaneously
@@ -358,7 +358,7 @@ export class PlotCanvasView extends DOMView
         max = rng.bounds[1]
         new_interval = Math.abs(range_info['end'] - range_info['start'])
 
-        if reversed
+        if is_reversed
           if min?
             if min >= range_info['end']
               hit_bound = true
