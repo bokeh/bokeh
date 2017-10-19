@@ -49,6 +49,7 @@ def modify_doc(doc):
 
     doc.theme = Theme(filename="theme.yaml")
 
+# can't use shortcuts here, since we are passing to low level BokehTornado
 bkapp = Application(FunctionHandler(modify_doc))
 
 bokeh_tornado = BokehTornado({'/bkapp': bkapp}, extra_websocket_origins=["localhost:8000"])
