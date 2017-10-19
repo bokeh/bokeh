@@ -6,21 +6,41 @@ import * as hittest from "core/hittest"
 import {replace_placeholders} from "core/util/templating"
 import {div, span} from "core/dom"
 import * as p from "core/properties"
+import {color2hex} from "core/util/color"
 import {values, isEmpty} from "core/util/object"
 import {isString, isFunction} from "core/util/types"
 import {build_views, remove_views} from "core/build_views"
 
-_color_to_hex = (color) ->
-  if (color.substr(0, 1) == '#')
-      return color
-  digits = /(.*?)rgb\((\d+), (\d+), (\d+)\)/.exec(color)
+export _nearest_line_hit = (canvas, i, geometry, sx, sy, dx, dy) ->
+  d1x = dx[i]
+  d1y = dy[i]
 
-  red = parseInt(digits[2])
-  green = parseInt(digits[3])
-  blue = parseInt(digits[4])
+  d2x = dx[i+1]
+  d2y = dy[i+1]
 
-  rgb = blue | (green << 8) | (red << 16)
-  return digits[1] + '#' + rgb.toString(16)
+  if geometry.type == "span"
+    switch geometry.direction
+      when "h"
+        dist1 = Math.abs(d1x-sx)
+        dist2 = Math.abs(d2x-sx)
+      when "v"
+        dist1 = Math.abs(d1y-sy)
+        dist2 = Math.abs(d2y-sy)
+  else
+    dist1 = hittest.dist_2_pts(d1x, d1y, sx, sy)
+    dist2 = hittest.dist_2_pts(d2x, d2y, sx, sy)
+
+  if dist1 < dist2
+    rx = canvas.sx_to_vx(d1x)
+    ry = canvas.sy_to_vy(d1y)
+    return [[rx, ry], i]
+  else
+    rx = canvas.sx_to_vx(d2x)
+    ry = canvas.sy_to_vy(d2y)
+    return [[rx, ry], i+1]
+
+export _line_hit = (canvas, xs, ys, ind) ->
+  return [[canvas.sx_to_vx(xs[ind]), canvas.sy_to_vy(ys[ind])], ind]
 
 export class HoverToolView extends InspectToolView
 
@@ -175,51 +195,34 @@ export class HoverToolView extends InspectToolView
     x = xscale.invert(vx)
     y = yscale.invert(vy)
 
+    glyph = renderer_view.glyph
+
     for i in indices['0d'].indices
-      data_x = renderer_view.glyph._x[i+1]
-      data_y = renderer_view.glyph._y[i+1]
+      data_x = glyph._x[i+1]
+      data_y = glyph._y[i+1]
       ii = i
 
       switch @model.line_policy
         when "interp" # and renderer.get_interpolation_hit?
-          [data_x, data_y] = renderer_view.glyph.get_interpolation_hit(i, geometry)
+          [data_x, data_y] = glyph.get_interpolation_hit(i, geometry)
           rx = xscale.compute(data_x)
           ry = yscale.compute(data_y)
 
         when "prev"
-          rx = canvas.sx_to_vx(renderer_view.glyph.sx[i])
-          ry = canvas.sy_to_vy(renderer_view.glyph.sy[i])
+          [[rx, ry], ii] = _line_hit(canvas, glyph.sx, glyph.sy, i)
 
         when "next"
-          rx = canvas.sx_to_vx(renderer_view.glyph.sx[i+1])
-          ry = canvas.sy_to_vy(renderer_view.glyph.sy[i+1])
-          ii = i+1
+          [[rx, ry], ii] = _line_hit(canvas, glyph.sx, glyph.sy, i+1)
 
         when "nearest"
-          d1x = renderer_view.glyph.sx[i]
-          d1y = renderer_view.glyph.sy[i]
-          dist1 = hittest.dist_2_pts(d1x, d1y, sx, sy)
-
-          d2x = renderer_view.glyph.sx[i+1]
-          d2y = renderer_view.glyph.sy[i+1]
-          dist2 = hittest.dist_2_pts(d2x, d2y, sx, sy)
-
-          if dist1 < dist2
-            [sdatax, sdatay] = [d1x, d1y]
-          else
-            [sdatax, sdatay] = [d2x, d2y]
-            ii = i+1
-
-          data_x = renderer_view.glyph._x[i]
-          data_y = renderer_view.glyph._y[i]
-          rx = canvas.sx_to_vx(sdatax)
-          ry = canvas.sy_to_vy(sdatay)
+          [[rx, ry], ii] = _nearest_line_hit(canvas, i, geometry, sx, sy, glyph.sx, glyph.sy)
+          data_x = glyph._x[i]
+          data_y = glyph._y[i]
 
         else
           [rx, ry] = [vx, vy]
 
       vars = {index: ii, x: x, y: y, vx: vx, vy: vy, sx: sx, sy: sy, data_x: data_x, data_y: data_y, rx:rx, ry:ry}
-
 
       tooltip.add(rx, ry, @_render_tooltips(ds, ii, vars))
 
@@ -227,44 +230,26 @@ export class HoverToolView extends InspectToolView
       # multiglyphs will set '1d' and '2d' results, but have different tooltips
       if not isEmpty(indices['2d'].indices)
         for i, [j] of indices['2d'].indices
-          data_x = renderer_view.glyph._xs[i][j]
-          data_y = renderer_view.glyph._ys[i][j]
+          data_x = glyph._xs[i][j]
+          data_y = glyph._ys[i][j]
           jj = j
 
           switch @model.line_policy
             when "interp" # and renderer.get_interpolation_hit?
-              [data_x, data_y] = renderer_view.glyph.get_interpolation_hit(i, j, geometry)
+              [data_x, data_y] = glyph.get_interpolation_hit(i, j, geometry)
               rx = xscale.compute(data_x)
               ry = yscale.compute(data_y)
 
             when "prev"
-              rx = canvas.sx_to_vx(renderer_view.glyph.sxs[i][j])
-              ry = canvas.sy_to_vy(renderer_view.glyph.sys[i][j])
+              [[rx, ry], jj] = _line_hit(canvas, glyph.sxs[i], glyph.sys[i], j)
 
             when "next"
-              rx = canvas.sx_to_vx(renderer_view.glyph.sxs[i][j+1])
-              ry = canvas.sy_to_vy(renderer_view.glyph.sys[i][j+1])
-              jj = j+1
+              [[rx, ry], jj] = _line_hit(canvas, glyph.sxs[i], glyph.sys[i], j+1)
 
             when "nearest"
-              d1x = renderer_view.glyph.sxs[i][j]
-              d1y = renderer_view.glyph.sys[i][j]
-              dist1 = hittest.dist_2_pts(d1x, d1y, sx, sy)
-
-              d2x = renderer_view.glyph.sxs[i][j+1]
-              d2y = renderer_view.glyph.sys[i][j+1]
-              dist2 = hittest.dist_2_pts(d2x, d2y, sx, sy)
-
-              if dist1 < dist2
-                [sdatax, sdatay] = [d1x, d1y]
-              else
-                [sdatax, sdatay] = [d2x, d2y]
-                jj = j+1
-
-              data_x = renderer_view.glyph._xs[i][j]
-              data_y = renderer_view.glyph._ys[i][j]
-              rx = canvas.sx_to_vx(sdatax)
-              ry = canvas.sy_to_vy(sdatay)
+              [[rx, ry], jj] = _nearest_line_hit(canvas, j, geometry, sx, sy, glyph.sxs[i], glyph.sys[i])
+              data_x = glyph._xs[i][j]
+              data_y = glyph._ys[i][j]
 
           vars = {index: i, segment_index: jj, x: x, y: y, vx: vx, vy: vy, sx: sx, sy: sy, data_x: data_x, data_y: data_y}
 
@@ -272,15 +257,15 @@ export class HoverToolView extends InspectToolView
 
       else
         # handle non-multiglyphs
-        data_x = renderer_view.glyph._x?[i]
-        data_y = renderer_view.glyph._y?[i]
+        data_x = glyph._x?[i]
+        data_y = glyph._y?[i]
         if @model.point_policy == 'snap_to_data' # and renderer.glyph.sx? and renderer.glyph.sy?
           # Pass in our screen position so we can determine
           # which patch we're over if there are discontinuous
           # patches.
-          pt = renderer_view.glyph.get_anchor_point(@model.anchor, i, [sx, sy])
+          pt = glyph.get_anchor_point(@model.anchor, i, [sx, sy])
           if not pt?
-            pt = renderer_view.glyph.get_anchor_point("center", i, [sx, sy])
+            pt = glyph.get_anchor_point("center", i, [sx, sy])
 
           rx = canvas.sx_to_vx(pt.x)
           ry = canvas.sy_to_vy(pt.y)
@@ -359,7 +344,7 @@ export class HoverToolView extends InspectToolView
             cell.appendChild(el)
             continue
           if hex
-            color = _color_to_hex(color)
+            color = color2hex(color)
           el = span({}, color)
           cell.appendChild(el)
           if swatch
@@ -384,7 +369,7 @@ export class HoverTool extends InspectTool
       ["index",         "$index"    ]
       ["data (x, y)",   "($x, $y)"  ]
       ["canvas (x, y)", "($sx, $sy)"]
-    ]] # TODO (bev)
+    ]]
     formatters:   [ p.Any,    {}             ]
     renderers:    [ p.Array,  []             ]
     names:        [ p.Array,  []             ]
