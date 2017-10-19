@@ -43,7 +43,7 @@ from __future__ import absolute_import
 
 from .enums import LineJoin, LineCap, FontStyle, TextAlign, TextBaseline
 from .has_props import HasProps
-from .properties import Color, ColorSpec, DashPattern, Enum, FontSizeSpec, Include, Int, Float, NumberSpec, Percent, String, value
+from .properties import Color, ColorSpec, DashPattern, Enum, FontSize, FontSizeSpec, Include, Int, Float, NumberSpec, Percent, String, value
 
 
 _color_help = """
@@ -256,7 +256,7 @@ class ScalarTextProps(HasProps):
     base_text_props = Include(BaseTextProps, use_prefix=False)
 
     # XXX not great
-    text_font_size = String("12pt")
+    text_font_size = FontSize("12pt")
 
     text_color = Color(default="#444444", help=_color_help % "fill text")
 
