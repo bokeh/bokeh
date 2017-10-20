@@ -589,10 +589,10 @@ class ColumnDataSource(ColumnarDataSource):
 def _check_slice(s):
     if (s.start is not None and s.stop is not None and s.start > s.stop):
         raise ValueError("Patch slices must have start < end, got %s" % s)
-    if (s.start is not None and s.start < 1) or \
-       (s.stop  is not None and s.stop < 1) or \
-       (s.step  is not None and s.step < 1):
-        raise ValueError("Patch slices must have positive (start, stop, step) values, got %s" % s)
+    if (s.start is not None and s.start < 0) or \
+       (s.stop  is not None and s.stop < 0) or \
+       (s.step  is not None and s.step < 0):
+        raise ValueError("Patch slices must have non-negative (start, stop, step) values, got %s" % s)
 
 class CDSView(Model):
     ''' A view into a ColumnDataSource that represents a row-wise subset.
