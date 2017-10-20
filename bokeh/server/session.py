@@ -37,6 +37,9 @@ def _needs_document_lock(func):
         # from being discarded. This avoids potential weirdness
         # with the session vanishing in the middle of some async
         # task.
+        if self.destroyed:
+            log.debug("Ignoring locked callback on already-destroyed session.")
+            raise gen.Return(None)
         self.block_expiration()
         try:
             with (yield self._lock.acquire()):
