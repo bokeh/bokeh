@@ -52,7 +52,7 @@ def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="loca
             has been called in a Jupyter notebook, the output will be inline
             in the associated notebook output cell.
 
-            In a Jupyter notebook, a Bokeh application or callabale may also
+            In a Jupyter notebook, a Bokeh application or callable may also
             be passed. A callable will be turned into an Application using a
             FunctionHandler. The application will be run and displayed inline
             in the associated notebook output cell.
