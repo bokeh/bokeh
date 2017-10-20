@@ -87,9 +87,10 @@ def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="loca
             When showing Bokeh applications, the Bokeh server must be
             explicitly configured to allow connections originating from
             different URLs. This parameter defaults to the standard notebook
-            host and port. If you are running on a differnet location, you
+            host and port. If you are running on a different location, you
             will need to supply this value for the application to display
-            properly.
+            properly. If no protocol is supplied in the URL, e.g. if it is
+            of the form "localhost:8888", then "http" will be used.
 
             It is also possible to pass ``notebook_url="*"`` to disable the
             standard checks, so that applications will display regardless of
