@@ -634,3 +634,17 @@ def test_base_server():
     httpserver.stop()
     server.stop()
     server.io_loop.close()
+
+def test_server_applications_callable_arg():
+    def modify_doc(doc):
+        doc.title = "Hello, world!"
+
+    with ManagedServerLoop(modify_doc, port=0) as server:
+        http_get(server.io_loop, url(server))
+        session = server.get_sessions('/')[0]
+        assert session.document.title == "Hello, world!"
+
+    with ManagedServerLoop({"/foo": modify_doc}, port=0) as server:
+        http_get(server.io_loop, url(server) + "foo")
+        session = server.get_sessions('/foo')[0]
+        assert session.document.title == "Hello, world!"

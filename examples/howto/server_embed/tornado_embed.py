@@ -2,8 +2,6 @@ from jinja2 import Environment, FileSystemLoader
 
 from tornado.web import RequestHandler
 
-from bokeh.application import Application
-from bokeh.application.handlers import FunctionHandler
 from bokeh.embed import server_document
 from bokeh.layouts import column
 from bokeh.models import ColumnDataSource, Slider
@@ -43,12 +41,10 @@ def modify_doc(doc):
 
     doc.theme = Theme(filename="theme.yaml")
 
-bokeh_app = Application(FunctionHandler(modify_doc))
-
 # Setting num_procs here means we can't touch the IOLoop before now, we must
 # let Server handle that. If you need to explicitly handle IOLoops then you
 # will need to use the lower level BaseServer class.
-server = Server({'/bkapp': bokeh_app}, num_procs=4, extra_patterns=[('/', IndexHandler)])
+server = Server({'/bkapp': modify_doc}, num_procs=4, extra_patterns=[('/', IndexHandler)])
 server.start()
 
 if __name__ == '__main__':

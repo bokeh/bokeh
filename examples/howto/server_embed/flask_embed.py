@@ -1,7 +1,5 @@
 from flask import Flask, render_template
 
-from bokeh.application import Application
-from bokeh.application.handlers import FunctionHandler
 from bokeh.embed import server_document
 from bokeh.layouts import column
 from bokeh.models import ColumnDataSource, Slider
@@ -35,8 +33,6 @@ def modify_doc(doc):
 
     doc.theme = Theme(filename="theme.yaml")
 
-bkapp = Application(FunctionHandler(modify_doc))
-
 @app.route('/', methods=['GET'])
 def bkapp_page():
     script = server_document('http://localhost:5006/bkapp')
@@ -45,7 +41,7 @@ def bkapp_page():
 def bk_worker():
     # Can't pass num_procs > 1 in this configuration. If you need to run multiple
     # processes, see e.g. flask_gunicorn_embed.py
-    server = Server({'/bkapp': bkapp}, allow_websocket_origin=["localhost:8000"])
+    server = Server({'/bkapp': modify_doc}, allow_websocket_origin=["localhost:8000"])
     server.start()
     server.io_loop.start()
 
