@@ -725,8 +725,6 @@ export class PlotCanvas extends LayoutDOM
 
     @canvas = new Canvas({
       map: @use_map ? false
-      initial_width: @plot.plot_width,
-      initial_height: @plot.plot_height,
       use_hidpi: @plot.hidpi,
       output_backend: @plot.output_backend
     })

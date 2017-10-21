@@ -92,8 +92,6 @@ export class Canvas extends LayoutCanvas
 
   @internal {
     map:            [ p.Boolean, false ]
-    initial_width:  [ p.Number         ]
-    initial_height: [ p.Number         ]
     use_hidpi:      [ p.Boolean, true  ]
     pixel_ratio:    [ p.Number,  1     ]
     output_backend: [ p.OutputBackend, "canvas"]
