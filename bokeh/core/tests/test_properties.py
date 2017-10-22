@@ -13,7 +13,7 @@ from bokeh.core.properties import (field, value,
     Regex, Seq, List, Dict, Tuple, Instance, Any, Interval, Either,
     Enum, Color, DashPattern, Size, Percent, Angle, AngleSpec, StringSpec,
     DistanceSpec, FontSizeSpec, Override, Include, MinMaxBounds,
-    DataDistanceSpec, ScreenDistanceSpec, ColumnData)
+    DataDistanceSpec, ScreenDistanceSpec, ColumnData, UnitsSpec)
 
 from bokeh.core.property.containers import PropertyValueColumnData, PropertyValueDict, PropertyValueList
 
@@ -1769,17 +1769,34 @@ def test_strict_dataspec_key_values():
             f.x = dict(field="foo", units="junk")
 
 def test_dataspec_dict_to_serializable():
-    for typ in (NumberSpec, StringSpec, FontSizeSpec, ColorSpec, DataDistanceSpec, ScreenDistanceSpec):
+    for typ in (NumberSpec, StringSpec, FontSizeSpec, ColorSpec):
         class Foo(HasProps):
             x = typ("x")
         foo = Foo(x=dict(field='foo'))
         props = foo.properties_with_values(include_defaults=False)
-        if typ is DataDistanceSpec:
-            assert props['x']['units'] == 'data'
-        elif typ is ScreenDistanceSpec:
-            assert props['x']['units'] == 'screen'
         assert props['x']['field'] == 'foo'
         assert props['x'] is not foo.x
+
+def test_DataDistanceSpec():
+    assert issubclass(DataDistanceSpec, UnitsSpec)
+    class Foo(HasProps):
+        x = DataDistanceSpec("x")
+    foo = Foo(x=dict(field='foo'))
+    props = foo.properties_with_values(include_defaults=False)
+    assert props['x']['units'] == 'data'
+    assert props['x']['field'] == 'foo'
+    assert props['x'] is not foo.x
+
+def test_ScreenDistanceSpec():
+    assert issubclass(ScreenDistanceSpec, UnitsSpec)
+    class Foo(HasProps):
+        x = ScreenDistanceSpec("x")
+    foo = Foo(x=dict(field='foo'))
+    props = foo.properties_with_values(include_defaults=False)
+    assert props['x']['units'] == 'screen'
+    assert props['x']['field'] == 'foo'
+    assert props['x'] is not foo.x
+
 
 def test_strict_unitspec_key_values():
     class FooUnits(HasProps):
