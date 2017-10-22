@@ -1734,7 +1734,7 @@ class DistanceSpec(UnitsSpec):
             pass
         return super(DistanceSpec, self).prepare_value(cls, name, value)
 
-class ScreenDistanceSpec(NumberSpec):
+class ScreenDistanceSpec(UnitsSpec):
     ''' A |DataSpec| property that accepts numeric fixed values for screen
     distances, and also provides an associated units property that reports
     ``"screen"`` as the units.
@@ -1743,6 +1743,10 @@ class ScreenDistanceSpec(NumberSpec):
         Units are always ``"screen"``.
 
     '''
+
+    def __init__(self, default=None, help=None):
+        super(ScreenDistanceSpec, self).__init__(default=default, units_type=Enum(enums.enumeration("screen")), units_default="screen", help=help)
+
     def prepare_value(self, cls, name, value):
         try:
             if value is not None and value < 0:
@@ -1751,12 +1755,38 @@ class ScreenDistanceSpec(NumberSpec):
             pass
         return super(ScreenDistanceSpec, self).prepare_value(cls, name, value)
 
+    def make_descriptors(self, base_name):
+        ''' Return a list of ``PropertyDescriptor`` instances to install on a
+        class, in order to delegate attribute access to this property.
+
+        Unlike simpler property types, ``UnitsSpec`` returns multiple
+        descriptors to install. In particular, descriptors for the base
+        property as well as the associated units property are returned.
+
+        Args:
+            name (str) : the name of the property these descriptors are for
+
+        Returns:
+            list[PropertyDescriptor]
+
+        The descriptors returned are collected by the ``MetaHasProps``
+        metaclass and added to ``HasProps`` subclasses during class creation.
+        '''
+        units_props = self._units_type.make_descriptors("unused")
+        return [ UnitsSpecPropertyDescriptor(base_name, self, units_props[0]) ]
+
     def to_serializable(self, obj, name, val):
-        d = super(ScreenDistanceSpec, self).to_serializable(obj, name, val)
-        d["units"] = "screen"
+        d = super(UnitsSpec, self).to_serializable(obj, name, val)
+        if d is not None and 'units' not in d:
+            # d is a PropertyValueDict at this point, we need to convert it to
+            # a plain dict if we are going to modify its value, otherwise a
+            # notify_change that should not happen will be triggered
+            d = dict(d)
+            d["units"] = "screen"
         return d
 
-class DataDistanceSpec(NumberSpec):
+
+class DataDistanceSpec(UnitsSpec):
     ''' A |DataSpec| property that accepts numeric fixed values for data-space
     distances, and also provides an associated units property that reports
     ``"data"`` as the units.
@@ -1765,6 +1795,9 @@ class DataDistanceSpec(NumberSpec):
         Units are always ``"data"``.
 
     '''
+    def __init__(self, default=None, help=None):
+        super(DataDistanceSpec, self).__init__(default=default, units_type=Enum(enums.enumeration("data")), units_default="data", help=help)
+
     def prepare_value(self, cls, name, value):
         try:
             if value is not None and value < 0:
@@ -1773,9 +1806,34 @@ class DataDistanceSpec(NumberSpec):
             pass
         return super(DataDistanceSpec, self).prepare_value(cls, name, value)
 
+    def make_descriptors(self, base_name):
+        ''' Return a list of ``PropertyDescriptor`` instances to install on a
+        class, in order to delegate attribute access to this property.
+
+        Unlike simpler property types, ``UnitsSpec`` returns multiple
+        descriptors to install. In particular, descriptors for the base
+        property as well as the associated units property are returned.
+
+        Args:
+            name (str) : the name of the property these descriptors are for
+
+        Returns:
+            list[PropertyDescriptor]
+
+        The descriptors returned are collected by the ``MetaHasProps``
+        metaclass and added to ``HasProps`` subclasses during class creation.
+        '''
+        units_props = self._units_type.make_descriptors("unused")
+        return [ UnitsSpecPropertyDescriptor(base_name, self, units_props[0]) ]
+
     def to_serializable(self, obj, name, val):
-        d = super(DataDistanceSpec, self).to_serializable(obj, name, val)
-        d["units"] = "data"
+        d = super(UnitsSpec, self).to_serializable(obj, name, val)
+        if d is not None and 'units' not in d:
+            # d is a PropertyValueDict at this point, we need to convert it to
+            # a plain dict if we are going to modify its value, otherwise a
+            # notify_change that should not happen will be triggered
+            d = dict(d)
+            d["units"] = "data"
         return d
 
 class ColorSpec(DataSpec):

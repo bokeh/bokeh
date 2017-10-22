@@ -52,9 +52,10 @@ def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="loca
             has been called in a Jupyter notebook, the output will be inline
             in the associated notebook output cell.
 
-            In a Jupyter notebook, a Bokeh application may also be passed.
-            The application will be run and displayed inline in the associated
-            notebook output cell.
+            In a Jupyter notebook, a Bokeh application or callable may also
+            be passed. A callable will be turned into an Application using a
+            FunctionHandler. The application will be run and displayed inline
+            in the associated notebook output cell.
 
         browser (str, optional) :
             Specify the browser to use to open output files(default: None)
@@ -86,9 +87,10 @@ def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="loca
             When showing Bokeh applications, the Bokeh server must be
             explicitly configured to allow connections originating from
             different URLs. This parameter defaults to the standard notebook
-            host and port. If you are running on a differnet location, you
+            host and port. If you are running on a different location, you
             will need to supply this value for the application to display
-            properly.
+            properly. If no protocol is supplied in the URL, e.g. if it is
+            of the form "localhost:8888", then "http" will be used.
 
             It is also possible to pass ``notebook_url="*"`` to disable the
             standard checks, so that applications will display regardless of
@@ -119,7 +121,7 @@ def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="loca
 
     # This ugliness is to prevent importing bokeh.application (which would bring
     # in Tornado) just in order to show a non-server object
-    if getattr(obj, '_is_a_bokeh_application_class', False):
+    if getattr(obj, '_is_a_bokeh_application_class', False) or callable(obj):
         return run_notebook_hook(state.notebook_type, 'app', obj, state, notebook_url)
 
     if obj not in state.document.roots:

@@ -102,6 +102,7 @@ class HookTestHandler(Handler):
     # this has to be async too
     @gen.coroutine
     def on_session_destroyed(self, session_context):
+        # this should be no-op'd, because the session is already destroyed
         @gen.coroutine
         def shutdown_document(doc):
             doc.roots[0].hooks.append("session_destroyed")
@@ -187,13 +188,15 @@ def test__lifecycle_hooks():
     server_hook_list = server_doc.roots[0]
     assert handler.load_count == 1
     assert handler.unload_count == 1
-    assert handler.session_creation_async_value == 6
+    # this is 3 instead of 6 because locked callbacks on destroyed sessions
+    # are turned into no-ops
+    assert handler.session_creation_async_value == 3
     assert client_doc.title == "Modified"
     assert server_doc.title == "Modified"
-    # the client session doesn't see the event that adds "session_destroyed" since
-    # we shut down at that point.
+    # only the handler sees the event that adds "session_destroyed" since
+    # the session is shut down at that point.
     assert client_hook_list.hooks == ["session_created", "modify"]
-    assert server_hook_list.hooks == ["session_created", "modify", "session_destroyed"]
+    assert server_hook_list.hooks == ["session_created", "modify"]
 
 def test_prefix():
     application = Application()
@@ -634,3 +637,17 @@ def test_base_server():
     httpserver.stop()
     server.stop()
     server.io_loop.close()
+
+def test_server_applications_callable_arg():
+    def modify_doc(doc):
+        doc.title = "Hello, world!"
+
+    with ManagedServerLoop(modify_doc, port=0) as server:
+        http_get(server.io_loop, url(server))
+        session = server.get_sessions('/')[0]
+        assert session.document.title == "Hello, world!"
+
+    with ManagedServerLoop({"/foo": modify_doc}, port=0) as server:
+        http_get(server.io_loop, url(server) + "foo")
+        session = server.get_sessions('/foo')[0]
+        assert session.document.title == "Hello, world!"
