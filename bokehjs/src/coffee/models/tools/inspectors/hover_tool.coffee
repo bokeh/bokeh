@@ -216,8 +216,8 @@ export class HoverToolView extends InspectToolView
 
         when "nearest"
           [[rx, ry], ii] = _nearest_line_hit(canvas, i, geometry, sx, sy, glyph.sx, glyph.sy)
-          data_x = glyph._x[i]
-          data_y = glyph._y[i]
+          data_x = glyph._x[ii]
+          data_y = glyph._y[ii]
 
         else
           [rx, ry] = [vx, vy]
@@ -229,7 +229,7 @@ export class HoverToolView extends InspectToolView
     for i in indices['1d'].indices
       # multiglyphs will set '1d' and '2d' results, but have different tooltips
       if not isEmpty(indices['2d'].indices)
-        for i, [j] of indices['2d'].indices
+        j = indices['2d'].indices[i]
           data_x = glyph._xs[i][j]
           data_y = glyph._ys[i][j]
           jj = j
@@ -248,8 +248,8 @@ export class HoverToolView extends InspectToolView
 
             when "nearest"
               [[rx, ry], jj] = _nearest_line_hit(canvas, j, geometry, sx, sy, glyph.sxs[i], glyph.sys[i])
-              data_x = glyph._xs[i][j]
-              data_y = glyph._ys[i][j]
+              data_x = glyph._xs[i][jj]
+              data_y = glyph._ys[i][jj]
 
           vars = {index: i, segment_index: jj, x: x, y: y, vx: vx, vy: vy, sx: sx, sy: sy, data_x: data_x, data_y: data_y}
 
