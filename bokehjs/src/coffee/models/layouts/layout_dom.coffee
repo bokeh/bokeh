@@ -207,57 +207,33 @@ export class LayoutDOMView extends DOMView
 
         @solver.suggest_value(@model._width, width)
         @solver.suggest_value(@model._height, height)
-        @solver.update_variables()
-
-        @el.style.position = "relative"
-        @el.style.left = ""
-        @el.style.top = ""
-        @el.style.width = "#{@model._width.value}px"
-        @el.style.height = "#{@model._height.value}px"
-
       when 'scale_width'
         height = @get_height()
-
         @solver.suggest_value(@model._height, height)
-        @solver.update_variables()
-
-        @el.style.position = "relative"
-        @el.style.left = ""
-        @el.style.top = ""
-        @el.style.width = "#{@model._width.value}px"
-        @el.style.height = "#{@model._height.value}px"
-
       when 'scale_height'
         width = @get_width()
-
         @solver.suggest_value(@model._width, width)
-        @solver.update_variables()
+      when 'scale_both'
+        [width, height] = @get_width_height()
+        @solver.suggest_value(@model._width, width)
+        @solver.suggest_value(@model._height, height)
 
+    @solver.update_variables()
+    @position()
+
+  position: () ->
+    switch @model.sizing_mode
+      when 'fixed', 'scale_width', 'scale_height'
         @el.style.position = "relative"
         @el.style.left = ""
         @el.style.top = ""
-        @el.style.width = "#{@model._width.value}px"
-        @el.style.height = "#{@model._height.value}px"
-
-      when 'scale_both'
-        [width, height] = @get_width_height()
-
-        @solver.suggest_value(@model._width, width)
-        @solver.suggest_value(@model._height, height)
-        @solver.update_variables()
-
+      when 'scale_both', 'stretch_both'
         @el.style.position = "absolute"
         @el.style.left = "#{@model._dom_left.value}px"
         @el.style.top = "#{@model._dom_top.value}px"
-        @el.style.width = "#{@model._width.value}px"
-        @el.style.height = "#{@model._height.value}px"
 
-      when 'stretch_both'
-        @el.style.position = "absolute"
-        @el.style.left = "#{@model._dom_left.value}px"
-        @el.style.top = "#{@model._dom_top.value}px"
-        @el.style.width = "#{@model._width.value}px"
-        @el.style.height = "#{@model._height.value}px"
+    @el.style.width = "#{@model._width.value}px"
+    @el.style.height = "#{@model._height.value}px"
 
   get_height: () ->
     # Subclasses should implement this to explain
