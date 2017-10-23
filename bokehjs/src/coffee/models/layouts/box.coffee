@@ -82,8 +82,7 @@ export class Box extends LayoutDOM
     })
 
   get_constraints: () ->
-    # Note we don't got and get constraints from _layout_dom parent.
-    constraints = []
+    constraints = super()
 
     children = @get_layoutable_children()
     if children.length == 0
