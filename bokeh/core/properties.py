@@ -312,6 +312,19 @@ class String(PrimitiveProperty):
     '''
     _underlying_type = string_types
 
+class FontSize(String):
+
+    _font_size_re = re.compile(r"^[0-9]+(.[0-9]+)?(%|em|ex|ch|ic|rem|vw|vh|vi|vb|vmin|vmax|cm|mm|q|in|pc|pt|px)$", re.I)
+
+    def validate(self, value):
+        super(FontSize, self).validate(value)
+
+        if isinstance(value, string_types):
+            if len(value) == 0:
+                raise ValueError("empty string is not a valid font size value")
+            elif self._font_size_re.match(value) is None:
+                raise ValueError("%r is not a valid font size value" % value)
+
 class Regex(String):
     ''' Accept strings that match a given regular expression.
 
@@ -1630,26 +1643,16 @@ class FontSizeSpec(DataSpec):
     https://drafts.csswg.org/css-values/#lengths
 
     '''
-    _font_size_re = re.compile(r"^[0-9]+(.[0-9]+)?(%|em|ex|ch|ic|rem|vw|vh|vi|vb|vmin|vmax|cm|mm|q|in|pc|pt|px)$", re.I)
 
     def __init__(self, default, help=None, key_type=_ExprFieldValueTransform):
-        super(FontSizeSpec, self).__init__(key_type, List(String), default=default, help=help)
-
-    def prepare_value(self, cls, name, value):
-        if isinstance(value, string_types) and self._font_size_re.match(value) is not None:
-            value = dict(value=value)
-        return super(FontSizeSpec, self).prepare_value(cls, name, value)
+        super(FontSizeSpec, self).__init__(key_type, FontSize, default=default, help=help)
 
     def validate(self, value):
+        # We want to preserve existing semantics and be a little more restrictive. This
+        # validations makes m.font_size = "" or m.font_size = "6" an error
         super(FontSizeSpec, self).validate(value)
-
-        if isinstance(value, dict) and 'value' in value:
-            value = value['value']
-
         if isinstance(value, string_types):
-            if len(value) == 0:
-                raise ValueError("empty string is not a valid font size value")
-            elif value[0].isdigit() and self._font_size_re.match(value) is None:
+            if len(value) == 0 or value[0].isdigit() and FontSize._font_size_re.match(value) is None:
                 raise ValueError("%r is not a valid font size value" % value)
 
 _ExprFieldValueTransformUnits = Enum("expr", "field", "value", "transform", "units")
