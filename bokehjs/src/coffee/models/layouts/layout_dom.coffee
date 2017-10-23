@@ -262,12 +262,12 @@ export class LayoutDOMView extends DOMView
   get_height: () ->
     # Subclasses should implement this to explain
     # what their height should be in sizing_mode mode.
-    return null
+    throw new Error("not implemented")
 
   get_width: () ->
     # Subclasses should implement this to explain
     # what their width should be in sizing_mode mode.
-    return null
+    throw new Error("not implemented")
 
   get_width_height: () ->
     parent_height = @el.parentNode.clientHeight
