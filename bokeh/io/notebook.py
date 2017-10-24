@@ -468,7 +468,7 @@ def show_doc(obj, state, notebook_handle):
     '''
 
     '''
-    from ..embed import notebook_content
+    from ..embed.notebook import notebook_content
     comms_target = make_id() if notebook_handle else None
     (script, div, cell_doc) = notebook_content(obj, comms_target)
 
