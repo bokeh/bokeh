@@ -40,9 +40,9 @@ api = {
 
     PUBLIC: (
 
-        ( 'notebook_content', (1,0,0) ),
-
     ), INTERNAL: (
+
+        ( 'notebook_content', (1,0,0) ),
 
     )
 

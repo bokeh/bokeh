@@ -44,7 +44,11 @@ from .util import check_one_model_or_doc, div_for_render_item, find_existing_doc
 # Public API
 #-----------------------------------------------------------------------------
 
-@public((1,0,0))
+#-----------------------------------------------------------------------------
+# Internal API
+#-----------------------------------------------------------------------------
+
+@internal((1,0,0))
 def notebook_content(model, notebook_comms_target=None, theme=FromCurdoc):
     ''' Return script and div that will display a Bokeh plot in a Jupyter
     Notebook.
@@ -94,10 +98,6 @@ def notebook_content(model, notebook_comms_target=None, theme=FromCurdoc):
     div = div_for_render_item(item)
 
     return encode_utf8(script), encode_utf8(div), new_doc
-
-#-----------------------------------------------------------------------------
-# Internal API
-#-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
 # Private API

@@ -85,7 +85,7 @@ def test_install_notebook_hook():
 
 @patch('bokeh.io.notebook.get_comms')
 @patch('bokeh.io.notebook.publish_display_data')
-@patch('bokeh.embed.notebook_content')
+@patch('bokeh.embed.notebook.notebook_content')
 def test_show_doc_no_server(mock_notebook_content,
                             mock__publish_display_data,
                             mock_get_comms):

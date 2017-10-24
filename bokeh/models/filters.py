@@ -76,6 +76,12 @@ class GroupFilter(Filter):
 class CustomJSFilter(Filter):
     ''' Filter data sources with a custom defined JavaScript function.
 
+    .. warning::
+        The explicit purpose of this Bokeh Model is to embed *raw JavaScript
+        code* for a browser to execute. If any part of the code is derived
+        from untrusted user inputs, then you must take appropriate care to
+        sanitize the user input prior to passing to Bokeh.
+
     '''
 
     @classmethod
