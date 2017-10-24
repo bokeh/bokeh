@@ -173,6 +173,21 @@ describe "Rect", ->
       expect(glyph_view.sx0).to.be.deep.equal({'0': 25})
       expect(glyph_view.sy1).to.be.deep.equal({'0': -175})
 
+    it "`_map_data` should map values for sw and sh when a height is 0", ->
+      glyph = new Rect({
+        x: {field: "x"}
+        y: {field: "y"}
+        width: {value: 10}
+        height: {field: "h"}
+      })
+      data = {x: [5], y: [5], h: [0]}
+      glyph_view = create_glyph_view(glyph, data)
+
+      @set_scales(glyph_view)
+      glyph_view.map_data()
+      expect(glyph_view.sw).to.be.deep.equal([20])
+      expect(glyph_view.sh).to.be.deep.equal([0])
+
     describe "hit-testing", ->
 
       describe "_hit_point", ->
