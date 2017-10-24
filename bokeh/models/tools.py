@@ -673,8 +673,13 @@ class HoverTool(Inspection):
     off by setting ``tooltips=None``.
 
     .. warning::
+        When supplying a callback or custom template, the explicit intent
+        of this Bokeh Model is to embed *raw HTML and  JavaScript code* for
+        a browser to execute. If any part of the code is derived from untrusted
+        user inputs, then you must take appropriate care to sanitize the user
+        input prior to passing to Bokeh.
 
-        Hover tool does not currently work with the following glyphs:
+    Hover tool does not currently work with the following glyphs:
 
         .. hlist::
             :columns: 3

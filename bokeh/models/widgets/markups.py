@@ -1,5 +1,11 @@
 ''' Various kinds of markup (static content) widgets.
 
+.. warning::
+    The explicit purpose of these Bokeh Models is to embed *raw HTML text* for
+    a browser to execute. If any portion of the text is derived from untrusted
+    user inputs, then you must take appropriate care to sanitize the user input
+    prior to passing to Bokeh.
+
 '''
 from __future__ import absolute_import
 
