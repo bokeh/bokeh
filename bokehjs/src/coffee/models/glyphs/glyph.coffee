@@ -1,3 +1,4 @@
+import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import * as bbox from "core/util/bbox"
 import * as proj from "core/util/projections"
@@ -169,6 +170,14 @@ export class GlyphView extends View
       logger.debug("'#{geometry.type}' selection not available for #{@model.type}")
       @_nohit_warned[geometry.type] = true
 
+    return result
+
+  _hit_rect_against_index: (geometry) ->
+    [x0, x1] = @renderer.xscale.v_invert([geometry.vx0, geometry.vx1])
+    [y0, y1] = @renderer.yscale.v_invert([geometry.vy0, geometry.vy1])
+    bb = hittest.validate_bbox_coords([x0, x1], [y0, y1])
+    result = hittest.create_hit_test_result()
+    result['1d'].indices = @index.indices(bb)
     return result
 
   set_data: (source, indices, indices_to_update) ->

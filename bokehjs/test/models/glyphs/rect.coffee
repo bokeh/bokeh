@@ -52,6 +52,42 @@ describe "Glyph (using Rect as a concrete Glyph)", ->
 
       expect(log_bounds).to.be.deep.equal({ minX: 1, minY: 10, maxX: 3, maxY: 10 })
 
+    it "should hit test rects against an index", ->
+
+      data = {x: [20, 40, 60], y: [10, 10, 50]}
+      glyph = new Rect({
+        x: {field: "x"}
+        y: {field: "y"}
+        width: {value: 10}
+        height: {value: 20}
+      })
+
+      glyph_view = create_glyph_view(glyph, data)
+
+      scale = new LinearScale({
+        source_range: new Range1d({start: 0, end: 100})
+        target_range: new Range1d({start: 0, end: 200})
+      })
+      glyph_view.renderer.xscale = scale
+      glyph_view.renderer.yscale = scale
+      glyph_view.renderer.plot_view.frame.xscales['default'] = scale
+      glyph_view.renderer.plot_view.frame.yscales['default'] = scale
+
+      glyph_view.map_data()
+
+      # rect is XYGlyph, will only put centers in index, box glyphs will put entire box
+      geometry1 = { vx0: 0,  vy0: 0,   vx1: 40,  vy1: 20}
+      geometry2 = { vx0: 60, vy0: -10, vx1: 80,  vy1: 50}
+      geometry3 = { vx0: 0,  vy0: 150, vx1: 200, vy1: 151}
+
+      result1 = glyph_view._hit_rect_against_index(geometry1)
+      result2 = glyph_view._hit_rect_against_index(geometry2)
+      result3 = glyph_view._hit_rect_against_index(geometry3)
+
+      expect(result1['1d'].indices).to.be.deep.equal([0])
+      expect(result2['1d'].indices).to.be.deep.equal([1])
+      expect(result3['1d'].indices).to.be.deep.equal([])
+
 describe "Rect", ->
 
   describe "RectView", ->

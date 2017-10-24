@@ -77,12 +77,7 @@ export class RectView extends XYGlyphView
       ctx.stroke()
 
   _hit_rect: (geometry) ->
-    [x0, x1] = @renderer.xscale.v_invert([geometry.vx0, geometry.vx1])
-    [y0, y1] = @renderer.yscale.v_invert([geometry.vy0, geometry.vy1])
-    bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
-    result = hittest.create_hit_test_result()
-    result['1d'].indices = @index.indices(bbox)
-    return result
+    return @_hit_rect_against_index(geometry)
 
   _hit_point: (geometry) ->
     [vx, vy] = [geometry.vx, geometry.vy]
