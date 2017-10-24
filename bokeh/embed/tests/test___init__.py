@@ -39,7 +39,6 @@ ALL = (
     'autoload_static',
     'components',
     'file_html',
-    'notebook_content',
     'server_document',
     'server_session',
 )
