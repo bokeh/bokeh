@@ -52,7 +52,7 @@ this.
 
 When the controls are manipulated, their new values are automatically
 synced in the Bokeh server. Callbacks are triggered that also update the
-date for the plot in the server. These changes are automatically synced back
+data for the plot in the server. These changes are automatically synced back
 to the browser, and the plot updates.
 
 .. _userguide_server_use_case:
