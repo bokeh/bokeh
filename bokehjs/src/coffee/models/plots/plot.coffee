@@ -1,7 +1,7 @@
 import {WEAK_EQ, GE, EQ} from "core/layout/solver"
 import {logger} from "core/logging"
 import * as p from "core/properties"
-import {removeBy} from "core/util/array"
+import {find, removeBy} from "core/util/array"
 import {extend, values, clone} from "core/util/object"
 import {isString, isArray} from "core/util/types"
 
@@ -68,15 +68,11 @@ export class Plot extends LayoutDOM
       if not @min_border_right?
         @min_border_right = @min_border
 
-    # Add the title to layout
-    if @title?
-      title = if isString(@title) then new Title({text: @title}) else @title
-      @add_layout(title, @title_location)
+    @_init_title_panel()
+    @_init_toolbar_panel()
 
     @_plot_canvas = @_init_plot_canvas()
-
     @plot_canvas.toolbar = @toolbar
-    @_init_toolbar_panel()
 
     # Set width & height to be the passed in plot_width and plot_height
     # We may need to be more subtle about this - not sure why people use one
@@ -95,6 +91,11 @@ export class Plot extends LayoutDOM
   _init_plot_canvas: () ->
     return new PlotCanvas({plot: @})
 
+  _init_title_panel: () ->
+    if @title?
+      title = if isString(@title) then new Title({text: @title}) else @title
+      @add_layout(title, @title_location)
+
   _init_toolbar_panel: () ->
     if @_toolbar_panel?
       for items in [@left, @right, @above, @below, @renderers]
@@ -105,6 +106,16 @@ export class Plot extends LayoutDOM
       when "left", "right", "above", "below"
         @_toolbar_panel = new ToolbarPanel({toolbar: @toolbar})
         @toolbar.toolbar_location = @toolbar_location
+
+        if @toolbar_sticky
+          models = @getv(@toolbar_location)
+          title = find(models, (model) -> model instanceof Title)
+
+          if title?
+            @_toolbar_panel.set_panel(title.panel)
+            @add_renderers(@_toolbar_panel)
+            return
+
         @add_layout(@_toolbar_panel, @toolbar_location)
 
   connect_signals: () ->
@@ -187,8 +198,9 @@ export class Plot extends LayoutDOM
   @mixins ['line:outline_', 'fill:background_', 'fill:border_']
 
   @define {
-      toolbar:           [ p.Instance, () -> new Toolbar() ]
+      toolbar:           [ p.Instance, () -> new Toolbar()    ]
       toolbar_location:  [ p.Location, 'right'                ]
+      toolbar_sticky:    [ p.Boolean,  true                   ]
 
       plot_width:        [ p.Number,   600                    ]
       plot_height:       [ p.Number,   600                    ]

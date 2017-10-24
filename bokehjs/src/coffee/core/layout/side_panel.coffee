@@ -1,4 +1,4 @@
-import {EQ} from "./solver"
+import {GE} from "./solver"
 import {LayoutCanvas} from "./layout_canvas"
 
 import * as p from "core/properties"
@@ -144,7 +144,7 @@ export update_panel_constraints = (view) ->
   visible = not view.model.props.visible? or view.model.visible
   size = if visible then view._get_size() else 0
 
-  view._size_constraint = EQ(view.model.panel._size, -size)
+  view._size_constraint = GE(view.model.panel._size, -size)
   s.add_constraint(view._size_constraint)
 
 export class SidePanel extends LayoutCanvas

@@ -456,6 +456,11 @@ class Plot(LayoutDOM):
     will be attached to the plot.
     """)
 
+    toolbar_sticky = Bool(default=True, help="""
+    Stick the toolbar to the edge of the plot. Default: True. If False,
+    the toolbar will be outside of the axes, titles etc.
+    """)
+
     left = List(Instance(Renderer), help="""
     A list of renderers to occupy the area to the left of the plot.
     """)

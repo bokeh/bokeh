@@ -13,15 +13,20 @@ export class Annotation extends Renderer
   default_view: AnnotationView
 
   @define {
-      plot:  [ p.Instance                  ]
-    }
+    plot:  [ p.Instance ]
+  }
 
   @override {
     level: 'annotation'
   }
 
   add_panel: (side) ->
-    @panel = new SidePanel({side: side})
-    @panel.attach_document(@document)
+    if not @panel? or side != @panel.side
+      panel = new SidePanel({side: side})
+      panel.attach_document(@document)
+      @set_panel(panel)
+
+  set_panel: (panel) ->
+    @panel = panel
     # If the annotation is in a side panel, we need to set level to overlay, so it is visible.
     @level = 'overlay'
