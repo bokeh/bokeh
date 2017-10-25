@@ -141,3 +141,16 @@ export class ToolbarBox extends LayoutDOM
     toolbar: [ p.Instance ]
     toolbar_location: [ p.Location, "right" ]
   }
+
+  @getters {
+    # XXX: we are overriding LayoutDOM.sizing_mode here. That's a bad
+    # hack, but currently every layoutable is allowed to have its
+    # sizing mode configured, which is wrong. Another example of this
+    # is PlotCanvas which only works with strech_both sizing mode.
+    sizing_mode: () ->
+      switch @toolbar_location
+        when "above", "below"
+          return "scale_width"
+        when "left", "right"
+          return "scale_height"
+  }

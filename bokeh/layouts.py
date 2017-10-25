@@ -406,22 +406,10 @@ def gridplot(*args, **kwargs):
     if not merge_tools:
         return grid
 
-    # Make the toolbar
     if toolbar_location:
-        # Fixed sizing mode needs scale_{width,height} for the toolbar
-        # for layout to work correctly.
-        if sizing_mode == 'fixed':
-            if toolbar_location == "above" or toolbar_location == "below":
-                toolbar_sizing_mode = 'scale_width'
-            else:
-                toolbar_sizing_mode = 'scale_height'
-        else:
-            toolbar_sizing_mode = sizing_mode
+        proxy = ProxyToolbar(tools=tools, **toolbar_options)
+        toolbar = ToolbarBox(toolbar=proxy, toolbar_location=toolbar_location)
 
-        toolbar = ToolbarBox(toolbar=ProxyToolbar(tools=tools, **toolbar_options),
-            toolbar_location=toolbar_location, sizing_mode=toolbar_sizing_mode)
-
-    # Set up children
     if toolbar_location == 'above':
         return Column(children=[toolbar, grid], sizing_mode=sizing_mode)
     elif toolbar_location == 'below':
