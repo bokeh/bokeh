@@ -164,8 +164,8 @@ export class TileRendererView extends RendererView
   _draw_tile: (tile_key) ->
     tile_obj = @model.tile_source.tiles[tile_key]
     if tile_obj?
-      [sxmin, symin] = @plot_view.frame.map_to_screen([tile_obj.bounds[0]], [tile_obj.bounds[3]], @plot_view.canvas)
-      [sxmax, symax] = @plot_view.frame.map_to_screen([tile_obj.bounds[2]], [tile_obj.bounds[1]], @plot_view.canvas)
+      [sxmin, symin] = @plot_view.map_to_screen([tile_obj.bounds[0]], [tile_obj.bounds[3]])
+      [sxmax, symax] = @plot_view.map_to_screen([tile_obj.bounds[2]], [tile_obj.bounds[1]])
       sxmin = sxmin[0]
       symin = symin[0]
       sxmax = sxmax[0]

@@ -80,8 +80,8 @@ export class DynamicImageView extends RendererView
       @map_canvas.save()
       @_set_rect()
       @map_canvas.globalAlpha = @model.alpha
-      [sxmin, symin] = @plot_view.frame.map_to_screen([image_obj.bounds[0]], [image_obj.bounds[3]], @plot_view.canvas)
-      [sxmax, symax] = @plot_view.frame.map_to_screen([image_obj.bounds[2]], [image_obj.bounds[1]], @plot_view.canvas)
+      [sxmin, symin] = @plot_view.map_to_screen([image_obj.bounds[0]], [image_obj.bounds[3]])
+      [sxmax, symax] = @plot_view.map_to_screen([image_obj.bounds[2]], [image_obj.bounds[1]])
       sxmin = sxmin[0]
       symin = symin[0]
       sxmax = sxmax[0]
