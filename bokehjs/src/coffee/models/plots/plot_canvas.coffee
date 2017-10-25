@@ -261,7 +261,10 @@ export class PlotCanvasView extends DOMView
     @range_update_timestamp = Date.now()
 
   map_to_screen: (x, y, x_name='default', y_name='default') ->
-    @frame.map_to_screen(x, y, @canvas, x_name, y_name)
+    @frame.map_to_screen(x, y, x_name, y_name)
+
+  map_to_canvas: (x, y, x_name='default', y_name='default') ->
+    @frame.map_to_canvas(x, y, @canvas, x_name, y_name)
 
   push_state: (type, info) ->
     prev_info = @state.history[@state.index]?.info or {}

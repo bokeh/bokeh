@@ -30,11 +30,21 @@ export class CartesianFrame extends LayoutCanvas
       vy >= @_bottom.value and vy <= @_top.value
     )
 
-  map_to_screen: (x, y, canvas, x_name='default', y_name='default') ->
+  map_to_screen: (x, y, x_name='default', y_name='default') ->
     vx = @xscales[x_name].v_compute(x)
-    sx = canvas.v_vx_to_sx(vx)
+    sx = @v_vx_to_sx(vx)
 
     vy = @yscales[y_name].v_compute(y)
+    sy = @v_vy_to_sy(vy)
+    return [sx, sy]
+
+  map_to_canvas: (xs, ys, canvas, x_name='default', y_name='default') ->
+    left = @_left.value
+    vx = (left + x for x in @xscales[x_name].v_compute(xs))
+    sx = canvas.v_vx_to_sx(vx)
+
+    bottom = @_bottom.value
+    vy = (bottom + y for y in @yscales[y_name].v_compute(ys))
     sy = canvas.v_vy_to_sy(vy)
     return [sx, sy]
 
@@ -117,3 +127,36 @@ export class CartesianFrame extends LayoutCanvas
     x_scale:        [ p.Instance ]
     y_scale:        [ p.Instance ]
   }
+
+  # transform view coordinates to underlying screen coordinates
+  vx_to_sx: (x) -> x
+
+  vy_to_sy: (y) ->
+    return @_height.value - y
+
+  # vectorized versions of vx_to_sx/vy_to_sy
+  v_vx_to_sx: (xx) ->
+    return new Float64Array(xx)
+
+  v_vy_to_sy: (yy) ->
+    _yy = new Float64Array(yy.length)
+    height = @_height.value
+    for y, idx in yy
+      _yy[idx] = height - y
+    return _yy
+
+  sx_to_vx: (x) -> x
+
+  sy_to_vy: (y) ->
+    return @_height.value - y
+
+  # vectorized versions of sx_to_vx/sy_to_vy
+  v_sx_to_vx: (xx) ->
+    return new Float64Array(xx)
+
+  v_sy_to_vy: (yy) ->
+    _yy = new Float64Array(yy.length)
+    height = @_height.value
+    for y, idx in yy
+      _yy[idx] = height - y
+    return _yy
