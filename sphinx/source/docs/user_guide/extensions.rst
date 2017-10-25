@@ -50,7 +50,7 @@ below:
 
         text = String(default="Custom text")
 
-        range = Instance(Slider)
+        slider = Instance(Slider)
 
 Since we would like to create a custom extension that can participate in DOM
 layout, we subclass from :class:`~bokeh.models.layouts.LayoutDOM`. We also
