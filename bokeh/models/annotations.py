@@ -880,11 +880,11 @@ class Title(TextAnnotation):
     """)
 
     vertical_align = Enum(VerticalAlign, default='bottom', help="""
-    Vertical aligment of the text.
+    Aligment of the text in its enclosing space, *across* the direction of the text.
     """)
 
     align = Enum(TextAlign, default='left', help="""
-    Horizontal aligment of the text.
+    Aligment of the text in its enclosing space, *along* the direction of the text.
     """)
 
     offset = Float(default=0, help="""
