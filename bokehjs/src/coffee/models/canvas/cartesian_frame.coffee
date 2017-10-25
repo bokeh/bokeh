@@ -70,8 +70,9 @@ export class CartesianFrame extends LayoutCanvas
     return scales
 
   _configure_frame_ranges: () ->
-    @_h_range = new Range1d({start: @_left.value,   end: @_left.value   + @_width.value})
-    @_v_range = new Range1d({start: @_bottom.value, end: @_bottom.value + @_height.value})
+    # frame-relative view coordinate system (left-bottom is origin)
+    @_h_range = new Range1d({start: 0, end: @_width.value})
+    @_v_range = new Range1d({start: 0, end: @_height.value})
 
   _configure_scales: () ->
     @_configure_frame_ranges()
