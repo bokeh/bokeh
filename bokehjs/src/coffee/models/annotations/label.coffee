@@ -36,23 +36,22 @@ export class LabelView extends TextAnnotationView
 
     panel = @model.panel ? @plot_view.frame
 
-    if @model.x_units == "data"
-      vx = xscale.compute(@model.x)
-    else
-      vx = @model.x + panel._left.value
+    vx = panel._left.value
+    vy = panel._bottom.value
 
-    if @model.y_units == "data"
-      vy = yscale.compute(@model.y)
-    else
-      vy = @model.y + panel._bottom.value
+    vx += if @model.x_units == "data" then xscale.compute(@model.x) else @model.x
+    vy += if @model.y_units == "data" then yscale.compute(@model.y) else @model.y
 
     sx = @canvas.vx_to_sx(vx)
     sy = @canvas.vy_to_sy(vy)
 
+    sx += @model.x_offset
+    sy -= @model.y_offset
+
     if @model.render_mode == 'canvas'
-      @_canvas_text(ctx, @model.text, sx + @model.x_offset, sy - @model.y_offset, angle)
+      @_canvas_text(ctx, @model.text, sx, sy, angle)
     else
-      @_css_text(ctx, @model.text, sx + @model.x_offset, sy - @model.y_offset, angle)
+      @_css_text(ctx, @model.text, sx, sy, angle)
 
 export class Label extends TextAnnotation
   default_view: LabelView
