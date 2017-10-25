@@ -1,10 +1,11 @@
 import {spawn} from "child_process"
 import * as gulp from "gulp"
 import * as gutil from "gulp-util"
+import chalk from "chalk"
 
 function outputLine(line: string) {
-  const prefix = gutil.colors.cyan("setup.py:")
-  gutil.log(`${prefix} ${gutil.colors.grey(line)}`)
+  const prefix = chalk.cyan("setup.py:")
+  gutil.log(`${prefix} ${chalk.grey(line)}`)
 }
 
 function handleOutput(data: string) {
