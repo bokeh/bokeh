@@ -50,6 +50,13 @@ export class Toolbar extends ToolbarBase
     else if @active_inspect is null
       @inspectors.map((inspector) -> inspector.active = false)
 
+    _activate_gesture = (tool) =>
+      if tool.active
+        # tool was activated by a proxy, but we need to finish configuration manually
+        @_active_change(tool)
+      else
+        tool.active = true
+
     for et of @gestures
       tools = @gestures[et].tools
       if tools.length == 0
@@ -60,22 +67,24 @@ export class Toolbar extends ToolbarBase
         if @active_tap is null
           continue
         if @active_tap is 'auto'
-          @gestures[et].tools[0].active = true
+          _activate_gesture(@gestures[et].tools[0])
         else
-          @active_tap.active = true
+          _activate_gesture(@active_tap)
 
       if et == 'pan'
         if @active_drag is null
           continue
         if @active_drag is 'auto'
-          @gestures[et].tools[0].active = true
+          _activate_gesture(@gestures[et].tools[0])
         else
-          @active_drag.active = true
+          _activate_gesture(@active_drag)
 
       if et in ['pinch', 'scroll']
         if @active_scroll is null or @active_scroll is 'auto'
           continue
-        @active_scroll.active = true
+        _activate_gesture(@active_scroll)
+
+    return null # XXX
 
   @define {
       active_drag:     [ p.Any, 'auto' ]

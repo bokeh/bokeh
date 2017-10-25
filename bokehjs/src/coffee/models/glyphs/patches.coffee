@@ -71,7 +71,10 @@ export class PatchesView extends GlyphView
     [y0, y1] = [yr.min, yr.max]
 
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
-    return @index.indices(bbox)
+    indices = @index.indices(bbox)
+
+    # TODO (bev) this should be under test
+    return indices.sort((a, b) => a-b)
 
   _render: (ctx, indices, {sxs, sys}) ->
     # @sxss and @syss are used by _hit_point and sxc, syc

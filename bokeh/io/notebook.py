@@ -424,7 +424,17 @@ def publish_display_data(*args, **kw):
 
 @internal((1,0,0))
 def show_app(app, state, notebook_url):
-    '''
+    ''' Embed a Bokeh serer application in a Jupyter Notebook output cell.
+
+    Args:
+        app (Application) :
+
+        state (State) :
+
+        notebook_url (str) :
+
+    Returns:
+        None
 
     '''
     logging.basicConfig()
@@ -433,13 +443,15 @@ def show_app(app, state, notebook_url):
     from ..server.server import Server
 
     loop = IOLoop.current()
-    server = Server({"/": app}, io_loop=loop, port=0,  allow_websocket_origin=[notebook_url])
+
+    origin = _origin_url(notebook_url)
+    server = Server({"/": app}, io_loop=loop, port=0,  allow_websocket_origin=[origin])
 
     server_id = uuid4().hex
     curstate().uuid_to_server[server_id] = server
 
     server.start()
-    url = 'http://%s:%d%s' % (notebook_url.split(':')[0], server.port, "/")
+    url = _server_url(notebook_url, server.port)
 
     from ..embed import server_document
     script = server_document(url)
@@ -456,7 +468,7 @@ def show_doc(obj, state, notebook_handle):
     '''
 
     '''
-    from ..embed import notebook_content
+    from ..embed.notebook import notebook_content
     comms_target = make_id() if notebook_handle else None
     (script, div, cell_doc) = notebook_content(obj, comms_target)
 
@@ -481,6 +493,9 @@ _HOOKS = {}
 _NOTEBOOK_LOADED = None
 
 def _loading_js(resources, element_id, custom_models_js, load_timeout=5000, register_mime=True):
+    '''
+
+    '''
     from ..core.templates import AUTOLOAD_NB_JS
 
     return AUTOLOAD_NB_JS.render(
@@ -493,6 +508,23 @@ def _loading_js(resources, element_id, custom_models_js, load_timeout=5000, regi
         timeout   = load_timeout,
         register_mime = register_mime
     )
+
+def _origin_url(url):
+    '''
+
+    '''
+    if url.startswith("http"):
+        url = url.split("//")[1]
+    return url
+
+def _server_url(url, port):
+    '''
+
+    '''
+    if url.startswith("http"):
+        return '%s:%d%s' % (url.rsplit(':', 1)[0], port, "/")
+    else:
+        return 'http://%s:%d%s' % (url.split(':')[0], port, "/")
 
 #-----------------------------------------------------------------------------
 # Code

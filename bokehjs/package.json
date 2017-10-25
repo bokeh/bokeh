@@ -1,6 +1,6 @@
 {
   "name": "bokehjs",
-  "version": "0.12.10dev2",
+  "version": "0.12.10",
   "description": "Interactive, novel data visualization",
   "keywords": [
     "bokeh",
@@ -45,7 +45,7 @@
     "@types/through2": "^2.0.33",
     "jsdom": "^9.8.3",
     "websocket":"^1.0.22",
-    "typescript": "^2.4.1",
+    "typescript": "^2.5.3",
     "tslib": "^1.6.0",
     "coffee-script": "^1.12.5",
     "detective": "^4.3.1",
@@ -87,6 +87,8 @@
     "es6-promise":"3.0.2",
     "es6-weak-map": "^2.0.2",
     "es6-set": "^0.1.5",
+
+    "@types/es6-promise": "^0.0.33",
 
     "rbush": "^2.0.1",
     "proj4": "<2.4",

@@ -21,19 +21,26 @@ source = ColumnDataSource(
 
 plot = Plot(x_range=Range1d(start=-6.5, end=6.5), y_range=Range1d(start=-1.1, end=1.1), min_border=80)
 
+plot.extra_x_ranges = {"qux": Range1d(start=100, end=0)}
 plot.extra_y_ranges = {"foo": Range1d(start=0, end=100)}
+
+plot.add_layout(LinearAxis(axis_label="default range"), 'above')
+plot.add_layout(LinearAxis(axis_label="qux range", x_range_name="qux"), 'above')
+
+plot.add_layout(LinearAxis(axis_label="default range"), 'below')
+plot.add_layout(LinearAxis(axis_label="qux range", x_range_name="qux"), 'below')
+
+plot.add_layout(LinearAxis(axis_label="default range"), 'left')
+plot.add_layout(LinearAxis(axis_label="foo range", y_range_name="foo"), 'left')
+
+plot.add_layout(LinearAxis(axis_label="default range"), 'right')
+plot.add_layout(LinearAxis(axis_label="foo range", y_range_name="foo"), 'right')
 
 circle = Circle(x="x", y="y", fill_color="red", size=5, line_color="black")
 plot.add_glyph(source, circle)
 
-plot.add_layout(LinearAxis(), 'below')
-plot.add_layout(LinearAxis(), 'left')
-
-
 circle2 = Circle(x="x", y="y2", fill_color="blue", size=5, line_color="black")
 plot.add_glyph(source, circle2, y_range_name="foo")
-
-plot.add_layout(LinearAxis(y_range_name="foo"), 'left')
 
 plot.add_tools(PanTool(), WheelZoomTool())
 

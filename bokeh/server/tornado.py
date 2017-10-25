@@ -230,9 +230,11 @@ class BokehTornado(TornadoApplication):
             app_context._loop = self._loop
 
         self._clients = set()
+
         self._stats_job = PeriodicCallback(self._log_stats,
                                            self._stats_log_frequency_milliseconds,
                                            io_loop=self._loop)
+
         self._cleanup_job = PeriodicCallback(self._cleanup_sessions,
                                              self._check_unused_sessions_milliseconds,
                                              io_loop=self._loop)
@@ -398,6 +400,7 @@ class BokehTornado(TornadoApplication):
 
     @gen.coroutine
     def _cleanup_sessions(self):
+        log.trace("Running session cleanup job")
         for app in self._applications.values():
             yield app._cleanup_sessions(self._unused_session_lifetime_milliseconds)
         raise gen.Return(None)

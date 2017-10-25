@@ -40,4 +40,5 @@ declare namespace Bokeh {
   export type LinePolicy = "prev" | "next" | "nearest" | "interp" | "none";
   export type HTTPMethod = "POST" | "GET";
   export type Place = "left" | "right" | "above" | "below" | "center";
+  export type StepType = "after" | "before" | "center";
 }

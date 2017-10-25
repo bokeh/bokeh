@@ -77,18 +77,11 @@ class TestDocumentHold(object):
         assert mock_trigger.call_args[0] == (3,)
         assert mock_trigger.call_args[1] == {}
 
-class TestDocument(unittest.TestCase):
+extra = []
 
-    def test_empty(self):
-        d = document.Document()
-        assert not d.roots
+class Test_Document_delete_modules(object):
 
-    def test_default_template_vars(self):
-        d = document.Document()
-        assert not d.roots
-        assert d.template_variables == {}
-
-    def test_delete_modules(self):
+    def test_basic(self):
         d = document.Document()
         assert not d.roots
         class FakeMod(object):
@@ -101,6 +94,43 @@ class TestDocument(unittest.TestCase):
         assert 'junkjunkjunk' in sys.modules
         d.delete_modules()
         assert 'junkjunkjunk' not in sys.modules
+        assert d._modules is None
+
+    def test_extra_referrer_error(self, caplog):
+        d = document.Document()
+        assert not d.roots
+        class FakeMod(object):
+            __name__ = 'junkjunkjunk'
+        mod = FakeMod()
+        import sys
+        assert 'junkjunkjunk' not in sys.modules
+        sys.modules['junkjunkjunk'] = mod
+        d._modules.append(mod)
+        assert 'junkjunkjunk' in sys.modules
+
+        # add an extra referrer for delete_modules to complain about
+        extra.append(mod)
+        import gc
+        assert len(gc.get_referrers(mod)) == 4
+
+        with caplog.at_level(logging.ERROR):
+            d.delete_modules()
+            assert "Module %r has extra unexpected referrers! This could indicate a serious memory leak. Extra referrers:" % mod in caplog.text
+            assert len(caplog.records) == 1
+
+        assert 'junkjunkjunk' not in sys.modules
+        assert d._modules is None
+
+class TestDocument(unittest.TestCase):
+
+    def test_empty(self):
+        d = document.Document()
+        assert not d.roots
+
+    def test_default_template_vars(self):
+        d = document.Document()
+        assert not d.roots
+        assert d.template_variables == {}
 
     def test_add_roots(self):
         d = document.Document()

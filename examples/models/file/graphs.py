@@ -48,12 +48,12 @@ plot_2 = create_graph(nx.spring_layout, selection_policy=NodesAndLinkedEdges(), 
 plot_2.title.text = "Spring Layout (NodesAndLinkedEdges selection policy)"
 plot_2.add_tools(TapTool(), BoxSelectTool())
 
-plot_3 = create_graph(nx.random_layout, inspection_policy=EdgesAndLinkedNodes(), scale=2, center=(0,0))
+plot_3 = create_graph(nx.random_layout, inspection_policy=EdgesAndLinkedNodes(), center=(0,0))
 plot_3.title.text = "Random Layout (EdgesAndLinkedNodes inspection policy)"
 plot_3.add_tools(HoverTool(tooltips=None))
 
 plot_4 = create_graph(nx.fruchterman_reingold_layout, selection_policy=EdgesAndLinkedNodes(), scale=2, center=(0,0), dim=2)
-plot_4.title.text = "FR Layout (NodesAndLinkedEdges selection policy)"
+plot_4.title.text = "FR Layout (EdgesAndLinkedNodes selection policy)"
 plot_4.add_tools(TapTool())
 
 layout = Column(Row(plot_1, plot_2), Row(plot_3, plot_4))

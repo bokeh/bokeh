@@ -101,7 +101,7 @@ class HSL(Color):
         ''' Create an HSL color from an RGB color value.
 
         Args:
-            value (RGB) :
+            value (:class:`~bokeh.colors.rgb.RGB`) :
                 The RGB color to convert.
 
         Returns:
@@ -135,7 +135,8 @@ class HSL(Color):
 
     @public((1,0,0))
     def to_rgb(self):
-        ''' Return a corresponding RGB color for this HSL color.
+        ''' Return a corresponding :class:`~bokeh.colors.rgb.RGB` color for
+        this HSL color.
 
         Returns:
             HSL

@@ -85,7 +85,7 @@ def test_install_notebook_hook():
 
 @patch('bokeh.io.notebook.get_comms')
 @patch('bokeh.io.notebook.publish_display_data')
-@patch('bokeh.embed.notebook_content')
+@patch('bokeh.embed.notebook.notebook_content')
 def test_show_doc_no_server(mock_notebook_content,
                             mock__publish_display_data,
                             mock_get_comms):
@@ -115,3 +115,13 @@ def test_show_doc_no_server(mock_notebook_content,
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
+
+def test__origin_url():
+    assert binb._origin_url("foo.com:8888") == "foo.com:8888"
+    assert binb._origin_url("http://foo.com:8888") == "foo.com:8888"
+    assert binb._origin_url("https://foo.com:8888") == "foo.com:8888"
+
+def test__server_url():
+    assert binb._server_url("foo.com:8888", 10) == "http://foo.com:10/"
+    assert binb._server_url("http://foo.com:8888", 10) == "http://foo.com:10/"
+    assert binb._server_url("https://foo.com:8888", 10) == "https://foo.com:10/"

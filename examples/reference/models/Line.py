@@ -17,7 +17,7 @@ plot = Plot(
     title=None, x_range=xdr, y_range=ydr, plot_width=300, plot_height=300,
     h_symmetry=False, v_symmetry=False, min_border=0, toolbar_location=None)
 
-glyph = Line(x="x", y="y", line_color="#F46D43", line_width=6, line_alpha=0.6)
+glyph = Line(x="x", y="y", line_color="#f46d43", line_width=6, line_alpha=0.6)
 plot.add_glyph(source, glyph)
 
 xaxis = LinearAxis()

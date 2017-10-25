@@ -33,6 +33,9 @@ export class BoxView extends GlyphView
         @visuals.line.set_vectorize(ctx, i)
         ctx.stroke()
 
+  _hit_rect: (geometry) ->
+    return @_hit_rect_against_index(geometry)
+
   _hit_point: (geometry) ->
     [vx, vy] = [geometry.vx, geometry.vy]
     x = @renderer.xscale.invert(vx)

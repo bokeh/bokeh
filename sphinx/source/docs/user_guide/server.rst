@@ -52,7 +52,7 @@ this.
 
 When the controls are manipulated, their new values are automatically
 synced in the Bokeh server. Callbacks are triggered that also update the
-date for the plot in the server. These changes are automatically synced back
+data for the plot in the server. These changes are automatically synced back
 to the browser, and the plot updates.
 
 .. _userguide_server_use_case:
@@ -352,9 +352,9 @@ Accessing the HTTP Request
 When a session is created for a Bokeh application, the session context is made
 available as ``curdoc().session_context``. The most useful function of the
 session context is to make the Tornado HTTP request object available to the
-application as ``session_context.request``. The request object has a number of
-fields, such as ``arguments``, ``cookies``, ``protocol``, etc. See the
-documentation for `HTTPServerRequest`_ for full details.
+application as ``session_context.request``. Due to an incompatibility issue with
+the usage of ``--num-procs`` only the ``arguments`` attribute can be accessed.
+Attempting to access any other attribute on ``request`` will result in an error.
 
 As an example, the following code will access the request ``arguments`` to set
 a value for a variable ``N`` (perhaps controlling the number of points in a

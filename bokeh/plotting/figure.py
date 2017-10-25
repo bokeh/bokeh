@@ -484,6 +484,22 @@ Examples:
 
 """)
 
+    step = _glyph_function(glyphs.Step, """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(plot_width=300, plot_height=300)
+        plot.step(x=[1, 2, 3, 4, 5], y=[1, 2, 3, 2, 5], color="#FB8072")
+
+        show(plot)
+
+""")
+
+
     segment = _glyph_function(glyphs.Segment, """
 Examples:
 

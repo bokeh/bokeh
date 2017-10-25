@@ -12,8 +12,8 @@ from bokeh.core.properties import (field, value,
     NumberSpec, ColorSpec, Bool, Int, Float, Complex, String,
     Regex, Seq, List, Dict, Tuple, Instance, Any, Interval, Either,
     Enum, Color, DashPattern, Size, Percent, Angle, AngleSpec, StringSpec,
-    DistanceSpec, FontSizeSpec, Override, Include, MinMaxBounds,
-    DataDistanceSpec, ScreenDistanceSpec, ColumnData)
+    DistanceSpec, FontSize, FontSizeSpec, Override, Include, MinMaxBounds,
+    DataDistanceSpec, ScreenDistanceSpec, ColumnData, UnitsSpec)
 
 from bokeh.core.property.containers import PropertyValueColumnData, PropertyValueDict, PropertyValueList
 
@@ -591,12 +591,12 @@ class TestFontSizeSpec(unittest.TestCase):
 
             v = '10%s' % unit
             a.x = v
-            self.assertEqual(a.x, dict(value=v))
+            self.assertEqual(a.x, v)
             self.assertEqual(a.lookup('x').serializable_value(a), dict(value=v))
 
             v = '10.2%s' % unit
             a.x = v
-            self.assertEqual(a.x, dict(value=v))
+            self.assertEqual(a.x, v)
             self.assertEqual(a.lookup('x').serializable_value(a), dict(value=v))
 
             f = '_10%s' % unit
@@ -612,12 +612,12 @@ class TestFontSizeSpec(unittest.TestCase):
         for unit in css_units.upper().split("|"):
             v = '10%s' % unit
             a.x = v
-            self.assertEqual(a.x, dict(value=v))
+            self.assertEqual(a.x, v)
             self.assertEqual(a.lookup('x').serializable_value(a), dict(value=v))
 
             v = '10.2%s' % unit
             a.x = v
-            self.assertEqual(a.x, dict(value=v))
+            self.assertEqual(a.x, v)
             self.assertEqual(a.lookup('x').serializable_value(a), dict(value=v))
 
             f = '_10%s' % unit
@@ -1192,6 +1192,7 @@ class TestProperties(unittest.TestCase):
         prop = String()
 
         self.assertTrue(prop.is_valid(None))
+
         self.assertFalse(prop.is_valid(False))
         self.assertFalse(prop.is_valid(True))
         self.assertFalse(prop.is_valid(0))
@@ -1200,10 +1201,59 @@ class TestProperties(unittest.TestCase):
         self.assertFalse(prop.is_valid(1.0))
         self.assertFalse(prop.is_valid(1.0+1.0j))
         self.assertTrue(prop.is_valid(""))
+        self.assertTrue(prop.is_valid("6"))
         self.assertFalse(prop.is_valid(()))
         self.assertFalse(prop.is_valid([]))
         self.assertFalse(prop.is_valid({}))
         self.assertFalse(prop.is_valid(Foo()))
+
+    def test_FontSize(self):
+
+        prop = FontSize()
+
+        self.assertTrue(prop.is_valid(None))
+
+        css_units = "%|em|ex|ch|ic|rem|vw|vh|vi|vb|vmin|vmax|cm|mm|q|in|pc|pt|px"
+
+        for unit in css_units.split("|"):
+            v = '10%s' % unit
+            self.assertTrue(prop.is_valid(v))
+
+            v = '10.2%s' % unit
+            self.assertTrue(prop.is_valid(v))
+
+            v = '_10%s' % unit
+            self.assertFalse(prop.is_valid(v))
+
+            v = '_10.2%s' % unit
+            self.assertFalse(prop.is_valid(v))
+
+        for unit in css_units.upper().split("|"):
+            v = '10%s' % unit
+            self.assertTrue(prop.is_valid(v))
+
+            v = '10.2%s' % unit
+            self.assertTrue(prop.is_valid(v))
+
+            v = '_10%s' % unit
+            self.assertFalse(prop.is_valid(v))
+
+            v = '_10.2%s' % unit
+            self.assertFalse(prop.is_valid(v))
+
+        self.assertFalse(prop.is_valid(False))
+        self.assertFalse(prop.is_valid(True))
+        self.assertFalse(prop.is_valid(0))
+        self.assertFalse(prop.is_valid(1))
+        self.assertFalse(prop.is_valid(0.0))
+        self.assertFalse(prop.is_valid(1.0))
+        self.assertFalse(prop.is_valid(1.0+1.0j))
+        self.assertFalse(prop.is_valid(""))
+        self.assertFalse(prop.is_valid(()))
+        self.assertFalse(prop.is_valid([]))
+        self.assertFalse(prop.is_valid({}))
+        self.assertFalse(prop.is_valid(Foo()))
+
 
     def test_Regex(self):
         with self.assertRaises(TypeError):
@@ -1769,17 +1819,34 @@ def test_strict_dataspec_key_values():
             f.x = dict(field="foo", units="junk")
 
 def test_dataspec_dict_to_serializable():
-    for typ in (NumberSpec, StringSpec, FontSizeSpec, ColorSpec, DataDistanceSpec, ScreenDistanceSpec):
+    for typ in (NumberSpec, StringSpec, FontSizeSpec, ColorSpec):
         class Foo(HasProps):
             x = typ("x")
         foo = Foo(x=dict(field='foo'))
         props = foo.properties_with_values(include_defaults=False)
-        if typ is DataDistanceSpec:
-            assert props['x']['units'] == 'data'
-        elif typ is ScreenDistanceSpec:
-            assert props['x']['units'] == 'screen'
         assert props['x']['field'] == 'foo'
         assert props['x'] is not foo.x
+
+def test_DataDistanceSpec():
+    assert issubclass(DataDistanceSpec, UnitsSpec)
+    class Foo(HasProps):
+        x = DataDistanceSpec("x")
+    foo = Foo(x=dict(field='foo'))
+    props = foo.properties_with_values(include_defaults=False)
+    assert props['x']['units'] == 'data'
+    assert props['x']['field'] == 'foo'
+    assert props['x'] is not foo.x
+
+def test_ScreenDistanceSpec():
+    assert issubclass(ScreenDistanceSpec, UnitsSpec)
+    class Foo(HasProps):
+        x = ScreenDistanceSpec("x")
+    foo = Foo(x=dict(field='foo'))
+    props = foo.properties_with_values(include_defaults=False)
+    assert props['x']['units'] == 'screen'
+    assert props['x']['field'] == 'foo'
+    assert props['x'] is not foo.x
+
 
 def test_strict_unitspec_key_values():
     class FooUnits(HasProps):
