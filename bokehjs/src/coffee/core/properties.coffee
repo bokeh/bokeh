@@ -196,6 +196,8 @@ export class OutputBackend extends enum_prop("OutputBackend", enums.OutputBacken
 
 export class Orientation extends enum_prop("Orientation", enums.Orientation)
 
+export class VerticalAlign extends enum_prop("VerticalAlign", enums.VerticalAlign)
+
 export class TextAlign extends enum_prop("TextAlign", enums.TextAlign)
 
 export class TextBaseline extends enum_prop("TextBaseline", enums.TextBaseline)

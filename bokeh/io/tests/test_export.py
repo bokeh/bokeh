@@ -138,12 +138,13 @@ def test_get_svgs_with_svg_present():
     layout = Plot(x_range=Range1d(), y_range=Range1d(),
                   plot_height=20, plot_width=20, toolbar_location=None,
                   outline_line_color=None, border_fill_color=None,
-                  background_fill_color=None, output_backend="svg")
+                  background_fill_color="red", output_backend="svg")
 
     svgs = bie.get_svgs(layout)
     assert svgs[0] == ('<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" '
-                       'width="20" height="20" style="width: 20px; height: 20px;"><defs/><g><g/><g transform="scale(1,1) '
-                       'translate(0.5,0.5)"><rect fill="#FFFFFF" stroke="none" x="0" y="0" width="20" height="20"/><g/><g/><g/><g/></g></g></svg>')
+                       'width="20" height="20" style="width: 20px; height: 20px;"><defs/><g><g transform="scale(1,1) '
+                       'translate(0.5,0.5)"><rect fill="#FFFFFF" stroke="none" x="0" y="0" width="20" height="20"/>'
+                       '<rect fill="red" stroke="none" x="5" y="5" width="10" height="10"/><g/><g/><g/><g/></g></g></svg>')
 
 @pytest.mark.unit
 @pytest.mark.selenium
@@ -151,7 +152,7 @@ def test_get_svgs_with_svg_present_with_driver():
     layout = Plot(x_range=Range1d(), y_range=Range1d(),
                   plot_height=20, plot_width=20, toolbar_location=None,
                   outline_line_color=None, border_fill_color=None,
-                  background_fill_color=None, output_backend="svg")
+                  background_fill_color="red", output_backend="svg")
 
     driver = webdriver.PhantomJS(service_log_path=os.path.devnull)
 
@@ -161,8 +162,9 @@ def test_get_svgs_with_svg_present_with_driver():
     driver.quit()
 
     assert svgs[0] == ('<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" '
-                       'width="20" height="20" style="width: 20px; height: 20px;"><defs/><g><g/><g transform="scale(1,1) '
-                       'translate(0.5,0.5)"><rect fill="#FFFFFF" stroke="none" x="0" y="0" width="20" height="20"/><g/><g/><g/><g/></g></g></svg>')
+                       'width="20" height="20" style="width: 20px; height: 20px;"><defs/><g><g transform="scale(1,1) '
+                       'translate(0.5,0.5)"><rect fill="#FFFFFF" stroke="none" x="0" y="0" width="20" height="20"/>'
+                       '<rect fill="red" stroke="none" x="5" y="5" width="10" height="10"/><g/><g/><g/><g/></g></g></svg>')
 
 def test_save_layout_html_resets_plot_dims():
     initial_height, initial_width = 200, 250

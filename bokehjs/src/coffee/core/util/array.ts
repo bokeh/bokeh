@@ -323,3 +323,14 @@ export function pairwise<T, U>(array: T[], fn: (prev: T, next: T) => U): U[] {
 
   return result
 }
+
+export function reversed<T>(array: T[]): T[] {
+  const n = array.length
+  const result = new Array<T>(n)
+
+  for (let i = 0; i < n; i++) {
+    result[n - i - 1] = array[i]
+  }
+
+  return result
+}

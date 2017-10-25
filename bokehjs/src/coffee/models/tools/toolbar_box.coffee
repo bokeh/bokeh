@@ -1,28 +1,24 @@
 import * as p from "core/properties"
+import {empty} from "core/dom"
 import {any, sortBy} from "core/util/array"
 
 import {ActionTool} from "./actions/action_tool"
 import {HelpTool} from "./actions/help_tool"
 import {GestureTool} from "./gestures/gesture_tool"
 import {InspectTool} from "./inspectors/inspect_tool"
-import {ToolbarBase, ToolbarBaseView} from "./toolbar_base"
+import {ToolbarBase} from "./toolbar_base"
 import {ToolProxy} from "./tool_proxy"
 
-import {Box, BoxView} from "../layouts/box"
+import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
+import {build_views, remove_views} from "core/build_views"
 
-export class ToolbarBoxToolbar extends ToolbarBase
-  type: 'ToolbarBoxToolbar'
-  default_view: ToolbarBaseView
+export class ProxyToolbar extends ToolbarBase
+  type: 'ProxyToolbar'
 
   initialize: (options) ->
     super(options)
     @_init_tools()
-    if @merge_tools is true
-      @_merge_tools()
-
-  @define {
-    merge_tools: [ p.Bool, true ]
-  }
+    @_merge_tools()
 
   _init_tools: () ->
     for tool in @tools
@@ -41,9 +37,10 @@ export class ToolbarBoxToolbar extends ToolbarBase
           @gestures[et].tools = @gestures[et].tools.concat([tool])
 
   _merge_tools: () ->
-
     # Go through all the tools on the toolbar and replace them with
     # a proxy e.g. PanTool, BoxSelectTool, etc.
+
+    @_proxied_tools = []
 
     inspectors = {}
     actions = {}
@@ -55,6 +52,7 @@ export class ToolbarBoxToolbar extends ToolbarBase
       if helptool.redirect not in new_help_urls
         new_help_tools.push(helptool)
         new_help_urls.push(helptool.redirect)
+    @_proxied_tools.push(new_help_tools...)
     @help = new_help_tools
 
     for event_type, info of @gestures
@@ -76,15 +74,10 @@ export class ToolbarBoxToolbar extends ToolbarBase
       actions[tool.type].push(tool)
 
     # Add a proxy for each of the groups of tools.
-    make_proxy = (tools, active=false) ->
-      return new ToolProxy({
-        tools: tools,
-        event_type: tools[0].event_type,
-        tooltip: tools[0].tool_name
-        tool_name: tools[0].tool_name
-        icon: tools[0].icon
-        active: active
-      })
+    make_proxy = (tools, active=false) =>
+      proxy = new ToolProxy({tools: tools, active: active})
+      @_proxied_tools.push(proxy)
+      return proxy
 
     for event_type of gestures
       @gestures[event_type].tools = []
@@ -112,42 +105,52 @@ export class ToolbarBoxToolbar extends ToolbarBase
       if et not in ['pinch', 'scroll']
         @gestures[et].tools[0].active = true
 
-
-export class ToolbarBoxView extends BoxView
+export class ToolbarBoxView extends LayoutDOMView
   className: 'bk-toolbar-box'
-
-  get_width: () ->
-    if @model._horizontal is true
-      return 30
-    else
-      return null
-
-  get_height: () ->
-    # Returning null from this causes
-    # Left toolbar to overlap in scale_width case
-    return 30
-
-
-export class ToolbarBox extends Box
-  type: 'ToolbarBox'
-  default_view: ToolbarBoxView
 
   initialize: (options) ->
     super(options)
-    @_toolbar = new ToolbarBoxToolbar(options)
+    @model.toolbar.toolbar_location = @model.toolbar_location
+    @_toolbar_views = {}
+    build_views(@_toolbar_views, [@model.toolbar], {parent: @})
 
-    @_horizontal = @toolbar_location in ['left', 'right']
-    @_sizeable = if not @_horizontal then @_height else @_width
-
-  _doc_attached: () ->
-    @_toolbar.attach_document(@document)
+  remove: () ->
+    remove_views(@_toolbar_views)
     super()
 
-  get_layoutable_children: () -> [@_toolbar]
+  render: () ->
+    super()
+
+    toolbar = @_toolbar_views[@model.toolbar.id]
+    toolbar.render()
+
+    empty(@el)
+    @el.appendChild(toolbar.el)
+
+  get_width: () ->
+    return if @model.toolbar.vertical then 30 else return null
+
+  get_height: () ->
+    return if @model.toolbar.horizontal then 30 else return null
+
+export class ToolbarBox extends LayoutDOM
+  type: 'ToolbarBox'
+  default_view: ToolbarBoxView
 
   @define {
-    toolbar_location: [ p.Location, "right"  ]
-    merge_tools:      [ p.Bool,     true     ]
-    tools:            [ p.Any,      []       ]
-    logo:             [ p.String,   "normal" ]
+    toolbar: [ p.Instance ]
+    toolbar_location: [ p.Location, "right" ]
+  }
+
+  @getters {
+    # XXX: we are overriding LayoutDOM.sizing_mode here. That's a bad
+    # hack, but currently every layoutable is allowed to have its
+    # sizing mode configured, which is wrong. Another example of this
+    # is PlotCanvas which only works with strech_both sizing mode.
+    sizing_mode: () ->
+      switch @toolbar_location
+        when "above", "below"
+          return "scale_width"
+        when "left", "right"
+          return "scale_height"
   }

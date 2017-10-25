@@ -102,10 +102,7 @@ export class HoverToolView extends InspectToolView
           ttmodels[r.node_renderer.id] = tooltip
           ttmodels[r.edge_renderer.id] = tooltip
 
-    new_views = build_views(@ttviews, values(ttmodels), {parent: @, plot_view: @plot_view})
-    # XXX: we shouldn't maintain this, but currently connection of signals is a mess.
-    for view in new_views
-      view.connect_signals()
+    build_views(@ttviews, values(ttmodels), {parent: @, plot_view: @plot_view})
 
     return ttmodels
 

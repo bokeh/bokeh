@@ -17,6 +17,5 @@ declare namespace Bokeh {
   export interface ToolbarBox extends ToolbarBase {}
   export interface IToolbarBox extends IToolbarBase {
     toolbar_location?: Location;
-    merge_tools?: boolean;
   }
 }

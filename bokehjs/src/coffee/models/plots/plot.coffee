@@ -1,6 +1,7 @@
 import {WEAK_EQ, GE, EQ} from "core/layout/solver"
 import {logger} from "core/logging"
 import * as p from "core/properties"
+import {find, removeBy} from "core/util/array"
 import {extend, values, clone} from "core/util/object"
 import {isString, isArray} from "core/util/types"
 
@@ -8,6 +9,7 @@ import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
 import {Title} from "../annotations/title"
 import {LinearScale} from "../scales/linear_scale"
 import {Toolbar} from "../tools/toolbar"
+import {ToolbarPanel} from "../annotations/toolbar_panel"
 import {PlotCanvas, PlotCanvasView} from "./plot_canvas"
 
 import {ColumnDataSource} from "../sources/column_data_source"
@@ -24,41 +26,6 @@ export class PlotView extends LayoutDOMView
     # of all constraints which we don't currently support.
     title_msg = "Title object cannot be replaced. Try changing properties on title to update it after initialization."
     @connect(@model.properties.title.change, () => logger.warn(title_msg))
-
-  render: () ->
-    super()
-
-    if @model.sizing_mode == 'scale_both'
-      [width, height] = @get_width_height()
-      @solver.suggest_value(@model._width, width)
-      @solver.suggest_value(@model._height, height)
-      @solver.update_variables()
-      @el.style.position = 'absolute'
-      @el.style.left = "#{@model._dom_left.value}px"
-      @el.style.top = "#{@model._dom_top.value}px"
-      @el.style.width = "#{@model._width.value}px"
-      @el.style.height = "#{@model._height.value}px"
-
-  get_width_height: () ->
-    parent_height = @el.parentNode.clientHeight
-    parent_width = @el.parentNode.clientWidth
-
-    ar = @model.get_aspect_ratio()
-
-    new_width_1 = parent_width
-    new_height_1 = parent_width / ar
-
-    new_width_2 = parent_height * ar
-    new_height_2 = parent_height
-
-    if new_width_1 < new_width_2
-      width = new_width_1
-      height = new_height_1
-    else
-      width = new_width_2
-      height = new_height_2
-
-    return [width, height]
 
   get_height: () ->
     return @model._width.value / @model.get_aspect_ratio()
@@ -90,8 +57,6 @@ export class Plot extends LayoutDOM
         plots = plots.concat(@)
         yr.setv('plots', plots, {silent: true})
 
-    @_horizontal = @toolbar_location in ['left', 'right']
-
     # Min border applies to the edge of everything
     if @min_border?
       if not @min_border_top?
@@ -103,15 +68,10 @@ export class Plot extends LayoutDOM
       if not @min_border_right?
         @min_border_right = @min_border
 
-    # Add the title to layout
-    if @title?
-      title = if isString(@title) then new Title({text: @title}) else @title
-      @add_layout(title, @title_location)
+    @_init_title_panel()
+    @_init_toolbar_panel()
 
     @_plot_canvas = @_init_plot_canvas()
-
-    @toolbar.toolbar_location = @toolbar_location
-    @toolbar.toolbar_sticky = @toolbar_sticky
     @plot_canvas.toolbar = @toolbar
 
     # Set width & height to be the passed in plot_width and plot_height
@@ -128,14 +88,39 @@ export class Plot extends LayoutDOM
       for renderer in layout_renderers
         renderer.add_panel(side)
 
-    _set_sizeable = (model) =>
-      model._sizeable = if not @_horizontal then model._height else model._width
-
-    _set_sizeable(@)
-    _set_sizeable(@plot_canvas)
-
   _init_plot_canvas: () ->
     return new PlotCanvas({plot: @})
+
+  _init_title_panel: () ->
+    if @title?
+      title = if isString(@title) then new Title({text: @title}) else @title
+      @add_layout(title, @title_location)
+
+  _init_toolbar_panel: () ->
+    if @_toolbar_panel?
+      for items in [@left, @right, @above, @below, @renderers]
+        removeBy(items, (item) => item == @_toolbar_panel)
+      @_toolbar_panel = null
+
+    switch @toolbar_location
+      when "left", "right", "above", "below"
+        @_toolbar_panel = new ToolbarPanel({toolbar: @toolbar})
+        @toolbar.toolbar_location = @toolbar_location
+
+        if @toolbar_sticky
+          models = @getv(@toolbar_location)
+          title = find(models, (model) -> model instanceof Title)
+
+          if title?
+            @_toolbar_panel.set_panel(title.panel)
+            @add_renderers(@_toolbar_panel)
+            return
+
+        @add_layout(@_toolbar_panel, @toolbar_location)
+
+  connect_signals: () ->
+    super()
+    @connect(@properties.toolbar_location.change, () => @_init_toolbar_panel())
 
   @getters {
     plot_canvas: () -> @_plot_canvas
@@ -174,91 +159,14 @@ export class Plot extends LayoutDOM
 
     @toolbar.tools = @toolbar.tools.concat(tools)
 
-  get_aspect_ratio: () ->
-    return @width / @height
-
   get_layoutable_children: () ->
-    # Default if toolbar_location is None
-    children = [@plot_canvas]
-    if @toolbar_location?
-      children = [@toolbar, @plot_canvas]
-    return children
-
-  get_editables: () ->
-    editables = super()
-    if @sizing_mode == 'scale_both'
-      editables = editables.concat([@_width, @_height])
-    return editables
+    return [@plot_canvas]
 
   get_constraints: () ->
     constraints = super()
 
-    if @toolbar_location?
-      # Constraints if we have a toolbar
-      #
-      #  (1) COMPUTE THE VARIABLE PIECES (shrinks canvas): plot_height = plot_canvas_height + toolbar_height
-      #  (2) SIZE THE FIXED: plot_width = plot_canvas_width
-      #  (3) stack or stick to the side
-      #      - note that below and right also require a css offset (couldn't find another way)
-      #      - use canvas._top not canvas._dom_top as this lets us stick the
-      #      toolbar right to the edge of the plot
-      #  (4) nudge: set toolbar width to be almost full less that needed
-      #      to give a margin that lines up nicely with plot canvas edge
-
-
-      # (1) plot_height = plot_canvas_height + toolbar_height | plot_width = plot_canvas_width + toolbar_width
-      if @toolbar_sticky
-        constraints.push(EQ(@_sizeable, [-1, @plot_canvas._sizeable]))
-      else
-        constraints.push(EQ(@_sizeable, [-1, @plot_canvas._sizeable], [-1, @toolbar._sizeable]))
-
-      # (2) plot_width = plot_canvas_width | plot_height = plot_canvas_height | plot_height = plot_canvas_height
-      if not @_horizontal
-        constraints.push(EQ(@_width, [-1, @plot_canvas._width]))
-      else
-        constraints.push(EQ(@_height, [-1, @plot_canvas._height]))
-
-      if @toolbar_location is 'above'
-        # (3) stack: plot_canvas._top = toolbar._dom_top + toolbar._height
-        sticky_edge = if @toolbar_sticky then @plot_canvas._top else @plot_canvas._dom_top
-        constraints.push(EQ(sticky_edge, [-1, @toolbar._dom_top], [-1, @toolbar._height]))
-
-      if @toolbar_location is 'below'
-        # (3) stack: plot_canvas._dom_top = toolbar._bottom - toolbar._height
-        if not @toolbar_sticky
-          constraints.push(EQ(@toolbar._dom_top, [-1, @plot_canvas._height], @toolbar._bottom, [-1, @toolbar._height]))
-        else
-          constraints.push(GE(@plot_canvas.below_panel._height, [-1, @toolbar._height]))
-          constraints.push(WEAK_EQ(@toolbar._dom_top, [-1, @plot_canvas._height], @plot_canvas.below_panel._height))
-
-      if @toolbar_location is 'left'
-        # (3) stack: plot_canvas._dom_left = toolbar._dom_left + toolbar._width
-        sticky_edge = if @toolbar_sticky then @plot_canvas._left else @plot_canvas._dom_left
-        constraints.push(EQ(sticky_edge, [-1, @toolbar._dom_left], [-1, @toolbar._width]))
-
-      if @toolbar_location is 'right'
-        # (3) stack: plot_canvas._dom_left = plot_canvas._right - toolbar._width
-        if not @toolbar_sticky
-          constraints.push(EQ(@toolbar._dom_left, [-1, @plot_canvas._width], @toolbar._right, [-1, @toolbar._width]))
-        else
-          constraints.push(GE(@plot_canvas.right_panel._width, [-1, @toolbar._width]))
-          constraints.push(WEAK_EQ(@toolbar._dom_left, [-1, @plot_canvas._width], @plot_canvas.right_panel._width))
-
-      if @toolbar_location in ['above', 'below']
-        # (4) toolbar_width = full_width - plot_canvas._right
-        constraints.push(EQ(@_width, [-1, @toolbar._width], [-1, @plot_canvas._width_minus_right]))
-
-      if @toolbar_location in ['left', 'right']
-        # (4a) the following makes the toolbar as tall as the plot less the distance of the axis from the edge
-        constraints.push(EQ(@_height, [-1, @toolbar._height], [-1, @plot_canvas.above_panel._height]))
-        # (4b) nudge the toolbar down by that distance
-        constraints.push(EQ(@toolbar._dom_top, [-1, @plot_canvas.above_panel._height]))
-
-
-    if not @toolbar_location?
-      # If we don't have a toolbar just set them
-      constraints.push(EQ(@_width, [-1, @plot_canvas._width]))
-      constraints.push(EQ(@_height, [-1, @plot_canvas._height]))
+    constraints.push(EQ(@_width,  [-1, @plot_canvas._width ]))
+    constraints.push(EQ(@_height, [-1, @plot_canvas._height]))
 
     return constraints
 
@@ -290,9 +198,9 @@ export class Plot extends LayoutDOM
   @mixins ['line:outline_', 'fill:background_', 'fill:border_']
 
   @define {
-      toolbar:           [ p.Instance, () -> new Toolbar() ]
+      toolbar:           [ p.Instance, () -> new Toolbar()    ]
       toolbar_location:  [ p.Location, 'right'                ]
-      toolbar_sticky:    [ p.Bool, true                       ]
+      toolbar_sticky:    [ p.Boolean,  true                   ]
 
       plot_width:        [ p.Number,   600                    ]
       plot_height:       [ p.Number,   600                    ]

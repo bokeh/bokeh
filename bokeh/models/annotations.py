@@ -7,7 +7,7 @@ from __future__ import absolute_import
 from six import string_types
 
 from ..core.enums import (AngleUnits, Dimension, FontStyle, LegendClickPolicy, LegendLocation,
-                          Orientation, RenderMode, SpatialUnits, TextAlign)
+                          Orientation, RenderMode, SpatialUnits, VerticalAlign, TextAlign)
 from ..core.has_props import abstract
 from ..core.properties import (Angle, AngleSpec, Auto, Bool, ColorSpec, Datetime, Dict, DistanceSpec, Either,
                                Enum, Float, FontSizeSpec, Include, Instance, Int, List, NumberSpec, Override,
@@ -879,9 +879,12 @@ class Title(TextAnnotation):
     The text value to render.
     """)
 
-    align = Enum(TextAlign, default='left', help="""
-    Location to align the title text.
+    vertical_align = Enum(VerticalAlign, default='bottom', help="""
+    Aligment of the text in its enclosing space, *across* the direction of the text.
+    """)
 
+    align = Enum(TextAlign, default='left', help="""
+    Aligment of the text in its enclosing space, *along* the direction of the text.
     """)
 
     offset = Float(default=0, help="""
@@ -1042,3 +1045,9 @@ class Whisker(Annotation):
     """)
 
     level = Override(default="underlay")
+
+class ToolbarPanel(Annotation): # TODO: this shouldn't be an annotation
+
+    toolbar = Instance(".models.tools.Toolbar", help="""
+    A toolbar to display.
+    """)

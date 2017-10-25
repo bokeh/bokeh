@@ -1,4 +1,4 @@
-import {EQ} from "./solver"
+import {GE} from "./solver"
 import {LayoutCanvas} from "./layout_canvas"
 
 import * as p from "core/properties"
@@ -135,24 +135,16 @@ _align_lookup_positive = {
   right  : LEFT
 }
 
-# Some terms:
-#
-# - Size: is the narrower (usually) dimension that is calculated based on
-#         the contents of the panel
-# - Full: is the other dimension which we want to extend to either the full
-#         height or width. Extending to full height or width means it's easy to
-#         calculate mid-way for alignment.
-
 export update_panel_constraints = (view) ->
-  if view.model.props.visible? and not view.model.visible
-    # if not visible, avoid applying constraints until visible again
-    return
-
   s = view.solver
 
   if view._size_constraint? and s.has_constraint(view._size_constraint)
     s.remove_constraint(view._size_constraint)
-  view._size_constraint = EQ(view.model.panel._size, -view._get_size())
+
+  visible = not view.model.props.visible? or view.model.visible
+  size = if visible then view._get_size() else 0
+
+  view._size_constraint = GE(view.model.panel._size, -size)
   s.add_constraint(view._size_constraint)
 
 export class SidePanel extends LayoutCanvas
@@ -160,7 +152,6 @@ export class SidePanel extends LayoutCanvas
 
   @internal {
     side: [ p.String ]
-    plot: [ p.Instance ]
   }
 
   toString: () ->
