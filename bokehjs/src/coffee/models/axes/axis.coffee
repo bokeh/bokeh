@@ -48,7 +48,7 @@ export class AxisView extends RendererView
       return
 
     [x, y]       = @model.rule_coords
-    [sx, sy]     = @plot_view.map_to_screen(x, y, @model.x_range_name, @model.y_range_name)
+    [sx, sy]     = @plot_view.map_to_canvas(x, y, @model.x_range_name, @model.y_range_name)
     [nx, ny]     = @model.normals
     [xoff, yoff] = @model.offsets
 
@@ -124,7 +124,7 @@ export class AxisView extends RendererView
       return
 
     [x, y]       = coords
-    [sxs, sys]   = @plot_view.map_to_screen(x, y, @model.x_range_name, @model.y_range_name)
+    [sxs, sys]   = @plot_view.map_to_canvas(x, y, @model.x_range_name, @model.y_range_name)
     [nx, ny]     = @model.normals
     [xoff, yoff] = @model.offsets
 
@@ -155,7 +155,7 @@ export class AxisView extends RendererView
       [xoff, yoff] = [0, 0]
     else
       [dxs, dys] = coords
-      [sxs, sys] = @plot_view.map_to_screen(dxs, dys, @model.x_range_name, @model.y_range_name)
+      [sxs, sys] = @plot_view.map_to_canvas(dxs, dys, @model.x_range_name, @model.y_range_name)
       [xoff, yoff] = @model.offsets
 
     [nx, ny] = @model.normals
