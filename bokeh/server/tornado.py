@@ -218,7 +218,7 @@ class BokehTornado(TornadoApplication):
         for line in pformat(all_patterns, width=60).split("\n"):
             log.debug("  " + line)
 
-        super(BokehTornado, self).__init__(all_patterns)
+        super(BokehTornado, self).__init__(all_patterns, cookie_secret="sdafdsklfdsfdsafkdsafjdskfjsdflksd")
 
     def initialize(self, io_loop):
         ''' Start a Bokeh Server Tornado Application on a given Tornado IOLoop.

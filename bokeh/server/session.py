@@ -4,6 +4,9 @@
 from __future__ import absolute_import
 
 import logging
+
+from bokeh.server.views.sessions import Session
+
 log = logging.getLogger(__name__)
 
 import time
@@ -85,6 +88,7 @@ class ServerSession(object):
         self._destroyed = False
         self._expiration_requested = False
         self._expiration_blocked_count = 0
+        self.stored_session = Session.load(session_id)
 
         wrapped_callbacks = self._wrap_session_callbacks(self._document.session_callbacks)
         self._callbacks.add_session_callbacks(wrapped_callbacks)
