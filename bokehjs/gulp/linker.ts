@@ -4,7 +4,7 @@ import {resolve, relative, join, dirname, basename, sep} from "path"
 import * as esprima from "esprima"
 import * as escodegen from "escodegen"
 import * as estraverse from "estraverse"
-import {Program, Node, CallExpression} from "estree"
+import {Program, Node, CallExpression, Comment} from "estree"
 
 import * as combine from "combine-source-map"
 import * as convert from "convert-source-map"
@@ -330,7 +330,7 @@ export class Module {
             const dep = arg.value
             const val = module_map.get(this.deps.get(dep)!)
             arg.value = val != null ? val : dep
-            const comment = {type: "Block", value: ` ${dep} `}
+            const comment : Comment = {type: "Block", value: ` ${dep} `}
             if (arg.trailingComments == null)
               arg.trailingComments = [comment]
             else
