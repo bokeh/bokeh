@@ -31,15 +31,9 @@ export class ColorBarView extends AnnotationView
         @_set_canvas_image()
         @plot_view.request_render()
 
-  _get_panel_offset: () ->
-    # ColorBars draw from the top down, so set the y_panel_offset to _top
-    x = @model.panel._left.value
-    y = @model.panel._top.value
-    return {x: x, y: -y}
-
   _get_size: () ->
     if not @model.color_mapper?
-      return
+      return 0
 
     bbox = @compute_legend_dimensions()
     side = @model.panel.side
@@ -101,10 +95,12 @@ export class ColorBarView extends AnnotationView
     [legend_height, legend_width] = [legend_dimensions.height, legend_dimensions.width]
 
     legend_margin = @model.margin
-    location = @model.location
-    h_range = @plot_view.frame.h_range
-    v_range = @plot_view.frame.v_range
 
+    panel = @model.panel ? @plot_view.frame
+    h_range = {start: panel._left.value, end: panel._right.value}
+    v_range = {start: panel._bottom.value, end: panel._top.value}
+
+    location = @model.location
     if isString(location)
       switch location
         when 'top_left'
@@ -135,7 +131,9 @@ export class ColorBarView extends AnnotationView
           x = (h_range.end + h_range.start)/2 - legend_width/2
           y = (v_range.end + v_range.start)/2 + legend_height/2
     else if isArray(location) and location.length == 2
-      [x, y] = location
+      [x, y] = location   # left, bottom wrt panel
+      x += h_range.start
+      y += v_range.start + legend_height
 
     sx = @plot_view.canvas.vx_to_sx(x)
     sy = @plot_view.canvas.vy_to_sy(y)
@@ -149,12 +147,8 @@ export class ColorBarView extends AnnotationView
     ctx = @plot_view.canvas_view.ctx
     ctx.save()
 
-    if @model.panel?
-      panel_offset = @_get_panel_offset()
-      ctx.translate(panel_offset.x, panel_offset.y)
-
-    location = @compute_legend_location()
-    ctx.translate(location.sx, location.sy)
+    {sx, sy} = @compute_legend_location()
+    ctx.translate(sx, sy)
     @_draw_bbox(ctx)
 
     image_offset = @_get_image_offset()
