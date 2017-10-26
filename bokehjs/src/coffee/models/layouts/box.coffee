@@ -82,8 +82,10 @@ export class Box extends LayoutDOM
     })
 
   get_constraints: () ->
-    # Note we don't got and get constraints from _layout_dom parent.
-    constraints = []
+    constraints = super()
+
+    add = (new_constraints...) ->
+      constraints.push(new_constraints...)
 
     children = @get_layoutable_children()
     if children.length == 0
@@ -100,49 +102,49 @@ export class Box extends LayoutDOM
       rect = @_child_rect(vars)
       if @_horizontal
         if vars.height?
-          constraints.push(EQ(rect.height, [ -1, @_height ]))
+          add(EQ(rect.height, [ -1, @_height ]))
       else
         if vars.width?
-          constraints.push(EQ(rect.width, [ -1, @_width ]))
+          add(EQ(rect.width, [ -1, @_width ]))
 
       # Add equal_size constraint
       # - A child's "interesting area" (like the plot area) is the same size as the previous child
       #   (a child can opt out of this by not returning the box_equal_size variables)
       if @_horizontal
         if vars.box_equal_size_left? and vars.box_equal_size_right? and vars.width?
-          constraints.push(EQ([-1, vars.box_equal_size_left], [-1, vars.box_equal_size_right], vars.width, @_child_equal_size_width))
+          add(EQ([-1, vars.box_equal_size_left], [-1, vars.box_equal_size_right], vars.width, @_child_equal_size_width))
       else
         if vars.box_equal_size_top? and vars.box_equal_size_bottom? and vars.height?
-          constraints.push(EQ([-1, vars.box_equal_size_top], [-1, vars.box_equal_size_bottom], vars.height, @_child_equal_size_height))
+          add(EQ([-1, vars.box_equal_size_top], [-1, vars.box_equal_size_bottom], vars.height, @_child_equal_size_height))
 
     # TODO(bird) - This is the second time we loop through children
     last = @_info(children[0].get_constrained_variables())
-    constraints.push(EQ(last.span.start, 0))
+    add(EQ(last.span.start, 0))
     for i in [1...children.length]
       next = @_info(children[i].get_constrained_variables())
 
       # Each child's start equals the previous child's end (unless we have a fixed layout
       # in which case size may not be available)
       if last.span.size
-        constraints.push(EQ(last.span.start, last.span.size, [-1, next.span.start]))
+        add(EQ(last.span.start, last.span.size, [-1, next.span.start]))
 
       # The whitespace at end of one child + start of next must equal the box spacing.
       # This must be a weak constraint because it can conflict with aligning the
       # alignable edges in each child. Alignment is generally more important visually than spacing.
-      constraints.push(WEAK_EQ(last.whitespace.after, next.whitespace.before, 0 - @spacing))
+      add(WEAK_EQ(last.whitespace.after, next.whitespace.before, 0 - @spacing))
 
       # If we can't satisfy the whitespace being equal to box spacing, we should fix
       # it (align things) by increasing rather than decreasing the whitespace.
-      constraints.push(GE(last.whitespace.after, next.whitespace.before, 0 - @spacing))
+      add(GE(last.whitespace.after, next.whitespace.before, 0 - @spacing))
       last = next
 
     # Child's side has to stick to the end of the box
     if @_horizontal
       if vars.width?
-        constraints.push(EQ(last.span.start, last.span.size, [-1, @_width]))
+        add(EQ(last.span.start, last.span.size, [-1, @_width]))
     else
       if vars.height?
-        constraints.push(EQ(last.span.start, last.span.size, [-1, @_height]))
+        add(EQ(last.span.start, last.span.size, [-1, @_height]))
 
     constraints = constraints.concat(
       # align outermost edges in both dimensions

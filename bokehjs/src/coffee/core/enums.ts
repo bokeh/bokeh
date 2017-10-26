@@ -56,6 +56,9 @@ export const SpatialUnits: SpatialUnits[] = ["screen", "data"]
 export type StartEnd = "start" | "end"
 export const StartEnd: StartEnd[] = ["start", "end"]
 
+export type VerticalAlign = "top" | "middle" | "bottom"
+export const VerticalAlign: VerticalAlign[] = ["top", "middle", "bottom"]
+
 export type TextAlign = "left" | "right" | "center"
 export const TextAlign: TextAlign[] = ["left", "right", "center"]
 

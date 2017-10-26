@@ -132,10 +132,18 @@ export class RectView extends XYGlyphView
     vpt1 = scale.v_compute(pt1)
     sside_length = @sdist(scale, pt0, side_length, 'edge', @model.dilate)
     if dim == 0
-      vpt_corner = if vpt0[0] < vpt1[0] then vpt0 else vpt1
+      vpt_corner = vpt0
+      for i in [0...vpt0.length]
+        if vpt0[i] != vpt1[i]
+          vpt_corner = if vpt0[i] < vpt1[i] then vpt0 else vpt1
+          break
       return [sside_length, canvas.v_vx_to_sx(vpt_corner)]
     else if dim == 1
-      vpt_corner = if vpt0[0] < vpt1[0] then vpt1 else vpt0
+      vpt_corner = vpt0
+      for i in [0...vpt0.length]
+        if vpt0[i] != vpt1[i]
+          vpt_corner = if vpt0[i] < vpt1[i] then vpt1 else vpt0
+          break
       return [sside_length, canvas.v_vy_to_sy(vpt_corner)]
 
   _ddist: (dim, spts, spans) ->

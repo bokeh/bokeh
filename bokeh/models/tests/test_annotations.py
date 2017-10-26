@@ -327,6 +327,7 @@ def test_Title():
     assert title.plot is None
     assert title.level == 'annotation'
     assert title.text is None
+    assert title.vertical_align == 'bottom'
     assert title.align == 'left'
     assert title.offset == 0
     assert title.text_font == 'helvetica'
@@ -341,6 +342,7 @@ def test_Title():
         "visible",
         "level",
         "text",
+        "vertical_align",
         "align",
         "offset",
         "text_font",

@@ -21,6 +21,9 @@ export class View
     @id = options.id ? uniqueId()
     @initialize(options)
 
+    if options.connect_signals != false
+      @connect_signals()
+
   initialize: (options) ->
 
   remove: () ->

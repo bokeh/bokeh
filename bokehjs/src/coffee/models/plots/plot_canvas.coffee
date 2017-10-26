@@ -17,7 +17,7 @@ import * as enums from "core/enums"
 import * as p from "core/properties"
 import {throttle} from "core/util/throttle"
 import {isStrictNaN} from "core/util/types"
-import {difference, sortBy, pairwise, last} from "core/util/array"
+import {difference, sortBy, pairwise, reversed} from "core/util/array"
 import {extend, values, isEmpty} from "core/util/object"
 import {update_panel_constraints} from "core/layout/side_panel"
 
@@ -115,7 +115,6 @@ export class PlotCanvasView extends DOMView
     @build_levels()
     @build_tools()
 
-    @connect_signals()
     @update_dataranges()
 
     @unpause(true)
@@ -128,6 +127,7 @@ export class PlotCanvasView extends DOMView
 
   @getters {
     canvas_overlays: () -> @canvas_view.overlays_el
+    canvas_events: () -> @canvas_view.events_el
     is_paused: () -> @_is_paused? and @_is_paused != 0
   }
 
@@ -341,7 +341,7 @@ export class PlotCanvasView extends DOMView
     hit_bound = false
     for [rng, range_info] in range_info_iter
       # Is this a reversed range?
-      reversed = (rng.start > rng.end)
+      is_reversed = (rng.start > rng.end)
 
       # Limit range interval first. Note that for scroll events,
       # the interval has already been limited for all ranges simultaneously
@@ -358,7 +358,7 @@ export class PlotCanvasView extends DOMView
         max = rng.bounds[1]
         new_interval = Math.abs(range_info['end'] - range_info['start'])
 
-        if reversed
+        if is_reversed
           if min?
             if min >= range_info['end']
               hit_bound = true
@@ -458,7 +458,6 @@ export class PlotCanvasView extends DOMView
 
     for view in new_renderer_views
       @levels[view.model.level][view.model.id] = view
-      view.connect_signals()
 
     return @
 
@@ -470,7 +469,6 @@ export class PlotCanvasView extends DOMView
     new_tool_views = build_views(@tool_views, tool_models, @view_options())
 
     for tool_view in new_tool_views
-      tool_view.connect_signals()
       @ui_event_bus.register_tool(tool_view)
 
   connect_signals: () ->
@@ -727,8 +725,6 @@ export class PlotCanvas extends LayoutDOM
 
     @canvas = new Canvas({
       map: @use_map ? false
-      initial_width: @plot.plot_width,
-      initial_height: @plot.plot_height,
       use_hidpi: @plot.hidpi,
       output_backend: @plot.output_backend
     })
@@ -794,37 +790,40 @@ export class PlotCanvas extends LayoutDOM
     return super().concat(@_get_constant_constraints(), @_get_side_constraints())
 
   _get_constant_constraints: () ->
-    # Create the constraints that always apply for a plot
     return [
-      GE( @above_panel._height, -@plot.min_border_top    ),
-      GE( @below_panel._height, -@plot.min_border_bottom ),
-      GE( @left_panel._width,   -@plot.min_border_left   ),
-      GE( @right_panel._width,  -@plot.min_border_right  ),
+      # Set the origin. Everything else is positioned absolutely wrt canvas.
+      EQ(@canvas._left,   0),
+      EQ(@canvas._bottom, 0),
 
-      EQ( @above_panel._top,    [-1, @canvas._top]         ),
-      EQ( @above_panel._bottom, [-1, @frame._top]          ),
-      EQ( @above_panel._left,   [-1, @left_panel._right]   ),
-      EQ( @above_panel._right,  [-1, @right_panel._left]   ),
+      LE(@above_panel._top,    [-1, @canvas._top]        ),
+      EQ(@above_panel._bottom, [-1, @frame._top]         ),
+      EQ(@above_panel._left,   [-1, @left_panel._right]  ),
+      EQ(@above_panel._right,  [-1, @right_panel._left]  ),
 
-      EQ( @below_panel._top,    [-1, @frame._bottom]       ),
-      EQ( @below_panel._bottom, [-1, @canvas._bottom]      ),
-      EQ( @below_panel._left,   [-1, @left_panel._right]   ),
-      EQ( @below_panel._right,  [-1, @right_panel._left]   ),
+      EQ(@below_panel._top,    [-1, @frame._bottom]      ),
+      GE(@below_panel._bottom, [-1, @canvas._bottom]     ),
+      EQ(@below_panel._left,   [-1, @left_panel._right]  ),
+      EQ(@below_panel._right,  [-1, @right_panel._left]  ),
 
-      EQ( @left_panel._top,    [-1, @above_panel._bottom]  ),
-      EQ( @left_panel._bottom, [-1, @below_panel._top]     ),
-      EQ( @left_panel._left,   [-1, @canvas._left]         ),
-      EQ( @left_panel._right,  [-1, @frame._left]          ),
+      EQ(@left_panel._top,     [-1, @above_panel._bottom]),
+      EQ(@left_panel._bottom,  [-1, @below_panel._top]   ),
+      GE(@left_panel._left,    [-1, @canvas._left]       ),
+      EQ(@left_panel._right,   [-1, @frame._left]        ),
 
-      EQ( @right_panel._top,    [-1, @above_panel._bottom] ),
-      EQ( @right_panel._bottom, [-1, @below_panel._top]    ),
-      EQ( @right_panel._left,   [-1, @frame._right]        ),
-      EQ( @right_panel._right,  [-1, @canvas._right]       ),
+      EQ(@right_panel._top,    [-1, @above_panel._bottom]),
+      EQ(@right_panel._bottom, [-1, @below_panel._top]   ),
+      EQ(@right_panel._left,   [-1, @frame._right]       ),
+      LE(@right_panel._right,  [-1, @canvas._right]      ),
 
-      EQ(@_top,                    [-1, @above_panel._height] ),
-      EQ(@_left,                   [-1, @left_panel._width]   ),
-      EQ(@_height, [-1, @_bottom], [-1, @below_panel._height] ),
-      EQ(@_width, [-1, @_right],   [-1, @right_panel._width]  ),
+      EQ(@_top,                    [-1, @canvas._top], @above_panel._bottom),
+      EQ(@_left,                   [-1, @left_panel._right]),
+      EQ(@_height, [-1, @_bottom], [-1, @below_panel._top]),
+      EQ(@_width, [-1, @_right],   [-1, @canvas._right], @right_panel._left),
+
+      GE(@_top,                    -@plot.min_border_top   )
+      GE(@_left,                   -@plot.min_border_left  )
+      GE(@_height, [-1, @_bottom], -@plot.min_border_bottom)
+      GE(@_width, [-1, @_right],   -@plot.min_border_right )
     ]
 
   _get_side_constraints: () ->
@@ -833,52 +832,34 @@ export class PlotCanvas extends LayoutDOM
     add = (new_constraints...) ->
       constraints.push(new_constraints...)
 
-    above = @plot.above
-    below = @plot.below
-    left  = @plot.left
-    right = @plot.right
-
     head = (arr) -> arr[0]
     tail = (arr) -> arr[arr.length-1]
 
-    if above.length > 0
-      add(EQ(head(above).panel._bottom, [-1, @above_panel._bottom]))
-      add(LE(tail(above).panel._top,    [-1, @above_panel._top]))
+    vstack = (container, children) ->
+      if children.length > 0
+        add(EQ(head(children).panel._bottom, [-1, container._bottom]))
+        add(EQ(tail(children).panel._top,    [-1, container._top]))
 
-      add(pairwise(above, (prev, next) -> EQ(prev.panel._top,    [-1, next.panel._bottom]))...)
+        add(pairwise(children, (prev, next) -> EQ(prev.panel._top,  [-1, next.panel._bottom]))...)
 
-      for obj in above
-        add(EQ(obj.panel._left,  [-1, @above_panel._left]))
-        add(EQ(obj.panel._right, [-1, @above_panel._right]))
+        for obj in children
+          add(EQ(obj.panel._left,  [-1, container._left]))
+          add(EQ(obj.panel._right, [-1, container._right]))
 
-    if below.length > 0
-      add(EQ(head(below).panel._top,    [-1, @below_panel._top]))
-      add(GE(tail(below).panel._bottom, [-1, @below_panel._bottom]))
+    hstack = (container, children) ->
+      if children.length > 0
+        add(EQ(head(children).panel._right,  [-1, container._right]))
+        add(EQ(tail(children).panel._left,   [-1, container._left]))
 
-      add(pairwise(below, (prev, next) -> EQ(prev.panel._bottom, [-1, next.panel._top]))...)
+        add(pairwise(children, (prev, next) -> EQ(prev.panel._left, [-1, next.panel._right]))...)
 
-      for obj in below
-        add(EQ(obj.panel._left,  [-1, @below_panel._left]))
-        add(EQ(obj.panel._right, [-1, @below_panel._right]))
+        for obj in children
+          add(EQ(obj.panel._top,    [-1, container._top]))
+          add(EQ(obj.panel._bottom, [-1, container._bottom]))
 
-    if left.length > 0
-      add(EQ(head(left) .panel._right,  [-1, @left_panel._right]))
-      add(GE(tail(left) .panel._left,   [-1, @left_panel._left]))
-
-      add(pairwise(left,  (prev, next) -> EQ(prev.panel._left,   [-1, next.panel._right]))...)
-
-      for obj in left
-        add(EQ(obj.panel._top,    [-1, @left_panel._top]))
-        add(EQ(obj.panel._bottom, [-1, @left_panel._bottom]))
-
-    if right.length > 0
-      add(EQ(head(right).panel._left,   [-1, @right_panel._left]))
-      add(LE(tail(right).panel._right,  [-1, @right_panel._right]))
-
-      add(pairwise(right, (prev, next) -> EQ(prev.panel._right,  [-1, next.panel._left]))...)
-
-      for obj in right
-        add(EQ(obj.panel._top,    [-1, @right_panel._top]))
-        add(EQ(obj.panel._bottom, [-1, @right_panel._bottom]))
+    vstack(@above_panel,          @plot.above )
+    vstack(@below_panel, reversed(@plot.below))
+    hstack(@left_panel,           @plot.left  )
+    hstack(@right_panel, reversed(@plot.right))
 
     return constraints

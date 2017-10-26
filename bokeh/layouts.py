@@ -8,7 +8,7 @@
 from __future__ import absolute_import
 
 from .core.enums import Location, SizingMode
-from .models.tools import ToolbarBox
+from .models.tools import ProxyToolbar, ToolbarBox
 from .models.plots import Plot
 from .models.layouts import LayoutDOM, Row, Column, Spacer, WidgetBox
 from .models.widgets import Widget
@@ -342,7 +342,7 @@ def gridplot(*args, **kwargs):
     sizing_mode = kwargs.get('sizing_mode', 'fixed')
     children = kwargs.get('children')
     responsive = kwargs.get('responsive')
-    toolbar_options = kwargs.get('toolbar_options')
+    toolbar_options = kwargs.get('toolbar_options', {})
     plot_width = kwargs.get('plot_width')
     plot_height = kwargs.get('plot_height')
     ncols = kwargs.get('ncols')
@@ -381,10 +381,13 @@ def gridplot(*args, **kwargs):
                         row_tools = row_tools + plot.toolbar.tools
                         plot.toolbar_location = None
             if item is None:
+                width, height = 0, 0
                 for neighbor in row:
                     if isinstance(neighbor, Plot):
+                        width = neighbor.plot_width
+                        height = neighbor.plot_height
                         break
-                item = Spacer(width=neighbor.plot_width, height=neighbor.plot_height)
+                item = Spacer(width=width, height=height)
             if isinstance(item, LayoutDOM):
                 item.sizing_mode = sizing_mode
                 if isinstance(item, Plot):
@@ -403,26 +406,10 @@ def gridplot(*args, **kwargs):
     if not merge_tools:
         return grid
 
-    # Make the toolbar
     if toolbar_location:
-        if not toolbar_options:
-            toolbar_options = {}
-        if 'toolbar_location' not in toolbar_options:
-            toolbar_options['toolbar_location'] = toolbar_location
+        proxy = ProxyToolbar(tools=tools, **toolbar_options)
+        toolbar = ToolbarBox(toolbar=proxy, toolbar_location=toolbar_location)
 
-        # Fixed sizing mode needs scale_width for the toolbar
-        # for layout to work correctly.
-        if sizing_mode == 'fixed':
-            toolbar_sizing_mode = 'scale_width'
-        else:
-            toolbar_sizing_mode = sizing_mode
-        toolbar = ToolbarBox(
-            tools=tools,
-            sizing_mode=toolbar_sizing_mode,
-            **toolbar_options
-        )
-
-    # Set up children
     if toolbar_location == 'above':
         return Column(children=[toolbar, grid], sizing_mode=sizing_mode)
     elif toolbar_location == 'below':

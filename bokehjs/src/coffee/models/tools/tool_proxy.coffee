@@ -21,16 +21,20 @@ export class ToolProxy extends Model
       tool.active = @active
     return null
 
-  @define {
-    tools: [ p.Array, [] ]
-    active: [ p.Bool, false ]
-    tooltip: [ p.String ]
-    tool_name: [ p.String ]
-    disabled: [ p.Bool, false ]
-    event_type: [ p.String ]
-    icon: [ p.String ]
-  }
-
   _clicked: () ->
     active = @model.active
     @model.active = not active
+
+  @getters {
+    button_view: () -> @tools[0].button_view
+    event_type:  () -> @tools[0].event_type
+    tooltip:     () -> @tools[0].tool_name
+    tool_name:   () -> @tools[0].tool_name
+    icon:        () -> @tools[0].icon
+  }
+
+  @define {
+    tools:    [ p.Array, []    ]
+    active:   [ p.Bool,  false ]
+    disabled: [ p.Bool,  false ]
+  }

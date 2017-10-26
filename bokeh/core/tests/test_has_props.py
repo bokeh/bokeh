@@ -17,6 +17,13 @@ class Child(Parent):
     ds2 = NumberSpec()
     lst2 = List(Int, default=[1,2,3])
 
+    @property
+    def str2_proxy(self):
+        return self.str2
+    @str2_proxy.setter
+    def str2_proxy(self, value):
+        self.str2 = value*2
+
 class OverrideChild(Parent):
     int1 = Override(default=20)
 
@@ -135,6 +142,10 @@ def test_HasProps_set():
     assert c.str2 == "baz"
     assert c.ds2 ==  None
     assert c.lst2 == [1,2]
+
+    c.str2_proxy = "some"
+    assert c.str2 == "somesome"
+    assert c.str2_proxy == "somesome"
 
 def test_HasProps_set_error():
     c = Child()

@@ -46,9 +46,12 @@ export class WidgetBoxView extends LayoutDOMView
 
   get_height: () ->
     height = 0
-    # We have to add on 10px because widgets have a margin at the top.
     for own key, child_view of @child_views
-      height += child_view.el.scrollHeight
+      el = child_view.el
+      style = getComputedStyle(el)
+      marginTop = parseInt(style.marginTop) || 0
+      marginBottom = parseInt(style.marginBottom) || 0
+      height += el.offsetHeight + marginTop + marginBottom
     return height + 20
 
   get_width: () ->

@@ -145,6 +145,9 @@ LineCap = enumeration("butt", "round", "square")
 #: Specify the font style for rendering text
 FontStyle = enumeration("normal", "italic", "bold")
 
+#: Specify the vertical alignment for rendering text
+VerticalAlign = enumeration("top", "middle", "bottom")
+
 #: Specify the horizontal alignment for rendering text
 TextAlign = enumeration("left", "right", "center")
 
