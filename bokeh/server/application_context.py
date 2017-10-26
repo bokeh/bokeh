@@ -182,6 +182,8 @@ class ApplicationContext(object):
             self._application.initialize_document(doc)
 
             session = ServerSession(session_id, doc, io_loop=self._loop)
+            session.stored_session.store_request(request)
+            session.stored_session.save()
             del self._pending_sessions[session_id]
             self._sessions[session_id] = session
             session_context._set_session(session)

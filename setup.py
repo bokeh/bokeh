@@ -93,6 +93,7 @@ REQUIRES = [
     'Jinja2 >=2.7',
     'numpy >=1.7.1',
     'tornado >=4.3',
+    'redis'
 ]
 
 # handle the compat difference for futures (meta.yaml handles differently)

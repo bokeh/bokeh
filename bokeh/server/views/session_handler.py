@@ -4,14 +4,16 @@
 from __future__ import absolute_import, print_function
 
 import logging
+
 log = logging.getLogger(__name__)
 
 from tornado import gen
-from tornado.web import RequestHandler, HTTPError
+from tornado.web import HTTPError
 
 from bokeh.util.session_id import generate_session_id, check_session_id_signature
+from bokeh.server.views.sessions import TornadoSessionHandler
 
-class SessionHandler(RequestHandler):
+class SessionHandler(TornadoSessionHandler):
     ''' Implements a custom Tornado handler for document display page
 
     '''
