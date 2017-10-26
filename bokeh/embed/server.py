@@ -17,7 +17,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import logging
 log = logging.getLogger(__name__)
 
-from bokeh.util.api import public, internal ; public, internal
+from bokeh.util.api import general, dev ; general, dev
 
 #-----------------------------------------------------------------------------
 # Imports
@@ -44,7 +44,7 @@ from .util import html_page_for_render_items
 # Public API
 #-----------------------------------------------------------------------------
 
-@public((1,0,0))
+@general((1,0,0))
 def server_document(url="default", relative_urls=False, resources="default", arguments=None):
     ''' Return a script tag that embeds content from a Bokeh server.
 
@@ -106,7 +106,7 @@ def server_document(url="default", relative_urls=False, resources="default", arg
 
     return encode_utf8(tag)
 
-@public((1,0,0))
+@general((1,0,0))
 def server_session(model, session_id, url="default", relative_urls=False, resources="default", arguments=None):
     ''' Return a script tag that embeds content from a specific existing session on
     a Bokeh server.
@@ -197,7 +197,7 @@ def server_session(model, session_id, url="default", relative_urls=False, resour
 # Internal API
 #-----------------------------------------------------------------------------
 
-@internal((1,0,0))
+@dev((1,0,0))
 def server_html_page_for_session(session_id, resources, title, template=FILE, template_variables=None):
     '''
 

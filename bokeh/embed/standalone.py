@@ -17,7 +17,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import logging
 log = logging.getLogger(__name__)
 
-from bokeh.util.api import public, internal ; public, internal
+from bokeh.util.api import general, dev ; general, dev
 
 #-----------------------------------------------------------------------------
 # Imports
@@ -49,7 +49,7 @@ from .util import (check_models_or_docs, check_one_model_or_doc, div_for_render_
 # Public API
 #-----------------------------------------------------------------------------
 
-@public((1,0,0))
+@general((1,0,0))
 def autoload_static(model, resources, script_path):
     ''' Return JavaScript code and a script tag that can be used to embed
     Bokeh Plots.
@@ -102,7 +102,7 @@ def autoload_static(model, resources, script_path):
 
     return encode_utf8(js), encode_utf8(tag)
 
-@public((1,0,0))
+@general((1,0,0))
 def components(models, wrap_script=True, wrap_plot_info=True, theme=FromCurdoc):
     ''' Return HTML components to embed a Bokeh plot. The data for the plot is
     stored directly in the returned HTML.
@@ -234,7 +234,7 @@ def components(models, wrap_script=True, wrap_plot_info=True, theme=FromCurdoc):
     else:
         return script, tuple(results)
 
-@public((1,0,0))
+@general((1,0,0))
 def file_html(models,
               resources,
               title=None,

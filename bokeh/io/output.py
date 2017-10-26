@@ -17,7 +17,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import logging
 log = logging.getLogger(__name__)
 
-from bokeh.util.api import public, internal ; public, internal
+from bokeh.util.api import general, dev ; general, dev
 
 #-----------------------------------------------------------------------------
 # Imports
@@ -39,7 +39,7 @@ from .state import curstate
 # Public API
 #-----------------------------------------------------------------------------
 
-@public((1,0,0))
+@general((1,0,0))
 def output_file(filename, title="Bokeh Plot", mode="cdn", root_dir=None):
     '''Configure the default output state to generate output saved
     to a file when :func:`show` is called.
@@ -80,7 +80,7 @@ def output_file(filename, title="Bokeh Plot", mode="cdn", root_dir=None):
         root_dir=root_dir
     )
 
-@public((1,0,0))
+@general((1,0,0))
 def output_notebook(resources=None, verbose=False, hide_banner=False, load_timeout=5000, notebook_type='jupyter'):
     ''' Configure the default output state to generate output in notebook cells
     when :func:`show` is called.
@@ -113,7 +113,7 @@ def output_notebook(resources=None, verbose=False, hide_banner=False, load_timeo
     curstate().output_notebook(notebook_type)
     run_notebook_hook(notebook_type, 'load', resources, verbose, hide_banner, load_timeout)
 
-@public((1,0,0))
+@general((1,0,0))
 def reset_output(state=None):
     ''' Clear the default state of all output modes.
 

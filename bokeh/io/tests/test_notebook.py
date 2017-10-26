@@ -13,7 +13,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import pytest ; pytest
 
-from bokeh.util.api import INTERNAL, PUBLIC ; INTERNAL, PUBLIC
+from bokeh.util.api import DEV, GENERAL ; DEV, GENERAL
 from bokeh.util.testing import verify_api ; verify_api
 
 #-----------------------------------------------------------------------------
@@ -38,14 +38,14 @@ import bokeh.io.notebook as binb
 
 api = {
 
-    PUBLIC: (
+    GENERAL: (
 
         ( 'CommsHandle',           (1, 0, 0) ),
         ( 'install_notebook_hook', (1, 0, 0) ),
         ( 'push_notebook',         (1, 0, 0) ),
         ( 'run_notebook_hook',     (1, 0, 0) ),
 
-    ), INTERNAL: (
+    ), DEV: (
 
         ( 'CommsHandle.comms.fget', (1, 0, 0) ),
         ( 'CommsHandle.doc.fget',   (1, 0, 0) ),

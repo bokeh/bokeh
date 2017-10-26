@@ -13,7 +13,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import pytest ; pytest
 
-from bokeh.util.api import INTERNAL, PUBLIC ; INTERNAL, PUBLIC
+from bokeh.util.api import DEV, GENERAL ; DEV, GENERAL
 from bokeh.util.testing import verify_api ; verify_api
 
 #-----------------------------------------------------------------------------
@@ -37,11 +37,11 @@ import bokeh.io.doc as bid
 
 api = {
 
-    PUBLIC: (
+    GENERAL: (
 
         ( 'curdoc', (1, 0, 0) ),
 
-    ), INTERNAL: (
+    ), DEV: (
 
         ( 'set_curdoc', (1, 0, 0) ),
     )

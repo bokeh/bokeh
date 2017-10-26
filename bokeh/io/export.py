@@ -17,7 +17,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import logging
 log = logging.getLogger(__name__)
 
-from bokeh.util.api import public, internal ; public, internal
+from bokeh.util.api import general, dev ; general, dev
 
 #-----------------------------------------------------------------------------
 # Imports
@@ -45,7 +45,7 @@ from .util import default_filename
 # Public API
 #-----------------------------------------------------------------------------
 
-@public((1,0,0))
+@general((1,0,0))
 def export_png(obj, filename=None, height=None, width=None, webdriver=None):
     ''' Export the LayoutDOM object or document as a PNG.
 
@@ -90,7 +90,7 @@ def export_png(obj, filename=None, height=None, width=None, webdriver=None):
     return abspath(filename)
 
 
-@public((1,0,0))
+@general((1,0,0))
 def export_svgs(obj, filename=None, height=None, width=None, webdriver=None):
     ''' Export the SVG-enabled plots within a layout. Each plot will result
     in a distinct SVG file.
@@ -151,7 +151,7 @@ def export_svgs(obj, filename=None, height=None, width=None, webdriver=None):
 # Internal API
 #-----------------------------------------------------------------------------
 
-@internal((1,0,0))
+@dev((1,0,0))
 def get_screenshot_as_png(obj, driver=None, **kwargs):
     '''
 
@@ -184,7 +184,7 @@ def get_screenshot_as_png(obj, driver=None, **kwargs):
 
     return cropped_image
 
-@internal((1,0,0))
+@dev((1,0,0))
 def get_svgs(obj, driver=None, **kwargs):
     '''
 
@@ -203,7 +203,7 @@ def get_svgs(obj, driver=None, **kwargs):
 
     return svgs
 
-@internal((1,0,0))
+@dev((1,0,0))
 def save_layout_html(obj, resources=INLINE, **kwargs):
     '''
 
@@ -230,7 +230,7 @@ def save_layout_html(obj, resources=INLINE, **kwargs):
 
     return html_path
 
-@internal((1,0,0))
+@dev((1,0,0))
 def wait_until_render_complete(driver):
     '''
 
