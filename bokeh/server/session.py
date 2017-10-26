@@ -88,6 +88,8 @@ class ServerSession(object):
         self._destroyed = False
         self._expiration_requested = False
         self._expiration_blocked_count = 0
+        # this stores session information
+        # load gets takes information from session DB or creates a new session with this id
         self.stored_session = Session.load(session_id)
 
         wrapped_callbacks = self._wrap_session_callbacks(self._document.session_callbacks)
