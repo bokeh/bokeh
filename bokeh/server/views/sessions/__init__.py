@@ -66,6 +66,11 @@ class Session(MutableMapping):
         for key, value in request.arguments.items():
             self.__setitem__(REQUEST_PREFIX + key, value[0])
 
+
+    # Session.load(id) can be used directly to achive stored values e.g. in User Code
+    # so there is no need to look for the correct session-object, when we know the id of our session or something
+    # stored like the session
+    # e.g we can use curdoc()._id
     @classmethod
     def load(cls, id, preload=False):
         """Load the given session id from redis. If there's nothing for the
@@ -182,32 +187,34 @@ def setup_session(handler):
 
     if session_id is not None:
         session_id = session_id.decode('utf-8')
-        handler.session = Session.load(session_id)
+        stored_session = Session.load(session_id)
 
     else:
         new_id = uuid.uuid4().hex
-        handler.session = Session(new_id)
+        stored_session = Session(new_id)
         handler.set_secure_cookie('session', new_id)
 
     if hasattr(handler, 'request'):
-        handler.session.store_request(handler.request)
+        stored_session.store_request(handler.request)
 
-    handler.session.touch(remote_ip=handler.request.remote_ip)
+    stored_session.touch(remote_ip=handler.request.remote_ip)
+    return stored_session
 
 
-def save_session(handler):
+def save_session(session):
     """Store the session to redis."""
-    if hasattr(handler, 'session') and handler.session is not None:
-        if hasattr(handler.session, 'save'):
-            handler.session.save()
+
+    if hasattr(session, 'save'):
+        session.save()
 
 
 class TornadoSessionHandler(RequestHandler):
     """Handlers inheriting from this class get session access (self.session).
+    Exmaple for SessionHandler-Methods which need to be called.
     """
 
     def prepare(self):
-        setup_session(self)
+        self.session = setup_session(self)
 
     def on_finish(self, *args, **kwargs):
         save_session(self)
@@ -215,19 +222,4 @@ class TornadoSessionHandler(RequestHandler):
     def clear_session(self):
         self.session.clear()
         self.clear_cookie('session')
-
-
-def session(method):
-    """Decorator for handler methods. Loads the session prior to method
-    execution and saves it after.
-    """
-
-    @wraps(method)
-    def wrapper(self, *args, **kwargs):
-        setup_session(self)
-        result = method(self, *args, **kwargs)
-        save_session(self)
-        return result
-
-    return wrapper
 
