@@ -1,70 +1,89 @@
-import {GE, EQ, Variable} from "./solver"
+import {GE, EQ, Variable, Constraint} from "./solver"
 import {HasProps} from "../has_props"
-import * as p from "../properties"
 
-export class LayoutCanvas extends HasProps
-  type: 'LayoutCanvas'
+export class LayoutCanvas extends HasProps {
 
-  initialize: (attrs, options)->
-    super(attrs, options)
-    @_top = new Variable("#{@toString()}.top")
-    @_left = new Variable("#{@toString()}.left")
-    @_width = new Variable("#{@toString()}.width")
-    @_height = new Variable("#{@toString()}.height")
-    @_right = new Variable("#{@toString()}.right")
-    @_bottom = new Variable("#{@toString()}.bottom")
-    @_hcenter = new Variable("#{@toString()}.hcenter")
-    @_vcenter = new Variable("#{@toString()}.vcenter")
+  _top: Variable
+  _left: Variable
+  _width: Variable
+  _height: Variable
+  _right: Variable
+  _bottom: Variable
+  _hcenter: Variable
+  _vcenter: Variable
 
-  get_editables: () ->
-    return []
-
-  get_constraints: () ->
-    return [
-      GE(@_top),
-      GE(@_bottom),
-      GE(@_left),
-      GE(@_right),
-      GE(@_width),
-      GE(@_height),
-      EQ(@_left, @_width, [-1, @_right]),
-      EQ(@_bottom, @_height, [-1, @_top]),
-      EQ([2, @_hcenter], [-1, @_left], [-1, @_right])
-      EQ([2, @_vcenter], [-1, @_bottom], [-1, @_top])
-    ]
-
-  @getters {
-    layout_bbox: () ->
-      return {
-        top: @_top.value,
-        left: @_left.value,
-        width: @_width.value,
-        height: @_height.value,
-        right: @_right.value,
-        bottom: @_bottom.value,
-        hcenter: @_hcenter.value,
-        vcenter: @_vcenter.value,
-      }
+  initialize(attrs: any, options?: any) {
+    super.initialize(attrs, options)
+    this._top = new Variable(`${this.toString()}.top`)
+    this._left = new Variable(`${this.toString()}.left`)
+    this._width = new Variable(`${this.toString()}.width`)
+    this._height = new Variable(`${this.toString()}.height`)
+    this._right = new Variable(`${this.toString()}.right`)
+    this._bottom = new Variable(`${this.toString()}.bottom`)
+    this._hcenter = new Variable(`${this.toString()}.hcenter`)
+    this._vcenter = new Variable(`${this.toString()}.vcenter`)
   }
 
-  vx_to_sx: (x) -> x
-  vy_to_sy: (y) -> @_height.value - y
+  get_editables(): Variable[] {
+    return []
+  }
 
-  sx_to_vx: (x) -> x
-  sy_to_vy: (y) -> @_height.value - y
+  get_constraints(): Constraint[] {
+    return [
+      GE(this._top),
+      GE(this._bottom),
+      GE(this._left),
+      GE(this._right),
+      GE(this._width),
+      GE(this._height),
+      EQ(this._left, this._width, [-1, this._right]),
+      EQ(this._bottom, this._height, [-1, this._top]),
+      EQ([2, this._hcenter], [-1, this._left], [-1, this._right]),
+      EQ([2, this._vcenter], [-1, this._bottom], [-1, this._top]),
+    ]
+  }
 
-  v_vx_to_sx: (xx) -> new Float64Array(xx)
-  v_vy_to_sy: (yy) ->
-    _yy = new Float64Array(yy.length)
-    height = @_height.value
-    for y, idx in yy
-      _yy[idx] = height - y
+  get layout_bbox() {
+    return {
+      top: this._top.value,
+      left: this._left.value,
+      width: this._width.value,
+      height: this._height.value,
+      right: this._right.value,
+      bottom: this._bottom.value,
+      hcenter: this._hcenter.value,
+      vcenter: this._vcenter.value,
+    }
+  }
+
+  vx_to_sx(x: number): number { return x }
+  vy_to_sy(y: number): number { return this._height.value - y }
+
+  sx_to_vx(x: number): number { return x }
+  sy_to_vy(y: number): number { return this._height.value - y }
+
+  v_vx_to_sx(xx: number[] | Float64Array): Float64Array {
+    return new Float64Array(xx)
+  }
+  v_vy_to_sy(yy: number[] | Float64Array): Float64Array {
+    const _yy = new Float64Array(yy.length)
+    const height = this._height.value
+    for (let i = 0; i < yy.length; i++) {
+      _yy[i] = height - yy[i]
+    }
     return _yy
+  }
 
-  v_sx_to_vx: (xx) -> new Float64Array(xx)
-  v_sy_to_vy: (yy) ->
-    _yy = new Float64Array(yy.length)
-    height = @_height.value
-    for y, idx in yy
-      _yy[idx] = height - y
+  v_sx_to_vx(xx: number[] | Float64Array): Float64Array {
+    return new Float64Array(xx)
+  }
+  v_sy_to_vy(yy: number[] | Float64Array): Float64Array {
+    const _yy = new Float64Array(yy.length)
+    const height = this._height.value
+    for (let i = 0; i < yy.length; i++) {
+      _yy[i] = height - yy[i]
+    }
     return _yy
+  }
+}
+LayoutCanvas.prototype.type = "LayoutCanvas"
