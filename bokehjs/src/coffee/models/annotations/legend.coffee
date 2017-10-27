@@ -103,7 +103,7 @@ export class LegendView extends AnnotationView
 
   bbox: () ->
     {x, y, width, height} = @compute_legend_bbox()
-    return new BBox({x0: x, y0: y, x1: x+width, y1: y+height})
+    return new BBox({x: x, y: y, width: width, height: height})
 
   on_hit: (sx, sy) ->
     glyph_height = @model.glyph_height
@@ -132,7 +132,7 @@ export class LegendView extends AnnotationView
         else
            [w, h] = [@text_widths[label] + glyph_width + label_standoff, @max_label_height]
 
-        bbox = new BBox({x0: x1, y0: y1, x1: x1+w, y1: y1+h})
+        bbox = new BBox({x: x1, y: y1, width: w, height: h})
 
         if bbox.contains(sx, sy)
           switch @model.click_policy
