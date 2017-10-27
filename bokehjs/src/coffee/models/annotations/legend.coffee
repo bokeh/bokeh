@@ -41,7 +41,7 @@ export class LegendView extends AnnotationView
       @text_widths[name] = max([ctx.measureText(name).width, label_width])
     ctx.restore()
 
-    max_label_width = max(values(@text_widths))
+    max_label_width = Math.max(max(values(@text_widths)), 0)
 
     legend_margin = @model.margin
     legend_padding = @legend_padding
@@ -49,10 +49,10 @@ export class LegendView extends AnnotationView
     label_standoff =  @model.label_standoff
 
     if @model.orientation == "vertical"
-      legend_height = legend_names.length * @max_label_height + (legend_names.length - 1) * legend_spacing + 2 * legend_padding
+      legend_height = legend_names.length * @max_label_height + Math.max(legend_names.length - 1, 0) * legend_spacing + 2 * legend_padding
       legend_width = max_label_width + glyph_width + label_standoff + 2 * legend_padding
     else
-      legend_width = 2 * legend_padding + (legend_names.length - 1) * legend_spacing
+      legend_width = 2 * legend_padding + Math.max(legend_names.length - 1, 0) * legend_spacing
       for name, width of @text_widths
         legend_width += max([width, label_width]) + glyph_width + label_standoff
       legend_height = @max_label_height + 2 * legend_padding
