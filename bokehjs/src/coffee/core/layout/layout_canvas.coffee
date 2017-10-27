@@ -46,3 +46,25 @@ export class LayoutCanvas extends HasProps
         vcenter: @_vcenter.value,
       }
   }
+
+  vx_to_sx: (x) -> x
+  vy_to_sy: (y) -> @_height.value - y
+
+  sx_to_vx: (x) -> x
+  sy_to_vy: (y) -> @_height.value - y
+
+  v_vx_to_sx: (xx) -> new Float64Array(xx)
+  v_vy_to_sy: (yy) ->
+    _yy = new Float64Array(yy.length)
+    height = @_height.value
+    for y, idx in yy
+      _yy[idx] = height - y
+    return _yy
+
+  v_sx_to_vx: (xx) -> new Float64Array(xx)
+  v_sy_to_vy: (yy) ->
+    _yy = new Float64Array(yy.length)
+    height = @_height.value
+    for y, idx in yy
+      _yy[idx] = height - y
+    return _yy
