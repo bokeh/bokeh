@@ -4,7 +4,7 @@ import * as p from "core/properties"
 
 export class BoxZoomToolView extends GestureToolView
 
-  _match_aspect: (basepoint, curpoint, frame) ->
+  _match_aspect: (base_point, curpoint, frame) ->
 
     # aspect ratio of plot frame
     hend = frame.h_range.end
@@ -16,8 +16,8 @@ export class BoxZoomToolView extends GestureToolView
     a = w/h
 
     # current aspect of cursor-defined box
-    vw = Math.abs(basepoint[0]-curpoint[0])
-    vh = Math.abs(basepoint[1]-curpoint[1])
+    vw = Math.abs(base_point[0]-curpoint[0])
+    vh = Math.abs(base_point[1]-curpoint[1])
     if vh == 0
       va = 0
     else
@@ -34,50 +34,50 @@ export class BoxZoomToolView extends GestureToolView
     # compute top/bottom (based on new left/right), pin to frame if necessary
     # recompute left/right (based on top/bottom), in case top/bottom were pinned
 
-    # basepoint[0] is left
-    if ( basepoint[0] <= curpoint[0] )
-      left = basepoint[0]
-      right = basepoint[0] + vw * xmod
+    # base_point[0] is left
+    if ( base_point[0] <= curpoint[0] )
+      left = base_point[0]
+      right = base_point[0] + vw * xmod
       if right > hend
         right = hend
-    # basepoint[0] is right
+    # base_point[0] is right
     else
-      right = basepoint[0]
-      left = basepoint[0] - vw * xmod
+      right = base_point[0]
+      left = base_point[0] - vw * xmod
       if left < hstart
         left = hstart
 
     vw = Math.abs(right - left)
 
-    # basepoint[1] is bottom
-    if ( basepoint[1] <= curpoint[1] )
-      bottom = basepoint[1]
-      top = basepoint[1] + vw/a
+    # base_point[1] is bottom
+    if ( base_point[1] <= curpoint[1] )
+      bottom = base_point[1]
+      top = base_point[1] + vw/a
       if top > vend
         top = vend
 
-    # basepoint[1] is top
+    # base_point[1] is top
     else
-      top = basepoint[1]
-      bottom = basepoint[1] - vw/a
+      top = base_point[1]
+      bottom = base_point[1] - vw/a
       if bottom < vstart
         bottom = vstart
 
     vh = Math.abs(top - bottom)
 
-    # basepoint[0] is left
-    if ( basepoint[0] <= curpoint[0] )
-      right = basepoint[0] + a*vh
+    # base_point[0] is left
+    if ( base_point[0] <= curpoint[0] )
+      right = base_point[0] + a*vh
 
-    # basepoint[0] is right
+    # base_point[0] is right
     else
-      left = basepoint[0] - a*vh
+      left = base_point[0] - a*vh
 
     return [[left, right], [bottom, top]]
 
   _pan_start: (e) ->
     canvas = @plot_view.canvas
-    @_baseboint = [
+    @_base_point = [
       canvas.sx_to_vx(e.bokeh.sx)
       canvas.sy_to_vy(e.bokeh.sy)
     ]
@@ -93,9 +93,9 @@ export class BoxZoomToolView extends GestureToolView
     dims = @model.dimensions
 
     if @model.match_aspect and dims == 'both'
-      [vx, vy] = @_match_aspect(@_baseboint, curpoint, frame)
+      [vx, vy] = @_match_aspect(@_base_point, curpoint, frame)
     else
-      [vx, vy] = @model._get_dim_limits(@_baseboint, curpoint, frame, dims)
+      [vx, vy] = @model._get_dim_limits(@_base_point, curpoint, frame, dims)
 
     @model.overlay.update({left: vx[0], right: vx[1], top: vy[1], bottom: vy[0]})
 
@@ -111,14 +111,14 @@ export class BoxZoomToolView extends GestureToolView
     dims = @model.dimensions
 
     if @model.match_aspect and dims == 'both'
-      [vx, vy] = @_match_aspect(@_baseboint, curpoint, frame)
+      [vx, vy] = @_match_aspect(@_base_point, curpoint, frame)
     else
-      [vx, vy] = @model._get_dim_limits(@_baseboint, curpoint, frame, dims)
+      [vx, vy] = @model._get_dim_limits(@_base_point, curpoint, frame, dims)
 
     @_update(vx, vy)
 
     @model.overlay.update({left: null, right: null, top: null, bottom: null})
-    @_baseboint = null
+    @_base_point = null
     return null
 
   _update: (vx, vy) ->

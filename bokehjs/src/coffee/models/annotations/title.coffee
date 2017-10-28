@@ -18,37 +18,35 @@ export class TitleView extends TextAnnotationView
     switch panel.side
       when 'above', 'below'
         switch @model.vertical_align
-          when 'top'    then vy = panel._top.value     - vmargin
-          when 'middle' then vy = panel._vcenter.value
-          when 'bottom' then vy = panel._bottom.value  + vmargin
+          when 'top'    then sy = panel._top.value     + vmargin
+          when 'middle' then sy = panel._vcenter.value
+          when 'bottom' then sy = panel._bottom.value  - vmargin
 
         switch @model.align
-          when 'left'   then vx = panel._left.value    + hmargin
-          when 'center' then vx = panel._hcenter.value
-          when 'right'  then vx = panel._right.value   - hmargin
+          when 'left'   then sx = panel._left.value    + hmargin
+          when 'center' then sx = panel._hcenter.value
+          when 'right'  then sx = panel._right.value   - hmargin
       when 'left'
         switch @model.vertical_align
-          when 'top'    then vx = panel._left.value    - vmargin
-          when 'middle' then vx = panel._hcenter.value
-          when 'bottom' then vx = panel._right.value   + vmargin
+          when 'top'    then sx = panel._left.value    - vmargin
+          when 'middle' then sx = panel._hcenter.value
+          when 'bottom' then sx = panel._right.value   + vmargin
 
         switch @model.align
-          when 'left'   then vy = panel._bottom.value  + hmargin
-          when 'center' then vy = panel._vcenter.value
-          when 'right'  then vy = panel._top.value     - hmargin
+          when 'left'   then sy = panel._bottom.value  - hmargin
+          when 'center' then sy = panel._vcenter.value
+          when 'right'  then sy = panel._top.value     + hmargin
       when 'right'
         switch @model.vertical_align
-          when 'top'    then vx = panel._right.value   - vmargin
-          when 'middle' then vx = panel._hcenter.value
-          when 'bottom' then vx = panel._left.value    + vmargin
+          when 'top'    then sx = panel._right.value   - vmargin
+          when 'middle' then sx = panel._hcenter.value
+          when 'bottom' then sx = panel._left.value    + vmargin
 
         switch @model.align
-          when 'left'   then vy = panel._top.value     - hmargin
-          when 'center' then vy = panel._vcenter.value
-          when 'right'  then vy = panel._bottom.value  + hmargin
+          when 'left'   then sy = panel._top.value     + hmargin
+          when 'center' then sy = panel._vcenter.value
+          when 'right'  then sy = panel._bottom.value  - hmargin
 
-    sx = @canvas.vx_to_sx(vx)
-    sy = @canvas.vy_to_sy(vy)
     return [sx, sy]
 
   render: () ->
@@ -67,12 +65,8 @@ export class TitleView extends TextAnnotationView
     [sx, sy] = @_get_location()
     angle = @model.panel.get_label_angle_heuristic('parallel')
 
-    ctx = @plot_view.canvas_view.ctx
-
-    if @model.render_mode == 'canvas'
-      @_canvas_text(ctx, text, sx, sy, angle)
-    else
-      @_css_text(ctx, text, sx, sy, angle)
+    draw = if @model.render_mode == 'canvas' then @_canvas_text.bind(@) else @_css_text.bind(@)
+    draw(@plot_view.canvas_view.ctx, text, sx, sy, angle)
 
   _get_size: () ->
     text = @model.text

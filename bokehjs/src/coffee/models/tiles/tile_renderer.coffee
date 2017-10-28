@@ -36,7 +36,7 @@ export class TileRendererView extends RendererView
     if isString(attribution) and attribution.length > 0
       if not @attributionEl?
         right = @plot_model.canvas._right.value - @plot_model.frame._right.value
-        bottom = @plot_model.frame._bottom.value
+        bottom = @plot_model.canvas._bottom.value - @plot_model.frame._bottom.value
         max_width = @map_frame._width.value
         @attributionEl = div({
           class: 'bk-tile-attribution'
@@ -178,8 +178,8 @@ export class TileRendererView extends RendererView
 
   _set_rect:() ->
     outline_width = @plot_model.plot.properties.outline_line_width.value()
-    l = @plot_view.canvas.vx_to_sx(@map_frame._left.value) + (outline_width/2)
-    t = @plot_view.canvas.vy_to_sy(@map_frame._top.value) + (outline_width/2)
+    l = @map_frame._left.value + (outline_width/2)
+    t = @map_frame._top.value + (outline_width/2)
     w = @map_frame._width.value - outline_width
     h = @map_frame._height.value - outline_width
     @map_canvas.rect(l, t, w, h)

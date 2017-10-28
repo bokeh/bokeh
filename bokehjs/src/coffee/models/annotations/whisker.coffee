@@ -27,20 +27,9 @@ export class WhiskerView extends AnnotationView
     limit_scale = if @model.dimension == "height" then y_scale else x_scale
     base_scale = if @model.dimension == "height" then x_scale else y_scale
 
-    if @model.lower.units == "data"
-      _lower_vx = limit_scale.v_compute(@_lower)
-    else
-      _lower_vx = @_lower
-
-    if @model.upper.units == "data"
-      _upper_vx = limit_scale.v_compute(@_upper)
-    else
-      _upper_vx = @_upper
-
-    if @model.base.units == "data"
-      _base_vx = base_scale.v_compute(@_base)
-    else
-      _base_vx = @_base
+    _lower_vx = if @model.lower.units == "data" then limit_scale.v_compute(@_lower) else @_lower
+    _upper_vx = if @model.upper.units == "data" then limit_scale.v_compute(@_upper) else @_upper
+    _base_vx  = if @model.base.units  == "data" then base_scale.v_compute(@_base)   else @_base
 
     [i, j] = @model._normals()
     _lower = [_lower_vx, _base_vx]

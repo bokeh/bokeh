@@ -58,14 +58,8 @@ export class LabelSetView extends TextAnnotationView
     vx = if @model.x_units == "data" then xscale.v_compute(@_x) else @_x
     vy = if @model.y_units == "data" then yscale.v_compute(@_y) else @_y
 
-    left = panel._left.value
-    bottom = panel._bottom.value
-
-    vx = (left + x for x in vx)
-    vy = (bottom + y for y in vy)
-
-    sx = @canvas.v_vx_to_sx(vx)
-    sy = @canvas.v_vy_to_sy(vy)
+    sx = panel.v_vx_to_Sx(vx)
+    sy = panel.v_vy_to_Sy(vy)
 
     return [sx, sy]
 

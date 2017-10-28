@@ -6,13 +6,11 @@ export class PanToolView extends GestureToolView
   _pan_start: (e) ->
     @last_dx = 0
     @last_dy = 0
-    canvas = @plot_view.canvas
-    frame = @plot_view.frame
-    vx = canvas.sx_to_vx(e.bokeh.sx)
-    vy = canvas.sy_to_vy(e.bokeh.sy)
-    if not frame.contains(vx, vy)
-      hr = frame.h_range
-      vr = frame.v_range
+    {sx, sy} = e.bokeh
+    bbox = @plot_view.frame.bbox
+    if not bbox.contains(sx, sy)
+      hr = bbox.h_range
+      vr = bbox.v_range
       if vx < hr.start or vx > hr.end
         @v_axis_only = true
       if vy < vr.start or vy > vr.end
@@ -20,8 +18,7 @@ export class PanToolView extends GestureToolView
     @model.document.interactive_start(@plot_model.plot)
 
   _pan: (e) ->
-    # TODO (bev) get minus sign from canvas/frame
-    @_update(e.deltaX, -e.deltaY)
+    @_update(e.deltaX, e.deltaY)
     @model.document.interactive_start(@plot_model.plot)
 
   _pan_end: (e) ->
@@ -37,11 +34,11 @@ export class PanToolView extends GestureToolView
     new_dx = dx - @last_dx
     new_dy = dy - @last_dy
 
-    hr = frame.h_range
+    hr = frame.bbox.h_range
     sx_low  = hr.start - new_dx
     sx_high = hr.end - new_dx
 
-    vr = frame.v_range
+    vr = frame.bbox.v_range
     sy_low  = vr.start - new_dy
     sy_high = vr.end - new_dy
 
@@ -70,12 +67,14 @@ export class PanToolView extends GestureToolView
 
     xrs = {}
     for name, scale of frame.xscales
-      [start, end] = scale.v_invert([sx0, sx1])
+
+      [start, end] = scale.v_invert([vx0, vx1])
       xrs[name] = {start: start, end: end}
 
     yrs = {}
     for name, scale of frame.yscales
-      [start, end] = scale.v_invert([sy0, sy1])
+
+      [start, end] = scale.v_invert([vy0, vy1])
       yrs[name] = {start: start, end: end}
 
     @pan_info = {

@@ -1,5 +1,6 @@
 import {GE, EQ, Variable, Constraint} from "./solver"
 import {HasProps} from "../has_props"
+import {BBox} from "../util/bbox"
 
 export class LayoutCanvas extends HasProps {
 
@@ -37,10 +38,17 @@ export class LayoutCanvas extends HasProps {
       GE(this._width),
       GE(this._height),
       EQ(this._left, this._width, [-1, this._right]),
-      EQ(this._bottom, this._height, [-1, this._top]),
+      EQ(this._top, this._height, [-1, this._bottom]),
       EQ([2, this._hcenter], [-1, this._left], [-1, this._right]),
-      EQ([2, this._vcenter], [-1, this._bottom], [-1, this._top]),
+      EQ([2, this._vcenter], [-1, this._top], [-1, this._bottom]),
     ]
+  }
+
+  get bbox(): BBox {
+    return new BBox({
+      x0: this._left.value,  y0: this._top.value,
+      x1: this._right.value, y1: this._bottom.value,
+    })
   }
 
   get layout_bbox() {
@@ -56,6 +64,7 @@ export class LayoutCanvas extends HasProps {
     }
   }
 
+  // relative view <-> relative screen
   vx_to_sx(x: number): number { return x }
   vy_to_sy(y: number): number { return this._height.value - y }
 
@@ -82,6 +91,27 @@ export class LayoutCanvas extends HasProps {
     const height = this._height.value
     for (let i = 0; i < yy.length; i++) {
       _yy[i] = height - yy[i]
+    }
+    return _yy
+  }
+
+  // relative view -> absolute screen
+  vx_to_Sx(x: number): number { return this._left.value + x }
+  vy_to_Sy(y: number): number { return this._bottom.value - y }
+
+  v_vx_to_Sx(xx: number[] | Float64Array): Float64Array {
+    const _xx = new Float64Array(xx.length)
+    const left = this._left.value
+    for (let i = 0; i < xx.length; i++) {
+      _xx[i] = left + xx[i]
+    }
+    return _xx
+  }
+  v_vy_to_Sy(yy: number[] | Float64Array): Float64Array {
+    const _yy = new Float64Array(yy.length)
+    const bottom = this._bottom.value
+    for (let i = 0; i < yy.length; i++) {
+      _yy[i] = bottom - yy[i]
     }
     return _yy
   }

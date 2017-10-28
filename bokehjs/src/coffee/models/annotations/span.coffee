@@ -30,28 +30,24 @@ export class SpanView extends AnnotationView
     @_draw_span()
 
   _draw_span: () ->
-    if @model.for_hover
-      loc = @model.computed_location
-    else
-      loc = @model.location
-
+    loc = if @model.for_hover then @model.computed_location else @model.location
     if not loc?
       hide(@el)
       return
 
-    frame = @plot_model.frame
-    canvas = @plot_model.canvas
-    xscale = @plot_view.frame.xscales[@model.x_range_name]
-    yscale = @plot_view.frame.yscales[@model.y_range_name]
+    frame = @plot_view.frame
+
+    xscale = frame.xscales[@model.x_range_name]
+    yscale = frame.yscales[@model.y_range_name]
 
     if @model.dimension == 'width'
-      stop = canvas.vy_to_sy(@_calc_dim(loc, yscale))
-      sleft = canvas.vx_to_sx(frame._left.value)
+      stop = @_calc_dim(yscale)
+      sleft = frame._left.value
       width = frame._width.value
       height = @model.properties.line_width.value()
     else
-      stop = canvas.vy_to_sy(frame._top.value)
-      sleft = canvas.vx_to_sx(@_calc_dim(loc, xscale))
+      stop = frame._top.value
+      sleft = @_calc_dim(xscale)
       width = @model.properties.line_width.value()
       height = frame._height.value
 
@@ -80,12 +76,12 @@ export class SpanView extends AnnotationView
 
       ctx.restore()
 
-  _calc_dim: (location, scale) ->
-      if @model.location_units == 'data'
-        vdim = scale.compute(location)
-      else
-        vdim = location
-      return vdim
+  _calc_dim: (scale) ->
+    if @model.for_hover
+      return @model.computed_location
+    else
+      vdim = if @model.location_units == 'data' then scale.compute(loc) else loc
+      return @plot_view.frame.vx_to_Sx(vdim)
 
 export class Span extends Annotation
   default_view: SpanView
@@ -109,5 +105,5 @@ export class Span extends Annotation
 
   @internal {
     for_hover: [ p.Boolean, false ]
-    computed_location: [ p.Number, null ]
+    computed_location: [ p.Number, null ] # absolute screen coordinate
   }

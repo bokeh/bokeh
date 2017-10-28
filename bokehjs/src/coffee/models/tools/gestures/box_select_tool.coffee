@@ -6,7 +6,7 @@ export class BoxSelectToolView extends SelectToolView
 
   _pan_start: (e) ->
     canvas = @plot_view.canvas
-    @_baseboint = [
+    @_base_point = [
       canvas.sx_to_vx(e.bokeh.sx)
       canvas.sy_to_vy(e.bokeh.sy)
     ]
@@ -21,7 +21,7 @@ export class BoxSelectToolView extends SelectToolView
     frame = @plot_model.frame
     dims = @model.dimensions
 
-    [vxlim, vylim] = @model._get_dim_limits(@_baseboint, curpoint, frame, dims)
+    [vxlim, vylim] = @model._get_dim_limits(@_base_point, curpoint, frame, dims)
     @model.overlay.update({left: vxlim[0], right: vxlim[1], top: vylim[1], bottom: vylim[0]})
 
     if @model.select_every_mousemove
@@ -39,13 +39,13 @@ export class BoxSelectToolView extends SelectToolView
     frame = @plot_model.frame
     dims = @model.dimensions
 
-    [vxlim, vylim] = @model._get_dim_limits(@_baseboint, curpoint, frame, dims)
+    [vxlim, vylim] = @model._get_dim_limits(@_base_point, curpoint, frame, dims)
     append = e.srcEvent.shiftKey ? false
     @_do_select(vxlim, vylim, true, append)
 
     @model.overlay.update({left: null, right: null, top: null, bottom: null})
 
-    @_baseboint = null
+    @_base_point = null
 
     @plot_view.push_state('box_select', {selection: @plot_view.get_selection()})
 

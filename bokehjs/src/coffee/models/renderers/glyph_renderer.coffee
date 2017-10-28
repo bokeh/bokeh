@@ -147,8 +147,8 @@ export class GlyphRendererView extends RendererView
     ctx = @plot_view.canvas_view.ctx
     ctx.save()
 
-    frame_sx = @plot_view.canvas.vx_to_sx(@plot_view.frame._left.value)
-    frame_sy = @plot_view.canvas.vy_to_sy(@plot_view.frame._top.value)
+    frame_sx = @plot_view.frame._left.value
+    frame_sy = @plot_view.frame._top.value
     ctx.translate(frame_sx, frame_sy)
 
     # selected is in full set space

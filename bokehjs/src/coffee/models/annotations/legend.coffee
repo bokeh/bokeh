@@ -58,48 +58,45 @@ export class LegendView extends AnnotationView
       legend_height = @max_label_height + 2 * legend_padding
 
     panel = @model.panel ? @plot_view.frame
-    h_range = {start: panel._left.value, end: panel._right.value}
-    v_range = {start: panel._bottom.value, end: panel._top.value}
+    h_range = panel.bbox.h_range
+    v_range = panel.bbox.v_range
 
     location = @model.location
     if isString(location)
       switch location
         when 'top_left'
-          x = h_range.start + legend_margin
-          y = v_range.end - legend_margin
+          sx = h_range.start + legend_margin
+          sy = v_range.start + legend_margin
         when 'top_center'
-          x = (h_range.end + h_range.start)/2 - legend_width/2
-          y = v_range.end - legend_margin
+          sx = (h_range.end + h_range.start)/2 - legend_width/2
+          sy = v_range.start + legend_margin
         when 'top_right'
-          x = h_range.end - legend_margin - legend_width
-          y = v_range.end - legend_margin
-        when 'center_right'
-          x = h_range.end - legend_margin - legend_width
-          y = (v_range.end + v_range.start)/2 + legend_height/2
+          sx = h_range.end - legend_margin - legend_width
+          sy = v_range.start + legend_margin
         when 'bottom_right'
-          x = h_range.end - legend_margin - legend_width
-          y = v_range.start + legend_margin + legend_height
+          sx = h_range.end - legend_margin - legend_width
+          sy = v_range.end - legend_margin - legend_height
         when 'bottom_center'
-          x = (h_range.end + h_range.start)/2 - legend_width/2
-          y = v_range.start + legend_margin + legend_height
+          sx = (h_range.end + h_range.start)/2 - legend_width/2
+          sy = v_range.end - legend_margin - legend_height
         when 'bottom_left'
-          x = h_range.start + legend_margin
-          y = v_range.start + legend_margin + legend_height
+          sx = h_range.start + legend_margin
+          sy = v_range.end - legend_margin - legend_height
         when 'center_left'
-          x = h_range.start + legend_margin
-          y = (v_range.end + v_range.start)/2 + legend_height/2
+          sx = h_range.start + legend_margin
+          sy = (v_range.end + v_range.start)/2 - legend_height/2
         when 'center'
-          x = (h_range.end + h_range.start)/2 - legend_width/2
-          y = (v_range.end + v_range.start)/2 + legend_height/2
+          sx = (h_range.end + h_range.start)/2 - legend_width/2
+          sy = (v_range.end + v_range.start)/2 - legend_height/2
+        when 'center_right'
+          sx = h_range.end - legend_margin - legend_width
+          sy = (v_range.end + v_range.start)/2 - legend_height/2
     else if isArray(location) and location.length == 2
-      [x, y] = location   # left, bottom wrt panel
-      x += h_range.start
-      y += v_range.start + legend_height
+      [vx, vy] = location
+      sx = panel.vx_to_Sx(vx)
+      sy = panel.vy_to_Sy(vy) - legend_height
 
-    x = @plot_view.canvas.vx_to_sx(x)
-    y = @plot_view.canvas.vy_to_sy(y)
-
-    return {x: x, y: y, width: legend_width, height: legend_height}
+    return {x: sx, y: sy, width: legend_width, height: legend_height}
 
   bbox: () ->
     {x, y, width, height} = @compute_legend_bbox()

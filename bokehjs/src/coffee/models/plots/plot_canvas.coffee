@@ -261,10 +261,10 @@ export class PlotCanvasView extends DOMView
     @range_update_timestamp = Date.now()
 
   map_to_screen: (x, y, x_name='default', y_name='default') ->
-    @frame.map_to_screen(x, y, x_name, y_name)
+    return @frame.map_to_screen(x, y, x_name, y_name)
 
   map_to_canvas: (x, y, x_name='default', y_name='default') ->
-    @frame.map_to_canvas(x, y, @canvas, x_name, y_name)
+    return @frame.map_to_canvas(x, y, x_name, y_name)
 
   push_state: (type, info) ->
     prev_info = @state.history[@state.index]?.info or {}
@@ -604,8 +604,8 @@ export class PlotCanvasView extends DOMView
     ctx.translate(0.5, 0.5)
 
     frame_box = [
-      @canvas.vx_to_sx(@frame._left.value),
-      @canvas.vy_to_sy(@frame._top.value),
+      @frame._left.value,
+      @frame._top.value,
       @frame._width.value,
       @frame._height.value,
     ]
@@ -788,16 +788,16 @@ export class PlotCanvas extends LayoutDOM
   _get_constant_constraints: () ->
     return [
       # Set the origin. Everything else is positioned absolutely wrt canvas.
-      EQ(@canvas._left,   0),
-      EQ(@canvas._bottom, 0),
+      EQ(@canvas._left, 0),
+      EQ(@canvas._top,  0),
 
-      LE(@above_panel._top,    [-1, @canvas._top]        ),
+      GE(@above_panel._top,    [-1, @canvas._top]        ),
       EQ(@above_panel._bottom, [-1, @frame._top]         ),
       EQ(@above_panel._left,   [-1, @left_panel._right]  ),
       EQ(@above_panel._right,  [-1, @right_panel._left]  ),
 
       EQ(@below_panel._top,    [-1, @frame._bottom]      ),
-      GE(@below_panel._bottom, [-1, @canvas._bottom]     ),
+      LE(@below_panel._bottom, [-1, @canvas._bottom]     ),
       EQ(@below_panel._left,   [-1, @left_panel._right]  ),
       EQ(@below_panel._right,  [-1, @right_panel._left]  ),
 
@@ -811,9 +811,9 @@ export class PlotCanvas extends LayoutDOM
       EQ(@right_panel._left,   [-1, @frame._right]       ),
       LE(@right_panel._right,  [-1, @canvas._right]      ),
 
-      EQ(@_top,                    [-1, @canvas._top], @above_panel._bottom),
+      EQ(@_top,                    [-1, @above_panel._bottom]),
       EQ(@_left,                   [-1, @left_panel._right]),
-      EQ(@_height, [-1, @_bottom], [-1, @below_panel._top]),
+      EQ(@_height, [-1, @_bottom], [-1, @canvas._bottom], @below_panel._top),
       EQ(@_width, [-1, @_right],   [-1, @canvas._right], @right_panel._left),
 
       GE(@_top,                    -@plot.min_border_top   )

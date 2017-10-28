@@ -8,7 +8,7 @@ export class PolySelectToolView extends SelectToolView
   initialize: (options) ->
     super(options)
     @connect(@model.properties.active.change, () -> @_active_change())
-    @data = {vx: [], vy: []}
+    @data = {sx: [], sy: []}
 
   _active_change: () ->
     if not @model.active
@@ -20,31 +20,27 @@ export class PolySelectToolView extends SelectToolView
 
   _doubletap: (e)->
     append = e.srcEvent.shiftKey ? false
-    @_do_select(@data.vx, @data.vy, true, append)
+    @_do_select(@data.sx, @data.sy, true, append)
     @plot_view.push_state('poly_select', {selection: @plot_view.get_selection()})
 
     @_clear_data()
 
   _clear_data: () ->
-    @data = {vx: [], vy: []}
+    @data = {sx: [], sy: []}
     @model.overlay.update({xs:[], ys:[]})
 
   _tap: (e) ->
-    canvas = @plot_view.canvas
-    frame = @plot_view.frame
+    {sx, sy} = e.bokeh
 
-    vx = canvas.sx_to_vx(e.bokeh.sx)
-    vy = canvas.sy_to_vy(e.bokeh.sy)
-
-    if not frame.contains(vx, vy)
+    if not frame.bbox.contains(sx, sy)
       return
 
-    @data.vx.push(vx)
-    @data.vy.push(vy)
+    @data.sx.push(sx)
+    @data.sy.push(sy)
 
-    @model.overlay.update({xs: copy(@data.vx), ys: copy(@data.vy)})
+    @model.overlay.update({xs: copy(@data.sx), ys: copy(@data.sy)})
 
-  _do_select: (vx, vy, final, append) ->
+  _do_select: (sx, sy, final, append) ->
     geometry = {
       type: 'poly'
       vx: vx

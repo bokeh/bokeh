@@ -18,50 +18,34 @@ export class LassoSelectToolView extends SelectToolView
       @_clear_overlay()
 
   _pan_start: (e) ->
-    canvas = @plot_view.canvas
-    vx = canvas.sx_to_vx(e.bokeh.sx)
-    vy = canvas.sy_to_vy(e.bokeh.sy)
-
-    @data = {vx: [vx], vy: [vy]}
+    {sx, sy} = e.bokeh
+    @data = {sx: [sx], sy: [sy]}
     return null
 
   _pan: (e) ->
-    canvas = @plot_view.canvas
-    vx = canvas.sx_to_vx(e.bokeh.sx)
-    vy = canvas.sy_to_vy(e.bokeh.sy)
+    {sx, sy} = e.bokeh
+    [sx, sy] = @plot_model.frame.bbox.clip(sx, sy)
 
-    h_range = @plot_model.frame.h_range
-    v_range = @plot_model.frame.v_range
-    if vx > h_range.end
-      vx = h_range.end
-    if vx < h_range.start
-      vx = h_range.start
-
-    if vy > v_range.end
-      vy = v_range.end
-    if vy < v_range.start
-      vy = v_range.start
-
-    @data.vx.push(vx)
-    @data.vy.push(vy)
+    @data.sx.push(sx)
+    @data.sy.push(sy)
 
     overlay = @model.overlay
-    overlay.update({xs: @data.vx, ys: @data.vy})
+    overlay.update({xs: @data.sx, ys: @data.sy})
 
     if @model.select_every_mousemove
       append = e.srcEvent.shiftKey ? false
-      @_do_select(@data.vx, @data.vy, false, append)
+      @_do_select(@data.sx, @data.sy, false, append)
 
   _pan_end: (e) ->
     @_clear_overlay()
     append = e.srcEvent.shiftKey ? false
-    @_do_select(@data.vx, @data.vy, true, append)
+    @_do_select(@data.sx, @data.sy, true, append)
     @plot_view.push_state('lasso_select', {selection: @plot_view.get_selection()})
 
   _clear_overlay: () ->
     @model.overlay.update({xs:[], ys:[]})
 
-  _do_select: (vx, vy, final, append) ->
+  _do_select: (sx, sy, final, append) ->
     geometry = {
       type: 'poly'
       vx: vx

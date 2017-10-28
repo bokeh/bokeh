@@ -34,31 +34,21 @@ export class TooltipView extends AnnotationView
     if data.length == 0
       return
 
+    frame = @plot_view.frame
+
     for val in data
-      [vx, vy, content] = val
-      if @model.inner_only and not @plot_view.frame.contains(vx, vy)
+      [sx, sy, content] = val
+      if @model.inner_only and not frame.bbox.contains(sx, sy)
           continue
       tip = div({}, content)
       @el.appendChild(tip)
-    sx = @plot_view.model.canvas.vx_to_sx(vx)
-    sy = @plot_view.model.canvas.vy_to_sy(vy)
 
     attachment = @model.attachment
     switch attachment
       when "horizontal"
-        width = @plot_view.frame._width.value
-        left = @plot_view.frame._left.value
-        if vx - left < width/2
-          side = 'right'
-        else
-          side = 'left'
+        side = if sx < frame._hcenter.value then 'right' else 'left'
       when "vertical"
-        height = @plot_view.frame._height.value
-        bottom = @plot_view.frame._bottom.value
-        if vy - bottom < height/2
-          side = 'below'
-        else
-          side = 'above'
+        side = if sy < frame._vcenter.value then 'below' else 'above'
       else
         side = attachment
 
@@ -124,9 +114,9 @@ export class Tooltip extends Annotation
   clear: () ->
     @data = []
 
-  add: (vx, vy, content) ->
+  add: (sx, sy, content) ->
     data = @data
-    data.push([vx, vy, content])
+    data.push([sx, sy, content])
     @data = data
 
     # TODO (bev) not sure why this is now necessary

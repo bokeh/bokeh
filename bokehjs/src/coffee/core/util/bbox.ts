@@ -111,6 +111,20 @@ export class BBox implements IBBox {
     return x >= this.x0 && x <= this.x1 && y >= this.y0 && y <= this.y1
   }
 
+  clip(x: number, y: number): [number, number] {
+    if (x < this.x0)
+      x = this.x0
+    else if (x > this.x1)
+      x = this.x1
+
+    if (y < this.y0)
+      y = this.y0
+    else if (y > this.y1)
+      y = this.y1
+
+    return [x, y]
+  }
+
   union(that: IBBox): BBox {
     return new BBox({
       x0: min(this.x0, that.x0),

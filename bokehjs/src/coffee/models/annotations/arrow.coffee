@@ -25,23 +25,24 @@ export class ArrowView extends AnnotationView
     @plot_view.request_render()
 
   _map_data: () ->
+    frame = @plot_view.frame
+
     if @model.start_units == 'data'
-      start = @plot_view.map_to_screen(@_x_start, @_y_start,
-                                       x_name=@model.x_range_name
-                                       y_name=@model.y_range_name
-                                       )
+      vx_start = frame.xscales[@model.x_range_name].v_compute(@_x_start)
+      vy_start = frame.yscales[@model.y_range_name].v_compute(@_y_start)
     else
-      start = [@canvas.v_vx_to_sx(@_x_start),
-               @canvas.v_vy_to_sy(@_y_start)]
+      vx_start = @_x_start
+      vy_start = @_y_start
 
     if @model.end_units == 'data'
-      end = @plot_view.map_to_screen(@_x_end, @_y_end,
-                                     x_name=@model.x_range_name
-                                     y_name=@model.y_range_name
-                                     )
+      vx_end = frame.xscales[@model.x_range_name].v_compute(@_x_end)
+      vy_end = frame.yscales[@model.y_range_name].v_compute(@_y_end)
     else
-      end = [@canvas.v_vx_to_sx(@_x_end),
-             @canvas.v_vy_to_sy(@_y_end)]
+      vx_end = @_x_end
+      vy_end = @_y_end
+
+    start = [frame.v_vx_to_Sx(vx_start), frame.v_vy_to_Sy(vy_start)]
+    end   = [frame.v_vx_to_Sx(vx_end  ), frame.v_vy_to_Sy(vy_end  )]
 
     return [start, end]
 

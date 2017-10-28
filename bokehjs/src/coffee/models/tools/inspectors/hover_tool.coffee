@@ -125,21 +125,19 @@ export class HoverToolView extends InspectToolView
   _move: (e) ->
     if not @model.active
       return
-    canvas = @plot_view.canvas
-    vx = canvas.sx_to_vx(e.bokeh.sx)
-    vy = canvas.sy_to_vy(e.bokeh.sy)
-    if not @plot_view.frame.contains(vx, vy)
+    {sx, sy} = e.bokeh
+    if not @plot_view.frame.bbox.contains(sx, sy)
       @_clear()
     else
-      @_inspect(vx, vy)
+      @_inspect(sx, sy)
 
   _move_exit: () -> @_clear()
 
-  _inspect: (vx, vy, e) ->
+  _inspect: (sx, sy) ->
     geometry = {
       type: 'point'
-      vx: vx
-      vy: vy
+      sx: sx
+      sy: sy
     }
 
     if @model.mode == 'mouse'
@@ -178,15 +176,13 @@ export class HoverToolView extends InspectToolView
     if indices.is_empty()
       return
 
-    vx = geometry.vx
-    vy = geometry.vy
-
     canvas = @plot_model.canvas
     frame = @plot_model.frame
 
-    sx = canvas.vx_to_sx(vx)
-    sy = canvas.vy_to_sy(vy)
+    {sx, sy} = geometry
 
+    vx = canvas.sx_to_vx(sx) # XXX: abs -> rel
+    vy = canvas.sy_to_vy(sy) # XXX: abs -> rel
     xscale = frame.xscales[renderer_view.model.x_range_name]
     yscale = frame.yscales[renderer_view.model.y_range_name]
     x = xscale.invert(vx)
