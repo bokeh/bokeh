@@ -7,17 +7,17 @@ import {LayoutDOM} from "../layouts/layout_dom"
 import {Signal} from "core/signaling"
 import {build_views, remove_views} from "core/build_views"
 import {UIEvents} from "core/ui_events"
-
-import {LayoutCanvas} from "core/layout/layout_canvas"
 import {Visuals} from "core/visuals"
 import {DOMView} from "core/dom_view"
+import {LayoutCanvas} from "core/layout/layout_canvas"
+import {hstack, vstack} from "core/layout/alignments"
 import {EQ, LE, GE} from "core/layout/solver"
 import {logger} from "core/logging"
 import * as enums from "core/enums"
 import * as p from "core/properties"
 import {throttle} from "core/util/throttle"
 import {isStrictNaN} from "core/util/types"
-import {difference, sortBy, pairwise, reversed} from "core/util/array"
+import {difference, sortBy, reversed} from "core/util/array"
 import {extend, values, isEmpty} from "core/util/object"
 import {update_panel_constraints} from "core/layout/side_panel"
 
@@ -823,39 +823,9 @@ export class PlotCanvas extends LayoutDOM
     ]
 
   _get_side_constraints: () ->
-    constraints = []
-
-    add = (new_constraints...) ->
-      constraints.push(new_constraints...)
-
-    head = (arr) -> arr[0]
-    tail = (arr) -> arr[arr.length-1]
-
-    vstack = (container, children) ->
-      if children.length > 0
-        add(EQ(head(children).panel._bottom, [-1, container._bottom]))
-        add(EQ(tail(children).panel._top,    [-1, container._top]))
-
-        add(pairwise(children, (prev, next) -> EQ(prev.panel._top,  [-1, next.panel._bottom]))...)
-
-        for obj in children
-          add(EQ(obj.panel._left,  [-1, container._left]))
-          add(EQ(obj.panel._right, [-1, container._right]))
-
-    hstack = (container, children) ->
-      if children.length > 0
-        add(EQ(head(children).panel._right,  [-1, container._right]))
-        add(EQ(tail(children).panel._left,   [-1, container._left]))
-
-        add(pairwise(children, (prev, next) -> EQ(prev.panel._left, [-1, next.panel._right]))...)
-
-        for obj in children
-          add(EQ(obj.panel._top,    [-1, container._top]))
-          add(EQ(obj.panel._bottom, [-1, container._bottom]))
-
-    vstack(@above_panel,          @plot.above )
-    vstack(@below_panel, reversed(@plot.below))
-    hstack(@left_panel,           @plot.left  )
-    hstack(@right_panel, reversed(@plot.right))
-
-    return constraints
+    panels = (objs) -> (obj.panel for obj in objs)
+    above = vstack(@above_panel,          panels(@plot.above))
+    below = vstack(@below_panel, reversed(panels(@plot.below)))
+    left  = hstack(@left_panel,           panels(@plot.left))
+    right = hstack(@right_panel, reversed(panels(@plot.right)))
+    return [].concat(above, below, left, right)
