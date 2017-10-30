@@ -22,6 +22,8 @@ _known_tools = {
   pan:          () -> new models.PanTool(dimensions: 'both')
   xpan:         () -> new models.PanTool(dimensions: 'width')
   ypan:         () -> new models.PanTool(dimensions: 'height')
+  xwheel_pan:   () -> new models.WheelPanTool(dimension: "width")
+  ywheel_pan:   () -> new models.WheelPanTool(dimension: "height")
   wheel_zoom:   () -> new models.WheelZoomTool(dimensions: 'both')
   xwheel_zoom:  () -> new models.WheelZoomTool(dimensions: 'width')
   ywheel_zoom:  () -> new models.WheelZoomTool(dimensions: 'height')
