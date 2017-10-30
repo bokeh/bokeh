@@ -121,8 +121,10 @@ def server_session(model, session_id, url="default", relative_urls=False, resour
         function for different or multiple page loads.
 
     Args:
-        model (Model) :
-            The object to render from the session
+        model (Model or None) :
+            The object to render from the session, or None.
+
+            If None, the entire document will be rendered.
 
         session_id (str) :
             A server session ID (default: None)
@@ -173,6 +175,7 @@ def server_session(model, session_id, url="default", relative_urls=False, resour
     app_path = _get_app_path(url)
 
     elementid = make_id()
+    modelid = "" if model is None else model._id
     src_path = _src_path(url, elementid)
 
     src_path += _process_app_path(app_path)
@@ -185,7 +188,7 @@ def server_session(model, session_id, url="default", relative_urls=False, resour
         src_path  = src_path,
         app_path  = app_path,
         elementid = elementid,
-        modelid   = model._id,
+        modelid   = modelid,
     )
 
     return encode_utf8(tag)
