@@ -426,5 +426,36 @@ def bundle_models(models):
     content = _plugin_template % dict(prelude=_plugin_prelude, exports=exports, modules=modules)
     return _plugin_umd % dict(content=content)
 
+def calc_cache_key():
+    """There is no metadata than the Model classes,
+        so this is the only base to generate a cache  key.
+       We build the model keys from the list of model.full_name(s).
+       This is ineffective but possibly a better solution can be found found.
+       It is still at least an order of magnitude faster faster than the nodeJS :-)
+    """
+
+    models = Model.model_class_reverse_map.values()
+    custom_model_names = ""
+
+    for cls in models:
+        impl = getattr(cls, "__implementation__", None)
+
+        if impl is not None:
+            model = CustomModel(cls)
+            custom_model_names += model.full_name
+
+    key = hashlib.sha256(custom_model_names.encode('utf-8')).hexdigest()
+    return key
+
 def bundle_all_models():
-    return bundle_models(Model.model_class_reverse_map.values()) or ""
+    if not hasattr(Model, '__cache'):
+        Model.__cache = {}
+    key = calc_cache_key()
+    if key in Model.__cache:
+        return Model.__cache[key]
+    else:
+        Model.__cache[key] = bundle_models(Model.model_class_reverse_map.values()) or ""
+        return Model.__cache[key]
+    if not Model.__cache[key]: #this is probably overkill
+        Model.__cache[key] = bundle_models(Model.model_class_reverse_map.values()) or ""
+    return Model.__cache[key]
