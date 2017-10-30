@@ -5,20 +5,16 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-'''' Provides different ways for Bokeh applications to modify Bokeh
-Documents when sessions are created.
-
-'''
 
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import logging
-log = logging.getLogger(__name__)
+import pytest ; pytest
 
-from bokeh.util.api import general, dev ; general, dev
+from bokeh.util.api import DEV, GENERAL ; DEV, GENERAL
+from bokeh.util.testing import verify_api ; verify_api
 
 #-----------------------------------------------------------------------------
 # Imports
@@ -29,20 +25,16 @@ from bokeh.util.api import general, dev ; general, dev
 # External imports
 
 # Bokeh imports
+from bokeh.util.testing import verify_all
+
+# Module under test
+import bokeh.application.handlers as bah
 
 #-----------------------------------------------------------------------------
-# Public API
+# Setup
 #-----------------------------------------------------------------------------
 
-from .code import CodeHandler
-from .directory import DirectoryHandler
-from .function import FunctionHandler
-from .handler import Handler
-from .notebook import NotebookHandler
-from .script import ScriptHandler
-from .server_lifecycle import ServerLifecycleHandler
-
-__all__ = (
+ALL = (
     'CodeHandler',
     'DirectoryHandler',
     'FunctionHandler',
@@ -51,3 +43,9 @@ __all__ = (
     'ScriptHandler',
     'ServerLifecycleHandler',
 )
+
+#-----------------------------------------------------------------------------
+# Public API
+#-----------------------------------------------------------------------------
+
+Test___all__ = verify_all(bah, ALL)

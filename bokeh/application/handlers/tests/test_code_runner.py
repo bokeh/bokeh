@@ -27,7 +27,7 @@ from bokeh.util.testing import verify_api ; verify_api
 # Bokeh imports
 
 # Module under test
-import bokeh.application.handlers.handler as bahh
+import bokeh.application.handlers.code_runner as bahc
 
 #-----------------------------------------------------------------------------
 # API Definition
@@ -37,27 +37,24 @@ api = {
 
     GENERAL: (
 
-        ( 'Handler',                      (1,0,0) ),
-
-        ( 'Handler.error.fget',           (1,0,0) ),
-        ( 'Handler.error_detail.fget',    (1,0,0) ),
-        ( 'Handler.failed.fget',          (1,0,0) ),
-
-        ( 'Handler.modify_document',      (1,0,0) ),
-        ( 'Handler.on_server_loaded',     (1,0,0) ),
-        ( 'Handler.on_server_unloaded',   (1,0,0) ),
-        ( 'Handler.on_session_created',   (1,0,0) ),
-        ( 'Handler.on_session_destroyed', (1,0,0) ),
-        ( 'Handler.static_path',          (1,0,0) ),
-        ( 'Handler.url_path',             (1,0,0) ),
-
     ), DEV: (
+
+        ( 'CodeRunner',                   (1,0,0) ),
+
+        ( 'CodeRunner.error.fget',        (1,0,0) ),
+        ( 'CodeRunner.error_detail.fget', (1,0,0) ),
+        ( 'CodeRunner.failed.fget',       (1,0,0) ),
+        ( 'CodeRunner.path.fget',         (1,0,0) ),
+        ( 'CodeRunner.source.fget',       (1,0,0) ),
+
+        ( 'CodeRunner.new_module',        (1,0,0) ),
+        ( 'CodeRunner.run',               (1,0,0) ),
 
     )
 
 }
 
-Test_api = verify_api(bahh, api)
+Test_api = verify_api(bahc, api)
 
 #-----------------------------------------------------------------------------
 # Setup
@@ -66,36 +63,6 @@ Test_api = verify_api(bahh, api)
 #-----------------------------------------------------------------------------
 # Public API
 #-----------------------------------------------------------------------------
-
-class Test_Handler(object):
-
-    def test_create(self):
-        h = bahh.Handler()
-        assert h.failed == False
-        assert h.url_path() is None
-        assert h.static_path() is None
-        assert h.error is None
-        assert h.error_detail is None
-
-    def test_modify_document_abstract(self):
-        h = bahh.Handler()
-        with pytest.raises(NotImplementedError):
-            h.modify_document("doc")
-
-    def test_default_hooks_return_none(self):
-        h = bahh.Handler()
-        assert h.on_server_loaded("context") is None
-        assert h.on_server_unloaded("context") is None
-        assert h.on_session_created("context") is None
-        assert h.on_session_destroyed("context") is None
-
-    def test_static_path(self):
-        h = bahh.Handler()
-        assert h.static_path() is None
-        h._static = "path"
-        assert h.static_path() == "path"
-        h._failed = True
-        assert h.static_path() is None
 
 #-----------------------------------------------------------------------------
 # Internal API
