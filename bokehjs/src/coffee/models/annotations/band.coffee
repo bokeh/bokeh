@@ -20,36 +20,26 @@ export class BandView extends AnnotationView
     @plot_view.request_render()
 
   _map_data: () ->
-    x_scale = @plot_view.frame.xscales[@model.x_range_name]
-    y_scale = @plot_view.frame.yscales[@model.y_range_name]
+    frame = @plot_view.frame
+    x_scale = frame.xscales[@model.x_range_name]
+    y_scale = frame.yscales[@model.y_range_name]
 
     limit_scale = if @model.dimension == "height" then y_scale else x_scale
     base_scale = if @model.dimension == "height" then x_scale else y_scale
 
-    if @model.lower.units == "data"
-      _lower_vx = limit_scale.v_compute(@_lower)
-    else
-      _lower_vx = @_lower
-
-    if @model.upper.units == "data"
-      _upper_vx = limit_scale.v_compute(@_upper)
-    else
-      _upper_vx = @_upper
-
-    if @model.base.units == "data"
-      _base_vx = base_scale.v_compute(@_base)
-    else
-      _base_vx = @_base
+    _lower_vx = if @model.lower.units == "data" then limit_scale.v_compute(@_lower) else @_lower
+    _upper_vx = if @model.upper.units == "data" then limit_scale.v_compute(@_upper) else @_upper
+    _base_vx  = if @model.base.units  == "data" then base_scale.v_compute(@_base)   else @_base
 
     [i, j] = @model._normals()
     _lower = [_lower_vx, _base_vx]
     _upper = [_upper_vx, _base_vx]
 
-    @_lower_sx = @plot_model.canvas.v_vx_to_sx(_lower[i])
-    @_lower_sy = @plot_model.canvas.v_vy_to_sy(_lower[j])
+    @_lower_sx = frame.v_vx_to_Sx(_lower[i])
+    @_lower_sy = frame.v_vy_to_Sy(_lower[j])
 
-    @_upper_sx = @plot_model.canvas.v_vx_to_sx(_upper[i])
-    @_upper_sy = @plot_model.canvas.v_vy_to_sy(_upper[j])
+    @_upper_sx = frame.v_vx_to_Sx(_upper[i])
+    @_upper_sy = frame.v_vy_to_Sy(_upper[j])
 
   render: () ->
     if not @model.visible
