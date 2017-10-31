@@ -24,21 +24,17 @@ export class CartesianFrame extends LayoutCanvas
   get_editables: () ->
     return super().concat([@_width, @_height])
 
+  # data -> absolute screen
   map_to_screen: (x, y, x_name='default', y_name='default') ->
-    vx = @xscales[x_name].v_compute(x)
-    sx = @v_vx_to_sx(vx)
-
-    vy = @yscales[y_name].v_compute(y)
-    sy = @v_vy_to_sy(vy)
+    sx = @v_vx_to_Sx(@xscales[x_name].v_compute(x))
+    sy = @v_vy_to_Sy(@yscales[y_name].v_compute(y))
     return [sx, sy]
 
-  map_to_canvas: (x, y, x_name='default', y_name='default') ->
-    vx = @xscales[x_name].v_compute(x)
-    sx = @v_vx_to_Sx(vx)
-
-    vy = @yscales[y_name].v_compute(y)
-    sy = @v_vy_to_Sy(vy)
-    return [sx, sy]
+  # absolute screen -> data
+  map_from_screen: (sx, sy, x_name='default', y_name='default') ->
+    x = @xscales[x_name].v_invert(@v_Sx_to_vx(sx))
+    y = @yscales[y_name].v_invert(@v_Sy_to_vy(sx))
+    return [x, y]
 
   _get_ranges: (range, extra_ranges) ->
     ranges = {}

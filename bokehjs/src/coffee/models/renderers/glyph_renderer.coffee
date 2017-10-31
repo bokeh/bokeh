@@ -147,10 +147,6 @@ export class GlyphRendererView extends RendererView
     ctx = @plot_view.canvas_view.ctx
     ctx.save()
 
-    frame_sx = @plot_view.frame._left.value
-    frame_sy = @plot_view.frame._top.value
-    ctx.translate(frame_sx, frame_sy)
-
     # selected is in full set space
     selected = @model.data_source.selected
     if !selected or selected.length == 0
@@ -255,16 +251,12 @@ export class GlyphRendererView extends RendererView
 
     ctx.restore()
 
-  map_to_screen: (x, y) ->
-    @plot_view.map_to_screen(x, y, @model.x_range_name, @model.y_range_name)
-
   draw_legend: (ctx, x0, x1, y0, y1, field, label) ->
     index = @model.get_reference_point(field, label)
     @glyph.draw_legend_for_index(ctx, x0, x1, y0, y1, index)
 
   hit_test: (geometry, final, append, mode="select") ->
     return @model.hit_test_helper(geometry, @, final, append, mode)
-
 
 export class GlyphRenderer extends Renderer
   default_view: GlyphRendererView
