@@ -1,6 +1,7 @@
 import {Models} from "./base"
 import {version as js_version} from "./version"
 import {logger} from "./core/logging"
+import {LODStart, LODEnd} from "core/bokeh_events"
 import {HasProps} from "./core/has_props"
 import {Signal} from "./core/signaling"
 import {is_ref} from "./core/util/refs"
@@ -121,6 +122,9 @@ export class Document
     @idle = new Signal(this, "idle") # <void, this>
     @_idle_roots = new WeakMap() # TODO: WeakSet would be better
 
+    @_interactive_timestamp = null
+    @_interactive_plot = null
+
   Object.defineProperty(@prototype, "layoutables", {
     get: () -> (root for root in @_roots when root instanceof LayoutDOM)
   })
@@ -147,6 +151,23 @@ export class Document
         @remove_root(@_roots[0])
     finally
       @_pop_all_models_freeze()
+
+  interactive_start: (plot) ->
+    if @_interactive_plot == null
+      @_interactive_plot = plot
+      @_interactive_plot.trigger_event(new LODStart({}))
+    @_interactive_timestamp = Date.now()
+
+  interactive_stop: (plot) ->
+    if @_interactive_plot?.id == plot.id
+      @_interactive_plot.trigger_event(new LODEnd({}))
+    @_interactive_plot = null
+    @_interactive_timestamp = null
+
+  interactive_duration: () ->
+    if @_interactive_timestamp == null
+      return -1
+    return Date.now() - @_interactive_timestamp
 
   destructively_move : (dest_doc) ->
     if dest_doc is @

@@ -37,7 +37,7 @@ export class WheelZoomToolView extends GestureToolView
 
     @plot_view.push_state('wheel_zoom', {range: zoom_info})
     @plot_view.update_range(zoom_info, false, true)
-    @plot_view.interactive_timestamp = Date.now()
+    @model.document.interactive_start(@plot_model.plot)
     return null
 
 export class WheelZoomTool extends GestureTool
