@@ -330,7 +330,7 @@ export class Module {
             const dep = arg.value
             const val = module_map.get(this.deps.get(dep)!)
             arg.value = val != null ? val : dep
-            const comment: Comment = {type: "Block", value: ` ${dep} `}
+            const comment : Comment = {type: "Block", value: ` ${dep} `}
             if (arg.trailingComments == null)
               arg.trailingComments = [comment]
             else
