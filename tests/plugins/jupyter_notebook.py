@@ -73,7 +73,7 @@ require(["base/js/namespace", "base/js/events"], function (IPython, events) {
     notebook_dir = join(dirname(__file__), pardir, pardir)
 
     cmd = ["jupyter", "notebook"]
-    argv = ["--no-browser", "--port=%s" % notebook_port, "--notebook-dir=%s" % notebook_dir]
+    argv = ["--no-browser", "--port=%s" % notebook_port, "--notebook-dir=%s" % notebook_dir, "--NotebookApp.token=''"]
     jupter_notebook_url = "http://localhost:%d" % notebook_port
 
     try:

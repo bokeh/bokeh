@@ -93,10 +93,8 @@ def test_server_examples(server_example, example, report, bokeh_server):
         else:
             _get_pdiff(example)
 
-
-### {{{ THIS IS BROKEN and all examples are skipped in examples.yaml
 @pytest.mark.examples
-def test_notebook_examples(notebook_example, example, jupyter_notebook, report):
+def test_notebook_examples(notebook_example, example, jupyter_notebook, bokeh_server, report):
     if example.is_skip:
         pytest.skip("skipping %s" % example.relpath)
 
@@ -107,7 +105,6 @@ def test_notebook_examples(notebook_example, example, jupyter_notebook, report):
     _assert_snapshot(example, url, 'notebook')
     if not example.no_diff:
         _get_pdiff(example)
-# }}}
 
 def _get_pdiff(example):
     img_path, ref_path, diff_path = example.img_path, example.ref_path, example.diff_path
@@ -194,6 +191,11 @@ def _assert_snapshot(example, url, example_type):
     timeout = result['timeout']
     errors = result['errors']
     resources = result['resources']
+
+    # filter resource errors from hard-coded jupyter-js-widgets resource loading in notebooks
+    # https://github.com/jupyter/notebook/blob/5e5e41b06644c1e3aa814ac969c4117332eaa2b6/notebook/static/notebook/js/main.js#L222-L234
+    if example_type == "notebook":
+        resources = [resource for resource in resources if "widgets/notebook/js/extension.js" not in resource['url']]
 
     no_errors = len(errors) == 0
     no_resources = len(resources) == 0

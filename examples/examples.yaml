@@ -23,9 +23,14 @@
   type: server
 
 - path: "plotting/notebook"
-  skip: all
+  type: notebook
 
 - path: "howto/layouts"
+
+- path: "howto/notebook_comms"
+  type: notebook
+  # need to resolve screenshot timing w/ notebook containing multiple plot cells
+  skip: all
 
 - path: "app"
   type: server
