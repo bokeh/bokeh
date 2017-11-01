@@ -29,16 +29,24 @@ export class Toolbar extends ToolbarBase
         if not any(@actions, (t) => t.id == tool.id)
           @actions = @actions.concat([tool])
       else if tool instanceof GestureTool
-        et = tool.event_type
+        event_types = tool.event_type
+        multi = true
+        if (typeof event_types is 'string')
+          event_types = [event_types]
+          multi = false
 
-        if et not of @gestures
-          logger.warn("Toolbar: unknown event type '#{et}' for tool:
-                      #{tool.type} (#{tool.id})")
-          continue
+        for et in event_types
+          if et not of @gestures
+            logger.warn("Toolbar: unknown event type '#{et}' for tool:
+              #{tool.type} (#{tool.id})")
+            continue
 
-        if not any(@gestures[et].tools, (t) => t.id == tool.id)
-          @gestures[et].tools = @gestures[et].tools.concat([tool])
-        @connect(tool.properties.active.change, @_active_change.bind(null, tool))
+          if multi
+            if not any(@gestures['multi'].tools, (t) => t.id == tool.id)
+              @gestures['multi'].tools = @gestures['multi'].tools.concat([tool])
+          else if not any(@gestures[et].tools, (t) => t.id == tool.id)
+            @gestures[et].tools = @gestures[et].tools.concat([tool])
+          @connect(tool.properties.active.change, @_active_change.bind(null, tool))
 
     if @active_inspect == 'auto'
       # do nothing as all tools are active be default

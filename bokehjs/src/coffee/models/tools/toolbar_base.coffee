@@ -75,6 +75,17 @@ export class ToolbarBase extends Model
   _active_change: (tool) =>
     event_type = tool.event_type
 
+    if not (typeof event_type is 'string')
+      for et in event_type
+        if tool.active
+          currently_active_tool = @gestures[et].active
+          if currently_active_tool? and tool != currently_active_tool
+            currently_active_tool.active = false
+          @gestures[et].active = tool
+        else
+          @gestures[et].active = null
+      return null
+
     if tool.active
       # Toggle between tools of the same type by deactivating any active ones
       currently_active_tool = @gestures[event_type].active
@@ -110,6 +121,7 @@ export class ToolbarBase extends Model
       doubletap: { tools: [], active: null }
       press:     { tools: [], active: null }
       rotate:    { tools: [], active: null }
+      multi:     { tools: [], active: null}
     } ]
     actions:    [ p.Array, [] ]
     inspectors: [ p.Array, [] ]
