@@ -1,7 +1,7 @@
 import * as fs from "fs"
 import * as path from "path"
 import * as ts from "typescript"
-const coffee = require("coffee-script")
+const coffee = require("coffeescript")
 const detective = require("detective")
 const less = require("less")
 import {argv} from "yargs"
