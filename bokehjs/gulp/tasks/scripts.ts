@@ -22,6 +22,7 @@ import {Linker} from "../linker"
 gulp.task("scripts:coffee", () => {
   return gulp.src('./src/coffee/**/*.coffee')
     .pipe(coffee({coffee: require("coffeescript"), bare: true}))
+    .on("error", function(error: any) { console.error(error.toString()); process.exit(1) })
     .pipe(rename((path) => path.extname = '.ts'))
     .pipe(gulp.dest(paths.build_dir.tree_ts))
 })
