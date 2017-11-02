@@ -51,6 +51,36 @@ class TextInput(InputWidget):
     """)
 
 
+class NumberInput(InputWidget):
+    ''' Floating point input widget.
+
+    '''
+
+    value = Float(default=0.0, help="""
+    Initial or entered value.
+    """)
+
+    callback = Instance(Callback, help="""
+    A callback to run in the browser whenever the user changes the value either
+    by typing a value, clicking the up/down buttons or using the scroll wheel.
+    If the current value in the input field is invalid or outside the range
+    of start/end the callback will not be called. After the user leaves the
+    field or hits Enter a valid value is enforced and the callback is always
+    called.
+    """)
+
+    start = Float(default=0.0, help="""
+    The minimum allowable value.
+    """)
+
+    end = Float(default=100.0, help="""
+    The maximum allowable value.
+    """)
+
+    step = Float(default=1.0, help="""
+    The step between consecutive values.
+    """)
+
 class PasswordInput(TextInput):
     ''' Single-line password input widget.
         Note: Despite PasswordInput inheriting from TextInput the password
