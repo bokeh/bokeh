@@ -6,7 +6,7 @@ import pytest
 import subprocess
 import signal
 
-from os.path import abspath, dirname, exists, join, split
+from os.path import dirname, exists, split
 
 from tests.plugins.utils import trace, info, fail, ok, red, warn, white
 from tests.plugins.phantomjs_screenshot import get_phantomjs_screenshot
@@ -14,8 +14,6 @@ from tests.plugins.image_diff import image_diff
 
 from bokeh.client import push_session
 from bokeh.command.util import build_single_handler_application
-
-from .utils import deal_with_output_cells
 
 @pytest.mark.examples
 def test_js_examples(js_example, example, report):
@@ -93,21 +91,6 @@ def test_server_examples(server_example, example, report, bokeh_server):
         else:
             _get_pdiff(example)
 
-
-### {{{ THIS IS BROKEN and all examples are skipped in examples.yaml
-@pytest.mark.examples
-def test_notebook_examples(notebook_example, example, jupyter_notebook, report):
-    if example.is_skip:
-        pytest.skip("skipping %s" % example.relpath)
-
-    notebook_port = pytest.config.option.notebook_port
-    url_path = join(*_get_path_parts(abspath(example.path)))
-    url = 'http://localhost:%d/notebooks/%s' % (notebook_port, url_path)
-    assert deal_with_output_cells(example.path), 'Notebook failed'
-    _assert_snapshot(example, url, 'notebook')
-    if not example.no_diff:
-        _get_pdiff(example)
-# }}}
 
 def _get_pdiff(example):
     img_path, ref_path, diff_path = example.img_path, example.ref_path, example.diff_path
