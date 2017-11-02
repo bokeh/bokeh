@@ -43,6 +43,13 @@ export class EventManager {
 export class DocumentChangedEvent
   constructor : (@document) ->
 
+`
+export declare class ModelChangedEvent {
+  attr: string
+  model: HasProps // TODO: Model
+}
+`
+
 export class ModelChangedEvent extends DocumentChangedEvent
   constructor : (document, @model, @attr, @old, @new_, @setter_id) ->
     super(document)

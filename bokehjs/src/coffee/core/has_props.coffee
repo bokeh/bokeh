@@ -9,6 +9,26 @@ import {extend, values, clone, isEmpty} from "./util/object"
 import {isString, isObject, isArray} from "./util/types"
 import {isEqual} from './util/eq'
 
+`
+export declare class HasProps {
+  type: string
+
+  id: string
+  _subtype?: string
+
+  initialize(attrs?: any, options?: any): void
+
+  attributes_as_json(include_defaults?: boolean, value_to_json?: any): any
+
+  serializable_attributes(): {[key: string]: any}
+
+  static define(object: any): void
+  static getters(object: any): void
+  static internal(object: any): void
+  static override(object: any): void
+}
+`
+
 export class HasProps
   extend(@prototype, Signalable)
 
