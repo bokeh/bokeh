@@ -72,7 +72,7 @@ export class ToolbarBase extends Model
   type: 'ToolbarBase'
   default_view: ToolbarBaseView
 
-  _active_change: (tool) =>
+  _active_change: (tool) ->
     event_type = tool.event_type
 
     if tool.active

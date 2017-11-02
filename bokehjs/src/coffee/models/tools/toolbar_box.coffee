@@ -85,7 +85,7 @@ export class ProxyToolbar extends ToolbarBase
         if tools.length > 0
           proxy = make_proxy(tools)
           @gestures[event_type].tools.push(proxy)
-          @connect(proxy.properties.active.change, @_active_change.bind(null, proxy))
+          @connect(proxy.properties.active.change, @_active_change.bind(this, proxy))
 
     @actions = []
     for tool_type, tools of actions
