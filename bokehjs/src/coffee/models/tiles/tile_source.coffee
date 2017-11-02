@@ -23,8 +23,8 @@ export class TileSource extends Model
     super(options)
     @normalize_case()
 
-  constructor: (options={}) ->
-    super
+  constructor: (options={}) -> # WTF?
+    super()
     @utils = new ProjectionUtils()
     @pool = new ImagePool()
     @tiles = {}

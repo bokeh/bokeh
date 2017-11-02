@@ -10,7 +10,7 @@ import {isString, isObject, isArray} from "./util/types"
 import {isEqual} from './util/eq'
 
 export class HasProps
-  @prototype extends Signalable
+  extend(@prototype, Signalable)
 
   @getters = (specs) ->
     for name, fn of specs

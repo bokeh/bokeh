@@ -1,8 +1,9 @@
 import {Signal, Signalable} from "./signaling"
 import {uniqueId} from "./util/string"
+import {extend} from "./util/object"
 
 export class View
-  @prototype extends Signalable
+  extend(@prototype, Signalable)
 
   @getters = (specs) ->
     for name, fn of specs

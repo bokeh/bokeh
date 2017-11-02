@@ -10,7 +10,7 @@ export class TileRendererView extends RendererView
   initialize: (options) ->
     @attributionEl = null
     @_tiles = []
-    super
+    super(options)
 
   connect_signals: () ->
     super()
