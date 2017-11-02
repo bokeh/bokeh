@@ -19,12 +19,8 @@ export class TileSource extends Model
       initial_resolution: [ p.Number ]
   }
 
-  initialize: (options) ->
-    super(options)
-    @normalize_case()
-
-  constructor: (options={}) -> # WTF?
-    super()
+  initialize: (attrs, options) ->
+    super(attrs, options)
     @utils = new ProjectionUtils()
     @pool = new ImagePool()
     @tiles = {}
