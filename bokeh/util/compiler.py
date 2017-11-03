@@ -447,15 +447,11 @@ def calc_cache_key():
     key = hashlib.sha256(custom_model_names.encode('utf-8')).hexdigest()
     return key
 
+_bundle_cache = {}
 def bundle_all_models():
-    if not hasattr(Model, '__cache'):
-        Model.__cache = {}
     key = calc_cache_key()
-    if key in Model.__cache:
-        return Model.__cache[key]
-    else:
-        Model.__cache[key] = bundle_models(Model.model_class_reverse_map.values()) or ""
-        return Model.__cache[key]
-    if not Model.__cache[key]: #this is probably overkill
-        Model.__cache[key] = bundle_models(Model.model_class_reverse_map.values()) or ""
-    return Model.__cache[key]
+    bundle = _bundle_cache.get(key, None)
+    if bundle is None:
+        _bundle_cache[key] = bundle = bundle_models(...) or ""
+    return bundle
+
