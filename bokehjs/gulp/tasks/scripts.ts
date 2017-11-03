@@ -1,6 +1,7 @@
 import * as gulp from "gulp"
 import * as gutil from "gulp-util"
 import * as rename from "gulp-rename"
+const change = require("gulp-change")
 import chalk from "chalk"
 const uglify = require("gulp-uglify")
 import * as sourcemaps from "gulp-sourcemaps"
@@ -24,6 +25,33 @@ gulp.task("scripts:coffee", () => {
   return gulp.src('./src/coffee/**/*.coffee')
     .pipe(coffee({coffee: require("coffeescript"), bare: true}))
     .on("error", function(error: any) { console.error(error.toString()); process.exit(1) })
+    .pipe(change(function(code: string) {
+      const lines = code.split("\n")
+      const names = new Set<string>()
+      const r1 = /^export var (\w+) = \(function\(\) {$/
+      const r2 = /^  return (\w+);$/
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i]
+        let match = line.match(r1)
+        if (match != null) {
+          names.add(match[1])
+          lines[i] = ""
+          i++
+          lines[i] =  `export ${lines[i].trim()}`
+          continue
+        }
+
+        match = line.match(r2)
+        if (match != null && names.has(match[1])) {
+          lines[i] = ""
+          i++
+          lines[i] = ""
+          i++
+          lines[i] = ""
+        }
+      }
+      return lines.join("\n")
+    }))
     .pipe(rename((path) => path.extname = '.ts'))
     .pipe(gulp.dest(paths.build_dir.tree_ts))
 })
