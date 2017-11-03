@@ -11,6 +11,7 @@ export const build_dir = {
   all: BUILD_DIR,
   js: JS_BUILD_DIR,
   css: CSS_BUILD_DIR,
+  types: join(JS_BUILD_DIR, "types"),
   tree_js: join(JS_BUILD_DIR, "tree"),
   tree_ts: join(JS_BUILD_DIR, "tree_ts"),
   compiler: join(JS_BUILD_DIR, "compiler"),

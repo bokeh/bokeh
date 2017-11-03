@@ -11,6 +11,7 @@ import {join} from "path"
 import {argv} from "yargs"
 import * as insert from 'gulp-insert'
 const stripAnsi = require('strip-ansi')
+const merge = require("merge2")
 
 const license = `/*!\n${fs.readFileSync('../LICENSE.txt', 'utf-8')}*/\n`
 
@@ -82,11 +83,18 @@ gulp.task("scripts:tsjs", ["scripts:coffee", "scripts:js", "scripts:ts"], () => 
   }
 
   const tree_ts = paths.build_dir.tree_ts
-  return gulp.src(`${tree_ts}/**/*.ts`)
+  const project = gulp
+    .src(`${tree_ts}/**/*.ts`)
     .pipe(sourcemaps.init())
     .pipe(ts(tsconfig.compilerOptions, ts.reporter.nullReporter()).on('error', error))
-    .pipe(sourcemaps.write("."))
-    .pipe(gulp.dest(paths.build_dir.tree_js))
+
+  return merge([
+    project.js
+      .pipe(sourcemaps.write("."))
+      .pipe(gulp.dest(paths.build_dir.tree_js)),
+    project.dts
+      .pipe(gulp.dest(paths.build_dir.types)),
+  ])
 })
 
 gulp.task("scripts:compile", ["scripts:tsjs"])
