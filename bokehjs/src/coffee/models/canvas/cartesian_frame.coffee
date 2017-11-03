@@ -24,16 +24,14 @@ export class CartesianFrame extends LayoutCanvas
   get_editables: () ->
     return super().concat([@_width, @_height])
 
-  # data -> absolute screen
   map_to_screen: (x, y, x_name='default', y_name='default') ->
-    sx = @v_vx_to_Sx(@xscales[x_name].v_compute(x))
-    sy = @v_vy_to_Sy(@yscales[y_name].v_compute(y))
+    sx = @xscales[x_name].v_compute(x)
+    sy = @yscales[y_name].v_compute(y)
     return [sx, sy]
 
-  # absolute screen -> data
   map_from_screen: (sx, sy, x_name='default', y_name='default') ->
-    x = @xscales[x_name].v_invert(@v_Sx_to_vx(sx))
-    y = @yscales[y_name].v_invert(@v_Sy_to_vy(sx))
+    x = @xscales[x_name].v_invert(sx)
+    y = @yscales[y_name].v_invert(sy)
     return [x, y]
 
   _get_ranges: (range, extra_ranges) ->
@@ -68,9 +66,9 @@ export class CartesianFrame extends LayoutCanvas
     return scales
 
   _configure_frame_ranges: () ->
-    # frame-relative view coordinate system (left-bottom is origin)
-    @_h_range = new Range1d({start: 0, end: @_width.value})
-    @_v_range = new Range1d({start: 0, end: @_height.value})
+    # data to/from screen space transform (left-bottom <-> left-top origin)
+    @_h_range = new Range1d({start: @_left.value, end: @_right.value})
+    @_v_range = new Range1d({start: @_bottom._value, end: @_top.value})
 
   _configure_scales: () ->
     @_configure_frame_ranges()
