@@ -37,9 +37,9 @@ export class BoxView extends GlyphView
     return @_hit_rect_against_index(geometry)
 
   _hit_point: (geometry) ->
-    [vx, vy] = [geometry.vx, geometry.vy]
-    x = @renderer.xscale.invert(vx)
-    y = @renderer.yscale.invert(vy)
+    {sx, sy} = geometry
+    x = @renderer.xscale.invert(sx)
+    y = @renderer.yscale.invert(sy)
 
     hits = @index.indices({minX: x, minY: y, maxX: x, maxY: y})
 
@@ -48,17 +48,16 @@ export class BoxView extends GlyphView
     return result
 
   _hit_span: (geometry) ->
-
-    [vx, vy] = [geometry.vx, geometry.vy]
+    {sx, sy} = geometry
 
     if geometry.direction == 'v'
-      y = @renderer.yscale.invert(vy)
+      y = @renderer.yscale.invert(sy)
       hr = @renderer.plot_view.frame.h_range
       minX = @renderer.xscale.invert(hr.min)
       maxX = @renderer.xscale.invert(hr.max)
       hits = @index.indices({ minX: minX, minY: y, maxX: maxX, maxY: y })
     else
-      x = @renderer.xscale.invert(vx)
+      x = @renderer.xscale.invert(sx)
       vr = @renderer.plot_view.frame.v_range
       minY = @renderer.yscale.invert(vr.min)
       maxY = @renderer.yscale.invert(vr.max)

@@ -9,10 +9,10 @@ export scale_highlow = (range, factor, center=null) ->
   x1 = high - (high - x) * factor
   return [x0, x1]
 
-export get_info = (scales, [x0, x1]) ->
+export get_info = (scales, [sx0, sx1]) ->
   info = {}
   for name, scale of scales
-    [start, end] = scale.v_invert([x0, x1])
+    [start, end] = scale.v_invert([sx0, sx1])
     info[name] = {start: start, end: end}
   return info
 
@@ -39,12 +39,12 @@ export scale_range = (frame, factor, h_axis=true, v_axis=true, center=null) ->
   factor = clamp(factor, -0.9, 0.9)
 
   hfactor = if h_axis then factor else 0
-  [vx0, vx1] = scale_highlow(frame.h_range, hfactor, center?.x)
-  xrs = get_info(frame.xscales, [vx0, vx1])
+  [sx0, sx1] = scale_highlow(frame.h_range, hfactor, center?.x)
+  xrs = get_info(frame.xscales, [sx0, sx1])
 
   vfactor = if v_axis then factor else 0
-  [vy0, vy1] = scale_highlow(frame.v_range, vfactor, center?.y)
-  yrs = get_info(frame.yscales, [vy0, vy1])
+  [sy0, sy1] = scale_highlow(frame.v_range, vfactor, center?.y)
+  yrs = get_info(frame.yscales, [sy0, sy1])
 
   # OK this sucks we can't set factor independently in each direction. It is used
   # for GMap plots, and GMap plots always preserve aspect, so effective the value

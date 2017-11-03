@@ -5,43 +5,36 @@ import * as p from "core/properties"
 export class BoxSelectToolView extends SelectToolView
 
   _pan_start: (e) ->
-    canvas = @plot_view.canvas
-    @_base_point = [
-      canvas.sx_to_vx(e.bokeh.sx)
-      canvas.sy_to_vy(e.bokeh.sy)
-    ]
+    {sx, sy} = e.bokeh
+    @_base_point = [sx, sy]
     return null
 
   _pan: (e) ->
-    canvas = @plot_view.canvas
-    curpoint = [
-      canvas.sx_to_vx(e.bokeh.sx)
-      canvas.sy_to_vy(e.bokeh.sy)
-    ]
+    {sx, sy} = e.bokeh
+    curpoint = [sx, sy]
+
     frame = @plot_model.frame
     dims = @model.dimensions
 
-    [vxlim, vylim] = @model._get_dim_limits(@_base_point, curpoint, frame, dims)
-    @model.overlay.update({left: vxlim[0], right: vxlim[1], top: vylim[1], bottom: vylim[0]})
+    [sxlim, sylim] = @model._get_dim_limits(@_base_point, curpoint, frame, dims)
+    @model.overlay.update({left: sxlim[0], right: sxlim[1], top: sylim[1], bottom: sylim[0]})
 
     if @model.select_every_mousemove
       append = e.srcEvent.shiftKey ? false
-      @_do_select(vxlim, vylim, false, append)
+      @_do_select(sxlim, sylim, false, append)
 
     return null
 
   _pan_end: (e) ->
-    canvas = @plot_view.canvas
-    curpoint = [
-      canvas.sx_to_vx(e.bokeh.sx)
-      canvas.sy_to_vy(e.bokeh.sy)
-    ]
+    {sx, sy} = e.bokeh
+    curpoint = [sx, sy]
+
     frame = @plot_model.frame
     dims = @model.dimensions
 
-    [vxlim, vylim] = @model._get_dim_limits(@_base_point, curpoint, frame, dims)
+    [sxlim, sylim] = @model._get_dim_limits(@_base_point, curpoint, frame, dims)
     append = e.srcEvent.shiftKey ? false
-    @_do_select(vxlim, vylim, true, append)
+    @_do_select(sxlim, sylim, true, append)
 
     @model.overlay.update({left: null, right: null, top: null, bottom: null})
 
@@ -51,32 +44,27 @@ export class BoxSelectToolView extends SelectToolView
 
     return null
 
-  _do_select: ([vx0, vx1], [vy0, vy1], final, append=false) ->
+  _do_select: ([sx0, sx1], [sy0, sy1], final, append=false) ->
     geometry = {
       type: 'rect'
-      vx0: vx0
-      vx1: vx1
-      vy0: vy0
-      vy1: vy1
+      sx0: sx0
+      sx1: sx1
+      sy0: sy0
+      sy1: sy1
     }
     @_select(geometry, final, append)
 
   _emit_callback: (geometry) ->
     r = @computed_renderers[0]
-    canvas = @plot_model.canvas
     frame = @plot_model.frame
-
-    geometry['sx0'] = canvas.vx_to_sx(geometry.vx0)
-    geometry['sx1'] = canvas.vx_to_sx(geometry.vx1)
-    geometry['sy0'] = canvas.vy_to_sy(geometry.vy0)
-    geometry['sy1'] = canvas.vy_to_sy(geometry.vy1)
 
     xscale = frame.xscales[r.x_range_name]
     yscale = frame.yscales[r.y_range_name]
-    geometry['x0'] = xscale.invert(geometry.vx0)
-    geometry['x1'] = xscale.invert(geometry.vx1)
-    geometry['y0'] = yscale.invert(geometry.vy0)
-    geometry['y1'] = yscale.invert(geometry.vy1)
+
+    geometry.x0 = xscale.invert(geometry.sx0)
+    geometry.x1 = xscale.invert(geometry.sx1)
+    geometry.y0 = yscale.invert(geometry.sy0)
+    geometry.y1 = yscale.invert(geometry.sy1)
 
     @model.callback.execute(@model, {geometry: geometry})
 

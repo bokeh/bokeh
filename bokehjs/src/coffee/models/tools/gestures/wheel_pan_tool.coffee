@@ -19,22 +19,22 @@ export class WheelPanToolView extends GestureToolView
     hr = frame.h_range
     vr = frame.v_range
 
-    [vx_low, vx_high] = [hr.start, hr.end]
-    [vy_low, vy_high]  = [vr.start, vr.end]
+    [sx_low, sx_high] = [hr.start, hr.end]
+    [sy_low, sy_high]  = [vr.start, vr.end]
 
     switch @model.dimension
       when "height"
-        vy_range = Math.abs(vy_high - vy_low)
-        sx0 = vx_low
-        sx1 = vx_high
-        sy0 = vy_low + vy_range * factor
-        sy1 = vy_high + vy_range * factor
+        sy_range = Math.abs(sy_high - sy_low)
+        sx0 = sx_low
+        sx1 = sx_high
+        sy0 = sy_low + sy_range * factor
+        sy1 = sy_high + sy_range * factor
       when "width"
-        vx_range = Math.abs(vx_high - vx_low)
-        sx0 = vx_low - vx_range * factor
-        sx1 = vx_high - vx_range * factor
-        sy0 = vy_low
-        sy1 = vy_high
+        sx_range = Math.abs(sx_high - sx_low)
+        sx0 = sx_low - sx_range * factor
+        sx1 = sx_high - sx_range * factor
+        sy0 = sy_low
+        sy1 = sy_high
 
     xrs = {}
     for name, scale of frame.xscales

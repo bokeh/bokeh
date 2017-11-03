@@ -28,21 +28,21 @@ export class ArrowView extends AnnotationView
     frame = @plot_view.frame
 
     if @model.start_units == 'data'
-      vx_start = frame.xscales[@model.x_range_name].v_compute(@_x_start)
-      vy_start = frame.yscales[@model.y_range_name].v_compute(@_y_start)
+      sx_start = frame.xscales[@model.x_range_name].v_compute(@_x_start)
+      sy_start = frame.yscales[@model.y_range_name].v_compute(@_y_start)
     else
-      vx_start = @_x_start
-      vy_start = @_y_start
+      sx_start = frame.v_vx_to_Sx(@_x_start)
+      sy_start = frame.v_vy_to_Sy(@_y_start)
 
     if @model.end_units == 'data'
-      vx_end = frame.xscales[@model.x_range_name].v_compute(@_x_end)
-      vy_end = frame.yscales[@model.y_range_name].v_compute(@_y_end)
+      sx_end = frame.xscales[@model.x_range_name].v_compute(@_x_end)
+      sy_end = frame.yscales[@model.y_range_name].v_compute(@_y_end)
     else
-      vx_end = @_x_end
-      vy_end = @_y_end
+      sx_end = frame.v_vx_to_Sx(@_x_end)
+      sy_end = frame.v_vy_to_Sy(@_y_end)
 
-    start = [frame.v_vx_to_Sx(vx_start), frame.v_vy_to_Sy(vy_start)]
-    end   = [frame.v_vx_to_Sx(vx_end  ), frame.v_vy_to_Sy(vy_end  )]
+    start = [sx_start, sy_start]
+    end   = [sx_end,   sy_end  ]
 
     return [start, end]
 

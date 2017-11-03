@@ -80,8 +80,10 @@ export class SpanView extends AnnotationView
     if @model.for_hover
       return @model.computed_location
     else
-      vdim = if @model.location_units == 'data' then scale.compute(loc) else loc
-      return @plot_view.frame.vx_to_Sx(vdim)
+      if @model.location_units == 'data'
+        return scale.compute(loc)
+      else
+        return @plot_view.frame.vx_to_Sx(loc)
 
 export class Span extends Annotation
   default_view: SpanView

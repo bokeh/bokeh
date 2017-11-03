@@ -11,9 +11,9 @@ export class PanToolView extends GestureToolView
     if not bbox.contains(sx, sy)
       hr = bbox.h_range
       vr = bbox.v_range
-      if vx < hr.start or vx > hr.end
+      if sx < hr.start or sx > hr.end
         @v_axis_only = true
-      if vy < vr.start or vy > vr.end
+      if sy < vr.start or sy > vr.end
         @h_axis_only = true
     @model.document.interactive_start(@plot_model.plot)
 
@@ -67,14 +67,12 @@ export class PanToolView extends GestureToolView
 
     xrs = {}
     for name, scale of frame.xscales
-
-      [start, end] = scale.v_invert([vx0, vx1])
+      [start, end] = scale.v_invert([sx0, sx1])
       xrs[name] = {start: start, end: end}
 
     yrs = {}
     for name, scale of frame.yscales
-
-      [start, end] = scale.v_invert([vy0, vy1])
+      [start, end] = scale.v_invert([sy0, sy1])
       yrs[name] = {start: start, end: end}
 
     @pan_info = {

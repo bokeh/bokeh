@@ -77,65 +77,56 @@ export class BoxZoomToolView extends GestureToolView
 
   _pan_start: (e) ->
     canvas = @plot_view.canvas
-    @_base_point = [
-      canvas.sx_to_vx(e.bokeh.sx)
-      canvas.sy_to_vy(e.bokeh.sy)
-    ]
+    @_base_point = [e.bokeh.sx, e.bokeh.sy]
     return null
 
   _pan: (e) ->
     canvas = @plot_view.canvas
-    curpoint = [
-      canvas.sx_to_vx(e.bokeh.sx)
-      canvas.sy_to_vy(e.bokeh.sy)
-    ]
+    curpoint = [e.bokeh.sx, e.bokeh.sy]
     frame = @plot_model.frame
     dims = @model.dimensions
 
     if @model.match_aspect and dims == 'both'
-      [vx, vy] = @_match_aspect(@_base_point, curpoint, frame)
+      [sx, sy] = @_match_aspect(@_base_point, curpoint, frame)
     else
-      [vx, vy] = @model._get_dim_limits(@_base_point, curpoint, frame, dims)
+      [sx, sy] = @model._get_dim_limits(@_base_point, curpoint, frame, dims)
 
-    @model.overlay.update({left: vx[0], right: vx[1], top: vy[1], bottom: vy[0]})
+    @model.overlay.update({left: sx[0], right: sx[1], top: sy[1], bottom: sy[0]})
 
     return null
 
   _pan_end: (e) ->
     canvas = @plot_view.canvas
-    curpoint = [
-      canvas.sx_to_vx(e.bokeh.sx)
-      canvas.sy_to_vy(e.bokeh.sy)
-    ]
+    curpoint = [e.bokeh.sx, e.bokeh.sy]
     frame = @plot_model.frame
     dims = @model.dimensions
 
     if @model.match_aspect and dims == 'both'
-      [vx, vy] = @_match_aspect(@_base_point, curpoint, frame)
+      [sx, sy] = @_match_aspect(@_base_point, curpoint, frame)
     else
-      [vx, vy] = @model._get_dim_limits(@_base_point, curpoint, frame, dims)
+      [sx, sy] = @model._get_dim_limits(@_base_point, curpoint, frame, dims)
 
-    @_update(vx, vy)
+    @_update(sx, sy)
 
     @model.overlay.update({left: null, right: null, top: null, bottom: null})
     @_base_point = null
     return null
 
-  _update: (vx, vy) ->
+  _update: (sx, sy) ->
     # If the viewing window is too small, no-op: it is likely that the user did
     # not intend to make this box zoom and instead was trying to cancel out of the
     # zoom, a la matplotlib's ToolZoom. Like matplotlib, set the threshold at 5 pixels.
-    if Math.abs(vx[1] - vx[0]) <= 5 or Math.abs(vy[1] - vy[0]) <= 5
+    if Math.abs(sx[1] - sx[0]) <= 5 or Math.abs(sy[1] - sy[0]) <= 5
       return
 
     xrs = {}
     for name, scale of @plot_view.frame.xscales
-      [start, end] = scale.v_invert(vx)
+      [start, end] = scale.v_invert(sx)
       xrs[name] = {start: start, end: end}
 
     yrs = {}
     for name, scale of @plot_view.frame.yscales
-      [start, end] = scale.v_invert(vy)
+      [start, end] = scale.v_invert(sy)
       yrs[name] = {start: start, end: end}
 
     zoom_info = {

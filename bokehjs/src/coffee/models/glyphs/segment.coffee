@@ -32,21 +32,19 @@ export class SegmentView extends GlyphView
         ctx.stroke()
 
   _hit_point: (geometry) ->
-    [vx, vy] = [geometry.vx, geometry.vy]
-    x = @renderer.xscale.invert(vx, true)
-    y = @renderer.yscale.invert(vy, true)
+    {sx, sy} = geometry
+    x = @renderer.xscale.invert(sx)
+    y = @renderer.yscale.invert(sy)
 
-    point =
-      x: this.renderer.plot_view.canvas.vx_to_sx(vx)
-      y: this.renderer.plot_view.canvas.vy_to_sy(vy)
+    point = {x: sx, y: sy}
 
     hits = []
     lw_voffset = 2 # FIXME: Use maximum of segments line_width/2 instead of magic constant 2
     candidates = @index.indices({
-      minX: @renderer.xscale.invert(vx-lw_voffset, true),
-      minY: @renderer.yscale.invert(vy-lw_voffset, true),
-      maxX: @renderer.xscale.invert(vx+lw_voffset, true),
-      maxY: @renderer.yscale.invert(vy+lw_voffset, true)
+      minX: @renderer.xscale.invert(sx-lw_voffset),
+      minY: @renderer.yscale.invert(sy-lw_voffset),
+      maxX: @renderer.xscale.invert(sx+lw_voffset),
+      maxY: @renderer.yscale.invert(sy+lw_voffset),
     })
 
     for i in candidates
@@ -64,13 +62,13 @@ export class SegmentView extends GlyphView
     hr = @renderer.plot_view.frame.h_range
     vr = @renderer.plot_view.frame.v_range
 
-    [vx, vy] = [geometry.vx, geometry.vy]
+    {sx, sy} = geometry
 
     if geometry.direction == 'v'
-      val = @renderer.yscale.invert(vy)
+      val = @renderer.yscale.invert(sy)
       [v0, v1] = [@_y0, @_y1]
     else
-      val = @renderer.xscale.invert(vx)
+      val = @renderer.xscale.invert(sx)
       [v0, v1] = [@_x0, @_x1]
 
     hits = []
@@ -79,7 +77,7 @@ export class SegmentView extends GlyphView
       minX: @renderer.xscale.invert(hr.min),
       minY: @renderer.yscale.invert(vr.min),
       maxX: @renderer.xscale.invert(hr.max),
-      maxY: @renderer.yscale.invert(vr.max)
+      maxY: @renderer.yscale.invert(vr.max),
     })
 
     for i in candidates

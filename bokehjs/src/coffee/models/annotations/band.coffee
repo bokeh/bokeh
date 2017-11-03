@@ -23,23 +23,36 @@ export class BandView extends AnnotationView
     frame = @plot_view.frame
     x_scale = frame.xscales[@model.x_range_name]
     y_scale = frame.yscales[@model.y_range_name]
+    vx_to_Sx = (dim) -> frame.vx_to_Sx(dim)
+    vy_to_Sy = (dim) -> frame.vy_to_Sy(dim)
 
     limit_scale = if @model.dimension == "height" then y_scale else x_scale
-    base_scale = if @model.dimension == "height" then x_scale else y_scale
+    base_scale  = if @model.dimension == "height" then x_scale else y_scale
 
-    _lower_vx = if @model.lower.units == "data" then limit_scale.v_compute(@_lower) else @_lower
-    _upper_vx = if @model.upper.units == "data" then limit_scale.v_compute(@_upper) else @_upper
-    _base_vx  = if @model.base.units  == "data" then base_scale.v_compute(@_base)   else @_base
+    if @model.lower.units == "data"
+      _lower_sx = limit_scale.v_compute(@_lower)
+    else
+      _lower_sx = frame.v_vx_to_Sx(@_lower) # XXX
+
+    if @model.upper.units == "data"
+      _upper_sx = limit_scale.v_compute(@_upper)
+    else
+      _upper_sx = frame.v_vx_to_Sx(@_upper) # XXX
+
+    if @model.base.units  == "data"
+      _base_sx  = base_scale.v_compute(@_base)
+    else
+      _base_sx  = frame.v_vx_to_Sx(@_base)  # XXX
 
     [i, j] = @model._normals()
-    _lower = [_lower_vx, _base_vx]
-    _upper = [_upper_vx, _base_vx]
+    _lower = [_lower_sx, _base_sx]
+    _upper = [_upper_sx, _base_sx]
 
-    @_lower_sx = frame.v_vx_to_Sx(_lower[i])
-    @_lower_sy = frame.v_vy_to_Sy(_lower[j])
+    @_lower_sx = _lower[i]
+    @_lower_sy = _lower[j]
 
-    @_upper_sx = frame.v_vx_to_Sx(_upper[i])
-    @_upper_sy = frame.v_vy_to_Sy(_upper[j])
+    @_upper_sx = _upper[i]
+    @_upper_sy = _upper[j]
 
   render: () ->
     if not @model.visible

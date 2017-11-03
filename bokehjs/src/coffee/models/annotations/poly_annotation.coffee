@@ -24,16 +24,14 @@ export class PolyAnnotationView extends AnnotationView
     if xs.length < 3 or ys.length < 3
       return null
 
-    canvas = @plot_view.canvas
+    frame = @plot_view.frame
     ctx = @plot_view.canvas_view.ctx
 
     for i in [0...xs.length]
       if @model.xs_units == 'screen'
-        vx = xs[i]
+        sx = frame.vx_to_Sx(xs[i])
       if @model.ys_units == 'screen'
-        vy = ys[i]
-      sx = canvas.vx_to_sx(vx)
-      sy = canvas.vy_to_sy(vy)
+        sy = frame.vy_to_Sy(ys[i])
       if i == 0
         ctx.beginPath()
         ctx.moveTo(sx, sy)

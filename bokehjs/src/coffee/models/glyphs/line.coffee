@@ -38,8 +38,8 @@ export class LineView extends XYGlyphView
     that describes the hit result:
       Args:
         * geometry (object): object with the following keys
-          * vx (float): view x coordinate of the point
-          * vy (float): view y coordinate of the point
+          * sx (float): screen x coordinate of the point
+          * sy (float): screen y coordinate of the point
           * type (str): type of geometry (in this case it's a point)
       Output:
         Object with the following keys:
@@ -47,9 +47,7 @@ export class LineView extends XYGlyphView
           * 1d (array(int)): array with the indices hit by the point
     ###
     result = hittest.create_hit_test_result()
-    point =
-      x: this.renderer.plot_view.canvas.vx_to_sx(geometry.vx)
-      y: this.renderer.plot_view.canvas.vy_to_sy(geometry.vy)
+    point = {x: geometry.sx, y: geometry.sy}
     shortest = 9999
     threshold = Math.max(2, @visuals.line.line_width.value() / 2)
 
@@ -67,14 +65,14 @@ export class LineView extends XYGlyphView
     return result
 
   _hit_span: (geometry) ->
-    [vx, vy] = [geometry.vx, geometry.vy]
+    {sx, sy} = geometry
     result = hittest.create_hit_test_result()
 
     if geometry.direction == 'v'
-      val = @renderer.yscale.invert(vy)
+      val = @renderer.yscale.invert(sy)
       values = @_y
     else
-      val = @renderer.xscale.invert(vx)
+      val = @renderer.xscale.invert(sx)
       values = @_x
 
     for i in [0...values.length-1]
@@ -87,18 +85,18 @@ export class LineView extends XYGlyphView
     return result
 
   get_interpolation_hit: (i, geometry)->
-    [vx, vy] = [geometry.vx, geometry.vy]
+    {sx, sy} = geometry
     [x2, y2, x3, y3] = [@_x[i], @_y[i], @_x[i+1], @_y[i+1]]
 
     if geometry.type == 'point'
-      [y0, y1] = @renderer.yscale.v_invert([vy-1, vy+1])
-      [x0, x1] = @renderer.xscale.v_invert([vx-1, vx+1])
+      [y0, y1] = @renderer.yscale.v_invert([sy-1, sy+1])
+      [x0, x1] = @renderer.xscale.v_invert([sx-1, sx+1])
     else
       if geometry.direction == 'v'
-        [y0, y1] = @renderer.yscale.v_invert([vy, vy])
+        [y0, y1] = @renderer.yscale.v_invert([sy, sy])
         [x0, x1] = [x2, x3]
       else
-        [x0, x1] = @renderer.xscale.v_invert([vx, vx])
+        [x0, x1] = @renderer.xscale.v_invert([sx, sx])
         [y0, y1] = [y2, y3]
 
     res = hittest.check_2_segments_intersect(x0, y0, x1, y1, x2, y2, x3, y3)

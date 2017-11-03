@@ -31,9 +31,9 @@ export class WedgeView extends XYGlyphView
         ctx.stroke()
 
   _hit_point: (geometry) ->
-    [vx, vy] = [geometry.vx, geometry.vy]
-    x = @renderer.xscale.invert(vx)
-    y = @renderer.yscale.invert(vy)
+    {sx, sy} = geometry
+    x = @renderer.xscale.invert(sx)
+    y = @renderer.yscale.invert(sy)
 
     # check radius first
     if @model.properties.radius.units == "data"
@@ -44,13 +44,13 @@ export class WedgeView extends XYGlyphView
       y1 = y + @max_radius
 
     else
-      vx0 = vx - @max_radius
-      vx1 = vx + @max_radius
-      [x0, x1] = @renderer.xscale.v_invert([vx0, vx1])
+      sx0 = sx - @max_radius
+      sx1 = sx + @max_radius
+      [x0, x1] = @renderer.xscale.v_invert([sx0, sx1])
 
-      vy0 = vy - @max_radius
-      vy1 = vy + @max_radius
-      [y0, y1] = @renderer.yscale.v_invert([vy0, vy1])
+      sy0 = sy - @max_radius
+      sy1 = sy + @max_radius
+      [y0, y1] = @renderer.yscale.v_invert([sy0, sy1])
 
     candidates = []
 
@@ -68,8 +68,6 @@ export class WedgeView extends XYGlyphView
     direction = @model.properties.direction.value()
     hits = []
     for [i, dist] in candidates
-      sx = @renderer.plot_view.canvas.vx_to_sx(vx)
-      sy = @renderer.plot_view.canvas.vy_to_sy(vy)
       # NOTE: minus the angle because JS uses non-mathy convention for angles
       angle = Math.atan2(sy-@sy[i], sx-@sx[i])
       if angle_between(-angle, -@_start_angle[i], -@_end_angle[i], direction)

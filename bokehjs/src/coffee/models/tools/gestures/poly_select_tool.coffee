@@ -43,23 +43,19 @@ export class PolySelectToolView extends SelectToolView
   _do_select: (sx, sy, final, append) ->
     geometry = {
       type: 'poly'
-      vx: vx
-      vy: vy
+      sx: sx
+      sy: sy
     }
     @_select(geometry, final, append)
 
   _emit_callback: (geometry) ->
     r = @computed_renderers[0]
-    canvas = @plot_model.canvas
     frame = @plot_model.frame
-
-    geometry['sx'] = canvas.v_vx_to_sx(geometry.vx)
-    geometry['sy'] = canvas.v_vx_to_sx(geometry.vy)
 
     xscale = frame.xscales[r.x_range_name]
     yscale = frame.yscales[r.y_range_name]
-    geometry['x'] = xscale.v_invert(geometry.vx)
-    geometry['y'] = xscale.v_invert(geometry.vy)
+    geometry.x = xscale.v_invert(geometry.sx)
+    geometry.y = xscale.v_invert(geometry.sy)
 
     @model.callback.execute(@model, {geometry: geometry})
 

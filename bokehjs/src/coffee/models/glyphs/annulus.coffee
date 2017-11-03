@@ -54,12 +54,12 @@ export class AnnulusView extends XYGlyphView
           ctx.stroke()
 
   _hit_point: (geometry) ->
-    [vx, vy] = [geometry.vx, geometry.vy]
-    x = @renderer.xscale.invert(vx)
+    {sx, sy} = geometry
+    x = @renderer.xscale.invert(sx)
     x0 = x - @max_radius
     x1 = x + @max_radius
 
-    y = @renderer.yscale.invert(vy)
+    y = @renderer.yscale.invert(sy)
     y0 = y - @max_radius
     y1 = y + @max_radius
 

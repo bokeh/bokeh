@@ -55,11 +55,8 @@ export class LabelSetView extends TextAnnotationView
 
     panel = @model.panel ? @plot_view.frame
 
-    vx = if @model.x_units == "data" then xscale.v_compute(@_x) else @_x
-    vy = if @model.y_units == "data" then yscale.v_compute(@_y) else @_y
-
-    sx = panel.v_vx_to_Sx(vx)
-    sy = panel.v_vy_to_Sy(vy)
+    sx = if @model.x_units == "data" then xscale.v_compute(@_x) else panel.v_vx_to_Sx(@_x)
+    sy = if @model.y_units == "data" then yscale.v_compute(@_y) else panel.v_vy_to_Sy(@_y)
 
     return [sx, sy]
 

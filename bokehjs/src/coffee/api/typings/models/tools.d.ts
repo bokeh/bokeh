@@ -107,8 +107,6 @@ declare namespace Bokeh {
     index:  Int;
     x:      ArrayLike<number>;
     y:      ArrayLike<number>;
-    vx:     ArrayLike<number>;
-    vy:     ArrayLike<number>;
     sx:     ArrayLike<number>;
     sy:     ArrayLike<number>;
     data_x: ArrayLike<number>;
@@ -124,8 +122,6 @@ declare namespace Bokeh {
       direction?: "h" | "v";
       x: ArrayLike<number>;
       y: ArrayLike<number>;
-      vx: ArrayLike<number>;
-      vy: ArrayLike<number>;
       sx: ArrayLike<number>;
       sy: ArrayLike<number>;
     };

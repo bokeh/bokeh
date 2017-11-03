@@ -44,30 +44,28 @@ export class MarkerView extends XYGlyphView
     # dilate the inner screen region by max_size and map back to data space for use in
     # spatial query
     hr = @renderer.plot_view.frame.h_range
-    vx0 = hr.start - @max_size
-    vx1 = hr.end + @max_size
-    [x0, x1] = @renderer.xscale.v_invert([vx0, vx1])
+    sx0 = hr.start - @max_size
+    sx1 = hr.end + @max_size
+    [x0, x1] = @renderer.xscale.v_invert([sx0, sx1])
 
     vr = @renderer.plot_view.frame.v_range
-    vy0 = vr.start - @max_size
-    vy1 = vr.end + @max_size
-    [y0, y1] = @renderer.yscale.v_invert([vy0, vy1])
+    sy0 = vr.start - @max_size
+    sy1 = vr.end + @max_size
+    [y0, y1] = @renderer.yscale.v_invert([sy0, sy1])
 
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
     return @index.indices(bbox)
 
   _hit_point: (geometry) ->
-    [vx, vy] = [geometry.vx, geometry.vy]
-    sx = @renderer.plot_view.canvas.vx_to_sx(vx)
-    sy = @renderer.plot_view.canvas.vy_to_sy(vy)
+    {sx, sy} = geometry
 
-    vx0 = vx - @max_size
-    vx1 = vx + @max_size
-    [x0, x1] = @renderer.xscale.v_invert([vx0, vx1])
+    sx0 = sx - @max_size
+    sx1 = sx + @max_size
+    [x0, x1] = @renderer.xscale.v_invert([sx0, sx1])
 
-    vy0 = vy - @max_size
-    vy1 = vy + @max_size
-    [y0, y1] = @renderer.yscale.v_invert([vy0, vy1])
+    sy0 = sy - @max_size
+    sy1 = sy + @max_size
+    [y0, y1] = @renderer.yscale.v_invert([sy0, sy1])
 
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
     candidates = @index.indices(bbox)
@@ -81,7 +79,7 @@ export class MarkerView extends XYGlyphView
     return hittest.create_1d_hit_test_result(hits)
 
   _hit_span: (geometry) ->
-    [vx, vy] = [geometry.vx, geometry.vy]
+    {sx, sy} = geometry
     {minX, minY, maxX, maxY} = this.bounds()
     result = hittest.create_hit_test_result()
 
@@ -89,16 +87,16 @@ export class MarkerView extends XYGlyphView
       y0 = minY
       y1 = maxY
       ms = @max_size/2
-      vx0 = vx - ms
-      vx1 = vx + ms
-      [x0, x1] = @renderer.xscale.v_invert([vx0, vx1])
+      sx0 = sx - ms
+      sx1 = sx + ms
+      [x0, x1] = @renderer.xscale.v_invert([sx0, sx1])
     else
       x0 = minX
       x1 = maxX
       ms = @max_size/2
-      vy0 = vy - ms
-      vy1 = vy + ms
-      [y0, y1] = @renderer.yscale.v_invert([vy0, vy1])
+      sy0 = sy - ms
+      sy1 = sy + ms
+      [y0, y1] = @renderer.yscale.v_invert([sy0, sy1])
 
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
     hits = @index.indices(bbox)
@@ -107,17 +105,16 @@ export class MarkerView extends XYGlyphView
     return result
 
   _hit_rect: (geometry) ->
-    [x0, x1] = @renderer.xscale.v_invert([geometry.vx0, geometry.vx1])
-    [y0, y1] = @renderer.yscale.v_invert([geometry.vy0, geometry.vy1])
+    {sx0, sx1, sy0, sy1} = geometry
+    [x0, x1] = @renderer.xscale.v_invert([sx0, sx1])
+    [y0, y1] = @renderer.yscale.v_invert([sy0, sy1])
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
     result = hittest.create_hit_test_result()
     result['1d'].indices = @index.indices(bbox)
     return result
 
   _hit_poly: (geometry) ->
-    [vx, vy] = [geometry.vx, geometry.vy]
-    sx = @renderer.plot_view.canvas.v_vx_to_sx(vx)
-    sy = @renderer.plot_view.canvas.v_vy_to_sy(vy)
+    {sx, sy} = geometry
 
     # TODO (bev) use spatial index to pare candidate list
     candidates = [0...@sx.length]

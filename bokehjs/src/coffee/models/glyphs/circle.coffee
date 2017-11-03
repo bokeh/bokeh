@@ -65,9 +65,9 @@ export class CircleView extends XYGlyphView
         ctx.stroke()
 
   _hit_point: (geometry) ->
-    [vx, vy] = [geometry.vx, geometry.vy]
-    x = @renderer.xscale.invert(vx)
-    y = @renderer.yscale.invert(vy)
+    {sx, sy} = geometry
+    x = @renderer.xscale.invert(sx)
+    y = @renderer.yscale.invert(sy)
 
     # check radius first
     if @_radius? and @model.properties.radius.units == "data"
@@ -78,14 +78,14 @@ export class CircleView extends XYGlyphView
       y1 = y + @max_radius
 
     else
-      vx0 = vx - @max_size
-      vx1 = vx + @max_size
-      [x0, x1] = @renderer.xscale.v_invert([vx0, vx1])
+      sx0 = sx - @max_size
+      sx1 = sx + @max_size
+      [x0, x1] = @renderer.xscale.v_invert([sx0, sx1])
       [x0, x1] = [Math.min(x0, x1), Math.max(x0, x1)]
 
-      vy0 = vy - @max_size
-      vy1 = vy + @max_size
-      [y0, y1] = @renderer.yscale.v_invert([vy0, vy1])
+      sy0 = sy - @max_size
+      sy1 = sy + @max_size
+      [y0, y1] = @renderer.yscale.v_invert([sy0, sy1])
       [y0, y1] = [Math.min(y0, y1), Math.max(y0, y1)]
 
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
@@ -103,8 +103,6 @@ export class CircleView extends XYGlyphView
         if dist <= r2
           hits.push([i, dist])
     else
-      sx = @renderer.plot_view.canvas.vx_to_sx(vx)
-      sy = @renderer.plot_view.canvas.vy_to_sy(vy)
       for i in candidates
         r2 = Math.pow(@sradius[i], 2)
         dist = Math.pow(@sx[i]-sx, 2) + Math.pow(@sy[i]-sy, 2)
@@ -114,7 +112,7 @@ export class CircleView extends XYGlyphView
     return hittest.create_1d_hit_test_result(hits)
 
   _hit_span: (geometry) ->
-      [vx, vy] = [geometry.vx, geometry.vy]
+      {sx, sy} = geometry
       {minX, minY, maxX, maxY} = this.bounds()
       result = hittest.create_hit_test_result()
 
@@ -123,27 +121,27 @@ export class CircleView extends XYGlyphView
         y0 = minY
         y1 = maxY
         if @_radius? and @model.properties.radius.units == "data"
-          vx0 = vx - @max_radius
-          vx1 = vx + @max_radius
-          [x0, x1] = @renderer.xscale.v_invert([vx0, vx1])
+          sx0 = sx - @max_radius
+          sx1 = sx + @max_radius
+          [x0, x1] = @renderer.xscale.v_invert([sx0, sx1])
         else
           ms = @max_size/2
-          vx0 = vx - ms
-          vx1 = vx + ms
-          [x0, x1] = @renderer.xscale.v_invert([vx0, vx1])
+          sx0 = sx - ms
+          sx1 = sx + ms
+          [x0, x1] = @renderer.xscale.v_invert([sx0, sx1])
       else
         # use circle bounds instead of current pointer x coordinates
         x0 = minX
         x1 = maxX
         if @_radius? and @model.properties.radius.units == "data"
-          vy0 = vy - @max_radius
-          vy1 = vy + @max_radius
-          [y0, y1] = @renderer.yscale.v_invert([vy0, vy1])
+          sy0 = sy - @max_radius
+          sy1 = sy + @max_radius
+          [y0, y1] = @renderer.yscale.v_invert([sy0, sy1])
         else
           ms = @max_size/2
-          vy0 = vy - ms
-          vy1 = vy + ms
-          [y0, y1] = @renderer.yscale.v_invert([vy0, vy1])
+          sy0 = sy - ms
+          sy1 = sy + ms
+          [y0, y1] = @renderer.yscale.v_invert([sy0, sy1])
 
       bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
       hits = @index.indices(bbox)
@@ -152,17 +150,16 @@ export class CircleView extends XYGlyphView
       return result
 
   _hit_rect: (geometry) ->
-    [x0, x1] = @renderer.xscale.v_invert([geometry.vx0, geometry.vx1])
-    [y0, y1] = @renderer.yscale.v_invert([geometry.vy0, geometry.vy1])
+    {sx0, sx1, sy0, sy1} = geometry
+    [x0, x1] = @renderer.xscale.v_invert([sx0, sx1])
+    [y0, y1] = @renderer.yscale.v_invert([sy0, sy1])
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
     result = hittest.create_hit_test_result()
     result['1d'].indices = @index.indices(bbox)
     return result
 
   _hit_poly: (geometry) ->
-    [vx, vy] = [geometry.vx, geometry.vy]
-    sx = @renderer.plot_view.canvas.v_vx_to_sx(vx)
-    sy = @renderer.plot_view.canvas.v_vy_to_sy(vy)
+    {sx, sy} = geometry
 
     # TODO (bev) use spatial index to pare candidate list
     candidates = [0...@sx.length]

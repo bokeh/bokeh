@@ -79,9 +79,9 @@ export class RectView extends XYGlyphView
     return @_hit_rect_against_index(geometry)
 
   _hit_point: (geometry) ->
-    [vx, vy] = [geometry.vx, geometry.vy]
-    x = @renderer.xscale.invert(vx)
-    y = @renderer.yscale.invert(vy)
+    {sx, sy} = geometry
+    x = @renderer.xscale.invert(sx)
+    y = @renderer.yscale.invert(sy)
 
     scenter_x = (@sx0[i] + @sw[i]/2 for i in [0...@sx0.length])
     scenter_y = (@sy1[i] + @sh[i]/2 for i in [0...@sy1.length])
@@ -98,9 +98,6 @@ export class RectView extends XYGlyphView
 
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
     for i in @index.indices(bbox)
-      sx = @renderer.plot_view.canvas.vx_to_sx(vx)
-      sy = @renderer.plot_view.canvas.vy_to_sy(vy)
-
       if @_angle[i]
         d = Math.sqrt(Math.pow((sx - @sx[i]), 2) + Math.pow((sy - @sy[i]),2))
         s = Math.sin(-@_angle[i])
@@ -128,37 +125,35 @@ export class RectView extends XYGlyphView
       coord = (scale.source_range.synthetic(x) for x in coord)
     pt0 = (Number(coord[i]) - side_length[i]/2 for i in [0...coord.length])
     pt1 = (Number(coord[i]) + side_length[i]/2 for i in [0...coord.length])
-    vpt0 = scale.v_compute(pt0)
-    vpt1 = scale.v_compute(pt1)
+    spt0 = scale.v_compute(pt0)
+    spt1 = scale.v_compute(pt1)
     sside_length = @sdist(scale, pt0, side_length, 'edge', @model.dilate)
     if dim == 0
-      vpt_corner = vpt0
-      for i in [0...vpt0.length]
-        if vpt0[i] != vpt1[i]
-          vpt_corner = if vpt0[i] < vpt1[i] then vpt0 else vpt1
+      spt_corner = spt0
+      for i in [0...spt0.length]
+        if spt0[i] != spt1[i]
+          spt_corner = if spt0[i] < spt1[i] then spt0 else spt1
           break
-      return [sside_length, frame.v_vx_to_sx(vpt_corner)]
+      return [sside_length, spt_corner]
     else if dim == 1
-      vpt_corner = vpt0
-      for i in [0...vpt0.length]
-        if vpt0[i] != vpt1[i]
-          vpt_corner = if vpt0[i] < vpt1[i] then vpt1 else vpt0
+      spt_corner = spt0
+      for i in [0...spt0.length]
+        if spt0[i] != spt1[i]
+          spt_corner = if spt0[i] < spt1[i] then spt1 else spt0
           break
-      return [sside_length, frame.v_vy_to_sy(vpt_corner)]
+      return [sside_length, spt_corner]
 
   _ddist: (dim, spts, spans) ->
     if dim == 0
-      vpts = @renderer.plot_view.canvas.v_sx_to_vx(spts)
       scale = @renderer.xscale
     else
-      vpts = @renderer.plot_view.canvas.v_vy_to_sy(spts)
       scale = @renderer.yscale
 
-    vpt0 = vpts
-    vpt1 = (vpt0[i] + spans[i] for i in [0...vpt0.length])
+    spt0 = spts
+    spt1 = (spt0[i] + spans[i] for i in [0...spt0.length])
 
-    pt0 = scale.v_invert(vpt0)
-    pt1 = scale.v_invert(vpt1)
+    pt0 = scale.v_invert(spt0)
+    pt1 = scale.v_invert(spt1)
 
     return (Math.abs(pt1[i] - pt0[i]) for i in [0...pt0.length])
 

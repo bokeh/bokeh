@@ -35,13 +35,22 @@ export class BoxAnnotationView extends AnnotationView
       return null
 
     frame = @plot_model.frame
-    xscale = @plot_view.frame.xscales[@model.x_range_name]
-    yscale = @plot_view.frame.yscales[@model.y_range_name]
+    xscale = frame.xscales[@model.x_range_name]
+    yscale = frame.yscales[@model.y_range_name]
+    vx_to_Sx = (dim) -> frame.vx_to_Sx(dim)
+    vy_to_Sy = (dim) -> frame.vy_to_Sy(dim)
 
-    sleft   = frame.vx_to_Sx(@_calc_dim(@model.left,   @model.left_units,   xscale, 0))
-    sright  = frame.vx_to_Sx(@_calc_dim(@model.right,  @model.right_units,  xscale, frame._width.value))
-    stop    = frame.vy_to_Sy(@_calc_dim(@model.top,    @model.top_units,    yscale, 0))
-    sbottom = frame.vy_to_Sy(@_calc_dim(@model.bottom, @model.bottom_units, yscale, frame._height.value))
+    _calc_dim: (dim, dim_units, scale, v_to_s, frame_extrema) ->
+      if dim?
+        sdim = if dim_units == 'data' then scale.compute(dim) else v_to_s(dim)
+      else
+        sdim = frame_extrema
+      return sdim
+
+    sleft   = @_calc_dim(@model.left,   @model.left_units,   xscale, vx_to_Sx, frame._left.value)
+    sright  = @_calc_dim(@model.right,  @model.right_units,  xscale, vx_to_Sx, frame._right.value)
+    stop    = @_calc_dim(@model.top,    @model.top_units,    yscale, vy_to_Sy, frame._top.value)
+    sbottom = @_calc_dim(@model.bottom, @model.bottom_units, yscale, vy_to_Sy, frame._bottom.value)
 
     draw = if @model.render_mode == 'css' then @_css_box.bind(@) else @_canvas_box.bind(@)
     draw(sleft, sright, sbottom, stop)
@@ -82,16 +91,6 @@ export class BoxAnnotationView extends AnnotationView
     ctx.stroke()
 
     ctx.restore()
-
-  _calc_dim: (dim, dim_units, scale, frame_extrema) ->
-    if dim?
-      if dim_units == 'data'
-        vdim = scale.compute(dim)
-      else
-        vdim = dim
-    else
-      vdim = frame_extrema
-    return vdim
 
 export class BoxAnnotation extends Annotation
   default_view: BoxAnnotationView

@@ -71,19 +71,19 @@ export class SelectToolView extends GestureToolView
     ym = @plot_view.frame.yscales['default']
     switch g.type
       when 'point'
-        g.x = xm.invert(g.vx)
-        g.y = ym.invert(g.vy)
+        g.x = xm.invert(g.sx)
+        g.y = ym.invert(g.sy)
       when 'rect'
-        g.x0 = xm.invert(g.vx0)
-        g.y0 = ym.invert(g.vy0)
-        g.x1 = xm.invert(g.vx1)
-        g.y1 = ym.invert(g.vy1)
+        g.x0 = xm.invert(g.sx0)
+        g.y0 = ym.invert(g.sy0)
+        g.x1 = xm.invert(g.sx1)
+        g.y1 = ym.invert(g.sy1)
       when 'poly'
-        g.x = new Array(g.vx.length)
-        g.y = new Array(g.vy.length)
-        for i in [0...g.vx.length]
-          g.x[i] = xm.invert(g.vx[i])
-          g.y[i] = ym.invert(g.vy[i])
+        g.x = new Array(g.sx.length)
+        g.y = new Array(g.sy.length)
+        for i in [0...g.sx.length]
+          g.x[i] = xm.invert(g.sx[i])
+          g.y[i] = ym.invert(g.sy[i])
       else
         logger.debug("Unrecognized selection geometry type: '#{g.type}'")
 

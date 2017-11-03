@@ -43,9 +43,7 @@ export class MultiLineView extends GlyphView
 
   _hit_point: (geometry) ->
     result = hittest.create_hit_test_result()
-    point =
-      x: this.renderer.plot_view.canvas.vx_to_sx(geometry.vx)
-      y: this.renderer.plot_view.canvas.vy_to_sy(geometry.vy)
+    point = {x: geometry.sx, y: geometry.sy}
     shortest = 9999
 
     hits = {}
@@ -67,14 +65,14 @@ export class MultiLineView extends GlyphView
     return result
 
   _hit_span: (geometry) ->
-    [vx, vy] = [geometry.vx, geometry.vy]
+    {sx, sy} = geometry
     result = hittest.create_hit_test_result()
 
     if geometry.direction == 'v'
-      val = @renderer.yscale.invert(vy)
+      val = @renderer.yscale.invert(sy)
       values = @_ys
     else
-      val = @renderer.xscale.invert(vx)
+      val = @renderer.xscale.invert(sx)
       values = @_xs
 
     hits = {}
@@ -92,18 +90,18 @@ export class MultiLineView extends GlyphView
     return result
 
   get_interpolation_hit: (i, point_i, geometry)->
-    [vx, vy] = [geometry.vx, geometry.vy]
+    {sx, sy} = geometry
     [x2, y2, x3, y3] = [@_xs[i][point_i], @_ys[i][point_i], @_xs[i][point_i+1], @_ys[i][point_i+1]]
 
     if geometry.type == 'point'
-      [y0, y1] = @renderer.yscale.v_invert([vy-1, vy+1])
-      [x0, x1] = @renderer.xscale.v_invert([vx-1, vx+1])
+      [y0, y1] = @renderer.yscale.v_invert([sy-1, sy+1])
+      [x0, x1] = @renderer.xscale.v_invert([sx-1, sx+1])
     else
       if geometry.direction == 'v'
-        [y0, y1] = @renderer.yscale.v_invert([vy, vy])
+        [y0, y1] = @renderer.yscale.v_invert([sy, sy])
         [x0, x1] = [x2, x3]
       else
-        [x0, x1] = @renderer.xscale.v_invert([vx, vx])
+        [x0, x1] = @renderer.xscale.v_invert([sx, sx])
         [y0, y1] = [y2, y3]
 
     res = hittest.check_2_segments_intersect(x0, y0, x1, y1, x2, y2, x3, y3)

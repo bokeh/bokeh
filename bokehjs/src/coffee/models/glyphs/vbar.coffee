@@ -16,16 +16,9 @@ export class VBarView extends BoxView
     return [l, r, t, b]
 
   _map_data: () ->
-    frame = @renderer.plot_view.frame
-
-    vx = @renderer.xscale.v_compute(@_x)
-    @sx = frame.v_vx_to_sx(vx)
-
-    vtop = @renderer.yscale.v_compute(@_top)
-    @stop = frame.v_vy_to_sy(vtop)
-
-    vbottom = (@renderer.yscale.v_compute(@_bottom))
-    @sbottom = frame.v_vy_to_sy(vbottom)
+    @sx = @renderer.xscale.v_compute(@_x)
+    @stop = @renderer.yscale.v_compute(@_top)
+    @sbottom = @renderer.yscale.v_compute(@_bottom)
 
     @sleft = []
     @sright = []

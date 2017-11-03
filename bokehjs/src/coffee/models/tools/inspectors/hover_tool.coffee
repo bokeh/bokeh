@@ -11,7 +11,7 @@ import {values, isEmpty} from "core/util/object"
 import {isString, isFunction} from "core/util/types"
 import {build_views, remove_views} from "core/build_views"
 
-export _nearest_line_hit = (canvas, i, geometry, sx, sy, dx, dy) ->
+export _nearest_line_hit = (i, geometry, sx, sy, dx, dy) ->
   d1x = dx[i]
   d1y = dy[i]
 
@@ -31,16 +31,12 @@ export _nearest_line_hit = (canvas, i, geometry, sx, sy, dx, dy) ->
     dist2 = hittest.dist_2_pts(d2x, d2y, sx, sy)
 
   if dist1 < dist2
-    rx = canvas.sx_to_vx(d1x)
-    ry = canvas.sy_to_vy(d1y)
-    return [[rx, ry], i]
+    return [[d1x, d1y], i]
   else
-    rx = canvas.sx_to_vx(d2x)
-    ry = canvas.sy_to_vy(d2y)
-    return [[rx, ry], i+1]
+    return [[d2x, d2y], i+1]
 
-export _line_hit = (canvas, xs, ys, ind) ->
-  return [[canvas.sx_to_vx(xs[ind]), canvas.sy_to_vy(ys[ind])], ind]
+export _line_hit = (xs, ys, ind) ->
+  return [[xs[ind], ys[ind]], ind]
 
 export class HoverToolView extends InspectToolView
 
@@ -134,20 +130,16 @@ export class HoverToolView extends InspectToolView
   _move_exit: () -> @_clear()
 
   _inspect: (sx, sy) ->
+    type = if @model.mode == 'mouse' then 'point' else 'span'
+
     geometry = {
-      type: 'point'
-      sx: sx
-      sy: sy
+      type: type,
+      sx: sx,
+      sy: sy,
     }
 
-    if @model.mode == 'mouse'
-      geometry['type'] = 'point'
-    else
-        geometry['type'] = 'span'
-        if @model.mode == 'vline'
-          geometry.direction = 'h'
-        else
-          geometry.direction = 'v'
+    if type == 'span'
+      geometry.direction = if @model.mode == 'vline' then 'h' else 'v'
 
     for r in @computed_renderers
       sm = r.get_selection_manager()
@@ -181,12 +173,10 @@ export class HoverToolView extends InspectToolView
 
     {sx, sy} = geometry
 
-    vx = canvas.sx_to_vx(sx) # XXX: abs -> rel
-    vy = canvas.sy_to_vy(sy) # XXX: abs -> rel
     xscale = frame.xscales[renderer_view.model.x_range_name]
     yscale = frame.yscales[renderer_view.model.y_range_name]
-    x = xscale.invert(vx)
-    y = yscale.invert(vy)
+    x = xscale.invert(sx)
+    y = yscale.invert(sy)
 
     glyph = renderer_view.glyph
 
@@ -202,20 +192,20 @@ export class HoverToolView extends InspectToolView
           ry = yscale.compute(data_y)
 
         when "prev"
-          [[rx, ry], ii] = _line_hit(canvas, glyph.sx, glyph.sy, i)
+          [[rx, ry], ii] = _line_hit(glyph.sx, glyph.sy, i)
 
         when "next"
-          [[rx, ry], ii] = _line_hit(canvas, glyph.sx, glyph.sy, i+1)
+          [[rx, ry], ii] = _line_hit(glyph.sx, glyph.sy, i+1)
 
         when "nearest"
-          [[rx, ry], ii] = _nearest_line_hit(canvas, i, geometry, sx, sy, glyph.sx, glyph.sy)
+          [[rx, ry], ii] = _nearest_line_hit(i, geometry, sx, sy, glyph.sx, glyph.sy)
           data_x = glyph._x[ii]
           data_y = glyph._y[ii]
 
         else
-          [rx, ry] = [vx, vy]
+          [rx, ry] = [sx, sy]
 
-      vars = {index: ii, x: x, y: y, vx: vx, vy: vy, sx: sx, sy: sy, data_x: data_x, data_y: data_y, rx:rx, ry:ry}
+      vars = {index: ii, x: x, y: y, sx: sx, sy: sy, data_x: data_x, data_y: data_y, rx: rx, ry: ry}
 
       tooltip.add(rx, ry, @_render_tooltips(ds, ii, vars))
 
@@ -234,17 +224,17 @@ export class HoverToolView extends InspectToolView
               ry = yscale.compute(data_y)
 
             when "prev"
-              [[rx, ry], jj] = _line_hit(canvas, glyph.sxs[i], glyph.sys[i], j)
+              [[rx, ry], jj] = _line_hit(glyph.sxs[i], glyph.sys[i], j)
 
             when "next"
-              [[rx, ry], jj] = _line_hit(canvas, glyph.sxs[i], glyph.sys[i], j+1)
+              [[rx, ry], jj] = _line_hit(glyph.sxs[i], glyph.sys[i], j+1)
 
             when "nearest"
-              [[rx, ry], jj] = _nearest_line_hit(canvas, j, geometry, sx, sy, glyph.sxs[i], glyph.sys[i])
+              [[rx, ry], jj] = _nearest_line_hit(j, geometry, sx, sy, glyph.sxs[i], glyph.sys[i])
               data_x = glyph._xs[i][jj]
               data_y = glyph._ys[i][jj]
 
-          vars = {index: i, segment_index: jj, x: x, y: y, vx: vx, vy: vy, sx: sx, sy: sy, data_x: data_x, data_y: data_y}
+          vars = {index: i, segment_index: jj, x: x, y: y, sx: sx, sy: sy, data_x: data_x, data_y: data_y}
 
           tooltip.add(rx, ry, @_render_tooltips(ds, i, vars))
 
@@ -260,36 +250,30 @@ export class HoverToolView extends InspectToolView
           if not pt?
             pt = glyph.get_anchor_point("center", i, [sx, sy])
 
-          rx = canvas.sx_to_vx(pt.x)
-          ry = canvas.sy_to_vy(pt.y)
+          rx = pt.x
+          ry = pt.y
         else
-          [rx, ry] = [vx, vy]
+          [rx, ry] = [sx, sy]
 
         if renderer_view.model instanceof GlyphRenderer
           index = renderer_view.model.view.convert_indices_from_subset([i])[0]
         else
           index = i
-        vars = {index: index, x: x, y: y, vx: vx, vy: vy, sx: sx, sy: sy, data_x: data_x, data_y: data_y}
+        vars = {index: index, x: x, y: y, sx: sx, sy: sy, data_x: data_x, data_y: data_y}
 
         tooltip.add(rx, ry, @_render_tooltips(ds, i, vars))
 
     return null
 
   _emit_callback: (geometry) ->
-    for r in  @computed_renderers
-
+    for r in @computed_renderers
       index = r.data_source.inspected
-
-      canvas = @plot_model.canvas
       frame = @plot_model.frame
-
-      geometry['sx'] = canvas.vx_to_sx(geometry.vx)
-      geometry['sy'] = canvas.vy_to_sy(geometry.vy)
 
       xscale = frame.xscales[r.x_range_name]
       yscale = frame.yscales[r.y_range_name]
-      geometry['x'] = xscale.invert(geometry.vx)
-      geometry['y'] = yscale.invert(geometry.vy)
+      geometry.x = xscale.invert(geometry.sx)
+      geometry.y = yscale.invert(geometry.sy)
 
       callback = @model.callback
       [obj, data] = [callback, {index: index, geometry: geometry, renderer: r}]

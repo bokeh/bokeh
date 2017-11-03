@@ -123,12 +123,10 @@ export class PatchesView extends GlyphView
         ctx.stroke()
 
   _hit_point: (geometry) ->
-    [vx, vy] = [geometry.vx, geometry.vy]
-    sx = @renderer.plot_view.canvas.vx_to_sx(vx)
-    sy = @renderer.plot_view.canvas.vy_to_sy(vy)
+    {sx, sy} = geometry
 
-    x = @renderer.xscale.invert(vx)
-    y = @renderer.yscale.invert(vy)
+    x = @renderer.xscale.invert(sx)
+    y = @renderer.yscale.invert(sy)
 
     candidates = @index.indices({minX: x, minY: y, maxX: x, maxY: y})
 
