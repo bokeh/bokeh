@@ -27,7 +27,7 @@ export class NumberInputView extends InputWidgetView
 
       @inputEl = input({
         type:"number"
-        class: "bk-widget-form-input",
+        class: "bk-widget-form-input bk-bs-form-control",
         id: @model.id,
         name: @model.name,
         value: @model.value,
@@ -59,6 +59,7 @@ export class NumberInputView extends InputWidgetView
     console.log("widget/number_input: value = #{value}")
     @model.value = value
     @inputEl.value = value
+    @el.classList.remove("bk-bs-has-error")
     super()
 
   input_event: () ->
@@ -72,7 +73,12 @@ export class NumberInputView extends InputWidgetView
       if value >= @model.start and value <= @model.end
         console.log("input: value = #{value}")
         @model.value = value
+        @el.classList.remove("bk-bs-has-error")
         @model.callback?.execute(@model)
+      else
+        @el.classList.add("bk-bs-has-error")
+    else
+      @el.classList.add("bk-bs-has-error")
 
 export class NumberInput extends InputWidget
   type: "NumberInput"
