@@ -777,7 +777,7 @@ class Auto(Enum):
         return self._sphinx_prop_link()
 
 class RGB(Property):
-    ''' Accept Date (but not DateTime) values.
+    ''' Accept colors.RGB values.
 
     '''
 
