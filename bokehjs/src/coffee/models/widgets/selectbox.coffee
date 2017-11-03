@@ -30,7 +30,11 @@ export class SelectView extends InputWidgetView
       selected = @model.value == value
       return option({selected: selected, value: value}, _label)
 
-    @selectEl = select({class: "bk-widget-form-input", id: @model.id, name: @model.name}, options)
+    @selectEl = select({
+      class: "bk-widget-form-input",
+      id: @model.id,
+      name: @model.name
+      disabled: @model.disabled}, options)
     @selectEl.addEventListener("change", () => @change_input())
     @el.appendChild(@selectEl)
 
