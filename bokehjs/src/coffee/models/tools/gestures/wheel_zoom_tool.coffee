@@ -18,16 +18,16 @@ export class WheelZoomToolView extends GestureToolView
 
   _scroll: (e) ->
     frame = @plot_model.frame
-    hr = frame.h_range
-    vr = frame.v_range
+    hr = frame.bbox.h_range
+    vr = frame.bbox.v_range
 
     {sx, sy} = e.bokeh
     dims = @model.dimensions
 
     # restrict to axis configured in tool's dimensions property and if
     # zoom origin is inside of frame range/domain
-    h_axis = dims in ['width', 'both'] and hr.min < sx < hr.max
-    v_axis = dims in ['height', 'both'] and vr.min < sy < vr.max
+    h_axis = dims in ['width', 'both'] and hr.start < sx < hr.end
+    v_axis = dims in ['height', 'both'] and vr.start < sy < vr.end
 
     factor = @model.speed * e.bokeh.delta
 

@@ -39,11 +39,11 @@ export scale_range = (frame, factor, h_axis=true, v_axis=true, center=null) ->
   factor = clamp(factor, -0.9, 0.9)
 
   hfactor = if h_axis then factor else 0
-  [sx0, sx1] = scale_highlow(frame.h_range, hfactor, center?.x)
+  [sx0, sx1] = scale_highlow(frame.bbox.h_range, hfactor, center?.x)
   xrs = get_info(frame.xscales, [sx0, sx1])
 
   vfactor = if v_axis then factor else 0
-  [sy0, sy1] = scale_highlow(frame.v_range, vfactor, center?.y)
+  [sy0, sy1] = scale_highlow(frame.bbox.v_range, vfactor, center?.y)
   yrs = get_info(frame.yscales, [sy0, sy1])
 
   # OK this sucks we can't set factor independently in each direction. It is used

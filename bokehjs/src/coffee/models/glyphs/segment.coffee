@@ -59,9 +59,7 @@ export class SegmentView extends GlyphView
     return result
 
   _hit_span: (geometry) ->
-    hr = @renderer.plot_view.frame.h_range
-    vr = @renderer.plot_view.frame.v_range
-
+    [hr, vr] = @renderer.plot_view.frame.bbox.ranges
     {sx, sy} = geometry
 
     if geometry.direction == 'v'
@@ -74,10 +72,10 @@ export class SegmentView extends GlyphView
     hits = []
 
     candidates = @index.indices({
-      minX: @renderer.xscale.invert(hr.min),
-      minY: @renderer.yscale.invert(vr.min),
-      maxX: @renderer.xscale.invert(hr.max),
-      maxY: @renderer.yscale.invert(vr.max),
+      minX: @renderer.xscale.invert(hr.start),
+      minY: @renderer.yscale.invert(vr.start),
+      maxX: @renderer.xscale.invert(hr.end),
+      maxY: @renderer.yscale.invert(vr.end),
     })
 
     for i in candidates

@@ -16,8 +16,8 @@ export class WheelPanToolView extends GestureToolView
 
   _update_ranges: (factor) ->
     frame = @plot_model.frame
-    hr = frame.h_range
-    vr = frame.v_range
+    hr = frame.bbox.h_range
+    vr = frame.bbox.v_range
 
     [sx_low, sx_high] = [hr.start, hr.end]
     [sy_low, sy_high]  = [vr.start, vr.end]

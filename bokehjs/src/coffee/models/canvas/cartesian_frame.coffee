@@ -67,8 +67,8 @@ export class CartesianFrame extends LayoutCanvas
 
   _configure_frame_ranges: () ->
     # data to/from screen space transform (left-bottom <-> left-top origin)
-    @_h_range = new Range1d({start: @_left.value, end: @_right.value})
-    @_v_range = new Range1d({start: @_bottom._value, end: @_top.value})
+    @_h_target = new Range1d({start: @_left.value, end: @_right.value})
+    @_v_target = new Range1d({start: @_bottom._value, end: @_top.value})
 
   _configure_scales: () ->
     @_configure_frame_ranges()
@@ -76,21 +76,19 @@ export class CartesianFrame extends LayoutCanvas
     @_x_ranges = @_get_ranges(@x_range, @extra_x_ranges)
     @_y_ranges = @_get_ranges(@y_range, @extra_y_ranges)
 
-    @_xscales = @_get_scales(@x_scale, @_x_ranges, @_h_range)
-    @_yscales = @_get_scales(@y_scale, @_y_ranges, @_v_range)
+    @_xscales = @_get_scales(@x_scale, @_x_ranges, @_h_target)
+    @_yscales = @_get_scales(@y_scale, @_y_ranges, @_v_target)
 
   _update_scales: () ->
     @_configure_frame_ranges()
 
     for name, scale of @_xscales
-      scale.target_range = @_h_range
+      scale.target_range = @_h_target
     for name, scale of @_yscales
-      scale.target_range = @_v_range
+      scale.target_range = @_v_target
     return null
 
   @getters {
-    h_range:  () -> @_h_range
-    v_range:  () -> @_v_range
     x_ranges: () -> @_x_ranges
     y_ranges: () -> @_y_ranges
     xscales:  () -> @_xscales

@@ -5,15 +5,8 @@ import * as p from "core/properties"
 export class BoxZoomToolView extends GestureToolView
 
   _match_aspect: (base_point, curpoint, frame) ->
-
     # aspect ratio of plot frame
-    hend = frame.h_range.end
-    hstart = frame.h_range.start
-    vend = frame.v_range.end
-    vstart = frame.v_range.start
-    w = hend - hstart
-    h = vend - vstart
-    a = w/h
+    a = frame.bbox.aspect
 
     # current aspect of cursor-defined box
     vw = Math.abs(base_point[0]-curpoint[0])

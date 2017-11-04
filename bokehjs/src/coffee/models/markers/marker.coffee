@@ -43,12 +43,12 @@ export class MarkerView extends XYGlyphView
   _mask_data: (all_indices) ->
     # dilate the inner screen region by max_size and map back to data space for use in
     # spatial query
-    hr = @renderer.plot_view.frame.h_range
+    hr = @renderer.plot_view.frame.bbox.h_range
     sx0 = hr.start - @max_size
     sx1 = hr.end + @max_size
     [x0, x1] = @renderer.xscale.v_invert([sx0, sx1])
 
-    vr = @renderer.plot_view.frame.v_range
+    vr = @renderer.plot_view.frame.bbox.v_range
     sy0 = vr.start - @max_size
     sy1 = vr.end + @max_size
     [y0, y1] = @renderer.yscale.v_invert([sy0, sy1])

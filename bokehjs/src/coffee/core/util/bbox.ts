@@ -107,6 +107,10 @@ export class BBox implements IBBox {
   get h_range(): IRange { return {start: this.x0, end: this.x1} }
   get v_range(): IRange { return {start: this.y0, end: this.y1} }
 
+  get ranges(): [IRange, IRange] { return [this.h_range, this.v_range] }
+
+  get aspect(): number { return this.width/this.height }
+
   contains(x: number, y: number): boolean {
     return x >= this.x0 && x <= this.x1 && y >= this.y0 && y <= this.y1
   }

@@ -97,39 +97,38 @@ export class ColorBarView extends AnnotationView
     legend_margin = @model.margin
 
     panel = @model.panel ? @plot_view.frame
-    h_range = panel.bbox.h_range
-    v_range = panel.bbox.v_range
+    [hr, vr] = panel.bbox.ranges
 
     location = @model.location
     if isString(location)
       switch location
         when 'top_left'
-          sx = h_range.start + legend_margin
-          sy = v_range.start + legend_margin
+          sx = hr.start + legend_margin
+          sy = vr.start + legend_margin
         when 'top_center'
-          sx = (h_range.end + h_range.start)/2 - legend_width/2
-          sy = v_range.start + legend_margin
+          sx = (hr.end + hr.start)/2 - legend_width/2
+          sy = vr.start + legend_margin
         when 'top_right'
-          sx = h_range.end - legend_margin - legend_width
-          sy = v_range.start + legend_margin
+          sx = hr.end - legend_margin - legend_width
+          sy = vr.start + legend_margin
         when 'bottom_right'
-          sx = h_range.end - legend_margin - legend_width
-          sy = v_range.end - legend_margin - legend_height
+          sx = hr.end - legend_margin - legend_width
+          sy = vr.end - legend_margin - legend_height
         when 'bottom_center'
-          sx = (h_range.end + h_range.start)/2 - legend_width/2
-          sy = v_range.end - legend_margin - legend_height
+          sx = (hr.end + hr.start)/2 - legend_width/2
+          sy = vr.end - legend_margin - legend_height
         when 'bottom_left'
-          sx = h_range.start + legend_margin
-          sy = v_range.end - legend_margin - legend_height
+          sx = hr.start + legend_margin
+          sy = vr.end - legend_margin - legend_height
         when 'center_left'
-          sx = h_range.start + legend_margin
-          sy = (v_range.end + v_range.start)/2 - legend_height/2
+          sx = hr.start + legend_margin
+          sy = (vr.end + vr.start)/2 - legend_height/2
         when 'center'
-          sx = (h_range.end + h_range.start)/2 - legend_width/2
-          sy = (v_range.end + v_range.start)/2 - legend_height/2
+          sx = (hr.end + hr.start)/2 - legend_width/2
+          sy = (vr.end + vr.start)/2 - legend_height/2
         when 'center_right'
-          sx = h_range.end - legend_margin - legend_width
-          sy = (v_range.end + v_range.start)/2 - legend_height/2
+          sx = hr.end - legend_margin - legend_width
+          sy = (vr.end + vr.start)/2 - legend_height/2
     else if isArray(location) and location.length == 2
       [vx, vy] = location
       sx = panel.vx_to_Sx(vx)
