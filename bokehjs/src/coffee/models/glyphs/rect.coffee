@@ -139,7 +139,7 @@ export class RectView extends XYGlyphView
       spt_corner = spt0
       for i in [0...spt0.length]
         if spt0[i] != spt1[i]
-          spt_corner = if spt0[i] < spt1[i] then spt1 else spt0
+          spt_corner = if spt0[i] < spt1[i] then spt0 else spt1
           break
       return [sside_length, spt_corner]
 
