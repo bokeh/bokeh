@@ -261,12 +261,6 @@ export class Plot extends LayoutDOM
       for tool in @toolbar.tools
         renderers = renderers.concat(tool.synthetic_renderers)
       return renderers
-    x_mapper_type: () ->
-      log.warning("x_mapper_type attr is deprecated, use x_scale")
-      return @x_scale
-    y_mapper_type: () ->
-      log.warning("y_mapper_type attr is deprecated, use y_scale")
-      return @y_scale
     webgl: () ->
       log.warning("webgl attr is deprecated, use output_backend")
       return @output_backend == "webgl"

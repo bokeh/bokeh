@@ -59,15 +59,6 @@ export class GlyphRendererView extends RendererView
     if @model.data_source instanceof RemoteDataSource
       @model.data_source.setup()
 
-  @getters {
-    xmapper: () ->
-      log.warning("xmapper attr is deprecated, use xscale")
-      @xscale
-    ymapper: () ->
-      log.warning("ymapper attr is deprecated, use yscale")
-      @yscale
-  }
-
   build_glyph_view: (model) ->
     new model.default_view({model: model, renderer: @, plot_view: @plot_view, parent: @})
 

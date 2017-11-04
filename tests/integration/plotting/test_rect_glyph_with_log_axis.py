@@ -12,7 +12,7 @@ def test_rect_rendering_with_log_axis(output_file_url, selenium, screenshot):
 
     plot = Plot(plot_height=400, plot_width=400,
        x_range=Range1d(0,30), y_range=Range1d(1,100),
-       y_mapper_type="log")
+       y_axis_type="log")
 
     x = [10, 20]
     y = [10, 20]
