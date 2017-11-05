@@ -105,21 +105,21 @@ export class BoxZoomToolView extends GestureToolView
     @_base_point = null
     return null
 
-  _update: (sx, sy) ->
+  _update: ([sx0, sx1], [sy0, sy1]) ->
     # If the viewing window is too small, no-op: it is likely that the user did
     # not intend to make this box zoom and instead was trying to cancel out of the
     # zoom, a la matplotlib's ToolZoom. Like matplotlib, set the threshold at 5 pixels.
-    if Math.abs(sx[1] - sx[0]) <= 5 or Math.abs(sy[1] - sy[0]) <= 5
+    if Math.abs(sx1 - sx0) <= 5 or Math.abs(sy1 - sy0) <= 5
       return
 
     xrs = {}
     for name, scale of @plot_view.frame.xscales
-      [start, end] = scale.v_invert(sx)
+      [start, end] = scale.r_invert(sx0, sx1)
       xrs[name] = {start: start, end: end}
 
     yrs = {}
     for name, scale of @plot_view.frame.yscales
-      [start, end] = scale.v_invert(sy)
+      [start, end] = scale.r_invert(sy0, sy1)
       yrs[name] = {start: start, end: end}
 
     zoom_info = {

@@ -29,6 +29,7 @@ export class Range1d extends Range
   @getters {
     min: () -> Math.min(@start, @end)
     max: () -> Math.max(@start, @end)
+    is_reversed: () -> @start > @end
   }
 
   reset: () ->

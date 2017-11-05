@@ -53,14 +53,12 @@ export class BoxView extends GlyphView
     if geometry.direction == 'v'
       y = @renderer.yscale.invert(sy)
       hr = @renderer.plot_view.frame.bbox.h_range
-      minX = @renderer.xscale.invert(hr.start)
-      maxX = @renderer.xscale.invert(hr.end)
+      [minX, maxX] = @renderer.xscale.r_invert(hr.start, hr.end)
       hits = @index.indices({ minX: minX, minY: y, maxX: maxX, maxY: y })
     else
       x = @renderer.xscale.invert(sx)
       vr = @renderer.plot_view.frame.bbox.v_range
-      minY = @renderer.yscale.invert(vr.start)
-      maxY = @renderer.yscale.invert(vr.end)
+      [minY, maxY] = @renderer.yscale.r_invert(vr.start, vr.end)
       hits = @index.indices({ minX: x, minY: minY, maxX: x, maxY: maxY })
 
     result = hittest.create_hit_test_result()

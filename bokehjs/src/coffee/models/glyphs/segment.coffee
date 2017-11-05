@@ -40,12 +40,10 @@ export class SegmentView extends GlyphView
 
     hits = []
     lw_voffset = 2 # FIXME: Use maximum of segments line_width/2 instead of magic constant 2
-    candidates = @index.indices({
-      minX: @renderer.xscale.invert(sx-lw_voffset),
-      minY: @renderer.yscale.invert(sy-lw_voffset),
-      maxX: @renderer.xscale.invert(sx+lw_voffset),
-      maxY: @renderer.yscale.invert(sy+lw_voffset),
-    })
+
+    [minX, maxX] = @renderer.xscale.r_invert(sx-lw_voffset, sx+lw_voffset)
+    [minY, maxY] = @renderer.yscale.r_invert(sy-lw_voffset, sy+lw_voffset)
+    candidates = @index.indices({minX: minX, minY: minY, maxX: maxX, maxY: maxY})
 
     for i in candidates
       threshold2 = Math.pow(Math.max(2, @visuals.line.cache_select('line_width', i) / 2), 2)
@@ -71,12 +69,9 @@ export class SegmentView extends GlyphView
 
     hits = []
 
-    candidates = @index.indices({
-      minX: @renderer.xscale.invert(hr.start),
-      minY: @renderer.yscale.invert(vr.start),
-      maxX: @renderer.xscale.invert(hr.end),
-      maxY: @renderer.yscale.invert(vr.end),
-    })
+    [minX, maxX] = @renderer.xscale.r_invert(hr.start, hr.end)
+    [minY, maxY] = @renderer.yscale.r_invert(vr.start, vr.end)
+    candidates = @index.indices({minX: minX, minY: minY, maxX: maxX, maxY: maxY})
 
     for i in candidates
       if v0[i]<=val<=v1[i] or v1[i]<=val<=v0[i]

@@ -174,8 +174,8 @@ export class GlyphView extends View
 
   _hit_rect_against_index: (geometry) ->
     {sx0, sx1, sy0, sy1} = geometry
-    [x0, x1] = @renderer.xscale.v_invert([sx0, sx1])
-    [y0, y1] = @renderer.yscale.v_invert([sy0, sy1])
+    [x0, x1] = @renderer.xscale.r_invert(sx0, sx1)
+    [y0, y1] = @renderer.yscale.r_invert(sy0, sy1)
     bb = hittest.validate_bbox_coords([x0, x1], [y0, y1])
     result = hittest.create_hit_test_result()
     result['1d'].indices = @index.indices(bb)

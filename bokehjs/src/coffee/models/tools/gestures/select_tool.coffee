@@ -74,10 +74,8 @@ export class SelectToolView extends GestureToolView
         g.x = xm.invert(g.sx)
         g.y = ym.invert(g.sy)
       when 'rect'
-        g.x0 = xm.invert(g.sx0)
-        g.y0 = ym.invert(g.sy0)
-        g.x1 = xm.invert(g.sx1)
-        g.y1 = ym.invert(g.sy1)
+        [g.x0, g.x1] = xm.r_invert(g.sx0, g.sx1)
+        [g.y0, g.y1] = ym.r_invert(g.sy0, g.sy1)
       when 'poly'
         g.x = new Array(g.sx.length)
         g.y = new Array(g.sy.length)

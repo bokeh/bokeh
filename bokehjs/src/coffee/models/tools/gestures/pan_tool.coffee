@@ -67,12 +67,12 @@ export class PanToolView extends GestureToolView
 
     xrs = {}
     for name, scale of frame.xscales
-      [start, end] = scale.v_invert([sx0, sx1])
+      [start, end] = scale.r_invert(sx0, sx1)
       xrs[name] = {start: start, end: end}
 
     yrs = {}
     for name, scale of frame.yscales
-      [start, end] = scale.v_invert([sy0, sy1])
+      [start, end] = scale.r_invert(sy0, sy1)
       yrs[name] = {start: start, end: end}
 
     @pan_info = {

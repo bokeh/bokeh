@@ -94,14 +94,14 @@ export class MultiLineView extends GlyphView
     [x2, y2, x3, y3] = [@_xs[i][point_i], @_ys[i][point_i], @_xs[i][point_i+1], @_ys[i][point_i+1]]
 
     if geometry.type == 'point'
-      [y0, y1] = @renderer.yscale.v_invert([sy-1, sy+1])
-      [x0, x1] = @renderer.xscale.v_invert([sx-1, sx+1])
+      [y0, y1] = @renderer.yscale.r_invert(sy-1, sy+1)
+      [x0, x1] = @renderer.xscale.r_invert(sx-1, sx+1)
     else
       if geometry.direction == 'v'
-        [y0, y1] = @renderer.yscale.v_invert([sy, sy])
+        [y0, y1] = @renderer.yscale.r_invert(sy, sy)
         [x0, x1] = [x2, x3]
       else
-        [x0, x1] = @renderer.xscale.v_invert([sx, sx])
+        [x0, x1] = @renderer.xscale.r_invert(sx, sx)
         [y0, y1] = [y2, y3]
 
     res = hittest.check_2_segments_intersect(x0, y0, x1, y1, x2, y2, x3, y3)

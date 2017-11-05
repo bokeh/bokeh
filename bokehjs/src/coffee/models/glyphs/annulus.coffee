@@ -69,10 +69,8 @@ export class AnnulusView extends XYGlyphView
     for i in @index.indices(bbox)
       or2 = Math.pow(@souter_radius[i], 2)
       ir2 = Math.pow(@sinner_radius[i], 2)
-      sx0 = @renderer.xscale.compute(x)
-      sx1 = @renderer.xscale.compute(@_x[i])
-      sy0 = @renderer.yscale.compute(y)
-      sy1 = @renderer.yscale.compute(@_y[i])
+      [sx0, sx1] = @renderer.xscale.r_compute(x, @_x[i])
+      [sy0, sy1] = @renderer.yscale.r_compute(y, @_y[i])
       dist = Math.pow(sx0-sx1, 2) + Math.pow(sy0-sy1, 2)
       if dist <= or2 and dist >= ir2
         hits.push([i, dist])

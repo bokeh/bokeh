@@ -62,11 +62,11 @@ export class AnnularWedgeView extends XYGlyphView
     else
       sx0 = sx - @max_outer_radius
       sx1 = sx + @max_outer_radius
-      [x0, x1] = @renderer.xscale.v_invert([sx0, sx1])
+      [x0, x1] = @renderer.xscale.r_invert(sx0, sx1)
 
       sy0 = sy - @max_outer_radius
       sy1 = sy + @max_outer_radius
-      [y0, y1] = @renderer.yscale.v_invert([sy0, sy1])
+      [y0, y1] = @renderer.yscale.r_invert(sy0, sy1)
 
     candidates = []
 
@@ -74,10 +74,8 @@ export class AnnularWedgeView extends XYGlyphView
     for i in @index.indices(bbox)
       or2 = Math.pow(@souter_radius[i], 2)
       ir2 = Math.pow(@sinner_radius[i], 2)
-      sx0 = @renderer.xscale.compute(x)
-      sx1 = @renderer.xscale.compute(@_x[i])
-      sy0 = @renderer.yscale.compute(y)
-      sy1 = @renderer.yscale.compute(@_y[i])
+      [sx0, sx1] = @renderer.xscale.r_compute(x, @_x[i])
+      [sy0, sy1] = @renderer.yscale.r_compute(y, @_y[i])
       dist = Math.pow(sx0-sx1, 2) + Math.pow(sy0-sy1, 2)
       if dist <= or2 and dist >= ir2
         candidates.push([i, dist])

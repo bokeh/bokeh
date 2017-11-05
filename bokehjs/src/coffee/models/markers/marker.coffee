@@ -46,12 +46,12 @@ export class MarkerView extends XYGlyphView
     hr = @renderer.plot_view.frame.bbox.h_range
     sx0 = hr.start - @max_size
     sx1 = hr.end + @max_size
-    [x0, x1] = @renderer.xscale.v_invert([sx0, sx1])
+    [x0, x1] = @renderer.xscale.r_invert(sx0, sx1)
 
     vr = @renderer.plot_view.frame.bbox.v_range
     sy0 = vr.start - @max_size
     sy1 = vr.end + @max_size
-    [y0, y1] = @renderer.yscale.v_invert([sy0, sy1])
+    [y0, y1] = @renderer.yscale.r_invert(sy0, sy1)
 
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
     return @index.indices(bbox)
@@ -61,11 +61,11 @@ export class MarkerView extends XYGlyphView
 
     sx0 = sx - @max_size
     sx1 = sx + @max_size
-    [x0, x1] = @renderer.xscale.v_invert([sx0, sx1])
+    [x0, x1] = @renderer.xscale.r_invert(sx0, sx1)
 
     sy0 = sy - @max_size
     sy1 = sy + @max_size
-    [y0, y1] = @renderer.yscale.v_invert([sy0, sy1])
+    [y0, y1] = @renderer.yscale.r_invert(sy0, sy1)
 
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
     candidates = @index.indices(bbox)
@@ -89,14 +89,14 @@ export class MarkerView extends XYGlyphView
       ms = @max_size/2
       sx0 = sx - ms
       sx1 = sx + ms
-      [x0, x1] = @renderer.xscale.v_invert([sx0, sx1])
+      [x0, x1] = @renderer.xscale.r_invert(sx0, sx1)
     else
       x0 = minX
       x1 = maxX
       ms = @max_size/2
       sy0 = sy - ms
       sy1 = sy + ms
-      [y0, y1] = @renderer.yscale.v_invert([sy0, sy1])
+      [y0, y1] = @renderer.yscale.r_invert(sy0, sy1)
 
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
     hits = @index.indices(bbox)
@@ -106,8 +106,8 @@ export class MarkerView extends XYGlyphView
 
   _hit_rect: (geometry) ->
     {sx0, sx1, sy0, sy1} = geometry
-    [x0, x1] = @renderer.xscale.v_invert([sx0, sx1])
-    [y0, y1] = @renderer.yscale.v_invert([sy0, sy1])
+    [x0, x1] = @renderer.xscale.r_invert(sx0, sx1)
+    [y0, y1] = @renderer.yscale.r_invert(sy0, sy1)
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
     result = hittest.create_hit_test_result()
     result['1d'].indices = @index.indices(bbox)
