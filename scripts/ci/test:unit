@@ -1,9 +1,0 @@
-#!/bin/bash
-
-set -e # exit on error
-set -x # echo commands
-
-py.test -m 'unit'                   \
-    --rerun=5                       \
-    --cov=bokeh                     \
-    --cov-config=bokeh/.coveragerc
