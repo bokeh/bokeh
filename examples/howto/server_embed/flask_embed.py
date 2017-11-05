@@ -1,5 +1,7 @@
 from flask import Flask, render_template
 
+from bokeh.application import Application
+from bokeh.application.handlers import FunctionHandler
 from bokeh.embed import server_document
 from bokeh.layouts import column
 from bokeh.models import ColumnDataSource, Slider
@@ -12,6 +14,10 @@ from bokeh.sampledata.sea_surface_temperature import sea_surface_temperature
 app = Flask(__name__)
 
 def modify_doc(doc):
+    """
+    This functioin will modify the document attached to the application
+    """
+    
     df = sea_surface_temperature.copy()
     source = ColumnDataSource(data=df)
 
@@ -32,6 +38,9 @@ def modify_doc(doc):
     doc.add_root(column(slider, plot))
 
     doc.theme = Theme(filename="theme.yaml")
+    
+# Creation of the Bokeh application. The document is created by the handler
+bk_app = Application(FunctionHandler(modify_doc))
 
 @app.route('/', methods=['GET'])
 def bkapp_page():
@@ -41,7 +50,11 @@ def bkapp_page():
 def bk_worker():
     # Can't pass num_procs > 1 in this configuration. If you need to run multiple
     # processes, see e.g. flask_gunicorn_embed.py
-    server = Server({'/bkapp': modify_doc}, allow_websocket_origin=["localhost:8000"])
+    # bk_app will run at address http://localhost:5006/bkapp
+    # allow_websocket_origin allow to filter "who" can access the server
+    # allow_websocket_origin=["localhost:8000", "localhost:5006"] would allow 
+    # opening a web page directly pointing to the server. This is not allowed below.
+    server = Server({'/bkapp': bk_app}, allow_websocket_origin=["localhost:8000"])
     server.start()
     server.io_loop.start()
 
