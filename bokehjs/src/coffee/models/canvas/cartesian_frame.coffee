@@ -29,11 +29,6 @@ export class CartesianFrame extends LayoutCanvas
     sy = @yscales[y_name].v_compute(y)
     return [sx, sy]
 
-  map_from_screen: (sx, sy, x_name='default', y_name='default') ->
-    x = @xscales[x_name].v_invert(sx)
-    y = @yscales[y_name].v_invert(sy)
-    return [x, y]
-
   _get_ranges: (range, extra_ranges) ->
     ranges = {}
     ranges['default'] = range

@@ -263,9 +263,6 @@ export class PlotCanvasView extends DOMView
   map_to_screen: (x, y, x_name='default', y_name='default') ->
     return @frame.map_to_screen(x, y, x_name, y_name)
 
-  map_from_screen: (sx, sy, x_name='default', y_name='default') ->
-    return @frame.map_from_screen(sx, sy, x_name, y_name)
-
   push_state: (type, info) ->
     prev_info = @state.history[@state.index]?.info or {}
     info = extend({}, @_initial_state_info, prev_info, info)
