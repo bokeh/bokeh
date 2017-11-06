@@ -8,7 +8,7 @@ from ..core.has_props import abstract
 from ..core.properties import Bool, Enum, Float, Instance, Int, JSON, Override, String
 from ..core.validation import error, warning
 from ..core.validation.warnings import MISSING_RENDERERS, NO_DATA_RENDERERS
-from ..core.validation.errors import REQUIRED_RANGE, MISSING_GOOGLE_API_KEY
+from ..core.validation.errors import INCOMPATIBLE_MAP_RANGE_TYPE, REQUIRED_RANGE, MISSING_GOOGLE_API_KEY
 from ..model import Model
 from .plots import Plot
 
@@ -35,6 +35,21 @@ class MapPlot(Plot):
     ''' Abstract base class for map plot models.
 
     '''
+
+    def __init__(self, *args, **kw):
+        from ..models.ranges import Range1d
+        for r in ('x_range', 'y_range'):
+            if not isinstance(kw.get(r, None), Range1d):
+                raise ValueError('Invalid value for %r, MapPlot ranges may only be Range1d, not data ranges' % r)
+        super(MapPlot, self).__init__(*args, **kw)
+
+    @error(INCOMPATIBLE_MAP_RANGE_TYPE)
+    def _check_incompatible_map_range_type(self):
+        from ..models.ranges import Range1d
+        if not isinstance(self.x_range, Range1d):
+            return "%s.x_range" % str(self)
+        if not isinstance(self.y_range, Range1d):
+            return "%s.y_range" % str(self)
 
 class GMapOptions(MapOptions):
     ''' Options for GMapPlot objects.
@@ -64,9 +79,11 @@ class GMapOptions(MapOptions):
 class GMapPlot(MapPlot):
     ''' A Bokeh Plot with a `Google Map`_ displayed underneath.
 
-    Data placed on this plot should be specified in decimal lat long coordinates e.g. 37.123, -122.404.
-    It will be automatically converted into the web mercator projection to display properly over
-    google maps tiles.
+    Data placed on this plot should be specified in decimal lat/lon coordinates
+    e.g. ``(37.123, -122.404)``. It will be automatically converted into the
+    web mercator projection to display properly over google maps tiles.
+
+    Please also note that only ``Range1d`` ranges are supported by ``GMapPlot``.
 
     .. _Google Map: https://www.google.com/maps/
 
