@@ -27,8 +27,8 @@ export class WheelPanToolView extends GestureToolView
         sy_range = Math.abs(sy_high - sy_low)
         sx0 = sx_low
         sx1 = sx_high
-        sy0 = sy_low + sy_range * factor
-        sy1 = sy_high + sy_range * factor
+        sy0 = sy_low - sy_range * factor
+        sy1 = sy_high - sy_range * factor
       when "width"
         sx_range = Math.abs(sx_high - sx_low)
         sx0 = sx_low - sx_range * factor
