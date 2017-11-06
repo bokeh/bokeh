@@ -39,16 +39,16 @@ class MapPlot(Plot):
     def __init__(self, *args, **kw):
         from ..models.ranges import Range1d
         for r in ('x_range', 'y_range'):
-            if not isinstance(kw.get(r, None), Range1d):
+            if r in kw and not isinstance(kw.get(r), Range1d):
                 raise ValueError('Invalid value for %r, MapPlot ranges may only be Range1d, not data ranges' % r)
         super(MapPlot, self).__init__(*args, **kw)
 
     @error(INCOMPATIBLE_MAP_RANGE_TYPE)
     def _check_incompatible_map_range_type(self):
         from ..models.ranges import Range1d
-        if not isinstance(self.x_range, Range1d):
+        if self.x_range is not None and not isinstance(self.x_range, Range1d):
             return "%s.x_range" % str(self)
-        if not isinstance(self.y_range, Range1d):
+        if self.y_range is not None and not isinstance(self.y_range, Range1d):
             return "%s.y_range" % str(self)
 
 class GMapOptions(MapOptions):
