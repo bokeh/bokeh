@@ -31,15 +31,15 @@ export class ArrowView extends AnnotationView
       sx_start = frame.xscales[@model.x_range_name].v_compute(@_x_start)
       sy_start = frame.yscales[@model.y_range_name].v_compute(@_y_start)
     else
-      sx_start = frame.v_vx_to_Sx(@_x_start)
-      sy_start = frame.v_vy_to_Sy(@_y_start)
+      sx_start = frame.xview.v_compute(@_x_start)
+      sy_start = frame.yview.v_compute(@_y_start)
 
     if @model.end_units == 'data'
       sx_end = frame.xscales[@model.x_range_name].v_compute(@_x_end)
       sy_end = frame.yscales[@model.y_range_name].v_compute(@_y_end)
     else
-      sx_end = frame.v_vx_to_Sx(@_x_end)
-      sy_end = frame.v_vy_to_Sy(@_y_end)
+      sx_end = frame.xview.v_compute(@_x_end)
+      sy_end = frame.yview.v_compute(@_y_end)
 
     start = [sx_start, sy_start]
     end   = [sx_end,   sy_end  ]

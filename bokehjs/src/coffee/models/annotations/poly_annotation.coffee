@@ -29,9 +29,9 @@ export class PolyAnnotationView extends AnnotationView
 
     for i in [0...xs.length]
       if @model.xs_units == 'screen'
-        sx = frame.vx_to_Sx(xs[i])
+        sx = frame.xview.compute(xs[i])
       if @model.ys_units == 'screen'
-        sy = frame.vy_to_Sy(ys[i])
+        sy = frame.yview.compute(ys[i])
       if i == 0
         ctx.beginPath()
         ctx.moveTo(sx, sy)

@@ -2,6 +2,11 @@ import {GE, EQ, Variable, Constraint} from "./solver"
 import {HasProps} from "../has_props"
 import {BBox} from "../util/bbox"
 
+export interface ViewTransform {
+  compute: (v: number) => number
+  v_compute: (vv: number[] | Float64Array) => Float64Array
+}
+
 export class LayoutCanvas extends HasProps {
 
   _top: Variable
@@ -64,25 +69,36 @@ export class LayoutCanvas extends HasProps {
     }
   }
 
-  // relative view -> absolute screen
-  vx_to_Sx(x: number): number { return this._left.value + x }
-  vy_to_Sy(y: number): number { return this._bottom.value - y }
-
-  v_vx_to_Sx(xx: number[] | Float64Array): Float64Array {
-    const _xx = new Float64Array(xx.length)
-    const left = this._left.value
-    for (let i = 0; i < xx.length; i++) {
-      _xx[i] = left + xx[i]
+  get xview(): ViewTransform {
+    return {
+      compute: (x: number): number => {
+        return this._left.value + x
+      },
+      v_compute: (xx: number[] | Float64Array): Float64Array => {
+        const _xx = new Float64Array(xx.length)
+        const left = this._left.value
+        for (let i = 0; i < xx.length; i++) {
+          _xx[i] = left + xx[i]
+        }
+        return _xx
+      },
     }
-    return _xx
   }
-  v_vy_to_Sy(yy: number[] | Float64Array): Float64Array {
-    const _yy = new Float64Array(yy.length)
-    const bottom = this._bottom.value
-    for (let i = 0; i < yy.length; i++) {
-      _yy[i] = bottom - yy[i]
+
+  get yview(): ViewTransform {
+    return {
+      compute: (y: number): number => {
+        return this._bottom.value - y
+      },
+      v_compute: (yy: number[] | Float64Array): Float64Array => {
+        const _yy = new Float64Array(yy.length)
+        const bottom = this._bottom.value
+        for (let i = 0; i < yy.length; i++) {
+          _yy[i] = bottom - yy[i]
+        }
+        return _yy
+      },
     }
-    return _yy
   }
 }
 LayoutCanvas.prototype.type = "LayoutCanvas"

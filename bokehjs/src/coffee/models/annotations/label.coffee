@@ -34,8 +34,8 @@ export class LabelView extends TextAnnotationView
     xscale = @plot_view.frame.xscales[@model.x_range_name]
     yscale = @plot_view.frame.yscales[@model.y_range_name]
 
-    sx = if @model.x_units == "data" then xscale.compute(@model.x) else panel.vx_to_Sx(@model.x)
-    sy = if @model.y_units == "data" then yscale.compute(@model.y) else panel.vy_to_Sy(@model.y)
+    sx = if @model.x_units == "data" then xscale.compute(@model.x) else panel.xview.compute(@model.x)
+    sy = if @model.y_units == "data" then yscale.compute(@model.y) else panel.yview.compute(@model.y)
 
     sx += @model.x_offset
     sy -= @model.y_offset

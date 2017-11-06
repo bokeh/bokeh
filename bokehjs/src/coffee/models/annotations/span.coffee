@@ -40,14 +40,23 @@ export class SpanView extends AnnotationView
     xscale = frame.xscales[@model.x_range_name]
     yscale = frame.yscales[@model.y_range_name]
 
+    _calc_dim = (scale, view) =>
+      if @model.for_hover
+        return @model.computed_location
+      else
+        if @model.location_units == 'data'
+          return scale.compute(loc)
+        else
+          return view.compute(loc)
+
     if @model.dimension == 'width'
-      stop = @_calc_dim(yscale)
+      stop = _calc_dim(yscale, frame.yview)
       sleft = frame._left.value
       width = frame._width.value
       height = @model.properties.line_width.value()
     else
       stop = frame._top.value
-      sleft = @_calc_dim(xscale)
+      sleft = _calc_dim(xscale, frame.xview)
       width = @model.properties.line_width.value()
       height = frame._height.value
 
@@ -75,15 +84,6 @@ export class SpanView extends AnnotationView
       ctx.stroke()
 
       ctx.restore()
-
-  _calc_dim: (scale) ->
-    if @model.for_hover
-      return @model.computed_location
-    else
-      if @model.location_units == 'data'
-        return scale.compute(loc)
-      else
-        return @plot_view.frame.vx_to_Sx(loc)
 
 export class Span extends Annotation
   default_view: SpanView

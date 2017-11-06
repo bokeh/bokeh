@@ -131,8 +131,8 @@ export class ColorBarView extends AnnotationView
           sy = (vr.end + vr.start)/2 - legend_height/2
     else if isArray(location) and location.length == 2
       [vx, vy] = location
-      sx = panel.vx_to_Sx(vx)
-      sy = panel.vy_to_Sy(vy) - legend_height
+      sx = panel.xview.compute(vx)
+      sy = panel.yview.compute(vy) - legend_height
 
     return {sx: sx, sy: sy}
 

@@ -37,20 +37,18 @@ export class BoxAnnotationView extends AnnotationView
     frame = @plot_model.frame
     xscale = frame.xscales[@model.x_range_name]
     yscale = frame.yscales[@model.y_range_name]
-    vx_to_Sx = (dim) -> frame.vx_to_Sx(dim)
-    vy_to_Sy = (dim) -> frame.vy_to_Sy(dim)
 
-    _calc_dim: (dim, dim_units, scale, v_to_s, frame_extrema) ->
+    _calc_dim = (dim, dim_units, scale, view, frame_extrema) ->
       if dim?
-        sdim = if dim_units == 'data' then scale.compute(dim) else v_to_s(dim)
+        sdim = if dim_units == 'data' then scale.compute(dim) else view.compute(dim)
       else
         sdim = frame_extrema
       return sdim
 
-    sleft   = @_calc_dim(@model.left,   @model.left_units,   xscale, vx_to_Sx, frame._left.value)
-    sright  = @_calc_dim(@model.right,  @model.right_units,  xscale, vx_to_Sx, frame._right.value)
-    stop    = @_calc_dim(@model.top,    @model.top_units,    yscale, vy_to_Sy, frame._top.value)
-    sbottom = @_calc_dim(@model.bottom, @model.bottom_units, yscale, vy_to_Sy, frame._bottom.value)
+    sleft   = _calc_dim(@model.left,   @model.left_units,   xscale, frame.xview, frame._left.value)
+    sright  = _calc_dim(@model.right,  @model.right_units,  xscale, frame.xview, frame._right.value)
+    stop    = _calc_dim(@model.top,    @model.top_units,    yscale, frame.yview, frame._top.value)
+    sbottom = _calc_dim(@model.bottom, @model.bottom_units, yscale, frame.yview, frame._bottom.value)
 
     draw = if @model.render_mode == 'css' then @_css_box.bind(@) else @_canvas_box.bind(@)
     draw(sleft, sright, sbottom, stop)
