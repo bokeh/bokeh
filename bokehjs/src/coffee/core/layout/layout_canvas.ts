@@ -64,37 +64,6 @@ export class LayoutCanvas extends HasProps {
     }
   }
 
-  // relative view <-> relative screen
-  vx_to_sx(x: number): number { return x }
-  vy_to_sy(y: number): number { return this._height.value - y }
-
-  sx_to_vx(x: number): number { return x }
-  sy_to_vy(y: number): number { return this._height.value - y }
-
-  v_vx_to_sx(xx: number[] | Float64Array): Float64Array {
-    return new Float64Array(xx)
-  }
-  v_vy_to_sy(yy: number[] | Float64Array): Float64Array {
-    const _yy = new Float64Array(yy.length)
-    const height = this._height.value
-    for (let i = 0; i < yy.length; i++) {
-      _yy[i] = height - yy[i]
-    }
-    return _yy
-  }
-
-  v_sx_to_vx(xx: number[] | Float64Array): Float64Array {
-    return new Float64Array(xx)
-  }
-  v_sy_to_vy(yy: number[] | Float64Array): Float64Array {
-    const _yy = new Float64Array(yy.length)
-    const height = this._height.value
-    for (let i = 0; i < yy.length; i++) {
-      _yy[i] = height - yy[i]
-    }
-    return _yy
-  }
-
   // relative view -> absolute screen
   vx_to_Sx(x: number): number { return this._left.value + x }
   vy_to_Sy(y: number): number { return this._bottom.value - y }
