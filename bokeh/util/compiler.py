@@ -448,7 +448,6 @@ def calc_cache_key():
     return key
 
 _bundle_cache = {}
-
 def bundle_all_models():
     key = calc_cache_key()
     bundle = _bundle_cache.get(key, None)
