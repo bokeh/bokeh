@@ -61,9 +61,9 @@ describe "Glyph (using Rect as a concrete Glyph)", ->
       glyph_view.map_data()
 
       # rect is XYGlyph, will only put centers in index, box glyphs will put entire box
-      geometry1 = { vx0: 0,  vy0: 0,   vx1: 40,  vy1: 20}
-      geometry2 = { vx0: 60, vy0: -10, vx1: 80,  vy1: 50}
-      geometry3 = { vx0: 0,  vy0: 150, vx1: 200, vy1: 151}
+      geometry1 = { sx0: 0,  sy0: 0,   sx1: 40,  sy1: 20}
+      geometry2 = { sx0: 60, sy0: -10, sx1: 80,  sy1: 50}
+      geometry3 = { sx0: 0,  sy0: 150, sx1: 200, sy1: 151}
 
       result1 = glyph_view._hit_rect_against_index(geometry1)
       result2 = glyph_view._hit_rect_against_index(geometry2)
@@ -188,12 +188,12 @@ describe "Rect", ->
       describe "_hit_point", ->
 
         beforeEach ->
-          @geometry1 = { vx: 190, vy: 220 }
-          @geometry2 = { vx: 195, vy: 210 }
-          @geometry3 = { vx: 186, vy: 186 }
+          @geometry1 = { sx: 190, sy: 220 }
+          @geometry2 = { sx: 195, sy: 210 }
+          @geometry3 = { sx: 186, sy: 186 }
 
-          @geometry4 = { vx: 201, vy: 195.5 }
-          @geometry5 = { vx: 197.8, vy: 204 }
+          @geometry4 = { sx: 201,   sy: 195.5 }
+          @geometry5 = { sx: 197.8, sy: 204 }
 
         it "should return the indices of the rect that was hit", ->
           data = {x: [60, 100, 140], y: [60, 100, 140]}
@@ -279,9 +279,9 @@ describe "Rect", ->
           glyph_view.renderer.plot_view.frame.yscales['default'] = yscale
           glyph_view.map_data()
 
-          result1 = glyph_view._hit_point({vx: 105, vy: 200})
-          result2 = glyph_view._hit_point({vx: 105, vy: 220})
-          result3 = glyph_view._hit_point({vx: 91, vy: 186})
+          result1 = glyph_view._hit_point({sx: 105, sy: 200})
+          result2 = glyph_view._hit_point({sx: 105, sy: 220})
+          result3 = glyph_view._hit_point({sx: 91,  sy: 186})
 
           expect(result1['1d'].indices).to.be.deep.equal([1])
           expect(result2['1d'].indices).to.be.deep.equal([])
@@ -294,8 +294,8 @@ describe "Rect", ->
           set_scales(glyph_view, "log")
           glyph_view.map_data()
 
-          result4 = glyph_view._hit_point({ vx: 66.666, vy: 66.666 })
-          result5 = glyph_view._hit_point({ vx: 133.333, vy: 133.333 })
+          result4 = glyph_view._hit_point({ sx: 66.666,  sy: 66.666 })
+          result5 = glyph_view._hit_point({ sx: 133.333, sy: 133.333 })
 
           expect(result4['1d'].indices).to.be.deep.equal([])
           expect(result5['1d'].indices).to.be.deep.equal([])
