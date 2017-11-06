@@ -2,9 +2,6 @@ import {GestureTool, GestureToolView} from "./gesture_tool"
 import {scale_range} from "core/util/zoom"
 import * as p from "core/properties"
 
-# Here for testing purposes
-document = {} unless document?
-
 export class WheelZoomToolView extends GestureToolView
 
   _pinch: (e) ->
