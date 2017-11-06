@@ -78,7 +78,7 @@ export class AbstractSliderView extends WidgetView
             value += step
           else
             return
-            
+
         pretty = @model.pretty(value)
         logger.debug("[slider keypress] value = #{pretty}")
         @model.value = value
