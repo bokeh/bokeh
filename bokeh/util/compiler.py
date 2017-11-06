@@ -427,12 +427,15 @@ def bundle_models(models):
     return _plugin_umd % dict(content=content)
 
 def calc_cache_key():
-    """There is no metadata than the Model classes,
-        so this is the only base to generate a cache  key.
-       We build the model keys from the list of model.full_name(s).
-       This is ineffective but possibly a better solution can be found found.
-       It is still at least an order of magnitude faster faster than the nodeJS :-)
-    """
+    ''' Generate a key to cache a custom extension implementation with.
+
+    There is no metadata other than the Model classes, so this is the only
+    base to generate a cache key.
+
+    We build the model keys from the list of ``model.full_name``. This is
+    not ideal but possibly a better solution can be found found later.
+
+    '''
 
     models = Model.model_class_reverse_map.values()
     custom_model_names = ""
@@ -448,6 +451,7 @@ def calc_cache_key():
     return key
 
 _bundle_cache = {}
+
 def bundle_all_models():
     key = calc_cache_key()
     bundle = _bundle_cache.get(key, None)
