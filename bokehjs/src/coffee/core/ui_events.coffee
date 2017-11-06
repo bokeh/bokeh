@@ -230,6 +230,9 @@ export class UIEvents
 
   _pan_start: (e) ->
     @_bokify_hammer(e)
+    # back out delta to get original center point
+    e.bokeh.sx -= e.deltaX
+    e.bokeh.sy -= e.deltaY
     @_trigger(@pan_start, e)
 
   _pan: (e) ->
