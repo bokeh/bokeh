@@ -20,13 +20,12 @@ export class DrawToolView extends GestureToolView
     frame = @plot_model.frame
     canvas = @plot_view.canvas
 
-    vx = canvas.sx_to_vx(e.bokeh.sx)
-    vy = canvas.sy_to_vy(e.bokeh.sy)
-    if not frame.contains(vx, vy)
+    {sx, sy} = e.bokeh
+    if not frame.bbox.contains(sx, sy)
       return null
 
-    x = frame.xscales['default'].invert(vx)
-    y = frame.yscales['default'].invert(vy)
+    x = frame.xscales['default'].invert(sx)
+    y = frame.yscales['default'].invert(sy)
 
     @model.source.data.x.push(x)
     @model.source.data.y.push(y)
