@@ -24,15 +24,15 @@ export class LabelView extends TextAnnotationView
     if not @model.visible
       return
 
-    xscale = @plot_view.frame.xscales[@model.x_range_name]
-    yscale = @plot_view.frame.yscales[@model.y_range_name]
-
     # Here because AngleSpec does units tranform and label doesn't support specs
     switch @model.angle_units
       when "rad" then angle = -1 * @model.angle
       when "deg" then angle = -1 * @model.angle * Math.PI/180.0
 
     panel = @model.panel ? @plot_view.frame
+
+    xscale = @plot_view.frame.xscales[@model.x_range_name]
+    yscale = @plot_view.frame.yscales[@model.y_range_name]
 
     sx = if @model.x_units == "data" then xscale.compute(@model.x) else panel.vx_to_Sx(@model.x)
     sy = if @model.y_units == "data" then yscale.compute(@model.y) else panel.vy_to_Sy(@model.y)
