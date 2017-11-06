@@ -84,7 +84,7 @@ export class BoxZoomToolView extends GestureToolView
     else
       [sx, sy] = @model._get_dim_limits(@_base_point, curpoint, frame, dims)
 
-    @model.overlay.update({left: sx[0], right: sx[1], top: sy[1], bottom: sy[0]})
+    @model.overlay.update({left: sx[0], right: sx[1], top: sy[0], bottom: sy[1]})
 
     return null
 

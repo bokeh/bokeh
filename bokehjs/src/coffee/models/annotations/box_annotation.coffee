@@ -38,9 +38,15 @@ export class BoxAnnotationView extends AnnotationView
     xscale = frame.xscales[@model.x_range_name]
     yscale = frame.yscales[@model.y_range_name]
 
-    _calc_dim = (dim, dim_units, scale, view, frame_extrema) ->
+    _calc_dim = (dim, dim_units, scale, view, frame_extrema) =>
       if dim?
-        sdim = if dim_units == 'data' then scale.compute(dim) else view.compute(dim)
+        if @model.screen
+          sdim = dim
+        else
+          if dim_units == 'data'
+            sdim = scale.compute(dim)
+          else
+            sdim = view.compute(dim)
       else
         sdim = frame_extrema
       return sdim
@@ -111,6 +117,10 @@ export class BoxAnnotation extends Annotation
       right_units:  [ p.SpatialUnits, 'data'    ]
   }
 
+  @internal {
+    screen: [ p.Boolean, false ]
+  }
+
   @override {
     fill_color: '#fff9ba'
     fill_alpha: 0.4
@@ -122,6 +132,6 @@ export class BoxAnnotation extends Annotation
     super(attrs, options)
     @data_update = new Signal(this, "data_update")
 
-  update:({left, right, top, bottom}) ->
-    @setv({left: left, right: right, top: top, bottom: bottom}, {silent: true})
+  update: ({left, right, top, bottom}) ->
+    @setv({left: left, right: right, top: top, bottom: bottom, screen: true}, {silent: true})
     @data_update.emit()

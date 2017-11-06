@@ -32,6 +32,7 @@ export class PolySelectToolView extends SelectToolView
   _tap: (e) ->
     {sx, sy} = e.bokeh
 
+    frame = @plot_model.frame
     if not frame.bbox.contains(sx, sy)
       return
 

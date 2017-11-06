@@ -29,9 +29,9 @@ export class PolyAnnotationView extends AnnotationView
 
     for i in [0...xs.length]
       if @model.xs_units == 'screen'
-        sx = frame.xview.compute(xs[i])
+        sx = if @model.screen then xs[i] else frame.xview.compute(xs[i])
       if @model.ys_units == 'screen'
-        sy = frame.yview.compute(ys[i])
+        sy = if @model.screen then ys[i] else frame.yview.compute(ys[i])
       if i == 0
         ctx.beginPath()
         ctx.moveTo(sx, sy)
@@ -64,6 +64,10 @@ export class PolyAnnotation extends Annotation
       y_range_name: [ p.String,       'default' ]
   }
 
+  @internal {
+    screen: [ p.Boolean, false ]
+  }
+
   @override {
     fill_color: "#fff9ba"
     fill_alpha: 0.4
@@ -75,6 +79,6 @@ export class PolyAnnotation extends Annotation
     super(attrs, options)
     @data_update = new Signal(this, "data_update")
 
-  update:({xs, ys}) ->
-    @setv({xs: xs, ys: ys}, {silent: true})
+  update: ({xs, ys}) ->
+    @setv({xs: xs, ys: ys, screen: true}, {silent: true})
     @data_update.emit()

@@ -17,7 +17,7 @@ export class BoxSelectToolView extends SelectToolView
     dims = @model.dimensions
 
     [sxlim, sylim] = @model._get_dim_limits(@_base_point, curpoint, frame, dims)
-    @model.overlay.update({left: sxlim[0], right: sxlim[1], top: sylim[1], bottom: sylim[0]})
+    @model.overlay.update({left: sxlim[0], right: sxlim[1], top: sylim[0], bottom: sylim[1]})
 
     if @model.select_every_mousemove
       append = e.srcEvent.shiftKey ? false
