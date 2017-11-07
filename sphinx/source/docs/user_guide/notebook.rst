@@ -28,7 +28,7 @@ the command: ``jupyter labextension install jupyterlab_bokeh``.
 
 By defaults, |output_notebook| apply to Juypter. If you want to use bokeh
 to display inline plots in Zeppelin, you need to use `bkzep`_ package and
-specify `notebook_type` to `zeppelin` in |output_notebook|. 
+specify `notebook_type` to `zeppelin` in |output_notebook|.
 Here's one Zeppelin screenshot.
 
 .. image:: /_images/bokeh_simple_test_zeppelin.png
