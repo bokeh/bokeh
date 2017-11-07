@@ -26,8 +26,10 @@ export class GraphRendererView extends RendererView
     @connect(@model.layout_provider.change, () -> @set_data())
     @connect(@model.node_renderer.data_source.select, () -> @set_data())
     @connect(@model.node_renderer.data_source.inspect, () -> @set_data())
+    @connect(@model.node_renderer.data_source.change, () -> @set_data())
     @connect(@model.edge_renderer.data_source.select, () -> @set_data())
     @connect(@model.edge_renderer.data_source.inspect, () -> @set_data())
+    @connect(@model.edge_renderer.data_source.change, () -> @set_data())
 
   set_data: (request_render=true) ->
     # TODO (bev) this is a bit clunky, need to make sure glyphs use the correct ranges when they call
