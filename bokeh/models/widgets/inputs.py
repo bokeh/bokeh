@@ -77,8 +77,8 @@ class Select(InputWidget):
     ''' Single-select widget.
 
     '''
-    options = Either( Dict(String, List(Either(String, Tuple(Either(Int,String), String)))),
-            List(Either(String, Tuple(Either(Int,String), String))), help="""
+    options = Either( List(Either(String, Tuple(Either(Int,String), String))),
+        Dict(String, List(Either(String, Tuple(Either(Int,String), String)))), help="""
     Available selection options. Options may be provided either as a list of
     possible string values, or as a list of tuples, each of the form
     ``(value, label)``. In the latter case, the visible widget text for each
