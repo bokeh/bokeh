@@ -23,8 +23,8 @@ describe "CustomJSFilter", ->
       expect(filter.values).to.be.an.instanceof Array
 
     it "should contain the args values in order", ->
-      rng1 = Range1d()
-      rng2 = Range1d()
+      rng1 = new Range1d()
+      rng2 = new Range1d()
       filter = new CustomJSFilter({args: {foo: rng1, bar: rng2}})
       expect(filter.values).to.be.deep.equal([rng1, rng2])
 

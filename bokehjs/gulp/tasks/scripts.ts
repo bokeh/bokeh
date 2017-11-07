@@ -1,6 +1,7 @@
 import * as gulp from "gulp"
 import * as gutil from "gulp-util"
 import * as rename from "gulp-rename"
+const change = require("gulp-change")
 import chalk from "chalk"
 const uglify = require("gulp-uglify")
 import * as sourcemaps from "gulp-sourcemaps"
@@ -11,6 +12,7 @@ import {join} from "path"
 import {argv} from "yargs"
 import * as insert from 'gulp-insert'
 const stripAnsi = require('strip-ansi')
+const merge = require("merge2")
 
 const license = `/*!\n${fs.readFileSync('../LICENSE.txt', 'utf-8')}*/\n`
 
@@ -21,7 +23,35 @@ import {Linker} from "../linker"
 
 gulp.task("scripts:coffee", () => {
   return gulp.src('./src/coffee/**/*.coffee')
-    .pipe(coffee({bare: true}))
+    .pipe(coffee({coffee: require("coffeescript"), bare: true}))
+    .on("error", function(error: any) { console.error(error.toString()); process.exit(1) })
+    .pipe(change(function(code: string) {
+      const lines = code.split("\n")
+      const names = new Set<string>()
+      const r1 = /^export var (\w+) = \(function\(\) {$/
+      const r2 = /^  return (\w+);$/
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i]
+        let match = line.match(r1)
+        if (match != null) {
+          names.add(match[1])
+          lines[i] = ""
+          i++
+          lines[i] =  `export ${lines[i].trim()}`
+          continue
+        }
+
+        match = line.match(r2)
+        if (match != null && names.has(match[1])) {
+          lines[i] = ""
+          i++
+          lines[i] = ""
+          i++
+          lines[i] = ""
+        }
+      }
+      return lines.join("\n")
+    }))
     .pipe(rename((path) => path.extname = '.ts'))
     .pipe(gulp.dest(paths.build_dir.tree_ts))
 })
@@ -81,11 +111,18 @@ gulp.task("scripts:tsjs", ["scripts:coffee", "scripts:js", "scripts:ts"], () => 
   }
 
   const tree_ts = paths.build_dir.tree_ts
-  return gulp.src(`${tree_ts}/**/*.ts`)
+  const project = gulp
+    .src(`${tree_ts}/**/*.ts`)
     .pipe(sourcemaps.init())
     .pipe(ts(tsconfig.compilerOptions, ts.reporter.nullReporter()).on('error', error))
-    .pipe(sourcemaps.write("."))
-    .pipe(gulp.dest(paths.build_dir.tree_js))
+
+  return merge([
+    project.js
+      .pipe(sourcemaps.write("."))
+      .pipe(gulp.dest(paths.build_dir.tree_js)),
+    project.dts
+      .pipe(gulp.dest(paths.build_dir.types)),
+  ])
 })
 
 gulp.task("scripts:compile", ["scripts:tsjs"])

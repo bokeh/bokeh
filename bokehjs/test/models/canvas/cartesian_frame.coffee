@@ -14,7 +14,7 @@ utils = require "../../utils"
 describe "CartesianFrame", ->
 
   it "should have 6 variables", ->
-    c = new CartesianFrame({x_range: Range1d(0, 1), y_range: Range1d(0, 1), x_scale: new LinearScale(), y_scale: new LinearScale()})
+    c = new CartesianFrame({x_range: new Range1d({start: 0, end: 1}), y_range: new Range1d({start: 0, end: 1}), x_scale: new LinearScale(), y_scale: new LinearScale()})
     # These are inherited from LayoutDOM
     expect(c._top).to.be.an.instanceOf(Variable)
     expect(c._bottom).to.be.an.instanceOf(Variable)
@@ -24,13 +24,13 @@ describe "CartesianFrame", ->
     expect(c._height).to.be.an.instanceOf(Variable)
 
   it "should report default scales", ->
-    c = new CartesianFrame({x_range: Range1d(0, 1), y_range: Range1d(0, 1), x_scale: new LinearScale(), y_scale: new LinearScale()})
+    c = new CartesianFrame({x_range: new Range1d({start: 0, end: 1}), y_range: new Range1d({start: 0, end: 1}), x_scale: new LinearScale(), y_scale: new LinearScale()})
 
     expect(c.xscales.default).to.not.be.undefined
     expect(c.yscales.default).to.not.be.undefined
 
   it "should report deprecated *_mappers", ->
-    c = new CartesianFrame({x_range: Range1d(0, 1), y_range: Range1d(0, 1), x_scale: new LinearScale(), y_scale: new LinearScale()})
+    c = new CartesianFrame({x_range: new Range1d({start: 0, end: 1}), y_range: new Range1d({start: 0, end: 1}), x_scale: new LinearScale(), y_scale: new LinearScale()})
 
     expect(c.x_mappers).to.be.deep.equal c.xscales
     expect(c.y_mappers).to.be.deep.equal c.yscales
@@ -38,8 +38,8 @@ describe "CartesianFrame", ->
   describe "_get_scales method", ->
 
     beforeEach ->
-      @frame = new CartesianFrame({x_range: Range1d(), y_range: Range1d(), x_scale: new LinearScale(), y_scale: new LinearScale()})
-      @frame_range = Range1d(0, 100)
+      @frame = new CartesianFrame({x_range: new Range1d(), y_range: new Range1d(), x_scale: new LinearScale(), y_scale: new LinearScale()})
+      @frame_range = new Range1d({start: 0, end: 100})
 
     it "should return scale if defined", ->
       # scale = new LinearScale()

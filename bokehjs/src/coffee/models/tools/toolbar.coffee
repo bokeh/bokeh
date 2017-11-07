@@ -38,7 +38,7 @@ export class Toolbar extends ToolbarBase
 
         if not any(@gestures[et].tools, (t) => t.id == tool.id)
           @gestures[et].tools = @gestures[et].tools.concat([tool])
-        @connect(tool.properties.active.change, @_active_change.bind(null, tool))
+        @connect(tool.properties.active.change, @_active_change.bind(this, tool))
 
     if @active_inspect == 'auto'
       # do nothing as all tools are active be default

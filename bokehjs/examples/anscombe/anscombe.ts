@@ -34,7 +34,7 @@ namespace Anscombe {
   const lines = new Bokeh.ColumnDataSource({data: {x: x, y: y}});
 
   const xdr = new Bokeh.Range1d({start: -0.5, end: 20.5});
-  const ydr = Bokeh.Range1d(-0.5, 20.5);
+  const ydr = new Bokeh.Range1d({start: -0.5, end: 20.5});
 
   function make_plot(title: string, xname: string, yname: string): Bokeh.Plot {
     const plot = new Bokeh.Plot({

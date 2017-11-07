@@ -3,6 +3,7 @@ import * as enums from "./enums"
 import * as svg_colors from "./util/svg_colors"
 import {valid_rgb} from "./util/color"
 import {copy} from "./util/array"
+import {extend} from "./util/object"
 import {isBoolean, isNumber, isString, isFunction, isArray, isObject} from "./util/types"
 
 valueToString = (value) ->
@@ -16,7 +17,7 @@ valueToString = (value) ->
 #
 
 export class Property # <T>
-  @prototype extends Signalable
+  extend(@prototype, Signalable)
 
   dataspec: false
 

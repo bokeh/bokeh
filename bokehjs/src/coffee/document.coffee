@@ -43,9 +43,16 @@ export class EventManager {
 export class DocumentChangedEvent
   constructor : (@document) ->
 
+`
+export declare class ModelChangedEvent {
+  attr: string
+  model: HasProps // TODO: Model
+}
+`
+
 export class ModelChangedEvent extends DocumentChangedEvent
-  constructor : (@document, @model, @attr, @old, @new_, @setter_id) ->
-    super @document
+  constructor : (document, @model, @attr, @old, @new_, @setter_id) ->
+    super(document)
   json : (references) ->
 
     if @attr == 'id'
@@ -75,7 +82,7 @@ export class ModelChangedEvent extends DocumentChangedEvent
 
 export class TitleChangedEvent extends DocumentChangedEvent
   constructor : (@document, @title, @setter_id) ->
-    super @document
+    super(document)
   json : (references) ->
     {
       'kind' : 'TitleChanged',
@@ -84,7 +91,7 @@ export class TitleChangedEvent extends DocumentChangedEvent
 
 export class RootAddedEvent extends DocumentChangedEvent
   constructor : (@document, @model, @setter_id) ->
-    super @document
+    super(document)
   json : (references) ->
     HasProps._value_record_references(@model, references, true)
     {
@@ -94,7 +101,7 @@ export class RootAddedEvent extends DocumentChangedEvent
 
 export class RootRemovedEvent extends DocumentChangedEvent
   constructor : (@document, @model, @setter_id) ->
-    super @document
+    super(document)
   json : (references) ->
     {
       'kind' : 'RootRemoved',

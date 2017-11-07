@@ -15,8 +15,8 @@ export class CellEditorView extends DOMView
   defaultValue: null
 
   constructor: (options) ->
-    @args = options
     super(extend({model: options.column.editor}, options))
+    @args = options
 
   initialize: (options) ->
     super(options)

@@ -9,8 +9,8 @@ export class ImageSource extends Model
       extra_url_vars: [ p.Any,    {} ]
     }
 
-  constructor: (options={}) ->
-    super
+  initialize: (attrs, options) ->
+    super(attrs, options)
     @images = {}
     @normalize_case()
 
