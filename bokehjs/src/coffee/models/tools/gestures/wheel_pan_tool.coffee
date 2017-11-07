@@ -56,7 +56,7 @@ export class WheelPanToolView extends GestureToolView
     }
     @plot_view.push_state('wheel_pan', {range: pan_info})
     @plot_view.update_range(pan_info, false, true)
-    @plot_view.interactive_timestamp = Date.now()
+    @model.document.interactive_start(@plot_model.plot)
     return null
 
 

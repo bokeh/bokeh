@@ -38,18 +38,24 @@ describe "ui_events module", ->
       y_range: new Range1d({start: 0, end: 1})
       toolbar: @toolbar
     })
-    @plot_view = new @plot.default_view({model: @plot, parent: null})
     canvas.document.add_root(@plot)
+    @plot_view = new @plot.default_view({model: @plot, parent: null})
     @plot.plot_canvas.attach_document(canvas.document)
     @plot_canvas_view = new @plot.plot_canvas.default_view({ model: @plot.plot_canvas, parent: @plot_view })
     @ui_events = @plot_canvas_view.ui_event_bus
 
   describe "_trigger method", ->
 
+    afterEach ->
+      @spy_trigger.restore()
+
     beforeEach ->
       @spy_trigger = sinon.spy(@ui_events, "trigger")
 
     describe "base_type=move", ->
+
+      afterEach ->
+        @spy_cursor.restore()
 
       beforeEach ->
         @e = new Event("move")
@@ -170,6 +176,10 @@ describe "ui_events module", ->
 
     describe "base_type=scroll", ->
 
+      afterEach ->
+        @preventDefault.restore()
+        @stopPropagation.restore()
+
       beforeEach ->
         @e = new Event("scroll")
         @e.bokeh = {}
@@ -224,6 +234,7 @@ describe "ui_events module", ->
 
     afterEach ->
       @dom_stub.restore()
+      @spy.restore()
 
     beforeEach ->
       @dom_stub = sinon.stub(dom, "offset").returns({top: 0, left: 0})
@@ -266,6 +277,8 @@ describe "ui_events module", ->
 
     afterEach ->
       @dom_stub.restore()
+      @spy_plot.restore()
+      @spy_uievent.restore()
 
     beforeEach ->
       @dom_stub = sinon.stub(dom, "offset").returns({top: 0, left: 0})
@@ -319,7 +332,7 @@ describe "ui_events module", ->
 
       @ui_events._pan_start(e)
 
-      assert(@spy_plot.calledOnce)
+      assert(@spy_plot.called)
       assert(@spy_uievent.calledOnce)
 
     it "_pan method should handle pan event", ->
@@ -332,10 +345,10 @@ describe "ui_events module", ->
 
       @ui_events._pan(e)
 
-      assert(@spy_plot.calledOnce)
+      assert(@spy_plot.called)
       assert(@spy_uievent.calledOnce)
 
-    it "_pan_end method should handle pan event", ->
+    it "_pan_end method should handle pan end event", ->
       e = new Event("panend")
       e.pointerType = "mouse"
       e.srcEvent = {pageX: 100, pageY: 200}
@@ -451,7 +464,7 @@ describe "ui_events module", ->
 
       @ui_events._mouse_wheel(e)
 
-      assert(@spy_plot.calledOnce)
+      assert(@spy_plot.called)
       assert(@spy_uievent.calledOnce)
 
     # not implemented as tool method or BokehEvent
