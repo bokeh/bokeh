@@ -22,36 +22,34 @@ export class WhiskerView extends AnnotationView
 
   _map_data: () ->
     frame = @plot_model.frame
+    dim = @model.dimension
 
-    x_scale = frame.xscales[@model.x_range_name]
-    y_scale = frame.yscales[@model.y_range_name]
+    xscale = frame.xscales[@model.x_range_name]
+    yscale = frame.yscales[@model.y_range_name]
 
-    limit_scale = if @model.dimension == "height" then y_scale else x_scale
-    base_scale  = if @model.dimension == "height" then x_scale else y_scale
+    limit_scale = if dim == "height" then yscale else xscale
+    base_scale  = if dim == "height" then xscale else yscale
+
+    limit_view = if dim == "height" then frame.yview else frame.xview
+    base_view  = if dim == "height" then frame.xview else frame.yview
 
     if @model.lower.units == "data"
       _lower_sx = limit_scale.v_compute(@_lower)
     else
-      _lower_sx = @_lower
+      _lower_sx = limit_view.v_compute(@_lower)
 
     if @model.upper.units == "data"
       _upper_sx = limit_scale.v_compute(@_upper)
     else
-      _upper_sx = @_upper
+      _upper_sx = limit_view.v_compute(@_upper)
 
     if @model.base.units  == "data"
       _base_sx  = base_scale.v_compute(@_base)
     else
-      _base_sx  = @_base
+      _base_sx  = base_view.v_compute(@_base)
 
-    _normals: () ->
-      if @dimension == 'height'
-        [i, j] = [1, 0]
-      else
-        [i, j] = [0, 1]
-      return [i, j]
+    [i, j] = if dim == 'height' then [1, 0] else [0, 1]
 
-    [i, j] = @model._normals()
     _lower = [_lower_sx, _base_sx]
     _upper = [_upper_sx, _base_sx]
 

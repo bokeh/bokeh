@@ -21,14 +21,16 @@ export class BandView extends AnnotationView
 
   _map_data: () ->
     frame = @plot_view.frame
+    dim = @model.dimension
+
     xscale = frame.xscales[@model.x_range_name]
     yscale = frame.yscales[@model.y_range_name]
 
-    limit_scale = if @model.dimension == "height" then yscale else xscale
-    base_scale  = if @model.dimension == "height" then xscale else yscale
+    limit_scale = if dim == "height" then yscale else xscale
+    base_scale  = if dim == "height" then xscale else yscale
 
-    limit_view = if @model.dimension == "height" then frame.yview else frame.xview
-    base_view  = if @model.dimension == "height" then frame.xview else frame.yview
+    limit_view = if dim == "height" then frame.yview else frame.xview
+    base_view  = if dim == "height" then frame.xview else frame.yview
 
     if @model.lower.units == "data"
       _lower_sx = limit_scale.v_compute(@_lower)
@@ -45,7 +47,8 @@ export class BandView extends AnnotationView
     else
       _base_sx  = base_view.v_compute(@_base)
 
-    [i, j] = @model._normals()
+    [i, j] = if dim == 'height' then [1, 0] else [0, 1]
+
     _lower = [_lower_sx, _base_sx]
     _upper = [_upper_sx, _base_sx]
 
@@ -121,10 +124,3 @@ export class Band extends Annotation
     line_color: "#cccccc"
     line_alpha: 0.3
   }
-
-  _normals: () ->
-    if @dimension == 'height'
-      [i, j] = [1, 0]
-    else
-      [i, j] = [0, 1]
-    return [i, j]
