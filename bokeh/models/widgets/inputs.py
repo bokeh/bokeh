@@ -77,7 +77,6 @@ class Select(InputWidget):
     ''' Single-select widget.
 
     '''
-    
     options = Either( Dict(String, List(Either(String, Tuple(Either(Int,String), String)))),
             List(Either(String, Tuple(Either(Int,String), String))), help="""
     Available selection options. Options may be provided either as a list of
@@ -87,7 +86,7 @@ class Select(InputWidget):
     by supplying a dictionary object whose values are in the aforementioned
     list format
     """)
-    
+
     value = String(default="", help="""
     Initial or selected value.
     """)
