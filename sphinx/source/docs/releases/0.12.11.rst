@@ -1,0 +1,26 @@
+0.12.11 (Nov 2017)
+==================
+
+Bokeh Version ``0.12.11`` is an incremental update that adds a few important
+features and fixes several bugs. Some of the highlights include:
+
+
+
+Many other small bugfixes and docs additions. For full details see the
+:bokeh-tree:`CHANGELOG`.
+
+Migration Guide
+---------------
+
+NOTE: the 0.12.x series is the last planned release series before a version
+1.0 release. For more information see the `project roadmap`_.
+
+Breaking changes
+~~~~~~~~~~~~~~~~
+
+Shorthand initialization syntax for `Range1d(start, end)` in bokehjs was
+removed due to technical difficulties. Use full `new Range1d({start, end})`
+syntax instead. The short syntax may be restored at some point as a part of
+`bokeh-api` package.
+
+.. _project roadmap: https://bokehplots.com/pages/roadmap.html
