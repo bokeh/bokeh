@@ -57,7 +57,11 @@ export class Solver {
   }
 
   add_constraint(constraint: Constraint): void {
-    this.solver.addConstraint(constraint)
+    try {
+      this.solver.addConstraint(constraint)
+    } catch (e) {
+      throw new Error(`${e.message}: ${constraint.toString()}`)
+    }
   }
 
   remove_constraint(constraint: Constraint): void {

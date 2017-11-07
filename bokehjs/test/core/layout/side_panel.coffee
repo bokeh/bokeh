@@ -73,13 +73,6 @@ describe "SidePanel", ->
       @plot_canvas_view = new @plot_canvas.default_view({model: @plot_canvas, parent: plot_view})
       @axis_view = new @axis.default_view({model: @axis, plot_view: @plot_canvas_view, parent: @plot_canvas_view})
 
-    it "should not set _size_constraint if visible is false", ->
-      @axis.visible = false
-      expect(@axis_view._size_constraint).to.be.undefined
-      update_panel_constraints(@axis_view)
-      # Should still be undefined because visible is false
-      expect(@axis_view._size_constraint).to.be.undefined
-
     it "should set last_size", ->
       sinon.stub(@axis_view, '_tick_extent', () -> 0.11)
       sinon.stub(@axis_view, '_axis_label_extent', () -> 0.11)

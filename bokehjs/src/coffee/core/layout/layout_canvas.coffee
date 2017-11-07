@@ -1,8 +1,8 @@
 import {GE, EQ, Variable} from "./solver"
-import {Model} from "../../model"
+import {HasProps} from "../has_props"
 import * as p from "../properties"
 
-export class LayoutCanvas extends Model
+export class LayoutCanvas extends HasProps
   type: 'LayoutCanvas'
 
   initialize: (attrs, options)->

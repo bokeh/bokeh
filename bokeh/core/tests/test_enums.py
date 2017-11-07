@@ -70,5 +70,6 @@ def test_enums_contents():
         'TextAlign',
         'TextBaseline',
         'TooltipFieldFormatter',
+        'VerticalAlign',
         'VerticalLocation',
     ]

@@ -9,22 +9,25 @@ export class ButtonToolButtonView extends DOMView
   initialize: (options) ->
     super(options)
     @connect(@model.change, () => @render())
-    @el.addEventListener("click", (e) => @_clicked(e))
+    @el.addEventListener "click", (e) =>
+      e.stopPropagation()
+      e.preventDefault()
+      @_clicked()
     @render()
 
   render: () ->
     empty(@el)
     @el.disabled = @model.disabled
-    icon = div({class: ['bk-btn-icon', @model.icon]})
-    tip = span({class: 'bk-tip'}, @model.tooltip)
-    @el.appendChild(icon)
-    @el.appendChild(tip)
+    @el.classList.add(@model.icon)
+    @el.title = @model.tooltip
 
-  _clicked: (e) ->
+  _clicked: () ->
 
 export class ButtonToolView extends ToolView
 
 export class ButtonTool extends Tool
+  button_view: ButtonToolButtonView
+
   icon: null
 
   @getters {

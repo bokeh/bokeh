@@ -38,7 +38,12 @@ export class SelectView extends InputWidgetView
      for key,value of @model.options
       contents.push optgroup({label: key}, @build_options( value ))
 
-    @selectEl = select({class: "bk-widget-form-input", id: @model.id, name: @model.name}, contents)
+    @selectEl = select({
+      class: "bk-widget-form-input",
+      id: @model.id,
+      name: @model.name
+      disabled: @model.disabled}, contents)
+
     @selectEl.addEventListener("change", () => @change_input())
     @el.appendChild(@selectEl)
 

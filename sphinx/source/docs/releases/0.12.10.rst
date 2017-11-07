@@ -1,4 +1,4 @@
-0.12.0 (Oct 2017)
+0.12.10 (Oct 2017)
 ==================
 
 Bokeh Version ``0.12.10`` is an incremental update that adds a few important
@@ -32,8 +32,8 @@ New Deprecations
 
 The boolean ``responsive`` parameter to ``Figure`` and ``bokeh.layouts`` has
 been deprecated. The ``sizing_mode`` enum should be used instead. Use
-``sizing_mode='fixed'`` for ``responsive=True`` and
-``sizing_mode='scale_width'`` for ``responsive=False`` instead.
+``sizing_mode='fixed'`` for ``responsive=False`` and
+``sizing_mode='scale_width'`` for ``responsive=True`` instead.
 
 The function ``bokeh.sampledata.population.load_population`` has been
 deprecated. Use the attribute ``bokeh.sampledata.population.data`` instead.

@@ -1,6 +1,7 @@
 import * as gulp from "gulp"
 import * as gutil from "gulp-util"
 import * as rename from "gulp-rename"
+import chalk from "chalk"
 const uglify = require("gulp-uglify")
 import * as sourcemaps from "gulp-sourcemaps"
 import * as paths from "../paths"
@@ -48,7 +49,7 @@ gulp.task("scripts:tsjs", ["scripts:coffee", "scripts:js", "scripts:ts"], () => 
       const [, file, rest, code] = result
       const real = path.join('src', 'coffee', ...file.split(path.sep).slice(3))
       if (fs.existsSync(real)) {
-        gutil.log(`${gutil.colors.red(real)}${rest}`)
+        gutil.log(`${chalk.red(real)}${rest}`)
         return
       }
 

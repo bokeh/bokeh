@@ -9,7 +9,7 @@ from ..core.property_mixins import LineProps, FillProps
 from ..core.query import find
 from ..core.validation import error, warning
 from ..core.validation.errors import REQUIRED_RANGE, REQUIRED_SCALE, INCOMPATIBLE_SCALE_AND_RANGE
-from ..core.validation.warnings import MISSING_RENDERERS, NO_DATA_RENDERERS, SNAPPED_TOOLBAR_ANNOTATIONS
+from ..core.validation.warnings import MISSING_RENDERERS, NO_DATA_RENDERERS
 from ..util.deprecation import deprecated
 from ..util.plot_utils import _list_attr_splat, _select_helper
 from ..util.string import nice_join
@@ -195,6 +195,16 @@ class Plot(LayoutDOM):
     def tools(self, tools):
         self.toolbar.tools = tools
 
+    @property
+    def toolbar_sticky(self):
+        deprecated("Plot.toolbar_sticky property is no longer needed, and its use is deprecated."\
+                   "In the future, accessing Plot.toolbar_sticky will result in an AttributeError.")
+        return True
+
+    @toolbar_sticky.setter
+    def toolbar_sticky(self, val):
+        deprecated("Plot.toolbar_sticky property is no longer needed, and its use is deprecated."\
+                   "In the future, accessing Plot.toolbar_sticky will result in an AttributeError.")
 
     def add_layout(self, obj, place='center'):
         ''' Adds an object to the plot in a specified place.
@@ -367,15 +377,6 @@ class Plot(LayoutDOM):
         if len(self.select(DataRenderer)) == 0:
             return str(self)
 
-    @warning(SNAPPED_TOOLBAR_ANNOTATIONS)
-    def _check_snapped_toolbar_and_axis(self):
-        if not self.toolbar_sticky: return
-        if self.toolbar_location is None: return
-
-        objs = getattr(self, self.toolbar_location)
-        if len(objs) > 0:
-            return str(self)
-
     x_range = Instance(Range, help="""
     The (default) data range of the horizontal dimension of the plot.
     """)
@@ -446,9 +447,8 @@ class Plot(LayoutDOM):
     """)
 
     toolbar = Instance(Toolbar, help="""
-        The toolbar associated with this plot which holds all the tools.
-
-        The toolbar is automatically created with the plot.
+    The toolbar associated with this plot which holds all the tools. It is
+    automatically created with the plot if necessary.
     """)
 
     toolbar_location = Enum(Location, default="right", help="""

@@ -17,6 +17,7 @@ export class MultiSelectView extends InputWidgetView
     @connect(@model.properties.name.change, () -> @render())
     @connect(@model.properties.title.change, () -> @render())
     @connect(@model.properties.size.change, () -> @render())
+    @connect(@model.properties.disabled.change, () -> @render())
 
   render: () ->
     super()
@@ -39,7 +40,8 @@ export class MultiSelectView extends InputWidgetView
       class: "bk-widget-form-input",
       id: @model.id,
       name: @model.name,
-      size: @model.size}, options)
+      size: @model.size,
+      disabled: @model.disabled}, options)
     @selectEl.addEventListener("change", () => @change_input())
     @el.appendChild(@selectEl)
 

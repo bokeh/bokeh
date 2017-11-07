@@ -44,6 +44,9 @@ validation checks.
 1011 *(MALFORMED_GRAPH_SOURCE)*
     The ``GraphSource`` is incorrectly configured.
 
+1012 *(INCOMPATIBLE_MAP_RANGE_TYPE)*
+    Map plots can only support ``Range1d`` types, not data ranges.
+
 9999 *(EXT)*
     Indicates that a custom error check has failed.
 
@@ -61,6 +64,7 @@ codes = {
     1009: ("INCOMPATIBLE_SCALE_AND_RANGE", "A Scale is incompatible with one or more ranges on the same plot dimension"),
     1010: ("CDSVIEW_SOURCE_DOESNT_MATCH", "CDSView used by Glyph renderer must have a source that matches the Glyph renderer's data source"),
     1011: ("MALFORMED_GRAPH_SOURCE", "The GraphSource is incorrectly configured"),
+    1012: ("INCOMPATIBLE_MAP_RANGE_TYPE", "Map plots can only support Range1d types, not data ranges"),
     9999: ("EXT",                    "Custom extension reports error"),
 }
 

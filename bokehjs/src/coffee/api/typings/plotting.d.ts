@@ -14,6 +14,7 @@ declare namespace Bokeh.Plotting {
 
   type ToolType =
     "pan" | "xpan" | "ypan" |
+    "xwheel_pan" | "ywheel_pan" |
     "wheel_zoom" | "xwheel_zoom" | "ywheel_zoom" |
     "save" |
     "click" | "tap" |

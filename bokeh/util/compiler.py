@@ -139,7 +139,7 @@ def _detect_nodejs():
     # if we've reached here, no valid version was found
     version = ".".join(map(str, nodejs_min_version))
     raise RuntimeError('node.js v%s or higher is needed to allow compilation of custom models ' % version +
-                       '("conda install -c bokeh nodejs" or follow https://nodejs.org/en/download/)')
+                       '("conda install nodejs" or follow https://nodejs.org/en/download/)')
 
 _nodejs = None
 _npmjs = None
@@ -426,5 +426,35 @@ def bundle_models(models):
     content = _plugin_template % dict(prelude=_plugin_prelude, exports=exports, modules=modules)
     return _plugin_umd % dict(content=content)
 
+def calc_cache_key():
+    ''' Generate a key to cache a custom extension implementation with.
+
+    There is no metadata other than the Model classes, so this is the only
+    base to generate a cache key.
+
+    We build the model keys from the list of ``model.full_name``. This is
+    not ideal but possibly a better solution can be found found later.
+
+    '''
+
+    models = Model.model_class_reverse_map.values()
+    custom_model_names = ""
+
+    for cls in models:
+        impl = getattr(cls, "__implementation__", None)
+
+        if impl is not None:
+            model = CustomModel(cls)
+            custom_model_names += model.full_name
+
+    key = hashlib.sha256(custom_model_names.encode('utf-8')).hexdigest()
+    return key
+
+_bundle_cache = {}
+
 def bundle_all_models():
-    return bundle_models(Model.model_class_reverse_map.values()) or ""
+    key = calc_cache_key()
+    bundle = _bundle_cache.get(key, None)
+    if bundle is None:
+        _bundle_cache[key] = bundle = bundle_models(Model.model_class_reverse_map.values()) or ""
+    return bundle

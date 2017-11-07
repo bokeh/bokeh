@@ -21,8 +21,6 @@ export class LayoutDOMView extends DOMView
     @child_views = {}
     @build_child_views()
 
-    @connect_signals()
-
   remove: () ->
     for _, view of @child_views
       view.remove()
@@ -179,8 +177,7 @@ export class LayoutDOMView extends DOMView
     if @className?
       @el.classList.add(@className)
 
-    if @model.sizing_mode? # XXX: because toolbar uses null
-      @el.classList.add("bk-layout-#{@model.sizing_mode}")
+    @el.classList.add("bk-layout-#{@model.sizing_mode}")
 
     if @model.css_classes?
       for cls in @model.css_classes
@@ -210,54 +207,64 @@ export class LayoutDOMView extends DOMView
 
         @solver.suggest_value(@model._width, width)
         @solver.suggest_value(@model._height, height)
-        @solver.update_variables()
-
-        @el.style.position = "relative"
-        @el.style.left = ""
-        @el.style.top = ""
-        @el.style.width = "#{width}px"
-        @el.style.height = "#{height}px"
-
       when 'scale_width'
         height = @get_height()
-
         @solver.suggest_value(@model._height, height)
-        @solver.update_variables()
-
-        @el.style.position = "relative"
-        @el.style.left = ""
-        @el.style.top = ""
-        @el.style.width = "#{@model._width.value}px"
-        @el.style.height = "#{@model._height.value}px"
-
       when 'scale_height'
         width = @get_width()
-
         @solver.suggest_value(@model._width, width)
-        @solver.update_variables()
+      when 'scale_both'
+        [width, height] = @get_width_height()
+        @solver.suggest_value(@model._width, width)
+        @solver.suggest_value(@model._height, height)
 
+    @solver.update_variables()
+    @position()
+
+  position: () ->
+    switch @model.sizing_mode
+      when 'fixed', 'scale_width', 'scale_height'
         @el.style.position = "relative"
         @el.style.left = ""
         @el.style.top = ""
-        @el.style.width = "#{@model._width.value}px"
-        @el.style.height = "#{@model._height.value}px"
-
-      when 'stretch_both'
+      when 'scale_both', 'stretch_both'
         @el.style.position = "absolute"
         @el.style.left = "#{@model._dom_left.value}px"
         @el.style.top = "#{@model._dom_top.value}px"
-        @el.style.width = "#{@model._width.value}px"
-        @el.style.height = "#{@model._height.value}px"
+
+    @el.style.width = "#{@model._width.value}px"
+    @el.style.height = "#{@model._height.value}px"
 
   get_height: () ->
     # Subclasses should implement this to explain
     # what their height should be in sizing_mode mode.
-    return null
+    throw new Error("not implemented")
 
   get_width: () ->
     # Subclasses should implement this to explain
     # what their width should be in sizing_mode mode.
-    return null
+    throw new Error("not implemented")
+
+  get_width_height: () ->
+    parent_height = @el.parentNode.clientHeight
+    parent_width = @el.parentNode.clientWidth
+
+    ar = @model.get_aspect_ratio()
+
+    new_width_1 = parent_width
+    new_height_1 = parent_width / ar
+
+    new_width_2 = parent_height * ar
+    new_height_2 = parent_height
+
+    if new_width_1 < new_width_2
+      width = new_width_1
+      height = new_height_1
+    else
+      width = new_width_2
+      height = new_height_2
+
+    return [width, height]
 
 export class LayoutDOM extends Model
   type: "LayoutDOM"
@@ -360,6 +367,8 @@ export class LayoutDOM extends Model
         return [@_height]
       when 'scale_height'
         return [@_width]
+      when 'scale_both'
+        return [@_width, @_height]
       else
         return []
 
@@ -408,6 +417,9 @@ export class LayoutDOM extends Model
         vars.height = @_height
 
     return vars
+
+  get_aspect_ratio: () ->
+    return @width / @height
 
   @define {
       height:      [ p.Number              ]

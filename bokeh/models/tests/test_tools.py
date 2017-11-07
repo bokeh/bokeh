@@ -3,7 +3,7 @@ from __future__ import absolute_import
 import mock
 
 from bokeh.core.validation import check_integrity
-from bokeh.models.layouts import Box
+from bokeh.models.layouts import LayoutDOM
 from bokeh.models.tools import Toolbar, ToolbarBox
 
 
@@ -21,17 +21,14 @@ def test_Toolbar():
 # ToolbarBox
 #
 
-def test_toolbar_box_is_instance_of_box():
+def test_toolbar_box_is_instance_of_LayoutDOM():
     tb_box = ToolbarBox()
-    assert isinstance(tb_box, Box)
+    assert isinstance(tb_box, LayoutDOM)
 
 
 def test_toolbar_box_properties():
     tb_box = ToolbarBox()
-    assert tb_box.logo == "normal"
     assert tb_box.toolbar_location == "right"
-    assert tb_box.tools == []
-    assert tb_box.merge_tools is True
 
 
 @mock.patch('bokeh.io.showing._show_with_state')

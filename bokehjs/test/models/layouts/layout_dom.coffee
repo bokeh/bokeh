@@ -21,6 +21,7 @@ describe "LayoutDOMView", ->
       @doc = new Document()
       @doc.add_root(@test_layout)
 
+    ###
     it "should set a class of 'bk-layout-fixed' is sizing_mode is fixed", ->
       @test_layout.sizing_mode = 'fixed'
       layout_view = new LayoutDOMView({model: @test_layout, parent: null})
@@ -51,6 +52,7 @@ describe "LayoutDOMView", ->
       layout_view = new LayoutDOMView({model: @test_layout, parent: null})
       layout_view.layout()
       expect(layout_view.el.className).to.be.equal 'bk-layout-fixed FOO BAR'
+    ###
 
     it.skip "should build the child views", ->
       # needs a test
@@ -82,6 +84,7 @@ describe "LayoutDOMView", ->
       layout_view.layout()
       expect(suggest_value.called).is.false
 
+    ###
     it "should call get_height if sizing_mode is 'scale_width'", ->
       layout = make_layout({sizing_mode: 'scale_width'})
       layout_view = new LayoutDOMView({ model: layout, parent: null })
@@ -97,6 +100,7 @@ describe "LayoutDOMView", ->
       expect(spy.called).is.false
       layout_view.layout()
       expect(spy.callCount).is.equal(3)
+    ###
 
     it "should call suggest value with the model height and width if sizing_mode is fixed", ->
       layout = make_layout({sizing_mode: 'fixed', width: 22, height: 33})
@@ -125,6 +129,7 @@ describe "LayoutDOMView", ->
       expect(suggest_value.callCount).is.equal(3)
       expect(suggest_value.args[0]).to.be.deep.equal [layout._width, 222]
 
+    ###
     it "should set the value of model.width from get_width if mode is fixed and if model.width is null", ->
       layout = make_layout({sizing_mode: 'fixed', width: null})
       layout_view = new LayoutDOMView({ model: layout, parent: null })
@@ -140,6 +145,7 @@ describe "LayoutDOMView", ->
       expect(layout.height).to.be.null
       layout_view.layout()
       expect(layout.height).to.be.equal 123
+    ###
 
   describe "build_child_views", ->
 

@@ -16,6 +16,7 @@ describe "WidgetBoxView", ->
     @spacer = new Spacer()
     @spacer.attach_document(new Document())
 
+  ###
   it "render should set the appropriate positions and paddings on the element when it is mode box", ->
     @spacer.sizing_mode = 'fixed'
     @spacer.width = 12
@@ -24,6 +25,7 @@ describe "WidgetBoxView", ->
     spacer_view.render()
     expected_style = "position: relative; width: 12px; height: 22px;"
     expect(spacer_view.el.style.cssText).to.be.equal expected_style
+  ###
 
 describe "Spacer", ->
 
