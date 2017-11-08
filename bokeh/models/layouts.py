@@ -58,10 +58,14 @@ class LayoutDOM(Model):
 
     """)
 
-    css_classes = Seq(String, help="""
+    # List in order for in-place changes to trigger changes, ref: https://github.com/bokeh/bokeh/issues/6841
+    css_classes = List(String, help="""
     A list of css class names to add to this DOM element. Note: the class names are
     simply added as-is, no other guarantees are provided.
-    """)
+
+    It is also permissible to assign from tuples, however these are adapted -- the
+    property will always contain a list.
+    """).accepts(Seq(String), lambda x: list(x))
 
 
 class Spacer(LayoutDOM):

@@ -426,5 +426,5 @@ export class LayoutDOM extends Model
       width:       [ p.Number              ]
       disabled:    [ p.Bool,       false   ]
       sizing_mode: [ p.SizingMode, "fixed" ]
-      css_classes: [ p.Array               ]
+      css_classes: [ p.Array,      []      ]
     }
