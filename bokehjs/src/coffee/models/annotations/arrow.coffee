@@ -59,12 +59,13 @@ export class ArrowView extends AnnotationView
 
     # Next we call .clip on all the arrow heads, inside an initial canvas sized
     # rect, to create an "inverted" clip region for the arrow heads
-    ctx.beginPath();
-    ctx.rect(0, 0, @canvas._width.value, @canvas._height.value)
+    ctx.beginPath()
+    {x, y, width, height} = @plot_model.canvas.bbox.rect
+    ctx.rect(x, y, width, height)
     if @model.end? then @_arrow_head(ctx, "clip", @model.end, @start, @end)
     if @model.start? then @_arrow_head(ctx, "clip", @model.start, @end, @start)
     ctx.closePath()
-    ctx.clip();
+    ctx.clip()
 
     # Finally we draw the arrow body, with the clipping regions set up. This prevents
     # "fat" arrows from overlapping the arrow head in a bad way.
