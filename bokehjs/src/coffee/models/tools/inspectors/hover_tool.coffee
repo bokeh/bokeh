@@ -344,7 +344,7 @@ export class HoverTool extends InspectTool
     tooltips: [ p.Any, [
       ["index",         "$index"    ]
       ["data (x, y)",   "($x, $y)"  ]
-      ["canvas (x, y)", "($sx, $sy)"]
+      ["screen (x, y)", "($sx, $sy)"]
     ]]
     formatters:   [ p.Any,    {}             ]
     renderers:    [ p.Array,  []             ]

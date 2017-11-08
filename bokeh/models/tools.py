@@ -702,7 +702,7 @@ class HoverTool(Inspection):
             default=[
                 ("index","$index"),
                 ("data (x, y)","($x, $y)"),
-                ("canvas (x, y)","($sx, $sy)"),
+                ("screen (x, y)","($sx, $sy)"),
             ], help="""
     The (name, field) pairs describing what the hover tool should
     display when there is a hit.
