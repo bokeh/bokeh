@@ -98,7 +98,7 @@ export class BBox implements IBBox {
   get p1(): [number, number] { return [this.x1, this.y1] }
 
   get x(): number { return this.x0 }
-  get y(): number { return this.x1 }
+  get y(): number { return this.y0 }
   get width(): number { return this.x1 - this.x0 }
   get height(): number { return this.y1 - this.y0 }
 
