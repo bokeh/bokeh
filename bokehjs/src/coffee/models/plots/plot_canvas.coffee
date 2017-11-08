@@ -7,17 +7,17 @@ import {LayoutDOM} from "../layouts/layout_dom"
 import {Signal} from "core/signaling"
 import {build_views, remove_views} from "core/build_views"
 import {UIEvents} from "core/ui_events"
-
-import {LayoutCanvas} from "core/layout/layout_canvas"
 import {Visuals} from "core/visuals"
 import {DOMView} from "core/dom_view"
+import {LayoutCanvas} from "core/layout/layout_canvas"
+import {hstack, vstack} from "core/layout/alignments"
 import {EQ, LE, GE} from "core/layout/solver"
 import {logger} from "core/logging"
 import * as enums from "core/enums"
 import * as p from "core/properties"
 import {throttle} from "core/util/throttle"
 import {isStrictNaN} from "core/util/types"
-import {difference, sortBy, pairwise, reversed} from "core/util/array"
+import {difference, sortBy, reversed} from "core/util/array"
 import {extend, values, isEmpty} from "core/util/object"
 import {update_panel_constraints} from "core/layout/side_panel"
 
@@ -164,8 +164,7 @@ export class PlotCanvasView extends DOMView
       gl.clear(gl.COLOR_BUFFER_BIT || gl.DEPTH_BUFFER_BIT)
       # Clipping
       gl.enable(gl.SCISSOR_TEST)
-      flipped_top = ctx.glcanvas.height - ratio * (frame_box[1] + frame_box[3])
-      gl.scissor(ratio * frame_box[0], flipped_top, ratio * frame_box[2], ratio * frame_box[3])
+      gl.scissor(ratio*frame_box[0], ratio*frame_box[1], ratio*frame_box[2], ratio*frame_box[3])
       # Setup blending
       gl.enable(gl.BLEND)
       gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE_MINUS_DST_ALPHA, gl.ONE)  # premultipliedAlpha == true
@@ -261,7 +260,7 @@ export class PlotCanvasView extends DOMView
     @range_update_timestamp = Date.now()
 
   map_to_screen: (x, y, x_name='default', y_name='default') ->
-    @frame.map_to_screen(x, y, @canvas, x_name, y_name)
+    return @frame.map_to_screen(x, y, x_name, y_name)
 
   push_state: (type, info) ->
     prev_info = @state.history[@state.index]?.info or {}
@@ -601,8 +600,8 @@ export class PlotCanvasView extends DOMView
     ctx.translate(0.5, 0.5)
 
     frame_box = [
-      @canvas.vx_to_sx(@frame._left.value),
-      @canvas.vy_to_sy(@frame._top.value),
+      @frame._left.value,
+      @frame._top.value,
       @frame._width.value,
       @frame._height.value,
     ]
@@ -785,16 +784,16 @@ export class PlotCanvas extends LayoutDOM
   _get_constant_constraints: () ->
     return [
       # Set the origin. Everything else is positioned absolutely wrt canvas.
-      EQ(@canvas._left,   0),
-      EQ(@canvas._bottom, 0),
+      EQ(@canvas._left, 0),
+      EQ(@canvas._top,  0),
 
-      LE(@above_panel._top,    [-1, @canvas._top]        ),
+      GE(@above_panel._top,    [-1, @canvas._top]        ),
       EQ(@above_panel._bottom, [-1, @frame._top]         ),
       EQ(@above_panel._left,   [-1, @left_panel._right]  ),
       EQ(@above_panel._right,  [-1, @right_panel._left]  ),
 
       EQ(@below_panel._top,    [-1, @frame._bottom]      ),
-      GE(@below_panel._bottom, [-1, @canvas._bottom]     ),
+      LE(@below_panel._bottom, [-1, @canvas._bottom]     ),
       EQ(@below_panel._left,   [-1, @left_panel._right]  ),
       EQ(@below_panel._right,  [-1, @right_panel._left]  ),
 
@@ -808,9 +807,9 @@ export class PlotCanvas extends LayoutDOM
       EQ(@right_panel._left,   [-1, @frame._right]       ),
       LE(@right_panel._right,  [-1, @canvas._right]      ),
 
-      EQ(@_top,                    [-1, @canvas._top], @above_panel._bottom),
+      EQ(@_top,                    [-1, @above_panel._bottom]),
       EQ(@_left,                   [-1, @left_panel._right]),
-      EQ(@_height, [-1, @_bottom], [-1, @below_panel._top]),
+      EQ(@_height, [-1, @_bottom], [-1, @canvas._bottom], @below_panel._top),
       EQ(@_width, [-1, @_right],   [-1, @canvas._right], @right_panel._left),
 
       GE(@_top,                    -@plot.min_border_top   )
@@ -820,39 +819,9 @@ export class PlotCanvas extends LayoutDOM
     ]
 
   _get_side_constraints: () ->
-    constraints = []
-
-    add = (new_constraints...) ->
-      constraints.push(new_constraints...)
-
-    head = (arr) -> arr[0]
-    tail = (arr) -> arr[arr.length-1]
-
-    vstack = (container, children) ->
-      if children.length > 0
-        add(EQ(head(children).panel._bottom, [-1, container._bottom]))
-        add(EQ(tail(children).panel._top,    [-1, container._top]))
-
-        add(pairwise(children, (prev, next) -> EQ(prev.panel._top,  [-1, next.panel._bottom]))...)
-
-        for obj in children
-          add(EQ(obj.panel._left,  [-1, container._left]))
-          add(EQ(obj.panel._right, [-1, container._right]))
-
-    hstack = (container, children) ->
-      if children.length > 0
-        add(EQ(head(children).panel._right,  [-1, container._right]))
-        add(EQ(tail(children).panel._left,   [-1, container._left]))
-
-        add(pairwise(children, (prev, next) -> EQ(prev.panel._left, [-1, next.panel._right]))...)
-
-        for obj in children
-          add(EQ(obj.panel._top,    [-1, container._top]))
-          add(EQ(obj.panel._bottom, [-1, container._bottom]))
-
-    vstack(@above_panel,          @plot.above )
-    vstack(@below_panel, reversed(@plot.below))
-    hstack(@left_panel,           @plot.left  )
-    hstack(@right_panel, reversed(@plot.right))
-
-    return constraints
+    panels = (objs) -> (obj.panel for obj in objs)
+    above = vstack(@above_panel,          panels(@plot.above))
+    below = vstack(@below_panel, reversed(panels(@plot.below)))
+    left  = hstack(@left_panel,           panels(@plot.left))
+    right = hstack(@right_panel, reversed(panels(@plot.right)))
+    return [].concat(above, below, left, right)

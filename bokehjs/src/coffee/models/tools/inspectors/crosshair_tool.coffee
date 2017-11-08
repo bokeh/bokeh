@@ -9,15 +9,12 @@ export class CrosshairToolView extends InspectToolView
     if not @model.active
       return
 
-    frame = @plot_model.frame
-    canvas = @plot_model.canvas
+    {sx, sy} = e.bokeh
 
-    vx = canvas.sx_to_vx(e.bokeh.sx)
-    vy = canvas.sy_to_vy(e.bokeh.sy)
-    if not frame.contains(vx, vy)
-      vx = vy = null
+    if not @plot_model.frame.bbox.contains(sx, sy)
+      sx = sy = null
 
-    @_update_spans(vx, vy)
+    @_update_spans(sx, sy)
 
   _move_exit: (e) ->
     @_update_spans(null, null)

@@ -97,39 +97,6 @@ export class Canvas extends LayoutCanvas
     output_backend: [ p.OutputBackend, "canvas"]
   }
 
-  initialize: (attrs, options) ->
-    super(attrs, options)
-    @panel = @
-
-  # transform view coordinates to underlying screen coordinates
-  vx_to_sx: (x) -> x
-
-  vy_to_sy: (y) ->
-    return @_height.value - y
-
-  # vectorized versions of vx_to_sx/vy_to_sy
-  v_vx_to_sx: (xx) ->
-    return new Float64Array(xx)
-
-  v_vy_to_sy: (yy) ->
-    _yy = new Float64Array(yy.length)
-    height = @_height.value
-    for y, idx in yy
-      _yy[idx] = height - y
-    return _yy
-
-  sx_to_vx: (x) -> x
-
-  sy_to_vy: (y) ->
-    return @_height.value - y
-
-  # vectorized versions of sx_to_vx/sy_to_vy
-  v_sx_to_vx: (xx) ->
-    return new Float64Array(xx)
-
-  v_sy_to_vy: (yy) ->
-    _yy = new Float64Array(yy.length)
-    height = @_height.value
-    for y, idx in yy
-      _yy[idx] = height - y
-    return _yy
+  @getters {
+    panel: () -> @
+  }

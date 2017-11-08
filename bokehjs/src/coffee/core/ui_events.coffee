@@ -134,10 +134,7 @@ export class UIEvents
     return null
 
   _hit_test_frame: (sx, sy) ->
-    canvas = @plot_view.canvas
-    vx = canvas.sx_to_vx(sx)
-    vy = canvas.sy_to_vy(sy)
-    return @plot_view.frame.contains(vx, vy)
+    return @plot_view.frame.bbox.contains(sx, sy)
 
   _trigger: (signal, e) ->
     event_type = signal.name
@@ -233,6 +230,9 @@ export class UIEvents
 
   _pan_start: (e) ->
     @_bokify_hammer(e)
+    # back out delta to get original center point
+    e.bokeh.sx -= e.deltaX
+    e.bokeh.sy -= e.deltaY
     @_trigger(@pan_start, e)
 
   _pan: (e) ->

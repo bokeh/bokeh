@@ -13,7 +13,7 @@ import {isNumber, isString, isArray} from "../core/util/types"
 _default_tooltips = [
   ["index", "$index"],
   ["data (x, y)", "($x, $y)"],
-  ["canvas (x, y)", "($sx, $sy)"],
+  ["screen (x, y)", "($sx, $sy)"],
 ]
 
 _default_tools = "pan,wheel_zoom,box_zoom,save,reset,help"

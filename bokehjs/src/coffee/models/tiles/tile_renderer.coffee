@@ -36,7 +36,7 @@ export class TileRendererView extends RendererView
     if isString(attribution) and attribution.length > 0
       if not @attributionEl?
         right = @plot_model.canvas._right.value - @plot_model.frame._right.value
-        bottom = @plot_model.frame._bottom.value
+        bottom = @plot_model.canvas._bottom.value - @plot_model.frame._bottom.value
         max_width = @map_frame._width.value
         @attributionEl = div({
           class: 'bk-tile-attribution'
@@ -164,8 +164,8 @@ export class TileRendererView extends RendererView
   _draw_tile: (tile_key) ->
     tile_obj = @model.tile_source.tiles[tile_key]
     if tile_obj?
-      [sxmin, symin] = @plot_view.frame.map_to_screen([tile_obj.bounds[0]], [tile_obj.bounds[3]], @plot_view.canvas)
-      [sxmax, symax] = @plot_view.frame.map_to_screen([tile_obj.bounds[2]], [tile_obj.bounds[1]], @plot_view.canvas)
+      [sxmin, symin] = @plot_view.map_to_screen([tile_obj.bounds[0]], [tile_obj.bounds[3]])
+      [sxmax, symax] = @plot_view.map_to_screen([tile_obj.bounds[2]], [tile_obj.bounds[1]])
       sxmin = sxmin[0]
       symin = symin[0]
       sxmax = sxmax[0]
@@ -178,8 +178,8 @@ export class TileRendererView extends RendererView
 
   _set_rect:() ->
     outline_width = @plot_model.plot.properties.outline_line_width.value()
-    l = @plot_view.canvas.vx_to_sx(@map_frame._left.value) + (outline_width/2)
-    t = @plot_view.canvas.vy_to_sy(@map_frame._top.value) + (outline_width/2)
+    l = @map_frame._left.value + (outline_width/2)
+    t = @map_frame._top.value + (outline_width/2)
     w = @map_frame._width.value - outline_width
     h = @map_frame._height.value - outline_width
     @map_canvas.rect(l, t, w, h)

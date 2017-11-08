@@ -431,7 +431,7 @@ _known_tools = {
     "hover": lambda: HoverTool(tooltips=[
         ("index", "$index"),
         ("data (x, y)", "($x, $y)"),
-        ("canvas (x, y)", "($sx, $sy)"),
+        ("screen (x, y)", "($sx, $sy)"),
     ]),
     "save": lambda: SaveTool(),
     "previewsave": "save",

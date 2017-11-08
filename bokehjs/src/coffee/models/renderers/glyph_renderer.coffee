@@ -59,15 +59,6 @@ export class GlyphRendererView extends RendererView
     if @model.data_source instanceof RemoteDataSource
       @model.data_source.setup()
 
-  @getters {
-    xmapper: () ->
-      log.warning("xmapper attr is deprecated, use xscale")
-      @xscale
-    ymapper: () ->
-      log.warning("ymapper attr is deprecated, use yscale")
-      @yscale
-  }
-
   build_glyph_view: (model) ->
     new model.default_view({model: model, renderer: @, plot_view: @plot_view, parent: @})
 
@@ -251,16 +242,12 @@ export class GlyphRendererView extends RendererView
 
     ctx.restore()
 
-  map_to_screen: (x, y) ->
-    @plot_view.map_to_screen(x, y, @model.x_range_name, @model.y_range_name)
-
   draw_legend: (ctx, x0, x1, y0, y1, field, label) ->
     index = @model.get_reference_point(field, label)
     @glyph.draw_legend_for_index(ctx, x0, x1, y0, y1, index)
 
   hit_test: (geometry, final, append, mode="select") ->
     return @model.hit_test_helper(geometry, @, final, append, mode)
-
 
 export class GlyphRenderer extends Renderer
   default_view: GlyphRendererView

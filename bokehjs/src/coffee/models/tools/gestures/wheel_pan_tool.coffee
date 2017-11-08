@@ -16,34 +16,34 @@ export class WheelPanToolView extends GestureToolView
 
   _update_ranges: (factor) ->
     frame = @plot_model.frame
-    hr = frame.h_range
-    vr = frame.v_range
+    hr = frame.bbox.h_range
+    vr = frame.bbox.v_range
 
-    [vx_low, vx_high] = [hr.start, hr.end]
-    [vy_low, vy_high]  = [vr.start, vr.end]
+    [sx_low, sx_high] = [hr.start, hr.end]
+    [sy_low, sy_high]  = [vr.start, vr.end]
 
     switch @model.dimension
       when "height"
-        vy_range = Math.abs(vy_high - vy_low)
-        sx0 = vx_low
-        sx1 = vx_high
-        sy0 = vy_low + vy_range * factor
-        sy1 = vy_high + vy_range * factor
+        sy_range = Math.abs(sy_high - sy_low)
+        sx0 = sx_low
+        sx1 = sx_high
+        sy0 = sy_low - sy_range * factor
+        sy1 = sy_high - sy_range * factor
       when "width"
-        vx_range = Math.abs(vx_high - vx_low)
-        sx0 = vx_low - vx_range * factor
-        sx1 = vx_high - vx_range * factor
-        sy0 = vy_low
-        sy1 = vy_high
+        sx_range = Math.abs(sx_high - sx_low)
+        sx0 = sx_low - sx_range * factor
+        sx1 = sx_high - sx_range * factor
+        sy0 = sy_low
+        sy1 = sy_high
 
     xrs = {}
     for name, scale of frame.xscales
-      [start, end] = scale.v_invert([sx0, sx1])
+      [start, end] = scale.r_invert(sx0, sx1)
       xrs[name] = {start: start, end: end}
 
     yrs = {}
     for name, scale of frame.yscales
-      [start, end] = scale.v_invert([sy0, sy1])
+      [start, end] = scale.r_invert(sy0, sy1)
       yrs[name] = {start: start, end: end}
 
     # OK this sucks we can't set factor independently in each direction. It is used

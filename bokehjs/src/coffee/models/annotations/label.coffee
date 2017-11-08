@@ -5,7 +5,6 @@ import * as p from "core/properties"
 export class LabelView extends TextAnnotationView
   initialize: (options) ->
     super(options)
-    @canvas = @plot_model.canvas
     @visuals.warm_cache(null)
 
   _get_size: () ->
@@ -25,10 +24,6 @@ export class LabelView extends TextAnnotationView
     if not @model.visible
       return
 
-    xscale = @plot_view.frame.xscales[@model.x_range_name]
-    yscale = @plot_view.frame.yscales[@model.y_range_name]
-    ctx = @plot_view.canvas_view.ctx
-
     # Here because AngleSpec does units tranform and label doesn't support specs
     switch @model.angle_units
       when "rad" then angle = -1 * @model.angle
@@ -36,23 +31,17 @@ export class LabelView extends TextAnnotationView
 
     panel = @model.panel ? @plot_view.frame
 
-    if @model.x_units == "data"
-      vx = xscale.compute(@model.x)
-    else
-      vx = @model.x + panel._left.value
+    xscale = @plot_view.frame.xscales[@model.x_range_name]
+    yscale = @plot_view.frame.yscales[@model.y_range_name]
 
-    if @model.y_units == "data"
-      vy = yscale.compute(@model.y)
-    else
-      vy = @model.y + panel._bottom.value
+    sx = if @model.x_units == "data" then xscale.compute(@model.x) else panel.xview.compute(@model.x)
+    sy = if @model.y_units == "data" then yscale.compute(@model.y) else panel.yview.compute(@model.y)
 
-    sx = @canvas.vx_to_sx(vx)
-    sy = @canvas.vy_to_sy(vy)
+    sx += @model.x_offset
+    sy -= @model.y_offset
 
-    if @model.render_mode == 'canvas'
-      @_canvas_text(ctx, @model.text, sx + @model.x_offset, sy - @model.y_offset, angle)
-    else
-      @_css_text(ctx, @model.text, sx + @model.x_offset, sy - @model.y_offset, angle)
+    draw = if @model.render_mode == 'canvas' then @_canvas_text.bind(@) else @_css_text.bind(@)
+    draw(@plot_view.canvas_view.ctx, @model.text, sx, sy, angle)
 
 export class Label extends TextAnnotation
   default_view: LabelView

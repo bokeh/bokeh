@@ -48,19 +48,19 @@ export class Tool extends Model
 
   # utility function to get limits along both dimensions, given
   # optional dimensional constraints
-  _get_dim_limits: ([vx0, vy0], [vx1, vy1], frame, dims) ->
-    hr = frame.h_range
+  _get_dim_limits: ([sx0, sy0], [sx1, sy1], frame, dims) ->
+    hr = frame.bbox.h_range
     if dims == 'width' or dims == 'both'
-      vxlim = [min([vx0, vx1]),         max([vx0, vx1])]
-      vxlim = [max([vxlim[0], hr.min]), min([vxlim[1], hr.max])]
+      sxlim = [min([sx0, sx1]),         max([sx0, sx1])]
+      sxlim = [max([sxlim[0], hr.start]), min([sxlim[1], hr.end])]
     else
-      vxlim = [hr.min, hr.max]
+      sxlim = [hr.start, hr.end]
 
-    vr = frame.v_range
+    vr = frame.bbox.v_range
     if dims == 'height' or dims == 'both'
-      vylim = [min([vy0, vy1]),         max([vy0, vy1])]
-      vylim = [max([vylim[0], vr.min]), min([vylim[1], vr.max])]
+      sylim = [min([sy0, sy1]),         max([sy0, sy1])]
+      sylim = [max([sylim[0], vr.start]), min([sylim[1], vr.end])]
     else
-      vylim = [vr.min, vr.max]
+      sylim = [vr.start, vr.end]
 
-    return [vxlim, vylim]
+    return [sxlim, sylim]

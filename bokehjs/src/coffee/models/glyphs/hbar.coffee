@@ -16,14 +16,9 @@ export class HBarView extends BoxView
     return [l, r, t, b]
 
   _map_data: () ->
-    vy = @renderer.yscale.v_compute(@_y)
-    @sy = @renderer.plot_view.canvas.v_vy_to_sy(vy)
-
-    vright = @renderer.xscale.v_compute(@_right)
-    @sright = @renderer.plot_view.canvas.v_vx_to_sx(vright)
-
-    vleft = @renderer.xscale.v_compute(@_left)
-    @sleft = @renderer.plot_view.canvas.v_vx_to_sx(vleft)
+    @sy = @renderer.yscale.v_compute(@_y)
+    @sright = @renderer.xscale.v_compute(@_right)
+    @sleft = @renderer.xscale.v_compute(@_left)
 
     @stop = []
     @sbottom = []
