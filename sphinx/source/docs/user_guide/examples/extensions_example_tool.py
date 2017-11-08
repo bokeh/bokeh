@@ -18,7 +18,6 @@ export class DrawToolView extends GestureToolView
   # this is executed on subsequent mouse/touch moves
   _pan: (e) ->
     frame = @plot_model.frame
-    canvas = @plot_view.canvas
 
     {sx, sy} = e.bokeh
     if not frame.bbox.contains(sx, sy)

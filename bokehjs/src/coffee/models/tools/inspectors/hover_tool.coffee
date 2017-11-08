@@ -168,7 +168,6 @@ export class HoverToolView extends InspectToolView
     if indices.is_empty()
       return
 
-    canvas = @plot_model.canvas
     frame = @plot_model.frame
 
     {sx, sy} = geometry

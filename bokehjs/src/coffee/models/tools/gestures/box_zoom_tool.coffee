@@ -69,12 +69,10 @@ export class BoxZoomToolView extends GestureToolView
     return [[left, right], [bottom, top]]
 
   _pan_start: (e) ->
-    canvas = @plot_view.canvas
     @_base_point = [e.bokeh.sx, e.bokeh.sy]
     return null
 
   _pan: (e) ->
-    canvas = @plot_view.canvas
     curpoint = [e.bokeh.sx, e.bokeh.sy]
     frame = @plot_model.frame
     dims = @model.dimensions
@@ -89,7 +87,6 @@ export class BoxZoomToolView extends GestureToolView
     return null
 
   _pan_end: (e) ->
-    canvas = @plot_view.canvas
     curpoint = [e.bokeh.sx, e.bokeh.sy]
     frame = @plot_model.frame
     dims = @model.dimensions

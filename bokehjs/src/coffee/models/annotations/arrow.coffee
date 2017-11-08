@@ -9,7 +9,6 @@ export class ArrowView extends AnnotationView
     super(options)
     if not @model.source?
       this.model.source = new ColumnDataSource()
-    @canvas = @plot_model.canvas
     @set_data(@model.source)
 
   connect_signals: () ->
