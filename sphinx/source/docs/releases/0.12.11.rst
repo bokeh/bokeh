@@ -15,8 +15,20 @@ Migration Guide
 NOTE: the 0.12.x series is the last planned release series before a version
 1.0 release. For more information see the `project roadmap`_.
 
-Breaking changes
-~~~~~~~~~~~~~~~~
+BokehJS Changes
+~~~~~~~~~~~~~~~
+
+To help with the eventual migration to TypeScript, we have switched to the new
+CoffeeScript compiler. This should be completely transparent to standard users
+but custom extensions may need small changes in some specific cases, for example,
+the "Ion Range Slider" required the following change:
+
+.. code-block:: none
+
+    -      onChange: @slide,
+    -      onFinish: @slidestop
+    +      onChange: (data) => @slide(data),
+    +      onFinish: (data) => @slidestop(data),
 
 Shorthand initialization syntax for `Range1d(start, end)` in bokehjs was
 removed due to technical difficulties. Use full `new Range1d({start, end})`
