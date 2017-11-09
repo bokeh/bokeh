@@ -74,12 +74,12 @@ describe "SidePanel", ->
       @axis_view = new @axis.default_view({model: @axis, plot_view: @plot_canvas_view, parent: @plot_canvas_view})
 
     it "should set last_size", ->
-      sinon.stub(@axis_view, '_tick_extent', () -> 0.11)
-      sinon.stub(@axis_view, '_axis_label_extent', () -> 0.11)
-      sinon.stub(@axis_view, '_tick_label_extent', () -> 0.11)
+      sinon.stub(@axis_view, '_tick_extent', () -> 10)
+      sinon.stub(@axis_view, '_axis_label_extent', () -> 15)
+      sinon.stub(@axis_view, '_tick_label_extent', () -> 5)
       expect(@axis_view._size_constraint).to.be.undefined
       update_panel_constraints(@axis_view)
-      expect(@axis_view._size_constraint.expression.constant).to.be.equal(-0.33)
+      expect(@axis_view._size_constraint.expression.constant).to.be.equal(-30)
 
     it "should add two constraints on first call (one for size, one for full)", ->
       add_constraint_call_count = @solver_add_constraint.callCount
@@ -88,8 +88,8 @@ describe "SidePanel", ->
 
     it "should add and remove a constraint if the size changes", ->
       @axis_view._tick_extent = sinon.stub()
-      @axis_view._tick_extent.onCall(0).returns(0.11)
-      @axis_view._tick_extent.onCall(1).returns(0.22)
+      @axis_view._tick_extent.onCall(0).returns(10)
+      @axis_view._tick_extent.onCall(1).returns(20)
 
       add_constraint_call_count = @solver_add_constraint.callCount
       remove_constraint_call_count = @solver_remove_constraint.callCount
