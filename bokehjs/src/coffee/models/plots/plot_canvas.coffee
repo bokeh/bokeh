@@ -586,16 +586,17 @@ export class PlotCanvasView extends DOMView
     # of the canvas, which means that any previous calls to ctx.save() will be undone.
     @canvas_view.prepare_canvas()
 
-    interactive_duration = @model.document.interactive_duration()
-    if interactive_duration >= 0 and interactive_duration < @model.plot.lod_interval
-      lod_timeout = @model.plot.lod_timeout
-      setTimeout(() =>
-          if @model.document.interactive_duration() > lod_timeout
-            @model.document.interactive_stop(@model.plot)
-          @request_render()
-        , lod_timeout)
-    else
-      @model.document.interactive_stop(@model.plot)
+    if @model.document?
+      interactive_duration = @model.document.interactive_duration()
+      if interactive_duration >= 0 and interactive_duration < @model.plot.lod_interval
+        lod_timeout = @model.plot.lod_timeout
+        setTimeout(() =>
+            if @model.document.interactive_duration() > lod_timeout
+              @model.document.interactive_stop(@model.plot)
+            @request_render()
+          , lod_timeout)
+      else
+        @model.document.interactive_stop(@model.plot)
 
     for k, v of @renderer_views
       if not @range_update_timestamp? or v.set_data_timestamp > @range_update_timestamp

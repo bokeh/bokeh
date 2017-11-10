@@ -18,7 +18,7 @@ export class ZoomOutToolView extends ActionToolView
 
     @plot_view.push_state('zoom_out', {range: zoom_info})
     @plot_view.update_range(zoom_info, false, true)
-    @model.document.interactive_start(@plot_model.plot)
+    @model.document?.interactive_start(@plot_model.plot)
     return null
 
 export class ZoomOutTool extends ActionTool
