@@ -37,7 +37,7 @@ export class PlotView extends LayoutDOMView
     @plot_canvas_view.save(name)
 
   @getters {
-    plot_canvas_view: () -> (view for view in values(@child_views) when view instanceof PlotCanvasView)[0]
+    plot_canvas_view: () -> @child_views[@model._plot_canvas.id]
   }
 
 export class Plot extends LayoutDOM

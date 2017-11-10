@@ -5,14 +5,11 @@ sinon = require 'sinon'
 {SidePanel} = utils.require("core/layout/side_panel")
 {update_panel_constraints} = utils.require("core/layout/side_panel")
 
-{Document} = utils.require("document")
-
 {Annotation} = utils.require("models/annotations/annotation")
 {Axis} = utils.require("models/axes/axis")
 {BasicTicker} = utils.require("models/tickers/basic_ticker")
 {BasicTickFormatter} = utils.require("models/formatters/basic_tick_formatter")
 {Plot} = utils.require("models/plots/plot")
-{PlotCanvas} = utils.require("models/plots/plot_canvas")
 {PlotView} = utils.require("models/plots/plot")
 {Range1d} = utils.require("models/ranges/range1d")
 {Toolbar} = utils.require("models/tools/toolbar")
@@ -58,20 +55,17 @@ describe "SidePanel", ->
       @solver_add_constraint = solver_stubs['add']
       @solver_remove_constraint = solver_stubs['remove']
 
-      doc = new Document()
       plot = new Plot({
         x_range: new Range1d({start: 0, end: 1})
         y_range: new Range1d({start: 0, end: 1})
-        toolbar: new Toolbar()
       })
-      @axis = new Axis({ ticker: new BasicTicker(), formatter: new BasicTickFormatter() })
-      plot.add_layout(@axis, 'below')
-      doc.add_root(plot)
+      axis = new Axis({
+        ticker: new BasicTicker(),
+        formatter: new BasicTickFormatter(),
+      })
+      plot.add_layout(axis, 'below')
       plot_view = new plot.default_view({model: plot, parent: null})
-      @plot_canvas = new PlotCanvas({plot: plot})
-      @plot_canvas.attach_document(doc)
-      @plot_canvas_view = new @plot_canvas.default_view({model: @plot_canvas, parent: plot_view})
-      @axis_view = new @axis.default_view({model: @axis, plot_view: @plot_canvas_view, parent: @plot_canvas_view})
+      @axis_view = plot_view.plot_canvas_view.renderer_views[axis.id]
 
     it "should set last_size", ->
       sinon.stub(@axis_view, '_tick_extent', () -> 10)
