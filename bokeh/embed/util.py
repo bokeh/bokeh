@@ -140,8 +140,13 @@ def html_page_for_render_items(bundle, docs_json, render_items, title,
 
     bokeh_js, bokeh_css = bundle
 
-    script  = bundle_all_models()
-    script += script_for_render_items(docs_json, render_items)
+    json_id = make_id()
+    json = escape(serialize_json(docs_json))
+    json = wrap_in_script_tag(json, "application/json", json_id)
+
+    script = bundle_all_models()
+    script += script_for_render_items("#" + json_id, render_items)
+    script = wrap_in_script_tag(script)
 
     template_variables_full = template_variables.copy()
 
@@ -149,7 +154,7 @@ def html_page_for_render_items(bundle, docs_json, render_items, title,
         title = title,
         bokeh_js = bokeh_js,
         bokeh_css = bokeh_css,
-        plot_script = wrap_in_script_tag(script),
+        plot_script = json + script,
         plot_div = "\n".join(div_for_render_item(item) for item in render_items)
     ))
 
@@ -229,12 +234,18 @@ def wrap_in_safely(code):
     return _SAFELY % dict(code=indent(code, 2))
 
 @internal((1,0,0))
-def wrap_in_script_tag(js):
+def wrap_in_script_tag(js, type="text/javascript", id=None):
     '''
 
     '''
-    # TODO (bev) this indents the first line only
-    return SCRIPT_TAG.render(js_code=js)
+    return SCRIPT_TAG.render(js_code=indent(js, 2), type=type, id=id)
+
+@internal((1,0,0))
+def escape(s):
+    s = s.replace("&", "&amp;")
+    s = s.replace("<", "&lt;")
+    s = s.replace(">", "&gt;")
+    return s
 
 #-----------------------------------------------------------------------------
 # Private API

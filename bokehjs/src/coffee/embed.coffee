@@ -4,6 +4,8 @@ import {logger, set_log_level} from "./core/logging"
 import {Document, RootAddedEvent, RootRemovedEvent, TitleChangedEvent} from "./document"
 import {div, link, style, replaceWith} from "./core/dom"
 import {Receiver} from "./protocol/receiver"
+import {isString} from "./core/util/types"
+import {unescape} from "./core/util/string"
 
 # Matches Bokeh CSS class selector. Setting all Bokeh parent element class names
 # with this var prevents user configurations where css styling is unset.
@@ -181,6 +183,12 @@ export embed_items = (docs_json, render_items, app_path, absolute_url) ->
 
   websocket_url = protocol + '//' + loc.host + app_path + '/ws'
   logger.debug("embed: computed ws url: #{websocket_url}")
+
+  if isString(docs_json)
+    if docs_json[0] == "#"
+      script = document.getElementById(docs_json.slice(1))
+      docs_json = unescape(script.textContent)
+    docs_json = JSON.parse(docs_json)
 
   docs = {}
   for docid of docs_json
