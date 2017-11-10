@@ -1,5 +1,6 @@
 import * as p from "core/properties"
 import {any, sortBy} from "core/util/array"
+import {logger} from "core/logging"
 
 import {ActionTool} from "./actions/action_tool"
 import {HelpTool} from "./actions/help_tool"
