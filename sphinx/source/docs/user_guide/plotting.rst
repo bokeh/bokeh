@@ -93,9 +93,9 @@ accomplished with the |multi_line| glyph method:
 .. note::
     This glyph is unlike most other glyphs. Instead of accepting a one
     dimensional list or array of scalar values, it accepts a "list of lists"
-    for x and y positions of each line, parameters xs and ys. multi_line  
-    also expects a scalar value or a list of scalers per each line for 
-    parameters such as color, alpha, linewidth, etc. Similarily, a 
+    for x and y positions of each line, parameters xs and ys. multi_line
+    also expects a scalar value or a list of scalers per each line for
+    parameters such as color, alpha, linewidth, etc. Similarily, a
     ColumnDataSource may be used consisting of a "list of lists" and a
     lists of scalars where the length of the list of scalars and length of
     lists must match.
