@@ -3,6 +3,7 @@ import * as enums from "./enums"
 import * as svg_colors from "./util/svg_colors"
 import {valid_rgb} from "./util/color"
 import {copy} from "./util/array"
+import {extend} from "./util/object"
 import {isBoolean, isNumber, isString, isFunction, isArray, isObject} from "./util/types"
 
 valueToString = (value) ->
@@ -16,7 +17,7 @@ valueToString = (value) ->
 #
 
 export class Property # <T>
-  @prototype extends Signalable
+  extend(@prototype, Signalable)
 
   dataspec: false
 
@@ -196,6 +197,8 @@ export class OutputBackend extends enum_prop("OutputBackend", enums.OutputBacken
 
 export class Orientation extends enum_prop("Orientation", enums.Orientation)
 
+export class VerticalAlign extends enum_prop("VerticalAlign", enums.VerticalAlign)
+
 export class TextAlign extends enum_prop("TextAlign", enums.TextAlign)
 
 export class TextBaseline extends enum_prop("TextBaseline", enums.TextBaseline)
@@ -210,7 +213,7 @@ export class SpatialUnits extends enum_prop("SpatialUnits", enums.SpatialUnits)
 
 export class Distribution extends enum_prop("Distribution", enums.DistributionTypes)
 
-export class TransformStepMode extends enum_prop("TransformStepMode", enums.TransformStepModes)
+export class StepMode extends enum_prop("StepMode", enums.StepModes)
 
 export class PaddingUnits extends enum_prop("PaddingUnits", enums.PaddingUnits)
 

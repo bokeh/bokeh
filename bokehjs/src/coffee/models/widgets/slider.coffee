@@ -12,7 +12,11 @@ export class SliderView extends AbstractSliderView
       step: @model.step
     }
 
-  _calc_from: ([value]) -> value
+  _calc_from: ([value]) ->
+    if Number.isInteger(@model.start) and Number.isInteger(@model.end) and Number.isInteger(@model.step)
+      return value|0
+    else
+      value
 
 export class Slider extends AbstractSlider
   type: "Slider"

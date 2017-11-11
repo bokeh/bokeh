@@ -23,7 +23,7 @@ describe "protocol/receiver module", ->
 
         it "should should leave message null", ->
           res = r.consume('{"msgtype": "FOO", "msgid": "10"}')
-          expect(res).to.be.null
+          expect(res).to.be.undefined
           expect(r.message).to.be.null
 
         it "should throw an error on binary data", ->
@@ -33,7 +33,7 @@ describe "protocol/receiver module", ->
 
         it "should should leave message null", ->
           res = r.consume('{}')
-          expect(res).to.be.null
+          expect(res).to.be.undefined
           expect(r.message).to.be.null
 
         it "should throw an error on binary data", ->
@@ -43,7 +43,7 @@ describe "protocol/receiver module", ->
 
         it "should should set a complete message", ->
           res = r.consume('{"bar": "20"}')
-          expect(res).to.be.null
+          expect(res).to.be.undefined
           expect(r.message).to.be.instanceof Message
           expect(r.message.complete()).to.be.true
 
@@ -54,7 +54,7 @@ describe "protocol/receiver module", ->
 
         it "should should leave message null", ->
           res = r.consume('{"msgtype": "FOO", "msgid": "11"}')
-          expect(res).to.be.null
+          expect(res).to.be.undefined
           expect(r.message).to.be.null
 
         it "should throw an error on binary data", ->
@@ -70,7 +70,7 @@ describe "protocol/receiver module", ->
 
         it "should should leave message null", ->
           res = r.consume('{"msgtype": "FOO", "msgid": "10", "num_buffers": 2}')
-          expect(res).to.be.null
+          expect(res).to.be.undefined
           expect(r.message).to.be.null
 
       describe "metadata consume", ->
@@ -80,7 +80,7 @@ describe "protocol/receiver module", ->
 
         it "should should leave message null", ->
           res = r.consume('{}')
-          expect(res).to.be.null
+          expect(res).to.be.undefined
           expect(r.message).to.be.null
 
       describe "metadata consume", ->
@@ -90,7 +90,7 @@ describe "protocol/receiver module", ->
 
         it "should should leave message null", ->
           res = r.consume('{"bar": "20"}')
-          expect(res).to.be.null
+          expect(res).to.be.undefined
           expect(r.message).to.be.null
 
       describe "first buffer header consume", ->
@@ -100,7 +100,7 @@ describe "protocol/receiver module", ->
 
         it "should should leave message null", ->
           res = r.consume('foo')
-          expect(res).to.be.null
+          expect(res).to.be.undefined
           expect(r.message).to.be.null
 
       describe "first buffer payload consume", ->
@@ -110,7 +110,7 @@ describe "protocol/receiver module", ->
 
         it "should should leave message null", ->
           res = r.consume(new ArrayBuffer(10))
-          expect(res).to.be.null
+          expect(res).to.be.undefined
           expect(r.message).to.be.null
 
       describe "second buffer header consume", ->
@@ -120,7 +120,7 @@ describe "protocol/receiver module", ->
 
         it "should should leave message null", ->
           res = r.consume('bar')
-          expect(res).to.be.null
+          expect(res).to.be.undefined
           expect(r.message).to.be.null
 
       describe "second buffer payload consume", ->
@@ -130,7 +130,7 @@ describe "protocol/receiver module", ->
 
         it "should should set a complete message", ->
           res = r.consume(new ArrayBuffer(20))
-          expect(res).to.be.null
+          expect(res).to.be.undefined
           expect(r.message).to.be.instanceof Message
           expect(r.message.complete()).to.be.true
           expect(r.message.buffers.length).to.be.equal 2
@@ -145,7 +145,7 @@ describe "protocol/receiver module", ->
 
         it "should should leave message null", ->
           res = r.consume('{"msgtype": "FOO", "msgid": "11"}')
-          expect(res).to.be.null
+          expect(res).to.be.undefined
           expect(r.message).to.be.null
 
         it "should throw an error on binary data", ->

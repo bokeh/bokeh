@@ -209,7 +209,7 @@ class PointEvent(PlotEvent):
 
     Attributes:
         sx (float) : x-coordinate of the event in *screen* space
-        sx (float) : y-coordinate of the event in *screen* space
+        sy (float) : y-coordinate of the event in *screen* space
         x (float) : x-coordinate of the event in *data* space
         y (float) : y-coordinate of the event in *data* space
 
@@ -234,7 +234,7 @@ class Tap(PointEvent):
 
     Attributes:
         sx (float) : x-coordinate of the event in *screen* space
-        sx (float) : y-coordinate of the event in *screen* space
+        sy (float) : y-coordinate of the event in *screen* space
         x (float) : x-coordinate of the event in *data* space
         y (float) : y-coordinate of the event in *data* space
 
@@ -246,7 +246,7 @@ class DoubleTap(PointEvent):
 
     Attributes:
         sx (float) : x-coordinate of the event in *screen* space
-        sx (float) : y-coordinate of the event in *screen* space
+        sy (float) : y-coordinate of the event in *screen* space
         x (float) : x-coordinate of the event in *data* space
         y (float) : y-coordinate of the event in *data* space
 
@@ -258,7 +258,7 @@ class Press(PointEvent):
 
     Attributes:
         sx (float) : x-coordinate of the event in *screen* space
-        sx (float) : y-coordinate of the event in *screen* space
+        sy (float) : y-coordinate of the event in *screen* space
         x (float) : x-coordinate of the event in *data* space
         y (float) : y-coordinate of the event in *data* space
 
@@ -270,7 +270,7 @@ class MouseEnter(PointEvent):
 
     Attributes:
         sx (float) : x-coordinate of the event in *screen* space
-        sx (float) : y-coordinate of the event in *screen* space
+        sy (float) : y-coordinate of the event in *screen* space
         x (float) : x-coordinate of the event in *data* space
         y (float) : y-coordinate of the event in *data* space
 
@@ -286,7 +286,7 @@ class MouseLeave(PointEvent):
 
     Attributes:
         sx (float) : x-coordinate of the event in *screen* space
-        sx (float) : y-coordinate of the event in *screen* space
+        sy (float) : y-coordinate of the event in *screen* space
         x (float) : x-coordinate of the event in *data* space
         y (float) : y-coordinate of the event in *data* space
 
@@ -302,7 +302,7 @@ class MouseMove(PointEvent):
 
     Attributes:
         sx (float) : x-coordinate of the event in *screen* space
-        sx (float) : y-coordinate of the event in *screen* space
+        sy (float) : y-coordinate of the event in *screen* space
         x (float) : x-coordinate of the event in *data* space
         y (float) : y-coordinate of the event in *data* space
 
@@ -319,7 +319,7 @@ class MouseWheel(PointEvent):
     Attributes:
         delta (float) : the (signed) scroll speed
         sx (float) : x-coordinate of the event in *screen* space
-        sx (float) : y-coordinate of the event in *screen* space
+        sy (float) : y-coordinate of the event in *screen* space
         x (float) : x-coordinate of the event in *data* space
         y (float) : y-coordinate of the event in *data* space
 
@@ -344,7 +344,7 @@ class Pan(PointEvent):
         delta_y (float) : the amount of scroll in the y direction
         direction (float) : the direction of scroll (1 or -1)
         sx (float) : x-coordinate of the event in *screen* space
-        sx (float) : y-coordinate of the event in *screen* space
+        sy (float) : y-coordinate of the event in *screen* space
         x (float) : x-coordinate of the event in *data* space
         y (float) : y-coordinate of the event in *data* space
 
@@ -362,7 +362,7 @@ class PanEnd(PointEvent):
 
     Attributes:
         sx (float) : x-coordinate of the event in *screen* space
-        sx (float) : y-coordinate of the event in *screen* space
+        sy (float) : y-coordinate of the event in *screen* space
         x (float) : x-coordinate of the event in *data* space
         y (float) : y-coordinate of the event in *data* space
 
@@ -374,7 +374,7 @@ class PanStart(PointEvent):
 
     Attributes:
         sx (float) : x-coordinate of the event in *screen* space
-        sx (float) : y-coordinate of the event in *screen* space
+        sy (float) : y-coordinate of the event in *screen* space
         x (float) : x-coordinate of the event in *data* space
         y (float) : y-coordinate of the event in *data* space
 
@@ -387,7 +387,7 @@ class Pinch(PointEvent):
     Attributes:
         scale (float) : the (signed) amount of scaling
         sx (float) : x-coordinate of the event in *screen* space
-        sx (float) : y-coordinate of the event in *screen* space
+        sy (float) : y-coordinate of the event in *screen* space
         x (float) : x-coordinate of the event in *data* space
         y (float) : y-coordinate of the event in *data* space
 
@@ -406,7 +406,7 @@ class PinchEnd(PointEvent):
 
     Attributes:
         sx (float) : x-coordinate of the event in *screen* space
-        sx (float) : y-coordinate of the event in *screen* space
+        sy (float) : y-coordinate of the event in *screen* space
         x (float) : x-coordinate of the event in *data* space
         y (float) : y-coordinate of the event in *data* space
 
@@ -421,7 +421,7 @@ class PinchStart(PointEvent):
 
     Attributes:
         sx (float) : x-coordinate of the event in *screen* space
-        sx (float) : y-coordinate of the event in *screen* space
+        sy (float) : y-coordinate of the event in *screen* space
         x (float) : x-coordinate of the event in *data* space
         y (float) : y-coordinate of the event in *data* space
 

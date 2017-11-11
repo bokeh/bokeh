@@ -53,17 +53,10 @@ export class LabelSetView extends TextAnnotationView
     xscale = @plot_view.frame.xscales[@model.x_range_name]
     yscale = @plot_view.frame.yscales[@model.y_range_name]
 
-    if @model.x_units == "data"
-      vx = xscale.v_compute(@_x)
-    else
-      vx = @_x.slice(0) # make deep copy to not mutate
-    sx = @canvas.v_vx_to_sx(vx)
+    panel = @model.panel ? @plot_view.frame
 
-    if @model.y_units == "data"
-      vy = yscale.v_compute(@_y)
-    else
-      vy = @_y.slice(0) # make deep copy to not mutate
-    sy = @canvas.v_vy_to_sy(vy)
+    sx = if @model.x_units == "data" then xscale.v_compute(@_x) else panel.xview.v_compute(@_x)
+    sy = if @model.y_units == "data" then yscale.v_compute(@_y) else panel.yview.v_compute(@_y)
 
     return [sx, sy]
 
@@ -72,16 +65,14 @@ export class LabelSetView extends TextAnnotationView
       hide(@el)
     if not @model.visible
       return
+
+    draw = if @model.render_mode == 'canvas' then @_v_canvas_text.bind(@) else @_v_css_text.bind(@)
     ctx = @plot_view.canvas_view.ctx
 
     [sx, sy] = @_map_data()
 
-    if @model.render_mode == 'canvas'
-      for i in [0...@_text.length]
-        @_v_canvas_text(ctx, i, @_text[i], sx[i] + @_x_offset[i], sy[i] - @_y_offset[i], @_angle[i])
-    else
-      for i in [0...@_text.length]
-        @_v_css_text(ctx, i, @_text[i], sx[i] + @_x_offset[i], sy[i] - @_y_offset[i], @_angle[i])
+    for i in [0...@_text.length]
+      draw(ctx, i, @_text[i], sx[i] + @_x_offset[i], sy[i] - @_y_offset[i], @_angle[i])
 
   _get_size: () ->
     ctx = @plot_view.canvas_view.ctx

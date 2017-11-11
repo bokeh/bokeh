@@ -30,7 +30,6 @@ def test_enumeration_default():
 # any changes to contents of enums.py easily trackable here
 def test_enums_contents():
     assert [x for x in dir(enums) if x[0].isupper()] == [
-        'Aggregation',
         'Anchor',
         'AngleUnits',
         'ButtonType',
@@ -42,6 +41,7 @@ def test_enums_contents():
         'Direction',
         'Enumeration',
         'FontStyle',
+        'HoldPolicy',
         'HorizontalLocation',
         'JitterRandomDistribution',
         'LatLon',
@@ -70,5 +70,6 @@ def test_enums_contents():
         'TextAlign',
         'TextBaseline',
         'TooltipFieldFormatter',
+        'VerticalAlign',
         'VerticalLocation',
     ]

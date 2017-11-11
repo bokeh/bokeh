@@ -134,9 +134,6 @@ describe "Plot", ->
       utils.stub_canvas()
       utils.stub_solver()
 
-    it "should have _horizontal set to true by default", sinon.test () ->
-      expect(@p._horizontal).to.true
-
     it "should have a PlotCanvas set on initialization with plot on it", sinon.test () ->
       expect(@p.plot_canvas).to.exist
       expect(@p.plot_canvas.plot).to.be.deep.equal @p

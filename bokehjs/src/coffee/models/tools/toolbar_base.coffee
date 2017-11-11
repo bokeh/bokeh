@@ -1,88 +1,78 @@
 import {logger} from "core/logging"
-import {EQ} from "core/layout/solver"
 import {empty, div, a} from "core/dom"
+import {build_views, remove_views} from "core/build_views"
 import * as p from "core/properties"
 
-import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
+import {DOMView} from "core/dom_view"
+import {Model} from "model"
 
-import {ActionToolButtonView} from "./actions/action_tool"
-import {OnOffButtonView} from "./on_off_button"
+export class ToolbarBaseView extends DOMView
 
-export class ToolbarBaseView extends LayoutDOMView
-  className: "bk-toolbar-wrapper"
+  initialize: (options) ->
+    super(options)
+    @_tool_button_views = {}
+    @_build_tool_button_views()
 
-  template: () ->
-    if @model.logo?
-      cls = if @model.logo == "grey" then "bk-grey" else null
-      logo = a({href: "https://bokeh.pydata.org/", target: "_blank", class: ["bk-logo", "bk-logo-small", cls]})
-    else
-      logo = null
+  connect_signals: () ->
+    super()
+    @connect(@model.properties.tools.change, () => @_build_tool_button_views())
 
-    sticky = if @model.toolbar_sticky then 'sticky' else 'not-sticky'
+  remove: () ->
+    remove_views(@_tool_button_views)
+    super()
 
-    return (
-      div({class: ["bk-toolbar-#{@model.toolbar_location}", "bk-toolbar-#{sticky}"]},
-        logo,
-        div({class: 'bk-button-bar'},
-          div({class: "bk-button-bar-list", type: "pan"}),
-          div({class: "bk-button-bar-list", type: "scroll"}),
-          div({class: "bk-button-bar-list", type: "pinch"}),
-          div({class: "bk-button-bar-list", type: "tap"}),
-          div({class: "bk-button-bar-list", type: "press"}),
-          div({class: "bk-button-bar-list", type: "rotate"}),
-          div({class: "bk-button-bar-list", type: "actions"}),
-          div({class: "bk-button-bar-list", type: "inspectors"}),
-          div({class: "bk-button-bar-list", type: "help"}),
-        )
-      )
-    )
+  _build_tool_button_views: () ->
+    tools = @model._proxied_tools ? @model.tools # XXX
+    build_views(@_tool_button_views, tools, {parent: @}, (tool) -> tool.button_view)
 
   render: () ->
     empty(@el)
 
-    if @model.sizing_mode != 'fixed'
-      @el.style.left = "#{@model._dom_left.value}px"
-      @el.style.top = "#{@model._dom_top.value}px"
-      @el.style.width = "#{@model._width.value}px"
-      @el.style.height = "#{@model._height.value}px"
+    @el.classList.add("bk-toolbar")
+    @el.classList.add("bk-toolbar-#{@model.toolbar_location}")
 
-    @el.appendChild(@template())
+    if @model.logo?
+      cls = if @model.logo == "grey" then "bk-grey" else null
+      logo = a({href: "https://bokeh.pydata.org/", target: "_blank", class: ["bk-logo", "bk-logo-small", cls]})
+      @el.appendChild(logo)
 
-    buttons = @el.querySelector(".bk-button-bar-list[type='inspectors']")
-    for obj in @model.inspectors
-      if obj.toggleable
-        buttons.appendChild(new OnOffButtonView({model: obj, parent: @}).el)
-
-    buttons = @el.querySelector(".bk-button-bar-list[type='help']")
-    for obj in @model.help
-      buttons.appendChild(new ActionToolButtonView({model: obj, parent: @}).el)
-
-    buttons = @el.querySelector(".bk-button-bar-list[type='actions']")
-    for obj in @model.actions
-      buttons.appendChild(new ActionToolButtonView({model: obj, parent: @}).el)
+    bars = []
 
     gestures = @model.gestures
     for et of gestures
-      buttons = @el.querySelector(".bk-button-bar-list[type='#{et}']")
-      for obj in gestures[et].tools
-        buttons.appendChild(new OnOffButtonView({model: obj, parent: @}).el)
+      buttons = []
+      for tool in gestures[et].tools
+        buttons.push(@_tool_button_views[tool.id].el)
+      bars.push(buttons)
+
+    buttons = []
+    for tool in @model.actions
+      buttons.push(@_tool_button_views[tool.id].el)
+    bars.push(buttons)
+
+    buttons = []
+    for tool in @model.inspectors
+      if tool.toggleable
+        buttons.push(@_tool_button_views[tool.id].el)
+    bars.push(buttons)
+
+    buttons = []
+    for tool in @model.help
+      buttons.push(@_tool_button_views[tool.id].el)
+    bars.push(buttons)
+
+    for buttons in bars
+      if buttons.length != 0
+        bar = div({class: 'bk-button-bar'}, buttons)
+        @el.appendChild(bar)
 
     return @
 
-export class ToolbarBase extends LayoutDOM
+export class ToolbarBase extends Model
   type: 'ToolbarBase'
   default_view: ToolbarBaseView
 
-  initialize: (attrs, options) ->
-    super(attrs, options)
-    @_set_sizeable()
-    @connect(@properties.toolbar_location.change, () => @_set_sizeable())
-
-  _set_sizeable: () ->
-    horizontal = @toolbar_location in ['left', 'right']
-    @_sizeable = if not horizontal then @_height else @_width
-
-  _active_change: (tool) =>
+  _active_change: (tool) ->
     event_type = tool.event_type
 
     if tool.active
@@ -99,21 +89,25 @@ export class ToolbarBase extends LayoutDOM
 
     return null
 
-  get_constraints: () ->
-    return super().concat(EQ(@_sizeable, -30))
+  @getters {
+    horizontal: () ->
+      return @toolbar_location == "above" or @toolbar_location == "below"
+    vertical: () ->
+      return @toolbar_location == "left" or @toolbar_location == "right"
+  }
 
   @define {
-      tools: [ p.Array,    []       ]
-      logo:  [ p.String,   'normal' ] # TODO (bev)
+    tools: [ p.Array,    []       ]
+    logo:  [ p.String,   'normal' ] # TODO (bev)
   }
 
   @internal {
     gestures: [ p.Any, () -> {
       pan:       { tools: [], active: null }
-      tap:       { tools: [], active: null }
-      doubletap: { tools: [], active: null }
       scroll:    { tools: [], active: null }
       pinch:     { tools: [], active: null }
+      tap:       { tools: [], active: null }
+      doubletap: { tools: [], active: null }
       press:     { tools: [], active: null }
       rotate:    { tools: [], active: null }
     } ]
@@ -121,9 +115,4 @@ export class ToolbarBase extends LayoutDOM
     inspectors: [ p.Array, [] ]
     help:       [ p.Array, [] ]
     toolbar_location: [ p.Location, 'right' ]
-    toolbar_sticky: [ p.Bool ]
-  }
-
-  @override {
-    sizing_mode: null
   }

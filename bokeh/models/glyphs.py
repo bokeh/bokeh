@@ -23,6 +23,7 @@ The full list of glyphs built into Bokeh is given below:
 * :class:`~bokeh.models.glyphs.Ray`
 * :class:`~bokeh.models.glyphs.Rect`
 * :class:`~bokeh.models.glyphs.Segment`
+* :class:`~bokeh.models.glyphs.Step`
 * :class:`~bokeh.models.glyphs.Text`
 * :class:`~bokeh.models.glyphs.VBar`
 * :class:`~bokeh.models.glyphs.Wedge`
@@ -36,11 +37,11 @@ All these glyphs share a minimal common interface through their base class
 '''
 from __future__ import absolute_import
 
-from ..core.enums import Anchor, Direction
+from ..core.enums import Anchor, Direction, StepMode
 from ..core.has_props import abstract
 from ..core.properties import (AngleSpec, Bool, DistanceSpec, Enum, Float,
                                Include, Instance, Int, NumberSpec, StringSpec)
-from ..core.property_mixins import FillProps, LineProps, TextProps
+from ..core.property_mixins import FillProps, LineProps, ScalarFillProps, ScalarLineProps, TextProps
 from ..model import Model
 
 from .mappers import ColorMapper, LinearColorMapper
@@ -532,7 +533,7 @@ class Line(XYGlyph):
     The y-coordinates for the points of the line.
     """)
 
-    line_props = Include(LineProps, use_prefix=False, help="""
+    line_props = Include(ScalarLineProps, use_prefix=False, help="""
     The %s values for the line.
     """)
 
@@ -637,11 +638,11 @@ class Patch(XYGlyph):
         values in the sequence.
     """)
 
-    line_props = Include(LineProps, use_prefix=False, help="""
+    line_props = Include(ScalarLineProps, use_prefix=False, help="""
     The %s values for the patch.
     """)
 
-    fill_props = Include(FillProps, use_prefix=False, help="""
+    fill_props = Include(ScalarFillProps, use_prefix=False, help="""
     The %s values for the patch.
     """)
 
@@ -784,7 +785,7 @@ class Ray(XYGlyph):
 
     length = DistanceSpec(help="""
     The length to extend the ray. Note that this ``length`` defaults
-    to screen units.
+    to data units (measured in the x-direction).
     """)
 
     line_props = Include(LineProps, use_prefix=False, help="""
@@ -868,6 +869,44 @@ class Segment(Glyph):
 
     line_props = Include(LineProps, use_prefix=False, help="""
     The %s values for the segments.
+    """)
+
+class Step(XYGlyph):
+    ''' Render step lines.
+
+    Step levels can be draw before, after, or centered on each point, according
+    to the value of the ``mode`` property.
+
+    The x-coordinates are assumed to be (and must be) sorted in ascending order
+    for steps to be properly rendered.
+
+    '''
+
+    __example__ = "examples/reference/models/Step.py"
+
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('x', 'y')
+
+    x = NumberSpec(help="""
+    The x-coordinates for the steps.
+    """)
+
+    y = NumberSpec(help="""
+    The y-coordinates for the steps.
+    """)
+
+    line_props = Include(LineProps, use_prefix=False, help="""
+    The %s values for the steps.
+    """)
+
+    mode = Enum(StepMode, default="before", help="""
+    Where the step "level" should be drawn in relation to the x and y
+    coordinates. The parameter can assume one of three values:
+
+    * ``before``: (default) Draw step levels before each x-coordinate (no step before the first point)
+    * ``after``:  Draw step levels after each x-coordinate (no step after the last point)
+    * ``center``: Draw step levels centered on each x-coordinate
     """)
 
 class Text(XYGlyph):

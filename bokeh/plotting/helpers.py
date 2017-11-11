@@ -16,7 +16,7 @@ from ..models import (
     TapTool, CrosshairTool, DataRange1d, DatetimeAxis,
     FactorRange, Grid, HelpTool, HoverTool, LassoSelectTool, Legend, LegendItem, LinearAxis,
     LogAxis, PanTool, ZoomInTool, ZoomOutTool, PolySelectTool, ContinuousTicker,
-    SaveTool, Range, Range1d, UndoTool, RedoTool, ResetTool, ResizeTool, Tool,
+    SaveTool, Range, Range1d, UndoTool, RedoTool, ResetTool, Tool,
     WheelPanTool, WheelZoomTool, ColumnarDataSource, ColumnDataSource,
     LogScale, LinearScale, CategoricalScale, Circle, MultiLine)
 from ..models.renderers import GlyphRenderer
@@ -24,7 +24,6 @@ from ..models.renderers import GlyphRenderer
 from ..core.properties import ColorSpec, Datetime, value, field
 from ..transform import stack
 from ..util.dependencies import import_optional
-from ..util.deprecation import deprecated
 from ..util.string import nice_join
 
 pd = import_optional('pandas')
@@ -255,9 +254,18 @@ def _get_legend_item_label(kwargs):
 
 
 _GLYPH_SOURCE_MSG = """
-Supplying a user-defined data source AND iterable values to glyph methods is deprecated.
+Supplying a user-defined data source AND iterable values to glyph methods is
+not possibe. Either:
 
-See https://github.com/bokeh/bokeh/issues/2056 for more information.
+Pass all data directly as literals:
+
+    p.circe(x=a_list, y=an_array, ...)
+
+Or, put all data in a ColumnDataSource and pass column names:
+
+    source = ColumnDataSource(data=dict(x=a_list, y=an_array))
+    p.circe(x='x', y='x', source=source, ...)
+
 """
 
 
@@ -285,7 +293,7 @@ def _process_sequence_literals(glyphclass, kwargs, source, is_user_source):
             raise RuntimeError("Columns need to be 1D (%s is not)" % var)
 
         if is_user_source:
-            deprecated(_GLYPH_SOURCE_MSG)
+            raise RuntimeError(_GLYPH_SOURCE_MSG)
 
         source.add(val, name=var)
         kwargs[var] = var
@@ -336,7 +344,7 @@ def _get_range(range_input):
         return FactorRange(factors=sorted(list(range_input.groups.keys())))
     if isinstance(range_input, Range):
         return range_input
-    if isinstance(range_input, Sequence):
+    if isinstance(range_input, (Sequence, np.ndarray)):
         if all(isinstance(x, string_types) for x in range_input):
             return FactorRange(factors=list(range_input))
         if len(range_input) == 2:
@@ -398,6 +406,8 @@ _known_tools = {
     "pan": lambda: PanTool(dimensions='both'),
     "xpan": lambda: PanTool(dimensions='width'),
     "ypan": lambda: PanTool(dimensions='height'),
+    "xwheel_pan": lambda: WheelPanTool(dimension="width"),
+    "ywheel_pan": lambda: WheelPanTool(dimension="height"),
     "wheel_zoom": lambda: WheelZoomTool(dimensions='both'),
     "xwheel_zoom": lambda: WheelZoomTool(dimensions='width'),
     "ywheel_zoom": lambda: WheelZoomTool(dimensions='height'),
@@ -407,9 +417,6 @@ _known_tools = {
     "zoom_out": lambda: ZoomOutTool(dimensions='both'),
     "xzoom_out": lambda: ZoomOutTool(dimensions='width'),
     "yzoom_out": lambda: ZoomOutTool(dimensions='height'),
-    "xwheel_pan": lambda: WheelPanTool(dimension="width"),
-    "ywheel_pan": lambda: WheelPanTool(dimension="height"),
-    "resize": lambda: ResizeTool(),
     "click": lambda: TapTool(behavior="inspect"),
     "tap": lambda: TapTool(),
     "crosshair": lambda: CrosshairTool(),
@@ -424,7 +431,7 @@ _known_tools = {
     "hover": lambda: HoverTool(tooltips=[
         ("index", "$index"),
         ("data (x, y)", "($x, $y)"),
-        ("canvas (x, y)", "($sx, $sy)"),
+        ("screen (x, y)", "($sx, $sy)"),
     ]),
     "save": lambda: SaveTool(),
     "previewsave": "save",

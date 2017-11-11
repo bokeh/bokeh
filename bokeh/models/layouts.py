@@ -11,7 +11,6 @@ from ..core.has_props import abstract
 from ..core.properties import Bool, Enum, Int, Instance, List, Seq, String
 from ..core.validation import warning
 from ..core.validation.warnings import BOTH_CHILD_AND_ROOT, EMPTY_LAYOUT
-from ..embed import notebook_div
 from ..model import Model
 
 @abstract
@@ -59,15 +58,14 @@ class LayoutDOM(Model):
 
     """)
 
-    css_classes = Seq(String, help="""
+    # List in order for in-place changes to trigger changes, ref: https://github.com/bokeh/bokeh/issues/6841
+    css_classes = List(String, help="""
     A list of css class names to add to this DOM element. Note: the class names are
     simply added as-is, no other guarantees are provided.
-    """)
 
-    @property
-    def html(self):
-        from IPython.core.display import HTML
-        return HTML(notebook_div(self))
+    It is also permissible to assign from tuples, however these are adapted -- the
+    property will always contain a list.
+    """).accepts(Seq(String), lambda x: list(x))
 
 
 class Spacer(LayoutDOM):

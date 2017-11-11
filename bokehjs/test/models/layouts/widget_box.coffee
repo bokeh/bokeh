@@ -46,6 +46,7 @@ describe "WidgetBox", ->
       expected_style = "position: absolute; left: #{dom_left}px; top: #{dom_top}px; width: #{width}px; height: #{height}px;"
       expect(widget_box_view.el.style.cssText).to.be.equal expected_style
 
+    ###
     it "render should set the appropriate positions and paddings on the element when it is mode width", ->
       dom_left = 12
       dom_top = 13
@@ -94,6 +95,7 @@ describe "WidgetBox", ->
       widget_box_view.child_views = {
       }
       expect(widget_box_view.get_width()).to.be.equal 99 + 20
+    ###
 
     it "should call build_child_views if children change", ->
       child_widget = new Button()

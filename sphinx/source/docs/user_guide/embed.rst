@@ -110,25 +110,35 @@ appropriate version replacing ``x.y.z``:
     <link
         href="http://cdn.pydata.org/bokeh/release/bokeh-widgets-x.y.z.min.css"
         rel="stylesheet" type="text/css">
+    <link
+        href="http://cdn.pydata.org/bokeh/release/bokeh-tables-x.y.z.min.css"
+        rel="stylesheet" type="text/css">
 
     <script src="http://cdn.pydata.org/bokeh/release/bokeh-x.y.z.min.js"></script>
     <script src="http://cdn.pydata.org/bokeh/release/bokeh-widgets-x.y.z.min.js"></script>
+    <script src="http://cdn.pydata.org/bokeh/release/bokeh-tables-x.y.z.min.js"></script>
 
 The ``"-widgets"`` files are only necessary if your document includes Bokeh widgets.
+Similarly, the ``"-tables"`` files are only necessary if you are using Bokeh data tables in
+your document.
 
-For example, to use version ``0.12.6``, including widgets support:
+For example, to use version ``0.12.9``, including widgets and tables support:
 
 .. code-block:: html
 
     <link
-        href="http://cdn.pydata.org/bokeh/release/bokeh-0.12.6.min.css"
+        href="http://cdn.pydata.org/bokeh/release/bokeh-0.12.9.min.css"
         rel="stylesheet" type="text/css">
     <link
-        href="http://cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.6.min.css"
+        href="http://cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.9.min.css"
+        rel="stylesheet" type="text/css">
+    <link
+        href="http://cdn.pydata.org/bokeh/release/bokeh-tables-0.12.9.min.css"
         rel="stylesheet" type="text/css">
 
-    <script src="http://cdn.pydata.org/bokeh/release/bokeh-0.12.6.min.js"></script>
-    <script src="http://cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.6.min.js"></script>
+    <script src="http://cdn.pydata.org/bokeh/release/bokeh-0.12.9.min.js"></script>
+    <script src="http://cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.9.min.js"></script>
+    <script src="http://cdn.pydata.org/bokeh/release/bokeh-tables-0.12.9.min.js"></script>
 
 .. note::
     You must provide the closing `</script>` tag. This is required by all
@@ -261,33 +271,6 @@ You can see an example by running:
 .. code:: bash
 
     python /bokeh/examples/embed/embed_multiple.py
-
-.. _userguide_embed_notebook:
-
-IPython Notebook
-----------------
-
-Bokeh can also generate ``<div>`` tags suitable for inline display in the
-Jupyter notebook using the |notebook_div| function:
-
-.. code-block:: python
-
-    from bokeh.plotting import figure
-    from bokeh.embed import notebook_div
-
-    plot = figure()
-    plot.circle([1,2], [3,4])
-
-    div = notebook_div(plot)
-
-The returned div contains the same sort of ``<script>`` and ``<div>`` that
-the |components| function above returns.
-
-.. note::
-    This is a fairly low-level, explicit way to generate a Jupyter
-    notebook div. When using the |bokeh.plotting| interface, users will
-    typically call the function |output_notebook| in conjunction with
-    |show| instead.
 
 .. _userguide_embed_autoloading:
 
@@ -483,4 +466,3 @@ on the server at `"some/path"`, from the document that has the plot embedded.
 .. |autoload_static| replace:: :func:`~bokeh.embed.autoload_static`
 .. |components|      replace:: :func:`~bokeh.embed.components`
 .. |file_html|       replace:: :func:`~bokeh.embed.file_html`
-.. |notebook_div|    replace:: :func:`~bokeh.embed.notebook_div`

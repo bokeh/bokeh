@@ -3,25 +3,25 @@ import {pull_session} from "./client/connection"
 import {logger, set_log_level} from "./core/logging"
 import {Document, RootAddedEvent, RootRemovedEvent, TitleChangedEvent} from "./document"
 import {div, link, style, replaceWith} from "./core/dom"
+import {Receiver} from "./protocol/receiver"
 
 # Matches Bokeh CSS class selector. Setting all Bokeh parent element class names
 # with this var prevents user configurations where css styling is unset.
 export BOKEH_ROOT = "bk-root"
 
-_handle_notebook_comms = (msg) ->
-  logger.debug("handling notebook comms")
-  # @ is bound to the doc
-  data = JSON.parse(msg.content.data)
-  if 'events' of data and 'references' of data
-    @apply_json_patch(data, []) # empty buffers for now
-  else if 'doc' of data
-    @replace_with_json(data['doc'])
+_handle_notebook_comms = (receiver, msg) ->
+  if msg.buffers.length > 0
+    receiver.consume(msg.buffers[0].buffer)
   else
-    throw new Error("handling notebook comms message: ", msg)
+    receiver.consume(msg.content.data)
+  msg = receiver.message
+  if msg?
+    @apply_json_patch(msg.content, msg.buffers)
 
 _update_comms_callback = (target, doc, comm) ->
   if target == comm.target_name
-    comm.on_msg(_handle_notebook_comms.bind(doc))
+    r = new Receiver()
+    comm.on_msg(_handle_notebook_comms.bind(doc, r))
 
 _init_comms = (target, doc) ->
   if Jupyter? and Jupyter.notebook.kernel?
@@ -33,7 +33,8 @@ _init_comms = (target, doc) ->
     try
       comm_manager.register_target(target, (comm, msg) ->
         logger.info("Registering Jupyter comms for target #{target}")
-        comm.on_msg(_handle_notebook_comms.bind(doc))
+        r = new Receiver()
+        comm.on_msg(_handle_notebook_comms.bind(doc, r))
       )
     catch e
       logger.warn("Jupyter comms failed to register. push_notebook() will not function. (exception reported: #{e})")
@@ -167,7 +168,8 @@ export embed_items = (docs_json, render_items, app_path, absolute_url) ->
     protocol = 'wss:'
 
   if absolute_url?
-    loc = new URL(absolute_url)
+    loc = document.createElement('a')
+    loc.href = absolute_url
   else
     loc = window.location
 

@@ -9,7 +9,6 @@ export class ArrowView extends AnnotationView
     super(options)
     if not @model.source?
       this.model.source = new ColumnDataSource()
-    @canvas = @plot_model.canvas
     @set_data(@model.source)
 
   connect_signals: () ->
@@ -25,23 +24,24 @@ export class ArrowView extends AnnotationView
     @plot_view.request_render()
 
   _map_data: () ->
+    frame = @plot_view.frame
+
     if @model.start_units == 'data'
-      start = @plot_view.map_to_screen(@_x_start, @_y_start,
-                                       x_name=@model.x_range_name
-                                       y_name=@model.y_range_name
-                                       )
+      sx_start = frame.xscales[@model.x_range_name].v_compute(@_x_start)
+      sy_start = frame.yscales[@model.y_range_name].v_compute(@_y_start)
     else
-      start = [@canvas.v_vx_to_sx(@_x_start),
-               @canvas.v_vy_to_sy(@_y_start)]
+      sx_start = frame.xview.v_compute(@_x_start)
+      sy_start = frame.yview.v_compute(@_y_start)
 
     if @model.end_units == 'data'
-      end = @plot_view.map_to_screen(@_x_end, @_y_end,
-                                     x_name=@model.x_range_name
-                                     y_name=@model.y_range_name
-                                     )
+      sx_end = frame.xscales[@model.x_range_name].v_compute(@_x_end)
+      sy_end = frame.yscales[@model.y_range_name].v_compute(@_y_end)
     else
-      end = [@canvas.v_vx_to_sx(@_x_end),
-             @canvas.v_vy_to_sy(@_y_end)]
+      sx_end = frame.xview.v_compute(@_x_end)
+      sy_end = frame.yview.v_compute(@_y_end)
+
+    start = [sx_start, sy_start]
+    end   = [sx_end,   sy_end  ]
 
     return [start, end]
 
@@ -59,12 +59,13 @@ export class ArrowView extends AnnotationView
 
     # Next we call .clip on all the arrow heads, inside an initial canvas sized
     # rect, to create an "inverted" clip region for the arrow heads
-    ctx.beginPath();
-    ctx.rect(0, 0, @canvas._width.value, @canvas._height.value)
+    ctx.beginPath()
+    {x, y, width, height} = @plot_model.canvas.bbox.rect
+    ctx.rect(x, y, width, height)
     if @model.end? then @_arrow_head(ctx, "clip", @model.end, @start, @end)
     if @model.start? then @_arrow_head(ctx, "clip", @model.start, @end, @start)
     ctx.closePath()
-    ctx.clip();
+    ctx.clip()
 
     # Finally we draw the arrow body, with the clipping regions set up. This prevents
     # "fat" arrows from overlapping the arrow head in a bad way.

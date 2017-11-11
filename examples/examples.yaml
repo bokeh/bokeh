@@ -15,7 +15,7 @@
 
 - path: "plotting/file"
   slow: ["choropleth.py"]
-  no_diff: ["jitter.py"]
+  no_diff: ["jitter.py", "categorical_scatter_jitter.py"]
   no_js: ["gmap.py"]
   skip: ["dynamic_map.py"]
 
@@ -30,3 +30,6 @@
 - path: "app"
   type: server
   skip: ["gapminder", "pivot", "simple_hdf5", "spectrogram", "surface3d", "stocks"]
+
+- path: "integration/annotations"
+  type: file

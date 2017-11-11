@@ -14,15 +14,16 @@ fi
 bash scripts/ci/install
 
 # install all build, test, and run dependencies
-conda install --yes `python scripts/deps.py build test run`
+conda install --yes --quiet `python scripts/deps.py build test run`
 
 # install some additional dependencies needed only for deploys
-conda install anaconda-client --yes
-conda install -c bokeh twine --yes
-conda install -c defaults -c conda-forge fabric3 --yes
+conda install anaconda-client --yes --quiet
+conda install -c bokeh twine --yes --quiet
+conda install -c defaults -c conda-forge fabric3 --yes --quiet
 
 # install NPM dependencies
 pushd bokehjs
+npm set progress=false
 npm install
 popd
 

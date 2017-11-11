@@ -25,8 +25,8 @@ describe "customjs_transform module", ->
       expect(r.values).to.be.an.instanceof Array
 
     it "should contain the args values in order", ->
-      rng1 = Range1d()
-      rng2 = Range1d()
+      rng1 = new Range1d()
+      rng2 = new Range1d()
       r = new CustomJSTransform({args: {foo: rng1, bar: rng2}})
       expect(r.values).to.be.deep.equal([rng1, rng2])
 
@@ -42,8 +42,8 @@ describe "customjs_transform module", ->
       expect(r.scalar_transform.toString()).to.be.equal(f.toString())
 
     it "should include args values in order in function signature", ->
-      rng1 = Range1d()
-      rng2 = Range1d()
+      rng1 = new Range1d()
+      rng2 = new Range1d()
       r = new CustomJSTransform({args: {foo: rng1, bar: rng2}, func: "return x"})
       f = new Function("foo", "bar", "x", "require", "exports", "return x")
       expect(r.scalar_transform.toString()).to.be.equal(f.toString())
@@ -60,8 +60,8 @@ describe "customjs_transform module", ->
       expect(r.vector_transform.toString()).to.be.equal(f.toString())
 
     it "should include args values in order in function signature", ->
-      rng1 = Range1d()
-      rng2 = Range1d()
+      rng1 = new Range1d()
+      rng2 = new Range1d()
       r = new CustomJSTransform({args: {foo: rng1, bar: rng2}, v_func: "return xs"})
       f = new Function("foo", "bar", "xs", "require", "exports", "return xs")
       expect(r.vector_transform.toString()).to.be.equal(f.toString())

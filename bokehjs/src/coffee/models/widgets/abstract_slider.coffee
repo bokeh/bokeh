@@ -68,6 +68,30 @@ export class AbstractSliderView extends WidgetView
       @sliderEl.noUiSlider.on('slide',  (_, __, values) => @_slide(values))
       @sliderEl.noUiSlider.on('change', (_, __, values) => @_change(values))
 
+      # Add keyboard support
+      keypress = (e) =>
+        value = Number(@sliderEl.noUiSlider.get())
+        switch e.which
+          when 37
+            value -= step
+          when 39
+            value += step
+          else
+            return
+
+        pretty = @model.pretty(value)
+        logger.debug("[slider keypress] value = #{pretty}")
+        @model.value = value
+        @sliderEl.noUiSlider.set(value)
+        if @valueEl?
+          @valueEl.textContent = pretty
+        @callback_wrapper?()
+
+      handle = @sliderEl.querySelector(".#{prefix}handle")
+      handle.setAttribute('tabindex', 0)
+      handle.addEventListener('click', @focus)
+      handle.addEventListener('keydown', keypress)
+
       toggleTooltip = (i, show) =>
         handle = @sliderEl.querySelectorAll(".#{prefix}handle")[i]
         tooltip = handle.querySelector(".#{prefix}tooltip")

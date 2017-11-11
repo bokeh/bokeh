@@ -59,15 +59,6 @@ export class GlyphRendererView extends RendererView
     if @model.data_source instanceof RemoteDataSource
       @model.data_source.setup()
 
-  @getters {
-    xmapper: () ->
-      log.warning("xmapper attr is deprecated, use xscale")
-      @xscale
-    ymapper: () ->
-      log.warning("ymapper attr is deprecated, use yscale")
-      @yscale
-  }
-
   build_glyph_view: (model) ->
     new model.default_view({model: model, renderer: @, plot_view: @plot_view, parent: @})
 
@@ -114,7 +105,7 @@ export class GlyphRendererView extends RendererView
     lod_factor = @plot_model.plot.lod_factor
     @decimated = []
     for i in [0...Math.floor(@all_indices.length/lod_factor)]
-      @decimated.push(@all_indices[i*lod_factor])
+      @decimated.push(i*lod_factor)
 
     dt = Date.now() - t0
     logger.debug("#{@glyph.model.type} GlyphRenderer (#{@model.id}): set_data finished in #{dt}ms")
@@ -137,8 +128,11 @@ export class GlyphRendererView extends RendererView
     dtmap = Date.now() - t0
 
     tmask = Date.now()
-    # all_indices and indices are in cdsview subset space
+    # all_indices is in full data space, indices is converted to subset space
+    # either by mask_data (that uses the spatial index) or manually
     indices = @glyph.mask_data(@all_indices)
+    if indices.length == @all_indices.length
+      indices = [0...@all_indices.length]
     dtmask = Date.now() - tmask
 
     ctx = @plot_view.canvas_view.ctx
@@ -150,10 +144,7 @@ export class GlyphRendererView extends RendererView
       selected = []
     else
       if selected['0d'].glyph
-        if @glyph instanceof LineView
-          selected = indices
-        else
-          selected = @model.view.convert_indices_from_subset(indices)
+        selected = @model.view.convert_indices_from_subset(indices)
       else if selected['1d'].indices.length > 0
         selected = selected['1d'].indices
       else
@@ -165,10 +156,7 @@ export class GlyphRendererView extends RendererView
       inspected = []
     else
       if inspected['0d'].glyph
-        if @glyph instanceof LineView
-          inspected = indices
-        else
-          inspected = @model.view.convert_indices_from_subset(indices)
+        inspected = @model.view.convert_indices_from_subset(indices)
       else if inspected['1d'].indices.length > 0
         inspected = inspected['1d'].indices
       else
@@ -178,7 +166,7 @@ export class GlyphRendererView extends RendererView
     inspected = (i for i in indices when @all_indices[i] in inspected)
 
     lod_threshold = @plot_model.plot.lod_threshold
-    if @plot_view.interactive and !glsupport and lod_threshold? and @all_indices.length > lod_threshold
+    if @model.document.interactive_duration() > 0 and !glsupport and lod_threshold? and @all_indices.length > lod_threshold
       # Render decimated during interaction if too many elements and not using GL
       indices = @decimated
       glyph = @decimated_glyph
@@ -194,9 +182,15 @@ export class GlyphRendererView extends RendererView
 
     if not (selected.length and @have_selection_glyphs())
         trender = Date.now()
-        glyph.render(ctx, indices, @glyph)
-        if @hover_glyph and inspected.length
-          @hover_glyph.render(ctx, inspected, @glyph)
+        if @glyph instanceof LineView
+          if @hover_glyph and inspected.length
+            @hover_glyph.render(ctx, @model.view.convert_indices_from_subset(inspected), @glyph)
+          else
+            glyph.render(ctx, @all_indices, @glyph)
+        else
+          glyph.render(ctx, indices, @glyph)
+          if @hover_glyph and inspected.length
+            @hover_glyph.render(ctx, inspected, @glyph)
         dtrender = Date.now() - trender
 
     else
@@ -209,14 +203,16 @@ export class GlyphRendererView extends RendererView
       # intersect/different selection with render mask
       selected = new Array()
       nonselected = new Array()
-      for i in indices
-        # now, selected is changed to subset space, except for Line glyph
-        if @glyph instanceof LineView
+
+      # now, selected is changed to subset space, except for Line glyph
+      if @glyph instanceof LineView
+        for i in @all_indices
           if selected_mask[i]?
             selected.push(i)
           else
             nonselected.push(i)
-        else
+      else
+        for i in indices
           if selected_mask[@all_indices[i]]?
             selected.push(i)
           else
@@ -227,7 +223,10 @@ export class GlyphRendererView extends RendererView
       nonselection_glyph.render(ctx, nonselected, @glyph)
       selection_glyph.render(ctx, selected, @glyph)
       if @hover_glyph?
-        @hover_glyph.render(ctx, inspected, @glyph)
+        if @glyph instanceof LineView
+          @hover_glyph.render(ctx, @model.view.convert_indices_from_subset(inspected), @glyph)
+        else
+          @hover_glyph.render(ctx, inspected, @glyph)
       dtrender = Date.now() - trender
 
     @last_dtrender = dtrender
@@ -243,16 +242,12 @@ export class GlyphRendererView extends RendererView
 
     ctx.restore()
 
-  map_to_screen: (x, y) ->
-    @plot_view.map_to_screen(x, y, @model.x_range_name, @model.y_range_name)
-
   draw_legend: (ctx, x0, x1, y0, y1, field, label) ->
     index = @model.get_reference_point(field, label)
     @glyph.draw_legend_for_index(ctx, x0, x1, y0, y1, index)
 
   hit_test: (geometry, final, append, mode="select") ->
     return @model.hit_test_helper(geometry, @, final, append, mode)
-
 
 export class GlyphRenderer extends Renderer
   default_view: GlyphRendererView

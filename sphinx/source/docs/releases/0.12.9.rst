@@ -1,0 +1,89 @@
+0.12.9 (Sep 2017)
+=================
+
+Bokeh Version ``0.12.9`` is an incremental update that adds a few important
+features and fixes several bugs. Some of the highlights include:
+
+* JupyterLab integration with the `jupyterlab_bokeh`_ extension
+* Efficient binary transport for sending arrays to clients
+* Improvements to new Graph/Network capability
+
+Many other small bugfixes and docs additions. For full details see the
+:bokeh-tree:`CHANGELOG`.
+
+Migration Guide
+---------------
+
+NOTE: the 0.12.x series is the last planned release series before a version
+1.0 release. For more information see the `project roadmap`_.
+
+Deprecated ``bokeh.charts`` support removed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The ``bokeh.charts`` module, which was simply a compatibility shim to load the
+separate ``bkcharts`` package, has been removed. Additionally, Bokeh itself no
+longer lists ``bkcharts`` as a dependency. In order to continue using
+``bkcharts`` code, the ``bkcharts`` package must be installed separately.
+
+Deprecated MPL compatibility removed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The ``bokeh.mpl`` module and all supporting code in ``bokeh.core.compat`` has
+been removed. Bokeh no longer offers or attempts any automatic MPL conversion.
+
+Table Date Formatter Changes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+A regression in ``0.12.7`` caused the ``DateFormatter`` to stop functioning.
+The problem has been fixed, however instead of the previously accepted JQuery
+style formats, the``format`` property now only accepts
+
+* standard `strftime`_ format strings (making it consistent with
+  ``DatetimeTickFormatter``)
+* any of the following additional predefined formats names:
+
+  ================================================ ================== ===================
+  Format name(s)                                   Format string      Example Output
+  ================================================ ================== ===================
+  ``ATOM`` / ``W3C`` / ``RFC-3339`` / ``ISO-8601`` ``"%Y-%m-%d"``     2014-03-01
+  ``COOKIE``                                       ``"%a, %d %b %Y"`` Sat, 01 Mar 2014
+  ``RFC-850``                                      ``"%A, %d-%b-%y"`` Saturday, 01-Mar-14
+  ``RFC-1123`` / ``RFC-2822``                      ``"%a, %e %b %Y"`` Sat, 1 Mar 2014
+  ``RSS`` / ``RFC-822`` / ``RFC-1036``             ``"%a, %e %b %y"`` Sat, 1 Mar 14
+  ``TIMESTAMP``                                    (ms since epoch)   1393632000000
+  ================================================ ================== ===================
+
+  Note that the previously available format name ``TICKS`` is no longer
+  supported.
+
+Old Testing Functions Removed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The functions ``bokeh.test`` and ``bokeh.util.testing.runtests`` have been
+removed immediately. Tests should be run as described in the `testing section`_
+of the Developer's Guide.
+
+The function ``bokeh.util.testing.print_versions`` has been removed
+immediately. The ``bokeh info`` command (or ``python -m bokeh info``) should be
+used instead.
+
+Refactor of ``bokeh.client`` and ``bokeh.document``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The ``bokeh.client`` and ``bokeh.document`` packages were refactored, to make
+maintenance and testing simpler, and to improve overall code quality. No
+commonly used or demonstrated public APIs were affected, (no example code
+required any changes). The other files that were moved or changed are not
+expected to impact user code.
+
+End of Official Support for Python 3.4
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Starting with this release, Bokeh is no longer continuously tested against
+Python 3.4. Use of Bokeh with Python 3.4 will very likely still work, but
+there are no longer any guarantees backed by CI testing.
+
+.. _jupyterlab_bokeh: https://github.com/bokeh/jupyterlab_bokeh
+.. _project roadmap: https://bokehplots.com/pages/roadmap.html
+.. _strftime: http://man7.org/linux/man-pages/man3/strftime.3.html
+.. _testing section: http://bokeh.pydata.org/en/latest/docs/dev_guide/testing.html

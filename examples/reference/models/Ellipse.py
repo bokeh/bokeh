@@ -19,7 +19,7 @@ plot = Plot(
     title=None, x_range=xdr, y_range=ydr, plot_width=300, plot_height=300,
     h_symmetry=False, v_symmetry=False, min_border=0, toolbar_location=None)
 
-glyph = Ellipse(x="x", y="y", width="w", height="h", angle=-0.7, fill_color="#CAB2D6")
+glyph = Ellipse(x="x", y="y", width="w", height="h", angle=-0.7, fill_color="#cab2d6")
 plot.add_glyph(source, glyph)
 
 xaxis = LinearAxis()

@@ -59,7 +59,6 @@ describe "PlotCanvas", ->
 
   it "should have panels, frame, and canvas returned in get_layoutable_children", sinon.test () ->
     layoutable_children = @plot_canvas.get_layoutable_children()
-    expect(layoutable_children.length).to.be.equal 6
     expect(@plot_canvas.above_panel in layoutable_children).to.be.true
     expect(@plot_canvas.below_panel in layoutable_children).to.be.true
     expect(@plot_canvas.left_panel  in layoutable_children).to.be.true
@@ -80,7 +79,6 @@ describe "PlotCanvas", ->
     @doc.add_root(plot)
     plot_canvas = plot.plot_canvas
     layoutable_children = plot_canvas.get_layoutable_children()
-    expect(layoutable_children.length).to.be.equal 10
     expect(above_axis.panel in layoutable_children).to.be.true
     expect(below_axis.panel in layoutable_children).to.be.true
     expect(left_axis.panel  in layoutable_children).to.be.true
@@ -91,7 +89,6 @@ describe "PlotCanvas", ->
     @doc.add_root(plot)
     plot_canvas = plot.plot_canvas
     children = plot_canvas.get_layoutable_children()
-    expect(children.length).to.be.equal 6
     for child in children
       child.get_editables = this.spy()
       expect(child.get_editables.callCount).to.be.equal 0
@@ -162,9 +159,6 @@ describe "PlotCanvas constraints", ->
     @plot_canvas = new PlotCanvas({ 'plot': plot })
     @plot_canvas.attach_document(doc)
 
-  it "should return 0 constraints from _get_side_constraints if there are no side renderers", sinon.test () ->
-    expect(@plot_canvas._get_side_constraints().length).to.be.equal 0
-
   it "should call _get_side_constraints, _get_constant_constraints", sinon.test () ->
     @plot_canvas._get_side_constraints = this.spy()
     @plot_canvas._get_constant_constraints = this.spy()
@@ -176,7 +170,6 @@ describe "PlotCanvas constraints", ->
 
   it "should call _get_constraints on children", sinon.test () ->
     children = @plot_canvas.get_layoutable_children()
-    expect(children.length).to.be.equal 6
     for child in children
       child.get_constraints = this.spy()
       expect(child.get_constraints.callCount).to.be.equal 0

@@ -94,24 +94,24 @@ export class AxisView extends RendererView
     return
 
   _draw_axis_label: (ctx, extents, tick_coords) ->
-    if not @model.axis_label?
+    if not @model.axis_label? or @model.axis_label.length == 0
       return
 
     switch @model.panel.side
       when "above"
-        x = @model.panel._hcenter.value
-        y = @model.panel._bottom.value
+        sx = @model.panel._hcenter.value
+        sy = @model.panel._bottom.value
       when "below"
-        x = @model.panel._hcenter.value
-        y = @model.panel._top.value
+        sx = @model.panel._hcenter.value
+        sy = @model.panel._top.value
       when "left"
-        x = @model.panel._right.value
-        y = @model.panel._vcenter._value
+        sx = @model.panel._right.value
+        sy = @model.panel._vcenter._value
       when "right"
-        x = @model.panel._left.value
-        y = @model.panel._vcenter._value
+        sx = @model.panel._left.value
+        sy = @model.panel._vcenter._value
 
-    coords = [[x], [y]]
+    coords = [[sx], [sy]]
     standoff = extents.tick + sum(extents.tick_label) + @model.axis_label_standoff
     visuals  = @visuals.axis_label_text
 
@@ -150,14 +150,14 @@ export class AxisView extends RendererView
       return
 
     if units == "screen"
-      [vxs, vys] = coords
-      [sxs, sys] = [@plot_view.canvas.v_vx_to_sx(vxs), @plot_view.canvas.v_vy_to_sy(vys)]
+      [sxs, sys] = coords
+      [xoff, yoff] = [0, 0]
     else
       [dxs, dys] = coords
       [sxs, sys] = @plot_view.map_to_screen(dxs, dys, @model.x_range_name, @model.y_range_name)
+      [xoff, yoff] = @model.offsets
 
-    [nx, ny]     = @model.normals
-    [xoff, yoff] = @model.offsets
+    [nx, ny] = @model.normals
 
     nxd = nx * (xoff + standoff)
     nyd = ny * (yoff + standoff)

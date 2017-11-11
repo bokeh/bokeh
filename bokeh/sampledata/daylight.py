@@ -1,17 +1,60 @@
-""" Daylight hours from http://www.sunrisesunset.com
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
+''' Provide 2013 Warsaw daylight hours from http://www.sunrisesunset.com
 
-"""
-from __future__ import absolute_import
+'''
 
-from bokeh.util.dependencies import import_required
-pd = import_required('pandas',
-              'daylight sample data requires Pandas (http://pandas.pydata.org) to be installed')
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from os.path import join, abspath, dirname
+import logging
+log = logging.getLogger(__name__)
 
-def load_daylight_hours(file):
-    path = join(dirname(abspath(__file__)), file)
-    df = pd.read_csv(path, parse_dates=["Date", "Sunrise", "Sunset"])
+from bokeh.util.api import public, internal ; public, internal
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
+
+# Bokeh imports
+from ..util.sampledata import package_csv
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'daylight_warsaw_2013',
+)
+
+#-----------------------------------------------------------------------------
+# Public API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Internal API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+def _read_data():
+    '''
+
+    '''
+    df = package_csv('daylight', 'daylight_warsaw_2013.csv', parse_dates=["Date", "Sunrise", "Sunset"])
 
     df["Date"] = df.Date.map(lambda x: x.date())
     df["Sunrise"] = df.Sunrise.map(lambda x: x.time())
@@ -19,4 +62,8 @@ def load_daylight_hours(file):
 
     return df
 
-daylight_warsaw_2013 = load_daylight_hours("daylight_warsaw_2013.csv")
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
+
+daylight_warsaw_2013 = _read_data()

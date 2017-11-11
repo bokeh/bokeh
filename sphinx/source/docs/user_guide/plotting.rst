@@ -68,6 +68,19 @@ method:
 .. bokeh-plot:: docs/user_guide/examples/plotting_line_single.py
     :source-position: above
 
+Step Lines
+''''''''''
+
+For some kinds of data, it may be more appropriate to draw discrete steps
+between data points, instead of connecting points with linear segments. The
+|step| glyph method can be used to accomplish this:
+
+.. bokeh-plot:: docs/user_guide/examples/plotting_line_steps.py
+    :source-position: above
+
+Step levels can be drawn before, after, or centered on the x-coordinates,
+as condfigured by the ``mode`` parameter.
+
 Multiple Lines
 ''''''''''''''
 
@@ -440,6 +453,7 @@ The section on adding annotations to plots has moved.  Please see
 .. |ray|               replace:: :func:`~bokeh.plotting.figure.Figure.ray`
 .. |rect|              replace:: :func:`~bokeh.plotting.figure.Figure.rect`
 .. |segment|           replace:: :func:`~bokeh.plotting.figure.Figure.segment`
+.. |step|              replace:: :func:`~bokeh.plotting.figure.Figure.step`
 .. |square|            replace:: :func:`~bokeh.plotting.figure.Figure.square`
 .. |square_cross|      replace:: :func:`~bokeh.plotting.figure.Figure.square_cross`
 .. |square_x|          replace:: :func:`~bokeh.plotting.figure.Figure.square_x`

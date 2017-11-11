@@ -1,7 +1,18 @@
-'''
-This module provides some recorded stock data for the following stocks: AAPL, FB, GOOG, IBM, MSFT.
-Each set of data is available as an attribute on the module (e.g., stocks.AAPL) and the value is
-a dictionary with the structure:
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
+''' Provide recorded stock data for the following stocks:
+
+    AAPL, FB, GOOG, IBM, MSFT
+
+Each eries is available as an attribute on the module (e.g., ``stocks.AAPL``)
+and the value is a dictionary with the structure:
+
+.. code-block:: python
 
     AAPL['date']       # list of date string
     AAPL['open']       # list of float
@@ -12,15 +23,58 @@ a dictionary with the structure:
     AAPL['adj_close']  # list of float
 
 '''
-from __future__ import absolute_import
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+from bokeh.util.api import public, internal ; public, internal
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import csv
-from os.path import exists, isfile, join
-import sys
-from . import _data_dir
-from . import _open_csv_file
 
-def _load_stock(filename):
+# External imports
+
+# Bokeh imports
+from ..util.sampledata import external_path, open_csv
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'AAPL',
+    'FB',
+    'GOOG',
+    'IBM',
+    'MSFT',
+)
+
+#-----------------------------------------------------------------------------
+# Public API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Internal API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+def _read_data(name):
+    '''
+
+    '''
+    filename = external_path(name+'.csv')
     data = {
         'date' : [],
         'open' : [],
@@ -30,9 +84,9 @@ def _load_stock(filename):
         'volume' : [],
         'adj_close': [],
     }
-    with _open_csv_file(filename) as f:
+    with open_csv(filename) as f:
         next(f)
-        reader = csv.reader(f, delimiter=',')
+        reader = csv.reader(f, delimiter=str(','))
         for row in reader:
             date, open_price, high, low, close, volume, adj_close = row
             data['date'].append(date)
@@ -44,24 +98,12 @@ def _load_stock(filename):
             data['adj_close'].append(float(adj_close))
     return data
 
-data_dir = _data_dir()
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
 
-stocks = [
-    'AAPL',
-    'FB',
-    'GOOG',
-    'IBM',
-    'MSFT',
-]
-
-for stock in stocks:
-    filename = join(data_dir, stock + '.csv')
-    if not exists(filename) and isfile(filename):
-        raise RuntimeError('could not load stock data for %s, please execute bokeh.sampledata.download()')
-    setattr(
-        sys.modules[__name__],
-        stock,
-        _load_stock(filename)
-    )
-
-__all__ = stocks
+AAPL = _read_data('AAPL')
+FB   = _read_data('FB')
+GOOG = _read_data('GOOG')
+IBM  = _read_data('IBM')
+MSFT = _read_data('MSFT')

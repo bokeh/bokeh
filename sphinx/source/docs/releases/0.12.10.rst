@@ -1,0 +1,69 @@
+0.12.10 (Oct 2017)
+==================
+
+Bokeh Version ``0.12.10`` is an incremental update that adds a few important
+features and fixes several bugs. Some of the highlights include:
+
+
+
+Many other small bugfixes and docs additions. For full details see the
+:bokeh-tree:`CHANGELOG`.
+
+Migration Guide
+---------------
+
+NOTE: the 0.12.x series is the last planned release series before a version
+1.0 release. For more information see the `project roadmap`_.
+
+Deprecations Removed
+~~~~~~~~~~~~~~~~~~~~
+
+The following previous deprecations have been removed:
+
+* ``app_path`` from functions in ``bokeh.client.session`` and ``bokeh.embed``
+* ``standalone_html_page_for_models`` from ``bokeh.embed``
+* ``'patch'`` and ``'stream'`` event names (use ``'patching'`` and ``'streaming'``)
+* ``webgl``, ``x_mapper_type``, ``y_mapper_type``, and ``tool_events`` from ``Plot``
+* Glyphs methods now only accept either all sequence literals, OR all column names
+* ``ResizeTool`` (previously made a no-op) has been removed
+
+New Deprecations
+~~~~~~~~~~~~~~~~
+
+The boolean ``responsive`` parameter to ``Figure`` and ``bokeh.layouts`` has
+been deprecated. The ``sizing_mode`` enum should be used instead. Use
+``sizing_mode='fixed'`` for ``responsive=False`` and
+``sizing_mode='scale_width'`` for ``responsive=True`` instead.
+
+The function ``bokeh.sampledata.population.load_population`` has been
+deprecated. Use the attribute ``bokeh.sampledata.population.data`` instead.
+
+Code Moves
+~~~~~~~~~~
+
+The module ``bokeh.util.notebook`` has been deprecated. The functions it
+contains have been moved to ``bokeh.io.notebook``.
+
+The function ``bokeh.io.set_curdoc`` is now ``bokeh.io.doc.set_curdoc``.
+
+Named color *objects* now live in ``bokeh.colors.named`` instead of directly in
+``bokeh.colors``. Additionally color utilities such as ``NamedColor`` have been
+moved inside the package, and marked as internal API. Using string names for
+colors works exactly as before.
+
+Dead Code Removal
+~~~~~~~~~~~~~~~~~
+
+The following unused code was removed immediately:
+
+* ``Aggregation`` from ``bokeh.core.enums``
+* PyPy detection functions from ``bokeh.util``
+* Zeppelin related code (support should come from external notebook hook)
+
+Additionally the attribute ``bokeh.__base_version__`` was removed. Computing
+it at all times made importing Bokeh take substantial fractions of a second
+longer than necessary. It is not expected this change should affect any
+users, but if you need this value, the ``bokeh.util.version.base_version``
+function can be used.
+
+.. _project roadmap: https://bokehplots.com/pages/roadmap.html

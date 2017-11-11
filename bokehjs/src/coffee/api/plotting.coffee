@@ -13,7 +13,7 @@ import {isNumber, isString, isArray} from "../core/util/types"
 _default_tooltips = [
   ["index", "$index"],
   ["data (x, y)", "($x, $y)"],
-  ["canvas (x, y)", "($sx, $sy)"],
+  ["screen (x, y)", "($sx, $sy)"],
 ]
 
 _default_tools = "pan,wheel_zoom,box_zoom,save,reset,help"
@@ -22,6 +22,8 @@ _known_tools = {
   pan:          () -> new models.PanTool(dimensions: 'both')
   xpan:         () -> new models.PanTool(dimensions: 'width')
   ypan:         () -> new models.PanTool(dimensions: 'height')
+  xwheel_pan:   () -> new models.WheelPanTool(dimension: "width")
+  ywheel_pan:   () -> new models.WheelPanTool(dimension: "height")
   wheel_zoom:   () -> new models.WheelZoomTool(dimensions: 'both')
   xwheel_zoom:  () -> new models.WheelZoomTool(dimensions: 'width')
   ywheel_zoom:  () -> new models.WheelZoomTool(dimensions: 'height')
@@ -62,16 +64,16 @@ export class Figure extends models.Plot
     tools = _with_default(attrs.tools, _default_tools)
     delete attrs.tools
 
-    attrs.x_range = @_get_range(attrs.x_range)
-    attrs.y_range = @_get_range(attrs.y_range)
+    attrs.x_range = Figure._get_range(attrs.x_range)
+    attrs.y_range = Figure._get_range(attrs.y_range)
 
     x_axis_type = if attrs.x_axis_type == undefined then "auto" else attrs.x_axis_type
     y_axis_type = if attrs.y_axis_type == undefined then "auto" else attrs.y_axis_type
     delete attrs.x_axis_type
     delete attrs.y_axis_type
 
-    attrs.x_scale = @_get_scale(attrs.x_range, x_axis_type)
-    attrs.y_scale = @_get_scale(attrs.y_range, y_axis_type)
+    attrs.x_scale = Figure._get_scale(attrs.x_range, x_axis_type)
+    attrs.y_scale = Figure._get_scale(attrs.y_range, y_axis_type)
 
     x_minor_ticks = attrs.x_minor_ticks ? "auto"
     y_minor_ticks = attrs.y_minor_ticks ? "auto"
@@ -290,7 +292,7 @@ export class Figure extends models.Plot
   _marker: (cls, args) ->
     return @_glyph(cls, "x,y", args)
 
-  _get_range: (range) ->
+  @_get_range: (range) ->
     if not range?
       return new models.DataRange1d()
     if range instanceof models.Range
@@ -301,7 +303,7 @@ export class Figure extends models.Plot
       if range.length == 2
         return new models.Range1d({start: range[0], end: range[1]})
 
-  _get_scale: (range_input, axis_type) ->
+  @_get_scale: (range_input, axis_type) ->
     if range_input instanceof models.DataRange1d or range_input instanceof models.Range1d
       switch axis_type
         when "linear", "datetime", "auto", null
@@ -450,7 +452,7 @@ export color = (r, g, b) -> sprintf("#%02x%02x%02x", r, g, b)
 export gridplot = (children, options={}) ->
   toolbar_location = if options.toolbar_location == undefined then 'above' else options.toolbar_location
   sizing_mode = if options.sizing_mode == undefined then 'fixed' else options.sizing_mode
-  toolbar_sizing_mode = if options.sizing_mode == 'fixed' then 'scale_width' else sizing_mode
+  merge_tools = if options.merge_tools == undefined then true else options.merge_tools
 
   tools = []
   rows = []
@@ -463,10 +465,14 @@ export gridplot = (children, options={}) ->
         row_tools = row_tools.concat(item.toolbar.tools)
         item.toolbar_location = null
       if item == null
+        width = 0
+        height = 0
         for neighbor in row
           if neighbor instanceof models.Plot
+            width = neighbor.plot_width
+            height = neighbor.plot_height
             break
-        item = new models.Spacer({width: neighbor.plot_width, height: neighbor.plot_height})
+        item = new models.Spacer({width: width, height: height})
       if item instanceof models.LayoutDOM
         item.sizing_mode = sizing_mode
         row_children.push(item)
@@ -478,8 +484,23 @@ export gridplot = (children, options={}) ->
 
   grid = new models.Column({children: rows, sizing_mode: sizing_mode})
 
+  if not merge_tools
+    return grid
+
   layout = if toolbar_location
-    toolbar = new models.ToolbarBox({tools: tools, sizing_mode: toolbar_sizing_mode, toolbar_location: toolbar_location})
+    if sizing_mode == 'fixed'
+      if toolbar_location == "above" or toolbar_location == "below"
+        toolbar_sizing_mode = 'scale_width'
+      else
+        toolbar_sizing_mode = 'scale_height'
+    else
+      toolbar_sizing_mode = sizing_mode
+
+    toolbar = new models.ToolbarBox({
+      toolbar: new models.ProxyToolbar({tools: tools}),
+      toolbar_location: toolbar_location,
+      sizing_mode: toolbar_sizing_mode,
+    })
 
     switch toolbar_location
       when 'above'

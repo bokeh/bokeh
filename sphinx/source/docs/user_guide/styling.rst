@@ -209,25 +209,15 @@ values can be passed to |figure| as a convenience:
 Responsive Dimensions
 ~~~~~~~~~~~~~~~~~~~~~
 
-In addition, you can use the ``responsive`` attribute. The responsive attribute
-causes the plot to fill the container it's sitting in, and to respond to
-changes in browser size. Responsive web elements are common-place in web
-development and the ``responsive`` flag may be useful if you are trying to
-present your plot on a website where you want it to conform to a number of
-browsers. If you set the responsive flag, the ``plot_width`` and ``plot_height`` will
+For control over how the plot scales to fill its container, see the
+documentation for :ref:`bokeh.models.layouts`, in particular the
+``sizing_mode`` property of :class:`~bokeh.models.layouts.LayoutDOM`.
+
+If you set ``sizing_mode``, the ``plot_width`` and ``plot_height`` may
 immediately change when a plot is rendered to fill the container. However,
 those parameters will be used to calculate the initial aspect ratio for your
 plot, so you may want to keep them. Plots will only resize down to a minimum of
 100px (height or width) to prevent problems in displaying your plot.
-
-For more precise control over how the plot scales to fill its container,
-see the documentation for :ref:`bokeh.models.layouts`, in particular the
-``sizing_mode`` property of :class:`~bokeh.models.layouts.LayoutDOM`.
-
-.. warning::
-    This feature is known not to work when combined with HBox.
-    This is a new feature and may have other issues when used in different circumstances.
-    Please report these issues on the  `Bokeh GitHub repository`_ or the `Bokeh mailing list`_.
 
 .. _Bokeh GitHub repository: https://github.com/bokeh/bokeh
 .. _Bokeh mailing list: https://groups.google.com/a/anaconda.com/forum/#!forum/bokeh

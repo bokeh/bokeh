@@ -17,6 +17,12 @@ values change, or when UI or other events occur. This kind of callback can be
 used to add interesting interactions to Bokeh documents without the need to
 use a Bokeh server (but can also be used in conjunction with a Bokeh server).
 
+.. warning::
+    The explicit purpose of these callbacks is to embed *raw JavaScript
+    code* for a browser to execute. If any part of the code is derived from
+    untrusted user inputs, then you must take appropriate care to sanitize
+    the user input prior to passing to Bokeh.
+
 .. _userguide_interaction_jscallbacks_customjs:
 
 CustomJS Callbacks
@@ -101,9 +107,8 @@ variable:
 
     callback = CustomJS(code="""
     // the event that triggered the callback is cb_obj:
-    var event = cb_obj.value;
     // The event type determines the relevant attributes
-    console.log('Tap event occured at x-position: ' + event.x)
+    console.log('Tap event occured at x-position: ' + cb_obj.x)
     """)
 
     p = figure()

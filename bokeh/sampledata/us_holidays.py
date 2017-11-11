@@ -1,19 +1,71 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 '''
 
+https://www.mozilla.org/en-US/projects/calendar/holidays/
+
 '''
-from __future__ import absolute_import
 
-from os.path import dirname, join
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-try:
-    from icalendar import Calendar as ICalendar
-except ImportError as e:
-    raise RuntimeError("us_holidays data requires icalendar (http://icalendar.readthedocs.org) to be installed")
+import logging
+log = logging.getLogger(__name__)
 
-def read_ical(name):
-    with open(join(dirname(__file__), name)) as ics:
-        ical = ICalendar.from_ical(ics.read())
+from bokeh.util.api import public, internal ; public, internal
 
-    return sorted([ (comp.get("dtstart").dt, str(comp.get("summary"))) for comp in ical.walk() if comp.name == "VEVENT" ])
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
 
-us_holidays = read_ical("USHolidays.ics") # https://www.mozilla.org/en-US/projects/calendar/holidays/
+# Standard library imports
+
+# External imports
+
+# Bokeh imports
+from ..util.dependencies import import_required
+from ..util.sampledata import package_path
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'us_holidays',
+)
+
+#-----------------------------------------------------------------------------
+# Public API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Internal API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+def _read_data():
+    '''
+
+    '''
+    ic = import_required('icalendar', "us_holidays data requires icalendar (http://icalendar.readthedocs.org) to be installed")
+
+    with open(package_path("USHolidays.ics")) as f:
+        data = ic.Calendar.from_ical(f.read())
+
+    return sorted([ (comp.get("dtstart").dt, str(comp.get("summary"))) for comp in data.walk() if comp.name == "VEVENT" ])
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
+
+us_holidays = _read_data()

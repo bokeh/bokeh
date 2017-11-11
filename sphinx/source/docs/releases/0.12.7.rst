@@ -1,5 +1,5 @@
-0.12.7
-======
+0.12.7 (Aug 2017)
+=================
 
 Bokeh Version ``0.12.7`` is an incremental update that adds a few important
 features and fixes several bugs. Some of the highlights include:
@@ -110,7 +110,9 @@ The `bokeh-widgets` bundle was split into ``bokeh-widgets`` and
 ``bokeh-tables``. This is to reduce the weight of the main widgets' bundle.
 Bokeh includes ``bokeh-tables`` automatically when necessary, so this change
 should be transparent for most users. However, users of custom templates or
-other advanced embedding scenarios may be affected.
+other advanced embedding scenarios (including the use of ``components``) may
+be affected. In short, if your application is responsible for loading Bokeh
+resources, then it should take care of loading the ``bokeh-tables`` as well.
 
 TapTool Callback Calling Convention
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

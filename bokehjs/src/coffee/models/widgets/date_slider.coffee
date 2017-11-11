@@ -24,5 +24,5 @@ export class DateSlider extends AbstractSlider
   _formatter: tz
 
   @override {
-    format: "%d %b %G"
+    format: "%d %b %Y"
   }

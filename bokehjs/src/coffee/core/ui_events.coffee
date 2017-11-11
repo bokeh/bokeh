@@ -134,10 +134,7 @@ export class UIEvents
     return null
 
   _hit_test_frame: (sx, sy) ->
-    canvas = @plot_view.canvas
-    vx = canvas.sx_to_vx(sx)
-    vy = canvas.sy_to_vy(sy)
-    return @plot_view.frame.contains(vx, vy)
+    return @plot_view.frame.bbox.contains(sx, sy)
 
   _trigger: (signal, e) ->
     event_type = signal.name
@@ -195,19 +192,15 @@ export class UIEvents
   trigger: (signal, event, id=null) ->
     signal.emit({id: id, e: event})
 
-  _bokify_hammer: (e, extras={}) ->
-    if e.pointerType == 'mouse'
-      x = e.srcEvent.pageX
-      y = e.srcEvent.pageY
-    else
-      x = e.pointers[0].pageX
-      y = e.pointers[0].pageY
-    {left, top} = offset(e.target)
-    e.bokeh = {
-      sx: x - left
-      sy: y - top
+  _event_sxy: (event) ->
+    {left, top} = offset(@hit_area)
+    return {
+      sx: event.pageX - left
+      sy: event.pageY - top
     }
-    e.bokeh = extend(e.bokeh, extras)
+
+  _bokify_hammer: (e, extras={}) ->
+    e.bokeh = extend(@_event_sxy(e.srcEvent), extras)
     event_cls = BokehEvent.event_class(e)
     if event_cls?
       @plot.trigger_event(event_cls.from_event(e))
@@ -215,13 +208,7 @@ export class UIEvents
       logger.debug('Unhandled event of type ' + e.type)
 
   _bokify_point_event: (e, extras={}) ->
-
-    {left, top} = offset(e.currentTarget)
-    e.bokeh = {
-      sx: e.pageX - left
-      sy: e.pageY - top
-    }
-    e.bokeh = extend(e.bokeh, extras)
+    e.bokeh = extend(@_event_sxy(e), extras)
     event_cls = BokehEvent.event_class(e)
     if event_cls?
       @plot.trigger_event(event_cls.from_event(e))

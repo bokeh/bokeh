@@ -34,7 +34,7 @@ namespace Anscombe {
   const lines = new Bokeh.ColumnDataSource({data: {x: x, y: y}});
 
   const xdr = new Bokeh.Range1d({start: -0.5, end: 20.5});
-  const ydr = Bokeh.Range1d(-0.5, 20.5);
+  const ydr = new Bokeh.Range1d({start: -0.5, end: 20.5});
 
   function make_plot(title: string, xname: string, yname: string): Bokeh.Plot {
     const plot = new Bokeh.Plot({
@@ -66,7 +66,7 @@ namespace Anscombe {
   const III = make_plot("III", "xiii", "yiii");
   const IV  = make_plot("IV",  "xiv",  "yiv");
 
-  const grid = Bokeh.Plotting.gridplot([[I, II], [III, IV]]);
+  const grid = Bokeh.Plotting.gridplot([[I, II], [III, IV]], {toolbar_location: null});
 
   const doc = new Bokeh.Document();
   doc.add_root(grid);

@@ -43,7 +43,30 @@ from __future__ import absolute_import
 
 from .enums import LineJoin, LineCap, FontStyle, TextAlign, TextBaseline
 from .has_props import HasProps
-from .properties import ColorSpec, DashPattern, Enum, FontSizeSpec, Int, Float, NumberSpec, String, value
+from .properties import Color, ColorSpec, DashPattern, Enum, FontSize, FontSizeSpec, Include, Int, Float, NumberSpec, Percent, String, value
+
+
+_color_help = """
+A color to use to %s with.
+
+Acceptable values are:
+
+- any of the 147 named `CSS colors`_, e.g ``'green'``, ``'indigo'``
+- an RGB(A) hex value, e.g., ``'#FF0000'``, ``'#44444444'``
+- a 3-tuple of integers (r,g,b) between 0 and 255
+- a 4-tuple of (r,g,b,a) where r,g,b are integers between 0..255 and a is between 0..1
+
+.. _CSS colors: http://www.w3schools.com/cssref/css_colornames.asp
+
+"""
+
+_alpha_help = """
+An alpha value to use to %s with.
+
+Acceptable values are floating point numbers between 0 (transparent)
+and 1 (opaque).
+
+"""
 
 class FillProps(HasProps):
     ''' Properties relevant to rendering fill regions.
@@ -52,61 +75,29 @@ class FillProps(HasProps):
 
     '''
 
-    fill_color = ColorSpec(default="gray", help="""
-    A color to use to fill paths with.
+    fill_color = ColorSpec(default="gray", help=_color_help % "fill paths")
+    fill_alpha = NumberSpec(default=1.0, accept_datetime=False, help=_alpha_help % "fill paths")
 
-    Acceptable values are:
+class ScalarFillProps(HasProps):
+    ''' Properties relevant to rendering fill regions.
 
-    - any of the 147 named `CSS colors`_, e.g ``'green'``, ``'indigo'``
-    - an RGB(A) hex value, e.g., ``'#FF0000'``, ``'#44444444'``
-    - a 3-tuple of integers (r,g,b) between 0 and 255
-    - a 4-tuple of (r,g,b,a) where r,g,b are integers between 0..255 and a is between 0..1
-
-    .. _CSS colors: http://www.w3schools.com/cssref/css_colornames.asp
-
-    """)
-
-    fill_alpha = NumberSpec(default=1.0, accept_datetime=False, help="""
-    An alpha value to use to fill paths with.
-
-    Acceptable values are floating point numbers between 0 (transparent)
-    and 1 (opaque).
-
-    """)
-
-class LineProps(HasProps):
-    ''' Properties relevant to rendering path operations.
-
-    Mirrors the BokehJS ``properties.Line`` class.
+    Mirrors the BokehJS ``properties.Fill`` class.
 
     '''
 
-    line_color = ColorSpec(default="black", help="""
-    A color to use to stroke paths with.
+    fill_color = Color(default="gray", help=_color_help)
+    fill_alpha = Percent(default=1.0, help=_alpha_help)
 
-    Acceptable values are:
 
-    - any of the 147 named `CSS colors`_, e.g ``'green'``, ``'indigo'``
-    - an RGB(A) hex value, e.g., ``'#FF0000'``, ``'#44444444'``
-    - a 3-tuple of integers (r,g,b) between 0 and 255
-    - a 4-tuple of (r,g,b,a) where r,g,b are integers between 0..255 and a is between 0..1
 
-    .. _CSS colors: http://www.w3schools.com/cssref/css_colornames.asp
 
-    """)
 
-    line_width = NumberSpec(default=1, accept_datetime=False, help="""
-    Stroke width in units of pixels.
-    """)
 
-    line_alpha = NumberSpec(default=1.0, accept_datetime=False, help="""
-    An alpha value to use to stroke paths with.
+_line_width_help = """
+Stroke width in units of pixels.
+"""
 
-    Acceptable values are floating point numbers between 0 (transparent)
-    and 1 (opaque).
-
-    """)
-
+class BaseLineProps(HasProps):
     line_join = Enum(LineJoin, help="""
     How path segments should be joined together.
 
@@ -152,24 +143,42 @@ class LineProps(HasProps):
     start from.
     """)
 
-class TextProps(HasProps):
-    ''' Properties relevant to rendering text.
+class LineProps(HasProps):
+    ''' Properties relevant to rendering path operations.
 
-    Mirrors the BokehJS ``properties.Text`` class.
-
-    .. note::
-        There is currently only support for filling text. An interface
-        to stroke the outlines of text has not yet been exposed.
+    Mirrors the BokehJS ``properties.Line`` class.
 
     '''
+
+    base_line_props = Include(BaseLineProps, use_prefix=False)
+
+    line_color = ColorSpec(default="black", help=_color_help % "stroke paths")
+    line_width = NumberSpec(default=1, accept_datetime=False, help=_line_width_help)
+    line_alpha = NumberSpec(default=1.0, accept_datetime=False, help=_alpha_help % "stroke paths")
+
+
+class ScalarLineProps(HasProps):
+    ''' Properties relevant to rendering path operations.
+
+    Mirrors the BokehJS ``properties.Line`` class.
+
+    '''
+    base_line_props = Include(BaseLineProps, use_prefix=False)
+
+    line_color = Color(default="black", help=_color_help % "stroke paths")
+    line_width = Float(default=1, help=_line_width_help)
+    line_alpha = Percent(default=1.0, help=_alpha_help % "stroke paths")
+
+
+
+
+class BaseTextProps(HasProps):
 
     text_font = String("helvetica", help="""
     Name of a font to use for rendering text, e.g., ``'times'``,
     ``'helvetica'``.
 
     """)
-
-    text_font_size = FontSizeSpec(value("12pt"))
 
     text_font_style = Enum(FontStyle, help="""
     A style to use for rendering text.
@@ -179,28 +188,6 @@ class TextProps(HasProps):
     - ``'normal'`` normal text
     - ``'italic'`` *italic text*
     - ``'bold'`` **bold text**
-
-    """)
-
-    text_color = ColorSpec(default="#444444", help="""
-    A color to use to fill text with.
-
-    Acceptable values are:
-
-    - any of the 147 named `CSS colors`_, e.g ``'green'``, ``'indigo'``
-    - an RGB(A) hex value, e.g., ``'#FF0000'``, ``'#44444444'``
-    - a 3-tuple of integers (r,g,b) between 0 and 255
-    - a 4-tuple of (r,g,b,a) where r,g,b are integers between 0..255 and a is between 0..1
-
-    .. _CSS colors: http://www.w3schools.com/cssref/css_colornames.asp
-
-    """)
-
-    text_alpha = NumberSpec(default=1.0, accept_datetime=False, help="""
-    An alpha value to use to fill text with.
-
-    Acceptable values are floating point numbers between 0 (transparent)
-    and 1 (opaque).
 
     """)
 
@@ -235,3 +222,42 @@ class TextProps(HasProps):
     a percentage of font size. The default is 120%. Setting it to 1.0, so
     100%, means no additional space will be used.
     """)
+
+
+class TextProps(HasProps):
+    ''' Properties relevant to rendering text.
+
+    Mirrors the BokehJS ``properties.Text`` class.
+
+    .. note::
+        There is currently only support for filling text. An interface
+        to stroke the outlines of text has not yet been exposed.
+
+    '''
+    base_text_props = Include(BaseTextProps, use_prefix=False)
+
+    text_font_size = FontSizeSpec(value("12pt"))
+
+    text_color = ColorSpec(default="#444444", help=_color_help % "fill text")
+
+    text_alpha = NumberSpec(default=1.0, accept_datetime=False, help=_alpha_help % "fill text")
+
+class ScalarTextProps(HasProps):
+    ''' Properties relevant to rendering text.
+
+    Mirrors the BokehJS ``properties.Text`` class.
+
+    .. note::
+        There is currently only support for filling text. An interface
+        to stroke the outlines of text has not yet been exposed.
+
+    '''
+
+    base_text_props = Include(BaseTextProps, use_prefix=False)
+
+    # XXX not great
+    text_font_size = FontSize("12pt")
+
+    text_color = Color(default="#444444", help=_color_help % "fill text")
+
+    text_alpha = Percent(default=1.0, help=_alpha_help % "fill text")

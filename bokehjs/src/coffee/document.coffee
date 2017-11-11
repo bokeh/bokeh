@@ -1,6 +1,7 @@
 import {Models} from "./base"
 import {version as js_version} from "./version"
 import {logger} from "./core/logging"
+import {LODStart, LODEnd} from "core/bokeh_events"
 import {HasProps} from "./core/has_props"
 import {Signal} from "./core/signaling"
 import {is_ref} from "./core/util/refs"
@@ -13,30 +14,46 @@ import {isArray, isObject} from "./core/util/types"
 import {LayoutDOM} from "./models/layouts/layout_dom"
 import {ColumnDataSource} from "./models/sources/column_data_source"
 
-class EventManager
-    # Dispatches events to the subscribed models
+`
+export class EventManager {
+  // Dispatches events to the subscribed models
 
-  constructor: (@document) ->
-    @session = null
-    @subscribed_models = new Set()
+  session: ClientSession | null = null
+  subscribed_models: Set<string> = new Set()
 
-  send_event: (event) ->
-    # Send message to Python via session
-    @session?.send_event(event)
+  constructor(readonly document: any /* Document */) {}
 
-  trigger: (event) ->
-    for model_id in @subscribed_models.values
-      if event.model_id != null and event.model_id != model_id
+  send_event(event: any): void {
+    // Send message to Python via session
+    if (this.session != null)
+      this.session.send_event(event)
+  }
+
+  trigger(event: any): void {
+    for (const model_id of this.subscribed_models.values) {
+      if (event.model_id != null && event.model_id !== model_id)
         continue
-      model = @document._all_models[model_id]
-      model?._process_event(event)
+      const model = this.document._all_models[model_id]
+      if (model != null)
+        model._process_event(event)
+    }
+  }
+}
+`
 
 export class DocumentChangedEvent
   constructor : (@document) ->
 
+`
+export declare class ModelChangedEvent {
+  attr: string
+  model: HasProps // TODO: Model
+}
+`
+
 export class ModelChangedEvent extends DocumentChangedEvent
-  constructor : (@document, @model, @attr, @old, @new_, @setter_id) ->
-    super @document
+  constructor : (document, @model, @attr, @old, @new_, @setter_id) ->
+    super(document)
   json : (references) ->
 
     if @attr == 'id'
@@ -66,7 +83,7 @@ export class ModelChangedEvent extends DocumentChangedEvent
 
 export class TitleChangedEvent extends DocumentChangedEvent
   constructor : (@document, @title, @setter_id) ->
-    super @document
+    super(document)
   json : (references) ->
     {
       'kind' : 'TitleChanged',
@@ -75,7 +92,7 @@ export class TitleChangedEvent extends DocumentChangedEvent
 
 export class RootAddedEvent extends DocumentChangedEvent
   constructor : (@document, @model, @setter_id) ->
-    super @document
+    super(document)
   json : (references) ->
     HasProps._value_record_references(@model, references, true)
     {
@@ -85,7 +102,7 @@ export class RootAddedEvent extends DocumentChangedEvent
 
 export class RootRemovedEvent extends DocumentChangedEvent
   constructor : (@document, @model, @setter_id) ->
-    super @document
+    super(document)
   json : (references) ->
     {
       'kind' : 'RootRemoved',
@@ -111,6 +128,9 @@ export class Document
     @event_manager = new EventManager(@)
     @idle = new Signal(this, "idle") # <void, this>
     @_idle_roots = new WeakMap() # TODO: WeakSet would be better
+
+    @_interactive_timestamp = null
+    @_interactive_plot = null
 
   Object.defineProperty(@prototype, "layoutables", {
     get: () -> (root for root in @_roots when root instanceof LayoutDOM)
@@ -138,6 +158,23 @@ export class Document
         @remove_root(@_roots[0])
     finally
       @_pop_all_models_freeze()
+
+  interactive_start: (plot) ->
+    if @_interactive_plot == null
+      @_interactive_plot = plot
+      @_interactive_plot.trigger_event(new LODStart({}))
+    @_interactive_timestamp = Date.now()
+
+  interactive_stop: (plot) ->
+    if @_interactive_plot?.id == plot.id
+      @_interactive_plot.trigger_event(new LODEnd({}))
+    @_interactive_plot = null
+    @_interactive_timestamp = null
+
+  interactive_duration: () ->
+    if @_interactive_timestamp == null
+      return -1
+    return Date.now() - @_interactive_timestamp
 
   destructively_move : (dest_doc) ->
     if dest_doc is @

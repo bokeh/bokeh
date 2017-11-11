@@ -82,14 +82,13 @@ namespace Burtin {
 
   const p = plt.figure({
     title: null,
-    toolbar_sticky: false,
     plot_width: width, plot_height: height,
     x_axis_type: null, y_axis_type: null,
     x_range: [-420, 420], y_range: [-420, 420],
     min_border: 0,
     outline_line_color: "black",
     background_fill_color: "#f0e1d2",
-    border_fill_color: "#f0e1d2"})
+  })
 
   // annular wedges
   const angles = df.index.map((i) => Math.PI/2 - big_angle/2 - i*big_angle)

@@ -9,65 +9,68 @@ export class TitleView extends TextAnnotationView
     super(options)
     @visuals.text = new Visuals.Text(@model)
 
-    # Use side_panel heuristics to determine unset text props
-    ctx = @plot_view.canvas_view.ctx
-    ctx.save()
-    @model.panel.apply_label_text_heuristics(ctx, 'justified')
-    @model.text_baseline = ctx.textBaseline
-    @model.text_align = @model.align
-    ctx.restore()
+  _get_location: () ->
+    panel = @model.panel
 
-  _get_computed_location: () ->
-    [width, height] = @_calculate_text_dimensions(@plot_view.canvas_view.ctx, @text)
-    switch @model.panel.side
+    hmargin = @model.offset
+    vmargin = 5
+
+    switch panel.side
+      when 'above', 'below'
+        switch @model.vertical_align
+          when 'top'    then sy = panel._top.value     + vmargin
+          when 'middle' then sy = panel._vcenter.value
+          when 'bottom' then sy = panel._bottom.value  - vmargin
+
+        switch @model.align
+          when 'left'   then sx = panel._left.value    + hmargin
+          when 'center' then sx = panel._hcenter.value
+          when 'right'  then sx = panel._right.value   - hmargin
       when 'left'
-        vx = @model.panel._left.value
-        vy = @_get_text_location(@model.align, @frame.v_range) + @model.offset
-      when 'right'
-        vx = @model.panel._right.value
-        vy = @canvas._height.value - @_get_text_location(@model.align, @frame.v_range) - @model.offset
-      when 'above'
-        vx = @_get_text_location(@model.align, @frame.h_range) + @model.offset
-        vy = @model.panel._top.value - 10 # Corresponds to the +10 added in get_size
-      when 'below'
-        vx = @_get_text_location(@model.align, @frame.h_range) + @model.offset
-        vy = @model.panel._bottom.value
+        switch @model.vertical_align
+          when 'top'    then sx = panel._left.value    - vmargin
+          when 'middle' then sx = panel._hcenter.value
+          when 'bottom' then sx = panel._right.value   + vmargin
 
-    sx = @canvas.vx_to_sx(vx)
-    sy = @canvas.vy_to_sy(vy)
+        switch @model.align
+          when 'left'   then sy = panel._bottom.value  - hmargin
+          when 'center' then sy = panel._vcenter.value
+          when 'right'  then sy = panel._top.value     + hmargin
+      when 'right'
+        switch @model.vertical_align
+          when 'top'    then sx = panel._right.value   - vmargin
+          when 'middle' then sx = panel._hcenter.value
+          when 'bottom' then sx = panel._left.value    + vmargin
+
+        switch @model.align
+          when 'left'   then sy = panel._top.value     + hmargin
+          when 'center' then sy = panel._vcenter.value
+          when 'right'  then sy = panel._bottom.value  - hmargin
+
     return [sx, sy]
 
-  _get_text_location: (alignment, range) ->
-    switch alignment
-      when 'left'
-        text_location = range.start
-      when 'center'
-        text_location = (range.end + range.start)/2
-      when 'right'
-        text_location = range.end
-    return text_location
-
   render: () ->
-    if not @model.visible and @model.render_mode == 'css'
-      hide(@el)
     if not @model.visible
+      if @model.render_mode == 'css'
+        hide(@el)
       return
 
+    text = @model.text
+    if not text? or text.length == 0
+      return
+
+    @model.text_baseline = @model.vertical_align
+    @model.text_align = @model.align
+
+    [sx, sy] = @_get_location()
     angle = @model.panel.get_label_angle_heuristic('parallel')
-    [sx, sy] = @_get_computed_location()
-    ctx = @plot_view.canvas_view.ctx
 
-    if @model.text == "" or @model.text == null
-      return
-
-    if @model.render_mode == 'canvas'
-      @_canvas_text(ctx, @model.text, sx, sy, angle)
-    else
-      @_css_text(ctx, @model.text, sx, sy, angle)
+    draw = if @model.render_mode == 'canvas' then @_canvas_text.bind(@) else @_css_text.bind(@)
+    draw(@plot_view.canvas_view.ctx, text, sx, sy, angle)
 
   _get_size: () ->
     text = @model.text
-    if text == "" or text == null
+    if not text? or text.length == 0
       return 0
     else
       ctx = @plot_view.canvas_view.ctx
@@ -82,15 +85,16 @@ export class Title extends TextAnnotation
   @mixins ['line:border_', 'fill:background_']
 
   @define {
-    text:            [ p.String,                   ]
-    text_font:       [ p.Font,         'helvetica' ]
-    text_font_size:  [ p.FontSizeSpec, '10pt'      ]
-    text_font_style: [ p.FontStyle,    'bold'      ]
-    text_color:      [ p.ColorSpec,    '#444444'   ]
-    text_alpha:      [ p.NumberSpec,   1.0         ]
-    align:           [ p.TextAlign,   'left'       ]
-    offset:          [ p.Number,      0            ]
-    render_mode:     [ p.RenderMode,  'canvas'     ]
+    text:            [ p.String,                    ]
+    text_font:       [ p.Font,          'helvetica' ]
+    text_font_size:  [ p.FontSizeSpec,  '10pt'      ]
+    text_font_style: [ p.FontStyle,     'bold'      ]
+    text_color:      [ p.ColorSpec,     '#444444'   ]
+    text_alpha:      [ p.NumberSpec,    1.0         ]
+    vertical_align:  [ p.VerticalAlign, 'bottom'    ]
+    align:           [ p.TextAlign,     'left'      ]
+    offset:          [ p.Number,        0           ]
+    render_mode:     [ p.RenderMode,    'canvas'    ]
   }
 
   @override {
@@ -98,8 +102,7 @@ export class Title extends TextAnnotation
     border_line_color: null
   }
 
-  # these are set by heuristics
   @internal {
-    text_align:    [ p.TextAlign,     'left'  ]
+    text_align:    [ p.TextAlign,    'left'  ]
     text_baseline: [ p.TextBaseline, 'bottom' ]
   }

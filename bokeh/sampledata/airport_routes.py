@@ -1,4 +1,11 @@
-""" The data in airports.csv and routes.csv is a subset (limited to US airports)
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
+''' The data in airports.csv and routes.csv is a subset (limited to US airports)
 of data available from OpenFlights.org. The complete data was collected on
 September 07, 2017 and is available from:
 
@@ -6,16 +13,53 @@ September 07, 2017 and is available from:
 
     https://openflights.org/data.html
 
-"""
-from __future__ import absolute_import
+'''
 
-from bokeh.util.dependencies import import_required
-pd = import_required('pandas',
-              'airports sample data requires Pandas (http://pandas.pydata.org) to be installed')
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-import os
+import logging
+log = logging.getLogger(__name__)
 
-from . import _data_dir
+from bokeh.util.api import public, internal ; public, internal
 
-airports = pd.read_csv(os.path.join(_data_dir(), 'airports.csv'))
-routes = pd.read_csv(os.path.join(_data_dir(), 'routes.csv'))
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
+
+# Bokeh imports
+from ..util.sampledata import external_csv
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'airports',
+    'routes',
+)
+
+#-----------------------------------------------------------------------------
+# Public API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Internal API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
+
+airports = external_csv('airport_routes', 'airports.csv')
+routes   = external_csv('airport_routes', 'routes.csv')

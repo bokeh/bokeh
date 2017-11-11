@@ -1,12 +1,17 @@
 from __future__ import absolute_import, print_function
 
+import pytest
+
+from mock import patch
+
+import logging
 import unittest
 
 from copy import copy
 
 import bokeh.document.document as document
 
-from bokeh.io import curdoc
+from bokeh.io.doc import curdoc
 from bokeh.models import ColumnDataSource
 from bokeh.document.events import (ColumnsPatchedEvent, ColumnsStreamedEvent, ModelChangedEvent, RootAddedEvent,
                                    RootRemovedEvent, SessionCallbackAdded, SessionCallbackRemoved, TitleChangedEvent)
@@ -14,18 +19,69 @@ from bokeh.protocol.messages.patch_doc import process_document_events
 
 from .setup import AnotherModelInTestDocument, SomeModelInTestDocument, ModelThatOverridesName, ModelWithSpecInTestDocument
 
-class TestDocument(unittest.TestCase):
+class TestDocumentHold(object):
 
-    def test_empty(self):
+    @pytest.mark.parametrize('policy', document.HoldPolicy)
+    def test_hold(self, policy):
         d = document.Document()
-        assert not d.roots
+        assert d._hold == None
+        assert d._held_events == []
 
-    def test_default_template_vars(self):
+        d.hold(policy)
+        assert d._hold == policy
+
+    def test_hold_bad_policy(self):
         d = document.Document()
-        assert not d.roots
-        assert d.template_variables == {}
+        with pytest.raises(ValueError):
+            d.hold("junk")
 
-    def test_delete_modules(self):
+    @pytest.mark.parametrize('first,second', [('combine', 'collect'), ('collect', 'combine')])
+    def test_rehold(self, first, second, caplog):
+        d = document.Document()
+        with caplog.at_level(logging.WARN):
+            d.hold(first)
+            assert caplog.text == ""
+            assert len(caplog.records) == 0
+
+            d.hold(first)
+            assert caplog.text == ""
+            assert len(caplog.records) == 0
+
+            d.hold(second)
+            assert caplog.text.strip().endswith("hold already active with '%s', ignoring '%s'" % (first, second))
+            assert len(caplog.records) == 1
+
+            d.unhold()
+
+            d.hold(second)
+            assert len(caplog.records) == 1
+
+    @pytest.mark.parametrize('policy', document.HoldPolicy)
+    def test_unhold(self, policy):
+        d = document.Document()
+        assert d._hold == None
+        assert d._held_events == []
+
+        d.hold(policy)
+        assert d._hold == policy
+        d.unhold()
+        assert d._hold == None
+
+    @patch("bokeh.document.document.Document._trigger_on_change")
+    def test_unhold_triggers_events(self, mock_trigger):
+        d = document.Document()
+        d.hold('collect')
+        d._held_events = [1,2,3]
+        d.unhold()
+        assert mock_trigger.call_count == 3
+        assert mock_trigger.call_args[0] == (3,)
+        assert mock_trigger.call_args[1] == {}
+
+extra = []
+
+class Test_Document_delete_modules(object):
+
+    def test_basic(self):
         d = document.Document()
         assert not d.roots
         class FakeMod(object):
@@ -38,6 +94,43 @@ class TestDocument(unittest.TestCase):
         assert 'junkjunkjunk' in sys.modules
         d.delete_modules()
         assert 'junkjunkjunk' not in sys.modules
+        assert d._modules is None
+
+    def test_extra_referrer_error(self, caplog):
+        d = document.Document()
+        assert not d.roots
+        class FakeMod(object):
+            __name__ = 'junkjunkjunk'
+        mod = FakeMod()
+        import sys
+        assert 'junkjunkjunk' not in sys.modules
+        sys.modules['junkjunkjunk'] = mod
+        d._modules.append(mod)
+        assert 'junkjunkjunk' in sys.modules
+
+        # add an extra referrer for delete_modules to complain about
+        extra.append(mod)
+        import gc
+        assert len(gc.get_referrers(mod)) == 4
+
+        with caplog.at_level(logging.ERROR):
+            d.delete_modules()
+            assert "Module %r has extra unexpected referrers! This could indicate a serious memory leak. Extra referrers:" % mod in caplog.text
+            assert len(caplog.records) == 1
+
+        assert 'junkjunkjunk' not in sys.modules
+        assert d._modules is None
+
+class TestDocument(unittest.TestCase):
+
+    def test_empty(self):
+        d = document.Document()
+        assert not d.roots
+
+    def test_default_template_vars(self):
+        d = document.Document()
+        assert not d.roots
+        assert d.template_variables == {}
 
     def test_add_roots(self):
         d = document.Document()
@@ -781,7 +874,7 @@ class TestDocument(unittest.TestCase):
 
     # a more realistic set of models instead of fake models
     def test_scatter(self):
-        from bokeh.io import set_curdoc
+        from bokeh.io.doc import set_curdoc
         from bokeh.plotting import figure
         import numpy as np
         d = document.Document()

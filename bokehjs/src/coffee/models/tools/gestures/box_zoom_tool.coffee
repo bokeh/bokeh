@@ -4,20 +4,13 @@ import * as p from "core/properties"
 
 export class BoxZoomToolView extends GestureToolView
 
-  _match_aspect: (basepoint, curpoint, frame) ->
-
+  _match_aspect: (base_point, curpoint, frame) ->
     # aspect ratio of plot frame
-    hend = frame.h_range.end
-    hstart = frame.h_range.start
-    vend = frame.v_range.end
-    vstart = frame.v_range.start
-    w = hend - hstart
-    h = vend - vstart
-    a = w/h
+    a = frame.bbox.aspect
 
     # current aspect of cursor-defined box
-    vw = Math.abs(basepoint[0]-curpoint[0])
-    vh = Math.abs(basepoint[1]-curpoint[1])
+    vw = Math.abs(base_point[0]-curpoint[0])
+    vh = Math.abs(base_point[1]-curpoint[1])
     if vh == 0
       va = 0
     else
@@ -34,108 +27,96 @@ export class BoxZoomToolView extends GestureToolView
     # compute top/bottom (based on new left/right), pin to frame if necessary
     # recompute left/right (based on top/bottom), in case top/bottom were pinned
 
-    # basepoint[0] is left
-    if ( basepoint[0] <= curpoint[0] )
-      left = basepoint[0]
-      right = basepoint[0] + vw * xmod
+    # base_point[0] is left
+    if ( base_point[0] <= curpoint[0] )
+      left = base_point[0]
+      right = base_point[0] + vw * xmod
       if right > hend
         right = hend
-    # basepoint[0] is right
+    # base_point[0] is right
     else
-      right = basepoint[0]
-      left = basepoint[0] - vw * xmod
+      right = base_point[0]
+      left = base_point[0] - vw * xmod
       if left < hstart
         left = hstart
 
     vw = Math.abs(right - left)
 
-    # basepoint[1] is bottom
-    if ( basepoint[1] <= curpoint[1] )
-      bottom = basepoint[1]
-      top = basepoint[1] + vw/a
+    # base_point[1] is bottom
+    if ( base_point[1] <= curpoint[1] )
+      bottom = base_point[1]
+      top = base_point[1] + vw/a
       if top > vend
         top = vend
 
-    # basepoint[1] is top
+    # base_point[1] is top
     else
-      top = basepoint[1]
-      bottom = basepoint[1] - vw/a
+      top = base_point[1]
+      bottom = base_point[1] - vw/a
       if bottom < vstart
         bottom = vstart
 
     vh = Math.abs(top - bottom)
 
-    # basepoint[0] is left
-    if ( basepoint[0] <= curpoint[0] )
-      right = basepoint[0] + a*vh
+    # base_point[0] is left
+    if ( base_point[0] <= curpoint[0] )
+      right = base_point[0] + a*vh
 
-    # basepoint[0] is right
+    # base_point[0] is right
     else
-      left = basepoint[0] - a*vh
+      left = base_point[0] - a*vh
 
     return [[left, right], [bottom, top]]
 
   _pan_start: (e) ->
-    canvas = @plot_view.canvas
-    @_baseboint = [
-      canvas.sx_to_vx(e.bokeh.sx)
-      canvas.sy_to_vy(e.bokeh.sy)
-    ]
+    @_base_point = [e.bokeh.sx, e.bokeh.sy]
     return null
 
   _pan: (e) ->
-    canvas = @plot_view.canvas
-    curpoint = [
-      canvas.sx_to_vx(e.bokeh.sx)
-      canvas.sy_to_vy(e.bokeh.sy)
-    ]
+    curpoint = [e.bokeh.sx, e.bokeh.sy]
     frame = @plot_model.frame
     dims = @model.dimensions
 
     if @model.match_aspect and dims == 'both'
-      [vx, vy] = @_match_aspect(@_baseboint, curpoint, frame)
+      [sx, sy] = @_match_aspect(@_base_point, curpoint, frame)
     else
-      [vx, vy] = @model._get_dim_limits(@_baseboint, curpoint, frame, dims)
+      [sx, sy] = @model._get_dim_limits(@_base_point, curpoint, frame, dims)
 
-    @model.overlay.update({left: vx[0], right: vx[1], top: vy[1], bottom: vy[0]})
+    @model.overlay.update({left: sx[0], right: sx[1], top: sy[0], bottom: sy[1]})
 
     return null
 
   _pan_end: (e) ->
-    canvas = @plot_view.canvas
-    curpoint = [
-      canvas.sx_to_vx(e.bokeh.sx)
-      canvas.sy_to_vy(e.bokeh.sy)
-    ]
+    curpoint = [e.bokeh.sx, e.bokeh.sy]
     frame = @plot_model.frame
     dims = @model.dimensions
 
     if @model.match_aspect and dims == 'both'
-      [vx, vy] = @_match_aspect(@_baseboint, curpoint, frame)
+      [sx, sy] = @_match_aspect(@_base_point, curpoint, frame)
     else
-      [vx, vy] = @model._get_dim_limits(@_baseboint, curpoint, frame, dims)
+      [sx, sy] = @model._get_dim_limits(@_base_point, curpoint, frame, dims)
 
-    @_update(vx, vy)
+    @_update(sx, sy)
 
     @model.overlay.update({left: null, right: null, top: null, bottom: null})
-    @_baseboint = null
+    @_base_point = null
     return null
 
-  _update: (vx, vy) ->
+  _update: ([sx0, sx1], [sy0, sy1]) ->
     # If the viewing window is too small, no-op: it is likely that the user did
     # not intend to make this box zoom and instead was trying to cancel out of the
     # zoom, a la matplotlib's ToolZoom. Like matplotlib, set the threshold at 5 pixels.
-    if Math.abs(vx[1] - vx[0]) <= 5 or Math.abs(vy[1] - vy[0]) <= 5
+    if Math.abs(sx1 - sx0) <= 5 or Math.abs(sy1 - sy0) <= 5
       return
 
     xrs = {}
     for name, scale of @plot_view.frame.xscales
-      [start, end] = scale.v_invert(vx)
+      [start, end] = scale.r_invert(sx0, sx1)
       xrs[name] = {start: start, end: end}
 
     yrs = {}
     for name, scale of @plot_view.frame.yscales
-      [start, end] = scale.v_invert(vy)
+      [start, end] = scale.r_invert(sy0, sy1)
       yrs[name] = {start: start, end: end}
 
     zoom_info = {

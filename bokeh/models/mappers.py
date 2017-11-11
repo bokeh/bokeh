@@ -76,7 +76,7 @@ class CategoricalColorMapper(ColorMapper):
         super(ColorMapper, self).__init__(**kwargs)
         palette = self.palette
         factors = self.factors
-        if palette and factors:
+        if palette is not None and factors is not None:
             if len(palette) < len(factors):
                 extra_factors = factors[len(palette):]
                 warnings.warn("Palette length does not match number of factors. %s will be assigned to `nan_color` %s" % (extra_factors, self.nan_color))
@@ -104,8 +104,8 @@ class ContinuousColorMapper(ColorMapper):
     """)
 
     high_color = Color(default=None, help="""
-    Color to be used if data is lower than ``high`` value. If None,
-    values lower than ``high`` are mapped to the last color in the palette.
+    Color to be used if data is higher than ``high`` value. If None,
+    values higher than ``high`` are mapped to the last color in the palette.
     """)
 
 class LinearColorMapper(ContinuousColorMapper):

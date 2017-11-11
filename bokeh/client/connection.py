@@ -1,3 +1,10 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Implements a very low level facility for communicating with a Bokeh
 Server.
 
@@ -5,23 +12,49 @@ Users will always want to use :class:`~bokeh.client.session.ClientSession`
 instead for standard usage.
 
 '''
-from __future__ import absolute_import, print_function
+
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
+from bokeh.util.api import public, internal ; public, internal
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
 from tornado import gen
 from tornado.httpclient import HTTPRequest
 from tornado.ioloop import IOLoop
 from tornado.websocket import websocket_connect, WebSocketError
 
-from bokeh.protocol import Protocol
-from bokeh.protocol.exceptions import MessageError, ProtocolError, ValidationError
-from bokeh.protocol.receiver import Receiver
-
+# Bokeh imports
+from ..protocol import Protocol
+from ..protocol.exceptions import MessageError, ProtocolError, ValidationError
+from ..protocol.receiver import Receiver
 from .states import NOT_YET_CONNECTED, CONNECTED_BEFORE_ACK, CONNECTED_AFTER_ACK, DISCONNECTED, WAITING_FOR_REPLY
 from .websocket import WebSocketClientConnectionWrapper
 
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Public API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Internal API
+#-----------------------------------------------------------------------------
+
+@internal((1,0,0))
 class ClientConnection(object):
     ''' A Bokeh low-level class used to implement ClientSession; use ClientSession to connect to the server.
 
@@ -43,20 +76,12 @@ class ClientConnection(object):
             io_loop = IOLoop()
         self._loop = io_loop
         self._until_predicate = None
-        self._protocol = Protocol("1.0")
         self._server_info = None
 
-    @property
-    def url(self):
-        ''' The URL of the websocket this Connection is to. '''
-        return self._url
+    # Properties --------------------------------------------------------------
 
     @property
-    def io_loop(self):
-        ''' The Tornado ``IOLoop`` this connection is using. '''
-        return self._loop
-
-    @property
+    @internal((1,0,0))
     def connected(self):
         ''' Whether we've connected the Websocket and have exchanged initial
         handshake messages.
@@ -64,6 +89,22 @@ class ClientConnection(object):
         '''
         return isinstance(self._state, CONNECTED_AFTER_ACK)
 
+    @property
+    @internal((1,0,0))
+    def io_loop(self):
+        ''' The Tornado ``IOLoop`` this connection is using. '''
+        return self._loop
+
+
+    @property
+    @internal((1,0,0))
+    def url(self):
+        ''' The URL of the websocket this Connection is to. '''
+        return self._url
+
+    # Internal methods --------------------------------------------------------
+
+    @internal((1,0,0))
     def connect(self):
         def connected_or_closed():
             # we should be looking at the same state here as the 'connected' property above, so connected
@@ -71,6 +112,7 @@ class ClientConnection(object):
             return isinstance(self._state, CONNECTED_AFTER_ACK) or isinstance(self._state, DISCONNECTED)
         self._loop_until(connected_or_closed)
 
+    @internal((1,0,0))
     def close(self, why="closed"):
         ''' Close the Websocket connection.
 
@@ -78,6 +120,21 @@ class ClientConnection(object):
         if self._socket is not None:
             self._socket.close(1000, why)
 
+    @internal((1,0,0))
+    def force_roundtrip(self):
+        ''' Force a round-trip request/reply to the server, sometimes needed to
+        avoid race conditions. Mostly useful for testing.
+
+        Outside of test suites, this method hurts performance and should not be
+        needed.
+
+        Returns:
+           None
+
+        '''
+        self._send_request_server_info()
+
+    @internal((1,0,0))
     def loop_until_closed(self):
         ''' Execute a blocking loop that runs and exectutes event callbacks
         until the connection is closed (e.g. by hitting Ctrl-C).
@@ -97,89 +154,7 @@ class ClientConnection(object):
                 return isinstance(self._state, DISCONNECTED)
             self._loop_until(closed)
 
-    @gen.coroutine
-    def send_message(self, message):
-        if self._socket is None:
-            log.info("We're disconnected, so not sending message %r", message)
-        else:
-            try:
-                sent = yield message.send(self._socket)
-                log.debug("Sent %r [%d bytes]", message, sent)
-            except WebSocketError as e:
-                # A thing that happens is that we detect the
-                # socket closing by getting a None from
-                # read_message, but the network socket can be down
-                # with many messages still in the read buffer, so
-                # we'll process all those incoming messages and
-                # get write errors trying to send change
-                # notifications during that processing.
-
-                # this is just debug level because it's completely normal
-                # for it to happen when the socket shuts down.
-                log.debug("Error sending message to server: %r", e)
-
-                # error is almost certainly because
-                # socket is already closed, but be sure,
-                # because once we fail to send a message
-                # we can't recover
-                self.close(why="received error while sending")
-
-                # don't re-throw the error - there's nothing to
-                # do about it.
-
-        raise gen.Return(None)
-
-    def _send_patch_document(self, session_id, event):
-        # XXX This will cause the client to always send all columns when a CDS
-        # is mutated in place. Additionally we set use_buffers=False below as
-        # well, to suppress using the binary array transport. Real Bokeh server
-        # apps running inside a server can handle these updates much more
-        # efficiently
-        from bokeh.document.events import ColumnDataChangedEvent
-        if hasattr(event, 'hint') and isinstance(event.hint, ColumnDataChangedEvent):
-            event.hint.cols = None
-        msg = self._protocol.create('PATCH-DOC', [event], use_buffers=False)
-        self.send_message(msg)
-
-    def _send_message_wait_for_reply(self, message):
-        waiter = WAITING_FOR_REPLY(message.header['msgid'])
-        self._state = waiter
-
-        send_result = []
-        def message_sent(future):
-            send_result.append(future)
-        self._loop.add_future(self.send_message(message), message_sent)
-
-        def have_send_result_or_disconnected():
-            return len(send_result) > 0 or self._state != waiter
-        self._loop_until(have_send_result_or_disconnected)
-
-        def have_reply_or_disconnected():
-            return self._state != waiter or waiter.reply is not None
-        self._loop_until(have_reply_or_disconnected)
-
-        return waiter.reply
-
-    def push_doc(self, document):
-        ''' Push a document to the server, overwriting any existing server-side doc.
-
-        Args:
-            document : (Document)
-                A Document to push to the server
-
-        Returns:
-            The server reply
-
-        '''
-        msg = self._protocol.create('PUSH-DOC', document)
-        reply = self._send_message_wait_for_reply(msg)
-        if reply is None:
-            raise RuntimeError("Connection to server was lost")
-        elif reply.header['msgtype'] == 'ERROR':
-            raise RuntimeError("Failed to push document: " + reply.content['text'])
-        else:
-            return reply
-
+    @internal((1,0,0))
     def pull_doc(self, document):
         ''' Pull a document from the server, overwriting the passed-in document
 
@@ -200,13 +175,28 @@ class ClientConnection(object):
         else:
             reply.push_to_document(document)
 
-    def _send_request_server_info(self):
-        msg = self._protocol.create('SERVER-INFO-REQ')
+    @internal((1,0,0))
+    def push_doc(self, document):
+        ''' Push a document to the server, overwriting any existing server-side doc.
+
+        Args:
+            document : (Document)
+                A Document to push to the server
+
+        Returns:
+            The server reply
+
+        '''
+        msg = self._protocol.create('PUSH-DOC', document)
         reply = self._send_message_wait_for_reply(msg)
         if reply is None:
-            raise RuntimeError("Did not get a reply to server info request before disconnect")
-        return reply.content
+            raise RuntimeError("Connection to server was lost")
+        elif reply.header['msgtype'] == 'ERROR':
+            raise RuntimeError("Failed to push document: " + reply.content['text'])
+        else:
+            return reply
 
+    @internal((1,0,0))
     def request_server_info(self):
         ''' Ask for information about the server.
 
@@ -218,18 +208,69 @@ class ClientConnection(object):
             self._server_info = self._send_request_server_info()
         return self._server_info
 
-    def force_roundtrip(self):
-        ''' Force a round-trip request/reply to the server, sometimes needed to
-        avoid race conditions. Mostly useful for testing.
+    @gen.coroutine
+    @internal((1,0,0))
+    def send_message(self, message):
+        if self._socket is None:
+            logger.info("We're disconnected, so not sending message %r", message)
+        else:
+            try:
+                sent = yield message.send(self._socket)
+                logger.debug("Sent %r [%d bytes]", message, sent)
+            except WebSocketError as e:
+                # A thing that happens is that we detect the
+                # socket closing by getting a None from
+                # read_message, but the network socket can be down
+                # with many messages still in the read buffer, so
+                # we'll process all those incoming messages and
+                # get write errors trying to send change
+                # notifications during that processing.
 
-        Outside of test suites, this method hurts performance and should not be
-        needed.
+                # this is just debug level because it's completely normal
+                # for it to happen when the socket shuts down.
+                logger.debug("Error sending message to server: %r", e)
 
-        Returns:
-           None
+                # error is almost certainly because
+                # socket is already closed, but be sure,
+                # because once we fail to send a message
+                # we can't recover
+                self.close(why="received error while sending")
 
-        '''
-        self._send_request_server_info()
+                # don't re-throw the error - there's nothing to
+                # do about it.
+
+        raise gen.Return(None)
+
+    # Private methods ---------------------------------------------------------
+
+    @gen.coroutine
+    def _connect_async(self):
+        versioned_url = "%s?bokeh-protocol-version=1.0&bokeh-session-id=%s" % (self._url, self._session.id)
+        request = HTTPRequest(versioned_url)
+        try:
+            socket = yield websocket_connect(request)
+            self._socket = WebSocketClientConnectionWrapper(socket)
+        except Exception as e:
+            logger.info("Failed to connect to server: %r", e)
+
+        if self._socket is None:
+            yield self._transition_to_disconnected()
+        else:
+            yield self._transition(CONNECTED_BEFORE_ACK())
+
+    @gen.coroutine
+    def _handle_messages(self):
+        message = yield self._pop_message()
+        if message is None:
+            yield self._transition_to_disconnected()
+        else:
+            if message.msgtype == 'PATCH-DOC':
+                logger.debug("Got PATCH-DOC, applying to session")
+                self._session._handle_patch(message)
+            else:
+                logger.debug("Ignoring %r", message)
+            # we don't know about whatever message we got, ignore it.
+            yield self._next()
 
     def _loop_until(self, predicate):
         self._until_predicate = predicate
@@ -245,19 +286,87 @@ class ClientConnection(object):
     @gen.coroutine
     def _next(self):
         if self._until_predicate is not None and self._until_predicate():
-            log.debug("Stopping client loop in state %s due to True from %s",
+            logger.debug("Stopping client loop in state %s due to True from %s",
                       self._state.__class__.__name__, self._until_predicate.__name__)
             self._until_predicate = None
             self._loop.stop()
             raise gen.Return(None)
         else:
-            log.debug("Running state " + self._state.__class__.__name__)
+            logger.debug("Running state " + self._state.__class__.__name__)
             yield self._state.run(self)
 
+    @gen.coroutine
+    def _pop_message(self):
+        while True:
+            if self._socket is None:
+                raise gen.Return(None)
+
+            # logger.debug("Waiting for fragment...")
+            fragment = None
+            try:
+                fragment = yield self._socket.read_message()
+            except Exception as e:
+                # this happens on close, so debug level since it's "normal"
+                logger.debug("Error reading from socket %r", e)
+            # logger.debug("... got fragment %r", fragment)
+            if fragment is None:
+                # XXX Tornado doesn't give us the code and reason
+                logger.info("Connection closed by server")
+                raise gen.Return(None)
+            try:
+                message = yield self._receiver.consume(fragment)
+                if message is not None:
+                    logger.debug("Received message %r" % message)
+                    raise gen.Return(message)
+            except (MessageError, ProtocolError, ValidationError) as e:
+                logger.error("%r", e, exc_info=True)
+                self.close(why="error parsing message from server")
+
+    def _send_message_wait_for_reply(self, message):
+        waiter = WAITING_FOR_REPLY(message.header['msgid'])
+        self._state = waiter
+
+        send_result = []
+        def message_sent(future):
+            send_result.append(future)
+        self._loop.add_future(self.send_message(message), message_sent)
+
+        def have_send_result_or_disconnected():
+            return len(send_result) > 0 or self._state != waiter
+        self._loop_until(have_send_result_or_disconnected)
+
+        def have_reply_or_disconnected():
+            return self._state != waiter or waiter.reply is not None
+        self._loop_until(have_reply_or_disconnected)
+
+        return waiter.reply
+
+    def _send_patch_document(self, session_id, event):
+        # XXX This will cause the client to always send all columns when a CDS
+        # is mutated in place. Additionally we set use_buffers=False below as
+        # well, to suppress using the binary array transport. Real Bokeh server
+        # apps running inside a server can handle these updates much more
+        # efficiently
+        from bokeh.document.events import ColumnDataChangedEvent
+        if hasattr(event, 'hint') and isinstance(event.hint, ColumnDataChangedEvent):
+            event.hint.cols = None
+        msg = self._protocol.create('PATCH-DOC', [event], use_buffers=False)
+        self.send_message(msg)
+
+    def _send_request_server_info(self):
+        msg = self._protocol.create('SERVER-INFO-REQ')
+        reply = self._send_message_wait_for_reply(msg)
+        if reply is None:
+            raise RuntimeError("Did not get a reply to server info request before disconnect")
+        return reply.content
+
+    def _tell_session_about_disconnect(self):
+        if self._session:
+            self._session._notify_disconnected()
 
     @gen.coroutine
     def _transition(self, new_state):
-        log.debug("transitioning to state " + new_state.__class__.__name__)
+        logger.debug("transitioning to state " + new_state.__class__.__name__)
         self._state = new_state
         yield self._next()
 
@@ -267,73 +376,20 @@ class ClientConnection(object):
         yield self._transition(DISCONNECTED())
 
     @gen.coroutine
-    def _connect_async(self):
-        versioned_url = "%s?bokeh-protocol-version=1.0&bokeh-session-id=%s" % (self._url, self._session.id)
-        request = HTTPRequest(versioned_url)
-        try:
-            socket = yield websocket_connect(request)
-            self._socket = WebSocketClientConnectionWrapper(socket)
-        except Exception as e:
-            log.info("Failed to connect to server: %r", e)
-
-        if self._socket is None:
-            yield self._transition_to_disconnected()
-        else:
-            yield self._transition(CONNECTED_BEFORE_ACK())
-
-
-    @gen.coroutine
     def _wait_for_ack(self):
         message = yield self._pop_message()
         if message and message.msgtype == 'ACK':
-            log.debug("Received %r", message)
+            logger.debug("Received %r", message)
             yield self._transition(CONNECTED_AFTER_ACK())
         elif message is None:
             yield self._transition_to_disconnected()
         else:
             raise ProtocolError("Received %r instead of ACK" % message)
 
-    @gen.coroutine
-    def _handle_messages(self):
-        message = yield self._pop_message()
-        if message is None:
-            yield self._transition_to_disconnected()
-        else:
-            if message.msgtype == 'PATCH-DOC':
-                log.debug("Got PATCH-DOC, applying to session")
-                self._session._handle_patch(message)
-            else:
-                log.debug("Ignoring %r", message)
-            # we don't know about whatever message we got, ignore it.
-            yield self._next()
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
 
-    @gen.coroutine
-    def _pop_message(self):
-        while True:
-            if self._socket is None:
-                raise gen.Return(None)
-
-            # log.debug("Waiting for fragment...")
-            fragment = None
-            try:
-                fragment = yield self._socket.read_message()
-            except Exception as e:
-                # this happens on close, so debug level since it's "normal"
-                log.debug("Error reading from socket %r", e)
-            # log.debug("... got fragment %r", fragment)
-            if fragment is None:
-                # XXX Tornado doesn't give us the code and reason
-                log.info("Connection closed by server")
-                raise gen.Return(None)
-            try:
-                message = yield self._receiver.consume(fragment)
-                if message is not None:
-                    log.debug("Received message %r" % message)
-                    raise gen.Return(message)
-            except (MessageError, ProtocolError, ValidationError) as e:
-                log.error("%r", e, exc_info=True)
-                self.close(why="error parsing message from server")
-
-    def _tell_session_about_disconnect(self):
-        if self._session:
-            self._session._notify_disconnected()
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

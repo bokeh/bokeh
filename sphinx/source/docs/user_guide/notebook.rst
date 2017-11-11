@@ -8,7 +8,7 @@ Working in the Notebook
 Inline Plots
 ------------
 
-To display Bokeh plots inline in an Jupyter/Zeppelin notebook, use the
+To display Bokeh plots inline in a Jupyter/Zeppelin notebook, use the
 |output_notebook| function from |bokeh.io| instead of (or in addition to)
 the |output_file| function we have seen previously. No other modifications
 are required. When |show| is called, the plot will be displayed inline in
@@ -27,8 +27,9 @@ the command: ``jupyter labextension install jupyterlab_bokeh``.
     :align: center
 
 By defaults, |output_notebook| apply to Juypter. If you want to use bokeh
-to display inline plots in Zeppelin, you need to specify `notebook_type`
-to `zeppelin` in |output_notebook|. Here's one Zeppelin screenshot.
+to display inline plots in Zeppelin, you need to use `bkzep`_ package and
+specify `notebook_type` to `zeppelin` in |output_notebook|.
+Here's one Zeppelin screenshot.
 
 .. image:: /_images/bokeh_simple_test_zeppelin.png
     :scale: 50 %
@@ -136,3 +137,5 @@ notebook is shown below:
 .. _Reveal.js: http://lab.hakim.se/reveal-js/#/
 
 .. _interactors: http://ipywidgets.readthedocs.io/en/latest/examples/Using%20Interact.html
+
+.. _bkzep: https://github.com/zjffdu/bkzep

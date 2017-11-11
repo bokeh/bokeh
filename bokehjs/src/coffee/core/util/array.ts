@@ -7,6 +7,14 @@ import {randomIn} from "./math"
 
 const slice = Array.prototype.slice
 
+export function head<T>(array: T[]): T {
+  return array[0]
+}
+
+export function tail<T>(array: T[]): T {
+  return array[array.length-1]
+}
+
 export function last<T>(array: Array<T>): T | undefined {
   return array[array.length-1]
 }
@@ -319,6 +327,17 @@ export function pairwise<T, U>(array: T[], fn: (prev: T, next: T) => U): U[] {
 
   for (let i = 0; i < n - 1; i++) {
     result[i] = fn(array[i], array[i+1])
+  }
+
+  return result
+}
+
+export function reversed<T>(array: T[]): T[] {
+  const n = array.length
+  const result = new Array<T>(n)
+
+  for (let i = 0; i < n; i++) {
+    result[n - i - 1] = array[i]
   }
 
   return result

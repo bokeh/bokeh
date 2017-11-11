@@ -1,5 +1,3 @@
-from bokeh.application.handlers import FunctionHandler
-from bokeh.application import Application
 from bokeh.layouts import column
 from bokeh.models import ColumnDataSource, Slider
 from bokeh.plotting import figure
@@ -30,12 +28,10 @@ def modify_doc(doc):
 
     doc.theme = Theme(filename="theme.yaml")
 
-bokeh_app = Application(FunctionHandler(modify_doc))
-
 # Setting num_procs here means we can't touch the IOLoop before now, we must
 # let Server handle that. If you need to explicitly handle IOLoops then you
 # will need to use the lower level BaseServer class.
-server = Server({'/': bokeh_app}, num_procs=4)
+server = Server({'/': modify_doc}, num_procs=4)
 server.start()
 
 if __name__ == '__main__':

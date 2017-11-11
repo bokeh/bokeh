@@ -16,6 +16,7 @@ env:
     - secure: nqoKfXZTHhJ0ieffqS+5mi5crivUeFeIgohqUaeTCnaOGI5XFMLR8rZPjhMHyFx5vNTp08pbg3Mg4i7iaQn+3dqu25HBwnfhar3TFXfOCQQLJBZstoWSGEDkJKDPwwqZrdFzw+EDxlA0tlLXvV8X0DlArYKhRcAOJF01cCJ7L1c=
     - secure: ii7ssdfEDYtc4Ph24mVzyq7JVTkjrn/h36HZn1oZak+HuiYtVbcCjqomKj2n1kPuKJWajOwHGu7d7ymCvK4tQ37keiMRvku/Yz4HELT5IUU1hD+w7mKomc2taKKvddGnbR4I4oZe+SBfwfeQCq5/Ha+koadSQI05Aco/nLNZP3M=
     - secure: MAaYB6RV2a9tZ61Olatv52Yi4EqEh+wMkX6y20Ja1yyY3I+2sFT1NZ8ZwPFCKkDdMeSna7z4ROKk3CDMK0JkbUJrqnZgo6Fy7w6GZPcZlzUPrgH04Or0v94upMh2i0lh8wcz88VuR0i+GxnqUsP18W5AJfO/FXmU4VgDAOJfKrQ=
+    - secure: IJrbxdVsjSOsZsmeD3nns1jQqcfY6J1mBbGSAtTHgRBvy1dKaejYg9jfKxaRlxjfSWXROomv0Ig+57wEAhSbxy1GBX52cklcLaY11LhaP6DHaah5eDcZe10Lk/5GxuVQmrJY0CtrrV6Jv2UB87sEqhwB0B5+ZXWOt0vdsHa4yOI=
 
 branches:
   only:
@@ -93,7 +94,7 @@ jobs:
     - install: scripts/ci/install:test
       script: scripts/ci/test
       env:
-      - GROUP=quality
+      - GROUP=codebase
 
     - install: scripts/ci/install:deploy
       stage: deploy

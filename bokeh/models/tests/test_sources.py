@@ -390,7 +390,7 @@ class TestColumnDataSource(unittest.TestCase):
         self.assertEqual(str(cm.exception), "Patch slices must have start < end, got slice(10, 1, None)")
         with self.assertRaises(ValueError) as cm:
             ds.patch(dict(a=[(slice(None, 10, -1), list(range(10)))]))
-        self.assertEqual(str(cm.exception), "Patch slices must have positive (start, stop, step) values, got slice(None, 10, -1)")
+        self.assertEqual(str(cm.exception), "Patch slices must have non-negative (start, stop, step) values, got slice(None, 10, -1)")
         with self.assertRaises(ValueError) as cm:
             ds.patch(dict(a=[(slice(10, 1, 1), list(range(10)))]))
         self.assertEqual(str(cm.exception), "Patch slices must have start < end, got slice(10, 1, 1)")
@@ -399,7 +399,7 @@ class TestColumnDataSource(unittest.TestCase):
         self.assertEqual(str(cm.exception), "Patch slices must have start < end, got slice(10, 1, -1)")
         with self.assertRaises(ValueError) as cm:
             ds.patch(dict(a=[(slice(1, 10, -1), list(range(10)))]))
-        self.assertEqual(str(cm.exception), "Patch slices must have positive (start, stop, step) values, got slice(1, 10, -1)")
+        self.assertEqual(str(cm.exception), "Patch slices must have non-negative (start, stop, step) values, got slice(1, 10, -1)")
 
 
     def test_patch_good_slice_indices(self):
@@ -411,9 +411,9 @@ class TestColumnDataSource(unittest.TestCase):
             stuff['args'] = args
             stuff['kw'] = kw
         ds.data._patch = mock
-        ds.patch(dict(a=[(slice(2), [100, 101]), (slice(3, 5), [100, 101])], b=[(slice(None, None, 2), [100, 101, 102])]), mock_setter)
+        ds.patch(dict(a=[(slice(2), [100, 101]), (slice(3, 5), [100, 101])], b=[(slice(0, None, 2), [100, 101, 102])]), mock_setter)
         self.assertEqual(stuff['args'],
-            ("doc", ds, dict(a=[(slice(2), [100, 101]), (slice(3, 5), [100, 101])], b=[(slice(None, None, 2), [100, 101, 102])]), mock_setter)
+            ("doc", ds, dict(a=[(slice(2), [100, 101]), (slice(3, 5), [100, 101])], b=[(slice(0, None, 2), [100, 101, 102])]), mock_setter)
         )
         self.assertEqual(stuff['kw'], {})
 

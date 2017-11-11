@@ -1,7 +1,7 @@
 declare namespace Bokeh {
   export interface Range extends Model, IRange {}
   export interface IRange extends IModel {
-    callback?: Callback;
+    callback?: Callback | ((source: this) => void);
   }
 
   export var Range1d: {

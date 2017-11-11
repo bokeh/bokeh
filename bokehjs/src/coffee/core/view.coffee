@@ -1,8 +1,9 @@
 import {Signal, Signalable} from "./signaling"
 import {uniqueId} from "./util/string"
+import {extend} from "./util/object"
 
 export class View
-  @prototype extends Signalable
+  extend(@prototype, Signalable)
 
   @getters = (specs) ->
     for name, fn of specs
@@ -20,6 +21,9 @@ export class View
 
     @id = options.id ? uniqueId()
     @initialize(options)
+
+    if options.connect_signals != false
+      @connect_signals()
 
   initialize: (options) ->
 

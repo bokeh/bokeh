@@ -97,6 +97,12 @@ export class DataTableView extends WidgetView
     @connect(@model.source.change, () => @updateSelection())
 
   updateGrid: () ->
+    # TODO (bev) This is to enure that CDSView indices are properly computed
+    # before passing to the DataProvider. This will result in extra calls to
+    # compute_indices. This "over execution" will be addressed in a more
+    # general look at events
+    @model.view.compute_indices()
+
     @data.constructor(@model.source, @model.view)
     @grid.invalidate()
     @grid.render()
@@ -154,7 +160,9 @@ export class DataTableView extends WidgetView
     reorderable = @model.reorderable
 
     if reorderable and not $?.fn?.sortable?
-      logger.warn("jquery-ui is required to enable DataTable.reorderable")
+      if not @_warned_not_reorderable?
+        logger.warn("jquery-ui is required to enable DataTable.reorderable")
+        @_warned_not_reorderable = true
       reorderable = false
 
     options =

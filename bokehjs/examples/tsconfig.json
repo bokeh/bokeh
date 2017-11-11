@@ -16,5 +16,6 @@
     "importHelpers": false,
     "experimentalDecorators": true,
     "types": []
-  }
+  },
+  "compileOnSave": false
 }

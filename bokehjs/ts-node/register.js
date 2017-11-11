@@ -1,1 +1,1 @@
-require("./").register()
+require("./").register({cache: false})

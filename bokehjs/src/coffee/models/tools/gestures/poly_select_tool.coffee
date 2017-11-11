@@ -8,7 +8,7 @@ export class PolySelectToolView extends SelectToolView
   initialize: (options) ->
     super(options)
     @connect(@model.properties.active.change, () -> @_active_change())
-    @data = {vx: [], vy: []}
+    @data = {sx: [], sy: []}
 
   _active_change: () ->
     if not @model.active
@@ -20,45 +20,43 @@ export class PolySelectToolView extends SelectToolView
 
   _doubletap: (e)->
     append = e.srcEvent.shiftKey ? false
-    @_do_select(@data.vx, @data.vy, true, append)
+    @_do_select(@data.sx, @data.sy, true, append)
     @plot_view.push_state('poly_select', {selection: @plot_view.get_selection()})
 
     @_clear_data()
 
   _clear_data: () ->
-    @data = {vx: [], vy: []}
+    @data = {sx: [], sy: []}
     @model.overlay.update({xs:[], ys:[]})
 
   _tap: (e) ->
-    canvas = @plot_view.canvas
-    vx = canvas.sx_to_vx(e.bokeh.sx)
-    vy = canvas.sy_to_vy(e.bokeh.sy)
+    {sx, sy} = e.bokeh
 
-    @data.vx.push(vx)
-    @data.vy.push(vy)
+    frame = @plot_model.frame
+    if not frame.bbox.contains(sx, sy)
+      return
 
-    @model.overlay.update({xs: copy(@data.vx), ys: copy(@data.vy)})
+    @data.sx.push(sx)
+    @data.sy.push(sy)
 
-  _do_select: (vx, vy, final, append) ->
+    @model.overlay.update({xs: copy(@data.sx), ys: copy(@data.sy)})
+
+  _do_select: (sx, sy, final, append) ->
     geometry = {
       type: 'poly'
-      vx: vx
-      vy: vy
+      sx: sx
+      sy: sy
     }
     @_select(geometry, final, append)
 
   _emit_callback: (geometry) ->
     r = @computed_renderers[0]
-    canvas = @plot_model.canvas
     frame = @plot_model.frame
-
-    geometry['sx'] = canvas.v_vx_to_sx(geometry.vx)
-    geometry['sy'] = canvas.v_vx_to_sx(geometry.vy)
 
     xscale = frame.xscales[r.x_range_name]
     yscale = frame.yscales[r.y_range_name]
-    geometry['x'] = xscale.v_invert(geometry.vx)
-    geometry['y'] = xscale.v_invert(geometry.vy)
+    geometry.x = xscale.v_invert(geometry.sx)
+    geometry.y = xscale.v_invert(geometry.sy)
 
     @model.callback.execute(@model, {geometry: geometry})
 

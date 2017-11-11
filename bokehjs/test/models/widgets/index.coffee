@@ -1,5 +1,6 @@
 require "./button"
 require "./paragraph"
+require "./slider"
 require "./tables"
 require "./tabs"
 require "./widget"

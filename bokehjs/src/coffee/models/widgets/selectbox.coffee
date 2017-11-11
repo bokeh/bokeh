@@ -1,5 +1,5 @@
-import {empty, label, select, option} from "core/dom"
-import {isString} from "core/util/types"
+import {empty, label, select, option, optgroup} from "core/dom"
+import {isString, isArray} from "core/util/types"
 import {logger} from "core/logging"
 import * as p from "core/properties"
 
@@ -14,6 +14,16 @@ export class SelectView extends InputWidgetView
     super()
     @connect(@model.change, () -> @render())
 
+  build_options: (values) ->
+     return values.map (el) =>
+      if isString(el)
+        value = _label  = el
+      else
+        [value, _label] = el
+
+      selected = @model.value == value
+      return option({selected: selected, value: value}, _label)
+
   render: () ->
     super()
     empty(@el)
@@ -21,16 +31,19 @@ export class SelectView extends InputWidgetView
     labelEl = label({for: @model.id}, @model.title)
     @el.appendChild(labelEl)
 
-    options = @model.options.map (opt) =>
-      if isString(opt)
-        value = _label  = opt
-      else
-        [value, _label] = opt
+    if isArray(@model.options)
+     contents = @build_options( @model.options )
+    else
+     contents = []
+     for key,value of @model.options
+      contents.push optgroup({label: key}, @build_options( value ))
 
-      selected = @model.value == value
-      return option({selected: selected, value: value}, _label)
+    @selectEl = select({
+      class: "bk-widget-form-input",
+      id: @model.id,
+      name: @model.name
+      disabled: @model.disabled}, contents)
 
-    @selectEl = select({class: "bk-widget-form-input", id: @model.id, name: @model.name}, options)
     @selectEl.addEventListener("change", () => @change_input())
     @el.appendChild(@selectEl)
 

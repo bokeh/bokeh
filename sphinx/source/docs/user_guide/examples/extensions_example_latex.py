@@ -14,35 +14,27 @@ export class LatexLabelView extends LabelView
 
     #--- Start of copied section from ``Label.render`` implementation
 
-    ctx = @plot_view.canvas_view.ctx
-
     # Here because AngleSpec does units tranform and label doesn't support specs
     switch @model.angle_units
       when "rad" then angle = -1 * @model.angle
       when "deg" then angle = -1 * @model.angle * Math.PI/180.0
 
-    if @model.x_units == "data"
-      vx = @xscale.compute(@model.x)
-    else
-      vx = @model.x
-    sx = @canvas.vx_to_sx(vx)
+    panel = @model.panel ? @plot_view.frame
 
-    if @model.y_units == "data"
-      vy = @yscale.compute(@model.y)
-    else
-      vy = @model.y
-    sy = @canvas.vy_to_sy(vy)
+    xscale = @plot_view.frame.xscales[@model.x_range_name]
+    yscale = @plot_view.frame.yscales[@model.y_range_name]
 
-    if @model.panel?
-      panel_offset = @_get_panel_offset()
-      sx += panel_offset.x
-      sy += panel_offset.y
+    sx = if @model.x_units == "data" then xscale.compute(@model.x) else panel.xview.compute(@model.x)
+    sy = if @model.y_units == "data" then yscale.compute(@model.y) else panel.yview.compute(@model.y)
+
+    sx += @model.x_offset
+    sy -= @model.y_offset
 
     #--- End of copied section from ``Label.render`` implementation
 
     # Must render as superpositioned div (not on canvas) so that KaTex
     # css can properly style the text
-    @_css_text(ctx, "", sx + @model.x_offset, sy - @model.y_offset, angle)
+    @_css_text(@plot_view.canvas_view.ctx, "", sx, sy, angle)
 
     # ``katex`` is loaded into the global window at runtime
     # katex.renderToString returns a html ``span`` element

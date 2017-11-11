@@ -2,9 +2,6 @@ import {GestureTool, GestureToolView} from "./gesture_tool"
 import {scale_range} from "core/util/zoom"
 import * as p from "core/properties"
 
-# Here for testing purposes
-document = {} unless document?
-
 export class WheelZoomToolView extends GestureToolView
 
   _pinch: (e) ->
@@ -18,26 +15,24 @@ export class WheelZoomToolView extends GestureToolView
 
   _scroll: (e) ->
     frame = @plot_model.frame
-    hr = frame.h_range
-    vr = frame.v_range
+    hr = frame.bbox.h_range
+    vr = frame.bbox.v_range
 
-    vx = @plot_view.canvas.sx_to_vx(e.bokeh.sx)
-    vy = @plot_view.canvas.sy_to_vy(e.bokeh.sy)
-
+    {sx, sy} = e.bokeh
     dims = @model.dimensions
 
     # restrict to axis configured in tool's dimensions property and if
     # zoom origin is inside of frame range/domain
-    h_axis = dims in ['width', 'both'] and hr.min < vx < hr.max
-    v_axis = dims in ['height', 'both'] and vr.min < vy < vr.max
+    h_axis = dims in ['width', 'both'] and hr.start < sx < hr.end
+    v_axis = dims in ['height', 'both'] and vr.start < sy < vr.end
 
     factor = @model.speed * e.bokeh.delta
 
-    zoom_info = scale_range(frame, factor, h_axis, v_axis, {x: vx, y: vy})
+    zoom_info = scale_range(frame, factor, h_axis, v_axis, {x: sx, y: sy})
 
     @plot_view.push_state('wheel_zoom', {range: zoom_info})
     @plot_view.update_range(zoom_info, false, true)
-    @plot_view.interactive_timestamp = Date.now()
+    @model.document.interactive_start(@plot_model.plot)
     return null
 
 export class WheelZoomTool extends GestureTool

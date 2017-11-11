@@ -28,7 +28,7 @@ log = logging.getLogger(__name__)
 import os
 import sys
 
-from bokeh.io import set_curdoc, curdoc
+from bokeh.io.doc import set_curdoc, curdoc
 
 from .code_runner import CodeRunner
 from .handler import Handler
@@ -158,7 +158,7 @@ class CodeHandler(Handler):
 
     @property
     def safe_to_fork(self):
-        ''' hether it is still safe for the Bokeh server to fork new workers.
+        ''' Whether it is still safe for the Bokeh server to fork new workers.
 
         ``False`` if the code has already been executed.
 

@@ -14,6 +14,8 @@ export class ActionToolView extends ButtonToolView
 
 export class ActionTool extends ButtonTool
 
+  button_view: ActionToolButtonView
+
   initialize: (attrs, options) ->
     super(attrs, options)
     @do = new Signal(this, "do")

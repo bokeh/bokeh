@@ -31,15 +31,9 @@ export class ColorBarView extends AnnotationView
         @_set_canvas_image()
         @plot_view.request_render()
 
-  _get_panel_offset: () ->
-    # ColorBars draw from the top down, so set the y_panel_offset to _top
-    x = @model.panel._left.value
-    y = @model.panel._top.value
-    return {x: x, y: -y}
-
   _get_size: () ->
     if not @model.color_mapper?
-      return
+      return 0
 
     bbox = @compute_legend_dimensions()
     side = @model.panel.side
@@ -101,44 +95,44 @@ export class ColorBarView extends AnnotationView
     [legend_height, legend_width] = [legend_dimensions.height, legend_dimensions.width]
 
     legend_margin = @model.margin
-    location = @model.location
-    h_range = @plot_view.frame.h_range
-    v_range = @plot_view.frame.v_range
 
+    panel = @model.panel ? @plot_view.frame
+    [hr, vr] = panel.bbox.ranges
+
+    location = @model.location
     if isString(location)
       switch location
         when 'top_left'
-          x = h_range.start + legend_margin
-          y = v_range.end - legend_margin
+          sx = hr.start + legend_margin
+          sy = vr.start + legend_margin
         when 'top_center'
-          x = (h_range.end + h_range.start)/2 - legend_width/2
-          y = v_range.end - legend_margin
+          sx = (hr.end + hr.start)/2 - legend_width/2
+          sy = vr.start + legend_margin
         when 'top_right'
-          x = h_range.end - legend_margin - legend_width
-          y = v_range.end - legend_margin
-        when 'center_right'
-          x = h_range.end - legend_margin - legend_width
-          y = (v_range.end + v_range.start)/2 + legend_height/2
+          sx = hr.end - legend_margin - legend_width
+          sy = vr.start + legend_margin
         when 'bottom_right'
-          x = h_range.end - legend_margin - legend_width
-          y = v_range.start + legend_margin + legend_height
+          sx = hr.end - legend_margin - legend_width
+          sy = vr.end - legend_margin - legend_height
         when 'bottom_center'
-          x = (h_range.end + h_range.start)/2 - legend_width/2
-          y = v_range.start + legend_margin + legend_height
+          sx = (hr.end + hr.start)/2 - legend_width/2
+          sy = vr.end - legend_margin - legend_height
         when 'bottom_left'
-          x = h_range.start + legend_margin
-          y = v_range.start + legend_margin + legend_height
+          sx = hr.start + legend_margin
+          sy = vr.end - legend_margin - legend_height
         when 'center_left'
-          x = h_range.start + legend_margin
-          y = (v_range.end + v_range.start)/2 + legend_height/2
+          sx = hr.start + legend_margin
+          sy = (vr.end + vr.start)/2 - legend_height/2
         when 'center'
-          x = (h_range.end + h_range.start)/2 - legend_width/2
-          y = (v_range.end + v_range.start)/2 + legend_height/2
+          sx = (hr.end + hr.start)/2 - legend_width/2
+          sy = (vr.end + vr.start)/2 - legend_height/2
+        when 'center_right'
+          sx = hr.end - legend_margin - legend_width
+          sy = (vr.end + vr.start)/2 - legend_height/2
     else if isArray(location) and location.length == 2
-      [x, y] = location
-
-    sx = @plot_view.canvas.vx_to_sx(x)
-    sy = @plot_view.canvas.vy_to_sy(y)
+      [vx, vy] = location
+      sx = panel.xview.compute(vx)
+      sy = panel.yview.compute(vy) - legend_height
 
     return {sx: sx, sy: sy}
 
@@ -149,14 +143,8 @@ export class ColorBarView extends AnnotationView
     ctx = @plot_view.canvas_view.ctx
     ctx.save()
 
-    if @model.panel?
-      panel_offset = @_get_panel_offset()
-      ctx.translate(panel_offset.x, panel_offset.y)
-      frame_offset = @_get_frame_offset()
-      ctx.translate(frame_offset.x, frame_offset.y)
-
-    location = @compute_legend_location()
-    ctx.translate(location.sx, location.sy)
+    {sx, sy} = @compute_legend_location()
+    ctx.translate(sx, sy)
     @_draw_bbox(ctx)
 
     image_offset = @_get_image_offset()
@@ -290,18 +278,6 @@ export class ColorBarView extends AnnotationView
     else
       label_extent = 0
     return label_extent
-
-  _get_frame_offset: () ->
-    # Return frame offset relative to plot so that colorbar can align with frame
-    [xoff, yoff] = [0, 0]
-    panel = @model.panel
-    frame = @plot_view.frame
-
-    switch panel.side
-      when "left", "right" then yoff = Math.abs(panel._top.value - frame._top.value)
-      when "above", "below" then xoff = Math.abs(frame._left.value)
-
-    return {x: xoff, y: yoff}
 
   _get_image_offset: () ->
     # Returns image offset relative to legend bounding box

@@ -46,9 +46,9 @@ import io
 import os
 import warnings
 
-from bokeh.io import _get_svgs
-from bokeh.models import Plot
-from bokeh.util.string import decode_utf8
+from ...io.export import get_svgs
+from ...models.plots import Plot
+from ...util.string import decode_utf8
 from .file_output import FileOutputSubcommand
 
 class SVG(FileOutputSubcommand):
@@ -123,4 +123,4 @@ class SVG(FileOutputSubcommand):
                 plot = layout[0]
                 plot.plot_height = args.height or plot.plot_height
                 plot.plot_width  = args.width or plot.plot_width
-        return _get_svgs(doc, driver=self.driver)
+        return get_svgs(doc, driver=self.driver)

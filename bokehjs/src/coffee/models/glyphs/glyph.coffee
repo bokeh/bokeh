@@ -1,3 +1,4 @@
+import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import * as bbox from "core/util/bbox"
 import * as proj from "core/util/projections"
@@ -171,9 +172,19 @@ export class GlyphView extends View
 
     return result
 
+  _hit_rect_against_index: (geometry) ->
+    {sx0, sx1, sy0, sy1} = geometry
+    [x0, x1] = @renderer.xscale.r_invert(sx0, sx1)
+    [y0, y1] = @renderer.yscale.r_invert(sy0, sy1)
+    bb = hittest.validate_bbox_coords([x0, x1], [y0, y1])
+    result = hittest.create_hit_test_result()
+    result['1d'].indices = @index.indices(bb)
+    return result
+
   set_data: (source, indices, indices_to_update) ->
     data = @model.materialize_dataspecs(source)
 
+    @visuals.set_all_indices(indices)
     if indices and not (@ instanceof LineView)
       data_subset = {}
       for k, v of data

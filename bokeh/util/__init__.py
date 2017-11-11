@@ -56,14 +56,6 @@ functionality.
 .. automodule:: bokeh.util.logconfig
   :members:
 
-.. _bokeh.util.notebook:
-
-``bokeh.util.notebook``
------------------------
-
-.. automodule:: bokeh.util.notebook
-  :members:
-
 .. _bokeh.util.options:
 
 ``bokeh.util.options``

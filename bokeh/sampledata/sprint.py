@@ -1,9 +1,57 @@
-from __future__ import absolute_import
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
+'''
 
-from bokeh.util.dependencies import import_required
-pd = import_required('pandas',
-              'sprint sample data requires Pandas (http://pandas.pydata.org) to be installed')
+'''
 
-from os.path import dirname, join
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-sprint = pd.read_csv(join(dirname(__file__), 'sprint.csv'), skipinitialspace=True, escapechar="\\")
+import logging
+log = logging.getLogger(__name__)
+
+from bokeh.util.api import public, internal ; public, internal
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
+
+# Bokeh imports
+from ..util.sampledata import package_csv
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'sprint',
+)
+
+#-----------------------------------------------------------------------------
+# Public API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Internal API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
+
+sprint = package_csv('sprint', 'sprint.csv', skipinitialspace=True, escapechar='\\')

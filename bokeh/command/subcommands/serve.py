@@ -299,7 +299,7 @@ from os import getpid
 from ..subcommand import Subcommand
 from ..util import build_single_handler_applications, die, report_server_init_errors
 
-LOGLEVELS = ('debug', 'info', 'warning', 'error', 'critical')
+LOGLEVELS = ('trace', 'debug', 'info', 'warning', 'error', 'critical')
 SESSION_ID_MODES = ('unsigned', 'signed', 'external-signed')
 DEFAULT_LOG_FORMAT = "%(asctime)s %(message)s"
 

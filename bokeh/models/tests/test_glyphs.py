@@ -19,6 +19,7 @@ from bokeh.models.glyphs import (
     Quad, Quadratic, Ray,
     Rect,
     Segment,
+    Step,
     Text,
     VBar,
     Wedge)
@@ -381,6 +382,19 @@ def test_Segment():
         "y0",
         "x1",
         "y1"
+    ], LINE, GLYPH)
+
+
+def test_Step():
+    glyph = Step()
+    assert glyph.x is None
+    assert glyph.y is None
+    assert glyph.mode is "before"
+    check_line_properties(glyph)
+    check_properties_existence(glyph, [
+        "x",
+        "y",
+        "mode",
     ], LINE, GLYPH)
 
 

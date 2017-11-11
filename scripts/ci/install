@@ -4,7 +4,7 @@ set -e # exit on error
 set -x # echo commands
 
 if  [ "${NO_GIT_FETCH}" != "1" ]; then
-    git fetch origin master
+    git fetch --quiet origin master
 fi
 
 # install TravisCI "artifacts" util, see https://github.com/travis-ci/artifacts
@@ -21,7 +21,7 @@ EOF
 echo -e "$PINNED_PKGS" > $HOME/miniconda/conda-meta/pinned
 
 # install conda packages
-conda install --yes python=${PYTHON:-3.6} ${CONDA_REQS}
+conda install --yes --quiet python=${PYTHON:-3.6} ${CONDA_REQS}
 
 # set default conda channels
 conda config --set auto_update_conda off

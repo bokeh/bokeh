@@ -23,9 +23,7 @@ export class CanvasView extends DOMView
   initialize: (options) ->
     super(options)
 
-    @map_el      = if @model.map then @el.appendChild(div({class: "bk-canvas-map"})) else null
-    @events_el   = @el.appendChild(div({class: "bk-canvas-events"}))
-    @overlays_el = @el.appendChild(div({class: "bk-canvas-overlays"}))
+    @map_el = if @model.map then @el.appendChild(div({class: "bk-canvas-map"})) else null
 
     switch @model.output_backend
       when "canvas", "webgl"
@@ -34,6 +32,9 @@ export class CanvasView extends DOMView
       when "svg"
         @_ctx = new canvas2svg()
         @canvas_el = @el.appendChild(@_ctx.getSvg())
+
+    @overlays_el = @el.appendChild(div({class: "bk-canvas-overlays"}))
+    @events_el   = @el.appendChild(div({class: "bk-canvas-events"}))
 
     @ctx = @get_ctx()
     # work around canvas incompatibilities
@@ -91,46 +92,11 @@ export class Canvas extends LayoutCanvas
 
   @internal {
     map:            [ p.Boolean, false ]
-    initial_width:  [ p.Number         ]
-    initial_height: [ p.Number         ]
     use_hidpi:      [ p.Boolean, true  ]
     pixel_ratio:    [ p.Number,  1     ]
     output_backend: [ p.OutputBackend, "canvas"]
   }
 
-  initialize: (attrs, options) ->
-    super(attrs, options)
-    @panel = @
-
-  # transform view coordinates to underlying screen coordinates
-  vx_to_sx: (x) -> x
-
-  vy_to_sy: (y) ->
-    return @_height.value - y
-
-  # vectorized versions of vx_to_sx/vy_to_sy
-  v_vx_to_sx: (xx) ->
-    return new Float64Array(xx)
-
-  v_vy_to_sy: (yy) ->
-    _yy = new Float64Array(yy.length)
-    height = @_height.value
-    for y, idx in yy
-      _yy[idx] = height - y
-    return _yy
-
-  sx_to_vx: (x) -> x
-
-  sy_to_vy: (y) ->
-    return @_height.value - y
-
-  # vectorized versions of sx_to_vx/sy_to_vy
-  v_sx_to_vx: (xx) ->
-    return new Float64Array(xx)
-
-  v_sy_to_vy: (yy) ->
-    _yy = new Float64Array(yy.length)
-    height = @_height.value
-    for y, idx in yy
-      _yy[idx] = height - y
-    return _yy
+  @getters {
+    panel: () -> @
+  }

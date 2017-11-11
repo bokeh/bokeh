@@ -32,6 +32,12 @@ class OpenURL(Callback):
 class CustomJS(Callback):
     ''' Execute a JavaScript function.
 
+    .. warning::
+        The explicit purpose of this Bokeh Model is to embed *raw JavaScript
+        code* for a browser to execute. If any part of the code is derived
+        from untrusted user inputs, then you must take appropriate care to
+        sanitize the user input prior to passing to Bokeh.
+
     '''
 
     @classmethod

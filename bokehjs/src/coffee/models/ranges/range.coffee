@@ -1,15 +1,16 @@
 import {Model} from "../../model"
 import * as p from "core/properties"
+import {isFunction} from "core/util/types"
 
 export class Range extends Model
   type: 'Range'
 
   initialize: (options) ->
     super(options)
-    @connect(@change, () -> @callback?.execute(@))
+    @connect(@change, () -> @_emit_callback())
 
   @define {
-    callback: [ p.Instance ]
+    callback: [ p.Any ] # TODO: p.Either(p.Instance(Callback), p.Function)
   }
 
   @internal {
@@ -22,3 +23,10 @@ export class Range extends Model
     the callback, if exists, is executed at completion.
     """
     @change.emit()
+
+  _emit_callback: () ->
+    if @callback?
+      if isFunction(@callback)
+        @callback(@)
+      else
+        @callback.execute(@)

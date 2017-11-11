@@ -9,7 +9,7 @@ from ..core.property_mixins import LineProps, FillProps
 from ..core.query import find
 from ..core.validation import error, warning
 from ..core.validation.errors import REQUIRED_RANGE, REQUIRED_SCALE, INCOMPATIBLE_SCALE_AND_RANGE
-from ..core.validation.warnings import MISSING_RENDERERS, NO_DATA_RENDERERS, SNAPPED_TOOLBAR_ANNOTATIONS
+from ..core.validation.warnings import MISSING_RENDERERS, NO_DATA_RENDERERS
 from ..util.deprecation import deprecated
 from ..util.plot_utils import _list_attr_splat, _select_helper
 from ..util.string import nice_join
@@ -23,33 +23,28 @@ from .ranges import Range, FactorRange, DataRange1d, Range1d
 from .renderers import DataRenderer, DynamicImageRenderer, GlyphRenderer, Renderer, TileRenderer
 from .scales import Scale, CategoricalScale, LinearScale, LogScale
 from .sources import DataSource, ColumnDataSource
-from .tools import ResizeTool, Tool, Toolbar
+from .tools import Tool, Toolbar
+
+def _check_conflicting_kwargs(a1, a2, kwargs):
+    if a1 in kwargs and a2 in kwargs:
+        raise ValueError("Conflicting properties set on plot: %r and %r" % (a1, a2))
 
 class Plot(LayoutDOM):
     ''' Model representing a plot, containing glyphs, guides, annotations.
 
     '''
 
-    __deprecated_attributes__ = ["webgl", "x_mapper_type", "y_mapper_type", "tool_events"]
-
     def __init__(self, **kwargs):
-        if "toolbar" in kwargs and "logo" in kwargs:
-            raise ValueError("Conflicting properties set on plot: toolbar, logo.")
+        '''
 
-        if "toolbar" in kwargs and "tools" in kwargs:
-            raise ValueError("Conflicting properties set on plot: toolbar, tools.")
+        '''
+        _check_conflicting_kwargs("toolbar", "tools", kwargs)
+        _check_conflicting_kwargs("toolbar", "logo", kwargs)
 
         if "toolbar" not in kwargs:
             tools = kwargs.pop('tools', [])
             logo = kwargs.pop('logo', 'normal')
-
             kwargs["toolbar"] = Toolbar(tools=tools, logo=logo)
-
-        if "x_mapper_type" in kwargs and "x_scale" in kwargs:
-            raise ValueError("Conflicting properties set on plot: x_mapper_type, x_scale.")
-
-        if "y_mapper_type" in kwargs and "y_scale" in kwargs:
-            raise ValueError("Conflicting properties set on plot: y_mapper_type, y_scale")
 
         super(LayoutDOM, self).__init__(**kwargs)
 
@@ -200,6 +195,16 @@ class Plot(LayoutDOM):
     def tools(self, tools):
         self.toolbar.tools = tools
 
+    @property
+    def toolbar_sticky(self):
+        deprecated("Plot.toolbar_sticky property is no longer needed, and its use is deprecated."\
+                   "In the future, accessing Plot.toolbar_sticky will result in an AttributeError.")
+        return True
+
+    @toolbar_sticky.setter
+    def toolbar_sticky(self, val):
+        deprecated("Plot.toolbar_sticky property is no longer needed, and its use is deprecated."\
+                   "In the future, accessing Plot.toolbar_sticky will result in an AttributeError.")
 
     def add_layout(self, obj, place='center'):
         ''' Adds an object to the plot in a specified place.
@@ -240,10 +245,6 @@ class Plot(LayoutDOM):
 
         '''
         for tool in tools:
-            if isinstance(tool, ResizeTool):
-                deprecated("ResizeTool is removed in Bokeh 0.12.7, adding it is a no-op. In the future, accessing ResizeTool will be an error")
-                continue
-
             if not isinstance(tool, Tool):
                 raise ValueError("All arguments to add_tool must be Tool subclasses.")
 
@@ -376,15 +377,6 @@ class Plot(LayoutDOM):
         if len(self.select(DataRenderer)) == 0:
             return str(self)
 
-    @warning(SNAPPED_TOOLBAR_ANNOTATIONS)
-    def _check_snapped_toolbar_and_axis(self):
-        if not self.toolbar_sticky: return
-        if self.toolbar_location is None: return
-
-        objs = getattr(self, self.toolbar_location)
-        if len(objs) > 0:
-            return str(self)
-
     x_range = Instance(Range, help="""
     The (default) data range of the horizontal dimension of the plot.
     """)
@@ -403,51 +395,6 @@ class Plot(LayoutDOM):
             return CategoricalScale()
         else:
             raise ValueError("Unknown mapper_type: %s" % scale)
-
-    @property
-    def x_mapper_type(self):
-        deprecated((0, 12, 6), "x_mapper_type", "x_scale")
-        return self.x_scale
-
-    @x_mapper_type.setter
-    def x_mapper_type(self, mapper_type):
-        deprecated((0, 12, 6), "x_mapper_type", "x_scale")
-        self.x_scale = self._scale(mapper_type)
-
-    @property
-    def y_mapper_type(self):
-        deprecated((0, 12, 6), "y_mapper_type", "y_scale")
-        return self.y_scale
-
-    @y_mapper_type.setter
-    def y_mapper_type(self, mapper_type):
-        deprecated((0, 12, 6), "y_mapper_type", "y_scale")
-        self.y_scale = self._scale(mapper_type)
-
-    @property
-    def tool_events(self):
-        deprecated((0, 12, 7), "tool_events", "bokeh.events.SelectionGeometry")
-        return None
-
-    @tool_events.setter
-    def tool_events(self, tool_events):
-        deprecated((0, 12, 7), "tool_events", "bokeh.events.SelectionGeometry")
-        pass
-
-    @property
-    def webgl(self):
-        deprecated((0, 12, 6), "webgl", "output_backend")
-        return self.output_backend == "webgl"
-
-    @webgl.setter
-    def webgl(self, webgl):
-        deprecated((0, 12, 6), "webgl", "output_backend")
-        if not isinstance(webgl, bool):
-            raise ValueError('Attribute "webgl" must be a boolean')
-        if webgl is True:
-            self.output_backend = "webgl"
-        else:
-            self.output_backend = "canvas"
 
     x_scale = Instance(Scale, default=lambda: LinearScale(), help="""
     What kind of scale to use to convert x-coordinates in data space
@@ -500,9 +447,8 @@ class Plot(LayoutDOM):
     """)
 
     toolbar = Instance(Toolbar, help="""
-        The toolbar associated with this plot which holds all the tools.
-
-        The toolbar is automatically created with the plot.
+    The toolbar associated with this plot which holds all the tools. It is
+    automatically created with the plot if necessary.
     """)
 
     toolbar_location = Enum(Location, default="right", help="""

@@ -32,7 +32,7 @@ export class RendererView extends DOMView
         [@_xs, @_ys] = proj.project_xsys(@_xs, @_ys)
 
   map_to_screen: (x, y) ->
-    @plot_view.map_to_screen(x, y, @model.x_range_name, @model.y_range_name)
+    return @plot_view.map_to_screen(x, y, @model.x_range_name, @model.y_range_name)
 
 export class Renderer extends Model
   type: "Renderer"
