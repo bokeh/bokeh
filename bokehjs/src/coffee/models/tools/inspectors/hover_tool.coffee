@@ -260,7 +260,7 @@ export class HoverToolView extends InspectToolView
           index = i
         vars = {index: index, x: x, y: y, sx: sx, sy: sy, data_x: data_x, data_y: data_y}
 
-        tooltip.add(rx, ry, @_render_tooltips(ds, i, vars))
+        tooltip.add(rx, ry, @_render_tooltips(ds, index, vars))
 
     return null
 
