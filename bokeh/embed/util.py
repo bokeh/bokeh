@@ -141,11 +141,11 @@ def html_page_for_render_items(bundle, docs_json, render_items, title,
     bokeh_js, bokeh_css = bundle
 
     json_id = make_id()
-    json = escape(serialize_json(docs_json))
+    json = escape(serialize_json(docs_json), quote=False)
     json = wrap_in_script_tag(json, "application/json", json_id)
 
     script = bundle_all_models()
-    script += script_for_render_items("#" + json_id, render_items)
+    script += script_for_render_items(json_id, render_items)
     script = wrap_in_script_tag(script)
 
     template_variables_full = template_variables.copy()
@@ -162,13 +162,22 @@ def html_page_for_render_items(bundle, docs_json, render_items, title,
     return encode_utf8(html)
 
 @internal((1,0,0))
-def script_for_render_items(docs_json, render_items, app_path=None, absolute_url=None):
+def script_for_render_items(docs_json_or_id, render_items, app_path=None, absolute_url=None):
     '''
 
     '''
+    if isinstance(docs_json_or_id, string_types):
+        docs_json = "document.getElementById('%s').textContent" % docs_json_or_id
+    else:
+        # XXX: encodes &, <, > and ', but not ". This is because " is used a lot in JSON,
+        # and encoding it would significantly increase size of generated files. Doing so
+        # is safe, because " in strings was already encoded by JSON, and the semi-encoded
+        # JSON string is included in JavaScript in single quotes.
+        docs_json =  "'" + escape(serialize_json(docs_json_or_id, pretty=False), quote=("'",)) + "'"
+
     js = DOC_JS.render(
-        docs_json=serialize_json(docs_json),
-        render_items=serialize_json(render_items),
+        docs_json=docs_json,
+        render_items=serialize_json(render_items, pretty=False),
         app_path=app_path,
         absolute_url=absolute_url,
     )
@@ -240,11 +249,23 @@ def wrap_in_script_tag(js, type="text/javascript", id=None):
     '''
     return SCRIPT_TAG.render(js_code=indent(js, 2), type=type, id=id)
 
+# based on `html` stdlib module (3.2+)
 @internal((1,0,0))
-def escape(s):
+def escape(s, quote=("'", '"')):
+    """
+    Replace special characters "&", "<" and ">" to HTML-safe sequences.
+    If the optional flag quote is true (the default), the quotation mark
+    characters, both double quote (") and single quote (') characters are also
+    translated.
+    """
     s = s.replace("&", "&amp;")
     s = s.replace("<", "&lt;")
     s = s.replace(">", "&gt;")
+    if quote:
+        if '"' in quote:
+            s = s.replace('"', "&quot;")
+        if "'" in quote:
+            s = s.replace("'", "&#x27;")
     return s
 
 #-----------------------------------------------------------------------------
@@ -258,13 +279,14 @@ _ONLOAD = """\
   };
   if (document.readyState != "loading") fn();
   else document.addEventListener("DOMContentLoaded", fn);
-})();
+})();\
 """
 
 _SAFELY = """\
 Bokeh.safely(function() {
 %(code)s
-});"""
+});\
+"""
 
 #-----------------------------------------------------------------------------
 # Code

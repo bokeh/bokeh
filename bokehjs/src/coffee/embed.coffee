@@ -185,10 +185,7 @@ export embed_items = (docs_json, render_items, app_path, absolute_url) ->
   logger.debug("embed: computed ws url: #{websocket_url}")
 
   if isString(docs_json)
-    if docs_json[0] == "#"
-      script = document.getElementById(docs_json.slice(1))
-      docs_json = unescape(script.textContent)
-    docs_json = JSON.parse(docs_json)
+    docs_json = JSON.parse(unescape(docs_json))
 
   docs = {}
   for docid of docs_json
