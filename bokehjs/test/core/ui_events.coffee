@@ -30,18 +30,14 @@ describe "ui_events module", ->
     utils.stub_canvas()
     sinon.stub(UIEvents.prototype, "_configure_hammerjs")
 
-    @toolbar = new Toolbar()
-    canvas = new Canvas()
-    canvas.document = new Document()
+    doc = new Document()
     @plot = new Plot({
       x_range: new Range1d({start: 0, end: 1})
       y_range: new Range1d({start: 0, end: 1})
-      toolbar: @toolbar
     })
-    canvas.document.add_root(@plot)
-    @plot_view = new @plot.default_view({model: @plot, parent: null})
-    @plot.plot_canvas.attach_document(canvas.document)
-    @plot_canvas_view = new @plot.plot_canvas.default_view({ model: @plot.plot_canvas, parent: @plot_view })
+    doc.add_root(@plot)
+    plot_view = new @plot.default_view({model: @plot, parent: null})
+    @plot_canvas_view = plot_view.plot_canvas_view
     @ui_events = @plot_canvas_view.ui_event_bus
 
   describe "_trigger method", ->
