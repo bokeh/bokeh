@@ -48,7 +48,8 @@ class DirectoryHandler(Handler):
 
     def __init__(self, *args, **kwargs):
         '''
-
+        Keywords:
+            filename (str) : a path to an application directory with either "main.py" or "main.ipynb"
         '''
         super(DirectoryHandler, self).__init__(*args, **kwargs)
 
