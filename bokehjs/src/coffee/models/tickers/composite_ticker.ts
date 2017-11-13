@@ -7,6 +7,8 @@ import {isEmpty} from "core/util/object"
 // for a given range.
 export class CompositeTicker extends ContinuousTicker {
 
+  tickers: ContinuousTicker[]
+
   // The tickers should be in order of increasing interval size; specifically,
   // if S comes before T, then it should be the case that
   // S.get_max_interval() < T.get_min_interval().
@@ -17,7 +19,7 @@ export class CompositeTicker extends ContinuousTicker {
   get min_interval() { return this.min_intervals[0] }
   get max_interval() { return this.max_intervals[0] }
 
-  get_best_ticker(data_low, data_high, desired_n_ticks) {
+  get_best_ticker(data_low: number, data_high: number, desired_n_ticks: number) {
     const data_range = data_high - data_low
     const ideal_interval = this.get_ideal_interval(data_low, data_high, desired_n_ticks)
     const ticker_ndxs = [
@@ -38,23 +40,22 @@ export class CompositeTicker extends ContinuousTicker {
       // this can happen if the data isn't loaded yet, we just default to the first scale
       best_ticker = this.tickers[0]
     } else {
-      best_index = argmin(errors)
-      best_ticker_ndx = ticker_ndxs[best_index]
+      const best_index = argmin(errors)
+      const best_ticker_ndx = ticker_ndxs[best_index]
       best_ticker = this.tickers[best_ticker_ndx]
     }
 
     return best_ticker
   }
 
-  get_interval(data_low, data_high, desired_n_ticks) {
+  get_interval(data_low: number, data_high: number, desired_n_ticks: number) {
     const best_ticker = this.get_best_ticker(data_low, data_high, desired_n_ticks)
     return best_ticker.get_interval(data_low, data_high, desired_n_ticks)
   }
 
-  get_ticks_no_defaults(data_low, data_high, cross_loc, desired_n_ticks) {
+  get_ticks_no_defaults(data_low: number, data_high: number, cross_loc: any, desired_n_ticks: number) {
     const best_ticker = this.get_best_ticker(data_low, data_high, desired_n_ticks)
-    ticks = best_ticker.get_ticks_no_defaults(data_low, data_high, cross_loc, desired_n_ticks)
-    return ticks
+    return best_ticker.get_ticks_no_defaults(data_low, data_high, cross_loc, desired_n_ticks)
   }
 }
 

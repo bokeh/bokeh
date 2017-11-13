@@ -29,6 +29,8 @@ function date_range_by_year(start_time: number, end_time: number): Date[] {
 // April, July, and October of each year.
 export class MonthsTicker extends SingleIntervalTicker {
 
+  months: number[]
+
   initialize(attrs?: any, options?: any) {
     super.initialize(attrs, options)
     const months = this.months
@@ -38,7 +40,7 @@ export class MonthsTicker extends SingleIntervalTicker {
       this.interval = 12*ONE_MONTH
   }
 
-  get_ticks_no_defaults(data_low, data_high, cross_loc, desired_n_ticks) {
+  get_ticks_no_defaults(data_low: number, data_high: number, _cross_loc: any, _desired_n_ticks: number) {
     const year_dates = date_range_by_year(data_low, data_high)
 
     const months = this.months

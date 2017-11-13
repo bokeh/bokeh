@@ -8,7 +8,7 @@ export class SingleIntervalTicker extends ContinuousTicker {
 
   interval: number
 
-  get_interval(data_low, data_high, n_desired_ticks) {
+  get_interval(_data_low: number, _data_high: number, _n_desired_ticks: number) {
     return this.interval
   }
 

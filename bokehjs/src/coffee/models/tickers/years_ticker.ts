@@ -4,13 +4,15 @@ import {last_year_no_later_than, ONE_YEAR} from "./util"
 
 export class YearsTicker extends SingleIntervalTicker {
 
+  protected basic_ticker: BasicTicker
+
   initialize(attrs?: any, options?: any) {
     super.initialize(attrs, options)
     this.interval = ONE_YEAR
     this.basic_ticker = new BasicTicker({num_minor_ticks: 0})
   }
 
-  get_ticks_no_defaults(data_low, data_high, cross_loc, desired_n_ticks) {
+  get_ticks_no_defaults(data_low: number, data_high: number, cross_loc: any, desired_n_ticks: number) {
     const start_year = last_year_no_later_than(new Date(data_low)).getUTCFullYear()
     const end_year = last_year_no_later_than(new Date(data_high)).getUTCFullYear()
 

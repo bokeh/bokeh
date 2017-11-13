@@ -1,18 +1,19 @@
-import {logger} from "core/logging"
 import {range} from "core/util/array"
 import {AdaptiveTicker} from "./adaptive_ticker"
 
 export class LogTicker extends AdaptiveTicker {
 
-  get_ticks_no_defaults(data_low, data_high, cross_loc, desired_n_ticks) {
-    num_minor_ticks = this.num_minor_ticks
-    minor_ticks = []
+  get_ticks_no_defaults(data_low: number, data_high: number, _cross_loc: any, desired_n_ticks: number) {
+    const num_minor_ticks = this.num_minor_ticks
+    const minor_ticks = []
 
-    base = this.base
+    const base = this.base
 
-    log_low = Math.log(data_low) / Math.log(base)
-    log_high = Math.log(data_high) / Math.log(base)
-    log_interval = log_high - log_low
+    const log_low = Math.log(data_low) / Math.log(base)
+    const log_high = Math.log(data_high) / Math.log(base)
+    const log_interval = log_high - log_low
+
+    let ticks: number[]
 
     if (!isFinite(log_interval)) {
       ticks = []
@@ -21,7 +22,7 @@ export class LogTicker extends AdaptiveTicker {
       const start_factor = Math.floor(data_low / interval)
       const end_factor   = Math.ceil(data_high / interval)
 
-      const ticks = range(start_factor, end_factor + 1)
+      ticks = range(start_factor, end_factor + 1)
         .filter((factor) => factor != 0)
         .map((factor) => factor*interval)
         .filter((tick) => data_low <= tick && tick <= data_high)
@@ -29,7 +30,7 @@ export class LogTicker extends AdaptiveTicker {
       if (num_minor_ticks > 0 && ticks.length > 0) {
         const minor_interval = interval / num_minor_ticks
         const minor_offsets = range(0, num_minor_ticks).map((i) => i*minor_interval)
-        for (const x of minor_offsets[1..minor_offsets.length]) {
+        for (const x of minor_offsets.slice(1)) {
           minor_ticks.push(ticks[0] - x)
         }
         for (const tick of ticks) {
@@ -43,13 +44,13 @@ export class LogTicker extends AdaptiveTicker {
       const endlog = Math.floor(log_high * 1.000001)
       const interval = Math.ceil((endlog - startlog) / 9.0)
 
-      const ticks = range(startlog, endlog + 1, interval)
+      ticks = range(startlog, endlog + 1, interval)
         .map((i) => Math.pow(base, i))
         .filter((tick) => data_low <= tick && tick <= data_high)
 
       if (num_minor_ticks > 0 && ticks.length > 0) {
         const minor_interval = Math.pow(base, interval) / num_minor_ticks
-        const minor_offsets = until(1, num_minor_ticks).map((i) => i*minor_interval)
+        const minor_offsets = range(1, num_minor_ticks+1).map((i) => i*minor_interval)
         for (const x of minor_offsets) {
           minor_ticks.push(ticks[0] / x)
         }

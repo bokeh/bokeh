@@ -5,7 +5,7 @@ import {CompositeTicker} from "./composite_ticker"
 import {DaysTicker} from "./days_ticker"
 import {MonthsTicker} from "./months_ticker"
 import {YearsTicker} from "./years_ticker"
-import {ONE_MILLI,ONE_SECOND,ONE_MINUTE,ONE_HOUR,ONE_MONTH} from "./util"
+import {ONE_MILLI,ONE_SECOND,ONE_MINUTE,ONE_HOUR} from "./util"
 
 // This is a decent ticker for time data (in milliseconds).
 // It could certainly be improved:

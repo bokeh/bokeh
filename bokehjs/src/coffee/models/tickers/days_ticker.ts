@@ -32,6 +32,8 @@ function date_range_by_month(start_time: number, end_time: number): Date[] {
 // month.
 export class DaysTicker extends SingleIntervalTicker {
 
+  days: number[]
+
   initialize(attrs?: any, options?: any) {
     attrs.num_minor_ticks = 0
     super.initialize(attrs, options)
@@ -42,11 +44,11 @@ export class DaysTicker extends SingleIntervalTicker {
       this.interval = 31*ONE_DAY
   }
 
-  get_ticks_no_defaults(data_low, data_high, cross_loc, desired_n_ticks) {
+  get_ticks_no_defaults(data_low: number, data_high: number, _cross_loc: any, _desired_n_ticks: number) {
     const month_dates = date_range_by_month(data_low, data_high)
 
     const days = this.days
-    const days_of_month = (month_date, interval) => {
+    const days_of_month = (month_date: Date, interval: number) => {
       const dates = []
       for (const day of days) {
         const day_date = copy_date(month_date)
@@ -68,7 +70,7 @@ export class DaysTicker extends SingleIntervalTicker {
 
     const all_ticks = day_dates.map((day_date) => day_date.getTime())
     // FIXME Since the ticks are sorted, this could be done more efficiently.
-    const ticks_in_range = all_ticks.filter((tick) => data_low <= tick <= data_high)
+    const ticks_in_range = all_ticks.filter((tick) => data_low <= tick && tick <= data_high)
 
     return {
       major: ticks_in_range,

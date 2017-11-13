@@ -28,18 +28,18 @@ export function copy_date(date: Date): Date {
 
 // Rounds a date down to the month.
 export function last_month_no_later_than(date: Date): Date {
-  const date = copy_date(date)
-  date.setUTCDate(1)
-  date.setUTCHours(0)
-  date.setUTCMinutes(0)
-  date.setUTCSeconds(0)
-  date.setUTCMilliseconds(0)
-  return date
+  const new_date = copy_date(date)
+  new_date.setUTCDate(1)
+  new_date.setUTCHours(0)
+  new_date.setUTCMinutes(0)
+  new_date.setUTCSeconds(0)
+  new_date.setUTCMilliseconds(0)
+  return new_date
 }
 
 // Rounds a date down to the year.
 export function last_year_no_later_than(date: Date): Date {
-  const date = last_month_no_later_than(date)
-  date.setUTCMonth(0)
-  return date
+  const new_date = last_month_no_later_than(date)
+  new_date.setUTCMonth(0)
+  return new_date
 }

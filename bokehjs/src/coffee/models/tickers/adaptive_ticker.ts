@@ -17,6 +17,13 @@ function log(x: number, base=Math.E): number {
 // following:
 // ..., 0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100, ...
 export class AdaptiveTicker extends ContinuousTicker {
+
+  base: number
+  mantissas: number[]
+
+  protected extended_mantissas: number[]
+  protected base_factor: number
+
   // These arguments control the range of possible intervals.  The interval I
   // returned by get_interval() will be the one that most closely matches the
   // desired number of ticks, subject to the following constraints:
@@ -35,17 +42,17 @@ export class AdaptiveTicker extends ContinuousTicker {
     this.base_factor = this.get_min_interval() === 0.0 ? 1.0 : this.get_min_interval()
   }
 
-  get_interval(data_low, data_high, desired_n_ticks) {
+  get_interval(data_low: number, data_high: number, desired_n_ticks: number) {
     const data_range = data_high - data_low
     const ideal_interval = this.get_ideal_interval(data_low, data_high, desired_n_ticks)
 
     const interval_exponent = Math.floor(log(ideal_interval / this.base_factor, this.base))
     const ideal_magnitude = Math.pow(this.base, interval_exponent) * this.base_factor
-    const ideal_mantissa = ideal_interval / ideal_magnitude
 
     // An untested optimization.
-    //   index = sortedIndex(@extended_mantissas, ideal_mantissa)
-    //   candidate_mantissas = @extended_mantissas[index..index + 1]
+    //   const ideal_mantissa = ideal_interval / ideal_magnitude
+    //   index = sortedIndex(this.extended_mantissas, ideal_mantissa)
+    //   candidate_mantissas = this.extended_mantissas[index..index + 1]
     const candidate_mantissas = this.extended_mantissas
 
     const errors = candidate_mantissas.map((mantissa) => {
