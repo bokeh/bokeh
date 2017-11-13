@@ -41,6 +41,9 @@ from .state import curstate
 def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="localhost:8888"):
     ''' Immediately display a Bokeh object or application.
 
+        :func:`show` may be called multiple times in a single Jupyter notebook
+        cell to display multiple objects. The objects are displayed in order.
+
     Args:
         obj (LayoutDOM or Application) :
             A Bokeh object to display.
