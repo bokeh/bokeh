@@ -1,3 +1,4 @@
+### XXX: testing an abstract class like this doesn't make sense
 {expect} = require "chai"
 sinon = require 'sinon'
 utils = require "../../utils"
@@ -52,3 +53,4 @@ describe "Ticker Model", ->
     ticks = ticker.get_ticks(NaN, NaN, null, null, {})
     expect(ticks.major).to.be.deep.equal([ ])
     expect(ticks.minor).to.be.deep.equal([ ])
+###
