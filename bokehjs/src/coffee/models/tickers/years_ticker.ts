@@ -1,28 +1,29 @@
 import {BasicTicker} from "./basic_ticker"
 import {SingleIntervalTicker} from "./single_interval_ticker"
-import * as util from "./util"
+import {last_year_no_later_than, ONE_YEAR} from "./util"
 
-last_year_no_later_than = util.last_year_no_later_than
-ONE_YEAR = util.ONE_YEAR
+export class YearsTicker extends SingleIntervalTicker {
 
-export class YearsTicker extends SingleIntervalTicker
-  type: 'YearsTicker'
+  initialize(attrs?: any, options?: any) {
+    super.initialize(attrs, options)
+    this.interval = ONE_YEAR
+    this.basic_ticker = new BasicTicker({num_minor_ticks: 0})
+  }
 
-  initialize: (attrs, options) ->
-    super(attrs, options)
-    @interval = ONE_YEAR
-    @basic_ticker = new BasicTicker({num_minor_ticks:0})
+  get_ticks_no_defaults(data_low, data_high, cross_loc, desired_n_ticks) {
+    const start_year = last_year_no_later_than(new Date(data_low)).getUTCFullYear()
+    const end_year = last_year_no_later_than(new Date(data_high)).getUTCFullYear()
 
-  get_ticks_no_defaults: (data_low, data_high, cross_loc, desired_n_ticks) ->
-    start_year = last_year_no_later_than(new Date(data_low)).getUTCFullYear()
-    end_year = last_year_no_later_than(new Date(data_high)).getUTCFullYear()
+    const years = this.basic_ticker.get_ticks_no_defaults(start_year, end_year, cross_loc, desired_n_ticks).major
 
-    years = @basic_ticker.get_ticks_no_defaults(start_year, end_year, cross_loc, desired_n_ticks).major
-
-    all_ticks = (Date.UTC(year, 0, 1) for year in years)
-    ticks_in_range = all_ticks.filter((tick) -> data_low <= tick <= data_high)
+    const all_ticks = years.map((year) => Date.UTC(year, 0, 1))
+    const ticks_in_range = all_ticks.filter((tick) => data_low <= tick && tick <= data_high)
 
     return {
-      major: ticks_in_range
-      minor: []
+      major: ticks_in_range,
+      minor: [],
     }
+  }
+}
+
+YearsTicker.prototype.type = "YearsTicker"

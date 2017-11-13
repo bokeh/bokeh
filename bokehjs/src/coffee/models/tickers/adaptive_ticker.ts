@@ -2,62 +2,67 @@ import {ContinuousTicker} from "./continuous_ticker"
 import * as p from "core/properties"
 import {argmin, nth} from "core/util/array"
 
-# Forces a number x into a specified range [min_val, max_val].
-clamp = (x, min_val, max_val) ->
+// Forces a number x into a specified range [min_val, max_val].
+function clamp(x: number, min_val: number, max_val: number): number {
   return Math.max(min_val, Math.min(max_val, x))
+}
 
-# A log function with an optional base.
-log = (x, base=Math.E) ->
+// A log function with an optional base.
+function log(x: number, base=Math.E): number {
   return Math.log(x) / Math.log(base)
+}
 
-# This Ticker produces nice round ticks at any magnitude.
-# AdaptiveTicker([1, 2, 5]) will choose the best tick interval from the
-# following:
-# ..., 0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100, ...
-export class AdaptiveTicker extends ContinuousTicker
-  type: 'AdaptiveTicker'
+// This Ticker produces nice round ticks at any magnitude.
+// AdaptiveTicker([1, 2, 5]) will choose the best tick interval from the
+// following:
+// ..., 0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100, ...
+export class AdaptiveTicker extends ContinuousTicker {
+  // These arguments control the range of possible intervals.  The interval I
+  // returned by get_interval() will be the one that most closely matches the
+  // desired number of ticks, subject to the following constraints:
+  // I = (M * B^N), where
+  // M is a member of mantissas,
+  // B is base,
+  // and N is an integer;
+  // and min_interval <= I <= max_interval.
+  initialize(attrs?: any, options?: any) {
+    super.initialize(attrs, options)
 
-  @define {
-      base:         [ p.Number, 10.0      ]
-      mantissas:    [ p.Array,  [1, 2, 5] ]
-      min_interval: [ p.Number, 0.0       ]
-      max_interval: [ p.Number            ]
-    }
+    const prefix_mantissa = nth(this.mantissas, -1) / this.base
+    const suffix_mantissa = nth(this.mantissas,  0) * this.base
+    this.extended_mantissas = [prefix_mantissa, ...this.mantissas, suffix_mantissa]
 
-  # These arguments control the range of possible intervals.  The interval I
-  # returned by get_interval() will be the one that most closely matches the
-  # desired number of ticks, subject to the following constraints:
-  # I = (M * B^N), where
-  # M is a member of mantissas,
-  # B is base,
-  # and N is an integer;
-  # and min_interval <= I <= max_interval.
-  initialize: (attrs, options) ->
-    super(attrs, options)
+    this.base_factor = this.get_min_interval() === 0.0 ? 1.0 : this.get_min_interval()
+  }
 
-    prefix_mantissa = nth(@mantissas, -1) / @base
-    suffix_mantissa = nth(@mantissas,  0) * @base
-    @extended_mantissas = [prefix_mantissa, @mantissas..., suffix_mantissa]
+  get_interval(data_low, data_high, desired_n_ticks) {
+    const data_range = data_high - data_low
+    const ideal_interval = this.get_ideal_interval(data_low, data_high, desired_n_ticks)
 
-    @base_factor = if @get_min_interval() == 0.0 then 1.0 else @get_min_interval()
+    const interval_exponent = Math.floor(log(ideal_interval / this.base_factor, this.base))
+    const ideal_magnitude = Math.pow(this.base, interval_exponent) * this.base_factor
+    const ideal_mantissa = ideal_interval / ideal_magnitude
 
-  get_interval: (data_low, data_high, desired_n_ticks) ->
-    data_range = data_high - data_low
-    ideal_interval = @get_ideal_interval(data_low, data_high, desired_n_ticks)
+    // An untested optimization.
+    //   index = sortedIndex(@extended_mantissas, ideal_mantissa)
+    //   candidate_mantissas = @extended_mantissas[index..index + 1]
+    const candidate_mantissas = this.extended_mantissas
 
-    interval_exponent = Math.floor(log(ideal_interval / @base_factor, @base))
-    ideal_magnitude = Math.pow(@base, interval_exponent) * @base_factor
-    ideal_mantissa = ideal_interval / ideal_magnitude
+    const errors = candidate_mantissas.map((mantissa) => {
+      return Math.abs(desired_n_ticks - (data_range / (mantissa * ideal_magnitude)))
+    })
+    const best_mantissa = candidate_mantissas[argmin(errors)]
+    const interval = best_mantissa*ideal_magnitude
 
-    # An untested optimization.
-#       index = sortedIndex(@extended_mantissas, ideal_mantissa)
-#       candidate_mantissas = @extended_mantissas[index..index + 1]
-    candidate_mantissas = @extended_mantissas
+    return clamp(interval, this.get_min_interval(), this.get_max_interval())
+  }
+}
 
-    errors = candidate_mantissas.map((mantissa) ->
-      Math.abs(desired_n_ticks - (data_range / (mantissa * ideal_magnitude))))
-    best_mantissa = candidate_mantissas[argmin(errors)]
+AdaptiveTicker.prototype.type = "AdaptiveTicker"
 
-    interval = best_mantissa * ideal_magnitude
-
-    return clamp(interval, @get_min_interval(), @get_max_interval())
+AdaptiveTicker.define({
+  base:         [ p.Number, 10.0      ],
+  mantissas:    [ p.Array,  [1, 2, 5] ],
+  min_interval: [ p.Number, 0.0       ],
+  max_interval: [ p.Number            ],
+})
