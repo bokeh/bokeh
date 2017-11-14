@@ -119,6 +119,7 @@ export class Document
 
   constructor: () ->
     documents.push(this)
+    @_init_timestamp = Date.now()
     @_title = DEFAULT_TITLE
     @_roots = []
     @_all_models = {}
@@ -149,6 +150,7 @@ export class Document
     @_idle_roots.set(model, true)
 
     if @is_idle
+      logger.info("document idle at #{Date.now() - @_init_timestamp} ms")
       @idle.emit()
 
   clear : () ->

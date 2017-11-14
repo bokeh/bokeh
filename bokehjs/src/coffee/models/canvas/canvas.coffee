@@ -72,17 +72,19 @@ export class CanvasView extends DOMView
     if width == 0 or height == 0
       return
 
-    if @_width_constraint? and @solver.has_constraint(@_width_constraint)
-      @solver.remove_constraint(@_width_constraint)
+    if width != @model._width.value
+      if @_width_constraint? and @solver.has_constraint(@_width_constraint)
+        @solver.remove_constraint(@_width_constraint)
 
-    if @_height_constraint? and @solver.has_constraint(@_height_constraint)
-      @solver.remove_constraint(@_height_constraint)
+      @_width_constraint = EQ(@model._width, -width)
+      @solver.add_constraint(@_width_constraint)
 
-    @_width_constraint = EQ(@model._width, -width)
-    @solver.add_constraint(@_width_constraint)
+    if height != @model._height.value
+      if @_height_constraint? and @solver.has_constraint(@_height_constraint)
+        @solver.remove_constraint(@_height_constraint)
 
-    @_height_constraint = EQ(@model._height, -height)
-    @solver.add_constraint(@_height_constraint)
+      @_height_constraint = EQ(@model._height, -height)
+      @solver.add_constraint(@_height_constraint)
 
     @solver.update_variables()
 
