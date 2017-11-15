@@ -60,7 +60,7 @@
       return
     }
 
-    var toinsert = output_area.element.find(`.${CLASS_NAME.split(' ')[0]}`);
+    var toinsert = output_area.element.find("." + CLASS_NAME.split(' ')[0]);
 
     if (output.metadata[EXEC_MIME_TYPE]["id"] !== undefined) {
       toinsert[0].firstChild.textContent = output.data[JS_MIME_TYPE];
