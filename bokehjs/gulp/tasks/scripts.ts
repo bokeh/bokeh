@@ -3,7 +3,8 @@ import * as gutil from "gulp-util"
 import * as rename from "gulp-rename"
 const change = require("gulp-change")
 import chalk from "chalk"
-const uglify = require("gulp-uglify")
+const uglify_es = require("uglify-es")
+const uglify = require("gulp-uglify/composer")
 import * as sourcemaps from "gulp-sourcemaps"
 import * as paths from "../paths"
 import * as fs from "fs"
@@ -18,6 +19,8 @@ const license = `/*!\n${fs.readFileSync('../LICENSE.txt', 'utf-8')}*/\n`
 
 const coffee = require('gulp-coffee')
 const ts = require('gulp-typescript')
+
+const minify = uglify(uglify_es, console)
 
 import {Linker} from "../linker"
 
@@ -68,8 +71,6 @@ gulp.task("scripts:ts", () => {
     .pipe(gulp.dest(paths.build_dir.tree_ts))
 })
 
-const tsconfig = require(join(paths.src_dir.coffee, "tsconfig.json"))
-
 gulp.task("scripts:tsjs", ["scripts:coffee", "scripts:js", "scripts:ts"], () => {
   function error(err: {message: string}) {
     const raw = stripAnsi(err.message)
@@ -108,6 +109,14 @@ gulp.task("scripts:tsjs", ["scripts:coffee", "scripts:js", "scripts:ts"], () => 
     }
 
     gutil.log(err.message)
+  }
+
+  const tsconfig = require(join(paths.src_dir.coffee, "tsconfig.json"))
+  let compilerOptions = tsconfig.compilerOptions
+
+  if (argv.es6) {
+    compilerOptions.target = "ES6"
+    compilerOptions.lib[0] = "es6"
   }
 
   const tree_ts = paths.build_dir.tree_ts
@@ -157,7 +166,7 @@ gulp.task("scripts:minify", ["scripts:bundle"], () => {
   return gulp.src(`${paths.build_dir.js}/!(*.min|compiler).js`)
     .pipe(sourcemaps.init({loadMaps: true}))
     .pipe(rename((path) => path.basename += '.min'))
-    .pipe(uglify({ output: { comments: /^!|copyright|license|\(c\)/i } }))
+    .pipe(minify({ output: { comments: /^!|copyright|license|\(c\)/i } }))
     .pipe(insert.append(license))
     .pipe(sourcemaps.write("."))
     .pipe(gulp.dest(paths.build_dir.js))
