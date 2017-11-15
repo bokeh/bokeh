@@ -12,7 +12,7 @@ The directory may also optionally contain:
 * A ``theme.yaml`` file containing a Bokeh theme to automatically apply to
   all new documents.
 
-* A ``tempates`` subdirectory containing templates for app display
+* A ``templates`` subdirectory containing templates for app display
 
 A full directory layout might look like:
 
@@ -50,6 +50,8 @@ class DirectoryHandler(Handler):
         '''
         Keywords:
             filename (str) : a path to an application directory with either "main.py" or "main.ipynb"
+
+            argv (list[str], optional) : a list of string arguments to make available as sys.argv to main.py
         '''
         super(DirectoryHandler, self).__init__(*args, **kwargs)
 
