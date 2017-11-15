@@ -92,7 +92,13 @@ accomplished with the |multi_line| glyph method:
 
 .. note::
     This glyph is unlike most other glyphs. Instead of accepting a one
-    dimensional list or array of scalar values, it accepts a "list of lists".
+    dimensional list or array of scalar values, it accepts a "list of lists"
+    for x and y positions of each line, parameters xs and ys. multi_line
+    also expects a scalar value or a list of scalers per each line for
+    parameters such as color, alpha, linewidth, etc. Similarily, a
+    ColumnDataSource may be used consisting of a "list of lists" and a
+    lists of scalars where the length of the list of scalars and length of
+    lists must match.
 
 Missing Points
 ''''''''''''''
@@ -163,15 +169,21 @@ glyph from one dimensional sequences of *x* and *y* points using the
 Multiple Patches
 ''''''''''''''''
 
-Sometimes it is useful to plot multiple lines all at once. This can be
-accomplished with the |patches| glyph method:
+Sometimes it is useful to plot multiple polygonal patches all at once.
+This can be accomplished with the |patches| glyph method:
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_patch_multiple.py
     :source-position: above
 
 .. note::
     This glyph is unlike most other glyphs. Instead of accepting a one
-    dimensional list or array of scalar values, it accepts a "list of lists".
+    dimensional list or array of scalar values, it accepts a "list of lists"
+    for x and y positions of each patch, parameters xs and ys. patches
+    also expects a scalar value or a list of scalers per each patch for
+    parameters such as color, alpha, linewidth, etc. Similarily, a
+    ColumnDataSource may be used consisting of a "list of lists" and a
+    lists of scalars where the length of the list of scalars and length of
+    lists must match.
 
 Missing Points
 ''''''''''''''
