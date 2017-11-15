@@ -166,7 +166,7 @@ export class GlyphRendererView extends RendererView
     inspected = (i for i in indices when @all_indices[i] in inspected)
 
     lod_threshold = @plot_model.plot.lod_threshold
-    if @model.document.interactive_duration() > 0 and !glsupport and lod_threshold? and @all_indices.length > lod_threshold
+    if @model.document?.interactive_duration() > 0 and !glsupport and lod_threshold? and @all_indices.length > lod_threshold
       # Render decimated during interaction if too many elements and not using GL
       indices = @decimated
       glyph = @decimated_glyph

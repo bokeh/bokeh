@@ -15,11 +15,11 @@ export class PanToolView extends GestureToolView
         @v_axis_only = true
       if sy < vr.start or sy > vr.end
         @h_axis_only = true
-    @model.document.interactive_start(@plot_model.plot)
+    @model.document?.interactive_start(@plot_model.plot)
 
   _pan: (e) ->
     @_update(e.deltaX, e.deltaY)
-    @model.document.interactive_start(@plot_model.plot)
+    @model.document?.interactive_start(@plot_model.plot)
 
   _pan_end: (e) ->
     @h_axis_only = false

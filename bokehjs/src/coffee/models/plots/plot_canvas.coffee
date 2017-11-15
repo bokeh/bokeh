@@ -19,7 +19,7 @@ import {throttle} from "core/util/throttle"
 import {isStrictNaN} from "core/util/types"
 import {difference, sortBy, reversed} from "core/util/array"
 import {extend, values, isEmpty} from "core/util/object"
-import {update_panel_constraints} from "core/layout/side_panel"
+import {update_panel_constraints, _view_sizes} from "core/layout/side_panel"
 
 # Notes on WebGL support:
 # Glyps can be rendered into the original 2D canvas, or in a (hidden)
@@ -472,7 +472,7 @@ export class PlotCanvasView extends DOMView
 
   connect_signals: () ->
     super()
-    @connect(@force_paint, () => @paint())
+    @connect(@force_paint, () => @repaint())
     for name, rng of @model.frame.x_ranges
       @connect(rng.change, () -> @request_render())
     for name, rng of @model.frame.y_ranges
@@ -528,7 +528,10 @@ export class PlotCanvasView extends DOMView
         layout_height: Math.round(@canvas._height.value)
       }, {no_change: true})
 
-      @request_paint()
+      # XXX: can't be @request_paint(), because it would trigger back-and-forth
+      # layout recomputing feedback loop between plots. Plots are also much more
+      # responsive this way, especially in interactive mode.
+      @paint()
 
   has_finished: () ->
     if not super()
@@ -559,6 +562,20 @@ export class PlotCanvasView extends DOMView
     @el.style.width    = "#{@model._width.value}px"
     @el.style.height   = "#{@model._height.value}px"
 
+  _needs_layout: () ->
+    for _, view of @renderer_views
+      if view.model.panel?
+        if _view_sizes.get(view) != Math.round(view._get_size())
+          return true
+
+    return false
+
+  repaint: () ->
+    if @_needs_layout()
+      @parent.partial_layout()
+    else
+      @paint()
+
   paint: () ->
     if @is_paused
       return
@@ -569,16 +586,17 @@ export class PlotCanvasView extends DOMView
     # of the canvas, which means that any previous calls to ctx.save() will be undone.
     @canvas_view.prepare_canvas()
 
-    interactive_duration = @model.document.interactive_duration()
-    if interactive_duration >= 0 and interactive_duration < @model.plot.lod_interval
-      lod_timeout = @model.plot.lod_timeout
-      setTimeout(() =>
-          if @model.document.interactive_duration() > lod_timeout
-            @model.document.interactive_stop(@model.plot)
-          @request_render()
-        , lod_timeout)
-    else
-      @model.document.interactive_stop(@model.plot)
+    if @model.document?
+      interactive_duration = @model.document.interactive_duration()
+      if interactive_duration >= 0 and interactive_duration < @model.plot.lod_interval
+        lod_timeout = @model.plot.lod_timeout
+        setTimeout(() =>
+            if @model.document.interactive_duration() > lod_timeout
+              @model.document.interactive_stop(@model.plot)
+            @request_render()
+          , lod_timeout)
+      else
+        @model.document.interactive_stop(@model.plot)
 
     for k, v of @renderer_views
       if not @range_update_timestamp? or v.set_data_timestamp > @range_update_timestamp
