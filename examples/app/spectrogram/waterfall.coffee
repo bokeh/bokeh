@@ -47,7 +47,7 @@ export class WaterfallRendererView extends RendererView
     for i in [0...@model.gram_length]
       @image[@tile][i*@model.tile_width+@col] = buf32[i]
 
-    sx = @xscale.v_compute(x))
+    sx = @xscale.v_compute(x)
     sy = @yscale.compute(0)
     sw = Math.ceil(@xscale.compute(@model.tile_width) - @xscale.compute(0))
     sh = Math.ceil(@yscale.compute(@max_freq))
