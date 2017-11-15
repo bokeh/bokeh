@@ -51,6 +51,7 @@ api = {
         ( 'wrap_in_onload',                        (1,0,0) ),
         ( 'wrap_in_safely',                        (1,0,0) ),
         ( 'wrap_in_script_tag',                    (1,0,0) ),
+        ( 'escape',                                (1,0,0) ),
 
     )
 
@@ -125,7 +126,7 @@ class Test_wrap_in_onload(object):
   };
   if (document.readyState != "loading") fn();
   else document.addEventListener("DOMContentLoaded", fn);
-})();
+})();\
 """
 
 class Test_wrap_in_safely(object):
@@ -135,16 +136,18 @@ class Test_wrap_in_safely(object):
 Bokeh.safely(function() {
   code
   morecode
-});"""
+});\
+"""
 
 class Test_wrap_in_script_tag(object):
 
     def test_render(self):
         assert beu.wrap_in_script_tag("code\nmorecode") == """
 <script type="text/javascript">
-    code
-morecode
-</script>"""
+  code
+  morecode
+</script>\
+"""
 
 #-----------------------------------------------------------------------------
 # Private API
@@ -158,11 +161,11 @@ def test__ONLOAD():
   };
   if (document.readyState != "loading") fn();
   else document.addEventListener("DOMContentLoaded", fn);
-})();
+})();\
 """
 
 def test__SAFELY():
     assert beu._SAFELY == """\
 Bokeh.safely(function() {
 %(code)s
-});"""
+});"""\

@@ -134,7 +134,7 @@ class BokehJSONEncoder(json.JSONEncoder):
         else:
             return self.transform_python_types(obj)
 
-def serialize_json(obj, pretty=False, indent=None, **kwargs):
+def serialize_json(obj, pretty=None, indent=None, **kwargs):
     ''' Return a serialized JSON representation of objects, suitable to
     send to BokehJS.
 
@@ -199,7 +199,8 @@ def serialize_json(obj, pretty=False, indent=None, **kwargs):
         if name in kwargs:
             raise ValueError("The value of %r is computed internally, overriding is not permissable." % name)
 
-    pretty = settings.pretty(pretty)
+    if pretty is None:
+        pretty = settings.pretty(False)
 
     if pretty:
         separators=(",", ": ")
