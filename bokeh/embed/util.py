@@ -173,7 +173,10 @@ def script_for_render_items(docs_json_or_id, render_items, app_path=None, absolu
         # and encoding it would significantly increase size of generated files. Doing so
         # is safe, because " in strings was already encoded by JSON, and the semi-encoded
         # JSON string is included in JavaScript in single quotes.
-        docs_json =  "'" + escape(serialize_json(docs_json_or_id, pretty=False), quote=("'",)) + "'"
+        docs_json = serialize_json(docs_json_or_id, pretty=False) # JSON string
+        docs_json = escape(docs_json, quote=("'",))               # make HTML-safe
+        docs_json = docs_json.replace("\\", "\\\\")               # double encode escapes
+        docs_json =  "'" + docs_json + "'"                        # JS string
 
     js = DOC_JS.render(
         docs_json=docs_json,
