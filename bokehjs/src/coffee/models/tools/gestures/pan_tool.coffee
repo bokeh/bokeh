@@ -56,7 +56,7 @@ export class PanToolView extends GestureToolView
     if (dims == 'height' or dims == 'both') and not @h_axis_only
       sy0 = sy_low
       sy1 = sy_high
-      sdy = new_dy
+      sdy = -new_dy
     else
       sy0 = vr.start
       sy1 = vr.end
