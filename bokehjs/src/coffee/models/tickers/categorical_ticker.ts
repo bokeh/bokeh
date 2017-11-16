@@ -1,7 +1,7 @@
 import {Ticker} from "./ticker"
 import {FactorRange} from "../ranges/factor_range"
 
-export class CategoricalTicker extends Ticker<string, FactorRange> {
+export class CategoricalTicker extends Ticker<string> {
 
   get_ticks(start: number, end: number, range: FactorRange, _cross_loc: any, _: any) {
     const majors = this._collect(range.factors, range, start, end)

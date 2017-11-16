@@ -1,5 +1,4 @@
 import {Model} from "../../model"
-import {Range} from "../ranges/range"
 
 export type TickSpec<T> = {
   major: T[]
@@ -18,9 +17,9 @@ export type TickSpec<T> = {
 // magnitudes.  To make it possible to select Tickers programmatically, they
 // also support some additional methods: get_interval(), get_min_interval(),
 // and get_max_interval().
-export abstract class Ticker<T, R extends Range> extends Model {
+export abstract class Ticker<T> extends Model {
   // Generates a nice series of ticks for a given range.
-  abstract get_ticks(data_low: number, data_high: number, range: R, cross_loc: any, unused: any): TickSpec<T>
+  abstract get_ticks(data_low: number, data_high: number, range: any, cross_loc: any, unused: any): TickSpec<T>
 }
 
 Ticker.prototype.type = "Ticker"
