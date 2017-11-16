@@ -21,8 +21,8 @@ export class AdaptiveTicker extends ContinuousTicker {
   base: number
   mantissas: number[]
 
-  protected extended_mantissas: number[]
-  protected base_factor: number
+  /*protected*/ extended_mantissas: number[]
+  /*protected*/ base_factor: number
 
   // These arguments control the range of possible intervals.  The interval I
   // returned by get_interval() will be the one that most closely matches the
