@@ -1,4 +1,5 @@
-import {Ticker, TickSpec} from "./ticker"
+import {Ticker} from "./ticker"
+import {Range} from "../ranges/range"
 import * as p from "core/properties"
 import {range} from "core/util/array"
 import {isStrictNaN} from "core/util/types"
@@ -15,7 +16,7 @@ import {isStrictNaN} from "core/util/types"
 // magnitudes.  To make it possible to select Tickers programmatically, they
 // also support some additional methods: get_interval(), get_min_interval(),
 // and get_max_interval().
-export abstract class ContinuousTicker extends Ticker<number> {
+export abstract class ContinuousTicker extends Ticker<number, Range /* XXX: numerical range? */> {
 
   num_minor_ticks: number
   desired_num_ticks: number
@@ -23,7 +24,7 @@ export abstract class ContinuousTicker extends Ticker<number> {
   min_interval: number
   max_interval: number
 
-  get_ticks(data_low: number, data_high: number, _range: any, cross_loc: any, _: any) {
+  get_ticks(data_low: number, data_high: number, _range: Range, cross_loc: any, _: any) {
     return this.get_ticks_no_defaults(data_low, data_high, cross_loc, this.desired_num_ticks)
   }
 
@@ -40,7 +41,7 @@ export abstract class ContinuousTicker extends Ticker<number> {
 
   // The version of get_ticks() that does the work (and the version that
   // should be overridden in subclasses).
-  get_ticks_no_defaults(data_low: number, data_high: number, _cross_loc: any, desired_n_ticks: number): TickSpec<number> {
+  get_ticks_no_defaults(data_low: number, data_high: number, _cross_loc: any, desired_n_ticks: number) {
     const interval = this.get_interval(data_low, data_high, desired_n_ticks)
     const start_factor = Math.floor(data_low / interval)
     const end_factor   = Math.ceil(data_high / interval)

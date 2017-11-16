@@ -1,8 +1,9 @@
 import {Ticker} from "./ticker"
+import {FactorRange} from "../ranges/factor_range"
 
-export class CategoricalTicker extends Ticker<string> {
+export class CategoricalTicker extends Ticker<string, FactorRange> {
 
-  get_ticks(start: string, end: string, range: any /*FactorRange*/, _cross_loc: any, _: any) {
+  get_ticks(start: number, end: number, range: FactorRange, _cross_loc: any, _: any) {
     const majors = this._collect(range.factors, range, start, end)
 
     const tops = this._collect(range.tops || [], range, start, end)
@@ -16,7 +17,7 @@ export class CategoricalTicker extends Ticker<string> {
     }
   }
 
-  private _collect(factors: string[], range: any /*FactorRange*/, start: string, end: string): string[] {
+  private _collect(factors: string[], range: FactorRange, start: number, end: number): string[] {
     const result = []
 
     for (const factor of factors) {
