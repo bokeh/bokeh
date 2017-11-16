@@ -12,7 +12,8 @@ export function values<T>(object: {[key: string]: T}): Array<T> {
   return values
 }
 
-export function extend<T, T1>(dest: T, source: T1): T & T1;
+export function extend<T, T1>(dest: T, src: T1): T & T1;
+export function extend<T, T1, T2>(dest: T, src1: T1, src2: T2): T & T1 & T2;
 export function extend<R>(dest: any, ...sources: Array<any>): R {
   for (const source of sources) {
     for (const key in source) {

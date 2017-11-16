@@ -17,6 +17,8 @@ export class HasProps
 
   id: string
   _subtype?: string
+
+  default_view: Class<View>
   `
 
   @getters = (specs) ->
