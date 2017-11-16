@@ -49,7 +49,8 @@ describe("ContinuousTicker Model", () => {
   describe("ContinuousTicker get_min_interval method", () => {
 
     it("should return min_interval property", () => {
-      const ticker = new MyTicker({min_interval: 1})
+      const ticker = new MyTicker()
+      ticker.min_interval = 1
       expect(ticker.get_min_interval()).to.be.equal(1)
     })
   })
@@ -57,7 +58,8 @@ describe("ContinuousTicker Model", () => {
   describe("ContinuousTicker get_max_interval method", () => {
 
     it("should return max_interval property if set", () => {
-      const ticker = new MyTicker({max_interval: 2})
+      const ticker = new MyTicker()
+      ticker.max_interval = 2
       expect(ticker.get_max_interval()).to.be.equal(2)
     })
 
