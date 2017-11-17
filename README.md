@@ -55,7 +55,7 @@ Bokeh
 <tr>
   <td>Twitter</td>
   <td>
-    <a href="https://https://twitter.com/BokehPlots">
+    <a href="https://twitter.com/BokehPlots">
     <img src="https://img.shields.io/twitter/follow/bokehplots.svg?style=social&label=Follow" />
     </a>
   </td>
