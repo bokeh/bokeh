@@ -1,36 +1,56 @@
 import {HasProps} from "./has_props"
 import {Selector} from "./selector"
+import {Geometry} from "./geometry"
 import * as hittest from "./hittest"
 import * as p from "./properties"
 
-export class SelectionManager extends HasProps
-  type: 'SelectionManager'
+import {DataSource} from "models/sources/data_source"
 
-  @internal {
-    source: [ p.Any ]
+// XXX: temporary types
+export type Renderer = any
+export type RendererView = any
+
+export class SelectionManager extends HasProps {
+
+  source: DataSource
+
+  selector: Selector
+  inspectors: {[key: string]: HasProps}
+
+  initialize(attrs: any, options: any): void {
+    super.initialize(attrs, options)
+    this.selector = new Selector()
+    this.inspectors = {}
   }
 
-  initialize: (attrs, options) ->
-    super(attrs, options)
-    @selector = new Selector()
-    @inspectors = {}
-
-  select: (renderer_views, geometry, final, append=false) ->
-    did_hit = false
-    for r in renderer_views
-      did_hit ||= r.hit_test(geometry, final, append)
+  select(renderer_views: RendererView[], geometry: Geometry, final: boolean, append: boolean = false): boolean {
+    let did_hit = false
+    for (const r of renderer_views) {
+      did_hit = did_hit || r.hit_test(geometry, final, append)
+    }
     return did_hit
+  }
 
-  inspect: (renderer_view, geometry) ->
-    did_hit = false
-    did_hit ||= renderer_view.hit_test(geometry, false, false, "inspect")
+  inspect(renderer_view: RendererView, geometry: Geometry): boolean {
+    let did_hit = false
+    did_hit = did_hit || renderer_view.hit_test(geometry, false, false, "inspect")
     return did_hit
+  }
 
-  clear: (rview) ->
-    @selector.clear()
-    @source.selected = hittest.create_hit_test_result()
+  clear(_rview: RendererView): void {
+    this.selector.clear()
+    this.source.selected = hittest.create_hit_test_result()
+  }
 
-  get_or_create_inspector: (rmodel) ->
-    if not @inspectors[rmodel.id]?
-      @inspectors[rmodel.id] = new Selector()
-    return @inspectors[rmodel.id]
+  get_or_create_inspector(rmodel: Renderer): HasProps {
+    if (this.inspectors[rmodel.id] == null)
+      this.inspectors[rmodel.id] = new Selector()
+    return this.inspectors[rmodel.id]
+  }
+}
+
+SelectionManager.prototype.type = "SelectionManager"
+
+SelectionManager.internal({
+  source: [ p.Any ]
+})
