@@ -220,7 +220,7 @@ class CoffeeScript(Inline):
         .. code-block:: python
 
             class MyExt(Model):
-                __implementation__ == CoffeeScript(""" <CoffeeScript code> """)
+                __implementation__ = CoffeeScript(""" <CoffeeScript code> """)
 
     Note that ``CoffeeScript`` is the default implementation language for
     custom model implementations. The following is equivalent to example above:
@@ -244,7 +244,7 @@ class TypeScript(Inline):
         .. code-block:: python
 
             class MyExt(Model):
-                __implementation__ == TypeScript(""" <TypeSctipt code> """)
+                __implementation__ = TypeScript(""" <TypeSctipt code> """)
 
     '''
     @property
@@ -259,7 +259,7 @@ class JavaScript(Inline):
         .. code-block:: python
 
             class MyExt(Model):
-                __implementation__ == Javacript(""" <Javactipt code> """)
+                __implementation__ = Javacript(""" <Javactipt code> """)
 
     '''
     @property
