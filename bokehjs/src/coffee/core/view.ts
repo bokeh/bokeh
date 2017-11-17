@@ -9,7 +9,7 @@ export interface ViewOptions {
   connect_signals?: boolean
 }
 
-export class View extends Signalable(Object) {
+export class View extends Signalable() {
 
   static getters(specs: any): void {
     for(const name in specs) {

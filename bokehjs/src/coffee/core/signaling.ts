@@ -147,10 +147,20 @@ export interface ISignalable {
   connect<Args, Sender extends object>(signal: Signal<Args, Sender>, slot: Slot<Args, Sender>): boolean
 }
 
-export const Signalable = <C extends Constructor>(Base: C) => {
-  return class extends Base implements ISignalable {
-    connect<Args, Sender extends object>(signal: Signal<Args, Sender>, slot: Slot<Args, Sender>): boolean {
-      return signal.connect(slot, this)
+export function Signalable<C extends Constructor>(Base?: C) {
+  // XXX: `class Foo extends Signalable(Object)` doesn't work (compiles, but fails at runtime), so
+  // we have to do this to allow signalable classes without an explict base class.
+  if (Base != null) {
+    return class extends Base implements ISignalable {
+      connect<Args, Sender extends object>(signal: Signal<Args, Sender>, slot: Slot<Args, Sender>): boolean {
+        return signal.connect(slot, this)
+      }
+    }
+  } else {
+    return class implements ISignalable {
+      connect<Args, Sender extends object>(signal: Signal<Args, Sender>, slot: Slot<Args, Sender>): boolean {
+        return signal.connect(slot, this)
+      }
     }
   }
 }
