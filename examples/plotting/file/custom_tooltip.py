@@ -1,3 +1,5 @@
+import pandas as pd
+
 from bokeh.models import HoverTool, ColumnDataSource
 from bokeh.plotting import figure, show
 from bokeh.sampledata.periodic_table import elements
@@ -22,7 +24,7 @@ source = ColumnDataSource(
         atomic_number=elements["atomic number"],
         sym=elements["symbol"],
         name=elements["name"],
-        atomic_mass = elements['atomic mass'].convert_objects(convert_numeric=True),
+        atomic_mass = pd.to_numeric(elements['atomic mass'], errors="coerce"),
         density=elements['density'],
         metal=[x.title() for x in elements["metal"]],
         type_color=[colormap[x] for x in elements["metal"]]
