@@ -19,6 +19,7 @@ import atexit
 import logging
 log = logging.getLogger(__name__)
 import signal
+import sys
 
 import tornado
 from tornado.httpserver import HTTPServer
@@ -44,6 +45,10 @@ class _ServerOpts(Options):
     multi-process HTTP server.
 
     A value of 0 will auto detect number of cores.
+
+    Note that due to limitations inherent in Tornado, Windows does not support
+    ``num_procs`` values greater than one! In this case consider running
+    multiple Bokeh server instances behind a load balancer.
     """)
 
     address = String(default=None, help="""
@@ -374,6 +379,9 @@ class Server(BaseServer):
             raise RuntimeError(
                 "Setting both num_procs and io_loop in Server is incompatible. Use BaseServer to coordinate an explicit IOLoop and multi-process HTTPServer"
             )
+
+        if opts.num_procs > 1 and sys.platform == "win32":
+            raise RuntimeError("num_procs > 1 not supported on Windows")
 
         if http_server_kwargs is None:
             http_server_kwargs = {}
