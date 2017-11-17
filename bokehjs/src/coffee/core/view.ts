@@ -1,52 +1,76 @@
-import {Signal, Signalable} from "./signaling"
+import {HasProps} from "./has_props"
+import {Signal/*, Signalable*/} from "./signaling"
 import {uniqueId} from "./util/string"
-import {extend} from "./util/object"
 
-export class View
-  extend(@prototype, Signalable)
+export interface ViewOptions {
+  id?: string
+  model?: HasProps                  // TODO: this isn't optional
+  parent: View | null
+  connect_signals?: boolean
+}
 
-  @getters = (specs) ->
-    for name, fn of specs
-      Object.defineProperty(@prototype, name, { get: fn })
+export class View { //extends Signalable(Object) {
 
-  constructor: (options={}) ->
-    @removed = new Signal(this, "removed")
+  static getters(specs: any): void {
+    for(const name in specs) {
+      const fn = specs[name]
+      Object.defineProperty(this.prototype, name, { get: fn })
+    }
+  }
 
-    if options.model?
-      @model = options.model
+  readonly removed = new Signal<void, this>(this, "removed")
+
+  readonly id: string
+
+  readonly model: HasProps
+
+  private _parent: View | null | undefined
+
+  constructor(options: ViewOptions) {
+    if (options.model != null)
+      this.model = options.model
     else
       throw new Error("model of a view wasn't configured")
 
-    @_parent = options.parent
+    this._parent = options.parent
 
-    @id = options.id ? uniqueId()
-    @initialize(options)
+    this.id = options.id || uniqueId()
+    this.initialize(options)
 
-    if options.connect_signals != false
-      @connect_signals()
-
-  initialize: (options) ->
-
-  remove: () ->
-    @_parent = undefined
-    @disconnect_signals()
-    @removed.emit()
-
-  toString: () -> "#{@model.type}View(#{@id})"
-
-  @getters {
-    parent: () ->
-      if @_parent != undefined
-        return @_parent
-      else
-        throw new Error("parent of a view wasn't configured")
-    is_root: () ->
-      return @parent == null
-    root: () ->
-      return if @is_root then this else @parent.root
+    if (options.connect_signals !== false)
+      this.connect_signals()
   }
 
-  connect_signals: () ->
+  initialize(_options: ViewOptions): void {}
 
-  disconnect_signals: () ->
-    Signal.disconnectReceiver(@)
+  remove(): void {
+    this._parent = undefined
+    this.disconnect_signals()
+    this.removed.emit(undefined)
+  }
+
+  toString(): string {
+    return  `${this.model.type}View(${this.id})`
+  }
+
+  get parent(): View | null {
+    if (this._parent !== undefined)
+      return this._parent
+    else
+      throw new Error("parent of a view wasn't configured")
+  }
+
+  get is_root(): boolean {
+    return this.parent === null
+  }
+
+  get root(): View {
+    return this.is_root ? this : this.parent!.root
+  }
+
+  connect_signals(): void {}
+
+  disconnect_signals(): void {
+    Signal.disconnectReceiver(this)
+  }
+}
