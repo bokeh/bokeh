@@ -108,7 +108,9 @@ class Legend(Annotation):
     """)
 
     inactive_props = Include(FillProps, help="""
-    The %s for the legend background style when inactive.
+    The %s for the legend item style when inactive. These control an overlay
+    on the item that can be used to obscure it when the corresponding glyph
+    is inactive (e.g. by making it semi-transparent).
     """)
 
     click_policy = Enum(LegendClickPolicy, default="none", help="""
@@ -121,7 +123,7 @@ class Legend(Annotation):
 
     inactive_fill_color = Override(default="white")
 
-    inactive_fill_alpha = Override(default=0.9)
+    inactive_fill_alpha = Override(default=0.7)
 
     label_props = Include(TextProps, help="""
     The %s for the legend labels.
