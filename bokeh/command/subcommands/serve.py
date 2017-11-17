@@ -109,6 +109,10 @@ processes
 
     bokeh serve app_script.py --num-procs 2
 
+Note that due to limitations inherent in Tornado, Windows does not support
+``--num-procs`` values greater than one! In this case consider running multiple
+Bokeh server instances behind a load balancer.
+
 By default, cross site connections to the Bokeh server websocket are not
 allowed. You can enable websocket connections originating from additional
 hosts by specifying them with the ``--allow-websocket-origin`` option:
