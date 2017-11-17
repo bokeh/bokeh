@@ -1,5 +1,5 @@
 import {logger} from "./logging"
-import {Signal, Signalable} from "./signaling"
+import {Signal, _Signalable} from "./signaling"
 import * as property_mixins from "./property_mixins"
 import * as refs from "./util/refs"
 import * as p from "./properties"
@@ -10,7 +10,7 @@ import {isString, isObject, isArray} from "./util/types"
 import {isEqual} from './util/eq'
 
 export class HasProps
-  extend(@prototype, Signalable)
+  extend(@prototype, _Signalable)
 
   `
   type: string

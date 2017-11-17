@@ -1,5 +1,5 @@
 import {HasProps} from "./has_props"
-import {Signal/*, Signalable*/} from "./signaling"
+import {Signal, Signalable} from "./signaling"
 import {uniqueId} from "./util/string"
 
 export interface ViewOptions {
@@ -9,7 +9,7 @@ export interface ViewOptions {
   connect_signals?: boolean
 }
 
-export class View { //extends Signalable(Object) {
+export class View extends Signalable(Object) {
 
   static getters(specs: any): void {
     for(const name in specs) {
@@ -27,6 +27,8 @@ export class View { //extends Signalable(Object) {
   private _parent: View | null | undefined
 
   constructor(options: ViewOptions) {
+    super()
+
     if (options.model != null)
       this.model = options.model
     else

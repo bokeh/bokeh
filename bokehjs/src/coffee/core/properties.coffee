@@ -1,4 +1,4 @@
-import {Signal, Signalable} from "./signaling"
+import {Signal, _Signalable} from "./signaling"
 import * as enums from "./enums"
 import * as svg_colors from "./util/svg_colors"
 import {valid_rgb} from "./util/color"
@@ -17,7 +17,7 @@ valueToString = (value) ->
 #
 
 export class Property # <T>
-  extend(@prototype, Signalable)
+  extend(@prototype, _Signalable)
 
   dataspec: false
 
