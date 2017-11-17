@@ -75,4 +75,8 @@ export class View extends Signalable() {
   disconnect_signals(): void {
     Signal.disconnectReceiver(this)
   }
+
+  notify_finished(): void {
+    this.root.notify_finished()
+  }
 }

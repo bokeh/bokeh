@@ -1,41 +1,62 @@
-import {View} from "./view"
+import {View, ViewOptions} from "./view"
+import {Solver} from "./layout/solver"
 import * as DOM from "./dom"
 
-export class DOMView extends View
+export class DOMView extends View {
 
-  tagName: 'div'
+  tagName: string
+  className: string | null
 
-  initialize: (options) ->
-    super(options)
-    @_has_finished = false
-    @el = @_createElement()
+  protected _has_finished: boolean
 
-  remove: () ->
-    DOM.removeElement(@el)
-    super()
+  protected _solver: Solver
 
-  layout: () ->
+  el: HTMLElement
 
-  render: () ->
-
-  renderTo: (element, replace=false) -> # HTMLElement, boolean
-    if not replace
-      element.appendChild(@el)
-    else
-      DOM.replaceWith(element, @el)
-
-    @layout()
-
-  has_finished: () -> @_has_finished
-
-  notify_finished: () ->
-    @root.notify_finished()
-
-  @getters {
-    _root_element: () -> DOM.parent(@el, ".bk-root")
-    solver:  () -> if @is_root then @_solver else @parent.solver
-    is_idle: () -> @has_finished()
+  initialize(options: ViewOptions) {
+    super.initialize(options)
+    this._has_finished = false
+    this.el = this._createElement()
   }
 
-  _createElement: () ->
-    return DOM.createElement(@tagName, {id: @id, class: @className})
+  remove(): void {
+    DOM.removeElement(this.el)
+    super.remove()
+  }
+
+  layout(): void {}
+
+  render(): void {}
+
+  renderTo(element: HTMLElement, replace: boolean = false): void {
+    if (!replace)
+      element.appendChild(this.el)
+    else
+      DOM.replaceWith(element, this.el)
+
+    this.layout()
+  }
+
+  has_finished(): boolean {
+    return this._has_finished
+  }
+
+  protected get _root_element(): HTMLElement | null {
+    return DOM.parent(this.el, ".bk-root")
+  }
+
+  get solver(): Solver {
+    return this.is_root ? this._solver : (this.parent as DOMView).solver
+  }
+
+  get is_idle(): boolean {
+    return this.has_finished()
+  }
+
+  protected _createElement(): HTMLElement {
+    return DOM.createElement(this.tagName, {id: this.id, class: this.className})
+  }
+}
+
+DOMView.prototype.tagName = "div"
+DOMView.prototype.className = null
