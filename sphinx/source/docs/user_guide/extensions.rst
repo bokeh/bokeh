@@ -187,6 +187,28 @@ the special header update as the slider moves:
 .. bokeh-plot:: docs/user_guide/examples/extensions_putting_together_ts.py
     :source-position: none
 
+.. _userguide_extensions_specifying_implemenation_languages:
+
+Specifying Implementation Languages
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If the value of ``__implementation__`` is a single line that ends in one of
+the know extensions ``.coffee``, ``.js``, or ``.ts`` then the it is interpreted
+as a filename. The corresponding file is opened and its contents are compiled
+appropriately according to the file extension.
+
+Othewise, if the implementation is inline in the class, the language for the
+source code may be explicitly provided by using the classes ``CoffeeScript``,
+``JavaScript``, or ``TypeScript``, e.g.
+
+.. code-block:: python
+
+    class Custom(Model):
+
+        __implementation__ = JavaScript(" <JS code here> ")
+
+Otherwise, if a plain string is given, it is assumed to be ``CoffeeScript``.
+
 .. _userguide_extensions_supplying_external_resources:
 
 Supplying External Resources
