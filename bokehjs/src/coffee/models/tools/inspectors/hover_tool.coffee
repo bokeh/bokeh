@@ -233,9 +233,13 @@ export class HoverToolView extends InspectToolView
               data_x = glyph._xs[i][jj]
               data_y = glyph._ys[i][jj]
 
-          vars = {index: i, segment_index: jj, x: x, y: y, sx: sx, sy: sy, data_x: data_x, data_y: data_y}
+          if renderer_view.model instanceof GlyphRenderer
+            index = renderer_view.model.view.convert_indices_from_subset([i])[0]
+          else
+            index = i
+          vars = {index: index, segment_index: jj, x: x, y: y, sx: sx, sy: sy, data_x: data_x, data_y: data_y}
 
-          tooltip.add(rx, ry, @_render_tooltips(ds, i, vars))
+          tooltip.add(rx, ry, @_render_tooltips(ds, index, vars))
 
       else
         # handle non-multiglyphs
