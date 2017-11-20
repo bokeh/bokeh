@@ -83,12 +83,12 @@ export class CartesianFrame extends LayoutCanvas
       scale.target_range = @_v_target
     return null
 
-  @getters {
-    x_ranges: () -> @_x_ranges
-    y_ranges: () -> @_y_ranges
-    xscales:  () -> @_xscales
-    yscales:  () -> @_yscales
-  }
+  `
+  get x_ranges(): {[key: string]: Range} { return this._x_ranges }
+  get y_ranges(): {[key: string]: Range} { return this._y_ranges }
+  get xscales(): {[key: string]: Scale} { return this._xscales }
+  get yscales(): {[key: string]: Scale} { return this._yscales }
+  `
 
   @internal {
     extra_x_ranges: [ p.Any, {} ]
