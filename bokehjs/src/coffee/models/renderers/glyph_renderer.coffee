@@ -1,5 +1,5 @@
 import {Renderer, RendererView} from "./renderer"
-import {LineView} from "../glyphs/line"
+import {Line, LineView} from "../glyphs/line"
 import {RemoteDataSource} from "../sources/remote_data_source"
 import {CDSView} from "../sources/cds_view"
 import {logger} from "core/logging"
@@ -140,15 +140,10 @@ export class GlyphRendererView extends RendererView
 
     # selected is in full set space
     selected = @model.data_source.selected
-    if !selected or selected.length == 0
-      selected = []
+    if @glyph instanceof LineView and selected.glyph instanceof Line
+      selected = @model.view.convert_indices_from_subset(indices)
     else
-      if selected['0d'].glyph
-        selected = @model.view.convert_indices_from_subset(indices)
-      else if selected['1d'].indices.length > 0
-        selected = selected['1d'].indices
-      else
-        selected = (parseInt(i) for i in Object.keys(selected["2d"].indices))
+      selected = selected.indices
 
     # inspected is in full set space
     inspected = @model.data_source.inspected

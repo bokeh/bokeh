@@ -10,6 +10,7 @@ from ..util.warnings import BokehUserWarning
 
 from .callbacks import Callback
 from .filters import Filter
+from .selections_and_inspections import Selection
 
 pd = import_optional('pandas')
 
@@ -19,12 +20,8 @@ class DataSource(Model):
 
     '''
 
-    selected = Dict(String, Dict(String, Any), default={
-        '0d': {'glyph': None, 'indices': []},
-        '1d': {'indices': []},
-        '2d': {'indices': {}}
-    }, help="""
-    A dict to indicate selected indices on different dimensions on this DataSource. Keys are:
+    selected = Instance(Selection, help="""
+    A Selection that indicates selected indices on this DataSource.
 
     .. code-block:: python
 
