@@ -1,30 +1,39 @@
 import {Transform} from "../transforms"
+import {Range} from "../ranges/range"
+import {Range1d} from "../ranges/range1d"
 import * as p from "core/properties"
 
-export class Scale extends Transform
-  type: "Scale"
+export abstract class Scale extends Transform {
 
-  @internal {
-    source_range: [ p.Any ]
-    target_range: [ p.Any ] # p.Instance(Range1d)
+  source_range: Range
+  target_range: Range1d
+
+  abstract compute(x: number): number
+
+  abstract v_compute(xs: number[] | Float64Array): Float64Array
+
+  abstract invert(sx: number): number
+
+  abstract v_invert(sxs: number[] | Float64Array): Float64Array
+
+  r_compute(x0: number, x1: number): [number, number] {
+    if (this.target_range.is_reversed)
+      return [this.compute(x1), this.compute(x0)]
+    else
+      return [this.compute(x0), this.compute(x1)]
   }
 
-  compute: (x) ->
-
-  v_compute: (xs) ->
-
-  invert: (sx) ->
-
-  v_invert: (sxs) ->
-
-  r_compute: (x0, x1) ->
-    if @target_range.is_reversed
-      return [@compute(x1), @compute(x0)]
+  r_invert(sx0: number, sx1: number): [number, number] {
+    if (this.target_range.is_reversed)
+      return [this.invert(sx1), this.invert(sx0)]
     else
-      return [@compute(x0), @compute(x1)]
+      return [this.invert(sx0), this.invert(sx1)]
+  }
+}
 
-  r_invert: (sx0, sx1) ->
-    if @target_range.is_reversed
-      return [@invert(sx1), @invert(sx0)]
-    else
-      return [@invert(sx0), @invert(sx1)]
+Scale.prototype.type = "Scale"
+
+Scale.internal({
+  source_range: [ p.Any ],
+  target_range: [ p.Any ], // p.Instance(Range1d)
+})
