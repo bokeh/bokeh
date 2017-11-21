@@ -22,7 +22,7 @@ const ts = require('gulp-typescript')
 
 const minify = uglify(uglify_es, console)
 
-import {Linker} from "../linker"
+import {Linker, Bundle} from "../linker"
 
 gulp.task("scripts:coffee", () => {
   return gulp.src('./src/coffee/**/*.coffee')
@@ -149,13 +149,46 @@ gulp.task("scripts:bundle", ["scripts:compile"], (next: () => void) => {
   const sourcemaps = argv.sourcemaps === true
 
   const linker = new Linker({entries, bases, excludes, sourcemaps})
-  const [bokehjs, api, widgets, tables, gl] = linker.link()
+  const bundles = linker.link()
+
+  const [bokehjs, api, widgets, tables, gl] = bundles
 
   bokehjs.write(paths.coffee.bokehjs.output)
   api.write(paths.coffee.api.output)
   widgets.write(paths.coffee.widgets.output)
   tables.write(paths.coffee.tables.output)
   gl.write(paths.coffee.gl.output)
+
+  if (argv.stats) {
+    const minify_opts = {
+      output: {
+        comments: /^!|copyright|license|\(c\)/i
+      }
+    }
+
+    const entries: [string, string, boolean, number][] = []
+
+    function collect_entries(name: string, bundle: Bundle): void {
+      for (const mod of bundle.modules) {
+        const minified = uglify_es.minify(mod.source, minify_opts)
+        if (minified.error != null) {
+          const {error: {message, line, col}} = minified
+          throw new Error(`${mod.canonical}:${line-1}:${col}: ${message}`)
+        } else
+          entries.push([name, mod.canonical, mod.is_external, minified.code.length])
+      }
+    }
+
+    collect_entries("bokehjs", bokehjs)
+    collect_entries("api", api)
+    collect_entries("widgets", widgets)
+    collect_entries("tables", tables)
+    collect_entries("gl", gl)
+
+    const csv = entries.map(([name, mod, external, minified]) => `${name},${mod},${external},${minified}`).join("\n")
+    const header = "bundle,module,external,minified\n"
+    fs.writeFileSync(join(paths.build_dir.js, "stats.csv"), header + csv)
+  }
 
   next()
 })
