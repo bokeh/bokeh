@@ -40,7 +40,7 @@ Here's a code snippet that:
 .. code-block:: python
 
     import math
-
+    from bokeh.plotting import figure
     from bokeh.models import GraphRenderer, Oval
     from bokeh.palettes import Spectral8
 
