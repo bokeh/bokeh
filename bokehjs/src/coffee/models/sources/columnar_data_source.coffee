@@ -10,6 +10,10 @@ import {uniq} from "core/util/array"
 export class ColumnarDataSource extends DataSource
   type: 'ColumnarDataSource'
 
+  `
+  _shapes: {[key: string]: any}
+  `
+
   @define {
     column_names: [ p.Array, [] ]
   }

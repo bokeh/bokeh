@@ -19,6 +19,20 @@ valueToString = (value) ->
 export class Property # <T>
   extend(@prototype, _Signalable)
 
+  `
+  spec: {
+    value?: any
+    field?: string
+    transform?: any
+  }
+
+  dataspec?: any
+
+  optional: boolean = false
+
+  change: Signal<any /*T*/, this>
+  `
+
   dataspec: false
 
   constructor: ({@obj, @attr, @default_value}) ->
