@@ -4,17 +4,19 @@ import {logger} from "./core/logging"
 import {LODStart, LODEnd} from "core/bokeh_events"
 import {HasProps} from "./core/has_props"
 import {Signal} from "./core/signaling"
-import {is_ref} from "./core/util/refs"
+import {Ref, is_ref} from "./core/util/refs"
 import {decode_column_data} from "./core/util/serialization"
 import {MultiDict, Set} from "./core/util/data_structures"
-import {difference, intersection} from "./core/util/array"
+import {difference, intersection, copy, contains} from "./core/util/array"
 import {extend, values} from "./core/util/object"
 import {isEqual} from "./core/util/eq"
 import {isArray, isObject} from "./core/util/types"
 import {LayoutDOM} from "./models/layouts/layout_dom"
 import {ColumnDataSource} from "./models/sources/column_data_source"
+import {ClientSession} from "./client/session"
+import {Class} from "./core/aux"
+import {Model} from "./model"
 
-`
 export class EventManager {
   // Dispatches events to the subscribed models
 
@@ -39,667 +41,859 @@ export class EventManager {
     }
   }
 }
-`
 
-export class DocumentChangedEvent
-  constructor : (@document) ->
+export interface DocJson {
+  version?: string
+  title?: string
+  roots: {
+    root_ids: string[]
+    references: Ref[]
+  }
+}
 
-export class ModelChangedEvent extends DocumentChangedEvent
-
-  `
+export interface ModelChanged {
+  kind: "ModelChanged"
+  model: Ref
   attr: string
-  model: HasProps // TODO: Model
-  `
+  new: any
+}
 
-  constructor : (document, @model, @attr, @old, @new_, @setter_id) ->
+export interface TitleChanged {
+  kind: "TitleChanged"
+  title: string
+}
+
+export interface RootAdded {
+  kind: "RootAdded"
+  model: Ref
+}
+
+export interface RootRemoved {
+  kind: "RootRemoved"
+  model: Ref
+}
+
+export interface ColumnDataChanged {
+  kind: "ColumnDataChanged"
+  column_source: Ref
+  cols?: any
+  new: any
+}
+
+export interface ColumnsStreamed {
+  kind: "ColumnsStreamed"
+  column_source: Ref
+  data: {[key: string]: any[]}
+  rollover?: number
+}
+
+export interface ColumnsPatched {
+  kind: "ColumnsPatched"
+  column_source: Ref
+  patches: any[]
+}
+
+export type DocumentChanged =
+  ModelChanged | TitleChanged | RootAdded | RootRemoved | ColumnDataChanged | ColumnsStreamed | ColumnsPatched
+
+export interface Patch {
+  references: Ref[]
+  events: DocumentChanged[]
+}
+
+export type Attrs = {[key: string]: any}
+
+export type References = {[key: string]: HasProps}
+
+export abstract class DocumentChangedEvent {
+  constructor(readonly document: Document) {}
+
+  abstract json(references: References): DocumentChanged
+}
+
+export class ModelChangedEvent extends DocumentChangedEvent {
+
+  constructor(document: Document,
+      readonly model: HasProps,
+      readonly attr: string,
+      readonly old: any,
+      readonly new_: any,
+      readonly setter_id?: string) {
     super(document)
-  json : (references) ->
+  }
 
-    if @attr == 'id'
-      logger.warn("'id' field is immutable and should never be in a ModelChangedEvent ", @)
+  json(references: References): ModelChanged {
+    if (this.attr === "id") {
       throw new Error("'id' field should never change, whatever code just set it is wrong")
-
-    value = @new_
-    value_json = @model.constructor._value_to_json(@attr, value, @model)
-
-    value_refs = {}
-    HasProps._value_record_references(value, value_refs, true) # true = recurse
-
-    if @model.id of value_refs and @model != value
-      # we know we don't want a whole new copy of the obj we're
-      # patching unless it's also the value itself
-      delete value_refs[@model.id]
-
-    for id of value_refs
+    }
+    const value = this.new_
+    const value_json = HasProps._value_to_json(this.attr, value, this.model)
+    const value_refs: {[key: string]: any}  = {}
+    HasProps._value_record_references(value, value_refs, true); // true = recurse
+    if (this.model.id in value_refs && this.model !== value) {
+      // we know we don't want a whole new copy of the obj we're
+      // patching unless it's also the value itself
+      delete value_refs[this.model.id]
+    }
+    for (const id in value_refs) {
       references[id] = value_refs[id]
-
-    {
-      'kind' : 'ModelChanged',
-      'model' : @model.ref(),
-      'attr' : @attr,
-      'new' : value_json
     }
+    return {
+      kind: "ModelChanged",
+      model: this.model.ref(),
+      attr: this.attr,
+      new: value_json,
+    }
+  }
+}
 
-export class TitleChangedEvent extends DocumentChangedEvent
-  constructor : (@document, @title, @setter_id) ->
+export class TitleChangedEvent extends DocumentChangedEvent {
+
+  constructor(document: Document, readonly title: string, readonly setter_id?: string) {
     super(document)
-  json : (references) ->
-    {
-      'kind' : 'TitleChanged',
-      'title' : @title
-    }
+  }
 
-export class RootAddedEvent extends DocumentChangedEvent
-  constructor : (@document, @model, @setter_id) ->
+  json(_references: References): TitleChanged {
+    return {
+      kind: "TitleChanged",
+      title: this.title,
+    }
+  }
+}
+
+export class RootAddedEvent extends DocumentChangedEvent {
+
+  constructor(document: Document, readonly model: HasProps, readonly setter_id?: string) {
     super(document)
-  json : (references) ->
-    HasProps._value_record_references(@model, references, true)
-    {
-      'kind' : 'RootAdded',
-      'model' : @model.ref()
-    }
+  }
 
-export class RootRemovedEvent extends DocumentChangedEvent
-  constructor : (@document, @model, @setter_id) ->
+  json(references: References): RootAdded {
+    HasProps._value_record_references(this.model, references, true)
+    return {
+      kind: "RootAdded",
+      model: this.model.ref(),
+    }
+  }
+}
+
+export class RootRemovedEvent extends DocumentChangedEvent {
+
+  constructor(document: Document, readonly model: HasProps, readonly setter_id?: string) {
     super(document)
-  json : (references) ->
-    {
-      'kind' : 'RootRemoved',
-      'model' : @model.ref()
+  }
+
+  json(_references: References): RootRemoved {
+    return {
+      kind: "RootRemoved",
+      model: this.model.ref(),
     }
+  }
+}
 
-export documents = []
+export const documents: Document[] = []
 
-export DEFAULT_TITLE = "Bokeh Application"
+export const DEFAULT_TITLE = "Bokeh Application"
 
-# This class should match the API of the Python Document class
-# as much as possible.
-export class Document
+// This class should match the API of the Python Document class
+// as much as possible.
+export class Document {
 
-  constructor: () ->
+  readonly event_manager: EventManager
+  readonly idle: Signal<void, this>
+
+  protected readonly _init_timestamp: number
+  protected _title: string
+  protected _roots: Model[]
+  protected _all_models: {[key: string]: HasProps}
+  protected _all_models_by_name: MultiDict<HasProps>
+  protected _all_models_freeze_count: number
+  protected _callbacks: any[]
+  protected _idle_roots: WeakMap<Model, boolean>
+  protected _interactive_timestamp: number | null
+  protected _interactive_plot: Model | null
+
+  constructor() {
     documents.push(this)
-    @_init_timestamp = Date.now()
-    @_title = DEFAULT_TITLE
-    @_roots = []
-    @_all_models = {}
-    @_all_models_by_name = new MultiDict()
-    @_all_models_freeze_count = 0
-    @_callbacks = []
-    @event_manager = new EventManager(@)
-    @idle = new Signal(this, "idle") # <void, this>
-    @_idle_roots = new WeakMap() # TODO: WeakSet would be better
+    this._init_timestamp = Date.now()
+    this._title = DEFAULT_TITLE
+    this._roots = []
+    this._all_models = {}
+    this._all_models_by_name = new MultiDict()
+    this._all_models_freeze_count = 0
+    this._callbacks = []
+    this.event_manager = new EventManager(this)
+    this.idle = new Signal(this, "idle")
+    this._idle_roots = new WeakMap() // TODO: WeakSet would be better
+    this._interactive_timestamp = null
+    this._interactive_plot = null
+  }
 
-    @_interactive_timestamp = null
-    @_interactive_plot = null
+  get layoutables(): LayoutDOM[] {
+    return this._roots.filter((root): root is LayoutDOM => root instanceof LayoutDOM)
+  }
 
-  Object.defineProperty(@prototype, "layoutables", {
-    get: () -> (root for root in @_roots when root instanceof LayoutDOM)
-  })
+  get is_idle(): boolean {
+    for (const root of this.layoutables) {
+      if (!this._idle_roots.has(root))
+        return false
+    }
+    return true
+  }
 
-  Object.defineProperty(@prototype, "is_idle", {
-    get: () ->
-      for root in @layoutables
-        if not @_idle_roots.has(root)
-          return false
+  notify_idle(model: Model): void {
+    this._idle_roots.set(model, true)
+    if (this.is_idle) {
+      logger.info(`document idle at ${Date.now() - this._init_timestamp} ms`)
+      this.idle.emit(undefined)
+    }
+  }
 
-      return true
-  })
-
-  notify_idle: (model) ->
-    @_idle_roots.set(model, true)
-
-    if @is_idle
-      logger.info("document idle at #{Date.now() - @_init_timestamp} ms")
-      @idle.emit()
-
-  clear : () ->
-    @_push_all_models_freeze()
-    try
-      while @_roots.length > 0
-        @remove_root(@_roots[0])
-    finally
-      @_pop_all_models_freeze()
-
-  interactive_start: (plot) ->
-    if @_interactive_plot == null
-      @_interactive_plot = plot
-      @_interactive_plot.trigger_event(new LODStart({}))
-    @_interactive_timestamp = Date.now()
-
-  interactive_stop: (plot) ->
-    if @_interactive_plot?.id == plot.id
-      @_interactive_plot.trigger_event(new LODEnd({}))
-    @_interactive_plot = null
-    @_interactive_timestamp = null
-
-  interactive_duration: () ->
-    if @_interactive_timestamp == null
-      return -1
-    return Date.now() - @_interactive_timestamp
-
-  destructively_move : (dest_doc) ->
-    if dest_doc is @
-      throw new Error("Attempted to overwrite a document with itself")
-
-    dest_doc.clear()
-    # we have to remove ALL roots before adding any
-    # to the new doc or else models referenced from multiple
-    # roots could be in both docs at once, which isn't allowed.
-    roots = []
-    for r in @_roots
-      roots.push(r)
-    @clear()
-
-    for r in roots
-      if r.document != null
-        throw new Error("Somehow we didn't detach #{r}")
-    if Object.keys(@_all_models).length != 0
-      throw new Error("@_all_models still had stuff in it: #{ @_all_models }")
-
-    for r in roots
-      dest_doc.add_root(r)
-    dest_doc.set_title(@_title)
-    # TODO other fields of doc
-
-  _push_all_models_freeze: () ->
-    @_all_models_freeze_count += 1
-
-  _pop_all_models_freeze: () ->
-    @_all_models_freeze_count -= 1
-    if @_all_models_freeze_count == 0
-      @_recompute_all_models()
-
-  _invalidate_all_models: () ->
-    logger.debug("invalidating document models")
-    # if freeze count is > 0, we'll recompute on unfreeze
-    if @_all_models_freeze_count == 0
-      @_recompute_all_models()
-
-  _recompute_all_models: () ->
-    new_all_models_set = new Set()
-
-    for r in @_roots
-      new_all_models_set = new_all_models_set.union(r.references())
-    old_all_models_set = new Set(values(@_all_models))
-    to_detach = old_all_models_set.diff(new_all_models_set)
-    to_attach = new_all_models_set.diff(old_all_models_set)
-
-    recomputed = {}
-
-    for m in new_all_models_set.values
-      recomputed[m.id] = m
-
-    for d in to_detach.values
-      d.detach_document()
-      name = d.name
-      if name != null
-        @_all_models_by_name.remove_value(name, d)
-
-    for a in to_attach.values
-      a.attach_document(@)
-      name = a.name
-      if name != null
-        @_all_models_by_name.add_value(name, a)
-
-    @_all_models = recomputed
-
-  roots: () -> @_roots
-
-  add_root : (model, setter_id) ->
-    logger.debug("Adding root: #{model}")
-
-    if model in @_roots
-      return
-
-    @_push_all_models_freeze()
-    try
-      @_roots.push(model)
-    finally
-      @_pop_all_models_freeze()
-
-    @_trigger_on_change(new RootAddedEvent(@, model, setter_id))
-
-  remove_root : (model, setter_id) ->
-    i = @_roots.indexOf(model)
-    if i < 0
-      return
-
-    @_push_all_models_freeze()
-    try
-      @_roots.splice(i, 1)
-    finally
-      @_pop_all_models_freeze()
-
-    @_trigger_on_change(new RootRemovedEvent(@, model, setter_id))
-
-  title : () ->
-    @_title
-
-  set_title : (title, setter_id) ->
-    if title != @_title
-      @_title = title
-      @_trigger_on_change(new TitleChangedEvent(@, title, setter_id))
-
-  get_model_by_id : (model_id) ->
-    if model_id of @_all_models
-      @_all_models[model_id]
-    else
-      null
-
-  get_model_by_name : (name) ->
-    @_all_models_by_name.get_one(name, "Multiple models are named '#{name}'")
-
-  on_change : (callback) ->
-    if callback in @_callbacks
-      return
-    @_callbacks.push(callback)
-
-  remove_on_change : (callback) ->
-    i = @_callbacks.indexOf(callback)
-    if i >= 0
-      @_callbacks.splice(i, 1)
-
-  _trigger_on_change : (event) ->
-    for cb in @_callbacks
-      cb(event)
-
-  # called by the model
-  _notify_change : (model, attr, old, new_, options) ->
-    if attr == 'name'
-      @_all_models_by_name.remove_value(old, model)
-      if new_ != null
-        @_all_models_by_name.add_value(new_, model)
-    @_trigger_on_change(new ModelChangedEvent(@, model, attr, old, new_, options?.setter_id))
-
-  @_references_json : (references, include_defaults=true) ->
-    references_json = []
-    for r in references
-      ref = r.ref()
-      ref['attributes'] = r.attributes_as_json(include_defaults)
-      # server doesn't want id in here since it's already in ref above
-      delete ref['attributes']['id']
-      references_json.push(ref)
-
-    references_json
-
-  @_instantiate_object: (obj_id, obj_type, obj_attrs) ->
-    full_attrs = extend({}, obj_attrs, {id: obj_id})
-    model = Models(obj_type)
-    new model(full_attrs, {silent: true, defer_initialization: true})
-
-  # given a JSON representation of all models in a graph, return a
-  # dict of new model objects
-  @_instantiate_references_json: (references_json, existing_models) ->
-      # Create all instances, but without setting their props
-      references = {}
-      for obj in references_json
-          obj_id = obj['id']
-          obj_type = obj['type']
-          obj_attrs = obj['attributes']
-
-          if obj_id of existing_models
-            instance = existing_models[obj_id]
-          else
-            instance = Document._instantiate_object(obj_id, obj_type, obj_attrs)
-            if 'subtype' of obj
-              instance.set_subtype(obj['subtype'])
-          references[instance.id] = instance
-
-      references
-
-  # if v looks like a ref, or a collection, resolve it, otherwise return it unchanged
-  # recurse into collections but not into HasProps
-  @_resolve_refs: (value, old_references, new_references) ->
-
-    resolve_ref = (v) ->
-      if is_ref(v)
-        if v['id'] of old_references
-          old_references[v['id']]
-        else if v['id'] of new_references
-          new_references[v['id']]
-        else
-          throw new Error("reference #{JSON.stringify(v)} isn't known (not in Document?)")
-      else if isArray(v)
-        resolve_array(v)
-      else if isObject(v)
-        resolve_dict(v)
-      else
-        v
-
-    resolve_dict = (dict) ->
-      resolved = {}
-      for k, v of dict
-        resolved[k] = resolve_ref(v)
-      resolved
-
-    resolve_array = (array) ->
-      resolve_ref(v) for v in array
-
-    resolve_ref(value)
-
-  # given a JSON representation of all models in a graph and new
-  # model instances, set the properties on the models from the
-  # JSON
-  @_initialize_references_json: (references_json, old_references, new_references) ->
-    to_update = {}
-    for obj in references_json
-      obj_id = obj['id']
-      obj_attrs = obj['attributes']
-
-      was_new = false
-      instance =
-        if obj_id of old_references
-          old_references[obj_id]
-        else
-          was_new = true
-          new_references[obj_id]
-
-      # replace references with actual instances in obj_attrs
-      obj_attrs = Document._resolve_refs(obj_attrs, old_references, new_references)
-
-      to_update[instance.id] = [instance, obj_attrs, was_new]
-
-    # this is so that, barring cycles, when an instance gets its
-    # refs resolved, the values for those refs also have their
-    # refs resolved.
-    foreach_depth_first = (items, f) ->
-      already_started = {}
-      foreach_value = (v, f) ->
-        if v instanceof HasProps
-          # note that we ignore instances that aren't updated (not in to_update)
-          if v.id not of already_started and v.id of items
-            already_started[v.id] = true
-            [same_as_v, attrs, was_new] = items[v.id]
-            for a, e of attrs
-              foreach_value(e, f)
-            f(v, attrs, was_new)
-        else if isArray(v)
-          for e in v
-            foreach_value(e, f)
-        else if isObject(v)
-          for k, e of v
-            foreach_value(e, f)
-      for k, v of items
-        foreach_value(v[0], f)
-
-    # this first pass removes all 'refs' replacing them with real instances
-    foreach_depth_first to_update, (instance, attrs, was_new) ->
-      if was_new
-        instance.setv(attrs, {silent: true})
-
-    # after removing all the refs, we can run the initialize code safely
-    foreach_depth_first to_update, (instance, attrs, was_new) ->
-      if was_new
-        instance.finalize(attrs)
-
-  @_event_for_attribute_change: (changed_obj, key, new_value, doc, value_refs) ->
-      changed_model = doc.get_model_by_id(changed_obj.id)
-      if not changed_model.attribute_is_serializable(key)
-        return null
-
-      event = {
-        'kind' : 'ModelChanged',
-        'model' : { id: changed_obj.id, type: changed_obj.type },
-        'attr' : key,
-        'new' : new_value
+  clear(): void {
+    this._push_all_models_freeze()
+    try {
+      while (this._roots.length > 0) {
+        this.remove_root(this._roots[0])
       }
-      HasProps._json_record_references(doc, new_value, value_refs, true) # true = recurse
-      event
+    } finally {
+      this._pop_all_models_freeze()
+    }
+  }
 
-  @_events_to_sync_objects: (from_obj, to_obj, to_doc, value_refs) ->
-    from_keys = Object.keys(from_obj.attributes)
-    to_keys = Object.keys(to_obj.attributes)
-    removed = difference(from_keys, to_keys)
-    added = difference(to_keys, from_keys)
-    shared = intersection(from_keys, to_keys)
+  interactive_start(plot: Model): void {
+    if (this._interactive_plot == null) {
+      this._interactive_plot = plot
+      this._interactive_plot.trigger_event(new LODStart({}))
+    }
+    this._interactive_timestamp = Date.now()
+  }
 
-    events = []
-    for key in removed
-      # we don't really have a "remove" event - not sure this ever
-      # happens even. One way this could happen is if the server
-      # does include_defaults=True and we do
-      # include_defaults=false ... in that case it'd be best to
-      # just ignore this probably. Warn about it, could mean
-      # there's a bug if we don't have a key that the server sent.
-      logger.warn("Server sent key #{key} but we don't seem to have it in our JSON")
-    for key in added
-      new_value = to_obj.attributes[key]
-      events.push(Document._event_for_attribute_change(from_obj, key, new_value, to_doc, value_refs))
-    for key in shared
-      old_value = from_obj.attributes[key]
-      new_value = to_obj.attributes[key]
-      if old_value == null and new_value == null
-        ;# do nothing
-      else if old_value == null or new_value == null
-        events.push(Document._event_for_attribute_change(from_obj, key, new_value, to_doc, value_refs))
+  interactive_stop(plot: Model): void {
+    if (this._interactive_plot != null && this._interactive_plot.id === plot.id) {
+      this._interactive_plot.trigger_event(new LODEnd({}))
+    }
+    this._interactive_plot = null
+    this._interactive_timestamp = null
+  }
+
+  interactive_duration(): number {
+    if (this._interactive_timestamp == null)
+      return -1
+    else
+      return Date.now() - this._interactive_timestamp
+  }
+
+  destructively_move(dest_doc: Document): void {
+    if (dest_doc === this) {
+      throw new Error("Attempted to overwrite a document with itself")
+    }
+    dest_doc.clear()
+    // we have to remove ALL roots before adding any
+    // to the new doc or else models referenced from multiple
+    // roots could be in both docs at once, which isn't allowed.
+    const roots = copy(this._roots)
+    this.clear()
+
+    for (const root of roots) {
+      if (root.document != null)
+        throw new Error(`Somehow we didn't detach ${root}`)
+    }
+
+    if (Object.keys(this._all_models).length !== 0) {
+      throw new Error(`this._all_models still had stuff in it: ${this._all_models}`)
+    }
+
+    for (const root of roots) {
+      dest_doc.add_root(root)
+    }
+
+    dest_doc.set_title(this._title)
+  }
+
+  // TODO other fields of doc
+  protected _push_all_models_freeze(): void {
+    this._all_models_freeze_count += 1
+  }
+
+  protected _pop_all_models_freeze(): void {
+    this._all_models_freeze_count -= 1
+    if (this._all_models_freeze_count === 0) {
+      this._recompute_all_models()
+    }
+  }
+
+  /*protected*/ _invalidate_all_models(): void {
+    logger.debug("invalidating document models")
+    // if freeze count is > 0, we'll recompute on unfreeze
+    if (this._all_models_freeze_count === 0) {
+      this._recompute_all_models()
+    }
+  }
+
+  protected _recompute_all_models(): void {
+    let new_all_models_set = new Set<HasProps>()
+    for (const r of this._roots) {
+      new_all_models_set = new_all_models_set.union(r.references())
+    }
+    const old_all_models_set = new Set(values(this._all_models))
+    const to_detach = old_all_models_set.diff(new_all_models_set)
+    const to_attach = new_all_models_set.diff(old_all_models_set)
+    const recomputed: {[key: string]: HasProps} = {}
+    for (const m of new_all_models_set.values) {
+      recomputed[m.id] = m
+    }
+    for (const d of to_detach.values) {
+      d.detach_document()
+      if (d instanceof Model && d.name != null)
+        this._all_models_by_name.remove_value(d.name, d)
+    }
+    for (const a of to_attach.values) {
+      a.attach_document(this)
+      if (a instanceof Model && a.name != null)
+        this._all_models_by_name.add_value(a.name, a)
+    }
+    this._all_models = recomputed
+  }
+
+  roots(): Model[] {
+    return this._roots
+  }
+
+  add_root(model: Model, setter_id?: string): void {
+    logger.debug(`Adding root: ${model}`)
+    if (contains(this._roots, model))
+      return
+
+    this._push_all_models_freeze()
+    try {
+      this._roots.push(model)
+    } finally {
+      this._pop_all_models_freeze()
+    }
+    this._trigger_on_change(new RootAddedEvent(this, model, setter_id))
+  }
+
+  remove_root(model: Model, setter_id?: string): void {
+    const i = this._roots.indexOf(model)
+    if (i < 0)
+      return
+
+    this._push_all_models_freeze()
+    try {
+      this._roots.splice(i, 1)
+    } finally {
+      this._pop_all_models_freeze()
+    }
+    this._trigger_on_change(new RootRemovedEvent(this, model, setter_id))
+  }
+
+  title(): string {
+    return this._title
+  }
+
+  set_title(title: string, setter_id?: string): void {
+    if (title !== this._title) {
+      this._title = title
+      this._trigger_on_change(new TitleChangedEvent(this, title, setter_id))
+    }
+  }
+
+  get_model_by_id(model_id: string): HasProps | null {
+    if (model_id in this._all_models) {
+      return this._all_models[model_id]
+    } else {
+      return null
+    }
+  }
+
+  get_model_by_name(name: string): HasProps | null {
+    return this._all_models_by_name.get_one(name, `Multiple models are named '${name}'`)
+  }
+
+  on_change(callback: any): void {
+    if (!contains(this._callbacks, callback))
+      this._callbacks.push(callback)
+  }
+
+  remove_on_change(callback: any): void {
+    const i = this._callbacks.indexOf(callback)
+    if (i >= 0)
+      this._callbacks.splice(i, 1)
+  }
+
+  _trigger_on_change(event: any): void {
+    for (const cb of this._callbacks) {
+      cb(event)
+    }
+  }
+
+  // called by the model
+  _notify_change(model: HasProps, attr: string, old: any, new_: any, options?: {setter_id?: string}): void {
+    if (attr === 'name') {
+      this._all_models_by_name.remove_value(old, model)
+      if (new_ != null)
+        this._all_models_by_name.add_value(new_, model)
+    }
+    const setter_id = options != null ? options.setter_id : void 0
+    this._trigger_on_change(new ModelChangedEvent(this, model, attr, old, new_, setter_id))
+  }
+
+  static _references_json(references: HasProps[], include_defaults: boolean = true): Ref[] {
+    const references_json: Ref[] = []
+    for (const r of references) {
+      const ref = r.ref()
+      ref.attributes = r.attributes_as_json(include_defaults)
+      // server doesn't want id in here since it's already in ref above
+      delete (ref.attributes as any).id
+      references_json.push(ref)
+    }
+    return references_json
+  }
+
+  static _instantiate_object(obj_id: string, obj_type: string, obj_attrs: {[key: string]: any}): HasProps {
+    const full_attrs = extend({}, obj_attrs, {id: obj_id})
+    const model: Class<HasProps> = Models(obj_type)
+    return new model(full_attrs, {silent: true, defer_initialization: true})
+  }
+
+  // given a JSON representation of all models in a graph, return a
+  // dict of new model objects
+  static _instantiate_references_json(references_json: Ref[], existing_models: {[key: string]: HasProps}): References {
+    // Create all instances, but without setting their props
+    const references: References = {}
+    for (const obj of references_json) {
+      const obj_id = obj.id
+      const obj_type = obj.type
+      const obj_attrs = obj.attributes || {}
+
+      let instance: HasProps
+      if (obj_id in existing_models)
+        instance = existing_models[obj_id]
+      else {
+        instance = Document._instantiate_object(obj_id, obj_type, obj_attrs)
+        if (obj.subtype != null)
+          instance.set_subtype(obj.subtype)
+      }
+      references[instance.id] = instance
+    }
+    return references
+  }
+
+  // if v looks like a ref, or a collection, resolve it, otherwise return it unchanged
+  // recurse into collections but not into HasProps
+  static _resolve_refs(value: any, old_references: References, new_references: References) {
+    function resolve_ref(v: any): any {
+      if (is_ref(v)) {
+        if (v.id in old_references)
+          return old_references[v.id]
+        else if (v.id in new_references)
+          return new_references[v.id]
+        else
+          throw new Error(`reference ${JSON.stringify(v)} isn't known (not in Document?)`)
+      } else if (isArray(v))
+        return resolve_array(v)
+      else if (isObject(v))
+        return resolve_dict(v)
       else
-        if not isEqual(old_value, new_value)
+        return v
+    }
+
+    function resolve_array(array: any[]) {
+      const results: any[] = []
+      for (const v of array) {
+        results.push(resolve_ref(v))
+      }
+      return results
+    }
+
+    function resolve_dict(dict: {[key: string]: any}) {
+      const resolved: {[key: string]: any} = {}
+      for (const k in dict) {
+        const v = dict[k]
+        resolved[k] = resolve_ref(v)
+      }
+      return resolved
+    }
+
+    return resolve_ref(value)
+  }
+
+  // given a JSON representation of all models in a graph and new
+  // model instances, set the properties on the models from the
+  // JSON
+  static _initialize_references_json(references_json: Ref[], old_references: References, new_references: References): void {
+    const to_update: {[key: string]: [HasProps, Attrs, boolean]} = {}
+    for (const obj of references_json) {
+      const obj_id = obj.id
+      const obj_attrs = obj.attributes
+
+      const was_new = !(obj_id in old_references)
+      const instance = !was_new ? old_references[obj_id] : new_references[obj_id]
+
+      // replace references with actual instances in obj_attrs
+      const resolved_attrs = Document._resolve_refs(obj_attrs, old_references, new_references)
+      to_update[instance.id] = [instance, resolved_attrs, was_new]
+    }
+    // this is so that, barring cycles, when an instance gets its
+    // refs resolved, the values for those refs also have their
+    // refs resolved.
+    type Fn = (instance: HasProps, attrs: Attrs, was_new: boolean) => void
+    function foreach_depth_first(items: typeof to_update, f: Fn): void {
+      const already_started: {[key: string]: boolean} = {}
+      function foreach_value(v: any) {
+        if (v instanceof HasProps) {
+          // note that we ignore instances that aren't updated (not in to_update)
+          if (!(v.id in already_started) && v.id in items) {
+            already_started[v.id] = true
+            const [, attrs, was_new] = items[v.id]
+            for (const a in attrs) {
+              const e = attrs[a]
+              foreach_value(e)
+            }
+            f(v, attrs, was_new)
+          }
+        } else if (isArray(v)) {
+          for (const e of v)
+            foreach_value(e)
+        } else if (isObject(v)) {
+          for (const k in v) {
+            const e = v[k]
+            foreach_value(e)
+          }
+        }
+      }
+      for (const k in items) {
+        const [instance,,] = items[k]
+        foreach_value(instance)
+      }
+    }
+
+    // this first pass removes all 'refs' replacing them with real instances
+    foreach_depth_first(to_update, function(instance, attrs, was_new) {
+      if (was_new)
+        instance.setv(attrs, {silent: true})
+    })
+
+    // after removing all the refs, we can run the initialize code safely
+    foreach_depth_first(to_update, function(instance, attrs, was_new) {
+      if (was_new)
+        instance.finalize(attrs, {})
+    })
+  }
+
+  static _event_for_attribute_change(changed_obj: Ref, key: string, new_value: any, doc: Document, value_refs: {[key: string]: HasProps}): ModelChanged | null {
+    const changed_model = doc.get_model_by_id(changed_obj.id)! // XXX!
+    if (!changed_model.attribute_is_serializable(key))
+      return null
+    else {
+      const event: ModelChanged = {
+        kind: "ModelChanged",
+        model: {
+          id: changed_obj.id,
+          type: changed_obj.type,
+        },
+        attr: key,
+        new: new_value,
+      }
+      HasProps._json_record_references(doc, new_value, value_refs, true); // true = recurse
+      return event
+    }
+  }
+
+  static _events_to_sync_objects(from_obj: Ref, to_obj: Ref, to_doc: Document, value_refs: {[key: string]: HasProps}): ModelChanged[] {
+    const from_keys = Object.keys(from_obj.attributes!) //XXX!
+    const to_keys = Object.keys(to_obj.attributes!) //XXX!
+    const removed = difference(from_keys, to_keys)
+    const added = difference(to_keys, from_keys)
+    const shared = intersection(from_keys, to_keys)
+    const events: (ModelChanged | null)[] = []
+
+    for (const key of removed) {
+      // we don't really have a "remove" event - not sure this ever
+      // happens even. One way this could happen is if the server
+      // does include_defaults=True and we do
+      // include_defaults=false ... in that case it'd be best to
+      // just ignore this probably. Warn about it, could mean
+      // there's a bug if we don't have a key that the server sent.
+      logger.warn(`Server sent key ${key} but we don't seem to have it in our JSON`)
+    }
+
+    for (const key of added) {
+      const new_value = to_obj.attributes![key] // XXX!
+      events.push(Document._event_for_attribute_change(from_obj, key, new_value, to_doc, value_refs))
+    }
+
+    for (const key of shared) {
+      const old_value = from_obj.attributes![key] // XXX!
+      const new_value = to_obj.attributes![key] // XXX!
+      if (old_value == null && new_value == null) {
+      } else if (old_value == null || new_value == null) {
+        events.push(Document._event_for_attribute_change(from_obj, key, new_value, to_doc, value_refs))
+      } else {
+        if (!isEqual(old_value, new_value))
           events.push(Document._event_for_attribute_change(from_obj, key, new_value, to_doc, value_refs))
+      }
+    }
 
-    events.filter((e) -> e != null)
+    return events.filter((e): e is ModelChanged => e != null)
+  }
 
-  # we use this to detect changes during document deserialization
-  # (in model constructors and initializers)
-  @_compute_patch_since_json: (from_json, to_doc) ->
-    to_json = to_doc.to_json(include_defaults=false)
+  // we use this to detect changes during document deserialization
+  // (in model constructors and initializers)
+  static _compute_patch_since_json(from_json: DocJson, to_doc: Document): Patch {
+    const to_json = to_doc.to_json(false) // include_defaults=false
 
-    refs = (json) ->
-      result = {}
-      for obj in json['roots']['references']
+    function refs(json: DocJson): {[key: string]: Ref} {
+      const result: {[key: string]: Ref} = {}
+      for (const obj of json.roots.references)
         result[obj.id] = obj
-      result
+      return result
+    }
 
-    from_references = refs(from_json)
-    from_roots = {}
-    from_root_ids = []
-    for r in from_json['roots']['root_ids']
+    const from_references = refs(from_json)
+    const from_roots: {[key: string]: Ref} = {}
+    const from_root_ids: string[] = []
+    for (const r of from_json.roots.root_ids) {
       from_roots[r] = from_references[r]
       from_root_ids.push(r)
+    }
 
-    to_references = refs(to_json)
-    to_roots = {}
-    to_root_ids = []
-    for r in to_json['roots']['root_ids']
+    const to_references = refs(to_json)
+    const to_roots: {[key: string]: Ref} = {}
+    const to_root_ids: string[] = []
+    for (const r of to_json.roots.root_ids) {
       to_roots[r] = to_references[r]
       to_root_ids.push(r)
+    }
 
     from_root_ids.sort()
     to_root_ids.sort()
 
-    if difference(from_root_ids, to_root_ids).length > 0 or
-       difference(to_root_ids, from_root_ids).length > 0
-      # this would arise if someone does add_root/remove_root during
-      # document deserialization, hopefully they won't ever do so.
+    if (difference(from_root_ids, to_root_ids).length > 0 ||
+        difference(to_root_ids, from_root_ids).length > 0) {
+      // this would arise if someone does add_root/remove_root during
+      // document deserialization, hopefully they won't ever do so.
       throw new Error("Not implemented: computing add/remove of document roots")
-
-    value_refs = {}
-    events = []
-
-    for id, model of to_doc._all_models
-      if id of from_references
-        update_model_events = Document._events_to_sync_objects(
-          from_references[id],
-          to_references[id],
-          to_doc,
-          value_refs)
-        events = events.concat(update_model_events)
-
-    {
-      'events' : events,
-      'references' : Document._references_json(values(value_refs), include_defaults=false)
     }
 
-  to_json_string : (include_defaults=true) ->
-    JSON.stringify(@to_json(include_defaults))
+    const value_refs: {[key: string]: HasProps} = {}
+    let events: DocumentChanged[] = []
 
-  to_json : (include_defaults=true) ->
-    root_ids = []
-    for r in @_roots
-      root_ids.push(r.id)
+    for (const id in to_doc._all_models) {
+      if (id in from_references) {
+        const update_model_events = Document._events_to_sync_objects(from_references[id], to_references[id], to_doc, value_refs)
+        events = events.concat(update_model_events)
+      }
+    }
+    return {
+      references: Document._references_json(values(value_refs), false), // include_defaults=false
+      events: events,
+    }
+  }
 
-    root_references = values(@_all_models)
+  to_json_string(include_defaults: boolean = true): string {
+    return JSON.stringify(this.to_json(include_defaults))
+  }
 
-    {
-      'title' : @_title
-      'roots' : {
-        'root_ids' : root_ids,
-        'references' : Document._references_json(root_references, include_defaults)
+  to_json(include_defaults: boolean = true): DocJson {
+    const root_ids = this._roots.map((r) => r.id)
+    const root_references = values(this._all_models)
+    return {
+      title: this._title,
+      roots: {
+        root_ids: root_ids,
+        references: Document._references_json(root_references, include_defaults),
+      }
+    }
+  }
+
+  static from_json_string(s: string): Document {
+    const json: any = JSON.parse(s)
+    return Document.from_json(json)
+  }
+
+  static from_json(json: DocJson): Document {
+    logger.debug("Creating Document from JSON")
+
+    const py_version = json.version! // XXX!
+    const is_dev = py_version.indexOf('+') !== -1 || py_version.indexOf('-') !== -1
+    const versions_string = `Library versions: JS (${js_version}) / Python (${py_version})`
+    if (!is_dev && js_version !== py_version) {
+      logger.warn("JS/Python version mismatch")
+      logger.warn(versions_string)
+    } else
+      logger.debug(versions_string)
+
+    const roots_json = json.roots
+    const root_ids = roots_json.root_ids
+    const references_json = roots_json.references
+
+    const references = Document._instantiate_references_json(references_json, {})
+    Document._initialize_references_json(references_json, {}, references)
+
+    const doc = new Document()
+    for (const r of root_ids)
+      doc.add_root(references[r] as Model) // XXX: HasProps
+    doc.set_title(json.title!) // XXX!
+    return doc
+  }
+
+  replace_with_json(json: DocJson): void {
+    const replacement = Document.from_json(json)
+    replacement.destructively_move(this)
+  }
+
+  create_json_patch_string(events: DocumentChangedEvent[]): string {
+    return JSON.stringify(this.create_json_patch(events))
+  }
+
+  create_json_patch(events: DocumentChangedEvent[]): Patch {
+    const references: References = {}
+    const json_events: DocumentChanged[] = []
+    for (const event of events) {
+      if (event.document !== this) {
+        logger.warn("Cannot create a patch using events from a different document, event had ", event.document, " we are ", this)
+        throw new Error("Cannot create a patch using events from a different document")
+      }
+      json_events.push(event.json(references))
+    }
+    return {
+      events: json_events,
+      references: Document._references_json(values(references)),
+    }
+  }
+
+  apply_json_patch(patch: Patch, buffers: any[], setter_id?: string): void {
+    const references_json = patch.references
+    const events_json = patch.events
+    const references = Document._instantiate_references_json(references_json, this._all_models)
+
+    // The model being changed isn't always in references so add it in
+    for (const event_json of events_json) {
+      switch (event_json.kind) {
+        case "RootAdded":
+        case "RootRemoved":
+        case "ModelChanged": {
+          const model_id = event_json.model.id
+          if (model_id in this._all_models) {
+            references[model_id] = this._all_models[model_id]
+          } else {
+            if (!(model_id in references)) {
+              logger.warn("Got an event for unknown model ", event_json.model)
+              throw new Error("event model wasn't known")
+            }
+          }
+          break
+        }
       }
     }
 
-  @from_json_string : (s) ->
-    if s == null or not s?
-      throw new Error("JSON string is #{typeof s}")
-    json = JSON.parse(s)
-    Document.from_json(json)
-
-  @from_json : (json) ->
-    logger.debug("Creating Document from JSON")
-    if typeof json != 'object'
-      throw new Error("JSON object has wrong type #{typeof json}")
-
-    py_version = json['version']
-    is_dev = py_version.indexOf('+') != -1 or py_version.indexOf('-') != -1
-
-    versions_string = "Library versions: JS (#{js_version})  /  Python (#{py_version})"
-
-    if not is_dev and js_version != py_version
-      logger.warn("JS/Python version mismatch")
-      logger.warn(versions_string)
-    else
-      logger.debug(versions_string)
-
-    roots_json = json['roots']
-    root_ids = roots_json['root_ids']
-    references_json = roots_json['references']
-
-    references = Document._instantiate_references_json(references_json, {})
-    Document._initialize_references_json(references_json, {}, references)
-
-    doc = new Document()
-    for r in root_ids
-      doc.add_root(references[r])
-
-    doc.set_title(json['title'])
-
-    doc
-
-  replace_with_json : (json) ->
-    replacement = Document.from_json(json)
-    replacement.destructively_move(@)
-
-  create_json_patch_string : (events) ->
-    JSON.stringify(@create_json_patch(events))
-
-  create_json_patch : (events) ->
-    references = {}
-    json_events = []
-    for event in events
-
-      if event.document != @
-        logger.warn("Cannot create a patch using events from a different document, event had ", event.document, " we are ", @)
-        throw new Error("Cannot create a patch using events from a different document")
-
-      json_events.push(event.json(references))
-
-    result =
-      events: json_events,
-      references: Document._references_json(values(references))
-
-  apply_json_patch: (patch, buffers, setter_id) ->
-    references_json = patch['references']
-    events_json = patch['events']
-    references = Document._instantiate_references_json(references_json, @_all_models)
-
-    # The model being changed isn't always in references so add it in
-    for event_json in events_json
-      if 'model' of event_json
-        model_id = event_json['model']['id']
-        if model_id of @_all_models
-          references[model_id] = @_all_models[model_id]
-        else
-          if model_id not of references
-            logger.warn("Got an event for unknown model ", event_json['model'])
-            throw new Error("event model wasn't known")
-
-    # split references into old and new so we know whether to initialize or update
-    old_references = {}
-    new_references = {}
-    for id, value of references
-      if id of @_all_models
+    // split references into old and new so we know whether to initialize or update
+    const old_references: {[key: string]: HasProps} = {}
+    const new_references: {[key: string]: HasProps} = {}
+    for (const id in references) {
+      const value = references[id]
+      if (id in this._all_models)
         old_references[id] = value
       else
         new_references[id] = value
+    }
 
     Document._initialize_references_json(references_json, old_references, new_references)
 
-    for event_json in events_json
-      switch event_json.kind
-        when 'ModelChanged'
-          patched_id = event_json['model']['id']
-          if patched_id not of @_all_models
-            throw new Error("Cannot apply patch to #{patched_id} which is not in the document")
-          patched_obj = @_all_models[patched_id]
-          attr = event_json['attr']
-          model_type = event_json['model']['type']
-          # XXXX currently still need this first branch, some updates (initial?) go through here
-          if attr == 'data' and model_type == 'ColumnDataSource'
-            [data, shapes] = decode_column_data(event_json['new'], buffers)
+    for (const event_json of events_json) {
+      switch (event_json.kind) {
+        case 'ModelChanged': {
+          const patched_id = event_json.model.id
+          if (!(patched_id in this._all_models)) {
+            throw new Error(`Cannot apply patch to ${patched_id} which is not in the document`)
+          }
+          const patched_obj = this._all_models[patched_id]
+          const attr = event_json.attr
+          const model_type = event_json.model.type
+          // XXXX currently still need this first branch, some updates (initial?) go through here
+          if (attr === 'data' && model_type === 'ColumnDataSource') {
+            const [data, shapes] = decode_column_data(event_json.new, buffers)
             patched_obj.setv({_shapes: shapes, data: data}, {setter_id: setter_id})
-          else
-            value = Document._resolve_refs(event_json['new'], old_references, new_references)
+          } else {
+            const value = Document._resolve_refs(event_json.new, old_references, new_references)
             patched_obj.setv([attr, value], {setter_id: setter_id})
-
-        when 'ColumnDataChanged'
-          column_source_id = event_json['column_source']['id']
-          if column_source_id not of @_all_models
-            throw new Error("Cannot stream to #{column_source_id} which is not in the document")
-          column_source = @_all_models[column_source_id]
-          [data, shapes] = decode_column_data(event_json['new'], buffers)
-
-          if event_json['cols']?
-            for k of column_source.data
-              if k not of data
-                data[k] =  column_source.data[k]
-            for k of column_source._shapes
-              if k not of shapes
+          }
+          break
+        }
+        case 'ColumnDataChanged': {
+          const column_source_id = event_json.column_source.id
+          if (!(column_source_id in this._all_models)) {
+            throw new Error(`Cannot stream to ${column_source_id} which is not in the document`)
+          }
+          const column_source = this._all_models[column_source_id] as ColumnDataSource
+          const [data, shapes] = decode_column_data(event_json.new, buffers) as any
+          if (event_json.cols != null) {
+            for (const k in column_source.data) {
+              if (!(k in data)) {
+                data[k] = column_source.data[k]
+              }
+            }
+            for (const k in column_source._shapes) {
+              if (!(k in shapes)) {
                 shapes[k] = column_source._shapes[k]
-
-          column_source.setv({_shapes: shapes, data: data}, {setter_id: setter_id, check_eq: false})
-
-        when 'ColumnsStreamed'
-          column_source_id = event_json['column_source']['id']
-          if column_source_id not of @_all_models
-            throw new Error("Cannot stream to #{column_source_id} which is not in the document")
-          column_source = @_all_models[column_source_id]
-          if column_source not instanceof ColumnDataSource
+              }
+            }
+          }
+          column_source.setv({
+            _shapes: shapes,
+            data: data,
+          }, {
+            setter_id: setter_id,
+            check_eq: false,
+          })
+          break
+        }
+        case 'ColumnsStreamed': {
+          const column_source_id = event_json.column_source.id
+          if (!(column_source_id in this._all_models)) {
+            throw new Error(`Cannot stream to ${column_source_id} which is not in the document`)
+          }
+          const column_source = this._all_models[column_source_id]
+          if (!(column_source instanceof ColumnDataSource)) {
             throw new Error("Cannot stream to non-ColumnDataSource")
-          data = event_json['data']
-          rollover = event_json['rollover']
+          }
+          const data = event_json.data
+          const rollover = event_json.rollover
           column_source.stream(data, rollover)
-
-        when 'ColumnsPatched'
-          column_source_id = event_json['column_source']['id']
-          if column_source_id not of @_all_models
-            throw new Error("Cannot patch #{column_source_id} which is not in the document")
-          column_source = @_all_models[column_source_id]
-          if column_source not instanceof ColumnDataSource
+          break
+        }
+        case 'ColumnsPatched': {
+          const column_source_id = event_json.column_source.id
+          if (!(column_source_id in this._all_models)) {
+            throw new Error(`Cannot patch ${column_source_id} which is not in the document`)
+          }
+          const column_source = this._all_models[column_source_id]
+          if (!(column_source instanceof ColumnDataSource)) {
             throw new Error("Cannot patch non-ColumnDataSource")
-          patches = event_json['patches']
+          }
+          const patches = event_json.patches
           column_source.patch(patches)
-
-        when 'RootAdded'
-          root_id = event_json['model']['id']
-          root_obj = references[root_id]
-          @add_root(root_obj, setter_id)
-
-        when 'RootRemoved'
-          root_id = event_json['model']['id']
-          root_obj = references[root_id]
-          @remove_root(root_obj, setter_id)
-
-        when 'TitleChanged'
-          @set_title(event_json['title'], setter_id)
-
-        else
+          break
+        }
+        case 'RootAdded': {
+          const root_id = event_json.model.id
+          const root_obj = references[root_id]
+          this.add_root(root_obj as Model, setter_id) // XXX: HasProps
+          break
+        }
+        case 'RootRemoved': {
+          const root_id = event_json.model.id
+          const root_obj = references[root_id]
+          this.remove_root(root_obj as Model, setter_id) // XXX: HasProps
+          break
+        }
+        case 'TitleChanged': {
+          this.set_title(event_json.title, setter_id)
+          break
+        }
+        default:
           throw new Error("Unknown patch event " + JSON.stringify(event_json))
+      }
+    }
+  }
+}
