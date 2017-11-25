@@ -9,11 +9,11 @@ export class Selector extends HasProps {
   timestamp: Date
 
   update(indices: HitTestResult, final: boolean, append: boolean, silent: boolean = false): void {
-    this.setv('timestamp', new Date(), {silent: silent})
-    this.setv('final', final, {silent: silent})
+    this.setv({timestamp: new Date()}, {silent: silent})
+    this.setv({final: final}, {silent: silent})
     if (append)
       indices.update_through_union(this.indices)
-    this.setv('indices', indices, {silent: silent})
+    this.setv({indices: indices}, {silent: silent})
   }
 
   clear(): void {

@@ -50,12 +50,12 @@ export class Plot extends LayoutDOM
       plots = xr.plots
       if isArray(plots)
         plots = plots.concat(@)
-        xr.setv('plots', plots, {silent: true})
+        xr.setv({plots: plots}, {silent: true})
     for yr in values(@extra_y_ranges).concat(@y_range)
       plots = yr.plots
       if isArray(plots)
         plots = plots.concat(@)
-        yr.setv('plots', plots, {silent: true})
+        yr.setv({plots: plots}, {silent: true})
 
     # Min border applies to the edge of everything
     if @min_border?

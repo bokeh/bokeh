@@ -110,7 +110,7 @@ export class Property # <T>
         when isFunction(default_value)  then default_value(obj)
         else                                 default_value
 
-      obj.setv(attr, attr_value, {silent: true, defaults: true})
+      obj.setv([attr, attr_value], {silent: true, defaults: true})
 
     if isArray(attr_value)
       @spec = {value: attr_value}
