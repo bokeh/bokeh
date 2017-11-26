@@ -51,7 +51,7 @@ function format_metric(ticks: number[], max_precision: number=6): string[] {
     ticks.map(metric_prefix);
   const scaledticks: [number, string][] = prefixes.map(
     ([name, value], idx) => [ticks[idx] / value, name] as [number, string]);
-  const formatter = new Intl.NumberFormat('en-us', {
+  const formatter = new Intl.NumberFormat([], {
     useGrouping: false,
     maximumFractionDigits: max_precision
   });
