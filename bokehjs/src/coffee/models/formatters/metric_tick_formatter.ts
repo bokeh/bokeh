@@ -1,13 +1,6 @@
 import {TickFormatter} from "./tick_formatter"
+import {head, tail, repeat} from "core/util/array"
 import * as p from "core/properties"
-
-function repeat<T>(value: T, times: number): T[] {
-  const ret: T[] = [];
-  for (let ii = 0; ii < times; ii++) {
-    ret.push(value);
-  }
-  return ret;
-}
 
 type Prefix = [string, number]
 // Return name and value of metric prefix to be used with x
@@ -25,7 +18,7 @@ function metric_prefix(x: number): Prefix {
     return ['', 1e0];
   }
   const absx = Math.abs(x);
-  if (absx >= 1000*prefixes[0][1] || absx < prefixes[prefixes.length-1][1]) {
+  if (absx >= 1000 * head(prefixes)[1] || absx < tail(prefixes)[1]) {
     // Too big/small, use exponential notation
     const power = Math.floor(Math.log(absx) / Math.log(10));
     //console.log(['e' + power.toString(), power]);
