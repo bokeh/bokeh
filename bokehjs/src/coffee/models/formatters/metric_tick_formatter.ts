@@ -15,11 +15,11 @@ type Prefix = [string, number]
 // Uses exponential notation if x is too large/small
 function metric_prefix(x: number): Prefix {
   const prefixes: Prefix[] = [
-    ['E', 1e+18], ['P', 1e+15], ['T', 1e+12],
-    ['G', 1e+09], ['M', 1e+06], ['k', 1e+03],
+    ['Y', 1e+24], ['Z', 1e+21], ['E', 1e+18], ['P', 1e+15],
+    ['T', 1e+12], ['G', 1e+09], ['M', 1e+06], ['k', 1e+03],
     ['' , 1e+00],
-    ['m', 1e-03], ['u', 1e-06], ['n', 1e-09],
-    ['p', 1e-12], ['f', 1e-15], ['a', 1e-18],
+    ['m', 1e-03], ['u', 1e-06], ['n', 1e-09], ['p', 1e-12],
+    ['f', 1e-15], ['a', 1e-18], ['z', 1e-21], ['y', 1e-24]
   ];
   if (x === 0) {
     return ['', 1e0];
