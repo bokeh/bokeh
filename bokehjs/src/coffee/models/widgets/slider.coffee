@@ -14,7 +14,7 @@ export class SliderView extends AbstractSliderView
 
   _calc_from: ([value]) ->
     if Number.isInteger(@model.start) and Number.isInteger(@model.end) and Number.isInteger(@model.step)
-      return value|0
+      return Math.round(value)
     else
       value
 
