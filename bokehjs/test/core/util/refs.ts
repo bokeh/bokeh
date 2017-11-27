@@ -1,71 +1,67 @@
-{expect} = require "chai"
-utils = require "../../utils"
+import {expect} from "chai"
 
-refs = utils.require "core/util/refs"
+import * as refs from "core/util/refs"
+import {HasProps} from "core/has_props"
 
-{HasProps} = utils.require "core/has_props"
+class Foo extends HasProps {}
+Foo.prototype.type = "Foo"
 
-class Foo extends HasProps
-  type: 'Foo'
+describe("refs module", () => {
 
-describe "refs module", ->
+  describe("create_ref", () => {
 
-  describe "create_ref", ->
-    it "should throw an Error on non-HasProps", ->
-      fn = ->
-        refs.create_ref(10)
-      expect(fn).to.throw Error, "can only create refs for HasProps subclasses"
-
-    it "should return a correct ref for a standard HasProps", ->
-      obj = new Foo()
-      ref = refs.create_ref(obj)
-      expect(ref.id).to.be.equal obj.id
-      expect(ref.type).to.be.equal obj.type
+    it("should return a correct ref for a standard HasProps", () => {
+      const obj = new Foo()
+      const ref = refs.create_ref(obj)
+      expect(ref.id).to.be.equal(obj.id)
+      expect(ref.type).to.be.equal(obj.type)
       expect(ref.subtype).to.be.undefined
       expect(refs.is_ref(ref)).to.be.true
+    })
 
-    it "should return a correct ref for a subtype HasProps", ->
-      obj = new Foo()
+    it("should return a correct ref for a subtype HasProps", () => {
+      const obj = new Foo()
       obj._subtype = "bar"
-      ref = refs.create_ref(obj)
-      expect(ref.id).to.be.equal obj.id
-      expect(ref.type).to.be.equal obj.type
-      expect(ref.subtype).to.be.equal "bar"
+      const ref = refs.create_ref(obj)
+      expect(ref.id).to.be.equal(obj.id)
+      expect(ref.type).to.be.equal(obj.type)
+      expect(ref.subtype).to.be.equal("bar")
       expect(refs.is_ref(ref)).to.be.true
+    })
+  })
 
-  describe "is_ref", ->
-    it "should return true for {id, type}", ->
-      obj = {id: 10, type: "foo"}
+  describe("is_ref", () => {
+    it("should return true for {id, type}", () => {
+      const obj = {id: 10, type: "foo"}
       expect(refs.is_ref(obj)).to.be.true
+    })
 
-    it "should return true for {id, type, subtype}", ->
-      obj = {id: 10, type: "foo", subtype: "bar"}
+    it("should return true for {id, type, subtype}", () => {
+      const obj = {id: 10, type: "foo", subtype: "bar"}
       expect(refs.is_ref(obj)).to.be.true
+    })
 
-    it "should return false on any other object", ->
-      obj = {}
-      expect(refs.is_ref(obj)).to.be.false
+    it("should return false on any other object", () => {
+      const obj0 = {}
+      expect(refs.is_ref(obj0)).to.be.false
 
-      obj = {id: 10}
-      expect(refs.is_ref(obj)).to.be.false
+      const obj1 = {id: 10}
+      expect(refs.is_ref(obj1)).to.be.false
 
-      obj = {type: "foo"}
-      expect(refs.is_ref(obj)).to.be.false
+      const obj2 = {type: "foo"}
+      expect(refs.is_ref(obj2)).to.be.false
 
-      obj = {a: 10, type: "foo"}
-      expect(refs.is_ref(obj)).to.be.false
+      const obj3 = {a: 10, type: "foo"}
+      expect(refs.is_ref(obj3)).to.be.false
 
-      obj = {id: 10, b: "foo"}
-      expect(refs.is_ref(obj)).to.be.false
+      const obj4 = {id: 10, b: "foo"}
+      expect(refs.is_ref(obj4)).to.be.false
 
-      obj = {subtype: "bar"}
-      expect(refs.is_ref(obj)).to.be.false
+      const obj5 = {subtype: "bar"}
+      expect(refs.is_ref(obj5)).to.be.false
 
-      obj = {a: 10, b: "foo", c: "bar", d: "baz"}
-      expect(refs.is_ref(obj)).to.be.false
-
-    it "should return false on non-objects", ->
-      expect(refs.is_ref(10.2)).to.be.false
-      expect(refs.is_ref(true)).to.be.false
-      expect(refs.is_ref("foo")).to.be.false
-      expect(refs.is_ref([])).to.be.false
+      const obj6 = {a: 10, b: "foo", c: "bar", d: "baz"}
+      expect(refs.is_ref(obj6)).to.be.false
+    })
+  })
+})
