@@ -235,12 +235,11 @@ export abstract class HasProps extends Signalable() {
 
   setv(obj: {[key: string]: any} | [string, any], options: HasProps.SetOptions = {}): void {
     let attrs: {[key: string]: any} = {}
-    if (isObject(obj)) {
-      attrs = obj
-    } else {
-      const [attr, value] = obj
+    if (isArray(obj)) {
+      const [attr, value] = obj as [string, any]
       attrs[attr] = value
-    }
+    } else
+      attrs = obj
 
     for (const key in attrs) {
       if (!attrs.hasOwnProperty(key))
