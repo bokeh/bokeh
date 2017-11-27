@@ -7,6 +7,11 @@ import {logger} from "./core/logging"
 export class Model extends HasProps
   type: "Model"
 
+  `
+  tags: string[]
+  name: string | null
+  `
+
   @define {
     tags:                  [ p.Array, [] ]
     name:                  [ p.String    ]
