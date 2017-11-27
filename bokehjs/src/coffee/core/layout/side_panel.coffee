@@ -138,8 +138,7 @@ _align_lookup_positive = {
 export _view_sizes = new WeakMap() # <View, number>
 
 export update_panel_constraints = (view) ->
-  visible = not view.model.props.visible? or view.model.visible
-  size = if visible then Math.round(view._get_size()) else 0
+  size = view.get_size()
 
   s = view.solver
 
