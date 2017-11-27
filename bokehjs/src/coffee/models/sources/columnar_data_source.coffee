@@ -11,6 +11,7 @@ export class ColumnarDataSource extends DataSource
   type: 'ColumnarDataSource'
 
   `
+  data: {[key: string]: any}
   _shapes: {[key: string]: any}
   `
 

@@ -342,3 +342,11 @@ export function reversed<T>(array: T[]): T[] {
 
   return result
 }
+
+export function repeat<T>(value: T, n: number): T[] {
+  const result: T[] = new Array(n)
+  for (let i = 0; i < n; i++) {
+    result[i] = value
+  }
+  return result
+}

@@ -1,3 +1,4 @@
+//import {logger} from "./logging"
 import {View} from "./view"
 import {Class} from "./aux"
 import {Signal, Signalable} from "./signaling"
@@ -6,9 +7,9 @@ import {Ref, is_ref, create_ref} from "./util/refs"
 import * as p from "./properties"
 import {Property} from "./properties"
 import {uniqueId} from "./util/string"
-import {max} from "./util/array"
+import {max, copy} from "./util/array"
 import {extend, values, clone, isEmpty} from "./util/object"
-import {isObject, isArray} from "./util/types"
+import {isObject, isArray, isFunction} from "./util/types"
 import {isEqual} from './util/eq'
 import {ColumnarDataSource} from "models/sources/columnar_data_source"
 import {Document} from "../document"
@@ -19,8 +20,8 @@ export abstract class HasProps extends Signalable() {
   type: string
   default_view: Class<View>
   props: {[key: string]: {
-    type: Class<Property/*<any>*/>,  // T
-    default_value: any,              // T
+    type: Class<Property<any>>,  // T
+    default_value: any,          // T
     internal: boolean,
   }}
   mixins: string[]
@@ -30,6 +31,23 @@ export abstract class HasProps extends Signalable() {
     for (const name in specs) {
       const fn = specs[name]
       Object.defineProperty(this.prototype, name, { get: fn })
+    }
+  }
+
+  private static _fix_default(default_value: any, _attr: string): undefined | (() => any) {
+    if (default_value === undefined)
+      return undefined
+    else if (isFunction(default_value))
+      return default_value
+    else if (!isObject(default_value))
+      return () => default_value
+    else {
+      //logger.warn(`${this.prototype.type}.${attr} uses unwrapped non-primitive default value`)
+
+      if (isArray(default_value))
+        return () => copy(default_value)
+      else
+        return () => clone(default_value)
     }
   }
 
@@ -59,7 +77,7 @@ export abstract class HasProps extends Signalable() {
       const [type, default_value, internal] = prop
       const refined_prop = {
         type: type,
-        default_value: default_value,
+        default_value: this._fix_default(default_value, name),
         internal: internal || false,
       }
 
@@ -91,7 +109,7 @@ export abstract class HasProps extends Signalable() {
 
   static override(obj: any): void {
     for (const name in obj) {
-      const default_value = obj[name]
+      const default_value = this._fix_default(obj[name], name)
       const value = this.prototype.props[name]
       if (value == null)
         throw new Error(`attempted to override nonexistent '${this.prototype.type}.${name}'`)
@@ -115,7 +133,7 @@ export abstract class HasProps extends Signalable() {
   readonly transformchange = new Signal<void, this>(this, "transformchange")
 
   readonly attributes: {[key: string]: any} = {}
-  readonly properties: {[key: string]: Property/*<any>*/} = {}
+  readonly properties: {[key: string]: Property<any>} = {}
 
   protected readonly _set_after_defaults: {[key: string]: boolean} = {}
 
@@ -125,7 +143,7 @@ export abstract class HasProps extends Signalable() {
     for (const name in this.props) {
       const {type, default_value} = this.props[name]
       if (type != null)
-        this.properties[name] = new type({obj: this, attr: name, default_value: default_value})
+        this.properties[name] = new type(this, name, default_value)
       else
         throw new Error(`undefined property type for ${this.type}.${name}`)
     }
@@ -473,10 +491,10 @@ export abstract class HasProps extends Signalable() {
     const data: {[key: string]: any} = {}
     for (const name in this.properties) {
       const prop = this.properties[name]
-      if (prop.dataspec == null)
+      if (!prop.dataspec)
         continue
       // this skips optional properties like radius for circles
-      if ((prop.optional) && prop.spec.value == null && !(name in this._set_after_defaults))
+      if (prop.optional && prop.spec.value == null && !(name in this._set_after_defaults))
         continue
 
       data[`_${name}`] = prop.array(source)

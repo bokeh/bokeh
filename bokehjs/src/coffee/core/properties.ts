@@ -1,285 +1,307 @@
-import {Signal, _Signalable} from "./signaling"
+import {Signal, Signalable} from "./signaling"
+import {HasProps} from "./has_props"
 import * as enums from "./enums"
 import * as svg_colors from "./util/svg_colors"
 import {valid_rgb} from "./util/color"
-import {copy} from "./util/array"
-import {extend} from "./util/object"
-import {isBoolean, isNumber, isString, isFunction, isArray, isObject} from "./util/types"
+import {contains, repeat} from "./util/array"
+import {isBoolean, isNumber, isString, isArray, isObject} from "./util/types"
+//import {Transform} from "../models/transforms/transform"
+import {ColumnarDataSource} from "../models/sources/columnar_data_source"
 
-valueToString = (value) ->
-  try
+function valueToString(value: any): string {
+  try {
     return JSON.stringify(value)
-  catch
+  } catch {
     return value.toString()
+  }
+}
 
-#
-# Property base class
-#
+//
+// Property base class
+//
 
-export class Property # <T>
-  extend(@prototype, _Signalable)
+export class Property<T> extends Signalable() {
 
-  `
   spec: {
     value?: any
     field?: string
-    transform?: any
+    expr?: any
+    transform?: any // Transform
+    units?: any
   }
-
-  dataspec?: any
 
   optional: boolean = false
 
-  change: Signal<any /*T*/, this>
-  `
+  dataspec: boolean // prototype
 
-  dataspec: false
+  readonly change = new Signal<T, HasProps>(this.obj, "change")
 
-  constructor: ({@obj, @attr, @default_value}) ->
-    @_init()
+  constructor(readonly obj: HasProps,
+              readonly attr: string,
+              readonly default_value?: (obj: HasProps) => T) {
+    super()
+    this._init()
+    this.connect(this.change, () => this._init())
+  }
 
-    # Signal<T, HasProps>
-    @change = new Signal(@obj, "change")
+  update(): void {
+    this._init()
+  }
 
-    @connect(@change, () => @_init())
+  // ----- customizable policies
 
-  update: () -> @_init()
+  init(): void {}
 
-  # ----- customizable policies
+  transform(values: any): any {
+    return values
+  }
 
-  init: () ->
+  validate(_value: any): void {}
 
-  transform: (values) -> values
+  // ----- property accessors
 
-  validate: (value) ->
-
-  # ----- property accessors
-
-  value: (do_spec_transform=true) ->
-    if @spec.value == undefined
+  value(do_spec_transform: boolean = true): any {
+    if (this.spec.value === undefined)
       throw new Error("attempted to retrieve property value for property without value specification")
-    ret = @transform([@spec.value])[0]
-    if @spec.transform? and do_spec_transform
-      ret = @spec.transform.compute(ret)
+    let ret = this.transform([this.spec.value])[0]
+    if (this.spec.transform != null && do_spec_transform)
+      ret = this.spec.transform.compute(ret)
     return ret
+  }
 
-  array: (source) ->
-    if not @dataspec
+  array(source: ColumnarDataSource): any[] {
+    if (!this.dataspec)
       throw new Error("attempted to retrieve property array for non-dataspec property")
-    data = source.data
-    if @spec.field?
-      if @spec.field of data
-        ret = @transform(source.get_column(@spec.field))
+
+    const data = source.data
+    let ret: any
+
+    if (this.spec.field != null) {
+      if (this.spec.field in data)
+        ret = this.transform(source.get_column(this.spec.field))
       else
-        throw new Error("attempted to retrieve property array for nonexistent field '#{@spec.field}'")
-    else if @spec.expr?
-      ret = @transform(@spec.expr._v_compute(source))
-    else
-      length = source.get_length()
-      length = 1 if not length?
-      value = @value(false) # don't apply any spec transform
-      ret = (value for i in [0...length])
+        throw new Error(`attempted to retrieve property array for nonexistent field '${this.spec.field}'`)
+    } else if (this.spec.expr != null) {
+      ret = this.transform(this.spec.expr._v_compute(source))
+    } else {
+      let length = source.get_length() as number | null
+      if (length == null)
+        length = 1
+      const value = this.value(false) // don't apply any spec transform
+      ret = repeat(value, length)
+    }
 
-    if @spec.transform?
-      ret = @spec.transform.v_compute(ret)
+    if (this.spec.transform != null)
+      ret = this.spec.transform.v_compute(ret)
     return ret
+  }
 
-  # ----- private methods
+  // ----- private methods
 
-  _init: () ->
-    obj = @obj
-    if not obj?
-      throw new Error("missing property object")
+  /*protected*/ _init(): void {
+    const obj = this.obj
+    const attr = this.attr
+    let attr_value: any = obj.getv(attr)
 
-    # instanceof was failing! circular import?
-    if not obj.properties?
-      throw new Error("property object must be a HasProps")
-
-    attr = @attr
-    if not attr?
-      throw new Error("missing property attr")
-
-    attr_value = obj.getv(attr)
-
-    if attr_value == undefined
-      default_value = @default_value
-
-      attr_value = switch
-        when default_value == undefined then null
-        when isArray(default_value)     then copy(default_value)
-        when isFunction(default_value)  then default_value(obj)
-        else                                 default_value
-
+    if (attr_value === undefined) {
+      const default_value = this.default_value
+      if (default_value !== undefined)
+        attr_value = default_value(obj)
+      else
+        attr_value = null
       obj.setv([attr, attr_value], {silent: true, defaults: true})
+    }
 
-    if isArray(attr_value)
-      @spec = {value: attr_value}
+    if (isArray(attr_value))
+      this.spec = {value: attr_value}
 
-    else if isObject(attr_value) and ((if attr_value.value == undefined then 0 else 1) + (if attr_value.field == undefined then 0 else 1) + (if attr_value.expr == undefined then 0 else 1) == 1) # garbage JS XOR
-      @spec = attr_value
+    else if (isObject(attr_value) &&
+             ((attr_value.value === undefined ? 0 : 1) +
+              (attr_value.field === undefined ? 0 : 1) +
+              (attr_value.expr  === undefined ? 0 : 1) == 1)) // garbage JS XOR
+      this.spec = attr_value
 
     else
-      @spec = {value: attr_value}
+      this.spec = {value: attr_value}
 
-    if @spec.field? and not isString(@spec.field)
-      throw new Error("field value for property '#{attr}' is not a string")
+    if (this.spec.field != null && !isString(this.spec.field))
+      throw new Error(`field value for property '${attr}' is not a string`)
 
-    if @spec.value?
-      @validate(@spec.value)
+    if (this.spec.value != null)
+      this.validate(this.spec.value)
 
-    @init()
+    this.init()
+  }
+
+  toString(): string {
+    /*${this.name}*/
+    return `Prop(${this.obj}.${this.attr}, spec: ${valueToString(this.spec)})`
+  }
+}
+
+Property.prototype.dataspec = false
+
+//
+// Simple Properties
+//
+
+export function simple_prop<T>(name: string, pred: (value: any) => boolean) {
+  return class extends Property<T> {
+    validate(value: any): void {
+      if (!pred(value))
+        throw new Error(`${name} property '${this.attr}' given invalid value: ${valueToString(value)}`)
+    }
+  }
+}
+
+export class Any extends simple_prop("Any", (_x) => true) {}
+
+export class Array extends simple_prop("Array", (x) => isArray(x) || x instanceof Float64Array) {}
+
+export class Bool extends simple_prop("Bool", isBoolean) {}
+export const Boolean = Bool
+
+export class Color extends simple_prop("Color", (x) => (svg_colors as any)[x.toLowerCase()] != null || x.substring(0, 1) == "#" || valid_rgb(x)) {}
+
+export class Instance extends simple_prop("Instance", (x) => x.properties != null) {}
+
+// TODO (bev) separate booleans?
+export class Number extends simple_prop("Number", (x) => isNumber(x) || isBoolean(x)) {}
+export const Int = Number
+
+// TODO extend Number instead of copying it's predicate
+//class Percent extends Number("Percent", (x) -> 0 <= x <= 1.0)
+export class Percent extends simple_prop("Number", (x) => (isNumber(x) || isBoolean(x)) && 0 <= x && x <= 1.0) {}
+
+export class String extends simple_prop("String", isString) {}
+
+// TODO (bev) don't think this exists python side
+export class Font extends String {}
 
 
-  toString: () -> "#{@name}(#{@obj}.#{@attr}, spec: #{valueToString(@spec)})"
+//
+// Enum properties
+//
 
-#
-# Simple Properties
-#
+export function enum_prop(name: string, enum_values: string[]) {
+  return class extends simple_prop(name, (x) => contains(enum_values, x)) {}
+}
 
-export simple_prop = (name, pred) ->
-  class Prop extends Property
-    name: name
-    validate: (value) ->
-      if not pred(value)
-        throw new Error("#{name} property '#{@attr}' given invalid value: #{valueToString(value)}")
+export class Anchor extends enum_prop("Anchor", enums.LegendLocation) {}
 
-export class Any extends simple_prop("Any", (x) -> true)
+export class AngleUnits extends enum_prop("AngleUnits", enums.AngleUnits) {}
 
-export class Array extends simple_prop("Array", (x) -> isArray(x) or x instanceof Float64Array)
-
-export class Bool extends simple_prop("Bool", isBoolean)
-export Boolean = Bool
-
-export class Color extends simple_prop("Color", (x) ->
-  svg_colors[x.toLowerCase()]? or x.substring(0, 1) == "#" or valid_rgb(x)
-)
-
-export class Instance extends simple_prop("Instance", (x) -> x.properties?)
-
-# TODO (bev) separate booleans?
-export class Number extends simple_prop("Number", (x) -> isNumber(x) or isBoolean(x))
-export Int = Number
-
-# TODO extend Number instead of copying it's predicate
-#class Percent extends Number("Percent", (x) -> 0 <= x <= 1.0)
-export class Percent extends simple_prop("Number", (x) -> (isNumber(x) or isBoolean(x)) and (0 <= x <= 1.0) )
-
-export class String extends simple_prop("String", isString)
-
-# TODO (bev) don't think this exists python side
-export class Font extends String
-
-
-#
-# Enum properties
-#
-
-export enum_prop = (name, enum_values) ->
-  class Enum extends simple_prop(name, (x) -> x in enum_values)
-    name: name
-
-export class Anchor extends enum_prop("Anchor", enums.LegendLocation)
-
-export class AngleUnits extends enum_prop("AngleUnits", enums.AngleUnits)
-
-export class Direction extends enum_prop("Direction", enums.Direction)
-  transform: (values) ->
-    result = new Uint8Array(values.length)
-    for i in [0...values.length]
-      switch values[i]
-        when 'clock'     then result[i] = false
-        when 'anticlock' then result[i] = true
+export class Direction extends enum_prop("Direction", enums.Direction) {
+  transform(values: any): any {
+    const result = new Uint8Array(values.length)
+    for (let i = 0; i < values.length; i++) {
+      switch (values[i]) {
+        case "clock":     result[i] = 0; break
+        case "anticlock": result[i] = 1; break
+      }
+    }
     return result
+  }
+}
 
-export class Dimension extends enum_prop("Dimension", enums.Dimension)
+export class Dimension extends enum_prop("Dimension", enums.Dimension) {}
 
-export class Dimensions extends enum_prop("Dimensions", enums.Dimensions)
+export class Dimensions extends enum_prop("Dimensions", enums.Dimensions) {}
 
-export class FontStyle extends enum_prop("FontStyle", enums.FontStyle)
+export class FontStyle extends enum_prop("FontStyle", enums.FontStyle) {}
 
-export class LatLon extends enum_prop("LatLon", enums.LatLon)
+export class LatLon extends enum_prop("LatLon", enums.LatLon) {}
 
-export class LineCap extends enum_prop("LineCap", enums.LineCap)
+export class LineCap extends enum_prop("LineCap", enums.LineCap) {}
 
-export class LineJoin extends enum_prop("LineJoin", enums.LineJoin)
+export class LineJoin extends enum_prop("LineJoin", enums.LineJoin) {}
 
-export class LegendLocation extends enum_prop("LegendLocation", enums.LegendLocation)
+export class LegendLocation extends enum_prop("LegendLocation", enums.LegendLocation) {}
 
-export class Location extends enum_prop("Location", enums.Location)
+export class Location extends enum_prop("Location", enums.Location) {}
 
-export class OutputBackend extends enum_prop("OutputBackend", enums.OutputBackend)
+export class OutputBackend extends enum_prop("OutputBackend", enums.OutputBackend) {}
 
-export class Orientation extends enum_prop("Orientation", enums.Orientation)
+export class Orientation extends enum_prop("Orientation", enums.Orientation) {}
 
-export class VerticalAlign extends enum_prop("VerticalAlign", enums.VerticalAlign)
+export class VerticalAlign extends enum_prop("VerticalAlign", enums.VerticalAlign) {}
 
-export class TextAlign extends enum_prop("TextAlign", enums.TextAlign)
+export class TextAlign extends enum_prop("TextAlign", enums.TextAlign) {}
 
-export class TextBaseline extends enum_prop("TextBaseline", enums.TextBaseline)
+export class TextBaseline extends enum_prop("TextBaseline", enums.TextBaseline) {}
 
-export class RenderLevel extends enum_prop("RenderLevel", enums.RenderLevel)
+export class RenderLevel extends enum_prop("RenderLevel", enums.RenderLevel) {}
 
-export class RenderMode extends enum_prop("RenderMode", enums.RenderMode)
+export class RenderMode extends enum_prop("RenderMode", enums.RenderMode) {}
 
-export class SizingMode extends enum_prop("SizingMode", enums.SizingMode)
+export class SizingMode extends enum_prop("SizingMode", enums.SizingMode) {}
 
-export class SpatialUnits extends enum_prop("SpatialUnits", enums.SpatialUnits)
+export class SpatialUnits extends enum_prop("SpatialUnits", enums.SpatialUnits) {}
 
-export class Distribution extends enum_prop("Distribution", enums.DistributionTypes)
+export class Distribution extends enum_prop("Distribution", enums.DistributionTypes) {}
 
-export class StepMode extends enum_prop("StepMode", enums.StepModes)
+export class StepMode extends enum_prop("StepMode", enums.StepModes) {}
 
-export class PaddingUnits extends enum_prop("PaddingUnits", enums.PaddingUnits)
+export class PaddingUnits extends enum_prop("PaddingUnits", enums.PaddingUnits) {}
 
-export class StartEnd extends enum_prop("StartEnd", enums.StartEnd)
+export class StartEnd extends enum_prop("StartEnd", enums.StartEnd) {}
 
-#
-# Units Properties
-#
-export units_prop = (name, valid_units, default_units) ->
-  class UnitsProp extends Number
-    name: name
-    init: () ->
-      if not @spec.units?
-        @spec.units = default_units
+//
+// Units Properties
+//
+export function units_prop(name: string, valid_units: any, default_units: any) {
+  return class extends Number {
+    init(): void {
+      if (this.spec.units == null)
+        this.spec.units = default_units
 
-      # TODO (bev) remove this later, it's just for temporary compat
-      @units = @spec.units
+      const units = this.spec.units
+      if (!contains(valid_units, units))
+        throw new Error(`${name} units must be one of ${valid_units}, given invalid value: ${units}`)
+    }
 
-      units = @spec.units
-      if units not in valid_units
-        throw new Error("#{name} units must be one of #{valid_units}, given invalid value: #{units}")
+    get units(): any {
+      return this.spec.units
+    }
 
-export class Angle extends units_prop("Angle", enums.AngleUnits, "rad")
-  transform: (values) ->
-    if @spec.units == "deg"
-      values = (x * Math.PI/180.0 for x in values)
-    values = (-x for x in values)
-    return super(values)
+    set units(units: any) {
+      this.spec.units = units
+    }
+  }
+}
 
-export class Distance extends units_prop("Distance", enums.SpatialUnits, "data")
+export class Angle extends units_prop("Angle", enums.AngleUnits, "rad") {
+  transform(values: any): any {
+    if (this.spec.units == "deg")
+      values = values.map((x: number) => x * Math.PI/180.0)
+    values = values.map((x: number) => -x)
+    return super.transform(values)
+  }
+}
 
-#
-# DataSpec properties
-#
+export class Distance extends units_prop("Distance", enums.SpatialUnits, "data") {}
 
-export class AngleSpec extends Angle
-  dataspec: true
+//
+// DataSpec properties
+//
 
-export class ColorSpec extends Color
-  dataspec: true
+export class AngleSpec extends Angle {}
+AngleSpec.prototype.dataspec = true
 
-export class DirectionSpec extends Distance
-  dataspec: true
+export class ColorSpec extends Color {}
+ColorSpec.prototype.dataspec = true
 
-export class DistanceSpec extends Distance
-  dataspec: true
+export class DirectionSpec extends Distance {}
+DirectionSpec.prototype.dataspec = true
 
-export class FontSizeSpec extends String
-  dataspec: true
+export class DistanceSpec extends Distance {}
+DistanceSpec.prototype.dataspec = true
 
-export class NumberSpec extends Number
-  dataspec: true
+export class FontSizeSpec extends String {}
+FontSizeSpec.prototype.dataspec = true
 
-export class StringSpec extends String
-  dataspec: true
+export class NumberSpec extends Number {}
+NumberSpec.prototype.dataspec = true
+
+export class StringSpec extends String {}
+StringSpec.prototype.dataspec = true

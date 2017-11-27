@@ -111,10 +111,6 @@ export class ColumnDataSource extends ColumnarDataSource
     super(options)
     [@data, @_shapes] = serialization.decode_column_data(@data)
 
-  `
-  data: {[key: string]: any}
-  `
-
   @define {
     data:         [ p.Any,   {} ]
   }
