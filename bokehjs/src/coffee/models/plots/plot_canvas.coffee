@@ -565,7 +565,7 @@ export class PlotCanvasView extends DOMView
   _needs_layout: () ->
     for _, view of @renderer_views
       if view.model.panel?
-        if _view_sizes.get(view) != Math.round(view._get_size())
+        if _view_sizes.get(view) != view.get_size()
           return true
 
     return false

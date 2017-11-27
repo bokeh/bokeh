@@ -41,6 +41,9 @@ export class AxisView extends RendererView
   _get_size: () ->
     return @_tick_extent() + @_tick_label_extent() + @_axis_label_extent()
 
+  get_size: () ->
+    return if this.model.visible then Math.round(this._get_size()) else 0
+
   # drawing sub functions -----------------------------------------------------
 
   _draw_rule: (ctx, extents, tick_coords) ->
