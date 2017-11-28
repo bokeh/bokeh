@@ -99,4 +99,14 @@ describe("core/util/array module", () => {
     expect(array.difference(a, b, [2])).to.deep.equal([0])
     expect(array.difference(a, b, [0])).to.deep.equal([])
   })
+
+  it("repeat should handle 0 and negative repetitions", () => {
+    expect(array.repeat(3, 0)).to.deep.equal([])
+    expect(() => array.repeat(4, -1)).to.throw(RangeError)
+  })
+
+  it("repeat should handle positive repetitions", () => {
+    expect(array.repeat(5, 1)).to.deep.equal([5])
+    expect(array.repeat(6, 5)).to.deep.equal([6, 6, 6, 6, 6])
+  })
 })

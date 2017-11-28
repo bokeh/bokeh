@@ -54,6 +54,16 @@ class BasicTickFormatter(TickFormatter):
 
     """)
 
+
+class MetricTickFormatter(TickFormatter):
+    ''' Tick numbers using metric prefixes like p, n, u, m, k, M, G
+
+    '''
+    max_precision = Int(5, help="""
+    Maximum fractional digits to display in tick labels.
+    """)
+
+
 class MercatorTickFormatter(BasicTickFormatter):
     ''' TickFormatter for values in WebMercator units.
 
