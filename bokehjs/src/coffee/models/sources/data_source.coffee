@@ -1,7 +1,7 @@
 import {Model} from "../../model"
 import * as p from "core/properties"
 import {isFunction} from "core/util/types"
-import {Selection} from "../selections_and_inspections/selection"
+import {Selection} from "../selections/selection"
 
 export class DataSource extends Model
   type: 'DataSource'

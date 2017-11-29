@@ -1,6 +1,6 @@
 import {HasProps} from "./has_props"
 import {Model} from "../model"
-import {Selection} from "../models/selections_and_inspections/selection"
+import {Selection} from "../models/selections/selection"
 import * as hittest from "./hittest"
 import * as p from "./properties"
 

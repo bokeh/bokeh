@@ -31,7 +31,7 @@ from .mappers import *
 from .plots import *
 from .ranges import *
 from .renderers import *
-from .selections_and_inspections import *
+from .selections import *
 from .sources import *
 from .tickers import *
 from .tiles import *

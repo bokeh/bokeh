@@ -2,7 +2,7 @@ import {Model} from "../../model"
 import * as p from "core/properties"
 import {intersection} from "core/util/array"
 import {ColumnarDataSource} from "./columnar_data_source"
-import {Selection} from "../selections_and_inspections/selection"
+import {Selection} from "../selections/selection"
 
 export class CDSView extends Model
   type: 'CDSView'

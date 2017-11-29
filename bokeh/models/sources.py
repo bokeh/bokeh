@@ -10,7 +10,7 @@ from ..util.warnings import BokehUserWarning
 
 from .callbacks import Callback
 from .filters import Filter
-from .selections_and_inspections import Selection
+from .selections import Selection
 
 pd = import_optional('pandas')
 

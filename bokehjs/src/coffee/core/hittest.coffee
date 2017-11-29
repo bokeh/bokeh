@@ -1,6 +1,6 @@
 import {union, concat, sortBy} from "./util/array"
 import {merge} from "./util/object"
-import {Selection} from "../models/selections_and_inspections/selection"
+import {Selection} from "../models/selections/selection"
 
 export point_in_poly = (x, y, px, py) ->
   inside = false
