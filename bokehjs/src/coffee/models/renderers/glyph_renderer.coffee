@@ -6,6 +6,7 @@ import {logger} from "core/logging"
 import * as p from "core/properties"
 import {difference} from "core/util/array"
 import {extend, clone} from "core/util/object"
+import * as hittest from "core/hittest"
 
 export class GlyphRendererView extends RendererView
 
@@ -140,10 +141,13 @@ export class GlyphRendererView extends RendererView
 
     # selected is in full set space
     selected = @model.data_source.selected
-    if @glyph instanceof LineView and selected.glyph instanceof Line
-      selected = @model.view.convert_indices_from_subset(indices)
+    if !selected or selected.indices.length == 0
+      selected = []
     else
-      selected = selected.indices
+      if @glyph instanceof LineView and selected.glyph instanceof Line
+        selected = @model.view.convert_indices_from_subset(selected.indices)
+      else
+        selected = selected.indices
 
     # inspected is in full set space
     inspected = @model.data_source.inspected
@@ -175,6 +179,7 @@ export class GlyphRendererView extends RendererView
     if @hover_glyph? and inspected.length
       indices = difference(indices, inspected)
 
+    # Render with no selection
     if not (selected.length and @have_selection_glyphs())
         trender = Date.now()
         if @glyph instanceof LineView
@@ -188,6 +193,7 @@ export class GlyphRendererView extends RendererView
             @hover_glyph.render(ctx, inspected, @glyph)
         dtrender = Date.now() - trender
 
+    # Render with selection
     else
       # reset the selection mask
       tselect = Date.now()
@@ -241,8 +247,8 @@ export class GlyphRendererView extends RendererView
     index = @model.get_reference_point(field, label)
     @glyph.draw_legend_for_index(ctx, x0, x1, y0, y1, index)
 
-  hit_test: (geometry, final, append, mode="select") ->
-    return @model.hit_test_helper(geometry, @, final, append, mode)
+  hit_test: (geometry) ->
+    return @model.hit_test_helper(geometry, @)
 
 export class GlyphRenderer extends Renderer
   default_view: GlyphRendererView
@@ -266,31 +272,18 @@ export class GlyphRenderer extends Renderer
           index = i
     return index
 
-  hit_test_helper: (geometry, renderer_view, final, append, mode) ->
+  hit_test_helper: (geometry, renderer_view) ->
     if not @visible
-      return false
+      return hittest.create_empty_hit_test_result()
 
     hit_test_result = renderer_view.glyph.hit_test(geometry)
 
     # glyphs that don't have hit-testing implemented will return null
     if hit_test_result == null
-      return false
+      return hittest.create_empty_hit_test_result()
 
-    indices = @view.convert_selection_from_subset(hit_test_result)
-
-    if mode == "select"
-      selector = @data_source.selection_manager.selector
-      selector.update(indices, final, append)
-      @data_source.selected = selector.indices
-      @data_source.select.emit()
-    else # mode == "inspect"
-      inspector = @data_source.selection_manager.get_or_create_inspector(@)
-      inspector.update(indices, true, false, true)
-      # silently set inspected attr to avoid triggering data_source.change event and rerender
-      @data_source.setv({inspected: inspector.indices}, {silent: true})
-      @data_source.inspect.emit([renderer_view, {geometry: geometry}])
-
-    return not indices.is_empty()
+    selection = @view.convert_selection_from_subset(hit_test_result)
+    return selection
 
   get_selection_manager: () ->
     return @data_source.selection_manager

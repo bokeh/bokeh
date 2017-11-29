@@ -1,8 +1,8 @@
 import {Model} from "../../model"
 import * as p from "core/properties"
-import {create_hit_test_result} from "core/hittest"
 import {intersection} from "core/util/array"
 import {ColumnarDataSource} from "./columnar_data_source"
+import {Selection} from "../selections_and_inspections/selection"
 
 export class CDSView extends Model
   type: 'CDSView'
@@ -52,17 +52,17 @@ export class CDSView extends Model
       @indices_map[@indices[i]] = i
 
   convert_selection_from_subset: (selection_subset) ->
-    selection_full = create_hit_test_result()
+    selection_full = new Selection()
     selection_full.update_through_union(selection_subset)
-    indices_1d = (@indices[i] for i in selection_subset['1d']['indices'])
-    selection_full['1d']['indices'] = indices_1d
+    indices_1d = (@indices[i] for i in selection_subset['indices'])
+    selection_full['indices'] = indices_1d
     return selection_full
 
   convert_selection_to_subset: (selection_full) ->
-    selection_subset = create_hit_test_result()
+    selection_subset = new Selection()
     selection_subset.update_through_union(selection_full)
-    indices_1d = (@indices_map[i] for i in selection_full['1d']['indices'])
-    selection_subset['1d']['indices'] = indices_1d
+    indices_1d = (@indices_map[i] for i in selection_full['indices'])
+    selection_subset['indices'] = indices_1d
     return selection_subset
 
   convert_indices_from_subset: (indices) ->
