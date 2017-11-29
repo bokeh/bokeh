@@ -106,12 +106,12 @@ export class CircleView extends XYGlyphView
         if dist <= r2
           hits.push([i, dist])
 
-    return hittest.create_1d_hit_test_result(hits)
+    return hittest.create_hit_test_result_from_hits(hits)
 
   _hit_span: (geometry) ->
       {sx, sy} = geometry
       {minX, minY, maxX, maxY} = this.bounds()
-      result = hittest.create_hit_test_result()
+      result = hittest.create_empty_hit_test_result()
 
       if geometry.direction == 'h'
         # use circle bounds instead of current pointer y coordinates
@@ -143,7 +143,7 @@ export class CircleView extends XYGlyphView
       bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
       hits = @index.indices(bbox)
 
-      result['1d'].indices = hits
+      result.indices = hits
       return result
 
   _hit_rect: (geometry) ->
@@ -151,8 +151,8 @@ export class CircleView extends XYGlyphView
     [x0, x1] = @renderer.xscale.r_invert(sx0, sx1)
     [y0, y1] = @renderer.yscale.r_invert(sy0, sy1)
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
-    result = hittest.create_hit_test_result()
-    result['1d'].indices = @index.indices(bbox)
+    result = hittest.create_empty_hit_test_result()
+    result.indices = @index.indices(bbox)
     return result
 
   _hit_poly: (geometry) ->
@@ -167,8 +167,8 @@ export class CircleView extends XYGlyphView
       if hittest.point_in_poly(@sx[i], @sy[i], sx, sy)
         hits.push(idx)
 
-    result = hittest.create_hit_test_result()
-    result['1d'].indices = hits
+    result = hittest.create_empty_hit_test_result()
+    result.indices = hits
     return result
 
   # circle does not inherit from marker (since it also accepts radius) so we

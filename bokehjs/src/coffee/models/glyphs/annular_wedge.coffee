@@ -88,7 +88,7 @@ export class AnnularWedgeView extends XYGlyphView
       if angle_between(-angle, -@_start_angle[i], -@_end_angle[i], direction)
         hits.push([i, dist])
 
-    return hittest.create_1d_hit_test_result(hits)
+    return hittest.create_hit_test_result_from_hits(hits)
 
   draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
     @_generic_area_legend(ctx, x0, x1, y0, y1, index)

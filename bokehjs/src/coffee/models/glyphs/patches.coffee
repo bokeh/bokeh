@@ -139,8 +139,8 @@ export class PatchesView extends GlyphView
         if hittest.point_in_poly(sx, sy, sxs[j], sys[j])
           hits.push(idx)
 
-    result = hittest.create_hit_test_result()
-    result['1d'].indices = hits
+    result = hittest.create_empty_hit_test_result()
+    result.indices = hits
     return result
 
   _get_snap_coord: (array) ->

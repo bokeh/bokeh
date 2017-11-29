@@ -46,7 +46,7 @@ export class LineView extends XYGlyphView
           * 0d (bool): whether the point hits the glyph or not
           * 1d (array(int)): array with the indices hit by the point
     ###
-    result = hittest.create_hit_test_result()
+    result = hittest.create_empty_hit_test_result()
     point = {x: geometry.sx, y: geometry.sy}
     shortest = 9999
     threshold = Math.max(2, @visuals.line.line_width.value() / 2)
@@ -66,7 +66,7 @@ export class LineView extends XYGlyphView
 
   _hit_span: (geometry) ->
     {sx, sy} = geometry
-    result = hittest.create_hit_test_result()
+    result = hittest.create_empty_hit_test_result()
 
     if geometry.direction == 'v'
       val = @renderer.yscale.invert(sy)

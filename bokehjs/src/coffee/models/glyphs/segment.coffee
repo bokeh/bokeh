@@ -52,8 +52,8 @@ export class SegmentView extends GlyphView
       if dist2 < threshold2
         hits.push(i)
 
-    result = hittest.create_hit_test_result()
-    result['1d'].indices = hits
+    result = hittest.create_empty_hit_test_result()
+    result.indices = hits
     return result
 
   _hit_span: (geometry) ->
@@ -77,8 +77,8 @@ export class SegmentView extends GlyphView
       if v0[i]<=val<=v1[i] or v1[i]<=val<=v0[i]
         hits.push(i)
 
-    result = hittest.create_hit_test_result()
-    result['1d'].indices = hits
+    result = hittest.create_empty_hit_test_result()
+    result.indices = hits
     return result
 
   scx: (i) ->

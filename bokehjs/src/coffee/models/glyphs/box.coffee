@@ -43,8 +43,8 @@ export class BoxView extends GlyphView
 
     hits = @index.indices({minX: x, minY: y, maxX: x, maxY: y})
 
-    result = hittest.create_hit_test_result()
-    result['1d'].indices = hits
+    result = hittest.create_empty_hit_test_result()
+    result.indices = hits
     return result
 
   _hit_span: (geometry) ->
@@ -61,8 +61,8 @@ export class BoxView extends GlyphView
       [minY, maxY] = @renderer.yscale.r_invert(vr.start, vr.end)
       hits = @index.indices({ minX: x, minY: minY, maxX: x, maxY: maxY })
 
-    result = hittest.create_hit_test_result()
-    result['1d'].indices = hits
+    result = hittest.create_empty_hit_test_result()
+    result.indices = hits
     return result
 
   draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->

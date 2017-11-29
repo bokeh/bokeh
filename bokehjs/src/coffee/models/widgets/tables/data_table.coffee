@@ -200,8 +200,8 @@ export class DataTableView extends WidgetView
         if @in_selection_update
           return
 
-        selected = hittest.create_hit_test_result()
-        selected['1d'].indices = (@data.index[i] for i in args.rows)
+        selected = hittest.create_empty_hit_test_result()
+        selected.indices = (@data.index[i] for i in args.rows)
         @model.source.selected = selected
 
       @updateSelection()

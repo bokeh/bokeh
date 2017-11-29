@@ -75,7 +75,7 @@ export class AnnulusView extends XYGlyphView
       if dist <= or2 and dist >= ir2
         hits.push([i, dist])
 
-    return hittest.create_1d_hit_test_result(hits)
+    return hittest.create_hit_test_result_from_hits(hits)
 
   draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
     indices = [index]

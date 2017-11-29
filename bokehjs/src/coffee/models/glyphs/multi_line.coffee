@@ -42,7 +42,7 @@ export class MultiLineView extends GlyphView
       ctx.stroke()
 
   _hit_point: (geometry) ->
-    result = hittest.create_hit_test_result()
+    result = hittest.create_empty_hit_test_result()
     point = {x: geometry.sx, y: geometry.sy}
     shortest = 9999
 
@@ -59,14 +59,14 @@ export class MultiLineView extends GlyphView
       if points
         hits[i] = points
 
-    result['1d'].indices = (parseInt(i) for i in Object.keys(hits))
+    result.indices = (parseInt(i) for i in Object.keys(hits))
     result['2d'].indices = hits
 
     return result
 
   _hit_span: (geometry) ->
     {sx, sy} = geometry
-    result = hittest.create_hit_test_result()
+    result = hittest.create_empty_hit_test_result()
 
     if geometry.direction == 'v'
       val = @renderer.yscale.invert(sy)
@@ -84,7 +84,7 @@ export class MultiLineView extends GlyphView
       if points.length > 0
         hits[i] = points
 
-    result['1d'].indices = (parseInt(i) for i in Object.keys(hits))
+    result.indices = (parseInt(i) for i in Object.keys(hits))
     result['2d'].indices = hits
 
     return result

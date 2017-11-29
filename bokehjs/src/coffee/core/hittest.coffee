@@ -1,5 +1,6 @@
 import {union, concat, sortBy} from "./util/array"
 import {merge} from "./util/object"
+import {Selection} from "../models/selections_and_inspections/selection"
 
 export point_in_poly = (x, y, px, py) ->
   inside = false
@@ -18,50 +19,11 @@ export point_in_poly = (x, y, px, py) ->
 
   return inside
 
-nullreturner = () -> null  # stub function shared by all hittests by default
+export create_empty_hit_test_result = () -> new Selection()
 
-export class HitTestResult
-  constructor: () ->
-    # 0d is only valid for line and patch glyphs
-    @['0d'] = {
-      # the glyph that was picked
-      glyph: null,
-      get_view: nullreturner,  # this is a function, because setting the view causes inf. recursion
-      # array with the [smallest] index of the segment of the line that was hit
-      indices: []
-    }
-    # 1d for all other glyphs apart from multilines and multi patches
-    @['1d'] = {
-      # index of the closest point to the crossed segment
-      # useful for special glyphs like line that are continuous and
-      # not discrete between 2 data points
-      indices: []
-    }
-    # 2d for all for multilines and multi patches
-    @['2d'] = {
-      # mapping of indices of the multiglyph to array of glyph indices that were hit
-      # e.g. {3: [5, 6], 4, [5]}
-      indices: {}
-    }
-
-  Object.defineProperty(this.prototype, '_0d', { get: () -> @['0d'] })
-  Object.defineProperty(this.prototype, '_1d', { get: () -> @['1d'] })
-  Object.defineProperty(this.prototype, '_2d', { get: () -> @['2d'] })
-
-  is_empty: () ->
-    @_0d.indices.length == 0 && @_1d.indices.length == 0 && Object.keys(@_2d.indices).length == 0
-
-  update_through_union: (other) ->
-    @['0d'].indices = union(other['0d'].indices, @['0d'].indices)
-    @['0d'].glyph = other['0d'].glyph or @['0d'].glyph
-    @['1d'].indices = union(other['1d'].indices, @['1d'].indices)
-    @['2d'].indices = merge(other['2d'].indices, @['2d'].indices)
-
-export create_hit_test_result = () -> new HitTestResult()
-
-export create_1d_hit_test_result = (hits) ->
-  result = new HitTestResult()
-  result['1d'].indices = (i for [i, _dist] in sortBy(hits, ([_i, dist]) -> dist))
+export create_hit_test_result_from_hits = (hits) ->
+  result = new Selection()
+  result.indices = (i for [i, _dist] in sortBy(hits, ([_i, dist]) -> dist))
   return result
 
 export validate_bbox_coords = ([x0, x1], [y0, y1]) ->

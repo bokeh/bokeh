@@ -177,8 +177,8 @@ export class GlyphView extends View
     [x0, x1] = @renderer.xscale.r_invert(sx0, sx1)
     [y0, y1] = @renderer.yscale.r_invert(sy0, sy1)
     bb = hittest.validate_bbox_coords([x0, x1], [y0, y1])
-    result = hittest.create_hit_test_result()
-    result['1d'].indices = @index.indices(bb)
+    result = hittest.create_empty_hit_test_result()
+    result.indices = @index.indices(bb)
     return result
 
   set_data: (source, indices, indices_to_update) ->

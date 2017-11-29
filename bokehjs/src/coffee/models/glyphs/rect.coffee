@@ -115,8 +115,8 @@ export class RectView extends XYGlyphView
       if height_in and width_in
         hits.push(i)
 
-    result = hittest.create_hit_test_result()
-    result['1d'].indices = hits
+    result = hittest.create_empty_hit_test_result()
+    result.indices = hits
     return result
 
   _map_dist_corner_for_data_side_length: (coord, side_length, scale, dim) ->
