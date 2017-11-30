@@ -70,13 +70,7 @@ export class HasProps
 
   @mixins: (names) -> @mixin(names...)
 
-  @override: (name_or_object, default_value) ->
-    if isString(name_or_object)
-      object = {}
-      object[name] = default_value
-    else
-      object = name_or_object
-
+  @override: (object) ->
     for name, default_value of object
       do (name, default_value) =>
         value = this.prototype.props[name]

@@ -70,6 +70,13 @@ export map_three_levels = (factors, outer_pad, inner_pad, factor_pad, offset=0) 
 export class FactorRange extends Range
   type: 'FactorRange'
 
+  `
+  factors: string[]
+
+  mids: string[] | undefined
+  tops: string[] | undefined
+  `
+
   @define {
     factors:             [ p.Array,        []        ]
     factor_padding:      [ p.Number,       0         ]
