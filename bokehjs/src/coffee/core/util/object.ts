@@ -2,7 +2,7 @@ import {concat, union} from "./array"
 
 export const keys = Object.keys
 
-export function values<T>(object: {[key: string]: T}): Array<T> {
+export function values<T>(object: {[key: string]: T}): T[] {
   const keys = Object.keys(object)
   const length = keys.length
   const values = new Array<T>(length)
@@ -12,7 +12,8 @@ export function values<T>(object: {[key: string]: T}): Array<T> {
   return values
 }
 
-export function extend<T, T1>(dest: T, source: T1): T & T1;
+export function extend<T, T1>(dest: T, src: T1): T & T1;
+export function extend<T, T1, T2>(dest: T, src1: T1, src2: T2): T & T1 & T2;
 export function extend<R>(dest: any, ...sources: Array<any>): R {
   for (const source of sources) {
     for (const key in source) {
@@ -29,11 +30,11 @@ export function clone<T>(obj: T): T {
   return extend({}, obj)
 }
 
-export function merge<T>(obj1: {[key: string] : Array<T>}, obj2: {[key: string]: Array<T>}): {[key: string]: Array<T>} {
+export function merge<T>(obj1: {[key: string] : T[]}, obj2: {[key: string]: T[]}): {[key: string]: T[]} {
   /*
    * Returns an object with the array values for obj1 and obj2 unioned by key.
    */
-  const result: {[key: string]: Array<T>} = Object.create(Object.prototype);
+  const result: {[key: string]: T[]} = Object.create(Object.prototype);
 
   const keys = concat([Object.keys(obj1), Object.keys(obj2)])
 

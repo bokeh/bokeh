@@ -64,74 +64,59 @@ describe "properties module", ->
 
     describe "construction", ->
 
-      it "should throw an Error for missing property object", ->
-        fn = ->
-          new properties.Property({attr: 'a'})
-        expect(fn).to.throw Error, "missing property object"
-
-      it "should throw an Error for non-HasProps property object", ->
-        fn = ->
-          new properties.Property({obj: 10, attr: 'a'})
-        expect(fn).to.throw Error, "property object must be a HasProps"
-
-      it "should throw an Error for missing property attr", ->
-        fn = ->
-          new properties.Property({obj: new SomeHasProps(a: {})})
-        expect(fn).to.throw Error, "missing property attr"
-
       it "should set undefined property attr value to null if no default is given", ->
-        obj = new SomeHasProps(a: {})
-        p = new properties.Property({obj: obj, attr: 'b'})
-        expect(obj.b).to.be.equal null
+        obj = new SomeHasProps({a: {}})
+        p = new properties.Property(obj, 'b')
+        expect(obj.b).to.be.equal(null)
 
       #it "should set undefined property attr value if a default is given", ->
       #  obj = new SomeHasProps(a: {})
-      #  p = new properties.Property({obj: obj, attr: 'b', default_value: 10})
+      #  p = new properties.Property(obj, 'b', () -> 10)
       #  expect(obj.b).to.be.equal 10
 
       # it "should throw an Error for missing specifications", ->
       #   fn = ->
-      #     new properties.Property({obj: new SomeHasProps(a: {}), attr: 'a'})
+      #     new properties.Property(new SomeHasProps(a: {}), 'a')
       #   expect(fn).to.throw Error, /^Invalid property specifier .*, must have exactly one of/
 
       # it "should throw an Error for too many specifications", ->
       #   fn = ->
-      #     new properties.Property({obj: new SomeHasProps(a: {field: "foo", value:"bar"}), attr: 'a'})
+      #     new properties.Property(new SomeHasProps(a: {field: "foo", value:"bar"}), 'a')
       #   expect(fn).to.throw Error, /^Invalid property specifier .*, must have exactly one of/
 
       it "should throw an Error if a field spec is not a string", ->
         fn = ->
-          new properties.Property({obj: new SomeHasProps(a: {field: 10}), attr: 'a'})
+          new properties.Property(new SomeHasProps(a: {field: 10}), 'a')
         expect(fn).to.throw Error, /^field value for property '.*' is not a string$/
 
       it "should set a spec for object attr values", ->
-        p = new properties.Property({obj: new SomeHasProps(a: {field: "foo"}), attr: 'a'})
+        p = new properties.Property(new SomeHasProps(a: {field: "foo"}), 'a')
         expect(p.spec).to.be.deep.equal {field: "foo"}
-        p = new properties.Property({obj: new SomeHasProps(a: {value: "foo"}), attr: 'a'})
+        p = new properties.Property(new SomeHasProps(a: {value: "foo"}), 'a')
         expect(p.spec).to.be.deep.equal {value: "foo"}
 
       it "should set a value spec for non-object attr values", ->
-        p = new properties.Property({obj: new SomeHasProps(a: 10), attr: 'a'})
+        p = new properties.Property(new SomeHasProps(a: 10), 'a')
         expect(p.spec).to.be.deep.equal {value: 10}
 
     describe "value", ->
       it "should return a value if there is a value spec", ->
-        prop = new properties.Property({obj: new SomeHasProps(fixed), attr: 'a'})
+        prop = new properties.Property(new SomeHasProps(fixed), 'a')
         expect(prop.value()).to.be.equal 1
-        prop = new properties.Property({obj: new SomeHasProps(spec_value), attr: 'a'})
+        prop = new properties.Property(new SomeHasProps(spec_value), 'a')
         expect(prop.value()).to.be.equal 2
 
       it "should return a transformed value if there is a value spec with transform", ->
-        prop = new properties.Property({obj: new SomeHasProps(spec_value_trans), attr: 'a'})
+        prop = new properties.Property(new SomeHasProps(spec_value_trans), 'a')
         expect(prop.value()).to.be.equal 3
 
       it "should allow a fixed null value", ->
-        prop = new properties.Property({obj: new SomeHasProps(spec_value_null), attr: 'a'})
+        prop = new properties.Property(new SomeHasProps(spec_value_null), 'a')
         expect(prop.value()).to.be.equal null
 
       it "should throw an Error otherwise", ->
         fn = ->
-          prop = new properties.Property({obj: new SomeHasProps(spec_field_only), attr: 'a'})
+          prop = new properties.Property(new SomeHasProps(spec_field_only), 'a')
           prop.value()
         expect(fn).to.throw Error, "attempted to retrieve property value for property without value specification"
 
@@ -140,7 +125,7 @@ describe "properties module", ->
       it "should throw an Error for non data-specs", ->
         fn = ->
           source = new ColumnDataSource({data: {foo: [0,1,2,3,10]}})
-          prop = new properties.Property({obj: new SomeHasProps(spec_field), attr: 'a'})
+          prop = new properties.Property(new SomeHasProps(spec_field), 'a')
           arr = prop.array(source)
         expect(fn).to.throw Error, /attempted to retrieve property array for non-dataspec property/
 
@@ -148,7 +133,7 @@ describe "properties module", ->
 
       it "should return an array if there is a value spec", ->
         source = new ColumnDataSource({data: {foo: [0,1,2,3,10]}})
-        prop = new properties.Property({obj: new SomeHasProps(fixed), attr: 'a'})
+        prop = new properties.Property(new SomeHasProps(fixed), 'a')
         prop.dataspec = true
         arr = prop.array(source)
         expect(arr).to.be.instanceof Array
@@ -159,7 +144,7 @@ describe "properties module", ->
         expect(arr[3]).to.be.equal 1
         expect(arr[4]).to.be.equal 1
 
-        prop = new properties.Property({obj: new SomeHasProps(spec_value), attr: 'a'})
+        prop = new properties.Property(new SomeHasProps(spec_value), 'a')
         prop.dataspec = true
         arr = prop.array(source)
         expect(arr).to.be.instanceof Array
@@ -172,7 +157,7 @@ describe "properties module", ->
 
       it "should return an array if there is a valid expr spec", ->
         source = new ColumnDataSource({data: {foo: [0,1,2,3,10]}})
-        prop = new properties.Property({obj: new SomeHasProps(spec_expr), attr: 'a'})
+        prop = new properties.Property(new SomeHasProps(spec_expr), 'a')
         prop.dataspec = true
         arr = prop.array(source)
         expect(arr).to.be.instanceof Array
@@ -185,7 +170,7 @@ describe "properties module", ->
 
       it "should return an array if there is a valid field spec", ->
         source = new ColumnDataSource({data: {foo: [0,1,2,3,10]}})
-        prop = new properties.Property({obj: new SomeHasProps(spec_field), attr: 'a'})
+        prop = new properties.Property(new SomeHasProps(spec_field), 'a')
         prop.dataspec = true
         arr = prop.array(source)
         expect(arr).to.be.instanceof Array
@@ -199,14 +184,14 @@ describe "properties module", ->
       it "should throw an Error otherwise", ->
         fn = ->
           source = new ColumnDataSource({data: {}})
-          prop = new properties.Property({obj: new SomeHasProps(spec_field), attr: 'a'})
+          prop = new properties.Property(new SomeHasProps(spec_field), 'a')
           prop.dataspec = true
           arr = prop.array(source)
         expect(fn).to.throw Error, /attempted to retrieve property array for nonexistent field 'foo'/
 
       it "should apply a spec transform to a field", ->
         source = new ColumnDataSource({data: {foo: [0,1,2,3,10]}})
-        prop = new properties.Property({obj: new SomeHasProps(spec_field_trans), attr: 'a'})
+        prop = new properties.Property(new SomeHasProps(spec_field_trans), 'a')
         prop.dataspec = true
         arr = prop.array(source)
         expect(arr).to.be.instanceof Array
@@ -219,7 +204,7 @@ describe "properties module", ->
 
       it "should apply a spec transform to a value array", ->
         source = new ColumnDataSource({data: {foo: [0,1,2,3,10]}})
-        prop = new properties.Property({obj: new SomeHasProps(spec_value_trans), attr: 'a'})
+        prop = new properties.Property(new SomeHasProps(spec_value_trans), 'a')
         prop.dataspec = true
         arr = prop.array(source)
         expect(arr).to.be.instanceof Array
@@ -232,7 +217,7 @@ describe "properties module", ->
 
     describe "init", ->
       it "should return nothing by default", ->
-        p = new properties.Property({obj: new SomeHasProps(a: {value: "foo"}), attr: 'a'})
+        p = new properties.Property(new SomeHasProps(a: {value: "foo"}), 'a')
         expect(p.init()).to.be.equal undefined
 
     describe "transform", ->
@@ -249,7 +234,7 @@ describe "properties module", ->
 
     describe "validate", ->
       it "should return nothing by default", ->
-        p = new properties.Property({obj: new SomeHasProps(a: {value: "foo"}), attr: 'a'})
+        p = new properties.Property(new SomeHasProps(a: {value: "foo"}), 'a')
         expect(p.validate()).to.be.equal undefined
         expect(p.validate(10)).to.be.equal undefined
         expect(p.validate("foo")).to.be.equal undefined
@@ -271,7 +256,7 @@ describe "properties module", ->
         expect(prop.spec).to.be.deep.equal {value: "bar"}
 
   describe "Anchor", ->
-    prop = new properties.Anchor({obj: new SomeHasProps(a: {value: "top_left"}), attr: 'a'})
+    prop = new properties.Anchor(new SomeHasProps(a: {value: "top_left"}), 'a')
 
     it "should be an instance of Property", ->
       expect(prop).to.be.instanceof properties.Property
@@ -289,7 +274,7 @@ describe "properties module", ->
         expect(prop.transform).to.be.equal properties.Property.prototype.transform
 
   describe "Any", ->
-    prop = new properties.Any({obj: new SomeHasProps(a: {value: "top_left"}), attr: 'a'})
+    prop = new properties.Any(new SomeHasProps(a: {value: "top_left"}), 'a')
 
     it "should be an instance of Property", ->
       expect(prop).to.be.instanceof properties.Property
@@ -307,38 +292,38 @@ describe "properties module", ->
   describe "Angle", ->
 
     it "should be an instance of Number", ->
-      prop = new properties.Angle({obj: new SomeHasProps(a: {value: 10}), attr: 'a'})
+      prop = new properties.Angle(new SomeHasProps(a: {value: 10}), 'a')
       expect(prop).to.be.instanceof properties.Number
 
     describe "units", ->
       it "should default to rad units", ->
-        prop = new properties.Angle({obj: new SomeHasProps(a: {value: 10}), attr: 'a'})
+        prop = new properties.Angle(new SomeHasProps(a: {value: 10}), 'a')
         expect(prop.spec.units).to.be.equal "rad"
 
       it "should accept deg units", ->
-        prop = new properties.Angle({obj: new SomeHasProps(a: {value: 10, units:"deg"}), attr: 'a'})
+        prop = new properties.Angle(new SomeHasProps(a: {value: 10, units:"deg"}), 'a')
         expect(prop.spec.units).to.be.equal "deg"
 
       it "should accept rad units", ->
-        prop = new properties.Angle({obj: new SomeHasProps(a: {value: 10, units:"rad"}), attr: 'a'})
+        prop = new properties.Angle(new SomeHasProps(a: {value: 10, units:"rad"}), 'a')
         expect(prop.spec.units).to.be.equal "rad"
 
       it "should throw an Error on bad units", ->
         fn = ->
-          prop = new properties.Angle({obj: new SomeHasProps(a: {value: 10, units:"bad"}), attr: 'a'})
+          prop = new properties.Angle(new SomeHasProps(a: {value: 10, units:"bad"}), 'a')
         expect(fn).to.throw Error, "Angle units must be one of deg,rad, given invalid value: bad"
 
     describe "transform", ->
       it "should multiply radians by -1", ->
-        prop = new properties.Angle({obj: new SomeHasProps(a: {value: 10, units: "rad"}), attr: 'a'})
+        prop = new properties.Angle(new SomeHasProps(a: {value: 10, units: "rad"}), 'a')
         expect(prop.transform([-10, 0, 10, 20])).to.be.deep.equal [10, -0, -10, -20]
 
       it "should convert degrees to -1 * radians", ->
-        prop = new properties.Angle({obj: new SomeHasProps(a: {value: 10, units: "deg"}), attr: 'a'})
+        prop = new properties.Angle(new SomeHasProps(a: {value: 10, units: "deg"}), 'a')
         expect(prop.transform([-180, 0, 180])).to.be.deep.equal [Math.PI, -0, -Math.PI]
 
   describe "Array", ->
-    prop = new properties.Array({obj: new SomeHasProps(a: {field: "foo"}), attr: 'a'})
+    prop = new properties.Array(new SomeHasProps(a: {field: "foo"}), 'a')
 
     it "should be an instance of Property", ->
       expect(prop).to.be.instanceof properties.Property
@@ -363,7 +348,7 @@ describe "properties module", ->
         expect(prop.transform).to.be.equal properties.Property.prototype.transform
 
   describe "Bool", ->
-    prop = new properties.Bool({obj: new SomeHasProps(a: {value: true}), attr: 'a'})
+    prop = new properties.Bool(new SomeHasProps(a: {value: true}), 'a')
 
     it "should be an instance of Property", ->
       expect(prop).to.be.instanceof properties.Property
@@ -388,7 +373,7 @@ describe "properties module", ->
         expect(prop.transform).to.be.equal properties.Property.prototype.transform
 
   describe "Color", ->
-    prop = new properties.Color({obj: new SomeHasProps(a: {value: "#aabbccdd"}), attr: 'a'})
+    prop = new properties.Color(new SomeHasProps(a: {value: "#aabbccdd"}), 'a')
 
     it "should be an instance of Property", ->
       expect(prop).to.be.instanceof properties.Property
@@ -438,7 +423,7 @@ describe "properties module", ->
         validation_error prop, undefined
 
   describe "Dimension", ->
-    prop = new properties.Dimension({obj: new SomeHasProps(a: {value: "width"}), attr: 'a'})
+    prop = new properties.Dimension(new SomeHasProps(a: {value: "width"}), 'a')
 
     it "should be an instance of Property", ->
       expect(prop).to.be.instanceof properties.Property
@@ -456,7 +441,7 @@ describe "properties module", ->
         expect(prop.transform).to.be.equal properties.Property.prototype.transform
 
   describe "Direction", ->
-    prop = new properties.Direction({obj: new SomeHasProps(a: {value: "clock"}), attr: 'a'})
+    prop = new properties.Direction(new SomeHasProps(a: {value: "clock"}), 'a')
 
     it "should be an instance of Property", ->
       expect(prop).to.be.instanceof properties.Property
@@ -485,34 +470,34 @@ describe "properties module", ->
   describe "Distance", ->
 
     it "should be an instance of Number", ->
-      prop = new properties.Distance({obj: new SomeHasProps(a: {value: 10}), attr: 'a'})
+      prop = new properties.Distance(new SomeHasProps(a: {value: 10}), 'a')
       expect(prop).to.be.instanceof properties.Number
 
     describe "units", ->
       it "should default to data units", ->
-        prop = new properties.Distance({obj: new SomeHasProps(a: {value: 10}), attr: 'a'})
+        prop = new properties.Distance(new SomeHasProps(a: {value: 10}), 'a')
         expect(prop.spec.units).to.be.equal "data"
 
       it "should accept screen units", ->
-        prop = new properties.Distance({obj: new SomeHasProps(a: {value: 10, units:"screen"}), attr: 'a'})
+        prop = new properties.Distance(new SomeHasProps(a: {value: 10, units:"screen"}), 'a')
         expect(prop.spec.units).to.be.equal "screen"
 
       it "should accept data units", ->
-        prop = new properties.Distance({obj: new SomeHasProps(a: {value: 10, units:"data"}), attr: 'a'})
+        prop = new properties.Distance(new SomeHasProps(a: {value: 10, units:"data"}), 'a')
         expect(prop.spec.units).to.be.equal "data"
 
       it "should throw an Error on bad units", ->
         fn = ->
-          prop = new properties.Distance({obj: new SomeHasProps(a: {value: 10, units:"bad"}), attr: 'a'})
+          prop = new properties.Distance(new SomeHasProps(a: {value: 10, units:"bad"}), 'a')
         expect(fn).to.throw Error, "Distance units must be one of screen,data, given invalid value: bad"
 
     describe "transform", ->
       it "should be Property.transform", ->
-        prop = new properties.Distance({obj: new SomeHasProps(a: {value: 10}), attr: 'a'})
+        prop = new properties.Distance(new SomeHasProps(a: {value: 10}), 'a')
         expect(prop.transform).to.be.equal properties.Property.prototype.transform
 
   describe "Font", ->
-    prop = new properties.Font({obj: new SomeHasProps(a: {value: "times"}), attr: 'a'})
+    prop = new properties.Font(new SomeHasProps(a: {value: "times"}), 'a')
 
     it "should be an instance of Property", ->
       expect(prop).to.be.instanceof properties.Property
@@ -536,7 +521,7 @@ describe "properties module", ->
         expect(prop.transform).to.be.equal properties.Property.prototype.transform
 
   describe "FontStyle", ->
-    prop = new properties.FontStyle({obj: new SomeHasProps(a: {value: "normal"}), attr: 'a'})
+    prop = new properties.FontStyle(new SomeHasProps(a: {value: "normal"}), 'a')
 
     it "should be an instance of Property", ->
       expect(prop).to.be.instanceof properties.Property
@@ -554,7 +539,7 @@ describe "properties module", ->
         expect(prop.transform).to.be.equal properties.Property.prototype.transform
 
   describe "Instance", ->
-    prop = new properties.Instance({obj: new SomeHasProps({a: null}), attr: 'a'})
+    prop = new properties.Instance(new SomeHasProps({a: null}), 'a')
 
     it "should be an instance of Property", ->
       expect(prop).to.be.instanceof properties.Property
@@ -572,7 +557,7 @@ describe "properties module", ->
         expect(prop.transform).to.be.equal properties.Property.prototype.transform
 
   describe "LegendLocation", ->
-    prop = new properties.LegendLocation({obj: new SomeHasProps(a: {value: "top_left"}), attr: 'a'})
+    prop = new properties.LegendLocation(new SomeHasProps(a: {value: "top_left"}), 'a')
 
     it "should be an instance of Property", ->
       expect(prop).to.be.instanceof properties.Property
@@ -590,7 +575,7 @@ describe "properties module", ->
         expect(prop.transform).to.be.equal properties.Property.prototype.transform
 
   describe "LineCap", ->
-    prop = new properties.LineCap({obj: new SomeHasProps(a: {value: "butt"}), attr: 'a'})
+    prop = new properties.LineCap(new SomeHasProps(a: {value: "butt"}), 'a')
 
     it "should be an instance of Property", ->
       expect(prop).to.be.instanceof properties.Property
@@ -608,7 +593,7 @@ describe "properties module", ->
         expect(prop.transform).to.be.equal properties.Property.prototype.transform
 
   describe "LineJoin", ->
-    prop = new properties.LineJoin({obj: new SomeHasProps(a: {value: "miter"}), attr: 'a'})
+    prop = new properties.LineJoin(new SomeHasProps(a: {value: "miter"}), 'a')
 
     it "should be an instance of Property", ->
       expect(prop).to.be.instanceof properties.Property
@@ -626,7 +611,7 @@ describe "properties module", ->
         expect(prop.transform).to.be.equal properties.Property.prototype.transform
 
   describe "Number", ->
-    prop = new properties.Number({obj: new SomeHasProps(a: {value: 10}), attr: 'a'})
+    prop = new properties.Number(new SomeHasProps(a: {value: 10}), 'a')
 
     it "should be an instance of Property", ->
       expect(prop).to.be.instanceof properties.Property
@@ -644,7 +629,7 @@ describe "properties module", ->
         expect(prop.transform).to.be.equal properties.Property.prototype.transform
 
   describe "Orientation", ->
-    prop = new properties.Orientation({obj: new SomeHasProps(a: {value: "vertical"}), attr: 'a'})
+    prop = new properties.Orientation(new SomeHasProps(a: {value: "vertical"}), 'a')
 
     it "should be an instance of Property", ->
       expect(prop).to.be.instanceof properties.Property
@@ -662,7 +647,7 @@ describe "properties module", ->
         expect(prop.transform).to.be.equal properties.Property.prototype.transform
 
   describe "RenderLevel", ->
-    prop = new properties.RenderLevel({obj: new SomeHasProps(a: {value: "glyph"}), attr: 'a'})
+    prop = new properties.RenderLevel(new SomeHasProps(a: {value: "glyph"}), 'a')
 
     it "should be an instance of Property", ->
       expect(prop).to.be.instanceof properties.Property
@@ -680,7 +665,7 @@ describe "properties module", ->
         expect(prop.transform).to.be.equal properties.Property.prototype.transform
 
   describe "RenderMode", ->
-    prop = new properties.RenderMode({obj: new SomeHasProps(a: {value: "canvas"}), attr: 'a'})
+    prop = new properties.RenderMode(new SomeHasProps(a: {value: "canvas"}), 'a')
 
     it "should be an instance of Property", ->
       expect(prop).to.be.instanceof properties.Property
@@ -698,7 +683,7 @@ describe "properties module", ->
         expect(prop.transform).to.be.equal properties.Property.prototype.transform
 
   describe "String", ->
-    prop = new properties.String({obj: new SomeHasProps(a: {value: "foo"}), attr: 'a'})
+    prop = new properties.String(new SomeHasProps(a: {value: "foo"}), 'a')
 
     it "should be an instance of Property", ->
       expect(prop).to.be.instanceof properties.Property
@@ -722,7 +707,7 @@ describe "properties module", ->
         expect(prop.transform).to.be.equal properties.Property.prototype.transform
 
   describe "TextAlign", ->
-    prop = new properties.TextAlign({obj: new SomeHasProps(a: {value: "left"}), attr: 'a'})
+    prop = new properties.TextAlign(new SomeHasProps(a: {value: "left"}), 'a')
 
     it "should be an instance of Property", ->
       expect(prop).to.be.instanceof properties.Property
@@ -740,7 +725,7 @@ describe "properties module", ->
         expect(prop.transform).to.be.equal properties.Property.prototype.transform
 
   describe "TextBaseline", ->
-    prop = new properties.TextBaseline({obj: new SomeHasProps(a: {value: "top"}), attr: 'a'})
+    prop = new properties.TextBaseline(new SomeHasProps(a: {value: "top"}), 'a')
 
     it "should be an instance of Property", ->
       expect(prop).to.be.instanceof properties.Property

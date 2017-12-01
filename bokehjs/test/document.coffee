@@ -609,15 +609,15 @@ describe "Document", ->
 
     parsed['version'] = "0.0.1"
     out = stderrTrap -> Document.from_json_string(JSON.stringify(parsed))
-    expect(out).to.be.equal "[bokeh] JS/Python version mismatch\n[bokeh] Library versions: JS (#{js_version})  /  Python (#{parsed["version"]})\n"
+    expect(out).to.be.equal "[bokeh] JS/Python version mismatch\n[bokeh] Library versions: JS (#{js_version}) / Python (#{parsed["version"]})\n"
 
     parsed['version'] = "#{js_version}rc123"
     out = stderrTrap -> Document.from_json_string(JSON.stringify(parsed))
-    expect(out).to.be.equal "[bokeh] JS/Python version mismatch\n[bokeh] Library versions: JS (#{js_version})  /  Python (#{parsed["version"]})\n"
+    expect(out).to.be.equal "[bokeh] JS/Python version mismatch\n[bokeh] Library versions: JS (#{js_version}) / Python (#{parsed["version"]})\n"
 
     parsed['version'] = "#{js_version}dev123"
     out = stderrTrap -> Document.from_json_string(JSON.stringify(parsed))
-    expect(out).to.be.equal "[bokeh] JS/Python version mismatch\n[bokeh] Library versions: JS (#{js_version})  /  Python (#{parsed["version"]})\n"
+    expect(out).to.be.equal "[bokeh] JS/Python version mismatch\n[bokeh] Library versions: JS (#{js_version}) / Python (#{parsed["version"]})\n"
 
     parsed['version'] = "#{js_version}-foo"
     out = stderrTrap -> Document.from_json_string(JSON.stringify(parsed))

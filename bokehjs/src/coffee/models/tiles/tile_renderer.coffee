@@ -240,8 +240,8 @@ export class TileRendererView extends RendererView
       snap_back = true
 
     if snap_back
-      @x_range.setv(x_range:{start:extent[0], end: extent[2]})
-      @y_range.setv({start:extent[1], end: extent[3]})
+      @x_range.setv({x_range: {start: extent[0], end: extent[2]}})
+      @y_range.setv({start: extent[1], end: extent[3]})
       @extent = extent
 
     @extent = extent
