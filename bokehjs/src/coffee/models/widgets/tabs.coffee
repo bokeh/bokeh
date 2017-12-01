@@ -9,6 +9,7 @@ export class TabsView extends WidgetView
   connect_signals: () ->
     super()
     @connect(@model.properties.tabs.change, () => @rebuild_child_views())
+    @connect(@model.properties.active.change, () => @render())
 
   render: () ->
     super()

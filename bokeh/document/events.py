@@ -7,6 +7,10 @@ for :ref:`bokeh.events`.
 '''
 from __future__ import absolute_import
 
+from ..util.dependencies import import_optional
+
+pd = import_optional('pandas')
+
 class DocumentChangedEvent(object):
     ''' Base class for all internal events representing a change to a
     Bokeh Document.
@@ -346,7 +350,10 @@ class ColumnsStreamedEvent(DocumentPatchedEvent):
             column_source (ColumnDataSource) :
                 The data source to stream new data to.
 
-            data (dict) :
+            data (dict or DataFrame) :
+                New data to stream.
+
+                If a DataFrame, will be stored as ``{c: df[c] for c in df.columns}``
 
             rollover (int) :
                 A rollover limit. If the data source columns exceed this
@@ -365,10 +372,13 @@ class ColumnsStreamedEvent(DocumentPatchedEvent):
                 be executed in response to the change that triggered this
                 event. (default: None)
 
-
         '''
         super(ColumnsStreamedEvent, self).__init__(document, setter, callback_invoker)
         self.column_source = column_source
+
+        if pd and isinstance(data, pd.DataFrame):
+            data = {c: data[c] for c in data.columns}
+
         self.data = data
         self.rollover = rollover
 

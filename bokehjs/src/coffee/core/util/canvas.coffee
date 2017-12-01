@@ -21,6 +21,7 @@ fixup_image_smoothing = (ctx) ->
     ctx.mozImageSmoothingEnabled = value
     ctx.oImageSmoothingEnabled = value
     ctx.webkitImageSmoothingEnabled = value
+    ctx.msImageSmoothingEnabled = value
   ctx.getImageSmoothingEnabled = () ->
     return ctx.imageSmoothingEnabled ? true
 

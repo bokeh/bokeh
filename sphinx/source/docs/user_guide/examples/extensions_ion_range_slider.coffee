@@ -72,8 +72,8 @@ export class IonRangeSliderView extends InputWidgetView
       to: to,
       step: step,
       disable: disable,
-      onChange: @slide,
-      onFinish: @slidestop
+      onChange: (data) => @slide(data),
+      onFinish: (data) => @slidestop(data),
     }
 
     input = @$el.find('.slider')[0]
@@ -84,11 +84,11 @@ export class IonRangeSliderView extends InputWidgetView
     return @
 
 
-  slidestop: (data) =>
+  slidestop: (data) ->
     if @model.callback_policy == 'mouseup' or @model.callback_policy == 'throttle'
       @model.callback?.execute(@model)
 
-  slide: (data) =>
+  slide: (data) ->
     range = [data.from, data.to]
     value = range.join(' - ')
     @$el.find( "##{ @model.id }" ).val( value )

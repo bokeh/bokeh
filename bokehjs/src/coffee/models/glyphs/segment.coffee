@@ -32,22 +32,18 @@ export class SegmentView extends GlyphView
         ctx.stroke()
 
   _hit_point: (geometry) ->
-    [vx, vy] = [geometry.vx, geometry.vy]
-    x = @renderer.xscale.invert(vx, true)
-    y = @renderer.yscale.invert(vy, true)
+    {sx, sy} = geometry
+    x = @renderer.xscale.invert(sx)
+    y = @renderer.yscale.invert(sy)
 
-    point =
-      x: this.renderer.plot_view.canvas.vx_to_sx(vx)
-      y: this.renderer.plot_view.canvas.vy_to_sy(vy)
+    point = {x: sx, y: sy}
 
     hits = []
     lw_voffset = 2 # FIXME: Use maximum of segments line_width/2 instead of magic constant 2
-    candidates = @index.indices({
-      minX: @renderer.xscale.invert(vx-lw_voffset, true),
-      minY: @renderer.yscale.invert(vy-lw_voffset, true),
-      maxX: @renderer.xscale.invert(vx+lw_voffset, true),
-      maxY: @renderer.yscale.invert(vy+lw_voffset, true)
-    })
+
+    [minX, maxX] = @renderer.xscale.r_invert(sx-lw_voffset, sx+lw_voffset)
+    [minY, maxY] = @renderer.yscale.r_invert(sy-lw_voffset, sy+lw_voffset)
+    candidates = @index.indices({minX: minX, minY: minY, maxX: maxX, maxY: maxY})
 
     for i in candidates
       threshold2 = Math.pow(Math.max(2, @visuals.line.cache_select('line_width', i) / 2), 2)
@@ -61,26 +57,21 @@ export class SegmentView extends GlyphView
     return result
 
   _hit_span: (geometry) ->
-    hr = @renderer.plot_view.frame.h_range
-    vr = @renderer.plot_view.frame.v_range
-
-    [vx, vy] = [geometry.vx, geometry.vy]
+    [hr, vr] = @renderer.plot_view.frame.bbox.ranges
+    {sx, sy} = geometry
 
     if geometry.direction == 'v'
-      val = @renderer.yscale.invert(vy)
+      val = @renderer.yscale.invert(sy)
       [v0, v1] = [@_y0, @_y1]
     else
-      val = @renderer.xscale.invert(vx)
+      val = @renderer.xscale.invert(sx)
       [v0, v1] = [@_x0, @_x1]
 
     hits = []
 
-    candidates = @index.indices({
-      minX: @renderer.xscale.invert(hr.min),
-      minY: @renderer.yscale.invert(vr.min),
-      maxX: @renderer.xscale.invert(hr.max),
-      maxY: @renderer.yscale.invert(vr.max)
-    })
+    [minX, maxX] = @renderer.xscale.r_invert(hr.start, hr.end)
+    [minY, maxY] = @renderer.yscale.r_invert(vr.start, vr.end)
+    candidates = @index.indices({minX: minX, minY: minY, maxX: maxX, maxY: maxY})
 
     for i in candidates
       if v0[i]<=val<=v1[i] or v1[i]<=val<=v0[i]

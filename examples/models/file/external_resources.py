@@ -23,31 +23,23 @@ import {Label, LabelView} from "models/annotations/label"
 
 export class LatexLabelView extends LabelView
   render: () ->
-    ctx = @plot_view.canvas_view.ctx
-
     # Here because AngleSpec does units tranform and label doesn't support specs
     switch @model.angle_units
       when "rad" then angle = -1 * @model.angle
       when "deg" then angle = -1 * @model.angle * Math.PI/180.0
 
-    if @model.x_units == "data"
-      vx = @xscale.compute(@model.x)
-    else
-      vx = @model.x
-    sx = @canvas.vx_to_sx(vx)
+    panel = @model.panel ? @plot_view.frame
 
-    if @model.y_units == "data"
-      vy = @yscale.compute(@model.y)
-    else
-      vy = @model.y
-    sy = @canvas.vy_to_sy(vy)
+    xscale = @plot_view.frame.xscales[@model.x_range_name]
+    yscale = @plot_view.frame.yscales[@model.y_range_name]
 
-    if @model.panel?
-      panel_offset = @_get_panel_offset()
-      sx += panel_offset.x
-      sy += panel_offset.y
+    sx = if @model.x_units == "data" then xscale.compute(@model.x) else panel.xview.compute(@model.x)
+    sy = if @model.y_units == "data" then yscale.compute(@model.y) else panel.yview.compute(@model.y)
 
-    @_css_text(ctx, "", sx + @model.x_offset, sy - @model.y_offset, angle)
+    sx += @model.x_offset
+    sy -= @model.y_offset
+
+    @_css_text(@plot_view.canvas_view.ctx, "", sx, sy, angle)
     katex.render(@model.text, @el, {displayMode: true})
 
 export class LatexLabel extends Label
@@ -62,7 +54,7 @@ p = figure(title="LaTex Demonstration", plot_width=500, plot_height=500)
 p.line(x, y)
 
 latex = LatexLabel(text="f = \sum_{n=1}^\infty\\frac{-e^{i\pi}}{2^n}!",
-                   x=35, y=445, x_units='screen', y_units='screen',
+                   x=5, y=430, x_units='screen', y_units='screen',
                    render_mode='css', text_font_size='16pt',
                    background_fill_color='#ffffff')
 

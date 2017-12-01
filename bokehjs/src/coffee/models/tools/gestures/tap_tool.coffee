@@ -5,17 +5,15 @@ import {isFunction} from "core/util/types"
 export class TapToolView extends SelectToolView
 
   _tap: (e) ->
-    canvas = @plot_view.canvas
-    vx = canvas.sx_to_vx(e.bokeh.sx)
-    vy = canvas.sy_to_vy(e.bokeh.sy)
+    {sx, sy} = e.bokeh
     append = e.srcEvent.shiftKey ? false
-    @_select(vx, vy, true, append)
+    @_select(sx, sy, true, append)
 
-  _select: (vx, vy, final, append) ->
+  _select: (sx, sy, final, append) ->
     geometry = {
       type: 'point'
-      vx: vx
-      vy: vy
+      sx: sx
+      sy: sy
     }
 
     callback = @model.callback

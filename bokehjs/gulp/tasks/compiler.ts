@@ -29,8 +29,9 @@ gulp.task("compiler:build", ["compiler:ts"], () => {
      Buffer: undefined,
     }
   }
-  return browserify(compilerOpts)
-    .bundle()
-    .pipe(source("compiler.js"))
-    .pipe(gulp.dest(paths.build_dir.js))
+  const b = browserify(compilerOpts)
+  b.exclude("babel-core")
+  return b.bundle()
+          .pipe(source("compiler.js"))
+          .pipe(gulp.dest(paths.build_dir.js))
 })

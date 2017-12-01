@@ -1,5 +1,6 @@
 import * as p from "core/properties"
 import {any, sortBy} from "core/util/array"
+import {logger} from "core/logging"
 
 import {ActionTool} from "./actions/action_tool"
 import {HelpTool} from "./actions/help_tool"
@@ -46,7 +47,7 @@ export class Toolbar extends ToolbarBase
               @gestures['multi'].tools = @gestures['multi'].tools.concat([tool])
           else if not any(@gestures[et].tools, (t) => t.id == tool.id)
             @gestures[et].tools = @gestures[et].tools.concat([tool])
-          @connect(tool.properties.active.change, @_active_change.bind(null, tool))
+          @connect(tool.properties.active.change, @_active_change.bind(this, tool))
 
     if @active_inspect == 'auto'
       # do nothing as all tools are active be default

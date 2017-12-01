@@ -41,6 +41,9 @@ export class AxisView extends RendererView
   _get_size: () ->
     return @_tick_extent() + @_tick_label_extent() + @_axis_label_extent()
 
+  get_size: () ->
+    return if this.model.visible then Math.round(this._get_size()) else 0
+
   # drawing sub functions -----------------------------------------------------
 
   _draw_rule: (ctx, extents, tick_coords) ->
@@ -99,19 +102,19 @@ export class AxisView extends RendererView
 
     switch @model.panel.side
       when "above"
-        x = @model.panel._hcenter.value
-        y = @model.panel._bottom.value
+        sx = @model.panel._hcenter.value
+        sy = @model.panel._bottom.value
       when "below"
-        x = @model.panel._hcenter.value
-        y = @model.panel._top.value
+        sx = @model.panel._hcenter.value
+        sy = @model.panel._top.value
       when "left"
-        x = @model.panel._right.value
-        y = @model.panel._vcenter._value
+        sx = @model.panel._right.value
+        sy = @model.panel._vcenter._value
       when "right"
-        x = @model.panel._left.value
-        y = @model.panel._vcenter._value
+        sx = @model.panel._left.value
+        sy = @model.panel._vcenter._value
 
-    coords = [[x], [y]]
+    coords = [[sx], [sy]]
     standoff = extents.tick + sum(extents.tick_label) + @model.axis_label_standoff
     visuals  = @visuals.axis_label_text
 
@@ -150,8 +153,7 @@ export class AxisView extends RendererView
       return
 
     if units == "screen"
-      [vxs, vys] = coords
-      [sxs, sys] = [@plot_view.canvas.v_vx_to_sx(vxs), @plot_view.canvas.v_vy_to_sy(vys)]
+      [sxs, sys] = coords
       [xoff, yoff] = [0, 0]
     else
       [dxs, dys] = coords

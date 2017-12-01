@@ -90,6 +90,7 @@ export class LayoutDOMView extends DOMView
       @_solver.add_constraint(EQ(variables.height, @_root_height))
 
     @_solver.update_variables()
+    @_solver_inited = true
 
   _suggest_dims: (width, height) ->
     variables = @model.get_constrained_variables()
@@ -111,14 +112,20 @@ export class LayoutDOMView extends DOMView
     else
       @_do_layout(false, width, height)
 
+  partial_layout: () ->
+    if not @is_root
+      @root.partial_layout()
+    else
+      @_do_layout(false)
+
   layout: (full=true) ->
     if not @is_root
-      @root.layout(full)
+      @root.layout()
     else
-      @_do_layout(full)
+      @_do_layout(true)
 
   _do_layout: (full, width=null, height=null) ->
-    if full
+    if not @_solver_inited or full
       @_solver.clear()
       @_init_solver()
 
@@ -426,5 +433,5 @@ export class LayoutDOM extends Model
       width:       [ p.Number              ]
       disabled:    [ p.Bool,       false   ]
       sizing_mode: [ p.SizingMode, "fixed" ]
-      css_classes: [ p.Array               ]
+      css_classes: [ p.Array,      []      ]
     }

@@ -5,6 +5,6 @@ Renders a ``<script>`` tag for raw JavaScript code.
 :type js_code: str
 
 #}
-<script type="text/javascript">
-    {{ js_code }}
+<script type="{{ type }}"{%if id %} id="{{ id }}"{% endif %}>
+{{ js_code }}
 </script>

@@ -10,7 +10,14 @@ import {isString, isObject, isArray} from "./util/types"
 import {isEqual} from './util/eq'
 
 export class HasProps
-  @prototype extends Signalable
+  extend(@prototype, Signalable)
+
+  `
+  type: string
+
+  id: string
+  _subtype?: string
+  `
 
   @getters = (specs) ->
     for name, fn of specs
@@ -63,13 +70,7 @@ export class HasProps
 
   @mixins: (names) -> @mixin(names...)
 
-  @override: (name_or_object, default_value) ->
-    if isString(name_or_object)
-      object = {}
-      object[name] = default_value
-    else
-      object = name_or_object
-
+  @override: (object) ->
     for name, default_value of object
       do (name, default_value) =>
         value = this.prototype.props[name]

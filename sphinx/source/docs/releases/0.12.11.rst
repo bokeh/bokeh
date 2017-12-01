@@ -1,0 +1,43 @@
+0.12.11 (Nov 2017)
+==================
+
+Bokeh Version ``0.12.11`` is an incremental update that adds a few important
+features and fixes several bugs. Some of the highlights include:
+
+
+
+Many other small bugfixes and docs additions. For full details see the
+:bokeh-tree:`CHANGELOG`.
+
+Migration Guide
+---------------
+
+NOTE: the 0.12.x series is the last planned release series before a version
+1.0 release. For more information see the `project roadmap`_.
+
+BokehJS Changes
+~~~~~~~~~~~~~~~
+
+To help with the eventual migration to TypeScript, we have switched to the new
+CoffeeScript compiler. This should be completely transparent to standard users
+but custom extensions may need small changes in some specific cases, for example,
+the "Ion Range Slider" required the following change:
+
+.. code-block:: none
+
+    -      onChange: @slide,
+    -      onFinish: @slidestop
+    +      onChange: (data) => @slide(data),
+    +      onFinish: (data) => @slidestop(data),
+
+Shorthand initialization syntax for `Range1d(start, end)` in bokehjs was
+removed due to technical difficulties. Use full `new Range1d({start, end})`
+syntax instead. The short syntax may be restored at some point as a part of
+`bokeh-api` package.
+
+The coordinate system of canvas layout and related infrastructure (positioning,
+hit testing, etc.) is new "screen", where the origin is left-top corner of the
+canvas. This change shouldn't affect users, however it affects custom model
+developers. Follow updated examples for new development patterns.
+
+.. _project roadmap: https://bokehplots.com/pages/roadmap.html

@@ -13,7 +13,7 @@ import {isNumber, isString, isArray} from "../core/util/types"
 _default_tooltips = [
   ["index", "$index"],
   ["data (x, y)", "($x, $y)"],
-  ["canvas (x, y)", "($sx, $sy)"],
+  ["screen (x, y)", "($sx, $sy)"],
 ]
 
 _default_tools = "pan,wheel_zoom,box_zoom,save,reset,help"
@@ -64,16 +64,16 @@ export class Figure extends models.Plot
     tools = _with_default(attrs.tools, _default_tools)
     delete attrs.tools
 
-    attrs.x_range = @_get_range(attrs.x_range)
-    attrs.y_range = @_get_range(attrs.y_range)
+    attrs.x_range = Figure._get_range(attrs.x_range)
+    attrs.y_range = Figure._get_range(attrs.y_range)
 
     x_axis_type = if attrs.x_axis_type == undefined then "auto" else attrs.x_axis_type
     y_axis_type = if attrs.y_axis_type == undefined then "auto" else attrs.y_axis_type
     delete attrs.x_axis_type
     delete attrs.y_axis_type
 
-    attrs.x_scale = @_get_scale(attrs.x_range, x_axis_type)
-    attrs.y_scale = @_get_scale(attrs.y_range, y_axis_type)
+    attrs.x_scale = Figure._get_scale(attrs.x_range, x_axis_type)
+    attrs.y_scale = Figure._get_scale(attrs.y_range, y_axis_type)
 
     x_minor_ticks = attrs.x_minor_ticks ? "auto"
     y_minor_ticks = attrs.y_minor_ticks ? "auto"
@@ -292,7 +292,7 @@ export class Figure extends models.Plot
   _marker: (cls, args) ->
     return @_glyph(cls, "x,y", args)
 
-  _get_range: (range) ->
+  @_get_range: (range) ->
     if not range?
       return new models.DataRange1d()
     if range instanceof models.Range
@@ -303,7 +303,7 @@ export class Figure extends models.Plot
       if range.length == 2
         return new models.Range1d({start: range[0], end: range[1]})
 
-  _get_scale: (range_input, axis_type) ->
+  @_get_scale: (range_input, axis_type) ->
     if range_input instanceof models.DataRange1d or range_input instanceof models.Range1d
       switch axis_type
         when "linear", "datetime", "auto", null

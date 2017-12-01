@@ -7,9 +7,6 @@ export class TextAnnotationView extends AnnotationView
   initialize: (options) ->
     super(options)
 
-    @canvas = @plot_model.canvas
-    @frame = @plot_model.frame
-
     if @model.render_mode == 'css'
       @el.classList.add('bk-annotation')
       @plot_view.canvas_overlays.appendChild(@el)

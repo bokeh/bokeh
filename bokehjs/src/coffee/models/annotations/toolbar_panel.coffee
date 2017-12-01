@@ -26,7 +26,7 @@ export class ToolbarPanelView extends AnnotationView
 
     @el.style.position = "absolute"
     @el.style.left = "#{panel._left.value}px"
-    @el.style.bottom = "#{panel._bottom.value}px"
+    @el.style.top = "#{panel._top.value}px"
     @el.style.width = "#{panel._width.value}px"
     @el.style.height = "#{panel._height.value}px"
 

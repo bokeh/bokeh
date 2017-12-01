@@ -21,36 +21,43 @@ export class WhiskerView extends AnnotationView
     @plot_view.request_render()
 
   _map_data: () ->
-    x_scale = @plot_view.frame.xscales[@model.x_range_name]
-    y_scale = @plot_view.frame.yscales[@model.y_range_name]
+    frame = @plot_model.frame
+    dim = @model.dimension
 
-    limit_scale = if @model.dimension == "height" then y_scale else x_scale
-    base_scale = if @model.dimension == "height" then x_scale else y_scale
+    xscale = frame.xscales[@model.x_range_name]
+    yscale = frame.yscales[@model.y_range_name]
+
+    limit_scale = if dim == "height" then yscale else xscale
+    base_scale  = if dim == "height" then xscale else yscale
+
+    limit_view = if dim == "height" then frame.yview else frame.xview
+    base_view  = if dim == "height" then frame.xview else frame.yview
 
     if @model.lower.units == "data"
-      _lower_vx = limit_scale.v_compute(@_lower)
+      _lower_sx = limit_scale.v_compute(@_lower)
     else
-      _lower_vx = @_lower
+      _lower_sx = limit_view.v_compute(@_lower)
 
     if @model.upper.units == "data"
-      _upper_vx = limit_scale.v_compute(@_upper)
+      _upper_sx = limit_scale.v_compute(@_upper)
     else
-      _upper_vx = @_upper
+      _upper_sx = limit_view.v_compute(@_upper)
 
-    if @model.base.units == "data"
-      _base_vx = base_scale.v_compute(@_base)
+    if @model.base.units  == "data"
+      _base_sx  = base_scale.v_compute(@_base)
     else
-      _base_vx = @_base
+      _base_sx  = base_view.v_compute(@_base)
 
-    [i, j] = @model._normals()
-    _lower = [_lower_vx, _base_vx]
-    _upper = [_upper_vx, _base_vx]
+    [i, j] = if dim == 'height' then [1, 0] else [0, 1]
 
-    @_lower_sx = @plot_model.canvas.v_vx_to_sx(_lower[i])
-    @_lower_sy = @plot_model.canvas.v_vy_to_sy(_lower[j])
+    _lower = [_lower_sx, _base_sx]
+    _upper = [_upper_sx, _base_sx]
 
-    @_upper_sx = @plot_model.canvas.v_vx_to_sx(_upper[i])
-    @_upper_sy = @plot_model.canvas.v_vy_to_sy(_upper[j])
+    @_lower_sx = _lower[i]
+    @_lower_sy = _lower[j]
+
+    @_upper_sx = _upper[i]
+    @_upper_sy = _upper[j]
 
   render: () ->
     if not @model.visible
@@ -107,10 +114,3 @@ export class Whisker extends Annotation
   @override {
     level: 'underlay'
   }
-
-  _normals: () ->
-    if @dimension == 'height'
-      [i, j] = [1, 0]
-    else
-      [i, j] = [0, 1]
-    return [i, j]

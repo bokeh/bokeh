@@ -61,22 +61,23 @@ export function createElement(tag: string, attrs: HTMLAttrs, ...children: HTMLCh
 }
 
 export const
-  div    = _createElement("div"),
-  span   = _createElement("span"),
-  link   = _createElement("link"),
-  style  = _createElement("style"),
-  a      = _createElement("a"),
-  p      = _createElement("p"),
-  pre    = _createElement("pre"),
-  button = _createElement("button"),
-  label  = _createElement("label"),
-  input  = _createElement("input"),
-  select = _createElement("select"),
-  option = _createElement("option"),
-  canvas = _createElement("canvas"),
-  ul     = _createElement("ul"),
-  ol     = _createElement("ol"),
-  li     = _createElement("li");
+  div      = _createElement("div"),
+  span     = _createElement("span"),
+  link     = _createElement("link"),
+  style    = _createElement("style"),
+  a        = _createElement("a"),
+  p        = _createElement("p"),
+  pre      = _createElement("pre"),
+  button   = _createElement("button"),
+  label    = _createElement("label"),
+  input    = _createElement("input"),
+  select   = _createElement("select"),
+  option   = _createElement("option"),
+  optgroup = _createElement("optgroup"),
+  canvas   = _createElement("canvas"),
+  ul       = _createElement("ul"),
+  ol       = _createElement("ol"),
+  li       = _createElement("li");
 
 export const nbsp = document.createTextNode("\u00a0")
 

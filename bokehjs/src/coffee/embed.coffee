@@ -3,7 +3,10 @@ import {pull_session} from "./client/connection"
 import {logger, set_log_level} from "./core/logging"
 import {Document, RootAddedEvent, RootRemovedEvent, TitleChangedEvent} from "./document"
 import {div, link, style, replaceWith} from "./core/dom"
+import {defer} from "./core/util/callback"
 import {Receiver} from "./protocol/receiver"
+import {isString} from "./core/util/types"
+import {unescape} from "./core/util/string"
 
 # Matches Bokeh CSS class selector. Setting all Bokeh parent element class names
 # with this var prevents user configurations where css styling is unset.
@@ -163,6 +166,9 @@ fill_render_item_from_script_tag = (script, item) ->
 # absolute_url as well if non-relative links are needed for resources. This function
 # should probably be split in to two pieces to reflect the different usage patterns
 export embed_items = (docs_json, render_items, app_path, absolute_url) ->
+  defer(() -> _embed_items(docs_json, render_items, app_path, absolute_url))
+
+_embed_items = (docs_json, render_items, app_path, absolute_url) ->
   protocol = 'ws:'
   if (window.location.protocol == 'https:')
     protocol = 'wss:'
@@ -181,6 +187,9 @@ export embed_items = (docs_json, render_items, app_path, absolute_url) ->
 
   websocket_url = protocol + '//' + loc.host + app_path + '/ws'
   logger.debug("embed: computed ws url: #{websocket_url}")
+
+  if isString(docs_json)
+    docs_json = JSON.parse(unescape(docs_json))
 
   docs = {}
   for docid of docs_json

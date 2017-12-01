@@ -1,8 +1,10 @@
 import * as gulp from "gulp"
 import * as gutil from "gulp-util"
 import * as rename from "gulp-rename"
+const change = require("gulp-change")
 import chalk from "chalk"
-const uglify = require("gulp-uglify")
+const uglify_es = require("uglify-es")
+const uglify = require("gulp-uglify/composer")
 import * as sourcemaps from "gulp-sourcemaps"
 import * as paths from "../paths"
 import * as fs from "fs"
@@ -11,17 +13,48 @@ import {join} from "path"
 import {argv} from "yargs"
 import * as insert from 'gulp-insert'
 const stripAnsi = require('strip-ansi')
+const merge = require("merge2")
 
 const license = `/*!\n${fs.readFileSync('../LICENSE.txt', 'utf-8')}*/\n`
 
 const coffee = require('gulp-coffee')
 const ts = require('gulp-typescript')
 
-import {Linker} from "../linker"
+const minify = uglify(uglify_es, console)
+
+import {Linker, Bundle} from "../linker"
 
 gulp.task("scripts:coffee", () => {
   return gulp.src('./src/coffee/**/*.coffee')
-    .pipe(coffee({bare: true}))
+    .pipe(coffee({coffee: require("coffeescript"), bare: true}))
+    .on("error", function(error: any) { console.error(error.toString()); process.exit(1) })
+    .pipe(change(function(code: string) {
+      const lines = code.split("\n")
+      const names = new Set<string>()
+      const r1 = /^export var (\w+) = \(function\(\) {$/
+      const r2 = /^  return (\w+);$/
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i]
+        let match = line.match(r1)
+        if (match != null) {
+          names.add(match[1])
+          lines[i] = ""
+          i++
+          lines[i] =  `export ${lines[i].trim()}`
+          continue
+        }
+
+        match = line.match(r2)
+        if (match != null && names.has(match[1])) {
+          lines[i] = ""
+          i++
+          lines[i] = ""
+          i++
+          lines[i] = ""
+        }
+      }
+      return lines.join("\n")
+    }))
     .pipe(rename((path) => path.extname = '.ts'))
     .pipe(gulp.dest(paths.build_dir.tree_ts))
 })
@@ -37,8 +70,6 @@ gulp.task("scripts:ts", () => {
   return gulp.src(`${prefix}/*.ts`)
     .pipe(gulp.dest(paths.build_dir.tree_ts))
 })
-
-const tsconfig = require(join(paths.src_dir.coffee, "tsconfig.json"))
 
 gulp.task("scripts:tsjs", ["scripts:coffee", "scripts:js", "scripts:ts"], () => {
   function error(err: {message: string}) {
@@ -80,12 +111,27 @@ gulp.task("scripts:tsjs", ["scripts:coffee", "scripts:js", "scripts:ts"], () => 
     gutil.log(err.message)
   }
 
+  const tsconfig = require(join(paths.src_dir.coffee, "tsconfig.json"))
+  let compilerOptions = tsconfig.compilerOptions
+
+  if (argv.es6) {
+    compilerOptions.target = "ES6"
+    compilerOptions.lib[0] = "es6"
+  }
+
   const tree_ts = paths.build_dir.tree_ts
-  return gulp.src(`${tree_ts}/**/*.ts`)
+  const project = gulp
+    .src(`${tree_ts}/**/*.ts`)
     .pipe(sourcemaps.init())
     .pipe(ts(tsconfig.compilerOptions, ts.reporter.nullReporter()).on('error', error))
-    .pipe(sourcemaps.write("."))
-    .pipe(gulp.dest(paths.build_dir.tree_js))
+
+  return merge([
+    project.js
+      .pipe(sourcemaps.write("."))
+      .pipe(gulp.dest(paths.build_dir.tree_js)),
+    project.dts
+      .pipe(gulp.dest(paths.build_dir.types)),
+  ])
 })
 
 gulp.task("scripts:compile", ["scripts:tsjs"])
@@ -103,13 +149,46 @@ gulp.task("scripts:bundle", ["scripts:compile"], (next: () => void) => {
   const sourcemaps = argv.sourcemaps === true
 
   const linker = new Linker({entries, bases, excludes, sourcemaps})
-  const [bokehjs, api, widgets, tables, gl] = linker.link()
+  const bundles = linker.link()
+
+  const [bokehjs, api, widgets, tables, gl] = bundles
 
   bokehjs.write(paths.coffee.bokehjs.output)
   api.write(paths.coffee.api.output)
   widgets.write(paths.coffee.widgets.output)
   tables.write(paths.coffee.tables.output)
   gl.write(paths.coffee.gl.output)
+
+  if (argv.stats) {
+    const minify_opts = {
+      output: {
+        comments: /^!|copyright|license|\(c\)/i
+      }
+    }
+
+    const entries: [string, string, boolean, number][] = []
+
+    function collect_entries(name: string, bundle: Bundle): void {
+      for (const mod of bundle.modules) {
+        const minified = uglify_es.minify(mod.source, minify_opts)
+        if (minified.error != null) {
+          const {error: {message, line, col}} = minified
+          throw new Error(`${mod.canonical}:${line-1}:${col}: ${message}`)
+        } else
+          entries.push([name, mod.canonical, mod.is_external, minified.code.length])
+      }
+    }
+
+    collect_entries("bokehjs", bokehjs)
+    collect_entries("api", api)
+    collect_entries("widgets", widgets)
+    collect_entries("tables", tables)
+    collect_entries("gl", gl)
+
+    const csv = entries.map(([name, mod, external, minified]) => `${name},${mod},${external},${minified}`).join("\n")
+    const header = "bundle,module,external,minified\n"
+    fs.writeFileSync(join(paths.build_dir.js, "stats.csv"), header + csv)
+  }
 
   next()
 })
@@ -120,7 +199,7 @@ gulp.task("scripts:minify", ["scripts:bundle"], () => {
   return gulp.src(`${paths.build_dir.js}/!(*.min|compiler).js`)
     .pipe(sourcemaps.init({loadMaps: true}))
     .pipe(rename((path) => path.basename += '.min'))
-    .pipe(uglify({ output: { comments: /^!|copyright|license|\(c\)/i } }))
+    .pipe(minify({ output: { comments: /^!|copyright|license|\(c\)/i } }))
     .pipe(insert.append(license))
     .pipe(sourcemaps.write("."))
     .pipe(gulp.dest(paths.build_dir.js))

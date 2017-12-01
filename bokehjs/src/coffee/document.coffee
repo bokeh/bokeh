@@ -1,6 +1,7 @@
 import {Models} from "./base"
 import {version as js_version} from "./version"
 import {logger} from "./core/logging"
+import {LODStart, LODEnd} from "core/bokeh_events"
 import {HasProps} from "./core/has_props"
 import {Signal} from "./core/signaling"
 import {is_ref} from "./core/util/refs"
@@ -43,9 +44,16 @@ export class EventManager {
 export class DocumentChangedEvent
   constructor : (@document) ->
 
+`
+export declare class ModelChangedEvent {
+  attr: string
+  model: HasProps // TODO: Model
+}
+`
+
 export class ModelChangedEvent extends DocumentChangedEvent
-  constructor : (@document, @model, @attr, @old, @new_, @setter_id) ->
-    super @document
+  constructor : (document, @model, @attr, @old, @new_, @setter_id) ->
+    super(document)
   json : (references) ->
 
     if @attr == 'id'
@@ -75,7 +83,7 @@ export class ModelChangedEvent extends DocumentChangedEvent
 
 export class TitleChangedEvent extends DocumentChangedEvent
   constructor : (@document, @title, @setter_id) ->
-    super @document
+    super(document)
   json : (references) ->
     {
       'kind' : 'TitleChanged',
@@ -84,7 +92,7 @@ export class TitleChangedEvent extends DocumentChangedEvent
 
 export class RootAddedEvent extends DocumentChangedEvent
   constructor : (@document, @model, @setter_id) ->
-    super @document
+    super(document)
   json : (references) ->
     HasProps._value_record_references(@model, references, true)
     {
@@ -94,7 +102,7 @@ export class RootAddedEvent extends DocumentChangedEvent
 
 export class RootRemovedEvent extends DocumentChangedEvent
   constructor : (@document, @model, @setter_id) ->
-    super @document
+    super(document)
   json : (references) ->
     {
       'kind' : 'RootRemoved',
@@ -111,6 +119,7 @@ export class Document
 
   constructor: () ->
     documents.push(this)
+    @_init_timestamp = Date.now()
     @_title = DEFAULT_TITLE
     @_roots = []
     @_all_models = {}
@@ -120,6 +129,9 @@ export class Document
     @event_manager = new EventManager(@)
     @idle = new Signal(this, "idle") # <void, this>
     @_idle_roots = new WeakMap() # TODO: WeakSet would be better
+
+    @_interactive_timestamp = null
+    @_interactive_plot = null
 
   Object.defineProperty(@prototype, "layoutables", {
     get: () -> (root for root in @_roots when root instanceof LayoutDOM)
@@ -138,6 +150,7 @@ export class Document
     @_idle_roots.set(model, true)
 
     if @is_idle
+      logger.info("document idle at #{Date.now() - @_init_timestamp} ms")
       @idle.emit()
 
   clear : () ->
@@ -147,6 +160,23 @@ export class Document
         @remove_root(@_roots[0])
     finally
       @_pop_all_models_freeze()
+
+  interactive_start: (plot) ->
+    if @_interactive_plot == null
+      @_interactive_plot = plot
+      @_interactive_plot.trigger_event(new LODStart({}))
+    @_interactive_timestamp = Date.now()
+
+  interactive_stop: (plot) ->
+    if @_interactive_plot?.id == plot.id
+      @_interactive_plot.trigger_event(new LODEnd({}))
+    @_interactive_plot = null
+    @_interactive_timestamp = null
+
+  interactive_duration: () ->
+    if @_interactive_timestamp == null
+      return -1
+    return Date.now() - @_interactive_timestamp
 
   destructively_move : (dest_doc) ->
     if dest_doc is @

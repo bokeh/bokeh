@@ -7,6 +7,14 @@ import {randomIn} from "./math"
 
 const slice = Array.prototype.slice
 
+export function head<T>(array: T[]): T {
+  return array[0]
+}
+
+export function tail<T>(array: T[]): T {
+  return array[array.length-1]
+}
+
 export function last<T>(array: Array<T>): T | undefined {
   return array[array.length-1]
 }

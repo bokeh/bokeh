@@ -1,6 +1,6 @@
 import pytest
 from bokeh.plotting import Figure
-from bokeh.models.layouts import Row, Column, WidgetBox
+from bokeh.models.layouts import Row, Column, WidgetBox, LayoutDOM
 from bokeh.models.widgets import Slider
 from bokeh.models.sources import ColumnDataSource
 
@@ -76,3 +76,11 @@ def check_widget_box_children_prop(layout_callable):
 def test_WidgetBox():
     check_props(WidgetBox())
     check_widget_box_children_prop(WidgetBox)
+
+def test_LayoutDOM_css_classes():
+    m = LayoutDOM()
+    assert m.css_classes == []
+    m.css_classes = ['foo']
+    assert m.css_classes == ['foo']
+    m.css_classes = ('bar', )
+    assert m.css_classes == ['bar']

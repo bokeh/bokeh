@@ -42,3 +42,17 @@ export function escape(s: string): string {
     }
   })
 }
+
+export function unescape(s: string): string {
+  return s.replace(/&(amp|lt|gt|quot|#x27|#x60);/g, (_, entity) => {
+    switch (entity) {
+      case 'amp':  return '&';
+      case 'lt':   return '<';
+      case 'gt':   return '>';
+      case 'quot': return '"';
+      case '#x27': return "'";
+      case '#x60': return '`';
+      default:     return entity;
+    }
+  })
+}

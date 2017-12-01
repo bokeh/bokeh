@@ -93,8 +93,8 @@ describe "AxisView", ->
       toolbar: new Toolbar()
     })
     plot_view = new plot.default_view({model: plot, parent: null})
-    plot.add_layout(@axis, 'below')
     doc.add_root(plot)
+    plot.add_layout(@axis, 'below')
     plot_canvas_view = new plot.plot_canvas.default_view({model: plot.plot_canvas, parent: plot_view})
     sinon.stub(plot_canvas_view, 'update_constraints')
     @axis_view = new @axis.default_view({
