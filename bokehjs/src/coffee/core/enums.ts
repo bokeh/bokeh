@@ -47,8 +47,8 @@ export const RenderLevel: RenderLevel[] = ["image", "underlay", "glyph", "annota
 export type RenderMode = "canvas" | "css"
 export const RenderMode: RenderMode[] = ["canvas", "css"]
 
-export type Side = "left" | "right"
-export const Side: Side[] = ["left", "right"]
+export type Side = "above" | "below" | "left" | "right"
+export const Side: Side[] = ["above", "below", "left", "right"]
 
 export type SpatialUnits = "screen" | "data"
 export const SpatialUnits: SpatialUnits[] = ["screen", "data"]
