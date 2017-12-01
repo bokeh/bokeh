@@ -73,19 +73,21 @@ export class ToolbarBase extends Model
   default_view: ToolbarBaseView
 
   _active_change: (tool) ->
-    event_type = tool.event_type
+    event_types = tool.event_type
 
-    if tool.active
-      # Toggle between tools of the same type by deactivating any active ones
-      currently_active_tool = @gestures[event_type].active
-      if currently_active_tool?
-        logger.debug("Toolbar: deactivating tool: #{currently_active_tool.type} (#{currently_active_tool.id}) for event type '#{event_type}'")
-        currently_active_tool.active = false
-      # Update the gestures with the new active tool
-      @gestures[event_type].active = tool
-      logger.debug("Toolbar: activating tool: #{tool.type} (#{tool.id}) for event type '#{event_type}'")
-    else
-      @gestures[event_type].active = null
+    if (typeof event_types is 'string')
+      event_types = [event_types]
+
+    for et in event_types
+      if tool.active
+        currently_active_tool = @gestures[et].active
+        if currently_active_tool? and tool != currently_active_tool
+          logger.debug("Toolbar: deactivating tool: #{currently_active_tool.type} (#{currently_active_tool.id}) for event type '#{et}'")
+          currently_active_tool.active = false
+        @gestures[et].active = tool
+        logger.debug("Toolbar: activating tool: #{tool.type} (#{tool.id}) for event type '#{et}'")
+      else
+        @gestures[et].active = null
 
     return null
 
@@ -110,6 +112,7 @@ export class ToolbarBase extends Model
       doubletap: { tools: [], active: null }
       press:     { tools: [], active: null }
       rotate:    { tools: [], active: null }
+      multi:     { tools: [], active: null}
     } ]
     actions:    [ p.Array, [] ]
     inspectors: [ p.Array, [] ]

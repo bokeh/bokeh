@@ -8,6 +8,7 @@ dom = utils.require("core/dom")
 {CrosshairTool} = utils.require("models/tools/inspectors/crosshair_tool")
 {PanTool} = utils.require("models/tools/gestures/pan_tool")
 {PolySelectTool} = utils.require("models/tools/gestures/poly_select_tool")
+{SelectTool, SelectToolView} = utils.require("models/tools/gestures/select_tool")
 {TapTool} = utils.require("models/tools/gestures/tap_tool")
 {WheelZoomTool} = utils.require("models/tools/gestures/wheel_zoom_tool")
 
@@ -478,3 +479,31 @@ describe "ui_events module", ->
       # assert(@spy_plot.calledOnce)
       # This is a event on select tools that should probably be removed
       assert(@spy_uievent.calledOnce)
+
+    it "multi-gesture tool should receive multiple events", ->
+      class MultiToolView extends SelectToolView
+        _tap: (e) ->
+        _pan: (e) ->
+
+      class MultiTool extends SelectTool
+        default_view: MultiToolView
+        type: "MultiTool"
+        tool_name: "Multi Tool"
+        event_type: ["tap", "pan"]
+
+      tool = new MultiTool()
+      @plot.add_tools(tool)
+      tool.active = true
+
+      etap = new Event("tap")
+      etap.pointerType = "mouse"
+      etap.srcEvent = {pageX: 100, pageY: 200}
+
+      @ui_events._tap(etap)
+      assert(@spy_uievent.calledOnce, "Tap event not triggered")
+
+      epan = new Event("pan")
+      epan.pointerType = "mouse"
+      epan.srcEvent = {pageX: 100, pageY: 200}
+      @ui_events._pan(epan)
+      assert(@spy_uievent.calledTwice, "Pan event not triggered")
