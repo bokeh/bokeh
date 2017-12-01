@@ -350,3 +350,13 @@ export function repeat<T>(value: T, n: number): T[] {
   }
   return result
 }
+
+
+export function map<T, U>(array: ArrayLike<T>, fn: (item: T) => U): U[] {
+  const n = array.length
+  const result: U[] = new Array(n)
+  for (let i = 0; i < n; i++) {
+    result[i] = fn(array[i])
+  }
+  return result
+}

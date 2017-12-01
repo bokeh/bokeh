@@ -3,7 +3,7 @@ import {HasProps} from "./has_props"
 import * as enums from "./enums"
 import * as svg_colors from "./util/svg_colors"
 import {valid_rgb} from "./util/color"
-import {contains, repeat} from "./util/array"
+import {contains, repeat, map} from "./util/array"
 import {isBoolean, isNumber, isString, isArray, isObject} from "./util/types"
 //import {Transform} from "../models/transforms/transform"
 import {ColumnarDataSource} from "../models/sources/columnar_data_source"
@@ -271,10 +271,10 @@ export function units_prop(name: string, valid_units: any, default_units: any) {
 }
 
 export class Angle extends units_prop("Angle", enums.AngleUnits, "rad") {
-  transform(values: any): any {
+  transform(values: any /* number[] | Float64Array */): any {
     if (this.spec.units == "deg")
-      values = values.map((x: number) => x * Math.PI/180.0)
-    values = values.map((x: number) => -x)
+      values = map(values, (x: number) => x * Math.PI/180.0)
+    values = map(values, (x: number) => -x)
     return super.transform(values)
   }
 }
