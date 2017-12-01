@@ -50,18 +50,37 @@ _create_view = (model) ->
   base.index[model.id] = view
   view
 
-_get_element = (element_id) ->
+_get_element = (item) ->
+  element_id = item['elementid']
   elem = document.getElementById(element_id)
   if not elem?
     throw new Error("Error rendering Bokeh model: could not find tag with id: #{element_id}")
   if not document.body.contains(elem)
     throw new Error("Error rendering Bokeh model: element with id '#{element_id}' must be under <body>")
+
+  # if autoload script, replace script tag with div for embedding
+  if elem.tagName == "SCRIPT"
+    fill_render_item_from_script_tag(elem, item)
+    container = div({class: BOKEH_ROOT})
+    replaceWith(elem, container)
+    child = div()
+    container.appendChild(child)
+    elem = child
+
   return elem
 
-_render_document_to_element = (element, document, use_for_title) ->
-  # this is a LOCAL index of views used only by this
-  # particular rendering call, so we can remove
-  # the views we create.
+# Replace element with a view of model_id from document
+export add_model_standalone = (model_id, element, doc) ->
+  model = doc.get_model_by_id(model_id)
+  if not model?
+    throw new Error("Model #{model_id} was not in document #{doc}")
+  view = _create_view(model)
+  view.renderTo(element, true)
+
+# Fill element with the roots from doc
+export add_document_standalone = (document, element, use_for_title=false) ->
+  # this is a LOCAL index of views used only by this particular rendering
+  # call, so we can remove the views we create.
   views = {}
   render_model = (model) ->
     view = _create_view(model)
@@ -90,21 +109,6 @@ _render_document_to_element = (element, document, use_for_title) ->
 
   return views
 
-# Replace element with a view of model_id from document
-add_model_static = (element, model_id, doc) ->
-  model = doc.get_model_by_id(model_id)
-  if not model?
-    throw new Error("Model #{model_id} was not in document #{doc}")
-  view = _create_view(model)
-  view.renderTo(element, true)
-
-# Fill element with the roots from doc
-export add_document_static = (element, doc, use_for_title) ->
-  _render_document_to_element(element, doc, use_for_title)
-
-export add_document_standalone = (document, element, use_for_title=false) ->
-  return _render_document_to_element(element, document, use_for_title)
-
 # map { websocket url to map { session id to promise of ClientSession } }
 _sessions = {}
 _get_session = (websocket_url, session_id, args_string) ->
@@ -124,7 +128,7 @@ add_document_from_session = (element, websocket_url, session_id, use_for_title) 
   promise = _get_session(websocket_url, session_id, args_string)
   promise.then(
     (session) ->
-      _render_document_to_element(element, session.document, use_for_title)
+      add_document_standalone(session.document, element, use_for_title)
     (error) ->
       logger.error("Failed to load Bokeh session " + session_id + ": " + error)
       throw error
@@ -181,22 +185,14 @@ export embed_items_notebook = (docs_json, render_items) ->
     if item.notebook_comms_target?
       _init_comms(item.notebook_comms_target, doc)
 
-    element_id = item['elementid']
-    elem = _get_element(element_id)
+    elem = _get_element(item)
 
     if item.modelid?
-      add_model_static(elem, item.modelid, doc)
+      add_model_standalone(item.modelid, elem, doc)
     else
-      add_document_static(elem, doc, false)
+      add_document_standalone(doc, elem, false)
 
-# TODO (bev) this is currently clunky. Standalone embeds (e.g. notebook) only provide
-# the first two args, whereas server provide the app_app, and *may* prove and
-# absolute_url as well if non-relative links are needed for resources. This function
-# should probably be split in to two pieces to reflect the different usage patterns
-export embed_items = (docs_json, render_items, app_path, absolute_url) ->
-  defer(() -> _embed_items(docs_json, render_items, app_path, absolute_url))
-
-_embed_items = (docs_json, render_items, app_path, absolute_url) ->
+_get_ws_url = (app_path, absolute_url) ->
   protocol = 'ws:'
   if (window.location.protocol == 'https:')
     protocol = 'wss:'
@@ -213,9 +209,16 @@ _embed_items = (docs_json, render_items, app_path, absolute_url) ->
   else
     app_path = loc.pathname.replace(/\/+$/, '')
 
-  websocket_url = protocol + '//' + loc.host + app_path + '/ws'
-  logger.debug("embed: computed ws url: #{websocket_url}")
+  return protocol + '//' + loc.host + app_path + '/ws'
 
+# TODO (bev) this is currently clunky. Standalone embeds only provide
+# the first two args, whereas server provide the app_app, and *may* prove and
+# absolute_url as well if non-relative links are needed for resources. This function
+# should probably be split in to two pieces to reflect the different usage patterns
+export embed_items = (docs_json, render_items, app_path, absolute_url) ->
+  defer(() -> _embed_items(docs_json, render_items, app_path, absolute_url))
+
+_embed_items = (docs_json, render_items, app_path, absolute_url) ->
   if isString(docs_json)
     docs_json = JSON.parse(unescape(docs_json))
 
@@ -224,39 +227,32 @@ _embed_items = (docs_json, render_items, app_path, absolute_url) ->
     docs[docid] = Document.from_json(docs_json[docid])
 
   for item in render_items
-    element_id = item['elementid']
-    elem = _get_element(element_id)
-
-    if elem.tagName == "SCRIPT"
-      fill_render_item_from_script_tag(elem, item)
-      container = div({class: BOKEH_ROOT})
-      replaceWith(elem, container)
-      child = div()
-      container.appendChild(child)
-      elem = child
+    elem = _get_element(item)
 
     use_for_title = item.use_for_title? and item.use_for_title
 
-    promise = null
-    if item.modelid?
-      if item.docid?
-        add_model_static(elem, item.modelid, docs[item.docid])
-      else if item.sessionid?
+    # handle server session cases
+    if item.sessionid?
+      websocket_url = _get_ws_url(app_path, absolute_url)
+      logger.debug("embed: computed ws url: #{websocket_url}")
+      if item.modelid?
         promise = add_model_from_session(elem, websocket_url, item.modelid, item.sessionid)
       else
-        throw new Error("Error rendering Bokeh model #{item['modelid']} to element #{element_id}: no document ID or session ID specified")
-    else
-      if item.docid?
-         add_document_static(elem, docs[item.docid], use_for_title)
-      else if item.sessionid?
-         promise = add_document_from_session(elem, websocket_url, item.sessionid, use_for_title)
-      else
-        throw new Error("Error rendering Bokeh document to element #{element_id}: no document ID or session ID specified")
+        promise = add_document_from_session(elem, websocket_url, item.sessionid, use_for_title)
 
-    if promise != null
       promise.then(
         (value) ->
           console.log("Bokeh items were rendered successfully")
         (error) ->
           console.log("Error rendering Bokeh items ", error)
       )
+
+    # handle standalone document cases
+    else if item.docid?
+      if item.modelid?
+        add_model_standalone(item.modelid, elem, docs[item.docid])
+      else
+        add_document_standalone(docs[item.docid], elem, use_for_title)
+
+    else
+       throw new Error("Error rendering Bokeh items to element #{item.elementid}: no document ID or session ID specified")
