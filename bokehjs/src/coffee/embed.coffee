@@ -4,9 +4,10 @@ import {logger, set_log_level} from "./core/logging"
 import {Document, RootAddedEvent, RootRemovedEvent, TitleChangedEvent} from "./document"
 import {div, link, style, replaceWith} from "./core/dom"
 import {defer} from "./core/util/callback"
-import {Receiver} from "./protocol/receiver"
-import {isString} from "./core/util/types"
 import {unescape} from "./core/util/string"
+import {size, values} from "./core/util/object"
+import {isString} from "./core/util/types"
+import {Receiver} from "./protocol/receiver"
 
 # Matches Bokeh CSS class selector. Setting all Bokeh parent element class names
 # with this var prevents user configurations where css styling is unset.
@@ -48,6 +49,14 @@ _create_view = (model) ->
   view = new model.default_view({model: model, parent: null})
   base.index[model.id] = view
   view
+
+_get_element = (element_id) ->
+  elem = document.getElementById(element_id)
+  if not elem?
+    throw new Error("Error rendering Bokeh model: could not find tag with id: #{element_id}")
+  if not document.body.contains(elem)
+    throw new Error("Error rendering Bokeh model: element with id '#{element_id}' must be under <body>")
+  return elem
 
 _render_document_to_element = (element, document, use_for_title) ->
   # this is a LOCAL index of views used only by this
@@ -161,6 +170,25 @@ fill_render_item_from_script_tag = (script, item) ->
 
   logger.info("Will inject Bokeh script tag with params #{JSON.stringify(item)}")
 
+export embed_items_notebook = (docs_json, render_items) ->
+  if size(docs_json) != 1
+    throw new Error("embed_items_notebook expects exactly one document in docs_json")
+
+  doc = Document.from_json(values(docs_json)[0])
+
+  for item in render_items
+
+    if item.notebook_comms_target?
+      _init_comms(item.notebook_comms_target, doc)
+
+    element_id = item['elementid']
+    elem = _get_element(element_id)
+
+    if item.modelid?
+      add_model_static(elem, item.modelid, doc)
+    else
+      add_document_static(elem, doc, false)
+
 # TODO (bev) this is currently clunky. Standalone embeds (e.g. notebook) only provide
 # the first two args, whereas server provide the app_app, and *may* prove and
 # absolute_url as well if non-relative links are needed for resources. This function
@@ -196,16 +224,8 @@ _embed_items = (docs_json, render_items, app_path, absolute_url) ->
     docs[docid] = Document.from_json(docs_json[docid])
 
   for item in render_items
-
-    if item.notebook_comms_target?
-      _init_comms(item.notebook_comms_target, docs[docid])
-
     element_id = item['elementid']
-    elem = document.getElementById(element_id)
-    if not elem?
-      throw new Error("Error rendering Bokeh model: could not find tag with id: #{element_id}")
-    if not document.body.contains(elem)
-      throw new Error("Error rendering Bokeh model: element with id '#{element_id}' must be under <body>")
+    elem = _get_element(element_id)
 
     if elem.tagName == "SCRIPT"
       fill_render_item_from_script_tag(elem, item)
