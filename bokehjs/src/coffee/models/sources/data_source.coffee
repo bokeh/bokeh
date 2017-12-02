@@ -6,6 +6,10 @@ import {isFunction} from "core/util/types"
 export class DataSource extends Model
   type: 'DataSource'
 
+  `
+  selected: hittest.HitTestResult
+  `
+
   @define {
       selected: [ p.Any, hittest.create_hit_test_result() ] # TODO (bev)
       callback: [ p.Any                                   ] # TODO: p.Either(p.Instance(Callback), p.Function) ]

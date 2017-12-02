@@ -136,7 +136,7 @@ export class ColumnDataSource extends ColumnarDataSource
     data = @data
     for k, v of new_data
       data[k] = stream_to_column(data[k], new_data[k], rollover)
-    @setv('data', data, {silent: true})
+    @setv({data: data}, {silent: true})
     @streaming.emit()
 
   patch: (patches) ->
@@ -144,5 +144,5 @@ export class ColumnDataSource extends ColumnarDataSource
     patched = new Set()
     for k, patch of patches
       patched = patched.union(patch_to_column(data[k], patch, @_shapes[k]))
-    @setv('data', data, {silent: true})
+    @setv({data: data}, {silent: true})
     @patching.emit(patched.values)

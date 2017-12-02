@@ -118,7 +118,7 @@ export class Arrow extends Annotation
       x_end:        [ p.NumberSpec,                   ]
       y_end:        [ p.NumberSpec,                   ]
       end_units:    [ p.String,      'data'           ]
-      end:          [ p.Instance,    new OpenHead({}) ]
+      end:          [ p.Instance,    () -> new OpenHead({}) ]
       source:       [ p.Instance                      ]
       x_range_name: [ p.String,      'default'        ]
       y_range_name: [ p.String,      'default'        ]
