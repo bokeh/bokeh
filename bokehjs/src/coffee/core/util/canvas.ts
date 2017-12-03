@@ -1,5 +1,7 @@
 import {OutputBackend} from "../enums"
 
+export type Context2d = CanvasRenderingContext2D
+
 function fixup_line_dash(ctx: any): void {
   if (!ctx.setLineDash) {
     ctx.setLineDash = (dash: any): void => {

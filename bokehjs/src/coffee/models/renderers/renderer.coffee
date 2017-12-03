@@ -1,5 +1,6 @@
 import {DOMView} from "core/dom_view"
 import {Visuals} from "core/visuals"
+import {RenderLevel} from "core/enums"
 import * as p from "core/properties"
 import * as proj from "core/util/projections"
 import {extend} from "core/util/object"
@@ -7,6 +8,11 @@ import {Model} from "../../model"
 
 # This shouldn't be a DOMView, but annotations create a mess.
 export class RendererView extends DOMView
+
+  `
+  plot_view: any // PlotCanvasView
+  visuals: Visuals
+  `
 
   initialize: (options) ->
     super(options)
@@ -36,6 +42,11 @@ export class RendererView extends DOMView
 
 export class Renderer extends Model
   type: "Renderer"
+
+  `
+  level: RenderLevel
+  visible: boolean
+  `
 
   @define {
     level: [ p.RenderLevel, null ]

@@ -57,7 +57,7 @@ export class CategoricalAxisView extends AxisView
     standoff = extents.tick + @model.major_label_standoff
     for i in [0...info.length]
       [labels, coords, orient, visuals] = info[i]
-      @_draw_oriented_labels(ctx, labels, coords, orient, @model.panel_side, standoff, visuals)
+      @_draw_oriented_labels(ctx, labels, coords, orient, @model.panel.side, standoff, visuals)
       standoff += extents.tick_label[i]
 
     return
@@ -67,7 +67,7 @@ export class CategoricalAxisView extends AxisView
 
     extents = []
     for [labels, dim_coords, orient, visuals] in info
-      extent = @_oriented_labels_extent(labels, orient, @model.panel_side, @model.major_label_standoff, visuals)
+      extent = @_oriented_labels_extent(labels, orient, @model.panel.side, @model.major_label_standoff, visuals)
       extents.push(extent)
 
     return extents

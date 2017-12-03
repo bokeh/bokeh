@@ -181,7 +181,7 @@ export class SidePanel extends LayoutCanvas {
 
   side: Side
 
-  protected _dim: number
+  protected _dim: 0 | 1
   protected _normals: [number, number]
   protected _size: Variable
 
@@ -215,6 +215,14 @@ export class SidePanel extends LayoutCanvas {
       default:
         logger.error(`unrecognized side: '${this.side}'`)
     }
+  }
+
+  get dimension(): 0 | 1 {
+    return this._dim
+  }
+
+  get normals(): [number, number] {
+    return this._normals
   }
 
   get is_horizontal(): boolean {

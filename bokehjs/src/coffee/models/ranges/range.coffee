@@ -5,6 +5,13 @@ import {isFunction} from "core/util/types"
 export class Range extends Model
   type: 'Range'
 
+  `
+  start: number
+  end: number
+  min: number
+  max: number
+  `
+
   initialize: (options) ->
     super(options)
     @connect(@change, () -> @_emit_callback())

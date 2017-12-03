@@ -1,453 +1,553 @@
-import {SidePanel} from "core/layout/side_panel"
 import {GuideRenderer} from "../renderers/guide_renderer"
 import {RendererView} from "../renderers/renderer"
+import {Ticker} from "../tickers/ticker"
+import {TickFormatter} from "../formatters/tick_formatter"
+import {Range} from "../ranges/range"
 
-import {logger} from "core/logging"
 import * as p from "core/properties"
+import {Side, Orientation, SpatialUnits} from "core/enums"
+import {Visuals} from "core/visuals"
+import {SidePanel, Orient} from "core/layout/side_panel"
+import {Context2d} from "core/util/canvas"
 import {sum} from "core/util/array"
 import {isString, isArray} from "core/util/types"
 
-export class AxisView extends RendererView
+const {abs, min, max} = Math
 
-  render: () ->
-    if @model.visible == false
+export interface Extents {
+  tick: number
+  tick_label: number[]
+  axis_label: number
+}
+
+export type Coords = [number[], number[]]
+
+export interface TickCoords {
+  major: Coords
+  minor: Coords
+}
+
+export class AxisView extends RendererView {
+
+  model: Axis
+
+  render(): void {
+    if (!this.model.visible)
       return
 
-    extents = {
-      tick: @_tick_extent(),
-      tick_label: @_tick_label_extents(),
-      axis_label: @_axis_label_extent()
+    const extents = {
+      tick: this._tick_extent(),
+      tick_label: this._tick_label_extents(),
+      axis_label: this._axis_label_extent(),
     }
-    tick_coords  = @model.tick_coords
+    const tick_coords = this.model.tick_coords
 
-    ctx = @plot_view.canvas_view.ctx
+    const ctx = this.plot_view.canvas_view.ctx
     ctx.save()
 
-    @_draw_rule(ctx, extents)
-    @_draw_major_ticks(ctx, extents, tick_coords)
-    @_draw_minor_ticks(ctx, extents, tick_coords)
-    @_draw_major_labels(ctx, extents, tick_coords)
-    @_draw_axis_label(ctx, extents, tick_coords)
+    this._draw_rule(ctx, extents)
+    this._draw_major_ticks(ctx, extents, tick_coords)
+    this._draw_minor_ticks(ctx, extents, tick_coords)
+    this._draw_major_labels(ctx, extents, tick_coords)
+    this._draw_axis_label(ctx, extents, tick_coords)
 
-    if @_render?
-      @_render(ctx, extents, tick_coords)
+    if (this._render != null)
+      this._render(ctx, extents, tick_coords)
 
     ctx.restore()
+  }
 
-  connect_signals: () ->
-    super()
-    @connect(@model.change, () => @plot_view.request_render())
+  protected _render?: (ctx: Context2d, extents: Extents, tick_coords: TickCoords) => void
 
-  _get_size: () ->
-    return @_tick_extent() + @_tick_label_extent() + @_axis_label_extent()
+  connect_signals(): void {
+    super.connect_signals()
+    this.connect(this.model.change, () => this.plot_view.request_render())
+  }
 
-  get_size: () ->
-    return if this.model.visible then Math.round(this._get_size()) else 0
+  get_size(): number {
+    return this.model.visible ? Math.round(this._get_size()) : 0
+  }
 
-  # drawing sub functions -----------------------------------------------------
+  protected _get_size(): number {
+    return this._tick_extent() + sum(this._tick_label_extents()) + this._axis_label_extent()
+  }
 
-  _draw_rule: (ctx, extents, tick_coords) ->
-    if not @visuals.axis_line.doit
+  // drawing sub functions -----------------------------------------------------
+
+  protected _draw_rule(ctx: Context2d, _extents: Extents): void {
+    if (!this.visuals.axis_line.doit)
       return
 
-    [x, y]       = @model.rule_coords
-    [sx, sy]     = @plot_view.map_to_screen(x, y, @model.x_range_name, @model.y_range_name)
-    [nx, ny]     = @model.normals
-    [xoff, yoff] = @model.offsets
+    const [xs, ys]     = this.model.rule_coords
+    const [sxs, sys]   = this.plot_view.map_to_screen(xs, ys, this.model.x_range_name, this.model.y_range_name)
+    const [nx, ny]     = this.model.normals
+    const [xoff, yoff] = this.model.offsets
 
-    @visuals.axis_line.set_value(ctx)
+    this.visuals.axis_line.set_value(ctx)
 
     ctx.beginPath()
-    ctx.moveTo(Math.round(sx[0] + nx*xoff), Math.round(sy[0] + ny*yoff))
-    for i in [1...sx.length]
-      sx = Math.round(sx[i] + nx*xoff)
-      sy = Math.round(sy[i] + ny*yoff)
+    ctx.moveTo(Math.round(sxs[0] + nx*xoff), Math.round(sys[0] + ny*yoff))
+    for (let i = 1; i < sxs.length; i++) {
+      const sx = Math.round(sxs[i] + nx*xoff)
+      const sy = Math.round(sys[i] + ny*yoff)
       ctx.lineTo(sx, sy)
+    }
     ctx.stroke()
+  }
 
-    return
+  protected _draw_major_ticks(ctx: Context2d, _extents: Extents, tick_coords: TickCoords): void {
+    const tin     = this.model.major_tick_in
+    const tout    = this.model.major_tick_out
+    const visuals = this.visuals.major_tick_line
 
-  _draw_major_ticks: (ctx, extents, tick_coords) ->
-    tin     = @model.major_tick_in
-    tout    = @model.major_tick_out
-    visuals = @visuals.major_tick_line
+    this._draw_ticks(ctx, tick_coords.major, tin, tout, visuals)
+  }
 
-    @_draw_ticks(ctx, tick_coords.major, tin, tout, visuals)
+  protected _draw_minor_ticks(ctx: Context2d, _extents: Extents, tick_coords: TickCoords): void {
+    const tin     = this.model.minor_tick_in
+    const tout    = this.model.minor_tick_out
+    const visuals = this.visuals.minor_tick_line
 
-    return
+    this._draw_ticks(ctx, tick_coords.minor, tin, tout, visuals)
+  }
 
-  _draw_minor_ticks: (ctx, extents, tick_coords) ->
-    tin     = @model.minor_tick_in
-    tout    = @model.minor_tick_out
-    visuals = @visuals.minor_tick_line
+  protected _draw_major_labels(ctx: Context2d, extents: Extents, tick_coords: TickCoords): void {
+    const coords   = tick_coords.major
+    const labels   = this.model.compute_labels(coords[this.model.dimension])
+    const orient   = this.model.major_label_orientation
+    const standoff = extents.tick + this.model.major_label_standoff
+    const visuals  = this.visuals.major_label_text
 
-    @_draw_ticks(ctx, tick_coords.minor, tin, tout, visuals)
+    this._draw_oriented_labels(ctx, labels, coords, orient, this.model.panel.side, standoff, visuals)
+  }
 
-    return
-
-  _draw_major_labels: (ctx, extents, tick_coords) ->
-    coords   = tick_coords.major
-    labels   = @model.compute_labels(coords[@model.dimension])
-    orient   = @model.major_label_orientation
-    standoff = extents.tick + @model.major_label_standoff
-    visuals  = @visuals.major_label_text
-
-    @_draw_oriented_labels(ctx, labels, coords, orient, @model.panel_side, standoff, visuals)
-
-    return
-
-  _draw_axis_label: (ctx, extents, tick_coords) ->
-    if not @model.axis_label? or @model.axis_label.length == 0
+  protected _draw_axis_label(ctx: Context2d, extents: Extents, _tick_coords: TickCoords): void {
+    if (this.model.axis_label == null || this.model.axis_label.length == 0)
       return
 
-    switch @model.panel.side
-      when "above"
-        sx = @model.panel._hcenter.value
-        sy = @model.panel._bottom.value
-      when "below"
-        sx = @model.panel._hcenter.value
-        sy = @model.panel._top.value
-      when "left"
-        sx = @model.panel._right.value
-        sy = @model.panel._vcenter._value
-      when "right"
-        sx = @model.panel._left.value
-        sy = @model.panel._vcenter._value
+    let sx: number
+    let sy: number
 
-    coords = [[sx], [sy]]
-    standoff = extents.tick + sum(extents.tick_label) + @model.axis_label_standoff
-    visuals  = @visuals.axis_label_text
+    switch (this.model.panel.side) {
+      case "above":
+        sx = this.model.panel._hcenter.value
+        sy = this.model.panel._bottom.value
+        break;
+      case "below":
+        sx = this.model.panel._hcenter.value
+        sy = this.model.panel._top.value
+        break;
+      case "left":
+        sx = this.model.panel._right.value
+        sy = this.model.panel._vcenter.value
+        break;
+      case "right":
+        sx = this.model.panel._left.value
+        sy = this.model.panel._vcenter.value
+        break;
+    }
 
-    @_draw_oriented_labels(ctx, [@model.axis_label], coords, 'parallel', @model.panel_side, standoff, visuals, "screen")
+    const coords: Coords = [[sx], [sy]]
+    const standoff = extents.tick + sum(extents.tick_label) + this.model.axis_label_standoff
+    const visuals  = this.visuals.axis_label_text
 
-    return
+    this._draw_oriented_labels(ctx, [this.model.axis_label], coords, 'parallel', this.model.panel.side, standoff, visuals, "screen")
+  }
 
-  _draw_ticks: (ctx, coords, tin, tout, visuals) ->
-    if not visuals.doit or coords.length == 0
+  protected _draw_ticks(ctx: Context2d, coords: Coords, tin: number, tout: number, visuals: Visuals): void {
+    if (!visuals.doit || coords.length == 0)
       return
 
-    [x, y]       = coords
-    [sxs, sys]   = @plot_view.map_to_screen(x, y, @model.x_range_name, @model.y_range_name)
-    [nx, ny]     = @model.normals
-    [xoff, yoff] = @model.offsets
+    const [x, y]       = coords
+    const [sxs, sys]   = this.plot_view.map_to_screen(x, y, this.model.x_range_name, this.model.y_range_name)
+    const [nx, ny]     = this.model.normals
+    const [xoff, yoff] = this.model.offsets
 
-    [nxin,  nyin]  = [nx * (xoff-tin),  ny * (yoff-tin)]
-    [nxout, nyout] = [nx * (xoff+tout), ny * (yoff+tout)]
+    const [nxin,  nyin]  = [nx * (xoff-tin),  ny * (yoff-tin)]
+    const [nxout, nyout] = [nx * (xoff+tout), ny * (yoff+tout)]
 
     visuals.set_value(ctx)
 
-    for i in [0...sxs.length]
-      sx0 = Math.round(sxs[i] + nxout)
-      sy0 = Math.round(sys[i] + nyout)
-      sx1 = Math.round(sxs[i] + nxin)
-      sy1 = Math.round(sys[i] + nyin)
+    for (let i = 0; i < sxs.length; i++) {
+      const sx0 = Math.round(sxs[i] + nxout)
+      const sy0 = Math.round(sys[i] + nyout)
+      const sx1 = Math.round(sxs[i] + nxin)
+      const sy1 = Math.round(sys[i] + nyin)
       ctx.beginPath()
       ctx.moveTo(sx0, sy0)
       ctx.lineTo(sx1, sy1)
       ctx.stroke()
+    }
+  }
 
-    return
-
-  _draw_oriented_labels: (ctx, labels, coords, orient, side, standoff, visuals, units="data") ->
-    if not visuals.doit or labels.length == 0
+  protected _draw_oriented_labels(ctx: Context2d, labels: string[], coords: Coords,
+                                  orient: Orient | number, _side: Side, standoff: number,
+                                  visuals: Visuals, units: SpatialUnits = "data"): void {
+    if (!visuals.doit || labels.length == 0)
       return
 
-    if units == "screen"
-      [sxs, sys] = coords
-      [xoff, yoff] = [0, 0]
-    else
-      [dxs, dys] = coords
-      [sxs, sys] = @plot_view.map_to_screen(dxs, dys, @model.x_range_name, @model.y_range_name)
-      [xoff, yoff] = @model.offsets
+    let sxs, sys: number[]
+    let xoff, yoff: number
 
-    [nx, ny] = @model.normals
+    if (units == "screen") {
+      [sxs, sys] = coords;
+      [xoff, yoff] = [0, 0];
+    } else {
+      const [dxs, dys] = coords;
+      [sxs, sys] = this.plot_view.map_to_screen(dxs, dys, this.model.x_range_name, this.model.y_range_name);
+      [xoff, yoff] = this.model.offsets;
+    }
 
-    nxd = nx * (xoff + standoff)
-    nyd = ny * (yoff + standoff)
+    const [nx, ny] = this.model.normals
+
+    const nxd = nx * (xoff + standoff)
+    const nyd = ny * (yoff + standoff)
 
     visuals.set_value(ctx)
-    @model.panel.apply_label_text_heuristics(ctx, orient)
+    this.model.panel.apply_label_text_heuristics(ctx, orient)
 
-    if isString(orient)
-      angle = @model.panel.get_label_angle_heuristic(orient)
+    let angle: number
+    if (isString(orient))
+      angle = this.model.panel.get_label_angle_heuristic(orient)
     else
       angle = -orient
 
-    for i in [0...sxs.length]
-      sx = Math.round(sxs[i] + nxd)
-      sy = Math.round(sys[i] + nyd)
+    for (let i = 0; i < sxs.length; i++) {
+      const sx = Math.round(sxs[i] + nxd)
+      const sy = Math.round(sys[i] + nyd)
 
       ctx.translate(sx, sy)
       ctx.rotate(angle)
       ctx.fillText(labels[i], 0, 0)
       ctx.rotate(-angle)
       ctx.translate(-sx, -sy)
+    }
+  }
 
-    return
+  // extents sub functions -----------------------------------------------------
 
-  # extents sub functions -----------------------------------------------------
-
-  _axis_label_extent: () ->
-    if not @model.axis_label? or @model.axis_label == ""
+  protected _axis_label_extent(): number {
+    if (this.model.axis_label == null || this.model.axis_label == "")
       return 0
-    standoff = @model.axis_label_standoff
-    visuals = @visuals.axis_label_text
-    @_oriented_labels_extent([@model.axis_label], "parallel", @model.panel_side, standoff, visuals)
+    const standoff = this.model.axis_label_standoff
+    const visuals = this.visuals.axis_label_text
+    return this._oriented_labels_extent([this.model.axis_label], "parallel", this.model.panel.side, standoff, visuals)
+  }
 
-  _tick_extent: () ->
-    return @model.major_tick_out
+  protected _tick_extent(): number {
+    return this.model.major_tick_out
+  }
 
-  _tick_label_extent: () ->
-    return sum(@_tick_label_extents())
+  protected _tick_label_extents(): number[] {
+    const coords = this.model.tick_coords.major
+    const labels = this.model.compute_labels(coords[this.model.dimension])
 
-  _tick_label_extents: () ->
-    coords = @model.tick_coords.major
-    labels = @model.compute_labels(coords[@model.dimension])
+    const orient = this.model.major_label_orientation
+    const standoff = this.model.major_label_standoff
+    const visuals = this.visuals.major_label_text
 
-    orient = @model.major_label_orientation
-    standoff = @model.major_label_standoff
-    visuals = @visuals.major_label_text
+    return [this._oriented_labels_extent(labels, orient, this.model.panel.side, standoff, visuals)]
+  }
 
-    return [@_oriented_labels_extent(labels, orient, @model.panel_side, standoff, visuals)]
-
-  _tick_label_extent: () ->
-    return sum(@_tick_label_extents())
-
-  _oriented_labels_extent: (labels, orient, side, standoff, visuals) ->
-    if labels.length == 0
+  protected _oriented_labels_extent(labels: string[], orient: Orient | number,
+                                    side: Side, standoff: number, visuals: Visuals): number {
+    if (labels.length == 0)
       return 0
 
-    ctx = @plot_view.canvas_view.ctx
+    const ctx = this.plot_view.canvas_view.ctx
     visuals.set_value(ctx)
 
-    if isString(orient)
+    let hscale: number
+    let angle: number
+
+    if (isString(orient)) {
       hscale = 1
-      angle = @model.panel.get_label_angle_heuristic(orient)
-    else
+      angle = this.model.panel.get_label_angle_heuristic(orient)
+    } else {
       hscale = 2
       angle = -orient
+    }
     angle = Math.abs(angle)
 
-    c = Math.cos(angle)
-    s = Math.sin(angle)
+    const c = Math.cos(angle)
+    const s = Math.sin(angle)
 
-    extent = 0
+    let extent = 0
 
-    for i in [0...labels.length]
-      w = ctx.measureText(labels[i]).width * 1.1
-      h = ctx.measureText(labels[i]).ascent * 0.9
+    for (let i = 0; i < labels.length; i++) {
+      const w = ctx.measureText(labels[i]).width * 1.1
+      const h = ctx.measureText(labels[i]).ascent * 0.9
 
-      if side == "above" or side == "below"
+      let val: number
+
+      if (side == "above" || side == "below")
         val = w*s + (h/hscale)*c
       else
         val = w*c + (h/hscale)*s
 
-      # update extent if current value is larger
-      if val > extent
+      // update extent if current value is larger
+      if (val > extent)
         extent = val
+    }
 
-    # only apply the standoff if we already have non-zero extent
-    if extent > 0
+    // only apply the standoff if we already have non-zero extent
+    if (extent > 0)
       extent += standoff
 
     return extent
-
-export class Axis extends GuideRenderer
-  default_view: AxisView
-
-  type: 'Axis'
-
-  @mixins [
-    'line:axis_',
-    'line:major_tick_',
-    'line:minor_tick_',
-    'text:major_label_',
-    'text:axis_label_'
-  ]
-
-  @define {
-    bounds:                  [ p.Any,      'auto'       ] # TODO (bev)
-    ticker:                  [ p.Instance, null         ]
-    formatter:               [ p.Instance, null         ]
-    x_range_name:            [ p.String,   'default'    ]
-    y_range_name:            [ p.String,   'default'    ]
-    axis_label:              [ p.String,   ''           ]
-    axis_label_standoff:     [ p.Int,      5            ]
-    major_label_standoff:    [ p.Int,      5            ]
-    major_label_orientation: [ p.Any,      "horizontal" ] # TODO: p.Orientation | p.Number
-    major_label_overrides:   [ p.Any,      {}           ]
-    major_tick_in:           [ p.Number,   2            ]
-    major_tick_out:          [ p.Number,   6            ]
-    minor_tick_in:           [ p.Number,   0            ]
-    minor_tick_out:          [ p.Number,   4            ]
   }
+}
 
-  @override {
-    axis_line_color: 'black'
+export class Axis extends GuideRenderer {
 
-    major_tick_line_color: 'black'
-    minor_tick_line_color: 'black'
+  panel: SidePanel
 
-    major_label_text_font_size: "8pt"
-    major_label_text_align: "center"
-    major_label_text_baseline: "alphabetic"
+  bounds: [number, number] | "auto"
+  ticker: Ticker<any> // TODO
+  formatter: TickFormatter
+  x_range_name: string
+  y_range_name: string
+  axis_label: string
+  axis_label_standoff: number
+  major_label_standoff: number
+  major_label_orientation: Orientation | number
+  major_label_overrides: {[key: string]: string}
+  major_tick_in: number
+  major_tick_out: number
+  minor_tick_in: number
+  minor_tick_out: number
 
-    axis_label_text_font_size: "10pt"
-    axis_label_text_font_style: "italic"
-  }
-
-  @internal {
-    panel_side: [ p.Any ]
-  }
-
-  compute_labels: (ticks) ->
-    labels = @formatter.doFormat(ticks, @)
-    for i in [0...ticks.length]
-      if ticks[i] of @major_label_overrides
-        labels[i] = @major_label_overrides[ticks[i]]
-    return labels
-
-  label_info: (coords) ->
-    orient = @major_label_orientation
-    info = {
-      dim: @dimension
-      coords: coords
-      side: @panel_side
-      orient: orient
-      standoff: @major_label_standoff
+  compute_labels(ticks: number[]): string[] {
+    const labels = this.formatter.doFormat(ticks, this) as any
+    for (let i = 0; i < ticks.length; i++) {
+      if (ticks[i] in this.major_label_overrides)
+        labels[i] = this.major_label_overrides[ticks[i]]
     }
-    return info
-
-  @getters {
-    computed_bounds: () -> @_computed_bounds()
-    rule_coords: () -> @_rule_coords()
-    tick_coords: () -> @_tick_coords()
-    ranges: () -> @_ranges()
-    normals: () -> @panel._normals
-    dimension: () -> @panel._dim
-    offsets: () -> @_offsets()
-    loc: () ->@_get_loc()
+    return labels
   }
 
-  add_panel: (side) ->
-    @panel = new SidePanel({side: side})
-    @panel.attach_document(@document)
-    @panel_side = side
+  label_info(coords: Coords) {
+    return {
+      dim: this.dimension,
+      coords: coords,
+      side: this.panel.side,
+      orient: this.major_label_orientation,
+      standoff: this.major_label_standoff,
+    }
+  }
 
-  _offsets: () ->
-    side = @panel_side
-    [xoff, yoff] = [0, 0]
-    frame = @plot.plot_canvas.frame
+  get computed_bounds(): [number, number] {
+    return this._computed_bounds()
+  }
 
-    switch side
-      when "below"
-        yoff = Math.abs(@panel._top.value - frame._bottom.value)
-      when "above"
-        yoff = Math.abs(@panel._bottom.value - frame._top.value)
-      when "right"
-        xoff = Math.abs(@panel._left.value - frame._right.value)
-      when "left"
-        xoff = Math.abs(@panel._right.value - frame._left.value)
+  get rule_coords() {
+    return this._rule_coords()
+  }
+
+  get tick_coords() {
+    return this._tick_coords()
+  }
+
+  get ranges(): [Range, Range] {
+    return this._ranges()
+  }
+
+  get normals() {
+    return this.panel.normals
+  }
+
+  get dimension(): 0 | 1 {
+    return this.panel.dimension
+  }
+
+  get offsets(): [number, number] {
+    return this._offsets()
+  }
+
+  get loc(): number {
+    return this._get_loc()
+  }
+
+  add_panel(side: Side): void {
+    this.panel = new SidePanel({side: side})
+    this.panel.attach_document(this.document!) // XXX!
+  }
+
+  protected _offsets(): [number, number] {
+    const frame = this.plot.plot_canvas.frame
+    let [xoff, yoff] = [0, 0]
+
+    switch (this.panel.side) {
+      case "below":
+        yoff = abs(this.panel._top.value - frame._bottom.value)
+        break
+      case "above":
+        yoff = abs(this.panel._bottom.value - frame._top.value)
+        break
+      case "right":
+        xoff = abs(this.panel._left.value - frame._right.value)
+        break
+      case "left":
+        xoff = abs(this.panel._right.value - frame._left.value)
+        break
+    }
 
     return [xoff, yoff]
+  }
 
-  _ranges: () ->
-    i = @dimension
-    j = (i + 1) % 2
-    frame = @plot.plot_canvas.frame
-    ranges = [
-      frame.x_ranges[@x_range_name],
-      frame.y_ranges[@y_range_name]
+  protected _ranges(): [Range, Range] {
+    const i = this.dimension
+    const j = (i + 1) % 2
+    const frame = this.plot.plot_canvas.frame
+    const ranges = [
+      frame.x_ranges[this.x_range_name],
+      frame.y_ranges[this.y_range_name],
     ]
     return [ranges[i], ranges[j]]
+  }
 
-  _computed_bounds: () ->
-    [range, cross_range] = @ranges
+  protected _computed_bounds(): [number, number] {
+    const [range,] = this.ranges
 
-    user_bounds = @bounds ? 'auto'
-    range_bounds = [range.min, range.max]
+    const user_bounds = this.bounds // XXX: ? 'auto'
+    const range_bounds: [number, number] = [range.min, range.max]
 
-    if user_bounds == 'auto'
-      return range_bounds
+    if (user_bounds == 'auto')
+      return [range.min, range.max]
+    else if (isArray(user_bounds)) {
+      let start: number
+      let end: number
 
-    if isArray(user_bounds)
-      if Math.abs(user_bounds[0]-user_bounds[1]) >
-                  Math.abs(range_bounds[0]-range_bounds[1])
-        start = Math.max(Math.min(user_bounds[0], user_bounds[1]),
-                         range_bounds[0])
-        end = Math.min(Math.max(user_bounds[0], user_bounds[1]),
-                       range_bounds[1])
-      else
-        start = Math.min(user_bounds[0], user_bounds[1])
-        end = Math.max(user_bounds[0], user_bounds[1])
+      const [user_start, user_end] = user_bounds
+      const [range_start, range_end] = range_bounds
+
+      if (abs(user_start - user_end) > abs(range_start - range_end)) {
+        start = max(min(user_start, user_end), range_start)
+        end = min(max(user_start, user_end), range_end)
+      } else {
+        start = min(user_start, user_end)
+        end = max(user_start, user_end)
+      }
+
       return [start, end]
+    } else
+      throw new Error(`user bounds '${user_bounds}' not understood`)
+  }
 
-    logger.error("user bounds '#{ user_bounds }' not understood")
-    return null
+  protected _rule_coords(): Coords {
+    const i = this.dimension
+    const j = (i + 1) % 2
+    const [range,] = this.ranges
+    const [start, end] = this.computed_bounds
 
-  _rule_coords: () ->
-    i = @dimension
-    j = (i + 1) % 2
-    [range, cross_range] = @ranges
-    [start, end] = @computed_bounds
-
-    xs = new Array(2)
-    ys = new Array(2)
-    coords = [xs, ys]
+    const xs: number[] = new Array(2)
+    const ys: number[] = new Array(2)
+    const coords: Coords = [xs, ys]
 
     coords[i][0] = Math.max(start, range.min)
     coords[i][1] = Math.min(end, range.max)
-    if coords[i][0] > coords[i][1]
+    if (coords[i][0] > coords[i][1])
       coords[i][0] = coords[i][1] = NaN
 
-    coords[j][0] = @loc
-    coords[j][1] = @loc
+    coords[j][0] = this.loc
+    coords[j][1] = this.loc
 
     return coords
+  }
 
-  _tick_coords: () ->
-    i = @dimension
-    j = (i + 1) % 2
-    [range, cross_range] = @ranges
-    [start, end] = @computed_bounds
+  protected _tick_coords(): TickCoords {
+    const i = this.dimension
+    const j = (i + 1) % 2
+    const [range,] = this.ranges
+    const [start, end] = this.computed_bounds
 
-    ticks = @ticker.get_ticks(start, end, range, @loc, {})
-    majors = ticks.major
-    minors = ticks.minor
+    const ticks = this.ticker.get_ticks(start, end, range, this.loc, {})
+    const majors = ticks.major
+    const minors = ticks.minor
 
-    xs = []
-    ys = []
-    coords = [xs, ys]
+    const xs: number[] = []
+    const ys: number[] = []
+    const coords: Coords = [xs, ys]
 
-    minor_xs = []
-    minor_ys = []
-    minor_coords = [minor_xs, minor_ys]
+    const minor_xs: number[] = []
+    const minor_ys: number[] = []
+    const minor_coords: Coords = [minor_xs, minor_ys]
 
-    [range_min, range_max] = [range.min, range.max]
+    const [range_min, range_max] = [range.min, range.max]
 
-    for ii in [0...majors.length]
-      if majors[ii] < range_min or majors[ii] > range_max
+    for (let ii = 0; ii < majors.length; ii++) {
+      if (majors[ii] < range_min || majors[ii] > range_max)
         continue
       coords[i].push(majors[ii])
-      coords[j].push(@loc)
-
-    for ii in [0...minors.length]
-      if minors[ii] < range_min or minors[ii] > range_max
-        continue
-      minor_coords[i].push(minors[ii])
-      minor_coords[j].push(@loc)
-
-    return {
-      "major": coords,
-      "minor": minor_coords
+      coords[j].push(this.loc)
     }
 
-  _get_loc: () ->
-    [range, cross_range] = @ranges
-    cstart = cross_range.start
-    cend = cross_range.end
-    side = @panel_side
+    for (let ii = 0; ii < minors.length; ii++) {
+      if (minors[ii] < range_min || minors[ii] > range_max)
+        continue
+      minor_coords[i].push(minors[ii])
+      minor_coords[j].push(this.loc)
+    }
 
-    return switch side
-      when 'left', 'below' then cross_range.start
-      when 'right', 'above' then cross_range.end
+    return {
+      major: coords,
+      minor: minor_coords,
+    }
+  }
+
+  protected _get_loc(): number {
+    const [, cross_range] = this.ranges
+
+    switch (this.panel.side) {
+      case 'left':
+      case 'below':
+        return cross_range.start
+      case 'right':
+      case 'above':
+        return cross_range.end
+    }
+  }
+}
+
+Axis.prototype.type = "Axis"
+
+Axis.prototype.default_view = AxisView
+
+Axis.mixins([
+  'line:axis_',
+  'line:major_tick_',
+  'line:minor_tick_',
+  'text:major_label_',
+  'text:axis_label_',
+])
+
+Axis.define({
+  bounds:                  [ p.Any,      'auto'       ], // TODO (bev)
+  ticker:                  [ p.Instance, null         ],
+  formatter:               [ p.Instance, null         ],
+  x_range_name:            [ p.String,   'default'    ],
+  y_range_name:            [ p.String,   'default'    ],
+  axis_label:              [ p.String,   ''           ],
+  axis_label_standoff:     [ p.Int,      5            ],
+  major_label_standoff:    [ p.Int,      5            ],
+  major_label_orientation: [ p.Any,      "horizontal" ], // TODO: p.Orientation | p.Number
+  major_label_overrides:   [ p.Any,      {}           ],
+  major_tick_in:           [ p.Number,   2            ],
+  major_tick_out:          [ p.Number,   6            ],
+  minor_tick_in:           [ p.Number,   0            ],
+  minor_tick_out:          [ p.Number,   4            ],
+})
+
+Axis.override({
+  axis_line_color: 'black',
+
+  major_tick_line_color: 'black',
+  minor_tick_line_color: 'black',
+
+  major_label_text_font_size: "8pt",
+  major_label_text_align: "center",
+  major_label_text_baseline: "alphabetic",
+
+  axis_label_text_font_size: "10pt",
+  axis_label_text_font_style: "italic",
+})

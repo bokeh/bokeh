@@ -1,7 +1,7 @@
 import * as mixins from "./property_mixins"
 import {color2rgba} from "./util/color"
 
-class ContextProperties
+export class ContextProperties
 
   constructor: (obj, prefix="") ->
     @obj = obj

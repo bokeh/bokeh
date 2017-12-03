@@ -730,6 +730,10 @@ export class PlotCanvas extends LayoutDOM
   type: 'PlotCanvas'
   default_view: PlotCanvasView
 
+  `
+  frame: CartesianFrame
+  `
+
   initialize: (attrs, options) ->
     super(attrs, options)
 

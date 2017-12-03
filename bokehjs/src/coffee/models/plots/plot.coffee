@@ -44,6 +44,10 @@ export class Plot extends LayoutDOM
   type: 'Plot'
   default_view: PlotView
 
+  `
+  plot_canvas: PlotCanvas
+  `
+
   initialize: (options) ->
     super(options)
     for xr in values(@extra_x_ranges).concat(@x_range)
