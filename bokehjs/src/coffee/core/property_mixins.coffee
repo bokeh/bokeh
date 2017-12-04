@@ -1,9 +1,8 @@
 import * as p from "./properties"
 import {extend} from "./util/object"
 
-_gen_mixin = (mixin, prefix) ->
+_gen_mixin = (mixin, prefix="") ->
   result = {}
-  prefix ?= ""
   for name, type of mixin
     result[prefix+name] = type
   return result
@@ -17,13 +16,13 @@ _line_mixin =
   line_dash:        [ p.Array,      []        ]
   line_dash_offset: [ p.Number,     0         ]
 
-export line = (prefix) -> _gen_mixin(_line_mixin, prefix)
+export line = (prefix="") -> _gen_mixin(_line_mixin, prefix)
 
 _fill_mixin =
   fill_color: [ p.ColorSpec,  'gray' ]
   fill_alpha: [ p.NumberSpec, 1.0    ]
 
-export fill = (prefix) -> _gen_mixin(_fill_mixin, prefix)
+export fill = (prefix="") -> _gen_mixin(_fill_mixin, prefix)
 
 _text_mixin =
   text_font:        [ p.Font,         'helvetica' ]
@@ -35,7 +34,7 @@ _text_mixin =
   text_baseline:    [ p.TextBaseline, 'bottom'    ]
   text_line_height: [ p.Number,       1.2         ]
 
-export text = (prefix) -> _gen_mixin(_text_mixin, prefix)
+export text = (prefix="") -> _gen_mixin(_text_mixin, prefix)
 
 export create = (configs) ->
   result = {}

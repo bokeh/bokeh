@@ -1,6 +1,11 @@
 import {OutputBackend} from "../enums"
 
-export type Context2d = CanvasRenderingContext2D
+export type Context2d = CanvasRenderingContext2D & {
+  setLineDashOffset(offset: number): void
+  getLineDashOffset(): number
+  setImageSmoothingEnabled(value: boolean): void
+  getImageSmoothingEnabled(): boolean
+}
 
 function fixup_line_dash(ctx: any): void {
   if (!ctx.setLineDash) {
@@ -17,10 +22,10 @@ function fixup_line_dash(ctx: any): void {
 }
 
 function fixup_line_dash_offset(ctx: any): void {
-  ctx.setLineDashOffset = (dash_offset: any): void => {
-    ctx.lineDashOffset = dash_offset
-    ctx.mozDashOffset = dash_offset
-    ctx.webkitLineDashOffset = dash_offset
+  ctx.setLineDashOffset = (offset: number): void => {
+    ctx.lineDashOffset = offset
+    ctx.mozDashOffset = offset
+    ctx.webkitLineDashOffset = offset
   }
   ctx.getLineDashOffset = (): number => {
     return ctx.mozDashOffset
@@ -28,7 +33,7 @@ function fixup_line_dash_offset(ctx: any): void {
 }
 
 function fixup_image_smoothing(ctx: any): void {
-  ctx.setImageSmoothingEnabled = (value: any): void => {
+  ctx.setImageSmoothingEnabled = (value: boolean): void => {
     ctx.imageSmoothingEnabled = value
     ctx.mozImageSmoothingEnabled = value
     ctx.oImageSmoothingEnabled = value
