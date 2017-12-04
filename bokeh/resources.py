@@ -193,7 +193,7 @@ class BaseResources(object):
             "trace", "debug", "info", "warn", "error", "fatal"
         ]
         if not (level is None or level in valid_levels):
-            raise ValueError("Unknown log level '%s', valid levels are: %s", str(valid_levels))
+            raise ValueError("Unknown log level '{}', valid levels are: {}".format(level, str(valid_levels)))
         self._log_level = level
 
     @property
