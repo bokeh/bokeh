@@ -6,7 +6,7 @@ import {Range} from "../ranges/range"
 
 import * as p from "core/properties"
 import {Side, Orientation, SpatialUnits} from "core/enums"
-import {Visuals} from "core/visuals"
+import {Visuals, Text, Line} from "core/visuals"
 import {SidePanel, Orient} from "core/layout/side_panel"
 import {Context2d} from "core/util/canvas"
 import {sum} from "core/util/array"
@@ -30,6 +30,14 @@ export interface TickCoords {
 export class AxisView extends RendererView {
 
   model: Axis
+
+  visuals: Visuals & {
+    axis_line: Line
+    major_tick_line: Line
+    minor_tick_line: Line
+    major_label_text: Text
+    axis_label_text: Text
+  }
 
   render(): void {
     if (!this.model.visible)
@@ -145,6 +153,8 @@ export class AxisView extends RendererView {
         sx = this.model.panel._left.value
         sy = this.model.panel._vcenter.value
         break;
+      default:
+        throw new Error(`unknown side: ${this.model.panel.side}`)
     }
 
     const coords: Coords = [[sx], [sy]]
@@ -154,7 +164,7 @@ export class AxisView extends RendererView {
     this._draw_oriented_labels(ctx, [this.model.axis_label], coords, 'parallel', this.model.panel.side, standoff, visuals, "screen")
   }
 
-  protected _draw_ticks(ctx: Context2d, coords: Coords, tin: number, tout: number, visuals: Visuals): void {
+  protected _draw_ticks(ctx: Context2d, coords: Coords, tin: number, tout: number, visuals: Line): void {
     if (!visuals.doit || coords.length == 0)
       return
 
@@ -182,7 +192,7 @@ export class AxisView extends RendererView {
 
   protected _draw_oriented_labels(ctx: Context2d, labels: string[], coords: Coords,
                                   orient: Orient | number, _side: Side, standoff: number,
-                                  visuals: Visuals, units: SpatialUnits = "data"): void {
+                                  visuals: Text, units: SpatialUnits = "data"): void {
     if (!visuals.doit || labels.length == 0)
       return
 
@@ -250,7 +260,7 @@ export class AxisView extends RendererView {
   }
 
   protected _oriented_labels_extent(labels: string[], orient: Orient | number,
-                                    side: Side, standoff: number, visuals: Visuals): number {
+                                    side: Side, standoff: number, visuals: Text): number {
     if (labels.length == 0)
       return 0
 
