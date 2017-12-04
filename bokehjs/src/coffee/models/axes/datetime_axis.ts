@@ -2,14 +2,19 @@ import {LinearAxis, LinearAxisView} from "./linear_axis"
 import {DatetimeTickFormatter} from "../formatters/datetime_tick_formatter"
 import {DatetimeTicker} from "../tickers/datetime_ticker"
 
-export class DatetimeAxisView extends LinearAxisView
+export class DatetimeAxisView extends LinearAxisView {}
 
-export class DatetimeAxis extends LinearAxis
-  default_view: DatetimeAxisView
+export class DatetimeAxis extends LinearAxis {
+  // XXX
+  //ticker:    DatetimeTicker
+  //formatter: DatetimeTickFormatter
+}
 
-  type: 'DatetimeAxis'
+DatetimeAxis.prototype.type = "DatetimeAxis"
 
-  @override {
-    ticker:    () -> new DatetimeTicker()
-    formatter: () -> new DatetimeTickFormatter()
-  }
+DatetimeAxis.prototype.default_view = DatetimeAxisView
+
+DatetimeAxis.override({
+  ticker:    () => new DatetimeTicker(),
+  formatter: () => new DatetimeTickFormatter(),
+})
