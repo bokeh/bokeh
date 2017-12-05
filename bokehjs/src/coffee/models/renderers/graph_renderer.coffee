@@ -48,19 +48,6 @@ export class GraphRendererView extends RendererView
     @edge_view.render()
     @node_view.render()
 
-  hit_test: (geometry, final, append, mode="select") ->
-    if not @model.visible
-      return false
-
-    did_hit = false
-
-    if mode == "select"
-      did_hit = @model.selection_policy?.do_selection(geometry, @, final, append)
-    else # if mode == "inspect"
-      did_hit = @model.inspection_policy?.do_inspection(geometry, @, final, append)
-
-    return did_hit
-
 
 export class GraphRenderer extends Renderer
   default_view: GraphRendererView

@@ -274,13 +274,13 @@ export class GlyphRenderer extends Renderer
 
   hit_test_helper: (geometry, renderer_view) ->
     if not @visible
-      return hittest.create_empty_hit_test_result()
+      return null
 
     hit_test_result = renderer_view.glyph.hit_test(geometry)
 
     # glyphs that don't have hit-testing implemented will return null
     if hit_test_result == null
-      return hittest.create_empty_hit_test_result()
+      return null
 
     selection = @view.convert_selection_from_subset(hit_test_result)
     return selection

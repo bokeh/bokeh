@@ -6,48 +6,43 @@ import * as p from "./properties"
 
 export class SelectionPolicy extends Model
 
-  do_selection: (geometry, renderer_view, final, append) ->
-    return false
+  hit_test: (geometry, renderer_views) ->
+    return null
+
+  do_selection: (hit_test_result, renderer_views, final, append) ->
+    if hit_test_result?
+      source = renderer_views[0].model.data_source
+      source.selected.update(hit_test_result, final, append)
+      source.select.emit()
+      return not source.selected.is_empty()
+    else
+      return false
 
 export class IntersectRenderers extends SelectionPolicy
   type: 'IntersectRenderers'
 
-  do_selection: (renderer_views, geometry, final, append) ->
-    source = renderer_views[0].model.data_source
-
-    selections_renderers = (r.hit_test(geometry) for r in renderer_views)
-    if selections_renderers.length > 0
-      selection = selections_renderers[0]
-      for selection_other in selections_renderers
-        selection.update_through_intersection(selection_other)
-
-      source.selected.update(selection, final, append)
-      source.select.emit()
-
-      return not selection.is_empty()
-
+  hit_test: (geometry, renderer_views) ->
+    hit_test_result_renderers = (r.hit_test(geometry) for r in renderer_views)
+    if hit_test_result_renderers.length > 0
+      hit_test_result = hit_test_result_renderers[0]
+      for hit_test_result_other in hit_test_result_renderers
+        hit_test_result.update_through_intersection(hit_test_result_other)
+      return hit_test_result
     else
-      return false
+      return null
 
 export class UnionRenderers extends SelectionPolicy
   type: 'UnionRenderers'
 
-  do_selection: (renderer_views, geometry, final, append) ->
-    source = renderer_views[0].model.data_source
-
-    selections_renderers = (r.hit_test(geometry) for r in renderer_views)
-    if selections_renderers.length > 0
-      selection = selections_renderers[0]
-      for selection_other in selections_renderers
-        selection.update_through_union(selection_other)
-
-      source.selected.update(selection, final, append)
-      source.select.emit()
-
-      return not selection.is_empty()
-
+  hit_test: (geometry, renderer_views) ->
+    hit_test_result_renderers = (r.hit_test(geometry) for r in renderer_views)
+    if hit_test_result_renderers.length > 0
+      hit_test_result = hit_test_result_renderers[0]
+      for hit_test_result_other in hit_test_result_renderers
+        hit_test_result.update_through_union(hit_test_result_other)
+      return hit_test_result
     else
-      return false
+      return null
 
 export class SelectionManager extends HasProps
   type: 'SelectionManager'
@@ -74,14 +69,17 @@ export class SelectionManager extends HasProps
       else if r.model.type == 'GraphRenderer'
         graph_renderer_views.push(r)
 
-    # graph renderer case
     did_hit = false
+
+    # graph renderer case
     for r in graph_renderer_views
-      did_hit ||= r.hit_test(geometry, final, append)
+      hit_test_result = r.model.selection_policy.hit_test(geometry, r)
+      did_hit = did_hit || r.model.selection_policy.do_selection(hit_test_result, r, final, append)
 
     # glyph renderers
     if glyph_renderer_views.length > 0
-      did_hit ||= @selection_policy.do_selection(glyph_renderer_views, geometry, final, append)
+      hit_test_result = @selection_policy.hit_test(geometry, renderer_views)
+      did_hit = did_hit || @selection_policy.do_selection(hit_test_result, glyph_renderer_views, final, append)
 
     return did_hit
 
@@ -96,7 +94,8 @@ export class SelectionManager extends HasProps
       @source.setv({inspected: inspection}, {silent: true})
       @source.inspect.emit([renderer_view, {geometry: geometry}])
     else if renderer_view.model.type == 'GraphRenderer'
-      did_hit = did_hit || renderer_view.hit_test(geometry, false, false, "inspect")
+      hit_test_result = renderer_view.model.inspection_policy.hit_test(geometry, renderer_view)
+      did_hit = did_hit || renderer_view.model.inspection_policy.do_inspection(hit_test_result, geometry, renderer_view, false, false)
 
     return did_hit
 
