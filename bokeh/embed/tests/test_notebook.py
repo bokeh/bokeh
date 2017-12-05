@@ -26,7 +26,7 @@ from mock import patch
 # External imports
 
 # Bokeh imports
-from bokeh.core.templates import DOC_JS, PLOT_DIV
+from bokeh.core.templates import DOC_NB_JS, PLOT_DIV
 from bokeh.core.json_encoder import serialize_json
 
 # Module under test
@@ -72,7 +72,7 @@ class Test_notebook_content(object):
         (docs_json, render_items) = ("DOC_JSON", [dict(docid="foo", elementid="bar", modelid="bat")])
         mock_sdjari.return_value = (docs_json, render_items)
 
-        expected_script = DOC_JS.render(docs_json=serialize_json(docs_json),
+        expected_script = DOC_NB_JS.render(docs_json=serialize_json(docs_json),
                                         render_items=serialize_json(render_items))
         expected_div = PLOT_DIV.render(elementid=render_items[0]['elementid'])
 
@@ -93,7 +93,7 @@ class Test_notebook_content(object):
         assert 'notebook_comms_target' in render_items[0]
 
         ## assert that NOTEBOOK_COMMS_TARGET ends up in generated script
-        expected_script = DOC_JS.render(docs_json=serialize_json(docs_json),
+        expected_script = DOC_NB_JS.render(docs_json=serialize_json(docs_json),
                                         render_items=serialize_json(render_items))
 
         assert script == expected_script
