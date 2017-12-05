@@ -1,152 +1,174 @@
-import {Axis, AxisView} from "./axis"
+import {Axis, AxisView, Extents, TickCoords, Coords} from "./axis"
 
-import {CategoricalTickFormatter} from "../formatters/categorical_tick_formatter"
 import {CategoricalTicker} from "../tickers/categorical_ticker"
-import {logger} from "core/logging"
-import {uniq} from "core/util/array"
-import {isArray, isString} from "core/util/types"
+import {CategoricalTickFormatter} from "../formatters/categorical_tick_formatter"
 
-export class CategoricalAxisView extends AxisView
+import {Text, Line} from "core/visuals"
+import {Context2d} from "core/util/canvas"
 
-  _render: (ctx, extents, tick_coords) ->
-    @_draw_group_separators(ctx, extents, tick_coords)
+export type CategoricalTickCoords = TickCoords & {
+  mids: Coords
+  tops: Coords
+}
 
-  _draw_group_separators: (ctx, extents, tick_coords) ->
-    [range, cross_range] = @model.ranges
-    [start, end] = @model.computed_bounds
-    loc = @model.loc
+export class CategoricalAxisView extends AxisView {
 
-    ticks = @model.ticker.get_ticks(start, end, range, loc, {})
+  model: CategoricalAxis
 
-    [range, cross_range] = @model.ranges
+  //visuals: CategoricalAxis.Visuals
 
-    if not range.tops or range.tops.length < 2 or not @visuals.separator_line.doit
+  protected _render(ctx: Context2d, extents: Extents, tick_coords: TickCoords): void {
+    this._draw_group_separators(ctx, extents, tick_coords)
+  }
+
+  protected _draw_group_separators(ctx: Context2d, _extents: Extents, _tick_coords: TickCoords): void {
+    const [range,] = this.model.ranges
+    const [start, end] = this.model.computed_bounds
+
+    if (!range.tops || range.tops.length < 2 || !this.visuals.separator_line.doit)
       return
 
-    dim = @model.dimension
-    alt = (dim + 1) % 2
+    const dim = this.model.dimension
+    const alt = (dim + 1) % 2
 
-    coords = [[], []]
+    const coords = [[], []]
 
-    ind = 0
-    for i in [0...range.tops.length-1]
-      for j in [ind...range.factors.length]
-        if range.factors[j][0] == range.tops[i+1]
+    let ind = 0
+    for (let i = 0; i < range.tops.length - 1; i++) {
+      let first, last: string
+
+      for (let j = ind; j < range.factors.length; j++) {
+        if (range.factors[j][0] == range.tops[i+1]) {
           [first, last] = [range.factors[j-1], range.factors[j]]
           ind = j
           break
+        }
+      }
 
-      pt = (range.synthetic(first) + range.synthetic(last))/2
-      if pt > start and pt < end
+      const pt = (range.synthetic(first) + range.synthetic(last))/2
+      if (pt > start && pt < end) {
         coords[dim].push(pt)
-        coords[alt].push(@model.loc)
+        coords[alt].push(this.model.loc)
+      }
+    }
 
-    tex = @_tick_label_extent()
-
-    @_draw_ticks(ctx, coords, -3, (tex-6), @visuals.separator_line)
-
-    return
-
-  _draw_major_labels: (ctx, extents, tick_coords) ->
-    info = @_get_factor_info()
-
-    loc = @model.loc
-    dim = @model.dimension
-    alt = (dim + 1) % 2
-
-    standoff = extents.tick + @model.major_label_standoff
-    for i in [0...info.length]
-      [labels, coords, orient, visuals] = info[i]
-      @_draw_oriented_labels(ctx, labels, coords, orient, @model.panel.side, standoff, visuals)
-      standoff += extents.tick_label[i]
-
-    return
-
-  _tick_label_extents: () ->
-    info = @_get_factor_info()
-
-    extents = []
-    for [labels, dim_coords, orient, visuals] in info
-      extent = @_oriented_labels_extent(labels, orient, @model.panel.side, @model.major_label_standoff, visuals)
-      extents.push(extent)
-
-    return extents
-
-  _get_factor_info: () ->
-    [range, cross_range] = @model.ranges
-    [start, end] = @model.computed_bounds
-    loc = @model.loc
-
-    ticks = @model.ticker.get_ticks(start, end, range, loc, {})
-    coords = @model.tick_coords
-
-    info = []
-
-    if range.levels == 1
-      labels = @model.formatter.doFormat(ticks.major, @)
-      info.push([ labels, coords.major, @model.major_label_orientation, @visuals.major_label_text ])
-
-    else if range.levels == 2
-      labels = @model.formatter.doFormat((x[1] for x in ticks.major), @)
-      info.push([ labels,     coords.major, @model.major_label_orientation, @visuals.major_label_text ])
-      info.push([ ticks.tops, coords.tops,  'parallel',                     @visuals.group_text       ])
-
-    else if range.levels == 3
-      labels = @model.formatter.doFormat((x[2] for x in ticks.major), @)
-      mid_labels = (x[1] for x in ticks.mids)
-      info.push([ labels,     coords.major, @model.major_label_orientation, @visuals.major_label_text ])
-      info.push([ mid_labels, coords.mids,  'parallel',                     @visuals.subgroup_text    ])
-      info.push([ ticks.tops, coords.tops,  'parallel',                     @visuals.group_text       ])
-
-    return info
-
-export class CategoricalAxis extends Axis
-  default_view: CategoricalAxisView
-
-  type: 'CategoricalAxis'
-
-  @mixins [
-    'line:separator_'
-    'text:group_'
-    'text:subgroup_'
-  ]
-
-  @override {
-    ticker: () -> new CategoricalTicker()
-    formatter: () -> new CategoricalTickFormatter()
-    separator_line_color: "lightgrey"
-    separator_line_width: 2
-    group_text_font_style: "bold"
-    group_text_font_size: "8pt"
-    group_text_color: "grey"
-    subgroup_text_font_style: "bold"
-    subgroup_text_font_size: "8pt"
+    const tex = this._tick_label_extent()
+    this._draw_ticks(ctx, coords, -3, (tex-6), this.visuals.separator_line)
   }
 
-  _tick_coords: () ->
-    i = @dimension
-    j = (i + 1) % 2
-    [range, cross_range] = @ranges
-    [start, end] = @computed_bounds
+  protected _draw_major_labels(ctx: Context2d, extents: Extents, _tick_coords: TickCoords): void {
+    const info = this._get_factor_info()
 
-    ticks = @ticker.get_ticks(start, end, range, @loc, {})
+    const standoff = extents.tick + this.model.major_label_standoff
+    for (let i = 0; i < info.length; i++) {
+      const [labels, coords, orient, visuals] = info[i]
+      this._draw_oriented_labels(ctx, labels, coords, orient, this.model.panel.side, standoff, visuals)
+      standoff += extents.tick_label[i]
+    }
+  }
 
-    coords = {
-      major: [ [], [] ]
-      mids:  [ [], [] ]
-      tops:  [ [], [] ]
-      minor: []
+  protected _tick_label_extents(): number[] {
+    const info = this._get_factor_info()
+
+    const extents = []
+    for (const [labels,, orient, visuals] of info) {
+      const extent = this._oriented_labels_extent(labels, orient, this.model.panel.side, this.model.major_label_standoff, visuals)
+      extents.push(extent)
+    }
+
+    return extents
+  }
+
+  protected _get_factor_info() {
+    const [range,] = this.model.ranges
+    const [start, end] = this.model.computed_bounds
+    const loc = this.model.loc
+
+    const ticks = this.model.ticker.get_ticks(start, end, range, loc, {})
+    const coords = this.model.tick_coords
+
+    const info = []
+
+    if (range.levels == 1) {
+      const labels = this.model.formatter.doFormat(ticks.major, this)
+      info.push([labels, coords.major, this.model.major_label_orientation, this.visuals.major_label_text])
+    } else if (range.levels == 2) {
+      const labels = this.model.formatter.doFormat(ticks.major.map((x) => x[1]), this)
+      info.push([labels, coords.major, this.model.major_label_orientation, this.visuals.major_label_text])
+      info.push([ticks.tops, coords.tops, 'parallel', this.visuals.group_text])
+    } else if (range.levels == 3) {
+      const labels = this.model.formatter.doFormat(ticks.major.map((x) => x[2]), this)
+      const mid_labels = ticks.mids.map((x) => x[1])
+      info.push([labels, coords.major, this.model.major_label_orientation, this.visuals.major_label_text])
+      info.push([mid_labels, coords.mids, 'parallel', this.visuals.subgroup_text])
+      info.push([ticks.tops, coords.tops, 'parallel', this.visuals.group_text])
+    }
+
+    return info
+  }
+}
+
+export class CategoricalAxis extends Axis {
+
+  ticker: CategoricalTicker
+  formatter: CategoricalTickFormatter
+
+  protected _tick_coords() {
+    const i = this.dimension
+    const j = (i + 1) % 2
+    const [range,] = this.ranges
+    const [start, end] = this.computed_bounds
+
+    const ticks = this.ticker.get_ticks(start, end, range, this.loc, {})
+
+    const coords: CategoricalTickCoords = {
+      major: [[], []],
+      mids:  [[], []],
+      tops:  [[], []],
+      minor: [[], []],
     }
 
     coords.major[i] = ticks.major
-    coords.major[j] = (@loc for x in ticks.major)
+    coords.major[j] = ticks.major.map((_x) => this.loc)
 
-    if range.levels == 3
+    if (range.levels == 3)
       coords.mids[i] = ticks.mids
-      coords.mids[j] = (@loc for x in ticks.mids)
+      coords.mids[j] = ticks.mids.map((_x) => this.loc)
 
-    if range.levels > 1
+    if (range.levels > 1)
       coords.tops[i] = ticks.tops
-      coords.tops[j] = (@loc for x in ticks.tops)
+      coords.tops[j] = ticks.tops.map((_x) => this.loc)
 
     return coords
+  }
+}
+
+CategoricalAxis.prototype.type = "CategoricalAxis"
+
+CategoricalAxis.prototype.default_view = CategoricalAxisView
+
+CategoricalAxis.mixins([
+  "line:separator_",
+  "text:group_",
+  "text:subgroup_",
+])
+
+CategoricalAxis.override({
+  ticker: () => new CategoricalTicker(),
+  formatter: () => new CategoricalTickFormatter(),
+  separator_line_color: "lightgrey",
+  separator_line_width: 2,
+  group_text_font_style: "bold",
+  group_text_font_size: "8pt",
+  group_text_color: "grey",
+  subgroup_text_font_style: "bold",
+  subgroup_text_font_size: "8pt",
+})
+
+export module CategoricalAxis {
+  export type Visuals = Axis.Visuals & {
+    separator_line: Line,
+    group_text: Text,
+    subgroup_text: Text,
+  }
+}

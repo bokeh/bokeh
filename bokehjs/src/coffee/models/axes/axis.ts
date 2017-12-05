@@ -1,12 +1,11 @@
-import {GuideRenderer} from "../renderers/guide_renderer"
-import {RendererView} from "../renderers/renderer"
+import {GuideRenderer, GuideRendererView} from "../renderers/guide_renderer"
 import {Ticker} from "../tickers/ticker"
 import {TickFormatter} from "../formatters/tick_formatter"
 import {Range} from "../ranges/range"
 
 import * as p from "core/properties"
 import {Side, Orientation, SpatialUnits} from "core/enums"
-import {Visuals, Text, Line} from "core/visuals"
+import {Text, Line} from "core/visuals"
 import {SidePanel, Orient} from "core/layout/side_panel"
 import {Context2d} from "core/util/canvas"
 import {sum} from "core/util/array"
@@ -27,17 +26,11 @@ export interface TickCoords {
   minor: Coords
 }
 
-export class AxisView extends RendererView {
+export class AxisView extends GuideRendererView {
 
   model: Axis
 
-  visuals: Visuals & {
-    axis_line: Line
-    major_tick_line: Line
-    minor_tick_line: Line
-    major_label_text: Text
-    axis_label_text: Text
-  }
+  visuals: Axis.Visuals
 
   render(): void {
     if (!this.model.visible)
@@ -65,7 +58,7 @@ export class AxisView extends RendererView {
     ctx.restore()
   }
 
-  protected _render?: (ctx: Context2d, extents: Extents, tick_coords: TickCoords) => void
+  protected _render?(ctx: Context2d, extents: Extents, tick_coords: TickCoords): void
 
   connect_signals(): void {
     super.connect_signals()
@@ -77,7 +70,7 @@ export class AxisView extends RendererView {
   }
 
   protected _get_size(): number {
-    return this._tick_extent() + sum(this._tick_label_extents()) + this._axis_label_extent()
+    return this._tick_extent() + this._tick_label_extent() + this._axis_label_extent()
   }
 
   // drawing sub functions -----------------------------------------------------
@@ -246,6 +239,10 @@ export class AxisView extends RendererView {
 
   protected _tick_extent(): number {
     return this.model.major_tick_out
+  }
+
+  protected _tick_label_extent(): number {
+    return sum(this._tick_label_extents())
   }
 
   protected _tick_label_extents(): number[] {
@@ -561,3 +558,13 @@ Axis.override({
   axis_label_text_font_size: "10pt",
   axis_label_text_font_style: "italic",
 })
+
+export module Axis {
+  export type Visuals = GuideRenderer.Visuals & {
+    axis_line: Line
+    major_tick_line: Line
+    minor_tick_line: Line
+    major_label_text: Text
+    axis_label_text: Text
+  }
+}

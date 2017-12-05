@@ -1,5 +1,5 @@
 import {DOMView} from "core/dom_view"
-import {Visuals} from "core/visuals"
+import {Visuals as CoreVisuals} from "core/visuals"
 import {RenderLevel} from "core/enums"
 import * as p from "core/properties"
 import * as proj from "core/util/projections"
@@ -11,7 +11,7 @@ export class RendererView extends DOMView
 
   `
   plot_view: any // PlotCanvasView
-  visuals: Visuals
+  visuals: Renderer.Visuals
   `
 
   initialize: (options) ->
@@ -52,3 +52,9 @@ export class Renderer extends Model
     level: [ p.RenderLevel, null ]
     visible: [ p.Bool, true ]
   }
+
+`
+export module Renderer {
+  export type Visuals = CoreVisuals
+}
+`

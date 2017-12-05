@@ -1,6 +1,11 @@
-import {Renderer} from "./renderer"
+import {Renderer, RendererView} from "./renderer"
 import {Plot} from "../plots/plot"
 import * as p from "core/properties"
+
+export class GuideRendererView extends RendererView
+  `
+  visuals: GuideRenderer.Visuals
+  `
 
 export class GuideRenderer extends Renderer
   type: 'GuideRenderer'
@@ -16,3 +21,9 @@ export class GuideRenderer extends Renderer
   @override {
     level: 'overlay'
   }
+
+`
+export module GuideRenderer {
+  export type Visuals = Renderer.Visuals
+}
+`
