@@ -1,10 +1,15 @@
 import {Range} from "./range"
+import {Renderer} from "../renderers/renderer"
 import * as p from "core/properties"
 
-export class DataRange extends Range
-  type: 'DataRange'
+export abstract class DataRange extends Range {
+  names: string[]
+  renderers: Renderer[]
+}
 
-  @define {
-      names:     [ p.Array, [] ]
-      renderers: [ p.Array, [] ]
-    }
+DataRange.prototype.type = "DataRange"
+
+DataRange.define({
+  names:     [ p.Array, [] ],
+  renderers: [ p.Array, [] ],
+})
