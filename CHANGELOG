@@ -1,3 +1,14 @@
+2017-12-05  0.12.12:
+--------------------
+  * bugfixes:
+    - #6588 [typescript] Model references are not resolved when trying to change ranges and attach js callback at the same time
+    - #7268 [component: bokehjs] [notebook] Push_notebook regression in 0.12.11
+    - #7282 [component: bokehjs] Add missing return statements to get_indices typescript version
+  * tasks:
+    - #7214 [component: bokehjs] [component: build] Allow es6 output from bokehjs' build
+    - #7276 Unclear exception when bokeh_log_level env variable is set to a wrong value
+    - #7279 [component: docs] Configuring plot tools documentation was unclear
+
 2017-11-28  0.12.11:
 --------------------
   * bugfixes:
