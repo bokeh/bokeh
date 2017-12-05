@@ -1,11 +1,12 @@
 import {OutputBackend} from "../enums"
 
-export type Context2d = CanvasRenderingContext2D & {
+export type Context2d = {
   setLineDashOffset(offset: number): void
   getLineDashOffset(): number
   setImageSmoothingEnabled(value: boolean): void
   getImageSmoothingEnabled(): boolean
-}
+  measureText(text: string): TextMetrics & {ascent: number}
+} & CanvasRenderingContext2D
 
 function fixup_line_dash(ctx: any): void {
   if (!ctx.setLineDash) {

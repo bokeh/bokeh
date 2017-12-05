@@ -1,4 +1,4 @@
-import {Canvas} from "../canvas/canvas"
+import {Canvas, CanvasView} from "../canvas/canvas"
 import {CartesianFrame} from "../canvas/cartesian_frame"
 import {DataRange1d} from "../ranges/data_range1d"
 import {GlyphRenderer} from "../renderers/glyph_renderer"
@@ -35,6 +35,12 @@ import {update_panel_constraints, _view_sizes} from "core/layout/side_panel"
 global_glcanvas = null
 
 export class PlotCanvasView extends DOMView
+
+  `
+  model: PlotCanvas
+  canvas_view: CanvasView
+  `
+
   className: "bk-plot-wrapper"
 
   state: { history: [], index: -1 }
@@ -732,6 +738,7 @@ export class PlotCanvas extends LayoutDOM
 
   `
   frame: CartesianFrame
+  use_map: boolean
   `
 
   initialize: (attrs, options) ->
