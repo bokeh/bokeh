@@ -2,6 +2,7 @@ import {Axis, AxisView, Extents, TickCoords, Coords} from "./axis"
 
 import {CategoricalTicker} from "../tickers/categorical_ticker"
 import {CategoricalTickFormatter} from "../formatters/categorical_tick_formatter"
+import {FactorRange} from "../ranges/factor_range"
 
 import {Text, Line} from "core/visuals"
 import {Context2d} from "core/util/canvas"
@@ -15,14 +16,14 @@ export class CategoricalAxisView extends AxisView {
 
   model: CategoricalAxis
 
-  //visuals: CategoricalAxis.Visuals
+  visuals: CategoricalAxis.Visuals
 
   protected _render(ctx: Context2d, extents: Extents, tick_coords: TickCoords): void {
     this._draw_group_separators(ctx, extents, tick_coords)
   }
 
   protected _draw_group_separators(ctx: Context2d, _extents: Extents, _tick_coords: TickCoords): void {
-    const [range,] = this.model.ranges
+    const [range,] = (this.model.ranges as any) as [FactorRange, FactorRange]
     const [start, end] = this.model.computed_bounds
 
     if (!range.tops || range.tops.length < 2 || !this.visuals.separator_line.doit)
@@ -31,7 +32,7 @@ export class CategoricalAxisView extends AxisView {
     const dim = this.model.dimension
     const alt = (dim + 1) % 2
 
-    const coords = [[], []]
+    const coords: Coords = [[], []]
 
     let ind = 0
     for (let i = 0; i < range.tops.length - 1; i++) {
@@ -59,7 +60,7 @@ export class CategoricalAxisView extends AxisView {
   protected _draw_major_labels(ctx: Context2d, extents: Extents, _tick_coords: TickCoords): void {
     const info = this._get_factor_info()
 
-    const standoff = extents.tick + this.model.major_label_standoff
+    let standoff = extents.tick + this.model.major_label_standoff
     for (let i = 0; i < info.length; i++) {
       const [labels, coords, orient, visuals] = info[i]
       this._draw_oriented_labels(ctx, labels, coords, orient, this.model.panel.side, standoff, visuals)
@@ -80,7 +81,7 @@ export class CategoricalAxisView extends AxisView {
   }
 
   protected _get_factor_info() {
-    const [range,] = this.model.ranges
+    const [range,] = (this.model.ranges as any) as [FactorRange, FactorRange]
     const [start, end] = this.model.computed_bounds
     const loc = this.model.loc
 
@@ -113,10 +114,10 @@ export class CategoricalAxis extends Axis {
   ticker: CategoricalTicker
   formatter: CategoricalTickFormatter
 
-  protected _tick_coords() {
+  get tick_coords(): CategoricalTickCoords {
     const i = this.dimension
     const j = (i + 1) % 2
-    const [range,] = this.ranges
+    const [range,] = (this.ranges as any) as [FactorRange, FactorRange]
     const [start, end] = this.computed_bounds
 
     const ticks = this.ticker.get_ticks(start, end, range, this.loc, {})

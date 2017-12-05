@@ -73,8 +73,10 @@ export class FactorRange extends Range
   `
   factors: string[]
 
+  levels: number
   mids: string[] | undefined
   tops: string[] | undefined
+  tops_groups: string[]
   `
 
   @define {

@@ -324,6 +324,19 @@ export class Axis extends GuideRenderer {
   minor_tick_in: number
   minor_tick_out: number
 
+  add_panel(side: Side): void {
+    this.panel = new SidePanel({side: side})
+    this.panel.attach_document(this.document!) // XXX!
+  }
+
+  get normals() {
+    return this.panel.normals
+  }
+
+  get dimension(): 0 | 1 {
+    return this.panel.dimension
+  }
+
   compute_labels(ticks: number[]): string[] {
     const labels = this.formatter.doFormat(ticks, this) as any
     for (let i = 0; i < ticks.length; i++) {
@@ -343,44 +356,7 @@ export class Axis extends GuideRenderer {
     }
   }
 
-  get computed_bounds(): [number, number] {
-    return this._computed_bounds()
-  }
-
-  get rule_coords() {
-    return this._rule_coords()
-  }
-
-  get tick_coords() {
-    return this._tick_coords()
-  }
-
-  get ranges(): [Range, Range] {
-    return this._ranges()
-  }
-
-  get normals() {
-    return this.panel.normals
-  }
-
-  get dimension(): 0 | 1 {
-    return this.panel.dimension
-  }
-
   get offsets(): [number, number] {
-    return this._offsets()
-  }
-
-  get loc(): number {
-    return this._get_loc()
-  }
-
-  add_panel(side: Side): void {
-    this.panel = new SidePanel({side: side})
-    this.panel.attach_document(this.document!) // XXX!
-  }
-
-  protected _offsets(): [number, number] {
     const frame = this.plot.plot_canvas.frame
     let [xoff, yoff] = [0, 0]
 
@@ -402,7 +378,7 @@ export class Axis extends GuideRenderer {
     return [xoff, yoff]
   }
 
-  protected _ranges(): [Range, Range] {
+  get ranges(): [Range, Range] {
     const i = this.dimension
     const j = (i + 1) % 2
     const frame = this.plot.plot_canvas.frame
@@ -413,7 +389,7 @@ export class Axis extends GuideRenderer {
     return [ranges[i], ranges[j]]
   }
 
-  protected _computed_bounds(): [number, number] {
+  get computed_bounds(): [number, number] {
     const [range,] = this.ranges
 
     const user_bounds = this.bounds // XXX: ? 'auto'
@@ -441,7 +417,7 @@ export class Axis extends GuideRenderer {
       throw new Error(`user bounds '${user_bounds}' not understood`)
   }
 
-  protected _rule_coords(): Coords {
+  get rule_coords(): Coords {
     const i = this.dimension
     const j = (i + 1) % 2
     const [range,] = this.ranges
@@ -462,7 +438,7 @@ export class Axis extends GuideRenderer {
     return coords
   }
 
-  protected _tick_coords(): TickCoords {
+  get tick_coords(): TickCoords {
     const i = this.dimension
     const j = (i + 1) % 2
     const [range,] = this.ranges
@@ -502,7 +478,7 @@ export class Axis extends GuideRenderer {
     }
   }
 
-  protected _get_loc(): number {
+  get loc(): number {
     const [, cross_range] = this.ranges
 
     switch (this.panel.side) {
