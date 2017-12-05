@@ -87,7 +87,17 @@ export class SelectionManager extends HasProps
 
   inspect: (renderer_view, geometry) ->
     did_hit = false
-    did_hit ||= renderer_view.hit_test(geometry, false, false, "inspect")
+
+    if renderer_view.model.type == 'GlyphRenderer'
+      hit_test_result = renderer_view.hit_test(geometry)
+      did_hit = not hit_test_result.is_empty()
+      inspection = @get_or_create_inspector(renderer_view.model)
+      inspection.update(hit_test_result, true, false)
+      @source.setv({inspected: inspection}, {silent: true})
+      @source.inspect.emit([renderer_view, {geometry: geometry}])
+    else if renderer_view.model.type == 'GraphRenderer'
+      did_hit = did_hit || renderer_view.hit_test(geometry, false, false, "inspect")
+
     return did_hit
 
   clear: (rview) ->

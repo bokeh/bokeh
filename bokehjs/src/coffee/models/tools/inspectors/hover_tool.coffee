@@ -159,7 +159,7 @@ export class HoverToolView extends InspectToolView
       return
     tooltip.clear()
 
-    indices = renderer_view.model.get_selection_manager().inspectors[renderer_view.model.id].indices
+    indices = renderer_view.model.get_selection_manager().inspectors[renderer_view.model.id]
     if renderer_view.model instanceof GlyphRenderer
       indices = renderer_view.model.view.convert_selection_to_subset(indices)
 
