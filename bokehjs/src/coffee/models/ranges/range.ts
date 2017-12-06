@@ -1,4 +1,5 @@
 import {Model} from "../../model"
+import {Plot} from "../plots/plot"
 import {CustomJS} from "../callbacks/customjs"
 import * as p from "core/properties"
 import {isFunction} from "core/util/types"
@@ -10,6 +11,7 @@ export abstract class Range extends Model {
   min: number
   max: number
   callback?: ((obj: Range) => void) | CustomJS // XXX: Callback
+  plots: Plot[]
 
   initialize(attrs: any, options: any): void {
     super.initialize(attrs, options)

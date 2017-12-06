@@ -13,6 +13,7 @@ import {ToolbarPanel} from "../annotations/toolbar_panel"
 import {PlotCanvas, PlotCanvasView} from "./plot_canvas"
 
 import {ColumnDataSource} from "../sources/column_data_source"
+import {Renderer} from "../renderers/renderer"
 import {GlyphRenderer} from "../renderers/glyph_renderer"
 import {register_with_event, UIEvent} from 'core/bokeh_events'
 
@@ -43,6 +44,10 @@ export class PlotView extends LayoutDOMView
 export class Plot extends LayoutDOM
   type: 'Plot'
   default_view: PlotView
+
+  `
+  renderers: Renderer[]
+  `
 
   `
   plot_canvas: PlotCanvas
