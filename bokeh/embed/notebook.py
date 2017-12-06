@@ -29,7 +29,7 @@ from contextlib import contextmanager
 # External imports
 
 # Bokeh imports
-from ..core.templates import DOC_JS
+from ..core.templates import DOC_NB_JS
 from ..core.json_encoder import serialize_json
 from ..settings import settings
 from ..util.string import encode_utf8
@@ -90,7 +90,7 @@ def notebook_content(model, notebook_comms_target=None, theme=FromCurdoc):
     else:
         notebook_comms_target = ''
 
-    script = DOC_JS.render(
+    script = DOC_NB_JS.render(
         docs_json=serialize_json(docs_json),
         render_items=serialize_json(render_items)
     )
