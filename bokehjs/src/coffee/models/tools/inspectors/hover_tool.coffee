@@ -12,28 +12,26 @@ import {isString, isFunction} from "core/util/types"
 import {build_views, remove_views} from "core/build_views"
 
 export _nearest_line_hit = (i, geometry, sx, sy, dx, dy) ->
-  d1x = dx[i]
-  d1y = dy[i]
-
-  d2x = dx[i+1]
-  d2y = dy[i+1]
+  d1 = {x: dx[i], y: dy[i]}
+  d2 = {x: dx[i+1], y: dy[i+1]}
 
   if geometry.type == "span"
     switch geometry.direction
       when "h"
-        dist1 = Math.abs(d1x-sx)
-        dist2 = Math.abs(d2x-sx)
+        dist1 = Math.abs(d1.x-sx)
+        dist2 = Math.abs(d2.x-sx)
       when "v"
-        dist1 = Math.abs(d1y-sy)
-        dist2 = Math.abs(d2y-sy)
+        dist1 = Math.abs(d1.y-sy)
+        dist2 = Math.abs(d2.y-sy)
   else
-    dist1 = hittest.dist_2_pts(d1x, d1y, sx, sy)
-    dist2 = hittest.dist_2_pts(d2x, d2y, sx, sy)
+    s = {x: sx, y: sy}
+    dist1 = hittest.dist_2_pts(d1, s)
+    dist2 = hittest.dist_2_pts(d2, s)
 
   if dist1 < dist2
-    return [[d1x, d1y], i]
+    return [[d1.x, d1.y], i]
   else
-    return [[d2x, d2y], i+1]
+    return [[d2.x, d2.y], i+1]
 
 export _line_hit = (xs, ys, ind) ->
   return [[xs[ind], ys[ind]], ind]
