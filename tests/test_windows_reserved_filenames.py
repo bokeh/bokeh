@@ -39,7 +39,7 @@ def test_windows_reserved_filenames():
     # windows packages to fail spectacularly
 
     bad = []
-    for path, dirs, files in os.walk("bokeh"):
+    for path, dirs, files in os.walk("."):
 
         for file in files:
             if splitext(file)[0].upper() in reserved:
