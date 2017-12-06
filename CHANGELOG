@@ -1,3 +1,8 @@
+2017-12-06  0.12.13:
+--------------------
+  * bugfixes:
+    - #7283 [component: build] Windows install fails 0.12.12
+
 2017-12-05  0.12.12:
 --------------------
   * bugfixes:
