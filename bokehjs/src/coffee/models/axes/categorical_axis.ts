@@ -2,7 +2,7 @@ import {Axis, AxisView, Extents, TickCoords, Coords} from "./axis"
 
 import {CategoricalTicker} from "../tickers/categorical_ticker"
 import {CategoricalTickFormatter} from "../formatters/categorical_tick_formatter"
-import {FactorRange} from "../ranges/factor_range"
+import {FactorRange, Factor} from "../ranges/factor_range"
 
 import {Text, Line} from "core/visuals"
 import {Context2d} from "core/util/canvas"
@@ -36,7 +36,7 @@ export class CategoricalAxisView extends AxisView {
 
     let ind = 0
     for (let i = 0; i < range.tops.length - 1; i++) {
-      let first, last: string
+      let first: Factor, last: Factor
 
       for (let j = ind; j < range.factors.length; j++) {
         if (range.factors[j][0] == range.tops[i+1]) {
@@ -46,7 +46,7 @@ export class CategoricalAxisView extends AxisView {
         }
       }
 
-      const pt = (range.synthetic(first) + range.synthetic(last))/2
+      const pt = (range.synthetic(first!) + range.synthetic(last!))/2
       if (pt > start && pt < end) {
         coords[dim].push(pt)
         coords[alt].push(this.model.loc)
@@ -129,15 +129,15 @@ export class CategoricalAxis extends Axis {
       minor: [[], []],
     }
 
-    coords.major[i] = ticks.major
+    coords.major[i] = ticks.major as any
     coords.major[j] = ticks.major.map((_x) => this.loc)
 
     if (range.levels == 3)
-      coords.mids[i] = ticks.mids
+      coords.mids[i] = ticks.mids as any
       coords.mids[j] = ticks.mids.map((_x) => this.loc)
 
     if (range.levels > 1)
-      coords.tops[i] = ticks.tops
+      coords.tops[i] = ticks.tops as any
       coords.tops[j] = ticks.tops.map((_x) => this.loc)
 
     return coords

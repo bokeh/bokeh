@@ -1,182 +1,233 @@
 import {Range} from "./range"
+import {PaddingUnits} from "core/enums"
 import * as p from "core/properties"
 import {all, sum} from "core/util/array"
-import {keys} from "core/util/object"
 import {isArray, isNumber, isString} from "core/util/types"
 
-# exported for testing
-export map_one_level = (factors, padding, offset=0) ->
-  mapping = {}
+export type L1Factor = string
+export type L2Factor = [string, string]
+export type L3Factor = [string, string, string]
 
-  for f, i in factors
-    if f of mapping
-      throw new Error("duplicate factor or subfactor #{f}")
-    mapping[f] = {value: 0.5 + i*(1+padding) + offset}
+export type Factor = L1Factor | L2Factor | L3Factor
 
-  return [mapping, (factors.length-1)*padding]
+export type L1OffsetFactor = [string, number]
+export type L2OffsetFactor = [string, string, number]
+export type L3OffsetFactor = [string, string, string, number]
 
-# exported for testing
-export map_two_levels = (factors, outer_pad, factor_pad, offset=0) ->
-  mapping = {}
+export type OffsetFactor = L1OffsetFactor | L2OffsetFactor | L3OffsetFactor
 
-  tops = {}
-  tops_order = []
-  for [f0, f1] in factors
-    if f0 not of tops
+export type L1Mapping = {[key: string]: {value: number}}
+export type L2Mapping = {[key: string]: {value: number, mapping: L1Mapping}}
+export type L3Mapping = {[key: string]: {value: number, mapping: L2Mapping}}
+
+export function map_one_level(factors: L1Factor[], padding: number, offset: number = 0): [L1Mapping, number] {
+  const mapping: {[key: string]: {value: number}} = {}
+
+  for (let i = 0; i < factors.length; i++) {
+    const factor = factors[i]
+    if (factor in mapping)
+      throw new Error(`duplicate factor or subfactor: ${factor}`)
+    else
+      mapping[factor] = {value: 0.5 + i*(1 + padding) + offset}
+  }
+
+  return [mapping, (factors.length - 1)*padding]
+}
+
+export function map_two_levels(factors: L2Factor[],
+                               outer_pad: number, factor_pad: number,
+                               offset: number = 0): [L2Mapping, string[], number] {
+  const mapping: L2Mapping = {}
+
+  const tops: {[key: string]: string[]} = {}
+  const tops_order: string[] = []
+  for (const [f0, f1] of factors) {
+    if (!(f0 in tops)) {
       tops[f0] = []
       tops_order.push(f0)
+    }
     tops[f0].push(f1)
+  }
 
-  suboffset = offset
-  total_subpad = 0
-  for f0 in tops_order
-    n = tops[f0].length
-    [submap, subpad] = map_one_level(tops[f0], factor_pad, suboffset)
+  let suboffset = offset
+  let total_subpad = 0
+  for (const f0 of tops_order) {
+    const n = tops[f0].length
+    const [submap, subpad] = map_one_level(tops[f0], factor_pad, suboffset)
     total_subpad += subpad
-    subtot = sum(submap[f1].value for f1 in tops[f0])
+    const subtot = sum(tops[f0].map((f1) => submap[f1].value))
     mapping[f0] = {value: subtot/n, mapping: submap}
-    suboffset += (n + outer_pad + subpad)
+    suboffset += n + outer_pad + subpad
+  }
 
   return [mapping, tops_order, (tops_order.length-1)*outer_pad + total_subpad]
+}
 
-# exported for testing
-export map_three_levels = (factors, outer_pad, inner_pad, factor_pad, offset=0) ->
-  mapping = {}
+export function map_three_levels(factors: L3Factor[],
+                                 outer_pad: number, inner_pad: number, factor_pad: number,
+                                 offset: number = 0): [L3Mapping, string[], [string, string][], number] {
+  const mapping: L3Mapping = {}
 
-  tops = {}
-  tops_order = []
-  for [f0, f1, f2] in factors
-    if f0 not of tops
+  const tops: {[key: string]: [string, string][]} = {}
+  const tops_order: string[] = []
+  for (const [f0, f1, f2] of factors) {
+    if (!(f0 in tops)) {
       tops[f0] = []
       tops_order.push(f0)
+    }
     tops[f0].push([f1, f2])
+  }
 
-  mids_order = []
+  const mids_order: [string, string][] = []
 
-  suboffset = offset
-  total_subpad = 0
-  for f0 in tops_order
-    n = tops[f0].length
-    [submap, submids_order, subpad] = map_two_levels(tops[f0], inner_pad, factor_pad, suboffset)
-    for f1 in submids_order
+  let suboffset = offset
+  let total_subpad = 0
+  for (const f0 of tops_order) {
+    const n = tops[f0].length
+    const [submap, submids_order, subpad] = map_two_levels(tops[f0], inner_pad, factor_pad, suboffset)
+    for (const f1 of submids_order)
       mids_order.push([f0, f1])
     total_subpad += subpad
-    subtot = sum(submap[f1].value for [f1, f2] in tops[f0])
+    const subtot = sum(tops[f0].map(([f1,]) => submap[f1].value))
     mapping[f0] = {value: subtot/n, mapping: submap}
-    suboffset += (n + outer_pad + subpad)
+    suboffset += n + outer_pad + subpad
+  }
 
   return [mapping, tops_order, mids_order, (tops_order.length-1)*outer_pad + total_subpad]
+}
 
-export class FactorRange extends Range
-  type: 'FactorRange'
+export class FactorRange extends Range {
 
-  `
-  factors: string[]
+  factors: Factor[]
+  factor_padding: number
+  subgroup_padding: number
+  group_padding: number
+  range_padding: number
+  range_padding_units: PaddingUnits
+  start: number
+  end: number
+  bounds: [number, number] | "auto"
+  min_interval: any // XXX: what's this
+  max_interval: any // XXX: what's this
 
   levels: number
-  mids: string[] | undefined
+  mids: [string, string][] | undefined
   tops: string[] | undefined
   tops_groups: string[]
-  `
 
-  @define {
-    factors:             [ p.Array,        []        ]
-    factor_padding:      [ p.Number,       0         ]
-    subgroup_padding:    [ p.Number,       0.8       ]
-    group_padding:       [ p.Number,       1.4       ]
-    range_padding:       [ p.Number,       0         ]
-    range_padding_units: [ p.PaddingUnits, "percent" ]
-    start:               [ p.Number                  ]
-    end:                 [ p.Number                  ]
-    bounds:              [ p.Any                     ]
-    min_interval:        [ p.Any                     ]
-    max_interval:        [ p.Any                     ]
+  protected _mapping: L1Mapping | L2Mapping | L3Mapping
+
+  get min() {
+    return this.start
   }
 
-  @getters {
-    min: () -> @start
-    max: () -> @end
+  get max() {
+    return this.end
   }
 
-  @internal {
-    levels:      [ p.Number ] # how many levels of
-    mids:        [ p.Array  ] # mid level factors (if 3 total levels)
-    tops:        [ p.Array  ] # top level factors (whether 2 or 3 total levels)
-    tops_groups: [ p.Array  ] # ordered list of full factors for each top level factor in tops
+  initialize(attrs: any, options: any): void {
+    super.initialize(attrs, options)
+    this._init()
+    this.connect(this.properties.factors.change, () => this._init())
+    this.connect(this.properties.factor_padding.change, () => this._init())
+    this.connect(this.properties.group_padding.change, () => this._init())
+    this.connect(this.properties.subgroup_padding.change, () => this._init())
+    this.connect(this.properties.range_padding.change, () => this._init())
+    this.connect(this.properties.range_padding_units.change, () => this._init())
   }
 
-  initialize: (attrs, options) ->
-    super(attrs, options)
-    @_init()
-    @connect(@properties.factors.change, () -> @_init())
-    @connect(@properties.factor_padding.change, () -> @_init())
-    @connect(@properties.group_padding.change, () -> @_init())
-    @connect(@properties.subgroup_padding.change, () -> @_init())
-    @connect(@properties.range_padding.change, () -> @_init())
-    @connect(@properties.range_padding_units.change, () -> @_init())
+  reset(): void {
+    this._init()
+    this.change.emit(undefined)
+  }
 
-  reset: () ->
-    @_init()
-    @change.emit()
+  protected _lookup(x: any): number {
+    if (x.length == 1)
+      return (this._mapping as L1Mapping)[x[0]].value
+    else if (x.length == 2)
+      return (this._mapping as L2Mapping)[x[0]].mapping[x[1]].value
+    else if (x.length == 3)
+      return (this._mapping as L3Mapping)[x[0]].mapping[x[1]].mapping[x[2]].value
+    else
+      return undefined as never
+  }
 
-  # convert a string factor into a synthetic coordinate
-  synthetic: (x) ->
-    if isNumber(x)
+  // convert a string factor into a synthetic coordinate
+  synthetic(x: number | Factor | OffsetFactor): number {
+    if (isNumber(x))
       return x
 
-    if isString(x)
-      return @_lookup([x])
+    if (isString(x))
+      return this._lookup([x])
 
-    offset = 0
-    if isNumber(x[x.length-1])
-      offset = x[x.length-1]
-      x = x.slice(0,-1)
+    let offset = 0
+    const off = x[x.length-1]
+    if (isNumber(off)) {
+      offset = off
+      x = x.slice(0, -1) as Factor
+    }
 
-    return @_lookup(x) + offset
+    return this._lookup(x) + offset
+  }
 
-  # convert an array of string factors into synthetic coordinates
-  v_synthetic: (xs) ->
-    result = (@synthetic(x) for x in xs)
+  // convert an array of string factors into synthetic coordinates
+  v_synthetic(xs: any[]): number[] {
+    return xs.map((x) => this.synthetic(x))
+  }
 
-  _init: () ->
+  protected _init(): void {
+    let levels: number
+    let inside_padding: number
+    if (all(this.factors as any, isString)) {
+      levels = 1;
+      [this._mapping, inside_padding] = map_one_level(this.factors as string[], this.factor_padding)
+    } else if (all(this.factors as any, (x) => isArray(x) && x.length == 2 && isString(x[0]) && isString(x[1]))) {
+      levels = 2;
+      [this._mapping, this.tops, inside_padding] = map_two_levels(this.factors as [string, string][], this.group_padding, this.factor_padding)
+    } else if (all(this.factors as any, (x) => isArray(x) && x.length == 3  && isString(x[0]) && isString(x[1]) && isString(x[2]))) {
+      levels = 3;
+      [this._mapping, this.tops, this.mids, inside_padding] = map_three_levels(this.factors as [string, string, string][], this.group_padding, this.subgroup_padding, this.factor_padding)
+    } else
+      throw new Error("???")
 
-    if all(@factors, isString)
-      levels = 1
-      [@_mapping, inside_padding] = map_one_level(@factors, @factor_padding)
+    let start = 0
+    let end = this.factors.length + inside_padding
 
-    else if all(@factors, (x) -> isArray(x) and x.length==2 and isString(x[0]) and isString(x[1]))
-      levels = 2
-      [@_mapping, @tops, inside_padding] = map_two_levels(@factors, @group_padding, @factor_padding)
-
-    else if all(@factors, (x) -> isArray(x) and x.length==3  and isString(x[0]) and isString(x[1]) and isString(x[2]))
-      levels = 3
-      [@_mapping, @tops, @mids, inside_padding] = map_three_levels(@factors, @group_padding, @subgroup_padding, @factor_padding)
-
-    else
-      throw new Error("")
-
-    start = 0
-    end = @factors.length + inside_padding
-
-    if @range_padding_units == "percent"
-      half_span = (end - start) * @range_padding / 2
+    if (this.range_padding_units == "percent") {
+      const half_span = (end - start) * this.range_padding / 2
       start -= half_span
       end += half_span
-    else
-      start -= @range_padding
-      end += @range_padding
+    } else {
+      start -= this.range_padding
+      end += this.range_padding
+    }
 
-    @setv({start: start, end: end, levels: levels}, {silent: true})
+    this.setv({start: start, end: end, levels: levels}, {silent: true})
 
-    if @bounds == 'auto'
-      @setv({bounds: [start, end]}, {silent: true})
+    if (this.bounds == "auto")
+      this.setv({bounds: [start, end]}, {silent: true})
+  }
+}
 
-  _lookup: (x) ->
-    if x.length == 1
-      return @_mapping[x[0]].value
+FactorRange.prototype.type = "FactorRange"
 
-    else if x.length == 2
-      return @_mapping[x[0]].mapping[x[1]].value
+FactorRange.define({
+  factors:             [ p.Array,        []        ],
+  factor_padding:      [ p.Number,       0         ],
+  subgroup_padding:    [ p.Number,       0.8       ],
+  group_padding:       [ p.Number,       1.4       ],
+  range_padding:       [ p.Number,       0         ],
+  range_padding_units: [ p.PaddingUnits, "percent" ],
+  start:               [ p.Number                  ],
+  end:                 [ p.Number                  ],
+  bounds:              [ p.Any                     ],
+  min_interval:        [ p.Any                     ],
+  max_interval:        [ p.Any                     ],
+})
 
-    else if x.length == 3
-      return @_mapping[x[0]].mapping[x[1]].mapping[x[2]].value
+FactorRange.internal({
+  levels:      [ p.Number ], // how many levels of
+  mids:        [ p.Array  ], // mid level factors (if 3 total levels)
+  tops:        [ p.Array  ], // top level factors (whether 2 or 3 total levels)
+  tops_groups: [ p.Array  ], // ordered list of full factors for each top level factor in tops
+})
