@@ -1,7 +1,7 @@
 import * as models from "./models/index"
 import {clone} from "./core/util/object"
 import {HasProps} from "./core/has_props"
-import {Class} from "./core/aux"
+import {Class} from "./core/class"
 
 export type View = any
 
