@@ -1,6 +1,6 @@
 // Based on https://github.com/phosphorjs/phosphor/blob/master/packages/signaling/src/index.ts
 
-import {Constructor} from "./aux"
+import {Constructor} from "./class"
 import {defer} from "./util/callback"
 import {find, removeBy} from "./util/array"
 

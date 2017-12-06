@@ -1,6 +1,6 @@
 //import {logger} from "./logging"
 import {View} from "./view"
-import {Class} from "./aux"
+import {Class} from "./class"
 import {Signal, Signalable} from "./signaling"
 import * as property_mixins from "./property_mixins"
 import {Ref, is_ref, create_ref} from "./util/refs"

@@ -1,5 +1,5 @@
 import {HasProps} from "./core/has_props"
-import {Class} from "./core/aux"
+import {Class} from "./core/class"
 import {BokehEvent} from "./core/bokeh_events"
 import * as p from "./core/properties"
 import {isString} from "./core/util/types"

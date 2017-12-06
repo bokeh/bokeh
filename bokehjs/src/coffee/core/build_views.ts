@@ -1,6 +1,6 @@
 import {HasProps} from "./has_props"
 import {View} from "./view"
-import {Class} from "./aux"
+import {Class} from "./class"
 import {difference} from "./util/array"
 import {extend} from "./util/object"
 
