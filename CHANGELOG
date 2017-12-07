@@ -1,3 +1,95 @@
+2017-12-05  0.12.12:
+--------------------
+  * bugfixes:
+    - #6588 [typescript] Model references are not resolved when trying to change ranges and attach js callback at the same time
+    - #7268 [component: bokehjs] [notebook] Push_notebook regression in 0.12.11
+    - #7282 [component: bokehjs] Add missing return statements to get_indices typescript version
+  * tasks:
+    - #7214 [component: bokehjs] [component: build] Allow es6 output from bokehjs' build
+    - #7276 Unclear exception when bokeh_log_level env variable is set to a wrong value
+    - #7279 [component: docs] Configuring plot tools documentation was unclear
+
+2017-11-28  0.12.11:
+--------------------
+  * bugfixes:
+    - #1376 [component: bokehjs] [widgets] Implement `widget.disabled`
+    - #1651 [layout] Grid plot with row of all none behaves badly
+    - #3538 [component: server] Session could auto-no-op any callbacks invoked after the session is destroyed
+    - #4561 [layout] Models/legends example broken
+    - #4574 [layout] [regression] Plot border gets covered up by things stuck on edge
+    - #4613 Hover tool has own column in ie
+    - #4787 [layout] [widgets] Erroneous toolbar separator positions using tabs
+    - #5761 [layout] Location in colorbar offsets from axis
+    - #6065 [component: bokehjs] Touch events fail in device mode under chrome devtools
+    - #6348 [layout] Layouts with multiple tab widgets don't work
+    - #6409 [component: server] Screen distance spec fields fail with bokeh.client
+    - #6466 [component: bokehjs] [layout] Rendering error with toolbar_sticky=false and sizing_mode='scale_width'
+    - #6502 [widgets] Programmatically setting the active tab does not change the tab in 0.12.6 & 0.12.7
+    - #6545 Patch bug: patch slices must have positive (start, stop, step) values, got slice(0, 200, 50)
+    - #6583 [component: bokehjs] Rect not behaving correctly with zero height
+    - #6600 [component: build] Downloading dependencies from scripts/deps fails
+    - #6676 [layout] [regression] Axes' tick labels are trimmed when moving plot
+    - #6841 [component: bokehjs] [regression] [widgets] Rangeslider css_classes not being updated anymore
+    - #6946 [component: bokehjs] Graphrenderer view not updating 
+    - #7060 [layout] [regression] Twin_axis not showing label correctly in version 0.12.9
+    - #7062 [component: bokehjs] Linked brushing does not work on second plot in gridplot
+    - #7075 [layout] Changing title attributes does not work as expected in bokeh server
+    - #7121 [component: docs] Documentation - typo in release file 0.12.10
+    - #7128 [component: server] [regression] When embeding bokeh server to flask, attributeerror: 'nonetype' object has no attribute '_id' shows up
+    - #7162 [component: docs] Fix documentation for properties.rgb
+    - #7184 [component: server] [regression] Support stream and update with pandas dataframes
+    - #7189 [component: bokehjs] Hovertool data not completely matching when using cdsview filters in bokeh 0.12.11dev2
+    - #7193 [component: bokehjs] [regression] Ion slider extension example broken
+    - #7199 [component: bokehjs] Missing import of logger in toolbar.coffee
+    - #7202 [layout] Layout of plot border with axis.visible = false
+    - #7212 [component: bokehjs] [notebook] [regression] Ie11-incompatible syntax in bokeh/core/_templates/autoload_nb_js.js?
+    - #7213 [component: bokehjs] Canvas image smoothing in ie11
+    - #7222 Double encode escapes in html-safe json strings
+    - #7224 [component: bokehjs] [regression] `sdy` in range info is inverted and affects panning gmaps
+    - #7230 [component: examples] Spectrogram example image broken
+    - #7240 [component: docs] Missing figure import on graph example
+    - #7250 [component: bokehjs] [widgets] Slider callback doesn't occur on particular values
+    - #7255 [component: bokehjs] [regression] Zooming performance regression in 0.12.11rc
+  * features:
+    - #1007 [component: docs] Documenting the documentation process and guidelines
+    - #3644 [component: bokehjs] Would need a figure.step to create step line in plot
+    - #4635 [layout] Right titles are too far out
+    - #4711 Decorator for documenting what version a function or method first appeared
+    - #5298 Box select does not work with vbar but tap tool does 
+    - #5937 [component: bokehjs] Lod in linked plots
+    - #6565 [component: server] Avoid boiler-plate when constructing a bokeh server programmatically
+    - #6599 Bokeh server url hard coded as over  http
+    - #7130 [component: bokehjs] [bokekjs] unable to use customjs in bokehjs
+    - #7150 [component: bokehjs] [widgets] Adding optgroup functionality to select widget
+  * tasks:
+    - #4394 [layout] Axis label size change does not trigger a re-alignment
+    - #4874 [layout] Toolbar css class occasionally is `bk-toolbar-null`
+    - #5648 [API: models] Line renderer raises the "without value specification" when a columndatasource is used
+    - #6174 [component: bokehjs] Hovertool vline/hline models for line glyph (_hit_span method) causes non-intuitive tooltips to appear
+    - #6447 [layout] Switch layout's coordinate system from view to screen
+    - #6626 [component: docs] Updates to /docs/dev_guide/setup.html
+    - #6990 [component: bokehjs] [layout] Allow toolbar in side panels and drop sticky property
+    - #7028 Gmaps incompatible with datarange1d, make error louder/earlier
+    - #7039 [component: docs] Clarify some security considerations
+    - #7053 [component: examples] [component: tests] Plotting/file/categorical_scatter_jitter needs a seed
+    - #7081 [component: docs] User guide still refers to bokeh.embed.notebook_div
+    - #7096 [component: docs] Typo in server.rst
+    - #7100 [component: docs] Renamed custom attribute from range to slider
+    - #7103 [component: docs] Update bokehjs standalone installation guidelines
+    - #7104 Bokeh channel version of nodejs is no longer in sync with upstream anaconda/nodejs
+    - #7114 [component: bokehjs] Add wheelpantool support to bokehjs
+    - #7131 Prove of concept: caching of nodejs compilation on model bundling
+    - #7154 [typescript] Investigate coffeescript 2 and its benefits for transition to typescript
+    - #7172 [component: docs] Extending bokeh with js library documentation needs to clarify use of javascript() to wrap js
+    - #7179 [component: docs] Zeppelin notebook integration not working
+    - #7181 [component: tests] Move annotations' "integration" tests to examples
+    - #7190 [component: docs] Legend text with click_policy="hide"
+    - #7198 [component: docs] Request for improvement to columndatasource documentation in reference to multi_line()
+    - #7200 [component: docs] Adding additional information in the multi_line() documentation
+    - #7207 [component: docs] Add kwargs documentation for directoryhandler
+    - #7229 [component: docs] Multiprocessing in windows is not available (error:module 'os' has no attribute 'fork')
+    - #7236 [component: examples] Simplify brewer.py example
+
 2017-10-16  0.12.10:
 --------------------
   * bugfixes:

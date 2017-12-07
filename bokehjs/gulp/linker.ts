@@ -4,7 +4,7 @@ import {resolve, relative, join, dirname, basename, sep} from "path"
 import * as esprima from "esprima"
 import * as escodegen from "escodegen"
 import * as estraverse from "estraverse"
-import {Program, Node, CallExpression, Comment} from "estree"
+import {Program, Node, CallExpression, Comment, Statement} from "estree"
 
 import * as combine from "combine-source-map"
 import * as convert from "convert-source-map"
@@ -25,14 +25,17 @@ const to_obj = <T>(map: Map<string, T>): {[key: string]: T} => {
 }
 
 export class Bundle {
-  constructor(readonly source: string, readonly sourcemap: any, readonly modules: Map<string, number>) {}
+  constructor(readonly source: string,
+              readonly sourcemap: any,
+              readonly exported: Map<string, number>,
+              readonly modules: Module[]) {}
 
   full_source(name: string) {
     return `${this.source}\n${convert.generateMapFileComment(name)}\n`
   }
 
   get module_names() {
-    return Array.from(this.modules.keys())
+    return Array.from(this.exported.keys())
   }
 
   write(path: string): void {
@@ -127,6 +130,7 @@ export class Linker {
       let sources: string = ""
       const sourcemap = combine.create()
       const exported = new Map<string, number>()
+      const bundled: Module[] = []
 
       sources += `${prelude}(${prefix}\n`
       line += newlines(sources)
@@ -137,12 +141,16 @@ export class Linker {
 
         const mod = modules.get(file)!
         mod.rewrite_deps(module_map)
+        mod.remove_esmodule()
+        mod.wrap_in_function()
+
+        bundled.push(mod)
 
         const id = module_map.get(file)!
         if (!mod.is_external)
           exported.set(mod.canonical, id)
 
-        const start = wrap(id, `/* ${mod.canonical} */ function(require, module, exports) {\n`)
+        const start = wrap(id, "")
         sources += start
         line += newlines(start)
 
@@ -152,7 +160,7 @@ export class Linker {
         sourcemap.addFile({source: source_with_sourcemap, sourceFile: file}, {line: line})
         line += newlines(source)
 
-        const end = `}${last ? "" : ","}\n`
+        const end = `${last ? "" : ","}\n`
         sources += end
         line += newlines(end)
       }
@@ -162,7 +170,7 @@ export class Linker {
       sources += `${suffix}, ${aliases}, ${entry_id});\n})\n`
 
       const obj = convert.fromBase64(sourcemap.base64()).toObject()
-      return new Bundle(sources, obj, exported)
+      return new Bundle(sources, obj, exported, bundled)
     }
 
     const main_bundle = bundle(main, main_files, prelude, "[", "]", (_, source) => source)
@@ -259,6 +267,7 @@ export class Module {
   readonly input: string
   readonly ast: Program
   readonly deps = new Map<string, string>()
+  protected _source: string | null
 
   constructor(readonly file: string, protected readonly linker: Linker) {
     this.input = fs.readFileSync(this.file, "utf8")
@@ -342,7 +351,52 @@ export class Module {
     })
   }
 
-  get source(): string {
+  remove_esmodule(): void {
+    const self = this
+    const body: typeof self.ast.body = []
+    for (const node of this.ast.body) {
+      if (node.type == "ExpressionStatement") {
+        const expr = node.expression
+        if (expr.type == "Literal") {
+          if (expr.value == "use strict")
+            continue
+        }
+        if (expr.type == "CallExpression") {
+          const args = expr.arguments
+          if (args.length == 3) {
+            const arg = args[1]
+            if (arg.type == "Literal") {
+              if (arg.value == "__esModule")
+                continue
+            }
+          }
+        }
+      }
+      body.push(node)
+    }
+    this.ast.body = body
+  }
+
+  wrap_in_function(): void {
+    const wrapper: Statement = {
+      type: "FunctionDeclaration",
+      id: {type: "Identifier", name: "_"},
+      params: [
+        {type: "Identifier", name: "require"},
+        {type: "Identifier", name: "module"},
+        {type: "Identifier", name: "exports"},
+      ],
+      body: {
+        type: "BlockStatement",
+        body: Array.from(this.ast.body) as Statement[],
+      }
+    }
+    const comment: Comment = {type: "Block", value: this.canonical}
+    wrapper.leadingComments = [comment]
+    this.ast.body = [wrapper]
+  }
+
+  protected generate_source(): string {
     if (!this.linker.sourcemaps || this.is_external) {
       const source = escodegen.generate(this.ast, {comment: true})
       return convert.removeMapFileComments(source)
@@ -360,5 +414,11 @@ export class Module {
       const comment = convert.fromObject(map).toComment()
       return `${source}\n${comment}\n`
     }
+  }
+
+  get source(): string {
+    if (this._source == null)
+      this._source = this.generate_source()
+    return this._source
   }
 }

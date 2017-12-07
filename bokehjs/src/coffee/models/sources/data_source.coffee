@@ -6,6 +6,10 @@ import {Selection} from "../selections/selection"
 export class DataSource extends Model
   type: 'DataSource'
 
+  `
+  selected: hittest.HitTestResult
+  `
+
   @define {
       selected: [ p.Instance, () -> new Selection() ] # TODO (bev)
       callback: [ p.Any                             ] # TODO: p.Either(p.Instance(Callback), p.Function) ]

@@ -11,8 +11,8 @@ export function point_in_poly(x: number, y: number, px: number[], py: number[]):
   for (let i = 0; i < px.length; i++) {
     const x2 = px[i]
     const y2 = py[i]
-    if (( y1 < y ) != ( y2 < y )){
-      if (x1 + ( y - y1 ) / ( y2 - y1 ) * ( x2 - x1 ) < x)
+    if ((y1 < y) != (y2 < y)) {
+      if (x1 + (y - y1) / (y2 - y1)*(x2 - x1) < x)
         inside = !inside
     }
     x1 = x2
@@ -77,15 +77,16 @@ export function check_2_segments_intersect(
     x: number | null,
     y: number | null,
   } {
-  /* Check if 2 segments (l0 and l1) intersect. Returns a structure with
-   * the following attributes:
-   *  * hit (boolean): whether the 2 segments intersect
+  /*
+   *  Check if 2 segments (l0 and l1) intersect. Returns a structure with
+   *  the following attributes:
+   *   * hit (boolean): whether the 2 segments intersect
    *   * x (float): x coordinate of the intersection point
    *   * y (float): y coordinate of the intersection point
    */
   const den = ((l1_y1 - l1_y0) * (l0_x1 - l0_x0)) - ((l1_x1 - l1_x0) * (l0_y1 - l0_y0))
 
-  if (den == 0){
+  if (den == 0) {
     return {hit: false, x: null, y: null}
   } else {
     let a = l0_y0 - l1_y0

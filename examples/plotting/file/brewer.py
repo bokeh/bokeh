@@ -5,36 +5,25 @@ from bokeh.plotting import figure, show, output_file
 from bokeh.palettes import brewer
 
 N = 20
-categories = ['y' + str(x) for x in range(10)]
-data = {}
-data['x'] = np.arange(N)
-for cat in categories:
-    data[cat] = np.random.randint(10, 100, size=N)
+cats = 10
+df = pd.DataFrame(np.random.randint(10, 100, size=(N, cats))).add_prefix('y')
 
-df = pd.DataFrame(data)
-df = df.set_index(['x'])
+def  stacked(df):
+    df_top = df.cumsum(axis=1)
+    df_bottom = df_top.shift(axis=1).fillna({'y0': 0})[::-1]
+    df_stack = pd.concat([df_bottom, df_top], ignore_index=True)
+    return df_stack
 
-def stacked(df, categories):
-    areas = dict()
-    last = np.zeros(len(df))
-    for cat in categories:
-        next = last + df[cat]
-        areas[cat] = np.hstack((last[::-1], next))
-        last = next
-    return areas
+areas = stacked(df)
+colors = brewer['Spectral'][areas.shape[1]]
+x2 = np.hstack((df.index[::-1], df.index))
 
-areas = stacked(df, categories)
-
-colors = brewer["Spectral"][len(areas)]
-
-x2 = np.hstack((data['x'][::-1], data['x']))
-
-p = figure(x_range=(0, 19), y_range=(0, 800))
+p = figure(x_range=(0, N-1), y_range=(0, 800))
 p.grid.minor_grid_line_color = '#eeeeee'
 
-p.patches([x2] * len(areas), [areas[cat] for cat in categories],
+p.patches([x2] * areas.shape[1], [areas[c].values for c in areas],
           color=colors, alpha=0.8, line_color=None)
 
-output_file("brewer.html", title="brewer.py example")
+output_file('brewer.html', title='brewer.py example')
 
 show(p)

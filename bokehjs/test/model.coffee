@@ -52,7 +52,7 @@ describe "Model objects", ->
       # check the correct number of calls for m.foo change
       expect(spy.called).to.be.false
       m.foo = 10
-      expect(spy.callCount).to.be.equal 2
+      expect(spy.callCount).to.be.equal 0
 
       # check the correct number of calls for m.bar change
       spy.reset()

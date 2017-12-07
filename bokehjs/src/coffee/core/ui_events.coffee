@@ -69,8 +69,13 @@ export class UIEvents
     document.addEventListener("keydown", (e) => @_key_down(e))
     document.addEventListener("keyup", (e) => @_key_up(e))
 
-  register_tool: (tool_view) ->
-    et = tool_view.model.event_type
+  register_tool: (tool_view, event_type) ->
+    et = event_type or tool_view.model.event_type
+    if et? and not (typeof et is 'string')
+      for e in et
+        @register_tool(tool_view, e)
+      return
+
     id = tool_view.model.id
     type = tool_view.model.type
 

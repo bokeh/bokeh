@@ -8,6 +8,9 @@ export class AnnotationView extends RendererView
   _get_size: () ->
     return new Error("not implemented")
 
+  get_size: () ->
+    return if this.model.visible then Math.round(this._get_size()) else 0
+
 export class Annotation extends Renderer
   type: 'Annotation'
   default_view: AnnotationView

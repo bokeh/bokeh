@@ -26,11 +26,11 @@ export class Range1d extends Range
 
     @_set_auto_bounds()
 
-  @getters {
-    min: () -> Math.min(@start, @end)
-    max: () -> Math.max(@start, @end)
-    is_reversed: () -> @start > @end
-  }
+  `
+  get min(): number { return Math.min(this.start, this.end) }
+  get max(): number { return Math.max(this.start, this.end) }
+  get is_reversed(): boolean { return this.start > this.end }
+  `
 
   reset: () ->
     @_set_auto_bounds()

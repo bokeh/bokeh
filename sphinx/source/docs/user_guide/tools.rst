@@ -92,6 +92,8 @@ in conjunction with the ``tools`` keyword described above:
 
 .. code-block:: python
 
+    from bokeh.models import BoxSelectTool
+
     plot = figure(tools="pan,wheel_zoom,box_zoom,reset")
     plot.add_tools(BoxSelectTool(dimensions=["width"]))
 

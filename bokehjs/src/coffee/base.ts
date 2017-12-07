@@ -1,21 +1,22 @@
 import * as models from "./models/index"
 import {clone} from "./core/util/object"
+import {HasProps} from "./core/has_props"
+import {Class} from "./core/class"
 
-export type Model = any
 export type View = any
 
-export const overrides: {[key: string]: Model} = {}
-const _all_models: {[key: string]: Model} = clone(models)
+export const overrides: {[key: string]: Class<HasProps>} = {}
+const _all_models: {[key: string]: Class<HasProps>} = clone(models) as any
 
 export interface Models {
-  (name: string): Model
-  register(name: string, model: Model): void
+  (name: string): Class<HasProps>
+  register(name: string, model: Class<HasProps>): void
   unregister(name: string): void
-  register_models(models: {[key: string]: Model} | null | undefined, force?: boolean, errorFn?: (name: string) => void): void
+  register_models(models: {[key: string]: Class<HasProps>} | null | undefined, force?: boolean, errorFn?: (name: string) => void): void
   registered_names(): string[]
 }
 
-export const Models = ((name: string): Model => {
+export const Models = ((name: string): Class<HasProps> => {
   const model = overrides[name] || _all_models[name]
 
   if (model == null) {
@@ -26,11 +27,11 @@ export const Models = ((name: string): Model => {
   return model
 }) as Models
 
-Models.register = (name: string, model: Model): void => {
+Models.register = (name, model) => {
   overrides[name] = model
 }
 
-Models.unregister = (name: string): void => {
+Models.unregister = (name) => {
   delete overrides[name]
 }
 

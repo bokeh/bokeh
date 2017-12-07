@@ -3,43 +3,55 @@ import * as p from "core/properties"
 import {union, intersection} from "core/util/array"
 import {merge} from "core/util/object"
 
-export class Selection extends Model
-  type: "Selection"
+export class Selection extends Model {
 
-  initialize: (options) ->
-    super(options)
+  indices: number[]
+  final: boolean
+  [key: string]: any
 
-    @['0d'] = {'glyph': null, 'indices': []}
-    @['2d'] = {'indices': {}}
-    @['1d'] = {'indices': @indices}
+  initialize(options: any): void {
+    super.initialize(options)
 
-    @connect @properties.indices.change, () ->
-      @['1d']['indices'] = @indices
+    this['0d'] = {'glyph': null, 'indices': []}
+    this['2d'] = {'indices': {}}
+    this['1d'] = {'indices': this.indices}
 
-  @define {
-    indices:      [p.Array,   [] ]
+    this.connect(this.properties.indices.change, () =>
+      this['1d']['indices'] = this.indices)
   }
 
-  @internal {
-    final:        [p.Boolean     ]
-  }
-
-  update: (selection, final, append) ->
-    @final = final
-    if append
-      @update_through_union(selection)
+  update(selection: Selection, final: boolean, append: boolean): void {
+    this.final = final
+    if (append)
+      this.update_through_union(selection)
     else
-      @indices = selection.indices
+      this.indices = selection.indices
+  }
 
-  clear: () ->
-    @final = true
-    @indices = []
+  clear (): void {
+    this.final = true
+    this.indices = []
+  }
 
-  is_empty: () ->
-    @indices.length == 0
+  is_empty (): boolean {
+    return this.indices.length == 0
+  }
 
-  update_through_union: (other) ->
-    @indices = union(other.indices, @indices)
+  update_through_union(other: Selection): void {
+    this.indices = union(other.indices, this.indices)
+  }
 
-  update_through_intersection: (other) ->
-    @indices = intersection(other.indices, @indices)
+  update_through_intersection(other: Selection): void {
+    this.indices = intersection(other.indices, this.indices)
+  }
+}
+
+Selection.prototype.type = "Selection"
+
+Selection.define({
+  indices:      [ p.Array,   [] ]
+})
+
+Selection.internal({
+  final:        [ p.Boolean     ]
+})

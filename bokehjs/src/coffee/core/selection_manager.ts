@@ -1,108 +1,161 @@
 import {HasProps} from "./has_props"
 import {Model} from "../model"
+import {Geometry} from "./geometry"
 import {Selection} from "../models/selections/selection"
-import * as hittest from "./hittest"
 import * as p from "./properties"
 
-export class SelectionPolicy extends Model
+import {DataSource} from "models/sources/data_source"
 
-  hit_test: (geometry, renderer_views) ->
+// XXX: temporary types
+export type Renderer = any
+export type RendererView = any
+
+export type HitTestResult = Selection | null
+
+export abstract class SelectionPolicy extends Model {
+
+  hit_test(geometry: Geometry, renderer_views: RendererView[]): HitTestResult{
     return null
+  }
 
-  do_selection: (hit_test_result, renderer_views, final, append) ->
-    if hit_test_result?
-      source = renderer_views[0].model.data_source
+  do_selection(hit_test_result: HitTestResult | null, renderer_views: RendererView[], final: boolean, append: boolean): boolean {
+    if (hit_test_result === null) {
+      return false
+    } else {
+      const source = renderer_views[0].model.data_source
       source.selected.update(hit_test_result, final, append)
       source.select.emit()
-      return not source.selected.is_empty()
-    else
-      return false
+      return !source.selected.is_empty()
+    }
+  }
+}
 
-export class IntersectRenderers extends SelectionPolicy
-  type: 'IntersectRenderers'
+SelectionPolicy.prototype.type = "SelectionPolicy"
 
-  hit_test: (geometry, renderer_views) ->
-    hit_test_result_renderers = (r.hit_test(geometry) for r in renderer_views)
-    if hit_test_result_renderers.length > 0
-      hit_test_result = hit_test_result_renderers[0]
-      for hit_test_result_other in hit_test_result_renderers
+export class IntersectRenderers extends SelectionPolicy {
+
+  hit_test(geometry: Geometry, renderer_views: RendererView[]): HitTestResult {
+    let hit_test_result_renderers = []
+    for (let r of renderer_views) {
+      let result = r.hit_test(geometry)
+      if (result !== null)
+        hit_test_result_renderers.push(result)
+    }
+    if (hit_test_result_renderers.length > 0) {
+      const hit_test_result = hit_test_result_renderers[0]
+      for (let hit_test_result_other of hit_test_result_renderers) {
         hit_test_result.update_through_intersection(hit_test_result_other)
+      }
       return hit_test_result
-    else
+    } else {
       return null
+    }
+  }
+}
 
-export class UnionRenderers extends SelectionPolicy
-  type: 'UnionRenderers'
+IntersectRenderers.prototype.type = "IntersectRenderers"
 
-  hit_test: (geometry, renderer_views) ->
-    hit_test_result_renderers = (r.hit_test(geometry) for r in renderer_views)
-    if hit_test_result_renderers.length > 0
-      hit_test_result = hit_test_result_renderers[0]
-      for hit_test_result_other in hit_test_result_renderers
+export class UnionRenderers extends SelectionPolicy {
+
+  hit_test(geometry: Geometry, renderer_views: RendererView[]): HitTestResult {
+    let hit_test_result_renderers = []
+    for (let r of renderer_views) {
+      let result = r.hit_test(geometry)
+      if (result !== null)
+        hit_test_result_renderers.push(result)
+    }
+    if (hit_test_result_renderers.length > 0) {
+      const hit_test_result = hit_test_result_renderers[0]
+      for (let hit_test_result_other of hit_test_result_renderers) {
         hit_test_result.update_through_union(hit_test_result_other)
+      }
       return hit_test_result
-    else
+    } else {
       return null
+    }
+  }
+}
 
-export class SelectionManager extends HasProps
-  type: 'SelectionManager'
+UnionRenderers.prototype.type = "UnionRenderers"
 
-  @define {
-    selection_policy:  [ p.Instance, () -> new UnionRenderers() ]
+export class SelectionManager extends HasProps {
+
+  selection_policy: SelectionPolicy
+  source: DataSource
+  inspectors: {[key: string]: Selection}
+
+  initialize(attrs: any, options: any): void {
+    super.initialize(attrs, options)
+    this.inspectors = {}
   }
 
-  @internal {
-    source: [ p.Any ]
-  }
-
-  initialize: (attrs, options) ->
-    super(attrs, options)
-    @inspectors = {}
-
-  select: (renderer_views, geometry, final, append=false) ->
-    # divide renderers into glyph_renderers or graph_renderers
-    glyph_renderer_views = []
-    graph_renderer_views = []
-    for r in renderer_views
-      if r.model.type == 'GlyphRenderer'
+  select(renderer_views: RendererView[], geometry: Geometry, final: boolean, append: boolean = false): boolean {
+    // divide renderers into glyph_renderers or graph_renderers
+    const glyph_renderer_views: RendererView[] = []
+    const graph_renderer_views: RendererView[] = []
+    for (let r of renderer_views) {
+      if (r.model.type == 'GlyphRenderer'){
         glyph_renderer_views.push(r)
-      else if r.model.type == 'GraphRenderer'
-        graph_renderer_views.push(r)
+      } else {
+        if (r.model.type == 'GraphRenderer'){
+          graph_renderer_views.push(r)
+        }
+      }
+    }
 
-    did_hit = false
+    let did_hit = false
 
-    # graph renderer case
-    for r in graph_renderer_views
-      hit_test_result = r.model.selection_policy.hit_test(geometry, r)
+    // graph renderer case
+    for (let r of graph_renderer_views) {
+      let hit_test_result = r.model.selection_policy.hit_test(geometry, r)
       did_hit = did_hit || r.model.selection_policy.do_selection(hit_test_result, r, final, append)
-
-    # glyph renderers
-    if glyph_renderer_views.length > 0
-      hit_test_result = @selection_policy.hit_test(geometry, renderer_views)
-      did_hit = did_hit || @selection_policy.do_selection(hit_test_result, glyph_renderer_views, final, append)
+    }
+    // glyph renderers
+    if (glyph_renderer_views.length > 0) {
+      let hit_test_result = this.selection_policy.hit_test(geometry, renderer_views)
+      did_hit = did_hit || this.selection_policy.do_selection(hit_test_result, glyph_renderer_views, final, append)
+    }
 
     return did_hit
+  }
 
-  inspect: (renderer_view, geometry) ->
-    did_hit = false
+  inspect(renderer_view: RendererView, geometry: Geometry): boolean {
+    let did_hit = false
 
-    if renderer_view.model.type == 'GlyphRenderer'
-      hit_test_result = renderer_view.hit_test(geometry)
-      did_hit = not hit_test_result.is_empty()
-      inspection = @get_or_create_inspector(renderer_view.model)
+    if (renderer_view.model.type == 'GlyphRenderer') {
+      let hit_test_result = renderer_view.hit_test(geometry)
+      did_hit =  !hit_test_result.is_empty()
+      const inspection = this.get_or_create_inspector(renderer_view.model)
       inspection.update(hit_test_result, true, false)
-      @source.setv({inspected: inspection}, {silent: true})
-      @source.inspect.emit([renderer_view, {geometry: geometry}])
-    else if renderer_view.model.type == 'GraphRenderer'
-      hit_test_result = renderer_view.model.inspection_policy.hit_test(geometry, renderer_view)
-      did_hit = did_hit || renderer_view.model.inspection_policy.do_inspection(hit_test_result, geometry, renderer_view, false, false)
+      this.source.setv({inspected: inspection}, {silent: true})
+      this.source.inspect.emit([renderer_view, {geometry: geometry}])
+    } else {
+      if (renderer_view.model.type == 'GraphRenderer') {
+        let hit_test_result = renderer_view.model.inspection_policy.hit_test(geometry, renderer_view)
+        did_hit = did_hit || renderer_view.model.inspection_policy.do_inspection(hit_test_result, geometry, renderer_view, false, false)
+      }
+    }
 
     return did_hit
+  }
 
-  clear: (rview) ->
-    @source.selected.clear()
+  clear(rview: RendererView): void {
+    this.source.selected.clear()
+  }
 
-  get_or_create_inspector: (rmodel) ->
-    if not @inspectors[rmodel.id]?
-      @inspectors[rmodel.id] = new Selection()
-    return @inspectors[rmodel.id]
+  get_or_create_inspector(rmodel: Renderer): Selection {
+    if (this.inspectors[rmodel.id] == null)
+      this.inspectors[rmodel.id] = new Selection()
+    return this.inspectors[rmodel.id]
+  }
+}
+
+SelectionManager.prototype.type = "SelectionManager"
+
+SelectionManager.define({
+  selection_policy: [ p.Instance, () => new UnionRenderers()]
+})
+
+SelectionManager.internal({
+  source: [ p.Any ]
+})
