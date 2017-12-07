@@ -122,8 +122,7 @@ Another possibility is to have a single centrally created app (perhaps by an
 organization), that can access data or other artifacts published by many
 different people (possibly with access controls). This sort of scenario *is*
 possible with the Bokeh server, but often involves integrating a Bokeh
-server with other web application frameworks. See a complete example at
-https://github.com/bokeh/bokeh-demos/tree/master/happiness
+server with other web application frameworks.
 
 .. _userguide_server_applications:
 
