@@ -5,7 +5,7 @@ export class MercatorTileSource extends TileSource
   type: 'MercatorTileSource'
 
   @define {
-    snap_to_zoom:       [ p.Bool,   true               ]
+    snap_to_zoom:       [ p.Bool,   false              ]
     wrap_around:        [ p.Bool,   true               ]
   }
 
