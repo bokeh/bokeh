@@ -1,0 +1,7 @@
+0.12.14 (Dec 2017)
+==================
+
+Bokeh Version ``0.12.14`` is
+
+
+For full details see the :bokeh-tree:`CHANGELOG`.
