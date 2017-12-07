@@ -27,7 +27,7 @@ export abstract class ContextProperties {
       (this as any)[attr] = obj.properties[prefix + attr]
   }
 
-  warm_cache(source: ColumnarDataSource) {
+  warm_cache(source: ColumnarDataSource): void {
     for (const attr of this.attrs) {
       const prop = this.obj.properties[this.prefix + attr]
       if (prop.spec.value !== undefined) // TODO (bev) better test?
@@ -37,12 +37,14 @@ export abstract class ContextProperties {
     }
   }
 
-  cache_select(attr: string, i: number): void {
+  cache_select(attr: string, i: number): any {
     const prop = this.obj.properties[this.prefix + attr]
+    let value: any
     if (prop.spec.value !== undefined) // TODO (bev) better test?
-      this.cache[attr] = prop.spec.value
+      this.cache[attr] = value = prop.spec.value
     else
-      this.cache[attr] = this.cache[attr + "_array"][i]
+      this.cache[attr] = value = this.cache[attr + "_array"][i]
+    return value
   }
 
   set_vectorize(ctx: Context2d, i: number): void {
@@ -154,16 +156,19 @@ export class Text extends ContextProperties {
   readonly text_baseline:    p.TextBaseline
   readonly text_line_height: p.Number
 
-  cache_select(name: string, i: number): void {
+  cache_select(name: string, i: number): any {
+    let value: any
     if (name == "font") {
       super.cache_select("text_font_style", i)
       super.cache_select("text_font_size",  i)
       super.cache_select("text_font",       i)
 
       const {text_font_style, text_font_size, text_font} = this.cache
-      this.cache.font = `${text_font_style} ${text_font_size} ${text_font}`
+      this.cache.font = value = `${text_font_style} ${text_font_size} ${text_font}`
     } else
-      super.cache_select(name, i)
+      value = super.cache_select(name, i)
+
+    return value
   }
 
   font_value(): string {
