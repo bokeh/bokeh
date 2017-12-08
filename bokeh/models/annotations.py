@@ -7,7 +7,8 @@ from __future__ import absolute_import
 from six import string_types
 
 from ..core.enums import (AngleUnits, Dimension, FontStyle, LegendClickPolicy, LegendLocation,
-                          Orientation, RenderMode, SpatialUnits, VerticalAlign, TextAlign)
+                          Orientation, RenderMode, SpatialUnits, VerticalAlign, TextAlign,
+                          TooltipAttachment)
 from ..core.has_props import abstract
 from ..core.properties import (Angle, AngleSpec, Auto, Bool, ColorSpec, Datetime, Dict, DistanceSpec, Either,
                                Enum, Float, FontSizeSpec, Include, Instance, Int, List, NumberSpec, Override,
@@ -980,8 +981,8 @@ class Tooltip(Annotation):
     '''
     level = Override(default="overlay")
 
-    attachment = Enum("horizontal", "vertical", "left", "right", "above", "below", help="""
-    Whether the tooltip should display to the left or right off the cursor
+    attachment = Enum(TooltipAttachment, help="""
+    Whether the tooltip should be displayed to the left or right of the cursor
     position or above or below it, or if it should be automatically placed
     in the horizontal or vertical dimension.
     """)

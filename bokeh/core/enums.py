@@ -191,6 +191,10 @@ VerticalLocation = enumeration("above", "below")
 #: Specify a horizontal location in plot layouts
 HorizontalLocation = enumeration("left", "right")
 
+#: Specify an attachment for tooltips
+TooltipAttachment = enumeration("horizontal", "vertical",
+                                "left", "right", "above", "below")
+
 #: Specify a named dashing patter for stroking lines
 DashPattern = enumeration("solid", "dashed", "dotted", "dotdash", "dashdot")
 
