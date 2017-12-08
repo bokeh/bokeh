@@ -1,437 +1,543 @@
 import {Model} from "../../model"
+import {SizingMode} from "core/enums"
 import {empty} from "core/dom"
 import * as p from "core/properties"
 import {LayoutCanvas} from "core/layout/layout_canvas"
-import {Solver, GE, EQ, Strength, Variable} from "core/layout/solver"
+import {Solver, GE, EQ, Strength, Variable, Constraint} from "core/layout/solver"
 
 import {build_views} from "core/build_views"
 import {DOMView} from "core/dom_view"
 import {logger} from "core/logging"
-import {extend} from "core/util/object"
 
-export class LayoutDOMView extends DOMView
+export type Layoutable = LayoutCanvas | LayoutDOM
 
-  initialize: (options) ->
-    super(options)
+export abstract class LayoutDOMView extends DOMView {
 
-    # this is a root view
-    if @is_root
-      @_solver = new Solver()
+  model: LayoutDOM
 
-    @child_views = {}
-    @build_child_views()
+  protected _solver: Solver
 
-  remove: () ->
-    for _, view of @child_views
-      view.remove()
-    @child_views = {}
+  protected _solver_inited: boolean = false
+  protected _idle_notified: boolean = false
 
-    # remove on_resize
+  protected _root_width: Variable
+  protected _root_height: Variable
 
-    super()
+  child_views: {[key: string]: LayoutDOMView}
 
-  has_finished: () ->
-    if not super()
-      return false
+  initialize(options: any): void {
+    super.initialize(options)
 
-    for _, child of @child_views
-      if not child.has_finished()
-        return false
+    // this is a root view
+    if (this.is_root)
+      this._solver = new Solver()
 
-    return true
-
-  notify_finished: () ->
-    if not @is_root
-      super()
-    else
-      if not @_idle_notified and @has_finished()
-        if @model.document?
-          @_idle_notified = true
-          @model.document.notify_idle(@model)
-
-  _calc_width_height: () ->
-    measuring = @el
-
-    while true
-      measuring = measuring.parentNode
-      if not measuring?
-        logger.warn("detached element")
-        width = height = null
-        break
-
-      {width, height} = measuring.getBoundingClientRect()
-      if height != 0
-        break
-
-    return [width, height]
-
-  _init_solver: () ->
-    @_root_width = new Variable("#{@toString()}.root_width")
-    @_root_height = new Variable("#{@toString()}.root_height")
-
-    # XXX: this relies on the fact that missing `strength` argument results
-    # in strength being NaN, which behaves like `Strength.required`. However,
-    # this is banned by the API.
-    @_solver.add_edit_variable(@_root_width)
-    @_solver.add_edit_variable(@_root_height)
-
-    editables = @model.get_all_editables()
-    for edit_variable in editables
-      @_solver.add_edit_variable(edit_variable, Strength.strong)
-
-    constraints = @model.get_all_constraints()
-    for constraint in constraints
-      @_solver.add_constraint(constraint)
-
-    variables = @model.get_constrained_variables()
-    if variables.width?
-      @_solver.add_constraint(EQ(variables.width, @_root_width))
-    if variables.height?
-      @_solver.add_constraint(EQ(variables.height, @_root_height))
-
-    @_solver.update_variables()
-    @_solver_inited = true
-
-  _suggest_dims: (width, height) ->
-    variables = @model.get_constrained_variables()
-
-    if variables.width? or variables.height?
-      if width == null or height == null
-        [width, height] = @_calc_width_height()
-
-      if variables.width? and width?
-        @_solver.suggest_value(@_root_width, width)
-      if variables.height? and height?
-        @_solver.suggest_value(@_root_height, height)
-
-      @_solver.update_variables()
-
-  resize: (width=null, height=null) ->
-    if not @is_root
-      @root.resize(width, height)
-    else
-      @_do_layout(false, width, height)
-
-  partial_layout: () ->
-    if not @is_root
-      @root.partial_layout()
-    else
-      @_do_layout(false)
-
-  layout: (full=true) ->
-    if not @is_root
-      @root.layout()
-    else
-      @_do_layout(true)
-
-  _do_layout: (full, width=null, height=null) ->
-    if not @_solver_inited or full
-      @_solver.clear()
-      @_init_solver()
-
-    @_suggest_dims(width, height)
-
-    # XXX: do layout twice, because there are interdependencies between views,
-    # which currently cannot be resolved with one pass. The third one triggers
-    # rendering and (expensive) painting.
-    @_layout()     # layout (1)
-    @_layout()     # layout (2)
-    @_layout(true) # render & paint
-
-    @notify_finished()
-
-  _layout: (final=false) ->
-    for child in @model.get_layoutable_children()
-      child_view = @child_views[child.id]
-      if child_view._layout?
-        child_view._layout(final)
-
-    @render()
-
-    if final
-      @_has_finished = true
-
-  rebuild_child_views: () ->
-    @solver.clear()
-    @build_child_views()
-    @layout()
-
-  build_child_views: () ->
-    children = @model.get_layoutable_children()
-    build_views(@child_views, children, {parent: @})
-
-    empty(@el)
-
-    for child in children
-      # Look-up the child_view in @child_views and then append We can't just
-      # read from @child_views because then we don't get guaranteed ordering.
-      # Which is a problem in non-box layouts.
-      child_view = @child_views[child.id]
-      @el.appendChild(child_view.el)
-
-  connect_signals: () ->
-    super()
-
-    if @is_root
-      window.addEventListener("resize", () => @resize())
-
-    # XXX: @connect(@model.change, () => @layout())
-    @connect(@model.properties.sizing_mode.change, () => @layout())
-
-  _render_classes: () ->
-    @el.className = "" # removes all classes
-
-    if @className?
-      @el.classList.add(@className)
-
-    @el.classList.add("bk-layout-#{@model.sizing_mode}")
-
-    if @model.css_classes?
-      for cls in @model.css_classes
-        @el.classList.add(cls)
-
-  render: () ->
-    @_render_classes()
-
-    switch @model.sizing_mode
-      when 'fixed'
-        # If the width or height is unset:
-        # - compute it from children
-        # - but then save for future use
-        # (for some reason widget boxes keep shrinking if you keep computing
-        # but this is more efficient and appropriate for fixed anyway).
-        if @model.width?
-          width = @model.width
-        else
-          width = @get_width()
-          @model.setv({width: width}, {silent: true})
-
-        if @model.height?
-          height = @model.height
-        else
-          height = @get_height()
-          @model.setv({height: height}, {silent: true})
-
-        @solver.suggest_value(@model._width, width)
-        @solver.suggest_value(@model._height, height)
-      when 'scale_width'
-        height = @get_height()
-        @solver.suggest_value(@model._height, height)
-      when 'scale_height'
-        width = @get_width()
-        @solver.suggest_value(@model._width, width)
-      when 'scale_both'
-        [width, height] = @get_width_height()
-        @solver.suggest_value(@model._width, width)
-        @solver.suggest_value(@model._height, height)
-
-    @solver.update_variables()
-    @position()
-
-  position: () ->
-    switch @model.sizing_mode
-      when 'fixed', 'scale_width', 'scale_height'
-        @el.style.position = "relative"
-        @el.style.left = ""
-        @el.style.top = ""
-      when 'scale_both', 'stretch_both'
-        @el.style.position = "absolute"
-        @el.style.left = "#{@model._dom_left.value}px"
-        @el.style.top = "#{@model._dom_top.value}px"
-
-    @el.style.width = "#{@model._width.value}px"
-    @el.style.height = "#{@model._height.value}px"
-
-  get_height: () ->
-    # Subclasses should implement this to explain
-    # what their height should be in sizing_mode mode.
-    throw new Error("not implemented")
-
-  get_width: () ->
-    # Subclasses should implement this to explain
-    # what their width should be in sizing_mode mode.
-    throw new Error("not implemented")
-
-  get_width_height: () ->
-    parent_height = @el.parentNode.clientHeight
-    parent_width = @el.parentNode.clientWidth
-
-    ar = @model.get_aspect_ratio()
-
-    new_width_1 = parent_width
-    new_height_1 = parent_width / ar
-
-    new_width_2 = parent_height * ar
-    new_height_2 = parent_height
-
-    if new_width_1 < new_width_2
-      width = new_width_1
-      height = new_height_1
-    else
-      width = new_width_2
-      height = new_height_2
-
-    return [width, height]
-
-export class LayoutDOM extends Model
-  type: "LayoutDOM"
-
-  initialize: (attrs, options) ->
-    super(attrs, options)
-    @_width = new Variable("#{@toString()}.width")
-    @_height = new Variable("#{@toString()}.height")
-    # These are the COORDINATES of the four plot sides
-    @_left = new Variable("#{@toString()}.left")
-    @_right = new Variable("#{@toString()}.right")
-    @_top = new Variable("#{@toString()}.top")
-    @_bottom = new Variable("#{@toString()}.bottom")
-    # This is the dom position
-    @_dom_top = new Variable("#{@toString()}.dom_top")
-    @_dom_left = new Variable("#{@toString()}.dom_left")
-    # This is the distance from the side of the right and bottom,
-    @_width_minus_right = new Variable("#{@toString()}.width_minus_right")
-    @_height_minus_bottom = new Variable("#{@toString()}.height_minus_bottom")
-    # Whitespace variables
-    @_whitespace_top = new Variable("#{@toString()}.whitespace_top")
-    @_whitespace_bottom = new Variable("#{@toString()}.whitespace_bottom")
-    @_whitespace_left = new Variable("#{@toString()}.whitespace_left")
-    @_whitespace_right = new Variable("#{@toString()}.whitespace_right")
-
-  @getters {
-    layout_bbox: () ->
-      return {
-        top: @_top.value,
-        left: @_left.value,
-        width: @_width.value,
-        height: @_height.value,
-        right: @_right.value,
-        bottom: @_bottom.value,
-        dom_top: @_dom_top.value,
-        dom_left: @_dom_left.value,
-      }
+    this.child_views = {}
+    this.build_child_views()
   }
 
-  dump_layout: () ->
-    layoutables = {}
-    pending = [this]
+  remove(): void {
+    for (const model_id in this.child_views) {
+      const view = this.child_views[model_id]
+      view.remove()
+    }
+    this.child_views = {}
 
-    while pending.length > 0
-      obj = pending.shift()
+    // remove on_resize
 
-      if obj instanceof LayoutDOM
-        pending.push(obj.get_layoutable_children()...)
+    super.remove()
+  }
 
+  has_finished(): boolean {
+    if (!super.has_finished())
+      return false
+
+    for (const model_id in this.child_views) {
+      const child = this.child_views[model_id]
+      if (!child.has_finished())
+        return false
+    }
+
+    return true
+  }
+
+  notify_finished(): void {
+    if (!this.is_root)
+      super.notify_finished()
+    else {
+      if (!this._idle_notified && this.has_finished()) {
+        if (this.model.document != null) {
+          this._idle_notified = true
+          this.model.document.notify_idle(this.model)
+        }
+      }
+    }
+  }
+
+  _calc_width_height(): [number | null, number | null] {
+    let measuring: HTMLElement | null = this.el
+
+    while (true) {
+      measuring = measuring.parentElement
+      if (measuring == null) {
+        logger.warn("detached element")
+        break
+      }
+
+      const {width, height} = measuring.getBoundingClientRect()
+      if (height != 0)
+        return [width, height]
+    }
+
+    return [null, null]
+  }
+
+  protected _init_solver(): void {
+    this._root_width = new Variable(`${this.toString()}.root_width`)
+    this._root_height = new Variable(`${this.toString()}.root_height`)
+
+    // XXX: this relies on the fact that missing `strength` argument results
+    // in strength being NaN, which behaves like `Strength.required`. However,
+    // this is banned by the API.
+    this._solver.add_edit_variable(this._root_width, NaN)
+    this._solver.add_edit_variable(this._root_height, NaN)
+
+    const editables = this.model.get_all_editables()
+    for (const edit_variable of editables)
+      this._solver.add_edit_variable(edit_variable, Strength.strong)
+
+    const constraints = this.model.get_all_constraints()
+    for (const constraint of constraints)
+      this._solver.add_constraint(constraint)
+
+    const variables = this.model.get_constrained_variables()
+    if (variables.width != null)
+      this._solver.add_constraint(EQ(variables.width, this._root_width))
+    if (variables.height != null)
+      this._solver.add_constraint(EQ(variables.height, this._root_height))
+
+    this._solver.update_variables()
+    this._solver_inited = true
+  }
+
+  _suggest_dims(width: number | null, height: number | null): void {
+    const variables = this.model.get_constrained_variables()
+
+    if (variables.width != null || variables.height != null) {
+      if (width == null || height == null)
+        [width, height] = this._calc_width_height()
+
+      if (variables.width != null && width != null)
+        this._solver.suggest_value(this._root_width, width)
+      if (variables.height != null && height != null)
+        this._solver.suggest_value(this._root_height, height)
+
+      this._solver.update_variables()
+    }
+  }
+
+  resize(width: number | null = null, height: number | null = null): void {
+    if (!this.is_root)
+      (this.root as LayoutDOMView).resize(width, height)
+    else
+      this._do_layout(false, width, height)
+  }
+
+  partial_layout(): void {
+    if (!this.is_root)
+      (this.root as LayoutDOMView).partial_layout()
+    else
+      this._do_layout(false)
+  }
+
+  layout(): void {
+    if (!this.is_root)
+      (this.root as LayoutDOMView).layout()
+    else
+      this._do_layout(true)
+  }
+
+  protected _do_layout(full: boolean, width: number | null = null, height: number | null = null): void {
+    if (!this._solver_inited || full) {
+      this._solver.clear()
+      this._init_solver()
+    }
+
+    this._suggest_dims(width, height)
+
+    // XXX: do layout twice, because there are interdependencies between views,
+    // which currently cannot be resolved with one pass. The third one triggers
+    // rendering and (expensive) painting.
+    this._layout()     // layout (1)
+    this._layout()     // layout (2)
+    this._layout(true) // render & paint
+
+    this.notify_finished()
+  }
+
+  protected _layout(final: boolean = false): void {
+    for (const child of this.model.get_layoutable_children()) {
+      const child_view = this.child_views[child.id]
+      if (child_view._layout != null)
+        child_view._layout(final)
+    }
+
+    this.render()
+
+    if (final)
+      this._has_finished = true
+  }
+
+  rebuild_child_views(): void {
+    this.solver.clear()
+    this.build_child_views()
+    this.layout()
+  }
+
+  build_child_views(): void {
+    const children = this.model.get_layoutable_children()
+    build_views(this.child_views, children, {parent: this})
+
+    empty(this.el)
+
+    for (const child of children) {
+      // Look-up the child_view in this.child_views and then append We can't just
+      // read from this.child_views because then we don't get guaranteed ordering.
+      // Which is a problem in non-box layouts.
+      const child_view = this.child_views[child.id]
+      this.el.appendChild(child_view.el)
+    }
+  }
+
+  connect_signals(): void {
+    super.connect_signals()
+
+    if (this.is_root)
+      window.addEventListener("resize", () => this.resize())
+
+    // XXX: this.connect(this.model.change, () => this.layout())
+    this.connect(this.model.properties.sizing_mode.change, () => this.layout())
+  }
+
+  _render_classes(): void {
+    this.el.className = "" // removes all classes
+
+    if (this.className != null)
+      this.el.classList.add(this.className)
+
+    this.el.classList.add(`bk-layout-${this.model.sizing_mode}`)
+
+    for (const cls of this.model.css_classes)
+      this.el.classList.add(cls)
+  }
+
+  render(): void {
+    this._render_classes()
+
+    switch (this.model.sizing_mode) {
+      case "fixed": {
+        // If the width or height is unset:
+        // - compute it from children
+        // - but then save for future use
+        // (for some reason widget boxes keep shrinking if you keep computing
+        // but this is more efficient and appropriate for fixed anyway).
+        let width: number
+        if (this.model.width != null)
+          width = this.model.width
+        else
+          width = this.get_width()
+          this.model.setv({width: width}, {silent: true})
+
+        let height: number
+        if (this.model.height != null)
+          height = this.model.height
+        else
+          height = this.get_height()
+          this.model.setv({height: height}, {silent: true})
+
+        this.solver.suggest_value(this.model._width, width)
+        this.solver.suggest_value(this.model._height, height)
+        break
+      }
+      case "scale_width": {
+        const height = this.get_height()
+        this.solver.suggest_value(this.model._height, height)
+        break
+      }
+      case "scale_height": {
+        const width = this.get_width()
+        this.solver.suggest_value(this.model._width, width)
+        break
+      }
+      case "scale_both": {
+        const [width, height] = this.get_width_height()
+        this.solver.suggest_value(this.model._width, width)
+        this.solver.suggest_value(this.model._height, height)
+        break
+      }
+    }
+
+    this.solver.update_variables()
+    this.position()
+  }
+
+  position(): void {
+    switch (this.model.sizing_mode) {
+      case "fixed":
+      case "scale_width":
+      case "scale_height": {
+        this.el.style.position = "relative"
+        this.el.style.left = ""
+        this.el.style.top = ""
+        break
+      }
+      case "scale_both":
+      case "stretch_both": {
+        this.el.style.position = "absolute"
+        this.el.style.left = `${this.model._dom_left.value}px`
+        this.el.style.top = `${this.model._dom_top.value}px`
+        break
+      }
+    }
+
+    this.el.style.width = `${this.model._width.value}px`
+    this.el.style.height = `${this.model._height.value}px`
+  }
+
+  // Subclasses should implement this to explain
+  // what their height should be in sizing_mode mode.
+  abstract get_height(): number
+
+  // Subclasses should implement this to explain
+  // what their width should be in sizing_mode mode.
+  abstract get_width(): number
+
+  get_width_height(): [number, number] {
+    const parent = this.el.parentElement
+    if (parent == null)
+      throw new Error("detached element")
+
+    const parent_height = parent.clientHeight
+    const parent_width = parent.clientWidth
+
+    const ar = this.model.get_aspect_ratio()
+
+    const new_width_1 = parent_width
+    const new_height_1 = parent_width / ar
+
+    const new_width_2 = parent_height * ar
+    const new_height_2 = parent_height
+
+    let width: number
+    let height: number
+    if (new_width_1 < new_width_2) {
+      width = new_width_1
+      height = new_height_1
+    } else {
+      width = new_width_2
+      height = new_height_2
+    }
+
+    return [width, height]
+  }
+}
+
+export abstract class LayoutDOM extends Model {
+
+  height: number
+  width: number
+  disabled: boolean
+  sizing_mode: SizingMode
+  css_classes: string[]
+
+  _width: Variable
+  _height: Variable
+  // These are the COORDINATES of the four plot sides
+  _left: Variable
+  _right: Variable
+  _top: Variable
+  _bottom: Variable
+  // This is the dom position
+  _dom_top: Variable
+  _dom_left: Variable
+  // This is the distance from the side of the right and bottom,
+  _width_minus_right: Variable
+  _height_minus_bottom: Variable
+  // Whitespace variables
+  _whitespace_top: Variable
+  _whitespace_bottom: Variable
+  _whitespace_left: Variable
+  _whitespace_right: Variable
+
+  initialize(attrs: any, options: any): void {
+    super.initialize(attrs, options)
+    this._width = new Variable(`${this.toString()}.width`)
+    this._height = new Variable(`${this.toString()}.height`)
+    this._left = new Variable(`${this.toString()}.left`)
+    this._right = new Variable(`${this.toString()}.right`)
+    this._top = new Variable(`${this.toString()}.top`)
+    this._bottom = new Variable(`${this.toString()}.bottom`)
+    this._dom_top = new Variable(`${this.toString()}.dom_top`)
+    this._dom_left = new Variable(`${this.toString()}.dom_left`)
+    this._width_minus_right = new Variable(`${this.toString()}.width_minus_right`)
+    this._height_minus_bottom = new Variable(`${this.toString()}.height_minus_bottom`)
+    this._whitespace_top = new Variable(`${this.toString()}.whitespace_top`)
+    this._whitespace_bottom = new Variable(`${this.toString()}.whitespace_bottom`)
+    this._whitespace_left = new Variable(`${this.toString()}.whitespace_left`)
+    this._whitespace_right = new Variable(`${this.toString()}.whitespace_right`)
+  }
+
+  get layout_bbox(): {[key: string]: number} {
+    return {
+      top: this._top.value,
+      left: this._left.value,
+      width: this._width.value,
+      height: this._height.value,
+      right: this._right.value,
+      bottom: this._bottom.value,
+      dom_top: this._dom_top.value,
+      dom_left: this._dom_left.value,
+    }
+  }
+
+  dump_layout(): void {
+    const layoutables: {[key: string]: {[key: string]: number}} = {}
+    const pending: Layoutable[] = [this]
+
+    let obj: Layoutable | undefined
+    while (obj = pending.shift()) {
+      pending.push(...obj.get_layoutable_children())
       layoutables[obj.toString()] = obj.layout_bbox
+    }
 
     console.table(layoutables)
+  }
 
-  get_all_constraints: () ->
-    constraints = @get_constraints()
+  get_all_constraints(): Constraint[] {
+    let constraints = this.get_constraints()
 
-    for child in @get_layoutable_children()
-      if child instanceof LayoutCanvas
+    for (const child of this.get_layoutable_children()) {
+      if (child instanceof LayoutCanvas)
         constraints = constraints.concat(child.get_constraints())
       else
         constraints = constraints.concat(child.get_all_constraints())
+    }
 
     return constraints
+  }
 
-  get_all_editables: () ->
-    editables = @get_editables()
+  get_all_editables(): Variable[] {
+    let editables = this.get_editables()
 
-    for child in @get_layoutable_children()
-      if child instanceof LayoutCanvas
+    for (const child of this.get_layoutable_children()) {
+      if (child instanceof LayoutCanvas)
         editables = editables.concat(child.get_editables())
       else
         editables = editables.concat(child.get_all_editables())
+    }
 
     return editables
+  }
 
-  get_constraints: () ->
+  get_constraints(): Constraint[] {
     return [
-      # Make sure things dont squeeze out of their bounding box
-      GE(@_dom_left),
-      GE(@_dom_top),
+      // Make sure things dont squeeze out of their bounding box
+      GE(this._dom_left),
+      GE(this._dom_top),
 
-      # Plot has to be inside the width/height
-      GE(@_left),
-      GE(@_width, [-1, @_right]),
-      GE(@_top),
-      GE(@_height, [-1, @_bottom]),
+      // Plot has to be inside the width/height
+      GE(this._left),
+      GE(this._width, [-1, this._right]),
+      GE(this._top),
+      GE(this._height, [-1, this._bottom]),
 
-      ## Declare computed constraints
-      EQ(@_width_minus_right, [-1, @_width], @_right),
-      EQ(@_height_minus_bottom, [-1, @_height], @_bottom),
+      // Declare computed constraints
+      EQ(this._width_minus_right, [-1, this._width], this._right),
+      EQ(this._height_minus_bottom, [-1, this._height], this._bottom),
     ]
+  }
 
-  get_layoutable_children: () -> []
+  abstract get_layoutable_children(): LayoutDOM[]
 
-  get_editables: () ->
-    switch @sizing_mode
-      when 'fixed'
-        return [@_height, @_width]
-      when 'scale_width'
-        return [@_height]
-      when 'scale_height'
-        return [@_width]
-      when 'scale_both'
-        return [@_width, @_height]
-      else
+  get_editables(): Variable[] {
+    switch (this.sizing_mode) {
+      case "fixed":
+        return [this._height, this._width]
+      case "scale_width":
+        return [this._height]
+      case "scale_height":
+        return [this._width]
+      case "scale_both":
+        return [this._width, this._height]
+      default:
         return []
+    }
+  }
 
-  get_constrained_variables: () ->
-    # THE FOLLOWING ARE OPTIONAL VARS THAT
-    # YOU COULD ADD INTO SUBCLASSES
-    #
-    #  # When this widget is on the edge of a box visually,
-    #  # align these variables down that edge. Right/bottom
-    #  # are an inset from the edge.
-    #  on_edge_align_top    : @_top
-    #  on_edge_align_bottom : @_height_minus_bottom
-    #  on_edge_align_left   : @_left
-    #  on_edge_align_right  : @_width_minus_right
-    #  # When this widget is in a box cell with the same "arity
-    #  # path" as a widget in another cell, align these variables
-    #  # between the two box cells. Right/bottom are an inset from
-    #  # the edge.
-    #  box_cell_align_top   : @_top
-    #  box_cell_align_bottom: @_height_minus_bottom
-    #  box_cell_align_left  : @_left
-    #  box_cell_align_right : @_width_minus_right
-    #  # When this widget is in a box, make these the same distance
-    #  # apart in every widget. Right/bottom are inset from the edge.
-    #  box_equal_size_top   : @_top
-    #  box_equal_size_bottom: @_height_minus_bottom
-    #  box_equal_size_left  : @_left
-    #  box_equal_size_right : @_width_minus_right
+  get_constrained_variables(): {[key: string]: Variable} {
+    /*
+     * THE FOLLOWING ARE OPTIONAL VARS THAT
+     * YOU COULD ADD INTO SUBCLASSES
+     *
+     *  # When this widget is on the edge of a box visually,
+     *  # align these variables down that edge. Right/bottom
+     *  # are an inset from the edge.
+     *  on_edge_align_top    : this._top
+     *  on_edge_align_bottom : this._height_minus_bottom
+     *  on_edge_align_left   : this._left
+     *  on_edge_align_right  : this._width_minus_right
+     *  # When this widget is in a box cell with the same "arity
+     *  # path" as a widget in another cell, align these variables
+     *  # between the two box cells. Right/bottom are an inset from
+     *  # the edge.
+     *  box_cell_align_top   : this._top
+     *  box_cell_align_bottom: this._height_minus_bottom
+     *  box_cell_align_left  : this._left
+     *  box_cell_align_right : this._width_minus_right
+     *  # When this widget is in a box, make these the same distance
+     *  # apart in every widget. Right/bottom are inset from the edge.
+     *  box_equal_size_top   : this._top
+     *  box_equal_size_bottom: this._height_minus_bottom
+     *  box_equal_size_left  : this._left
+     *  box_equal_size_right : this._width_minus_right
+     */
 
-    vars = {
-      origin_x          : @_dom_left
-      origin_y          : @_dom_top
-      whitespace_top    : @_whitespace_top
-      whitespace_bottom : @_whitespace_bottom
-      whitespace_left   : @_whitespace_left
-      whitespace_right  : @_whitespace_right
+    const vars: {[key: string]: Variable} = {
+      origin_x          : this._dom_left,
+      origin_y          : this._dom_top,
+      whitespace_top    : this._whitespace_top,
+      whitespace_bottom : this._whitespace_bottom,
+      whitespace_left   : this._whitespace_left,
+      whitespace_right  : this._whitespace_right,
     }
 
-    switch @sizing_mode
-      when 'stretch_both'
-        vars.width  = @_width
-        vars.height = @_height
-      when 'scale_width'
-        vars.width  = @_width
-      when 'scale_height'
-        vars.height = @_height
+    switch (this.sizing_mode) {
+      case "stretch_both":
+        vars.width  = this._width
+        vars.height = this._height
+        break
+      case "scale_width":
+        vars.width  = this._width
+        break
+      case "scale_height":
+        vars.height = this._height
+        break
+    }
 
     return vars
+  }
 
-  get_aspect_ratio: () ->
-    return @width / @height
+  get_aspect_ratio(): number {
+    return this.width / this.height
+  }
+}
 
-  @define {
-      height:      [ p.Number              ]
-      width:       [ p.Number              ]
-      disabled:    [ p.Bool,       false   ]
-      sizing_mode: [ p.SizingMode, "fixed" ]
-      css_classes: [ p.Array,      []      ]
-    }
+LayoutDOM.prototype.type = "LayoutDOM"
+
+LayoutDOM.define({
+  height:      [ p.Number              ],
+  width:       [ p.Number              ],
+  disabled:    [ p.Bool,       false   ],
+  sizing_mode: [ p.SizingMode, "fixed" ],
+  css_classes: [ p.Array,      []      ],
+})
