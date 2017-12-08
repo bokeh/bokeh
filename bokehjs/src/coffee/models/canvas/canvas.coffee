@@ -6,7 +6,7 @@ import {logger} from "core/logging"
 import * as p from "core/properties"
 import {div, canvas} from "core/dom"
 import {isEqual} from "core/util/eq"
-import {fixup_ctx, get_scale_ratio} from "core/util/canvas"
+import {Context2d, fixup_ctx, get_scale_ratio} from "core/util/canvas"
 
 import * as canvas2svg from "canvas2svg"
 
@@ -19,6 +19,10 @@ if window.CanvasPixelArray?
 
 export class CanvasView extends DOMView
   className: "bk-canvas-wrapper"
+
+  `
+  ctx: Context2d
+  `
 
   initialize: (options) ->
     super(options)
