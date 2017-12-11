@@ -457,7 +457,9 @@ export abstract class LayoutDOM extends Model {
     ]
   }
 
-  abstract get_layoutable_children(): LayoutDOM[]
+  get_layoutable_children(): LayoutDOM[] {
+    return []
+  }
 
   get_editables(): Variable[] {
     switch (this.sizing_mode) {
