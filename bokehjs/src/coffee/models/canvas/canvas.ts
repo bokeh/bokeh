@@ -1,108 +1,144 @@
 import {LayoutCanvas} from "core/layout/layout_canvas"
 
 import {DOMView} from "core/dom_view"
-import {EQ} from "core/layout/solver"
+import {EQ, Constraint} from "core/layout/solver"
 import {logger} from "core/logging"
 import * as p from "core/properties"
 import {div, canvas} from "core/dom"
-import {isEqual} from "core/util/eq"
+import {OutputBackend} from "core/enums"
 import {Context2d, fixup_ctx, get_scale_ratio} from "core/util/canvas"
 
-import * as canvas2svg from "canvas2svg"
+const canvas2svg = require("canvas2svg") // XXX: no typings
 
-# fixes up a problem with some versions of IE11
-# ref: http://stackoverflow.com/questions/22062313/imagedata-set-in-internetexplorer
-if window.CanvasPixelArray?
-  CanvasPixelArray.prototype.set = (arr) ->
-    for i in [0...@length]
-      @[i] = arr[i]
+// fixes up a problem with some versions of IE11
+// ref: http://stackoverflow.com/questions/22062313/imagedata-set-in-internetexplorer
+if ((window as any).CanvasPixelArray != null) {
+  (window as any).CanvasPixelArray.prototype.set = function(this: any, arr: any[]): void {
+    for (let i = 0; i < this.length; i++) {
+      this[i] = arr[i]
+    }
+  }
+}
 
-export class CanvasView extends DOMView
-  className: "bk-canvas-wrapper"
+export class CanvasView extends DOMView {
 
-  `
+  model: Canvas
+
+  private _ctx: any
   ctx: Context2d
-  `
 
-  initialize: (options) ->
-    super(options)
+  canvas_el: HTMLCanvasElement
 
-    @map_el = if @model.map then @el.appendChild(div({class: "bk-canvas-map"})) else null
+  overlays_el: HTMLElement
+  events_el: HTMLElement
+  map_el: HTMLElement | null
 
-    switch @model.output_backend
-      when "canvas", "webgl"
-        @canvas_el = @el.appendChild(canvas({class: "bk-canvas"}))
-        @_ctx = @canvas_el.getContext('2d')
-      when "svg"
-        @_ctx = new canvas2svg()
-        @canvas_el = @el.appendChild(@_ctx.getSvg())
+  protected _width_constraint: Constraint | undefined
+  protected _height_constraint: Constraint | undefined
 
-    @overlays_el = @el.appendChild(div({class: "bk-canvas-overlays"}))
-    @events_el   = @el.appendChild(div({class: "bk-canvas-events"}))
+  initialize(options: any): void {
+    super.initialize(options)
 
-    @ctx = @get_ctx()
-    # work around canvas incompatibilities
-    fixup_ctx(@ctx)
+    this.map_el = this.model.map ? this.el.appendChild(div({class: "bk-canvas-map"})) : null
+
+    switch (this.model.output_backend) {
+      case "canvas":
+      case "webgl":
+        this.canvas_el = this.el.appendChild(canvas({class: "bk-canvas"}) as HTMLCanvasElement)
+        this._ctx = this.canvas_el.getContext('2d')
+        break
+      case "svg":
+        this._ctx = new canvas2svg()
+        this.canvas_el = this.el.appendChild(this._ctx.getSvg())
+        break
+    }
+
+    this.overlays_el = this.el.appendChild(div({class: "bk-canvas-overlays"}))
+    this.events_el   = this.el.appendChild(div({class: "bk-canvas-events"}))
+
+    this.ctx = this.get_ctx()
+    // work around canvas incompatibilities
+    fixup_ctx(this.ctx)
 
     logger.debug("CanvasView initialized")
+  }
 
-  # Method exists so that context can be stubbed in unit tests
-  get_ctx: () -> return @_ctx
+  // Method exists so that context can be stubbed in unit tests
+  get_ctx(): Context2d {
+    return this._ctx
+  }
 
-  get_canvas_element: () -> return @canvas_el
+  get_canvas_element(): HTMLCanvasElement {
+    return this.canvas_el
+  }
 
-  prepare_canvas: () ->
-    # Ensure canvas has the correct size, taking HIDPI into account
-    width = @model._width.value
-    height = @model._height.value
+  prepare_canvas(): void {
+    // Ensure canvas has the correct size, taking HIDPI into account
+    const width = this.model._width.value
+    const height = this.model._height.value
 
-    @el.style.width = "#{width}px"
-    @el.style.height = "#{height}px"
+    this.el.style.width = `${width}px`
+    this.el.style.height = `${height}px`
 
-    pixel_ratio = get_scale_ratio(@ctx, @model.use_hidpi, @model.output_backend)
-    @model.pixel_ratio = pixel_ratio
+    const pixel_ratio = get_scale_ratio(this.ctx, this.model.use_hidpi, this.model.output_backend)
+    this.model.pixel_ratio = pixel_ratio
 
-    @canvas_el.style.width = "#{width}px"
-    @canvas_el.style.height = "#{height}px"
-    @canvas_el.setAttribute('width', width*pixel_ratio)
-    @canvas_el.setAttribute('height', height*pixel_ratio)
+    this.canvas_el.style.width = `${width}px`
+    this.canvas_el.style.height = `${height}px`
+    this.canvas_el.width = width*pixel_ratio
+    this.canvas_el.height = height*pixel_ratio
 
-    logger.debug("Rendering CanvasView with width: #{width}, height: #{height}, pixel ratio: #{pixel_ratio}")
+    logger.debug(`Rendering CanvasView with width: ${width}, height: ${height}, pixel ratio: ${pixel_ratio}`)
+  }
 
-  set_dims: ([width, height]) ->
-    # XXX: for whatever reason we need to protect against those nonsense values,
-    #      that appear in the middle of updating layout. Otherwise we would get
-    #      all possible errors from the layout solver.
-    if width == 0 or height == 0
+  set_dims([width, height]: [number, number]): void {
+    // XXX: for whatever reason we need to protect against those nonsense values,
+    //      that appear in the middle of updating layout. Otherwise we would get
+    //      all possible errors from the layout solver.
+    if (width == 0 || height == 0)
       return
 
-    if width != @model._width.value
-      if @_width_constraint? and @solver.has_constraint(@_width_constraint)
-        @solver.remove_constraint(@_width_constraint)
+    if (width != this.model._width.value) {
+      if (this._width_constraint != null && this.solver.has_constraint(this._width_constraint))
+        this.solver.remove_constraint(this._width_constraint)
 
-      @_width_constraint = EQ(@model._width, -width)
-      @solver.add_constraint(@_width_constraint)
+      this._width_constraint = EQ(this.model._width, -width)
+      this.solver.add_constraint(this._width_constraint)
+    }
 
-    if height != @model._height.value
-      if @_height_constraint? and @solver.has_constraint(@_height_constraint)
-        @solver.remove_constraint(@_height_constraint)
+    if (height != this.model._height.value) {
+      if (this._height_constraint != null && this.solver.has_constraint(this._height_constraint))
+        this.solver.remove_constraint(this._height_constraint)
 
-      @_height_constraint = EQ(@model._height, -height)
-      @solver.add_constraint(@_height_constraint)
+      this._height_constraint = EQ(this.model._height, -height)
+      this.solver.add_constraint(this._height_constraint)
+    }
 
-    @solver.update_variables()
-
-export class Canvas extends LayoutCanvas
-  type: 'Canvas'
-  default_view: CanvasView
-
-  @internal {
-    map:            [ p.Boolean, false ]
-    use_hidpi:      [ p.Boolean, true  ]
-    pixel_ratio:    [ p.Number,  1     ]
-    output_backend: [ p.OutputBackend, "canvas"]
+    this.solver.update_variables()
   }
+}
 
-  @getters {
-    panel: () -> @
+CanvasView.prototype.className = "bk-canvas-wrapper"
+
+export class Canvas extends LayoutCanvas {
+
+  map: boolean
+  use_hidpi: boolean
+  pixel_ratio: number
+  output_backend: OutputBackend
+
+  get panel() {
+    return this
   }
+}
+
+Canvas.prototype.type = "Canvas"
+
+Canvas.prototype.default_view = CanvasView
+
+Canvas.internal({
+  map:            [ p.Boolean,       false    ],
+  use_hidpi:      [ p.Boolean,       true     ],
+  pixel_ratio:    [ p.Number,        1        ],
+  output_backend: [ p.OutputBackend, "canvas" ],
+})
