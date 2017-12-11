@@ -1,12 +1,12 @@
 import {Box, BoxView} from "./box"
 
-export class RowView extends BoxView
-  className: "bk-grid-row"
+export class RowView extends BoxView {}
 
-export class Row extends Box
-  type: 'Row'
-  default_view: RowView
+RowView.prototype.className = "bk-grid-row"
 
-  constructor: (attrs, options) ->
-    super(attrs, options)
-    @_horizontal = true
+export class Row extends Box {
+  _horizontal = true
+}
+
+Row.prototype.type = "Row"
+Row.prototype.default_view = RowView
