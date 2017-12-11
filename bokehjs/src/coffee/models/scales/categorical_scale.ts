@@ -1,10 +1,17 @@
 import {LinearScale} from "./linear_scale"
+import {FactorRange} from "../ranges/factor_range"
 
-export class CategoricalScale extends LinearScale
-  type: "CategoricalScale"
+export class CategoricalScale extends LinearScale {
 
-  compute: (x) ->
-    return super(@source_range.synthetic(x))
+  source_range: FactorRange
 
-  v_compute: (xs) ->
-    return super(@source_range.v_synthetic(xs))
+  compute(x: any): number {
+    return super.compute(this.source_range.synthetic(x))
+  }
+
+  v_compute(xs: any[]): Float64Array {
+    return super.v_compute(this.source_range.v_synthetic(xs))
+  }
+}
+
+CategoricalScale.prototype.type = "CategoricalScale"
