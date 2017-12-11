@@ -1,155 +1,199 @@
-import {GuideRenderer} from "../renderers/guide_renderer"
-import {RendererView} from "../renderers/renderer"
+import {GuideRenderer, GuideRendererView} from "../renderers/guide_renderer"
+import {Range} from "../ranges/range"
+import {Ticker} from "../tickers/ticker"
+import {Line, Fill} from "core/visuals"
 import * as p from "core/properties"
+import {Context2d} from "core/util/canvas"
 import {isArray} from "core/util/types"
 
-export class GridView extends RendererView
-  initialize: (attrs, options) ->
-    super(attrs, options)
-    @_x_range_name = @model.x_range_name
-    @_y_range_name = @model.y_range_name
+export class GridView extends GuideRendererView {
 
-  render: () ->
-    if @model.visible == false
-      return
+  model: Grid
 
-    ctx = @plot_view.canvas_view.ctx
-    ctx.save()
-    @_draw_regions(ctx)
-    @_draw_minor_grids(ctx)
-    @_draw_grids(ctx)
-    ctx.restore()
+  visuals: Grid.Visuals
 
-  connect_signals: () ->
-    super()
-    @connect(@model.change, () -> @request_render())
-
-  _draw_regions: (ctx) ->
-    if not @visuals.band_fill.doit
-      return
-    [xs, ys] = @model.grid_coords('major', false)
-    @visuals.band_fill.set_value(ctx)
-    for i in [0...xs.length-1]
-      if i % 2 == 1
-        [sx0, sy0] = @plot_view.map_to_screen(xs[i], ys[i], @_x_range_name, @_y_range_name)
-        [sx1, sy1] = @plot_view.map_to_screen(xs[i+1], ys[i+1], @_x_range_name, @_y_range_name)
-        ctx.fillRect(sx0[0], sy0[0], sx1[1]-sx0[0], sy1[1]-sy0[0])
-        ctx.fill()
-    return
-
-  _draw_grids: (ctx) ->
-    if not @visuals.grid_line.doit
-      return
-    [xs, ys] = @model.grid_coords('major')
-    @_draw_grid_helper(ctx, @visuals.grid_line, xs, ys)
-
-  _draw_minor_grids: (ctx) ->
-    if not @visuals.minor_grid_line.doit
-      return
-    [xs, ys] = @model.grid_coords('minor')
-    @_draw_grid_helper(ctx, @visuals.minor_grid_line, xs, ys)
-
-  _draw_grid_helper: (ctx, props, xs, ys) ->
-    props.set_value(ctx)
-    for i in [0...xs.length]
-      [sx, sy] = @plot_view.map_to_screen(xs[i], ys[i], @_x_range_name, @_y_range_name)
-      ctx.beginPath()
-      ctx.moveTo(Math.round(sx[0]), Math.round(sy[0]))
-      for i in [1...sx.length]
-        ctx.lineTo(Math.round(sx[i]), Math.round(sy[i]))
-      ctx.stroke()
-    return
-
-export class Grid extends GuideRenderer
-  default_view: GridView
-
-  type: 'Grid'
-
-  @mixins ['line:grid_', 'line:minor_grid_', 'fill:band_']
-
-  @define {
-      bounds:       [ p.Any,     'auto'    ] # TODO (bev)
-      dimension:    [ p.Number,  0         ]
-      ticker:       [ p.Instance           ]
-      x_range_name: [ p.String,  'default' ]
-      y_range_name: [ p.String,  'default' ]
-    }
-
-  @override {
-    level: "underlay"
-    band_fill_color: null
-    band_fill_alpha: 0
-    grid_line_color: '#e5e5e5'
-    minor_grid_line_color: null
+  protected get _x_range_name(): string {
+    return this.model.x_range_name
   }
 
-  ranges: () ->
-    i = @dimension
-    j = (i + 1) % 2
-    frame = @plot.plot_canvas.frame
-    ranges = [
-      frame.x_ranges[@x_range_name],
-      frame.y_ranges[@y_range_name]
+  protected get _y_range_name(): string {
+    return this.model.y_range_name
+  }
+
+  render(): void {
+    if (!this.model.visible)
+      return
+
+    const ctx = this.plot_view.canvas_view.ctx
+    ctx.save()
+    this._draw_regions(ctx)
+    this._draw_minor_grids(ctx)
+    this._draw_grids(ctx)
+    ctx.restore()
+  }
+
+  connect_signals(): void {
+    super.connect_signals()
+    this.connect(this.model.change, () => this.request_render())
+  }
+
+  protected _draw_regions(ctx: Context2d): void {
+    if (!this.visuals.band_fill.doit)
+      return
+    const [xs, ys] = this.model.grid_coords('major', false)
+    this.visuals.band_fill.set_value(ctx)
+    for (let i = 0; i < xs.length-1; i++) {
+      if (i % 2 == 1) {
+        const [sx0, sy0] = this.plot_view.map_to_screen(xs[i],   ys[i],   this._x_range_name, this._y_range_name)
+        const [sx1, sy1] = this.plot_view.map_to_screen(xs[i+1], ys[i+1], this._x_range_name, this._y_range_name)
+        ctx.fillRect(sx0[0], sy0[0], sx1[1] - sx0[0], sy1[1] - sy0[0])
+        ctx.fill()
+      }
+    }
+  }
+
+  protected _draw_grids(ctx: Context2d): void {
+    if (!this.visuals.grid_line.doit)
+      return
+    const [xs, ys] = this.model.grid_coords('major')
+    this._draw_grid_helper(ctx, this.visuals.grid_line, xs, ys)
+  }
+
+  protected _draw_minor_grids(ctx: Context2d): void {
+    if (!this.visuals.minor_grid_line.doit)
+      return
+    const [xs, ys] = this.model.grid_coords('minor')
+    this._draw_grid_helper(ctx, this.visuals.minor_grid_line, xs, ys)
+  }
+
+  protected _draw_grid_helper(ctx: Context2d, visuals: Line, xs: number[][], ys: number[][]): void {
+    visuals.set_value(ctx)
+    for (let i = 0; i < xs.length; i++) {
+      const [sx, sy] = this.plot_view.map_to_screen(xs[i], ys[i], this._x_range_name, this._y_range_name)
+      ctx.beginPath()
+      ctx.moveTo(Math.round(sx[0]), Math.round(sy[0]))
+      for (let i = 1; i < sx.length; i++)
+        ctx.lineTo(Math.round(sx[i]), Math.round(sy[i]))
+      ctx.stroke()
+    }
+  }
+}
+
+export class Grid extends GuideRenderer {
+
+  bounds: [number, number] | "auto"
+  dimension: 0 | 1
+  ticker: Ticker<any>
+  x_range_name: string
+  y_range_name: string
+
+  ranges(): [Range, Range] {
+    const i = this.dimension
+    const j = (i + 1) % 2
+    const frame = this.plot.plot_canvas.frame
+    const ranges = [
+      frame.x_ranges[this.x_range_name],
+      frame.y_ranges[this.y_range_name],
     ]
     return [ranges[i], ranges[j]]
+  }
 
-   computed_bounds: () ->
-    [range, cross_range] = @ranges()
+  computed_bounds(): [number, number] {
+    const [range,] = this.ranges()
 
-    user_bounds = @bounds
-    range_bounds = [range.min, range.max]
+    const user_bounds = this.bounds
+    const range_bounds = [range.min, range.max]
 
-    if isArray(user_bounds)
+    let start: number
+    let end: number
+    if (isArray(user_bounds)) {
       start = Math.min(user_bounds[0], user_bounds[1])
       end = Math.max(user_bounds[0], user_bounds[1])
-      if start < range_bounds[0]
+
+      if (start < range_bounds[0])
         start = range_bounds[0]
-      else if start > range_bounds[1]
-        start = null
-      if end > range_bounds[1]
+      // XXX:
+      //else if (start > range_bounds[1])
+      //  start = null
+
+      if (end > range_bounds[1])
         end = range_bounds[1]
-      else if end < range_bounds[0]
-        end = null
-    else
+      // XXX:
+      //else if (end < range_bounds[0])
+      //  end = null
+    } else {
       [start, end] = range_bounds
+    }
 
     return [start, end]
+  }
 
-  grid_coords: (location, exclude_ends=true) ->
-    i = @dimension
-    j = (i + 1) % 2
-    [range, cross_range] = @ranges()
+  grid_coords(location: "major" | "minor", exclude_ends: boolean = true): [number[][], number[][]] {
+    const i = this.dimension
+    const j = (i + 1) % 2
+    const [range, cross_range] = this.ranges()
 
-    [start, end] = @computed_bounds()
+    let [start, end] = this.computed_bounds();
+    [start, end] = [Math.min(start, end), Math.max(start, end)]
 
-    tmp = Math.min(start, end)
-    end = Math.max(start, end)
-    start = tmp
+    // TODO: (bev) using cross_range.min for cross_loc is a bit of a cheat. Since we
+    // currently only support "straight line" grids, this should be OK for now. If
+    // we ever want to support "curved" grids, e.g. for some projections, we may
+    // have to communicate more than just a single cross location.
+    const ticks = this.ticker.get_ticks(start, end, range, cross_range.min, {})[location]
 
-    # TODO: (bev) using cross_range.min for cross_loc is a bit of a cheat. Since we
-    # currently only support "straight line" grids, this should be OK for now. If
-    # we ever want to support "curved" grids, e.g. for some projections, we may
-    # have to communicate more than just a single cross location.
-    ticks = @ticker.get_ticks(start, end, range, cross_range.min, {})[location]
+    const min = range.min
+    const max = range.max
 
-    min = range.min
-    max = range.max
+    const cmin = cross_range.min
+    const cmax = cross_range.max
 
-    cmin = cross_range.min
-    cmax = cross_range.max
-
-    coords = [[], []]
-    for ii in [0...ticks.length]
-      if (ticks[ii] == min or ticks[ii] == max) and exclude_ends
+    const coords: [number[][], number[][]] = [[], []]
+    for (let ii = 0; ii < ticks.length; ii++) {
+      if ((ticks[ii] == min || ticks[ii] == max) && exclude_ends)
         continue
-      dim_i = []
-      dim_j = []
-      N = 2
-      for n in [0...N]
-        loc = cmin + (cmax-cmin)/(N-1) * n
+      const dim_i: number[] = []
+      const dim_j: number[] = []
+      const N = 2
+      for (let n = 0; n < N; n++) {
+        const loc = cmin + (cmax-cmin)/(N-1)*n
         dim_i.push(ticks[ii])
         dim_j.push(loc)
+      }
       coords[i].push(dim_i)
       coords[j].push(dim_j)
+    }
 
     return coords
+  }
+}
+
+Grid.prototype.type = "Grid"
+
+Grid.prototype.default_view = GridView
+
+Grid.mixins(['line:grid_', 'line:minor_grid_', 'fill:band_'])
+
+Grid.define({
+  bounds:       [ p.Any,     'auto'    ], // TODO (bev)
+  dimension:    [ p.Number,  0         ],
+  ticker:       [ p.Instance           ],
+  x_range_name: [ p.String,  'default' ],
+  y_range_name: [ p.String,  'default' ],
+})
+
+Grid.override({
+  level: "underlay",
+  band_fill_color: null,
+  band_fill_alpha: 0,
+  grid_line_color: '#e5e5e5',
+  minor_grid_line_color: null,
+})
+
+export module Grid {
+  export type Visuals = GuideRenderer.Visuals & {
+    grid_line: Line
+    minor_grid_line: Line
+    band_fill: Fill
+  }
+}
