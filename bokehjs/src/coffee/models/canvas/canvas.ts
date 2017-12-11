@@ -44,7 +44,7 @@ export class CanvasView extends DOMView {
     switch (this.model.output_backend) {
       case "canvas":
       case "webgl":
-        this.canvas_el = this.el.appendChild(canvas({class: "bk-canvas"}) as HTMLCanvasElement)
+        this.canvas_el = this.el.appendChild(canvas({class: "bk-canvas"}))
         this._ctx = this.canvas_el.getContext('2d')
         break
       case "svg":
