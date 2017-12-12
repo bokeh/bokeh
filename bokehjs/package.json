@@ -19,7 +19,7 @@
   "devDependencies": {
     "browserify": "^11.1.0",
     "chai": "^3.5.0",
-    "chai-as-promised" : "^5.1.0",
+    "chai-as-promised": "^5.1.0",
     "del": "^1.1.1",
     "istanbul": "^0.4.5",
     "gulp": "^3.9.0",
@@ -46,7 +46,7 @@
     "through2": "^2.0.0",
     "@types/through2": "^2.0.33",
     "jsdom": "^9.8.3",
-    "websocket":"^1.0.22",
+    "websocket": "^1.0.22",
     "typescript": "2.6.1",
     "tslib": "^1.6.0",
     "coffeescript": "2.0.2",
@@ -86,7 +86,7 @@
     "merge-source-map": "^1.0.4"
   },
   "dependencies": {
-    "es6-promise":"3.0.2",
+    "es6-promise": "3.0.2",
     "es6-weak-map": "^2.0.2",
     "es6-set": "^0.1.5",
 
