@@ -23,8 +23,7 @@ conda install -c defaults -c conda-forge fabric3 --yes --quiet
 
 # install NPM dependencies
 pushd bokehjs
-npm set progress=false
-npm install --no-save
+npm install --no-save --no-progress
 popd
 
 # install sampledata
