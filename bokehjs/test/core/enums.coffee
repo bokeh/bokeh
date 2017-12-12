@@ -32,7 +32,7 @@ describe "enums module", ->
     expect(enums.RenderLevel).to.be.deep.equal ["image", "underlay", "glyph", "annotation", "overlay"]
 
   it "should have Side", ->
-    expect(enums.Side).to.be.deep.equal ["left", "right"]
+    expect(enums.Side).to.be.deep.equal ["above", "below", "left", "right"]
 
   it "should have SpatialUnits", ->
     expect(enums.SpatialUnits).to.be.deep.equal ["screen", "data"]

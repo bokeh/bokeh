@@ -1,0 +1,31 @@
+0.12.14 (Dec 2017)
+==================
+
+Bokeh Version ``0.12.14`` is an incremental update that adds a few
+important features and fixes several bugs. Some of the highlights
+include:
+
+
+Many other small bugfixes and docs additions. For full details see the
+:bokeh-tree:`CHANGELOG`.
+
+Migration Guide
+---------------
+
+NOTE: the 0.12.x series is the last planned release series before a version
+1.0 release. For more information see the `project roadmap`_.
+
+MercatorTileSource change
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+`MercatorTileSource` models previously snapped to the closest zoom
+level resulting in user supplied axis ranges to be largely
+ignored. The default behavior has now been changed from snapping to
+the closest zoom level to simply maintaining the correct aspect ratio,
+while keeping the user defined bounds contained within the axis
+ranges.
+
+The old behavior may be restored by setting enabling the `snap_to_zoom`
+property.
+
+.. _project roadmap: https://bokehplots.com/pages/roadmap.html

@@ -14,7 +14,7 @@ import {isArray, isObject} from "./core/util/types"
 import {LayoutDOM} from "./models/layouts/layout_dom"
 import {ColumnDataSource} from "./models/sources/column_data_source"
 import {ClientSession} from "./client/session"
-import {Class} from "./core/aux"
+import {Class} from "./core/class"
 import {Model} from "./model"
 
 export class EventManager {

@@ -5,6 +5,7 @@ export class MercatorTileSource extends TileSource
   type: 'MercatorTileSource'
 
   @define {
+    snap_to_zoom:       [ p.Bool,   false              ]
     wrap_around:        [ p.Bool,   true               ]
   }
 
@@ -111,12 +112,20 @@ export class MercatorTileSource extends TileSource
       return previous
     return @_resolutions.indexOf(closest)
 
-  snap_to_zoom: (extent, height, width, level) ->
+  snap_to_zoom_level: (extent, height, width, level) ->
+    [xmin, ymin, xmax, ymax] = extent
     desired_res = @_resolutions[level]
     desired_x_delta = width * desired_res
     desired_y_delta = height * desired_res
-
-    [xmin, ymin, xmax, ymax] = extent
+    if !@snap_to_zoom
+      xscale = (xmax-xmin)/desired_x_delta
+      yscale = (ymax-ymin)/desired_y_delta
+      if xscale > yscale
+        desired_x_delta = (xmax-xmin)
+        desired_y_delta = desired_y_delta*xscale
+      else
+        desired_x_delta = desired_x_delta*yscale
+        desired_y_delta = (ymax-ymin)
     x_adjust = (desired_x_delta - (xmax - xmin)) / 2
     y_adjust = (desired_y_delta - (ymax - ymin)) / 2
 

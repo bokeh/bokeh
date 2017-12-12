@@ -15,6 +15,7 @@ include _setup_support.py
 # BokehJS Build Junk
 prune bokeh/server/static/js/tree
 prune bokeh/server/static/js/tree_ts
+prune bokeh/server/static/js/types
 
 # Tests
 recursive-include tests *.py *.ipynb *.jinja *.js *.md *.png

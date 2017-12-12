@@ -156,19 +156,13 @@ def get_screenshot_as_png(obj, driver=None, **kwargs):
     '''
 
     '''
-    webdriver = import_required('selenium.webdriver',
-                                'To use bokeh.io.export_png you need selenium ' +
-                                '("conda install -c bokeh selenium" or "pip install selenium")')
-
     Image = import_required('PIL.Image',
                             'To use bokeh.io.export_png you need pillow ' +
                             '("conda install pillow" or "pip install pillow")')
-    # assert that phantomjs is in path for webdriver
-    detect_phantomjs()
 
     html_path = save_layout_html(obj, **kwargs)
 
-    web_driver = driver if driver is not None else webdriver.PhantomJS(service_log_path=devnull)
+    web_driver = driver if driver is not None else _create_default_webdriver()
 
     web_driver.get("file:///" + html_path)
     web_driver.maximize_window()
@@ -195,15 +189,9 @@ def get_svgs(obj, driver=None, **kwargs):
     '''
 
     '''
-    webdriver = import_required('selenium.webdriver',
-                                'To use bokeh.io.export_svgs you need selenium ' +
-                                '("conda install -c bokeh selenium" or "pip install selenium")')
-    # assert that phantomjs is in path for webdriver
-    detect_phantomjs()
-
     html_path = save_layout_html(obj, **kwargs)
 
-    web_driver = driver if driver is not None else webdriver.PhantomJS(service_log_path=devnull)
+    web_driver = driver if driver is not None else _create_default_webdriver()
     web_driver.get("file:///" + html_path)
 
     wait_until_render_complete(web_driver)
@@ -305,6 +293,14 @@ def _crop_image(image, left=0, top=0, right=0, bottom=0, **kwargs):
 
     '''
     return image.crop((left, top, right, bottom))
+
+def _create_default_webdriver():
+    webdriver = import_required('selenium.webdriver',
+                                'To use bokeh.io image export functions you need selenium ' +
+                                '("conda install -c bokeh selenium" or "pip install selenium")')
+
+    detect_phantomjs()
+    return webdriver.PhantomJS(service_log_path=devnull)
 
 #-----------------------------------------------------------------------------
 # Code

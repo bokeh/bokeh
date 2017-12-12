@@ -68,6 +68,9 @@ class MercatorTileSource(TileSource):
 
     initial_resolution = Override(default=156543.03392804097)
 
+    snap_to_zoom = Bool(default=False, help="""
+    Forces initial extents to snap to the closest larger zoom level.""")
+
     wrap_around = Bool(default=True, help="""
     Enables continuous horizontal panning by wrapping the x-axis based on
     bounds of map.
