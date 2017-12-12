@@ -3,6 +3,7 @@ import {CartesianFrame} from "../canvas/cartesian_frame"
 import {DataRange1d} from "../ranges/data_range1d"
 import {GlyphRenderer} from "../renderers/glyph_renderer"
 import {LayoutDOM} from "../layouts/layout_dom"
+import {Toolbar} from "../tools/toolbar"
 
 import {Signal} from "core/signaling"
 import {build_views, remove_views} from "core/build_views"
@@ -737,6 +738,9 @@ export class PlotCanvas extends LayoutDOM
   default_view: PlotCanvasView
 
   `
+  //plot: Plot
+  toolbar: Toolbar
+  canvas: Canvas
   frame: CartesianFrame
   use_map: boolean
   `

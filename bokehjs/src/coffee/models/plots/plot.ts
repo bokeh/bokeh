@@ -1,8 +1,9 @@
-import {WEAK_EQ, GE, EQ} from "core/layout/solver"
+import {EQ, Constraint, Variable} from "core/layout/solver"
 import {logger} from "core/logging"
 import * as p from "core/properties"
+import {Place, Location, OutputBackend} from "core/enums"
 import {find, removeBy} from "core/util/array"
-import {extend, values, clone} from "core/util/object"
+import {extend, values} from "core/util/object"
 import {isString, isArray} from "core/util/types"
 
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
@@ -12,270 +13,363 @@ import {Toolbar} from "../tools/toolbar"
 import {ToolbarPanel} from "../annotations/toolbar_panel"
 import {PlotCanvas, PlotCanvasView} from "./plot_canvas"
 
+import {Range} from "../ranges/range"
+import {Scale} from "../scales/scale"
+import {Glyph} from "../glyphs/glyph"
+import {DataSource} from "../sources/data_source"
 import {ColumnDataSource} from "../sources/column_data_source"
 import {Renderer} from "../renderers/renderer"
 import {GlyphRenderer} from "../renderers/glyph_renderer"
+import {Tool} from "../tools/tool"
 import {register_with_event, UIEvent} from 'core/bokeh_events'
 
-export class PlotView extends LayoutDOMView
-  className: "bk-plot-layout"
+export class PlotView extends LayoutDOMView {
 
-  connect_signals: () ->
-    super()
-    # Note: Title object cannot be replaced after initialization, similar to axes, and also
-    # not being able to change the sizing_mode. All of these changes require a re-initialization
-    # of all constraints which we don't currently support.
-    title_msg = "Title object cannot be replaced. Try changing properties on title to update it after initialization."
-    @connect(@model.properties.title.change, () => logger.warn(title_msg))
+  model: Plot
 
-  get_height: () ->
-    return @model._width.value / @model.get_aspect_ratio()
-
-  get_width: () ->
-    return @model._height.value * @model.get_aspect_ratio()
-
-  save: (name) ->
-    @plot_canvas_view.save(name)
-
-  @getters {
-    plot_canvas_view: () -> @child_views[@model._plot_canvas.id]
+  connect_signals(): void {
+    super.connect_signals()
+    // Note: Title object cannot be replaced after initialization, similar to axes, and also
+    // not being able to change the sizing_mode. All of these changes require a re-initialization
+    // of all constraints which we don't currently support.
+    const title_msg = "Title object cannot be replaced. Try changing properties on title to update it after initialization."
+    this.connect(this.model.properties.title.change, () => logger.warn(title_msg))
   }
 
-export class Plot extends LayoutDOM
-  type: 'Plot'
-  default_view: PlotView
+  get_height(): number {
+    return this.model._width.value / this.model.get_aspect_ratio()
+  }
 
-  `
+  get_width(): number {
+    return this.model._height.value * this.model.get_aspect_ratio()
+  }
+
+  save(name: string): void {
+    this.plot_canvas_view.save(name)
+  }
+
+  get plot_canvas_view(): PlotCanvasView {
+    // XXX: PlotCanvasView is not LayoutDOMView
+    return (this.child_views[this.model.plot_canvas.id] as any) as PlotCanvasView
+  }
+}
+
+PlotView.prototype.className = "bk-plot-layout"
+
+export class Plot extends LayoutDOM {
+
+  toolbar: Toolbar
+  toolbar_location: Location | null
+  toolbar_sticky: boolean
+
+  plot_width: number
+  plot_height: number
+
+  title: Title | string | null
+  title_location: Location
+
+  h_symmetry: boolean
+  v_symmetry: boolean
+
+  above: Renderer[]
+  below: Renderer[]
+  left: Renderer[]
+  right: Renderer[]
+
   renderers: Renderer[]
-  `
 
-  `
-  plot_canvas: PlotCanvas
-  `
+  x_range: Range
+  extra_x_ranges: {[key: string]: Range}
+  y_range: Range
+  extra_y_ranges: {[key: string]: Range}
 
-  initialize: (options) ->
-    super(options)
-    for xr in values(@extra_x_ranges).concat(@x_range)
-      plots = xr.plots
-      if isArray(plots)
-        plots = plots.concat(@)
+  x_scale: Scale
+  y_scale: Scale
+
+  lod_factor: number
+  lod_interval: number
+  lod_threshold: number
+  lod_timeout: number
+
+  hidpi: boolean
+  output_backend: OutputBackend
+
+  min_border: number | null
+  min_border_top: number | null
+  min_border_left: number | null
+  min_border_bottom: number | null
+  min_border_right: number | null
+
+  inner_width: number
+  inner_height: number
+  layout_width: number
+  layout_height: number
+
+  match_aspect: boolean
+  aspect_scale: number
+
+  protected _plot_canvas: PlotCanvas
+  protected _toolbar_panel: ToolbarPanel | null
+
+  initialize(attrs: any, options: any): void {
+    super.initialize(attrs, options)
+
+    for (const xr of values(this.extra_x_ranges).concat(this.x_range)) {
+      let plots = xr.plots
+      if (isArray(plots)) {
+        plots = plots.concat(this)
         xr.setv({plots: plots}, {silent: true})
-    for yr in values(@extra_y_ranges).concat(@y_range)
-      plots = yr.plots
-      if isArray(plots)
-        plots = plots.concat(@)
-        yr.setv({plots: plots}, {silent: true})
-
-    # Min border applies to the edge of everything
-    if @min_border?
-      if not @min_border_top?
-        @min_border_top = @min_border
-      if not @min_border_bottom?
-        @min_border_bottom = @min_border
-      if not @min_border_left?
-        @min_border_left = @min_border
-      if not @min_border_right?
-        @min_border_right = @min_border
-
-    @_init_title_panel()
-    @_init_toolbar_panel()
-
-    @_plot_canvas = @_init_plot_canvas()
-    @plot_canvas.toolbar = @toolbar
-
-    # Set width & height to be the passed in plot_width and plot_height
-    # We may need to be more subtle about this - not sure why people use one
-    # or the other.
-    if not @width?
-      @width = @plot_width
-    if not @height?
-      @height = @plot_height
-
-    # Setup side renderers
-    for side in ['above', 'below', 'left', 'right']
-      layout_renderers = @getv(side)
-      for renderer in layout_renderers
-        renderer.add_panel(side)
-
-  _init_plot_canvas: () ->
-    return new PlotCanvas({plot: @})
-
-  _init_title_panel: () ->
-    if @title?
-      title = if isString(@title) then new Title({text: @title}) else @title
-      @add_layout(title, @title_location)
-
-  _init_toolbar_panel: () ->
-    if @_toolbar_panel?
-      for items in [@left, @right, @above, @below, @renderers]
-        removeBy(items, (item) => item == @_toolbar_panel)
-      @_toolbar_panel = null
-
-    switch @toolbar_location
-      when "left", "right", "above", "below"
-        @_toolbar_panel = new ToolbarPanel({toolbar: @toolbar})
-        @toolbar.toolbar_location = @toolbar_location
-
-        if @toolbar_sticky
-          models = @getv(@toolbar_location)
-          title = find(models, (model) -> model instanceof Title)
-
-          if title?
-            @_toolbar_panel.set_panel(title.panel)
-            @add_renderers(@_toolbar_panel)
-            return
-
-        @add_layout(@_toolbar_panel, @toolbar_location)
-
-  connect_signals: () ->
-    super()
-    @connect(@properties.toolbar_location.change, () => @_init_toolbar_panel())
-
-  @getters {
-    plot_canvas: () -> @_plot_canvas
-  }
-
-  _doc_attached: () ->
-    @plot_canvas.attach_document(@document)
-    super()
-
-  add_renderers: (new_renderers...) ->
-    renderers = @renderers
-    renderers = renderers.concat(new_renderers)
-    @renderers = renderers
-
-  add_layout: (renderer, side="center") ->
-    if renderer.props.plot?
-      renderer.plot = this
-    if side != 'center'
-      side_renderers = @getv(side)
-      side_renderers.push(renderer)
-      renderer.add_panel(side)
-    @add_renderers(renderer)
-
-  add_glyph: (glyph, source, attrs={}) ->
-    if not source?
-      source = new ColumnDataSource()
-    attrs = extend({}, attrs, {data_source: source, glyph: glyph})
-    renderer = new GlyphRenderer(attrs)
-    @add_renderers(renderer)
-    return renderer
-
-  add_tools: (tools...) ->
-    for tool in tools
-      if tool.overlay?
-        @add_renderers(tool.overlay)
-
-    @toolbar.tools = @toolbar.tools.concat(tools)
-
-  get_layoutable_children: () ->
-    return [@plot_canvas]
-
-  get_constraints: () ->
-    constraints = super()
-
-    constraints.push(EQ(@_width,  [-1, @plot_canvas._width ]))
-    constraints.push(EQ(@_height, [-1, @plot_canvas._height]))
-
-    return constraints
-
-  get_constrained_variables: () ->
-    vars = extend({}, super(), {
-      on_edge_align_top    : @plot_canvas._top
-      on_edge_align_bottom : @plot_canvas._height_minus_bottom
-      on_edge_align_left   : @plot_canvas._left
-      on_edge_align_right  : @plot_canvas._width_minus_right
-
-      box_cell_align_top   : @plot_canvas._top
-      box_cell_align_bottom: @plot_canvas._height_minus_bottom
-      box_cell_align_left  : @plot_canvas._left
-      box_cell_align_right : @plot_canvas._width_minus_right
-
-      box_equal_size_top   : @plot_canvas._top
-      box_equal_size_bottom: @plot_canvas._height_minus_bottom
-    })
-
-    if @sizing_mode != 'fixed'
-      vars.box_equal_size_left  = @plot_canvas._left
-      vars.box_equal_size_right = @plot_canvas._width_minus_right
-
-    return vars
-
-  #
-  # SETUP PROPERTIES
-  #
-  @mixins ['line:outline_', 'fill:background_', 'fill:border_']
-
-  @define {
-      toolbar:           [ p.Instance, () -> new Toolbar()    ]
-      toolbar_location:  [ p.Location, 'right'                ]
-      toolbar_sticky:    [ p.Boolean,  true                   ]
-
-      plot_width:        [ p.Number,   600                    ]
-      plot_height:       [ p.Number,   600                    ]
-
-      title:             [ p.Any, () -> new Title({text: ""})] # TODO: p.Either(p.Instance(Title), p.String)
-      title_location:    [ p.Location, 'above'                ]
-
-      h_symmetry:        [ p.Bool,     true                   ]
-      v_symmetry:        [ p.Bool,     false                  ]
-
-      above:             [ p.Array,    []                     ]
-      below:             [ p.Array,    []                     ]
-      left:              [ p.Array,    []                     ]
-      right:             [ p.Array,    []                     ]
-
-      renderers:         [ p.Array,    []                     ]
-
-      x_range:           [ p.Instance                         ]
-      extra_x_ranges:    [ p.Any,      {}                     ] # TODO (bev)
-      y_range:           [ p.Instance                         ]
-      extra_y_ranges:    [ p.Any,      {}                     ] # TODO (bev)
-
-      x_scale:           [ p.Instance, () -> new LinearScale() ]
-      y_scale:           [ p.Instance, () -> new LinearScale() ]
-
-      lod_factor:        [ p.Number,   10                     ]
-      lod_interval:      [ p.Number,   300                    ]
-      lod_threshold:     [ p.Number,   2000                   ]
-      lod_timeout:       [ p.Number,   500                    ]
-
-      hidpi:             [ p.Bool,     true                   ]
-      output_backend:    [ p.OutputBackend, "canvas"          ]
-
-      min_border:        [ p.Number,   5                      ]
-      min_border_top:    [ p.Number,   null                   ]
-      min_border_left:   [ p.Number,   null                   ]
-      min_border_bottom: [ p.Number,   null                   ]
-      min_border_right:  [ p.Number,   null                   ]
-
-      inner_width:       [ p.Number                           ]
-      inner_height:      [ p.Number                           ]
-      layout_width:      [ p.Number                           ]
-      layout_height:     [ p.Number                           ]
-
-      match_aspect:      [ p.Bool,     false                  ]
-      aspect_scale:      [ p.Number,   1                      ]
+      }
     }
 
-  @override {
-    outline_line_color: '#e5e5e5'
-    border_fill_color: "#ffffff"
-    background_fill_color: "#ffffff"
+    for (const yr of values(this.extra_y_ranges).concat(this.y_range)) {
+      let plots = yr.plots
+      if (isArray(plots)) {
+        plots = plots.concat(this)
+        yr.setv({plots: plots}, {silent: true})
+      }
+    }
+    // Min border applies to the edge of everything
+    if (this.min_border != null) {
+      if (this.min_border_top == null)
+        this.min_border_top = this.min_border
+      if (this.min_border_bottom == null)
+        this.min_border_bottom = this.min_border
+      if (this.min_border_left == null)
+        this.min_border_left = this.min_border
+      if (this.min_border_right == null)
+        this.min_border_right = this.min_border
+    }
+
+    this._init_title_panel()
+    this._init_toolbar_panel()
+
+    this._plot_canvas = this._init_plot_canvas()
+    this.plot_canvas.toolbar = this.toolbar
+
+    // Set width & height to be the passed in plot_width and plot_height
+    // We may need to be more subtle about this - not sure why people use one
+    // or the other.
+    if (this.width == null)
+      this.width = this.plot_width
+    if (this.height == null)
+      this.height = this.plot_height
+
+    // Setup side renderers
+    for (const side of ['above', 'below', 'left', 'right']) {
+      const layout_renderers = this.getv(side)
+      for (const renderer of layout_renderers)
+        renderer.add_panel(side)
+    }
   }
 
-  @getters {
-    all_renderers: () ->
-      renderers = @renderers
-      for tool in @toolbar.tools
-        renderers = renderers.concat(tool.synthetic_renderers)
-      return renderers
-    webgl: () ->
-      log.warning("webgl attr is deprecated, use output_backend")
-      return @output_backend == "webgl"
-    tool_events: () ->
-      log.warning("tool_events attr is deprecated, use SelectionGeometry Event")
-      return null
+  protected _init_plot_canvas(): PlotCanvas {
+    return new PlotCanvas({plot: this})
   }
+
+  protected _init_title_panel(): void {
+    if (this.title != null) {
+      const title = isString(this.title) ? new Title({text: this.title}) : this.title
+      this.add_layout(title, this.title_location)
+    }
+  }
+
+  protected _init_toolbar_panel(): void {
+    if (this._toolbar_panel != null) {
+      for (const items of [this.left, this.right, this.above, this.below, this.renderers])
+        removeBy(items, (item) => item == this._toolbar_panel)
+      this._toolbar_panel = null
+    }
+
+    switch (this.toolbar_location) {
+      case "left":
+      case "right":
+      case "above":
+      case "below": {
+        this._toolbar_panel = new ToolbarPanel({toolbar: this.toolbar})
+        this.toolbar.toolbar_location = this.toolbar_location
+
+        if (this.toolbar_sticky) {
+          const models = this.getv(this.toolbar_location)
+          const title = find(models, (model): model is Title => model instanceof Title)
+
+          if (title != null) {
+            this._toolbar_panel.set_panel((title as any).panel) // XXX
+            this.add_renderers(this._toolbar_panel)
+            return
+          }
+        }
+
+        this.add_layout(this._toolbar_panel, this.toolbar_location)
+        break
+      }
+    }
+  }
+
+  connect_signals(): void {
+    super.connect_signals()
+    this.connect(this.properties.toolbar_location.change, () => this._init_toolbar_panel())
+  }
+
+  get plot_canvas(): PlotCanvas {
+    return this._plot_canvas
+  }
+
+  protected _doc_attached(): void {
+    this.plot_canvas.attach_document(this.document!) // XXX!
+    super._doc_attached()
+  }
+
+  add_renderers(...new_renderers: Renderer[]): void {
+    let renderers = this.renderers
+    renderers = renderers.concat(new_renderers)
+    this.renderers = renderers
+  }
+
+  add_layout(renderer: any /* XXX: Renderer */, side: Place = "center"): void {
+    if (renderer.props.plot != null)
+      (renderer as any).plot = this // XXX
+    if (side != "center") {
+      const side_renderers = this.getv(side)
+      side_renderers.push(renderer)
+      renderer.add_panel(side) // XXX
+    }
+    this.add_renderers(renderer)
+  }
+
+  add_glyph(glyph: Glyph, source: DataSource = new ColumnDataSource(), extra_attrs: any = {}): GlyphRenderer {
+    const attrs = extend({}, extra_attrs, {data_source: source, glyph: glyph})
+    const renderer = new GlyphRenderer(attrs)
+    this.add_renderers(renderer)
+    return renderer
+  }
+
+  add_tools(...tools: Tool[]): void {
+    for (const tool of tools) {
+      if (tool.overlay != null)
+        this.add_renderers(tool.overlay)
+    }
+
+    this.toolbar.tools = this.toolbar.tools.concat(tools)
+  }
+
+  get_layoutable_children(): LayoutDOM[] {
+    return [this.plot_canvas]
+  }
+
+  get_constraints(): Constraint[] {
+    const constraints = super.get_constraints()
+
+    constraints.push(EQ(this._width,  [-1, this.plot_canvas._width ]))
+    constraints.push(EQ(this._height, [-1, this.plot_canvas._height]))
+
+    return constraints
+  }
+
+  get_constrained_variables(): {[key: string]: Variable} {
+    const vars = extend({}, super.get_constrained_variables(), {
+      on_edge_align_top    : this.plot_canvas._top,
+      on_edge_align_bottom : this.plot_canvas._height_minus_bottom,
+      on_edge_align_left   : this.plot_canvas._left,
+      on_edge_align_right  : this.plot_canvas._width_minus_right,
+
+      box_cell_align_top   : this.plot_canvas._top,
+      box_cell_align_bottom: this.plot_canvas._height_minus_bottom,
+      box_cell_align_left  : this.plot_canvas._left,
+      box_cell_align_right : this.plot_canvas._width_minus_right,
+
+      box_equal_size_top   : this.plot_canvas._top,
+      box_equal_size_bottom: this.plot_canvas._height_minus_bottom,
+    })
+
+    if (this.sizing_mode != "fixed") {
+      vars.box_equal_size_left  = this.plot_canvas._left
+      vars.box_equal_size_right = this.plot_canvas._width_minus_right
+    }
+
+    return vars
+  }
+
+  get all_renderers(): Renderer[] {
+    let renderers = this.renderers
+    for (const tool of this.toolbar.tools)
+      renderers = renderers.concat(tool.synthetic_renderers)
+    return renderers
+  }
+
+  get webgl(): boolean {
+    logger.warn("webgl attr is deprecated, use output_backend")
+    return this.output_backend == "webgl"
+  }
+
+  get tool_events(): any {
+    logger.warn("tool_events attr is deprecated, use SelectionGeometry Event")
+    return null
+  }
+}
+
+Plot.prototype.type = "Plot"
+
+Plot.prototype.default_view = PlotView
+
+Plot.mixins(["line:outline_", "fill:background_", "fill:border_"])
+
+Plot.define({
+  toolbar:           [ p.Instance, () => new Toolbar()     ],
+  toolbar_location:  [ p.Location, 'right'                 ],
+  toolbar_sticky:    [ p.Boolean,  true                    ],
+
+  plot_width:        [ p.Number,   600                     ],
+  plot_height:       [ p.Number,   600                     ],
+
+  title:             [ p.Any, () => new Title({text: ""})  ], // TODO: p.Either(p.Instance(Title), p.String)
+  title_location:    [ p.Location, 'above'                 ],
+
+  h_symmetry:        [ p.Bool,     true                    ],
+  v_symmetry:        [ p.Bool,     false                   ],
+
+  above:             [ p.Array,    []                      ],
+  below:             [ p.Array,    []                      ],
+  left:              [ p.Array,    []                      ],
+  right:             [ p.Array,    []                      ],
+
+  renderers:         [ p.Array,    []                      ],
+
+  x_range:           [ p.Instance                          ],
+  extra_x_ranges:    [ p.Any,      {}                      ], // TODO (bev)
+  y_range:           [ p.Instance                          ],
+  extra_y_ranges:    [ p.Any,      {}                      ], // TODO (bev)
+
+  x_scale:           [ p.Instance, () => new LinearScale() ],
+  y_scale:           [ p.Instance, () => new LinearScale() ],
+
+  lod_factor:        [ p.Number,   10                      ],
+  lod_interval:      [ p.Number,   300                     ],
+  lod_threshold:     [ p.Number,   2000                    ],
+  lod_timeout:       [ p.Number,   500                     ],
+
+  hidpi:             [ p.Bool,     true                    ],
+  output_backend:    [ p.OutputBackend, "canvas"           ],
+
+  min_border:        [ p.Number,   5                       ],
+  min_border_top:    [ p.Number,   null                    ],
+  min_border_left:   [ p.Number,   null                    ],
+  min_border_bottom: [ p.Number,   null                    ],
+  min_border_right:  [ p.Number,   null                    ],
+
+  inner_width:       [ p.Number                            ],
+  inner_height:      [ p.Number                            ],
+  layout_width:      [ p.Number                            ],
+  layout_height:     [ p.Number                            ],
+
+  match_aspect:      [ p.Bool,     false                   ],
+  aspect_scale:      [ p.Number,   1                       ],
+})
+
+Plot.override({
+  outline_line_color: "#e5e5e5",
+  border_fill_color: "#ffffff",
+  background_fill_color: "#ffffff",
+})
 
 register_with_event(UIEvent, Plot)
