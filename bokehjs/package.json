@@ -89,26 +89,21 @@
     "es6-promise": "3.0.2",
     "es6-weak-map": "^2.0.2",
     "es6-set": "^0.1.5",
-
     "@types/es6-promise": "^0.0.33",
-
     "rbush": "^2.0.1",
     "proj4": "<2.4",
     "sprintf-js": "^1.1.1",
     "timezone": "^1.0.6",
     "hammerjs": "^2.0.4",
     "pikaday": "^1.6.1",
-
     "@types/rbush": "^2.0.2",
     "@types/proj4": "^2.3.2",
     "@types/sprintf-js": "^0.0.27",
     "@types/timezone-js": "^0.0.28",
     "@types/hammerjs": "^2.0.33",
     "@types/pikaday": "^0.0.33",
-
     "underscore.template": "^0.1.7",
     "nouislider": "^10.0.0",
-
     "canvas2svg": "https://github.com/bokeh/canvas2svg#v1.0.21",
     "numbro": "https://github.com/bokeh/numbro.git#e1b6c52",
     "kiwi": "https://github.com/bokeh/kiwi.git#1a3dabb",
