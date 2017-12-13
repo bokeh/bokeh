@@ -85,8 +85,12 @@ export class CanvasView extends DOMView {
 
     this.canvas_el.style.width = `${width}px`
     this.canvas_el.style.height = `${height}px`
-    this.canvas_el.width = width*pixel_ratio
-    this.canvas_el.height = height*pixel_ratio
+
+    // XXX: io.export and canvas2svg don't like this
+    // this.canvas_el.width = width*pixel_ratio
+    // this.canvas_el.height = height*pixel_ratio
+    this.canvas_el.setAttribute("width", `${width*pixel_ratio}`)
+    this.canvas_el.setAttribute("height", `${height*pixel_ratio}`)
 
     logger.debug(`Rendering CanvasView with width: ${width}, height: ${height}, pixel ratio: ${pixel_ratio}`)
   }
