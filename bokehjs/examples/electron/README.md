@@ -2,5 +2,5 @@
 
 ```bash
 # Install dependencies and run the app
-npm install && npm start
+npm install --no-save && npm start
 ```
