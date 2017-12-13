@@ -7,7 +7,6 @@ import {unescape} from "./core/util/string"
 import {size, values} from "./core/util/object"
 import {isString} from "./core/util/types"
 import {Receiver} from "./protocol/receiver"
-import {Message} from "./protocol/message"
 import {ClientSession} from "./client/session"
 import {pull_session} from "./client/connection"
 import {HasProps} from "./core/has_props"
@@ -24,9 +23,16 @@ export interface RenderItem {
   notebook_comms_target?: any
 }
 
+declare interface CommMessage {
+  buffers: DataView[],
+  content: {
+    data: string
+  }
+}
+
 declare interface Comm {
   target_name: string
-  on_msg: (...args: any[]) => void
+  on_msg: (msg: CommMessage) => void
 }
 
 declare interface Jupyter {
@@ -46,14 +52,13 @@ declare var Jupyter: Jupyter | undefined
 // with this var prevents user configurations where css styling is unset.
 export const BOKEH_ROOT = "bk-root"
 
-function _handle_notebook_comms(this: Document, receiver: Receiver, msg?: Message | null): void {
-  if (msg != null) {
-    if (msg.buffers.length > 0)
-      receiver.consume((msg.buffers[0] as any).buffer) // XXX: buffers[i] is a tuple
-    else
-      receiver.consume(msg.content.data)
-  }
-  msg = receiver.message
+function _handle_notebook_comms(this: Document, receiver: Receiver, comm_msg: CommMessage): void {
+  if (comm_msg.buffers.length > 0)
+    receiver.consume(comm_msg.buffers[0].buffer)
+  else
+    receiver.consume(comm_msg.content.data)
+
+  const msg = receiver.message
   if (msg != null)
     this.apply_json_patch(msg.content, msg.buffers)
 }
