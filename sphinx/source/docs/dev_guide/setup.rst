@@ -146,7 +146,7 @@ the following commands
 .. code-block:: sh
 
     cd bokehjs
-    npm install
+    npm install --no-save
 
 This command will install the necessary packages into the ``node_modules``
 subdirectory.

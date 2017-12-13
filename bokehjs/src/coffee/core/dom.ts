@@ -3,8 +3,9 @@ import {isBoolean, isString, isArray, isObject} from "./util/types"
 export type HTMLAttrs = { [name: string]: any }
 export type HTMLChild = string | HTMLElement | (string | HTMLElement)[]
 
-const _createElement = (tag: string) => (attrs: HTMLAttrs = {}, ...children: HTMLChild[]): HTMLElement => {
-  const element: HTMLElement = document.createElement(tag)
+const _createElement = <T extends keyof HTMLElementTagNameMap>(tag: T) =>
+    (attrs: HTMLAttrs = {}, ...children: HTMLChild[]): HTMLElementTagNameMap[T] => {
+  const element = document.createElement(tag)
 
   for (const attr in attrs) {
     const value = attrs[attr]
@@ -56,7 +57,8 @@ const _createElement = (tag: string) => (attrs: HTMLAttrs = {}, ...children: HTM
   return element
 }
 
-export function createElement(tag: string, attrs: HTMLAttrs, ...children: HTMLChild[]): HTMLElement {
+export function createElement<T extends keyof HTMLElementTagNameMap>(tag: T,
+     attrs: HTMLAttrs, ...children: HTMLChild[]): HTMLElementTagNameMap[T] {
   return _createElement(tag)(attrs, ...children)
 }
 

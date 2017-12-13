@@ -4,7 +4,9 @@ import {build_views, remove_views} from "core/build_views"
 import * as p from "core/properties"
 
 import {DOMView} from "core/dom_view"
+import {Location} from "core/enums"
 import {Model} from "model"
+import {Tool} from "./tool"
 
 export class ToolbarBaseView extends DOMView
 
@@ -71,6 +73,11 @@ export class ToolbarBaseView extends DOMView
 export class ToolbarBase extends Model
   type: 'ToolbarBase'
   default_view: ToolbarBaseView
+
+  `
+  tools: Tool[]
+  toolbar_location: Location
+  `
 
   _active_change: (tool) ->
     event_types = tool.event_type

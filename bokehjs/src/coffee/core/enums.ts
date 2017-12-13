@@ -50,6 +50,9 @@ export const RenderMode: RenderMode[] = ["canvas", "css"]
 export type Side = "above" | "below" | "left" | "right"
 export const Side: Side[] = ["above", "below", "left", "right"]
 
+export type Place = Side | "center"
+export const Place: Place[] = ["above", "below", "left", "right", "center"]
+
 export type SpatialUnits = "screen" | "data"
 export const SpatialUnits: SpatialUnits[] = ["screen", "data"]
 
