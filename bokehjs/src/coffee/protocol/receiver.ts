@@ -1,6 +1,6 @@
 import {Message, Header} from "protocol/message"
 
-export type Fragment = any
+export type Fragment = string | ArrayBuffer
 
 export class Receiver {
 
@@ -36,14 +36,15 @@ export class Receiver {
   _CONTENT(fragment: Fragment): void {
     this._assume_text(fragment)
     this._fragments.push(fragment)
-    const [header_json, metadata_json, content_json] = this._fragments.slice(0, 3)
+    const [header_json, metadata_json, content_json] =
+      this._fragments.slice(0, 3) as [string, string, string]
     this._partial = Message.assemble(header_json, metadata_json, content_json)
     this._check_complete()
   }
 
   _BUFFER_HEADER(fragment: Fragment): void {
     this._assume_text(fragment)
-    this._buf_header = fragment
+    this._buf_header = fragment as any // XXX: assume text but Header is expected
     this._current_consumer = this._BUFFER_PAYLOAD
   }
 
