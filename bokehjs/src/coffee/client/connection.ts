@@ -289,10 +289,10 @@ export class ClientConnection {
 // Returns a promise of a ClientSession
 // The returned promise has a close() method in case you want to close before
 // getting a session; session.close() works too once you have a session.
-export function pull_session(url: string, session_id: string, args_string?: string) {
+export function pull_session(url: string, session_id: string, args_string?: string): Promise<ClientSession> {
   let connection: ClientConnection
 
-  const promise = new Promise((resolve, reject) => {
+  const promise = new Promise<ClientSession>((resolve, reject) => {
     connection = new ClientConnection(url, session_id, args_string,
       (session) => {
         try {

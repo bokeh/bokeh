@@ -1,258 +1,336 @@
 import * as base from "./base"
-import {pull_session} from "./client/connection"
 import {logger, set_log_level} from "./core/logging"
-import {Document, RootAddedEvent, RootRemovedEvent, TitleChangedEvent} from "./document"
+import {Document, DocJson, DocumentChangedEvent, RootAddedEvent, RootRemovedEvent, TitleChangedEvent} from "./document"
 import {div, link, style, replaceWith} from "./core/dom"
 import {defer} from "./core/util/callback"
 import {unescape} from "./core/util/string"
 import {size, values} from "./core/util/object"
 import {isString} from "./core/util/types"
 import {Receiver} from "./protocol/receiver"
+import {Message} from "./protocol/message"
+import {ClientSession} from "./client/session"
+import {pull_session} from "./client/connection"
+import {HasProps} from "./core/has_props"
+import {DOMView} from "./core/dom_view"
 
-# Matches Bokeh CSS class selector. Setting all Bokeh parent element class names
-# with this var prevents user configurations where css styling is unset.
-export BOKEH_ROOT = "bk-root"
+export type DocsJson = {[key: string]: DocJson}
 
-_handle_notebook_comms = (receiver, msg) ->
-  if msg.buffers.length > 0
-    receiver.consume(msg.buffers[0].buffer)
-  else
-    receiver.consume(msg.content.data)
+export interface RenderItem {
+  elementid: string
+  docid?: string
+  modelid?: string
+  sessionid?: string
+  use_for_title?: boolean
+  notebook_comms_target?: any
+}
+
+declare interface Comm {
+  target_name: string
+  on_msg: (...args: any[]) => void
+}
+
+declare interface Jupyter {
+  notebook: {
+    kernel: undefined | {
+      comm_manager: {
+        comms: {[key: string]: Promise<Comm>},
+        register_target: (target: string, fn: (comm: Comm) => void) => void,
+      }
+    }
+  }
+}
+
+declare var Jupyter: Jupyter | undefined
+
+// Matches Bokeh CSS class selector. Setting all Bokeh parent element class names
+// with this var prevents user configurations where css styling is unset.
+export const BOKEH_ROOT = "bk-root"
+
+function _handle_notebook_comms(this: Document, receiver: Receiver, msg?: Message | null): void {
+  if (msg != null) {
+    if (msg.buffers.length > 0)
+      receiver.consume((msg.buffers[0] as any).buffer) // XXX: buffers[i] is a tuple
+    else
+      receiver.consume(msg.content.data)
+  }
   msg = receiver.message
-  if msg?
-    @apply_json_patch(msg.content, msg.buffers)
+  if (msg != null)
+    this.apply_json_patch(msg.content, msg.buffers)
+}
 
-_update_comms_callback = (target, doc, comm) ->
-  if target == comm.target_name
-    r = new Receiver()
+function _update_comms_callback(target: string, doc: Document, comm: Comm): void {
+  if (target == comm.target_name) {
+    const r = new Receiver()
     comm.on_msg(_handle_notebook_comms.bind(doc, r))
+  }
+}
 
-_init_comms = (target, doc) ->
-  if Jupyter? and Jupyter.notebook.kernel?
-    logger.info("Registering Jupyter comms for target #{target}")
-    comm_manager = Jupyter.notebook.kernel.comm_manager
-    update_comms = (comm) -> _update_comms_callback(target, doc, comm)
-    for id, promise of comm_manager.comms
+function _init_comms(target: string, doc: Document): void {
+  if (Jupyter != null && Jupyter.notebook.kernel != null) {
+    logger.info(`Registering Jupyter comms for target ${target}`)
+    const comm_manager = Jupyter.notebook.kernel.comm_manager
+    const update_comms = (comm: Comm) => _update_comms_callback(target, doc, comm)
+    for (const id in comm_manager.comms) {
+      const promise = comm_manager.comms[id]
       promise.then(update_comms)
-    try
-      comm_manager.register_target(target, (comm, msg) ->
-        logger.info("Registering Jupyter comms for target #{target}")
-        r = new Receiver()
+    }
+    try {
+      comm_manager.register_target(target, (comm: Comm) => {
+        logger.info(`Registering Jupyter comms for target ${target}`)
+        const r = new Receiver()
         comm.on_msg(_handle_notebook_comms.bind(doc, r))
-      )
-    catch e
-      logger.warn("Jupyter comms failed to register. push_notebook() will not function. (exception reported: #{e})")
-  else
+      })
+    } catch (e) {
+      logger.warn(`Jupyter comms failed to register. push_notebook() will not function. (exception reported: ${e})`)
+    }
+  } else
     console.warn('Jupyter notebooks comms not available. push_notebook() will not function');
+}
 
-_create_view = (model) ->
-  view = new model.default_view({model: model, parent: null})
+function _create_view(model: HasProps): DOMView {
+  const view = new model.default_view({model: model, parent: null}) as DOMView
   base.index[model.id] = view
-  view
+  return view
+}
 
-_get_element = (item) ->
-  element_id = item['elementid']
-  elem = document.getElementById(element_id)
-  if not elem?
-    throw new Error("Error rendering Bokeh model: could not find tag with id: #{element_id}")
-  if not document.body.contains(elem)
-    throw new Error("Error rendering Bokeh model: element with id '#{element_id}' must be under <body>")
+function _get_element(item: RenderItem): HTMLElement {
+  const element_id = item.elementid
+  let elem = document.getElementById(element_id)
 
-  # if autoload script, replace script tag with div for embedding
-  if elem.tagName == "SCRIPT"
+  if (elem == null)
+    throw new Error(`Error rendering Bokeh model: could not find tag with id: ${element_id}`)
+  if (!document.body.contains(elem))
+    throw new Error(`Error rendering Bokeh model: element with id '${element_id}' must be under <body>`)
+
+  // if autoload script, replace script tag with div for embedding
+  if (elem.tagName == "SCRIPT") {
     fill_render_item_from_script_tag(elem, item)
-    container = div({class: BOKEH_ROOT})
+    const container = div({class: BOKEH_ROOT})
     replaceWith(elem, container)
-    child = div()
+    const child = div()
     container.appendChild(child)
     elem = child
+  }
 
   return elem
+}
 
-# Replace element with a view of model_id from document
-export add_model_standalone = (model_id, element, doc) ->
-  model = doc.get_model_by_id(model_id)
-  if not model?
-    throw new Error("Model #{model_id} was not in document #{doc}")
-  view = _create_view(model)
+// Replace element with a view of model_id from document
+export function add_model_standalone(model_id: string, element: HTMLElement, doc: Document): DOMView {
+  const model = doc.get_model_by_id(model_id)
+  if (model == null)
+    throw new Error(`Model ${model_id} was not in document ${doc}`)
+  const view = _create_view(model)
   view.renderTo(element, true)
+  return view
+}
 
-# Fill element with the roots from doc
-export add_document_standalone = (document, element, use_for_title=false) ->
-  # this is a LOCAL index of views used only by this particular rendering
-  # call, so we can remove the views we create.
-  views = {}
-  render_model = (model) ->
-    view = _create_view(model)
+// Fill element with the roots from doc
+export function add_document_standalone(document: Document, element: HTMLElement, use_for_title: boolean = false): {[key: string]: DOMView} {
+  // this is a LOCAL index of views used only by this particular rendering
+  // call, so we can remove the views we create.
+  const views: {[key: string]: DOMView} = {}
+
+  function render_model(model: HasProps): void {
+    const view = _create_view(model)
     view.renderTo(element)
     views[model.id] = view
-  unrender_model = (model) ->
-    if model.id of views
-      view = views[model.id]
+  }
+
+  function unrender_model(model: HasProps): void {
+    if (model.id in views) {
+      const view = views[model.id]
       element.removeChild(view.el)
       delete views[model.id]
       delete base.index[model.id]
+    }
+  }
 
-  for model in document.roots()
+  for (const model of document.roots())
     render_model(model)
 
-  if use_for_title
+  if (use_for_title)
     window.document.title = document.title()
 
-  document.on_change (event) ->
-    if event instanceof RootAddedEvent
+  document.on_change((event: DocumentChangedEvent): void => {
+    if (event instanceof RootAddedEvent)
       render_model(event.model)
-    else if event instanceof RootRemovedEvent
+    else if (event instanceof RootRemovedEvent)
       unrender_model(event.model)
-    else if use_for_title and event instanceof TitleChangedEvent
+    else if (use_for_title && event instanceof TitleChangedEvent)
       window.document.title = event.title
+  })
 
   return views
+}
 
-# map { websocket url to map { session id to promise of ClientSession } }
-_sessions = {}
-_get_session = (websocket_url, session_id, args_string) ->
-  if not websocket_url?
-    throw new Error("Missing websocket_url")
-  if websocket_url not of _sessions
+// map { websocket url to map { session id to promise of ClientSession } }
+const _sessions: {[key: string]: {[key: string]: Promise<ClientSession>}} = {}
+
+function _get_session(websocket_url: string, session_id: string, args_string: string): Promise<ClientSession> {
+  if (!(websocket_url in _sessions))
     _sessions[websocket_url] = {}
-  subsessions = _sessions[websocket_url]
-  if session_id not of subsessions
+
+  const subsessions = _sessions[websocket_url]
+  if (!(session_id in subsessions))
     subsessions[session_id] = pull_session(websocket_url, session_id, args_string)
 
-  subsessions[session_id]
+  return subsessions[session_id]
+}
 
-# Fill element with the roots from session_id
-add_document_from_session = (element, websocket_url, session_id, use_for_title) ->
-  args_string = window.location.search.substr(1)
-  promise = _get_session(websocket_url, session_id, args_string)
-  promise.then(
-    (session) ->
-      add_document_standalone(session.document, element, use_for_title)
-    (error) ->
-      logger.error("Failed to load Bokeh session " + session_id + ": " + error)
+// Fill element with the roots from session_id
+export function add_document_from_session(element: HTMLElement,
+    websocket_url: string, session_id: string, use_for_title: boolean): Promise<{[key: string]: DOMView}> {
+  const args_string = window.location.search.substr(1)
+  const promise = _get_session(websocket_url, session_id, args_string)
+  return promise.then(
+    (session: ClientSession) => {
+      return add_document_standalone(session.document, element, use_for_title)
+    },
+    (error) => {
+      logger.error(`Failed to load Bokeh session ${session_id}: ${error}`)
       throw error
+    }
   )
+}
 
-# Replace element with a view of model_id from the given session
-add_model_from_session = (element, websocket_url, model_id, session_id) ->
-  args_string = window.location.search.substr(1)
-  promise = _get_session(websocket_url, session_id, args_string)
-  promise.then(
-    (session) ->
-      model = session.document.get_model_by_id(model_id)
-      if not model?
-        throw new Error("Did not find model #{model_id} in session")
-      view = _create_view(model)
+// Replace element with a view of model_id from the given session
+export function add_model_from_session(element: HTMLElement,
+    websocket_url: string, model_id: string, session_id: string): Promise<DOMView> {
+  const args_string = window.location.search.substr(1)
+  const promise = _get_session(websocket_url, session_id, args_string)
+  return promise.then(
+    (session: ClientSession) => {
+      const model = session.document.get_model_by_id(model_id)
+      if (model == null)
+        throw new Error(`Did not find model ${model_id} in session`)
+      const view = _create_view(model)
       view.renderTo(element, true)
-    (error) ->
-      logger.error("Failed to load Bokeh session " + session_id + ": " + error)
+      return view
+    },
+    (error: Error) => {
+      logger.error(`Failed to load Bokeh session ${session_id}: ${error}`)
       throw error
+    }
   )
+}
 
-export inject_css = (url) ->
-  element = link({href: url, rel: "stylesheet", type: "text/css"})
+export function inject_css(url: string): void {
+  const element = link({href: url, rel: "stylesheet", type: "text/css"})
   document.body.appendChild(element)
+}
 
-export inject_raw_css = (css) ->
-  element = style({}, css)
+export function inject_raw_css(css: string): void {
+  const element = style({}, css)
   document.body.appendChild(element)
+}
 
-# pull missing render item fields from data- attributes
-fill_render_item_from_script_tag = (script, item) ->
-  info = script.dataset
-  # length checks are because we put all the attributes on the tag
-  # but sometimes set them to empty string
-  if info.bokehLogLevel? and info.bokehLogLevel.length > 0
-    set_log_level(info.bokehLogLevel)
-  if info.bokehDocId? and info.bokehDocId.length > 0
-    item['docid'] = info.bokehDocId
-  if info.bokehModelId? and info.bokehModelId.length > 0
-    item['modelid'] = info.bokehModelId
-  if info.bokehSessionId? and info.bokehSessionId.length > 0
-    item['sessionid'] = info.bokehSessionId
+// pull missing render item fields from data- attributes
+function fill_render_item_from_script_tag(script: HTMLElement, item: RenderItem): void {
+  const {bokehLogLevel, bokehDocId, bokehModelId, bokehSessionId} = script.dataset
 
-  logger.info("Will inject Bokeh script tag with params #{JSON.stringify(item)}")
+  // length checks are because we put all the attributes on the tag
+  // but sometimes set them to empty string
+  if (bokehLogLevel != null && bokehLogLevel.length > 0)
+    set_log_level(bokehLogLevel)
+  if (bokehDocId != null && bokehDocId.length > 0)
+    item.docid = bokehDocId
+  if (bokehModelId != null && bokehModelId.length > 0)
+    item.modelid = bokehModelId
+  if (bokehSessionId != null && bokehSessionId.length > 0)
+    item.sessionid = bokehSessionId
 
-export embed_items_notebook = (docs_json, render_items) ->
-  if size(docs_json) != 1
+  logger.info(`Will inject Bokeh script tag with params ${JSON.stringify(item)}`)
+}
+
+export function embed_items_notebook(docs_json: DocsJson, render_items: RenderItem[]): void {
+  if (size(docs_json) != 1)
     throw new Error("embed_items_notebook expects exactly one document in docs_json")
 
-  doc = Document.from_json(values(docs_json)[0])
+  const doc = Document.from_json(values(docs_json)[0])
 
-  for item in render_items
-
-    if item.notebook_comms_target?
+  for (const item of render_items) {
+    if (item.notebook_comms_target != null)
       _init_comms(item.notebook_comms_target, doc)
 
-    elem = _get_element(item)
+    const elem = _get_element(item)
 
-    if item.modelid?
+    if (item.modelid != null)
       add_model_standalone(item.modelid, elem, doc)
     else
       add_document_standalone(doc, elem, false)
+  }
+}
 
-_get_ws_url = (app_path, absolute_url) ->
-  protocol = 'ws:'
+function _get_ws_url(app_path: string | undefined, absolute_url: string | undefined): string {
+  let protocol = 'ws:'
   if (window.location.protocol == 'https:')
     protocol = 'wss:'
 
-  if absolute_url?
+  let loc: HTMLAnchorElement | Location
+  if (absolute_url != null) {
     loc = document.createElement('a')
     loc.href = absolute_url
-  else
+  } else
     loc = window.location
 
-  if app_path?
-    if app_path == "/"
+  if (app_path != null) {
+    if (app_path == "/")
       app_path = ""
-  else
+  } else
     app_path = loc.pathname.replace(/\/+$/, '')
 
   return protocol + '//' + loc.host + app_path + '/ws'
+}
 
-# TODO (bev) this is currently clunky. Standalone embeds only provide
-# the first two args, whereas server provide the app_app, and *may* prove and
-# absolute_url as well if non-relative links are needed for resources. This function
-# should probably be split in to two pieces to reflect the different usage patterns
-export embed_items = (docs_json, render_items, app_path, absolute_url) ->
-  defer(() -> _embed_items(docs_json, render_items, app_path, absolute_url))
+// TODO (bev) this is currently clunky. Standalone embeds only provide
+// the first two args, whereas server provide the app_app, and *may* prove and
+// absolute_url as well if non-relative links are needed for resources. This function
+// should probably be split in to two pieces to reflect the different usage patterns
+export function embed_items(docs_json: string | DocsJson, render_items: RenderItem[], app_path?: string, absolute_url?: string): void {
+  defer(() => _embed_items(docs_json, render_items, app_path, absolute_url))
+}
 
-_embed_items = (docs_json, render_items, app_path, absolute_url) ->
-  if isString(docs_json)
-    docs_json = JSON.parse(unescape(docs_json))
+function _embed_items(docs_json: string | DocsJson, render_items: RenderItem[], app_path?: string, absolute_url?: string): void {
+  if (isString(docs_json))
+    docs_json = JSON.parse(unescape(docs_json)) as DocsJson
 
-  docs = {}
-  for docid of docs_json
-    docs[docid] = Document.from_json(docs_json[docid])
+  const docs: {[key: string]: Document} = {}
+  for (const docid in docs_json) {
+    const doc_json = docs_json[docid]
+    docs[docid] = Document.from_json(doc_json)
+  }
 
-  for item in render_items
-    elem = _get_element(item)
+  for (const item of render_items) {
+    const elem = _get_element(item)
+    const use_for_title = item.use_for_title != null && item.use_for_title
 
-    use_for_title = item.use_for_title? and item.use_for_title
-
-    # handle server session cases
-    if item.sessionid?
-      websocket_url = _get_ws_url(app_path, absolute_url)
-      logger.debug("embed: computed ws url: #{websocket_url}")
-      if item.modelid?
+    // handle server session cases
+    if (item.sessionid != null) {
+      const websocket_url = _get_ws_url(app_path, absolute_url)
+      logger.debug(`embed: computed ws url: ${websocket_url}`)
+      let promise: Promise<any>
+      if (item.modelid != null)
         promise = add_model_from_session(elem, websocket_url, item.modelid, item.sessionid)
       else
         promise = add_document_from_session(elem, websocket_url, item.sessionid, use_for_title)
 
       promise.then(
-        (value) ->
+        () => {
           console.log("Bokeh items were rendered successfully")
-        (error) ->
+        },
+        (error: Error) => {
           console.log("Error rendering Bokeh items ", error)
+        }
       )
 
-    # handle standalone document cases
-    else if item.docid?
-      if item.modelid?
+    // handle standalone document cases
+    } else if (item.docid != null) {
+      if (item.modelid != null)
         add_model_standalone(item.modelid, elem, docs[item.docid])
       else
         add_document_standalone(docs[item.docid], elem, use_for_title)
-
-    else
-       throw new Error("Error rendering Bokeh items to element #{item.elementid}: no document ID or session ID specified")
+    } else
+       throw new Error(`Error rendering Bokeh items to element ${item.elementid}: no document ID or session ID specified`)
+  }
+}
