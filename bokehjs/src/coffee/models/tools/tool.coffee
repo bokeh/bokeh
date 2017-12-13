@@ -2,6 +2,7 @@ import * as p from "core/properties"
 import {View} from "core/view"
 import {min, max} from "core/util/array"
 import {Model} from "../../model"
+import {Renderer} from "../renderers/renderer"
 
 export class ToolView extends View
 
@@ -30,13 +31,20 @@ export class ToolView extends View
 
 export class Tool extends Model
 
-  @getters {
-    synthetic_renderers: () -> []
+  `
+  get synthetic_renderers(): Renderer[] {
+    return []
   }
+  `
 
   @internal {
     active: [ p.Boolean, false ]
   }
+
+  `
+  active: boolean
+  overlay: Renderer | null
+  `
 
   # utility function to return a tool name, modified
   # by the active dimenions. Used by tools that have dimensions

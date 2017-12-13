@@ -4,7 +4,7 @@ import * as DOM from "./dom"
 
 export class DOMView extends View {
 
-  tagName: string
+  tagName: keyof HTMLElementTagNameMap
   className: string | null
 
   protected _has_finished: boolean
