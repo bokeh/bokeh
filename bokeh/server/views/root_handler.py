@@ -29,4 +29,4 @@ class RootHandler(RequestHandler):
             redirect_to = prefix + app_names[0]
             self.redirect(redirect_to)
         else:
-            self.render("app_index.html", prefix=prefix, items=self.applications.keys())
+            self.render("app_index.html", prefix=prefix, items=sorted(self.applications.keys()))
