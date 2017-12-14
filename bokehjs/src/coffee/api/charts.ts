@@ -1,78 +1,136 @@
 import {sprintf} from "sprintf-js"
-import * as models from "./models"
+import {Palette} from "./palettes"
 import * as palettes from "./palettes"
 import {zip, unzip, sum, cumsum, copy} from "../core/util/array"
 import {isArray} from "../core/util/types"
+import {Anchor, TooltipAttachment} from "../core/enums"
 
-num2hexcolor = (num) -> sprintf("#%06x", num)
-hexcolor2rgb = (color) ->
-  r = parseInt(color.substr(1, 2), 16)
-  g = parseInt(color.substr(3, 2), 16)
-  b = parseInt(color.substr(5, 2), 16)
+import {
+  Plot,
+  ColumnDataSource,
+  GlyphRenderer,
+  HoverTool,
+  AnnularWedge, Quad, Text,
+  Range, DataRange1d, FactorRange,
+  Axis, LinearAxis, CategoricalAxis,
+  Scale, LinearScale, CategoricalScale,
+  TickFormatter, BasicTickFormatter, NumeralTickFormatter,
+} from "./models"
+
+type RGB = [number, number, number]
+
+function num2hexcolor(num: number): string {
+  return sprintf("#%06x", num)
+}
+
+function hexcolor2rgb(color: string): RGB {
+  const r = parseInt(color.substr(1, 2), 16)
+  const g = parseInt(color.substr(3, 2), 16)
+  const b = parseInt(color.substr(5, 2), 16)
   return [r, g, b]
+}
 
-is_dark = ([r, g, b]) ->
-  l = 1 - (0.299*r + 0.587*g + 0.114*b)/255
+function is_dark([r, g, b]: RGB): boolean {
+  const l = 1 - (0.299*r + 0.587*g + 0.114*b)/255
   return l >= 0.6
+}
 
-export pie = (data, opts={}) ->
-  labels = []
-  values = []
+export type Color = string
 
-  for i in [0...Math.min(data.labels.length, data.values.length)]
-    if data.values[i] > 0
+function norm_palette(palette: Palette | Color[] = "Spectral11"): Color[] {
+  if (isArray(palette))
+    return palette
+  else {
+    type Pals = {[key in Palette]: number[]}
+    return (palettes as Pals)[palette].map(num2hexcolor)
+  }
+}
+
+export interface ChartOpts {
+  width?: number
+  height?: number
+}
+
+export interface PieChartData {
+  labels: number[]
+  values: number[]
+}
+
+export interface PieChartOpts extends ChartOpts {
+  start_angle?: number
+  end_angle?: number
+  center?: [number, number] | {x: number, y: number}
+  inner_radius?: number
+  outer_radius?: number
+  palette?: Palette | Color[]
+  slice_labels?: "labels" | "values" | "percentages"
+}
+
+export function pie(data: PieChartData, opts: PieChartOpts = {}): Plot {
+  const labels: number[] = []
+  const values: number[] = []
+
+  for (let i = 0; i < Math.min(data.labels.length, data.values.length); i++) {
+    if (data.values[i] > 0) {
       labels.push(data.labels[i])
       values.push(data.values[i])
+    }
+  }
 
-  start_angle = opts.start_angle ? 0
-  end_angle = opts.end_angle ? (start_angle + 2*Math.PI)
+  const start_angle = opts.start_angle != null ? opts.start_angle : 0
+  const end_angle = opts.end_angle != null ? opts.end_angle : (start_angle + 2*Math.PI)
 
-  angle_span = Math.abs(end_angle - start_angle)
-  to_radians = (x) -> angle_span*x
+  const angle_span = Math.abs(end_angle - start_angle)
+  const to_radians = (x: number) => angle_span*x
 
-  total_value = sum(values)
-  normalized_values = values.map((v) -> v/total_value)
-  cumulative_values = cumsum(normalized_values)
+  const total_value = sum(values)
+  const normalized_values = values.map((v) => v/total_value)
+  const cumulative_values = cumsum(normalized_values)
 
-  end_angles = cumulative_values.map((v) -> start_angle + to_radians(v))
-  start_angles = [start_angle].concat(end_angles.slice(0, -1))
-  half_angles = zip(start_angles, end_angles).map(([start, end]) => (start + end)/2)
+  const end_angles = cumulative_values.map((v) => start_angle + to_radians(v))
+  const start_angles = [start_angle].concat(end_angles.slice(0, -1))
+  const half_angles = zip(start_angles, end_angles).map(([start, end]) => (start + end)/2)
 
-  if not opts.center?
+  let cx: number
+  let cy: number
+  if (opts.center == null) {
     cx = 0
     cy = 0
-  else if isArray(opts.center)
+  } else if (isArray(opts.center)) {
     cx = opts.center[0]
     cy = opts.center[1]
-  else
+  } else {
     cx = opts.center.x
     cy = opts.center.y
+  }
 
-  inner_radius = opts.inner_radius ? 0
-  outer_radius = opts.outer_radius ? 1
+  const inner_radius = opts.inner_radius != null ? opts.inner_radius : 0
+  const outer_radius = opts.outer_radius != null ? opts.outer_radius : 1
 
-  if isArray(opts.palette)
-    palette = opts.palette
-  else
-    palette = palettes[opts.palette ? "Spectral11"].map(num2hexcolor)
+  const palette = norm_palette(opts.palette)
 
-  colors = ( palette[i % palette.length] for i in [0...normalized_values.length] )
-  text_colors = colors.map((c) -> if is_dark(hexcolor2rgb(c)) then "white" else "black")
+  const colors: Color[] = []
+  for (let i = 0; i < normalized_values.length; i++)
+    colors.push(palette[i % palette.length])
+  const text_colors = colors.map((c) => is_dark(hexcolor2rgb(c)) ? "white" : "black")
 
-  to_cartesian = (r, alpha) -> [r*Math.cos(alpha), r*Math.sin(alpha)]
+  function to_cartesian(r: number, alpha: number): [number, number] {
+    return [r*Math.cos(alpha), r*Math.sin(alpha)]
+  }
 
-  half_radius = (inner_radius+outer_radius)/2
-  [text_cx, text_cy] = unzip(half_angles.map((half_angle) => to_cartesian(half_radius, half_angle)))
-  text_cx = text_cx.map((x) -> x + cx)
-  text_cy = text_cy.map((y) -> y + cy)
+  const half_radius = (inner_radius+outer_radius)/2
+  let [text_cx, text_cy] = unzip(half_angles.map((half_angle) => to_cartesian(half_radius, half_angle)))
+  text_cx = text_cx.map((x) => x + cx)
+  text_cy = text_cy.map((y) => y + cy)
 
-  text_angles = half_angles.map (a) ->
-    if a >= Math.PI/2 and a <= 3*Math.PI/2
-      a + Math.PI
+  const text_angles = half_angles.map((a: number): number => {
+    if (a >= Math.PI/2 && a <= 3*Math.PI/2)
+      return a + Math.PI
     else
-      a
+      return a
+  })
 
-  source = new Bokeh.ColumnDataSource({
+  const source = new ColumnDataSource({
     data: {
       labels: labels,
       values: values,
@@ -87,189 +145,217 @@ export pie = (data, opts={}) ->
     }
   })
 
-  g1 = new models.AnnularWedge({
+  const g1 = new AnnularWedge({
     x: cx, y: cy,
     inner_radius: inner_radius, outer_radius: outer_radius,
     start_angle: {field: "start_angles"}, end_angle: {field: "end_angles"},
     line_color: null, line_width: 1, fill_color: {field: "colors"},
   })
-  h1 = new models.AnnularWedge({
+  const h1 = new AnnularWedge({
     x: cx, y: cy,
     inner_radius: inner_radius, outer_radius: outer_radius,
     start_angle: {field: "start_angles"}, end_angle: {field: "end_angles"},
     line_color: null, line_width: 1, fill_color: {field: "colors"}, fill_alpha: 0.8,
   })
-  r1 = new models.GlyphRenderer({
+  const r1 = new GlyphRenderer({
     data_source: source,
     glyph: g1,
     hover_glyph: h1,
   })
 
-  g2 = new models.Text({
+  const g2 = new Text({
     x: {field: "text_cx"}, y: {field: "text_cy"},
-    text: {field: opts.slice_labels ? "labels"},
+    text: {field: opts.slice_labels || "labels"},
     angle: {field: "text_angles"},
     text_align: "center", text_baseline: "middle",
     text_color: {field: "text_colors"}, text_font_size: "9pt",
   })
-  r2 = new models.GlyphRenderer({
+  const r2 = new GlyphRenderer({
     data_source: source,
     glyph: g2,
   })
 
-  xdr = new models.DataRange1d({renderers: [r1], range_padding: 0.2})
-  ydr = new models.DataRange1d({renderers: [r1], range_padding: 0.2})
-  plot = new models.Plot({x_range: xdr, y_range: ydr})
+  const xdr = new DataRange1d({renderers: [r1], range_padding: 0.2})
+  const ydr = new DataRange1d({renderers: [r1], range_padding: 0.2})
+  const plot = new Plot({x_range: xdr, y_range: ydr})
 
-  if opts.width? then plot.plot_width = opts.width
-  if opts.height? then plot.plot_height = opts.height
+  if (opts.width != null) plot.plot_width = opts.width
+  if (opts.height != null) plot.plot_height = opts.height
 
   plot.add_renderers(r1, r2)
 
-  tooltip = "<div>@labels</div><div><b>@values</b> (@percentages)</div>"
-  hover = new models.HoverTool({renderers: [r1], tooltips: tooltip})
+  const tooltip = "<div>@labels</div><div><b>@values</b> (@percentages)</div>"
+  const hover = new HoverTool({renderers: [r1], tooltips: tooltip})
   plot.add_tools(hover)
 
   return plot
+}
 
-export bar = (data, opts={}) ->
-  column_names = data[0]
-  rows = data.slice(1)
+export type BarChartData = number[][]
 
-  columns = ([] for name in column_names)
-  for row in rows
-    for v, i in row
-      columns[i].push(v)
+export interface BarChartOpts extends ChartOpts {
+  stacked?: boolean
+  orientation?: "horizontal" | "vertical"
+  bar_width?: number
+  palette?: Palette | Color[]
+  axis_number_format?: string
+}
 
-  labels = columns[0].map((v) -> v.toString())
+export function bar(data: BarChartData, opts: BarChartOpts = {}): Plot {
+  const column_names = data[0]
+  const rows = data.slice(1)
+
+  let columns: number[][] = column_names.map((_) => [])
+  for (const row of rows) {
+    for (let i = 0; i < row.length; i++) {
+      columns[i].push(row[i])
+    }
+  }
+
+  const labels = columns[0].map((v) => v.toString())
   columns = columns.slice(1)
 
-  yaxis = new models.CategoricalAxis()
-  ydr = new models.FactorRange({factors: labels})
-  yscale = new models.CategoricalScale()
+  let yaxis: Axis = new CategoricalAxis()
+  let ydr: Range = new FactorRange({factors: labels})
+  let yscale: Scale = new CategoricalScale()
 
-  if opts.axis_number_format?
-    xformatter = new models.NumeralTickFormatter({format: opts.axis_number_format})
+  let xformatter: TickFormatter
+  if (opts.axis_number_format != null)
+    xformatter = new NumeralTickFormatter({format: opts.axis_number_format})
   else
-    xformatter = new models.BasicTickFormatter()
-  xaxis = new models.LinearAxis({formatter: xformatter})
-  xdr = new models.DataRange1d({start: 0})
-  xscale = new models.LinearScale()
+    xformatter = new BasicTickFormatter()
+  let xaxis: Axis = new LinearAxis({formatter: xformatter})
+  let xdr: Range = new DataRange1d({start: 0})
+  let xscale: Scale = new LinearScale()
 
-  if isArray(opts.palette)
-    palette = opts.palette
-  else
-    palette = palettes[opts.palette ? "Spectral11"].map(num2hexcolor)
+  const palette = norm_palette(opts.palette)
 
-  stacked = opts.stacked ? false
-  orientation = opts.orientation ? "horizontal"
+  const stacked = opts.stacked != null ? opts.stacked : false
+  const orientation = opts.orientation != null ? opts.orientation : "horizontal"
 
-  renderers = []
+  const renderers: GlyphRenderer[] = []
 
-  if stacked
-    left = []
-    right = []
+  if (stacked) {
+    const left: number[] = []
+    const right: number[] = []
 
-    for i in [0...columns.length]
-      bottom = []
-      top = []
-      for label, j in labels
-        if i == 0
+    for (let i = 0; i < columns.length; i++) {
+      const bottom: [string, number][] = []
+      const top: [string, number][] = []
+
+      for (let j = 0; j < labels.length; j++) {
+        const label = labels[j]
+        if (i == 0) {
           left.push(0)
           right.push(columns[i][j])
-        else
+        } else {
           left[j] += columns[i-1][j]
           right[j] += columns[i][j]
-        bottom.push([label,-0.5])
+        }
+        bottom.push([label, -0.5])
         top.push([label, 0.5])
+      }
 
-      source = new Bokeh.ColumnDataSource({
+      const source = new ColumnDataSource({
         data: {
-          left: copy(left)
-          right: copy(right)
-          top: top
-          bottom: bottom
-          labels: labels
-          values: columns[i]
-          columns: ( column_names[i+1] for v in columns[i] )
+          left: copy(left),
+          right: copy(right),
+          top: top,
+          bottom: bottom,
+          labels: labels,
+          values: columns[i],
+          columns: columns[i].map((_) => column_names[i+1]),
         }
       })
 
-      g1 = new models.Quad({
+      const g1 = new Quad({
         left: {field: "left"}, bottom: {field: "bottom"},
         right: {field: "right"}, top: {field: "top"},
         line_color: null, fill_color: palette[i % palette.length],
       })
-      r1 = new models.GlyphRenderer({ data_source: source, glyph: g1 })
+      const r1 = new GlyphRenderer({data_source: source, glyph: g1})
       renderers.push(r1)
-  else
-    dy = 1/columns.length
+    }
+  } else {
+    const dy = 1/columns.length
 
-    for i in [0...columns.length]
-      left = []
-      right = []
-      bottom = []
-      top = []
-      for label, j in labels
+    for (let i = 0; i < columns.length; i++) {
+      const left: number[] = []
+      const right: number[] = []
+      const bottom: [string, number][] = []
+      const top: [string, number][] = []
+
+      for (let j = 0; j < labels.length; j++) {
+        const label = labels[j]
         left.push(0)
         right.push(columns[i][j])
         bottom.push([label, i*dy-0.5])
         top.push([label, (i+1)*dy-0.5])
+      }
 
-      source = new Bokeh.ColumnDataSource({
+      const source = new ColumnDataSource({
         data: {
-          left: left
-          right: right
-          top: top
-          bottom: bottom
-          labels: labels
-          values: columns[i]
-          columns: ( column_names[i+1] for v in columns[i] )
+          left: left,
+          right: right,
+          top: top,
+          bottom: bottom,
+          labels: labels,
+          values: columns[i],
+          columns: columns[i].map((_) => column_names[i+1]),
         }
       })
 
-      g1 = new models.Quad({
+      const g1 = new Quad({
         left: {field: "left"}, bottom: {field: "bottom"},
         right: {field: "right"}, top: {field: "top"},
         line_color: null, fill_color: palette[i % palette.length],
       })
-      r1 = new models.GlyphRenderer({ data_source: source, glyph: g1 })
+      const r1 = new GlyphRenderer({data_source: source, glyph: g1})
       renderers.push(r1)
+    }
+  }
 
-  if orientation == "vertical"
-    [xdr, ydr] = [ydr, xdr]
-    [xaxis, yaxis] = [yaxis, xaxis]
-    [xscale, yscale] = [yscale, xscale]
+  if (orientation == "vertical") {
+    [xdr, ydr] = [ydr, xdr];
+    [xaxis, yaxis] = [yaxis, xaxis];
+    [xscale, yscale] = [yscale, xscale];
 
-    for r in renderers
-      data = r.data_source.data
-      [data.left, data.bottom] = [data.bottom, data.left]
-      [data.right, data.top] = [data.top, data.right]
+    for (const r of renderers) {
+      const data = r.data_source.data;
+      [data.left, data.bottom] = [data.bottom, data.left];
+      [data.right, data.top] = [data.top, data.right];
+    }
+  }
 
-  plot = new models.Plot({x_range: xdr, y_range: ydr, x_scale: xscale, y_scale: yscale})
+  const plot = new Plot({x_range: xdr, y_range: ydr, x_scale: xscale, y_scale: yscale})
 
-  if opts.width? then plot.plot_width = opts.width
-  if opts.height? then plot.plot_height = opts.height
+  if (opts.width != null) plot.plot_width = opts.width
+  if (opts.height != null) plot.plot_height = opts.height
 
-  plot.add_renderers(renderers...)
+  plot.add_renderers(...renderers)
   plot.add_layout(yaxis, "left")
   plot.add_layout(xaxis, "below")
 
-  tooltip = "<div>@labels</div><div>@columns:&nbsp<b>@values</b></div>"
-  if orientation == "horizontal"
+  const tooltip = "<div>@labels</div><div>@columns:&nbsp<b>@values</b></div>"
+
+  let anchor: Anchor
+  let attachment: TooltipAttachment
+  if (orientation == "horizontal") {
     anchor = "center_right"
     attachment = "horizontal"
-  else
+  } else {
     anchor = "top_center"
     attachment = "vertical"
-  hover = new models.HoverTool({
+  }
+
+  const hover = new HoverTool({
     renderers: renderers,
     tooltips: tooltip,
     point_policy: "snap_to_data",
     anchor: anchor,
     attachment: attachment,
-    show_arrow: opts.show_arrow
   })
   plot.add_tools(hover)
 
   return plot
+}
