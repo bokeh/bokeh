@@ -29,6 +29,7 @@ Documents by adding an empty plot with a title taken from ``args``.
 from __future__ import absolute_import, print_function
 
 from .code import CodeHandler
+import io
 
 class ScriptHandler(CodeHandler):
     ''' Modify Bokeh documents by executing code from Python scripts.
@@ -50,7 +51,7 @@ class ScriptHandler(CodeHandler):
             raise ValueError('Must pass a filename to ScriptHandler')
         filename = kwargs['filename']
 
-        with open(filename, 'r') as f:
+        with io.open(filename, 'r', encoding='utf-8') as f:
             kwargs['source'] = f.read()
 
         super(ScriptHandler, self).__init__(*args, **kwargs)
