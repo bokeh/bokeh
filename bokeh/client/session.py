@@ -62,7 +62,7 @@ DEFAULT_SESSION_ID = "default"
 DEFAULT_SERVER_WEBSOCKET_URL = websocket_url_for_server_url(DEFAULT_SERVER_HTTP_URL)
 
 #-----------------------------------------------------------------------------
-# Public API
+# General API
 #-----------------------------------------------------------------------------
 
 @general((1,0,0))
@@ -452,7 +452,7 @@ class ClientSession(object):
         self._callbacks.remove_session_callback(event.callback)
 
 #-----------------------------------------------------------------------------
-# Internal API
+# Dev API
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------

@@ -36,7 +36,7 @@ from bokeh.util.api import general, dev ; general, dev
 # Bokeh imports
 
 #-----------------------------------------------------------------------------
-# Public API
+# General API
 #-----------------------------------------------------------------------------
 
 from .application import Application

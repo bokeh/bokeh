@@ -92,7 +92,7 @@ class SomeModelInTestApplication(Model):
     child = Instance(Model)
 
 #-----------------------------------------------------------------------------
-# Public API
+# General API
 #-----------------------------------------------------------------------------
 
 class Test_Application(object):
@@ -202,7 +202,7 @@ class Test_Application(object):
         assert not check_integrity.called
 
 #-----------------------------------------------------------------------------
-# Internal API
+# Dev API
 #-----------------------------------------------------------------------------
 
 class Test_ServerContext(object):

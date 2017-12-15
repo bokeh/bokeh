@@ -34,7 +34,7 @@ from .saving import save
 from .state import curstate
 
 #-----------------------------------------------------------------------------
-# Public API
+# General API
 #-----------------------------------------------------------------------------
 
 @general((1,0,0))
@@ -129,7 +129,7 @@ def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="loca
     return _show_with_state(obj, state, browser, new, notebook_handle=notebook_handle)
 
 #-----------------------------------------------------------------------------
-# Internal API
+# Dev API
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------

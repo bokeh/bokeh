@@ -30,7 +30,7 @@ log = logging.getLogger(__name__)
 from bokeh.util.api import general, dev ; general, dev
 
 #-----------------------------------------------------------------------------
-# Public API
+# General API
 #-----------------------------------------------------------------------------
 
 from .session import ClientSession

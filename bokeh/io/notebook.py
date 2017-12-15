@@ -47,7 +47,7 @@ LOAD_MIME_TYPE = 'application/vnd.bokehjs_load.v0+json'
 EXEC_MIME_TYPE = 'application/vnd.bokehjs_exec.v0+json'
 
 #-----------------------------------------------------------------------------
-# Public API
+# General API
 #-----------------------------------------------------------------------------
 
 @general((1,0,0))
@@ -289,7 +289,7 @@ def run_notebook_hook(notebook_type, action, *args, **kw):
     return _HOOKS[notebook_type][action](*args, **kw)
 
 #-----------------------------------------------------------------------------
-# Internal API
+# Dev API
 #-----------------------------------------------------------------------------
 
 @dev((1,0,0))

@@ -108,7 +108,7 @@ pub_objs = [pub_func, pub_class, pub_class.pub_meth, pub_class.pub_prop.fget, pu
 int_objs = [int_func, int_class, int_class.int_meth, pub_class.int_prop.fget, pub_class.int_prop.fset]
 
 #-----------------------------------------------------------------------------
-# Public API
+# General API
 #-----------------------------------------------------------------------------
 
 def test_GENERAL():
@@ -168,7 +168,7 @@ def test_is_version():
     assert not bua.is_version(obj, "bar")
 
 #-----------------------------------------------------------------------------
-# Internal API
+# Dev API
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
