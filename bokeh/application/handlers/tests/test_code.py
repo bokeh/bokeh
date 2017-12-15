@@ -137,14 +137,15 @@ class TestCodeHandler(object):
 
     def test_script_argv(self):
         doc = Document()
-        handler = bahc.CodeHandler(source="""import sys; raise RuntimeError("argv: %r" % sys.argv)""", filename="path/to/test_filename")
+        handler = bahc.CodeHandler(source="""import sys; raise RuntimeError("argv: %r" % sys.argv)""", filename=str("path/to/test_filename")) # str needed for py2.7
         handler.modify_document(doc)
 
         assert handler.error is not None
         assert "argv: ['test_filename']" in handler.error
 
         doc = Document()
-        handler = bahc.CodeHandler(source="""import sys; raise RuntimeError("argv: %r" % sys.argv)""", filename="path/to/test_filename", argv=[10, 20, 30])
+        handler = bahc.CodeHandler(source="""import sys; raise RuntimeError("argv: %r" % sys.argv)""",
+                                   filename=str("path/to/test_filename"), argv=[10, 20, 30]) # str needed for py2.7
         handler.modify_document(doc)
 
         assert handler.error is not None

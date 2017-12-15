@@ -143,7 +143,7 @@ class CodeRunner(object):
             return None
 
         module_name = 'bk_script_' + make_id().replace('-', '')
-        module = ModuleType(module_name)
+        module = ModuleType(str(module_name)) # str needed for py2.7
         module.__dict__['__file__'] = os.path.abspath(self._path)
 
         return module
