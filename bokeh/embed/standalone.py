@@ -130,6 +130,11 @@ def components(models, wrap_script=True, wrap_plot_info=True, theme=FromCurdoc):
         <script src="http://cdn.pydata.org/bokeh/release/bokeh-widgets-x.y.z.min.js"></script>
         <script src="http://cdn.pydata.org/bokeh/release/bokeh-tables-x.y.z.min.js"></script>
 
+    If you need to get the HTML components as strings in a notebook setting, make 
+    sure all of your Bokeh-related code related to a plot is kept in the same cell 
+    block. Otherwise, it is not recommended to use components together with the `show` 
+    function, as prior user experience has shown that it can behave erratically.
+
     Args:
         models (Model|list|dict|tuple) :
             A single Model, a list/tuple of Models, or a dictionary of keys and Models.
