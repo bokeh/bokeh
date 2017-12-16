@@ -112,17 +112,17 @@ def _ModelInEmptyDocument(model, apply_theme=None):
     from ..document import Document
     doc = find_existing_docs([model])
 
-    if apply_theme is FromCurdoc:
-        from ..io import curdoc; curdoc
-        doc.theme = curdoc().theme
-    elif apply_theme is not None:
-        doc.theme = apply_theme
-
     model._document = None
     for ref in model.references():
         ref._document = None
     new_doc = Document()
     new_doc.add_root(model)
+
+    if apply_theme is FromCurdoc:
+        from ..io import curdoc; curdoc
+        new_doc.theme = curdoc().theme
+    elif apply_theme is not None:
+        new_doc.theme = apply_theme
 
     if settings.perform_document_validation():
         new_doc.validate()
