@@ -84,11 +84,8 @@ The returned ``<script>`` will look something like:
 
     </script>
 
-**Warning:** If you need to get the HTML components as strings in a notebook 
-setting, make sure all of your Bokeh-related code related to that plot is 
-kept in the same cell block. Otherwise, it is not recommended to use components 
-together with the `show` function, as prior user experience has shown that
-it can behave erratically.
+Note that in Jupyter Notebooks, it is not possible to use components and show in
+the same notebook cell.
 
 All of the data and plot or widget objects are contained in the ``docs_json``
 variable (contents omitted here for brevity). The resulting ``<div>`` will
