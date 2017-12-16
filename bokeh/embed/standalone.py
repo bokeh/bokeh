@@ -130,6 +130,9 @@ def components(models, wrap_script=True, wrap_plot_info=True, theme=FromCurdoc):
         <script src="http://cdn.pydata.org/bokeh/release/bokeh-widgets-x.y.z.min.js"></script>
         <script src="http://cdn.pydata.org/bokeh/release/bokeh-tables-x.y.z.min.js"></script>
 
+    Note that in Jupyter Notebooks, it is not possible to use components and show in
+    the same notebook cell.
+
     Args:
         models (Model|list|dict|tuple) :
             A single Model, a list/tuple of Models, or a dictionary of keys and Models.

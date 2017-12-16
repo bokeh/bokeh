@@ -84,6 +84,9 @@ The returned ``<script>`` will look something like:
 
     </script>
 
+Note that in Jupyter Notebooks, it is not possible to use components and show in
+the same notebook cell.
+
 All of the data and plot or widget objects are contained in the ``docs_json``
 variable (contents omitted here for brevity). The resulting ``<div>`` will
 look something like:
