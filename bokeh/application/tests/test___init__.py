@@ -5,40 +5,41 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Provide classes for representing RGB(A) and HSL(A) colors, as well as
-define common named colors.
-
-'''
 
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import logging
-log = logging.getLogger(__name__)
+import pytest ; pytest
 
-from bokeh.util.api import general, dev ; general, dev
+from bokeh.util.api import DEV, GENERAL ; DEV, GENERAL
+from bokeh.util.testing import verify_api ; verify_api
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
+
+# Bokeh imports
+from bokeh.util.testing import verify_all
+
+# Module under test
+import bokeh.application as ba
+
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
+
+ALL = (
+    'Application',
+)
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-from .color import Color
-from .hsl import HSL
-from .rgb import RGB
-
-from . import groups
-from . import named
-
-__all__ = (
-    'Color',
-    'HSL',
-    'RGB',
-    'groups',
-    'named',
-)
-
-#-----------------------------------------------------------------------------
-# Code
-#-----------------------------------------------------------------------------
+Test___all__ = verify_all(ba, ALL)

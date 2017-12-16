@@ -1,10 +1,62 @@
-from __future__ import absolute_import, print_function
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 
-from bokeh.application.handlers import FunctionHandler
-from bokeh.document import Document
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from bokeh.model import Model
+import pytest ; pytest
+
+from bokeh.util.api import DEV, GENERAL ; DEV, GENERAL
+from bokeh.util.testing import verify_api ; verify_api
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
+
+# Bokeh imports
 from bokeh.core.properties import Int, Instance
+from bokeh.document import Document
+from bokeh.model import Model
+
+# Module under test
+import bokeh.application.handlers.function as bahf
+
+#-----------------------------------------------------------------------------
+# API Definition
+#-----------------------------------------------------------------------------
+
+api = {
+
+    GENERAL: (
+
+        ( 'FunctionHandler',                   (1,0,0) ),
+
+        ( 'FunctionHandler.safe_to_fork.fget', (1,0,0) ),
+
+        ( 'FunctionHandler.modify_document',   (1,0,0) ),
+
+    ), DEV: (
+
+    )
+
+}
+
+Test_api = verify_api(bahf, api)
+
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
 
 class AnotherModelInTestFunction(Model):
     bar = Int(1)
@@ -13,34 +65,48 @@ class SomeModelInTestFunction(Model):
     foo = Int(2)
     child = Instance(Model)
 
-def test_empty_func():
-    def noop(doc):
-        pass
-    handler = FunctionHandler(noop)
-    doc = Document()
-    handler.modify_document(doc)
-    if handler.failed:
-        raise RuntimeError(handler.error)
-    assert not doc.roots
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
-def test_func_adds_roots():
-    def add_roots(doc):
-        doc.add_root(AnotherModelInTestFunction())
-        doc.add_root(SomeModelInTestFunction())
-    handler = FunctionHandler(add_roots)
-    doc = Document()
-    handler.modify_document(doc)
-    if handler.failed:
-        raise RuntimeError(handler.error)
-    assert len(doc.roots) == 2
+class Test_FunctionHandler(object):
 
-def test_safe_to_fork():
-    def noop(doc):
-        pass
-    handler = FunctionHandler(noop)
-    doc = Document()
-    assert handler.safe_to_fork
-    handler.modify_document(doc)
-    if handler.failed:
-        raise RuntimeError(handler.error)
-    assert not handler.safe_to_fork
+    def test_empty_func(self):
+        def noop(doc):
+            pass
+        handler = bahf.FunctionHandler(noop)
+        doc = Document()
+        handler.modify_document(doc)
+        if handler.failed:
+            raise RuntimeError(handler.error)
+        assert not doc.roots
+
+    def test_func_adds_roots(self):
+        def add_roots(doc):
+            doc.add_root(AnotherModelInTestFunction())
+            doc.add_root(SomeModelInTestFunction())
+        handler = bahf.FunctionHandler(add_roots)
+        doc = Document()
+        handler.modify_document(doc)
+        if handler.failed:
+            raise RuntimeError(handler.error)
+        assert len(doc.roots) == 2
+
+    def test_safe_to_fork(self):
+        def noop(doc):
+            pass
+        handler = bahf.FunctionHandler(noop)
+        doc = Document()
+        assert handler.safe_to_fork
+        handler.modify_document(doc)
+        if handler.failed:
+            raise RuntimeError(handler.error)
+        assert not handler.safe_to_fork
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------

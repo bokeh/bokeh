@@ -48,7 +48,7 @@ class SessionCallback(object):
         self.document._remove_session_callback(self)
 
     def _copy_with_changed_callback(self, new_callback):
-        ''' Internal API used to wrap the callback with decorators. '''
+        ''' Dev API used to wrap the callback with decorators. '''
         raise NotImplementedError("_copy_with_changed_callback")
 
 class NextTickCallback(SessionCallback):
@@ -69,7 +69,7 @@ class NextTickCallback(SessionCallback):
         super(NextTickCallback, self).__init__(document, callback, id)
 
     def _copy_with_changed_callback(self, new_callback):
-        ''' Internal API used to wrap the callback with decorators. '''
+        ''' Dev API used to wrap the callback with decorators. '''
         return NextTickCallback(self._document, new_callback, self._id)
 
 class PeriodicCallback(SessionCallback):
@@ -102,7 +102,7 @@ class PeriodicCallback(SessionCallback):
         return self._period
 
     def _copy_with_changed_callback(self, new_callback):
-        ''' Internal API used to wrap the callback with decorators. '''
+        ''' Dev API used to wrap the callback with decorators. '''
         return PeriodicCallback(self._document, new_callback, self._period, self._id)
 
 class TimeoutCallback(SessionCallback):
@@ -134,7 +134,7 @@ class TimeoutCallback(SessionCallback):
         return self._timeout
 
     def _copy_with_changed_callback(self, new_callback):
-        ''' Internal API used to wrap the callback with decorators. '''
+        ''' Dev API used to wrap the callback with decorators. '''
         return TimeoutCallback(self._document, new_callback, self._timeout, self._id)
 
 class _DocumentCallbackGroup(object):

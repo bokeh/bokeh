@@ -1,16 +1,53 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Provide a utility class ``CodeRunner`` for use by handlers that execute
 Python source code.
 
 '''
-from __future__ import absolute_import, print_function
 
-from types import ModuleType
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+from bokeh.util.api import general, dev ; general, dev
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import os
 import sys
 import traceback
+from types import ModuleType
 
-from bokeh.util.serialization import make_id
+# External imports
 
+# Bokeh imports
+from ...util.serialization import make_id
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+@dev((1,0,0))
 class CodeRunner(object):
     ''' Compile and run Python source code.
 
@@ -49,29 +86,10 @@ class CodeRunner(object):
         self._argv = argv
         self.ran = False
 
-    @property
-    def source(self):
-        ''' The configured source code that will be executed when ``run`` is
-        called.
-
-        '''
-        return self._source
+    # Properties --------------------------------------------------------------
 
     @property
-    def path(self):
-        ''' The path that new modules will be configured with.
-
-        '''
-        return self._path
-
-    @property
-    def failed(self):
-        ''' ``True`` if code execution failed
-
-        '''
-        return self._failed
-
-    @property
+    @dev((1,0,0))
     def error(self):
         ''' If code execution fails, may contain a related error message.
 
@@ -79,12 +97,41 @@ class CodeRunner(object):
         return self._error
 
     @property
+    @dev((1,0,0))
     def error_detail(self):
         ''' If code execution fails, may contain a traceback or other details.
 
         '''
         return self._error_detail
 
+    @property
+    @dev((1,0,0))
+    def failed(self):
+        ''' ``True`` if code execution failed
+
+        '''
+        return self._failed
+
+    @property
+    @dev((1,0,0))
+    def path(self):
+        ''' The path that new modules will be configured with.
+
+        '''
+        return self._path
+
+    @property
+    @dev((1,0,0))
+    def source(self):
+        ''' The configured source code that will be executed when ``run`` is
+        called.
+
+        '''
+        return self._source
+
+    # Public methods ----------------------------------------------------------
+
+    @dev((1,0,0))
     def new_module(self):
         ''' Make a fresh module to run in.
 
@@ -96,11 +143,12 @@ class CodeRunner(object):
             return None
 
         module_name = 'bk_script_' + make_id().replace('-', '')
-        module = ModuleType(module_name)
+        module = ModuleType(str(module_name)) # str needed for py2.7
         module.__dict__['__file__'] = os.path.abspath(self._path)
 
         return module
 
+    @dev((1,0,0))
     def run(self, module, post_check):
         ''' Execute the configured source code in a module and run any post
         checks.
@@ -140,3 +188,11 @@ class CodeRunner(object):
             sys.path = _sys_path
             sys.argv = _sys_argv
             self.ran = True
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

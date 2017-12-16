@@ -13,7 +13,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import pytest ; pytest
 
-from bokeh.util.api import INTERNAL, PUBLIC ; INTERNAL, PUBLIC
+from bokeh.util.api import DEV, GENERAL ; DEV, GENERAL
 from bokeh.util.testing import verify_api ; verify_api
 
 #-----------------------------------------------------------------------------
@@ -37,7 +37,7 @@ import bokeh.client.session as bcs
 
 api = {
 
-    PUBLIC: (
+    GENERAL: (
 
         ( 'pull_session',                      (1, 0, 0) ),
         ( 'push_session',                      (1, 0, 0) ),
@@ -55,7 +55,7 @@ api = {
         ( 'ClientSession.request_server_info', (1, 0, 0) ),
         ( 'ClientSession.show',                (1, 0, 0) ),
 
-    ), INTERNAL: (
+    ), DEV: (
 
     )
 
@@ -68,7 +68,7 @@ Test_api = verify_api(bcs, api)
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
-# Public API
+# General API
 #-----------------------------------------------------------------------------
 
 def test_module_docstring_warning():
@@ -176,7 +176,7 @@ class Test_ClientSession(object):
         assert mock_request_server_info.call_args[1] == {}
 
 #-----------------------------------------------------------------------------
-# Internal API
+# Dev API
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------

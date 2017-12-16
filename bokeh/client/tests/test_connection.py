@@ -13,7 +13,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import pytest ; pytest
 
-from bokeh.util.api import INTERNAL, PUBLIC ; INTERNAL, PUBLIC
+from bokeh.util.api import DEV, GENERAL ; DEV, GENERAL
 from bokeh.util.testing import verify_api ; verify_api
 
 #-----------------------------------------------------------------------------
@@ -37,9 +37,9 @@ import bokeh.client.connection as bcc
 
 api = {
 
-    PUBLIC: (
+    GENERAL: (
 
-    ), INTERNAL: (
+    ), DEV: (
 
         ( 'ClientConnection',                     (1, 0, 0) ),
         ( 'ClientConnection.connected.fget',      (1, 0, 0) ),
@@ -65,11 +65,11 @@ Test_api = verify_api(bcc, api)
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
-# Public API
+# General API
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
-# Internal API
+# Dev API
 #-----------------------------------------------------------------------------
 
 class Test_ClientConnection(object):

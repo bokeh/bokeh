@@ -1,13 +1,71 @@
-from __future__ import absolute_import, print_function
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 
-import pytest
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
+import pytest ; pytest
+
+from bokeh.util.api import DEV, GENERAL ; DEV, GENERAL
+from bokeh.util.testing import verify_api ; verify_api
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
 import jinja2
 
-from bokeh.application.handlers import DirectoryHandler
+# Bokeh imports
 from bokeh.core.templates import FILE
 from bokeh.document import Document
 from bokeh.util.testing import with_directory_contents
+
+# Module under test
+import bokeh.application.handlers.directory as bahd
+
+#-----------------------------------------------------------------------------
+# API Definition
+#-----------------------------------------------------------------------------
+
+api = {
+
+    GENERAL: (
+
+        ( 'DirectoryHandler',                      (1,0,0) ),
+
+        ( 'DirectoryHandler.error.fget',           (1,0,0) ),
+        ( 'DirectoryHandler.error_detail.fget',    (1,0,0) ),
+        ( 'DirectoryHandler.failed.fget',          (1,0,0) ),
+        ( 'DirectoryHandler.safe_to_fork.fget',    (1,0,0) ),
+
+        ( 'DirectoryHandler.modify_document',      (1,0,0) ),
+        ( 'DirectoryHandler.on_server_loaded',     (1,0,0) ),
+        ( 'DirectoryHandler.on_server_unloaded',   (1,0,0) ),
+        ( 'DirectoryHandler.on_session_created',   (1,0,0) ),
+        ( 'DirectoryHandler.on_session_destroyed', (1,0,0) ),
+        ( 'DirectoryHandler.url_path',             (1,0,0) ),
+
+    ), DEV: (
+
+    )
+
+}
+
+Test_api = verify_api(bahd, api)
+
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
 
 script_adds_two_roots_template = """
 from bokeh.io import curdoc
@@ -40,44 +98,50 @@ def on_session_destroyed(session_context):
     return "on_session_destroyed"
 """
 
-def test_directory_empty_mainpy():
-    doc = Document()
-    def load(filename):
-        handler = DirectoryHandler(filename=filename)
-        handler.modify_document(doc)
-        if handler.failed:
-            raise RuntimeError(handler.error)
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
-    with_directory_contents({
-        'main.py' : "# This script does nothing"
-    }, load)
+class Test_DirectoryHandler(object):
 
-    assert not doc.roots
+    def test_directory_empty_mainpy(self):
+        doc = Document()
+        def load(filename):
+            handler = bahd.DirectoryHandler(filename=filename)
+            handler.modify_document(doc)
+            if handler.failed:
+                raise RuntimeError(handler.error)
 
-def test_directory_mainpy_adds_roots():
-    doc = Document()
-    def load(filename):
-        handler = DirectoryHandler(filename=filename)
-        handler.modify_document(doc)
-        if handler.failed:
-            raise RuntimeError(handler.error)
+        with_directory_contents({
+            'main.py' : "# This script does nothing"
+        }, load)
 
-    with_directory_contents({
-        'main.py' : script_adds_two_roots('SomeModelInTestDirectory',
-                                          'AnotherModelInTestDirectory')
-    }, load)
+        assert not doc.roots
 
-    assert len(doc.roots) == 2
+    def test_directory_mainpy_adds_roots(self):
+        doc = Document()
+        def load(filename):
+            handler = bahd.DirectoryHandler(filename=filename)
+            handler.modify_document(doc)
+            if handler.failed:
+                raise RuntimeError(handler.error)
 
-def test_directory_has_theme_file():
-    doc = Document()
-    def load(filename):
-        handler = DirectoryHandler(filename=filename)
-        handler.modify_document(doc)
-        if handler.failed:
-            raise RuntimeError(handler.error)
+        with_directory_contents({
+            'main.py' : script_adds_two_roots('SomeModelInTestDirectory',
+                                              'AnotherModelInTestDirectory')
+        }, load)
 
-    custom_theme = """
+        assert len(doc.roots) == 2
+
+    def test_directory_has_theme_file(self):
+        doc = Document()
+        def load(filename):
+            handler = bahd.DirectoryHandler(filename=filename)
+            handler.modify_document(doc)
+            if handler.failed:
+                raise RuntimeError(handler.error)
+
+        custom_theme = """
 attrs:
     AnotherModelInTestDirectoryTheme:
         bar: 42
@@ -85,169 +149,177 @@ attrs:
         foo: 14
 """
 
-    with_directory_contents({
-        'main.py' : script_adds_two_roots('SomeModelInTestDirectoryTheme',
-                                          'AnotherModelInTestDirectoryTheme') +
-        """
+        with_directory_contents({
+            'main.py' : script_adds_two_roots('SomeModelInTestDirectoryTheme',
+                                              'AnotherModelInTestDirectoryTheme') +
+            """
 # we're testing that the script can override the theme
 some = next(m for m in curdoc().roots if isinstance(m, SomeModelInTestDirectoryTheme))
 some.foo = 57
-        """,
-        'theme.yaml' : custom_theme
-    }, load)
+            """,
+            'theme.yaml' : custom_theme
+        }, load)
 
-    assert len(doc.roots) == 2
-    some_model = next(m for m in doc.roots if m.__class__.__name__ == 'SomeModelInTestDirectoryTheme')
-    another_model = next(m for m in doc.roots if m.__class__.__name__ == 'AnotherModelInTestDirectoryTheme')
-    assert another_model.bar == 42
-    assert some_model.foo == 57
-    # test that we use the theme if we delete our explicit-set value
-    del some_model.foo
-    assert some_model.foo == 14
-    # test that removing the theme gets us back to the base
-    doc.theme = None
-    assert some_model.foo == 2
-    assert another_model.bar == 1
+        assert len(doc.roots) == 2
+        some_model = next(m for m in doc.roots if m.__class__.__name__ == 'SomeModelInTestDirectoryTheme')
+        another_model = next(m for m in doc.roots if m.__class__.__name__ == 'AnotherModelInTestDirectoryTheme')
+        assert another_model.bar == 42
+        assert some_model.foo == 57
+        # test that we use the theme if we delete our explicit-set value
+        del some_model.foo
+        assert some_model.foo == 14
+        # test that removing the theme gets us back to the base
+        doc.theme = None
+        assert some_model.foo == 2
+        assert another_model.bar == 1
 
-def test_directory_with_server_lifecycle():
-    doc = Document()
-    result = {}
-    def load(filename):
-        handler = DirectoryHandler(filename=filename)
-        result['handler'] = handler
-        handler.modify_document(doc)
-        if handler.failed:
-            raise RuntimeError(handler.error)
+    def test_directory_with_server_lifecycle(self):
+        doc = Document()
+        result = {}
+        def load(filename):
+            handler = bahd.DirectoryHandler(filename=filename)
+            result['handler'] = handler
+            handler.modify_document(doc)
+            if handler.failed:
+                raise RuntimeError(handler.error)
 
-    with_directory_contents({
-        'main.py' : script_adds_two_roots('SomeModelInTestDirectoryWithLifecycle',
-                                          'AnotherModelInTestDirectoryWithLifecycle'),
-        'server_lifecycle.py' : script_has_lifecycle_handlers
-    }, load)
+        with_directory_contents({
+            'main.py' : script_adds_two_roots('SomeModelInTestDirectoryWithLifecycle',
+                                              'AnotherModelInTestDirectoryWithLifecycle'),
+            'server_lifecycle.py' : script_has_lifecycle_handlers
+        }, load)
 
-    assert len(doc.roots) == 2
+        assert len(doc.roots) == 2
 
-    handler = result['handler']
+        handler = result['handler']
 
-    assert "on_server_loaded" == handler.on_server_loaded(None)
-    assert "on_server_unloaded" == handler.on_server_unloaded(None)
-    assert "on_session_created" == handler.on_session_created(None)
-    assert "on_session_destroyed" == handler.on_session_destroyed(None)
+        assert "on_server_loaded" == handler.on_server_loaded(None)
+        assert "on_server_unloaded" == handler.on_server_unloaded(None)
+        assert "on_session_created" == handler.on_session_created(None)
+        assert "on_session_destroyed" == handler.on_session_destroyed(None)
 
-def test_directory_with_static():
-    doc = Document()
-    result = {}
-    def load(filename):
-        handler = DirectoryHandler(filename=filename)
-        result['handler'] = handler
-        handler.modify_document(doc)
-        if handler.failed:
-            raise RuntimeError(handler.error)
+    def test_directory_with_static(self):
+        doc = Document()
+        result = {}
+        def load(filename):
+            handler = bahd.DirectoryHandler(filename=filename)
+            result['handler'] = handler
+            handler.modify_document(doc)
+            if handler.failed:
+                raise RuntimeError(handler.error)
 
-    with_directory_contents({
-        'main.py' : "# This script does nothing",
-        'static/js/foo.js' : "# some JS"
-    }, load)
+        with_directory_contents({
+            'main.py' : "# This script does nothing",
+            'static/js/foo.js' : "# some JS"
+        }, load)
 
-    assert not doc.roots
+        assert not doc.roots
 
-    handler = result['handler']
-    assert handler.static_path() is not None
-    assert handler.static_path().endswith("static")
+        handler = result['handler']
+        assert handler.static_path() is not None
+        assert handler.static_path().endswith("static")
 
-def test_directory_without_static():
-    doc = Document()
-    result = {}
-    def load(filename):
-        handler = DirectoryHandler(filename=filename)
-        result['handler'] = handler
-        handler.modify_document(doc)
-        if handler.failed:
-            raise RuntimeError(handler.error)
+    def test_directory_without_static(self):
+        doc = Document()
+        result = {}
+        def load(filename):
+            handler = bahd.DirectoryHandler(filename=filename)
+            result['handler'] = handler
+            handler.modify_document(doc)
+            if handler.failed:
+                raise RuntimeError(handler.error)
 
-    with_directory_contents({
-        'main.py' : "# This script does nothing",
-    }, load)
+        with_directory_contents({
+            'main.py' : "# This script does nothing",
+        }, load)
 
-    assert not doc.roots
+        assert not doc.roots
 
-    handler = result['handler']
-    assert handler.static_path() is None
+        handler = result['handler']
+        assert handler.static_path() is None
 
-def test_directory_with_template():
-    doc = Document()
-    result = {}
-    def load(filename):
-        handler = DirectoryHandler(filename=filename)
-        result['handler'] = handler
-        handler.modify_document(doc)
-        if handler.failed:
-            raise RuntimeError(handler.error)
+    def test_directory_with_template(self):
+        doc = Document()
+        result = {}
+        def load(filename):
+            handler = bahd.DirectoryHandler(filename=filename)
+            result['handler'] = handler
+            handler.modify_document(doc)
+            if handler.failed:
+                raise RuntimeError(handler.error)
 
-    with_directory_contents({
-        'main.py' : "# This script does nothing",
-        'templates/index.html' : "<div>some HTML</div>"
-    }, load)
+        with_directory_contents({
+            'main.py' : "# This script does nothing",
+            'templates/index.html' : "<div>some HTML</div>"
+        }, load)
 
-    assert not doc.roots
+        assert not doc.roots
 
-    assert isinstance(doc.template, jinja2.Template)
+        assert isinstance(doc.template, jinja2.Template)
 
-def test_directory_without_template():
-    doc = Document()
-    result = {}
-    def load(filename):
-        handler = DirectoryHandler(filename=filename)
-        result['handler'] = handler
-        handler.modify_document(doc)
-        if handler.failed:
-            raise RuntimeError(handler.error)
+    def test_directory_without_template(self):
+        doc = Document()
+        result = {}
+        def load(filename):
+            handler = bahd.DirectoryHandler(filename=filename)
+            result['handler'] = handler
+            handler.modify_document(doc)
+            if handler.failed:
+                raise RuntimeError(handler.error)
 
-    with_directory_contents({
-        'main.py' : "# This script does nothing",
-    }, load)
+        with_directory_contents({
+            'main.py' : "# This script does nothing",
+        }, load)
 
-    assert not doc.roots
+        assert not doc.roots
 
-    assert doc.template is FILE
+        assert doc.template is FILE
 
-def test_safe_to_fork():
-    doc = Document()
-    result = {}
-    def load(filename):
-        handler = DirectoryHandler(filename=filename)
-        assert handler.safe_to_fork
-        result['handler'] = handler
-        handler.modify_document(doc)
-        if handler.failed:
-            raise RuntimeError(handler.error)
-        assert not handler.safe_to_fork
+    def test_safe_to_fork(self):
+        doc = Document()
+        result = {}
+        def load(filename):
+            handler = bahd.DirectoryHandler(filename=filename)
+            assert handler.safe_to_fork
+            result['handler'] = handler
+            handler.modify_document(doc)
+            if handler.failed:
+                raise RuntimeError(handler.error)
+            assert not handler.safe_to_fork
 
-    with_directory_contents({
-        'main.py' : "# This script does nothing",
-    }, load)
+        with_directory_contents({
+            'main.py' : "# This script does nothing",
+        }, load)
 
-def test_missing_filename_raises():
-    with pytest.raises(ValueError):
-        DirectoryHandler()
+    def test_missing_filename_raises(self):
+        with pytest.raises(ValueError):
+            bahd.DirectoryHandler()
 
-def test_url_path():
-    doc = Document()
-    result = {}
-    def load(filename):
-        handler = DirectoryHandler(filename=filename)
-        assert handler.safe_to_fork
-        result['handler'] = handler
-        handler.modify_document(doc)
-        if handler.failed:
-            raise RuntimeError(handler.error)
-        assert not handler.safe_to_fork
+    def test_url_path(self):
+        doc = Document()
+        result = {}
+        def load(filename):
+            handler = bahd.DirectoryHandler(filename=filename)
+            assert handler.safe_to_fork
+            result['handler'] = handler
+            handler.modify_document(doc)
+            if handler.failed:
+                raise RuntimeError(handler.error)
+            assert not handler.safe_to_fork
 
-    with_directory_contents({
-        'main.py' : "# This script does nothing",
-    }, load)
+        with_directory_contents({
+            'main.py' : "# This script does nothing",
+        }, load)
 
-    h = result['handler']
-    assert h.url_path().startswith("/")
-    h._main_handler._runner._failed = True
-    assert h.url_path() is None
+        h = result['handler']
+        assert h.url_path().startswith("/")
+        h._main_handler._runner._failed = True
+        assert h.url_path() is None
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------

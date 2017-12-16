@@ -8,7 +8,7 @@
 ''' Provide functions for declaring Bokeh API information.
 
 Within the Bokeh codebase, functions, classes, methods, and properties may
-be defined to be "public" or "internal", as well as note what Bokeh version
+be defined to be "general" or "dev", as well as note what Bokeh version
 the object was first introduced in.
 
 '''
@@ -22,7 +22,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 # This one module is exempted from this :)
-# from bokeh.util.api import public, internal ; public, internal
+# from bokeh.util.api import general, dev ; general, dev
 
 #-----------------------------------------------------------------------------
 # Imports
@@ -36,25 +36,25 @@ from .future import wraps
 # Globals and constants
 #-----------------------------------------------------------------------------
 
-INTERNAL = 'internal'
+DEV = 'dev'
 
-PUBLIC = 'public'
+GENERAL = 'general'
 
 #-----------------------------------------------------------------------------
-# Public API
+# General API
 #-----------------------------------------------------------------------------o
 
-def internal(version):
-    ''' Declare an object to be ``'public'``, introduced in ``version``.
+def dev(version):
+    ''' Declare an object to be ``'general'``, introduced in ``version``.
 
     This decorator annotates a function or class with information about what
     version it was first introduced in, as well as that it is part of the
-    internal API. Specifically, the decorated object will have attributes:
+    dev API. Specifically, the decorated object will have attributes:
 
     .. code-block:: python
 
         __bkversion__ = version
-        __bklevel__ = {internal}
+        __bklevel__ = {dev}
 
     Args:
         version (tuple) :
@@ -65,9 +65,9 @@ def internal(version):
         Class or Function
 
     '''
-    return _access(version, 'internal')
+    return _access(version, 'dev')
 
-internal.__doc__ = format_docstring(internal.__doc__, internal=repr(INTERNAL))
+dev.__doc__ = format_docstring(dev.__doc__, dev=repr(DEV))
 
 def is_declared(obj):
     '''
@@ -88,8 +88,8 @@ def is_level(obj, level):
         obj (object) :
             The function, class, method, or property to declare a level for
 
-        level ({public} or {internal})
-            Whether to declare the object public or internal
+        level ({general} or {dev})
+            Whether to declare the object general or dev
 
     Returns:
         bool
@@ -99,7 +99,7 @@ def is_level(obj, level):
         raise ValueError("Unknown API level %r, expected %s" % (level, nice_join(_LEVELS)))
     return obj.__bklevel__ == level
 
-is_level.__doc__ = format_docstring(is_level.__doc__, public=repr(PUBLIC), internal=repr(INTERNAL))
+is_level.__doc__ = format_docstring(is_level.__doc__, general=repr(GENERAL), dev=repr(DEV))
 
 def is_version(obj, version):
     '''
@@ -114,17 +114,17 @@ def is_version(obj, version):
     '''
     return obj.__bkversion__ == version
 
-def public(version):
-    ''' Declare an object to be ``'public'``, introduced in ``version``.
+def general(version):
+    ''' Declare an object to be ``'general'``, introduced in ``version``.
 
     This decorator annotates a function or class with information about what
     version it was first introduced in, as well as that it is part of the
-    internal API. Specifically, the decorated object will have attributes:
+    dev API. Specifically, the decorated object will have attributes:
 
     .. code-block:: python
 
         __bkversion__ = version
-        __bklevel__ = {public}
+        __bklevel__ = {general}
 
     Args:
         version (tuple) :
@@ -135,22 +135,22 @@ def public(version):
         Class or Function
 
     '''
-    return _access(version, 'public')
+    return _access(version, 'general')
 
-public.__doc__ = format_docstring(public.__doc__, public=repr(PUBLIC))
+general.__doc__ = format_docstring(general.__doc__, general=repr(GENERAL))
 
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
 
-_LEVELS = [PUBLIC, INTERNAL]
+_LEVELS = [GENERAL, DEV]
 
 def _access(version, level):
     ''' Declare an object to be ``{{ level }}``, introduced in ``version``.
 
     This generic decorator annotates a function or class with information about
-    what version it was first introduced in, as well as whether it is a public
-    or internal API level. Specifically, the decorated object will have
+    what version it was first introduced in, as well as whether it is a general
+    or dev API level. Specifically, the decorated object will have
     attributes:
 
     .. code-block:: python
@@ -164,7 +164,7 @@ def _access(version, level):
             introduced.
 
         level: (str)
-            Whether this object is ``'public'`` or ``'internal'``
+            Whether this object is ``'general'`` or ``'dev'``
 
     Returns:
         Class or Function
@@ -173,7 +173,7 @@ def _access(version, level):
     assert level in _LEVELS
 
     def decorator(obj):
-        # Keep track of how many public/internal things there are declared
+        # Keep track of how many general/dev things there are declared
         # in a module so we can make sure api tests are comprehensive
         mod = _get_module(obj)
         _increment_api_count(mod, level)
@@ -215,5 +215,5 @@ def _increment_api_count(mod, level):
 
     '''
     if not hasattr(mod, '__bkapi__'):
-        mod.__bkapi__ = {PUBLIC: 0, INTERNAL:0}
+        mod.__bkapi__ = {GENERAL: 0, DEV:0}
     mod.__bkapi__[level] += 1

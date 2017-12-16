@@ -14,7 +14,7 @@ import tempfile
 import pytest
 from six import string_types
 
-from .api import INTERNAL, PUBLIC
+from .api import DEV, GENERAL
 from .api import is_declared, is_level, is_version
 
 def verify_all(module, ALL):
@@ -41,8 +41,8 @@ def verify_api(module, api):
 
     class Test_api(object):
 
-        test_public_api = _generate_api_check(module, api, PUBLIC)
-        test_internal_api = _generate_api_check(module, api, INTERNAL)
+        test_general_api = _generate_api_check(module, api, GENERAL)
+        test_dev_api = _generate_api_check(module, api, DEV)
 
         @pytest.mark.api
         def test_all_declared(self):
@@ -79,7 +79,7 @@ def verify_api(module, api):
 
         @pytest.mark.api
         def test_all_tested(self):
-            for level in (INTERNAL, PUBLIC):
+            for level in (DEV, GENERAL):
                 recorded = module.__bkapi__[level]
                 assert len(api[level]) == recorded, "expected %d tests for %s API objects in %s, got %d" % (recorded, level, module.__name__, len(api[level]))
 

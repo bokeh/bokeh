@@ -25,41 +25,44 @@ from bokeh.util.testing import verify_api ; verify_api
 # External imports
 
 # Bokeh imports
-from bokeh.util.testing import verify_all
 
 # Module under test
-#import bokeh.sampledata.stocks as bss
+import bokeh.application.handlers.code_runner as bahc
 
 #-----------------------------------------------------------------------------
 # API Definition
 #-----------------------------------------------------------------------------
 
+api = {
+
+    GENERAL: (
+
+    ), DEV: (
+
+        ( 'CodeRunner',                   (1,0,0) ),
+
+        ( 'CodeRunner.error.fget',        (1,0,0) ),
+        ( 'CodeRunner.error_detail.fget', (1,0,0) ),
+        ( 'CodeRunner.failed.fget',       (1,0,0) ),
+        ( 'CodeRunner.path.fget',         (1,0,0) ),
+        ( 'CodeRunner.source.fget',       (1,0,0) ),
+
+        ( 'CodeRunner.new_module',        (1,0,0) ),
+        ( 'CodeRunner.run',               (1,0,0) ),
+
+    )
+
+}
+
+Test_api = verify_api(bahc, api)
+
 #-----------------------------------------------------------------------------
 # Setup
 #-----------------------------------------------------------------------------
 
-ALL = (
-    'AAPL',
-    'FB',
-    'GOOG',
-    'IBM',
-    'MSFT',
-)
-
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
-
-Test___all__ = pytest.mark.sampledata(verify_all("bokeh.sampledata.stocks", ALL))
-
-@pytest.mark.sampledata
-@pytest.mark.parametrize('name', ['AAPL', 'FB', 'GOOG', 'IBM', 'MSFT'])
-def test_data(name):
-    import bokeh.sampledata.stocks as bss
-    data = getattr(bss, name)
-    assert isinstance(data, dict)
-
-    # don't check detail for external data
 
 #-----------------------------------------------------------------------------
 # Dev API

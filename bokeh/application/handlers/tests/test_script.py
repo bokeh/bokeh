@@ -1,41 +1,102 @@
-from __future__ import absolute_import, print_function
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 
-import pytest
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from bokeh.application.handlers import ScriptHandler
+import pytest ; pytest
+
+from bokeh.util.api import DEV, GENERAL ; DEV, GENERAL
+from bokeh.util.testing import verify_api ; verify_api
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
+
+# Bokeh imports
 from bokeh.document import Document
 from bokeh.util.testing import with_file_contents
 
-def test_runner_uses_source_from_filename():
-    doc = Document()
-    source = "# Test contents for script"
-    result = {}
-    def load(filename):
-        handler = ScriptHandler(filename=filename)
-        handler.modify_document(doc)
-        result['handler'] = handler
-        result['filename'] = filename
-    with_file_contents(source, load)
+# Module under test
+import bokeh.application.handlers.script as bahs
 
-    assert result['handler']._runner.path == result['filename']
-    assert result['handler']._runner.source == source
-    assert not doc.roots
+#-----------------------------------------------------------------------------
+# API Definition
+#-----------------------------------------------------------------------------
 
-def test_runner_script_with_encoding():
-    doc = Document()
-    source = "# -*- coding: utf-8 -*-\nimport os"
-    result = {}
-    def load(filename):
-        handler = ScriptHandler(filename=filename)
-        handler.modify_document(doc)
-        result['handler'] = handler
-        result['filename'] = filename
-    with_file_contents(source, load)
+api = {
 
-    assert result['handler'].error is None
-    assert result['handler'].failed is False
-    assert not doc.roots
+    GENERAL: (
 
-def test_missing_filename_raises():
-    with pytest.raises(ValueError):
-        ScriptHandler()
+        ( 'ScriptHandler', (1,0,0) ),
+
+    ), DEV: (
+
+    )
+
+}
+
+Test_api = verify_api(bahs, api)
+
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+class Test_ScriptHandler(object):
+
+    def test_runner_uses_source_from_filename(self):
+        doc = Document()
+        source = "# Test contents for script"
+        result = {}
+        def load(filename):
+            handler = bahs.ScriptHandler(filename=filename)
+            handler.modify_document(doc)
+            result['handler'] = handler
+            result['filename'] = filename
+        with_file_contents(source, load)
+
+        assert result['handler']._runner.path == result['filename']
+        assert result['handler']._runner.source == source
+        assert not doc.roots
+
+    def test_runner_script_with_encoding(self):
+        doc = Document()
+        source = "# -*- coding: utf-8 -*-\nimport os"
+        result = {}
+        def load(filename):
+            handler = bahs.ScriptHandler(filename=filename)
+            handler.modify_document(doc)
+            result['handler'] = handler
+            result['filename'] = filename
+        with_file_contents(source, load)
+
+        assert result['handler'].error is None
+        assert result['handler'].failed is False
+        assert not doc.roots
+
+    def test_missing_filename_raises(self):
+        with pytest.raises(ValueError):
+            bahs.ScriptHandler()
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------

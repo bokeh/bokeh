@@ -17,7 +17,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import logging
 log = logging.getLogger(__name__)
 
-from bokeh.util.api import public, internal ; public, internal
+from bokeh.util.api import general, dev ; general, dev
 
 #-----------------------------------------------------------------------------
 # Imports
@@ -34,10 +34,10 @@ from bokeh.util.api import public, internal ; public, internal
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
-# Public API
+# General API
 #-----------------------------------------------------------------------------
 
-@public((1,0,0))
+@general((1,0,0))
 class Color(object):
     ''' A base class for representing color objects.
 
@@ -47,7 +47,7 @@ class Color(object):
         return self.to_css()
 
     @staticmethod
-    @public((1,0,0))
+    @general((1,0,0))
     def clamp(value, maximum=None):
         ''' Clamp numeric values to be non-negative, an optionally, less than a
         given maximum.
@@ -71,7 +71,7 @@ class Color(object):
         else:
             return value
 
-    @public((1,0,0))
+    @general((1,0,0))
     def copy(self):
         ''' Copy this color.
 
@@ -80,7 +80,7 @@ class Color(object):
         '''
         raise NotImplementedError
 
-    @public((1,0,0))
+    @general((1,0,0))
     def darken(self, amount):
         ''' Darken (reduce the luminance) of this color.
 
@@ -98,7 +98,7 @@ class Color(object):
 
 
     @classmethod
-    @public((1,0,0))
+    @general((1,0,0))
     def from_hsl(cls, value):
         ''' Create a new color by converting from an HSL color.
 
@@ -115,7 +115,7 @@ class Color(object):
         raise NotImplementedError
 
     @classmethod
-    @public((1,0,0))
+    @general((1,0,0))
     def from_rgb(cls, value):
         ''' Create a new color by converting from an RGB color.
 
@@ -131,7 +131,7 @@ class Color(object):
         '''
         raise NotImplementedError
 
-    @public((1,0,0))
+    @general((1,0,0))
     def lighten(self, amount):
         ''' Lighten (increase the luminance) of this color.
 
@@ -147,7 +147,7 @@ class Color(object):
         hsl.l = self.clamp(hsl.l + amount, 1)
         return self.from_hsl(hsl)
 
-    @public((1,0,0))
+    @general((1,0,0))
     def to_css(self):
         ''' Return a CSS representation of this color.
 
@@ -160,7 +160,7 @@ class Color(object):
         raise NotImplementedError
 
 
-    @public((1,0,0))
+    @general((1,0,0))
     def to_hsl(self):
         ''' Create a new HSL color by converting from this color.
 
@@ -172,7 +172,7 @@ class Color(object):
         '''
         raise NotImplementedError
 
-    @public((1,0,0))
+    @general((1,0,0))
     def to_rgb(self):
         ''' Create a new HSL color by converting from this color.
 
@@ -185,7 +185,7 @@ class Color(object):
         raise NotImplementedError
 
 #-----------------------------------------------------------------------------
-# Internal API
+# Dev API
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------

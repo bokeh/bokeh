@@ -13,7 +13,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import pytest ; pytest
 
-from bokeh.util.api import INTERNAL, PUBLIC ; INTERNAL, PUBLIC
+from bokeh.util.api import DEV, GENERAL ; DEV, GENERAL
 from bokeh.util.testing import verify_api ; verify_api
 
 #-----------------------------------------------------------------------------
@@ -36,12 +36,12 @@ import bokeh.embed.server as bes
 
 api = {
 
-    PUBLIC: (
+    GENERAL: (
 
         ( 'server_document', (1, 0, 0) ),
         ( 'server_session',  (1, 0, 0) ),
 
-    ), INTERNAL: (
+    ), DEV: (
 
         ( 'server_html_page_for_session', (1, 0, 0) ),
 
@@ -63,7 +63,7 @@ def test_plot():
     return test_plot
 
 #-----------------------------------------------------------------------------
-# Public API
+# General API
 #-----------------------------------------------------------------------------
 
 class TestServerDocument(object):
@@ -251,7 +251,7 @@ class TestServerSession(object):
                           'src' : src }
 
 #-----------------------------------------------------------------------------
-# Internal API
+# Dev API
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------

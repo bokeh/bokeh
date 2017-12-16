@@ -13,7 +13,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import pytest ; pytest
 
-from bokeh.util.api import INTERNAL, PUBLIC ; INTERNAL, PUBLIC
+from bokeh.util.api import DEV, GENERAL ; DEV, GENERAL
 from bokeh.util.testing import verify_api ; verify_api
 
 #-----------------------------------------------------------------------------
@@ -50,55 +50,55 @@ class aclass(object):
     @aprop.setter
     def aprop(self): pass
 
-@bua.public("foo")
+@bua.general("foo")
 def pub_func():
     """doc"""
     pass
 
-@bua.internal("foo")
+@bua.dev("foo")
 def int_func():
     """doc"""
     pass
 
-@bua.public("foo")
+@bua.general("foo")
 class pub_class(object):
     """doc"""
 
-    @bua.public("foo")
+    @bua.general("foo")
     def pub_meth(self):
         """doc"""
         pass
 
-    @bua.internal("foo")
+    @bua.dev("foo")
     def int_meth():
         """doc"""
         pass
 
     @property
-    @bua.public("foo")
+    @bua.general("foo")
     def pub_prop(self):
         """doc"""
         pass
 
     @pub_prop.setter
-    @bua.public("foo")
+    @bua.general("foo")
     def pub_prop(self, val):
         """doc"""
         pass
 
     @property
-    @bua.internal("foo")
+    @bua.dev("foo")
     def int_prop(self):
         """doc"""
         pass
 
     @int_prop.setter
-    @bua.internal("foo")
+    @bua.dev("foo")
     def int_prop(self, val):
         """doc"""
         pass
 
-@bua.internal("foo")
+@bua.dev("foo")
 class int_class(pub_class):
     """doc"""
     pass
@@ -108,31 +108,31 @@ pub_objs = [pub_func, pub_class, pub_class.pub_meth, pub_class.pub_prop.fget, pu
 int_objs = [int_func, int_class, int_class.int_meth, pub_class.int_prop.fget, pub_class.int_prop.fset]
 
 #-----------------------------------------------------------------------------
-# Public API
+# General API
 #-----------------------------------------------------------------------------
 
-def test_PUBLIC():
+def test_GENERAL():
     # not like this couldn't ever change, but should be intentional
-    assert bua.PUBLIC == "public"
+    assert bua.GENERAL == "general"
 
-def test_INTERNAL():
+def test_DEV():
     # not like this couldn't ever change, but should be intentional
-    assert bua.INTERNAL == "internal"
+    assert bua.DEV == "dev"
 
 @pytest.mark.parametrize('obj', pub_objs, ids=str)
-def test_public_sets_level(obj):
-    assert bua.is_level(obj, bua.PUBLIC)
+def test_general_sets_level(obj):
+    assert bua.is_level(obj, bua.GENERAL)
 
 @pytest.mark.parametrize('obj', int_objs, ids=str)
-def test_internal_sets_level(obj):
-    assert bua.is_level(obj, bua.INTERNAL)
+def test_dev_sets_level(obj):
+    assert bua.is_level(obj, bua.DEV)
 
 @pytest.mark.parametrize('obj', pub_objs, ids=str)
-def test_public_sets_version(obj):
+def test_general_sets_version(obj):
     assert bua.is_version(obj, "foo")
 
 @pytest.mark.parametrize('obj', int_objs, ids=str)
-def test_internal_sets_version(obj):
+def test_dev_sets_version(obj):
     assert bua.is_version(obj, "foo")
 
 @pytest.mark.parametrize('obj', plain_objs, ids=str)
@@ -140,20 +140,20 @@ def test_is_declared_is_false_for_undeclared(obj):
     assert bua.is_declared(obj) is False
 
 @pytest.mark.parametrize('obj', pub_objs+int_objs, ids=str)
-def test_is_declared_is_false_for_public_or_internal(obj):
+def test_is_declared_is_false_for_general_or_dev(obj):
     assert bua.is_declared(obj) is True
 
 def test_is_level():
     class Test(object): pass
     obj = Test()
 
-    obj.__bklevel__ = bua.PUBLIC
-    assert bua.is_level(obj, bua.PUBLIC)
-    assert not bua.is_level(obj, bua.INTERNAL)
+    obj.__bklevel__ = bua.GENERAL
+    assert bua.is_level(obj, bua.GENERAL)
+    assert not bua.is_level(obj, bua.DEV)
 
-    obj.__bklevel__ = bua.INTERNAL
-    assert bua.is_level(obj, bua.INTERNAL)
-    assert not bua.is_level(obj, bua.PUBLIC)
+    obj.__bklevel__ = bua.DEV
+    assert bua.is_level(obj, bua.DEV)
+    assert not bua.is_level(obj, bua.GENERAL)
 
 def test_is_level_raises_on_bad_level():
     with pytest.raises(ValueError):
@@ -168,7 +168,7 @@ def test_is_version():
     assert not bua.is_version(obj, "bar")
 
 #-----------------------------------------------------------------------------
-# Internal API
+# Dev API
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
@@ -176,26 +176,26 @@ def test_is_version():
 #-----------------------------------------------------------------------------
 
 def test__LEVELS():
-    assert bua._LEVELS == [bua.PUBLIC, bua.INTERNAL]
+    assert bua._LEVELS == [bua.GENERAL, bua.DEV]
 
-# most of the testing of _access is done by testing @public and @internal
+# most of the testing of _access is done by testing @general and @dev
 # above, with the two tests below ensuring that those functions defer the
 # actual work to _access
 
 @patch("bokeh.util.api._access")
-def test__access_called_by_public(mock_access):
-    r = bua.public("v")
+def test__access_called_by_general(mock_access):
+    r = bua.general("v")
     assert callable(r)
     assert mock_access.call_count == 1
-    assert mock_access.call_args[0] == ('v', bua.PUBLIC)
+    assert mock_access.call_args[0] == ('v', bua.GENERAL)
     assert mock_access.call_args[1] == {}
 
 @patch("bokeh.util.api._access")
-def test__access_called_by_internal(mock_access):
-    r = bua.internal("v")
+def test__access_called_by_dev(mock_access):
+    r = bua.dev("v")
     assert callable(r)
     assert mock_access.call_count == 1
-    assert mock_access.call_args[0] == ('v', bua.INTERNAL)
+    assert mock_access.call_args[0] == ('v', bua.DEV)
     assert mock_access.call_args[1] == {}
 
 def test__access_sets___bkapi__():
@@ -204,7 +204,7 @@ def test__access_sets___bkapi__():
 
     # Also note, using globals here otherwise Flake8 will complain about
     # undeclared __bkapi__
-    assert globals()['__bkapi__'] == {bua.PUBLIC: 5, bua.INTERNAL:5}
+    assert globals()['__bkapi__'] == {bua.GENERAL: 5, bua.DEV:5}
 
 @pytest.mark.parametrize('obj', pub_objs+int_objs, ids=str)
 def test__access_preserves___doc__(obj):
@@ -220,17 +220,17 @@ def test__increment_api_count():
     obj = Test()
 
     assert not hasattr(obj, '__bkapi__')
-    bua._increment_api_count(obj, bua.PUBLIC)
-    assert(obj.__bkapi__) == {bua.PUBLIC: 1, bua.INTERNAL: 0}
+    bua._increment_api_count(obj, bua.GENERAL)
+    assert(obj.__bkapi__) == {bua.GENERAL: 1, bua.DEV: 0}
 
-    bua._increment_api_count(obj, bua.PUBLIC)
-    assert(obj.__bkapi__) == {bua.PUBLIC: 2, bua.INTERNAL: 0}
+    bua._increment_api_count(obj, bua.GENERAL)
+    assert(obj.__bkapi__) == {bua.GENERAL: 2, bua.DEV: 0}
 
-    bua._increment_api_count(obj, bua.INTERNAL)
-    assert(obj.__bkapi__) == {bua.PUBLIC: 2, bua.INTERNAL: 1}
+    bua._increment_api_count(obj, bua.DEV)
+    assert(obj.__bkapi__) == {bua.GENERAL: 2, bua.DEV: 1}
 
-    bua._increment_api_count(obj, bua.PUBLIC)
-    assert(obj.__bkapi__) == {bua.PUBLIC: 3, bua.INTERNAL: 1}
+    bua._increment_api_count(obj, bua.GENERAL)
+    assert(obj.__bkapi__) == {bua.GENERAL: 3, bua.DEV: 1}
 
-    bua._increment_api_count(obj, bua.INTERNAL)
-    assert(obj.__bkapi__) == {bua.PUBLIC: 3, bua.INTERNAL: 2}
+    bua._increment_api_count(obj, bua.DEV)
+    assert(obj.__bkapi__) == {bua.GENERAL: 3, bua.DEV: 2}

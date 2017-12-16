@@ -13,7 +13,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import pytest ; pytest
 
-from bokeh.util.api import INTERNAL, PUBLIC ; INTERNAL, PUBLIC
+from bokeh.util.api import DEV, GENERAL ; DEV, GENERAL
 from bokeh.util.testing import verify_api ; verify_api
 
 #-----------------------------------------------------------------------------
@@ -37,7 +37,7 @@ import bokeh.transform as bt
 
 api = {
 
-    PUBLIC: (
+    GENERAL: (
 
         ( 'dodge',       (1, 0, 0) ),
         ( 'factor_cmap', (1, 0, 0) ),
@@ -47,7 +47,7 @@ api = {
         ( 'stack',       (1, 0, 0) ),
         ( 'transform',   (1, 0, 0) ),
 
-    ), INTERNAL: (
+    ), DEV: (
 
     )
 
@@ -70,7 +70,7 @@ ALL = (
 )
 
 #-----------------------------------------------------------------------------
-# Public API
+# General API
 #-----------------------------------------------------------------------------
 
 Test___all__ = verify_all(bt, ALL)
@@ -232,7 +232,7 @@ class Test_transform(object):
         assert t == dict(field="foo", transform="junk")
 
 #-----------------------------------------------------------------------------
-# Internal API
+# Dev API
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------

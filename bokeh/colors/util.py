@@ -17,7 +17,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import logging
 log = logging.getLogger(__name__)
 
-from bokeh.util.api import public, internal ; public, internal
+from bokeh.util.api import general, dev ; general, dev
 
 #-----------------------------------------------------------------------------
 # Imports
@@ -37,11 +37,11 @@ from .rgb import RGB
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
-# Public API
+# General API
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
-# Internal API
+# Dev API
 #-----------------------------------------------------------------------------
 
 # Normally this would go under Private API but it is needed to define ColorGroup
@@ -77,13 +77,13 @@ class _ColorGroupMeta(type):
             return getattr(named, v.lower())
         return super(_ColorGroupMeta, self).__getattr__(v)
 
-@internal((1,0,0))
+@dev((1,0,0))
 class ColorGroup(with_metaclass(_ColorGroupMeta)):
     ''' Collect a group of named colors into an iterable, indexable group.
 
     '''
 
-@internal((1,0,0))
+@dev((1,0,0))
 class NamedColor(RGB):
     ''' Represent a CSS named color, provided as RGB values.
 
@@ -117,7 +117,7 @@ class NamedColor(RGB):
         self.name = name
         super(NamedColor, self).__init__(r, g, b)
 
-    @internal((1,0,0))
+    @dev((1,0,0))
     def to_css(self):
         '''
 

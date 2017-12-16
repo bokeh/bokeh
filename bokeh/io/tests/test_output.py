@@ -13,7 +13,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import pytest ; pytest
 
-from bokeh.util.api import INTERNAL, PUBLIC ; INTERNAL, PUBLIC
+from bokeh.util.api import DEV, GENERAL ; DEV, GENERAL
 from bokeh.util.testing import verify_api ; verify_api
 
 #-----------------------------------------------------------------------------
@@ -38,13 +38,13 @@ import bokeh.io.output as bio
 
 api = {
 
-    PUBLIC: (
+    GENERAL: (
 
         ( 'output_file',     (1, 0, 0) ),
         ( 'output_notebook', (1, 0, 0) ),
         ( 'reset_output',    (1, 0, 0) ),
 
-    ), INTERNAL: (
+    ), DEV: (
 
     )
 
@@ -57,7 +57,7 @@ Test_api = verify_api(bio, api)
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
-# Public API
+# General API
 #-----------------------------------------------------------------------------
 
 class Test_output_file(object):
@@ -104,7 +104,7 @@ def test_reset_output(mock_reset):
     assert curstate().reset.call_count == original_call_count+1
 
 #-----------------------------------------------------------------------------
-# Internal API
+# Dev API
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
