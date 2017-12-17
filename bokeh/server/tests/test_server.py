@@ -143,8 +143,7 @@ def test__lifecycle_hooks():
         def check_done():
             if len(handler.hooks) == 4:
                 server.io_loop.stop()
-        server_load_checker = PeriodicCallback(check_done, 1,
-                                               io_loop=server.io_loop)
+        server_load_checker = PeriodicCallback(check_done, 1)
         server_load_checker.start()
         server.io_loop.start()
         server_load_checker.stop()

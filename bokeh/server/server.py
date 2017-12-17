@@ -393,10 +393,7 @@ class Server(BaseServer):
         try:
             tornado_app = BokehTornado(applications, extra_websocket_origins=extra_websocket_origins, prefix=self.prefix, **kwargs)
 
-            if io_loop is not None:
-                http_server = HTTPServer(tornado_app, io_loop=io_loop, **http_server_kwargs)
-            else:
-                http_server = HTTPServer(tornado_app, **http_server_kwargs)
+            http_server = HTTPServer(tornado_app, **http_server_kwargs)
 
             http_server.start(opts.num_procs)
             http_server.add_sockets(sockets)

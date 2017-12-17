@@ -41,7 +41,7 @@ def websocket_open(io_loop, url, origin=None):
     request = HTTPRequest(url)
     if origin is not None:
         request.headers['Origin'] = origin
-    websocket_connect(request, callback=handle_connection, io_loop=io_loop)
+    websocket_connect(request, callback=handle_connection)
 
     io_loop.start()
 
@@ -60,6 +60,12 @@ class ManagedServerLoop(object):
     def __init__(self, application, **server_kwargs):
         loop = IOLoop()
         loop.make_current()
+        try:
+            import asyncio
+        except ImportError:
+            pass
+        else:
+            asyncio.set_event_loop(loop.asyncio_loop)
         server_kwargs['io_loop'] = loop
         self._server = Server(application, **server_kwargs)
     def __exit__(self, type, value, traceback):
