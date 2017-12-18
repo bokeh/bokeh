@@ -31,12 +31,7 @@ def run(loop):
 class LoopAndGroup(object):
     def __init__(self, quit_after=None):
         self.io_loop = IOLoop()
-        try:
-            import asyncio
-        except ImportError:
-            pass
-        else:
-            asyncio.set_event_loop(self.io_loop.asyncio_loop)
+        self.io_loop.make_current()
         self.group = _CallbackGroup(self.io_loop)
 
         if quit_after is not None:

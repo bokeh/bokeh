@@ -60,12 +60,6 @@ class ManagedServerLoop(object):
     def __init__(self, application, **server_kwargs):
         loop = IOLoop()
         loop.make_current()
-        try:
-            import asyncio
-        except ImportError:
-            pass
-        else:
-            asyncio.set_event_loop(loop.asyncio_loop)
         server_kwargs['io_loop'] = loop
         self._server = Server(application, **server_kwargs)
     def __exit__(self, type, value, traceback):
