@@ -2,6 +2,16 @@ import {Annotation, AnnotationView} from "./annotation"
 import {div, show, hide, empty} from "core/dom"
 import * as p from "core/properties"
 
+export compute_side = (attachment, sx, sy, hcenter, vcenter) ->
+  switch attachment
+    when "horizontal"
+      side = if sx < hcenter then 'right' else 'left'
+    when "vertical"
+      side = if sy < vcenter then 'below' else 'above'
+    else
+      side = attachment
+  return side
+
 export class TooltipView extends AnnotationView
   className: "bk-tooltip"
 
@@ -43,14 +53,7 @@ export class TooltipView extends AnnotationView
       tip = div({}, content)
       @el.appendChild(tip)
 
-    attachment = @model.attachment
-    switch attachment
-      when "horizontal"
-        side = if sx < frame._hcenter.value then 'right' else 'left'
-      when "vertical"
-        side = if sy < frame._vcenter.value then 'below' else 'above'
-      else
-        side = attachment
+    side = compute_side(@model.attachment, sx, sy, frame._hcenter.value, frame._vcenter.value)
 
     @el.classList.remove("bk-right")
     @el.classList.remove("bk-left")
@@ -61,6 +64,8 @@ export class TooltipView extends AnnotationView
 
     show(@el) # XXX: {offset,client}Width() gives 0 when display="none"
 
+    # slightly confusing: side "left" is relative to point that is being annotated
+    # but CS class "bk-left" is relative to the tooltip itself
     switch side
       when "right"
         @el.classList.add("bk-left")
@@ -70,11 +75,11 @@ export class TooltipView extends AnnotationView
         @el.classList.add("bk-right")
         left = sx - @el.offsetWidth - arrow_size
         top = sy - @el.offsetHeight/2
-      when "above"
+      when "below"
         @el.classList.add("bk-above")
         top = sy + (@el.offsetHeight - @el.clientHeight) + arrow_size
         left = Math.round(sx - @el.offsetWidth/2)
-      when "below"
+      when "above"
         @el.classList.add("bk-below")
         top = sy - @el.offsetHeight - arrow_size
         left = Math.round(sx - @el.offsetWidth/2)
