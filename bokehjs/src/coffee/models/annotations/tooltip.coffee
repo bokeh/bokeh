@@ -64,8 +64,8 @@ export class TooltipView extends AnnotationView
 
     show(@el) # XXX: {offset,client}Width() gives 0 when display="none"
 
-    # slightly confusing: side "left" is relative to point that is being annotated
-    # but CS class "bk-left" is relative to the tooltip itself
+    # slightly confusing: side "left" (for example) is relative to point that
+    # is being annotated but CS class "bk-left" is relative to the tooltip itself
     switch side
       when "right"
         @el.classList.add("bk-left")
