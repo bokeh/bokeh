@@ -1,14 +1,17 @@
 import {ButtonToolButtonView} from "./button_tool"
 
-export class OnOffButtonView extends ButtonToolButtonView
+export class OnOffButtonView extends ButtonToolButtonView {
 
-  render: () ->
-    super()
-    if @model.active
-      @el.classList.add('bk-active')
+  render(): void {
+    super.render()
+    if (this.model.active)
+      this.el.classList.add('bk-active')
     else
-      @el.classList.remove('bk-active')
+      this.el.classList.remove('bk-active')
+  }
 
-  _clicked: () ->
-    active = @model.active
-    @model.active = not active
+  protected _clicked(): void {
+    const active = this.model.active
+    this.model.active = !active
+  }
+}

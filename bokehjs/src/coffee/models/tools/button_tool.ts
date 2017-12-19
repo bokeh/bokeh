@@ -25,7 +25,7 @@ export abstract class ButtonToolButtonView extends DOMView {
     this.el.title = this.model.tooltip
   }
 
-  abstract _clicked(): void
+  protected abstract _clicked(): void
 }
 
 ButtonToolButtonView.prototype.className = "bk-toolbar-button"
