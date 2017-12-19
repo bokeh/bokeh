@@ -1,39 +1,56 @@
+import {Class} from "core/class"
 import {DOMView} from "core/dom_view"
 import {Tool, ToolView} from "./tool"
-import {div, span, empty} from "core/dom"
+import {empty} from "core/dom"
 import * as p from "core/properties"
 
-export class ButtonToolButtonView extends DOMView
-  className: "bk-toolbar-button"
+export abstract class ButtonToolButtonView extends DOMView {
 
-  initialize: (options) ->
-    super(options)
-    @connect(@model.change, () => @render())
-    @el.addEventListener "click", (e) =>
+  model: ButtonTool
+
+  initialize(options: any): void {
+    super.initialize(options)
+    this.connect(this.model.change, () => this.render())
+    this.el.addEventListener("click", (e) => {
       e.stopPropagation()
       e.preventDefault()
-      @_clicked()
-    @render()
-
-  render: () ->
-    empty(@el)
-    @el.disabled = @model.disabled
-    @el.classList.add(@model.icon)
-    @el.title = @model.tooltip
-
-  _clicked: () ->
-
-export class ButtonToolView extends ToolView
-
-export class ButtonTool extends Tool
-  button_view: ButtonToolButtonView
-
-  icon: null
-
-  @getters {
-    tooltip: () -> @tool_name
+      this._clicked()
+    })
+    this.render()
   }
 
-  @internal {
-    disabled: [ p.Boolean, false ]
+  render(): void {
+    empty(this.el)
+    this.el.classList.add(this.model.icon)
+    this.el.title = this.model.tooltip
   }
+
+  abstract _clicked(): void
+}
+
+ButtonToolButtonView.prototype.className = "bk-toolbar-button"
+
+export abstract class ButtonToolView extends ToolView {
+  model: ButtonTool
+}
+
+export abstract class ButtonTool extends Tool {
+
+  disabled: boolean
+
+  tool_name: string
+
+  icon: string
+
+  button_view: Class<ButtonToolButtonView>
+
+  get tooltip(): string {
+    return this.tool_name
+  }
+}
+
+ButtonTool.prototype.type = "ButtonTool"
+
+ButtonTool.internal({
+  disabled: [ p.Boolean, false ]
+})
