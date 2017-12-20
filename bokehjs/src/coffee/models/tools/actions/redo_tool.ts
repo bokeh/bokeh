@@ -1,20 +1,28 @@
 import {ActionTool, ActionToolView} from "./action_tool"
 
-export class RedoToolView extends ActionToolView
+export class RedoToolView extends ActionToolView {
 
-  initialize: (options) ->
-    super(options)
-    @connect(@plot_view.state_changed, () => @model.disabled = not @plot_view.can_redo())
+  model: RedoTool
 
-  doit: () ->
-    @plot_view.redo()
-
-export class RedoTool extends ActionTool
-  default_view: RedoToolView
-  type: "RedoTool"
-  tool_name: "Redo"
-  icon: "bk-tool-icon-redo"
-
-  @override {
-    disabled: true
+  connect_signals(): void {
+    super.connect_signals()
+    this.connect(this.plot_view.state_changed, () => this.model.disabled = !this.plot_view.can_redo())
   }
+
+  doit(): void {
+    this.plot_view.redo()
+  }
+}
+
+export class RedoTool extends ActionTool {
+  tool_name = "Redo"
+  icon = "bk-tool-icon-redo"
+}
+
+RedoTool.prototype.type = "RedoTool"
+
+RedoTool.prototype.default_view = RedoToolView
+
+RedoTool.override({
+  disabled: true
+})

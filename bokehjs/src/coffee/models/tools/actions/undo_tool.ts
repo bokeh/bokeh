@@ -1,20 +1,28 @@
 import {ActionTool, ActionToolView} from "./action_tool"
 
-export class UndoToolView extends ActionToolView
+export class UndoToolView extends ActionToolView {
 
-  initialize: (options) ->
-    super(options)
-    @connect(@plot_view.state_changed, () => @model.disabled = not @plot_view.can_undo())
+  model: UndoTool
 
-  doit: () ->
-    @plot_view.undo()
-
-export class UndoTool extends ActionTool
-  default_view: UndoToolView
-  type: "UndoTool"
-  tool_name: "Undo"
-  icon: "bk-tool-icon-undo"
-
-  @override {
-    disabled: true
+  connect_signals(): void {
+    super.connect_signals()
+    this.connect(this.plot_view.state_changed, () => this.model.disabled = !this.plot_view.can_undo())
   }
+
+  doit(): void {
+    this.plot_view.undo()
+  }
+}
+
+export class UndoTool extends ActionTool {
+  tool_name = "Undo"
+  icon = "bk-tool-icon-undo"
+}
+
+UndoTool.prototype.type = "UndoTool"
+
+UndoTool.prototype.default_view = UndoToolView
+
+UndoTool.override({
+  disabled: true,
+})

@@ -1,21 +1,32 @@
 import {ButtonTool, ButtonToolView, ButtonToolButtonView} from "../button_tool"
 import {Signal} from "core/signaling"
 
-export class ActionToolButtonView extends ButtonToolButtonView
+export class ActionToolButtonView extends ButtonToolButtonView {
 
-  _clicked: () ->
-    @model.do.emit()
+  model: ActionTool
 
-export class ActionToolView extends ButtonToolView
+  protected _clicked(): void {
+    this.model.do.emit(undefined)
+  }
+}
 
-  initialize: (options) ->
-    super(options)
-    @connect(@model.do, () -> @doit())
+export abstract class ActionToolView extends ButtonToolView {
 
-export class ActionTool extends ButtonTool
+  model: ActionTool
 
-  button_view: ActionToolButtonView
+  connect_signals(): void {
+    super.connect_signals()
+    this.connect(this.model.do, () => this.doit())
+  }
 
-  initialize: (attrs, options) ->
-    super(attrs, options)
-    @do = new Signal(this, "do")
+  abstract doit(): void
+}
+
+export abstract class ActionTool extends ButtonTool {
+
+  button_view = ActionToolButtonView
+
+  do = new Signal<void, this>(this, "do")
+}
+
+ActionTool.prototype.type = "ActionTool"

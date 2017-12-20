@@ -1,37 +1,49 @@
 import {ActionTool, ActionToolView} from "./action_tool"
+import {Dimensions} from "core/enums"
 import {scale_range} from "core/util/zoom"
 
 import * as p from "core/properties"
 
-export class ZoomOutToolView extends ActionToolView
+export class ZoomOutToolView extends ActionToolView {
 
-  doit: () ->
-    frame = @plot_model.frame
-    dims = @model.dimensions
+  model: ZoomOutTool
 
-    # restrict to axis configured in tool's dimensions property
-    h_axis = dims == 'width'  or dims == 'both'
-    v_axis = dims == 'height' or dims == 'both'
+  doit(): void {
+    const frame = this.plot_model.frame
+    const dims = this.model.dimensions
 
-    # zooming out requires a negative factor to scale_range
-    zoom_info = scale_range(frame, -@model.factor, h_axis, v_axis)
+    // restrict to axis configured in tool's dimensions property
+    const h_axis = dims == 'width'  || dims == 'both'
+    const v_axis = dims == 'height' || dims == 'both'
 
-    @plot_view.push_state('zoom_out', {range: zoom_info})
-    @plot_view.update_range(zoom_info, false, true)
-    @model.document?.interactive_start(@plot_model.plot)
-    return null
+    // zooming out requires a negative factor to scale_range
+    const zoom_info = scale_range(frame, -this.model.factor, h_axis, v_axis)
 
-export class ZoomOutTool extends ActionTool
-  default_view: ZoomOutToolView
-  type: "ZoomOutTool"
-  tool_name: "Zoom Out"
-  icon: "bk-tool-icon-zoom-out"
+    this.plot_view.push_state('zoom_out', {range: zoom_info})
+    this.plot_view.update_range(zoom_info, false, true)
 
-  @getters {
-    tooltip: () -> @_get_dim_tooltip(@tool_name, @dimensions)
+    if (this.model.document)
+      this.model.document.interactive_start(this.plot_model.plot)
   }
+}
 
-  @define {
-    factor:     [ p.Percent,    0.1    ]
-    dimensions: [ p.Dimensions, "both" ]
+export class ZoomOutTool extends ActionTool {
+  factor: number
+  dimensions: Dimensions
+
+  tool_name = "Zoom Out"
+  icon = "bk-tool-icon-zoom-out"
+
+  get tooltip(): string {
+    return this._get_dim_tooltip(this.tool_name, this.dimensions)
   }
+}
+
+ZoomOutTool.prototype.type = "ZoomOutTool"
+
+ZoomOutTool.prototype.default_view = ZoomOutToolView
+
+ZoomOutTool.define({
+  factor:     [ p.Percent,    0.1    ],
+  dimensions: [ p.Dimensions, "both" ],
+})

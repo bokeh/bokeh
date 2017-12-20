@@ -1,11 +1,19 @@
 import {ActionTool, ActionToolView} from "./action_tool"
 
-export class SaveToolView extends ActionToolView
+export class SaveToolView extends ActionToolView {
 
-  doit: () -> @plot_view.save("bokeh_plot")
+  model: SaveTool
 
-export class SaveTool extends ActionTool
-  default_view: SaveToolView
-  type: "SaveTool"
-  tool_name: "Save"
-  icon: "bk-tool-icon-save"
+  doit(): void {
+    this.plot_view.save("bokeh_plot")
+  }
+}
+
+export class SaveTool extends ActionTool {
+  tool_name = "Save"
+  icon = "bk-tool-icon-save"
+}
+
+SaveTool.prototype.type = "SaveTool"
+
+SaveTool.prototype.default_view = SaveToolView

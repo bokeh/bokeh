@@ -40,6 +40,7 @@ export class PlotCanvasView extends DOMView
   `
   model: PlotCanvas
   canvas_view: CanvasView
+  state_changed: Signal<void, this>
   `
 
   className: "bk-plot-wrapper"
@@ -738,7 +739,7 @@ export class PlotCanvas extends LayoutDOM
   default_view: PlotCanvasView
 
   `
-  //plot: Plot
+  plot: any // Plot
   toolbar: Toolbar
   canvas: Canvas
   frame: CartesianFrame
