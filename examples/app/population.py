@@ -17,7 +17,7 @@ ages = ColumnDataSource(data=dict(AgeGrp=[], Sex=[], Value=[]))
 
 gender_transform = CustomJSTransform(args=dict(source=ages), func="", v_func="""
     var val = new Float64Array(xs.length)
-    for (i = 0; i < xs.length; i++) {
+    for (var i = 0; i < xs.length; i++) {
         if (source.data['Sex'][i] == 'Male') { val[i] = -xs[i] }
         else { val[i] = xs[i] }
     }
