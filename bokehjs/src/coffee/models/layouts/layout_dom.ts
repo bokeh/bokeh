@@ -1,13 +1,12 @@
 import {Model} from "../../model"
 import {SizingMode} from "core/enums"
-import {empty} from "core/dom"
+import {empty, margin} from "core/dom"
 import * as p from "core/properties"
 import {LayoutCanvas} from "core/layout/layout_canvas"
 import {Solver, GE, EQ, Strength, Variable, Constraint} from "core/layout/solver"
 
 import {build_views} from "core/build_views"
 import {DOMView} from "core/dom_view"
-import {logger} from "core/logging"
 
 export type Layoutable = LayoutCanvas | LayoutDOM
 
@@ -74,21 +73,29 @@ export abstract class LayoutDOMView extends DOMView {
     }
   }
 
-  _calc_width_height(): [number | null, number | null] {
+  protected _calc_width_height(): [number | null, number | null] {
     let measuring: HTMLElement | null = this.el
 
-    while (true) {
-      measuring = measuring.parentElement
-      if (measuring == null) {
-        logger.warn("detached element")
-        break
+    while (measuring = measuring.parentElement) {
+      // .bk-root element doesn't bring any value
+      if (measuring.classList.contains("bk-root"))
+        continue
+
+      // we reached <body> element, so use viewport size
+      if (measuring == document.body) {
+        const {left, right, top, bottom} = margin(document.body)
+        const width  = document.documentElement.clientWidth  - left - right
+        const height = document.documentElement.clientHeight - top  - bottom
+        return [width, height]
       }
 
+      // stop on first element with sensible dimensions
       const {width, height} = measuring.getBoundingClientRect()
-      if (height != 0)
+      if( width != 0 && height != 0)
         return [width, height]
     }
 
+    // this element is detached from DOM
     return [null, null]
   }
 

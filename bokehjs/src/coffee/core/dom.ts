@@ -152,6 +152,18 @@ export function parent(el: HTMLElement, selector: string): HTMLElement | null {
   return null
 }
 
+export type Sizing = {top: number, bottom: number, left: number, right: number}
+
+export function margin(el: HTMLElement): Sizing {
+  const style = getComputedStyle(el)
+  return {
+    top:    parseFloat(style.marginTop!)    || 0,
+    bottom: parseFloat(style.marginBottom!) || 0,
+    left:   parseFloat(style.marginLeft!)   || 0,
+    right:  parseFloat(style.marginRight!)  || 0,
+  }
+}
+
 export enum Keys {
   Tab      = 9,
   Enter    = 13,
