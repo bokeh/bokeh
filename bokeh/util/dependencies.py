@@ -4,7 +4,6 @@
 from importlib import import_module
 import logging
 import shutil
-import sys
 from subprocess import Popen, PIPE
 
 from ..settings import settings

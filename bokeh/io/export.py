@@ -87,7 +87,7 @@ def export_png(obj, filename=None, height=None, width=None, webdriver=None):
 
     image.save(filename)
 
-    return abspath("")
+    return abspath(filename)
 
 
 @general((1,0,0))
