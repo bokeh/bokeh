@@ -70,5 +70,4 @@ def detect_phantomjs():
     except OSError:
         raise RuntimeError('PhantomJS is not present in PATH. Try "conda install phantomjs" or \
             "npm install -g phantomjs-prebuilt"')
-            
     return phantomjs_path
