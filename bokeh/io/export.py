@@ -201,6 +201,7 @@ def get_svgs(obj, driver=None, **kwargs):
     if driver is None: # only quit webdriver if not passed in as arg
         web_driver.quit()
 
+
     return svgs
 
 @dev((1,0,0))
@@ -299,8 +300,8 @@ def _create_default_webdriver():
                                 'To use bokeh.io image export functions you need selenium ' +
                                 '("conda install -c bokeh selenium" or "pip install selenium")')
 
-    detect_phantomjs()
-    return webdriver.PhantomJS(service_log_path=devnull)
+    phantomjs_path = detect_phantomjs()
+    return webdriver.PhantomJS(executable_path=phantomjs_path, service_log_path=devnull)
 
 #-----------------------------------------------------------------------------
 # Code

@@ -3,6 +3,7 @@
 '''
 from importlib import import_module
 import logging
+import shutil
 from subprocess import Popen, PIPE
 
 from ..settings import settings
@@ -56,13 +57,17 @@ def detect_phantomjs():
     if settings.phantomjs_path() is not None:
         phantomjs_path = settings.phantomjs_path()
     else:
-        phantomjs_path = "phantomjs"
+        try:
+            phantomjs_path = shutil.which('phantomjs')
+        # Python 2 relies on Environment variable in PATH - attempt to use as follows
+        except AttributeError:
+            phantomjs_path = "phantomjs"
 
     try:
         proc = Popen([phantomjs_path, "--version"], stdout=PIPE, stderr=PIPE)
         proc.wait()
+
     except OSError:
         raise RuntimeError('PhantomJS is not present in PATH. Try "conda install phantomjs" or \
-                           "npm install -g phantomjs-prebuilt"')
-    else:
-        return phantomjs_path
+            "npm install -g phantomjs-prebuilt"')
+    return phantomjs_path
