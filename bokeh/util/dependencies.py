@@ -54,14 +54,13 @@ def import_required(mod_name, error_msg):
 
 def detect_phantomjs():
     '''Detect if PhantomJS is avaiable in PATH.'''
-
-    try:
-        phantomjs_path = shutil.which('phantomjs')
-    # Python 2 relies on Environment variable in PATH
-    except AttributeError:
-        if settings.phantomjs_path() is not None:
-            phantomjs_path = settings.phantomjs_path()
-        else:
+    if settings.phantomjs_path() is not None:
+        phantomjs_path = settings.phantomjs_path()
+    else:
+        try:
+            phantomjs_path = shutil.which('phantomjs')
+        # Python 2 relies on Environment variable in PATH - attempt to use as follows
+        except AttributeError:
             phantomjs_path = "phantomjs"
 
     try:
@@ -70,6 +69,6 @@ def detect_phantomjs():
 
     except OSError:
         raise RuntimeError('PhantomJS is not present in PATH. Try "conda install phantomjs" or \
-                           "npm install -g phantomjs-prebuilt"')
-    else:
-        return phantomjs_path
+            "npm install -g phantomjs-prebuilt"')
+            
+    return phantomjs_path
