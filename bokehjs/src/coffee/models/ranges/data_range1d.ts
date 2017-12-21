@@ -93,6 +93,32 @@ export class DataRange1d extends DataRange {
     return result
   }
 
+   adjust_bounds_for_aspect(bounds: Rect, r: number) : Rect {
+    let result = bbox.empty()
+
+    let width = bounds.maxX - bounds.minX
+    if (width <= 0) { width = 1.0 }
+
+    let height = bounds.maxY - bounds.minY
+    if (height <= 0) { height = 1.0 }
+
+    const xcenter = 0.5*(bounds.maxX + bounds.minX)
+    const ycenter = 0.5*(bounds.maxY + bounds.minY)
+
+    if (width < r*height) {
+      width = r*height
+    } else {
+      height = width/r
+    }
+
+    result.maxX = xcenter+0.5*width
+    result.minX = xcenter-0.5*width
+    result.maxY = ycenter+0.5*height
+    result.minY = ycenter-0.5*height
+
+    return result
+  }
+
   protected _compute_min_max(plot_bounds: Bounds, dimension: Dim): [number, number] {
     let overall = bbox.empty()
     for (const k in plot_bounds) {
@@ -180,14 +206,19 @@ export class DataRange1d extends DataRange {
     return [start, end]
   }
 
-  update(bounds: Bounds, dimension: Dim, bounds_id: string): void {
+  update(bounds: Bounds, dimension: Dim, bounds_id: string, r: number): void {
     if (this.have_updated_interactively)
       return
 
     const renderers = this.computed_renderers()
 
     // update the raw data bounds for all renderers we care about
-    this._plot_bounds[bounds_id] = this._compute_plot_bounds(renderers, bounds)
+    let total_bounds = this._compute_plot_bounds(renderers, bounds)
+
+    if (r != null)
+      total_bounds = this.adjust_bounds_for_aspect(total_bounds, r)
+
+    this._plot_bounds[bounds_id] = total_bounds
 
     // compute the min/mix for our specified dimension
     const [min, max] = this._compute_min_max(this._plot_bounds, dimension)

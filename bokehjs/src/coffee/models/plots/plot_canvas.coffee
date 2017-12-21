@@ -216,35 +216,16 @@ export class PlotCanvasView extends DOMView
     follow_enabled = false
     has_bounds = false
 
+    unioned_bounds =
+
+    r = null
     if @model.plot.match_aspect != false and @frame._width.value != 0 and @frame._height.value != 0
       r = 1/@model.plot.aspect_scale*(@frame._width.value/@frame._height.value)
-      for k, v of bounds
-        if isFinite(v.maxX) and isFinite(v.minX) and isFinite(v.maxY) and isFinite(v.minY)
-          width = v.maxX - v.minX
-          if width <= 0
-            width = 1.0
-
-          height = v.maxY - v.minY
-          if height <= 0
-            height = 1.0
-
-          xcenter = 0.5*(v.maxX + v.minX)
-          ycenter = 0.5*(v.maxY + v.minY)
-
-          if width < r*height
-            width = r*height
-          else
-            height = width/r
-
-          bounds[k].maxX = xcenter+0.5*width
-          bounds[k].minX = xcenter-0.5*width
-          bounds[k].maxY = ycenter+0.5*height
-          bounds[k].minY = ycenter-0.5*height
 
     for xr in values(frame.x_ranges)
       if xr instanceof DataRange1d
         bounds_to_use = if xr.scale_hint == "log" then log_bounds else bounds
-        xr.update(bounds_to_use, 0, @model.id)
+        xr.update(bounds_to_use, 0, @model.id, r)
         if xr.follow
           follow_enabled = true
       has_bounds = true if xr.bounds?
@@ -252,7 +233,7 @@ export class PlotCanvasView extends DOMView
     for yr in values(frame.y_ranges)
       if yr instanceof DataRange1d
         bounds_to_use = if yr.scale_hint == "log" then log_bounds else bounds
-        yr.update(bounds_to_use, 1, @model.id)
+        yr.update(bounds_to_use, 1, @model.id, r)
         if yr.follow
           follow_enabled = true
       has_bounds = true if yr.bounds?
