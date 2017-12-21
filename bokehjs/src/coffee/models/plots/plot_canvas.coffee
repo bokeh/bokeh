@@ -216,8 +216,6 @@ export class PlotCanvasView extends DOMView
     follow_enabled = false
     has_bounds = false
 
-    unioned_bounds =
-
     r = null
     if @model.plot.match_aspect != false and @frame._width.value != 0 and @frame._height.value != 0
       r = 1/@model.plot.aspect_scale*(@frame._width.value/@frame._height.value)
