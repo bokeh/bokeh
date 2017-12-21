@@ -1,107 +1,167 @@
 import {GestureTool, GestureToolView} from "./gesture_tool"
 import * as p from "core/properties"
+import {Dimensions} from "core/enums"
 
-export class PanToolView extends GestureToolView
+export interface BkEv {
+  bokeh: {
+    sx: number
+    sy: number
+  }
+  srcEvent: {
+    shiftKey?: boolean
+  }
+  keyCode: number
+  deltaX: number
+  deltaY: number
+}
 
-  _pan_start: (e) ->
-    @last_dx = 0
-    @last_dy = 0
-    {sx, sy} = e.bokeh
-    bbox = @plot_view.frame.bbox
-    if not bbox.contains(sx, sy)
-      hr = bbox.h_range
-      vr = bbox.v_range
-      if sx < hr.start or sx > hr.end
-        @v_axis_only = true
-      if sy < vr.start or sy > vr.end
-        @h_axis_only = true
-    @model.document?.interactive_start(@plot_model.plot)
+export class PanToolView extends GestureToolView {
 
-  _pan: (e) ->
-    @_update(e.deltaX, e.deltaY)
-    @model.document?.interactive_start(@plot_model.plot)
+  model: PanTool
 
-  _pan_end: (e) ->
-    @h_axis_only = false
-    @v_axis_only = false
+  protected last_dx: number
+  protected last_dy: number
 
-    if @pan_info?
-      @plot_view.push_state('pan', {range: @pan_info})
+  protected v_axis_only: boolean
+  protected h_axis_only: boolean
 
-  _update: (dx, dy) ->
-    frame = @plot_view.frame
+  protected pan_info: {
+    xrs: {[key: string]: {start: number, end: number}}
+    yrs: {[key: string]: {start: number, end: number}}
+    sdx: number
+    sdy: number
+  }
 
-    new_dx = dx - @last_dx
-    new_dy = dy - @last_dy
+  _pan_start(e: BkEv): void {
+    this.last_dx = 0
+    this.last_dy = 0
+    const {sx, sy} = e.bokeh
+    const bbox = this.plot_model.frame.bbox
+    if (!bbox.contains(sx, sy)) {
+      const hr = bbox.h_range
+      const vr = bbox.v_range
+      if (sx < hr.start || sx > hr.end)
+        this.v_axis_only = true
+      if (sy < vr.start || sy > vr.end)
+        this.h_axis_only = true
+    }
 
-    hr = frame.bbox.h_range
-    sx_low  = hr.start - new_dx
-    sx_high = hr.end - new_dx
+    if (this.model.document != null)
+      this.model.document.interactive_start(this.plot_model.plot)
+  }
 
-    vr = frame.bbox.v_range
-    sy_low  = vr.start - new_dy
-    sy_high = vr.end - new_dy
+  _pan(e: BkEv): void {
+    this._update(e.deltaX, e.deltaY)
 
-    dims = @model.dimensions
+    if (this.model.document != null)
+      this.model.document.interactive_start(this.plot_model.plot)
+  }
 
-    if (dims == 'width' or dims == 'both') and not @v_axis_only
+  _pan_end(_e: BkEv): void {
+    this.h_axis_only = false
+    this.v_axis_only = false
+
+    if (this.pan_info != null)
+      this.plot_view.push_state('pan', {range: this.pan_info})
+  }
+
+  _update(dx: number, dy: number): void {
+    const frame = this.plot_model.frame
+
+    const new_dx = dx - this.last_dx
+    const new_dy = dy - this.last_dy
+
+    const hr = frame.bbox.h_range
+    const sx_low  = hr.start - new_dx
+    const sx_high = hr.end - new_dx
+
+    const vr = frame.bbox.v_range
+    const sy_low  = vr.start - new_dy
+    const sy_high = vr.end - new_dy
+
+    const dims = this.model.dimensions
+
+    let sx0: number
+    let sx1: number
+    let sdx: number
+    if ((dims == 'width' || dims == 'both') && !this.v_axis_only) {
       sx0 = sx_low
       sx1 = sx_high
       sdx = -new_dx
-    else
+    } else {
       sx0 = hr.start
       sx1 = hr.end
       sdx = 0
+    }
 
-    if (dims == 'height' or dims == 'both') and not @h_axis_only
+    let sy0: number
+    let sy1: number
+    let sdy: number
+    if ((dims == 'height' || dims == 'both') && !this.h_axis_only) {
       sy0 = sy_low
       sy1 = sy_high
       sdy = -new_dy
-    else
+    } else {
       sy0 = vr.start
       sy1 = vr.end
       sdy = 0
-
-    @last_dx = dx
-    @last_dy = dy
-
-    xrs = {}
-    for name, scale of frame.xscales
-      [start, end] = scale.r_invert(sx0, sx1)
-      xrs[name] = {start: start, end: end}
-
-    yrs = {}
-    for name, scale of frame.yscales
-      [start, end] = scale.r_invert(sy0, sy1)
-      yrs[name] = {start: start, end: end}
-
-    @pan_info = {
-      xrs: xrs
-      yrs: yrs
-      sdx: sdx
-      sdy: sdy
     }
 
-    @plot_view.update_range(@pan_info, is_panning=true)
-    return null
+    this.last_dx = dx
+    this.last_dy = dy
 
-export class PanTool extends GestureTool
-  default_view: PanToolView
-  type: "PanTool"
-  tool_name: "Pan"
-  event_type: "pan"
-  default_order: 10
+    const {xscales, yscales} = frame
 
-  @define {
-    dimensions: [ p.Dimensions, "both" ]
+    const xrs: {[key: string]: {start: number, end: number}} = {}
+    for (const name in xscales) {
+      const scale = xscales[name]
+      const [start, end] = scale.r_invert(sx0, sx1)
+      xrs[name] = {start: start, end: end}
+    }
+
+    const yrs: {[key: string]: {start: number, end: number}} = {}
+    for (const name in yscales) {
+      const scale = yscales[name]
+      const [start, end] = scale.r_invert(sy0, sy1)
+      yrs[name] = {start: start, end: end}
+    }
+
+    this.pan_info = {
+      xrs: xrs,
+      yrs: yrs,
+      sdx: sdx,
+      sdy: sdy,
+    }
+
+    this.plot_view.update_range(this.pan_info, true)
+  }
+}
+
+export class PanTool extends GestureTool {
+
+  dimensions: Dimensions
+
+  tool_name = "Pan"
+  event_type = "pan"
+  default_order = 10
+
+  get tooltip(): string {
+    return this._get_dim_tooltip("Pan", this.dimensions)
   }
 
-  @getters {
-    tooltip: () -> @_get_dim_tooltip("Pan", @dimensions)
-    icon: () ->
-      suffix = switch @dimensions
-        when "both"   then "pan"
-        when "width"  then "xpan"
-        when "height" then "ypan"
-      "bk-tool-icon-#{suffix}"
+  get icon(): string {
+    switch (this.dimensions) {
+      case "both":   return "bk-tool-icon-pan"
+      case "width":  return "bk-tool-icon-xpan"
+      case "height": return "bk-tool-icon-ypan"
+    }
   }
+}
+
+PanTool.prototype.type = "PanTool"
+
+PanTool.prototype.default_view = PanToolView
+
+PanTool.define({
+  dimensions: [ p.Dimensions, "both" ],
+})

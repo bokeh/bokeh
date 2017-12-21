@@ -1,94 +1,134 @@
 import {SelectTool, SelectToolView} from "./select_tool"
 import {PolyAnnotation} from "../../annotations/poly_annotation"
+import {PolyGeometry} from "core/geometry"
 import * as p from "core/properties"
+import {extend} from "core/util/object"
 
-export class LassoSelectToolView extends SelectToolView
+export interface BkEv {
+  bokeh: {
+    sx: number
+    sy: number
+  }
+  srcEvent: {
+    shiftKey?: boolean
+  }
+  keyCode: number
+}
 
-  initialize: (options) ->
-    super(options)
-    @connect(@model.properties.active.change, () -> @_active_change())
-    @data = null
+export class LassoSelectToolView extends SelectToolView {
 
-  _active_change: () ->
-    if not @model.active
-      @_clear_overlay()
+  model: LassoSelectTool
 
-  _keyup: (e) ->
-    if e.keyCode == 13
-      @_clear_overlay()
+  protected data: {sx: number[], sy: number[]} | null
 
-  _pan_start: (e) ->
-    {sx, sy} = e.bokeh
-    @data = {sx: [sx], sy: [sy]}
-    return null
+  initialize(options: any): void {
+    super.initialize(options)
+    this.data = null
+  }
 
-  _pan: (e) ->
-    {sx, sy} = e.bokeh
-    [sx, sy] = @plot_model.frame.bbox.clip(sx, sy)
+  connect_signals(): void {
+    super.connect_signals()
+    this.connect(this.model.properties.active.change, () => this._active_change())
+  }
 
-    @data.sx.push(sx)
-    @data.sy.push(sy)
+  _active_change(): void {
+    if (!this.model.active)
+      this._clear_overlay()
+  }
 
-    overlay = @model.overlay
-    overlay.update({xs: @data.sx, ys: @data.sy})
+  _keyup(e: BkEv): void {
+    if (e.keyCode == 13)
+      this._clear_overlay()
+  }
 
-    if @model.select_every_mousemove
-      append = e.srcEvent.shiftKey ? false
-      @_do_select(@data.sx, @data.sy, false, append)
+  _pan_start(e: BkEv): void {
+    const {sx, sy} = e.bokeh
+    this.data = {sx: [sx], sy: [sy]}
+  }
 
-  _pan_end: (e) ->
-    @_clear_overlay()
-    append = e.srcEvent.shiftKey ? false
-    @_do_select(@data.sx, @data.sy, true, append)
-    @plot_view.push_state('lasso_select', {selection: @plot_view.get_selection()})
+  _pan(e: BkEv): void {
+    const {sx: _sx, sy: _sy} = e.bokeh
+    const [sx, sy] = this.plot_model.frame.bbox.clip(_sx, _sy)
 
-  _clear_overlay: () ->
-    @model.overlay.update({xs:[], ys:[]})
+    this.data!.sx.push(sx)
+    this.data!.sy.push(sy)
 
-  _do_select: (sx, sy, final, append) ->
-    geometry = {
-      type: 'poly'
-      sx: sx
-      sy: sy
+    const overlay = this.model.overlay
+    overlay.update({xs: this.data!.sx, ys: this.data!.sy})
+
+    if (this.model.select_every_mousemove) {
+      const append = e.srcEvent.shiftKey || false
+      this._do_select(this.data!.sx, this.data!.sy, false, append)
     }
+  }
 
-    @_select(geometry, final, append)
+  _pan_end(e: BkEv): void {
+    this._clear_overlay()
+    const append = e.srcEvent.shiftKey || false
+    this._do_select(this.data!.sx, this.data!.sy, true, append)
+    this.plot_view.push_state('lasso_select', {selection: this.plot_view.get_selection()})
+  }
 
-  _emit_callback: (geometry) ->
-    r = @computed_renderers[0]
-    frame = @plot_model.frame
+  _clear_overlay(): void {
+    this.model.overlay.update({xs: [], ys: []})
+  }
 
-    xscale = frame.xscales[r.x_range_name]
-    yscale = frame.yscales[r.y_range_name]
-    geometry.x = xscale.v_invert(geometry.sx)
-    geometry.y = yscale.v_invert(geometry.sy)
+  _do_select(sx: number[], sy: number[], final: boolean, append: boolean): void {
+    const geometry: PolyGeometry = {
+      type: 'poly',
+      sx: sx,
+      sy: sy,
+    }
+    this._select(geometry, final, append)
+  }
 
-    @model.callback.execute(@model, {geometry: geometry})
+  _emit_callback(geometry: PolyGeometry): void {
+    const r = this.computed_renderers[0]
+    const frame = this.plot_model.frame
 
-    return
+    const xscale = frame.xscales[r.x_range_name]
+    const yscale = frame.yscales[r.y_range_name]
 
-DEFAULT_POLY_OVERLAY = () -> new PolyAnnotation({
-  level: "overlay"
-  xs_units: "screen"
-  ys_units: "screen"
-  fill_color: {value: "lightgrey"}
-  fill_alpha: {value: 0.5}
-  line_color: {value: "black"}
-  line_alpha: {value: 1.0}
-  line_width: {value: 2}
-  line_dash: {value: [4, 4]}
+    const x = xscale.v_invert(geometry.sx)
+    const y = yscale.v_invert(geometry.sy)
+    const g = extend({x, y}, geometry)
+
+    this.model.callback.execute(this.model, {geometry: g})
+  }
+}
+
+const DEFAULT_POLY_OVERLAY = () => {
+  return new PolyAnnotation({
+    level: "overlay",
+    xs_units: "screen",
+    ys_units: "screen",
+    fill_color: {value: "lightgrey"},
+    fill_alpha: {value: 0.5},
+    line_color: {value: "black"},
+    line_alpha: {value: 1.0},
+    line_width: {value: 2},
+    line_dash: {value: [4, 4]},
+  })
+}
+
+export class LassoSelectTool extends SelectTool {
+
+  select_every_mousemove: boolean
+  callback: any // XXX
+  overlay: PolyAnnotation
+
+  tool_name = "Lasso Select"
+  icon = "bk-tool-icon-lasso-select"
+  event_type = "pan"
+  default_order = 12
+}
+
+LassoSelectTool.prototype.type = "LassoSelectTool"
+
+LassoSelectTool.prototype.default_view = LassoSelectToolView
+
+LassoSelectTool.define({
+  select_every_mousemove: [ p.Bool,    true                  ],
+  callback:               [ p.Instance                       ],
+  overlay:                [ p.Instance, DEFAULT_POLY_OVERLAY ],
 })
-
-export class LassoSelectTool extends SelectTool
-  default_view: LassoSelectToolView
-  type: "LassoSelectTool"
-  tool_name: "Lasso Select"
-  icon: "bk-tool-icon-lasso-select"
-  event_type: "pan"
-  default_order: 12
-
-  @define {
-      select_every_mousemove: [ p.Bool,    true                  ]
-      callback:               [ p.Instance                       ]
-      overlay:                [ p.Instance, DEFAULT_POLY_OVERLAY ]
-    }

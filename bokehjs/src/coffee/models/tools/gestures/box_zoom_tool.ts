@@ -1,165 +1,199 @@
 import {GestureTool, GestureToolView} from "./gesture_tool"
 import {BoxAnnotation} from "../../annotations/box_annotation"
+import {CartesianFrame} from "../../canvas/cartesian_frame"
 import * as p from "core/properties"
+import {Dimensions} from "core/enums"
 
-export class BoxZoomToolView extends GestureToolView
+export interface BkEv {
+  bokeh: {
+    sx: number
+    sy: number
+  }
+}
 
-  _match_aspect: (base_point, curpoint, frame) ->
-    # aspect ratio of plot frame
-    a = frame.bbox.aspect
-    hend = frame.bbox.h_range.end
-    hstart = frame.bbox.h_range.start
-    vend = frame.bbox.v_range.end
-    vstart = frame.bbox.v_range.start
+export class BoxZoomToolView extends GestureToolView {
 
-    # current aspect of cursor-defined box
-    vw = Math.abs(base_point[0]-curpoint[0])
-    vh = Math.abs(base_point[1]-curpoint[1])
-    if vh == 0
-      va = 0
-    else
-      va = vw/vh
+  model: BoxZoomTool
 
-    if va >= a
-      [xmod, ymod] = [1, va/a]
-    else
-      [xmod, ymod] = [a/va, 1]
+  protected _base_point: [number, number] | null
 
-    # OK the code blocks below merit some explanation. They do:
-    #
-    # compute left/right, pin to frame if necessary
-    # compute top/bottom (based on new left/right), pin to frame if necessary
-    # recompute left/right (based on top/bottom), in case top/bottom were pinned
+  _match_aspect(base_point: [number, number], curpoint: [number, number],
+                frame: CartesianFrame): [[number, number], [number, number]] {
+    // aspect ratio of plot frame
+    const a = frame.bbox.aspect
+    const hend = frame.bbox.h_range.end
+    const hstart = frame.bbox.h_range.start
+    const vend = frame.bbox.v_range.end
+    const vstart = frame.bbox.v_range.start
 
-    # base_point[0] is left
-    if ( base_point[0] <= curpoint[0] )
+    // current aspect of cursor-defined box
+    let vw = Math.abs(base_point[0]-curpoint[0])
+    let vh = Math.abs(base_point[1]-curpoint[1])
+
+    const va = vh == 0 ? 0 : vw/vh
+    const [xmod,] = va >= a ? [1, va/a] : [a/va, 1]
+
+    // OK the code blocks below merit some explanation. They do:
+    //
+    // compute left/right, pin to frame if necessary
+    // compute top/bottom (based on new left/right), pin to frame if necessary
+    // recompute left/right (based on top/bottom), in case top/bottom were pinned
+
+    // base_point[0] is left
+    let left: number
+    let right: number
+    if (base_point[0] <= curpoint[0]) {
       left = base_point[0]
       right = base_point[0] + vw * xmod
-      if right > hend
+      if (right > hend)
         right = hend
-    # base_point[0] is right
-    else
+    // base_point[0] is right
+    } else {
       right = base_point[0]
       left = base_point[0] - vw * xmod
-      if left < hstart
+      if (left < hstart)
         left = hstart
+    }
 
     vw = Math.abs(right - left)
 
-    # base_point[1] is bottom
-    if ( base_point[1] <= curpoint[1] )
+    // base_point[1] is bottom
+    let top: number
+    let bottom: number
+    if (base_point[1] <= curpoint[1]) {
       bottom = base_point[1]
       top = base_point[1] + vw/a
-      if top > vend
+      if (top > vend)
         top = vend
-
-    # base_point[1] is top
-    else
+    // base_point[1] is top
+    } else {
       top = base_point[1]
       bottom = base_point[1] - vw/a
-      if bottom < vstart
+      if (bottom < vstart)
         bottom = vstart
+    }
 
     vh = Math.abs(top - bottom)
 
-    # base_point[0] is left
-    if ( base_point[0] <= curpoint[0] )
+    // base_point[0] is left
+    if (base_point[0] <= curpoint[0])
       right = base_point[0] + a*vh
-
-    # base_point[0] is right
+    // base_point[0] is right
     else
       left = base_point[0] - a*vh
 
     return [[left, right], [bottom, top]]
+  }
 
-  _pan_start: (e) ->
-    @_base_point = [e.bokeh.sx, e.bokeh.sy]
-    return null
+  _pan_start(e: BkEv): void {
+    this._base_point = [e.bokeh.sx, e.bokeh.sy]
+  }
 
-  _pan: (e) ->
-    curpoint = [e.bokeh.sx, e.bokeh.sy]
-    frame = @plot_model.frame
-    dims = @model.dimensions
+  _pan(e: BkEv): void {
+    const curpoint: [number, number] = [e.bokeh.sx, e.bokeh.sy]
+    const frame = this.plot_model.frame
+    const dims = this.model.dimensions
 
-    if @model.match_aspect and dims == 'both'
-      [sx, sy] = @_match_aspect(@_base_point, curpoint, frame)
+    let sx: [number, number]
+    let sy: [number, number]
+    if (this.model.match_aspect && dims == 'both')
+      [sx, sy] = this._match_aspect(this._base_point!, curpoint, frame)
     else
-      [sx, sy] = @model._get_dim_limits(@_base_point, curpoint, frame, dims)
+      [sx, sy] = this.model._get_dim_limits(this._base_point!, curpoint, frame, dims)
 
-    @model.overlay.update({left: sx[0], right: sx[1], top: sy[0], bottom: sy[1]})
+    this.model.overlay.update({left: sx[0], right: sx[1], top: sy[0], bottom: sy[1]})
+  }
 
-    return null
+  _pan_end(e: BkEv): void {
+    const curpoint: [number, number] = [e.bokeh.sx, e.bokeh.sy]
+    const frame = this.plot_model.frame
+    const dims = this.model.dimensions
 
-  _pan_end: (e) ->
-    curpoint = [e.bokeh.sx, e.bokeh.sy]
-    frame = @plot_model.frame
-    dims = @model.dimensions
-
-    if @model.match_aspect and dims == 'both'
-      [sx, sy] = @_match_aspect(@_base_point, curpoint, frame)
+    let sx: [number, number]
+    let sy: [number, number]
+    if (this.model.match_aspect && dims == 'both')
+      [sx, sy] = this._match_aspect(this._base_point!, curpoint, frame)
     else
-      [sx, sy] = @model._get_dim_limits(@_base_point, curpoint, frame, dims)
+      [sx, sy] = this.model._get_dim_limits(this._base_point!, curpoint, frame, dims)
 
-    @_update(sx, sy)
+    this._update(sx, sy)
 
-    @model.overlay.update({left: null, right: null, top: null, bottom: null})
-    @_base_point = null
-    return null
+    this.model.overlay.update({left: null, right: null, top: null, bottom: null})
+    this._base_point = null
+  }
 
-  _update: ([sx0, sx1], [sy0, sy1]) ->
-    # If the viewing window is too small, no-op: it is likely that the user did
-    # not intend to make this box zoom and instead was trying to cancel out of the
-    # zoom, a la matplotlib's ToolZoom. Like matplotlib, set the threshold at 5 pixels.
-    if Math.abs(sx1 - sx0) <= 5 or Math.abs(sy1 - sy0) <= 5
+  _update([sx0, sx1]: [number, number], [sy0, sy1]: [number, number]): void {
+    // If the viewing window is too small, no-op: it is likely that the user did
+    // not intend to make this box zoom and instead was trying to cancel out of the
+    // zoom, a la matplotlib's ToolZoom. Like matplotlib, set the threshold at 5 pixels.
+    if (Math.abs(sx1 - sx0) <= 5 || Math.abs(sy1 - sy0) <= 5)
       return
 
-    xrs = {}
-    for name, scale of @plot_view.frame.xscales
-      [start, end] = scale.r_invert(sx0, sx1)
+    const {xscales, yscales} = this.plot_model.frame
+
+    const xrs: {[key: string]: {start: number, end: number}} = {}
+    for (const name in xscales) {
+      const scale = xscales[name]
+      const [start, end] = scale.r_invert(sx0, sx1)
       xrs[name] = {start: start, end: end}
-
-    yrs = {}
-    for name, scale of @plot_view.frame.yscales
-      [start, end] = scale.r_invert(sy0, sy1)
-      yrs[name] = {start: start, end: end}
-
-    zoom_info = {
-      xrs: xrs
-      yrs: yrs
     }
 
-    @plot_view.push_state('box_zoom', {range: zoom_info})
-    @plot_view.update_range(zoom_info)
+    const yrs: {[key: string]: {start: number, end: number}} = {}
+    for (const name in yscales) {
+      const scale = yscales[name]
+      const [start, end] = scale.r_invert(sy0, sy1)
+      yrs[name] = {start: start, end: end}
+    }
 
-DEFAULT_BOX_OVERLAY = () -> new BoxAnnotation({
-  level: "overlay"
-  render_mode: "css"
-  top_units: "screen"
-  left_units: "screen"
-  bottom_units: "screen"
-  right_units: "screen"
-  fill_color: {value: "lightgrey"}
-  fill_alpha: {value: 0.5}
-  line_color: {value: "black"}
-  line_alpha: {value: 1.0}
-  line_width: {value: 2}
-  line_dash: {value: [4, 4]}
+    const zoom_info = {
+      xrs: xrs,
+      yrs: yrs,
+    }
+
+    this.plot_view.push_state('box_zoom', {range: zoom_info})
+    this.plot_view.update_range(zoom_info)
+  }
+}
+
+const DEFAULT_BOX_OVERLAY = () => {
+  return new BoxAnnotation({
+    level: "overlay",
+    render_mode: "css",
+    top_units: "screen",
+    left_units: "screen",
+    bottom_units: "screen",
+    right_units: "screen",
+    fill_color: {value: "lightgrey"},
+    fill_alpha: {value: 0.5},
+    line_color: {value: "black"},
+    line_alpha: {value: 1.0},
+    line_width: {value: 2},
+    line_dash: {value: [4, 4]},
+  })
+}
+
+export class BoxZoomTool extends GestureTool {
+
+  dimensions: Dimensions
+  overlay: BoxAnnotation
+  match_aspect: boolean
+
+  tool_name = "Box Zoom"
+  icon = "bk-tool-icon-box-zoom"
+  event_type = "pan"
+  default_order = 20
+
+  get tooltip(): string {
+    return this._get_dim_tooltip(this.tool_name, this.dimensions)
+  }
+}
+
+BoxZoomTool.prototype.type = "BoxZoomTool"
+
+BoxZoomTool.prototype.default_view = BoxZoomToolView
+
+BoxZoomTool.define({
+  dimensions:   [ p.Dimensions, "both"            ],
+  overlay:      [ p.Instance, DEFAULT_BOX_OVERLAY ],
+  match_aspect: [ p.Bool,     false               ],
 })
-
-export class BoxZoomTool extends GestureTool
-  default_view: BoxZoomToolView
-  type: "BoxZoomTool"
-  tool_name: "Box Zoom"
-  icon: "bk-tool-icon-box-zoom"
-  event_type: "pan"
-  default_order: 20
-
-  @getters {
-    tooltip: () -> @_get_dim_tooltip(@tool_name, @dimensions)
-  }
-
-  @define {
-    dimensions:   [ p.Dimensions, "both"            ]
-    overlay:      [ p.Instance, DEFAULT_BOX_OVERLAY ]
-    match_aspect: [ p.Bool,     false               ]
-  }

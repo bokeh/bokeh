@@ -1,56 +1,83 @@
 import {GestureTool, GestureToolView} from "./gesture_tool"
 import {scale_range} from "core/util/zoom"
 import * as p from "core/properties"
+import {Dimensions} from "core/enums"
 
-export class WheelZoomToolView extends GestureToolView
+export interface BkEv {
+  bokeh: {
+    sx: number
+    sy: number
+    delta: number
+  }
+  scale: number
+}
 
-  _pinch: (e) ->
-    # TODO (bev) this can probably be done much better
-    if e.scale >= 1
+export class WheelZoomToolView extends GestureToolView {
+
+  model: WheelZoomTool
+
+  _pinch(e: BkEv): void {
+    // TODO (bev) this can probably be done much better
+    let delta: number
+    if (e.scale >= 1)
       delta = (e.scale - 1) * 20.0
     else
       delta = -20.0/e.scale
     e.bokeh.delta = delta
-    @_scroll(e)
-
-  _scroll: (e) ->
-    frame = @plot_model.frame
-    hr = frame.bbox.h_range
-    vr = frame.bbox.v_range
-
-    {sx, sy} = e.bokeh
-    dims = @model.dimensions
-
-    # restrict to axis configured in tool's dimensions property and if
-    # zoom origin is inside of frame range/domain
-    h_axis = dims in ['width', 'both'] and hr.start < sx < hr.end
-    v_axis = dims in ['height', 'both'] and vr.start < sy < vr.end
-
-    factor = @model.speed * e.bokeh.delta
-
-    zoom_info = scale_range(frame, factor, h_axis, v_axis, {x: sx, y: sy})
-
-    @plot_view.push_state('wheel_zoom', {range: zoom_info})
-    @plot_view.update_range(zoom_info, false, true)
-    @model.document?.interactive_start(@plot_model.plot)
-    return null
-
-export class WheelZoomTool extends GestureTool
-  default_view: WheelZoomToolView
-  type: "WheelZoomTool"
-  tool_name: "Wheel Zoom"
-  icon: "bk-tool-icon-wheel-zoom"
-  event_type: if ('ontouchstart' of window or navigator.maxTouchPoints > 0) then 'pinch' else 'scroll'
-  default_order: 10
-
-  @getters {
-    tooltip: () -> @_get_dim_tooltip(@tool_name, @dimensions)
+    this._scroll(e)
   }
 
-  @define {
-    dimensions: [ p.Dimensions, "both" ]
-  }
+  _scroll(e: BkEv): void {
+    const frame = this.plot_model.frame
 
-  @internal {
-    speed: [ p.Number, 1/600 ]
+    const hr = frame.bbox.h_range
+    const vr = frame.bbox.v_range
+
+    const {sx, sy} = e.bokeh
+    const dims = this.model.dimensions
+
+    // restrict to axis configured in tool's dimensions property and if
+    // zoom origin is inside of frame range/domain
+    const h_axis = (dims == 'width' || dims == 'both') && hr.start < sx && sx < hr.end
+    const v_axis = (dims == 'height' || dims == 'both') && vr.start < sy && sy < vr.end
+
+    const factor = this.model.speed*e.bokeh.delta
+
+    const zoom_info = scale_range(frame, factor, h_axis, v_axis, {x: sx, y: sy})
+
+    this.plot_view.push_state('wheel_zoom', {range: zoom_info})
+    this.plot_view.update_range(zoom_info, false, true)
+
+    if (this.model.document != null)
+      this.model.document.interactive_start(this.plot_model.plot)
   }
+}
+
+const is_mobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0
+
+export class WheelZoomTool extends GestureTool {
+
+  dimensions: Dimensions
+  speed: number
+
+  tool_name = "Wheel Zoom"
+  icon = "bk-tool-icon-wheel-zoom"
+  event_type = is_mobile ? 'pinch' : 'scroll'
+  default_order = 10
+
+  get tooltip(): string {
+    return this._get_dim_tooltip(this.tool_name, this.dimensions)
+  }
+}
+
+WheelZoomTool.prototype.type = "WheelZoomTool"
+
+WheelZoomTool.prototype.default_view = WheelZoomToolView
+
+WheelZoomTool.define({
+  dimensions: [ p.Dimensions, "both" ],
+})
+
+WheelZoomTool.internal({
+  speed: [ p.Number, 1/600 ],
+})

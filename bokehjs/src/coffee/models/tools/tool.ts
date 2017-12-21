@@ -60,7 +60,7 @@ export class Tool extends Model {
 
   // utility function to get limits along both dimensions, given
   // optional dimensional constraints
-  protected _get_dim_limits([sx0, sy0]: [number, number], [sx1, sy1]: [number, number],
+  _get_dim_limits([sx0, sy0]: [number, number], [sx1, sy1]: [number, number],
       frame: CartesianFrame, dims: Dimensions): [[number, number], [number, number]] {
 
     const hr = frame.bbox.h_range

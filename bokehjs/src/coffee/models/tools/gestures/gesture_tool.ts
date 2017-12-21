@@ -1,11 +1,15 @@
 import {ButtonTool, ButtonToolView} from "../button_tool"
 import {OnOffButtonView} from "../on_off_button"
 
-export class GestureToolView extends ButtonToolView
+export abstract class GestureToolView extends ButtonToolView {
+  model: GestureTool
+}
 
-export class GestureTool extends ButtonTool
+export abstract class GestureTool extends ButtonTool {
+  button_view = OnOffButtonView
 
-  button_view: OnOffButtonView
+  event_type: string
+  default_order: number
+}
 
-  event_type: null
-  default_order: null
+GestureTool.prototype.type = "GestureTool"
