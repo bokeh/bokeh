@@ -93,8 +93,8 @@ export class DataRange1d extends DataRange {
     return result
   }
 
-   adjust_bounds_for_aspect(bounds: Rect, r: number) : Rect {
-    let result = bbox.empty()
+   adjust_bounds_for_aspect(bounds: Rect, ratio: number): Rect {
+    const result = bbox.empty()
 
     let width = bounds.maxX - bounds.minX
     if (width <= 0) { width = 1.0 }
@@ -105,10 +105,10 @@ export class DataRange1d extends DataRange {
     const xcenter = 0.5*(bounds.maxX + bounds.minX)
     const ycenter = 0.5*(bounds.maxY + bounds.minY)
 
-    if (width < r*height) {
-      width = r*height
+    if (width < ratio*height) {
+      width = ratio*height
     } else {
-      height = width/r
+      height = width/ratio
     }
 
     result.maxX = xcenter+0.5*width
@@ -206,7 +206,7 @@ export class DataRange1d extends DataRange {
     return [start, end]
   }
 
-  update(bounds: Bounds, dimension: Dim, bounds_id: string, r: number): void {
+  update(bounds: Bounds, dimension: Dim, bounds_id: string, ratio?: number): void {
     if (this.have_updated_interactively)
       return
 
@@ -215,8 +215,8 @@ export class DataRange1d extends DataRange {
     // update the raw data bounds for all renderers we care about
     let total_bounds = this._compute_plot_bounds(renderers, bounds)
 
-    if (r != null)
-      total_bounds = this.adjust_bounds_for_aspect(total_bounds, r)
+    if (ratio != null)
+      total_bounds = this.adjust_bounds_for_aspect(total_bounds, ratio)
 
     this._plot_bounds[bounds_id] = total_bounds
 
