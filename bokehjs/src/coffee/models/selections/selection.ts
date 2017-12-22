@@ -1,7 +1,6 @@
 import {Model} from "../../model"
 import * as p from "core/properties"
 import {union, intersection} from "core/util/array"
-import {merge} from "core/util/object"
 
 export class Selection extends Model {
 
@@ -9,8 +8,8 @@ export class Selection extends Model {
   final: boolean
   [key: string]: any
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(attrs: any, options: any): void {
+    super.initialize(attrs, options)
 
     this['0d'] = {'glyph': null, 'indices': []}
     this['2d'] = {'indices': {}}
