@@ -18,7 +18,7 @@ def pytest_addoption(parser):
         "--upload", dest="upload", action="store_true", default=False, help="upload test artefacts to S3"
     )
     parser.addoption(
-        "--log-file", dest="log_file", metavar="path", action="store", default='examples.log', help="where to write the complete log"
+        "--examples-log-file", dest="log_file", metavar="path", action="store", default='examples.log', help="where to write the complete log"
     )
 
 
