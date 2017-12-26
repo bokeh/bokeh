@@ -16,10 +16,10 @@ export class CellEditorView extends DOMView
 
   constructor: (options) ->
     super(extend({model: options.column.editor}, options))
-    @args = options
 
   initialize: (options) ->
     super(options)
+    @args = options
     @render()
 
   render: () ->
