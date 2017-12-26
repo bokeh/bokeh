@@ -455,11 +455,11 @@ below:
 
     from tornado import gen
 
-    # this must only be modified from a Bokeh session allback
+    # this must only be modified from a Bokeh session callback
     source = ColumnDataSource(data=dict(x=[0], y=[0]))
 
     # This is important! Save curdoc() to make sure all threads
-    # see then same document.
+    # see the same document.
     doc = curdoc()
 
     @gen.coroutine
