@@ -1,19 +1,24 @@
-import * as p from "core/properties"
-
 import {ButtonTool, ButtonToolView} from "../button_tool"
 import {OnOffButtonView} from "../on_off_button"
 
-export class InspectToolView extends ButtonToolView
+import * as p from "core/properties"
 
-export class InspectTool extends ButtonTool
-  button_view: OnOffButtonView
+export class InspectToolView extends ButtonToolView {
+  model: InspectTool
+}
 
-  event_type: "move"
+export class InspectTool extends ButtonTool {
+  event_type = "move"
+}
 
-  @define {
-    toggleable: [ p.Bool, true ]
-  }
+InspectTool.prototype.type = "InspectTool"
 
-  @override {
-    active: true
-  }
+InspectTool.prototype.button_view = OnOffButtonView
+
+InspectTool.define({
+  toggleable: [ p.Bool, true ]
+})
+
+InspectTool.override({
+  active: true
+})

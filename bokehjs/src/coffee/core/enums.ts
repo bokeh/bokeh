@@ -35,6 +35,9 @@ export const LegendLocation: LegendLocation[] = [
   "bottom_left", "bottom_center", "bottom_right",
 ]
 
+export type Anchor = LegendLocation
+export const Anchor: Anchor[] = LegendLocation
+
 export type Orientation = "vertical" | "horizontal"
 export const Orientation: Orientation[] = ["vertical", "horizontal"]
 
@@ -67,6 +70,9 @@ export const TextAlign: TextAlign[] = ["left", "right", "center"]
 
 export type TextBaseline = "top" | "middle" | "bottom" | "alphabetic" | "hanging" | "ideographic"
 export const TextBaseline: TextBaseline[] = ["top", "middle", "bottom", "alphabetic", "hanging", "ideographic"]
+
+export type TooltipAttachment = "horizontal" | "vertical" | "left" | "right" | "above" | "below"
+export const TooltipAttachment = ["horizontal", "vertical", "left", "right", "above", "below"]
 
 export type DistributionTypes = "uniform" | "normal"
 export const DistributionTypes: DistributionTypes[] = ["uniform", "normal"]

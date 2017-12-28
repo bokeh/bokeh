@@ -1,73 +1,107 @@
 import {InspectTool, InspectToolView} from "./inspect_tool"
+import {Renderer} from "../../renderers/renderer"
 import {Span} from "../../annotations/span"
+import {Dimensions, SpatialUnits, RenderMode} from "core/enums"
 import * as p from "core/properties"
 import {values} from "core/util/object"
 
-export class CrosshairToolView extends InspectToolView
+export interface BkEv {
+  bokeh: {
+    sx: number
+    sy: number
+  }
+}
 
-  _move: (e) ->
-    if not @model.active
+export class CrosshairToolView extends InspectToolView {
+
+  model: CrosshairTool
+
+  _move(e: BkEv): void {
+    if (!this.model.active)
       return
 
-    {sx, sy} = e.bokeh
+    const {sx, sy} = e.bokeh
 
-    if not @plot_model.frame.bbox.contains(sx, sy)
-      sx = sy = null
-
-    @_update_spans(sx, sy)
-
-  _move_exit: (e) ->
-    @_update_spans(null, null)
-
-  _update_spans: (x, y) ->
-    dims = @model.dimensions
-    if dims in ['width',  'both'] then @model.spans.width.computed_location  = y
-    if dims in ['height', 'both'] then @model.spans.height.computed_location = x
-
-export class CrosshairTool extends InspectTool
-  default_view: CrosshairToolView
-  type: "CrosshairTool"
-  tool_name: "Crosshair"
-  icon: "bk-tool-icon-crosshair"
-
-  @define {
-      dimensions: [ p.Dimensions, "both"         ]
-      line_color: [ p.Color, 'black'             ]
-      line_width: [ p.Number, 1                  ]
-      line_alpha: [ p.Number, 1.0                ]
-    }
-
-  @internal {
-    location_units: [ p.SpatialUnits, "screen" ]
-    render_mode:    [ p.RenderMode, "css" ]
-    spans:          [ p.Any ]
+    if (!this.plot_model.frame.bbox.contains(sx, sy))
+      this._update_spans(null, null)
+    else
+      this._update_spans(sx, sy)
   }
 
-  @getters {
-    tooltip: () -> @_get_dim_tooltip("Crosshair", @dimensions)
-    synthetic_renderers: () -> values(@spans)
+  _move_exit(_e: BkEv): void {
+    this._update_spans(null, null)
   }
 
-  initialize: (attrs, options) ->
-    super(attrs, options)
+  _update_spans(x: number | null, y: number | null): void {
+    const dims = this.model.dimensions
+    if (dims == "width" || dims == "both")
+      this.model.spans.width.computed_location  = y
+    if (dims == "height" || dims == "both")
+      this.model.spans.height.computed_location = x
+  }
+}
 
-    @spans = {
+export class CrosshairTool extends InspectTool {
+
+  dimensions: Dimensions
+  line_color: any // XXX: Color
+  line_width: number
+  line_alpha: number
+
+  location_units: SpatialUnits
+  render_mode: RenderMode
+  spans: {width: Span, height: Span}
+
+  tool_name = "Crosshair"
+  icon = "bk-tool-icon-crosshair"
+
+  get tooltip(): string {
+    return this._get_dim_tooltip("Crosshair", this.dimensions)
+  }
+
+  get synthetic_renderers(): Renderer[] {
+    return values(this.spans)
+  }
+
+  initialize(attrs: any, options: any): void {
+    super.initialize(attrs, options)
+
+    this.spans = {
       width: new Span({
-        for_hover: true
+        for_hover: true,
         dimension: "width",
-        render_mode: @render_mode
-        location_units: @location_units
-        line_color: @line_color
-        line_width: @line_width
-        line_alpha: @line_alpha
+        render_mode: this.render_mode,
+        location_units: this.location_units,
+        line_color: this.line_color,
+        line_width: this.line_width,
+        line_alpha: this.line_alpha,
       }),
       height: new Span({
-        for_hover: true
-        dimension: "height"
-        render_mode: @render_mode
-        location_units: @location_units
-        line_color: @line_color
-        line_width: @line_width
-        line_alpha: @line_alpha
+        for_hover: true,
+        dimension: "height",
+        render_mode: this.render_mode,
+        location_units: this.location_units,
+        line_color: this.line_color,
+        line_width: this.line_width,
+        line_alpha: this.line_alpha,
       })
     }
+  }
+}
+
+CrosshairTool.prototype.type = "CrosshairTool"
+
+CrosshairTool.prototype.default_view = CrosshairToolView
+
+CrosshairTool.define({
+  dimensions: [ p.Dimensions, "both" ],
+  line_color: [ p.Color, 'black'     ],
+  line_width: [ p.Number, 1          ],
+  line_alpha: [ p.Number, 1.0        ],
+})
+
+CrosshairTool.internal({
+  location_units: [ p.SpatialUnits, "screen" ],
+  render_mode:    [ p.RenderMode,   "css"    ],
+  spans:          [ p.Any                    ],
+})
