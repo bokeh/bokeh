@@ -2,19 +2,23 @@ import {Widget, WidgetView} from "./widget"
 import * as p from "core/properties"
 import {empty} from "core/dom"
 
-export class PanelView extends WidgetView
+export class PanelView extends WidgetView {
+  model: Panel
 
-  render: () ->
-    super()
-    empty(@el)
-    return @
+  render(): void {
+    super.render()
+    empty(this.el)
+  }
+}
 
-export class Panel extends Widget
-  type: "Panel"
-  default_view: PanelView
+export class Panel extends Widget {
+}
 
-  @define {
-      title:    [ p.String,  ""    ]
-      child:    [ p.Instance       ]
-      closable: [ p.Bool,    false ]
-    }
+Panel.prototype.type = "Panel"
+Panel.prototype.default_view = PanelView
+
+Panel.define({
+  title:    [ p.String,  ""    ],
+  child:    [ p.Instance       ],
+  closable: [ p.Bool,    false ],
+})

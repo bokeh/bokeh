@@ -3,49 +3,76 @@ import * as p from "core/properties"
 
 import {Widget, WidgetView} from "./widget"
 
-export class CheckboxGroupView extends WidgetView
-  initialize: (options) ->
-    super(options)
-    @render()
+export class CheckboxGroupView extends WidgetView {
+  model: CheckboxGroup
 
-  connect_signals: () ->
-    super()
-    @connect(@model.change, () -> @render())
+  initialize(options: any): void {
+    super.initialize(options)
+    this.render()
+  }
 
-  render: () ->
-    super()
-    empty(@el)
+  connect_signals(): void {
+    super.connect_signals()
+    this.connect(this.model.change, () => this.render())
+  }
 
-    active = @model.active
-    for text, i in @model.labels
-      inputEl = input({type: "checkbox", value: "#{i}"})
-      inputEl.addEventListener("change", () => @change_input())
+  render(): void {
+    super.render()
+    empty(this.el)
 
-      if @model.disabled then inputEl.disabled = true
-      if i in active then inputEl.checked = true
+    const active = this.model.active
+    const labels = this.model.labels
 
-      labelEl = label({}, inputEl, text)
-      if @model.inline
+    for (let i = 0; i < labels.length; i++) {
+      const text = labels[i]
+
+      const inputEl = input({type: `checkbox`, value: `${i}`})
+      inputEl.addEventListener("change", () => this.change_input())
+
+      if (this.model.disabled)
+        inputEl.disabled = true
+
+      if (contains(active, i))
+        inputEl.checked = true
+
+      const labelEl = label({}, inputEl, text)
+      if (this.model.inline) {
         labelEl.classList.add("bk-bs-checkbox-inline")
-        @el.appendChild(labelEl)
-      else
-        divEl = div({class: "bk-bs-checkbox"}, labelEl)
-        @el.appendChild(divEl)
-
-    return @
-
-  change_input: () ->
-    active = (i for checkbox, i in @el.querySelectorAll("input") when checkbox.checked)
-    @model.active = active
-    @model.callback?.execute(@model)
-
-export class CheckboxGroup extends Widget
-  type: "CheckboxGroup"
-  default_view: CheckboxGroupView
-
-  @define {
-      active:   [ p.Array, []    ]
-      labels:   [ p.Array, []    ]
-      inline:   [ p.Bool,  false ]
-      callback: [ p.Instance ]
+        this.el.appendChild(labelEl)
+      } else {
+        const divEl = div({class: "bk-bs-checkbox"}, labelEl)
+        this.el.appendChild(divEl)
+      }
     }
+  }
+
+  change_input(): void {
+    const checkboxes = this.el.querySelectorAll("input")
+    const active: number[] = []
+    for (let i = 0; i < checkboxes.length; i++) {
+      const checkbox = checkboxes[i]
+      if (checkbox.checked)
+        active.push(i)
+    }
+    this.model.active = active
+    if (this.model.callback != null)
+      this.model.callback.execute(this.model)
+  }
+}
+
+export class CheckboxGroup extends Widget {
+  active: number[]
+  labels: string[]
+  inline: boolean
+  callback: any // XXX
+}
+
+CheckboxGroup.prototype.type = "CheckboxGroup"
+CheckboxGroup.prototype.default_view = CheckboxGroupView
+
+CheckboxGroup.define({
+  active:   [ p.Array, []    ],
+  labels:   [ p.Array, []    ],
+  inline:   [ p.Bool,  false ],
+  callback: [ p.Instance     ],
+})

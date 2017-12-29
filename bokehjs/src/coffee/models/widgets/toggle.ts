@@ -2,26 +2,31 @@ import * as p from "core/properties"
 
 import {AbstractButton, AbstractButtonView} from "./abstract_button"
 
-export class ToggleView extends AbstractButtonView
+export class ToggleView extends AbstractButtonView {
+  model: Toggle
 
-  render: () ->
-    super()
-    if @model.active
-      @buttonEl.classList.add("bk-bs-active")
-    return @
-
-  change_input: () ->
-    @model.active = not @model.active
-    super()
-
-export class Toggle extends AbstractButton
-  type: "Toggle"
-  default_view: ToggleView
-
-  @define {
-    active: [ p. Bool, false ]
+  render(): void {
+    super.render()
+    if (this.model.active)
+      this.buttonEl.classList.add("bk-bs-active")
   }
 
-  @override {
-    label: "Toggle"
+  change_input(): void {
+    this.model.active = !this.model.active
+    super.change_input()
   }
+}
+
+export class Toggle extends AbstractButton {
+}
+
+Toggle.prototype.type = "Toggle"
+Toggle.prototype.default_view = ToggleView
+
+Toggle.define({
+  active: [ p. Bool, false ]
+})
+
+Toggle.override({
+  label: "Toggle"
+})

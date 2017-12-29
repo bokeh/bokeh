@@ -4,47 +4,65 @@ import * as p from "core/properties"
 
 import {Widget, WidgetView} from "./widget"
 
-export class RadioButtonGroupView extends WidgetView
+export class RadioButtonGroupView extends WidgetView {
+  model: RadioButtonGroup
 
-  initialize: (options) ->
-    super(options)
-    @render()
+  initialize(options: any): void {
+    super.initialize(options)
+    this.render()
+  }
 
-  connect_signals: () ->
-    super()
-    @connect(@model.change, () -> @render())
+  connect_signals(): void {
+    super.connect_signals()
+    this.connect(this.model.change, () => this.render())
+  }
 
-  render: () ->
-    super()
+  render(): void {
+    super.render()
 
-    empty(@el)
-    divEl = div({class: "bk-bs-btn-group"})
-    @el.appendChild(divEl)
+    empty(this.el)
+    const divEl = div({class: "bk-bs-btn-group"})
+    this.el.appendChild(divEl)
 
-    name = uniqueId()
+    const name = uniqueId()
 
-    active = @model.active
-    for text, i in @model.labels
-      inputEl = input({type: "radio", name: name, value: "#{i}", checked: i == active})
-      inputEl.addEventListener("change", () => @change_input())
-      labelEl = label({class: ["bk-bs-btn", "bk-bs-btn-#{@model.button_type}"]}, inputEl, text)
-      if i == active then labelEl.classList.add("bk-bs-active")
+    const active = this.model.active
+    const labels = this.model.labels
+
+    for (let i = 0; i < labels.length; i++) {
+      const text = labels[i]
+      const inputEl = input({type: `radio`, name: name, value: `${i}`, checked: i == active})
+      inputEl.addEventListener("change", () => this.change_input())
+      const labelEl = label({class: [`bk-bs-btn`, `bk-bs-btn-${this.model.button_type}`]}, inputEl, text)
+      if (i == active)
+        labelEl.classList.add("bk-bs-active")
       divEl.appendChild(labelEl)
-
-    return @
-
-  change_input: () ->
-    active = (i for radio, i in @el.querySelectorAll("input") when radio.checked)
-    @model.active = active[0]
-    @model.callback?.execute(@model)
-
-export class RadioButtonGroup extends Widget
-  type: "RadioButtonGroup"
-  default_view: RadioButtonGroupView
-
-  @define {
-      active:      [ p.Any,    null      ] # TODO (bev) better type?
-      labels:      [ p.Array,  []        ]
-      button_type: [ p.String, "default" ]
-      callback:    [ p.Instance ]
     }
+  }
+
+  change_input(): void {
+    const radios = this.el.querySelectorAll("input")
+    const active: number[] = []
+    for (let i = 0; i < radios.length; i++) {
+      const radio = radios[i]
+      if (radio.checked)
+        active.push(i)
+    }
+    this.model.active = active[0]
+    if (this.model.callback != null)
+      this.model.callback.execute(this.model)
+  }
+}
+
+export class RadioButtonGroup extends Widget {
+}
+
+RadioButtonGroup.prototype.type = "RadioButtonGroup"
+RadioButtonGroup.prototype.default_view = RadioButtonGroupView
+
+RadioButtonGroup.define({
+  active:      [ p.Any,    null      ], // TODO (bev) better type?
+  labels:      [ p.Array,  []        ],
+  button_type: [ p.String, "default" ],
+  callback:    [ p.Instance ],
+})

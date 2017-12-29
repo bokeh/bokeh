@@ -1,182 +1,237 @@
 import * as noUiSlider from "nouislider"
 
 import * as p from "core/properties"
-import {label, input, div} from "core/dom"
+import {label, div} from "core/dom"
 import {logger} from "core/logging"
 import {throttle} from "core/util/callback"
 
 import {Widget, WidgetView} from "./widget"
 
-export class AbstractSliderView extends WidgetView
+export abstract class AbstractSliderView extends WidgetView {
+  model: AbstractSlider
 
-  initialize: (options) ->
-    super(options)
-    @render()
+  protected sliderEl: HTMLElement
+  protected valueEl?: HTMLElement
 
-  connect_signals: () ->
-    @connect(@model.change, () => @render())
+  initialize(options: any): void {
+    super.initialize(options)
+    this.render()
+  }
 
-  _calc_to: () ->
+  connect_signals(): void {
+    super.connect_signals()
+    this.connect(this.model.change, () => this.render())
+  }
 
-  _calc_from: (values) ->
+  abstract _calc_to()
 
-  render: () ->
-    if not @sliderEl?
-      # XXX: temporary workaround for _render_css()
-      super()
+  abstract _calc_from(values: number[])
 
-    if @model.callback?
-      callback = () => @model.callback.execute(@model)
+  render(): void {
+    if (this.sliderEl == null) {
+      // XXX: temporary workaround for _render_css()
+      super.render()
+    }
 
-      switch @model.callback_policy
-        when 'continuous'
-          @callback_wrapper = callback
-        when 'throttle'
-          @callback_wrapper = throttle(callback, @model.callback_throttle)
+    if (this.model.callback != null) {
+      const callback = () => this.model.callback.execute(this.model)
 
-    prefix = 'bk-noUi-'
-
-    {start, end, value, step} = @_calc_to()
-
-    if @model.tooltips
-      formatter =  {
-        to: (value) => @model.pretty(value)
+      switch (this.model.callback_policy) {
+        case 'continuous': {
+          this.callback_wrapper = callback
+          break
+        }
+        case 'throttle': {
+          this.callback_wrapper = throttle(callback, this.model.callback_throttle)
+          break
+        }
       }
+    }
 
-      tooltips = ( formatter for i in [0...value.length] )
-    else
+    const prefix = 'bk-noUi-'
+
+    const {start, end, value, step} = this._calc_to()
+
+    let tooltips: boolean | any[] // XXX
+    if (this.model.tooltips) {
+      const formatter = {}
+        // XXX to(value) => this.model.pretty(value)
+      //}
+
+      tooltips = repeat(formatter, value.length)
+    } else
       tooltips = false
 
-    @el.classList.add("bk-slider")
+    this.el.classList.add("bk-slider")
 
-    if not @sliderEl?
-      @sliderEl = div()
-      @el.appendChild(@sliderEl)
+    if (this.sliderEl == null) {
+      this.sliderEl = div()
+      this.el.appendChild(this.sliderEl)
 
-      noUiSlider.create(@sliderEl, {
-        cssPrefix: prefix
-        range: {min: start, max: end}
-        start: value
-        step: step
-        behaviour: @model.behaviour
-        connect: @model.connected
-        tooltips: tooltips
-        orientation: @model.orientation
-        direction: @model.direction
+      noUiSlider.create(this.sliderEl, {
+        cssPrefix: prefix,
+        range: {min: start, max: end},
+        start: value,
+        step: step,
+        behaviour: this.model.behaviour,
+        connect: this.model.connected,
+        tooltips: tooltips,
+        orientation: this.model.orientation,
+        direction: this.model.direction,
       })
 
-      @sliderEl.noUiSlider.on('slide',  (_, __, values) => @_slide(values))
-      @sliderEl.noUiSlider.on('change', (_, __, values) => @_change(values))
+      this.sliderEl.noUiSlider.on('slide',  (_, __, values) => this._slide(values))
+      this.sliderEl.noUiSlider.on('change', (_, __, values) => this._change(values))
 
-      # Add keyboard support
-      keypress = (e) =>
-        value = Number(@sliderEl.noUiSlider.get())
-        switch e.which
-          when 37
+      // Add keyboard support
+      const keypress = (e: Event): void => {
+        let value = Number(this.sliderEl.noUiSlider.get())
+        switch (e.which) {
+          case 37: {
             value -= step
-          when 39
+            break
+          }
+          case 39: {
             value += step
-          else
+            break
+          }
+          default:
             return
+        }
 
-        pretty = @model.pretty(value)
-        logger.debug("[slider keypress] value = #{pretty}")
-        @model.value = value
-        @sliderEl.noUiSlider.set(value)
-        if @valueEl?
-          @valueEl.textContent = pretty
-        @callback_wrapper?()
+        const pretty = this.model.pretty(value)
+        logger.debug(`[slider keypress] value = ${pretty}`)
+        this.model.value = value
+        this.sliderEl.noUiSlider.set(value)
+        if (this.valueEl != null)
+          this.valueEl.textContent = pretty
+        if (this.callback_wrapper != null)
+          this.callback_wrapper()
+      }
 
-      handle = @sliderEl.querySelector(".#{prefix}handle")
+      const handle = this.sliderEl.querySelector(`.${prefix}handle`)
       handle.setAttribute('tabindex', 0)
-      handle.addEventListener('click', @focus)
+      handle.addEventListener('click', this.focus)
       handle.addEventListener('keydown', keypress)
 
-      toggleTooltip = (i, show) =>
-        handle = @sliderEl.querySelectorAll(".#{prefix}handle")[i]
-        tooltip = handle.querySelector(".#{prefix}tooltip")
-        tooltip.style.display = if show then 'block' else ''
+      const toggleTooltip = (i: number, show: boolean): void => {
+        const handle = this.sliderEl.querySelectorAll(`.${prefix}handle`)[i]
+        const tooltip = handle.querySelector(`.${prefix}tooltip`)
+        tooltip.style.display = show ? 'block' : ''
+      }
 
-      @sliderEl.noUiSlider.on('start', (_, i) => toggleTooltip(i, true))
-      @sliderEl.noUiSlider.on('end',   (_, i) => toggleTooltip(i, false))
-    else
-      @sliderEl.noUiSlider.updateOptions({
-        range: {min: start, max: end}
-        start: value
-        step: step
+      this.sliderEl.noUiSlider.on('start', (_, i) => toggleTooltip(i, true))
+      this.sliderEl.noUiSlider.on('end',   (_, i) => toggleTooltip(i, false))
+    } else {
+      this.sliderEl.noUiSlider.updateOptions({
+        range: {min: start, max: end},
+        start: value,
+        step: step,
       })
+    }
 
-    if @titleEl?
-      @el.removeChild(@titleEl)
-    if @valueEl?
-      @el.removeChild(@valueEl)
+    if (this.titleEl != null)
+      this.el.removeChild(this.titleEl)
+    if (this.valueEl != null)
+      this.el.removeChild(this.valueEl)
 
-    if @model.title?
-      if @model.title.length != 0
-        @titleEl = label({}, "#{@model.title}:")
-        @el.insertBefore(@titleEl, @sliderEl)
+    if (this.model.title != null) {
+      if (this.model.title.length != 0) {
+        this.titleEl = label({}, `${this.model.title}:`)
+        this.el.insertBefore(this.titleEl, this.sliderEl)
+      }
 
-      if @model.show_value
-        pretty = (@model.pretty(v) for v in value).join(" .. ")
-        @valueEl = div({class: "bk-slider-value"}, pretty)
-        @el.insertBefore(@valueEl, @sliderEl)
+      if (this.model.show_value) {
+        const pretty = value.map((v) => this.model.pretty(v)).join(" .. ")
+        this.valueEl = div({class: "bk-slider-value"}, pretty)
+        this.el.insertBefore(this.valueEl, this.sliderEl)
+      }
+    }
 
-    if not @model.disabled
-      @sliderEl.querySelector(".#{prefix}connect")
-               .style
-               .backgroundColor = @model.bar_color
+    if (!this.model.disabled) {
+      this.sliderEl.querySelector(`.${prefix}connect`)
+                   .style
+                   .backgroundColor = this.model.bar_color
+    }
 
-    if @model.disabled
-      @sliderEl.setAttribute('disabled', true)
+    if (this.model.disabled)
+      this.sliderEl.setAttribute('disabled', true)
     else
-      @sliderEl.removeAttribute('disabled')
-
-    return @
-
-  _slide: (values) ->
-    value = @_calc_from(values)
-    pretty = (@model.pretty(v) for v in values).join(" .. ")
-    logger.debug("[slider slide] value = #{pretty}")
-    if @valueEl?
-      @valueEl.textContent = pretty
-    @model.value = value
-    @callback_wrapper?()
-
-  _change: (values) ->
-    value = @_calc_from(values)
-    pretty = (@model.pretty(v) for v in values).join(" .. ")
-    logger.debug("[slider change] value = #{pretty}")
-    if @valueEl?
-      @valueEl.value = pretty
-    @model.value = value
-    switch @model.callback_policy
-      when 'mouseup', 'throttle'
-        @model.callback?.execute(@model)
-
-export class AbstractSlider extends Widget
-  type: "AbstractSlider"
-  default_view: AbstractSliderView
-
-  @define {
-    title:             [ p.String,      ""           ]
-    show_value:        [ p.Bool,        true         ]
-    start:             [ p.Any                       ]
-    end:               [ p.Any                       ]
-    value:             [ p.Any                       ]
-    step:              [ p.Number,      1            ]
-    format:            [ p.String                    ]
-    orientation:       [ p.Orientation, "horizontal" ]
-    direction:         [ p.Any,         "ltr"        ]
-    tooltips:          [ p.Boolean,     true         ]
-    callback:          [ p.Instance                  ]
-    callback_throttle: [ p.Number,      200          ]
-    callback_policy:   [ p.String,      "throttle"   ] # TODO (bev) enum
-    bar_color:         [ p.Color,       "#e6e6e6"    ]
+      this.sliderEl.removeAttribute('disabled')
   }
+
+  _slide(values): void {
+    const value = this._calc_from(values)
+    const pretty = values.map((v) => this.model.pretty(v)).join(" .. ")
+    logger.debug(`[slider slide] value = ${pretty}`)
+    if (this.valueEl != null)
+      this.valueEl.textContent = pretty
+    this.model.value = value
+    if (this.callback_wrapper != null)
+      this.callback_wrapper()
+  }
+
+  _change(values): void {
+    const value = this._calc_from(values)
+    const pretty = values.map((v) => this.model.pretty(v)).join(" .. ")
+    logger.debug(`[slider change] value = ${pretty}`)
+    if (this.valueEl != null)
+      this.valueEl.value = pretty
+    this.model.value = value
+    switch (this.model.callback_policy) {
+      case 'mouseup':
+      case 'throttle': {
+        if (this.model.callback != null)
+          this.model.callback.execute(this.model)
+        break
+      }
+    }
+  }
+}
+
+export abstract class AbstractSlider extends Widget {
+  title: string
+  show_value: boolean
+  start: any // XXX
+  end: any // XXX
+  value: any // XXX
+  step: number
+  format: string
+  orientation: Orientation
+  direction: "ltr" | "rtl"
+  tooltips: boolean
+  callback: any // XXX
+  callback_throttle: number
+  callback_policy: SliderCallbackPolicy
+  bar_color: any // XXX: Color
 
   behaviour: null
   connected: false
 
-  _formatter: (value, format) -> "#{value}"
+  _formatter(value, format) {
+    return `${value}`
+  }
 
-  pretty: (value) -> @_formatter(value, @format)
+  pretty(value) {
+    return this._formatter(value, this.format)
+  }
+}
+
+AbstractSlider.prototype.type = "AbstractSlider"
+
+AbstractSlider.define({
+  title:             [ p.String,      ""           ],
+  show_value:        [ p.Bool,        true         ],
+  start:             [ p.Any                       ],
+  end:               [ p.Any                       ],
+  value:             [ p.Any                       ],
+  step:              [ p.Number,      1            ],
+  format:            [ p.String                    ],
+  orientation:       [ p.Orientation, "horizontal" ],
+  direction:         [ p.Any,         "ltr"        ],
+  tooltips:          [ p.Boolean,     true         ],
+  callback:          [ p.Instance                  ],
+  callback_throttle: [ p.Number,      200          ],
+  callback_policy:   [ p.String,      "throttle"   ], // TODO (bev) enum
+  bar_color:         [ p.Color,       "#e6e6e6"    ],
+})

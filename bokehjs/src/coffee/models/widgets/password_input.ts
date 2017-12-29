@@ -1,10 +1,16 @@
 import {TextInput, TextInputView} from "./text_input"
 
-export class PasswordInputView extends TextInputView
-  render: () ->
-    super()
-    @inputEl.type = "password"
+export class PasswordInputView extends TextInputView {
+  model: PasswordInput
 
-export class PasswordInput extends TextInput
-  type: "PasswordInput"
-  default_view: PasswordInputView
+  render(): void {
+    super.render()
+    this.inputEl.type = "password"
+  }
+}
+
+export class PasswordInput extends TextInput {
+}
+
+PasswordInput.prototype.type = "PasswordInput"
+PasswordInput.prototype.default_view = PasswordInputView

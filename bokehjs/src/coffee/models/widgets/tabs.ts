@@ -4,69 +4,79 @@ import * as p from "core/properties"
 
 import {Widget, WidgetView} from "./widget"
 
-export class TabsView extends WidgetView
+export class TabsView extends WidgetView {
+  model: Tabs
 
-  connect_signals: () ->
-    super()
-    @connect(@model.properties.tabs.change, () => @rebuild_child_views())
-    @connect(@model.properties.active.change, () => @render())
+  connect_signals(): void {
+    super.connect_signals()
+    this.connect(this.model.properties.tabs.change, () => this.rebuild_child_views())
+    this.connect(this.model.properties.active.change, () => this.render())
+  }
 
-  render: () ->
-    super()
-    empty(@el)
+  render(): void {
+    super.render()
+    empty(this.el)
 
-    len = @model.tabs.length
-    if len == 0
+    const len = this.model.tabs.length
+    if (len == 0)
       return
-    else if @model.active >= len
-      @model.active = len - 1
+    else if (this.model.active >= len)
+      this.model.active = len - 1
 
-    tabs = @model.tabs.map((tab, i) -> li({}, span({data: {index: i}}, tab.title)))
-    tabs[@model.active].classList.add("bk-bs-active")
-    tabsEl = ul({class: ["bk-bs-nav", "bk-bs-nav-tabs"]}, tabs)
-    @el.appendChild(tabsEl)
+    const tabs = this.model.tabs.map((tab, i) => li({}, span({data: {index: i}}, tab.title)))
+    tabs[this.model.active].classList.add("bk-bs-active")
+    const tabsEl = ul({class: ["bk-bs-nav", "bk-bs-nav-tabs"]}, tabs)
+    this.el.appendChild(tabsEl)
 
-    panels = @model.tabs.map((tab) -> div({class: "bk-bs-tab-pane"}))
-    panels[@model.active].classList.add("bk-bs-active")
+    const panels = this.model.tabs.map((tab) => div({class: "bk-bs-tab-pane"}))
+    panels[this.model.active].classList.add("bk-bs-active")
     panelsEl = div({class: "bk-bs-tab-content"}, panels)
-    @el.appendChild(panelsEl)
+    this.el.appendChild(panelsEl)
 
-    tabsEl.addEventListener "click", (event) =>
+    tabsEl.addEventListener("click", (event) => {
       event.preventDefault()
 
-      if event.target != event.currentTarget
-        el = event.target
+      if (event.target != event.currentTarget) {
+        const el = event.target
 
-        old_active = @model.active
-        new_active = parseInt(el.dataset.index)
+        const old_active = this.model.active
+        const new_active = parseInt(el.dataset.index)
 
-        if old_active != new_active
+        if (old_active != new_active) {
           tabs[old_active].classList.remove("bk-bs-active")
           panels[old_active].classList.remove("bk-bs-active")
 
           tabs[new_active].classList.add("bk-bs-active")
           panels[new_active].classList.add("bk-bs-active")
 
-          @model.active = new_active
-          @model.callback?.execute(@model)
+          this.model.active = new_active
+          if (this.model.callback != null)
+            this.model.callback.execute(this.model)
+        }
+      }
+    })
 
-    for [child, panelEl] in zip(@model.children, panels)
-      panelEl.appendChild(@child_views[child.id].el)
+    for (const [child, panelEl] of zip(this.model.children, panels))
+      panelEl.appendChild(this.child_views[child.id].el)
+  }
+}
 
-    return @
+export class Tabs extends Widget {
 
-export class Tabs extends Widget
-  type: "Tabs"
-  default_view: TabsView
-
-  @define {
-    tabs:     [ p.Array,   [] ]
-    active:   [ p.Number,  0  ]
-    callback: [ p.Instance    ]
+  get_layoutable_children(): LayoutDOM {
+    return this.children
   }
 
-  @getters {
-    children: () -> (tab.child for tab in @tabs)
+  get children(): LayoutDOM {
+    return this.tabs.map((tab) => tab.child)
   }
+}
 
-  get_layoutable_children: () -> @children
+Tabs.prototype.type = "Tabs"
+Tabs.prototype.default_view = TabsView
+
+Tabs.define({
+  tabs:     [ p.Array,   [] ],
+  active:   [ p.Number,  0  ],
+  callback: [ p.Instance    ],
+})

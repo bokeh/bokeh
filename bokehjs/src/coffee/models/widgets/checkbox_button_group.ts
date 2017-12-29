@@ -2,46 +2,67 @@ import {empty, input, label, div} from "core/dom"
 import * as p from "core/properties"
 
 import {Widget, WidgetView} from "./widget"
+import {ButtonType} from "./abstract_button"
 
-export class CheckboxButtonGroupView extends WidgetView
+export class CheckboxButtonGroupView extends WidgetView {
+  model: CheckboxButtonGroup
 
-  initialize: (options) ->
-    super(options)
-    @render()
+  initialize(options: any): void {
+    super.initialize(options)
+    this.render()
+  }
 
-  connect_signals: () ->
-    super()
-    @connect(@model.change, () -> @render())
+  connect_signals(): void {
+    super.connect_signals()
+    this.connect(this.model.change, () => this.render())
+  }
 
-  render: () ->
-    super()
+  render(): void {
+    super.render()
 
-    empty(@el)
-    divEl = div({class: "bk-bs-btn-group"})
-    @el.appendChild(divEl)
+    empty(this.el)
+    const divEl = div({class: "bk-bs-btn-group"})
+    this.el.appendChild(divEl)
 
-    active = @model.active
-    for text, i in @model.labels
-      inputEl = input({type: "checkbox", value: "#{i}", checked: i in active})
-      inputEl.addEventListener("change", () => @change_input())
-      labelEl = label({class: ["bk-bs-btn", "bk-bs-btn-#{@model.button_type}"]}, inputEl, text)
-      if i in active then labelEl.classList.add("bk-bs-active")
+    const active = this.model.active
+    for (let i = 0; i < this.model.labels.length; i++) {
+      const text = this.model.labels[i]
+      const inputEl = input({type: `checkbox`, value: `${i}`, checked: i in active})
+      inputEl.addEventListener("change", () => this.change_input())
+      const labelEl = label({class: [`bk-bs-btn`, `bk-bs-btn-${this.model.button_type}`]}, inputEl, text)
+      if (contains(active, i))
+        labelEl.classList.add("bk-bs-active")
       divEl.appendChild(labelEl)
-
-    return @
-
-  change_input: () ->
-    active = (i for checkbox, i in @el.querySelectorAll("input") when checkbox.checked)
-    @model.active = active
-    @model.callback?.execute(@model)
-
-export class CheckboxButtonGroup extends Widget
-  type: "CheckboxButtonGroup"
-  default_view: CheckboxButtonGroupView
-
-  @define {
-      active:      [ p.Array,  []        ]
-      labels:      [ p.Array,  []        ]
-      button_type: [ p.String, "default" ]
-      callback:    [ p.Instance ]
     }
+  }
+
+  change_input(): void {
+    const checkboxes = this.el.querySelectorAll("input")
+    const active: number[] = []
+    for (let i = 0; i < checkboxes.length; i++) {
+      const checkbox = checkboxes[i]
+      if (checkbox.checked)
+        active.push(i)
+    }
+    this.model.active = active
+    if (this.model.callback != null)
+      this.model.callback.execute(this.model)
+  }
+}
+
+export class CheckboxButtonGroup extends Widget {
+  active: number[]
+  labels: string[]
+  button_type: ButtonType
+  callback: any // XXX
+}
+
+CheckboxButtonGroup.prototype.type = "CheckboxButtonGroup"
+CheckboxButtonGroup.prototype.default_view = CheckboxButtonGroupView
+
+CheckboxButtonGroup.define({
+  active:      [ p.Array,  []        ],
+  labels:      [ p.Array,  []        ],
+  button_type: [ p.String, "default" ],
+  callback:    [ p.Instance          ],
+})

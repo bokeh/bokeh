@@ -1,4 +1,9 @@
-import {Widget} from "./widget"
+import {Widget, WidgetView} from "./widget"
 
-export class AbstractIcon extends Widget
-  type: "AbstractIcon"
+export abstract class AbstractIconView extends WidgetView {
+  model: AbstractIcon
+}
+
+export abstract class AbstractIcon extends Widget {}
+
+AbstractIcon.prototype.type = "AbstractIcon"
