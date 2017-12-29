@@ -21,4 +21,5 @@
   skip: ["gapminder", "pivot", "simple_hdf5", "spectrogram", "surface3d", "stocks"]
 
 - path: "integration/annotations"
+- path: "integration/layout"
 - path: "integration/security"
