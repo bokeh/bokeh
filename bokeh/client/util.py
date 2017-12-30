@@ -17,7 +17,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import logging
 log = logging.getLogger(__name__)
 
-from bokeh.util.api import public, internal ; public, internal
+from bokeh.util.api import general, dev ; general, dev
 
 #-----------------------------------------------------------------------------
 # Imports
@@ -34,14 +34,14 @@ from bokeh.util.api import public, internal ; public, internal
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
-# Public API
+# General API
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
-# Internal API
+# Dev API
 #-----------------------------------------------------------------------------
 
-@internal((1,0,0))
+@dev((1,0,0))
 def server_url_for_websocket_url(url):
     ''' Convert an ``ws(s)`` URL for a Bokeh server into the appropriate
     ``http(s)`` URL for the websocket endpoint.
@@ -69,7 +69,7 @@ def server_url_for_websocket_url(url):
         raise ValueError("websocket URL does not end in /ws")
     return reprotocoled[:-2]
 
-@internal((1,0,0))
+@dev((1,0,0))
 def websocket_url_for_server_url(url):
     ''' Convert an ``http(s)`` URL for a Bokeh server websocket endpoint into
     the appropriate ``ws(s)`` URL

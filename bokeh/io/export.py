@@ -17,7 +17,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import logging
 log = logging.getLogger(__name__)
 
-from bokeh.util.api import public, internal ; public, internal
+from bokeh.util.api import general, dev ; general, dev
 
 #-----------------------------------------------------------------------------
 # Imports
@@ -42,10 +42,10 @@ from .util import default_filename
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
-# Public API
+# General API
 #-----------------------------------------------------------------------------
 
-@public((1,0,0))
+@general((1,0,0))
 def export_png(obj, filename=None, height=None, width=None, webdriver=None):
     ''' Export the LayoutDOM object or document as a PNG.
 
@@ -90,7 +90,7 @@ def export_png(obj, filename=None, height=None, width=None, webdriver=None):
     return abspath(filename)
 
 
-@public((1,0,0))
+@general((1,0,0))
 def export_svgs(obj, filename=None, height=None, width=None, webdriver=None):
     ''' Export the SVG-enabled plots within a layout. Each plot will result
     in a distinct SVG file.
@@ -148,27 +148,21 @@ def export_svgs(obj, filename=None, height=None, width=None, webdriver=None):
     return filenames
 
 #-----------------------------------------------------------------------------
-# Internal API
+# Dev API
 #-----------------------------------------------------------------------------
 
-@internal((1,0,0))
+@dev((1,0,0))
 def get_screenshot_as_png(obj, driver=None, **kwargs):
     '''
 
     '''
-    webdriver = import_required('selenium.webdriver',
-                                'To use bokeh.io.export_png you need selenium ' +
-                                '("conda install -c bokeh selenium" or "pip install selenium")')
-
     Image = import_required('PIL.Image',
                             'To use bokeh.io.export_png you need pillow ' +
                             '("conda install pillow" or "pip install pillow")')
-    # assert that phantomjs is in path for webdriver
-    detect_phantomjs()
 
     html_path = save_layout_html(obj, **kwargs)
 
-    web_driver = driver if driver is not None else webdriver.PhantomJS(service_log_path=devnull)
+    web_driver = driver if driver is not None else _create_default_webdriver()
 
     web_driver.get("file:///" + html_path)
     web_driver.maximize_window()
@@ -190,20 +184,14 @@ def get_screenshot_as_png(obj, driver=None, **kwargs):
 
     return cropped_image
 
-@internal((1,0,0))
+@dev((1,0,0))
 def get_svgs(obj, driver=None, **kwargs):
     '''
 
     '''
-    webdriver = import_required('selenium.webdriver',
-                                'To use bokeh.io.export_svgs you need selenium ' +
-                                '("conda install -c bokeh selenium" or "pip install selenium")')
-    # assert that phantomjs is in path for webdriver
-    detect_phantomjs()
-
     html_path = save_layout_html(obj, **kwargs)
 
-    web_driver = driver if driver is not None else webdriver.PhantomJS(service_log_path=devnull)
+    web_driver = driver if driver is not None else _create_default_webdriver()
     web_driver.get("file:///" + html_path)
 
     wait_until_render_complete(web_driver)
@@ -213,9 +201,10 @@ def get_svgs(obj, driver=None, **kwargs):
     if driver is None: # only quit webdriver if not passed in as arg
         web_driver.quit()
 
+
     return svgs
 
-@internal((1,0,0))
+@dev((1,0,0))
 def save_layout_html(obj, resources=INLINE, **kwargs):
     '''
 
@@ -242,7 +231,7 @@ def save_layout_html(obj, resources=INLINE, **kwargs):
 
     return html_path
 
-@internal((1,0,0))
+@dev((1,0,0))
 def wait_until_render_complete(driver):
     '''
 
@@ -305,6 +294,14 @@ def _crop_image(image, left=0, top=0, right=0, bottom=0, **kwargs):
 
     '''
     return image.crop((left, top, right, bottom))
+
+def _create_default_webdriver():
+    webdriver = import_required('selenium.webdriver',
+                                'To use bokeh.io image export functions you need selenium ' +
+                                '("conda install -c bokeh selenium" or "pip install selenium")')
+
+    phantomjs_path = detect_phantomjs()
+    return webdriver.PhantomJS(executable_path=phantomjs_path, service_log_path=devnull)
 
 #-----------------------------------------------------------------------------
 # Code

@@ -13,7 +13,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import pytest ; pytest
 
-from bokeh.util.api import INTERNAL, PUBLIC ; INTERNAL, PUBLIC
+from bokeh.util.api import DEV, GENERAL ; DEV, GENERAL
 from bokeh.util.testing import verify_api ; verify_api
 
 #-----------------------------------------------------------------------------
@@ -36,7 +36,7 @@ import bokeh.colors.hsl as bch
 
 api = {
 
-    PUBLIC: (
+    GENERAL: (
 
         ( 'HSL',          (1, 0, 0) ),
         ( 'HSL.copy',     (1, 0, 0) ),
@@ -46,7 +46,7 @@ api = {
         ( 'HSL.to_hsl',   (1, 0, 0) ),
         ( 'HSL.to_rgb',   (1, 0, 0) ),
 
-    ), INTERNAL: (
+    ), DEV: (
 
     )
 
@@ -59,7 +59,7 @@ Test_api = verify_api(bch, api)
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
-# Public API
+# General API
 #-----------------------------------------------------------------------------
 
 class Test_HSL(object):
@@ -168,7 +168,7 @@ class Test_HSL(object):
         assert c2.b == 61
 
 #-----------------------------------------------------------------------------
-# Internal API
+# Dev API
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------

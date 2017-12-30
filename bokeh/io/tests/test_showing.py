@@ -13,7 +13,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import pytest ; pytest
 
-from bokeh.util.api import INTERNAL, PUBLIC ; INTERNAL, PUBLIC
+from bokeh.util.api import DEV, GENERAL ; DEV, GENERAL
 from bokeh.util.testing import verify_api ; verify_api
 
 #-----------------------------------------------------------------------------
@@ -41,11 +41,11 @@ import bokeh.io.showing as bis
 
 api = {
 
-    PUBLIC: (
+    GENERAL: (
 
         ( 'show', (1, 0, 0) ),
 
-    ), INTERNAL: (
+    ), DEV: (
 
     )
 
@@ -58,7 +58,7 @@ Test_api = verify_api(bis, api)
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
-# Public API
+# General API
 #-----------------------------------------------------------------------------
 
 @patch('bokeh.io.showing._show_with_state')
@@ -115,7 +115,7 @@ def test_show_doesnt_duplicate_if_already_there(m):
 
 
 #-----------------------------------------------------------------------------
-# Internal API
+# Dev API
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------

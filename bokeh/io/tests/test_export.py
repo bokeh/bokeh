@@ -13,7 +13,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import pytest ; pytest
 
-from bokeh.util.api import INTERNAL, PUBLIC ; INTERNAL, PUBLIC
+from bokeh.util.api import DEV, GENERAL ; DEV, GENERAL
 from bokeh.util.testing import verify_api ; verify_api
 
 #-----------------------------------------------------------------------------
@@ -41,12 +41,12 @@ import bokeh.io.export as bie
 
 api = {
 
-    PUBLIC: (
+    GENERAL: (
 
         ( 'export_png',  (1, 0, 0) ),
         ( 'export_svgs', (1, 0, 0) ),
 
-    ), INTERNAL: (
+    ), DEV: (
 
         ( 'get_screenshot_as_png',      (1, 0, 0) ),
         ( 'get_svgs',                   (1, 0, 0) ),
@@ -64,11 +64,11 @@ Test_api = verify_api(bie, api)
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
-# Public API
+# General API
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
-# Internal API
+# Dev API
 #-----------------------------------------------------------------------------
 
 @pytest.mark.unit

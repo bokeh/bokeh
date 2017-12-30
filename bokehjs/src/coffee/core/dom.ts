@@ -3,8 +3,9 @@ import {isBoolean, isString, isArray, isObject} from "./util/types"
 export type HTMLAttrs = { [name: string]: any }
 export type HTMLChild = string | HTMLElement | (string | HTMLElement)[]
 
-const _createElement = (tag: string) => (attrs: HTMLAttrs = {}, ...children: HTMLChild[]): HTMLElement => {
-  const element: HTMLElement = document.createElement(tag)
+const _createElement = <T extends keyof HTMLElementTagNameMap>(tag: T) =>
+    (attrs: HTMLAttrs = {}, ...children: HTMLChild[]): HTMLElementTagNameMap[T] => {
+  const element = document.createElement(tag)
 
   for (const attr in attrs) {
     const value = attrs[attr]
@@ -56,7 +57,8 @@ const _createElement = (tag: string) => (attrs: HTMLAttrs = {}, ...children: HTM
   return element
 }
 
-export function createElement(tag: string, attrs: HTMLAttrs, ...children: HTMLChild[]): HTMLElement {
+export function createElement<T extends keyof HTMLElementTagNameMap>(tag: T,
+     attrs: HTMLAttrs, ...children: HTMLChild[]): HTMLElementTagNameMap[T] {
   return _createElement(tag)(attrs, ...children)
 }
 
@@ -148,6 +150,18 @@ export function parent(el: HTMLElement, selector: string): HTMLElement | null {
   }
 
   return null
+}
+
+export type Sizing = {top: number, bottom: number, left: number, right: number}
+
+export function margin(el: HTMLElement): Sizing {
+  const style = getComputedStyle(el)
+  return {
+    top:    parseFloat(style.marginTop!)    || 0,
+    bottom: parseFloat(style.marginBottom!) || 0,
+    left:   parseFloat(style.marginLeft!)   || 0,
+    right:  parseFloat(style.marginRight!)  || 0,
+  }
 }
 
 export enum Keys {

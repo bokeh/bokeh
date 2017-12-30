@@ -13,7 +13,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import pytest ; pytest
 
-from bokeh.util.api import INTERNAL, PUBLIC ; INTERNAL, PUBLIC
+from bokeh.util.api import DEV, GENERAL ; DEV, GENERAL
 from bokeh.util.testing import verify_api ; verify_api
 
 #-----------------------------------------------------------------------------
@@ -37,7 +37,7 @@ import bokeh.driving as bd
 
 api = {
 
-    PUBLIC: (
+    GENERAL: (
 
         ( 'bounce', (1, 0, 0) ),
         ( 'cosine', (1, 0, 0) ),
@@ -47,7 +47,7 @@ api = {
         ( 'repeat', (1, 0, 0) ),
         ( 'sine',   (1, 0, 0) ),
 
-    ), INTERNAL: (
+    ), DEV: (
 
     )
 
@@ -81,7 +81,7 @@ phi = 0.1
 offset = 2
 
 #-----------------------------------------------------------------------------
-# Public API
+# General API
 #-----------------------------------------------------------------------------
 
 Test___all__ = verify_all(bd, ALL)
@@ -146,7 +146,7 @@ def test_sine():
     )
 
 #-----------------------------------------------------------------------------
-# Internal API
+# Dev API
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------

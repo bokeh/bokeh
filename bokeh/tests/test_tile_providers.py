@@ -13,7 +13,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import pytest ; pytest
 
-from bokeh.util.api import INTERNAL, PUBLIC ; INTERNAL, PUBLIC
+from bokeh.util.api import DEV, GENERAL ; DEV, GENERAL
 from bokeh.util.testing import verify_api ; verify_api
 
 #-----------------------------------------------------------------------------
@@ -50,8 +50,8 @@ ALL = (
 )
 
 _CARTO_URLS = {
-    'CARTODBPOSITRON':        'http://tiles.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
-    'CARTODBPOSITRON_RETINA': 'http://tiles.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png',
+    'CARTODBPOSITRON':        'https://tiles.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
+    'CARTODBPOSITRON_RETINA': 'https://tiles.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png',
 }
 
 _STAMEN_URLS = {
@@ -63,15 +63,15 @@ _STAMEN_URLS = {
 }
 
 _STAMEN_LIC = {
-    'STAMEN_TERRAIN':          '<a href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>',
-    'STAMEN_TERRAIN_RETINA':   '<a href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>',
-    'STAMEN_TONER':            '<a href="http://www.openstreetmap.org/copyright">ODbL</a>',
-    'STAMEN_TONER_BACKGROUND': '<a href="http://www.openstreetmap.org/copyright">ODbL</a>',
-    'STAMEN_TONER_LABELS':     '<a href="http://www.openstreetmap.org/copyright">ODbL</a>',
+    'STAMEN_TERRAIN':          '<a href="https://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>',
+    'STAMEN_TERRAIN_RETINA':   '<a href="https://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>',
+    'STAMEN_TONER':            '<a href="https://www.openstreetmap.org/copyright">ODbL</a>',
+    'STAMEN_TONER_BACKGROUND': '<a href="https://www.openstreetmap.org/copyright">ODbL</a>',
+    'STAMEN_TONER_LABELS':     '<a href="https://www.openstreetmap.org/copyright">ODbL</a>',
 }
 
 #-----------------------------------------------------------------------------
-# Public API
+# General API
 #-----------------------------------------------------------------------------
 
 Test___all__ = verify_all(bt, ALL)
@@ -89,9 +89,9 @@ class Test_StamenProviders(object):
     def test_attribution(self, name):
         p = getattr(bt, name)
         assert p.attribution == (
-            'Map tiles by <a href="http://stamen.com">Stamen Design</a>, '
-            'under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. '
-            'Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, '
+            'Map tiles by <a href="https://stamen.com">Stamen Design</a>, '
+            'under <a href="https://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. '
+            'Data by <a href="https://openstreetmap.org">OpenStreetMap</a>, '
             'under %s.'
         ) % _STAMEN_LIC[name]
 
@@ -113,7 +113,7 @@ class Test_CartoProviders(object):
     def test_attribution(self, name):
         p = getattr(bt, name)
         assert p.attribution == (
-            '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors,'
+            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors,'
             '&copy; <a href="https://cartodb.com/attributions">CartoDB</a>'
         )
 
@@ -123,7 +123,7 @@ class Test_CartoProviders(object):
         assert p1 is not p2
 
 #-----------------------------------------------------------------------------
-# Internal API
+# Dev API
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------

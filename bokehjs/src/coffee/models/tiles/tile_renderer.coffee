@@ -60,7 +60,7 @@ export class TileRendererView extends RendererView
   _map_data: () ->
     @initial_extent = @get_extent()
     zoom_level = @model.tile_source.get_level_by_extent(@initial_extent, @map_frame._height.value, @map_frame._width.value)
-    new_extent = @model.tile_source.snap_to_zoom(@initial_extent, @map_frame._height.value, @map_frame._width.value, zoom_level)
+    new_extent = @model.tile_source.snap_to_zoom_level(@initial_extent, @map_frame._height.value, @map_frame._width.value, zoom_level)
     @x_range.start = new_extent[0]
     @y_range.start = new_extent[1]
     @x_range.end = new_extent[2]
@@ -120,7 +120,7 @@ export class TileRendererView extends RendererView
     if @_last_height != @map_frame._height.value or @_last_width != @map_frame._width.value
       extent = @get_extent()
       zoom_level = @model.tile_source.get_level_by_extent(extent, @map_frame._height.value, @map_frame._width.value)
-      new_extent = @model.tile_source.snap_to_zoom(extent, @map_frame._height.value, @map_frame._width.value, zoom_level)
+      new_extent = @model.tile_source.snap_to_zoom_level(extent, @map_frame._height.value, @map_frame._width.value, zoom_level)
       @x_range.setv({start:new_extent[0], end: new_extent[2]})
       @y_range.setv({start:new_extent[1], end: new_extent[3]})
       @extent = new_extent

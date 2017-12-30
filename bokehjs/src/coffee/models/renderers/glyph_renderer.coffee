@@ -251,6 +251,22 @@ export class GlyphRendererView extends RendererView
     return @model.hit_test_helper(geometry, @)
 
 export class GlyphRenderer extends Renderer
+
+  `
+  x_range_name: string
+  y_range_name: string
+  /*
+  data_source: DataSource
+  view: CDSView
+  glyph: Glyph
+  hover_glyph: Glyph
+  nonselection_glyph: Glyph | "auto"
+  selection_glyph: Glyph | "auto"
+  muted_glyph: Glyph
+  muted: boolean
+  */
+  `
+
   default_view: GlyphRendererView
 
   type: 'GlyphRenderer'

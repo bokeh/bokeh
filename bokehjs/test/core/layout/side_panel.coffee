@@ -67,6 +67,7 @@ describe "SidePanel", ->
       plot_view = new plot.default_view({model: plot, parent: null})
       @axis_view = plot_view.plot_canvas_view.renderer_views[axis.id]
 
+    ### XXX: no more _size_constraint
     it "should set last_size", ->
       sinon.stub(@axis_view, '_tick_extent', () -> 10)
       sinon.stub(@axis_view, '_axis_label_extent', () -> 15)
@@ -74,6 +75,7 @@ describe "SidePanel", ->
       expect(@axis_view._size_constraint).to.be.undefined
       update_panel_constraints(@axis_view)
       expect(@axis_view._size_constraint.expression.constant).to.be.equal(-30)
+    ###
 
     it "should add two constraints on first call (one for size, one for full)", ->
       add_constraint_call_count = @solver_add_constraint.callCount

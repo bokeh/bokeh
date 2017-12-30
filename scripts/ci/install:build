@@ -19,6 +19,5 @@ conda install --yes --quiet ${BUILD_DEPS}
 
 # install NPM dependencies
 pushd bokehjs
-npm set progress=false
-npm install
+npm install --no-save --no-progress
 popd

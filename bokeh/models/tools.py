@@ -22,7 +22,8 @@ always be active regardless of what other tools are currently active.
 '''
 from __future__ import absolute_import
 
-from ..core.enums import Anchor, Dimension, Dimensions, Location, TooltipFieldFormatter
+from ..core.enums import (Anchor, Dimension, Dimensions, Location,
+                          TooltipFieldFormatter, TooltipAttachment)
 from ..core.has_props import abstract
 from ..core.properties import (
     Auto, Bool, Color, Dict, Either, Enum, Float, Percent, Instance, List,
@@ -819,8 +820,10 @@ class HoverTool(Inspection):
     point of a tooltip. The default is to attach to the center of a glyph.
     """)
 
-    attachment = Enum("horizontal", "vertical", help="""
-    Whether tooltip's arrow should appear in the horizontal or vertical dimension.
+    attachment = Enum(TooltipAttachment, help="""
+    Whether the tooltip should be displayed to the left or right of the cursor
+    position or above or below it, or if it should be automatically placed
+    in the horizontal or vertical dimension.
     """)
 
     show_arrow = Bool(default=True, help="""

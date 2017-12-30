@@ -3,14 +3,6 @@
   no_js: ["maps_cities.py", "maps.py", "trail.py"]
   no_diff: ["graphs.py"]
 
-- path: "models/server"
-  type: server
-  # linked_tap appears without glyphs, need to resolve in phantomjs
-  # line_animate renders as a blur of lines in phantomjs (but not firefox)
-  no_js: ["linked_tap.py", "line_animate.py"]
-  # population has a property error that needs to be resolved
-  skip: ["population.py"]
-
 - path: "custom"
 
 - path: "plotting/file"
@@ -18,9 +10,6 @@
   no_diff: ["jitter.py", "categorical_scatter_jitter.py"]
   no_js: ["gmap.py"]
   skip: ["dynamic_map.py"]
-
-- path: "plotting/server"
-  type: server
 
 - path: "plotting/notebook"
   skip: all
@@ -32,4 +21,5 @@
   skip: ["gapminder", "pivot", "simple_hdf5", "spectrogram", "surface3d", "stocks"]
 
 - path: "integration/annotations"
+- path: "integration/layout"
 - path: "integration/security"

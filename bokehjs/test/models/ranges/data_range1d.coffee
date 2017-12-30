@@ -335,3 +335,26 @@ describe "datarange1d module", ->
       expect(spy.called).to.be.false
       r.start = 15
       expect(spy.calledOnce).to.be.true
+
+  describe "adjust_bounds_for_aspect", ->
+    it "should preserve y axis when it is larger", ->
+      r = new DataRange1d()
+
+      bds = {minX: 0, maxX: 1, minY: 0, maxY: 2}
+
+      bds = r.adjust_bounds_for_aspect(bds, 4)
+      expect(bds.minX).to.be.equal -3.5
+      expect(bds.maxX).to.be.equal 4.5
+      expect(bds.minY).to.be.equal 0
+      expect(bds.maxY).to.be.equal 2
+
+    it "should preserve x axis when it is larger", ->
+      r = new DataRange1d()
+
+      bds = {minX: 0, maxX: 8, minY: 0, maxY: 1}
+
+      bds = r.adjust_bounds_for_aspect(bds, 4)
+      expect(bds.minX).to.be.equal 0
+      expect(bds.maxX).to.be.equal 8
+      expect(bds.minY).to.be.equal -0.5
+      expect(bds.maxY).to.be.equal 1.5

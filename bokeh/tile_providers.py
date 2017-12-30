@@ -15,14 +15,14 @@ Attributes:
 
         .. raw:: html
 
-            <img src="http://tiles.basemaps.cartocdn.com/light_all/14/2627/6331.png" />
+            <img src="https://tiles.basemaps.cartocdn.com/light_all/14/2627/6331.png" />
 
     CARTODBPOSITRON_RETINA
         Tile Source for CartoDB Tile Service (tiles at 'retina' resolution)
 
         .. raw:: html
 
-            <img src="http://tiles.basemaps.cartocdn.com/light_all/14/2627/6331@2x.png" />
+            <img src="https://tiles.basemaps.cartocdn.com/light_all/14/2627/6331@2x.png" />
 
     STAMEN_TERRAIN
         Tile Source for Stamen Terrain Service
@@ -74,7 +74,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import logging
 log = logging.getLogger(__name__)
 
-from bokeh.util.api import public, internal ; public, internal
+from bokeh.util.api import general, dev ; general, dev
 
 #-----------------------------------------------------------------------------
 # Imports
@@ -95,11 +95,11 @@ import types
 # __all__ defined at the bottom on the class module
 
 #-----------------------------------------------------------------------------
-# Public API
+# General API
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
-# Internal API
+# Dev API
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
@@ -109,14 +109,14 @@ import types
 class _TileProvidersModule(types.ModuleType):
 
     _CARTO_ATTRIBUTION = (
-        '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors,'
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors,'
         '&copy; <a href="https://cartodb.com/attributions">CartoDB</a>'
     )
 
     _STAMEN_ATTRIBUTION = (
-        'Map tiles by <a href="http://stamen.com">Stamen Design</a>, '
-        'under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. '
-        'Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, '
+        'Map tiles by <a href="https://stamen.com">Stamen Design</a>, '
+        'under <a href="https://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. '
+        'Data by <a href="https://openstreetmap.org">OpenStreetMap</a>, '
         'under %s.'
     )
 
@@ -124,7 +124,7 @@ class _TileProvidersModule(types.ModuleType):
     def CARTODBPOSITRON(self):
         from bokeh.models.tiles import WMTSTileSource
         return WMTSTileSource(
-            url='http://tiles.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
+            url='https://tiles.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
             attribution=self._CARTO_ATTRIBUTION
         )
 
@@ -132,7 +132,7 @@ class _TileProvidersModule(types.ModuleType):
     def CARTODBPOSITRON_RETINA(self):
         from bokeh.models.tiles import WMTSTileSource
         return WMTSTileSource(
-            url='http://tiles.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png',
+            url='https://tiles.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png',
             attribution=self._CARTO_ATTRIBUTION
         )
 
@@ -141,7 +141,7 @@ class _TileProvidersModule(types.ModuleType):
         from bokeh.models.tiles import WMTSTileSource
         return WMTSTileSource(
             url='http://tile.stamen.com/terrain/{Z}/{X}/{Y}.png',
-            attribution=self._STAMEN_ATTRIBUTION % '<a href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>'
+            attribution=self._STAMEN_ATTRIBUTION % '<a href="https://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>'
         )
 
     @property
@@ -149,7 +149,7 @@ class _TileProvidersModule(types.ModuleType):
         from bokeh.models.tiles import WMTSTileSource
         return WMTSTileSource(
             url='http://tile.stamen.com/terrain/{Z}/{X}/{Y}@2x.png',
-            attribution=self._STAMEN_ATTRIBUTION % '<a href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>'
+            attribution=self._STAMEN_ATTRIBUTION % '<a href="https://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>'
         )
 
     @property
@@ -157,7 +157,7 @@ class _TileProvidersModule(types.ModuleType):
         from bokeh.models.tiles import WMTSTileSource
         return WMTSTileSource(
             url='http://tile.stamen.com/toner/{Z}/{X}/{Y}.png',
-            attribution=self._STAMEN_ATTRIBUTION % '<a href="http://www.openstreetmap.org/copyright">ODbL</a>'
+            attribution=self._STAMEN_ATTRIBUTION % '<a href="https://www.openstreetmap.org/copyright">ODbL</a>'
         )
 
     @property
@@ -165,7 +165,7 @@ class _TileProvidersModule(types.ModuleType):
         from bokeh.models.tiles import WMTSTileSource
         return WMTSTileSource(
             url='http://tile.stamen.com/toner-background/{Z}/{X}/{Y}.png',
-            attribution=self._STAMEN_ATTRIBUTION % '<a href="http://www.openstreetmap.org/copyright">ODbL</a>'
+            attribution=self._STAMEN_ATTRIBUTION % '<a href="https://www.openstreetmap.org/copyright">ODbL</a>'
         )
 
     @property
@@ -173,7 +173,7 @@ class _TileProvidersModule(types.ModuleType):
         from bokeh.models.tiles import WMTSTileSource
         return WMTSTileSource(
             url='http://tile.stamen.com/toner-labels/{Z}/{X}/{Y}.png',
-            attribution=self._STAMEN_ATTRIBUTION % '<a href="http://www.openstreetmap.org/copyright">ODbL</a>'
+            attribution=self._STAMEN_ATTRIBUTION % '<a href="https://www.openstreetmap.org/copyright">ODbL</a>'
         )
 
 #-----------------------------------------------------------------------------

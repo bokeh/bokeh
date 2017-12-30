@@ -50,17 +50,24 @@ describe "LogScale module", ->
   describe "invert method", ->
 
     it "should inverse map values logly", ->
-      expect(@scale.invert(-15)).to.be.equal 0.09999999999999996
-      expect(@scale.invert(10)).to.be.equal 1
-      expect(@scale.invert(35)).to.be.equal 10.000000000000004
-      expect(@scale.invert(60)).to.be.equal 100.00000000000007
-      expect(@scale.invert(85)).to.be.equal 1000.0000000000014
-      expect(@scale.invert(110)).to.be.equal 10000.000000000007
+      expect(@scale.invert(-15)).to.be.closeTo(0.1, 1e-10)
+      expect(@scale.invert(10)).to.be.closeTo(1, 1e-10)
+      expect(@scale.invert(35)).to.be.closeTo(10, 1e-10)
+      expect(@scale.invert(60)).to.be.closeTo(100, 1e-10)
+      expect(@scale.invert(85)).to.be.closeTo(1000, 1e-10)
+      expect(@scale.invert(110)).to.be.closeTo(10000, 1e-10)
 
   describe "v_invert method", ->
 
     it "should vector map inverse map values logly", ->
-      expect(@scale.v_invert([-15, 10, 35, 60, 85, 110])).to.be.deep.equal new Float64Array [0.09999999999999996, 1, 10.000000000000004, 100.00000000000007, 1000.0000000000014, 10000.000000000007]
+      value = @scale.v_invert([-15, 10, 35, 60, 85, 110])
 
-    it "should inverse map to a Float64Array", ->
-      expect(@scale.v_invert([-1,0,5,10,11])).to.be.instanceof Float64Array
+      expect(value).to.be.instanceof(Float64Array)
+      expect(value.length).to.be.equal(6)
+
+      expect(value[0]).to.be.closeTo(0.1, 1e-10)
+      expect(value[1]).to.be.closeTo(1, 1e-10)
+      expect(value[2]).to.be.closeTo(10, 1e-10)
+      expect(value[3]).to.be.closeTo(100, 1e-10)
+      expect(value[4]).to.be.closeTo(1000, 1e-10)
+      expect(value[5]).to.be.closeTo(10000, 1e-10)

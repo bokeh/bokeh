@@ -100,7 +100,6 @@ describe "LayoutDOMView", ->
       expect(spy.called).is.false
       layout_view.layout()
       expect(spy.callCount).is.equal(3)
-    ###
 
     it "should call suggest value with the model height and width if sizing_mode is fixed", ->
       layout = make_layout({sizing_mode: 'fixed', width: 22, height: 33})
@@ -129,7 +128,6 @@ describe "LayoutDOMView", ->
       expect(suggest_value.callCount).is.equal(3)
       expect(suggest_value.args[0]).to.be.deep.equal [layout._width, 222]
 
-    ###
     it "should set the value of model.width from get_width if mode is fixed and if model.width is null", ->
       layout = make_layout({sizing_mode: 'fixed', width: null})
       layout_view = new LayoutDOMView({ model: layout, parent: null })

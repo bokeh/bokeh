@@ -17,14 +17,16 @@ $(document).ready(function() {
     cache: false,
     success: function(data) {
       v = $.trim(data)
-      style = "font-family: sans-serif;font-size: 16px;width: 100%;text-align: center;background-color: pink;color: firebrick;padding: 5px;padding-top:12px; padding-bottom:12px;"
+      style = "font-family: sans-serif;font-size:20px;font-weight:bold;width:100%;height:60px;text-align: center;background-color: pink;color: firebrick;padding: 5px;padding-top:18px; padding-bottom:18px;position:fixed;top:0em; right:0em;z-index:1000000000000"
       loc = window.location.pathname;
       dev = /^\/en\/dev/
       if (dev.exec(loc)) {
+        $("body").css({"padding-top":"60px"})
         content = $('<div>The documentation on this page refers to a DEVELOPMENT VERSION. For the latest release, go to <a href="https://bokeh.pydata.org/en/latest/">https://bokeh.pydata.org/en/latest/</a></div>').attr('style', style);
         $('html:first').prepend(content);
       }
       else if (v != window._BOKEH_CURRENT_VERSION) {
+        $("body").css({"padding-top":"60px"})
         content = $('<div>The documentation on this page refers to a PREVIOUS VERSION. For the latest release, go to <a href="https://bokeh.pydata.org/en/latest/">https://bokeh.pydata.org/en/latest/</a></div>').attr('style', style);
         $('body').prepend(content);
       }

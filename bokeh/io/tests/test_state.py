@@ -13,7 +13,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import pytest ; pytest
 
-from bokeh.util.api import INTERNAL, PUBLIC ; INTERNAL, PUBLIC
+from bokeh.util.api import DEV, GENERAL ; DEV, GENERAL
 from bokeh.util.testing import verify_api ; verify_api
 
 #-----------------------------------------------------------------------------
@@ -37,7 +37,7 @@ import bokeh.io.state as bis
 
 api = {
 
-    PUBLIC: (
+    GENERAL: (
 
         ( 'State',                    (1, 0, 0) ),
         ( 'State.document.fget',      (1, 0, 0) ),
@@ -51,7 +51,7 @@ api = {
         ( 'State.reset',              (1, 0, 0) ),
         ( 'curstate',                 (1, 0, 0) ),
 
-    ), INTERNAL: (
+    ), DEV: (
 
     )
 
@@ -64,7 +64,7 @@ Test_api = verify_api(bis, api)
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
-# Public API
+# General API
 #-----------------------------------------------------------------------------
 
 class Test_State(object):
@@ -157,7 +157,7 @@ def test_curstate():
     bis._STATE = old_STATE
 
 #-----------------------------------------------------------------------------
-# Internal API
+# Dev API
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------

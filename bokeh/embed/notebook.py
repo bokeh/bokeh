@@ -17,7 +17,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import logging
 log = logging.getLogger(__name__)
 
-from bokeh.util.api import public, internal ; public, internal
+from bokeh.util.api import general, dev ; general, dev
 
 #-----------------------------------------------------------------------------
 # Imports
@@ -41,14 +41,14 @@ from .util import check_one_model_or_doc, div_for_render_item, find_existing_doc
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
-# Public API
+# General API
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
-# Internal API
+# Dev API
 #-----------------------------------------------------------------------------
 
-@internal((1,0,0))
+@dev((1,0,0))
 def notebook_content(model, notebook_comms_target=None, theme=FromCurdoc):
     ''' Return script and div that will display a Bokeh plot in a Jupyter
     Notebook.
@@ -112,17 +112,17 @@ def _ModelInEmptyDocument(model, apply_theme=None):
     from ..document import Document
     doc = find_existing_docs([model])
 
-    if apply_theme is FromCurdoc:
-        from ..io import curdoc; curdoc
-        doc.theme = curdoc().theme
-    elif apply_theme is not None:
-        doc.theme = apply_theme
-
     model._document = None
     for ref in model.references():
         ref._document = None
     new_doc = Document()
     new_doc.add_root(model)
+
+    if apply_theme is FromCurdoc:
+        from ..io import curdoc; curdoc
+        new_doc.theme = curdoc().theme
+    elif apply_theme is not None:
+        new_doc.theme = apply_theme
 
     if settings.perform_document_validation():
         new_doc.validate()

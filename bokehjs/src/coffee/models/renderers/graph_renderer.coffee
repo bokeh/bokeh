@@ -50,6 +50,19 @@ export class GraphRendererView extends RendererView
 
 
 export class GraphRenderer extends Renderer
+
+  `
+  x_range_name: string
+  y_range_name: string
+  /*
+  layout_provider:
+  node_renderer:
+  edge_renderer:
+  selection_policy:
+  inspection_policy:
+  */
+  `
+
   default_view: GraphRendererView
   type: 'GraphRenderer'
 

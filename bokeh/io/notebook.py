@@ -17,7 +17,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import logging
 log = logging.getLogger(__name__)
 
-from bokeh.util.api import public, internal ; public, internal
+from bokeh.util.api import general, dev ; general, dev
 
 #-----------------------------------------------------------------------------
 # Imports
@@ -47,10 +47,10 @@ LOAD_MIME_TYPE = 'application/vnd.bokehjs_load.v0+json'
 EXEC_MIME_TYPE = 'application/vnd.bokehjs_exec.v0+json'
 
 #-----------------------------------------------------------------------------
-# Public API
+# General API
 #-----------------------------------------------------------------------------
 
-@public((1,0,0))
+@general((1,0,0))
 class CommsHandle(object):
     '''
 
@@ -83,12 +83,12 @@ class CommsHandle(object):
             return "<p><code>&lt;Bokeh Notebook handle&gt;</code></p>"
 
     @property
-    @internal((1,0,0))
+    @dev((1,0,0))
     def comms(self):
         return self._comms
 
     @property
-    @internal((1,0,0))
+    @dev((1,0,0))
     def doc(self):
         return self._doc
 
@@ -101,7 +101,7 @@ class CommsHandle(object):
         if event.model._id in self.doc._all_models:
             self.doc._trigger_on_change(event)
 
-@public((1,0,0))
+@general((1,0,0))
 def install_notebook_hook(notebook_type, load, show_doc, show_app, overwrite=False):
     ''' Install a new notebook display hook.
 
@@ -180,7 +180,7 @@ def install_notebook_hook(notebook_type, load, show_doc, show_app, overwrite=Fal
         raise RuntimeError("hook for notebook type %r already exists" % notebook_type)
     _HOOKS[notebook_type] = dict(load=load, doc=show_doc, app=show_app)
 
-@public((1,0,0))
+@general((1,0,0))
 def push_notebook(document=None, state=None, handle=None):
     ''' Update Bokeh plots in a Jupyter notebook output cells with new data
     or property values.
@@ -260,7 +260,7 @@ def push_notebook(document=None, state=None, handle=None):
         handle.comms.send(json.dumps(header))
         handle.comms.send(buffers=[payload])
 
-@public((1,0,0))
+@general((1,0,0))
 def run_notebook_hook(notebook_type, action, *args, **kw):
     ''' Run an installed notebook hook with supplied arguments.
 
@@ -289,10 +289,10 @@ def run_notebook_hook(notebook_type, action, *args, **kw):
     return _HOOKS[notebook_type][action](*args, **kw)
 
 #-----------------------------------------------------------------------------
-# Internal API
+# Dev API
 #-----------------------------------------------------------------------------
 
-@internal((1,0,0))
+@dev((1,0,0))
 def destroy_server(server_id):
     ''' Given a UUID id of a div removed or replaced in the Jupyter
     notebook, destroy the corresponding server sessions and stop it.
@@ -312,7 +312,7 @@ def destroy_server(server_id):
     except Exception as e:
         log.debug("Could not destroy server for id %r: %s" % (server_id, e))
 
-@internal((1,0,0))
+@dev((1,0,0))
 def get_comms(target_name):
     ''' Create a Jupyter comms object for a specific target, that can
     be used to update Bokeh documents in the Jupyter notebook.
@@ -328,14 +328,14 @@ def get_comms(target_name):
     from ipykernel.comm import Comm
     return Comm(target_name=target_name, data={})
 
-@internal((1,0,0))
+@dev((1,0,0))
 def install_jupyter_hooks():
     '''
 
     '''
     install_notebook_hook('jupyter', load_notebook, show_doc, show_app)
 
-@internal((1,0,0))
+@dev((1,0,0))
 def load_notebook(resources=None, verbose=False, hide_banner=False, load_timeout=5000):
     ''' Prepare the IPython notebook for displaying Bokeh plots.
 
@@ -413,7 +413,7 @@ def load_notebook(resources=None, verbose=False, hide_banner=False, load_timeout
         LOAD_MIME_TYPE : jl_js
     })
 
-@internal((1,0,0))
+@dev((1,0,0))
 def publish_display_data(*args, **kw):
     '''
 
@@ -422,7 +422,7 @@ def publish_display_data(*args, **kw):
     from IPython.display import publish_display_data
     return publish_display_data(*args, **kw)
 
-@internal((1,0,0))
+@dev((1,0,0))
 def show_app(app, state, notebook_url):
     ''' Embed a Bokeh serer application in a Jupyter Notebook output cell.
 
@@ -463,7 +463,7 @@ def show_app(app, state, notebook_url):
         EXEC_MIME_TYPE: {"server_id": server_id}
     })
 
-@internal((1,0,0))
+@dev((1,0,0))
 def show_doc(obj, state, notebook_handle):
     '''
 

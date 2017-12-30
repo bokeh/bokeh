@@ -49,6 +49,10 @@ export class LayoutCanvas extends HasProps {
     ]
   }
 
+  get_layoutable_children(): LayoutCanvas[] {
+    return []
+  }
+
   get bbox(): BBox {
     return new BBox({
       x0: this._left.value,  y0: this._top.value,
@@ -56,7 +60,7 @@ export class LayoutCanvas extends HasProps {
     })
   }
 
-  get layout_bbox() {
+  get layout_bbox(): {[key: string]: number} {
     return {
       top: this._top.value,
       left: this._left.value,

@@ -45,6 +45,14 @@ Bokeh
   </td>
 </tr>
 <tr>
+  <td>Live Tutorial</td>
+  <td>
+    <a href="https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb">
+    <img src="https://mybinder.org/badge.svg" />
+    </a>
+  </td>
+</tr>
+<tr>
   <td>Gitter</td>
   <td>
     <a href="https://gitter.im/bokeh/bokeh?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge">
@@ -228,7 +236,7 @@ To begin using Bokeh or to install using `pip`, follow the [Quickstart](https://
 
 Documentation
 -------------
-Visit the [Bokeh web page](https://bokeh.pydata.org/en/latest) for information and full documentation.
+Visit the [Bokeh web page](https://bokeh.pydata.org/en/latest) for information and full documentation, or [launch the Bokeh tutorial](https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb) in live Jupyter Notebooks
 
 Contribute to Bokeh
 -------------------

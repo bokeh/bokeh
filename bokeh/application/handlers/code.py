@@ -1,3 +1,10 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Provide a Bokeh Application Handler to build up documents by compiling
 and executing Python source code.
 
@@ -18,26 +25,49 @@ applications that run off scripts and notebooks.
 
     server.start()
 
-
 '''
-from __future__ import absolute_import
+
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
 log = logging.getLogger(__name__)
 
+from bokeh.util.api import general, dev ; general, dev
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import os
 import sys
 
-from bokeh.io.doc import set_curdoc, curdoc
+# External imports
 
+# Bokeh imports
+from ...io.doc import set_curdoc, curdoc
 from .code_runner import CodeRunner
 from .handler import Handler
 
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+@general((1,0,0))
 class CodeHandler(Handler):
     ''' Run source code which modifies a Document
 
     '''
 
+    # These functions, if present in the supplied code, will be monkey patched
+    # to be no-ops, with a warning.
     _io_functions = ['output_notebook', 'output_file', 'show', 'save', 'reset_output']
 
     def __init__(self, *args, **kwargs):
@@ -70,16 +100,45 @@ class CodeHandler(Handler):
         for f in CodeHandler._io_functions:
             self._loggers[f] = self._make_io_logger(f)
 
-    def url_path(self):
-        ''' The last path component for the basename of the configured filename.
+    # Properties --------------------------------------------------------------
+
+    @property
+    @general((1,0,0))
+    def error(self):
+        ''' If the handler fails, may contain a related error message.
 
         '''
-        if self.failed:
-            return None
-        else:
-            # TODO should fix invalid URL characters
-            return '/' + os.path.splitext(os.path.basename(self._runner.path))[0]
+        return self._runner.error
 
+    @property
+    @general((1,0,0))
+    def error_detail(self):
+        ''' If the handler fails, may contain a traceback or other details.
+
+        '''
+        return self._runner.error_detail
+
+    @property
+    @general((1,0,0))
+    def failed(self):
+        ''' ``True`` if the handler failed to modify the doc
+
+        '''
+        return self._runner.failed
+
+    @property
+    @general((1,0,0))
+    def safe_to_fork(self):
+        ''' Whether it is still safe for the Bokeh server to fork new workers.
+
+        ``False`` if the code has already been executed.
+
+        '''
+        return not self._runner.ran
+
+    # Public methods ----------------------------------------------------------
+
+    @general((1,0,0))
     def modify_document(self, doc):
         '''
 
@@ -112,6 +171,19 @@ class CodeHandler(Handler):
             self._unmonkeypatch_io(old_io)
             set_curdoc(old_doc)
 
+    @general((1,0,0))
+    def url_path(self):
+        ''' The last path component for the basename of the configured filename.
+
+        '''
+        if self.failed:
+            return None
+        else:
+            # TODO should fix invalid URL characters
+            return '/' + os.path.splitext(os.path.basename(self._runner.path))[0]
+
+    # Private methods ---------------------------------------------------------
+
     # subclassess must define self._logger_text
     def _make_io_logger(self, name):
         def logger(*args, **kwargs):
@@ -135,32 +207,14 @@ class CodeHandler(Handler):
         for f in old:
             setattr(io, f, old[f])
 
-    @property
-    def failed(self):
-        ''' ``True`` if the handler failed to modify the doc
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
-        '''
-        return self._runner.failed
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
 
-    @property
-    def error(self):
-        ''' If the handler fails, may contain a related error message.
-
-        '''
-        return self._runner.error
-
-    @property
-    def error_detail(self):
-        ''' If the handler fails, may contain a traceback or other details.
-
-        '''
-        return self._runner.error_detail
-
-    @property
-    def safe_to_fork(self):
-        ''' Whether it is still safe for the Bokeh server to fork new workers.
-
-        ``False`` if the code has already been executed.
-
-        '''
-        return not self._runner.ran
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

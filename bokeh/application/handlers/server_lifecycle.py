@@ -1,20 +1,49 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Bokeh Application Handler to look for Bokeh server lifecycle callbacks
 in a specified Python module.
 
 '''
-from __future__ import absolute_import, print_function
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+from bokeh.util.api import general, dev ; general, dev
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import codecs
 import os
 
-from .handler import Handler
+# External imports
+
+# Bokeh imports
+from ...util.callback_manager import _check_callback
 from .code_runner import CodeRunner
+from .handler import Handler
 
-from bokeh.util.callback_manager import _check_callback
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
 
-def _do_nothing(ignored):
-    pass
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
+@general((1,0,0))
 class ServerLifecycleHandler(Handler):
     ''' Load a script which contains server lifecycle callbacks.
 
@@ -68,62 +97,35 @@ class ServerLifecycleHandler(Handler):
 
             self._runner.run(self._module, extract_callbacks)
 
-    def url_path(self):
-        ''' The last path component for the basename of the path to the
-        callback module.
+    # Properties --------------------------------------------------------------
+
+    @property
+    @general((1,0,0))
+    def error(self):
+        ''' If the handler fails, may contain a related error message.
 
         '''
-        if self.failed:
-            return None
-        else:
-            # TODO should fix invalid URL characters
-            return '/' + os.path.splitext(os.path.basename(self._runner.path))[0]
+        return self._runner.error
 
-    def on_server_loaded(self, server_context):
-        ''' Execute `on_server_unloaded`` from the configured module (if
-        it is defined) when the server is first started.
-
-        Args:
-            server_context (ServerContext) :
+    @property
+    @general((1,0,0))
+    def error_detail(self):
+        ''' If the handler fails, may contain a traceback or other details.
 
         '''
-        return self._on_server_loaded(server_context)
+        return self._runner.error_detail
 
-    def on_server_unloaded(self, server_context):
-        ''' Execute ``on_server_unloaded`` from the configured module (if
-        it is defined) when the server cleanly exits. (Before stopping the
-        server's ``IOLoop``.)
-
-        Args:
-            server_context (ServerContext) :
-
-        .. warning::
-            In practice this code may not run, since servers are often killed
-            by a signal.
+    @property
+    @general((1,0,0))
+    def failed(self):
+        ''' ``True`` if the lifecycle callbacks failed to execute
 
         '''
-        return self._on_server_unloaded(server_context)
+        return self._runner.failed
 
-    def on_session_created(self, session_context):
-        ''' Execute ``on_session_created`` from the configured module (if
-        it is defined) when a new session is created.
+    # Public methods ----------------------------------------------------------
 
-        Args:
-            session_context (SessionContext) :
-
-        '''
-        return self._on_session_created(session_context)
-
-    def on_session_destroyed(self, session_context):
-        ''' Execute ``on_session_destroyed`` from the configured module (if
-        it is defined) when a new session is destroyed.
-
-        Args:
-            session_context (SessionContext) :
-
-        '''
-        return self._on_session_destroyed(session_context)
-
+    @general((1,0,0))
     def modify_document(self, doc):
         ''' This handler does not make any modifications to the Document.
 
@@ -139,23 +141,78 @@ class ServerLifecycleHandler(Handler):
         # we could support a modify_document function, might be weird though.
         pass
 
-    @property
-    def failed(self):
-        ''' ``True`` if the lifecycle callbacks failed to execute
+    @general((1,0,0))
+    def on_server_loaded(self, server_context):
+        ''' Execute `on_server_unloaded`` from the configured module (if
+        it is defined) when the server is first started.
+
+        Args:
+            server_context (ServerContext) :
 
         '''
-        return self._runner.failed
+        return self._on_server_loaded(server_context)
 
-    @property
-    def error(self):
-        ''' If the handler fails, may contain a related error message.
+    @general((1,0,0))
+    def on_server_unloaded(self, server_context):
+        ''' Execute ``on_server_unloaded`` from the configured module (if
+        it is defined) when the server cleanly exits. (Before stopping the
+        server's ``IOLoop``.)
+
+        Args:
+            server_context (ServerContext) :
+
+        .. warning::
+            In practice this code may not run, since servers are often killed
+            by a signal.
 
         '''
-        return self._runner.error
+        return self._on_server_unloaded(server_context)
 
-    @property
-    def error_detail(self):
-        ''' If the handler fails, may contain a traceback or other details.
+    @general((1,0,0))
+    def on_session_created(self, session_context):
+        ''' Execute ``on_session_created`` from the configured module (if
+        it is defined) when a new session is created.
+
+        Args:
+            session_context (SessionContext) :
 
         '''
-        return self._runner.error_detail
+        return self._on_session_created(session_context)
+
+    @general((1,0,0))
+    def on_session_destroyed(self, session_context):
+        ''' Execute ``on_session_destroyed`` from the configured module (if
+        it is defined) when a new session is destroyed.
+
+        Args:
+            session_context (SessionContext) :
+
+        '''
+        return self._on_session_destroyed(session_context)
+
+    @general((1,0,0))
+    def url_path(self):
+        ''' The last path component for the basename of the path to the
+        callback module.
+
+        '''
+        if self.failed:
+            return None
+        else:
+            # TODO should fix invalid URL characters
+            return '/' + os.path.splitext(os.path.basename(self._runner.path))[0]
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+def _do_nothing(ignored):
+    pass
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

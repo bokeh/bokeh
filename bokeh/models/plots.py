@@ -656,6 +656,10 @@ class Plot(LayoutDOM):
         setting only sets the initial plot draw and subsequent resets. It is
         possible for tools (single axis zoom, unconstrained box zoom) to
         change the aspect ratio.
+
+    .. warning::
+        This setting is incompatible with linking dataranges across multiple
+        plots. Doing so may result in undefined behaviour.
     """)
 
     aspect_scale = Float(default=1, help="""

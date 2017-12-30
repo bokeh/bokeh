@@ -18,7 +18,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import logging
 log = logging.getLogger(__name__)
 
-from bokeh.util.api import public, internal ; public, internal
+from bokeh.util.api import general, dev ; general, dev
 
 #-----------------------------------------------------------------------------
 # Imports
@@ -49,10 +49,10 @@ __all__ = (
 )
 
 #-----------------------------------------------------------------------------
-# Public API
+# General API
 #-----------------------------------------------------------------------------
 
-@public((1,0,0))
+@general((1,0,0))
 def dodge(field_name, value, range=None):
     ''' Create a ``DataSpec`` dict to apply a client-side ``Jitter``
     transformation to a ``ColumnDataSource`` column.
@@ -72,7 +72,7 @@ def dodge(field_name, value, range=None):
     '''
     return field(field_name, Dodge(value=value, range=range))
 
-@public((1,0,0))
+@general((1,0,0))
 def factor_cmap(field_name, palette, factors, start=0, end=None, nan_color="gray"):
     ''' Create a ``DataSpec`` dict to apply a client-side
     ``CategoricalColorMapper`` transformation to a ``ColumnDataSource``
@@ -105,7 +105,7 @@ def factor_cmap(field_name, palette, factors, start=0, end=None, nan_color="gray
                                                     end=end,
                                                     nan_color=nan_color))
 
-@public((1,0,0))
+@general((1,0,0))
 def jitter(field_name, width, mean=0, distribution="uniform", range=None):
     ''' Create a ``DataSpec`` dict to apply a client-side ``Jitter``
     transformation to a ``ColumnDataSource`` column.
@@ -133,7 +133,7 @@ def jitter(field_name, width, mean=0, distribution="uniform", range=None):
                                     distribution=distribution,
                                     range=range))
 
-@public((1,0,0))
+@general((1,0,0))
 def linear_cmap(field_name, palette, low, high, low_color=None, high_color=None, nan_color="gray"):
     ''' Create a ``DataSpec`` dict to apply a client-side ``LinearColorMapper``
     transformation to a ``ColumnDataSource`` column.
@@ -168,7 +168,7 @@ def linear_cmap(field_name, palette, low, high, low_color=None, high_color=None,
                                                low_color=low_color,
                                                high_color=high_color))
 
-@public((1,0,0))
+@general((1,0,0))
 def log_cmap(field_name, palette, low, high, low_color=None, high_color=None, nan_color="gray"):
     ''' Create a ``DataSpec`` dict to apply a client-side ``LogColorMapper``
     transformation to a ``ColumnDataSource`` column.
@@ -203,7 +203,7 @@ def log_cmap(field_name, palette, low, high, low_color=None, high_color=None, na
                                             low_color=low_color,
                                             high_color=high_color))
 
-@public((1,0,0))
+@general((1,0,0))
 def stack(*fields):
     ''' Create a Create a ``DataSpec`` dict to generate a ``Stack`` expression
     for a ``ColumnDataSource``.
@@ -221,7 +221,7 @@ def stack(*fields):
     '''
     return expr(Stack(fields=fields))
 
-@public((1,0,0))
+@general((1,0,0))
 def transform(field_name, transform):
     ''' Create a ``DataSpec`` dict to apply an arbitrary client-side
     ``Transform`` to a ``ColumnDataSource`` column.
@@ -238,7 +238,7 @@ def transform(field_name, transform):
     return field(field_name, transform)
 
 #-----------------------------------------------------------------------------
-# Internal API
+# Dev API
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------

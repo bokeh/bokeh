@@ -1,3 +1,10 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Provide the ``Application`` class.
 
 Application instances are factories for creating new Bokeh Documents.
@@ -9,186 +16,42 @@ creates a new empty Document, then it passes this new Document to the
 updated the Document, it is used to service the user session.
 
 '''
-from __future__ import absolute_import
+
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
 log = logging.getLogger(__name__)
 
-from tornado import gen
+from bokeh.util.api import general, dev ; general, dev
 
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 from abc import ABCMeta, abstractmethod, abstractproperty
 
-from ..util.future import with_metaclass
-from ..util.tornado import yield_for_all_futures
+# External imports
+from tornado import gen
+
+# Bokeh imports
 from ..document import Document
 from ..settings import settings
+from ..util.future import with_metaclass
+from ..util.tornado import yield_for_all_futures
 
-class ServerContext(with_metaclass(ABCMeta)):
-    ''' A harness for server-specific information and tasks related to
-    collections of Bokeh sessions.
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
 
-    *This base class is probably not of interest to general users.*
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
-    '''
-
-    @abstractproperty
-    def sessions(self):
-        ''' SessionContext instances belonging to this application.
-
-        *Subclasses must implement this method.*
-
-        '''
-        pass
-
-    @abstractmethod
-    def add_next_tick_callback(self, callback):
-        ''' Add a callback to be run on the next tick of the event loop.
-
-        *Subclasses must implement this method.*
-
-        Args:
-            callback (callable) : a callback to add
-
-                The callback will execute on the next tick of the event loop,
-                and should have the form ``def callback()`` (i.e. it should
-                not accept any arguments)
-
-        '''
-        pass
-
-    @abstractmethod
-    def remove_next_tick_callback(self, callback):
-        ''' Remove a callback added with ``add_next_tick_callback``, before
-        it runs.
-
-         *Subclasses must implement this method.*
-
-        Args:
-            callback (callable) : the callback to remove
-
-        '''
-        pass
-
-    @abstractmethod
-    def add_timeout_callback(self, callback, timeout_milliseconds):
-        ''' Add a callback to be run once after timeout_milliseconds.
-
-        *Subclasses must implement this method.*
-
-        Args:
-            callback (callable) : a callback to add
-
-                The callback will execute once on the event loop after the
-                timeout has passed, and should have the form ``def callback()``
-                (i.e. it should not accept any arguments)
-
-            timeout_milliseconds (int) : number of milliseconds to wait before
-                executing the callback.
-
-        '''
-        pass
-
-    @abstractmethod
-    def remove_timeout_callback(self, callback):
-        ''' Remove a callback added with ``add_timeout_callback``, before it
-        runs.
-
-        *Subclasses must implement this method.*
-
-        Args:
-            callback (callable) : the callback to remove
-
-        '''
-        pass
-
-    @abstractmethod
-    def add_periodic_callback(self, callback, period_milliseconds):
-        ''' Add a callback to be run periodically until it is removed.
-
-        *Subclasses must implement this method.*
-
-        Args:
-            callback (callable) : a callback to add
-
-                The callback will execute periodically on the event loop
-                as specified, and should have the form ``def callback()``
-                (i.e. it should not accept any arguments)
-
-            period_milliseconds (int) : number of milliseconds to wait
-                between executing the callback.
-
-        '''
-        pass
-
-    @abstractmethod
-    def remove_periodic_callback(self, callback):
-        ''' Removes a callback added with ``add_periodic_callback``.
-
-        *Subclasses must implement this method.*
-
-        Args:
-            callback (callable) : the callback to remove
-
-        '''
-        pass
-
-class SessionContext(with_metaclass(ABCMeta)):
-    ''' A harness for server-specific information and tasks related to
-    Bokeh sessions.
-
-    *This base class is probably not of interest to general users.*
-
-    '''
-
-    def __init__(self, server_context, session_id):
-        '''
-
-        '''
-        self._server_context = server_context
-        self._id = session_id
-
-    @property
-    def server_context(self):
-        ''' The server context for this session context
-
-        '''
-        return self._server_context
-
-    @property
-    def id(self):
-        ''' The unique ID for the session associated with this context.
-
-        '''
-        return self._id
-
-    @property
-    @abstractmethod
-    def destroyed(self):
-        ''' If ``True``, the session has been discarded and cannot be used.
-
-        A new session with the same ID could be created later but this instance
-        will not come back to life.
-
-        '''
-        raise NotImplementedError("destroyed")
-
-    @abstractmethod
-    def with_locked_document(self, func):
-        ''' Runs a function with the document lock held, passing the
-        document to the function.
-
-        *Subclasses must implement this method.*
-
-        Args:
-            func (callable): function that takes a single parameter (the Document)
-                and returns ``None`` or a ``Future``
-
-        Returns:
-            a ``Future`` containing the result of the function
-
-        '''
-        raise NotImplementedError("locked_document")
-
+@general((1,0,0))
 class Application(object):
     ''' An Application is a factory for Document instances.
 
@@ -238,29 +101,43 @@ class Application(object):
         for h in handlers:
             self.add(h)
 
-    def create_document(self):
-        ''' Creates and initializes a document using the Application's handlers.
+    # Properties --------------------------------------------------------------
+
+    @property
+    @general((1,0,0))
+    def handlers(self):
+        ''' The ordered list of handlers this Application is configured with.
 
         '''
-        doc = Document()
-        self.initialize_document(doc)
-        return doc
+        return tuple(self._handlers)
 
-    def initialize_document(self, doc):
-        ''' Fills in a new document using the Application's handlers.
+    @property
+    @general((1,0,0))
+    def metadata(self):
+        ''' Arbitrary user-supplied metadata to associate with this application.
 
         '''
-        for h in self._handlers:
-            # TODO (havocp) we need to check the 'failed' flag on each handler
-            # and build a composite error display. In develop mode, we want to
-            # somehow get these errors to the client.
-            h.modify_document(doc)
-            if h.failed:
-                log.error("Error running application handler %r: %s %s ", h, h.error, h.error_detail)
+        return self._metadata
 
-        if settings.perform_document_validation():
-            doc.validate()
+    @property
+    @general((1,0,0))
+    def safe_to_fork(self):
+        '''
 
+        '''
+        return all(handler.safe_to_fork for handler in self._handlers)
+
+    @property
+    @general((1,0,0))
+    def static_path(self):
+        ''' Path to any (optional) static resources specified by handlers.
+
+        '''
+        return self._static_path
+
+    # Public methods ----------------------------------------------------------
+
+    @general((1,0,0))
     def add(self, handler):
         ''' Add a handler to the pipeline used to initialize new documents.
 
@@ -281,35 +158,32 @@ class Application(object):
         else:
             self._static_path = None
 
-    @property
-    def handlers(self):
-        ''' The ordered list of handlers this Application is configured with.
+    @general((1,0,0))
+    def create_document(self):
+        ''' Creates and initializes a document using the Application's handlers.
 
         '''
-        return tuple(self._handlers)
+        doc = Document()
+        self.initialize_document(doc)
+        return doc
 
-    @property
-    def safe_to_fork(self):
-        '''
-
-        '''
-        return all(handler.safe_to_fork for handler in self._handlers)
-
-    @property
-    def metadata(self):
-        ''' Arbitrary user-supplied metadata to associate with this
-        application.
+    @general((1,0,0))
+    def initialize_document(self, doc):
+        ''' Fills in a new document using the Application's handlers.
 
         '''
-        return self._metadata
+        for h in self._handlers:
+            # TODO (havocp) we need to check the 'failed' flag on each handler
+            # and build a composite error display. In develop mode, we want to
+            # somehow get these errors to the client.
+            h.modify_document(doc)
+            if h.failed:
+                log.error("Error running application handler %r: %s %s ", h, h.error, h.error_detail)
 
-    @property
-    def static_path(self):
-        ''' Path to any (optional) static resources specified by handlers.
+        if settings.perform_document_validation():
+            doc.validate()
 
-        '''
-        return self._static_path
-
+    @dev((1,0,0))
     def on_server_loaded(self, server_context):
         ''' Invoked to execute code when a new session is created.
 
@@ -320,6 +194,7 @@ class Application(object):
         for h in self._handlers:
             h.on_server_loaded(server_context)
 
+    @dev((1,0,0))
     def on_server_unloaded(self, server_context):
         ''' Invoked to execute code when the server cleanly exits. (Before
         stopping the server's ``IOLoop``.)
@@ -336,6 +211,7 @@ class Application(object):
             h.on_server_unloaded(server_context)
 
     @gen.coroutine
+    @dev((1,0,0))
     def on_session_created(self, session_context):
         ''' Invoked to execute code when a new session is created.
 
@@ -352,6 +228,7 @@ class Application(object):
         raise gen.Return(None)
 
     @gen.coroutine
+    @dev((1,0,0))
     def on_session_destroyed(self, session_context):
         ''' Invoked to execute code when a session is destroyed.
 
@@ -365,3 +242,201 @@ class Application(object):
             result = h.on_session_destroyed(session_context)
             yield yield_for_all_futures(result)
         raise gen.Return(None)
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+@dev((1,0,0))
+class ServerContext(with_metaclass(ABCMeta)):
+    ''' A harness for server-specific information and tasks related to
+    collections of Bokeh sessions.
+
+    *This base class is probably not of interest to general users.*
+
+    '''
+
+    # Properties --------------------------------------------------------------
+
+    @abstractproperty
+    @dev((1,0,0))
+    def sessions(self):
+        ''' SessionContext instances belonging to this application.
+
+        *Subclasses must implement this method.*
+
+        '''
+        pass
+
+    # Public methods ----------------------------------------------------------
+
+    @abstractmethod
+    @dev((1,0,0))
+    def add_next_tick_callback(self, callback):
+        ''' Add a callback to be run on the next tick of the event loop.
+
+        *Subclasses must implement this method.*
+
+        Args:
+            callback (callable) : a callback to add
+
+                The callback will execute on the next tick of the event loop,
+                and should have the form ``def callback()`` (i.e. it should
+                not accept any arguments)
+
+        '''
+        pass
+
+    @abstractmethod
+    @dev((1,0,0))
+    def add_periodic_callback(self, callback, period_milliseconds):
+        ''' Add a callback to be run periodically until it is removed.
+
+        *Subclasses must implement this method.*
+
+        Args:
+            callback (callable) : a callback to add
+
+                The callback will execute periodically on the event loop
+                as specified, and should have the form ``def callback()``
+                (i.e. it should not accept any arguments)
+
+            period_milliseconds (int) : number of milliseconds to wait
+                between executing the callback.
+
+        '''
+        pass
+
+    @abstractmethod
+    @dev((1,0,0))
+    def add_timeout_callback(self, callback, timeout_milliseconds):
+        ''' Add a callback to be run once after timeout_milliseconds.
+
+        *Subclasses must implement this method.*
+
+        Args:
+            callback (callable) : a callback to add
+
+                The callback will execute once on the event loop after the
+                timeout has passed, and should have the form ``def callback()``
+                (i.e. it should not accept any arguments)
+
+            timeout_milliseconds (int) : number of milliseconds to wait before
+                executing the callback.
+
+        '''
+        pass
+
+    @abstractmethod
+    @dev((1,0,0))
+    def remove_next_tick_callback(self, callback):
+        ''' Remove a callback added with ``add_next_tick_callback``, before
+        it runs.
+
+         *Subclasses must implement this method.*
+
+        Args:
+            callback (callable) : the callback to remove
+
+        '''
+        pass
+
+    @abstractmethod
+    @dev((1,0,0))
+    def remove_periodic_callback(self, callback):
+        ''' Removes a callback added with ``add_periodic_callback``.
+
+        *Subclasses must implement this method.*
+
+        Args:
+            callback (callable) : the callback to remove
+
+        '''
+        pass
+
+    @abstractmethod
+    @dev((1,0,0))
+    def remove_timeout_callback(self, callback):
+        ''' Remove a callback added with ``add_timeout_callback``, before it
+        runs.
+
+        *Subclasses must implement this method.*
+
+        Args:
+            callback (callable) : the callback to remove
+
+        '''
+        pass
+
+@dev((1,0,0))
+class SessionContext(with_metaclass(ABCMeta)):
+    ''' A harness for server-specific information and tasks related to
+    Bokeh sessions.
+
+    *This base class is probably not of interest to general users.*
+
+    '''
+
+    def __init__(self, server_context, session_id):
+        '''
+
+        '''
+        self._server_context = server_context
+        self._id = session_id
+
+    # Properties --------------------------------------------------------------
+
+    @abstractproperty
+    @dev((1,0,0))
+    def destroyed(self):
+        ''' If ``True``, the session has been discarded and cannot be used.
+
+        A new session with the same ID could be created later but this instance
+        will not come back to life.
+
+        '''
+        pass
+
+    @property
+    @dev((1,0,0))
+    def id(self):
+        ''' The unique ID for the session associated with this context.
+
+        '''
+        return self._id
+
+    @property
+    @dev((1,0,0))
+    def server_context(self):
+        ''' The server context for this session context
+
+        '''
+        return self._server_context
+
+    # Public methods ----------------------------------------------------------
+
+    @abstractmethod
+    @dev((1,0,0))
+    def with_locked_document(self, func):
+        ''' Runs a function with the document lock held, passing the
+        document to the function.
+
+        *Subclasses must implement this method.*
+
+        Args:
+            func (callable): function that takes a single parameter (the Document)
+                and returns ``None`` or a ``Future``
+
+        Returns:
+            a ``Future`` containing the result of the function
+
+        '''
+        pass
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

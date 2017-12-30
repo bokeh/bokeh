@@ -277,6 +277,21 @@ describe "tile sources", ->
       source = new MercatorTileSource(tile_options)
       expect(source.is_valid_tile(-1, 1, 1)).to.be.eql(false)
 
+    it "should not snap_to_zoom_level", ->
+      bounds = source.snap_to_zoom_level(T.MERCATOR_BOUNDS, 400, 400, 2)
+      expect(bounds[0]).to.be.closeTo(T.MERCATOR_BOUNDS[0], tol)
+      expect(bounds[1]).to.be.closeTo(T.MERCATOR_BOUNDS[1], tol)
+      expect(bounds[2]).to.be.closeTo(T.MERCATOR_BOUNDS[2], tol)
+      expect(bounds[3]).to.be.closeTo(T.MERCATOR_BOUNDS[3], tol)
+
+    it "should snap_to_zoom_level", ->
+      source = new MercatorTileSource({snap_to_zoom: true})
+      bounds = source.snap_to_zoom_level(T.MERCATOR_BOUNDS, 400, 400, 2)
+      expect(bounds[0]).to.be.closeTo(-7827151.69, tol)
+      expect(bounds[1]).to.be.closeTo(-7827151.69, tol)
+      expect(bounds[2]).to.be.closeTo(7827151.69, tol)
+      expect(bounds[3]).to.be.closeTo(7827151.69, tol)
+
     it "should get best zoom level based on extent and height/width", ->
       expect(source.get_level_by_extent(T.MERCATOR_BOUNDS, 256, 256)).to.be.equal(0)
       expect(source.get_level_by_extent(T.MERCATOR_BOUNDS, 512, 512)).to.be.equal(1)

@@ -1,3 +1,10 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Provide a base class for Bokeh Application handler classes.
 
 When a Bokeh server session is initiated, the Bokeh server asks the Application
@@ -27,8 +34,36 @@ based off information in some database:
             return doc
 
 '''
-from __future__ import absolute_import, print_function
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+from bokeh.util.api import general, dev ; general, dev
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
+
+# Bokeh imports
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+@general((1,0,0))
 class Handler(object):
     ''' Provide a mechanism for Bokeh applications to build up new Bokeh
     Documents.
@@ -42,27 +77,35 @@ class Handler(object):
         self._error_detail = None
         self._static = None
 
-    def url_path(self):
-        ''' Returs a default URL path, if applicable.
+    # Properties --------------------------------------------------------------
 
-        Handlers subclasses may optionally implement this method, to inform
-        the Bokeh application what URL it should be installed at.
-
-        If multiple handlers specify ``url_path`` the Application will use the
-        value from the first handler in its list of handlers.
+    @property
+    @general((1,0,0))
+    def error(self):
+        ''' If the handler fails, may contain a related error message.
 
         '''
-        return None
+        return self._error
 
-    def static_path(self):
-        ''' Return a path to app-specific static resources, if applicable.
+    @property
+    @general((1,0,0))
+    def error_detail(self):
+        ''' If the handler fails, may contain a traceback or other details.
 
         '''
-        if self.failed:
-            return None
-        else:
-            return self._static
+        return self._error_detail
 
+    @property
+    @general((1,0,0))
+    def failed(self):
+        ''' ``True`` if the handler failed to modify the doc
+
+        '''
+        return self._failed
+
+    # Public methods ----------------------------------------------------------
+
+    @general((1,0,0))
     def modify_document(self, doc):
         ''' Modify an application document in a specified manner.
 
@@ -84,27 +127,7 @@ class Handler(object):
         '''
         raise NotImplementedError("implement modify_document()")
 
-    @property
-    def failed(self):
-        ''' ``True`` if the handler failed to modify the doc
-
-        '''
-        return self._failed
-
-    @property
-    def error(self):
-        ''' If the handler fails, may contain a related error message.
-
-        '''
-        return self._error
-
-    @property
-    def error_detail(self):
-        ''' If the handler fails, may contain a traceback or other details.
-
-        '''
-        return self._error_detail
-
+    @general((1,0,0))
     def on_server_loaded(self, server_context):
         ''' Execute code when the server is first started.
 
@@ -118,6 +141,7 @@ class Handler(object):
         '''
         pass
 
+    @general((1,0,0))
     def on_server_unloaded(self, server_context):
         ''' Execute code when the server cleanly exits. (Before stopping the
         server's ``IOLoop``.)
@@ -135,6 +159,7 @@ class Handler(object):
         '''
         pass
 
+    @general((1,0,0))
     def on_session_created(self, session_context):
         ''' Execute code when a new session is created.
 
@@ -148,6 +173,7 @@ class Handler(object):
         '''
         pass
 
+    @general((1,0,0))
     def on_session_destroyed(self, session_context):
         ''' Execute code when a session is destroyed.
 
@@ -159,3 +185,38 @@ class Handler(object):
 
         '''
         pass
+
+    @general((1,0,0))
+    def static_path(self):
+        ''' Return a path to app-specific static resources, if applicable.
+
+        '''
+        if self.failed:
+            return None
+        else:
+            return self._static
+
+    @general((1,0,0))
+    def url_path(self):
+        ''' Returs a default URL path, if applicable.
+
+        Handlers subclasses may optionally implement this method, to inform
+        the Bokeh application what URL it should be installed at.
+
+        If multiple handlers specify ``url_path`` the Application will use the
+        value from the first handler in its list of handlers.
+
+        '''
+        return None
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

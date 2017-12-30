@@ -1,8 +1,11 @@
-import {Canvas} from "../canvas/canvas"
+import {Canvas, CanvasView} from "../canvas/canvas"
 import {CartesianFrame} from "../canvas/cartesian_frame"
 import {DataRange1d} from "../ranges/data_range1d"
+import {RendererView} from "../renderers/renderer"
 import {GlyphRenderer} from "../renderers/glyph_renderer"
 import {LayoutDOM} from "../layouts/layout_dom"
+import {Toolbar} from "../tools/toolbar"
+import {Plot} from "./plot"
 
 import {Signal} from "core/signaling"
 import {build_views, remove_views} from "core/build_views"
@@ -35,6 +38,14 @@ import {update_panel_constraints, _view_sizes} from "core/layout/side_panel"
 global_glcanvas = null
 
 export class PlotCanvasView extends DOMView
+
+  `
+  model: PlotCanvas
+  canvas_view: CanvasView
+  state_changed: Signal<void, this>
+  renderer_views: {[key: string]: RendererView}
+  `
+
   className: "bk-plot-wrapper"
 
   state: { history: [], index: -1 }
@@ -209,35 +220,14 @@ export class PlotCanvasView extends DOMView
     follow_enabled = false
     has_bounds = false
 
+    r = null
     if @model.plot.match_aspect != false and @frame._width.value != 0 and @frame._height.value != 0
       r = 1/@model.plot.aspect_scale*(@frame._width.value/@frame._height.value)
-      for k, v of bounds
-        if isFinite(v.maxX) and isFinite(v.minX) and isFinite(v.maxY) and isFinite(v.minY)
-          width = v.maxX - v.minX
-          if width <= 0
-            width = 1.0
-
-          height = v.maxY - v.minY
-          if height <= 0
-            height = 1.0
-
-          xcenter = 0.5*(v.maxX + v.minX)
-          ycenter = 0.5*(v.maxY + v.minY)
-
-          if width < r*height
-            width = r*height
-          else
-            height = width/r
-
-          bounds[k].maxX = xcenter+0.5*width
-          bounds[k].minX = xcenter-0.5*width
-          bounds[k].maxY = ycenter+0.5*height
-          bounds[k].minY = ycenter-0.5*height
 
     for xr in values(frame.x_ranges)
       if xr instanceof DataRange1d
         bounds_to_use = if xr.scale_hint == "log" then log_bounds else bounds
-        xr.update(bounds_to_use, 0, @model.id)
+        xr.update(bounds_to_use, 0, @model.id, r)
         if xr.follow
           follow_enabled = true
       has_bounds = true if xr.bounds?
@@ -245,7 +235,7 @@ export class PlotCanvasView extends DOMView
     for yr in values(frame.y_ranges)
       if yr instanceof DataRange1d
         bounds_to_use = if yr.scale_hint == "log" then log_bounds else bounds
-        yr.update(bounds_to_use, 1, @model.id)
+        yr.update(bounds_to_use, 1, @model.id, r)
         if yr.follow
           follow_enabled = true
       has_bounds = true if yr.bounds?
@@ -362,26 +352,26 @@ export class PlotCanvasView extends DOMView
             if min >= range_info['end']
               hit_bound = true
               range_info['end'] = min
-              if is_panning? or is_scrolling?
+              if is_panning or is_scrolling
                 range_info['start'] = min + new_interval
           if max?
             if max <= range_info['start']
               hit_bound = true
               range_info['start'] = max
-              if is_panning? or is_scrolling?
+              if is_panning or is_scrolling
                 range_info['end'] = max - new_interval
         else
           if min?
             if min >= range_info['start']
               hit_bound = true
               range_info['start'] = min
-              if is_panning? or is_scrolling?
+              if is_panning or is_scrolling
                 range_info['end'] = min + new_interval
           if max?
             if max <= range_info['end']
               hit_bound = true
               range_info['end'] = max
-              if is_panning? or is_scrolling?
+              if is_panning or is_scrolling
                 range_info['start'] = max - new_interval
 
     # Cancel the event when hitting a bound while scrolling. This ensures that
@@ -422,7 +412,7 @@ export class PlotCanvasView extends DOMView
         weight = Math.max(0.0, Math.min(1.0, weight))
       return weight
 
-  update_range: (range_info, is_panning, is_scrolling) ->
+  update_range: (range_info, is_panning=false, is_scrolling=false) ->
     @pause()
     if not range_info?
       for name, rng of @frame.x_ranges
@@ -729,6 +719,14 @@ class RightPanel extends LayoutCanvas
 export class PlotCanvas extends LayoutDOM
   type: 'PlotCanvas'
   default_view: PlotCanvasView
+
+  `
+  plot: Plot
+  toolbar: Toolbar
+  canvas: Canvas
+  frame: CartesianFrame
+  use_map: boolean
+  `
 
   initialize: (attrs, options) ->
     super(attrs, options)
