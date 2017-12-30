@@ -86,6 +86,10 @@ export class SpanView extends AnnotationView
       ctx.restore()
 
 export class Span extends Annotation
+  `
+  computed_location: number | null
+  `
+
   default_view: SpanView
 
   type: 'Span'

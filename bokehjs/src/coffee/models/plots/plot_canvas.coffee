@@ -1,9 +1,11 @@
 import {Canvas, CanvasView} from "../canvas/canvas"
 import {CartesianFrame} from "../canvas/cartesian_frame"
 import {DataRange1d} from "../ranges/data_range1d"
+import {RendererView} from "../renderers/renderer"
 import {GlyphRenderer} from "../renderers/glyph_renderer"
 import {LayoutDOM} from "../layouts/layout_dom"
 import {Toolbar} from "../tools/toolbar"
+import {Plot} from "./plot"
 
 import {Signal} from "core/signaling"
 import {build_views, remove_views} from "core/build_views"
@@ -40,6 +42,8 @@ export class PlotCanvasView extends DOMView
   `
   model: PlotCanvas
   canvas_view: CanvasView
+  state_changed: Signal<void, this>
+  renderer_views: {[key: string]: RendererView}
   `
 
   className: "bk-plot-wrapper"
@@ -348,26 +352,26 @@ export class PlotCanvasView extends DOMView
             if min >= range_info['end']
               hit_bound = true
               range_info['end'] = min
-              if is_panning? or is_scrolling?
+              if is_panning or is_scrolling
                 range_info['start'] = min + new_interval
           if max?
             if max <= range_info['start']
               hit_bound = true
               range_info['start'] = max
-              if is_panning? or is_scrolling?
+              if is_panning or is_scrolling
                 range_info['end'] = max - new_interval
         else
           if min?
             if min >= range_info['start']
               hit_bound = true
               range_info['start'] = min
-              if is_panning? or is_scrolling?
+              if is_panning or is_scrolling
                 range_info['end'] = min + new_interval
           if max?
             if max <= range_info['end']
               hit_bound = true
               range_info['end'] = max
-              if is_panning? or is_scrolling?
+              if is_panning or is_scrolling
                 range_info['start'] = max - new_interval
 
     # Cancel the event when hitting a bound while scrolling. This ensures that
@@ -408,7 +412,7 @@ export class PlotCanvasView extends DOMView
         weight = Math.max(0.0, Math.min(1.0, weight))
       return weight
 
-  update_range: (range_info, is_panning, is_scrolling) ->
+  update_range: (range_info, is_panning=false, is_scrolling=false) ->
     @pause()
     if not range_info?
       for name, rng of @frame.x_ranges
@@ -717,7 +721,7 @@ export class PlotCanvas extends LayoutDOM
   default_view: PlotCanvasView
 
   `
-  //plot: Plot
+  plot: Plot
   toolbar: Toolbar
   canvas: Canvas
   frame: CartesianFrame
