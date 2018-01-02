@@ -237,6 +237,6 @@ export class DataTable extends TableWidget
       return null
 
     if not any(selected_indices, (i) -> grid_range.top <= i <= grid_range.bottom)
-      return Math.max(0, Math.min.apply(null, selected_indices) - 1)
+      return Math.max(0, Math.min(selected_indices...) - 1)
 
     return null
