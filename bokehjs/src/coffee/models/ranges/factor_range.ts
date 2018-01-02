@@ -128,12 +128,12 @@ export class FactorRange extends Range {
   initialize(attrs: any, options: any): void {
     super.initialize(attrs, options)
     this._init()
-    this.connect(this.properties.factors.change, () => this._init())
-    this.connect(this.properties.factor_padding.change, () => this._init())
-    this.connect(this.properties.group_padding.change, () => this._init())
-    this.connect(this.properties.subgroup_padding.change, () => this._init())
-    this.connect(this.properties.range_padding.change, () => this._init())
-    this.connect(this.properties.range_padding_units.change, () => this._init())
+    this.connect(this.properties.factors.change, () => this.reset())
+    this.connect(this.properties.factor_padding.change, () => this.reset())
+    this.connect(this.properties.group_padding.change, () => this.reset())
+    this.connect(this.properties.subgroup_padding.change, () => this.reset())
+    this.connect(this.properties.range_padding.change, () => this.reset())
+    this.connect(this.properties.range_padding_units.change, () => this.reset())
   }
 
   reset(): void {
