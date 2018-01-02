@@ -142,13 +142,25 @@ export class FactorRange extends Range {
   }
 
   protected _lookup(x: any): number {
-    if (x.length == 1)
-      return (this._mapping as L1Mapping)[x[0]].value
-    else if (x.length == 2)
-      return (this._mapping as L2Mapping)[x[0]].mapping[x[1]].value
-    else if (x.length == 3)
-      return (this._mapping as L3Mapping)[x[0]].mapping[x[1]].mapping[x[2]].value
-    else
+    if (x.length == 1) {
+      const m = this._mapping as L1Mapping
+      if (!m.hasOwnProperty(x[0])) {
+        return NaN
+      }
+      return m[x[0]].value
+    } else if (x.length == 2) {
+      const m = this._mapping as L2Mapping
+      if (!m.hasOwnProperty(x[0]) || !m[x[0]].mapping.hasOwnProperty(x[1])) {
+        return NaN
+      }
+      return m[x[0]].mapping[x[1]].value
+    } else if (x.length == 3) {
+      const m = this._mapping as L3Mapping
+      if (!m.hasOwnProperty(x[0]) || !m[x[0]].mapping.hasOwnProperty(x[1]) || !m[x[0]].mapping[x[1]].mapping.hasOwnProperty(x[2]))  {
+        return NaN
+      }
+      return m[x[0]].mapping[x[1]].mapping[x[2]].value
+    } else
       return undefined as never
   }
 

@@ -671,6 +671,10 @@ describe "factor_range module", ->
         r.synthetic(x)
         expect(x).to.deep.equal ["B", -0.2]
 
+      it "should return NaN for unknown factors", ->
+        expect(r.synthetic(['JUNK'])).to.be.NaN
+        expect(r.synthetic(['JUNK', '1'])).to.be.NaN
+
     describe "v_synthetic method", ->
       r = new FactorRange({factors: ['A', 'B', 'C']})
 
@@ -697,6 +701,9 @@ describe "factor_range module", ->
         r.v_synthetic(x)
         expect(x).to.deep.equal [["A", 0.1], ["B", -0.2]]
 
+      it "should map unknown factors to NaN", ->
+        expect(r.v_synthetic(["A", "JUNK", "C", "A"])).to.deep.equal [0.5, NaN, 2.5, 0.5]
+        expect(r.v_synthetic([["A", 0.1], ["JUNK", -0.2], ["C"], ["A", 0]])).to.deep.equal [0.6, NaN, 2.5, 0.5]
 
 
 
@@ -917,6 +924,12 @@ describe "factor_range module", ->
         r.synthetic(x)
         expect(x).to.deep.equal ['A', '1', 0.1]
 
+      it "should return NaN for unknown factors", ->
+        expect(r.synthetic(['JUNK'])).to.be.NaN
+        expect(r.synthetic(['JUNK', '1'])).to.be.NaN
+        expect(r.synthetic(['JUNK', '1', 0.1])).to.be.NaN
+        expect(r.synthetic(['A', 'JUNK', 0.1])).to.be.NaN
+
     describe "v_synthetic method", ->
       r = new FactorRange({factors: [['A', '1'], ['A', '2'], ['C', '1']], group_padding: 0})
 
@@ -950,6 +963,14 @@ describe "factor_range module", ->
         x = ['A', '1', 0.1]
         r.v_synthetic([x])
         expect(x).to.deep.equal ['A', '1', 0.1]
+
+      it "should map unknown factors to NaN", ->
+        expect(r.v_synthetic([['A'], ['JUNK']])).to.deep.equal [1, NaN]
+        expect(r.v_synthetic([['A', 0.1], ['JUNK', -0.2], ['C', 0]])).to.deep.equal [1.1, NaN, 2.5]
+        expect(r.v_synthetic([['A', '1'], ['JUNK', '2'], ['C', '1']])).to.deep.equal [0.5, NaN, 2.5]
+        expect(r.v_synthetic([['A', '1'], ['A', 'JUNK'], ['C', '1']])).to.deep.equal [0.5, NaN, 2.5]
+        expect(r.v_synthetic([['A', '1', 0.1], ['JUNK', '2', -0.2], ['C', '1', 0]])).to.deep.equal [0.6, NaN, 2.5]
+        expect(r.v_synthetic([['A', '1', 0.1], ['A', 'JUNK', -0.2], ['C', '1', 0]])).to.deep.equal [0.6, NaN, 2.5]
 
 
 
@@ -1215,6 +1236,18 @@ describe "factor_range module", ->
         r.synthetic(x)
         expect(x).to.deep.equal ['A', '1', 'foo', 0.1]
 
+      it "should return NaN for unknown factors", ->
+        expect(r.synthetic(['JUNK'])).to.be.NaN
+        expect(r.synthetic(['JUNK', '1'])).to.be.NaN
+        expect(r.synthetic(['JUNK', '1', 0.1])).to.be.NaN
+        expect(r.synthetic(['A', 'JUNK', 0.1])).to.be.NaN
+        expect(r.synthetic(['JUNK', '1', 'foo'])).to.be.NaN
+        expect(r.synthetic(['A', 'JUNK', 'foo'])).to.be.NaN
+        expect(r.synthetic(['A', '1', 'JUNK'])).to.be.NaN
+        expect(r.synthetic(['JUNK', '1', 'foo', 0.1])).to.be.NaN
+        expect(r.synthetic(['A', 'JUNK', 'foo', 0.1])).to.be.NaN
+        expect(r.synthetic(['A', '1', 'JUNK', 0.1])).to.be.NaN
+
     describe "v_synthetic method", ->
       r = new FactorRange({factors: [['A', '1', 'foo'], ['A', '1', 'bar'], ['C', '1', 'foo']], group_padding: 0, subgroup_padding: 0})
 
@@ -1254,3 +1287,18 @@ describe "factor_range module", ->
         x = ['A', '1', 'foo', 0.1]
         r.v_synthetic([x])
         expect(x).to.deep.equal ['A', '1', 'foo', 0.1]
+
+      it "should map unknown factors to NaN", ->
+        expect(r.v_synthetic([['A', '1', 'foo'], ['JUNK', '1', 'bar'], ['C', '1', 'foo']])).to.deep.equal [0.5, NaN, 2.5]
+        expect(r.v_synthetic([['A', '1', 'foo'], ['A', 'JUNK', 'bar'], ['C', '1', 'foo']])).to.deep.equal [0.5, NaN, 2.5]
+        expect(r.v_synthetic([['A', '1', 'foo'], ['A', '1', 'JUNK'], ['C', '1', 'foo']])).to.deep.equal [0.5, NaN, 2.5]
+        expect(r.v_synthetic([['A', '1', 'foo', 0.1], ['JUNK', '1', 'bar', -0.2], ['C', '1', 'foo', 0]])).to.deep.equal [0.6, NaN, 2.5]
+        expect(r.v_synthetic([['A', '1', 'foo', 0.1], ['A', 'JUNK', 'bar', -0.2], ['C', '1', 'foo', 0]])).to.deep.equal [0.6, NaN, 2.5]
+        expect(r.v_synthetic([['A', '1', 'foo', 0.1], ['A', '1', 'JUNK', -0.2], ['C', '1', 'foo', 0]])).to.deep.equal [0.6, NaN, 2.5]
+        expect(r.v_synthetic([['A'], ['JUNK']])).to.deep.equal [1, NaN]
+        expect(r.v_synthetic(['A', 'JUNK'])).to.deep.equal [1, NaN]
+        expect(r.v_synthetic([['A', 0.1], ['JUNK', -0.2], ['C', 0]])).to.deep.equal [1.1, NaN, 2.5]
+        expect(r.v_synthetic([['JUNK', '1']])).to.deep.equal [NaN]
+        expect(r.v_synthetic([['A', 'JUNK']])).to.deep.equal [NaN]
+        expect(r.v_synthetic([['JUNK', '1', 0.1]])).to.deep.equal [NaN]
+        expect(r.v_synthetic([['A', 'JUNK', 0.1]])).to.deep.equal [NaN]
