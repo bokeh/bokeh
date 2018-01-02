@@ -47,13 +47,13 @@ export class TextView extends XYGlyphView
 
   draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
     ctx.save()
-    @text_props.set_value(ctx)
+    @visuals.text.set_value(ctx)
     # override some features so we fit inside the legend
-    ctx.font = @text_props.font_value()
+    ctx.font = @visuals.text.font_value()
     ctx.font = ctx.font.replace(/\b[\d\.]+[\w]+\b/, '10pt')
     ctx.textAlign = "right"
     ctx.textBaseline = "middle"
-    ctx.fillText("text", x2, (y1+y2)/2)
+    ctx.fillText("text", x1, (y0+y1)/2)
     ctx.restore()
 
 export class Text extends XYGlyph
