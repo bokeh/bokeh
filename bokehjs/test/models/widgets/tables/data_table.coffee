@@ -11,6 +11,32 @@ describe "data_table module", ->
   it "should define DTINDEX_NAME", ->
     expect(DTINDEX_NAME).to.equal "__bkdt_internal_index__"
 
+  describe "DataTable class", ->
+
+    describe "get_scroll_index method", ->
+
+      it "should return null when scroll_to_selection=false", ->
+        t = new DataTable({scroll_to_selection: false})
+        expect(t.get_scroll_index({top:0, bottom:16}, [])).to.be.null
+        expect(t.get_scroll_index({top:0, bottom:16}, [10])).to.be.null
+        expect(t.get_scroll_index({top:0, bottom:16}, [18])).to.be.null
+
+      it "should return null when scroll_to_selection=true but selection is empty", ->
+        t = new DataTable({scroll_to_selection: true})
+        expect(t.get_scroll_index({top:0, bottom:16}, [])).to.be.null
+
+      it "should return null when scroll_to_selection=true but any selection is already in range", ->
+        t = new DataTable({scroll_to_selection: true})
+        expect(t.get_scroll_index({top:0, bottom:16}, [2])).to.be.null
+        expect(t.get_scroll_index({top:5, bottom:16}, [2, 10])).to.be.null
+        expect(t.get_scroll_index({top:5, bottom:16}, [2, 10, 18])).to.be.null
+
+      it "should return (min-1) when scroll_to_selection=true but no selection is in range", ->
+        t = new DataTable({scroll_to_selection: true})
+        expect(t.get_scroll_index({top:5, bottom:16}, [2])).to.be.equal 1
+        expect(t.get_scroll_index({top:5, bottom:16}, [2, 18])).to.be.equal 1
+        expect(t.get_scroll_index({top:5, bottom:16}, [18])).to.be.equal 17
+
   describe "DataProvider class", ->
 
     it "should raise an error if DTINDEX_NAME is in source", ->
