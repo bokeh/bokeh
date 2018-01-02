@@ -2,6 +2,8 @@ import {sortBy} from "./util/array"
 import {Rect} from "./util/spatial"
 import {Selection} from "../models/selections/selection"
 
+export type HitTestResult = Selection | null
+
 export function point_in_poly(x: number, y: number, px: number[], py: number[]): boolean {
   let inside = false
 

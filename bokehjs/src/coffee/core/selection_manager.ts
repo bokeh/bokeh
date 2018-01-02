@@ -1,6 +1,7 @@
 import {HasProps} from "./has_props"
 import {Model} from "../model"
 import {Geometry} from "./geometry"
+import {HitTestResult} from "./hittest"
 import {Selection} from "models/selections/selection"
 import {GraphRenderer} from "models/renderers/graph_renderer"
 import * as p from "./properties"
@@ -10,8 +11,6 @@ import {DataSource} from "models/sources/data_source"
 // XXX: temporary types
 export type Renderer = any
 export type RendererView = any
-
-export type HitTestResult = Selection | null
 
 export abstract class SelectionPolicy extends Model {
 

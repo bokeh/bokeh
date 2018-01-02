@@ -4,6 +4,7 @@ import {logger} from "core/logging"
 import {SelectionManager} from "core/selection_manager"
 import * as p from "core/properties"
 import {uniq} from "core/util/array"
+import {Selection} from "../selections/selection"
 
 # Abstract baseclass for column based data sources, where the column
 # based data may be supplied directly or be computed from an attribute
@@ -21,7 +22,7 @@ export class ColumnarDataSource extends DataSource
 
   @internal {
     selection_manager: [ p.Instance, (self) -> new SelectionManager({source: self}) ]
-    inspected:         [ p.Any ]
+    inspected:         [ p.Instance, () -> new Selection() ]
     _shapes:      [ p.Any, {}]
   }
 
