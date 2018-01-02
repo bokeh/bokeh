@@ -57,10 +57,9 @@ export class LineView extends XYGlyphView
 
       if dist < threshold && dist < shortest
         shortest = dist
-        result['0d'].glyph = this.model
-        result['0d'].get_view = (() -> this).bind(this);
-        result['0d'].flag = true  # backward compat
-        result['0d'].indices = [i]
+        result.add_to_selected_glyphs(this.model)
+        result.get_view = (() -> this).bind(this);
+        result.line_indices = [i]
 
     return result
 
@@ -77,10 +76,9 @@ export class LineView extends XYGlyphView
 
     for i in [0...values.length-1]
       if values[i]<=val<=values[i+1] or values[i+1]<=val<=values[i]
-        result['0d'].glyph = this.model
-        result['0d'].get_view = (() -> this).bind(this);
-        result['0d'].flag = true  # backward compat
-        result['0d'].indices.push(i)
+        result.add_to_selected_glyphs(this.model)
+        result.get_view = (() -> this).bind(this);
+        result.line_indices.push(i)
 
     return result
 

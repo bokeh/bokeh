@@ -141,11 +141,11 @@ export class GlyphRendererView extends RendererView
 
     # selected is in full set space
     selected = @model.data_source.selected
-    if !selected or selected.indices.length == 0
+    if !selected or selected.is_empty()
       selected = []
     else
-      if @glyph instanceof LineView and selected.glyph instanceof Line
-        selected = @model.view.convert_indices_from_subset(selected.indices)
+      if @glyph instanceof LineView and selected.selected_glyph == @glyph.model
+        selected = @model.view.convert_indices_from_subset(indices)
       else
         selected = selected.indices
 
