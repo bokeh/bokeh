@@ -129,9 +129,10 @@ export class DataTableView extends WidgetView
     # the selection is already in the viewport so that selecting from the
     # datatable itself does not re-scroll.
     cur_grid_range = @grid.getViewport()
-    if @model.scroll_to_selection and not any(permuted_indices, (i) -> cur_grid_range.top <= i <= cur_grid_range.bottom)
-      min_index = Math.max(0, Math.min.apply(null, permuted_indices) - 1)
-      @grid.scrollRowToTop(min_index)
+
+    scroll_index = @model.get_scroll_index(cur_grid_range, permuted_indices)
+    if scroll_index?
+      @grid.scrollRowToTop(scroll_index)
 
   newIndexColumn: () ->
     return {
@@ -230,3 +231,12 @@ export class DataTable extends TableWidget
   @internal {
     default_width:        [ p.Number, 600   ]
   }
+
+  get_scroll_index: (grid_range, selected_indices) ->
+    if not @scroll_to_selection or selected_indices.length == 0
+      return null
+
+    if not any(selected_indices, (i) -> grid_range.top <= i <= grid_range.bottom)
+      return Math.max(0, Math.min.apply(null, selected_indices) - 1)
+
+    return null
