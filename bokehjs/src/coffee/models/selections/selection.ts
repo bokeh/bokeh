@@ -1,6 +1,7 @@
 import {Model} from "../../model"
 import * as p from "core/properties"
 import {union, intersection} from "core/util/array"
+import {merge} from "core/util/object"
 import {Glyph} from "models/glyphs/glyph"
 
 export class Selection extends Model {
@@ -57,6 +58,7 @@ export class Selection extends Model {
       this.line_indices = selection.line_indices
       this.selected_glyphs = selection.selected_glyphs
       this.get_view = selection.get_view
+      this['2d'].indices = selection['2d'].indices
   }
 
   clear (): void {
@@ -74,14 +76,17 @@ export class Selection extends Model {
     this.line_indices = union(other.line_indices, this.line_indices)
     if(!this.get_view())
       this.get_view = other.get_view
+    this['2d'].indices = merge(other['2d'].indices, this['2d'].indices)
   }
 
   update_through_intersection(other: Selection): void {
     this.indices = intersection(other.indices, this.indices)
+    // TODO: think through and fix any logic below
     this.selected_glyphs = union(other.selected_glyphs, this.selected_glyphs)
     this.line_indices = union(other.line_indices, this.line_indices)
     if(!this.get_view())
       this.get_view = other.get_view
+    this['2d'].indices = merge(other['2d'].indices, this['2d'].indices)
   }
 }
 

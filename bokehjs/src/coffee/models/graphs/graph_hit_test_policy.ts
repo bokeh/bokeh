@@ -50,6 +50,9 @@ export class NodesOnly extends GraphHitTestPolicy {
   }
 
   do_selection(hit_test_result: HitTestResult, graph_view: GraphRendererView, final: boolean, append: boolean): boolean {
+    if(hit_test_result == null)
+      return false
+
     const node_selection = graph_view.node_view.model.data_source.selected
     node_selection.update(hit_test_result, final, append)
     graph_view.node_view.model.data_source.select.emit()
@@ -58,6 +61,9 @@ export class NodesOnly extends GraphHitTestPolicy {
   }
 
   do_inspection(hit_test_result: HitTestResult, geometry: Geometry, graph_view: GraphRendererView, final: boolean, append: boolean): boolean {
+    if(hit_test_result == null)
+      return false
+
     const node_inspection = graph_view.model.get_selection_manager().get_or_create_inspector(graph_view.node_view.model)
     node_inspection.update(hit_test_result, final, append)
 
@@ -121,13 +127,13 @@ export class NodesAndLinkedEdges extends GraphHitTestPolicy {
 
     const node_inspection = graph_view.node_view.model.data_source.selection_manager.get_or_create_inspector(graph_view.node_view.model)
     node_inspection.update(hit_test_result, final, append)
+    graph_view.node_view.model.data_source.setv({inspected: node_inspection}, {silent: true})
 
     const edge_inspection = graph_view.edge_view.model.data_source.selection_manager.get_or_create_inspector(graph_view.edge_view.model)
     const linked_edges = this.get_linked_edges(graph_view.node_view.model.data_source, graph_view.edge_view.model.data_source, 'inspection')
     edge_inspection.update(linked_edges, final, append)
 
     //silently set inspected attr to avoid triggering data_source.change event and rerender
-    graph_view.node_view.model.data_source.setv({inspected: node_inspection}, {silent: true})
     graph_view.edge_view.model.data_source.setv({inspected: edge_inspection}, {silent: true})
     graph_view.node_view.model.data_source.inspect.emit([graph_view.node_view, {geometry: geometry}])
 
@@ -183,13 +189,13 @@ export class EdgesAndLinkedNodes extends GraphHitTestPolicy {
 
     const edge_inspection = graph_view.edge_view.model.data_source.selection_manager.get_or_create_inspector(graph_view.edge_view.model)
     edge_inspection.update(hit_test_result, final, append)
+    graph_view.edge_view.model.data_source.setv({inspected: edge_inspection}, {silent: true})
 
     const node_inspection = graph_view.node_view.model.data_source.selection_manager.get_or_create_inspector(graph_view.node_view.model)
     const linked_nodes = this.get_linked_nodes(graph_view.node_view.model.data_source, graph_view.edge_view.model.data_source, 'inspection')
     node_inspection.update(linked_nodes, final, append)
 
     // silently set inspected attr to avoid triggering data_source.change event and rerender
-    graph_view.edge_view.model.data_source.setv({inspected: edge_inspection}, {silent: true})
     graph_view.node_view.model.data_source.setv({inspected: node_inspection}, {silent: true})
     graph_view.edge_view.model.data_source.inspect.emit([graph_view.edge_view, {geometry: geometry}])
 
