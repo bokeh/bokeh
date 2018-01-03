@@ -15,6 +15,21 @@ Migration Guide
 NOTE: the 0.12.x series is the last planned release series before a version
 1.0 release. For more information see the `project roadmap`_.
 
+Mapping of Unknown Catgorical Factors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Previously, data (e.g in a CDS column) referring to a categorical factor that
+did not exist in the relevant ``FactorRange``, would cause an error in the
+browser. Now, any such attempted mappings will silently return ``NaN``. Any
+data points with these factors as coordinates will not render.
+
+The practical motivation for this change is that updating a ``FactorRange``
+to have a new set of factors could result in an inconsistency triggering the
+error condition, causing plots to fail to render. With this change, the use-case
+of updating factor ranges should work more smoothly, however there will be no
+immediate indication of problems in case "bad" factors are included accidentally
+in data other than the data points not being rendered.
+
 MercatorTileSource change
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 

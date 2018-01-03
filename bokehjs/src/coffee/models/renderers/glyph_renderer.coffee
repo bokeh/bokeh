@@ -75,6 +75,12 @@ export class GlyphRendererView extends RendererView
     @connect(@model.properties.view.change, () -> @set_data())
     @connect(@model.view.change, () -> @set_data())
 
+    for name, rng of @plot_model.frame.x_ranges
+      @connect(rng.change, () -> @set_data())
+
+    for name, rng of @plot_model.frame.y_ranges
+      @connect(rng.change, () -> @set_data())
+
     @connect(@model.glyph.transformchange, () -> @set_data())
 
   have_selection_glyphs: () -> @selection_glyph? && @nonselection_glyph?
