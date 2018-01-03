@@ -101,7 +101,7 @@ def convert_datetime_type(obj):
     # Datetime (datetime is a subclass of date)
     elif isinstance(obj, dt.datetime):
         diff = obj.replace(tzinfo=None) - DT_EPOCH
-        return diff.total_seconds() * 1000. + obj.microsecond / 1000.
+        return diff.total_seconds() * 1000.
 
     # Timedelta (timedelta is class in the datetime library)
     elif isinstance(obj, dt.timedelta):
