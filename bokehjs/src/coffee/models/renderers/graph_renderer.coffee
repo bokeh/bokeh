@@ -31,6 +31,12 @@ export class GraphRendererView extends RendererView
     @connect(@model.edge_renderer.data_source.inspect, () -> @set_data())
     @connect(@model.edge_renderer.data_source.change, () -> @set_data())
 
+    for name, rng of @plot_model.frame.x_ranges
+      @connect(rng.change, () -> @set_data())
+
+    for name, rng of @plot_model.frame.y_ranges
+      @connect(rng.change, () -> @set_data())
+
   set_data: (request_render=true) ->
     # TODO (bev) this is a bit clunky, need to make sure glyphs use the correct ranges when they call
     # mapping functions on the base Renderer class
