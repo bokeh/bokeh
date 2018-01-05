@@ -225,7 +225,7 @@ export class HoverToolView extends InspectToolView {
 
     const glyph = (renderer_view as any).glyph // XXX
 
-    for (const i of indices['0d'].indices) {
+    for (const i of indices.line_indices) {
       let data_x = glyph._x[i+1]
       let data_y = glyph._y[i+1]
       let ii = i
@@ -262,11 +262,11 @@ export class HoverToolView extends InspectToolView {
       tooltip.add(rx, ry, this._render_tooltips(ds, ii, vars))
     }
 
-    for (const i of indices['1d'].indices) {
-      // multiglyphs will set '1d' and '2d' results, but have different tooltips
-      if (!isEmpty(indices['2d'].indices)) {
-        for (const i in indices['2d'].indices) {
-          const [j] = indices['2d'].indices[i]
+    for (const i of indices.indices) {
+      // multiglyphs set additional indices, e.g. multiline_indices for different tooltips
+      if (!isEmpty(indices.multiline_indices)) {
+        for (const j_string in indices.multiline_indices[i]) {
+          const j = parseInt(j_string, 10)
 
           let data_x = glyph._xs[i][j]
           let data_y = glyph._ys[i][j]
