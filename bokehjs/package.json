@@ -104,6 +104,7 @@
     "@types/pikaday": "^0.0.33",
     "underscore.template": "^0.1.7",
     "nouislider": "^10.0.0",
+    "@types/nouislider": "^9.0.3",
     "canvas2svg": "https://github.com/bokeh/canvas2svg#v1.0.21",
     "numbro": "https://github.com/bokeh/numbro.git#e1b6c52",
     "kiwi": "https://github.com/bokeh/kiwi.git#1a3dabb",
