@@ -171,7 +171,7 @@ class TestColumnDataSource(unittest.TestCase):
 
     skipIf(not is_pandas, "pandas not installed")
     def test__df_index_name_with_named_multi_index(self):
-        data = io.StringIO('''
+        data = io.StringIO(u'''
 Fruit,Color,Count,Price
 Apple,Red,3,$1.29
 Apple,Green,9,$0.99
