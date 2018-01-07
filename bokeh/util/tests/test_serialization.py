@@ -63,6 +63,22 @@ def test_convert_datetime_type():
     assert bus.convert_datetime_type(pd.Timedelta("3000ms")) == 3000.0
     assert bus.convert_datetime_type(bus._pd_timestamp(3000000)) == 3.0
 
+@pytest.mark.parametrize('obj', [[1,2], (1,2), dict(), set(), 10.2, "foo"])
+def test_convert_datetime_type_array_ignores_non_array(obj):
+    assert bus.convert_datetime_array(obj) is obj
+
+def test_convert_datetime_type_array_ignores_non_datetime_array():
+    a = np.arange(0,10,100)
+    assert bus.convert_datetime_array(a) is a
+
+def test_convert_datetime_type_array():
+    a = np.array(['2018-01-03T15:37:59', '2018-01-03T15:37:59.922452', '2016-05-11'], dtype='datetime64')
+    r = bus.convert_datetime_array(a)
+    assert r[0] == 1514993879000.0
+    assert r[1] == 1514993879922.452
+    assert r[2] == 1462924800000.0
+    assert r.dtype == 'float64'
+
 def test_convert_datetime_type_with_tz():
     # This ensures datetimes are sent to BokehJS timezone-naive
     # see https://github.com/bokeh/bokeh/issues/6480

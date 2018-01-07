@@ -125,9 +125,21 @@ def convert_datetime_type(obj):
         return (obj.hour * 3600 + obj.minute * 60 + obj.second) * 1000 + obj.microsecond / 1000.
 
 def convert_datetime_array(array):
-    '''
+    ''' Convert NumPy datetime arrays to arrays to milliseconds since epoch.
+
+    Args:
+        array : (obj)
+            A NumPy array of datetime to convert
+
+            If the value passed in is not a NumPy array, it will be returned as-is.
+
+    Returns:
+        array
 
     '''
+    if not isinstance(array, np.ndarray):
+        return array
+
     try:
         dt2001 = np.datetime64('2001')
         legacy_datetime64 = (dt2001.astype('int64') ==
