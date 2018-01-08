@@ -13,7 +13,7 @@ import {NodesOnly} from "../graphs/graph_hit_test_policy";
 
 import * as p from "core/properties";
 import {build_views} from "core/build_views";
-import {contains} from "core/util/array";
+import {includes} from "core/util/array";
 import {create_hit_test_result} from "core/hittest"
 ;
 

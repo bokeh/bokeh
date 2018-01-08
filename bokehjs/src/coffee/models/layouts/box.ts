@@ -1,6 +1,6 @@
 import {EQ, GE, WEAK_EQ, Constraint, Variable} from "core/layout/solver"
 import * as p from "core/properties"
-import {max, sum, contains} from "core/util/array"
+import {max, sum, includes} from "core/util/array"
 import {extend} from "core/util/object"
 
 import {LayoutDOM, LayoutDOMView} from "./layout_dom"
@@ -364,7 +364,7 @@ export class Box extends LayoutDOM {
     // attached properly. However, if document is not attached then we know it can't be
     // a root, because otherwise add_root() would attach it. All this layout logic should
     // be part of views instead of models and use is_root, etc.
-    if (this.document != null && contains(this.document.roots(), this)) {
+    if (this.document != null && includes(this.document.roots(), this)) {
       const flattened = this._flatten_cell_edge_variables(this._horizontal)
 
       for (const key in flattened) {

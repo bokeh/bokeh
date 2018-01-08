@@ -8,7 +8,7 @@
  */
 
 import {Model} from "../../model";
-import {contains, uniq, findIndex} from "core/util/array";
+import {includes, uniq, findIndex} from "core/util/array";
 import {create_hit_test_result, create_1d_hit_test_result} from "core/hittest";
 import {Selector} from "core/selector"
 ;
@@ -91,7 +91,7 @@ export class NodesAndLinkedEdges extends GraphHitTestPolicy {
     const edge_source = edge_view.model.data_source;
     const edge_indices = [];
     for (i = 0, end = edge_source.data.start.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
-      if (contains(node_indices, edge_source.data.start[i]) || contains(node_indices, edge_source.data.end[i])) {
+      if (includes(node_indices, edge_source.data.start[i]) || includes(node_indices, edge_source.data.end[i])) {
         edge_indices.push(i);
       }
     }

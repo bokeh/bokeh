@@ -8,7 +8,7 @@ import {replace_placeholders} from "core/util/templating"
 import {div, span} from "core/dom"
 import * as p from "core/properties"
 import {color2hex} from "core/util/color"
-import {contains} from "core/util/array"
+import {includes} from "core/util/array"
 import {values, isEmpty, extend} from "core/util/object"
 import {isString, isFunction} from "core/util/types"
 import {build_views, remove_views} from "core/build_views"
@@ -109,7 +109,7 @@ export class HoverToolView extends InspectToolView {
     }
 
     if (names.length > 0)
-      renderers = renderers.filter((r) => contains(names, r.name))
+      renderers = renderers.filter((r) => includes(names, r.name))
 
     return renderers
   }

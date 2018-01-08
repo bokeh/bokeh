@@ -6,7 +6,7 @@ import {logger} from "core/logging"
 import * as p from "core/properties"
 import * as bbox from "core/util/bbox"
 import {Rect} from "core/util/spatial"
-import {contains} from "core/util/array"
+import {includes} from "core/util/array"
 
 export type Dim = 0 | 1
 export type Bounds = {[key: string]: Rect}
@@ -72,7 +72,7 @@ export class DataRange1d extends DataRange {
     }
 
     if (names.length > 0)
-      renderers = renderers.filter((r) => contains(names, r.name))
+      renderers = renderers.filter((r) => includes(names, r.name))
 
     logger.debug(`computed ${renderers.length} renderers for DataRange1d ${this.id}`)
     for (const r of renderers) {
