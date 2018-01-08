@@ -1,108 +1,142 @@
-import {TextAnnotation, TextAnnotationView} from "./text_annotation"
-import {hide} from "core/dom"
-import * as p from "core/properties"
+/*
+ * decaffeinate suggestions:
+ * DS101: Remove unnecessary use of Array.from
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+
+import {TextAnnotation, TextAnnotationView} from "./text_annotation";
+import {hide} from "core/dom";
+import * as p from "core/properties";
 import * as Visuals from "core/visuals"
+;
 
-export class TitleView extends TextAnnotationView
+export class TitleView extends TextAnnotationView {
 
-  initialize: (options) ->
-    super(options)
-    @visuals.text = new Visuals.Text(@model)
-
-  _get_location: () ->
-    panel = @model.panel
-
-    hmargin = @model.offset
-    vmargin = 5
-
-    switch panel.side
-      when 'above', 'below'
-        switch @model.vertical_align
-          when 'top'    then sy = panel._top.value     + vmargin
-          when 'middle' then sy = panel._vcenter.value
-          when 'bottom' then sy = panel._bottom.value  - vmargin
-
-        switch @model.align
-          when 'left'   then sx = panel._left.value    + hmargin
-          when 'center' then sx = panel._hcenter.value
-          when 'right'  then sx = panel._right.value   - hmargin
-      when 'left'
-        switch @model.vertical_align
-          when 'top'    then sx = panel._left.value    - vmargin
-          when 'middle' then sx = panel._hcenter.value
-          when 'bottom' then sx = panel._right.value   + vmargin
-
-        switch @model.align
-          when 'left'   then sy = panel._bottom.value  - hmargin
-          when 'center' then sy = panel._vcenter.value
-          when 'right'  then sy = panel._top.value     + hmargin
-      when 'right'
-        switch @model.vertical_align
-          when 'top'    then sx = panel._right.value   - vmargin
-          when 'middle' then sx = panel._hcenter.value
-          when 'bottom' then sx = panel._left.value    + vmargin
-
-        switch @model.align
-          when 'left'   then sy = panel._top.value     + hmargin
-          when 'center' then sy = panel._vcenter.value
-          when 'right'  then sy = panel._bottom.value  - hmargin
-
-    return [sx, sy]
-
-  render: () ->
-    if not @model.visible
-      if @model.render_mode == 'css'
-        hide(@el)
-      return
-
-    text = @model.text
-    if not text? or text.length == 0
-      return
-
-    @model.text_baseline = @model.vertical_align
-    @model.text_align = @model.align
-
-    [sx, sy] = @_get_location()
-    angle = @model.panel.get_label_angle_heuristic('parallel')
-
-    draw = if @model.render_mode == 'canvas' then @_canvas_text.bind(@) else @_css_text.bind(@)
-    draw(@plot_view.canvas_view.ctx, text, sx, sy, angle)
-
-  _get_size: () ->
-    text = @model.text
-    if not text? or text.length == 0
-      return 0
-    else
-      ctx = @plot_view.canvas_view.ctx
-      @visuals.text.set_value(ctx)
-      return ctx.measureText(text).ascent + 10
-
-export class Title extends TextAnnotation
-  default_view: TitleView
-
-  type: 'Title'
-
-  @mixins ['line:border_', 'fill:background_']
-
-  @define {
-    text:            [ p.String,                    ]
-    text_font:       [ p.Font,          'helvetica' ]
-    text_font_size:  [ p.FontSizeSpec,  '10pt'      ]
-    text_font_style: [ p.FontStyle,     'bold'      ]
-    text_color:      [ p.ColorSpec,     '#444444'   ]
-    text_alpha:      [ p.NumberSpec,    1.0         ]
-    vertical_align:  [ p.VerticalAlign, 'bottom'    ]
-    align:           [ p.TextAlign,     'left'      ]
-    offset:          [ p.Number,        0           ]
-    render_mode:     [ p.RenderMode,    'canvas'    ]
+  initialize(options) {
+    super.initialize(options);
+    return this.visuals.text = new Visuals.Text(this.model);
   }
 
-  @override {
-    background_fill_color: null
-    border_line_color: null
+  _get_location() {
+    let sx, sy;
+    const { panel } = this.model;
+
+    const hmargin = this.model.offset;
+    const vmargin = 5;
+
+    switch (panel.side) {
+      case 'above': case 'below':
+        switch (this.model.vertical_align) {
+          case 'top':    sy = panel._top.value     + vmargin; break;
+          case 'middle': sy = panel._vcenter.value; break;
+          case 'bottom': sy = panel._bottom.value  - vmargin; break;
+        }
+
+        switch (this.model.align) {
+          case 'left':   sx = panel._left.value    + hmargin; break;
+          case 'center': sx = panel._hcenter.value; break;
+          case 'right':  sx = panel._right.value   - hmargin; break;
+        }
+        break;
+      case 'left':
+        switch (this.model.vertical_align) {
+          case 'top':    sx = panel._left.value    - vmargin; break;
+          case 'middle': sx = panel._hcenter.value; break;
+          case 'bottom': sx = panel._right.value   + vmargin; break;
+        }
+
+        switch (this.model.align) {
+          case 'left':   sy = panel._bottom.value  - hmargin; break;
+          case 'center': sy = panel._vcenter.value; break;
+          case 'right':  sy = panel._top.value     + hmargin; break;
+        }
+        break;
+      case 'right':
+        switch (this.model.vertical_align) {
+          case 'top':    sx = panel._right.value   - vmargin; break;
+          case 'middle': sx = panel._hcenter.value; break;
+          case 'bottom': sx = panel._left.value    + vmargin; break;
+        }
+
+        switch (this.model.align) {
+          case 'left':   sy = panel._top.value     + hmargin; break;
+          case 'center': sy = panel._vcenter.value; break;
+          case 'right':  sy = panel._bottom.value  - hmargin; break;
+        }
+        break;
+    }
+
+    return [sx, sy];
   }
 
-  @internal {
-    text_align:    [ p.TextAlign,    'left'  ]
-    text_baseline: [ p.TextBaseline, 'bottom' ]
+  render() {
+    if (!this.model.visible) {
+      if (this.model.render_mode === 'css') {
+        hide(this.el);
+      }
+      return;
+    }
+
+    const { text } = this.model;
+    if ((text == null) || (text.length === 0)) {
+      return;
+    }
+
+    this.model.text_baseline = this.model.vertical_align;
+    this.model.text_align = this.model.align;
+
+    const [sx, sy] = Array.from(this._get_location());
+    const angle = this.model.panel.get_label_angle_heuristic('parallel');
+
+    const draw = this.model.render_mode === 'canvas' ? this._canvas_text.bind(this) : this._css_text.bind(this);
+    return draw(this.plot_view.canvas_view.ctx, text, sx, sy, angle);
   }
+
+  _get_size() {
+    const { text } = this.model;
+    if ((text == null) || (text.length === 0)) {
+      return 0;
+    } else {
+      const { ctx } = this.plot_view.canvas_view;
+      this.visuals.text.set_value(ctx);
+      return ctx.measureText(text).ascent + 10;
+    }
+  }
+}
+
+export class Title extends TextAnnotation {
+  static initClass() {
+    this.prototype.default_view = TitleView;
+
+    this.prototype.type = 'Title';
+
+    this.mixins(['line:border_', 'fill:background_']);
+
+    this.define({
+      text:            [ p.String,                    ],
+      text_font:       [ p.Font,          'helvetica' ],
+      text_font_size:  [ p.FontSizeSpec,  '10pt'      ],
+      text_font_style: [ p.FontStyle,     'bold'      ],
+      text_color:      [ p.ColorSpec,     '#444444'   ],
+      text_alpha:      [ p.NumberSpec,    1.0         ],
+      vertical_align:  [ p.VerticalAlign, 'bottom'    ],
+      align:           [ p.TextAlign,     'left'      ],
+      offset:          [ p.Number,        0           ],
+      render_mode:     [ p.RenderMode,    'canvas'    ]
+    });
+
+    this.override({
+      background_fill_color: null,
+      border_line_color: null
+    });
+
+    this.internal({
+      text_align:    [ p.TextAlign,    'left'  ],
+      text_baseline: [ p.TextBaseline, 'bottom' ]
+    });
+  }
+}
+Title.initClass();

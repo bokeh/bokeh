@@ -1,71 +1,93 @@
-import {TextAnnotation, TextAnnotationView} from "./text_annotation"
-import {hide} from "core/dom"
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+
+import {TextAnnotation, TextAnnotationView} from "./text_annotation";
+import {hide} from "core/dom";
 import * as p from "core/properties"
+;
 
-export class LabelView extends TextAnnotationView
-  initialize: (options) ->
-    super(options)
-    @visuals.warm_cache(null)
+export class LabelView extends TextAnnotationView {
+  initialize(options) {
+    super.initialize(options);
+    return this.visuals.warm_cache(null);
+  }
 
-  _get_size: () ->
-    ctx = @plot_view.canvas_view.ctx
-    @visuals.text.set_value(ctx)
+  _get_size() {
+    const { ctx } = this.plot_view.canvas_view;
+    this.visuals.text.set_value(ctx);
 
-    if @model.panel.is_horizontal
-      height = ctx.measureText(@model.text).ascent
-      return height
-    else
-      width = ctx.measureText(@model.text).width
-      return width
+    if (this.model.panel.is_horizontal) {
+      const height = ctx.measureText(this.model.text).ascent;
+      return height;
+    } else {
+      const { width } = ctx.measureText(this.model.text);
+      return width;
+    }
+  }
 
-  render: () ->
-    if not @model.visible and @model.render_mode == 'css'
-      hide(@el)
-    if not @model.visible
-      return
-
-    # Here because AngleSpec does units tranform and label doesn't support specs
-    switch @model.angle_units
-      when "rad" then angle = -1 * @model.angle
-      when "deg" then angle = -1 * @model.angle * Math.PI/180.0
-
-    panel = @model.panel ? @plot_view.frame
-
-    xscale = @plot_view.frame.xscales[@model.x_range_name]
-    yscale = @plot_view.frame.yscales[@model.y_range_name]
-
-    sx = if @model.x_units == "data" then xscale.compute(@model.x) else panel.xview.compute(@model.x)
-    sy = if @model.y_units == "data" then yscale.compute(@model.y) else panel.yview.compute(@model.y)
-
-    sx += @model.x_offset
-    sy -= @model.y_offset
-
-    draw = if @model.render_mode == 'canvas' then @_canvas_text.bind(@) else @_css_text.bind(@)
-    draw(@plot_view.canvas_view.ctx, @model.text, sx, sy, angle)
-
-export class Label extends TextAnnotation
-  default_view: LabelView
-
-  type: 'Label'
-
-  @mixins ['text', 'line:border_', 'fill:background_']
-
-  @define {
-      x:            [ p.Number,                      ]
-      x_units:      [ p.SpatialUnits, 'data'         ]
-      y:            [ p.Number,                      ]
-      y_units:      [ p.SpatialUnits, 'data'         ]
-      text:         [ p.String,                      ]
-      angle:        [ p.Angle,       0               ]
-      angle_units:  [ p.AngleUnits,  'rad'           ]
-      x_offset:     [ p.Number,      0               ]
-      y_offset:     [ p.Number,      0               ]
-      x_range_name: [ p.String,      'default'       ]
-      y_range_name: [ p.String,      'default'       ]
-      render_mode:  [ p.RenderMode,  'canvas'        ]
+  render() {
+    let angle;
+    if (!this.model.visible && (this.model.render_mode === 'css')) {
+      hide(this.el);
+    }
+    if (!this.model.visible) {
+      return;
     }
 
-  @override {
-    background_fill_color: null
-    border_line_color: null
+    // Here because AngleSpec does units tranform and label doesn't support specs
+    switch (this.model.angle_units) {
+      case "rad": angle = -1 * this.model.angle; break;
+      case "deg": angle = (-1 * this.model.angle * Math.PI)/180.0; break;
+    }
+
+    const panel = this.model.panel != null ? this.model.panel : this.plot_view.frame;
+
+    const xscale = this.plot_view.frame.xscales[this.model.x_range_name];
+    const yscale = this.plot_view.frame.yscales[this.model.y_range_name];
+
+    let sx = this.model.x_units === "data" ? xscale.compute(this.model.x) : panel.xview.compute(this.model.x);
+    let sy = this.model.y_units === "data" ? yscale.compute(this.model.y) : panel.yview.compute(this.model.y);
+
+    sx += this.model.x_offset;
+    sy -= this.model.y_offset;
+
+    const draw = this.model.render_mode === 'canvas' ? this._canvas_text.bind(this) : this._css_text.bind(this);
+    return draw(this.plot_view.canvas_view.ctx, this.model.text, sx, sy, angle);
   }
+}
+
+export class Label extends TextAnnotation {
+  static initClass() {
+    this.prototype.default_view = LabelView;
+
+    this.prototype.type = 'Label';
+
+    this.mixins(['text', 'line:border_', 'fill:background_']);
+
+    this.define({
+        x:            [ p.Number,                      ],
+        x_units:      [ p.SpatialUnits, 'data'         ],
+        y:            [ p.Number,                      ],
+        y_units:      [ p.SpatialUnits, 'data'         ],
+        text:         [ p.String,                      ],
+        angle:        [ p.Angle,       0               ],
+        angle_units:  [ p.AngleUnits,  'rad'           ],
+        x_offset:     [ p.Number,      0               ],
+        y_offset:     [ p.Number,      0               ],
+        x_range_name: [ p.String,      'default'       ],
+        y_range_name: [ p.String,      'default'       ],
+        render_mode:  [ p.RenderMode,  'canvas'        ]
+      });
+
+    this.override({
+      background_fill_color: null,
+      border_line_color: null
+    });
+  }
+}
+Label.initClass();

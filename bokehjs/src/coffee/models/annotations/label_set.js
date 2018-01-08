@@ -1,178 +1,241 @@
-import {TextAnnotation, TextAnnotationView} from "./text_annotation"
-import {ColumnDataSource} from "../sources/column_data_source"
-import {div, show, hide} from "core/dom"
-import * as p from "core/properties"
+/*
+ * decaffeinate suggestions:
+ * DS101: Remove unnecessary use of Array.from
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS202: Simplify dynamic range loops
+ * DS205: Consider reworking code to avoid use of IIFEs
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+
+import {TextAnnotation, TextAnnotationView} from "./text_annotation";
+import {ColumnDataSource} from "../sources/column_data_source";
+import {div, show, hide} from "core/dom";
+import * as p from "core/properties";
 import {isString, isArray} from "core/util/types"
+;
 
-export class LabelSetView extends TextAnnotationView
-  initialize: (options) ->
-    super(options)
+export class LabelSetView extends TextAnnotationView {
+  initialize(options) {
+    super.initialize(options);
 
-    @set_data(@model.source)
+    this.set_data(this.model.source);
 
-    if @model.render_mode == 'css'
-      for i in [0...@_text.length]
-        @title_div = div({class: 'bk-annotation-child', style: {display: "none"}})
-        @el.appendChild(@title_div)
-
-  connect_signals: () ->
-    super()
-    if @model.render_mode == 'css'
-      # dispatch CSS update immediately
-      @connect(@model.change, () ->
-        @set_data(@model.source)
-        @render())
-      @connect(@model.source.streaming, () ->
-        @set_data(@model.source)
-        @render())
-      @connect(@model.source.patching, () ->
-        @set_data(@model.source)
-        @render())
-      @connect(@model.source.change, () ->
-        @set_data(@model.source)
-        @render())
-    else
-      @connect(@model.change, () ->
-        @set_data(@model.source)
-        @plot_view.request_render())
-      @connect(@model.source.streaming, () ->
-        @set_data(@model.source)
-        @plot_view.request_render())
-      @connect(@model.source.patching, () ->
-        @set_data(@model.source)
-        @plot_view.request_render())
-      @connect(@model.source.change, () ->
-        @set_data(@model.source)
-        @plot_view.request_render())
-
-  set_data: (source) ->
-    super(source)
-    @visuals.warm_cache(source)
-
-  _map_data: () ->
-    xscale = @plot_view.frame.xscales[@model.x_range_name]
-    yscale = @plot_view.frame.yscales[@model.y_range_name]
-
-    panel = @model.panel ? @plot_view.frame
-
-    sx = if @model.x_units == "data" then xscale.v_compute(@_x) else panel.xview.v_compute(@_x)
-    sy = if @model.y_units == "data" then yscale.v_compute(@_y) else panel.yview.v_compute(@_y)
-
-    return [sx, sy]
-
-  render: () ->
-    if not @model.visible and @model.render_mode == 'css'
-      hide(@el)
-    if not @model.visible
-      return
-
-    draw = if @model.render_mode == 'canvas' then @_v_canvas_text.bind(@) else @_v_css_text.bind(@)
-    ctx = @plot_view.canvas_view.ctx
-
-    [sx, sy] = @_map_data()
-
-    for i in [0...@_text.length]
-      draw(ctx, i, @_text[i], sx[i] + @_x_offset[i], sy[i] - @_y_offset[i], @_angle[i])
-
-  _get_size: () ->
-    ctx = @plot_view.canvas_view.ctx
-    @visuals.text.set_value(ctx)
-
-    side = @model.panel.side
-    if side == "above" or side == "below"
-      height = ctx.measureText(@_text[0]).ascent
-      return height
-    if side == 'left' or side == 'right'
-      width = ctx.measureText(@_text[0]).width
-      return width
-
-  _v_canvas_text: (ctx, i, text, sx, sy, angle) ->
-    @visuals.text.set_vectorize(ctx, i)
-    bbox_dims = @_calculate_bounding_box_dimensions(ctx, text)
-
-    ctx.save()
-
-    ctx.beginPath()
-    ctx.translate(sx, sy)
-    ctx.rotate(angle)
-
-    ctx.rect(bbox_dims[0], bbox_dims[1], bbox_dims[2], bbox_dims[3])
-
-    if @visuals.background_fill.doit
-      @visuals.background_fill.set_vectorize(ctx, i)
-      ctx.fill()
-
-    if @visuals.border_line.doit
-      @visuals.border_line.set_vectorize(ctx, i)
-      ctx.stroke()
-
-    if @visuals.text.doit
-      @visuals.text.set_vectorize(ctx, i)
-      ctx.fillText(text, 0, 0)
-
-    ctx.restore()
-
-  _v_css_text: (ctx, i, text, sx, sy, angle) ->
-    el = @el.childNodes[i]
-    el.textContent = text
-
-    @visuals.text.set_vectorize(ctx, i)
-    bbox_dims = @_calculate_bounding_box_dimensions(ctx, text)
-
-    # attempt to support vector-style ("8 4 8") line dashing for css mode
-    ld = @visuals.border_line.line_dash.value()
-    if isArray(ld)
-      line_dash = if ld.length < 2 then "solid" else "dashed"
-    if isString(ld)
-      line_dash = ld
-
-    @visuals.border_line.set_vectorize(ctx, i)
-    @visuals.background_fill.set_vectorize(ctx, i)
-
-    el.style.position = 'absolute'
-    el.style.left = "#{sx + bbox_dims[0]}px"
-    el.style.top = "#{sy + bbox_dims[1]}px"
-    el.style.color = "#{@visuals.text.text_color.value()}"
-    el.style.opacity = "#{@visuals.text.text_alpha.value()}"
-    el.style.font = "#{@visuals.text.font_value()}"
-    el.style.lineHeight = "normal" # needed to prevent ipynb css override
-
-    if angle
-      el.style.transform = "rotate(#{angle}rad)"
-
-    if @visuals.background_fill.doit
-      el.style.backgroundColor = "#{@visuals.background_fill.color_value()}"
-
-    if @visuals.border_line.doit
-      el.style.borderStyle = "#{line_dash}"
-      el.style.borderWidth = "#{@visuals.border_line.line_width.value()}px"
-      el.style.borderColor = "#{@visuals.border_line.color_value()}"
-
-    show(el)
-
-export class LabelSet extends TextAnnotation
-  default_view: LabelSetView
-
-  type: 'Label'
-
-  @mixins ['text', 'line:border_', 'fill:background_']
-
-  @define {
-    x:            [ p.NumberSpec                      ]
-    y:            [ p.NumberSpec                      ]
-    x_units:      [ p.SpatialUnits, 'data'            ]
-    y_units:      [ p.SpatialUnits, 'data'            ]
-    text:         [ p.StringSpec,   { field: "text" } ]
-    angle:        [ p.AngleSpec,    0                 ]
-    x_offset:     [ p.NumberSpec,   { value: 0 }      ]
-    y_offset:     [ p.NumberSpec,   { value: 0 }      ]
-    source:       [ p.Instance,     () -> new ColumnDataSource()  ]
-    x_range_name: [ p.String,      'default'          ]
-    y_range_name: [ p.String,      'default'          ]
-    render_mode:  [ p.RenderMode,  'canvas'           ]
+    if (this.model.render_mode === 'css') {
+      return (() => {
+        const result = [];
+        for (let i = 0, end = this._text.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+          this.title_div = div({class: 'bk-annotation-child', style: {display: "none"}});
+          result.push(this.el.appendChild(this.title_div));
+        }
+        return result;
+      })();
+    }
   }
 
-  @override {
-    background_fill_color: null
-    border_line_color: null
+  connect_signals() {
+    super.connect_signals();
+    if (this.model.render_mode === 'css') {
+      // dispatch CSS update immediately
+      this.connect(this.model.change, function() {
+        this.set_data(this.model.source);
+        return this.render();
+    });
+      this.connect(this.model.source.streaming, function() {
+        this.set_data(this.model.source);
+        return this.render();
+    });
+      this.connect(this.model.source.patching, function() {
+        this.set_data(this.model.source);
+        return this.render();
+    });
+      return this.connect(this.model.source.change, function() {
+        this.set_data(this.model.source);
+        return this.render();
+    });
+    } else {
+      this.connect(this.model.change, function() {
+        this.set_data(this.model.source);
+        return this.plot_view.request_render();
+    });
+      this.connect(this.model.source.streaming, function() {
+        this.set_data(this.model.source);
+        return this.plot_view.request_render();
+    });
+      this.connect(this.model.source.patching, function() {
+        this.set_data(this.model.source);
+        return this.plot_view.request_render();
+    });
+      return this.connect(this.model.source.change, function() {
+        this.set_data(this.model.source);
+        return this.plot_view.request_render();
+    });
+    }
   }
+
+  set_data(source) {
+    super.set_data(source);
+    return this.visuals.warm_cache(source);
+  }
+
+  _map_data() {
+    const xscale = this.plot_view.frame.xscales[this.model.x_range_name];
+    const yscale = this.plot_view.frame.yscales[this.model.y_range_name];
+
+    const panel = this.model.panel != null ? this.model.panel : this.plot_view.frame;
+
+    const sx = this.model.x_units === "data" ? xscale.v_compute(this._x) : panel.xview.v_compute(this._x);
+    const sy = this.model.y_units === "data" ? yscale.v_compute(this._y) : panel.yview.v_compute(this._y);
+
+    return [sx, sy];
+  }
+
+  render() {
+    if (!this.model.visible && (this.model.render_mode === 'css')) {
+      hide(this.el);
+    }
+    if (!this.model.visible) {
+      return;
+    }
+
+    const draw = this.model.render_mode === 'canvas' ? this._v_canvas_text.bind(this) : this._v_css_text.bind(this);
+    const { ctx } = this.plot_view.canvas_view;
+
+    const [sx, sy] = Array.from(this._map_data());
+
+    return __range__(0, this._text.length, false).map((i) =>
+      draw(ctx, i, this._text[i], sx[i] + this._x_offset[i], sy[i] - this._y_offset[i], this._angle[i]));
+  }
+
+  _get_size() {
+    const { ctx } = this.plot_view.canvas_view;
+    this.visuals.text.set_value(ctx);
+
+    const { side } = this.model.panel;
+    if ((side === "above") || (side === "below")) {
+      const height = ctx.measureText(this._text[0]).ascent;
+      return height;
+    }
+    if ((side === 'left') || (side === 'right')) {
+      const { width } = ctx.measureText(this._text[0]);
+      return width;
+    }
+  }
+
+  _v_canvas_text(ctx, i, text, sx, sy, angle) {
+    this.visuals.text.set_vectorize(ctx, i);
+    const bbox_dims = this._calculate_bounding_box_dimensions(ctx, text);
+
+    ctx.save();
+
+    ctx.beginPath();
+    ctx.translate(sx, sy);
+    ctx.rotate(angle);
+
+    ctx.rect(bbox_dims[0], bbox_dims[1], bbox_dims[2], bbox_dims[3]);
+
+    if (this.visuals.background_fill.doit) {
+      this.visuals.background_fill.set_vectorize(ctx, i);
+      ctx.fill();
+    }
+
+    if (this.visuals.border_line.doit) {
+      this.visuals.border_line.set_vectorize(ctx, i);
+      ctx.stroke();
+    }
+
+    if (this.visuals.text.doit) {
+      this.visuals.text.set_vectorize(ctx, i);
+      ctx.fillText(text, 0, 0);
+    }
+
+    return ctx.restore();
+  }
+
+  _v_css_text(ctx, i, text, sx, sy, angle) {
+    let line_dash;
+    const el = this.el.childNodes[i];
+    el.textContent = text;
+
+    this.visuals.text.set_vectorize(ctx, i);
+    const bbox_dims = this._calculate_bounding_box_dimensions(ctx, text);
+
+    // attempt to support vector-style ("8 4 8") line dashing for css mode
+    const ld = this.visuals.border_line.line_dash.value();
+    if (isArray(ld)) {
+      line_dash = ld.length < 2 ? "solid" : "dashed";
+    }
+    if (isString(ld)) {
+      line_dash = ld;
+    }
+
+    this.visuals.border_line.set_vectorize(ctx, i);
+    this.visuals.background_fill.set_vectorize(ctx, i);
+
+    el.style.position = 'absolute';
+    el.style.left = `${sx + bbox_dims[0]}px`;
+    el.style.top = `${sy + bbox_dims[1]}px`;
+    el.style.color = `${this.visuals.text.text_color.value()}`;
+    el.style.opacity = `${this.visuals.text.text_alpha.value()}`;
+    el.style.font = `${this.visuals.text.font_value()}`;
+    el.style.lineHeight = "normal"; // needed to prevent ipynb css override
+
+    if (angle) {
+      el.style.transform = `rotate(${angle}rad)`;
+    }
+
+    if (this.visuals.background_fill.doit) {
+      el.style.backgroundColor = `${this.visuals.background_fill.color_value()}`;
+    }
+
+    if (this.visuals.border_line.doit) {
+      el.style.borderStyle = `${line_dash}`;
+      el.style.borderWidth = `${this.visuals.border_line.line_width.value()}px`;
+      el.style.borderColor = `${this.visuals.border_line.color_value()}`;
+    }
+
+    return show(el);
+  }
+}
+
+export class LabelSet extends TextAnnotation {
+  static initClass() {
+    this.prototype.default_view = LabelSetView;
+
+    this.prototype.type = 'Label';
+
+    this.mixins(['text', 'line:border_', 'fill:background_']);
+
+    this.define({
+      x:            [ p.NumberSpec                      ],
+      y:            [ p.NumberSpec                      ],
+      x_units:      [ p.SpatialUnits, 'data'            ],
+      y_units:      [ p.SpatialUnits, 'data'            ],
+      text:         [ p.StringSpec,   { field: "text" } ],
+      angle:        [ p.AngleSpec,    0                 ],
+      x_offset:     [ p.NumberSpec,   { value: 0 }      ],
+      y_offset:     [ p.NumberSpec,   { value: 0 }      ],
+      source:       [ p.Instance,     () => new ColumnDataSource()  ],
+      x_range_name: [ p.String,      'default'          ],
+      y_range_name: [ p.String,      'default'          ],
+      render_mode:  [ p.RenderMode,  'canvas'           ]
+    });
+
+    this.override({
+      background_fill_color: null,
+      border_line_color: null
+    });
+  }
+}
+LabelSet.initClass();
+
+function __range__(left, right, inclusive) {
+  let range = [];
+  let ascending = left < right;
+  let end = !inclusive ? right : ascending ? right + 1 : right - 1;
+  for (let i = left; ascending ? i < end : i > end; ascending ? i++ : i--) {
+    range.push(i);
+  }
+  return range;
+}

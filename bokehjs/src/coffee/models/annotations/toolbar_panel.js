@@ -1,51 +1,69 @@
-import {Annotation, AnnotationView} from "./annotation"
-import {build_views, remove_views} from "core/build_views"
-import {empty, show, hide} from "core/dom"
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS206: Consider reworking classes to avoid initClass
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+
+import {Annotation, AnnotationView} from "./annotation";
+import {build_views, remove_views} from "core/build_views";
+import {empty, show, hide} from "core/dom";
 import * as p from "core/properties"
+;
 
-export class ToolbarPanelView extends AnnotationView
+export class ToolbarPanelView extends AnnotationView {
 
-  initialize: (options) ->
-    super(options)
-    @plot_view.canvas_events.appendChild(@el)
-    @_toolbar_views = {}
-    build_views(@_toolbar_views, [@model.toolbar], {parent: @})
-
-  remove: () ->
-    remove_views(@_toolbar_views)
-    super()
-
-  render: () ->
-    super()
-
-    if not @model.visible
-      hide(@el)
-      return
-
-    panel = @model.panel
-
-    @el.style.position = "absolute"
-    @el.style.left = "#{panel._left.value}px"
-    @el.style.top = "#{panel._top.value}px"
-    @el.style.width = "#{panel._width.value}px"
-    @el.style.height = "#{panel._height.value}px"
-
-    @el.style.overflow = "hidden"
-
-    toolbar = @_toolbar_views[@model.toolbar.id]
-    toolbar.render()
-
-    empty(@el)
-    @el.appendChild(toolbar.el)
-    show(@el)
-
-  _get_size: () ->
-    return 30
-
-export class ToolbarPanel extends Annotation
-  type: 'ToolbarPanel'
-  default_view: ToolbarPanelView
-
-  @define {
-    toolbar: [ p.Instance ]
+  initialize(options) {
+    super.initialize(options);
+    this.plot_view.canvas_events.appendChild(this.el);
+    this._toolbar_views = {};
+    return build_views(this._toolbar_views, [this.model.toolbar], {parent: this});
   }
+
+  remove() {
+    remove_views(this._toolbar_views);
+    return super.remove();
+  }
+
+  render() {
+    super.render();
+
+    if (!this.model.visible) {
+      hide(this.el);
+      return;
+    }
+
+    const { panel } = this.model;
+
+    this.el.style.position = "absolute";
+    this.el.style.left = `${panel._left.value}px`;
+    this.el.style.top = `${panel._top.value}px`;
+    this.el.style.width = `${panel._width.value}px`;
+    this.el.style.height = `${panel._height.value}px`;
+
+    this.el.style.overflow = "hidden";
+
+    const toolbar = this._toolbar_views[this.model.toolbar.id];
+    toolbar.render();
+
+    empty(this.el);
+    this.el.appendChild(toolbar.el);
+    return show(this.el);
+  }
+
+  _get_size() {
+    return 30;
+  }
+}
+
+export class ToolbarPanel extends Annotation {
+  static initClass() {
+    this.prototype.type = 'ToolbarPanel';
+    this.prototype.default_view = ToolbarPanelView;
+
+    this.define({
+      toolbar: [ p.Instance ]
+    });
+  }
+}
+ToolbarPanel.initClass();

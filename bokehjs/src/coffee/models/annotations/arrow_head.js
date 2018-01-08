@@ -1,145 +1,191 @@
-import {Annotation} from "./annotation"
-import {Visuals} from "core/visuals"
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS206: Consider reworking classes to avoid initClass
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+
+import {Annotation} from "./annotation";
+import {Visuals} from "core/visuals";
 import * as p from "core/properties"
+;
 
-export class ArrowHead extends Annotation
-  type: 'ArrowHead'
+export class ArrowHead extends Annotation {
+  static initClass() {
+    this.prototype.type = 'ArrowHead';
+  }
 
-  initialize: (options) ->
-    super(options)
-    @visuals = new Visuals(@)
+  initialize(options) {
+    super.initialize(options);
+    return this.visuals = new Visuals(this);
+  }
 
-  render: (ctx, i) ->
-    null
+  render(ctx, i) {
+    return null;
+  }
 
-  clip: (ctx, i) ->
-    # This method should not begin or close a path
-    null
+  clip(ctx, i) {
+    // This method should not begin or close a path
+    return null;
+  }
+}
+ArrowHead.initClass();
 
-export class OpenHead extends ArrowHead
-  type: 'OpenHead'
+export class OpenHead extends ArrowHead {
+  static initClass() {
+    this.prototype.type = 'OpenHead';
 
-  clip: (ctx, i) ->
-    # This method should not begin or close a path
-    @visuals.line.set_vectorize(ctx, i)
-    ctx.moveTo(0.5*@size, @size)
-    ctx.lineTo(0.5*@size, -2)
-    ctx.lineTo(-0.5*@size, -2)
-    ctx.lineTo(-0.5*@size, @size)
-    ctx.lineTo(0, 0)
-    ctx.lineTo(0.5*@size, @size)
+    this.mixins(['line']);
 
-  render: (ctx, i) ->
-    if @visuals.line.doit
-      @visuals.line.set_vectorize(ctx, i)
+    this.define({
+        size: [ p.Number, 25 ]
+      });
+  }
 
-      ctx.beginPath()
-      ctx.moveTo(0.5*@size, @size)
-      ctx.lineTo(0, 0)
-      ctx.lineTo(-0.5*@size, @size)
-      ctx.stroke()
+  clip(ctx, i) {
+    // This method should not begin or close a path
+    this.visuals.line.set_vectorize(ctx, i);
+    ctx.moveTo(0.5*this.size, this.size);
+    ctx.lineTo(0.5*this.size, -2);
+    ctx.lineTo(-0.5*this.size, -2);
+    ctx.lineTo(-0.5*this.size, this.size);
+    ctx.lineTo(0, 0);
+    return ctx.lineTo(0.5*this.size, this.size);
+  }
 
-  @mixins ['line']
+  render(ctx, i) {
+    if (this.visuals.line.doit) {
+      this.visuals.line.set_vectorize(ctx, i);
 
-  @define {
+      ctx.beginPath();
+      ctx.moveTo(0.5*this.size, this.size);
+      ctx.lineTo(0, 0);
+      ctx.lineTo(-0.5*this.size, this.size);
+      return ctx.stroke();
+    }
+  }
+}
+OpenHead.initClass();
+
+export class NormalHead extends ArrowHead {
+  static initClass() {
+    this.prototype.type = 'NormalHead';
+
+    this.mixins(['line', 'fill']);
+
+    this.define({
       size: [ p.Number, 25 ]
+    });
+
+    this.override({
+      fill_color: 'black'
+    });
+  }
+
+  clip(ctx, i) {
+    // This method should not begin or close a path
+    this.visuals.line.set_vectorize(ctx, i);
+    ctx.moveTo(0.5*this.size, this.size);
+    ctx.lineTo(0.5*this.size, -2);
+    ctx.lineTo(-0.5*this.size, -2);
+    ctx.lineTo(-0.5*this.size, this.size);
+    return ctx.lineTo(0.5*this.size, this.size);
+  }
+
+  render(ctx, i) {
+    if (this.visuals.fill.doit) {
+      this.visuals.fill.set_vectorize(ctx, i);
+      this._normal(ctx, i);
+      ctx.fill();
     }
 
-export class NormalHead extends ArrowHead
-  type: 'NormalHead'
-
-  clip: (ctx, i) ->
-    # This method should not begin or close a path
-    @visuals.line.set_vectorize(ctx, i)
-    ctx.moveTo(0.5*@size, @size)
-    ctx.lineTo(0.5*@size, -2)
-    ctx.lineTo(-0.5*@size, -2)
-    ctx.lineTo(-0.5*@size, @size)
-    ctx.lineTo(0.5*@size, @size)
-
-  render: (ctx, i) ->
-    if @visuals.fill.doit
-      @visuals.fill.set_vectorize(ctx, i)
-      @_normal(ctx, i)
-      ctx.fill()
-
-    if @visuals.line.doit
-      @visuals.line.set_vectorize(ctx, i)
-      @_normal(ctx, i)
-      ctx.stroke()
-
-  _normal: (ctx, i) ->
-    ctx.beginPath()
-    ctx.moveTo(0.5*@size, @size)
-    ctx.lineTo(0, 0)
-    ctx.lineTo(-0.5*@size, @size)
-    ctx.closePath()
-
-  @mixins ['line', 'fill']
-
-  @define {
-    size: [ p.Number, 25 ]
+    if (this.visuals.line.doit) {
+      this.visuals.line.set_vectorize(ctx, i);
+      this._normal(ctx, i);
+      return ctx.stroke();
+    }
   }
 
-  @override {
-    fill_color: 'black'
+  _normal(ctx, i) {
+    ctx.beginPath();
+    ctx.moveTo(0.5*this.size, this.size);
+    ctx.lineTo(0, 0);
+    ctx.lineTo(-0.5*this.size, this.size);
+    return ctx.closePath();
+  }
+}
+NormalHead.initClass();
+
+export class VeeHead extends ArrowHead {
+  static initClass() {
+    this.prototype.type = 'VeeHead';
+
+    this.mixins(['line', 'fill']);
+
+    this.define({
+      size: [ p.Number, 25 ]
+    });
+
+    this.override({
+      fill_color: 'black'
+    });
   }
 
-export class VeeHead extends ArrowHead
-  type: 'VeeHead'
-
-  clip: (ctx, i) ->
-    # This method should not begin or close a path
-    @visuals.line.set_vectorize(ctx, i)
-    ctx.moveTo(0.5*@size, @size)
-    ctx.lineTo(0.5*@size, -2)
-    ctx.lineTo(-0.5*@size, -2)
-    ctx.lineTo(-0.5*@size, @size)
-    ctx.lineTo(0, 0.5*@size)
-    ctx.lineTo(0.5*@size, @size)
-
-  render: (ctx, i) ->
-    if @visuals.fill.doit
-      @visuals.fill.set_vectorize(ctx, i)
-      @_vee(ctx, i)
-      ctx.fill()
-
-    if @visuals.line.doit
-      @visuals.line.set_vectorize(ctx, i)
-      @_vee(ctx, i)
-      ctx.stroke()
-
-  _vee: (ctx, i) ->
-    ctx.beginPath()
-    ctx.moveTo(0.5*@size, @size)
-    ctx.lineTo(0, 0)
-    ctx.lineTo(-0.5*@size, @size)
-    ctx.lineTo(0, 0.5*@size)
-    ctx.closePath()
-
-  @mixins ['line', 'fill']
-
-  @define {
-    size: [ p.Number, 25 ]
+  clip(ctx, i) {
+    // This method should not begin or close a path
+    this.visuals.line.set_vectorize(ctx, i);
+    ctx.moveTo(0.5*this.size, this.size);
+    ctx.lineTo(0.5*this.size, -2);
+    ctx.lineTo(-0.5*this.size, -2);
+    ctx.lineTo(-0.5*this.size, this.size);
+    ctx.lineTo(0, 0.5*this.size);
+    return ctx.lineTo(0.5*this.size, this.size);
   }
 
-  @override {
-    fill_color: 'black'
+  render(ctx, i) {
+    if (this.visuals.fill.doit) {
+      this.visuals.fill.set_vectorize(ctx, i);
+      this._vee(ctx, i);
+      ctx.fill();
+    }
+
+    if (this.visuals.line.doit) {
+      this.visuals.line.set_vectorize(ctx, i);
+      this._vee(ctx, i);
+      return ctx.stroke();
+    }
   }
 
-export class TeeHead extends ArrowHead
-  type: 'TeeHead'
-
-  render: (ctx, i) ->
-    if @visuals.line.doit
-      @visuals.line.set_vectorize(ctx, i)
-      ctx.beginPath()
-      ctx.moveTo(0.5*@size, 0)
-      ctx.lineTo(-0.5*@size, 0)
-      ctx.stroke()
-
-  @mixins ['line']
-
-  @define {
-    size: [ p.Number, 25 ]
+  _vee(ctx, i) {
+    ctx.beginPath();
+    ctx.moveTo(0.5*this.size, this.size);
+    ctx.lineTo(0, 0);
+    ctx.lineTo(-0.5*this.size, this.size);
+    ctx.lineTo(0, 0.5*this.size);
+    return ctx.closePath();
   }
+}
+VeeHead.initClass();
+
+export class TeeHead extends ArrowHead {
+  static initClass() {
+    this.prototype.type = 'TeeHead';
+
+    this.mixins(['line']);
+
+    this.define({
+      size: [ p.Number, 25 ]
+    });
+  }
+
+  render(ctx, i) {
+    if (this.visuals.line.doit) {
+      this.visuals.line.set_vectorize(ctx, i);
+      ctx.beginPath();
+      ctx.moveTo(0.5*this.size, 0);
+      ctx.lineTo(-0.5*this.size, 0);
+      return ctx.stroke();
+    }
+  }
+}
+TeeHead.initClass();

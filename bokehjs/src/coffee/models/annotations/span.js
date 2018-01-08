@@ -1,115 +1,145 @@
-import {Annotation, AnnotationView} from "./annotation"
-import {show, hide} from "core/dom"
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+
+import {Annotation, AnnotationView} from "./annotation";
+import {show, hide} from "core/dom";
 import * as p from "core/properties"
+;
 
-export class SpanView extends AnnotationView
+export class SpanView extends AnnotationView {
 
-  initialize: (options) ->
-    super(options)
-    @plot_view.canvas_overlays.appendChild(@el)
-    @el.style.position = "absolute"
-    hide(@el)
-
-  connect_signals: () ->
-    super()
-    if @model.for_hover
-      @connect(@model.properties.computed_location.change, () -> @_draw_span())
-    else
-      if @model.render_mode == 'canvas'
-        @connect(@model.change, () => @plot_view.request_render())
-        @connect(@model.properties.location.change, () => @plot_view.request_render())
-      else
-        @connect(@model.change, () -> @render())
-        @connect(@model.properties.location.change, () -> @_draw_span())
-
-  render: () ->
-    if not @model.visible and @model.render_mode == 'css'
-      hide(@el)
-    if not @model.visible
-      return
-    @_draw_span()
-
-  _draw_span: () ->
-    loc = if @model.for_hover then @model.computed_location else @model.location
-    if not loc?
-      hide(@el)
-      return
-
-    frame = @plot_view.frame
-
-    xscale = frame.xscales[@model.x_range_name]
-    yscale = frame.yscales[@model.y_range_name]
-
-    _calc_dim = (scale, view) =>
-      if @model.for_hover
-        return @model.computed_location
-      else
-        if @model.location_units == 'data'
-          return scale.compute(loc)
-        else
-          return view.compute(loc)
-
-    if @model.dimension == 'width'
-      stop = _calc_dim(yscale, frame.yview)
-      sleft = frame._left.value
-      width = frame._width.value
-      height = @model.properties.line_width.value()
-    else
-      stop = frame._top.value
-      sleft = _calc_dim(xscale, frame.xview)
-      width = @model.properties.line_width.value()
-      height = frame._height.value
-
-    if @model.render_mode == "css"
-      @el.style.top = "#{stop}px"
-      @el.style.left = "#{sleft}px"
-      @el.style.width = "#{width}px"
-      @el.style.height = "#{height}px"
-      @el.style.zIndex = 1000
-      @el.style.backgroundColor = @model.properties.line_color.value()
-      @el.style.opacity = @model.properties.line_alpha.value()
-      show(@el)
-
-    else if @model.render_mode == "canvas"
-      ctx = @plot_view.canvas_view.ctx
-      ctx.save()
-
-      ctx.beginPath()
-      @visuals.line.set_value(ctx)
-      ctx.moveTo(sleft, stop)
-      if @model.dimension == "width"
-        ctx.lineTo(sleft + width, stop)
-      else
-        ctx.lineTo(sleft, stop + height)
-      ctx.stroke()
-
-      ctx.restore()
-
-export class Span extends Annotation
-  `
-  computed_location: number | null
-  `
-
-  default_view: SpanView
-
-  type: 'Span'
-
-  @mixins ['line']
-
-  @define {
-      render_mode:    [ p.RenderMode,   'canvas'  ]
-      x_range_name:   [ p.String,       'default' ]
-      y_range_name:   [ p.String,       'default' ]
-      location:       [ p.Number,       null      ]
-      location_units: [ p.SpatialUnits, 'data'    ]
-      dimension:      [ p.Dimension,    'width'   ]
+  initialize(options) {
+    super.initialize(options);
+    this.plot_view.canvas_overlays.appendChild(this.el);
+    this.el.style.position = "absolute";
+    return hide(this.el);
   }
 
-  @override {
-    line_color: 'black'
+  connect_signals() {
+    super.connect_signals();
+    if (this.model.for_hover) {
+      return this.connect(this.model.properties.computed_location.change, function() { return this._draw_span(); });
+    } else {
+      if (this.model.render_mode === 'canvas') {
+        this.connect(this.model.change, () => this.plot_view.request_render());
+        return this.connect(this.model.properties.location.change, () => this.plot_view.request_render());
+      } else {
+        this.connect(this.model.change, function() { return this.render(); });
+        return this.connect(this.model.properties.location.change, function() { return this._draw_span(); });
+      }
+    }
   }
 
-  @internal {
-    for_hover: [ p.Boolean, false ]
-    computed_location: [ p.Number, null ] # absolute screen coordinate
+  render() {
+    if (!this.model.visible && (this.model.render_mode === 'css')) {
+      hide(this.el);
+    }
+    if (!this.model.visible) {
+      return;
+    }
+    return this._draw_span();
   }
+
+  _draw_span() {
+    let height, sleft, stop, width;
+    const loc = this.model.for_hover ? this.model.computed_location : this.model.location;
+    if ((loc == null)) {
+      hide(this.el);
+      return;
+    }
+
+    const { frame } = this.plot_view;
+
+    const xscale = frame.xscales[this.model.x_range_name];
+    const yscale = frame.yscales[this.model.y_range_name];
+
+    const _calc_dim = (scale, view) => {
+      if (this.model.for_hover) {
+        return this.model.computed_location;
+      } else {
+        if (this.model.location_units === 'data') {
+          return scale.compute(loc);
+        } else {
+          return view.compute(loc);
+        }
+      }
+    };
+
+    if (this.model.dimension === 'width') {
+      stop = _calc_dim(yscale, frame.yview);
+      sleft = frame._left.value;
+      width = frame._width.value;
+      height = this.model.properties.line_width.value();
+    } else {
+      stop = frame._top.value;
+      sleft = _calc_dim(xscale, frame.xview);
+      width = this.model.properties.line_width.value();
+      height = frame._height.value;
+    }
+
+    if (this.model.render_mode === "css") {
+      this.el.style.top = `${stop}px`;
+      this.el.style.left = `${sleft}px`;
+      this.el.style.width = `${width}px`;
+      this.el.style.height = `${height}px`;
+      this.el.style.zIndex = 1000;
+      this.el.style.backgroundColor = this.model.properties.line_color.value();
+      this.el.style.opacity = this.model.properties.line_alpha.value();
+      return show(this.el);
+
+    } else if (this.model.render_mode === "canvas") {
+      const { ctx } = this.plot_view.canvas_view;
+      ctx.save();
+
+      ctx.beginPath();
+      this.visuals.line.set_value(ctx);
+      ctx.moveTo(sleft, stop);
+      if (this.model.dimension === "width") {
+        ctx.lineTo(sleft + width, stop);
+      } else {
+        ctx.lineTo(sleft, stop + height);
+      }
+      ctx.stroke();
+
+      return ctx.restore();
+    }
+  }
+}
+
+export class Span extends Annotation {
+  static initClass() {
+
+    computed_location: number | null
+    ;
+
+    this.prototype.default_view = SpanView;
+
+    this.prototype.type = 'Span';
+
+    this.mixins(['line']);
+
+    this.define({
+        render_mode:    [ p.RenderMode,   'canvas'  ],
+        x_range_name:   [ p.String,       'default' ],
+        y_range_name:   [ p.String,       'default' ],
+        location:       [ p.Number,       null      ],
+        location_units: [ p.SpatialUnits, 'data'    ],
+        dimension:      [ p.Dimension,    'width'   ]
+    });
+
+    this.override({
+      line_color: 'black'
+    });
+
+    this.internal({
+      for_hover: [ p.Boolean, false ],
+      computed_location: [ p.Number, null ] // absolute screen coordinate
+    });
+  }
+}
+Span.initClass();

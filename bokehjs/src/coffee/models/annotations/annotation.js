@@ -1,35 +1,54 @@
-import {SidePanel} from "core/layout/side_panel"
-import * as p from "core/properties"
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+
+import {SidePanel} from "core/layout/side_panel";
+import * as p from "core/properties";
 
 import {Renderer, RendererView} from "../renderers/renderer"
+;
 
-export class AnnotationView extends RendererView
+export class AnnotationView extends RendererView {
 
-  _get_size: () ->
-    return new Error("not implemented")
-
-  get_size: () ->
-    return if this.model.visible then Math.round(this._get_size()) else 0
-
-export class Annotation extends Renderer
-  type: 'Annotation'
-  default_view: AnnotationView
-
-  @define {
-    plot:  [ p.Instance ]
+  _get_size() {
+    return new Error("not implemented");
   }
 
-  @override {
-    level: 'annotation'
+  get_size() {
+    if (this.model.visible) { return Math.round(this._get_size()); } else { return 0; }
+  }
+}
+
+export class Annotation extends Renderer {
+  static initClass() {
+    this.prototype.type = 'Annotation';
+    this.prototype.default_view = AnnotationView;
+
+    this.define({
+      plot:  [ p.Instance ]
+    });
+
+    this.override({
+      level: 'annotation'
+    });
   }
 
-  add_panel: (side) ->
-    if not @panel? or side != @panel.side
-      panel = new SidePanel({side: side})
-      panel.attach_document(@document)
-      @set_panel(panel)
+  add_panel(side) {
+    if ((this.panel == null) || (side !== this.panel.side)) {
+      const panel = new SidePanel({side});
+      panel.attach_document(this.document);
+      return this.set_panel(panel);
+    }
+  }
 
-  set_panel: (panel) ->
-    @panel = panel
-    # If the annotation is in a side panel, we need to set level to overlay, so it is visible.
-    @level = 'overlay'
+  set_panel(panel) {
+    this.panel = panel;
+    // If the annotation is in a side panel, we need to set level to overlay, so it is visible.
+    return this.level = 'overlay';
+  }
+}
+Annotation.initClass();
