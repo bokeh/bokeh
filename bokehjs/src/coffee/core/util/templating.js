@@ -1,67 +1,91 @@
-import {sprintf} from "sprintf-js"
-import * as Numbro from "numbro"
-import * as tz from "timezone"
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS103: Rewrite code to no longer use __guard__
+ * DS205: Consider reworking code to avoid use of IIFEs
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
 
-import {escape} from "./string"
+import {sprintf} from "sprintf-js";
+import * as Numbro from "numbro";
+import * as tz from "timezone";
+
+import {escape} from "./string";
 import {isNumber} from "./types"
+;
 
-_format_number = (number) ->
-  if isNumber(number)
-    format = switch
-      when Math.floor(number) == number
-        "%d"
-      when Math.abs(number) > 0.1 and Math.abs(number) < 1000
-        "%0.3f"
-      else
-        "%0.3e"
+const _format_number = function(number) {
+  if (isNumber(number)) {
+    const format = (() => { switch (false) {
+      case Math.floor(number) !== number:
+        return "%d";
+      case !(Math.abs(number) > 0.1) || !(Math.abs(number) < 1000):
+        return "%0.3f";
+      default:
+        return "%0.3e";
+    } })();
 
-    return sprintf(format, number)
-  else
-    return "#{number}" # get strings for categorical types
+    return sprintf(format, number);
+  } else {
+    return `${number}`; // get strings for categorical types
+  }
+};
 
-export replace_placeholders = (string, data_source, i, formatters, special_vars = {}) ->
-  string = string.replace /(^|[^\$])\$(\w+)/g, (match, prefix, name) => "#{prefix}@$#{name}"
+export const replace_placeholders = function(string, data_source, i, formatters, special_vars) {
+  if (special_vars == null) { special_vars = {}; }
+  string = string.replace(/(^|[^\$])\$(\w+)/g, (match, prefix, name) => `${prefix}@$${name}`);
 
-  string = string.replace /(^|[^@])@(?:(\$?\w+)|{([^{}]+)})(?:{([^{}]+)})?/g, (match, prefix, name, long_name, format) =>
-    name = if long_name? then long_name else name
+  string = string.replace(/(^|[^@])@(?:(\$?\w+)|{([^{}]+)})(?:{([^{}]+)})?/g, (match, prefix, name, long_name, format) => {
+    name = (long_name != null) ? long_name : name;
 
-    value =
-      if name[0] == "$"
+    const value =
+      name[0] === "$" ?
         special_vars[name.substring(1)]
-      else
+      :
 
-        data_source.get_column(name)?[i]
+        __guard__(data_source.get_column(name), x => x[i]);
 
-    replacement = null
-    if not value?
-      replacement = "???"
+    let replacement = null;
+    if ((value == null)) {
+      replacement = "???";
 
-    else
-      # 'safe' format, just return the value as is
-      if format == 'safe'
-        return "#{prefix}#{value}"
+    } else {
+      // 'safe' format, just return the value as is
+      if (format === 'safe') {
+        return `${prefix}${value}`;
 
-      else if format?
+      } else if (format != null) {
 
-        # see if the field has an entry in the formatters dict
-        if formatters? and name of formatters
-          if formatters[name] == "numeral"
-            replacement = Numbro.format(value, format)
-          else if formatters[name] == "datetime"
-            replacement = tz(value, format)
-          else if formatters[name] == "printf"
-            replacement = sprintf(format, value)
-          else
-            throw new Error("Unknown tooltip field formatter type '#{ formatters[name] }'")
+        // see if the field has an entry in the formatters dict
+        if ((formatters != null) && name in formatters) {
+          if (formatters[name] === "numeral") {
+            replacement = Numbro.format(value, format);
+          } else if (formatters[name] === "datetime") {
+            replacement = tz(value, format);
+          } else if (formatters[name] === "printf") {
+            replacement = sprintf(format, value);
+          } else {
+            throw new Error(`Unknown tooltip field formatter type '${ formatters[name] }'`);
+          }
 
-        # if not assume the format string is Numbro
-        else
-          replacement = Numbro.format(value, format)
+        // if not assume the format string is Numbro
+        } else {
+          replacement = Numbro.format(value, format);
+        }
 
-      # no format supplied, just use a basic default numeric format
-      else
-        replacement = _format_number(value)
+      // no format supplied, just use a basic default numeric format
+      } else {
+        replacement = _format_number(value);
+      }
+    }
 
-    replacement = "#{prefix}#{escape(replacement)}"
+    return replacement = `${prefix}${escape(replacement)}`;
+  });
 
-  return string
+  return string;
+};
+
+function __guard__(value, transform) {
+  return (typeof value !== 'undefined' && value !== null) ? transform(value) : undefined;
+}
