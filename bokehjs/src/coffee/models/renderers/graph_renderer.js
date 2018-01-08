@@ -1,78 +1,108 @@
-import {Renderer, RendererView} from "../renderers/renderer"
-import {NodesOnly} from "../graphs/graph_hit_test_policy"
+/*
+ * decaffeinate suggestions:
+ * DS101: Remove unnecessary use of Array.from
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS205: Consider reworking code to avoid use of IIFEs
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
 
-import * as p from "core/properties"
-import {build_views} from "core/build_views"
-import {contains} from "core/util/array"
+import {Renderer, RendererView} from "../renderers/renderer";
+import {NodesOnly} from "../graphs/graph_hit_test_policy";
+
+import * as p from "core/properties";
+import {build_views} from "core/build_views";
+import {contains} from "core/util/array";
 import {create_hit_test_result} from "core/hittest"
+;
 
-export class GraphRendererView extends RendererView
+export class GraphRendererView extends RendererView {
 
-  initialize: (options) ->
-    super(options)
+  initialize(options) {
+    super.initialize(options);
 
-    @xscale = @plot_view.frame.xscales["default"]
-    @yscale = @plot_view.frame.yscales["default"]
+    this.xscale = this.plot_view.frame.xscales["default"];
+    this.yscale = this.plot_view.frame.yscales["default"];
 
-    @_renderer_views = {}
-    [@node_view, @edge_view] = build_views(@_renderer_views,
-                                           [@model.node_renderer, @model.edge_renderer],
-                                           @plot_view.view_options())
+    this._renderer_views = {};
+    [this.node_view, this.edge_view] = Array.from(build_views(this._renderer_views,
+                                           [this.model.node_renderer, this.model.edge_renderer],
+                                           this.plot_view.view_options()));
 
-    @set_data()
+    return this.set_data();
+  }
 
-  connect_signals: () ->
-    super()
-    @connect(@model.layout_provider.change, () -> @set_data())
-    @connect(@model.node_renderer.data_source.select, () -> @set_data())
-    @connect(@model.node_renderer.data_source.inspect, () -> @set_data())
-    @connect(@model.node_renderer.data_source.change, () -> @set_data())
-    @connect(@model.edge_renderer.data_source.select, () -> @set_data())
-    @connect(@model.edge_renderer.data_source.inspect, () -> @set_data())
-    @connect(@model.edge_renderer.data_source.change, () -> @set_data())
+  connect_signals() {
+    let rng;
+    super.connect_signals();
+    this.connect(this.model.layout_provider.change, function() { return this.set_data(); });
+    this.connect(this.model.node_renderer.data_source.select, function() { return this.set_data(); });
+    this.connect(this.model.node_renderer.data_source.inspect, function() { return this.set_data(); });
+    this.connect(this.model.node_renderer.data_source.change, function() { return this.set_data(); });
+    this.connect(this.model.edge_renderer.data_source.select, function() { return this.set_data(); });
+    this.connect(this.model.edge_renderer.data_source.inspect, function() { return this.set_data(); });
+    this.connect(this.model.edge_renderer.data_source.change, function() { return this.set_data(); });
 
-    for name, rng of @plot_model.frame.x_ranges
-      @connect(rng.change, () -> @set_data())
+    for (var name in this.plot_model.frame.x_ranges) {
+      rng = this.plot_model.frame.x_ranges[name];
+      this.connect(rng.change, function() { return this.set_data(); });
+    }
 
-    for name, rng of @plot_model.frame.y_ranges
-      @connect(rng.change, () -> @set_data())
+    return (() => {
+      const result = [];
+      for (name in this.plot_model.frame.y_ranges) {
+        rng = this.plot_model.frame.y_ranges[name];
+        result.push(this.connect(rng.change, function() { return this.set_data(); }));
+      }
+      return result;
+    })();
+  }
 
-  set_data: (request_render=true) ->
-    # TODO (bev) this is a bit clunky, need to make sure glyphs use the correct ranges when they call
-    # mapping functions on the base Renderer class
-    @node_view.glyph.model.setv({x_range_name: @model.x_range_name, y_range_name: @model.y_range_name}, {silent: true})
-    @edge_view.glyph.model.setv({x_range_name: @model.x_range_name, y_range_name: @model.y_range_name}, {silent: true})
+  set_data(request_render) {
+    // TODO (bev) this is a bit clunky, need to make sure glyphs use the correct ranges when they call
+    // mapping functions on the base Renderer class
+    if (request_render == null) { request_render = true; }
+    this.node_view.glyph.model.setv({x_range_name: this.model.x_range_name, y_range_name: this.model.y_range_name}, {silent: true});
+    this.edge_view.glyph.model.setv({x_range_name: this.model.x_range_name, y_range_name: this.model.y_range_name}, {silent: true});
 
-    [@node_view.glyph._x, @node_view.glyph._y] = @model.layout_provider.get_node_coordinates(@model.node_renderer.data_source)
-    [@edge_view.glyph._xs, @edge_view.glyph._ys] = @model.layout_provider.get_edge_coordinates(@model.edge_renderer.data_source)
-    @node_view.glyph.index = @node_view.glyph._index_data()
-    @edge_view.glyph.index = @edge_view.glyph._index_data()
+    [this.node_view.glyph._x, this.node_view.glyph._y] = Array.from(this.model.layout_provider.get_node_coordinates(this.model.node_renderer.data_source));
+    [this.edge_view.glyph._xs, this.edge_view.glyph._ys] = Array.from(this.model.layout_provider.get_edge_coordinates(this.model.edge_renderer.data_source));
+    this.node_view.glyph.index = this.node_view.glyph._index_data();
+    this.edge_view.glyph.index = this.edge_view.glyph._index_data();
 
-    if request_render
-      @request_render()
+    if (request_render) {
+      return this.request_render();
+    }
+  }
 
-  render: () ->
-    @edge_view.render()
-    @node_view.render()
+  render() {
+    this.edge_view.render();
+    return this.node_view.render();
+  }
 
-  hit_test: (geometry, final, append, mode="select") ->
-    if not @model.visible
-      return false
+  hit_test(geometry, final, append, mode) {
+    if (mode == null) { mode = "select"; }
+    if (!this.model.visible) {
+      return false;
+    }
 
-    did_hit = false
+    let did_hit = false;
 
-    if mode == "select"
-      did_hit = @model.selection_policy?.do_selection(geometry, @, final, append)
-    else # if mode == "inspect"
-      did_hit = @model.inspection_policy?.do_inspection(geometry, @, final, append)
+    if (mode === "select") {
+      did_hit = this.model.selection_policy != null ? this.model.selection_policy.do_selection(geometry, this, final, append) : undefined;
+    } else { // if mode == "inspect"
+      did_hit = this.model.inspection_policy != null ? this.model.inspection_policy.do_inspection(geometry, this, final, append) : undefined;
+    }
 
-    return did_hit
+    return did_hit;
+  }
+}
 
 
-export class GraphRenderer extends Renderer
+export class GraphRenderer extends Renderer {
 
-  `
-  x_range_name: string
+  x_range_name: string;
   y_range_name: string
   /*
   layout_provider:
@@ -81,24 +111,30 @@ export class GraphRenderer extends Renderer
   selection_policy:
   inspection_policy:
   */
-  `
+  ;
 
-  default_view: GraphRendererView
-  type: 'GraphRenderer'
+  static initClass() {
 
-  get_selection_manager: () ->
-    return @node_renderer.data_source.selection_manager
+    this.prototype.default_view = GraphRendererView;
+    this.prototype.type = 'GraphRenderer';
 
-  @define {
-      x_range_name:       [ p.String,        'default'              ]
-      y_range_name:       [ p.String,        'default'              ]
-      layout_provider:    [ p.Instance                              ]
-      node_renderer:      [ p.Instance                              ]
-      edge_renderer:      [ p.Instance                              ]
-      selection_policy:   [ p.Instance,      () -> new NodesOnly()  ]
-      inspection_policy:  [ p.Instance,      () -> new NodesOnly()  ]
-    }
+    this.define({
+        x_range_name:       [ p.String,        'default'              ],
+        y_range_name:       [ p.String,        'default'              ],
+        layout_provider:    [ p.Instance                              ],
+        node_renderer:      [ p.Instance                              ],
+        edge_renderer:      [ p.Instance                              ],
+        selection_policy:   [ p.Instance,      () => new NodesOnly()  ],
+        inspection_policy:  [ p.Instance,      () => new NodesOnly()  ]
+      });
 
-  @override {
-    level: 'glyph'
+    this.override({
+      level: 'glyph'
+    });
   }
+
+  get_selection_manager() {
+    return this.node_renderer.data_source.selection_manager;
+  }
+}
+GraphRenderer.initClass();

@@ -1,264 +1,343 @@
-import {Renderer, RendererView} from "./renderer"
-import {LineView} from "../glyphs/line"
-import {RemoteDataSource} from "../sources/remote_data_source"
-import {CDSView} from "../sources/cds_view"
-import {logger} from "core/logging"
-import * as p from "core/properties"
-import {difference} from "core/util/array"
+/*
+ * decaffeinate suggestions:
+ * DS101: Remove unnecessary use of Array.from
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS202: Simplify dynamic range loops
+ * DS205: Consider reworking code to avoid use of IIFEs
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+
+import {Renderer, RendererView} from "./renderer";
+import {LineView} from "../glyphs/line";
+import {RemoteDataSource} from "../sources/remote_data_source";
+import {CDSView} from "../sources/cds_view";
+import {logger} from "core/logging";
+import * as p from "core/properties";
+import {difference} from "core/util/array";
 import {extend, clone} from "core/util/object"
+;
 
-export class GlyphRendererView extends RendererView
+export class GlyphRendererView extends RendererView {
 
-  initialize: (options) ->
-    super(options)
+  initialize(options) {
+    super.initialize(options);
 
-    base_glyph = @model.glyph
-    has_fill = "fill" in base_glyph.mixins
-    has_line = "line" in base_glyph.mixins
-    glyph_attrs = clone(base_glyph.attributes)
-    delete glyph_attrs.id
+    const base_glyph = this.model.glyph;
+    const has_fill = Array.from(base_glyph.mixins).includes("fill");
+    const has_line = Array.from(base_glyph.mixins).includes("line");
+    const glyph_attrs = clone(base_glyph.attributes);
+    delete glyph_attrs.id;
 
-    mk_glyph = (defaults) ->
-      attrs = clone(glyph_attrs)
-      if has_fill then extend(attrs, defaults.fill)
-      if has_line then extend(attrs, defaults.line)
-      return new (base_glyph.constructor)(attrs)
+    const mk_glyph = function(defaults) {
+      const attrs = clone(glyph_attrs);
+      if (has_fill) { extend(attrs, defaults.fill); }
+      if (has_line) { extend(attrs, defaults.line); }
+      return new (base_glyph.constructor)(attrs);
+    };
 
-    @glyph = @build_glyph_view(base_glyph)
+    this.glyph = this.build_glyph_view(base_glyph);
 
-    selection_glyph = @model.selection_glyph
-    if not selection_glyph?
-      selection_glyph = mk_glyph({fill: {}, line: {}})
-    else if selection_glyph == "auto"
-      selection_glyph = mk_glyph(@model.selection_defaults)
-    @selection_glyph = @build_glyph_view(selection_glyph)
+    let { selection_glyph } = this.model;
+    if ((selection_glyph == null)) {
+      selection_glyph = mk_glyph({fill: {}, line: {}});
+    } else if (selection_glyph === "auto") {
+      selection_glyph = mk_glyph(this.model.selection_defaults);
+    }
+    this.selection_glyph = this.build_glyph_view(selection_glyph);
 
-    nonselection_glyph = @model.nonselection_glyph
-    if not nonselection_glyph?
-      nonselection_glyph = mk_glyph({fill: {}, line: {}})
-    else if nonselection_glyph == "auto"
-      nonselection_glyph = mk_glyph(@model.nonselection_defaults)
-    @nonselection_glyph = @build_glyph_view(nonselection_glyph)
+    let { nonselection_glyph } = this.model;
+    if ((nonselection_glyph == null)) {
+      nonselection_glyph = mk_glyph({fill: {}, line: {}});
+    } else if (nonselection_glyph === "auto") {
+      nonselection_glyph = mk_glyph(this.model.nonselection_defaults);
+    }
+    this.nonselection_glyph = this.build_glyph_view(nonselection_glyph);
 
-    hover_glyph = @model.hover_glyph
-    if hover_glyph?
-      @hover_glyph = @build_glyph_view(hover_glyph)
+    const { hover_glyph } = this.model;
+    if (hover_glyph != null) {
+      this.hover_glyph = this.build_glyph_view(hover_glyph);
+    }
 
-    muted_glyph = @model.muted_glyph
-    if muted_glyph?
-      @muted_glyph = @build_glyph_view(muted_glyph)
+    const { muted_glyph } = this.model;
+    if (muted_glyph != null) {
+      this.muted_glyph = this.build_glyph_view(muted_glyph);
+    }
 
-    decimated_glyph = mk_glyph(@model.decimated_defaults)
-    @decimated_glyph = @build_glyph_view(decimated_glyph)
+    const decimated_glyph = mk_glyph(this.model.decimated_defaults);
+    this.decimated_glyph = this.build_glyph_view(decimated_glyph);
 
-    @xscale = @plot_view.frame.xscales[@model.x_range_name]
-    @yscale = @plot_view.frame.yscales[@model.y_range_name]
+    this.xscale = this.plot_view.frame.xscales[this.model.x_range_name];
+    this.yscale = this.plot_view.frame.yscales[this.model.y_range_name];
 
-    @set_data(false)
+    this.set_data(false);
 
-    if @model.data_source instanceof RemoteDataSource
-      @model.data_source.setup()
+    if (this.model.data_source instanceof RemoteDataSource) {
+      return this.model.data_source.setup();
+    }
+  }
 
-  build_glyph_view: (model) ->
-    new model.default_view({model: model, renderer: @, plot_view: @plot_view, parent: @})
+  build_glyph_view(model) {
+    return new model.default_view({model, renderer: this, plot_view: this.plot_view, parent: this});
+  }
 
-  connect_signals: () ->
-    super()
-    @connect(@model.change, () -> @request_render())
-    @connect(@model.glyph.change, () -> @set_data())
-    @connect(@model.data_source.change, () -> @set_data())
-    @connect(@model.data_source.streaming, () -> @set_data())
-    @connect(@model.data_source.patching, (indices) -> @set_data(true, indices))
-    @connect(@model.data_source.select, () -> @request_render())
-    if @hover_glyph?
-      @connect(@model.data_source.inspect, () -> @request_render())
-    @connect(@model.properties.view.change, () -> @set_data())
-    @connect(@model.view.change, () -> @set_data())
+  connect_signals() {
+    let rng;
+    super.connect_signals();
+    this.connect(this.model.change, function() { return this.request_render(); });
+    this.connect(this.model.glyph.change, function() { return this.set_data(); });
+    this.connect(this.model.data_source.change, function() { return this.set_data(); });
+    this.connect(this.model.data_source.streaming, function() { return this.set_data(); });
+    this.connect(this.model.data_source.patching, function(indices) { return this.set_data(true, indices); });
+    this.connect(this.model.data_source.select, function() { return this.request_render(); });
+    if (this.hover_glyph != null) {
+      this.connect(this.model.data_source.inspect, function() { return this.request_render(); });
+    }
+    this.connect(this.model.properties.view.change, function() { return this.set_data(); });
+    this.connect(this.model.view.change, function() { return this.set_data(); });
 
-    for name, rng of @plot_model.frame.x_ranges
-      @connect(rng.change, () -> @set_data())
+    for (var name in this.plot_model.frame.x_ranges) {
+      rng = this.plot_model.frame.x_ranges[name];
+      this.connect(rng.change, function() { return this.set_data(); });
+    }
 
-    for name, rng of @plot_model.frame.y_ranges
-      @connect(rng.change, () -> @set_data())
+    for (name in this.plot_model.frame.y_ranges) {
+      rng = this.plot_model.frame.y_ranges[name];
+      this.connect(rng.change, function() { return this.set_data(); });
+    }
 
-    @connect(@model.glyph.transformchange, () -> @set_data())
+    return this.connect(this.model.glyph.transformchange, function() { return this.set_data(); });
+  }
 
-  have_selection_glyphs: () -> @selection_glyph? && @nonselection_glyph?
+  have_selection_glyphs() { return (this.selection_glyph != null) && (this.nonselection_glyph != null); }
 
-  # in case of partial updates like patching, the list of indices that actually
-  # changed may be passed as the "indices" parameter to afford any optional optimizations
-  set_data: (request_render=true, indices) ->
-    t0 = Date.now()
-    source = @model.data_source
+  // in case of partial updates like patching, the list of indices that actually
+  // changed may be passed as the "indices" parameter to afford any optional optimizations
+  set_data(request_render, indices) {
+    if (request_render == null) { request_render = true; }
+    const t0 = Date.now();
+    const source = this.model.data_source;
 
-    @all_indices = @model.view.indices
+    this.all_indices = this.model.view.indices;
 
-    # TODO (bev) this is a bit clunky, need to make sure glyphs use the correct ranges when they call
-    # mapping functions on the base Renderer class
-    @glyph.model.setv({x_range_name: @model.x_range_name, y_range_name: @model.y_range_name}, {silent: true})
-    @glyph.set_data(source, @all_indices, indices)
+    // TODO (bev) this is a bit clunky, need to make sure glyphs use the correct ranges when they call
+    // mapping functions on the base Renderer class
+    this.glyph.model.setv({x_range_name: this.model.x_range_name, y_range_name: this.model.y_range_name}, {silent: true});
+    this.glyph.set_data(source, this.all_indices, indices);
 
-    @glyph.set_visuals(source)
-    @decimated_glyph.set_visuals(source)
-    if @have_selection_glyphs()
-      @selection_glyph.set_visuals(source)
-      @nonselection_glyph.set_visuals(source)
-    if @hover_glyph?
-      @hover_glyph.set_visuals(source)
-    if @muted_glyph?
-      @muted_glyph.set_visuals(source)
+    this.glyph.set_visuals(source);
+    this.decimated_glyph.set_visuals(source);
+    if (this.have_selection_glyphs()) {
+      this.selection_glyph.set_visuals(source);
+      this.nonselection_glyph.set_visuals(source);
+    }
+    if (this.hover_glyph != null) {
+      this.hover_glyph.set_visuals(source);
+    }
+    if (this.muted_glyph != null) {
+      this.muted_glyph.set_visuals(source);
+    }
 
-    lod_factor = @plot_model.plot.lod_factor
-    @decimated = []
-    for i in [0...Math.floor(@all_indices.length/lod_factor)]
-      @decimated.push(i*lod_factor)
+    const { lod_factor } = this.plot_model.plot;
+    this.decimated = [];
+    for (let i = 0, end = Math.floor(this.all_indices.length/lod_factor), asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+      this.decimated.push(i*lod_factor);
+    }
 
-    dt = Date.now() - t0
-    logger.debug("#{@glyph.model.type} GlyphRenderer (#{@model.id}): set_data finished in #{dt}ms")
+    const dt = Date.now() - t0;
+    logger.debug(`${this.glyph.model.type} GlyphRenderer (${this.model.id}): set_data finished in ${dt}ms`);
 
-    @set_data_timestamp = Date.now()
+    this.set_data_timestamp = Date.now();
 
-    if request_render
-      @request_render()
+    if (request_render) {
+      return this.request_render();
+    }
+  }
 
-  render: () ->
-    if not @model.visible
-      return
+  render() {
+    let dtrender, dtselect, glyph, nonselection_glyph, selection_glyph, trender;
+    let i;
+    if (!this.model.visible) {
+      return;
+    }
 
-    t0 = Date.now()
+    const t0 = Date.now();
 
-    glsupport = @glyph.glglyph
+    const glsupport = this.glyph.glglyph;
 
-    tmap = Date.now()
-    @glyph.map_data()
-    dtmap = Date.now() - t0
+    const tmap = Date.now();
+    this.glyph.map_data();
+    const dtmap = Date.now() - t0;
 
-    tmask = Date.now()
-    # all_indices is in full data space, indices is converted to subset space
-    # either by mask_data (that uses the spatial index) or manually
-    indices = @glyph.mask_data(@all_indices)
-    if indices.length == @all_indices.length
-      indices = [0...@all_indices.length]
-    dtmask = Date.now() - tmask
+    const tmask = Date.now();
+    // all_indices is in full data space, indices is converted to subset space
+    // either by mask_data (that uses the spatial index) or manually
+    let indices = this.glyph.mask_data(this.all_indices);
+    if (indices.length === this.all_indices.length) {
+      indices = __range__(0, this.all_indices.length, false);
+    }
+    const dtmask = Date.now() - tmask;
 
-    ctx = @plot_view.canvas_view.ctx
-    ctx.save()
+    const { ctx } = this.plot_view.canvas_view;
+    ctx.save();
 
-    # selected is in full set space
-    selected = @model.data_source.selected
-    if !selected or selected.length == 0
-      selected = []
-    else
-      if selected['0d'].glyph
-        selected = @model.view.convert_indices_from_subset(indices)
-      else if selected['1d'].indices.length > 0
-        selected = selected['1d'].indices
-      else
-        selected = (parseInt(i) for i in Object.keys(selected["2d"].indices))
+    // selected is in full set space
+    let { selected } = this.model.data_source;
+    if (!selected || (selected.length === 0)) {
+      selected = [];
+    } else {
+      if (selected['0d'].glyph) {
+        selected = this.model.view.convert_indices_from_subset(indices);
+      } else if (selected['1d'].indices.length > 0) {
+        selected = selected['1d'].indices;
+      } else {
+        selected = ((() => {
+          const result = [];
+          for (i of Array.from(Object.keys(selected["2d"].indices))) {             result.push(parseInt(i));
+          }
+          return result;
+        })());
+      }
+    }
 
-    # inspected is in full set space
-    inspected = @model.data_source.inspected
-    if !inspected or inspected.length == 0
-      inspected = []
-    else
-      if inspected['0d'].glyph
-        inspected = @model.view.convert_indices_from_subset(indices)
-      else if inspected['1d'].indices.length > 0
-        inspected = inspected['1d'].indices
-      else
-        inspected = (parseInt(i) for i in Object.keys(inspected["2d"].indices))
+    // inspected is in full set space
+    let { inspected } = this.model.data_source;
+    if (!inspected || (inspected.length === 0)) {
+      inspected = [];
+    } else {
+      if (inspected['0d'].glyph) {
+        inspected = this.model.view.convert_indices_from_subset(indices);
+      } else if (inspected['1d'].indices.length > 0) {
+        inspected = inspected['1d'].indices;
+      } else {
+        inspected = ((() => {
+          const result1 = [];
+          for (i of Array.from(Object.keys(inspected["2d"].indices))) {             result1.push(parseInt(i));
+          }
+          return result1;
+        })());
+      }
+    }
 
-    # inspected is transformed to subset space
-    inspected = (i for i in indices when @all_indices[i] in inspected)
+    // inspected is transformed to subset space
+    inspected = ((() => {
+      const result2 = [];
+      for (i of Array.from(indices)) {         if (Array.from(inspected).includes(this.all_indices[i])) {
+          result2.push(i);
+        }
+      }
+      return result2;
+    })());
 
-    lod_threshold = @plot_model.plot.lod_threshold
-    if @model.document?.interactive_duration() > 0 and !glsupport and lod_threshold? and @all_indices.length > lod_threshold
-      # Render decimated during interaction if too many elements and not using GL
-      indices = @decimated
-      glyph = @decimated_glyph
-      nonselection_glyph = @decimated_glyph
-      selection_glyph = @selection_glyph
-    else
-      glyph = if @model.muted and @muted_glyph? then @muted_glyph else @glyph
-      nonselection_glyph = @nonselection_glyph
-      selection_glyph = @selection_glyph
+    const { lod_threshold } = this.plot_model.plot;
+    if (((this.model.document != null ? this.model.document.interactive_duration() : undefined) > 0) && !glsupport && (lod_threshold != null) && (this.all_indices.length > lod_threshold)) {
+      // Render decimated during interaction if too many elements and not using GL
+      indices = this.decimated;
+      glyph = this.decimated_glyph;
+      nonselection_glyph = this.decimated_glyph;
+      ({ selection_glyph } = this);
+    } else {
+      glyph = this.model.muted && (this.muted_glyph != null) ? this.muted_glyph : this.glyph;
+      ({ nonselection_glyph } = this);
+      ({ selection_glyph } = this);
+    }
 
-    if @hover_glyph? and inspected.length
-      indices = difference(indices, inspected)
+    if ((this.hover_glyph != null) && inspected.length) {
+      indices = difference(indices, inspected);
+    }
 
-    if not (selected.length and @have_selection_glyphs())
-        trender = Date.now()
-        if @glyph instanceof LineView
-          if @hover_glyph and inspected.length
-            @hover_glyph.render(ctx, @model.view.convert_indices_from_subset(inspected), @glyph)
-          else
-            glyph.render(ctx, @all_indices, @glyph)
-        else
-          glyph.render(ctx, indices, @glyph)
-          if @hover_glyph and inspected.length
-            @hover_glyph.render(ctx, inspected, @glyph)
-        dtrender = Date.now() - trender
+    if (!(selected.length && this.have_selection_glyphs())) {
+        trender = Date.now();
+        if (this.glyph instanceof LineView) {
+          if (this.hover_glyph && inspected.length) {
+            this.hover_glyph.render(ctx, this.model.view.convert_indices_from_subset(inspected), this.glyph);
+          } else {
+            glyph.render(ctx, this.all_indices, this.glyph);
+          }
+        } else {
+          glyph.render(ctx, indices, this.glyph);
+          if (this.hover_glyph && inspected.length) {
+            this.hover_glyph.render(ctx, inspected, this.glyph);
+          }
+        }
+        dtrender = Date.now() - trender;
 
-    else
-      # reset the selection mask
-      tselect = Date.now()
-      selected_mask = {}
-      for i in selected
-        selected_mask[i] = true
+    } else {
+      // reset the selection mask
+      const tselect = Date.now();
+      const selected_mask = {};
+      for (i of Array.from(selected)) {
+        selected_mask[i] = true;
+      }
 
-      # intersect/different selection with render mask
-      selected = new Array()
-      nonselected = new Array()
+      // intersect/different selection with render mask
+      selected = new Array();
+      const nonselected = new Array();
 
-      # now, selected is changed to subset space, except for Line glyph
-      if @glyph instanceof LineView
-        for i in @all_indices
-          if selected_mask[i]?
-            selected.push(i)
-          else
-            nonselected.push(i)
-      else
-        for i in indices
-          if selected_mask[@all_indices[i]]?
-            selected.push(i)
-          else
-            nonselected.push(i)
-      dtselect = Date.now() - tselect
+      // now, selected is changed to subset space, except for Line glyph
+      if (this.glyph instanceof LineView) {
+        for (i of Array.from(this.all_indices)) {
+          if (selected_mask[i] != null) {
+            selected.push(i);
+          } else {
+            nonselected.push(i);
+          }
+        }
+      } else {
+        for (i of Array.from(indices)) {
+          if (selected_mask[this.all_indices[i]] != null) {
+            selected.push(i);
+          } else {
+            nonselected.push(i);
+          }
+        }
+      }
+      dtselect = Date.now() - tselect;
 
-      trender = Date.now()
-      nonselection_glyph.render(ctx, nonselected, @glyph)
-      selection_glyph.render(ctx, selected, @glyph)
-      if @hover_glyph?
-        if @glyph instanceof LineView
-          @hover_glyph.render(ctx, @model.view.convert_indices_from_subset(inspected), @glyph)
-        else
-          @hover_glyph.render(ctx, inspected, @glyph)
-      dtrender = Date.now() - trender
+      trender = Date.now();
+      nonselection_glyph.render(ctx, nonselected, this.glyph);
+      selection_glyph.render(ctx, selected, this.glyph);
+      if (this.hover_glyph != null) {
+        if (this.glyph instanceof LineView) {
+          this.hover_glyph.render(ctx, this.model.view.convert_indices_from_subset(inspected), this.glyph);
+        } else {
+          this.hover_glyph.render(ctx, inspected, this.glyph);
+        }
+      }
+      dtrender = Date.now() - trender;
+    }
 
-    @last_dtrender = dtrender
+    this.last_dtrender = dtrender;
 
-    dttot = Date.now() - t0
-    logger.debug("#{@glyph.model.type} GlyphRenderer (#{@model.id}): render finished in #{dttot}ms")
-    logger.trace(" - map_data finished in       : #{dtmap}ms")
-    if dtmask?
-      logger.trace(" - mask_data finished in      : #{dtmask}ms")
-    if dtselect?
-      logger.trace(" - selection mask finished in : #{dtselect}ms")
-    logger.trace(" - glyph renders finished in  : #{dtrender}ms")
+    const dttot = Date.now() - t0;
+    logger.debug(`${this.glyph.model.type} GlyphRenderer (${this.model.id}): render finished in ${dttot}ms`);
+    logger.trace(` - map_data finished in       : ${dtmap}ms`);
+    if (dtmask != null) {
+      logger.trace(` - mask_data finished in      : ${dtmask}ms`);
+    }
+    if (dtselect != null) {
+      logger.trace(` - selection mask finished in : ${dtselect}ms`);
+    }
+    logger.trace(` - glyph renders finished in  : ${dtrender}ms`);
 
-    ctx.restore()
+    return ctx.restore();
+  }
 
-  draw_legend: (ctx, x0, x1, y0, y1, field, label) ->
-    index = @model.get_reference_point(field, label)
-    @glyph.draw_legend_for_index(ctx, x0, x1, y0, y1, index)
+  draw_legend(ctx, x0, x1, y0, y1, field, label) {
+    const index = this.model.get_reference_point(field, label);
+    return this.glyph.draw_legend_for_index(ctx, x0, x1, y0, y1, index);
+  }
 
-  hit_test: (geometry, final, append, mode="select") ->
-    return @model.hit_test_helper(geometry, @, final, append, mode)
+  hit_test(geometry, final, append, mode) {
+    if (mode == null) { mode = "select"; }
+    return this.model.hit_test_helper(geometry, this, final, append, mode);
+  }
+}
 
-export class GlyphRenderer extends Renderer
+export class GlyphRenderer extends Renderer {
 
-  `
-  x_range_name: string
+  x_range_name: string;
   y_range_name: string
   /*
   data_source: DataSource
@@ -270,75 +349,101 @@ export class GlyphRenderer extends Renderer
   muted_glyph: Glyph
   muted: boolean
   */
-  `
+  ;
 
-  default_view: GlyphRendererView
+  static initClass() {
 
-  type: 'GlyphRenderer'
+    this.prototype.default_view = GlyphRendererView;
 
-  initialize: (options) ->
-    super(options)
+    this.prototype.type = 'GlyphRenderer';
 
-    if not @view.source?
-      @view.source = @data_source
-      @view.compute_indices()
+    this.define({
+        x_range_name:       [ p.String,  'default' ],
+        y_range_name:       [ p.String,  'default' ],
+        data_source:        [ p.Instance           ],
+        view:               [ p.Instance, () => new CDSView() ],
+        glyph:              [ p.Instance           ],
+        hover_glyph:        [ p.Instance           ],
+        nonselection_glyph: [ p.Any,      'auto'   ], // Instance or "auto"
+        selection_glyph:    [ p.Any,      'auto'   ], // Instance or "auto"
+        muted_glyph:        [ p.Instance           ],
+        muted:              [ p.Bool,        false ]
+      });
 
-  get_reference_point: (field, value) ->
-    index = 0  # This is the default to return
-    if field? and @data_source.get_column?
-      data = @data_source.get_column(field)
-      if data
-        i = data.indexOf(value)
-        if i > 0
-          index = i
-    return index
+    this.override({
+      level: 'glyph'
+    });
 
-  hit_test_helper: (geometry, renderer_view, final, append, mode) ->
-    if not @visible
-      return false
-
-    hit_test_result = renderer_view.glyph.hit_test(geometry)
-
-    # glyphs that don't have hit-testing implemented will return null
-    if hit_test_result == null
-      return false
-
-    indices = @view.convert_selection_from_subset(hit_test_result)
-
-    if mode == "select"
-      selector = @data_source.selection_manager.selector
-      selector.update(indices, final, append)
-      @data_source.selected = selector.indices
-      @data_source.select.emit()
-    else # mode == "inspect"
-      inspector = @data_source.selection_manager.get_or_create_inspector(@)
-      inspector.update(indices, true, false, true)
-      # silently set inspected attr to avoid triggering data_source.change event and rerender
-      @data_source.setv({inspected: inspector.indices}, {silent: true})
-      @data_source.inspect.emit([renderer_view, {geometry: geometry}])
-
-    return not indices.is_empty()
-
-  get_selection_manager: () ->
-    return @data_source.selection_manager
-
-  @define {
-      x_range_name:       [ p.String,  'default' ]
-      y_range_name:       [ p.String,  'default' ]
-      data_source:        [ p.Instance           ]
-      view:               [ p.Instance, () -> new CDSView() ]
-      glyph:              [ p.Instance           ]
-      hover_glyph:        [ p.Instance           ]
-      nonselection_glyph: [ p.Any,      'auto'   ] # Instance or "auto"
-      selection_glyph:    [ p.Any,      'auto'   ] # Instance or "auto"
-      muted_glyph:        [ p.Instance           ]
-      muted:              [ p.Bool,        false ]
-    }
-
-  @override {
-    level: 'glyph'
+    this.prototype.selection_defaults = {fill: {}, line: {}};
+    this.prototype.decimated_defaults = {fill: {fill_alpha: 0.3, fill_color: "grey"}, line: {line_alpha: 0.3, line_color: "grey"}};
+    this.prototype.nonselection_defaults = {fill: {fill_alpha: 0.2, line_alpha: 0.2}, line: {}};
   }
 
-  selection_defaults: {fill: {}, line: {}}
-  decimated_defaults: {fill: {fill_alpha: 0.3, fill_color: "grey"}, line: {line_alpha: 0.3, line_color: "grey"}}
-  nonselection_defaults: {fill: {fill_alpha: 0.2, line_alpha: 0.2}, line: {}}
+  initialize(options) {
+    super.initialize(options);
+
+    if ((this.view.source == null)) {
+      this.view.source = this.data_source;
+      return this.view.compute_indices();
+    }
+  }
+
+  get_reference_point(field, value) {
+    let index = 0;  // This is the default to return
+    if ((field != null) && (this.data_source.get_column != null)) {
+      const data = this.data_source.get_column(field);
+      if (data) {
+        const i = data.indexOf(value);
+        if (i > 0) {
+          index = i;
+        }
+      }
+    }
+    return index;
+  }
+
+  hit_test_helper(geometry, renderer_view, final, append, mode) {
+    if (!this.visible) {
+      return false;
+    }
+
+    const hit_test_result = renderer_view.glyph.hit_test(geometry);
+
+    // glyphs that don't have hit-testing implemented will return null
+    if (hit_test_result === null) {
+      return false;
+    }
+
+    const indices = this.view.convert_selection_from_subset(hit_test_result);
+
+    if (mode === "select") {
+      const { selector } = this.data_source.selection_manager;
+      selector.update(indices, final, append);
+      this.data_source.selected = selector.indices;
+      this.data_source.select.emit();
+    } else { // mode == "inspect"
+      const inspector = this.data_source.selection_manager.get_or_create_inspector(this);
+      inspector.update(indices, true, false, true);
+      // silently set inspected attr to avoid triggering data_source.change event and rerender
+      this.data_source.setv({inspected: inspector.indices}, {silent: true});
+      this.data_source.inspect.emit([renderer_view, {geometry}]);
+    }
+
+    return !indices.is_empty();
+  }
+
+  get_selection_manager() {
+    return this.data_source.selection_manager;
+  }
+}
+GlyphRenderer.initClass();
+
+function __range__(left, right, inclusive) {
+  let range = [];
+  let ascending = left < right;
+  let end = !inclusive ? right : ascending ? right + 1 : right - 1;
+  for (let i = left; ascending ? i < end : i > end; ascending ? i++ : i--) {
+    range.push(i);
+  }
+  return range;
+}
