@@ -1,37 +1,50 @@
-import {findLastIndex} from "core/util/array"
+
+import {findLastIndex} from "core/util/array";
 import {Interpolator} from "./interpolator"
+;
 
-export class LinearInterpolator extends Interpolator
+export class LinearInterpolator extends Interpolator {
 
-  compute: (x) ->
-    # Apply the transform to a single value
-    @sort(descending = false)
+  compute(x) {
+    // Apply the transform to a single value
+    let descending;
+    this.sort(descending = false);
 
-    if @clip == true
-      if x < @_x_sorted[0] or x > @_x_sorted[@_x_sorted.length-1]
-        return null
-    else
-      if x < @_x_sorted[0]
-        return @_y_sorted[0]
-      if x > @_x_sorted[@_x_sorted.length-1]
-        return @_y_sorted[@_y_sorted.length-1]
+    if (this.clip === true) {
+      if ((x < this._x_sorted[0]) || (x > this._x_sorted[this._x_sorted.length-1])) {
+        return null;
+      }
+    } else {
+      if (x < this._x_sorted[0]) {
+        return this._y_sorted[0];
+      }
+      if (x > this._x_sorted[this._x_sorted.length-1]) {
+        return this._y_sorted[this._y_sorted.length-1];
+      }
+    }
 
-    if x == @_x_sorted[0]
-      return @_y_sorted[0]
+    if (x === this._x_sorted[0]) {
+      return this._y_sorted[0];
+    }
 
-    ind = findLastIndex(@_x_sorted, (num) -> num < x)
+    const ind = findLastIndex(this._x_sorted, num => num < x);
 
-    x1 = @_x_sorted[ind]
-    x2 = @_x_sorted[ind+1]
-    y1 = @_y_sorted[ind]
-    y2 = @_y_sorted[ind+1]
+    const x1 = this._x_sorted[ind];
+    const x2 = this._x_sorted[ind+1];
+    const y1 = this._y_sorted[ind];
+    const y2 = this._y_sorted[ind+1];
 
-    ret = y1 + (((x-x1) / (x2-x1)) * (y2-y1))
-    return ret
+    const ret = y1 + (((x-x1) / (x2-x1)) * (y2-y1));
+    return ret;
+  }
 
-  v_compute: (xs) ->
-    # Apply the tranform to a vector of values
-    result = new Float64Array(xs.length)
-    for x, idx in xs
-      result[idx] = this.compute(x)
-    return result
+  v_compute(xs) {
+    // Apply the tranform to a vector of values
+    const result = new Float64Array(xs.length);
+    for (let idx = 0; idx < xs.length; idx++) {
+      const x = xs[idx];
+      result[idx] = this.compute(x);
+    }
+    return result;
+  }
+}

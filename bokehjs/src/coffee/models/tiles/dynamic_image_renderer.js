@@ -1,117 +1,164 @@
-import {Renderer, RendererView} from "../renderers/renderer"
-import {logger} from "core/logging"
+/*
+ * decaffeinate suggestions:
+ * DS001: Remove Babel/TypeScript constructor workaround
+ * DS101: Remove unnecessary use of Array.from
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+
+import {Renderer, RendererView} from "../renderers/renderer";
+import {logger} from "core/logging";
 import * as p from "core/properties"
+;
 
-export class DynamicImageView extends RendererView
+export class DynamicImageView extends RendererView {
 
-  connect_signals: () ->
-    super()
-    @connect(@model.change, () -> @request_render())
+  constructor(...args) {
+    {
+      // Hack: trick Babel/TypeScript into allowing this before super.
+      if (false) { super(); }
+      let thisFn = (() => { this; }).toString();
+      let thisName = thisFn.slice(thisFn.indexOf('{') + 1, thisFn.indexOf(';')).trim();
+      eval(`${thisName} = this;`);
+    }
+    this._on_image_load = this._on_image_load.bind(this);
+    this._on_image_error = this._on_image_error.bind(this);
+    super(...args);
+  }
 
-  get_extent: () ->
-    return [@x_range.start, @y_range.start, @x_range.end, @y_range.end]
+  connect_signals() {
+    super.connect_signals();
+    return this.connect(this.model.change, function() { return this.request_render(); });
+  }
 
-  _set_data: () ->
-    @map_plot = @plot_view.model.plot
-    @map_canvas = @plot_view.canvas_view.ctx
-    @map_frame = @plot_view.frame
-    @x_range = @map_plot.x_range
-    @y_range = @map_plot.y_range
-    @lastImage = undefined
-    @extent = @get_extent()
+  get_extent() {
+    return [this.x_range.start, this.y_range.start, this.x_range.end, this.y_range.end];
+  }
 
-  _map_data: () ->
-    @initial_extent = @get_extent()
+  _set_data() {
+    this.map_plot = this.plot_view.model.plot;
+    this.map_canvas = this.plot_view.canvas_view.ctx;
+    this.map_frame = this.plot_view.frame;
+    this.x_range = this.map_plot.x_range;
+    this.y_range = this.map_plot.y_range;
+    this.lastImage = undefined;
+    return this.extent = this.get_extent();
+  }
 
-  _on_image_load: (e) =>
-    image_data = e.target.image_data
-    image_data.img = e.target
-    image_data.loaded = true
-    @lastImage = image_data
+  _map_data() {
+    return this.initial_extent = this.get_extent();
+  }
 
-    if @get_extent().join(':') == image_data.cache_key
-      @request_render()
+  _on_image_load(e) {
+    const { image_data } = e.target;
+    image_data.img = e.target;
+    image_data.loaded = true;
+    this.lastImage = image_data;
 
-  _on_image_error: (e) =>
-    logger.error("Error loading image: #{e.target.src}")
-    image_data = e.target.image_data
-    @model.image_source.remove_image(image_data)
+    if (this.get_extent().join(':') === image_data.cache_key) {
+      return this.request_render();
+    }
+  }
 
-  _create_image: (bounds) ->
-    image = new Image()
-    image.onload = @_on_image_load
-    image.onerror = @_on_image_error
-    image.alt = ''
-    image.image_data =
-      bounds : bounds
-      loaded : false
+  _on_image_error(e) {
+    logger.error(`Error loading image: ${e.target.src}`);
+    const { image_data } = e.target;
+    return this.model.image_source.remove_image(image_data);
+  }
+
+  _create_image(bounds) {
+    const image = new Image();
+    image.onload = this._on_image_load;
+    image.onerror = this._on_image_error;
+    image.alt = '';
+    image.image_data = {
+      bounds,
+      loaded : false,
       cache_key : bounds.join(':')
+    };
 
-    @model.image_source.add_image(image.image_data)
-    image.src = @model.image_source.get_image_url(bounds[0], bounds[1], bounds[2], bounds[3], Math.ceil(@map_frame._height.value), Math.ceil(@map_frame._width.value))
-    return image
+    this.model.image_source.add_image(image.image_data);
+    image.src = this.model.image_source.get_image_url(bounds[0], bounds[1], bounds[2], bounds[3], Math.ceil(this.map_frame._height.value), Math.ceil(this.map_frame._width.value));
+    return image;
+  }
 
-  render: (ctx, indices, args) ->
+  render(ctx, indices, args) {
 
-    if not @map_initialized?
-      @_set_data()
-      @_map_data()
-      @map_initialized = true
-
-    extent = @get_extent()
-
-    if @render_timer
-      clearTimeout(@render_timer)
-
-    image_obj = @model.image_source.images[extent.join(':')]
-    if image_obj? and image_obj.loaded
-      @_draw_image(extent.join(':'))
-      return
-
-    if @lastImage?
-      @_draw_image(@lastImage.cache_key)
-
-    if not image_obj?
-      @render_timer = setTimeout((=> @_create_image(extent)), 125)
-
-  _draw_image: (image_key) ->
-    image_obj = @model.image_source.images[image_key]
-    if image_obj?
-      @map_canvas.save()
-      @_set_rect()
-      @map_canvas.globalAlpha = @model.alpha
-      [sxmin, symin] = @plot_view.map_to_screen([image_obj.bounds[0]], [image_obj.bounds[3]])
-      [sxmax, symax] = @plot_view.map_to_screen([image_obj.bounds[2]], [image_obj.bounds[1]])
-      sxmin = sxmin[0]
-      symin = symin[0]
-      sxmax = sxmax[0]
-      symax = symax[0]
-      sw = sxmax - sxmin
-      sh = symax - symin
-      sx = sxmin
-      sy = symin
-      @map_canvas.drawImage(image_obj.img, sx, sy, sw, sh)
-      @map_canvas.restore()
-
-  _set_rect:() ->
-    outline_width = @plot_model.plot.properties.outline_line_width.value()
-    l = @map_frame._left.value + (outline_width/2)
-    t = @map_frame._top.value + (outline_width/2)
-    w = @map_frame._width.value - outline_width
-    h = @map_frame._height.value - outline_width
-    @map_canvas.rect(l, t, w, h)
-    @map_canvas.clip()
-
-export class DynamicImageRenderer extends Renderer
-  default_view: DynamicImageView
-  type: 'DynamicImageRenderer'
-
-  @define {
-      alpha:          [ p.Number, 1.0 ]
-      image_source:   [ p.Instance    ]
-      render_parents: [ p.Bool, true ]
+    if ((this.map_initialized == null)) {
+      this._set_data();
+      this._map_data();
+      this.map_initialized = true;
     }
 
-  @override {
-    level: 'underlay'
+    const extent = this.get_extent();
+
+    if (this.render_timer) {
+      clearTimeout(this.render_timer);
+    }
+
+    const image_obj = this.model.image_source.images[extent.join(':')];
+    if ((image_obj != null) && image_obj.loaded) {
+      this._draw_image(extent.join(':'));
+      return;
+    }
+
+    if (this.lastImage != null) {
+      this._draw_image(this.lastImage.cache_key);
+    }
+
+    if ((image_obj == null)) {
+      return this.render_timer = setTimeout((() => this._create_image(extent)), 125);
+    }
   }
+
+  _draw_image(image_key) {
+    const image_obj = this.model.image_source.images[image_key];
+    if (image_obj != null) {
+      this.map_canvas.save();
+      this._set_rect();
+      this.map_canvas.globalAlpha = this.model.alpha;
+      let [sxmin, symin] = Array.from(this.plot_view.map_to_screen([image_obj.bounds[0]], [image_obj.bounds[3]]));
+      let [sxmax, symax] = Array.from(this.plot_view.map_to_screen([image_obj.bounds[2]], [image_obj.bounds[1]]));
+      sxmin = sxmin[0];
+      symin = symin[0];
+      sxmax = sxmax[0];
+      symax = symax[0];
+      const sw = sxmax - sxmin;
+      const sh = symax - symin;
+      const sx = sxmin;
+      const sy = symin;
+      this.map_canvas.drawImage(image_obj.img, sx, sy, sw, sh);
+      return this.map_canvas.restore();
+    }
+  }
+
+  _set_rect() {
+    const outline_width = this.plot_model.plot.properties.outline_line_width.value();
+    const l = this.map_frame._left.value + (outline_width/2);
+    const t = this.map_frame._top.value + (outline_width/2);
+    const w = this.map_frame._width.value - outline_width;
+    const h = this.map_frame._height.value - outline_width;
+    this.map_canvas.rect(l, t, w, h);
+    return this.map_canvas.clip();
+  }
+}
+
+export class DynamicImageRenderer extends Renderer {
+  static initClass() {
+    this.prototype.default_view = DynamicImageView;
+    this.prototype.type = 'DynamicImageRenderer';
+
+    this.define({
+        alpha:          [ p.Number, 1.0 ],
+        image_source:   [ p.Instance    ],
+        render_parents: [ p.Bool, true ]
+      });
+
+    this.override({
+      level: 'underlay'
+    });
+  }
+}
+DynamicImageRenderer.initClass();

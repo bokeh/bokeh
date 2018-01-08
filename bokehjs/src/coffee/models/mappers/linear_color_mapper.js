@@ -1,62 +1,85 @@
-import * as p from "core/properties"
+/*
+ * decaffeinate suggestions:
+ * DS101: Remove unnecessary use of Array.from
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
 
-import {color2hex} from "core/util/color"
-import {min, max} from "core/util/array"
+import * as p from "core/properties";
+
+import {color2hex} from "core/util/color";
+import {min, max} from "core/util/array";
 import {ColorMapper} from "./color_mapper"
+;
 
-export class LinearColorMapper extends ColorMapper
-  type: "LinearColorMapper"
+export class LinearColorMapper extends ColorMapper {
+  static initClass() {
+    this.prototype.type = "LinearColorMapper";
 
-  @define {
-      high:       [ p.Number ]
-      low:        [ p.Number ]
-      high_color: [ p.Color  ]
-      low_color:  [ p.Color  ]
+    this.define({
+        high:       [ p.Number ],
+        low:        [ p.Number ],
+        high_color: [ p.Color  ],
+        low_color:  [ p.Color  ]
+      });
+  }
+
+  initialize(attrs, options) {
+    super.initialize(attrs, options);
+    this._nan_color = this._build_palette([color2hex(this.nan_color)])[0];
+    this._high_color = (this.high_color != null) ? this._build_palette([color2hex(this.high_color)])[0] : undefined;
+    return this._low_color = (this.low_color != null) ? this._build_palette([color2hex(this.low_color)])[0] : undefined;
+  }
+
+  _get_values(data, palette, image_glyph) {
+    if (image_glyph == null) { image_glyph = false; }
+    const low = this.low != null ? this.low : min(data);
+    const high = this.high != null ? this.high : max(data);
+    const max_key = palette.length - 1;
+    const values = [];
+
+    const nan_color = image_glyph ? this._nan_color : this.nan_color;
+    const low_color = image_glyph ? this._low_color : this.low_color;
+    const high_color = image_glyph ? this._high_color : this.high_color;
+
+    const norm_factor = 1 / (high - low);
+    const normed_interval = 1 / palette.length;
+
+    for (let d of Array.from(data)) {
+      if (isNaN(d)) {
+        values.push(nan_color);
+        continue;
+      }
+
+      // This handles the edge case where d == high, since the code below maps
+      // values exactly equal to high to palette.length, which is greater than
+      // max_key
+      if (d === high) {
+        values.push(palette[max_key]);
+        continue;
+      }
+
+      const normed_d = (d - low) * norm_factor;
+      const key = Math.floor(normed_d / normed_interval);
+      if (key < 0) {
+        if (this.low_color != null) {
+          values.push(low_color);
+        } else {
+          values.push(palette[0]);
+        }
+      } else if (key > max_key) {
+        if (this.high_color != null) {
+          values.push(high_color);
+        } else {
+          values.push(palette[max_key]);
+        }
+      } else {
+        values.push(palette[key]);
+      }
     }
-
-  initialize: (attrs, options) ->
-    super(attrs, options)
-    @_nan_color = @_build_palette([color2hex(@nan_color)])[0]
-    @_high_color = if @high_color? then @_build_palette([color2hex(@high_color)])[0]
-    @_low_color = if @low_color? then @_build_palette([color2hex(@low_color)])[0]
-
-  _get_values: (data, palette, image_glyph=false) ->
-    low = @low ? min(data)
-    high = @high ? max(data)
-    max_key = palette.length - 1
-    values = []
-
-    nan_color = if image_glyph then @_nan_color else @nan_color
-    low_color = if image_glyph then @_low_color else @low_color
-    high_color = if image_glyph then @_high_color else @high_color
-
-    norm_factor = 1 / (high - low)
-    normed_interval = 1 / palette.length
-
-    for d in data
-      if isNaN(d)
-        values.push(nan_color)
-        continue
-
-      # This handles the edge case where d == high, since the code below maps
-      # values exactly equal to high to palette.length, which is greater than
-      # max_key
-      if d == high
-        values.push(palette[max_key])
-        continue
-
-      normed_d = (d - low) * norm_factor
-      key = Math.floor(normed_d / normed_interval)
-      if key < 0
-        if @low_color?
-          values.push(low_color)
-        else
-          values.push(palette[0])
-      else if key > max_key
-        if @high_color?
-          values.push(high_color)
-        else
-          values.push(palette[max_key])
-      else
-        values.push(palette[key])
-    return values
+    return values;
+  }
+}
+LinearColorMapper.initClass();

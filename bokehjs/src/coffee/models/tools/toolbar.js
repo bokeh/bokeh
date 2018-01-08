@@ -1,102 +1,140 @@
-import * as p from "core/properties"
-import {any, sortBy} from "core/util/array"
-import {logger} from "core/logging"
+/*
+ * decaffeinate suggestions:
+ * DS101: Remove unnecessary use of Array.from
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS206: Consider reworking classes to avoid initClass
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
 
-import {ActionTool} from "./actions/action_tool"
-import {HelpTool} from "./actions/help_tool"
-import {GestureTool} from "./gestures/gesture_tool"
-import {InspectTool} from "./inspectors/inspect_tool"
+import * as p from "core/properties";
+import {any, sortBy} from "core/util/array";
+import {logger} from "core/logging";
+
+import {ActionTool} from "./actions/action_tool";
+import {HelpTool} from "./actions/help_tool";
+import {GestureTool} from "./gestures/gesture_tool";
+import {InspectTool} from "./inspectors/inspect_tool";
 
 import {ToolbarBase, ToolbarBaseView} from "./toolbar_base"
+;
 
-export class Toolbar extends ToolbarBase
-  type: 'Toolbar'
-  default_view: ToolbarBaseView
+export class Toolbar extends ToolbarBase {
+  static initClass() {
+    this.prototype.type = 'Toolbar';
+    this.prototype.default_view = ToolbarBaseView; // XXX
 
-  initialize: (attrs, options) ->
-    super(attrs, options)
-    @connect(@properties.tools.change, () -> @_init_tools())
-    @_init_tools()
-
-  _init_tools: () ->
-    for tool in @tools
-      if tool instanceof InspectTool
-        if not any(@inspectors, (t) => t.id == tool.id)
-          @inspectors = @inspectors.concat([tool])
-      else if tool instanceof HelpTool
-        if not any(@help, (t) => t.id == tool.id)
-          @help = @help.concat([tool])
-      else if tool instanceof ActionTool
-        if not any(@actions, (t) => t.id == tool.id)
-          @actions = @actions.concat([tool])
-      else if tool instanceof GestureTool
-        event_types = tool.event_type
-        multi = true
-        if (typeof event_types is 'string')
-          event_types = [event_types]
-          multi = false
-
-        for et in event_types
-          if et not of @gestures
-            logger.warn("Toolbar: unknown event type '#{et}' for tool:
-              #{tool.type} (#{tool.id})")
-            continue
-
-          if multi
-            et = "multi"
-          if not any(@gestures[et].tools, (t) => t.id == tool.id)
-            @gestures[et].tools = @gestures[et].tools.concat([tool])
-          @connect(tool.properties.active.change, @_active_change.bind(this, tool))
-
-    if @active_inspect == 'auto'
-      # do nothing as all tools are active be default
-      ;
-    else if @active_inspect instanceof InspectTool
-      @inspectors.map((inspector) => if inspector != @active_inspect then inspector.active = false)
-    else if @active_inspect instanceof Array
-      @inspectors.map((inspector) => if inspector not in @active_inspect then inspector.active = false)
-    else if @active_inspect is null
-      @inspectors.map((inspector) -> inspector.active = false)
-
-    _activate_gesture = (tool) =>
-      if tool.active
-        # tool was activated by a proxy, but we need to finish configuration manually
-        @_active_change(tool)
-      else
-        tool.active = true
-
-    for et of @gestures
-      tools = @gestures[et].tools
-      if tools.length == 0
-        continue
-      @gestures[et].tools = sortBy(tools, (tool) -> tool.default_order)
-
-      if et == 'tap'
-        if @active_tap is null
-          continue
-        if @active_tap is 'auto'
-          _activate_gesture(@gestures[et].tools[0])
-        else
-          _activate_gesture(@active_tap)
-
-      if et == 'pan'
-        if @active_drag is null
-          continue
-        if @active_drag is 'auto'
-          _activate_gesture(@gestures[et].tools[0])
-        else
-          _activate_gesture(@active_drag)
-
-      if et in ['pinch', 'scroll']
-        if @active_scroll is null or @active_scroll is 'auto'
-          continue
-        _activate_gesture(@active_scroll)
-
-    return null # XXX
-
-  @define {
-      active_drag:     [ p.Any, 'auto' ]
-      active_inspect:  [ p.Any, 'auto' ]
-      active_scroll:   [ p.Any, 'auto' ]
-      active_tap:      [ p.Any, 'auto' ]
+    this.define({
+        active_drag:     [ p.Any, 'auto' ],
+        active_inspect:  [ p.Any, 'auto' ],
+        active_scroll:   [ p.Any, 'auto' ],
+        active_tap:      [ p.Any, 'auto' ]
+    });
   }
+
+  initialize(attrs, options) {
+    super.initialize(attrs, options);
+    this.connect(this.properties.tools.change, function() { return this._init_tools(); });
+    return this._init_tools();
+  }
+
+  _init_tools() {
+    let et;
+    for (var tool of Array.from(this.tools)) {
+      if (tool instanceof InspectTool) {
+        if (!any(this.inspectors, t => t.id === tool.id)) {
+          this.inspectors = this.inspectors.concat([tool]);
+        }
+      } else if (tool instanceof HelpTool) {
+        if (!any(this.help, t => t.id === tool.id)) {
+          this.help = this.help.concat([tool]);
+        }
+      } else if (tool instanceof ActionTool) {
+        if (!any(this.actions, t => t.id === tool.id)) {
+          this.actions = this.actions.concat([tool]);
+        }
+      } else if (tool instanceof GestureTool) {
+        let event_types = tool.event_type;
+        let multi = true;
+        if (typeof event_types === 'string') {
+          event_types = [event_types];
+          multi = false;
+        }
+
+        for (et of Array.from(event_types)) {
+          if (!(et in this.gestures)) {
+            logger.warn(`Toolbar: unknown event type '${et}' for tool: ${tool.type} (${tool.id})`);
+            continue;
+          }
+
+          if (multi)
+            et = "multi"
+
+          if (!any(this.gestures[et].tools, t => t.id === tool.id))
+            this.gestures[et].tools = this.gestures[et].tools.concat([tool]);
+
+          this.connect(tool.properties.active.change, this._active_change.bind(this, tool));
+        }
+      }
+    }
+
+    if (this.active_inspect === 'auto') {
+      // do nothing as all tools are active be default
+
+    } else if (this.active_inspect instanceof InspectTool) {
+      this.inspectors.map(inspector => { if (inspector !== this.active_inspect) { return inspector.active = false; } });
+    } else if (this.active_inspect instanceof Array) {
+      this.inspectors.map(inspector => { if (!Array.from(this.active_inspect).includes(inspector)) { return inspector.active = false; } });
+    } else if (this.active_inspect === null) {
+      this.inspectors.map(inspector => inspector.active = false);
+    }
+
+    const _activate_gesture = tool => {
+      if (tool.active) {
+        // tool was activated by a proxy, but we need to finish configuration manually
+        return this._active_change(tool);
+      } else {
+        return tool.active = true;
+      }
+    };
+
+    for (et in this.gestures) {
+      const { tools } = this.gestures[et];
+      if (tools.length === 0) {
+        continue;
+      }
+      this.gestures[et].tools = sortBy(tools, tool => tool.default_order);
+
+      if (et === 'tap') {
+        if (this.active_tap === null) {
+          continue;
+        }
+        if (this.active_tap === 'auto') {
+          _activate_gesture(this.gestures[et].tools[0]);
+        } else {
+          _activate_gesture(this.active_tap);
+        }
+      }
+
+      if (et === 'pan') {
+        if (this.active_drag === null) {
+          continue;
+        }
+        if (this.active_drag === 'auto') {
+          _activate_gesture(this.gestures[et].tools[0]);
+        } else {
+          _activate_gesture(this.active_drag);
+        }
+      }
+
+      if (['pinch', 'scroll'].includes(et)) {
+        if ((this.active_scroll === null) || (this.active_scroll === 'auto')) {
+          continue;
+        }
+        _activate_gesture(this.active_scroll);
+      }
+    }
+
+    return null;
+  }
+}
+Toolbar.initClass();

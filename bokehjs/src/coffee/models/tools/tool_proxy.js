@@ -1,40 +1,59 @@
-import * as p from "core/properties"
-import {Signal} from "core/signaling"
+/*
+ * decaffeinate suggestions:
+ * DS101: Remove unnecessary use of Array.from
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS206: Consider reworking classes to avoid initClass
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+
+import * as p from "core/properties";
+import {Signal} from "core/signaling";
 import {Model} from "../../model"
+;
 
-export class ToolProxy extends Model
-  # Operates all the tools given only one button
+export class ToolProxy extends Model {
+  static initClass() {
 
-  initialize: (options) ->
-    super(options)
-    @do = new Signal(this, "do")
-    @connect(@do, () -> @doit())
-    @connect(@properties.active.change, () -> @set_active())
+    this.getters({
+      button_view() { return this.tools[0].button_view; },
+      event_type() { return this.tools[0].event_type; },
+      tooltip() { return this.tools[0].tool_name; },
+      tool_name() { return this.tools[0].tool_name; },
+      icon() { return this.tools[0].icon; }
+    });
 
-  doit: () ->
-    for tool in @tools
-      tool.do.emit()
-    return null
+    this.define({
+      tools:    [ p.Array, []    ],
+      active:   [ p.Bool,  false ],
+      disabled: [ p.Bool,  false ]
+    });
+  }
+  // Operates all the tools given only one button
 
-  set_active: () ->
-    for tool in @tools
-      tool.active = @active
-    return null
-
-  _clicked: () ->
-    active = @model.active
-    @model.active = not active
-
-  @getters {
-    button_view: () -> @tools[0].button_view
-    event_type:  () -> @tools[0].event_type
-    tooltip:     () -> @tools[0].tool_name
-    tool_name:   () -> @tools[0].tool_name
-    icon:        () -> @tools[0].icon
+  initialize(options) {
+    super.initialize(options);
+    this.do = new Signal(this, "do");
+    this.connect(this.do, function() { return this.doit(); });
+    return this.connect(this.properties.active.change, function() { return this.set_active(); });
   }
 
-  @define {
-    tools:    [ p.Array, []    ]
-    active:   [ p.Bool,  false ]
-    disabled: [ p.Bool,  false ]
+  doit() {
+    for (let tool of Array.from(this.tools)) {
+      tool.do.emit();
+    }
+    return null;
   }
+
+  set_active() {
+    for (let tool of Array.from(this.tools)) {
+      tool.active = this.active;
+    }
+    return null;
+  }
+
+  _clicked() {
+    const { active } = this.model;
+    return this.model.active = !active;
+  }
+}
+ToolProxy.initClass();

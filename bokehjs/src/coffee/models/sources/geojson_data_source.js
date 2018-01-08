@@ -1,148 +1,233 @@
-import {ColumnarDataSource} from "./columnar_data_source"
-import {logger} from "core/logging"
+/*
+ * decaffeinate suggestions:
+ * DS101: Remove unnecessary use of Array.from
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS205: Consider reworking code to avoid use of IIFEs
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+
+import {ColumnarDataSource} from "./columnar_data_source";
+import {logger} from "core/logging";
 import * as p from "core/properties"
+;
 
-export class GeoJSONDataSource extends ColumnarDataSource
-  type: 'GeoJSONDataSource'
+export class GeoJSONDataSource extends ColumnarDataSource {
+  static initClass() {
+    this.prototype.type = 'GeoJSONDataSource';
 
-  @define {
-    geojson: [ p.Any     ] # TODO (bev)
+    this.define({
+      geojson: [ p.Any     ] // TODO (bev)
+    });
+
+    this.internal({
+      data:    [ p.Any,   {} ]
+    });
   }
 
-  @internal {
-    data:    [ p.Any,   {} ]
+  initialize(options) {
+    super.initialize(options);
+    this._update_data();
+    return this.connect(this.properties.geojson.change, () => this._update_data());
   }
 
-  initialize: (options) ->
-    super(options)
-    @_update_data()
-    @connect(@properties.geojson.change, () => @_update_data())
+  _update_data() { return this.data = this.geojson_to_column_data(); }
 
-  _update_data: () -> @data = @geojson_to_column_data()
+  _get_new_list_array(length) { return (__range__(0, length, false).map((i) => [])); }
 
-  _get_new_list_array: (length) -> ([] for i in [0...length])
+  _get_new_nan_array(length) { return (__range__(0, length, false).map((i) => NaN)); }
 
-  _get_new_nan_array: (length) -> (NaN for i in [0...length])
+  _flatten_function(accumulator, currentItem) {
+    return accumulator.concat([[NaN, NaN, NaN]]).concat(currentItem);
+  }
 
-  _flatten_function: (accumulator, currentItem) ->
-    return accumulator.concat([[NaN, NaN, NaN]]).concat(currentItem)
+  _add_properties(item, data, i, item_count) {
+    return (() => {
+      const result = [];
+      for (let property in item.properties) {
+        if (!data.hasOwnProperty(property)) {
+          data[property] = this._get_new_nan_array(item_count);
+        }
+        result.push(data[property][i] = item.properties[property]);
+      }
+      return result;
+    })();
+  }
 
-  _add_properties: (item, data, i, item_count) ->
-    for property of item.properties
-      if !data.hasOwnProperty(property)
-        data[property] = @_get_new_nan_array(item_count)
-      data[property][i] = item.properties[property]
+  _add_geometry(geometry, data, i) {
 
-  _add_geometry: (geometry, data, i) ->
+    switch (geometry.type) {
 
-    switch geometry.type
+      case "Point":
+        var coords = geometry.coordinates;
+        data.x[i] = coords[0];
+        data.y[i] = coords[1];
+        return data.z[i] = coords[2] != null ? coords[2] : NaN;
 
-      when "Point"
-        coords = geometry.coordinates
-        data.x[i] = coords[0]
-        data.y[i] = coords[1]
-        data.z[i] = coords[2] ? NaN
+      case "LineString":
+        var coord_list = geometry.coordinates;
+        return (() => {
+          const result = [];
+          for (let j = 0; j < coord_list.length; j++) {
+            coords = coord_list[j];
+            data.xs[i][j] = coords[0];
+            data.ys[i][j] = coords[1];
+            result.push(data.zs[i][j] = coords[2] != null ? coords[2] : NaN);
+          }
+          return result;
+        })();
 
-      when "LineString"
-        coord_list = geometry.coordinates
-        for coords, j in coord_list
-          data.xs[i][j] = coords[0]
-          data.ys[i][j] = coords[1]
-          data.zs[i][j] = coords[2] ? NaN
+      case "Polygon":
+        if (geometry.coordinates.length > 1) {
+          logger.warn('Bokeh does not support Polygons with holes in, only exterior ring used.');
+        }
+        var exterior_ring = geometry.coordinates[0];
+        return (() => {
+          const result1 = [];
+          for (let j = 0; j < exterior_ring.length; j++) {
+            coords = exterior_ring[j];
+            data.xs[i][j] = coords[0];
+            data.ys[i][j] = coords[1];
+            result1.push(data.zs[i][j] = coords[2] != null ? coords[2] : NaN);
+          }
+          return result1;
+        })();
 
-      when "Polygon"
-        if geometry.coordinates.length > 1
-          logger.warn('Bokeh does not support Polygons with holes in, only exterior ring used.')
-        exterior_ring = geometry.coordinates[0]
-        for coords, j in exterior_ring
-          data.xs[i][j] = coords[0]
-          data.ys[i][j] = coords[1]
-          data.zs[i][j] = coords[2] ? NaN
+      case "MultiPoint":
+        return logger.warn('MultiPoint not supported in Bokeh');
 
-      when "MultiPoint"
-        logger.warn('MultiPoint not supported in Bokeh')
+      case "MultiLineString":
+        var flattened_coord_list = geometry.coordinates.reduce(this._flatten_function);
+        return (() => {
+          const result2 = [];
+          for (let j = 0; j < flattened_coord_list.length; j++) {
+            coords = flattened_coord_list[j];
+            data.xs[i][j] = coords[0];
+            data.ys[i][j] = coords[1];
+            result2.push(data.zs[i][j] = coords[2] != null ? coords[2] : NaN);
+          }
+          return result2;
+        })();
 
-      when "MultiLineString"
-        flattened_coord_list = geometry.coordinates.reduce(@_flatten_function)
-        for coords, j in flattened_coord_list
-          data.xs[i][j] = coords[0]
-          data.ys[i][j] = coords[1]
-          data.zs[i][j] = coords[2] ? NaN
+      case "MultiPolygon":
+        var exterior_rings = [];
+        for (let polygon of Array.from(geometry.coordinates)) {
+          if (polygon.length > 1) {
+            logger.warn('Bokeh does not support Polygons with holes in, only exterior ring used.');
+          }
+          exterior_rings.push(polygon[0]);
+        }
 
-      when "MultiPolygon"
-        exterior_rings = []
-        for polygon in geometry.coordinates
-          if polygon.length > 1
-            logger.warn('Bokeh does not support Polygons with holes in, only exterior ring used.')
-          exterior_rings.push(polygon[0])
+        flattened_coord_list = exterior_rings.reduce(this._flatten_function);
+        return (() => {
+          const result3 = [];
+          for (let j = 0; j < flattened_coord_list.length; j++) {
+            coords = flattened_coord_list[j];
+            data.xs[i][j] = coords[0];
+            data.ys[i][j] = coords[1];
+            result3.push(data.zs[i][j] = coords[2] != null ? coords[2] : NaN);
+          }
+          return result3;
+        })();
 
-        flattened_coord_list = exterior_rings.reduce(@_flatten_function)
-        for coords, j in flattened_coord_list
-          data.xs[i][j] = coords[0]
-          data.ys[i][j] = coords[1]
-          data.zs[i][j] = coords[2] ? NaN
+      default:
+        throw new Error(`Invalid type ${geometry.type}`);
+    }
+  }
 
-      else
-        throw new Error('Invalid type ' + geometry.type)
+  _get_items_length(items) {
+    let count = 0;
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      const geometry = item.type === 'Feature' ? item.geometry : item;
+      if (geometry.type === 'GeometryCollection') {
+        for (let j = 0; j < geometry.geometries.length; j++) {
+          const g = geometry.geometries[j];
+          count += 1;
+        }
+      } else {
+        count += 1;
+      }
+    }
+    return count;
+  }
 
-  _get_items_length: (items) ->
-    count = 0
-    for item, i in items
-      geometry = if item.type == 'Feature' then item.geometry else item
-      if geometry.type == 'GeometryCollection'
-        for g, j in geometry.geometries
-          count += 1
-      else
-        count += 1
-    return count
+  geojson_to_column_data() {
+    let items;
+    const geojson = JSON.parse(this.geojson);
 
-  geojson_to_column_data: () ->
-    geojson = JSON.parse(@geojson)
-
-    if geojson.type not in ['GeometryCollection', 'FeatureCollection']
-      throw new Error('Bokeh only supports type GeometryCollection and FeatureCollection at top level')
-
-    if geojson.type == 'GeometryCollection'
-      if not geojson.geometries?
-        throw new Error('No geometries found in GeometryCollection')
-      if geojson.geometries.length == 0
-        throw new Error('geojson.geometries must have one or more items')
-      items = geojson.geometries
-
-    if geojson.type == 'FeatureCollection'
-      if not geojson.features?
-        throw new Error('No features found in FeaturesCollection')
-      if geojson.features.length == 0
-        throw new Error('geojson.features must have one or more items')
-      items = geojson.features
-
-    item_count = @_get_items_length(items)
-
-    data = {
-      'x': @_get_new_nan_array(item_count),
-      'y': @_get_new_nan_array(item_count),
-      'z': @_get_new_nan_array(item_count),
-      'xs': @_get_new_list_array(item_count),
-      'ys': @_get_new_list_array(item_count),
-      'zs': @_get_new_list_array(item_count)
+    if (!['GeometryCollection', 'FeatureCollection'].includes(geojson.type)) {
+      throw new Error('Bokeh only supports type GeometryCollection and FeatureCollection at top level');
     }
 
-    arr_index = 0
-    for item, i in items
-      geometry = if item.type == 'Feature' then item.geometry else item
+    if (geojson.type === 'GeometryCollection') {
+      if ((geojson.geometries == null)) {
+        throw new Error('No geometries found in GeometryCollection');
+      }
+      if (geojson.geometries.length === 0) {
+        throw new Error('geojson.geometries must have one or more items');
+      }
+      items = geojson.geometries;
+    }
 
-      if geometry.type == 'GeometryCollection'
-        for g, j in geometry.geometries
-          @_add_geometry(g, data, arr_index)
-          if item.type == 'Feature'
-            @_add_properties(item, data, arr_index, item_count)
-          arr_index += 1
-      else
-        # Now populate based on Geometry type
-        @_add_geometry(geometry, data, arr_index)
-        if item.type == 'Feature'
-          @_add_properties(item, data, arr_index, item_count)
+    if (geojson.type === 'FeatureCollection') {
+      if ((geojson.features == null)) {
+        throw new Error('No features found in FeaturesCollection');
+      }
+      if (geojson.features.length === 0) {
+        throw new Error('geojson.features must have one or more items');
+      }
+      items = geojson.features;
+    }
 
-        arr_index += 1
+    const item_count = this._get_items_length(items);
 
-    return data
+    const data = {
+      'x': this._get_new_nan_array(item_count),
+      'y': this._get_new_nan_array(item_count),
+      'z': this._get_new_nan_array(item_count),
+      'xs': this._get_new_list_array(item_count),
+      'ys': this._get_new_list_array(item_count),
+      'zs': this._get_new_list_array(item_count)
+    };
+
+    let arr_index = 0;
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      const geometry = item.type === 'Feature' ? item.geometry : item;
+
+      if (geometry.type === 'GeometryCollection') {
+        for (let j = 0; j < geometry.geometries.length; j++) {
+          const g = geometry.geometries[j];
+          this._add_geometry(g, data, arr_index);
+          if (item.type === 'Feature') {
+            this._add_properties(item, data, arr_index, item_count);
+          }
+          arr_index += 1;
+        }
+      } else {
+        // Now populate based on Geometry type
+        this._add_geometry(geometry, data, arr_index);
+        if (item.type === 'Feature') {
+          this._add_properties(item, data, arr_index, item_count);
+        }
+
+        arr_index += 1;
+      }
+    }
+
+    return data;
+  }
+}
+GeoJSONDataSource.initClass();
+
+function __range__(left, right, inclusive) {
+  let range = [];
+  let ascending = left < right;
+  let end = !inclusive ? right : ascending ? right + 1 : right - 1;
+  for (let i = left; ascending ? i < end : i > end; ascending ? i++ : i--) {
+    range.push(i);
+  }
+  return range;
+}

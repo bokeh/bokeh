@@ -1,63 +1,101 @@
-import {DataSource} from "./data_source"
-import {Signal} from "core/signaling"
-import {logger} from "core/logging"
-import {SelectionManager} from "core/selection_manager"
-import * as p from "core/properties"
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS205: Consider reworking code to avoid use of IIFEs
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+
+import {DataSource} from "./data_source";
+import {Signal} from "core/signaling";
+import {logger} from "core/logging";
+import {SelectionManager} from "core/selection_manager";
+import * as p from "core/properties";
 import {uniq} from "core/util/array"
+;
 
-# Abstract baseclass for column based data sources, where the column
-# based data may be supplied directly or be computed from an attribute
-export class ColumnarDataSource extends DataSource
-  type: 'ColumnarDataSource'
+// Abstract baseclass for column based data sources, where the column
+// based data may be supplied directly or be computed from an attribute
+export class ColumnarDataSource extends DataSource {
 
-  `
   data: {[key: string]: any}
   _shapes: {[key: string]: any}
-  `
 
-  @define {
-    column_names: [ p.Array, [] ]
+  static initClass() {
+    this.prototype.type = 'ColumnarDataSource';
+
+    this.define({
+      column_names: [ p.Array, [] ]
+    });
+
+    this.internal({
+      selection_manager: [ p.Instance, self => new SelectionManager({source: self}) ],
+      inspected:         [ p.Any ],
+      _shapes:      [ p.Any, {}]
+    });
   }
 
-  @internal {
-    selection_manager: [ p.Instance, (self) -> new SelectionManager({source: self}) ]
-    inspected:         [ p.Any ]
-    _shapes:      [ p.Any, {}]
+  initialize(options) {
+    super.initialize(options);
+
+    this.select = new Signal(this, "select");
+    this.inspect = new Signal(this, "inspect"); // XXX: <[indices, tool, renderer-view, source, data], this>
+
+    this.streaming = new Signal(this, "streaming");
+    return this.patching = new Signal(this, "patching"); // <number[], ColumnarDataSource>
   }
 
-  initialize: (options) ->
-    super(options)
+  get_column(colname) {
+    return this.data[colname] != null ? this.data[colname] : null;
+  }
 
-    @select = new Signal(this, "select")
-    @inspect = new Signal(this, "inspect") # XXX: <[indices, tool, renderer-view, source, data], this>
+  columns() {
+    // return the column names in this data source
+    return Object.keys(this.data);
+  }
 
-    @streaming = new Signal(this, "streaming")
-    @patching = new Signal(this, "patching") # <number[], ColumnarDataSource>
+  get_length(soft) {
+    if (soft == null) { soft = true; }
+    const lengths = uniq(((() => {
+      const result = [];
+      for (let _key in this.data) {
+        const val = this.data[_key];
+        result.push(val.length);
+      }
+      return result;
+    })()));
 
-  get_column: (colname) ->
-    return @data[colname] ? null
+    switch (lengths.length) {
+      case 0:
+        return null; // XXX: don't guess, treat on case-by-case basis
+      case 1:
+        return lengths[0];
+      default:
+        var msg = "data source has columns of inconsistent lengths";
+        if (soft) {
+          logger.warn(msg);
+          return lengths.sort()[0];
+        } else {
+          throw new Error(msg);
+        }
+    }
+  }
 
-  columns: () ->
-    # return the column names in this data source
-    return Object.keys(@data)
+  get_indices() {
+    let length = this.get_length();
+    if ((length == null)) { length = 1; }
+    return __range__(0, length, false);
+  }
+}
+ColumnarDataSource.initClass();
 
-  get_length: (soft=true) ->
-    lengths = uniq((val.length for _key, val of @data))
-
-    switch lengths.length
-      when 0
-        return null # XXX: don't guess, treat on case-by-case basis
-      when 1
-        return lengths[0]
-      else
-        msg = "data source has columns of inconsistent lengths"
-        if soft
-          logger.warn(msg)
-          return lengths.sort()[0]
-        else
-          throw new Error(msg)
-
-  get_indices: () ->
-    length = @get_length()
-    length = 1 if not length?
-    return [0...length]
+function __range__(left, right, inclusive) {
+  let range = [];
+  let ascending = left < right;
+  let end = !inclusive ? right : ascending ? right + 1 : right - 1;
+  for (let i = left; ascending ? i < end : i > end; ascending ? i++ : i--) {
+    range.push(i);
+  }
+  return range;
+}

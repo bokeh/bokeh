@@ -1,128 +1,164 @@
-import {logger} from "core/logging"
-import {empty, div, a} from "core/dom"
-import {build_views, remove_views} from "core/build_views"
-import * as p from "core/properties"
+/*
+ * decaffeinate suggestions:
+ * DS101: Remove unnecessary use of Array.from
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
 
-import {DOMView} from "core/dom_view"
-import {Location} from "core/enums"
-import {Model} from "model"
+import {logger} from "core/logging";
+import {empty, div, a} from "core/dom";
+import {build_views, remove_views} from "core/build_views";
+import * as p from "core/properties";
+
+import {DOMView} from "core/dom_view";
+import {Location} from "core/enums";
+import {Model} from "model";
 import {Tool} from "./tool"
+;
 
-export class ToolbarBaseView extends DOMView
+export class ToolbarBaseView extends DOMView {
 
-  initialize: (options) ->
-    super(options)
-    @_tool_button_views = {}
-    @_build_tool_button_views()
+  initialize(options) {
+    super.initialize(options);
+    this._tool_button_views = {};
+    return this._build_tool_button_views();
+  }
 
-  connect_signals: () ->
-    super()
-    @connect(@model.properties.tools.change, () => @_build_tool_button_views())
+  connect_signals() {
+    super.connect_signals();
+    return this.connect(this.model.properties.tools.change, () => this._build_tool_button_views());
+  }
 
-  remove: () ->
-    remove_views(@_tool_button_views)
-    super()
+  remove() {
+    remove_views(this._tool_button_views);
+    return super.remove();
+  }
 
-  _build_tool_button_views: () ->
-    tools = @model._proxied_tools ? @model.tools # XXX
-    build_views(@_tool_button_views, tools, {parent: @}, (tool) -> tool.button_view)
+  _build_tool_button_views() {
+    const tools = this.model._proxied_tools != null ? this.model._proxied_tools : this.model.tools; // XXX
+    return build_views(this._tool_button_views, tools, {parent: this}, tool => tool.button_view);
+  }
 
-  render: () ->
-    empty(@el)
+  render() {
+    let buttons, tool;
+    empty(this.el);
 
-    @el.classList.add("bk-toolbar")
-    @el.classList.add("bk-toolbar-#{@model.toolbar_location}")
+    this.el.classList.add("bk-toolbar");
+    this.el.classList.add(`bk-toolbar-${this.model.toolbar_location}`);
 
-    if @model.logo?
-      cls = if @model.logo == "grey" then "bk-grey" else null
-      logo = a({href: "https://bokeh.pydata.org/", target: "_blank", class: ["bk-logo", "bk-logo-small", cls]})
-      @el.appendChild(logo)
+    if (this.model.logo != null) {
+      const cls = this.model.logo === "grey" ? "bk-grey" : null;
+      const logo = a({href: "https://bokeh.pydata.org/", target: "_blank", class: ["bk-logo", "bk-logo-small", cls]});
+      this.el.appendChild(logo);
+    }
 
-    bars = []
+    const bars = [];
 
-    gestures = @model.gestures
-    for et of gestures
-      buttons = []
-      for tool in gestures[et].tools
-        buttons.push(@_tool_button_views[tool.id].el)
-      bars.push(buttons)
+    const { gestures } = this.model;
+    for (let et in gestures) {
+      buttons = [];
+      for (tool of Array.from(gestures[et].tools)) {
+        buttons.push(this._tool_button_views[tool.id].el);
+      }
+      bars.push(buttons);
+    }
 
-    buttons = []
-    for tool in @model.actions
-      buttons.push(@_tool_button_views[tool.id].el)
-    bars.push(buttons)
+    buttons = [];
+    for (tool of Array.from(this.model.actions)) {
+      buttons.push(this._tool_button_views[tool.id].el);
+    }
+    bars.push(buttons);
 
-    buttons = []
-    for tool in @model.inspectors
-      if tool.toggleable
-        buttons.push(@_tool_button_views[tool.id].el)
-    bars.push(buttons)
+    buttons = [];
+    for (tool of Array.from(this.model.inspectors)) {
+      if (tool.toggleable) {
+        buttons.push(this._tool_button_views[tool.id].el);
+      }
+    }
+    bars.push(buttons);
 
-    buttons = []
-    for tool in @model.help
-      buttons.push(@_tool_button_views[tool.id].el)
-    bars.push(buttons)
+    buttons = [];
+    for (tool of Array.from(this.model.help)) {
+      buttons.push(this._tool_button_views[tool.id].el);
+    }
+    bars.push(buttons);
 
-    for buttons in bars
-      if buttons.length != 0
-        bar = div({class: 'bk-button-bar'}, buttons)
-        @el.appendChild(bar)
+    for (buttons of Array.from(bars)) {
+      if (buttons.length !== 0) {
+        const bar = div({class: 'bk-button-bar'}, buttons);
+        this.el.appendChild(bar);
+      }
+    }
 
-    return @
+    return this;
+  }
+}
 
-export class ToolbarBase extends Model
-  type: 'ToolbarBase'
-  default_view: ToolbarBaseView
+export class ToolbarBase extends Model {
 
-  `
   tools: Tool[]
   toolbar_location: Location
-  `
 
-  _active_change: (tool) ->
-    event_types = tool.event_type
+  static initClass() {
+    this.prototype.type = 'ToolbarBase';
+    this.prototype.default_view = ToolbarBaseView;
 
-    if (typeof event_types is 'string')
-      event_types = [event_types]
+    this.getters({
+      horizontal() {
+        return (this.toolbar_location === "above") || (this.toolbar_location === "below");
+      },
+      vertical() {
+        return (this.toolbar_location === "left") || (this.toolbar_location === "right");
+      }
+    });
 
-    for et in event_types
-      if tool.active
-        currently_active_tool = @gestures[et].active
-        if currently_active_tool? and tool != currently_active_tool
-          logger.debug("Toolbar: deactivating tool: #{currently_active_tool.type} (#{currently_active_tool.id}) for event type '#{et}'")
-          currently_active_tool.active = false
-        @gestures[et].active = tool
-        logger.debug("Toolbar: activating tool: #{tool.type} (#{tool.id}) for event type '#{et}'")
-      else
-        @gestures[et].active = null
+    this.define({
+      tools: [ p.Array,    []       ],
+      logo:  [ p.String,   'normal' ] // TODO (bev)
+    });
 
-    return null
-
-  @getters {
-    horizontal: () ->
-      return @toolbar_location == "above" or @toolbar_location == "below"
-    vertical: () ->
-      return @toolbar_location == "left" or @toolbar_location == "right"
+    this.internal({
+      gestures: [ p.Any, () => ({
+        pan:       { tools: [], active: null },
+        scroll:    { tools: [], active: null },
+        pinch:     { tools: [], active: null },
+        tap:       { tools: [], active: null },
+        doubletap: { tools: [], active: null },
+        press:     { tools: [], active: null },
+        rotate:    { tools: [], active: null },
+        multi:     { tools: [], active: null}
+      })  ],
+      actions:    [ p.Array, [] ],
+      inspectors: [ p.Array, [] ],
+      help:       [ p.Array, [] ],
+      toolbar_location: [ p.Location, 'right' ]
+    });
   }
 
-  @define {
-    tools: [ p.Array,    []       ]
-    logo:  [ p.String,   'normal' ] # TODO (bev)
-  }
+  _active_change(tool) {
+    let event_types = tool.event_type;
 
-  @internal {
-    gestures: [ p.Any, () -> {
-      pan:       { tools: [], active: null }
-      scroll:    { tools: [], active: null }
-      pinch:     { tools: [], active: null }
-      tap:       { tools: [], active: null }
-      doubletap: { tools: [], active: null }
-      press:     { tools: [], active: null }
-      rotate:    { tools: [], active: null }
-      multi:     { tools: [], active: null}
-    } ]
-    actions:    [ p.Array, [] ]
-    inspectors: [ p.Array, [] ]
-    help:       [ p.Array, [] ]
-    toolbar_location: [ p.Location, 'right' ]
+    if (typeof event_types === 'string') {
+      event_types = [event_types];
+    }
+
+    for (let et of Array.from(event_types)) {
+      if (tool.active) {
+        const currently_active_tool = this.gestures[et].active;
+        if ((currently_active_tool != null) && (tool !== currently_active_tool)) {
+          logger.debug(`Toolbar: deactivating tool: ${currently_active_tool.type} (${currently_active_tool.id}) for event type '${et}'`);
+          currently_active_tool.active = false;
+        }
+        this.gestures[et].active = tool;
+        logger.debug(`Toolbar: activating tool: ${tool.type} (${tool.id}) for event type '${et}'`);
+      } else {
+        this.gestures[et].active = null;
+      }
+    }
+
+    return null;
   }
+}
+ToolbarBase.initClass();

@@ -1,288 +1,401 @@
-import {TileSource} from "./tile_source"
+/*
+ * decaffeinate suggestions:
+ * DS101: Remove unnecessary use of Array.from
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS205: Consider reworking code to avoid use of IIFEs
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+
+import {TileSource} from "./tile_source";
 import * as p from "core/properties"
+;
 
-export class MercatorTileSource extends TileSource
-  type: 'MercatorTileSource'
+export class MercatorTileSource extends TileSource {
+  static initClass() {
+    this.prototype.type = 'MercatorTileSource';
 
-  @define {
-    snap_to_zoom:       [ p.Bool,   false              ]
-    wrap_around:        [ p.Bool,   true               ]
+    this.define({
+      snap_to_zoom:       [ p.Bool,   false              ],
+      wrap_around:        [ p.Bool,   true               ]
+    });
+
+    this.override({
+      x_origin_offset:    20037508.34,
+      y_origin_offset:    20037508.34,
+      initial_resolution: 156543.03392804097
+    });
   }
 
-  @override {
-    x_origin_offset:    20037508.34
-    y_origin_offset:    20037508.34
-    initial_resolution: 156543.03392804097
+  initialize(options) {
+    super.initialize(options);
+    return this._resolutions = (__range__(this.min_zoom, this.max_zoom, true).map((z) => this.get_resolution(z)));
   }
 
-  initialize: (options) ->
-    super(options)
-    @_resolutions = (@get_resolution(z) for z in [@min_zoom..@max_zoom])
+  _computed_initial_resolution() {
+    if (this.initial_resolution != null) {
+      return this.initial_resolution;
+    } else {
+      // TODO testing 2015-11-17, if this codepath is used it seems
+      // to use 100% cpu and wedge Chrome
+      return (2 * Math.PI * 6378137) / this.tile_size;
+    }
+  }
 
-  _computed_initial_resolution: () ->
-    if @initial_resolution?
-      @initial_resolution
-    else
-      # TODO testing 2015-11-17, if this codepath is used it seems
-      # to use 100% cpu and wedge Chrome
-      2 * Math.PI * 6378137 / @tile_size
+  is_valid_tile(x, y, z) {
 
-  is_valid_tile: (x, y, z) ->
+    if (!this.wrap_around) {
+      if ((x < 0) || (x >= Math.pow(2, z))) {
+        return false;
+      }
+    }
 
-    if not @wrap_around
-      if x < 0 or x >= Math.pow(2, z)
-        return false
+    if ((y < 0) || (y >= Math.pow(2, z))) {
+      return false;
+    }
 
-    if y < 0 or y >= Math.pow(2, z)
-      return false
+    return true;
+  }
 
-    return true
+  retain_children(reference_tile) {
+    const { quadkey } = reference_tile;
+    const min_zoom = quadkey.length;
+    const max_zoom = min_zoom + 3;
+    return (() => {
+      const result = [];
+      for (let key in this.tiles) {
+        const tile = this.tiles[key];
+        if ((tile.quadkey.indexOf(quadkey) === 0) && (tile.quadkey.length > min_zoom) && (tile.quadkey.length <= max_zoom)) {
+          result.push(tile.retain = true);
+        } else {
+          result.push(undefined);
+        }
+      }
+      return result;
+    })();
+  }
 
-  retain_children:(reference_tile) ->
-    quadkey = reference_tile.quadkey
-    min_zoom = quadkey.length
-    max_zoom = min_zoom + 3
-    for key, tile of @tiles
-      if tile.quadkey.indexOf(quadkey) == 0 and tile.quadkey.length > min_zoom and tile.quadkey.length <= max_zoom
-        tile.retain = true
+  retain_neighbors(reference_tile) {
+    const neighbor_radius = 4;
+    const [tx, ty, tz] = Array.from(reference_tile.tile_coords);
+    const neighbor_x = (__range__(tx - neighbor_radius, tx + neighbor_radius, true));
+    const neighbor_y = (__range__(ty - neighbor_radius, ty + neighbor_radius, true));
 
-  retain_neighbors:(reference_tile) ->
-    neighbor_radius = 4
-    [tx, ty, tz] = reference_tile.tile_coords
-    neighbor_x = (x for x in [tx - neighbor_radius .. tx + neighbor_radius])
-    neighbor_y = (y for y in [ty - neighbor_radius .. ty + neighbor_radius])
+    return (() => {
+      const result = [];
+      for (let key in this.tiles) {
+        const tile = this.tiles[key];
+        if ((tile.tile_coords[2] === tz) && (Array.from(neighbor_x).includes(tile.tile_coords[0])) && (Array.from(neighbor_y).includes(tile.tile_coords[1]))) {
+          result.push(tile.retain = true);
+        } else {
+          result.push(undefined);
+        }
+      }
+      return result;
+    })();
+  }
 
-    for key, tile of @tiles
-      if tile.tile_coords[2] == tz and (tile.tile_coords[0] in neighbor_x) and (tile.tile_coords[1] in neighbor_y)
-        tile.retain = true
+  retain_parents(reference_tile) {
+    const { quadkey } = reference_tile;
+    return (() => {
+      const result = [];
+      for (let key in this.tiles) {
+        const tile = this.tiles[key];
+        result.push(tile.retain = quadkey.indexOf(tile.quadkey) === 0);
+      }
+      return result;
+    })();
+  }
 
-  retain_parents:(reference_tile) ->
-    quadkey = reference_tile.quadkey
-    for key, tile of @tiles
-      tile.retain = quadkey.indexOf(tile.quadkey) == 0
+  children_by_tile_xyz(x, y, z) {
+    const world_x = this.calculate_world_x_by_tile_xyz(x, y, z);
 
-  children_by_tile_xyz: (x, y, z) ->
-    world_x = @calculate_world_x_by_tile_xyz(x, y, z)
+    if (world_x !== 0) {
+      [x, y, z] = Array.from(this.normalize_xyz(x, y, z));
+    }
 
-    if world_x != 0
-      [x, y, z] = @normalize_xyz(x, y, z)
+    const quad_key = this.tile_xyz_to_quadkey(x, y, z);
+    const child_tile_xyz = [];
+    for (let i = 0; i <= 3; i++) {
+      [x, y, z] = Array.from(this.quadkey_to_tile_xyz(quad_key + i.toString()));
+      if (world_x !== 0) {
+        [x, y, z] = Array.from(this.denormalize_xyz(x, y, z, world_x));
+      }
+      const b = this.get_tile_meter_bounds(x, y, z);
+      if (b != null) {
+        child_tile_xyz.push([x, y, z, b]);
+      }
+    }
+    return child_tile_xyz;
+  }
 
-    quad_key = @tile_xyz_to_quadkey(x, y, z)
-    child_tile_xyz = []
-    for i in [0..3] by 1
-      [x, y, z] = @quadkey_to_tile_xyz(quad_key + i.toString())
-      if world_x != 0
-        [x, y, z] = @denormalize_xyz(x, y, z, world_x)
-      b = @get_tile_meter_bounds(x, y, z)
-      if b?
-        child_tile_xyz.push([x, y, z, b])
-    return child_tile_xyz
+  parent_by_tile_xyz(x, y, z) {
+    const quad_key = this.tile_xyz_to_quadkey(x, y, z);
+    const parent_quad_key = quad_key.substring(0, quad_key.length - 1);
+    return this.quadkey_to_tile_xyz(parent_quad_key);
+  }
 
-  parent_by_tile_xyz: (x, y, z) ->
-    quad_key = @tile_xyz_to_quadkey(x, y, z)
-    parent_quad_key = quad_key.substring(0, quad_key.length - 1)
-    return @quadkey_to_tile_xyz(parent_quad_key)
+  get_resolution(level) {
+    return this._computed_initial_resolution() / Math.pow(2, level);
+  }
 
-  get_resolution: (level) ->
-    return @_computed_initial_resolution() / Math.pow(2, level)
+  get_resolution_by_extent(extent, height, width) {
+    const x_rs = (extent[2] - extent[0]) / width;
+    const y_rs = (extent[3] - extent[1]) / height;
+    return [x_rs, y_rs];
+  }
 
-  get_resolution_by_extent: (extent, height, width) ->
-    x_rs = (extent[2] - extent[0]) / width
-    y_rs = (extent[3] - extent[1]) / height
-    return [x_rs, y_rs]
+  get_level_by_extent(extent, height, width) {
+    const x_rs = (extent[2] - extent[0]) / width;
+    const y_rs = (extent[3] - extent[1]) / height;
+    const resolution = Math.max(x_rs, y_rs);
+    let i = 0;
+    for (let r of Array.from(this._resolutions)) {
+      if (resolution > r) {
+        if (i === 0) { return 0; }
+        if (i > 0) { return i - 1; }
+      }
+      i += 1;
+    }
+  }
 
-  get_level_by_extent: (extent, height, width) ->
-    x_rs = (extent[2] - extent[0]) / width
-    y_rs = (extent[3] - extent[1]) / height
-    resolution = Math.max(x_rs, y_rs)
-    i = 0
-    for r in @_resolutions
-      if resolution > r
-        return 0 if i == 0
-        return i - 1 if i > 0
-      i += 1
+  get_closest_level_by_extent(extent, height, width) {
+    const x_rs = (extent[2] - extent[0]) / width;
+    const y_rs = (extent[3] - extent[1]) / height;
+    const resolution = Math.max(x_rs, y_rs);
+    const ress = this._resolutions;
+    const closest = this._resolutions.reduce(function(previous, current) {
+      if (Math.abs(current - resolution) < Math.abs(previous - resolution)) { return current; }
+      return previous;
+    });
+    return this._resolutions.indexOf(closest);
+  }
 
-  get_closest_level_by_extent:(extent, height, width) ->
-    x_rs = (extent[2] - extent[0]) / width
-    y_rs = (extent[3] - extent[1]) / height
-    resolution = Math.max(x_rs, y_rs)
-    ress = @_resolutions
-    closest = @_resolutions.reduce (previous, current) ->
-      return current if (Math.abs(current - resolution) < Math.abs(previous - resolution))
-      return previous
-    return @_resolutions.indexOf(closest)
+  snap_to_zoom_level(extent, height, width, level) {
+    const [xmin, ymin, xmax, ymax] = Array.from(extent);
+    const desired_res = this._resolutions[level];
+    let desired_x_delta = width * desired_res;
+    let desired_y_delta = height * desired_res;
+    if (!this.snap_to_zoom) {
+      const xscale = (xmax-xmin)/desired_x_delta;
+      const yscale = (ymax-ymin)/desired_y_delta;
+      if (xscale > yscale) {
+        desired_x_delta = (xmax-xmin);
+        desired_y_delta = desired_y_delta*xscale;
+      } else {
+        desired_x_delta = desired_x_delta*yscale;
+        desired_y_delta = (ymax-ymin);
+      }
+    }
+    const x_adjust = (desired_x_delta - (xmax - xmin)) / 2;
+    const y_adjust = (desired_y_delta - (ymax - ymin)) / 2;
 
-  snap_to_zoom_level: (extent, height, width, level) ->
-    [xmin, ymin, xmax, ymax] = extent
-    desired_res = @_resolutions[level]
-    desired_x_delta = width * desired_res
-    desired_y_delta = height * desired_res
-    if !@snap_to_zoom
-      xscale = (xmax-xmin)/desired_x_delta
-      yscale = (ymax-ymin)/desired_y_delta
-      if xscale > yscale
-        desired_x_delta = (xmax-xmin)
-        desired_y_delta = desired_y_delta*xscale
-      else
-        desired_x_delta = desired_x_delta*yscale
-        desired_y_delta = (ymax-ymin)
-    x_adjust = (desired_x_delta - (xmax - xmin)) / 2
-    y_adjust = (desired_y_delta - (ymax - ymin)) / 2
+    return [xmin - x_adjust, ymin - y_adjust, xmax + x_adjust, ymax + y_adjust];
+  }
 
-    return [xmin - x_adjust, ymin - y_adjust, xmax + x_adjust, ymax + y_adjust]
+  tms_to_wmts(x, y, z) {
+    'Note this works both ways';
+    return [x, Math.pow(2, z) - 1 - y, z];
+  }
 
-  tms_to_wmts: (x, y, z) ->
-    '''Note this works both ways'''
-    return [x, 2 ** z - 1 - y, z]
+  wmts_to_tms(x, y, z) {
+    'Note this works both ways';
+    return [x, Math.pow(2, z) - 1 - y, z];
+  }
 
-  wmts_to_tms: (x, y, z) ->
-    '''Note this works both ways'''
-    return [x, 2 ** z - 1 - y, z]
+  pixels_to_meters(px, py, level) {
+    const res = this.get_resolution(level);
+    const mx = (px * res) - this.x_origin_offset;
+    const my = (py * res) - this.y_origin_offset;
+    return [mx, my];
+  }
 
-  pixels_to_meters: (px, py, level) ->
-    res = @get_resolution(level)
-    mx = px * res - @x_origin_offset
-    my = py * res - @y_origin_offset
-    return [mx, my]
+  meters_to_pixels(mx, my, level) {
+    const res = this.get_resolution(level);
+    const px = (mx + this.x_origin_offset) / res;
+    const py = (my + this.y_origin_offset) / res;
+    return [px, py];
+  }
 
-  meters_to_pixels: (mx, my, level) ->
-    res = @get_resolution(level)
-    px = (mx + @x_origin_offset) / res
-    py = (my + @y_origin_offset) / res
-    return [px, py]
+  pixels_to_tile(px, py) {
+    let tx = Math.ceil(px / parseFloat(this.tile_size));
+    tx = tx === 0 ? tx : tx - 1;
+    const ty = Math.max(Math.ceil(py / parseFloat(this.tile_size)) - 1, 0);
+    return [tx, ty];
+  }
 
-  pixels_to_tile: (px, py) ->
-    tx = Math.ceil(px / parseFloat(@tile_size))
-    tx = if tx == 0 then tx else tx - 1
-    ty = Math.max(Math.ceil(py / parseFloat(@tile_size)) - 1, 0)
-    return [tx, ty]
+  pixels_to_raster(px, py, level) {
+    const mapSize = this.tile_size << level;
+    return [px, mapSize - py];
+  }
 
-  pixels_to_raster: (px, py, level) ->
-    mapSize = @tile_size << level
-    return [px, mapSize - py]
+  meters_to_tile(mx, my, level) {
+    const [px, py] = Array.from(this.meters_to_pixels(mx, my, level));
+    return this.pixels_to_tile(px, py);
+  }
 
-  meters_to_tile: (mx, my, level) ->
-    [px, py] = @meters_to_pixels(mx, my, level)
-    return @pixels_to_tile(px, py)
+  get_tile_meter_bounds(tx, ty, level) {
+    // expects tms styles coordinates (bottom-left origin)
+    const [xmin, ymin] = Array.from(this.pixels_to_meters(tx * this.tile_size, ty * this.tile_size, level));
+    const [xmax, ymax] = Array.from(this.pixels_to_meters((tx + 1) * this.tile_size, (ty + 1) * this.tile_size, level));
 
-  get_tile_meter_bounds: (tx, ty, level) ->
-    # expects tms styles coordinates (bottom-left origin)
-    [xmin, ymin] = @pixels_to_meters(tx * @tile_size, ty * @tile_size, level)
-    [xmax, ymax] = @pixels_to_meters((tx + 1) * @tile_size, (ty + 1) * @tile_size, level)
+    if ((xmin != null) && (ymin != null) && (xmax != null) && (ymax != null)) {
+      return [xmin, ymin, xmax, ymax];
+    } else {
+      return undefined;
+    }
+  }
 
-    if xmin? and ymin? and xmax? and ymax?
-      return [xmin, ymin, xmax, ymax]
-    else
-      return undefined
+  get_tile_geographic_bounds(tx, ty, level) {
+    const bounds = this.get_tile_meter_bounds(tx, ty, level);
+    const [minLon, minLat, maxLon, maxLat] = Array.from(this.utils.meters_extent_to_geographic(bounds));
+    return [minLon, minLat, maxLon, maxLat];
+  }
 
-  get_tile_geographic_bounds: (tx, ty, level) ->
-    bounds = @get_tile_meter_bounds(tx, ty, level)
-    [minLon, minLat, maxLon, maxLat] = @utils.meters_extent_to_geographic(bounds)
-    return [minLon, minLat, maxLon, maxLat]
+  get_tiles_by_extent(extent, level, tile_border) {
+    // unpack extent and convert to tile coordinates
+    if (tile_border == null) { tile_border = 1; }
+    const [xmin, ymin, xmax, ymax] = Array.from(extent);
+    let [txmin, tymin] = Array.from(this.meters_to_tile(xmin, ymin, level));
+    let [txmax, tymax] = Array.from(this.meters_to_tile(xmax, ymax, level));
 
-  get_tiles_by_extent: (extent, level, tile_border=1) ->
-    # unpack extent and convert to tile coordinates
-    [xmin, ymin, xmax, ymax] = extent
-    [txmin, tymin] = @meters_to_tile(xmin, ymin, level)
-    [txmax, tymax] = @meters_to_tile(xmax, ymax, level)
+    // add tiles which border
+    txmin -= tile_border;
+    tymin -= tile_border;
+    txmax += tile_border;
+    tymax += tile_border;
 
-    # add tiles which border
-    txmin -= tile_border
-    tymin -= tile_border
-    txmax += tile_border
-    tymax += tile_border
+    let tiles = [];
+    for (let ty = tymax, end = tymin; ty >= end; ty--) {
+      for (let tx = txmin, end1 = txmax; tx <= end1; tx++) {
+        if (this.is_valid_tile(tx, ty, level)) {
+          tiles.push([tx, ty, level, this.get_tile_meter_bounds(tx, ty, level)]);
+        }
+      }
+    }
 
-    tiles = []
-    for ty in [tymax..tymin] by -1
-      for tx in [txmin..txmax] by 1
-        if @is_valid_tile(tx, ty, level)
-          tiles.push([tx, ty, level, @get_tile_meter_bounds(tx, ty, level)])
+    tiles = this.sort_tiles_from_center(tiles, [txmin, tymin, txmax, tymax]);
+    return tiles;
+  }
 
-    tiles = @sort_tiles_from_center(tiles, [txmin, tymin, txmax, tymax])
-    return tiles
+  quadkey_to_tile_xyz(quadKey) {
+    `\
+Computes tile x, y and z values based on quadKey.\
+`;
+    let tileX = 0;
+    let tileY = 0;
+    const tileZ = quadKey.length;
+    for (let i = tileZ; i > 0; i--) {
 
-  quadkey_to_tile_xyz: (quadKey) ->
-    '''
-    Computes tile x, y and z values based on quadKey.
-    '''
-    tileX = 0
-    tileY = 0
-    tileZ = quadKey.length
-    for i in [tileZ...0] by -1
+      const value = quadKey.charAt(tileZ - i);
+      const mask = 1 << (i - 1);
 
-      value = quadKey.charAt(tileZ - i)
-      mask = 1 << (i - 1)
+      switch (value) {
+        case '0':
+          continue;
+          break;
+        case '1':
+          tileX |= mask;
+          break;
+        case '2':
+          tileY |= mask;
+          break;
+        case '3':
+          tileX |= mask;
+          tileY |= mask;
+          break;
+        default:
+          throw new TypeError(`Invalid Quadkey: ${quadKey}`);
+      }
+    }
 
-      switch value
-        when '0'
-          continue
-        when '1'
-          tileX |= mask
-        when '2'
-          tileY |= mask
-        when '3'
-          tileX |= mask
-          tileY |= mask
-        else
-          throw new TypeError("Invalid Quadkey: " + quadKey)
+    return [tileX, tileY, tileZ];
+  }
 
-    return [tileX, tileY, tileZ]
+  tile_xyz_to_quadkey(x, y, z) {
+    `\
+Computes quadkey value based on tile x, y and z values.\
+`;
+    let quadKey = '';
+    for (let i = z; i > 0; i--) {
+      let digit = 0;
+      const mask = 1 << (i - 1);
+      if((x & mask) !== 0) {
+        digit += 1;
+      }
+      if((y & mask) !== 0) {
+        digit += 2;
+      }
+      quadKey += digit.toString();
+    }
+    return quadKey;
+  }
 
-  tile_xyz_to_quadkey: (x, y, z) ->
-    '''
-    Computes quadkey value based on tile x, y and z values.
-    '''
-    quadKey = ''
-    for i in [z...0] by -1
-      digit = 0
-      mask = 1 << (i - 1)
-      if(x & mask) != 0
-        digit += 1
-      if(y & mask) != 0
-        digit += 2
-      quadKey += digit.toString()
-    return quadKey
+  children_by_tile_xyz(x, y, z) {
+    const quad_key = this.tile_xyz_to_quadkey(x, y, z);
+    const child_tile_xyz = [];
+    for (let i = 0; i <= 3; i++) {
+      [x, y, z] = Array.from(this.quadkey_to_tile_xyz(quad_key + i.toString()));
+      const b = this.get_tile_meter_bounds(x, y, z);
+      if (b != null) {
+        child_tile_xyz.push([x, y, z, b]);
+      }
+    }
 
-  children_by_tile_xyz: (x, y, z) ->
-    quad_key = @tile_xyz_to_quadkey(x, y, z)
-    child_tile_xyz = []
-    for i in [0..3] by 1
-      [x, y, z] = @quadkey_to_tile_xyz(quad_key + i.toString())
-      b = @get_tile_meter_bounds(x, y, z)
-      if b?
-        child_tile_xyz.push([x, y, z, b])
+    return child_tile_xyz;
+  }
 
-    return child_tile_xyz
+  parent_by_tile_xyz(x, y, z) {
+    const quad_key = this.tile_xyz_to_quadkey(x, y, z);
+    const parent_quad_key = quad_key.substring(0, quad_key.length - 1);
+    return this.quadkey_to_tile_xyz(parent_quad_key);
+  }
 
-  parent_by_tile_xyz: (x, y, z) ->
-    quad_key = @tile_xyz_to_quadkey(x, y, z)
-    parent_quad_key = quad_key.substring(0, quad_key.length - 1)
-    return @quadkey_to_tile_xyz(parent_quad_key)
+  get_closest_parent_by_tile_xyz(x, y, z) {
+    const world_x = this.calculate_world_x_by_tile_xyz(x, y, z);
+    [x, y, z] = Array.from(this.normalize_xyz(x, y, z));
+    let quad_key = this.tile_xyz_to_quadkey(x, y, z);
+    while (quad_key.length > 0) {
+      quad_key = quad_key.substring(0, quad_key.length - 1);
+      [x, y, z] = Array.from(this.quadkey_to_tile_xyz(quad_key));
+      [x, y, z] = Array.from(this.denormalize_xyz(x, y, z, world_x));
+      if (this.tile_xyz_to_key(x, y, z) in this.tiles) {
+          return [x, y, z];
+        }
+    }
+    return [0, 0, 0];
+  }
 
-  get_closest_parent_by_tile_xyz: (x, y, z) ->
-    world_x = @calculate_world_x_by_tile_xyz(x, y, z)
-    [x, y, z] = @normalize_xyz(x, y, z)
-    quad_key = @tile_xyz_to_quadkey(x, y, z)
-    while quad_key.length > 0
-      quad_key = quad_key.substring(0, quad_key.length - 1)
-      [x, y, z] = @quadkey_to_tile_xyz(quad_key)
-      [x, y, z] = @denormalize_xyz(x, y, z, world_x)
-      if @tile_xyz_to_key(x, y, z) of @tiles
-          return [x, y, z]
-    return [0, 0, 0]
+  normalize_xyz(x, y, z) {
+    if (this.wrap_around) {
+      const tile_count = Math.pow(2, z);
+      return [((x % tile_count) + tile_count) % tile_count, y, z];
+    } else {
+      return [x, y, z];
+    }
+  }
 
-  normalize_xyz: (x, y, z) ->
-    if @wrap_around
-      tile_count = Math.pow(2, z)
-      return [((x % tile_count) + tile_count) % tile_count, y, z]
-    else
-      return [x, y, z]
+  denormalize_xyz(x, y, z, world_x) {
+    return [x + (world_x * Math.pow(2, z)), y, z];
+  }
 
-  denormalize_xyz: (x, y, z, world_x) ->
-    return [x + world_x * Math.pow(2, z), y, z]
+  denormalize_meters(meters_x, meters_y, level, world_x) {
+    return [meters_x + (world_x * 2 * Math.PI * 6378137), meters_y];
+  }
 
-  denormalize_meters: (meters_x, meters_y, level, world_x) ->
-    return [meters_x + world_x * 2 * Math.PI * 6378137, meters_y]
+  calculate_world_x_by_tile_xyz(x, y, z) {
+    return Math.floor(x / Math.pow(2, z));
+  }
+}
+MercatorTileSource.initClass();
 
-  calculate_world_x_by_tile_xyz: (x, y, z) ->
-    return Math.floor(x / Math.pow(2, z))
+function __range__(left, right, inclusive) {
+  let range = [];
+  let ascending = left < right;
+  let end = !inclusive ? right : ascending ? right + 1 : right - 1;
+  for (let i = left; ascending ? i < end : i > end; ascending ? i++ : i--) {
+    range.push(i);
+  }
+  return range;
+}

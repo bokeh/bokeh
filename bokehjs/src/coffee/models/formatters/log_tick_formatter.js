@@ -1,39 +1,62 @@
-import {BasicTickFormatter} from "./basic_tick_formatter"
-import {TickFormatter} from "./tick_formatter"
-import {logger} from "core/logging"
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS202: Simplify dynamic range loops
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+
+import {BasicTickFormatter} from "./basic_tick_formatter";
+import {TickFormatter} from "./tick_formatter";
+import {logger} from "core/logging";
 import * as p from "core/properties"
+;
 
-export class LogTickFormatter extends TickFormatter
-  type: 'LogTickFormatter'
+export class LogTickFormatter extends TickFormatter {
+  static initClass() {
+    this.prototype.type = 'LogTickFormatter';
 
-  @define {
-    ticker: [ p.Instance, null ]
+    this.define({
+      ticker: [ p.Instance, null ]
+    });
   }
 
-  initialize: (attrs, options) ->
-    super(attrs, options)
-    @basic_formatter = new BasicTickFormatter()
-    if not @ticker?
-      logger.warn("LogTickFormatter not configured with a ticker, using default base of 10 (labels will be incorrect if ticker base is not 10)")
+  initialize(attrs, options) {
+    super.initialize(attrs, options);
+    this.basic_formatter = new BasicTickFormatter();
+    if ((this.ticker == null)) {
+      return logger.warn("LogTickFormatter not configured with a ticker, using default base of 10 (labels will be incorrect if ticker base is not 10)");
+    }
+  }
 
-  doFormat: (ticks, axis) ->
-    if ticks.length == 0
-      return []
+  doFormat(ticks, axis) {
+    let base;
+    if (ticks.length === 0) {
+      return [];
+    }
 
-    if @ticker?
-      base = @ticker.base
-    else
-      base = 10
+    if (this.ticker != null) {
+      ({ base } = this.ticker);
+    } else {
+      base = 10;
+    }
 
-    small_interval = false
-    labels = new Array(ticks.length)
-    for i in [0...ticks.length]
-      labels[i] = "#{base}^#{ Math.round(Math.log(ticks[i]) / Math.log(base)) }"
-      if (i > 0) and (labels[i] == labels[i-1])
-        small_interval = true
-        break
+    let small_interval = false;
+    let labels = new Array(ticks.length);
+    for (let i = 0, end = ticks.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+      labels[i] = `${base}^${ Math.round(Math.log(ticks[i]) / Math.log(base)) }`;
+      if ((i > 0) && (labels[i] === labels[i-1])) {
+        small_interval = true;
+        break;
+      }
+    }
 
-    if small_interval
-      labels = @basic_formatter.doFormat(ticks)
+    if (small_interval) {
+      labels = this.basic_formatter.doFormat(ticks);
+    }
 
-    return labels
+    return labels;
+  }
+}
+LogTickFormatter.initClass();

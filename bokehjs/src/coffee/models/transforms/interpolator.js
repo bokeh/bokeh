@@ -1,82 +1,114 @@
-import {Transform} from "./transform"
+/*
+ * decaffeinate suggestions:
+ * DS101: Remove unnecessary use of Array.from
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS104: Avoid inline assignments
+ * DS202: Simplify dynamic range loops
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+
+import {Transform} from "./transform";
 import * as p from "core/properties"
+;
 
-export class Interpolator extends Transform
+export class Interpolator extends Transform {
+  static initClass() {
 
-  initialize: (attrs, options) ->
-    super(attrs, options)
-    @_x_sorted = []
-    @_y_sorted = []
-    @_sorted_dirty = true
+    this.define({
+      x:    [ p.Any],
+      y:    [ p.Any],
+      data: [ p.Any],
+      clip: [ p.Bool, true]
+      });
+  }
 
-    @connect(@change, () -> @_sorted_dirty = true)
+  initialize(attrs, options) {
+    super.initialize(attrs, options);
+    this._x_sorted = [];
+    this._y_sorted = [];
+    this._sorted_dirty = true;
 
-  @define {
-    x:    [ p.Any]
-    y:    [ p.Any]
-    data: [ p.Any]
-    clip: [ p.Bool, true]
+    return this.connect(this.change, function() { return this._sorted_dirty = true; });
+  }
+
+  sort(descending) {
+    // Verify that all necessary objects exist...
+    if (descending == null) { descending = false; }
+    if (typeof(this.x) !== typeof(this.y)) {
+      throw new Error('The parameters for x and y must be of the same type, either both strings which define a column in the data source or both arrays of the same length');
+      return;
+
+    } else {
+      if ((typeof(this.x) === 'string') && (this.data === null)) {
+        throw new Error('If the x and y parameters are not specified as an array, the data parameter is reqired.');
+        return;
+      }
     }
 
-  sort: (descending = false) ->
-    # Verify that all necessary objects exist...
-    if typeof(@x) != typeof(@y)
-      throw new Error('The parameters for x and y must be of the same type, either both strings which define a column in the data source or both arrays of the same length')
-      return
+    // Stop processing this if the dirty flag is not set
+    if(this._sorted_dirty === false) {
+      return;
+    }
 
-    else
-      if typeof(@x) == 'string' and @data == null
-        throw new Error('If the x and y parameters are not specified as an array, the data parameter is reqired.')
-        return
+    let tsx = [];
+    let tsy = [];
 
-    # Stop processing this if the dirty flag is not set
-    if(@_sorted_dirty == false)
-      return
+    // Populate the tsx and tsy variables correctly depending on the method by which the user populated the interpolation
+    // data.
+    if (typeof(this.x) === 'string') {
+      const { data } = this;
 
-    tsx = []
-    tsy = []
+      const column_names = data.columns();
+      if (!Array.from(column_names).includes(this.x)) {
+        throw new Error('The x parameter does not correspond to a valid column name defined in the data parameter');
+      }
 
-    # Populate the tsx and tsy variables correctly depending on the method by which the user populated the interpolation
-    # data.
-    if typeof(@x) == 'string'
-      data = @data
+      if (!Array.from(column_names).includes(this.y)) {
+        throw new Error('The x parameter does not correspond to a valid column name defined in the data parameter');
+      }
 
-      column_names = data.columns()
-      if @x not in column_names
-        throw new Error('The x parameter does not correspond to a valid column name defined in the data parameter')
+      tsx = data.get_column(this.x);
+      tsy = data.get_column(this.y);
+    } else {
+      tsx = this.x;
+      tsy = this.y;
+    }
 
-      if @y not in column_names
-        throw new Error('The x parameter does not correspond to a valid column name defined in the data parameter')
+    if (tsx.length !== tsy.length) {
+      throw new Error('The length for x and y do not match');
+    }
 
-      tsx = data.get_column(@x)
-      tsy = data.get_column(@y)
-    else
-      tsx = @x
-      tsy = @y
+    if (tsx.length < 2) {
+      throw new Error('x and y must have at least two elements to support interpolation');
+    }
 
-    if tsx.length != tsy.length
-      throw new Error('The length for x and y do not match')
+    // The following sorting code is referenced from:
+    // http://stackoverflow.com/questions/11499268/sort-two-arrays-the-same-way
+    const list = [];
+    for (let j in tsx) {
+      list.push({'x': tsx[j], 'y': tsy[j]});
+    }
 
-    if tsx.length < 2
-      throw new Error('x and y must have at least two elements to support interpolation')
+    if (descending === true) {
+      list.sort(function(a, b) {
+        let left, left1;
+        return (((left = a.x < b.x)) != null ? left : -{1 : (((left1 = a.x === b.x)) != null ? left1 : {0 : 1})});
+      });
+    } else {
+      list.sort(function(a, b) {
+        let left, left1;
+        return (((left = a.x > b.x)) != null ? left : -{1 : (((left1 = a.x === b.x)) != null ? left1 : {0 : 1})});
+      });
+    }
 
-    # The following sorting code is referenced from:
-    # http://stackoverflow.com/questions/11499268/sort-two-arrays-the-same-way
-    list = [];
-    for j of tsx
-      list.push({'x': tsx[j], 'y': tsy[j]})
+    for (let k = 0, end = list.length, asc = 0 <= end; asc ? k < end : k > end; asc ? k++ : k--) {
+      this._x_sorted[k] = list[k].x;
+      this._y_sorted[k] = list[k].y;
+    }
 
-    if descending == true
-      list.sort((a, b) ->
-        return ((a.x < b.x) ? -1 : ((a.x == b.x) ? 0 : 1));
-      )
-    else
-      list.sort((a, b) ->
-        return ((a.x > b.x) ? -1 : ((a.x == b.x) ? 0 : 1));
-      )
-
-    for k in [0...list.length]
-      @_x_sorted[k] = list[k].x;
-      @_y_sorted[k] = list[k].y;
-
-    @_sorted_dirty = false
+    return this._sorted_dirty = false;
+  }
+}
+Interpolator.initClass();

@@ -1,230 +1,289 @@
-import {proj4, mercator} from "core/util/proj4"
+/*
+ * decaffeinate suggestions:
+ * DS001: Remove Babel/TypeScript constructor workaround
+ * DS101: Remove unnecessary use of Array.from
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * DS208: Avoid top-level this
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
 
-import {PlotCanvas, PlotCanvasView} from "./plot_canvas"
-import {Signal} from "core/signaling"
+import {proj4, mercator} from "core/util/proj4";
+
+import {PlotCanvas, PlotCanvasView} from "./plot_canvas";
+import {Signal} from "core/signaling";
 import {extend} from "core/util/object"
+;
 
-gmaps_ready = new Signal(this, "gmaps_ready")
+const gmaps_ready = new Signal(this, "gmaps_ready");
 
-load_google_api = (api_key) ->
-  window._bokeh_gmaps_callback = () -> gmaps_ready.emit()
+const load_google_api = function(api_key) {
+  window._bokeh_gmaps_callback = () => gmaps_ready.emit();
 
-  script = document.createElement('script')
-  script.type = 'text/javascript'
-  script.src = "https://maps.googleapis.com/maps/api/js?key=#{api_key}&callback=_bokeh_gmaps_callback"
-  document.body.appendChild(script)
+  const script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src = `https://maps.googleapis.com/maps/api/js?key=${api_key}&callback=_bokeh_gmaps_callback`;
+  return document.body.appendChild(script);
+};
 
-export class GMapPlotCanvasView extends PlotCanvasView
+export class GMapPlotCanvasView extends PlotCanvasView {
 
-  initialize: (options) ->
-    @pause()
+  constructor(...args) {
+    {
+      // Hack: trick Babel/TypeScript into allowing this before super.
+      if (false) { super(); }
+      let thisFn = (() => { this; }).toString();
+      let thisName = thisFn.slice(thisFn.indexOf('{') + 1, thisFn.indexOf(';')).trim();
+      eval(`${thisName} = this;`);
+    }
+    this._get_latlon_bounds = this._get_latlon_bounds.bind(this);
+    this._get_projected_bounds = this._get_projected_bounds.bind(this);
+    this._set_bokeh_ranges = this._set_bokeh_ranges.bind(this);
+    super(...args);
+  }
 
-    super(options)
+  initialize(options) {
+    this.pause();
 
-    @_tiles_loaded = false
-    @zoom_count = 0
+    super.initialize(options);
 
-    mo = @model.plot.map_options
-    @initial_zoom = mo.zoom
-    @initial_lat = mo.lat
-    @initial_lng = mo.lng
+    this._tiles_loaded = false;
+    this.zoom_count = 0;
 
-    @canvas_view.map_el.style.position = "absolute"
+    const mo = this.model.plot.map_options;
+    this.initial_zoom = mo.zoom;
+    this.initial_lat = mo.lat;
+    this.initial_lng = mo.lng;
 
-    if not window.google?.maps?
-      if not window._bokeh_gmaps_callback?
-        load_google_api(@model.plot.api_key)
-      gmaps_ready.connect(() => @request_render())
+    this.canvas_view.map_el.style.position = "absolute";
 
-    @unpause()
+    if (((window.google != null ? window.google.maps : undefined) == null)) {
+      if ((window._bokeh_gmaps_callback == null)) {
+        load_google_api(this.model.plot.api_key);
+      }
+      gmaps_ready.connect(() => this.request_render());
+    }
 
-  update_range: (range_info) ->
-    # RESET -------------------------
-    if not range_info?
-      mo = @model.plot.map_options
-      @map.setCenter({lat: @initial_lat, lng: @initial_lng})
-      @map.setOptions({zoom: @initial_zoom})
-      super(null)
+    return this.unpause();
+  }
 
-    # PAN ----------------------------
-    else if range_info.sdx? or range_info.sdy?
-      @map.panBy(range_info.sdx, range_info.sdy)
-      super(range_info)
+  update_range(range_info) {
+    // RESET -------------------------
+    if ((range_info == null)) {
+      const mo = this.model.plot.map_options;
+      this.map.setCenter({lat: this.initial_lat, lng: this.initial_lng});
+      this.map.setOptions({zoom: this.initial_zoom});
+      super.update_range(null);
 
-    # ZOOM ---------------------------
-    else if range_info.factor?
+    // PAN ----------------------------
+    } else if ((range_info.sdx != null) || (range_info.sdy != null)) {
+      this.map.panBy(range_info.sdx, range_info.sdy);
+      super.update_range(range_info);
 
-      # The zoom count decreases the sensitivity of the zoom. (We could make this user configurable)
-      if @zoom_count != 10
-        @zoom_count += 1
-        return
-      @zoom_count = 0
+    // ZOOM ---------------------------
+    } else if (range_info.factor != null) {
 
-      @pause()
+      // The zoom count decreases the sensitivity of the zoom. (We could make this user configurable)
+      let zoom_change;
+      if (this.zoom_count !== 10) {
+        this.zoom_count += 1;
+        return;
+      }
+      this.zoom_count = 0;
 
-      super(range_info)
+      this.pause();
 
-      if range_info.factor < 0
-        zoom_change = -1
-      else
-        zoom_change = 1
+      super.update_range(range_info);
 
-      old_map_zoom = @map.getZoom()
-      new_map_zoom = old_map_zoom + zoom_change
+      if (range_info.factor < 0) {
+        zoom_change = -1;
+      } else {
+        zoom_change = 1;
+      }
 
-      # Zooming out too far causes problems
-      if new_map_zoom >=2
-        @map.setZoom(new_map_zoom)
+      const old_map_zoom = this.map.getZoom();
+      const new_map_zoom = old_map_zoom + zoom_change;
 
-        # Check we haven't gone out of bounds, and if we have undo the zoom
-        [proj_xstart, proj_xend, proj_ystart, proj_yend] = @_get_projected_bounds()
-        if ( proj_xend - proj_xstart ) < 0
-          @map.setZoom(old_map_zoom)
+      // Zooming out too far causes problems
+      if (new_map_zoom >=2) {
+        this.map.setZoom(new_map_zoom);
 
-      @unpause()
+        // Check we haven't gone out of bounds, and if we have undo the zoom
+        const [proj_xstart, proj_xend, proj_ystart, proj_yend] = Array.from(this._get_projected_bounds());
+        if (( proj_xend - proj_xstart ) < 0) {
+          this.map.setZoom(old_map_zoom);
+        }
+      }
 
-    # Finally re-center
-    @_set_bokeh_ranges()
+      this.unpause();
+    }
 
-  _build_map: () ->
-    maps = window.google.maps
+    // Finally re-center
+    return this._set_bokeh_ranges();
+  }
 
-    @map_types = {
+  _build_map() {
+    const { maps } = window.google;
+
+    this.map_types = {
       satellite : maps.MapTypeId.SATELLITE,
       terrain   : maps.MapTypeId.TERRAIN,
       roadmap   : maps.MapTypeId.ROADMAP,
       hybrid    : maps.MapTypeId.HYBRID
-    }
+    };
 
-    mo = @model.plot.map_options
-    map_options = {
-      center: new maps.LatLng(mo.lat, mo.lng)
-      zoom:mo.zoom
-      disableDefaultUI: true
-      mapTypeId: @map_types[mo.map_type]
+    const mo = this.model.plot.map_options;
+    const map_options = {
+      center: new maps.LatLng(mo.lat, mo.lng),
+      zoom:mo.zoom,
+      disableDefaultUI: true,
+      mapTypeId: this.map_types[mo.map_type],
       scaleControl: mo.scale_control
+    };
+
+    if (mo.styles != null) {
+      map_options.styles = JSON.parse(mo.styles);
     }
 
-    if mo.styles?
-      map_options.styles = JSON.parse(mo.styles)
+    // create the map with above options in div
+    this.map = new maps.Map(this.canvas_view.map_el, map_options);
 
-    # create the map with above options in div
-    @map = new maps.Map(@canvas_view.map_el, map_options)
+    // update bokeh ranges whenever the map idles, which should be after most UI action
+    maps.event.addListener(this.map, 'idle', () => this._set_bokeh_ranges());
 
-    # update bokeh ranges whenever the map idles, which should be after most UI action
-    maps.event.addListener(@map, 'idle', () => @_set_bokeh_ranges())
+    // also need an event when bounds change so that map resizes trigger renders too
+    maps.event.addListener(this.map, 'bounds_changed', () => this._set_bokeh_ranges());
 
-    # also need an event when bounds change so that map resizes trigger renders too
-    maps.event.addListener(@map, 'bounds_changed', () => @_set_bokeh_ranges())
+    maps.event.addListenerOnce(this.map, 'tilesloaded', () => this._render_finished());
 
-    maps.event.addListenerOnce(@map, 'tilesloaded', () => @_render_finished())
+    // wire up listeners so that changes to properties are reflected
+    this.connect(this.model.plot.properties.map_options.change, () => this._update_options());
+    this.connect(this.model.plot.map_options.properties.styles.change, () => this._update_styles());
+    this.connect(this.model.plot.map_options.properties.lat.change, () => this._update_center('lat'));
+    this.connect(this.model.plot.map_options.properties.lng.change, () => this._update_center('lng'));
+    this.connect(this.model.plot.map_options.properties.zoom.change, () => this._update_zoom());
+    this.connect(this.model.plot.map_options.properties.map_type.change, () => this._update_map_type());
+    return this.connect(this.model.plot.map_options.properties.scale_control.change, () => this._update_scale_control());
+  }
 
-    # wire up listeners so that changes to properties are reflected
-    @connect(@model.plot.properties.map_options.change, () => @_update_options())
-    @connect(@model.plot.map_options.properties.styles.change, () => @_update_styles())
-    @connect(@model.plot.map_options.properties.lat.change, () => @_update_center('lat'))
-    @connect(@model.plot.map_options.properties.lng.change, () => @_update_center('lng'))
-    @connect(@model.plot.map_options.properties.zoom.change, () => @_update_zoom())
-    @connect(@model.plot.map_options.properties.map_type.change, () => @_update_map_type())
-    @connect(@model.plot.map_options.properties.scale_control.change, () => @_update_scale_control())
+  _render_finished() {
+    this._tiles_loaded = true;
+    return this.notify_finished();
+  }
 
-  _render_finished: () ->
-    @_tiles_loaded = true
-    @notify_finished()
+  has_finished() {
+    return super.has_finished() && (this._tiles_loaded === true);
+  }
 
-  has_finished: () ->
-    return super() and @_tiles_loaded == true
+  _get_latlon_bounds() {
+    const bounds = this.map.getBounds();
+    const top_right = bounds.getNorthEast();
+    const bottom_left = bounds.getSouthWest();
 
-  _get_latlon_bounds: () =>
-    bounds = @map.getBounds()
-    top_right = bounds.getNorthEast()
-    bottom_left = bounds.getSouthWest()
+    const xstart = bottom_left.lng();
+    const xend = top_right.lng();
+    const ystart = bottom_left.lat();
+    const yend = top_right.lat();
+    return [xstart, xend, ystart, yend];
+  }
 
-    xstart = bottom_left.lng()
-    xend = top_right.lng()
-    ystart = bottom_left.lat()
-    yend = top_right.lat()
-    return [xstart, xend, ystart, yend]
+  _get_projected_bounds() {
+    const [xstart, xend, ystart, yend] = Array.from(this._get_latlon_bounds());
+    const [proj_xstart, proj_ystart] = Array.from(proj4(mercator, [xstart, ystart]));
+    const [proj_xend, proj_yend] = Array.from(proj4(mercator, [xend, yend]));
+    return [proj_xstart, proj_xend, proj_ystart, proj_yend];
+  }
 
-  _get_projected_bounds: () =>
-    [xstart, xend, ystart, yend] = @_get_latlon_bounds()
-    [proj_xstart, proj_ystart] = proj4(mercator, [xstart, ystart])
-    [proj_xend, proj_yend] = proj4(mercator, [xend, yend])
-    return [proj_xstart, proj_xend, proj_ystart, proj_yend]
+  _set_bokeh_ranges() {
+    const [proj_xstart, proj_xend, proj_ystart, proj_yend] = Array.from(this._get_projected_bounds());
+    this.frame.x_range.setv({start: proj_xstart, end: proj_xend});
+    return this.frame.y_range.setv({start: proj_ystart, end: proj_yend});
+  }
 
-  _set_bokeh_ranges: () =>
-    [proj_xstart, proj_xend, proj_ystart, proj_yend] = @_get_projected_bounds()
-    @frame.x_range.setv({start: proj_xstart, end: proj_xend})
-    @frame.y_range.setv({start: proj_ystart, end: proj_yend})
+  _update_center(fld) {
+    const c = this.map.getCenter().toJSON();
+    c[fld] = this.model.plot.map_options[fld];
+    this.map.setCenter(c);
+    return this._set_bokeh_ranges();
+  }
 
-  _update_center: (fld) ->
-    c = @map.getCenter().toJSON()
-    c[fld] = @model.plot.map_options[fld]
-    @map.setCenter(c)
-    @_set_bokeh_ranges()
+  _update_map_type() {
+    const { maps } = window.google;
+    return this.map.setOptions({mapTypeId: this.map_types[this.model.plot.map_options.map_type] });
+  }
 
-  _update_map_type: () ->
-    maps = window.google.maps
-    @map.setOptions({mapTypeId: @map_types[@model.plot.map_options.map_type] })
+  _update_scale_control() {
+    const { maps } = window.google;
+    return this.map.setOptions({scaleControl: this.model.plot.map_options.scale_control });
+  }
 
-  _update_scale_control: () ->
-    maps = window.google.maps
-    @map.setOptions({scaleControl: @model.plot.map_options.scale_control })
+  _update_options() {
+    this._update_styles();
+    this._update_center('lat');
+    this._update_center('lng');
+    this._update_zoom();
+    return this._update_map_type();
+  }
 
-  _update_options: () ->
-    @_update_styles()
-    @_update_center('lat')
-    @_update_center('lng')
-    @_update_zoom()
-    @_update_map_type()
+  _update_styles() {
+    return this.map.setOptions({styles: JSON.parse(this.model.plot.map_options.styles) });
+  }
 
-  _update_styles: () ->
-    @map.setOptions({styles: JSON.parse(@model.plot.map_options.styles) })
+  _update_zoom() {
+    this.map.setOptions({zoom: this.model.plot.map_options.zoom});
+    return this._set_bokeh_ranges();
+  }
 
-  _update_zoom: () ->
-    @map.setOptions({zoom: @model.plot.map_options.zoom})
-    @_set_bokeh_ranges()
+  // this method is expected and called by PlotCanvasView.render
+  _map_hook(ctx, frame_box) {
+    const [left, top, width, height] = Array.from(frame_box);
+    this.canvas_view.map_el.style.top    = `${top}px`;
+    this.canvas_view.map_el.style.left   = `${left}px`;
+    this.canvas_view.map_el.style.width  = `${width}px`;
+    this.canvas_view.map_el.style.height = `${height}px`;
 
-  # this method is expected and called by PlotCanvasView.render
-  _map_hook: (ctx, frame_box) ->
-    [left, top, width, height] = frame_box
-    @canvas_view.map_el.style.top    = "#{top}px"
-    @canvas_view.map_el.style.left   = "#{left}px"
-    @canvas_view.map_el.style.width  = "#{width}px"
-    @canvas_view.map_el.style.height = "#{height}px"
+    if ((this.map == null) && ((window.google != null ? window.google.maps : undefined) != null)) {
+      return this._build_map();
+    }
+  }
 
-    if not @map? and window.google?.maps?
-      @_build_map()
+  // this overrides the standard _paint_empty to make the inner canvas transparent
+  _paint_empty(ctx, frame_box) {
+    const ow = this.canvas._width.value;
+    const oh = this.canvas._height.value;
+    const [left, top, iw, ih] = Array.from(frame_box);
 
-  # this overrides the standard _paint_empty to make the inner canvas transparent
-  _paint_empty: (ctx, frame_box) ->
-    ow = @canvas._width.value
-    oh = @canvas._height.value
-    [left, top, iw, ih] = frame_box
+    ctx.clearRect(0, 0, ow, oh);
 
-    ctx.clearRect(0, 0, ow, oh)
+    ctx.beginPath();
+    ctx.moveTo(0,  0);
+    ctx.lineTo(0,  oh);
+    ctx.lineTo(ow, oh);
+    ctx.lineTo(ow, 0);
+    ctx.lineTo(0,  0);
 
-    ctx.beginPath()
-    ctx.moveTo(0,  0)
-    ctx.lineTo(0,  oh)
-    ctx.lineTo(ow, oh)
-    ctx.lineTo(ow, 0)
-    ctx.lineTo(0,  0)
+    ctx.moveTo(left,    top);
+    ctx.lineTo(left+iw, top);
+    ctx.lineTo(left+iw, top+ih);
+    ctx.lineTo(left,    top+ih);
+    ctx.lineTo(left,    top);
+    ctx.closePath();
 
-    ctx.moveTo(left,    top)
-    ctx.lineTo(left+iw, top)
-    ctx.lineTo(left+iw, top+ih)
-    ctx.lineTo(left,    top+ih)
-    ctx.lineTo(left,    top)
-    ctx.closePath()
+    ctx.fillStyle = this.model.plot.border_fill_color;
+    return ctx.fill();
+  }
+}
 
-    ctx.fillStyle = @model.plot.border_fill_color
-    ctx.fill()
+export class GMapPlotCanvas extends PlotCanvas {
+  static initClass() {
+    this.prototype.type = 'GMapPlotCanvas';
+    this.prototype.default_view = GMapPlotCanvasView;
+  }
 
-export class GMapPlotCanvas extends PlotCanvas
-  type: 'GMapPlotCanvas'
-  default_view: GMapPlotCanvasView
-
-  initialize: (attrs, options) ->
-    @use_map = true
-    super(attrs, options)
+  initialize(attrs, options) {
+    this.use_map = true;
+    return super.initialize(attrs, options);
+  }
+}
+GMapPlotCanvas.initClass();

@@ -1,20 +1,37 @@
-import {Transform} from "./transform"
-import * as p from "core/properties"
-import * as bokeh_math from "core/util/math"
+/*
+ * decaffeinate suggestions:
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
 
-export class Jitter extends Transform
-  @define {
-    mean:         [ p.Number      , 0        ]
-    width:        [ p.Number      , 1        ]
-    distribution: [ p.Distribution, 'uniform']
-    range:        [ p.Instance               ]
+import {Transform} from "./transform";
+import * as p from "core/properties";
+import * as bokeh_math from "core/util/math"
+;
+
+export class Jitter extends Transform {
+  static initClass() {
+    this.define({
+      mean:         [ p.Number      , 0        ],
+      width:        [ p.Number      , 1        ],
+      distribution: [ p.Distribution, 'uniform'],
+      range:        [ p.Instance               ]
+    });
   }
 
-  compute: (x, use_synthetic=true) ->
-    if @range?.synthetic? and use_synthetic
-      x = @range.synthetic(x)
-    if @distribution == 'uniform'
-      return(x + @mean + ((bokeh_math.random() - 0.5) * @width))
+  compute(x, use_synthetic) {
+    if (use_synthetic == null) { use_synthetic = true; }
+    if (((this.range != null ? this.range.synthetic : undefined) != null) && use_synthetic) {
+      x = this.range.synthetic(x);
+    }
+    if (this.distribution === 'uniform') {
+      return(x + this.mean + ((bokeh_math.random() - 0.5) * this.width));
+    }
 
-    if @distribution == 'normal'
-      return(x + bokeh_math.rnorm(@mean, @width))
+    if (this.distribution === 'normal') {
+      return(x + bokeh_math.rnorm(this.mean, this.width));
+    }
+  }
+}
+Jitter.initClass();

@@ -1,19 +1,32 @@
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+
 import {Model} from "../../model"
+;
 
-export class Expression extends Model
+export class Expression extends Model {
 
-  initialize: (attrs, options) ->
-    super(attrs, options)
-    @_connected= {}
-    @_result = {}
+  initialize(attrs, options) {
+    super.initialize(attrs, options);
+    this._connected= {};
+    return this._result = {};
+  }
 
-  _v_compute: (source) ->
-    if not @_connected[source.id]?
-      @connect(source.change, () -> @_result[source.id] = null)
-      @_connected[source.id] = true
+  _v_compute(source) {
+    if ((this._connected[source.id] == null)) {
+      this.connect(source.change, function() { return this._result[source.id] = null; });
+      this._connected[source.id] = true;
+    }
 
-    if @_result[source.id]?
-      return @_result[source.id]
+    if (this._result[source.id] != null) {
+      return this._result[source.id];
+    }
 
-    @_result[source.id] = @v_compute(source)
-    return @_result[source.id]
+    this._result[source.id] = this.v_compute(source);
+    return this._result[source.id];
+  }
+}

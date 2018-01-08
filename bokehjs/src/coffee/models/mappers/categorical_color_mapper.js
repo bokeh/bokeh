@@ -1,51 +1,77 @@
-import {ColorMapper} from "./color_mapper"
+/*
+ * decaffeinate suggestions:
+ * DS101: Remove unnecessary use of Array.from
+ * DS202: Simplify dynamic range loops
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
 
-import * as p from "core/properties"
-import {findIndex} from "core/util/array"
+import {ColorMapper} from "./color_mapper";
+
+import * as p from "core/properties";
+import {findIndex} from "core/util/array";
 import {isString} from "core/util/types"
+;
 
-_equals = (a, b) ->
-  if a.length != b.length
-    return false
-  for i in [0...a.length]
-    if a[i] != b[i]
-      return false
-  return true
+const _equals = function(a, b) {
+  if (a.length !== b.length) {
+    return false;
+  }
+  for (let i = 0, end = a.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+    if (a[i] !== b[i]) {
+      return false;
+    }
+  }
+  return true;
+};
 
-export class CategoricalColorMapper extends ColorMapper
-  type: "CategoricalColorMapper"
+export class CategoricalColorMapper extends ColorMapper {
+  static initClass() {
+    this.prototype.type = "CategoricalColorMapper";
 
-  @define {
-    factors: [ p.Array     ]
-    start:   [ p.Number, 0 ]
-    end:     [ p.Number    ]
+    this.define({
+      factors: [ p.Array     ],
+      start:   [ p.Number, 0 ],
+      end:     [ p.Number    ]
+    });
   }
 
-  _get_values: (data, palette) ->
-    values = []
+  _get_values(data, palette) {
+    const values = [];
 
-    for d in data
+    for (var d of Array.from(data)) {
 
-      if isString(d)
-        key = @factors.indexOf(d)
+      var color, key;
+      if (isString(d)) {
+        key = this.factors.indexOf(d);
 
-      else
-        if @start?
-          if @end?
-            d = d.slice(@start, @end)
-          else
-            d = d.slice(@start)
-        else if @end?
-          d = d.slice(0, @end)
-        if d.length == 1
-          key = @factors.indexOf(d[0])
-        else
-          key = findIndex(@factors, (x) -> _equals(x, d))
+      } else {
+        if (this.start != null) {
+          if (this.end != null) {
+            d = d.slice(this.start, this.end);
+          } else {
+            d = d.slice(this.start);
+          }
+        } else if (this.end != null) {
+          d = d.slice(0, this.end);
+        }
+        if (d.length === 1) {
+          key = this.factors.indexOf(d[0]);
+        } else {
+          key = findIndex(this.factors, x => _equals(x, d));
+        }
+      }
 
-      if key < 0 or key >= palette.length
-        color = @nan_color
-      else
-        color = palette[key]
+      if ((key < 0) || (key >= palette.length)) {
+        color = this.nan_color;
+      } else {
+        color = palette[key];
+      }
 
-      values.push(color)
-    return values
+      values.push(color);
+    }
+    return values;
+  }
+}
+CategoricalColorMapper.initClass();

@@ -1,152 +1,211 @@
-import {Model} from "../../model"
-import {contains, uniq, findIndex} from "core/util/array"
-import {create_hit_test_result, create_1d_hit_test_result} from "core/hittest"
+/*
+ * decaffeinate suggestions:
+ * DS101: Remove unnecessary use of Array.from
+ * DS202: Simplify dynamic range loops
+ * DS205: Consider reworking code to avoid use of IIFEs
+ * DS206: Consider reworking classes to avoid initClass
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+
+import {Model} from "../../model";
+import {contains, uniq, findIndex} from "core/util/array";
+import {create_hit_test_result, create_1d_hit_test_result} from "core/hittest";
 import {Selector} from "core/selector"
+;
 
-export class GraphHitTestPolicy extends Model
+export class GraphHitTestPolicy extends Model {
 
-  do_selection: (geometry, graph_view, final, append) ->
-    return false
+  do_selection(geometry, graph_view, final, append) {
+    return false;
+  }
 
-  do_inspection: (geometry, graph_view, final, append) ->
-    return false
-
-
-export class NodesOnly extends GraphHitTestPolicy
-  type: 'NodesOnly'
-
-  _do: (geometry, graph_view, final, append) ->
-    node_view = graph_view.node_view
-    hit_test_result = node_view.glyph.hit_test(geometry)
-
-    # glyphs that don't have hit-testing implemented will return null
-    if hit_test_result == null
-      return false
-
-    @_node_selector.update(hit_test_result, final, append)
-
-    return not @_node_selector.indices.is_empty()
-
-  do_selection: (geometry, graph_view, final, append) ->
-    @_node_selector = graph_view.node_view.model.data_source.selection_manager.selector
-    did_hit = @_do(geometry, graph_view, final, append)
-    graph_view.node_view.model.data_source.selected = @_node_selector.indices
-    graph_view.node_view.model.data_source.select.emit()
-    return did_hit
-
-  do_inspection: (geometry, graph_view, final, append) ->
-    @_node_selector = graph_view.model.get_selection_manager().get_or_create_inspector(graph_view.node_view.model)
-    did_hit = @_do(geometry, graph_view, final, append)
-    # silently set inspected attr to avoid triggering data_source.change event and rerender
-    graph_view.node_view.model.data_source.setv({inspected: @_node_selector.indices}, {silent: true})
-    graph_view.node_view.model.data_source.inspect.emit([graph_view.node_view, {geometry: geometry}])
-    return did_hit
+  do_inspection(geometry, graph_view, final, append) {
+    return false;
+  }
+}
 
 
-export class NodesAndLinkedEdges extends GraphHitTestPolicy
-  type: 'NodesAndLinkedEdges'
+export class NodesOnly extends GraphHitTestPolicy {
+  static initClass() {
+    this.prototype.type = 'NodesOnly';
+  }
 
-  _do: (geometry, graph_view, final, append) ->
-    [node_view, edge_view] = [graph_view.node_view, graph_view.edge_view]
-    hit_test_result = node_view.glyph.hit_test(geometry)
+  _do(geometry, graph_view, final, append) {
+    const { node_view } = graph_view;
+    const hit_test_result = node_view.glyph.hit_test(geometry);
 
-    # glyphs that don't have hit-testing implemented will return null
-    if hit_test_result == null
-      return false
+    // glyphs that don't have hit-testing implemented will return null
+    if (hit_test_result === null) {
+      return false;
+    }
 
-    @_node_selector.update(hit_test_result, final, append)
+    this._node_selector.update(hit_test_result, final, append);
 
-    node_indices = (node_view.model.data_source.data.index[i] for i in hit_test_result["1d"].indices)
-    edge_source = edge_view.model.data_source
-    edge_indices = []
-    for i in [0...edge_source.data.start.length]
-      if contains(node_indices, edge_source.data.start[i]) or contains(node_indices, edge_source.data.end[i])
-        edge_indices.push(i)
+    return !this._node_selector.indices.is_empty();
+  }
 
-    linked_index = create_hit_test_result()
-    for i in edge_indices
-      linked_index["2d"].indices[i] = [0] #currently only supports 2-element multilines, so this is all of it
+  do_selection(geometry, graph_view, final, append) {
+    this._node_selector = graph_view.node_view.model.data_source.selection_manager.selector;
+    const did_hit = this._do(geometry, graph_view, final, append);
+    graph_view.node_view.model.data_source.selected = this._node_selector.indices;
+    graph_view.node_view.model.data_source.select.emit();
+    return did_hit;
+  }
 
-    @_edge_selector.update(linked_index, final, append)
-
-    return not @_node_selector.indices.is_empty()
-
-  do_selection: (geometry, graph_view, final, append) ->
-    @_node_selector = graph_view.node_view.model.data_source.selection_manager.selector
-    @_edge_selector = graph_view.edge_view.model.data_source.selection_manager.selector
-
-    did_hit = @_do(geometry, graph_view, final, append)
-
-    graph_view.node_view.model.data_source.selected = @_node_selector.indices
-    graph_view.edge_view.model.data_source.selected = @_edge_selector.indices
-    graph_view.node_view.model.data_source.select.emit()
-
-    return did_hit
-
-  do_inspection: (geometry, graph_view, final, append) ->
-    @_node_selector = graph_view.node_view.model.data_source.selection_manager.get_or_create_inspector(graph_view.node_view.model)
-    @_edge_selector = graph_view.edge_view.model.data_source.selection_manager.get_or_create_inspector(graph_view.edge_view.model)
-
-    did_hit = @_do(geometry, graph_view, final, append)
-
-    # silently set inspected attr to avoid triggering data_source.change event and rerender
-    graph_view.node_view.model.data_source.setv({inspected: @_node_selector.indices}, {silent: true})
-    graph_view.edge_view.model.data_source.setv({inspected: @_edge_selector.indices}, {silent: true})
-    graph_view.node_view.model.data_source.inspect.emit([graph_view.node_view, {geometry: geometry}])
-
-    return did_hit
+  do_inspection(geometry, graph_view, final, append) {
+    this._node_selector = graph_view.model.get_selection_manager().get_or_create_inspector(graph_view.node_view.model);
+    const did_hit = this._do(geometry, graph_view, final, append);
+    // silently set inspected attr to avoid triggering data_source.change event and rerender
+    graph_view.node_view.model.data_source.setv({inspected: this._node_selector.indices}, {silent: true});
+    graph_view.node_view.model.data_source.inspect.emit([graph_view.node_view, {geometry}]);
+    return did_hit;
+  }
+}
+NodesOnly.initClass();
 
 
-export class EdgesAndLinkedNodes extends GraphHitTestPolicy
-  type: 'EdgesAndLinkedNodes'
+export class NodesAndLinkedEdges extends GraphHitTestPolicy {
+  static initClass() {
+    this.prototype.type = 'NodesAndLinkedEdges';
+  }
 
-  _do: (geometry, graph_view, final, append) ->
-    [node_view, edge_view] = [graph_view.node_view, graph_view.edge_view]
-    hit_test_result = edge_view.glyph.hit_test(geometry)
+  _do(geometry, graph_view, final, append) {
+    let asc, end;
+    let i;
+    const [node_view, edge_view] = Array.from([graph_view.node_view, graph_view.edge_view]);
+    const hit_test_result = node_view.glyph.hit_test(geometry);
 
-    # glyphs that don't have hit-testing implemented will return null
-    if hit_test_result == null
-      return false
+    // glyphs that don't have hit-testing implemented will return null
+    if (hit_test_result === null) {
+      return false;
+    }
 
-    @_edge_selector.update(hit_test_result, final, append)
+    this._node_selector.update(hit_test_result, final, append);
 
-    edge_indices = (parseInt(i) for i in Object.keys(hit_test_result['2d'].indices))
+    const node_indices = ((() => {
+      const result = [];
+      for (i of Array.from(hit_test_result["1d"].indices)) {         result.push(node_view.model.data_source.data.index[i]);
+      }
+      return result;
+    })());
+    const edge_source = edge_view.model.data_source;
+    const edge_indices = [];
+    for (i = 0, end = edge_source.data.start.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+      if (contains(node_indices, edge_source.data.start[i]) || contains(node_indices, edge_source.data.end[i])) {
+        edge_indices.push(i);
+      }
+    }
 
-    nodes = []
-    for i in edge_indices
-      nodes.push(edge_view.model.data_source.data.start[i])
-      nodes.push(edge_view.model.data_source.data.end[i])
+    const linked_index = create_hit_test_result();
+    for (i of Array.from(edge_indices)) {
+      linked_index["2d"].indices[i] = [0];
+    } //currently only supports 2-element multilines, so this is all of it
 
-    node_indices = (node_view.model.data_source.data.index.indexOf(i) for i in uniq(nodes))
+    this._edge_selector.update(linked_index, final, append);
 
-    node_hit_test_result = create_hit_test_result()
-    node_hit_test_result["1d"].indices = node_indices
+    return !this._node_selector.indices.is_empty();
+  }
 
-    @_node_selector.update(node_hit_test_result, final, append)
+  do_selection(geometry, graph_view, final, append) {
+    this._node_selector = graph_view.node_view.model.data_source.selection_manager.selector;
+    this._edge_selector = graph_view.edge_view.model.data_source.selection_manager.selector;
 
-    return not @_edge_selector.indices.is_empty()
+    const did_hit = this._do(geometry, graph_view, final, append);
 
-  do_selection: (geometry, graph_view, final, append) ->
-    @_edge_selector = graph_view.edge_view.model.data_source.selection_manager.selector
-    @_node_selector = graph_view.node_view.model.data_source.selection_manager.selector
+    graph_view.node_view.model.data_source.selected = this._node_selector.indices;
+    graph_view.edge_view.model.data_source.selected = this._edge_selector.indices;
+    graph_view.node_view.model.data_source.select.emit();
 
-    did_hit = @_do(geometry, graph_view, final, append)
+    return did_hit;
+  }
 
-    graph_view.edge_view.model.data_source.selected = @_edge_selector.indices
-    graph_view.node_view.model.data_source.selected = @_node_selector.indices
-    graph_view.edge_view.model.data_source.select.emit()
+  do_inspection(geometry, graph_view, final, append) {
+    this._node_selector = graph_view.node_view.model.data_source.selection_manager.get_or_create_inspector(graph_view.node_view.model);
+    this._edge_selector = graph_view.edge_view.model.data_source.selection_manager.get_or_create_inspector(graph_view.edge_view.model);
 
-    return did_hit
+    const did_hit = this._do(geometry, graph_view, final, append);
 
-  do_inspection: (geometry, graph_view, final, append) ->
-    @_edge_selector = graph_view.edge_view.model.data_source.selection_manager.get_or_create_inspector(graph_view.edge_view.model)
-    @_node_selector = graph_view.node_view.model.data_source.selection_manager.get_or_create_inspector(graph_view.node_view.model)
+    // silently set inspected attr to avoid triggering data_source.change event and rerender
+    graph_view.node_view.model.data_source.setv({inspected: this._node_selector.indices}, {silent: true});
+    graph_view.edge_view.model.data_source.setv({inspected: this._edge_selector.indices}, {silent: true});
+    graph_view.node_view.model.data_source.inspect.emit([graph_view.node_view, {geometry}]);
 
-    did_hit = @_do(geometry, graph_view, final, append)
+    return did_hit;
+  }
+}
+NodesAndLinkedEdges.initClass();
 
-    # silently set inspected attr to avoid triggering data_source.change event and rerender
-    graph_view.edge_view.model.data_source.setv({inspected: @_edge_selector.indices}, {silent: true})
-    graph_view.node_view.model.data_source.setv({inspected: @_node_selector.indices}, {silent: true})
-    graph_view.edge_view.model.data_source.inspect.emit([graph_view.edge_view, {geometry: geometry}])
 
-    return did_hit
+export class EdgesAndLinkedNodes extends GraphHitTestPolicy {
+  static initClass() {
+    this.prototype.type = 'EdgesAndLinkedNodes';
+  }
+
+  _do(geometry, graph_view, final, append) {
+    let i;
+    const [node_view, edge_view] = Array.from([graph_view.node_view, graph_view.edge_view]);
+    const hit_test_result = edge_view.glyph.hit_test(geometry);
+
+    // glyphs that don't have hit-testing implemented will return null
+    if (hit_test_result === null) {
+      return false;
+    }
+
+    this._edge_selector.update(hit_test_result, final, append);
+
+    const edge_indices = ((() => {
+      const result = [];
+      for (i of Array.from(Object.keys(hit_test_result['2d'].indices))) {         result.push(parseInt(i));
+      }
+      return result;
+    })());
+
+    const nodes = [];
+    for (i of Array.from(edge_indices)) {
+      nodes.push(edge_view.model.data_source.data.start[i]);
+      nodes.push(edge_view.model.data_source.data.end[i]);
+    }
+
+    const node_indices = ((() => {
+      const result1 = [];
+      for (i of Array.from(uniq(nodes))) {         result1.push(node_view.model.data_source.data.index.indexOf(i));
+      }
+      return result1;
+    })());
+
+    const node_hit_test_result = create_hit_test_result();
+    node_hit_test_result["1d"].indices = node_indices;
+
+    this._node_selector.update(node_hit_test_result, final, append);
+
+    return !this._edge_selector.indices.is_empty();
+  }
+
+  do_selection(geometry, graph_view, final, append) {
+    this._edge_selector = graph_view.edge_view.model.data_source.selection_manager.selector;
+    this._node_selector = graph_view.node_view.model.data_source.selection_manager.selector;
+
+    const did_hit = this._do(geometry, graph_view, final, append);
+
+    graph_view.edge_view.model.data_source.selected = this._edge_selector.indices;
+    graph_view.node_view.model.data_source.selected = this._node_selector.indices;
+    graph_view.edge_view.model.data_source.select.emit();
+
+    return did_hit;
+  }
+
+  do_inspection(geometry, graph_view, final, append) {
+    this._edge_selector = graph_view.edge_view.model.data_source.selection_manager.get_or_create_inspector(graph_view.edge_view.model);
+    this._node_selector = graph_view.node_view.model.data_source.selection_manager.get_or_create_inspector(graph_view.node_view.model);
+
+    const did_hit = this._do(geometry, graph_view, final, append);
+
+    // silently set inspected attr to avoid triggering data_source.change event and rerender
+    graph_view.edge_view.model.data_source.setv({inspected: this._edge_selector.indices}, {silent: true});
+    graph_view.node_view.model.data_source.setv({inspected: this._node_selector.indices}, {silent: true});
+    graph_view.edge_view.model.data_source.inspect.emit([graph_view.edge_view, {geometry}]);
+
+    return did_hit;
+  }
+}
+EdgesAndLinkedNodes.initClass();

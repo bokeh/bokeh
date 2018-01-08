@@ -112,10 +112,10 @@ export class SpanView extends AnnotationView {
 }
 
 export class Span extends Annotation {
-  static initClass() {
 
-    computed_location: number | null
-    ;
+  computed_location: number | null
+
+  static initClass() {
 
     this.prototype.default_view = SpanView;
 
