@@ -1,205 +1,270 @@
-import {XYGlyph, XYGlyphView} from "./xy_glyph"
-import * as hittest from "core/hittest"
+/*
+ * decaffeinate suggestions:
+ * DS101: Remove unnecessary use of Array.from
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS202: Simplify dynamic range loops
+ * DS205: Consider reworking code to avoid use of IIFEs
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+
+import {XYGlyph, XYGlyphView} from "./xy_glyph";
+import * as hittest from "core/hittest";
 import * as p from "core/properties"
+;
 
-export class CircleView extends XYGlyphView
+export class CircleView extends XYGlyphView {
 
-  _map_data: () ->
-    # NOTE: Order is important here: size is always present (at least
-    # a default), but radius is only present if a user specifies it
-    if @_radius?
-      if @model.properties.radius.spec.units == "data"
-        rd = @model.properties.radius_dimension.spec.value
-        @sradius = @sdist(@renderer["#{rd}scale"], @["_"+rd], @_radius)
-      else
-        @sradius = @_radius
-        @max_size = 2 * @max_radius
-    else
-      @sradius = (s/2 for s in @_size)
+  _map_data() {
+    // NOTE: Order is important here: size is always present (at least
+    // a default), but radius is only present if a user specifies it
+    if (this._radius != null) {
+      if (this.model.properties.radius.spec.units === "data") {
+        const rd = this.model.properties.radius_dimension.spec.value;
+        return this.sradius = this.sdist(this.renderer[`${rd}scale`], this[`_${rd}`], this._radius);
+      } else {
+        this.sradius = this._radius;
+        return this.max_size = 2 * this.max_radius;
+      }
+    } else {
+      return this.sradius = (Array.from(this._size).map((s) => s/2));
+    }
+  }
 
-  _mask_data: (all_indices) ->
-    [hr, vr] = @renderer.plot_view.frame.bbox.ranges
+  _mask_data(all_indices) {
+    let sx0, sx1, sy0, sy1, x0, x1, y0, y1;
+    const [hr, vr] = Array.from(this.renderer.plot_view.frame.bbox.ranges);
 
-    # check for radius first
-    if @_radius? and @model.properties.radius.units == "data"
-      sx0 = hr.start
-      sx1 = hr.end
-      [x0, x1] = @renderer.xscale.r_invert(sx0, sx1)
-      x0 -= @max_radius
-      x1 += @max_radius
+    // check for radius first
+    if ((this._radius != null) && (this.model.properties.radius.units === "data")) {
+      sx0 = hr.start;
+      sx1 = hr.end;
+      [x0, x1] = Array.from(this.renderer.xscale.r_invert(sx0, sx1));
+      x0 -= this.max_radius;
+      x1 += this.max_radius;
 
-      sy0 = vr.start
-      sy1 = vr.end
-      [y0, y1] = @renderer.yscale.r_invert(sy0, sy1)
-      y0 -= @max_radius
-      y1 += @max_radius
+      sy0 = vr.start;
+      sy1 = vr.end;
+      [y0, y1] = Array.from(this.renderer.yscale.r_invert(sy0, sy1));
+      y0 -= this.max_radius;
+      y1 += this.max_radius;
 
-    else
-      sx0 = hr.start - @max_size
-      sx1 = hr.end + @max_size
-      [x0, x1] = @renderer.xscale.r_invert(sx0, sx1)
+    } else {
+      sx0 = hr.start - this.max_size;
+      sx1 = hr.end + this.max_size;
+      [x0, x1] = Array.from(this.renderer.xscale.r_invert(sx0, sx1));
 
-      sy0 = vr.start - @max_size
-      sy1 = vr.end + @max_size
-      [y0, y1] = @renderer.yscale.r_invert(sy0, sy1)
-
-    bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
-    return @index.indices(bbox)
-
-  _render: (ctx, indices, {sx, sy, sradius}) ->
-
-    for i in indices
-      if isNaN(sx[i]+sy[i]+sradius[i])
-        continue
-
-      ctx.beginPath()
-      ctx.arc(sx[i], sy[i], sradius[i], 0, 2*Math.PI, false)
-
-      if @visuals.fill.doit
-        @visuals.fill.set_vectorize(ctx, i)
-        ctx.fill()
-
-      if @visuals.line.doit
-        @visuals.line.set_vectorize(ctx, i)
-        ctx.stroke()
-
-  _hit_point: (geometry) ->
-    {sx, sy} = geometry
-    x = @renderer.xscale.invert(sx)
-    y = @renderer.yscale.invert(sy)
-
-    # check radius first
-    if @_radius? and @model.properties.radius.units == "data"
-      x0 = x - @max_radius
-      x1 = x + @max_radius
-
-      y0 = y - @max_radius
-      y1 = y + @max_radius
-
-    else
-      sx0 = sx - @max_size
-      sx1 = sx + @max_size
-      [x0, x1] = @renderer.xscale.r_invert(sx0, sx1)
-      [x0, x1] = [Math.min(x0, x1), Math.max(x0, x1)]
-
-      sy0 = sy - @max_size
-      sy1 = sy + @max_size
-      [y0, y1] = @renderer.yscale.r_invert(sy0, sy1)
-      [y0, y1] = [Math.min(y0, y1), Math.max(y0, y1)]
-
-    bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
-    candidates = @index.indices(bbox)
-
-    hits = []
-    if @_radius? and @model.properties.radius.units == "data"
-      for i in candidates
-        r2 = Math.pow(@sradius[i], 2)
-        [sx0, sx1] = @renderer.xscale.r_compute(x, @_x[i])
-        [sy0, sy1] = @renderer.yscale.r_compute(y, @_y[i])
-        dist = Math.pow(sx0-sx1, 2) + Math.pow(sy0-sy1, 2)
-        if dist <= r2
-          hits.push([i, dist])
-    else
-      for i in candidates
-        r2 = Math.pow(@sradius[i], 2)
-        dist = Math.pow(@sx[i]-sx, 2) + Math.pow(@sy[i]-sy, 2)
-        if dist <= r2
-          hits.push([i, dist])
-
-    return hittest.create_1d_hit_test_result(hits)
-
-  _hit_span: (geometry) ->
-      {sx, sy} = geometry
-      {minX, minY, maxX, maxY} = this.bounds()
-      result = hittest.create_hit_test_result()
-
-      if geometry.direction == 'h'
-        # use circle bounds instead of current pointer y coordinates
-        y0 = minY
-        y1 = maxY
-        if @_radius? and @model.properties.radius.units == "data"
-          sx0 = sx - @max_radius
-          sx1 = sx + @max_radius
-          [x0, x1] = @renderer.xscale.r_invert(sx0, sx1)
-        else
-          ms = @max_size/2
-          sx0 = sx - ms
-          sx1 = sx + ms
-          [x0, x1] = @renderer.xscale.r_invert(sx0, sx1)
-      else
-        # use circle bounds instead of current pointer x coordinates
-        x0 = minX
-        x1 = maxX
-        if @_radius? and @model.properties.radius.units == "data"
-          sy0 = sy - @max_radius
-          sy1 = sy + @max_radius
-          [y0, y1] = @renderer.yscale.r_invert(sy0, sy1)
-        else
-          ms = @max_size/2
-          sy0 = sy - ms
-          sy1 = sy + ms
-          [y0, y1] = @renderer.yscale.r_invert(sy0, sy1)
-
-      bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
-      hits = @index.indices(bbox)
-
-      result['1d'].indices = hits
-      return result
-
-  _hit_rect: (geometry) ->
-    {sx0, sx1, sy0, sy1} = geometry
-    [x0, x1] = @renderer.xscale.r_invert(sx0, sx1)
-    [y0, y1] = @renderer.yscale.r_invert(sy0, sy1)
-    bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
-    result = hittest.create_hit_test_result()
-    result['1d'].indices = @index.indices(bbox)
-    return result
-
-  _hit_poly: (geometry) ->
-    {sx, sy} = geometry
-
-    # TODO (bev) use spatial index to pare candidate list
-    candidates = [0...@sx.length]
-
-    hits = []
-    for i in [0...candidates.length]
-      idx = candidates[i]
-      if hittest.point_in_poly(@sx[i], @sy[i], sx, sy)
-        hits.push(idx)
-
-    result = hittest.create_hit_test_result()
-    result['1d'].indices = hits
-    return result
-
-  # circle does not inherit from marker (since it also accepts radius) so we
-  # must supply a draw_legend for it  here
-  draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
-    # using objects like this seems a little wonky, since the keys are coerced to
-    # stings, but it works
-    indices = [index]
-    sx = { }
-    sx[index] = (x0+x1)/2
-    sy = { }
-    sy[index] = (y0+y1)/2
-    sradius = { }
-    sradius[index] = Math.min(Math.abs(x1-x0), Math.abs(y1-y0))*0.2
-
-    data = {sx: sx, sy: sy, sradius: sradius}
-    @_render(ctx, indices, data)
-
-export class Circle extends XYGlyph # XXX: Marker
-  default_view: CircleView
-
-  type: 'Circle'
-
-  @mixins ['line', 'fill']
-  @define {
-      angle:            [ p.AngleSpec,    0                             ]
-      size:             [ p.DistanceSpec, { units: "screen", value: 4 } ]
-      radius:           [ p.DistanceSpec, null                          ]
-      radius_dimension: [ p.String,       'x'                           ]
+      sy0 = vr.start - this.max_size;
+      sy1 = vr.end + this.max_size;
+      [y0, y1] = Array.from(this.renderer.yscale.r_invert(sy0, sy1));
     }
 
-  initialize: (attrs, options) ->
-    super(attrs, options)
-    @properties.radius.optional = true
+    const bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1]);
+    return this.index.indices(bbox);
+  }
+
+  _render(ctx, indices, {sx, sy, sradius}) {
+
+    return (() => {
+      const result = [];
+      for (let i of Array.from(indices)) {
+        if (isNaN(sx[i]+sy[i]+sradius[i])) {
+          continue;
+        }
+
+        ctx.beginPath();
+        ctx.arc(sx[i], sy[i], sradius[i], 0, 2*Math.PI, false);
+
+        if (this.visuals.fill.doit) {
+          this.visuals.fill.set_vectorize(ctx, i);
+          ctx.fill();
+        }
+
+        if (this.visuals.line.doit) {
+          this.visuals.line.set_vectorize(ctx, i);
+          result.push(ctx.stroke());
+        } else {
+          result.push(undefined);
+        }
+      }
+      return result;
+    })();
+  }
+
+  _hit_point(geometry) {
+    let dist, i, r2, sx0, sx1, sy0, sy1, x0, x1, y0, y1;
+    const {sx, sy} = geometry;
+    const x = this.renderer.xscale.invert(sx);
+    const y = this.renderer.yscale.invert(sy);
+
+    // check radius first
+    if ((this._radius != null) && (this.model.properties.radius.units === "data")) {
+      x0 = x - this.max_radius;
+      x1 = x + this.max_radius;
+
+      y0 = y - this.max_radius;
+      y1 = y + this.max_radius;
+
+    } else {
+      sx0 = sx - this.max_size;
+      sx1 = sx + this.max_size;
+      [x0, x1] = Array.from(this.renderer.xscale.r_invert(sx0, sx1));
+      [x0, x1] = Array.from([Math.min(x0, x1), Math.max(x0, x1)]);
+
+      sy0 = sy - this.max_size;
+      sy1 = sy + this.max_size;
+      [y0, y1] = Array.from(this.renderer.yscale.r_invert(sy0, sy1));
+      [y0, y1] = Array.from([Math.min(y0, y1), Math.max(y0, y1)]);
+    }
+
+    const bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1]);
+    const candidates = this.index.indices(bbox);
+
+    const hits = [];
+    if ((this._radius != null) && (this.model.properties.radius.units === "data")) {
+      for (i of Array.from(candidates)) {
+        r2 = Math.pow(this.sradius[i], 2);
+        [sx0, sx1] = Array.from(this.renderer.xscale.r_compute(x, this._x[i]));
+        [sy0, sy1] = Array.from(this.renderer.yscale.r_compute(y, this._y[i]));
+        dist = Math.pow(sx0-sx1, 2) + Math.pow(sy0-sy1, 2);
+        if (dist <= r2) {
+          hits.push([i, dist]);
+        }
+      }
+    } else {
+      for (i of Array.from(candidates)) {
+        r2 = Math.pow(this.sradius[i], 2);
+        dist = Math.pow(this.sx[i]-sx, 2) + Math.pow(this.sy[i]-sy, 2);
+        if (dist <= r2) {
+          hits.push([i, dist]);
+        }
+      }
+    }
+
+    return hittest.create_1d_hit_test_result(hits);
+  }
+
+  _hit_span(geometry) {
+      let ms, x0, x1, y0, y1;
+      const {sx, sy} = geometry;
+      const {minX, minY, maxX, maxY} = this.bounds();
+      const result = hittest.create_hit_test_result();
+
+      if (geometry.direction === 'h') {
+        // use circle bounds instead of current pointer y coordinates
+        let sx0, sx1;
+        y0 = minY;
+        y1 = maxY;
+        if ((this._radius != null) && (this.model.properties.radius.units === "data")) {
+          sx0 = sx - this.max_radius;
+          sx1 = sx + this.max_radius;
+          [x0, x1] = Array.from(this.renderer.xscale.r_invert(sx0, sx1));
+        } else {
+          ms = this.max_size/2;
+          sx0 = sx - ms;
+          sx1 = sx + ms;
+          [x0, x1] = Array.from(this.renderer.xscale.r_invert(sx0, sx1));
+        }
+      } else {
+        // use circle bounds instead of current pointer x coordinates
+        let sy0, sy1;
+        x0 = minX;
+        x1 = maxX;
+        if ((this._radius != null) && (this.model.properties.radius.units === "data")) {
+          sy0 = sy - this.max_radius;
+          sy1 = sy + this.max_radius;
+          [y0, y1] = Array.from(this.renderer.yscale.r_invert(sy0, sy1));
+        } else {
+          ms = this.max_size/2;
+          sy0 = sy - ms;
+          sy1 = sy + ms;
+          [y0, y1] = Array.from(this.renderer.yscale.r_invert(sy0, sy1));
+        }
+      }
+
+      const bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1]);
+      const hits = this.index.indices(bbox);
+
+      result['1d'].indices = hits;
+      return result;
+    }
+
+  _hit_rect(geometry) {
+    const {sx0, sx1, sy0, sy1} = geometry;
+    const [x0, x1] = Array.from(this.renderer.xscale.r_invert(sx0, sx1));
+    const [y0, y1] = Array.from(this.renderer.yscale.r_invert(sy0, sy1));
+    const bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1]);
+    const result = hittest.create_hit_test_result();
+    result['1d'].indices = this.index.indices(bbox);
+    return result;
+  }
+
+  _hit_poly(geometry) {
+    const {sx, sy} = geometry;
+
+    // TODO (bev) use spatial index to pare candidate list
+    const candidates = __range__(0, this.sx.length, false);
+
+    const hits = [];
+    for (let i = 0, end = candidates.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+      const idx = candidates[i];
+      if (hittest.point_in_poly(this.sx[i], this.sy[i], sx, sy)) {
+        hits.push(idx);
+      }
+    }
+
+    const result = hittest.create_hit_test_result();
+    result['1d'].indices = hits;
+    return result;
+  }
+
+  // circle does not inherit from marker (since it also accepts radius) so we
+  // must supply a draw_legend for it  here
+  draw_legend_for_index(ctx, x0, x1, y0, y1, index) {
+    // using objects like this seems a little wonky, since the keys are coerced to
+    // stings, but it works
+    const indices = [index];
+    const sx = { };
+    sx[index] = (x0+x1)/2;
+    const sy = { };
+    sy[index] = (y0+y1)/2;
+    const sradius = { };
+    sradius[index] = Math.min(Math.abs(x1-x0), Math.abs(y1-y0))*0.2;
+
+    const data = {sx, sy, sradius};
+    return this._render(ctx, indices, data);
+  }
+}
+
+export class Circle extends XYGlyph {
+  static initClass() { // XXX: Marker
+    this.prototype.default_view = CircleView;
+
+    this.prototype.type = 'Circle';
+
+    this.mixins(['line', 'fill']);
+    this.define({
+        angle:            [ p.AngleSpec,    0                             ],
+        size:             [ p.DistanceSpec, { units: "screen", value: 4 } ],
+        radius:           [ p.DistanceSpec, null                          ],
+        radius_dimension: [ p.String,       'x'                           ]
+      });
+  }
+
+  initialize(attrs, options) {
+    super.initialize(attrs, options);
+    return this.properties.radius.optional = true;
+  }
+}
+Circle.initClass();
+
+function __range__(left, right, inclusive) {
+  let range = [];
+  let ascending = left < right;
+  let end = !inclusive ? right : ascending ? right + 1 : right - 1;
+  for (let i = left; ascending ? i < end : i > end; ascending ? i++ : i--) {
+    range.push(i);
+  }
+  return range;
+}

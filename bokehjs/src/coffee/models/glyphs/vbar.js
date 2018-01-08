@@ -1,40 +1,57 @@
-import {Box, BoxView} from "./box"
+/*
+ * decaffeinate suggestions:
+ * DS202: Simplify dynamic range loops
+ * DS206: Consider reworking classes to avoid initClass
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+
+import {Box, BoxView} from "./box";
 import * as p from "core/properties"
+;
 
-export class VBarView extends BoxView
+export class VBarView extends BoxView {
 
-  scy: (i) -> return (@stop[i] + @sbottom[i])/2
+  scy(i) { return (this.stop[i] + this.sbottom[i])/2; }
 
-  _index_data: () ->
-    return @_index_box(@_x.length)
-
-  _lrtb: (i) ->
-    l = @_x[i] - @_width[i]/2
-    r = @_x[i] + @_width[i]/2
-    t = Math.max(@_top[i], @_bottom[i])
-    b = Math.min(@_top[i], @_bottom[i])
-    return [l, r, t, b]
-
-  _map_data: () ->
-    @sx = @renderer.xscale.v_compute(@_x)
-    @stop = @renderer.yscale.v_compute(@_top)
-    @sbottom = @renderer.yscale.v_compute(@_bottom)
-
-    @sleft = []
-    @sright = []
-    @sw = @sdist(@renderer.xscale, @_x, @_width, 'center')
-    for i in [0...@sx.length]
-      @sleft.push(@sx[i] - @sw[i]/2)
-      @sright.push(@sx[i] + @sw[i]/2)
-    return null
-
-export class VBar extends Box
-  default_view: VBarView
-  type: 'VBar'
-
-  @coords [['x', 'bottom']]
-  @define {
-    width:  [ p.DistanceSpec  ]
-    top:    [ p.NumberSpec    ]
+  _index_data() {
+    return this._index_box(this._x.length);
   }
-  @override { bottom: 0 }
+
+  _lrtb(i) {
+    const l = this._x[i] - (this._width[i]/2);
+    const r = this._x[i] + (this._width[i]/2);
+    const t = Math.max(this._top[i], this._bottom[i]);
+    const b = Math.min(this._top[i], this._bottom[i]);
+    return [l, r, t, b];
+  }
+
+  _map_data() {
+    this.sx = this.renderer.xscale.v_compute(this._x);
+    this.stop = this.renderer.yscale.v_compute(this._top);
+    this.sbottom = this.renderer.yscale.v_compute(this._bottom);
+
+    this.sleft = [];
+    this.sright = [];
+    this.sw = this.sdist(this.renderer.xscale, this._x, this._width, 'center');
+    for (let i = 0, end = this.sx.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+      this.sleft.push(this.sx[i] - (this.sw[i]/2));
+      this.sright.push(this.sx[i] + (this.sw[i]/2));
+    }
+    return null;
+  }
+}
+
+export class VBar extends Box {
+  static initClass() {
+    this.prototype.default_view = VBarView;
+    this.prototype.type = 'VBar';
+
+    this.coords([['x', 'bottom']]);
+    this.define({
+      width:  [ p.DistanceSpec  ],
+      top:    [ p.NumberSpec    ]
+    });
+    this.override({ bottom: 0 });
+  }
+}
+VBar.initClass();

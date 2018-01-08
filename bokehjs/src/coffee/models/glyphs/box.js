@@ -1,72 +1,108 @@
-import {RBush} from "core/util/spatial"
-import {Glyph, GlyphView} from "./glyph"
-import * as hittest from "core/hittest"
+/*
+ * decaffeinate suggestions:
+ * DS101: Remove unnecessary use of Array.from
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS202: Simplify dynamic range loops
+ * DS205: Consider reworking code to avoid use of IIFEs
+ * DS206: Consider reworking classes to avoid initClass
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+
+import {RBush} from "core/util/spatial";
+import {Glyph, GlyphView} from "./glyph";
+import * as hittest from "core/hittest";
 import * as p from "core/properties"
+;
 
-# Not a publicly exposed Glyph, exists to factor code for bars and quads
+// Not a publicly exposed Glyph, exists to factor code for bars and quads
 
-export class BoxView extends GlyphView
+export class BoxView extends GlyphView {
 
-  _index_box: (len) ->
-    points = []
+  _index_box(len) {
+    const points = [];
 
-    for i in [0...len]
-      [l, r, t, b] = @_lrtb(i)
-      if isNaN(l+r+t+b) or not isFinite(l+r+t+b)
-        continue
-      points.push({minX: l, minY: b, maxX: r, maxY: t, i: i})
+    for (let i = 0, end = len, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+      const [l, r, t, b] = Array.from(this._lrtb(i));
+      if (isNaN(l+r+t+b) || !isFinite(l+r+t+b)) {
+        continue;
+      }
+      points.push({minX: l, minY: b, maxX: r, maxY: t, i});
+    }
 
-    return new RBush(points)
+    return new RBush(points);
+  }
 
-  _render: (ctx, indices, {sleft, sright, stop, sbottom}) ->
-    for i in indices
-      if isNaN(sleft[i]+stop[i]+sright[i]+sbottom[i])
-        continue
+  _render(ctx, indices, {sleft, sright, stop, sbottom}) {
+    return (() => {
+      const result = [];
+      for (let i of Array.from(indices)) {
+        if (isNaN(sleft[i]+stop[i]+sright[i]+sbottom[i])) {
+          continue;
+        }
 
-      if @visuals.fill.doit
-        @visuals.fill.set_vectorize(ctx, i)
-        ctx.fillRect(sleft[i], stop[i], sright[i]-sleft[i], sbottom[i]-stop[i])
+        if (this.visuals.fill.doit) {
+          this.visuals.fill.set_vectorize(ctx, i);
+          ctx.fillRect(sleft[i], stop[i], sright[i]-sleft[i], sbottom[i]-stop[i]);
+        }
 
-      if @visuals.line.doit
-        ctx.beginPath()
-        ctx.rect(sleft[i], stop[i], sright[i]-sleft[i], sbottom[i]-stop[i])
-        @visuals.line.set_vectorize(ctx, i)
-        ctx.stroke()
+        if (this.visuals.line.doit) {
+          ctx.beginPath();
+          ctx.rect(sleft[i], stop[i], sright[i]-sleft[i], sbottom[i]-stop[i]);
+          this.visuals.line.set_vectorize(ctx, i);
+          result.push(ctx.stroke());
+        } else {
+          result.push(undefined);
+        }
+      }
+      return result;
+    })();
+  }
 
-  _hit_rect: (geometry) ->
-    return @_hit_rect_against_index(geometry)
+  _hit_rect(geometry) {
+    return this._hit_rect_against_index(geometry);
+  }
 
-  _hit_point: (geometry) ->
-    {sx, sy} = geometry
-    x = @renderer.xscale.invert(sx)
-    y = @renderer.yscale.invert(sy)
+  _hit_point(geometry) {
+    const {sx, sy} = geometry;
+    const x = this.renderer.xscale.invert(sx);
+    const y = this.renderer.yscale.invert(sy);
 
-    hits = @index.indices({minX: x, minY: y, maxX: x, maxY: y})
+    const hits = this.index.indices({minX: x, minY: y, maxX: x, maxY: y});
 
-    result = hittest.create_hit_test_result()
-    result['1d'].indices = hits
-    return result
+    const result = hittest.create_hit_test_result();
+    result['1d'].indices = hits;
+    return result;
+  }
 
-  _hit_span: (geometry) ->
-    {sx, sy} = geometry
+  _hit_span(geometry) {
+    let hits, maxX, minX;
+    const {sx, sy} = geometry;
 
-    if geometry.direction == 'v'
-      y = @renderer.yscale.invert(sy)
-      hr = @renderer.plot_view.frame.bbox.h_range
-      [minX, maxX] = @renderer.xscale.r_invert(hr.start, hr.end)
-      hits = @index.indices({ minX: minX, minY: y, maxX: maxX, maxY: y })
-    else
-      x = @renderer.xscale.invert(sx)
-      vr = @renderer.plot_view.frame.bbox.v_range
-      [minY, maxY] = @renderer.yscale.r_invert(vr.start, vr.end)
-      hits = @index.indices({ minX: x, minY: minY, maxX: x, maxY: maxY })
+    if (geometry.direction === 'v') {
+      const y = this.renderer.yscale.invert(sy);
+      const hr = this.renderer.plot_view.frame.bbox.h_range;
+      [minX, maxX] = Array.from(this.renderer.xscale.r_invert(hr.start, hr.end));
+      hits = this.index.indices({ minX, minY: y, maxX, maxY: y });
+    } else {
+      const x = this.renderer.xscale.invert(sx);
+      const vr = this.renderer.plot_view.frame.bbox.v_range;
+      const [minY, maxY] = Array.from(this.renderer.yscale.r_invert(vr.start, vr.end));
+      hits = this.index.indices({ minX: x, minY, maxX: x, maxY });
+    }
 
-    result = hittest.create_hit_test_result()
-    result['1d'].indices = hits
-    return result
+    const result = hittest.create_hit_test_result();
+    result['1d'].indices = hits;
+    return result;
+  }
 
-  draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
-    @_generic_area_legend(ctx, x0, x1, y0, y1, index)
+  draw_legend_for_index(ctx, x0, x1, y0, y1, index) {
+    return this._generic_area_legend(ctx, x0, x1, y0, y1, index);
+  }
+}
 
-export class Box extends Glyph
-  @mixins ['line', 'fill']
+export class Box extends Glyph {
+  static initClass() {
+    this.mixins(['line', 'fill']);
+  }
+}
+Box.initClass();

@@ -1,136 +1,203 @@
-import {Glyph, GlyphView} from "./glyph"
-import {logger} from "core/logging"
+/*
+ * decaffeinate suggestions:
+ * DS101: Remove unnecessary use of Array.from
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS202: Simplify dynamic range loops
+ * DS205: Consider reworking code to avoid use of IIFEs
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+
+import {Glyph, GlyphView} from "./glyph";
+import {logger} from "core/logging";
 import * as p from "core/properties"
+;
 
-export class ImageURLView extends GlyphView
-  initialize: (options) ->
-    super(options)
-    @connect(@model.properties.global_alpha.change, () => @renderer.request_render())
+export class ImageURLView extends GlyphView {
+  initialize(options) {
+    super.initialize(options);
+    return this.connect(this.model.properties.global_alpha.change, () => this.renderer.request_render());
+  }
 
-  _index_data: () ->
+  _index_data() {}
 
-  _set_data: () ->
-    if not @image? or @image.length != @_url.length
-      @image = (null for img in @_url)
+  _set_data() {
+    let img;
+    if ((this.image == null) || (this.image.length !== this._url.length)) {
+      this.image = ((() => {
+        const result = [];
+        for (img of Array.from(this._url)) {           result.push(null);
+        }
+        return result;
+      })());
+    }
 
-    retry_attempts = @model.retry_attempts
-    retry_timeout = @model.retry_timeout
+    const { retry_attempts } = this.model;
+    const { retry_timeout } = this.model;
 
-    @retries = (retry_attempts for img in @_url)
+    this.retries = ((() => {
+      const result1 = [];
+      for (img of Array.from(this._url)) {         result1.push(retry_attempts);
+      }
+      return result1;
+    })());
 
-    for i in [0...@_url.length]
-      if not @_url[i]?
-        continue
+    return (() => {
+      const result2 = [];
+      for (let i = 0, end = this._url.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+        if ((this._url[i] == null)) {
+          continue;
+        }
 
-      img = new Image()
-      img.onerror = do (i, img) =>
-        return () =>
-          if @retries[i] > 0
-            logger.trace("ImageURL failed to load #{@_url[i]} image, retrying in #{retry_timeout} ms")
-            setTimeout((=> img.src = @_url[i]), retry_timeout)
-          else
-            logger.warn("ImageURL unable to load #{@_url[i]} image after #{retry_attempts} retries")
-          @retries[i] -= 1
-      img.onload = do (img, i) =>
-        return () =>
-          @image[i] = img
-          @renderer.request_render()
-      img.src = @_url[i]
+        img = new Image();
+        img.onerror = ((i, img) => {
+          return () => {
+            if (this.retries[i] > 0) {
+              logger.trace(`ImageURL failed to load ${this._url[i]} image, retrying in ${retry_timeout} ms`);
+              setTimeout((() => { return img.src = this._url[i]; }), retry_timeout);
+            } else {
+              logger.warn(`ImageURL unable to load ${this._url[i]} image after ${retry_attempts} retries`);
+            }
+            return this.retries[i] -= 1;
+          };
+        })(i, img);
+        img.onload = ((img, i) => {
+          return () => {
+            this.image[i] = img;
+            return this.renderer.request_render();
+          };
+        })(img, i);
+        result2.push(img.src = this._url[i]);
+      }
+      return result2;
+    })();
+  }
 
-  has_finished: () ->
-    return super() and @_images_rendered == true
+  has_finished() {
+    return super.has_finished() && (this._images_rendered === true);
+  }
 
-  _map_data: () ->
-    # Better to check @model.w and @model.h for null since the set_data
-    # machinery will have converted @_w and @_w to lists of null
-    ws = (if @model.w? then @_w else NaN for x in @_x)
-    hs = (if @model.h? then @_h else NaN for x in @_x)
+  _map_data() {
+    // Better to check @model.w and @model.h for null since the set_data
+    // machinery will have converted @_w and @_w to lists of null
+    let x;
+    const ws = ((this.model.w != null) ? this._w : (() => {
+      const result = [];
+      for (x of Array.from(this._x)) {         result.push(NaN);
+      }
+      return result;
+    })());
+    const hs = ((this.model.h != null) ? this._h : (() => {
+      const result1 = [];
+      for (x of Array.from(this._x)) {         result1.push(NaN);
+      }
+      return result1;
+    })());
 
-    switch @model.properties.w.units
-      when "data" then @sw = @sdist(@renderer.xscale, @_x, ws, 'edge', @model.dilate)
-      when "screen" then @sw = ws
+    switch (this.model.properties.w.units) {
+      case "data": this.sw = this.sdist(this.renderer.xscale, this._x, ws, 'edge', this.model.dilate); break;
+      case "screen": this.sw = ws; break;
+    }
 
-    switch @model.properties.h.units
-      when "data" then @sh = @sdist(@renderer.yscale, @_y, hs, 'edge', @model.dilate)
-      when "screen" then @sh = hs
+    switch (this.model.properties.h.units) {
+      case "data": return this.sh = this.sdist(this.renderer.yscale, this._y, hs, 'edge', this.model.dilate);
+      case "screen": return this.sh = hs;
+    }
+  }
 
-  _render: (ctx, indices, {_url, image, sx, sy, sw, sh, _angle}) ->
+  _render(ctx, indices, {_url, image, sx, sy, sw, sh, _angle}) {
 
-    # TODO (bev): take actual border width into account when clipping
-    frame = @renderer.plot_view.frame
+    // TODO (bev): take actual border width into account when clipping
+    const { frame } = this.renderer.plot_view;
     ctx.rect(
       frame._left.value+1, frame._top.value+1,
-      frame._width.value-2, frame._height.value-2,
-    )
-    ctx.clip()
+      frame._width.value-2, frame._height.value-2
+    );
+    ctx.clip();
 
-    finished = true
+    let finished = true;
 
-    for i in indices
-      if isNaN(sx[i]+sy[i]+_angle[i])
-        continue
+    for (let i of Array.from(indices)) {
+      if (isNaN(sx[i]+sy[i]+_angle[i])) {
+        continue;
+      }
 
-      if @retries[i] == -1
-        continue
+      if (this.retries[i] === -1) {
+        continue;
+      }
 
-      if not image[i]?
-        finished = false
-        continue
+      if ((image[i] == null)) {
+        finished = false;
+        continue;
+      }
 
-      @_render_image(ctx, i, image[i], sx, sy, sw, sh, _angle)
+      this._render_image(ctx, i, image[i], sx, sy, sw, sh, _angle);
+    }
 
-    if finished and not @_images_rendered
-      @_images_rendered = true
-      @notify_finished()
-
-  _final_sx_sy: (anchor, sx, sy, sw, sh) ->
-    switch anchor
-      when 'top_left'      then [sx       , sy       ]
-      when 'top_center'    then [sx - sw/2, sy       ]
-      when 'top_right'     then [sx - sw  , sy       ]
-      when 'center_right'  then [sx - sw  , sy - sh/2]
-      when 'bottom_right'  then [sx - sw  , sy - sh  ]
-      when 'bottom_center' then [sx - sw/2, sy - sh  ]
-      when 'bottom_left'   then [sx       , sy - sh  ]
-      when 'center_left'   then [sx       , sy - sh/2]
-      when 'center'        then [sx - sw/2, sy - sh/2]
-
-  _render_image: (ctx, i, image, sx, sy, sw, sh, angle) ->
-    if isNaN(sw[i]) then sw[i] = image.width
-    if isNaN(sh[i]) then sh[i] = image.height
-
-    anchor = @model.anchor
-    [sx, sy] = @_final_sx_sy(anchor, sx[i], sy[i], sw[i], sh[i])
-
-    ctx.save()
-
-    ctx.globalAlpha = @model.global_alpha
-
-    if angle[i]
-      ctx.translate(sx, sy)
-      ctx.rotate(angle[i])
-      ctx.drawImage(image, 0, 0, sw[i], sh[i])
-      ctx.rotate(-angle[i])
-      ctx.translate(-sx, -sy)
-    else
-      ctx.drawImage(image, sx, sy, sw[i], sh[i])
-    ctx.restore()
-
-export class ImageURL extends Glyph
-  default_view: ImageURLView
-
-  type: 'ImageURL'
-
-  @coords [['x', 'y']]
-  @mixins []
-  @define {
-      url:            [ p.StringSpec            ]
-      anchor:         [ p.Anchor,    'top_left' ]
-      global_alpha:   [ p.Number,    1.0        ]
-      angle:          [ p.AngleSpec, 0          ]
-      w:              [ p.DistanceSpec          ]
-      h:              [ p.DistanceSpec          ]
-      dilate:         [ p.Bool,      false      ]
-      retry_attempts: [ p.Number,    0          ]
-      retry_timeout:  [ p.Number,    0          ]
+    if (finished && !this._images_rendered) {
+      this._images_rendered = true;
+      return this.notify_finished();
+    }
   }
+
+  _final_sx_sy(anchor, sx, sy, sw, sh) {
+    switch (anchor) {
+      case 'top_left':      return [sx       , sy       ];
+      case 'top_center':    return [sx - (sw/2), sy       ];
+      case 'top_right':     return [sx - sw  , sy       ];
+      case 'center_right':  return [sx - sw  , sy - (sh/2)];
+      case 'bottom_right':  return [sx - sw  , sy - sh  ];
+      case 'bottom_center': return [sx - (sw/2), sy - sh  ];
+      case 'bottom_left':   return [sx       , sy - sh  ];
+      case 'center_left':   return [sx       , sy - (sh/2)];
+      case 'center':        return [sx - (sw/2), sy - (sh/2)];
+    }
+  }
+
+  _render_image(ctx, i, image, sx, sy, sw, sh, angle) {
+    if (isNaN(sw[i])) { sw[i] = image.width; }
+    if (isNaN(sh[i])) { sh[i] = image.height; }
+
+    const { anchor } = this.model;
+    [sx, sy] = Array.from(this._final_sx_sy(anchor, sx[i], sy[i], sw[i], sh[i]));
+
+    ctx.save();
+
+    ctx.globalAlpha = this.model.global_alpha;
+
+    if (angle[i]) {
+      ctx.translate(sx, sy);
+      ctx.rotate(angle[i]);
+      ctx.drawImage(image, 0, 0, sw[i], sh[i]);
+      ctx.rotate(-angle[i]);
+      ctx.translate(-sx, -sy);
+    } else {
+      ctx.drawImage(image, sx, sy, sw[i], sh[i]);
+    }
+    return ctx.restore();
+  }
+}
+
+export class ImageURL extends Glyph {
+  static initClass() {
+    this.prototype.default_view = ImageURLView;
+
+    this.prototype.type = 'ImageURL';
+
+    this.coords([['x', 'y']]);
+    this.mixins([]);
+    this.define({
+        url:            [ p.StringSpec            ],
+        anchor:         [ p.Anchor,    'top_left' ],
+        global_alpha:   [ p.Number,    1.0        ],
+        angle:          [ p.AngleSpec, 0          ],
+        w:              [ p.DistanceSpec          ],
+        h:              [ p.DistanceSpec          ],
+        dilate:         [ p.Bool,      false      ],
+        retry_attempts: [ p.Number,    0          ],
+        retry_timeout:  [ p.Number,    0          ]
+    });
+  }
+}
+ImageURL.initClass();

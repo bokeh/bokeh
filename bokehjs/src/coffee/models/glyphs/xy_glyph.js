@@ -1,22 +1,38 @@
-import {RBush} from "core/util/spatial"
+/*
+ * decaffeinate suggestions:
+ * DS202: Simplify dynamic range loops
+ * DS206: Consider reworking classes to avoid initClass
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+
+import {RBush} from "core/util/spatial";
 import {Glyph, GlyphView} from "./glyph"
+;
 
-export class XYGlyphView extends GlyphView
+export class XYGlyphView extends GlyphView {
 
-  _index_data: () ->
-    points = []
+  _index_data() {
+    const points = [];
 
-    for i in [0...@_x.length]
-      x = @_x[i]
-      y = @_y[i]
-      if isNaN(x+y) or not isFinite(x+y)
-        continue
-      points.push({minX: x, minY: y, maxX: x, maxY: y, i: i})
+    for (let i = 0, end = this._x.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+      const x = this._x[i];
+      const y = this._y[i];
+      if (isNaN(x+y) || !isFinite(x+y)) {
+        continue;
+      }
+      points.push({minX: x, minY: y, maxX: x, maxY: y, i});
+    }
 
-    return new RBush(points)
+    return new RBush(points);
+  }
+}
 
-export class XYGlyph extends Glyph
-  type: "XYGlyph"
-  default_view: XYGlyphView
+export class XYGlyph extends Glyph {
+  static initClass() {
+    this.prototype.type = "XYGlyph";
+    this.prototype.default_view = XYGlyphView;
 
-  @coords [['x', 'y']]
+    this.coords([['x', 'y']]);
+  }
+}
+XYGlyph.initClass();

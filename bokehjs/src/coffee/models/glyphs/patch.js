@@ -1,52 +1,75 @@
+/*
+ * decaffeinate suggestions:
+ * DS101: Remove unnecessary use of Array.from
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS206: Consider reworking classes to avoid initClass
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+
 import {XYGlyph, XYGlyphView} from "./xy_glyph"
+;
 
-export class PatchView extends XYGlyphView
+export class PatchView extends XYGlyphView {
 
-  _render: (ctx, indices, {sx, sy}) ->
-    if @visuals.fill.doit
-      @visuals.fill.set_value(ctx)
+  _render(ctx, indices, {sx, sy}) {
+    let i;
+    if (this.visuals.fill.doit) {
+      this.visuals.fill.set_value(ctx);
 
-      for i in indices
-        if i == 0
-          ctx.beginPath()
-          ctx.moveTo(sx[i], sy[i])
-          continue
-        else if isNaN(sx[i] + sy[i])
-          ctx.closePath()
-          ctx.fill()
-          ctx.beginPath()
-          continue
-        else
-          ctx.lineTo(sx[i], sy[i])
+      for (i of Array.from(indices)) {
+        if (i === 0) {
+          ctx.beginPath();
+          ctx.moveTo(sx[i], sy[i]);
+          continue;
+        } else if (isNaN(sx[i] + sy[i])) {
+          ctx.closePath();
+          ctx.fill();
+          ctx.beginPath();
+          continue;
+        } else {
+          ctx.lineTo(sx[i], sy[i]);
+        }
+      }
 
-      ctx.closePath()
-      ctx.fill()
+      ctx.closePath();
+      ctx.fill();
+    }
 
-    if @visuals.line.doit
-      @visuals.line.set_value(ctx)
+    if (this.visuals.line.doit) {
+      this.visuals.line.set_value(ctx);
 
-      for i in indices
-        if i == 0
-          ctx.beginPath()
-          ctx.moveTo(sx[i], sy[i])
-          continue
-        else if isNaN(sx[i] + sy[i])
-          ctx.closePath()
-          ctx.stroke()
-          ctx.beginPath()
-          continue
-        else
-          ctx.lineTo(sx[i], sy[i])
+      for (i of Array.from(indices)) {
+        if (i === 0) {
+          ctx.beginPath();
+          ctx.moveTo(sx[i], sy[i]);
+          continue;
+        } else if (isNaN(sx[i] + sy[i])) {
+          ctx.closePath();
+          ctx.stroke();
+          ctx.beginPath();
+          continue;
+        } else {
+          ctx.lineTo(sx[i], sy[i]);
+        }
+      }
 
-      ctx.closePath()
-      ctx.stroke()
+      ctx.closePath();
+      return ctx.stroke();
+    }
+  }
 
-  draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
-    @_generic_area_legend(ctx, x0, x1, y0, y1, index)
+  draw_legend_for_index(ctx, x0, x1, y0, y1, index) {
+    return this._generic_area_legend(ctx, x0, x1, y0, y1, index);
+  }
+}
 
-export class Patch extends XYGlyph
-  default_view: PatchView
+export class Patch extends XYGlyph {
+  static initClass() {
+    this.prototype.default_view = PatchView;
 
-  type: 'Patch'
+    this.prototype.type = 'Patch';
 
-  @mixins ['line', 'fill']
+    this.mixins(['line', 'fill']);
+  }
+}
+Patch.initClass();

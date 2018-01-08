@@ -1,99 +1,137 @@
-import * as hittest from "core/hittest"
-import {RBush} from "core/util/spatial"
+/*
+ * decaffeinate suggestions:
+ * DS101: Remove unnecessary use of Array.from
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS202: Simplify dynamic range loops
+ * DS205: Consider reworking code to avoid use of IIFEs
+ * DS206: Consider reworking classes to avoid initClass
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+
+import * as hittest from "core/hittest";
+import {RBush} from "core/util/spatial";
 import {Glyph, GlyphView} from "./glyph"
+;
 
-export class SegmentView extends GlyphView
+export class SegmentView extends GlyphView {
 
-  _index_data: () ->
-    points = []
-    for i in [0...@_x0.length]
-      if not isNaN(@_x0[i] + @_x1[i] + @_y0[i] + @_y1[i])
+  _index_data() {
+    const points = [];
+    for (let i = 0, end = this._x0.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+      if (!isNaN(this._x0[i] + this._x1[i] + this._y0[i] + this._y1[i])) {
         points.push({
-          minX: Math.min(@_x0[i], @_x1[i]),
-          minY: Math.min(@_y0[i], @_y1[i]),
-          maxX: Math.max(@_x0[i], @_x1[i]),
-          maxY: Math.max(@_y0[i], @_y1[i]),
-          i: i
-        })
+          minX: Math.min(this._x0[i], this._x1[i]),
+          minY: Math.min(this._y0[i], this._y1[i]),
+          maxX: Math.max(this._x0[i], this._x1[i]),
+          maxY: Math.max(this._y0[i], this._y1[i]),
+          i
+        });
+      }
+    }
 
-    return new RBush(points)
+    return new RBush(points);
+  }
 
-  _render: (ctx, indices, {sx0, sy0, sx1, sy1}) ->
-    if @visuals.line.doit
-      for i in indices
-        if isNaN(sx0[i]+sy0[i]+sx1[i]+sy1[i])
-          continue
+  _render(ctx, indices, {sx0, sy0, sx1, sy1}) {
+    if (this.visuals.line.doit) {
+      return (() => {
+        const result = [];
+        for (let i of Array.from(indices)) {
+          if (isNaN(sx0[i]+sy0[i]+sx1[i]+sy1[i])) {
+            continue;
+          }
 
-        ctx.beginPath()
-        ctx.moveTo(sx0[i], sy0[i])
-        ctx.lineTo(sx1[i], sy1[i])
+          ctx.beginPath();
+          ctx.moveTo(sx0[i], sy0[i]);
+          ctx.lineTo(sx1[i], sy1[i]);
 
-        @visuals.line.set_vectorize(ctx, i)
-        ctx.stroke()
+          this.visuals.line.set_vectorize(ctx, i);
+          result.push(ctx.stroke());
+        }
+        return result;
+      })();
+    }
+  }
 
-  _hit_point: (geometry) ->
-    {sx, sy} = geometry
-    x = @renderer.xscale.invert(sx)
-    y = @renderer.yscale.invert(sy)
+  _hit_point(geometry) {
+    const {sx, sy} = geometry;
+    const x = this.renderer.xscale.invert(sx);
+    const y = this.renderer.yscale.invert(sy);
 
-    point = {x: sx, y: sy}
+    const point = {x: sx, y: sy};
 
-    hits = []
-    lw_voffset = 2 # FIXME: Use maximum of segments line_width/2 instead of magic constant 2
+    const hits = [];
+    const lw_voffset = 2; // FIXME: Use maximum of segments line_width/2 instead of magic constant 2
 
-    [minX, maxX] = @renderer.xscale.r_invert(sx-lw_voffset, sx+lw_voffset)
-    [minY, maxY] = @renderer.yscale.r_invert(sy-lw_voffset, sy+lw_voffset)
-    candidates = @index.indices({minX: minX, minY: minY, maxX: maxX, maxY: maxY})
+    const [minX, maxX] = Array.from(this.renderer.xscale.r_invert(sx-lw_voffset, sx+lw_voffset));
+    const [minY, maxY] = Array.from(this.renderer.yscale.r_invert(sy-lw_voffset, sy+lw_voffset));
+    const candidates = this.index.indices({minX, minY, maxX, maxY});
 
-    for i in candidates
-      threshold2 = Math.pow(Math.max(2, @visuals.line.cache_select('line_width', i) / 2), 2)
-      [p0, p1] = [{x: @sx0[i], y: @sy0[i]}, {x: @sx1[i], y: @sy1[i]}]
-      dist2 = hittest.dist_to_segment_squared(point, p0, p1)
-      if dist2 < threshold2
-        hits.push(i)
+    for (let i of Array.from(candidates)) {
+      const threshold2 = Math.pow(Math.max(2, this.visuals.line.cache_select('line_width', i) / 2), 2);
+      const [p0, p1] = Array.from([{x: this.sx0[i], y: this.sy0[i]}, {x: this.sx1[i], y: this.sy1[i]}]);
+      const dist2 = hittest.dist_to_segment_squared(point, p0, p1);
+      if (dist2 < threshold2) {
+        hits.push(i);
+      }
+    }
 
-    result = hittest.create_hit_test_result()
-    result['1d'].indices = hits
-    return result
+    const result = hittest.create_hit_test_result();
+    result['1d'].indices = hits;
+    return result;
+  }
 
-  _hit_span: (geometry) ->
-    [hr, vr] = @renderer.plot_view.frame.bbox.ranges
-    {sx, sy} = geometry
+  _hit_span(geometry) {
+    let v0, v1, val;
+    const [hr, vr] = Array.from(this.renderer.plot_view.frame.bbox.ranges);
+    const {sx, sy} = geometry;
 
-    if geometry.direction == 'v'
-      val = @renderer.yscale.invert(sy)
-      [v0, v1] = [@_y0, @_y1]
-    else
-      val = @renderer.xscale.invert(sx)
-      [v0, v1] = [@_x0, @_x1]
+    if (geometry.direction === 'v') {
+      val = this.renderer.yscale.invert(sy);
+      [v0, v1] = Array.from([this._y0, this._y1]);
+    } else {
+      val = this.renderer.xscale.invert(sx);
+      [v0, v1] = Array.from([this._x0, this._x1]);
+    }
 
-    hits = []
+    const hits = [];
 
-    [minX, maxX] = @renderer.xscale.r_invert(hr.start, hr.end)
-    [minY, maxY] = @renderer.yscale.r_invert(vr.start, vr.end)
-    candidates = @index.indices({minX: minX, minY: minY, maxX: maxX, maxY: maxY})
+    const [minX, maxX] = Array.from(this.renderer.xscale.r_invert(hr.start, hr.end));
+    const [minY, maxY] = Array.from(this.renderer.yscale.r_invert(vr.start, vr.end));
+    const candidates = this.index.indices({minX, minY, maxX, maxY});
 
-    for i in candidates
-      if v0[i]<=val<=v1[i] or v1[i]<=val<=v0[i]
-        hits.push(i)
+    for (let i of Array.from(candidates)) {
+      if ((v0[i]<=val && val<=v1[i]) || (v1[i]<=val && val<=v0[i])) {
+        hits.push(i);
+      }
+    }
 
-    result = hittest.create_hit_test_result()
-    result['1d'].indices = hits
-    return result
+    const result = hittest.create_hit_test_result();
+    result['1d'].indices = hits;
+    return result;
+  }
 
-  scx: (i) ->
-    return (@sx0[i] + @sx1[i])/2
+  scx(i) {
+    return (this.sx0[i] + this.sx1[i])/2;
+  }
 
-  scy: (i) ->
-    return (@sy0[i] + @sy1[i])/2
+  scy(i) {
+    return (this.sy0[i] + this.sy1[i])/2;
+  }
 
-  draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
-    @_generic_line_legend(ctx, x0, x1, y0, y1, index)
+  draw_legend_for_index(ctx, x0, x1, y0, y1, index) {
+    return this._generic_line_legend(ctx, x0, x1, y0, y1, index);
+  }
+}
 
-export class Segment extends Glyph
-  default_view: SegmentView
+export class Segment extends Glyph {
+  static initClass() {
+    this.prototype.default_view = SegmentView;
 
-  type: 'Segment'
+    this.prototype.type = 'Segment';
 
-  @coords [['x0', 'y0'], ['x1', 'y1']]
-  @mixins ['line']
+    this.coords([['x0', 'y0'], ['x1', 'y1']]);
+    this.mixins(['line']);
+  }
+}
+Segment.initClass();

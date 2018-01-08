@@ -1,104 +1,147 @@
-import {XYGlyph, XYGlyphView} from "./xy_glyph"
-import * as p from "core/properties"
+/*
+ * decaffeinate suggestions:
+ * DS101: Remove unnecessary use of Array.from
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS202: Simplify dynamic range loops
+ * DS205: Consider reworking code to avoid use of IIFEs
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+
+import {XYGlyph, XYGlyphView} from "./xy_glyph";
+import * as p from "core/properties";
 import {max, concat} from "core/util/array"
+;
 
-export class ImageRGBAView extends XYGlyphView
+export class ImageRGBAView extends XYGlyphView {
 
-  _set_data: (source, indices) ->
-    if not @image_data? or @image_data.length != @_image.length
-      @image_data = new Array(@_image.length)
+  _set_data(source, indices) {
+    if ((this.image_data == null) || (this.image_data.length !== this._image.length)) {
+      this.image_data = new Array(this._image.length);
+    }
 
-    if not @_width? or @_width.length != @_image.length
-      @_width = new Array(@_image.length)
+    if ((this._width == null) || (this._width.length !== this._image.length)) {
+      this._width = new Array(this._image.length);
+    }
 
-    if not @_height? or @_height.length != @_image.length
-      @_height = new Array(@_image.length)
+    if ((this._height == null) || (this._height.length !== this._image.length)) {
+      this._height = new Array(this._image.length);
+    }
 
-    for i in [0...@_image.length]
-      if indices? and indices.indexOf(i) < 0
-        continue
+    return (() => {
+      const result = [];
+      for (let i = 0, end = this._image.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+        var buf, canvas;
+        if ((indices != null) && (indices.indexOf(i) < 0)) {
+          continue;
+        }
 
-      shape = []
-      if @_image_shape?
-        shape = @_image_shape[i]
+        let shape = [];
+        if (this._image_shape != null) {
+          shape = this._image_shape[i];
+        }
 
-      if shape.length > 0
-        buf = @_image[i].buffer
-        @_height[i] = shape[0]
-        @_width[i] = shape[1]
-      else
-        flat = concat(@_image[i])
-        buf = new ArrayBuffer(flat.length * 4)
-        color = new Uint32Array(buf)
-        for j in [0...flat.length]
-          color[j] = flat[j]
-        @_height[i] = @_image[i].length
-        @_width[i] = @_image[i][0].length
+        if (shape.length > 0) {
+          buf = this._image[i].buffer;
+          this._height[i] = shape[0];
+          this._width[i] = shape[1];
+        } else {
+          const flat = concat(this._image[i]);
+          buf = new ArrayBuffer(flat.length * 4);
+          const color = new Uint32Array(buf);
+          for (let j = 0, end1 = flat.length, asc1 = 0 <= end1; asc1 ? j < end1 : j > end1; asc1 ? j++ : j--) {
+            color[j] = flat[j];
+          }
+          this._height[i] = this._image[i].length;
+          this._width[i] = this._image[i][0].length;
+        }
 
-      if @image_data[i]? and @image_data[i].width == @_width[i] and @image_data[i].height == @_height[i]
-        canvas = @image_data[i]
-      else
-        canvas = document.createElement('canvas')
-        canvas.width = @_width[i]
-        canvas.height = @_height[i]
-      ctx = canvas.getContext('2d')
-      image_data = ctx.getImageData(0, 0, @_width[i], @_height[i])
-      buf8 = new Uint8Array(buf)
-      image_data.data.set(buf8)
-      ctx.putImageData(image_data, 0, 0)
-      @image_data[i] = canvas
+        if ((this.image_data[i] != null) && (this.image_data[i].width === this._width[i]) && (this.image_data[i].height === this._height[i])) {
+          canvas = this.image_data[i];
+        } else {
+          canvas = document.createElement('canvas');
+          canvas.width = this._width[i];
+          canvas.height = this._height[i];
+        }
+        const ctx = canvas.getContext('2d');
+        const image_data = ctx.getImageData(0, 0, this._width[i], this._height[i]);
+        const buf8 = new Uint8Array(buf);
+        image_data.data.set(buf8);
+        ctx.putImageData(image_data, 0, 0);
+        this.image_data[i] = canvas;
 
-      @max_dw = 0
-      if @_dw.units == "data"
-        @max_dw = max(@_dw)
-      @max_dh = 0
-      if @_dh.units == "data"
-        @max_dh = max(@_dh)
-
-  _map_data: () ->
-    switch @model.properties.dw.units
-      when "data" then @sw = @sdist(@renderer.xscale, @_x, @_dw, 'edge', @model.dilate)
-      when "screen" then @sw = @_dw
-
-    switch @model.properties.dh.units
-      when "data" then @sh = @sdist(@renderer.yscale, @_y, @_dh, 'edge', @model.dilate)
-      when "screen" then @sh = @_dh
-
-  _render: (ctx, indices, {image_data, sx, sy, sw, sh}) ->
-    old_smoothing = ctx.getImageSmoothingEnabled()
-    ctx.setImageSmoothingEnabled(false)
-
-    for i in indices
-
-      if isNaN(sx[i]+sy[i]+sw[i]+sh[i])
-        continue
-
-      y_offset = sy[i]
-
-      ctx.translate(0, y_offset)
-      ctx.scale(1, -1)
-      ctx.translate(0, -y_offset)
-      ctx.drawImage(image_data[i], sx[i]|0, sy[i]|0, sw[i], sh[i])
-      ctx.translate(0, y_offset)
-      ctx.scale(1, -1)
-      ctx.translate(0, -y_offset)
-
-    ctx.setImageSmoothingEnabled(old_smoothing)
-
-  bounds: () ->
-    bbox = @index.bbox
-    bbox.maxX += @max_dw
-    bbox.maxY += @max_dh
-    return bbox
-
-export class ImageRGBA extends XYGlyph
-  default_view: ImageRGBAView
-
-  type: 'ImageRGBA'
-
-  @define {
-      image:  [ p.NumberSpec       ] # TODO (bev) array spec?
-      dw:     [ p.DistanceSpec     ]
-      dh:     [ p.DistanceSpec     ]
-      dilate: [ p.Bool,      false ]
+        this.max_dw = 0;
+        if (this._dw.units === "data") {
+          this.max_dw = max(this._dw);
+        }
+        this.max_dh = 0;
+        if (this._dh.units === "data") {
+          result.push(this.max_dh = max(this._dh));
+        } else {
+          result.push(undefined);
+        }
+      }
+      return result;
+    })();
   }
+
+  _map_data() {
+    switch (this.model.properties.dw.units) {
+      case "data": this.sw = this.sdist(this.renderer.xscale, this._x, this._dw, 'edge', this.model.dilate); break;
+      case "screen": this.sw = this._dw; break;
+    }
+
+    switch (this.model.properties.dh.units) {
+      case "data": return this.sh = this.sdist(this.renderer.yscale, this._y, this._dh, 'edge', this.model.dilate);
+      case "screen": return this.sh = this._dh;
+    }
+  }
+
+  _render(ctx, indices, {image_data, sx, sy, sw, sh}) {
+    const old_smoothing = ctx.getImageSmoothingEnabled();
+    ctx.setImageSmoothingEnabled(false);
+
+    for (let i of Array.from(indices)) {
+
+      if (isNaN(sx[i]+sy[i]+sw[i]+sh[i])) {
+        continue;
+      }
+
+      const y_offset = sy[i];
+
+      ctx.translate(0, y_offset);
+      ctx.scale(1, -1);
+      ctx.translate(0, -y_offset);
+      ctx.drawImage(image_data[i], sx[i]|0, sy[i]|0, sw[i], sh[i]);
+      ctx.translate(0, y_offset);
+      ctx.scale(1, -1);
+      ctx.translate(0, -y_offset);
+    }
+
+    return ctx.setImageSmoothingEnabled(old_smoothing);
+  }
+
+  bounds() {
+    const { bbox } = this.index;
+    bbox.maxX += this.max_dw;
+    bbox.maxY += this.max_dh;
+    return bbox;
+  }
+}
+
+export class ImageRGBA extends XYGlyph {
+  static initClass() {
+    this.prototype.default_view = ImageRGBAView;
+
+    this.prototype.type = 'ImageRGBA';
+
+    this.define({
+        image:  [ p.NumberSpec       ], // TODO (bev) array spec?
+        dw:     [ p.DistanceSpec     ],
+        dh:     [ p.DistanceSpec     ],
+        dilate: [ p.Bool,      false ]
+    });
+  }
+}
+ImageRGBA.initClass();

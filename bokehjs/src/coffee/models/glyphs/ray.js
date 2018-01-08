@@ -1,51 +1,82 @@
-import {XYGlyph, XYGlyphView} from "./xy_glyph"
+/*
+ * decaffeinate suggestions:
+ * DS101: Remove unnecessary use of Array.from
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS202: Simplify dynamic range loops
+ * DS205: Consider reworking code to avoid use of IIFEs
+ * DS206: Consider reworking classes to avoid initClass
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+
+import {XYGlyph, XYGlyphView} from "./xy_glyph";
 import * as p from "core/properties"
+;
 
-export class RayView extends XYGlyphView
+export class RayView extends XYGlyphView {
 
-  _map_data: () ->
-    if @model.properties.length.units == "data"
-      @slength = @sdist(@renderer.xscale, @_x, @_length)
-    else
-      @slength = @_length
-
-  _render: (ctx, indices, {sx, sy, slength, _angle}) ->
-    if @visuals.line.doit
-
-      width = @renderer.plot_view.frame._width.value
-      height = @renderer.plot_view.frame._height.value
-      inf_len = 2 * (width + height)
-      for i in [0...slength.length]
-        if slength[i] == 0
-          slength[i] = inf_len
-
-      for i in indices
-        if isNaN(sx[i]+sy[i]+_angle[i]+slength[i])
-          continue
-
-        ctx.translate(sx[i], sy[i])
-        ctx.rotate(_angle[i])
-
-        ctx.beginPath()
-        ctx.moveTo(0, 0)
-        ctx.lineTo(slength[i], 0)
-
-        @visuals.line.set_vectorize(ctx, i)
-        ctx.stroke()
-
-        ctx.rotate(-_angle[i])
-        ctx.translate(-sx[i], -sy[i])
-
-  draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
-    @_generic_line_legend(ctx, x0, x1, y0, y1, index)
-
-export class Ray extends XYGlyph
-  default_view: RayView
-
-  type: 'Ray'
-
-  @mixins ['line']
-  @define {
-    length: [ p.DistanceSpec ]
-    angle:  [ p.AngleSpec    ]
+  _map_data() {
+    if (this.model.properties.length.units === "data") {
+      return this.slength = this.sdist(this.renderer.xscale, this._x, this._length);
+    } else {
+      return this.slength = this._length;
+    }
   }
+
+  _render(ctx, indices, {sx, sy, slength, _angle}) {
+    if (this.visuals.line.doit) {
+
+      let i;
+      let asc, end;
+      const width = this.renderer.plot_view.frame._width.value;
+      const height = this.renderer.plot_view.frame._height.value;
+      const inf_len = 2 * (width + height);
+      for (i = 0, end = slength.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+        if (slength[i] === 0) {
+          slength[i] = inf_len;
+        }
+      }
+
+      return (() => {
+        const result = [];
+        for (i of Array.from(indices)) {
+          if (isNaN(sx[i]+sy[i]+_angle[i]+slength[i])) {
+            continue;
+          }
+
+          ctx.translate(sx[i], sy[i]);
+          ctx.rotate(_angle[i]);
+
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(slength[i], 0);
+
+          this.visuals.line.set_vectorize(ctx, i);
+          ctx.stroke();
+
+          ctx.rotate(-_angle[i]);
+          result.push(ctx.translate(-sx[i], -sy[i]));
+        }
+        return result;
+      })();
+    }
+  }
+
+  draw_legend_for_index(ctx, x0, x1, y0, y1, index) {
+    return this._generic_line_legend(ctx, x0, x1, y0, y1, index);
+  }
+}
+
+export class Ray extends XYGlyph {
+  static initClass() {
+    this.prototype.default_view = RayView;
+
+    this.prototype.type = 'Ray';
+
+    this.mixins(['line']);
+    this.define({
+      length: [ p.DistanceSpec ],
+      angle:  [ p.AngleSpec    ]
+    });
+  }
+}
+Ray.initClass();
