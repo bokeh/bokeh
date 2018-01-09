@@ -1,7 +1,5 @@
-
 import {findLastIndex} from "core/util/array";
 import {Interpolator} from "./interpolator"
-;
 
 export class LinearInterpolator extends Interpolator {
 

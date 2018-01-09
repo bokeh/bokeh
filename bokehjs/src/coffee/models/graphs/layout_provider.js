@@ -1,6 +1,4 @@
-
 import {Model} from "../../model"
-;
 
 export class LayoutProvider extends Model {
 
