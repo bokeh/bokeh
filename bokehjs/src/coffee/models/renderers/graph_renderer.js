@@ -37,10 +37,10 @@ export class GraphRendererView extends RendererView {
     let rng;
     super.connect_signals();
     this.connect(this.model.layout_provider.change, function() { return this.set_data(); });
-    this.connect(this.model.node_renderer.data_source.select, function() { return this.set_data(); });
+    this.connect(this.model.node_renderer.data_source._select, function() { return this.set_data(); });
     this.connect(this.model.node_renderer.data_source.inspect, function() { return this.set_data(); });
     this.connect(this.model.node_renderer.data_source.change, function() { return this.set_data(); });
-    this.connect(this.model.edge_renderer.data_source.select, function() { return this.set_data(); });
+    this.connect(this.model.edge_renderer.data_source._select, function() { return this.set_data(); });
     this.connect(this.model.edge_renderer.data_source.inspect, function() { return this.set_data(); });
     this.connect(this.model.edge_renderer.data_source.change, function() { return this.set_data(); });
 

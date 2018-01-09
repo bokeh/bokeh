@@ -90,7 +90,7 @@ export class GlyphRendererView extends RendererView {
     this.connect(this.model.data_source.change, function() { return this.set_data(); });
     this.connect(this.model.data_source.streaming, function() { return this.set_data(); });
     this.connect(this.model.data_source.patching, function(indices) { return this.set_data(true, indices); });
-    this.connect(this.model.data_source.select, function() { return this.request_render(); });
+    this.connect(this.model.data_source._select, function() { return this.request_render(); });
     if (this.hover_glyph != null) {
       this.connect(this.model.data_source.inspect, function() { return this.request_render(); });
     }
@@ -420,7 +420,7 @@ export class GlyphRenderer extends Renderer {
       const { selector } = this.data_source.selection_manager;
       selector.update(indices, final, append);
       this.data_source.selected = selector.indices;
-      this.data_source.select.emit();
+      this.data_source._select.emit();
     } else { // mode == "inspect"
       const inspector = this.data_source.selection_manager.get_or_create_inspector(this);
       inspector.update(indices, true, false, true);

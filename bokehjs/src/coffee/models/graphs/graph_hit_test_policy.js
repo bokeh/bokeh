@@ -48,7 +48,7 @@ export class NodesOnly extends GraphHitTestPolicy {
     this._node_selector = graph_view.node_view.model.data_source.selection_manager.selector;
     const did_hit = this._do(geometry, graph_view, final, append);
     graph_view.node_view.model.data_source.selected = this._node_selector.indices;
-    graph_view.node_view.model.data_source.select.emit();
+    graph_view.node_view.model.data_source._select.emit();
     return did_hit;
   }
 
@@ -114,7 +114,7 @@ export class NodesAndLinkedEdges extends GraphHitTestPolicy {
 
     graph_view.node_view.model.data_source.selected = this._node_selector.indices;
     graph_view.edge_view.model.data_source.selected = this._edge_selector.indices;
-    graph_view.node_view.model.data_source.select.emit();
+    graph_view.node_view.model.data_source._select.emit();
 
     return did_hit;
   }
@@ -189,7 +189,7 @@ export class EdgesAndLinkedNodes extends GraphHitTestPolicy {
 
     graph_view.edge_view.model.data_source.selected = this._edge_selector.indices;
     graph_view.node_view.model.data_source.selected = this._node_selector.indices;
-    graph_view.edge_view.model.data_source.select.emit();
+    graph_view.edge_view.model.data_source._select.emit();
 
     return did_hit;
   }
