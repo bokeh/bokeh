@@ -8,7 +8,7 @@
 import {Filter} from "./filter";
 import * as p from "core/properties";
 import {logger} from "core/logging"
-;
+import {range} from "core/util/array"
 
 export class GroupFilter extends Filter {
   static initClass() {
@@ -26,7 +26,7 @@ export class GroupFilter extends Filter {
       logger.warn("group filter: groupby column not found in data source");
       return null;
     } else {
-      this.indices = (__range__(0, source.get_length(), false).filter((i) => column[i] === this.group));
+      this.indices = (range(0, source.get_length()).filter((i) => column[i] === this.group));
       if (this.indices.length === 0) {
         logger.warn(`group filter: group '${this.group}' did not match any values in column '${this.column_name}'`);
       }
@@ -35,13 +35,3 @@ export class GroupFilter extends Filter {
   }
 }
 GroupFilter.initClass();
-
-function __range__(left, right, inclusive) {
-  let range = [];
-  let ascending = left < right;
-  let end = !inclusive ? right : ascending ? right + 1 : right - 1;
-  for (let i = left; ascending ? i < end : i > end; ascending ? i++ : i--) {
-    range.push(i);
-  }
-  return range;
-}

@@ -12,7 +12,7 @@ import {Signal} from "core/signaling";
 import {logger} from "core/logging";
 import {SelectionManager} from "core/selection_manager";
 import * as p from "core/properties";
-import {uniq} from "core/util/array"
+import {uniq, range} from "core/util/array"
 ;
 
 // Abstract baseclass for column based data sources, where the column
@@ -85,17 +85,7 @@ export class ColumnarDataSource extends DataSource {
   get_indices() {
     let length = this.get_length();
     if ((length == null)) { length = 1; }
-    return __range__(0, length, false);
+    return range(0, length);
   }
 }
 ColumnarDataSource.initClass();
-
-function __range__(left, right, inclusive) {
-  let range = [];
-  let ascending = left < right;
-  let end = !inclusive ? right : ascending ? right + 1 : right - 1;
-  for (let i = left; ascending ? i < end : i > end; ascending ? i++ : i--) {
-    range.push(i);
-  }
-  return range;
-}

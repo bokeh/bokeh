@@ -53,8 +53,8 @@ describe("core/util/array module", () => {
     expect(array.range(0, 5)).to.deep.equal([0, 1, 2, 3, 4])
     expect(array.range(1, 5)).to.deep.equal([1, 2, 3, 4])
     expect(array.range(1, 5, 2)).to.deep.equal([1, 3])
-    expect(array.range(5, 0, -1)).to.deep.equal([5, 4, 3, 2, 1])
-    expect(array.range(5, 0, -2)).to.deep.equal([5, 3, 1])
+    expect(array.range(5, 0, 1)).to.deep.equal([5, 4, 3, 2, 1])
+    expect(array.range(5, 0, 2)).to.deep.equal([5, 3, 1])
   })
 
   it("range should work with fractional step", () => {

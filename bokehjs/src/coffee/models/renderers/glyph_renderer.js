@@ -15,7 +15,7 @@ import {RemoteDataSource} from "../sources/remote_data_source";
 import {CDSView} from "../sources/cds_view";
 import {logger} from "core/logging";
 import * as p from "core/properties";
-import {difference, includes} from "core/util/array";
+import {difference, includes, range} from "core/util/array";
 import {extend, clone} from "core/util/object"
 ;
 
@@ -175,7 +175,7 @@ export class GlyphRendererView extends RendererView {
     // either by mask_data (that uses the spatial index) or manually
     let indices = this.glyph.mask_data(this.all_indices);
     if (indices.length === this.all_indices.length) {
-      indices = __range__(0, this.all_indices.length, false);
+      indices = range(0, this.all_indices.length);
     }
     const dtmask = Date.now() - tmask;
 
@@ -437,13 +437,3 @@ export class GlyphRenderer extends Renderer {
   }
 }
 GlyphRenderer.initClass();
-
-function __range__(left, right, inclusive) {
-  let range = [];
-  let ascending = left < right;
-  let end = !inclusive ? right : ascending ? right + 1 : right - 1;
-  for (let i = left; ascending ? i < end : i > end; ascending ? i++ : i--) {
-    range.push(i);
-  }
-  return range;
-}

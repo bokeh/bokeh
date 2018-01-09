@@ -10,7 +10,7 @@
 
 import {TileSource} from "./tile_source";
 import * as p from "core/properties";
-import {includes} from "core/util/array";
+import {includes, range} from "core/util/array";
 
 export class MercatorTileSource extends TileSource {
   static initClass() {
@@ -30,7 +30,7 @@ export class MercatorTileSource extends TileSource {
 
   initialize(options) {
     super.initialize(options);
-    return this._resolutions = (__range__(this.min_zoom, this.max_zoom, true).map((z) => this.get_resolution(z)));
+    return this._resolutions = (range(this.min_zoom, this.max_zoom+1).map((z) => this.get_resolution(z)));
   }
 
   _computed_initial_resolution() {
@@ -79,8 +79,8 @@ export class MercatorTileSource extends TileSource {
   retain_neighbors(reference_tile) {
     const neighbor_radius = 4;
     const [tx, ty, tz] = Array.from(reference_tile.tile_coords);
-    const neighbor_x = (__range__(tx - neighbor_radius, tx + neighbor_radius, true));
-    const neighbor_y = (__range__(ty - neighbor_radius, ty + neighbor_radius, true));
+    const neighbor_x = (range(tx - neighbor_radius, tx + neighbor_radius+1));
+    const neighbor_y = (range(ty - neighbor_radius, ty + neighbor_radius+1));
 
     return (() => {
       const result = [];
@@ -390,13 +390,3 @@ Computes quadkey value based on tile x, y and z values.\
   }
 }
 MercatorTileSource.initClass();
-
-function __range__(left, right, inclusive) {
-  let range = [];
-  let ascending = left < right;
-  let end = !inclusive ? right : ascending ? right + 1 : right - 1;
-  for (let i = left; ascending ? i < end : i > end; ascending ? i++ : i--) {
-    range.push(i);
-  }
-  return range;
-}

@@ -11,7 +11,7 @@
 import {XYGlyph, XYGlyphView} from "../glyphs/xy_glyph";
 import * as hittest from "core/hittest";
 import * as p from "core/properties"
-;
+import {range} from "core/util/array"
 
 export class MarkerView extends XYGlyphView {
 
@@ -146,7 +146,7 @@ export class MarkerView extends XYGlyphView {
     const {sx, sy} = geometry;
 
     // TODO (bev) use spatial index to pare candidate list
-    const candidates = __range__(0, this.sx.length, false);
+    const candidates = range(0, this.sx.length);
 
     const hits = [];
     for (let i = 0, end = candidates.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
@@ -172,13 +172,3 @@ export class Marker extends XYGlyph {
   }
 }
 Marker.initClass();
-
-function __range__(left, right, inclusive) {
-  let range = [];
-  let ascending = left < right;
-  let end = !inclusive ? right : ascending ? right + 1 : right - 1;
-  for (let i = left; ascending ? i < end : i > end; ascending ? i++ : i--) {
-    range.push(i);
-  }
-  return range;
-}

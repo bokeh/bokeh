@@ -11,7 +11,7 @@ import {XYGlyph, XYGlyphView} from "./xy_glyph";
 import * as hittest from "core/hittest";
 import * as p from "core/properties";
 import {angle_between} from "core/util/math"
-;
+import {range} from "core/util/array"
 
 export class AnnularWedgeView extends XYGlyphView {
 
@@ -27,7 +27,7 @@ export class AnnularWedgeView extends XYGlyphView {
       this.souter_radius = this._outer_radius;
     }
     this._angle = new Float32Array(this._start_angle.length);
-    return __range__(0, this._start_angle.length, false).map((i) =>
+    return range(0, this._start_angle.length).map((i) =>
       (this._angle[i] = this._end_angle[i] - this._start_angle[i]));
   }
 
@@ -152,13 +152,3 @@ export class AnnularWedge extends XYGlyph {
   }
 }
 AnnularWedge.initClass();
-
-function __range__(left, right, inclusive) {
-  let range = [];
-  let ascending = left < right;
-  let end = !inclusive ? right : ascending ? right + 1 : right - 1;
-  for (let i = left; ascending ? i < end : i > end; ascending ? i++ : i--) {
-    range.push(i);
-  }
-  return range;
-}

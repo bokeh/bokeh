@@ -11,7 +11,7 @@
 import {ColumnarDataSource} from "./columnar_data_source";
 import {logger} from "core/logging";
 import * as p from "core/properties"
-;
+import {range} from "core/util/array"
 
 export class GeoJSONDataSource extends ColumnarDataSource {
   static initClass() {
@@ -34,9 +34,9 @@ export class GeoJSONDataSource extends ColumnarDataSource {
 
   _update_data() { return this.data = this.geojson_to_column_data(); }
 
-  _get_new_list_array(length) { return (__range__(0, length, false).map((i) => [])); }
+  _get_new_list_array(length) { return (range(0, length).map((i) => [])); }
 
-  _get_new_nan_array(length) { return (__range__(0, length, false).map((i) => NaN)); }
+  _get_new_nan_array(length) { return (range(0, length).map((i) => NaN)); }
 
   _flatten_function(accumulator, currentItem) {
     return accumulator.concat([[NaN, NaN, NaN]]).concat(currentItem);
@@ -221,13 +221,3 @@ export class GeoJSONDataSource extends ColumnarDataSource {
   }
 }
 GeoJSONDataSource.initClass();
-
-function __range__(left, right, inclusive) {
-  let range = [];
-  let ascending = left < right;
-  let end = !inclusive ? right : ascending ? right + 1 : right - 1;
-  for (let i = left; ascending ? i < end : i > end; ascending ? i++ : i--) {
-    range.push(i);
-  }
-  return range;
-}

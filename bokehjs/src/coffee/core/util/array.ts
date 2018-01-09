@@ -4,6 +4,7 @@
 //     Underscore may be freely distributed under the MIT license.
 
 import {randomIn} from "./math"
+import {assert} from "./assert"
 
 const slice = Array.prototype.slice
 
@@ -57,15 +58,20 @@ export function unzip<A, B>(ABs: [A, B][]): [A[], B[]] {
 }
 
 export function range(start: number, stop?: number, step: number = 1): number[] {
+  assert(step > 0, "'step' must be a positive number")
+
   if (stop == null) {
     stop = start
     start = 0
   }
 
-  const length = Math.max(Math.ceil((stop - start) / step), 0)
+  const {max, ceil, abs} = Math
+
+  const delta = start <= stop ? step : -step
+  const length = max(ceil(abs(stop - start) / step), 0)
   const range = Array(length)
 
-  for (let i = 0; i < length; i++, start += step) {
+  for (let i = 0; i < length; i++, start += delta) {
     range[i] = start
   }
 

@@ -11,7 +11,7 @@
 import {Model} from "../../model";
 import * as p from "core/properties";
 import {create_hit_test_result} from "core/hittest";
-import {intersection} from "core/util/array";
+import {intersection, range} from "core/util/array";
 import {ColumnarDataSource} from "./columnar_data_source"
 ;
 
@@ -76,7 +76,7 @@ export class CDSView extends Model {
 
   indices_map_to_subset() {
     this.indices_map = {};
-    return __range__(0, this.indices.length, false).map((i) =>
+    return range(0, this.indices.length).map((i) =>
       (this.indices_map[this.indices[i]] = i));
   }
 
@@ -101,13 +101,3 @@ export class CDSView extends Model {
   }
 }
 CDSView.initClass();
-
-function __range__(left, right, inclusive) {
-  let range = [];
-  let ascending = left < right;
-  let end = !inclusive ? right : ascending ? right + 1 : right - 1;
-  for (let i = left; ascending ? i < end : i > end; ascending ? i++ : i--) {
-    range.push(i);
-  }
-  return range;
-}

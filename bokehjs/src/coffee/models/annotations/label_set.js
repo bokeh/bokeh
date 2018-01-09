@@ -14,7 +14,7 @@ import {ColumnDataSource} from "../sources/column_data_source";
 import {div, show, hide} from "core/dom";
 import * as p from "core/properties";
 import {isString, isArray} from "core/util/types"
-;
+import {range} from "core/util/array"
 
 export class LabelSetView extends TextAnnotationView {
   initialize(options) {
@@ -104,7 +104,7 @@ export class LabelSetView extends TextAnnotationView {
 
     const [sx, sy] = Array.from(this._map_data());
 
-    return __range__(0, this._text.length, false).map((i) =>
+    return range(0, this._text.length).map((i) =>
       draw(ctx, i, this._text[i], sx[i] + this._x_offset[i], sy[i] - this._y_offset[i], this._angle[i]));
   }
 
@@ -229,13 +229,3 @@ export class LabelSet extends TextAnnotation {
   }
 }
 LabelSet.initClass();
-
-function __range__(left, right, inclusive) {
-  let range = [];
-  let ascending = left < right;
-  let end = !inclusive ? right : ascending ? right + 1 : right - 1;
-  for (let i = left; ascending ? i < end : i > end; ascending ? i++ : i--) {
-    range.push(i);
-  }
-  return range;
-}

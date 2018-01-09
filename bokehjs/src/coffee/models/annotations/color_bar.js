@@ -19,7 +19,7 @@ import {Range1d} from "../ranges/range1d";
 
 import * as p from "core/properties";
 import * as text_util from "core/util/text";
-import {min, max} from "core/util/array";
+import {min, max, range} from "core/util/array";
 import {isEmpty} from "core/util/object";
 import {isString, isArray} from "core/util/types"
 ;
@@ -88,7 +88,7 @@ export class ColorBarView extends AnnotationView {
     // LinearColorMapper instance and map a monotonic range of values with
     // length = palette.length to get each palette color in order.
     const cmap = new LinearColorMapper({palette});
-    const buf = cmap.v_map_screen(__range__(0, palette.length, false));
+    const buf = cmap.v_map_screen(range(0, palette.length));
     const buf8 = new Uint8Array(buf);
     image_data.data.set(buf8);
     image_ctx.putImageData(image_data, 0, 0);
@@ -632,13 +632,3 @@ export class ColorBar extends Annotation {
   }
 }
 ColorBar.initClass();
-
-function __range__(left, right, inclusive) {
-  let range = [];
-  let ascending = left < right;
-  let end = !inclusive ? right : ascending ? right + 1 : right - 1;
-  for (let i = left; ascending ? i < end : i > end; ascending ? i++ : i--) {
-    range.push(i);
-  }
-  return range;
-}
