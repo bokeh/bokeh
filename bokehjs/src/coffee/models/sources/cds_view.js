@@ -41,7 +41,7 @@ export class CDSView extends Model {
       this.compute_indices()
       this.change.emit()
     })
-    if (this.sources != null) {
+    if (this.source != null) {
       if (this.source.change != null)
         this.connect(this.source.change, () => this.compute_indices())
       if (this.source.streaming != null)
