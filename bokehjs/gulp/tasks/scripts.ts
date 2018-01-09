@@ -80,6 +80,9 @@ gulp.task("scripts:tsjs", tsjs_deps, () => {
       const [, file, rest, code] = result
       const real = path.join('src', 'coffee', ...file.split(path.sep).slice(3))
       if (fs.existsSync(real)) {
+        if (code == "8010") // ignore "types can be only used in *.ts files"
+          return
+
         gutil.log(`${chalk.red(real)}${rest}`)
         return
       }
