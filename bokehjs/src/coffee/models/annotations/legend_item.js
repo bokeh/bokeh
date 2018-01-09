@@ -13,7 +13,7 @@
 import {Model} from "../../model";
 import * as p from "core/properties";
 import {logger} from "core/logging";
-import {uniq} from "core/util/array";
+import {uniq, includes} from "core/util/array";
 import {ColumnDataSource} from "../../models/sources/column_data_source"
 ;
 
@@ -62,12 +62,11 @@ export class LegendItem extends Model {
   _check_field_label_on_data_source() {
     const field = this.get_field_from_label_prop();
     if (field != null) {
-      let needle;
       if (this.renderers.length < 1) {
         return false;
       }
       const source = this.renderers[0].data_source;
-      if ((source != null) && (needle = field, !Array.from(source.columns()).includes(needle))) {
+      if (source != null && !includes(source.columns(), field)) {
         return false;
       }
     }

@@ -9,8 +9,8 @@
  */
 
 import {TileSource} from "./tile_source";
-import * as p from "core/properties"
-;
+import * as p from "core/properties";
+import {includes} from "core/util/array";
 
 export class MercatorTileSource extends TileSource {
   static initClass() {
@@ -86,7 +86,8 @@ export class MercatorTileSource extends TileSource {
       const result = [];
       for (let key in this.tiles) {
         const tile = this.tiles[key];
-        if ((tile.tile_coords[2] === tz) && (Array.from(neighbor_x).includes(tile.tile_coords[0])) && (Array.from(neighbor_y).includes(tile.tile_coords[1]))) {
+        if (tile.tile_coords[2] === tz && includes(neighbor_x, tile.tile_coords[0])
+                                       && includes(neighbor_y, tile.tile_coords[1])) {
           result.push(tile.retain = true);
         } else {
           result.push(undefined);

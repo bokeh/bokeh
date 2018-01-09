@@ -218,7 +218,7 @@ export class DatetimeTickFormatter extends TickFormatter {
         if (next_ndx === this.format_order.length) {
           break;
         }
-        if (["minsec", "hourmin"].includes(resol) && !hybrid_handled) {
+        if ((resol == "minsec" || resol == "hourmin") && !hybrid_handled) {
           if (((resol === "minsec") && (tm[4] === 0) && (tm[5] !== 0)) || ((resol === "hourmin") && (tm[3] === 0) && (tm[4] !== 0))) {
             next_format = this._width_formats[this.format_order[resol_ndx-1]][1][0];
             s = _strftime(t, next_format);

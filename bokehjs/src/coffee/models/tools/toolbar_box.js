@@ -10,7 +10,7 @@
 
 import * as p from "core/properties";
 import {empty} from "core/dom";
-import {any, sortBy} from "core/util/array";
+import {any, sortBy, includes} from "core/util/array";
 
 import {ActionTool} from "./actions/action_tool";
 import {HelpTool} from "./actions/help_tool";
@@ -83,7 +83,7 @@ export class ProxyToolbar extends ToolbarBase {
     const new_help_tools = [];
     const new_help_urls = [];
     for (let helptool of Array.from(this.help)) {
-      if (!Array.from(new_help_urls).includes(helptool.redirect)) {
+      if (!includes(new_help_urls, helptool.redirect)) {
         new_help_tools.push(helptool);
         new_help_urls.push(helptool.redirect);
       }
@@ -162,7 +162,7 @@ export class ProxyToolbar extends ToolbarBase {
           continue;
         }
         this.gestures[et].tools = sortBy(tools, tool => tool.default_order);
-        if (!['pinch', 'scroll'].includes(et)) {
+        if (!(et == 'pinch' || et == 'scroll')) {
           result.push(this.gestures[et].tools[0].active = true);
         } else {
           result.push(undefined);

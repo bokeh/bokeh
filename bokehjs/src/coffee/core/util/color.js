@@ -9,6 +9,7 @@
  */
 
 import * as svg_colors from "./svg_colors"
+import {includes} from "./array";
 ;
 
 const _component2hex = function(v) {
@@ -84,7 +85,7 @@ export const valid_rgb = function(value) {
   if (params.alpha && !(0 <= contents[3] && contents[3] <= 1)) {
     throw new Error("color expects rgba 4-tuple to have alpha value between 0 and 1");
   }
-  if ((needle = false, Array.from((Array.from(contents.slice(0, 3)).map((rgb) => 0 <= rgb && rgb <= 255))).includes(needle))) {
+  if ((needle = false, includes(Array.from((Array.from(contents.slice(0, 3)).map((rgb) => 0 <= rgb && rgb <= 255))), needle))) {
     throw new Error("color expects rgb to have value between 0 and 255");
   }
   return true;

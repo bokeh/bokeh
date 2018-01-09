@@ -7,7 +7,7 @@
  */
 
 import * as p from "core/properties";
-import {any, sortBy} from "core/util/array";
+import {any, sortBy, includes} from "core/util/array";
 import {logger} from "core/logging";
 
 import {ActionTool} from "./actions/action_tool";
@@ -83,7 +83,7 @@ export class Toolbar extends ToolbarBase {
     } else if (this.active_inspect instanceof InspectTool) {
       this.inspectors.map(inspector => { if (inspector !== this.active_inspect) { return inspector.active = false; } });
     } else if (this.active_inspect instanceof Array) {
-      this.inspectors.map(inspector => { if (!Array.from(this.active_inspect).includes(inspector)) { return inspector.active = false; } });
+      this.inspectors.map(inspector => { if (!includes(this.active_inspect, inspector)) { return inspector.active = false; } });
     } else if (this.active_inspect === null) {
       this.inspectors.map(inspector => inspector.active = false);
     }
@@ -126,7 +126,7 @@ export class Toolbar extends ToolbarBase {
         }
       }
 
-      if (['pinch', 'scroll'].includes(et)) {
+      if (et == 'pinch' || et == 'scroll') {
         if ((this.active_scroll === null) || (this.active_scroll === 'auto')) {
           continue;
         }

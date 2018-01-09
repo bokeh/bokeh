@@ -10,8 +10,8 @@
  */
 
 import {Transform} from "./transform";
-import * as p from "core/properties"
-;
+import * as p from "core/properties";
+import {includes} from "core/util/array";
 
 export class Interpolator extends Transform {
   static initClass() {
@@ -61,11 +61,11 @@ export class Interpolator extends Transform {
       const { data } = this;
 
       const column_names = data.columns();
-      if (!Array.from(column_names).includes(this.x)) {
+      if (!includes(column_names, this.x)) {
         throw new Error('The x parameter does not correspond to a valid column name defined in the data parameter');
       }
 
-      if (!Array.from(column_names).includes(this.y)) {
+      if (!includes(column_names, this.y)) {
         throw new Error('The x parameter does not correspond to a valid column name defined in the data parameter');
       }
 

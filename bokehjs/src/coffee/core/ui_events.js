@@ -12,6 +12,7 @@ import {Signal} from "./signaling";
 import {logger} from "./logging";
 import {offset} from "./dom";
 import {getDeltaY} from "./util/wheel";
+import {includes} from "./util/array";
 import {extend, isEmpty} from "./util/object";
 import {BokehEvent} from "./bokeh_events"
 ;
@@ -166,7 +167,7 @@ export class UIEvents {
     const iterable = this.plot_view.get_renderer_views();
     for (let i = iterable.length - 1; i >= 0; i--) {
       const view = iterable[i];
-      if (['annotation', 'overlay'].includes(view.model.level) && (view.bbox != null)) {
+      if (includes(['annotation', 'overlay'], view.model.level) && (view.bbox != null)) {
         if (view.bbox().contains(sx, sy)) {
           return view;
         }

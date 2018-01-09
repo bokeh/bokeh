@@ -380,7 +380,7 @@ export class PlotCanvasView extends DOMView {
         }
         const ds = renderer.data_source;
         if (selection != null) {
-          if (Array.from(selection).includes(renderer.id)) {
+          if (includes(selection, renderer.id)) {
             result.push(ds.selected = selection[renderer.id]);
           } else {
             result.push(undefined);
@@ -894,29 +894,33 @@ export class PlotCanvasView extends DOMView {
   }
 
   save(name) {
-    if (["canvas", "webgl"].includes(this.model.plot.output_backend)) {
-      const canvas = this.canvas_view.get_canvas_element();
-      if (canvas.msToBlob != null) {
-        const blob = canvas.msToBlob();
-        return window.navigator.msSaveBlob(blob, name);
-      } else {
-        const link = document.createElement('a');
-        link.href = canvas.toDataURL('image/png');
-        link.download = name + ".png";
-        link.target = "_blank";
-        return link.dispatchEvent(new MouseEvent('click'));
+    switch (this.model.plot.output_backend) {
+      case "canvas":
+      case "webgl": {
+        const canvas = this.canvas_view.get_canvas_element();
+        if (canvas.msToBlob != null) {
+          const blob = canvas.msToBlob();
+          return window.navigator.msSaveBlob(blob, name);
+        } else {
+          const link = document.createElement('a');
+          link.href = canvas.toDataURL('image/png');
+          link.download = name + ".png";
+          link.target = "_blank";
+          return link.dispatchEvent(new MouseEvent('click'));
+        }
       }
-    } else if (this.model.plot.output_backend === "svg") {
-      const svg = this.canvas_view.ctx.getSerializedSvg(true);
-      const svgblob = new Blob([svg], {type:'text/plain'});
-      const downloadLink = document.createElement("a");
-      downloadLink.download =  name + ".svg";
-      downloadLink.innerHTML = "Download svg";
-      downloadLink.href = window.URL.createObjectURL(svgblob);
-      downloadLink.onclick = event => document.body.removeChild(event.target);
-      downloadLink.style.display = "none";
-      document.body.appendChild(downloadLink);
-      return downloadLink.click();
+      case "svg": {
+        const svg = this.canvas_view.ctx.getSerializedSvg(true);
+        const svgblob = new Blob([svg], {type:'text/plain'});
+        const downloadLink = document.createElement("a");
+        downloadLink.download =  name + ".svg";
+        downloadLink.innerHTML = "Download svg";
+        downloadLink.href = window.URL.createObjectURL(svgblob);
+        downloadLink.onclick = event => document.body.removeChild(event.target);
+        downloadLink.style.display = "none";
+        document.body.appendChild(downloadLink);
+        return downloadLink.click();
+      }
     }
   }
 }

@@ -342,7 +342,7 @@ export class TileRendererView extends RendererView {
           const [px, py, pz] = Array.from(tile_source.get_closest_parent_by_tile_xyz(x, y, z));
           const parent_key = tile_source.tile_xyz_to_key(px, py, pz);
           const parent_tile = tile_source.tiles[parent_key];
-          if ((parent_tile != null) && parent_tile.loaded && !Array.from(parents).includes(parent_key)) {
+          if ((parent_tile != null) && parent_tile.loaded && !includes(parents, parent_key)) {
             parents.push(parent_key);
           }
           if (zooming_out) {

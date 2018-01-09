@@ -157,7 +157,7 @@ export class GeoJSONDataSource extends ColumnarDataSource {
     let items;
     const geojson = JSON.parse(this.geojson);
 
-    if (!['GeometryCollection', 'FeatureCollection'].includes(geojson.type)) {
+    if (!(geojson.type === 'GeometryCollection' || geojson.type === 'FeatureCollection')) {
       throw new Error('Bokeh only supports type GeometryCollection and FeatureCollection at top level');
     }
 

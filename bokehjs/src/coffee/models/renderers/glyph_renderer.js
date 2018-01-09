@@ -15,7 +15,7 @@ import {RemoteDataSource} from "../sources/remote_data_source";
 import {CDSView} from "../sources/cds_view";
 import {logger} from "core/logging";
 import * as p from "core/properties";
-import {difference} from "core/util/array";
+import {difference, includes} from "core/util/array";
 import {extend, clone} from "core/util/object"
 ;
 
@@ -25,8 +25,8 @@ export class GlyphRendererView extends RendererView {
     super.initialize(options);
 
     const base_glyph = this.model.glyph;
-    const has_fill = Array.from(base_glyph.mixins).includes("fill");
-    const has_line = Array.from(base_glyph.mixins).includes("line");
+    const has_fill = includes(base_glyph.mixins, "fill");
+    const has_line = includes(base_glyph.mixins, "line");
     const glyph_attrs = clone(base_glyph.attributes);
     delete glyph_attrs.id;
 
@@ -223,7 +223,7 @@ export class GlyphRendererView extends RendererView {
     // inspected is transformed to subset space
     inspected = ((() => {
       const result2 = [];
-      for (i of Array.from(indices)) {         if (Array.from(inspected).includes(this.all_indices[i])) {
+      for (i of Array.from(indices)) {         if (includes(inspected, this.all_indices[i])) {
           result2.push(i);
         }
       }
