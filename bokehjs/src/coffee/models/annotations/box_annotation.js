@@ -21,17 +21,17 @@ export class BoxAnnotationView extends AnnotationView {
     return hide(this.el);
   }
 
-  connect_signals() {
-    super.connect_signals();
+  connect_signals(): void {
+    super.connect_signals()
     // need to respond to either normal BB change events or silent
     // "data only updates" that tools might want to use
     if (this.model.render_mode === 'css') {
       // dispatch CSS update immediately
-      this.connect(this.model.change, function() { return this.render(); });
-      return this.connect(this.model.data_update, function() { return this.render(); });
+      this.connect(this.model.change, () => this.render())
+      this.connect(this.model.data_update, () => this.render())
     } else {
-      this.connect(this.model.change, () => this.plot_view.request_render());
-      return this.connect(this.model.data_update, () => this.plot_view.request_render());
+      this.connect(this.model.change, () => this.plot_view.request_render())
+      this.connect(this.model.data_update, () => this.plot_view.request_render())
     }
   }
 

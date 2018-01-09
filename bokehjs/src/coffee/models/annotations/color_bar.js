@@ -34,16 +34,16 @@ export class ColorBarView extends AnnotationView {
     return this._set_canvas_image();
   }
 
-  connect_signals() {
-    super.connect_signals();
-    this.connect(this.model.properties.visible.change, () => this.plot_view.request_render());
-    this.connect(this.model.ticker.change, () => this.plot_view.request_render());
-    this.connect(this.model.formatter.change, () => this.plot_view.request_render());
+  connect_signals(): void {
+    super.connect_signals()
+    this.connect(this.model.properties.visible.change, () => this.plot_view.request_render())
+    this.connect(this.model.ticker.change, () => this.plot_view.request_render())
+    this.connect(this.model.formatter.change, () => this.plot_view.request_render())
     if (this.model.color_mapper != null) {
-      return this.connect(this.model.color_mapper.change, function() {
-        this._set_canvas_image();
-        return this.plot_view.request_render();
-      });
+      this.connect(this.model.color_mapper.change, () => {
+        this._set_canvas_image()
+        this.plot_view.request_render()
+      })
     }
   }
 

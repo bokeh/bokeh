@@ -39,9 +39,9 @@ export class TooltipView extends AnnotationView {
     return hide(this.el);
   }
 
-  connect_signals() {
+  connect_signals(): void {
     super.connect_signals();
-    return this.connect(this.model.properties.data.change, function() { return this._draw_tips(); });
+    this.connect(this.model.properties.data.change, () => this._draw_tips())
   }
 
   render() {

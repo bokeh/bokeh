@@ -30,9 +30,9 @@ export class LegendView extends AnnotationView {
     return super.initialize(options);
   }
 
-  connect_signals() {
+  connect_signals(): void {
     super.connect_signals();
-    return this.connect(this.model.properties.visible.change, () => this.plot_view.request_render());
+    this.connect(this.model.properties.visible.change, () => this.plot_view.request_render())
   }
 
   compute_legend_bbox() {

@@ -589,21 +589,25 @@ export class PlotCanvasView extends DOMView {
       this.ui_event_bus.register_tool(tool_view));
   }
 
-  connect_signals() {
-    let rng;
+  connect_signals(): void {
     super.connect_signals();
+
     this.connect(this.force_paint, () => this.repaint());
-    for (var name in this.model.frame.x_ranges) {
-      rng = this.model.frame.x_ranges[name];
-      this.connect(rng.change, function() { return this.request_render(); });
+
+    const {x_ranges, y_ranges} = this.model.frame
+
+    for (const name in x_ranges) {
+      const rng = x_ranges[name];
+      this.connect(rng.change, () => this.request_render())
     }
-    for (name in this.model.frame.y_ranges) {
-      rng = this.model.frame.y_ranges[name];
-      this.connect(rng.change, function() { return this.request_render(); });
+    for (const name in y_ranges) {
+      const rng = y_ranges[name];
+      this.connect(rng.change, () => this.request_render())
     }
-    this.connect(this.model.plot.properties.renderers.change, () => this.build_levels());
-    this.connect(this.model.plot.toolbar.properties.tools.change, () => { this.build_levels(); return this.build_tools(); });
-    return this.connect(this.model.plot.change, function() { return this.request_render(); });
+
+    this.connect(this.model.plot.properties.renderers.change, () => this.build_levels())
+    this.connect(this.model.plot.toolbar.properties.tools.change, () => { this.build_levels(); return this.build_tools() })
+    this.connect(this.model.plot.change, () => this.request_render())
   }
 
   set_initial_range() {

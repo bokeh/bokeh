@@ -30,43 +30,43 @@ export class LabelSetView extends TextAnnotationView {
     }
   }
 
-  connect_signals() {
+  connect_signals(): void {
     super.connect_signals();
     if (this.model.render_mode === 'css') {
       // dispatch CSS update immediately
-      this.connect(this.model.change, function() {
+      this.connect(this.model.change, () => {
         this.set_data(this.model.source);
-        return this.render();
-    });
-      this.connect(this.model.source.streaming, function() {
+        this.render();
+      });
+      this.connect(this.model.source.streaming, () => {
         this.set_data(this.model.source);
-        return this.render();
-    });
-      this.connect(this.model.source.patching, function() {
+        this.render();
+      });
+      this.connect(this.model.source.patching, () => {
         this.set_data(this.model.source);
-        return this.render();
-    });
-      return this.connect(this.model.source.change, function() {
+        this.render();
+      });
+      this.connect(this.model.source.change, () => {
         this.set_data(this.model.source);
-        return this.render();
-    });
+        this.render();
+      });
     } else {
-      this.connect(this.model.change, function() {
+      this.connect(this.model.change, () => {
         this.set_data(this.model.source);
-        return this.plot_view.request_render();
-    });
-      this.connect(this.model.source.streaming, function() {
+        this.plot_view.request_render();
+      });
+      this.connect(this.model.source.streaming, () => {
         this.set_data(this.model.source);
-        return this.plot_view.request_render();
-    });
-      this.connect(this.model.source.patching, function() {
+        this.plot_view.request_render();
+      });
+      this.connect(this.model.source.patching, () => {
         this.set_data(this.model.source);
-        return this.plot_view.request_render();
-    });
-      return this.connect(this.model.source.change, function() {
+        this.plot_view.request_render();
+      });
+      this.connect(this.model.source.change, () => {
         this.set_data(this.model.source);
-        return this.plot_view.request_render();
-    });
+        this.plot_view.request_render();
+      });
     }
   }
 

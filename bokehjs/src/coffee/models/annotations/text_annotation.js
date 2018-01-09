@@ -22,13 +22,13 @@ export class TextAnnotationView extends AnnotationView {
     }
   }
 
-  connect_signals() {
+  connect_signals(): void {
     super.connect_signals();
     if (this.model.render_mode === 'css') {
       // dispatch CSS update immediately
-      return this.connect(this.model.change, function() { return this.render(); });
+      this.connect(this.model.change, () => this.render())
     } else {
-      return this.connect(this.model.change, () => this.plot_view.request_render());
+      this.connect(this.model.change, () => this.plot_view.request_render())
     }
   }
 

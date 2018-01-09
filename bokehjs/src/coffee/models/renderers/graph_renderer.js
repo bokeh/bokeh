@@ -33,25 +33,27 @@ export class GraphRendererView extends RendererView {
     return this.set_data();
   }
 
-  connect_signals() {
-    let rng;
+  connect_signals(): void {
     super.connect_signals();
-    this.connect(this.model.layout_provider.change, function() { return this.set_data(); });
-    this.connect(this.model.node_renderer.data_source._select, function() { return this.set_data(); });
-    this.connect(this.model.node_renderer.data_source.inspect, function() { return this.set_data(); });
-    this.connect(this.model.node_renderer.data_source.change, function() { return this.set_data(); });
-    this.connect(this.model.edge_renderer.data_source._select, function() { return this.set_data(); });
-    this.connect(this.model.edge_renderer.data_source.inspect, function() { return this.set_data(); });
-    this.connect(this.model.edge_renderer.data_source.change, function() { return this.set_data(); });
 
-    for (var name in this.plot_model.frame.x_ranges) {
-      rng = this.plot_model.frame.x_ranges[name];
-      this.connect(rng.change, function() { return this.set_data(); });
+    this.connect(this.model.layout_provider.change, () => this.set_data())
+    this.connect(this.model.node_renderer.data_source._select, () => this.set_data())
+    this.connect(this.model.node_renderer.data_source.inspect, () => this.set_data())
+    this.connect(this.model.node_renderer.data_source.change, () => this.set_data())
+    this.connect(this.model.edge_renderer.data_source._select, () => this.set_data())
+    this.connect(this.model.edge_renderer.data_source.inspect, () => this.set_data())
+    this.connect(this.model.edge_renderer.data_source.change, () => this.set_data())
+
+    const {x_ranges, y_ranges} = this.plot_model.frame
+
+    for (const  name in x_ranges) {
+      const rng = x_ranges[name];
+      this.connect(rng.change, () => this.set_data())
     }
 
-    for (name in this.plot_model.frame.y_ranges) {
-      rng = this.plot_model.frame.y_ranges[name];
-      this.connect(rng.change, function() { return this.set_data(); });
+    for (const name in y_ranges) {
+      const rng = y_ranges[name];
+      this.connect(rng.change, () => this.set_data())
     }
   }
 
@@ -68,7 +70,7 @@ export class GraphRendererView extends RendererView {
     this.edge_view.glyph.index = this.edge_view.glyph._index_data();
 
     if (request_render) {
-      return this.request_render();
+      this.request_render();
     }
   }
 

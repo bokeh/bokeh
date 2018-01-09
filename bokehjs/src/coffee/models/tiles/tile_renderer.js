@@ -25,9 +25,9 @@ export class TileRendererView extends RendererView {
     return super.initialize(options);
   }
 
-  connect_signals() {
+  connect_signals(): void {
     super.connect_signals();
-    return this.connect(this.model.change, function() { return this.request_render(); });
+    this.connect(this.model.change, () => this.request_render())
   }
 
   get_extent() {

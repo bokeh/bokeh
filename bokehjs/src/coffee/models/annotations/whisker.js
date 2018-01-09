@@ -22,11 +22,11 @@ export class WhiskerView extends AnnotationView {
     return this.set_data(this.model.source);
   }
 
-  connect_signals() {
+  connect_signals(): void {
     super.connect_signals();
-    this.connect(this.model.source.streaming, function() { return this.set_data(this.model.source); });
-    this.connect(this.model.source.patching, function() { return this.set_data(this.model.source); });
-    return this.connect(this.model.source.change, function() { return this.set_data(this.model.source); });
+    this.connect(this.model.source.streaming, () => this.set_data(this.model.source))
+    this.connect(this.model.source.patching, () => this.set_data(this.model.source))
+    this.connect(this.model.source.change, () => this.set_data(this.model.source))
   }
 
   set_data(source) {

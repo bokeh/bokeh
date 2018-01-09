@@ -29,7 +29,7 @@ export class BoxView extends LayoutDOMView {
 
   model: Box
 
-  connect_signals() {
+  connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.properties.children.change, () => this.rebuild_child_views())
   }

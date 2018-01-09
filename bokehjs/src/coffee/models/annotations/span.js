@@ -20,17 +20,17 @@ export class SpanView extends AnnotationView {
     return hide(this.el);
   }
 
-  connect_signals() {
+  connect_signals(): void {
     super.connect_signals();
     if (this.model.for_hover) {
-      return this.connect(this.model.properties.computed_location.change, function() { return this._draw_span(); });
+      this.connect(this.model.properties.computed_location.change, () => this._draw_span())
     } else {
       if (this.model.render_mode === 'canvas') {
         this.connect(this.model.change, () => this.plot_view.request_render());
-        return this.connect(this.model.properties.location.change, () => this.plot_view.request_render());
+        this.connect(this.model.properties.location.change, () => this.plot_view.request_render());
       } else {
-        this.connect(this.model.change, function() { return this.render(); });
-        return this.connect(this.model.properties.location.change, function() { return this._draw_span(); });
+        this.connect(this.model.change, () => this.render())
+        this.connect(this.model.properties.location.change, () => this._draw_span())
       }
     }
   }

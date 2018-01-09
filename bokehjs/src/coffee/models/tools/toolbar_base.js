@@ -26,9 +26,9 @@ export class ToolbarBaseView extends DOMView {
     return this._build_tool_button_views();
   }
 
-  connect_signals() {
+  connect_signals(): void {
     super.connect_signals();
-    return this.connect(this.model.properties.tools.change, () => this._build_tool_button_views());
+    this.connect(this.model.properties.tools.change, () => this._build_tool_button_views());
   }
 
   remove() {

@@ -15,9 +15,9 @@ import * as p from "core/properties"
 
 export class DynamicImageView extends RendererView {
 
-  connect_signals() {
+  connect_signals(): void {
     super.connect_signals();
-    return this.connect(this.model.change, function() { return this.request_render(); });
+    this.connect(this.model.change, () => this.request_render())
   }
 
   get_extent() {

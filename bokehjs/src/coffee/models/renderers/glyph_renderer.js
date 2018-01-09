@@ -82,32 +82,34 @@ export class GlyphRendererView extends RendererView {
     return new model.default_view({model, renderer: this, plot_view: this.plot_view, parent: this});
   }
 
-  connect_signals() {
-    let rng;
+  connect_signals(): void {
     super.connect_signals();
-    this.connect(this.model.change, function() { return this.request_render(); });
-    this.connect(this.model.glyph.change, function() { return this.set_data(); });
-    this.connect(this.model.data_source.change, function() { return this.set_data(); });
-    this.connect(this.model.data_source.streaming, function() { return this.set_data(); });
-    this.connect(this.model.data_source.patching, function(indices) { return this.set_data(true, indices); });
-    this.connect(this.model.data_source._select, function() { return this.request_render(); });
+
+    this.connect(this.model.change, () => this.request_render())
+    this.connect(this.model.glyph.change, () => this.set_data())
+    this.connect(this.model.data_source.change, () => this.set_data())
+    this.connect(this.model.data_source.streaming, () => this.set_data())
+    this.connect(this.model.data_source.patching, (indices) => this.set_data(true, indices))
+    this.connect(this.model.data_source._select, () => this.request_render())
     if (this.hover_glyph != null) {
-      this.connect(this.model.data_source.inspect, function() { return this.request_render(); });
+      this.connect(this.model.data_source.inspect, () => this.request_render())
     }
-    this.connect(this.model.properties.view.change, function() { return this.set_data(); });
-    this.connect(this.model.view.change, function() { return this.set_data(); });
+    this.connect(this.model.properties.view.change, () => this.set_data())
+    this.connect(this.model.view.change, () => this.set_data())
 
-    for (var name in this.plot_model.frame.x_ranges) {
-      rng = this.plot_model.frame.x_ranges[name];
-      this.connect(rng.change, function() { return this.set_data(); });
-    }
+    const {x_ranges, y_ranges} = this.plot_model.frame
 
-    for (name in this.plot_model.frame.y_ranges) {
-      rng = this.plot_model.frame.y_ranges[name];
-      this.connect(rng.change, function() { return this.set_data(); });
+    for (const name in x_ranges) {
+      const rng = x_ranges[name];
+      this.connect(rng.change, () => this.set_data())
     }
 
-    return this.connect(this.model.glyph.transformchange, function() { return this.set_data(); });
+    for (const name in y_ranges) {
+      const rng = y_ranges[name];
+      this.connect(rng.change, () => this.set_data())
+    }
+
+    this.connect(this.model.glyph.transformchange, () => this.set_data())
   }
 
   have_selection_glyphs() { return (this.selection_glyph != null) && (this.nonselection_glyph != null); }
