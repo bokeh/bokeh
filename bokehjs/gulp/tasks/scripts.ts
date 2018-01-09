@@ -80,7 +80,7 @@ gulp.task("scripts:tsjs", tsjs_deps, () => {
       const [, file, rest, code] = result
       const real = path.join('src', 'coffee', ...file.split(path.sep).slice(3))
       if (fs.existsSync(real)) {
-        if (code == "8010") // ignore "types can be only used in *.ts files"
+        if (code == "8010" || code == "8008") // ignore "types can be only used in *.ts files" and similar
           return
 
         if (argv.filter && !raw.includes(argv.filter))
