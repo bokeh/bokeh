@@ -30,9 +30,9 @@ export class BasicTickFormatter extends TickFormatter {
     });
   }
 
-  initialize(attrs, options) {
+  initialize(attrs: any, options: any): void {
     super.initialize(attrs, options);
-    return this.last_precision = 3;
+    this.last_precision = 3;
   }
 
   doFormat(ticks, axis) {

@@ -61,7 +61,7 @@ export class LegendItem extends Model {
   }
 
 
-  initialize(attrs, options) {
+  initialize(attrs: any, options: any): void {
     super.initialize(attrs, options);
     // Validate data_sources match
     const data_source_validation = this._check_data_sources_on_renderers();
@@ -71,7 +71,7 @@ export class LegendItem extends Model {
     // Validate label in data_source
     const field_validation = this._check_field_label_on_data_source();
     if (!field_validation) {
-      return logger.error(`Bad column name on label: ${this.label}`);
+      logger.error(`Bad column name on label: ${this.label}`);
     }
   }
 

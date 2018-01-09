@@ -23,10 +23,6 @@ export class Filter extends Model {
     });
   }
 
-  initialize(options) {
-    return super.initialize(options);
-  }
-
   compute_indices() {
     if ((this.filter != null ? this.filter.length : undefined) >= 0) {
       if (all(this.filter, isBoolean)) {

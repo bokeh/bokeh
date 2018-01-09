@@ -78,10 +78,10 @@ export class DatetimeTickFormatter extends TickFormatter {
     this.prototype.strip_leading_zeros = true;
   }
 
-  initialize(attrs, options) {
+  initialize(attrs: any, options: any): void {
     super.initialize(attrs, options);
     // TODO (bev) trigger update on format change
-    return this._update_width_formats();
+    this._update_width_formats();
   }
 
   _update_width_formats() {

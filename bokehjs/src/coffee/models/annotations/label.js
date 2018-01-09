@@ -12,9 +12,9 @@ import * as p from "core/properties"
 ;
 
 export class LabelView extends TextAnnotationView {
-  initialize(options) {
+  initialize(options: any): void {
     super.initialize(options);
-    return this.visuals.warm_cache(null);
+    this.visuals.warm_cache(null);
   }
 
   _get_size() {

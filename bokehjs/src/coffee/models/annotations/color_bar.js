@@ -29,9 +29,9 @@ const LONG_DIM_MIN_SCALAR = 0.3;
 const LONG_DIM_MAX_SCALAR = 0.8;
 
 export class ColorBarView extends AnnotationView {
-  initialize(options) {
+  initialize(options: any): void {
     super.initialize(options);
-    return this._set_canvas_image();
+    this._set_canvas_image();
   }
 
   connect_signals(): void {
@@ -405,10 +405,6 @@ export class ColorBar extends Annotation {
         title_text_font_size: "10pt",
         title_text_font_style: "italic"
     });
-  }
-
-  initialize(attrs, options) {
-    return super.initialize(attrs, options);
   }
 
   _normals() {

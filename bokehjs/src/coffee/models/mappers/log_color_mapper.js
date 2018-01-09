@@ -30,11 +30,11 @@ export class LogColorMapper extends ColorMapper {
       });
   }
 
-  initialize(attrs, options) {
+  initialize(attrs: any, options: any): void {
     super.initialize(attrs, options);
     this._nan_color = this._build_palette([color2hex(this.nan_color)])[0];
     this._high_color = (this.high_color != null) ? this._build_palette([color2hex(this.high_color)])[0] : undefined;
-    return this._low_color = (this.low_color != null) ? this._build_palette([color2hex(this.low_color)])[0] : undefined;
+    this._low_color = (this.low_color != null) ? this._build_palette([color2hex(this.low_color)])[0] : undefined;
   }
 
   _get_values(data, palette, image_glyph) {

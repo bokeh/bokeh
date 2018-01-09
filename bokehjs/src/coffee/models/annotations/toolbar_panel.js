@@ -13,11 +13,11 @@ import * as p from "core/properties"
 
 export class ToolbarPanelView extends AnnotationView {
 
-  initialize(options) {
+  initialize(options: any): void {
     super.initialize(options);
     this.plot_view.canvas_events.appendChild(this.el);
     this._toolbar_views = {};
-    return build_views(this._toolbar_views, [this.model.toolbar], {parent: this});
+    build_views(this._toolbar_views, [this.model.toolbar], {parent: this});
   }
 
   remove() {

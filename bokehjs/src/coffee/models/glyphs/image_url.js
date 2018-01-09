@@ -15,9 +15,9 @@ import * as p from "core/properties"
 ;
 
 export class ImageURLView extends GlyphView {
-  initialize(options) {
+  initialize(options: any): void {
     super.initialize(options);
-    return this.connect(this.model.properties.global_alpha.change, () => this.renderer.request_render());
+    this.connect(this.model.properties.global_alpha.change, () => this.renderer.request_render());
   }
 
   _index_data() {}

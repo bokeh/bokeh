@@ -17,9 +17,9 @@ import {max, concat} from "core/util/array"
 
 export class ImageView extends XYGlyphView {
 
-  initialize(options) {
+  initialize(options: any): void {
     super.initialize(options);
-    return this.connect(this.model.color_mapper.change, function() { return this._update_image(); });
+    this.connect(this.model.color_mapper.change, function() { return this._update_image(); });
   }
 
   _update_image() {

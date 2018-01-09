@@ -99,9 +99,9 @@ export class PolyAnnotation extends Annotation {
     });
   }
 
-  initialize(attrs, options) {
+  initialize(attrs: any, options: any): void {
     super.initialize(attrs, options);
-    return this.data_update = new Signal(this, "data_update");
+    this.data_update = new Signal(this, "data_update");
   }
 
   update({xs, ys}) {

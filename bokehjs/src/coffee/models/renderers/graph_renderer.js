@@ -19,7 +19,7 @@ import {create_hit_test_result} from "core/hittest"
 
 export class GraphRendererView extends RendererView {
 
-  initialize(options) {
+  initialize(options: any): void {
     super.initialize(options);
 
     this.xscale = this.plot_view.frame.xscales["default"];
@@ -30,7 +30,7 @@ export class GraphRendererView extends RendererView {
                                            [this.model.node_renderer, this.model.edge_renderer],
                                            this.plot_view.view_options()));
 
-    return this.set_data();
+    this.set_data();
   }
 
   connect_signals(): void {

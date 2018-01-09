@@ -17,7 +17,7 @@ import {isString, isArray} from "core/util/types"
 import {range} from "core/util/array"
 
 export class LabelSetView extends TextAnnotationView {
-  initialize(options) {
+  initialize(options: any): void {
     super.initialize(options);
 
     this.set_data(this.model.source);
@@ -72,7 +72,7 @@ export class LabelSetView extends TextAnnotationView {
 
   set_data(source) {
     super.set_data(source);
-    return this.visuals.warm_cache(source);
+    this.visuals.warm_cache(source);
   }
 
   _map_data() {

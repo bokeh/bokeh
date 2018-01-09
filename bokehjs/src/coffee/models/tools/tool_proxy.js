@@ -30,11 +30,11 @@ export class ToolProxy extends Model {
   }
   // Operates all the tools given only one button
 
-  initialize(options) {
+  initialize(options: any): void {
     super.initialize(options);
     this.do = new Signal(this, "do");
     this.connect(this.do, function() { return this.doit(); });
-    return this.connect(this.properties.active.change, function() { return this.set_active(); });
+    this.connect(this.properties.active.change, function() { return this.set_active(); });
   }
 
   doit() {

@@ -31,10 +31,10 @@ export class Toolbar extends ToolbarBase {
     });
   }
 
-  initialize(attrs, options) {
+  initialize(attrs: any, options: any): void {
     super.initialize(attrs, options);
-    this.connect(this.properties.tools.change, function() { return this._init_tools(); });
-    return this._init_tools();
+    this.connect(this.properties.tools.change, () => this._init_tools())
+    this._init_tools();
   }
 
   _init_tools() {

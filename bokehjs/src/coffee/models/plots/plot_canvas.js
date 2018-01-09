@@ -107,7 +107,7 @@ export class PlotCanvasView extends DOMView {
     return super.remove();
   }
 
-  initialize(options) {
+  initialize(options: any): void {
     this.pause();
 
     super.initialize(options);
@@ -159,8 +159,6 @@ export class PlotCanvasView extends DOMView {
 
     this.unpause(true);
     logger.debug("PlotView initialized");
-
-    return this;
   }
 
   set_cursor(cursor) {
@@ -962,7 +960,7 @@ export class PlotCanvas extends LayoutDOM {
     });
   }
 
-  initialize(attrs, options) {
+  initialize(attrs: any, options: any): void {
     super.initialize(attrs, options);
 
     this.canvas = new Canvas({
@@ -985,7 +983,7 @@ export class PlotCanvas extends LayoutDOM {
     this.left_panel  = new LeftPanel();
     this.right_panel = new RightPanel();
 
-    return logger.debug("PlotCanvas initialized");
+    logger.debug("PlotCanvas initialized");
   }
 
   _doc_attached() {
@@ -996,7 +994,7 @@ export class PlotCanvas extends LayoutDOM {
     this.left_panel.attach_document(this.document);
     this.right_panel.attach_document(this.document);
     super._doc_attached();
-    return logger.debug("PlotCanvas attached to document");
+    logger.debug("PlotCanvas attached to document");
   }
 
   get_layoutable_children() {

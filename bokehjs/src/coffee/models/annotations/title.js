@@ -15,9 +15,9 @@ import * as Visuals from "core/visuals"
 
 export class TitleView extends TextAnnotationView {
 
-  initialize(options) {
+  initialize(options: any): void {
     super.initialize(options);
-    return this.visuals.text = new Visuals.Text(this.model);
+    this.visuals.text = new Visuals.Text(this.model);
   }
 
   _get_location() {

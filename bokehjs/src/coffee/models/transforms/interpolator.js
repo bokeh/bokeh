@@ -24,13 +24,13 @@ export class Interpolator extends Transform {
       });
   }
 
-  initialize(attrs, options) {
+  initialize(attrs: any, options: any): void {
     super.initialize(attrs, options);
     this._x_sorted = [];
     this._y_sorted = [];
     this._sorted_dirty = true;
 
-    return this.connect(this.change, function() { return this._sorted_dirty = true; });
+    this.connect(this.change, () => this._sorted_dirty = true)
   }
 
   sort(descending) {

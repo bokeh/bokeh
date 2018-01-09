@@ -23,13 +23,13 @@ export class ColorMapper extends Transform {
       });
   }
 
-  initialize(attrs, options) {
+  initialize(attrs: any, options: any): void {
     super.initialize(attrs, options);
     this._little_endian = this._is_little_endian();
     this._palette       = this._build_palette(this.palette);
 
-    return this.connect(this.change, function() {
-      return this._palette = this._build_palette(this.palette);
+    this.connect(this.change, function() {
+      this._palette = this._build_palette(this.palette);
     });
   }
 

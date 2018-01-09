@@ -10,10 +10,10 @@ import {Model} from "../../model"
 
 export class Expression extends Model {
 
-  initialize(attrs, options) {
+  initialize(attrs: any, options: any): void {
     super.initialize(attrs, options);
     this._connected= {};
-    return this._result = {};
+    this._result = {};
   }
 
   _v_compute(source) {

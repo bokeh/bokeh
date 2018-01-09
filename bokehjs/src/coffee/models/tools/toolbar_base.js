@@ -20,10 +20,10 @@ import {Tool} from "./tool"
 
 export class ToolbarBaseView extends DOMView {
 
-  initialize(options) {
+  initialize(options: any): void {
     super.initialize(options);
     this._tool_button_views = {};
-    return this._build_tool_button_views();
+    this._build_tool_button_views();
   }
 
   connect_signals(): void {

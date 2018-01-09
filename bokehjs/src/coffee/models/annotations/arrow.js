@@ -17,12 +17,13 @@ import {atan2} from "core/util/math"
 ;
 
 export class ArrowView extends AnnotationView {
-  initialize(options) {
+
+  initialize(options: any): void {
     super.initialize(options);
     if ((this.model.source == null)) {
       this.model.source = new ColumnDataSource();
     }
-    return this.set_data(this.model.source);
+    this.set_data(this.model.source);
   }
 
   connect_signals(): void {

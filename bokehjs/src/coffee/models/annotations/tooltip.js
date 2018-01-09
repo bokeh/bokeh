@@ -31,12 +31,12 @@ export class TooltipView extends AnnotationView {
     this.prototype.className = "bk-tooltip";
   }
 
-  initialize(options) {
+  initialize(options: any): void {
     super.initialize(options);
     // TODO (bev) really probably need multiple divs
     this.plot_view.canvas_overlays.appendChild(this.el);
     this.el.style.zIndex = 1010;
-    return hide(this.el);
+    hide(this.el);
   }
 
   connect_signals(): void {

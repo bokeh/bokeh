@@ -14,11 +14,11 @@ import {isString, isArray} from "core/util/types"
 ;
 
 export class BoxAnnotationView extends AnnotationView {
-  initialize(options) {
+  initialize(options: any): void {
     super.initialize(options);
     this.plot_view.canvas_overlays.appendChild(this.el);
     this.el.classList.add("bk-shading");
-    return hide(this.el);
+    hide(this.el);
   }
 
   connect_signals(): void {
@@ -156,14 +156,14 @@ export class BoxAnnotation extends Annotation {
     });
   }
 
-  initialize(attrs, options) {
+  initialize(attrs: any, options: any): void {
     super.initialize(attrs, options);
-    return this.data_update = new Signal(this, "data_update");
+    this.data_update = new Signal(this, "data_update");
   }
 
   update({left, right, top, bottom}) {
     this.setv({left, right, top, bottom, screen: true}, {silent: true});
-    return this.data_update.emit();
+    this.data_update.emit();
   }
 }
 BoxAnnotation.initClass();

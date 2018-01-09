@@ -32,12 +32,12 @@ export class TileSource extends Model {
     });
   }
 
-  initialize(attrs, options) {
+  initialize(attrs: any, options: any): void {
     super.initialize(attrs, options);
     this.utils = new ProjectionUtils();
     this.pool = new ImagePool();
     this.tiles = {};
-    return this.normalize_case();
+    this.normalize_case();
   }
 
   string_lookup_replace(str, lookup) {

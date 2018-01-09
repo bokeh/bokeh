@@ -28,10 +28,10 @@ export class ProxyToolbar extends ToolbarBase {
     this.prototype.type = 'ProxyToolbar';
   }
 
-  initialize(options) {
+  initialize(options: any): void {
     super.initialize(options);
     this._init_tools();
-    return this._merge_tools();
+    this._merge_tools();
   }
 
   _init_tools() {
@@ -172,19 +172,19 @@ export class ToolbarBoxView extends LayoutDOMView {
     this.prototype.className = 'bk-toolbar-box';
   }
 
-  initialize(options) {
+  initialize(options: any): void {
     super.initialize(options);
     this.model.toolbar.toolbar_location = this.model.toolbar_location;
     this._toolbar_views = {};
-    return build_views(this._toolbar_views, [this.model.toolbar], {parent: this});
+    build_views(this._toolbar_views, [this.model.toolbar], {parent: this});
   }
 
-  remove() {
+  remove(): void {
     remove_views(this._toolbar_views);
-    return super.remove();
+    super.remove();
   }
 
-  render() {
+  render(): void {
     super.render();
 
     const toolbar = this._toolbar_views[this.model.toolbar.id];

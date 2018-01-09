@@ -19,10 +19,10 @@ import {isString} from "core/util/types"
 
 export class TileRendererView extends RendererView {
 
-  initialize(options) {
+  initialize(options: any): void {
     this.attributionEl = null;
     this._tiles = [];
-    return super.initialize(options);
+    super.initialize(options);
   }
 
   connect_signals(): void {

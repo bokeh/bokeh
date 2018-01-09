@@ -17,9 +17,9 @@ import * as p from "core/properties"
 ;
 
 export class WhiskerView extends AnnotationView {
-  initialize(options) {
+  initialize(options: any): void {
     super.initialize(options);
-    return this.set_data(this.model.source);
+    this.set_data(this.model.source);
   }
 
   connect_signals(): void {

@@ -21,7 +21,7 @@ import {extend, clone} from "core/util/object"
 
 export class GlyphRendererView extends RendererView {
 
-  initialize(options) {
+  initialize(options: any): void {
     super.initialize(options);
 
     const base_glyph = this.model.glyph;
@@ -381,12 +381,12 @@ export class GlyphRenderer extends Renderer {
     this.prototype.nonselection_defaults = {fill: {fill_alpha: 0.2, line_alpha: 0.2}, line: {}};
   }
 
-  initialize(options) {
+  initialize(options: any): void {
     super.initialize(options);
 
     if ((this.view.source == null)) {
       this.view.source = this.data_source;
-      return this.view.compute_indices();
+      this.view.compute_indices();
     }
   }
 

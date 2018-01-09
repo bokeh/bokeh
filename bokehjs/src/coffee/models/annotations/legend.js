@@ -26,9 +26,6 @@ export class LegendView extends AnnotationView {
       }
     });
   }
-  initialize(options) {
-    return super.initialize(options);
-  }
 
   connect_signals(): void {
     super.connect_signals();

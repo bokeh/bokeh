@@ -26,7 +26,7 @@ import {LineView} from "./line"
 
 export class GlyphView extends View {
 
-  initialize(options) {
+  initialize(options: any): void {
     super.initialize(options);
     this._nohit_warned = {};
     this.renderer = options.renderer;
@@ -54,7 +54,7 @@ export class GlyphView extends View {
       if (glglyphs != null) {
         const Cls = glglyphs[this.model.type + 'GLGlyph'];
         if (Cls != null) {
-          return this.glglyph = new Cls(ctx.glcanvas.gl, this);
+          this.glglyph = new Cls(ctx.glcanvas.gl, this);
         }
       }
     }

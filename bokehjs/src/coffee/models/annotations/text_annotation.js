@@ -13,12 +13,12 @@ import {get_text_height} from "core/util/text"
 ;
 
 export class TextAnnotationView extends AnnotationView {
-  initialize(options) {
+  initialize(options: any): void {
     super.initialize(options);
 
     if (this.model.render_mode === 'css') {
       this.el.classList.add('bk-annotation');
-      return this.plot_view.canvas_overlays.appendChild(this.el);
+      this.plot_view.canvas_overlays.appendChild(this.el);
     }
   }
 

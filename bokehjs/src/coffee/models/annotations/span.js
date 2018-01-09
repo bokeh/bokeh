@@ -13,11 +13,11 @@ import * as p from "core/properties"
 
 export class SpanView extends AnnotationView {
 
-  initialize(options) {
+  initialize(options: any): void {
     super.initialize(options);
     this.plot_view.canvas_overlays.appendChild(this.el);
     this.el.style.position = "absolute";
-    return hide(this.el);
+    hide(this.el);
   }
 
   connect_signals(): void {
@@ -42,7 +42,7 @@ export class SpanView extends AnnotationView {
     if (!this.model.visible) {
       return;
     }
-    return this._draw_span();
+    this._draw_span();
   }
 
   _draw_span() {

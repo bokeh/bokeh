@@ -28,9 +28,9 @@ export class MercatorTileSource extends TileSource {
     });
   }
 
-  initialize(options) {
+  initialize(options: any): void {
     super.initialize(options);
-    return this._resolutions = (range(this.min_zoom, this.max_zoom+1).map((z) => this.get_resolution(z)));
+    this._resolutions = (range(this.min_zoom, this.max_zoom+1).map((z) => this.get_resolution(z)));
   }
 
   _computed_initial_resolution() {

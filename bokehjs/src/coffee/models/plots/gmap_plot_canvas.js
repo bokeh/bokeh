@@ -29,7 +29,7 @@ const load_google_api = function(api_key) {
 
 export class GMapPlotCanvasView extends PlotCanvasView {
 
-  initialize(options) {
+  initialize(options: any): void {
     this.pause();
 
     super.initialize(options);
@@ -51,7 +51,7 @@ export class GMapPlotCanvasView extends PlotCanvasView {
       gmaps_ready.connect(() => this.request_render());
     }
 
-    return this.unpause();
+    this.unpause();
   }
 
   update_range(range_info) {
@@ -267,9 +267,9 @@ export class GMapPlotCanvas extends PlotCanvas {
     this.prototype.default_view = GMapPlotCanvasView;
   }
 
-  initialize(attrs, options) {
+  initialize(attrs: any, options: any): void {
     this.use_map = true;
-    return super.initialize(attrs, options);
+    super.initialize(attrs, options);
   }
 }
 GMapPlotCanvas.initClass();

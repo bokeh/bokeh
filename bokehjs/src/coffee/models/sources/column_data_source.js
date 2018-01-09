@@ -149,10 +149,9 @@ export class ColumnDataSource extends ColumnarDataSource {
     })
   }
 
-  initialize(options) {
-    let ref
-    super.initialize(options)
-    return [this.data, this._shapes] = Array.from(ref = serialization.decode_column_data(this.data)), ref
+  initialize(options: any): void {
+    super.initialize(options);
+    [this.data, this._shapes] = serialization.decode_column_data(this.data)
   }
 
   attributes_as_json(include_defaults: boolean = true, value_to_json = ColumnDataSource._value_to_json) {

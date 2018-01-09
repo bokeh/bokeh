@@ -19,10 +19,10 @@ export class ImageSource extends Model {
       });
   }
 
-  initialize(attrs, options) {
+  initialize(attrs: any, options: any): void {
     super.initialize(attrs, options);
     this.images = {};
-    return this.normalize_case();
+    this.normalize_case();
   }
 
   normalize_case() {

@@ -15,9 +15,9 @@ export class ArrowHead extends Annotation {
     this.prototype.type = 'ArrowHead';
   }
 
-  initialize(options) {
+  initialize(options: any): void {
     super.initialize(options);
-    return this.visuals = new Visuals(this);
+    this.visuals = new Visuals(this);
   }
 
   render(ctx, i) {
