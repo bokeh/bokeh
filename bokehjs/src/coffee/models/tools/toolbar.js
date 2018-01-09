@@ -39,7 +39,7 @@ export class Toolbar extends ToolbarBase {
 
   _init_tools() {
     let et;
-    for (var tool of this.tools) {
+    for (const tool of this.tools) {
       if (tool instanceof InspectTool) {
         if (!any(this.inspectors, t => t.id === tool.id)) {
           this.inspectors = this.inspectors.concat([tool]);

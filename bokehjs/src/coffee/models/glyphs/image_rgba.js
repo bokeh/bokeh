@@ -30,7 +30,7 @@ export class ImageRGBAView extends XYGlyphView {
     }
 
     for (let i = 0, end = this._image.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
-      var buf, canvas;
+      let buf, canvas;
       if ((indices != null) && (indices.indexOf(i) < 0)) {
         continue;
       }

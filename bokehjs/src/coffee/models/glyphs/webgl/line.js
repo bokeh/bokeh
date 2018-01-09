@@ -68,7 +68,7 @@ class DashAtlas {
     const n = this._width;
     const Z = new Float32Array(n * 4);
     for (i = 0, end1 = n, asc = 0 <= end1; asc ? i < end1 : i > end1; asc ? i++ : i--) {
-      var dash_end, dash_start, dash_type;
+      let dash_end, dash_start, dash_type;
       const x = (period * i) / (n-1);
       // get index at min - index = np.argmin(abs(C-(x)))
       let index = 0; let val_at_index = 1e16;

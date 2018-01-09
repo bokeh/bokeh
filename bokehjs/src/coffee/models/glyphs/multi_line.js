@@ -19,7 +19,7 @@ export class MultiLineView extends GlyphView {
 
   _index_data() {
     const points = [];
-    for (var i = 0, end = this._xs.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+    for (let i = 0, end = this._xs.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
       if ((this._xs[i] === null) || (this._xs[i].length === 0)) {
         continue;
       }

@@ -91,7 +91,7 @@ export class AnnularWedgeView extends XYGlyphView {
     const candidates = [];
 
     const bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1]);
-    for (var i of this.index.indices(bbox)) {
+    for (const i of this.index.indices(bbox)) {
       const or2 = Math.pow(this.souter_radius[i], 2);
       const ir2 = Math.pow(this.sinner_radius[i], 2);
       [sx0, sx1] = this.renderer.xscale.r_compute(x, this._x[i]);

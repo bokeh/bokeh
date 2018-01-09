@@ -95,7 +95,7 @@ export class TileSource extends Model {
 
   prune_tiles() {
     let tile;
-    for (var key in this.tiles) {
+    for (const key in this.tiles) {
       tile = this.tiles[key];
       tile.retain = tile.current || (tile.tile_coords[2] < 3); // save the parents...they are cheap
       if (tile.current) {

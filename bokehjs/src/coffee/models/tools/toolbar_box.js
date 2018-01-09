@@ -35,7 +35,7 @@ export class ProxyToolbar extends ToolbarBase {
   }
 
   _init_tools() {
-    for (var tool of this.tools) {
+    for (const tool of this.tools) {
       if (tool instanceof InspectTool) {
         if (!any(this.inspectors, t => t.id === tool.id))
           this.inspectors = this.inspectors.concat([tool]);
@@ -91,7 +91,7 @@ export class ProxyToolbar extends ToolbarBase {
     this._proxied_tools.push(...new_help_tools || []);
     this.help = new_help_tools;
 
-    for (var event_type in this.gestures) {
+    for (const event_type in this.gestures) {
       const info = this.gestures[event_type];
       if (!(event_type in gestures)) {
         gestures[event_type] = {};

@@ -40,12 +40,11 @@ export class CategoricalColorMapper extends ColorMapper {
   _get_values(data, palette) {
     const values = [];
 
-    for (var d of data) {
+    for (const d of data) {
+      let color, key;
 
-      var color, key;
       if (isString(d)) {
         key = this.factors.indexOf(d);
-
       } else {
         if (this.start != null) {
           if (this.end != null) {

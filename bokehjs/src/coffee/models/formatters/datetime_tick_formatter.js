@@ -194,7 +194,7 @@ export class DatetimeTickFormatter extends TickFormatter {
     // but it works!  There is some trickiness here due to having to deal
     // with hybrid formats in a reasonable manner.
     for (let t of ticks) {
-      var s, tm;
+      let s, tm;
       try {
         tm = _array(t);
         s = _strftime(t, format);
@@ -213,7 +213,7 @@ export class DatetimeTickFormatter extends TickFormatter {
       // we are at zero minutes, so display hours, or we are at zero seconds,
       // so display minutes (and if that is zero as well, then display hours).
       while (tm[ time_tuple_ndx_for_resol[this.format_order[next_ndx]] ] === 0) {
-        var next_format;
+        let next_format;
         next_ndx += 1;
         if (next_ndx === this.format_order.length) {
           break;

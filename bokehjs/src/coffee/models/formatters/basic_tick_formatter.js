@@ -82,7 +82,7 @@ export class BasicTickFormatter extends TickFormatter {
       for (let x = this.last_precision, asc2 = this.last_precision <= 15; asc2 ? x <= 15 : x >= 15; asc2 ? x++ : x--) {
         let is_ok = true;
         if (need_sci) {
-          var asc3, end2;
+          let asc3, end2;
           for (i = 0, end2 = ticks.length, asc3 = 0 <= end2; asc3 ? i < end2 : i > end2; asc3 ? i++ : i--) {
             labels[i] = ticks[i].toExponential(x);
             if (i > 0) {
@@ -96,7 +96,7 @@ export class BasicTickFormatter extends TickFormatter {
             break;
           }
         } else {
-          var asc4, end3;
+          let asc4, end3;
           for (i = 0, end3 = ticks.length, asc4 = 0 <= end3; asc4 ? i < end3 : i > end3; asc4 ? i++ : i--) {
             labels[i] = ticks[i].toFixed(x).replace(
               /(\.[0-9]*?)0+$/, "$1").replace(/\.$/, "");

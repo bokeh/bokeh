@@ -187,10 +187,9 @@ export class UIEvents {
     const view = this._hit_test_renderers(e.bokeh.sx, e.bokeh.sy);
 
     switch (base_type) {
-
-      case "move":
-        var active_inspectors = this.toolbar.inspectors.filter(t => t.active);
-        var cursor = "default";
+      case "move": {
+        const active_inspectors = this.toolbar.inspectors.filter(t => t.active);
+        let cursor = "default";
 
         // the event happened on a renderer
         if (view != null) {
@@ -211,40 +210,41 @@ export class UIEvents {
         }
 
         this.plot_view.set_cursor(cursor);
-        return active_inspectors.map((inspector) =>
-          this.trigger(signal, e, inspector.id));
-
-      case "tap":
+        active_inspectors.map((inspector) => this.trigger(signal, e, inspector.id));
+        break
+      }
+      case "tap": {
         if (view != null) {
           if (typeof view.on_hit === 'function') {
             view.on_hit(e.bokeh.sx, e.bokeh.sy);
           }
         }
-        var active_gesture = this.toolbar.gestures[base_type].active;
+        const active_gesture = this.toolbar.gestures[base_type].active;
         if (active_gesture != null) {
-          return this.trigger(signal, e, active_gesture.id);
+          this.trigger(signal, e, active_gesture.id);
         }
         break;
-
-      case "scroll":
+      }
+      case "scroll": {
         // Dual touch hack part 2/2
         // This is a hack for laptops with touch screen who may be pinching or scrolling
         // in order to use the wheel zoom tool. If it's a touch screen the WheelZoomTool event
         // will be linked to pinch. But we also want to trigger in the case of a scroll.
-        var base = 'ontouchstart' in window || (navigator.maxTouchPoints > 0) ? "pinch" : "scroll";
+        const base = 'ontouchstart' in window || (navigator.maxTouchPoints > 0) ? "pinch" : "scroll";
         active_gesture = this.toolbar.gestures[base].active;
         if (active_gesture != null) {
           e.preventDefault();
           e.stopPropagation();
-          return this.trigger(signal, e, active_gesture.id);
+          this.trigger(signal, e, active_gesture.id);
         }
         break;
-
-      default:
+      }
+      default: {
         active_gesture = this.toolbar.gestures[base_type].active;
         if (active_gesture != null) {
           return this.trigger(signal, e, active_gesture.id);
         }
+      }
     }
   }
 

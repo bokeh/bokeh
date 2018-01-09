@@ -42,7 +42,7 @@ export class StaticLayoutProvider extends LayoutProvider {
         xs.push(edge_source.data.xs[i]);
         ys.push(edge_source.data.ys[i]);
       } else {
-        var end, start;
+        let end, start;
         if (in_layout) {
           [start, end] = [this.graph_layout[starts[i]], this.graph_layout[ends[i]]];
         } else {

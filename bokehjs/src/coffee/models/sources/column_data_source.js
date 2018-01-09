@@ -90,9 +90,8 @@ export const patch_to_column = function(col, patch, shapes) {
   for (let [ind, value] of patch) {
 
     // make the single index case look like the length-3 multi-index case
-    var item, shape
+    let  item, shape
     if (!isArray(ind)) {
-
       if (isNumber(ind)) {
         value = [value]
         patched.push(ind)

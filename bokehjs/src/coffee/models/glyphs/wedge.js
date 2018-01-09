@@ -74,7 +74,7 @@ export class WedgeView extends XYGlyphView {
     const candidates = [];
 
     const bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1]);
-    for (var i of this.index.indices(bbox)) {
+    for (const i of this.index.indices(bbox)) {
       const r2 = Math.pow(this.sradius[i], 2);
       [sx0, sx1] = this.renderer.xscale.r_compute(x, this._x[i]);
       [sy0, sy1] = this.renderer.yscale.r_compute(y, this._y[i]);
@@ -86,7 +86,7 @@ export class WedgeView extends XYGlyphView {
 
     const direction = this.model.properties.direction.value();
     const hits = [];
-    for ([i, dist] of candidates) {
+    for (const [i, dist] of candidates) {
       // NOTE: minus the angle because JS uses non-mathy convention for angles
       const angle = Math.atan2(sy-this.sy[i], sx-this.sx[i]);
       if (angle_between(-angle, -this._start_angle[i], -this._end_angle[i], direction)) {

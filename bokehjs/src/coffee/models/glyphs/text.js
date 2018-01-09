@@ -32,7 +32,6 @@ export class TextView extends XYGlyphView {
         if (text.indexOf("\n") === -1) {
           ctx.fillText(text, 0, 0);
         } else {
-          var y;
           const lines = text.split("\n");
 
           const font = this.visuals.text.cache_select("font", i);
@@ -41,19 +40,24 @@ export class TextView extends XYGlyphView {
           const block_height = line_height*lines.length;
 
           const baseline = this.visuals.text.cache_select("text_baseline", i);
+          let y;
           switch (baseline) {
-            case "top":
+            case "top": {
               y = 0;
               break;
-            case "middle":
+            }
+            case "middle": {
               y = (-block_height/2) + (line_height/2);
               break;
-            case "bottom":
+            }
+            case "bottom": {
               y = -block_height + line_height;
               break;
-            default:
+            }
+            default: {
               y = 0;
               console.warn(`'${baseline}' baseline not supported with multi line text`);
+            }
           }
 
           for (let line of lines) {

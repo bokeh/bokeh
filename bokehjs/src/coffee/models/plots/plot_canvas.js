@@ -235,7 +235,7 @@ export class PlotCanvasView extends DOMView {
     const log_bounds = {};
 
     let calculate_log_bounds = false;
-    for (var r of values(frame.x_ranges).concat(values(frame.y_ranges))) {
+    for (const r of values(frame.x_ranges).concat(values(frame.y_ranges))) {
       if (r instanceof DataRange1d) {
         if (r.scale_hint === "log") {
           calculate_log_bounds = true;
@@ -265,7 +265,7 @@ export class PlotCanvasView extends DOMView {
       r = (1/this.model.plot.aspect_scale)*(this.frame._width.value/this.frame._height.value);
     }
 
-    for (var xr of values(frame.x_ranges)) {
+    for (const xr of values(frame.x_ranges)) {
       if (xr instanceof DataRange1d) {
         bounds_to_use = xr.scale_hint === "log" ? log_bounds : bounds;
         xr.update(bounds_to_use, 0, this.model.id, r);
@@ -276,7 +276,7 @@ export class PlotCanvasView extends DOMView {
       if (xr.bounds != null) { has_bounds = true; }
     }
 
-    for (var yr of values(frame.y_ranges)) {
+    for (const yr of values(frame.y_ranges)) {
       if (yr instanceof DataRange1d) {
         bounds_to_use = yr.scale_hint === "log" ? log_bounds : bounds;
         yr.update(bounds_to_use, 1, this.model.id, r);
@@ -392,7 +392,7 @@ export class PlotCanvasView extends DOMView {
   _update_ranges_together(range_info_iter) {
     // Get weight needed to scale the diff of the range to honor interval limits
     let weight = 1.0;
-    for (var [rng, range_info] of range_info_iter) {
+    for (const [rng, range_info] of range_info_iter) {
       weight = Math.min(weight, this._get_weight_to_constrain_interval(rng, range_info));
     }
     // Apply shared weight to all ranges
@@ -406,7 +406,7 @@ export class PlotCanvasView extends DOMView {
 
   _update_ranges_individually(range_info_iter, is_panning, is_scrolling) {
     let hit_bound = false;
-    for (var [rng, range_info] of range_info_iter) {
+    for (const [rng, range_info] of range_info_iter) {
       // Is this a reversed range?
       const is_reversed = (rng.start > rng.end);
 
@@ -613,7 +613,7 @@ export class PlotCanvasView extends DOMView {
     let rng, yrs;
     let good_vals = true;
     const xrs = {};
-    for (var name in this.frame.x_ranges) {
+    for (const name in this.frame.x_ranges) {
       rng = this.frame.x_ranges[name];
       if ((rng.start == null) || (rng.end == null) || isStrictNaN(rng.start + rng.end)) {
         good_vals = false;

@@ -27,21 +27,24 @@ export class StepView extends XYGlyphView {
 
     for (let i = 1, end = L, asc = 1 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
 
-      var x1, x2, y1, y2;
+      let x1, x2, y1, y2;
       switch (this.model.mode) {
-        case "before":
+        case "before": {
           [x1, y1] = [sx[i-1], sy[i]];
           [x2, y2] = [sx[i],   sy[i]];
           break;
-        case "after":
+        }
+        case "after": {
           [x1, y1] = [sx[i], sy[i-1]];
           [x2, y2] = [sx[i], sy[i]  ];
           break;
-        case "center":
-          var xm = (sx[i-1] + sx[i])/2;
+        }
+        case "center": {
+          const xm = (sx[i-1] + sx[i])/2;
           [x1, y1] = [xm, sy[i-1]];
           [x2, y2] = [xm, sy[i]  ];
           break;
+        }
       }
 
       ctx.lineTo(x1, y1);

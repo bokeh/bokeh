@@ -165,7 +165,7 @@ export class RectView extends XYGlyphView {
 
     const bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1]);
     for (i of this.index.indices(bbox)) {
-      var height_in, width_in;
+      let height_in, width_in;
       if (this._angle[i]) {
         const d = Math.sqrt(Math.pow((sx - this.sx[i]), 2) + Math.pow((sy - this.sy[i]),2));
         const s = Math.sin(-this._angle[i]);

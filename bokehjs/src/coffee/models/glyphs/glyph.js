@@ -281,7 +281,7 @@ export class GlyphView extends View {
     if (indices && !(this instanceof LineView)) {
       const data_subset = {};
       for (let k in data) {
-        var v = data[k];
+        const v = data[k];
         if (k.charAt(0) === '_') {
           data_subset[k] = (indices.map((i) => v[i]));
         } else {

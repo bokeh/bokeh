@@ -41,7 +41,7 @@ export class PatchesView extends GlyphView {
       let qs = copy(nanned_qs[i]);
       while (qs.length > 0) {
 
-        var qs_part;
+        let qs_part;
         const nan_index = findLastIndex(qs, q => isStrictNaN(q));
 
         if (nan_index >= 0) {
@@ -104,14 +104,13 @@ export class PatchesView extends GlyphView {
     this.renderer.sxss = this._build_discontinuous_object(sxs);
     this.renderer.syss = this._build_discontinuous_object(sys);
     for (let i of indices) {
-      var j;
       const [sx, sy] = [sxs[i], sys[i]];
 
       if (this.visuals.fill.doit) {
-        var asc, end;
+        let asc, end;
         this.visuals.fill.set_vectorize(ctx, i);
 
-        for (j = 0, end = sx.length, asc = 0 <= end; asc ? j < end : j > end; asc ? j++ : j--) {
+        for (let j = 0, end = sx.length, asc = 0 <= end; asc ? j < end : j > end; asc ? j++ : j--) {
           if (j === 0) {
             ctx.beginPath();
             ctx.moveTo(sx[j], sy[j]);
@@ -131,10 +130,10 @@ export class PatchesView extends GlyphView {
       }
 
       if (this.visuals.line.doit) {
-        var asc1, end1;
+        let asc1, end1;
         this.visuals.line.set_vectorize(ctx, i);
 
-        for (j = 0, end1 = sx.length, asc1 = 0 <= end1; asc1 ? j < end1 : j > end1; asc1 ? j++ : j--) {
+        for (let j = 0, end1 = sx.length, asc1 = 0 <= end1; asc1 ? j < end1 : j > end1; asc1 ? j++ : j--) {
           if (j === 0) {
             ctx.beginPath();
             ctx.moveTo(sx[j], sy[j]);

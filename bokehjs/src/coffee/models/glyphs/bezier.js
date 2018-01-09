@@ -19,7 +19,7 @@ const _cbb = function(x0, y0, x1, y1, x2, y2, x3, y3) {
   const bounds = [[], []];
 
   for (let i = 0; i <= 2; i++) {
-    var a, b, c;
+    let a, b, c;
     if (i === 0) {
       b = ((6 * x0) - (12 * x1)) + (6 * x2);
       a = (((-3 * x0) + (9 * x1)) - (9 * x2)) + (3 * x3);

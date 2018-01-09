@@ -66,18 +66,21 @@ export class ColumnarDataSource extends DataSource {
     const lengths = uniq(values(this.data).map((v) => v.length))
 
     switch (lengths.length) {
-      case 0:
+      case 0: {
         return null // XXX: don't guess, treat on case-by-case basis
-      case 1:
+      }
+      case 1: {
         return lengths[0]
-      default:
-        var msg = "data source has columns of inconsistent lengths"
+      }
+      default: {
+        const msg = "data source has columns of inconsistent lengths"
         if (soft) {
           logger.warn(msg)
           return lengths.sort()[0]
         } else {
           throw new Error(msg)
         }
+      }
     }
   }
 

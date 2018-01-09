@@ -24,7 +24,7 @@ export const ARRAY_TYPES = {
 };
 
 export const DTYPES = {};
-for (var k in ARRAY_TYPES) {
+for (const k in ARRAY_TYPES) {
   v = ARRAY_TYPES[k];
   DTYPES[v.name] = k;
 }
@@ -134,7 +134,7 @@ export const base64ToArrayBuffer = function(base64) {
   return bytes.buffer;
 };
 
-export var decode_base64 = function(input) {
+export const decode_base64 = function(input) {
   let array;
   const bytes = base64ToArrayBuffer(input['__ndarray__']);
   const dtype = input['dtype'];
@@ -163,7 +163,7 @@ export const decode_column_data = function(data, buffers) {
   for (k in data) {
 
     // might be array of scalars, or might be ragged array or arrays
-    var arr, shape;
+    let arr, shape;
     v = data[k];
     if (isArray(v)) {
 
@@ -204,7 +204,7 @@ export const encode_column_data = function(data, shapes) {
       v = encode_base64(v, shapes != null ? shapes[k] : undefined);
     } else if (isArray(v)) {
       const new_array = [];
-      for (var i = 0, end = v.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+      for (let i = 0, end = v.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
         if ((v[i] != null ? v[i].buffer : undefined) instanceof ArrayBuffer) {
           new_array.push(encode_base64(v[i], __guard__(shapes != null ? shapes[k] : undefined, x => x[i])));
         } else {
