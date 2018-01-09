@@ -83,6 +83,9 @@ gulp.task("scripts:tsjs", tsjs_deps, () => {
         if (code == "8010") // ignore "types can be only used in *.ts files"
           return
 
+        if (argv.filter && !raw.includes(argv.filter))
+          return
+
         gutil.log(`${chalk.red(real)}${rest}`)
         return
       }
