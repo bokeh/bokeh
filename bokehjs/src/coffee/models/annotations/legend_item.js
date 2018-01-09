@@ -18,22 +18,9 @@ import {ColumnDataSource} from "../../models/sources/column_data_source"
 ;
 
 export class LegendItem extends Model {
-  constructor(...args) {
-    {
-      // Hack: trick Babel/TypeScript into allowing this before super.
-      if (false) { super(); }
-      let thisFn = (() => { this; }).toString();
-      let thisName = thisFn.slice(thisFn.indexOf('{') + 1, thisFn.indexOf(';')).trim();
-      eval(`${thisName} = this;`);
-    }
-    this.get_field_from_label_prop = this.get_field_from_label_prop.bind(this);
-    this.get_labels_list_from_label_prop = this.get_labels_list_from_label_prop.bind(this);
-    super(...args);
-  }
 
   static initClass() {
     this.prototype.type = "LegendItem";
-
 
     this.define({
         label: [ p.StringSpec, null ],

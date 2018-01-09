@@ -15,19 +15,6 @@ import * as p from "core/properties"
 
 export class DynamicImageView extends RendererView {
 
-  constructor(...args) {
-    {
-      // Hack: trick Babel/TypeScript into allowing this before super.
-      if (false) { super(); }
-      let thisFn = (() => { this; }).toString();
-      let thisName = thisFn.slice(thisFn.indexOf('{') + 1, thisFn.indexOf(';')).trim();
-      eval(`${thisName} = this;`);
-    }
-    this._on_image_load = this._on_image_load.bind(this);
-    this._on_image_error = this._on_image_error.bind(this);
-    super(...args);
-  }
-
   connect_signals() {
     super.connect_signals();
     return this.connect(this.model.change, function() { return this.request_render(); });
@@ -70,8 +57,8 @@ export class DynamicImageView extends RendererView {
 
   _create_image(bounds) {
     const image = new Image();
-    image.onload = this._on_image_load;
-    image.onerror = this._on_image_error;
+    image.onload = this._on_image_load.bind(this);
+    image.onerror = this._on_image_error.bind(this);
     image.alt = '';
     image.image_data = {
       bounds,

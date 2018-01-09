@@ -29,20 +29,6 @@ const load_google_api = function(api_key) {
 
 export class GMapPlotCanvasView extends PlotCanvasView {
 
-  constructor(...args) {
-    {
-      // Hack: trick Babel/TypeScript into allowing this before super.
-      if (false) { super(); }
-      let thisFn = (() => { this; }).toString();
-      let thisName = thisFn.slice(thisFn.indexOf('{') + 1, thisFn.indexOf(';')).trim();
-      eval(`${thisName} = this;`);
-    }
-    this._get_latlon_bounds = this._get_latlon_bounds.bind(this);
-    this._get_projected_bounds = this._get_projected_bounds.bind(this);
-    this._set_bokeh_ranges = this._set_bokeh_ranges.bind(this);
-    super(...args);
-  }
-
   initialize(options) {
     this.pause();
 

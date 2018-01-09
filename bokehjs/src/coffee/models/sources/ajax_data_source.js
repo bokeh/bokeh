@@ -14,19 +14,6 @@ import * as p from "core/properties"
 ;
 
 export class AjaxDataSource extends RemoteDataSource {
-  constructor(...args) {
-    {
-      // Hack: trick Babel/TypeScript into allowing this before super.
-      if (false) { super(); }
-      let thisFn = (() => { this; }).toString();
-      let thisName = thisFn.slice(thisFn.indexOf('{') + 1, thisFn.indexOf(';')).trim();
-      eval(`${thisName} = this;`);
-    }
-    this.destroy = this.destroy.bind(this);
-    this.setup = this.setup.bind(this);
-    this.get_data = this.get_data.bind(this);
-    super(...args);
-  }
 
   static initClass() {
     this.prototype.type = 'AjaxDataSource';

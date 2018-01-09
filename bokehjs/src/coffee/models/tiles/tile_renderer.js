@@ -19,23 +19,6 @@ import {isString} from "core/util/types"
 
 export class TileRendererView extends RendererView {
 
-  constructor(...args) {
-    {
-      // Hack: trick Babel/TypeScript into allowing this before super.
-      if (false) { super(); }
-      let thisFn = (() => { this; }).toString();
-      let thisName = thisFn.slice(thisFn.indexOf('{') + 1, thisFn.indexOf(';')).trim();
-      eval(`${thisName} = this;`);
-    }
-    this._add_attribution = this._add_attribution.bind(this);
-    this._on_tile_load = this._on_tile_load.bind(this);
-    this._on_tile_cache_load = this._on_tile_cache_load.bind(this);
-    this._on_tile_error = this._on_tile_error.bind(this);
-    this._prefetch_tiles = this._prefetch_tiles.bind(this);
-    this._update = this._update.bind(this);
-    super(...args);
-  }
-
   initialize(options) {
     this.attributionEl = null;
     this._tiles = [];
@@ -131,12 +114,12 @@ export class TileRendererView extends RendererView {
     const tile = this.pool.pop();
 
     if (cache_only) {
-      tile.onload = this._on_tile_cache_load;
+      tile.onload = this._on_tile_cache_load.bind(this);
     } else {
-      tile.onload = this._on_tile_load;
+      tile.onload = this._on_tile_load.bind(this);
     }
 
-    tile.onerror = this._on_tile_error;
+    tile.onerror = this._on_tile_error.bind(this);
     tile.alt = '';
 
     tile.tile_data = {
@@ -209,7 +192,7 @@ export class TileRendererView extends RendererView {
       clearTimeout(this.prefetch_timer);
     }
 
-    this.prefetch_timer = setTimeout(this._prefetch_tiles, 500);
+    this.prefetch_timer = setTimeout(this._prefetch_tiles.bind(this), 500);
 
     if (this.has_finished()) {
       return this.notify_finished();
