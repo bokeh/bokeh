@@ -18,7 +18,7 @@ export class DataSource extends Model {
   }
 
   initialize(attrs: any, options: any): void {
-    super.initialize(options)
+    super.initialize(attrs, options)
     this.connect(this.properties.selected.change, () => {
       const {callback} = this
       if (callback != null) {
