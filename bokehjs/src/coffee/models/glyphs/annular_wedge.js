@@ -33,41 +33,35 @@ export class AnnularWedgeView extends XYGlyphView {
 
   _render(ctx, indices, {sx, sy, _start_angle, _angle, sinner_radius, souter_radius}) {
     const direction = this.model.properties.direction.value();
-    return (() => {
-      const result = [];
-      for (let i of Array.from(indices)) {
-        if (isNaN(sx[i]+sy[i]+sinner_radius[i]+souter_radius[i]+_start_angle[i]+_angle[i])) {
-          continue;
-        }
-
-        ctx.translate(sx[i], sy[i]);
-        ctx.rotate(_start_angle[i]);
-
-        ctx.moveTo(souter_radius[i], 0);
-        ctx.beginPath();
-        ctx.arc(0, 0, souter_radius[i], 0, _angle[i], direction);
-        ctx.rotate(_angle[i]);
-        ctx.lineTo(sinner_radius[i], 0);
-        ctx.arc(0, 0, sinner_radius[i], 0, -_angle[i], !direction);
-        ctx.closePath();
-
-        ctx.rotate(-_angle[i]-_start_angle[i]);
-        ctx.translate(-sx[i], -sy[i]);
-
-        if (this.visuals.fill.doit) {
-          this.visuals.fill.set_vectorize(ctx, i);
-          ctx.fill();
-        }
-
-        if (this.visuals.line.doit) {
-          this.visuals.line.set_vectorize(ctx, i);
-          result.push(ctx.stroke());
-        } else {
-          result.push(undefined);
-        }
+    for (let i of Array.from(indices)) {
+      if (isNaN(sx[i]+sy[i]+sinner_radius[i]+souter_radius[i]+_start_angle[i]+_angle[i])) {
+        continue;
       }
-      return result;
-    })();
+
+      ctx.translate(sx[i], sy[i]);
+      ctx.rotate(_start_angle[i]);
+
+      ctx.moveTo(souter_radius[i], 0);
+      ctx.beginPath();
+      ctx.arc(0, 0, souter_radius[i], 0, _angle[i], direction);
+      ctx.rotate(_angle[i]);
+      ctx.lineTo(sinner_radius[i], 0);
+      ctx.arc(0, 0, sinner_radius[i], 0, -_angle[i], !direction);
+      ctx.closePath();
+
+      ctx.rotate(-_angle[i]-_start_angle[i]);
+      ctx.translate(-sx[i], -sy[i]);
+
+      if (this.visuals.fill.doit) {
+        this.visuals.fill.set_vectorize(ctx, i);
+        ctx.fill();
+      }
+
+      if (this.visuals.line.doit) {
+        this.visuals.line.set_vectorize(ctx, i);
+        ctx.stroke();
+      }
+    }
   }
 
   _hit_point(geometry) {

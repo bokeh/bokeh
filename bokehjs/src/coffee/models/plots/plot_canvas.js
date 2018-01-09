@@ -372,25 +372,19 @@ export class PlotCanvasView extends DOMView {
   }
 
   update_selection(selection) {
-    return (() => {
-      const result = [];
-      for (let renderer of Array.from(this.model.plot.renderers)) {
-        if (!(renderer instanceof GlyphRenderer)) {
-          continue;
-        }
-        const ds = renderer.data_source;
-        if (selection != null) {
-          if (includes(selection, renderer.id)) {
-            result.push(ds.selected = selection[renderer.id]);
-          } else {
-            result.push(undefined);
-          }
-        } else {
-          result.push(ds.selection_manager.clear());
-        }
+    for (let renderer of Array.from(this.model.plot.renderers)) {
+      if (!(renderer instanceof GlyphRenderer)) {
+        continue;
       }
-      return result;
-    })();
+      const ds = renderer.data_source;
+      if (selection != null) {
+        if (includes(selection, renderer.id)) {
+          ds.selected = selection[renderer.id];
+        }
+      } else {
+        ds.selection_manager.clear();
+      }
+    }
   }
 
   reset_selection() {
@@ -405,14 +399,10 @@ export class PlotCanvasView extends DOMView {
     }
     // Apply shared weight to all ranges
     if (weight < 1) {
-      return (() => {
-        const result = [];
-        for ([rng, range_info] of Array.from(range_info_iter)) {
-          range_info['start'] = (weight * range_info['start']) + ((1-weight) * rng.start);
-          result.push(range_info['end'] = (weight * range_info['end']) + ((1-weight) * rng.end));
-        }
-        return result;
-      })();
+      for ([rng, range_info] of Array.from(range_info_iter)) {
+        range_info['start'] = (weight * range_info['start']) + ((1-weight) * rng.start);
+        range_info['end'] = (weight * range_info['end']) + ((1-weight) * rng.end);
+      }
     }
   }
 
@@ -489,18 +479,12 @@ export class PlotCanvasView extends DOMView {
       return;
     }
 
-    return (() => {
-      const result = [];
-      for ([rng, range_info] of Array.from(range_info_iter)) {
-        rng.have_updated_interactively = true;
-        if ((rng.start !== range_info['start']) || (rng.end !== range_info['end'])) {
-            result.push(rng.setv(range_info));
-          } else {
-          result.push(undefined);
-        }
+    for ([rng, range_info] of Array.from(range_info_iter)) {
+      rng.have_updated_interactively = true;
+      if ((rng.start !== range_info['start']) || (rng.end !== range_info['end'])) {
+        rng.setv(range_info);
       }
-      return result;
-    })();
+    }
   }
 
   _get_weight_to_constrain_interval(rng, range_info) {
@@ -580,12 +564,7 @@ export class PlotCanvasView extends DOMView {
     // should only bind events on NEW views
     const old_renderers = Object.keys(this.renderer_views);
     const new_renderer_views = build_views(this.renderer_views, renderer_models, this.view_options());
-    const renderers_to_remove = difference(old_renderers, ((() => {
-      const result = [];
-      for (model of Array.from(renderer_models)) {         result.push(model.id);
-      }
-      return result;
-    })()));
+    const renderers_to_remove = difference(old_renderers, renderer_models.map((model) => model.id))
 
     for (let id_ of Array.from(renderers_to_remove)) {
       delete this.levels.glyph[id_];
@@ -1023,19 +1002,12 @@ export class PlotCanvas extends LayoutDOM {
       this.canvas, this.frame,
     ];
 
-    const collect_panels = layout_renderers =>
-      (() => {
-        const result = [];
-        for (let r of Array.from(layout_renderers)) {
-          if (r.panel != null) {
-            result.push(children.push(r.panel));
-          } else {
-            result.push(undefined);
-          }
-        }
-        return result;
-      })()
-    ;
+    const collect_panels = (layout_renderers) => {
+      for (let r of Array.from(layout_renderers)) {
+        if (r.panel != null)
+          children.push(r.panel)
+      }
+    }
 
     collect_panels(this.plot.above);
     collect_panels(this.plot.below);

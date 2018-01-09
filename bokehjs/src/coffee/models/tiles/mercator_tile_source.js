@@ -62,18 +62,12 @@ export class MercatorTileSource extends TileSource {
     const { quadkey } = reference_tile;
     const min_zoom = quadkey.length;
     const max_zoom = min_zoom + 3;
-    return (() => {
-      const result = [];
-      for (let key in this.tiles) {
-        const tile = this.tiles[key];
-        if ((tile.quadkey.indexOf(quadkey) === 0) && (tile.quadkey.length > min_zoom) && (tile.quadkey.length <= max_zoom)) {
-          result.push(tile.retain = true);
-        } else {
-          result.push(undefined);
-        }
+    for (let key in this.tiles) {
+      const tile = this.tiles[key];
+      if ((tile.quadkey.indexOf(quadkey) === 0) && (tile.quadkey.length > min_zoom) && (tile.quadkey.length <= max_zoom)) {
+        tile.retain = true;
       }
-      return result;
-    })();
+    }
   }
 
   retain_neighbors(reference_tile) {
@@ -82,31 +76,21 @@ export class MercatorTileSource extends TileSource {
     const neighbor_x = (range(tx - neighbor_radius, tx + neighbor_radius+1));
     const neighbor_y = (range(ty - neighbor_radius, ty + neighbor_radius+1));
 
-    return (() => {
-      const result = [];
-      for (let key in this.tiles) {
-        const tile = this.tiles[key];
-        if (tile.tile_coords[2] === tz && includes(neighbor_x, tile.tile_coords[0])
-                                       && includes(neighbor_y, tile.tile_coords[1])) {
-          result.push(tile.retain = true);
-        } else {
-          result.push(undefined);
-        }
+    for (let key in this.tiles) {
+      const tile = this.tiles[key];
+      if (tile.tile_coords[2] === tz && includes(neighbor_x, tile.tile_coords[0])
+                                     && includes(neighbor_y, tile.tile_coords[1])) {
+        tile.retain = true;
       }
-      return result;
-    })();
+    }
   }
 
   retain_parents(reference_tile) {
     const { quadkey } = reference_tile;
-    return (() => {
-      const result = [];
-      for (let key in this.tiles) {
-        const tile = this.tiles[key];
-        result.push(tile.retain = quadkey.indexOf(tile.quadkey) === 0);
-      }
-      return result;
-    })();
+    for (let key in this.tiles) {
+      const tile = this.tiles[key];
+      tile.retain = quadkey.indexOf(tile.quadkey) === 0;
+    }
   }
 
   children_by_tile_xyz(x, y, z) {

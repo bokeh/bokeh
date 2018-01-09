@@ -51,15 +51,8 @@ export class PatchesView extends GlyphView {
           qs = [];
         }
 
-        const denanned = ((() => {
-          const result = [];
-          for (q of Array.from(qs_part)) {             if (!isStrictNaN(q)) {
-              result.push(q);
-            }
-          }
-          return result;
-        })());
-        ds[i].push(denanned);
+        const denanned = qs_part.filter((q) => !isStrictNaN(q))
+        ds[i].push(denanned)
       }
     }
     return ds;
@@ -110,62 +103,56 @@ export class PatchesView extends GlyphView {
     // This is the earliest we can build them, and only build them once
     this.renderer.sxss = this._build_discontinuous_object(sxs);
     this.renderer.syss = this._build_discontinuous_object(sys);
-    return (() => {
-      const result = [];
-      for (let i of Array.from(indices)) {
-        var j;
-        const [sx, sy] = Array.from([sxs[i], sys[i]]);
+    for (let i of Array.from(indices)) {
+      var j;
+      const [sx, sy] = Array.from([sxs[i], sys[i]]);
 
-        if (this.visuals.fill.doit) {
-          var asc, end;
-          this.visuals.fill.set_vectorize(ctx, i);
+      if (this.visuals.fill.doit) {
+        var asc, end;
+        this.visuals.fill.set_vectorize(ctx, i);
 
-          for (j = 0, end = sx.length, asc = 0 <= end; asc ? j < end : j > end; asc ? j++ : j--) {
-            if (j === 0) {
-              ctx.beginPath();
-              ctx.moveTo(sx[j], sy[j]);
-              continue;
-            } else if (isNaN(sx[j] + sy[j])) {
-              ctx.closePath();
-              ctx.fill();
-              ctx.beginPath();
-              continue;
-            } else {
-              ctx.lineTo(sx[j], sy[j]);
-            }
+        for (j = 0, end = sx.length, asc = 0 <= end; asc ? j < end : j > end; asc ? j++ : j--) {
+          if (j === 0) {
+            ctx.beginPath();
+            ctx.moveTo(sx[j], sy[j]);
+            continue;
+          } else if (isNaN(sx[j] + sy[j])) {
+            ctx.closePath();
+            ctx.fill();
+            ctx.beginPath();
+            continue;
+          } else {
+            ctx.lineTo(sx[j], sy[j]);
           }
-
-          ctx.closePath();
-          ctx.fill();
         }
 
-        if (this.visuals.line.doit) {
-          var asc1, end1;
-          this.visuals.line.set_vectorize(ctx, i);
-
-          for (j = 0, end1 = sx.length, asc1 = 0 <= end1; asc1 ? j < end1 : j > end1; asc1 ? j++ : j--) {
-            if (j === 0) {
-              ctx.beginPath();
-              ctx.moveTo(sx[j], sy[j]);
-              continue;
-            } else if (isNaN(sx[j] + sy[j])) {
-              ctx.closePath();
-              ctx.stroke();
-              ctx.beginPath();
-              continue;
-            } else {
-              ctx.lineTo(sx[j], sy[j]);
-            }
-          }
-
-          ctx.closePath();
-          result.push(ctx.stroke());
-        } else {
-          result.push(undefined);
-        }
+        ctx.closePath();
+        ctx.fill();
       }
-      return result;
-    })();
+
+      if (this.visuals.line.doit) {
+        var asc1, end1;
+        this.visuals.line.set_vectorize(ctx, i);
+
+        for (j = 0, end1 = sx.length, asc1 = 0 <= end1; asc1 ? j < end1 : j > end1; asc1 ? j++ : j--) {
+          if (j === 0) {
+            ctx.beginPath();
+            ctx.moveTo(sx[j], sy[j]);
+            continue;
+          } else if (isNaN(sx[j] + sy[j])) {
+            ctx.closePath();
+            ctx.stroke();
+            ctx.beginPath();
+            continue;
+          } else {
+            ctx.lineTo(sx[j], sy[j]);
+          }
+        }
+
+        ctx.closePath();
+        ctx.stroke();
+      }
+    }
   }
 
   _hit_point(geometry) {

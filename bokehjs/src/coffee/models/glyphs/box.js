@@ -33,29 +33,23 @@ export class BoxView extends GlyphView {
   }
 
   _render(ctx, indices, {sleft, sright, stop, sbottom}) {
-    return (() => {
-      const result = [];
-      for (let i of Array.from(indices)) {
-        if (isNaN(sleft[i]+stop[i]+sright[i]+sbottom[i])) {
-          continue;
-        }
-
-        if (this.visuals.fill.doit) {
-          this.visuals.fill.set_vectorize(ctx, i);
-          ctx.fillRect(sleft[i], stop[i], sright[i]-sleft[i], sbottom[i]-stop[i]);
-        }
-
-        if (this.visuals.line.doit) {
-          ctx.beginPath();
-          ctx.rect(sleft[i], stop[i], sright[i]-sleft[i], sbottom[i]-stop[i]);
-          this.visuals.line.set_vectorize(ctx, i);
-          result.push(ctx.stroke());
-        } else {
-          result.push(undefined);
-        }
+    for (let i of Array.from(indices)) {
+      if (isNaN(sleft[i]+stop[i]+sright[i]+sbottom[i])) {
+        continue;
       }
-      return result;
-    })();
+
+      if (this.visuals.fill.doit) {
+        this.visuals.fill.set_vectorize(ctx, i);
+        ctx.fillRect(sleft[i], stop[i], sright[i]-sleft[i], sbottom[i]-stop[i]);
+      }
+
+      if (this.visuals.line.doit) {
+        ctx.beginPath();
+        ctx.rect(sleft[i], stop[i], sright[i]-sleft[i], sbottom[i]-stop[i]);
+        this.visuals.line.set_vectorize(ctx, i);
+        ctx.stroke();
+      }
+    }
   }
 
   _hit_rect(geometry) {

@@ -154,22 +154,15 @@ export class ProxyToolbar extends ToolbarBase {
       }
     }
 
-    return (() => {
-      const result = [];
-      for (let et in this.gestures) {
-        ({ tools } = this.gestures[et]);
-        if (tools.length === 0) {
-          continue;
-        }
-        this.gestures[et].tools = sortBy(tools, tool => tool.default_order);
-        if (!(et == 'pinch' || et == 'scroll')) {
-          result.push(this.gestures[et].tools[0].active = true);
-        } else {
-          result.push(undefined);
-        }
+    for (let et in this.gestures) {
+      ({ tools } = this.gestures[et]);
+      if (tools.length === 0) {
+        continue;
       }
-      return result;
-    })();
+      this.gestures[et].tools = sortBy(tools, tool => tool.default_order);
+      if (!(et == 'pinch' || et == 'scroll'))
+        this.gestures[et].tools[0].active = true;
+    }
   }
 }
 ProxyToolbar.initClass();

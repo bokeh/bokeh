@@ -25,7 +25,8 @@ export class MultiLineView extends GlyphView {
       }
       const xs = ((() => {
         const result = [];
-        for (let x of Array.from(this._xs[i])) {           if (!isStrictNaN(x)) {
+        for (let x of Array.from(this._xs[i])) {
+          if (!isStrictNaN(x)) {
             result.push(x);
           }
         }
@@ -33,9 +34,9 @@ export class MultiLineView extends GlyphView {
       })());
       const ys = ((() => {
         const result1 = [];
-        for (let y of Array.from(this._ys[i])) {           if (!isStrictNaN(y)) {
+        for (let y of Array.from(this._ys[i])) {
+          if (!isStrictNaN(y))
             result1.push(y);
-          }
         }
         return result1;
       })());
@@ -52,29 +53,25 @@ export class MultiLineView extends GlyphView {
   }
 
   _render(ctx, indices, {sxs, sys}) {
-    return (() => {
-      const result = [];
-      for (let i of Array.from(indices)) {
-        const [sx, sy] = Array.from([sxs[i], sys[i]]);
+    for (let i of Array.from(indices)) {
+      const [sx, sy] = Array.from([sxs[i], sys[i]]);
 
-        this.visuals.line.set_vectorize(ctx, i);
-        for (let j = 0, end = sx.length, asc = 0 <= end; asc ? j < end : j > end; asc ? j++ : j--) {
-          if (j === 0) {
-            ctx.beginPath();
-            ctx.moveTo(sx[j], sy[j]);
-            continue;
-          } else if (isNaN(sx[j]) || isNaN(sy[j])) {
-            ctx.stroke();
-            ctx.beginPath();
-            continue;
-          } else {
-            ctx.lineTo(sx[j], sy[j]);
-          }
+      this.visuals.line.set_vectorize(ctx, i);
+      for (let j = 0, end = sx.length, asc = 0 <= end; asc ? j < end : j > end; asc ? j++ : j--) {
+        if (j === 0) {
+          ctx.beginPath();
+          ctx.moveTo(sx[j], sy[j]);
+          continue;
+        } else if (isNaN(sx[j]) || isNaN(sy[j])) {
+          ctx.stroke();
+          ctx.beginPath();
+          continue;
+        } else {
+          ctx.lineTo(sx[j], sy[j]);
         }
-        result.push(ctx.stroke());
       }
-      return result;
-    })();
+      ctx.stroke();
+    }
   }
 
   _hit_point(geometry) {
@@ -101,12 +98,7 @@ export class MultiLineView extends GlyphView {
       }
     }
 
-    result['1d'].indices = ((() => {
-      const result1 = [];
-      for (i of Array.from(Object.keys(hits))) {         result1.push(parseInt(i));
-      }
-      return result1;
-    })());
+    result['1d'].indices = hits.map((i) => parseInt(i))
     result['2d'].indices = hits;
 
     return result;
@@ -140,12 +132,7 @@ export class MultiLineView extends GlyphView {
       }
     }
 
-    result['1d'].indices = ((() => {
-      const result1 = [];
-      for (i of Array.from(Object.keys(hits))) {         result1.push(parseInt(i));
-      }
-      return result1;
-    })());
+    result['1d'].indices = hits.map((i) => parseInt(i))
     result['2d'].indices = hits;
 
     return result;

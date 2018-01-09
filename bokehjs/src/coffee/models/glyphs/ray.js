@@ -36,28 +36,24 @@ export class RayView extends XYGlyphView {
         }
       }
 
-      return (() => {
-        const result = [];
-        for (i of Array.from(indices)) {
-          if (isNaN(sx[i]+sy[i]+_angle[i]+slength[i])) {
-            continue;
-          }
-
-          ctx.translate(sx[i], sy[i]);
-          ctx.rotate(_angle[i]);
-
-          ctx.beginPath();
-          ctx.moveTo(0, 0);
-          ctx.lineTo(slength[i], 0);
-
-          this.visuals.line.set_vectorize(ctx, i);
-          ctx.stroke();
-
-          ctx.rotate(-_angle[i]);
-          result.push(ctx.translate(-sx[i], -sy[i]));
+      for (i of Array.from(indices)) {
+        if (isNaN(sx[i]+sy[i]+_angle[i]+slength[i])) {
+          continue;
         }
-        return result;
-      })();
+
+        ctx.translate(sx[i], sy[i]);
+        ctx.rotate(_angle[i]);
+
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(slength[i], 0);
+
+        this.visuals.line.set_vectorize(ctx, i);
+        ctx.stroke();
+
+        ctx.rotate(-_angle[i]);
+        ctx.translate(-sx[i], -sy[i]);
+      }
     }
   }
 

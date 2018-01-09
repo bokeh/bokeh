@@ -28,55 +28,48 @@ export class AnnulusView extends XYGlyphView {
   }
 
   _render(ctx, indices, {sx, sy, sinner_radius, souter_radius}) {
-    return (() => {
-      const result = [];
-      for (let i of Array.from(indices)) {
-        if (isNaN(sx[i] + sy[i] + sinner_radius[i] + souter_radius[i])) {
-          continue;
-        }
+    for (let i of Array.from(indices)) {
+      if (isNaN(sx[i] + sy[i] + sinner_radius[i] + souter_radius[i]))
+        continue;
 
-        // Because this visual has a whole in it, it proved "challenging"
-        // for some browsers to render if drawn in one go --- i.e. it did not
-        // work on IE. If we render in two parts (upper and lower part),
-        // it is unambiguous what part should be filled. The line is
-        // better drawn in one go though, otherwise the part where the pieces
-        // meet will not be fully closed due to aa.
+      // Because this visual has a whole in it, it proved "challenging"
+      // for some browsers to render if drawn in one go --- i.e. it did not
+      // work on IE. If we render in two parts (upper and lower part),
+      // it is unambiguous what part should be filled. The line is
+      // better drawn in one go though, otherwise the part where the pieces
+      // meet will not be fully closed due to aa.
 
-        // Detect Microsoft browser. Might need change for newer versions.
-        const isie = ((navigator.userAgent.indexOf('MSIE') >= 0) ||
-                (navigator.userAgent.indexOf('Trident') > 0) ||
-                (navigator.userAgent.indexOf('Edge') > 0));
+      // Detect Microsoft browser. Might need change for newer versions.
+      const isie = ((navigator.userAgent.indexOf('MSIE') >= 0) ||
+              (navigator.userAgent.indexOf('Trident') > 0) ||
+              (navigator.userAgent.indexOf('Edge') > 0));
 
-        if (this.visuals.fill.doit) {
-          this.visuals.fill.set_vectorize(ctx, i);
-          ctx.beginPath();
-          if (isie) {
-              // Draw two halves of the donut. Works on IE, but causes an aa line on Safari.
-              for (let clockwise of [false, true]) {
-              ctx.arc(sx[i], sy[i], sinner_radius[i], 0, Math.PI, clockwise);
-              ctx.arc(sx[i], sy[i], souter_radius[i], Math.PI, 0, !clockwise);
-              }
-          } else {
-              // Draw donut in one go. Does not work on iE.
-              ctx.arc(sx[i], sy[i], sinner_radius[i], 0, 2 * Math.PI, true);
-              ctx.arc(sx[i], sy[i], souter_radius[i], 2 * Math.PI, 0, false);
+      if (this.visuals.fill.doit) {
+        this.visuals.fill.set_vectorize(ctx, i);
+        ctx.beginPath();
+        if (isie) {
+            // Draw two halves of the donut. Works on IE, but causes an aa line on Safari.
+            for (let clockwise of [false, true]) {
+            ctx.arc(sx[i], sy[i], sinner_radius[i], 0, Math.PI, clockwise);
+            ctx.arc(sx[i], sy[i], souter_radius[i], Math.PI, 0, !clockwise);
             }
-          ctx.fill();
-        }
-
-        if (this.visuals.line.doit) {
-            this.visuals.line.set_vectorize(ctx, i);
-            ctx.beginPath();
-            ctx.arc(sx[i], sy[i], sinner_radius[i], 0, 2*Math.PI);
-            ctx.moveTo(sx[i]+souter_radius[i], sy[i]);
-            ctx.arc(sx[i], sy[i], souter_radius[i], 0, 2*Math.PI);
-            result.push(ctx.stroke());
-          } else {
-          result.push(undefined);
-        }
+        } else {
+            // Draw donut in one go. Does not work on iE.
+            ctx.arc(sx[i], sy[i], sinner_radius[i], 0, 2 * Math.PI, true);
+            ctx.arc(sx[i], sy[i], souter_radius[i], 2 * Math.PI, 0, false);
+          }
+        ctx.fill();
       }
-      return result;
-    })();
+
+      if (this.visuals.line.doit) {
+          this.visuals.line.set_vectorize(ctx, i);
+          ctx.beginPath();
+          ctx.arc(sx[i], sy[i], sinner_radius[i], 0, 2*Math.PI);
+          ctx.moveTo(sx[i]+souter_radius[i], sy[i]);
+          ctx.arc(sx[i], sy[i], souter_radius[i], 0, 2*Math.PI);
+          ctx.stroke();
+      }
+    }
   }
 
   _hit_point(geometry) {

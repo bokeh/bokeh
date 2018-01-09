@@ -23,14 +23,10 @@ export class LabelSetView extends TextAnnotationView {
     this.set_data(this.model.source);
 
     if (this.model.render_mode === 'css') {
-      return (() => {
-        const result = [];
-        for (let i = 0, end = this._text.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
-          this.title_div = div({class: 'bk-annotation-child', style: {display: "none"}});
-          result.push(this.el.appendChild(this.title_div));
-        }
-        return result;
-      })();
+      for (let i = 0, end = this._text.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+        this.title_div = div({class: 'bk-annotation-child', style: {display: "none"}});
+        this.el.appendChild(this.title_div);
+      }
     }
   }
 

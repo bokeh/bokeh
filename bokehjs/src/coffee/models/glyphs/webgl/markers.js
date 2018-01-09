@@ -223,38 +223,33 @@ void main()
         chunks[chunk].push(uint16_index);
       }
       // Then draw each chunk
-      return (() => {
-        let asc2, end2;
-        const result = [];
-        for (chunk = 0, end2 = chunks.length, asc2 = 0 <= end2; asc2 ? chunk < end2 : chunk > end2; asc2 ? chunk++ : chunk--) {
-          const these_indices = new Uint16Array(chunks[chunk]);
-          const offset = chunk * chunksize * 4;
-          if (these_indices.length === 0) {
-            continue;
-          }
-          this.prog.set_attribute('a_x', 'float', mainGlGlyph.vbo_x, 0, offset);
-          this.prog.set_attribute('a_y', 'float', mainGlGlyph.vbo_y, 0, offset);
-          this.prog.set_attribute('a_size', 'float', mainGlGlyph.vbo_s, 0, offset);
-          this.prog.set_attribute('a_angle', 'float', mainGlGlyph.vbo_a, 0, offset);
-          if (this.vbo_linewidth.used) {
-            this.prog.set_attribute('a_linewidth', 'float', this.vbo_linewidth, 0, offset);
-          }
-          if (this.vbo_fg_color.used) {
-            this.prog.set_attribute('a_fg_color', 'vec4', this.vbo_fg_color, 0, offset * 4);
-          }
-          if (this.vbo_bg_color.used) {
-            this.prog.set_attribute('a_bg_color', 'vec4', this.vbo_bg_color, 0, offset * 4);
-          }
-          // The actual drawing
-          this.index_buffer.set_size(these_indices.length*2);
-          this.index_buffer.set_data(0, these_indices);
-          result.push(this.prog.draw(this.gl.POINTS, this.index_buffer));
+      let asc2, end2;
+      for (chunk = 0, end2 = chunks.length, asc2 = 0 <= end2; asc2 ? chunk < end2 : chunk > end2; asc2 ? chunk++ : chunk--) {
+        const these_indices = new Uint16Array(chunks[chunk]);
+        const offset = chunk * chunksize * 4;
+        if (these_indices.length === 0) {
+          continue;
         }
-        return result;
-      })();
+        this.prog.set_attribute('a_x', 'float', mainGlGlyph.vbo_x, 0, offset);
+        this.prog.set_attribute('a_y', 'float', mainGlGlyph.vbo_y, 0, offset);
+        this.prog.set_attribute('a_size', 'float', mainGlGlyph.vbo_s, 0, offset);
+        this.prog.set_attribute('a_angle', 'float', mainGlGlyph.vbo_a, 0, offset);
+        if (this.vbo_linewidth.used) {
+          this.prog.set_attribute('a_linewidth', 'float', this.vbo_linewidth, 0, offset);
+        }
+        if (this.vbo_fg_color.used) {
+          this.prog.set_attribute('a_fg_color', 'vec4', this.vbo_fg_color, 0, offset * 4);
+        }
+        if (this.vbo_bg_color.used) {
+          this.prog.set_attribute('a_bg_color', 'vec4', this.vbo_bg_color, 0, offset * 4);
+        }
+        // The actual drawing
+        this.index_buffer.set_size(these_indices.length*2);
+        this.index_buffer.set_data(0, these_indices);
+        this.prog.draw(this.gl.POINTS, this.index_buffer);
+      }
     }
   }
-
 
   _set_data(nvertices) {
     const n = nvertices * 4;  // in bytes

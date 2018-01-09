@@ -38,30 +38,24 @@ export class EllipseView extends XYGlyphView {
   }
 
   _render(ctx, indices, {sx, sy, sw, sh}) {
-     return (() => {
-       const result = [];
-       for (let i of Array.from(indices)) {
-         if (isNaN(sx[i]+sy[i]+sw[i]+sh[i]+this._angle[i])) {
-           continue;
-         }
-
-         ctx.beginPath();
-         ctx.ellipse(sx[i], sy[i], sw[i]/2.0, sh[i]/2.0, this._angle[i], 0, 2 * Math.PI);
-
-         if (this.visuals.fill.doit) {
-           this.visuals.fill.set_vectorize(ctx, i);
-           ctx.fill();
-         }
-
-         if (this.visuals.line.doit) {
-           this.visuals.line.set_vectorize(ctx, i);
-           result.push(ctx.stroke());
-         } else {
-           result.push(undefined);
-         }
+     for (let i of Array.from(indices)) {
+       if (isNaN(sx[i]+sy[i]+sw[i]+sh[i]+this._angle[i])) {
+         continue;
        }
-       return result;
-     })();
+
+       ctx.beginPath();
+       ctx.ellipse(sx[i], sy[i], sw[i]/2.0, sh[i]/2.0, this._angle[i], 0, 2 * Math.PI);
+
+       if (this.visuals.fill.doit) {
+         this.visuals.fill.set_vectorize(ctx, i);
+         ctx.fill();
+       }
+
+       if (this.visuals.line.doit) {
+         this.visuals.line.set_vectorize(ctx, i);
+         ctx.stroke();
+       }
+     }
    }
 
   draw_legend_for_index(ctx, x0, x1, y0, y1, index) {

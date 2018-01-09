@@ -38,37 +38,33 @@ export class OvalView extends XYGlyphView {
   }
 
   _render(ctx, indices, {sx, sy, sw, sh}) {
-    return (() => {
-      const result = [];
-      for (let i of Array.from(indices)) {
-        if (isNaN(sx[i]+sy[i]+sw[i]+sh[i]+this._angle[i])) {
-          continue;
-        }
-
-        ctx.translate(sx[i], sy[i]);
-        ctx.rotate(this._angle[i]);
-
-        ctx.beginPath();
-        ctx.moveTo(0, -sh[i]/2);
-        ctx.bezierCurveTo( sw[i]/2, -sh[i]/2,  sw[i]/2,  sh[i]/2, 0,  sh[i]/2);
-        ctx.bezierCurveTo(-sw[i]/2,  sh[i]/2, -sw[i]/2, -sh[i]/2, 0, -sh[i]/2);
-        ctx.closePath();
-
-        if (this.visuals.fill.doit) {
-          this.visuals.fill.set_vectorize(ctx, i);
-          ctx.fill();
-        }
-
-        if (this.visuals.line.doit) {
-          this.visuals.line.set_vectorize(ctx, i);
-          ctx.stroke();
-        }
-
-        ctx.rotate(-this._angle[i]);
-        result.push(ctx.translate(-sx[i], -sy[i]));
+    for (let i of Array.from(indices)) {
+      if (isNaN(sx[i]+sy[i]+sw[i]+sh[i]+this._angle[i])) {
+        continue;
       }
-      return result;
-    })();
+
+      ctx.translate(sx[i], sy[i]);
+      ctx.rotate(this._angle[i]);
+
+      ctx.beginPath();
+      ctx.moveTo(0, -sh[i]/2);
+      ctx.bezierCurveTo( sw[i]/2, -sh[i]/2,  sw[i]/2,  sh[i]/2, 0,  sh[i]/2);
+      ctx.bezierCurveTo(-sw[i]/2,  sh[i]/2, -sw[i]/2, -sh[i]/2, 0, -sh[i]/2);
+      ctx.closePath();
+
+      if (this.visuals.fill.doit) {
+        this.visuals.fill.set_vectorize(ctx, i);
+        ctx.fill();
+      }
+
+      if (this.visuals.line.doit) {
+        this.visuals.line.set_vectorize(ctx, i);
+        ctx.stroke();
+      }
+
+      ctx.rotate(-this._angle[i]);
+      ctx.translate(-sx[i], -sy[i]);
+    }
   }
 
   draw_legend_for_index(ctx, x0, x1, y0, y1, index) {

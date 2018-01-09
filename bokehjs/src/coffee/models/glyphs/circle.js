@@ -65,31 +65,24 @@ export class CircleView extends XYGlyphView {
   }
 
   _render(ctx, indices, {sx, sy, sradius}) {
-
-    return (() => {
-      const result = [];
-      for (let i of Array.from(indices)) {
-        if (isNaN(sx[i]+sy[i]+sradius[i])) {
-          continue;
-        }
-
-        ctx.beginPath();
-        ctx.arc(sx[i], sy[i], sradius[i], 0, 2*Math.PI, false);
-
-        if (this.visuals.fill.doit) {
-          this.visuals.fill.set_vectorize(ctx, i);
-          ctx.fill();
-        }
-
-        if (this.visuals.line.doit) {
-          this.visuals.line.set_vectorize(ctx, i);
-          result.push(ctx.stroke());
-        } else {
-          result.push(undefined);
-        }
+    for (let i of Array.from(indices)) {
+      if (isNaN(sx[i]+sy[i]+sradius[i])) {
+        continue;
       }
-      return result;
-    })();
+
+      ctx.beginPath();
+      ctx.arc(sx[i], sy[i], sradius[i], 0, 2*Math.PI, false);
+
+      if (this.visuals.fill.doit) {
+        this.visuals.fill.set_vectorize(ctx, i);
+        ctx.fill();
+      }
+
+      if (this.visuals.line.doit) {
+        this.visuals.line.set_vectorize(ctx, i);
+        ctx.stroke();
+      }
+    }
   }
 
   _hit_point(geometry) {

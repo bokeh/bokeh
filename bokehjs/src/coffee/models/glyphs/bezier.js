@@ -103,22 +103,18 @@ export class BezierView extends GlyphView {
 
   _render(ctx, indices, {sx0, sy0, sx1, sy1, scx, scx0, scy0, scx1, scy1}) {
     if (this.visuals.line.doit) {
-      return (() => {
-        const result = [];
-        for (let i of Array.from(indices)) {
-          if (isNaN(sx0[i]+sy0[i]+sx1[i]+sy1[i]+scx0[i]+scy0[i]+scx1[i]+scy1[i])) {
-            continue;
-          }
-
-          ctx.beginPath();
-          ctx.moveTo(sx0[i], sy0[i]);
-          ctx.bezierCurveTo(scx0[i], scy0[i], scx1[i], scy1[i], sx1[i], sy1[i]);
-
-          this.visuals.line.set_vectorize(ctx, i);
-          result.push(ctx.stroke());
+      for (let i of Array.from(indices)) {
+        if (isNaN(sx0[i]+sy0[i]+sx1[i]+sy1[i]+scx0[i]+scy0[i]+scx1[i]+scy1[i])) {
+          continue;
         }
-        return result;
-      })();
+
+        ctx.beginPath();
+        ctx.moveTo(sx0[i], sy0[i]);
+        ctx.bezierCurveTo(scx0[i], scy0[i], scx1[i], scy1[i], sx1[i], sy1[i]);
+
+        this.visuals.line.set_vectorize(ctx, i);
+        ctx.stroke();
+      }
     }
   }
 

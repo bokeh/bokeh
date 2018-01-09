@@ -243,37 +243,25 @@ export class TileRendererView extends RendererView {
     const w = this.map_frame._width.value;
     const zoom_level = this.model.tile_source.get_level_by_extent(extent, h, w);
     const tiles = this.model.tile_source.get_tiles_by_extent(extent, zoom_level);
-    return (() => {
-      const result = [];
-      for (let t = 0, end = Math.min(10, tiles.length); t <= end; t++) {
-        const [x, y, z, bounds] = Array.from(t);
-        var children = this.model.tile_source.children_by_tile_xyz(x, y, z);
-        result.push((() => {
-          const result1 = [];
-          for (let c of Array.from(children)) {
-            const [cx, cy, cz, cbounds] = Array.from(c);
-            if (tile_source.tile_xyz_to_key(cx, cy, cz) in tile_source.tiles) {
-              continue;
-            } else {
-              result1.push(this._create_tile(cx, cy, cz, cbounds, true));
-            }
-          }
-          return result1;
-        })());
+    for (let t = 0, end = Math.min(10, tiles.length); t <= end; t++) {
+      const [x, y, z, bounds] = Array.from(t);
+      var children = this.model.tile_source.children_by_tile_xyz(x, y, z);
+      for (let c of Array.from(children)) {
+        const [cx, cy, cz, cbounds] = Array.from(c);
+        if (tile_source.tile_xyz_to_key(cx, cy, cz) in tile_source.tiles) {
+          continue;
+        } else {
+          this._create_tile(cx, cy, cz, cbounds, true);
+        }
       }
-      return result;
-    })();
+    }
   }
 
   _fetch_tiles(tiles) {
-    return (() => {
-      const result = [];
-      for (let t of Array.from(tiles)) {
-        const [x, y, z, bounds] = Array.from(t);
-        result.push(this._create_tile(x, y, z, bounds));
-      }
-      return result;
-    })();
+    for (let t of Array.from(tiles)) {
+      const [x, y, z, bounds] = Array.from(t);
+      this._create_tile(x, y, z, bounds);
+    }
   }
 
   _update() {

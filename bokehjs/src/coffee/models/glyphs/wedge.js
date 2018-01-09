@@ -25,32 +25,26 @@ export class WedgeView extends XYGlyphView {
 
   _render(ctx, indices, {sx, sy, sradius, _start_angle, _end_angle}) {
     const direction = this.model.properties.direction.value();
-    return (() => {
-      const result = [];
-      for (let i of Array.from(indices)) {
-        if (isNaN(sx[i]+sy[i]+sradius[i]+_start_angle[i]+_end_angle[i])) {
-          continue;
-        }
-
-        ctx.beginPath();
-        ctx.arc(sx[i], sy[i], sradius[i], _start_angle[i], _end_angle[i], direction);
-        ctx.lineTo(sx[i], sy[i]);
-        ctx.closePath();
-
-        if (this.visuals.fill.doit) {
-          this.visuals.fill.set_vectorize(ctx, i);
-          ctx.fill();
-        }
-
-        if (this.visuals.line.doit) {
-          this.visuals.line.set_vectorize(ctx, i);
-          result.push(ctx.stroke());
-        } else {
-          result.push(undefined);
-        }
+    for (let i of Array.from(indices)) {
+      if (isNaN(sx[i]+sy[i]+sradius[i]+_start_angle[i]+_end_angle[i])) {
+        continue;
       }
-      return result;
-    })();
+
+      ctx.beginPath();
+      ctx.arc(sx[i], sy[i], sradius[i], _start_angle[i], _end_angle[i], direction);
+      ctx.lineTo(sx[i], sy[i]);
+      ctx.closePath();
+
+      if (this.visuals.fill.doit) {
+        this.visuals.fill.set_vectorize(ctx, i);
+        ctx.fill();
+      }
+
+      if (this.visuals.line.doit) {
+        this.visuals.line.set_vectorize(ctx, i);
+        ctx.stroke();
+      }
+    }
   }
 
   _hit_point(geometry) {

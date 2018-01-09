@@ -65,15 +65,11 @@ export class TileSource extends Model {
 
   update() {
     logger.debug(`TileSource: tile cache count: ${Object.keys(this.tiles).length}`);
-    return (() => {
-      const result = [];
-      for (let key in this.tiles) {
-        const tile = this.tiles[key];
-        tile.current = false;
-        result.push(tile.retain = false);
-      }
-      return result;
-    })();
+    for (let key in this.tiles) {
+      const tile = this.tiles[key];
+      tile.current = false;
+      tile.retain = false;
+    }
   }
 
   tile_xyz_to_key(x, y, z) {
@@ -109,18 +105,11 @@ export class TileSource extends Model {
       }
     }
 
-    return (() => {
-      const result = [];
-      for (key in this.tiles) {
-        tile = this.tiles[key];
-        if (!tile.retain) {
-          result.push(this.remove_tile(key));
-        } else {
-          result.push(undefined);
-        }
-      }
-      return result;
-    })();
+    for (key in this.tiles) {
+      tile = this.tiles[key];
+      if (!tile.retain)
+        this.remove_tile(key);
+    }
   }
 
   remove_tile(key) {

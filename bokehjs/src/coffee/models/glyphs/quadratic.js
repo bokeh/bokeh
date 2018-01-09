@@ -52,22 +52,18 @@ export class QuadraticView extends GlyphView {
 
   _render(ctx, indices, {sx0, sy0, sx1, sy1, scx, scy}) {
     if (this.visuals.line.doit) {
-      return (() => {
-        const result = [];
-        for (let i of Array.from(indices)) {
-          if (isNaN(sx0[i]+sy0[i]+sx1[i]+sy1[i]+scx[i]+scy[i])) {
-            continue;
-          }
-
-          ctx.beginPath();
-          ctx.moveTo(sx0[i], sy0[i]);
-          ctx.quadraticCurveTo(scx[i], scy[i], sx1[i], sy1[i]);
-
-          this.visuals.line.set_vectorize(ctx, i);
-          result.push(ctx.stroke());
+      for (let i of Array.from(indices)) {
+        if (isNaN(sx0[i]+sy0[i]+sx1[i]+sy1[i]+scx[i]+scy[i])) {
+          continue;
         }
-        return result;
-      })();
+
+        ctx.beginPath();
+        ctx.moveTo(sx0[i], sy0[i]);
+        ctx.quadraticCurveTo(scx[i], scy[i], sx1[i], sy1[i]);
+
+        this.visuals.line.set_vectorize(ctx, i);
+        ctx.stroke();
+      }
     }
   }
 

@@ -49,14 +49,10 @@ export class GraphRendererView extends RendererView {
       this.connect(rng.change, function() { return this.set_data(); });
     }
 
-    return (() => {
-      const result = [];
-      for (name in this.plot_model.frame.y_ranges) {
-        rng = this.plot_model.frame.y_ranges[name];
-        result.push(this.connect(rng.change, function() { return this.set_data(); }));
-      }
-      return result;
-    })();
+    for (name in this.plot_model.frame.y_ranges) {
+      rng = this.plot_model.frame.y_ranges[name];
+      this.connect(rng.change, function() { return this.set_data(); });
+    }
   }
 
   set_data(request_render) {

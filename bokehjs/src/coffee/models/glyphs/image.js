@@ -43,55 +43,49 @@ export class ImageView extends XYGlyphView {
       this._height = new Array(this._image.length);
     }
 
-    return (() => {
-      const result = [];
-      for (let i = 0, end = this._image.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
-        var canvas, img;
-        let shape = [];
-        if (this._image_shape != null) {
-          shape = this._image_shape[i];
-        }
-
-        if (shape.length > 0) {
-          img = this._image[i];
-          this._height[i] = shape[0];
-          this._width[i] = shape[1];
-        } else {
-          img = concat(this._image[i]);
-          this._height[i] = this._image[i].length;
-          this._width[i] = this._image[i][0].length;
-        }
-
-        if ((this.image_data[i] != null) && (this.image_data[i].width === this._width[i]) && (this.image_data[i].height === this._height[i])) {
-          canvas = this.image_data[i];
-        } else {
-          canvas = document.createElement('canvas');
-          canvas.width = this._width[i];
-          canvas.height = this._height[i];
-        }
-
-        const ctx = canvas.getContext('2d');
-        const image_data = ctx.getImageData(0, 0, this._width[i], this._height[i]);
-        const cmap = this.model.color_mapper;
-        const buf = cmap.v_map_screen(img, true);
-        const buf8 = new Uint8Array(buf);
-        image_data.data.set(buf8);
-        ctx.putImageData(image_data, 0, 0);
-        this.image_data[i] = canvas;
-
-        this.max_dw = 0;
-        if (this._dw.units === "data") {
-          this.max_dw = max(this._dw);
-        }
-        this.max_dh = 0;
-        if (this._dh.units === "data") {
-          result.push(this.max_dh = max(this._dh));
-        } else {
-          result.push(undefined);
-        }
+    for (let i = 0, end = this._image.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+      var canvas, img;
+      let shape = [];
+      if (this._image_shape != null) {
+        shape = this._image_shape[i];
       }
-      return result;
-    })();
+
+      if (shape.length > 0) {
+        img = this._image[i];
+        this._height[i] = shape[0];
+        this._width[i] = shape[1];
+      } else {
+        img = concat(this._image[i]);
+        this._height[i] = this._image[i].length;
+        this._width[i] = this._image[i][0].length;
+      }
+
+      if ((this.image_data[i] != null) && (this.image_data[i].width === this._width[i]) && (this.image_data[i].height === this._height[i])) {
+        canvas = this.image_data[i];
+      } else {
+        canvas = document.createElement('canvas');
+        canvas.width = this._width[i];
+        canvas.height = this._height[i];
+      }
+
+      const ctx = canvas.getContext('2d');
+      const image_data = ctx.getImageData(0, 0, this._width[i], this._height[i]);
+      const cmap = this.model.color_mapper;
+      const buf = cmap.v_map_screen(img, true);
+      const buf8 = new Uint8Array(buf);
+      image_data.data.set(buf8);
+      ctx.putImageData(image_data, 0, 0);
+      this.image_data[i] = canvas;
+
+      this.max_dw = 0;
+      if (this._dw.units === "data") {
+        this.max_dw = max(this._dw);
+      }
+      this.max_dh = 0;
+      if (this._dh.units === "data") {
+        this.max_dh = max(this._dh);
+      }
+    }
   }
 
   _map_data() {

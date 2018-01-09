@@ -744,27 +744,23 @@ void main()
           chunks[chunk].push(uint16_index);
         }
         // Then draw each chunk
-        return (() => {
-          let asc2, end2;
-          const result = [];
-          for (chunk = 0, end2 = chunks.length, asc2 = 0 <= end2; asc2 ? chunk < end2 : chunk > end2; asc2 ? chunk++ : chunk--) {
-            const these_indices = new Uint16Array(chunks[chunk]);
-            const offset = chunk * chunksize * 4;
-            if (these_indices.length === 0) {
-              continue;
-            }
-            this.prog.set_attribute('a_position', 'vec2', mainGlGlyph.vbo_position, 0, offset * 2);
-            this.prog.set_attribute('a_tangents', 'vec4', mainGlGlyph.vbo_tangents, 0, offset * 4);
-            this.prog.set_attribute('a_segment', 'vec2', mainGlGlyph.vbo_segment, 0, offset * 2);
-            this.prog.set_attribute('a_angles', 'vec2', mainGlGlyph.vbo_angles, 0, offset * 2);
-            this.prog.set_attribute('a_texcoord', 'vec2', mainGlGlyph.vbo_texcoord, 0, offset * 2);
-            // The actual drawing
-            this.index_buffer.set_size(these_indices.length*2);
-            this.index_buffer.set_data(0, these_indices);
-            result.push(this.prog.draw(this.gl.TRIANGLES, this.index_buffer));
+        let asc2, end2;
+        for (chunk = 0, end2 = chunks.length, asc2 = 0 <= end2; asc2 ? chunk < end2 : chunk > end2; asc2 ? chunk++ : chunk--) {
+          const these_indices = new Uint16Array(chunks[chunk]);
+          const offset = chunk * chunksize * 4;
+          if (these_indices.length === 0) {
+            continue;
           }
-          return result;
-        })();
+          this.prog.set_attribute('a_position', 'vec2', mainGlGlyph.vbo_position, 0, offset * 2);
+          this.prog.set_attribute('a_tangents', 'vec4', mainGlGlyph.vbo_tangents, 0, offset * 4);
+          this.prog.set_attribute('a_segment', 'vec2', mainGlGlyph.vbo_segment, 0, offset * 2);
+          this.prog.set_attribute('a_angles', 'vec2', mainGlGlyph.vbo_angles, 0, offset * 2);
+          this.prog.set_attribute('a_texcoord', 'vec2', mainGlGlyph.vbo_texcoord, 0, offset * 2);
+          // The actual drawing
+          this.index_buffer.set_size(these_indices.length*2);
+          this.index_buffer.set_data(0, these_indices);
+          this.prog.draw(this.gl.TRIANGLES, this.index_buffer);
+        }
       }
     }
 
@@ -928,19 +924,15 @@ void main()
       // Order of indices is such that drawing as line_strip reveals the line skeleton
       // Might have implications on culling, if we ever turn that on.
       // Order in paper was: 0 1 2 1 2 3
-      return (() => {
-        let asc7, end7;
-        const result = [];
-        for (i = 0, end7 = n, asc7 = 0 <= end7; asc7 ? i < end7 : i > end7; asc7 ? i++ : i--) {
-          I[(i*6)+0] = 0 + (4*i);
-          I[(i*6)+1] = 1 + (4*i);
-          I[(i*6)+2] = 3 + (4*i);
-          I[(i*6)+3] = 2 + (4*i);
-          I[(i*6)+4] = 0 + (4*i);
-          result.push(I[(i*6)+5] = 3 + (4*i));
-        }
-        return result;
-      })();
+      let asc7, end7;
+      for (i = 0, end7 = n, asc7 = 0 <= end7; asc7 ? i < end7 : i > end7; asc7 ? i++ : i--) {
+        I[(i*6)+0] = 0 + (4*i);
+        I[(i*6)+1] = 1 + (4*i);
+        I[(i*6)+2] = 3 + (4*i);
+        I[(i*6)+3] = 2 + (4*i);
+        I[(i*6)+4] = 0 + (4*i);
+        I[(i*6)+5] = 3 + (4*i);
+      }
     }
 
     _update_scale(sx, sy) {

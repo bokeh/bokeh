@@ -33,32 +33,28 @@ export class MarkerView extends XYGlyphView {
   }
 
   _render(ctx, indices, {sx, sy, _size, _angle}) {
-    return (() => {
-      const result = [];
-      for (let i of Array.from(indices)) {
-        if (isNaN(sx[i]+sy[i]+_size[i]+_angle[i])) {
-          continue;
-        }
-
-        const r = _size[i]/2;
-
-        ctx.beginPath();
-        ctx.translate(sx[i], sy[i]);
-
-        if (_angle[i]) {
-          ctx.rotate(_angle[i]);
-        }
-
-        this._render_one(ctx, i, sx[i], sy[i], r, this.visuals.line, this.visuals.fill);
-
-        if (_angle[i]) {
-          ctx.rotate(-_angle[i]);
-        }
-
-        result.push(ctx.translate(-sx[i], -sy[i]));
+    for (let i of Array.from(indices)) {
+      if (isNaN(sx[i]+sy[i]+_size[i]+_angle[i])) {
+        continue;
       }
-      return result;
-    })();
+
+      const r = _size[i]/2;
+
+      ctx.beginPath();
+      ctx.translate(sx[i], sy[i]);
+
+      if (_angle[i]) {
+        ctx.rotate(_angle[i]);
+      }
+
+      this._render_one(ctx, i, sx[i], sy[i], r, this.visuals.line, this.visuals.fill);
+
+      if (_angle[i]) {
+        ctx.rotate(-_angle[i]);
+      }
+
+      ctx.translate(-sx[i], -sy[i]);
+    }
   }
 
   _mask_data(all_indices) {

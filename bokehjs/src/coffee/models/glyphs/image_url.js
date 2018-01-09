@@ -23,55 +23,38 @@ export class ImageURLView extends GlyphView {
   _index_data() {}
 
   _set_data() {
-    let img;
-    if ((this.image == null) || (this.image.length !== this._url.length)) {
-      this.image = ((() => {
-        const result = [];
-        for (img of Array.from(this._url)) {           result.push(null);
-        }
-        return result;
-      })());
-    }
+    if ((this.image == null) || (this.image.length !== this._url.length))
+      this.image = this._url.map((_) => null)
 
     const { retry_attempts } = this.model;
     const { retry_timeout } = this.model;
 
-    this.retries = ((() => {
-      const result1 = [];
-      for (img of Array.from(this._url)) {         result1.push(retry_attempts);
-      }
-      return result1;
-    })());
+    this.retries = this._url.map((_) => retry_attempts)
 
-    return (() => {
-      const result2 = [];
-      for (let i = 0, end = this._url.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
-        if ((this._url[i] == null)) {
-          continue;
-        }
+    for (let i = 0, end = this._url.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+      if ((this._url[i] == null))
+        continue;
 
-        img = new Image();
-        img.onerror = ((i, img) => {
-          return () => {
-            if (this.retries[i] > 0) {
-              logger.trace(`ImageURL failed to load ${this._url[i]} image, retrying in ${retry_timeout} ms`);
-              setTimeout((() => { return img.src = this._url[i]; }), retry_timeout);
-            } else {
-              logger.warn(`ImageURL unable to load ${this._url[i]} image after ${retry_attempts} retries`);
-            }
-            return this.retries[i] -= 1;
-          };
-        })(i, img);
-        img.onload = ((img, i) => {
-          return () => {
-            this.image[i] = img;
-            return this.renderer.request_render();
-          };
-        })(img, i);
-        result2.push(img.src = this._url[i]);
-      }
-      return result2;
-    })();
+      const img = new Image();
+      img.onerror = ((i, img) => {
+        return () => {
+          if (this.retries[i] > 0) {
+            logger.trace(`ImageURL failed to load ${this._url[i]} image, retrying in ${retry_timeout} ms`);
+            setTimeout((() => { return img.src = this._url[i]; }), retry_timeout);
+          } else {
+            logger.warn(`ImageURL unable to load ${this._url[i]} image after ${retry_attempts} retries`);
+          }
+          return this.retries[i] -= 1;
+        };
+      })(i, img);
+      img.onload = ((img, i) => {
+        return () => {
+          this.image[i] = img;
+          return this.renderer.request_render();
+        };
+      })(img, i);
+      img.src = this._url[i];
+    }
   }
 
   has_finished() {
@@ -81,28 +64,41 @@ export class ImageURLView extends GlyphView {
   _map_data() {
     // Better to check @model.w and @model.h for null since the set_data
     // machinery will have converted @_w and @_w to lists of null
-    let x;
     const ws = ((this.model.w != null) ? this._w : (() => {
       const result = [];
-      for (x of Array.from(this._x)) {         result.push(NaN);
+      for (const x of Array.from(this._x)) {
+        result.push(NaN);
       }
       return result;
     })());
     const hs = ((this.model.h != null) ? this._h : (() => {
       const result1 = [];
-      for (x of Array.from(this._x)) {         result1.push(NaN);
+      for (const x of Array.from(this._x)) {
+        result1.push(NaN);
       }
       return result1;
     })());
 
     switch (this.model.properties.w.units) {
-      case "data": this.sw = this.sdist(this.renderer.xscale, this._x, ws, 'edge', this.model.dilate); break;
-      case "screen": this.sw = ws; break;
+      case "data": {
+        this.sw = this.sdist(this.renderer.xscale, this._x, ws, 'edge', this.model.dilate)
+        break
+      }
+      case "screen": {
+        this.sw = ws
+        break
+      }
     }
 
     switch (this.model.properties.h.units) {
-      case "data": return this.sh = this.sdist(this.renderer.yscale, this._y, hs, 'edge', this.model.dilate);
-      case "screen": return this.sh = hs;
+      case "data": {
+        this.sh = this.sdist(this.renderer.yscale, this._y, hs, 'edge', this.model.dilate)
+        break
+      }
+      case "screen": {
+        this.sh = hs
+        break
+      }
     }
   }
 

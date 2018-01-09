@@ -29,61 +29,55 @@ export class ImageRGBAView extends XYGlyphView {
       this._height = new Array(this._image.length);
     }
 
-    return (() => {
-      const result = [];
-      for (let i = 0, end = this._image.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
-        var buf, canvas;
-        if ((indices != null) && (indices.indexOf(i) < 0)) {
-          continue;
-        }
-
-        let shape = [];
-        if (this._image_shape != null) {
-          shape = this._image_shape[i];
-        }
-
-        if (shape.length > 0) {
-          buf = this._image[i].buffer;
-          this._height[i] = shape[0];
-          this._width[i] = shape[1];
-        } else {
-          const flat = concat(this._image[i]);
-          buf = new ArrayBuffer(flat.length * 4);
-          const color = new Uint32Array(buf);
-          for (let j = 0, end1 = flat.length, asc1 = 0 <= end1; asc1 ? j < end1 : j > end1; asc1 ? j++ : j--) {
-            color[j] = flat[j];
-          }
-          this._height[i] = this._image[i].length;
-          this._width[i] = this._image[i][0].length;
-        }
-
-        if ((this.image_data[i] != null) && (this.image_data[i].width === this._width[i]) && (this.image_data[i].height === this._height[i])) {
-          canvas = this.image_data[i];
-        } else {
-          canvas = document.createElement('canvas');
-          canvas.width = this._width[i];
-          canvas.height = this._height[i];
-        }
-        const ctx = canvas.getContext('2d');
-        const image_data = ctx.getImageData(0, 0, this._width[i], this._height[i]);
-        const buf8 = new Uint8Array(buf);
-        image_data.data.set(buf8);
-        ctx.putImageData(image_data, 0, 0);
-        this.image_data[i] = canvas;
-
-        this.max_dw = 0;
-        if (this._dw.units === "data") {
-          this.max_dw = max(this._dw);
-        }
-        this.max_dh = 0;
-        if (this._dh.units === "data") {
-          result.push(this.max_dh = max(this._dh));
-        } else {
-          result.push(undefined);
-        }
+    for (let i = 0, end = this._image.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+      var buf, canvas;
+      if ((indices != null) && (indices.indexOf(i) < 0)) {
+        continue;
       }
-      return result;
-    })();
+
+      let shape = [];
+      if (this._image_shape != null) {
+        shape = this._image_shape[i];
+      }
+
+      if (shape.length > 0) {
+        buf = this._image[i].buffer;
+        this._height[i] = shape[0];
+        this._width[i] = shape[1];
+      } else {
+        const flat = concat(this._image[i]);
+        buf = new ArrayBuffer(flat.length * 4);
+        const color = new Uint32Array(buf);
+        for (let j = 0, end1 = flat.length, asc1 = 0 <= end1; asc1 ? j < end1 : j > end1; asc1 ? j++ : j--) {
+          color[j] = flat[j];
+        }
+        this._height[i] = this._image[i].length;
+        this._width[i] = this._image[i][0].length;
+      }
+
+      if ((this.image_data[i] != null) && (this.image_data[i].width === this._width[i]) && (this.image_data[i].height === this._height[i])) {
+        canvas = this.image_data[i];
+      } else {
+        canvas = document.createElement('canvas');
+        canvas.width = this._width[i];
+        canvas.height = this._height[i];
+      }
+      const ctx = canvas.getContext('2d');
+      const image_data = ctx.getImageData(0, 0, this._width[i], this._height[i]);
+      const buf8 = new Uint8Array(buf);
+      image_data.data.set(buf8);
+      ctx.putImageData(image_data, 0, 0);
+      this.image_data[i] = canvas;
+
+      this.max_dw = 0;
+      if (this._dw.units === "data") {
+        this.max_dw = max(this._dw);
+      }
+      this.max_dh = 0;
+      if (this._dh.units === "data") {
+        this.max_dh = max(this._dh);
+      }
+    }
   }
 
   _map_data() {

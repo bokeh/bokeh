@@ -96,47 +96,37 @@ export class ArrowView extends AnnotationView {
   }
 
   _arrow_body(ctx) {
-    if (!this.visuals.line.doit) {
+    if (!this.visuals.line.doit)
       return;
+
+    for (let i = 0, end = this._x_start.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+      this.visuals.line.set_vectorize(ctx, i);
+
+      ctx.beginPath();
+      ctx.moveTo(this.start[0][i], this.start[1][i]);
+      ctx.lineTo(this.end[0][i], this.end[1][i]);
+      ctx.stroke();
     }
-
-    return (() => {
-      const result = [];
-      for (let i = 0, end = this._x_start.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
-        this.visuals.line.set_vectorize(ctx, i);
-
-        ctx.beginPath();
-        ctx.moveTo(this.start[0][i], this.start[1][i]);
-        ctx.lineTo(this.end[0][i], this.end[1][i]);
-        result.push(ctx.stroke());
-      }
-      return result;
-    })();
   }
 
   _arrow_head(ctx, action, head, start, end) {
-    return (() => {
-      const result = [];
-      for (let i = 0, end1 = this._x_start.length, asc = 0 <= end1; asc ? i < end1 : i > end1; asc ? i++ : i--) {
-
+    for (let i = 0, end1 = this._x_start.length, asc = 0 <= end1; asc ? i < end1 : i > end1; asc ? i++ : i--) {
       // arrow head runs orthogonal to arrow body
-        const angle = (Math.PI/2) + atan2([start[0][i], start[1][i]], [end[0][i], end[1][i]]);
+      const angle = (Math.PI/2) + atan2([start[0][i], start[1][i]], [end[0][i], end[1][i]]);
 
-        ctx.save();
+      ctx.save();
 
-        ctx.translate(end[0][i], end[1][i]);
-        ctx.rotate(angle);
+      ctx.translate(end[0][i], end[1][i]);
+      ctx.rotate(angle);
 
-        if (action === "render") {
-          head.render(ctx);
-        } else if (action === "clip") {
-          head.clip(ctx);
-        }
-
-        result.push(ctx.restore());
+      if (action === "render") {
+        head.render(ctx);
+      } else if (action === "clip") {
+        head.clip(ctx);
       }
-      return result;
-    })();
+
+      ctx.restore();
+    }
   }
 }
 

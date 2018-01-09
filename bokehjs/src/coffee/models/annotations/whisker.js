@@ -114,18 +114,14 @@ export class WhiskerView extends AnnotationView {
     }
 
     if (this.model.upper_head != null) {
-      return (() => {
-        let asc2, end2;
-        const result = [];
-        for (i = 0, end2 = this._upper_sx.length, asc2 = 0 <= end2; asc2 ? i < end2 : i > end2; asc2 ? i++ : i--) {
-          ctx.save();
-          ctx.translate(this._upper_sx[i], this._upper_sy[i]);
-          ctx.rotate(angle);
-          this.model.upper_head.render(ctx, i);
-          result.push(ctx.restore());
-        }
-        return result;
-      })();
+      let asc2, end2;
+      for (i = 0, end2 = this._upper_sx.length, asc2 = 0 <= end2; asc2 ? i < end2 : i > end2; asc2 ? i++ : i--) {
+        ctx.save();
+        ctx.translate(this._upper_sx[i], this._upper_sy[i]);
+        ctx.rotate(angle);
+        this.model.upper_head.render(ctx, i);
+        ctx.restore();
+      }
     }
   }
 }

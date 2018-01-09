@@ -43,75 +43,64 @@ export class GeoJSONDataSource extends ColumnarDataSource {
   }
 
   _add_properties(item, data, i, item_count) {
-    return (() => {
-      const result = [];
-      for (let property in item.properties) {
-        if (!data.hasOwnProperty(property)) {
-          data[property] = this._get_new_nan_array(item_count);
-        }
-        result.push(data[property][i] = item.properties[property]);
+    for (let property in item.properties) {
+      if (!data.hasOwnProperty(property)) {
+        data[property] = this._get_new_nan_array(item_count);
       }
-      return result;
-    })();
+      data[property][i] = item.properties[property];
+    }
   }
 
   _add_geometry(geometry, data, i) {
 
     switch (geometry.type) {
 
-      case "Point":
-        var coords = geometry.coordinates;
+      case "Point": {
+        const coords = geometry.coordinates;
         data.x[i] = coords[0];
         data.y[i] = coords[1];
-        return data.z[i] = coords[2] != null ? coords[2] : NaN;
-
-      case "LineString":
-        var coord_list = geometry.coordinates;
-        return (() => {
-          const result = [];
-          for (let j = 0; j < coord_list.length; j++) {
-            coords = coord_list[j];
-            data.xs[i][j] = coords[0];
-            data.ys[i][j] = coords[1];
-            result.push(data.zs[i][j] = coords[2] != null ? coords[2] : NaN);
-          }
-          return result;
-        })();
-
-      case "Polygon":
+        data.z[i] = coords[2] != null ? coords[2] : NaN;
+        break
+      }
+      case "LineString": {
+        const coord_list = geometry.coordinates;
+        for (let j = 0; j < coord_list.length; j++) {
+          coords = coord_list[j];
+          data.xs[i][j] = coords[0];
+          data.ys[i][j] = coords[1];
+          data.zs[i][j] = coords[2] != null ? coords[2] : NaN;
+        }
+        break
+      }
+      case "Polygon": {
         if (geometry.coordinates.length > 1) {
           logger.warn('Bokeh does not support Polygons with holes in, only exterior ring used.');
         }
-        var exterior_ring = geometry.coordinates[0];
-        return (() => {
-          const result1 = [];
-          for (let j = 0; j < exterior_ring.length; j++) {
-            coords = exterior_ring[j];
-            data.xs[i][j] = coords[0];
-            data.ys[i][j] = coords[1];
-            result1.push(data.zs[i][j] = coords[2] != null ? coords[2] : NaN);
-          }
-          return result1;
-        })();
-
-      case "MultiPoint":
-        return logger.warn('MultiPoint not supported in Bokeh');
-
-      case "MultiLineString":
-        var flattened_coord_list = geometry.coordinates.reduce(this._flatten_function);
-        return (() => {
-          const result2 = [];
-          for (let j = 0; j < flattened_coord_list.length; j++) {
-            coords = flattened_coord_list[j];
-            data.xs[i][j] = coords[0];
-            data.ys[i][j] = coords[1];
-            result2.push(data.zs[i][j] = coords[2] != null ? coords[2] : NaN);
-          }
-          return result2;
-        })();
-
-      case "MultiPolygon":
-        var exterior_rings = [];
+        const exterior_ring = geometry.coordinates[0];
+        for (let j = 0; j < exterior_ring.length; j++) {
+          coords = exterior_ring[j];
+          data.xs[i][j] = coords[0];
+          data.ys[i][j] = coords[1];
+          data.zs[i][j] = coords[2] != null ? coords[2] : NaN;
+        }
+        break
+      }
+      case "MultiPoint": {
+        logger.warn('MultiPoint not supported in Bokeh');
+        break
+      }
+      case "MultiLineString": {
+        const flattened_coord_list = geometry.coordinates.reduce(this._flatten_function);
+        for (let j = 0; j < flattened_coord_list.length; j++) {
+          coords = flattened_coord_list[j];
+          data.xs[i][j] = coords[0];
+          data.ys[i][j] = coords[1];
+          data.zs[i][j] = coords[2] != null ? coords[2] : NaN;
+        }
+        break
+      }
+      case "MultiPolygon": {
+        const exterior_rings = [];
         for (let polygon of Array.from(geometry.coordinates)) {
           if (polygon.length > 1) {
             logger.warn('Bokeh does not support Polygons with holes in, only exterior ring used.');
@@ -120,19 +109,17 @@ export class GeoJSONDataSource extends ColumnarDataSource {
         }
 
         flattened_coord_list = exterior_rings.reduce(this._flatten_function);
-        return (() => {
-          const result3 = [];
-          for (let j = 0; j < flattened_coord_list.length; j++) {
-            coords = flattened_coord_list[j];
-            data.xs[i][j] = coords[0];
-            data.ys[i][j] = coords[1];
-            result3.push(data.zs[i][j] = coords[2] != null ? coords[2] : NaN);
-          }
-          return result3;
-        })();
-
-      default:
+        for (let j = 0; j < flattened_coord_list.length; j++) {
+          coords = flattened_coord_list[j];
+          data.xs[i][j] = coords[0];
+          data.ys[i][j] = coords[1];
+          data.zs[i][j] = coords[2] != null ? coords[2] : NaN;
+        }
+        break
+      }
+      default: {
         throw new Error(`Invalid type ${geometry.type}`);
+      }
     }
   }
 

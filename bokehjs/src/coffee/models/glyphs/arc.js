@@ -24,21 +24,17 @@ export class ArcView extends XYGlyphView {
   _render(ctx, indices, {sx, sy, sradius, _start_angle, _end_angle}) {
     if (this.visuals.line.doit) {
       const direction = this.model.properties.direction.value();
-      return (() => {
-        const result = [];
-        for (let i of Array.from(indices)) {
-          if (isNaN(sx[i]+sy[i]+sradius[i]+_start_angle[i]+_end_angle[i])) {
-            continue;
-          }
-
-          ctx.beginPath();
-          ctx.arc(sx[i], sy[i], sradius[i], _start_angle[i], _end_angle[i], direction);
-
-          this.visuals.line.set_vectorize(ctx, i);
-          result.push(ctx.stroke());
+      for (let i of Array.from(indices)) {
+        if (isNaN(sx[i]+sy[i]+sradius[i]+_start_angle[i]+_end_angle[i])) {
+          continue;
         }
-        return result;
-      })();
+
+        ctx.beginPath();
+        ctx.arc(sx[i], sy[i], sradius[i], _start_angle[i], _end_angle[i], direction);
+
+        this.visuals.line.set_vectorize(ctx, i);
+        ctx.stroke();
+      }
     }
   }
 
