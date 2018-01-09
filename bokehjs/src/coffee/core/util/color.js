@@ -61,7 +61,7 @@ export const color2rgba = function(color, alpha) {
   };
 
 export const valid_rgb = function(value) {
-  let needle, params;
+  let params;
   switch (value.substring(0, 4)) {
       case "rgba": params = {start: "rgba(", len: 4, alpha: true}; break;
       case "rgb(": params = {start: "rgb(", len: 3, alpha: false}; break;
@@ -85,7 +85,7 @@ export const valid_rgb = function(value) {
   if (params.alpha && !(0 <= contents[3] && contents[3] <= 1)) {
     throw new Error("color expects rgba 4-tuple to have alpha value between 0 and 1");
   }
-  if ((needle = false, includes(contents.slice(0, 3).map((rgb) => 0 <= rgb && rgb <= 255), needle))) {
+  if (includes(contents.slice(0, 3).map((rgb) => 0 <= rgb && rgb <= 255), false)) {
     throw new Error("color expects rgb to have value between 0 and 255");
   }
   return true;
