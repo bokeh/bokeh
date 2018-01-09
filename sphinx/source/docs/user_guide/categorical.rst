@@ -40,7 +40,7 @@ notation is:
 
 .. code-block:: python
 
-    p = figure(x_range=FactorRange(field=fruits), ... )
+    p = figure(x_range=FactorRange(factors=fruits), ... )
 
 This more explicit for is useful when you want to customize the
 ``FactorRange``, e.g. by changing the range or category padding.
