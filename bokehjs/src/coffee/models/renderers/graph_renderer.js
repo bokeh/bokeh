@@ -26,9 +26,8 @@ export class GraphRendererView extends RendererView {
     this.yscale = this.plot_view.frame.yscales["default"];
 
     this._renderer_views = {};
-    [this.node_view, this.edge_view] = Array.from(build_views(this._renderer_views,
-                                           [this.model.node_renderer, this.model.edge_renderer],
-                                           this.plot_view.view_options()));
+    [this.node_view, this.edge_view] = build_views(this._renderer_views,
+      [this.model.node_renderer, this.model.edge_renderer], this.plot_view.view_options());
 
     this.set_data();
   }
@@ -64,8 +63,8 @@ export class GraphRendererView extends RendererView {
     this.node_view.glyph.model.setv({x_range_name: this.model.x_range_name, y_range_name: this.model.y_range_name}, {silent: true});
     this.edge_view.glyph.model.setv({x_range_name: this.model.x_range_name, y_range_name: this.model.y_range_name}, {silent: true});
 
-    [this.node_view.glyph._x, this.node_view.glyph._y] = Array.from(this.model.layout_provider.get_node_coordinates(this.model.node_renderer.data_source));
-    [this.edge_view.glyph._xs, this.edge_view.glyph._ys] = Array.from(this.model.layout_provider.get_edge_coordinates(this.model.edge_renderer.data_source));
+    [this.node_view.glyph._x, this.node_view.glyph._y] = this.model.layout_provider.get_node_coordinates(this.model.node_renderer.data_source);
+    [this.edge_view.glyph._xs, this.edge_view.glyph._ys] = this.model.layout_provider.get_edge_coordinates(this.model.edge_renderer.data_source);
     this.node_view.glyph.index = this.node_view.glyph._index_data();
     this.edge_view.glyph.index = this.edge_view.glyph._index_data();
 

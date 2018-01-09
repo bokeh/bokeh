@@ -47,7 +47,7 @@ export class StepInterpolator extends Interpolator {
     }
 
     if (this.mode === "center") {
-      const diffs = (Array.from(this._x_sorted).map((tx) => Math.abs(tx - x)));
+      const diffs = (this._x_sorted.map((tx) => Math.abs(tx - x)));
       const mdiff = min(diffs);
       ind = findIndex(diffs, num => mdiff === num);
     }

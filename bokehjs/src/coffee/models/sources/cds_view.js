@@ -52,10 +52,10 @@ export class CDSView extends Model {
   }
 
   compute_indices() {
-    let indices = (Array.from(this.filters).map((filter) => filter.compute_indices(this.source)))
+    let indices = (this.filters.map((filter) => filter.compute_indices(this.source)))
     indices = ((() => {
       const result = []
-      for (let inds of Array.from(indices)) {
+      for (let inds of indices) {
         if (inds != null) {
           result.push(inds)
         }
@@ -82,7 +82,7 @@ export class CDSView extends Model {
   convert_selection_from_subset(selection_subset) {
     const selection_full = create_hit_test_result()
     selection_full.update_through_union(selection_subset)
-    const indices_1d = (Array.from(selection_subset['1d']['indices']).map((i) => this.indices[i]))
+    const indices_1d = (selection_subset['1d']['indices'].map((i) => this.indices[i]))
     selection_full['1d']['indices'] = indices_1d
     return selection_full
   }
@@ -90,13 +90,13 @@ export class CDSView extends Model {
   convert_selection_to_subset(selection_full) {
     const selection_subset = create_hit_test_result()
     selection_subset.update_through_union(selection_full)
-    const indices_1d = (Array.from(selection_full['1d']['indices']).map((i) => this.indices_map[i]))
+    const indices_1d = (selection_full['1d']['indices'].map((i) => this.indices_map[i]))
     selection_subset['1d']['indices'] = indices_1d
     return selection_subset
   }
 
   convert_indices_from_subset(indices) {
-    return (Array.from(indices).map((i) => this.indices[i]))
+    return (indices.map((i) => this.indices[i]))
   }
 }
 CDSView.initClass()

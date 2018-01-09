@@ -25,7 +25,7 @@ export const color2hex = function(color) {
     return svg_colors[color];
   } else if (color.indexOf('rgb') === 0) {
     const rgb = color.replace(/^rgba?\(|\s+|\)$/g,'').split(',');
-    let hex = (Array.from(rgb.slice(0, 3)).map((v) => _component2hex(v))).join('');
+    let hex = (rgb.slice(0, 3).map((v) => _component2hex(v))).join('');
     if (rgb.length === 4) {
       hex = hex + _component2hex(Math.floor(parseFloat(rgb.slice(3)) * 255));
     }
@@ -49,7 +49,7 @@ export const color2rgba = function(color, alpha) {
     }
     // Convert pairs to numbers
     hex = hex.match(/../g);
-    const rgba = (Array.from(hex).map((i) => parseInt(i, 16)/255));
+    const rgba = (hex.map((i) => parseInt(i, 16)/255));
     // Ensure correct length, add alpha if necessary
     while (rgba.length < 3) {
       rgba.push(0);
@@ -85,7 +85,7 @@ export const valid_rgb = function(value) {
   if (params.alpha && !(0 <= contents[3] && contents[3] <= 1)) {
     throw new Error("color expects rgba 4-tuple to have alpha value between 0 and 1");
   }
-  if ((needle = false, includes(Array.from((Array.from(contents.slice(0, 3)).map((rgb) => 0 <= rgb && rgb <= 255))), needle))) {
+  if ((needle = false, includes(contents.slice(0, 3).map((rgb) => 0 <= rgb && rgb <= 255), needle))) {
     throw new Error("color expects rgb to have value between 0 and 255");
   }
   return true;

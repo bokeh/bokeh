@@ -28,36 +28,36 @@ export class CircleView extends XYGlyphView {
         return this.max_size = 2 * this.max_radius;
       }
     } else {
-      return this.sradius = (Array.from(this._size).map((s) => s/2));
+      return this.sradius = (this._size.map((s) => s/2));
     }
   }
 
   _mask_data(all_indices) {
     let sx0, sx1, sy0, sy1, x0, x1, y0, y1;
-    const [hr, vr] = Array.from(this.renderer.plot_view.frame.bbox.ranges);
+    const [hr, vr] = this.renderer.plot_view.frame.bbox.ranges;
 
     // check for radius first
     if ((this._radius != null) && (this.model.properties.radius.units === "data")) {
       sx0 = hr.start;
       sx1 = hr.end;
-      [x0, x1] = Array.from(this.renderer.xscale.r_invert(sx0, sx1));
+      [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1);
       x0 -= this.max_radius;
       x1 += this.max_radius;
 
       sy0 = vr.start;
       sy1 = vr.end;
-      [y0, y1] = Array.from(this.renderer.yscale.r_invert(sy0, sy1));
+      [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1);
       y0 -= this.max_radius;
       y1 += this.max_radius;
 
     } else {
       sx0 = hr.start - this.max_size;
       sx1 = hr.end + this.max_size;
-      [x0, x1] = Array.from(this.renderer.xscale.r_invert(sx0, sx1));
+      [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1);
 
       sy0 = vr.start - this.max_size;
       sy1 = vr.end + this.max_size;
-      [y0, y1] = Array.from(this.renderer.yscale.r_invert(sy0, sy1));
+      [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1);
     }
 
     const bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1]);
@@ -65,7 +65,7 @@ export class CircleView extends XYGlyphView {
   }
 
   _render(ctx, indices, {sx, sy, sradius}) {
-    for (let i of Array.from(indices)) {
+    for (let i of indices) {
       if (isNaN(sx[i]+sy[i]+sradius[i])) {
         continue;
       }
@@ -102,13 +102,13 @@ export class CircleView extends XYGlyphView {
     } else {
       sx0 = sx - this.max_size;
       sx1 = sx + this.max_size;
-      [x0, x1] = Array.from(this.renderer.xscale.r_invert(sx0, sx1));
-      [x0, x1] = Array.from([Math.min(x0, x1), Math.max(x0, x1)]);
+      [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1);
+      [x0, x1] = [Math.min(x0, x1), Math.max(x0, x1)];
 
       sy0 = sy - this.max_size;
       sy1 = sy + this.max_size;
-      [y0, y1] = Array.from(this.renderer.yscale.r_invert(sy0, sy1));
-      [y0, y1] = Array.from([Math.min(y0, y1), Math.max(y0, y1)]);
+      [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1);
+      [y0, y1] = [Math.min(y0, y1), Math.max(y0, y1)];
     }
 
     const bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1]);
@@ -116,17 +116,17 @@ export class CircleView extends XYGlyphView {
 
     const hits = [];
     if ((this._radius != null) && (this.model.properties.radius.units === "data")) {
-      for (i of Array.from(candidates)) {
+      for (i of candidates) {
         r2 = Math.pow(this.sradius[i], 2);
-        [sx0, sx1] = Array.from(this.renderer.xscale.r_compute(x, this._x[i]));
-        [sy0, sy1] = Array.from(this.renderer.yscale.r_compute(y, this._y[i]));
+        [sx0, sx1] = this.renderer.xscale.r_compute(x, this._x[i]);
+        [sy0, sy1] = this.renderer.yscale.r_compute(y, this._y[i]);
         dist = Math.pow(sx0-sx1, 2) + Math.pow(sy0-sy1, 2);
         if (dist <= r2) {
           hits.push([i, dist]);
         }
       }
     } else {
-      for (i of Array.from(candidates)) {
+      for (i of candidates) {
         r2 = Math.pow(this.sradius[i], 2);
         dist = Math.pow(this.sx[i]-sx, 2) + Math.pow(this.sy[i]-sy, 2);
         if (dist <= r2) {
@@ -152,12 +152,12 @@ export class CircleView extends XYGlyphView {
         if ((this._radius != null) && (this.model.properties.radius.units === "data")) {
           sx0 = sx - this.max_radius;
           sx1 = sx + this.max_radius;
-          [x0, x1] = Array.from(this.renderer.xscale.r_invert(sx0, sx1));
+          [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1);
         } else {
           ms = this.max_size/2;
           sx0 = sx - ms;
           sx1 = sx + ms;
-          [x0, x1] = Array.from(this.renderer.xscale.r_invert(sx0, sx1));
+          [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1);
         }
       } else {
         // use circle bounds instead of current pointer x coordinates
@@ -167,12 +167,12 @@ export class CircleView extends XYGlyphView {
         if ((this._radius != null) && (this.model.properties.radius.units === "data")) {
           sy0 = sy - this.max_radius;
           sy1 = sy + this.max_radius;
-          [y0, y1] = Array.from(this.renderer.yscale.r_invert(sy0, sy1));
+          [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1);
         } else {
           ms = this.max_size/2;
           sy0 = sy - ms;
           sy1 = sy + ms;
-          [y0, y1] = Array.from(this.renderer.yscale.r_invert(sy0, sy1));
+          [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1);
         }
       }
 
@@ -185,8 +185,8 @@ export class CircleView extends XYGlyphView {
 
   _hit_rect(geometry) {
     const {sx0, sx1, sy0, sy1} = geometry;
-    const [x0, x1] = Array.from(this.renderer.xscale.r_invert(sx0, sx1));
-    const [y0, y1] = Array.from(this.renderer.yscale.r_invert(sy0, sy1));
+    const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1);
+    const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1);
     const bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1]);
     const result = hittest.create_hit_test_result();
     result['1d'].indices = this.index.indices(bbox);

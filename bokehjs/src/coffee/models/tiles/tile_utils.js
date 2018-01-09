@@ -22,16 +22,16 @@ export class ProjectionUtils {
   }
 
   geographic_extent_to_meters(extent) {
-    let [xmin, ymin, xmax, ymax] = Array.from(extent);
-    [xmin, ymin] = Array.from(this.geographic_to_meters(xmin, ymin));
-    [xmax, ymax] = Array.from(this.geographic_to_meters(xmax, ymax));
+    let [xmin, ymin, xmax, ymax] = extent;
+    [xmin, ymin] = this.geographic_to_meters(xmin, ymin);
+    [xmax, ymax] = this.geographic_to_meters(xmax, ymax);
     return [xmin, ymin, xmax, ymax];
   }
 
   meters_extent_to_geographic(extent) {
-    let [xmin, ymin, xmax, ymax] = Array.from(extent);
-    [xmin, ymin] = Array.from(this.meters_to_geographic(xmin, ymin));
-    [xmax, ymax] = Array.from(this.meters_to_geographic(xmax, ymax));
+    let [xmin, ymin, xmax, ymax] = extent;
+    [xmin, ymin] = this.meters_to_geographic(xmin, ymin);
+    [xmax, ymax] = this.meters_to_geographic(xmax, ymax);
     return [xmin, ymin, xmax, ymax];
   }
 }

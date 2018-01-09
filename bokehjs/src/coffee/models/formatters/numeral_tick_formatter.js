@@ -33,7 +33,7 @@ export class NumeralTickFormatter extends TickFormatter {
       case "ceil":  case "roundup":   return Math.ceil;
     } })();
 
-    const labels = ( Array.from(ticks).map((tick) => Numbro.format(tick, format, language, rounding)) );
+    const labels = ( ticks.map((tick) => Numbro.format(tick, format, language, rounding)) );
     return labels;
   }
 }

@@ -36,7 +36,7 @@ const latlon_bounds = {
 };
 
 export const clip_mercator = function(low, high, dimension) {
-  const [min, max] = Array.from(mercator_bounds[dimension]);
+  const [min, max] = mercator_bounds[dimension];
   return [Math.max(low, min), Math.min(high, max)];
 };
 

@@ -35,7 +35,7 @@ export class ProxyToolbar extends ToolbarBase {
   }
 
   _init_tools() {
-    for (var tool of Array.from(this.tools)) {
+    for (var tool of this.tools) {
       if (tool instanceof InspectTool) {
         if (!any(this.inspectors, t => t.id === tool.id))
           this.inspectors = this.inspectors.concat([tool]);
@@ -82,13 +82,13 @@ export class ProxyToolbar extends ToolbarBase {
 
     const new_help_tools = [];
     const new_help_urls = [];
-    for (let helptool of Array.from(this.help)) {
+    for (let helptool of this.help) {
       if (!includes(new_help_urls, helptool.redirect)) {
         new_help_tools.push(helptool);
         new_help_urls.push(helptool.redirect);
       }
     }
-    this._proxied_tools.push(...Array.from(new_help_tools || []));
+    this._proxied_tools.push(...new_help_tools || []);
     this.help = new_help_tools;
 
     for (var event_type in this.gestures) {
@@ -96,7 +96,7 @@ export class ProxyToolbar extends ToolbarBase {
       if (!(event_type in gestures)) {
         gestures[event_type] = {};
       }
-      for (tool of Array.from(info.tools)) {
+      for (tool of info.tools) {
         if (!(tool.type in gestures[event_type])) {
           gestures[event_type][tool.type] = [];
         }
@@ -104,14 +104,14 @@ export class ProxyToolbar extends ToolbarBase {
       }
     }
 
-    for (tool of Array.from(this.inspectors)) {
+    for (tool of this.inspectors) {
       if (!(tool.type in inspectors)) {
         inspectors[tool.type] = [];
       }
       inspectors[tool.type].push(tool);
     }
 
-    for (tool of Array.from(this.actions)) {
+    for (tool of this.actions) {
       if (!(tool.type in actions)) {
         actions[tool.type] = [];
       }

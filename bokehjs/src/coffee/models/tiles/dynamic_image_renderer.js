@@ -106,8 +106,8 @@ export class DynamicImageView extends RendererView {
       this.map_canvas.save();
       this._set_rect();
       this.map_canvas.globalAlpha = this.model.alpha;
-      let [sxmin, symin] = Array.from(this.plot_view.map_to_screen([image_obj.bounds[0]], [image_obj.bounds[3]]));
-      let [sxmax, symax] = Array.from(this.plot_view.map_to_screen([image_obj.bounds[2]], [image_obj.bounds[1]]));
+      let [sxmin, symin] = this.plot_view.map_to_screen([image_obj.bounds[0]], [image_obj.bounds[3]]);
+      let [sxmax, symax] = this.plot_view.map_to_screen([image_obj.bounds[2]], [image_obj.bounds[1]]);
       sxmin = sxmin[0];
       symin = symin[0];
       sxmax = sxmax[0];

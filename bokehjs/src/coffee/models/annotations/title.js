@@ -88,7 +88,7 @@ export class TitleView extends TextAnnotationView {
     this.model.text_baseline = this.model.vertical_align;
     this.model.text_align = this.model.align;
 
-    const [sx, sy] = Array.from(this._get_location());
+    const [sx, sy] = this._get_location();
     const angle = this.model.panel.get_label_angle_heuristic('parallel');
 
     const draw = this.model.render_mode === 'canvas' ? this._canvas_text.bind(this) : this._css_text.bind(this);

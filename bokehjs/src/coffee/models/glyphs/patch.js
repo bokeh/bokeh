@@ -16,7 +16,7 @@ export class PatchView extends XYGlyphView {
     if (this.visuals.fill.doit) {
       this.visuals.fill.set_value(ctx);
 
-      for (i of Array.from(indices)) {
+      for (i of indices) {
         if (i === 0) {
           ctx.beginPath();
           ctx.moveTo(sx[i], sy[i]);
@@ -38,7 +38,7 @@ export class PatchView extends XYGlyphView {
     if (this.visuals.line.doit) {
       this.visuals.line.set_value(ctx);
 
-      for (i of Array.from(indices)) {
+      for (i of indices) {
         if (i === 0) {
           ctx.beginPath();
           ctx.moveTo(sx[i], sy[i]);

@@ -51,7 +51,7 @@ export class LegendView extends AnnotationView {
     ctx.save();
     this.visuals.label_text.set_value(ctx);
     this.text_widths = {};
-    for (var name of Array.from(legend_names)) {
+    for (var name of legend_names) {
       this.text_widths[name] = max([ctx.measureText(name).width, label_width]);
     }
     ctx.restore();
@@ -76,7 +76,7 @@ export class LegendView extends AnnotationView {
     }
 
     const panel = this.model.panel != null ? this.model.panel : this.plot_view.frame;
-    const [hr, vr] = Array.from(panel.bbox.ranges);
+    const [hr, vr] = panel.bbox.ranges;
 
     const { location } = this.model;
     if (isString(location)) {
@@ -119,7 +119,7 @@ export class LegendView extends AnnotationView {
           break;
       }
     } else if (isArray(location) && (location.length === 2)) {
-      const [vx, vy] = Array.from(location);
+      const [vx, vy] = location;
       sx = panel.xview.compute(vx);
       sy = panel.yview.compute(vy) - legend_height;
     }
@@ -145,11 +145,11 @@ export class LegendView extends AnnotationView {
     const legend_bbox = this.compute_legend_bbox();
     const vertical = this.model.orientation === "vertical";
 
-    for (let item of Array.from(this.model.items)) {
+    for (let item of this.model.items) {
       const labels = item.get_labels_list_from_label_prop();
       const field = item.get_field_from_label_prop();
 
-      for (let label of Array.from(labels)) {
+      for (let label of labels) {
         var h, w;
         const x1 = legend_bbox.x + xoffset;
         const y1 = legend_bbox.y + yoffset;
@@ -157,9 +157,9 @@ export class LegendView extends AnnotationView {
         const y2 = y1 + glyph_height;
 
         if (vertical) {
-           [w, h] = Array.from([legend_bbox.width-(2*legend_padding), this.max_label_height]);
+           [w, h] = [legend_bbox.width-(2*legend_padding), this.max_label_height];
         } else {
-           [w, h] = Array.from([this.text_widths[label] + glyph_width + label_standoff, this.max_label_height]);
+           [w, h] = [this.text_widths[label] + glyph_width + label_standoff, this.max_label_height];
          }
 
         const bbox = new BBox({x: x1, y: y1, width: w, height: h});
@@ -167,12 +167,12 @@ export class LegendView extends AnnotationView {
         if (bbox.contains(sx, sy)) {
           switch (this.model.click_policy) {
             case "hide":
-              for (var r of Array.from(item.renderers)) {
+              for (var r of item.renderers) {
                 r.visible = !r.visible;
               }
               break;
             case "mute":
-              for (r of Array.from(item.renderers)) {
+              for (r of item.renderers) {
                 r.muted = !r.muted;
               }
               break;
@@ -231,7 +231,7 @@ export class LegendView extends AnnotationView {
     let xoffset = (yoffset = legend_padding);
     const vertical = this.model.orientation === "vertical";
 
-    for (var item of Array.from(this.model.items)) {
+    for (var item of this.model.items) {
       const labels = item.get_labels_list_from_label_prop();
       const field = item.get_field_from_label_prop();
 
@@ -245,7 +245,7 @@ export class LegendView extends AnnotationView {
         case "mute": return all(item.renderers, r => !r.muted);
       } })();
 
-      for (let label of Array.from(labels)) {
+      for (let label of labels) {
         const x1 = bbox.x + xoffset;
         const y1 = bbox.y + yoffset;
         const x2 = x1 + glyph_width;
@@ -258,7 +258,7 @@ export class LegendView extends AnnotationView {
 
         this.visuals.label_text.set_value(ctx);
         ctx.fillText(label, x2 + label_standoff, y1 + (this.max_label_height / 2.0));
-        for (r of Array.from(item.renderers)) {
+        for (r of item.renderers) {
           const view = this.plot_view.renderer_views[r.id];
           view.draw_legend(ctx, x1, x2, y1, y2, field, label);
         }
@@ -266,9 +266,9 @@ export class LegendView extends AnnotationView {
         if (!active) {
           var h, w;
           if (vertical) {
-             [w, h] = Array.from([bbox.width-(2*legend_padding), this.max_label_height]);
+             [w, h] = [bbox.width-(2*legend_padding), this.max_label_height];
           } else {
-             [w, h] = Array.from([this.text_widths[label] + glyph_width + label_standoff, this.max_label_height]);
+             [w, h] = [this.text_widths[label] + glyph_width + label_standoff, this.max_label_height];
            }
           ctx.beginPath();
           ctx.rect(x1, y1, w, h);
@@ -334,7 +334,7 @@ export class Legend extends Annotation {
 
   get_legend_names() {
     let legend_names = [];
-    for (let item of Array.from(this.items)) {
+    for (let item of this.items) {
       const labels = item.get_labels_list_from_label_prop();
       legend_names = legend_names.concat(labels);
     }

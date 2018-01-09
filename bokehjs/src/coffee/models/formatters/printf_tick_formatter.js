@@ -22,7 +22,7 @@ export class PrintfTickFormatter extends TickFormatter {
 
   doFormat(ticks, axis) {
     const { format } = this;
-    const labels = ( Array.from(ticks).map((tick) => sprintf(format, tick)) );
+    const labels = ( ticks.map((tick) => sprintf(format, tick)) );
     return labels;
   }
 }

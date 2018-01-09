@@ -22,7 +22,7 @@ export class BoxView extends GlyphView {
     const points = [];
 
     for (let i = 0, end = len, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
-      const [l, r, t, b] = Array.from(this._lrtb(i));
+      const [l, r, t, b] = this._lrtb(i);
       if (isNaN(l+r+t+b) || !isFinite(l+r+t+b)) {
         continue;
       }
@@ -33,7 +33,7 @@ export class BoxView extends GlyphView {
   }
 
   _render(ctx, indices, {sleft, sright, stop, sbottom}) {
-    for (let i of Array.from(indices)) {
+    for (let i of indices) {
       if (isNaN(sleft[i]+stop[i]+sright[i]+sbottom[i])) {
         continue;
       }
@@ -75,12 +75,12 @@ export class BoxView extends GlyphView {
     if (geometry.direction === 'v') {
       const y = this.renderer.yscale.invert(sy);
       const hr = this.renderer.plot_view.frame.bbox.h_range;
-      [minX, maxX] = Array.from(this.renderer.xscale.r_invert(hr.start, hr.end));
+      [minX, maxX] = this.renderer.xscale.r_invert(hr.start, hr.end);
       hits = this.index.indices({ minX, minY: y, maxX, maxY: y });
     } else {
       const x = this.renderer.xscale.invert(sx);
       const vr = this.renderer.plot_view.frame.bbox.v_range;
-      const [minY, maxY] = Array.from(this.renderer.yscale.r_invert(vr.start, vr.end));
+      const [minY, maxY] = this.renderer.yscale.r_invert(vr.start, vr.end);
       hits = this.index.indices({ minX: x, minY, maxX: x, maxY });
     }
 

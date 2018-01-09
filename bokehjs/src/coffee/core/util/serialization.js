@@ -88,7 +88,7 @@ export const process_buffer = function(spec, buffers) {
   const need_swap = (spec.order !== BYTE_ORDER);
   const { shape } = spec;
   let bytes = null;
-  for (buf of Array.from(buffers)) {
+  for (buf of buffers) {
     const header = JSON.parse(buf[0]);
     if (header.id === spec.__buffer__) {
       bytes = buf[1];
@@ -120,7 +120,7 @@ export const process_array = function(obj, buffers) {
 
 export const arrayBufferToBase64 = function(buffer) {
   const bytes = new Uint8Array( buffer );
-  const binary = (Array.from(bytes).map((b) => String.fromCharCode(b)));
+  const binary = (bytes.map((b) => String.fromCharCode(b)));
   return btoa( binary.join("") );
 };
 
@@ -176,8 +176,8 @@ export const decode_column_data = function(data, buffers) {
       // v is a ragged array of arrays
       const arrays = [];
       const shapes = [];
-      for (let obj of Array.from(v)) {
-        [arr, shape] = Array.from(process_array(obj, buffers));
+      for (let obj of v) {
+        [arr, shape] = process_array(obj, buffers);
         arrays.push(arr);
         shapes.push(shape);
       }
@@ -187,7 +187,7 @@ export const decode_column_data = function(data, buffers) {
 
     // must be object or array (single array case)
     } else {
-      [arr, shape] = Array.from(process_array(v, buffers));
+      [arr, shape] = process_array(v, buffers);
       new_data[k] = arr;
       new_shapes[k] = shape;
     }

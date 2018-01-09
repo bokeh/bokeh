@@ -39,7 +39,7 @@ export class Toolbar extends ToolbarBase {
 
   _init_tools() {
     let et;
-    for (var tool of Array.from(this.tools)) {
+    for (var tool of this.tools) {
       if (tool instanceof InspectTool) {
         if (!any(this.inspectors, t => t.id === tool.id)) {
           this.inspectors = this.inspectors.concat([tool]);
@@ -60,7 +60,7 @@ export class Toolbar extends ToolbarBase {
           multi = false;
         }
 
-        for (et of Array.from(event_types)) {
+        for (et of event_types) {
           if (!(et in this.gestures)) {
             logger.warn(`Toolbar: unknown event type '${et}' for tool: ${tool.type} (${tool.id})`);
             continue;

@@ -21,8 +21,8 @@ export class StaticLayoutProvider extends LayoutProvider {
   }
 
   get_node_coordinates(node_source) {
-    const [xs, ys] = Array.from([[], []]);
-    for (let i of Array.from(node_source.data.index)) {
+    const [xs, ys] = [[], []];
+    for (let i of node_source.data.index) {
       const x = (this.graph_layout[i] != null) ? this.graph_layout[i][0] : NaN;
       const y = (this.graph_layout[i] != null) ? this.graph_layout[i][1] : NaN;
       xs.push(x);
@@ -32,7 +32,7 @@ export class StaticLayoutProvider extends LayoutProvider {
   }
 
   get_edge_coordinates(edge_source) {
-    const [xs, ys] = Array.from([[], []]);
+    const [xs, ys] = [[], []];
     const starts = edge_source.data.start;
     const ends = edge_source.data.end;
     const has_paths = (edge_source.data.xs != null) && (edge_source.data.ys != null);
@@ -44,9 +44,9 @@ export class StaticLayoutProvider extends LayoutProvider {
       } else {
         var end, start;
         if (in_layout) {
-          [start, end] = Array.from([this.graph_layout[starts[i]], this.graph_layout[ends[i]]]);
+          [start, end] = [this.graph_layout[starts[i]], this.graph_layout[ends[i]]];
         } else {
-          [start, end] = Array.from([[NaN, NaN], [NaN, NaN]]);
+          [start, end] = [[NaN, NaN], [NaN, NaN]];
         }
         xs.push([start[0], end[0]]);
         ys.push([start[1], end[1]]);

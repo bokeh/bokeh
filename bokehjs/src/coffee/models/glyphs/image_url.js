@@ -66,14 +66,14 @@ export class ImageURLView extends GlyphView {
     // machinery will have converted @_w and @_w to lists of null
     const ws = ((this.model.w != null) ? this._w : (() => {
       const result = [];
-      for (const x of Array.from(this._x)) {
+      for (const x of this._x) {
         result.push(NaN);
       }
       return result;
     })());
     const hs = ((this.model.h != null) ? this._h : (() => {
       const result1 = [];
-      for (const x of Array.from(this._x)) {
+      for (const x of this._x) {
         result1.push(NaN);
       }
       return result1;
@@ -114,7 +114,7 @@ export class ImageURLView extends GlyphView {
 
     let finished = true;
 
-    for (let i of Array.from(indices)) {
+    for (let i of indices) {
       if (isNaN(sx[i]+sy[i]+_angle[i])) {
         continue;
       }
@@ -156,7 +156,7 @@ export class ImageURLView extends GlyphView {
     if (isNaN(sh[i])) { sh[i] = image.height; }
 
     const { anchor } = this.model;
-    [sx, sy] = Array.from(this._final_sx_sy(anchor, sx[i], sy[i], sw[i], sh[i]));
+    [sx, sy] = this._final_sx_sy(anchor, sx[i], sy[i], sw[i], sh[i]);
 
     ctx.save();
 

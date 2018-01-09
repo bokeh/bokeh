@@ -21,12 +21,12 @@ export class FuncTickFormatter extends TickFormatter {
   }
 
   _make_func() {
-    return new Function("tick", ...Array.from(Object.keys(this.args)), "require", this.code);
+    return new Function("tick", ...Object.keys(this.args), "require", this.code);
   }
 
   doFormat(ticks, axis) {
     const func = this._make_func();
-    return (Array.from(ticks).map((tick) => func(tick, ...Array.from(values(this.args)), require)));
+    return (ticks.map((tick) => func(tick, ...values(this.args), require)));
   }
 }
 FuncTickFormatter.initClass();

@@ -47,7 +47,7 @@ export class LinearColorMapper extends ColorMapper {
     const norm_factor = 1 / (high - low);
     const normed_interval = 1 / palette.length;
 
-    for (let d of Array.from(data)) {
+    for (let d of data) {
       if (isNaN(d)) {
         values.push(nan_color);
         continue;

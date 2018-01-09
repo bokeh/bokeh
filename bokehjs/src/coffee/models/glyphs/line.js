@@ -18,7 +18,7 @@ export class LineView extends XYGlyphView {
     this.visuals.line.set_value(ctx);
     let last_index = null;
 
-    for (let i of Array.from(indices)) {
+    for (let i of indices) {
       if (drawing) {
         if (!isFinite(sx[i]+sy[i])) {
           ctx.stroke();
@@ -69,7 +69,7 @@ export class LineView extends XYGlyphView {
     const threshold = Math.max(2, this.visuals.line.line_width.value() / 2);
 
     for (let i = 0, end = this.sx.length-1, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
-      const [p0, p1] = Array.from([{x: this.sx[i], y: this.sy[i]}, {x: this.sx[i+1], y: this.sy[i+1]}]);
+      const [p0, p1] = [{x: this.sx[i], y: this.sy[i]}, {x: this.sx[i+1], y: this.sy[i+1]}];
       const dist = hittest.dist_to_segment(point, p0, p1);
 
       if ((dist < threshold) && (dist < shortest)) {
@@ -112,18 +112,18 @@ export class LineView extends XYGlyphView {
   get_interpolation_hit(i, geometry){
     let x0, x1, y0, y1;
     const {sx, sy} = geometry;
-    const [x2, y2, x3, y3] = Array.from([this._x[i], this._y[i], this._x[i+1], this._y[i+1]]);
+    const [x2, y2, x3, y3] = [this._x[i], this._y[i], this._x[i+1], this._y[i+1]];
 
     if (geometry.type === 'point') {
-      [y0, y1] = Array.from(this.renderer.yscale.r_invert(sy-1, sy+1));
-      [x0, x1] = Array.from(this.renderer.xscale.r_invert(sx-1, sx+1));
+      [y0, y1] = this.renderer.yscale.r_invert(sy-1, sy+1);
+      [x0, x1] = this.renderer.xscale.r_invert(sx-1, sx+1);
     } else {
       if (geometry.direction === 'v') {
-        [y0, y1] = Array.from(this.renderer.yscale.r_invert(sy, sy));
-        [x0, x1] = Array.from([x2, x3]);
+        [y0, y1] = this.renderer.yscale.r_invert(sy, sy);
+        [x0, x1] = [x2, x3];
       } else {
-        [x0, x1] = Array.from(this.renderer.xscale.r_invert(sx, sx));
-        [y0, y1] = Array.from([y2, y3]);
+        [x0, x1] = this.renderer.xscale.r_invert(sx, sx);
+        [y0, y1] = [y2, y3];
       }
     }
 

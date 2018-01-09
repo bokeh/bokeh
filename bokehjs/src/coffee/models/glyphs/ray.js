@@ -36,7 +36,7 @@ export class RayView extends XYGlyphView {
         }
       }
 
-      for (i of Array.from(indices)) {
+      for (i of indices) {
         if (isNaN(sx[i]+sy[i]+_angle[i]+slength[i])) {
           continue;
         }

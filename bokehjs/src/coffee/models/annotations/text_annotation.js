@@ -40,7 +40,7 @@ export class TextAnnotationView extends AnnotationView {
 
   _calculate_bounding_box_dimensions(ctx, text) {
     let x_offset, y_offset;
-    const [width, height] = Array.from(this._calculate_text_dimensions(ctx, text));
+    const [width, height] = this._calculate_text_dimensions(ctx, text);
 
     switch (ctx.textAlign) {
       case 'left': x_offset = 0; break;

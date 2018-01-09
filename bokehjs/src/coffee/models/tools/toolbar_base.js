@@ -59,20 +59,20 @@ export class ToolbarBaseView extends DOMView {
     const { gestures } = this.model;
     for (let et in gestures) {
       buttons = [];
-      for (tool of Array.from(gestures[et].tools)) {
+      for (tool of gestures[et].tools) {
         buttons.push(this._tool_button_views[tool.id].el);
       }
       bars.push(buttons);
     }
 
     buttons = [];
-    for (tool of Array.from(this.model.actions)) {
+    for (tool of this.model.actions) {
       buttons.push(this._tool_button_views[tool.id].el);
     }
     bars.push(buttons);
 
     buttons = [];
-    for (tool of Array.from(this.model.inspectors)) {
+    for (tool of this.model.inspectors) {
       if (tool.toggleable) {
         buttons.push(this._tool_button_views[tool.id].el);
       }
@@ -80,12 +80,12 @@ export class ToolbarBaseView extends DOMView {
     bars.push(buttons);
 
     buttons = [];
-    for (tool of Array.from(this.model.help)) {
+    for (tool of this.model.help) {
       buttons.push(this._tool_button_views[tool.id].el);
     }
     bars.push(buttons);
 
-    for (buttons of Array.from(bars)) {
+    for (buttons of bars) {
       if (buttons.length !== 0) {
         const bar = div({class: 'bk-button-bar'}, buttons);
         this.el.appendChild(bar);
@@ -144,7 +144,7 @@ export class ToolbarBase extends Model {
       event_types = [event_types];
     }
 
-    for (let et of Array.from(event_types)) {
+    for (let et of event_types) {
       if (tool.active) {
         const currently_active_tool = this.gestures[et].active;
         if ((currently_active_tool != null) && (tool !== currently_active_tool)) {

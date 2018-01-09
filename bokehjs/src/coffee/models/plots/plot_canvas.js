@@ -145,7 +145,7 @@ export class PlotCanvasView extends DOMView {
     this.ui_event_bus = new UIEvents(this, this.model.toolbar, this.canvas_view.el, this.model.plot);
 
     this.levels = {};
-    for (let level of Array.from(enums.RenderLevel)) {
+    for (let level of enums.RenderLevel) {
       this.levels[level] = {};
     }
 
@@ -235,7 +235,7 @@ export class PlotCanvasView extends DOMView {
     const log_bounds = {};
 
     let calculate_log_bounds = false;
-    for (var r of Array.from(values(frame.x_ranges).concat(values(frame.y_ranges)))) {
+    for (var r of values(frame.x_ranges).concat(values(frame.y_ranges))) {
       if (r instanceof DataRange1d) {
         if (r.scale_hint === "log") {
           calculate_log_bounds = true;
@@ -265,7 +265,7 @@ export class PlotCanvasView extends DOMView {
       r = (1/this.model.plot.aspect_scale)*(this.frame._width.value/this.frame._height.value);
     }
 
-    for (var xr of Array.from(values(frame.x_ranges))) {
+    for (var xr of values(frame.x_ranges)) {
       if (xr instanceof DataRange1d) {
         bounds_to_use = xr.scale_hint === "log" ? log_bounds : bounds;
         xr.update(bounds_to_use, 0, this.model.id, r);
@@ -276,7 +276,7 @@ export class PlotCanvasView extends DOMView {
       if (xr.bounds != null) { has_bounds = true; }
     }
 
-    for (var yr of Array.from(values(frame.y_ranges))) {
+    for (var yr of values(frame.y_ranges)) {
       if (yr instanceof DataRange1d) {
         bounds_to_use = yr.scale_hint === "log" ? log_bounds : bounds;
         yr.update(bounds_to_use, 1, this.model.id, r);
@@ -289,10 +289,10 @@ export class PlotCanvasView extends DOMView {
 
     if (follow_enabled && has_bounds) {
       logger.warn('Follow enabled so bounds are unset.');
-      for (xr of Array.from(values(frame.x_ranges))) {
+      for (xr of values(frame.x_ranges)) {
         xr.bounds = null;
       }
-      for (yr of Array.from(values(frame.y_ranges))) {
+      for (yr of values(frame.y_ranges)) {
         yr.bounds = null;
       }
     }
@@ -360,7 +360,7 @@ export class PlotCanvasView extends DOMView {
 
   get_selection() {
     const selection = [];
-    for (let renderer of Array.from(this.model.plot.renderers)) {
+    for (let renderer of this.model.plot.renderers) {
       if (renderer instanceof GlyphRenderer) {
         const { selected } = renderer.data_source;
         selection[renderer.id] = selected;
@@ -370,7 +370,7 @@ export class PlotCanvasView extends DOMView {
   }
 
   update_selection(selection) {
-    for (let renderer of Array.from(this.model.plot.renderers)) {
+    for (let renderer of this.model.plot.renderers) {
       if (!(renderer instanceof GlyphRenderer)) {
         continue;
       }
@@ -392,12 +392,12 @@ export class PlotCanvasView extends DOMView {
   _update_ranges_together(range_info_iter) {
     // Get weight needed to scale the diff of the range to honor interval limits
     let weight = 1.0;
-    for (var [rng, range_info] of Array.from(range_info_iter)) {
+    for (var [rng, range_info] of range_info_iter) {
       weight = Math.min(weight, this._get_weight_to_constrain_interval(rng, range_info));
     }
     // Apply shared weight to all ranges
     if (weight < 1) {
-      for ([rng, range_info] of Array.from(range_info_iter)) {
+      for ([rng, range_info] of range_info_iter) {
         range_info['start'] = (weight * range_info['start']) + ((1-weight) * rng.start);
         range_info['end'] = (weight * range_info['end']) + ((1-weight) * rng.end);
       }
@@ -406,7 +406,7 @@ export class PlotCanvasView extends DOMView {
 
   _update_ranges_individually(range_info_iter, is_panning, is_scrolling) {
     let hit_bound = false;
-    for (var [rng, range_info] of Array.from(range_info_iter)) {
+    for (var [rng, range_info] of range_info_iter) {
       // Is this a reversed range?
       const is_reversed = (rng.start > rng.end);
 
@@ -477,7 +477,7 @@ export class PlotCanvasView extends DOMView {
       return;
     }
 
-    for ([rng, range_info] of Array.from(range_info_iter)) {
+    for ([rng, range_info] of range_info_iter) {
       rng.have_updated_interactively = true;
       if ((rng.start !== range_info['start']) || (rng.end !== range_info['end'])) {
         rng.setv(range_info);
@@ -497,7 +497,7 @@ export class PlotCanvasView extends DOMView {
       // Express bounds as a max_interval. By doing this, the application of
       // bounds and interval limits can be applied independent from each-other.
       if (rng.bounds != null) {
-        [min, max] = Array.from(rng.bounds);
+        [min, max] = rng.bounds;
         if ((min != null) && (max != null)) {
           const max_interval2 = Math.abs(max - min);
           max_interval = (max_interval != null) ? Math.min(max_interval, max_interval2) : max_interval2;
@@ -564,11 +564,11 @@ export class PlotCanvasView extends DOMView {
     const new_renderer_views = build_views(this.renderer_views, renderer_models, this.view_options());
     const renderers_to_remove = difference(old_renderers, renderer_models.map((model) => model.id))
 
-    for (let id_ of Array.from(renderers_to_remove)) {
+    for (let id_ of renderers_to_remove) {
       delete this.levels.glyph[id_];
     }
 
-    for (let view of Array.from(new_renderer_views)) {
+    for (let view of new_renderer_views) {
       this.levels[view.model.level][view.model.id] = view;
     }
 
@@ -576,14 +576,14 @@ export class PlotCanvasView extends DOMView {
   }
 
   get_renderer_views() {
-    return (Array.from(this.model.plot.renderers).map((r) => this.levels[r.level][r.id]));
+    return (this.model.plot.renderers.map((r) => this.levels[r.level][r.id]));
   }
 
   build_tools() {
     const tool_models = this.model.plot.toolbar.tools;
     const new_tool_views = build_views(this.tool_views, tool_models, this.view_options());
 
-    return Array.from(new_tool_views).map((tool_view) =>
+    return new_tool_views.map((tool_view) =>
       this.ui_event_bus.register_tool(tool_view));
   }
 
@@ -801,7 +801,7 @@ export class PlotCanvasView extends DOMView {
     ctx.save();
     if (this.visuals.outline_line.doit) {
       this.visuals.outline_line.set_value(ctx);
-      let [x0, y0, w, h] = Array.from(frame_box);
+      let [x0, y0, w, h] = frame_box;
       // XXX: shrink outline region by 1px to make right and bottom lines visible
       // if they are on the edge of the canvas.
       if ((x0 + w) === this.canvas._width.value) {
@@ -848,10 +848,10 @@ export class PlotCanvasView extends DOMView {
 
     const sortKey = renderer_view => indices[renderer_view.model.id];
 
-    for (let level of Array.from(levels)) {
+    for (let level of levels) {
       const renderer_views = sortBy(values(this.levels[level]), sortKey);
 
-      for (let renderer_view of Array.from(renderer_views)) {
+      for (let renderer_view of renderer_views) {
         renderer_view.render();
       }
     }
@@ -866,11 +866,11 @@ export class PlotCanvasView extends DOMView {
     if (this.visuals.border_fill.doit) {
       this.visuals.border_fill.set_value(ctx);
       ctx.fillRect(0, 0,  this.canvas_view.model._width.value, this.canvas_view.model._height.value);
-      ctx.clearRect(...Array.from(frame_box || []));
+      ctx.clearRect(...frame_box || []);
     }
     if (this.visuals.background_fill.doit) {
       this.visuals.background_fill.set_value(ctx);
-      return ctx.fillRect(...Array.from(frame_box || []));
+      return ctx.fillRect(...frame_box || []);
     }
   }
 
@@ -1005,7 +1005,7 @@ export class PlotCanvas extends LayoutDOM {
     ];
 
     const collect_panels = (layout_renderers) => {
-      for (let r of Array.from(layout_renderers)) {
+      for (let r of layout_renderers) {
         if (r.panel != null)
           children.push(r.panel)
       }
@@ -1062,7 +1062,7 @@ export class PlotCanvas extends LayoutDOM {
   }
 
   _get_side_constraints() {
-    const panels = objs => Array.from(objs).map((obj) => obj.panel);
+    const panels = objs => objs.map((obj) => obj.panel);
     const above = vstack(this.above_panel,          panels(this.plot.above));
     const below = vstack(this.below_panel, reversed(panels(this.plot.below)));
     const left  = hstack(this.left_panel,           panels(this.plot.left));

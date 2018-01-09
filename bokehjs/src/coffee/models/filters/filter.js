@@ -26,7 +26,7 @@ export class Filter extends Model {
   compute_indices() {
     if ((this.filter != null ? this.filter.length : undefined) >= 0) {
       if (all(this.filter, isBoolean)) {
-        return (Array.from(range(0, this.filter.length)).filter((i) => this.filter[i] === true));
+        return (range(0, this.filter.length).filter((i) => this.filter[i] === true));
       } else if (all(this.filter, isInteger)) {
         return this.filter;
       } else {

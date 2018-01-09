@@ -72,7 +72,7 @@ export class NodesAndLinkedEdges extends GraphHitTestPolicy {
   _do(geometry, graph_view, final, append) {
     let asc, end;
     let i;
-    const [node_view, edge_view] = Array.from([graph_view.node_view, graph_view.edge_view]);
+    const [node_view, edge_view] = [graph_view.node_view, graph_view.edge_view];
     const hit_test_result = node_view.glyph.hit_test(geometry);
 
     // glyphs that don't have hit-testing implemented will return null
@@ -84,7 +84,7 @@ export class NodesAndLinkedEdges extends GraphHitTestPolicy {
 
     const node_indices = ((() => {
       const result = [];
-      for (i of Array.from(hit_test_result["1d"].indices)) {         result.push(node_view.model.data_source.data.index[i]);
+      for (i of hit_test_result["1d"].indices) {         result.push(node_view.model.data_source.data.index[i]);
       }
       return result;
     })());
@@ -97,7 +97,7 @@ export class NodesAndLinkedEdges extends GraphHitTestPolicy {
     }
 
     const linked_index = create_hit_test_result();
-    for (i of Array.from(edge_indices)) {
+    for (i of edge_indices) {
       linked_index["2d"].indices[i] = [0];
     } //currently only supports 2-element multilines, so this is all of it
 
@@ -143,7 +143,7 @@ export class EdgesAndLinkedNodes extends GraphHitTestPolicy {
 
   _do(geometry, graph_view, final, append) {
     let i;
-    const [node_view, edge_view] = Array.from([graph_view.node_view, graph_view.edge_view]);
+    const [node_view, edge_view] = [graph_view.node_view, graph_view.edge_view];
     const hit_test_result = edge_view.glyph.hit_test(geometry);
 
     // glyphs that don't have hit-testing implemented will return null
@@ -155,20 +155,20 @@ export class EdgesAndLinkedNodes extends GraphHitTestPolicy {
 
     const edge_indices = ((() => {
       const result = [];
-      for (i of Array.from(Object.keys(hit_test_result['2d'].indices))) {         result.push(parseInt(i));
+      for (i of Object.keys(hit_test_result['2d'].indices)) {         result.push(parseInt(i));
       }
       return result;
     })());
 
     const nodes = [];
-    for (i of Array.from(edge_indices)) {
+    for (i of edge_indices) {
       nodes.push(edge_view.model.data_source.data.start[i]);
       nodes.push(edge_view.model.data_source.data.end[i]);
     }
 
     const node_indices = ((() => {
       const result1 = [];
-      for (i of Array.from(uniq(nodes))) {         result1.push(node_view.model.data_source.data.index.indexOf(i));
+      for (i of uniq(nodes)) {         result1.push(node_view.model.data_source.data.index.indexOf(i));
       }
       return result1;
     })());

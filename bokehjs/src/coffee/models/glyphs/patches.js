@@ -86,10 +86,10 @@ export class PatchesView extends GlyphView {
 
   _mask_data(all_indices) {
     const xr = this.renderer.plot_view.frame.x_ranges.default;
-    const [x0, x1] = Array.from([xr.min, xr.max]);
+    const [x0, x1] = [xr.min, xr.max];
 
     const yr = this.renderer.plot_view.frame.y_ranges.default;
-    const [y0, y1] = Array.from([yr.min, yr.max]);
+    const [y0, y1] = [yr.min, yr.max];
 
     const bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1]);
     const indices = this.index.indices(bbox);
@@ -103,9 +103,9 @@ export class PatchesView extends GlyphView {
     // This is the earliest we can build them, and only build them once
     this.renderer.sxss = this._build_discontinuous_object(sxs);
     this.renderer.syss = this._build_discontinuous_object(sys);
-    for (let i of Array.from(indices)) {
+    for (let i of indices) {
       var j;
-      const [sx, sy] = Array.from([sxs[i], sys[i]]);
+      const [sx, sy] = [sxs[i], sys[i]];
 
       if (this.visuals.fill.doit) {
         var asc, end;
@@ -182,7 +182,7 @@ export class PatchesView extends GlyphView {
 
   _get_snap_coord(array) {
       let sum = 0;
-      for (let s of Array.from(array)) {
+      for (let s of array) {
         sum += s;
       }
       return sum / array.length;

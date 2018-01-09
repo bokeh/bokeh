@@ -95,7 +95,7 @@ export class GeoJSONDataSource extends ColumnarDataSource {
       }
       case "MultiPolygon": {
         const exterior_rings = []
-        for (let polygon of Array.from(geometry.coordinates)) {
+        for (let polygon of geometry.coordinates) {
           if (polygon.length > 1) {
             logger.warn('Bokeh does not support Polygons with holes in, only exterior ring used.')
           }

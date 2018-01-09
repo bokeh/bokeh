@@ -28,14 +28,14 @@ export class CustomJSTransform extends Transform {
     });
   }
 
-  compute(x) { return this.scalar_transform(...Array.from(this.values), x, require, exports); }
+  compute(x) { return this.scalar_transform(...this.values, x, require, exports); }
 
-  v_compute(xs) { return this.vector_transform(...Array.from(this.values), xs, require, exports); }
+  v_compute(xs) { return this.vector_transform(...this.values, xs, require, exports); }
 
   _make_transform(val, fn) {
     // this relies on Object.keys(args) and values(args) returning keys and values
     // in the same order
-    return new Function(...Array.from(Object.keys(this.args)), val, "require", "exports", fn);
+    return new Function(...Object.keys(this.args), val, "require", "exports", fn);
   }
 
   _make_values() { return values(this.args); }

@@ -36,7 +36,7 @@ export class LegendItem extends Model {
       }
       const source = this.renderers[0].data_source;
       if (source != null) {
-        for (let r of Array.from(this.renderers)) {
+        for (let r of this.renderers) {
           if (r.data_source !== source) {
             return false;
           }

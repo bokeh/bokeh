@@ -79,7 +79,7 @@ export const slice = function(ind, length) {
   if (isObject(ind)) {
     return [ind.start != null ? ind.start : 0, ind.stop != null ? ind.stop : length, ind.step != null ? ind.step : 1]
   }
-  return [start, stop, step] = Array.from(ref = [ind, ind+1, 1]), ref
+  return [start, stop, step] = ref = [ind, ind+1, 1], ref
 }
 
 // exported for testing
@@ -87,7 +87,7 @@ export const patch_to_column = function(col, patch, shapes) {
   const patched = new Set()
   let patched_range = false
 
-  for (let [ind, value] of Array.from(patch)) {
+  for (let [ind, value] of patch) {
 
     // make the single index case look like the length-3 multi-index case
     var item, shape
@@ -120,8 +120,8 @@ export const patch_to_column = function(col, patch, shapes) {
 
     // now this one nested loop handles all cases
     let flat_index = 0
-    const [istart, istop, istep] = Array.from(slice(ind[1], shape[0]))
-    const [jstart, jstop, jstep] = Array.from(slice(ind[2], shape[1]))
+    const [istart, istop, istep] = slice(ind[1], shape[0])
+    const [jstart, jstop, jstep] = slice(ind[2], shape[1])
 
     for (let i = istart, end = istop, step = istep, asc = step > 0; asc ? i < end : i > end; i += step) {
       for (let j = jstart, end1 = jstop, step1 = jstep, asc1 = step1 > 0; asc1 ? j < end1 : j > end1; j += step1) {

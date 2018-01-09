@@ -34,8 +34,8 @@ class DashAtlas {
     const key = pattern.join('-');
     const findex_period = this._atlas[key];
     if (findex_period === undefined) {
-      const [data, period] = Array.from(this.make_pattern(pattern));
-      this.tex.set_data([this._index, 0], [1, this._width], new Uint8Array(Array.from(data).map((x) => x+10)));
+      const [data, period] = this.make_pattern(pattern);
+      this.tex.set_data([this._index, 0], [1, this._width], new Uint8Array(data.map((x) => x+10)));
       this._atlas[key] = [this._index / this._height, period];
       this._index += 1;
     }
@@ -53,7 +53,7 @@ class DashAtlas {
     }
     // Period is sum of elements
     let period = 0;
-    for (let v of Array.from(pattern)) {
+    for (let v of pattern) {
        period += v;
     }
     // Find all start and end of on-segment only
@@ -798,7 +798,7 @@ void main()
       const dash_pattern = this.glyph.visuals.line.line_dash.value();
       let dash_index = 0; let dash_period = 1;
       if (dash_pattern.length) {
-        [dash_index, dash_period] = Array.from(this.dash_atlas.get_atlas_data(dash_pattern));
+        [dash_index, dash_period] = this.dash_atlas.get_atlas_data(dash_pattern);
       }
       this.prog.set_uniform('u_dash_index', 'float', [dash_index]);  // 0 means solid line
       this.prog.set_uniform('u_dash_phase', 'float', [this.glyph.visuals.line.line_dash_offset.value()]);

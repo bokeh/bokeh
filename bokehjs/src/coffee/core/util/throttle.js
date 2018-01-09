@@ -23,7 +23,7 @@ const delay_animation = (typeof window !== 'undefined' && window !== null ? wind
 // @return [function] throttled function
 //
 export const throttle = function(func, wait) {
-  let [context , args, timeout, result] = Array.from([null, null, null, null]);
+  let [context , args, timeout, result] = [null, null, null, null];
   let previous = 0;
   let pending = false;
   const later = function() {

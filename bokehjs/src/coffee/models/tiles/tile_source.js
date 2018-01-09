@@ -78,11 +78,11 @@ export class TileSource extends Model {
   }
 
   key_to_tile_xyz(key) {
-    return (Array.from(key.split(':')).map((c) => parseInt(c)));
+    return (key.split(':').map((c) => parseInt(c)));
   }
 
   sort_tiles_from_center(tiles, tile_extent) {
-    const [txmin, tymin, txmax, tymax] = Array.from(tile_extent);
+    const [txmin, tymin, txmax, tymax] = tile_extent;
     const center_x = ((txmax - txmin) / 2) + txmin;
     const center_y = ((tymax - tymin) / 2) + tymin;
     tiles.sort(function(a, b) {

@@ -33,7 +33,7 @@ export class MarkerView extends XYGlyphView {
   }
 
   _render(ctx, indices, {sx, sy, _size, _angle}) {
-    for (let i of Array.from(indices)) {
+    for (let i of indices) {
       if (isNaN(sx[i]+sy[i]+_size[i]+_angle[i])) {
         continue;
       }
@@ -63,12 +63,12 @@ export class MarkerView extends XYGlyphView {
     const hr = this.renderer.plot_view.frame.bbox.h_range;
     const sx0 = hr.start - this.max_size;
     const sx1 = hr.end + this.max_size;
-    const [x0, x1] = Array.from(this.renderer.xscale.r_invert(sx0, sx1));
+    const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1);
 
     const vr = this.renderer.plot_view.frame.bbox.v_range;
     const sy0 = vr.start - this.max_size;
     const sy1 = vr.end + this.max_size;
-    const [y0, y1] = Array.from(this.renderer.yscale.r_invert(sy0, sy1));
+    const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1);
 
     const bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1]);
     return this.index.indices(bbox);
@@ -79,17 +79,17 @@ export class MarkerView extends XYGlyphView {
 
     const sx0 = sx - this.max_size;
     const sx1 = sx + this.max_size;
-    const [x0, x1] = Array.from(this.renderer.xscale.r_invert(sx0, sx1));
+    const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1);
 
     const sy0 = sy - this.max_size;
     const sy1 = sy + this.max_size;
-    const [y0, y1] = Array.from(this.renderer.yscale.r_invert(sy0, sy1));
+    const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1);
 
     const bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1]);
     const candidates = this.index.indices(bbox);
 
     const hits = [];
-    for (let i of Array.from(candidates)) {
+    for (let i of candidates) {
       const s2 = this._size[i]/2;
       const dist = Math.abs(this.sx[i]-sx) + Math.abs(this.sy[i]-sy);
       if ((Math.abs(this.sx[i]-sx) <= s2) && (Math.abs(this.sy[i]-sy) <= s2)) {
@@ -111,14 +111,14 @@ export class MarkerView extends XYGlyphView {
       ms = this.max_size/2;
       const sx0 = sx - ms;
       const sx1 = sx + ms;
-      [x0, x1] = Array.from(this.renderer.xscale.r_invert(sx0, sx1));
+      [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1);
     } else {
       x0 = minX;
       x1 = maxX;
       ms = this.max_size/2;
       const sy0 = sy - ms;
       const sy1 = sy + ms;
-      [y0, y1] = Array.from(this.renderer.yscale.r_invert(sy0, sy1));
+      [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1);
     }
 
     const bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1]);
@@ -130,8 +130,8 @@ export class MarkerView extends XYGlyphView {
 
   _hit_rect(geometry) {
     const {sx0, sx1, sy0, sy1} = geometry;
-    const [x0, x1] = Array.from(this.renderer.xscale.r_invert(sx0, sx1));
-    const [y0, y1] = Array.from(this.renderer.yscale.r_invert(sy0, sy1));
+    const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1);
+    const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1);
     const bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1]);
     const result = hittest.create_hit_test_result();
     result['1d'].indices = this.index.indices(bbox);

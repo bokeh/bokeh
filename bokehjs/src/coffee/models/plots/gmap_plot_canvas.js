@@ -96,7 +96,7 @@ export class GMapPlotCanvasView extends PlotCanvasView {
         this.map.setZoom(new_map_zoom);
 
         // Check we haven't gone out of bounds, and if we have undo the zoom
-        const [proj_xstart, proj_xend, proj_ystart, proj_yend] = Array.from(this._get_projected_bounds());
+        const [proj_xstart, proj_xend, proj_ystart, proj_yend] = this._get_projected_bounds();
         if (( proj_xend - proj_xstart ) < 0) {
           this.map.setZoom(old_map_zoom);
         }
@@ -175,14 +175,14 @@ export class GMapPlotCanvasView extends PlotCanvasView {
   }
 
   _get_projected_bounds() {
-    const [xstart, xend, ystart, yend] = Array.from(this._get_latlon_bounds());
-    const [proj_xstart, proj_ystart] = Array.from(proj4(mercator, [xstart, ystart]));
-    const [proj_xend, proj_yend] = Array.from(proj4(mercator, [xend, yend]));
+    const [xstart, xend, ystart, yend] = this._get_latlon_bounds();
+    const [proj_xstart, proj_ystart] = proj4(mercator, [xstart, ystart]);
+    const [proj_xend, proj_yend] = proj4(mercator, [xend, yend]);
     return [proj_xstart, proj_xend, proj_ystart, proj_yend];
   }
 
   _set_bokeh_ranges() {
-    const [proj_xstart, proj_xend, proj_ystart, proj_yend] = Array.from(this._get_projected_bounds());
+    const [proj_xstart, proj_xend, proj_ystart, proj_yend] = this._get_projected_bounds();
     this.frame.x_range.setv({start: proj_xstart, end: proj_xend});
     return this.frame.y_range.setv({start: proj_ystart, end: proj_yend});
   }
@@ -223,7 +223,7 @@ export class GMapPlotCanvasView extends PlotCanvasView {
 
   // this method is expected and called by PlotCanvasView.render
   _map_hook(ctx, frame_box) {
-    const [left, top, width, height] = Array.from(frame_box);
+    const [left, top, width, height] = frame_box;
     this.canvas_view.map_el.style.top    = `${top}px`;
     this.canvas_view.map_el.style.left   = `${left}px`;
     this.canvas_view.map_el.style.width  = `${width}px`;
@@ -238,7 +238,7 @@ export class GMapPlotCanvasView extends PlotCanvasView {
   _paint_empty(ctx, frame_box) {
     const ow = this.canvas._width.value;
     const oh = this.canvas._height.value;
-    const [left, top, iw, ih] = Array.from(frame_box);
+    const [left, top, iw, ih] = frame_box;
 
     ctx.clearRect(0, 0, ow, oh);
 

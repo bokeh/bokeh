@@ -30,17 +30,17 @@ export class StepView extends XYGlyphView {
       var x1, x2, y1, y2;
       switch (this.model.mode) {
         case "before":
-          [x1, y1] = Array.from([sx[i-1], sy[i]]);
-          [x2, y2] = Array.from([sx[i],   sy[i]]);
+          [x1, y1] = [sx[i-1], sy[i]];
+          [x2, y2] = [sx[i],   sy[i]];
           break;
         case "after":
-          [x1, y1] = Array.from([sx[i], sy[i-1]]);
-          [x2, y2] = Array.from([sx[i], sy[i]  ]);
+          [x1, y1] = [sx[i], sy[i-1]];
+          [x2, y2] = [sx[i], sy[i]  ];
           break;
         case "center":
           var xm = (sx[i-1] + sx[i])/2;
-          [x1, y1] = Array.from([xm, sy[i-1]]);
-          [x2, y2] = Array.from([xm, sy[i]  ]);
+          [x1, y1] = [xm, sy[i-1]];
+          [x2, y2] = [xm, sy[i]  ];
           break;
       }
 

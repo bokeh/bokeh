@@ -135,7 +135,7 @@ export class TileRendererView extends RendererView {
     };
 
     this.model.tile_source.tiles[tile.tile_data.cache_key] = tile.tile_data;
-    tile.src = this.model.tile_source.get_image_url(...Array.from(normalized_coords || []));
+    tile.src = this.model.tile_source.get_image_url(...normalized_coords || []);
 
     this._tiles.push(tile);
     return tile;
@@ -166,7 +166,7 @@ export class TileRendererView extends RendererView {
       return false;
     }
 
-    for (let tile of Array.from(this._tiles)) {
+    for (let tile of this._tiles) {
       if (!tile.tile_data.finished) {
         return false;
       }
@@ -202,8 +202,8 @@ export class TileRendererView extends RendererView {
   _draw_tile(tile_key) {
     const tile_obj = this.model.tile_source.tiles[tile_key];
     if (tile_obj != null) {
-      let [sxmin, symin] = Array.from(this.plot_view.map_to_screen([tile_obj.bounds[0]], [tile_obj.bounds[3]]));
-      let [sxmax, symax] = Array.from(this.plot_view.map_to_screen([tile_obj.bounds[2]], [tile_obj.bounds[1]]));
+      let [sxmin, symin] = this.plot_view.map_to_screen([tile_obj.bounds[0]], [tile_obj.bounds[3]]);
+      let [sxmax, symax] = this.plot_view.map_to_screen([tile_obj.bounds[2]], [tile_obj.bounds[1]]);
       sxmin = sxmin[0];
       symin = symin[0];
       sxmax = sxmax[0];
@@ -230,7 +230,7 @@ export class TileRendererView extends RendererView {
     this.map_canvas.save();
     this._set_rect();
     this.map_canvas.globalAlpha = this.model.alpha;
-    for (let tile_key of Array.from(tile_keys)) {
+    for (let tile_key of tile_keys) {
       this._draw_tile(tile_key);
     }
     return this.map_canvas.restore();
@@ -244,10 +244,10 @@ export class TileRendererView extends RendererView {
     const zoom_level = this.model.tile_source.get_level_by_extent(extent, h, w);
     const tiles = this.model.tile_source.get_tiles_by_extent(extent, zoom_level);
     for (let t = 0, end = Math.min(10, tiles.length); t <= end; t++) {
-      const [x, y, z, bounds] = Array.from(t);
+      const [x, y, z, bounds] = t;
       var children = this.model.tile_source.children_by_tile_xyz(x, y, z);
-      for (let c of Array.from(children)) {
-        const [cx, cy, cz, cbounds] = Array.from(c);
+      for (let c of children) {
+        const [cx, cy, cz, cbounds] = c;
         if (tile_source.tile_xyz_to_key(cx, cy, cz) in tile_source.tiles) {
           continue;
         } else {
@@ -258,8 +258,8 @@ export class TileRendererView extends RendererView {
   }
 
   _fetch_tiles(tiles) {
-    for (let t of Array.from(tiles)) {
-      const [x, y, z, bounds] = Array.from(t);
+    for (let t of tiles) {
+      const [x, y, z, bounds] = t;
       this._create_tile(x, y, z, bounds);
     }
   }
@@ -302,15 +302,15 @@ export class TileRendererView extends RendererView {
     const cached = [];
     let children = [];
 
-    for (var t of Array.from(tiles)) {
-      const [x, y, z, bounds] = Array.from(t);
+    for (var t of tiles) {
+      const [x, y, z, bounds] = t;
       const key = tile_source.tile_xyz_to_key(x, y, z);
       const tile = tile_source.tiles[key];
       if ((tile != null) && (tile.loaded === true)) {
         cached.push(key);
       } else {
         if (this.model.render_parents) {
-          const [px, py, pz] = Array.from(tile_source.get_closest_parent_by_tile_xyz(x, y, z));
+          const [px, py, pz] = tile_source.get_closest_parent_by_tile_xyz(x, y, z);
           const parent_key = tile_source.tile_xyz_to_key(px, py, pz);
           const parent_tile = tile_source.tiles[parent_key];
           if ((parent_tile != null) && parent_tile.loaded && !includes(parents, parent_key)) {
@@ -318,8 +318,8 @@ export class TileRendererView extends RendererView {
           }
           if (zooming_out) {
             children = tile_source.children_by_tile_xyz(x, y, z);
-            for (let c of Array.from(children)) {
-              const [cx, cy, cz, cbounds] = Array.from(c);
+            for (let c of children) {
+              const [cx, cy, cz, cbounds] = c;
               const child_key = tile_source.tile_xyz_to_key(cx, cy, cz);
 
               if (child_key in tile_source.tiles) {
@@ -341,7 +341,7 @@ export class TileRendererView extends RendererView {
 
     // draw cached ----------
     this._render_tiles(cached);
-    for (t of Array.from(cached)) {
+    for (t of cached) {
       tile_source.tiles[t].current = true;
     }
 

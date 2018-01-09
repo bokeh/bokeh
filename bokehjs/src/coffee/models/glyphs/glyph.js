@@ -102,7 +102,7 @@ export class GlyphView extends View {
     const bb = bbox.empty();
     const positive_x_bbs = this.index.search(bbox.positive_x());
     const positive_y_bbs = this.index.search(bbox.positive_y());
-    for (let x of Array.from(positive_x_bbs)) {
+    for (let x of positive_x_bbs) {
       if (x.minX < bb.minX) {
         bb.minX = x.minX;
       }
@@ -110,7 +110,7 @@ export class GlyphView extends View {
         bb.maxX = x.maxX;
       }
     }
-    for (let y of Array.from(positive_y_bbs)) {
+    for (let y of positive_y_bbs) {
       if (y.minY < bb.minY) {
         bb.minY = y.minY;
       }
@@ -133,7 +133,7 @@ export class GlyphView extends View {
   }
 
   get_anchor_point(anchor, i, ...rest) {
-    const [sx, sy] = Array.from(rest[0]);
+    const [sx, sy] = rest[0];
     switch (anchor) {
       case "center": return {x: this.scx(i, sx, sy), y: this.scy(i, sx, sy)};
       default:               return null;
@@ -155,7 +155,7 @@ export class GlyphView extends View {
     }
 
     if (pts_location === 'center') {
-      const halfspan = (Array.from(spans).map((d) => d / 2));
+      const halfspan = (spans.map((d) => d / 2));
       pt0 = ((() => {
         let asc, end;
         const result = [];
@@ -266,8 +266,8 @@ export class GlyphView extends View {
 
   _hit_rect_against_index(geometry) {
     const {sx0, sx1, sy0, sy1} = geometry;
-    const [x0, x1] = Array.from(this.renderer.xscale.r_invert(sx0, sx1));
-    const [y0, y1] = Array.from(this.renderer.yscale.r_invert(sy0, sy1));
+    const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1);
+    const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1);
     const bb = hittest.validate_bbox_coords([x0, x1], [y0, y1]);
     const result = hittest.create_hit_test_result();
     result['1d'].indices = this.index.indices(bb);
@@ -283,7 +283,7 @@ export class GlyphView extends View {
       for (let k in data) {
         var v = data[k];
         if (k.charAt(0) === '_') {
-          data_subset[k] = (Array.from(indices).map((i) => v[i]));
+          data_subset[k] = (indices.map((i) => v[i]));
         } else {
           data_subset[k] = v;
         }
@@ -295,10 +295,10 @@ export class GlyphView extends View {
 
     if (this.renderer.plot_view.model.use_map) {
       if (this._x != null) {
-        [this._x, this._y] = Array.from(proj.project_xy(this._x, this._y));
+        [this._x, this._y] = proj.project_xy(this._x, this._y);
       }
       if (this._xs != null) {
-        [this._xs, this._ys] = Array.from(proj.project_xsys(this._xs, this._ys));
+        [this._xs, this._ys] = proj.project_xsys(this._xs, this._ys);
       }
     }
 
@@ -307,7 +307,7 @@ export class GlyphView extends View {
     if (this.renderer.plot_view.frame.x_ranges != null) {   // XXXX JUST TEMP FOR TESTS TO PASS
       const xr = this.renderer.plot_view.frame.x_ranges[this.model.x_range_name];
       const yr = this.renderer.plot_view.frame.y_ranges[this.model.y_range_name];
-      for (let [xname, yname] of Array.from(this.model._coords)) {
+      for (let [xname, yname] of this.model._coords) {
         xname = `_${xname}`;
         yname = `_${yname}`;
         if (xr.v_synthetic != null) {
@@ -345,20 +345,20 @@ export class GlyphView extends View {
     // todo: if using gl, skip this (when is this called?)
 
     // map all the coordinate fields
-    for (let [xname, yname] of Array.from(this.model._coords)) {
+    for (let [xname, yname] of this.model._coords) {
       const sxname = `s${xname}`;
       const syname = `s${yname}`;
       xname = `_${xname}`;
       yname = `_${yname}`;
       if (isArray(this[xname] != null ? this[xname][0] : undefined) || __guard__(this[xname] != null ? this[xname][0] : undefined, x => x.buffer) instanceof ArrayBuffer) {
-        [ this[sxname], this[syname] ] = Array.from([ [], [] ]);
+        [ this[sxname], this[syname] ] = [ [], [] ];
         for (let i = 0, end = this[xname].length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
-          const [sx, sy] = Array.from(this.map_to_screen(this[xname][i], this[yname][i]));
+          const [sx, sy] = this.map_to_screen(this[xname][i], this[yname][i]);
           this[sxname].push(sx);
           this[syname].push(sy);
         }
       } else {
-        [ this[sxname], this[syname] ] = Array.from(this.map_to_screen(this[xname], this[yname]));
+        [ this[sxname], this[syname] ] = this.map_to_screen(this[xname], this[yname]);
       }
     }
 
@@ -389,7 +389,7 @@ export class Glyph extends Model {
     this.prototype._coords = _coords;
 
     const result = {};
-    for (let [x, y] of Array.from(coords)) {
+    for (let [x, y] of coords) {
       result[x] = [ p.NumberSpec ];
       result[y] = [ p.NumberSpec ];
     }

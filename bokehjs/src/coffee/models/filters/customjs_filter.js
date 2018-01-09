@@ -27,7 +27,7 @@ export class CustomJSFilter extends Filter {
   }
 
   compute_indices(source) {
-    this.filter = this.func(...Array.from(this.values), source, require, {});
+    this.filter = this.func(...this.values, source, require, {});
     return super.compute_indices();
   }
 
@@ -36,7 +36,7 @@ export class CustomJSFilter extends Filter {
   _make_func() {
     // this relies on Object.keys(args) and values(args) returning keys and values
     // in the same order
-    return new Function(...Array.from(Object.keys(this.args)), "source", "require", "exports", this.code);
+    return new Function(...Object.keys(this.args), "source", "require", "exports", this.code);
   }
 }
 CustomJSFilter.initClass();

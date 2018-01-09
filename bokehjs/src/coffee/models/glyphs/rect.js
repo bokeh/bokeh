@@ -33,7 +33,7 @@ export class RectView extends XYGlyphView {
   _map_data() {
     let i;
     if (this.model.properties.width.units === "data") {
-      [this.sw, this.sx0] = Array.from(this._map_dist_corner_for_data_side_length(this._x, this._width, this.renderer.xscale, 0));
+      [this.sw, this.sx0] = this._map_dist_corner_for_data_side_length(this._x, this._width, this.renderer.xscale, 0);
     } else {
       this.sw = this._width;
       this.sx0 = ((() => {
@@ -46,7 +46,7 @@ export class RectView extends XYGlyphView {
       })());
     }
     if (this.model.properties.height.units === "data") {
-      [this.sh, this.sy1] = Array.from(this._map_dist_corner_for_data_side_length(this._y, this._height, this.renderer.yscale, 1));
+      [this.sh, this.sy1] = this._map_dist_corner_for_data_side_length(this._y, this._height, this.renderer.yscale, 1);
     } else {
       this.sh = this._height;
       this.sy1 = ((() => {
@@ -71,7 +71,7 @@ export class RectView extends XYGlyphView {
   _render(ctx, indices, {sx, sy, sx0, sy1, sw, sh, _angle}) {
     let i;
     if (this.visuals.fill.doit) {
-      for (i of Array.from(indices)) {
+      for (i of indices) {
         if (isNaN(sx[i] + sy[i] + sx0[i] + sy1[i] + sw[i] + sh[i] + _angle[i])) {
           continue;
         }
@@ -94,7 +94,7 @@ export class RectView extends XYGlyphView {
     if (this.visuals.line.doit) {
       ctx.beginPath();
 
-      for (i of Array.from(indices)) {
+      for (i of indices) {
 
         if (isNaN(sx[i] + sy[i] + sx0[i] + sy1[i] + sw[i] + sh[i] + _angle[i])) {
           continue;
@@ -164,7 +164,7 @@ export class RectView extends XYGlyphView {
     const hits = [];
 
     const bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1]);
-    for (i of Array.from(this.index.indices(bbox))) {
+    for (i of this.index.indices(bbox)) {
       var height_in, width_in;
       if (this._angle[i]) {
         const d = Math.sqrt(Math.pow((sx - this.sx[i]), 2) + Math.pow((sy - this.sy[i]),2));
@@ -196,7 +196,7 @@ export class RectView extends XYGlyphView {
     let i;
     const { frame } = this.renderer.plot_view;
     if (scale.source_range.synthetic != null) {
-      coord = (Array.from(coord).map((x) => scale.source_range.synthetic(x)));
+      coord = (coord.map((x) => scale.source_range.synthetic(x)));
     }
     const pt0 = ((() => {
       let asc, end;

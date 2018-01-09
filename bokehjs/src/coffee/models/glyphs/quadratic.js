@@ -41,8 +41,8 @@ export class QuadraticView extends GlyphView {
         continue;
       }
 
-      const [x0, x1] = Array.from(_qbb(this._x0[i], this._cx[i], this._x1[i]));
-      const [y0, y1] = Array.from(_qbb(this._y0[i], this._cy[i], this._y1[i]));
+      const [x0, x1] = _qbb(this._x0[i], this._cx[i], this._x1[i]);
+      const [y0, y1] = _qbb(this._y0[i], this._cy[i], this._y1[i]);
 
       points.push({minX: x0, minY: y0, maxX: x1, maxY: y1, i});
     }
@@ -52,7 +52,7 @@ export class QuadraticView extends GlyphView {
 
   _render(ctx, indices, {sx0, sy0, sx1, sy1, scx, scy}) {
     if (this.visuals.line.doit) {
-      for (let i of Array.from(indices)) {
+      for (let i of indices) {
         if (isNaN(sx0[i]+sy0[i]+sx1[i]+sy1[i]+scx[i]+scy[i])) {
           continue;
         }

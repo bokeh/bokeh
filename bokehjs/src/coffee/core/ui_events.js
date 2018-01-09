@@ -88,7 +88,7 @@ export class UIEvents {
     let e;
     const et = event_type || tool_view.model.event_type;
     if ((et != null) && !(typeof et === 'string')) {
-      for (e of Array.from(et)) {
+      for (e of et) {
         this.register_tool(tool_view, e);
       }
       return;
@@ -211,7 +211,7 @@ export class UIEvents {
         }
 
         this.plot_view.set_cursor(cursor);
-        return Array.from(active_inspectors).map((inspector) =>
+        return active_inspectors.map((inspector) =>
           this.trigger(signal, e, inspector.id));
 
       case "tap":

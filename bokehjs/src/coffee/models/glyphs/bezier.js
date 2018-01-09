@@ -94,7 +94,7 @@ export class BezierView extends GlyphView {
         continue;
       }
 
-      const [x0, y0, x1, y1] = Array.from(_cbb(this._x0[i], this._y0[i], this._x1[i], this._y1[i], this._cx0[i], this._cy0[i], this._cx1[i], this._cy1[i]));
+      const [x0, y0, x1, y1] = _cbb(this._x0[i], this._y0[i], this._x1[i], this._y1[i], this._cx0[i], this._cy0[i], this._cx1[i], this._cy1[i]);
       points.push({minX: x0, minY: y0, maxX: x1, maxY: y1, i});
     }
 
@@ -103,7 +103,7 @@ export class BezierView extends GlyphView {
 
   _render(ctx, indices, {sx0, sy0, sx1, sy1, scx, scx0, scy0, scx1, scy1}) {
     if (this.visuals.line.doit) {
-      for (let i of Array.from(indices)) {
+      for (let i of indices) {
         if (isNaN(sx0[i]+sy0[i]+sx1[i]+sy1[i]+scx0[i]+scy0[i]+scx1[i]+scy1[i])) {
           continue;
         }

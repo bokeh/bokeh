@@ -98,7 +98,7 @@ export class LabelSetView extends TextAnnotationView {
     const draw = this.model.render_mode === 'canvas' ? this._v_canvas_text.bind(this) : this._v_css_text.bind(this);
     const { ctx } = this.plot_view.canvas_view;
 
-    const [sx, sy] = Array.from(this._map_data());
+    const [sx, sy] = this._map_data();
 
     return range(0, this._text.length).map((i) =>
       draw(ctx, i, this._text[i], sx[i] + this._x_offset[i], sy[i] - this._y_offset[i], this._angle[i]));

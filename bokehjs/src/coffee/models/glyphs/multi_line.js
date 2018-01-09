@@ -25,7 +25,7 @@ export class MultiLineView extends GlyphView {
       }
       const xs = ((() => {
         const result = [];
-        for (let x of Array.from(this._xs[i])) {
+        for (let x of this._xs[i]) {
           if (!isStrictNaN(x)) {
             result.push(x);
           }
@@ -34,7 +34,7 @@ export class MultiLineView extends GlyphView {
       })());
       const ys = ((() => {
         const result1 = [];
-        for (let y of Array.from(this._ys[i])) {
+        for (let y of this._ys[i]) {
           if (!isStrictNaN(y))
             result1.push(y);
         }
@@ -53,8 +53,8 @@ export class MultiLineView extends GlyphView {
   }
 
   _render(ctx, indices, {sxs, sys}) {
-    for (let i of Array.from(indices)) {
-      const [sx, sy] = Array.from([sxs[i], sys[i]]);
+    for (let i of indices) {
+      const [sx, sy] = [sxs[i], sys[i]];
 
       this.visuals.line.set_vectorize(ctx, i);
       for (let j = 0, end = sx.length, asc = 0 <= end; asc ? j < end : j > end; asc ? j++ : j--) {
@@ -86,7 +86,7 @@ export class MultiLineView extends GlyphView {
       const threshold = Math.max(2, this.visuals.line.cache_select('line_width', i) / 2);
       let points = null;
       for (let j = 0, end1 = this.sxs[i].length-1, asc1 = 0 <= end1; asc1 ? j < end1 : j > end1; asc1 ? j++ : j--) {
-        const [p0, p1] = Array.from([{x: this.sxs[i][j], y: this.sys[i][j]}, {x: this.sxs[i][j+1], y: this.sys[i][j+1]}]);
+        const [p0, p1] = [{x: this.sxs[i][j], y: this.sys[i][j]}, {x: this.sxs[i][j+1], y: this.sys[i][j+1]}];
         const dist = hittest.dist_to_segment(point, p0, p1);
         if ((dist < threshold) && (dist < shortest)) {
           shortest = dist;
@@ -141,18 +141,18 @@ export class MultiLineView extends GlyphView {
   get_interpolation_hit(i, point_i, geometry){
     let x0, x1, y0, y1;
     const {sx, sy} = geometry;
-    const [x2, y2, x3, y3] = Array.from([this._xs[i][point_i], this._ys[i][point_i], this._xs[i][point_i+1], this._ys[i][point_i+1]]);
+    const [x2, y2, x3, y3] = [this._xs[i][point_i], this._ys[i][point_i], this._xs[i][point_i+1], this._ys[i][point_i+1]];
 
     if (geometry.type === 'point') {
-      [y0, y1] = Array.from(this.renderer.yscale.r_invert(sy-1, sy+1));
-      [x0, x1] = Array.from(this.renderer.xscale.r_invert(sx-1, sx+1));
+      [y0, y1] = this.renderer.yscale.r_invert(sy-1, sy+1);
+      [x0, x1] = this.renderer.xscale.r_invert(sx-1, sx+1);
     } else {
       if (geometry.direction === 'v') {
-        [y0, y1] = Array.from(this.renderer.yscale.r_invert(sy, sy));
-        [x0, x1] = Array.from([x2, x3]);
+        [y0, y1] = this.renderer.yscale.r_invert(sy, sy);
+        [x0, x1] = [x2, x3];
       } else {
-        [x0, x1] = Array.from(this.renderer.xscale.r_invert(sx, sx));
-        [y0, y1] = Array.from([y2, y3]);
+        [x0, x1] = this.renderer.xscale.r_invert(sx, sx);
+        [y0, y1] = [y2, y3];
       }
     }
 

@@ -38,14 +38,14 @@ export class ToolProxy extends Model {
   }
 
   doit() {
-    for (let tool of Array.from(this.tools)) {
+    for (let tool of this.tools) {
       tool.do.emit();
     }
     return null;
   }
 
   set_active() {
-    for (let tool of Array.from(this.tools)) {
+    for (let tool of this.tools) {
       tool.active = this.active;
     }
     return null;

@@ -28,7 +28,7 @@ export class BooleanFilter extends Filter {
         if (this.booleans.length !== source.get_length()) {
           logger.warn(`BooleanFilter ${this.id}: length of booleans doesn't match data source`);
         }
-        return (Array.from(range(0, this.booleans.length)).filter((i) => this.booleans[i] === true));
+        return (range(0, this.booleans.length).filter((i) => this.booleans[i] === true));
       } else {
         logger.warn(`BooleanFilter ${this.id}: booleans should be array of booleans, defaulting to no filtering`);
         return null;

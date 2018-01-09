@@ -35,7 +35,7 @@ export class CustomJS extends Model {
   _make_func() {
     // this relies on Object.keys(args) and values(args) returning keys and values
     // in the same order
-    return new Function(...Array.from(Object.keys(this.args)), "cb_obj", "cb_data", "require", "exports", this.code);
+    return new Function(...Object.keys(this.args), "cb_obj", "cb_data", "require", "exports", this.code);
   }
 }
 CustomJS.initClass();

@@ -25,7 +25,7 @@ export class WedgeView extends XYGlyphView {
 
   _render(ctx, indices, {sx, sy, sradius, _start_angle, _end_angle}) {
     const direction = this.model.properties.direction.value();
-    for (let i of Array.from(indices)) {
+    for (let i of indices) {
       if (isNaN(sx[i]+sy[i]+sradius[i]+_start_angle[i]+_end_angle[i])) {
         continue;
       }
@@ -64,20 +64,20 @@ export class WedgeView extends XYGlyphView {
     } else {
       sx0 = sx - this.max_radius;
       sx1 = sx + this.max_radius;
-      [x0, x1] = Array.from(this.renderer.xscale.r_invert(sx0, sx1));
+      [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1);
 
       sy0 = sy - this.max_radius;
       sy1 = sy + this.max_radius;
-      [y0, y1] = Array.from(this.renderer.yscale.r_invert(sy0, sy1));
+      [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1);
     }
 
     const candidates = [];
 
     const bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1]);
-    for (var i of Array.from(this.index.indices(bbox))) {
+    for (var i of this.index.indices(bbox)) {
       const r2 = Math.pow(this.sradius[i], 2);
-      [sx0, sx1] = Array.from(this.renderer.xscale.r_compute(x, this._x[i]));
-      [sy0, sy1] = Array.from(this.renderer.yscale.r_compute(y, this._y[i]));
+      [sx0, sx1] = this.renderer.xscale.r_compute(x, this._x[i]);
+      [sy0, sy1] = this.renderer.yscale.r_compute(y, this._y[i]);
       dist = Math.pow(sx0-sx1, 2) + Math.pow(sy0-sy1, 2);
       if (dist <= r2) {
         candidates.push([i, dist]);
@@ -86,7 +86,7 @@ export class WedgeView extends XYGlyphView {
 
     const direction = this.model.properties.direction.value();
     const hits = [];
-    for ([i, dist] of Array.from(candidates)) {
+    for ([i, dist] of candidates) {
       // NOTE: minus the angle because JS uses non-mathy convention for angles
       const angle = Math.atan2(sy-this.sy[i], sx-this.sx[i]);
       if (angle_between(-angle, -this._start_angle[i], -this._end_angle[i], direction)) {

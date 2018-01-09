@@ -164,7 +164,7 @@ void main()
     } else if ((this.glyph._radius != null) && ((trans.sx !== this.last_trans.sx) || (trans.sy !== this.last_trans.sy))) {
       // Keep screen radius up-to-date for circle glyph. Only happens when a radius is given
       this.last_trans = trans;
-      this.vbo_s.set_data(0, new Float32Array((Array.from(this.glyph.sradius).map((s) => s*2))));
+      this.vbo_s.set_data(0, new Float32Array((this.glyph.sradius.map((s) => s*2))));
     }
 
     // Update visuals if we must. Can happen for all glyphs.
@@ -275,7 +275,7 @@ void main()
     // Radius is special; some markes allow radius in data-coords instead of screen coords
     // @radius tells us that radius is in units, sradius is the pre-calculated screen radius
     if (this.glyph._radius != null) {
-      return this.vbo_s.set_data(0, new Float32Array((Array.from(this.glyph.sradius).map((s) => s*2))));
+      return this.vbo_s.set_data(0, new Float32Array((this.glyph.sradius.map((s) => s*2))));
     } else {
       return this.vbo_s.set_data(0, new Float32Array(this.glyph._size));
     }

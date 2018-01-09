@@ -28,7 +28,7 @@ export class AnnulusView extends XYGlyphView {
   }
 
   _render(ctx, indices, {sx, sy, sinner_radius, souter_radius}) {
-    for (let i of Array.from(indices)) {
+    for (let i of indices) {
       if (isNaN(sx[i] + sy[i] + sinner_radius[i] + souter_radius[i]))
         continue;
 
@@ -85,11 +85,11 @@ export class AnnulusView extends XYGlyphView {
     const hits = [];
 
     const bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1]);
-    for (let i of Array.from(this.index.indices(bbox))) {
+    for (let i of this.index.indices(bbox)) {
       const or2 = Math.pow(this.souter_radius[i], 2);
       const ir2 = Math.pow(this.sinner_radius[i], 2);
-      const [sx0, sx1] = Array.from(this.renderer.xscale.r_compute(x, this._x[i]));
-      const [sy0, sy1] = Array.from(this.renderer.yscale.r_compute(y, this._y[i]));
+      const [sx0, sx1] = this.renderer.xscale.r_compute(x, this._x[i]);
+      const [sy0, sy1] = this.renderer.yscale.r_compute(y, this._y[i]);
       const dist = Math.pow(sx0-sx1, 2) + Math.pow(sy0-sy1, 2);
       if ((dist <= or2) && (dist >= ir2)) {
         hits.push([i, dist]);

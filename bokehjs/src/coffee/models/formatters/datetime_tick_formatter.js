@@ -88,8 +88,8 @@ export class DatetimeTickFormatter extends TickFormatter {
     const now = tz(new Date());
 
     const _widths = function(fmt_strings) {
-      const sizes = (Array.from(fmt_strings).map((fmt_string) => _strftime(now, fmt_string).length));
-      const sorted = sortBy(zip(sizes, fmt_strings), function(...args) { const [size, fmt] = Array.from(args[0]); return size; });
+      const sizes = (fmt_strings.map((fmt_string) => _strftime(now, fmt_string).length));
+      const sorted = sortBy(zip(sizes, fmt_strings), function(...args) { const [size, fmt] = args[0]; return size; });
       return unzip(sorted);
     };
 
@@ -151,7 +151,7 @@ export class DatetimeTickFormatter extends TickFormatter {
     }
     const resol = this._get_resolution_str(r, span);
 
-    const [widths, formats] = Array.from(this._width_formats[resol]);
+    const [widths, formats] = this._width_formats[resol];
     let format = formats[0];
     // FIXME I'm pretty sure this code won't work; luckily it doesn't seem to
     // be used.
@@ -179,7 +179,7 @@ export class DatetimeTickFormatter extends TickFormatter {
     // a problem with the tick at midnight, january 1st, 0 a.d. being incorrectly
     // promoted at certain tick resolutions.
     const time_tuple_ndx_for_resol = {};
-    for (let fmt of Array.from(this.format_order)) {
+    for (let fmt of this.format_order) {
       time_tuple_ndx_for_resol[fmt] = 0;
     }
     time_tuple_ndx_for_resol["seconds"] = 5;
@@ -193,7 +193,7 @@ export class DatetimeTickFormatter extends TickFormatter {
     // from that resolution.  This is not the best heuristic in the world,
     // but it works!  There is some trickiness here due to having to deal
     // with hybrid formats in a reasonable manner.
-    for (let t of Array.from(ticks)) {
+    for (let t of ticks) {
       var s, tm;
       try {
         tm = _array(t);

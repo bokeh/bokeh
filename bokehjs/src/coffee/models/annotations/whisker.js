@@ -67,7 +67,7 @@ export class WhiskerView extends AnnotationView {
       _base_sx  = base_view.v_compute(this._base);
     }
 
-    const [i, j] = Array.from(dim === 'height' ? [1, 0] : [0, 1]);
+    const [i, j] = dim === 'height' ? [1, 0] : [0, 1];
 
     const _lower = [_lower_sx, _base_sx];
     const _upper = [_upper_sx, _base_sx];

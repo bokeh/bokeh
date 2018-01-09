@@ -75,12 +75,12 @@ export class ColorBarView extends AnnotationView {
     }
 
     switch (this.model.orientation) {
-      case "vertical": [w, h] = Array.from([1, palette.length]); break;
-      case "horizontal": [w, h] = Array.from([palette.length, 1]); break;
+      case "vertical": [w, h] = [1, palette.length]; break;
+      case "horizontal": [w, h] = [palette.length, 1]; break;
     }
 
     const canvas = document.createElement('canvas');
-    [canvas.width, canvas.height] = Array.from([w, h]);
+    [canvas.width, canvas.height] = [w, h];
     const image_ctx = canvas.getContext('2d');
     const image_data = image_ctx.getImageData(0, 0, w, h);
 
@@ -99,7 +99,7 @@ export class ColorBarView extends AnnotationView {
   compute_legend_dimensions() {
     let legend_height, legend_width;
     const image_dimensions = this.model._computed_image_dimensions();
-    const [image_height, image_width] = Array.from([image_dimensions.height, image_dimensions.width]);
+    const [image_height, image_width] = [image_dimensions.height, image_dimensions.width];
 
     const label_extent = this._get_label_extent();
     const title_extent = this.model._title_extent();
@@ -123,12 +123,12 @@ export class ColorBarView extends AnnotationView {
   compute_legend_location() {
     let sx, sy;
     const legend_dimensions = this.compute_legend_dimensions();
-    const [legend_height, legend_width] = Array.from([legend_dimensions.height, legend_dimensions.width]);
+    const [legend_height, legend_width] = [legend_dimensions.height, legend_dimensions.width];
 
     const legend_margin = this.model.margin;
 
     const panel = this.model.panel != null ? this.model.panel : this.plot_view.frame;
-    const [hr, vr] = Array.from(panel.bbox.ranges);
+    const [hr, vr] = panel.bbox.ranges;
 
     const { location } = this.model;
     if (isString(location)) {
@@ -171,7 +171,7 @@ export class ColorBarView extends AnnotationView {
           break;
       }
     } else if (isArray(location) && (location.length === 2)) {
-      const [vx, vy] = Array.from(location);
+      const [vx, vy] = location;
       sx = panel.xview.compute(vx);
       sy = panel.yview.compute(vy) - legend_height;
     }
@@ -241,11 +241,11 @@ export class ColorBarView extends AnnotationView {
       return;
     }
 
-    const [nx, ny] = Array.from(this.model._normals());
+    const [nx, ny] = this.model._normals();
     const image = this.model._computed_image_dimensions();
-    const [x_offset, y_offset] = Array.from([image.width * nx, image.height * ny]);
+    const [x_offset, y_offset] = [image.width * nx, image.height * ny];
 
-    const [sx, sy] = Array.from(tick_info.coords.major);
+    const [sx, sy] = tick_info.coords.major;
     const tin = this.model.major_tick_in;
     const tout = this.model.major_tick_out;
 
@@ -266,11 +266,11 @@ export class ColorBarView extends AnnotationView {
       return;
     }
 
-    const [nx, ny] = Array.from(this.model._normals());
+    const [nx, ny] = this.model._normals();
     const image = this.model._computed_image_dimensions();
-    const [x_offset, y_offset] = Array.from([image.width * nx, image.height * ny]);
+    const [x_offset, y_offset] = [image.width * nx, image.height * ny];
 
-    const [sx, sy] = Array.from(tick_info.coords.minor);
+    const [sx, sy] = tick_info.coords.minor;
     const tin = this.model.minor_tick_in;
     const tout = this.model.minor_tick_out;
 
@@ -291,13 +291,13 @@ export class ColorBarView extends AnnotationView {
       return;
     }
 
-    const [nx, ny] = Array.from(this.model._normals());
+    const [nx, ny] = this.model._normals();
     const image = this.model._computed_image_dimensions();
-    const [x_offset, y_offset] = Array.from([image.width * nx, image.height * ny]);
+    const [x_offset, y_offset] = [image.width * nx, image.height * ny];
     const standoff = (this.model.label_standoff + this.model._tick_extent());
-    const [x_standoff, y_standoff] = Array.from([standoff*nx, standoff*ny]);
+    const [x_standoff, y_standoff] = [standoff*nx, standoff*ny];
 
-    const [sx, sy] = Array.from(tick_info.coords.major);
+    const [sx, sy] = tick_info.coords.major;
 
     const formatted_labels = tick_info.labels.major;
 
@@ -333,7 +333,7 @@ export class ColorBarView extends AnnotationView {
       this.visuals.major_label_text.set_value(ctx);
       switch (this.model.orientation) {
         case "vertical":
-          label_extent = max((Array.from(major_labels).map((label) => ctx.measureText(label.toString()).width)));
+          label_extent = max((major_labels.map((label) => ctx.measureText(label.toString()).width)));
           break;
         case "horizontal":
           label_extent = text_util.get_text_height(this.visuals.major_label_text.font_value()).height;
@@ -410,9 +410,9 @@ export class ColorBar extends Annotation {
   _normals() {
     let i, j;
     if (this.orientation === 'vertical') {
-      [i, j] = Array.from([1, 0]);
+      [i, j] = [1, 0];
     } else {
-      [i, j] = Array.from([0, 1]);
+      [i, j] = [0, 1];
     }
     return [i, j];
   }
@@ -562,9 +562,9 @@ export class ColorBar extends Annotation {
 
     const scale = this._tick_coordinate_scale(scale_length);
 
-    const [i, j] = Array.from(this._normals());
+    const [i, j] = this._normals();
 
-    const [start, end] = Array.from([this.color_mapper.low, this.color_mapper.high]);
+    const [start, end] = [this.color_mapper.low, this.color_mapper.high];
 
     // note: passing null as cross_loc probably means MercatorTickers, etc
     // will not function properly in conjunction with colorbars
@@ -608,13 +608,13 @@ export class ColorBar extends Annotation {
     if (this.orientation === 'vertical') {
       major_coords[i] = new Float64Array(((() => {
         const result = [];
-        for (coord of Array.from(major_coords[i])) {           result.push(scale_length - coord);
+        for (coord of major_coords[i]) {           result.push(scale_length - coord);
         }
         return result;
       })()));
       minor_coords[i] = new Float64Array(((() => {
         const result1 = [];
-        for (coord of Array.from(minor_coords[i])) {           result1.push(scale_length - coord);
+        for (coord of minor_coords[i]) {           result1.push(scale_length - coord);
         }
         return result1;
       })()));

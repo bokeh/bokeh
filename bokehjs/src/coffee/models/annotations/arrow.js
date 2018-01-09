@@ -75,7 +75,7 @@ export class ArrowView extends AnnotationView {
     ctx.save();
 
     // Order in this function is important. First we draw all the arrow heads.
-    [this.start, this.end] = Array.from(this._map_data());
+    [this.start, this.end] = this._map_data();
     if (this.model.end != null) { this._arrow_head(ctx, "render", this.model.end, this.start, this.end); }
     if (this.model.start != null) { this._arrow_head(ctx, "render", this.model.start, this.end, this.start); }
 
