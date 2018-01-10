@@ -10,6 +10,8 @@ import {any, all} from "../core/util/array"
 import {extend, clone} from "../core/util/object"
 import {isNumber, isString, isArray} from "../core/util/types"
 
+export {gridplot} from "./gridplot"
+
 _default_tooltips = [
   ["index", "$index"],
   ["data (x, y)", "($x, $y)"],
@@ -448,70 +450,3 @@ export show = (obj, target) ->
     return views
 
 export color = (r, g, b) -> sprintf("#%02x%02x%02x", r, g, b)
-
-export gridplot = (children, options={}) ->
-  toolbar_location = if options.toolbar_location == undefined then 'above' else options.toolbar_location
-  sizing_mode = if options.sizing_mode == undefined then 'fixed' else options.sizing_mode
-  merge_tools = if options.merge_tools == undefined then true else options.merge_tools
-
-  tools = []
-  rows = []
-
-  for row in children
-    row_tools = []
-    row_children = []
-    for item in row
-      if item instanceof models.Plot
-        row_tools = row_tools.concat(item.toolbar.tools)
-        item.toolbar_location = null
-      if item == null
-        width = 0
-        height = 0
-        for neighbor in row
-          if neighbor instanceof models.Plot
-            width = neighbor.plot_width
-            height = neighbor.plot_height
-            break
-        item = new models.Spacer({width: width, height: height})
-      if item instanceof models.LayoutDOM
-        item.sizing_mode = sizing_mode
-        row_children.push(item)
-      else
-        throw new Error("only LayoutDOM items can be inserted into Grid")
-    tools = tools.concat(row_tools)
-    row = new models.Row({children: row_children, sizing_mode: sizing_mode})
-    rows.push(row)
-
-  grid = new models.Column({children: rows, sizing_mode: sizing_mode})
-
-  if not merge_tools
-    return grid
-
-  layout = if toolbar_location
-    if sizing_mode == 'fixed'
-      if toolbar_location == "above" or toolbar_location == "below"
-        toolbar_sizing_mode = 'scale_width'
-      else
-        toolbar_sizing_mode = 'scale_height'
-    else
-      toolbar_sizing_mode = sizing_mode
-
-    toolbar = new models.ToolbarBox({
-      toolbar: new models.ProxyToolbar({tools: tools}),
-      toolbar_location: toolbar_location,
-      sizing_mode: toolbar_sizing_mode,
-    })
-
-    switch toolbar_location
-      when 'above'
-        new models.Column({children: [toolbar, grid], sizing_mode: sizing_mode})
-      when 'below'
-        new models.Column({children: [grid, toolbar], sizing_mode: sizing_mode})
-      when 'left'
-        new models.Row({children: [toolbar, grid], sizing_mode: sizing_mode})
-      when 'right'
-        new models.Row({children: [grid, toolbar], sizing_mode: sizing_mode})
-  else
-    grid
-
-  return layout
