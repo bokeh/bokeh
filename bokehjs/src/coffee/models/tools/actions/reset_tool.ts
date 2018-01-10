@@ -1,6 +1,5 @@
 import {ActionTool, ActionToolView} from "./action_tool"
 import {Reset} from "core/bokeh_events"
-import * as p from "core/properties"
 
 export class ResetToolView extends ActionToolView {
 

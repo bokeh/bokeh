@@ -3,7 +3,7 @@ import {HasProps} from "./has_props"
 import * as enums from "./enums"
 import * as svg_colors from "./util/svg_colors"
 import {valid_rgb} from "./util/color"
-import {contains, repeat, map} from "./util/array"
+import {includes, repeat, map} from "./util/array"
 import {isBoolean, isNumber, isString, isArray, isObject} from "./util/types"
 //import {Transform} from "../models/transforms/transform"
 import {ColumnarDataSource} from "../models/sources/columnar_data_source"
@@ -184,7 +184,7 @@ export class Font extends String {}
 //
 
 export function enum_prop(name: string, enum_values: string[]) {
-  return class extends simple_prop(name, (x) => contains(enum_values, x)) {}
+  return class extends simple_prop(name, (x) => includes(enum_values, x)) {}
 }
 
 export class Anchor extends enum_prop("Anchor", enums.LegendLocation) {}
@@ -256,7 +256,7 @@ export function units_prop(name: string, valid_units: any, default_units: any) {
         this.spec.units = default_units
 
       const units = this.spec.units
-      if (!contains(valid_units, units))
+      if (!includes(valid_units, units))
         throw new Error(`${name} units must be one of ${valid_units}, given invalid value: ${units}`)
     }
 

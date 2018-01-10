@@ -3,7 +3,7 @@ import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {GraphRenderer} from "../../renderers/graph_renderer"
 import * as p from "core/properties"
 import {extend} from "core/util/object"
-import {contains} from "core/util/array"
+import {includes} from "core/util/array"
 import {SelectionGeometry} from "core/bokeh_events"
 import {Geometry} from "core/geometry"
 
@@ -29,7 +29,7 @@ export abstract class SelectToolView extends GestureToolView {
     }
 
     if (names.length > 0)
-      renderers = renderers.filter((r) => contains(names, r.name))
+      renderers = renderers.filter((r) => includes(names, r.name))
 
     return renderers
   }

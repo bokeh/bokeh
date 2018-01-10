@@ -61,13 +61,11 @@ gulp.task("scripts:coffee", () => {
 
 gulp.task("scripts:js", () => {
   return gulp.src('./src/coffee/**/*.js')
-    .pipe(rename((path) => path.extname = '.ts'))
     .pipe(gulp.dest(paths.build_dir.tree_ts))
 })
 
 gulp.task("scripts:ts", () => {
-  const prefix = "./src/coffee/**"
-  return gulp.src(`${prefix}/*.ts`)
+  return gulp.src('./src/coffee/**/*.ts')
     .pipe(gulp.dest(paths.build_dir.tree_ts))
 })
 
@@ -81,36 +79,19 @@ gulp.task("scripts:tsjs", tsjs_deps, () => {
     if (result != null) {
       const [, file, rest, code] = result
       const real = path.join('src', 'coffee', ...file.split(path.sep).slice(3))
-      if (fs.existsSync(real)) {
+      if (fs.existsSync(real)) { // *.ts or *.js but not *.coffee
+        if (fs.readFileSync(real, "utf8").split("\n")[0] == "/* XXX: partial */") { // *.js
+          if (!(code[0] == "1" || ["2307", "2688", "6053"].includes(code)))
+            return
+        }
+
+        if (argv.filter && raw.includes(argv.filter))
+          return
+
         gutil.log(`${chalk.red(real)}${rest}`)
         return
       }
-
-      // XXX: can't enable "6133", because CS generates faulty code for closures
-      if (["2307", "2688", "6053"].indexOf(code) != -1) {
-        gutil.log(err.message)
-        return
-      }
     }
-
-    if (!argv.ts)
-      return
-
-    if (typeof argv.ts === "string") {
-      const keywords = argv.ts.split(",")
-      for (let keyword of keywords) {
-        let must = true
-        if (keyword[0] == "^") {
-          keyword = keyword.slice(1)
-          must = false
-        }
-        const found = err.message.indexOf(keyword) != -1
-        if (!((found && must) || (!found && !must)))
-          return
-      }
-    }
-
-    gutil.log(err.message)
   }
 
   const tsconfig = require(join(paths.src_dir.coffee, "tsconfig.json"))
@@ -121,9 +102,12 @@ gulp.task("scripts:tsjs", tsjs_deps, () => {
     compilerOptions.lib[0] = "es6"
   }
 
+  if (argv.checkJs)
+    compilerOptions.checkJs = true
+
   const tree_ts = paths.build_dir.tree_ts
   const project = gulp
-    .src(`${tree_ts}/**/*.ts`)
+    .src([`${tree_ts}/**/*.ts`, `${tree_ts}/**/*.js`])
     .pipe(sourcemaps.init())
     .pipe(ts(tsconfig.compilerOptions, ts.reporter.nullReporter()).on('error', error))
 

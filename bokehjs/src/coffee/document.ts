@@ -7,7 +7,7 @@ import {Signal} from "./core/signaling"
 import {Ref, is_ref} from "./core/util/refs"
 import {decode_column_data} from "./core/util/serialization"
 import {MultiDict, Set} from "./core/util/data_structures"
-import {difference, intersection, copy, contains} from "./core/util/array"
+import {difference, intersection, copy, includes} from "./core/util/array"
 import {extend, values} from "./core/util/object"
 import {isEqual} from "./core/util/eq"
 import {isArray, isObject} from "./core/util/types"
@@ -360,7 +360,7 @@ export class Document {
 
   add_root(model: Model, setter_id?: string): void {
     logger.debug(`Adding root: ${model}`)
-    if (contains(this._roots, model))
+    if (includes(this._roots, model))
       return
 
     this._push_all_models_freeze()
@@ -410,7 +410,7 @@ export class Document {
   }
 
   on_change(callback: any): void {
-    if (!contains(this._callbacks, callback))
+    if (!includes(this._callbacks, callback))
       this._callbacks.push(callback)
   }
 
