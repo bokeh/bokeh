@@ -1,242 +1,296 @@
-import {Grid as SlickGrid} from "slickgrid"
+import {Grid as SlickGrid} from "slickgrid";
 
-import {RowSelectionModel} from "slickgrid/plugins/slick.rowselectionmodel"
-import {CheckboxSelectColumn} from "slickgrid/plugins/slick.checkboxselectcolumn"
+import {RowSelectionModel} from "slickgrid/plugins/slick.rowselectionmodel";
+import {CheckboxSelectColumn} from "slickgrid/plugins/slick.checkboxselectcolumn";
 
-import * as hittest from "core/hittest"
-import * as p from "core/properties"
-import {uniqueId} from "core/util/string"
-import {any} from "core/util/array"
-import {logger} from "core/logging"
+import * as hittest from "core/hittest";
+import * as p from "core/properties";
+import {uniqueId} from "core/util/string";
+import {any, range} from "core/util/array";
+import {logger} from "core/logging";
 
-import {TableWidget} from "./table_widget"
+import {TableWidget} from "./table_widget";
 import {WidgetView} from "../widget"
 
-export DTINDEX_NAME = "__bkdt_internal_index__"
+export const DTINDEX_NAME = "__bkdt_internal_index__";
 
-export class DataProvider
+export class DataProvider {
 
-  constructor: (@source, @view) ->
-    if DTINDEX_NAME of @source.data
-      throw new Error("special name #{DTINDEX_NAME} cannot be used as a data table column")
-    @index = @view.indices
+  constructor(source, view) {
+    this.source = source;
+    this.view = view;
+    if (DTINDEX_NAME in this.source.data) {
+      throw new Error(`special name ${DTINDEX_NAME} cannot be used as a data table column`);
+    }
+    this.index = this.view.indices;
+  }
 
-  getLength: () -> @index.length
+  getLength() { return this.index.length; }
 
-  getItem: (offset) ->
-    item = {}
-    for field in Object.keys(@source.data)
-      item[field] = @source.data[field][@index[offset]]
-    item[DTINDEX_NAME] = @index[offset]
-    return item
+  getItem(offset) {
+    const item = {};
+    for (let field of Object.keys(this.source.data)) {
+      item[field] = this.source.data[field][this.index[offset]];
+    }
+    item[DTINDEX_NAME] = this.index[offset];
+    return item;
+  }
 
-  setItem: (offset, item) ->
-    for field, value of item
-      # internal index is maintained independently, ignore
-      if field != DTINDEX_NAME
-        @source.data[field][@index[offset]] = value
-    @_update_source_inplace()
-    return null
+  setItem(offset, item) {
+    for (let field in item) {
+      // internal index is maintained independently, ignore
+      const value = item[field];
+      if (field !== DTINDEX_NAME) {
+        this.source.data[field][this.index[offset]] = value;
+      }
+    }
+    this._update_source_inplace();
+    return null;
+  }
 
-  getField: (offset, field) ->
-    if field == DTINDEX_NAME
-      return @index[offset]
-    return @source.data[field][@index[offset]]
+  getField(offset, field) {
+    if (field === DTINDEX_NAME) {
+      return this.index[offset];
+    }
+    return this.source.data[field][this.index[offset]];
+  }
 
-  setField: (offset, field, value) ->
-    # field assumed never to be internal index name (ctor would throw)
-    @source.data[field][@index[offset]] = value
-    @_update_source_inplace()
-    return null
+  setField(offset, field, value) {
+    // field assumed never to be internal index name (ctor would throw)
+    this.source.data[field][this.index[offset]] = value;
+    this._update_source_inplace();
+    return null;
+  }
 
-  getItemMetadata: (index) -> null
+  getItemMetadata(index) { return null; }
 
-  getRecords: () ->
-    return (@getItem(i) for i in [0...@getLength()])
+  getRecords() {
+    return (range(0, this.getLength()).map((i) => this.getItem(i)));
+  }
 
-  sort: (columns) ->
-    cols = for column in columns
-      [column.sortCol.field, if column.sortAsc then 1 else -1]
+  sort(columns) {
+    let cols = columns.map((column) => [column.sortCol.field, column.sortAsc ? 1 : -1]);
 
-    if cols.length == 0
-      cols = [[DTINDEX_NAME, 1]]
+    if (cols.length === 0) {
+      cols = [[DTINDEX_NAME, 1]];
+    }
 
-    records = @getRecords()
-    old_index = @index.slice()
+    const records = this.getRecords();
+    const old_index = this.index.slice();
 
-    # TODO (bev) this sort is unstable, which is not great
-    @index.sort (i1, i2) ->
-      for [field, sign] in cols
-        value1 = records[old_index.indexOf(i1)][field]
-        value2 = records[old_index.indexOf(i2)][field]
-        result =
-          if      value1 == value2 then 0
-          else if value1 >  value2 then sign
-          else                         -sign
-        if result != 0
-          return result
-      return 0
+    // TODO (bev) this sort is unstable, which is not great
+    return this.index.sort(function(i1, i2) {
+      for (let [field, sign] of cols) {
+        const value1 = records[old_index.indexOf(i1)][field];
+        const value2 = records[old_index.indexOf(i2)][field];
+        const result =
+          value1 === value2 ? 0
+          : value1 >  value2 ? sign
+          :                         -sign;
+        if (result !== 0) {
+          return result;
+        }
+      }
+      return 0;
+    });
+  }
 
-  _update_source_inplace: () ->
-    @source.properties.data.change.emit(@, @source.attributes['data'])
-    return
+  _update_source_inplace() {
+    this.source.properties.data.change.emit(this, this.source.attributes['data']);
+  }
+}
 
-export class DataTableView extends WidgetView
-  className: "bk-data-table"
+export class DataTableView extends WidgetView {
+  static initClass() {
+    this.prototype.className = "bk-data-table";
+  }
 
-  initialize: (options) ->
-    super(options)
-    @in_selection_update = false
+  initialize(options) {
+    super.initialize(options);
+    return this.in_selection_update = false;
+  }
 
-  connect_signals: () ->
-    super()
-    @connect(@model.change, () => @render())
-    @connect(@model.source.properties.data.change, () => @updateGrid())
-    @connect(@model.source.streaming, () => @updateGrid())
-    @connect(@model.source.patching, () => @updateGrid())
-    @connect(@model.source.change, () => @updateSelection())
+  connect_signals() {
+    super.connect_signals();
+    this.connect(this.model.change, () => this.render());
+    this.connect(this.model.source.properties.data.change, () => this.updateGrid());
+    this.connect(this.model.source.streaming, () => this.updateGrid());
+    this.connect(this.model.source.patching, () => this.updateGrid());
+    return this.connect(this.model.source.change, () => this.updateSelection());
+  }
 
-  updateGrid: () ->
-    # TODO (bev) This is to enure that CDSView indices are properly computed
-    # before passing to the DataProvider. This will result in extra calls to
-    # compute_indices. This "over execution" will be addressed in a more
-    # general look at events
-    @model.view.compute_indices()
+  updateGrid() {
+    // TODO (bev) This is to enure that CDSView indices are properly computed
+    // before passing to the DataProvider. This will result in extra calls to
+    // compute_indices. This "over execution" will be addressed in a more
+    // general look at events
+    this.model.view.compute_indices();
 
-    @data.constructor(@model.source, @model.view)
-    @grid.invalidate()
-    @grid.render()
+    this.data.constructor(this.model.source, this.model.view);
+    this.grid.invalidate();
+    this.grid.render();
 
-    # This is only needed to call @_tell_document_about_change()
-    @model.source.data = @model.source.data
-    @model.source.change.emit()
+    // This is only needed to call @_tell_document_about_change()
+    this.model.source.data = this.model.source.data;
+    return this.model.source.change.emit();
+  }
 
-  updateSelection: () ->
-    if @in_selection_update
-      return
+  updateSelection() {
+    if (this.in_selection_update) {
+      return;
+    }
 
-    selected = @model.source.selected
-    selected_indices = selected['1d'].indices
+    const { selected } = this.model.source;
+    const selected_indices = selected['1d'].indices;
 
-    permuted_indices = (@data.index.indexOf(x) for x in selected_indices)
+    const permuted_indices = (selected_indices.map((x) => this.data.index.indexOf(x)));
 
-    @in_selection_update = true
-    @grid.setSelectedRows(permuted_indices)
-    @in_selection_update = false
-    # If the selection is not in the current slickgrid viewport, scroll the
-    # datatable to start at the row before the first selected row, so that
-    # the selection is immediately brought into view. We don't scroll when
-    # the selection is already in the viewport so that selecting from the
-    # datatable itself does not re-scroll.
-    cur_grid_range = @grid.getViewport()
+    this.in_selection_update = true;
+    this.grid.setSelectedRows(permuted_indices);
+    this.in_selection_update = false;
+    // If the selection is not in the current slickgrid viewport, scroll the
+    // datatable to start at the row before the first selected row, so that
+    // the selection is immediately brought into view. We don't scroll when
+    // the selection is already in the viewport so that selecting from the
+    // datatable itself does not re-scroll.
+    const cur_grid_range = this.grid.getViewport();
 
-    scroll_index = @model.get_scroll_index(cur_grid_range, permuted_indices)
-    if scroll_index?
-      @grid.scrollRowToTop(scroll_index)
+    const scroll_index = this.model.get_scroll_index(cur_grid_range, permuted_indices);
+    if (scroll_index != null) {
+      return this.grid.scrollRowToTop(scroll_index);
+    }
+  }
 
-  newIndexColumn: () ->
+  newIndexColumn() {
     return {
-      id: uniqueId()
-      name: "#"
-      field: DTINDEX_NAME
-      width: 40
-      behavior: "select"
-      cannotTriggerInsert: true
-      resizable: false
-      selectable: false
-      sortable: true
+      id: uniqueId(),
+      name: "#",
+      field: DTINDEX_NAME,
+      width: 40,
+      behavior: "select",
+      cannotTriggerInsert: true,
+      resizable: false,
+      selectable: false,
+      sortable: true,
       cssClass: "bk-cell-index"
+    };
+  }
+
+  render() {
+    let checkboxSelector;
+    let columns = (this.model.columns.map((column) => column.toColumn()));
+
+    if (this.model.selectable === "checkbox") {
+      checkboxSelector = new CheckboxSelectColumn({cssClass: "bk-cell-select"});
+      columns.unshift(checkboxSelector.getColumnDefinition());
     }
 
-  render: () ->
-    columns = (column.toColumn() for column in @model.columns)
+    if (this.model.row_headers) {
+      columns.unshift(this.newIndexColumn());
+    }
 
-    if @model.selectable == "checkbox"
-      checkboxSelector = new CheckboxSelectColumn(cssClass: "bk-cell-select")
-      columns.unshift(checkboxSelector.getColumnDefinition())
+    let { reorderable } = this.model;
 
-    if @model.row_headers
-      columns.unshift(@newIndexColumn())
+    if (reorderable && (__guard__(typeof $ !== 'undefined' && $ !== null ? $.fn : undefined, x => x.sortable) == null)) {
+      if ((this._warned_not_reorderable == null)) {
+        logger.warn("jquery-ui is required to enable DataTable.reorderable");
+        this._warned_not_reorderable = true;
+      }
+      reorderable = false;
+    }
 
-    reorderable = @model.reorderable
-
-    if reorderable and not $?.fn?.sortable?
-      if not @_warned_not_reorderable?
-        logger.warn("jquery-ui is required to enable DataTable.reorderable")
-        @_warned_not_reorderable = true
-      reorderable = false
-
-    options =
-      enableCellNavigation: @model.selectable != false
-      enableColumnReorder: reorderable
-      forceFitColumns: @model.fit_columns
-      autoHeight: @model.height == "auto"
-      multiColumnSort: @model.sortable
-      editable: @model.editable
+    const options = {
+      enableCellNavigation: this.model.selectable !== false,
+      enableColumnReorder: reorderable,
+      forceFitColumns: this.model.fit_columns,
+      autoHeight: this.model.height === "auto",
+      multiColumnSort: this.model.sortable,
+      editable: this.model.editable,
       autoEdit: false
+    };
 
-    if @model.width?
-      @el.style.width = "#{@model.width}px"
-    else
-      @el.style.width = "#{@model.default_width}px"
-
-    if @model.height? and @model.height != "auto"
-      @el.style.height = "#{@model.height}px"
-
-    @data = new DataProvider(@model.source, @model.view)
-    @grid = new SlickGrid(@el, @data, columns, options)
-
-    @grid.onSort.subscribe (event, args) =>
-      columns = args.sortCols
-      @data.sort(columns)
-      @grid.invalidate()
-      @updateSelection()
-      @grid.render()
-
-    if @model.selectable != false
-      @grid.setSelectionModel(new RowSelectionModel(selectActiveRow: not checkboxSelector?))
-      if checkboxSelector? then @grid.registerPlugin(checkboxSelector)
-
-      @grid.onSelectedRowsChanged.subscribe (event, args) =>
-        if @in_selection_update
-          return
-
-        selected = hittest.create_hit_test_result()
-        selected['1d'].indices = (@data.index[i] for i in args.rows)
-        @model.source.selected = selected
-
-      @updateSelection()
-
-    return @
-
-export class DataTable extends TableWidget
-  type: 'DataTable'
-  default_view: DataTableView
-
-  @define {
-      columns:             [ p.Array,  []    ]
-      fit_columns:         [ p.Bool,   true  ]
-      sortable:            [ p.Bool,   true  ]
-      reorderable:         [ p.Bool,   true  ]
-      editable:            [ p.Bool,   false ]
-      selectable:          [ p.Bool,   true  ]
-      row_headers:         [ p.Bool,   true  ]
-      scroll_to_selection: [ p.Bool,   true  ]
+    if (this.model.width != null) {
+      this.el.style.width = `${this.model.width}px`;
+    } else {
+      this.el.style.width = `${this.model.default_width}px`;
     }
 
-  @override {
-    height: 400
+    if ((this.model.height != null) && (this.model.height !== "auto")) {
+      this.el.style.height = `${this.model.height}px`;
+    }
+
+    this.data = new DataProvider(this.model.source, this.model.view);
+    this.grid = new SlickGrid(this.el, this.data, columns, options);
+
+    this.grid.onSort.subscribe((event, args) => {
+      columns = args.sortCols;
+      this.data.sort(columns);
+      this.grid.invalidate();
+      this.updateSelection();
+      return this.grid.render();
+    });
+
+    if (this.model.selectable !== false) {
+      this.grid.setSelectionModel(new RowSelectionModel({selectActiveRow: (checkboxSelector == null)}));
+      if (checkboxSelector != null) { this.grid.registerPlugin(checkboxSelector); }
+
+      this.grid.onSelectedRowsChanged.subscribe((event, args) => {
+        if (this.in_selection_update) {
+          return;
+        }
+
+        const selected = hittest.create_hit_test_result();
+        selected['1d'].indices = (args.rows.map((i) => this.data.index[i]));
+        return this.model.source.selected = selected;
+      });
+
+      this.updateSelection();
+    }
+
+    return this;
+  }
+}
+DataTableView.initClass();
+
+export class DataTable extends TableWidget {
+  static initClass() {
+    this.prototype.type = 'DataTable';
+    this.prototype.default_view = DataTableView;
+
+    this.define({
+        columns:             [ p.Array,  []    ],
+        fit_columns:         [ p.Bool,   true  ],
+        sortable:            [ p.Bool,   true  ],
+        reorderable:         [ p.Bool,   true  ],
+        editable:            [ p.Bool,   false ],
+        selectable:          [ p.Bool,   true  ],
+        row_headers:         [ p.Bool,   true  ],
+        scroll_to_selection: [ p.Bool,   true  ]
+      });
+
+    this.override({
+      height: 400
+    });
+
+    this.internal({
+      default_width:        [ p.Number, 600   ]
+    });
   }
 
-  @internal {
-    default_width:        [ p.Number, 600   ]
+  get_scroll_index(grid_range, selected_indices) {
+    if (!this.scroll_to_selection || (selected_indices.length === 0)) {
+      return null;
+    }
+
+    if (!any(selected_indices, i => grid_range.top <= i && i <= grid_range.bottom)) {
+      return Math.max(0, Math.min(...selected_indices || []) - 1);
+    }
+
+    return null;
   }
+}
+DataTable.initClass();
 
-  get_scroll_index: (grid_range, selected_indices) ->
-    if not @scroll_to_selection or selected_indices.length == 0
-      return null
-
-    if not any(selected_indices, (i) -> grid_range.top <= i <= grid_range.bottom)
-      return Math.max(0, Math.min(selected_indices...) - 1)
-
-    return null
+function __guard__(value, transform) {
+  return (typeof value !== 'undefined' && value !== null) ? transform(value) : undefined;
+}
