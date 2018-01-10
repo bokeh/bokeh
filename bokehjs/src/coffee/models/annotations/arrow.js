@@ -3,7 +3,6 @@ import {OpenHead} from "./arrow_head";
 import {ColumnDataSource} from "../sources/column_data_source";
 import * as p from "core/properties";
 import {atan2} from "core/util/math"
-;
 
 export class ArrowView extends AnnotationView {
 

@@ -1,6 +1,5 @@
 import {RBush} from "core/util/spatial";
 import {Glyph, GlyphView} from "./glyph"
-;
 
 // Formula from: http://pomax.nihongoresources.com/pages/bezier/
 //

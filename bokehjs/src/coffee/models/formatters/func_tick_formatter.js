@@ -1,7 +1,6 @@
 import {TickFormatter} from "./tick_formatter";
 import * as p from "core/properties";
 import {values} from "core/util/object"
-;
 
 export class FuncTickFormatter extends TickFormatter {
   static initClass() {

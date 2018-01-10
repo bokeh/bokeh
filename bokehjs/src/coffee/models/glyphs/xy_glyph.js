@@ -1,6 +1,5 @@
 import {RBush} from "core/util/spatial";
 import {Glyph, GlyphView} from "./glyph"
-;
 
 export class XYGlyphView extends GlyphView {
 

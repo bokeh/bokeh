@@ -1,6 +1,5 @@
 import {Expression} from "./expression";
 import * as p from "core/properties"
-;
 
 export class Stack extends Expression {
   static initClass() {

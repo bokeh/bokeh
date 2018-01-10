@@ -3,7 +3,6 @@ import * as p from "core/properties";
 import {color2hex} from "core/util/color";
 import {min, max} from "core/util/array";
 import {ColorMapper} from "./color_mapper"
-;
 
 // Math.log1p() is not supported by any version of IE, so let's use a polyfill based on
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/log1p.

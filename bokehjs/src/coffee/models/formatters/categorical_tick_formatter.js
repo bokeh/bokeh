@@ -1,5 +1,4 @@
 import {TickFormatter} from "./tick_formatter"
-;
 
 export class CategoricalTickFormatter extends TickFormatter {
   static initClass() {

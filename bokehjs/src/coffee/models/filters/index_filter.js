@@ -3,7 +3,6 @@ import * as p from "core/properties";
 import {logger} from "core/logging";
 import {isInteger} from "core/util/types";
 import {all} from "core/util/array"
-;
 
 export class IndexFilter extends Filter {
   static initClass() {

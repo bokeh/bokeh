@@ -3,7 +3,6 @@ import * as p from "core/properties";
 import {logger} from "core/logging";
 import {uniq, includes} from "core/util/array";
 import {ColumnDataSource} from "../../models/sources/column_data_source"
-;
 
 export class LegendItem extends Model {
 

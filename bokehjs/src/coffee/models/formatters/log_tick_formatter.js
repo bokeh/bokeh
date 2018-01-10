@@ -2,7 +2,6 @@ import {BasicTickFormatter} from "./basic_tick_formatter";
 import {TickFormatter} from "./tick_formatter";
 import {logger} from "core/logging";
 import * as p from "core/properties"
-;
 
 export class LogTickFormatter extends TickFormatter {
   static initClass() {

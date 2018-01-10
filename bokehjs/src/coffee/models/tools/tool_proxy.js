@@ -1,7 +1,6 @@
 import * as p from "core/properties";
 import {Signal} from "core/signaling";
 import {Model} from "../../model"
-;
 
 export class ToolProxy extends Model {
   static initClass() {

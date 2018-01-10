@@ -2,7 +2,6 @@ import {Annotation, AnnotationView} from "./annotation";
 import {build_views, remove_views} from "core/build_views";
 import {empty, show, hide} from "core/dom";
 import * as p from "core/properties"
-;
 
 export class ToolbarPanelView extends AnnotationView {
 

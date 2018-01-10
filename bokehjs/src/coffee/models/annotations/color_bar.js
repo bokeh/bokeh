@@ -11,7 +11,6 @@ import * as text_util from "core/util/text";
 import {min, max, range} from "core/util/array";
 import {isEmpty} from "core/util/object";
 import {isString, isArray} from "core/util/types"
-;
 
 const SHORT_DIM = 25;
 const LONG_DIM_MIN_SCALAR = 0.3;

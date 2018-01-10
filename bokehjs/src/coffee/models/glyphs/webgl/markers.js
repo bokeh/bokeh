@@ -1,7 +1,6 @@
 import {Program, VertexBuffer, IndexBuffer} from "./gloo2";
 import {BaseGLGlyph, attach_float, attach_color} from "./base";
 import {logger} from "core/logging"
-;
 
 class MarkerGLGlyph extends BaseGLGlyph {
   static initClass() {

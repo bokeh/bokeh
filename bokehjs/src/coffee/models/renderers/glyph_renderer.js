@@ -6,7 +6,6 @@ import {logger} from "core/logging";
 import * as p from "core/properties";
 import {difference, includes, range} from "core/util/array";
 import {extend, clone} from "core/util/object"
-;
 
 export class GlyphRendererView extends RendererView {
 

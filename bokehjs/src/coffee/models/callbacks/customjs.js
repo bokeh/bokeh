@@ -1,7 +1,6 @@
 import * as p from "core/properties";
 import {values} from "core/util/object";
 import {Model} from "../../model"
-;
 
 export class CustomJS extends Model {
   static initClass() {

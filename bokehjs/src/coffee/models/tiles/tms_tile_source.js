@@ -1,5 +1,4 @@
 import {MercatorTileSource} from './mercator_tile_source'
-;
 
 export class TMSTileSource extends MercatorTileSource {
   static initClass() {

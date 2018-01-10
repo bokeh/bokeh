@@ -2,7 +2,6 @@ import * as Numbro from "numbro";
 
 import {TickFormatter} from "./tick_formatter";
 import * as p from "core/properties"
-;
 
 export class NumeralTickFormatter extends TickFormatter {
   static initClass() {

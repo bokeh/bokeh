@@ -8,7 +8,6 @@ import {GestureTool} from "./gestures/gesture_tool";
 import {InspectTool} from "./inspectors/inspect_tool";
 
 import {ToolbarBase, ToolbarBaseView} from "./toolbar_base"
-;
 
 export class Toolbar extends ToolbarBase {
   static initClass() {

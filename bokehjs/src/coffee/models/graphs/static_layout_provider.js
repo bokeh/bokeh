@@ -1,6 +1,5 @@
 import {LayoutProvider} from "./layout_provider";
 import * as p from "../../core/properties"
-;
 
 export class StaticLayoutProvider extends LayoutProvider {
   static initClass() {

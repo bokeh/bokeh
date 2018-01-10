@@ -7,7 +7,6 @@ import {getDeltaY} from "./util/wheel";
 import {includes} from "./util/array";
 import {extend, isEmpty} from "./util/object";
 import {BokehEvent} from "./bokeh_events"
-;
 
 export class UIEvents {
 

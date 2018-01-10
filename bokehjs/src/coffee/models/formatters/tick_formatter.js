@@ -1,5 +1,4 @@
 import {Model} from "../../model"
-;
 
 export class TickFormatter extends Model {
   static initClass() {

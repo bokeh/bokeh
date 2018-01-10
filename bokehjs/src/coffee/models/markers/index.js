@@ -1,5 +1,4 @@
 import {Marker, MarkerView} from "./marker"
-;
 
 const SQ3 = Math.sqrt(3);
 

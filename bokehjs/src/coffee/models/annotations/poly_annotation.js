@@ -1,7 +1,6 @@
 import {Annotation, AnnotationView} from "./annotation";
 import {Signal} from "core/signaling";
 import * as p from "core/properties"
-;
 
 export class PolyAnnotationView extends AnnotationView {
 

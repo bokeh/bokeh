@@ -1,7 +1,6 @@
 import * as hittest from "core/hittest";
 import {RBush} from "core/util/spatial";
 import {Glyph, GlyphView} from "./glyph"
-;
 
 export class SegmentView extends GlyphView {
 

@@ -1,5 +1,4 @@
 import {XYGlyph, XYGlyphView} from "./xy_glyph"
-;
 
 export class PatchView extends XYGlyphView {
 

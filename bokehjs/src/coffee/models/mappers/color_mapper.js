@@ -2,7 +2,6 @@ import * as p from "core/properties";
 
 import {Transform} from "../transforms/transform";
 import {isNumber} from "core/util/types"
-;
 
 export class ColorMapper extends Transform {
   static initClass() {

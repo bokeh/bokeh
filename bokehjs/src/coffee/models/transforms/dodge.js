@@ -7,7 +7,6 @@
 
 import {Transform} from "./transform";
 import * as p from "core/properties"
-;
 
 export class Dodge extends Transform {
   static initClass() {

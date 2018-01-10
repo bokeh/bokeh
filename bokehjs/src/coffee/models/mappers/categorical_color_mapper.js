@@ -3,7 +3,6 @@ import {ColorMapper} from "./color_mapper";
 import * as p from "core/properties";
 import {findIndex} from "core/util/array";
 import {isString} from "core/util/types"
-;
 
 const _equals = function(a, b) {
   if (a.length !== b.length) {

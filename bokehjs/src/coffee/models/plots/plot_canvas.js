@@ -23,7 +23,6 @@ import {isStrictNaN} from "core/util/types";
 import {difference, sortBy, reversed} from "core/util/array";
 import {extend, values, isEmpty} from "core/util/object";
 import {update_panel_constraints, _view_sizes} from "core/layout/side_panel"
-;
 
 // Notes on WebGL support:
 // Glyps can be rendered into the original 2D canvas, or in a (hidden)

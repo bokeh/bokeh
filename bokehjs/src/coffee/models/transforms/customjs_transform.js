@@ -9,7 +9,6 @@
 import {Transform} from "./transform";
 import * as p from "core/properties";
 import {values} from "core/util/object"
-;
 
 export class CustomJSTransform extends Transform {
   static initClass() {

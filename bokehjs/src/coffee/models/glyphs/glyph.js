@@ -9,7 +9,6 @@ import {logger} from "core/logging";
 import {extend} from "core/util/object";
 import {isArray} from "core/util/types";
 import {LineView} from "./line"
-;
 
 export class GlyphView extends View {
 

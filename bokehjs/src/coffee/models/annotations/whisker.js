@@ -3,7 +3,6 @@ import {ColumnDataSource} from "../sources/column_data_source";
 import {TeeHead} from "./arrow_head";
 
 import * as p from "core/properties"
-;
 
 export class WhiskerView extends AnnotationView {
   initialize(options: any): void {

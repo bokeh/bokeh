@@ -21,7 +21,6 @@ import {ToolProxy} from "./tool_proxy";
 
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom";
 import {build_views, remove_views} from "core/build_views"
-;
 
 export class ProxyToolbar extends ToolbarBase {
   static initClass() {

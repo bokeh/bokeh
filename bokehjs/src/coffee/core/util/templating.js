@@ -4,7 +4,6 @@ import * as tz from "timezone";
 
 import {escape} from "./string";
 import {isNumber} from "./types"
-;
 
 const _format_number = function(number) {
   if (isNumber(number)) {

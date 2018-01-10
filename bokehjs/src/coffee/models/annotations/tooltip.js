@@ -1,7 +1,6 @@
 import {Annotation, AnnotationView} from "./annotation";
 import {div, show, hide, empty} from "core/dom";
 import * as p from "core/properties"
-;
 
 export const compute_side = function(attachment, sx, sy, hcenter, vcenter) {
   let side;

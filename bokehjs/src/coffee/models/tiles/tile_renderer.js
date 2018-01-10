@@ -4,7 +4,6 @@ import {Renderer, RendererView} from "../renderers/renderer";
 import {div} from "core/dom";
 import * as p from "core/properties";
 import {isString} from "core/util/types"
-;
 
 export class TileRendererView extends RendererView {
 

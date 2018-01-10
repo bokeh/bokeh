@@ -1,7 +1,6 @@
 import {Renderer, RendererView} from "../renderers/renderer";
 import {logger} from "core/logging";
 import * as p from "core/properties"
-;
 
 export class DynamicImageView extends RendererView {
 

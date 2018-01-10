@@ -2,7 +2,6 @@ import {Model} from "../../model";
 import * as p from "core/properties";
 import {get_indices} from "core/util/selection";
 import {replace_placeholders} from "core/util/templating"
-;
 
 export class OpenURL extends Model {
   static initClass() {

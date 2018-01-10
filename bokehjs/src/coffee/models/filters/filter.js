@@ -3,7 +3,6 @@ import * as p from "core/properties";
 import {isBoolean, isInteger} from "core/util/types";
 import {all, range} from "core/util/array";
 import {logger} from "core/logging"
-;
 
 export class Filter extends Model {
   static initClass() {

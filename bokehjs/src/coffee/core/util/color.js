@@ -1,6 +1,5 @@
 import * as svg_colors from "./svg_colors"
 import {includes} from "./array";
-;
 
 const _component2hex = function(v) {
   let h = Number(v).toString(16);

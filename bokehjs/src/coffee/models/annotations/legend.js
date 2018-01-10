@@ -5,7 +5,6 @@ import {BBox} from "core/util/bbox";
 import {max, all} from "core/util/array";
 import {values} from "core/util/object";
 import {isString, isArray} from "core/util/types"
-;
 
 export class LegendView extends AnnotationView {
   static initClass() {

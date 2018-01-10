@@ -2,7 +2,6 @@ import {XYGlyph, XYGlyphView} from "./xy_glyph";
 import {LinearColorMapper} from "../mappers/linear_color_mapper";
 import * as p from "core/properties";
 import {max, concat} from "core/util/array"
-;
 
 export class ImageView extends XYGlyphView {
 

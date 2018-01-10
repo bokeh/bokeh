@@ -7,7 +7,6 @@ import {DOMView} from "core/dom_view";
 import {Location} from "core/enums";
 import {Model} from "model";
 import {Tool} from "./tool"
-;
 
 export class ToolbarBaseView extends DOMView {
 

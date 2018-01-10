@@ -3,7 +3,6 @@ import {proj4, mercator} from "core/util/proj4";
 import {PlotCanvas, PlotCanvasView} from "./plot_canvas";
 import {Signal} from "core/signaling";
 import {extend} from "core/util/object"
-;
 
 const gmaps_ready = new Signal(this, "gmaps_ready");
 

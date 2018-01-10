@@ -2,7 +2,6 @@ import {Annotation, AnnotationView} from "./annotation";
 import {ColumnDataSource} from "../sources/column_data_source";
 
 import * as p from "core/properties"
-;
 
 export class BandView extends AnnotationView {
   initialize(options: any): void {

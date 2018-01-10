@@ -1,6 +1,5 @@
 import {Box, BoxView} from "./box";
 import * as p from "core/properties"
-;
 
 export class HBarView extends BoxView {
 

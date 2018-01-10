@@ -1,7 +1,6 @@
 import {Filter} from "./filter";
 import * as p from "core/properties";
 import {values} from "core/util/object"
-;
 
 export class CustomJSFilter extends Filter {
   static initClass() {

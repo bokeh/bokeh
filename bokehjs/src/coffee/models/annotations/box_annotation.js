@@ -3,7 +3,6 @@ import {Signal} from "core/signaling";
 import {show, hide} from "core/dom";
 import * as p from "core/properties";
 import {isString, isArray} from "core/util/types"
-;
 
 export class BoxAnnotationView extends AnnotationView {
   initialize(options: any): void {

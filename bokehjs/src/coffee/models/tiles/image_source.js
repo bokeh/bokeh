@@ -1,6 +1,5 @@
 import * as p from "core/properties";
 import {Model} from "../../model"
-;
 
 export class ImageSource extends Model {
   static initClass() {

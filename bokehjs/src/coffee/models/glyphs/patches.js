@@ -3,7 +3,6 @@ import {Glyph, GlyphView} from "./glyph";
 import {min, max, copy, findLastIndex} from "core/util/array";
 import {isStrictNaN} from "core/util/types";
 import * as hittest from "core/hittest"
-;
 
 export class PatchesView extends GlyphView {
 

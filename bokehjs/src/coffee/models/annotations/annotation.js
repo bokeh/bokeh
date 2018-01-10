@@ -2,7 +2,6 @@ import {SidePanel} from "core/layout/side_panel";
 import * as p from "core/properties";
 
 import {Renderer, RendererView} from "../renderers/renderer"
-;
 
 export class AnnotationView extends RendererView {
 

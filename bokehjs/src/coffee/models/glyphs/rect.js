@@ -4,7 +4,6 @@ import * as p from "core/properties";
 import {max} from "core/util/array";
 import {isNumber, isString} from "core/util/types";
 import {CategoricalScale} from "../scales/categorical_scale"
-;
 
 export class RectView extends XYGlyphView {
 

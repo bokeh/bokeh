@@ -6,7 +6,6 @@ import {logger} from "core/logging";
 import * as p from "core/properties";
 import {zip, unzip, sortBy} from "core/util/array";
 import {isFunction} from "core/util/types"
-;
 
 const _us = t =>
   // From double-precision unix (millisecond) timestamp get
@@ -15,7 +14,6 @@ const _us = t =>
   // to the nearest microsecond should round to a nice
   // microsecond / millisecond tick.
   Math.round(((t / 1000) % 1) * 1000000)
-;
 
 const _array = t => tz(t, "%Y %m %d %H %M %S").split(/\s+/).map( e => parseInt(e, 10));
 

@@ -3,7 +3,6 @@ import {ProjectionUtils} from "./tile_utils";
 import {logger} from "core/logging";
 import * as p from "core/properties";
 import {Model} from "../../model"
-;
 
 export class TileSource extends Model {
   static initClass() {

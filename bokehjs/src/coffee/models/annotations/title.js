@@ -2,7 +2,6 @@ import {TextAnnotation, TextAnnotationView} from "./text_annotation";
 import {hide} from "core/dom";
 import * as p from "core/properties";
 import * as Visuals from "core/visuals"
-;
 
 export class TitleView extends TextAnnotationView {
 

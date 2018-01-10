@@ -2,7 +2,6 @@ import {RBush} from "core/util/spatial";
 import {Glyph, GlyphView} from "./glyph";
 import * as hittest from "core/hittest";
 import * as p from "core/properties"
-;
 
 // Not a publicly exposed Glyph, exists to factor code for bars and quads
 

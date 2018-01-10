@@ -1,5 +1,4 @@
 import {Model} from "../../model"
-;
 
 export class Expression extends Model {
 
