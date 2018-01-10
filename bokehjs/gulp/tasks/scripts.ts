@@ -1,14 +1,11 @@
 import * as gulp from "gulp"
 import * as gutil from "gulp-util"
 import * as rename from "gulp-rename"
-const change = require("gulp-change")
-import chalk from "chalk"
 const uglify_es = require("uglify-es")
 const uglify = require("gulp-uglify/composer")
 import * as sourcemaps from "gulp-sourcemaps"
 import * as paths from "../paths"
 import * as fs from "fs"
-import * as path from "path"
 import {join} from "path"
 import {argv} from "yargs"
 import * as insert from 'gulp-insert'
@@ -17,81 +14,38 @@ const merge = require("merge2")
 
 const license = `/*!\n${fs.readFileSync('../LICENSE.txt', 'utf-8')}*/\n`
 
-const coffee = require('gulp-coffee')
 const ts = require('gulp-typescript')
 
 const minify = uglify(uglify_es, console)
 
 import {Linker, Bundle} from "../linker"
 
-gulp.task("scripts:coffee", () => {
-  return gulp.src('./src/coffee/**/*.coffee')
-    .pipe(coffee({coffee: require("coffeescript"), bare: true}))
-    .on("error", function(error: any) { console.error(error.toString()); process.exit(1) })
-    .pipe(change(function(code: string) {
-      const lines = code.split("\n")
-      const names = new Set<string>()
-      const r1 = /^export var (\w+) = \(function\(\) {$/
-      const r2 = /^  return (\w+);$/
-      for (let i = 0; i < lines.length; i++) {
-        const line = lines[i]
-        let match = line.match(r1)
-        if (match != null) {
-          names.add(match[1])
-          lines[i] = ""
-          i++
-          lines[i] =  `export ${lines[i].trim()}`
-          continue
-        }
+function is_partial(file: string): boolean {
+  return fs.readFileSync(file, "utf8").split("\n")[0] == "/* XXX: partial */"
+}
 
-        match = line.match(r2)
-        if (match != null && names.has(match[1])) {
-          lines[i] = ""
-          i++
-          lines[i] = ""
-          i++
-          lines[i] = ""
-        }
-      }
-      return lines.join("\n")
-    }))
-    .pipe(rename((path) => path.extname = '.ts'))
-    .pipe(gulp.dest(paths.build_dir.tree_ts))
-})
-
-gulp.task("scripts:js", () => {
-  return gulp.src('./src/coffee/**/*.js')
-    .pipe(gulp.dest(paths.build_dir.tree_ts))
-})
+function is_accepted(code: number): boolean {
+  return code < 2000 || [2307, 2688, 6053].includes(code)
+}
 
 gulp.task("scripts:ts", () => {
-  return gulp.src('./src/coffee/**/*.ts')
-    .pipe(gulp.dest(paths.build_dir.tree_ts))
-})
-
-const tsjs_deps = (argv.fast ? [] : ["scripts:coffee"]).concat(["scripts:js", "scripts:ts"])
-
-gulp.task("scripts:tsjs", tsjs_deps, () => {
   function error(err: {message: string}) {
     const raw = stripAnsi(err.message)
     const result = raw.match(/(.*)(\(\d+,\d+\): error TS(\d+):.*)/)
 
     if (result != null) {
-      const [, file, rest, code] = result
-      const real = path.join('src', 'coffee', ...file.split(path.sep).slice(3))
-      if (fs.existsSync(real)) { // *.ts or *.js but not *.coffee
-        if (fs.readFileSync(real, "utf8").split("\n")[0] == "/* XXX: partial */") { // *.js
-          if (!(code[0] == "1" || ["2307", "2688", "6053"].includes(code)))
-            if (!(argv.include && raw.includes(argv.include)))
-              return
+      const [, file, , code] = result
+      if (is_partial(file)) {
+        if (!is_accepted(parseInt(code))) {
+          if (!(argv.include && raw.includes(argv.include)))
+            return
         }
-
-        if (argv.filter && raw.includes(argv.filter))
-          return
-
-        gutil.log(`${chalk.red(real)}${rest}`)
-        return
       }
+
+      if (argv.filter && raw.includes(argv.filter))
+        return
+
+      gutil.log(err.message)
     }
   }
 
@@ -106,22 +60,22 @@ gulp.task("scripts:tsjs", tsjs_deps, () => {
   if (argv.checkJs)
     compilerOptions.checkJs = true
 
-  const tree_ts = paths.build_dir.tree_ts
+  const prefix = paths.src_dir.coffee
   const project = gulp
-    .src([`${tree_ts}/**/*.ts`, `${tree_ts}/**/*.js`])
+    .src([`${prefix}/**/*.ts`, `${prefix}/**/*.js`])
     .pipe(sourcemaps.init())
     .pipe(ts(tsconfig.compilerOptions, ts.reporter.nullReporter()).on('error', error))
 
   return merge([
     project.js
       .pipe(sourcemaps.write("."))
-      .pipe(gulp.dest(paths.build_dir.tree_js)),
+      .pipe(gulp.dest(paths.build_dir.tree)),
     project.dts
       .pipe(gulp.dest(paths.build_dir.types)),
   ])
 })
 
-gulp.task("scripts:compile", ["scripts:tsjs"])
+gulp.task("scripts:compile", ["scripts:ts"])
 
 gulp.task("scripts:bundle", ["scripts:compile"], (next: () => void) => {
   const entries = [
@@ -131,7 +85,7 @@ gulp.task("scripts:bundle", ["scripts:compile"], (next: () => void) => {
     paths.coffee.tables.main,
     paths.coffee.gl.main,
   ]
-  const bases = [paths.build_dir.tree_js, './node_modules']
+  const bases = [paths.build_dir.tree, './node_modules']
   const excludes = ["node_modules/moment/moment.js"]
   const sourcemaps = argv.sourcemaps === true
 

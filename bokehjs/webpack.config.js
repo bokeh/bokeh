@@ -21,7 +21,7 @@ const config = {
     libraryTarget: "umd"
   },
   resolve: {
-    modules: [build_dir.tree_js, "node_modules"]
+    modules: [build_dir.tree, "node_modules"]
   },
   plugins: [
     new webpack.optimize.CommonsChunkPlugin({

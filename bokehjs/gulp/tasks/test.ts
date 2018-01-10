@@ -37,7 +37,7 @@ function mocha(options: {coverage?: boolean} = {}) {
 
       const env = Object.assign({}, process.env, {
         TS_NODE_PROJECT: "./test/tsconfig.json",
-        NODE_PATH: paths.build_dir.tree_js,
+        NODE_PATH: paths.build_dir.tree,
       })
 
       const proc = cp.spawn(process.execPath, args, {stdio: 'inherit', env: env})
