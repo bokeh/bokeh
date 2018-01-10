@@ -8,9 +8,8 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
 
-let _order, v;
 import {isArray, isObject} from "./types"
-;
+import {map} from "./array"
 
 export const ARRAY_TYPES = {
   float32: Float32Array,
@@ -20,27 +19,30 @@ export const ARRAY_TYPES = {
   uint16: Uint16Array,
   int16: Int16Array,
   uint32: Uint32Array,
-  int32: Int32Array
+  int32: Int32Array,
 };
 
-export const DTYPES = {};
-for (const k in ARRAY_TYPES) {
-  v = ARRAY_TYPES[k];
-  DTYPES[v.name] = k;
-}
+export const DTYPES = (() => {
+  const dtypes = {}
+  for (const k in ARRAY_TYPES) {
+    const v = ARRAY_TYPES[k];
+    dtypes[v.name] = k;
+  }
+  return dtypes
+})()
 
-// record endian-ness
-let buf = new ArrayBuffer(2);
-const buf8 = new Uint8Array(buf);
-const buf16 = new Uint16Array(buf);
-buf8[0] = 0xAA;
-buf8[1] = 0xBB;
-if (buf16[0] === 0xBBAA) {
-  _order = "little";
-} else {
-  _order = "big";
-}
-export const BYTE_ORDER = _order;
+export const BYTE_ORDER = (() => {
+  // record endian-ness
+  const buf = new ArrayBuffer(2);
+  const buf8 = new Uint8Array(buf);
+  const buf16 = new Uint16Array(buf);
+  buf8[0] = 0xAA;
+  buf8[1] = 0xBB;
+  if (buf16[0] === 0xBBAA)
+    return "little"
+  else
+    return "big"
+})()
 
 export const swap16 = function(a) {
   const x = new Uint8Array(a.buffer, a.byteOffset, a.length * 2);
@@ -88,7 +90,7 @@ export const process_buffer = function(spec, buffers) {
   const need_swap = (spec.order !== BYTE_ORDER);
   const { shape } = spec;
   let bytes = null;
-  for (buf of buffers) {
+  for (const buf of buffers) {
     const header = JSON.parse(buf[0]);
     if (header.id === spec.__buffer__) {
       bytes = buf[1];
@@ -119,9 +121,9 @@ export const process_array = function(obj, buffers) {
 };
 
 export const arrayBufferToBase64 = function(buffer) {
-  const bytes = new Uint8Array( buffer );
-  const binary = (bytes.map((b) => String.fromCharCode(b)));
-  return btoa( binary.join("") );
+  const bytes = new Uint8Array(buffer);
+  const binary = map(bytes, (b) => String.fromCharCode(b))
+  return btoa(binary.join(""));
 };
 
 export const base64ToArrayBuffer = function(base64) {
@@ -160,11 +162,11 @@ export const decode_column_data = function(data, buffers) {
   const new_data = {};
   const new_shapes = {};
 
-  for (k in data) {
+  for (const k in data) {
 
     // might be array of scalars, or might be ragged array or arrays
     let arr, shape;
-    v = data[k];
+    const v = data[k];
     if (isArray(v)) {
 
       // v is just a regular array of scalars
@@ -198,8 +200,8 @@ export const decode_column_data = function(data, buffers) {
 
 export const encode_column_data = function(data, shapes) {
   const new_data = {};
-  for (k in data) {
-    v = data[k];
+  for (const k in data) {
+    let v = data[k];
     if ((v != null ? v.buffer : undefined) instanceof ArrayBuffer) {
       v = encode_base64(v, shapes != null ? shapes[k] : undefined);
     } else if (isArray(v)) {
