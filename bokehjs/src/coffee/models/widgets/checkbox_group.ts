@@ -1,6 +1,7 @@
 /* XXX: partial */
 import {empty, input, label, div} from "core/dom"
 import * as p from "core/properties"
+import {includes} from "core/util/array"
 
 import {Widget, WidgetView} from "./widget"
 
@@ -33,7 +34,7 @@ export class CheckboxGroupView extends WidgetView {
       if (this.model.disabled)
         inputEl.disabled = true
 
-      if (contains(active, i))
+      if (includes(active, i))
         inputEl.checked = true
 
       const labelEl = label({}, inputEl, text)

@@ -1,6 +1,7 @@
 /* XXX: partial */
 import {empty, input, label, div} from "core/dom"
 import * as p from "core/properties"
+import {includes} from "core/util/array"
 
 import {Widget, WidgetView} from "./widget"
 import {ButtonType} from "./abstract_button"
@@ -31,7 +32,7 @@ export class CheckboxButtonGroupView extends WidgetView {
       const inputEl = input({type: `checkbox`, value: `${i}`, checked: i in active})
       inputEl.addEventListener("change", () => this.change_input())
       const labelEl = label({class: [`bk-bs-btn`, `bk-bs-btn-${this.model.button_type}`]}, inputEl, text)
-      if (contains(active, i))
+      if (includes(active, i))
         labelEl.classList.add("bk-bs-active")
       divEl.appendChild(labelEl)
     }
