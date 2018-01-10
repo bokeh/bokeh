@@ -21,10 +21,10 @@ export class RangeSliderView extends AbstractSliderView {
 }
 
 export class RangeSlider extends AbstractSlider {
-  behaviour: 'drag'
-  connected: [false, true, false]
+  behaviour = 'drag'
+  connected = [false, true, false]
 
-  _formatter: format
+  _formatter = format
 }
 
 RangeSlider.prototype.type = "RangeSlider"

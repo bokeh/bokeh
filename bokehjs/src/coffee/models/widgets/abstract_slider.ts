@@ -4,6 +4,7 @@ import * as noUiSlider from "nouislider"
 import * as p from "core/properties"
 import {label, div} from "core/dom"
 import {logger} from "core/logging"
+import {repeat} from "core/util/array"
 import {throttle} from "core/util/callback"
 
 import {Widget, WidgetView} from "./widget"
@@ -55,9 +56,9 @@ export abstract class AbstractSliderView extends WidgetView {
 
     let tooltips: boolean | any[] // XXX
     if (this.model.tooltips) {
-      const formatter = {}
-        // XXX to(value) => this.model.pretty(value)
-      //}
+      const formatter = {
+        to: (value) => this.model.pretty(value)
+      }
 
       tooltips = repeat(formatter, value.length)
     } else
@@ -206,10 +207,10 @@ export abstract class AbstractSlider extends Widget {
   callback_policy: SliderCallbackPolicy
   bar_color: any // XXX: Color
 
-  behaviour: null
-  connected: false
+  behaviour = null
+  connected = false
 
-  _formatter(value, format) {
+  _formatter = (value, format) => {
     return `${value}`
   }
 

@@ -21,11 +21,10 @@ export class DateRangeSliderView extends AbstractSliderView {
 }
 
 export class DateRangeSlider extends AbstractSlider {
+  behaviour = 'drag'
+  connected = [false, true, false]
 
-  behaviour: 'drag'
-  connected: [false, true, false]
-
-  _formatter: tz
+  _formatter = tz
 }
 
 DateRangeSlider.prototype.type = "DateRangeSlider"

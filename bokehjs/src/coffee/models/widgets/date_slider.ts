@@ -21,11 +21,10 @@ export class DateSliderView extends AbstractSliderView {
 }
 
 export class DateSlider extends AbstractSlider {
-  behaviour: 'tap'
-  connected: [true, false]
+  behaviour = 'tap'
+  connected = [true, false]
 
-  _formatter: tz
-
+  _formatter = tz
 }
 
 DateSlider.prototype.type = "DateSlider"

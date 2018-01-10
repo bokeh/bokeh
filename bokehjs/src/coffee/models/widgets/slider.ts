@@ -24,11 +24,10 @@ export class SliderView extends AbstractSliderView {
 }
 
 export class Slider extends AbstractSlider {
-  behaviour: 'tap'
-  connected: [true, false]
+  behaviour = 'tap'
+  connected = [true, false]
 
-  _formatter: format
-
+  _formatter = format
 }
 
 Slider.prototype.type = "Slider"
