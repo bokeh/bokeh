@@ -62,7 +62,7 @@ declare namespace Bokeh {
   export var ResetTool: { new(attributes?: IResetTool, options?: ModelOpts): ResetTool };
   export interface ResetTool extends Tool, IResetTool {}
   export interface IResetTool extends ITool {
-    
+
   }
 
   export var CrosshairTool: { new(attributes?: ICrosshairTool, options?: ModelOpts): CrosshairTool };
