@@ -24,7 +24,3 @@ export class ResetTool extends ActionTool {
 ResetTool.prototype.type = "ResetTool"
 
 ResetTool.prototype.default_view = ResetToolView
-
-ResetTool.define({
-  reset_size: [ p.Bool, true ]
-})
