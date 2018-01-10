@@ -1,3 +1,4 @@
+/* XXX: partial */
 import * as p from "core/properties";
 import {input, select, option, Keys} from "core/dom";
 import {extend} from "core/util/object";

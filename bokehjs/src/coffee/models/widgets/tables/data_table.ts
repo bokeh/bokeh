@@ -1,3 +1,4 @@
+/* XXX: partial */
 import {Grid as SlickGrid} from "slickgrid";
 
 import {RowSelectionModel} from "slickgrid/plugins/slick.rowselectionmodel";

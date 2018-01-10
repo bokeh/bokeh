@@ -1,3 +1,4 @@
+/* XXX: partial */
 import {Widget} from "../widget";
 import {CDSView} from "../../sources/cds_view";
 import * as p from "core/properties"
