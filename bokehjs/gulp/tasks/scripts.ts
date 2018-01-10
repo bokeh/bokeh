@@ -82,7 +82,8 @@ gulp.task("scripts:tsjs", tsjs_deps, () => {
       if (fs.existsSync(real)) { // *.ts or *.js but not *.coffee
         if (fs.readFileSync(real, "utf8").split("\n")[0] == "/* XXX: partial */") { // *.js
           if (!(code[0] == "1" || ["2307", "2688", "6053"].includes(code)))
-            return
+            if (!(argv.include && raw.includes(argv.include)))
+              return
         }
 
         if (argv.filter && raw.includes(argv.filter))
