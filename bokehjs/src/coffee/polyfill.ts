@@ -8,6 +8,14 @@ if (typeof Set !== "function") {
   require("es6-set/implement")
 }
 
+// ref: https://github.com/bokeh/bokeh/issues/7373
+const Number_proto = Number.prototype as any
+if (!Number_proto.isInteger) {
+  Number_proto.isInteger = function(value: number): boolean {
+    return typeof value === 'number' && isFinite(value) && Math.floor(value) === value;
+  }
+}
+
 const String_proto = String.prototype as any
 if (!String_proto.repeat) {
   String_proto.repeat = function(count: number) {
