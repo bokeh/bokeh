@@ -32,9 +32,22 @@ export class ProxyToolbar extends ToolbarBase
         if not any(@actions, (t) => t.id == tool.id)
           @actions = @actions.concat([tool])
       else if tool instanceof GestureTool
-        et = tool.event_type
-        if not any(@gestures[et].tools, (t) => t.id == tool.id)
-          @gestures[et].tools = @gestures[et].tools.concat([tool])
+        event_types = tool.event_type
+        multi = true
+        if (typeof event_types is 'string')
+          event_types = [event_types]
+          multi = false
+
+        for et in event_types
+          if et not of @gestures
+            logger.warn("Toolbar: unknown event type '#{et}' for tool:
+              #{tool.type} (#{tool.id})")
+            continue
+
+          if multi
+            et = "multi"
+          if not any(@gestures[et].tools, (t) => t.id == tool.id)
+            @gestures[et].tools = @gestures[et].tools.concat([tool])
 
   _merge_tools: () ->
     # Go through all the tools on the toolbar and replace them with

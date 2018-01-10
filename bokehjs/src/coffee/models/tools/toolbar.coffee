@@ -43,9 +43,8 @@ export class Toolbar extends ToolbarBase
             continue
 
           if multi
-            if not any(@gestures['multi'].tools, (t) => t.id == tool.id)
-              @gestures['multi'].tools = @gestures['multi'].tools.concat([tool])
-          else if not any(@gestures[et].tools, (t) => t.id == tool.id)
+            et = "multi"
+          if not any(@gestures[et].tools, (t) => t.id == tool.id)
             @gestures[et].tools = @gestures[et].tools.concat([tool])
           @connect(tool.properties.active.change, @_active_change.bind(this, tool))
 
