@@ -1,3 +1,4 @@
+/* XXX: partial */
 import {ImagePool} from "./image_pool";
 import {WMTSTileSource} from "./wmts_tile_source";
 import {Renderer, RendererView} from "../renderers/renderer";

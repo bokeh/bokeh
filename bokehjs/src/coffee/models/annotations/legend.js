@@ -1,3 +1,4 @@
+/* XXX: partial */
 import {Annotation, AnnotationView} from "./annotation";
 import * as p from "core/properties";
 import {get_text_height} from "core/util/text";

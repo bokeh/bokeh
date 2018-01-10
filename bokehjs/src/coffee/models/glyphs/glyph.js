@@ -1,3 +1,4 @@
+/* XXX: partial */
 import * as hittest from "core/hittest";
 import * as p from "core/properties";
 import * as bbox from "core/util/bbox";

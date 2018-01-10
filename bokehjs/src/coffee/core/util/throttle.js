@@ -1,3 +1,4 @@
+/* XXX: partial */
 const _delay_animation = f => f();
 
 const delay_animation = (typeof window !== 'undefined' && window !== null ? window.requestAnimationFrame : undefined) ||

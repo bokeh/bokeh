@@ -1,3 +1,4 @@
+/* XXX: partial */
 import {ColorMapper} from "./color_mapper";
 
 import * as p from "core/properties";

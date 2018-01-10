@@ -1,3 +1,4 @@
+/* XXX: partial */
 import * as p from "core/properties";
 
 import {Transform} from "../transforms/transform";

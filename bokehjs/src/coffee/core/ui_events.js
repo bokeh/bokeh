@@ -1,3 +1,4 @@
+/* XXX: partial */
 import * as Hammer from "hammerjs";
 
 import {Signal} from "./signaling";

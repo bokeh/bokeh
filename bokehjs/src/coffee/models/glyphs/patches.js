@@ -1,3 +1,4 @@
+/* XXX: partial */
 import {RBush} from "core/util/spatial";
 import {Glyph, GlyphView} from "./glyph";
 import {min, max, copy, findLastIndex} from "core/util/array";

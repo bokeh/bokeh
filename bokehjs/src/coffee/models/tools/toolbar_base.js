@@ -1,3 +1,4 @@
+/* XXX: partial */
 import {logger} from "core/logging";
 import {empty, div, a} from "core/dom";
 import {build_views, remove_views} from "core/build_views";

@@ -1,3 +1,4 @@
+/* XXX: partial */
 import {TileSource} from "./tile_source";
 import * as p from "core/properties";
 import {includes, range} from "core/util/array";

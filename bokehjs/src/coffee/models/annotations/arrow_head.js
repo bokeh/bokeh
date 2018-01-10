@@ -1,3 +1,4 @@
+/* XXX: partial */
 import {Annotation} from "./annotation";
 import {Visuals} from "core/visuals";
 import * as p from "core/properties"

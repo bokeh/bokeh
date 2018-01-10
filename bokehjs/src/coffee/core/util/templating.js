@@ -1,3 +1,4 @@
+/* XXX: partial */
 import {sprintf} from "sprintf-js";
 import * as Numbro from "numbro";
 import * as tz from "timezone";

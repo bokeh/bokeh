@@ -1,3 +1,4 @@
+/* XXX: partial */
 import {sprintf} from "sprintf-js";
 
 import {TickFormatter} from "./tick_formatter";

@@ -1,3 +1,4 @@
+/* XXX: partial */
 import * as svg_colors from "./svg_colors"
 import {includes} from "./array";
 

@@ -1,3 +1,4 @@
+/* XXX: partial */
 import * as Numbro from "numbro";
 
 import {TickFormatter} from "./tick_formatter";

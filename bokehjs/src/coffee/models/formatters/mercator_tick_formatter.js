@@ -1,3 +1,4 @@
+/* XXX: partial */
 import {BasicTickFormatter} from "./basic_tick_formatter";
 import * as p from "core/properties";
 import {proj4, mercator} from "core/util/proj4"

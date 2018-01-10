@@ -1,3 +1,4 @@
+/* XXX: partial */
 import {Renderer, RendererView} from "../renderers/renderer";
 import {NodesOnly} from "../graphs/graph_hit_test_policy";
 

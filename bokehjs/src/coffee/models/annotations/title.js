@@ -1,3 +1,4 @@
+/* XXX: partial */
 import {TextAnnotation, TextAnnotationView} from "./text_annotation";
 import {hide} from "core/dom";
 import * as p from "core/properties";

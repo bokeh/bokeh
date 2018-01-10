@@ -1,3 +1,4 @@
+/* XXX: partial */
 import {Box, BoxView} from "./box";
 import * as p from "core/properties"
 

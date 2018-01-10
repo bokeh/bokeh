@@ -1,3 +1,4 @@
+/* XXX: partial */
 import {MercatorTileSource} from './mercator_tile_source'
 
 export class QUADKEYTileSource extends MercatorTileSource {

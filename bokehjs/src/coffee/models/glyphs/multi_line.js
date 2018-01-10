@@ -1,3 +1,4 @@
+/* XXX: partial */
 import {RBush} from "core/util/spatial";
 import * as hittest from "core/hittest";
 import {min, max} from "core/util/array";

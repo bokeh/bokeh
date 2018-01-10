@@ -1,3 +1,4 @@
+/* XXX: partial */
 import {TextAnnotation, TextAnnotationView} from "./text_annotation";
 import {ColumnDataSource} from "../sources/column_data_source";
 import {div, show, hide} from "core/dom";

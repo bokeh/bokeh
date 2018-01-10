@@ -1,3 +1,4 @@
+/* XXX: partial */
 import {SidePanel} from "core/layout/side_panel";
 import * as p from "core/properties";
 

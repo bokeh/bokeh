@@ -1,3 +1,4 @@
+/* XXX: partial */
 import {Filter} from "./filter";
 import * as p from "core/properties";
 import {logger} from "core/logging";

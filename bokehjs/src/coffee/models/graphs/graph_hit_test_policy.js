@@ -1,3 +1,4 @@
+/* XXX: partial */
 import {Model} from "../../model";
 import {includes, uniq, findIndex} from "core/util/array";
 import {create_hit_test_result, create_1d_hit_test_result} from "core/hittest";

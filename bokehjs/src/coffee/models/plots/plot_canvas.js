@@ -1,3 +1,4 @@
+/* XXX: partial */
 import {Canvas, CanvasView} from "../canvas/canvas";
 import {CartesianFrame} from "../canvas/cartesian_frame";
 import {DataRange1d} from "../ranges/data_range1d";

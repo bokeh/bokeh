@@ -1,3 +1,4 @@
+/* XXX: partial */
 import {Annotation, AnnotationView} from "./annotation";
 import {ColumnDataSource} from "../sources/column_data_source";
 

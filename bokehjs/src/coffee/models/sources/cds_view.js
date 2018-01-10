@@ -1,3 +1,4 @@
+/* XXX: partial */
 import {Model} from "../../model"
 import * as p from "core/properties"
 import {create_hit_test_result} from "core/hittest"

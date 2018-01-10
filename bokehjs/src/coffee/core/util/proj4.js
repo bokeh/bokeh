@@ -1,3 +1,4 @@
+/* XXX: partial */
 import * as proj4 from "proj4/lib/core";
 
 import * as Proj from "proj4/lib/Proj";

@@ -1,3 +1,4 @@
+/* XXX: partial */
 // This module implements the Base GL Glyph and some utilities
 import {color2rgba} from "core/util/color"
 

@@ -1,3 +1,4 @@
+/* XXX: partial */
 /*
  * decaffeinate suggestions:
  * DS206: Consider reworking classes to avoid initClass

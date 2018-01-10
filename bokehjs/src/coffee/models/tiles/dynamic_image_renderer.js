@@ -1,3 +1,4 @@
+/* XXX: partial */
 import {Renderer, RendererView} from "../renderers/renderer";
 import {logger} from "core/logging";
 import * as p from "core/properties"

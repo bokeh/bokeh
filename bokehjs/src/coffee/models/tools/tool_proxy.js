@@ -1,3 +1,4 @@
+/* XXX: partial */
 import * as p from "core/properties";
 import {Signal} from "core/signaling";
 import {Model} from "../../model"

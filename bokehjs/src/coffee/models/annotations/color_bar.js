@@ -1,3 +1,4 @@
+/* XXX: partial */
 import {Annotation, AnnotationView} from "./annotation";
 import {BasicTicker} from "../tickers/basic_ticker";
 import {BasicTickFormatter} from "../formatters/basic_tick_formatter";

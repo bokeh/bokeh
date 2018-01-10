@@ -1,3 +1,4 @@
+/* XXX: partial */
 import {proj4, mercator} from "core/util/proj4";
 
 import {PlotCanvas, PlotCanvasView} from "./plot_canvas";

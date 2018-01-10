@@ -1,3 +1,4 @@
+/* XXX: partial */
 import {Renderer, RendererView} from "./renderer";
 import {LineView} from "../glyphs/line";
 import {RemoteDataSource} from "../sources/remote_data_source";

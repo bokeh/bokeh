@@ -1,3 +1,4 @@
+/* XXX: partial */
 import {Program, VertexBuffer, IndexBuffer, Texture2D} from "./gloo2";
 import {BaseGLGlyph} from "./base";
 import {color2rgba} from "core/util/color"

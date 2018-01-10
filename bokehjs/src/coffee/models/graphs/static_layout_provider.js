@@ -1,3 +1,4 @@
+/* XXX: partial */
 import {LayoutProvider} from "./layout_provider";
 import * as p from "../../core/properties"
 

@@ -1,3 +1,4 @@
+/* XXX: partial */
 import {Annotation, AnnotationView} from "./annotation";
 import {show, hide} from "core/dom";
 import {isString, isArray} from "core/util/types";

@@ -1,3 +1,4 @@
+/* XXX: partial */
 import {ColumnDataSource} from "./column_data_source"
 import * as p from "core/properties"
 

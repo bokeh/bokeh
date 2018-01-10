@@ -1,3 +1,4 @@
+/* XXX: partial */
 import {XYGlyph, XYGlyphView} from "./xy_glyph";
 import {LinearColorMapper} from "../mappers/linear_color_mapper";
 import * as p from "core/properties";

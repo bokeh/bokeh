@@ -1,3 +1,4 @@
+/* XXX: partial */
 import {XYGlyph, XYGlyphView} from "./xy_glyph";
 import * as hittest from "core/hittest";
 import * as p from "core/properties";

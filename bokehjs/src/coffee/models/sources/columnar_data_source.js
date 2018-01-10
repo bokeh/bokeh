@@ -1,3 +1,4 @@
+/* XXX: partial */
 import {DataSource} from "./data_source"
 import {Signal} from "core/signaling"
 import {logger} from "core/logging"

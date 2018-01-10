@@ -1,3 +1,4 @@
+/* XXX: partial */
 import * as p from "core/properties";
 import {any, sortBy, includes} from "core/util/array";
 import {logger} from "core/logging";

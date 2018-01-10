@@ -1,3 +1,4 @@
+/* XXX: partial */
 import {Model} from "../../model";
 import * as p from "core/properties";
 import {isBoolean, isInteger} from "core/util/types";

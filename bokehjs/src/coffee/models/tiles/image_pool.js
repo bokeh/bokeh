@@ -1,3 +1,4 @@
+/* XXX: partial */
 export class ImagePool {
 
   constructor() {

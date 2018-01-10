@@ -1,3 +1,4 @@
+/* XXX: partial */
 import * as hittest from "core/hittest";
 import {RBush} from "core/util/spatial";
 import {Glyph, GlyphView} from "./glyph"

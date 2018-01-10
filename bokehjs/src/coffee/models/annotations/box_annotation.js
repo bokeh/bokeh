@@ -1,3 +1,4 @@
+/* XXX: partial */
 import {Annotation, AnnotationView} from "./annotation";
 import {Signal} from "core/signaling";
 import {show, hide} from "core/dom";

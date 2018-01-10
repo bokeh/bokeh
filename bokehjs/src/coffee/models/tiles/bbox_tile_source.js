@@ -1,3 +1,4 @@
+/* XXX: partial */
 import {MercatorTileSource} from './mercator_tile_source';
 import * as p from "core/properties"
 

@@ -1,3 +1,4 @@
+/* XXX: partial */
 import {Box, BoxView} from "./box"
 
 export class QuadView extends BoxView {

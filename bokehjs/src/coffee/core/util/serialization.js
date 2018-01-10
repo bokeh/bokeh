@@ -1,3 +1,4 @@
+/* XXX: partial */
 import {isArray, isObject} from "./types"
 import {map} from "./array"
 
