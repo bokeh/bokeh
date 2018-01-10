@@ -1,0 +1,297 @@
+/* XXX: partial */
+import {Grid as SlickGrid} from "slickgrid";
+
+import {RowSelectionModel} from "slickgrid/plugins/slick.rowselectionmodel";
+import {CheckboxSelectColumn} from "slickgrid/plugins/slick.checkboxselectcolumn";
+
+import * as hittest from "core/hittest";
+import * as p from "core/properties";
+import {uniqueId} from "core/util/string";
+import {any, range} from "core/util/array";
+import {logger} from "core/logging";
+
+import {TableWidget} from "./table_widget";
+import {WidgetView} from "../widget"
+
+export const DTINDEX_NAME = "__bkdt_internal_index__";
+
+export class DataProvider {
+
+  constructor(source, view) {
+    this.source = source;
+    this.view = view;
+    if (DTINDEX_NAME in this.source.data) {
+      throw new Error(`special name ${DTINDEX_NAME} cannot be used as a data table column`);
+    }
+    this.index = this.view.indices;
+  }
+
+  getLength() { return this.index.length; }
+
+  getItem(offset) {
+    const item = {};
+    for (let field of Object.keys(this.source.data)) {
+      item[field] = this.source.data[field][this.index[offset]];
+    }
+    item[DTINDEX_NAME] = this.index[offset];
+    return item;
+  }
+
+  setItem(offset, item) {
+    for (let field in item) {
+      // internal index is maintained independently, ignore
+      const value = item[field];
+      if (field !== DTINDEX_NAME) {
+        this.source.data[field][this.index[offset]] = value;
+      }
+    }
+    this._update_source_inplace();
+    return null;
+  }
+
+  getField(offset, field) {
+    if (field === DTINDEX_NAME) {
+      return this.index[offset];
+    }
+    return this.source.data[field][this.index[offset]];
+  }
+
+  setField(offset, field, value) {
+    // field assumed never to be internal index name (ctor would throw)
+    this.source.data[field][this.index[offset]] = value;
+    this._update_source_inplace();
+    return null;
+  }
+
+  getItemMetadata(index) { return null; }
+
+  getRecords() {
+    return (range(0, this.getLength()).map((i) => this.getItem(i)));
+  }
+
+  sort(columns) {
+    let cols = columns.map((column) => [column.sortCol.field, column.sortAsc ? 1 : -1]);
+
+    if (cols.length === 0) {
+      cols = [[DTINDEX_NAME, 1]];
+    }
+
+    const records = this.getRecords();
+    const old_index = this.index.slice();
+
+    // TODO (bev) this sort is unstable, which is not great
+    return this.index.sort(function(i1, i2) {
+      for (let [field, sign] of cols) {
+        const value1 = records[old_index.indexOf(i1)][field];
+        const value2 = records[old_index.indexOf(i2)][field];
+        const result =
+          value1 === value2 ? 0
+          : value1 >  value2 ? sign
+          :                         -sign;
+        if (result !== 0) {
+          return result;
+        }
+      }
+      return 0;
+    });
+  }
+
+  _update_source_inplace() {
+    this.source.properties.data.change.emit(this, this.source.attributes['data']);
+  }
+}
+
+export class DataTableView extends WidgetView {
+  static initClass() {
+    this.prototype.className = "bk-data-table";
+  }
+
+  initialize(options) {
+    super.initialize(options);
+    return this.in_selection_update = false;
+  }
+
+  connect_signals() {
+    super.connect_signals();
+    this.connect(this.model.change, () => this.render());
+    this.connect(this.model.source.properties.data.change, () => this.updateGrid());
+    this.connect(this.model.source.streaming, () => this.updateGrid());
+    this.connect(this.model.source.patching, () => this.updateGrid());
+    return this.connect(this.model.source.change, () => this.updateSelection());
+  }
+
+  updateGrid() {
+    // TODO (bev) This is to enure that CDSView indices are properly computed
+    // before passing to the DataProvider. This will result in extra calls to
+    // compute_indices. This "over execution" will be addressed in a more
+    // general look at events
+    this.model.view.compute_indices();
+
+    this.data.constructor(this.model.source, this.model.view);
+    this.grid.invalidate();
+    this.grid.render();
+
+    // This is only needed to call @_tell_document_about_change()
+    this.model.source.data = this.model.source.data;
+    return this.model.source.change.emit();
+  }
+
+  updateSelection() {
+    if (this.in_selection_update) {
+      return;
+    }
+
+    const { selected } = this.model.source;
+    const selected_indices = selected['1d'].indices;
+
+    const permuted_indices = (selected_indices.map((x) => this.data.index.indexOf(x)));
+
+    this.in_selection_update = true;
+    this.grid.setSelectedRows(permuted_indices);
+    this.in_selection_update = false;
+    // If the selection is not in the current slickgrid viewport, scroll the
+    // datatable to start at the row before the first selected row, so that
+    // the selection is immediately brought into view. We don't scroll when
+    // the selection is already in the viewport so that selecting from the
+    // datatable itself does not re-scroll.
+    const cur_grid_range = this.grid.getViewport();
+
+    const scroll_index = this.model.get_scroll_index(cur_grid_range, permuted_indices);
+    if (scroll_index != null) {
+      return this.grid.scrollRowToTop(scroll_index);
+    }
+  }
+
+  newIndexColumn() {
+    return {
+      id: uniqueId(),
+      name: "#",
+      field: DTINDEX_NAME,
+      width: 40,
+      behavior: "select",
+      cannotTriggerInsert: true,
+      resizable: false,
+      selectable: false,
+      sortable: true,
+      cssClass: "bk-cell-index"
+    };
+  }
+
+  render() {
+    let checkboxSelector;
+    let columns = (this.model.columns.map((column) => column.toColumn()));
+
+    if (this.model.selectable === "checkbox") {
+      checkboxSelector = new CheckboxSelectColumn({cssClass: "bk-cell-select"});
+      columns.unshift(checkboxSelector.getColumnDefinition());
+    }
+
+    if (this.model.row_headers) {
+      columns.unshift(this.newIndexColumn());
+    }
+
+    let { reorderable } = this.model;
+
+    if (reorderable && (__guard__(typeof $ !== 'undefined' && $ !== null ? $.fn : undefined, x => x.sortable) == null)) {
+      if ((this._warned_not_reorderable == null)) {
+        logger.warn("jquery-ui is required to enable DataTable.reorderable");
+        this._warned_not_reorderable = true;
+      }
+      reorderable = false;
+    }
+
+    const options = {
+      enableCellNavigation: this.model.selectable !== false,
+      enableColumnReorder: reorderable,
+      forceFitColumns: this.model.fit_columns,
+      autoHeight: this.model.height === "auto",
+      multiColumnSort: this.model.sortable,
+      editable: this.model.editable,
+      autoEdit: false
+    };
+
+    if (this.model.width != null) {
+      this.el.style.width = `${this.model.width}px`;
+    } else {
+      this.el.style.width = `${this.model.default_width}px`;
+    }
+
+    if ((this.model.height != null) && (this.model.height !== "auto")) {
+      this.el.style.height = `${this.model.height}px`;
+    }
+
+    this.data = new DataProvider(this.model.source, this.model.view);
+    this.grid = new SlickGrid(this.el, this.data, columns, options);
+
+    this.grid.onSort.subscribe((event, args) => {
+      columns = args.sortCols;
+      this.data.sort(columns);
+      this.grid.invalidate();
+      this.updateSelection();
+      return this.grid.render();
+    });
+
+    if (this.model.selectable !== false) {
+      this.grid.setSelectionModel(new RowSelectionModel({selectActiveRow: (checkboxSelector == null)}));
+      if (checkboxSelector != null) { this.grid.registerPlugin(checkboxSelector); }
+
+      this.grid.onSelectedRowsChanged.subscribe((event, args) => {
+        if (this.in_selection_update) {
+          return;
+        }
+
+        const selected = hittest.create_hit_test_result();
+        selected['1d'].indices = (args.rows.map((i) => this.data.index[i]));
+        return this.model.source.selected = selected;
+      });
+
+      this.updateSelection();
+    }
+
+    return this;
+  }
+}
+DataTableView.initClass();
+
+export class DataTable extends TableWidget {
+  static initClass() {
+    this.prototype.type = 'DataTable';
+    this.prototype.default_view = DataTableView;
+
+    this.define({
+        columns:             [ p.Array,  []    ],
+        fit_columns:         [ p.Bool,   true  ],
+        sortable:            [ p.Bool,   true  ],
+        reorderable:         [ p.Bool,   true  ],
+        editable:            [ p.Bool,   false ],
+        selectable:          [ p.Bool,   true  ],
+        row_headers:         [ p.Bool,   true  ],
+        scroll_to_selection: [ p.Bool,   true  ]
+      });
+
+    this.override({
+      height: 400
+    });
+
+    this.internal({
+      default_width:        [ p.Number, 600   ]
+    });
+  }
+
+  get_scroll_index(grid_range, selected_indices) {
+    if (!this.scroll_to_selection || (selected_indices.length === 0)) {
+      return null;
+    }
+
+    if (!any(selected_indices, i => grid_range.top <= i && i <= grid_range.bottom)) {
+      return Math.max(0, Math.min(...selected_indices || []) - 1);
+    }
+
+    return null;
+  }
+}
+DataTable.initClass();
+
+function __guard__(value, transform) {
+  return (typeof value !== 'undefined' && value !== null) ? transform(value) : undefined;
+}
