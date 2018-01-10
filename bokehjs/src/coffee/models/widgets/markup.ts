@@ -19,7 +19,7 @@ export class MarkupView extends WidgetView {
   }
 
   render(): void {
-    super()
+    super.render()
     empty(this.el)
     const style = extend({
       width: `${this.model.width}px`,
