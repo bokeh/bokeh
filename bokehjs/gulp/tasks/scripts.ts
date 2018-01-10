@@ -125,6 +125,9 @@ gulp.task("scripts:tsjs", tsjs_deps, () => {
     compilerOptions.lib[0] = "es6"
   }
 
+  if (argv.checkJs)
+    compilerOptions.checkJs = true
+
   const tree_ts = paths.build_dir.tree_ts
   const project = gulp
     .src([`${tree_ts}/**/*.ts`, `${tree_ts}/**/*.js`])
