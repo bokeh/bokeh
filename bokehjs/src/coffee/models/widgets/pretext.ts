@@ -1,3 +1,4 @@
+/* XXX: partial */
 import {Markup, MarkupView} from "./markup"
 import {pre} from "core/dom"
 

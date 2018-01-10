@@ -1,3 +1,4 @@
+/* XXX: partial */
 import {empty, label, select, option, optgroup} from "core/dom"
 import {isString, isArray} from "core/util/types"
 import {logger} from "core/logging"

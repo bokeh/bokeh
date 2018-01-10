@@ -1,3 +1,4 @@
+/* XXX: partial */
 import {format} from "numbro"
 
 import {AbstractSlider, AbstractSliderView} from "./abstract_slider"

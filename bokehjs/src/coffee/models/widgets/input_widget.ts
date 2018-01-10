@@ -1,3 +1,4 @@
+/* XXX: partial */
 import {Widget, WidgetView} from "./widget"
 import * as p from "core/properties"
 

@@ -1,3 +1,4 @@
+/* XXX: partial */
 import {empty, input, label, div} from "core/dom"
 import {uniqueId} from "core/util/string"
 import * as p from "core/properties"

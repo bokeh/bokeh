@@ -1,3 +1,4 @@
+/* XXX: partial */
 import {logger} from "core/logging"
 import * as p from "core/properties"
 import {empty, label, input} from "core/dom"

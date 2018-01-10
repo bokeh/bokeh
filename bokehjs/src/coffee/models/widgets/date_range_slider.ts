@@ -1,3 +1,4 @@
+/* XXX: partial */
 import * as tz from "timezone"
 
 import {AbstractSlider, AbstractSliderView} from "./abstract_slider"

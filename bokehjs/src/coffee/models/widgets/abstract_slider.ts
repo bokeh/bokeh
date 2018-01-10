@@ -1,3 +1,4 @@
+/* XXX: partial */
 import * as noUiSlider from "nouislider"
 
 import * as p from "core/properties"

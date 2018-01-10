@@ -1,3 +1,4 @@
+/* XXX: partial */
 import {empty, ul, li, span, div} from "core/dom"
 import {zip} from "core/util/array"
 import * as p from "core/properties"

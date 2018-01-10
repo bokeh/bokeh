@@ -1,3 +1,4 @@
+/* XXX: partial */
 import {empty, label, select, option} from "core/dom"
 import {isString} from "core/util/types"
 import * as p from "core/properties"

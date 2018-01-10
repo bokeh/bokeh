@@ -1,3 +1,4 @@
+/* XXX: partial */
 import {TextInput, TextInputView} from "./text_input"
 import {clear_menus} from "./common"
 

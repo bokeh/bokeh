@@ -1,3 +1,4 @@
+/* XXX: partial */
 import {span, ul, li, a} from "core/dom"
 import * as p from "core/properties"
 
