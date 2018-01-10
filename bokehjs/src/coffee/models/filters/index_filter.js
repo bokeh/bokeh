@@ -1,10 +1,3 @@
-/*
- * decaffeinate suggestions:
- * DS206: Consider reworking classes to avoid initClass
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
-
 import {Filter} from "./filter";
 import * as p from "core/properties";
 import {logger} from "core/logging";

@@ -1,10 +1,3 @@
-/*
- * decaffeinate suggestions:
- * DS202: Simplify dynamic range loops
- * DS206: Consider reworking classes to avoid initClass
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
-
 import {RBush} from "core/util/spatial";
 import {Glyph, GlyphView} from "./glyph"
 ;
