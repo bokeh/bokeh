@@ -61,6 +61,7 @@ gulp.task("scripts:coffee", () => {
 
 gulp.task("scripts:js", () => {
   return gulp.src('./src/coffee/**/*.js')
+    .pipe(rename((path) => path.extname = '.ts'))
     .pipe(gulp.dest(paths.build_dir.tree_ts))
 })
 
@@ -80,28 +81,22 @@ gulp.task("scripts:tsjs", tsjs_deps, () => {
       const [, file, rest, code] = result
       const real = path.join('src', 'coffee', ...file.split(path.sep).slice(3))
       if (fs.existsSync(real)) {
-        if (code == "8010" || code == "8008") // ignore "types can be only used in *.ts files" and similar
-          return
-
-        if (argv.filter && !raw.includes(argv.filter))
-          return
-
         gutil.log(`${chalk.red(real)}${rest}`)
         return
       }
 
       // XXX: can't enable "6133", because CS generates faulty code for closures
-      if (["2307", "2688", "6053"].indexOf(code) != -1) {
+      if (code[0] == "1" || ["2307", "2688", "6053"].includes(code)) {
         gutil.log(err.message)
         return
       }
     }
 
-    if (!argv.ts)
+    if (!argv.filter)
       return
 
-    if (typeof argv.ts === "string") {
-      const keywords = argv.ts.split(",")
+    if (typeof argv.filter === "string") {
+      const keywords = argv.filter.split(",")
       for (let keyword of keywords) {
         let must = true
         if (keyword[0] == "^") {

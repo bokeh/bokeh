@@ -506,10 +506,8 @@ export class PlotCanvasView extends DOMView {
       return weight;
     }
 
-  update_range(range_info, is_panning, is_scrolling) {
+  update_range(range_info, is_panning: boolean = false, is_scrolling: boolean = false): void {
     let name, rng;
-    if (is_panning == null) { is_panning = false; }
-    if (is_scrolling == null) { is_scrolling = false; }
     this.pause();
     if ((range_info == null)) {
       for (name in this.frame.x_ranges) {
@@ -536,11 +534,11 @@ export class PlotCanvasView extends DOMView {
       }
       this._update_ranges_individually(range_info_iter, is_panning, is_scrolling);
     }
-    return this.unpause();
+    this.unpause();
   }
 
-  reset_range() {
-    return this.update_range(null);
+  reset_range(): void {
+    this.update_range(null)
   }
 
   build_levels() {

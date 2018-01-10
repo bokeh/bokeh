@@ -1,7 +1,6 @@
 import {expect} from "chai"
 
-// XXX: import {ColumnDataSource} from "models/sources/column_data_source"
-const {ColumnDataSource} = require("models/sources/column_data_source")
+import {ColumnDataSource} from "models/sources/column_data_source"
 //import {Models} from "base"
 import {HasProps} from "core/has_props"
 import * as mixins from "core/property_mixins"
