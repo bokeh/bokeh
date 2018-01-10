@@ -61,4 +61,4 @@ export class ColumnarDataSource extends DataSource
   get_indices: () ->
     length = @get_length()
     length = 1 if not length?
-    return [0...length]
+    return [0...length] # TODO: returns [0] when no data, should it?

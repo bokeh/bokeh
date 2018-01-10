@@ -56,12 +56,13 @@ export class Selection extends Model {
     this.final = final
     if (append)
       this.update_through_union(selection)
-    else
+    else {
       this.indices = selection.indices
       this.line_indices = selection.line_indices
       this.selected_glyphs = selection.selected_glyphs
       this.get_view = selection.get_view
       this.multiline_indices = selection.multiline_indices
+    }
   }
 
   clear (): void {

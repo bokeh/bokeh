@@ -49,15 +49,15 @@ describe "CDSView", ->
 
     it "convert_selection_from_subset", ->
       view = new CDSView({source: cds, filters: [filter1, filter2]})
-      selection = hittest.create_hit_test_result()
-      selection['1d']['indices'] = [0]
-      expect(view.convert_selection_from_subset(selection)['1d']['indices']).to.be.deep.equal [1]
+      selection = hittest.create_empty_hit_test_result()
+      selection.indices = [0]
+      expect(view.convert_selection_from_subset(selection).indices).to.be.deep.equal [1]
 
     it "convert_selection_to_subset", ->
       view = new CDSView({source: cds, filters: [filter1, filter2]})
-      selection = hittest.create_hit_test_result()
-      selection['1d']['indices'] = [1]
-      expect(view.convert_selection_to_subset(selection)['1d']['indices']).to.be.deep.equal [0]
+      selection = hittest.create_empty_hit_test_result()
+      selection.indices = [1]
+      expect(view.convert_selection_to_subset(selection).indices).to.be.deep.equal [0]
 
     it "convert_indices_from_subset", ->
       view = new CDSView({source: cds, filters: [filter1, filter2]})

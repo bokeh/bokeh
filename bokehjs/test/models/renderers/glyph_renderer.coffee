@@ -1,9 +1,9 @@
 {expect} = require "chai"
 utils = require "../../utils"
 
-{create_1d_hit_test_result} = utils.require("core/hittest")
-{Selector} = utils.require("core/selector")
+{create_hit_test_result_from_hits} = utils.require("core/hittest")
 
+{Selection} = utils.require("models/selections/selection")
 {ColumnDataSource} = utils.require("models/sources/column_data_source")
 {DataSource} = utils.require("models/sources/data_source")
 {GlyphRenderer} = utils.require("models/renderers/glyph_renderer")
@@ -52,72 +52,32 @@ describe "GlyphRenderer", ->
       hit_test: (geometry) -> return null
 
     class HitTestMiss
-      hit_test: (geometry) -> return create_1d_hit_test_result([])
+      hit_test: (geometry) -> return create_hit_test_result_from_hits([])
 
     class HitTestHit
-      hit_test: (geometry) -> return create_1d_hit_test_result([[0], [1]])
+      hit_test: (geometry) -> return create_hit_test_result_from_hits([[0], [1]])
 
-    class DummyGlyphRenderer
+    class DummyGlyphRendererView
       @glyph = null
 
     beforeEach ->
-      @glyph_renderer = new DummyGlyphRenderer()
+      @glyph_renderer = new DummyGlyphRendererView()
 
-    it "should return false if @visible is false", ->
+    it "should return null if @visible is false", ->
       @gr.visible = false
       @glyph_renderer.glyph = new HitTestHit()
-      expect(@gr.hit_test_helper("geometry", @glyph_renderer, true, false, "select")).to.be.false
+      expect(@gr.hit_test_helper("geometry", @glyph_renderer)).to.be.null
 
-    it "should return false if GlyphView doesn't have hit-testing and returns null", ->
+    it "should return null if GlyphView doesn't have hit-testing and returns null", ->
       @glyph_renderer.glyph = new HitTestNotImplemented()
-      expect(@gr.hit_test_helper("geometry", @glyph_renderer, true, false, "select")).to.be.false
+      expect(@gr.hit_test_helper("geometry", @glyph_renderer)).to.be.null
 
-    describe "mode='select'", ->
+    it "should return an empty Selection if hit_test is a miss", ->
+      @glyph_renderer.glyph = new HitTestMiss()
+      expect(@gr.hit_test_helper("geometry", @glyph_renderer)).to.be.instanceof(Selection)
+      expect(@gr.hit_test_helper("geometry", @glyph_renderer).is_empty()).to.be.true
 
-      beforeEach ->
-        @selector = @source.selection_manager.selector
-
-      it "should return false and clear selections if hit_test result is empty", ->
-        initial_selection = create_1d_hit_test_result([1,2])
-        @source.selected = initial_selection
-        @selector.indices = initial_selection
-
-        @glyph_renderer.glyph = new HitTestMiss()
-        did_hit = @gr.hit_test_helper("geometry", @glyph_renderer, true, false, "select")
-
-        expect(did_hit).to.be.false
-        expect(@selector.indices.is_empty()).to.be.true
-        expect(@source.selected.is_empty()).to.be.true
-
-      it "should return true if hit_test result is not empty", ->
-        @glyph_renderer.glyph = new HitTestHit()
-        did_hit = @gr.hit_test_helper("geometry", @glyph_renderer, true, false, "select")
-
-        expect(did_hit).to.be.true
-        expect(@selector.indices.is_empty()).to.be.false
-        expect(@source.selected.is_empty()).to.be.false
-
-    describe "mode='inspect'", ->
-
-      beforeEach ->
-        @selector = @source.selection_manager.get_or_create_inspector(@gr)
-
-      it "should return false and clear inspections if hit_test result is empty", ->
-        initial_inspection = create_1d_hit_test_result([1,2])
-        @source.inspected = initial_inspection
-        @selector.indices = initial_inspection
-
-        @glyph_renderer.glyph = new HitTestMiss()
-        did_hit = @gr.hit_test_helper("geometry", @glyph_renderer, true, false, "inspect")
-        expect(did_hit).to.be.false
-        expect(@selector.indices.is_empty()).to.be.true
-        expect(@source.inspected.is_empty()).to.be.true
-
-      it "should return true if hit_test result is not empty", ->
-        @glyph_renderer.glyph = new HitTestHit()
-
-        did_hit = @gr.hit_test_helper("geometry", @glyph_renderer, true, false, "inspect")
-
-        expect(did_hit).to.be.true
-        expect(@selector.indices.is_empty()).to.be.false
-        expect(@source.inspected.is_empty()).to.be.false
+    it "should return a Selection with the hit if hit_test is a hit", ->
+      @glyph_renderer.glyph = new HitTestHit()
+      expect(@gr.hit_test_helper("geometry", @glyph_renderer)).to.be.instanceof(Selection)
+      expect(@gr.hit_test_helper("geometry", @glyph_renderer).indices).to.be.deep.equal([0, 1])
