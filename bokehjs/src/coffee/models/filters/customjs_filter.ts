@@ -11,11 +11,14 @@ export class CustomJSFilter extends Filter {
         args: [ p.Any,    {} ], // TODO (bev) better type
         code: [ p.String, '' ]
     });
+  }
 
-    this.getters({
-      values() { return this._make_values(); },
-      func() { return this._make_func(); }
-    });
+  get values() {
+    return this._make_values()
+  }
+
+  get func() {
+    return this._make_func()
   }
 
   compute_indices(source) {

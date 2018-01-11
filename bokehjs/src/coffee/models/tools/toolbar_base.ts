@@ -96,15 +96,6 @@ export class ToolbarBase extends Model {
     this.prototype.type = 'ToolbarBase';
     this.prototype.default_view = ToolbarBaseView;
 
-    this.getters({
-      horizontal() {
-        return (this.toolbar_location === "above") || (this.toolbar_location === "below");
-      },
-      vertical() {
-        return (this.toolbar_location === "left") || (this.toolbar_location === "right");
-      }
-    });
-
     this.define({
       tools: [ p.Array,    []       ],
       logo:  [ p.String,   'normal' ] // TODO (bev)
@@ -126,6 +117,14 @@ export class ToolbarBase extends Model {
       help:       [ p.Array, [] ],
       toolbar_location: [ p.Location, 'right' ]
     });
+  }
+
+  get horizontal(): boolean {
+    return this.toolbar_location === "above" || this.toolbar_location === "below"
+  }
+
+  get vertical(): boolean {
+    return this.toolbar_location === "left" || this.toolbar_location === "right"
   }
 
   _active_change(tool) {

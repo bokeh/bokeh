@@ -20,12 +20,18 @@ export class CustomJSTransform extends Transform {
       func:         [ p.String,       ""       ],
       v_func:       [ p.String,       ""       ]
     });
+  }
 
-    this.getters({
-      values() { return this._make_values(); },
-      scalar_transform() { return this._make_transform("x", this.func); },
-      vector_transform() { return this._make_transform("xs", this.v_func); }
-    });
+  get values() {
+    return this._make_values()
+  }
+
+  get scalar_transform() {
+    return this._make_transform("x", this.func)
+  }
+
+  get vector_transform() {
+    return this._make_transform("xs", this.v_func)
   }
 
   compute(x) { return this.scalar_transform(...this.values, x, require, exports); }

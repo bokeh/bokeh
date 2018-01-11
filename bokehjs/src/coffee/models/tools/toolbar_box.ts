@@ -213,21 +213,23 @@ export class ToolbarBox extends LayoutDOM {
       toolbar: [ p.Instance ],
       toolbar_location: [ p.Location, "right" ]
     });
+  }
 
-    this.getters({
-      // XXX: we are overriding LayoutDOM.sizing_mode here. That's a bad
-      // hack, but currently every layoutable is allowed to have its
-      // sizing mode configured, which is wrong. Another example of this
-      // is PlotCanvas which only works with strech_both sizing mode.
-      sizing_mode() {
-        switch (this.toolbar_location) {
-          case "above": case "below":
-            return "scale_width";
-          case "left": case "right":
-            return "scale_height";
-        }
+  // XXX: we are overriding LayoutDOM.sizing_mode here. That's a bad
+  // hack, but currently every layoutable is allowed to have its
+  // sizing mode configured, which is wrong. Another example of this
+  // is PlotCanvas which only works with strech_both sizing mode.
+  get sizing_mode() {
+    switch (this.toolbar_location) {
+      case "above":
+      case "below": {
+        return "scale_width"
       }
-    });
+      case "left":
+      case "right": {
+        return "scale_height"
+      }
+    }
   }
 }
 ToolbarBox.initClass();
