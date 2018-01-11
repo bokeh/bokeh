@@ -4,6 +4,7 @@ import {WMTSTileSource} from "./wmts_tile_source";
 import {Renderer, RendererView} from "../renderers/renderer";
 import {div} from "core/dom";
 import * as p from "core/properties";
+import {includes} from "core/util/array";
 import {isString} from "core/util/types"
 
 export class TileRendererView extends RendererView {
