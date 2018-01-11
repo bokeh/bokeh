@@ -29,24 +29,27 @@ function is_accepted(code: number): boolean {
 }
 
 gulp.task("scripts:ts", () => {
-  function error(err: {message: string}) {
-    const raw = stripAnsi(err.message)
-    const result = raw.match(/(.*)(\(\d+,\d+\): error TS(\d+):.*)/)
+  const errors: string[] = []
 
+  function error(err: {message: string}) {
+    const text = stripAnsi(err.message)
+    errors.push(text)
+
+    const result = text.match(/(.*)(\(\d+,\d+\): error TS(\d+):.*)/)
     if (result != null) {
       const [, file, , code] = result
       if (is_partial(file)) {
         if (!is_accepted(parseInt(code))) {
-          if (!(argv.include && raw.includes(argv.include)))
+          if (!(argv.include && text.includes(argv.include)))
             return
         }
       }
-
-      if (argv.filter && raw.includes(argv.filter))
-        return
-
-      gutil.log(err.message)
     }
+
+    if (argv.filter && text.includes(argv.filter))
+      return
+
+    gutil.log(err.message)
   }
 
   const tsconfig = require(join(paths.src_dir.coffee, "tsconfig.json"))
@@ -66,13 +69,17 @@ gulp.task("scripts:ts", () => {
     .pipe(sourcemaps.init())
     .pipe(ts(tsconfig.compilerOptions, ts.reporter.nullReporter()).on('error', error))
 
-  return merge([
+  const result = merge([
     project.js
       .pipe(sourcemaps.write("."))
       .pipe(gulp.dest(paths.build_dir.tree)),
     project.dts
       .pipe(gulp.dest(paths.build_dir.types)),
   ])
+  result.on("finish", () => {
+    fs.writeFileSync(join(paths.build_dir.js, "ts.log"), errors.join("\n"))
+  })
+  return result
 })
 
 gulp.task("scripts:compile", ["scripts:ts"])
