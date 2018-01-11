@@ -328,9 +328,8 @@ export class GlyphRendererView extends RendererView {
 
 export class GlyphRenderer extends Renderer {
 
-  x_range_name: string;
+  x_range_name: string
   y_range_name: string
-  /*
   data_source: DataSource
   view: CDSView
   glyph: Glyph
@@ -339,11 +338,8 @@ export class GlyphRenderer extends Renderer {
   selection_glyph: Glyph | "auto"
   muted_glyph: Glyph
   muted: boolean
-  */
-  ;
 
   static initClass() {
-
     this.prototype.default_view = GlyphRendererView;
 
     this.prototype.type = 'GlyphRenderer';
