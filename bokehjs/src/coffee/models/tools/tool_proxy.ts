@@ -5,15 +5,6 @@ import {Model} from "../../model"
 
 export class ToolProxy extends Model {
   static initClass() {
-
-    this.getters({
-      button_view() { return this.tools[0].button_view; },
-      event_type() { return this.tools[0].event_type; },
-      tooltip() { return this.tools[0].tool_name; },
-      tool_name() { return this.tools[0].tool_name; },
-      icon() { return this.tools[0].icon; }
-    });
-
     this.define({
       tools:    [ p.Array, []    ],
       active:   [ p.Bool,  false ],
@@ -21,6 +12,26 @@ export class ToolProxy extends Model {
     });
   }
   // Operates all the tools given only one button
+
+  get button_view() {
+    return this.tools[0].button_view
+  }
+
+  get event_type() {
+    return this.tools[0].event_type
+  }
+
+  get tooltip() {
+    return this.tools[0].tool_name
+  }
+
+  get tool_name() {
+    return this.tools[0].tool_name
+  }
+
+  get icon() {
+    return this.tools[0].icon
+  }
 
   initialize(options: any): void {
     super.initialize(options);

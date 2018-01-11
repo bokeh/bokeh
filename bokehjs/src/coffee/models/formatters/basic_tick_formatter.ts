@@ -13,11 +13,14 @@ export class BasicTickFormatter extends TickFormatter {
       power_limit_high: [ p.Number, 5      ],
       power_limit_low:  [ p.Number, -3     ]
     });
+  }
 
-    this.getters({
-      scientific_limit_low() { return Math.pow(10.0, this.power_limit_low); },
-      scientific_limit_high() { return Math.pow(10.0, this.power_limit_high); }
-    });
+  get scientific_limit_low() {
+    return Math.pow(10.0, this.power_limit_low)
+  }
+
+  get scientific_limit_high() {
+    return Math.pow(10.0, this.power_limit_high)
   }
 
   initialize(attrs: any, options: any): void {

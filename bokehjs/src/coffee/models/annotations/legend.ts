@@ -8,13 +8,9 @@ import {values} from "core/util/object";
 import {isString, isArray} from "core/util/types"
 
 export class LegendView extends AnnotationView {
-  static initClass() {
 
-    this.getters({
-      legend_padding() {
-        if (this.visuals.border_line.line_color.value() != null) { return this.model.padding; } else { return 0; }
-      }
-    });
+  get legend_padding(): number {
+    return this.visuals.border_line.line_color.value() != null ? this.model.padding : 0
   }
 
   connect_signals(): void {
@@ -282,7 +278,6 @@ export class LegendView extends AnnotationView {
     }
   }
 }
-LegendView.initClass();
 
 export class Legend extends Annotation {
   static initClass() {

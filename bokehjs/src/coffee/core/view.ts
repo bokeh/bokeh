@@ -11,13 +11,6 @@ export interface ViewOptions {
 
 export class View extends Signalable() {
 
-  static getters(specs: any): void {
-    for(const name in specs) {
-      const fn = specs[name]
-      Object.defineProperty(this.prototype, name, { get: fn })
-    }
-  }
-
   readonly removed = new Signal<void, this>(this, "removed")
 
   readonly id: string
