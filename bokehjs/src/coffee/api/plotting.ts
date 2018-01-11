@@ -266,14 +266,11 @@ export class Figure extends Plot {
       [attrs] = args;
       attrs = clone(attrs);
     } else {
-      let adjustedLength, opts;
-      adjustedLength = Math.max(args.length, 1),
-        args = args.slice(0, adjustedLength - 1),
-        opts = args[adjustedLength - 1];
-      attrs = clone(opts);
+      attrs = clone(args[args.length - 1])
+
       for (let i = 0; i < params.length; i++) {
-        const param = params[i];
-        ((param, i) => attrs[param] = args[i])(param, i);
+        const param = params[i]
+        attrs[param] = args[i]
       }
     }
 
