@@ -21,7 +21,7 @@ import * as enums from "core/enums";
 import * as p from "core/properties";
 import {throttle} from "core/util/throttle";
 import {isStrictNaN} from "core/util/types";
-import {difference, sortBy, reversed} from "core/util/array";
+import {difference, sortBy, reversed, includes} from "core/util/array";
 import {extend, values, isEmpty} from "core/util/object";
 import {update_panel_constraints, _view_sizes} from "core/layout/side_panel"
 
