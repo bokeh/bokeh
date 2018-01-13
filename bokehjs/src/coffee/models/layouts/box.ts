@@ -34,6 +34,10 @@ export class BoxView extends LayoutDOMView {
     this.connect(this.model.properties.children.change, () => this.rebuild_child_views())
   }
 
+  css_classes(): string[] {
+    return super.css_classes().concat("bk-grid")
+  }
+
   get_height(): number {
     const children = this.model.get_layoutable_children()
     const child_heights = children.map((child) => child._height.value)
@@ -56,8 +60,6 @@ export class BoxView extends LayoutDOMView {
     return width
   }
 }
-
-BoxView.prototype.className = "bk-grid"
 
 export class Box extends LayoutDOM {
 

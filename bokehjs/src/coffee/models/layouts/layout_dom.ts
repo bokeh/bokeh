@@ -229,8 +229,8 @@ export abstract class LayoutDOMView extends DOMView {
   _render_classes(): void {
     this.el.className = "" // removes all classes
 
-    if (this.className != null)
-      this.el.classList.add(this.className)
+    for (const name of this.css_classes())
+      this.el.classList.add(name)
 
     this.el.classList.add(`bk-layout-${this.model.sizing_mode}`)
 

@@ -104,9 +104,6 @@ export class DataProvider {
 }
 
 export class DataTableView extends WidgetView {
-  static initClass() {
-    this.prototype.className = "bk-data-table";
-  }
 
   initialize(options) {
     super.initialize(options);
@@ -177,6 +174,10 @@ export class DataTableView extends WidgetView {
       sortable: true,
       cssClass: "bk-cell-index"
     };
+  }
+
+  css_classes(): string[] {
+    return super.css_classes().concat("bk-data-table")
   }
 
   render() {
@@ -253,7 +254,6 @@ export class DataTableView extends WidgetView {
     return this;
   }
 }
-DataTableView.initClass();
 
 export class DataTable extends TableWidget {
   static initClass() {

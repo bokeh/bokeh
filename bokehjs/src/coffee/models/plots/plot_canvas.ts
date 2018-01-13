@@ -46,9 +46,11 @@ export class PlotCanvasView extends DOMView {
   renderer_views: {[key: string]: RendererView}
 
   static initClass() {
-    this.prototype.className = "bk-plot-wrapper";
-
     this.prototype.state = { history: [], index: -1 };
+  }
+
+  css_classes(): string[] {
+    return super.css_classes().concat("bk-plot-wrapper")
   }
 
   get canvas_overlays(): HTMLElement {
