@@ -41,19 +41,9 @@ from .standalone import components
 from .standalone import file_html
 
 __all__ = (
-    'autoload_server',
     'autoload_static',
     'components',
     'file_html',
     'server_document',
     'server_session',
 )
-
-# XXXX To be removed
-def autoload_server(model=None, app_path=None, session_id=None, url="default", relative_urls=False, arguments=None):
-    from bokeh.util.deprecation import deprecated
-    deprecated((0, 12, 7), 'bokeh.embed.autoload_server', 'bokeh.embed.server_document or bokeh.embed.server_session')
-    if session_id is None:
-        return server_document(url, relative_urls, "default", arguments)
-    else:
-        return server_session(model, session_id, url, relative_urls, "default", arguments)
