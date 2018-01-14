@@ -13,7 +13,7 @@ export class DataSource extends Model {
     this.prototype.type = "DataSource"
 
     this.define({
-      selected: [ p.Instance, () => new Selection() ], // TODO (bev)
+      selected: [ p.Instance                        ], // TODO (bev)
       callback: [ p.Any                             ], // TODO: p.Either(p.Instance(Callback), p.Function) ]
     })
   }

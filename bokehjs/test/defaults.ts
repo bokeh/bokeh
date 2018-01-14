@@ -81,10 +81,6 @@ function check_matching_defaults(name: string, python_defaults: {[key: string]: 
     if (name === "Title" && (k === "text_align" || k === "text_baseline"))
       continue
 
-    // special case for selections that have a method added to them
-    if (k === 'selected')
-      delete js_v['0d'].get_view
-
     if (k === 'id')
       continue
 
