@@ -72,7 +72,7 @@ export type TextBaseline = "top" | "middle" | "bottom" | "alphabetic" | "hanging
 export const TextBaseline: TextBaseline[] = ["top", "middle", "bottom", "alphabetic", "hanging", "ideographic"]
 
 export type TooltipAttachment = "horizontal" | "vertical" | "left" | "right" | "above" | "below"
-export const TooltipAttachment = ["horizontal", "vertical", "left", "right", "above", "below"]
+export const TooltipAttachment: TooltipAttachment[] = ["horizontal", "vertical", "left", "right", "above", "below"]
 
 export type DistributionTypes = "uniform" | "normal"
 export const DistributionTypes: DistributionTypes[] = ["uniform", "normal"]

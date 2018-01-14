@@ -22,7 +22,7 @@ export abstract class SelectionPolicy extends Model {
     } else {
       const source = renderer_views[0].model.data_source
       source.selected.update(hit_test_result, final, append)
-      source.select.emit()
+      source._select.emit()
       return !source.selected.is_empty()
     }
   }

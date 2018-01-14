@@ -32,7 +32,7 @@ export class AdaptiveTicker extends ContinuousTicker {
   // B is base,
   // and N is an integer;
   // and min_interval <= I <= max_interval.
-  initialize(attrs?: any, options?: any) {
+  initialize(attrs: any, options: any): void {
     super.initialize(attrs, options)
 
     const prefix_mantissa = nth(this.mantissas, -1) / this.base

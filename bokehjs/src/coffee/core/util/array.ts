@@ -4,6 +4,7 @@
 //     Underscore may be freely distributed under the MIT license.
 
 import {randomIn} from "./math"
+import {assert} from "./assert"
 
 const slice = Array.prototype.slice
 
@@ -27,9 +28,11 @@ export function concat<T>(arrays: T[][]): T[] {
   return ([] as T[]).concat(...arrays)
 }
 
-export function contains<T>(array: T[], value: T): boolean {
+export function includes<T>(array: T[], value: T): boolean {
   return array.indexOf(value) !== -1
 }
+
+export const contains = includes
 
 export function nth<T>(array: T[], index: number): T {
   return array[index >= 0 ? index : array.length + index]
@@ -55,15 +58,20 @@ export function unzip<A, B>(ABs: [A, B][]): [A[], B[]] {
 }
 
 export function range(start: number, stop?: number, step: number = 1): number[] {
+  assert(step > 0, "'step' must be a positive number")
+
   if (stop == null) {
     stop = start
     start = 0
   }
 
-  const length = Math.max(Math.ceil((stop - start) / step), 0)
+  const {max, ceil, abs} = Math
+
+  const delta = start <= stop ? step : -step
+  const length = max(ceil(abs(stop - start) / step), 0)
   const range = Array(length)
 
-  for (let i = 0; i < length; i++, start += step) {
+  for (let i = 0; i < length; i++, start += delta) {
     range[i] = start
   }
 
@@ -255,7 +263,7 @@ export function sortBy<T>(array: T[], key: (item: T) => number): T[] {
 export function uniq<T>(array: T[]): T[] {
   const result = []
   for (const value of array) {
-    if (!contains(result, value)) {
+    if (!includes(result, value)) {
       result.push(value)
     }
   }
@@ -267,7 +275,7 @@ export function uniqBy<T, U>(array: T[], key: (item: T) => U): T[] {
   const seen: U[] = []
   for (const value of array) {
     const computed = key(value)
-    if (!contains(seen, computed)) {
+    if (!includes(seen, computed)) {
       seen.push(computed)
       result.push(value)
     }
@@ -282,10 +290,10 @@ export function union<T>(...arrays: T[][]): T[] {
 export function intersection<T>(array: T[], ...arrays: T[][]): T[] {
   const result: T[] = []
   top: for (const item of array) {
-    if (contains(result, item))
+    if (includes(result, item))
       continue
     for (const other of arrays) {
-      if (!contains(other, item))
+      if (!includes(other, item))
         continue top
     }
     result.push(item)
@@ -295,7 +303,7 @@ export function intersection<T>(array: T[], ...arrays: T[][]): T[] {
 
 export function difference<T>(array: T[], ...arrays: T[][]): T[] {
   const rest = concat(arrays)
-  return array.filter((value) => !contains(rest, value))
+  return array.filter((value) => !includes(rest, value))
 }
 
 export function removeBy<T>(array: T[], key: (item: T) => boolean): void {

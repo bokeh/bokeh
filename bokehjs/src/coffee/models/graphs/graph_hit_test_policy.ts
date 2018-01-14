@@ -44,6 +44,9 @@ export abstract class GraphHitTestPolicy extends Model {
 GraphHitTestPolicy.prototype.type = "GraphHitTestPolicy"
 
 export class NodesOnly extends GraphHitTestPolicy {
+  static initClass() {
+    this.prototype.type = 'NodesOnly';
+  }
 
   hit_test(geometry: Geometry, graph_view: GraphRendererView): HitTestResult {
     return this._hit_test_nodes(geometry, graph_view)
@@ -55,7 +58,7 @@ export class NodesOnly extends GraphHitTestPolicy {
 
     const node_selection = graph_view.node_view.model.data_source.selected
     node_selection.update(hit_test_result, final, append)
-    graph_view.node_view.model.data_source.select.emit()
+    graph_view.node_view.model.data_source._select.emit()
 
     return !node_selection.is_empty()
   }
@@ -74,10 +77,12 @@ export class NodesOnly extends GraphHitTestPolicy {
     return !node_inspection.is_empty()
   }
 }
-
-NodesOnly.prototype.type = "NodesOnly"
+NodesOnly.initClass();
 
 export class NodesAndLinkedEdges extends GraphHitTestPolicy {
+  static initClass() {
+    this.prototype.type = 'NodesAndLinkedEdges';
+  }
 
   hit_test(geometry: Geometry, graph_view: GraphRendererView): HitTestResult {
     return this._hit_test_nodes(geometry, graph_view)
@@ -116,7 +121,7 @@ export class NodesAndLinkedEdges extends GraphHitTestPolicy {
     const linked_edges_selection = this.get_linked_edges(graph_view.node_view.model.data_source, graph_view.edge_view.model.data_source, 'selection')
     edge_selection.update(linked_edges_selection, final, append)
 
-    graph_view.node_view.model.data_source.select.emit()
+    graph_view.node_view.model.data_source._select.emit()
 
     return !node_selection.is_empty()
   }
@@ -140,10 +145,12 @@ export class NodesAndLinkedEdges extends GraphHitTestPolicy {
     return !node_inspection.is_empty()
   }
 }
-
-NodesAndLinkedEdges.prototype.type = 'NodesAndLinkedEdges'
+NodesAndLinkedEdges.initClass();
 
 export class EdgesAndLinkedNodes extends GraphHitTestPolicy {
+  static initClass() {
+    this.prototype.type = 'EdgesAndLinkedNodes';
+  }
 
   hit_test(geometry: Geometry, graph_view: GraphRendererView): HitTestResult {
     return this._hit_test_edges(geometry, graph_view)
@@ -178,7 +185,7 @@ export class EdgesAndLinkedNodes extends GraphHitTestPolicy {
     const linked_nodes = this.get_linked_nodes(graph_view.node_view.model.data_source, graph_view.edge_view.model.data_source, 'selection')
     node_selection.update(linked_nodes, final, append)
 
-    graph_view.edge_view.model.data_source.select.emit()
+    graph_view.edge_view.model.data_source._select.emit()
 
     return !edge_selection.is_empty()
   }
@@ -202,5 +209,4 @@ export class EdgesAndLinkedNodes extends GraphHitTestPolicy {
     return !edge_inspection.is_empty()
   }
 }
-
-EdgesAndLinkedNodes.prototype.type = 'EdgesAndLinkedNodes'
+EdgesAndLinkedNodes.initClass();

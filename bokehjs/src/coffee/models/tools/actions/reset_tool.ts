@@ -1,6 +1,5 @@
 import {ActionTool, ActionToolView} from "./action_tool"
 import {Reset} from "core/bokeh_events"
-import * as p from "core/properties"
 
 export class ResetToolView extends ActionToolView {
 
@@ -24,7 +23,3 @@ export class ResetTool extends ActionTool {
 ResetTool.prototype.type = "ResetTool"
 
 ResetTool.prototype.default_view = ResetToolView
-
-ResetTool.define({
-  reset_size: [ p.Bool, true ]
-})

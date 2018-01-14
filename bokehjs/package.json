@@ -1,6 +1,6 @@
 {
   "name": "bokehjs",
-  "version": "0.12.14dev2",
+  "version": "0.12.14dev3",
   "description": "Interactive, novel data visualization",
   "keywords": [
     "bokeh",
@@ -33,7 +33,6 @@
     "gulp-uglify": "^3.0.0",
     "gulp-uglifycss": "^1.0.4",
     "gulp-util": "^3.0.4",
-    "gulp-coffee": "^2.3.1",
     "gulp-typescript": "^3.2.3",
     "merge2": "^1.2.0",
     "logtrap": "^0.0.1",
@@ -104,6 +103,7 @@
     "@types/pikaday": "^0.0.33",
     "underscore.template": "^0.1.7",
     "nouislider": "^10.0.0",
+    "@types/nouislider": "^9.0.3",
     "canvas2svg": "https://github.com/bokeh/canvas2svg#v1.0.21",
     "numbro": "https://github.com/bokeh/numbro.git#e1b6c52",
     "kiwi": "https://github.com/bokeh/kiwi.git#1a3dabb",

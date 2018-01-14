@@ -243,10 +243,7 @@ class ResetTool(Action):
 
     '''
 
-    reset_size = Bool(default=True, help="""
-    Whether activating the Reset tool should also reset the plot's canvas
-    dimensions to their original size.
-    """)
+    pass
 
 
 class TapTool(Tap):

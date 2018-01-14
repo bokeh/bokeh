@@ -8,6 +8,8 @@
     "strictNullChecks": true,
     "alwaysStrict": true,
     "noEmitOnError": false,
+    "allowJs": true,
+    "checkJs": false,
     "module": "commonjs",
     "moduleResolution": "node",
     "target": "ES5",
@@ -17,6 +19,6 @@
     "importHelpers": true,
     "experimentalDecorators": true,
     "types": [],
-    "baseUrl": "./build/js/tree_ts/"
+    "baseUrl": "./src/coffee/"
   }
 }

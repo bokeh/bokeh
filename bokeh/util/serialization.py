@@ -101,7 +101,7 @@ def convert_datetime_type(obj):
     # Datetime (datetime is a subclass of date)
     elif isinstance(obj, dt.datetime):
         diff = obj.replace(tzinfo=None) - DT_EPOCH
-        return diff.total_seconds() * 1000. + obj.microsecond / 1000.
+        return diff.total_seconds() * 1000.
 
     # Timedelta (timedelta is class in the datetime library)
     elif isinstance(obj, dt.timedelta):
@@ -123,6 +123,50 @@ def convert_datetime_type(obj):
     # Time
     elif isinstance(obj, dt.time):
         return (obj.hour * 3600 + obj.minute * 60 + obj.second) * 1000 + obj.microsecond / 1000.
+
+def convert_datetime_array(array):
+    ''' Convert NumPy datetime arrays to arrays to milliseconds since epoch.
+
+    Args:
+        array : (obj)
+            A NumPy array of datetime to convert
+
+            If the value passed in is not a NumPy array, it will be returned as-is.
+
+    Returns:
+        array
+
+    '''
+    if not isinstance(array, np.ndarray):
+        return array
+
+    try:
+        dt2001 = np.datetime64('2001')
+        legacy_datetime64 = (dt2001.astype('int64') ==
+                             dt2001.astype('datetime64[ms]').astype('int64'))
+    except AttributeError as e:
+        if e.args == ("'module' object has no attribute 'datetime64'",):
+            # for compatibility with PyPy that doesn't have datetime64
+            if 'PyPy' in sys.version:
+                legacy_datetime64 = False
+                pass
+            else:
+                raise e
+        else:
+            raise e
+
+    # not quite correct, truncates to ms..
+    if array.dtype.kind == 'M':
+        if legacy_datetime64:
+            if array.dtype == np.dtype('datetime64[ns]'):
+                array = array.astype('int64') / 10**6.0
+        else:
+            array =  array.astype('datetime64[us]').astype('int64') / 1000.
+
+    elif array.dtype.kind == 'm':
+        array = array.astype('timedelta64[us]').astype('int64') / 1000.
+
+    return array
 
 def make_id():
     ''' Return a new unique ID for a Bokeh object.
@@ -199,32 +243,7 @@ def transform_array(array, force_list=False, buffers=None):
 
     '''
 
-    # Check for astype failures (putative Numpy < 1.7)
-    try:
-        dt2001 = np.datetime64('2001')
-        legacy_datetime64 = (dt2001.astype('int64') ==
-                             dt2001.astype('datetime64[ms]').astype('int64'))
-    except AttributeError as e:
-        if e.args == ("'module' object has no attribute 'datetime64'",):
-            # for compatibility with PyPy that doesn't have datetime64
-            if 'PyPy' in sys.version:
-                legacy_datetime64 = False
-                pass
-            else:
-                raise e
-        else:
-            raise e
-
-    # not quite correct, truncates to ms..
-    if array.dtype.kind == 'M':
-        if legacy_datetime64:
-            if array.dtype == np.dtype('datetime64[ns]'):
-                array = array.astype('int64') / 10**6.0
-        else:
-            array =  array.astype('datetime64[us]').astype('int64') / 1000.
-
-    elif array.dtype.kind == 'm':
-        array = array.astype('timedelta64[us]').astype('int64') / 1000.
+    array = convert_datetime_array(array)
 
     return serialize_array(array, force_list=force_list, buffers=buffers)
 

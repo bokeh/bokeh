@@ -12,8 +12,7 @@ export const build_dir = {
   js: JS_BUILD_DIR,
   css: CSS_BUILD_DIR,
   types: join(JS_BUILD_DIR, "types"),
-  tree_js: join(JS_BUILD_DIR, "tree"),
-  tree_ts: join(JS_BUILD_DIR, "tree_ts"),
+  tree: join(JS_BUILD_DIR, "tree"),
   compiler: join(JS_BUILD_DIR, "compiler"),
 }
 
@@ -24,23 +23,23 @@ export const src_dir = {
 
 export const coffee = {
   bokehjs: {
-    main: join(build_dir.tree_js, "main.js"),
+    main: join(build_dir.tree, "main.js"),
     output: join(build_dir.js, "bokeh.js"),
   },
   api: {
-    main: join(build_dir.tree_js, "api/main.js"),
+    main: join(build_dir.tree, "api/main.js"),
     output: join(build_dir.js, "bokeh-api.js"),
   },
   widgets: {
-    main: join(build_dir.tree_js, "models/widgets/main.js"),
+    main: join(build_dir.tree, "models/widgets/main.js"),
     output: join(build_dir.js, "bokeh-widgets.js"),
   },
   tables: {
-    main: join(build_dir.tree_js, "models/widgets/tables/main.js"),
+    main: join(build_dir.tree, "models/widgets/tables/main.js"),
     output: join(build_dir.js, "bokeh-tables.js"),
   },
   gl: {
-    main: join(build_dir.tree_js, "models/glyphs/webgl/main.js"),
+    main: join(build_dir.tree, "models/glyphs/webgl/main.js"),
     output: join(build_dir.js, "bokeh-gl.js"),
   },
   watchSources: [

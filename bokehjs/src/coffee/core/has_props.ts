@@ -27,13 +27,6 @@ export abstract class HasProps extends Signalable() {
   mixins: string[]
   // }}}
 
-  static getters(specs: any): void {
-    for (const name in specs) {
-      const fn = specs[name]
-      Object.defineProperty(this.prototype, name, { get: fn })
-    }
-  }
-
   private static _fix_default(default_value: any, _attr: string): undefined | (() => any) {
     if (default_value === undefined)
       return undefined

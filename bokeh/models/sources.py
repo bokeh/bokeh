@@ -6,6 +6,7 @@ from ..core.has_props import abstract
 from ..core.properties import Any, Bool, ColumnData, Dict, Enum, Instance, Int, JSON, List, Seq, String
 from ..model import Model
 from ..util.dependencies import import_optional
+from ..util.serialization import convert_datetime_array
 from ..util.warnings import BokehUserWarning
 
 from .callbacks import Callback
@@ -168,7 +169,6 @@ class ColumnDataSource(ColumnarDataSource):
 
         '''
         _df = df.copy()
-        index = _df.index
         tmp_data = {c: v.values for c, v in _df.iteritems()}
 
         new_data = {}
@@ -177,15 +177,8 @@ class ColumnDataSource(ColumnarDataSource):
                 k = "_".join(k)
             new_data[k] = v
 
-        if index.name:
-            new_data[index.name] = index.values
-        elif index.names:
-            try:
-                new_data["_".join(index.names)] = index.values
-            except TypeError:
-                new_data["index"] = index.values
-        else:
-            new_data["index"] = index.values
+        index_name = ColumnDataSource._df_index_name(df)
+        new_data[index_name] = _df.index.values
         return new_data
 
     @staticmethod
@@ -204,6 +197,38 @@ class ColumnDataSource(ColumnarDataSource):
 
         '''
         return ColumnDataSource._data_from_df(group.describe())
+
+    @staticmethod
+    def _df_index_name(df):
+        ''' Return the Bokeh-appropriate column name for a DataFrame index
+
+        If there is no named index, then `"index" is returned.
+
+        If there is a single named index, then ``df.index.name`` is returned.
+
+        If there is a multi-index, and the index names are all strings, then
+        the names are joined with '_' and the result is returned, e.g. for a
+        multi-index ``['ind1', 'ind2']`` the result will be "ind1_ind2".
+        Otherwise if any index name is not a string, the fallback name "index"
+        is returned.
+
+        Args:
+            df (DataFrame) : the DataFrame to find an index name for
+
+        Returns:
+            str
+
+        '''
+        if df.index.name:
+            return df.index.name
+        elif df.index.names:
+            try:
+                return "_".join(df.index.names)
+            except TypeError:
+                return "index"
+        else:
+            return "index"
+
 
     @classmethod
     def from_df(cls, data):
@@ -389,13 +414,24 @@ class ColumnDataSource(ColumnarDataSource):
             source.stream(new_data)
 
         '''
+        needs_length_check = True
+
         if pd and isinstance(new_data, pd.Series):
             new_data = new_data.to_frame().T
+
         if pd and isinstance(new_data, pd.DataFrame):
-            newkeys = set(new_data.columns)
+            needs_length_check = False # DataFrame lengths equal by definition
+            _df = new_data
+            newkeys = set(_df.columns)
+            index_name = ColumnDataSource._df_index_name(_df)
+            newkeys.add(index_name)
+            new_data = dict(_df.iteritems())
+            new_data[index_name] = _df.index.values
         else:
             newkeys = set(new_data.keys())
+
         oldkeys = set(self.data.keys())
+
         if newkeys != oldkeys:
             missing = oldkeys - newkeys
             extra = newkeys - oldkeys
@@ -408,7 +444,7 @@ class ColumnDataSource(ColumnarDataSource):
             else:
                 raise ValueError("Must stream updates to all existing columns (extra: %s)" % ", ".join(sorted(extra)))
 
-        if not (pd and isinstance(new_data, pd.DataFrame)):
+        if needs_length_check:
             import numpy as np
 
             lengths = set()
@@ -423,6 +459,11 @@ class ColumnDataSource(ColumnarDataSource):
 
             if len(lengths) > 1:
                 raise ValueError("All streaming column updates must be the same length")
+
+        # slighgly awkward that we have to call converty_datetime_array here ourselves
+        # but the downstream code expects things to already be ms-since-epoch
+        for key in new_data:
+            new_data[key] = convert_datetime_array(new_data[key])
 
         self.data._stream(self.document, self, new_data, rollover, setter)
 
