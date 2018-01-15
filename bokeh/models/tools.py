@@ -36,6 +36,7 @@ from .annotations import BoxAnnotation, PolyAnnotation
 from .callbacks import Callback
 from .renderers import Renderer
 from .layouts import LayoutDOM
+from .sources import ColumnDataSource
 
 
 @abstract
@@ -865,3 +866,89 @@ class RedoTool(Action):
         :height: 18pt
 
     '''
+
+class VertexEditTool(Tool):
+
+    source = Instance(ColumnDataSource, help="""
+    The ColumnDataSource to be modified by the tool.
+    """)
+
+    renderers = List(Instance(Renderer), help="""
+    An explicit list of renderers corresponding to scatter glyphs
+    that may be edited.
+    """)
+
+    x = String('x', help="The name of the x-value column in the supplied source")
+
+    y = String('y', help="The name of the y-value column in the supplied source")
+
+class PointDrawTool(Tool):
+
+    source = Instance(ColumnDataSource, help="""
+    The ColumnDataSource to be modified by the tool.
+    """)
+
+    renderers = List(Instance(Renderer), help="""
+    An explicit list of renderers corresponding to scatter glyphs
+    that may be edited.
+    """)
+
+    x = String('x', help="The name of the x-value column in the supplied source")
+
+    y = String('y', help="The name of the y-value column in the supplied source")
+
+class PolyDrawTool(Tool):
+
+    source = Instance(ColumnDataSource, help="""
+    The ColumnDataSource to be modified by the tool.
+    """)
+
+    renderers = List(Instance(Renderer), help="""
+    An explicit list of renderers corresponding to scatter glyphs
+    that may be edited.
+    """)
+
+    x = String('x', help="The name of the x-value column in the supplied source")
+
+    y = String('y', help="The name of the y-value column in the supplied source")
+
+class LineEditTool(Tool):
+
+    source = Instance(ColumnDataSource, help="""
+    The ColumnDataSource to be modified by the tool.
+    """)
+
+    renderers = List(Instance(Renderer), help="""
+    An explicit list of renderers corresponding to multi_line glyphs
+    that may be edited.
+    """)
+
+    x = String('x', help="The name of the x-value column in the supplied source")
+
+    y = String('y', help="The name of the y-value column in the supplied source")
+
+
+class BoxDrawTool(Tool):
+
+    source = Instance(ColumnDataSource, help="""
+    The ColumnDataSource to be modified by the tool.
+    """)
+
+    dimensions = Enum(Dimensions, default="both", help="""
+    Which dimensions the box drawing is to be free in. By default,
+    users may freely draw selections boxes with any dimensions. If only
+    "width" is supplied, the box will be constrained to span the entire
+    vertical space of the plot, only the horizontal dimension can be
+    controlled. If only "height" is supplied, the box will be constrained
+    to span the entire horizontal space of the plot, and the vertical
+    dimension can be controlled.
+    """)
+
+    renderers = List(Instance(Renderer), help="""
+        An explicit list of renderers to hit test again. If unset,
+        defaults to all renderers on a plot.
+    """)
+
+    x = String('x', help="The name of the x-value column in the supplied source")
+
+    y = String('y', help="The name of the y-value column in the supplied source")
