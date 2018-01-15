@@ -95,7 +95,7 @@ export class TileSource extends Model {
       }
     }
 
-    for (key in this.tiles) {
+    for (const key in this.tiles) {
       tile = this.tiles[key];
       if (!tile.retain)
         this.remove_tile(key);

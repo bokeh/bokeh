@@ -6,6 +6,7 @@ import {label, div} from "core/dom"
 import {logger} from "core/logging"
 import {repeat} from "core/util/array"
 import {throttle} from "core/util/callback"
+import {Orientation, SliderCallbackPolicy} from "core/enums"
 
 import {Widget, WidgetView} from "./widget"
 

@@ -15,6 +15,8 @@ import {WidgetView} from "../widget"
 
 export const DTINDEX_NAME = "__bkdt_internal_index__";
 
+declare var $: any
+
 export class DataProvider {
 
   constructor(source, view) {

@@ -4,6 +4,7 @@ import {zip} from "core/util/array"
 import * as p from "core/properties"
 
 import {Widget, WidgetView} from "./widget"
+import {LayoutDOM} from "../layouts/layout_dom"
 
 export class TabsView extends WidgetView {
   model: Tabs
@@ -31,7 +32,7 @@ export class TabsView extends WidgetView {
 
     const panels = this.model.tabs.map((tab) => div({class: "bk-bs-tab-pane"}))
     panels[this.model.active].classList.add("bk-bs-active")
-    panelsEl = div({class: "bk-bs-tab-content"}, panels)
+    const panelsEl = div({class: "bk-bs-tab-content"}, panels)
     this.el.appendChild(panelsEl)
 
     tabsEl.addEventListener("click", (event) => {

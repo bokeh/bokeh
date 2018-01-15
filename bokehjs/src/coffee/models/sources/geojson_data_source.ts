@@ -60,7 +60,7 @@ export class GeoJSONDataSource extends ColumnarDataSource {
       case "LineString": {
         const coord_list = geometry.coordinates
         for (let j = 0; j < coord_list.length; j++) {
-          coords = coord_list[j]
+          const coords = coord_list[j]
           data.xs[i][j] = coords[0]
           data.ys[i][j] = coords[1]
           data.zs[i][j] = coords[2] != null ? coords[2] : NaN
@@ -73,7 +73,7 @@ export class GeoJSONDataSource extends ColumnarDataSource {
         }
         const exterior_ring = geometry.coordinates[0]
         for (let j = 0; j < exterior_ring.length; j++) {
-          coords = exterior_ring[j]
+          const coords = exterior_ring[j]
           data.xs[i][j] = coords[0]
           data.ys[i][j] = coords[1]
           data.zs[i][j] = coords[2] != null ? coords[2] : NaN
@@ -87,7 +87,7 @@ export class GeoJSONDataSource extends ColumnarDataSource {
       case "MultiLineString": {
         const flattened_coord_list = geometry.coordinates.reduce(this._flatten_function)
         for (let j = 0; j < flattened_coord_list.length; j++) {
-          coords = flattened_coord_list[j]
+          const coords = flattened_coord_list[j]
           data.xs[i][j] = coords[0]
           data.ys[i][j] = coords[1]
           data.zs[i][j] = coords[2] != null ? coords[2] : NaN
@@ -103,9 +103,9 @@ export class GeoJSONDataSource extends ColumnarDataSource {
           exterior_rings.push(polygon[0])
         }
 
-        flattened_coord_list = exterior_rings.reduce(this._flatten_function)
+        const flattened_coord_list = exterior_rings.reduce(this._flatten_function)
         for (let j = 0; j < flattened_coord_list.length; j++) {
-          coords = flattened_coord_list[j]
+          const coords = flattened_coord_list[j]
           data.xs[i][j] = coords[0]
           data.ys[i][j] = coords[1]
           data.zs[i][j] = coords[2] != null ? coords[2] : NaN

@@ -11,6 +11,8 @@ import {Transform} from "./transform";
 import * as p from "core/properties";
 import {values} from "core/util/object"
 
+declare var exports: {[key: string]: any}
+
 export class CustomJSTransform extends Transform {
   static initClass() {
     this.prototype.type = 'CustomJSTransform';

@@ -72,7 +72,7 @@ export class AutocompleteInputView extends TextInputView {
         break
       }
       default: {
-        value = this.inputEl.value
+        const value = this.inputEl.value
 
         if (value.length <= 1) {
           this._clear_menu()

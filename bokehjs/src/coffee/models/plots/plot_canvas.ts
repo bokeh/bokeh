@@ -254,7 +254,7 @@ export class PlotCanvasView extends DOMView {
     let follow_enabled = false;
     let has_bounds = false;
 
-    r = null;
+    let r: number | null = null
     if ((this.model.plot.match_aspect !== false) && (this.frame._width.value !== 0) && (this.frame._height.value !== 0)) {
       r = (1/this.model.plot.aspect_scale)*(this.frame._width.value/this.frame._height.value);
     }
@@ -283,10 +283,10 @@ export class PlotCanvasView extends DOMView {
 
     if (follow_enabled && has_bounds) {
       logger.warn('Follow enabled so bounds are unset.');
-      for (xr of values(frame.x_ranges)) {
+      for (const xr of values(frame.x_ranges)) {
         xr.bounds = null;
       }
-      for (yr of values(frame.y_ranges)) {
+      for (const yr of values(frame.y_ranges)) {
         yr.bounds = null;
       }
     }
@@ -391,7 +391,7 @@ export class PlotCanvasView extends DOMView {
     }
     // Apply shared weight to all ranges
     if (weight < 1) {
-      for ([rng, range_info] of range_info_iter) {
+      for (const [rng, range_info] of range_info_iter) {
         range_info['start'] = (weight * range_info['start']) + ((1-weight) * rng.start);
         range_info['end'] = (weight * range_info['end']) + ((1-weight) * rng.end);
       }
@@ -471,7 +471,7 @@ export class PlotCanvasView extends DOMView {
       return;
     }
 
-    for ([rng, range_info] of range_info_iter) {
+    for (const [rng, range_info] of range_info_iter) {
       rng.have_updated_interactively = true;
       if ((rng.start !== range_info['start']) || (rng.end !== range_info['end'])) {
         rng.setv(range_info);

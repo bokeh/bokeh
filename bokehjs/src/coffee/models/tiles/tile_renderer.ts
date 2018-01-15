@@ -331,7 +331,7 @@ export class TileRendererView extends RendererView {
 
     // draw cached ----------
     this._render_tiles(cached);
-    for (t of cached) {
+    for (const t of cached) {
       tile_source.tiles[t].current = true;
     }
 
