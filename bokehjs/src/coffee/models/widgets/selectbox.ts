@@ -22,9 +22,9 @@ export class SelectView extends InputWidgetView {
   build_options(values): HTMLElement[] {
     return values.map((el) => {
       if (isString(el))
-        value = _label  = el
+        const value = _label = el
       else
-        [value, _label] = el
+        const [value, _label] = el
 
       const selected = this.model.value == value
       return option({selected: selected, value: value}, _label)
