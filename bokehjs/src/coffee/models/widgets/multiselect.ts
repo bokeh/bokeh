@@ -31,6 +31,7 @@ export class MultiSelectView extends InputWidgetView {
     this.el.appendChild(labelEl)
 
     const options = this.model.options.map((opt) => {
+      let value, _label
       if (isString(opt))
         value = _label  = opt
       else

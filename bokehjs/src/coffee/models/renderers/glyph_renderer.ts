@@ -1,6 +1,8 @@
 /* XXX: partial */
 import {Renderer, RendererView} from "./renderer";
+import {Glyph} from "../glyphs/glyph";
 import {LineView} from "../glyphs/line";
+import {DataSource} from "../sources/data_source";
 import {RemoteDataSource} from "../sources/remote_data_source";
 import {CDSView} from "../sources/cds_view";
 import {logger} from "core/logging";

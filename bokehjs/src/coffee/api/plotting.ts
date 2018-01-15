@@ -502,6 +502,8 @@ export const figure = function(attributes = {}, options = {}) {
   return new Figure(attributes, options)
 }
 
+declare var $: any
+
 export const show = function(obj, target) {
   let element;
   const multiple = isArray(obj);

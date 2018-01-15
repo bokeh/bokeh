@@ -11,6 +11,7 @@
 
 import * as p from "core/properties";
 import {empty} from "core/dom";
+import {logger} from "core/logging"
 import {any, sortBy, includes} from "core/util/array";
 
 import {ActionTool} from "./actions/action_tool";
@@ -126,7 +127,7 @@ export class ProxyToolbar extends ToolbarBase {
       return proxy;
     };
 
-    for (event_type in gestures) {
+    for (const event_type in gestures) {
       this.gestures[event_type].tools = [];
       for (tool_type in gestures[event_type]) {
         tools = gestures[event_type][tool_type];

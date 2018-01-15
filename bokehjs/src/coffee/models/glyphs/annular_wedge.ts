@@ -57,26 +57,25 @@ export class AnnularWedgeView extends XYGlyphView {
   }
 
   _hit_point(geometry) {
-    let dist, sx0, sx1, sy0, sy1, x0, x1, y0, y1;
     const {sx, sy} = geometry;
     const x = this.renderer.xscale.invert(sx);
     const y = this.renderer.yscale.invert(sy);
 
     // check radius first
+    let x0, x1, y0, y1
     if (this.model.properties.outer_radius.units === "data") {
       x0 = x - this.max_outer_radius;
       x1 = x + this.max_outer_radius;
 
       y0 = y - this.max_outer_radius;
       y1 = y + this.max_outer_radius;
-
     } else {
-      sx0 = sx - this.max_outer_radius;
-      sx1 = sx + this.max_outer_radius;
+      const sx0 = sx - this.max_outer_radius;
+      const sx1 = sx + this.max_outer_radius;
       [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1);
 
-      sy0 = sy - this.max_outer_radius;
-      sy1 = sy + this.max_outer_radius;
+      const sy0 = sy - this.max_outer_radius;
+      const sy1 = sy + this.max_outer_radius;
       [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1);
     }
 
@@ -86,9 +85,9 @@ export class AnnularWedgeView extends XYGlyphView {
     for (const i of this.index.indices(bbox)) {
       const or2 = Math.pow(this.souter_radius[i], 2);
       const ir2 = Math.pow(this.sinner_radius[i], 2);
-      [sx0, sx1] = this.renderer.xscale.r_compute(x, this._x[i]);
-      [sy0, sy1] = this.renderer.yscale.r_compute(y, this._y[i]);
-      dist = Math.pow(sx0-sx1, 2) + Math.pow(sy0-sy1, 2);
+      const [sx0, sx1] = this.renderer.xscale.r_compute(x, this._x[i]);
+      const [sy0, sy1] = this.renderer.yscale.r_compute(y, this._y[i]);
+      const dist = Math.pow(sx0-sx1, 2) + Math.pow(sy0-sy1, 2);
       if ((dist <= or2) && (dist >= ir2)) {
         candidates.push([i, dist]);
       }
@@ -96,7 +95,7 @@ export class AnnularWedgeView extends XYGlyphView {
 
     const direction = this.model.properties.direction.value();
     const hits = [];
-    for ([i, dist] of candidates) {
+    for (const [i, dist] of candidates) {
       // NOTE: minus the angle because JS uses non-mathy convention for angles
       const angle = Math.atan2(sy-this.sy[i], sx-this.sx[i]);
       if (angle_between(-angle, -this._start_angle[i], -this._end_angle[i], direction)) {

@@ -21,6 +21,7 @@ export class SelectView extends InputWidgetView {
 
   build_options(values): HTMLElement[] {
     return values.map((el) => {
+      let value, _label
       if (isString(el))
         value = _label  = el
       else

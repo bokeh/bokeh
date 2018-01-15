@@ -128,7 +128,7 @@ export class UIEvents {
         if (v._scroll != null) {       v.connect(this.scroll,       function(x) { if (x.id === id) { return v._scroll(x.e); } }); }
         break;
       default:
-        throw new Error(`unsupported event_type: ${ev}`);
+        throw new Error(`unsupported event_type: ${et}`);
     }
 
     if (v._doubletap != null) {
@@ -173,7 +173,7 @@ export class UIEvents {
     return this.plot_view.frame.bbox.contains(sx, sy);
   }
 
-  _trigger(signal, e) {
+  _trigger(signal, e): void {
     let event_type = signal.name;
     const base_type = event_type.split(":")[0];
     const view = this._hit_test_renderers(e.bokeh.sx, e.bokeh.sy);
@@ -223,7 +223,7 @@ export class UIEvents {
         // in order to use the wheel zoom tool. If it's a touch screen the WheelZoomTool event
         // will be linked to pinch. But we also want to trigger in the case of a scroll.
         const base = 'ontouchstart' in window || (navigator.maxTouchPoints > 0) ? "pinch" : "scroll";
-        active_gesture = this.toolbar.gestures[base].active;
+        const active_gesture = this.toolbar.gestures[base].active;
         if (active_gesture != null) {
           e.preventDefault();
           e.stopPropagation();
@@ -232,10 +232,9 @@ export class UIEvents {
         break;
       }
       default: {
-        active_gesture = this.toolbar.gestures[base_type].active;
-        if (active_gesture != null) {
-          return this.trigger(signal, e, active_gesture.id);
-        }
+        const active_gesture = this.toolbar.gestures[base_type].active;
+        if (active_gesture != null)
+          this.trigger(signal, e, active_gesture.id);
       }
     }
   }

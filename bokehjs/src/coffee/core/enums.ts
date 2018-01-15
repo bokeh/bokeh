@@ -85,3 +85,6 @@ export const SizingMode: SizingMode[] = ["stretch_both", "scale_width", "scale_h
 
 export type PaddingUnits = "percent" | "absolute"
 export const PaddingUnits: PaddingUnits[] = ["percent", "absolute"]
+
+export type SliderCallbackPolicy = "continuous" | "throttle" | "mouseup"
+export const SliderCallbackPolicy: SliderCallbackPolicy[] = ["continuous", "throttle", "mouseup"]

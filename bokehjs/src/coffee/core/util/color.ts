@@ -51,11 +51,18 @@ export const color2rgba = function(color, alpha) {
   };
 
 export const valid_rgb = function(value) {
-  let params;
+  let params: {start: string, len: number, alpha: boolean}
   switch (value.substring(0, 4)) {
-      case "rgba": params = {start: "rgba(", len: 4, alpha: true}; break;
-      case "rgb(": params = {start: "rgb(", len: 3, alpha: false}; break;
-      default: return false;
+    case "rgba": {
+      params = {start: "rgba(", len: 4, alpha: true}
+      break
+    }
+    case "rgb(": {
+      params = {start: "rgb(", len: 3, alpha: false}
+      break
+    }
+    default:
+      return false
   }
 
   // if '.' and then ',' found, we know decimals are used on rgb
@@ -68,7 +75,7 @@ export const valid_rgb = function(value) {
 
   // check length of array based on rgb/rgba
   if (contents.length !== params.len) {
-    throw new Error(`color expects rgba ${expect_len}-tuple, received ${value}`);
+    throw new Error(`color expects rgba ${params.len}-tuple, received ${value}`);
   }
 
   // check for valid numerical values for rgba

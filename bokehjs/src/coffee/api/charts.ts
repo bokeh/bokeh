@@ -321,7 +321,7 @@ export function bar(data: BarChartData, opts: BarChartOpts = {}): Plot {
     [xscale, yscale] = [yscale, xscale];
 
     for (const r of renderers) {
-      const data = r.data_source.data;
+      const data = (r.data_source as ColumnDataSource).data;
       [data.left, data.bottom] = [data.bottom, data.left];
       [data.right, data.top] = [data.top, data.right];
     }
