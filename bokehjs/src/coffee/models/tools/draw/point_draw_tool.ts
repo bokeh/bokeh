@@ -102,7 +102,7 @@ export class PointDrawTool extends SelectTool {
   source: ColumnDataSource
   x: string
   y: string
-  
+
   tool_name = "Point Draw Tool"
   icon = "bk-tool-icon-point-draw"
   event_type = ["tap", "pan"]

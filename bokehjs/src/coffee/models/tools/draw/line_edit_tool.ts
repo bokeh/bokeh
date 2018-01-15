@@ -36,7 +36,7 @@ export class LineEditToolView extends EditToolView {
     const index = ds.selected['1d'].indices[0];
     const xs = ds.data[this.model.x][index];
     const ys = ds.data[this.model.y][index];
-	for (let i = 0; i < ys.length; i++) {
+    for (let i = 0; i < ys.length; i++) {
       xs[i] = xs[i]+dx;
       ys[i] = ys[i]+dy;
     }

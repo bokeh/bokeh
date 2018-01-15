@@ -139,7 +139,7 @@ export class VertexEditTool extends SelectTool {
   source: ColumnDataSource
   x: string
   y: string
-  
+
   tool_name = "Vertex Edit Tool"
   icon = "bk-tool-icon-vertex-edit"
   event_type = ["tap", "pan"]

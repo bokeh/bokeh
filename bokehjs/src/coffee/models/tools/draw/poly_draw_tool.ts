@@ -96,7 +96,7 @@ export class PolyDrawTool extends SelectTool {
 
 PolyDrawTool.prototype.type = "PolyDrawTool"
 
-PolyDrawTool.prototype.default_view = PolyDrawToolView 
+PolyDrawTool.prototype.default_view = PolyDrawToolView
 
 PolyDrawTool.define({
   source: [ p.Instance ],
