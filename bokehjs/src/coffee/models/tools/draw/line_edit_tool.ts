@@ -17,22 +17,28 @@ export interface BkEv {
 
 export class LineEditToolView extends EditToolView {
   model: LineEditTool
+  _basepoint: [number, number]
 
-  _pan_start(e: BkEv) {
+  _pan_start(e: BkEv): void {
     // Perform hit testing
     this._select_event(e, false);
-    const [x, y] = this._map_drag(e.bokeh.sx, e.bokeh.sy);
-    [this._px, this._py] = [x, y];
+    const point = this._map_drag(e.bokeh.sx, e.bokeh.sy);
+    if (point == null) {
+      return
+    }
+    this._basepoint = point;
   }
 
-  _pan(e: BkEv) {
+  _pan(e: BkEv): void {
     const ds = this.model.source;
-    if (!ds.selected['1d'].indices.length) {
+    const point = this._map_drag(e.bokeh.sx, e.bokeh.sy)
+    if (!ds.selected['1d'].indices.length || point == null || this._basepoint == null) {
       return;
     }
-    const [x, y] = this._map_drag(e.bokeh.sx, e.bokeh.sy);
-    const [dx, dy] = [x-this._px, y-this._py];
-    [this._px, this._py] = [x, y];
+    const [x, y] = point
+	const [px, py] = this._basepoint
+    const [dx, dy] = [x-px, y-py];
+    this._basepoint = point;
     const index = ds.selected['1d'].indices[0];
     const xs = ds.data[this.model.x][index];
     const ys = ds.data[this.model.y][index];
@@ -43,12 +49,9 @@ export class LineEditToolView extends EditToolView {
     ds.change.emit(undefined);
   }
 
-  _pan_end(e: BkEv) {
-    this._px = null;
-    this._py = null;
-    const ds = this.model.source;
-    ds.selected['1d'].indices = [];
-    this.plot_view.push_state('line_edit', {selection: this.plot_view.get_selection()});
+  _pan_end(_e: BkEv): void {
+    this.model.source.selected['1d'].indices = [];
+    this._basepoint = null;
   }
 }
 

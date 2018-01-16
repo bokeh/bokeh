@@ -20,7 +20,7 @@ export interface BkEv {
 export class VertexEditToolView extends EditToolView {
   model: VertexEditTool
 
-  _doubletap(e: BkEv) {
+  _doubletap(e: BkEv): void {
     // Perform hit testing
     let did_hit, renderer;
     const geometry = {
@@ -29,10 +29,10 @@ export class VertexEditToolView extends EditToolView {
       sy: e.bokeh.sy
     };
     const renderers_by_source = this._computed_renderers_by_data_source();
-    for (let _ in renderers_by_source) {
-      const renderers = renderers_by_source[_];
+    for (let source in renderers_by_source) {
+      const renderers = renderers_by_source[source];
       const sm = this.model.source.selection_manager;
-      const r_views = (Array.from(renderers).map((r) => this.plot_view.renderer_views[r.id]));
+      const r_views = (renderers.map((r) => this.plot_view.renderer_views[r.id]));
       did_hit = sm.select(r_views, geometry, true, false);
       if (did_hit) {
         renderer = renderers[0];
@@ -71,16 +71,17 @@ export class VertexEditToolView extends EditToolView {
     this.model.line_source = renderer.data_source;
   }
 
-  _tap(e: BkEv) {
-    const indices = this.model.source.selected['1d'].indices.slice(0);
+  _tap(e: BkEv): void {
+    const ds = this.model.source;
     const append = e.srcEvent.shiftKey != null ? e.srcEvent.shiftKey : false;
     const did_hit = this._select_event(e, append);
-    if (did_hit) {
+    const point = this._map_drag(e.bokeh.sx, e.bokeh.sy);
+    if (did_hit || point == null) {
       return;
     }
 
-    const ds = this.model.source;
-    const [x, y] = this._map_drag(e.bokeh.sx, e.bokeh.sy);
+    const [x, y] = point;
+    const indices = ds.selected['1d'].indices.slice(0);
     if (indices.length === 1) {
       const index = indices[0]+1;
       ds.selected['1d'].indices = [index];
@@ -91,19 +92,19 @@ export class VertexEditToolView extends EditToolView {
     }
   }
 
-  _pan_start(e: BkEv) {
-    // Perform hit testing
+  _pan_start(e: BkEv): void {
     this._select_event(e, false);
   }
 
-  _pan(e: BkEv) {
+  _pan(e: BkEv): void {
     const ds = this.model.source;
-    if (!ds.selected['1d'].indices.length) {
+    const point = this._map_drag(e.bokeh.sx, e.bokeh.sy);
+    if (!ds.selected['1d'].indices.length || point == null) {
       return;
     }
 
     // If a Point is selected drag it
-    const [x, y] = this._map_drag(e.bokeh.sx, e.bokeh.sy);
+    const [x, y] = point;
     const index = ds.selected['1d'].indices[0];
     ds.data[this.model.x][index] = x;
     ds.data[this.model.y][index] = y;
@@ -111,16 +112,16 @@ export class VertexEditToolView extends EditToolView {
     this.model.line_source.change.emit(undefined);
   }
 
-  _pan_end(e: BkEv) {
+  _pan_end(_e: BkEv): void {
     this.model.source.selected['1d'].indices = [];
     this.model.line_source.properties.data.change.emit(undefined);
   }
 
-  _keyup(e: BkEv) {
+  _keyup(e: BkEv): void {
     if ((e.keyCode === 8) && this.model.active) {
       const ds = this.model.source;
-      const { indices } = ds.selected['1d'];
-      indices.sort((a: number, b: number) => a-b);
+      const indices = ds.selected['1d'].indices;
+      indices.sort();
       for (let index = 0; index < indices.length; index++) {
         const ind = indices[index];
         ds.data[this.model.x].splice(ind-index, 1);

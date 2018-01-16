@@ -20,19 +20,16 @@ export interface BkEv {
 export class PolyDrawToolView extends EditToolView {
   model: PolyDrawTool
 
-  _tap(e: BkEv) {
-    let did_hit;
-    const ds = this.model.source;
-    const indices = ds.selected['1d'].indices.slice(0);
+  _tap(e: BkEv): void {
     const append = e.srcEvent.shiftKey != null ? e.srcEvent.shiftKey : false;
-    did_hit = this._select_event(e, append);
+    this._select_event(e, append);
   }
 
-  _keyup(e: BkEv) {
+  _keyup(e: BkEv): void {
     if ((e.keyCode === 8) && this.model.active) {
       const ds = this.model.source;
-      const { indices } = ds.selected['1d'];
-      indices.sort((a: number, b: number) => a-b);
+      const indices = ds.selected['1d'].indices;
+      indices.sort();
       for (let index = 0; index < indices.length; index++) {
         const ind = indices[index];
         ds.data[this.model.x].splice(ind-index, 1);
@@ -45,14 +42,24 @@ export class PolyDrawToolView extends EditToolView {
     }
   }
 
-  _pan_start(e: BkEv) {
-    const [x, y] = Array.from(this._map_drag(e.bokeh.sx, e.bokeh.sy));
+  _pan_start(e: BkEv): void {
+    const point = this._map_drag(e.bokeh.sx, e.bokeh.sy);
+    if (point == null) {
+      return;
+    }
+    const [x, y] = point;
     const append = e.srcEvent.shiftKey != null ? e.srcEvent.shiftKey : false;
     const ds = this.model.source;
-    const count = ds.data[this.model.x].length;
-    if (append && (count !== 0)) {
-      ds.data[this.model.x][count-1].push(x);
-      ds.data[this.model.y][count-1].push(y);
+    const indices = ds.selected['1d'].indices;
+    let count;
+    if (indices.length>0) {
+      count = indices[0];
+    } else {
+      count = ds.data[this.model.x].length-1;
+    }
+    if (append && (count >= 0)) {
+      ds.data[this.model.x][count].push(x);
+      ds.data[this.model.y][count].push(y);
     } else {
       ds.data[this.model.x].push([x, x]);
       ds.data[this.model.y].push([y, y]);
@@ -61,15 +68,21 @@ export class PolyDrawToolView extends EditToolView {
     ds.properties.data.change.emit(undefined);
   }
 
-  _pan(e: BkEv) {
-    const drag = this._map_drag(e.bokeh.sx, e.bokeh.sy);
-    if ((drag == null)) {
+  _pan(e: BkEv): void {
+    const point = this._map_drag(e.bokeh.sx, e.bokeh.sy);
+    if (point == null) {
       return;
     }
-    const [x, y] = Array.from(drag);
+    const [x, y] = point;
 
     const ds = this.model.source;
-    const count = ds.data[this.model.x].length - 1;
+    const indices = ds.selected['1d'].indices;
+    let count;
+    if (indices.length>0) {
+      count = indices[0];
+    } else {
+      count = ds.data[this.model.x].length-1;
+    }
     const xs = ds.data[this.model.x][count];
     const ys = ds.data[this.model.y][count];
     xs[xs.length-1] = x;
@@ -77,9 +90,6 @@ export class PolyDrawToolView extends EditToolView {
     ds.change.emit(undefined);
     ds.properties.data.change.emit(undefined);
   }
-
-  // this is executed then the pan/drag ends
-  _pan_end(e: BkEv) { }
 }
 
 
