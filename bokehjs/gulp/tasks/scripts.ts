@@ -25,7 +25,7 @@ function is_partial(file: string): boolean {
 }
 
 function is_accepted(code: number): boolean {
-  return code < 2000 || [2304, 2307, 2688, 6053, 6133].includes(code)
+  return (code < 2322 && code != 2305) || code > 7034 || [2688, 4020, 6053, 6133].includes(code)
 }
 
 gulp.task("scripts:ts", () => {
