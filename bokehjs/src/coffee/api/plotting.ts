@@ -12,6 +12,7 @@ import {extend, clone} from "../core/util/object";
 import {isNumber, isString, isArray} from "../core/util/types";
 
 import {GlyphRenderer, Axis, Grid, Tool, Plot} from "./models"
+import {DOMView} from "../core/dom_view"
 
 export {gridplot} from "./gridplot"
 
@@ -504,7 +505,7 @@ export const figure = function(attributes = {}, options = {}) {
 
 declare var $: any
 
-export const show = function(obj, target) {
+export const show = function(obj, target): DOMView | {[key: string]: DOMView} {
   let element;
   const multiple = isArray(obj);
 
