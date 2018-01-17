@@ -109,7 +109,7 @@ export class CartesianFrame extends LayoutCanvas {
     this._yscales = this._get_scales(this.y_scale, this._y_ranges, this._v_target)
   }
 
-  protected _update_scales(): void {
+  update_scales(): void {
     this._configure_frame_ranges()
 
     for (const name in this._xscales) {

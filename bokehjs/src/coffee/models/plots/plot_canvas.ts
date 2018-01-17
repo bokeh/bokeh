@@ -758,7 +758,7 @@ export class PlotCanvasView extends DOMView {
     // reach the frame in time (sometimes) so force an update here for now
     // (mp) not only that, but models don't know about solver anymore, so
     // frame can't update its scales.
-    this.model.frame._update_scales();
+    this.model.frame.update_scales();
 
     const { ctx } = this.canvas_view;
     ctx.pixel_ratio = (ratio = this.canvas.pixel_ratio);  // Also store on cts for WebGL
