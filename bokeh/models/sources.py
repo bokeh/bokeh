@@ -11,7 +11,7 @@ from ..util.warnings import BokehUserWarning
 
 from .callbacks import Callback
 from .filters import Filter
-from .selections import Selection
+from .selections import Selection, SelectionPolicy
 
 pd = import_optional('pandas')
 
@@ -38,6 +38,10 @@ class ColumnarDataSource(DataSource):
 
     column_names = List(String, help="""
     An list of names for all the columns in this DataSource.
+    """)
+
+    selection_policy = Instance(SelectionPolicy, help="""
+    An instance of a SelectionPolicy that determines how selections are set.
     """)
 
 class ColumnDataSource(ColumnarDataSource):

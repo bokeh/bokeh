@@ -1,3 +1,4 @@
+from ..core.has_props import abstract
 from ..core.properties import Int, Seq
 from ..model import Model
 
@@ -14,3 +15,31 @@ class Selection(Model):
     indices = Seq(Int, default=[], help="""
     The indices included in a selection.
     """)
+
+@abstract
+class SelectionPolicy(Model):
+    '''
+
+    '''
+
+    pass
+
+class IntersectRenderers(SelectionPolicy):
+    '''
+    When a data source is shared between multiple renderers, a row in the data
+    source will only be selected if that point for each renderer is selected. The
+    selection is made from the intersection of hit test results from all renderers.
+
+    '''
+
+    pass
+
+class UnionRenderers(SelectionPolicy):
+    '''
+    When a data source is shared between multiple renderers, selecting a point on
+    from any renderer will cause that row in the data source to be selected. The
+    selection is made from the union of hit test results from all renderers.
+
+    '''
+
+    pass

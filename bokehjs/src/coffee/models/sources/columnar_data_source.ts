@@ -7,6 +7,7 @@ import * as p from "core/properties"
 import {uniq, range} from "core/util/array"
 import {keys, values} from "core/util/object"
 import {Selection} from "../selections/selection"
+import {SelectionPolicy, UnionRenderers} from "../selections/interaction_policy"
 
 // Abstract baseclass for column based data sources, where the column
 // based data may be supplied directly or be computed from an attribute
@@ -21,11 +22,14 @@ export class ColumnarDataSource extends DataSource {
   streaming: Signal<any, this>
   patching: Signal<any, this> // <number[], ColumnarDataSource>
 
+  selection_policy: SelectionPolicy
+
   static initClass() {
     this.prototype.type = 'ColumnarDataSource'
 
     this.define({
-      column_names: [ p.Array, [] ]
+      column_names:     [ p.Array, [] ],
+      selection_policy: [ p.Instance  ]
     })
 
     this.internal({
@@ -43,6 +47,10 @@ export class ColumnarDataSource extends DataSource {
 
     this.streaming = new Signal(this, "streaming")
     this.patching = new Signal(this, "patching") // <number[], ColumnarDataSource>
+
+    if (!this.selection_policy)
+      this.selection_policy = new UnionRenderers() // added here instead of as default because can't set default
+                                                   // on Python side without error
   }
 
   get_column(colname: string): any[] | null {
