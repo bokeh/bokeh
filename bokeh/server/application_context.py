@@ -16,14 +16,22 @@ from ..protocol.exceptions import ProtocolError
 from ..util.tornado import _CallbackGroup, yield_for_all_futures
 
 class _RequestProxy(object):
-    def __init__(self, request):
-        args_copy = dict(request.arguments)
+    def __init__(self, handler):
+        args_copy = dict(handler.request.arguments)
         if 'bokeh-protocol-version' in args_copy: del args_copy['bokeh-protocol-version']
         if 'bokeh-session-id' in args_copy: del args_copy['bokeh-session-id']
         self._args = args_copy
+        self._path_args = dict(handler.path_args)
+        self._path_kwargs = dict(handler.path_kwargs)
     @property
     def arguments(self):
         return self._args
+    @property
+    def path_args(self):
+        return self._path_args
+    @property
+    def path_kwargs(self):
+        return self._path_kwargs
 
 class BokehServerContext(ServerContext):
     def __init__(self, application_context):
@@ -150,7 +158,7 @@ class ApplicationContext(object):
         self.server_context._remove_all_callbacks()
 
     @gen.coroutine
-    def create_session_if_needed(self, session_id, request=None):
+    def create_session_if_needed(self, session_id, handler=None):
         # this is because empty session_ids would be "falsey" and
         # potentially open up a way for clients to confuse us
         if len(session_id) == 0:
@@ -167,7 +175,7 @@ class ApplicationContext(object):
                                                   self.server_context,
                                                   doc)
             # using private attr so users only have access to a read-only property
-            session_context._request = _RequestProxy(request)
+            session_context._request = _RequestProxy(handler)
 
             # expose the session context to the document
             # use the _attribute to set the public property .session_context
