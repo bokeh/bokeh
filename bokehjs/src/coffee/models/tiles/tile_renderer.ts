@@ -1,4 +1,5 @@
 /* XXX: partial */
+import {Tile} from "./tile_source"
 import {ImagePool} from "./image_pool";
 import {WMTSTileSource} from "./wmts_tile_source";
 import {Renderer, RendererView} from "../renderers/renderer";
@@ -286,7 +287,7 @@ export class TileRendererView extends RendererView {
     this.extent = extent;
     const tiles = tile_source.get_tiles_by_extent(extent, zoom_level);
     const parents = [];
-    const need_load = [];
+    const need_load: Tile[] = [];
     const cached = [];
     let children = [];
 
@@ -318,7 +319,7 @@ export class TileRendererView extends RendererView {
         }
       }
 
-      if ((tile == null)) {
+      if (tile == null) {
         need_load.push(t);
       }
     }

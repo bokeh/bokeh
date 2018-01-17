@@ -36,7 +36,7 @@ import {update_panel_constraints, _view_sizes} from "core/layout/side_panel"
 // The presence (and not-being-false) of the ctx.glcanvas attribute is the
 // marker that we use throughout that determines whether we have gl support.
 
-let global_glcanvas = null;
+let global_glcanvas: HTMLCanvasElement | null = null
 
 export class PlotCanvasView extends DOMView {
 
@@ -164,8 +164,8 @@ export class PlotCanvasView extends DOMView {
     // We use a global invisible canvas and gl context. By having a global context,
     // we avoid the limitation of max 16 contexts that most browsers have.
     let glcanvas = global_glcanvas;
-    if ((glcanvas == null)) {
-      global_glcanvas = (glcanvas = document.createElement('canvas'));
+    if (glcanvas == null) {
+      global_glcanvas = glcanvas = document.createElement('canvas');
       const opts = {'premultipliedAlpha': true};  // premultipliedAlpha is true by default
       glcanvas.gl = glcanvas.getContext("webgl", opts) || glcanvas.getContext("experimental-webgl", opts);
     }
@@ -349,7 +349,7 @@ export class PlotCanvasView extends DOMView {
   }
 
   get_selection() {
-    const selection = [];
+    const selection = {};
     for (let renderer of this.model.plot.renderers) {
       if (renderer instanceof GlyphRenderer) {
         const { selected } = renderer.data_source;

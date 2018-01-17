@@ -47,11 +47,11 @@ class DashAtlas {
        period += v;
     }
     // Find all start and end of on-segment only
-    const C = []; let c = 0;
+    const C: number[] = []; let c = 0;
     for (i = 0, end = pattern.length+2; i < end; i += 2) {
       const a = Math.max(0.0001, pattern[i % pattern.length]);
       const b = Math.max(0.0001, pattern[(i+1) % pattern.length]);
-      C.push.apply(C, [c, c + a]);  // == extend
+      C.push(c, c + a)
       c += a + b;
     }
     // Build pattern

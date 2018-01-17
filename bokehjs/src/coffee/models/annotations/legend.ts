@@ -311,13 +311,13 @@ export class Legend extends Annotation {
 
   cursor() { if (this.click_policy === "none") { return null; } else { return "pointer"; } }
 
-  get_legend_names() {
-    let legend_names = [];
-    for (let item of this.items) {
-      const labels = item.get_labels_list_from_label_prop();
-      legend_names = legend_names.concat(labels);
+  get_legend_names(): string[] {
+    const legend_names: string[] = []
+    for (const item of this.items) {
+      const labels = item.get_labels_list_from_label_prop()
+      legend_names.push(...labels)
     }
-    return legend_names;
+    return legend_names
   }
 }
 Legend.initClass();
