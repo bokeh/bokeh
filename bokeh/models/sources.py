@@ -23,31 +23,6 @@ class DataSource(Model):
 
     selected = Instance(Selection, help="""
     A Selection that indicates selected indices on this DataSource.
-
-    .. code-block:: python
-
-        # selection information for line and patch glyphs
-        '0d' : {
-          # the glyph that was selected
-          'glyph': None
-
-          # array with the [smallest] index of the segment of the line that was hit
-          'indices': []
-        }
-
-        # selection for most (point-like) glyphs, except lines and patches
-        '1d': {
-          # indices of the points included in the selection
-          indices: []
-        }
-
-        # selection information for multiline and patches glyphs
-        '2d': {
-          # mapping of indices of the multiglyph to array of glyph indices that were hit
-          # e.g. {3: [5, 6], 4: [5]}
-          indices: {}
-        }
-
     """)
 
     callback = Instance(Callback, help="""
