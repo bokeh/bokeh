@@ -152,8 +152,8 @@ export class SelectEditorView extends CellEditorView {
   }
 
   renderEditor() {
-    for (option of this.model.options) {
-      this.inputEl.appendChild(option({value: option}, option));
+    for (const opt of this.model.options) {
+      this.inputEl.appendChild(option({value: opt}, opt));
     }
     return this.focus();
   }
