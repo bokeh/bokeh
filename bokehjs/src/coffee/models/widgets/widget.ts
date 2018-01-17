@@ -14,6 +14,14 @@ export abstract class WidgetView extends LayoutDOMView {
     if (this.model.width != null)
       this.el.style.width = `${this.model.width}px`
   }
+
+  get_width(): number {
+    throw new Error("unused")
+  }
+
+  get_height(): number {
+    throw new Error("unused")
+  }
 }
 
 WidgetView.prototype.className = "bk-widget"
