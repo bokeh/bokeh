@@ -36,7 +36,6 @@ from .annotations import BoxAnnotation, PolyAnnotation
 from .callbacks import Callback
 from .renderers import Renderer, GlyphRenderer
 from .layouts import LayoutDOM
-from .sources import ColumnDataSource
 
 
 @abstract
@@ -921,7 +920,7 @@ class PolyDrawTool(DrawTool):
     The PolyDrawTool allows drawing and deleting polygons
 
 
-    .. |poly_draw_icon| image:: /_images/icons/PolyDraw.png
+    .. |poly_draw_icon| image:: /_images/icons/PolygonDraw.png
         :height: 18pt
     '''
 

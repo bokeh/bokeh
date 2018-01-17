@@ -25,7 +25,7 @@ export class PolyDrawToolView extends DrawToolView {
       for (const renderer of this.model.renderers) {
         this._delete_selected(renderer);
       }
-	}
+    }
   }
 
   _pan_start(e: BkEv): void {

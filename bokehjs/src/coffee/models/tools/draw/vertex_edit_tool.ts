@@ -31,9 +31,9 @@ export class VertexEditToolView extends DrawToolView {
     const [pxkey, pykey] = Object.getPrototypeOf(point_glyph)._coords[0];
     if (!renderers.length) {
       if (this._timestamp !== e.timeStamp) {
-	    point_ds.data[pxkey] = [];
+        point_ds.data[pxkey] = [];
         point_ds.data[pykey] = [];
-		this._selected_renderer = null;
+        this._selected_renderer = null;
         point_ds.change.emit(undefined);
       }
       return;
@@ -41,7 +41,7 @@ export class VertexEditToolView extends DrawToolView {
     this._timestamp = e.timeStamp;
 
     // Otherwise copy selected line array to node CDS
-	// (Note: can only edit one at a time)
+    // (Note: can only edit one at a time)
     const renderer = renderers[0];
     const glyph = renderer.glyph;
     const ds = renderer.data_source;

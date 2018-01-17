@@ -56,7 +56,7 @@ export class PointDrawView extends DrawToolView {
 
       ds.change.emit(undefined);
       ds.properties.data.change.emit(undefined);
-	}
+    }
   }
 
   _keyup(e: BkEv): void {
