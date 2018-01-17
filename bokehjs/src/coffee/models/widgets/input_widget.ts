@@ -1,4 +1,3 @@
-/* XXX: partial */
 import {Widget, WidgetView} from "./widget"
 import * as p from "core/properties"
 
@@ -12,12 +11,14 @@ export class InputWidgetView extends WidgetView {
 }
 
 export class InputWidget extends Widget {
+  title: string
+  callback: any | null // TODO
 }
 
 InputWidget.prototype.type = "InputWidget"
 InputWidget.prototype.default_view = InputWidgetView
 
 InputWidget.define({
-  callback: [ p.Instance   ],
   title:    [ p.String, '' ],
+  callback: [ p.Instance   ],
 })

@@ -41,8 +41,8 @@ export class DOMView extends View {
     return this._has_finished
   }
 
-  protected get _root_element(): HTMLElement | null {
-    return DOM.parent(this.el, ".bk-root")
+  protected get _root_element(): HTMLElement {
+    return DOM.parent(this.el, ".bk-root") || document.body
   }
 
   get solver(): Solver {
