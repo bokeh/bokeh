@@ -20,8 +20,7 @@ export class Jitter extends Transform {
     });
   }
 
-  compute(x, use_synthetic) {
-    if (use_synthetic == null) { use_synthetic = true; }
+  compute(x, use_synthetic = true) {
     if (((this.range != null ? this.range.synthetic : undefined) != null) && use_synthetic) {
       x = this.range.synthetic(x);
     }

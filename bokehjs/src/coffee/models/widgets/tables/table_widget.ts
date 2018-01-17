@@ -13,8 +13,8 @@ export class TableWidget extends Widget {
     });
   }
 
-  initialize(options) {
-    super.initialize(options);
+  initialize(attrs, options) {
+    super.initialize(attrs, options);
 
     if ((this.view.source == null)) {
       this.view.source = this.source;

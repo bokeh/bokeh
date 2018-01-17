@@ -19,8 +19,8 @@ export class MercatorTileSource extends TileSource {
     });
   }
 
-  initialize(options: any): void {
-    super.initialize(options);
+  initialize(attrs: any, options: any): void {
+    super.initialize(attrs, options);
     this._resolutions = (range(this.min_zoom, this.max_zoom+1).map((z) => this.get_resolution(z)));
   }
 
@@ -228,9 +228,8 @@ export class MercatorTileSource extends TileSource {
     return [minLon, minLat, maxLon, maxLat];
   }
 
-  get_tiles_by_extent(extent, level, tile_border) {
+  get_tiles_by_extent(extent, level, tile_border = 1) {
     // unpack extent and convert to tile coordinates
-    if (tile_border == null) { tile_border = 1; }
     const [xmin, ymin, xmax, ymax] = extent;
     let [txmin, tymin] = this.meters_to_tile(xmin, ymin, level);
     let [txmax, tymax] = this.meters_to_tile(xmax, ymax, level);

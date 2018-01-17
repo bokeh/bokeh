@@ -149,7 +149,7 @@ export const encode_base64 = function(array, shape) {
   return data;
 };
 
-export const decode_column_data = function(data, buffers) {
+export const decode_column_data = function(data, buffers: any[] = []) { // XXX: buffers
   const new_data = {};
   const new_shapes = {};
 

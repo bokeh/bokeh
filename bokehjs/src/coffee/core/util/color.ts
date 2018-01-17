@@ -26,8 +26,7 @@ export const color2hex = function(color) {
   }
 };
 
-export const color2rgba = function(color, alpha) {
-    if (alpha == null) { alpha = 1; }
+export const color2rgba = function(color, alpha = 1.0) {
     if (!color) {  // NaN, null, '', etc.
       return [0, 0, 0, 0];  // transparent
     }

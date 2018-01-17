@@ -17,8 +17,8 @@ export class GeoJSONDataSource extends ColumnarDataSource {
     })
   }
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(attrs: any, options: any): void {
+    super.initialize(attrs, options)
     this._update_data()
     this.connect(this.properties.geojson.change, () => this._update_data())
   }

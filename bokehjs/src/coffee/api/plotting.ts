@@ -186,10 +186,7 @@ export class Figure extends Plot {
   triangle(...args: any[])          { return this._marker(models.Triangle,         args); }
   x(...args: any[])                 { return this._marker(models.X,                args); }
 
-  _pop_colors_and_alpha(cls, attrs, prefix, default_color, default_alpha) {
-    if (prefix == null) { prefix = ""; }
-    if (default_color == null) { default_color = this._default_color; }
-    if (default_alpha == null) { default_alpha = this._default_alpha; }
+  _pop_colors_and_alpha(cls, attrs, prefix = "", default_color = this._default_color, default_alpha = this._default_alpha) {
     const result = {};
 
     const color = _with_default(attrs[prefix + "color"], default_color);

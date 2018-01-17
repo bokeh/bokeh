@@ -55,7 +55,7 @@ export class DropdownView extends AbstractButtonView {
 
   _toggle_menu(): void {
     const active = this.model.active
-    clear_menus.emit()
+    clear_menus.emit(undefined)
     if (!active)
       this.model.active = true
   }

@@ -73,8 +73,7 @@ export class PlotCanvasView extends DOMView {
     }
   }
 
-  unpause(no_render) {
-    if (no_render == null) { no_render = false; }
+  unpause(no_render = false) {
     this._is_paused -= 1;
     if ((this._is_paused === 0) && !no_render) {
       return this.request_render();
@@ -134,7 +133,7 @@ export class PlotCanvasView extends DOMView {
       this.init_webgl();
     }
 
-    this.throttled_paint = throttle((() => this.force_paint.emit()), 15); // TODO (bev) configurable
+    this.throttled_paint = throttle((() => this.force_paint.emit(undefined)), 15); // TODO (bev) configurable
 
     this.ui_event_bus = new UIEvents(this, this.model.toolbar, this.canvas_view.el, this.model.plot);
 
@@ -155,8 +154,7 @@ export class PlotCanvasView extends DOMView {
     logger.debug("PlotView initialized");
   }
 
-  set_cursor(cursor) {
-    if (cursor == null) { cursor = "default"; }
+  set_cursor(cursor = "default") {
     return this.canvas_view.el.style.cursor = cursor;
   }
 
@@ -294,9 +292,7 @@ export class PlotCanvasView extends DOMView {
     return this.range_update_timestamp = Date.now();
   }
 
-  map_to_screen(x, y, x_name, y_name) {
-    if (x_name == null) { x_name = 'default'; }
-    if (y_name == null) { y_name = 'default'; }
+  map_to_screen(x, y, x_name = 'default', y_name = 'default') {
     return this.frame.map_to_screen(x, y, x_name, y_name);
   }
 
@@ -308,12 +304,12 @@ export class PlotCanvasView extends DOMView {
     this.state.history.push({type, info});
     this.state.index = this.state.history.length - 1;
 
-    return this.state_changed.emit();
+    return this.state_changed.emit(undefined);
   }
 
   clear_state() {
     this.state = {history: [], index: -1};
-    return this.state_changed.emit();
+    return this.state_changed.emit(undefined);
   }
 
   can_undo() {
@@ -328,7 +324,7 @@ export class PlotCanvasView extends DOMView {
     if (this.can_undo()) {
       this.state.index -= 1;
       this._do_state_change(this.state.index);
-      return this.state_changed.emit();
+      return this.state_changed.emit(undefined);
     }
   }
 
@@ -336,7 +332,7 @@ export class PlotCanvasView extends DOMView {
     if (this.can_redo()) {
       this.state.index += 1;
       this._do_state_change(this.state.index);
-      return this.state_changed.emit();
+      return this.state_changed.emit(undefined);
     }
   }
 
@@ -649,8 +645,7 @@ export class PlotCanvasView extends DOMView {
   }
 
   // XXX: bacause PlotCanvas is NOT a LayoutDOM
-  _layout(final) {
-    if (final == null) { final = false; }
+  _layout(final = false) {
     this.render();
 
     if (final) {
@@ -822,7 +817,7 @@ export class PlotCanvasView extends DOMView {
     }
   }
 
-  _paint_levels(ctx, levels, clip_region) {
+  _paint_levels(ctx, levels, clip_region = null) {
     ctx.save();
 
     if ((clip_region != null) && (this.model.plot.output_backend === "canvas")) {

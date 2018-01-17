@@ -123,20 +123,18 @@ export class GlyphView extends View {
     const [sx, sy] = rest[0];
     switch (anchor) {
       case "center": return {x: this.scx(i, sx, sy), y: this.scy(i, sx, sy)};
-      default:               return null;
+      default:       return null;
     }
   }
 
   // glyphs that need more sophisticated "snap to data" behaviour (like
   // snapping to a patch centroid, e.g, should override these
-  scx(i) { return this.sx[i]; }
-  scy(i) { return this.sy[i]; }
+  scx(i, _sx, _sy) { return this.sx[i]; }
+  scy(i, _sx, _sy) { return this.sy[i]; }
 
-  sdist(scale, pts, spans, pts_location, dilate) {
+  sdist(scale, pts, spans, pts_location = "edge", dilate = false) {
     let pt0, pt1;
     let i;
-    if (pts_location == null) { pts_location = "edge"; }
-    if (dilate == null) { dilate = false; }
     if (scale.source_range.v_synthetic != null) {
       pts = scale.source_range.v_synthetic(pts);
     }
@@ -314,7 +312,7 @@ export class GlyphView extends View {
     return this.index = this._index_data();
   }
 
-  _set_data() {}
+  _set_data(_source, _indices) {}
 
   _index_data() {}
 

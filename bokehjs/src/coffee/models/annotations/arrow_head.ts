@@ -8,8 +8,8 @@ export abstract class ArrowHead extends Annotation {
     this.prototype.type = 'ArrowHead';
   }
 
-  initialize(options: any): void {
-    super.initialize(options);
+  initialize(attrs: any, options: any): void {
+    super.initialize(attrs, options);
     this.visuals = new Visuals(this);
   }
 

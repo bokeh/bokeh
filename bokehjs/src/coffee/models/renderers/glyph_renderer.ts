@@ -107,8 +107,7 @@ export class GlyphRendererView extends RendererView {
 
   // in case of partial updates like patching, the list of indices that actually
   // changed may be passed as the "indices" parameter to afford any optional optimizations
-  set_data(request_render, indices) {
-    if (request_render == null) { request_render = true; }
+  set_data(request_render = true, indices = null) { // XXX: indices
     const t0 = Date.now();
     const source = this.model.data_source;
 
@@ -321,8 +320,7 @@ export class GlyphRendererView extends RendererView {
     return this.glyph.draw_legend_for_index(ctx, x0, x1, y0, y1, index);
   }
 
-  hit_test(geometry, final, append, mode) {
-    if (mode == null) { mode = "select"; }
+  hit_test(geometry, final, append, mode = "select") {
     return this.model.hit_test_helper(geometry, this, final, append, mode);
   }
 }
@@ -367,8 +365,8 @@ export class GlyphRenderer extends Renderer {
     this.prototype.nonselection_defaults = {fill: {fill_alpha: 0.2, line_alpha: 0.2}, line: {}};
   }
 
-  initialize(options: any): void {
-    super.initialize(options);
+  initialize(attrs: any, options: any): void {
+    super.initialize(attrs, options);
 
     if ((this.view.source == null)) {
       this.view.source = this.data_source;
@@ -408,7 +406,7 @@ export class GlyphRenderer extends Renderer {
       const { selector } = this.data_source.selection_manager;
       selector.update(indices, final, append);
       this.data_source.selected = selector.indices;
-      this.data_source._select.emit();
+      this.data_source._select.emit(undefined);
     } else { // mode == "inspect"
       const inspector = this.data_source.selection_manager.get_or_create_inspector(this);
       inspector.update(indices, true, false, true);

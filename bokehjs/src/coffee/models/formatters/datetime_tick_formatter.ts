@@ -119,14 +119,13 @@ export class DatetimeTickFormatter extends TickFormatter {
   }
 
   // TODO (bev) remove these unused "default" params and associated logic
-  doFormat(ticks, _axis, _num_labels=null, char_width=null, fill_ratio, ticker=null) {
+  doFormat(ticks, _axis, _num_labels=null, char_width=null, fill_ratio = 0.3, ticker=null) {
 
     // In order to pick the right set of labels, we need to determine
     // the resolution of the ticks.  We can do this using a ticker if
     // it's provided, or by computing the resolution from the actual
     // ticks we've been given.
     let r;
-    if (fill_ratio == null) { fill_ratio = 0.3; }
     if (ticks.length === 0) {
         return [];
       }

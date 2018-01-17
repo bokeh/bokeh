@@ -98,8 +98,7 @@ export class TileRendererView extends RendererView {
     return tile_data.finished = true;
   }
 
-  _create_tile(x, y, z, bounds, cache_only) {
-    if (cache_only == null) { cache_only = false; }
+  _create_tile(x, y, z, bounds, cache_only = false) {
     const normalized_coords = this.model.tile_source.normalize_xyz(x, y, z);
     const tile = this.pool.pop();
 

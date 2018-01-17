@@ -137,8 +137,8 @@ export class ColumnDataSource extends ColumnarDataSource {
     })
   }
 
-  initialize(options: any): void {
-    super.initialize(options);
+  initialize(attrs: any, options: any): void {
+    super.initialize(attrs, options);
     [this.data, this._shapes] = serialization.decode_column_data(this.data)
   }
 
@@ -173,7 +173,7 @@ export class ColumnDataSource extends ColumnarDataSource {
       data[k] = stream_to_column(data[k], new_data[k], rollover)
     }
     this.setv({data}, {silent: true})
-    return this.streaming.emit()
+    return this.streaming.emit(undefined)
   }
 
   patch(patches) {

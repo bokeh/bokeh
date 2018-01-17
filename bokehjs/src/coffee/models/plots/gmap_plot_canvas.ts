@@ -7,7 +7,7 @@ import {Signal} from "core/signaling";
 const gmaps_ready = new Signal(this, "gmaps_ready");
 
 const load_google_api = function(api_key) {
-  window._bokeh_gmaps_callback = () => gmaps_ready.emit();
+  window._bokeh_gmaps_callback = () => gmaps_ready.emit(undefined);
 
   const script = document.createElement('script');
   script.type = 'text/javascript';
