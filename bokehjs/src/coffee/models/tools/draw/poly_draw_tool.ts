@@ -38,7 +38,8 @@ export class PolyDrawToolView extends DrawToolView {
     const append = e.srcEvent.shiftKey != null ? e.srcEvent.shiftKey : false;
     const ds = renderer.data_source;
     const glyph = renderer.glyph;
-    const [xkey, ykey] = Object.getPrototypeOf(glyph)._coords[0];
+    let [xkey, ykey] = Object.getPrototypeOf(glyph)._coords[0];
+    [xkey, ykey] = [glyph.attributes[xkey].field, glyph.attributes[ykey].field];
     const indices = ds.selected['1d'].indices;
     let count;
     if (indices.length) {

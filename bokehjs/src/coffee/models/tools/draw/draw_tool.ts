@@ -34,7 +34,8 @@ export abstract class DrawToolView extends GestureToolView {
     const glyph = renderer.glyph;
     const indices = ds.selected['1d'].indices;
     indices.sort();
-    const [xkey, ykey] = Object.getPrototypeOf(glyph)._coords[0];
+    let [xkey, ykey] = Object.getPrototypeOf(glyph)._coords[0];
+    [xkey, ykey] = [glyph.attributes[xkey].field, glyph.attributes[ykey].field];
     for (let index = 0; index < indices.length; index++) {
       const ind = indices[index];
       ds.data[xkey].splice(ind-index, 1);
@@ -48,10 +49,10 @@ export abstract class DrawToolView extends GestureToolView {
 
   _select_event(e: BkEv, append: boolean, renderers: GlyphRenderer[]): GlyphRenderer[] {
     const frame = this.plot_model.frame;
+    const {sx, sy} = e.bokeh;
     if (!frame.bbox.contains(sx, sy)) {
       return [];
     }
-    const {sx, sy} = e.bokeh;
     const geometry: PointGeometry = {
       type: 'point',
       sx: sx,
@@ -61,7 +62,6 @@ export abstract class DrawToolView extends GestureToolView {
     for (const renderer of renderers) {
       const sm = renderer.get_selection_manager();
       const views = [this.plot_view.renderer_views[renderer.id]];
-      const point = this._map_drag(e.bokeh.sx, e.bokeh.sy, renderer);
       const did_hit = sm.select(views, geometry, true, append);
       if (did_hit) {
         selected.push(renderer)

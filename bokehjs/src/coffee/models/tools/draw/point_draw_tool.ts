@@ -32,7 +32,8 @@ export class PointDrawView extends DrawToolView {
       }
       const glyph = renderer.glyph
       const ds = renderer.data_source;
-      const [xkey, ykey] = Object.getPrototypeOf(glyph)._coords[0];
+      let [xkey, ykey] = Object.getPrototypeOf(glyph)._coords[0];
+      [xkey, ykey] = [glyph.attributes[xkey].field, glyph.attributes[ykey].field];
       let xs = ds.data[xkey];
       let ys = ds.data[ykey];
       if ((xs.concat == null)) {
@@ -97,7 +98,8 @@ export class PointDrawView extends DrawToolView {
       const [dx, dy] = [x-px, y-py];
       const glyph = renderer.glyph;
       const ds = renderer.data_source;
-      const [xkey, ykey] = Object.getPrototypeOf(glyph)._coords[0];
+      let [xkey, ykey] = Object.getPrototypeOf(glyph)._coords[0];
+      [xkey, ykey] = [glyph.attributes[xkey].field, glyph.attributes[ykey].field];
       for (const index of ds.selected['1d'].indices) {
         ds.data[xkey][index] += dx;
         ds.data[ykey][index] += dy;

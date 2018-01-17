@@ -46,7 +46,8 @@ export class LineEditToolView extends DrawToolView {
 
       const ds = renderer.data_source;
       const glyph = renderer.glyph;
-      const [xkey, ykey] = Object.getPrototypeOf(glyph)._coords[0];
+      let [xkey, ykey] = Object.getPrototypeOf(glyph)._coords[0];
+      [xkey, ykey] = [glyph.attributes[xkey].field, glyph.attributes[ykey].field];
       const [x, y] = point;
       const [px, py] = basepoint;
       const [dx, dy] = [x-px, y-py];

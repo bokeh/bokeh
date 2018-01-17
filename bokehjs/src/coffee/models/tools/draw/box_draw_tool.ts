@@ -27,7 +27,8 @@ export class BoxDrawToolView extends DrawToolView {
               emit: boolean = false): void {
     const r = this.model.renderers[0];
     const glyph = r.glyph;
-    const [xkey, ykey] = Object.getPrototypeOf(glyph)._coords[0];
+    let [xkey, ykey] = Object.getPrototypeOf(glyph)._coords[0];
+    [xkey, ykey] = [glyph.attributes[xkey].field, glyph.attributes[ykey].field];
     const ds = r.data_source;
     const frame = this.plot_model.frame;
     const xscale = frame.xscales[r.x_range_name];

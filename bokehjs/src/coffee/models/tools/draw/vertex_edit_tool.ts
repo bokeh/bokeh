@@ -28,7 +28,8 @@ export class VertexEditToolView extends DrawToolView {
     const point_renderer = this.model.point_renderer;
     const point_ds = point_renderer.data_source;
     const point_glyph = point_renderer.glyph;
-    const [pxkey, pykey] = Object.getPrototypeOf(point_glyph)._coords[0];
+    let [pxkey, pykey] = Object.getPrototypeOf(point_glyph)._coords[0];
+    [pxkey, pykey] = [point_glyph.attributes[pxkey].field, point_glyph.attributes[pykey].field];
     if (!renderers.length) {
       if (this._timestamp !== e.timeStamp) {
         point_ds.data[pxkey] = [];
@@ -46,7 +47,8 @@ export class VertexEditToolView extends DrawToolView {
     const glyph = renderer.glyph;
     const ds = renderer.data_source;
     const index = ds.selected['1d'].indices[0];
-    const [xkey, ykey] = Object.getPrototypeOf(glyph)._coords[0];
+    let [xkey, ykey] = Object.getPrototypeOf(glyph)._coords[0];
+    [xkey, ykey] = [glyph.attributes[xkey].field, glyph.attributes[ykey].field];
     let xs = ds.data[xkey][index];
     let ys = ds.data[ykey][index];
 
@@ -82,7 +84,8 @@ export class VertexEditToolView extends DrawToolView {
     }
 
     const [x, y] = point;
-    const [xkey, ykey] = Object.getPrototypeOf(renderer.glyph)._coords[0];
+    let [xkey, ykey] = Object.getPrototypeOf(renderer.glyph)._coords[0];
+    [xkey, ykey] = [renderer.glyph.attributes[xkey].field, renderer.glyph.attributes[ykey].field];
     if (indices.length === 1) {
       const index = indices[0]+1;
       ds.selected['1d'].indices = [index];
@@ -112,7 +115,8 @@ export class VertexEditToolView extends DrawToolView {
     const [x, y] = point;
     const [px, py] = basepoint;
     const [dx, dy] = [x-px, y-py];
-    const [xkey, ykey] = Object.getPrototypeOf(renderer.glyph)._coords[0];
+    let [xkey, ykey] = Object.getPrototypeOf(renderer.glyph)._coords[0];
+    [xkey, ykey] = [renderer.glyph.attributes[xkey].field, renderer.glyph.attributes[ykey].field];
     for (const index of ds.selected['1d'].indices) {
       ds.data[xkey][index] += dx;
       ds.data[ykey][index] += dy;
