@@ -327,7 +327,7 @@ export class Figure extends Plot {
   }
 
   static _get_range(range): Range {
-    if ((range == null)) {
+    if (range == null) {
       return new models.DataRange1d();
     }
     if (range instanceof models.Range) {
@@ -341,6 +341,7 @@ export class Figure extends Plot {
         return new models.Range1d({start: range[0], end: range[1]});
       }
     }
+    throw new Error(`unable to determine proper range for: '${range}'`);
   }
 
   static _get_scale(range_input, axis_type): Scale {
@@ -392,26 +393,23 @@ export class Figure extends Plot {
     }
   }
 
-  _get_axis_class(axis_type, range): Class<Axis> {
-    if ((axis_type == null)) {
-      return null;
-    }
-    if (axis_type === "linear") {
-      return models.LinearAxis;
-    }
-    if (axis_type === "log") {
-      return models.LogAxis;
-    }
-    if (axis_type === "datetime") {
-      return models.DatetimeAxis;
-    }
-    if (axis_type === "auto") {
-      if (range instanceof models.FactorRange) {
-        return models.CategoricalAxis;
-      } else {
-        // TODO: return models.DatetimeAxis (Date type)
-        return models.LinearAxis;
-      }
+  _get_axis_class(axis_type: null | "linear" | "log" | "datetime" | "auto", range: Range): Class<Axis> {
+    switch (axis_type) {
+      case null:
+        return null
+      case "linear":
+        return models.LinearAxis
+      case "log":
+        return models.LogAxis
+      case "datetime":
+        return models.DatetimeAxis
+      case "auto":
+        if (range instanceof models.FactorRange)
+          return models.CategoricalAxis
+        else
+          return models.LinearAxis // TODO: return models.DatetimeAxis (Date type)
+      default:
+        throw new Error("shouldn't have happened")
     }
   }
 
