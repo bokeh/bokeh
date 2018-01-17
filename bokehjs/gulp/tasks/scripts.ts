@@ -27,7 +27,7 @@ function is_partial(file: string): boolean {
 function is_excluded(code: number): boolean {
   const excluded = [
     2305, 2322, 2339, 2345, 2362, 2365, 2366, 2393,
-    2415, 2445, 2459, 2461, 2495,
+    2415, 2445, 2459, 2461,
     2531, 2532, 2538, 2551,
     2683,
     4025,
