@@ -6,13 +6,14 @@ import {Selection} from "models/selections/selection"
 
 // XXX: temporary types
 export type GraphRendererView = any
+export type GraphRenderer = any
 export type DataSource = any
 
 export abstract class GraphHitTestPolicy extends Model {
 
   abstract hit_test(geometry: Geometry, graph_view: GraphRendererView): HitTestResult
 
-  abstract do_selection(hit_test_result: HitTestResult, graph_view: GraphRendererView, final: boolean, append: boolean): boolean
+  abstract do_selection(hit_test_result: HitTestResult, graph: GraphRenderer, final: boolean, append: boolean): boolean
 
   abstract do_inspection(hit_test_result: HitTestResult, geometry: Geometry, graph_view: GraphRendererView, final: boolean, append: boolean): boolean
 
@@ -52,13 +53,13 @@ export class NodesOnly extends GraphHitTestPolicy {
     return this._hit_test_nodes(geometry, graph_view)
   }
 
-  do_selection(hit_test_result: HitTestResult, graph_view: GraphRendererView, final: boolean, append: boolean): boolean {
+  do_selection(hit_test_result: HitTestResult, graph: GraphRenderer, final: boolean, append: boolean): boolean {
     if(hit_test_result == null)
       return false
 
-    const node_selection = graph_view.node_view.model.data_source.selected
+    const node_selection = graph.node_renderer.data_source.selected
     node_selection.update(hit_test_result, final, append)
-    graph_view.node_view.model.data_source._select.emit()
+    graph.node_renderer.data_source._select.emit()
 
     return !node_selection.is_empty()
   }
@@ -110,18 +111,18 @@ export class NodesAndLinkedEdges extends GraphHitTestPolicy {
     return linked_edges
   }
 
-  do_selection(hit_test_result: HitTestResult, graph_view: GraphRendererView, final: boolean, append: boolean): boolean {
+  do_selection(hit_test_result: HitTestResult, graph: GraphRenderer, final: boolean, append: boolean): boolean {
     if(hit_test_result == null)
       return false
 
-    const node_selection = graph_view.node_view.model.data_source.selected
+    const node_selection = graph.node_renderer.data_source.selected
     node_selection.update(hit_test_result, final, append)
 
-    const edge_selection = graph_view.edge_view.model.data_source.selected
-    const linked_edges_selection = this.get_linked_edges(graph_view.node_view.model.data_source, graph_view.edge_view.model.data_source, 'selection')
+    const edge_selection = graph.edge_renderer.data_source.selected
+    const linked_edges_selection = this.get_linked_edges(graph.node_renderer.data_source, graph.edge_renderer.data_source, 'selection')
     edge_selection.update(linked_edges_selection, final, append)
 
-    graph_view.node_view.model.data_source._select.emit()
+    graph.node_renderer.data_source._select.emit()
 
     return !node_selection.is_empty()
   }
@@ -174,18 +175,18 @@ export class EdgesAndLinkedNodes extends GraphHitTestPolicy {
     return linked_nodes
   }
 
-  do_selection(hit_test_result: HitTestResult, graph_view: GraphRendererView, final: boolean, append: boolean): boolean {
+  do_selection(hit_test_result: HitTestResult, graph: GraphRenderer, final: boolean, append: boolean): boolean {
     if(hit_test_result == null)
       return false
 
-    const edge_selection = graph_view.edge_view.model.data_source.selected
+    const edge_selection = graph.edge_renderer.data_source.selected
     edge_selection.update(hit_test_result, final, append)
 
-    const node_selection = graph_view.node_view.model.data_source.selected
-    const linked_nodes = this.get_linked_nodes(graph_view.node_view.model.data_source, graph_view.edge_view.model.data_source, 'selection')
+    const node_selection = graph.node_renderer.data_source.selected
+    const linked_nodes = this.get_linked_nodes(graph.node_renderer.data_source, graph.edge_renderer.data_source, 'selection')
     node_selection.update(linked_nodes, final, append)
 
-    graph_view.edge_view.model.data_source._select.emit()
+    graph.edge_renderer.data_source._select.emit()
 
     return !edge_selection.is_empty()
   }

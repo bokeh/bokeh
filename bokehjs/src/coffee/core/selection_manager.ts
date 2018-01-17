@@ -6,7 +6,7 @@ import {Selection} from "models/selections/selection"
 import {GraphRenderer} from "models/renderers/graph_renderer"
 import * as p from "./properties"
 
-import {DataSource} from "models/sources/data_source"
+import {ColumnarDataSource} from "models/sources/columnar_data_source"
 
 // XXX: temporary types
 export type Renderer = any
@@ -16,11 +16,10 @@ export abstract class SelectionPolicy extends Model {
 
   abstract hit_test(geometry: Geometry, renderer_views: RendererView[]): HitTestResult
 
-  do_selection(hit_test_result: HitTestResult, renderer_views: RendererView[], final: boolean, append: boolean): boolean {
+  do_selection(hit_test_result: HitTestResult, source: ColumnarDataSource, final: boolean, append: boolean): boolean {
     if (hit_test_result === null) {
       return false
     } else {
-      const source = renderer_views[0].model.data_source
       source.selected.update(hit_test_result, final, append)
       source._select.emit()
       return !source.selected.is_empty()
@@ -79,7 +78,7 @@ UnionRenderers.prototype.type = "UnionRenderers"
 export class SelectionManager extends HasProps {
 
   selection_policy: SelectionPolicy
-  source: DataSource
+  source: ColumnarDataSource
   inspectors: {[key: string]: Selection}
 
   initialize(attrs: any, options: any): void {
@@ -106,12 +105,12 @@ export class SelectionManager extends HasProps {
     // graph renderer case
     for (const r of graph_renderer_views) {
       const hit_test_result = r.model.selection_policy.hit_test(geometry, r)
-      did_hit = did_hit || r.model.selection_policy.do_selection(hit_test_result, r, final, append)
+      did_hit = did_hit || r.model.selection_policy.do_selection(hit_test_result, r.model, final, append)
     }
     // glyph renderers
     if (glyph_renderer_views.length > 0) {
       const hit_test_result = this.selection_policy.hit_test(geometry, renderer_views)
-      did_hit = did_hit || this.selection_policy.do_selection(hit_test_result, glyph_renderer_views, final, append)
+      did_hit = did_hit || this.selection_policy.do_selection(hit_test_result, this.source, final, append)
     }
 
     return did_hit

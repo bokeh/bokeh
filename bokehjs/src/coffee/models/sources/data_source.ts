@@ -1,12 +1,11 @@
 import {Model} from "../../model"
-import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {isFunction} from "core/util/types"
 import {Selection} from "../selections/selection"
 
 export class DataSource extends Model {
 
-  selected: hittest.HitTestResult
+  selected: Selection
   callback: any // XXX
 
   static initClass() {

@@ -84,7 +84,7 @@ describe "GraphHitTestPolicy", ->
 
       it "should return false if called with null hit_test_result", ->
         policy = new NodesOnly()
-        expect(policy.do_selection(null, @gv, true, false)).to.be.false
+        expect(policy.do_selection(null, @gr, true, false)).to.be.false
 
       it "should return false and clear selections if hit_test_result is empty", ->
         initial_selection = create_hit_test_result_from_hits([[1], [2]])
@@ -92,7 +92,7 @@ describe "GraphHitTestPolicy", ->
 
         hit_test_result = create_empty_hit_test_result()
         policy = new NodesOnly()
-        did_hit = policy.do_selection(hit_test_result, @gv, true, false)
+        did_hit = policy.do_selection(hit_test_result, @gr, true, false)
 
         expect(did_hit).to.be.false
         expect(@node_source.selected.is_empty()).to.be.true
@@ -101,7 +101,7 @@ describe "GraphHitTestPolicy", ->
         hit_test_result = create_hit_test_result_from_hits([[0], [1]])
         policy = new NodesOnly()
 
-        expect(policy.do_selection(hit_test_result, @gv, true, false)).to.be.true
+        expect(policy.do_selection(hit_test_result, @gr, true, false)).to.be.true
         expect(@node_source.selected.is_empty()).to.be.false
 
     describe "do_inspection method", ->
@@ -138,7 +138,7 @@ describe "GraphHitTestPolicy", ->
 
         hit_test_result = create_empty_hit_test_result()
         policy = new NodesAndLinkedEdges()
-        policy.do_selection(hit_test_result, @gv, true, false)
+        policy.do_selection(hit_test_result, @gr, true, false)
 
         expect(@edge_source.selected.is_empty()).to.be.true
 
@@ -146,7 +146,7 @@ describe "GraphHitTestPolicy", ->
         hit_test_result = create_hit_test_result_from_hits([[0], ])
         policy = new NodesAndLinkedEdges()
 
-        policy.do_selection(hit_test_result, @gv, true, false)
+        policy.do_selection(hit_test_result, @gr, true, false)
 
         expect(@edge_source.selected['2d'].indices).to.be.deep.equal({ '0': [ 0 ], '1': [ 0 ] })
 
@@ -184,7 +184,7 @@ describe "GraphHitTestPolicy", ->
 
         hit_test_result = create_empty_hit_test_result()
         policy = new EdgesAndLinkedNodes()
-        policy.do_selection(hit_test_result, @gv, true, false)
+        policy.do_selection(hit_test_result, @gr, true, false)
 
         expect(@node_source.selected.is_empty()).to.be.true
 
@@ -193,7 +193,7 @@ describe "GraphHitTestPolicy", ->
         hit_test_result.indices = [1]
 
         policy = new EdgesAndLinkedNodes()
-        policy.do_selection(hit_test_result, @gv, true, false)
+        policy.do_selection(hit_test_result, @gr, true, false)
 
         expect(@node_source.selected.indices).to.be.deep.equal( [0, 2] )
 
