@@ -107,6 +107,7 @@
     "canvas2svg": "https://github.com/bokeh/canvas2svg#v1.0.21",
     "numbro": "https://github.com/bokeh/numbro.git#e1b6c52",
     "kiwi": "https://github.com/bokeh/kiwi.git#1a3dabb",
+    "gloo2": "https://github.com/bokeh/gloo2.git#cc00877",
     "slickgrid": "https://github.com/bokeh/SlickGrid.git#6c1327b"
   },
   "scripts": {

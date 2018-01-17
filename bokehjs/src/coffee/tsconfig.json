@@ -8,8 +8,6 @@
     "strictNullChecks": true,
     "alwaysStrict": true,
     "noEmitOnError": false,
-    "allowJs": true,
-    "checkJs": false,
     "module": "commonjs",
     "moduleResolution": "node",
     "target": "ES5",
