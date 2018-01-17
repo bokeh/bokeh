@@ -84,28 +84,6 @@ export class MercatorTileSource extends TileSource {
     }
   }
 
-  children_by_tile_xyz(x, y, z) {
-    const world_x = this.calculate_world_x_by_tile_xyz(x, y, z);
-
-    if (world_x !== 0) {
-      [x, y, z] = this.normalize_xyz(x, y, z);
-    }
-
-    const quad_key = this.tile_xyz_to_quadkey(x, y, z);
-    const child_tile_xyz = [];
-    for (let i = 0; i <= 3; i++) {
-      [x, y, z] = this.quadkey_to_tile_xyz(quad_key + i.toString());
-      if (world_x !== 0) {
-        [x, y, z] = this.denormalize_xyz(x, y, z, world_x);
-      }
-      const b = this.get_tile_meter_bounds(x, y, z);
-      if (b != null) {
-        child_tile_xyz.push([x, y, z, b]);
-      }
-    }
-    return child_tile_xyz;
-  }
-
   parent_by_tile_xyz(x, y, z) {
     const quad_key = this.tile_xyz_to_quadkey(x, y, z);
     const parent_quad_key = quad_key.substring(0, quad_key.length - 1);
@@ -318,12 +296,6 @@ export class MercatorTileSource extends TileSource {
     }
 
     return child_tile_xyz;
-  }
-
-  parent_by_tile_xyz(x, y, z) {
-    const quad_key = this.tile_xyz_to_quadkey(x, y, z);
-    const parent_quad_key = quad_key.substring(0, quad_key.length - 1);
-    return this.quadkey_to_tile_xyz(parent_quad_key);
   }
 
   get_closest_parent_by_tile_xyz(x, y, z) {
