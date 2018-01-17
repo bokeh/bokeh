@@ -246,7 +246,6 @@ export class MercatorTileSource extends TileSource {
       switch (value) {
         case '0':
           continue;
-          break;
         case '1':
           tileX |= mask;
           break;
