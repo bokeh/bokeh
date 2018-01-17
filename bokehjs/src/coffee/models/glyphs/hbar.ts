@@ -1,12 +1,13 @@
 /* XXX: partial */
 import {Box, BoxView} from "./box";
 import * as p from "core/properties"
+import {RBush} from "core/util/spatial"
 
 export class HBarView extends BoxView {
 
   scx(i) { return (this.sleft[i] + this.sright[i])/2; }
 
-  _index_data() {
+  _index_data(): RBush {
     return this._index_box(this._y.length);
   }
 

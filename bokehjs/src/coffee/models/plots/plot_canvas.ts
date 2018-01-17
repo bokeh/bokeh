@@ -15,7 +15,7 @@ import {Visuals} from "core/visuals";
 import {DOMView} from "core/dom_view";
 import {LayoutCanvas} from "core/layout/layout_canvas";
 import {hstack, vstack} from "core/layout/alignments";
-import {EQ, LE, GE} from "core/layout/solver";
+import {EQ, LE, GE, Constraint} from "core/layout/solver";
 import {logger} from "core/logging";
 import * as enums from "core/enums";
 import * as p from "core/properties";
@@ -988,7 +988,7 @@ export class PlotCanvas extends LayoutDOM {
     logger.debug("PlotCanvas attached to document");
   }
 
-  get_layoutable_children() {
+  get_layoutable_children(): LayoutDOM[] {
     const children = [
       this.above_panel, this.below_panel,
       this.left_panel, this.right_panel,
@@ -1010,11 +1010,11 @@ export class PlotCanvas extends LayoutDOM {
     return children;
   }
 
-  get_constraints() {
+  get_constraints(): Constraint[] {
     return super.get_constraints().concat(this._get_constant_constraints(), this._get_side_constraints());
   }
 
-  _get_constant_constraints() {
+  _get_constant_constraints(): Constraint[] {
     return [
       // Set the origin. Everything else is positioned absolutely wrt canvas.
       EQ(this.canvas._left, 0),

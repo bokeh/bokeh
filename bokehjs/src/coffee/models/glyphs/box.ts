@@ -7,7 +7,7 @@ import * as hittest from "core/hittest";
 
 export class BoxView extends GlyphView {
 
-  _index_box(len) {
+  _index_box(len): RBush {
     const points = [];
 
     for (let i = 0, end = len, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {

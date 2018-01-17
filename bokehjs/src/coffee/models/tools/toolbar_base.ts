@@ -8,6 +8,7 @@ import {DOMView} from "core/dom_view";
 import {Location} from "core/enums";
 import {Model} from "model";
 import {Tool} from "./tool"
+import {ButtonToolButtonView} from "./button_tool"
 
 export class ToolbarBaseView extends DOMView {
 
@@ -27,7 +28,7 @@ export class ToolbarBaseView extends DOMView {
     return super.remove();
   }
 
-  _build_tool_button_views() {
+  _build_tool_button_views(): ButtonToolButtonView[] {
     const tools = this.model._proxied_tools != null ? this.model._proxied_tools : this.model.tools; // XXX
     return build_views(this._tool_button_views, tools, {parent: this}, tool => tool.button_view);
   }

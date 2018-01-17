@@ -1,5 +1,6 @@
 /* XXX: partial */
 import {Box, BoxView} from "./box"
+import {RBush} from "core/util/spatial"
 
 export class QuadView extends BoxView {
 
@@ -30,7 +31,7 @@ export class QuadView extends BoxView {
     return (this.stop[i] + this.sbottom[i])/2;
   }
 
-  _index_data() {
+  _index_data(): RBush {
     return this._index_box(this._right.length);
   }
 

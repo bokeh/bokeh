@@ -5,6 +5,7 @@ import * as embed from "../embed";
 import {BOKEH_ROOT} from "../embed";
 import * as models from "./models";
 import {div} from "../core/dom";
+import {Class} from "../core/class"
 import {startsWith} from "../core/util/string";
 import {isEqual} from "../core/util/eq";
 import {any, all, includes} from "../core/util/array";
@@ -394,7 +395,7 @@ export class Figure extends Plot {
     }
   }
 
-  _get_axis_class(axis_type, range) {
+  _get_axis_class(axis_type, range): Class<Axis> {
     if ((axis_type == null)) {
       return null;
     }
