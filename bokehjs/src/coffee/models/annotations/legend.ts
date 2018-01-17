@@ -19,14 +19,10 @@ export class LegendView extends AnnotationView {
   }
 
   compute_legend_bbox() {
-    let legend_height, legend_width, sx, sy, width;
     const legend_names = this.model.get_legend_names();
 
-    const { glyph_height } = this.model;
-    const { glyph_width } = this.model;
-
-    const { label_height } = this.model;
-    const { label_width } = this.model;
+    const {glyph_height, glyph_width} = this.model;
+    const {label_height, label_width} = this.model;
 
     this.max_label_height = max(
       [get_text_height(this.visuals.label_text.font_value()).height, label_height, glyph_height]
@@ -49,13 +45,14 @@ export class LegendView extends AnnotationView {
     const legend_spacing = this.model.spacing;
     const { label_standoff } =  this.model;
 
+    let legend_height, legend_width
     if (this.model.orientation === "vertical") {
       legend_height = (legend_names.length * this.max_label_height) + (Math.max(legend_names.length - 1, 0) * legend_spacing) + (2 * legend_padding);
       legend_width = max_label_width + glyph_width + label_standoff + (2 * legend_padding);
     } else {
       legend_width = (2 * legend_padding) + (Math.max(legend_names.length - 1, 0) * legend_spacing);
-      for (name in this.text_widths) {
-        width = this.text_widths[name];
+      for (const name in this.text_widths) {
+        const width = this.text_widths[name];
         legend_width += max([width, label_width]) + glyph_width + label_standoff;
       }
       legend_height = this.max_label_height + (2 * legend_padding);
@@ -65,6 +62,7 @@ export class LegendView extends AnnotationView {
     const [hr, vr] = panel.bbox.ranges;
 
     const { location } = this.model;
+    let sx, sy
     if (isString(location)) {
       switch (location) {
         case 'top_left':

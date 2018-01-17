@@ -597,11 +597,11 @@ export class PlotCanvasView extends DOMView {
 
   set_initial_range() {
     // check for good values for ranges before setting initial range
-    let rng, yrs;
     let good_vals = true;
     const xrs = {};
+    const yrs = {};
     for (const name in this.frame.x_ranges) {
-      rng = this.frame.x_ranges[name];
+      const rng = this.frame.x_ranges[name];
       if ((rng.start == null) || (rng.end == null) || isStrictNaN(rng.start + rng.end)) {
         good_vals = false;
         break;
@@ -609,9 +609,8 @@ export class PlotCanvasView extends DOMView {
       xrs[name] = { start: rng.start, end: rng.end };
     }
     if (good_vals) {
-      yrs = {};
-      for (name in this.frame.y_ranges) {
-        rng = this.frame.y_ranges[name];
+      for (const name in this.frame.y_ranges) {
+        const rng = this.frame.y_ranges[name];
         if ((rng.start == null) || (rng.end == null) || isStrictNaN(rng.start + rng.end)) {
           good_vals = false;
           break;
@@ -620,10 +619,7 @@ export class PlotCanvasView extends DOMView {
       }
     }
     if (good_vals) {
-      this._initial_state_info.range = (this.initial_range_info = {
-        xrs,
-        yrs
-      });
+      this._initial_state_info.range = this.initial_range_info = {xrs, yrs};
       return logger.debug("initial ranges set");
     } else {
       return logger.warn('could not set initial ranges');
