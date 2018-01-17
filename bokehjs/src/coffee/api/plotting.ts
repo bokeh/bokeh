@@ -11,7 +11,7 @@ import {any, all, includes} from "../core/util/array";
 import {extend, clone} from "../core/util/object";
 import {isNumber, isString, isArray} from "../core/util/types";
 
-import {GlyphRenderer, Axis, Grid, Tool, Plot} from "./models"
+import {GlyphRenderer, Axis, Grid, Range, Scale, Tool, Plot} from "./models"
 import {DOMView} from "../core/dom_view"
 
 export {gridplot} from "./gridplot"
@@ -328,7 +328,7 @@ export class Figure extends Plot {
     return this._glyph(cls, "x,y", args);
   }
 
-  static _get_range(range) {
+  static _get_range(range): Range {
     if ((range == null)) {
       return new models.DataRange1d();
     }
@@ -345,7 +345,7 @@ export class Figure extends Plot {
     }
   }
 
-  static _get_scale(range_input, axis_type) {
+  static _get_scale(range_input, axis_type): Scale {
     if (range_input instanceof models.DataRange1d || range_input instanceof models.Range1d) {
       switch (axis_type) {
         case null:
@@ -365,7 +365,7 @@ export class Figure extends Plot {
     throw new Error(`unable to determine proper scale for: '${range_input}'`);
   }
 
-  _process_axis_and_grid(axis_type, axis_location, minor_ticks, axis_label, rng, dim) {
+  _process_axis_and_grid(axis_type, axis_location, minor_ticks, axis_label, rng, dim): void {
     const axiscls = this._get_axis_class(axis_type, rng);
     if (axiscls != null) {
       if (axiscls === models.LogAxis) {
@@ -390,7 +390,7 @@ export class Figure extends Plot {
       if (axis_location !== null) {
         this.add_layout(axis, axis_location);
       }
-      return this.add_layout(grid);
+      this.add_layout(grid);
     }
   }
 
