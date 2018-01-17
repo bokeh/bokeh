@@ -175,5 +175,7 @@ export class TeeHead extends ArrowHead {
       return ctx.stroke();
     }
   }
+
+  clip(_ctx, _i) {}
 }
 TeeHead.initClass();
