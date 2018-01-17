@@ -139,6 +139,19 @@ export class VertexEditToolView extends DrawToolView {
       this._delete_selected(this.model.point_renderer);
     }
   }
+
+  deactivate(): void {
+    const renderer = this.model.point_renderer;
+    const ds = renderer.data_source;
+    const glyph = renderer.glyph;
+    let [pxkey, pykey] = Object.getPrototypeOf(glyph)._coords[0];
+    [pxkey, pykey] = [glyph.attributes[pxkey].field, glyph.attributes[pykey].field];
+    ds.data[pxkey] = [];
+    ds.data[pykey] = [];
+    this._selected_renderer = null;
+    ds.change.emit(undefined);
+    ds.properties.data.change.emit(undefined);
+  }
 }
 
 export class VertexEditTool extends DrawTool {
