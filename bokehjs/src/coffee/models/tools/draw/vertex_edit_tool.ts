@@ -1,8 +1,6 @@
 import * as p from "core/properties"
-import {ColumnDataSource} from "models/sources/column_data_source"
-import {SelectTool} from "../gestures/select_tool"
-import {EditToolView} from "./edit_tool"
-
+import {GlyphRenderer} from "models/renderers/glyph_renderer"
+import {DrawTool, DrawToolView} from "./draw_tool"
 
 export interface BkEv {
   bokeh: {
@@ -16,130 +14,120 @@ export interface BkEv {
   timeStamp: number
 }
 
-
-export class VertexEditToolView extends EditToolView {
+export class VertexEditToolView extends DrawToolView {
   model: VertexEditTool
+  _selected_renderer: GlyphRenderer | null
+  _timestamp: number
 
   _doubletap(e: BkEv): void {
     // Perform hit testing
-    let did_hit, renderer;
-    const geometry = {
-      type: 'point',
-      sx: e.bokeh.sx,
-      sy: e.bokeh.sy
-    };
-    const renderers_by_source = this._computed_renderers_by_data_source();
-    for (let source in renderers_by_source) {
-      const renderers = renderers_by_source[source];
-      const sm = this.model.source.selection_manager;
-      const r_views = (renderers.map((r) => this.plot_view.renderer_views[r.id]));
-      did_hit = sm.select(r_views, geometry, true, false);
-      if (did_hit) {
-        renderer = renderers[0];
-      }
-    }
+    this._select_event(e, false, this.model.renderers)
+    const renderers = this._selected_renderers;
 
     // If we did not hit an existing line, clear node CDS
-    if (!did_hit) {
-      if (this.model.timestamp !== e.timeStamp) {
-        this.model.source.data[this.model.x] = [];
-        this.model.source.data[this.model.y] = [];
-        this.model.source.change.emit(undefined);
+    const point_renderer = this.model.point_renderer;
+    const point_ds = point_renderer.data_source;
+    const point_glyph = point_renderer.glyph;
+    const [pxkey, pykey] = Object.getPrototypeOf(point_glyph)._coords[0];
+    if (!renderers.length) {
+      if (this._timestamp !== e.timeStamp) {
+	    point_ds.data[pxkey] = [];
+        point_ds.data[pykey] = [];
+		this._selected_renderer = null;
+        point_ds.change.emit(undefined);
       }
       return;
     }
+    this._timestamp = e.timeStamp;
 
-    this.model.timestamp = e.timeStamp;
+    // Otherwise copy selected line array to node CDS
+	// (Note: can only edit one at a time)
+    const renderer = renderers[0];
+    const glyph = renderer.glyph;
+    const ds = renderer.data_source;
+    const index = ds.selected['1d'].indices[0];
+    const [xkey, ykey] = Object.getPrototypeOf(glyph)._coords[0];
+    let xs = ds.data[xkey][index];
+    let ys = ds.data[ykey][index];
 
-    // Otherwise copy selected curve arrays to node CDS
-    const index = renderer.data_source.selected['1d'].indices[0];
-    let xs = renderer.data_source.data[this.model.x][index];
-    let ys = renderer.data_source.data[this.model.y][index];
+    // Convert typed arrays to regular arrays for editing
     if ((xs.concat == null)) {
       xs = Array.prototype.slice.call(xs);
-      renderer.data_source.data[this.model.x][index] = xs;
+      ds.data[xkey][index] = xs;
     }
     if ((ys.concat == null)) {
       ys = Array.prototype.slice.call(ys);
-      renderer.data_source.data[this.model.y][index] = ys;
+      ds.data[ykey][index] = ys;
     }
-    this.model.source.selected['1d'].indices = [];
-    this.model.source.data[this.model.x] = xs;
-    this.model.source.data[this.model.y] = ys;
-    this.model.source.change.emit(undefined);
+    point_ds.selected['1d'].indices = [];
+    point_ds.data[pxkey] = xs;
+    point_ds.data[pykey] = ys;
+    point_ds.change.emit(undefined);
     this.model.active = true;
-    this.model.line_source = renderer.data_source;
+    this._selected_renderer = renderer;
   }
 
   _tap(e: BkEv): void {
-    const ds = this.model.source;
+    const renderer = this.model.point_renderer;
+    const ds = renderer.data_source;
     const append = e.srcEvent.shiftKey != null ? e.srcEvent.shiftKey : false;
-    const did_hit = this._select_event(e, append);
+    const indices = ds.selected['1d'].indices.slice(0);
+    this._select_event(e, append, [renderer]);
     const point = this._map_drag(e.bokeh.sx, e.bokeh.sy);
-    if (did_hit || point == null) {
+    if (ds.selected['1d'].indices.length || point == null) {
       return;
     }
 
     const [x, y] = point;
-    const indices = ds.selected['1d'].indices.slice(0);
+    const [xkey, ykey] = Object.getPrototypeOf(renderer.glyph)._coords[0];
     if (indices.length === 1) {
       const index = indices[0]+1;
       ds.selected['1d'].indices = [index];
-      ds.data[this.model.x].splice(index, 0, x);
-      ds.data[this.model.y].splice(index, 0, y);
+      ds.data[xkey].splice(index, 0, x);
+      ds.data[ykey].splice(index, 0, y);
       ds.change.emit(undefined);
-      this.model.line_source.properties.data.change.emit(undefined);
+      this._selected_renderer.data_source.properties.data.change.emit(undefined);
     }
   }
 
   _pan_start(e: BkEv): void {
-    this._select_event(e, false);
+    this._select_event(e, false, [this.model.point_renderer]);
   }
 
   _pan(e: BkEv): void {
-    const ds = this.model.source;
+    const renderer = this.model.point_renderer;
+    const ds = renderer.data_source;
     const point = this._map_drag(e.bokeh.sx, e.bokeh.sy);
-    if (!ds.selected['1d'].indices.length || point == null) {
+    if (!ds.selected['1d'].indices.length || point == null || this._selected_renderer == null) {
       return;
     }
 
     // If a Point is selected drag it
     const [x, y] = point;
+    const [xkey, ykey] = Object.getPrototypeOf(renderer.glyph)._coords[0];
     const index = ds.selected['1d'].indices[0];
-    ds.data[this.model.x][index] = x;
-    ds.data[this.model.y][index] = y;
+    ds.data[xkey][index] = x;
+    ds.data[ykey][index] = y;
     ds.change.emit(undefined);
-    this.model.line_source.change.emit(undefined);
+    this._selected_renderer.data_source.change.emit(undefined);
   }
 
   _pan_end(_e: BkEv): void {
-    this.model.source.selected['1d'].indices = [];
-    this.model.line_source.properties.data.change.emit(undefined);
+    this.model.point_renderer.data_source.selected['1d'].indices = [];
+    if (this._selected_renderer) {
+      this._selected_renderer.data_source.properties.data.change.emit(undefined);
+    }
   }
 
   _keyup(e: BkEv): void {
     if ((e.keyCode === 8) && this.model.active) {
-      const ds = this.model.source;
-      const indices = ds.selected['1d'].indices;
-      indices.sort();
-      for (let index = 0; index < indices.length; index++) {
-        const ind = indices[index];
-        ds.data[this.model.x].splice(ind-index, 1);
-        ds.data[this.model.y].splice(ind-index, 1);
-      }
-      ds.selected['1d'].indices = [];
-      ds.change.emit(undefined);
-      this.model.line_source.change.emit(undefined);
-      this.model.line_source.properties.data.change.emit(undefined);
+      this._delete_selected(this.model.point_renderer);
     }
   }
 }
 
-export class VertexEditTool extends SelectTool {
-  line_source: ColumnDataSource
-  source: ColumnDataSource
-  x: string
-  y: string
+export class VertexEditTool extends DrawTool {
+  point_renderer: GlyphRenderer
 
   tool_name = "Vertex Edit Tool"
   icon = "bk-tool-icon-vertex-edit"
@@ -152,7 +140,5 @@ VertexEditTool.prototype.type = "VertexEditTool"
 VertexEditTool.prototype.default_view = VertexEditToolView
 
 VertexEditTool.define({
-  source: [ p.Instance ],
-  x:      [ p.String, 'x' ],
-  y:      [ p.String, 'y' ]
+  point_renderer: [ p.Instance ],
 })

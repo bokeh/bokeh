@@ -34,7 +34,7 @@ from ..util.deprecation import deprecated
 
 from .annotations import BoxAnnotation, PolyAnnotation
 from .callbacks import Callback
-from .renderers import Renderer
+from .renderers import Renderer, GlyphRenderer
 from .layouts import LayoutDOM
 from .sources import ColumnDataSource
 
@@ -867,72 +867,83 @@ class RedoTool(Action):
 
     '''
 
-class VertexEditTool(Tool):
+@abstract
+class DrawTool(Tool):
+    ''' A base class for all interactive draw tool types.
 
-    source = Instance(ColumnDataSource, help="""
-    The ColumnDataSource to be modified by the tool.
-    """)
-
-    renderers = List(Instance(Renderer), help="""
-    An explicit list of renderers corresponding to scatter glyphs
-    that may be edited.
-    """)
-
-    x = String('x', help="The name of the x-value column in the supplied source")
-
-    y = String('y', help="The name of the y-value column in the supplied source")
-
-class PointDrawTool(Tool):
-
-    source = Instance(ColumnDataSource, help="""
-    The ColumnDataSource to be modified by the tool.
-    """)
+    '''
 
     renderers = List(Instance(Renderer), help="""
     An explicit list of renderers corresponding to scatter glyphs
     that may be edited.
     """)
 
-    x = String('x', help="The name of the x-value column in the supplied source")
 
-    y = String('y', help="The name of the y-value column in the supplied source")
+class VertexEditTool(DrawTool):
+    ''' *toolbar icon*: |vertex_edit_icon|
 
-class PolyDrawTool(Tool):
+    The VertexEditTool allows editing the vertices of one or more
+    multi_line or patches glyphs. The glyphs to be edited can be
+    defined via the ``renderers`` property and the renderer for the
+    vertices can be defined via the ``point_renderer``.
 
-    source = Instance(ColumnDataSource, help="""
+    Double-tapping on any multi_line or patches glyph will reveal its
+    vertices, which can then be dragged, selected, and deleted.
+
+    .. |vertex_edit_icon| image:: /_images/icons/VertexEdit.png
+        :height: 18pt
+
+    '''
+
+    point_renderer = Instance(GlyphRenderer, help="""
     The ColumnDataSource to be modified by the tool.
     """)
 
-    renderers = List(Instance(Renderer), help="""
-    An explicit list of renderers corresponding to scatter glyphs
-    that may be edited.
-    """)
 
-    x = String('x', help="The name of the x-value column in the supplied source")
+class PointDrawTool(DrawTool):
+    ''' *toolbar icon*: |point_draw_icon|
 
-    y = String('y', help="The name of the y-value column in the supplied source")
+    The PointDrawTool allows adding, dragging and deleting points
+    on one or more renderers.
 
-class LineEditTool(Tool):
+    .. |point_draw_icon| image:: /_images/icons/PointDraw.png
+        :height: 18pt
+    '''
 
-    source = Instance(ColumnDataSource, help="""
-    The ColumnDataSource to be modified by the tool.
-    """)
+    add = Bool(default=True)
 
-    renderers = List(Instance(Renderer), help="""
-    An explicit list of renderers corresponding to multi_line glyphs
-    that may be edited.
-    """)
-
-    x = String('x', help="The name of the x-value column in the supplied source")
-
-    y = String('y', help="The name of the y-value column in the supplied source")
+    drag = Bool(default=True)
 
 
-class BoxDrawTool(Tool):
+class PolyDrawTool(DrawTool):
+    ''' *toolbar icon*: |poly_draw_icon|
 
-    source = Instance(ColumnDataSource, help="""
-    The ColumnDataSource to be modified by the tool.
-    """)
+    The PolyDrawTool allows drawing and deleting polygons
+
+
+    .. |poly_draw_icon| image:: /_images/icons/PolyDraw.png
+        :height: 18pt
+    '''
+
+
+
+class LineEditTool(DrawTool):
+    ''' *toolbar icon*: |line_edit_icon|
+
+
+    .. |line_edit_icon| image:: /_images/icons/LineEdit.png
+        :height: 18pt
+    '''
+
+
+class BoxDrawTool(DrawTool):
+    ''' *toolbar icon*: |box_draw_icon|
+
+
+    .. |box_draw_icon| image:: /_images/icons/BoxDraw.png
+        :height: 18pt
+    '''
+
 
     dimensions = Enum(Dimensions, default="both", help="""
     Which dimensions the box drawing is to be free in. By default,
@@ -943,12 +954,3 @@ class BoxDrawTool(Tool):
     to span the entire horizontal space of the plot, and the vertical
     dimension can be controlled.
     """)
-
-    renderers = List(Instance(Renderer), help="""
-        An explicit list of renderers to hit test again. If unset,
-        defaults to all renderers on a plot.
-    """)
-
-    x = String('x', help="The name of the x-value column in the supplied source")
-
-    y = String('y', help="The name of the y-value column in the supplied source")

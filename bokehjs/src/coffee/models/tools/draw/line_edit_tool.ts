@@ -1,7 +1,4 @@
-import * as p from "core/properties"
-import {ColumnDataSource} from "models/sources/column_data_source"
-import {SelectTool} from "../gestures/select_tool"
-import {EditToolView} from "./edit_tool"
+import {DrawTool, DrawToolView} from "./draw_tool"
 
 export interface BkEv {
   bokeh: {
@@ -15,52 +12,69 @@ export interface BkEv {
   timeStamp: number
 }
 
-export class LineEditToolView extends EditToolView {
+export class LineEditToolView extends DrawToolView {
   model: LineEditTool
-  _basepoint: [number, number]
+  _basepoint: [number, number] | null
+
+  _tap(e: BkEv): void {
+    const append = e.srcEvent.shiftKey != null ? e.srcEvent.shiftKey : false;
+    this._select_event(e, append, this.model.renderers);
+  }
+
+  _keyup(e: BkEv): void {
+    if ((e.keyCode === 8) && this.model.active) {
+	  for (const renderer of this.model.renderers) {
+	    this._delete_selected(renderer);
+      }
+	}
+  }
 
   _pan_start(e: BkEv): void {
     // Perform hit testing
-    this._select_event(e, false);
-    const point = this._map_drag(e.bokeh.sx, e.bokeh.sy);
-    if (point == null) {
-      return
+    this._select_event(e, false, this.model.renderers);
+    if (this._selected_renderers.length) {
+      this._basepoint = this._map_drag(e.bokeh.sx, e.bokeh.sy);
+    } else {
+      this._basepoint = null;
     }
-    this._basepoint = point;
   }
 
   _pan(e: BkEv): void {
-    const ds = this.model.source;
-    const point = this._map_drag(e.bokeh.sx, e.bokeh.sy)
-    if (!ds.selected['1d'].indices.length || point == null || this._basepoint == null) {
+    const point = this._map_drag(e.bokeh.sx, e.bokeh.sy);
+    if (point == null || this._basepoint == null) {
       return;
     }
-    const [x, y] = point
-	const [px, py] = this._basepoint
-    const [dx, dy] = [x-px, y-py];
-    this._basepoint = point;
-    const index = ds.selected['1d'].indices[0];
-    const xs = ds.data[this.model.x][index];
-    const ys = ds.data[this.model.y][index];
-    for (let i = 0; i < ys.length; i++) {
-      xs[i] = xs[i]+dx;
-      ys[i] = ys[i]+dy;
+    for (const renderer of this._selected_renderers) {
+      const ds = renderer.data_source;
+      const glyph = renderer.glyph;
+      const [xkey, ykey] = Object.getPrototypeOf(glyph)._coords[0];
+      const [x, y] = point;
+      const [px, py] = this._basepoint;
+      const [dx, dy] = [x-px, y-py];
+      const index = ds.selected['1d'].indices[0];
+      const xs = ds.data[xkey][index];
+      const ys = ds.data[ykey][index];
+      for (let i = 0; i < ys.length; i++) {
+        xs[i] = xs[i]+dx;
+        ys[i] = ys[i]+dy;
+      }
+      ds.change.emit(undefined);
     }
-    ds.change.emit(undefined);
+    this._basepoint = point;
   }
 
   _pan_end(_e: BkEv): void {
-    this.model.source.selected['1d'].indices = [];
+    for (const renderer of this._selected_renderers) {
+      renderer.data_source.selected['1d'].indices = [];
+      renderer.data_source.properties.data.change.emit(undefined);
+    }
     this._basepoint = null;
+    this._selected_renderers = [];
   }
 }
 
 
-export class LineEditTool extends SelectTool {
-  source: ColumnDataSource
-  x: string
-  y: string
-
+export class LineEditTool extends DrawTool {
   tool_name = "Line Edit Tool"
   icon = "bk-tool-icon-line-edit"
   event_type = ["pan", "tap"]
@@ -70,9 +84,3 @@ export class LineEditTool extends SelectTool {
 LineEditTool.prototype.type = "LineEditTool"
 
 LineEditTool.prototype.default_view = LineEditToolView
-
-LineEditTool.define({
-  source: [ p.Instance ],
-  x: [ p.String, 'x' ],
-  y: [ p.String, 'y' ]
-})

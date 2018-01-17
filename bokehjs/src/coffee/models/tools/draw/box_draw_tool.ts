@@ -1,9 +1,6 @@
 import {Dimensions} from "core/enums"
 import * as p from "core/properties"
-import {ColumnDataSource} from "models/sources/column_data_source"
-import {SelectTool} from "../gestures/select_tool"
-import {EditToolView} from "./edit_tool"
-
+import {DrawTool, DrawToolView} from "./draw_tool"
 
 export interface BkEv {
   bokeh: {
@@ -18,27 +15,28 @@ export interface BkEv {
 }
 
 
-export class BoxDrawToolView extends EditToolView {
+export class BoxDrawToolView extends DrawToolView {
   model: BoxDrawTool
-  _basepoint: [number, number]
+  _basepoint: [number, number] | null
 
   _pan_start(e: BkEv): void {
-    const {sx, sy} = e.bokeh;
-    this._basepoint = [sx, sy];
+    this._basepoint = [e.bokeh.sx, e.bokeh.sy];
   }
 
   _set_extent([sx0, sx1]: [number, number], [sy0, sy1]: [number, number],
               emit: boolean = false): void {
-    const r = this.computed_renderers[0];
-    const ds = this.model.source;
+    const r = this.model.renderers[0];
+    const glyph = r.glyph;
+    const [xkey, ykey] = Object.getPrototypeOf(glyph)._coords[0];
+    const ds = r.data_source;
     const frame = this.plot_model.frame;
     const xscale = frame.xscales[r.x_range_name];
     const yscale = frame.yscales[r.y_range_name];
     const [x0, x1] = xscale.r_invert(sx0, sx1);
     const [y0, y1] = yscale.r_invert(sy0, sy1);
     const new_data: {[key: string]: any[]} = {}
-	new_data[this.model.x] = [[x0, x0, x1, x1]];
-    new_data[this.model.y] = [[y1, y0, y0, y1]];
+    new_data[xkey] = [[x0, x0, x1, x1]];
+    new_data[ykey] = [[y1, y0, y0, y1]];
     ds.data = new_data;
     ds.change.emit(undefined);
     if (emit) {
@@ -47,31 +45,32 @@ export class BoxDrawToolView extends EditToolView {
   }
 
   _pan(e: BkEv): void {
-    const {sx, sy} = e.bokeh;
-    const curpoint = [sx, sy];
+    const curpoint = [e.bokeh.sx, e.bokeh.sy];
     const frame = this.plot_model.frame;
     const dims = this.model.dimensions;
-    const [sxlim, sylim] = this.model._get_dim_limits(this._basepoint, curpoint, frame, dims);
-    this._set_extent(sxlim, sylim);
+    const limits = this.model._get_dim_limits(this._basepoint, curpoint, frame, dims);
+    if (limits != null) {
+      const [sxlim, sylim] = limits;
+      this._set_extent(sxlim, sylim);
+    }
   }
 
   _pan_end(e: BkEv): void {
-    const {sx, sy} = e.bokeh;
-    const curpoint = [sx, sy];
+    const curpoint = [e.bokeh.sx, e.bokeh.sy];
     const frame = this.plot_model.frame;
     const dims = this.model.dimensions;
-    const [sxlim, sylim] = this.model._get_dim_limits(this._basepoint, curpoint, frame, dims);
-    this._set_extent(sxlim, sylim, true);
+    const limits = this.model._get_dim_limits(this._basepoint, curpoint, frame, dims);
+    if (limits != null) {
+      const [sxlim, sylim] = limits;
+      this._set_extent(sxlim, sylim, true);
+    }
     this._basepoint = null;
   }
 }
 
 
-export class BoxDrawTool extends SelectTool {
+export class BoxDrawTool extends DrawTool {
   dimensions: Dimensions
-  source: ColumnDataSource
-  x: string
-  y: string
 
   tool_name = "Box Draw Tool"
   icon = "bk-tool-icon-box-draw"
@@ -84,8 +83,5 @@ BoxDrawTool.prototype.type = "BoxDrawTool"
 BoxDrawTool.prototype.default_view = BoxDrawToolView
 
 BoxDrawTool.define({
-  source: [ p.Instance ],
   dimensions: [ p.Dimensions, "both"],
-  x: [ p.String, 'x' ],
-  y: [ p.String, 'y' ]
 })
