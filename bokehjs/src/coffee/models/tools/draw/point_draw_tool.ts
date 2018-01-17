@@ -15,18 +15,21 @@ export interface BkEv {
 
 export class PointDrawView extends DrawToolView {
   model: PointDrawTool
+  _basepoint: [number, number] | null
 
   _tap(e: BkEv): void {
     const append = e.srcEvent.shiftKey != null ? e.srcEvent.shiftKey : false;
-    this._select_event(e, append, this.model.renderers);
-    const renderers = this._selected_renderers;
-    const point = this._map_drag(e.bokeh.sx, e.bokeh.sy);
-    if (renderers.length || point == null || !this.model.add) {
+    const renderers = this._select_event(e, append, this.model.renderers);
+    if (renderers.length || !this.model.add) {
       return
     }
 
     // Convert typed arrays to regular arrays for manipulation
     for (const renderer of this.model.renderers) {
+      const point = this._map_drag(e.bokeh.sx, e.bokeh.sy, renderer);
+      if (point == null) {
+	    continue;
+      }
       const glyph = renderer.glyph
       const ds = renderer.data_source;
       const [xkey, ykey] = Object.getPrototypeOf(glyph)._coords[0];
@@ -70,38 +73,47 @@ export class PointDrawView extends DrawToolView {
   _pan_start(e: BkEv): void {
     // Perform hit testing
     if (this.model.drag) {
-      this._select_event(e, false, this.model.renderers);
-    } else {
-      this._selected_renderers = [];
+      const append = e.srcEvent.shiftKey != null ? e.srcEvent.shiftKey : false;
+      this._select_event(e, append, this.model.renderers);
+      this._basepoint = [e.bokeh.sx, e.bokeh.sy];
     }
   }
 
   _pan(e: BkEv): void {
-    const renderers = this._selected_renderers;
-    const point = this._map_drag(e.bokeh.sx, e.bokeh.sy);
-    if (!renderers.length || point == null) {
+    if (!this.model.drag) {
       return;
     }
-
     // If a Point is selected drag it
-    for (const renderer of renderers) {
+	const [bx, by] = this._basepoint;
+    for (const renderer of this.model.renderers) {
+      const basepoint = this._map_drag(bx, by, renderer);
+      const point = this._map_drag(e.bokeh.sx, e.bokeh.sy, renderer);
+      if (point == null || basepoint == null) {
+        continue;
+      }
+
+      const [x, y] = point;
+      const [px, py] = basepoint;
+      const [dx, dy] = [x-px, y-py];
       const glyph = renderer.glyph;
       const ds = renderer.data_source;
       const [xkey, ykey] = Object.getPrototypeOf(glyph)._coords[0];
       for (const index of ds.selected['1d'].indices) {
-        ds.data[xkey][index] = point[0];
-        ds.data[ykey][index] = point[1];
+        ds.data[xkey][index] += dx;
+        ds.data[ykey][index] += dy;
       }
       ds.change.emit(undefined);
       ds.properties.data.change.emit(undefined);
     }
+    this._basepoint = [e.bokeh.sx, e.bokeh.sy];
   }
 
   _pan_end(_e: BkEv): void {
-    for (const renderer of this._selected_renderers) {
+    if (!this.model.drag) { return; }
+    for (const renderer of this.model.renderers) {
       renderer.data_source.selected['1d'].indices = [];
     }
-    this._selected_renderers = [];
+    this._basepoint = null;
   }
 }
 

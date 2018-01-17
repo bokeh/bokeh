@@ -29,13 +29,13 @@ export class PolyDrawToolView extends DrawToolView {
   }
 
   _pan_start(e: BkEv): void {
-    const point = this._map_drag(e.bokeh.sx, e.bokeh.sy);
+    const renderer = this.model.renderers[0];
+    const point = this._map_drag(e.bokeh.sx, e.bokeh.sy, renderer);
     if (point == null) {
       return;
     }
     const [x, y] = point;
     const append = e.srcEvent.shiftKey != null ? e.srcEvent.shiftKey : false;
-    const renderer = this.model.renderers[0];
     const ds = renderer.data_source;
     const glyph = renderer.glyph;
     const [xkey, ykey] = Object.getPrototypeOf(glyph)._coords[0];
@@ -58,13 +58,13 @@ export class PolyDrawToolView extends DrawToolView {
   }
 
   _pan(e: BkEv): void {
-    const point = this._map_drag(e.bokeh.sx, e.bokeh.sy);
+    const renderer = this.model.renderers[0];
+    const point = this._map_drag(e.bokeh.sx, e.bokeh.sy, renderer);
     if (point == null) {
       return;
     }
-    const [x, y] = point;
 
-    const renderer = this.model.renderers[0];
+    const [x, y] = point;
     const ds = renderer.data_source;
     const glyph = renderer.glyph;
     const [xkey, ykey] = Object.getPrototypeOf(glyph)._coords[0];

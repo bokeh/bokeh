@@ -17,16 +17,15 @@ export interface BkEv {
 
 export abstract class DrawToolView extends GestureToolView {
   model: DrawTool
-  _selected_renderers: GlyphRenderer[]
 
   // this is executed when the pan/drag event starts
-  _map_drag(sx: number[], sy: number[]): [number, number] | null {
+  _map_drag(sx: number[], sy: number[], renderer: GlyphRenderer): [number, number] | null {
     const frame = this.plot_model.frame;
     if (!frame.bbox.contains(sx, sy)) {
       return null;
     }
-    const x = frame.xscales['default'].invert(sx);
-    const y = frame.yscales['default'].invert(sy);
+    const x = frame.xscales[renderer.x_range_name].invert(sx);
+    const y = frame.yscales[renderer.y_range_name].invert(sy);
     return [x, y];
   }
 
@@ -47,22 +46,28 @@ export abstract class DrawToolView extends GestureToolView {
     ds.properties.selected.change.emit(undefined);
   }
 
-  _select_event(e: BkEv, append: boolean, renderers: GlyphRenderer[]): void {
+  _select_event(e: BkEv, append: boolean, renderers: GlyphRenderer[]): GlyphRenderer[] {
+    const frame = this.plot_model.frame;
+    if (!frame.bbox.contains(sx, sy)) {
+      return [];
+    }
     const {sx, sy} = e.bokeh;
     const geometry: PointGeometry = {
       type: 'point',
       sx: sx,
       sy: sy,
     }
-    this._selected_renderers = [];
+    const selected: GlyphRenderer[] = [];
     for (const renderer of renderers) {
       const sm = renderer.get_selection_manager();
       const views = [this.plot_view.renderer_views[renderer.id]];
+      const point = this._map_drag(e.bokeh.sx, e.bokeh.sy, renderer);
       const did_hit = sm.select(views, geometry, true, append);
       if (did_hit) {
-        this._selected_renderers.push(renderer)
+        selected.push(renderer)
       }
     }
+    return selected;
   }
 }
 

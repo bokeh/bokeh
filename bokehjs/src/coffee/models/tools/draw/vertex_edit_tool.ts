@@ -18,11 +18,11 @@ export class VertexEditToolView extends DrawToolView {
   model: VertexEditTool
   _selected_renderer: GlyphRenderer | null
   _timestamp: number
+  _basepoint: [number, number] | null
 
   _doubletap(e: BkEv): void {
     // Perform hit testing
-    this._select_event(e, false, this.model.renderers)
-    const renderers = this._selected_renderers;
+    const renderers = this._select_event(e, false, this.model.renderers);
 
     // If we did not hit an existing line, clear node CDS
     const point_renderer = this.model.point_renderer;
@@ -69,12 +69,15 @@ export class VertexEditToolView extends DrawToolView {
 
   _tap(e: BkEv): void {
     const renderer = this.model.point_renderer;
+    const point = this._map_drag(e.bokeh.sx, e.bokeh.sy, renderer);
+    if (point == null) {
+	  return;
+    }
     const ds = renderer.data_source;
     const append = e.srcEvent.shiftKey != null ? e.srcEvent.shiftKey : false;
     const indices = ds.selected['1d'].indices.slice(0);
     this._select_event(e, append, [renderer]);
-    const point = this._map_drag(e.bokeh.sx, e.bokeh.sy);
-    if (ds.selected['1d'].indices.length || point == null) {
+    if (ds.selected['1d'].indices.length) {
       return;
     }
 
@@ -91,25 +94,32 @@ export class VertexEditToolView extends DrawToolView {
   }
 
   _pan_start(e: BkEv): void {
-    this._select_event(e, false, [this.model.point_renderer]);
+    const append = e.srcEvent.shiftKey != null ? e.srcEvent.shiftKey : false;
+    this._select_event(e, append, [this.model.point_renderer]);
+    this._basepoint = [e.bokeh.sx, e.bokeh.sy];
   }
 
   _pan(e: BkEv): void {
     const renderer = this.model.point_renderer;
     const ds = renderer.data_source;
-    const point = this._map_drag(e.bokeh.sx, e.bokeh.sy);
-    if (!ds.selected['1d'].indices.length || point == null || this._selected_renderer == null) {
+    const point = this._map_drag(e.bokeh.sx, e.bokeh.sy, renderer);
+    const basepoint = this._map_drag(this._basepoint[0], this._basepoint[1], renderer);
+    if (!ds.selected['1d'].indices.length || point == null || basepoint == null || this._selected_renderer == null) {
       return;
     }
 
     // If a Point is selected drag it
     const [x, y] = point;
+    const [px, py] = basepoint;
+    const [dx, dy] = [x-px, y-py];
     const [xkey, ykey] = Object.getPrototypeOf(renderer.glyph)._coords[0];
-    const index = ds.selected['1d'].indices[0];
-    ds.data[xkey][index] = x;
-    ds.data[ykey][index] = y;
+    for (const index of ds.selected['1d'].indices) {
+      ds.data[xkey][index] += dx;
+      ds.data[ykey][index] += dy;
+    }
     ds.change.emit(undefined);
     this._selected_renderer.data_source.change.emit(undefined);
+    this._basepoint = [e.bokeh.sx, e.bokeh.sy];
   }
 
   _pan_end(_e: BkEv): void {
@@ -117,6 +127,7 @@ export class VertexEditToolView extends DrawToolView {
     if (this._selected_renderer) {
       this._selected_renderer.data_source.properties.data.change.emit(undefined);
     }
+    this._basepoint = null;
   }
 
   _keyup(e: BkEv): void {

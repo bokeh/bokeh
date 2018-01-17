@@ -32,44 +32,43 @@ export class LineEditToolView extends DrawToolView {
   _pan_start(e: BkEv): void {
     // Perform hit testing
     this._select_event(e, false, this.model.renderers);
-    if (this._selected_renderers.length) {
-      this._basepoint = this._map_drag(e.bokeh.sx, e.bokeh.sy);
-    } else {
-      this._basepoint = null;
-    }
+    this._basepoint = [e.bokeh.sx, e.bokeh.sy];
   }
 
   _pan(e: BkEv): void {
-    const point = this._map_drag(e.bokeh.sx, e.bokeh.sy);
-    if (point == null || this._basepoint == null) {
-      return;
-    }
-    for (const renderer of this._selected_renderers) {
+	const [bx, by] = this._basepoint;
+    for (const renderer of this.model.renderers) {
+      const basepoint = this._map_drag(bx, by, renderer);
+      const point = this._map_drag(e.bokeh.sx, e.bokeh.sy, renderer);
+      if (point == null || basepoint == null) {
+        continue;
+      }
+
       const ds = renderer.data_source;
       const glyph = renderer.glyph;
       const [xkey, ykey] = Object.getPrototypeOf(glyph)._coords[0];
       const [x, y] = point;
-      const [px, py] = this._basepoint;
+      const [px, py] = basepoint;
       const [dx, dy] = [x-px, y-py];
-      const index = ds.selected['1d'].indices[0];
-      const xs = ds.data[xkey][index];
-      const ys = ds.data[ykey][index];
-      for (let i = 0; i < ys.length; i++) {
-        xs[i] = xs[i]+dx;
-        ys[i] = ys[i]+dy;
+      for (const index of ds.selected['1d'].indices) {
+        const xs = ds.data[xkey][index];
+        const ys = ds.data[ykey][index];
+        for (let i = 0; i < ys.length; i++) {
+          xs[i] += dx;
+          ys[i] += dy;
+        }
       }
       ds.change.emit(undefined);
     }
-    this._basepoint = point;
+    this._basepoint = [e.bokeh.sx, e.bokeh.sy];
   }
 
   _pan_end(_e: BkEv): void {
-    for (const renderer of this._selected_renderers) {
+    for (const renderer of this.model.renderers) {
       renderer.data_source.selected['1d'].indices = [];
       renderer.data_source.properties.data.change.emit(undefined);
     }
     this._basepoint = null;
-    this._selected_renderers = [];
   }
 }
 
