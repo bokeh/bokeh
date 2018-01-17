@@ -55,14 +55,14 @@ export class ImageURLView extends GlyphView {
     // machinery will have converted @_w and @_w to lists of null
     const ws = ((this.model.w != null) ? this._w : (() => {
       const result = [];
-      for (const x of this._x) {
+      for (const _ of this._x) {
         result.push(NaN);
       }
       return result;
     })());
     const hs = ((this.model.h != null) ? this._h : (() => {
       const result1 = [];
-      for (const x of this._x) {
+      for (const _ of this._x) {
         result1.push(NaN);
       }
       return result1;

@@ -3,7 +3,7 @@ import {Box, BoxView} from "./box"
 
 export class QuadView extends BoxView {
 
-  get_anchor_point(anchor, i, spt) {
+  get_anchor_point(anchor, i, _spt) {
     const left = Math.min(this.sleft[i], this.sright[i]);
     const right = Math.max(this.sright[i], this.sleft[i]);
     const top = Math.min(this.stop[i], this.sbottom[i]);     // screen coordinates !!!

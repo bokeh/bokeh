@@ -159,7 +159,6 @@ export class GlyphRendererView extends RendererView {
 
     const glsupport = this.glyph.glglyph;
 
-    const tmap = Date.now();
     this.glyph.map_data();
     const dtmap = Date.now() - t0;
 

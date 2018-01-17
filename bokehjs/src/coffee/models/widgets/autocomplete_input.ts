@@ -54,7 +54,7 @@ export class AutocompleteInputView extends TextInputView {
     }
   }
 
-  _keydown(event): void {}
+  _keydown(_event): void {}
 
   _keyup(event): void {
     switch (event.keyCode) {

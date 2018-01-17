@@ -13,7 +13,7 @@ export class OpenURL extends Model {
     });
   }
 
-  execute(cb_obj, cb_data) {
+  execute(_cb_obj, cb_data) {
     for (let i of get_indices(cb_data.source)) {
       const url = replace_placeholders(this.url, cb_data.source, i);
       window.open(url);

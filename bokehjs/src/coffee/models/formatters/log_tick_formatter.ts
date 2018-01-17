@@ -21,7 +21,7 @@ export class LogTickFormatter extends TickFormatter {
     }
   }
 
-  doFormat(ticks, axis) {
+  doFormat(ticks, _axis) {
     let base;
     if (ticks.length === 0) {
       return [];

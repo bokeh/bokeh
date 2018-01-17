@@ -22,7 +22,7 @@ export class CircleView extends XYGlyphView {
     }
   }
 
-  _mask_data(all_indices) {
+  _mask_data(_all_indices) {
     let sx0, sx1, sy0, sy1, x0, x1, y0, y1;
     const [hr, vr] = this.renderer.plot_view.frame.bbox.ranges;
 

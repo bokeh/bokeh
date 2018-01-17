@@ -54,7 +54,7 @@ export class ColorMapper extends Transform {
     return buf;
   }
 
-  compute(x) {
+  compute(_x) {
     // If it's just a single value, then a color mapper doesn't
     // really make sense, so return nothing
     return null;
@@ -65,7 +65,7 @@ export class ColorMapper extends Transform {
     return values;
   }
 
-  _get_values(data, palette, image_glyph) {
+  _get_values(_data, _palette, image_glyph) {
     // Should be defined by subclass
     if (image_glyph == null) { image_glyph = false; }
     return [];

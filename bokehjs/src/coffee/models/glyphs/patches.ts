@@ -24,7 +24,6 @@ export class PatchesView extends GlyphView {
     //   1: [[x21, x22, x23]],
     //   2: [[x31],[x32]]
     // }
-    let q;
     const ds = {};
     for (let i = 0, end = nanned_qs.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
       ds[i] = [];
@@ -32,7 +31,7 @@ export class PatchesView extends GlyphView {
       while (qs.length > 0) {
 
         let qs_part;
-        const nan_index = findLastIndex(qs, q => isStrictNaN(q));
+        const nan_index = findLastIndex(qs, (q) => isStrictNaN(q));
 
         if (nan_index >= 0) {
           qs_part = qs.splice(nan_index);
@@ -74,7 +73,7 @@ export class PatchesView extends GlyphView {
     return new RBush(points);
   }
 
-  _mask_data(all_indices) {
+  _mask_data(_all_indices) {
     const xr = this.renderer.plot_view.frame.x_ranges.default;
     const [x0, x1] = [xr.min, xr.max];
 
@@ -97,7 +96,6 @@ export class PatchesView extends GlyphView {
       const [sx, sy] = [sxs[i], sys[i]];
 
       if (this.visuals.fill.doit) {
-        let asc, end;
         this.visuals.fill.set_vectorize(ctx, i);
 
         for (let j = 0, end = sx.length, asc = 0 <= end; asc ? j < end : j > end; asc ? j++ : j--) {
@@ -120,7 +118,6 @@ export class PatchesView extends GlyphView {
       }
 
       if (this.visuals.line.doit) {
-        let asc1, end1;
         this.visuals.line.set_vectorize(ctx, i);
 
         for (let j = 0, end1 = sx.length, asc1 = 0 <= end1; asc1 ? j < end1 : j > end1; asc1 ? j++ : j--) {

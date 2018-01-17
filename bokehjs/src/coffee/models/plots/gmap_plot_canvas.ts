@@ -3,7 +3,6 @@ import {proj4, mercator} from "core/util/proj4";
 
 import {PlotCanvas, PlotCanvasView} from "./plot_canvas";
 import {Signal} from "core/signaling";
-import {extend} from "core/util/object"
 
 const gmaps_ready = new Signal(this, "gmaps_ready");
 
@@ -46,7 +45,6 @@ export class GMapPlotCanvasView extends PlotCanvasView {
   update_range(range_info) {
     // RESET -------------------------
     if ((range_info == null)) {
-      const mo = this.model.plot.map_options;
       this.map.setCenter({lat: this.initial_lat, lng: this.initial_lng});
       this.map.setOptions({zoom: this.initial_zoom});
       super.update_range(null);
@@ -85,7 +83,7 @@ export class GMapPlotCanvasView extends PlotCanvasView {
         this.map.setZoom(new_map_zoom);
 
         // Check we haven't gone out of bounds, and if we have undo the zoom
-        const [proj_xstart, proj_xend, proj_ystart, proj_yend] = this._get_projected_bounds();
+        const [proj_xstart, proj_xend,,] = this._get_projected_bounds();
         if (( proj_xend - proj_xstart ) < 0) {
           this.map.setZoom(old_map_zoom);
         }
@@ -184,12 +182,10 @@ export class GMapPlotCanvasView extends PlotCanvasView {
   }
 
   _update_map_type() {
-    const { maps } = window.google;
     return this.map.setOptions({mapTypeId: this.map_types[this.model.plot.map_options.map_type] });
   }
 
   _update_scale_control() {
-    const { maps } = window.google;
     return this.map.setOptions({scaleControl: this.model.plot.map_options.scale_control });
   }
 
@@ -211,7 +207,7 @@ export class GMapPlotCanvasView extends PlotCanvasView {
   }
 
   // this method is expected and called by PlotCanvasView.render
-  _map_hook(ctx, frame_box) {
+  _map_hook(_ctx, frame_box) {
     const [left, top, width, height] = frame_box;
     this.canvas_view.map_el.style.top    = `${top}px`;
     this.canvas_view.map_el.style.left   = `${left}px`;

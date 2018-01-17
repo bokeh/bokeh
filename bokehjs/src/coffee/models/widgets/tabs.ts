@@ -30,7 +30,7 @@ export class TabsView extends WidgetView {
     const tabsEl = ul({class: ["bk-bs-nav", "bk-bs-nav-tabs"]}, tabs)
     this.el.appendChild(tabsEl)
 
-    const panels = this.model.tabs.map((tab) => div({class: "bk-bs-tab-pane"}))
+    const panels = this.model.tabs.map((_tab) => div({class: "bk-bs-tab-pane"}))
     panels[this.model.active].classList.add("bk-bs-active")
     const panelsEl = div({class: "bk-bs-tab-content"}, panels)
     this.el.appendChild(panelsEl)

@@ -77,7 +77,7 @@ export class DatetimeTickFormatter extends TickFormatter {
 
     const _widths = function(fmt_strings) {
       const sizes = (fmt_strings.map((fmt_string) => _strftime(now, fmt_string).length));
-      const sorted = sortBy(zip(sizes, fmt_strings), function(...args) { const [size, fmt] = args[0]; return size; });
+      const sorted = sortBy(zip(sizes, fmt_strings), function(...args) { const [size,] = args[0]; return size; });
       return unzip(sorted);
     };
 
@@ -119,7 +119,7 @@ export class DatetimeTickFormatter extends TickFormatter {
   }
 
   // TODO (bev) remove these unused "default" params and associated logic
-  doFormat(ticks, axis, num_labels=null, char_width=null, fill_ratio, ticker=null) {
+  doFormat(ticks, _axis, _num_labels=null, char_width=null, fill_ratio, ticker=null) {
 
     // In order to pick the right set of labels, we need to determine
     // the resolution of the ticks.  We can do this using a ticker if

@@ -22,7 +22,7 @@ import * as p from "core/properties";
 import {throttle} from "core/util/throttle";
 import {isStrictNaN} from "core/util/types";
 import {difference, sortBy, reversed, includes} from "core/util/array";
-import {extend, values, isEmpty} from "core/util/object";
+import {extend, values} from "core/util/object";
 import {update_panel_constraints, _view_sizes} from "core/layout/side_panel"
 
 // Notes on WebGL support:
@@ -548,7 +548,6 @@ export class PlotCanvasView extends DOMView {
   }
 
   build_levels() {
-    let model;
     const renderer_models = this.model.plot.all_renderers;
 
     // should only bind events on NEW views
@@ -851,7 +850,7 @@ export class PlotCanvasView extends DOMView {
     return ctx.restore();
   }
 
-  _map_hook(ctx, frame_box) {}
+  _map_hook(_ctx, _frame_box) {}
 
   _paint_empty(ctx, frame_box) {
     ctx.clearRect(0, 0,  this.canvas_view.model._width.value, this.canvas_view.model._height.value);

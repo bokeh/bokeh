@@ -45,7 +45,7 @@ export class AjaxDataSource extends RemoteDataSource {
     }
   }
 
-  get_data(mode: UpdateMode, max_size: number = 0, if_modified: boolean = false): void {
+  get_data(mode: UpdateMode, max_size: number = 0, _if_modified: boolean = false): void {
     const xhr = new XMLHttpRequest()
     xhr.open(this.method, this.data_url, true)
     xhr.withCredentials = false

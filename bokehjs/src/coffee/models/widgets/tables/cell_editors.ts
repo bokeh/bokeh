@@ -361,7 +361,7 @@ export class DateEditorView extends CellEditorView {
     return super.hide();
   }
 
-  position(position) {
+  position(_position) {
     //if @calendarOpen
     //  $.datepicker.dpDiv.css(top: position.top + 30, left: position.left)
     return super.position();
@@ -370,7 +370,7 @@ export class DateEditorView extends CellEditorView {
   getValue() {}
     //return @$datepicker.datepicker("getDate").getTime()
 
-  setValue(val) {}
+  setValue(_val) {}
 }
 DateEditorView.initClass();
     //@$datepicker.datepicker("setDate", new Date(val))

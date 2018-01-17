@@ -22,7 +22,7 @@ export class CDSView extends Model {
   }
 
   initialize(attrs: any, options: any): void {
-    super.initialize(options)
+    super.initialize(attrs, options)
     this.compute_indices()
   }
 

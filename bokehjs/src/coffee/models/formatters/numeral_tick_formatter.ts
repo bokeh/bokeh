@@ -16,7 +16,7 @@ export class NumeralTickFormatter extends TickFormatter {
     });
   }
 
-  doFormat(ticks, axis) {
+  doFormat(ticks, _axis) {
     const { format } = this;
     const { language } = this;
     const rounding = (() => { switch (this.rounding) {

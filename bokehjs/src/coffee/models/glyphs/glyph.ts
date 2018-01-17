@@ -195,7 +195,7 @@ export class GlyphView extends View {
     }
   }
 
-  draw_legend_for_index(ctx, x0, x1, y0, y1, index) {
+  draw_legend_for_index(_ctx, _x0, _x1, _y0, _y1, _index) {
     return null;
   }
 
@@ -212,7 +212,6 @@ export class GlyphView extends View {
   }
 
   _generic_area_legend(ctx, x0, x1, y0, y1, index) {
-    const indices = [index];
     const w = Math.abs(x1-x0);
     const dw = w*0.1;
     const h = Math.abs(y1-y0);

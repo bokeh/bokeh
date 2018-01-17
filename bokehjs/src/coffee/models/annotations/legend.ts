@@ -120,7 +120,6 @@ export class LegendView extends AnnotationView {
 
   on_hit(sx, sy) {
     let yoffset;
-    const { glyph_height } = this.model;
     const { glyph_width } = this.model;
     const { legend_padding } = this;
     const legend_spacing = this.model.spacing;
@@ -133,13 +132,10 @@ export class LegendView extends AnnotationView {
 
     for (let item of this.model.items) {
       const labels = item.get_labels_list_from_label_prop();
-      const field = item.get_field_from_label_prop();
 
       for (let label of labels) {
         const x1 = legend_bbox.x + xoffset;
         const y1 = legend_bbox.y + yoffset;
-        const x2 = x1 + glyph_width;
-        const y2 = y1 + glyph_height;
 
         let h: number
         let w: number

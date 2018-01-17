@@ -10,7 +10,7 @@ import {isString} from "core/util/types";
 import {Model} from "../../../model"
 
 export class CellFormatter extends Model {
-  doFormat(row, cell, value, columnDef, dataContext) {
+  doFormat(_row, _cell, value, _columnDef, _dataContext) {
     if ((value == null)) {
       return "";
     } else {
@@ -30,7 +30,7 @@ export class StringFormatter extends CellFormatter {
     });
   }
 
-  doFormat(row, cell, value, columnDef, dataContext) {
+  doFormat(_row, _cell, value, _columnDef, _dataContext) {
     const { font_style } = this;
     const { text_align } = this;
     const { text_color } = this;
@@ -92,7 +92,7 @@ export class BooleanFormatter extends CellFormatter {
     });
   }
 
-  doFormat(row, cell, value, columnDef, dataContext) {
+  doFormat(_row, _cell, value, _columnDef, _dataContext) {
     if (!!value) { return i({class: this.icon}).outerHTML; } else { return ""; }
   }
 }
@@ -139,7 +139,7 @@ export class HTMLTemplateFormatter extends CellFormatter {
     });
   }
 
-  doFormat(row, cell, value, columnDef, dataContext) {
+  doFormat(_row, _cell, value, _columnDef, dataContext) {
     const { template } = this;
     if (value === null) {
       return "";

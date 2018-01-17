@@ -170,7 +170,6 @@ export class ColumnDataSource extends ColumnarDataSource {
   stream(new_data, rollover) {
     const { data } = this
     for (let k in new_data) {
-      const v = new_data[k]
       data[k] = stream_to_column(data[k], new_data[k], rollover)
     }
     this.setv({data}, {silent: true})

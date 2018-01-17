@@ -828,7 +828,6 @@ void main()
       //V_segment = new Float32Array(n*2)  # Done later
       const V_angles = new Float32Array(n*2);
       const V_tangents = (Vt = new Float32Array(n*4));  // mind the 4!
-      const V_texcoord = new Float32Array(n*2);
 
       // Position
       for (i = 0, end = n, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {

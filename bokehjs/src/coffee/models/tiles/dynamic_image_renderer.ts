@@ -61,8 +61,7 @@ export class DynamicImageView extends RendererView {
     return image;
   }
 
-  render(ctx, indices, args) {
-
+  render(): void {
     if ((this.map_initialized == null)) {
       this._set_data();
       this._map_data();

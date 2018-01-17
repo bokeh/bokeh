@@ -28,11 +28,11 @@ export class GeoJSONDataSource extends ColumnarDataSource {
   }
 
   _get_new_list_array(length: number): number[][] {
-    return (range(0, length).map((i) => []))
+    return (range(0, length).map((_i) => []))
   }
 
   _get_new_nan_array(length: number): number[] {
-    return (range(0, length).map((i) => NaN))
+    return (range(0, length).map((_i) => NaN))
   }
 
   _flatten_function(accumulator, currentItem) {
@@ -125,7 +125,7 @@ export class GeoJSONDataSource extends ColumnarDataSource {
       const geometry = item.type === 'Feature' ? item.geometry : item
       if (geometry.type === 'GeometryCollection') {
         for (let j = 0; j < geometry.geometries.length; j++) {
-          const g = geometry.geometries[j]
+          //const g = geometry.geometries[j]
           count += 1
         }
       } else {
