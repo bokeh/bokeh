@@ -16,19 +16,19 @@ const delay_animation = (typeof window !== 'undefined' && window !== null ? wind
 // @param wait [number] time in milliseconds to use for window
 // @return [function] throttled function
 //
-export const throttle = function(func, wait) {
-  let [context , args, timeout, result] = [null, null, null, null];
+export const throttle = function(func, wait: number) {
+  let [context, args, timeout, result] = [null, null, null, null];
   let previous = 0;
   let pending = false;
   const later = function() {
-    previous = new Date;
+    previous = Date.now()
     timeout = null;
     pending = false;
     return result = func.apply(context, args);
   };
 
   return function() {
-    const now = new Date;
+    const now = Date.now()
     const remaining = wait - (now - previous);
     context = this;
     args = arguments;
