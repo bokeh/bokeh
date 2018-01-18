@@ -96,7 +96,7 @@ export class VertexEditToolView extends EditToolView {
   _pan_start(e: BkEv): void {
     const append = e.srcEvent.shiftKey != null ? e.srcEvent.shiftKey : false;
     this._select_event(e, append, [this.model.vertex_renderer]);
-    this._select_event(e, false, this.model.renderers);
+    this._select_event(e, append, this.model.renderers);
     this._basepoint = [e.bokeh.sx, e.bokeh.sy];
   }
 
