@@ -81,6 +81,30 @@ export class GridView extends GuideRendererView {
 
 export class Grid extends GuideRenderer {
 
+  static initClass() {
+    this.prototype.type = "Grid"
+
+    this.prototype.default_view = GridView
+
+    this.mixins(['line:grid_', 'line:minor_grid_', 'fill:band_'])
+
+    this.define({
+      bounds:       [ p.Any,     'auto'    ], // TODO (bev)
+      dimension:    [ p.Number,  0         ],
+      ticker:       [ p.Instance           ],
+      x_range_name: [ p.String,  'default' ],
+      y_range_name: [ p.String,  'default' ],
+    })
+
+    this.override({
+      level: "underlay",
+      band_fill_color: null,
+      band_fill_alpha: 0,
+      grid_line_color: '#e5e5e5',
+      minor_grid_line_color: null,
+    })
+  }
+
   bounds: [number, number] | "auto"
   dimension: 0 | 1
   ticker: Ticker<any>
@@ -168,27 +192,7 @@ export class Grid extends GuideRenderer {
   }
 }
 
-Grid.prototype.type = "Grid"
-
-Grid.prototype.default_view = GridView
-
-Grid.mixins(['line:grid_', 'line:minor_grid_', 'fill:band_'])
-
-Grid.define({
-  bounds:       [ p.Any,     'auto'    ], // TODO (bev)
-  dimension:    [ p.Number,  0         ],
-  ticker:       [ p.Instance           ],
-  x_range_name: [ p.String,  'default' ],
-  y_range_name: [ p.String,  'default' ],
-})
-
-Grid.override({
-  level: "underlay",
-  band_fill_color: null,
-  band_fill_alpha: 0,
-  grid_line_color: '#e5e5e5',
-  minor_grid_line_color: null,
-})
+Grid.initClass()
 
 export module Grid {
   export type Visuals = GuideRenderer.Visuals & {

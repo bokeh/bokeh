@@ -4,6 +4,16 @@ import * as p from "./properties"
 
 export class Selector extends HasProps {
 
+  static initClass() {
+    this.prototype.type = "Selector"
+
+    this.internal({
+      indices:   [ p.Any, () => new HitTestResult() ],
+      final:     [ p.Boolean ],
+      timestamp: [ p.Any ],
+    })
+  }
+
   indices: HitTestResult
   final: boolean
   timestamp: Date
@@ -23,10 +33,4 @@ export class Selector extends HasProps {
   }
 }
 
-Selector.prototype.type = "Selector"
-
-Selector.internal({
-  indices:   [ p.Any, () => new HitTestResult() ],
-  final:     [ p.Boolean ],
-  timestamp: [ p.Any ],
-})
+Selector.initClass()

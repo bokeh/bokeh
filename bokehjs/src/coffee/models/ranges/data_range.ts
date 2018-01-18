@@ -3,13 +3,18 @@ import {Renderer} from "../renderers/renderer"
 import * as p from "core/properties"
 
 export abstract class DataRange extends Range {
+
+  static initClass() {
+    this.prototype.type = "DataRange"
+
+    this.define({
+      names:     [ p.Array, [] ],
+      renderers: [ p.Array, [] ],
+    })
+  }
+
   names: string[]
   renderers: Renderer[]
 }
 
-DataRange.prototype.type = "DataRange"
-
-DataRange.define({
-  names:     [ p.Array, [] ],
-  renderers: [ p.Array, [] ],
-})
+DataRange.initClass()

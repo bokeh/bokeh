@@ -70,12 +70,16 @@ export class SelectView extends InputWidgetView {
 }
 
 export class Select extends InputWidget {
+
+  static initClass() {
+    this.prototype.type = "Select"
+    this.prototype.default_view = SelectView
+
+    this.define({
+      value:   [ p.String, '' ],
+      options: [ p.Any,    [] ], // TODO (bev) is this used?
+    })
+  }
 }
 
-Select.prototype.type = "Select"
-Select.prototype.default_view = SelectView
-
-Select.define({
-  value:   [ p.String, '' ],
-  options: [ p.Any,    [] ], // TODO (bev) is this used?
-})
+Select.initClass()

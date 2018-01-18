@@ -16,6 +16,17 @@ import {Document} from "../document"
 
 export abstract class HasProps extends Signalable() {
 
+  static initClass() {
+    this.prototype.type = "HasProps"
+
+    this.prototype.props = {}
+    this.prototype.mixins = []
+
+    this.define({
+      id: [ p.Any ]
+    })
+  }
+
   // {{{ prototype
   type: string
   default_view: Class<View>
@@ -502,14 +513,7 @@ export abstract class HasProps extends Signalable() {
   }
 }
 
-HasProps.prototype.type = "HasProps"
-
-HasProps.prototype.props = {}
-HasProps.prototype.mixins = []
-
-HasProps.define({
-  id: [ p.Any ]
-})
+HasProps.initClass()
 
 export module HasProps {
   export interface Options {

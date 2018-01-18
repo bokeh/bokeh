@@ -10,10 +10,15 @@ export class SaveToolView extends ActionToolView {
 }
 
 export class SaveTool extends ActionTool {
+
+  static initClass() {
+    this.prototype.type = "SaveTool"
+
+    this.prototype.default_view = SaveToolView
+  }
+
   tool_name = "Save"
   icon = "bk-tool-icon-save"
 }
 
-SaveTool.prototype.type = "SaveTool"
-
-SaveTool.prototype.default_view = SaveToolView
+SaveTool.initClass()

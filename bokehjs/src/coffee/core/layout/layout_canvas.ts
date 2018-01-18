@@ -9,6 +9,10 @@ export interface ViewTransform {
 
 export class LayoutCanvas extends HasProps {
 
+  static initClass() {
+    this.prototype.type = "LayoutCanvas"
+  }
+
   _top: Variable
   _left: Variable
   _width: Variable
@@ -105,4 +109,4 @@ export class LayoutCanvas extends HasProps {
     }
   }
 }
-LayoutCanvas.prototype.type = "LayoutCanvas"
+LayoutCanvas.initClass()

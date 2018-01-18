@@ -106,6 +106,19 @@ const DEFAULT_BOX_OVERLAY = () => {
 
 export class BoxSelectTool extends SelectTool {
 
+  static initClass() {
+    this.prototype.type = "BoxSelectTool"
+
+    this.prototype.default_view = BoxSelectToolView
+
+    this.define({
+      dimensions:             [ p.Dimensions, "both"            ],
+      select_every_mousemove: [ p. Bool,    false               ],
+      callback:               [ p.Instance                      ],
+      overlay:                [ p.Instance, DEFAULT_BOX_OVERLAY ],
+    })
+  }
+
   dimensions: Dimensions
   select_every_mousemove: boolean
   callback: any // XXX
@@ -121,13 +134,4 @@ export class BoxSelectTool extends SelectTool {
   }
 }
 
-BoxSelectTool.prototype.type = "BoxSelectTool"
-
-BoxSelectTool.prototype.default_view = BoxSelectToolView
-
-BoxSelectTool.define({
-  dimensions:             [ p.Dimensions, "both"            ],
-  select_every_mousemove: [ p. Bool,    false               ],
-  callback:               [ p.Instance                      ],
-  overlay:                [ p.Instance, DEFAULT_BOX_OVERLAY ],
-})
+BoxSelectTool.initClass()

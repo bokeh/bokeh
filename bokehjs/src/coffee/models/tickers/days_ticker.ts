@@ -32,6 +32,14 @@ function date_range_by_month(start_time: number, end_time: number): Date[] {
 // month.
 export class DaysTicker extends SingleIntervalTicker {
 
+  static initClass() {
+    this.prototype.type = "DaysTicker"
+
+    this.define({
+      days: [ p.Array, [] ],
+    })
+  }
+
   days: number[]
 
   initialize(attrs: any, options: any): void {
@@ -79,8 +87,4 @@ export class DaysTicker extends SingleIntervalTicker {
   }
 }
 
-DaysTicker.prototype.type = "DaysTicker"
-
-DaysTicker.define({
-  days: [ p.Array, [] ],
-})
+DaysTicker.initClass()

@@ -19,15 +19,19 @@ export class ToggleView extends AbstractButtonView {
 }
 
 export class Toggle extends AbstractButton {
+
+  static initClass() {
+    this.prototype.type = "Toggle"
+    this.prototype.default_view = ToggleView
+
+    this.define({
+      active: [ p. Bool, false ]
+    })
+
+    this.override({
+      label: "Toggle"
+    })
+  }
 }
 
-Toggle.prototype.type = "Toggle"
-Toggle.prototype.default_view = ToggleView
-
-Toggle.define({
-  active: [ p. Bool, false ]
-})
-
-Toggle.override({
-  label: "Toggle"
-})
+Toggle.initClass()

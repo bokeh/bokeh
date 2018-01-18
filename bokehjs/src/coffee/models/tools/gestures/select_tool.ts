@@ -121,15 +121,20 @@ export abstract class SelectToolView extends GestureToolView {
 }
 
 export abstract class SelectTool extends GestureTool {
+
+  static initClass() {
+    this.prototype.type = "SelectTool"
+
+    // this.prototype.default_view = null
+
+    this.define({
+      renderers: [ p.Array, [] ],
+      names:     [ p.Array, [] ],
+    })
+  }
+
   renderers: DataRenderer[]
   names: string[]
 }
 
-SelectTool.prototype.type = "SelectTool"
-
-// SelectTool.prototype.default_view = null
-
-SelectTool.define({
-  renderers: [ p.Array, [] ],
-  names:     [ p.Array, [] ],
-})
+SelectTool.initClass()

@@ -139,6 +139,16 @@ export class PanToolView extends GestureToolView {
 
 export class PanTool extends GestureTool {
 
+  static initClass() {
+    this.prototype.type = "PanTool"
+
+    this.prototype.default_view = PanToolView
+
+    this.define({
+      dimensions: [ p.Dimensions, "both" ],
+    })
+  }
+
   dimensions: Dimensions
 
   tool_name = "Pan"
@@ -158,10 +168,4 @@ export class PanTool extends GestureTool {
   }
 }
 
-PanTool.prototype.type = "PanTool"
-
-PanTool.prototype.default_view = PanToolView
-
-PanTool.define({
-  dimensions: [ p.Dimensions, "both" ],
-})
+PanTool.initClass()

@@ -351,6 +351,18 @@ export abstract class LayoutDOMView extends DOMView {
 
 export abstract class LayoutDOM extends Model {
 
+  static initClass() {
+    this.prototype.type = "LayoutDOM"
+
+    this.define({
+      height:      [ p.Number              ],
+      width:       [ p.Number              ],
+      disabled:    [ p.Bool,       false   ],
+      sizing_mode: [ p.SizingMode, "fixed" ],
+      css_classes: [ p.Array,      []      ],
+    })
+  }
+
   height: number
   width: number
   disabled: boolean
@@ -541,12 +553,4 @@ export abstract class LayoutDOM extends Model {
   }
 }
 
-LayoutDOM.prototype.type = "LayoutDOM"
-
-LayoutDOM.define({
-  height:      [ p.Number              ],
-  width:       [ p.Number              ],
-  disabled:    [ p.Bool,       false   ],
-  sizing_mode: [ p.SizingMode, "fixed" ],
-  css_classes: [ p.Array,      []      ],
-})
+LayoutDOM.initClass()

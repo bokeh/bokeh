@@ -52,16 +52,21 @@ export abstract class RendererView extends DOMView {
 }
 
 export abstract class Renderer extends Model {
+
+  static initClass() {
+    this.prototype.type = "Renderer"
+
+    this.define({
+      level: [ p.RenderLevel ],
+      visible: [ p.Bool, true ],
+    })
+  }
+
   level: RenderLevel
   visible: boolean
 }
 
-Renderer.prototype.type = "Renderer"
-
-Renderer.define({
-  level: [ p.RenderLevel ],
-  visible: [ p.Bool, true ],
-})
+Renderer.initClass()
 
 export module Renderer {
   export type Visuals = visuals.Visuals

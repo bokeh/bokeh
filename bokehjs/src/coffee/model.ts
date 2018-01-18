@@ -9,6 +9,18 @@ import {CustomJS} from "./models/callbacks/customjs"
 
 export class Model extends HasProps {
 
+  static initClass() {
+    this.prototype.type = "Model"
+
+    this.define({
+      tags:                  [ p.Array, [] ],
+      name:                  [ p.String    ],
+      js_property_callbacks: [ p.Any,   {} ],
+      js_event_callbacks:    [ p.Any,   {} ],
+      subscribed_events:     [ p.Array, [] ],
+    })
+  }
+
   tags: string[]
   name: string | null
   js_property_callbacks: {[key: string]: CustomJS[]}
@@ -86,12 +98,4 @@ export class Model extends HasProps {
   }
 }
 
-Model.prototype.type = "Model"
-
-Model.define({
-  tags:                  [ p.Array, [] ],
-  name:                  [ p.String    ],
-  js_property_callbacks: [ p.Any,   {} ],
-  js_event_callbacks:    [ p.Any,   {} ],
-  subscribed_events:     [ p.Array, [] ],
-})
+Model.initClass()

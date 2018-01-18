@@ -6,6 +6,18 @@ import {isFunction} from "core/util/types"
 
 export abstract class Range extends Model {
 
+  static initClass() {
+    this.prototype.type = "Range"
+
+    this.define({
+      callback: [ p.Any ] // TODO: p.Either(p.Instance(Callback), p.Function)
+    })
+
+    this.internal({
+      plots: [ p.Array, [] ]
+    })
+  }
+
   start: number
   end: number
   min: number
@@ -36,12 +48,4 @@ export abstract class Range extends Model {
   }
 }
 
-Range.prototype.type = "Range"
-
-Range.define({
-  callback: [ p.Any ] // TODO: p.Either(p.Instance(Callback), p.Function)
-})
-
-Range.internal({
-  plots: [ p.Array, [] ]
-})
+Range.initClass()

@@ -3,6 +3,10 @@ import {FactorRange} from "../ranges/factor_range"
 
 export class CategoricalScale extends LinearScale {
 
+  static initClass() {
+    this.prototype.type = "CategoricalScale"
+  }
+
   source_range: FactorRange
 
   compute(x: any): number {
@@ -14,4 +18,4 @@ export class CategoricalScale extends LinearScale {
   }
 }
 
-CategoricalScale.prototype.type = "CategoricalScale"
+CategoricalScale.initClass()

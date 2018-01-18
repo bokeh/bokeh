@@ -10,6 +10,18 @@ export class HelpToolView extends ActionToolView {
 }
 
 export class HelpTool extends ActionTool {
+
+  static initClass() {
+    this.prototype.type = "HelpTool"
+
+    this.prototype.default_view = HelpToolView
+
+    this.define({
+      help_tooltip: [ p.String, 'Click the question mark to learn more about Bokeh plot tools.'],
+      redirect:     [ p.String, 'https://bokeh.pydata.org/en/latest/docs/user_guide/tools.html#built-in-tools'],
+    })
+  }
+
   help_tooltip: string
   redirect: string
 
@@ -21,11 +33,4 @@ export class HelpTool extends ActionTool {
   }
 }
 
-HelpTool.prototype.type = "HelpTool"
-
-HelpTool.prototype.default_view = HelpToolView
-
-HelpTool.define({
-  help_tooltip: [ p.String, 'Click the question mark to learn more about Bokeh plot tools.'],
-  redirect:     [ p.String, 'https://bokeh.pydata.org/en/latest/docs/user_guide/tools.html#built-in-tools'],
-})
+HelpTool.initClass()

@@ -63,18 +63,23 @@ export class CheckboxGroupView extends WidgetView {
 }
 
 export class CheckboxGroup extends Widget {
+
+  static initClass() {
+    this.prototype.type = "CheckboxGroup"
+    this.prototype.default_view = CheckboxGroupView
+
+    this.define({
+      active:   [ p.Array, []    ],
+      labels:   [ p.Array, []    ],
+      inline:   [ p.Bool,  false ],
+      callback: [ p.Instance     ],
+    })
+  }
+
   active: number[]
   labels: string[]
   inline: boolean
   callback: any // XXX
 }
 
-CheckboxGroup.prototype.type = "CheckboxGroup"
-CheckboxGroup.prototype.default_view = CheckboxGroupView
-
-CheckboxGroup.define({
-  active:   [ p.Array, []    ],
-  labels:   [ p.Array, []    ],
-  inline:   [ p.Bool,  false ],
-  callback: [ p.Instance     ],
-})
+CheckboxGroup.initClass()

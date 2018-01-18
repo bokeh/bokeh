@@ -56,12 +56,16 @@ export class TextInputView extends InputWidgetView {
 }
 
 export class TextInput extends InputWidget {
+
+  static initClass() {
+    this.prototype.type = "TextInput"
+    this.prototype.default_view = TextInputView
+
+    this.define({
+      value: [ p.String, "" ],
+      placeholder: [ p.String, "" ],
+    })
+  }
 }
 
-TextInput.prototype.type = "TextInput"
-TextInput.prototype.default_view = TextInputView
-
-TextInput.define({
-  value: [ p.String, "" ],
-  placeholder: [ p.String, "" ],
-})
+TextInput.initClass()

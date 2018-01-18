@@ -3,6 +3,10 @@ import {FactorRange, Factor} from "../ranges/factor_range"
 
 export class CategoricalTicker extends Ticker<Factor> {
 
+  static initClass() {
+    this.prototype.type = "CategoricalTicker"
+  }
+
   get_ticks(start: number, end: number, range: FactorRange, _cross_loc: any, _: any) {
     const majors = this._collect(range.factors, range, start, end)
 
@@ -30,4 +34,4 @@ export class CategoricalTicker extends Ticker<Factor> {
   }
 }
 
-CategoricalTicker.prototype.type = "CategoricalTicker"
+CategoricalTicker.initClass()

@@ -111,6 +111,30 @@ export class CategoricalAxisView extends AxisView {
 
 export class CategoricalAxis extends Axis {
 
+  static initClass() {
+    this.prototype.type = "CategoricalAxis"
+
+    this.prototype.default_view = CategoricalAxisView
+
+    this.mixins([
+      "line:separator_",
+      "text:group_",
+      "text:subgroup_",
+    ])
+
+    this.override({
+      ticker: () => new CategoricalTicker(),
+      formatter: () => new CategoricalTickFormatter(),
+      separator_line_color: "lightgrey",
+      separator_line_width: 2,
+      group_text_font_style: "bold",
+      group_text_font_size: "8pt",
+      group_text_color: "grey",
+      subgroup_text_font_style: "bold",
+      subgroup_text_font_size: "8pt",
+    })
+  }
+
   ticker: CategoricalTicker
   formatter: CategoricalTickFormatter
 
@@ -144,27 +168,7 @@ export class CategoricalAxis extends Axis {
   }
 }
 
-CategoricalAxis.prototype.type = "CategoricalAxis"
-
-CategoricalAxis.prototype.default_view = CategoricalAxisView
-
-CategoricalAxis.mixins([
-  "line:separator_",
-  "text:group_",
-  "text:subgroup_",
-])
-
-CategoricalAxis.override({
-  ticker: () => new CategoricalTicker(),
-  formatter: () => new CategoricalTickFormatter(),
-  separator_line_color: "lightgrey",
-  separator_line_width: 2,
-  group_text_font_style: "bold",
-  group_text_font_size: "8pt",
-  group_text_color: "grey",
-  subgroup_text_font_style: "bold",
-  subgroup_text_font_size: "8pt",
-})
+CategoricalAxis.initClass()
 
 export module CategoricalAxis {
   export type Visuals = Axis.Visuals & {

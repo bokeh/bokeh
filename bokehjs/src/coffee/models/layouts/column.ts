@@ -7,8 +7,13 @@ export class ColumnView extends BoxView {
 }
 
 export class Column extends Box {
+
+  static initClass() {
+    this.prototype.type = "Column"
+    this.prototype.default_view = ColumnView
+  }
+
   _horizontal = false
 }
 
-Column.prototype.type = "Column"
-Column.prototype.default_view = ColumnView
+Column.initClass()

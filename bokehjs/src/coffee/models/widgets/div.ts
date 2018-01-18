@@ -18,11 +18,15 @@ export class DivView extends MarkupView {
 }
 
 export class Div extends Markup {
+
+  static initClass() {
+    this.prototype.type = "Div"
+    this.prototype.default_view = DivView
+
+    this.define({
+      render_as_text: [ p.Bool,   false]
+    })
+  }
 }
 
-Div.prototype.type = "Div"
-Div.prototype.default_view = DivView
-
-Div.define({
-  render_as_text: [ p.Bool,   false]
-})
+Div.initClass()

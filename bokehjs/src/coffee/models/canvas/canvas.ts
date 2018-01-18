@@ -128,6 +128,19 @@ export class CanvasView extends DOMView {
 
 export class Canvas extends LayoutCanvas {
 
+  static initClass() {
+    this.prototype.type = "Canvas"
+
+    this.prototype.default_view = CanvasView
+
+    this.internal({
+      map:            [ p.Boolean,       false    ],
+      use_hidpi:      [ p.Boolean,       true     ],
+      pixel_ratio:    [ p.Number,        1        ],
+      output_backend: [ p.OutputBackend, "canvas" ],
+    })
+  }
+
   map: boolean
   use_hidpi: boolean
   pixel_ratio: number
@@ -138,13 +151,4 @@ export class Canvas extends LayoutCanvas {
   }
 }
 
-Canvas.prototype.type = "Canvas"
-
-Canvas.prototype.default_view = CanvasView
-
-Canvas.internal({
-  map:            [ p.Boolean,       false    ],
-  use_hidpi:      [ p.Boolean,       true     ],
-  pixel_ratio:    [ p.Number,        1        ],
-  output_backend: [ p.OutputBackend, "canvas" ],
-})
+Canvas.initClass()

@@ -15,14 +15,19 @@ export class ButtonView extends AbstractButtonView {
 }
 
 export class Button extends AbstractButton {
+
+  static initClass() {
+    this.prototype.type = "Button"
+    this.prototype.default_view = ButtonView
+
+    this.define({
+      clicks: [ p.Number, 0 ]
+    })
+
+    register_with_event(ButtonClick, this)
+  }
+
   clicks: number
 }
 
-Button.prototype.type = "Button"
-Button.prototype.default_view = ButtonView
-
-Button.define({
-  clicks: [ p.Number, 0 ]
-})
-
-register_with_event(ButtonClick, Button)
+Button.initClass()

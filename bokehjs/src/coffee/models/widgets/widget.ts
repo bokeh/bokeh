@@ -28,6 +28,10 @@ export abstract class WidgetView extends LayoutDOMView {
   }
 }
 
-export abstract class Widget extends LayoutDOM {}
+export abstract class Widget extends LayoutDOM {
+  static initClass() {
+    this.prototype.type = "Widget"
+  }
+}
 
-Widget.prototype.type = "Widget"
+Widget.initClass()

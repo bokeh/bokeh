@@ -11,7 +11,11 @@ export class PasswordInputView extends TextInputView {
 }
 
 export class PasswordInput extends TextInput {
+
+  static initClass() {
+    this.prototype.type = "PasswordInput"
+    this.prototype.default_view = PasswordInputView
+  }
 }
 
-PasswordInput.prototype.type = "PasswordInput"
-PasswordInput.prototype.default_view = PasswordInputView
+PasswordInput.initClass()

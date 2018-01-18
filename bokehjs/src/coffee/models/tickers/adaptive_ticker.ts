@@ -18,6 +18,17 @@ function log(x: number, base=Math.E): number {
 // ..., 0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100, ...
 export class AdaptiveTicker extends ContinuousTicker {
 
+  static initClass() {
+    this.prototype.type = "AdaptiveTicker"
+
+    this.define({
+      base:         [ p.Number, 10.0      ],
+      mantissas:    [ p.Array,  [1, 2, 5] ],
+      min_interval: [ p.Number, 0.0       ],
+      max_interval: [ p.Number            ],
+    })
+  }
+
   base: number
   mantissas: number[]
 
@@ -65,11 +76,4 @@ export class AdaptiveTicker extends ContinuousTicker {
   }
 }
 
-AdaptiveTicker.prototype.type = "AdaptiveTicker"
-
-AdaptiveTicker.define({
-  base:         [ p.Number, 10.0      ],
-  mantissas:    [ p.Array,  [1, 2, 5] ],
-  min_interval: [ p.Number, 0.0       ],
-  max_interval: [ p.Number            ],
-})
+AdaptiveTicker.initClass()

@@ -16,6 +16,19 @@ export type Scales = {[key: string]: Scale}
 
 export class CartesianFrame extends LayoutCanvas {
 
+  static initClass() {
+    this.prototype.type = "CartesianFrame"
+
+    this.internal({
+      extra_x_ranges: [ p.Any, {} ],
+      extra_y_ranges: [ p.Any, {} ],
+      x_range:        [ p.Instance ],
+      y_range:        [ p.Instance ],
+      x_scale:        [ p.Instance ],
+      y_scale:        [ p.Instance ],
+    })
+  }
+
   extra_x_ranges: Ranges
   extra_y_ranges: Ranges
   x_range: Range
@@ -140,13 +153,4 @@ export class CartesianFrame extends LayoutCanvas {
   }
 }
 
-CartesianFrame.prototype.type = "CartesianFrame"
-
-CartesianFrame.internal({
-  extra_x_ranges: [ p.Any, {} ],
-  extra_y_ranges: [ p.Any, {} ],
-  x_range:        [ p.Instance ],
-  y_range:        [ p.Instance ],
-  x_scale:        [ p.Instance ],
-  y_scale:        [ p.Instance ],
-})
+CartesianFrame.initClass()

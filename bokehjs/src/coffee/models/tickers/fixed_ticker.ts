@@ -3,6 +3,14 @@ import * as p from "core/properties"
 
 export class FixedTicker extends ContinuousTicker {
 
+  static initClass() {
+    this.prototype.type = "FixedTicker"
+
+    this.define({
+      ticks: [ p.Array, [] ],
+    })
+  }
+
   ticks: number[]
 
   get_ticks_no_defaults(_data_low: number, _data_high: number, _cross_loc: any, _desired_n_ticks: number) {
@@ -22,8 +30,4 @@ export class FixedTicker extends ContinuousTicker {
   //
 }
 
-FixedTicker.prototype.type = "FixedTicker"
-
-FixedTicker.define({
-  ticks: [ p.Array, [] ],
-})
+FixedTicker.initClass()

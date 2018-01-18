@@ -193,6 +193,28 @@ export abstract class AbstractSliderView extends WidgetView {
 }
 
 export abstract class AbstractSlider extends Widget {
+
+  static initClass() {
+    this.prototype.type = "AbstractSlider"
+
+    this.define({
+      title:             [ p.String,      ""           ],
+      show_value:        [ p.Bool,        true         ],
+      start:             [ p.Any                       ],
+      end:               [ p.Any                       ],
+      value:             [ p.Any                       ],
+      step:              [ p.Number,      1            ],
+      format:            [ p.String                    ],
+      orientation:       [ p.Orientation, "horizontal" ],
+      direction:         [ p.Any,         "ltr"        ],
+      tooltips:          [ p.Boolean,     true         ],
+      callback:          [ p.Instance                  ],
+      callback_throttle: [ p.Number,      200          ],
+      callback_policy:   [ p.String,      "throttle"   ], // TODO (bev) enum
+      bar_color:         [ p.Color,       "#e6e6e6"    ],
+    })
+  }
+
   title: string
   show_value: boolean
   start: any // XXX
@@ -220,21 +242,4 @@ export abstract class AbstractSlider extends Widget {
   }
 }
 
-AbstractSlider.prototype.type = "AbstractSlider"
-
-AbstractSlider.define({
-  title:             [ p.String,      ""           ],
-  show_value:        [ p.Bool,        true         ],
-  start:             [ p.Any                       ],
-  end:               [ p.Any                       ],
-  value:             [ p.Any                       ],
-  step:              [ p.Number,      1            ],
-  format:            [ p.String                    ],
-  orientation:       [ p.Orientation, "horizontal" ],
-  direction:         [ p.Any,         "ltr"        ],
-  tooltips:          [ p.Boolean,     true         ],
-  callback:          [ p.Instance                  ],
-  callback_throttle: [ p.Number,      200          ],
-  callback_policy:   [ p.String,      "throttle"   ], // TODO (bev) enum
-  bar_color:         [ p.Color,       "#e6e6e6"    ],
-})
+AbstractSlider.initClass()

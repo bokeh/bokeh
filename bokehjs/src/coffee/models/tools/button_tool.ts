@@ -38,6 +38,14 @@ export abstract class ButtonToolView extends ToolView {
 
 export abstract class ButtonTool extends Tool {
 
+  static initClass() {
+    this.prototype.type = "ButtonTool"
+
+    this.internal({
+      disabled: [ p.Boolean, false ]
+    })
+  }
+
   disabled: boolean
 
   tool_name: string
@@ -51,8 +59,4 @@ export abstract class ButtonTool extends Tool {
   }
 }
 
-ButtonTool.prototype.type = "ButtonTool"
-
-ButtonTool.internal({
-  disabled: [ p.Boolean, false ]
-})
+ButtonTool.initClass()

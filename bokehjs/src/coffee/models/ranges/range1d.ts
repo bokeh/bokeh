@@ -3,6 +3,18 @@ import * as p from "core/properties"
 
 export class Range1d extends Range {
 
+  static initClass() {
+    this.prototype.type = "Range1d"
+
+    this.define({
+      start:  [ p.Number, 0 ],
+      end:    [ p.Number, 1 ],
+      bounds: [ p.Any       ], // TODO (bev)
+      min_interval: [ p.Any ],
+      max_interval: [ p.Any ],
+    })
+  }
+
   bounds: [number, number] | "auto"
   min_interval: number
   max_interval: number
@@ -48,12 +60,4 @@ export class Range1d extends Range {
   }
 }
 
-Range1d.prototype.type = "Range1d"
-
-Range1d.define({
-  start:  [ p.Number, 0 ],
-  end:    [ p.Number, 1 ],
-  bounds: [ p.Any       ], // TODO (bev)
-  min_interval: [ p.Any ],
-  max_interval: [ p.Any ],
-})
+Range1d.initClass()

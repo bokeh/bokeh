@@ -5,6 +5,15 @@ import * as p from "core/properties"
 
 export abstract class Scale extends Transform {
 
+  static initClass() {
+    this.prototype.type = "Scale"
+
+    this.internal({
+      source_range: [ p.Any ],
+      target_range: [ p.Any ], // p.Instance(Range1d)
+    })
+  }
+
   source_range: Range
   target_range: Range1d
 
@@ -31,9 +40,4 @@ export abstract class Scale extends Transform {
   }
 }
 
-Scale.prototype.type = "Scale"
-
-Scale.internal({
-  source_range: [ p.Any ],
-  target_range: [ p.Any ], // p.Instance(Range1d)
-})
+Scale.initClass()

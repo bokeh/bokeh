@@ -7,6 +7,14 @@ import {isEmpty} from "core/util/object"
 // for a given range.
 export class CompositeTicker extends ContinuousTicker {
 
+  static initClass() {
+    this.prototype.type = "CompositeTicker"
+
+    this.define({
+      tickers: [p.Array, [] ],
+    })
+  }
+
   tickers: ContinuousTicker[]
 
   // The tickers should be in order of increasing interval size; specifically,
@@ -59,8 +67,4 @@ export class CompositeTicker extends ContinuousTicker {
   }
 }
 
-CompositeTicker.prototype.type = "CompositeTicker"
-
-CompositeTicker.define({
-  tickers: [p.Array, [] ],
-})
+CompositeTicker.initClass()
