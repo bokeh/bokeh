@@ -17,7 +17,6 @@ export interface BkEv {
 export class VertexEditToolView extends DrawToolView {
   model: VertexEditTool
   _selected_renderer: GlyphRenderer | null
-  _timestamp: number
   _basepoint: [number, number] | null
 
   _doubletap(e: BkEv): void {
@@ -31,15 +30,12 @@ export class VertexEditToolView extends DrawToolView {
     let [pxkey, pykey] = Object.getPrototypeOf(point_glyph)._coords[0];
     [pxkey, pykey] = [point_glyph.attributes[pxkey].field, point_glyph.attributes[pykey].field];
     if (!renderers.length) {
-      if (this._timestamp !== e.timeStamp) {
-        point_ds.data[pxkey] = [];
-        point_ds.data[pykey] = [];
-        this._selected_renderer = null;
-        point_ds.change.emit(undefined);
-      }
+      point_ds.data[pxkey] = [];
+      point_ds.data[pykey] = [];
+      this._selected_renderer = null;
+      point_ds.change.emit(undefined);
       return;
     }
-    this._timestamp = e.timeStamp;
 
     // Otherwise copy selected line array to node CDS
     // (Note: can only edit one at a time)
