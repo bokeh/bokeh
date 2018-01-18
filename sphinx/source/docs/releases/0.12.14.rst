@@ -67,4 +67,15 @@ sub-views. The new approach is to override `css_classes()` method, e.g.:
         }
     }
 
+This change affects only creators of custom extensions.
+
+`HasProps.initialize(options)`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Previously `HasProps.initialize()` took `attrs` as the first argument. This
+was nearly never used and so it was removed. The preferred way to configure
+values of attributes is to use bokehjs' properties system. This change
+affects only creators of custom extensions.
+
+
 .. _project roadmap: https://bokehplots.com/pages/roadmap.html
