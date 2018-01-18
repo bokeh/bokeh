@@ -36,7 +36,7 @@ export class LineEditToolView extends DrawToolView {
   }
 
   _pan(e: BkEv): void {
-	const [bx, by] = this._basepoint;
+    const [bx, by] = this._basepoint;
     for (const renderer of this.model.renderers) {
       const basepoint = this._map_drag(bx, by, renderer);
       const point = this._map_drag(e.bokeh.sx, e.bokeh.sy, renderer);

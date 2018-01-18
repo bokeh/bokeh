@@ -28,7 +28,7 @@ export class PointDrawView extends DrawToolView {
     for (const renderer of this.model.renderers) {
       const point = this._map_drag(e.bokeh.sx, e.bokeh.sy, renderer);
       if (point == null) {
-	    continue;
+        continue;
       }
       const glyph = renderer.glyph
       const ds = renderer.data_source;
@@ -85,7 +85,7 @@ export class PointDrawView extends DrawToolView {
       return;
     }
     // If a Point is selected drag it
-	const [bx, by] = this._basepoint;
+    const [bx, by] = this._basepoint;
     for (const renderer of this.model.renderers) {
       const basepoint = this._map_drag(bx, by, renderer);
       const point = this._map_drag(e.bokeh.sx, e.bokeh.sy, renderer);

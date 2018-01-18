@@ -69,7 +69,7 @@ export class VertexEditToolView extends DrawToolView {
     const renderer = this.model.point_renderer;
     const point = this._map_drag(e.bokeh.sx, e.bokeh.sy, renderer);
     if (point == null) {
-	  return;
+      return;
     }
     const ds = renderer.data_source;
     const append = e.srcEvent.shiftKey != null ? e.srcEvent.shiftKey : false;
