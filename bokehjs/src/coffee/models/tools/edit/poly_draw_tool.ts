@@ -38,8 +38,7 @@ export class PolyDrawToolView extends EditToolView {
     const append = e.srcEvent.shiftKey != null ? e.srcEvent.shiftKey : false;
     const ds = renderer.data_source;
     const glyph = renderer.glyph;
-    let [xkey, ykey] = Object.getPrototypeOf(glyph)._coords[0];
-    [xkey, ykey] = [glyph.attributes[xkey].field, glyph.attributes[ykey].field];
+    const [xkey, ykey] = [glyph.xs.field, glyph.ys.field];
     const indices = ds.selected['1d'].indices;
     let count;
     if (indices.length) {
@@ -53,7 +52,7 @@ export class PolyDrawToolView extends EditToolView {
     } else {
       ds.data[xkey].push([x, x]);
       ds.data[ykey].push([y, y]);
-      this._pad_empty_columns(ds, xkey, ykey);
+      this._pad_empty_columns(ds, [xkey, ykey]);
     }
     ds.change.emit(undefined);
     ds.properties.data.change.emit(undefined);
@@ -69,7 +68,7 @@ export class PolyDrawToolView extends EditToolView {
     const [x, y] = point;
     const ds = renderer.data_source;
     const glyph = renderer.glyph;
-    const [xkey, ykey] = Object.getPrototypeOf(glyph)._coords[0];
+    const [xkey, ykey] = [glyph.xs.field, glyph.ys.field];
     const indices = ds.selected['1d'].indices;
     let count;
     if (indices.length>0) {

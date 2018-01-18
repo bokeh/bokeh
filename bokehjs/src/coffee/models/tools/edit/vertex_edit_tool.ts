@@ -27,8 +27,7 @@ export class VertexEditToolView extends EditToolView {
     const vertex_renderer = this.model.vertex_renderer;
     const point_ds = vertex_renderer.data_source;
     const point_glyph = vertex_renderer.glyph;
-    let [pxkey, pykey] = Object.getPrototypeOf(point_glyph)._coords[0];
-    [pxkey, pykey] = [point_glyph.attributes[pxkey].field, point_glyph.attributes[pykey].field];
+    const [pxkey, pykey] = [point_glyph.x.field, point_glyph.y.field];
     if (!renderers.length) {
       point_ds.data[pxkey] = [];
       point_ds.data[pykey] = [];
@@ -43,26 +42,22 @@ export class VertexEditToolView extends EditToolView {
     const glyph = renderer.glyph;
     const ds = renderer.data_source;
     const index = ds.selected['1d'].indices[0];
-    let [xkey, ykey] = Object.getPrototypeOf(glyph)._coords[0];
-    [xkey, ykey] = [glyph.attributes[xkey].field, glyph.attributes[ykey].field];
+    const [xkey, ykey] = [glyph.xs.field, glyph.ys.field];
     let xs = ds.data[xkey][index];
     let ys = ds.data[ykey][index];
-
     // Convert typed arrays to regular arrays for editing
     if ((xs.concat == null)) {
-      xs = Array.prototype.slice.call(xs);
-      ds.data[xkey][index] = xs;
+      ds.data[xkey][index] = (xs = Array.prototype.slice.call(xs));
     }
     if ((ys.concat == null)) {
-      ys = Array.prototype.slice.call(ys);
-      ds.data[ykey][index] = ys;
+      ds.data[ykey][index] = (ys = Array.prototype.slice.call(ys));
     }
     point_ds.selected['1d'].indices = [];
     point_ds.data[pxkey] = xs;
     point_ds.data[pykey] = ys;
-    point_ds.change.emit(undefined);
     this.model.active = true;
     this._selected_renderer = renderer;
+    point_ds.change.emit(undefined);
   }
 
   _tap(e: BkEv): void {
@@ -76,21 +71,21 @@ export class VertexEditToolView extends EditToolView {
     const indices = ds.selected['1d'].indices.slice(0);
     this._select_event(e, append, [renderer]);
     this._select_event(e, append, this.model.renderers);
-    if (ds.selected['1d'].indices.length) {
+    /* Skip if a new vertex is selected by the tap or no vertex
+       was selected before the tap */
+    if (ds.selected['1d'].indices.length || indices.length !== 1) {
       return;
     }
 
+    // Insert a new point after the selected vertex
     const [x, y] = point;
-    let [xkey, ykey] = Object.getPrototypeOf(renderer.glyph)._coords[0];
-    [xkey, ykey] = [renderer.glyph.attributes[xkey].field, renderer.glyph.attributes[ykey].field];
-    if (indices.length === 1) {
-      const index = indices[0]+1;
-      ds.selected['1d'].indices = [index];
-      ds.data[xkey].splice(index, 0, x);
-      ds.data[ykey].splice(index, 0, y);
-      ds.change.emit(undefined);
-      this._selected_renderer.data_source.properties.data.change.emit(undefined);
-    }
+    const [xkey, ykey] = [renderer.glyph.x.field, renderer.y.field];
+    const index = indices[0]+1;
+    ds.selected['1d'].indices = [index];
+    ds.data[xkey].splice(index, 0, x);
+    ds.data[ykey].splice(index, 0, y);
+    ds.change.emit(undefined);
+    this._selected_renderer.data_source.properties.data.change.emit(undefined);
   }
 
   _pan_start(e: BkEv): void {
@@ -103,6 +98,8 @@ export class VertexEditToolView extends EditToolView {
   _pan(e: BkEv): void {
     const [bx, by] = this._basepoint;
     if (this._selected_renderer == null) {
+      if (!this.model.drag) { return; }
+      // Process polygon/line dragging
       for (const renderer of this.model.renderers) {
         const basepoint = this._map_drag(bx, by, renderer);
         const point = this._map_drag(e.bokeh.sx, e.bokeh.sy, renderer);
@@ -112,8 +109,7 @@ export class VertexEditToolView extends EditToolView {
 
         const ds = renderer.data_source;
         const glyph = renderer.glyph;
-        let [xkey, ykey] = Object.getPrototypeOf(glyph)._coords[0];
-        [xkey, ykey] = [glyph.attributes[xkey].field, glyph.attributes[ykey].field];
+        const [xkey, ykey] = [glyph.xs.field, glyph.ys.field];
         const [x, y] = point;
         const [px, py] = basepoint;
         const [dx, dy] = [x-px, y-py];
@@ -128,24 +124,25 @@ export class VertexEditToolView extends EditToolView {
         ds.change.emit(undefined);
       }
       this._basepoint = [e.bokeh.sx, e.bokeh.sy];
-	  return;
-	}
+      return;
+    }
 
+    // Process vertex dragging
     const vertex_renderer = this.model.vertex_renderer;
     const ds = vertex_renderer.data_source;
     const point = this._map_drag(e.bokeh.sx, e.bokeh.sy, vertex_renderer);
     const basepoint = this._map_drag(bx, by, vertex_renderer);
+    // Skip if drag points aren't defined or no vertex was selected
     if (!ds.selected['1d'].indices.length || point == null || basepoint == null) {
       return;
     }
 
-    // If a Point is selected drag it
+    // If a vertex is selected compute and apply the drag offset
     const glyph = vertex_renderer.glyph;
     const [x, y] = point;
     const [px, py] = basepoint;
     const [dx, dy] = [x-px, y-py];
-    let [xkey, ykey] = Object.getPrototypeOf(glyph)._coords[0];
-    [xkey, ykey] = [glyph.attributes[xkey].field, glyph.attributes[ykey].field];
+    const [xkey, ykey] = [glyph.x.field, glyph.y.field];
     for (const index of ds.selected['1d'].indices) {
       ds.data[xkey][index] += dx;
       ds.data[ykey][index] += dy;
@@ -160,11 +157,11 @@ export class VertexEditToolView extends EditToolView {
     if (this._selected_renderer) {
       this._selected_renderer.data_source.properties.data.change.emit(undefined);
     } else {
-	  for (const renderer of this.model.renderers) {
+      for (const renderer of this.model.renderers) {
         renderer.data_source.selected['1d'].indices = [];
         renderer.data_source.properties.data.change.emit(undefined);
       }
-	}
+    }
     this._basepoint = null;
   }
 
@@ -184,13 +181,12 @@ export class VertexEditToolView extends EditToolView {
     const renderer = this.model.vertex_renderer;
     const ds = renderer.data_source;
     const glyph = renderer.glyph;
-    let [pxkey, pykey] = Object.getPrototypeOf(glyph)._coords[0];
-    [pxkey, pykey] = [glyph.attributes[pxkey].field, glyph.attributes[pykey].field];
-    ds.data[pxkey] = [];
-    ds.data[pykey] = [];
-    this._selected_renderer = null;
+    const [xkey, ykey] = [glyph.x.field, glyph.y.field];
+    ds.data[xkey] = [];
+    ds.data[ykey] = [];
     ds.change.emit(undefined);
     ds.properties.data.change.emit(undefined);
+    this._selected_renderer = null;
   }
 }
 
@@ -209,6 +205,6 @@ VertexEditTool.prototype.type = "VertexEditTool"
 VertexEditTool.prototype.default_view = VertexEditToolView
 
 VertexEditTool.define({
-  drag: [ p.Bool ],
+  drag: [ p.Bool, true ],
   vertex_renderer: [ p.Instance ],
 })
