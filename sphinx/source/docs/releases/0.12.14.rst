@@ -52,4 +52,19 @@ ranges.
 The old behavior may be restored by setting enabling the `snap_to_zoom`
 property.
 
+Defining views' CSS classes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This was previously done through `MyView.prototype.className`, which didn't
+respect class structure, so it was often necessary to duplicate CSS rules in
+sub-views. The new approach is to override `css_classes()` method, e.g.:
+
+.. code-block:: typescript
+
+    class MyView extends MyOtherView {
+        css_classes() {
+            return super.css_classes().concat("my-view")
+        }
+    }
+
 .. _project roadmap: https://bokehplots.com/pages/roadmap.html
