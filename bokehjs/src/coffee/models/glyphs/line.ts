@@ -66,7 +66,7 @@ export class LineView extends XYGlyphView {
       if ((dist < threshold) && (dist < shortest)) {
         shortest = dist;
         result['0d'].glyph = this.model;
-        result['0d'].get_view = (() => { return this; });
+        result['0d'].get_view = () => this
         result['0d'].flag = true;  // backward compat
         result['0d'].indices = [i];
       }
@@ -91,7 +91,7 @@ export class LineView extends XYGlyphView {
     for (let i = 0, end = values.length-1, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
       if ((values[i]<=val && val<=values[i+1]) || (values[i+1]<=val && val<=values[i])) {
         result['0d'].glyph = this.model;
-        result['0d'].get_view = (() => { return this; });
+        result['0d'].get_view = () => this
         result['0d'].flag = true;  // backward compat
         result['0d'].indices.push(i);
       }
