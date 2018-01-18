@@ -3,7 +3,7 @@ import {Program, VertexBuffer, IndexBuffer} from "gloo2"
 import {BaseGLGlyph, attach_float, attach_color} from "./base";
 import {logger} from "core/logging"
 
-class MarkerGLGlyph extends BaseGLGlyph {
+export abstract class MarkerGLGlyph extends BaseGLGlyph {
   static initClass() {
     // Base class for markers. All markers share the same GLSL, except for one
     // function that defines the marker geometry.

@@ -5,13 +5,15 @@ import * as embed from "../embed";
 import {BOKEH_ROOT} from "../embed";
 import * as models from "./models";
 import {div} from "../core/dom";
+import {Class} from "../core/class"
 import {startsWith} from "../core/util/string";
 import {isEqual} from "../core/util/eq";
 import {any, all, includes} from "../core/util/array";
 import {extend, clone} from "../core/util/object";
 import {isNumber, isString, isArray} from "../core/util/types";
 
-import {GlyphRenderer, Axis, Grid, Tool, Plot} from "./models"
+import {GlyphRenderer, Axis, Grid, Range, Scale, Tool, Plot} from "./models"
+import {DOMView} from "../core/dom_view"
 
 export {gridplot} from "./gridplot"
 
@@ -184,10 +186,7 @@ export class Figure extends Plot {
   triangle(...args: any[])          { return this._marker(models.Triangle,         args); }
   x(...args: any[])                 { return this._marker(models.X,                args); }
 
-  _pop_colors_and_alpha(cls, attrs, prefix, default_color, default_alpha) {
-    if (prefix == null) { prefix = ""; }
-    if (default_color == null) { default_color = this._default_color; }
-    if (default_alpha == null) { default_alpha = this._default_alpha; }
+  _pop_colors_and_alpha(cls, attrs, prefix = "", default_color = this._default_color, default_alpha = this._default_alpha) {
     const result = {};
 
     const color = _with_default(attrs[prefix + "color"], default_color);
@@ -327,8 +326,8 @@ export class Figure extends Plot {
     return this._glyph(cls, "x,y", args);
   }
 
-  static _get_range(range) {
-    if ((range == null)) {
+  static _get_range(range): Range {
+    if (range == null) {
       return new models.DataRange1d();
     }
     if (range instanceof models.Range) {
@@ -342,9 +341,10 @@ export class Figure extends Plot {
         return new models.Range1d({start: range[0], end: range[1]});
       }
     }
+    throw new Error(`unable to determine proper range for: '${range}'`);
   }
 
-  static _get_scale(range_input, axis_type) {
+  static _get_scale(range_input, axis_type): Scale {
     if (range_input instanceof models.DataRange1d || range_input instanceof models.Range1d) {
       switch (axis_type) {
         case null:
@@ -364,7 +364,7 @@ export class Figure extends Plot {
     throw new Error(`unable to determine proper scale for: '${range_input}'`);
   }
 
-  _process_axis_and_grid(axis_type, axis_location, minor_ticks, axis_label, rng, dim) {
+  _process_axis_and_grid(axis_type, axis_location, minor_ticks, axis_label, rng, dim): void {
     const axiscls = this._get_axis_class(axis_type, rng);
     if (axiscls != null) {
       if (axiscls === models.LogAxis) {
@@ -389,30 +389,27 @@ export class Figure extends Plot {
       if (axis_location !== null) {
         this.add_layout(axis, axis_location);
       }
-      return this.add_layout(grid);
+      this.add_layout(grid);
     }
   }
 
-  _get_axis_class(axis_type, range) {
-    if ((axis_type == null)) {
-      return null;
-    }
-    if (axis_type === "linear") {
-      return models.LinearAxis;
-    }
-    if (axis_type === "log") {
-      return models.LogAxis;
-    }
-    if (axis_type === "datetime") {
-      return models.DatetimeAxis;
-    }
-    if (axis_type === "auto") {
-      if (range instanceof models.FactorRange) {
-        return models.CategoricalAxis;
-      } else {
-        // TODO: return models.DatetimeAxis (Date type)
-        return models.LinearAxis;
-      }
+  _get_axis_class(axis_type: null | "linear" | "log" | "datetime" | "auto", range: Range): Class<Axis> {
+    switch (axis_type) {
+      case null:
+        return null
+      case "linear":
+        return models.LinearAxis
+      case "log":
+        return models.LogAxis
+      case "datetime":
+        return models.DatetimeAxis
+      case "auto":
+        if (range instanceof models.FactorRange)
+          return models.CategoricalAxis
+        else
+          return models.LinearAxis // TODO: return models.DatetimeAxis (Date type)
+      default:
+        throw new Error("shouldn't have happened")
     }
   }
 
@@ -504,7 +501,7 @@ export const figure = function(attributes = {}, options = {}) {
 
 declare var $: any
 
-export const show = function(obj, target) {
+export const show = function(obj, target): DOMView | {[key: string]: DOMView} {
   let element;
   const multiple = isArray(obj);
 

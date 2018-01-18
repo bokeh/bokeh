@@ -4,7 +4,6 @@ import {NodesOnly} from "../graphs/graph_hit_test_policy";
 
 import * as p from "core/properties";
 import {build_views} from "core/build_views";
-import {create_hit_test_result} from "core/hittest"
 
 export class GraphRendererView extends RendererView {
 
@@ -45,10 +44,9 @@ export class GraphRendererView extends RendererView {
     }
   }
 
-  set_data(request_render) {
+  set_data(request_render = true) {
     // TODO (bev) this is a bit clunky, need to make sure glyphs use the correct ranges when they call
     // mapping functions on the base Renderer class
-    if (request_render == null) { request_render = true; }
     this.node_view.glyph.model.setv({x_range_name: this.model.x_range_name, y_range_name: this.model.y_range_name}, {silent: true});
     this.edge_view.glyph.model.setv({x_range_name: this.model.x_range_name, y_range_name: this.model.y_range_name}, {silent: true});
 
@@ -67,8 +65,7 @@ export class GraphRendererView extends RendererView {
     return this.node_view.render();
   }
 
-  hit_test(geometry, final, append, mode) {
-    if (mode == null) { mode = "select"; }
+  hit_test(geometry, final, append, mode = "select") {
     if (!this.model.visible) {
       return false;
     }

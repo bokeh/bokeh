@@ -14,7 +14,7 @@ export class IndexFilter extends Filter {
     });
   }
 
-  compute_indices(source) {
+  compute_indices(_source) {
     if ((this.indices != null ? this.indices.length : undefined) >= 0) {
       if (all(this.indices, isInteger)) {
         return this.indices;

@@ -5,7 +5,7 @@ import {max, concat} from "core/util/array"
 
 export class ImageRGBAView extends XYGlyphView {
 
-  _set_data(source, indices) {
+  _set_data(_source, indices) {
     if ((this.image_data == null) || (this.image_data.length !== this._image.length)) {
       this.image_data = new Array(this._image.length);
     }

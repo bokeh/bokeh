@@ -211,7 +211,7 @@ export abstract class AbstractSlider extends Widget {
   behaviour = null
   connected = false
 
-  _formatter = (value, format) => {
+  _formatter = (value, _format) => {
     return `${value}`
   }
 

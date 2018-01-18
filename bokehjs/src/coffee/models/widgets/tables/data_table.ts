@@ -65,7 +65,7 @@ export class DataProvider {
     return null;
   }
 
-  getItemMetadata(index) { return null; }
+  getItemMetadata(_index) { return null; }
 
   getRecords() {
     return (range(0, this.getLength()).map((i) => this.getItem(i)));
@@ -225,7 +225,7 @@ export class DataTableView extends WidgetView {
     this.data = new DataProvider(this.model.source, this.model.view);
     this.grid = new SlickGrid(this.el, this.data, columns, options);
 
-    this.grid.onSort.subscribe((event, args) => {
+    this.grid.onSort.subscribe((_event, args) => {
       columns = args.sortCols;
       this.data.sort(columns);
       this.grid.invalidate();
@@ -237,7 +237,7 @@ export class DataTableView extends WidgetView {
       this.grid.setSelectionModel(new RowSelectionModel({selectActiveRow: (checkboxSelector == null)}));
       if (checkboxSelector != null) { this.grid.registerPlugin(checkboxSelector); }
 
-      this.grid.onSelectedRowsChanged.subscribe((event, args) => {
+      this.grid.onSelectedRowsChanged.subscribe((_event, args) => {
         if (this.in_selection_update) {
           return;
         }

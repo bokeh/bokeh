@@ -251,8 +251,7 @@ export class UIEvents {
     };
   }
 
-  _bokify_hammer(e, extras) {
-    if (extras == null) { extras = {}; }
+  _bokify_hammer(e, extras = {}) {
     e.bokeh = extend(this._event_sxy(e.srcEvent), extras);
     const event_cls = BokehEvent.event_class(e);
     if (event_cls != null) {
@@ -262,8 +261,7 @@ export class UIEvents {
     }
   }
 
-  _bokify_point_event(e, extras) {
-    if (extras == null) { extras = {}; }
+  _bokify_point_event(e, extras = {}) {
     e.bokeh = extend(this._event_sxy(e), extras);
     const event_cls = BokehEvent.event_class(e);
     if (event_cls != null) {

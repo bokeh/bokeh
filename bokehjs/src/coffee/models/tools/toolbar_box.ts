@@ -29,8 +29,8 @@ export class ProxyToolbar extends ToolbarBase {
     this.prototype.type = 'ProxyToolbar';
   }
 
-  initialize(options: any): void {
-    super.initialize(options);
+  initialize(attrs: any, options: any): void {
+    super.initialize(attrs, options);
     this._init_tools();
     this._merge_tools();
   }
@@ -120,8 +120,7 @@ export class ProxyToolbar extends ToolbarBase {
     }
 
     // Add a proxy for each of the groups of tools.
-    const make_proxy = (tools, active) => {
-      if (active == null) { active = false; }
+    const make_proxy = (tools, active = false) => {
       const proxy = new ToolProxy({tools, active});
       this._proxied_tools.push(proxy);
       return proxy;

@@ -28,8 +28,7 @@ export class LogColorMapper extends ColorMapper {
     this._low_color = (this.low_color != null) ? this._build_palette([color2hex(this.low_color)])[0] : undefined;
   }
 
-  _get_values(data, palette, image_glyph) {
-    if (image_glyph == null) { image_glyph = false; }
+  _get_values(data, palette, image_glyph = false) {
     const n = palette.length;
     const low = this.low != null ? this.low : min(data);
     const high = this.high != null ? this.high : max(data);

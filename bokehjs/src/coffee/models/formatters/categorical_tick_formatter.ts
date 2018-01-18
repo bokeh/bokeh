@@ -6,7 +6,7 @@ export class CategoricalTickFormatter extends TickFormatter {
     this.prototype.type = 'CategoricalTickFormatter';
   }
 
-  doFormat(ticks, axis) {
+  doFormat(ticks, _axis) {
     return ticks;
   }
 }

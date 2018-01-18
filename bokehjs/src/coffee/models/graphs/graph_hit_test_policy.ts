@@ -1,16 +1,15 @@
 /* XXX: partial */
 import {Model} from "../../model";
-import {includes, uniq, findIndex} from "core/util/array";
-import {create_hit_test_result, create_1d_hit_test_result} from "core/hittest";
-import {Selector} from "core/selector"
+import {includes, uniq} from "core/util/array";
+import {create_hit_test_result} from "core/hittest";
 
 export class GraphHitTestPolicy extends Model {
 
-  do_selection(geometry, graph_view, final, append) {
+  do_selection(_geometry, _graph_view, _final, _append) {
     return false;
   }
 
-  do_inspection(geometry, graph_view, final, append) {
+  do_inspection(_geometry, _graph_view, _final, _append) {
     return false;
   }
 }

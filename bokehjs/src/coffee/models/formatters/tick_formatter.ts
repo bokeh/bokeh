@@ -1,11 +1,11 @@
 /* XXX: partial */
 import {Model} from "../../model"
 
-export class TickFormatter extends Model {
+export abstract class TickFormatter extends Model {
   static initClass() {
     this.prototype.type = 'TickFormatter';
   }
 
-  doFormat(ticks, axis) {}
+  abstract doFormat(ticks, axis)
 }
 TickFormatter.initClass();

@@ -1,7 +1,7 @@
 /* XXX: partial */
 import {Model} from "../../model"
 import * as p from "core/properties"
-import {create_hit_test_result} from "core/hittest"
+import {create_hit_test_result, HitTestResult} from "core/hittest"
 import {intersection, range} from "core/util/array"
 import {ColumnarDataSource} from "./columnar_data_source"
 
@@ -22,7 +22,7 @@ export class CDSView extends Model {
   }
 
   initialize(attrs: any, options: any): void {
-    super.initialize(options)
+    super.initialize(attrs, options)
     this.compute_indices()
   }
 
@@ -30,7 +30,7 @@ export class CDSView extends Model {
     super.connect_signals()
     this.connect(this.properties.filters.change, () => {
       this.compute_indices()
-      this.change.emit()
+      this.change.emit(undefined)
     })
     if (this.source != null) {
       if (this.source.change != null)
@@ -70,7 +70,7 @@ export class CDSView extends Model {
       (this.indices_map[this.indices[i]] = i))
   }
 
-  convert_selection_from_subset(selection_subset) {
+  convert_selection_from_subset(selection_subset): HitTestResult {
     const selection_full = create_hit_test_result()
     selection_full.update_through_union(selection_subset)
     const indices_1d = (selection_subset['1d']['indices'].map((i) => this.indices[i]))
@@ -78,7 +78,7 @@ export class CDSView extends Model {
     return selection_full
   }
 
-  convert_selection_to_subset(selection_full) {
+  convert_selection_to_subset(selection_full): HitTestResult {
     const selection_subset = create_hit_test_result()
     selection_subset.update_through_union(selection_full)
     const indices_1d = (selection_full['1d']['indices'].map((i) => this.indices_map[i]))

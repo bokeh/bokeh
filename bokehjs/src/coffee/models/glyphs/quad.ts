@@ -1,9 +1,10 @@
 /* XXX: partial */
 import {Box, BoxView} from "./box"
+import {RBush} from "core/util/spatial"
 
 export class QuadView extends BoxView {
 
-  get_anchor_point(anchor, i, spt) {
+  get_anchor_point(anchor, i, _spt) {
     const left = Math.min(this.sleft[i], this.sright[i]);
     const right = Math.max(this.sright[i], this.sleft[i]);
     const top = Math.min(this.stop[i], this.sbottom[i]);     // screen coordinates !!!
@@ -30,7 +31,7 @@ export class QuadView extends BoxView {
     return (this.stop[i] + this.sbottom[i])/2;
   }
 
-  _index_data() {
+  _index_data(): RBush {
     return this._index_box(this._right.length);
   }
 

@@ -57,7 +57,7 @@ export class MultiSelectView extends InputWidgetView {
     for (const x of this.model.value) {
       values[x] = true
     }
-    for (const el of this.el.querySelectorAll('option')) {
+    for (const el of Array.from(this.el.querySelectorAll('option'))) {
       if (values[el.value])
         el.selected = 'selected'
     }
@@ -70,7 +70,7 @@ export class MultiSelectView extends InputWidgetView {
     const is_focused = this.el.querySelector('select:focus') != null
 
     const values = []
-    for (const el of this.el.querySelectorAll('option')) {
+    for (const el of Array.from(this.el.querySelectorAll('option'))) {
       if (el.selected)
         values.push(el.value)
     }

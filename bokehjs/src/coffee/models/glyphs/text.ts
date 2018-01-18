@@ -61,7 +61,7 @@ export class TextView extends XYGlyphView {
     }
   }
 
-  draw_legend_for_index(ctx, x0, x1, y0, y1, index) {
+  draw_legend_for_index(_ctx, _x0, _x1, _y0, _y1, _index) {
     return null;
   }
 }

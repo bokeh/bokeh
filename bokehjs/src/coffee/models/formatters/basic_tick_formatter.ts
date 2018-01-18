@@ -28,7 +28,7 @@ export class BasicTickFormatter extends TickFormatter {
     this.last_precision = 3;
   }
 
-  doFormat(ticks, axis) {
+  doFormat(ticks, _axis) {
     let i, labels;
     if (ticks.length === 0) {
       return [];

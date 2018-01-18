@@ -24,8 +24,16 @@ function is_partial(file: string): boolean {
   return fs.readFileSync(file, "utf8").split("\n")[0] == "/* XXX: partial */"
 }
 
-function is_accepted(code: number): boolean {
-  return (code < 2000 || [2304, 2307, 2688, 6053].includes(code))
+function is_excluded(code: number): boolean {
+  const excluded = [
+    2305, 2322, 2339, 2345, 2365,
+    2415, 2459, 2461,
+    2531, 2532, 2538, 2551,
+    2683,
+    4025,
+    7006, 7009, 7010, 7016, 7017, 7019, 7030, 7031,
+  ]
+  return excluded.includes(code)
 }
 
 gulp.task("scripts:ts", () => {
@@ -39,7 +47,7 @@ gulp.task("scripts:ts", () => {
     if (result != null) {
       const [, file, , code] = result
       if (is_partial(file)) {
-        if (!is_accepted(parseInt(code))) {
+        if (is_excluded(parseInt(code))) {
           if (!(argv.include && text.includes(argv.include)))
             return
         }

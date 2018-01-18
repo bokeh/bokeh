@@ -15,14 +15,14 @@ import {Visuals} from "core/visuals";
 import {DOMView} from "core/dom_view";
 import {LayoutCanvas} from "core/layout/layout_canvas";
 import {hstack, vstack} from "core/layout/alignments";
-import {EQ, LE, GE} from "core/layout/solver";
+import {EQ, LE, GE, Constraint} from "core/layout/solver";
 import {logger} from "core/logging";
 import * as enums from "core/enums";
 import * as p from "core/properties";
 import {throttle} from "core/util/throttle";
 import {isStrictNaN} from "core/util/types";
 import {difference, sortBy, reversed, includes} from "core/util/array";
-import {extend, values, isEmpty} from "core/util/object";
+import {extend, values} from "core/util/object";
 import {update_panel_constraints, _view_sizes} from "core/layout/side_panel"
 
 // Notes on WebGL support:
@@ -36,7 +36,7 @@ import {update_panel_constraints, _view_sizes} from "core/layout/side_panel"
 // The presence (and not-being-false) of the ctx.glcanvas attribute is the
 // marker that we use throughout that determines whether we have gl support.
 
-let global_glcanvas = null;
+let global_glcanvas: HTMLCanvasElement | null = null
 
 export class PlotCanvasView extends DOMView {
 
@@ -73,8 +73,7 @@ export class PlotCanvasView extends DOMView {
     }
   }
 
-  unpause(no_render) {
-    if (no_render == null) { no_render = false; }
+  unpause(no_render = false) {
     this._is_paused -= 1;
     if ((this._is_paused === 0) && !no_render) {
       return this.request_render();
@@ -134,7 +133,7 @@ export class PlotCanvasView extends DOMView {
       this.init_webgl();
     }
 
-    this.throttled_paint = throttle((() => this.force_paint.emit()), 15); // TODO (bev) configurable
+    this.throttled_paint = throttle((() => this.force_paint.emit(undefined)), 15); // TODO (bev) configurable
 
     this.ui_event_bus = new UIEvents(this, this.model.toolbar, this.canvas_view.el, this.model.plot);
 
@@ -155,8 +154,7 @@ export class PlotCanvasView extends DOMView {
     logger.debug("PlotView initialized");
   }
 
-  set_cursor(cursor) {
-    if (cursor == null) { cursor = "default"; }
+  set_cursor(cursor = "default") {
     return this.canvas_view.el.style.cursor = cursor;
   }
 
@@ -166,8 +164,8 @@ export class PlotCanvasView extends DOMView {
     // We use a global invisible canvas and gl context. By having a global context,
     // we avoid the limitation of max 16 contexts that most browsers have.
     let glcanvas = global_glcanvas;
-    if ((glcanvas == null)) {
-      global_glcanvas = (glcanvas = document.createElement('canvas'));
+    if (glcanvas == null) {
+      global_glcanvas = glcanvas = document.createElement('canvas');
       const opts = {'premultipliedAlpha': true};  // premultipliedAlpha is true by default
       glcanvas.gl = glcanvas.getContext("webgl", opts) || glcanvas.getContext("experimental-webgl", opts);
     }
@@ -294,9 +292,7 @@ export class PlotCanvasView extends DOMView {
     return this.range_update_timestamp = Date.now();
   }
 
-  map_to_screen(x, y, x_name, y_name) {
-    if (x_name == null) { x_name = 'default'; }
-    if (y_name == null) { y_name = 'default'; }
+  map_to_screen(x, y, x_name = 'default', y_name = 'default') {
     return this.frame.map_to_screen(x, y, x_name, y_name);
   }
 
@@ -308,12 +304,12 @@ export class PlotCanvasView extends DOMView {
     this.state.history.push({type, info});
     this.state.index = this.state.history.length - 1;
 
-    return this.state_changed.emit();
+    return this.state_changed.emit(undefined);
   }
 
   clear_state() {
     this.state = {history: [], index: -1};
-    return this.state_changed.emit();
+    return this.state_changed.emit(undefined);
   }
 
   can_undo() {
@@ -328,7 +324,7 @@ export class PlotCanvasView extends DOMView {
     if (this.can_undo()) {
       this.state.index -= 1;
       this._do_state_change(this.state.index);
-      return this.state_changed.emit();
+      return this.state_changed.emit(undefined);
     }
   }
 
@@ -336,7 +332,7 @@ export class PlotCanvasView extends DOMView {
     if (this.can_redo()) {
       this.state.index += 1;
       this._do_state_change(this.state.index);
-      return this.state_changed.emit();
+      return this.state_changed.emit(undefined);
     }
   }
 
@@ -353,7 +349,7 @@ export class PlotCanvasView extends DOMView {
   }
 
   get_selection() {
-    const selection = [];
+    const selection = {};
     for (let renderer of this.model.plot.renderers) {
       if (renderer instanceof GlyphRenderer) {
         const { selected } = renderer.data_source;
@@ -548,7 +544,6 @@ export class PlotCanvasView extends DOMView {
   }
 
   build_levels() {
-    let model;
     const renderer_models = this.model.plot.all_renderers;
 
     // should only bind events on NEW views
@@ -602,11 +597,11 @@ export class PlotCanvasView extends DOMView {
 
   set_initial_range() {
     // check for good values for ranges before setting initial range
-    let rng, yrs;
     let good_vals = true;
     const xrs = {};
+    const yrs = {};
     for (const name in this.frame.x_ranges) {
-      rng = this.frame.x_ranges[name];
+      const rng = this.frame.x_ranges[name];
       if ((rng.start == null) || (rng.end == null) || isStrictNaN(rng.start + rng.end)) {
         good_vals = false;
         break;
@@ -614,9 +609,8 @@ export class PlotCanvasView extends DOMView {
       xrs[name] = { start: rng.start, end: rng.end };
     }
     if (good_vals) {
-      yrs = {};
-      for (name in this.frame.y_ranges) {
-        rng = this.frame.y_ranges[name];
+      for (const name in this.frame.y_ranges) {
+        const rng = this.frame.y_ranges[name];
         if ((rng.start == null) || (rng.end == null) || isStrictNaN(rng.start + rng.end)) {
           good_vals = false;
           break;
@@ -625,10 +619,7 @@ export class PlotCanvasView extends DOMView {
       }
     }
     if (good_vals) {
-      this._initial_state_info.range = (this.initial_range_info = {
-        xrs,
-        yrs
-      });
+      this._initial_state_info.range = this.initial_range_info = {xrs, yrs};
       return logger.debug("initial ranges set");
     } else {
       return logger.warn('could not set initial ranges');
@@ -650,8 +641,7 @@ export class PlotCanvasView extends DOMView {
   }
 
   // XXX: bacause PlotCanvas is NOT a LayoutDOM
-  _layout(final) {
-    if (final == null) { final = false; }
+  _layout(final = false) {
     this.render();
 
     if (final) {
@@ -768,7 +758,7 @@ export class PlotCanvasView extends DOMView {
     // reach the frame in time (sometimes) so force an update here for now
     // (mp) not only that, but models don't know about solver anymore, so
     // frame can't update its scales.
-    this.model.frame._update_scales();
+    this.model.frame.update_scales();
 
     const { ctx } = this.canvas_view;
     ctx.pixel_ratio = (ratio = this.canvas.pixel_ratio);  // Also store on cts for WebGL
@@ -823,7 +813,7 @@ export class PlotCanvasView extends DOMView {
     }
   }
 
-  _paint_levels(ctx, levels, clip_region) {
+  _paint_levels(ctx, levels, clip_region = null) {
     ctx.save();
 
     if ((clip_region != null) && (this.model.plot.output_backend === "canvas")) {
@@ -851,7 +841,7 @@ export class PlotCanvasView extends DOMView {
     return ctx.restore();
   }
 
-  _map_hook(ctx, frame_box) {}
+  _map_hook(_ctx, _frame_box) {}
 
   _paint_empty(ctx, frame_box) {
     ctx.clearRect(0, 0,  this.canvas_view.model._width.value, this.canvas_view.model._height.value);
@@ -989,7 +979,7 @@ export class PlotCanvas extends LayoutDOM {
     logger.debug("PlotCanvas attached to document");
   }
 
-  get_layoutable_children() {
+  get_layoutable_children(): LayoutDOM[] {
     const children = [
       this.above_panel, this.below_panel,
       this.left_panel, this.right_panel,
@@ -1011,11 +1001,11 @@ export class PlotCanvas extends LayoutDOM {
     return children;
   }
 
-  get_constraints() {
+  get_constraints(): Constraint[] {
     return super.get_constraints().concat(this._get_constant_constraints(), this._get_side_constraints());
   }
 
-  _get_constant_constraints() {
+  _get_constant_constraints(): Constraint[] {
     return [
       // Set the origin. Everything else is positioned absolutely wrt canvas.
       EQ(this.canvas._left, 0),

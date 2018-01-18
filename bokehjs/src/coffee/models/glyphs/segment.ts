@@ -41,9 +41,6 @@ export class SegmentView extends GlyphView {
 
   _hit_point(geometry) {
     const {sx, sy} = geometry;
-    const x = this.renderer.xscale.invert(sx);
-    const y = this.renderer.yscale.invert(sy);
-
     const point = {x: sx, y: sy};
 
     const hits = [];

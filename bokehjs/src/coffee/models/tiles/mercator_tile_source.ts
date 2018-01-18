@@ -19,8 +19,8 @@ export class MercatorTileSource extends TileSource {
     });
   }
 
-  initialize(options: any): void {
-    super.initialize(options);
+  initialize(attrs: any, options: any): void {
+    super.initialize(attrs, options);
     this._resolutions = (range(this.min_zoom, this.max_zoom+1).map((z) => this.get_resolution(z)));
   }
 
@@ -84,28 +84,6 @@ export class MercatorTileSource extends TileSource {
     }
   }
 
-  children_by_tile_xyz(x, y, z) {
-    const world_x = this.calculate_world_x_by_tile_xyz(x, y, z);
-
-    if (world_x !== 0) {
-      [x, y, z] = this.normalize_xyz(x, y, z);
-    }
-
-    const quad_key = this.tile_xyz_to_quadkey(x, y, z);
-    const child_tile_xyz = [];
-    for (let i = 0; i <= 3; i++) {
-      [x, y, z] = this.quadkey_to_tile_xyz(quad_key + i.toString());
-      if (world_x !== 0) {
-        [x, y, z] = this.denormalize_xyz(x, y, z, world_x);
-      }
-      const b = this.get_tile_meter_bounds(x, y, z);
-      if (b != null) {
-        child_tile_xyz.push([x, y, z, b]);
-      }
-    }
-    return child_tile_xyz;
-  }
-
   parent_by_tile_xyz(x, y, z) {
     const quad_key = this.tile_xyz_to_quadkey(x, y, z);
     const parent_quad_key = quad_key.substring(0, quad_key.length - 1);
@@ -140,7 +118,6 @@ export class MercatorTileSource extends TileSource {
     const x_rs = (extent[2] - extent[0]) / width;
     const y_rs = (extent[3] - extent[1]) / height;
     const resolution = Math.max(x_rs, y_rs);
-    const ress = this._resolutions;
     const closest = this._resolutions.reduce(function(previous, current) {
       if (Math.abs(current - resolution) < Math.abs(previous - resolution)) { return current; }
       return previous;
@@ -229,9 +206,8 @@ export class MercatorTileSource extends TileSource {
     return [minLon, minLat, maxLon, maxLat];
   }
 
-  get_tiles_by_extent(extent, level, tile_border) {
+  get_tiles_by_extent(extent, level, tile_border = 1) {
     // unpack extent and convert to tile coordinates
-    if (tile_border == null) { tile_border = 1; }
     const [xmin, ymin, xmax, ymax] = extent;
     let [txmin, tymin] = this.meters_to_tile(xmin, ymin, level);
     let [txmax, tymax] = this.meters_to_tile(xmax, ymax, level);
@@ -256,9 +232,9 @@ export class MercatorTileSource extends TileSource {
   }
 
   quadkey_to_tile_xyz(quadKey) {
-    `\
-Computes tile x, y and z values based on quadKey.\
-`;
+    /**
+     * Computes tile x, y and z values based on quadKey.
+     */
     let tileX = 0;
     let tileY = 0;
     const tileZ = quadKey.length;
@@ -270,7 +246,6 @@ Computes tile x, y and z values based on quadKey.\
       switch (value) {
         case '0':
           continue;
-          break;
         case '1':
           tileX |= mask;
           break;
@@ -290,9 +265,9 @@ Computes tile x, y and z values based on quadKey.\
   }
 
   tile_xyz_to_quadkey(x, y, z) {
-    `\
-Computes quadkey value based on tile x, y and z values.\
-`;
+    /*
+     * Computes quadkey value based on tile x, y and z values.
+     */
     let quadKey = '';
     for (let i = z; i > 0; i--) {
       let digit = 0;
@@ -320,12 +295,6 @@ Computes quadkey value based on tile x, y and z values.\
     }
 
     return child_tile_xyz;
-  }
-
-  parent_by_tile_xyz(x, y, z) {
-    const quad_key = this.tile_xyz_to_quadkey(x, y, z);
-    const parent_quad_key = quad_key.substring(0, quad_key.length - 1);
-    return this.quadkey_to_tile_xyz(parent_quad_key);
   }
 
   get_closest_parent_by_tile_xyz(x, y, z) {
@@ -356,11 +325,11 @@ Computes quadkey value based on tile x, y and z values.\
     return [x + (world_x * Math.pow(2, z)), y, z];
   }
 
-  denormalize_meters(meters_x, meters_y, level, world_x) {
+  denormalize_meters(meters_x, meters_y, _level, world_x) {
     return [meters_x + (world_x * 2 * Math.PI * 6378137), meters_y];
   }
 
-  calculate_world_x_by_tile_xyz(x, y, z) {
+  calculate_world_x_by_tile_xyz(x, _y, z) {
     return Math.floor(x / Math.pow(2, z));
   }
 }

@@ -34,17 +34,14 @@ export class Interpolator extends Transform {
     this.connect(this.change, () => this._sorted_dirty = true)
   }
 
-  sort(descending) {
+  sort(descending = false) {
     // Verify that all necessary objects exist...
-    if (descending == null) { descending = false; }
     if (typeof(this.x) !== typeof(this.y)) {
       throw new Error('The parameters for x and y must be of the same type, either both strings which define a column in the data source or both arrays of the same length');
-      return;
 
     } else {
       if ((typeof(this.x) === 'string') && (this.data === null)) {
         throw new Error('If the x and y parameters are not specified as an array, the data parameter is reqired.');
-        return;
       }
     }
 

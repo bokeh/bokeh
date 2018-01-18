@@ -3,8 +3,6 @@ import {XYGlyph, XYGlyphView} from "./xy_glyph";
 import * as hittest from "core/hittest";
 import * as p from "core/properties";
 import {max} from "core/util/array";
-import {isNumber, isString} from "core/util/types";
-import {CategoricalScale} from "../scales/categorical_scale"
 
 export class RectView extends XYGlyphView {
 
@@ -156,7 +154,6 @@ export class RectView extends XYGlyphView {
     for (i of this.index.indices(bbox)) {
       let height_in, width_in;
       if (this._angle[i]) {
-        const d = Math.sqrt(Math.pow((sx - this.sx[i]), 2) + Math.pow((sy - this.sy[i]),2));
         const s = Math.sin(-this._angle[i]);
         const c = Math.cos(-this._angle[i]);
         const px = ((c * (sx-this.sx[i])) - (s * (sy-this.sy[i]))) + this.sx[i];
@@ -183,7 +180,6 @@ export class RectView extends XYGlyphView {
   _map_dist_corner_for_data_side_length(coord, side_length, scale, dim) {
     let spt_corner;
     let i;
-    const { frame } = this.renderer.plot_view;
     if (scale.source_range.synthetic != null) {
       coord = (coord.map((x) => scale.source_range.synthetic(x)));
     }

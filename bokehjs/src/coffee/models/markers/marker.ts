@@ -48,7 +48,7 @@ export class MarkerView extends XYGlyphView {
     }
   }
 
-  _mask_data(all_indices) {
+  _mask_data(_all_indices) {
     // dilate the inner screen region by max_size and map back to data space for use in
     // spatial query
     const hr = this.renderer.plot_view.frame.bbox.h_range;
