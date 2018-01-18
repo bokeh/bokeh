@@ -178,8 +178,8 @@ class ApplicationContext(object):
                                                   doc)
             # using private attr so users only have access to a read-only property
             session_context._request = _RequestProxy(handler.request)
-            session_context._path_args = handler.path_args
-            session_context._path_kwargs = handler.path_kwargs
+            session_context._path_args = [arg for arg in handler.path_args]
+            session_context._path_kwargs = dict(handler.path_kwargs)
 
             # expose the session context to the document
             # use the _attribute to set the public property .session_context

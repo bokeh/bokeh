@@ -394,7 +394,7 @@ group ``graph_id``:
 
   # if the url requested is http://localhost:5006/graphs/345126,
   # graph_id should be `345126`
-  graph_id = kwargs.get('345126', '')
+  graph_id = kwargs.get('graph_id', '')
 
 .. _userguide_server_applications_callbacks:
 
