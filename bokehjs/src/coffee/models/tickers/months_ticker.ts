@@ -39,8 +39,8 @@ export class MonthsTicker extends SingleIntervalTicker {
 
   months: number[]
 
-  initialize(attrs: any, options: any): void {
-    super.initialize(attrs, options)
+  initialize(options: any): void {
+    super.initialize(options)
     const months = this.months
     if (months.length > 1)
       this.interval = (months[1] - months[0])*ONE_MONTH

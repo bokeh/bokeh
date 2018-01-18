@@ -29,8 +29,8 @@ export abstract class TileSource extends Model {
     });
   }
 
-  initialize(attrs: any, options: any): void {
-    super.initialize(attrs, options);
+  initialize(options: any): void {
+    super.initialize(options);
     this.utils = new ProjectionUtils();
     this.pool = new ImagePool();
     this.tiles = {};

@@ -105,9 +105,9 @@ export class DataProvider {
 
 export class DataTableView extends WidgetView {
 
-  initialize(options) {
+  initialize(options: any): void {
     super.initialize(options);
-    return this.in_selection_update = false;
+    this.in_selection_update = false;
   }
 
   connect_signals() {

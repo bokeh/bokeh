@@ -14,8 +14,8 @@ export class ColorMapper extends Transform {
       });
   }
 
-  initialize(attrs: any, options: any): void {
-    super.initialize(attrs, options);
+  initialize(options: any): void {
+    super.initialize(options);
     this._little_endian = this._is_little_endian();
     this._palette       = this._build_palette(this.palette);
 

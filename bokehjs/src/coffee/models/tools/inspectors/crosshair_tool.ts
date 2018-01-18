@@ -82,8 +82,8 @@ export class CrosshairTool extends InspectTool {
     return values(this.spans)
   }
 
-  initialize(attrs: any, options: any): void {
-    super.initialize(attrs, options)
+  initialize(options: any): void {
+    super.initialize(options)
 
     this.spans = {
       width: new Span({

@@ -365,8 +365,8 @@ export class GlyphRenderer extends Renderer {
     this.prototype.nonselection_defaults = {fill: {fill_alpha: 0.2, line_alpha: 0.2}, line: {}};
   }
 
-  initialize(attrs: any, options: any): void {
-    super.initialize(attrs, options);
+  initialize(options: any): void {
+    super.initialize(options);
 
     if ((this.view.source == null)) {
       this.view.source = this.data_source;

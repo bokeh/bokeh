@@ -33,8 +33,8 @@ export class ToolProxy extends Model {
     return this.tools[0].icon
   }
 
-  initialize(attrs: any, options: any): void {
-    super.initialize(attrs, options);
+  initialize(options: any): void {
+    super.initialize(options);
     this.do = new Signal(this, "do");
     this.connect(this.do, function() { return this.doit(); });
     this.connect(this.properties.active.change, function() { return this.set_active(); });

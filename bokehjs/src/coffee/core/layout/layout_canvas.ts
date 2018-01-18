@@ -22,8 +22,8 @@ export class LayoutCanvas extends HasProps {
   _hcenter: Variable
   _vcenter: Variable
 
-  initialize(attrs: any, options?: any) {
-    super.initialize(attrs, options)
+  initialize(options: any): void {
+    super.initialize(options)
     this._top = new Variable(`${this.toString()}.top`)
     this._left = new Variable(`${this.toString()}.left`)
     this._width = new Variable(`${this.toString()}.width`)

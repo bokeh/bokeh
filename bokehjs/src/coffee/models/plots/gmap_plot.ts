@@ -65,8 +65,8 @@ export class GMapPlot extends Plot {
   map_options: GMapOptions
   api_key: string
 
-  initialize(attrs: any, options: any): void {
-    super.initialize(attrs, options)
+  initialize(options: any): void {
+    super.initialize(options)
     if (!this.api_key)
       logger.error("api_key is required. See https://developers.google.com/maps/documentation/javascript/get-api-key for more information on how to obtain your own.")
   }

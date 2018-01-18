@@ -29,8 +29,8 @@ export class ProxyToolbar extends ToolbarBase {
     this.prototype.type = 'ProxyToolbar';
   }
 
-  initialize(attrs: any, options: any): void {
-    super.initialize(attrs, options);
+  initialize(options: any): void {
+    super.initialize(options);
     this._init_tools();
     this._merge_tools();
   }

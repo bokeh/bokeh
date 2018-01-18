@@ -49,8 +49,8 @@ export class LegendItem extends Model {
   }
 
 
-  initialize(attrs: any, options: any): void {
-    super.initialize(attrs, options);
+  initialize(options: any): void {
+    super.initialize(options);
     // Validate data_sources match
     const data_source_validation = this._check_data_sources_on_renderers();
     if (!data_source_validation) {
