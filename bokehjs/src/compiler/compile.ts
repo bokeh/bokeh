@@ -100,8 +100,6 @@ const compile_and_resolve_deps = (input: {code: string, lang: string, file: stri
       noImplicitAny: false,
       target: ts.ScriptTarget.ES5,
       module: ts.ModuleKind.CommonJS,
-      jsx: ts.JsxEmit.React,
-      reactNamespace: "DOM",
     },
   })
 

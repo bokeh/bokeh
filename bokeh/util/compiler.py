@@ -19,7 +19,6 @@ from subprocess import Popen, PIPE
 from ..model import Model
 from ..settings import settings
 from .string import snakify
-from .deprecation import deprecated
 
 _plugin_umd = \
 """\
@@ -283,9 +282,6 @@ class FromFile(Implementation):
 
     '''
     def __init__(self, path):
-        if path.endswith(".tsx"):
-            deprecated((0, 12, 7), "TSX templates", "core/dom APIs")
-
         with io.open(path, encoding="utf-8") as f:
             self.code = f.read()
         self.file = path
@@ -294,7 +290,7 @@ class FromFile(Implementation):
     def lang(self):
         if self.file.endswith(".coffee"):
             return "coffeescript"
-        if self.file.endswith((".ts", ".tsx")):
+        if self.file.endswith(".ts"):
             return "typescript"
         if self.file.endswith(".js"):
             return "javascript"
@@ -302,7 +298,7 @@ class FromFile(Implementation):
             return "less"
 
 #: recognized extensions that can be compiled
-exts = (".coffee", ".ts", ".tsx", ".js", ".css", ".less")
+exts = (".coffee", ".ts", ".js", ".css", ".less")
 
 class CustomModel(object):
     ''' Represent a custom (user-defined) Bokeh model.

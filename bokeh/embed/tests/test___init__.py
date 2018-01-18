@@ -35,7 +35,6 @@ import bokeh.embed as be
 #-----------------------------------------------------------------------------
 
 ALL = (
-    'autoload_server',
     'autoload_static',
     'components',
     'file_html',
