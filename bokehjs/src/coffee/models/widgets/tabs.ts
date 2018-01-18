@@ -65,6 +65,17 @@ export class TabsView extends WidgetView {
 
 export class Tabs extends Widget {
 
+  static initClass() {
+    this.prototype.type = "Tabs"
+    this.prototype.default_view = TabsView
+
+    this.define({
+      tabs:     [ p.Array,   [] ],
+      active:   [ p.Number,  0  ],
+      callback: [ p.Instance    ],
+    })
+  }
+
   get_layoutable_children(): LayoutDOM {
     return this.children
   }
@@ -74,11 +85,4 @@ export class Tabs extends Widget {
   }
 }
 
-Tabs.prototype.type = "Tabs"
-Tabs.prototype.default_view = TabsView
-
-Tabs.define({
-  tabs:     [ p.Array,   [] ],
-  active:   [ p.Number,  0  ],
-  callback: [ p.Instance    ],
-})
+Tabs.initClass()

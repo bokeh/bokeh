@@ -1,19 +1,23 @@
 /* XXX: partial */
 import * as p from "core/properties";
-import {input, select, option, Keys} from "core/dom";
+import {input, textarea, select, option, Keys} from "core/dom";
 import {extend} from "core/util/object";
 
 import {DOMView} from "core/dom_view";
 import {Model} from "../../../model";
 import {DTINDEX_NAME} from "./data_table"
 
-export class CellEditorView extends DOMView {
-  static initClass() {
-    this.prototype.inputEl = null;
+export abstract class CellEditorView extends DOMView {
 
-    this.prototype.emptyValue = null;
-    this.prototype.defaultValue = null;
+  defaultValue: any
+
+  get emptyValue() {
+    return null
   }
+
+  inputEl: HTMLElement
+
+  protected abstract _createInput(): HTMLElement
 
   constructor(options) {
     super(extend({model: options.column.editor}, options));
@@ -21,6 +25,8 @@ export class CellEditorView extends DOMView {
 
   initialize(options) {
     super.initialize(options);
+    this.inputEl = this._createInput()
+    this.defaultValue = null
     this.args = options;
     return this.render();
   }
@@ -90,7 +96,6 @@ export class CellEditorView extends DOMView {
 
   validate() { return this.validateValue(this.getValue()); }
 }
-CellEditorView.initClass();
 
 export class CellEditor extends Model {
   static initClass() {
@@ -101,11 +106,13 @@ export class CellEditor extends Model {
 CellEditor.initClass();
 
 export class StringEditorView extends CellEditorView {
-  static initClass() {
 
-    this.prototype.emptyValue = "";
+  get emptyValue() {
+    return ""
+  }
 
-    this.prototype.inputEl = input({type: "text"});
+  protected _createInput() {
+    return input({type: "text"})
   }
 
   renderEditor() {
@@ -124,7 +131,6 @@ export class StringEditorView extends CellEditorView {
     return this.inputEl.select();
   }
 }
-StringEditorView.initClass();
 
 export class StringEditor extends CellEditor {
   static initClass() {
@@ -137,7 +143,11 @@ export class StringEditor extends CellEditor {
 }
 StringEditor.initClass();
 
-export class TextEditorView extends CellEditorView {}
+export class TextEditorView extends CellEditorView {
+  protected _createInput() {
+    return textarea()
+  }
+}
 
 export class TextEditor extends CellEditor {
   static initClass() {
@@ -148,9 +158,9 @@ export class TextEditor extends CellEditor {
 TextEditor.initClass();
 
 export class SelectEditorView extends CellEditorView {
-  static initClass() {
 
-    this.prototype.inputEl = select();
+  protected _createInput() {
+    return select()
   }
 
   renderEditor() {
@@ -165,7 +175,6 @@ export class SelectEditorView extends CellEditorView {
     return this.inputEl.select();
   }
 }
-SelectEditorView.initClass();
 
 export class SelectEditor extends CellEditor {
   static initClass() {
@@ -178,7 +187,11 @@ export class SelectEditor extends CellEditor {
 }
 SelectEditor.initClass();
 
-export class PercentEditorView extends CellEditorView {}
+export class PercentEditorView extends CellEditorView {
+  protected _createInput() {
+    return input({type: "text"})
+  }
+}
 
 export class PercentEditor extends CellEditor {
   static initClass() {
@@ -189,9 +202,9 @@ export class PercentEditor extends CellEditor {
 PercentEditor.initClass();
 
 export class CheckboxEditorView extends CellEditorView {
-  static initClass() {
 
-    this.prototype.inputEl = input({type: "checkbox", value: "true"});
+  protected _createInput() {
+    return input({type: "checkbox", value: "true"})
   }
 
   renderEditor() { return this.focus(); }
@@ -205,7 +218,6 @@ export class CheckboxEditorView extends CellEditorView {
     return this.inputEl.checked;
   }
 }
-CheckboxEditorView.initClass();
 
 export class CheckboxEditor extends CellEditor {
   static initClass() {
@@ -216,9 +228,9 @@ export class CheckboxEditor extends CellEditor {
 CheckboxEditor.initClass();
 
 export class IntEditorView extends CellEditorView {
-  static initClass() {
 
-    this.prototype.inputEl = input({type: "text"});
+  protected _createInput() {
+    return input({type: "text"})
   }
 
   renderEditor() {
@@ -250,7 +262,6 @@ export class IntEditorView extends CellEditorView {
     }
   }
 }
-IntEditorView.initClass();
 
 export class IntEditor extends CellEditor {
   static initClass() {
@@ -264,9 +275,9 @@ export class IntEditor extends CellEditor {
 IntEditor.initClass();
 
 export class NumberEditorView extends CellEditorView {
-  static initClass() {
 
-    this.prototype.inputEl = input({type: "text"});
+  protected _createInput() {
+    return input({type: "text"})
   }
 
   renderEditor() {
@@ -298,7 +309,6 @@ export class NumberEditorView extends CellEditorView {
     }
   }
 }
-NumberEditorView.initClass();
 
 export class NumberEditor extends CellEditor {
   static initClass() {
@@ -311,7 +321,11 @@ export class NumberEditor extends CellEditor {
 }
 NumberEditor.initClass();
 
-export class TimeEditorView extends CellEditorView {}
+export class TimeEditorView extends CellEditorView {
+  protected _createInput() {
+    return input({type: "text"})
+  }
+}
 
 export class TimeEditor extends CellEditor {
   static initClass() {
@@ -322,11 +336,13 @@ export class TimeEditor extends CellEditor {
 TimeEditor.initClass();
 
 export class DateEditorView extends CellEditorView {
-  static initClass() {
 
-    this.prototype.emptyValue = new Date();
+  protected _createInput() {
+    return input({type: "text"})
+  }
 
-    this.prototype.inputEl = input({type: "text"});
+  get emptyValue() {
+    return new Date()
   }
 
   renderEditor() {
@@ -374,7 +390,6 @@ export class DateEditorView extends CellEditorView {
 
   setValue(_val) {}
 }
-DateEditorView.initClass();
     //@$datepicker.datepicker("setDate", new Date(val))
 
 export class DateEditor extends CellEditor {

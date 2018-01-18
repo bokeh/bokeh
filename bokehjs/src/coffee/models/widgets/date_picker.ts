@@ -88,17 +88,22 @@ export class DatePickerView extends InputWidgetView {
 }
 
 export class DatePicker extends InputWidget {
+
+  static initClass() {
+    this.prototype.type = "DatePicker"
+    this.prototype.default_view = DatePickerView
+
+    this.define({
+      // TODO (bev) types
+      value:    [ p.Any, new Date().toDateString() ],
+      min_date: [ p.Any                            ],
+      max_date: [ p.Any                            ],
+    })
+  }
+
   value:    string
   min_date: string
   max_date: string
 }
 
-DatePicker.prototype.type = "DatePicker"
-DatePicker.prototype.default_view = DatePickerView
-
-DatePicker.define({
-  // TODO (bev) types
-  value:    [ p.Any, new Date().toDateString() ],
-  min_date: [ p.Any                            ],
-  max_date: [ p.Any                            ],
-})
+DatePicker.initClass()

@@ -113,6 +113,18 @@ const DEFAULT_POLY_OVERLAY = () => {
 
 export class LassoSelectTool extends SelectTool {
 
+  static initClass() {
+    this.prototype.type = "LassoSelectTool"
+
+    this.prototype.default_view = LassoSelectToolView
+
+    this.define({
+      select_every_mousemove: [ p.Bool,    true                  ],
+      callback:               [ p.Instance                       ],
+      overlay:                [ p.Instance, DEFAULT_POLY_OVERLAY ],
+    })
+  }
+
   select_every_mousemove: boolean
   callback: any // XXX
   overlay: PolyAnnotation
@@ -123,12 +135,4 @@ export class LassoSelectTool extends SelectTool {
   default_order = 12
 }
 
-LassoSelectTool.prototype.type = "LassoSelectTool"
-
-LassoSelectTool.prototype.default_view = LassoSelectToolView
-
-LassoSelectTool.define({
-  select_every_mousemove: [ p.Bool,    true                  ],
-  callback:               [ p.Instance                       ],
-  overlay:                [ p.Instance, DEFAULT_POLY_OVERLAY ],
-})
+LassoSelectTool.initClass()

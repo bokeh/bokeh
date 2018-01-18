@@ -28,6 +28,11 @@ export class SpacerView extends LayoutDOMView {
 
 export class Spacer extends LayoutDOM {
 
+  static initClass() {
+    this.prototype.type = "Spacer"
+    this.prototype.default_view = SpacerView
+  }
+
   get_constrained_variables(): {[key: string]: Variable} {
     return extend({}, super.get_constrained_variables(), {
       on_edge_align_top    : this._top,
@@ -48,5 +53,4 @@ export class Spacer extends LayoutDOM {
   }
 }
 
-Spacer.prototype.type = "Spacer"
-Spacer.prototype.default_view = SpacerView
+Spacer.initClass()

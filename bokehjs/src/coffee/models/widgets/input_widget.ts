@@ -11,14 +11,19 @@ export class InputWidgetView extends WidgetView {
 }
 
 export class InputWidget extends Widget {
+
+  static initClass() {
+    this.prototype.type = "InputWidget"
+    this.prototype.default_view = InputWidgetView
+
+    this.define({
+      title:    [ p.String, '' ],
+      callback: [ p.Instance   ],
+    })
+  }
+
   title: string
   callback: any | null // TODO
 }
 
-InputWidget.prototype.type = "InputWidget"
-InputWidget.prototype.default_view = InputWidgetView
-
-InputWidget.define({
-  title:    [ p.String, '' ],
-  callback: [ p.Instance   ],
-})
+InputWidget.initClass()

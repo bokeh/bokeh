@@ -4,6 +4,10 @@ import {last_year_no_later_than, ONE_YEAR} from "./util"
 
 export class YearsTicker extends SingleIntervalTicker {
 
+  static initClass() {
+    this.prototype.type = "YearsTicker"
+  }
+
   protected basic_ticker: BasicTicker
 
   initialize(attrs: any, options: any): void {
@@ -28,4 +32,4 @@ export class YearsTicker extends SingleIntervalTicker {
   }
 }
 
-YearsTicker.prototype.type = "YearsTicker"
+YearsTicker.initClass()

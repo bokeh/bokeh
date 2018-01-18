@@ -63,6 +63,20 @@ export class BoxView extends LayoutDOMView {
 
 export class Box extends LayoutDOM {
 
+  static initClass() {
+    this.prototype.type = "Box"
+
+    this.prototype.default_view = BoxView
+
+    this.define({
+      children: [ p.Array, [] ]
+    })
+
+    this.internal({
+      spacing: [ p.Number, 6 ]
+    })
+  }
+
   children: LayoutDOM[]
   spacing: number
 
@@ -540,14 +554,4 @@ export class Box extends LayoutDOM {
   static _top_bottom_inner_cell_edge_variables = ['box_cell_align_top', 'box_cell_align_bottom' ]
 }
 
-Box.prototype.type = "Box"
-
-Box.prototype.default_view = BoxView
-
-Box.define({
-  children: [ p.Array, [] ]
-})
-
-Box.internal({
-  spacing: [ p.Number, 6 ]
-})
+Box.initClass()

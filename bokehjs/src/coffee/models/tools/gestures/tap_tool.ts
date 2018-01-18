@@ -75,6 +75,17 @@ export class TapToolView extends SelectToolView {
 
 export class TapTool extends SelectTool {
 
+  static initClass() {
+    this.prototype.type = "TapTool"
+
+    this.prototype.default_view = TapToolView
+
+    this.define({
+      behavior: [ p.String, "select" ], // TODO: Enum("select", "inspect")
+      callback: [ p.Any ], // TODO: p.Either(p.Instance(Callback), p.Function) ]
+    })
+  }
+
   behavior: "select" | "inspect"
   callback: any // XXX
 
@@ -84,11 +95,4 @@ export class TapTool extends SelectTool {
   default_order = 10
 }
 
-TapTool.prototype.type = "TapTool"
-
-TapTool.prototype.default_view = TapToolView
-
-TapTool.define({
-  behavior: [ p.String, "select" ], // TODO: Enum("select", "inspect")
-  callback: [ p.Any ], // TODO: p.Either(p.Instance(Callback), p.Function) ]
-})
+TapTool.initClass()

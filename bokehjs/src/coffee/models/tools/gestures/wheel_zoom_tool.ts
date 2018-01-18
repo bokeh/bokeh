@@ -57,6 +57,20 @@ const is_mobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0
 
 export class WheelZoomTool extends GestureTool {
 
+  static initClass() {
+    this.prototype.type = "WheelZoomTool"
+
+    this.prototype.default_view = WheelZoomToolView
+
+    this.define({
+      dimensions: [ p.Dimensions, "both" ],
+    })
+
+    this.internal({
+      speed: [ p.Number, 1/600 ],
+    })
+  }
+
   dimensions: Dimensions
   speed: number
 
@@ -70,14 +84,4 @@ export class WheelZoomTool extends GestureTool {
   }
 }
 
-WheelZoomTool.prototype.type = "WheelZoomTool"
-
-WheelZoomTool.prototype.default_view = WheelZoomToolView
-
-WheelZoomTool.define({
-  dimensions: [ p.Dimensions, "both" ],
-})
-
-WheelZoomTool.internal({
-  speed: [ p.Number, 1/600 ],
-})
+WheelZoomTool.initClass()

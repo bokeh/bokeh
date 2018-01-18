@@ -86,6 +86,16 @@ export class WidgetBoxView extends LayoutDOMView {
 
 export class WidgetBox extends LayoutDOM {
 
+  static initClass() {
+    this.prototype.type = "WidgetBox"
+
+    this.prototype.default_view = WidgetBoxView
+
+    this.define({
+      children: [ p.Array, [] ]
+    })
+  }
+
   children: LayoutDOM[]
 
   initialize(attrs: any, options: any): void {
@@ -125,10 +135,4 @@ export class WidgetBox extends LayoutDOM {
   }
 }
 
-WidgetBox.prototype.type = "WidgetBox"
-
-WidgetBox.prototype.default_view = WidgetBoxView
-
-WidgetBox.define({
-  children: [ p.Array, [] ]
-})
+WidgetBox.initClass()

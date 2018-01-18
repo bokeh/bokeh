@@ -65,17 +65,22 @@ export abstract class AbstractButtonView extends WidgetView {
 }
 
 export abstract class AbstractButton extends Widget {
+
+  static initClass() {
+    this.prototype.type = "AbstractButton"
+
+    this.define({
+      label:       [ p.String, "Button"  ],
+      icon:        [ p.Instance          ],
+      button_type: [ p.String, "default" ], // TODO (bev)
+      callback:    [ p.Instance          ],
+    })
+  }
+
   label: string
   icon: AbstractIcon
   button_type: ButtonType
   callback: any // XXX
 }
 
-AbstractButton.prototype.type = "AbstractButton"
-
-AbstractButton.define({
-  label:       [ p.String, "Button"  ],
-  icon:        [ p.Instance          ],
-  button_type: [ p.String, "default" ], // TODO (bev)
-  callback:    [ p.Instance          ],
-})
+AbstractButton.initClass()

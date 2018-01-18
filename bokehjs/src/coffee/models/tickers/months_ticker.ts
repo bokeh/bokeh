@@ -29,6 +29,14 @@ function date_range_by_year(start_time: number, end_time: number): Date[] {
 // April, July, and October of each year.
 export class MonthsTicker extends SingleIntervalTicker {
 
+  static initClass() {
+    this.prototype.type = "MonthsTicker"
+
+    this.define({
+      months: [ p.Array, [] ],
+    })
+  }
+
   months: number[]
 
   initialize(attrs: any, options: any): void {
@@ -64,8 +72,4 @@ export class MonthsTicker extends SingleIntervalTicker {
   }
 }
 
-MonthsTicker.prototype.type = "MonthsTicker"
-
-MonthsTicker.define({
-  months: [ p.Array, [] ],
-})
+MonthsTicker.initClass()

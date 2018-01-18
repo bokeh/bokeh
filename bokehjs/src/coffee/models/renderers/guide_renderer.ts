@@ -7,18 +7,23 @@ export class GuideRendererView extends RendererView {
 }
 
 export class GuideRenderer extends Renderer {
+
+  static initClass() {
+    this.prototype.type = "GuideRenderer"
+
+    this.define({
+      plot: [ p.Instance ]
+    })
+
+    this.override({
+      level: "overlay"
+    })
+  }
+
   plot: Plot
 }
 
-GuideRenderer.prototype.type = "GuideRenderer"
-
-GuideRenderer.define({
-  plot: [ p.Instance ]
-})
-
-GuideRenderer.override({
-  level: "overlay"
-})
+GuideRenderer.initClass()
 
 export module GuideRenderer {
   export type Visuals = Renderer.Visuals

@@ -93,6 +93,20 @@ export class WheelPanToolView extends GestureToolView {
 
 export class WheelPanTool extends GestureTool {
 
+  static initClass() {
+    this.prototype.type = 'WheelPanTool'
+
+    this.prototype.default_view = WheelPanToolView
+
+    this.define({
+      dimension: [ p.Dimension, "width" ],
+    })
+
+    this.internal({
+      speed: [ p.Number, 1/1000 ],
+    })
+  }
+
   dimension: Dimension
   speed: number
 
@@ -106,14 +120,4 @@ export class WheelPanTool extends GestureTool {
   }
 }
 
-WheelPanTool.prototype.type = 'WheelPanTool'
-
-WheelPanTool.prototype.default_view = WheelPanToolView
-
-WheelPanTool.define({
-  dimension: [ p.Dimension, "width" ],
-})
-
-WheelPanTool.internal({
-  speed: [ p.Number, 1/1000 ],
-})
+WheelPanTool.initClass()

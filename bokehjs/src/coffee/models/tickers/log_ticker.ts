@@ -3,6 +3,14 @@ import {AdaptiveTicker} from "./adaptive_ticker"
 
 export class LogTicker extends AdaptiveTicker {
 
+  static initClass() {
+    this.prototype.type = "LogTicker"
+
+    this.override({
+      mantissas: [1, 5],
+    })
+  }
+
   get_ticks_no_defaults(data_low: number, data_high: number, _cross_loc: any, desired_n_ticks: number) {
     const num_minor_ticks = this.num_minor_ticks
     const minor_ticks = []
@@ -70,8 +78,4 @@ export class LogTicker extends AdaptiveTicker {
   }
 }
 
-LogTicker.prototype.type = "LogTicker"
-
-LogTicker.override({
-  mantissas: [1, 5],
-})
+LogTicker.initClass()

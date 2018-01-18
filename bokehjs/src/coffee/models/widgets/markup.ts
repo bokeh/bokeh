@@ -31,11 +31,15 @@ export class MarkupView extends WidgetView {
 }
 
 export class Markup extends Widget {
+
+  static initClass() {
+    this.prototype.type = "Markup"
+
+    this.define({
+      text: [ p.String, '' ],
+      style: [ p.Any, {} ],
+    })
+  }
 }
 
-Markup.prototype.type = "Markup"
-
-Markup.define({
-  text: [ p.String, '' ],
-  style: [ p.Any, {} ],
-})
+Markup.initClass()

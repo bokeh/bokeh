@@ -15,14 +15,19 @@ export class RedoToolView extends ActionToolView {
 }
 
 export class RedoTool extends ActionTool {
+
+  static initClass() {
+    this.prototype.type = "RedoTool"
+
+    this.prototype.default_view = RedoToolView
+
+    this.override({
+      disabled: true
+    })
+  }
+
   tool_name = "Redo"
   icon = "bk-tool-icon-redo"
 }
 
-RedoTool.prototype.type = "RedoTool"
-
-RedoTool.prototype.default_view = RedoToolView
-
-RedoTool.override({
-  disabled: true
-})
+RedoTool.initClass()

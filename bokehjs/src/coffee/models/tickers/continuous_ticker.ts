@@ -17,6 +17,15 @@ import {isStrictNaN} from "core/util/types"
 // and get_max_interval().
 export abstract class ContinuousTicker extends Ticker<number> {
 
+  static initClass() {
+    this.prototype.type = "ContinuousTicker"
+
+    this.define({
+      num_minor_ticks:   [ p.Number, 5 ],
+      desired_num_ticks: [ p.Number, 6 ],
+    })
+  }
+
   num_minor_ticks: number
   desired_num_ticks: number
 
@@ -91,9 +100,4 @@ export abstract class ContinuousTicker extends Ticker<number> {
   }
 }
 
-ContinuousTicker.prototype.type = "ContinuousTicker"
-
-ContinuousTicker.define({
-  num_minor_ticks:   [ p.Number, 5 ],
-  desired_num_ticks: [ p.Number, 6 ],
-})
+ContinuousTicker.initClass()

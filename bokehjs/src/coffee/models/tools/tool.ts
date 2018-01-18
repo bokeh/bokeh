@@ -41,6 +41,14 @@ export class ToolView extends View {
 
 export class Tool extends Model {
 
+  static initClass() {
+    this.prototype.type = "Tool"
+
+    this.internal({
+      active: [ p.Boolean, false ]
+    })
+  }
+
   active: boolean
   overlay?: Renderer
 
@@ -83,8 +91,4 @@ export class Tool extends Model {
   }
 }
 
-Tool.prototype.type = "Tool"
-
-Tool.internal({
-  active: [ p.Boolean, false ]
-})
+Tool.initClass()

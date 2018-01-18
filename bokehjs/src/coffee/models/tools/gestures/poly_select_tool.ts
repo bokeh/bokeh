@@ -108,6 +108,17 @@ const DEFAULT_POLY_OVERLAY = () => {
 
 export class PolySelectTool extends SelectTool {
 
+  static initClass() {
+    this.prototype.type = "PolySelectTool"
+
+    this.prototype.default_view = PolySelectToolView
+
+    this.define({
+      callback:   [ p.Instance                       ],
+      overlay:    [ p.Instance, DEFAULT_POLY_OVERLAY ],
+    })
+  }
+
   callback: any // XXX
   overlay: PolyAnnotation
 
@@ -117,11 +128,4 @@ export class PolySelectTool extends SelectTool {
   default_order = 11
 }
 
-PolySelectTool.prototype.type = "PolySelectTool"
-
-PolySelectTool.prototype.default_view = PolySelectToolView
-
-PolySelectTool.define({
-  callback:   [ p.Instance                       ],
-  overlay:    [ p.Instance, DEFAULT_POLY_OVERLAY ],
-})
+PolySelectTool.initClass()

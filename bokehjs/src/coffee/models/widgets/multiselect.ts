@@ -87,13 +87,17 @@ export class MultiSelectView extends InputWidgetView {
 }
 
 export class MultiSelect extends InputWidget {
+
+  static initClass() {
+    this.prototype.type = "MultiSelect"
+    this.prototype.default_view = MultiSelectView
+
+    this.define({
+      value:   [ p.Array, [] ],
+      options: [ p.Array, [] ],
+      size:    [ p.Number, 4 ], // 4 is the HTML default
+    })
+  }
 }
 
-MultiSelect.prototype.type = "MultiSelect"
-MultiSelect.prototype.default_view = MultiSelectView
-
-MultiSelect.define({
-  value:   [ p.Array, [] ],
-  options: [ p.Array, [] ],
-  size:    [ p.Number, 4 ], // 4 is the HTML default
-})
+MultiSelect.initClass()
