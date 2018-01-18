@@ -38,12 +38,15 @@ export class DaysTicker extends SingleIntervalTicker {
     this.define({
       days: [ p.Array, [] ],
     })
+
+    this.override({
+      num_minor_ticks: 0
+    })
   }
 
   days: number[]
 
   initialize(attrs: any, options: any): void {
-    attrs.num_minor_ticks = 0
     super.initialize(attrs, options)
     const days = this.days
     if (days.length > 1)
