@@ -45,9 +45,7 @@ export class PlotCanvasView extends DOMView {
   state_changed: Signal<void, this>
   renderer_views: {[key: string]: RendererView}
 
-  static initClass() {
-    this.prototype.state = { history: [], index: -1 };
-  }
+  state: {history: any[], index: number}
 
   css_classes(): string[] {
     return super.css_classes().concat("bk-plot-wrapper")
@@ -121,6 +119,8 @@ export class PlotCanvasView extends DOMView {
         height: this.model.canvas._height.value
       }
     };
+
+    this.state = {history: [], index: -1}
 
     // compat, to be removed
     this.frame = this.model.frame;
@@ -889,7 +889,6 @@ export class PlotCanvasView extends DOMView {
     }
   }
 }
-PlotCanvasView.initClass();
 
 class AbovePanel extends LayoutCanvas {
   static initClass() {
