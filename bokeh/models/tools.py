@@ -878,78 +878,174 @@ class DrawTool(Tool):
     """)
 
 
-class VertexEditTool(DrawTool):
-    ''' *toolbar icon*: |vertex_edit_icon|
+class BoxDrawTool(DrawTool):
+    ''' *toolbar icon*: |box_draw_icon|
 
-    The VertexEditTool allows editing the vertices of one or more
-    multi_line or patches glyphs. The glyphs to be edited can be
-    defined via the ``renderers`` property and the renderer for the
-    vertices can be defined via the ``point_renderer``.
+    The BoxDrawTool allows drawing, dragging and deleting rectangular
+    glyphs on one or more renderers by editing the underlying
+    ColumnDataSource data. Like other drawing tools, the renderers
+    that are to be edited must be supplied explicitly as a list. The
+    tool supports the following actions:
 
-    Double-tapping on any multi_line or patches glyph will reveal its
-    vertices, which can then be dragged, selected, and deleted.
+    * Add box: Click and hold the mouse button down, dragging the
+      mouse from the starting point to the end point then release the
+      button. This will define the two opposite corners of the
+      rectangle.
 
-    .. |vertex_edit_icon| image:: /_images/icons/VertexEdit.png
+    * Select box: Tap on an existing box. To select multiple hold
+      <<shift>> key while tapping.
+
+    * Move box: Click and hold the mouse button down over an existing
+      box then drag it and release the mouse to complete the
+      action. To move multiple boxes select them and hold <<shift>>
+      key while dragging one of them.
+
+    * Delete box: Select one or more boxes then press <<backspace>>
+      key to delete them.
+
+    .. note::
+        Any added boxes will always be inserted on the first listed
+        renderer.
+
+    .. |box_draw_icon| image:: /_images/icons/BoxDraw.png
         :height: 18pt
-
     '''
 
-    point_renderer = Instance(GlyphRenderer, help="""
-    The ColumnDataSource to be modified by the tool.
+    dimensions = Enum(Dimensions, default="both", help="""
+    Which dimensions the box drawing is to be free in. By default,
+    users may freely draw boxes with any dimensions. If only "width"
+    is supplied, the box will be constrained to span the entire
+    vertical space of the plot, only the horizontal dimension can be
+    controlled. If only "height" is supplied, the box will be
+    constrained to span the entire horizontal space of the plot, and
+    the vertical dimension can be controlled.
     """)
 
 
 class PointDrawTool(DrawTool):
     ''' *toolbar icon*: |point_draw_icon|
 
-    The PointDrawTool allows adding, dragging and deleting points
-    on one or more renderers.
+    The PointDrawTool allows adding, dragging and deleting point-like
+    glyphs on one or more renderers by editing the underlying
+    ColumnDataSource data. Like other drawing tools, the renderers
+    that are to be edited must be supplied explicitly as a list. The
+    tool supports the following actions:
+
+    * Add point: Tap anywhere on the plot.
+
+    * Select point: Tap on an existing point. To select multiple hold
+      <<shift>> key while tapping.
+
+    * Delete point: Select one or more points then press <<backspace>>
+      key to delete them.
+
+    * Move point: Click and hold the mouse down point, drag it, then
+      release the mouse to complete the action. To move multiple
+      points select them and hold <<shift>> key while dragging one of
+      them.
+
+    .. note::
+        Any added points will always be inserted on the first listed
+        renderer.
 
     .. |point_draw_icon| image:: /_images/icons/PointDraw.png
         :height: 18pt
     '''
 
-    add = Bool(default=True)
+    add = Bool(default=True, help="""
+    Enables adding of new points on tap events.""")
 
-    drag = Bool(default=True)
+    drag = Bool(default=True, help="""
+    Enables dragging of existing points on pan events.""")
 
 
 class PolyDrawTool(DrawTool):
     ''' *toolbar icon*: |poly_draw_icon|
 
-    The PolyDrawTool allows drawing and deleting polygons
+    The PolyDrawTool allows drawing, selecting and deleting polygons
+    and multi-line glyphs on one or more renderers by editing the
+    underlying ColumnDataSource data. Like other drawing tools, the
+    renderers that are to be edited must be supplied explicitly as a
+    list. The tool supports the following actions:
 
+    * Draw polygon/multi-line: Click and hold the mouse button then
+      drag the mouse to a new location and finalize the line by
+      releasing the mouse button. To add further vertices hold the
+      <<shift>> key and click and drag to another position.
+
+    * Select polygon/multi-line: Tap on an existing
+      polygon/multi-line. To select multiple hold <<shift>> key while
+      tapping.
+
+    * Add polygon/multi-line vertices: Select an existing
+      polygon/multi-line, hold <<shift>> key, then drag the mouse to a
+      new position, a new vertex will be inserted after the last
+      vertex on the selected polygon/multi-line.
+
+    * Delete polygon/multi-line: Select one or more
+      polygons/multi-lines then press <<backspace>> key to delete
+      them.
+
+    .. note::
+        Any added polygons or multi-lines will always be inserted on
+        the first listed renderer.
 
     .. |poly_draw_icon| image:: /_images/icons/PolygonDraw.png
         :height: 18pt
     '''
 
 
+class VertexEditTool(DrawTool):
+    ''' *toolbar icon*: |vertex_edit_icon|
 
-class LineEditTool(DrawTool):
-    ''' *toolbar icon*: |line_edit_icon|
+    The VertexEditTool allows editing the vertices of one or more
+    multi_line or patches glyphs. The glyphs to be edited can be
+    defined via the ``renderers`` property and the renderer for the
+    vertices can be defined via the ``vertex_renderer``. The
+    VertexEditTool has two modes:
 
+    1. When a particular line or polygon is selected by double tapping
+    it, its vertices will be rendered by the ``vertex_renderer``. In
+    this mode the vertices can be dragged, selected and deleted, and
+    new vertices may be inserted:
 
-    .. |line_edit_icon| image:: /_images/icons/LineEdit.png
+    * Add vertex: Tap on an existing vertex to select it then tap on
+      the position to insert the next point.
+
+    * Select vertex: Tap on a vertex, to select multiple hold
+      <<shift>> key.
+
+    * Delete vertex: Select one or more vertices then press backspace
+      to delete them.
+
+    * Move vertex: Click and hold vertex, drag it, then release the
+      mouse to complete the action. To move multiple vertices select
+      them and hold <<shift>> key while dragging one of them.
+
+    2. While no line or polygon is selected the lines and polygons as
+    a whole may be selected, dragged and deleted:
+
+    * Move line/polygon: Click and hold a line/polygon, drag it, then
+      release the mouse to complete the action. To move multiple
+      vertices, select them and hold <<shift>> while dragging one of
+      them.
+
+    * Select polygon/multi-line: Tap on an existing
+      polygon/multi-line. To select multiple hold <<shift>> key while
+      tapping.
+
+    * Delete line/polygon: Tap on an existing line/polygon (or select
+      them with a different tool) then press backspace to delete them.
+
+    To unselect a line or polygon double tap anywhere on the plot.
+
+    .. |vertex_edit_icon| image:: /_images/icons/VertexEdit.png
         :height: 18pt
     '''
 
+    drag = Bool(default=True, help="""
+    Enables dragging of lines and polygons.""")
 
-class BoxDrawTool(DrawTool):
-    ''' *toolbar icon*: |box_draw_icon|
-
-
-    .. |box_draw_icon| image:: /_images/icons/BoxDraw.png
-        :height: 18pt
-    '''
-
-
-    dimensions = Enum(Dimensions, default="both", help="""
-    Which dimensions the box drawing is to be free in. By default,
-    users may freely draw selections boxes with any dimensions. If only
-    "width" is supplied, the box will be constrained to span the entire
-    vertical space of the plot, only the horizontal dimension can be
-    controlled. If only "height" is supplied, the box will be constrained
-    to span the entire horizontal space of the plot, and the vertical
-    dimension can be controlled.
-    """)
+    vertex_renderer = Instance(GlyphRenderer, help="""
+    The renderer used to render the vertices of a selected line or
+    polygon.""")
