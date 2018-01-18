@@ -1,6 +1,6 @@
 import * as p from "core/properties"
 import {GlyphRenderer} from "models/renderers/glyph_renderer"
-import {DrawTool, DrawToolView} from "./draw_tool"
+import {EditTool, EditToolView} from "./edit_tool"
 
 export interface BkEv {
   bokeh: {
@@ -14,7 +14,7 @@ export interface BkEv {
   timeStamp: number
 }
 
-export class VertexEditToolView extends DrawToolView {
+export class VertexEditToolView extends EditToolView {
   model: VertexEditTool
   _selected_renderer: GlyphRenderer | null
   _basepoint: [number, number] | null
@@ -194,7 +194,7 @@ export class VertexEditToolView extends DrawToolView {
   }
 }
 
-export class VertexEditTool extends DrawTool {
+export class VertexEditTool extends EditTool {
   vertex_renderer: GlyphRenderer
   drag: boolean
 
@@ -209,6 +209,6 @@ VertexEditTool.prototype.type = "VertexEditTool"
 VertexEditTool.prototype.default_view = VertexEditToolView
 
 VertexEditTool.define({
-  drag: p.Bool,
+  drag: [ p.Bool ],
   vertex_renderer: [ p.Instance ],
 })

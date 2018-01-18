@@ -1,6 +1,6 @@
 import {Dimensions} from "core/enums"
 import * as p from "core/properties"
-import {DrawTool, DrawToolView} from "./draw_tool"
+import {EditTool, EditToolView} from "./edit_tool"
 
 export interface BkEv {
   bokeh: {
@@ -15,7 +15,7 @@ export interface BkEv {
 }
 
 
-export class BoxDrawToolView extends DrawToolView {
+export class BoxDrawToolView extends EditToolView {
   model: BoxDrawTool
   _basepoint: [number, number] | null
 
@@ -70,7 +70,7 @@ export class BoxDrawToolView extends DrawToolView {
 }
 
 
-export class BoxDrawTool extends DrawTool {
+export class BoxDrawTool extends EditTool {
   dimensions: Dimensions
 
   tool_name = "Box Draw Tool"

@@ -27,7 +27,7 @@ from ..core.enums import (Anchor, Dimension, Dimensions, Location,
 from ..core.has_props import abstract
 from ..core.properties import (
     Auto, Bool, Color, Dict, Either, Enum, Float, Percent, Instance, List,
-    Seq, String, Tuple
+    Seq, String, Tuple, Int, Date, Datetime, Color
 )
 from ..model import Model
 from ..util.deprecation import deprecated
@@ -867,18 +867,26 @@ class RedoTool(Action):
     '''
 
 @abstract
-class DrawTool(Tool):
+class EditTool(Tool):
     ''' A base class for all interactive draw tool types.
 
     '''
+
+    empty_value = Either(Bool, Int, Float, Date, Datetime, Color,
+                         default=float('nan'), help="""
+    Defines the value to insert on non-coordinate columns when a new
+    glyph is inserted into the ColumnDataSource columns, e.g. when a
+    circle glyph defines 'x', 'y' and 'color' columns, adding a new
+    point will add the x and y-coordinates to 'x' and 'y' columns and
+    the color column will be filled with the defined empty value.
+    """)
 
     renderers = List(Instance(Renderer), help="""
     An explicit list of renderers corresponding to scatter glyphs
     that may be edited.
     """)
 
-
-class BoxDrawTool(DrawTool):
+class BoxDrawTool(EditTool):
     ''' *toolbar icon*: |box_draw_icon|
 
     The BoxDrawTool allows drawing, dragging and deleting rectangular
@@ -890,7 +898,7 @@ class BoxDrawTool(DrawTool):
     * Add box: Click and hold the mouse button down, dragging the
       mouse from the starting point to the end point then release the
       button. This will define the two opposite corners of the
-      rectangle.
+      rectangle. The x- and y-coordinates will be
 
     * Select box: Tap on an existing box. To select multiple hold
       <<shift>> key while tapping.
@@ -921,8 +929,7 @@ class BoxDrawTool(DrawTool):
     the vertical dimension can be controlled.
     """)
 
-
-class PointDrawTool(DrawTool):
+class PointDrawTool(EditTool):
     ''' *toolbar icon*: |point_draw_icon|
 
     The PointDrawTool allows adding, dragging and deleting point-like
@@ -958,8 +965,7 @@ class PointDrawTool(DrawTool):
     drag = Bool(default=True, help="""
     Enables dragging of existing points on pan events.""")
 
-
-class PolyDrawTool(DrawTool):
+class PolyDrawTool(EditTool):
     ''' *toolbar icon*: |poly_draw_icon|
 
     The PolyDrawTool allows drawing, selecting and deleting polygons
@@ -994,8 +1000,7 @@ class PolyDrawTool(DrawTool):
         :height: 18pt
     '''
 
-
-class VertexEditTool(DrawTool):
+class VertexEditTool(EditTool):
     ''' *toolbar icon*: |vertex_edit_icon|
 
     The VertexEditTool allows editing the vertices of one or more

@@ -1,4 +1,4 @@
-import {DrawTool, DrawToolView} from "./draw_tool"
+import {EditTool, EditToolView} from "./edit_tool"
 
 export interface BkEv {
   bokeh: {
@@ -12,7 +12,7 @@ export interface BkEv {
   timeStamp: number
 }
 
-export class PolyDrawToolView extends DrawToolView {
+export class PolyDrawToolView extends EditToolView {
   model: PolyDrawTool
 
   _tap(e: BkEv): void {
@@ -53,6 +53,7 @@ export class PolyDrawToolView extends DrawToolView {
     } else {
       ds.data[xkey].push([x, x]);
       ds.data[ykey].push([y, y]);
+      this._pad_empty_columns(ds, xkey, ykey);
     }
     ds.change.emit(undefined);
     ds.properties.data.change.emit(undefined);
@@ -86,7 +87,7 @@ export class PolyDrawToolView extends DrawToolView {
 }
 
 
-export class PolyDrawTool extends DrawTool {
+export class PolyDrawTool extends EditTool {
   tool_name = "Polygon Draw Tool"
   icon = "bk-tool-icon-polygon-draw"
   event_type = ["pan", "tap"]

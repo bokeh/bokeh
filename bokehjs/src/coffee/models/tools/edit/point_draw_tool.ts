@@ -1,5 +1,5 @@
 import * as p from "core/properties"
-import {DrawTool, DrawToolView} from "./draw_tool"
+import {EditTool, EditToolView} from "./edit_tool"
 
 export interface BkEv {
   bokeh: {
@@ -13,7 +13,7 @@ export interface BkEv {
   timeStamp: number
 }
 
-export class PointDrawView extends DrawToolView {
+export class PointDrawToolView extends EditToolView {
   model: PointDrawTool
   _basepoint: [number, number] | null
 
@@ -24,43 +24,34 @@ export class PointDrawView extends DrawToolView {
       return
     }
 
-    // Convert typed arrays to regular arrays for manipulation
-    for (const renderer of this.model.renderers) {
-      const point = this._map_drag(e.bokeh.sx, e.bokeh.sy, renderer);
-      if (point == null) {
-        continue;
-      }
-      const glyph = renderer.glyph
-      const ds = renderer.data_source;
-      let [xkey, ykey] = Object.getPrototypeOf(glyph)._coords[0];
-      [xkey, ykey] = [glyph.attributes[xkey].field, glyph.attributes[ykey].field];
-      let xs = ds.data[xkey];
-      let ys = ds.data[ykey];
-      if ((xs.concat == null)) {
-        ds.data[xkey] = (xs = Array.prototype.slice.call(xs));
-      }
-      if ((ys.concat == null)) {
-        ds.data[ykey] = (ys = Array.prototype.slice.call(ys));
-      }
-      // Pad columns other than those containing x and y values with NaNs
-      for (let k in ds.data) {
-        let v = ds.data[k];
-        if (k !== xkey && k !== ykey) {
-          if ((v.push == null)) {
-            ds.data[k] = (v = Array.prototype.slice.call(v));
-          }
-          v.push(NaN);
-        }
-      }
-
-      // Add x- and y-values into column arrays
-      const [x, y] = point;
-      xs.push(x);
-      ys.push(y);
-
-      ds.change.emit(undefined);
-      ds.properties.data.change.emit(undefined);
+    const renderer = this.model.renderers[0];
+    const point = this._map_drag(e.bokeh.sx, e.bokeh.sy, renderer);
+    if (point == null) {
+      return;
     }
+    const glyph = renderer.glyph
+    const ds = renderer.data_source;
+    let [xkey, ykey] = Object.getPrototypeOf(glyph)._coords[0];
+    [xkey, ykey] = [glyph.attributes[xkey].field, glyph.attributes[ykey].field];
+
+    // Convert typed arrays to regular arrays for easy manipulation
+    let xs = ds.data[xkey];
+    let ys = ds.data[ykey];
+    if ((xs.concat == null)) {
+      ds.data[xkey] = (xs = Array.prototype.slice.call(xs));
+    }
+    if ((ys.concat == null)) {
+      ds.data[ykey] = (ys = Array.prototype.slice.call(ys));
+    }
+    this._pad_empty_columns(ds, xkey, ykey);
+
+    // Add x- and y-values into column arrays
+    const [x, y] = point;
+    xs.push(x);
+    ys.push(y);
+
+    ds.change.emit(undefined);
+    ds.properties.data.change.emit(undefined);
   }
 
   _keyup(e: BkEv): void {
@@ -72,7 +63,6 @@ export class PointDrawView extends DrawToolView {
   }
 
   _pan_start(e: BkEv): void {
-    // Perform hit testing
     if (this.model.drag) {
       const append = e.srcEvent.shiftKey != null ? e.srcEvent.shiftKey : false;
       this._select_event(e, append, this.model.renderers);
@@ -120,7 +110,7 @@ export class PointDrawView extends DrawToolView {
 }
 
 
-export class PointDrawTool extends DrawTool {
+export class PointDrawTool extends EditTool {
   add: boolean
   drag: boolean
 
@@ -132,7 +122,7 @@ export class PointDrawTool extends DrawTool {
 
 PointDrawTool.prototype.type = "PointDrawTool"
 
-PointDrawTool.prototype.default_view = PointDrawView
+PointDrawTool.prototype.default_view = PointDrawToolView
 
 PointDrawTool.define({
   add:  [ p.Bool, true ],

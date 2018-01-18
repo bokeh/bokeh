@@ -1,5 +1,6 @@
 import * as p from "core/properties"
 import {PointGeometry} from "core/geometry"
+import {ColumnDataSource} from "models/sources/column_data_source"
 import {GlyphRenderer} from "models/renderers/glyph_renderer"
 import {GestureTool, GestureToolView} from "../gestures/gesture_tool"
 
@@ -15,11 +16,11 @@ export interface BkEv {
   timeStamp: number
 }
 
-export abstract class DrawToolView extends GestureToolView {
-  model: DrawTool
+export abstract class EditToolView extends GestureToolView {
+  model: EditTool
 
-  // this is executed when the pan/drag event starts
   _map_drag(sx: number[], sy: number[], renderer: GlyphRenderer): [number, number] | null {
+    // Maps screen to data coordinates
     const frame = this.plot_model.frame;
     if (!frame.bbox.contains(sx, sy)) {
       return null;
@@ -30,6 +31,7 @@ export abstract class DrawToolView extends GestureToolView {
   }
 
   _delete_selected(renderer: GlyphRenderer): void {
+    // Deletes all selected indexes on the renderer
     const ds = renderer.data_source;
     const glyph = renderer.glyph;
     const indices = ds.selected['1d'].indices;
@@ -47,7 +49,21 @@ export abstract class DrawToolView extends GestureToolView {
     ds.properties.selected.change.emit(undefined);
   }
 
+  _pad_empty_columns(cds: ColumnDataSource, xkey: string, ykey: string): void {
+    // Pad columns other than those containing x and y values with empty values
+    for (let k in cds.data) {
+      let v = cds.data[k];
+      if (k !== xkey && k !== ykey) {
+        if ((v.push == null)) {
+          cds.data[k] = (v = Array.prototype.slice.call(v));
+        }
+        v.push(this.model.empty_value);
+      }
+    }
+  }
+
   _select_event(e: BkEv, append: boolean, renderers: GlyphRenderer[]): GlyphRenderer[] {
+	// Process selection event on the supplied renderers and return selected renderers
     const frame = this.plot_model.frame;
     const {sx, sy} = e.bokeh;
     if (!frame.bbox.contains(sx, sy)) {
@@ -71,14 +87,16 @@ export abstract class DrawToolView extends GestureToolView {
   }
 }
 
-export abstract class DrawTool extends GestureTool {
+export abstract class EditTool extends GestureTool {
+  empty_value: any
   renderers: GlyphRenderer[]
 }
 
-DrawTool.prototype.type = "DrawTool"
+EditTool.prototype.type = "EditTool"
 
-// DrawTool.prototype.default_view = null
+// EditTool.prototype.default_view = null
 
-DrawTool.define({
-  renderers: [ p.Array, [] ]
+EditTool.define({
+  empty_value: [ p.Any ],
+  renderers:   [ p.Array, [] ]
 })
