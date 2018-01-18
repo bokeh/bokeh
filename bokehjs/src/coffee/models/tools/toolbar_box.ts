@@ -168,9 +168,6 @@ export class ProxyToolbar extends ToolbarBase {
 ProxyToolbar.initClass();
 
 export class ToolbarBoxView extends LayoutDOMView {
-  static initClass() {
-    this.prototype.className = 'bk-toolbar-box';
-  }
 
   initialize(options: any): void {
     super.initialize(options);
@@ -182,6 +179,10 @@ export class ToolbarBoxView extends LayoutDOMView {
   remove(): void {
     remove_views(this._toolbar_views);
     super.remove();
+  }
+
+  css_classes(): string[] {
+    return super.css_classes().concat("bk-toolbar-box")
   }
 
   render(): void {
@@ -202,7 +203,6 @@ export class ToolbarBoxView extends LayoutDOMView {
     if (this.model.toolbar.horizontal) { return 30; } else { return null; }
   }
 }
-ToolbarBoxView.initClass();
 
 export class ToolbarBox extends LayoutDOM {
   static initClass() {

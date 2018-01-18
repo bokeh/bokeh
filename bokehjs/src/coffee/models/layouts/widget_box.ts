@@ -12,6 +12,10 @@ export class WidgetBoxView extends LayoutDOMView {
     this.connect(this.model.properties.children.change, () => this.rebuild_child_views())
   }
 
+  css_classes(): string[] {
+    return super.css_classes().concat("bk-widget-box")
+  }
+
   render(): void {
     this._render_classes() // XXX: because no super()
 
@@ -79,8 +83,6 @@ export class WidgetBoxView extends LayoutDOMView {
     }
   }
 }
-
-WidgetBoxView.prototype.className = "bk-widget-box"
 
 export class WidgetBox extends LayoutDOM {
 

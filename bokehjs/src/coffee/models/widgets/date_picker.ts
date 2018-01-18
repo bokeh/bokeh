@@ -47,6 +47,10 @@ export class DatePickerView extends InputWidgetView {
 
   protected _picker: Pikaday
 
+  css_classes(): string[] {
+    return super.css_classes().concat("bk-widget-form-group")
+  }
+
   render(): void {
     super.render()
 
@@ -82,8 +86,6 @@ export class DatePickerView extends InputWidgetView {
     this.change_input()
   }
 }
-
-DatePickerView.prototype.className = "bk-widget-form-group"
 
 export class DatePicker extends InputWidget {
   value:    string

@@ -36,6 +36,10 @@ export class PlotView extends LayoutDOMView {
     this.connect(this.model.properties.title.change, () => logger.warn(title_msg))
   }
 
+  css_classes(): string[] {
+    return super.css_classes().concat("bk-plot-layout")
+  }
+
   get_height(): number {
     return this.model._width.value / this.model.get_aspect_ratio()
   }
@@ -53,8 +57,6 @@ export class PlotView extends LayoutDOMView {
     return (this.child_views[this.model.plot_canvas.id] as any) as PlotCanvasView
   }
 }
-
-PlotView.prototype.className = "bk-plot-layout"
 
 export class Plot extends LayoutDOM {
 

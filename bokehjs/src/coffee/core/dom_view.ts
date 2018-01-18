@@ -5,7 +5,6 @@ import * as DOM from "./dom"
 export class DOMView extends View {
 
   tagName: keyof HTMLElementTagNameMap
-  className: string | null
 
   protected _has_finished: boolean
 
@@ -22,6 +21,10 @@ export class DOMView extends View {
   remove(): void {
     DOM.removeElement(this.el)
     super.remove()
+  }
+
+  css_classes(): string[] {
+    return []
   }
 
   layout(): void {}
@@ -54,9 +57,8 @@ export class DOMView extends View {
   }
 
   protected _createElement(): HTMLElement {
-    return DOM.createElement(this.tagName, {id: this.id, class: this.className})
+    return DOM.createElement(this.tagName, {id: this.id, class: this.css_classes()})
   }
 }
 
 DOMView.prototype.tagName = "div"
-DOMView.prototype.className = null

@@ -19,6 +19,10 @@ export abstract class ButtonToolButtonView extends DOMView {
     this.render()
   }
 
+  css_classes(): string[] {
+    return super.css_classes().concat("bk-toolbar-button")
+  }
+
   render(): void {
     empty(this.el)
     this.el.classList.add(this.model.icon)
@@ -27,8 +31,6 @@ export abstract class ButtonToolButtonView extends DOMView {
 
   protected abstract _clicked(): void
 }
-
-ButtonToolButtonView.prototype.className = "bk-toolbar-button"
 
 export abstract class ButtonToolView extends ToolView {
   model: ButtonTool

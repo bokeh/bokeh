@@ -9,8 +9,6 @@ import {DTINDEX_NAME} from "./data_table"
 
 export class CellEditorView extends DOMView {
   static initClass() {
-    this.prototype.className = "bk-cell-editor";
-
     this.prototype.inputEl = null;
 
     this.prototype.emptyValue = null;
@@ -25,6 +23,10 @@ export class CellEditorView extends DOMView {
     super.initialize(options);
     this.args = options;
     return this.render();
+  }
+
+  css_classes(): string[] {
+    return super.css_classes().concat("bk-cell-editor")
   }
 
   render() {

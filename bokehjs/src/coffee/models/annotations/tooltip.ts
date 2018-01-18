@@ -19,9 +19,6 @@ export const compute_side = function(attachment, sx, sy, hcenter, vcenter) {
 };
 
 export class TooltipView extends AnnotationView {
-  static initClass() {
-    this.prototype.className = "bk-tooltip";
-  }
 
   initialize(options: any): void {
     super.initialize(options);
@@ -34,6 +31,10 @@ export class TooltipView extends AnnotationView {
   connect_signals(): void {
     super.connect_signals();
     this.connect(this.model.properties.data.change, () => this._draw_tips())
+  }
+
+  css_classes(): string[] {
+    return super.css_classes().concat("bk-tooltip")
   }
 
   render() {
@@ -122,7 +123,6 @@ export class TooltipView extends AnnotationView {
     }
   }
 }
-TooltipView.initClass();
 
 export class Tooltip extends Annotation {
   static initClass() {
