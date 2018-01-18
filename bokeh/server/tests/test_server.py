@@ -296,6 +296,44 @@ def test__no_request_arguments_in_session_context():
         # should be empty
         assert len(session_context.request.arguments) == 0
 
+def test__request_in_session_context_has_path_args():
+    application = Application()
+    regex = '/foo/([^/]+)/([^/]+)'
+    with ManagedServerLoop({regex: application}) as server:
+        response = http_get(server.io_loop,
+                            url(server) + "foo/bar/app")
+        html = response.body
+        sessionid = extract_sessionid_from_json(html)
+
+        server_session = server.get_session(regex, sessionid)
+        server_doc = server_session.document
+        session_context = server_doc.session_context
+        # test if we can get path args from the context
+        assert session_context.path_args == ['bar', 'app']
+        # the path_kwargs should be empty when no named capturing groups are defined
+        # in the pattern regex
+        assert len(session_context.path_kwargs) == 0
+
+def test__request_in_session_context_has_path_kwargs():
+    application = Application()
+    regex = '/foo/(?P<arg1>[^/]+)/(?P<arg2>[^/]+)'
+    with ManagedServerLoop({regex: application}) as server:
+        response = http_get(server.io_loop,
+                            url(server) + "foo/bar/app")
+        html = response.body
+        sessionid = extract_sessionid_from_json(html)
+
+        server_session = server.get_session(regex, sessionid)
+        server_doc = server_session.document
+        session_context = server_doc.session_context
+        # test if we can get named path args from the context
+        assert len(session_context.path_kwargs) == 2
+        assert session_context.path_kwargs['arg1'] == 'bar'
+        assert session_context.path_kwargs['arg2'] == 'app'
+        # the path_args should be empty when no unnamed capturing groups are defined
+        # in the pattern regex
+        assert len(session_context.path_args) == 0
+
 # examples:
 # "sessionid" : "NzlNoPfEYJahnPljE34xI0a5RSTaU1Aq1Cx5"
 # 'sessionid':'NzlNoPfEYJahnPljE34xI0a5RSTaU1Aq1Cx5'

@@ -16,22 +16,14 @@ from ..protocol.exceptions import ProtocolError
 from ..util.tornado import _CallbackGroup, yield_for_all_futures
 
 class _RequestProxy(object):
-    def __init__(self, handler):
-        args_copy = dict(handler.request.arguments)
+    def __init__(self, request):
+        args_copy = dict(request.arguments)
         if 'bokeh-protocol-version' in args_copy: del args_copy['bokeh-protocol-version']
         if 'bokeh-session-id' in args_copy: del args_copy['bokeh-session-id']
         self._args = args_copy
-        self._path_args = dict(handler.path_args)
-        self._path_kwargs = dict(handler.path_kwargs)
     @property
     def arguments(self):
         return self._args
-    @property
-    def path_args(self):
-        return self._path_args
-    @property
-    def path_kwargs(self):
-        return self._path_kwargs
 
 class BokehServerContext(ServerContext):
     def __init__(self, application_context):
@@ -74,6 +66,8 @@ class BokehSessionContext(SessionContext):
                                                   session_id)
         # request arguments used to instantiate this session
         self._request = None
+        self._path_args = None
+        self._path_kwargs = None
 
     def _set_session(self, session):
         self._session = session
@@ -98,6 +92,14 @@ class BokehSessionContext(SessionContext):
     @property
     def request(self):
         return self._request
+
+    @property
+    def path_args(self):
+        return self._path_args
+
+    @property
+    def path_kwargs(self):
+        return self._path_kwargs
 
 
 class ApplicationContext(object):
@@ -175,7 +177,9 @@ class ApplicationContext(object):
                                                   self.server_context,
                                                   doc)
             # using private attr so users only have access to a read-only property
-            session_context._request = _RequestProxy(handler)
+            session_context._request = _RequestProxy(handler.request)
+            session_context._path_args = handler.path_args
+            session_context._path_kwargs = handler.path_kwargs
 
             # expose the session context to the document
             # use the _attribute to set the public property .session_context
