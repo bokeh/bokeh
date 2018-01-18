@@ -76,6 +76,7 @@ export const
   select   = _createElement("select"),
   option   = _createElement("option"),
   optgroup = _createElement("optgroup"),
+  textarea = _createElement("textarea"),
   canvas   = _createElement("canvas"),
   ul       = _createElement("ul"),
   ol       = _createElement("ol"),
