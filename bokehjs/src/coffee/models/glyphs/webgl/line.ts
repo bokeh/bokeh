@@ -45,7 +45,7 @@ class DashAtlas {
     }
     // Period is sum of elements
     let period = 0;
-    for (let v of pattern) {
+    for (const v of pattern) {
        period += v;
     }
     // Find all start and end of on-segment only

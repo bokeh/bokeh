@@ -49,7 +49,7 @@ export class ToolbarBaseView extends DOMView {
     const bars = [];
 
     const { gestures } = this.model;
-    for (let et in gestures) {
+    for (const et in gestures) {
       buttons = [];
       for (tool of gestures[et].tools) {
         buttons.push(this._tool_button_views[tool.id].el);
@@ -135,7 +135,7 @@ export class ToolbarBase extends Model {
       event_types = [event_types];
     }
 
-    for (let et of event_types) {
+    for (const et of event_types) {
       if (tool.active) {
         const currently_active_tool = this.gestures[et].active;
         if ((currently_active_tool != null) && (tool !== currently_active_tool)) {

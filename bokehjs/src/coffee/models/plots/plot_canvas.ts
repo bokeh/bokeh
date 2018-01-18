@@ -138,7 +138,7 @@ export class PlotCanvasView extends DOMView {
     this.ui_event_bus = new UIEvents(this, this.model.toolbar, this.canvas_view.el, this.model.plot);
 
     this.levels = {};
-    for (let level of enums.RenderLevel) {
+    for (const level of enums.RenderLevel) {
       this.levels[level] = {};
     }
 
@@ -235,7 +235,7 @@ export class PlotCanvasView extends DOMView {
       }
     }
 
-    for (let k in this.renderer_views) {
+    for (const k in this.renderer_views) {
       const v = this.renderer_views[k];
       const bds = __guardMethod__(v.glyph, 'bounds', o => o.bounds());
       if (bds != null) {
@@ -350,7 +350,7 @@ export class PlotCanvasView extends DOMView {
 
   get_selection() {
     const selection = {};
-    for (let renderer of this.model.plot.renderers) {
+    for (const renderer of this.model.plot.renderers) {
       if (renderer instanceof GlyphRenderer) {
         const { selected } = renderer.data_source;
         selection[renderer.id] = selected;
@@ -360,7 +360,7 @@ export class PlotCanvasView extends DOMView {
   }
 
   update_selection(selection) {
-    for (let renderer of this.model.plot.renderers) {
+    for (const renderer of this.model.plot.renderers) {
       if (!(renderer instanceof GlyphRenderer)) {
         continue;
       }
@@ -551,11 +551,11 @@ export class PlotCanvasView extends DOMView {
     const new_renderer_views = build_views(this.renderer_views, renderer_models, this.view_options());
     const renderers_to_remove = difference(old_renderers, renderer_models.map((model) => model.id))
 
-    for (let id_ of renderers_to_remove) {
+    for (const id_ of renderers_to_remove) {
       delete this.levels.glyph[id_];
     }
 
-    for (let view of new_renderer_views) {
+    for (const view of new_renderer_views) {
       this.levels[view.model.level][view.model.id] = view;
     }
 
@@ -630,7 +630,7 @@ export class PlotCanvasView extends DOMView {
     this.solver.suggest_value(this.frame._width, this.canvas._width.value);
     this.solver.suggest_value(this.frame._height, this.canvas._height.value);
 
-    for (let _ in this.renderer_views) {
+    for (const _ in this.renderer_views) {
       const view = this.renderer_views[_];
       if (view.model.panel != null) {
         update_panel_constraints(view);
@@ -698,7 +698,7 @@ export class PlotCanvasView extends DOMView {
   }
 
   _needs_layout() {
-    for (let _ in this.renderer_views) {
+    for (const _ in this.renderer_views) {
       const view = this.renderer_views[_];
       if (view.model.panel != null) {
         if (_view_sizes.get(view) !== view.get_size()) {
@@ -746,7 +746,7 @@ export class PlotCanvasView extends DOMView {
       }
     }
 
-    for (let k in this.renderer_views) {
+    for (const k in this.renderer_views) {
       const v = this.renderer_views[k];
       if ((this.range_update_timestamp == null) || (v.set_data_timestamp > this.range_update_timestamp)) {
         this.update_dataranges();
@@ -830,10 +830,10 @@ export class PlotCanvasView extends DOMView {
 
     const sortKey = renderer_view => indices[renderer_view.model.id];
 
-    for (let level of levels) {
+    for (const level of levels) {
       const renderer_views = sortBy(values(this.levels[level]), sortKey);
 
-      for (let renderer_view of renderer_views) {
+      for (const renderer_view of renderer_views) {
         renderer_view.render();
       }
     }
@@ -987,7 +987,7 @@ export class PlotCanvas extends LayoutDOM {
     ];
 
     const collect_panels = (layout_renderers) => {
-      for (let r of layout_renderers) {
+      for (const r of layout_renderers) {
         if (r.panel != null)
           children.push(r.panel)
       }

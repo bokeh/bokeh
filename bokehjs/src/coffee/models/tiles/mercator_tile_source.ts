@@ -53,7 +53,7 @@ export class MercatorTileSource extends TileSource {
     const { quadkey } = reference_tile;
     const min_zoom = quadkey.length;
     const max_zoom = min_zoom + 3;
-    for (let key in this.tiles) {
+    for (const key in this.tiles) {
       const tile = this.tiles[key];
       if ((tile.quadkey.indexOf(quadkey) === 0) && (tile.quadkey.length > min_zoom) && (tile.quadkey.length <= max_zoom)) {
         tile.retain = true;
@@ -67,7 +67,7 @@ export class MercatorTileSource extends TileSource {
     const neighbor_x = (range(tx - neighbor_radius, tx + neighbor_radius+1));
     const neighbor_y = (range(ty - neighbor_radius, ty + neighbor_radius+1));
 
-    for (let key in this.tiles) {
+    for (const key in this.tiles) {
       const tile = this.tiles[key];
       if (tile.tile_coords[2] === tz && includes(neighbor_x, tile.tile_coords[0])
                                      && includes(neighbor_y, tile.tile_coords[1])) {
@@ -78,7 +78,7 @@ export class MercatorTileSource extends TileSource {
 
   retain_parents(reference_tile) {
     const { quadkey } = reference_tile;
-    for (let key in this.tiles) {
+    for (const key in this.tiles) {
       const tile = this.tiles[key];
       tile.retain = quadkey.indexOf(tile.quadkey) === 0;
     }
@@ -105,7 +105,7 @@ export class MercatorTileSource extends TileSource {
     const y_rs = (extent[3] - extent[1]) / height;
     const resolution = Math.max(x_rs, y_rs);
     let i = 0;
-    for (let r of this._resolutions) {
+    for (const r of this._resolutions) {
       if (resolution > r) {
         if (i === 0) { return 0; }
         if (i > 0) { return i - 1; }

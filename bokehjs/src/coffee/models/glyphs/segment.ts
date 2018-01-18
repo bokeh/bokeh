@@ -24,7 +24,7 @@ export class SegmentView extends GlyphView {
 
   _render(ctx, indices, {sx0, sy0, sx1, sy1}) {
     if (this.visuals.line.doit) {
-      for (let i of indices) {
+      for (const i of indices) {
         if (isNaN(sx0[i]+sy0[i]+sx1[i]+sy1[i])) {
           continue;
         }
@@ -50,7 +50,7 @@ export class SegmentView extends GlyphView {
     const [minY, maxY] = this.renderer.yscale.r_invert(sy-lw_voffset, sy+lw_voffset);
     const candidates = this.index.indices({minX, minY, maxX, maxY});
 
-    for (let i of candidates) {
+    for (const i of candidates) {
       const threshold2 = Math.pow(Math.max(2, this.visuals.line.cache_select('line_width', i) / 2), 2);
       const [p0, p1] = [{x: this.sx0[i], y: this.sy0[i]}, {x: this.sx1[i], y: this.sy1[i]}];
       const dist2 = hittest.dist_to_segment_squared(point, p0, p1);
@@ -83,7 +83,7 @@ export class SegmentView extends GlyphView {
     const [minY, maxY] = this.renderer.yscale.r_invert(vr.start, vr.end);
     const candidates = this.index.indices({minX, minY, maxX, maxY});
 
-    for (let i of candidates) {
+    for (const i of candidates) {
       if ((v0[i]<=val && val<=v1[i]) || (v1[i]<=val && val<=v0[i])) {
         hits.push(i);
       }

@@ -156,7 +156,7 @@ export class TileRendererView extends RendererView {
       return false;
     }
 
-    for (let tile of this._tiles) {
+    for (const tile of this._tiles) {
       if (!tile.tile_data.finished) {
         return false;
       }
@@ -219,7 +219,7 @@ export class TileRendererView extends RendererView {
     this.map_canvas.save();
     this._set_rect();
     this.map_canvas.globalAlpha = this.model.alpha;
-    for (let tile_key of tile_keys) {
+    for (const tile_key of tile_keys) {
       this._draw_tile(tile_key);
     }
     return this.map_canvas.restore();
@@ -235,7 +235,7 @@ export class TileRendererView extends RendererView {
     for (let t = 0, end = Math.min(10, tiles.length); t <= end; t++) {
       const [x, y, z,] = t;
       const children = this.model.tile_source.children_by_tile_xyz(x, y, z);
-      for (let c of children) {
+      for (const c of children) {
         const [cx, cy, cz, cbounds] = c;
         if (tile_source.tile_xyz_to_key(cx, cy, cz) in tile_source.tiles) {
           continue;
@@ -247,7 +247,7 @@ export class TileRendererView extends RendererView {
   }
 
   _fetch_tiles(tiles) {
-    for (let t of tiles) {
+    for (const t of tiles) {
       const [x, y, z, bounds] = t;
       this._create_tile(x, y, z, bounds);
     }
@@ -307,7 +307,7 @@ export class TileRendererView extends RendererView {
           }
           if (zooming_out) {
             children = tile_source.children_by_tile_xyz(x, y, z);
-            for (let c of children) {
+            for (const c of children) {
               const [cx, cy, cz,] = c;
               const child_key = tile_source.tile_xyz_to_key(cx, cy, cz);
 

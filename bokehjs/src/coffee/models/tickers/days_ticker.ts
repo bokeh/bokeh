@@ -15,7 +15,7 @@ function date_range_by_month(start_time: number, end_time: number): Date[] {
   end_date.setUTCMonth(end_date.getUTCMonth() + 1)
 
   const dates = []
-  let date = start_date
+  const date = start_date
   while (true) {
     dates.push(copy_date(date))
 

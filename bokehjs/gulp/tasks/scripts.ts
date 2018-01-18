@@ -15,6 +15,7 @@ const merge = require("merge2")
 const license = `/*!\n${fs.readFileSync('../LICENSE.txt', 'utf-8')}*/\n`
 
 const ts = require('gulp-typescript')
+const tslint = require('gulp-tslint')
 
 const minify = uglify(uglify_es, console)
 
@@ -31,7 +32,7 @@ function is_excluded(code: number): boolean {
     2531, 2532, 2538, 2551,
     2683,
     4025,
-    7006, 7009, 7010, 7016, 7017, 7019, 7030, 7031,
+    7006, 7010, 7016, 7017, 7019, 7030, 7031,
   ]
   return excluded.includes(code)
 }
@@ -68,9 +69,6 @@ gulp.task("scripts:ts", () => {
     compilerOptions.lib[0] = "es6"
   }
 
-  if (argv.checkJs)
-    compilerOptions.checkJs = true
-
   const project = gulp
     .src(join(paths.src_dir.coffee, "**", "*.ts"))
     .pipe(sourcemaps.init())
@@ -87,6 +85,13 @@ gulp.task("scripts:ts", () => {
     fs.writeFileSync(join(paths.build_dir.js, "ts.log"), errors.join("\n"))
   })
   return result
+})
+
+gulp.task("scripts:tslint", () => {
+  return gulp
+    .src(join(paths.src_dir.coffee, "**", "*.ts"))
+    .pipe(tslint({formatter: "verbose"}))
+    .pipe(tslint.report({emitError: false}))
 })
 
 gulp.task("scripts:compile", ["scripts:ts"])

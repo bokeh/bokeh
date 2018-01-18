@@ -166,7 +166,7 @@ export class DatetimeTickFormatter extends TickFormatter {
     // a problem with the tick at midnight, january 1st, 0 a.d. being incorrectly
     // promoted at certain tick resolutions.
     const time_tuple_ndx_for_resol = {};
-    for (let fmt of this.format_order) {
+    for (const fmt of this.format_order) {
       time_tuple_ndx_for_resol[fmt] = 0;
     }
     time_tuple_ndx_for_resol["seconds"] = 5;
@@ -180,7 +180,7 @@ export class DatetimeTickFormatter extends TickFormatter {
     // from that resolution.  This is not the best heuristic in the world,
     // but it works!  There is some trickiness here due to having to deal
     // with hybrid formats in a reasonable manner.
-    for (let t of ticks) {
+    for (const t of ticks) {
       let s, tm;
       try {
         tm = _array(t);

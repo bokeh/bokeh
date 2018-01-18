@@ -40,7 +40,7 @@ export class LogColorMapper extends ColorMapper {
     const high_color = image_glyph ? this._high_color : this.high_color;
     const low_color = image_glyph ? this._low_color : this.low_color;
 
-    for (let d of data) {
+    for (const d of data) {
       // Check NaN
       if (isNaN(d)) {
         values.push(nan_color);

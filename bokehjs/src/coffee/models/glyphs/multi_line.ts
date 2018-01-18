@@ -15,7 +15,7 @@ export class MultiLineView extends GlyphView {
       }
       const xs = ((() => {
         const result = [];
-        for (let x of this._xs[i]) {
+        for (const x of this._xs[i]) {
           if (!isStrictNaN(x)) {
             result.push(x);
           }
@@ -24,7 +24,7 @@ export class MultiLineView extends GlyphView {
       })());
       const ys = ((() => {
         const result1 = [];
-        for (let y of this._ys[i]) {
+        for (const y of this._ys[i]) {
           if (!isStrictNaN(y))
             result1.push(y);
         }
@@ -43,7 +43,7 @@ export class MultiLineView extends GlyphView {
   }
 
   _render(ctx, indices, {sxs, sys}) {
-    for (let i of indices) {
+    for (const i of indices) {
       const [sx, sy] = [sxs[i], sys[i]];
 
       this.visuals.line.set_vectorize(ctx, i);

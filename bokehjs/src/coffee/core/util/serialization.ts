@@ -156,7 +156,6 @@ export const decode_column_data = function(data, buffers: any[] = []) { // XXX: 
   for (const k in data) {
 
     // might be array of scalars, or might be ragged array or arrays
-    let arr, shape;
     const v = data[k];
     if (isArray(v)) {
 
@@ -169,8 +168,8 @@ export const decode_column_data = function(data, buffers: any[] = []) { // XXX: 
       // v is a ragged array of arrays
       const arrays = [];
       const shapes = [];
-      for (let obj of v) {
-        [arr, shape] = process_array(obj, buffers);
+      for (const obj of v) {
+        const [arr, shape] = process_array(obj, buffers);
         arrays.push(arr);
         shapes.push(shape);
       }
@@ -180,7 +179,7 @@ export const decode_column_data = function(data, buffers: any[] = []) { // XXX: 
 
     // must be object or array (single array case)
     } else {
-      [arr, shape] = process_array(v, buffers);
+      const [arr, shape] = process_array(v, buffers);
       new_data[k] = arr;
       new_shapes[k] = shape;
     }

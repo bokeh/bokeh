@@ -85,7 +85,7 @@ export class ImageRGBAView extends XYGlyphView {
     const old_smoothing = ctx.getImageSmoothingEnabled();
     ctx.setImageSmoothingEnabled(false);
 
-    for (let i of indices) {
+    for (const i of indices) {
 
       if (isNaN(sx[i]+sy[i]+sw[i]+sh[i])) {
         continue;

@@ -11,7 +11,7 @@ export class Stack extends Expression {
 
   v_compute(source) {
     const result = new Float64Array(source.get_length());
-    for (let f of this.fields) {
+    for (const f of this.fields) {
       for (let i = 0; i < source.data[f].length; i++) {
         const x = source.data[f][i];
         result[i] += x;

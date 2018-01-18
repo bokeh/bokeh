@@ -55,7 +55,7 @@ export class CircleView extends XYGlyphView {
   }
 
   _render(ctx, indices, {sx, sy, sradius}) {
-    for (let i of indices) {
+    for (const i of indices) {
       if (isNaN(sx[i]+sy[i]+sradius[i])) {
         continue;
       }

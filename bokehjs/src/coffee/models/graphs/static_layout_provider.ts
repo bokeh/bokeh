@@ -13,7 +13,7 @@ export class StaticLayoutProvider extends LayoutProvider {
 
   get_node_coordinates(node_source) {
     const [xs, ys] = [[], []];
-    for (let i of node_source.data.index) {
+    for (const i of node_source.data.index) {
       const x = (this.graph_layout[i] != null) ? this.graph_layout[i][0] : NaN;
       const y = (this.graph_layout[i] != null) ? this.graph_layout[i][1] : NaN;
       xs.push(x);

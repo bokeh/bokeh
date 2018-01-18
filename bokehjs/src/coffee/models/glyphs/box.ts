@@ -22,7 +22,7 @@ export class BoxView extends GlyphView {
   }
 
   _render(ctx, indices, {sleft, sright, stop, sbottom}) {
-    for (let i of indices) {
+    for (const i of indices) {
       if (isNaN(sleft[i]+stop[i]+sright[i]+sbottom[i])) {
         continue;
       }

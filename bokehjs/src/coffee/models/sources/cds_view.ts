@@ -46,7 +46,7 @@ export class CDSView extends Model {
     let indices = (this.filters.map((filter) => filter.compute_indices(this.source)))
     indices = ((() => {
       const result = []
-      for (let inds of indices) {
+      for (const inds of indices) {
         if (inds != null) {
           result.push(inds)
         }

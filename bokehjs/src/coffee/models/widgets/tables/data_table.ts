@@ -32,7 +32,7 @@ export class DataProvider {
 
   getItem(offset) {
     const item = {};
-    for (let field of Object.keys(this.source.data)) {
+    for (const field of Object.keys(this.source.data)) {
       item[field] = this.source.data[field][this.index[offset]];
     }
     item[DTINDEX_NAME] = this.index[offset];
@@ -40,7 +40,7 @@ export class DataProvider {
   }
 
   setItem(offset, item) {
-    for (let field in item) {
+    for (const field in item) {
       // internal index is maintained independently, ignore
       const value = item[field];
       if (field !== DTINDEX_NAME) {
@@ -83,7 +83,7 @@ export class DataProvider {
 
     // TODO (bev) this sort is unstable, which is not great
     return this.index.sort(function(i1, i2) {
-      for (let [field, sign] of cols) {
+      for (const [field, sign] of cols) {
         const value1 = records[old_index.indexOf(i1)][field];
         const value2 = records[old_index.indexOf(i2)][field];
         const result =

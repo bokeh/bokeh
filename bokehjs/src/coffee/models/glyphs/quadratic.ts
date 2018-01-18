@@ -42,7 +42,7 @@ export class QuadraticView extends GlyphView {
 
   _render(ctx, indices, {sx0, sy0, sx1, sy1, scx, scy}) {
     if (this.visuals.line.doit) {
-      for (let i of indices) {
+      for (const i of indices) {
         if (isNaN(sx0[i]+sy0[i]+sx1[i]+sy1[i]+scx[i]+scy[i])) {
           continue;
         }
