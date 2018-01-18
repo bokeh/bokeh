@@ -15,6 +15,7 @@ const merge = require("merge2")
 const license = `/*!\n${fs.readFileSync('../LICENSE.txt', 'utf-8')}*/\n`
 
 const ts = require('gulp-typescript')
+const tslint = require('gulp-tslint')
 
 const minify = uglify(uglify_es, console)
 
@@ -68,9 +69,6 @@ gulp.task("scripts:ts", () => {
     compilerOptions.lib[0] = "es6"
   }
 
-  if (argv.checkJs)
-    compilerOptions.checkJs = true
-
   const project = gulp
     .src(join(paths.src_dir.coffee, "**", "*.ts"))
     .pipe(sourcemaps.init())
@@ -87,6 +85,13 @@ gulp.task("scripts:ts", () => {
     fs.writeFileSync(join(paths.build_dir.js, "ts.log"), errors.join("\n"))
   })
   return result
+})
+
+gulp.task("scripts:tslint", () => {
+  return gulp
+    .src(join(paths.src_dir.coffee, "**", "*.ts"))
+    .pipe(tslint({formatter: "verbose"}))
+    .pipe(tslint.report({emitError: false}))
 })
 
 gulp.task("scripts:compile", ["scripts:ts"])

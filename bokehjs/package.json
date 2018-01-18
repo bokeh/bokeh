@@ -34,6 +34,7 @@
     "gulp-uglifycss": "^1.0.4",
     "gulp-util": "^3.0.4",
     "gulp-typescript": "^3.2.3",
+    "gulp-tslint": "^8.1.2",
     "merge2": "^1.2.0",
     "logtrap": "^0.0.1",
     "mocha": "^2.2.5",
