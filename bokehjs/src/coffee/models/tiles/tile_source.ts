@@ -39,7 +39,7 @@ export abstract class TileSource extends Model {
 
   string_lookup_replace(str, lookup) {
     let result_str = str;
-    for (let key in lookup) {
+    for (const key in lookup) {
       const value = lookup[key];
       result_str = result_str.replace(`{${key}}`, value.toString());
     }
@@ -62,7 +62,7 @@ export abstract class TileSource extends Model {
 
   update() {
     logger.debug(`TileSource: tile cache count: ${Object.keys(this.tiles).length}`);
-    for (let key in this.tiles) {
+    for (const key in this.tiles) {
       const tile = this.tiles[key];
       tile.current = false;
       tile.retain = false;

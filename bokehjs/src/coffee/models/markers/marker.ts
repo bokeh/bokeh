@@ -24,7 +24,7 @@ export class MarkerView extends XYGlyphView {
   }
 
   _render(ctx, indices, {sx, sy, _size, _angle}) {
-    for (let i of indices) {
+    for (const i of indices) {
       if (isNaN(sx[i]+sy[i]+_size[i]+_angle[i])) {
         continue;
       }
@@ -80,7 +80,7 @@ export class MarkerView extends XYGlyphView {
     const candidates = this.index.indices(bbox);
 
     const hits = [];
-    for (let i of candidates) {
+    for (const i of candidates) {
       const s2 = this._size[i]/2;
       const dist = Math.abs(this.sx[i]-sx) + Math.abs(this.sy[i]-sy);
       if ((Math.abs(this.sx[i]-sx) <= s2) && (Math.abs(this.sy[i]-sy) <= s2)) {

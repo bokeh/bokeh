@@ -92,7 +92,7 @@ export class PatchesView extends GlyphView {
     // This is the earliest we can build them, and only build them once
     this.renderer.sxss = this._build_discontinuous_object(sxs);
     this.renderer.syss = this._build_discontinuous_object(sys);
-    for (let i of indices) {
+    for (const i of indices) {
       const [sx, sy] = [sxs[i], sys[i]];
 
       if (this.visuals.fill.doit) {
@@ -168,7 +168,7 @@ export class PatchesView extends GlyphView {
 
   _get_snap_coord(array) {
       let sum = 0;
-      for (let s of array) {
+      for (const s of array) {
         sum += s;
       }
       return sum / array.length;

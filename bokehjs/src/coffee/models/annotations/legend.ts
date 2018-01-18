@@ -128,10 +128,10 @@ export class LegendView extends AnnotationView {
     const legend_bbox = this.compute_legend_bbox();
     const vertical = this.model.orientation === "vertical";
 
-    for (let item of this.model.items) {
+    for (const item of this.model.items) {
       const labels = item.get_labels_list_from_label_prop();
 
-      for (let label of labels) {
+      for (const label of labels) {
         const x1 = legend_bbox.x + xoffset;
         const y1 = legend_bbox.y + yoffset;
 
@@ -224,7 +224,7 @@ export class LegendView extends AnnotationView {
         case "mute": return all(item.renderers, r => !r.muted);
       } })();
 
-      for (let label of labels) {
+      for (const label of labels) {
         const x1 = bbox.x + xoffset;
         const y1 = bbox.y + yoffset;
         const x2 = x1 + glyph_width;

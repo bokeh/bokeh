@@ -473,7 +473,7 @@ export class Figure extends Plot {
 
   _update_legend(legend_item_label, glyph_renderer) {
     let added = false;
-    for (let item of this._legend.items) {
+    for (const item of this._legend.items) {
       if (isEqual(item.label, legend_item_label)) {
         if (item.label.value != null) {
           item.renderers.push(glyph_renderer);

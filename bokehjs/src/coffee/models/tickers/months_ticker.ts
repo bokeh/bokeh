@@ -12,7 +12,7 @@ function date_range_by_year(start_time: number, end_time: number): Date[] {
   end_date.setUTCFullYear(end_date.getUTCFullYear() + 1)
 
   const dates = []
-  let date = start_date
+  const date = start_date
   while (true) {
     dates.push(copy_date(date))
 

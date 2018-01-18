@@ -83,7 +83,7 @@ export class ProxyToolbar extends ToolbarBase {
 
     const new_help_tools = [];
     const new_help_urls = [];
-    for (let helptool of this.help) {
+    for (const helptool of this.help) {
       if (!includes(new_help_urls, helptool.redirect)) {
         new_help_tools.push(helptool);
         new_help_urls.push(helptool.redirect);
@@ -154,7 +154,7 @@ export class ProxyToolbar extends ToolbarBase {
       }
     }
 
-    for (let et in this.gestures) {
+    for (const et in this.gestures) {
       ({ tools } = this.gestures[et]);
       if (tools.length === 0) {
         continue;

@@ -9,7 +9,7 @@ export class LineView extends XYGlyphView {
     this.visuals.line.set_value(ctx);
     let last_index = null;
 
-    for (let i of indices) {
+    for (const i of indices) {
       if (drawing) {
         if (!isFinite(sx[i]+sy[i])) {
           ctx.stroke();

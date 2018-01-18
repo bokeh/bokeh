@@ -89,7 +89,7 @@ export class GlyphView extends View {
     const bb = bbox.empty();
     const positive_x_bbs = this.index.search(bbox.positive_x());
     const positive_y_bbs = this.index.search(bbox.positive_y());
-    for (let x of positive_x_bbs) {
+    for (const x of positive_x_bbs) {
       if (x.minX < bb.minX) {
         bb.minX = x.minX;
       }
@@ -97,7 +97,7 @@ export class GlyphView extends View {
         bb.maxX = x.maxX;
       }
     }
-    for (let y of positive_y_bbs) {
+    for (const y of positive_y_bbs) {
       if (y.minY < bb.minY) {
         bb.minY = y.minY;
       }
@@ -264,7 +264,7 @@ export class GlyphView extends View {
     this.visuals.set_all_indices(indices);
     if (indices && !(this instanceof LineView)) {
       const data_subset = {};
-      for (let k in data) {
+      for (const k in data) {
         const v = data[k];
         if (k.charAt(0) === '_') {
           data_subset[k] = (indices.map((i) => v[i]));
@@ -373,7 +373,7 @@ export class Glyph extends Model {
     this.prototype._coords = _coords;
 
     const result = {};
-    for (let [x, y] of coords) {
+    for (const [x, y] of coords) {
       result[x] = [ p.NumberSpec ];
       result[y] = [ p.NumberSpec ];
     }

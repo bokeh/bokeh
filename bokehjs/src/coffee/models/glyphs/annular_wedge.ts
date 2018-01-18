@@ -25,7 +25,7 @@ export class AnnularWedgeView extends XYGlyphView {
 
   _render(ctx, indices, {sx, sy, _start_angle, _angle, sinner_radius, souter_radius}) {
     const direction = this.model.properties.direction.value();
-    for (let i of indices) {
+    for (const i of indices) {
       if (isNaN(sx[i]+sy[i]+sinner_radius[i]+souter_radius[i]+_start_angle[i]+_angle[i])) {
         continue;
       }

@@ -32,7 +32,7 @@ export class ImageSource extends Model {
 
   string_lookup_replace(str, lookup) {
     let result_str = str;
-    for (let key in lookup) {
+    for (const key in lookup) {
       const value = lookup[key];
       result_str = result_str.replace(`{${key}}`, value.toString());
     }

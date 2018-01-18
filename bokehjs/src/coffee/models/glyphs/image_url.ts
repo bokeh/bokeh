@@ -103,7 +103,7 @@ export class ImageURLView extends GlyphView {
 
     let finished = true;
 
-    for (let i of indices) {
+    for (const i of indices) {
       if (isNaN(sx[i]+sy[i]+_angle[i])) {
         continue;
       }

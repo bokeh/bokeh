@@ -93,7 +93,7 @@ export class ImageView extends XYGlyphView {
     const old_smoothing = ctx.getImageSmoothingEnabled();
     ctx.setImageSmoothingEnabled(false);
 
-    for (let i of indices) {
+    for (const i of indices) {
       if ((image_data[i] == null)) {
         continue;
       }

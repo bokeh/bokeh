@@ -29,7 +29,7 @@ export class EllipseView extends XYGlyphView {
   }
 
   _render(ctx, indices, {sx, sy, sw, sh}) {
-     for (let i of indices) {
+     for (const i of indices) {
        if (isNaN(sx[i]+sy[i]+sw[i]+sh[i]+this._angle[i])) {
          continue;
        }
