@@ -84,11 +84,9 @@ class DashAtlas {
   }
 }
 
+export class LineGLGlyph extends BaseGLGlyph {
 
-/*export*/
-class LineGLGlyph extends BaseGLGlyph {
     static initClass() {
-
       this.prototype.GLYPH = 'line';
 
       this.prototype.JOINS =
@@ -644,8 +642,8 @@ void main()
 `
     }
 
-    init() {
-      const { gl } = this;
+    init(): void {
+      const {gl} = this;
       this._scale_aspect = 0;  // keep track, so we know when we need to update segment data
 
       // The program
@@ -659,7 +657,7 @@ void main()
       this.vbo_angles = new VertexBuffer(gl);
       this.vbo_texcoord = new VertexBuffer(gl);
       // Dash atlas
-      return this.dash_atlas = new DashAtlas(gl);
+      this.dash_atlas = new DashAtlas(gl);
     }
 
     draw(indices, mainGlyph, trans) {
