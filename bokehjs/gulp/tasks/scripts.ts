@@ -63,9 +63,8 @@ gulp.task("scripts:ts", () => {
   if (argv.checkJs)
     compilerOptions.checkJs = true
 
-  const prefix = paths.src_dir.coffee
   const project = gulp
-    .src([`${prefix}/**/*.ts`, `${prefix}/**/*.js`])
+    .src(join(paths.src_dir.coffee, "**", "*.ts"))
     .pipe(sourcemaps.init())
     .pipe(ts(tsconfig.compilerOptions, ts.reporter.nullReporter()).on('error', error))
 
