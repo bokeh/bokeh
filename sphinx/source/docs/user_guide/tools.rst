@@ -607,7 +607,7 @@ supports the following actions:
 
 
 PointDrawTool
-~~~~~~~~~~~~
+~~~~~~~~~~~~~
 
 * name: ``'point_draw'``
 * menu icon: |point_draw_icon|
@@ -802,10 +802,10 @@ properties on |Plot| objects that control LOD behavior:
 .. |zoom_out_icon| image:: /_images/icons/ZoomOut.png
     :height: 14pt
 .. |box_draw_icon| image:: /_images/icons/BoxDraw.png
-	:height: 14pt
+    :height: 14pt
 .. |point_draw_icon| image:: /_images/icons/PointDraw.png
-	:height: 14pt
+    :height: 14pt
 .. |poly_draw_icon| image:: /_images/icons/PolyDraw.png
-	:height: 14pt
+    :height: 14pt
 .. |vertex_edit_icon| image:: /_images/icons/VertexEdit.png
-	:height: 14pt
+    :height: 14pt

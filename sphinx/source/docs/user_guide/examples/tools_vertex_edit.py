@@ -1,5 +1,5 @@
 from bokeh.plotting import figure, output_file, show
-from bokeh.models import PolyDrawTool, VertexEditTool, ColumnDataSource
+from bokeh.models import PolyDrawTool, VertexEditTool
 
 output_file("tools_vertex_edit.html")
 

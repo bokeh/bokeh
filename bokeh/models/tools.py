@@ -888,8 +888,8 @@ class EditTool(Tool):
 class BoxDrawTool(EditTool):
     ''' *toolbar icon*: |box_draw_icon|
 
-    The BoxDrawTool allows drawing, dragging and deleting rectangular
-    glyphs on one or more renderers by editing the underlying
+    The BoxDrawTool allows drawing, dragging and deleting Rect glyphs
+    on one or more renderers by editing the underlying
     ColumnDataSource data. Like other drawing tools, the renderers
     that are to be edited must be supplied explicitly as a list. The
     tool supports the following actions:
@@ -932,10 +932,10 @@ class PointDrawTool(EditTool):
     ''' *toolbar icon*: |point_draw_icon|
 
     The PointDrawTool allows adding, dragging and deleting point-like
-    glyphs on one or more renderers by editing the underlying
-    ColumnDataSource data. Like other drawing tools, the renderers
-    that are to be edited must be supplied explicitly as a list. The
-    tool supports the following actions:
+    glyphs (of ``XYGlyph`` type) on one or more renderers by editing
+    the underlying ColumnDataSource data. Like other drawing tools,
+    the renderers that are to be edited must be supplied explicitly as
+    a list. The tool supports the following actions:
 
     * Add point: Tap anywhere on the plot.
 
@@ -967,11 +967,11 @@ class PointDrawTool(EditTool):
 class PolyDrawTool(EditTool):
     ''' *toolbar icon*: |poly_draw_icon|
 
-    The PolyDrawTool allows drawing, selecting and deleting polygons
-    and multi-line glyphs on one or more renderers by editing the
-    underlying ColumnDataSource data. Like other drawing tools, the
-    renderers that are to be edited must be supplied explicitly as a
-    list. The tool supports the following actions:
+    The PolyDrawTool allows drawing, selecting and deleting
+    ``Patches`` and ``MultiLine`` glyphs on one or more renderers by
+    editing the underlying ColumnDataSource data. Like other drawing
+    tools, the renderers that are to be edited must be supplied
+    explicitly as a list. The tool supports the following actions:
 
     * Draw polygon/multi-line: Click and hold the mouse button then
       drag the mouse to a new location and finalize the line by
@@ -1003,9 +1003,10 @@ class VertexEditTool(EditTool):
     ''' *toolbar icon*: |vertex_edit_icon|
 
     The VertexEditTool allows editing the vertices of one or more
-    multi_line or patches glyphs. The glyphs to be edited can be
-    defined via the ``renderers`` property and the renderer for the
-    vertices can be defined via the ``vertex_renderer``. The
+    ``Patches`` or ``MultiLine`` glyphs. The glyphs to be edited can
+    be defined via the ``renderers`` property and the renderer for the
+    vertices can be defined via the ``vertex_renderer``, which must
+    render a point-like Glyph (of ``XYGlyph`` type). The
     VertexEditTool has two modes:
 
     1. When a particular line or polygon is selected by double tapping

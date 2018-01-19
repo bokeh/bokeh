@@ -1,5 +1,5 @@
 from bokeh.plotting import figure, output_file, show
-from bokeh.models import PolyDrawTool, ColumnDataSource
+from bokeh.models import PolyDrawTool
 
 output_file("tools_poly_draw.html")
 
