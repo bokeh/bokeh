@@ -1,3 +1,4 @@
+import {Keys} from "core/dom"
 import {EditTool, EditToolView} from "./edit_tool"
 
 export interface BkEv {
@@ -21,7 +22,7 @@ export class PolyDrawToolView extends EditToolView {
   }
 
   _keyup(e: BkEv): void {
-    if (e.shiftKey && (e.keyCode === 8) && this.model.active) {
+    if (e.shiftKey && (e.keyCode === Keys.Backspace) && this.model.active) {
       for (const renderer of this.model.renderers) {
         this._delete_selected(renderer);
       }

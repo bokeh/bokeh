@@ -1,3 +1,4 @@
+import {Keys} from "core/dom"
 import * as p from "core/properties"
 import {GlyphRenderer} from "models/renderers/glyph_renderer"
 import {EditTool, EditToolView} from "./edit_tool"
@@ -166,7 +167,7 @@ export class VertexEditToolView extends EditToolView {
   }
 
   _keyup(e: BkEv): void {
-    if (e.shiftKey && (e.keyCode === 8) && this.model.active) {
+    if (e.shiftKey && (e.keyCode === Keys.Backspace) && this.model.active) {
       if (this._selected_renderer) {
         this._delete_selected(this.model.vertex_renderer);
       } else {
