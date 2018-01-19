@@ -116,6 +116,8 @@ class DaysTicker(SingleIntervalTicker):
     The intervals of days to use.
     """)
 
+    num_minor_ticks = Override(default=0)
+
 class MonthsTicker(SingleIntervalTicker):
     ''' Generate ticks spaced apart by specific, even multiples of months.
 

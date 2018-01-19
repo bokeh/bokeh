@@ -13,12 +13,12 @@ export class TableWidget extends Widget {
     });
   }
 
-  initialize(attrs, options) {
-    super.initialize(attrs, options);
+  initialize(options: any): void {
+    super.initialize(options);
 
     if ((this.view.source == null)) {
       this.view.source = this.source;
-      return this.view.compute_indices();
+      this.view.compute_indices();
     }
   }
 }

@@ -25,8 +25,8 @@ export class SelectionManager extends HasProps {
   selector: Selector
   inspectors: {[key: string]: HasProps}
 
-  initialize(attrs: any, options: any): void {
-    super.initialize(attrs, options)
+  initialize(options: any): void {
+    super.initialize(options)
     this.selector = new Selector()
     this.inspectors = {}
   }

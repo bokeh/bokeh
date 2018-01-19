@@ -23,7 +23,7 @@ export abstract class CellEditorView extends DOMView {
     super(extend({model: options.column.editor}, options));
   }
 
-  initialize(options) {
+  initialize(options: any): void {
     super.initialize(options);
     this.inputEl = this._createInput()
     this.defaultValue = null

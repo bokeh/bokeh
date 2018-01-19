@@ -25,8 +25,8 @@ export abstract class Range extends Model {
   callback?: ((obj: Range) => void) | CustomJS // XXX: Callback
   plots: Plot[]
 
-  initialize(attrs: any, options: any): void {
-    super.initialize(attrs, options)
+  initialize(options: any): void {
+    super.initialize(options)
     this.connect(this.change, () => this._emit_callback())
   }
 

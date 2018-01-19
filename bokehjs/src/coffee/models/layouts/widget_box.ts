@@ -98,8 +98,8 @@ export class WidgetBox extends LayoutDOM {
 
   children: LayoutDOM[]
 
-  initialize(attrs: any, options: any): void {
-    super.initialize(attrs, options)
+  initialize(options: any): void {
+    super.initialize(options)
     if (this.sizing_mode == 'fixed' && this.width == null) {
       this.width = 300 // Set a default for fixed.
       logger.info("WidgetBox mode is fixed, but no width specified. Using default of 300.")

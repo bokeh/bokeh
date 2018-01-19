@@ -21,8 +21,8 @@ export class LogColorMapper extends ColorMapper {
       });
   }
 
-  initialize(attrs: any, options: any): void {
-    super.initialize(attrs, options);
+  initialize(options: any): void {
+    super.initialize(options);
     this._nan_color = this._build_palette([color2hex(this.nan_color)])[0];
     this._high_color = (this.high_color != null) ? this._build_palette([color2hex(this.high_color)])[0] : undefined;
     this._low_color = (this.low_color != null) ? this._build_palette([color2hex(this.low_color)])[0] : undefined;

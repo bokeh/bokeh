@@ -61,8 +61,8 @@ export class DataRange1d extends DataRange {
 
   have_updated_interactively: boolean = false
 
-  initialize(attrs: any, options: any): void {
-    super.initialize(attrs, options)
+  initialize(options: any): void {
+    super.initialize(options)
 
     this._initial_start = this.start
     this._initial_end = this.end

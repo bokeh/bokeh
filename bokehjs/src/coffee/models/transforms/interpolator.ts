@@ -25,8 +25,8 @@ export class Interpolator extends Transform {
       });
   }
 
-  initialize(attrs: any, options: any): void {
-    super.initialize(attrs, options);
+  initialize(options: any): void {
+    super.initialize(options);
     this._x_sorted = [];
     this._y_sorted = [];
     this._sorted_dirty = true;

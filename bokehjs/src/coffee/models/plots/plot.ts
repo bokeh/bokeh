@@ -181,8 +181,8 @@ export class Plot extends LayoutDOM {
   protected _plot_canvas: PlotCanvas
   protected _toolbar_panel: ToolbarPanel | null
 
-  initialize(attrs: any, options: any): void {
-    super.initialize(attrs, options)
+  initialize(options: any): void {
+    super.initialize(options)
 
     for (const xr of values(this.extra_x_ranges).concat(this.x_range)) {
       let plots = xr.plots

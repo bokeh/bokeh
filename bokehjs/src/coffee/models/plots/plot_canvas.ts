@@ -943,8 +943,8 @@ export class PlotCanvas extends LayoutDOM {
     });
   }
 
-  initialize(attrs: any, options: any): void {
-    super.initialize(attrs, options);
+  initialize(options: any): void {
+    super.initialize(options);
 
     this.canvas = new Canvas({
       map: this.use_map != null ? this.use_map : false,

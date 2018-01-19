@@ -150,8 +150,8 @@ export class FactorRange extends Range {
     return this.end
   }
 
-  initialize(attrs: any, options: any): void {
-    super.initialize(attrs, options)
+  initialize(options: any): void {
+    super.initialize(options)
     this._init()
     this.connect(this.properties.factors.change, () => this.reset())
     this.connect(this.properties.factor_padding.change, () => this.reset())

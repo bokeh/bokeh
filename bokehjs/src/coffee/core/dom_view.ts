@@ -12,7 +12,7 @@ export class DOMView extends View {
 
   el: HTMLElement
 
-  initialize(options: ViewOptions) {
+  initialize(options: ViewOptions): void {
     super.initialize(options)
     this._has_finished = false
     this.el = this._createElement()

@@ -574,9 +574,9 @@ export class Document {
     })
 
     // after removing all the refs, we can run the initialize code safely
-    foreach_depth_first(to_update, function(instance, attrs, was_new) {
+    foreach_depth_first(to_update, function(instance, _attrs, was_new) {
       if (was_new)
-        instance.finalize(attrs, {})
+        instance.finalize({})
     })
   }
 
