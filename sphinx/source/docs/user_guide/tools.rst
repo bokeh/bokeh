@@ -805,7 +805,7 @@ properties on |Plot| objects that control LOD behavior:
     :height: 14pt
 .. |point_draw_icon| image:: /_images/icons/PointDraw.png
     :height: 14pt
-.. |poly_draw_icon| image:: /_images/icons/PolyDraw.png
+.. |poly_draw_icon| image:: /_images/icons/PolygonDraw.png
     :height: 14pt
 .. |vertex_edit_icon| image:: /_images/icons/VertexEdit.png
     :height: 14pt
