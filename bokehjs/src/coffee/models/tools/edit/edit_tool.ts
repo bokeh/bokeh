@@ -9,6 +9,7 @@ export interface BkEv {
     sx: number
     sy: number
   }
+}
 
 export interface HasCDS {
   data_source: ColumnDataSource
