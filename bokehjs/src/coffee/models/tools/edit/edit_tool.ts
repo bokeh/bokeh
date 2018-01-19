@@ -8,12 +8,6 @@ export interface BkEv {
   bokeh: {
     sx: number
     sy: number
-  }
-  srcEvent: {
-    shiftKey?: boolean
-  }
-  keyCode: number
-  timeStamp: number
 }
 
 export abstract class EditToolView extends GestureToolView {

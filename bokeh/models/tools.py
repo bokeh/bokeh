@@ -872,8 +872,7 @@ class EditTool(Tool):
 
     '''
 
-    empty_value = Either(Bool, Int, Float, Date, Datetime, Color,
-                         default=float('nan'), help="""
+    empty_value = Either(Bool, Int, Float, Date, Datetime, Color, help="""
     Defines the value to insert on non-coordinate columns when a new
     glyph is inserted into the ColumnDataSource columns, e.g. when a
     circle glyph defines 'x', 'y' and 'color' columns, adding a new
@@ -908,8 +907,8 @@ class BoxDrawTool(EditTool):
       action. To move multiple boxes select them and hold <<shift>>
       key while dragging one of them.
 
-    * Delete box: Select one or more boxes then press <<backspace>>
-      key to delete them.
+    * Delete box: Select one or more boxes then press
+      <<shift>>+<<backspace>> key to delete them.
 
     .. note::
         Any added boxes will always be inserted on the first listed
@@ -943,8 +942,8 @@ class PointDrawTool(EditTool):
     * Select point: Tap on an existing point. To select multiple hold
       <<shift>> key while tapping.
 
-    * Delete point: Select one or more points then press <<backspace>>
-      key to delete them.
+    * Delete point: Select one or more points then press
+      <<shift>>+<<backspace>> key to delete them.
 
     * Move point: Click and hold the mouse down point, drag it, then
       release the mouse to complete the action. To move multiple
@@ -989,8 +988,8 @@ class PolyDrawTool(EditTool):
       vertex on the selected polygon/multi-line.
 
     * Delete polygon/multi-line: Select one or more
-      polygons/multi-lines then press <<backspace>> key to delete
-      them.
+      polygons/multi-lines then press <<shift>>+<<backspace>> key to
+      delete them.
 
     .. note::
         Any added polygons or multi-lines will always be inserted on
@@ -1020,8 +1019,8 @@ class VertexEditTool(EditTool):
     * Select vertex: Tap on a vertex, to select multiple hold
       <<shift>> key.
 
-    * Delete vertex: Select one or more vertices then press backspace
-      to delete them.
+    * Delete vertex: Select one or more vertices then press
+      <<shift>>+<<backspace>> to delete them.
 
     * Move vertex: Click and hold vertex, drag it, then release the
       mouse to complete the action. To move multiple vertices select

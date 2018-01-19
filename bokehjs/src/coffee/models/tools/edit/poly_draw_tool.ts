@@ -9,7 +9,7 @@ export interface BkEv {
     shiftKey?: boolean
   }
   keyCode: number
-  timeStamp: number
+  shiftKey: boolean
 }
 
 export class PolyDrawToolView extends EditToolView {
@@ -21,7 +21,7 @@ export class PolyDrawToolView extends EditToolView {
   }
 
   _keyup(e: BkEv): void {
-    if ((e.keyCode === 8) && this.model.active) {
+    if (e.shiftKey && (e.keyCode === 8) && this.model.active) {
       for (const renderer of this.model.renderers) {
         this._delete_selected(renderer);
       }

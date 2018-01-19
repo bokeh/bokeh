@@ -11,7 +11,7 @@ export interface BkEv {
     shiftKey?: boolean
   }
   keyCode: number
-  timeStamp: number
+  shiftKey: boolean
 }
 
 export class VertexEditToolView extends EditToolView {
@@ -79,7 +79,7 @@ export class VertexEditToolView extends EditToolView {
 
     // Insert a new point after the selected vertex
     const [x, y] = point;
-    const [xkey, ykey] = [renderer.glyph.x.field, renderer.y.field];
+    const [xkey, ykey] = [renderer.glyph.x.field, renderer.glyph.y.field];
     const index = indices[0]+1;
     ds.selected['1d'].indices = [index];
     ds.data[xkey].splice(index, 0, x);
@@ -166,7 +166,7 @@ export class VertexEditToolView extends EditToolView {
   }
 
   _keyup(e: BkEv): void {
-    if ((e.keyCode === 8) && this.model.active) {
+    if (e.shiftKey && (e.keyCode === 8) && this.model.active) {
       if (this._selected_renderer) {
         this._delete_selected(this.model.vertex_renderer);
       } else {
