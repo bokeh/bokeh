@@ -33,7 +33,7 @@ export class PolyDrawToolView extends EditToolView {
   _keyup(e: BkEv): void {
     if (!this.model.active) { return; }
     for (const renderer of this.model.renderers) {
-      if (e.shiftKey && (e.keyCode === Keys.Backspace)) {
+      if (e.keyCode === Keys.Delete) {
         this._delete_selected(renderer);
       } else if (e.keyCode == Keys.Esc) {
         renderer.data_source.selection_manager.clear();

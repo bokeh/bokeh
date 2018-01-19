@@ -190,7 +190,7 @@ export class VertexEditToolView extends EditToolView {
       renderers = this.model.renderers
     }
     for (const renderer of renderers) {
-      if (e.shiftKey && (e.keyCode === Keys.Backspace)) {
+      if (e.keyCode === Keys.Delete) {
         this._delete_selected(renderer);
       } else if (e.keyCode == Keys.Esc) {
         renderer.data_source.selection_manager.clear();
