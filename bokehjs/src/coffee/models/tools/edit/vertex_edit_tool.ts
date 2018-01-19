@@ -182,13 +182,18 @@ export class VertexEditToolView extends EditToolView {
   }
 
   _keyup(e: BkEv): void {
-    if (e.shiftKey && (e.keyCode === Keys.Backspace) && this.model.active) {
-      if (this._selected_renderer) {
-        this._delete_selected(this.model.vertex_renderer);
-      } else {
-        for (const renderer of this.model.renderers) {
-          this._delete_selected(renderer);
-        }
+    if (!this.model.active) { return; }
+    let renderers;
+    if (this._selected_renderer) {
+      renderers = [this.model.vertex_renderer]
+    } else {
+      renderers = this.model.renderers
+    }
+    for (const renderer of renderers) {
+      if (e.shiftKey && (e.keyCode === Keys.Backspace)) {
+        this._delete_selected(renderer);
+      } else if (e.keyCode == Keys.Esc) {
+        renderer.data_source.selection_manager.clear();
       }
     }
   }
