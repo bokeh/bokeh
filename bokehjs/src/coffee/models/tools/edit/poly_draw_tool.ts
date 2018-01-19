@@ -100,7 +100,7 @@ export class PolyDrawToolView extends EditToolView {
 
 
 export class PolyDrawTool extends EditTool {
-  renderers: GlyphRenderer[] & Array<HasPolyCDS>
+  renderers: (GlyphRenderer & HasPolyCDS)[]
 
   tool_name = "Polygon Draw Tool"
   icon = "bk-tool-icon-polygon-draw"

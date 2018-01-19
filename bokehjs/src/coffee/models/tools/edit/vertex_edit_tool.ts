@@ -8,8 +8,8 @@ import {ColumnDataSource} from "models/sources/column_data_source"
 import {EditTool, EditToolView} from "./edit_tool"
 
 export interface HasXYCDS {
-  glyph: XYGlyph
   data_source: ColumnDataSource
+  glyph: XYGlyph
 }
 
 export interface HasPolyCDS {
@@ -213,8 +213,8 @@ export class VertexEditToolView extends EditToolView {
 
 export class VertexEditTool extends EditTool {
   drag: boolean
-  renderers: GlyphRenderer[] & Array<HasPolyCDS>
-  vertex_renderer: GlyphRenderer & HasXYCDS
+  renderers: (GlyphRenderer & HasPolyCDS)[]
+  vertex_renderer: (GlyphRenderer & HasXYCDS)
 
   tool_name = "Vertex Edit Tool"
   icon = "bk-tool-icon-vertex-edit"

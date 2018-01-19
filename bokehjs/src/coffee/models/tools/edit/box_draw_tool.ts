@@ -6,7 +6,7 @@ import {GlyphRenderer} from "models/renderers/glyph_renderer"
 import {ColumnDataSource} from "models/sources/column_data_source"
 import {EditTool, EditToolView} from "./edit_tool"
 
-export interface RectCDSRenderer {
+export interface HasRectCDS {
   glyph: Rect
   data_source: ColumnDataSource
 }
@@ -103,7 +103,7 @@ export class BoxDrawToolView extends EditToolView {
 
 export class BoxDrawTool extends EditTool {
   dimensions: Dimensions
-  renderers: GlyphRenderer[] & Array<RectCDSRenderer>
+  renderers: (GlyphRenderer & HasRectCDS)[]
 
   tool_name = "Box Draw Tool"
   icon = "bk-tool-icon-box-draw"

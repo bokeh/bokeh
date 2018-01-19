@@ -123,7 +123,7 @@ export class PointDrawToolView extends EditToolView {
 export class PointDrawTool extends EditTool {
   add: boolean
   drag: boolean
-  renderers: GlyphRenderer[] & Array<HasXYCDS>
+  renderers: (GlyphRenderer & HasXYCDS)[]
 
   tool_name = "Point Draw Tool"
   icon = "bk-tool-icon-point-draw"

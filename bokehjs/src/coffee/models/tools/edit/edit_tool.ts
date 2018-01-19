@@ -88,7 +88,7 @@ export abstract class EditToolView extends GestureToolView {
 
 export abstract class EditTool extends GestureTool {
   empty_value: any
-  renderers: GlyphRenderer[] & Array<HasCDS>
+  renderers: (GlyphRenderer & HasCDS)[]
 }
 
 EditTool.prototype.type = "EditTool"
