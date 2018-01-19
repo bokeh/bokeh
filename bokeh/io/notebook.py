@@ -250,6 +250,13 @@ def push_notebook(document=None, state=None, handle=None):
         return
 
     events = list(handle.doc._held_events)
+
+    # This is to avoid having an exception raised for attempting to create a
+    # PATCH-DOC with no events. In the notebook, we just want to silenty
+    # ignore calls to push_notebook when there are no new events
+    if len(events) == 0:
+        return
+
     handle.doc._held_events = []
     msg = Protocol("1.0").create("PATCH-DOC", events)
 
