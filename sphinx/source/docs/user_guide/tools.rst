@@ -14,6 +14,7 @@ interactions:
 
 * :ref:`userguide_tools_actions`
 * :ref:`userguide_tools_inspectors`
+* :ref:`userguide_tools_edit`
 
 For each type of gesture, one tool can be active at any given time, and
 the active tool is indicated on the toolbar by a highlight next to to the
@@ -561,6 +562,164 @@ shown below:
 .. bokeh-plot:: docs/user_guide/examples/tools_hover_custom_tooltip.py
     :source-position: above
 
+
+.. _userguide_tools_edit:
+
+Edit Tools
+----------
+
+The edit tools provide functionality for editing the data of a
+renderer client-side by adding, moving and deleting glyph data. In
+order for these tools to work the renderer data_source must be a
+``ColumnDataSource``.
+
+BoxDrawTool
+~~~~~~~~~~~
+
+* name: ``'box_draw'``
+* menu icon: |box_draw_icon|
+
+The BoxDrawTool allows drawing, dragging and deleting ``Rect`` glyphs
+on one or more renderers by editing the underlying
+``ColumnDataSource`` data. Like other drawing tools, the renderers
+that are to be edited must be supplied explicitly as a list. The tool
+supports the following actions:
+
+
+* Add box: Click and hold the mouse button down, dragging the
+  mouse from the starting point to the end point then release the
+  button. This will define the two opposite corners of the
+  rectangle. The x- and y-coordinates will be
+
+* Select box: Tap on an existing box. To select multiple hold
+  <<shift>> key while tapping.
+
+* Move box: Click and hold the mouse button down over an existing
+  box then drag it and release the mouse to complete the
+  action. To move multiple boxes select them and hold <<shift>>
+  key while dragging one of them.
+
+* Delete box: Select one or more boxes then press
+  <<shift>>+<<backspace>> key to delete them.
+
+.. bokeh-plot:: docs/user_guide/examples/tools_box_draw.py
+    :source-position: none
+
+
+PointDrawTool
+~~~~~~~~~~~~
+
+* name: ``'point_draw'``
+* menu icon: |point_draw_icon|
+
+The PointDrawTool allows adding, dragging and deleting point-like
+glyphs (of ``XYGlyph`` type) on one or more renderers by editing the
+underlying ``ColumnDataSource`` data. Like other drawing tools, the
+renderers that are to be edited must be supplied explicitly as a
+list. The tool supports the following actions:
+
+* Add point: Tap anywhere on the plot.
+
+* Select point: Tap on an existing point. To select multiple hold
+  <<shift>> key while tapping.
+
+* Delete point: Select one or more points then press
+  <<shift>>+<<backspace>> key to delete them.
+
+* Move point: Click and hold the mouse down point, drag it, then
+  release the mouse to complete the action. To move multiple points
+  select them and hold <<shift>> key while dragging one of them.
+
+.. bokeh-plot:: docs/user_guide/examples/tools_point_draw.py
+    :source-position: none
+
+
+PolyDrawTool
+~~~~~~~~~~~~
+
+* name: ``'poly_draw'``
+* menu icon: |poly_draw_icon|
+
+The PolyDrawTool allows drawing, selecting and deleting ``Patches``
+and ``MultiLine`` glyphs on one or more renderers by editing the
+underlying ColumnDataSource data. Like other drawing tools, the
+renderers that are to be edited must be supplied explicitly as a
+list. The tool supports the following actions:
+
+* Draw polygon/multi-line: Click and hold the mouse button then
+  drag the mouse to a new location and finalize the line by
+  releasing the mouse button. To add further vertices hold the
+  <<shift>> key and click and drag to another position.
+
+* Select polygon/multi-line: Tap on an existing
+  polygon/multi-line. To select multiple hold <<shift>> key while
+  tapping.
+
+* Add polygon/multi-line vertices: Select an existing
+  polygon/multi-line, hold <<shift>> key, then drag the mouse to a
+  new position, a new vertex will be inserted after the last
+  vertex on the selected polygon/multi-line.
+
+* Delete polygon/multi-line: Select one or more
+  polygons/multi-lines then press <<shift>>+<<backspace>> key to
+  delete them.
+
+.. bokeh-plot:: docs/user_guide/examples/tools_poly_draw.py
+    :source-position: none
+
+
+VertexEditTool
+~~~~~~~~~~~~~~
+
+* name: ``'vertex_edit'``
+* menu icon: |vertex_edit_icon|
+
+The VertexEditTool allows editing the vertices of one or more
+``Patches`` or ``MultiLine`` glyphs. The glyphs to be edited can
+be defined via the ``renderers`` property and the renderer for the
+vertices can be defined via the ``vertex_renderer``, which must
+render a point-like Glyph (of ``XYGlyph`` type). The
+VertexEditTool has two modes:
+
+1. When a particular line or polygon is selected by double tapping
+it, its vertices will be rendered by the ``vertex_renderer``. In
+this mode the vertices can be dragged, selected and deleted, and
+new vertices may be inserted:
+
+* Add vertex: Tap on an existing vertex to select it then tap on
+  the position to insert the next point.
+
+* Select vertex: Tap on a vertex, to select multiple hold
+  <<shift>> key.
+
+* Delete vertex: Select one or more vertices then press
+  <<shift>>+<<backspace>> to delete them.
+
+* Move vertex: Click and hold vertex, drag it, then release the
+  mouse to complete the action. To move multiple vertices select
+  them and hold <<shift>> key while dragging one of them.
+
+2. While no line or polygon is selected the lines and polygons as
+a whole may be selected, dragged and deleted:
+
+* Move line/polygon: Click and hold a line/polygon, drag it, then
+  release the mouse to complete the action. To move multiple
+  vertices, select them and hold <<shift>> while dragging one of
+  them.
+
+* Select polygon/multi-line: Tap on an existing
+  polygon/multi-line. To select multiple hold <<shift>> key while
+  tapping.
+
+* Delete line/polygon: Tap on an existing line/polygon (or select
+  them with a different tool) then press backspace to delete them.
+
+To unselect a line or polygon double tap anywhere on the plot.
+
+.. bokeh-plot:: docs/user_guide/examples/tools_vertex_edit.py
+    :source-position: none
+
+
 .. _userguide_tools_lod:
 
 Controlling Level of Detail
@@ -642,3 +801,11 @@ properties on |Plot| objects that control LOD behavior:
     :height: 14pt
 .. |zoom_out_icon| image:: /_images/icons/ZoomOut.png
     :height: 14pt
+.. |box_draw_icon| image:: /_images/icons/BoxDraw.png
+	:height: 14pt
+.. |point_draw_icon| image:: /_images/icons/PointDraw.png
+	:height: 14pt
+.. |poly_draw_icon| image:: /_images/icons/PolyDraw.png
+	:height: 14pt
+.. |vertex_edit_icon| image:: /_images/icons/VertexEdit.png
+	:height: 14pt
