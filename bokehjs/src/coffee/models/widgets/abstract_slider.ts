@@ -51,7 +51,7 @@ export abstract class AbstractSliderView extends WidgetView {
       }
     }
 
-    const prefix = 'bk-noUi-'
+    const prefix = 'noUi-'
 
     const {start, end, value, step} = this._calc_to()
 
