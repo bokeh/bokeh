@@ -8,12 +8,16 @@ export interface BkEv {
   bokeh: {
     sx: number
     sy: number
+  }
+
+export interface HasCDS {
+  data_source: ColumnDataSource
 }
 
 export abstract class EditToolView extends GestureToolView {
   model: EditTool
 
-  _map_drag(sx: number[], sy: number[], renderer: GlyphRenderer): [number, number] | null {
+  _map_drag(sx: number, sy: number, renderer: GlyphRenderer): [number, number] | null {
     // Maps screen to data coordinates
     const frame = this.plot_model.frame;
     if (!frame.bbox.contains(sx, sy)) {
@@ -24,7 +28,7 @@ export abstract class EditToolView extends GestureToolView {
     return [x, y];
   }
 
-  _delete_selected(renderer: GlyphRenderer): void {
+  _delete_selected(renderer: GlyphRenderer & HasCDS): void {
     // Deletes all selected rows in the ColumnDataSource
     const cds = renderer.data_source;
     const indices = cds.selected['1d'].indices;
@@ -54,7 +58,7 @@ export abstract class EditToolView extends GestureToolView {
     }
   }
 
-  _select_event(e: BkEv, append: boolean, renderers: GlyphRenderer[]): GlyphRenderer[] {
+  _select_event(e: BkEv, append: boolean, renderers: GlyphRenderer[] & Array<HasCDS>): GlyphRenderer[] & Array<HasCDS> {
     // Process selection event on the supplied renderers and return selected renderers
     const frame = this.plot_model.frame;
     const {sx, sy} = e.bokeh;
@@ -66,7 +70,7 @@ export abstract class EditToolView extends GestureToolView {
       sx: sx,
       sy: sy,
     }
-    const selected: GlyphRenderer[] = [];
+    const selected = [];
     for (const renderer of renderers) {
       const sm = renderer.get_selection_manager();
       const cds = renderer.data_source;
@@ -83,7 +87,7 @@ export abstract class EditToolView extends GestureToolView {
 
 export abstract class EditTool extends GestureTool {
   empty_value: any
-  renderers: GlyphRenderer[]
+  renderers: GlyphRenderer[] & Array<HasCDS>
 }
 
 EditTool.prototype.type = "EditTool"

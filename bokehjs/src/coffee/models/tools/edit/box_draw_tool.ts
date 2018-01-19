@@ -1,7 +1,15 @@
 import {Keys} from "core/dom"
 import {Dimensions} from "core/enums"
 import * as p from "core/properties"
+import {Rect} from "models/glyphs/rect"
+import {GlyphRenderer} from "models/renderers/glyph_renderer"
+import {ColumnDataSource} from "models/sources/column_data_source"
 import {EditTool, EditToolView} from "./edit_tool"
+
+export interface RectCDSRenderer {
+  glyph: Rect
+  data_source: ColumnDataSource
+}
 
 export interface BkEv {
   bokeh: {
@@ -31,11 +39,6 @@ export class BoxDrawToolView extends EditToolView {
         this._delete_selected(renderer);
       }
     }
-  }
-
-  _pan_start(e: BkEv): void {
-    this._basepoint = [e.bokeh.sx, e.bokeh.sy];
-    this._pan(e, true, false);
   }
 
   _set_extent([sx0, sx1]: [number, number], [sy0, sy1]: [number, number],
@@ -71,8 +74,14 @@ export class BoxDrawToolView extends EditToolView {
     }
   }
 
+  _pan_start(e: BkEv): void {
+    this._basepoint = [e.bokeh.sx, e.bokeh.sy];
+    this._pan(e, true, false);
+  }
+
   _pan(e: BkEv, append: boolean = false, emit: boolean = false): void {
-    const curpoint = [e.bokeh.sx, e.bokeh.sy];
+    if (this._basepoint == null) { return; }
+    const curpoint: [number, number] = [e.bokeh.sx, e.bokeh.sy];
     const frame = this.plot_model.frame;
     const dims = this.model.dimensions;
     const limits = this.model._get_dim_limits(this._basepoint, curpoint, frame, dims);
@@ -91,6 +100,7 @@ export class BoxDrawToolView extends EditToolView {
 
 export class BoxDrawTool extends EditTool {
   dimensions: Dimensions
+  renderers: GlyphRenderer[] & Array<RectCDSRenderer>
 
   tool_name = "Box Draw Tool"
   icon = "bk-tool-icon-box-draw"

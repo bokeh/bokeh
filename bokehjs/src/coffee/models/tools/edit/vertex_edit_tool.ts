@@ -1,7 +1,21 @@
 import {Keys} from "core/dom"
 import * as p from "core/properties"
+import {MultiLine} from "models/glyphs/multi_line"
+import {Patches} from "models/glyphs/patches"
+import {XYGlyph} from "models/glyphs/xy_glyph"
 import {GlyphRenderer} from "models/renderers/glyph_renderer"
+import {ColumnDataSource} from "models/sources/column_data_source"
 import {EditTool, EditToolView} from "./edit_tool"
+
+export interface HasXYCDS {
+  glyph: XYGlyph
+  data_source: ColumnDataSource
+}
+
+export interface HasPolyCDS {
+  data_source: ColumnDataSource
+  glyph: MultiLine | Patches
+}
 
 export interface BkEv {
   bokeh: {
@@ -74,7 +88,7 @@ export class VertexEditToolView extends EditToolView {
     this._select_event(e, append, this.model.renderers);
     /* Skip if a new vertex is selected by the tap or no vertex
        was selected before the tap */
-    if (ds.selected['1d'].indices.length || indices.length !== 1) {
+    if (ds.selected['1d'].indices.length || indices.length !== 1  || this._selected_renderer == null) {
       return;
     }
 
@@ -97,6 +111,7 @@ export class VertexEditToolView extends EditToolView {
   }
 
   _pan(e: BkEv): void {
+    if (this._basepoint == null) { return; }
     const [bx, by] = this._basepoint;
     if (this._selected_renderer == null) {
       if (!this.model.drag) { return; }
@@ -192,8 +207,9 @@ export class VertexEditToolView extends EditToolView {
 }
 
 export class VertexEditTool extends EditTool {
-  vertex_renderer: GlyphRenderer
   drag: boolean
+  renderers: GlyphRenderer[] & Array<HasPolyCDS>
+  vertex_renderer: GlyphRenderer & HasXYCDS
 
   tool_name = "Vertex Edit Tool"
   icon = "bk-tool-icon-vertex-edit"

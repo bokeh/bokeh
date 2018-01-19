@@ -1,5 +1,14 @@
 import {Keys} from "core/dom"
+import {MultiLine} from "models/glyphs/multi_line"
+import {Patches} from "models/glyphs/patches"
+import {GlyphRenderer} from "models/renderers/glyph_renderer"
+import {ColumnDataSource} from "models/sources/column_data_source"
 import {EditTool, EditToolView} from "./edit_tool"
+
+export interface HasPolyCDS {
+  data_source: ColumnDataSource
+  glyph: MultiLine | Patches
+}
 
 export interface BkEv {
   bokeh: {
@@ -88,6 +97,8 @@ export class PolyDrawToolView extends EditToolView {
 
 
 export class PolyDrawTool extends EditTool {
+  renderers: GlyphRenderer[] & Array<HasPolyCDS>
+
   tool_name = "Polygon Draw Tool"
   icon = "bk-tool-icon-polygon-draw"
   event_type = ["pan", "tap"]

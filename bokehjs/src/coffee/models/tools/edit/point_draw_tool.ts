@@ -1,6 +1,14 @@
 import {Keys} from "core/dom"
 import * as p from "core/properties"
+import {XYGlyph} from "models/glyphs/xy_glyph"
+import {GlyphRenderer} from "models/renderers/glyph_renderer"
+import {ColumnDataSource} from "models/sources/column_data_source"
 import {EditTool, EditToolView} from "./edit_tool"
+
+export interface HasXYCDS {
+  glyph: XYGlyph
+  data_source: ColumnDataSource
+}
 
 export interface BkEv {
   bokeh: {
@@ -71,7 +79,7 @@ export class PointDrawToolView extends EditToolView {
   }
 
   _pan(e: BkEv): void {
-    if (!this.model.drag) {
+    if (!this.model.drag || this._basepoint == null) {
       return;
     }
     // If a Point is selected drag it
@@ -112,6 +120,7 @@ export class PointDrawToolView extends EditToolView {
 export class PointDrawTool extends EditTool {
   add: boolean
   drag: boolean
+  renderers: GlyphRenderer[] & Array<HasXYCDS>
 
   tool_name = "Point Draw Tool"
   icon = "bk-tool-icon-point-draw"
