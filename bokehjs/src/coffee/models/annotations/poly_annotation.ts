@@ -32,7 +32,7 @@ export class PolyAnnotationView extends AnnotationView {
     const { frame } = this.plot_view;
     ({ ctx } = this.plot_view.canvas_view);
 
-    for (let i = 0, end = xs.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+    for (let i = 0, end = xs.length; i < end; i++) {
       let sx, sy;
       if (this.model.xs_units === 'screen')
         sx = this.model.screen ? xs[i] : frame.xview.compute(xs[i]);

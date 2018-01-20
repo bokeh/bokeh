@@ -134,7 +134,6 @@ export class GlyphView extends View {
 
   sdist(scale, pts, spans, pts_location = "edge", dilate = false) {
     let pt0, pt1;
-    let i;
     if (scale.source_range.v_synthetic != null) {
       pts = scale.source_range.v_synthetic(pts);
     }
@@ -142,30 +141,27 @@ export class GlyphView extends View {
     if (pts_location === 'center') {
       const halfspan = (spans.map((d) => d / 2));
       pt0 = ((() => {
-        let asc, end;
         const result = [];
-        for (i = 0, end = pts.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+        for (let i = 0, end = pts.length; i < end; i++) {
           result.push(pts[i] - halfspan[i]);
         }
         return result;
       })());
       pt1 = ((() => {
-        let asc1, end1;
-        const result1 = [];
-        for (i = 0, end1 = pts.length, asc1 = 0 <= end1; asc1 ? i < end1 : i > end1; asc1 ? i++ : i--) {
-          result1.push(pts[i] + halfspan[i]);
+        const result = [];
+        for (let i = 0, end = pts.length; i < end; i++) {
+          result.push(pts[i] + halfspan[i]);
         }
-        return result1;
+        return result;
       })());
     } else {
       pt0 = pts;
       pt1 = ((() => {
-        let asc2, end2;
-        const result2 = [];
-        for (i = 0, end2 = pt0.length, asc2 = 0 <= end2; asc2 ? i < end2 : i > end2; asc2 ? i++ : i--) {
-          result2.push(pt0[i] + spans[i]);
+        const result = [];
+        for (let i = 0, end = pt0.length; i < end; i++) {
+          result.push(pt0[i] + spans[i]);
         }
-        return result2;
+        return result;
       })());
     }
 
@@ -174,21 +170,19 @@ export class GlyphView extends View {
 
     if (dilate) {
       return ((() => {
-        let asc3, end3;
-        const result3 = [];
-        for (i = 0, end3 = spt0.length, asc3 = 0 <= end3; asc3 ? i < end3 : i > end3; asc3 ? i++ : i--) {
-          result3.push(Math.ceil(Math.abs(spt1[i] - spt0[i])));
+        const result = [];
+        for (let i = 0, end = spt0.length; i < end; i++) {
+          result.push(Math.ceil(Math.abs(spt1[i] - spt0[i])));
         }
-        return result3;
+        return result;
       })());
     } else {
       return ((() => {
-        let asc4, end4;
-        const result4 = [];
-        for (i = 0, end4 = spt0.length, asc4 = 0 <= end4; asc4 ? i < end4 : i > end4; asc4 ? i++ : i--) {
-          result4.push(Math.abs(spt1[i] - spt0[i]));
+        const result = [];
+        for (let i = 0, end = spt0.length; i < end; i++) {
+          result.push(Math.abs(spt1[i] - spt0[i]));
         }
-        return result4;
+        return result;
       })());
     }
   }
@@ -336,7 +330,7 @@ export class GlyphView extends View {
       yname = `_${yname}`;
       if (isArray(this[xname] != null ? this[xname][0] : undefined) || __guard__(this[xname] != null ? this[xname][0] : undefined, x => x.buffer) instanceof ArrayBuffer) {
         [ this[sxname], this[syname] ] = [ [], [] ];
-        for (let i = 0, end = this[xname].length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+        for (let i = 0, end = this[xname].length; i < end; i++) {
           const [sx, sy] = this.map_to_screen(this[xname][i], this[yname][i]);
           this[sxname].push(sx);
           this[syname].push(sy);

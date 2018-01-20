@@ -29,7 +29,7 @@ export class BasicTickFormatter extends TickFormatter {
   }
 
   doFormat(ticks, _axis) {
-    let i, labels;
+    let labels;
     if (ticks.length === 0) {
       return [];
     }
@@ -57,26 +57,22 @@ export class BasicTickFormatter extends TickFormatter {
     if ((precision == null) || isNumber(precision)) {
       labels = new Array(ticks.length);
       if (need_sci) {
-        let asc, end;
-        for (i = 0, end = ticks.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+        for (let i = 0, end = ticks.length; i < end; i++) {
           labels[i] = ticks[i].toExponential(precision || undefined);
         }
       } else {
-        let asc1, end1;
-        for (i = 0, end1 = ticks.length, asc1 = 0 <= end1; asc1 ? i < end1 : i > end1; asc1 ? i++ : i--) {
-          labels[i] = ticks[i].toFixed(precision || undefined).replace(
-            /(\.[0-9]*?)0+$/, "$1").replace(/\.$/, "");
+        for (let i = 0, end = ticks.length; i < end; i++) {
+          labels[i] = ticks[i].toFixed(precision || undefined).replace(/(\.[0-9]*?)0+$/, "$1").replace(/\.$/, "");
         }
       }
       return labels;
 
     } else if (precision === 'auto') {
       labels = new Array(ticks.length);
-      for (let x = this.last_precision, asc2 = this.last_precision <= 15; asc2 ? x <= 15 : x >= 15; asc2 ? x++ : x--) {
+      for (let x = this.last_precision, asc = this.last_precision <= 15; asc ? x <= 15 : x >= 15; asc ? x++ : x--) {
         let is_ok = true;
         if (need_sci) {
-          let asc3, end2;
-          for (i = 0, end2 = ticks.length, asc3 = 0 <= end2; asc3 ? i < end2 : i > end2; asc3 ? i++ : i--) {
+          for (let i = 0, end = ticks.length; i < end; i++) {
             labels[i] = ticks[i].toExponential(x);
             if (i > 0) {
               if (labels[i] === labels[i-1]) {
@@ -89,10 +85,8 @@ export class BasicTickFormatter extends TickFormatter {
             break;
           }
         } else {
-          let asc4, end3;
-          for (i = 0, end3 = ticks.length, asc4 = 0 <= end3; asc4 ? i < end3 : i > end3; asc4 ? i++ : i--) {
-            labels[i] = ticks[i].toFixed(x).replace(
-              /(\.[0-9]*?)0+$/, "$1").replace(/\.$/, "");
+          for (let i = 0, end = ticks.length; i < end; i++) {
+            labels[i] = ticks[i].toFixed(x).replace(/(\.[0-9]*?)0+$/, "$1").replace(/\.$/, "");
             if (i > 0) {
               if (labels[i] === labels[i-1]) {
                 is_ok = false;

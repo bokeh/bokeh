@@ -39,7 +39,7 @@ export class TapToolView extends SelectToolView {
     if (this.model.behavior == "select") {
       const renderers_by_source = this._computed_renderers_by_data_source()
 
-      for(const id in renderers_by_source) {
+      for (const id in renderers_by_source) {
         const renderers = renderers_by_source[id]
         const sm = renderers[0].get_selection_manager()
         const r_views = renderers.map((r) => this.plot_view.renderer_views[r.id])

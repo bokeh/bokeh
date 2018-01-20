@@ -35,7 +35,7 @@ export class LogTickFormatter extends TickFormatter {
 
     let small_interval = false;
     let labels = new Array(ticks.length);
-    for (let i = 0, end = ticks.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+    for (let i = 0, end = ticks.length; i < end; i++) {
       labels[i] = `${base}^${ Math.round(Math.log(ticks[i]) / Math.log(base)) }`;
       if ((i > 0) && (labels[i] === labels[i-1])) {
         small_interval = true;

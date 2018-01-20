@@ -74,7 +74,7 @@ export class ProxyToolbar extends ToolbarBase {
     // Go through all the tools on the toolbar and replace them with
     // a proxy e.g. PanTool, BoxSelectTool, etc.
 
-    let active, tool, tool_type, tools;
+    let active, tools;
     this._proxied_tools = [];
 
     const inspectors = {};
@@ -97,7 +97,7 @@ export class ProxyToolbar extends ToolbarBase {
       if (!(event_type in gestures)) {
         gestures[event_type] = {};
       }
-      for (tool of info.tools) {
+      for (const tool of info.tools) {
         if (!(tool.type in gestures[event_type])) {
           gestures[event_type][tool.type] = [];
         }
@@ -105,14 +105,14 @@ export class ProxyToolbar extends ToolbarBase {
       }
     }
 
-    for (tool of this.inspectors) {
+    for (const tool of this.inspectors) {
       if (!(tool.type in inspectors)) {
         inspectors[tool.type] = [];
       }
       inspectors[tool.type].push(tool);
     }
 
-    for (tool of this.actions) {
+    for (const tool of this.actions) {
       if (!(tool.type in actions)) {
         actions[tool.type] = [];
       }
@@ -128,7 +128,7 @@ export class ProxyToolbar extends ToolbarBase {
 
     for (const event_type in gestures) {
       this.gestures[event_type].tools = [];
-      for (tool_type in gestures[event_type]) {
+      for (const tool_type in gestures[event_type]) {
         tools = gestures[event_type][tool_type];
         if (tools.length > 0) {
           const proxy = make_proxy(tools);
@@ -139,7 +139,7 @@ export class ProxyToolbar extends ToolbarBase {
     }
 
     this.actions = [];
-    for (tool_type in actions) {
+    for (const tool_type in actions) {
       tools = actions[tool_type];
       if (tools.length > 0) {
         this.actions.push(make_proxy(tools));
@@ -147,7 +147,7 @@ export class ProxyToolbar extends ToolbarBase {
     }
 
     this.inspectors = [];
-    for (tool_type in inspectors) {
+    for (const tool_type in inspectors) {
       tools = inspectors[tool_type];
       if (tools.length > 0) {
         this.inspectors.push(make_proxy(tools, (active=true)));

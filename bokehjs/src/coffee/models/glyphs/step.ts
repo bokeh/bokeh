@@ -16,8 +16,7 @@ export class StepView extends XYGlyphView {
 
     ctx.moveTo(sx[0], sy[0]);
 
-    for (let i = 1, end = L, asc = 1 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
-
+    for (let i = 1, end = L; i < end; i++) {
       let x1, x2, y1, y2;
       switch (this.model.mode) {
         case "before": {

@@ -71,7 +71,7 @@ export const line_width = function(width) {
 
 export const fill_array_with_float = function(n, val) {
     const a = new Float32Array(n);
-    for (let i = 0, end = n, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+    for (let i = 0, end = n; i < end; i++) {
       a[i] = val;
     }
     return a;
@@ -79,8 +79,8 @@ export const fill_array_with_float = function(n, val) {
 
 export const fill_array_with_vec = function(n, m, val) {
     const a = new Float32Array(n*m);
-    for (let i = 0, end = n, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
-      for (let j = 0, end1 = m, asc1 = 0 <= end1; asc1 ? j < end1 : j > end1; asc1 ? j++ : j--) {
+    for (let i = 0, end = n; i < end; i++) {
+      for (let j = 0, endj = m; j < endj; j++) {
         a[(i*m)+j] = val[j];
       }
     }
@@ -116,7 +116,6 @@ export const attach_color = function(prog, vbo, att_name, n, visual, prefix) {
     // then use this single color for all vertices (no VBO). Otherwise we
     // create an array and upload that to the VBO, which we attahce to the prog.
     let rgba;
-    let i;
     const m = 4;
     const colorname = prefix + '_color';
     const alphaname = prefix + '_alpha';
@@ -133,14 +132,12 @@ export const attach_color = function(prog, vbo, att_name, n, visual, prefix) {
     } else {
       // Use vbo; we need an array for both the color and the alpha
       let alphas, colors;
-      let asc1, end1;
       vbo.used = true;
       // Get array of colors
       if (visual_prop_is_singular(visual, colorname)) {
         colors = ((() => {
-          let asc, end;
           const result = [];
-          for (i = 0, end = n, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+          for (let i = 0, end = n; i < end; i++) {
             result.push(visual[colorname].value());
           }
           return result;
@@ -156,9 +153,9 @@ export const attach_color = function(prog, vbo, att_name, n, visual, prefix) {
       }
       // Create array of rgbs
       const a = new Float32Array(n*m);
-      for (i = 0, end1 = n, asc1 = 0 <= end1; asc1 ? i < end1 : i > end1; asc1 ? i++ : i--) {
+      for (let i = 0, end = n; i < end; i++) {
         rgba = color2rgba(colors[i], alphas[i]);
-        for (let j = 0, end2 = m, asc2 = 0 <= end2; asc2 ? j < end2 : j > end2; asc2 ? j++ : j--) {
+        for (let j = 0, endj = m; j < endj; j++) {
           a[(i*m)+j] = rgba[j];
         }
       }

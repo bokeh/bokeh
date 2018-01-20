@@ -146,7 +146,7 @@ export class DatetimeTickFormatter extends TickFormatter {
       // If a width is provided, then we pick the most appropriate scale,
       // otherwise just use the widest format
       const good_formats = [];
-      for (let i = 0, end = widths.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+      for (let i = 0, end = widths.length; i < end; i++) {
         if ((widths[i] * ticks.length) < (fill_ratio * char_width)) {
           good_formats.push(this._width_formats[i]);
         }

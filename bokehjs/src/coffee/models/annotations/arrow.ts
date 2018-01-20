@@ -89,7 +89,7 @@ export class ArrowView extends AnnotationView {
     if (!this.visuals.line.doit)
       return;
 
-    for (let i = 0, end = this._x_start.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+    for (let i = 0, end = this._x_start.length; i < end; i++) {
       this.visuals.line.set_vectorize(ctx, i);
 
       ctx.beginPath();
@@ -100,7 +100,7 @@ export class ArrowView extends AnnotationView {
   }
 
   _arrow_head(ctx, action, head, start, end) {
-    for (let i = 0, end1 = this._x_start.length, asc = 0 <= end1; asc ? i < end1 : i > end1; asc ? i++ : i--) {
+    for (let i = 0, _end = this._x_start.length; i < _end; i++) {
       // arrow head runs orthogonal to arrow body
       const angle = (Math.PI/2) + atan2([start[0][i], start[1][i]], [end[0][i], end[1][i]]);
 

@@ -25,7 +25,7 @@ export class PatchesView extends GlyphView {
     //   2: [[x31],[x32]]
     // }
     const ds = {};
-    for (let i = 0, end = nanned_qs.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+    for (let i = 0, end = nanned_qs.length; i < end; i++) {
       ds[i] = [];
       let qs = copy(nanned_qs[i]);
       while (qs.length > 0) {
@@ -53,8 +53,8 @@ export class PatchesView extends GlyphView {
     const yss = this._build_discontinuous_object(this._ys);
 
     const points = [];
-    for (let i = 0, end = this._xs.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
-      for (let j = 0, end1 = xss[i].length, asc1 = 0 <= end1; asc1 ? j < end1 : j > end1; asc1 ? j++ : j--) {
+    for (let i = 0, end = this._xs.length; i < end; i++) {
+      for (let j = 0, endj = xss[i].length; j < endj; j++) {
         const xs = xss[i][j];
         const ys = yss[i][j];
         if (xs.length === 0) {
@@ -98,7 +98,7 @@ export class PatchesView extends GlyphView {
       if (this.visuals.fill.doit) {
         this.visuals.fill.set_vectorize(ctx, i);
 
-        for (let j = 0, end = sx.length, asc = 0 <= end; asc ? j < end : j > end; asc ? j++ : j--) {
+        for (let j = 0, end = sx.length; j < end; j++) {
           if (j === 0) {
             ctx.beginPath();
             ctx.moveTo(sx[j], sy[j]);
@@ -120,7 +120,7 @@ export class PatchesView extends GlyphView {
       if (this.visuals.line.doit) {
         this.visuals.line.set_vectorize(ctx, i);
 
-        for (let j = 0, end1 = sx.length, asc1 = 0 <= end1; asc1 ? j < end1 : j > end1; asc1 ? j++ : j--) {
+        for (let j = 0, end = sx.length; j < end; j++) {
           if (j === 0) {
             ctx.beginPath();
             ctx.moveTo(sx[j], sy[j]);
@@ -150,11 +150,11 @@ export class PatchesView extends GlyphView {
     const candidates = this.index.indices({minX: x, minY: y, maxX: x, maxY: y});
 
     const hits = [];
-    for (let i = 0, end = candidates.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+    for (let i = 0, end = candidates.length; i < end; i++) {
       const idx = candidates[i];
       const sxs = this.renderer.sxss[idx];
       const sys = this.renderer.syss[idx];
-      for (let j = 0, end1 = sxs.length, asc1 = 0 <= end1; asc1 ? j < end1 : j > end1; asc1 ? j++ : j--) {
+      for (let j = 0, endj = sxs.length; j < endj; j++) {
         if (hittest.point_in_poly(sx, sy, sxs[j], sys[j])) {
           hits.push(idx);
         }
@@ -183,7 +183,7 @@ export class PatchesView extends GlyphView {
       // one we're in, we can use point_in_poly again
       const sxs = this.renderer.sxss[i];
       const sys = this.renderer.syss[i];
-      for (let j = 0, end = sxs.length, asc = 0 <= end; asc ? j < end : j > end; asc ? j++ : j--) {
+      for (let j = 0, end = sxs.length; j < end; j++) {
         if (hittest.point_in_poly(sx, sy, sxs[j], sys[j])) {
           return this._get_snap_coord(sxs[j]);
         }
@@ -201,7 +201,7 @@ export class PatchesView extends GlyphView {
       // one we're in, we can use point_in_poly again
       const sxs = this.renderer.sxss[i];
       const sys = this.renderer.syss[i];
-      for (let j = 0, end = sxs.length, asc = 0 <= end; asc ? j < end : j > end; asc ? j++ : j--) {
+      for (let j = 0, end = sxs.length; j < end; j++) {
         if (hittest.point_in_poly(sx, sy, sxs[j], sys[j])) {
           return this._get_snap_coord(sys[j]);
         }

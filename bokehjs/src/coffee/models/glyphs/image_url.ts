@@ -20,7 +20,7 @@ export class ImageURLView extends GlyphView {
 
     this.retries = this._url.map((_) => retry_attempts)
 
-    for (let i = 0, end = this._url.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+    for (let i = 0, end = this._url.length; i < end; i++) {
       if ((this._url[i] == null))
         continue;
 

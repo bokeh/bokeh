@@ -30,10 +30,6 @@ export const stream_to_column = function(col, new_col, rollover) {
 
   // handle rollover case for typed arrays
   if ((rollover != null) && (total_len > rollover)) {
-
-    let i
-    let asc, end1
-    let asc1, end2
     const start = total_len - rollover
     const end = col.length
 
@@ -45,12 +41,12 @@ export const stream_to_column = function(col, new_col, rollover) {
     }
 
     // shift values in original col to accommodate new_col
-    for (i = start, end1 = end, asc = start <= end1; asc ? i < end1 : i > end1; asc ? i++ : i--) {
+    for (let i = start, endi = end; i < endi; i++) {
       col[i-start] = col[i]
     }
 
     // update end values in col with new_col
-    for (i = 0, end2 = new_col.length, asc1 = 0 <= end2; asc1 ? i < end2 : i > end2; asc1 ? i++ : i--) {
+    for (let i = 0, endi = new_col.length; i < endi; i++) {
       col[i+(end-start)] = new_col[i]
     }
 
@@ -111,8 +107,8 @@ export const patch_to_column = function(col, patch, shapes) {
     const [istart, istop, istep] = slice(ind[1], shape[0])
     const [jstart, jstop, jstep] = slice(ind[2], shape[1])
 
-    for (let i = istart, end = istop, step = istep, asc = step > 0; asc ? i < end : i > end; i += step) {
-      for (let j = jstart, end1 = jstop, step1 = jstep, asc1 = step1 > 0; asc1 ? j < end1 : j > end1; j += step1) {
+    for (let i = istart; i < istop; i += istep) {
+      for (let j = jstart; j < jstop; j += jstep) {
         if (patched_range) {
           patched.push(j)
         }

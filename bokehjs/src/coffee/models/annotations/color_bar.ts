@@ -241,7 +241,7 @@ export class ColorBarView extends AnnotationView {
     ctx.save();
     ctx.translate(x_offset, y_offset);
     this.visuals.major_tick_line.set_value(ctx);
-    for (let i = 0, end = sx.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+    for (let i = 0, end = sx.length; i < end; i++) {
       ctx.beginPath();
       ctx.moveTo(Math.round(sx[i]+(nx*tout)), Math.round(sy[i]+(ny*tout)));
       ctx.lineTo(Math.round(sx[i]-(nx*tin)), Math.round(sy[i]-(ny*tin)));
@@ -266,7 +266,7 @@ export class ColorBarView extends AnnotationView {
     ctx.save();
     ctx.translate(x_offset, y_offset);
     this.visuals.minor_tick_line.set_value(ctx);
-    for (let i = 0, end = sx.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+    for (let i = 0, end = sx.length; i < end; i++) {
       ctx.beginPath();
       ctx.moveTo(Math.round(sx[i]+(nx*tout)), Math.round(sy[i]+(ny*tout)));
       ctx.lineTo(Math.round(sx[i]-(nx*tin)), Math.round(sy[i]-(ny*tin)));
@@ -294,7 +294,7 @@ export class ColorBarView extends AnnotationView {
 
     ctx.save();
     ctx.translate(x_offset + x_standoff, y_offset + y_standoff);
-    for (let i = 0, end = sx.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+    for (let i = 0, end = sx.length; i < end; i++) {
       ctx.fillText(formatted_labels[i],
                    Math.round(sx[i]+(nx*this.model.label_standoff)),
                    Math.round(sy[i]+(ny*this.model.label_standoff)));
@@ -529,7 +529,7 @@ export class ColorBar extends Annotation {
     // will not function properly in conjunction with colorbars
     const formatted_labels = this.formatter.doFormat(labels, null);
 
-    for (let i = 0, end = major_ticks.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+    for (let i = 0, end = major_ticks.length; i < end; i++) {
       if (major_ticks[i] in this.major_label_overrides) {
         formatted_labels[i] = this.major_label_overrides[major_ticks[i]];
       }
@@ -539,9 +539,7 @@ export class ColorBar extends Annotation {
   }
 
   tick_info() {
-    let ii, scale_length;
-    let asc, end1;
-    let asc1, end2;
+    let scale_length;
     let coord;
     const image_dimensions = this._computed_image_dimensions();
     switch (this.orientation) {
@@ -570,7 +568,7 @@ export class ColorBar extends Annotation {
     const major_coords = coords.major;
     const minor_coords = coords.minor;
 
-    for (ii = 0, end1 = majors.length, asc = 0 <= end1; asc ? ii < end1 : ii > end1; asc ? ii++ : ii--) {
+    for (let ii = 0, _end = majors.length; ii < _end; ii++) {
       if ((majors[ii] < start) || (majors[ii] > end)) {
         continue;
       }
@@ -578,7 +576,7 @@ export class ColorBar extends Annotation {
       major_coords[j].push(0);
     }
 
-    for (ii = 0, end2 = minors.length, asc1 = 0 <= end2; asc1 ? ii < end2 : ii > end2; asc1 ? ii++ : ii--) {
+    for (let ii = 0, _end = minors.length; ii < _end; ii++) {
       if ((minors[ii] < start) || (minors[ii] > end)) {
         continue;
       }

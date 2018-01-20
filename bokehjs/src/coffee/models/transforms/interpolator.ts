@@ -101,7 +101,7 @@ export class Interpolator extends Transform {
       });
     }
 
-    for (let k = 0, end = list.length, asc = 0 <= end; asc ? k < end : k > end; asc ? k++ : k--) {
+    for (let k = 0, end = list.length; k < end; k++) {
       this._x_sorted[k] = list[k].x;
       this._y_sorted[k] = list[k].y;
     }
