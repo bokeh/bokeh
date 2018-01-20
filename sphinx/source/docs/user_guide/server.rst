@@ -377,6 +377,25 @@ plot):
   writing directly to ``request.connection`` is unsupported and will result in
   undefined behavior.
 
+When capturing groups are defined in regular expressions for application paths
+for a Bokeh application, you can get captured values in ``curdoc().session_context``
+via ``session_context.path_args`` and ``session_context.path_kwargs``.
+
+As an example, the following code will access the value of capturing groups
+for the ID of the graph, which is defined in the url pattern as named capturing
+group ``graph_id``:
+
+.. code-block:: python
+
+  # the url pattern of the application is defined as `/graphs/(?P<graph_id>[^/]+)
+  # and urls accepted by this pattern can be http://localhost:5006/graphs/345126
+
+  kwargs = curdoc().session_context.path_kwargs
+
+  # if the url requested is http://localhost:5006/graphs/345126,
+  # graph_id should be `345126`
+  graph_id = kwargs.get('graph_id', '')
+
 .. _userguide_server_applications_callbacks:
 
 Callbacks and Events
