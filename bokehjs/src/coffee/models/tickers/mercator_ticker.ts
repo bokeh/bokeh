@@ -5,6 +5,14 @@ import {proj4, mercator, clip_mercator, in_bounds} from "core/util/proj4"
 
 export class MercatorTicker extends BasicTicker {
 
+  static initClass() {
+    this.prototype.type = "MercatorTicker"
+
+    this.define({
+      dimension: [ p.LatLon ],
+    })
+  }
+
   dimension: LatLon | null | undefined
 
   get_ticks_no_defaults(data_low: number, data_high: number, cross_loc: any, desired_n_ticks: number) {
@@ -63,8 +71,4 @@ export class MercatorTicker extends BasicTicker {
   }
 }
 
-MercatorTicker.prototype.type = "MercatorTicker"
-
-MercatorTicker.define({
-  dimension: [ p.LatLon ],
-})
+MercatorTicker.initClass()

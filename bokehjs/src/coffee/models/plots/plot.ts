@@ -36,6 +36,10 @@ export class PlotView extends LayoutDOMView {
     this.connect(this.model.properties.title.change, () => logger.warn(title_msg))
   }
 
+  css_classes(): string[] {
+    return super.css_classes().concat("bk-plot-layout")
+  }
+
   get_height(): number {
     return this.model._width.value / this.model.get_aspect_ratio()
   }
@@ -54,9 +58,75 @@ export class PlotView extends LayoutDOMView {
   }
 }
 
-PlotView.prototype.className = "bk-plot-layout"
-
 export class Plot extends LayoutDOM {
+
+  static initClass() {
+    this.prototype.type = "Plot"
+
+    this.prototype.default_view = PlotView
+
+    this.mixins(["line:outline_", "fill:background_", "fill:border_"])
+
+    this.define({
+      toolbar:           [ p.Instance, () => new Toolbar()     ],
+      toolbar_location:  [ p.Location, 'right'                 ],
+      toolbar_sticky:    [ p.Boolean,  true                    ],
+
+      plot_width:        [ p.Number,   600                     ],
+      plot_height:       [ p.Number,   600                     ],
+
+      title:             [ p.Any, () => new Title({text: ""})  ], // TODO: p.Either(p.Instance(Title), p.String)
+      title_location:    [ p.Location, 'above'                 ],
+
+      h_symmetry:        [ p.Bool,     true                    ],
+      v_symmetry:        [ p.Bool,     false                   ],
+
+      above:             [ p.Array,    []                      ],
+      below:             [ p.Array,    []                      ],
+      left:              [ p.Array,    []                      ],
+      right:             [ p.Array,    []                      ],
+
+      renderers:         [ p.Array,    []                      ],
+
+      x_range:           [ p.Instance                          ],
+      extra_x_ranges:    [ p.Any,      {}                      ], // TODO (bev)
+      y_range:           [ p.Instance                          ],
+      extra_y_ranges:    [ p.Any,      {}                      ], // TODO (bev)
+
+      x_scale:           [ p.Instance, () => new LinearScale() ],
+      y_scale:           [ p.Instance, () => new LinearScale() ],
+
+      lod_factor:        [ p.Number,   10                      ],
+      lod_interval:      [ p.Number,   300                     ],
+      lod_threshold:     [ p.Number,   2000                    ],
+      lod_timeout:       [ p.Number,   500                     ],
+
+      hidpi:             [ p.Bool,     true                    ],
+      output_backend:    [ p.OutputBackend, "canvas"           ],
+
+      min_border:        [ p.Number,   5                       ],
+      min_border_top:    [ p.Number,   null                    ],
+      min_border_left:   [ p.Number,   null                    ],
+      min_border_bottom: [ p.Number,   null                    ],
+      min_border_right:  [ p.Number,   null                    ],
+
+      inner_width:       [ p.Number                            ],
+      inner_height:      [ p.Number                            ],
+      layout_width:      [ p.Number                            ],
+      layout_height:     [ p.Number                            ],
+
+      match_aspect:      [ p.Bool,     false                   ],
+      aspect_scale:      [ p.Number,   1                       ],
+    })
+
+    this.override({
+      outline_line_color: "#e5e5e5",
+      border_fill_color: "#ffffff",
+      background_fill_color: "#ffffff",
+    })
+
+    register_with_event(UIEvent, this)
+  }
 
   toolbar: Toolbar
   toolbar_location: Location | null
@@ -111,8 +181,8 @@ export class Plot extends LayoutDOM {
   protected _plot_canvas: PlotCanvas
   protected _toolbar_panel: ToolbarPanel | null
 
-  initialize(attrs: any, options: any): void {
-    super.initialize(attrs, options)
+  initialize(options: any): void {
+    super.initialize(options)
 
     for (const xr of values(this.extra_x_ranges).concat(this.x_range)) {
       let plots = xr.plots
@@ -308,68 +378,4 @@ export class Plot extends LayoutDOM {
   }
 }
 
-Plot.prototype.type = "Plot"
-
-Plot.prototype.default_view = PlotView
-
-Plot.mixins(["line:outline_", "fill:background_", "fill:border_"])
-
-Plot.define({
-  toolbar:           [ p.Instance, () => new Toolbar()     ],
-  toolbar_location:  [ p.Location, 'right'                 ],
-  toolbar_sticky:    [ p.Boolean,  true                    ],
-
-  plot_width:        [ p.Number,   600                     ],
-  plot_height:       [ p.Number,   600                     ],
-
-  title:             [ p.Any, () => new Title({text: ""})  ], // TODO: p.Either(p.Instance(Title), p.String)
-  title_location:    [ p.Location, 'above'                 ],
-
-  h_symmetry:        [ p.Bool,     true                    ],
-  v_symmetry:        [ p.Bool,     false                   ],
-
-  above:             [ p.Array,    []                      ],
-  below:             [ p.Array,    []                      ],
-  left:              [ p.Array,    []                      ],
-  right:             [ p.Array,    []                      ],
-
-  renderers:         [ p.Array,    []                      ],
-
-  x_range:           [ p.Instance                          ],
-  extra_x_ranges:    [ p.Any,      {}                      ], // TODO (bev)
-  y_range:           [ p.Instance                          ],
-  extra_y_ranges:    [ p.Any,      {}                      ], // TODO (bev)
-
-  x_scale:           [ p.Instance, () => new LinearScale() ],
-  y_scale:           [ p.Instance, () => new LinearScale() ],
-
-  lod_factor:        [ p.Number,   10                      ],
-  lod_interval:      [ p.Number,   300                     ],
-  lod_threshold:     [ p.Number,   2000                    ],
-  lod_timeout:       [ p.Number,   500                     ],
-
-  hidpi:             [ p.Bool,     true                    ],
-  output_backend:    [ p.OutputBackend, "canvas"           ],
-
-  min_border:        [ p.Number,   5                       ],
-  min_border_top:    [ p.Number,   null                    ],
-  min_border_left:   [ p.Number,   null                    ],
-  min_border_bottom: [ p.Number,   null                    ],
-  min_border_right:  [ p.Number,   null                    ],
-
-  inner_width:       [ p.Number                            ],
-  inner_height:      [ p.Number                            ],
-  layout_width:      [ p.Number                            ],
-  layout_height:     [ p.Number                            ],
-
-  match_aspect:      [ p.Bool,     false                   ],
-  aspect_scale:      [ p.Number,   1                       ],
-})
-
-Plot.override({
-  outline_line_color: "#e5e5e5",
-  border_fill_color: "#ffffff",
-  background_fill_color: "#ffffff",
-})
-
-register_with_event(UIEvent, Plot)
+Plot.initClass()

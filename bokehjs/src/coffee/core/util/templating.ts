@@ -23,11 +23,10 @@ const _format_number = function(number) {
   }
 };
 
-export const replace_placeholders = function(string, data_source, i, formatters, special_vars) {
-  if (special_vars == null) { special_vars = {}; }
-  string = string.replace(/(^|[^\$])\$(\w+)/g, (match, prefix, name) => `${prefix}@$${name}`);
+export const replace_placeholders = function(string, data_source, i, formatters = null, special_vars = {}) {
+  string = string.replace(/(^|[^\$])\$(\w+)/g, (_match, prefix, name) => `${prefix}@$${name}`);
 
-  string = string.replace(/(^|[^@])@(?:(\$?\w+)|{([^{}]+)})(?:{([^{}]+)})?/g, (match, prefix, name, long_name, format) => {
+  string = string.replace(/(^|[^@])@(?:(\$?\w+)|{([^{}]+)})(?:{([^{}]+)})?/g, (_match, prefix, name, long_name, format) => {
     name = (long_name != null) ? long_name : name;
 
     const value =

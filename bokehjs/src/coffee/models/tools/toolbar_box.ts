@@ -11,6 +11,7 @@
 
 import * as p from "core/properties";
 import {empty} from "core/dom";
+import {logger} from "core/logging"
 import {any, sortBy, includes} from "core/util/array";
 
 import {ActionTool} from "./actions/action_tool";
@@ -82,7 +83,7 @@ export class ProxyToolbar extends ToolbarBase {
 
     const new_help_tools = [];
     const new_help_urls = [];
-    for (let helptool of this.help) {
+    for (const helptool of this.help) {
       if (!includes(new_help_urls, helptool.redirect)) {
         new_help_tools.push(helptool);
         new_help_urls.push(helptool.redirect);
@@ -119,14 +120,13 @@ export class ProxyToolbar extends ToolbarBase {
     }
 
     // Add a proxy for each of the groups of tools.
-    const make_proxy = (tools, active) => {
-      if (active == null) { active = false; }
+    const make_proxy = (tools, active = false) => {
       const proxy = new ToolProxy({tools, active});
       this._proxied_tools.push(proxy);
       return proxy;
     };
 
-    for (event_type in gestures) {
+    for (const event_type in gestures) {
       this.gestures[event_type].tools = [];
       for (tool_type in gestures[event_type]) {
         tools = gestures[event_type][tool_type];
@@ -154,7 +154,7 @@ export class ProxyToolbar extends ToolbarBase {
       }
     }
 
-    for (let et in this.gestures) {
+    for (const et in this.gestures) {
       ({ tools } = this.gestures[et]);
       if (tools.length === 0) {
         continue;
@@ -168,9 +168,6 @@ export class ProxyToolbar extends ToolbarBase {
 ProxyToolbar.initClass();
 
 export class ToolbarBoxView extends LayoutDOMView {
-  static initClass() {
-    this.prototype.className = 'bk-toolbar-box';
-  }
 
   initialize(options: any): void {
     super.initialize(options);
@@ -182,6 +179,10 @@ export class ToolbarBoxView extends LayoutDOMView {
   remove(): void {
     remove_views(this._toolbar_views);
     super.remove();
+  }
+
+  css_classes(): string[] {
+    return super.css_classes().concat("bk-toolbar-box")
   }
 
   render(): void {
@@ -202,7 +203,6 @@ export class ToolbarBoxView extends LayoutDOMView {
     if (this.model.toolbar.horizontal) { return 30; } else { return null; }
   }
 }
-ToolbarBoxView.initClass();
 
 export class ToolbarBox extends LayoutDOM {
   static initClass() {

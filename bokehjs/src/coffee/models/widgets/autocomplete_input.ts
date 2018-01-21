@@ -54,7 +54,7 @@ export class AutocompleteInputView extends TextInputView {
     }
   }
 
-  _keydown(event): void {}
+  _keydown(_event): void {}
 
   _keyup(event): void {
     switch (event.keyCode) {
@@ -72,7 +72,7 @@ export class AutocompleteInputView extends TextInputView {
         break
       }
       default: {
-        value = this.inputEl.value
+        const value = this.inputEl.value
 
         if (value.length <= 1) {
           this._clear_menu()
@@ -97,17 +97,22 @@ export class AutocompleteInputView extends TextInputView {
 }
 
 export class AutocompleteInput extends TextInput {
+
+  static initClass() {
+    this.prototype.type = "AutocompleteInput"
+    this.prototype.default_view = AutocompleteInputView
+
+    this.define({
+      completions: [ p.Array, [] ]
+    })
+
+    this.internal({
+      active: [p.Boolean, true]
+    })
+  }
+
   completions: string[]
   active: boolean
 }
 
-AutocompleteInput.prototype.type = "AutocompleteInput"
-AutocompleteInput.prototype.default_view = AutocompleteInputView
-
-AutocompleteInput.define({
-  completions: [ p.Array, [] ]
-})
-
-AutocompleteInput.internal({
-  active: [p.Boolean, true]
-})
+AutocompleteInput.initClass()

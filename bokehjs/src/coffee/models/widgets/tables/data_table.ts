@@ -15,6 +15,8 @@ import {WidgetView} from "../widget"
 
 export const DTINDEX_NAME = "__bkdt_internal_index__";
 
+declare var $: any
+
 export class DataProvider {
 
   constructor(source, view) {
@@ -30,7 +32,7 @@ export class DataProvider {
 
   getItem(offset) {
     const item = {};
-    for (let field of Object.keys(this.source.data)) {
+    for (const field of Object.keys(this.source.data)) {
       item[field] = this.source.data[field][this.index[offset]];
     }
     item[DTINDEX_NAME] = this.index[offset];
@@ -38,7 +40,7 @@ export class DataProvider {
   }
 
   setItem(offset, item) {
-    for (let field in item) {
+    for (const field in item) {
       // internal index is maintained independently, ignore
       const value = item[field];
       if (field !== DTINDEX_NAME) {
@@ -63,7 +65,7 @@ export class DataProvider {
     return null;
   }
 
-  getItemMetadata(index) { return null; }
+  getItemMetadata(_index) { return null; }
 
   getRecords() {
     return (range(0, this.getLength()).map((i) => this.getItem(i)));
@@ -81,7 +83,7 @@ export class DataProvider {
 
     // TODO (bev) this sort is unstable, which is not great
     return this.index.sort(function(i1, i2) {
-      for (let [field, sign] of cols) {
+      for (const [field, sign] of cols) {
         const value1 = records[old_index.indexOf(i1)][field];
         const value2 = records[old_index.indexOf(i2)][field];
         const result =
@@ -102,13 +104,10 @@ export class DataProvider {
 }
 
 export class DataTableView extends WidgetView {
-  static initClass() {
-    this.prototype.className = "bk-data-table";
-  }
 
-  initialize(options) {
+  initialize(options: any): void {
     super.initialize(options);
-    return this.in_selection_update = false;
+    this.in_selection_update = false;
   }
 
   connect_signals() {
@@ -177,6 +176,10 @@ export class DataTableView extends WidgetView {
     };
   }
 
+  css_classes(): string[] {
+    return super.css_classes().concat("bk-data-table")
+  }
+
   render() {
     let checkboxSelector;
     let columns = (this.model.columns.map((column) => column.toColumn()));
@@ -223,7 +226,7 @@ export class DataTableView extends WidgetView {
     this.data = new DataProvider(this.model.source, this.model.view);
     this.grid = new SlickGrid(this.el, this.data, columns, options);
 
-    this.grid.onSort.subscribe((event, args) => {
+    this.grid.onSort.subscribe((_event, args) => {
       columns = args.sortCols;
       this.data.sort(columns);
       this.grid.invalidate();
@@ -235,7 +238,7 @@ export class DataTableView extends WidgetView {
       this.grid.setSelectionModel(new RowSelectionModel({selectActiveRow: (checkboxSelector == null)}));
       if (checkboxSelector != null) { this.grid.registerPlugin(checkboxSelector); }
 
-      this.grid.onSelectedRowsChanged.subscribe((event, args) => {
+      this.grid.onSelectedRowsChanged.subscribe((_event, args) => {
         if (this.in_selection_update) {
           return;
         }
@@ -251,7 +254,6 @@ export class DataTableView extends WidgetView {
     return this;
   }
 }
-DataTableView.initClass();
 
 export class DataTable extends TableWidget {
   static initClass() {

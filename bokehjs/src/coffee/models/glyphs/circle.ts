@@ -22,7 +22,7 @@ export class CircleView extends XYGlyphView {
     }
   }
 
-  _mask_data(all_indices) {
+  _mask_data(_all_indices) {
     let sx0, sx1, sy0, sy1, x0, x1, y0, y1;
     const [hr, vr] = this.renderer.plot_view.frame.bbox.ranges;
 
@@ -55,7 +55,7 @@ export class CircleView extends XYGlyphView {
   }
 
   _render(ctx, indices, {sx, sy, sradius}) {
-    for (let i of indices) {
+    for (const i of indices) {
       if (isNaN(sx[i]+sy[i]+sradius[i])) {
         continue;
       }
@@ -235,8 +235,8 @@ export class Circle extends XYGlyph {
       });
   }
 
-  initialize(attrs: any, options: any): void {
-    super.initialize(attrs, options);
+  initialize(options: any): void {
+    super.initialize(options);
     this.properties.radius.optional = true;
   }
 }

@@ -5,16 +5,21 @@ import {DatetimeTicker} from "../tickers/datetime_ticker"
 export class DatetimeAxisView extends LinearAxisView {}
 
 export class DatetimeAxis extends LinearAxis {
+
+  static initClass() {
+    this.prototype.type = "DatetimeAxis"
+
+    this.prototype.default_view = DatetimeAxisView
+
+    this.override({
+      ticker:    () => new DatetimeTicker(),
+      formatter: () => new DatetimeTickFormatter(),
+    })
+  }
+
   // XXX
   //ticker:    DatetimeTicker
   //formatter: DatetimeTickFormatter
 }
 
-DatetimeAxis.prototype.type = "DatetimeAxis"
-
-DatetimeAxis.prototype.default_view = DatetimeAxisView
-
-DatetimeAxis.override({
-  ticker:    () => new DatetimeTicker(),
-  formatter: () => new DatetimeTickFormatter(),
-})
+DatetimeAxis.initClass()

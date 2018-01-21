@@ -27,6 +27,18 @@ export class ZoomInToolView extends ActionToolView {
 }
 
 export class ZoomInTool extends ActionTool {
+
+  static initClass() {
+    this.prototype.type = "ZoomInTool"
+
+    this.prototype.default_view = ZoomInToolView
+
+    this.define({
+      factor:     [ p.Percent,    0.1    ],
+      dimensions: [ p.Dimensions, "both" ],
+    })
+  }
+
   factor: number
   dimensions: Dimensions
 
@@ -38,11 +50,4 @@ export class ZoomInTool extends ActionTool {
   }
 }
 
-ZoomInTool.prototype.type = "ZoomInTool"
-
-ZoomInTool.prototype.default_view = ZoomInToolView
-
-ZoomInTool.define({
-  factor:     [ p.Percent,    0.1    ],
-  dimensions: [ p.Dimensions, "both" ],
-})
+ZoomInTool.initClass()

@@ -17,15 +17,14 @@ export class LinearColorMapper extends ColorMapper {
       });
   }
 
-  initialize(attrs: any, options: any): void {
-    super.initialize(attrs, options);
+  initialize(options: any): void {
+    super.initialize(options);
     this._nan_color = this._build_palette([color2hex(this.nan_color)])[0];
     this._high_color = (this.high_color != null) ? this._build_palette([color2hex(this.high_color)])[0] : undefined;
     this._low_color = (this.low_color != null) ? this._build_palette([color2hex(this.low_color)])[0] : undefined;
   }
 
-  _get_values(data, palette, image_glyph) {
-    if (image_glyph == null) { image_glyph = false; }
+  _get_values(data, palette, image_glyph = false) {
     const low = this.low != null ? this.low : min(data);
     const high = this.high != null ? this.high : max(data);
     const max_key = palette.length - 1;
@@ -38,7 +37,7 @@ export class LinearColorMapper extends ColorMapper {
     const norm_factor = 1 / (high - low);
     const normed_interval = 1 / palette.length;
 
-    for (let d of data) {
+    for (const d of data) {
       if (isNaN(d)) {
         values.push(nan_color);
         continue;

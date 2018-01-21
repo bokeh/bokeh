@@ -23,12 +23,12 @@ export class BasicTickFormatter extends TickFormatter {
     return Math.pow(10.0, this.power_limit_high)
   }
 
-  initialize(attrs: any, options: any): void {
-    super.initialize(attrs, options);
+  initialize(options: any): void {
+    super.initialize(options);
     this.last_precision = 3;
   }
 
-  doFormat(ticks, axis) {
+  doFormat(ticks, _axis) {
     let i, labels;
     if (ticks.length === 0) {
       return [];
@@ -41,7 +41,7 @@ export class BasicTickFormatter extends TickFormatter {
 
     let need_sci = false;
     if (this.use_scientific) {
-      for (let tick of ticks) {
+      for (const tick of ticks) {
         const tick_abs = Math.abs(tick);
         if ((tick_abs > zero_eps) &&
             ((tick_abs >= this.scientific_limit_high) ||

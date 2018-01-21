@@ -91,9 +91,9 @@ export class BezierView extends GlyphView {
     return new RBush(points);
   }
 
-  _render(ctx, indices, {sx0, sy0, sx1, sy1, scx, scx0, scy0, scx1, scy1}) {
+  _render(ctx, indices, {sx0, sy0, sx1, sy1, scx0, scy0, scx1, scy1}) {
     if (this.visuals.line.doit) {
-      for (let i of indices) {
+      for (const i of indices) {
         if (isNaN(sx0[i]+sy0[i]+sx1[i]+sy1[i]+scx0[i]+scy0[i]+scx1[i]+scy1[i])) {
           continue;
         }

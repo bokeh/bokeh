@@ -15,14 +15,19 @@ export class UndoToolView extends ActionToolView {
 }
 
 export class UndoTool extends ActionTool {
+
+  static initClass() {
+    this.prototype.type = "UndoTool"
+
+    this.prototype.default_view = UndoToolView
+
+    this.override({
+      disabled: true,
+    })
+  }
+
   tool_name = "Undo"
   icon = "bk-tool-icon-undo"
 }
 
-UndoTool.prototype.type = "UndoTool"
-
-UndoTool.prototype.default_view = UndoToolView
-
-UndoTool.override({
-  disabled: true,
-})
+UndoTool.initClass()

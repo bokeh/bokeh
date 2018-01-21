@@ -19,7 +19,7 @@ export class AnnulusView extends XYGlyphView {
   }
 
   _render(ctx, indices, {sx, sy, sinner_radius, souter_radius}) {
-    for (let i of indices) {
+    for (const i of indices) {
       if (isNaN(sx[i] + sy[i] + sinner_radius[i] + souter_radius[i]))
         continue;
 
@@ -40,7 +40,7 @@ export class AnnulusView extends XYGlyphView {
         ctx.beginPath();
         if (isie) {
             // Draw two halves of the donut. Works on IE, but causes an aa line on Safari.
-            for (let clockwise of [false, true]) {
+            for (const clockwise of [false, true]) {
             ctx.arc(sx[i], sy[i], sinner_radius[i], 0, Math.PI, clockwise);
             ctx.arc(sx[i], sy[i], souter_radius[i], Math.PI, 0, !clockwise);
             }
@@ -76,7 +76,7 @@ export class AnnulusView extends XYGlyphView {
     const hits = [];
 
     const bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1]);
-    for (let i of this.index.indices(bbox)) {
+    for (const i of this.index.indices(bbox)) {
       const or2 = Math.pow(this.souter_radius[i], 2);
       const ir2 = Math.pow(this.sinner_radius[i], 2);
       const [sx0, sx1] = this.renderer.xscale.r_compute(x, this._x[i]);

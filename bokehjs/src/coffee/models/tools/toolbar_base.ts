@@ -8,6 +8,7 @@ import {DOMView} from "core/dom_view";
 import {Location} from "core/enums";
 import {Model} from "model";
 import {Tool} from "./tool"
+import {ButtonToolButtonView} from "./button_tool"
 
 export class ToolbarBaseView extends DOMView {
 
@@ -27,7 +28,7 @@ export class ToolbarBaseView extends DOMView {
     return super.remove();
   }
 
-  _build_tool_button_views() {
+  _build_tool_button_views(): ButtonToolButtonView[] {
     const tools = this.model._proxied_tools != null ? this.model._proxied_tools : this.model.tools; // XXX
     return build_views(this._tool_button_views, tools, {parent: this}, tool => tool.button_view);
   }
@@ -48,7 +49,7 @@ export class ToolbarBaseView extends DOMView {
     const bars = [];
 
     const { gestures } = this.model;
-    for (let et in gestures) {
+    for (const et in gestures) {
       buttons = [];
       for (tool of gestures[et].tools) {
         buttons.push(this._tool_button_views[tool.id].el);
@@ -134,7 +135,7 @@ export class ToolbarBase extends Model {
       event_types = [event_types];
     }
 
-    for (let et of event_types) {
+    for (const et of event_types) {
       if (tool.active) {
         const currently_active_tool = this.gestures[et].active;
         if ((currently_active_tool != null) && (tool !== currently_active_tool)) {

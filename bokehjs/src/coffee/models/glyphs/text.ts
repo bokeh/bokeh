@@ -6,7 +6,7 @@ import {get_text_height} from "core/util/text"
 export class TextView extends XYGlyphView {
 
   _render(ctx, indices, {sx, sy, _x_offset, _y_offset, _angle, _text}) {
-    for (let i of indices) {
+    for (const i of indices) {
       if (isNaN(sx[i]+sy[i]+_x_offset[i]+_y_offset[i]+_angle[i]) || (_text[i] == null)) {
         continue;
       }
@@ -50,7 +50,7 @@ export class TextView extends XYGlyphView {
             }
           }
 
-          for (let line of lines) {
+          for (const line of lines) {
             ctx.fillText(line, 0, y);
             y += line_height;
           }
@@ -61,7 +61,7 @@ export class TextView extends XYGlyphView {
     }
   }
 
-  draw_legend_for_index(ctx, x0, x1, y0, y1, index) {
+  draw_legend_for_index(_ctx, _x0, _x1, _y0, _y1, _index) {
     return null;
   }
 }

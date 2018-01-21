@@ -174,6 +174,18 @@ const DEFAULT_BOX_OVERLAY = () => {
 
 export class BoxZoomTool extends GestureTool {
 
+  static initClass() {
+    this.prototype.type = "BoxZoomTool"
+
+    this.prototype.default_view = BoxZoomToolView
+
+    this.define({
+      dimensions:   [ p.Dimensions, "both"            ],
+      overlay:      [ p.Instance, DEFAULT_BOX_OVERLAY ],
+      match_aspect: [ p.Bool,     false               ],
+    })
+  }
+
   dimensions: Dimensions
   overlay: BoxAnnotation
   match_aspect: boolean
@@ -188,12 +200,4 @@ export class BoxZoomTool extends GestureTool {
   }
 }
 
-BoxZoomTool.prototype.type = "BoxZoomTool"
-
-BoxZoomTool.prototype.default_view = BoxZoomToolView
-
-BoxZoomTool.define({
-  dimensions:   [ p.Dimensions, "both"            ],
-  overlay:      [ p.Instance, DEFAULT_BOX_OVERLAY ],
-  match_aspect: [ p.Bool,     false               ],
-})
+BoxZoomTool.initClass()

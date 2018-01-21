@@ -17,8 +17,8 @@ export class DataSource extends Model {
     })
   }
 
-  initialize(attrs: any, options: any): void {
-    super.initialize(attrs, options)
+  initialize(options: any): void {
+    super.initialize(options)
 
     if (!this.selected) {
       this.selected = new Selection()

@@ -31,6 +31,7 @@ export class MultiSelectView extends InputWidgetView {
     this.el.appendChild(labelEl)
 
     const options = this.model.options.map((opt) => {
+      let value, _label
       if (isString(opt))
         value = _label  = opt
       else
@@ -56,7 +57,7 @@ export class MultiSelectView extends InputWidgetView {
     for (const x of this.model.value) {
       values[x] = true
     }
-    for (const el of this.el.querySelectorAll('option')) {
+    for (const el of Array.from(this.el.querySelectorAll('option'))) {
       if (values[el.value])
         el.selected = 'selected'
     }
@@ -69,7 +70,7 @@ export class MultiSelectView extends InputWidgetView {
     const is_focused = this.el.querySelector('select:focus') != null
 
     const values = []
-    for (const el of this.el.querySelectorAll('option')) {
+    for (const el of Array.from(this.el.querySelectorAll('option'))) {
       if (el.selected)
         values.push(el.value)
     }
@@ -86,13 +87,17 @@ export class MultiSelectView extends InputWidgetView {
 }
 
 export class MultiSelect extends InputWidget {
+
+  static initClass() {
+    this.prototype.type = "MultiSelect"
+    this.prototype.default_view = MultiSelectView
+
+    this.define({
+      value:   [ p.Array, [] ],
+      options: [ p.Array, [] ],
+      size:    [ p.Number, 4 ], // 4 is the HTML default
+    })
+  }
 }
 
-MultiSelect.prototype.type = "MultiSelect"
-MultiSelect.prototype.default_view = MultiSelectView
-
-MultiSelect.define({
-  value:   [ p.Array, [] ],
-  options: [ p.Array, [] ],
-  size:    [ p.Number, 4 ], // 4 is the HTML default
-})
+MultiSelect.initClass()

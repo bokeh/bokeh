@@ -13,7 +13,11 @@ export class PreTextView extends MarkupView {
 }
 
 export class PreText extends Markup {
+
+  static initClass() {
+    this.prototype.type = "PreText"
+    this.prototype.default_view = PreTextView
+  }
 }
 
-PreText.prototype.type = "PreText"
-PreText.prototype.default_view = PreTextView
+PreText.initClass()

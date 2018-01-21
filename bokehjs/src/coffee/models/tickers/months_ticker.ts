@@ -12,7 +12,7 @@ function date_range_by_year(start_time: number, end_time: number): Date[] {
   end_date.setUTCFullYear(end_date.getUTCFullYear() + 1)
 
   const dates = []
-  let date = start_date
+  const date = start_date
   while (true) {
     dates.push(copy_date(date))
 
@@ -29,10 +29,18 @@ function date_range_by_year(start_time: number, end_time: number): Date[] {
 // April, July, and October of each year.
 export class MonthsTicker extends SingleIntervalTicker {
 
+  static initClass() {
+    this.prototype.type = "MonthsTicker"
+
+    this.define({
+      months: [ p.Array, [] ],
+    })
+  }
+
   months: number[]
 
-  initialize(attrs: any, options: any): void {
-    super.initialize(attrs, options)
+  initialize(options: any): void {
+    super.initialize(options)
     const months = this.months
     if (months.length > 1)
       this.interval = (months[1] - months[0])*ONE_MONTH
@@ -64,8 +72,4 @@ export class MonthsTicker extends SingleIntervalTicker {
   }
 }
 
-MonthsTicker.prototype.type = "MonthsTicker"
-
-MonthsTicker.define({
-  months: [ p.Array, [] ],
-})
+MonthsTicker.initClass()

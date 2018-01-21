@@ -5,7 +5,14 @@ import {logger} from "core/logging";
 import * as p from "core/properties";
 import {Model} from "../../model"
 
-export class TileSource extends Model {
+export interface Tile {
+  tile_coords: [number, number, number]
+  current: boolean
+  retain: boolean
+}
+
+export abstract class TileSource extends Model {
+
   static initClass() {
     this.prototype.type = 'TileSource';
 
@@ -22,8 +29,8 @@ export class TileSource extends Model {
     });
   }
 
-  initialize(attrs: any, options: any): void {
-    super.initialize(attrs, options);
+  initialize(options: any): void {
+    super.initialize(options);
     this.utils = new ProjectionUtils();
     this.pool = new ImagePool();
     this.tiles = {};
@@ -32,7 +39,7 @@ export class TileSource extends Model {
 
   string_lookup_replace(str, lookup) {
     let result_str = str;
-    for (let key in lookup) {
+    for (const key in lookup) {
       const value = lookup[key];
       result_str = result_str.replace(`{${key}}`, value.toString());
     }
@@ -55,7 +62,7 @@ export class TileSource extends Model {
 
   update() {
     logger.debug(`TileSource: tile cache count: ${Object.keys(this.tiles).length}`);
-    for (let key in this.tiles) {
+    for (const key in this.tiles) {
       const tile = this.tiles[key];
       tile.current = false;
       tile.retain = false;
@@ -84,10 +91,9 @@ export class TileSource extends Model {
   }
 
   prune_tiles() {
-    let tile;
     for (const key in this.tiles) {
-      tile = this.tiles[key];
-      tile.retain = tile.current || (tile.tile_coords[2] < 3); // save the parents...they are cheap
+      const tile = this.tiles[key];
+      tile.retain = tile.current || tile.tile_coords[2] < 3 // save the parents...they are cheap
       if (tile.current) {
         this.retain_neighbors(tile);
         this.retain_children(tile);
@@ -95,8 +101,8 @@ export class TileSource extends Model {
       }
     }
 
-    for (key in this.tiles) {
-      tile = this.tiles[key];
+    for (const key in this.tiles) {
+      const tile = this.tiles[key];
       if (!tile.retain)
         this.remove_tile(key);
     }
@@ -115,24 +121,14 @@ export class TileSource extends Model {
     return image_url.replace("{X}", x).replace('{Y}', y).replace("{Z}", z);
   }
 
-  retain_neighbors(reference_tile) {
-    throw new Error("Not Implemented");
-  }
+  abstract retain_neighbors(reference_tile: Tile): void
 
-  retain_parents(reference_tile) {
-    throw new Error("Not Implemented");
-  }
+  abstract retain_parents(reference_tile: Tile): void
 
-  retain_children(reference_tile) {
-    throw new Error("Not Implemented");
-  }
+  abstract retain_children(reference_tile: Tile): void
 
-  tile_xyz_to_quadkey(x, y, z) {
-    throw new Error("Not Implemented");
-  }
+  abstract tile_xyz_to_quadkey(x: number, y: number, z: number): string
 
-  quadkey_to_tile_xyz(quadkey) {
-    throw new Error("Not Implemented");
-  }
+  abstract quadkey_to_tile_xyz(quadkey: string): [number, number, number]
 }
-TileSource.initClass();
+TileSource.initClass()

@@ -43,6 +43,25 @@ export class CrosshairToolView extends InspectToolView {
 
 export class CrosshairTool extends InspectTool {
 
+  static initClass() {
+    this.prototype.type = "CrosshairTool"
+
+    this.prototype.default_view = CrosshairToolView
+
+    this.define({
+      dimensions: [ p.Dimensions, "both" ],
+      line_color: [ p.Color, 'black'     ],
+      line_width: [ p.Number, 1          ],
+      line_alpha: [ p.Number, 1.0        ],
+    })
+
+    this.internal({
+      location_units: [ p.SpatialUnits, "screen" ],
+      render_mode:    [ p.RenderMode,   "css"    ],
+      spans:          [ p.Any                    ],
+    })
+  }
+
   dimensions: Dimensions
   line_color: any // XXX: Color
   line_width: number
@@ -63,8 +82,8 @@ export class CrosshairTool extends InspectTool {
     return values(this.spans)
   }
 
-  initialize(attrs: any, options: any): void {
-    super.initialize(attrs, options)
+  initialize(options: any): void {
+    super.initialize(options)
 
     this.spans = {
       width: new Span({
@@ -89,19 +108,4 @@ export class CrosshairTool extends InspectTool {
   }
 }
 
-CrosshairTool.prototype.type = "CrosshairTool"
-
-CrosshairTool.prototype.default_view = CrosshairToolView
-
-CrosshairTool.define({
-  dimensions: [ p.Dimensions, "both" ],
-  line_color: [ p.Color, 'black'     ],
-  line_width: [ p.Number, 1          ],
-  line_alpha: [ p.Number, 1.0        ],
-})
-
-CrosshairTool.internal({
-  location_units: [ p.SpatialUnits, "screen" ],
-  render_mode:    [ p.RenderMode,   "css"    ],
-  spans:          [ p.Any                    ],
-})
+CrosshairTool.initClass()

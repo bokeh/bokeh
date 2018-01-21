@@ -14,7 +14,11 @@ export class ParagraphView extends MarkupView {
 }
 
 export class Paragraph extends Markup {
+
+  static initClass() {
+    this.prototype.type = "Paragraph"
+    this.prototype.default_view = ParagraphView
+  }
 }
 
-Paragraph.prototype.type = "Paragraph"
-Paragraph.prototype.default_view = ParagraphView
+Paragraph.initClass()

@@ -98,6 +98,31 @@ export function map_three_levels(factors: L3Factor[],
 
 export class FactorRange extends Range {
 
+  static initClass() {
+    this.prototype.type = "FactorRange"
+
+    this.define({
+      factors:             [ p.Array,        []        ],
+      factor_padding:      [ p.Number,       0         ],
+      subgroup_padding:    [ p.Number,       0.8       ],
+      group_padding:       [ p.Number,       1.4       ],
+      range_padding:       [ p.Number,       0         ],
+      range_padding_units: [ p.PaddingUnits, "percent" ],
+      start:               [ p.Number                  ],
+      end:                 [ p.Number                  ],
+      bounds:              [ p.Any                     ],
+      min_interval:        [ p.Any                     ],
+      max_interval:        [ p.Any                     ],
+    })
+
+    this.internal({
+      levels:      [ p.Number ], // how many levels of
+      mids:        [ p.Array  ], // mid level factors (if 3 total levels)
+      tops:        [ p.Array  ], // top level factors (whether 2 or 3 total levels)
+      tops_groups: [ p.Array  ], // ordered list of full factors for each top level factor in tops
+    })
+  }
+
   factors: Factor[]
   factor_padding: number
   subgroup_padding: number
@@ -125,8 +150,8 @@ export class FactorRange extends Range {
     return this.end
   }
 
-  initialize(attrs: any, options: any): void {
-    super.initialize(attrs, options)
+  initialize(options: any): void {
+    super.initialize(options)
     this._init()
     this.connect(this.properties.factors.change, () => this.reset())
     this.connect(this.properties.factor_padding.change, () => this.reset())
@@ -221,25 +246,4 @@ export class FactorRange extends Range {
   }
 }
 
-FactorRange.prototype.type = "FactorRange"
-
-FactorRange.define({
-  factors:             [ p.Array,        []        ],
-  factor_padding:      [ p.Number,       0         ],
-  subgroup_padding:    [ p.Number,       0.8       ],
-  group_padding:       [ p.Number,       1.4       ],
-  range_padding:       [ p.Number,       0         ],
-  range_padding_units: [ p.PaddingUnits, "percent" ],
-  start:               [ p.Number                  ],
-  end:                 [ p.Number                  ],
-  bounds:              [ p.Any                     ],
-  min_interval:        [ p.Any                     ],
-  max_interval:        [ p.Any                     ],
-})
-
-FactorRange.internal({
-  levels:      [ p.Number ], // how many levels of
-  mids:        [ p.Array  ], // mid level factors (if 3 total levels)
-  tops:        [ p.Array  ], // top level factors (whether 2 or 3 total levels)
-  tops_groups: [ p.Array  ], // ordered list of full factors for each top level factor in tops
-})
+FactorRange.initClass()

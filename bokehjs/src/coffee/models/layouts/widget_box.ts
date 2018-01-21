@@ -12,6 +12,10 @@ export class WidgetBoxView extends LayoutDOMView {
     this.connect(this.model.properties.children.change, () => this.rebuild_child_views())
   }
 
+  css_classes(): string[] {
+    return super.css_classes().concat("bk-widget-box")
+  }
+
   render(): void {
     this._render_classes() // XXX: because no super()
 
@@ -80,14 +84,22 @@ export class WidgetBoxView extends LayoutDOMView {
   }
 }
 
-WidgetBoxView.prototype.className = "bk-widget-box"
-
 export class WidgetBox extends LayoutDOM {
+
+  static initClass() {
+    this.prototype.type = "WidgetBox"
+
+    this.prototype.default_view = WidgetBoxView
+
+    this.define({
+      children: [ p.Array, [] ]
+    })
+  }
 
   children: LayoutDOM[]
 
-  initialize(attrs: any, options: any): void {
-    super.initialize(attrs, options)
+  initialize(options: any): void {
+    super.initialize(options)
     if (this.sizing_mode == 'fixed' && this.width == null) {
       this.width = 300 // Set a default for fixed.
       logger.info("WidgetBox mode is fixed, but no width specified. Using default of 300.")
@@ -123,10 +135,4 @@ export class WidgetBox extends LayoutDOM {
   }
 }
 
-WidgetBox.prototype.type = "WidgetBox"
-
-WidgetBox.prototype.default_view = WidgetBoxView
-
-WidgetBox.define({
-  children: [ p.Array, [] ]
-})
+WidgetBox.initClass()

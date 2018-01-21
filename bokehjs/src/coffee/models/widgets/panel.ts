@@ -13,13 +13,17 @@ export class PanelView extends WidgetView {
 }
 
 export class Panel extends Widget {
+
+  static initClass() {
+    this.prototype.type = "Panel"
+    this.prototype.default_view = PanelView
+
+    this.define({
+      title:    [ p.String,  ""    ],
+      child:    [ p.Instance       ],
+      closable: [ p.Bool,    false ],
+    })
+  }
 }
 
-Panel.prototype.type = "Panel"
-Panel.prototype.default_view = PanelView
-
-Panel.define({
-  title:    [ p.String,  ""    ],
-  child:    [ p.Instance       ],
-  closable: [ p.Bool,    false ],
-})
+Panel.initClass()

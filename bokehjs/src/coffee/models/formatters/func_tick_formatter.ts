@@ -17,7 +17,7 @@ export class FuncTickFormatter extends TickFormatter {
     return new Function("tick", ...Object.keys(this.args), "require", this.code);
   }
 
-  doFormat(ticks, axis) {
+  doFormat(ticks, _axis) {
     const func = this._make_func();
     return (ticks.map((tick) => func(tick, ...values(this.args), require)));
   }

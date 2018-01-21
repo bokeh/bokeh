@@ -55,7 +55,7 @@ export class DropdownView extends AbstractButtonView {
 
   _toggle_menu(): void {
     const active = this.model.active
-    clear_menus.emit()
+    clear_menus.emit(undefined)
     if (!active)
       this.model.active = true
   }
@@ -91,24 +91,29 @@ export class DropdownView extends AbstractButtonView {
 }
 
 export class Dropdown extends AbstractButton {
+
+  static initClass() {
+    this.prototype.type = "Dropdown"
+    this.prototype.default_view = DropdownView
+
+    this.define({
+      value:         [ p.String    ],
+      default_value: [ p.String    ],
+      menu:          [ p.Array, [] ],
+    })
+
+    this.override({
+      label: "Dropdown"
+    })
+
+    this.internal({
+      active: [p.Boolean, false]
+    })
+  }
+
   get is_split_button(): boolean {
     return this.default_value != null
   }
 }
 
-Dropdown.prototype.type = "Dropdown"
-Dropdown.prototype.default_view = DropdownView
-
-Dropdown.define({
-  value:         [ p.String    ],
-  default_value: [ p.String    ],
-  menu:          [ p.Array, [] ],
-})
-
-Dropdown.override({
-  label: "Dropdown"
-})
-
-Dropdown.internal({
-  active: [p.Boolean, false]
-})
+Dropdown.initClass()

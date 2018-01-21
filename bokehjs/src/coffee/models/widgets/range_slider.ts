@@ -21,15 +21,20 @@ export class RangeSliderView extends AbstractSliderView {
 }
 
 export class RangeSlider extends AbstractSlider {
+
+  static initClass() {
+    this.prototype.type = "RangeSlider"
+    this.prototype.default_view = RangeSliderView
+
+    this.override({
+      format: "0[.]00"
+    })
+  }
+
   behaviour = 'drag'
   connected = [false, true, false]
 
   _formatter = format
 }
 
-RangeSlider.prototype.type = "RangeSlider"
-RangeSlider.prototype.default_view = RangeSliderView
-
-RangeSlider.override({
-  format: "0[.]00"
-})
+RangeSlider.initClass()

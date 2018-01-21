@@ -6,10 +6,15 @@ export abstract class GestureToolView extends ButtonToolView {
 }
 
 export abstract class GestureTool extends ButtonTool {
+
+  static initClass() {
+    this.prototype.type = "GestureTool"
+  }
+
   button_view = OnOffButtonView
 
   event_type: string
   default_order: number
 }
 
-GestureTool.prototype.type = "GestureTool"
+GestureTool.initClass()

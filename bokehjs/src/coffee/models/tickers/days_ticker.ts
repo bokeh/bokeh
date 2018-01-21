@@ -15,7 +15,7 @@ function date_range_by_month(start_time: number, end_time: number): Date[] {
   end_date.setUTCMonth(end_date.getUTCMonth() + 1)
 
   const dates = []
-  let date = start_date
+  const date = start_date
   while (true) {
     dates.push(copy_date(date))
 
@@ -32,11 +32,22 @@ function date_range_by_month(start_time: number, end_time: number): Date[] {
 // month.
 export class DaysTicker extends SingleIntervalTicker {
 
+  static initClass() {
+    this.prototype.type = "DaysTicker"
+
+    this.define({
+      days: [ p.Array, [] ],
+    })
+
+    this.override({
+      num_minor_ticks: 0
+    })
+  }
+
   days: number[]
 
-  initialize(attrs: any, options: any): void {
-    attrs.num_minor_ticks = 0
-    super.initialize(attrs, options)
+  initialize(options: any): void {
+    super.initialize(options)
     const days = this.days
     if (days.length > 1)
       this.interval = (days[1] - days[0])*ONE_DAY
@@ -79,8 +90,4 @@ export class DaysTicker extends SingleIntervalTicker {
   }
 }
 
-DaysTicker.prototype.type = "DaysTicker"
-
-DaysTicker.define({
-  days: [ p.Array, [] ],
-})
+DaysTicker.initClass()

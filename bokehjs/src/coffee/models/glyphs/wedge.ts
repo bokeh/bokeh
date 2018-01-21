@@ -16,7 +16,7 @@ export class WedgeView extends XYGlyphView {
 
   _render(ctx, indices, {sx, sy, sradius, _start_angle, _end_angle}) {
     const direction = this.model.properties.direction.value();
-    for (let i of indices) {
+    for (const i of indices) {
       if (isNaN(sx[i]+sy[i]+sradius[i]+_start_angle[i]+_end_angle[i])) {
         continue;
       }

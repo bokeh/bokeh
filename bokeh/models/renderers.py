@@ -14,11 +14,9 @@ from ..core.validation import error
 from ..core.validation.errors import (BAD_COLUMN_NAME, MISSING_GLYPH, NO_SOURCE_FOR_GLYPH,
                                       CDSVIEW_SOURCE_DOESNT_MATCH, MALFORMED_GRAPH_SOURCE)
 from ..model import Model
-from ..util.deprecation import deprecated
 
 from .glyphs import Glyph, Circle, MultiLine
 from .graphs import LayoutProvider, GraphHitTestPolicy, NodesOnly
-from .images import ImageSource
 from .sources import ColumnDataSource, DataSource, RemoteSource, CDSView
 from .tiles import TileSource, WMTSTileSource
 
@@ -65,29 +63,6 @@ class TileRenderer(DataRenderer):
     A particular (named) y-range to use for computing screen
     locations when rendering glyphs on the plot. If unset, use the
     default y-range.
-    """)
-
-    level = Override(default="underlay")
-
-    render_parents = Bool(default=True, help="""
-    Flag enable/disable drawing of parent tiles while waiting for new tiles to arrive. Default value is True.
-    """)
-
-class DynamicImageRenderer(DataRenderer):
-    '''
-
-    '''
-
-    def __init__(self, *args, **kw):
-        super(DynamicImageRenderer, self).__init__(*args, **kw)
-        deprecated((0, 12, 7), "DynamicImageRenderer", "GeoViews for GIS functions on top of Bokeh (http://geo.holoviews.org)")
-
-    image_source = Instance(ImageSource, help="""
-    Image source to use when rendering on the plot.
-    """)
-
-    alpha = Float(1.0, help="""
-    tile opacity 0.0 - 1.0
     """)
 
     level = Override(default="underlay")

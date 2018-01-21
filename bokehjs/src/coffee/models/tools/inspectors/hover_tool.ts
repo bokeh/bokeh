@@ -423,6 +423,30 @@ export class HoverToolView extends InspectToolView {
 
 export class HoverTool extends InspectTool {
 
+  static initClass() {
+    this.prototype.type = "HoverTool"
+
+    this.prototype.default_view = HoverToolView
+
+    this.define({
+      tooltips: [ p.Any, [
+        ["index",         "$index"    ],
+        ["data (x, y)",   "($x, $y)"  ],
+        ["screen (x, y)", "($sx, $sy)"],
+      ]],
+      formatters:   [ p.Any,    {}             ],
+      renderers:    [ p.Array,  []             ],
+      names:        [ p.Array,  []             ],
+      mode:         [ p.String, 'mouse'        ], // TODO (bev)
+      point_policy: [ p.String, 'snap_to_data' ], // TODO (bev) "follow_mouse", "none"
+      line_policy:  [ p.String, 'nearest'      ], // TODO (bev) "next", "nearest", "interp", "none"
+      show_arrow:   [ p.Boolean, true          ],
+      anchor:       [ p.String, 'center'       ], // TODO: enum
+      attachment:   [ p.String, 'horizontal'   ], // TODO: enum
+      callback:     [ p.Any                    ], // TODO: p.Either(p.Instance(Callback), p.Function) ]
+    })
+  }
+
   tooltips: string | [string, string][] | ((source: DataSource, vars: any) => HTMLElement)
   formatters: any // XXX
   renderers: DataRenderer[]
@@ -439,24 +463,4 @@ export class HoverTool extends InspectTool {
   icon = "bk-tool-icon-hover"
 }
 
-HoverTool.prototype.type = "HoverTool"
-
-HoverTool.prototype.default_view = HoverToolView
-
-HoverTool.define({
-  tooltips: [ p.Any, [
-    ["index",         "$index"    ],
-    ["data (x, y)",   "($x, $y)"  ],
-    ["screen (x, y)", "($sx, $sy)"],
-  ]],
-  formatters:   [ p.Any,    {}             ],
-  renderers:    [ p.Array,  []             ],
-  names:        [ p.Array,  []             ],
-  mode:         [ p.String, 'mouse'        ], // TODO (bev)
-  point_policy: [ p.String, 'snap_to_data' ], // TODO (bev) "follow_mouse", "none"
-  line_policy:  [ p.String, 'nearest'      ], // TODO (bev) "next", "nearest", "interp", "none"
-  show_arrow:   [ p.Boolean, true          ],
-  anchor:       [ p.String, 'center'       ], // TODO: enum
-  attachment:   [ p.String, 'horizontal'   ], // TODO: enum
-  callback:     [ p.Any                    ], // TODO: p.Either(p.Instance(Callback), p.Function) ]
-})
+HoverTool.initClass()

@@ -12,11 +12,19 @@ export type RendererView = any
 
 export class SelectionManager extends HasProps {
 
+  static initClass() {
+    this.prototype.type = "SelectionManager"
+
+    this.internal({
+      source: [ p.Any ]
+    })
+  }
+
   source: ColumnarDataSource
   inspectors: {[key: string]: Selection}
 
-  initialize(attrs: any, options: any): void {
-    super.initialize(attrs, options)
+  initialize(options: any): void {
+    super.initialize(options)
     this.inspectors = {}
   }
 
@@ -82,8 +90,4 @@ export class SelectionManager extends HasProps {
   }
 }
 
-SelectionManager.prototype.type = "SelectionManager"
-
-SelectionManager.internal({
-  source: [ p.Any ]
-})
+SelectionManager.initClass()

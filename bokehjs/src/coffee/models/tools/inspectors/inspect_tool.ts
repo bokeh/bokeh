@@ -8,17 +8,22 @@ export class InspectToolView extends ButtonToolView {
 }
 
 export class InspectTool extends ButtonTool {
+
+  static initClass() {
+    this.prototype.type = "InspectTool"
+
+    this.prototype.button_view = OnOffButtonView
+
+    this.define({
+      toggleable: [ p.Bool, true ]
+    })
+
+    this.override({
+      active: true
+    })
+  }
+
   event_type = "move"
 }
 
-InspectTool.prototype.type = "InspectTool"
-
-InspectTool.prototype.button_view = OnOffButtonView
-
-InspectTool.define({
-  toggleable: [ p.Bool, true ]
-})
-
-InspectTool.override({
-  active: true
-})
+InspectTool.initClass()

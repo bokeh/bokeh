@@ -80,7 +80,7 @@ export function range(start: number, stop?: number, step: number = 1): number[] 
 
 export function linspace(start: number, stop: number, num: number = 100): number[] {
   const step = (stop - start) / (num - 1)
-  let array = new Array(num)
+  const array = new Array(num)
 
   for (let i = 0; i < num; i++) {
     array[i] = start + step*i
@@ -93,7 +93,7 @@ export function transpose<T>(array: T[][]): T[][] {
   const rows = array.length
   const cols = array[0].length
 
-  let transposed: T[][] = []
+  const transposed: T[][] = []
 
   for (let j = 0; j < cols; j++) {
     transposed[j] = []
@@ -321,7 +321,7 @@ export function shuffle<T>(array: T[]): T[] {
   const length = array.length
   const shuffled = new Array(length)
   for (let i = 0; i < length; i++) {
-    let rand = randomIn(0, i)
+    const rand = randomIn(0, i)
     if (rand !== i)
       shuffled[i] = shuffled[rand]
     shuffled[rand] = array[i]

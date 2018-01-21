@@ -5,7 +5,7 @@ import {max, concat} from "core/util/array"
 
 export class ImageRGBAView extends XYGlyphView {
 
-  _set_data(source, indices) {
+  _set_data(_source, indices) {
     if ((this.image_data == null) || (this.image_data.length !== this._image.length)) {
       this.image_data = new Array(this._image.length);
     }
@@ -85,7 +85,7 @@ export class ImageRGBAView extends XYGlyphView {
     const old_smoothing = ctx.getImageSmoothingEnabled();
     ctx.setImageSmoothingEnabled(false);
 
-    for (let i of indices) {
+    for (const i of indices) {
 
       if (isNaN(sx[i]+sy[i]+sw[i]+sh[i])) {
         continue;

@@ -16,6 +16,17 @@ import {Document} from "../document"
 
 export abstract class HasProps extends Signalable() {
 
+  static initClass() {
+    this.prototype.type = "HasProps"
+
+    this.prototype.props = {}
+    this.prototype.mixins = []
+
+    this.define({
+      id: [ p.Any ]
+    })
+  }
+
   // {{{ prototype
   type: string
   default_view: Class<View>
@@ -152,10 +163,10 @@ export abstract class HasProps extends Signalable() {
     // because other objects that this one depends on might not be loaded yet
 
     if (!options.defer_initialization)
-      this.finalize(attributes, options)
+      this.finalize(options)
   }
 
-  finalize(attributes: {[key: string]: any}, options: HasProps.Options): void {
+  finalize(options: HasProps.Options): void {
     // This is necessary because the initial creation of properties relies on
     // model.get which is not usable at that point yet in the constructor. This
     // initializer is called when deferred initialization happens for all models
@@ -172,11 +183,11 @@ export abstract class HasProps extends Signalable() {
         this.connect(prop.spec.transform.change, () => this.transformchange.emit(undefined))
     }
 
-    this.initialize(attributes, options)
+    this.initialize(options)
     this.connect_signals()
   }
 
-  initialize(_attributes: any, _options: any): void {}
+  initialize(_options: any): void {}
 
   connect_signals(): void {}
 
@@ -502,14 +513,7 @@ export abstract class HasProps extends Signalable() {
   }
 }
 
-HasProps.prototype.type = "HasProps"
-
-HasProps.prototype.props = {}
-HasProps.prototype.mixins = []
-
-HasProps.define({
-  id: [ p.Any ]
-})
+HasProps.initClass()
 
 export module HasProps {
   export interface Options {

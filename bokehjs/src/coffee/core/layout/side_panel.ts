@@ -179,6 +179,14 @@ export function update_panel_constraints(view: SizeableView): void {
 
 export class SidePanel extends LayoutCanvas {
 
+  static initClass() {
+    this.prototype.type = "SidePanel"
+
+    this.internal({
+      side: [ p.String ]
+    })
+  }
+
   side: Side
 
   protected _dim: 0 | 1
@@ -189,8 +197,8 @@ export class SidePanel extends LayoutCanvas {
     return `${this.type}(${this.id}, ${this.side})`
   }
 
-  initialize(attrs: any, options: any): void {
-    super.initialize(attrs, options)
+  initialize(options: any): void {
+    super.initialize(options)
     switch(this.side) {
       case "above":
         this._dim = 0
@@ -264,8 +272,4 @@ export class SidePanel extends LayoutCanvas {
   }
 }
 
-SidePanel.prototype.type = "SidePanel"
-
-SidePanel.internal({
-  side: [ p.String ]
-})
+SidePanel.initClass()

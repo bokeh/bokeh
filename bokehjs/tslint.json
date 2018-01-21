@@ -1,0 +1,6 @@
+{
+  "rules": {
+    "arrow-return-shorthand": true,
+    "prefer-const": [true, {"destructuring": "all"}]
+  }
+}

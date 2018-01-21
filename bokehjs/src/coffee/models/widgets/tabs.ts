@@ -4,6 +4,7 @@ import {zip} from "core/util/array"
 import * as p from "core/properties"
 
 import {Widget, WidgetView} from "./widget"
+import {LayoutDOM} from "../layouts/layout_dom"
 
 export class TabsView extends WidgetView {
   model: Tabs
@@ -29,9 +30,9 @@ export class TabsView extends WidgetView {
     const tabsEl = ul({class: ["bk-bs-nav", "bk-bs-nav-tabs"]}, tabs)
     this.el.appendChild(tabsEl)
 
-    const panels = this.model.tabs.map((tab) => div({class: "bk-bs-tab-pane"}))
+    const panels = this.model.tabs.map((_tab) => div({class: "bk-bs-tab-pane"}))
     panels[this.model.active].classList.add("bk-bs-active")
-    panelsEl = div({class: "bk-bs-tab-content"}, panels)
+    const panelsEl = div({class: "bk-bs-tab-content"}, panels)
     this.el.appendChild(panelsEl)
 
     tabsEl.addEventListener("click", (event) => {
@@ -64,6 +65,17 @@ export class TabsView extends WidgetView {
 
 export class Tabs extends Widget {
 
+  static initClass() {
+    this.prototype.type = "Tabs"
+    this.prototype.default_view = TabsView
+
+    this.define({
+      tabs:     [ p.Array,   [] ],
+      active:   [ p.Number,  0  ],
+      callback: [ p.Instance    ],
+    })
+  }
+
   get_layoutable_children(): LayoutDOM {
     return this.children
   }
@@ -73,11 +85,4 @@ export class Tabs extends Widget {
   }
 }
 
-Tabs.prototype.type = "Tabs"
-Tabs.prototype.default_view = TabsView
-
-Tabs.define({
-  tabs:     [ p.Array,   [] ],
-  active:   [ p.Number,  0  ],
-  callback: [ p.Instance    ],
-})
+Tabs.initClass()

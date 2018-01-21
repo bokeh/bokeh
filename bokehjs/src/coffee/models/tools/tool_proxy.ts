@@ -41,14 +41,14 @@ export class ToolProxy extends Model {
   }
 
   doit() {
-    for (let tool of this.tools) {
-      tool.do.emit();
+    for (const tool of this.tools) {
+      tool.do.emit(undefined);
     }
     return null;
   }
 
   set_active() {
-    for (let tool of this.tools) {
+    for (const tool of this.tools) {
       tool.active = this.active;
     }
     return null;

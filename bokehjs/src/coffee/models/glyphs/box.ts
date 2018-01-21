@@ -2,13 +2,12 @@
 import {RBush} from "core/util/spatial";
 import {Glyph, GlyphView} from "./glyph";
 import * as hittest from "core/hittest";
-import * as p from "core/properties"
 
 // Not a publicly exposed Glyph, exists to factor code for bars and quads
 
 export class BoxView extends GlyphView {
 
-  _index_box(len) {
+  _index_box(len): RBush {
     const points = [];
 
     for (let i = 0, end = len, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
@@ -23,7 +22,7 @@ export class BoxView extends GlyphView {
   }
 
   _render(ctx, indices, {sleft, sright, stop, sbottom}) {
-    for (let i of indices) {
+    for (const i of indices) {
       if (isNaN(sleft[i]+stop[i]+sright[i]+sbottom[i])) {
         continue;
       }

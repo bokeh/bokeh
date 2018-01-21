@@ -14,8 +14,8 @@ export class ColorMapper extends Transform {
       });
   }
 
-  initialize(attrs: any, options: any): void {
-    super.initialize(attrs, options);
+  initialize(options: any): void {
+    super.initialize(options);
     this._little_endian = this._is_little_endian();
     this._palette       = this._build_palette(this.palette);
 
@@ -25,9 +25,8 @@ export class ColorMapper extends Transform {
   }
 
   // TODO (bev) This should not be needed, everything should use v_compute
-  v_map_screen(data, image_glyph) {
+  v_map_screen(data, image_glyph = false) {
     let color, i, value;
-    if (image_glyph == null) { image_glyph = false; }
     const values = this._get_values(data, this._palette, image_glyph);
     const buf = new ArrayBuffer(data.length * 4);
     if (this._little_endian) {
@@ -54,7 +53,7 @@ export class ColorMapper extends Transform {
     return buf;
   }
 
-  compute(x) {
+  compute(_x) {
     // If it's just a single value, then a color mapper doesn't
     // really make sense, so return nothing
     return null;
@@ -65,9 +64,8 @@ export class ColorMapper extends Transform {
     return values;
   }
 
-  _get_values(data, palette, image_glyph) {
+  _get_values(_data, _palette, _image_glyph = false) {
     // Should be defined by subclass
-    if (image_glyph == null) { image_glyph = false; }
     return [];
   }
 

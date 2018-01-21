@@ -24,7 +24,7 @@ export class LegendItem extends Model {
       }
       const source = this.renderers[0].data_source;
       if (source != null) {
-        for (let r of this.renderers) {
+        for (const r of this.renderers) {
           if (r.data_source !== source) {
             return false;
           }
@@ -49,8 +49,8 @@ export class LegendItem extends Model {
   }
 
 
-  initialize(attrs: any, options: any): void {
-    super.initialize(attrs, options);
+  initialize(options: any): void {
+    super.initialize(options);
     // Validate data_sources match
     const data_source_validation = this._check_data_sources_on_renderers();
     if (!data_source_validation) {

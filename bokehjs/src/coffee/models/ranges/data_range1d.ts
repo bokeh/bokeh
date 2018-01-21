@@ -13,6 +13,28 @@ export type Bounds = {[key: string]: Rect}
 
 export class DataRange1d extends DataRange {
 
+  static initClass() {
+    this.prototype.type = "DataRange1d"
+
+    this.define({
+      start:               [ p.Number                  ],
+      end:                 [ p.Number                  ],
+      range_padding:       [ p.Number,       0.1       ],
+      range_padding_units: [ p.PaddingUnits, "percent" ],
+      flipped:             [ p.Bool,         false     ],
+      follow:              [ p.StartEnd,               ],
+      follow_interval:     [ p.Number                  ],
+      default_span:        [ p.Number,       2         ],
+      bounds:              [ p.Any                     ],
+      min_interval:        [ p.Any                     ],
+      max_interval:        [ p.Any                     ],
+    })
+
+    this.internal({
+      scale_hint: [ p.String, 'auto' ]
+    })
+  }
+
   start: number
   end: number
   range_padding: number
@@ -39,8 +61,8 @@ export class DataRange1d extends DataRange {
 
   have_updated_interactively: boolean = false
 
-  initialize(attrs: any, options: any): void {
-    super.initialize(attrs, options)
+  initialize(options: any): void {
+    super.initialize(options)
 
     this._initial_start = this.start
     this._initial_end = this.end
@@ -272,22 +294,4 @@ export class DataRange1d extends DataRange {
   }
 }
 
-DataRange1d.prototype.type = "DataRange1d"
-
-DataRange1d.define({
-  start:               [ p.Number                  ],
-  end:                 [ p.Number                  ],
-  range_padding:       [ p.Number,       0.1       ],
-  range_padding_units: [ p.PaddingUnits, "percent" ],
-  flipped:             [ p.Bool,         false     ],
-  follow:              [ p.StartEnd,               ],
-  follow_interval:     [ p.Number                  ],
-  default_span:        [ p.Number,       2         ],
-  bounds:              [ p.Any                     ],
-  min_interval:        [ p.Any                     ],
-  max_interval:        [ p.Any                     ],
-})
-
-DataRange1d.internal({
-  scale_hint: [ p.String, 'auto' ]
-})
+DataRange1d.initClass()

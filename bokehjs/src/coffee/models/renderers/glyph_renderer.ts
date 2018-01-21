@@ -1,6 +1,8 @@
 /* XXX: partial */
 import {Renderer, RendererView} from "./renderer";
-import {Line, LineView} from "../glyphs/line";
+import {LineView} from "../glyphs/line";
+import {Glyph} from "../glyphs/glyph";
+import {DataSource} from "../sources/data_source";
 import {RemoteDataSource} from "../sources/remote_data_source";
 import {CDSView} from "../sources/cds_view";
 import {logger} from "core/logging";
@@ -8,6 +10,7 @@ import * as p from "core/properties";
 import {difference, includes, range} from "core/util/array";
 import {extend, clone} from "core/util/object";
 import * as hittest from "core/hittest";
+import {Geometry} from "core/geometry"
 
 export class GlyphRendererView extends RendererView {
 
@@ -106,8 +109,7 @@ export class GlyphRendererView extends RendererView {
 
   // in case of partial updates like patching, the list of indices that actually
   // changed may be passed as the "indices" parameter to afford any optional optimizations
-  set_data(request_render, indices) {
-    if (request_render == null) { request_render = true; }
+  set_data(request_render = true, indices = null) { // XXX: indices
     const t0 = Date.now();
     const source = this.model.data_source;
 
@@ -158,7 +160,6 @@ export class GlyphRendererView extends RendererView {
 
     const glsupport = this.glyph.glglyph;
 
-    const tmap = Date.now();
     this.glyph.map_data();
     const dtmap = Date.now() - t0;
 
@@ -316,7 +317,7 @@ export class GlyphRendererView extends RendererView {
     return this.glyph.draw_legend_for_index(ctx, x0, x1, y0, y1, index);
   }
 
-  hit_test(geometry) {
+  hit_test(geometry: Geometry): hittest.HitTestResult {
     return this.model.hit_test_helper(geometry, this);
   }
 }
@@ -384,7 +385,7 @@ export class GlyphRenderer extends Renderer {
     return index;
   }
 
-  hit_test_helper(geometry, renderer_view) {
+  hit_test_helper(geometry: Geometry, renderer_view): hittest.HitTestResult {
     if (!this.visible) {
       return null;
     }

@@ -16,6 +16,19 @@ export type Scales = {[key: string]: Scale}
 
 export class CartesianFrame extends LayoutCanvas {
 
+  static initClass() {
+    this.prototype.type = "CartesianFrame"
+
+    this.internal({
+      extra_x_ranges: [ p.Any, {} ],
+      extra_y_ranges: [ p.Any, {} ],
+      x_range:        [ p.Instance ],
+      y_range:        [ p.Instance ],
+      x_scale:        [ p.Instance ],
+      y_scale:        [ p.Instance ],
+    })
+  }
+
   extra_x_ranges: Ranges
   extra_y_ranges: Ranges
   x_range: Range
@@ -32,8 +45,8 @@ export class CartesianFrame extends LayoutCanvas {
   protected _xscales: Scales
   protected _yscales: Scales
 
-  initialize(attrs: any, options: any): void {
-    super.initialize(attrs, options)
+  initialize(options: any): void {
+    super.initialize(options)
     this._configure_scales()
     this.connect(this.change, () => this._configure_scales())
   }
@@ -109,7 +122,7 @@ export class CartesianFrame extends LayoutCanvas {
     this._yscales = this._get_scales(this.y_scale, this._y_ranges, this._v_target)
   }
 
-  protected _update_scales(): void {
+  update_scales(): void {
     this._configure_frame_ranges()
 
     for (const name in this._xscales) {
@@ -140,13 +153,4 @@ export class CartesianFrame extends LayoutCanvas {
   }
 }
 
-CartesianFrame.prototype.type = "CartesianFrame"
-
-CartesianFrame.internal({
-  extra_x_ranges: [ p.Any, {} ],
-  extra_y_ranges: [ p.Any, {} ],
-  x_range:        [ p.Instance ],
-  y_range:        [ p.Instance ],
-  x_scale:        [ p.Instance ],
-  y_scale:        [ p.Instance ],
-})
+CartesianFrame.initClass()

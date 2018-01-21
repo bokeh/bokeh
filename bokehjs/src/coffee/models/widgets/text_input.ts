@@ -18,6 +18,10 @@ export class TextInputView extends InputWidgetView {
     this.connect(this.model.change, () => this.render())
   }
 
+  css_classes(): string[] {
+    return super.css_classes().concat("bk-widget-form-group")
+  }
+
   render(): void {
     super.render()
 
@@ -51,15 +55,17 @@ export class TextInputView extends InputWidgetView {
   }
 }
 
-TextInputView.prototype.className = "bk-widget-form-group"
-
 export class TextInput extends InputWidget {
+
+  static initClass() {
+    this.prototype.type = "TextInput"
+    this.prototype.default_view = TextInputView
+
+    this.define({
+      value: [ p.String, "" ],
+      placeholder: [ p.String, "" ],
+    })
+  }
 }
 
-TextInput.prototype.type = "TextInput"
-TextInput.prototype.default_view = TextInputView
-
-TextInput.define({
-  value: [ p.String, "" ],
-  placeholder: [ p.String, "" ],
-})
+TextInput.initClass()

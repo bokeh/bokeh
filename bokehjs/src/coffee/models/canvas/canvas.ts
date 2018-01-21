@@ -63,6 +63,10 @@ export class CanvasView extends DOMView {
     logger.debug("CanvasView initialized")
   }
 
+  css_classes(): string[] {
+    return super.css_classes().concat("bk-canvas-wrapper")
+  }
+
   // Method exists so that context can be stubbed in unit tests
   get_ctx(): Context2d {
     return this._ctx
@@ -122,9 +126,20 @@ export class CanvasView extends DOMView {
   }
 }
 
-CanvasView.prototype.className = "bk-canvas-wrapper"
-
 export class Canvas extends LayoutCanvas {
+
+  static initClass() {
+    this.prototype.type = "Canvas"
+
+    this.prototype.default_view = CanvasView
+
+    this.internal({
+      map:            [ p.Boolean,       false    ],
+      use_hidpi:      [ p.Boolean,       true     ],
+      pixel_ratio:    [ p.Number,        1        ],
+      output_backend: [ p.OutputBackend, "canvas" ],
+    })
+  }
 
   map: boolean
   use_hidpi: boolean
@@ -136,13 +151,4 @@ export class Canvas extends LayoutCanvas {
   }
 }
 
-Canvas.prototype.type = "Canvas"
-
-Canvas.prototype.default_view = CanvasView
-
-Canvas.internal({
-  map:            [ p.Boolean,       false    ],
-  use_hidpi:      [ p.Boolean,       true     ],
-  pixel_ratio:    [ p.Number,        1        ],
-  output_backend: [ p.OutputBackend, "canvas" ],
-})
+Canvas.initClass()

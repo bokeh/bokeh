@@ -145,7 +145,7 @@ export class ColumnDataSource extends ColumnarDataSource {
   attributes_as_json(include_defaults: boolean = true, value_to_json = ColumnDataSource._value_to_json) {
     const attrs = {}
     const object = this.serializable_attributes()
-    for (let key of Object.keys(object || {})) {
+    for (const key of Object.keys(object || {})) {
       let value = object[key]
       if (key === 'data') {
         value = serialization.encode_column_data(value, this._shapes)
@@ -169,18 +169,17 @@ export class ColumnDataSource extends ColumnarDataSource {
 
   stream(new_data, rollover) {
     const { data } = this
-    for (let k in new_data) {
-      const v = new_data[k]
+    for (const k in new_data) {
       data[k] = stream_to_column(data[k], new_data[k], rollover)
     }
     this.setv({data}, {silent: true})
-    return this.streaming.emit()
+    return this.streaming.emit(undefined)
   }
 
   patch(patches) {
     const { data } = this
     let patched = new Set()
-    for (let k in patches) {
+    for (const k in patches) {
       const patch = patches[k]
       patched = patched.union(patch_to_column(data[k], patch, this._shapes[k]))
     }

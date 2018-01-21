@@ -14,12 +14,17 @@ export class ResetToolView extends ActionToolView {
 }
 
 export class ResetTool extends ActionTool {
+
+  static initClass() {
+    this.prototype.type = "ResetTool"
+
+    this.prototype.default_view = ResetToolView
+  }
+
   reset_size: boolean
 
   tool_name = "Reset"
   icon = "bk-tool-icon-reset"
 }
 
-ResetTool.prototype.type = "ResetTool"
-
-ResetTool.prototype.default_view = ResetToolView
+ResetTool.initClass()

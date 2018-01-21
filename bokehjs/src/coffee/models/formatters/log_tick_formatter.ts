@@ -13,15 +13,15 @@ export class LogTickFormatter extends TickFormatter {
     });
   }
 
-  initialize(attrs: any, options: any): void {
-    super.initialize(attrs, options);
+  initialize(options: any): void {
+    super.initialize(options);
     this.basic_formatter = new BasicTickFormatter();
     if ((this.ticker == null)) {
       logger.warn("LogTickFormatter not configured with a ticker, using default base of 10 (labels will be incorrect if ticker base is not 10)");
     }
   }
 
-  doFormat(ticks, axis) {
+  doFormat(ticks, _axis) {
     let base;
     if (ticks.length === 0) {
       return [];

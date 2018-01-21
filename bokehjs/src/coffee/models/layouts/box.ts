@@ -34,6 +34,10 @@ export class BoxView extends LayoutDOMView {
     this.connect(this.model.properties.children.change, () => this.rebuild_child_views())
   }
 
+  css_classes(): string[] {
+    return super.css_classes().concat("bk-grid")
+  }
+
   get_height(): number {
     const children = this.model.get_layoutable_children()
     const child_heights = children.map((child) => child._height.value)
@@ -57,9 +61,21 @@ export class BoxView extends LayoutDOMView {
   }
 }
 
-BoxView.prototype.className = "bk-grid"
-
 export class Box extends LayoutDOM {
+
+  static initClass() {
+    this.prototype.type = "Box"
+
+    this.prototype.default_view = BoxView
+
+    this.define({
+      children: [ p.Array, [] ]
+    })
+
+    this.internal({
+      spacing: [ p.Number, 6 ]
+    })
+  }
 
   children: LayoutDOM[]
   spacing: number
@@ -85,8 +101,8 @@ export class Box extends LayoutDOM {
   protected _box_cell_align_left: Variable
   protected _box_cell_align_right: Variable
 
-  initialize(attrs: any, options: any): void {
-    super.initialize(attrs, options)
+  initialize(options: any): void {
+    super.initialize(options)
 
     this._child_equal_size_width = new Variable(`${this.toString()}.child_equal_size_width`)
     this._child_equal_size_height = new Variable(`${this.toString()}.child_equal_size_height`)
@@ -538,14 +554,4 @@ export class Box extends LayoutDOM {
   static _top_bottom_inner_cell_edge_variables = ['box_cell_align_top', 'box_cell_align_bottom' ]
 }
 
-Box.prototype.type = "Box"
-
-Box.prototype.default_view = BoxView
-
-Box.define({
-  children: [ p.Array, [] ]
-})
-
-Box.internal({
-  spacing: [ p.Number, 6 ]
-})
+Box.initClass()

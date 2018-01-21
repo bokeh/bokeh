@@ -137,4 +137,4 @@ def test_FromFile(mock_open):
     assert obj.lang == "less"
 
 def test_exts():
-    assert buc.exts == (".coffee", ".ts", ".tsx", ".js", ".css", ".less")
+    assert buc.exts == (".coffee", ".ts", ".js", ".css", ".less")

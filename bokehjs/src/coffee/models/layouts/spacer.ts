@@ -12,6 +12,10 @@ export class SpacerView extends LayoutDOMView {
     }
   }
 
+  css_classes(): string[] {
+    return super.css_classes().concat("bk-spacer-box")
+  }
+
   // spacer must always have some width/height
   get_width() {
     return 1
@@ -22,9 +26,12 @@ export class SpacerView extends LayoutDOMView {
   }
 }
 
-SpacerView.prototype.className = "bk-spacer-box"
-
 export class Spacer extends LayoutDOM {
+
+  static initClass() {
+    this.prototype.type = "Spacer"
+    this.prototype.default_view = SpacerView
+  }
 
   get_constrained_variables(): {[key: string]: Variable} {
     return extend({}, super.get_constrained_variables(), {
@@ -46,5 +53,4 @@ export class Spacer extends LayoutDOM {
   }
 }
 
-Spacer.prototype.type = "Spacer"
-Spacer.prototype.default_view = SpacerView
+Spacer.initClass()

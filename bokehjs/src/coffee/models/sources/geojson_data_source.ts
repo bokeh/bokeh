@@ -28,11 +28,11 @@ export class GeoJSONDataSource extends ColumnarDataSource {
   }
 
   _get_new_list_array(length: number): number[][] {
-    return (range(0, length).map((i) => []))
+    return (range(0, length).map((_i) => []))
   }
 
   _get_new_nan_array(length: number): number[] {
-    return (range(0, length).map((i) => NaN))
+    return (range(0, length).map((_i) => NaN))
   }
 
   _flatten_function(accumulator, currentItem) {
@@ -40,7 +40,7 @@ export class GeoJSONDataSource extends ColumnarDataSource {
   }
 
   _add_properties(item, data, i, item_count) {
-    for (let property in item.properties) {
+    for (const property in item.properties) {
       if (!data.hasOwnProperty(property)) {
         data[property] = this._get_new_nan_array(item_count)
       }
@@ -60,7 +60,7 @@ export class GeoJSONDataSource extends ColumnarDataSource {
       case "LineString": {
         const coord_list = geometry.coordinates
         for (let j = 0; j < coord_list.length; j++) {
-          coords = coord_list[j]
+          const coords = coord_list[j]
           data.xs[i][j] = coords[0]
           data.ys[i][j] = coords[1]
           data.zs[i][j] = coords[2] != null ? coords[2] : NaN
@@ -73,7 +73,7 @@ export class GeoJSONDataSource extends ColumnarDataSource {
         }
         const exterior_ring = geometry.coordinates[0]
         for (let j = 0; j < exterior_ring.length; j++) {
-          coords = exterior_ring[j]
+          const coords = exterior_ring[j]
           data.xs[i][j] = coords[0]
           data.ys[i][j] = coords[1]
           data.zs[i][j] = coords[2] != null ? coords[2] : NaN
@@ -87,7 +87,7 @@ export class GeoJSONDataSource extends ColumnarDataSource {
       case "MultiLineString": {
         const flattened_coord_list = geometry.coordinates.reduce(this._flatten_function)
         for (let j = 0; j < flattened_coord_list.length; j++) {
-          coords = flattened_coord_list[j]
+          const coords = flattened_coord_list[j]
           data.xs[i][j] = coords[0]
           data.ys[i][j] = coords[1]
           data.zs[i][j] = coords[2] != null ? coords[2] : NaN
@@ -96,16 +96,16 @@ export class GeoJSONDataSource extends ColumnarDataSource {
       }
       case "MultiPolygon": {
         const exterior_rings = []
-        for (let polygon of geometry.coordinates) {
+        for (const polygon of geometry.coordinates) {
           if (polygon.length > 1) {
             logger.warn('Bokeh does not support Polygons with holes in, only exterior ring used.')
           }
           exterior_rings.push(polygon[0])
         }
 
-        flattened_coord_list = exterior_rings.reduce(this._flatten_function)
+        const flattened_coord_list = exterior_rings.reduce(this._flatten_function)
         for (let j = 0; j < flattened_coord_list.length; j++) {
-          coords = flattened_coord_list[j]
+          const coords = flattened_coord_list[j]
           data.xs[i][j] = coords[0]
           data.ys[i][j] = coords[1]
           data.zs[i][j] = coords[2] != null ? coords[2] : NaN
@@ -125,7 +125,7 @@ export class GeoJSONDataSource extends ColumnarDataSource {
       const geometry = item.type === 'Feature' ? item.geometry : item
       if (geometry.type === 'GeometryCollection') {
         for (let j = 0; j < geometry.geometries.length; j++) {
-          const g = geometry.geometries[j]
+          //const g = geometry.geometries[j]
           count += 1
         }
       } else {

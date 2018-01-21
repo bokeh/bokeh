@@ -6,6 +6,14 @@ import * as p from "core/properties"
 // be used as part of a CompositeTicker below.
 export class SingleIntervalTicker extends ContinuousTicker {
 
+  static initClass() {
+    this.prototype.type = "SingleIntervalTicker"
+
+    this.define({
+      interval: [ p.Number ],
+    })
+  }
+
   interval: number
 
   get_interval(_data_low: number, _data_high: number, _n_desired_ticks: number) {
@@ -21,8 +29,4 @@ export class SingleIntervalTicker extends ContinuousTicker {
   }
 }
 
-SingleIntervalTicker.prototype.type = "SingleIntervalTicker"
-
-SingleIntervalTicker.define({
-  interval: [ p.Number ],
-})
+SingleIntervalTicker.initClass()

@@ -66,8 +66,8 @@ export class DatetimeTickFormatter extends TickFormatter {
     this.prototype.strip_leading_zeros = true;
   }
 
-  initialize(attrs: any, options: any): void {
-    super.initialize(attrs, options);
+  initialize(options: any): void {
+    super.initialize(options);
     // TODO (bev) trigger update on format change
     this._update_width_formats();
   }
@@ -77,7 +77,7 @@ export class DatetimeTickFormatter extends TickFormatter {
 
     const _widths = function(fmt_strings) {
       const sizes = (fmt_strings.map((fmt_string) => _strftime(now, fmt_string).length));
-      const sorted = sortBy(zip(sizes, fmt_strings), function(...args) { const [size, fmt] = args[0]; return size; });
+      const sorted = sortBy(zip(sizes, fmt_strings), function(...args) { const [size,] = args[0]; return size; });
       return unzip(sorted);
     };
 
@@ -119,14 +119,13 @@ export class DatetimeTickFormatter extends TickFormatter {
   }
 
   // TODO (bev) remove these unused "default" params and associated logic
-  doFormat(ticks, axis, num_labels=null, char_width=null, fill_ratio, ticker=null) {
+  doFormat(ticks, _axis, _num_labels=null, char_width=null, fill_ratio = 0.3, ticker=null) {
 
     // In order to pick the right set of labels, we need to determine
     // the resolution of the ticks.  We can do this using a ticker if
     // it's provided, or by computing the resolution from the actual
     // ticks we've been given.
     let r;
-    if (fill_ratio == null) { fill_ratio = 0.3; }
     if (ticks.length === 0) {
         return [];
       }
@@ -167,7 +166,7 @@ export class DatetimeTickFormatter extends TickFormatter {
     // a problem with the tick at midnight, january 1st, 0 a.d. being incorrectly
     // promoted at certain tick resolutions.
     const time_tuple_ndx_for_resol = {};
-    for (let fmt of this.format_order) {
+    for (const fmt of this.format_order) {
       time_tuple_ndx_for_resol[fmt] = 0;
     }
     time_tuple_ndx_for_resol["seconds"] = 5;
@@ -181,7 +180,7 @@ export class DatetimeTickFormatter extends TickFormatter {
     // from that resolution.  This is not the best heuristic in the world,
     // but it works!  There is some trickiness here due to having to deal
     // with hybrid formats in a reasonable manner.
-    for (let t of ticks) {
+    for (const t of ticks) {
       let s, tm;
       try {
         tm = _array(t);

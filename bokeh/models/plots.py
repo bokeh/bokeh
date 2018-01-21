@@ -20,7 +20,7 @@ from .glyphs import Glyph
 from .grids import Grid
 from .layouts import LayoutDOM
 from .ranges import Range, FactorRange, DataRange1d, Range1d
-from .renderers import DataRenderer, DynamicImageRenderer, GlyphRenderer, Renderer, TileRenderer
+from .renderers import DataRenderer, GlyphRenderer, Renderer, TileRenderer
 from .scales import Scale, CategoricalScale, LinearScale, LogScale
 from .sources import DataSource, ColumnDataSource
 from .tools import Tool, Toolbar
@@ -303,24 +303,6 @@ class Plot(LayoutDOM):
         tile_renderer = TileRenderer(tile_source=tile_source, **kw)
         self.renderers.append(tile_renderer)
         return tile_renderer
-
-    def add_dynamic_image(self, image_source, **kw):
-        ''' Adds new DynamicImageRenderer into the Plot.renderers
-
-        Args:
-            image_source (ImageSource) : a image source instance which contain image configuration
-
-        Keyword Arguments:
-            Additional keyword arguments are passed on as-is to the dynamic image renderer
-
-        Returns:
-            DynamicImageRenderer : DynamicImageRenderer
-
-        '''
-        deprecated((0, 12, 7), "add_dynamic_image", "GeoViews for GIS functions on top of Bokeh (http://geo.holoviews.org)")
-        image_renderer = DynamicImageRenderer(image_source=image_source, **kw)
-        self.renderers.append(image_renderer)
-        return image_renderer
 
     @error(REQUIRED_RANGE)
     def _check_required_range(self):

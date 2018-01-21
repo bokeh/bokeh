@@ -24,15 +24,20 @@ export class SliderView extends AbstractSliderView {
 }
 
 export class Slider extends AbstractSlider {
+
+  static initClass() {
+    this.prototype.type = "Slider"
+    this.prototype.default_view = SliderView
+
+    this.override({
+      format: "0[.]00"
+    })
+  }
+
   behaviour = 'tap'
   connected = [true, false]
 
   _formatter = format
 }
 
-Slider.prototype.type = "Slider"
-Slider.prototype.default_view = SliderView
-
-Slider.override({
-  format: "0[.]00"
-})
+Slider.initClass()

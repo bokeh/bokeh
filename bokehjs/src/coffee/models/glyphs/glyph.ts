@@ -89,7 +89,7 @@ export class GlyphView extends View {
     const bb = bbox.empty();
     const positive_x_bbs = this.index.search(bbox.positive_x());
     const positive_y_bbs = this.index.search(bbox.positive_y());
-    for (let x of positive_x_bbs) {
+    for (const x of positive_x_bbs) {
       if (x.minX < bb.minX) {
         bb.minX = x.minX;
       }
@@ -97,7 +97,7 @@ export class GlyphView extends View {
         bb.maxX = x.maxX;
       }
     }
-    for (let y of positive_y_bbs) {
+    for (const y of positive_y_bbs) {
       if (y.minY < bb.minY) {
         bb.minY = y.minY;
       }
@@ -123,20 +123,18 @@ export class GlyphView extends View {
     const [sx, sy] = rest[0];
     switch (anchor) {
       case "center": return {x: this.scx(i, sx, sy), y: this.scy(i, sx, sy)};
-      default:               return null;
+      default:       return null;
     }
   }
 
   // glyphs that need more sophisticated "snap to data" behaviour (like
   // snapping to a patch centroid, e.g, should override these
-  scx(i) { return this.sx[i]; }
-  scy(i) { return this.sy[i]; }
+  scx(i, _sx, _sy) { return this.sx[i]; }
+  scy(i, _sx, _sy) { return this.sy[i]; }
 
-  sdist(scale, pts, spans, pts_location, dilate) {
+  sdist(scale, pts, spans, pts_location = "edge", dilate = false) {
     let pt0, pt1;
     let i;
-    if (pts_location == null) { pts_location = "edge"; }
-    if (dilate == null) { dilate = false; }
     if (scale.source_range.v_synthetic != null) {
       pts = scale.source_range.v_synthetic(pts);
     }
@@ -195,7 +193,7 @@ export class GlyphView extends View {
     }
   }
 
-  draw_legend_for_index(ctx, x0, x1, y0, y1, index) {
+  draw_legend_for_index(_ctx, _x0, _x1, _y0, _y1, _index) {
     return null;
   }
 
@@ -212,7 +210,6 @@ export class GlyphView extends View {
   }
 
   _generic_area_legend(ctx, x0, x1, y0, y1, index) {
-    const indices = [index];
     const w = Math.abs(x1-x0);
     const dw = w*0.1;
     const h = Math.abs(y1-y0);
@@ -267,7 +264,7 @@ export class GlyphView extends View {
     this.visuals.set_all_indices(indices);
     if (indices && !(this instanceof LineView)) {
       const data_subset = {};
-      for (let k in data) {
+      for (const k in data) {
         const v = data[k];
         if (k.charAt(0) === '_') {
           data_subset[k] = (indices.map((i) => v[i]));
@@ -315,7 +312,7 @@ export class GlyphView extends View {
     return this.index = this._index_data();
   }
 
-  _set_data() {}
+  _set_data(_source, _indices) {}
 
   _index_data() {}
 
@@ -376,7 +373,7 @@ export class Glyph extends Model {
     this.prototype._coords = _coords;
 
     const result = {};
-    for (let [x, y] of coords) {
+    for (const [x, y] of coords) {
       result[x] = [ p.NumberSpec ];
       result[y] = [ p.NumberSpec ];
     }

@@ -29,7 +29,7 @@ export class ImageURLView extends GlyphView {
         return () => {
           if (this.retries[i] > 0) {
             logger.trace(`ImageURL failed to load ${this._url[i]} image, retrying in ${retry_timeout} ms`);
-            setTimeout((() => { return img.src = this._url[i]; }), retry_timeout);
+            setTimeout(() => img.src = this._url[i], retry_timeout);
           } else {
             logger.warn(`ImageURL unable to load ${this._url[i]} image after ${retry_attempts} retries`);
           }
@@ -55,14 +55,14 @@ export class ImageURLView extends GlyphView {
     // machinery will have converted @_w and @_w to lists of null
     const ws = ((this.model.w != null) ? this._w : (() => {
       const result = [];
-      for (const x of this._x) {
+      for (const _ of this._x) {
         result.push(NaN);
       }
       return result;
     })());
     const hs = ((this.model.h != null) ? this._h : (() => {
       const result1 = [];
-      for (const x of this._x) {
+      for (const _ of this._x) {
         result1.push(NaN);
       }
       return result1;
@@ -103,7 +103,7 @@ export class ImageURLView extends GlyphView {
 
     let finished = true;
 
-    for (let i of indices) {
+    for (const i of indices) {
       if (isNaN(sx[i]+sy[i]+_angle[i])) {
         continue;
       }

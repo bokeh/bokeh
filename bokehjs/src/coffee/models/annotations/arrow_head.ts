@@ -3,7 +3,7 @@ import {Annotation} from "./annotation";
 import {Visuals} from "core/visuals";
 import * as p from "core/properties"
 
-export class ArrowHead extends Annotation {
+export abstract class ArrowHead extends Annotation {
   static initClass() {
     this.prototype.type = 'ArrowHead';
   }
@@ -13,14 +13,9 @@ export class ArrowHead extends Annotation {
     this.visuals = new Visuals(this);
   }
 
-  render(ctx, i) {
-    return null;
-  }
+  abstract render(ctx, i): void
 
-  clip(ctx, i) {
-    // This method should not begin or close a path
-    return null;
-  }
+  abstract clip(ctx, i): void // This method should not begin or close a path
 }
 ArrowHead.initClass();
 
@@ -99,7 +94,7 @@ export class NormalHead extends ArrowHead {
     }
   }
 
-  _normal(ctx, i) {
+  _normal(ctx, _i) {
     ctx.beginPath();
     ctx.moveTo(0.5*this.size, this.size);
     ctx.lineTo(0, 0);
@@ -149,7 +144,7 @@ export class VeeHead extends ArrowHead {
     }
   }
 
-  _vee(ctx, i) {
+  _vee(ctx, _i) {
     ctx.beginPath();
     ctx.moveTo(0.5*this.size, this.size);
     ctx.lineTo(0, 0);
@@ -180,5 +175,7 @@ export class TeeHead extends ArrowHead {
       return ctx.stroke();
     }
   }
+
+  clip(_ctx, _i) {}
 }
 TeeHead.initClass();
