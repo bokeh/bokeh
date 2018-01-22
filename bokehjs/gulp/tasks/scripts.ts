@@ -55,7 +55,7 @@ gulp.task("scripts:ts", () => {
       }
     }
 
-    if (argv.filter && text.includes(argv.filter))
+    if (argv.filter && !text.includes(argv.filter))
       return
 
     gutil.log(err.message)
