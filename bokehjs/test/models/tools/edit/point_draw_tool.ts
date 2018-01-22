@@ -1,28 +1,26 @@
-const {expect} = require("chai");
-const utils = require("../../../utils");
-const sinon = require('sinon');
+import {expect} from "chai"
+import * as sinon from "sinon"
 
-const {Keys} = utils.require("core/dom");
-const {create_1d_hit_test_result, create_hit_test_result} = utils.require("core/hittest");
+import {Keys} from "core/dom"
+import {create_1d_hit_test_result} from "core/hittest"
 
-const {PointDrawTool, PointDrawToolView} = utils.require("models/tools/edit/point_draw_tool");
-const {Range1d} = utils.require("models/ranges/range1d");
-const {Circle} = utils.require("models/glyphs/circle");
-const {GlyphRenderer} = utils.require("models/renderers/glyph_renderer");
-const {ColumnDataSource} = utils.require("models/sources/column_data_source");
-const {Plot} = utils.require("models/plots/plot");
-const {Toolbar} = utils.require("models/tools/toolbar");
+import {Circle} from "models/glyphs/circle"
+import {Plot} from "models/plots/plot"
+import {Range1d} from "models/ranges/range1d"
+import {GlyphRenderer} from "models/renderers/glyph_renderer"
+import {ColumnDataSource} from "models/sources/column_data_source"
+import {PointDrawTool} from "models/tools/edit/point_draw_tool"
 
-const {create_glyph_view} = require("../../glyphs/glyph_utils");
+const utils = require("../../../utils")
 
 
-describe("PointDrawTool", () =>
+describe("PointDrawTool", (): void => {
 
-  describe("View", function() {
+  describe("View", function(): void {
 
     afterEach(() => utils.unstub_canvas());
 
-    beforeEach(function() {
+    beforeEach(function(): void {
       utils.stub_canvas();
 
       // Note default plot dimensions is 600 x 600 (height x width)
@@ -59,8 +57,8 @@ describe("PointDrawTool", () =>
       this.hit_test_stub = sinon.stub(this.glyph_renderer_view.glyph, "hit_test");
     });
 
-    it("should select point on tap", function() {
-      this.hit_test_stub.returns(create_1d_hit_test_result([[1]]));
+    it("should select point on tap", function(): void {
+      this.hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
       const draw_tool = new PointDrawTool({renderers: [this.glyph_renderer]});
       this.plot.add_tools(draw_tool);
       const draw_tool_view = this.plot_canvas_view.tool_views[draw_tool.id];
@@ -78,10 +76,10 @@ describe("PointDrawTool", () =>
       const draw_tool_view = this.plot_canvas_view.tool_views[draw_tool.id];
       this.plot_canvas_view.renderer_views[this.glyph_renderer.id] = this.glyph_renderer_view;
 
-      this.hit_test_stub.returns(create_1d_hit_test_result([[1]]));
+      this.hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
       let tap_event = {"bokeh": {sx: 300, sy: 300}, "srcEvent": {shiftKey: false}};
       draw_tool_view._tap(tap_event);
-      this.hit_test_stub.returns(create_1d_hit_test_result([[2]]));
+      this.hit_test_stub.returns(create_1d_hit_test_result([[2, 0]]));
       tap_event = {"bokeh": {sx: 560, sy: 560}, "srcEvent": {shiftKey: true}};
       draw_tool_view._tap(tap_event);
 
@@ -117,14 +115,14 @@ describe("PointDrawTool", () =>
       expect(this.data_source.data['z']).to.be.deep.equal([null, null, null, 'Test']);
     });
 
-    it("should delete selected on delete key", function() {
+    it("should delete selected on delete key", function(): void {
       const draw_tool = new PointDrawTool({renderers: [this.glyph_renderer]});
       draw_tool.active = true;
       this.plot.add_tools(draw_tool);
       const draw_tool_view = this.plot_canvas_view.tool_views[draw_tool.id];
       this.plot_canvas_view.renderer_views[this.glyph_renderer.id] = this.glyph_renderer_view;
 
-      this.hit_test_stub.returns(create_1d_hit_test_result([[1]]));
+      this.hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
       const tap_event = {"bokeh": {sx: 300, sy: 300}, "srcEvent": {shiftKey: false}};
       draw_tool_view._tap(tap_event);
 
@@ -137,14 +135,14 @@ describe("PointDrawTool", () =>
       expect(this.data_source.data['z']).to.be.deep.equal([null, null]);
     });
 
-    it("should clear selection on escape key", function() {
+    it("should clear selection on escape key", function(): void {
       const draw_tool = new PointDrawTool({renderers: [this.glyph_renderer]});
       draw_tool.active = true;
       this.plot.add_tools(draw_tool);
       const draw_tool_view = this.plot_canvas_view.tool_views[draw_tool.id];
       this.plot_canvas_view.renderer_views[this.glyph_renderer.id] = this.glyph_renderer_view;
 
-      this.hit_test_stub.returns(create_1d_hit_test_result([[1]]));
+      this.hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
       const tap_event = {"bokeh": {sx: 300, sy: 300}, "srcEvent": {shiftKey: false}};
       draw_tool_view._tap(tap_event);
 
@@ -155,14 +153,14 @@ describe("PointDrawTool", () =>
       expect(this.data_source.data).to.be.deep.equal(this.data);
     });
 
-    it("should drag point on pan", function() {
+    it("should drag point on pan", function(): void {
       const draw_tool = new PointDrawTool({renderers: [this.glyph_renderer]});
       draw_tool.active = true;
       this.plot.add_tools(draw_tool);
       const draw_tool_view = this.plot_canvas_view.tool_views[draw_tool.id];
       this.plot_canvas_view.renderer_views[this.glyph_renderer.id] = this.glyph_renderer_view;
 
-      this.hit_test_stub.returns(create_1d_hit_test_result([[1]]));
+      this.hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
       let drag_event = {"bokeh": {sx: 300, sy: 300}, "srcEvent": {shiftKey: false}};
       draw_tool_view._pan_start(drag_event);
       expect(draw_tool_view._basepoint).to.be.deep.equal([300, 300]);
@@ -180,22 +178,22 @@ describe("PointDrawTool", () =>
       expect(this.data_source.data['z']).to.be.deep.equal([null, null, null]);
     });
 
-    it("should drag all selected points on pan", function() {
+    it("should drag all selected points on pan", function(): void {
       const draw_tool = new PointDrawTool({renderers: [this.glyph_renderer]});
       draw_tool.active = true;
       this.plot.add_tools(draw_tool);
       const draw_tool_view = this.plot_canvas_view.tool_views[draw_tool.id];
       this.plot_canvas_view.renderer_views[this.glyph_renderer.id] = this.glyph_renderer_view;
 
-      this.hit_test_stub.returns(create_1d_hit_test_result([[1]]));
+      this.hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
       const tap_event = {"bokeh": {sx: 300, sy: 300}, "srcEvent": {shiftKey: false}};
       draw_tool_view._tap(tap_event);
 
-      this.hit_test_stub.returns(create_1d_hit_test_result([[2]]));
+      this.hit_test_stub.returns(create_1d_hit_test_result([[2, 0]]));
       let drag_event = {"bokeh": {sx: 300, sy: 300}, "srcEvent": {shiftKey: true}};
       draw_tool_view._pan_start(drag_event);
       expect(draw_tool_view._basepoint).to.be.deep.equal([300, 300]);
-
+      
       drag_event = {"bokeh": {sx: 200, sy: 200}, "srcEvent": {shiftKey: false}};
       draw_tool_view._pan(drag_event);
       expect(draw_tool_view._basepoint).to.be.deep.equal([200, 200]);
@@ -209,4 +207,4 @@ describe("PointDrawTool", () =>
       expect(this.data_source.data['z']).to.be.deep.equal([null, null, null]);
     });
   })
-);
+});
