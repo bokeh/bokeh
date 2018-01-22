@@ -34,8 +34,8 @@ export class ColumnarDataSource extends DataSource {
     })
   }
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
 
     this._select = new Signal(this, "select")
     this.inspect = new Signal(this, "inspect") // XXX: <[indices, tool, renderer-view, source, data], this>

@@ -66,8 +66,8 @@ export class DatetimeTickFormatter extends TickFormatter {
     this.prototype.strip_leading_zeros = true;
   }
 
-  initialize(options: any): void {
-    super.initialize(options);
+  initialize(): void {
+    super.initialize();
     // TODO (bev) trigger update on format change
     this._update_width_formats();
   }

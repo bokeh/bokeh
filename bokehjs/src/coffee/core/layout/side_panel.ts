@@ -197,8 +197,8 @@ export class SidePanel extends LayoutCanvas {
     return `${this.type}(${this.id}, ${this.side})`
   }
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
     switch(this.side) {
       case "above":
         this._dim = 0

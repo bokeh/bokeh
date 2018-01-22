@@ -133,8 +133,8 @@ export class ColumnDataSource extends ColumnarDataSource {
     })
   }
 
-  initialize(options: any): void {
-    super.initialize(options);
+  initialize(): void {
+    super.initialize();
     [this.data, this._shapes] = serialization.decode_column_data(this.data)
   }
 

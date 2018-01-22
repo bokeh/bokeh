@@ -235,8 +235,8 @@ export class Circle extends XYGlyph {
       });
   }
 
-  initialize(options: any): void {
-    super.initialize(options);
+  initialize(): void {
+    super.initialize();
     this.properties.radius.optional = true;
   }
 }
