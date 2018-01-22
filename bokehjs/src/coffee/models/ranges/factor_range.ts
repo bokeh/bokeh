@@ -153,6 +153,10 @@ export class FactorRange extends Range {
   initialize(): void {
     super.initialize()
     this._init()
+  }
+
+  connect_signals(): void {
+    super.connect_signals()
     this.connect(this.properties.factors.change, () => this.reset())
     this.connect(this.properties.factor_padding.change, () => this.reset())
     this.connect(this.properties.group_padding.change, () => this.reset())

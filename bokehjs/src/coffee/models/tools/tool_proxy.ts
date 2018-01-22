@@ -36,6 +36,10 @@ export class ToolProxy extends Model {
   initialize(): void {
     super.initialize();
     this.do = new Signal(this, "do");
+  }
+
+  connect_signals(): void {
+    super.connect_signals()
     this.connect(this.do, function() { return this.doit(); });
     this.connect(this.properties.active.change, function() { return this.set_active(); });
   }

@@ -25,8 +25,12 @@ export class Toolbar extends ToolbarBase {
 
   initialize(): void {
     super.initialize();
-    this.connect(this.properties.tools.change, () => this._init_tools())
     this._init_tools();
+  }
+
+  connect_signals(): void {
+    super.connect_signals()
+    this.connect(this.properties.tools.change, () => this._init_tools())
   }
 
   _init_tools() {

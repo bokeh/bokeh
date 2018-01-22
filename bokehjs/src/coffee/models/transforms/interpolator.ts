@@ -30,7 +30,10 @@ export class Interpolator extends Transform {
     this._x_sorted = [];
     this._y_sorted = [];
     this._sorted_dirty = true;
+  }
 
+  connect_signals(): void {
+    super.connect_signals()
     this.connect(this.change, () => this._sorted_dirty = true)
   }
 

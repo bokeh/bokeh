@@ -48,6 +48,10 @@ export class CartesianFrame extends LayoutCanvas {
   initialize(): void {
     super.initialize()
     this._configure_scales()
+  }
+
+  connect_signals(): void {
+    super.connect_signals()
     this.connect(this.change, () => this._configure_scales())
   }
 

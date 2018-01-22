@@ -18,7 +18,10 @@ export class ColorMapper extends Transform {
     super.initialize();
     this._little_endian = this._is_little_endian();
     this._palette       = this._build_palette(this.palette);
+  }
 
+  connect_signals(): void {
+    super.connect_signals()
     this.connect(this.change, function() {
       this._palette = this._build_palette(this.palette);
     });
