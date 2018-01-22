@@ -156,7 +156,7 @@ export abstract class HasProps extends Signalable() {
     if (attributes.id == null)
       this.setv(["id", uniqueId()], {silent: true})
 
-    this.setv(attributes, extend({silent: true}, options))
+    this.setv(attributes, {silent: true})
 
     // allowing us to defer initialization when loading many models
     // when loading a bunch of models, we want to do initialization as a second pass

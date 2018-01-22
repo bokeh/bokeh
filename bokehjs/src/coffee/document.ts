@@ -452,7 +452,7 @@ export class Document {
   static _instantiate_object(obj_id: string, obj_type: string, obj_attrs: {[key: string]: any}): HasProps {
     const full_attrs = extend({}, obj_attrs, {id: obj_id})
     const model: Class<HasProps> = Models(obj_type)
-    return new model(full_attrs, {silent: true, defer_initialization: true})
+    return new model(full_attrs, {defer_initialization: true})
   }
 
   // given a JSON representation of all models in a graph, return a
