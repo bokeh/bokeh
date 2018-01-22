@@ -60,11 +60,11 @@ export class PolyDrawToolView extends EditToolView {
       count = ds.data[xkey].length-1;
     }
     if (append && (count >= 0)) {
-      ds.data[xkey][count].push(x);
-      ds.data[ykey][count].push(y);
+      if (xkey) { ds.data[xkey][count].push(x); }
+      if (ykey) { ds.data[ykey][count].push(y); }
     } else {
-      ds.data[xkey].push([x, x]);
-      ds.data[ykey].push([y, y]);
+      if (xkey) { ds.data[xkey].push([x, x]); }
+      if (ykey) { ds.data[ykey].push([y, y]); }
       this._pad_empty_columns(ds, [xkey, ykey]);
     }
     ds.change.emit(undefined);
@@ -89,10 +89,14 @@ export class PolyDrawToolView extends EditToolView {
     } else {
       count = ds.data[xkey].length-1;
     }
-    const xs = ds.data[xkey][count];
-    const ys = ds.data[ykey][count];
-    xs[xs.length-1] = x;
-    ys[ys.length-1] = y;
+	if (xkey) {
+      const xs = ds.data[xkey][count];
+      xs[xs.length-1] = x;
+    }
+    if (ykey) {
+      const ys = ds.data[ykey][count];
+      ys[ys.length-1] = y;
+    }
     ds.change.emit(undefined);
     ds.properties.data.change.emit(undefined);
   }

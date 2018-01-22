@@ -59,18 +59,18 @@ export class BoxDrawToolView extends EditToolView {
     const [xkey, ykey] = [glyph.x.field, glyph.y.field];
     const [wkey, hkey] = [glyph.width.field, glyph.height.field];
     if (append) {
-      ds.data[xkey].push(x)
-      ds.data[ykey].push(y)
-      ds.data[wkey].push(w)
-      ds.data[hkey].push(h)
+      if (xkey) { ds.data[xkey].push(x) }
+      if (ykey) { ds.data[ykey].push(y) }
+      if (wkey) { ds.data[wkey].push(w) }
+      if (hkey) { ds.data[hkey].push(h) }
+      this._pad_empty_columns(ds, [xkey, ykey, wkey, hkey])
     } else {
       const index = ds.data[xkey].length-1;
-      ds.data[xkey][index] = x;
-      ds.data[ykey][index] = y;
-      ds.data[wkey][index] = w;
-      ds.data[hkey][index] = h;
+      if (xkey) { ds.data[xkey][index] = x; }
+      if (ykey) { ds.data[ykey][index] = y; }
+      if (wkey) { ds.data[wkey][index] = w; }
+      if (hkey) { ds.data[hkey][index] = h; }
     }
-    this._pad_empty_columns(ds, [xkey, ykey, wkey, hkey])
     ds.change.emit(undefined);
     if (emit) {
       ds.properties.data.change.emit(undefined);

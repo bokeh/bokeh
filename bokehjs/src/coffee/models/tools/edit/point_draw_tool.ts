@@ -41,21 +41,22 @@ export class PointDrawToolView extends EditToolView {
     const glyph = renderer.glyph
     const ds = renderer.data_source;
     const [xkey, ykey] = [glyph.x.field, glyph.y.field];
-    let xs = ds.data[xkey];
-    let ys = ds.data[ykey];
-
-    // Convert typed arrays to regular arrays for easy manipulation
-    if ((xs.push == null)) {
-      ds.data[xkey] = (xs = Array.prototype.slice.call(xs));
-    }
-    if ((ys.push == null)) {
-      ds.data[ykey] = (ys = Array.prototype.slice.call(ys));
-    }
-
-    // Add x- and y-values into column arrays
     const [x, y] = point;
-    xs.push(x);
-    ys.push(y);
+
+	if (xkey) {
+      let xs = ds.data[xkey];
+      if ((xs.push == null)) {
+        ds.data[xkey] = (xs = Array.prototype.slice.call(xs));
+      }
+      xs.push(x);
+    }
+	if (ykey) {
+      let ys = ds.data[ykey];
+      if ((ys.push == null)) {
+        ds.data[ykey] = (ys = Array.prototype.slice.call(ys));
+      }
+      ys.push(y);
+	}
     this._pad_empty_columns(ds, [xkey, ykey]);
 
     ds.change.emit(undefined);
@@ -101,8 +102,8 @@ export class PointDrawToolView extends EditToolView {
       const ds = renderer.data_source;
       const [xkey, ykey] = [glyph.x.field, glyph.y.field];
       for (const index of ds.selected['1d'].indices) {
-        ds.data[xkey][index] += dx;
-        ds.data[ykey][index] += dy;
+        if (xkey) { ds.data[xkey][index] += dx; }
+        if (ykey) { ds.data[ykey][index] += dy; }
       }
       ds.change.emit(undefined);
       ds.properties.data.change.emit(undefined);
