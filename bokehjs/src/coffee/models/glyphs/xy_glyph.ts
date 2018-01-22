@@ -7,7 +7,7 @@ export class XYGlyphView extends GlyphView {
   _index_data() {
     const points = [];
 
-    for (let i = 0, end = this._x.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+    for (let i = 0, end = this._x.length; i < end; i++) {
       const x = this._x[i];
       const y = this._y[i];
       if (isNaN(x+y) || !isFinite(x+y)) {

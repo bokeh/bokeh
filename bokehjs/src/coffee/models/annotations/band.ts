@@ -68,11 +68,6 @@ export class BandView extends AnnotationView {
   }
 
   render() {
-    let i;
-    let asc, end;
-    let asc1, start;
-    let asc2, end1;
-    let asc3, end2;
     if (!this.model.visible) {
       return;
     }
@@ -85,11 +80,11 @@ export class BandView extends AnnotationView {
     ctx.beginPath();
     ctx.moveTo(this._lower_sx[0], this._lower_sy[0]);
 
-    for (i = 0, end = this._lower_sx.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+    for (let i = 0, end = this._lower_sx.length; i < end; i++) {
       ctx.lineTo(this._lower_sx[i], this._lower_sy[i]);
     }
     // iterate backwards so that the upper end is below the lower start
-    for (start = this._upper_sx.length-1, i = start, asc1 = start <= 0; asc1 ? i <= 0 : i >= 0; asc1 ? i++ : i--) {
+    for (let start = this._upper_sx.length-1, i = start; i >= 0; i--) {
       ctx.lineTo(this._upper_sx[i], this._upper_sy[i]);
     }
 
@@ -103,7 +98,7 @@ export class BandView extends AnnotationView {
     // Draw the lower band edge
     ctx.beginPath();
     ctx.moveTo(this._lower_sx[0], this._lower_sy[0]);
-    for (i = 0, end1 = this._lower_sx.length, asc2 = 0 <= end1; asc2 ? i < end1 : i > end1; asc2 ? i++ : i--) {
+    for (let i = 0, end = this._lower_sx.length; i < end; i++) {
       ctx.lineTo(this._lower_sx[i], this._lower_sy[i]);
     }
 
@@ -115,7 +110,7 @@ export class BandView extends AnnotationView {
     // Draw the upper band edge
     ctx.beginPath();
     ctx.moveTo(this._upper_sx[0], this._upper_sy[0]);
-    for (i = 0, end2 = this._upper_sx.length, asc3 = 0 <= end2; asc3 ? i < end2 : i > end2; asc3 ? i++ : i--) {
+    for (let i = 0, end = this._upper_sx.length; i < end; i++) {
       ctx.lineTo(this._upper_sx[i], this._upper_sy[i]);
     }
 

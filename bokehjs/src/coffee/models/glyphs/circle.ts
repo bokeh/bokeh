@@ -76,7 +76,7 @@ export class CircleView extends XYGlyphView {
   }
 
   _hit_point(geometry) {
-    let dist, i, r2, sx0, sx1, sy0, sy1, x0, x1, y0, y1;
+    let dist, r2, sx0, sx1, sy0, sy1, x0, x1, y0, y1;
     const {sx, sy} = geometry;
     const x = this.renderer.xscale.invert(sx);
     const y = this.renderer.yscale.invert(sy);
@@ -106,7 +106,7 @@ export class CircleView extends XYGlyphView {
 
     const hits = [];
     if ((this._radius != null) && (this.model.properties.radius.units === "data")) {
-      for (i of candidates) {
+      for (const i of candidates) {
         r2 = Math.pow(this.sradius[i], 2);
         [sx0, sx1] = this.renderer.xscale.r_compute(x, this._x[i]);
         [sy0, sy1] = this.renderer.yscale.r_compute(y, this._y[i]);
@@ -116,7 +116,7 @@ export class CircleView extends XYGlyphView {
         }
       }
     } else {
-      for (i of candidates) {
+      for (const i of candidates) {
         r2 = Math.pow(this.sradius[i], 2);
         dist = Math.pow(this.sx[i]-sx, 2) + Math.pow(this.sy[i]-sy, 2);
         if (dist <= r2) {
@@ -190,7 +190,7 @@ export class CircleView extends XYGlyphView {
     const candidates = range(0, this.sx.length);
 
     const hits = [];
-    for (let i = 0, end = candidates.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+    for (let i = 0, end = candidates.length; i < end; i++) {
       const idx = candidates[i];
       if (hittest.point_in_poly(this.sx[i], this.sy[i], sx, sy)) {
         hits.push(idx);

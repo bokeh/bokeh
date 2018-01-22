@@ -119,9 +119,9 @@ export const arrayBufferToBase64 = function(buffer) {
 
 export const base64ToArrayBuffer = function(base64) {
   const binary_string = atob(base64);
-  const len = binary_string.length;
-  const bytes = new Uint8Array( len );
-  for (let i = 0, end = len, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+  const len = binary_string.length
+  const bytes = new Uint8Array(len);
+  for (let i = 0, end = len; i < end; i++) {
     bytes[i] = binary_string.charCodeAt(i);
   }
   return bytes.buffer;
@@ -196,7 +196,7 @@ export const encode_column_data = function(data, shapes) {
       v = encode_base64(v, shapes != null ? shapes[k] : undefined);
     } else if (isArray(v)) {
       const new_array = [];
-      for (let i = 0, end = v.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+      for (let i = 0, end = v.length; i < end; i++) {
         if ((v[i] != null ? v[i].buffer : undefined) instanceof ArrayBuffer) {
           new_array.push(encode_base64(v[i], __guard__(shapes != null ? shapes[k] : undefined, x => x[i])));
         } else {

@@ -69,7 +69,6 @@ export class WhiskerView extends AnnotationView {
   }
 
   render() {
-    let i;
     if (!this.model.visible) {
       return;
     }
@@ -79,8 +78,7 @@ export class WhiskerView extends AnnotationView {
     const { ctx } = this.plot_view.canvas_view;
 
     if (this.visuals.line.doit) {
-      let asc, end;
-      for (i = 0, end = this._lower_sx.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+      for (let i = 0, end = this._lower_sx.length; i < end; i++) {
         this.visuals.line.set_vectorize(ctx, i);
         ctx.beginPath();
         ctx.moveTo(this._lower_sx[i], this._lower_sy[i]);
@@ -92,8 +90,7 @@ export class WhiskerView extends AnnotationView {
     const angle = this.model.dimension === "height" ? 0 : Math.PI / 2;
 
     if (this.model.lower_head != null) {
-      let asc1, end1;
-      for (i = 0, end1 = this._lower_sx.length, asc1 = 0 <= end1; asc1 ? i < end1 : i > end1; asc1 ? i++ : i--) {
+      for (let i = 0, end = this._lower_sx.length; i < end; i++) {
         ctx.save();
         ctx.translate(this._lower_sx[i], this._lower_sy[i]);
         ctx.rotate(angle + Math.PI);
@@ -103,8 +100,7 @@ export class WhiskerView extends AnnotationView {
     }
 
     if (this.model.upper_head != null) {
-      let asc2, end2;
-      for (i = 0, end2 = this._upper_sx.length, asc2 = 0 <= end2; asc2 ? i < end2 : i > end2; asc2 ? i++ : i--) {
+      for (let i = 0, end = this._upper_sx.length; i < end; i++) {
         ctx.save();
         ctx.translate(this._upper_sx[i], this._upper_sy[i]);
         ctx.rotate(angle);

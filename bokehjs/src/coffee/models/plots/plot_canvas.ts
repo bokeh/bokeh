@@ -511,26 +511,25 @@ export class PlotCanvasView extends DOMView {
     }
 
   update_range(range_info, is_panning: boolean = false, is_scrolling: boolean = false): void {
-    let name, rng;
     this.pause();
     if ((range_info == null)) {
-      for (name in this.frame.x_ranges) {
-        rng = this.frame.x_ranges[name];
+      for (const name in this.frame.x_ranges) {
+        const rng = this.frame.x_ranges[name];
         rng.reset();
       }
-      for (name in this.frame.y_ranges) {
-        rng = this.frame.y_ranges[name];
+      for (const name in this.frame.y_ranges) {
+        const rng = this.frame.y_ranges[name];
         rng.reset();
       }
       this.update_dataranges();
     } else {
       const range_info_iter = [];
-      for (name in this.frame.x_ranges) {
-        rng = this.frame.x_ranges[name];
+      for (const name in this.frame.x_ranges) {
+        const rng = this.frame.x_ranges[name];
         range_info_iter.push([rng, range_info.xrs[name]]);
       }
-      for (name in this.frame.y_ranges) {
-        rng = this.frame.y_ranges[name];
+      for (const name in this.frame.y_ranges) {
+        const rng = this.frame.y_ranges[name];
         range_info_iter.push([rng, range_info.yrs[name]]);
       }
       if (is_scrolling) {
@@ -666,10 +665,10 @@ export class PlotCanvasView extends DOMView {
       return false;
     }
 
-    for (let _ in this.levels) {
-      const renderer_views = this.levels[_];
-      for (_ in renderer_views) {
-        const view = renderer_views[_];
+    for (const level in this.levels) {
+      const renderer_views = this.levels[level];
+      for (const id in renderer_views) {
+        const view = renderer_views[id];
         if (!view.has_finished()) {
           return false;
         }

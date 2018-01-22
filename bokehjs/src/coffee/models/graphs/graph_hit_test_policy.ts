@@ -60,8 +60,6 @@ export class NodesAndLinkedEdges extends GraphHitTestPolicy {
   }
 
   _do(geometry, graph_view, final, append) {
-    let asc, end;
-    let i;
     const [node_view, edge_view] = [graph_view.node_view, graph_view.edge_view];
     const hit_test_result = node_view.glyph.hit_test(geometry);
 
@@ -74,20 +72,21 @@ export class NodesAndLinkedEdges extends GraphHitTestPolicy {
 
     const node_indices = ((() => {
       const result = [];
-      for (i of hit_test_result["1d"].indices) {         result.push(node_view.model.data_source.data.index[i]);
+      for (let i of hit_test_result["1d"].indices) {
+        result.push(node_view.model.data_source.data.index[i]);
       }
       return result;
     })());
     const edge_source = edge_view.model.data_source;
     const edge_indices = [];
-    for (i = 0, end = edge_source.data.start.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+    for (let i = 0, end = edge_source.data.start.length; i < end; i++) {
       if (includes(node_indices, edge_source.data.start[i]) || includes(node_indices, edge_source.data.end[i])) {
         edge_indices.push(i);
       }
     }
 
     const linked_index = create_hit_test_result();
-    for (i of edge_indices) {
+    for (const i of edge_indices) {
       linked_index["2d"].indices[i] = [0];
     } //currently only supports 2-element multilines, so this is all of it
 
@@ -132,7 +131,6 @@ export class EdgesAndLinkedNodes extends GraphHitTestPolicy {
   }
 
   _do(geometry, graph_view, final, append) {
-    let i;
     const [node_view, edge_view] = [graph_view.node_view, graph_view.edge_view];
     const hit_test_result = edge_view.glyph.hit_test(geometry);
 
@@ -145,22 +143,24 @@ export class EdgesAndLinkedNodes extends GraphHitTestPolicy {
 
     const edge_indices = ((() => {
       const result = [];
-      for (i of Object.keys(hit_test_result['2d'].indices)) {         result.push(parseInt(i));
+      for (const i of Object.keys(hit_test_result['2d'].indices)) {
+        result.push(parseInt(i));
       }
       return result;
     })());
 
     const nodes = [];
-    for (i of edge_indices) {
+    for (const i of edge_indices) {
       nodes.push(edge_view.model.data_source.data.start[i]);
       nodes.push(edge_view.model.data_source.data.end[i]);
     }
 
     const node_indices = ((() => {
-      const result1 = [];
-      for (i of uniq(nodes)) {         result1.push(node_view.model.data_source.data.index.indexOf(i));
+      const result = [];
+      for (const i of uniq(nodes)) {
+        result.push(node_view.model.data_source.data.index.indexOf(i));
       }
-      return result1;
+      return result;
     })());
 
     const node_hit_test_result = create_hit_test_result();

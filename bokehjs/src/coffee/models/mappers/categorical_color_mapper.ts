@@ -9,7 +9,7 @@ const _equals = function(a, b) {
   if (a.length !== b.length) {
     return false;
   }
-  for (let i = 0, end = a.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+  for (let i = 0, end = a.length; i < end; i++) {
     if (a[i] !== b[i]) {
       return false;
     }

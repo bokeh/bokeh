@@ -198,22 +198,18 @@ void main()
     } else {
       // Work around the limit that the indexbuffer must be uint16. We draw in chunks.
       // First collect indices in chunks
-      let chunk, i;
-      let asc, end;
-      let asc1, end1;
       const chunksize = 64000;  // 65536
       const chunks = [];
-      for (i = 0, end = Math.ceil(nvertices/chunksize), asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+      for (let i = 0, end = Math.ceil(nvertices/chunksize); i < end; i++) {
          chunks.push([]);
       }
-      for (i = 0, end1 = indices.length, asc1 = 0 <= end1; asc1 ? i < end1 : i > end1; asc1 ? i++ : i--) {
+      for (let i = 0, end = indices.length; i < end; i++) {
         const uint16_index = indices[i] % chunksize;
-        chunk = Math.floor(indices[i] / chunksize);
+        const chunk = Math.floor(indices[i] / chunksize);
         chunks[chunk].push(uint16_index);
       }
       // Then draw each chunk
-      let asc2, end2;
-      for (chunk = 0, end2 = chunks.length, asc2 = 0 <= end2; asc2 ? chunk < end2 : chunk > end2; asc2 ? chunk++ : chunk--) {
+      for (let chunk = 0, end = chunks.length; chunk < end; chunk++) {
         const these_indices = new Uint16Array(chunks[chunk]);
         const offset = chunk * chunksize * 4;
         if (these_indices.length === 0) {
@@ -251,7 +247,7 @@ void main()
     // The exact value for the baked_offset does not matter, as long as it brings the data to less extreme values
     const xx = new Float64Array(this.glyph._x);
     const yy = new Float64Array(this.glyph._y);
-    for (let i = 0, end = nvertices, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+    for (let i = 0, end = nvertices; i < end; i++) {
        xx[i] += this._baked_offset[0];
        yy[i] += this._baked_offset[1];
     }

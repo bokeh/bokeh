@@ -79,7 +79,7 @@ export class BezierView extends GlyphView {
 
   _index_data() {
     const points = [];
-    for (let i = 0, end = this._x0.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+    for (let i = 0, end = this._x0.length; i < end; i++) {
       if (isNaN(this._x0[i]+this._x1[i]+this._y0[i]+this._y1[i]+this._cx0[i]+this._cy0[i]+this._cx1[i]+this._cy1[i])) {
         continue;
       }
