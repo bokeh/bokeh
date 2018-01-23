@@ -678,18 +678,18 @@ list. The tool supports the following actions:
     :source-position: none
 
 
-VertexEditTool
+PolyEditTool
 ~~~~~~~~~~~~~~
 
-* name: ``'vertex_edit'``
-* menu icon: |vertex_edit_icon|
+* name: ``'poly_edit'``
+* menu icon: |poly_edit_icon|
 
-The VertexEditTool allows editing the vertices of one or more
+The PolyEditTool allows editing the vertices of one or more
 ``Patches`` or ``MultiLine`` glyphs. The glyphs to be edited can
 be defined via the ``renderers`` property and the renderer for the
 vertices can be defined via the ``vertex_renderer``, which must
 render a point-like Glyph (of ``XYGlyph`` type). The
-VertexEditTool has two modes:
+PolyEditTool has two modes:
 
 1. When a particular line or polygon is selected by double tapping
 it, its vertices will be rendered by the ``vertex_renderer``. In
@@ -723,7 +723,7 @@ a whole may be selected, dragged and deleted:
 
 To unselect a line or polygon double tap anywhere on the plot.
 
-.. bokeh-plot:: docs/user_guide/examples/tools_vertex_edit.py
+.. bokeh-plot:: docs/user_guide/examples/tools_poly_edit.py
     :source-position: none
 
 
@@ -812,7 +812,7 @@ properties on |Plot| objects that control LOD behavior:
     :height: 14pt
 .. |point_draw_icon| image:: /_images/icons/PointDraw.png
     :height: 14pt
-.. |poly_draw_icon| image:: /_images/icons/PolygonDraw.png
+.. |poly_draw_icon| image:: /_images/icons/PolyDraw.png
     :height: 14pt
-.. |vertex_edit_icon| image:: /_images/icons/VertexEdit.png
+.. |poly_edit_icon| image:: /_images/icons/PolyEdit.png
     :height: 14pt

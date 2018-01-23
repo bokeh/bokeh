@@ -29,8 +29,8 @@ export interface BkEv {
   shiftKey: boolean
 }
 
-export class VertexEditToolView extends EditToolView {
-  model: VertexEditTool
+export class PolyEditToolView extends EditToolView {
+  model: PolyEditTool
   _selected_renderer: GlyphRenderer | null
   _basepoint: [number, number] | null
 
@@ -212,22 +212,22 @@ export class VertexEditToolView extends EditToolView {
   }
 }
 
-export class VertexEditTool extends EditTool {
+export class PolyEditTool extends EditTool {
   drag: boolean
   renderers: (GlyphRenderer & HasPolyCDS)[]
   vertex_renderer: (GlyphRenderer & HasXYCDS)
 
-  tool_name = "Vertex Edit Tool"
-  icon = "bk-tool-icon-vertex-edit"
+  tool_name = "Poly Edit Tool"
+  icon = "bk-tool-icon-poly-edit"
   event_type = ["tap", "pan"]
   default_order = 12
 }
 
-VertexEditTool.prototype.type = "VertexEditTool"
+PolyEditTool.prototype.type = "PolyEditTool"
 
-VertexEditTool.prototype.default_view = VertexEditToolView
+PolyEditTool.prototype.default_view = PolyEditToolView
 
-VertexEditTool.define({
+PolyEditTool.define({
   drag: [ p.Bool, true ],
   vertex_renderer: [ p.Instance ],
 })

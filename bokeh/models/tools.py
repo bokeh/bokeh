@@ -32,8 +32,8 @@ from ..core.properties import (
 from ..core.validation import error
 from ..core.validation.errors import (
     INCOMPATIBLE_BOX_DRAW_RENDERER, INCOMPATIBLE_POINT_DRAW_RENDERER,
-    INCOMPATIBLE_POLY_DRAW_RENDERER, INCOMPATIBLE_VERTEX_EDIT_RENDERER,
-    INCOMPATIBLE_VERTEX_EDIT_VERTEX_RENDERER
+    INCOMPATIBLE_POLY_DRAW_RENDERER, INCOMPATIBLE_POLY_EDIT_RENDERER,
+    INCOMPATIBLE_POLY_EDIT_VERTEX_RENDERER
 )
 from ..model import Model
 from ..util.deprecation import deprecated
@@ -1024,7 +1024,7 @@ class PolyDrawTool(EditTool):
         Any added polygons or multi-lines will always be inserted on
         the first listed renderer.
 
-    .. |poly_draw_icon| image:: /_images/icons/PolygonDraw.png
+    .. |poly_draw_icon| image:: /_images/icons/PolyDraw.png
         :height: 18pt
     '''
 
@@ -1040,15 +1040,15 @@ class PolyDrawTool(EditTool):
             return "%s glyph type(s) found." % glyph_types
 
 
-class VertexEditTool(EditTool):
-    ''' *toolbar icon*: |vertex_edit_icon|
+class PolyEditTool(EditTool):
+    ''' *toolbar icon*: |poly_edit_icon|
 
-    The VertexEditTool allows editing the vertices of one or more
+    The PolyEditTool allows editing the vertices of one or more
     ``Patches`` or ``MultiLine`` glyphs. The glyphs to be edited can
     be defined via the ``renderers`` property and the renderer for the
     vertices can be defined via the ``vertex_renderer``, which must
-    render a point-like Glyph (of ``XYGlyph`` type). The
-    VertexEditTool has two modes:
+    render a point-like Glyph (of ``XYGlyph`` type). The PolyEditTool
+    has two modes:
 
     1. When a particular line or polygon is selected by double tapping
     it, its vertices will be rendered by the ``vertex_renderer``. In
@@ -1085,7 +1085,7 @@ class VertexEditTool(EditTool):
 
     To unselect a line or polygon double tap anywhere on the plot.
 
-    .. |vertex_edit_icon| image:: /_images/icons/VertexEdit.png
+    .. |poly_edit_icon| image:: /_images/icons/PolyEdit.png
         :height: 18pt
     '''
 
@@ -1096,13 +1096,13 @@ class VertexEditTool(EditTool):
     The renderer used to render the vertices of a selected line or
     polygon.""")
 
-    @error(INCOMPATIBLE_VERTEX_EDIT_VERTEX_RENDERER)
+    @error(INCOMPATIBLE_POLY_EDIT_VERTEX_RENDERER)
     def _check_compatible_vertex_renderer(self):
         glyph = self.vertex_renderer.glyph
         if not isinstance(glyph, XYGlyph):
             return "glyph type %s found." % type(glyph).__name__
 
-    @error(INCOMPATIBLE_VERTEX_EDIT_RENDERER)
+    @error(INCOMPATIBLE_POLY_EDIT_RENDERER)
     def _check_compatible_renderers(self):
         incompatible_renderers = []
         for renderer in self.renderers:

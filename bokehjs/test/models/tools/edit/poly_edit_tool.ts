@@ -10,12 +10,12 @@ import {Plot} from "models/plots/plot"
 import {Range1d} from "models/ranges/range1d"
 import {GlyphRenderer} from "models/renderers/glyph_renderer"
 import {ColumnDataSource} from "models/sources/column_data_source"
-import {VertexEditTool} from "models/tools/edit/vertex_edit_tool"
+import {PolyEditTool} from "models/tools/edit/poly_edit_tool"
 
 const utils = require("../../../utils")
 
 
-describe("VertexEditTool", (): void => {
+describe("PolyEditTool", (): void => {
 
   describe("View", function(): void {
 
@@ -77,7 +77,7 @@ describe("VertexEditTool", (): void => {
       this.hit_test_stub = sinon.stub(this.glyph_renderer_view.glyph, "hit_test");
       this.vertex_hit_test_stub = sinon.stub(this.vertex_renderer_view.glyph, "hit_test");
 
-      const draw_tool = new VertexEditTool({
+      const draw_tool = new PolyEditTool({
         active: true,
         empty_value: "Test",
         renderers: [this.glyph_renderer],

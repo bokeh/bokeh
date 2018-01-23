@@ -107,7 +107,7 @@ export class PolyDrawTool extends EditTool {
   renderers: (GlyphRenderer & HasPolyCDS)[]
 
   tool_name = "Polygon Draw Tool"
-  icon = "bk-tool-icon-polygon-draw"
+  icon = "bk-tool-icon-poly-draw"
   event_type = ["pan", "tap"]
   default_order = 12
 }
