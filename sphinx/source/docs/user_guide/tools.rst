@@ -573,6 +573,17 @@ renderer client-side by adding, moving and deleting glyph data. In
 order for these tools to work the renderer data_source must be a
 ``ColumnDataSource``.
 
+All the edit tools share a small number of key bindings:
+
+* SHIFT: Allows adding to a selection or continue drawing
+* DELETE: Deletes the selected glyphs
+* ESC: Clear the selection
+
+.. note::
+
+   On some shortened keyboards (including MacBooks) the DELETE key is
+   missing and can be toggled by pressing FN + BACKSPACE
+
 BoxDrawTool
 ~~~~~~~~~~~
 
@@ -586,21 +597,21 @@ that are to be edited must be supplied explicitly as a list. The tool
 supports the following actions:
 
 
-* Add box: Click and hold the mouse button down, dragging the
-  mouse from the starting point to the end point then release the
+* Add box: Click and hold the mouse button down, dragging the mouse
+  from the starting point to the end point then release the
   button. This will define the two opposite corners of the
   rectangle. The x- and y-coordinates will be
 
-* Select box: Tap on an existing box. To select multiple hold
-  <<shift>> key while tapping.
+* Select box: Tap on an existing box. To select multiple hold SHIFT
+  key while tapping.
 
-* Move box: Click and hold the mouse button down over an existing
-  box then drag it and release the mouse to complete the
-  action. To move multiple boxes select them and hold <<shift>>
-  key while dragging one of them.
+* Move box: Click and hold the mouse button down over an existing box
+  then drag it and release the mouse to complete the action. To move
+  multiple boxes select them and hold SHIFT key while dragging one of
+  them.
 
-* Delete box: Select one or more boxes then press
-  <<shift>>+<<backspace>> key to delete them.
+* Delete box: Select one or more boxes then press DELETE key to delete
+  them.
 
 .. bokeh-plot:: docs/user_guide/examples/tools_box_draw.py
     :source-position: none
@@ -621,14 +632,14 @@ list. The tool supports the following actions:
 * Add point: Tap anywhere on the plot.
 
 * Select point: Tap on an existing point. To select multiple hold
-  <<shift>> key while tapping.
+  SHIFT key while tapping.
 
-* Delete point: Select one or more points then press
-  <<shift>>+<<backspace>> key to delete them.
+* Delete point: Select one or more points then press DELETE key to
+  delete them.
 
 * Move point: Click and hold the mouse down point, drag it, then
   release the mouse to complete the action. To move multiple points
-  select them and hold <<shift>> key while dragging one of them.
+  select them and hold SHIFT key while dragging one of them.
 
 .. bokeh-plot:: docs/user_guide/examples/tools_point_draw.py
     :source-position: none
@@ -646,23 +657,22 @@ underlying ColumnDataSource data. Like other drawing tools, the
 renderers that are to be edited must be supplied explicitly as a
 list. The tool supports the following actions:
 
-* Draw polygon/multi-line: Click and hold the mouse button then
-  drag the mouse to a new location and finalize the line by
-  releasing the mouse button. To add further vertices hold the
-  <<shift>> key and click and drag to another position.
+* Draw polygon/multi-line: Click and hold the mouse button then drag
+  the mouse to a new location and finalize the line by releasing the
+  mouse button. To add further vertices hold the SHIFT key and click
+  and drag to another position.
 
 * Select polygon/multi-line: Tap on an existing
-  polygon/multi-line. To select multiple hold <<shift>> key while
+  polygon/multi-line. To select multiple hold SHIFT key while
   tapping.
 
 * Add polygon/multi-line vertices: Select an existing
-  polygon/multi-line, hold <<shift>> key, then drag the mouse to a
+  polygon/multi-line, hold SHIFT key, then drag the mouse to a
   new position, a new vertex will be inserted after the last
   vertex on the selected polygon/multi-line.
 
-* Delete polygon/multi-line: Select one or more
-  polygons/multi-lines then press <<shift>>+<<backspace>> key to
-  delete them.
+* Delete polygon/multi-line: Select one or more polygons/multi-lines
+  then press DELETE key to delete them.
 
 .. bokeh-plot:: docs/user_guide/examples/tools_poly_draw.py
     :source-position: none
@@ -689,27 +699,24 @@ new vertices may be inserted:
 * Add vertex: Tap on an existing vertex to select it then tap on
   the position to insert the next point.
 
-* Select vertex: Tap on a vertex, to select multiple hold
-  <<shift>> key.
+* Select vertex: Tap on a vertex, to select multiple hold SHIFT key.
 
-* Delete vertex: Select one or more vertices then press
-  <<shift>>+<<backspace>> to delete them.
+* Delete vertex: Select one or more vertices then press DELETE to
+  delete them.
 
 * Move vertex: Click and hold vertex, drag it, then release the
   mouse to complete the action. To move multiple vertices select
-  them and hold <<shift>> key while dragging one of them.
+  them and hold SHIFT key while dragging one of them.
 
 2. While no line or polygon is selected the lines and polygons as
 a whole may be selected, dragged and deleted:
 
 * Move line/polygon: Click and hold a line/polygon, drag it, then
-  release the mouse to complete the action. To move multiple
-  vertices, select them and hold <<shift>> while dragging one of
-  them.
+  release the mouse to complete the action. To move multiple vertices,
+  select them and hold SHIFT while dragging one of them.
 
-* Select polygon/multi-line: Tap on an existing
-  polygon/multi-line. To select multiple hold <<shift>> key while
-  tapping.
+* Select polygon/multi-line: Tap on an existing polygon/multi-line. To
+  select multiple hold SHIFT key while tapping.
 
 * Delete line/polygon: Tap on an existing line/polygon (or select
   them with a different tool) then press backspace to delete them.
