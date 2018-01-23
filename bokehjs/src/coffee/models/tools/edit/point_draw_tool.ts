@@ -43,20 +43,20 @@ export class PointDrawToolView extends EditToolView {
     const [xkey, ykey] = [glyph.x.field, glyph.y.field];
     const [x, y] = point;
 
-	if (xkey) {
+    if (xkey) {
       let xs = ds.data[xkey];
       if ((xs.push == null)) {
         ds.data[xkey] = (xs = Array.prototype.slice.call(xs));
       }
       xs.push(x);
     }
-	if (ykey) {
+    if (ykey) {
       let ys = ds.data[ykey];
       if ((ys.push == null)) {
         ds.data[ykey] = (ys = Array.prototype.slice.call(ys));
       }
       ys.push(y);
-	}
+    }
     this._pad_empty_columns(ds, [xkey, ykey]);
 
     ds.change.emit(undefined);

@@ -89,7 +89,7 @@ export class PolyDrawToolView extends EditToolView {
     } else {
       count = ds.data[xkey].length-1;
     }
-	if (xkey) {
+    if (xkey) {
       const xs = ds.data[xkey][count];
       xs[xs.length-1] = x;
     }
