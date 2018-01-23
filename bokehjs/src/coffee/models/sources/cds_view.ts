@@ -21,8 +21,8 @@ export class CDSView extends Model {
     })
   }
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
     this.compute_indices()
   }
 

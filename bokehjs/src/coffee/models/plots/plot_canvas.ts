@@ -942,8 +942,8 @@ export class PlotCanvas extends LayoutDOM {
     });
   }
 
-  initialize(options: any): void {
-    super.initialize(options);
+  initialize(): void {
+    super.initialize();
 
     this.canvas = new Canvas({
       map: this.use_map != null ? this.use_map : false,

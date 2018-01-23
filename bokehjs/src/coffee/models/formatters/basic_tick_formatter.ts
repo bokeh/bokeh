@@ -23,8 +23,8 @@ export class BasicTickFormatter extends TickFormatter {
     return Math.pow(10.0, this.power_limit_high)
   }
 
-  initialize(options: any): void {
-    super.initialize(options);
+  initialize(): void {
+    super.initialize();
     this.last_precision = 3;
   }
 

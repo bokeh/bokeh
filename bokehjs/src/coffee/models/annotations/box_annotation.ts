@@ -148,8 +148,8 @@ export class BoxAnnotation extends Annotation {
     });
   }
 
-  initialize(options: any): void {
-    super.initialize(options);
+  initialize(): void {
+    super.initialize();
     this.data_update = new Signal(this, "data_update");
   }
 

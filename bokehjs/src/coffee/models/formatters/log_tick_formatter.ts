@@ -13,8 +13,8 @@ export class LogTickFormatter extends TickFormatter {
     });
   }
 
-  initialize(options: any): void {
-    super.initialize(options);
+  initialize(): void {
+    super.initialize();
     this.basic_formatter = new BasicTickFormatter();
     if ((this.ticker == null)) {
       logger.warn("LogTickFormatter not configured with a ticker, using default base of 10 (labels will be incorrect if ticker base is not 10)");

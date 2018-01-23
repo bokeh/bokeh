@@ -23,10 +23,14 @@ export class Toolbar extends ToolbarBase {
     });
   }
 
-  initialize(options: any): void {
-    super.initialize(options);
-    this.connect(this.properties.tools.change, () => this._init_tools())
+  initialize(): void {
+    super.initialize();
     this._init_tools();
+  }
+
+  connect_signals(): void {
+    super.connect_signals()
+    this.connect(this.properties.tools.change, () => this._init_tools())
   }
 
   _init_tools() {

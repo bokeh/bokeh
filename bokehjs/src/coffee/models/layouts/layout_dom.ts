@@ -388,8 +388,8 @@ export abstract class LayoutDOM extends Model {
   _whitespace_left: Variable
   _whitespace_right: Variable
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
     this._width = new Variable(`${this.toString()}.width`)
     this._height = new Variable(`${this.toString()}.height`)
     this._left = new Variable(`${this.toString()}.left`)

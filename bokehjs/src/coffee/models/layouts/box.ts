@@ -101,8 +101,8 @@ export class Box extends LayoutDOM {
   protected _box_cell_align_left: Variable
   protected _box_cell_align_right: Variable
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
 
     this._child_equal_size_width = new Variable(`${this.toString()}.child_equal_size_width`)
     this._child_equal_size_height = new Variable(`${this.toString()}.child_equal_size_height`)

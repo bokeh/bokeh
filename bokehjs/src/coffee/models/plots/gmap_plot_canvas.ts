@@ -252,9 +252,9 @@ export class GMapPlotCanvas extends PlotCanvas {
     this.prototype.default_view = GMapPlotCanvasView;
   }
 
-  initialize(options: any): void {
+  initialize(): void {
     this.use_map = true;
-    super.initialize(options);
+    super.initialize();
   }
 }
 GMapPlotCanvas.initClass();

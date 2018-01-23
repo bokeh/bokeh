@@ -25,12 +25,15 @@ export class Interpolator extends Transform {
       });
   }
 
-  initialize(options: any): void {
-    super.initialize(options);
+  initialize(): void {
+    super.initialize();
     this._x_sorted = [];
     this._y_sorted = [];
     this._sorted_dirty = true;
+  }
 
+  connect_signals(): void {
+    super.connect_signals()
     this.connect(this.change, () => this._sorted_dirty = true)
   }
 
