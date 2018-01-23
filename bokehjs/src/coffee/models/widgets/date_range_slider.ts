@@ -27,7 +27,7 @@ export class DateRangeSlider extends AbstractSlider {
     this.prototype.default_view = DateRangeSliderView
 
     this.override({
-      format: "%d %b %Y"
+      format: "%d %b %Y",
     })
   }
 

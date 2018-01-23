@@ -127,11 +127,11 @@ export class Whisker extends Annotation {
       dimension:    [ p.Dimension,    'height'          ],
       source:       [ p.Instance,     () => new ColumnDataSource()                     ],
       x_range_name: [ p.String,       'default'         ],
-      y_range_name: [ p.String,       'default'         ]
+      y_range_name: [ p.String,       'default'         ],
     });
 
     this.override({
-      level: 'underlay'
+      level: 'underlay',
     });
   }
 }

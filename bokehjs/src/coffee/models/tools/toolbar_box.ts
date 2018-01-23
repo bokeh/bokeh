@@ -211,7 +211,7 @@ export class ToolbarBox extends LayoutDOM {
 
     this.define({
       toolbar: [ p.Instance ],
-      toolbar_location: [ p.Location, "right" ]
+      toolbar_location: [ p.Location, "right" ],
     });
   }
 

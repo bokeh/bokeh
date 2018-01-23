@@ -25,7 +25,7 @@ export abstract class TileSource extends Model {
         attribution:    [ p.String, ''  ],
         x_origin_offset:    [ p.Number ],
         y_origin_offset:    [ p.Number ],
-        initial_resolution: [ p.Number ]
+        initial_resolution: [ p.Number ],
     });
   }
 

@@ -123,7 +123,7 @@ export class ImageRGBA extends XYGlyph {
         image:  [ p.NumberSpec       ], // TODO (bev) array spec?
         dw:     [ p.DistanceSpec     ],
         dh:     [ p.DistanceSpec     ],
-        dilate: [ p.Bool,      false ]
+        dilate: [ p.Bool,      false ],
     });
   }
 }

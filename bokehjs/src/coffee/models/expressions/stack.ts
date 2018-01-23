@@ -5,7 +5,7 @@ import * as p from "core/properties"
 export class Stack extends Expression {
   static initClass() {
     this.define({
-      fields: [ p.Array, [] ]
+      fields: [ p.Array, [] ],
     });
   }
 

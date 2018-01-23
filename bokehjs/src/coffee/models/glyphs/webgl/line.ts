@@ -97,7 +97,7 @@ export class LineGLGlyph extends BaseGLGlyph {
         'triangle in': 2, '<': 2,
         'triangle out': 3, '>': 3,
         'square': 4, '[': 4, ']': 4, '=': 4,
-        'butt': 5, '|': 5
+        'butt': 5, '|': 5,
       };
 
       this.prototype.VERT = vertex_shader

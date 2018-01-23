@@ -139,7 +139,7 @@ export class Arrow extends Annotation {
         end:          [ p.Instance,    () => new OpenHead({}) ],
         source:       [ p.Instance                      ],
         x_range_name: [ p.String,      'default'        ],
-        y_range_name: [ p.String,      'default'        ]
+        y_range_name: [ p.String,      'default'        ],
     });
   }
 }

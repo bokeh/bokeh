@@ -12,7 +12,7 @@ export class LegendItem extends Model {
 
     this.define({
         label: [ p.StringSpec, null ],
-        renderers: [ p.Array, [] ]
+        renderers: [ p.Array, [] ],
     });
   }
 

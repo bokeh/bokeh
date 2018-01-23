@@ -99,7 +99,7 @@ export class ToolbarBase extends Model {
 
     this.define({
       tools: [ p.Array,    []       ],
-      logo:  [ p.String,   'normal' ] // TODO (bev)
+      logo:  [ p.String,   'normal' ], // TODO (bev)
     });
 
     this.internal({
@@ -111,12 +111,12 @@ export class ToolbarBase extends Model {
         doubletap: { tools: [], active: null },
         press:     { tools: [], active: null },
         rotate:    { tools: [], active: null },
-        multi:     { tools: [], active: null}
+        multi:     { tools: [], active: null},
       })  ],
       actions:    [ p.Array, [] ],
       inspectors: [ p.Array, [] ],
       help:       [ p.Array, [] ],
-      toolbar_location: [ p.Location, 'right' ]
+      toolbar_location: [ p.Location, 'right' ],
     });
   }
 

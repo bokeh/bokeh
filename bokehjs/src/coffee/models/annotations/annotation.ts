@@ -21,11 +21,11 @@ export class Annotation extends Renderer {
     this.prototype.default_view = AnnotationView;
 
     this.define({
-      plot:  [ p.Instance ]
+      plot:  [ p.Instance ],
     });
 
     this.override({
-      level: 'annotation'
+      level: 'annotation',
     });
   }
 

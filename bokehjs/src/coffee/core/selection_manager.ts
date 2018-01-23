@@ -16,7 +16,7 @@ export class SelectionManager extends HasProps {
     this.prototype.type = "SelectionManager"
 
     this.internal({
-      source: [ p.Any ]
+      source: [ p.Any ],
     })
   }
 

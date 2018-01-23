@@ -14,7 +14,7 @@ export class SegmentView extends GlyphView {
           minY: Math.min(this._y0[i], this._y1[i]),
           maxX: Math.max(this._x0[i], this._x1[i]),
           maxY: Math.max(this._y0[i], this._y1[i]),
-          i
+          i,
         });
       }
     }

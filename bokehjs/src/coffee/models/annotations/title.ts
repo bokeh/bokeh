@@ -116,17 +116,17 @@ export class Title extends TextAnnotation {
       vertical_align:  [ p.VerticalAlign, 'bottom'    ],
       align:           [ p.TextAlign,     'left'      ],
       offset:          [ p.Number,        0           ],
-      render_mode:     [ p.RenderMode,    'canvas'    ]
+      render_mode:     [ p.RenderMode,    'canvas'    ],
     });
 
     this.override({
       background_fill_color: null,
-      border_line_color: null
+      border_line_color: null,
     });
 
     this.internal({
       text_align:    [ p.TextAlign,    'left'  ],
-      text_baseline: [ p.TextBaseline, 'bottom' ]
+      text_baseline: [ p.TextBaseline, 'bottom' ],
     });
   }
 }

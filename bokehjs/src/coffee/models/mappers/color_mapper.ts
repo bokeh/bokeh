@@ -10,7 +10,7 @@ export class ColorMapper extends Transform {
 
     this.define({
         palette:       [ p.Any              ], // TODO (bev)
-        nan_color:     [ p.Color, "gray"    ]
+        nan_color:     [ p.Color, "gray"    ],
       });
   }
 

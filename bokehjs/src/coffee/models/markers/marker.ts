@@ -154,7 +154,7 @@ export class Marker extends XYGlyph {
     this.mixins(['line', 'fill']);
     this.define({
       size:  [ p.DistanceSpec, { units: "screen", value: 4 } ],
-      angle: [ p.AngleSpec,    0                             ]
+      angle: [ p.AngleSpec,    0                             ],
     });
   }
 }

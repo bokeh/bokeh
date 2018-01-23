@@ -43,7 +43,7 @@ export class HBar extends Box {
     this.coords([['left', 'y']]);
     this.define({
       height: [ p.DistanceSpec  ],
-      right:  [ p.NumberSpec    ]
+      right:  [ p.NumberSpec    ],
     });
     this.override({ left: 0 });
   }

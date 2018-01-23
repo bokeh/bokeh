@@ -58,7 +58,7 @@ export abstract class AbstractSliderView extends WidgetView {
     let tooltips: boolean | any[] // XXX
     if (this.model.tooltips) {
       const formatter = {
-        to: (value) => this.model.pretty(value)
+        to: (value) => this.model.pretty(value),
       }
 
       tooltips = repeat(formatter, value.length)

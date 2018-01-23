@@ -96,7 +96,7 @@ export class Oval extends XYGlyph {
     this.define({
         angle:  [ p.AngleSpec,   0.0 ],
         width:  [ p.DistanceSpec     ],
-        height: [ p.DistanceSpec     ]
+        height: [ p.DistanceSpec     ],
       });
   }
 }

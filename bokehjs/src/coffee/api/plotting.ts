@@ -311,7 +311,7 @@ export class Figure extends Plot {
       glyph,
       nonselection_glyph: nsglyph,
       selection_glyph:    sglyph,
-      hover_glyph:        hglyph
+      hover_glyph:        hglyph,
     });
 
     if (legend != null) {

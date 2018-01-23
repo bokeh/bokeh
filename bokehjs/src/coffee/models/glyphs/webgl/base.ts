@@ -53,7 +53,7 @@ export class BaseGLGlyph {
     const trans = {
         pixel_ratio: ctx.pixel_ratio,  // pass pixel_ratio to webgl
         width: ctx.glcanvas.width, height: ctx.glcanvas.height,
-        dx: dx[0]/sx, dy: dy[0]/sy, sx, sy
+        dx: dx[0]/sx, dy: dy[0]/sy, sx, sy,
       };
     this.draw(indices, mainglyph, trans);
     return true;

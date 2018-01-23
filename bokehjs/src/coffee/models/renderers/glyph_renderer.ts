@@ -355,11 +355,11 @@ export class GlyphRenderer extends Renderer {
         nonselection_glyph: [ p.Any,      'auto'   ], // Instance or "auto"
         selection_glyph:    [ p.Any,      'auto'   ], // Instance or "auto"
         muted_glyph:        [ p.Instance           ],
-        muted:              [ p.Bool,        false ]
+        muted:              [ p.Bool,        false ],
       });
 
     this.override({
-      level: 'glyph'
+      level: 'glyph',
     });
 
     this.prototype.selection_defaults = {fill: {}, line: {}};

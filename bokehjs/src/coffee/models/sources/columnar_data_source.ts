@@ -24,13 +24,13 @@ export class ColumnarDataSource extends DataSource {
     this.prototype.type = 'ColumnarDataSource'
 
     this.define({
-      column_names: [ p.Array, [] ]
+      column_names: [ p.Array, [] ],
     })
 
     this.internal({
       selection_manager: [ p.Instance, (self: ColumnarDataSource) => new SelectionManager({source: self}) ],
       inspected:         [ p.Any ],
-      _shapes:           [ p.Any, {}]
+      _shapes:           [ p.Any, {}],
     })
   }
 

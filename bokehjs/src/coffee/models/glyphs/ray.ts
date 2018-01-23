@@ -59,7 +59,7 @@ export class Ray extends XYGlyph {
     this.mixins(['line']);
     this.define({
       length: [ p.DistanceSpec ],
-      angle:  [ p.AngleSpec    ]
+      angle:  [ p.AngleSpec    ],
     });
   }
 }

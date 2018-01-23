@@ -26,7 +26,7 @@ export class OpenHead extends ArrowHead {
     this.mixins(['line']);
 
     this.define({
-        size: [ p.Number, 25 ]
+        size: [ p.Number, 25 ],
       });
   }
 
@@ -62,11 +62,11 @@ export class NormalHead extends ArrowHead {
     this.mixins(['line', 'fill']);
 
     this.define({
-      size: [ p.Number, 25 ]
+      size: [ p.Number, 25 ],
     });
 
     this.override({
-      fill_color: 'black'
+      fill_color: 'black',
     });
   }
 
@@ -111,11 +111,11 @@ export class VeeHead extends ArrowHead {
     this.mixins(['line', 'fill']);
 
     this.define({
-      size: [ p.Number, 25 ]
+      size: [ p.Number, 25 ],
     });
 
     this.override({
-      fill_color: 'black'
+      fill_color: 'black',
     });
   }
 
@@ -162,7 +162,7 @@ export class TeeHead extends ArrowHead {
     this.mixins(['line']);
 
     this.define({
-      size: [ p.Number, 25 ]
+      size: [ p.Number, 25 ],
     });
   }
 

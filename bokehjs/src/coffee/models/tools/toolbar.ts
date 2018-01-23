@@ -19,7 +19,7 @@ export class Toolbar extends ToolbarBase {
         active_drag:     [ p.Any, 'auto' ],
         active_inspect:  [ p.Any, 'auto' ],
         active_scroll:   [ p.Any, 'auto' ],
-        active_tap:      [ p.Any, 'auto' ]
+        active_tap:      [ p.Any, 'auto' ],
     });
   }
 

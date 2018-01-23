@@ -9,11 +9,11 @@ export class GeoJSONDataSource extends ColumnarDataSource {
     this.prototype.type = 'GeoJSONDataSource'
 
     this.define({
-      geojson: [ p.Any     ] // TODO (bev)
+      geojson: [ p.Any     ], // TODO (bev)
     })
 
     this.internal({
-      data:    [ p.Any,   {} ]
+      data:    [ p.Any,   {} ],
     })
   }
 

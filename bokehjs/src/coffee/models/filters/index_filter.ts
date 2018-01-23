@@ -10,7 +10,7 @@ export class IndexFilter extends Filter {
     this.prototype.type = 'IndexFilter';
 
     this.define({
-      indices:    [ p.Array,  null ]
+      indices:    [ p.Array,  null ],
     });
   }
 

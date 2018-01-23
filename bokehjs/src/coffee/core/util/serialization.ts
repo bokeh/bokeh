@@ -144,7 +144,7 @@ export const encode_base64 = function(array, shape) {
   const data = {
     __ndarray__: b64,
     shape,
-    dtype
+    dtype,
   };
   return data;
 };

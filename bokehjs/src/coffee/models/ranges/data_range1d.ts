@@ -31,7 +31,7 @@ export class DataRange1d extends DataRange {
     })
 
     this.internal({
-      scale_hint: [ p.String, 'auto' ]
+      scale_hint: [ p.String, 'auto' ],
     })
   }
 

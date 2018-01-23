@@ -26,7 +26,7 @@ export class StringFormatter extends CellFormatter {
     this.define({
       font_style: [ p.FontStyle, "normal" ],
       text_align: [ p.TextAlign, "left"   ],
-      text_color: [ p.Color ]
+      text_color: [ p.Color ],
     });
   }
 
@@ -65,7 +65,7 @@ export class NumberFormatter extends StringFormatter {
     this.define({
       format:     [ p.String, '0,0'       ], // TODO (bev)
       language:   [ p.String, 'en'        ], // TODO (bev)
-      rounding:   [ p.String, 'round'     ] // TODO (bev)
+      rounding:   [ p.String, 'round'     ], // TODO (bev)
     });
   }
 
@@ -88,7 +88,7 @@ export class BooleanFormatter extends CellFormatter {
     this.prototype.type = 'BooleanFormatter';
 
     this.define({
-      icon: [ p.String, 'check' ]
+      icon: [ p.String, 'check' ],
     });
   }
 
@@ -103,7 +103,7 @@ export class DateFormatter extends CellFormatter {
     this.prototype.type = 'DateFormatter';
 
     this.define({
-      format: [ p.String, 'ISO-8601' ]
+      format: [ p.String, 'ISO-8601' ],
     });
   }
 
@@ -135,7 +135,7 @@ export class HTMLTemplateFormatter extends CellFormatter {
     this.prototype.type = 'HTMLTemplateFormatter';
 
     this.define({
-      template: [ p.String, '<%= value %>' ]
+      template: [ p.String, '<%= value %>' ],
     });
   }
 

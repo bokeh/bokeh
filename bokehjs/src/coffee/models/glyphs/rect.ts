@@ -261,7 +261,7 @@ export class Rect extends XYGlyph {
         angle:  [ p.AngleSpec,   0     ],
         width:  [ p.DistanceSpec       ],
         height: [ p.DistanceSpec       ],
-        dilate: [ p.Bool,        false ]
+        dilate: [ p.Bool,        false ],
       });
   }
 }

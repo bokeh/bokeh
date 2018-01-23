@@ -20,7 +20,7 @@ export class CustomJSTransform extends Transform {
     this.define({
       args:         [ p.Any,          {}       ], // TODO (bev) better type
       func:         [ p.String,       ""       ],
-      v_func:       [ p.String,       ""       ]
+      v_func:       [ p.String,       ""       ],
     });
   }
 

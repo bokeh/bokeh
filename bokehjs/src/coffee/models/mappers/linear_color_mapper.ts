@@ -13,7 +13,7 @@ export class LinearColorMapper extends ColorMapper {
         high:       [ p.Number ],
         low:        [ p.Number ],
         high_color: [ p.Color  ],
-        low_color:  [ p.Color  ]
+        low_color:  [ p.Color  ],
       });
   }
 
