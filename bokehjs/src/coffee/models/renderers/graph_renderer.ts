@@ -108,11 +108,11 @@ export class GraphRenderer extends Renderer {
         node_renderer:      [ p.Instance                              ],
         edge_renderer:      [ p.Instance                              ],
         selection_policy:   [ p.Instance,      () => new NodesOnly()  ],
-        inspection_policy:  [ p.Instance,      () => new NodesOnly()  ]
+        inspection_policy:  [ p.Instance,      () => new NodesOnly()  ],
       });
 
     this.override({
-      level: 'glyph'
+      level: 'glyph',
     });
   }
 

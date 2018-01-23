@@ -9,7 +9,7 @@ export class LogTickFormatter extends TickFormatter {
     this.prototype.type = 'LogTickFormatter';
 
     this.define({
-      ticker: [ p.Instance, null ]
+      ticker: [ p.Instance, null ],
     });
   }
 

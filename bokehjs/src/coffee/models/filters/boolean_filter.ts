@@ -10,7 +10,7 @@ export class BooleanFilter extends Filter {
     this.prototype.type = 'BooleanFilter';
 
     this.define({
-      booleans:    [ p.Array,  null ]
+      booleans:    [ p.Array,  null ],
     });
   }
 

@@ -42,7 +42,7 @@ export abstract class ButtonTool extends Tool {
     this.prototype.type = "ButtonTool"
 
     this.internal({
-      disabled: [ p.Boolean, false ]
+      disabled: [ p.Boolean, false ],
     })
   }
 

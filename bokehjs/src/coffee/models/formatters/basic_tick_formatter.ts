@@ -11,7 +11,7 @@ export class BasicTickFormatter extends TickFormatter {
       precision:        [ p.Any,    'auto' ], // TODO (bev) better
       use_scientific:   [ p.Bool,   true   ],
       power_limit_high: [ p.Number, 5      ],
-      power_limit_low:  [ p.Number, -3     ]
+      power_limit_low:  [ p.Number, -3     ],
     });
   }
 

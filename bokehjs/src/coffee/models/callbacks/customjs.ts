@@ -9,7 +9,7 @@ export class CustomJS extends Model {
 
     this.define({
       args: [ p.Any,     {} ], // TODO (bev) better type
-      code: [ p.String,  '' ]
+      code: [ p.String,  '' ],
     });
   }
 

@@ -183,7 +183,7 @@ export class SidePanel extends LayoutCanvas {
     this.prototype.type = "SidePanel"
 
     this.internal({
-      side: [ p.String ]
+      side: [ p.String ],
     })
   }
 

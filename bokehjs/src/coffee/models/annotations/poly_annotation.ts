@@ -74,18 +74,18 @@ export class PolyAnnotation extends Annotation {
         ys:           [ p.Array,        []        ],
         ys_units:     [ p.SpatialUnits, 'data'    ],
         x_range_name: [ p.String,       'default' ],
-        y_range_name: [ p.String,       'default' ]
+        y_range_name: [ p.String,       'default' ],
     });
 
     this.internal({
-      screen: [ p.Boolean, false ]
+      screen: [ p.Boolean, false ],
     });
 
     this.override({
       fill_color: "#fff9ba",
       fill_alpha: 0.4,
       line_color: "#cccccc",
-      line_alpha: 0.3
+      line_alpha: 0.3,
     });
   }
 

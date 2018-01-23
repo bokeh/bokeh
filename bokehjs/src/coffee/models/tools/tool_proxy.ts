@@ -8,7 +8,7 @@ export class ToolProxy extends Model {
     this.define({
       tools:    [ p.Array, []    ],
       active:   [ p.Bool,  false ],
-      disabled: [ p.Bool,  false ]
+      disabled: [ p.Bool,  false ],
     });
   }
   // Operates all the tools given only one button

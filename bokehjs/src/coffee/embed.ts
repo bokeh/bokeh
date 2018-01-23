@@ -195,7 +195,7 @@ export function add_document_from_session(element: HTMLElement,
     (error) => {
       logger.error(`Failed to load Bokeh session ${session_id}: ${error}`)
       throw error
-    }
+    },
   )
 }
 
@@ -216,7 +216,7 @@ export function add_model_from_session(element: HTMLElement,
     (error: Error) => {
       logger.error(`Failed to load Bokeh session ${session_id}: ${error}`)
       throw error
-    }
+    },
   )
 }
 
@@ -326,7 +326,7 @@ function _embed_items(docs_json: string | DocsJson, render_items: RenderItem[], 
         },
         (error: Error) => {
           console.log("Error rendering Bokeh items ", error)
-        }
+        },
       )
 
     // handle standalone document cases

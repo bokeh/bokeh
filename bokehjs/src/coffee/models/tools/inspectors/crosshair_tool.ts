@@ -103,7 +103,7 @@ export class CrosshairTool extends InspectTool {
         line_color: this.line_color,
         line_width: this.line_width,
         line_alpha: this.line_alpha,
-      })
+      }),
     }
   }
 }

@@ -9,7 +9,7 @@ export class CustomJSFilter extends Filter {
 
     this.define({
         args: [ p.Any,    {} ], // TODO (bev) better type
-        code: [ p.String, '' ]
+        code: [ p.String, '' ],
     });
   }
 

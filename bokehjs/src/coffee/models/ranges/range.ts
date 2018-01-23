@@ -10,11 +10,11 @@ export abstract class Range extends Model {
     this.prototype.type = "Range"
 
     this.define({
-      callback: [ p.Any ] // TODO: p.Either(p.Instance(Callback), p.Function)
+      callback: [ p.Any ], // TODO: p.Either(p.Instance(Callback), p.Function)
     })
 
     this.internal({
-      plots: [ p.Array, [] ]
+      plots: [ p.Array, [] ],
     })
   }
 

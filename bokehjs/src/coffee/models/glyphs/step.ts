@@ -59,7 +59,7 @@ export class Step extends XYGlyph {
 
     this.mixins(['line']);
     this.define({
-      mode: [ p.StepMode, "before"]
+      mode: [ p.StepMode, "before"],
     });
   }
 }

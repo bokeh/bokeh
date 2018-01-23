@@ -702,7 +702,7 @@ export class Document {
       roots: {
         root_ids: root_ids,
         references: Document._references_json(root_references, include_defaults),
-      }
+      },
     }
   }
 

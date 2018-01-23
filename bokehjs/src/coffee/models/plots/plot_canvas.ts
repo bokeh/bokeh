@@ -116,8 +116,8 @@ export class PlotCanvasView extends DOMView {
       selection: {},                   // XXX: initial selection?
       dimensions: {
         width: this.model.canvas._width.value,
-        height: this.model.canvas._height.value
-      }
+        height: this.model.canvas._height.value,
+      },
     };
 
     this.state = {history: [], index: -1}
@@ -650,7 +650,7 @@ export class PlotCanvasView extends DOMView {
         inner_width: Math.round(this.frame._width.value),
         inner_height: Math.round(this.frame._height.value),
         layout_width: Math.round(this.canvas._width.value),
-        layout_height: Math.round(this.canvas._height.value)
+        layout_height: Math.round(this.canvas._height.value),
       }, {no_change: true});
 
       // XXX: can't be @request_paint(), because it would trigger back-and-forth
@@ -931,14 +931,14 @@ export class PlotCanvas extends LayoutDOM {
 
     this.override({
       // We should find a way to enforce this
-      sizing_mode: 'stretch_both'
+      sizing_mode: 'stretch_both',
     });
 
     this.internal({
       plot:         [ p.Instance ],
       toolbar:      [ p.Instance ],
       canvas:       [ p.Instance ],
-      frame:        [ p.Instance ]
+      frame:        [ p.Instance ],
     });
   }
 
@@ -948,7 +948,7 @@ export class PlotCanvas extends LayoutDOM {
     this.canvas = new Canvas({
       map: this.use_map != null ? this.use_map : false,
       use_hidpi: this.plot.hidpi,
-      output_backend: this.plot.output_backend
+      output_backend: this.plot.output_backend,
     });
 
     this.frame = new CartesianFrame({
@@ -957,7 +957,7 @@ export class PlotCanvas extends LayoutDOM {
       x_scale: this.plot.x_scale,
       y_range: this.plot.y_range,
       extra_y_ranges: this.plot.extra_y_ranges,
-      y_scale: this.plot.y_scale
+      y_scale: this.plot.y_scale,
     });
 
     this.above_panel = new AbovePanel();
@@ -1039,7 +1039,7 @@ export class PlotCanvas extends LayoutDOM {
       GE(this._top,                    -this.plot.min_border_top   ),
       GE(this._left,                   -this.plot.min_border_left  ),
       GE(this._height, [-1, this._bottom], -this.plot.min_border_bottom),
-      GE(this._width, [-1, this._right],   -this.plot.min_border_right )
+      GE(this._width, [-1, this._right],   -this.plot.min_border_right ),
     ];
   }
 

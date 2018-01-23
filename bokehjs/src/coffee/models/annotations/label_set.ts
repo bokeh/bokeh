@@ -205,12 +205,12 @@ export class LabelSet extends TextAnnotation {
       source:       [ p.Instance,     () => new ColumnDataSource()  ],
       x_range_name: [ p.String,      'default'          ],
       y_range_name: [ p.String,      'default'          ],
-      render_mode:  [ p.RenderMode,  'canvas'           ]
+      render_mode:  [ p.RenderMode,  'canvas'           ],
     });
 
     this.override({
       background_fill_color: null,
-      border_line_color: null
+      border_line_color: null,
     });
   }
 }

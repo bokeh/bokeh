@@ -97,7 +97,7 @@ export class ImageURLView extends GlyphView {
     const { frame } = this.renderer.plot_view;
     ctx.rect(
       frame._left.value+1, frame._top.value+1,
-      frame._width.value-2, frame._height.value-2
+      frame._width.value-2, frame._height.value-2,
     );
     ctx.clip();
 
@@ -181,7 +181,7 @@ export class ImageURL extends Glyph {
         h:              [ p.DistanceSpec          ],
         dilate:         [ p.Bool,      false      ],
         retry_attempts: [ p.Number,    0          ],
-        retry_timeout:  [ p.Number,    0          ]
+        retry_timeout:  [ p.Number,    0          ],
     });
   }
 }

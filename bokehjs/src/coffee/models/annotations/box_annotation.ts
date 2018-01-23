@@ -133,18 +133,18 @@ export class BoxAnnotation extends Annotation {
         left:         [ p.Number,       null      ],
         left_units:   [ p.SpatialUnits, 'data'    ],
         right:        [ p.Number,       null      ],
-        right_units:  [ p.SpatialUnits, 'data'    ]
+        right_units:  [ p.SpatialUnits, 'data'    ],
     });
 
     this.internal({
-      screen: [ p.Boolean, false ]
+      screen: [ p.Boolean, false ],
     });
 
     this.override({
       fill_color: '#fff9ba',
       fill_alpha: 0.4,
       line_color: '#cccccc',
-      line_alpha: 0.3
+      line_alpha: 0.3,
     });
   }
 

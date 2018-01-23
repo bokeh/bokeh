@@ -45,7 +45,7 @@ export class Tool extends Model {
     this.prototype.type = "Tool"
 
     this.internal({
-      active: [ p.Boolean, false ]
+      active: [ p.Boolean, false ],
     })
   }
 

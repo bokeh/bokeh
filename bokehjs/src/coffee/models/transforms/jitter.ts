@@ -16,7 +16,7 @@ export class Jitter extends Transform {
       mean:         [ p.Number      , 0        ],
       width:        [ p.Number      , 1        ],
       distribution: [ p.Distribution, 'uniform'],
-      range:        [ p.Instance               ]
+      range:        [ p.Instance               ],
     });
   }
 

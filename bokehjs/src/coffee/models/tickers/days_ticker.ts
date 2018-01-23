@@ -40,7 +40,7 @@ export class DaysTicker extends SingleIntervalTicker {
     })
 
     this.override({
-      num_minor_ticks: 0
+      num_minor_ticks: 0,
     })
   }
 

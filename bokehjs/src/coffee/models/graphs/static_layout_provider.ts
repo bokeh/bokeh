@@ -7,7 +7,7 @@ export class StaticLayoutProvider extends LayoutProvider {
     this.prototype.type = "StaticLayoutProvider";
 
     this.define({
-      graph_layout: [ p.Any, {} ]
+      graph_layout: [ p.Any, {} ],
     });
   }
 

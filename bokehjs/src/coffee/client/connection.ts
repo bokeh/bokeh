@@ -124,7 +124,7 @@ export class ClientConnection {
       },
       (error) => {
         throw error
-      }
+      },
     )
   }
 
@@ -139,7 +139,7 @@ export class ClientConnection {
       },
       (error) => {
         throw error
-      }
+      },
     )
   }
 
@@ -184,7 +184,7 @@ export class ClientConnection {
         // get errors from the resolve handler above, so see
         // the catch below instead
         throw error
-      }
+      },
     ).catch((error) => {
       if (console.trace != null)
         console.trace(error)
@@ -306,14 +306,14 @@ export function pull_session(url: string, session_id: string, args_string?: stri
       () => {
         // we rely on reject() as a no-op if we already resolved
         reject(new Error("Connection was closed before we successfully pulled a session"))
-      }
+      },
     )
     return connection.connect().then(
       (_) => undefined,
       (error) => {
         logger.error(`Failed to connect to Bokeh server ${error}`)
         throw error
-      }
+      },
     )
   })
 

@@ -142,7 +142,7 @@ export function pie(data: PieChartData, opts: PieChartOpts = {}): Plot {
       text_colors: text_colors,
       text_cx: text_cx,
       text_cy: text_cy,
-    }
+    },
   })
 
   const g1 = new AnnularWedge({
@@ -265,7 +265,7 @@ export function bar(data: BarChartData, opts: BarChartOpts = {}): Plot {
           labels: labels,
           values: columns[i],
           columns: columns[i].map((_) => column_names[i+1]),
-        }
+        },
       })
 
       const g1 = new Quad({
@@ -302,7 +302,7 @@ export function bar(data: BarChartData, opts: BarChartOpts = {}): Plot {
           labels: labels,
           values: columns[i],
           columns: columns[i].map((_) => column_names[i+1]),
-        }
+        },
       })
 
       const g1 = new Quad({

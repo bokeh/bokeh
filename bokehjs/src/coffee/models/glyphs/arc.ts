@@ -45,7 +45,7 @@ export class Arc extends XYGlyph {
         direction:   [ p.Direction,   'anticlock' ],
         radius:      [ p.DistanceSpec             ],
         start_angle: [ p.AngleSpec                ],
-        end_angle:   [ p.AngleSpec                ]
+        end_angle:   [ p.AngleSpec                ],
       });
   }
 }

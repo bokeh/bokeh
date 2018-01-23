@@ -43,7 +43,7 @@ export class VBar extends Box {
     this.coords([['x', 'bottom']]);
     this.define({
       width:  [ p.DistanceSpec  ],
-      top:    [ p.NumberSpec    ]
+      top:    [ p.NumberSpec    ],
     });
     this.override({ bottom: 0 });
   }

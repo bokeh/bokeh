@@ -9,7 +9,7 @@ export class PrintfTickFormatter extends TickFormatter {
     this.prototype.type = 'PrintfTickFormatter';
 
     this.define({
-      format: [ p.String, '%s' ]
+      format: [ p.String, '%s' ],
     });
   }
 

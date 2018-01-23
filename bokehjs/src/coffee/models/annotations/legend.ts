@@ -25,7 +25,7 @@ export class LegendView extends AnnotationView {
     const {label_height, label_width} = this.model;
 
     this.max_label_height = max(
-      [get_text_height(this.visuals.label_text.font_value()).height, label_height, glyph_height]
+      [get_text_height(this.visuals.label_text.font_value()).height, label_height, glyph_height],
     );
 
     // this is to measure text properties
@@ -293,7 +293,7 @@ export class Legend extends Annotation {
         padding:          [ p.Number,         10          ],
         spacing:          [ p.Number,         3           ],
         items:            [ p.Array,          []          ],
-        click_policy:     [ p.Any,            "none"      ]
+        click_policy:     [ p.Any,            "none"      ],
     });
 
     this.override({
@@ -305,7 +305,7 @@ export class Legend extends Annotation {
       inactive_fill_color: "white",
       inactive_fill_alpha: 0.7,
       label_text_font_size: "10pt",
-      label_text_baseline: "middle"
+      label_text_baseline: "middle",
     });
   }
 

@@ -8,7 +8,7 @@ export class ImageSource extends Model {
 
     this.define({
         url:            [ p.String, '' ],
-        extra_url_vars: [ p.Any,    {} ]
+        extra_url_vars: [ p.Any,    {} ],
       });
   }
 

@@ -247,7 +247,7 @@ export class UIEvents {
     const {left, top} = offset(this.hit_area);
     return {
       sx: event.pageX - left,
-      sy: event.pageY - top
+      sy: event.pageY - top,
     };
   }
 

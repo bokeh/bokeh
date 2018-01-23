@@ -55,7 +55,7 @@ export class ToolbarPanel extends Annotation {
     this.prototype.default_view = ToolbarPanelView;
 
     this.define({
-      toolbar: [ p.Instance ]
+      toolbar: [ p.Instance ],
     });
   }
 }

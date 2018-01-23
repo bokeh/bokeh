@@ -56,13 +56,13 @@ export class HitTestResult {
       // index of the closest point to the crossed segment
       // useful for special glyphs like line that are continuous and
       // not discrete between 2 data points
-      indices: []
+      indices: [],
     }
     // 2d for all for multilines and multi patches
     this['2d'] = {
       // mapping of indices of the multiglyph to array of glyph indices that were hit
       // e.g. {3: [5, 6], 4: [5]}
-      indices: {}
+      indices: {},
     }
   }
 

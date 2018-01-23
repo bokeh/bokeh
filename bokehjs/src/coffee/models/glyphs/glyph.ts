@@ -358,7 +358,7 @@ export class Glyph extends Model {
 
     this.internal({
       x_range_name: [ p.String,      'default' ],
-      y_range_name: [ p.String,      'default' ]
+      y_range_name: [ p.String,      'default' ],
     });
   }
 

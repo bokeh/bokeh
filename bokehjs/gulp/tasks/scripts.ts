@@ -90,7 +90,7 @@ gulp.task("scripts:ts", () => {
 gulp.task("scripts:tslint", () => {
   return gulp
     .src(join(paths.src_dir.coffee, "**", "*.ts"))
-    .pipe(tslint({formatter: "verbose"}))
+    .pipe(tslint({formatter: "stylish", fix: argv.fix || false}))
     .pipe(tslint.report({emitError: false}))
 })
 

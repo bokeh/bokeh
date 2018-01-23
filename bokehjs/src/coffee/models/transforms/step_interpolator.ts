@@ -15,7 +15,7 @@ export class StepInterpolator extends Interpolator {
   static initClass() {
 
     this.define({
-      mode: [ p.StepMode, "after"]
+      mode: [ p.StepMode, "after"],
     });
   }
 

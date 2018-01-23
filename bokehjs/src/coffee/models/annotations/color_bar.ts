@@ -378,7 +378,7 @@ export class ColorBar extends Annotation {
         major_tick_in:           [ p.Number,         5           ],
         major_tick_out:          [ p.Number,         0           ],
         minor_tick_in:           [ p.Number,         0           ],
-        minor_tick_out:          [ p.Number,         0           ]
+        minor_tick_out:          [ p.Number,         0           ],
     });
 
     this.override({
@@ -392,7 +392,7 @@ export class ColorBar extends Annotation {
         major_tick_line_color: "#ffffff",
         minor_tick_line_color: null,
         title_text_font_size: "10pt",
-        title_text_font_style: "italic"
+        title_text_font_style: "italic",
     });
   }
 
@@ -506,11 +506,11 @@ export class ColorBar extends Annotation {
     const ranges = {
       'source_range': new Range1d({
         start: this.color_mapper.low,
-        end: this.color_mapper.high
+        end: this.color_mapper.high,
       }),
       'target_range': new Range1d({
         start: 0,
-        end: scale_length})
+        end: scale_length}),
     };
 
     switch (this.color_mapper.type) {
@@ -559,7 +559,7 @@ export class ColorBar extends Annotation {
 
     const coords = {
       major: [[], []],
-      minor: [[], []]
+      minor: [[], []],
     };
 
     const majors = ticks.major;
@@ -610,7 +610,7 @@ export class ColorBar extends Annotation {
     return {
       "ticks":ticks,
       "coords":coords,
-      "labels":labels
+      "labels":labels,
     };
   }
 }

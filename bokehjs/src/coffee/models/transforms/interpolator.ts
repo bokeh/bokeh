@@ -21,7 +21,7 @@ export class Interpolator extends Transform {
       x:    [ p.Any],
       y:    [ p.Any],
       data: [ p.Any],
-      clip: [ p.Bool, true]
+      clip: [ p.Bool, true],
       });
   }
 

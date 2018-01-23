@@ -24,7 +24,7 @@ export class CategoricalColorMapper extends ColorMapper {
     this.define({
       factors: [ p.Array     ],
       start:   [ p.Number, 0 ],
-      end:     [ p.Number    ]
+      end:     [ p.Number    ],
     });
   }
 

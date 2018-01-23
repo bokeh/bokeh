@@ -69,11 +69,11 @@ export class Box extends LayoutDOM {
     this.prototype.default_view = BoxView
 
     this.define({
-      children: [ p.Array, [] ]
+      children: [ p.Array, [] ],
     })
 
     this.internal({
-      spacing: [ p.Number, 6 ]
+      spacing: [ p.Number, 6 ],
     })
   }
 

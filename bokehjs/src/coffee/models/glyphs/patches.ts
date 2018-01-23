@@ -65,7 +65,7 @@ export class PatchesView extends GlyphView {
           minY: min(ys),
           maxX: max(xs),
           maxY: max(ys),
-          i
+          i,
         });
       }
     }

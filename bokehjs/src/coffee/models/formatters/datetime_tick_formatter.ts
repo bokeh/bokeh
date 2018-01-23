@@ -54,12 +54,12 @@ export class DatetimeTickFormatter extends TickFormatter {
       hours:        [ p.Array, ['%Hh', '%H:%M'] ],
       days:         [ p.Array, ['%m/%d', '%a%d'] ],
       months:       [ p.Array, ['%m/%Y', '%b%y'] ],
-      years:        [ p.Array, ['%Y'] ]
+      years:        [ p.Array, ['%Y'] ],
     });
 
     // Labels of time units, from finest to coarsest.
     this.prototype.format_order = [
-      'microseconds', 'milliseconds', 'seconds', 'minsec', 'minutes', 'hourmin', 'hours', 'days', 'months', 'years'
+      'microseconds', 'milliseconds', 'seconds', 'minsec', 'minutes', 'hourmin', 'hours', 'days', 'months', 'years',
     ];
 
     // Whether or not to strip the leading zeros on tick labels.
@@ -91,7 +91,7 @@ export class DatetimeTickFormatter extends TickFormatter {
       hours:        _widths(this.hours),
       days:         _widths(this.days),
       months:       _widths(this.months),
-      years:        _widths(this.years)
+      years:        _widths(this.years),
     };
   }
 

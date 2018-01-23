@@ -10,7 +10,7 @@ export class GroupFilter extends Filter {
 
     this.define({
       column_name:  [ p.String  ],
-      group:        [ p.String  ]
+      group:        [ p.String  ],
     });
   }
 

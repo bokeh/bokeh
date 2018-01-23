@@ -133,7 +133,7 @@ export class AnnularWedge extends XYGlyph {
         inner_radius: [ p.DistanceSpec             ],
         outer_radius: [ p.DistanceSpec             ],
         start_angle:  [ p.AngleSpec                ],
-        end_angle:    [ p.AngleSpec                ]
+        end_angle:    [ p.AngleSpec                ],
       });
   }
 }

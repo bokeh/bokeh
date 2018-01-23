@@ -8,7 +8,7 @@ export class MercatorTickFormatter extends BasicTickFormatter {
     this.prototype.type = 'MercatorTickFormatter';
 
     this.define({
-      dimension: [ p.LatLon ]
+      dimension: [ p.LatLon ],
     });
   }
 

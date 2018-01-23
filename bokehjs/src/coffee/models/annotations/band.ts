@@ -135,14 +135,14 @@ export class Band extends Annotation {
       dimension:    [ p.Dimension,    'height'          ],
       source:       [ p.Instance,     () => new ColumnDataSource()  ],
       x_range_name: [ p.String,       'default'         ],
-      y_range_name: [ p.String,       'default'         ]
+      y_range_name: [ p.String,       'default'         ],
     });
 
     this.override({
       fill_color: "#fff9ba",
       fill_alpha: 0.4,
       line_color: "#cccccc",
-      line_alpha: 0.3
+      line_alpha: 0.3,
     });
   }
 }

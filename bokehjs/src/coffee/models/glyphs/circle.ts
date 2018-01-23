@@ -230,7 +230,7 @@ export class Circle extends XYGlyph {
         angle:            [ p.AngleSpec,    0                             ],
         size:             [ p.DistanceSpec, { units: "screen", value: 4 } ],
         radius:           [ p.DistanceSpec, null                          ],
-        radius_dimension: [ p.String,       'x'                           ]
+        radius_dimension: [ p.String,       'x'                           ],
       });
   }
 
