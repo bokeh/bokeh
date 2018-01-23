@@ -3,24 +3,25 @@ import {XYGlyph, XYGlyphView} from "./xy_glyph";
 import * as hittest from "core/hittest";
 import * as p from "core/properties";
 import {angle_between} from "core/util/math"
-import {range} from "core/util/array"
 
 export class AnnularWedgeView extends XYGlyphView {
 
-  _map_data() {
-    if (this.model.properties.inner_radius.units === "data") {
+  _map_data(): void {
+    if (this.model.properties.inner_radius.units === "data")
       this.sinner_radius = this.sdist(this.renderer.xscale, this._x, this._inner_radius);
-    } else {
+    else
       this.sinner_radius = this._inner_radius;
-    }
-    if (this.model.properties.outer_radius.units === "data") {
+
+    if (this.model.properties.outer_radius.units === "data")
       this.souter_radius = this.sdist(this.renderer.xscale, this._x, this._outer_radius);
-    } else {
+    else
       this.souter_radius = this._outer_radius;
+
+    this._angle = new Float32Array(this._start_angle.length)
+
+    for (let i = 0, end = this._start_angle.length; i < end; i++) {
+      this._angle[i] = this._end_angle[i] - this._start_angle[i]
     }
-    this._angle = new Float32Array(this._start_angle.length);
-    return range(0, this._start_angle.length).map((i) =>
-      (this._angle[i] = this._end_angle[i] - this._start_angle[i]));
   }
 
   _render(ctx, indices, {sx, sy, _start_angle, _angle, sinner_radius, souter_radius}) {

@@ -2,24 +2,23 @@
 import {XYGlyph, XYGlyphView} from "./xy_glyph";
 import * as hittest from "core/hittest";
 import * as p from "core/properties"
-import {range} from "core/util/array"
+import {range, map} from "core/util/array"
 
 export class CircleView extends XYGlyphView {
 
-  _map_data() {
+  _map_data(): void {
     // NOTE: Order is important here: size is always present (at least
     // a default), but radius is only present if a user specifies it
     if (this._radius != null) {
       if (this.model.properties.radius.spec.units === "data") {
         const rd = this.model.properties.radius_dimension.spec.value;
-        return this.sradius = this.sdist(this.renderer[`${rd}scale`], this[`_${rd}`], this._radius);
+        this.sradius = this.sdist(this.renderer[`${rd}scale`], this[`_${rd}`], this._radius);
       } else {
         this.sradius = this._radius;
-        return this.max_size = 2 * this.max_radius;
+        this.max_size = 2 * this.max_radius;
       }
-    } else {
-      return this.sradius = (this._size.map((s) => s/2));
-    }
+    } else
+      this.sradius = map(this._size, (s: number) => s/2)
   }
 
   _mask_data(_all_indices) {
