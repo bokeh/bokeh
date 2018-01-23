@@ -47,6 +47,21 @@ validation checks.
 1012 *(INCOMPATIBLE_MAP_RANGE_TYPE)*
     Map plots can only support ``Range1d`` types, not data ranges.
 
+1013 *(INCOMPATIBLE_POINT_DRAW_RENDERER)*
+    The PointDrawTool renderers may only reference XYGlyph models.
+
+1014 *(INCOMPATIBLE_BOX_DRAW_RENDERER)*
+    The BoxDrawTool renderers may only reference Rect glyph models.
+
+1015 *(INCOMPATIBLE_POLY_DRAW_RENDERER)*
+    The PolyDrawTool renderers may only reference MultiLine and Patches glyph models.
+
+1016 *(INCOMPATIBLE_VERTEX_EDIT_RENDERER)*
+    The VertexEditTool renderers may only reference MultiLine and Patches glyph models.
+
+1017 *(INCOMPATIBLE_VERTEX_EDIT_VERTEX_RENDERER)*
+    The VertexEditTool vertex_renderer may only reference XYGlyph models.
+
 9999 *(EXT)*
     Indicates that a custom error check has failed.
 
@@ -65,6 +80,11 @@ codes = {
     1010: ("CDSVIEW_SOURCE_DOESNT_MATCH", "CDSView used by Glyph renderer must have a source that matches the Glyph renderer's data source"),
     1011: ("MALFORMED_GRAPH_SOURCE", "The GraphSource is incorrectly configured"),
     1012: ("INCOMPATIBLE_MAP_RANGE_TYPE", "Map plots can only support Range1d types, not data ranges"),
+    1013: ("INCOMPATIBLE_POINT_DRAW_RENDERER", "PointDrawTool renderers may only reference XYGlyph models."),
+    1014: ("INCOMPATIBLE_BOX_DRAW_RENDERER", "BoxDrawTool renderers may only reference Rect glyph models"),
+    1015: ("INCOMPATIBLE_POLY_DRAW_RENDERER", "The PolyDrawTool renderers may only reference MultiLine and Patches glyph models."),
+    1016: ("INCOMPATIBLE_VERTEX_EDIT_RENDERER", "VertexEditTool renderers may only reference MultiLine and Patches glyph models"),
+    1017: ("INCOMPATIBLE_VERTEX_EDIT_VERTEX_RENDERER", " VertexEditTool vertex_renderer may only reference XYGlyph models"),
     9999: ("EXT",                    "Custom extension reports error"),
 }
 

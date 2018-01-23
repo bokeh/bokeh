@@ -29,11 +29,18 @@ from ..core.properties import (
     Auto, Bool, Color, Date, Datetime, Dict, Either, Enum, Int, Float,
     Percent, Instance, List, Seq, String, Tuple
 )
+from ..core.validation import error
+from ..core.validation.errors import (
+    INCOMPATIBLE_BOX_DRAW_RENDERER, INCOMPATIBLE_POINT_DRAW_RENDERER,
+    INCOMPATIBLE_POLY_DRAW_RENDERER, INCOMPATIBLE_VERTEX_EDIT_RENDERER,
+    INCOMPATIBLE_VERTEX_EDIT_VERTEX_RENDERER
+)
 from ..model import Model
 from ..util.deprecation import deprecated
 
 from .annotations import BoxAnnotation, PolyAnnotation
 from .callbacks import Callback
+from .glyphs import XYGlyph, Rect, Patches, MultiLine
 from .renderers import Renderer, GlyphRenderer
 from .layouts import LayoutDOM
 
@@ -928,6 +935,17 @@ class BoxDrawTool(EditTool):
     the vertical dimension can be controlled.
     """)
 
+    @error(INCOMPATIBLE_BOX_DRAW_RENDERER)
+    def _check_compatible_renderers(self):
+        incompatible_renderers = []
+        for renderer in self.renderers:
+            if not isinstance(renderer.glyph, Rect):
+                incompatible_renderers.append(renderer)
+        if incompatible_renderers:
+            glyph_types = ', '.join([type(renderer.glyph).__name__
+                                     for renderer in incompatible_renderers])
+            return "%s glyph type(s) found." % glyph_types
+
 class PointDrawTool(EditTool):
     ''' *toolbar icon*: |point_draw_icon|
 
@@ -964,6 +982,17 @@ class PointDrawTool(EditTool):
     drag = Bool(default=True, help="""
     Enables dragging of existing points on pan events.""")
 
+    @error(INCOMPATIBLE_POINT_DRAW_RENDERER)
+    def _check_compatible_renderers(self):
+        incompatible_renderers = []
+        for renderer in self.renderers:
+            if not isinstance(renderer.glyph, XYGlyph):
+                incompatible_renderers.append(renderer)
+        if incompatible_renderers:
+            glyph_types = ', '.join([type(renderer.glyph).__name__
+                                     for renderer in incompatible_renderers])
+            return "%s glyph type(s) found." % glyph_types
+
 class PolyDrawTool(EditTool):
     ''' *toolbar icon*: |poly_draw_icon|
 
@@ -998,6 +1027,18 @@ class PolyDrawTool(EditTool):
     .. |poly_draw_icon| image:: /_images/icons/PolygonDraw.png
         :height: 18pt
     '''
+
+    @error(INCOMPATIBLE_POLY_DRAW_RENDERER)
+    def _check_compatible_renderers(self):
+        incompatible_renderers = []
+        for renderer in self.renderers:
+            if not isinstance(renderer.glyph, (MultiLine, Patches)):
+                incompatible_renderers.append(renderer)
+        if incompatible_renderers:
+            glyph_types = ', '.join([type(renderer.glyph).__name__
+                                     for renderer in incompatible_renderers])
+            return "%s glyph type(s) found." % glyph_types
+
 
 class VertexEditTool(EditTool):
     ''' *toolbar icon*: |vertex_edit_icon|
@@ -1054,3 +1095,20 @@ class VertexEditTool(EditTool):
     vertex_renderer = Instance(GlyphRenderer, help="""
     The renderer used to render the vertices of a selected line or
     polygon.""")
+
+    @error(INCOMPATIBLE_VERTEX_EDIT_VERTEX_RENDERER)
+    def _check_compatible_vertex_renderer(self):
+        glyph = self.vertex_renderer.glyph
+        if not isinstance(glyph, XYGlyph):
+            return "glyph type %s found." % type(glyph).__name__
+
+    @error(INCOMPATIBLE_VERTEX_EDIT_RENDERER)
+    def _check_compatible_renderers(self):
+        incompatible_renderers = []
+        for renderer in self.renderers:
+            if not isinstance(renderer.glyph, (MultiLine, Patches)):
+                incompatible_renderers.append(renderer)
+        if incompatible_renderers:
+            glyph_types = ', '.join([type(renderer.glyph).__name__
+                                     for renderer in incompatible_renderers])
+            return "%s glyph type(s) found." % glyph_types
