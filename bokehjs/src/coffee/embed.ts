@@ -71,7 +71,7 @@ function _update_comms_callback(target: string, doc: Document, comm: Comm): void
 }
 
 function _init_comms(target: string, doc: Document): void {
-  if (Jupyter != null && Jupyter.notebook.kernel != null) {
+  if (typeof Jupyter !== 'undefined' && Jupyter.notebook.kernel != null) {
     logger.info(`Registering Jupyter comms for target ${target}`)
     const comm_manager = Jupyter.notebook.kernel.comm_manager
     const update_comms = (comm: Comm) => _update_comms_callback(target, doc, comm)
