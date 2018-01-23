@@ -73,6 +73,7 @@ export class VertexEditToolView extends EditToolView {
     this.model.active = true;
     this._selected_renderer = renderer;
     point_ds.change.emit(undefined);
+    point_ds.properties.data.change.emit(undefined);
   }
 
   _tap(e: BkEv): void {
