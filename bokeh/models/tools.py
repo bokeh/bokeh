@@ -895,31 +895,29 @@ class EditTool(Tool):
 class BoxDrawTool(EditTool):
     ''' *toolbar icon*: |box_draw_icon|
 
-    The BoxDrawTool allows drawing, dragging and deleting Rect glyphs
-    on one or more renderers by editing the underlying
-    ColumnDataSource data. Like other drawing tools, the renderers
-    that are to be edited must be supplied explicitly as a list. The
-    tool supports the following actions:
+    The BoxDrawTool allows drawing, dragging and deleting ``Rect``
+    glyphs on one or more renderers by editing the underlying
+    ``ColumnDataSource`` data. Like other drawing tools, the renderers
+    that are to be edited must be supplied explicitly as a list. When
+    drawing a new box the data will always be added to the
+    ``ColumnDataSource`` on the first supplied renderer.
+
+    The tool will automatically modify the columns on the data source
+    corresponding to the ``x``, ``y``, ``width`` and ``height`` values
+    of the glyph. Any additional columns in the data source will be
+    padded with the declared ``empty_value``, when adding a new box.
+
+    The supported actions include:
 
     * Add box: Click and hold the mouse button down, dragging the
       mouse from the starting point to the end point then release the
       button. This will define the two opposite corners of the
-      rectangle. The x- and y-coordinates will be
+      rectangle.
 
     * Select box: Tap on an existing box. To select multiple hold
       <<shift>> key while tapping.
 
-    * Move box: Click and hold the mouse button down over an existing
-      box then drag it and release the mouse to complete the
-      action. To move multiple boxes select them and hold <<shift>>
-      key while dragging one of them.
-
-    * Delete box: Select one or more boxes then press <<delete>> key
-      to delete them.
-
-    .. note::
-        Any added boxes will always be inserted on the first listed
-        renderer.
+    * Delete box: Select one or more boxes then press <<delete>> key.
 
     .. |box_draw_icon| image:: /_images/icons/BoxDraw.png
         :height: 18pt
@@ -951,9 +949,17 @@ class PointDrawTool(EditTool):
 
     The PointDrawTool allows adding, dragging and deleting point-like
     glyphs (of ``XYGlyph`` type) on one or more renderers by editing
-    the underlying ColumnDataSource data. Like other drawing tools,
-    the renderers that are to be edited must be supplied explicitly as
-    a list. The tool supports the following actions:
+    the underlying ``ColumnDataSource`` data. Like other drawing
+    tools, the renderers that are to be edited must be supplied
+    explicitly as a list. Any newly added points will be inserted on
+    the ``ColumnDataSource`` of the first supplied renderer.
+
+    The tool will automatically modify the columns on the data source
+    corresponding to the ``x`` and ``y`` values of the glyph. Any
+    additional columns in the data source will be padded with the
+    declared ``empty_value``, when adding a new point.
+
+    The supported actions include:
 
     * Add point: Tap anywhere on the plot.
 
@@ -961,16 +967,12 @@ class PointDrawTool(EditTool):
       <<shift>> key while tapping.
 
     * Delete point: Select one or more points then press <<delete>>
-      key to delete them.
+      key.
 
     * Move point: Click and hold the mouse down point, drag it, then
       release the mouse to complete the action. To move multiple
       points select them and hold <<shift>> key while dragging one of
       them.
-
-    .. note::
-        Any added points will always be inserted on the first listed
-        renderer.
 
     .. |point_draw_icon| image:: /_images/icons/PointDraw.png
         :height: 18pt
@@ -1000,12 +1002,19 @@ class PolyDrawTool(EditTool):
     ``Patches`` and ``MultiLine`` glyphs on one or more renderers by
     editing the underlying ColumnDataSource data. Like other drawing
     tools, the renderers that are to be edited must be supplied
-    explicitly as a list. The tool supports the following actions:
+    explicitly as a list.
+
+    The tool will automatically modify the columns on the data source
+    corresponding to the ``xs`` and ``ys`` values of the glyph. Any
+    additional columns in the data source will be padded with the
+    declared ``empty_value``, when adding a new point.
+
+    The supported actions include:
 
     * Draw polygon/multi-line: Click and hold the mouse button then
       drag the mouse to a new location and finalize the line by
       releasing the mouse button. To add further vertices hold the
-      <<shift>> key and click and drag to another position.
+      <<shift>> key and drag the mouse cursor to another position.
 
     * Select polygon/multi-line: Tap on an existing
       polygon/multi-line. To select multiple hold <<shift>> key while
@@ -1017,12 +1026,7 @@ class PolyDrawTool(EditTool):
       vertex on the selected polygon/multi-line.
 
     * Delete polygon/multi-line: Select one or more
-      polygons/multi-lines then press <<delete>> key to
-      delete them.
-
-    .. note::
-        Any added polygons or multi-lines will always be inserted on
-        the first listed renderer.
+      polygons/multi-lines then press <<delete>> key to delete them.
 
     .. |poly_draw_icon| image:: /_images/icons/PolyDraw.png
         :height: 18pt
@@ -1047,13 +1051,20 @@ class PolyEditTool(EditTool):
     ``Patches`` or ``MultiLine`` glyphs. The glyphs to be edited can
     be defined via the ``renderers`` property and the renderer for the
     vertices can be defined via the ``vertex_renderer``, which must
-    render a point-like Glyph (of ``XYGlyph`` type). The PolyEditTool
-    has two modes:
+    render a point-like Glyph (of ``XYGlyph`` type).
+
+    The tool will automatically modify the columns on the data source
+    corresponding to the ``xs`` and ``ys`` values of the glyph. Any
+    additional columns in the data source will be padded with the
+    declared ``empty_value``, when adding a new point.
+
+    The PolyEditTool has two editing modes, supporting different
+    actions:
 
     1. When a particular line or polygon is selected by double tapping
-    it, its vertices will be rendered by the ``vertex_renderer``. In
-    this mode the vertices can be dragged, selected and deleted, and
-    new vertices may be inserted:
+       it, its vertices will be rendered by the
+       ``vertex_renderer``. In this mode the vertices can be dragged,
+       selected and deleted, and new vertices may be inserted:
 
     * Add vertex: Tap on an existing vertex to select it then tap on
       the position to insert the next point.
@@ -1068,8 +1079,11 @@ class PolyEditTool(EditTool):
       mouse to complete the action. To move multiple vertices select
       them and hold <<shift>> key while dragging one of them.
 
+    * Hide vertices: Double tap anywhere on any blank region of the
+      plot to hide vertices and toggle the other editing mode.
+
     2. While no line or polygon is selected the lines and polygons as
-    a whole may be selected, dragged and deleted:
+       a whole may be selected, dragged and deleted:
 
     * Move line/polygon: Click and hold a line/polygon, drag it, then
       release the mouse to complete the action. To move multiple
@@ -1082,8 +1096,6 @@ class PolyEditTool(EditTool):
 
     * Delete line/polygon: Tap on an existing line/polygon (or select
       them with a different tool) then press backspace to delete them.
-
-    To unselect a line or polygon double tap anywhere on the plot.
 
     .. |poly_edit_icon| image:: /_images/icons/PolyEdit.png
         :height: 18pt
