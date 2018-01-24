@@ -62,7 +62,7 @@ declare namespace Bokeh {
   export var ImageRGBA: { new(attributes?: IImageRGBA, options?: ModelOpts): ImageRGBA };
   export interface ImageRGBA extends Glyph, IImageRGBA {}
   export interface IImageRGBA extends IGlyph {
-    image?: Vectorized<Array<number>>;
+    image?: Vectorized<number[]>;
     rows?: Vectorized<Int>;
     cols?: Vectorized<Int>;
     x?: Numerical | Categorical;

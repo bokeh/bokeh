@@ -9,7 +9,7 @@ declare namespace Bokeh {
 
   export interface ColumnarDataSource extends DataSource, IColumnarDataSource {}
   export interface IColumnarDataSource extends IDataSource {
-    column_names?: Array<string>;
+    column_names?: string[];
     inspected?: Selected;
   }
 

@@ -15,7 +15,7 @@ declare namespace Bokeh {
 
   export interface Box extends LayoutDOM, IBox {}
   export interface IBox extends ILayoutDOM {
-    children?: Array<LayoutDOM>;
+    children?: LayoutDOM[];
   }
 
   export var Row: {

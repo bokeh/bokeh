@@ -24,13 +24,13 @@ namespace WebBrowserMarketShare {
   interface MonthlyShares {
     year: number
     month: string
-    browsers: Array<string>
-    shares: Array<number>
+    browsers: string[]
+    shares: number[]
   }
 
-  const data: Array<MonthlyShares> = []
+  const data: MonthlyShares[] = []
 
-  let _browsers: Array<string> = null
+  let _browsers: string[] = null
   let year: number = null
 
   for (const [head, ...tail] of read_csv_from("data")) {

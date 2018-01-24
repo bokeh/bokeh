@@ -17,8 +17,8 @@ declare namespace Bokeh {
 
   export interface DataRange extends Range, IDataRange {}
   export interface IDataRange extends IRange {
-    names?: Array<string>;
-    renderers?: Array<Renderer>;
+    names?: string[];
+    renderers?: Renderer[];
   }
 
   export var DataRange1d: { new(attributes?: IDataRange1d, options?: ModelOpts): DataRange1d };
@@ -41,7 +41,7 @@ declare namespace Bokeh {
   export interface FactorRange extends Range, IFactorRange {}
   export interface IFactorRange extends IRange {
     offset?: number;
-    factors?: Array<string> | Array<Int>;
-    bounds?: Auto | Array<string> | Array<Int>;
+    factors?: string[] | Int[];
+    bounds?: Auto | string[] | Int[];
   }
 }

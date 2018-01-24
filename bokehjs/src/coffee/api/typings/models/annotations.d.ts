@@ -8,7 +8,7 @@ declare namespace Bokeh {
   export interface LegendItem extends Model, ILegendItem {}
   export interface ILegendItem extends IModel {
     label?: Vectorized<string>;
-    renderers?: Array<GlyphRenderer>;
+    renderers?: GlyphRenderer[];
   }
 
   export var Legend: { new(attributes?: ILegend, options?: ModelOpts): Legend };
@@ -58,7 +58,7 @@ declare namespace Bokeh {
     padding?: Int;
     spacing?: Int;
 
-    items?: Array<LegendItem>;
+    items?: LegendItem[];
 
   }
 
@@ -153,13 +153,13 @@ declare namespace Bokeh {
   export var Band: { new(attributes?: IBand, options?: ModelOpts): Band };
   export interface Band extends Annotation, IBand {}
   export interface IBand extends IAnnotation, LineProps, FillProps {
-    lower?: Array<number>;
+    lower?: number[];
     lower_units?: SpatialUnits;
 
-    upper?: Array<number>;
+    upper?: number[];
     upper_units?: SpatialUnits;
 
-    base?: Array<number>;
+    base?: number[];
     base_units?: SpatialUnits;
 
     dimension?: Dimension;
@@ -192,10 +192,10 @@ declare namespace Bokeh {
   export var PolyAnnotation: { new(attributes?: IPolyAnnotation, options?: ModelOpts): PolyAnnotation };
   export interface PolyAnnotation extends Annotation, IPolyAnnotation {}
   export interface IPolyAnnotation extends IAnnotation, LineProps, FillProps {
-    xs?: Array<number>;
+    xs?: number[];
     xs_units?: SpatialUnits;
 
-    ys?: Array<number>;
+    ys?: number[];
     ys_units?: SpatialUnits;
 
     x_range_name?: string;

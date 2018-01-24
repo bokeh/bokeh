@@ -20,6 +20,6 @@ declare namespace Bokeh {
   export type Numerical = Vectorized<number>;
   export type Categorical = Vectorized<string>;
 
-  export type MultiNumerical = Vectorized<Array<number>>;
-  export type MultiCategorical = Vectorized<Array<string>>;
+  export type MultiNumerical = Vectorized<number[]>;
+  export type MultiCategorical = Vectorized<string[]>;
 }

@@ -8,7 +8,7 @@ declare namespace Bokeh {
   }
   export interface Document extends IDocument {
     clear(): void;
-    roots(): Array<Model>;
+    roots(): Model[];
     add_root(model: Model): void;
     remove_root(model: Model): void;
     resize(): void;

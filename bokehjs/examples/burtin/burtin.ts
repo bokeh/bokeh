@@ -11,7 +11,7 @@ namespace Burtin {
 
   type Gram = "negative" | "positive";
 
-  const antibiotics: Array<[string, number, number, number, Gram]> = [
+  const antibiotics: [string, number, number, number, Gram][] = [
     ["Mycobacterium tuberculosis",      800,        5,            2,        "negative"],
     ["Salmonella schottmuelleri",       10,         0.8,          0.09,     "negative"],
     ["Proteus vulgaris",                3,          0.1,          0.1,      "negative"],
@@ -31,14 +31,14 @@ namespace Burtin {
   ]
 
   interface Antibiotics {
-    index:        Array<number>;
+    index:        number[];
     length:       number;
 
-    bacteria:     Array<string>;
-    penicillin:   Array<number>;
-    streptomycin: Array<number>;
-    neomycin:     Array<number>;
-    gram:         Array<Gram>;
+    bacteria:     string[];
+    penicillin:   number[];
+    streptomycin: number[];
+    neomycin:     number[];
+    gram:         Gram[];
   }
 
   const df: Antibiotics = {
@@ -73,7 +73,7 @@ namespace Burtin {
   const a = (outer_radius - inner_radius) / (minr - maxr)
   const b = inner_radius - a * maxr
 
-  function rad(mic: Array<number>): Array<number> {
+  function rad(mic: number[]): number[] {
     return mic.map((v) => a * Math.sqrt(Math.log(v * 1E4)) + b)
   }
 

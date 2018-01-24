@@ -11,19 +11,19 @@ declare namespace Bokeh.Charts {
     end_angle?: number;
     center?: [number, number];
     treshold?: number;
-    palette?: Palette | Array<Color>;
+    palette?: Palette | Color[];
     slice_labels?: "labels" | "values" | "percentages";
   }
 
-  function pie(data: {labels: Array<string>, values: Array<number>}, opts?: IPieOpts): Plot;
+  function pie(data: {labels: string[], values: number[]}, opts?: IPieOpts): Plot;
 
   interface IBarOpts extends IChartOpts {
     stacked?: boolean;
     orientation?: "horizontal" | "vertical";
     bar_width?: number;
-    palette?: Palette | Array<Color>;
+    palette?: Palette | Color[];
     axis_number_format?: string;
   }
 
-  function bar(data: Array<Array<string | number>>, opts?: IBarOpts): Plot;
+  function bar(data: (string | number)[][], opts?: IBarOpts): Plot;
 }

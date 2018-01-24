@@ -11,8 +11,8 @@ declare namespace Bokeh {
   export interface ISelectTool extends ITool, IHitTest {}
 
   export interface IHitTest {
-    names?: Array<string>;
-    renderers?: Array<Renderer>;
+    names?: string[];
+    renderers?: Renderer[];
   }
 
   export var PanTool: { new(attributes?: IPanTool, options?: ModelOpts): PanTool };
@@ -116,7 +116,7 @@ declare namespace Bokeh {
   }
 
   export interface HoverCallbackData {
-    index: Array<Int> | Array<Array<Int>>;
+    index: Int[] | Int[][];
     geometry: {
       type: "point" | "span";
       direction?: "h" | "v";
@@ -130,7 +130,7 @@ declare namespace Bokeh {
   export var HoverTool: { new(attributes?: IHoverTool, options?: ModelOpts): HoverTool };
   export interface HoverTool extends InspectTool, IHoverTool {}
   export interface IHoverTool extends IInspectTool, IHitTest {
-    tooltips?: HTMLElement | Array<[string, string]> | ((source: DataSource, info: HoverTooltipInfo) => HTMLElement);
+    tooltips?: HTMLElement | [string, string][] | ((source: DataSource, info: HoverTooltipInfo) => HTMLElement);
     callback?: Callback | ((tool: HoverTool, data: HoverCallbackData) => void);
     mode?: HoverMode;
     point_policy?: PointPolicy;

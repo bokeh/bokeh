@@ -2,7 +2,7 @@ declare namespace Bokeh {
   export interface ToolbarBase extends LayoutDOM, IToolbarBase {}
   export interface IToolbarBase extends ILayoutDOM {
     logo?: Logo;
-    tools?: Array<Tool>;
+    tools?: Tool[];
   }
 
   export var Toolbar: {

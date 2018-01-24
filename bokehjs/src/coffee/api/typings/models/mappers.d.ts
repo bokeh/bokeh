@@ -1,7 +1,7 @@
 declare namespace Bokeh {
   export interface ColorMapper extends Transform, IColorMapper {}
   export interface IColorMapper extends ITransform {
-    palette?: Array<Color>;
+    palette?: Color[];
     nan_color?: Color;
   }
 
@@ -26,6 +26,6 @@ declare namespace Bokeh {
   export var CategoricalColorMapper: { new(attributes?: ICategoricalColorMapper, options?: ModelOpts): CategoricalColorMapper };
   export interface CategoricalColorMapper extends ColorMapper, ICategoricalColorMapper {}
   export interface ICategoricalColorMapper extends IColorMapper {
-    factors: Array<string> | Array<Int>;
+    factors: string[] | Int[];
   }
 }

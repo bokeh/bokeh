@@ -11,14 +11,14 @@ declare namespace Bokeh {
   export var FixedTicker: { new(attributes?: IFixedTicker, options?: ModelOpts): FixedTicker };
   export interface FixedTicker extends ContinuousTicker, IFixedTicker {}
   export interface IFixedTicker extends IContinuousTicker {
-    ticks?: Array<number>;
+    ticks?: number[];
   }
 
   export var AdaptiveTicker: { new(attributes?: IAdaptiveTicker, options?: ModelOpts): AdaptiveTicker };
   export interface AdaptiveTicker extends ContinuousTicker, IAdaptiveTicker {}
   export interface IAdaptiveTicker extends IContinuousTicker {
     base?: number;
-    mantissas?: Array<number>;
+    mantissas?: number[];
     min_interval?: number;
     max_interval?: number;
   }
@@ -26,7 +26,7 @@ declare namespace Bokeh {
   export var CompositeTicker: { new(attributes?: ICompositeTicker, options?: ModelOpts): CompositeTicker };
   export interface CompositeTicker extends ContinuousTicker, ICompositeTicker {}
   export interface ICompositeTicker extends IContinuousTicker {
-    tickers?: Array<Ticker>;
+    tickers?: Ticker[];
   }
 
   export var SingleIntervalTicker: { new(attributes?: ISingleIntervalTicker, options?: ModelOpts): SingleIntervalTicker };
@@ -38,13 +38,13 @@ declare namespace Bokeh {
   export var DaysTicker: { new(attributes?: IDaysTicker, options?: ModelOpts): DaysTicker };
   export interface DaysTicker extends SingleIntervalTicker, IDaysTicker {}
   export interface IDaysTicker extends ISingleIntervalTicker {
-    days?: Array<Int>;
+    days?: Int[];
   }
 
   export var MonthsTicker: { new(attributes?: IMonthsTicker, options?: ModelOpts): MonthsTicker };
   export interface MonthsTicker extends SingleIntervalTicker, IMonthsTicker {}
   export interface IMonthsTicker extends ISingleIntervalTicker {
-    months?: Array<Int>;
+    months?: Int[];
   }
 
   export var YearsTicker: { new(attributes?: IYearsTicker, options?: ModelOpts): YearsTicker };
