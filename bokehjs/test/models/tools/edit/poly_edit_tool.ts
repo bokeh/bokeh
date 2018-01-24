@@ -10,7 +10,7 @@ import {Plot} from "models/plots/plot"
 import {Range1d} from "models/ranges/range1d"
 import {GlyphRenderer} from "models/renderers/glyph_renderer"
 import {ColumnDataSource} from "models/sources/column_data_source"
-import {PolyEditTool, PolyEditToolView} from "models/tools/edit/poly_edit_tool"
+import {PolyEditTool, PolyEditToolView, BkEv} from "models/tools/edit/poly_edit_tool"
 
 const utils = require("../../../utils")
 
@@ -23,18 +23,6 @@ export interface PolyEditTestCase {
   vertex_glyph_view: CircleView
   vertex_source: ColumnDataSource
   vertex_renderer: GlyphRenderer
-}
-
-export interface BkEv {
-  bokeh: {
-    sx: number
-    sy: number
-  }
-  srcEvent: {
-    shiftKey?: boolean
-  }
-  keyCode: number
-  shiftKey: boolean
 }
 
 const make_testcase = function(): PolyEditTestCase {

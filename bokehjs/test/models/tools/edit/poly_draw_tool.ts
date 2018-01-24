@@ -9,7 +9,7 @@ import {Plot} from "models/plots/plot"
 import {Range1d} from "models/ranges/range1d"
 import {GlyphRenderer} from "models/renderers/glyph_renderer"
 import {ColumnDataSource} from "models/sources/column_data_source"
-import {PolyDrawTool, PolyDrawToolView} from "models/tools/edit/poly_draw_tool"
+import {PolyDrawTool, PolyDrawToolView, BkEv} from "models/tools/edit/poly_draw_tool"
 
 const utils = require("../../../utils")
 
@@ -18,18 +18,6 @@ export interface PolyDrawTestCase {
   data_source: ColumnDataSource
   draw_tool_view: PolyDrawToolView
   glyph_view: PatchesView
-}
-
-export interface BkEv {
-  bokeh: {
-    sx: number
-    sy: number
-  }
-  srcEvent: {
-    shiftKey?: boolean
-  }
-  keyCode: number
-  shiftKey: boolean
 }
 
 const make_testcase = function(): PolyDrawTestCase {

@@ -9,7 +9,7 @@ import {Plot} from "models/plots/plot"
 import {Range1d} from "models/ranges/range1d"
 import {GlyphRenderer} from "models/renderers/glyph_renderer"
 import {ColumnDataSource} from "models/sources/column_data_source"
-import {PointDrawTool, PointDrawToolView} from "models/tools/edit/point_draw_tool"
+import {PointDrawTool, PointDrawToolView, BkEv} from "models/tools/edit/point_draw_tool"
 
 const utils = require("../../../utils")
 
@@ -18,18 +18,6 @@ export interface PointDrawTestCase {
   data_source: ColumnDataSource
   draw_tool_view: PointDrawToolView
   glyph_view: CircleView
-}
-
-export interface BkEv {
-  bokeh: {
-    sx: number
-    sy: number
-  }
-  srcEvent: {
-    shiftKey?: boolean
-  }
-  keyCode: number
-  shiftKey: boolean
 }
 
 const make_testcase = function(): PointDrawTestCase {
