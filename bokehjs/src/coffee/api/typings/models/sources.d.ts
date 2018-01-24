@@ -9,11 +9,11 @@ declare namespace Bokeh {
 
   export interface ColumnarDataSource extends DataSource, IColumnarDataSource {}
   export interface IColumnarDataSource extends IDataSource {
-    column_names?: Array<string>;
+    column_names?: string[];
     inspected?: Selected;
   }
 
-  export var ColumnDataSource: { new(attributes?: IColumnDataSource, options?: ModelOpts): ColumnDataSource };
+  export const ColumnDataSource: { new(attributes?: IColumnDataSource, options?: ModelOpts): ColumnDataSource };
   export interface ColumnDataSource extends ColumnarDataSource, IColumnDataSource {
     stream(new_data: Data, rollover: number): void;
   }
@@ -21,7 +21,7 @@ declare namespace Bokeh {
     data?: Data;
   }
 
-  export var GeoJSONDataSource: { new(attributes?: IGeoJSONDataSource, options?: ModelOpts): GeoJSONDataSource };
+  export const GeoJSONDataSource: { new(attributes?: IGeoJSONDataSource, options?: ModelOpts): GeoJSONDataSource };
   export interface GeoJSONDataSource extends ColumnarDataSource, IGeoJSONDataSource {}
   export interface IGeoJSONDataSource extends IColumnarDataSource {
     geojson?: JsObj;
@@ -33,7 +33,7 @@ declare namespace Bokeh {
     polling_interval?: Int;
   }
 
-  export var AjaxDataSource: { new(attributes?: IAjaxDataSource, options?: ModelOpts): AjaxDataSource };
+  export const AjaxDataSource: { new(attributes?: IAjaxDataSource, options?: ModelOpts): AjaxDataSource };
   export interface AjaxDataSource extends RemoteSource, IAjaxDataSource {}
   export interface IAjaxDataSource extends IRemoteSource {
     method?: HTTPMethod;

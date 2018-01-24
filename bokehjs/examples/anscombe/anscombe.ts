@@ -25,7 +25,7 @@ namespace Anscombe {
       "yiii" : anscombe_quartet[5],
       "xiv"  : anscombe_quartet[6],
       "yiv"  : anscombe_quartet[7],
-    }
+    },
   });
 
   const x = Bokeh.LinAlg.linspace(-0.5, 20.5, 10);

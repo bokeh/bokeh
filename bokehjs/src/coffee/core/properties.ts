@@ -109,7 +109,7 @@ export class Property<T> extends Signalable() {
         attr_value = default_value(obj)
       else
         attr_value = null
-      obj.setv([attr, attr_value], {silent: true, defaults: true})
+      obj.setv({[attr]: attr_value}, {silent: true, defaults: true})
     }
 
     if (isArray(attr_value))

@@ -43,7 +43,7 @@ namespace Stocks {
       corp_a: [1, 4, 3, 5, 2, 3, 2, 4],
       corp_b: [4, 5, 7, 6, 8, 6, 7, 4],
       corp_c: [2, 1, 2, 1, 3, 1, 2, 3],
-    }
+    },
   });
 
   // Make source update on an interval

@@ -1,6 +1,6 @@
 declare namespace Bokeh {
 
-  export var Document: {
+  export const Document: {
     new(attributes?: IDocument): Document
 
     from_json_string(s: string): Document;
@@ -8,7 +8,7 @@ declare namespace Bokeh {
   }
   export interface Document extends IDocument {
     clear(): void;
-    roots(): Array<Model>;
+    roots(): Model[];
     add_root(model: Model): void;
     remove_root(model: Model): void;
     resize(): void;

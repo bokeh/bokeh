@@ -15,7 +15,7 @@ export function values<T>(object: {[key: string]: T}): T[] {
 export function extend<T, T1>(dest: T, src: T1): T & T1;
 export function extend<T, T1, T2>(dest: T, src1: T1, src2: T2): T & T1 & T2;
 export function extend<T, T1, T2, T3>(dest: T, src1: T1, src2: T2, src3: T3): T & T1 & T2 & T3;
-export function extend<R>(dest: any, ...sources: Array<any>): R {
+export function extend<R>(dest: any, ...sources: any[]): R {
   for (const source of sources) {
     for (const key in source) {
       if (source.hasOwnProperty(key)) {

@@ -1,10 +1,10 @@
 declare namespace Bokeh.Plotting {
-  function show(objs: Array<LayoutDOM>, target?: string | HTMLElement): Map<View<Model>>;
+  function show(objs: LayoutDOM[], target?: string | HTMLElement): Map<View<Model>>;
   function show<T extends LayoutDOM>(obj: T, target?: string | HTMLElement): View<T>;
 
   function color(r: number, g: number, b: number): string;
 
-  function gridplot(children: Array<Array<Plot>>, options?: IGridPlotOptions): Box;
+  function gridplot(children: Plot[][], options?: IGridPlotOptions): Box;
   export interface IGridPlotOptions {
     toolbar_location?: Location;
     sizing_mode?: SizingMode;
@@ -33,12 +33,12 @@ declare namespace Bokeh.Plotting {
 
   function figure(attributes?: IFigure, options?: ModelOpts): Figure;
 
-  var Figure: { new(attributes?: IFigure, options?: ModelOpts): Figure };
+  const Figure: { new(attributes?: IFigure, options?: ModelOpts): Figure };
   export interface IFigure extends IBasePlot {
-    tools?: Array<Tool | ToolType> | string;
+    tools?: (Tool | ToolType)[] | string;
 
-    x_range?: Range | [number, number] | Array<string>;
-    y_range?: Range | [number, number] | Array<string>;
+    x_range?: Range | [number, number] | string[];
+    y_range?: Range | [number, number] | string[];
 
     x_axis_type?: AxisType;
     y_axis_type?: AxisType;
@@ -136,7 +136,7 @@ declare namespace Bokeh.Plotting {
       opts?: EllipseOpts):             GlyphRenderer;
     image(
       color_mapper: ColorMapper,
-      image: ValueAttr<Array<number>>,
+      image: ValueAttr<number[]>,
       rows: ValueAttr<Int>,
       cols: ValueAttr<Int>,
       x: DataAttr,
@@ -145,7 +145,7 @@ declare namespace Bokeh.Plotting {
       dh: SpatialAttr,
       opts?: ImageOpts):            GlyphRenderer;
     image_rgba(
-      image: ValueAttr<Array<number>>,
+      image: ValueAttr<number[]>,
       rows: ValueAttr<Int>,
       cols: ValueAttr<Int>,
       x: DataAttr,
@@ -249,14 +249,14 @@ declare namespace Bokeh.Plotting {
   }
 
   //                     scalar   vector                 spec
-  type DataAttr        = number | Array<number>        | Numerical
-                 | Array<string>        | Categorical;
-  type SpatialAttr     = number | Array<number>        | Spatial;
-  type AngularAttr     = number | Array<number>        | Angular;
-  type ValueAttr<T>    = T      | Array<T>             | Vectorized<T>;
+  type DataAttr        = number | number[]        | Numerical
+                 | string[]        | Categorical;
+  type SpatialAttr     = number | number[]        | Spatial;
+  type AngularAttr     = number | number[]        | Angular;
+  type ValueAttr<T>    = T      | T[]             | Vectorized<T>;
 
-  type MultiDataAttr   =          Array<Array<number>> | MultiNumerical
-                 | Array<Array<string>> | MultiCategorical;
+  type MultiDataAttr   =          number[][] | MultiNumerical
+                 | string[][] | MultiCategorical;
 
   type ColorAttr = ValueAttr<Color>;
   type AlphaAttr = ValueAttr<Percent>;
@@ -391,7 +391,7 @@ declare namespace Bokeh.Plotting {
     dilate?: boolean;
   }
   export interface ImageRGBAAttrs extends ImageRGBAOpts {
-    image: ValueAttr<Array<number>>;
+    image: ValueAttr<number[]>;
     rows: ValueAttr<Int>;
     cols: ValueAttr<Int>;
     x: DataAttr;

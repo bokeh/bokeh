@@ -11,61 +11,61 @@ declare namespace Bokeh {
   export interface ISelectTool extends ITool, IHitTest {}
 
   export interface IHitTest {
-    names?: Array<string>;
-    renderers?: Array<Renderer>;
+    names?: string[];
+    renderers?: Renderer[];
   }
 
-  export var PanTool: { new(attributes?: IPanTool, options?: ModelOpts): PanTool };
+  export const PanTool: { new(attributes?: IPanTool, options?: ModelOpts): PanTool };
   export interface PanTool extends Tool, IPanTool {}
   export interface IPanTool extends ITool {
     dimensions?: Dimensions;
   }
 
-  export var WheelPanTool: { new(attributes?: IWheelPanTool, options?: ModelOpts): WheelPanTool };
+  export const WheelPanTool: { new(attributes?: IWheelPanTool, options?: ModelOpts): WheelPanTool };
   export interface WheelPanTool extends Tool, IWheelPanTool {}
   export interface IWheelPanTool extends ITool {
     dimension?: Dimension;
   }
 
-  export var WheelZoomTool: { new(attributes?: IWheelZoomTool, options?: ModelOpts): WheelZoomTool };
+  export const WheelZoomTool: { new(attributes?: IWheelZoomTool, options?: ModelOpts): WheelZoomTool };
   export interface WheelZoomTool extends Tool, IWheelZoomTool {}
   export interface IWheelZoomTool extends ITool {
     dimensions?: Dimensions;
   }
 
-  export var ZoomInTool: { new(attributes?: IZoomInTool, options?: ModelOpts): ZoomInTool };
+  export const ZoomInTool: { new(attributes?: IZoomInTool, options?: ModelOpts): ZoomInTool };
   export interface ZoomInTool extends Tool, IZoomInTool {}
   export interface IZoomInTool extends ITool {
     factor?: Percent;
     dimensions?: Dimensions;
   }
 
-  export var ZoomOutTool: { new(attributes?: IZoomOutTool, options?: ModelOpts): ZoomOutTool };
+  export const ZoomOutTool: { new(attributes?: IZoomOutTool, options?: ModelOpts): ZoomOutTool };
   export interface ZoomOutTool extends Tool, IZoomOutTool {}
   export interface IZoomOutTool extends ITool {
     factor?: Percent;
     dimensions?: Dimensions;
   }
 
-  export var SaveTool: { new(attributes?: ISaveTool, options?: ModelOpts): SaveTool };
+  export const SaveTool: { new(attributes?: ISaveTool, options?: ModelOpts): SaveTool };
   export interface SaveTool extends Tool, ISaveTool {}
   export interface ISaveTool extends ITool {}
 
-  export var UndoTool: { new(attributes?: IUndoTool, options?: ModelOpts): UndoTool };
+  export const UndoTool: { new(attributes?: IUndoTool, options?: ModelOpts): UndoTool };
   export interface UndoTool extends Tool, IUndoTool {}
   export interface IUndoTool extends ITool {}
 
-  export var RedoTool: { new(attributes?: IRedoTool, options?: ModelOpts): RedoTool };
+  export const RedoTool: { new(attributes?: IRedoTool, options?: ModelOpts): RedoTool };
   export interface RedoTool extends Tool, IRedoTool {}
   export interface IRedoTool extends ITool {}
 
-  export var ResetTool: { new(attributes?: IResetTool, options?: ModelOpts): ResetTool };
+  export const ResetTool: { new(attributes?: IResetTool, options?: ModelOpts): ResetTool };
   export interface ResetTool extends Tool, IResetTool {}
   export interface IResetTool extends ITool {
 
   }
 
-  export var CrosshairTool: { new(attributes?: ICrosshairTool, options?: ModelOpts): CrosshairTool };
+  export const CrosshairTool: { new(attributes?: ICrosshairTool, options?: ModelOpts): CrosshairTool };
   export interface CrosshairTool extends InspectTool, ICrosshairTool {}
   export interface ICrosshairTool extends IInspectTool {
     dimensions?: Dimensions;
@@ -75,28 +75,28 @@ declare namespace Bokeh {
     line_alpha?: number;
   }
 
-  export var BoxZoomTool: { new(attributes?: IBoxZoomTool, options?: ModelOpts): BoxZoomTool };
+  export const BoxZoomTool: { new(attributes?: IBoxZoomTool, options?: ModelOpts): BoxZoomTool };
   export interface BoxZoomTool extends Tool, IBoxZoomTool {}
   export interface IBoxZoomTool extends ITool {}
 
-  export var BoxSelectTool: { new(attributes?: IBoxSelectTool, options?: ModelOpts): BoxSelectTool };
+  export const BoxSelectTool: { new(attributes?: IBoxSelectTool, options?: ModelOpts): BoxSelectTool };
   export interface BoxSelectTool extends SelectTool, IBoxSelectTool {}
   export interface IBoxSelectTool extends ISelectTool {
     select_every_mousemove?: boolean;
     dimensions?: Dimensions;
   }
 
-  export var LassoSelectTool: { new(attributes?: ILassoSelectTool, options?: ModelOpts): LassoSelectTool };
+  export const LassoSelectTool: { new(attributes?: ILassoSelectTool, options?: ModelOpts): LassoSelectTool };
   export interface LassoSelectTool extends SelectTool, ILassoSelectTool {}
   export interface ILassoSelectTool extends ISelectTool {
     select_every_mousemove?: boolean;
   }
 
-  export var PolySelectTool: { new(attributes?: IPolySelectTool, options?: ModelOpts): PolySelectTool };
+  export const PolySelectTool: { new(attributes?: IPolySelectTool, options?: ModelOpts): PolySelectTool };
   export interface PolySelectTool extends SelectTool, IPolySelectTool {}
   export interface IPolySelectTool extends ISelectTool {}
 
-  export var TapTool: { new(attributes?: ITapTool, options?: ModelOpts): TapTool };
+  export const TapTool: { new(attributes?: ITapTool, options?: ModelOpts): TapTool };
   export interface TapTool extends SelectTool, ITapTool {}
   export interface ITapTool extends ISelectTool {
     behavior?: "select" | "inspect";
@@ -116,7 +116,7 @@ declare namespace Bokeh {
   }
 
   export interface HoverCallbackData {
-    index: Array<Int> | Array<Array<Int>>;
+    index: Int[] | Int[][];
     geometry: {
       type: "point" | "span";
       direction?: "h" | "v";
@@ -127,10 +127,10 @@ declare namespace Bokeh {
     };
   }
 
-  export var HoverTool: { new(attributes?: IHoverTool, options?: ModelOpts): HoverTool };
+  export const HoverTool: { new(attributes?: IHoverTool, options?: ModelOpts): HoverTool };
   export interface HoverTool extends InspectTool, IHoverTool {}
   export interface IHoverTool extends IInspectTool, IHitTest {
-    tooltips?: HTMLElement | Array<[string, string]> | ((source: DataSource, info: HoverTooltipInfo) => HTMLElement);
+    tooltips?: HTMLElement | [string, string][] | ((source: DataSource, info: HoverTooltipInfo) => HTMLElement);
     callback?: Callback | ((tool: HoverTool, data: HoverCallbackData) => void);
     mode?: HoverMode;
     point_policy?: PointPolicy;
@@ -140,7 +140,7 @@ declare namespace Bokeh {
     show_arrow?: boolean;
   }
 
-  export var HelpTool: { new(attributes?: IHelpTool, options?: ModelOpts): HelpTool };
+  export const HelpTool: { new(attributes?: IHelpTool, options?: ModelOpts): HelpTool };
   export interface HelpTool extends Tool, IHelpTool {}
   export interface IHelpTool extends ITool {
     help_tooltip?: string;
