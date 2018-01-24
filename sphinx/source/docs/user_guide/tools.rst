@@ -568,10 +568,9 @@ shown below:
 Edit Tools
 ----------
 
-The edit tools provide functionality for editing the data of a
-renderer client-side by adding, moving and deleting glyph data. In
-order for these tools to work the renderer data_source must be a
-``ColumnDataSource``.
+The edit tools provide functionality for drawing and editing glyphs
+client-side by adding, modifying and deleting ``ColumnDataSource``
+data.
 
 All the edit tools share a small number of key bindings:
 
@@ -593,25 +592,31 @@ BoxDrawTool
 The BoxDrawTool allows drawing, dragging and deleting ``Rect`` glyphs
 on one or more renderers by editing the underlying
 ``ColumnDataSource`` data. Like other drawing tools, the renderers
-that are to be edited must be supplied explicitly as a list. The tool
-supports the following actions:
+that are to be edited must be supplied explicitly as a list. When
+drawing a new box the data will always be added to the
+``ColumnDataSource`` on the first supplied renderer.
 
+The tool will automatically modify the columns on the data source
+corresponding to the ``x``, ``y``, ``width`` and ``height`` values of
+the glyph. Any additional columns in the data source will be padded
+with the declared ``empty_value``, when adding a new box.
+
+.. image:: http://bokeh.pydata.org/static/box_draw_keyboard_optimized.gif
+    :alt: Animation showing box draw, select and delete actions
+    :width: 400px
+
+The animation above shows the supported tool actions, highlighting
+mouse actions with a circle around the cursor and key strokes by
+showing the pressed keys. The supported actions include:
 
 * Add box: Click and hold the mouse button down, dragging the mouse
   from the starting point to the end point then release the
-  button. This will define the two opposite corners of the
-  rectangle. The x- and y-coordinates will be
+  button. This will define the two opposite corners of the rectangle.
 
 * Select box: Tap on an existing box. To select multiple hold SHIFT
   key while tapping.
 
-* Move box: Click and hold the mouse button down over an existing box
-  then drag it and release the mouse to complete the action. To move
-  multiple boxes select them and hold SHIFT key while dragging one of
-  them.
-
-* Delete box: Select one or more boxes then press DELETE key to delete
-  them.
+* Delete box: Select one or more boxes then press DELETE key.
 
 .. bokeh-plot:: docs/user_guide/examples/tools_box_draw.py
     :source-position: none
@@ -627,15 +632,28 @@ The PointDrawTool allows adding, dragging and deleting point-like
 glyphs (of ``XYGlyph`` type) on one or more renderers by editing the
 underlying ``ColumnDataSource`` data. Like other drawing tools, the
 renderers that are to be edited must be supplied explicitly as a
-list. The tool supports the following actions:
+list. Any newly added points will be inserted on the
+``ColumnDataSource`` of the first supplied renderer.
+
+The tool will automatically modify the columns on the data source
+corresponding to the ``x`` and ``y`` values of the glyph. Any
+additional columns in the data source will be padded with the declared
+``empty_value``, when adding a new point.
+
+.. image:: http://bokeh.pydata.org/static/point_draw_keyboard_optimized.gif
+    :alt: Animation showing point draw, drag, select and delete actions
+    :width: 400px
+
+The animation above shows the supported tool actions, highlighting
+mouse actions with a circle around the cursor and key strokes by
+showing the pressed keys. The supported actions include:
 
 * Add point: Tap anywhere on the plot.
 
 * Select point: Tap on an existing point. To select multiple hold
   SHIFT key while tapping.
 
-* Delete point: Select one or more points then press DELETE key to
-  delete them.
+* Delete point: Select one or more points then press DELETE key.
 
 * Move point: Click and hold the mouse down point, drag it, then
   release the mouse to complete the action. To move multiple points
@@ -655,21 +673,33 @@ The PolyDrawTool allows drawing, selecting and deleting ``Patches``
 and ``MultiLine`` glyphs on one or more renderers by editing the
 underlying ColumnDataSource data. Like other drawing tools, the
 renderers that are to be edited must be supplied explicitly as a
-list. The tool supports the following actions:
+list.
+
+The tool will automatically modify the columns on the data source
+corresponding to the ``xs`` and ``ys`` values of the glyph. Any
+additional columns in the data source will be padded with the declared
+``empty_value``, when adding a new point.
+
+.. image:: http://bokeh.pydata.org/static/poly_draw_keyboard_optimized.gif
+    :alt: Animation showing polygon draw, select and delete actions
+    :width: 400px
+
+The animation above shows the supported tool actions, highlighting
+mouse actions with a circle around the cursor and key strokes by
+showing the pressed keys. The supported actions include:
 
 * Draw polygon/multi-line: Click and hold the mouse button then drag
   the mouse to a new location and finalize the line by releasing the
-  mouse button. To add further vertices hold the SHIFT key and click
-  and drag to another position.
+  mouse button. To add further vertices hold the SHIFT key and drag
+  the mouse cursor to another position.
 
-* Select polygon/multi-line: Tap on an existing
-  polygon/multi-line. To select multiple hold SHIFT key while
-  tapping.
+* Select polygon/multi-line: Tap on an existing polygon/multi-line. To
+  select multiple hold SHIFT key while tapping.
 
 * Add polygon/multi-line vertices: Select an existing
-  polygon/multi-line, hold SHIFT key, then drag the mouse to a
-  new position, a new vertex will be inserted after the last
-  vertex on the selected polygon/multi-line.
+  polygon/multi-line, hold SHIFT key, then drag the mouse to a new
+  position, a new vertex will be inserted after the last vertex on the
+  selected polygon/multi-line.
 
 * Delete polygon/multi-line: Select one or more polygons/multi-lines
   then press DELETE key to delete them.
@@ -688,8 +718,20 @@ The PolyEditTool allows editing the vertices of one or more
 ``Patches`` or ``MultiLine`` glyphs. The glyphs to be edited can
 be defined via the ``renderers`` property and the renderer for the
 vertices can be defined via the ``vertex_renderer``, which must
-render a point-like Glyph (of ``XYGlyph`` type). The
-PolyEditTool has two modes:
+render a point-like Glyph (of ``XYGlyph`` type).
+
+The tool will automatically modify the columns on the data source
+corresponding to the ``xs`` and ``ys`` values of the glyph. Any
+additional columns in the data source will be padded with the declared
+``empty_value``, when adding a new point.
+
+.. image:: http://bokeh.pydata.org/static/poly_edit_keyboard_optimized.gif
+    :alt: Animation showing polygon and vertex drag, select and delete actions
+    :width: 400px
+
+The animation above shows the supported tool actions, highlighting
+mouse actions with a circle around the cursor and key strokes by
+showing the pressed keys. The PolyEditTool has two editing modes:
 
 1. When a particular line or polygon is selected by double tapping
 it, its vertices will be rendered by the ``vertex_renderer``. In
@@ -708,6 +750,9 @@ new vertices may be inserted:
   mouse to complete the action. To move multiple vertices select
   them and hold SHIFT key while dragging one of them.
 
+* Hide vertices: Double tap anywhere on any blank region of the plot
+  to hide vertices and toggle the other editing mode.
+
 2. While no line or polygon is selected the lines and polygons as
 a whole may be selected, dragged and deleted:
 
@@ -720,8 +765,6 @@ a whole may be selected, dragged and deleted:
 
 * Delete line/polygon: Tap on an existing line/polygon (or select
   them with a different tool) then press backspace to delete them.
-
-To unselect a line or polygon double tap anywhere on the plot.
 
 .. bokeh-plot:: docs/user_guide/examples/tools_poly_edit.py
     :source-position: none
