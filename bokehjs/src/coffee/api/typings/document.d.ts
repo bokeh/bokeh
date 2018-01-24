@@ -1,6 +1,6 @@
 declare namespace Bokeh {
 
-  export var Document: {
+  export const Document: {
     new(attributes?: IDocument): Document
 
     from_json_string(s: string): Document;

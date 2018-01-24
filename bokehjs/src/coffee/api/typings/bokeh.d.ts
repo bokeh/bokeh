@@ -1,7 +1,7 @@
 declare namespace Bokeh {
-  var version: string;
+  const version: string;
 
-  var index: Map<View<LayoutDOM>>;
+  const index: Map<View<LayoutDOM>>;
 
   class LogLevel {
    name: string;
@@ -23,13 +23,13 @@ declare namespace Bokeh {
    error: (...args: any[]) => void;
    fatal: (...args: any[]) => void;
   }
-  var logger: Logger;
+  const logger: Logger;
 
   class Settings {
     dev: boolean;
   }
 
-  var settings: Settings;
+  const settings: Settings;
 
   function sprintf(fmt: string, ...args: any[]): string;
 

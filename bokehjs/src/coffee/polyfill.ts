@@ -22,7 +22,7 @@ if (!String_proto.repeat) {
     if (this == null) {
       throw new TypeError('can\'t convert ' + this + ' to object');
     }
-    var str = '' + this;
+    let str = '' + this;
     count = +count;
     if (count != count) {
       count = 0;
@@ -43,7 +43,7 @@ if (!String_proto.repeat) {
     if (str.length * count >= 1 << 28) {
       throw new RangeError('repeat count must not overflow maximum string size');
     }
-    var rpt = '';
+    let rpt = '';
     for (;;) {
       if ((count & 1) == 1) {
         rpt += str;
@@ -94,7 +94,7 @@ if (!(Array as any).from) {
 
       // 4. If mapfn is undefined, then let mapping be false.
       const mapFn = arguments.length > 1 ? arguments[1] : void undefined;
-      var T;
+      let T;
       if (typeof mapFn !== 'undefined') {
         // 5. else
         // 5. a If IsCallable(mapfn) is false, throw a TypeError exception.
@@ -119,11 +119,10 @@ if (!(Array as any).from) {
       const A = isCallable(C) ? Object(new C(len)) : new Array(len);
 
       // 16. Let k be 0.
-      var k = 0;
+      let k = 0;
       // 17. Repeat, while k < len… (also steps a - h)
-      var kValue;
       while (k < len) {
-        kValue = items[k];
+        const kValue = items[k];
         if (mapFn) {
           A[k] = typeof T === 'undefined' ? mapFn(kValue, k) : mapFn.call(T, kValue, k);
         } else {

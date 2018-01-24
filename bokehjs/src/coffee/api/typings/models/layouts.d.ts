@@ -7,7 +7,7 @@ declare namespace Bokeh {
     sizing_mode?: SizingMode;
   }
 
-  export var Spacer: {
+  export const Spacer: {
     new(attributes?: ISpacer, options?: ModelOpts): Spacer;
   }
   export interface Spacer extends LayoutDOM {}
@@ -18,13 +18,13 @@ declare namespace Bokeh {
     children?: LayoutDOM[];
   }
 
-  export var Row: {
+  export const Row: {
     new(attributes?: IRow, options?: ModelOpts): Row;
   }
   export interface Row extends Box {}
   export interface IRow extends IBox {}
 
-  export var Column: {
+  export const Column: {
     new(attributes?: IColumn, options?: ModelOpts): Column;
   }
   export interface Column extends Box {}

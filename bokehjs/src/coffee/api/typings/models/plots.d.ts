@@ -3,7 +3,7 @@ declare namespace Bokeh {
   plot?: Plot;
  }
 
- export var Plot: { new(attributes?: IPlot, options?: ModelOpts): Plot };
+ export const Plot: { new(attributes?: IPlot, options?: ModelOpts): Plot };
  export interface Plot extends LayoutDOM, IPlot {
   add_renderers(...Renderer: Renderer[]): void;
   add_layout(obj: Model, place?: Place): void;
