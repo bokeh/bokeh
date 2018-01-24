@@ -5,7 +5,7 @@ import {Keys} from "core/dom"
 import {create_1d_hit_test_result} from "core/hittest"
 
 import {Circle, CircleView} from "models/glyphs/circle"
-import {Plot, PlotView} from "models/plots/plot"
+import {Plot} from "models/plots/plot"
 import {Range1d} from "models/ranges/range1d"
 import {GlyphRenderer} from "models/renderers/glyph_renderer"
 import {ColumnDataSource} from "models/sources/column_data_source"
@@ -17,10 +17,7 @@ export interface PointDrawTestCase {
   data: {[key: string]: (number | null)[]}
   data_source: ColumnDataSource
   draw_tool_view: PointDrawToolView
-  glyph: Circle
   glyph_view: CircleView
-  plot: Plot
-  plot_view: PlotView
 }
 
 export interface BkEv {
@@ -81,10 +78,7 @@ const make_testcase = function(): PointDrawTestCase {
     data: data,
     data_source: data_source,
     draw_tool_view: draw_tool_view,
-    glyph: glyph,
-    glyph_view: glyph_renderer_view.glyph,
-    plot: plot,
-    plot_view: plot_view
+    glyph_view: glyph_renderer_view.glyph
   }
 }
 

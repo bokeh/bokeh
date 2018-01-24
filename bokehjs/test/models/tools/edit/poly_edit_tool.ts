@@ -4,237 +4,317 @@ import * as sinon from "sinon"
 import {Keys} from "core/dom"
 import {create_hit_test_result, create_1d_hit_test_result} from "core/hittest"
 
-import {Circle} from "models/glyphs/circle"
-import {Patches} from "models/glyphs/patches"
+import {Circle, CircleView} from "models/glyphs/circle"
+import {Patches, PatchesView} from "models/glyphs/patches"
 import {Plot} from "models/plots/plot"
 import {Range1d} from "models/ranges/range1d"
 import {GlyphRenderer} from "models/renderers/glyph_renderer"
 import {ColumnDataSource} from "models/sources/column_data_source"
-import {PolyEditTool} from "models/tools/edit/poly_edit_tool"
+import {PolyEditTool, PolyEditToolView} from "models/tools/edit/poly_edit_tool"
 
 const utils = require("../../../utils")
 
+export interface PolyEditTestCase {
+  data: {[key: string]: (number[] | null)[]}
+  data_source: ColumnDataSource
+  draw_tool_view: PolyEditToolView
+  glyph_view: PatchesView
+  glyph_renderer: GlyphRenderer
+  vertex_glyph_view: CircleView
+  vertex_source: ColumnDataSource
+  vertex_renderer: GlyphRenderer
+}
+
+export interface BkEv {
+  bokeh: {
+    sx: number
+    sy: number
+  }
+  srcEvent: {
+    shiftKey?: boolean
+  }
+  keyCode: number
+  shiftKey: boolean
+}
+
+const make_testcase = function(): PolyEditTestCase {
+  // Note default plot dimensions is 600 x 600 (height x width)
+  const plot = new Plot({
+    x_range: new Range1d({start: -1, end: 1}),
+    y_range: new Range1d({start: -1, end: 1})
+  });
+
+  const plot_view: any = new plot.default_view({model: plot, parent: null});
+  plot_view.layout();
+
+  const plot_canvas_view = plot_view.plot_canvas_view;
+
+  const data = {
+    xs: [[0, 0.5, 1], [0, 0.5, 1]],
+    ys: [[0, -0.5, -1], [0, -0.5, -1]],
+    z: [null, null]
+  };
+  const data_source = new ColumnDataSource({data: data});
+  const vertex_source = new ColumnDataSource({data: {x: [], y: []}});
+
+  const vertex_glyph = new Circle({
+    x: {field: "x"},
+    y: {field: "y"}
+  });
+  const glyph = new Patches({
+    xs: {field: "xs"},
+    ys: {field: "ys"},
+  });
+
+  const vertex_renderer = new GlyphRenderer({
+    glyph: vertex_glyph,
+    data_source: vertex_source
+  });
+
+  const glyph_renderer = new GlyphRenderer({
+    glyph: glyph,
+    data_source: data_source
+  });
+
+  // Untyped to access GlyphView
+  const glyph_renderer_view: any = new glyph_renderer.default_view({
+    model: glyph_renderer,
+    plot_view: plot_canvas_view,
+    parent: plot_canvas_view
+  });
+  sinon.stub(glyph_renderer_view, "set_data");
+
+  // Untyped to access GlyphView
+  const vertex_renderer_view: any = new vertex_renderer.default_view({
+    model: vertex_renderer,
+    plot_view: plot_canvas_view,
+    parent: plot_canvas_view
+  });
+
+
+  const draw_tool = new PolyEditTool({
+    active: true,
+    empty_value: "Test",
+    renderers: [glyph_renderer],
+    vertex_renderer: vertex_renderer
+  });
+  plot.add_tools(draw_tool);
+  const draw_tool_view = plot_canvas_view.tool_views[draw_tool.id];
+  plot_canvas_view.renderer_views[glyph_renderer.id] = glyph_renderer_view;
+  plot_canvas_view.renderer_views[vertex_renderer.id] = vertex_renderer_view;
+
+  return {
+    data: data,
+    data_source: data_source,
+    draw_tool_view: draw_tool_view,
+    glyph_view: glyph_renderer_view.glyph,
+    glyph_renderer: glyph_renderer,
+    vertex_glyph_view: vertex_renderer_view.glyph,
+    vertex_source: vertex_source,
+    vertex_renderer: vertex_renderer
+  }
+}
+
+const make_event = function(sx: number, sy: number, shift: boolean = false, keyCode: number = 0): BkEv {
+  return {"bokeh": {sx: sx, sy: sy}, "srcEvent": {shiftKey: shift}, keyCode: keyCode, shiftKey: shift}
+}
 
 describe("PolyEditTool", (): void => {
 
   describe("View", function(): void {
 
-    afterEach(() => utils.unstub_canvas());
+    afterEach(function(): void {
+      utils.unstub_canvas();
+    });
 
     beforeEach(function(): void {
       utils.stub_canvas();
-
-      // Note default plot dimensions is 600 x 600 (height x width)
-      this.plot = new Plot({
-         x_range: new Range1d({start: -1, end: 1}),
-         y_range: new Range1d({start: -1, end: 1})
-      });
-
-      this.plot_view = new this.plot.default_view({model: this.plot, parent: null});
-      this.plot_view.layout();
-
-      this.plot_canvas_view = this.plot_view.plot_canvas_view;
-
-      this.data = {
-        xs: [[0, 0.5, 1], [0, 0.5, 1]],
-        ys: [[0, -0.5, -1], [0, -0.5, -1]],
-        z: [null, null]
-      };
-      this.data_source = new ColumnDataSource({data: this.data});
-      this.vertex_source = new ColumnDataSource({data: {x: [], y: []}});
-
-      this.vertex_glyph = new Circle({
-        x: {field: "x"},
-        y: {field: "y"}
-      });
-      this.glyph = new Patches({
-        xs: {field: "xs"},
-        ys: {field: "ys"},
-      });
-
-      this.vertex_renderer = new GlyphRenderer({
-        glyph: this.vertex_glyph,
-        data_source: this.vertex_source
-      });
-
-      this.glyph_renderer = new GlyphRenderer({
-        glyph: this.glyph,
-        data_source: this.data_source
-      });
-
-      this.glyph_renderer_view = new this.glyph_renderer.default_view({
-        model: this.glyph_renderer,
-        plot_view: this.plot_canvas_view,
-        parent: this.plot_canvas_view
-      });
-
-      this.vertex_renderer_view = new this.vertex_renderer.default_view({
-        model: this.vertex_renderer,
-        plot_view: this.plot_canvas_view,
-        parent: this.plot_canvas_view
-      });
-
-      this.hit_test_stub = sinon.stub(this.glyph_renderer_view.glyph, "hit_test");
-      this.vertex_hit_test_stub = sinon.stub(this.vertex_renderer_view.glyph, "hit_test");
-
-      const draw_tool = new PolyEditTool({
-        active: true,
-        empty_value: "Test",
-        renderers: [this.glyph_renderer],
-        vertex_renderer: this.vertex_renderer
-      });
-      this.plot.add_tools(draw_tool);
-      this.draw_tool_view = this.plot_canvas_view.tool_views[draw_tool.id];
-      this.plot_canvas_view.renderer_views[this.glyph_renderer.id] = this.glyph_renderer_view;
-      this.plot_canvas_view.renderer_views[this.vertex_renderer.id] = this.vertex_renderer_view;
     });
 
     it("should select patches on tap", function(): void {
-      this.hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
-      this.vertex_hit_test_stub.returns(null);
+      const testcase = make_testcase();
+      const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test");
+      const vertex_hit_test_stub = sinon.stub(testcase.vertex_glyph_view, "hit_test");
 
-      const tap_event = {"bokeh": {sx: 300, sy: 300}, "srcEvent": {shiftKey: false}};
-      this.draw_tool_view._tap(tap_event);
+      hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
+      vertex_hit_test_stub.returns(null);
 
-      expect(this.data_source.selected['1d'].indices).to.be.deep.equal([1]);
+      const tap_event = make_event(300, 300);
+      testcase.draw_tool_view._tap(tap_event);
+
+      expect(testcase.data_source.selected['1d'].indices).to.be.deep.equal([1]);
     });
 
     it("should drag selected patch on pan", function(): void {
-      this.hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
-      this.vertex_hit_test_stub.returns(null);
-      const start_event = {"bokeh": {sx: 300, sy: 300}, "srcEvent": {shiftKey: false}};
-      this.draw_tool_view._pan_start(start_event)
-      const pan_event = {"bokeh": {sx: 290, sy: 290}, "srcEvent": {shiftKey: false}};
-      this.draw_tool_view._pan(pan_event)
-      this.draw_tool_view._pan_end(pan_event)
+      const testcase = make_testcase();
+      const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test");
+      const vertex_hit_test_stub = sinon.stub(testcase.vertex_glyph_view, "hit_test");
+
+      hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
+      vertex_hit_test_stub.returns(null);
+      const start_event = make_event(300, 300);
+      testcase.draw_tool_view._pan_start(start_event)
+      const pan_event = make_event(290, 290);
+      testcase.draw_tool_view._pan(pan_event)
+      testcase.draw_tool_view._pan_end(pan_event)
 
       const xdata = [[0, 0.5, 1], [-0.035398230088495575, 0.4646017699115044, 0.9646017699115044]];
       const ydata = [[0, -0.5, -1], [0.03389830508474576, -0.4661016949152542, -0.9661016949152542]];
-      expect(this.data_source.data['xs']).to.be.deep.equal(xdata);
-      expect(this.data_source.data['ys']).to.be.deep.equal(ydata);
+      expect(testcase.data_source.data['xs']).to.be.deep.equal(xdata);
+      expect(testcase.data_source.data['ys']).to.be.deep.equal(ydata);
     });
 
     it("should select multiple patches on shift-tap", function() {
-      this.vertex_hit_test_stub.returns(null);
-      this.hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
-      let tap_event = {"bokeh": {sx: 300, sy: 300}, "srcEvent": {shiftKey: false}};
-      this.draw_tool_view._tap(tap_event);
-      this.hit_test_stub.returns(create_1d_hit_test_result([[0, 0]]));
-      tap_event = {"bokeh": {sx: 560, sy: 560}, "srcEvent": {shiftKey: true}};
-      this.draw_tool_view._tap(tap_event);
+      const testcase = make_testcase();
+      const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test");
+      const vertex_hit_test_stub = sinon.stub(testcase.vertex_glyph_view, "hit_test");
 
-      expect(this.data_source.selected['1d'].indices).to.be.deep.equal([1, 0]);
+      vertex_hit_test_stub.returns(null);
+      hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
+      let tap_event = make_event(300, 300);
+      testcase.draw_tool_view._tap(tap_event);
+      hit_test_stub.returns(create_1d_hit_test_result([[0, 0]]));
+      tap_event = make_event(560, 560, true);
+      testcase.draw_tool_view._tap(tap_event);
+
+      expect(testcase.data_source.selected['1d'].indices).to.be.deep.equal([1, 0]);
     });
 
     it("should delete selected patch on delete key", function(): void {
-      sinon.stub(this.glyph_renderer_view, "set_data");
-      this.hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
-      this.vertex_hit_test_stub.returns(null);
-      const tap_event = {"bokeh": {sx: 300, sy: 300}, "srcEvent": {shiftKey: false}};
-      this.draw_tool_view._tap(tap_event);
+      const testcase = make_testcase();
+      const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test");
+      const vertex_hit_test_stub = sinon.stub(testcase.vertex_glyph_view, "hit_test");
 
-      const keyup_event = {keyCode: Keys.Delete};
-      this.draw_tool_view._keyup(keyup_event);
+      hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
+      vertex_hit_test_stub.returns(null);
+      const tap_event = make_event(300, 300);
+      testcase.draw_tool_view._tap(tap_event);
 
-      expect(this.data_source.selected['1d'].indices).to.be.deep.equal([]);
-      expect(this.data_source.data.xs).to.be.deep.equal([[0, 0.5, 1]]);
-      expect(this.data_source.data.ys).to.be.deep.equal([[0, -0.5, -1]]);
-      expect(this.data_source.data['z']).to.be.deep.equal([null]);
+      const keyup_event = make_event(300, 300, false, Keys.Delete);
+      testcase.draw_tool_view._keyup(keyup_event);
+
+      expect(testcase.data_source.selected['1d'].indices).to.be.deep.equal([]);
+      expect(testcase.data_source.data.xs).to.be.deep.equal([[0, 0.5, 1]]);
+      expect(testcase.data_source.data.ys).to.be.deep.equal([[0, -0.5, -1]]);
+      expect(testcase.data_source.data['z']).to.be.deep.equal([null]);
     });
 
     it("should clear selection on escape key", function(): void {
-      this.vertex_hit_test_stub.returns(null);
-      this.hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
-      const tap_event = {"bokeh": {sx: 300, sy: 300}, "srcEvent": {shiftKey: false}};
-      this.draw_tool_view._tap(tap_event);
+      const testcase = make_testcase();
+      const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test");
+      const vertex_hit_test_stub = sinon.stub(testcase.vertex_glyph_view, "hit_test");
 
-      const keyup_event = {keyCode: Keys.Esc};
-      this.draw_tool_view._keyup(keyup_event);
+      vertex_hit_test_stub.returns(null);
+      hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
+      const tap_event = make_event(300, 300);
+      testcase.draw_tool_view._tap(tap_event);
 
-      expect(this.data_source.selected['1d'].indices).to.be.deep.equal([]);
-      expect(this.data_source.data).to.be.deep.equal(this.data);
+      const keyup_event = make_event(300, 300, false, Keys.Esc);
+      testcase.draw_tool_view._keyup(keyup_event);
+
+      expect(testcase.data_source.selected['1d'].indices).to.be.deep.equal([]);
+      expect(testcase.data_source.data).to.be.deep.equal(testcase.data);
     });
 
     it("should show vertices on doubletap", function(): void {
-      this.hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
-      const tap_event = {"bokeh": {sx: 300, sy: 300}, "srcEvent": {shiftKey: false}};
-      this.draw_tool_view._doubletap(tap_event);
+      const testcase = make_testcase();
+      const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test");
+      sinon.stub(testcase.vertex_glyph_view, "hit_test");
 
-      expect(this.vertex_source.data.x).to.be.deep.equal(this.data.xs[1])
-      expect(this.vertex_source.data.y).to.be.deep.equal(this.data.ys[1])
-      expect(this.draw_tool_view._selected_renderer, this.glyph_renderer)
+      hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
+      const tap_event = make_event(300, 300);
+      testcase.draw_tool_view._doubletap(tap_event);
+
+      expect(testcase.vertex_source.data.x).to.be.deep.equal(testcase.data.xs[1]);
+      expect(testcase.vertex_source.data.y).to.be.deep.equal(testcase.data.ys[1]);
+      expect(testcase.draw_tool_view._selected_renderer).to.be.equal(testcase.glyph_renderer);
     });
 
     it("should select vertex on tap", function(): void {
-      this.hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
-      const tap_event = {"bokeh": {sx: 300, sy: 300}, "srcEvent": {shiftKey: false}};
-      this.draw_tool_view._doubletap(tap_event);
+      const testcase = make_testcase();
+      const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test");
+      const vertex_hit_test_stub = sinon.stub(testcase.vertex_glyph_view, "hit_test");
+
+      hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
+      const tap_event = make_event(300, 300);
+      testcase.draw_tool_view._doubletap(tap_event);
       // Have to call CDSView.compute_indices manually for testing
-      this.vertex_renderer.view.compute_indices();
-      this.vertex_hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
-      this.draw_tool_view._tap(tap_event);
-      expect(this.vertex_source.selected['1d'].indices).to.be.deep.equal([1]);
+      testcase.vertex_renderer.view.compute_indices();
+      vertex_hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
+      testcase.draw_tool_view._tap(tap_event);
+      expect(testcase.vertex_source.selected['1d'].indices).to.be.deep.equal([1]);
     });
 
     it("should delete selected vertex on tap", function(): void {
-      this.hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
-      const tap_event = {"bokeh": {sx: 300, sy: 300}, "srcEvent": {shiftKey: false}};
-      this.draw_tool_view._doubletap(tap_event);
+      const testcase = make_testcase();
+      const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test");
+      const vertex_hit_test_stub = sinon.stub(testcase.vertex_glyph_view, "hit_test");
+
+      hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
+      const tap_event = make_event(300, 300);
+      testcase.draw_tool_view._doubletap(tap_event);
       // Have to call CDSView.compute_indices manually for testing
-      this.vertex_renderer.view.compute_indices();
+      testcase.vertex_renderer.view.compute_indices();
 
-      this.vertex_hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
-      this.draw_tool_view._tap(tap_event);
+      vertex_hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
+      testcase.draw_tool_view._tap(tap_event);
 
-      const keyup_event = {keyCode: Keys.Delete};
-      this.draw_tool_view._keyup(keyup_event);
+      const keyup_event = make_event(300, 300, false, Keys.Delete);
+      testcase.draw_tool_view._keyup(keyup_event);
 
-      expect(this.vertex_source.selected['1d'].indices).to.be.deep.equal([]);
-      expect(this.vertex_source.data.x).to.be.deep.equal([0, 1]);
-      expect(this.vertex_source.data.y).to.be.deep.equal([0, -1]);
-      expect(this.data_source.data.xs).to.be.deep.equal([[0, 0.5, 1], [0, 1]]);
-      expect(this.data_source.data.ys).to.be.deep.equal([[0, -0.5, -1], [0, -1]]);
-      expect(this.data_source.data.z).to.be.deep.equal([null, null]);
+      expect(testcase.vertex_source.selected['1d'].indices).to.be.deep.equal([]);
+      expect(testcase.vertex_source.data.x).to.be.deep.equal([0, 1]);
+      expect(testcase.vertex_source.data.y).to.be.deep.equal([0, -1]);
+      expect(testcase.data_source.data.xs).to.be.deep.equal([[0, 0.5, 1], [0, 1]]);
+      expect(testcase.data_source.data.ys).to.be.deep.equal([[0, -0.5, -1], [0, -1]]);
+      expect(testcase.data_source.data.z).to.be.deep.equal([null, null]);
     });
 
     it("should drag vertex on pan", function(): void {
-      this.hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
-      this.hit_test_stub.returns
-      const tap_event = {"bokeh": {sx: 300, sy: 300}, "srcEvent": {shiftKey: false}};
-      this.draw_tool_view._doubletap(tap_event);
-      // Have to call CDSView.compute_indices manually for testing
-      this.vertex_renderer.view.compute_indices();
-      this.vertex_hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
-      this.draw_tool_view._pan_start(tap_event);
-      const pan_event = {"bokeh": {sx: 290, sy: 290}, "srcEvent": {shiftKey: false}};
-      this.draw_tool_view._pan(pan_event);
-      this.draw_tool_view._pan_end(pan_event);
+      const testcase = make_testcase();
+      const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test");
+      const vertex_hit_test_stub = sinon.stub(testcase.vertex_glyph_view, "hit_test");
 
-      expect(this.vertex_source.selected['1d'].indices).to.be.deep.equal([]);
-      expect(this.vertex_source.data.x).to.be.deep.equal([0, 0.4646017699115044, 1]);
-      expect(this.vertex_source.data.y).to.be.deep.equal([0, -0.4661016949152542, -1]);
-      expect(this.data_source.data.xs).to.be.deep.equal([[0, 0.5, 1], [0, 0.4646017699115044, 1]]);
-      expect(this.data_source.data.ys).to.be.deep.equal([[0, -0.5, -1], [0, -0.4661016949152542, -1]]);
-      expect(this.data_source.data.z).to.be.deep.equal([null, null]);
+      hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
+      const tap_event = make_event(300, 300);
+      testcase.draw_tool_view._doubletap(tap_event);
+      // Have to call CDSView.compute_indices manually for testing
+      testcase.vertex_renderer.view.compute_indices();
+      vertex_hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
+      testcase.draw_tool_view._pan_start(tap_event);
+      const pan_event = make_event(290, 290);
+      testcase.draw_tool_view._pan(pan_event);
+      testcase.draw_tool_view._pan_end(pan_event);
+
+      expect(testcase.vertex_source.selected['1d'].indices).to.be.deep.equal([]);
+      expect(testcase.vertex_source.data.x).to.be.deep.equal([0, 0.4646017699115044, 1]);
+      expect(testcase.vertex_source.data.y).to.be.deep.equal([0, -0.4661016949152542, -1]);
+      expect(testcase.data_source.data.xs).to.be.deep.equal([[0, 0.5, 1], [0, 0.4646017699115044, 1]]);
+      expect(testcase.data_source.data.ys).to.be.deep.equal([[0, -0.5, -1], [0, -0.4661016949152542, -1]]);
+      expect(testcase.data_source.data.z).to.be.deep.equal([null, null]);
     });
 
     it("should add vertex after selected vertex on tap", function(): void {
-      this.hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
-      const tap_event = {"bokeh": {sx: 300, sy: 300}, "srcEvent": {shiftKey: false}};
-      this.draw_tool_view._doubletap(tap_event);
-      // Have to call CDSView.compute_indices manually for testing
-      this.vertex_renderer.view.compute_indices();
-      this.vertex_hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
-      this.draw_tool_view._tap(tap_event);
-      this.vertex_hit_test_stub.returns(create_hit_test_result());
-      this.draw_tool_view._tap(tap_event);
+      const testcase = make_testcase();
+      const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test");
+      const vertex_hit_test_stub = sinon.stub(testcase.vertex_glyph_view, "hit_test");
 
-      expect(this.vertex_source.selected['1d'].indices).to.be.deep.equal([2]);
-      expect(this.vertex_source.data.x).to.be.deep.equal([0, 0.5, 0.04424778761061947, 1]);
-      expect(this.vertex_source.data.y).to.be.deep.equal([0, -0.5, -0, -1]);
-      expect(this.data_source.data.xs).to.be.deep.equal([[0, 0.5, 1], [0, 0.5, 0.04424778761061947, 1]]);
-      expect(this.data_source.data.ys).to.be.deep.equal([[0, -0.5, -1], [0, -0.5, -0, -1]]);
-      expect(this.data_source.data.z).to.be.deep.equal([null, null]);
+      hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
+      const tap_event = make_event(300, 300);
+      testcase.draw_tool_view._doubletap(tap_event);
+      // Have to call CDSView.compute_indices manually for testing
+      testcase.vertex_renderer.view.compute_indices();
+      vertex_hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
+      testcase.draw_tool_view._tap(tap_event);
+      vertex_hit_test_stub.returns(create_hit_test_result());
+      testcase.draw_tool_view._tap(tap_event);
+
+      expect(testcase.vertex_source.selected['1d'].indices).to.be.deep.equal([2]);
+      expect(testcase.vertex_source.data.x).to.be.deep.equal([0, 0.5, 0.04424778761061947, 1]);
+      expect(testcase.vertex_source.data.y).to.be.deep.equal([0, -0.5, -0, -1]);
+      expect(testcase.data_source.data.xs).to.be.deep.equal([[0, 0.5, 1], [0, 0.5, 0.04424778761061947, 1]]);
+      expect(testcase.data_source.data.ys).to.be.deep.equal([[0, -0.5, -1], [0, -0.5, -0, -1]]);
+      expect(testcase.data_source.data.z).to.be.deep.equal([null, null]);
     });
   })
 });
