@@ -25,6 +25,7 @@
     ],
     "no-construct": true,
     "no-var-keyword": true,
-    "no-string-throw": true
+    "no-string-throw": true,
+    "no-invalid-template-strings": true
   }
 }
