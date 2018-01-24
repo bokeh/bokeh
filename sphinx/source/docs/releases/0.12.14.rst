@@ -52,17 +52,6 @@ ranges.
 The old behavior may be restored by setting enabling the `snap_to_zoom`
 property.
 
-Slider CSS Prefixing
-~~~~~~~~~~~~~~~~~~~~
-
-Bokeh uses `noUiSlider`_ to implement its slider widgets. Previously the
-CSS selectors for the noUiSlider components were prefixed with `bk-`.
-For example, `bk-noUi-tooltip`. Due to changes in revent versions of the
-noUiSlider package, this prefixing has been removed. Now to apply styling
-to sliders, use the standard (unprefixed) noUiSlider CSS selectors.
-
-This change affects only users applying custom styles to slider CSS.
-
 Defining views' CSS classes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -88,5 +77,5 @@ This was nearly never used and so it was removed. The preferred way to configure
 values of attributes is to use bokehjs' properties system. This change affects
 only creators of custom extensions.
 
-.. _noUiSlider: https://refreshless.com/nouislider/
+
 .. _project roadmap: https://bokehplots.com/pages/roadmap.html
