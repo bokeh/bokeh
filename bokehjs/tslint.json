@@ -24,6 +24,7 @@
       ["Array<.*>", "Use 'T[]' instead."]
     ],
     "no-construct": true,
-    "no-var-keyword": true
+    "no-var-keyword": true,
+    "no-string-throw": true
   }
 }
