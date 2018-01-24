@@ -16,7 +16,7 @@ const _us = t =>
   // microsecond / millisecond tick.
   Math.round(((t / 1000) % 1) * 1000000)
 
-const _array = t => tz(t, "%Y %m %d %H %M %S").split(/\s+/).map( e => parseInt(e, 10));
+const _array = t => tz(t, "%Y %m %d %H %M %S").split(/\s+/).map(e => parseInt(e, 10));
 
 const _strftime = function(t, format) {
   if (isFunction(format)) {

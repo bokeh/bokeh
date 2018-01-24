@@ -84,7 +84,7 @@ export class GMapPlotCanvasView extends PlotCanvasView {
 
         // Check we haven't gone out of bounds, and if we have undo the zoom
         const [proj_xstart, proj_xend,,] = this._get_projected_bounds();
-        if (( proj_xend - proj_xstart ) < 0) {
+        if ((proj_xend - proj_xstart) < 0) {
           this.map.setZoom(old_map_zoom);
         }
       }

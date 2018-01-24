@@ -326,7 +326,7 @@ export abstract class HasProps extends Signalable() {
       return value.ref()
     else if (isArray(value)) {
       const ref_array: any[] = []
-      for (let i = 0; i < value.length; i++ ) {
+      for (let i = 0; i < value.length; i++) {
         const v = value[i]
         ref_array.push(HasProps._value_to_json(i.toString(), v, value))
       }
