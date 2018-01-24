@@ -36,7 +36,9 @@ export class PolyDrawToolView extends EditToolView {
       if (e.keyCode === Keys.Delete) {
         this._delete_selected(renderer);
       } else if (e.keyCode == Keys.Esc) {
-        renderer.data_source.selection_manager.clear();
+        // Type once selection_manager is typed
+        const cds: any = renderer.data_source;
+        cds.selection_manager.clear();
       }
     }
   }
@@ -50,14 +52,16 @@ export class PolyDrawToolView extends EditToolView {
     const [x, y] = point;
     const append = e.srcEvent.shiftKey != null ? e.srcEvent.shiftKey : false;
     const ds = renderer.data_source;
-    const glyph = renderer.glyph;
+    // Type once dataspecs are typed
+    const glyph: any = renderer.glyph;
     const [xkey, ykey] = [glyph.xs.field, glyph.ys.field];
+    if (!xkey && !ykey) { return; }
     const indices = ds.selected['1d'].indices;
     let count;
     if (indices.length) {
       count = indices[0];
     } else {
-      count = ds.data[xkey].length-1;
+      count = xkey ? ds.data[xkey].length-1 : ds.data[xkey].length-1;
     }
     if (append && (count >= 0)) {
       if (xkey) { ds.data[xkey][count].push(x); }
@@ -80,14 +84,15 @@ export class PolyDrawToolView extends EditToolView {
 
     const [x, y] = point;
     const ds = renderer.data_source;
-    const glyph = renderer.glyph;
+    // Type once dataspecs are typed
+    const glyph: any = renderer.glyph;
     const [xkey, ykey] = [glyph.xs.field, glyph.ys.field];
     const indices = ds.selected['1d'].indices;
     let count;
     if (indices.length>0) {
       count = indices[0];
     } else {
-      count = ds.data[xkey].length-1;
+      count = xkey ? ds.data[xkey].length-1 : ds.data[xkey].length-1;
     }
     if (xkey) {
       const xs = ds.data[xkey][count];

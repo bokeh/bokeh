@@ -39,7 +39,9 @@ export class BoxDrawToolView extends EditToolView {
       if (e.keyCode === Keys.Delete) {
         this._delete_selected(renderer);
       } else if (e.keyCode == Keys.Esc) {
-        renderer.data_source.selection_manager.clear();
+        // Type properly once selection_manager is typed
+        const cds: any = renderer.data_source;
+        cds.selection_manager.clear();
       }
     }
   }
@@ -48,7 +50,8 @@ export class BoxDrawToolView extends EditToolView {
               append: boolean, emit: boolean = false): void {
     const renderer = this.model.renderers[0];
     const frame = this.plot_model.frame;
-    const glyph = renderer.glyph;
+    // Type once dataspecs are typed
+    const glyph: any = renderer.glyph;
     const ds = renderer.data_source;
     const xscale = frame.xscales[renderer.x_range_name];
     const yscale = frame.yscales[renderer.y_range_name];

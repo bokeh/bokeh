@@ -41,11 +41,12 @@ export class PolyEditToolView extends EditToolView {
     // If we did not hit an existing line, clear node CDS
     const vertex_renderer = this.model.vertex_renderer;
     const point_ds = vertex_renderer.data_source;
-    const point_glyph = vertex_renderer.glyph;
+    // Type once dataspecs are typed
+    const point_glyph: any = vertex_renderer.glyph;
     const [pxkey, pykey] = [point_glyph.x.field, point_glyph.y.field];
     if (!renderers.length) {
-      point_ds.data[pxkey] = [];
-      point_ds.data[pykey] = [];
+      if (pxkey) { point_ds.data[pxkey] = []; }
+      if (pykey) { point_ds.data[pykey] = []; }
       this._selected_renderer = null;
       point_ds.change.emit(undefined);
       return;
@@ -54,22 +55,31 @@ export class PolyEditToolView extends EditToolView {
     // Otherwise copy selected line array to node CDS
     // (Note: can only edit one at a time)
     const renderer = renderers[0];
-    const glyph = renderer.glyph;
+    // Type once dataspecs are typed
+    const glyph: any = renderer.glyph;
     const ds = renderer.data_source;
     const index = ds.selected['1d'].indices[0];
     const [xkey, ykey] = [glyph.xs.field, glyph.ys.field];
-    let xs = ds.data[xkey][index];
-    let ys = ds.data[ykey][index];
-    // Convert typed arrays to regular arrays for editing
-    if ((xs.concat == null)) {
-      ds.data[xkey][index] = (xs = Array.prototype.slice.call(xs));
+    if (xkey) {
+      let xs = ds.data[xkey][index];
+      if ((xs.concat == null)) {
+        ds.data[xkey][index] = (xs = Array.prototype.slice.call(xs));
+      }
+      if (pxkey) { point_ds.data[pxkey] = xs; }
+    } else {
+      point_glyph.x = {value: glyph.xs.value};
     }
-    if ((ys.concat == null)) {
-      ds.data[ykey][index] = (ys = Array.prototype.slice.call(ys));
+    if (ykey) {
+      let ys = ds.data[ykey][index];
+      // Convert typed arrays to regular arrays for editing
+      if ((ys.concat == null)) {
+        ds.data[ykey][index] = (ys = Array.prototype.slice.call(ys));
+      }
+      if (pykey) { point_ds.data[pykey] = ys; }
+    } else {
+      point_glyph.y = {value: glyph.ys.value};
     }
     point_ds.selected['1d'].indices = [];
-    point_ds.data[pxkey] = xs;
-    point_ds.data[pykey] = ys;
     this.model.active = true;
     this._selected_renderer = renderer;
     point_ds.change.emit(undefined);
@@ -83,6 +93,8 @@ export class PolyEditToolView extends EditToolView {
       return;
     }
     const ds = renderer.data_source;
+    // Type once dataspecs are typed
+    const glyph: any = renderer.glyph;
     const append = e.srcEvent.shiftKey != null ? e.srcEvent.shiftKey : false;
     const indices = ds.selected['1d'].indices.slice(0);
     this._select_event(e, append, [renderer]);
@@ -95,11 +107,11 @@ export class PolyEditToolView extends EditToolView {
 
     // Insert a new point after the selected vertex
     const [x, y] = point;
-    const [xkey, ykey] = [renderer.glyph.x.field, renderer.glyph.y.field];
+    const [xkey, ykey] = [glyph.x.field, glyph.y.field];
     const index = indices[0]+1;
     ds.selected['1d'].indices = [index];
-    ds.data[xkey].splice(index, 0, x);
-    ds.data[ykey].splice(index, 0, y);
+    if (xkey) { ds.data[xkey].splice(index, 0, x); }
+    if (ykey) { ds.data[ykey].splice(index, 0, y); }
     ds.change.emit(undefined);
     this._selected_renderer.data_source.properties.data.change.emit(undefined);
   }
@@ -125,17 +137,25 @@ export class PolyEditToolView extends EditToolView {
         }
 
         const ds = renderer.data_source;
-        const glyph = renderer.glyph;
+        // Type once dataspecs are typed
+        const glyph: any = renderer.glyph;
         const [xkey, ykey] = [glyph.xs.field, glyph.ys.field];
+        if (!xkey && !ykey) { continue; }
         const [x, y] = point;
         const [px, py] = basepoint;
         const [dx, dy] = [x-px, y-py];
         for (const index of ds.selected['1d'].indices) {
-          const xs = ds.data[xkey][index];
-          const ys = ds.data[ykey][index];
-          for (let i = 0; i < ys.length; i++) {
-            xs[i] += dx;
-            ys[i] += dy;
+          let length, xs, ys;
+          if (xkey) { xs = ds.data[xkey][index]; }
+          if (ykey) {
+            ys = ds.data[ykey][index];
+            length = ys.length;
+          } else {
+            length = xs.length;
+          }
+          for (let i = 0; i < length; i++) {
+            if (xs) { xs[i] += dx; }
+            if (ys) { ys[i] += dy; }
           }
         }
         ds.change.emit(undefined);
@@ -155,14 +175,15 @@ export class PolyEditToolView extends EditToolView {
     }
 
     // If a vertex is selected compute and apply the drag offset
-    const glyph = vertex_renderer.glyph;
+    // Type once dataspecs are typed
+    const glyph: any = vertex_renderer.glyph;
     const [x, y] = point;
     const [px, py] = basepoint;
     const [dx, dy] = [x-px, y-py];
     const [xkey, ykey] = [glyph.x.field, glyph.y.field];
     for (const index of ds.selected['1d'].indices) {
-      ds.data[xkey][index] += dx;
-      ds.data[ykey][index] += dy;
+      if (xkey) { ds.data[xkey][index] += dx; }
+      if (ykey) { ds.data[ykey][index] += dy; }
     }
     ds.change.emit(undefined);
     this._selected_renderer.data_source.change.emit(undefined);
@@ -194,7 +215,9 @@ export class PolyEditToolView extends EditToolView {
       if (e.keyCode === Keys.Delete) {
         this._delete_selected(renderer);
       } else if (e.keyCode == Keys.Esc) {
-        renderer.data_source.selection_manager.clear();
+        // Type once selection_manager is typed
+        const cds: any = renderer.data_source;
+        cds.selection_manager.clear();
       }
     }
   }
@@ -202,10 +225,11 @@ export class PolyEditToolView extends EditToolView {
   deactivate(): void {
     const renderer = this.model.vertex_renderer;
     const ds = renderer.data_source;
-    const glyph = renderer.glyph;
+    // Type once dataspecs are typed
+    const glyph: any = renderer.glyph;
     const [xkey, ykey] = [glyph.x.field, glyph.y.field];
-    ds.data[xkey] = [];
-    ds.data[ykey] = [];
+    if (xkey) { ds.data[xkey] = []; }
+    if (ykey) { ds.data[ykey] = []; }
     ds.change.emit(undefined);
     ds.properties.data.change.emit(undefined);
     this._selected_renderer = null;

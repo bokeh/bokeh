@@ -38,7 +38,8 @@ export class PointDrawToolView extends EditToolView {
     if (point == null) {
       return;
     }
-    const glyph = renderer.glyph
+    // Type once dataspecs are typed
+    const glyph: any = renderer.glyph
     const ds = renderer.data_source;
     const [xkey, ykey] = [glyph.x.field, glyph.y.field];
     const [x, y] = point;
@@ -69,7 +70,9 @@ export class PointDrawToolView extends EditToolView {
       if (e.keyCode === Keys.Delete) {
         this._delete_selected(renderer);
       } else if (e.keyCode == Keys.Esc) {
-        renderer.data_source.selection_manager.clear();
+        // Type once selection_manager is typed
+        const cds: any = renderer.data_source;
+        cds.selection_manager.clear();
       }
     }
   }
@@ -98,7 +101,8 @@ export class PointDrawToolView extends EditToolView {
       const [x, y] = point;
       const [px, py] = basepoint;
       const [dx, dy] = [x-px, y-py];
-      const glyph = renderer.glyph;
+      // Type once dataspecs are typed
+      const glyph: any = renderer.glyph;
       const ds = renderer.data_source;
       const [xkey, ykey] = [glyph.x.field, glyph.y.field];
       for (const index of ds.selected['1d'].indices) {
