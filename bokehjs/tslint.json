@@ -23,6 +23,7 @@
       ["Boolean", "Use 'boolean' instead."],
       ["Array<.*>", "Use 'T[]' instead."]
     ],
-    "no-construct": true
+    "no-construct": true,
+    "no-var-keyword": true
   }
 }
