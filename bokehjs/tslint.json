@@ -16,6 +16,12 @@
         "typeLiterals": "never"
       },
       "esSpecCompliant": true
-    }]
+    }],
+    "ban-types": [true,
+      ["Number", "Use 'number' instead."],
+      ["String", "Use 'string' instead."],
+      ["Boolean", "Use 'boolean' instead."],
+      ["Array<.*>", "Use 'T[]' instead."]
+    ]
   }
 }
