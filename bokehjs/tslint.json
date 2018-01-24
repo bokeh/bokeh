@@ -22,6 +22,7 @@
       ["String", "Use 'string' instead."],
       ["Boolean", "Use 'boolean' instead."],
       ["Array<.*>", "Use 'T[]' instead."]
-    ]
+    ],
+    "no-construct": true
   }
 }
