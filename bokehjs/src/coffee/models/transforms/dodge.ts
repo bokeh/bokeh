@@ -13,7 +13,7 @@ export class Dodge extends Transform {
   static initClass() {
     this.define({
       value: [ p.Number,  0 ],
-      range: [ p.Instance   ]
+      range: [ p.Instance   ],
     });
   }
 

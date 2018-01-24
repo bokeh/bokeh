@@ -18,15 +18,13 @@ export class RectView extends XYGlyphView {
   }
 
   _map_data() {
-    let i;
     if (this.model.properties.width.units === "data") {
       [this.sw, this.sx0] = this._map_dist_corner_for_data_side_length(this._x, this._width, this.renderer.xscale, 0);
     } else {
       this.sw = this._width;
       this.sx0 = ((() => {
-        let asc, end;
         const result = [];
-        for (i = 0, end = this.sx.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+        for (let i = 0, end = this.sx.length; i < end; i++) {
           result.push(this.sx[i] - (this.sw[i]/2));
         }
         return result;
@@ -37,28 +35,25 @@ export class RectView extends XYGlyphView {
     } else {
       this.sh = this._height;
       this.sy1 = ((() => {
-        let asc1, end1;
-        const result1 = [];
-        for (i = 0, end1 = this.sy.length, asc1 = 0 <= end1; asc1 ? i < end1 : i > end1; asc1 ? i++ : i--) {
-          result1.push(this.sy[i] - (this.sh[i]/2));
+        const result = [];
+        for (let i = 0, end = this.sy.length; i < end; i++) {
+          result.push(this.sy[i] - (this.sh[i]/2));
         }
-        return result1;
+        return result;
       })());
     }
     return this.ssemi_diag = ((() => {
-      let asc2, end2;
-      const result2 = [];
-      for (i = 0, end2 = this.sw.length, asc2 = 0 <= end2; asc2 ? i < end2 : i > end2; asc2 ? i++ : i--) {
-        result2.push(Math.sqrt((((this.sw[i]/2) * this.sw[i])/2) + (((this.sh[i]/2) * this.sh[i])/2)));
+      const result = [];
+      for (let i = 0, end = this.sw.length; i < end; i++) {
+        result.push(Math.sqrt((((this.sw[i]/2) * this.sw[i])/2) + (((this.sh[i]/2) * this.sh[i])/2)));
       }
-      return result2;
+      return result;
     })());
   }
 
   _render(ctx, indices, {sx, sy, sx0, sy1, sw, sh, _angle}) {
-    let i;
     if (this.visuals.fill.doit) {
-      for (i of indices) {
+      for (const i of indices) {
         if (isNaN(sx[i] + sy[i] + sx0[i] + sy1[i] + sw[i] + sh[i] + _angle[i])) {
           continue;
         }
@@ -81,7 +76,7 @@ export class RectView extends XYGlyphView {
     if (this.visuals.line.doit) {
       ctx.beginPath();
 
-      for (i of indices) {
+      for (const i of indices) {
 
         if (isNaN(sx[i] + sy[i] + sx0[i] + sy1[i] + sw[i] + sh[i] + _angle[i])) {
           continue;
@@ -118,23 +113,20 @@ export class RectView extends XYGlyphView {
   }
 
   _hit_point(geometry) {
-    let i;
     let {sx, sy} = geometry;
     const x = this.renderer.xscale.invert(sx);
     const y = this.renderer.yscale.invert(sy);
 
     const scenter_x = ((() => {
-      let asc, end;
       const result1 = [];
-      for (i = 0, end = this.sx0.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+      for (let i = 0, end = this.sx0.length; i < end; i++) {
         result1.push(this.sx0[i] + (this.sw[i]/2));
       }
       return result1;
     })());
     const scenter_y = ((() => {
-      let asc1, end1;
       const result2 = [];
-      for (i = 0, end1 = this.sy1.length, asc1 = 0 <= end1; asc1 ? i < end1 : i > end1; asc1 ? i++ : i--) {
+      for (let i = 0, end = this.sy1.length; i < end; i++) {
         result2.push(this.sy1[i] + (this.sh[i]/2));
       }
       return result2;
@@ -151,7 +143,7 @@ export class RectView extends XYGlyphView {
     const hits = [];
 
     const bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1]);
-    for (i of this.index.indices(bbox)) {
+    for (const i of this.index.indices(bbox)) {
       let height_in, width_in;
       if (this._angle[i]) {
         const s = Math.sin(-this._angle[i]);
@@ -179,33 +171,29 @@ export class RectView extends XYGlyphView {
 
   _map_dist_corner_for_data_side_length(coord, side_length, scale, dim) {
     let spt_corner;
-    let i;
     if (scale.source_range.synthetic != null) {
       coord = (coord.map((x) => scale.source_range.synthetic(x)));
     }
     const pt0 = ((() => {
-      let asc, end;
       const result = [];
-      for (i = 0, end = coord.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+      for (let i = 0, end = coord.length; i < end; i++) {
         result.push(Number(coord[i]) - (side_length[i]/2));
       }
       return result;
     })());
     const pt1 = ((() => {
-      let asc1, end1;
-      const result1 = [];
-      for (i = 0, end1 = coord.length, asc1 = 0 <= end1; asc1 ? i < end1 : i > end1; asc1 ? i++ : i--) {
-        result1.push(Number(coord[i]) + (side_length[i]/2));
+      const result = [];
+      for (let i = 0, end = coord.length; i < end; i++) {
+        result.push(Number(coord[i]) + (side_length[i]/2));
       }
-      return result1;
+      return result;
     })());
     const spt0 = scale.v_compute(pt0);
     const spt1 = scale.v_compute(pt1);
     const sside_length = this.sdist(scale, pt0, side_length, 'edge', this.model.dilate);
     if (dim === 0) {
-      let asc2, end2;
       spt_corner = spt0;
-      for (i = 0, end2 = spt0.length, asc2 = 0 <= end2; asc2 ? i < end2 : i > end2; asc2 ? i++ : i--) {
+      for (let i = 0, end = spt0.length; i < end; i++) {
         if (spt0[i] !== spt1[i]) {
           spt_corner = spt0[i] < spt1[i] ? spt0 : spt1;
           break;
@@ -213,9 +201,8 @@ export class RectView extends XYGlyphView {
       }
       return [sside_length, spt_corner];
     } else if (dim === 1) {
-      let asc3, end3;
       spt_corner = spt0;
-      for (i = 0, end3 = spt0.length, asc3 = 0 <= end3; asc3 ? i < end3 : i > end3; asc3 ? i++ : i--) {
+      for (let i = 0, end = spt0.length; i < end; i++) {
         if (spt0[i] !== spt1[i]) {
           spt_corner = spt0[i] < spt1[i] ? spt0 : spt1;
           break;
@@ -227,7 +214,6 @@ export class RectView extends XYGlyphView {
 
   _ddist(dim, spts, spans) {
     let scale;
-    let i;
     if (dim === 0) {
       scale = this.renderer.xscale;
     } else {
@@ -236,9 +222,8 @@ export class RectView extends XYGlyphView {
 
     const spt0 = spts;
     const spt1 = ((() => {
-      let asc, end;
       const result = [];
-      for (i = 0, end = spt0.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+      for (let i = 0, end = spt0.length; i < end; i++) {
         result.push(spt0[i] + spans[i]);
       }
       return result;
@@ -248,12 +233,11 @@ export class RectView extends XYGlyphView {
     const pt1 = scale.v_invert(spt1);
 
     return ((() => {
-      let asc1, end1;
-      const result1 = [];
-      for (i = 0, end1 = pt0.length, asc1 = 0 <= end1; asc1 ? i < end1 : i > end1; asc1 ? i++ : i--) {
-        result1.push(Math.abs(pt1[i] - pt0[i]));
+      const result = [];
+      for (let i = 0, end = pt0.length; i < end; i++) {
+        result.push(Math.abs(pt1[i] - pt0[i]));
       }
-      return result1;
+      return result;
     })());
   }
 
@@ -277,7 +261,7 @@ export class Rect extends XYGlyph {
         angle:  [ p.AngleSpec,   0     ],
         width:  [ p.DistanceSpec       ],
         height: [ p.DistanceSpec       ],
-        dilate: [ p.Bool,        false ]
+        dilate: [ p.Bool,        false ],
       });
   }
 }

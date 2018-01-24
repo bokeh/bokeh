@@ -137,7 +137,7 @@ export class StringEditor extends CellEditor {
     this.prototype.type = 'StringEditor';
     this.prototype.default_view = StringEditorView;
     this.define({
-      completions: [ p.Array, [] ]
+      completions: [ p.Array, [] ],
     });
   }
 }
@@ -181,7 +181,7 @@ export class SelectEditor extends CellEditor {
     this.prototype.type = 'SelectEditor';
     this.prototype.default_view = SelectEditorView;
     this.define({
-      options: [ p.Array, [] ]
+      options: [ p.Array, [] ],
     });
   }
 }
@@ -268,7 +268,7 @@ export class IntEditor extends CellEditor {
     this.prototype.type = 'IntEditor';
     this.prototype.default_view = IntEditorView;
     this.define({
-      step: [ p.Number, 1 ]
+      step: [ p.Number, 1 ],
     });
   }
 }
@@ -315,7 +315,7 @@ export class NumberEditor extends CellEditor {
     this.prototype.type = 'NumberEditor';
     this.prototype.default_view = NumberEditorView;
     this.define({
-      step: [ p.Number, 0.01 ]
+      step: [ p.Number, 0.01 ],
     });
   }
 }

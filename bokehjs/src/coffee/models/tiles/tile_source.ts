@@ -25,12 +25,12 @@ export abstract class TileSource extends Model {
         attribution:    [ p.String, ''  ],
         x_origin_offset:    [ p.Number ],
         y_origin_offset:    [ p.Number ],
-        initial_resolution: [ p.Number ]
+        initial_resolution: [ p.Number ],
     });
   }
 
-  initialize(options: any): void {
-    super.initialize(options);
+  initialize(): void {
+    super.initialize();
     this.utils = new ProjectionUtils();
     this.pool = new ImagePool();
     this.tiles = {};

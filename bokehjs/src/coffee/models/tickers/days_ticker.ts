@@ -40,14 +40,14 @@ export class DaysTicker extends SingleIntervalTicker {
     })
 
     this.override({
-      num_minor_ticks: 0
+      num_minor_ticks: 0,
     })
   }
 
   days: number[]
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
     const days = this.days
     if (days.length > 1)
       this.interval = (days[1] - days[0])*ONE_DAY

@@ -8,7 +8,7 @@ export class ToolProxy extends Model {
     this.define({
       tools:    [ p.Array, []    ],
       active:   [ p.Bool,  false ],
-      disabled: [ p.Bool,  false ]
+      disabled: [ p.Bool,  false ],
     });
   }
   // Operates all the tools given only one button
@@ -33,9 +33,13 @@ export class ToolProxy extends Model {
     return this.tools[0].icon
   }
 
-  initialize(options: any): void {
-    super.initialize(options);
+  initialize(): void {
+    super.initialize();
     this.do = new Signal(this, "do");
+  }
+
+  connect_signals(): void {
+    super.connect_signals()
     this.connect(this.do, function() { return this.doit(); });
     this.connect(this.properties.active.change, function() { return this.set_active(); });
   }

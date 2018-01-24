@@ -55,8 +55,8 @@ export class TileRendererView extends RendererView {
             padding: "2px",
             'background-color': 'rgba(255,255,255,0.8)',
             'font-size': '9pt',
-            'font-family': 'sans-serif'
-          }
+            'font-family': 'sans-serif',
+          },
         });
 
         const overlays = this.plot_view.canvas_view.events_el;
@@ -121,7 +121,7 @@ export class TileRendererView extends RendererView {
       loaded : false,
       finished : false,
       x_coord : bounds[0],
-      y_coord : bounds[3]
+      y_coord : bounds[3],
     };
 
     this.model.tile_source.tiles[tile.tile_data.cache_key] = tile.tile_data;
@@ -353,11 +353,11 @@ export class TileRenderer extends Renderer {
         x_range_name:   [ p.String,   "default"        ],
         y_range_name:   [ p.String,   "default"        ],
         tile_source:    [ p.Instance, () => new WMTSTileSource() ],
-        render_parents: [ p.Bool,     true             ]
+        render_parents: [ p.Bool,     true             ],
       });
 
     this.override({
-      level: 'underlay'
+      level: 'underlay',
     });
   }
 }

@@ -10,7 +10,7 @@ export class BoxView extends GlyphView {
   _index_box(len): RBush {
     const points = [];
 
-    for (let i = 0, end = len, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+    for (let i = 0, end = len; i < end; i++) {
       const [l, r, t, b] = this._lrtb(i);
       if (isNaN(l+r+t+b) || !isFinite(l+r+t+b)) {
         continue;

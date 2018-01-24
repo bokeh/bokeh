@@ -9,7 +9,7 @@ export class OpenURL extends Model {
     this.prototype.type = 'OpenURL';
 
     this.define({
-      url: [ p.String, 'http://' ] // TODO (bev) better type
+      url: [ p.String, 'http://' ], // TODO (bev) better type
     });
   }
 

@@ -27,7 +27,7 @@ export class VBarView extends BoxView {
     this.sleft = [];
     this.sright = [];
     this.sw = this.sdist(this.renderer.xscale, this._x, this._width, 'center');
-    for (let i = 0, end = this.sx.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+    for (let i = 0, end = this.sx.length; i < end; i++) {
       this.sleft.push(this.sx[i] - (this.sw[i]/2));
       this.sright.push(this.sx[i] + (this.sw[i]/2));
     }
@@ -43,7 +43,7 @@ export class VBar extends Box {
     this.coords([['x', 'bottom']]);
     this.define({
       width:  [ p.DistanceSpec  ],
-      top:    [ p.NumberSpec    ]
+      top:    [ p.NumberSpec    ],
     });
     this.override({ bottom: 0 });
   }

@@ -55,7 +55,7 @@ gulp.task("scripts:ts", () => {
       }
     }
 
-    if (argv.filter && text.includes(argv.filter))
+    if (argv.filter && !text.includes(argv.filter))
       return
 
     gutil.log(err.message)
@@ -90,7 +90,7 @@ gulp.task("scripts:ts", () => {
 gulp.task("scripts:tslint", () => {
   return gulp
     .src(join(paths.src_dir.coffee, "**", "*.ts"))
-    .pipe(tslint({formatter: "verbose"}))
+    .pipe(tslint({formatter: "stylish", fix: argv.fix || false}))
     .pipe(tslint.report({emitError: false}))
 })
 

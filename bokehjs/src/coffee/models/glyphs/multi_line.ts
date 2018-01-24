@@ -1,6 +1,7 @@
 /* XXX: partial */
 import {RBush} from "core/util/spatial";
 import * as hittest from "core/hittest";
+import {keys} from "core/util/object";
 import {min, max} from "core/util/array";
 import {isStrictNaN} from "core/util/types";
 import {Glyph, GlyphView} from "./glyph"
@@ -9,7 +10,7 @@ export class MultiLineView extends GlyphView {
 
   _index_data() {
     const points = [];
-    for (let i = 0, end = this._xs.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+    for (let i = 0, end = this._xs.length; i < end; i++) {
       if ((this._xs[i] === null) || (this._xs[i].length === 0)) {
         continue;
       }
@@ -35,7 +36,7 @@ export class MultiLineView extends GlyphView {
         minY: min(ys),
         maxX: max(xs),
         maxY: max(ys),
-        i
+        i,
       });
     }
 
@@ -47,7 +48,7 @@ export class MultiLineView extends GlyphView {
       const [sx, sy] = [sxs[i], sys[i]];
 
       this.visuals.line.set_vectorize(ctx, i);
-      for (let j = 0, end = sx.length, asc = 0 <= end; asc ? j < end : j > end; asc ? j++ : j--) {
+      for (let j = 0, end = sx.length; j < end; j++) {
         if (j === 0) {
           ctx.beginPath();
           ctx.moveTo(sx[j], sy[j]);
@@ -65,17 +66,15 @@ export class MultiLineView extends GlyphView {
   }
 
   _hit_point(geometry) {
-    let asc, end;
-    let i;
     const result = hittest.create_empty_hit_test_result();
     const point = {x: geometry.sx, y: geometry.sy};
     let shortest = 9999;
 
     const hits = {};
-    for (i = 0, end = this.sxs.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+    for (let i = 0, end = this.sxs.length; i < end; i++) {
       const threshold = Math.max(2, this.visuals.line.cache_select('line_width', i) / 2);
       let points = null;
-      for (let j = 0, end1 = this.sxs[i].length-1, asc1 = 0 <= end1; asc1 ? j < end1 : j > end1; asc1 ? j++ : j--) {
+      for (let j = 0, endj = this.sxs[i].length-1; j < endj; j++) {
         const [p0, p1] = [{x: this.sxs[i][j], y: this.sys[i][j]}, {x: this.sxs[i][j+1], y: this.sys[i][j+1]}];
         const dist = hittest.dist_to_segment(point, p0, p1);
         if ((dist < threshold) && (dist < shortest)) {
@@ -88,7 +87,7 @@ export class MultiLineView extends GlyphView {
       }
     }
 
-    result.indices = Object.keys(hits).map((i) => parseInt(i))
+    result.indices = keys(hits).map(function(x: string) { return parseInt(x, 10); });
     result.multiline_indices = hits;
 
     return result;
@@ -96,8 +95,6 @@ export class MultiLineView extends GlyphView {
 
   _hit_span(geometry) {
     let val, values;
-    let asc, end;
-    let i;
     const {sx, sy} = geometry;
     const result = hittest.create_empty_hit_test_result();
 
@@ -110,9 +107,9 @@ export class MultiLineView extends GlyphView {
     }
 
     const hits = {};
-    for (i = 0, end = values.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+    for (let i = 0, end = values.length; i < end; i++) {
       const points = [];
-      for (let j = 0, end1 = values[i].length-1, asc1 = 0 <= end1; asc1 ? j < end1 : j > end1; asc1 ? j++ : j--) {
+      for (let j = 0, endj = values[i].length-1; j < endj; j++) {
         if (values[i][j] <= val && val <= values[i][j+1]) {
           points.push(j);
         }
@@ -122,7 +119,7 @@ export class MultiLineView extends GlyphView {
       }
     }
 
-    result.indices = Object.keys(hits).map((i) => parseInt(i))
+    result.indices = keys(hits).map(function(x: string) { return parseInt(x, 10); });
     result.multiline_indices = hits;
 
     return result;

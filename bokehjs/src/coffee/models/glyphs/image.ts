@@ -32,7 +32,7 @@ export class ImageView extends XYGlyphView {
       this._height = new Array(this._image.length);
     }
 
-    for (let i = 0, end = this._image.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+    for (let i = 0, end = this._image.length; i < end; i++) {
       let canvas, img;
       let shape = [];
       if (this._image_shape != null) {
@@ -137,7 +137,7 @@ export class Image extends XYGlyph {
         dw:           [ p.DistanceSpec     ],
         dh:           [ p.DistanceSpec     ],
         dilate:       [ p.Bool,      false ],
-        color_mapper: [ p.Instance,  () => new LinearColorMapper({palette: Greys9()}) ]
+        color_mapper: [ p.Instance,  () => new LinearColorMapper({palette: Greys9()}) ],
     });
   }
 }

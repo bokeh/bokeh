@@ -73,12 +73,12 @@ export class Label extends TextAnnotation {
         y_offset:     [ p.Number,      0               ],
         x_range_name: [ p.String,      'default'       ],
         y_range_name: [ p.String,      'default'       ],
-        render_mode:  [ p.RenderMode,  'canvas'        ]
+        render_mode:  [ p.RenderMode,  'canvas'        ],
       });
 
     this.override({
       background_fill_color: null,
-      border_line_color: null
+      border_line_color: null,
     });
   }
 }

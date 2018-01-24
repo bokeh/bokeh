@@ -5,17 +5,24 @@ import {merge} from "core/util/object"
 import {Glyph} from "models/glyphs/glyph"
 
 export class Selection extends Model {
+  static initClass() {
+    this.prototype.type = "Selection";
 
-  indices: number[]
-  final: boolean
-  line_indices: number[]
-  selected_glyphs: Glyph[]
-  get_view: any
-  multiline_indices: {[key: string]: number[]} // XXX: [key: number]?
-  [key: string]: any
+    this.define({
+      indices:         [ p.Array,   [] ],
+    });
 
-  initialize(attrs: any, options: any): void {
-    super.initialize(attrs, options)
+    this.internal({
+      final:             [ p.Boolean     ],
+      line_indices:      [ p.Array,   [] ],
+      selected_glyphs:   [ p.Array,   [] ],
+      get_view:          [ p.Any         ],
+      multiline_indices: [ p.Any,     {} ],
+    });
+  }
+
+  initialize(): void {
+    super.initialize()
 
     this['0d'] = {'glyph': null, 'indices': [], 'flag': false,
                   'get_view': () => null}
@@ -68,6 +75,10 @@ export class Selection extends Model {
   clear (): void {
     this.final = true
     this.indices = []
+    this.line_indices = []
+    this.multiline_indices = {}
+    this.get_view = null
+    this.selected_glyphs = []
   }
 
   is_empty (): boolean {
@@ -93,17 +104,4 @@ export class Selection extends Model {
     this.multiline_indices = merge(other.multiline_indices, this.multiline_indices)
   }
 }
-
-Selection.prototype.type = "Selection"
-
-Selection.define({
-  indices:         [ p.Array,   [] ]
-})
-
-Selection.internal({
-  final:             [ p.Boolean     ],
-  line_indices:      [ p.Array,   [] ],
-  selected_glyphs:   [ p.Array,   [] ],
-  get_view:          [ p.Any         ],
-  multiline_indices: [ p.Any,     {} ]
-})
+Selection.initClass()

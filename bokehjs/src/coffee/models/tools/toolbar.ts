@@ -19,18 +19,21 @@ export class Toolbar extends ToolbarBase {
         active_drag:     [ p.Any, 'auto' ],
         active_inspect:  [ p.Any, 'auto' ],
         active_scroll:   [ p.Any, 'auto' ],
-        active_tap:      [ p.Any, 'auto' ]
+        active_tap:      [ p.Any, 'auto' ],
     });
   }
 
-  initialize(options: any): void {
-    super.initialize(options);
-    this.connect(this.properties.tools.change, () => this._init_tools())
+  initialize(): void {
+    super.initialize();
     this._init_tools();
   }
 
+  connect_signals(): void {
+    super.connect_signals()
+    this.connect(this.properties.tools.change, () => this._init_tools())
+  }
+
   _init_tools() {
-    let et;
     for (const tool of this.tools) {
       if (tool instanceof InspectTool) {
         if (!any(this.inspectors, t => t.id === tool.id)) {
@@ -52,7 +55,7 @@ export class Toolbar extends ToolbarBase {
           multi = false;
         }
 
-        for (et of event_types) {
+        for (let et of event_types) {
           if (!(et in this.gestures)) {
             logger.warn(`Toolbar: unknown event type '${et}' for tool: ${tool.type} (${tool.id})`);
             continue;
@@ -89,7 +92,7 @@ export class Toolbar extends ToolbarBase {
       }
     };
 
-    for (et in this.gestures) {
+    for (const et in this.gestures) {
       const { tools } = this.gestures[et];
       if (tools.length === 0) {
         continue;

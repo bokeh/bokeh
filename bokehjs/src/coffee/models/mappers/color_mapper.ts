@@ -10,15 +10,18 @@ export class ColorMapper extends Transform {
 
     this.define({
         palette:       [ p.Any              ], // TODO (bev)
-        nan_color:     [ p.Color, "gray"    ]
+        nan_color:     [ p.Color, "gray"    ],
       });
   }
 
-  initialize(options: any): void {
-    super.initialize(options);
+  initialize(): void {
+    super.initialize();
     this._little_endian = this._is_little_endian();
     this._palette       = this._build_palette(this.palette);
+  }
 
+  connect_signals(): void {
+    super.connect_signals()
     this.connect(this.change, function() {
       this._palette = this._build_palette(this.palette);
     });
@@ -26,14 +29,12 @@ export class ColorMapper extends Transform {
 
   // TODO (bev) This should not be needed, everything should use v_compute
   v_map_screen(data, image_glyph = false) {
-    let color, i, value;
     const values = this._get_values(data, this._palette, image_glyph);
     const buf = new ArrayBuffer(data.length * 4);
     if (this._little_endian) {
-      let asc, end;
-      color = new Uint8Array(buf);
-      for (i = 0, end = data.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
-        value = values[i];
+      const color = new Uint8Array(buf);
+      for (let i = 0, end = data.length; i < end; i++) {
+        const value = values[i];
         const ind = i*4;
         // Bitwise math in JS is limited to 31-bits, to handle 32-bit value
         // this uses regular math to compute alpha instead (see issue #6755)
@@ -43,10 +44,9 @@ export class ColorMapper extends Transform {
         color[ind+3] = value & 0xff;
       }
     } else {
-      let asc1, end1;
-      color = new Uint32Array(buf);
-      for (i = 0, end1 = data.length, asc1 = 0 <= end1; asc1 ? i < end1 : i > end1; asc1 ? i++ : i--) {
-        value = values[i];
+      const color = new Uint32Array(buf);
+      for (let i = 0, end = data.length; i < end; i++) {
+        const value = values[i];
         color[i] = (value << 8) | 0xff;
       }     // alpha
     }
@@ -94,7 +94,7 @@ export class ColorMapper extends Transform {
         return parseInt(value.slice(1), 16);
       }
     };
-    for (let i = 0, end = palette.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+    for (let i = 0, end = palette.length; i < end; i++) {
       new_palette[i] = _convert(palette[i]);
     }
     return new_palette;

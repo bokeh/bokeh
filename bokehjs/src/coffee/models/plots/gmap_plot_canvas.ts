@@ -103,7 +103,7 @@ export class GMapPlotCanvasView extends PlotCanvasView {
       satellite : maps.MapTypeId.SATELLITE,
       terrain   : maps.MapTypeId.TERRAIN,
       roadmap   : maps.MapTypeId.ROADMAP,
-      hybrid    : maps.MapTypeId.HYBRID
+      hybrid    : maps.MapTypeId.HYBRID,
     };
 
     const mo = this.model.plot.map_options;
@@ -112,7 +112,7 @@ export class GMapPlotCanvasView extends PlotCanvasView {
       zoom:mo.zoom,
       disableDefaultUI: true,
       mapTypeId: this.map_types[mo.map_type],
-      scaleControl: mo.scale_control
+      scaleControl: mo.scale_control,
     };
 
     if (mo.styles != null) {
@@ -252,9 +252,9 @@ export class GMapPlotCanvas extends PlotCanvas {
     this.prototype.default_view = GMapPlotCanvasView;
   }
 
-  initialize(options: any): void {
+  initialize(): void {
     this.use_map = true;
-    super.initialize(options);
+    super.initialize();
   }
 }
 GMapPlotCanvas.initClass();

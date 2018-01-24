@@ -172,7 +172,7 @@ export class DataTableView extends WidgetView {
       resizable: false,
       selectable: false,
       sortable: true,
-      cssClass: "bk-cell-index"
+      cssClass: "bk-cell-index",
     };
   }
 
@@ -210,7 +210,7 @@ export class DataTableView extends WidgetView {
       autoHeight: this.model.height === "auto",
       multiColumnSort: this.model.sortable,
       editable: this.model.editable,
-      autoEdit: false
+      autoEdit: false,
     };
 
     if (this.model.width != null) {
@@ -268,15 +268,15 @@ export class DataTable extends TableWidget {
         editable:            [ p.Bool,   false ],
         selectable:          [ p.Bool,   true  ],
         row_headers:         [ p.Bool,   true  ],
-        scroll_to_selection: [ p.Bool,   true  ]
+        scroll_to_selection: [ p.Bool,   true  ],
       });
 
     this.override({
-      height: 400
+      height: 400,
     });
 
     this.internal({
-      default_width:        [ p.Number, 600   ]
+      default_width:        [ p.Number, 600   ],
     });
   }
 

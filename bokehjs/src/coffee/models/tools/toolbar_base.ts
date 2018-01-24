@@ -34,7 +34,7 @@ export class ToolbarBaseView extends DOMView {
   }
 
   render() {
-    let buttons, tool;
+    let buttons
     empty(this.el);
 
     this.el.classList.add("bk-toolbar");
@@ -51,20 +51,20 @@ export class ToolbarBaseView extends DOMView {
     const { gestures } = this.model;
     for (const et in gestures) {
       buttons = [];
-      for (tool of gestures[et].tools) {
+      for (const tool of gestures[et].tools) {
         buttons.push(this._tool_button_views[tool.id].el);
       }
       bars.push(buttons);
     }
 
     buttons = [];
-    for (tool of this.model.actions) {
+    for (const tool of this.model.actions) {
       buttons.push(this._tool_button_views[tool.id].el);
     }
     bars.push(buttons);
 
     buttons = [];
-    for (tool of this.model.inspectors) {
+    for (const tool of this.model.inspectors) {
       if (tool.toggleable) {
         buttons.push(this._tool_button_views[tool.id].el);
       }
@@ -72,15 +72,15 @@ export class ToolbarBaseView extends DOMView {
     bars.push(buttons);
 
     buttons = [];
-    for (tool of this.model.help) {
+    for (const tool of this.model.help) {
       buttons.push(this._tool_button_views[tool.id].el);
     }
     bars.push(buttons);
 
-    for (buttons of bars) {
-      if (buttons.length !== 0) {
-        const bar = div({class: 'bk-button-bar'}, buttons);
-        this.el.appendChild(bar);
+    for (const bar of bars) {
+      if (bar.length !== 0) {
+        const el = div({class: 'bk-button-bar'}, bar);
+        this.el.appendChild(el);
       }
     }
 
@@ -99,7 +99,7 @@ export class ToolbarBase extends Model {
 
     this.define({
       tools: [ p.Array,    []       ],
-      logo:  [ p.String,   'normal' ] // TODO (bev)
+      logo:  [ p.String,   'normal' ], // TODO (bev)
     });
 
     this.internal({
@@ -111,12 +111,12 @@ export class ToolbarBase extends Model {
         doubletap: { tools: [], active: null },
         press:     { tools: [], active: null },
         rotate:    { tools: [], active: null },
-        multi:     { tools: [], active: null}
+        multi:     { tools: [], active: null},
       })  ],
       actions:    [ p.Array, [] ],
       inspectors: [ p.Array, [] ],
       help:       [ p.Array, [] ],
-      toolbar_location: [ p.Location, 'right' ]
+      toolbar_location: [ p.Location, 'right' ],
     });
   }
 

@@ -7,7 +7,7 @@ export class BBoxTileSource extends MercatorTileSource {
     this.prototype.type = 'BBoxTileSource';
 
     this.define({
-        use_latlon : [ p.Bool, false ]
+        use_latlon : [ p.Bool, false ],
       });
   }
 

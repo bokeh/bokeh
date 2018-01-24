@@ -8,12 +8,11 @@ export class MercatorTickFormatter extends BasicTickFormatter {
     this.prototype.type = 'MercatorTickFormatter';
 
     this.define({
-      dimension: [ p.LatLon ]
+      dimension: [ p.LatLon ],
     });
   }
 
   doFormat(ticks, axis) {
-    let i, lat, lon;
     if ((this.dimension == null)) {
       throw new Error("MercatorTickFormatter.dimension not configured");
     }
@@ -25,15 +24,13 @@ export class MercatorTickFormatter extends BasicTickFormatter {
     const proj_ticks = new Array(ticks.length);
 
     if (this.dimension === "lon") {
-      let asc, end;
-      for (i = 0, end = ticks.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
-        [lon, lat] = proj4(mercator).inverse([ticks[i], axis.loc]);
+      for (let i = 0, end = ticks.length; i < end; i++) {
+        const [lon,] = proj4(mercator).inverse([ticks[i], axis.loc]);
         proj_ticks[i] = lon;
       }
     } else {
-      let asc1, end1;
-      for (i = 0, end1 = ticks.length, asc1 = 0 <= end1; asc1 ? i < end1 : i > end1; asc1 ? i++ : i--) {
-        [lon, lat] = proj4(mercator).inverse([axis.loc, ticks[i]]);
+      for (let i = 0, end = ticks.length; i < end; i++) {
+        const [, lat] = proj4(mercator).inverse([axis.loc, ticks[i]]);
         proj_ticks[i] = lat;
       }
     }

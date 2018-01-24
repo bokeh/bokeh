@@ -10,8 +10,8 @@ export class YearsTicker extends SingleIntervalTicker {
 
   protected basic_ticker: BasicTicker
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
     this.interval = ONE_YEAR
     this.basic_ticker = new BasicTicker({num_minor_ticks: 0})
   }

@@ -71,7 +71,7 @@ function _update_comms_callback(target: string, doc: Document, comm: Comm): void
 }
 
 function _init_comms(target: string, doc: Document): void {
-  if (Jupyter != null && Jupyter.notebook.kernel != null) {
+  if (typeof Jupyter !== 'undefined' && Jupyter.notebook.kernel != null) {
     logger.info(`Registering Jupyter comms for target ${target}`)
     const comm_manager = Jupyter.notebook.kernel.comm_manager
     const update_comms = (comm: Comm) => _update_comms_callback(target, doc, comm)
@@ -195,7 +195,7 @@ export function add_document_from_session(element: HTMLElement,
     (error) => {
       logger.error(`Failed to load Bokeh session ${session_id}: ${error}`)
       throw error
-    }
+    },
   )
 }
 
@@ -216,7 +216,7 @@ export function add_model_from_session(element: HTMLElement,
     (error: Error) => {
       logger.error(`Failed to load Bokeh session ${session_id}: ${error}`)
       throw error
-    }
+    },
   )
 }
 
@@ -326,7 +326,7 @@ function _embed_items(docs_json: string | DocsJson, render_items: RenderItem[], 
         },
         (error: Error) => {
           console.log("Error rendering Bokeh items ", error)
-        }
+        },
       )
 
     // handle standalone document cases

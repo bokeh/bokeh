@@ -13,7 +13,7 @@ export class LabelSetView extends TextAnnotationView {
     this.set_data(this.model.source);
 
     if (this.model.render_mode === 'css') {
-      for (let i = 0, end = this._text.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+      for (let i = 0, end = this._text.length; i < end; i++) {
         this.title_div = div({class: 'bk-annotation-child', style: {display: "none"}});
         this.el.appendChild(this.title_div);
       }
@@ -205,12 +205,12 @@ export class LabelSet extends TextAnnotation {
       source:       [ p.Instance,     () => new ColumnDataSource()  ],
       x_range_name: [ p.String,      'default'          ],
       y_range_name: [ p.String,      'default'          ],
-      render_mode:  [ p.RenderMode,  'canvas'           ]
+      render_mode:  [ p.RenderMode,  'canvas'           ],
     });
 
     this.override({
       background_fill_color: null,
-      border_line_color: null
+      border_line_color: null,
     });
   }
 }

@@ -21,16 +21,19 @@ export class Interpolator extends Transform {
       x:    [ p.Any],
       y:    [ p.Any],
       data: [ p.Any],
-      clip: [ p.Bool, true]
+      clip: [ p.Bool, true],
       });
   }
 
-  initialize(options: any): void {
-    super.initialize(options);
+  initialize(): void {
+    super.initialize();
     this._x_sorted = [];
     this._y_sorted = [];
     this._sorted_dirty = true;
+  }
 
+  connect_signals(): void {
+    super.connect_signals()
     this.connect(this.change, () => this._sorted_dirty = true)
   }
 
@@ -101,7 +104,7 @@ export class Interpolator extends Transform {
       });
     }
 
-    for (let k = 0, end = list.length, asc = 0 <= end; asc ? k < end : k > end; asc ? k++ : k--) {
+    for (let k = 0, end = list.length; k < end; k++) {
       this._x_sorted[k] = list[k].x;
       this._y_sorted[k] = list[k].y;
     }

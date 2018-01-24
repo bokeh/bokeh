@@ -12,11 +12,11 @@ export class GuideRenderer extends Renderer {
     this.prototype.type = "GuideRenderer"
 
     this.define({
-      plot: [ p.Instance ]
+      plot: [ p.Instance ],
     })
 
     this.override({
-      level: "overlay"
+      level: "overlay",
     })
   }
 

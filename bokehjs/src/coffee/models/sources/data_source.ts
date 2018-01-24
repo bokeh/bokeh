@@ -17,12 +17,16 @@ export class DataSource extends Model {
     })
   }
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
 
     if (!this.selected) {
       this.selected = new Selection()
     }
+  }
+
+  connect_signals(): void {
+    super.connect_signals()
     this.connect(this.properties.selected.change, () => {
       const {callback} = this
       if (callback != null) {

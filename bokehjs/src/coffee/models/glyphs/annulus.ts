@@ -118,7 +118,7 @@ export class Annulus extends XYGlyph {
     this.mixins(['line', 'fill']);
     this.define({
         inner_radius: [ p.DistanceSpec ],
-        outer_radius: [ p.DistanceSpec ]
+        outer_radius: [ p.DistanceSpec ],
       });
   }
 }

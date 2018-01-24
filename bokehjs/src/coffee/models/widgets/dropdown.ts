@@ -103,11 +103,11 @@ export class Dropdown extends AbstractButton {
     })
 
     this.override({
-      label: "Dropdown"
+      label: "Dropdown",
     })
 
     this.internal({
-      active: [p.Boolean, false]
+      active: [p.Boolean, false],
     })
   }
 

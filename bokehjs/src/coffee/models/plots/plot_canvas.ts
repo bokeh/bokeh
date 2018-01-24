@@ -116,8 +116,8 @@ export class PlotCanvasView extends DOMView {
       selection: {},                   // XXX: initial selection?
       dimensions: {
         width: this.model.canvas._width.value,
-        height: this.model.canvas._height.value
-      }
+        height: this.model.canvas._height.value,
+      },
     };
 
     this.state = {history: [], index: -1}
@@ -511,26 +511,25 @@ export class PlotCanvasView extends DOMView {
     }
 
   update_range(range_info, is_panning: boolean = false, is_scrolling: boolean = false): void {
-    let name, rng;
     this.pause();
     if ((range_info == null)) {
-      for (name in this.frame.x_ranges) {
-        rng = this.frame.x_ranges[name];
+      for (const name in this.frame.x_ranges) {
+        const rng = this.frame.x_ranges[name];
         rng.reset();
       }
-      for (name in this.frame.y_ranges) {
-        rng = this.frame.y_ranges[name];
+      for (const name in this.frame.y_ranges) {
+        const rng = this.frame.y_ranges[name];
         rng.reset();
       }
       this.update_dataranges();
     } else {
       const range_info_iter = [];
-      for (name in this.frame.x_ranges) {
-        rng = this.frame.x_ranges[name];
+      for (const name in this.frame.x_ranges) {
+        const rng = this.frame.x_ranges[name];
         range_info_iter.push([rng, range_info.xrs[name]]);
       }
-      for (name in this.frame.y_ranges) {
-        rng = this.frame.y_ranges[name];
+      for (const name in this.frame.y_ranges) {
+        const rng = this.frame.y_ranges[name];
         range_info_iter.push([rng, range_info.yrs[name]]);
       }
       if (is_scrolling) {
@@ -651,7 +650,7 @@ export class PlotCanvasView extends DOMView {
         inner_width: Math.round(this.frame._width.value),
         inner_height: Math.round(this.frame._height.value),
         layout_width: Math.round(this.canvas._width.value),
-        layout_height: Math.round(this.canvas._height.value)
+        layout_height: Math.round(this.canvas._height.value),
       }, {no_change: true});
 
       // XXX: can't be @request_paint(), because it would trigger back-and-forth
@@ -666,10 +665,10 @@ export class PlotCanvasView extends DOMView {
       return false;
     }
 
-    for (let _ in this.levels) {
-      const renderer_views = this.levels[_];
-      for (_ in renderer_views) {
-        const view = renderer_views[_];
+    for (const level in this.levels) {
+      const renderer_views = this.levels[level];
+      for (const id in renderer_views) {
+        const view = renderer_views[id];
         if (!view.has_finished()) {
           return false;
         }
@@ -932,24 +931,24 @@ export class PlotCanvas extends LayoutDOM {
 
     this.override({
       // We should find a way to enforce this
-      sizing_mode: 'stretch_both'
+      sizing_mode: 'stretch_both',
     });
 
     this.internal({
       plot:         [ p.Instance ],
       toolbar:      [ p.Instance ],
       canvas:       [ p.Instance ],
-      frame:        [ p.Instance ]
+      frame:        [ p.Instance ],
     });
   }
 
-  initialize(options: any): void {
-    super.initialize(options);
+  initialize(): void {
+    super.initialize();
 
     this.canvas = new Canvas({
       map: this.use_map != null ? this.use_map : false,
       use_hidpi: this.plot.hidpi,
-      output_backend: this.plot.output_backend
+      output_backend: this.plot.output_backend,
     });
 
     this.frame = new CartesianFrame({
@@ -958,7 +957,7 @@ export class PlotCanvas extends LayoutDOM {
       x_scale: this.plot.x_scale,
       y_range: this.plot.y_range,
       extra_y_ranges: this.plot.extra_y_ranges,
-      y_scale: this.plot.y_scale
+      y_scale: this.plot.y_scale,
     });
 
     this.above_panel = new AbovePanel();
@@ -1040,7 +1039,7 @@ export class PlotCanvas extends LayoutDOM {
       GE(this._top,                    -this.plot.min_border_top   ),
       GE(this._left,                   -this.plot.min_border_left  ),
       GE(this._height, [-1, this._bottom], -this.plot.min_border_bottom),
-      GE(this._width, [-1, this._right],   -this.plot.min_border_right )
+      GE(this._width, [-1, this._right],   -this.plot.min_border_right ),
     ];
   }
 

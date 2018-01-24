@@ -27,7 +27,7 @@ export class HBarView extends BoxView {
     this.stop = [];
     this.sbottom = [];
     this.sh = this.sdist(this.renderer.yscale, this._y, this._height, 'center');
-    for (let i = 0, end = this.sy.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+    for (let i = 0, end = this.sy.length; i < end; i++) {
       this.stop.push(this.sy[i] - (this.sh[i]/2));
       this.sbottom.push(this.sy[i] + (this.sh[i]/2));
     }
@@ -43,7 +43,7 @@ export class HBar extends Box {
     this.coords([['left', 'y']]);
     this.define({
       height: [ p.DistanceSpec  ],
-      right:  [ p.NumberSpec    ]
+      right:  [ p.NumberSpec    ],
     });
     this.override({ left: 0 });
   }

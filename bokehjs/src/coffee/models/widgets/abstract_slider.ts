@@ -51,14 +51,14 @@ export abstract class AbstractSliderView extends WidgetView {
       }
     }
 
-    const prefix = 'bk-noUi-'
+    const prefix = 'noUi-'
 
     const {start, end, value, step} = this._calc_to()
 
     let tooltips: boolean | any[] // XXX
     if (this.model.tooltips) {
       const formatter = {
-        to: (value) => this.model.pretty(value)
+        to: (value) => this.model.pretty(value),
       }
 
       tooltips = repeat(formatter, value.length)

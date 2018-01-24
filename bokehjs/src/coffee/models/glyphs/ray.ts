@@ -14,19 +14,17 @@ export class RayView extends XYGlyphView {
 
   _render(ctx, indices, {sx, sy, slength, _angle}) {
     if (this.visuals.line.doit) {
-
-      let i;
-      let asc, end;
       const width = this.renderer.plot_view.frame._width.value;
       const height = this.renderer.plot_view.frame._height.value;
       const inf_len = 2 * (width + height);
-      for (i = 0, end = slength.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+
+      for (let i = 0, end = slength.length; i < end; i++) {
         if (slength[i] === 0) {
           slength[i] = inf_len;
         }
       }
 
-      for (i of indices) {
+      for (const i of indices) {
         if (isNaN(sx[i]+sy[i]+_angle[i]+slength[i])) {
           continue;
         }
@@ -61,7 +59,7 @@ export class Ray extends XYGlyph {
     this.mixins(['line']);
     this.define({
       length: [ p.DistanceSpec ],
-      angle:  [ p.AngleSpec    ]
+      angle:  [ p.AngleSpec    ],
     });
   }
 }

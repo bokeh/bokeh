@@ -7,7 +7,7 @@ export class StaticLayoutProvider extends LayoutProvider {
     this.prototype.type = "StaticLayoutProvider";
 
     this.define({
-      graph_layout: [ p.Any, {} ]
+      graph_layout: [ p.Any, {} ],
     });
   }
 
@@ -27,7 +27,7 @@ export class StaticLayoutProvider extends LayoutProvider {
     const starts = edge_source.data.start;
     const ends = edge_source.data.end;
     const has_paths = (edge_source.data.xs != null) && (edge_source.data.ys != null);
-    for (let i = 0, end1 = starts.length, asc = 0 <= end1; asc ? i < end1 : i > end1; asc ? i++ : i--) {
+    for (let i = 0, endi = starts.length; i < endi; i++) {
       const in_layout = (this.graph_layout[starts[i]] != null) && (this.graph_layout[ends[i]] != null);
       if (has_paths && in_layout) {
         xs.push(edge_source.data.xs[i]);

@@ -9,12 +9,12 @@ export class LogTickFormatter extends TickFormatter {
     this.prototype.type = 'LogTickFormatter';
 
     this.define({
-      ticker: [ p.Instance, null ]
+      ticker: [ p.Instance, null ],
     });
   }
 
-  initialize(options: any): void {
-    super.initialize(options);
+  initialize(): void {
+    super.initialize();
     this.basic_formatter = new BasicTickFormatter();
     if ((this.ticker == null)) {
       logger.warn("LogTickFormatter not configured with a ticker, using default base of 10 (labels will be incorrect if ticker base is not 10)");
@@ -35,7 +35,7 @@ export class LogTickFormatter extends TickFormatter {
 
     let small_interval = false;
     let labels = new Array(ticks.length);
-    for (let i = 0, end = ticks.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+    for (let i = 0, end = ticks.length; i < end; i++) {
       labels[i] = `${base}^${ Math.round(Math.log(ticks[i]) / Math.log(base)) }`;
       if ((i > 0) && (labels[i] === labels[i-1])) {
         small_interval = true;

@@ -10,7 +10,7 @@ export class Filter extends Model {
     this.prototype.type = 'Filter';
 
     this.define({
-      filter:      [p.Array,   null ]
+      filter:      [p.Array,   null ],
     });
   }
 

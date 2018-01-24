@@ -31,7 +31,7 @@ export class DataRange1d extends DataRange {
     })
 
     this.internal({
-      scale_hint: [ p.String, 'auto' ]
+      scale_hint: [ p.String, 'auto' ],
     })
   }
 
@@ -61,8 +61,8 @@ export class DataRange1d extends DataRange {
 
   have_updated_interactively: boolean = false
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
 
     this._initial_start = this.start
     this._initial_end = this.end

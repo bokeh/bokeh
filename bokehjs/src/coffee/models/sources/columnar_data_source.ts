@@ -29,18 +29,18 @@ export class ColumnarDataSource extends DataSource {
 
     this.define({
       column_names:     [ p.Array, [] ],
-      selection_policy: [ p.Instance  ]
+      selection_policy: [ p.Instance  ],
     })
 
     this.internal({
       selection_manager: [ p.Instance, (self: ColumnarDataSource) => new SelectionManager({source: self}) ],
       inspected:         [ p.Instance, () => new Selection() ],
-      _shapes:           [ p.Any, {}]
+      _shapes:           [ p.Any, {}],
     })
   }
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
 
     this._select = new Signal(this, "select")
     this.inspect = new Signal(this, "inspect") // XXX: <[indices, tool, renderer-view, source, data], this>

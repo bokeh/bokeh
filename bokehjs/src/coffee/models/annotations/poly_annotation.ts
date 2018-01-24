@@ -32,7 +32,7 @@ export class PolyAnnotationView extends AnnotationView {
     const { frame } = this.plot_view;
     ({ ctx } = this.plot_view.canvas_view);
 
-    for (let i = 0, end = xs.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+    for (let i = 0, end = xs.length; i < end; i++) {
       let sx, sy;
       if (this.model.xs_units === 'screen')
         sx = this.model.screen ? xs[i] : frame.xview.compute(xs[i]);
@@ -74,23 +74,23 @@ export class PolyAnnotation extends Annotation {
         ys:           [ p.Array,        []        ],
         ys_units:     [ p.SpatialUnits, 'data'    ],
         x_range_name: [ p.String,       'default' ],
-        y_range_name: [ p.String,       'default' ]
+        y_range_name: [ p.String,       'default' ],
     });
 
     this.internal({
-      screen: [ p.Boolean, false ]
+      screen: [ p.Boolean, false ],
     });
 
     this.override({
       fill_color: "#fff9ba",
       fill_alpha: 0.4,
       line_color: "#cccccc",
-      line_alpha: 0.3
+      line_alpha: 0.3,
     });
   }
 
-  initialize(options: any): void {
-    super.initialize(options);
+  initialize(): void {
+    super.initialize();
     this.data_update = new Signal(this, "data_update");
   }
 

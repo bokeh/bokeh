@@ -16,15 +16,15 @@ export class SelectionManager extends HasProps {
     this.prototype.type = "SelectionManager"
 
     this.internal({
-      source: [ p.Any ]
+      source: [ p.Any ],
     })
   }
 
   source: ColumnarDataSource
   inspectors: {[key: string]: Selection}
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
     this.inspectors = {}
   }
 

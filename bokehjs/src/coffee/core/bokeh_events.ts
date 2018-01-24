@@ -133,7 +133,7 @@ export class Pan extends PointEvent {
       delta_x: e.deltaX,
       delta_y: e.deltaY,
       direction: e.direction,
-      model_id: model_id
+      model_id: model_id,
     })
   }
 

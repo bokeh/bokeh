@@ -21,12 +21,12 @@ export const wgs84    = defs('WGS84');
 
 export const mercator_bounds = {
   lon: [-20026376.39, 20026376.39],
-  lat: [-20048966.10, 20048966.10]
+  lat: [-20048966.10, 20048966.10],
 };
 
 const latlon_bounds = {
   lon: [-180, 180],
-  lat: [-85.06, 85.06]
+  lat: [-85.06, 85.06],
 };
 
 export const clip_mercator = function(low, high, dimension) {

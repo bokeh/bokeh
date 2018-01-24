@@ -1,8 +1,7 @@
 /* XXX: partial */
 import {Model} from "../../model"
 import * as p from "core/properties"
-import {create_hit_test_result} from "core/hittest"
-import {intersection, range} from "core/util/array"
+import {intersection} from "core/util/array"
 import {ColumnarDataSource} from "./columnar_data_source"
 import {Selection} from "../selections/selection"
 
@@ -21,8 +20,8 @@ export class CDSView extends Model {
     })
   }
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
     this.compute_indices()
   }
 

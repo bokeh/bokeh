@@ -3,8 +3,8 @@ import {Model} from "../../model"
 
 export class Expression extends Model {
 
-  initialize(options: any): void {
-    super.initialize(options);
+  initialize(): void {
+    super.initialize();
     this._connected= {};
     this._result = {};
   }

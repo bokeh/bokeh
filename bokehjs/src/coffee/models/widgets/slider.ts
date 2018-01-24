@@ -30,7 +30,7 @@ export class Slider extends AbstractSlider {
     this.prototype.default_view = SliderView
 
     this.override({
-      format: "0[.]00"
+      format: "0[.]00",
     })
   }
 

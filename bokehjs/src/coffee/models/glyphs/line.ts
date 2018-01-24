@@ -59,7 +59,7 @@ export class LineView extends XYGlyphView {
     let shortest = 9999;
     const threshold = Math.max(2, this.visuals.line.line_width.value() / 2);
 
-    for (let i = 0, end = this.sx.length-1, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+    for (let i = 0, end = this.sx.length-1; i < end; i++) {
       const [p0, p1] = [{x: this.sx[i], y: this.sy[i]}, {x: this.sx[i+1], y: this.sy[i+1]}];
       const dist = hittest.dist_to_segment(point, p0, p1);
 
@@ -87,7 +87,7 @@ export class LineView extends XYGlyphView {
       values = this._x;
     }
 
-    for (let i = 0, end = values.length-1, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+    for (let i = 0, end = values.length-1; i < end; i++) {
       if ((values[i]<=val && val<=values[i+1]) || (values[i+1]<=val && val<=values[i])) {
         result.add_to_selected_glyphs(this.model)
         result.get_view = () => this

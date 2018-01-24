@@ -82,8 +82,8 @@ export class CrosshairTool extends InspectTool {
     return values(this.spans)
   }
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
 
     this.spans = {
       width: new Span({
@@ -103,7 +103,7 @@ export class CrosshairTool extends InspectTool {
         line_color: this.line_color,
         line_width: this.line_width,
         line_alpha: this.line_alpha,
-      })
+      }),
     }
   }
 }

@@ -37,9 +37,6 @@ class DashAtlas {
   make_pattern(pattern) {
     // A pattern is defined as on/off sequence of segments
     // It must be a multiple of 2
-    let i;
-    let end;
-    let asc, end1;
     if ((pattern.length > 1) && (pattern.length % 2)) {
       pattern = pattern.concat(pattern);
     }
@@ -50,7 +47,7 @@ class DashAtlas {
     }
     // Find all start and end of on-segment only
     const C: number[] = []; let c = 0;
-    for (i = 0, end = pattern.length+2; i < end; i += 2) {
+    for (let i = 0, end = pattern.length+2; i < end; i += 2) {
       const a = Math.max(0.0001, pattern[i % pattern.length]);
       const b = Math.max(0.0001, pattern[(i+1) % pattern.length]);
       C.push(c, c + a)
@@ -59,12 +56,12 @@ class DashAtlas {
     // Build pattern
     const n = this._width;
     const Z = new Float32Array(n * 4);
-    for (i = 0, end1 = n, asc = 0 <= end1; asc ? i < end1 : i > end1; asc ? i++ : i--) {
+    for (let i = 0, end = n; i < end; i++) {
       let dash_end, dash_start, dash_type;
       const x = (period * i) / (n-1);
       // get index at min - index = np.argmin(abs(C-(x)))
       let index = 0; let val_at_index = 1e16;
-      for (let j = 0, end2 = C.length, asc1 = 0 <= end2; asc1 ? j < end2 : j > end2; asc1 ? j++ : j--) {
+      for (let j = 0, endj = C.length; j < endj; j++) {
         const val = Math.abs(C[j]-x);
         if (val < val_at_index) {
            index = j; val_at_index = val;
@@ -100,7 +97,7 @@ export class LineGLGlyph extends BaseGLGlyph {
         'triangle in': 2, '<': 2,
         'triangle out': 3, '>': 3,
         'square': 4, '[': 4, ']': 4, '=': 4,
-        'butt': 5, '|': 5
+        'butt': 5, '|': 5,
       };
 
       this.prototype.VERT = vertex_shader
@@ -182,24 +179,20 @@ export class LineGLGlyph extends BaseGLGlyph {
       } else {
         // Work around the limit that the indexbuffer must be uint16. We draw in chunks.
         // First collect indices in chunks
-        let chunk, i;
-        let asc, end;
-        let asc1, end1;
         indices = this.I_triangles;
         const nvertices = this.I_triangles.length;
         const chunksize = 64008;  // 65536 max. 64008 is divisible by 12
         const chunks = [];
-        for (i = 0, end = Math.ceil(nvertices/chunksize), asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+        for (let i = 0, end = Math.ceil(nvertices/chunksize); i < end; i++) {
            chunks.push([]);
         }
-        for (i = 0, end1 = indices.length, asc1 = 0 <= end1; asc1 ? i < end1 : i > end1; asc1 ? i++ : i--) {
+        for (let i = 0, end = indices.length; i < end; i++) {
           const uint16_index = indices[i] % chunksize;
-          chunk = Math.floor(indices[i] / chunksize);
+          const chunk = Math.floor(indices[i] / chunksize);
           chunks[chunk].push(uint16_index);
         }
         // Then draw each chunk
-        let asc2, end2;
-        for (chunk = 0, end2 = chunks.length, asc2 = 0 <= end2; asc2 ? chunk < end2 : chunk > end2; asc2 ? chunk++ : chunk--) {
+        for (let chunk = 0, end = chunks.length; chunk < end; chunk++) {
           const these_indices = new Uint16Array(chunks[chunk]);
           const offset = chunk * chunksize * 4;
           if (these_indices.length === 0) {
@@ -275,14 +268,7 @@ export class LineGLGlyph extends BaseGLGlyph {
       //                         ('a_texcoord', 'f4', 2) ])
 
       // Init array of implicit shape nx2
-      let i, I, T, V_angles2, V_position2, V_tangents2, V_texcoord2, Vp, Vt;
-      let asc, end;
-      let asc1, end1;
-      let asc2, end2;
-      let asc3, end3;
-      let asc4, end4;
-      let asc5, end5;
-      let asc6, end6;
+      let I, T, V_angles2, V_position2, V_tangents2, V_texcoord2, Vp, Vt;
       const n = this.nvertices;
       const _x = new Float64Array(this.glyph._x);
       const _y = new Float64Array(this.glyph._y);
@@ -294,19 +280,19 @@ export class LineGLGlyph extends BaseGLGlyph {
       const V_tangents = (Vt = new Float32Array(n*4));  // mind the 4!
 
       // Position
-      for (i = 0, end = n, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+      for (let i = 0, end = n; i < end; i++) {
         V_position[(i*2)+0] = _x[i] + this._baked_offset[0];
         V_position[(i*2)+1] = _y[i] + this._baked_offset[1];
       }
 
       // Tangents & norms (need tangents to calculate segments based on scale)
       this.tangents = (T = new Float32Array((n*2)-2));
-      for (i = 0, end1 = n-1, asc1 = 0 <= end1; asc1 ? i < end1 : i > end1; asc1 ? i++ : i--) {
+      for (let i = 0, end = n-1; i < end; i++) {
         T[(i*2)+0] = Vp[((i+1)*2)+0] - Vp[(i*2)+0];
         T[(i*2)+1] = Vp[((i+1)*2)+1] - Vp[(i*2)+1];
       }
 
-      for (i = 0, end2 = n-1, asc2 = 0 <= end2; asc2 ? i < end2 : i > end2; asc2 ? i++ : i--) {
+      for (let i = 0, end = n-1; i < end; i++) {
         // V['a_tangents'][+1:, :2] = T
         V_tangents[((i+1)*4)+0] = T[(i*2)+0];
         V_tangents[((i+1)*4)+1] = T[(i*2)+1];
@@ -324,11 +310,11 @@ export class LineGLGlyph extends BaseGLGlyph {
 
       // Angles
       const A = new Float32Array(n);
-      for (i = 0, end3 = n, asc3 = 0 <= end3; asc3 ? i < end3 : i > end3; asc3 ? i++ : i--) {
+      for (let i = 0, end = n; i < end; i++) {
         A[i] = Math.atan2((Vt[(i*4)+0]*Vt[(i*4)+3]) - (Vt[(i*4)+1]*Vt[(i*4)+2]),
                           (Vt[(i*4)+0]*Vt[(i*4)+2]) + (Vt[(i*4)+1]*Vt[(i*4)+3]));
       }
-      for (i = 0, end4 = n-1, asc4 = 0 <= end4; asc4 ? i < end4 : i > end4; asc4 ? i++ : i--) {
+      for (let i = 0, end = n-1; i < end; i++) {
         V_angles[(i*2)+0] = A[i];
         V_angles[(i*2)+1] = A[i+1];
       }
@@ -344,20 +330,19 @@ export class LineGLGlyph extends BaseGLGlyph {
       const o = 2;
       //
       // Arg, we really need an ndarray thing in JS :/
-      for (i = 0, end5 = n, asc5 = 0 <= end5; asc5 ? i < end5 : i > end5; asc5 ? i++ : i--) {  // all nodes on the line
+      for (let i = 0, end = n; i < end; i++) {  // all nodes on the line
          for (let j = 0; j < 4; j++) {  // the four quad vertices
-            var k;
-            for (k = 0; k < 2; k++) {  // xy
-              V_position2[((((i*4)+j)-o)*2)+k] = V_position[(i*2)+k];
-              V_angles2[(((i*4)+j)*2)+k] = V_angles[(i*2)+k];
+          for (let k = 0; k < 2; k++) {  // xy
+            V_position2[((((i*4)+j)-o)*2)+k] = V_position[(i*2)+k];
+            V_angles2[(((i*4)+j)*2)+k] = V_angles[(i*2)+k];
           }  // no offset
-            for (k = 0; k < 4; k++) {
-              V_tangents2[((((i*4)+j)-o)*4)+k] = V_tangents[(i*4)+k];
+          for (let k = 0; k < 4; k++) {
+            V_tangents2[((((i*4)+j)-o)*4)+k] = V_tangents[(i*4)+k];
           }
         }
       }
 
-      for (i = 0, end6 = n, asc6 = 0 <= end6; asc6 ? i <= end6 : i >= end6; asc6 ? i++ : i--) {
+      for (let i = 0, end = n; i < end; i++) {
         V_texcoord2[(((i*4)+0)*2)+0] = -1;
         V_texcoord2[(((i*4)+1)*2)+0] = -1;
         V_texcoord2[(((i*4)+2)*2)+0] = +1;
@@ -377,8 +362,7 @@ export class LineGLGlyph extends BaseGLGlyph {
       // Order of indices is such that drawing as line_strip reveals the line skeleton
       // Might have implications on culling, if we ever turn that on.
       // Order in paper was: 0 1 2 1 2 3
-      let asc7, end7;
-      for (i = 0, end7 = n, asc7 = 0 <= end7; asc7 ? i < end7 : i > end7; asc7 ? i++ : i--) {
+      for (let i = 0, end = n; i < end; i++) {
         I[(i*6)+0] = 0 + (4*i);
         I[(i*6)+1] = 1 + (4*i);
         I[(i*6)+2] = 3 + (4*i);
@@ -393,10 +377,7 @@ export class LineGLGlyph extends BaseGLGlyph {
       // scale aspect ratio in it. In the vertex shader we multiply with the
       // "isotropic part" of the scale.
 
-      let i, V_segment2;
-      let asc, end;
-      let asc1, end1;
-      let asc2, end2;
+      let V_segment2;
       const n = this.nvertices;
       const m = (4 * n) - 4;
       // Prepare arrays
@@ -405,18 +386,18 @@ export class LineGLGlyph extends BaseGLGlyph {
       const V_segment = new Float32Array(n*2);  // Elements are initialized with 0
       this.V_segment = (V_segment2 = new Float32Array(m*2));
       // Calculate vector lengths - with scale aspect ratio taken into account
-      for (i = 0, end = n-1, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+      for (let i = 0, end = n-1; i < end; i++) {
         N[i] = Math.sqrt(Math.pow(T[(i*2)+0] * sx, 2) + Math.pow(T[(i*2)+1] * sy, 2));
       }
       // Calculate Segments
       let cumsum = 0;
-      for (i = 0, end1 = n-1, asc1 = 0 <= end1; asc1 ? i < end1 : i > end1; asc1 ? i++ : i--) {
+      for (let i = 0, end = n-1; i < end; i++) {
         cumsum += N[i];
         V_segment[((i+1)*2)+0] = cumsum;
         V_segment[(i*2)+1] = cumsum;
       }
       // Upscale (same loop as in _bake())
-      for (i = 0, end2 = n, asc2 = 0 <= end2; asc2 ? i < end2 : i > end2; asc2 ? i++ : i--) {
+      for (let i = 0, end = n; i < end; i++) {
          for (let j = 0; j < 4; j++) {
             for (let k = 0; k < 2; k++) {
               V_segment2[(((i*4)+j)*2)+k] = V_segment[(i*2)+k];

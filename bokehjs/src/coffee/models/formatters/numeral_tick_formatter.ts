@@ -12,7 +12,7 @@ export class NumeralTickFormatter extends TickFormatter {
       // TODO (bev) all of these could be tightened up
       format:   [ p.String, '0,0'   ],
       language: [ p.String, 'en'    ],
-      rounding: [ p.String, 'round' ]
+      rounding: [ p.String, 'round' ],
     });
   }
 

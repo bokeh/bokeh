@@ -22,7 +22,7 @@ export class RedoTool extends ActionTool {
     this.prototype.default_view = RedoToolView
 
     this.override({
-      disabled: true
+      disabled: true,
     })
   }
 

@@ -9,7 +9,7 @@ export class FuncTickFormatter extends TickFormatter {
 
     this.define({
       args: [ p.Any,     {}           ], // TODO (bev) better type
-      code: [ p.String,  ''           ]
+      code: [ p.String,  ''           ],
     });
   }
 

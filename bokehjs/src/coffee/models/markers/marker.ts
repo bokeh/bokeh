@@ -136,7 +136,7 @@ export class MarkerView extends XYGlyphView {
     const candidates = range(0, this.sx.length);
 
     const hits = [];
-    for (let i = 0, end = candidates.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+    for (let i = 0, end = candidates.length; i < end; i++) {
       const idx = candidates[i];
       if (hittest.point_in_poly(this.sx[i], this.sy[i], sx, sy)) {
         hits.push(idx);
@@ -154,7 +154,7 @@ export class Marker extends XYGlyph {
     this.mixins(['line', 'fill']);
     this.define({
       size:  [ p.DistanceSpec, { units: "screen", value: 4 } ],
-      angle: [ p.AngleSpec,    0                             ]
+      angle: [ p.AngleSpec,    0                             ],
     });
   }
 }

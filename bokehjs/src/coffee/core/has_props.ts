@@ -23,7 +23,7 @@ export abstract class HasProps extends Signalable() {
     this.prototype.mixins = []
 
     this.define({
-      id: [ p.Any ]
+      id: [ p.Any ],
     })
   }
 
@@ -156,17 +156,17 @@ export abstract class HasProps extends Signalable() {
     if (attributes.id == null)
       this.setv(["id", uniqueId()], {silent: true})
 
-    this.setv(attributes, extend({silent: true}, options))
+    this.setv(attributes, {silent: true})
 
     // allowing us to defer initialization when loading many models
     // when loading a bunch of models, we want to do initialization as a second pass
     // because other objects that this one depends on might not be loaded yet
 
     if (!options.defer_initialization)
-      this.finalize(options)
+      this.finalize()
   }
 
-  finalize(options: HasProps.Options): void {
+  finalize(): void {
     // This is necessary because the initial creation of properties relies on
     // model.get which is not usable at that point yet in the constructor. This
     // initializer is called when deferred initialization happens for all models
@@ -183,11 +183,11 @@ export abstract class HasProps extends Signalable() {
         this.connect(prop.spec.transform.change, () => this.transformchange.emit(undefined))
     }
 
-    this.initialize(options)
+    this.initialize()
     this.connect_signals()
   }
 
-  initialize(_options: any): void {}
+  initialize(): void {}
 
   connect_signals(): void {}
 

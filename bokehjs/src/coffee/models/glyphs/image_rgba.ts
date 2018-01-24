@@ -18,7 +18,7 @@ export class ImageRGBAView extends XYGlyphView {
       this._height = new Array(this._image.length);
     }
 
-    for (let i = 0, end = this._image.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+    for (let i = 0, end = this._image.length; i < end; i++) {
       let buf, canvas;
       if ((indices != null) && (indices.indexOf(i) < 0)) {
         continue;
@@ -37,7 +37,7 @@ export class ImageRGBAView extends XYGlyphView {
         const flat = concat(this._image[i]);
         buf = new ArrayBuffer(flat.length * 4);
         const color = new Uint32Array(buf);
-        for (let j = 0, end1 = flat.length, asc1 = 0 <= end1; asc1 ? j < end1 : j > end1; asc1 ? j++ : j--) {
+        for (let j = 0, endj = flat.length; j < endj; j++) {
           color[j] = flat[j];
         }
         this._height[i] = this._image[i].length;
@@ -123,7 +123,7 @@ export class ImageRGBA extends XYGlyph {
         image:  [ p.NumberSpec       ], // TODO (bev) array spec?
         dw:     [ p.DistanceSpec     ],
         dh:     [ p.DistanceSpec     ],
-        dilate: [ p.Bool,      false ]
+        dilate: [ p.Bool,      false ],
     });
   }
 }

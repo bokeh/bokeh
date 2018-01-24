@@ -121,16 +121,16 @@ export class Span extends Annotation {
         y_range_name:   [ p.String,       'default' ],
         location:       [ p.Number,       null      ],
         location_units: [ p.SpatialUnits, 'data'    ],
-        dimension:      [ p.Dimension,    'width'   ]
+        dimension:      [ p.Dimension,    'width'   ],
     });
 
     this.override({
-      line_color: 'black'
+      line_color: 'black',
     });
 
     this.internal({
       for_hover: [ p.Boolean, false ],
-      computed_location: [ p.Number, null ] // absolute screen coordinate
+      computed_location: [ p.Number, null ], // absolute screen coordinate
     });
   }
 }

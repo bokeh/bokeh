@@ -8,12 +8,12 @@ export class ImageSource extends Model {
 
     this.define({
         url:            [ p.String, '' ],
-        extra_url_vars: [ p.Any,    {} ]
+        extra_url_vars: [ p.Any,    {} ],
       });
   }
 
-  initialize(options: any): void {
-    super.initialize(options);
+  initialize(): void {
+    super.initialize();
     this.images = {};
     this.normalize_case();
   }

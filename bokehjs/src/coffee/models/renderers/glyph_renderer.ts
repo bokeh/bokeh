@@ -135,7 +135,7 @@ export class GlyphRendererView extends RendererView {
 
     const { lod_factor } = this.plot_model.plot;
     this.decimated = [];
-    for (let i = 0, end = Math.floor(this.all_indices.length/lod_factor), asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+    for (let i = 0, end = Math.floor(this.all_indices.length/lod_factor); i < end; i++) {
       this.decimated.push(i*lod_factor);
     }
 
@@ -151,7 +151,6 @@ export class GlyphRendererView extends RendererView {
 
   render() {
     let dtrender, dtselect, glyph, nonselection_glyph, selection_glyph, trender;
-    let i;
     if (!this.model.visible) {
       return;
     }
@@ -198,22 +197,24 @@ export class GlyphRendererView extends RendererView {
         inspected = inspected['1d'].indices;
       } else {
         inspected = ((() => {
-          const result1 = [];
-          for (i of Object.keys(inspected["2d"].indices)) {             result1.push(parseInt(i));
+          const result = [];
+          for (const i of Object.keys(inspected["2d"].indices)) {
+            result.push(parseInt(i));
           }
-          return result1;
+          return result;
         })());
       }
     }
 
     // inspected is transformed to subset space
     inspected = ((() => {
-      const result2 = [];
-      for (i of indices) {         if (includes(inspected, this.all_indices[i])) {
-          result2.push(i);
+      const result = [];
+      for (const i of indices) {
+        if (includes(inspected, this.all_indices[i])) {
+          result.push(i);
         }
       }
-      return result2;
+      return result;
     })());
 
     const { lod_threshold } = this.plot_model.plot;
@@ -255,7 +256,7 @@ export class GlyphRendererView extends RendererView {
       // reset the selection mask
       const tselect = Date.now();
       const selected_mask = {};
-      for (i of selected) {
+      for (const i of selected) {
         selected_mask[i] = true;
       }
 
@@ -265,7 +266,7 @@ export class GlyphRendererView extends RendererView {
 
       // now, selected is changed to subset space, except for Line glyph
       if (this.glyph instanceof LineView) {
-        for (i of this.all_indices) {
+        for (const i of this.all_indices) {
           if (selected_mask[i] != null) {
             selected.push(i);
           } else {
@@ -273,7 +274,7 @@ export class GlyphRendererView extends RendererView {
           }
         }
       } else {
-        for (i of indices) {
+        for (const i of indices) {
           if (selected_mask[this.all_indices[i]] != null) {
             selected.push(i);
           } else {
@@ -350,11 +351,11 @@ export class GlyphRenderer extends Renderer {
         nonselection_glyph: [ p.Any,      'auto'   ], // Instance or "auto"
         selection_glyph:    [ p.Any,      'auto'   ], // Instance or "auto"
         muted_glyph:        [ p.Instance           ],
-        muted:              [ p.Bool,        false ]
+        muted:              [ p.Bool,        false ],
       });
 
     this.override({
-      level: 'glyph'
+      level: 'glyph',
     });
 
     this.prototype.selection_defaults = {fill: {}, line: {}};
@@ -362,8 +363,8 @@ export class GlyphRenderer extends Renderer {
     this.prototype.nonselection_defaults = {fill: {fill_alpha: 0.2, line_alpha: 0.2}, line: {}};
   }
 
-  initialize(options: any): void {
-    super.initialize(options);
+  initialize(): void {
+    super.initialize();
 
     if ((this.view.source == null)) {
       this.view.source = this.data_source;

@@ -76,7 +76,7 @@ export class Text extends XYGlyph {
       text:     [ p.StringSpec, {field: "text"} ],
       angle:    [ p.AngleSpec,  0               ],
       x_offset: [ p.NumberSpec, 0               ],
-      y_offset: [ p.NumberSpec, 0               ]
+      y_offset: [ p.NumberSpec, 0               ],
     });
   }
 }

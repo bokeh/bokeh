@@ -9,18 +9,18 @@ export class MercatorTileSource extends TileSource {
 
     this.define({
       snap_to_zoom:       [ p.Bool,   false              ],
-      wrap_around:        [ p.Bool,   true               ]
+      wrap_around:        [ p.Bool,   true               ],
     });
 
     this.override({
       x_origin_offset:    20037508.34,
       y_origin_offset:    20037508.34,
-      initial_resolution: 156543.03392804097
+      initial_resolution: 156543.03392804097,
     });
   }
 
-  initialize(options: any): void {
-    super.initialize(options);
+  initialize(): void {
+    super.initialize();
     this._resolutions = (range(this.min_zoom, this.max_zoom+1).map((z) => this.get_resolution(z)));
   }
 

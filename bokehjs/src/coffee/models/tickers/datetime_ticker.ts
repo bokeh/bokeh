@@ -61,7 +61,7 @@ export class DatetimeTicker extends CompositeTicker {
 
         // Years
         new YearsTicker({}),
-      ]
+      ],
     })
   }
 }

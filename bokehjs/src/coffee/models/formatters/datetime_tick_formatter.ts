@@ -54,20 +54,20 @@ export class DatetimeTickFormatter extends TickFormatter {
       hours:        [ p.Array, ['%Hh', '%H:%M'] ],
       days:         [ p.Array, ['%m/%d', '%a%d'] ],
       months:       [ p.Array, ['%m/%Y', '%b%y'] ],
-      years:        [ p.Array, ['%Y'] ]
+      years:        [ p.Array, ['%Y'] ],
     });
 
     // Labels of time units, from finest to coarsest.
     this.prototype.format_order = [
-      'microseconds', 'milliseconds', 'seconds', 'minsec', 'minutes', 'hourmin', 'hours', 'days', 'months', 'years'
+      'microseconds', 'milliseconds', 'seconds', 'minsec', 'minutes', 'hourmin', 'hours', 'days', 'months', 'years',
     ];
 
     // Whether or not to strip the leading zeros on tick labels.
     this.prototype.strip_leading_zeros = true;
   }
 
-  initialize(options: any): void {
-    super.initialize(options);
+  initialize(): void {
+    super.initialize();
     // TODO (bev) trigger update on format change
     this._update_width_formats();
   }
@@ -91,7 +91,7 @@ export class DatetimeTickFormatter extends TickFormatter {
       hours:        _widths(this.hours),
       days:         _widths(this.days),
       months:       _widths(this.months),
-      years:        _widths(this.years)
+      years:        _widths(this.years),
     };
   }
 
@@ -146,7 +146,7 @@ export class DatetimeTickFormatter extends TickFormatter {
       // If a width is provided, then we pick the most appropriate scale,
       // otherwise just use the widest format
       const good_formats = [];
-      for (let i = 0, end = widths.length, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
+      for (let i = 0, end = widths.length; i < end; i++) {
         if ((widths[i] * ticks.length) < (fill_ratio * char_width)) {
           good_formats.push(this._width_formats[i]);
         }
