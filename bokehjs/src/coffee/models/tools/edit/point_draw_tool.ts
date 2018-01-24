@@ -142,5 +142,5 @@ PointDrawTool.prototype.default_view = PointDrawToolView
 
 PointDrawTool.define({
   add:  [ p.Bool, true ],
-  drag: [ p.Bool, true ]
+  drag: [ p.Bool, true ],
 })

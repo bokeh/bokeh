@@ -29,7 +29,7 @@ const make_testcase = function(): PolyEditTestCase {
   // Note default plot dimensions is 600 x 600 (height x width)
   const plot = new Plot({
     x_range: new Range1d({start: -1, end: 1}),
-    y_range: new Range1d({start: -1, end: 1})
+    y_range: new Range1d({start: -1, end: 1}),
   });
 
   const plot_view: any = new plot.default_view({model: plot, parent: null});
@@ -40,14 +40,14 @@ const make_testcase = function(): PolyEditTestCase {
   const data = {
     xs: [[0, 0.5, 1], [0, 0.5, 1]],
     ys: [[0, -0.5, -1], [0, -0.5, -1]],
-    z: [null, null]
+    z: [null, null],
   };
   const data_source = new ColumnDataSource({data: data});
   const vertex_source = new ColumnDataSource({data: {x: [], y: []}});
 
   const vertex_glyph = new Circle({
     x: {field: "x"},
-    y: {field: "y"}
+    y: {field: "y"},
   });
   const glyph = new Patches({
     xs: {field: "xs"},
@@ -56,19 +56,19 @@ const make_testcase = function(): PolyEditTestCase {
 
   const vertex_renderer = new GlyphRenderer({
     glyph: vertex_glyph,
-    data_source: vertex_source
+    data_source: vertex_source,
   });
 
   const glyph_renderer = new GlyphRenderer({
     glyph: glyph,
-    data_source: data_source
+    data_source: data_source,
   });
 
   // Untyped to access GlyphView
   const glyph_renderer_view: any = new glyph_renderer.default_view({
     model: glyph_renderer,
     plot_view: plot_canvas_view,
-    parent: plot_canvas_view
+    parent: plot_canvas_view,
   });
   sinon.stub(glyph_renderer_view, "set_data");
 
@@ -76,7 +76,7 @@ const make_testcase = function(): PolyEditTestCase {
   const vertex_renderer_view: any = new vertex_renderer.default_view({
     model: vertex_renderer,
     plot_view: plot_canvas_view,
-    parent: plot_canvas_view
+    parent: plot_canvas_view,
   });
 
 
@@ -84,7 +84,7 @@ const make_testcase = function(): PolyEditTestCase {
     active: true,
     empty_value: "Test",
     renderers: [glyph_renderer],
-    vertex_renderer: vertex_renderer
+    vertex_renderer: vertex_renderer,
   });
   plot.add_tools(draw_tool);
   const draw_tool_view = plot_canvas_view.tool_views[draw_tool.id];
@@ -99,7 +99,7 @@ const make_testcase = function(): PolyEditTestCase {
     glyph_renderer: glyph_renderer,
     vertex_glyph_view: vertex_renderer_view.glyph,
     vertex_source: vertex_source,
-    vertex_renderer: vertex_renderer
+    vertex_renderer: vertex_renderer,
   }
 }
 

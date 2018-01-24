@@ -24,7 +24,7 @@ const make_testcase = function(): BoxDrawTestCase {
   // Note default plot dimensions is 600 x 600 (height x width)
   const plot = new Plot({
     x_range: new Range1d({start: -1, end: 1}),
-    y_range: new Range1d({start: -1, end: 1})
+    y_range: new Range1d({start: -1, end: 1}),
   });
 
   const plot_view: any = new plot.default_view({model: plot, parent: null});
@@ -37,7 +37,7 @@ const make_testcase = function(): BoxDrawTestCase {
     y: [0, 0.5, 1],
     width: [0.1, 0.2, 0.3],
     height: [0.3, 0.2, 0.1],
-    z: [null, null, null]
+    z: [null, null, null],
   };
   const data_source = new ColumnDataSource({data: data});
 
@@ -45,25 +45,25 @@ const make_testcase = function(): BoxDrawTestCase {
     x: {field: "x"},
     y: {field: "y"},
     width: {field: "width"},
-    height: {field: "height"}
+    height: {field: "height"},
   });
 
   const glyph_renderer = new GlyphRenderer({
     glyph: glyph,
-    data_source: data_source
+    data_source: data_source,
   });
 
   // Untyped to access GlyphView
   const glyph_renderer_view: any = new glyph_renderer.default_view({
     model: glyph_renderer,
     plot_view: plot_canvas_view,
-    parent: plot_canvas_view
+    parent: plot_canvas_view,
   });
 
   const draw_tool = new BoxDrawTool({
     active: true,
     renderers: [glyph_renderer],
-    empty_value: "Test"
+    empty_value: "Test",
   });
   plot.add_tools(draw_tool);
   const draw_tool_view = plot_canvas_view.tool_views[draw_tool.id];
@@ -73,7 +73,7 @@ const make_testcase = function(): BoxDrawTestCase {
     data: data,
     data_source: data_source,
     draw_tool_view: draw_tool_view,
-    glyph_view: glyph_renderer_view.glyph
+    glyph_view: glyph_renderer_view.glyph,
   }
 }
 
@@ -172,5 +172,5 @@ describe("BoxDrawTool", () =>
       expect(testcase.data_source.data['height']).to.be.deep.equal([0.3, 0.2, 0.1, 0.3389830508474576]);
       expect(testcase.data_source.data['z']).to.be.deep.equal([null, null, null, "Test"]);
     });
-  })
+  }),
 );

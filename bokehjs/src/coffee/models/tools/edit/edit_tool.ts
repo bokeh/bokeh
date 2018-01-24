@@ -34,7 +34,7 @@ export abstract class EditToolView extends GestureToolView {
     const cds = renderer.data_source;
     const indices = cds.selected['1d'].indices;
     for (const column of cds.columns()) {
-      let values = cds.data[column];
+      const values = cds.data[column];
       for (let index = 0; index < indices.length; index++) {
         const ind = indices[index];
         values.splice(ind-index, 1);
@@ -59,7 +59,7 @@ export abstract class EditToolView extends GestureToolView {
     }
   }
 
-  _select_event(e: BkEv, append: boolean, renderers: GlyphRenderer[] & Array<HasCDS>): GlyphRenderer[] & Array<HasCDS> {
+  _select_event(e: BkEv, append: boolean, renderers: (GlyphRenderer & HasCDS)[]): (GlyphRenderer & HasCDS)[] {
     // Process selection event on the supplied renderers and return selected renderers
     const frame = this.plot_model.frame;
     const {sx, sy} = e.bokeh;
@@ -97,5 +97,5 @@ EditTool.prototype.type = "EditTool"
 
 EditTool.define({
   empty_value: [ p.Any ],
-  renderers:   [ p.Array, [] ]
+  renderers:   [ p.Array, [] ],
 })

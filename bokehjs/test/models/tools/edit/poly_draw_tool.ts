@@ -24,7 +24,7 @@ const make_testcase = function(): PolyDrawTestCase {
   // Note default plot dimensions is 600 x 600 (height x width)
   const plot = new Plot({
     x_range: new Range1d({start: -1, end: 1}),
-    y_range: new Range1d({start: -1, end: 1})
+    y_range: new Range1d({start: -1, end: 1}),
   });
 
   const plot_view: any = new plot.default_view({model: plot, parent: null});
@@ -35,7 +35,7 @@ const make_testcase = function(): PolyDrawTestCase {
   const data = {
     xs: [[0, 0.5, 1], [0, 0.5, 1]],
     ys: [[0, -0.5, -1], [0, -0.5, -1]],
-    z: [null, null]
+    z: [null, null],
   };
   const data_source = new ColumnDataSource({data: data});
 
@@ -46,19 +46,19 @@ const make_testcase = function(): PolyDrawTestCase {
 
   const glyph_renderer = new GlyphRenderer({
     glyph: glyph,
-    data_source: data_source
+    data_source: data_source,
   });
 
   const glyph_renderer_view: any = new glyph_renderer.default_view({
     model: glyph_renderer,
     plot_view: plot_canvas_view,
-    parent: plot_canvas_view
+    parent: plot_canvas_view,
   });
 
   const draw_tool = new PolyDrawTool({
     active: true,
     empty_value: "Test",
-    renderers: [glyph_renderer]
+    renderers: [glyph_renderer],
   });
   plot.add_tools(draw_tool);
   const draw_tool_view = plot_canvas_view.tool_views[draw_tool.id];
@@ -69,7 +69,7 @@ const make_testcase = function(): PolyDrawTestCase {
     data: data,
     data_source: data_source,
     draw_tool_view: draw_tool_view,
-    glyph_view: glyph_renderer_view.glyph
+    glyph_view: glyph_renderer_view.glyph,
   }
 }
 
