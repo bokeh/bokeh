@@ -189,6 +189,32 @@ describe("PointDrawTool", (): void => {
       expect(testcase.data_source.data['z']).to.be.deep.equal([null, null, null]);
     });
 
+    it("should drag previously selected on pan", function(): void {
+      const testcase = make_testcase();
+      const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test");
+
+      hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
+      const tap_event = make_event(300, 300);
+      testcase.draw_tool_view._tap(tap_event);
+
+      hit_test_stub.returns(null);
+      let drag_event = make_event(300, 300);
+      testcase.draw_tool_view._pan_start(drag_event);
+      expect(testcase.draw_tool_view._basepoint).to.be.deep.equal([300, 300]);
+
+      drag_event = make_event(200, 200);
+      testcase.draw_tool_view._pan(drag_event);
+      expect(testcase.draw_tool_view._basepoint).to.be.deep.equal([200, 200]);
+
+      drag_event = make_event(200, 200);
+      testcase.draw_tool_view._pan_end(drag_event);
+      expect(testcase.draw_tool_view._basepoint).to.be.equal(null);
+      expect(testcase.data_source.selected['1d'].indices).to.be.deep.equal([]);
+      expect(testcase.data_source.data['x']).to.be.deep.equal([0, 0.14601769911504425, 1]);
+      expect(testcase.data_source.data['y']).to.be.deep.equal([0, 0.8389830508474576, 1]);
+      expect(testcase.data_source.data['z']).to.be.deep.equal([null, null, null]);
+    });
+
     it("should drag all selected points on pan", function(): void {
       const testcase = make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test");

@@ -80,7 +80,14 @@ export class PointDrawToolView extends EditToolView {
   _pan_start(e: BkEv): void {
     if (this.model.drag) {
       const append = e.srcEvent.shiftKey != null ? e.srcEvent.shiftKey : false;
-      this._select_event(e, append, this.model.renderers);
+      for (const renderer of this.model.renderers) {
+		const indices = renderer.data_source.selected['1d'].indices;
+	    const renderers = this._select_event(e, append, [renderer]);
+		if (!renderers.length) {
+		  renderer.data_source.selected['1d'].indices = indices;
+		  renderer.data_source.properties.selected.change.emit(undefined);
+		}
+	  }
       this._basepoint = [e.bokeh.sx, e.bokeh.sy];
     }
   }
@@ -110,7 +117,6 @@ export class PointDrawToolView extends EditToolView {
         if (ykey) { ds.data[ykey][index] += dy; }
       }
       ds.change.emit(undefined);
-      ds.properties.data.change.emit(undefined);
     }
     this._basepoint = [e.bokeh.sx, e.bokeh.sy];
   }
@@ -119,6 +125,7 @@ export class PointDrawToolView extends EditToolView {
     if (!this.model.drag) { return; }
     for (const renderer of this.model.renderers) {
       renderer.data_source.selected['1d'].indices = [];
+      renderer.data_source.properties.data.change.emit(undefined);
     }
     this._basepoint = null;
   }
