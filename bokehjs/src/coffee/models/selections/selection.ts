@@ -2,7 +2,7 @@ import {Model} from "../../model"
 import * as p from "core/properties"
 import {union, intersection} from "core/util/array"
 import {merge} from "core/util/object"
-import {Glyph} from "models/glyphs/glyph"
+import {Glyph, GlyphView} from "models/glyphs/glyph"
 
 export class Selection extends Model {
   static initClass() {
@@ -20,6 +20,14 @@ export class Selection extends Model {
       multiline_indices: [ p.Any,     {} ],
     });
   }
+
+  indices: number[]
+  final: boolean
+  line_indices: number[]
+  selected_glyphs: Glyph[]
+  get_view: () => GlyphView | null
+  multiline_indices: {[key: string]: number[]} // XXX: [key: number]?
+  [key: string]: any
 
   initialize(): void {
     super.initialize()
@@ -77,7 +85,7 @@ export class Selection extends Model {
     this.indices = []
     this.line_indices = []
     this.multiline_indices = {}
-    this.get_view = null
+    this.get_view = () => null
     this.selected_glyphs = []
   }
 

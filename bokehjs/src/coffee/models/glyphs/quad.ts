@@ -1,6 +1,6 @@
 /* XXX: partial */
-import {Box, BoxView} from "./box"
-import {RBush} from "core/util/spatial"
+import {Box, BoxView} from "./box";
+import {RBush} from "core/util/spatial";
 
 export class QuadView extends BoxView {
 

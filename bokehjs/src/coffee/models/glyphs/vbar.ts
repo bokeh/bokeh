@@ -1,7 +1,7 @@
 /* XXX: partial */
 import {Box, BoxView} from "./box";
-import * as p from "core/properties"
-import {RBush} from "core/util/spatial"
+import * as p from "core/properties";
+import {RBush} from "core/util/spatial";
 
 export class VBarView extends BoxView {
 

@@ -1,8 +1,10 @@
 /* XXX: partial */
 import {XYGlyph, XYGlyphView} from "./xy_glyph";
+import {PointGeometry, RectGeometry} from "core/geometry";
 import * as hittest from "core/hittest";
 import * as p from "core/properties";
 import {max} from "core/util/array";
+import {Selection} from "models/selections/selection";
 
 export class RectView extends XYGlyphView {
 
@@ -108,11 +110,11 @@ export class RectView extends XYGlyphView {
     }
   }
 
-  _hit_rect(geometry) {
+  _hit_rect(geometry: RectGeometry): Selection {
     return this._hit_rect_against_index(geometry);
   }
 
-  _hit_point(geometry) {
+  _hit_point(geometry: PointGeometry): Selection {
     let {sx, sy} = geometry;
     const x = this.renderer.xscale.invert(sx);
     const y = this.renderer.yscale.invert(sy);

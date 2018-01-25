@@ -22,7 +22,9 @@ export class ColumnarDataSource extends DataSource {
   streaming: Signal<any, this>
   patching: Signal<any, this> // <number[], ColumnarDataSource>
 
+  inspected: Selection
   selection_policy: SelectionPolicy
+  selection_manager: SelectionManager
 
   static initClass() {
     this.prototype.type = 'ColumnarDataSource'

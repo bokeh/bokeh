@@ -1,7 +1,9 @@
 /* XXX: partial */
 import {XYGlyph, XYGlyphView} from "./xy_glyph";
+import {PointGeometry} from "core/geometry";
 import * as hittest from "core/hittest";
-import * as p from "core/properties"
+import * as p from "core/properties";
+import {Selection} from "models/selections/selection";
 
 export class AnnulusView extends XYGlyphView {
 
@@ -63,7 +65,7 @@ export class AnnulusView extends XYGlyphView {
     }
   }
 
-  _hit_point(geometry) {
+  _hit_point(geometry: PointGeometry): Selection {
     const {sx, sy} = geometry;
     const x = this.renderer.xscale.invert(sx);
     const x0 = x - this.max_radius;

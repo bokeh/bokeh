@@ -1,8 +1,10 @@
 /* XXX: partial */
 import {XYGlyph, XYGlyphView} from "../glyphs/xy_glyph";
+import {PointGeometry, SpanGeometry, RectGeometry, PolyGeometry} from "core/geometry";
 import * as hittest from "core/hittest";
-import * as p from "core/properties"
-import {range} from "core/util/array"
+import * as p from "core/properties";
+import {range} from "core/util/array";
+import {Selection} from "models/selections/selection";
 
 export class MarkerView extends XYGlyphView {
 
@@ -65,7 +67,7 @@ export class MarkerView extends XYGlyphView {
     return this.index.indices(bbox);
   }
 
-  _hit_point(geometry) {
+  _hit_point(geometry: PointGeometry): Selection {
     const {sx, sy} = geometry;
 
     const sx0 = sx - this.max_size;
@@ -90,7 +92,7 @@ export class MarkerView extends XYGlyphView {
     return hittest.create_1d_hit_test_result(hits);
   }
 
-  _hit_span(geometry) {
+  _hit_span(geometry: SpanGeometry): Selection {
     let ms, x0, x1, y0, y1;
     const {sx, sy} = geometry;
     const {minX, minY, maxX, maxY} = this.bounds();
@@ -119,7 +121,7 @@ export class MarkerView extends XYGlyphView {
     return result;
   }
 
-  _hit_rect(geometry) {
+  _hit_rect(geometry: RectGeometry): Selection {
     const {sx0, sx1, sy0, sy1} = geometry;
     const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1);
     const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1);
@@ -129,7 +131,7 @@ export class MarkerView extends XYGlyphView {
     return result;
   }
 
-  _hit_poly(geometry) {
+  _hit_poly(geometry: PolyGeometry): Selection {
     const {sx, sy} = geometry;
 
     // TODO (bev) use spatial index to pare candidate list

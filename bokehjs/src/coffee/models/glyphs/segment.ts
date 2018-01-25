@@ -1,7 +1,9 @@
 /* XXX: partial */
+import {PointGeometry, SpanGeometry} from "core/geometry";
 import * as hittest from "core/hittest";
 import {RBush} from "core/util/spatial";
-import {Glyph, GlyphView} from "./glyph"
+import {Glyph, GlyphView} from "./glyph";
+import {Selection} from "models/selections/selection";
 
 export class SegmentView extends GlyphView {
 
@@ -39,7 +41,7 @@ export class SegmentView extends GlyphView {
     }
   }
 
-  _hit_point(geometry) {
+  _hit_point(geometry: PointGeometry): Selection {
     const {sx, sy} = geometry;
     const point = {x: sx, y: sy};
 
@@ -64,7 +66,7 @@ export class SegmentView extends GlyphView {
     return result;
   }
 
-  _hit_span(geometry) {
+  _hit_span(geometry: SpanGeometry): Selection {
     let v0, v1, val;
     const [hr, vr] = this.renderer.plot_view.frame.bbox.ranges;
     const {sx, sy} = geometry;

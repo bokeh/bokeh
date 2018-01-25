@@ -1,8 +1,8 @@
 /* XXX: partial */
 import {Renderer, RendererView} from "./renderer";
 import {LineView} from "../glyphs/line";
-import {Glyph} from "../glyphs/glyph";
-import {DataSource} from "../sources/data_source";
+import {Glyph, GlyphView} from "../glyphs/glyph";
+import {ColumnarDataSource} from "../sources/columnar_data_source";
 import {RemoteDataSource} from "../sources/remote_data_source";
 import {CDSView} from "../sources/cds_view";
 import {logger} from "core/logging";
@@ -10,9 +10,12 @@ import * as p from "core/properties";
 import {difference, includes, range} from "core/util/array";
 import {extend, clone} from "core/util/object";
 import * as hittest from "core/hittest";
-import {Geometry} from "core/geometry"
+import {Geometry} from "core/geometry";
+import {SelectionManager} from "core/selection_manager";
 
 export class GlyphRendererView extends RendererView {
+  model: GlyphRenderer
+  glyph: GlyphView
 
   initialize(options: any): void {
     super.initialize(options);
@@ -176,27 +179,29 @@ export class GlyphRendererView extends RendererView {
 
     // selected is in full set space
     let { selected } = this.model.data_source;
+    let selected_full_indices: number[] = []
     if (!selected || selected.is_empty()) {
-      selected = [];
+      selected_full_indices = [];
     } else {
       if (this.glyph instanceof LineView && selected.selected_glyph === this.glyph.model) {
-        selected = this.model.view.convert_indices_from_subset(indices);
+        selected_full_indices = this.model.view.convert_indices_from_subset(indices);
       } else {
-        selected = selected.indices;
+        selected_full_indices = selected.indices;
       }
     }
 
     // inspected is in full set space
     let { inspected } = this.model.data_source;
+    let inspected_full_indices: number[] = []
     if (!inspected || (inspected.length === 0)) {
-      inspected = [];
+      inspected_full_indices = [];
     } else {
       if (inspected['0d'].glyph) {
-        inspected = this.model.view.convert_indices_from_subset(indices);
+        inspected_full_indices = this.model.view.convert_indices_from_subset(indices);
       } else if (inspected['1d'].indices.length > 0) {
-        inspected = inspected['1d'].indices;
+        inspected_full_indices = inspected['1d'].indices;
       } else {
-        inspected = ((() => {
+        inspected_full_indices = ((() => {
           const result = [];
           for (const i of Object.keys(inspected["2d"].indices)) {
             result.push(parseInt(i));
@@ -207,10 +212,10 @@ export class GlyphRendererView extends RendererView {
     }
 
     // inspected is transformed to subset space
-    inspected = ((() => {
+    let inspected_subset_indices: number[] = ((() => {
       const result = [];
       for (const i of indices) {
-        if (includes(inspected, this.all_indices[i])) {
+        if (includes(inspected_full_indices, this.all_indices[i])) {
           result.push(i);
         }
       }
@@ -230,23 +235,23 @@ export class GlyphRendererView extends RendererView {
       ({ selection_glyph } = this);
     }
 
-    if ((this.hover_glyph != null) && inspected.length) {
-      indices = difference(indices, inspected);
+    if ((this.hover_glyph != null) && inspected_subset_indices.length) {
+      indices = difference(indices, inspected_subset_indices);
     }
 
     // Render with no selection
-    if (!(selected.length && this.have_selection_glyphs())) {
+    if (!(selected_full_indices.length && this.have_selection_glyphs())) {
         trender = Date.now();
         if (this.glyph instanceof LineView) {
-          if (this.hover_glyph && inspected.length) {
-            this.hover_glyph.render(ctx, this.model.view.convert_indices_from_subset(inspected), this.glyph);
+          if (this.hover_glyph && inspected_subset_indices.length) {
+            this.hover_glyph.render(ctx, this.model.view.convert_indices_from_subset(inspected_subset_indices), this.glyph);
           } else {
             glyph.render(ctx, this.all_indices, this.glyph);
           }
         } else {
           glyph.render(ctx, indices, this.glyph);
-          if (this.hover_glyph && inspected.length) {
-            this.hover_glyph.render(ctx, inspected, this.glyph);
+          if (this.hover_glyph && inspected_subset_indices.length) {
+            this.hover_glyph.render(ctx, inspected_subset_indices, this.glyph);
           }
         }
         dtrender = Date.now() - trender;
@@ -256,42 +261,42 @@ export class GlyphRendererView extends RendererView {
       // reset the selection mask
       const tselect = Date.now();
       const selected_mask = {};
-      for (const i of selected) {
+      for (const i of selected_full_indices) {
         selected_mask[i] = true;
       }
 
       // intersect/different selection with render mask
-      selected = new Array();
-      const nonselected = new Array();
+      const selected_subset_indices: number[] = new Array();
+      const nonselected_subset_indices: number[] = new Array();
 
       // now, selected is changed to subset space, except for Line glyph
       if (this.glyph instanceof LineView) {
         for (const i of this.all_indices) {
           if (selected_mask[i] != null) {
-            selected.push(i);
+            selected_subset_indices.push(i);
           } else {
-            nonselected.push(i);
+            nonselected_subset_indices.push(i);
           }
         }
       } else {
         for (const i of indices) {
           if (selected_mask[this.all_indices[i]] != null) {
-            selected.push(i);
+            selected_subset_indices.push(i);
           } else {
-            nonselected.push(i);
+            nonselected_subset_indices.push(i);
           }
         }
       }
       dtselect = Date.now() - tselect;
 
       trender = Date.now();
-      nonselection_glyph.render(ctx, nonselected, this.glyph);
-      selection_glyph.render(ctx, selected, this.glyph);
+      nonselection_glyph.render(ctx, nonselected_subset_indices, this.glyph);
+      selection_glyph.render(ctx, selected_subset_indices, this.glyph);
       if (this.hover_glyph != null) {
         if (this.glyph instanceof LineView) {
-          this.hover_glyph.render(ctx, this.model.view.convert_indices_from_subset(inspected), this.glyph);
+          this.hover_glyph.render(ctx, this.model.view.convert_indices_from_subset(inspected_subset_indices), this.glyph);
         } else {
-          this.hover_glyph.render(ctx, inspected, this.glyph);
+          this.hover_glyph.render(ctx, inspected_subset_indices, this.glyph);
         }
       }
       dtrender = Date.now() - trender;
@@ -327,7 +332,7 @@ export class GlyphRenderer extends Renderer {
 
   x_range_name: string
   y_range_name: string
-  data_source: DataSource
+  data_source: ColumnarDataSource
   view: CDSView
   glyph: Glyph
   hover_glyph: Glyph
@@ -402,7 +407,7 @@ export class GlyphRenderer extends Renderer {
     return selection
   }
 
-  get_selection_manager() {
+  get_selection_manager(): SelectionManager {
     return this.data_source.selection_manager;
   }
 }

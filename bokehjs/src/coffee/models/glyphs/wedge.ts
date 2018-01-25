@@ -1,8 +1,10 @@
 /* XXX: partial */
 import {XYGlyph, XYGlyphView} from "./xy_glyph";
+import {PointGeometry} from "core/geometry"
 import * as hittest from "core/hittest";
 import * as p from "core/properties";
-import {angle_between} from "core/util/math"
+import {angle_between} from "core/util/math";
+import {Selection} from "models/selections/selection";
 
 export class WedgeView extends XYGlyphView {
 
@@ -38,7 +40,7 @@ export class WedgeView extends XYGlyphView {
     }
   }
 
-  _hit_point(geometry) {
+  _hit_point(geometry: PointGeometry): Selection {
     let dist, sx0, sx1, sy0, sy1, x0, x1, y0, y1;
     const {sx, sy} = geometry;
     const x = this.renderer.xscale.invert(sx);

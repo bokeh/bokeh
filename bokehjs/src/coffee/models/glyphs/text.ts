@@ -1,7 +1,7 @@
 /* XXX: partial */
 import {XYGlyph, XYGlyphView} from "./xy_glyph";
 import * as p from "core/properties";
-import {get_text_height} from "core/util/text"
+import {get_text_height} from "core/util/text";
 
 export class TextView extends XYGlyphView {
 

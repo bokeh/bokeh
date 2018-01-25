@@ -3,13 +3,15 @@ import * as hittest from "core/hittest";
 import * as p from "core/properties";
 import * as bbox from "core/util/bbox";
 import * as proj from "core/util/projections";
+import {Geometry, RectGeometry} from "core/geometry";
 import {View} from "core/view";
 import {Model} from "../../model";
 import {Visuals} from "core/visuals";
 import {logger} from "core/logging";
 import {extend} from "core/util/object";
 import {isArray} from "core/util/types";
-import {LineView} from "./line"
+import {LineView} from "./line";
+import {Selection} from "models/selections/selection";
 
 export class GlyphView extends View {
 
@@ -228,7 +230,7 @@ export class GlyphView extends View {
     }
   }
 
-  hit_test(geometry) {
+  hit_test(geometry: Geometry): hittest.HitTestResult {
     let result = null;
 
     const func = `_hit_${geometry.type}`;
@@ -242,7 +244,7 @@ export class GlyphView extends View {
     return result;
   }
 
-  _hit_rect_against_index(geometry) {
+  _hit_rect_against_index(geometry: RectGeometry): Selection {
     const {sx0, sx1, sy0, sy1} = geometry;
     const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1);
     const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1);

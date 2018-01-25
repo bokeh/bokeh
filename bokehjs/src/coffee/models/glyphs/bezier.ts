@@ -1,6 +1,6 @@
 /* XXX: partial */
 import {RBush} from "core/util/spatial";
-import {Glyph, GlyphView} from "./glyph"
+import {Glyph, GlyphView} from "./glyph";
 
 // algorithm adapted from http://stackoverflow.com/a/14429749/3406693
 const _cbb = function(x0, y0, x1, y1, x2, y2, x3, y3) {

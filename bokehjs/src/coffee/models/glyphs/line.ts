@@ -1,6 +1,8 @@
 /* XXX: partial */
 import {XYGlyph, XYGlyphView} from "./xy_glyph";
-import * as hittest from "core/hittest"
+import {PointGeometry, SpanGeometry} from "core/geometry";
+import * as hittest from "core/hittest";
+import {Selection} from "models/selections/selection";
 
 export class LineView extends XYGlyphView {
 
@@ -41,7 +43,7 @@ export class LineView extends XYGlyphView {
     }
   }
 
-  _hit_point(geometry) {
+  _hit_point(geometry: PointGeometry): Selection {
     /* Check if the point geometry hits this line glyph and return an object
     that describes the hit result:
       Args:
@@ -74,7 +76,7 @@ export class LineView extends XYGlyphView {
     return result;
   }
 
-  _hit_span(geometry) {
+  _hit_span(geometry: SpanGeometry): Selection {
     let val, values;
     const {sx, sy} = geometry;
     const result = hittest.create_empty_hit_test_result();
@@ -98,7 +100,7 @@ export class LineView extends XYGlyphView {
     return result;
   }
 
-  get_interpolation_hit(i, geometry){
+  get_interpolation_hit(i, geometry: PointGeometry | SpanGeometry){
     let x0, x1, y0, y1;
     const {sx, sy} = geometry;
     const [x2, y2, x3, y3] = [this._x[i], this._y[i], this._x[i+1], this._y[i+1]];

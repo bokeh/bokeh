@@ -3,7 +3,9 @@ import {RBush} from "core/util/spatial";
 import {Glyph, GlyphView} from "./glyph";
 import {min, max, copy, findLastIndex} from "core/util/array";
 import {isStrictNaN} from "core/util/types";
-import * as hittest from "core/hittest"
+import {PointGeometry} from "core/geometry";
+import * as hittest from "core/hittest";
+import {Selection} from "models/selections/selection";
 
 export class PatchesView extends GlyphView {
 
@@ -141,7 +143,7 @@ export class PatchesView extends GlyphView {
     }
   }
 
-  _hit_point(geometry) {
+  _hit_point(geometry: PointGeometry): Selection {
     const {sx, sy} = geometry;
 
     const x = this.renderer.xscale.invert(sx);

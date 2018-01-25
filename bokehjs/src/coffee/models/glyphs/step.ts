@@ -1,6 +1,6 @@
 /* XXX: partial */
 import {XYGlyph, XYGlyphView} from "./xy_glyph";
-import * as p from "core/properties"
+import * as p from "core/properties";
 
 export class StepView extends XYGlyphView {
 

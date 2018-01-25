@@ -1,10 +1,12 @@
 /* XXX: partial */
 import {RBush} from "core/util/spatial";
+import {PointGeometry, SpanGeometry} from "core/geometry"
 import * as hittest from "core/hittest";
 import {keys} from "core/util/object";
 import {min, max} from "core/util/array";
 import {isStrictNaN} from "core/util/types";
-import {Glyph, GlyphView} from "./glyph"
+import {Glyph, GlyphView} from "./glyph";
+import {Selection} from "models/selections/selection";
 
 export class MultiLineView extends GlyphView {
 
@@ -65,7 +67,7 @@ export class MultiLineView extends GlyphView {
     }
   }
 
-  _hit_point(geometry) {
+  _hit_point(geometry: PointGeometry): Selection {
     const result = hittest.create_empty_hit_test_result();
     const point = {x: geometry.sx, y: geometry.sy};
     let shortest = 9999;
@@ -93,7 +95,7 @@ export class MultiLineView extends GlyphView {
     return result;
   }
 
-  _hit_span(geometry) {
+  _hit_span(geometry: SpanGeometry): Selection {
     let val, values;
     const {sx, sy} = geometry;
     const result = hittest.create_empty_hit_test_result();
@@ -125,7 +127,7 @@ export class MultiLineView extends GlyphView {
     return result;
   }
 
-  get_interpolation_hit(i, point_i, geometry){
+  get_interpolation_hit(i, point_i, geometry: PointGeometry | SpanGeometry){
     let x0, x1, y0, y1;
     const {sx, sy} = geometry;
     const [x2, y2, x3, y3] = [this._xs[i][point_i], this._ys[i][point_i], this._xs[i][point_i+1], this._ys[i][point_i+1]];
