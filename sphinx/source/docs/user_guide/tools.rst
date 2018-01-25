@@ -604,7 +604,7 @@ with the declared ``empty_value``, when adding a new box.
 .. raw:: html
 
     <img src="http://bokeh.pydata.org/static/box_draw_keyboard_optimized.gif"
-	 width='400px' alt="Animation showing box draw, select and delete actions">
+     width='400px' alt="Animation showing box draw, select and delete actions">
 
 The animation above shows the supported tool actions, highlighting
 mouse actions with a circle around the cursor and key strokes by
@@ -644,7 +644,7 @@ additional columns in the data source will be padded with the declared
 .. raw:: html
 
     <img src="http://bokeh.pydata.org/static/point_draw_keyboard_optimized.gif"
-	 width='400px' alt="Animation showing point draw, drag, select and delete actions">
+     width='400px' alt="Animation showing point draw, drag, select and delete actions">
 
 The animation above shows the supported tool actions, highlighting
 mouse actions with a circle around the cursor and key strokes by
@@ -685,7 +685,7 @@ additional columns in the data source will be padded with the declared
 .. raw:: html
 
     <img src="http://bokeh.pydata.org/static/poly_draw_keyboard_optimized.gif"
-	 width='400px' alt="Animation showing polygon draw, select and delete actions">
+     width='400px' alt="Animation showing polygon draw, select and delete actions">
 
 The animation above shows the supported tool actions, highlighting
 mouse actions with a circle around the cursor and key strokes by
@@ -731,7 +731,7 @@ additional columns in the data source will be padded with the declared
 .. raw:: html
 
     <img src="http://bokeh.pydata.org/static/poly_edit_keyboard_optimized.gif"
-	 width='400px' alt="Animation showing polygon and vertex drag, select and delete actions">
+     width='400px' alt="Animation showing polygon and vertex drag, select and delete actions">
 
 The animation above shows the supported tool actions, highlighting
 mouse actions with a circle around the cursor and key strokes by
