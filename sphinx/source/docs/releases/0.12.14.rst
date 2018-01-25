@@ -5,6 +5,9 @@ Bokeh Version ``0.12.14`` is an incremental update that adds a few
 important features and fixes several bugs. Some of the highlights
 include:
 
+* Addition of several tools to draw and edit point, rect, multi-line
+  and patches glyphs (:bokeh-issue:`6370`) by modifying the underlying
+  ColumnDataSource.
 
 Many other small bugfixes and docs additions. For full details see the
 :bokeh-tree:`CHANGELOG`.
