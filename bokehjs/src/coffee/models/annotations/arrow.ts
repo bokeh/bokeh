@@ -1,11 +1,15 @@
 /* XXX: partial */
 import {Annotation, AnnotationView} from "./annotation";
-import {OpenHead} from "./arrow_head";
+import {ArrowHead, OpenHead} from "./arrow_head";
+import {DataSource} from "../sources/data_source"
 import {ColumnDataSource} from "../sources/column_data_source";
+import {NumberSpec} from "core/vectorization"
+import {SpatialUnits} from "core/enums"
 import * as p from "core/properties";
 import {atan2} from "core/util/math"
 
 export class ArrowView extends AnnotationView {
+  model: Arrow
 
   initialize(options: any): void {
     super.initialize(options);
@@ -120,26 +124,43 @@ export class ArrowView extends AnnotationView {
   }
 }
 
+export namespace Arrow {
+  export interface Attrs extends Annotation.Attrs {
+    x_start: NumberSpec
+    y_start: NumberSpec
+    start_units: SpatialUnits
+    start: ArrowHead | null
+    x_end: NumberSpec
+    y_end: NumberSpec
+    end_units: SpatialUnits
+    end: ArrowHead | null
+    source: DataSource
+    x_range_name: string
+    y_range_name: string
+  }
+}
+
+export interface Arrow extends Annotation, Arrow.Attrs {}
+
 export class Arrow extends Annotation {
   static initClass() {
-    this.prototype.default_view = ArrowView;
-
     this.prototype.type = 'Arrow';
+    this.prototype.default_view = ArrowView;
 
     this.mixins(['line']);
 
     this.define({
-        x_start:      [ p.NumberSpec,                   ],
-        y_start:      [ p.NumberSpec,                   ],
-        start_units:  [ p.String,      'data'           ],
-        start:        [ p.Instance,    null             ],
-        x_end:        [ p.NumberSpec,                   ],
-        y_end:        [ p.NumberSpec,                   ],
-        end_units:    [ p.String,      'data'           ],
-        end:          [ p.Instance,    () => new OpenHead({}) ],
-        source:       [ p.Instance                      ],
-        x_range_name: [ p.String,      'default'        ],
-        y_range_name: [ p.String,      'default'        ],
+      x_start:      [ p.NumberSpec,                   ],
+      y_start:      [ p.NumberSpec,                   ],
+      start_units:  [ p.String,      'data'           ],
+      start:        [ p.Instance,    null             ],
+      x_end:        [ p.NumberSpec,                   ],
+      y_end:        [ p.NumberSpec,                   ],
+      end_units:    [ p.String,      'data'           ],
+      end:          [ p.Instance,    () => new OpenHead({}) ],
+      source:       [ p.Instance                      ],
+      x_range_name: [ p.String,      'default'        ],
+      y_range_name: [ p.String,      'default'        ],
     });
   }
 }

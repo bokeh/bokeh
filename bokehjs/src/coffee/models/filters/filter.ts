@@ -5,16 +5,25 @@ import {isBoolean, isInteger} from "core/util/types";
 import {all, range} from "core/util/array";
 import {logger} from "core/logging"
 
+export namespace Filter {
+  export interface Attrs extends Model.Attrs {
+    filter: boolean[] | null
+  }
+}
+
+export interface Filter extends Model, Filter.Attrs {}
+
 export class Filter extends Model {
+
   static initClass() {
     this.prototype.type = 'Filter';
 
     this.define({
-      filter:      [p.Array,   null ],
+      filter: [ p.Array, null ],
     });
   }
 
-  compute_indices() {
+  compute_indices(_source): any {
     if ((this.filter != null ? this.filter.length : undefined) >= 0) {
       if (all(this.filter, isBoolean)) {
         return (range(0, this.filter.length).filter((i) => this.filter[i] === true));

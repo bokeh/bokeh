@@ -5,12 +5,13 @@ import {build_views, remove_views} from "core/build_views";
 import * as p from "core/properties";
 
 import {DOMView} from "core/dom_view";
-import {Location} from "core/enums";
+import {Logo, Location} from "core/enums";
 import {Model} from "model";
 import {Tool} from "./tool"
 import {ButtonToolButtonView} from "./button_tool"
 
 export class ToolbarBaseView extends DOMView {
+  model: ToolbarBase
 
   initialize(options: any): void {
     super.initialize(options);
@@ -88,10 +89,31 @@ export class ToolbarBaseView extends DOMView {
   }
 }
 
-export class ToolbarBase extends Model {
+export namespace ToolbarBase {
+  export interface Attrs extends Model.Attrs {
+    tools: Tool[]
+    logo: Logo
+    gestures: {
+      pan:       { tools: Tool[], active: Tool | null },
+      scroll:    { tools: Tool[], active: Tool | null },
+      pinch:     { tools: Tool[], active: Tool | null },
+      tap:       { tools: Tool[], active: Tool | null },
+      doubletap: { tools: Tool[], active: Tool | null },
+      press:     { tools: Tool[], active: Tool | null },
+      rotate:    { tools: Tool[], active: Tool | null },
+      move:      { tools: Tool[], active: Tool | null },
+      multi:     { tools: Tool[], active: Tool | null },
+    },
+    actions: Tool[]
+    inspectors: Tool[]
+    help: Tool[]
+    toolbar_location: Location
+  }
+}
 
-  tools: Tool[]
-  toolbar_location: Location
+export interface ToolbarBase extends Model, ToolbarBase.Attrs {}
+
+export class ToolbarBase extends Model {
 
   static initClass() {
     this.prototype.type = 'ToolbarBase';
@@ -112,7 +134,7 @@ export class ToolbarBase extends Model {
         press:     { tools: [], active: null },
         rotate:    { tools: [], active: null },
         move:      { tools: [], active: null },
-        multi:     { tools: [], active: null},
+        multi:     { tools: [], active: null },
       })  ],
       actions:    [ p.Array, [] ],
       inspectors: [ p.Array, [] ],

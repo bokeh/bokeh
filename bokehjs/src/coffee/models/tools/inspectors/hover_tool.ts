@@ -59,7 +59,6 @@ export function _line_hit(xs: number[], ys: number[], ind: number): [[number, nu
 }
 
 export class HoverToolView extends InspectToolView {
-
   model: HoverTool
 
   protected ttviews: {[key: string]: TooltipView}
@@ -423,11 +422,28 @@ export class HoverToolView extends InspectToolView {
   }
 }
 
+export namespace HoverTool {
+  export interface Attrs extends InspectTool.Attrs {
+    tooltips: string | [string, string][] | ((source: DataSource, vars: any) => HTMLElement)
+    formatters: any // XXX
+    renderers: DataRenderer[]
+    names: string[]
+    mode: "mouse" | "hline" | "vline"
+    point_policy: "snap_to_data" | "follow_mouse" | "none"
+    line_policy: "prev" | "next" | "nearest" | "interp" | "none"
+    show_arrow: boolean
+    anchor: Anchor
+    attachment: TooltipAttachment
+    callback: any // XXX
+  }
+}
+
+export interface HoverTool extends InspectTool, HoverTool.Attrs {}
+
 export class HoverTool extends InspectTool {
 
   static initClass() {
     this.prototype.type = "HoverTool"
-
     this.prototype.default_view = HoverToolView
 
     this.define({
@@ -448,18 +464,6 @@ export class HoverTool extends InspectTool {
       callback:     [ p.Any                    ], // TODO: p.Either(p.Instance(Callback), p.Function) ]
     })
   }
-
-  tooltips: string | [string, string][] | ((source: DataSource, vars: any) => HTMLElement)
-  formatters: any // XXX
-  renderers: DataRenderer[]
-  names: string[]
-  mode: "mouse" | "hline" | "vline"
-  point_policy: "snap_to_data" | "follow_mouse" | "none"
-  line_policy: "prev" | "next" | "nearest" | "interp" | "none"
-  show_arrow: boolean
-  anchor: Anchor
-  attachment: TooltipAttachment
-  callback: any // XXX
 
   tool_name = "Hover"
   icon = "bk-tool-icon-hover"

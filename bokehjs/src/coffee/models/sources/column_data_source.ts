@@ -124,12 +124,21 @@ export const patch_to_column = function(col, patch, shapes) {
 // Data source where the data is defined column-wise, i.e. each key in the
 // the data attribute is a column name, and its value is an array of scalars.
 // Each column should be the same length.
+export namespace ColumnDataSource {
+  export interface Attrs extends ColumnarDataSource.Attrs {
+    data: {[key: string]: any[]}
+  }
+}
+
+export interface ColumnDataSource extends ColumnarDataSource, ColumnDataSource.Attrs {}
+
 export class ColumnDataSource extends ColumnarDataSource {
+
   static initClass() {
     this.prototype.type = 'ColumnDataSource'
 
     this.define({
-      data:         [ p.Any,   {} ],
+      data: [ p.Any, {} ],
     })
   }
 

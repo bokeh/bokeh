@@ -11,9 +11,7 @@ import {ColumnarDataSource} from "../sources/columnar_data_source"
 
 // This shouldn't be a DOMView, but annotations create a mess.
 export abstract class RendererView extends DOMView {
-
   model: Renderer
-
   visuals: Renderer.Visuals
 
   plot_view: PlotCanvasView
@@ -51,6 +49,17 @@ export abstract class RendererView extends DOMView {
   }
 }
 
+export namespace Renderer {
+  export interface Attrs extends Model.Attrs {
+    level: RenderLevel
+    visible: boolean
+  }
+
+  export type Visuals = visuals.Visuals
+}
+
+export interface Renderer extends Model, Renderer.Attrs {}
+
 export abstract class Renderer extends Model {
 
   static initClass() {
@@ -61,13 +70,5 @@ export abstract class Renderer extends Model {
       visible: [ p.Bool, true ],
     })
   }
-
-  level: RenderLevel
-  visible: boolean
 }
-
 Renderer.initClass()
-
-export module Renderer {
-  export type Visuals = visuals.Visuals
-}

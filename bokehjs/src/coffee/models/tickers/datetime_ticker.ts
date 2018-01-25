@@ -12,6 +12,13 @@ import {ONE_MILLI,ONE_SECOND,ONE_MINUTE,ONE_HOUR} from "./util"
 // FIXME There should probably be a special ticker for years.
 // FIXME Some of the adaptive tickers probably have too many mantissas, which
 // leads to too-frequent tick transitions.
+
+export namespace DatetimeTicker {
+  export interface Attrs extends CompositeTicker.Attrs {}
+}
+
+export interface DatetimeTicker extends CompositeTicker, DatetimeTicker.Attrs {}
+
 export class DatetimeTicker extends CompositeTicker {
 
   static initClass() {

@@ -2,14 +2,23 @@
 import * as p from "core/properties";
 import {Model} from "../../model"
 
+export namespace ImageSource {
+  export interface Attrs extends Model.Attrs {
+    url: string
+    extra_url_vars: {[key: string]: string}
+  }
+}
+
+export interface ImageSource extends Model, ImageSource.Attrs {}
+
 export class ImageSource extends Model {
   static initClass() {
     this.prototype.type = 'ImageSource';
 
     this.define({
-        url:            [ p.String, '' ],
-        extra_url_vars: [ p.Any,    {} ],
-      });
+      url:            [ p.String, '' ],
+      extra_url_vars: [ p.Any,    {} ],
+    });
   }
 
   initialize(): void {

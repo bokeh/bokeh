@@ -9,9 +9,19 @@ import {keys, values} from "core/util/object"
 
 // Abstract baseclass for column based data sources, where the column
 // based data may be supplied directly or be computed from an attribute
-export class ColumnarDataSource extends DataSource {
 
-  data: {[key: string]: any}
+export namespace ColumnarDataSource {
+  export interface Attrs extends DataSource.Attrs {
+    column_names: string[]
+    selection_manager: SelectionManager
+  }
+}
+
+export interface ColumnarDataSource extends DataSource, ColumnarDataSource.Attrs {}
+
+export abstract class ColumnarDataSource extends DataSource {
+
+  data: {[key: string]: any[]}
   _shapes: {[key: string]: any}
 
   _select: Signal<any, this>

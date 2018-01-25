@@ -2,7 +2,6 @@ import {ButtonTool, ButtonToolView, ButtonToolButtonView} from "../button_tool"
 import {Signal} from "core/signaling"
 
 export class ActionToolButtonView extends ButtonToolButtonView {
-
   model: ActionTool
 
   protected _clicked(): void {
@@ -11,7 +10,6 @@ export class ActionToolButtonView extends ButtonToolButtonView {
 }
 
 export abstract class ActionToolView extends ButtonToolView {
-
   model: ActionTool
 
   connect_signals(): void {
@@ -21,6 +19,12 @@ export abstract class ActionToolView extends ButtonToolView {
 
   abstract doit(): void
 }
+
+export namespace ActionTool {
+  export interface Attrs extends ButtonTool.Attrs {}
+}
+
+export interface ActionTool extends ButtonTool, ActionTool.Attrs {}
 
 export abstract class ActionTool extends ButtonTool {
 

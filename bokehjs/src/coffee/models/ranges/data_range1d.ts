@@ -11,6 +11,26 @@ import {includes} from "core/util/array"
 export type Dim = 0 | 1
 export type Bounds = {[key: string]: Rect}
 
+export namespace DataRange1d {
+  export interface Attrs extends DataRange.Attrs {
+    start: number
+    end: number
+    range_padding: number
+    range_padding_units: PaddingUnits
+    flipped: boolean
+    follow: StartEnd
+    follow_interval: number
+    default_span: number
+    bounds: [number, number] | "auto"
+    min_interval: any // XXX: what's this?
+    max_interval: any // XXX: what's this?
+
+    scale_hint: "log" | "auto"
+  }
+}
+
+export interface DataRange1d extends DataRange, DataRange1d.Attrs {}
+
 export class DataRange1d extends DataRange {
 
   static initClass() {
@@ -34,20 +54,6 @@ export class DataRange1d extends DataRange {
       scale_hint: [ p.String, 'auto' ],
     })
   }
-
-  start: number
-  end: number
-  range_padding: number
-  range_padding_units: PaddingUnits
-  flipped: boolean
-  follow: StartEnd
-  follow_interval: number
-  default_span: number
-  bounds: [number, number] | "auto"
-  min_interval: any // XXX: what's this?
-  max_interval: any // XXX: what's this?
-
-  scale_hint: "log" | "auto"
 
   protected _initial_start: number
   protected _initial_end: number

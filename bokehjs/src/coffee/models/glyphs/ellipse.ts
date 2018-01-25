@@ -1,8 +1,10 @@
 /* XXX: partial */
 import {XYGlyph, XYGlyphView} from "./xy_glyph";
+import {DistanceSpec, AngleSpec} from "core/vectorization"
 import * as p from "core/properties"
 
 export class EllipseView extends XYGlyphView {
+  model: Ellipse
 
   _set_data() {
     this.max_w2 = 0;
@@ -77,18 +79,28 @@ export class EllipseView extends XYGlyphView {
   }
 }
 
-export class Ellipse extends XYGlyph {
-  static initClass() {
-    this.prototype.default_view = EllipseView;
+export namespace Ellipse {
+  export interface Attrs extends XYGlyph.Attrs {
+    angle: AngleSpec
+    width: DistanceSpec
+    height: DistanceSpec
+  }
+}
 
+export interface Ellipse extends XYGlyph, Ellipse.Attrs {}
+
+export class Ellipse extends XYGlyph {
+
+  static initClass() {
     this.prototype.type = 'Ellipse';
+    this.prototype.default_view = EllipseView;
 
     this.mixins(['line', 'fill']);
     this.define({
-        angle:  [ p.AngleSpec,   0.0 ],
-        width:  [ p.DistanceSpec     ],
-        height: [ p.DistanceSpec     ],
-      });
+      angle:  [ p.AngleSpec,   0.0 ],
+      width:  [ p.DistanceSpec     ],
+      height: [ p.DistanceSpec     ],
+    });
   }
 }
 Ellipse.initClass();

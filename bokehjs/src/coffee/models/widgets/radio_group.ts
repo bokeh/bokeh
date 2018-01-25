@@ -63,6 +63,17 @@ export class RadioGroupView extends WidgetView {
   }
 }
 
+export namespace RadioGroup {
+  export interface Attrs extends Widget.Attrs {
+    active: number
+    labels: string[]
+    inline: boolean
+    callback: any // XXX
+  }
+}
+
+export interface RadioGroup extends Widget, RadioGroup.Attrs {}
+
 export class RadioGroup extends Widget {
 
   static initClass() {

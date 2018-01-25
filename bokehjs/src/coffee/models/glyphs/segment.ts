@@ -4,6 +4,7 @@ import {RBush} from "core/util/spatial";
 import {Glyph, GlyphView} from "./glyph"
 
 export class SegmentView extends GlyphView {
+  model: Segment
 
   _index_data() {
     const points = [];
@@ -107,11 +108,18 @@ export class SegmentView extends GlyphView {
   }
 }
 
-export class Segment extends Glyph {
-  static initClass() {
-    this.prototype.default_view = SegmentView;
+export namespace Segment {
+  export interface Attrs extends Glyph.Attrs {
+  }
+}
 
+export interface Segment extends Glyph, Segment.Attrs {}
+
+export class Segment extends Glyph {
+
+  static initClass() {
     this.prototype.type = 'Segment';
+    this.prototype.default_view = SegmentView;
 
     this.coords([['x0', 'y0'], ['x1', 'y1']]);
     this.mixins(['line']);

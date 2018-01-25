@@ -6,6 +6,7 @@ import {Variable} from "core/layout/solver"
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
 
 export class WidgetBoxView extends LayoutDOMView {
+  model: WidgetBox
 
   connect_signals(): void {
     super.connect_signals()
@@ -84,19 +85,24 @@ export class WidgetBoxView extends LayoutDOMView {
   }
 }
 
+export namespace WidgetBox {
+  export interface Attrs extends LayoutDOM.Attrs {
+    children: LayoutDOM[]
+  }
+}
+
+export interface WidgetBox extends LayoutDOM, WidgetBox.Attrs {}
+
 export class WidgetBox extends LayoutDOM {
 
   static initClass() {
     this.prototype.type = "WidgetBox"
-
     this.prototype.default_view = WidgetBoxView
 
     this.define({
       children: [ p.Array, [] ],
     })
   }
-
-  children: LayoutDOM[]
 
   initialize(): void {
     super.initialize()

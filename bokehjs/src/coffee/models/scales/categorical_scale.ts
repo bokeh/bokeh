@@ -1,6 +1,12 @@
 import {LinearScale} from "./linear_scale"
 import {FactorRange} from "../ranges/factor_range"
 
+export namespace CategoricalScale {
+  export interface Attrs extends LinearScale.Attrs {}
+}
+
+export interface CategoricalScale extends LinearScale, CategoricalScale.Attrs {}
+
 export class CategoricalScale extends LinearScale {
 
   static initClass() {

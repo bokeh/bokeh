@@ -3,6 +3,7 @@ import {Box, BoxView} from "./box"
 import {RBush} from "core/util/spatial"
 
 export class QuadView extends BoxView {
+  model: Quad
 
   get_anchor_point(anchor, i, _spt) {
     const left = Math.min(this.sleft[i], this.sright[i]);
@@ -44,10 +45,18 @@ export class QuadView extends BoxView {
   }
 }
 
+export namespace Quad {
+  export interface Attrs extends Box.Attrs {
+  }
+}
+
+export interface Quad extends Box, Quad.Attrs {}
+
 export class Quad extends Box {
+
   static initClass() {
-    this.prototype.default_view = QuadView;
     this.prototype.type = 'Quad';
+    this.prototype.default_view = QuadView;
 
     this.coords([['right', 'bottom'], ['left', 'top']]);
   }

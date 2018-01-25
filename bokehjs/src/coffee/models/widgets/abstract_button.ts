@@ -64,6 +64,17 @@ export abstract class AbstractButtonView extends WidgetView {
   }
 }
 
+export namespace AbstractButton {
+  export interface Attrs extends Widget.Attrs {
+    label: string
+    icon: AbstractIcon
+    button_type: ButtonType
+    callback: any // XXX
+  }
+}
+
+export interface AbstractButton extends Widget, AbstractButton.Attrs {}
+
 export abstract class AbstractButton extends Widget {
 
   static initClass() {
@@ -76,11 +87,6 @@ export abstract class AbstractButton extends Widget {
       callback:    [ p.Instance          ],
     })
   }
-
-  label: string
-  icon: AbstractIcon
-  button_type: ButtonType
-  callback: any // XXX
 }
 
 AbstractButton.initClass()

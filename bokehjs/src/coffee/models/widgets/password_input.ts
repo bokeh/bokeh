@@ -10,6 +10,12 @@ export class PasswordInputView extends TextInputView {
   }
 }
 
+export namespace PasswordInput {
+  export interface Attrs extends TextInput.Attrs {}
+}
+
+export interface PasswordInput extends TextInput, PasswordInput.Attrs {}
+
 export class PasswordInput extends TextInput {
 
   static initClass() {

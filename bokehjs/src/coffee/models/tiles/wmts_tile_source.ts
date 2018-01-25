@@ -1,7 +1,14 @@
 /* XXX: partial */
 import {MercatorTileSource} from './mercator_tile_source'
 
+export namespace WMTSTileSource {
+  export interface Attrs extends MercatorTileSource.Attrs {}
+}
+
+export interface WMTSTileSource extends MercatorTileSource, WMTSTileSource.Attrs {}
+
 export class WMTSTileSource extends MercatorTileSource {
+
   static initClass() {
     this.prototype.type = 'WMTSTileSource';
   }

@@ -13,7 +13,6 @@ export interface BkEv {
 }
 
 export class WheelZoomToolView extends GestureToolView {
-
   model: WheelZoomTool
 
   _pinch(e: BkEv): void {
@@ -55,6 +54,15 @@ export class WheelZoomToolView extends GestureToolView {
 
 const is_mobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0
 
+export namespace WheelZoomTool {
+  export interface Attrs extends GestureTool.Attrs {
+    dimensions: Dimensions
+    speed: number
+  }
+}
+
+export interface WheelZoomTool extends GestureTool, WheelZoomTool.Attrs {}
+
 export class WheelZoomTool extends GestureTool {
 
   static initClass() {
@@ -70,9 +78,6 @@ export class WheelZoomTool extends GestureTool {
       speed: [ p.Number, 1/600 ],
     })
   }
-
-  dimensions: Dimensions
-  speed: number
 
   tool_name = "Wheel Zoom"
   icon = "bk-tool-icon-wheel-zoom"

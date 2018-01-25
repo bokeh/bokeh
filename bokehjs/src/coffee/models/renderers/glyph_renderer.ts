@@ -11,6 +11,7 @@ import {difference, includes, range} from "core/util/array";
 import {extend, clone} from "core/util/object"
 
 export class GlyphRendererView extends RendererView {
+  model: GlyphRenderer
 
   initialize(options: any): void {
     super.initialize(options);
@@ -25,7 +26,7 @@ export class GlyphRendererView extends RendererView {
       const attrs = clone(glyph_attrs);
       if (has_fill) { extend(attrs, defaults.fill); }
       if (has_line) { extend(attrs, defaults.line); }
-      return new (base_glyph.constructor)(attrs);
+      return new (base_glyph.constructor as any)(attrs);
     };
 
     this.glyph = this.build_glyph_view(base_glyph);
@@ -173,18 +174,19 @@ export class GlyphRendererView extends RendererView {
     ctx.save();
 
     // selected is in full set space
-    let { selected } = this.model.data_source;
-    if (!selected || (selected.length === 0)) {
+    const {_selected} = this.model.data_source;
+    let selected: number[]
+    if (!_selected || (_selected.length === 0)) {
       selected = [];
     } else {
-      if (selected['0d'].glyph) {
+      if (_selected['0d'].glyph) {
         selected = this.model.view.convert_indices_from_subset(indices);
-      } else if (selected['1d'].indices.length > 0) {
-        selected = selected['1d'].indices;
+      } else if (_selected['1d'].indices.length > 0) {
+        selected = _selected['1d'].indices;
       } else {
         selected = ((() => {
           const result = [];
-          for (const i of Object.keys(selected["2d"].indices)) {
+          for (const i of Object.keys(_selected["2d"].indices)) {
             result.push(parseInt(i));
           }
           return result;
@@ -327,23 +329,28 @@ export class GlyphRendererView extends RendererView {
   }
 }
 
+export namespace GlyphRenderer {
+  export interface Attrs extends Renderer.Attrs {
+    x_range_name: string
+    y_range_name: string
+    data_source: DataSource
+    view: CDSView
+    glyph: Glyph
+    hover_glyph: Glyph
+    nonselection_glyph: Glyph | "auto"
+    selection_glyph: Glyph | "auto"
+    muted_glyph: Glyph
+    muted: boolean
+  }
+}
+
+export interface GlyphRenderer extends Renderer, GlyphRenderer.Attrs {}
+
 export class GlyphRenderer extends Renderer {
 
-  x_range_name: string
-  y_range_name: string
-  data_source: DataSource
-  view: CDSView
-  glyph: Glyph
-  hover_glyph: Glyph
-  nonselection_glyph: Glyph | "auto"
-  selection_glyph: Glyph | "auto"
-  muted_glyph: Glyph
-  muted: boolean
-
   static initClass() {
-    this.prototype.default_view = GlyphRendererView;
-
     this.prototype.type = 'GlyphRenderer';
+    this.prototype.default_view = GlyphRendererView;
 
     this.define({
         x_range_name:       [ p.String,  'default' ],

@@ -17,6 +17,14 @@ export class DivView extends MarkupView {
   }
 }
 
+export namespace Div {
+  export interface Attrs extends Markup.Attrs {
+    render_as_text: boolean
+  }
+}
+
+export interface Div extends Markup, Div.Attrs {}
+
 export class Div extends Markup {
 
   static initClass() {

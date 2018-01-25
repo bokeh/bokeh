@@ -17,6 +17,13 @@ export type TickSpec<T> = {
 // magnitudes.  To make it possible to select Tickers programmatically, they
 // also support some additional methods: get_interval(), get_min_interval(),
 // and get_max_interval().
+
+export namespace Ticker{
+  export interface Attrs extends Model.Attrs {}
+}
+
+export interface Ticker<T> extends Model, Ticker.Attrs {}
+
 export abstract class Ticker<T> extends Model {
 
   static initClass() {

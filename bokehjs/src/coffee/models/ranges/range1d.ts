@@ -1,6 +1,18 @@
 import {Range} from "./range"
 import * as p from "core/properties"
 
+export namespace Range1d {
+  export interface Attrs extends Range.Attrs {
+    start: number
+    end: number
+    bounds: [number, number] | "auto"
+    min_interval: number
+    max_interval: number
+  }
+}
+
+export interface Range1d extends Range, Range1d.Attrs {}
+
 export class Range1d extends Range {
 
   static initClass() {
@@ -14,10 +26,6 @@ export class Range1d extends Range {
       max_interval: [ p.Any ],
     })
   }
-
-  bounds: [number, number] | "auto"
-  min_interval: number
-  max_interval: number
 
   protected _initial_start: number
   protected _initial_end: number

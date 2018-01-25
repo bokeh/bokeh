@@ -1,10 +1,12 @@
 /* XXX: partial */
 import {XYGlyph, XYGlyphView} from "./xy_glyph";
+import {DistanceSpec, AngleSpec} from "core/vectorization"
 import * as hittest from "core/hittest";
 import * as p from "core/properties";
 import {max} from "core/util/array";
 
 export class RectView extends XYGlyphView {
+  model: Rect
 
   _set_data() {
     this.max_w2 = 0;
@@ -250,19 +252,30 @@ export class RectView extends XYGlyphView {
   }
 }
 
-export class Rect extends XYGlyph {
-  static initClass() {
-    this.prototype.default_view = RectView;
+export namespace Rect {
+  export interface Attrs extends XYGlyph.Attrs {
+    angle: AngleSpec
+    width: DistanceSpec
+    height: DistanceSpec
+    dilate: boolean
+  }
+}
 
+export interface Rect extends XYGlyph, Rect.Attrs {}
+
+export class Rect extends XYGlyph {
+
+  static initClass() {
     this.prototype.type = 'Rect';
+    this.prototype.default_view = RectView;
 
     this.mixins(['line', 'fill']);
     this.define({
-        angle:  [ p.AngleSpec,   0     ],
-        width:  [ p.DistanceSpec       ],
-        height: [ p.DistanceSpec       ],
-        dilate: [ p.Bool,        false ],
-      });
+      angle:  [ p.AngleSpec,   0     ],
+      width:  [ p.DistanceSpec       ],
+      height: [ p.DistanceSpec       ],
+      dilate: [ p.Bool,        false ],
+    });
   }
 }
 Rect.initClass();

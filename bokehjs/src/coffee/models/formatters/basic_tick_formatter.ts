@@ -3,7 +3,19 @@ import {TickFormatter} from "./tick_formatter";
 import * as p from "core/properties";
 import {isNumber} from "core/util/types"
 
+export namespace BasicTickFormatter {
+  export interface Attrs extends TickFormatter.Attrs {
+    precision: number | "auto"
+    use_scientific: boolean
+    power_limit_high: number
+    power_limit_low: number
+  }
+}
+
+export interface BasicTickFormatter extends TickFormatter, BasicTickFormatter.Attrs {}
+
 export class BasicTickFormatter extends TickFormatter {
+
   static initClass() {
     this.prototype.type = 'BasicTickFormatter';
 

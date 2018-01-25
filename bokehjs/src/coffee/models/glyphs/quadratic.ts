@@ -23,6 +23,7 @@ const _qbb = function(u, v, w) {
 };
 
 export class QuadraticView extends GlyphView {
+  model: Quadratic
 
   _index_data() {
     const points = [];
@@ -62,11 +63,18 @@ export class QuadraticView extends GlyphView {
   }
 }
 
-export class Quadratic extends Glyph {
-  static initClass() {
-    this.prototype.default_view = QuadraticView;
+export namespace Quadratic {
+  export interface Attrs extends Glyph.Attrs {
+  }
+}
 
+export interface Quadratic extends Glyph, Quadratic.Attrs {}
+
+export class Quadratic extends Glyph {
+
+  static initClass() {
     this.prototype.type = 'Quadratic';
+    this.prototype.default_view = QuadraticView;
 
     this.coords([['x0', 'y0'], ['x1', 'y1'], ['cx', 'cy']]);
     this.mixins(['line']);

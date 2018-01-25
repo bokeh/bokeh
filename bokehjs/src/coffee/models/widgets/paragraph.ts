@@ -13,6 +13,12 @@ export class ParagraphView extends MarkupView {
   }
 }
 
+export namespace Paragraph {
+  export interface Attrs extends Markup.Attrs {}
+}
+
+export interface Paragraph extends Markup, Paragraph.Attrs {}
+
 export class Paragraph extends Markup {
 
   static initClass() {

@@ -1,10 +1,13 @@
 /* XXX: partial */
 import {TextAnnotation, TextAnnotationView} from "./text_annotation";
+import {FontSizeSpec, ColorSpec, NumberSpec} from "core/vectorization"
+import {FontStyle, VerticalAlign, TextAlign, TextBaseline, RenderMode} from "core/enums"
 import {hide} from "core/dom";
 import * as p from "core/properties";
 import * as Visuals from "core/visuals"
 
 export class TitleView extends TextAnnotationView {
+  model: Title
 
   initialize(options: any): void {
     super.initialize(options);
@@ -98,11 +101,30 @@ export class TitleView extends TextAnnotationView {
   }
 }
 
-export class Title extends TextAnnotation {
-  static initClass() {
-    this.prototype.default_view = TitleView;
+export namespace Title {
+  export interface Attrs extends TextAnnotation.Attrs {
+    text: string
+    text_font: string // XXX: Font
+    text_font_size: FontSizeSpec
+    text_font_style: FontStyle
+    text_color: ColorSpec
+    text_alpha: NumberSpec
+    vertical_align: VerticalAlign
+    align: TextAlign
+    offset: number
+    render_mode: RenderMode
+    text_align: TextAlign
+    text_baseline: TextBaseline
+  }
+}
 
+export interface Title extends TextAnnotation, Title.Attrs {}
+
+export class Title extends TextAnnotation {
+
+  static initClass() {
     this.prototype.type = 'Title';
+    this.prototype.default_view = TitleView;
 
     this.mixins(['line:border_', 'fill:background_']);
 

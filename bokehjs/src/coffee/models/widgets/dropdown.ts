@@ -90,6 +90,16 @@ export class DropdownView extends AbstractButtonView {
   }
 }
 
+export namespace Dropdown {
+  export interface Attrs extends AbstractButton.Attrs {
+    value: string
+    default_value: string
+    menu: ([string, string] | null)[]
+  }
+}
+
+export interface Dropdown extends AbstractButton, Dropdown.Attrs {}
+
 export class Dropdown extends AbstractButton {
 
   static initClass() {

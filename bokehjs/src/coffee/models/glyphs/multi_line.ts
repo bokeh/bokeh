@@ -7,6 +7,7 @@ import {isStrictNaN} from "core/util/types";
 import {Glyph, GlyphView} from "./glyph"
 
 export class MultiLineView extends GlyphView {
+  model: MultiLine
 
   _index_data() {
     const points = [];
@@ -152,11 +153,18 @@ export class MultiLineView extends GlyphView {
   }
 }
 
-export class MultiLine extends Glyph {
-  static initClass() {
-    this.prototype.default_view = MultiLineView;
+export namespace MultiLine {
+  export interface Attrs extends Glyph.Attrs {
+  }
+}
 
+export interface MultiLine extends Glyph, MultiLine.Attrs {}
+
+export class MultiLine extends Glyph {
+
+  static initClass() {
     this.prototype.type = 'MultiLine';
+    this.prototype.default_view = MultiLineView;
 
     this.coords([['xs', 'ys']]);
     this.mixins(['line']);

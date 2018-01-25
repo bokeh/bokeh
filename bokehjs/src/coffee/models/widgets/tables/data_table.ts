@@ -11,6 +11,7 @@ import {any, range} from "core/util/array";
 import {logger} from "core/logging";
 
 import {TableWidget} from "./table_widget";
+import {TableColumn} from "./table_column"
 import {WidgetView} from "../widget"
 
 export const DTINDEX_NAME = "__bkdt_internal_index__";
@@ -104,6 +105,7 @@ export class DataProvider {
 }
 
 export class DataTableView extends WidgetView {
+  model: DataTable
 
   initialize(options: any): void {
     super.initialize(options);
@@ -119,7 +121,7 @@ export class DataTableView extends WidgetView {
     return this.connect(this.model.source.change, () => this.updateSelection());
   }
 
-  updateGrid() {
+  updateGrid(): void {
     // TODO (bev) This is to enure that CDSView indices are properly computed
     // before passing to the DataProvider. This will result in extra calls to
     // compute_indices. This "over execution" will be addressed in a more
@@ -132,7 +134,7 @@ export class DataTableView extends WidgetView {
 
     // This is only needed to call @_tell_document_about_change()
     this.model.source.data = this.model.source.data;
-    return this.model.source.change.emit();
+    this.model.source.change.emit(undefined);
   }
 
   updateSelection() {
@@ -255,21 +257,36 @@ export class DataTableView extends WidgetView {
   }
 }
 
+export namespace DataTable {
+  export interface Attrs extends TableWidget.Attrs {
+    columns: TableColumn[]
+    fit_columns: boolean
+    sortable: boolean
+    reorderable: boolean
+    editable: boolean
+    selectable: boolean
+    row_headers: boolean
+    scroll_to_selection: boolean
+  }
+}
+
+export interface DataTable extends TableWidget, DataTable.Attrs {}
+
 export class DataTable extends TableWidget {
   static initClass() {
     this.prototype.type = 'DataTable';
     this.prototype.default_view = DataTableView;
 
     this.define({
-        columns:             [ p.Array,  []    ],
-        fit_columns:         [ p.Bool,   true  ],
-        sortable:            [ p.Bool,   true  ],
-        reorderable:         [ p.Bool,   true  ],
-        editable:            [ p.Bool,   false ],
-        selectable:          [ p.Bool,   true  ],
-        row_headers:         [ p.Bool,   true  ],
-        scroll_to_selection: [ p.Bool,   true  ],
-      });
+      columns:             [ p.Array,  []    ],
+      fit_columns:         [ p.Bool,   true  ],
+      sortable:            [ p.Bool,   true  ],
+      reorderable:         [ p.Bool,   true  ],
+      editable:            [ p.Bool,   false ],
+      selectable:          [ p.Bool,   true  ],
+      row_headers:         [ p.Bool,   true  ],
+      scroll_to_selection: [ p.Bool,   true  ],
+    });
 
     this.override({
       height: 400,

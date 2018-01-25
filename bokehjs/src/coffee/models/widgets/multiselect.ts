@@ -86,6 +86,16 @@ export class MultiSelectView extends InputWidgetView {
   }
 }
 
+export namespace MultiSelect {
+  export interface Attrs extends InputWidget.Attrs {
+    value: string[]
+    options: string[]
+    size: number
+  }
+}
+
+export interface MultiSelect extends InputWidget, MultiSelect.Attrs {}
+
 export class MultiSelect extends InputWidget {
 
   static initClass() {

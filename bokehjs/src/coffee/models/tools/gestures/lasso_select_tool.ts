@@ -16,7 +16,6 @@ export interface BkEv {
 }
 
 export class LassoSelectToolView extends SelectToolView {
-
   model: LassoSelectTool
 
   protected data: {sx: number[], sy: number[]} | null
@@ -111,6 +110,16 @@ const DEFAULT_POLY_OVERLAY = () => {
   })
 }
 
+export namespace LassoSelectTool {
+  export interface Attrs extends SelectTool.Attrs {
+    select_every_mousemove: boolean
+    callback: any // XXX
+    overlay: PolyAnnotation
+  }
+}
+
+export interface LassoSelectTool extends SelectTool, LassoSelectTool.Attrs {}
+
 export class LassoSelectTool extends SelectTool {
 
   static initClass() {
@@ -124,10 +133,6 @@ export class LassoSelectTool extends SelectTool {
       overlay:                [ p.Instance, DEFAULT_POLY_OVERLAY ],
     })
   }
-
-  select_every_mousemove: boolean
-  callback: any // XXX
-  overlay: PolyAnnotation
 
   tool_name = "Lasso Select"
   icon = "bk-tool-icon-lasso-select"

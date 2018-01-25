@@ -1,12 +1,17 @@
 /* XXX: partial */
 import {TextAnnotation, TextAnnotationView} from "./text_annotation";
+import {DataSource} from "../sources/data_source";
 import {ColumnDataSource} from "../sources/column_data_source";
+import {NumberSpec, AngleSpec, StringSpec} from "core/vectorization"
+import {SpatialUnits, RenderMode} from "core/enums"
 import {div, show, hide} from "core/dom";
 import * as p from "core/properties";
 import {isString, isArray} from "core/util/types"
 import {range} from "core/util/array"
 
 export class LabelSetView extends TextAnnotationView {
+  model: LabelSet
+
   initialize(options: any): void {
     super.initialize(options);
 
@@ -185,11 +190,30 @@ export class LabelSetView extends TextAnnotationView {
   }
 }
 
-export class LabelSet extends TextAnnotation {
-  static initClass() {
-    this.prototype.default_view = LabelSetView;
+export namespace LabelSet {
+  export interface Attrs extends TextAnnotation.Attrs {
+    x: NumberSpec
+    y: NumberSpec
+    x_units: SpatialUnits
+    y_units: SpatialUnits
+    text: StringSpec
+    angle: AngleSpec
+    x_offset: NumberSpec
+    y_offset: NumberSpec
+    source: DataSource
+    x_range_name: string
+    y_range_name: string
+    render_mode: RenderMode
+  }
+}
 
-    this.prototype.type = 'Label';
+export interface LabelSet extends TextAnnotation, LabelSet.Attrs {}
+
+export class LabelSet extends TextAnnotation {
+
+  static initClass() {
+    this.prototype.type = 'LabelSet';
+    this.prototype.default_view = LabelSetView;
 
     this.mixins(['text', 'line:border_', 'fill:background_']);
 

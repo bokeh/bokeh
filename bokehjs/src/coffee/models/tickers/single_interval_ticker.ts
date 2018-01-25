@@ -4,6 +4,15 @@ import * as p from "core/properties"
 // The SingleIntervalTicker is a Ticker that always uses the same tick spacing,
 // regardless of the input range.  It's not very useful by itself, but can
 // be used as part of a CompositeTicker below.
+
+export namespace SingleIntervalTicker {
+  export interface Attrs extends ContinuousTicker.Attrs {
+    interval: number
+  }
+}
+
+export interface SingleIntervalTicker extends ContinuousTicker, SingleIntervalTicker.Attrs {}
+
 export class SingleIntervalTicker extends ContinuousTicker {
 
   static initClass() {
@@ -13,8 +22,6 @@ export class SingleIntervalTicker extends ContinuousTicker {
       interval: [ p.Number ],
     })
   }
-
-  interval: number
 
   get_interval(_data_low: number, _data_high: number, _n_desired_ticks: number) {
     return this.interval

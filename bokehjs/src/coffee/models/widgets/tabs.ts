@@ -4,6 +4,7 @@ import {zip} from "core/util/array"
 import * as p from "core/properties"
 
 import {Widget, WidgetView} from "./widget"
+import {Panel} from "./panel"
 import {LayoutDOM} from "../layouts/layout_dom"
 
 export class TabsView extends WidgetView {
@@ -63,6 +64,16 @@ export class TabsView extends WidgetView {
   }
 }
 
+export namespace Tabs {
+  export interface Attrs extends Widget.Attrs {
+    tabs: Panel[]
+    active: number
+    callback: any // XXX
+  }
+}
+
+export interface Tabs extends Widget, Tabs.Attrs {}
+
 export class Tabs extends Widget {
 
   static initClass() {
@@ -76,11 +87,11 @@ export class Tabs extends Widget {
     })
   }
 
-  get_layoutable_children(): LayoutDOM {
+  get_layoutable_children(): LayoutDOM[] {
     return this.children
   }
 
-  get children(): LayoutDOM {
+  get children(): LayoutDOM[] {
     return this.tabs.map((tab) => tab.child)
   }
 }

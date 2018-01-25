@@ -14,6 +14,26 @@ import {isEqual} from './util/eq'
 import {ColumnarDataSource} from "models/sources/columnar_data_source"
 import {Document} from "../document"
 
+export module HasProps {
+  export interface Attrs {
+    id: string
+  }
+
+  export interface Options {
+    defer_initialization?: boolean
+  }
+
+  export interface SetOptions {
+    check_eq?: boolean
+    silent?: boolean
+    no_change?: boolean
+    defaults?: boolean
+    setter_id?: string
+  }
+}
+
+export interface HasProps extends HasProps.Attrs {}
+
 export abstract class HasProps extends Signalable() {
 
   static initClass() {
@@ -127,7 +147,6 @@ export abstract class HasProps extends Signalable() {
     return `${this.type}(${this.id})`
   }
 
-  id: string
   _subtype: string | undefined = undefined
 
   document: Document | null = null
@@ -505,19 +524,4 @@ export abstract class HasProps extends Signalable() {
     return data
   }
 }
-
 HasProps.initClass()
-
-export module HasProps {
-  export interface Options {
-    defer_initialization?: boolean
-  }
-
-  export interface SetOptions {
-    check_eq?: boolean
-    silent?: boolean
-    no_change?: boolean
-    defaults?: boolean
-    setter_id?: string
-  }
-}

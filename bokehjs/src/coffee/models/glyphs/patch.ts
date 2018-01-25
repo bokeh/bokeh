@@ -2,6 +2,7 @@
 import {XYGlyph, XYGlyphView} from "./xy_glyph"
 
 export class PatchView extends XYGlyphView {
+  model: Patch
 
   _render(ctx, indices, {sx, sy}) {
     if (this.visuals.fill.doit) {
@@ -54,11 +55,18 @@ export class PatchView extends XYGlyphView {
   }
 }
 
-export class Patch extends XYGlyph {
-  static initClass() {
-    this.prototype.default_view = PatchView;
+export namespace Patch {
+  export interface Attrs extends XYGlyph.Attrs {
+  }
+}
 
+export interface Patch extends XYGlyph, Patch.Attrs {}
+
+export class Patch extends XYGlyph {
+
+  static initClass() {
     this.prototype.type = 'Patch';
+    this.prototype.default_view = PatchView;
 
     this.mixins(['line', 'fill']);
   }

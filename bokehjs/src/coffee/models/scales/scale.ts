@@ -3,6 +3,12 @@ import {Range} from "../ranges/range"
 import {Range1d} from "../ranges/range1d"
 import * as p from "core/properties"
 
+export namespace Scale {
+  export interface Attrs extends Transform.Attrs {}
+}
+
+export interface Scale extends Transform, Scale.Attrs {}
+
 export abstract class Scale extends Transform {
 
   static initClass() {

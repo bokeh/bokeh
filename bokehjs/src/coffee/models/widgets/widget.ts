@@ -28,6 +28,12 @@ export abstract class WidgetView extends LayoutDOMView {
   }
 }
 
+export namespace Widget {
+  export interface Attrs extends LayoutDOM.Attrs {}
+}
+
+export interface Widget extends LayoutDOM, Widget.Attrs {}
+
 export abstract class Widget extends LayoutDOM {
   static initClass() {
     this.prototype.type = "Widget"

@@ -1,9 +1,13 @@
 /* XXX: partial */
 import {Glyph, GlyphView} from "./glyph";
+import {DistanceSpec, AngleSpec, StringSpec} from "core/vectorization"
+import {Anchor} from "core/enums"
 import {logger} from "core/logging";
 import * as p from "core/properties"
 
 export class ImageURLView extends GlyphView {
+  model: ImageURL
+
   initialize(options: any): void {
     super.initialize(options);
     this.connect(this.model.properties.global_alpha.change, () => this.renderer.request_render());
@@ -164,24 +168,40 @@ export class ImageURLView extends GlyphView {
   }
 }
 
-export class ImageURL extends Glyph {
-  static initClass() {
-    this.prototype.default_view = ImageURLView;
+export namespace ImageURL {
+  export interface Attrs extends Glyph.Attrs {
+    url: StringSpec
+    anchor: Anchor
+    global_alpha: number
+    angle: AngleSpec
+    w: DistanceSpec
+    h: DistanceSpec
+    dilate: boolean
+    retry_attempts: number
+    retry_timeout: number
+  }
+}
 
+export interface ImageURL extends Glyph, ImageURL.Attrs {}
+
+export class ImageURL extends Glyph {
+
+  static initClass() {
     this.prototype.type = 'ImageURL';
+    this.prototype.default_view = ImageURLView;
 
     this.coords([['x', 'y']]);
     this.mixins([]);
     this.define({
-        url:            [ p.StringSpec            ],
-        anchor:         [ p.Anchor,    'top_left' ],
-        global_alpha:   [ p.Number,    1.0        ],
-        angle:          [ p.AngleSpec, 0          ],
-        w:              [ p.DistanceSpec          ],
-        h:              [ p.DistanceSpec          ],
-        dilate:         [ p.Bool,      false      ],
-        retry_attempts: [ p.Number,    0          ],
-        retry_timeout:  [ p.Number,    0          ],
+      url:            [ p.StringSpec            ],
+      anchor:         [ p.Anchor,    'top_left' ],
+      global_alpha:   [ p.Number,    1.0        ],
+      angle:          [ p.AngleSpec, 0          ],
+      w:              [ p.DistanceSpec          ],
+      h:              [ p.DistanceSpec          ],
+      dilate:         [ p.Bool,      false      ],
+      retry_attempts: [ p.Number,    0          ],
+      retry_timeout:  [ p.Number,    0          ],
     });
   }
 }

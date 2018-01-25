@@ -1,10 +1,13 @@
 /* XXX: partial */
 import {XYGlyph, XYGlyphView} from "./xy_glyph";
+import {DistanceSpec, AngleSpec} from "core/vectorization"
+import {RadiusDimension} from "core/enums"
 import * as hittest from "core/hittest";
 import * as p from "core/properties"
 import {range, map} from "core/util/array"
 
 export class CircleView extends XYGlyphView {
+  model: Circle
 
   _map_data(): void {
     // NOTE: Order is important here: size is always present (at least
@@ -219,19 +222,30 @@ export class CircleView extends XYGlyphView {
   }
 }
 
-export class Circle extends XYGlyph {
-  static initClass() { // XXX: Marker
-    this.prototype.default_view = CircleView;
+export namespace Circle {
+  export interface Attrs extends XYGlyph.Attrs {
+    angle: AngleSpec
+    size: DistanceSpec
+    radius: DistanceSpec | null
+    radius_dimension: RadiusDimension
+  }
+}
 
+export interface Circle extends XYGlyph, Circle.Attrs {}
+
+export class Circle extends XYGlyph {
+
+  static initClass() { // XXX: Marker
     this.prototype.type = 'Circle';
+    this.prototype.default_view = CircleView;
 
     this.mixins(['line', 'fill']);
     this.define({
-        angle:            [ p.AngleSpec,    0                             ],
-        size:             [ p.DistanceSpec, { units: "screen", value: 4 } ],
-        radius:           [ p.DistanceSpec, null                          ],
-        radius_dimension: [ p.String,       'x'                           ],
-      });
+      angle:            [ p.AngleSpec,    0                             ],
+      size:             [ p.DistanceSpec, { units: "screen", value: 4 } ],
+      radius:           [ p.DistanceSpec, null                          ],
+      radius_dimension: [ p.String,       'x'                           ],
+    });
   }
 
   initialize(): void {

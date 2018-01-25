@@ -11,7 +11,8 @@ import {extend} from "core/util/object";
 import {isArray} from "core/util/types";
 import {LineView} from "./line"
 
-export class GlyphView extends View {
+export abstract class GlyphView extends View {
+  model: Glyph
 
   initialize(options: any): void {
     super.initialize(options);
@@ -351,8 +352,19 @@ export class GlyphView extends View {
   }
 }
 
-export class Glyph extends Model {
+export namespace Glyph {
+  export interface Attrs extends Model.Attrs {
+    x_range_name: string
+    y_range_name: string
+  }
+}
+
+export interface Glyph extends Model, Glyph.Attrs {}
+
+export abstract class Glyph extends Model {
+
   static initClass() {
+    this.prototype.type = 'Glyph';
 
     this.prototype._coords = [];
 

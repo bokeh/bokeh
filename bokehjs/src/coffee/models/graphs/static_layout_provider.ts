@@ -2,7 +2,16 @@
 import {LayoutProvider} from "./layout_provider";
 import * as p from "../../core/properties"
 
+export namespace StaticLayoutProvider {
+  export interface Attrs extends LayoutProvider.Attrs {
+    graph_layout: {[key: string]: any[]}
+  }
+}
+
+export interface StaticLayoutProvider extends LayoutProvider, StaticLayoutProvider.Attrs {}
+
 export class StaticLayoutProvider extends LayoutProvider {
+
   static initClass() {
     this.prototype.type = "StaticLayoutProvider";
 

@@ -1,9 +1,11 @@
 /* XXX: partial */
 import {Annotation, AnnotationView} from "./annotation";
+import {SpatialUnits} from "core/enums"
 import {Signal} from "core/signaling";
 import * as p from "core/properties"
 
 export class PolyAnnotationView extends AnnotationView {
+  model: PolyAnnotation
 
   connect_signals(): void {
     super.connect_signals();
@@ -60,21 +62,34 @@ export class PolyAnnotationView extends AnnotationView {
   }
 }
 
+export namespace PolyAnnotation {
+  export interface Attrs extends Annotation.Attrs {
+    xs: number[]
+    xs_units: SpatialUnits
+    ys: number[]
+    ys_units: SpatialUnits
+    x_range_name: string
+    y_range_name: string
+    screen: boolean
+  }
+}
+
+export interface PolyAnnotation extends Annotation, PolyAnnotation.Attrs {}
+
 export class PolyAnnotation extends Annotation {
   static initClass() {
-    this.prototype.default_view = PolyAnnotationView;
-
     this.prototype.type = "PolyAnnotation";
+    this.prototype.default_view = PolyAnnotationView;
 
     this.mixins(['line', 'fill']);
 
     this.define({
-        xs:           [ p.Array,        []        ],
-        xs_units:     [ p.SpatialUnits, 'data'    ],
-        ys:           [ p.Array,        []        ],
-        ys_units:     [ p.SpatialUnits, 'data'    ],
-        x_range_name: [ p.String,       'default' ],
-        y_range_name: [ p.String,       'default' ],
+      xs:           [ p.Array,        []        ],
+      xs_units:     [ p.SpatialUnits, 'data'    ],
+      ys:           [ p.Array,        []        ],
+      ys_units:     [ p.SpatialUnits, 'data'    ],
+      x_range_name: [ p.String,       'default' ],
+      y_range_name: [ p.String,       'default' ],
     });
 
     this.internal({

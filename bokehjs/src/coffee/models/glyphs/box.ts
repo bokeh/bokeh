@@ -5,7 +5,8 @@ import * as hittest from "core/hittest";
 
 // Not a publicly exposed Glyph, exists to factor code for bars and quads
 
-export class BoxView extends GlyphView {
+export abstract class BoxView extends GlyphView {
+  model: Box
 
   _index_box(len): RBush {
     const points = [];
@@ -83,8 +84,18 @@ export class BoxView extends GlyphView {
   }
 }
 
-export class Box extends Glyph {
+export namespace Box {
+  export interface Attrs extends Glyph.Attrs {
+  }
+}
+
+export interface Box extends Glyph, Box.Attrs {}
+
+export abstract class Box extends Glyph {
+
   static initClass() {
+    this.prototype.type = "Box";
+
     this.mixins(['line', 'fill']);
   }
 }

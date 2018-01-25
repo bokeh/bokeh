@@ -1,10 +1,14 @@
 /* XXX: partial */
 import {Annotation, AnnotationView} from "./annotation";
+import {DataSource} from "../sources/data_source"
 import {ColumnDataSource} from "../sources/column_data_source";
-
+import {DistanceSpec} from "core/vectorization"
+import {Dimension} from "core/enums"
 import * as p from "core/properties"
 
 export class BandView extends AnnotationView {
+  model: Band
+
   initialize(options: any): void {
     super.initialize(options);
     this.set_data(this.model.source);
@@ -121,10 +125,25 @@ export class BandView extends AnnotationView {
   }
 }
 
+export namespace Band {
+  export interface Attrs extends Annotation.Attrs {
+    lower: DistanceSpec
+    upper: DistanceSpec
+    base: DistanceSpec
+    dimension: Dimension
+    source: DataSource
+    x_range_name: string
+    y_range_name: string
+  }
+}
+
+export interface Band extends Annotation, Band.Attrs {}
+
 export class Band extends Annotation {
+
   static initClass() {
-    this.prototype.default_view = BandView;
     this.prototype.type = 'Band';
+    this.prototype.default_view = BandView;
 
     this.mixins(['line', 'fill']);
 

@@ -25,6 +25,9 @@ export const LineJoin: LineJoin[] = ["miter", "round", "bevel"]
 export type Location = "above" | "below" | "left" | "right"
 export const Location: Location[] = ["above", "below", "left", "right"]
 
+export type LegendClickPolicy = "none" | "hide" | "mute"
+export const LegendClickPolicy: LegendClickPolicy[] = ["none", "hide", "mute"]
+
 export type LegendLocation =
   "top_left"    | "top_center"    | "top_right"    |
   "center_left" | "center"        | "center_right" |
@@ -88,3 +91,15 @@ export const PaddingUnits: PaddingUnits[] = ["percent", "absolute"]
 
 export type SliderCallbackPolicy = "continuous" | "throttle" | "mouseup"
 export const SliderCallbackPolicy: SliderCallbackPolicy[] = ["continuous", "throttle", "mouseup"]
+
+export type RoundingFunction = "round" | "nearest" | "floor" | "rounddown" | "ceil" | "roundup"
+export const RoundingFunction: RoundingFunction[] = ["round", "nearest", "floor", "rounddown", "ceil", "roundup"]
+
+export type UpdateMode = "replace" | "append"
+export const UpdateMode: UpdateMode[] = ["replace", "append"]
+
+export type HTTPMethod = "POST" | "GET"
+export const HTTPMethod: HTTPMethod[] = ["POST", "GET"]
+
+export type Logo = "normal" | "grey"
+export const Logo: Logo[] = ["normal", "grey"]

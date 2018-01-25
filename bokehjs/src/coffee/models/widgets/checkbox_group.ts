@@ -62,6 +62,17 @@ export class CheckboxGroupView extends WidgetView {
   }
 }
 
+export namespace CheckboxGroup {
+  export interface Attrs extends Widget.Attrs {
+    active: number[]
+    labels: string[]
+    inline: boolean
+    callback: any // XXX
+  }
+}
+
+export interface CheckboxGroup extends Widget, CheckboxGroup.Attrs {}
+
 export class CheckboxGroup extends Widget {
 
   static initClass() {
@@ -75,11 +86,6 @@ export class CheckboxGroup extends Widget {
       callback: [ p.Instance     ],
     })
   }
-
-  active: number[]
-  labels: string[]
-  inline: boolean
-  callback: any // XXX
 }
 
 CheckboxGroup.initClass()

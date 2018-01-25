@@ -69,6 +69,15 @@ export class SelectView extends InputWidgetView {
   }
 }
 
+export namespace Select {
+  export interface Attrs extends InputWidget.Attrs {
+    value: string
+    options: string[] | {[key: string]: string | [string, string]}
+  }
+}
+
+export interface Select extends InputWidget, Select.Attrs {}
+
 export class Select extends InputWidget {
 
   static initClass() {

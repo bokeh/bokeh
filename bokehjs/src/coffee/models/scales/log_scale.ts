@@ -1,5 +1,11 @@
 import {Scale} from "./scale"
 
+export namespace LogScale {
+  export interface Attrs extends Scale.Attrs {}
+}
+
+export interface LogScale extends Scale, LogScale.Attrs {}
+
 export class LogScale extends Scale {
 
   static initClass() {

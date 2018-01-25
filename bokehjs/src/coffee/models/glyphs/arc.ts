@@ -1,8 +1,11 @@
 /* XXX: partial */
 import {XYGlyph, XYGlyphView} from "./xy_glyph";
+import {DistanceSpec, AngleSpec} from "core/vectorization"
+import {Direction} from "core/enums"
 import * as p from "core/properties"
 
 export class ArcView extends XYGlyphView {
+  model: Arc
 
   _map_data() {
     if (this.model.properties.radius.units === "data") {
@@ -34,19 +37,30 @@ export class ArcView extends XYGlyphView {
   }
 }
 
-export class Arc extends XYGlyph {
-  static initClass() {
-    this.prototype.default_view = ArcView;
+export namespace Arc {
+  export interface Attrs extends XYGlyph.Attrs {
+    direction: Direction
+    radius: DistanceSpec
+    start_angle: AngleSpec
+    end_angle: AngleSpec
+  }
+}
 
+export interface Arc extends XYGlyph, Arc.Attrs {}
+
+export class Arc extends XYGlyph {
+
+  static initClass() {
     this.prototype.type = 'Arc';
+    this.prototype.default_view = ArcView;
 
     this.mixins(['line']);
     this.define({
-        direction:   [ p.Direction,   'anticlock' ],
-        radius:      [ p.DistanceSpec             ],
-        start_angle: [ p.AngleSpec                ],
-        end_angle:   [ p.AngleSpec                ],
-      });
+      direction:   [ p.Direction,   'anticlock' ],
+      radius:      [ p.DistanceSpec             ],
+      start_angle: [ p.AngleSpec                ],
+      end_angle:   [ p.AngleSpec                ],
+    });
   }
 }
 Arc.initClass();

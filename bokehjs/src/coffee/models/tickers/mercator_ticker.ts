@@ -3,6 +3,14 @@ import {LatLon} from "core/enums"
 import * as p from "core/properties"
 import {proj4, mercator, clip_mercator, in_bounds} from "core/util/proj4"
 
+export namespace MercatorTicker {
+  export interface Attrs extends BasicTicker.Attrs {
+    dimension: LatLon | null | undefined
+  }
+}
+
+export interface MercatorTicker extends BasicTicker, MercatorTicker.Attrs {}
+
 export class MercatorTicker extends BasicTicker {
 
   static initClass() {
@@ -12,8 +20,6 @@ export class MercatorTicker extends BasicTicker {
       dimension: [ p.LatLon ],
     })
   }
-
-  dimension: LatLon | null | undefined
 
   get_ticks_no_defaults(data_low: number, data_high: number, cross_loc: any, desired_n_ticks: number) {
     if (this.dimension == null) {

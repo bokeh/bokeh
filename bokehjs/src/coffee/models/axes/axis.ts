@@ -27,9 +27,7 @@ export interface TickCoords {
 }
 
 export class AxisView extends GuideRendererView {
-
   model: Axis
-
   visuals: Axis.Visuals
 
   render(): void {
@@ -305,11 +303,41 @@ export class AxisView extends GuideRendererView {
   }
 }
 
+export namespace Axis {
+  export interface Attrs extends GuideRenderer.Attrs {
+    bounds: [number, number] | "auto"
+    ticker: Ticker<any> // TODO
+    formatter: TickFormatter
+    x_range_name: string
+    y_range_name: string
+    axis_label: string
+    axis_label_standoff: number
+    major_label_standoff: number
+    major_label_orientation: Orientation | number
+    major_label_overrides: {[key: string]: string}
+    major_tick_in: number
+    major_tick_out: number
+    minor_tick_in: number
+    minor_tick_out: number
+  }
+
+  export type Visuals = GuideRenderer.Visuals & {
+    axis_line: Line
+    major_tick_line: Line
+    minor_tick_line: Line
+    major_label_text: Text
+    axis_label_text: Text
+  }
+}
+
+export interface Axis extends GuideRenderer, Axis.Attrs {
+  panel: SidePanel
+}
+
 export class Axis extends GuideRenderer {
 
   static initClass() {
     this.prototype.type = "Axis"
-
     this.prototype.default_view = AxisView
 
     this.mixins([
@@ -351,23 +379,6 @@ export class Axis extends GuideRenderer {
       axis_label_text_font_style: "italic",
     })
   }
-
-  panel: SidePanel
-
-  bounds: [number, number] | "auto"
-  ticker: Ticker<any> // TODO
-  formatter: TickFormatter
-  x_range_name: string
-  y_range_name: string
-  axis_label: string
-  axis_label_standoff: number
-  major_label_standoff: number
-  major_label_orientation: Orientation | number
-  major_label_overrides: {[key: string]: string}
-  major_tick_in: number
-  major_tick_out: number
-  minor_tick_in: number
-  minor_tick_out: number
 
   add_panel(side: Side): void {
     this.panel = new SidePanel({side: side})
@@ -536,15 +547,4 @@ export class Axis extends GuideRenderer {
     }
   }
 }
-
 Axis.initClass()
-
-export module Axis {
-  export type Visuals = GuideRenderer.Visuals & {
-    axis_line: Line
-    major_tick_line: Line
-    minor_tick_line: Line
-    major_label_text: Text
-    axis_label_text: Text
-  }
-}

@@ -14,7 +14,6 @@ export class GraphHitTestPolicy extends Model {
   }
 }
 
-
 export class NodesOnly extends GraphHitTestPolicy {
   static initClass() {
     this.prototype.type = 'NodesOnly';
@@ -52,7 +51,6 @@ export class NodesOnly extends GraphHitTestPolicy {
   }
 }
 NodesOnly.initClass();
-
 
 export class NodesAndLinkedEdges extends GraphHitTestPolicy {
   static initClass() {

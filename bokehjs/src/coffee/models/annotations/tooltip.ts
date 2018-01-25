@@ -1,5 +1,6 @@
 /* XXX: partial */
 import {Annotation, AnnotationView} from "./annotation";
+import {TooltipAttachment} from "core/enums"
 import {div, show, hide, empty} from "core/dom";
 import * as p from "core/properties"
 
@@ -19,6 +20,7 @@ export const compute_side = function(attachment, sx, sy, hcenter, vcenter) {
 };
 
 export class TooltipView extends AnnotationView {
+  model: Tooltip
 
   initialize(options: any): void {
     super.initialize(options);
@@ -124,11 +126,23 @@ export class TooltipView extends AnnotationView {
   }
 }
 
-export class Tooltip extends Annotation {
-  static initClass() {
-    this.prototype.default_view = TooltipView;
+export namespace Tooltip {
+  export interface Attrs extends Annotation.Attrs {
+    attachment: TooltipAttachment
+    inner_only: boolean
+    show_arrow: boolean
+    data: [number, number, HTMLElement][]
+    custom: boolean
+  }
+}
 
+export interface Tooltip extends Annotation, Tooltip.Attrs {}
+
+export class Tooltip extends Annotation {
+
+  static initClass() {
     this.prototype.type = 'Tooltip';
+    this.prototype.default_view = TooltipView;
 
     this.define({
       attachment: [ p.String, 'horizontal' ], // TODO enum: "horizontal" | "vertical" | "left" | "right" | "above" | "below"
@@ -146,17 +160,17 @@ export class Tooltip extends Annotation {
     });
   }
 
-  clear() {
-    return this.data = [];
+  clear(): void {
+    this.data = [];
   }
 
-  add(sx, sy, content) {
+  add(sx, sy, content): void {
     const { data } = this;
     data.push([sx, sy, content]);
     this.data = data;
 
     // TODO (bev) not sure why this is now necessary
-    return this.properties.data.change.emit(undefined);
+    this.properties.data.change.emit(undefined);
   }
 }
 Tooltip.initClass();

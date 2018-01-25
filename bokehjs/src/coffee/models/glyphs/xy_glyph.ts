@@ -2,7 +2,8 @@
 import {RBush} from "core/util/spatial";
 import {Glyph, GlyphView} from "./glyph"
 
-export class XYGlyphView extends GlyphView {
+export abstract class XYGlyphView extends GlyphView {
+  model: XYGlyph
 
   _index_data() {
     const points = [];
@@ -20,7 +21,15 @@ export class XYGlyphView extends GlyphView {
   }
 }
 
-export class XYGlyph extends Glyph {
+export namespace XYGlyph {
+  export interface Attrs extends Glyph.Attrs {
+  }
+}
+
+export interface XYGlyph extends Glyph, XYGlyph.Attrs {}
+
+export abstract class XYGlyph extends Glyph {
+
   static initClass() {
     this.prototype.type = "XYGlyph";
     this.prototype.default_view = XYGlyphView;

@@ -55,6 +55,15 @@ export class TextInputView extends InputWidgetView {
   }
 }
 
+export namespace TextInput {
+  export interface Attrs extends InputWidget.Attrs {
+    value: string
+    placeholder: string
+  }
+}
+
+export interface TextInput extends InputWidget, TextInput.Attrs {}
+
 export class TextInput extends InputWidget {
 
   static initClass() {
@@ -62,7 +71,7 @@ export class TextInput extends InputWidget {
     this.prototype.default_view = TextInputView
 
     this.define({
-      value: [ p.String, "" ],
+      value:       [ p.String, "" ],
       placeholder: [ p.String, "" ],
     })
   }

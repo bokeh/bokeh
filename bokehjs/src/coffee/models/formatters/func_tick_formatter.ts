@@ -3,13 +3,23 @@ import {TickFormatter} from "./tick_formatter";
 import * as p from "core/properties";
 import {values} from "core/util/object"
 
+export namespace FuncTickFormatter {
+  export interface Attrs extends TickFormatter.Attrs {
+    args: {[key: string]: any}
+    code: string
+  }
+}
+
+export interface FuncTickFormatter extends TickFormatter, FuncTickFormatter.Attrs {}
+
 export class FuncTickFormatter extends TickFormatter {
+
   static initClass() {
     this.prototype.type = 'FuncTickFormatter';
 
     this.define({
-      args: [ p.Any,     {}           ], // TODO (bev) better type
-      code: [ p.String,  ''           ],
+      args: [ p.Any,     {} ], // TODO (bev) better type
+      code: [ p.String,  '' ],
     });
   }
 

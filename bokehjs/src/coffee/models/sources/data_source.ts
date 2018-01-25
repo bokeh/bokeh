@@ -3,10 +3,16 @@ import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {isFunction} from "core/util/types"
 
-export class DataSource extends Model {
+export namespace DataSource {
+  export interface Attrs extends Model.Attrs {
+    selected: hittest.HitTestResult
+    callback: any // XXX
+  }
+}
 
-  selected: hittest.HitTestResult
-  callback: any // XXX
+export interface DataSource extends Model, DataSource.Attrs {}
+
+export abstract class DataSource extends Model {
 
   static initClass() {
     this.prototype.type = "DataSource"
