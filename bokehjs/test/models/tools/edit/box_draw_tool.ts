@@ -188,7 +188,7 @@ describe("BoxDrawTool", () =>
       testcase.draw_tool_view._pan_start(drag_event);
       expect(testcase.draw_tool_view._basepoint).to.be.deep.equal([300, 300]);
       drag_event = make_event(200, 200, true);
-      testcase.draw_tool_view._pan(drag_event,);
+      testcase.draw_tool_view._pan(drag_event);
       expect(testcase.draw_tool_view._basepoint).to.be.deep.equal([300, 300]);
       testcase.draw_tool_view._pan_end(drag_event);
 

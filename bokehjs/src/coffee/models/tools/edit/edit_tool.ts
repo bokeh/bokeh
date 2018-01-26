@@ -35,7 +35,7 @@ export abstract class EditToolView extends GestureToolView {
   }
 
   _move_exit(_e: BkEv): void {
-	this._mouse_in_frame = false;
+    this._mouse_in_frame = false;
   }
 
   _map_drag(sx: number, sy: number, renderer: GlyphRenderer): [number, number] | null {

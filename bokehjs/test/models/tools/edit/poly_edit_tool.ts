@@ -2,7 +2,7 @@ import {expect} from "chai"
 import * as sinon from "sinon"
 
 import {Keys} from "core/dom"
-import {create_hit_test_result, create_1d_hit_test_result} from "core/hittest"
+import {create_1d_hit_test_result} from "core/hittest"
 
 import {Circle, CircleView} from "models/glyphs/circle"
 import {Patches, PatchesView} from "models/glyphs/patches"
@@ -192,7 +192,7 @@ describe("PolyEditTool", (): void => {
     it("should show vertices on doubletap", function(): void {
       const testcase = make_testcase();
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test");
-      sinon.stub(testcase.vertex_glyph_view, "hit_test");
+      sinon.stub(testcase.vertex_glyph_view, "hit_test").returns(null);
 
       hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
       const tap_event = make_event(300, 300);
@@ -208,6 +208,7 @@ describe("PolyEditTool", (): void => {
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test");
       const vertex_hit_test_stub = sinon.stub(testcase.vertex_glyph_view, "hit_test");
 
+      vertex_hit_test_stub.returns(null);
       hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
       const tap_event = make_event(300, 300);
       testcase.draw_tool_view._doubletap(tap_event);
@@ -223,6 +224,7 @@ describe("PolyEditTool", (): void => {
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test");
       const vertex_hit_test_stub = sinon.stub(testcase.vertex_glyph_view, "hit_test");
 
+      vertex_hit_test_stub.returns(null);
       hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
       const tap_event = make_event(300, 300);
       testcase.draw_tool_view._doubletap(tap_event);
@@ -250,6 +252,7 @@ describe("PolyEditTool", (): void => {
       const vertex_hit_test_stub = sinon.stub(testcase.vertex_glyph_view, "hit_test");
 
       hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
+      vertex_hit_test_stub.returns(null);
       const tap_event = make_event(300, 300);
       testcase.draw_tool_view._doubletap(tap_event);
       // Have to call CDSView.compute_indices manually for testing
@@ -268,26 +271,56 @@ describe("PolyEditTool", (): void => {
       expect(testcase.data_source.data.z).to.be.deep.equal([null, null]);
     });
 
-    it("should add vertex after selected vertex on tap", function(): void {
+    it("should add vertex on doubletap", function(): void {
       const testcase = make_testcase();
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test");
       const vertex_hit_test_stub = sinon.stub(testcase.vertex_glyph_view, "hit_test");
 
       hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
+      vertex_hit_test_stub.returns(null);
       const tap_event = make_event(300, 300);
-      testcase.draw_tool_view._doubletap(tap_event);
-      // Have to call CDSView.compute_indices manually for testing
-      testcase.vertex_renderer.view.compute_indices();
+      testcase.draw_tool_view._doubletap(tap_event); // Poly selected
       vertex_hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
-      testcase.draw_tool_view._tap(tap_event);
-      vertex_hit_test_stub.returns(create_hit_test_result());
-      testcase.draw_tool_view._tap(tap_event);
+      testcase.vertex_renderer.view.compute_indices();
+      testcase.draw_tool_view._doubletap(tap_event); // Vertex selected
+      vertex_hit_test_stub.returns(create_1d_hit_test_result([[2, 0]]));
+      testcase.draw_tool_view._doubletap(make_event(290, 290)); // Add new vertex
 
-      expect(testcase.vertex_source.selected['1d'].indices).to.be.deep.equal([2]);
-      expect(testcase.vertex_source.data.x).to.be.deep.equal([0, 0.5, 0.04424778761061947, 1]);
-      expect(testcase.vertex_source.data.y).to.be.deep.equal([0, -0.5, -0, -1]);
-      expect(testcase.data_source.data.xs).to.be.deep.equal([[0, 0.5, 1], [0, 0.5, 0.04424778761061947, 1]]);
-      expect(testcase.data_source.data.ys).to.be.deep.equal([[0, -0.5, -1], [0, -0.5, -0, -1]]);
+      const xs = [0, 0.5, 0.008849557522123894, 1];
+      const ys = [0, -0.5, 0.03389830508474576, -1];
+      expect(testcase.vertex_source.selected['1d'].indices).to.be.deep.equal([]);
+      expect(testcase.vertex_source.data.x).to.be.deep.equal(xs);
+      expect(testcase.vertex_source.data.y).to.be.deep.equal(ys);
+      expect(testcase.data_source.data.xs).to.be.deep.equal([[0, 0.5, 1], xs]);
+      expect(testcase.data_source.data.ys).to.be.deep.equal([[0, -0.5, -1], ys]);
+      expect(testcase.data_source.data.z).to.be.deep.equal([null, null]);
+    });
+
+    it("should add vertex on tap after doubletap ", function(): void {
+      const testcase = make_testcase();
+      const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test");
+      const vertex_hit_test_stub = sinon.stub(testcase.vertex_glyph_view, "hit_test");
+
+      hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
+      vertex_hit_test_stub.returns(null);
+      const tap_event = make_event(300, 300);
+      testcase.draw_tool_view._doubletap(tap_event); // Poly selected
+      vertex_hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
+      testcase.vertex_renderer.view.compute_indices();
+      testcase.draw_tool_view._doubletap(tap_event); // Vertex selected
+      vertex_hit_test_stub.returns(create_1d_hit_test_result([[2, 0]]));
+      const key_event = make_event(290, 290, false, Keys.Esc);
+      testcase.draw_tool_view._tap(key_event); // Add new vertex
+      testcase.draw_tool_view._move_enter(key_event);
+      testcase.draw_tool_view._keyup(key_event); // Stop editing
+
+      const xs = [0, 0.5, 0.008849557522123894, 1];
+      const ys = [0, -0.5, 0.03389830508474576, -1];
+      expect(testcase.vertex_source.selected['1d'].indices).to.be.deep.equal([]);
+      expect(testcase.vertex_source.data.x).to.be.deep.equal(xs);
+      expect(testcase.vertex_source.data.y).to.be.deep.equal(ys);
+      expect(testcase.data_source.data.xs).to.be.deep.equal([[0, 0.5, 1], xs]);
+      expect(testcase.data_source.data.ys).to.be.deep.equal([[0, -0.5, -1], ys]);
       expect(testcase.data_source.data.z).to.be.deep.equal([null, null]);
     });
   })
