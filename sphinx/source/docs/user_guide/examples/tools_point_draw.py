@@ -5,9 +5,10 @@ output_file("tools_point_draw.html")
 
 p = figure(x_range=(0, 10), y_range=(0, 10), tools=[],
            title='Point Draw Tool')
+p.background_fill_color = 'lightgrey'
 
 source = ColumnDataSource({
-    'x': [1, 5, 9], 'y': [1, 5, 9], 'color': ['red', 'green', 'blue']
+    'x': [1, 5, 9], 'y': [1, 5, 9], 'color': ['red', 'green', 'yellow']
 })
 
 renderer = p.scatter(x='x', y='y', source=source, color='color', size=10)
