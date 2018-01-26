@@ -11,7 +11,7 @@ declare namespace Bokeh {
     attribution?: string;
   }
 
-  export var MercatorTileSource: { new(attributes?: IMercatorTileSource, options?: ModelOpts): MercatorTileSource };
+  export const MercatorTileSource: { new(attributes?: IMercatorTileSource, options?: ModelOpts): MercatorTileSource };
   export interface MercatorTileSource extends TileSource, IMercatorTileSource {}
   export interface IMercatorTileSource extends ITileSource {
     x_origin_offset?: number;
@@ -20,19 +20,19 @@ declare namespace Bokeh {
     wrap_around?: boolean;
   }
 
-  export var TMSTileSource: { new(attributes?: ITMSTileSource, options?: ModelOpts): TMSTileSource };
+  export const TMSTileSource: { new(attributes?: ITMSTileSource, options?: ModelOpts): TMSTileSource };
   export interface TMSTileSource extends MercatorTileSource, ITMSTileSource {}
   export interface ITMSTileSource extends IMercatorTileSource {}
 
-  export var WMTSTileSource: { new(attributes?: IWMTSTileSource, options?: ModelOpts): WMTSTileSource };
+  export const WMTSTileSource: { new(attributes?: IWMTSTileSource, options?: ModelOpts): WMTSTileSource };
   export interface WMTSTileSource extends MercatorTileSource, IWMTSTileSource {}
   export interface IWMTSTileSource extends IMercatorTileSource {}
 
-  export var QUADKEYTileSource: { new(attributes?: IQUADKEYTileSource, options?: ModelOpts): QUADKEYTileSource };
+  export const QUADKEYTileSource: { new(attributes?: IQUADKEYTileSource, options?: ModelOpts): QUADKEYTileSource };
   export interface QUADKEYTileSource extends MercatorTileSource, IQUADKEYTileSource {}
   export interface IQUADKEYTileSource extends IMercatorTileSource {}
 
-  export var BBoxTileSource: { new(attributes?: IBBoxTileSource, options?: ModelOpts): BBoxTileSource };
+  export const BBoxTileSource: { new(attributes?: IBBoxTileSource, options?: ModelOpts): BBoxTileSource };
   export interface BBoxTileSource extends MercatorTileSource, IBBoxTileSource {}
   export interface IBBoxTileSource extends IMercatorTileSource {
     use_latlon?: boolean;

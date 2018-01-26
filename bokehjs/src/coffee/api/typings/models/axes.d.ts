@@ -69,19 +69,19 @@ declare namespace Bokeh {
   export interface ContinuousAxis extends Axis, IContinuousAxis {}
   export interface IContinuousAxis extends IAxis {}
 
-  export var LinearAxis: { new(attributes?: ILinearAxis, options?: ModelOpts): LinearAxis };
+  export const LinearAxis: { new(attributes?: ILinearAxis, options?: ModelOpts): LinearAxis };
   export interface LinearAxis extends ContinuousAxis, ILinearAxis {}
   export interface ILinearAxis extends IContinuousAxis {}
 
-  export var LogAxis: { new(attributes?: ILogAxis, options?: ModelOpts): LogAxis };
+  export const LogAxis: { new(attributes?: ILogAxis, options?: ModelOpts): LogAxis };
   export interface LogAxis extends ContinuousAxis, ILogAxis {}
   export interface ILogAxis extends IContinuousAxis {}
 
-  export var CategoricalAxis: { new(attributes?: ICategoricalAxis, options?: ModelOpts): CategoricalAxis };
+  export const CategoricalAxis: { new(attributes?: ICategoricalAxis, options?: ModelOpts): CategoricalAxis };
   export interface CategoricalAxis extends Axis, ICategoricalAxis {}
   export interface ICategoricalAxis extends IAxis {}
 
-  export var DatetimeAxis: { new(attributes?: IDatetimeAxis, options?: ModelOpts): DatetimeAxis };
+  export const DatetimeAxis: { new(attributes?: IDatetimeAxis, options?: ModelOpts): DatetimeAxis };
   export interface DatetimeAxis extends LinearAxis, IDatetimeAxis {}
   export interface IDatetimeAxis extends ILinearAxis {
     scale?: string;

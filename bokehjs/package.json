@@ -103,7 +103,7 @@
     "@types/hammerjs": "^2.0.33",
     "pikaday": "^1.7.0",
     "@types/pikaday": "^1.6.3",
-    "nouislider": "^11.0.0",
+    "nouislider": "^10.0.0",
     "@types/nouislider": "^9.0.3",
     "underscore.template": "^0.1.7",
     "canvas2svg": "https://github.com/bokeh/canvas2svg#v1.0.21",

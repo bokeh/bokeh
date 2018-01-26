@@ -71,7 +71,7 @@ export abstract class HasProps extends Signalable() {
           return value
         },
         set: function(this: HasProps, value: any): HasProps {
-          this.setv([name, value])
+          this.setv({[name]: value})
           return this
         },
         configurable: false,
@@ -154,7 +154,7 @@ export abstract class HasProps extends Signalable() {
 
     // auto generating ID
     if (attributes.id == null)
-      this.setv(["id", uniqueId()], {silent: true})
+      this.setv({id: uniqueId()}, {silent: true})
 
     this.setv(attributes, {silent: true})
 
@@ -255,14 +255,7 @@ export abstract class HasProps extends Signalable() {
     this._changing = false
   }
 
-  setv(obj: {[key: string]: any} | [string, any], options: HasProps.SetOptions = {}): void {
-    let attrs: {[key: string]: any} = {}
-    if (isArray(obj)) {
-      const [attr, value] = obj as [string, any]
-      attrs[attr] = value
-    } else
-      attrs = obj
-
+  setv(attrs: {[key: string]: any}, options: HasProps.SetOptions = {}): void {
     for (const key in attrs) {
       if (!attrs.hasOwnProperty(key))
         continue
@@ -333,7 +326,7 @@ export abstract class HasProps extends Signalable() {
       return value.ref()
     else if (isArray(value)) {
       const ref_array: any[] = []
-      for (let i = 0; i < value.length; i++ ) {
+      for (let i = 0; i < value.length; i++) {
         const v = value[i]
         ref_array.push(HasProps._value_to_json(i.toString(), v, value))
       }

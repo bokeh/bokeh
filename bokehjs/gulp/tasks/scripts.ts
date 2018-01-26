@@ -88,8 +88,13 @@ gulp.task("scripts:ts", () => {
 })
 
 gulp.task("scripts:tslint", () => {
+  const srcs = [
+    join(paths.src_dir.coffee),
+    join(paths.base_dir, "test"),
+    join(paths.base_dir, "examples"),
+  ]
   return gulp
-    .src(join(paths.src_dir.coffee, "**", "*.ts"))
+    .src(srcs.map((dir) => join(dir, "**", "*.ts")))
     .pipe(tslint({formatter: "stylish", fix: argv.fix || false}))
     .pipe(tslint.report({emitError: false}))
 })

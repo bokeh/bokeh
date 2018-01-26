@@ -91,7 +91,7 @@ export abstract class LayoutDOMView extends DOMView {
 
       // stop on first element with sensible dimensions
       const {width, height} = measuring.getBoundingClientRect()
-      if( width != 0 && height != 0)
+      if(width != 0 && height != 0)
         return [width, height]
     }
 

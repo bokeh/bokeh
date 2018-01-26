@@ -13,7 +13,7 @@ declare namespace Bokeh {
   export interface MapPlot extends Plot, IMapPlot {}
   export interface IMapPlot extends IPlot {}
 
-  export var GMapPlot: { new(attributes?: IGMapPlot, options?: ModelOpts): GMapPlot };
+  export const GMapPlot: { new(attributes?: IGMapPlot, options?: ModelOpts): GMapPlot };
   export interface GMapPlot extends MapPlot, IGMapPlot {}
   export interface IGMapPlot extends IMapPlot {
     map_options?: GMapOptions;

@@ -24,13 +24,13 @@ namespace WebBrowserMarketShare {
   interface MonthlyShares {
     year: number
     month: string
-    browsers: Array<string>
-    shares: Array<number>
+    browsers: string[]
+    shares: number[]
   }
 
-  const data: Array<MonthlyShares> = []
+  const data: MonthlyShares[] = []
 
-  let _browsers: Array<string> = null
+  let _browsers: string[] = null
   let year: number = null
 
   for (const [head, ...tail] of read_csv_from("data")) {
@@ -68,7 +68,7 @@ namespace WebBrowserMarketShare {
   }
 
   const info: Bokeh.Map<BrowserInfo> = {
-    "Other": { color: "gray" }
+    "Other": { color: "gray" },
   }
 
   for (const row of read_csv_from("info")) {
@@ -94,7 +94,7 @@ namespace WebBrowserMarketShare {
       data: {
         names: item.browsers,
         shares: item.shares,
-      }
+      },
     })
 
     const end_angles = cumsum(item.shares.map(to_radians))

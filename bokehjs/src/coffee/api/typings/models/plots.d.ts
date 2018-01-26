@@ -3,12 +3,12 @@ declare namespace Bokeh {
   plot?: Plot;
  }
 
- export var Plot: { new(attributes?: IPlot, options?: ModelOpts): Plot };
+ export const Plot: { new(attributes?: IPlot, options?: ModelOpts): Plot };
  export interface Plot extends LayoutDOM, IPlot {
-  add_renderers(...Renderer: Array<Renderer>): void;
+  add_renderers(...Renderer: Renderer[]): void;
   add_layout(obj: Model, place?: Place): void;
   add_glyph(glyph: Glyph, source?: DataSource, attrs?: ModelOpts): GlyphRenderer;
-  add_tools(...tools: Array<Tool>): void;
+  add_tools(...tools: Tool[]): void;
  }
  export interface IPlot extends IBasePlot {
   x_range?: Range;
@@ -45,12 +45,12 @@ declare namespace Bokeh {
   border_fill_alpha?: Percent;
   // }}}
 
-  left?: Array<Renderer>;
-  right?: Array<Renderer>;
-  above?: Array<Renderer>;
-  below?: Array<Renderer>;
+  left?: Renderer[];
+  right?: Renderer[];
+  above?: Renderer[];
+  below?: Renderer[];
 
-  renderers?: Array<Renderer>;
+  renderers?: Renderer[];
 
   extra_x_ranges?: Map<Range>;
   extra_y_ranges?: Map<Range>;

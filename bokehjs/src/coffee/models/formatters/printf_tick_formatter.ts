@@ -15,7 +15,7 @@ export class PrintfTickFormatter extends TickFormatter {
 
   doFormat(ticks, _axis) {
     const { format } = this;
-    const labels = ( ticks.map((tick) => sprintf(format, tick)) );
+    const labels = (ticks.map((tick) => sprintf(format, tick)));
     return labels;
   }
 }

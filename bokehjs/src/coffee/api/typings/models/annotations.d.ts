@@ -4,14 +4,14 @@ declare namespace Bokeh {
     level?: RenderLevel;
   }
 
-  export var LegendItem: { new(attributes?: ILegendItem, options?: ModelOpts): LegendItem };
+  export const LegendItem: { new(attributes?: ILegendItem, options?: ModelOpts): LegendItem };
   export interface LegendItem extends Model, ILegendItem {}
   export interface ILegendItem extends IModel {
     label?: Vectorized<string>;
-    renderers?: Array<GlyphRenderer>;
+    renderers?: GlyphRenderer[];
   }
 
-  export var Legend: { new(attributes?: ILegend, options?: ModelOpts): Legend };
+  export const Legend: { new(attributes?: ILegend, options?: ModelOpts): Legend };
   export interface Legend extends Annotation, ILegend {}
   export interface ILegend extends IAnnotation {
     location?: LegendLocation;
@@ -58,11 +58,11 @@ declare namespace Bokeh {
     padding?: Int;
     spacing?: Int;
 
-    items?: Array<LegendItem>;
+    items?: LegendItem[];
 
   }
 
-  export var ColorBar: { new(attributes?: IColorBar, options?: ModelOpts): ColorBar };
+  export const ColorBar: { new(attributes?: IColorBar, options?: ModelOpts): ColorBar };
   export interface ColorBar extends Annotation, IColorBar {}
   export interface IColorBar extends IAnnotation {
     location?: LegendLocation;
@@ -150,16 +150,16 @@ declare namespace Bokeh {
     // }}}
   }
 
-  export var Band: { new(attributes?: IBand, options?: ModelOpts): Band };
+  export const Band: { new(attributes?: IBand, options?: ModelOpts): Band };
   export interface Band extends Annotation, IBand {}
   export interface IBand extends IAnnotation, LineProps, FillProps {
-    lower?: Array<number>;
+    lower?: number[];
     lower_units?: SpatialUnits;
 
-    upper?: Array<number>;
+    upper?: number[];
     upper_units?: SpatialUnits;
 
-    base?: Array<number>;
+    base?: number[];
     base_units?: SpatialUnits;
 
     dimension?: Dimension;
@@ -168,7 +168,7 @@ declare namespace Bokeh {
     y_range_name?: string;
   }
 
-  export var BoxAnnotation: { new(attributes?: IBoxAnnotation, options?: ModelOpts): BoxAnnotation };
+  export const BoxAnnotation: { new(attributes?: IBoxAnnotation, options?: ModelOpts): BoxAnnotation };
   export interface BoxAnnotation extends Annotation, IBoxAnnotation {}
   export interface IBoxAnnotation extends IAnnotation, LineProps, FillProps {
     left?: Auto | Numerical;
@@ -189,20 +189,20 @@ declare namespace Bokeh {
     render_mode?: RenderMode;
   }
 
-  export var PolyAnnotation: { new(attributes?: IPolyAnnotation, options?: ModelOpts): PolyAnnotation };
+  export const PolyAnnotation: { new(attributes?: IPolyAnnotation, options?: ModelOpts): PolyAnnotation };
   export interface PolyAnnotation extends Annotation, IPolyAnnotation {}
   export interface IPolyAnnotation extends IAnnotation, LineProps, FillProps {
-    xs?: Array<number>;
+    xs?: number[];
     xs_units?: SpatialUnits;
 
-    ys?: Array<number>;
+    ys?: number[];
     ys_units?: SpatialUnits;
 
     x_range_name?: string;
     y_range_name?: string;
   }
 
-  export var Span: { new(attributes?: ISpan, options?: ModelOpts): Span };
+  export const Span: { new(attributes?: ISpan, options?: ModelOpts): Span };
   export interface Span extends Annotation, ISpan {}
   export interface ISpan extends IAnnotation, LineProps {
     location?: number;
@@ -216,11 +216,11 @@ declare namespace Bokeh {
     render_mode?: RenderMode;
   }
 
-  export var TextAnnotation: { new(attributes?: ITextAnnotation, options?: ModelOpts): TextAnnotation };
+  export const TextAnnotation: { new(attributes?: ITextAnnotation, options?: ModelOpts): TextAnnotation };
   export interface TextAnnotation extends Annotation, ITextAnnotation {}
   export interface ITextAnnotation extends IAnnotation {}
 
-  export var Title: { new(attributes?: ITitle, options?: ModelOpts): Title };
+  export const Title: { new(attributes?: ITitle, options?: ModelOpts): Title };
   export interface Title extends TextAnnotation, ITitle {}
   export interface ITitle extends ITextAnnotation {
     text?: string;
@@ -261,11 +261,11 @@ declare namespace Bokeh {
     render_mode?: RenderMode;
   }
 
-  export var Overlay: { new(attributes?: IOverlay, options?: ModelOpts): Overlay };
+  export const Overlay: { new(attributes?: IOverlay, options?: ModelOpts): Overlay };
   export interface Overlay extends Annotation, IOverlay {}
   export interface IOverlay extends IAnnotation {}
 
-  export var Tooltip: { new(attributes?: ITooltip, options?: ModelOpts): Tooltip };
+  export const Tooltip: { new(attributes?: ITooltip, options?: ModelOpts): Tooltip };
   export interface Tooltip extends Overlay, ITooltip {}
   export interface ITooltip extends IOverlay {
     attachment?: "horizontal" | "vertical" | "left" | "right" | "above" | "below";

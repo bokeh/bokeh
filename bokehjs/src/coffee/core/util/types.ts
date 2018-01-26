@@ -29,7 +29,7 @@ export function isFunction(obj: any): obj is Function {
   return toString.call(obj) === "[object Function]"
 }
 
-export function isArray<T>(obj: any): obj is Array<T> {
+export function isArray<T>(obj: any): obj is T[] {
   return Array.isArray(obj)
 }
 
