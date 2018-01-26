@@ -909,15 +909,23 @@ class BoxDrawTool(EditTool, Drag, Tap):
 
     The supported actions include:
 
-    * Add box: Click and hold the mouse button down, dragging the
-      mouse from the starting point to the end point then release the
-      button. This will define the two opposite corners of the
-      rectangle.
+    * Add box: Hold shift then click and drag anywhere on the plot.
 
-    * Select box: Tap on an existing box. To select multiple hold
-      <<shift>> key while tapping.
+    * Move box: Click and drag an existing box, the box will be
+      dropped once you let go of the mouse button.
 
-    * Delete box: Select one or more boxes then press <<delete>> key.
+    * Delete box: Tap a box to select it then press <<backspace>> key
+      while the mouse is within the plot area.
+
+    To **Move** or **Delete** multiple boxes at once:
+
+    * Move selection: Select box(es) with <<shift>>+tap (or another
+      selection tool) then drag anywhere on the plot. Selecting and
+      then dragging on a specific box will move both.
+
+    * Delete selection: Select box(es) with <<shift>>+tap (or another
+      selection tool) then press <<backspace>> while the mouse is
+      within the plot area.
 
     .. |box_draw_icon| image:: /_images/icons/BoxDraw.png
         :height: 18pt
@@ -961,18 +969,13 @@ class PointDrawTool(EditTool, Drag, Tap):
 
     The supported actions include:
 
-    * Add point: Tap anywhere on the plot.
+    * Add point: Tap anywhere on the plot
 
-    * Select point: Tap on an existing point. To select multiple hold
-      <<shift>> key while tapping.
+    * Move point: Tap and drag an existing point, the point will be
+      dropped once you let go of the mouse button.
 
-    * Delete point: Select one or more points then press <<delete>>
-      key.
-
-    * Move point: Click and hold the mouse down point, drag it, then
-      release the mouse to complete the action. To move multiple
-      points select them and hold <<shift>> key while dragging one of
-      them.
+    * Delete point: Tap a point to select it then press <<backspace>>
+      key while the mouse is within the plot area.
 
     .. |point_draw_icon| image:: /_images/icons/PointDraw.png
         :height: 18pt
@@ -1011,22 +1014,18 @@ class PolyDrawTool(EditTool, Drag, Tap):
 
     The supported actions include:
 
-    * Draw polygon/multi-line: Click and hold the mouse button then
-      drag the mouse to a new location and finalize the line by
-      releasing the mouse button. To add further vertices hold the
-      <<shift>> key and drag the mouse cursor to another position.
+    * Add patch/multi-line: Double tap to add the first vertex, then
+      use tap to add each subsequent vertex, to finalize the draw
+      action double tap to insert the final vertex or press the <<esc>
+      key.
 
-    * Select polygon/multi-line: Tap on an existing
-      polygon/multi-line. To select multiple hold <<shift>> key while
-      tapping.
+    * Move patch/multi-line: Tap and drag an existing
+      patch/multi-line, the point will be dropped once you let go of
+      the mouse button.
 
-    * Add polygon/multi-line vertices: Select an existing
-      polygon/multi-line, hold <<shift>> key, then drag the mouse to a
-      new position, a new vertex will be inserted after the last
-      vertex on the selected polygon/multi-line.
-
-    * Delete polygon/multi-line: Select one or more
-      polygons/multi-lines then press <<delete>> key to delete them.
+    * Delete patch/multi-line: Tap a patch/multi-line to select it
+      then press <<backspace>> key while the mouse is within the plot
+      area.
 
     .. |poly_draw_icon| image:: /_images/icons/PolyDraw.png
         :height: 18pt
@@ -1061,44 +1060,20 @@ class PolyEditTool(EditTool, Drag, Tap):
     additional columns in the data source will be padded with the
     declared ``empty_value``, when adding a new point.
 
-    The PolyEditTool has two editing modes, supporting different
-    actions:
+    The supported actions include:
 
-    1. When a particular line or polygon is selected by double tapping
-       it, its vertices will be rendered by the
-       ``vertex_renderer``. In this mode the vertices can be dragged,
-       selected and deleted, and new vertices may be inserted:
+    * Show vertices: Double tap an existing patch or multi-line
 
-    * Add vertex: Tap on an existing vertex to select it then tap on
-      the position to insert the next point.
+    * Add vertex: Double tap an existing vertex to select it, the tool
+      will draw the next point, to add it tap in a new location. To
+      finish editing and add a point double tap otherwise press the
+      <<esc> key to cancel.
 
-    * Select vertex: Tap on a vertex, to select multiple hold
-      <<shift>> key.
+    * Move vertex: Drag an existing vertex and let go of the mouse
+      button to release it.
 
-    * Delete vertex: Select one or more vertices then press <<delete>>
-      to delete them.
-
-    * Move vertex: Click and hold vertex, drag it, then release the
-      mouse to complete the action. To move multiple vertices select
-      them and hold <<shift>> key while dragging one of them.
-
-    * Hide vertices: Double tap anywhere on any blank region of the
-      plot to hide vertices and toggle the other editing mode.
-
-    2. While no line or polygon is selected the lines and polygons as
-       a whole may be selected, dragged and deleted:
-
-    * Move line/polygon: Click and hold a line/polygon, drag it, then
-      release the mouse to complete the action. To move multiple
-      vertices, select them and hold <<shift>> while dragging one of
-      them.
-
-    * Select polygon/multi-line: Tap on an existing
-      polygon/multi-line. To select multiple hold <<shift>> key while
-      tapping.
-
-    * Delete line/polygon: Tap on an existing line/polygon (or select
-      them with a different tool) then press backspace to delete them.
+    * Delete vertex: After selecting one or more vertices press
+      <<backspace>> while the mouse cursor is within the plot area.
 
     .. |poly_edit_icon| image:: /_images/icons/PolyEdit.png
         :height: 18pt
