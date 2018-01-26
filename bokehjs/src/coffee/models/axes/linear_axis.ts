@@ -18,6 +18,9 @@ export interface LinearAxis extends ContinuousAxis, LinearAxis.Attrs {}
 
 export class LinearAxis extends ContinuousAxis {
 
+  ticker: BasicTicker
+  formatters: BasicTickFormatter
+
   static initClass() {
     this.prototype.type = "LinearAxis"
     this.prototype.default_view = LinearAxisView

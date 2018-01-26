@@ -18,6 +18,9 @@ export interface LogAxis extends ContinuousAxis, LogAxis.Attrs {}
 
 export class LogAxis extends ContinuousAxis {
 
+  ticker:    LogTicker
+  formatter: LogTickFormatter
+
   static initClass() {
     this.prototype.type = "LogAxis"
     this.prototype.default_view = LogAxisView

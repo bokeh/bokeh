@@ -124,6 +124,9 @@ export interface CategoricalAxis extends Axis, CategoricalAxis.Attrs {}
 
 export class CategoricalAxis extends Axis {
 
+  ticker: CategoricalTicker
+  formatter: CategoricalTickFormatter
+
   static initClass() {
     this.prototype.type = "CategoricalAxis"
     this.prototype.default_view = CategoricalAxisView
