@@ -1,4 +1,5 @@
 require "./actions"
+require "./edit"
 require "./inspectors"
 require "./gestures"
 require "./toolbar"
