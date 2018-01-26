@@ -2,31 +2,11 @@ import {Keys} from "core/dom"
 import * as p from "core/properties"
 import {MultiLine} from "models/glyphs/multi_line"
 import {Patches} from "models/glyphs/patches"
-import {XYGlyph} from "models/glyphs/xy_glyph"
 import {GlyphRenderer} from "models/renderers/glyph_renderer"
-import {ColumnDataSource} from "models/sources/column_data_source"
-import {EditTool, EditToolView} from "./edit_tool"
+import {EditTool, EditToolView, HasCDS, HasXYGlyph, BkEv} from "./edit_tool"
 
-export interface HasXYCDS {
-  data_source: ColumnDataSource
-  glyph: XYGlyph
-}
-
-export interface HasPolyCDS {
-  data_source: ColumnDataSource
+export interface HasPolyGlyph {
   glyph: MultiLine | Patches
-}
-
-export interface BkEv {
-  bokeh: {
-    sx: number
-    sy: number
-  }
-  srcEvent: {
-    shiftKey?: boolean
-  }
-  keyCode: number
-  shiftKey: boolean
 }
 
 export class PolyEditToolView extends EditToolView {
@@ -35,6 +15,7 @@ export class PolyEditToolView extends EditToolView {
   _basepoint: [number, number] | null
 
   _doubletap(e: BkEv): void {
+    if (!this.model.active) { return; }
     // Perform hit testing
     const renderers = this._select_event(e, false, this.model.renderers);
 
@@ -80,7 +61,6 @@ export class PolyEditToolView extends EditToolView {
       point_glyph.y = {value: glyph.ys.value};
     }
     point_ds.selected['1d'].indices = [];
-    this.model.active = true;
     this._selected_renderer = renderer;
     point_ds.change.emit(undefined);
     point_ds.properties.data.change.emit(undefined);
@@ -117,88 +97,22 @@ export class PolyEditToolView extends EditToolView {
   }
 
   _pan_start(e: BkEv): void {
-    const append = e.srcEvent.shiftKey != null ? e.srcEvent.shiftKey : false;
-    this._select_event(e, append, [this.model.vertex_renderer]);
-    this._select_event(e, append, this.model.renderers);
+    this._select_event(e, true, [this.model.vertex_renderer]);
     this._basepoint = [e.bokeh.sx, e.bokeh.sy];
   }
 
   _pan(e: BkEv): void {
     if (this._basepoint == null) { return; }
-    const [bx, by] = this._basepoint;
-    if (this._selected_renderer == null) {
-      if (!this.model.drag) { return; }
-      // Process polygon/line dragging
-      for (const renderer of this.model.renderers) {
-        const basepoint = this._map_drag(bx, by, renderer);
-        const point = this._map_drag(e.bokeh.sx, e.bokeh.sy, renderer);
-        if (point == null || basepoint == null) {
-          continue;
-        }
-
-        const ds = renderer.data_source;
-        // Type once dataspecs are typed
-        const glyph: any = renderer.glyph;
-        const [xkey, ykey] = [glyph.xs.field, glyph.ys.field];
-        if (!xkey && !ykey) { continue; }
-        const [x, y] = point;
-        const [px, py] = basepoint;
-        const [dx, dy] = [x-px, y-py];
-        for (const index of ds.selected['1d'].indices) {
-          let length, xs, ys;
-          if (xkey) { xs = ds.data[xkey][index]; }
-          if (ykey) {
-            ys = ds.data[ykey][index];
-            length = ys.length;
-          } else {
-            length = xs.length;
-          }
-          for (let i = 0; i < length; i++) {
-            if (xs) { xs[i] += dx; }
-            if (ys) { ys[i] += dy; }
-          }
-        }
-        ds.change.emit(undefined);
-      }
-      this._basepoint = [e.bokeh.sx, e.bokeh.sy];
-      return;
+    this._drag_points(e, [this.model.vertex_renderer]);
+    if (this._selected_renderer) {
+      this._selected_renderer.data_source.change.emit(undefined);
     }
-
-    // Process vertex dragging
-    const vertex_renderer = this.model.vertex_renderer;
-    const ds = vertex_renderer.data_source;
-    const point = this._map_drag(e.bokeh.sx, e.bokeh.sy, vertex_renderer);
-    const basepoint = this._map_drag(bx, by, vertex_renderer);
-    // Skip if drag points aren't defined or no vertex was selected
-    if (!ds.selected['1d'].indices.length || point == null || basepoint == null) {
-      return;
-    }
-
-    // If a vertex is selected compute and apply the drag offset
-    // Type once dataspecs are typed
-    const glyph: any = vertex_renderer.glyph;
-    const [x, y] = point;
-    const [px, py] = basepoint;
-    const [dx, dy] = [x-px, y-py];
-    const [xkey, ykey] = [glyph.x.field, glyph.y.field];
-    for (const index of ds.selected['1d'].indices) {
-      if (xkey) { ds.data[xkey][index] += dx; }
-      if (ykey) { ds.data[ykey][index] += dy; }
-    }
-    ds.change.emit(undefined);
-    this._selected_renderer.data_source.change.emit(undefined);
-    this._basepoint = [e.bokeh.sx, e.bokeh.sy];
   }
 
   _pan_end(_e: BkEv): void {
     this.model.vertex_renderer.data_source.selected['1d'].indices = [];
     if (this._selected_renderer) {
       this._selected_renderer.data_source.properties.data.change.emit(undefined);
-    } else {
-      for (const renderer of this.model.renderers) {
-        renderer.data_source.selected['1d'].indices = [];
-        renderer.data_source.properties.data.change.emit(undefined);
-      }
     }
     this._basepoint = null;
   }
@@ -237,9 +151,8 @@ export class PolyEditToolView extends EditToolView {
 }
 
 export class PolyEditTool extends EditTool {
-  drag: boolean
-  renderers: (GlyphRenderer & HasPolyCDS)[]
-  vertex_renderer: (GlyphRenderer & HasXYCDS)
+  renderers: (GlyphRenderer & HasCDS & HasPolyGlyph)[]
+  vertex_renderer: (GlyphRenderer & HasCDS & HasXYGlyph)
 
   tool_name = "Poly Edit Tool"
   icon = "bk-tool-icon-poly-edit"

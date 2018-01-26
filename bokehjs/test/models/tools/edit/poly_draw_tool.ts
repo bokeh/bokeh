@@ -146,67 +146,88 @@ describe("PolyDrawTool", (): void => {
       expect(testcase.data_source.data).to.be.deep.equal(testcase.data);
     });
 
-    it("should draw patch on pan", function(): void {
+    it("should drag selected patch on pan", function(): void {
       const testcase = make_testcase();
-      sinon.stub(testcase.glyph_view, "hit_test");
+      const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test");
 
-      let drag_event = make_event(300, 300);
-      testcase.draw_tool_view._pan_start(drag_event);
+      hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
+      const start_event = make_event(300, 300);
+      testcase.draw_tool_view._pan_start(start_event)
+      const pan_event = make_event(290, 290);
+      testcase.draw_tool_view._pan(pan_event)
+      testcase.draw_tool_view._pan_end(pan_event)
 
-      drag_event = make_event(200, 200);
-      testcase.draw_tool_view._pan(drag_event);
+      const xdata = [[0, 0.5, 1], [-0.035398230088495575, 0.4646017699115044, 0.9646017699115044]];
+      const ydata = [[0, -0.5, -1], [0.03389830508474576, -0.4661016949152542, -0.9661016949152542]];
+      expect(testcase.data_source.data['xs']).to.be.deep.equal(xdata);
+      expect(testcase.data_source.data['ys']).to.be.deep.equal(ydata);
+    });
 
-      const xdata = [[0, 0.5, 1], [0, 0.5, 1], [0.04424778761061947, -0.30973451327433627]];
-      const ydata = [[0, -0.5, -1], [0, -0.5, -1], [-0, 0.3389830508474576]];
+
+    it("should drag previously selected patch on pan", function(): void {
+      const testcase = make_testcase();
+      const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test");
+
+      const start_event = make_event(300, 300);
+      hit_test_stub.returns(create_1d_hit_test_result([[0, 0]]));
+      testcase.draw_tool_view._tap(start_event)
+      hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
+      testcase.draw_tool_view._pan_start(start_event)
+      const pan_event = make_event(290, 290);
+      testcase.draw_tool_view._pan(pan_event);
+      testcase.draw_tool_view._pan_end(pan_event);
+
+      const xdata = [[-0.035398230088495575, 0.4646017699115044, 0.9646017699115044],
+                     [-0.035398230088495575, 0.4646017699115044, 0.9646017699115044]];
+      const ydata = [[0.03389830508474576, -0.4661016949152542, -0.9661016949152542],
+                     [0.03389830508474576, -0.4661016949152542, -0.9661016949152542]];
+      expect(testcase.data_source.data['xs']).to.be.deep.equal(xdata);
+      expect(testcase.data_source.data['ys']).to.be.deep.equal(ydata);
+    });
+
+
+    it("should draw patch on doubletap", function(): void {
+      const testcase = make_testcase();
+      const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test");
+
+      hit_test_stub.returns(null);
+      testcase.draw_tool_view._doubletap(make_event(300, 300));
+      testcase.draw_tool_view._tap(make_event(250, 250));
+      testcase.draw_tool_view._doubletap(make_event(200, 200));
+
+      const new_xs = [0.04424778761061947, -0.13274336283185842, -0.30973451327433627];
+      const new_ys = [-0, 0.1694915254237288, 0.3389830508474576];
+      const xdata = [[0, 0.5, 1], [0, 0.5, 1], new_xs];
+      const ydata = [[0, -0.5, -1], [0, -0.5, -1], new_ys];
+      expect(testcase.data_source.data['xs']).to.be.deep.equal(xdata);
+      expect(testcase.data_source.data['ys']).to.be.deep.equal(ydata);
+    });
+
+    it("should end draw patch on escape", function(): void {
+      const testcase = make_testcase();
+      const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test");
+
+      hit_test_stub.returns(null);
+      testcase.draw_tool_view._doubletap(make_event(300, 300));
+      testcase.draw_tool_view._tap(make_event(250, 250));
+      testcase.draw_tool_view._keyup(make_event(200, 200, false, Keys.Esc));
+
+      const new_xs = [0.04424778761061947, -0.13274336283185842];
+      const new_ys = [-0, 0.1694915254237288];
+      const xdata = [[0, 0.5, 1], [0, 0.5, 1], new_xs];
+      const ydata = [[0, -0.5, -1], [0, -0.5, -1], new_ys];
       expect(testcase.data_source.data['xs']).to.be.deep.equal(xdata);
       expect(testcase.data_source.data['ys']).to.be.deep.equal(ydata);
     });
 
     it("should insert empty_value on other columns", function(): void {
       const testcase = make_testcase();
-      sinon.stub(testcase.glyph_view, "hit_test");
+      const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test");
 
-      let drag_event = make_event(300, 300);
-      testcase.draw_tool_view._pan_start(drag_event);
+      hit_test_stub.returns(null);
+      testcase.draw_tool_view._doubletap(make_event(300, 300));
 
-      drag_event = make_event(200, 200);
-      testcase.draw_tool_view._pan(drag_event);
       expect(testcase.data_source.data['z']).to.be.deep.equal([null, null, "Test"]);
-    });
-
-    it("should extend existing patch on shift-pan", function(): void {
-      const testcase = make_testcase();
-      sinon.stub(testcase.glyph_view, "hit_test");
-
-      let drag_event = make_event(300, 300, true);
-      testcase.draw_tool_view._pan_start(drag_event);
-
-      drag_event = make_event(200, 200);
-      testcase.draw_tool_view._pan(drag_event);
-
-      const xdata = [[0, 0.5, 1], [0, 0.5, 1, -0.30973451327433627]];
-      const ydata = [[0, -0.5, -1], [0, -0.5, -1, 0.3389830508474576]];
-      expect(testcase.data_source.data['xs']).to.be.deep.equal(xdata);
-      expect(testcase.data_source.data['ys']).to.be.deep.equal(ydata);
-      expect(testcase.data_source.data['z']).to.be.deep.equal([null, null]);
-    });
-
-    it("should extend selected patch on shift-pan", function(): void {
-      const testcase = make_testcase();
-      sinon.stub(testcase.glyph_view, "hit_test");
-
-      testcase.data_source.selected["1d"].indices = [0];
-      let drag_event = make_event(300, 300, true);
-      testcase.draw_tool_view._pan_start(drag_event);
-
-      drag_event = make_event(200, 200, false);
-      testcase.draw_tool_view._pan(drag_event);
-
-      const xdata = [[0, 0.5, 1, -0.30973451327433627], [0, 0.5, 1]];
-      const ydata = [[0, -0.5, -1, 0.3389830508474576], [0, -0.5, -1]];
-      expect(testcase.data_source.data['xs']).to.be.deep.equal(xdata);
-      expect(testcase.data_source.data['ys']).to.be.deep.equal(ydata);
-      expect(testcase.data_source.data['z']).to.be.deep.equal([null, null]);
     });
   })
 });

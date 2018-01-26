@@ -1101,9 +1101,6 @@ class PolyEditTool(EditTool):
         :height: 18pt
     '''
 
-    drag = Bool(default=True, help="""
-    Enables dragging of lines and polygons.""")
-
     vertex_renderer = Instance(GlyphRenderer, help="""
     The renderer used to render the vertices of a selected line or
     polygon.""")

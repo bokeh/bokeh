@@ -4,29 +4,15 @@ import * as p from "core/properties"
 import {Rect} from "models/glyphs/rect"
 import {GlyphRenderer} from "models/renderers/glyph_renderer"
 import {ColumnDataSource} from "models/sources/column_data_source"
-import {EditTool, EditToolView} from "./edit_tool"
+import {EditTool, EditToolView, BkEv} from "./edit_tool"
 
 export interface HasRectCDS {
   glyph: Rect
   data_source: ColumnDataSource
 }
 
-export interface BkEv {
-  bokeh: {
-    sx: number
-    sy: number
-  }
-  srcEvent: {
-    shiftKey?: boolean
-  }
-  keyCode: number
-  shiftKey: boolean
-}
-
-
 export class BoxDrawToolView extends EditToolView {
   model: BoxDrawTool
-  _basepoint: [number, number] | null
 
   _tap(e: BkEv): void {
     const append = e.srcEvent.shiftKey != null ? e.srcEvent.shiftKey : false;
@@ -82,12 +68,24 @@ export class BoxDrawToolView extends EditToolView {
 
   _pan_start(e: BkEv): void {
     this._basepoint = [e.bokeh.sx, e.bokeh.sy];
-    this._pan(e, true, false);
+    const shift = e.srcEvent.shiftKey != null ? e.srcEvent.shiftKey : false;
+    this._select_event(e, true, this.model.renderers);
+    if (shift) {
+      this._pan(e, true, false);
+    }
   }
 
   _pan(e: BkEv, append: boolean = false, emit: boolean = false): void {
     if (this._basepoint == null) { return; }
     const curpoint: [number, number] = [e.bokeh.sx, e.bokeh.sy];
+
+    // Attempt to drag selected rects
+    const shift = e.srcEvent.shiftKey != null ? e.srcEvent.shiftKey : false;
+    if (!shift) {
+      this._drag_points(e, this.model.renderers);
+      return;
+    }
+
     const frame = this.plot_model.frame;
     const dims = this.model.dimensions;
     const limits = this.model._get_dim_limits(this._basepoint, curpoint, frame, dims);
@@ -100,6 +98,10 @@ export class BoxDrawToolView extends EditToolView {
   _pan_end(e: BkEv): void {
     this._pan(e, false, true)
     this._basepoint = null;
+    for (const renderer of this.model.renderers) {
+      renderer.data_source.selected['1d'].indices = [];
+      renderer.data_source.properties.data.change.emit(undefined);
+    }
   }
 }
 

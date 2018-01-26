@@ -133,24 +133,6 @@ describe("PolyEditTool", (): void => {
       expect(testcase.data_source.selected['1d'].indices).to.be.deep.equal([1]);
     });
 
-    it("should drag selected patch on pan", function(): void {
-      const testcase = make_testcase();
-      const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test");
-      const vertex_hit_test_stub = sinon.stub(testcase.vertex_glyph_view, "hit_test");
-
-      hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
-      vertex_hit_test_stub.returns(null);
-      const start_event = make_event(300, 300);
-      testcase.draw_tool_view._pan_start(start_event)
-      const pan_event = make_event(290, 290);
-      testcase.draw_tool_view._pan(pan_event)
-      testcase.draw_tool_view._pan_end(pan_event)
-
-      const xdata = [[0, 0.5, 1], [-0.035398230088495575, 0.4646017699115044, 0.9646017699115044]];
-      const ydata = [[0, -0.5, -1], [0.03389830508474576, -0.4661016949152542, -0.9661016949152542]];
-      expect(testcase.data_source.data['xs']).to.be.deep.equal(xdata);
-      expect(testcase.data_source.data['ys']).to.be.deep.equal(ydata);
-    });
 
     it("should select multiple patches on shift-tap", function() {
       const testcase = make_testcase();

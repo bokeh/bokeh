@@ -1,5 +1,6 @@
 import * as p from "core/properties"
 import {PointGeometry} from "core/geometry"
+import {XYGlyph} from "models/glyphs/xy_glyph"
 import {ColumnDataSource} from "models/sources/column_data_source"
 import {GlyphRenderer} from "models/renderers/glyph_renderer"
 import {GestureTool, GestureToolView} from "../gestures/gesture_tool"
@@ -9,14 +10,24 @@ export interface BkEv {
     sx: number
     sy: number
   }
+  srcEvent: {
+    shiftKey?: boolean
+  }
+  keyCode: number
+  shiftKey: boolean
 }
 
 export interface HasCDS {
   data_source: ColumnDataSource
 }
 
+export interface HasXYGlyph {
+  glyph: XYGlyph
+}
+
 export abstract class EditToolView extends GestureToolView {
   model: EditTool
+  _basepoint: [number, number] | null
 
   _map_drag(sx: number, sy: number, renderer: GlyphRenderer): [number, number] | null {
     // Maps screen to data coordinates
@@ -35,15 +46,41 @@ export abstract class EditToolView extends GestureToolView {
     const indices = cds.selected['1d'].indices;
     for (const column of cds.columns()) {
       const values = cds.data[column];
-      for (let index = 0; index < indices.length; index++) {
-        const ind = indices[index];
-        values.splice(ind-index, 1);
+      for (const ind of indices) {
+        values.splice(ind, 1);
       }
     }
     cds.selected['1d'].indices = [];
     cds.change.emit(undefined);
     cds.properties.data.change.emit(undefined);
     cds.properties.selected.change.emit(undefined);
+  }
+
+  _drag_points(e: BkEv, renderers: (GlyphRenderer & HasCDS & HasXYGlyph)[]): void {
+    if (this._basepoint == null) { return; };
+    const [bx, by] = this._basepoint;
+    for (const renderer of renderers) {
+      const basepoint = this._map_drag(bx, by, renderer);
+      const point = this._map_drag(e.bokeh.sx, e.bokeh.sy, renderer);
+      if (point == null || basepoint == null) {
+        continue;
+      }
+      const [x, y] = point;
+      const [px, py] = basepoint;
+      const [dx, dy] = [x-px, y-py];
+      // Type once dataspecs are typed
+      const glyph: any = renderer.glyph;
+      const ds = renderer.data_source;
+      const [xkey, ykey] = [glyph.x.field, glyph.y.field];
+      for (const index of ds.selected['1d'].indices) {
+        if (xkey) { ds.data[xkey][index] += dx; }
+        if (ykey) { ds.data[ykey][index] += dy; }
+      }
+    }
+    for (const renderer of renderers) {
+      renderer.data_source.change.emit(undefined);
+    }
+    this._basepoint = [e.bokeh.sx, e.bokeh.sy];
   }
 
   _pad_empty_columns(cds: ColumnDataSource, coord_columns: string[]): void {

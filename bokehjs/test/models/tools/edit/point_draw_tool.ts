@@ -9,7 +9,8 @@ import {Plot} from "models/plots/plot"
 import {Range1d} from "models/ranges/range1d"
 import {GlyphRenderer} from "models/renderers/glyph_renderer"
 import {ColumnDataSource} from "models/sources/column_data_source"
-import {PointDrawTool, PointDrawToolView, BkEv} from "models/tools/edit/point_draw_tool"
+import {BkEv} from "models/tools/edit/edit_tool"
+import {PointDrawTool, PointDrawToolView} from "models/tools/edit/point_draw_tool"
 
 const utils = require("../../../utils")
 

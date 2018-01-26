@@ -1,30 +1,11 @@
 import {Keys} from "core/dom"
 import * as p from "core/properties"
-import {XYGlyph} from "models/glyphs/xy_glyph"
 import {GlyphRenderer} from "models/renderers/glyph_renderer"
-import {ColumnDataSource} from "models/sources/column_data_source"
-import {EditTool, EditToolView} from "./edit_tool"
+import {EditTool, EditToolView, HasCDS, HasXYGlyph, BkEv} from "./edit_tool"
 
-export interface HasXYCDS {
-  glyph: XYGlyph
-  data_source: ColumnDataSource
-}
-
-export interface BkEv {
-  bokeh: {
-    sx: number
-    sy: number
-  }
-  srcEvent: {
-    shiftKey?: boolean
-  }
-  keyCode: number
-  shiftKey: boolean
-}
 
 export class PointDrawToolView extends EditToolView {
   model: PointDrawTool
-  _basepoint: [number, number] | null
 
   _tap(e: BkEv): void {
     const append = e.srcEvent.shiftKey != null ? e.srcEvent.shiftKey : false;
@@ -79,15 +60,7 @@ export class PointDrawToolView extends EditToolView {
 
   _pan_start(e: BkEv): void {
     if (this.model.drag) {
-      const append = e.srcEvent.shiftKey != null ? e.srcEvent.shiftKey : false;
-      for (const renderer of this.model.renderers) {
-		const indices = renderer.data_source.selected['1d'].indices;
-	    const renderers = this._select_event(e, append, [renderer]);
-		if (!renderers.length) {
-		  renderer.data_source.selected['1d'].indices = indices;
-		  renderer.data_source.properties.selected.change.emit(undefined);
-		}
-	  }
+      this._select_event(e, true, this.model.renderers);
       this._basepoint = [e.bokeh.sx, e.bokeh.sy];
     }
   }
@@ -96,33 +69,11 @@ export class PointDrawToolView extends EditToolView {
     if (!this.model.drag || this._basepoint == null) {
       return;
     }
-    // If a Point is selected drag it
-    const [bx, by] = this._basepoint;
-    for (const renderer of this.model.renderers) {
-      const basepoint = this._map_drag(bx, by, renderer);
-      const point = this._map_drag(e.bokeh.sx, e.bokeh.sy, renderer);
-      if (point == null || basepoint == null) {
-        continue;
-      }
-
-      const [x, y] = point;
-      const [px, py] = basepoint;
-      const [dx, dy] = [x-px, y-py];
-      // Type once dataspecs are typed
-      const glyph: any = renderer.glyph;
-      const ds = renderer.data_source;
-      const [xkey, ykey] = [glyph.x.field, glyph.y.field];
-      for (const index of ds.selected['1d'].indices) {
-        if (xkey) { ds.data[xkey][index] += dx; }
-        if (ykey) { ds.data[ykey][index] += dy; }
-      }
-      ds.change.emit(undefined);
-    }
-    this._basepoint = [e.bokeh.sx, e.bokeh.sy];
+    this._drag_points(e, this.model.renderers);
   }
 
-  _pan_end(_e: BkEv): void {
-    if (!this.model.drag) { return; }
+  _pan_end(e: BkEv): void {
+    this._pan(e);
     for (const renderer of this.model.renderers) {
       renderer.data_source.selected['1d'].indices = [];
       renderer.data_source.properties.data.change.emit(undefined);
@@ -135,7 +86,7 @@ export class PointDrawToolView extends EditToolView {
 export class PointDrawTool extends EditTool {
   add: boolean
   drag: boolean
-  renderers: (GlyphRenderer & HasXYCDS)[]
+  renderers: (GlyphRenderer & HasCDS & HasXYGlyph)[]
 
   tool_name = "Point Draw Tool"
   icon = "bk-tool-icon-point-draw"

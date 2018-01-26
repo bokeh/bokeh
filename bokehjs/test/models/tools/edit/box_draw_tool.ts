@@ -9,7 +9,8 @@ import {Plot} from "models/plots/plot"
 import {Range1d} from "models/ranges/range1d"
 import {GlyphRenderer} from "models/renderers/glyph_renderer"
 import {ColumnDataSource} from "models/sources/column_data_source"
-import {BoxDrawTool, BoxDrawToolView, BkEv} from "models/tools/edit/box_draw_tool"
+import {BkEv} from "models/tools/edit/edit_tool"
+import {BoxDrawTool, BoxDrawToolView} from "models/tools/edit/box_draw_tool"
 
 const utils = require("../../../utils")
 
@@ -150,9 +151,13 @@ describe("BoxDrawTool", () =>
       expect(testcase.data_source.data).to.be.deep.equal(testcase.data);
     });
 
-    it("should draw box on pan", function(): void {
+    it("should drag selected on pan", function(): void {
       const testcase = make_testcase();
-      sinon.stub(testcase.glyph_view, "hit_test");
+      const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test");
+
+      hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
+      const tap_event = make_event(300, 300);
+      testcase.draw_tool_view._tap(tap_event);
 
       let drag_event = make_event(300, 300);
       testcase.draw_tool_view._pan_start(drag_event);
@@ -160,10 +165,31 @@ describe("BoxDrawTool", () =>
 
       drag_event = make_event(200, 200);
       testcase.draw_tool_view._pan(drag_event);
-      expect(testcase.draw_tool_view._basepoint).to.be.deep.equal([300, 300]);
+      expect(testcase.draw_tool_view._basepoint).to.be.deep.equal([200, 200]);
 
       drag_event = make_event(200, 200);
       testcase.draw_tool_view._pan_end(drag_event);
+      expect(testcase.draw_tool_view._basepoint).to.be.equal(null);
+      expect(testcase.data_source.data['x']).to.be.deep.equal([0, 0.14601769911504425, 1]);
+      expect(testcase.data_source.data['y']).to.be.deep.equal([0, 0.8389830508474576, 1]);
+      expect(testcase.data_source.data['width']).to.be.deep.equal([0.1, 0.2, 0.3]);
+      expect(testcase.data_source.data['height']).to.be.deep.equal([0.3, 0.2, 0.1]);
+      expect(testcase.data_source.data['z']).to.be.deep.equal([null, null, null]);
+    })
+
+    it("should draw box on pan", function(): void {
+      const testcase = make_testcase();
+      const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test");
+      hit_test_stub.returns(null);
+
+      let drag_event = make_event(300, 300, true);
+      testcase.draw_tool_view._pan_start(drag_event);
+      expect(testcase.draw_tool_view._basepoint).to.be.deep.equal([300, 300]);
+      drag_event = make_event(200, 200, true);
+      testcase.draw_tool_view._pan(drag_event,);
+      expect(testcase.draw_tool_view._basepoint).to.be.deep.equal([200, 200]);
+      testcase.draw_tool_view._pan_end(drag_event);
+
       expect(testcase.draw_tool_view._basepoint).to.be.equal(null);
       expect(testcase.data_source.selected['1d'].indices).to.be.deep.equal([]);
       expect(testcase.data_source.data['x']).to.be.deep.equal([0, 0.5, 1, -0.1327433628318584]);

@@ -2,32 +2,99 @@ import {Keys} from "core/dom"
 import {MultiLine} from "models/glyphs/multi_line"
 import {Patches} from "models/glyphs/patches"
 import {GlyphRenderer} from "models/renderers/glyph_renderer"
-import {ColumnDataSource} from "models/sources/column_data_source"
-import {EditTool, EditToolView} from "./edit_tool"
+import {EditTool, EditToolView, HasCDS, BkEv} from "./edit_tool"
 
-export interface HasPolyCDS {
-  data_source: ColumnDataSource
+export interface HasPolyGlyph {
   glyph: MultiLine | Patches
-}
-
-export interface BkEv {
-  bokeh: {
-    sx: number
-    sy: number
-  }
-  srcEvent: {
-    shiftKey?: boolean
-  }
-  keyCode: number
-  shiftKey: boolean
 }
 
 export class PolyDrawToolView extends EditToolView {
   model: PolyDrawTool
+  _drawing: boolean = false
 
   _tap(e: BkEv): void {
-    const append = e.srcEvent.shiftKey != null ? e.srcEvent.shiftKey : false;
-    this._select_event(e, append, this.model.renderers);
+    if (this._drawing) {
+      this._draw(e, 'add');
+    } else {
+      const append = e.srcEvent.shiftKey != null ? e.srcEvent.shiftKey : false;
+      this._select_event(e, append, this.model.renderers);
+    }
+  }
+
+  _draw(e: BkEv, mode: string): void {
+    const renderer = this.model.renderers[0];
+    const point = this._map_drag(e.bokeh.sx, e.bokeh.sy, renderer);
+    if (point == null) {
+      return;
+    }
+    const [x, y] = point;
+    const ds = renderer.data_source;
+    const glyph: any = renderer.glyph;
+    const [xkey, ykey] = [glyph.xs.field, glyph.ys.field];
+    if (mode == 'new') {
+      if (xkey) { ds.data[xkey].push([x, x]); }
+      if (ykey) { ds.data[ykey].push([y, y]); }
+      this._pad_empty_columns(ds, [xkey, ykey]);
+      ds.properties.data.change.emit(undefined);
+    } else if (mode == 'edit') {
+      if (xkey) {
+        const xs = ds.data[xkey][ds.data[xkey].length-1];
+        xs[xs.length-1] = x;
+      }
+      if (ykey) {
+        const ys = ds.data[ykey][ds.data[ykey].length-1];
+        ys[ys.length-1] = y;
+      }
+    } else if (mode == 'add') {
+      if (xkey) {
+        const xs = ds.data[xkey][ds.data[xkey].length-1];
+        const nx = xs[xs.length-1];
+        xs[xs.length-1] = x;
+        xs.push(nx);
+      }
+      if (ykey) {
+        const ys = ds.data[ykey][ds.data[ykey].length-1];
+        const ny = ys[ys.length-1];
+        ys[ys.length-1] = y;
+        ys.push(ny);
+      }
+      ds.properties.data.change.emit(undefined);
+    }
+    ds.change.emit(undefined)
+  }
+
+  _doubletap(e: BkEv): void {
+    if (!this.model.active) { return; }
+    if (this._drawing) {
+      this._drawing = false;
+      this._draw(e, 'edit');
+    } else {
+      this._drawing = true;
+      this._draw(e, 'new');
+    }
+  }
+
+  _move(e: BkEv): void {
+    if (this._drawing) {
+      this._draw(e, 'edit');
+    }
+  }
+
+  _remove(): void {
+    const renderer = this.model.renderers[0];
+    const ds = renderer.data_source;
+    const glyph: any = renderer.glyph;
+    const [xkey, ykey] = [glyph.xs.field, glyph.ys.field];
+    if (xkey) {
+      const xs = ds.data[xkey][ds.data[xkey].length-1];
+      xs.splice(xs.length-1, 1);
+    }
+    if (ykey) {
+      const ys = ds.data[ykey][ds.data[ykey].length-1];
+      ys.splice(ys.length-1, 1);
+    }
+    ds.change.emit(undefined)
+    ds.properties.data.change.emit(undefined);
   }
 
   _keyup(e: BkEv): void {
@@ -37,6 +104,10 @@ export class PolyDrawToolView extends EditToolView {
         this._delete_selected(renderer);
       } else if (e.keyCode == Keys.Esc) {
         // Type once selection_manager is typed
+        if (this._drawing) {
+          this._remove();
+          this._drawing = false;
+        }
         const cds: any = renderer.data_source;
         cds.selection_manager.clear();
       }
@@ -44,76 +115,73 @@ export class PolyDrawToolView extends EditToolView {
   }
 
   _pan_start(e: BkEv): void {
-    const renderer = this.model.renderers[0];
-    const point = this._map_drag(e.bokeh.sx, e.bokeh.sy, renderer);
-    if (point == null) {
-      return;
-    }
-    const [x, y] = point;
-    const append = e.srcEvent.shiftKey != null ? e.srcEvent.shiftKey : false;
-    const ds = renderer.data_source;
-    // Type once dataspecs are typed
-    const glyph: any = renderer.glyph;
-    const [xkey, ykey] = [glyph.xs.field, glyph.ys.field];
-    if (!xkey && !ykey) { return; }
-    const indices = ds.selected['1d'].indices;
-    let count;
-    if (indices.length) {
-      count = indices[0];
-    } else {
-      count = xkey ? ds.data[xkey].length-1 : ds.data[xkey].length-1;
-    }
-    if (append && (count >= 0)) {
-      if (xkey) { ds.data[xkey][count].push(x); }
-      if (ykey) { ds.data[ykey][count].push(y); }
-    } else {
-      if (xkey) { ds.data[xkey].push([x, x]); }
-      if (ykey) { ds.data[ykey].push([y, y]); }
-      this._pad_empty_columns(ds, [xkey, ykey]);
-    }
-    ds.change.emit(undefined);
-    ds.properties.data.change.emit(undefined);
+    this._select_event(e, true, this.model.renderers);
+    this._basepoint = [e.bokeh.sx, e.bokeh.sy];
   }
 
   _pan(e: BkEv): void {
-    const renderer = this.model.renderers[0];
-    const point = this._map_drag(e.bokeh.sx, e.bokeh.sy, renderer);
-    if (point == null) {
-      return;
-    }
+    if (this._basepoint == null) { return; }
+    const [bx, by] = this._basepoint;
+    // Process polygon/line dragging
+    for (const renderer of this.model.renderers) {
+      const basepoint = this._map_drag(bx, by, renderer);
+      const point = this._map_drag(e.bokeh.sx, e.bokeh.sy, renderer);
+      if (point == null || basepoint == null) {
+        continue;
+      }
 
-    const [x, y] = point;
-    const ds = renderer.data_source;
-    // Type once dataspecs are typed
-    const glyph: any = renderer.glyph;
-    const [xkey, ykey] = [glyph.xs.field, glyph.ys.field];
-    const indices = ds.selected['1d'].indices;
-    let count;
-    if (indices.length>0) {
-      count = indices[0];
-    } else {
-      count = xkey ? ds.data[xkey].length-1 : ds.data[xkey].length-1;
+      const ds = renderer.data_source;
+      // Type once dataspecs are typed
+      const glyph: any = renderer.glyph;
+      const [xkey, ykey] = [glyph.xs.field, glyph.ys.field];
+      if (!xkey && !ykey) { continue; }
+      const [x, y] = point;
+      const [px, py] = basepoint;
+      const [dx, dy] = [x-px, y-py];
+      for (const index of ds.selected['1d'].indices) {
+        let length, xs, ys;
+        if (xkey) { xs = ds.data[xkey][index]; }
+        if (ykey) {
+          ys = ds.data[ykey][index];
+          length = ys.length;
+        } else {
+          length = xs.length;
+        }
+        for (let i = 0; i < length; i++) {
+          if (xs) { xs[i] += dx; }
+          if (ys) { ys[i] += dy; }
+        }
+      }
+      ds.change.emit(undefined);
     }
-    if (xkey) {
-      const xs = ds.data[xkey][count];
-      xs[xs.length-1] = x;
-    }
-    if (ykey) {
-      const ys = ds.data[ykey][count];
-      ys[ys.length-1] = y;
-    }
-    ds.change.emit(undefined);
-    ds.properties.data.change.emit(undefined);
+    this._basepoint = [e.bokeh.sx, e.bokeh.sy];
   }
+
+  _pan_end(e: BkEv): void {
+    this._pan(e);
+    for (const renderer of this.model.renderers) {
+      renderer.data_source.selected['1d'].indices = [];
+      renderer.data_source.properties.data.change.emit(undefined);
+    }
+    this._basepoint = null;
+  }
+
+  deactivate(): void {
+    if (this._drawing) {
+      this._remove();
+      this._drawing = false;
+    }
+  }
+
 }
 
 
 export class PolyDrawTool extends EditTool {
-  renderers: (GlyphRenderer & HasPolyCDS)[]
+  renderers: (GlyphRenderer & HasCDS & HasPolyGlyph)[]
 
   tool_name = "Polygon Draw Tool"
   icon = "bk-tool-icon-poly-draw"
-  event_type = ["pan", "tap"]
+  event_type = ["pan", "tap", "move"]
   default_order = 12
 }
 
