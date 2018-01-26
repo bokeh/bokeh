@@ -31,7 +31,7 @@ from ..core.properties import (
 )
 from ..core.validation import error
 from ..core.validation.errors import (
-    INCOMPATIBLE_BOX_DRAW_RENDERER, INCOMPATIBLE_POINT_DRAW_RENDERER,
+    INCOMPATIBLE_BOX_EDIT_RENDERER, INCOMPATIBLE_POINT_DRAW_RENDERER,
     INCOMPATIBLE_POLY_DRAW_RENDERER, INCOMPATIBLE_POLY_EDIT_RENDERER,
     INCOMPATIBLE_POLY_EDIT_VERTEX_RENDERER
 )
@@ -892,10 +892,10 @@ class EditTool(Tool):
     that may be edited.
     """)
 
-class BoxDrawTool(EditTool, Drag, Tap):
+class BoxEditTool(EditTool, Drag, Tap):
     ''' *toolbar icon*: |box_draw_icon|
 
-    The BoxDrawTool allows drawing, dragging and deleting ``Rect``
+    The BoxEditTool allows drawing, dragging and deleting ``Rect``
     glyphs on one or more renderers by editing the underlying
     ``ColumnDataSource`` data. Like other drawing tools, the renderers
     that are to be edited must be supplied explicitly as a list. When
@@ -927,7 +927,7 @@ class BoxDrawTool(EditTool, Drag, Tap):
       selection tool) then press <<backspace>> while the mouse is
       within the plot area.
 
-    .. |box_draw_icon| image:: /_images/icons/BoxDraw.png
+    .. |box_draw_icon| image:: /_images/icons/BoxEdit.png
         :height: 18pt
     '''
 
@@ -941,15 +941,14 @@ class BoxDrawTool(EditTool, Drag, Tap):
     the vertical dimension can be controlled.
     """)
 
-    @error(INCOMPATIBLE_BOX_DRAW_RENDERER)
+    @error(INCOMPATIBLE_BOX_EDIT_RENDERER)
     def _check_compatible_renderers(self):
         incompatible_renderers = []
         for renderer in self.renderers:
             if not isinstance(renderer.glyph, Rect):
                 incompatible_renderers.append(renderer)
         if incompatible_renderers:
-            glyph_types = ', '.join([type(renderer.glyph).__name__
-                                     for renderer in incompatible_renderers])
+            glyph_types = ', '.join([type(renderer.glyph).__name__ for renderer in incompatible_renderers])
             return "%s glyph type(s) found." % glyph_types
 
 class PointDrawTool(EditTool, Drag, Tap):
@@ -994,8 +993,7 @@ class PointDrawTool(EditTool, Drag, Tap):
             if not isinstance(renderer.glyph, XYGlyph):
                 incompatible_renderers.append(renderer)
         if incompatible_renderers:
-            glyph_types = ', '.join([type(renderer.glyph).__name__
-                                     for renderer in incompatible_renderers])
+            glyph_types = ', '.join([type(renderer.glyph).__name__ for renderer in incompatible_renderers])
             return "%s glyph type(s) found." % glyph_types
 
 class PolyDrawTool(EditTool, Drag, Tap):
@@ -1041,8 +1039,7 @@ class PolyDrawTool(EditTool, Drag, Tap):
             if not isinstance(renderer.glyph, (MultiLine, Patches)):
                 incompatible_renderers.append(renderer)
         if incompatible_renderers:
-            glyph_types = ', '.join([type(renderer.glyph).__name__
-                                     for renderer in incompatible_renderers])
+            glyph_types = ', '.join([type(renderer.glyph).__name__ for renderer in incompatible_renderers])
             return "%s glyph type(s) found." % glyph_types
 
 

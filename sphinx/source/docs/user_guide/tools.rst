@@ -602,13 +602,13 @@ ESC
    On MacBooks and some other keyboards the BACKSPACE key is labelled
    "delete".
 
-BoxDrawTool
+BoxEditTool
 ~~~~~~~~~~~
 
-* name: ``'box_draw'``
+* name: ``'box_edit'``
 * menu icon: |box_draw_icon|
 
-The BoxDrawTool allows drawing, dragging and deleting ``Rect`` glyphs
+The BoxEditTool allows drawing, dragging and deleting ``Rect`` glyphs
 on one or more renderers by editing the underlying
 ``ColumnDataSource`` data. Like other drawing tools, the renderers
 that are to be edited must be supplied explicitly as a list:
@@ -617,7 +617,7 @@ that are to be edited must be supplied explicitly as a list:
 
     r1 = p.rect('x', 'y', 'width', 'height', source=source)
     r2 = p.rect('x', 'y', 'width', 'height', source=source2)
-    tool = BoxDrawTool(renderers=[r1, r2])
+    tool = BoxEditTool(renderers=[r1, r2])
 
 The tool will automatically modify the columns on the data source
 corresponding to the ``x``, ``y``, ``width`` and ``height`` values of
@@ -628,12 +628,12 @@ the first supplied renderer.
 
 .. raw:: html
 
-    <img src="http://bokeh.pydata.org/static/box_draw_keyboard_optimized.gif"
+    <img src="http://bokeh.pydata.org/static/box_edit_keyboard_optimized.gif"
      width='400px' alt="Animation showing box draw, select and delete actions">
 
 The animation above shows the supported tool actions, highlighting
 mouse actions with a circle around the cursor and key strokes by
-showing the pressed keys. The ``BoxDrawTool`` can **Add**, **Move**
+showing the pressed keys. The ``BoxEditTool`` can **Add**, **Move**
 and **Delete** boxes on plots:
 
 Add box
@@ -658,7 +658,7 @@ Delete selection
   Select box(es) with SHIFT+tap (or another selection tool) then press
   BACKSPACE while the mouse is within the plot area.
 
-.. bokeh-plot:: docs/user_guide/examples/tools_box_draw.py
+.. bokeh-plot:: docs/user_guide/examples/tools_box_edit.py
     :source-position: none
 
 
@@ -678,7 +678,7 @@ list:
 
     c1 = p.circle('x', 'y', 'width', 'height', source=source)
     r1 = p.rect('x', 'y', 0.1, 0.1, source=source2)
-    tool = BoxDrawTool(renderers=[c1, r1])
+    tool = BoxEditTool(renderers=[c1, r1])
 
 The tool will automatically modify the columns on the data source
 corresponding to the ``x`` and ``y`` values of the glyph. Any
@@ -897,7 +897,7 @@ properties on |Plot| objects that control LOD behavior:
     :height: 14pt
 .. |zoom_out_icon| image:: /_images/icons/ZoomOut.png
     :height: 14pt
-.. |box_draw_icon| image:: /_images/icons/BoxDraw.png
+.. |box_draw_icon| image:: /_images/icons/BoxEdit.png
     :height: 14pt
 .. |point_draw_icon| image:: /_images/icons/PointDraw.png
     :height: 14pt

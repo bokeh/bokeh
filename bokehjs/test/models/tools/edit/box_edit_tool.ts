@@ -10,18 +10,18 @@ import {Range1d} from "models/ranges/range1d"
 import {GlyphRenderer} from "models/renderers/glyph_renderer"
 import {ColumnDataSource} from "models/sources/column_data_source"
 import {BkEv} from "models/tools/edit/edit_tool"
-import {BoxDrawTool, BoxDrawToolView} from "models/tools/edit/box_draw_tool"
+import {BoxEditTool, BoxEditToolView} from "models/tools/edit/box_edit_tool"
 
 const utils = require("../../../utils")
 
-export interface BoxDrawTestCase {
+export interface BoxEditTestCase {
   data: {[key: string]: (number | null)[]}
   data_source: ColumnDataSource
-  draw_tool_view: BoxDrawToolView
+  draw_tool_view: BoxEditToolView
   glyph_view: RectView
 }
 
-const make_testcase = function(): BoxDrawTestCase {
+const make_testcase = function(): BoxEditTestCase {
   // Note default plot dimensions is 600 x 600 (height x width)
   const plot = new Plot({
     x_range: new Range1d({start: -1, end: 1}),
@@ -61,7 +61,7 @@ const make_testcase = function(): BoxDrawTestCase {
     parent: plot_canvas_view,
   });
 
-  const draw_tool = new BoxDrawTool({
+  const draw_tool = new BoxEditTool({
     active: true,
     renderers: [glyph_renderer],
     empty_value: "Test",
@@ -82,7 +82,7 @@ const make_event = function(sx: number, sy: number, shift: boolean = false, keyC
   return {"bokeh": {sx: sx, sy: sy}, "srcEvent": {shiftKey: shift}, keyCode: keyCode, shiftKey: shift}
 }
 
-describe("BoxDrawTool", () =>
+describe("BoxEditTool", () =>
 
   describe("View", function(): void {
 

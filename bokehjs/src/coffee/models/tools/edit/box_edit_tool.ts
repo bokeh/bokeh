@@ -12,8 +12,8 @@ export interface HasRectCDS {
   data_source: ColumnDataSource
 }
 
-export class BoxDrawToolView extends EditToolView {
-  model: BoxDrawTool
+export class BoxEditToolView extends EditToolView {
+  model: BoxEditTool
 
   _tap(e: BkEv): void {
     const append = e.srcEvent.shiftKey != null ? e.srcEvent.shiftKey : false;
@@ -131,20 +131,20 @@ export class BoxDrawToolView extends EditToolView {
 }
 
 
-export class BoxDrawTool extends EditTool {
+export class BoxEditTool extends EditTool {
   dimensions: Dimensions
   renderers: (GlyphRenderer & HasRectCDS)[]
 
   tool_name = "Box Draw Tool"
-  icon = "bk-tool-icon-box-draw"
+  icon = "bk-tool-icon-box-edit"
   event_type = ["tap", "pan", "move"]
   default_order = 30
 }
 
-BoxDrawTool.prototype.type = "BoxDrawTool"
+BoxEditTool.prototype.type = "BoxEditTool"
 
-BoxDrawTool.prototype.default_view = BoxDrawToolView
+BoxEditTool.prototype.default_view = BoxEditToolView
 
-BoxDrawTool.define({
+BoxEditTool.define({
   dimensions: [ p.Dimensions, "both"],
 })

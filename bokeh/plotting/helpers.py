@@ -19,7 +19,7 @@ from ..models import (
     SaveTool, Range, Range1d, UndoTool, RedoTool, ResetTool, Tool,
     WheelPanTool, WheelZoomTool, ColumnarDataSource, ColumnDataSource,
     LogScale, LinearScale, CategoricalScale, Circle, MultiLine,
-    BoxDrawTool, PointDrawTool, PolyDrawTool, PolyEditTool)
+    BoxEditTool, PointDrawTool, PolyDrawTool, PolyEditTool)
 from ..models.renderers import GlyphRenderer
 
 from ..core.properties import ColorSpec, Datetime, value, field
@@ -440,7 +440,7 @@ _known_tools = {
     "redo": lambda: RedoTool(),
     "reset": lambda: ResetTool(),
     "help": lambda: HelpTool(),
-    "box_draw": lambda: BoxDrawTool(),
+    "box_edit": lambda: BoxEditTool(),
     "point_draw": lambda: PointDrawTool(),
     "poly_draw": lambda: PolyDrawTool(),
     "poly_edit": lambda: PolyEditTool()
