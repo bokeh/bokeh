@@ -179,7 +179,7 @@ export namespace BoxZoomTool {
   }
 }
 
-export interface BoxZoomTool extends GestureTool, BoxZoomTool.Attrs {}
+export interface BoxZoomTool extends BoxZoomTool.Attrs {}
 
 export class BoxZoomTool extends GestureTool {
 

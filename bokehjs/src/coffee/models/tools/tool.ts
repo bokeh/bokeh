@@ -44,7 +44,7 @@ export namespace Tool {
   }
 }
 
-export interface Tool extends Model, Tool.Attrs {}
+export interface Tool extends Tool.Attrs {}
 
 export abstract class Tool extends Model {
 

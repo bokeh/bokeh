@@ -10,7 +10,7 @@ export namespace OpenURL {
   }
 }
 
-export interface OpenURL extends Model, OpenURL.Attrs {}
+export interface OpenURL extends OpenURL.Attrs {}
 
 export class OpenURL extends Model {
 

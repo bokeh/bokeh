@@ -4,7 +4,7 @@ export namespace LinearScale {
   export interface Attrs extends Scale.Attrs {}
 }
 
-export interface LinearScale extends Scale, LinearScale.Attrs {}
+export interface LinearScale extends LinearScale.Attrs {}
 
 export class LinearScale extends Scale {
 

@@ -17,7 +17,7 @@ export namespace UndoTool {
   export interface Attrs extends ActionTool.Attrs {}
 }
 
-export interface UndoTool extends ActionTool, UndoTool.Attrs {}
+export interface UndoTool extends UndoTool.Attrs {}
 
 export class UndoTool extends ActionTool {
 

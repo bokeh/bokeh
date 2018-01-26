@@ -133,7 +133,7 @@ export namespace BoxAnnotation {
   }
 }
 
-export interface BoxAnnotation extends Annotation, BoxAnnotation.Attrs {}
+export interface BoxAnnotation extends BoxAnnotation.Attrs {}
 
 export class BoxAnnotation extends Annotation {
 

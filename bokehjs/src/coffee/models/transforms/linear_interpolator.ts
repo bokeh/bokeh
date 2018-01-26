@@ -6,7 +6,7 @@ export namespace LinearInterpolator {
   export interface Attrs extends Interpolator.Attrs {}
 }
 
-export interface LinearInterpolator extends Interpolator, LinearInterpolator.Attrs {}
+export interface LinearInterpolator extends LinearInterpolator.Attrs {}
 
 export class LinearInterpolator extends Interpolator {
 

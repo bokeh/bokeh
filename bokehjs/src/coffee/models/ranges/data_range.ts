@@ -9,7 +9,7 @@ export namespace DataRange {
   }
 }
 
-export interface DataRange extends Range, DataRange.Attrs {}
+export interface DataRange extends DataRange.Attrs {}
 
 export abstract class DataRange extends Range {
 

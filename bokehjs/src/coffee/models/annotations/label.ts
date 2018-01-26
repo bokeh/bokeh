@@ -73,7 +73,7 @@ export namespace Label {
   }
 }
 
-export interface Label extends TextAnnotation, Label.Attrs {}
+export interface Label extends Label.Attrs {}
 
 export class Label extends TextAnnotation {
 

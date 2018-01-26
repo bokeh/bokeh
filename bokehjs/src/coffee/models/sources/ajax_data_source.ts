@@ -15,7 +15,7 @@ export namespace AjaxDataSource {
   }
 }
 
-export interface AjaxDataSource extends RemoteDataSource, AjaxDataSource.Attrs {}
+export interface AjaxDataSource extends AjaxDataSource.Attrs {}
 
 export class AjaxDataSource extends RemoteDataSource {
 

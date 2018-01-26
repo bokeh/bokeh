@@ -112,7 +112,7 @@ export namespace PolySelectTool {
   }
 }
 
-export interface PolySelectTool extends SelectTool, PolySelectTool.Attrs {}
+export interface PolySelectTool extends PolySelectTool.Attrs {}
 
 export class PolySelectTool extends SelectTool {
 

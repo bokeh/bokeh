@@ -124,7 +124,7 @@ export namespace ImageRGBA {
   }
 }
 
-export interface ImageRGBA extends XYGlyph, ImageRGBA.Attrs {}
+export interface ImageRGBA extends ImageRGBA.Attrs {}
 
 export class ImageRGBA extends XYGlyph {
 

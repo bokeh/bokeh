@@ -117,7 +117,7 @@ export namespace Bezier {
   }
 }
 
-export interface Bezier extends Glyph, Bezier.Attrs {}
+export interface Bezier extends Bezier.Attrs {}
 
 export class Bezier extends Glyph {
 

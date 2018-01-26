@@ -91,7 +91,7 @@ export namespace WidgetBox {
   }
 }
 
-export interface WidgetBox extends LayoutDOM, WidgetBox.Attrs {}
+export interface WidgetBox extends WidgetBox.Attrs {}
 
 export class WidgetBox extends LayoutDOM {
 

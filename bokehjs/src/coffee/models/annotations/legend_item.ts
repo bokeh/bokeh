@@ -14,7 +14,7 @@ export namespace LegendItem {
   }
 }
 
-export interface LegendItem extends Model, LegendItem.Attrs {}
+export interface LegendItem extends LegendItem.Attrs {}
 
 export class LegendItem extends Model {
 

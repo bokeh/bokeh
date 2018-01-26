@@ -6,7 +6,7 @@ export namespace YearsTicker {
   export interface Attrs extends SingleIntervalTicker.Attrs {}
 }
 
-export interface YearsTicker extends SingleIntervalTicker, YearsTicker.Attrs {}
+export interface YearsTicker extends YearsTicker.Attrs {}
 
 export class YearsTicker extends SingleIntervalTicker {
 

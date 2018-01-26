@@ -14,7 +14,7 @@ export namespace LinearColorMapper {
   }
 }
 
-export interface LinearColorMapper extends ColorMapper, LinearColorMapper.Attrs {}
+export interface LinearColorMapper extends LinearColorMapper.Attrs {}
 
 export class LinearColorMapper extends ColorMapper {
   static initClass() {

@@ -29,7 +29,7 @@ export namespace DataRange1d {
   }
 }
 
-export interface DataRange1d extends DataRange, DataRange1d.Attrs {}
+export interface DataRange1d extends DataRange1d.Attrs {}
 
 export class DataRange1d extends DataRange {
 

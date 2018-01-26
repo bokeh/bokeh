@@ -4,7 +4,7 @@ export namespace ContinuousAxis {
   export interface Attrs extends Axis.Attrs {}
 }
 
-export interface ContinuousAxis extends Axis, ContinuousAxis.Attrs {}
+export interface ContinuousAxis extends ContinuousAxis.Attrs {}
 
 export abstract class ContinuousAxis extends Axis {
   static initClass() {

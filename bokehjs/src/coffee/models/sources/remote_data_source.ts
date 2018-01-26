@@ -9,7 +9,7 @@ export namespace RemoteDataSource {
   }
 }
 
-export interface RemoteDataSource extends ColumnDataSource, RemoteDataSource.Attrs {}
+export interface RemoteDataSource extends RemoteDataSource.Attrs {}
 
 export class RemoteDataSource extends ColumnDataSource {
 

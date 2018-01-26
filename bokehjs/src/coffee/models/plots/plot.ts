@@ -111,7 +111,7 @@ export namespace Plot {
   }
 }
 
-export interface Plot extends LayoutDOM, Plot.Attrs {}
+export interface Plot extends Plot.Attrs {}
 
 export class Plot extends LayoutDOM {
 

@@ -72,7 +72,7 @@ export namespace RadioGroup {
   }
 }
 
-export interface RadioGroup extends Widget, RadioGroup.Attrs {}
+export interface RadioGroup extends RadioGroup.Attrs {}
 
 export class RadioGroup extends Widget {
 

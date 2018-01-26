@@ -220,7 +220,7 @@ export namespace Patches {
   }
 }
 
-export interface Patches extends Glyph, Patches.Attrs {}
+export interface Patches extends Patches.Attrs {}
 
 export class Patches extends Glyph {
 

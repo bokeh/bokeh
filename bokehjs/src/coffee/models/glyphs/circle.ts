@@ -231,7 +231,7 @@ export namespace Circle {
   }
 }
 
-export interface Circle extends XYGlyph, Circle.Attrs {}
+export interface Circle extends Circle.Attrs {}
 
 export class Circle extends XYGlyph {
 

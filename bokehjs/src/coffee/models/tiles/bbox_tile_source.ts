@@ -8,7 +8,7 @@ export namespace BBoxTileSource {
   }
 }
 
-export interface BBoxTileSource extends MercatorTileSource, BBoxTileSource.Attrs {}
+export interface BBoxTileSource extends BBoxTileSource.Attrs {}
 
 export class BBoxTileSource extends MercatorTileSource {
 

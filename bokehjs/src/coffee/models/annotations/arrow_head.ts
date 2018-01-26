@@ -9,7 +9,7 @@ export namespace ArrowHead {
   }
 }
 
-export interface ArrowHead extends Annotation, ArrowHead.Attrs {}
+export interface ArrowHead extends ArrowHead.Attrs {}
 
 export abstract class ArrowHead extends Annotation {
 
@@ -39,7 +39,7 @@ export namespace OpenHead {
   }
 }
 
-export interface OpenHead extends ArrowHead, OpenHead.Attrs {}
+export interface OpenHead extends OpenHead.Attrs {}
 
 export class OpenHead extends ArrowHead {
 
@@ -81,7 +81,7 @@ export namespace NormalHead {
   }
 }
 
-export interface NormalHead extends ArrowHead, NormalHead.Attrs {}
+export interface NormalHead extends NormalHead.Attrs {}
 
 export class NormalHead extends ArrowHead {
 
@@ -136,7 +136,7 @@ export namespace VeeHead {
   }
 }
 
-export interface VeeHead extends ArrowHead, VeeHead.Attrs {}
+export interface VeeHead extends VeeHead.Attrs {}
 
 export class VeeHead extends ArrowHead {
 
@@ -193,7 +193,7 @@ export namespace TeeHead {
   }
 }
 
-export interface TeeHead extends ArrowHead, TeeHead.Attrs {}
+export interface TeeHead extends TeeHead.Attrs {}
 
 export class TeeHead extends ArrowHead {
 

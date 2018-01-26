@@ -5,7 +5,7 @@ export namespace CategoricalTickFormatter {
   export interface Attrs extends TickFormatter.Attrs {}
 }
 
-export interface CategoricalTickFormatter extends TickFormatter, CategoricalTickFormatter.Attrs {}
+export interface CategoricalTickFormatter extends CategoricalTickFormatter.Attrs {}
 
 export class CategoricalTickFormatter extends TickFormatter {
 

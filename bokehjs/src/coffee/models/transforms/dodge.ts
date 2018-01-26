@@ -10,7 +10,7 @@ export namespace Dodge {
   }
 }
 
-export interface Dodge extends Transform, Dodge.Attrs {}
+export interface Dodge extends Dodge.Attrs {}
 
 export class Dodge extends Transform {
 

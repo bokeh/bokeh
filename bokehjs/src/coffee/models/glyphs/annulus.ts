@@ -118,7 +118,7 @@ export namespace Annulus {
   }
 }
 
-export interface Annulus extends XYGlyph, Annulus.Attrs {}
+export interface Annulus extends Annulus.Attrs {}
 
 export class Annulus extends XYGlyph {
 

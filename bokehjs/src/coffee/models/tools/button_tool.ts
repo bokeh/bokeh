@@ -41,7 +41,7 @@ export namespace ButtonTool {
   }
 }
 
-export interface ButtonTool extends Tool, ButtonTool.Attrs {}
+export interface ButtonTool extends ButtonTool.Attrs {}
 
 export abstract class ButtonTool extends Tool {
 

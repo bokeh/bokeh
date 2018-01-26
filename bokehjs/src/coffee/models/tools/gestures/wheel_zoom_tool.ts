@@ -61,7 +61,7 @@ export namespace WheelZoomTool {
   }
 }
 
-export interface WheelZoomTool extends GestureTool, WheelZoomTool.Attrs {}
+export interface WheelZoomTool extends WheelZoomTool.Attrs {}
 
 export class WheelZoomTool extends GestureTool {
 

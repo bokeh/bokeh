@@ -11,7 +11,7 @@ export namespace ColorMapper {
   }
 }
 
-export interface ColorMapper extends Transform, ColorMapper.Attrs {}
+export interface ColorMapper extends ColorMapper.Attrs {}
 
 export abstract class ColorMapper extends Transform {
 

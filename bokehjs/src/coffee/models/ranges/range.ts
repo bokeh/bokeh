@@ -11,7 +11,7 @@ export namespace Range {
   }
 }
 
-export interface Range extends Model, Range.Attrs {}
+export interface Range extends Range.Attrs {}
 
 export abstract class Range extends Model {
 

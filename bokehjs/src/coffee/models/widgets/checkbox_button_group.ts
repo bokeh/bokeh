@@ -61,7 +61,7 @@ export namespace CheckboxButtonGroup {
   }
 }
 
-export interface CheckboxButtonGroup extends Widget, CheckboxButtonGroup.Attrs {}
+export interface CheckboxButtonGroup extends CheckboxButtonGroup.Attrs {}
 
 export class CheckboxButtonGroup extends Widget {
 

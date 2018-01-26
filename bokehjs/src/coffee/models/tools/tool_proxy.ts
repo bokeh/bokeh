@@ -12,7 +12,7 @@ export namespace ToolProxy {
   }
 }
 
-export interface ToolProxy extends Model, ToolProxy.Attrs {}
+export interface ToolProxy extends ToolProxy.Attrs {}
 
 export class ToolProxy extends Model {
 

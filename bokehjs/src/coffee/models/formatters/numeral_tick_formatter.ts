@@ -13,7 +13,7 @@ export namespace NumeralTickFormatter {
   }
 }
 
-export interface NumeralTickFormatter extends TickFormatter, NumeralTickFormatter.Attrs {}
+export interface NumeralTickFormatter extends NumeralTickFormatter.Attrs {}
 
 export class NumeralTickFormatter extends TickFormatter {
 

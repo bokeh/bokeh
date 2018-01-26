@@ -18,7 +18,7 @@ export namespace LogColorMapper {
   }
 }
 
-export interface LogColorMapper extends ColorMapper, LogColorMapper.Attrs {}
+export interface LogColorMapper extends LogColorMapper.Attrs {}
 
 export class LogColorMapper extends ColorMapper {
   static initClass() {

@@ -44,7 +44,7 @@ export namespace VBar {
   }
 }
 
-export interface VBar extends Box, VBar.Attrs {}
+export interface VBar extends VBar.Attrs {}
 
 export class VBar extends Box {
 

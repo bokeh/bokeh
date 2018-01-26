@@ -102,7 +102,7 @@ export namespace AutocompleteInput {
   }
 }
 
-export interface AutocompleteInput extends TextInput, AutocompleteInput.Attrs {}
+export interface AutocompleteInput extends AutocompleteInput.Attrs {}
 
 export class AutocompleteInput extends TextInput {
 

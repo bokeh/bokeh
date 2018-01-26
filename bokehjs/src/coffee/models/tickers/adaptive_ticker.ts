@@ -25,7 +25,7 @@ export namespace AdaptiveTicker {
   }
 }
 
-export interface AdaptiveTicker extends ContinuousTicker, AdaptiveTicker.Attrs {}
+export interface AdaptiveTicker extends AdaptiveTicker.Attrs {}
 
 export class AdaptiveTicker extends ContinuousTicker {
 

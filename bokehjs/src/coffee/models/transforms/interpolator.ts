@@ -13,7 +13,7 @@ export namespace Interpolator {
   }
 }
 
-export interface Interpolator extends Transform, Interpolator.Attrs {}
+export interface Interpolator extends Interpolator.Attrs {}
 
 export class Interpolator extends Transform {
   static initClass() {

@@ -32,7 +32,7 @@ export namespace Widget {
   export interface Attrs extends LayoutDOM.Attrs {}
 }
 
-export interface Widget extends LayoutDOM, Widget.Attrs {}
+export interface Widget extends Widget.Attrs {}
 
 export abstract class Widget extends LayoutDOM {
   static initClass() {

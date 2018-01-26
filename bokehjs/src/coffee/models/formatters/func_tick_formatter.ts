@@ -10,7 +10,7 @@ export namespace FuncTickFormatter {
   }
 }
 
-export interface FuncTickFormatter extends TickFormatter, FuncTickFormatter.Attrs {}
+export interface FuncTickFormatter extends FuncTickFormatter.Attrs {}
 
 export class FuncTickFormatter extends TickFormatter {
 

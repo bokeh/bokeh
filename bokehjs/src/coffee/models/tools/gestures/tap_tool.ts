@@ -79,7 +79,7 @@ export namespace TapTool {
   }
 }
 
-export interface TapTool extends SelectTool, TapTool.Attrs {}
+export interface TapTool extends TapTool.Attrs {}
 
 export class TapTool extends SelectTool {
 

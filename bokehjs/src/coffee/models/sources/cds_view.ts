@@ -16,7 +16,7 @@ export namespace CDSView {
   }
 }
 
-export interface CDSView extends Model, CDSView.Attrs {}
+export interface CDSView extends CDSView.Attrs {}
 
 export class CDSView extends Model {
 

@@ -24,7 +24,7 @@ export namespace ActionTool {
   export interface Attrs extends ButtonTool.Attrs {}
 }
 
-export interface ActionTool extends ButtonTool, ActionTool.Attrs {}
+export interface ActionTool extends ActionTool.Attrs {}
 
 export abstract class ActionTool extends ButtonTool {
 

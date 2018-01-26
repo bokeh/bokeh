@@ -22,7 +22,7 @@ export namespace Ticker{
   export interface Attrs extends Model.Attrs {}
 }
 
-export interface Ticker<T> extends Model, Ticker.Attrs {}
+export interface Ticker<T> extends Ticker.Attrs {}
 
 export abstract class Ticker<T> extends Model {
 

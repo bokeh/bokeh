@@ -10,7 +10,7 @@ export namespace MercatorTileSource {
   }
 }
 
-export interface MercatorTileSource extends TileSource, MercatorTileSource.Attrs {}
+export interface MercatorTileSource extends MercatorTileSource.Attrs {}
 
 export class MercatorTileSource extends TileSource {
 

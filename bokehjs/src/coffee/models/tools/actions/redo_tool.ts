@@ -17,7 +17,7 @@ export namespace RedoTool {
   export interface Attrs extends ActionTool.Attrs {}
 }
 
-export interface RedoTool extends ActionTool, RedoTool.Attrs {}
+export interface RedoTool extends RedoTool.Attrs {}
 
 export class RedoTool extends ActionTool {
 

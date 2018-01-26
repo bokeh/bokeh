@@ -95,7 +95,7 @@ export namespace DatePicker {
   }
 }
 
-export interface DatePicker extends InputWidget, DatePicker.Attrs {}
+export interface DatePicker extends DatePicker.Attrs {}
 
 export class DatePicker extends InputWidget {
 

@@ -50,7 +50,7 @@ export namespace Quad {
   }
 }
 
-export interface Quad extends Box, Quad.Attrs {}
+export interface Quad extends Quad.Attrs {}
 
 export class Quad extends Box {
 

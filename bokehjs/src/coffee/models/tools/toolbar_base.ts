@@ -111,7 +111,7 @@ export namespace ToolbarBase {
   }
 }
 
-export interface ToolbarBase extends Model, ToolbarBase.Attrs {}
+export interface ToolbarBase extends ToolbarBase.Attrs {}
 
 export class ToolbarBase extends Model {
 

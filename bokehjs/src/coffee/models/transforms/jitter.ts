@@ -14,7 +14,7 @@ export namespace Jitter {
   }
 }
 
-export interface Jitter extends Transform, Jitter.Attrs {}
+export interface Jitter extends Jitter.Attrs {}
 
 export class Jitter extends Transform {
 

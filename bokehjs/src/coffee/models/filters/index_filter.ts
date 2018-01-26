@@ -11,7 +11,7 @@ export namespace IndexFilter {
   }
 }
 
-export interface IndexFilter extends Filter, IndexFilter.Attrs {}
+export interface IndexFilter extends IndexFilter.Attrs {}
 
 export class IndexFilter extends Filter {
 

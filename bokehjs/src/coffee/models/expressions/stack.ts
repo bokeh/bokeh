@@ -8,7 +8,7 @@ export namespace Stack {
   }
 }
 
-export interface Stack extends Expression, Stack.Attrs {}
+export interface Stack extends Stack.Attrs {}
 
 export class Stack extends Expression {
 

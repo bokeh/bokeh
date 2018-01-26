@@ -11,7 +11,7 @@ export namespace BooleanFilter {
   }
 }
 
-export interface BooleanFilter extends Filter, BooleanFilter.Attrs {}
+export interface BooleanFilter extends BooleanFilter.Attrs {}
 
 export class BooleanFilter extends Filter {
 

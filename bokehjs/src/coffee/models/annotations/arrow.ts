@@ -140,7 +140,7 @@ export namespace Arrow {
   }
 }
 
-export interface Arrow extends Annotation, Arrow.Attrs {}
+export interface Arrow extends Arrow.Attrs {}
 
 export class Arrow extends Annotation {
   static initClass() {

@@ -4,7 +4,7 @@ export namespace BasicTicker {
   export interface Attrs extends AdaptiveTicker.Attrs {}
 }
 
-export interface BasicTicker extends AdaptiveTicker, BasicTicker.Attrs {}
+export interface BasicTicker extends BasicTicker.Attrs {}
 
 export class BasicTicker extends AdaptiveTicker {
   static initClass() {

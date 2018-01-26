@@ -251,7 +251,7 @@ export namespace GMapPlotCanvas {
   export interface Attrs extends PlotCanvas.Attrs {}
 }
 
-export interface GMapPlotCanvas extends PlotCanvas, GMapPlotCanvas.Attrs {}
+export interface GMapPlotCanvas extends GMapPlotCanvas.Attrs {}
 
 export class GMapPlotCanvas extends PlotCanvas {
 

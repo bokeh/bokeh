@@ -11,7 +11,7 @@ export namespace TableWidget {
   }
 }
 
-export interface TableWidget extends Widget, TableWidget.Attrs {}
+export interface TableWidget extends TableWidget.Attrs {}
 
 export class TableWidget extends Widget {
 

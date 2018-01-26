@@ -96,7 +96,7 @@ export namespace Oval {
   }
 }
 
-export interface Oval extends XYGlyph, Oval.Attrs {}
+export interface Oval extends Oval.Attrs {}
 
 export class Oval extends XYGlyph {
 

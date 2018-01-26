@@ -10,7 +10,7 @@ export namespace CustomJS {
   }
 }
 
-export interface CustomJS extends Model, CustomJS.Attrs {}
+export interface CustomJS extends CustomJS.Attrs {}
 
 export class CustomJS extends Model {
   static initClass() {

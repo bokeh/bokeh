@@ -14,7 +14,7 @@ export namespace LogAxis {
   }
 }
 
-export interface LogAxis extends ContinuousAxis, LogAxis.Attrs {}
+export interface LogAxis extends LogAxis.Attrs {}
 
 export class LogAxis extends ContinuousAxis {
 

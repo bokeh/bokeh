@@ -53,7 +53,7 @@ export namespace CrosshairTool {
   }
 }
 
-export interface CrosshairTool extends InspectTool, CrosshairTool.Attrs {}
+export interface CrosshairTool extends CrosshairTool.Attrs {}
 
 export class CrosshairTool extends InspectTool {
 

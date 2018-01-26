@@ -10,7 +10,7 @@ export namespace DataSource {
   }
 }
 
-export interface DataSource extends Model, DataSource.Attrs {}
+export interface DataSource extends DataSource.Attrs {}
 
 export abstract class DataSource extends Model {
 

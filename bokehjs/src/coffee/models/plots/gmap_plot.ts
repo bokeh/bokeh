@@ -14,7 +14,7 @@ export namespace MapOptions {
   }
 }
 
-export interface MapOptions extends Model, MapOptions.Attrs {}
+export interface MapOptions extends MapOptions.Attrs {}
 
 export class MapOptions extends Model {
 
@@ -38,7 +38,7 @@ export namespace GMapOptions {
   }
 }
 
-export interface GMapOptions extends MapOptions, GMapOptions.Attrs {}
+export interface GMapOptions extends GMapOptions.Attrs {}
 
 export class GMapOptions extends MapOptions {
 
@@ -65,7 +65,7 @@ export namespace GMapPlot {
   }
 }
 
-export interface GMapPlot extends Plot, GMapPlot.Attrs {}
+export interface GMapPlot extends GMapPlot.Attrs {}
 
 export class GMapPlot extends Plot {
 

@@ -7,7 +7,7 @@ export namespace FixedTicker {
   }
 }
 
-export interface FixedTicker extends ContinuousTicker, FixedTicker.Attrs {}
+export interface FixedTicker extends FixedTicker.Attrs {}
 
 export class FixedTicker extends ContinuousTicker {
 

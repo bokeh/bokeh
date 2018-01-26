@@ -74,7 +74,7 @@ export namespace PolyAnnotation {
   }
 }
 
-export interface PolyAnnotation extends Annotation, PolyAnnotation.Attrs {}
+export interface PolyAnnotation extends PolyAnnotation.Attrs {}
 
 export class PolyAnnotation extends Annotation {
   static initClass() {

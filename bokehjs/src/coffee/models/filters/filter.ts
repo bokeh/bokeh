@@ -11,7 +11,7 @@ export namespace Filter {
   }
 }
 
-export interface Filter extends Model, Filter.Attrs {}
+export interface Filter extends Filter.Attrs {}
 
 export class Filter extends Model {
 

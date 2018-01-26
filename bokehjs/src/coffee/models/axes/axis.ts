@@ -330,7 +330,7 @@ export namespace Axis {
   }
 }
 
-export interface Axis extends GuideRenderer, Axis.Attrs {
+export interface Axis extends Axis.Attrs {
   panel: SidePanel
 }
 

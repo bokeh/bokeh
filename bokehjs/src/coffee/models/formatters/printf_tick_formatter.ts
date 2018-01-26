@@ -10,7 +10,7 @@ export namespace PrintfTickFormatter {
   }
 }
 
-export interface PrintfTickFormatter extends TickFormatter, PrintfTickFormatter.Attrs {}
+export interface PrintfTickFormatter extends PrintfTickFormatter.Attrs {}
 
 export class PrintfTickFormatter extends TickFormatter {
 

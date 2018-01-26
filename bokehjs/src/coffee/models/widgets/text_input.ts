@@ -62,7 +62,7 @@ export namespace TextInput {
   }
 }
 
-export interface TextInput extends InputWidget, TextInput.Attrs {}
+export interface TextInput extends TextInput.Attrs {}
 
 export class TextInput extends InputWidget {
 

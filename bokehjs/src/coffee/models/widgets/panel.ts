@@ -21,7 +21,7 @@ export namespace Panel {
   }
 }
 
-export interface Panel extends Widget, Panel.Attrs {}
+export interface Panel extends Panel.Attrs {}
 
 export class Panel extends Widget {
 

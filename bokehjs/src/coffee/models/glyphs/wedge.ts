@@ -105,7 +105,7 @@ export namespace Wedge {
   }
 }
 
-export interface Wedge extends XYGlyph, Wedge.Attrs {}
+export interface Wedge extends Wedge.Attrs {}
 
 export class Wedge extends XYGlyph {
 

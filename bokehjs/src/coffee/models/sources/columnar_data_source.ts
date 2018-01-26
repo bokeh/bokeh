@@ -17,7 +17,7 @@ export namespace ColumnarDataSource {
   }
 }
 
-export interface ColumnarDataSource extends DataSource, ColumnarDataSource.Attrs {}
+export interface ColumnarDataSource extends ColumnarDataSource.Attrs {}
 
 export abstract class ColumnarDataSource extends DataSource {
 

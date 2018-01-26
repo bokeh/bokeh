@@ -26,7 +26,7 @@ export namespace XYGlyph {
   }
 }
 
-export interface XYGlyph extends Glyph, XYGlyph.Attrs {}
+export interface XYGlyph extends XYGlyph.Attrs {}
 
 export abstract class XYGlyph extends Glyph {
 

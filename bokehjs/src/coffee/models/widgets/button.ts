@@ -20,7 +20,7 @@ export namespace Button {
   }
 }
 
-export interface Button extends AbstractButton, Button.Attrs {}
+export interface Button extends Button.Attrs {}
 
 export class Button extends AbstractButton {
 

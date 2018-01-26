@@ -94,7 +94,7 @@ export namespace MultiSelect {
   }
 }
 
-export interface MultiSelect extends InputWidget, MultiSelect.Attrs {}
+export interface MultiSelect extends MultiSelect.Attrs {}
 
 export class MultiSelect extends InputWidget {
 

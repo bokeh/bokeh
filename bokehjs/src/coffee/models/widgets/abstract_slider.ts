@@ -211,7 +211,7 @@ export namespace AbstractSlider {
   }
 }
 
-export interface AbstractSlider extends Widget, AbstractSlider.Attrs {}
+export interface AbstractSlider extends AbstractSlider.Attrs {}
 
 export abstract class AbstractSlider extends Widget {
 

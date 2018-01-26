@@ -16,7 +16,7 @@ export namespace ResetTool {
   export interface Attrs extends ActionTool.Attrs {}
 }
 
-export interface ResetTool extends ActionTool, ResetTool.Attrs {}
+export interface ResetTool extends ResetTool.Attrs {}
 
 export class ResetTool extends ActionTool {
 

@@ -76,7 +76,7 @@ export namespace Select {
   }
 }
 
-export interface Select extends InputWidget, Select.Attrs {}
+export interface Select extends Select.Attrs {}
 
 export class Select extends InputWidget {
 

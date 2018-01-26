@@ -93,7 +93,7 @@ export namespace Grid {
   }
 }
 
-export interface Grid extends GuideRenderer, Grid.Attrs {}
+export interface Grid extends Grid.Attrs {}
 
 export class Grid extends GuideRenderer {
 

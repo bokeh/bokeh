@@ -13,7 +13,7 @@ export namespace InspectTool {
   }
 }
 
-export interface InspectTool extends ButtonTool, InspectTool.Attrs {}
+export interface InspectTool extends InspectTool.Attrs {}
 
 export abstract class InspectTool extends ButtonTool {
 

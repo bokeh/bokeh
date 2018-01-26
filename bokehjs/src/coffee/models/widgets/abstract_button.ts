@@ -73,7 +73,7 @@ export namespace AbstractButton {
   }
 }
 
-export interface AbstractButton extends Widget, AbstractButton.Attrs {}
+export interface AbstractButton extends AbstractButton.Attrs {}
 
 export abstract class AbstractButton extends Widget {
 

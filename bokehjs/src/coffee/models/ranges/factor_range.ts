@@ -117,7 +117,7 @@ export namespace FactorRange {
   }
 }
 
-export interface FactorRange extends Range, FactorRange.Attrs {}
+export interface FactorRange extends FactorRange.Attrs {}
 
 export class FactorRange extends Range {
 

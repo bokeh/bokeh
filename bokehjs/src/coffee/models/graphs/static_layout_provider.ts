@@ -8,7 +8,7 @@ export namespace StaticLayoutProvider {
   }
 }
 
-export interface StaticLayoutProvider extends LayoutProvider, StaticLayoutProvider.Attrs {}
+export interface StaticLayoutProvider extends StaticLayoutProvider.Attrs {}
 
 export class StaticLayoutProvider extends LayoutProvider {
 

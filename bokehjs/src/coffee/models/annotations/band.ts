@@ -137,7 +137,7 @@ export namespace Band {
   }
 }
 
-export interface Band extends Annotation, Band.Attrs {}
+export interface Band extends Band.Attrs {}
 
 export class Band extends Annotation {
 

@@ -17,7 +17,7 @@ export namespace DatetimeTicker {
   export interface Attrs extends CompositeTicker.Attrs {}
 }
 
-export interface DatetimeTicker extends CompositeTicker, DatetimeTicker.Attrs {}
+export interface DatetimeTicker extends DatetimeTicker.Attrs {}
 
 export class DatetimeTicker extends CompositeTicker {
 

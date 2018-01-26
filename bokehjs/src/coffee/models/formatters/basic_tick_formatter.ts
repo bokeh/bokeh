@@ -12,7 +12,7 @@ export namespace BasicTickFormatter {
   }
 }
 
-export interface BasicTickFormatter extends TickFormatter, BasicTickFormatter.Attrs {}
+export interface BasicTickFormatter extends BasicTickFormatter.Attrs {}
 
 export class BasicTickFormatter extends TickFormatter {
 

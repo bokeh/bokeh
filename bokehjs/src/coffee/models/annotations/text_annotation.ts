@@ -151,7 +151,7 @@ export namespace TextAnnotation {
   export interface Attrs extends Annotation.Attrs {}
 }
 
-export interface TextAnnotation extends Annotation, TextAnnotation.Attrs {}
+export interface TextAnnotation extends TextAnnotation.Attrs {}
 
 export abstract class TextAnnotation extends Annotation {
   static initClass() {

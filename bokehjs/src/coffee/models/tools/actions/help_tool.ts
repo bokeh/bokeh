@@ -16,7 +16,7 @@ export namespace HelpTool {
   }
 }
 
-export interface HelpTool extends ActionTool, HelpTool.Attrs {}
+export interface HelpTool extends HelpTool.Attrs {}
 
 export class HelpTool extends ActionTool {
 

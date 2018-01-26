@@ -97,7 +97,7 @@ export namespace WheelPanTool {
   }
 }
 
-export interface WheelPanTool extends GestureTool, WheelPanTool.Attrs {}
+export interface WheelPanTool extends WheelPanTool.Attrs {}
 
 export class WheelPanTool extends GestureTool {
 

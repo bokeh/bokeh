@@ -67,7 +67,7 @@ export namespace Box {
   }
 }
 
-export interface Box extends LayoutDOM, Box.Attrs {}
+export interface Box extends Box.Attrs {}
 
 export class Box extends LayoutDOM {
 

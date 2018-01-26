@@ -118,7 +118,7 @@ export namespace Span {
   }
 }
 
-export interface Span extends Annotation, Span.Attrs {}
+export interface Span extends Span.Attrs {}
 
 export class Span extends Annotation {
 

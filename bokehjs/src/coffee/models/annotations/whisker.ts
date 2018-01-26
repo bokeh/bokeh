@@ -129,7 +129,7 @@ export namespace Whisker {
   }
 }
 
-export interface Whisker extends Annotation, Whisker.Attrs {}
+export interface Whisker extends Whisker.Attrs {}
 
 export class Whisker extends Annotation {
 

@@ -374,7 +374,7 @@ export namespace ColorBar {
   }
 }
 
-export interface ColorBar extends Annotation, ColorBar.Attrs {}
+export interface ColorBar extends ColorBar.Attrs {}
 
 export class ColorBar extends Annotation {
 

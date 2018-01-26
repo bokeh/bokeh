@@ -142,7 +142,7 @@ export namespace PanTool {
   }
 }
 
-export interface PanTool extends GestureTool, PanTool.Attrs {}
+export interface PanTool extends PanTool.Attrs {}
 
 export class PanTool extends GestureTool {
 

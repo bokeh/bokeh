@@ -5,7 +5,7 @@ export namespace TickFormatter {
   export interface Attrs extends Model.Attrs {}
 }
 
-export interface TickFormatter extends Model, TickFormatter.Attrs {}
+export interface TickFormatter extends TickFormatter.Attrs {}
 
 export abstract class TickFormatter extends Model {
 

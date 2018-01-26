@@ -19,7 +19,7 @@ export namespace TableColumn {
   }
 }
 
-export interface TableColumn extends Model, TableColumn.Attrs {}
+export interface TableColumn extends TableColumn.Attrs {}
 
 export class TableColumn extends Model {
 

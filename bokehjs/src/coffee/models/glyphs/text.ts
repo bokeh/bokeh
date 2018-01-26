@@ -77,7 +77,7 @@ export namespace Text {
   }
 }
 
-export interface Text extends XYGlyph, Text.Attrs {}
+export interface Text extends Text.Attrs {}
 
 export class Text extends XYGlyph {
 

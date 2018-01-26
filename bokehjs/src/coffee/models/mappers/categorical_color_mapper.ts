@@ -25,7 +25,7 @@ export namespace CategoricalColorMapper {
   }
 }
 
-export interface CategoricalColorMapper extends ColorMapper, CategoricalColorMapper.Attrs {}
+export interface CategoricalColorMapper extends CategoricalColorMapper.Attrs {}
 
 export class CategoricalColorMapper extends ColorMapper {
   static initClass() {

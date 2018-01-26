@@ -55,7 +55,7 @@ export namespace DatetimeTickFormatter {
   }
 }
 
-export interface DatetimeTickFormatter extends TickFormatter, DatetimeTickFormatter.Attrs {}
+export interface DatetimeTickFormatter extends DatetimeTickFormatter.Attrs {}
 
 export class DatetimeTickFormatter extends TickFormatter {
 

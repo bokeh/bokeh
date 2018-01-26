@@ -207,7 +207,7 @@ export namespace LabelSet {
   }
 }
 
-export interface LabelSet extends TextAnnotation, LabelSet.Attrs {}
+export interface LabelSet extends LabelSet.Attrs {}
 
 export class LabelSet extends TextAnnotation {
 

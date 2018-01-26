@@ -17,7 +17,7 @@ export namespace Model {
   }
 }
 
-export interface Model extends HasProps, Model.Attrs {}
+export interface Model extends Model.Attrs {}
 
 export class Model extends HasProps {
 

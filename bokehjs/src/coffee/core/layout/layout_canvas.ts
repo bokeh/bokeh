@@ -11,7 +11,7 @@ export namespace LayoutCanvas {
   export interface Attrs extends HasProps.Attrs {}
 }
 
-export interface LayoutCanvas extends HasProps, LayoutCanvas.Attrs {}
+export interface LayoutCanvas extends LayoutCanvas.Attrs {}
 
 export abstract class LayoutCanvas extends HasProps {
 

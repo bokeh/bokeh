@@ -118,7 +118,7 @@ export namespace Title {
   }
 }
 
-export interface Title extends TextAnnotation, Title.Attrs {}
+export interface Title extends Title.Attrs {}
 
 export class Title extends TextAnnotation {
 

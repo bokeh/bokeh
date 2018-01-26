@@ -356,7 +356,7 @@ export namespace TileRenderer {
   }
 }
 
-export interface TileRenderer extends Renderer, TileRenderer.Attrs {}
+export interface TileRenderer extends TileRenderer.Attrs {}
 
 export class TileRenderer extends Renderer {
 

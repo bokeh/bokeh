@@ -293,7 +293,7 @@ export namespace Legend {
   }
 }
 
-export interface Legend extends Annotation, Legend.Attrs {}
+export interface Legend extends Legend.Attrs {}
 
 export class Legend extends Annotation {
   static initClass() {

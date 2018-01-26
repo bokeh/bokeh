@@ -113,7 +113,7 @@ export namespace Segment {
   }
 }
 
-export interface Segment extends Glyph, Segment.Attrs {}
+export interface Segment extends Segment.Attrs {}
 
 export class Segment extends Glyph {
 

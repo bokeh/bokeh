@@ -358,7 +358,7 @@ export namespace LayoutDOM {
   }
 }
 
-export interface LayoutDOM extends Model, LayoutDOM.Attrs {}
+export interface LayoutDOM extends LayoutDOM.Attrs {}
 
 export abstract class LayoutDOM extends Model {
 

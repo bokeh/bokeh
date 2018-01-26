@@ -126,7 +126,7 @@ export namespace SelectTool {
   }
 }
 
-export interface SelectTool extends GestureTool, SelectTool.Attrs {}
+export interface SelectTool extends SelectTool.Attrs {}
 
 export abstract class SelectTool extends GestureTool {
 

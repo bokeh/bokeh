@@ -9,7 +9,7 @@ export namespace ImageSource {
   }
 }
 
-export interface ImageSource extends Model, ImageSource.Attrs {}
+export interface ImageSource extends ImageSource.Attrs {}
 
 export class ImageSource extends Model {
   static initClass() {

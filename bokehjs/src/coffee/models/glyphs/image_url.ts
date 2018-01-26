@@ -182,7 +182,7 @@ export namespace ImageURL {
   }
 }
 
-export interface ImageURL extends Glyph, ImageURL.Attrs {}
+export interface ImageURL extends ImageURL.Attrs {}
 
 export class ImageURL extends Glyph {
 

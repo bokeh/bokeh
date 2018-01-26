@@ -5,7 +5,7 @@ export namespace LogTicker {
   export interface Attrs extends AdaptiveTicker.Attrs {}
 }
 
-export interface LogTicker extends AdaptiveTicker, LogTicker.Attrs {}
+export interface LogTicker extends LogTicker.Attrs {}
 
 export class LogTicker extends AdaptiveTicker {
 

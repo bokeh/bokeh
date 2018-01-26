@@ -11,7 +11,7 @@ export namespace Range1d {
   }
 }
 
-export interface Range1d extends Range, Range1d.Attrs {}
+export interface Range1d extends Range1d.Attrs {}
 
 export class Range1d extends Range {
 

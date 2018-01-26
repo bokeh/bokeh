@@ -11,7 +11,7 @@ export namespace LogTickFormatter {
   }
 }
 
-export interface LogTickFormatter extends TickFormatter, LogTickFormatter.Attrs {}
+export interface LogTickFormatter extends LogTickFormatter.Attrs {}
 
 export class LogTickFormatter extends TickFormatter {
 

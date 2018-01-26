@@ -13,7 +13,7 @@ export namespace DatetimeAxis {
   }
 }
 
-export interface DatetimeAxis extends LinearAxis, DatetimeAxis.Attrs {}
+export interface DatetimeAxis extends DatetimeAxis.Attrs {}
 
 export class DatetimeAxis extends LinearAxis {
 

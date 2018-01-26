@@ -89,7 +89,7 @@ export namespace Box {
   }
 }
 
-export interface Box extends Glyph, Box.Attrs {}
+export interface Box extends Box.Attrs {}
 
 export abstract class Box extends Glyph {
 

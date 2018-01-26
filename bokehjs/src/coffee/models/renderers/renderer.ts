@@ -58,7 +58,7 @@ export namespace Renderer {
   export type Visuals = visuals.Visuals
 }
 
-export interface Renderer extends Model, Renderer.Attrs {}
+export interface Renderer extends Renderer.Attrs {}
 
 export abstract class Renderer extends Model {
 

@@ -5,7 +5,7 @@ export namespace Transform {
   export interface Attrs extends Model.Attrs {}
 }
 
-export interface Transform extends Model, Transform.Attrs {}
+export interface Transform extends Transform.Attrs {}
 
 export abstract class Transform extends Model {
 

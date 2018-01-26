@@ -13,7 +13,7 @@ export namespace CustomJSTransform {
   }
 }
 
-export interface CustomJSTransform extends Transform, CustomJSTransform.Attrs {}
+export interface CustomJSTransform extends CustomJSTransform.Attrs {}
 
 export class CustomJSTransform extends Transform {
 

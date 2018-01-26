@@ -96,7 +96,7 @@ export namespace GraphRenderer {
   }
 }
 
-export interface GraphRenderer extends Renderer, GraphRenderer.Attrs {}
+export interface GraphRenderer extends GraphRenderer.Attrs {}
 
 export class GraphRenderer extends Renderer {
 

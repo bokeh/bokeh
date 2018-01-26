@@ -157,7 +157,7 @@ export namespace Marker {
   }
 }
 
-export interface Marker extends XYGlyph, Marker.Attrs {}
+export interface Marker extends Marker.Attrs {}
 
 export class Marker extends XYGlyph {
 

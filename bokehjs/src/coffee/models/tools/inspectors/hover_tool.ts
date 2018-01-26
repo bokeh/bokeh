@@ -438,7 +438,7 @@ export namespace HoverTool {
   }
 }
 
-export interface HoverTool extends InspectTool, HoverTool.Attrs {}
+export interface HoverTool extends HoverTool.Attrs {}
 
 export class HoverTool extends InspectTool {
 

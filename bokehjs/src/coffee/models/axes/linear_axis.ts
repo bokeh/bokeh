@@ -14,7 +14,7 @@ export namespace LinearAxis {
   }
 }
 
-export interface LinearAxis extends ContinuousAxis, LinearAxis.Attrs {}
+export interface LinearAxis extends LinearAxis.Attrs {}
 
 export class LinearAxis extends ContinuousAxis {
 

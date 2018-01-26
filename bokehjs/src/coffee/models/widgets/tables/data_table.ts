@@ -270,7 +270,7 @@ export namespace DataTable {
   }
 }
 
-export interface DataTable extends TableWidget, DataTable.Attrs {}
+export interface DataTable extends DataTable.Attrs {}
 
 export class DataTable extends TableWidget {
   static initClass() {

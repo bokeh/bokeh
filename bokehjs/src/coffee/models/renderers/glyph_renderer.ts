@@ -344,7 +344,7 @@ export namespace GlyphRenderer {
   }
 }
 
-export interface GlyphRenderer extends Renderer, GlyphRenderer.Attrs {}
+export interface GlyphRenderer extends GlyphRenderer.Attrs {}
 
 export class GlyphRenderer extends Renderer {
 

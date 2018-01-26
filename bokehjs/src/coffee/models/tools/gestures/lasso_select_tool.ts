@@ -118,7 +118,7 @@ export namespace LassoSelectTool {
   }
 }
 
-export interface LassoSelectTool extends SelectTool, LassoSelectTool.Attrs {}
+export interface LassoSelectTool extends LassoSelectTool.Attrs {}
 
 export class LassoSelectTool extends SelectTool {
 

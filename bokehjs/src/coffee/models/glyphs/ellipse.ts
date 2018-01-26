@@ -87,7 +87,7 @@ export namespace Ellipse {
   }
 }
 
-export interface Ellipse extends XYGlyph, Ellipse.Attrs {}
+export interface Ellipse extends Ellipse.Attrs {}
 
 export class Ellipse extends XYGlyph {
 

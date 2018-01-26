@@ -59,7 +59,7 @@ export namespace Step {
   }
 }
 
-export interface Step extends XYGlyph, Step.Attrs {}
+export interface Step extends Step.Attrs {}
 
 export class Step extends XYGlyph {
 

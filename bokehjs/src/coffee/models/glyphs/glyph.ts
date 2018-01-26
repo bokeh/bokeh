@@ -359,7 +359,7 @@ export namespace Glyph {
   }
 }
 
-export interface Glyph extends Model, Glyph.Attrs {}
+export interface Glyph extends Glyph.Attrs {}
 
 export abstract class Glyph extends Model {
 

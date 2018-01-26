@@ -130,7 +130,7 @@ export namespace ColumnDataSource {
   }
 }
 
-export interface ColumnDataSource extends ColumnarDataSource, ColumnDataSource.Attrs {}
+export interface ColumnDataSource extends ColumnDataSource.Attrs {}
 
 export class ColumnDataSource extends ColumnarDataSource {
 

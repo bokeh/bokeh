@@ -34,7 +34,7 @@ export namespace MonthsTicker {
   }
 }
 
-export interface MonthsTicker extends SingleIntervalTicker, MonthsTicker.Attrs {}
+export interface MonthsTicker extends MonthsTicker.Attrs {}
 
 export class MonthsTicker extends SingleIntervalTicker {
 

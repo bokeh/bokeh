@@ -5,7 +5,7 @@ export namespace TMSTileSource {
   export interface Attrs extends MercatorTileSource.Attrs {}
 }
 
-export interface TMSTileSource extends MercatorTileSource, TMSTileSource.Attrs {}
+export interface TMSTileSource extends TMSTileSource.Attrs {}
 
 export class TMSTileSource extends MercatorTileSource {
 

@@ -133,7 +133,7 @@ export namespace Line {
   }
 }
 
-export interface Line extends XYGlyph, Line.Attrs {}
+export interface Line extends Line.Attrs {}
 
 export class Line extends XYGlyph {
 

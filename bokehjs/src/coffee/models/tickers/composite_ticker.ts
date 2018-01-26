@@ -12,7 +12,7 @@ export namespace CompositeTicker {
   }
 }
 
-export interface CompositeTicker extends ContinuousTicker, CompositeTicker.Attrs {}
+export interface CompositeTicker extends CompositeTicker.Attrs {}
 
 export class CompositeTicker extends ContinuousTicker {
 

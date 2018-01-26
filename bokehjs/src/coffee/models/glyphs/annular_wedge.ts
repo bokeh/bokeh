@@ -134,7 +134,7 @@ export namespace AnnularWedge {
   }
 }
 
-export interface AnnularWedge extends XYGlyph, AnnularWedge.Attrs {}
+export interface AnnularWedge extends AnnularWedge.Attrs {}
 
 export class AnnularWedge extends XYGlyph {
 

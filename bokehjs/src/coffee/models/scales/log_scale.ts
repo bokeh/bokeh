@@ -4,7 +4,7 @@ export namespace LogScale {
   export interface Attrs extends Scale.Attrs {}
 }
 
-export interface LogScale extends Scale, LogScale.Attrs {}
+export interface LogScale extends LogScale.Attrs {}
 
 export class LogScale extends Scale {
 

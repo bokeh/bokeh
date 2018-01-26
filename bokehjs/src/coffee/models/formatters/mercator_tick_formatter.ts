@@ -10,7 +10,7 @@ export namespace MercatorTickFormatter {
   }
 }
 
-export interface MercatorTickFormatter extends BasicTickFormatter, MercatorTickFormatter.Attrs {}
+export interface MercatorTickFormatter extends MercatorTickFormatter.Attrs {}
 
 export class MercatorTickFormatter extends BasicTickFormatter {
 

@@ -25,7 +25,7 @@ export namespace CartesianFrame {
   }
 }
 
-export interface CartesianFrame extends LayoutCanvas, CartesianFrame.Attrs {}
+export interface CartesianFrame extends CartesianFrame.Attrs {}
 
 export class CartesianFrame extends LayoutCanvas {
 

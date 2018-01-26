@@ -37,7 +37,7 @@ export namespace DaysTicker {
   }
 }
 
-export interface DaysTicker extends SingleIntervalTicker, DaysTicker.Attrs {}
+export interface DaysTicker extends DaysTicker.Attrs {}
 
 export class DaysTicker extends SingleIntervalTicker {
 

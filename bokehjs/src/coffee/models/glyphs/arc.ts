@@ -46,7 +46,7 @@ export namespace Arc {
   }
 }
 
-export interface Arc extends XYGlyph, Arc.Attrs {}
+export interface Arc extends Arc.Attrs {}
 
 export class Arc extends XYGlyph {
 

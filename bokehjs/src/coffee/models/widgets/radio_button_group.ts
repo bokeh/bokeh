@@ -65,7 +65,7 @@ export namespace RadioButtonGroup {
   }
 }
 
-export interface RadioButtonGroup extends Widget, RadioButtonGroup.Attrs {}
+export interface RadioButtonGroup extends RadioButtonGroup.Attrs {}
 
 export class RadioButtonGroup extends Widget {
 

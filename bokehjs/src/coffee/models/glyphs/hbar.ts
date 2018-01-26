@@ -44,7 +44,7 @@ export namespace HBar {
   }
 }
 
-export interface HBar extends Box, HBar.Attrs {}
+export interface HBar extends HBar.Attrs {}
 
 export class HBar extends Box {
   static initClass() {

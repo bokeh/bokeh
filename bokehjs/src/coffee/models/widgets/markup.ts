@@ -37,7 +37,7 @@ export namespace Markup {
   }
 }
 
-export interface Markup extends Widget, Markup.Attrs {}
+export interface Markup extends Markup.Attrs {}
 
 export class Markup extends Widget {
 

@@ -7,7 +7,7 @@ export namespace Scale {
   export interface Attrs extends Transform.Attrs {}
 }
 
-export interface Scale extends Transform, Scale.Attrs {}
+export interface Scale extends Scale.Attrs {}
 
 export abstract class Scale extends Transform {
 

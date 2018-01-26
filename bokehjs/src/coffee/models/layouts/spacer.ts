@@ -31,7 +31,7 @@ export namespace Spacer {
   export interface Attrs extends LayoutDOM.Attrs {}
 }
 
-export interface Spacer extends LayoutDOM, Spacer.Attrs {}
+export interface Spacer extends Spacer.Attrs {}
 
 export class Spacer extends LayoutDOM {
 

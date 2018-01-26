@@ -59,7 +59,7 @@ export namespace Ray {
   }
 }
 
-export interface Ray extends XYGlyph, Ray.Attrs {}
+export interface Ray extends Ray.Attrs {}
 
 export class Ray extends XYGlyph {
 

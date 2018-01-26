@@ -20,7 +20,7 @@ export namespace ProxyToolbar {
   export interface Attrs extends ToolbarBase.Attrs {}
 }
 
-export interface ProxyToolbar extends ToolbarBase, ProxyToolbar.Attrs {}
+export interface ProxyToolbar extends ProxyToolbar.Attrs {}
 
 export class ProxyToolbar extends ToolbarBase {
 
@@ -211,7 +211,7 @@ export namespace ToolbarBox {
   }
 }
 
-export interface ToolbarBox extends LayoutDOM, ToolbarBox.Attrs {}
+export interface ToolbarBox extends ToolbarBox.Attrs {}
 
 export class ToolbarBox extends LayoutDOM {
 

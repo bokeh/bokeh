@@ -60,7 +60,7 @@ export namespace Patch {
   }
 }
 
-export interface Patch extends XYGlyph, Patch.Attrs {}
+export interface Patch extends Patch.Attrs {}
 
 export class Patch extends XYGlyph {
 

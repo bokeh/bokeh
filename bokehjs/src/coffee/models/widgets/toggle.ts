@@ -24,7 +24,7 @@ export namespace Toggle {
   }
 }
 
-export interface Toggle extends AbstractButton, Toggle.Attrs {}
+export interface Toggle extends Toggle.Attrs {}
 
 export class Toggle extends AbstractButton {
 

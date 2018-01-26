@@ -11,7 +11,7 @@ export namespace GroupFilter {
   }
 }
 
-export interface GroupFilter extends Filter, GroupFilter.Attrs {}
+export interface GroupFilter extends GroupFilter.Attrs {}
 
 export class GroupFilter extends Filter {
 

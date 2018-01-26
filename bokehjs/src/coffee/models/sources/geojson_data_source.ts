@@ -10,7 +10,7 @@ export namespace GeoJSONDataSource {
   }
 }
 
-export interface GeoJSONDataSource extends ColumnarDataSource, GeoJSONDataSource.Attrs {}
+export interface GeoJSONDataSource extends GeoJSONDataSource.Attrs {}
 
 export class GeoJSONDataSource extends ColumnarDataSource {
 

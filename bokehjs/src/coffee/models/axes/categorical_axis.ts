@@ -120,7 +120,7 @@ export namespace CategoricalAxis {
   }
 }
 
-export interface CategoricalAxis extends Axis, CategoricalAxis.Attrs {}
+export interface CategoricalAxis extends CategoricalAxis.Attrs {}
 
 export class CategoricalAxis extends Axis {
 

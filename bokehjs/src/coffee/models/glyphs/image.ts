@@ -139,7 +139,7 @@ export namespace Image {
   }
 }
 
-export interface Image extends XYGlyph, Image.Attrs {}
+export interface Image extends Image.Attrs {}
 
 export class Image extends XYGlyph {
 

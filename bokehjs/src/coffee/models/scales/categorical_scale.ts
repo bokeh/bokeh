@@ -5,7 +5,7 @@ export namespace CategoricalScale {
   export interface Attrs extends LinearScale.Attrs {}
 }
 
-export interface CategoricalScale extends LinearScale, CategoricalScale.Attrs {}
+export interface CategoricalScale extends CategoricalScale.Attrs {}
 
 export class CategoricalScale extends LinearScale {
 

@@ -133,7 +133,7 @@ export namespace Canvas {
   }
 }
 
-export interface Canvas extends LayoutCanvas, Canvas.Attrs {}
+export interface Canvas extends Canvas.Attrs {}
 
 export class Canvas extends LayoutCanvas {
 

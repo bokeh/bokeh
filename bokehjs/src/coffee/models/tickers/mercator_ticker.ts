@@ -9,7 +9,7 @@ export namespace MercatorTicker {
   }
 }
 
-export interface MercatorTicker extends BasicTicker, MercatorTicker.Attrs {}
+export interface MercatorTicker extends MercatorTicker.Attrs {}
 
 export class MercatorTicker extends BasicTicker {
 

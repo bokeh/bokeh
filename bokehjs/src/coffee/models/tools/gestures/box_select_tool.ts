@@ -112,7 +112,7 @@ export namespace BoxSelectTool {
   }
 }
 
-export interface BoxSelectTool extends SelectTool, BoxSelectTool.Attrs {}
+export interface BoxSelectTool extends BoxSelectTool.Attrs {}
 
 export class BoxSelectTool extends SelectTool {
 

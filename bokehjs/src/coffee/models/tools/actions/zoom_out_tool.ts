@@ -33,7 +33,7 @@ export namespace ZoomOutTool {
   }
 }
 
-export interface ZoomOutTool extends ActionTool, ZoomOutTool.Attrs {}
+export interface ZoomOutTool extends ZoomOutTool.Attrs {}
 
 export class ZoomOutTool extends ActionTool {
 

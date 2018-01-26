@@ -12,7 +12,7 @@ export namespace Column {
   export interface Attrs extends Box.Attrs {}
 }
 
-export interface Column extends Box, Column.Attrs {}
+export interface Column extends Column.Attrs {}
 
 export class Column extends Box {
 

@@ -10,7 +10,7 @@ export namespace StepInterpolator {
   }
 }
 
-export interface StepInterpolator extends Interpolator, StepInterpolator.Attrs {}
+export interface StepInterpolator extends StepInterpolator.Attrs {}
 
 export class StepInterpolator extends Interpolator {
 

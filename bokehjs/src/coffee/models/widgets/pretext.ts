@@ -16,7 +16,7 @@ export namespace PreText {
   export interface Attrs extends Markup.Attrs {}
 }
 
-export interface PreText extends Markup, PreText.Attrs {}
+export interface PreText extends PreText.Attrs {}
 
 export class PreText extends Markup {
 

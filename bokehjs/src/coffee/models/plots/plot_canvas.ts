@@ -926,7 +926,7 @@ export namespace PlotCanvas {
   }
 }
 
-export interface PlotCanvas extends LayoutDOM, PlotCanvas.Attrs {
+export interface PlotCanvas extends PlotCanvas.Attrs {
   use_map: boolean
 }
 

@@ -26,7 +26,7 @@ export namespace Toolbar {
   }
 }
 
-export interface Toolbar extends ToolbarBase, Toolbar.Attrs {}
+export interface Toolbar extends Toolbar.Attrs {}
 
 export class Toolbar extends ToolbarBase {
 

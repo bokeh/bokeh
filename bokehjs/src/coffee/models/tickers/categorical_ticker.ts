@@ -5,7 +5,7 @@ export namespace CategoricalTicker {
   export interface Attrs extends Ticker.Attrs {}
 }
 
-export interface CategoricalTicker extends Ticker<Factor>, CategoricalTicker.Attrs {}
+export interface CategoricalTicker extends CategoricalTicker.Attrs {}
 
 export class CategoricalTicker extends Ticker<Factor> {
 

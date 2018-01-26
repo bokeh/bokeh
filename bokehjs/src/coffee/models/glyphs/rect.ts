@@ -261,7 +261,7 @@ export namespace Rect {
   }
 }
 
-export interface Rect extends XYGlyph, Rect.Attrs {}
+export interface Rect extends Rect.Attrs {}
 
 export class Rect extends XYGlyph {
 

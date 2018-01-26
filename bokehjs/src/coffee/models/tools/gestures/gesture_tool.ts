@@ -9,7 +9,7 @@ export namespace GestureTool {
   export interface Attrs extends ButtonTool.Attrs {}
 }
 
-export interface GestureTool extends ButtonTool, GestureTool.Attrs {}
+export interface GestureTool extends GestureTool.Attrs {}
 
 export abstract class GestureTool extends ButtonTool {
 

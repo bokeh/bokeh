@@ -17,7 +17,7 @@ export namespace Paragraph {
   export interface Attrs extends Markup.Attrs {}
 }
 
-export interface Paragraph extends Markup, Paragraph.Attrs {}
+export interface Paragraph extends Paragraph.Attrs {}
 
 export class Paragraph extends Markup {
 

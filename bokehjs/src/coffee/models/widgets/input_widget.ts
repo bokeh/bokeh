@@ -17,7 +17,7 @@ export namespace InputWidget {
   }
 }
 
-export interface InputWidget extends Widget, InputWidget.Attrs {}
+export interface InputWidget extends InputWidget.Attrs {}
 
 export class InputWidget extends Widget {
 

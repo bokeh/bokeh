@@ -23,7 +23,7 @@ export namespace Div {
   }
 }
 
-export interface Div extends Markup, Div.Attrs {}
+export interface Div extends Div.Attrs {}
 
 export class Div extends Markup {
 

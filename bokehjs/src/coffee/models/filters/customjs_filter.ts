@@ -10,7 +10,7 @@ export namespace CustomJSFilter {
   }
 }
 
-export interface CustomJSFilter extends Filter, CustomJSFilter.Attrs {}
+export interface CustomJSFilter extends CustomJSFilter.Attrs {}
 
 export class CustomJSFilter extends Filter {
 

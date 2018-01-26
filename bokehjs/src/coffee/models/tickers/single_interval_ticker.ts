@@ -11,7 +11,7 @@ export namespace SingleIntervalTicker {
   }
 }
 
-export interface SingleIntervalTicker extends ContinuousTicker, SingleIntervalTicker.Attrs {}
+export interface SingleIntervalTicker extends SingleIntervalTicker.Attrs {}
 
 export class SingleIntervalTicker extends ContinuousTicker {
 

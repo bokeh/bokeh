@@ -24,7 +24,7 @@ export namespace DateRangeSlider {
   export interface Attrs extends AbstractSlider.Attrs {}
 }
 
-export interface DateRangeSlider extends AbstractSlider, DateRangeSlider.Attrs {}
+export interface DateRangeSlider extends DateRangeSlider.Attrs {}
 
 export class DateRangeSlider extends AbstractSlider {
 

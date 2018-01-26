@@ -25,7 +25,7 @@ export namespace TileSource {
   }
 }
 
-export interface TileSource extends Model, TileSource.Attrs {}
+export interface TileSource extends TileSource.Attrs {}
 
 export abstract class TileSource extends Model {
 

@@ -158,7 +158,7 @@ export namespace MultiLine {
   }
 }
 
-export interface MultiLine extends Glyph, MultiLine.Attrs {}
+export interface MultiLine extends MultiLine.Attrs {}
 
 export class MultiLine extends Glyph {
 

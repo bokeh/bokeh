@@ -12,7 +12,7 @@ export namespace SaveTool {
   export interface Attrs extends ActionTool.Attrs {}
 }
 
-export interface SaveTool extends ActionTool, SaveTool.Attrs {}
+export interface SaveTool extends SaveTool.Attrs {}
 
 export class SaveTool extends ActionTool {
 

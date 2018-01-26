@@ -136,7 +136,7 @@ export namespace Tooltip {
   }
 }
 
-export interface Tooltip extends Annotation, Tooltip.Attrs {}
+export interface Tooltip extends Tooltip.Attrs {}
 
 export class Tooltip extends Annotation {
 

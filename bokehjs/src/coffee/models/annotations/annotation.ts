@@ -23,7 +23,7 @@ export namespace Annotation {
   }
 }
 
-export interface Annotation extends Renderer, Annotation.Attrs {
+export interface Annotation extends Annotation.Attrs {
   panel?: SidePanel
 }
 

@@ -23,7 +23,7 @@ export namespace ContinuousTicker {
   }
 }
 
-export interface ContinuousTicker extends Ticker<number>, ContinuousTicker.Attrs {}
+export interface ContinuousTicker extends ContinuousTicker.Attrs {}
 
 export abstract class ContinuousTicker extends Ticker<number> {
 

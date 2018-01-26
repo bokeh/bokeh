@@ -5,7 +5,7 @@ export namespace WMTSTileSource {
   export interface Attrs extends MercatorTileSource.Attrs {}
 }
 
-export interface WMTSTileSource extends MercatorTileSource, WMTSTileSource.Attrs {}
+export interface WMTSTileSource extends WMTSTileSource.Attrs {}
 
 export class WMTSTileSource extends MercatorTileSource {
 

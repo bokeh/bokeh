@@ -5,7 +5,7 @@ export namespace Expression {
   export interface Attrs extends Model.Attrs {}
 }
 
-export interface Expression extends Model, Expression.Attrs {}
+export interface Expression extends Expression.Attrs {}
 
 export abstract class Expression extends Model {
 

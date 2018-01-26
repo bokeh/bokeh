@@ -68,7 +68,7 @@ export namespace Quadratic {
   }
 }
 
-export interface Quadratic extends Glyph, Quadratic.Attrs {}
+export interface Quadratic extends Quadratic.Attrs {}
 
 export class Quadratic extends Glyph {
 

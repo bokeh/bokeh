@@ -15,7 +15,7 @@ export namespace GuideRenderer {
   export type Visuals = Renderer.Visuals
 }
 
-export interface GuideRenderer extends Renderer, GuideRenderer.Attrs {}
+export interface GuideRenderer extends GuideRenderer.Attrs {}
 
 export abstract class GuideRenderer extends Renderer {
 

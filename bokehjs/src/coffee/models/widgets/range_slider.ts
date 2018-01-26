@@ -24,7 +24,7 @@ export namespace RangeSlider {
   export interface Attrs extends AbstractSlider.Attrs {}
 }
 
-export interface RangeSlider extends AbstractSlider, RangeSlider.Attrs {}
+export interface RangeSlider extends RangeSlider.Attrs {}
 
 export class RangeSlider extends AbstractSlider {
 

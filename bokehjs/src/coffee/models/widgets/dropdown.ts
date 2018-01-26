@@ -98,7 +98,7 @@ export namespace Dropdown {
   }
 }
 
-export interface Dropdown extends AbstractButton, Dropdown.Attrs {}
+export interface Dropdown extends Dropdown.Attrs {}
 
 export class Dropdown extends AbstractButton {
 

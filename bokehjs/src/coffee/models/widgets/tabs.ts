@@ -72,7 +72,7 @@ export namespace Tabs {
   }
 }
 
-export interface Tabs extends Widget, Tabs.Attrs {}
+export interface Tabs extends Tabs.Attrs {}
 
 export class Tabs extends Widget {
 

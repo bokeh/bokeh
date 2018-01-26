@@ -5,7 +5,7 @@ export namespace LayoutProvider {
   export interface Attrs extends Model.Attrs {}
 }
 
-export interface LayoutProvider extends Model, LayoutProvider.Attrs {}
+export interface LayoutProvider extends LayoutProvider.Attrs {}
 
 export abstract class LayoutProvider extends Model {
 
