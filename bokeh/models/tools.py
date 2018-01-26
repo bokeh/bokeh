@@ -892,7 +892,7 @@ class EditTool(Tool):
     that may be edited.
     """)
 
-class BoxDrawTool(EditTool):
+class BoxDrawTool(EditTool, Drag, Tap):
     ''' *toolbar icon*: |box_draw_icon|
 
     The BoxDrawTool allows drawing, dragging and deleting ``Rect``
@@ -944,7 +944,7 @@ class BoxDrawTool(EditTool):
                                      for renderer in incompatible_renderers])
             return "%s glyph type(s) found." % glyph_types
 
-class PointDrawTool(EditTool):
+class PointDrawTool(EditTool, Drag, Tap):
     ''' *toolbar icon*: |point_draw_icon|
 
     The PointDrawTool allows adding, dragging and deleting point-like
@@ -995,7 +995,7 @@ class PointDrawTool(EditTool):
                                      for renderer in incompatible_renderers])
             return "%s glyph type(s) found." % glyph_types
 
-class PolyDrawTool(EditTool):
+class PolyDrawTool(EditTool, Drag, Tap):
     ''' *toolbar icon*: |poly_draw_icon|
 
     The PolyDrawTool allows drawing, selecting and deleting
@@ -1044,7 +1044,7 @@ class PolyDrawTool(EditTool):
             return "%s glyph type(s) found." % glyph_types
 
 
-class PolyEditTool(EditTool):
+class PolyEditTool(EditTool, Drag, Tap):
     ''' *toolbar icon*: |poly_edit_icon|
 
     The PolyEditTool allows editing the vertices of one or more
