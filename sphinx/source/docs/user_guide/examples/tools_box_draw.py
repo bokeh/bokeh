@@ -3,7 +3,8 @@ from bokeh.models import BoxDrawTool, ColumnDataSource
 
 output_file("tools_box_draw.html")
 
-p = figure(x_range=(0, 10), y_range=(0, 10), width=400, height=400)
+p = figure(x_range=(0, 10), y_range=(0, 10), width=400, height=400,
+           title='Box Draw Tool')
 
 src = ColumnDataSource({
     'x': [5, 2, 8], 'y': [5, 7, 8], 'width': [2, 1, 2],
@@ -12,6 +13,8 @@ src = ColumnDataSource({
 
 renderer = p.rect('x', 'y', 'width', 'height', source=src, alpha='alpha')
 
-p.add_tools(BoxDrawTool(renderers=[renderer], empty_value=1))
+draw_tool = BoxDrawTool(renderers=[renderer], empty_value=1)
+p.add_tools(draw_tool)
+p.toolbar.active_drag = draw_tool
 
 show(p)
