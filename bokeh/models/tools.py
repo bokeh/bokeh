@@ -1032,6 +1032,9 @@ class PolyDrawTool(EditTool, Drag, Tap):
         :height: 18pt
     '''
 
+    drag = Bool(default=True, help="""
+    Enables dragging of existing patches and multi-lines on pan events.""")
+
     @error(INCOMPATIBLE_POLY_DRAW_RENDERER)
     def _check_compatible_renderers(self):
         incompatible_renderers = []

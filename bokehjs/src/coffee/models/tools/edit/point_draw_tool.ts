@@ -59,10 +59,9 @@ export class PointDrawToolView extends EditToolView {
   }
 
   _pan_start(e: BkEv): void {
-    if (this.model.drag) {
-      this._select_event(e, true, this.model.renderers);
-      this._basepoint = [e.bokeh.sx, e.bokeh.sy];
-    }
+    if (!this.model.drag) { return; }
+    this._select_event(e, true, this.model.renderers);
+    this._basepoint = [e.bokeh.sx, e.bokeh.sy];
   }
 
   _pan(e: BkEv): void {
@@ -73,6 +72,7 @@ export class PointDrawToolView extends EditToolView {
   }
 
   _pan_end(e: BkEv): void {
+    if (!this.model.drag) { return; }
     this._pan(e);
     for (const renderer of this.model.renderers) {
       renderer.data_source.selected['1d'].indices = [];

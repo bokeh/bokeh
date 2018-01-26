@@ -115,12 +115,13 @@ export class PolyDrawToolView extends EditToolView {
   }
 
   _pan_start(e: BkEv): void {
+    if (!this.model.drag) { return; }
     this._select_event(e, true, this.model.renderers);
     this._basepoint = [e.bokeh.sx, e.bokeh.sy];
   }
 
   _pan(e: BkEv): void {
-    if (this._basepoint == null) { return; }
+    if (this._basepoint == null || !this.model.drag) { return; }
     const [bx, by] = this._basepoint;
     // Process polygon/line dragging
     for (const renderer of this.model.renderers) {
@@ -158,6 +159,7 @@ export class PolyDrawToolView extends EditToolView {
   }
 
   _pan_end(e: BkEv): void {
+    if (!this.model.drag) { return; }
     this._pan(e);
     for (const renderer of this.model.renderers) {
       renderer.data_source.selected['1d'].indices = [];
@@ -177,6 +179,7 @@ export class PolyDrawToolView extends EditToolView {
 
 
 export class PolyDrawTool extends EditTool {
+  drag: boolean
   renderers: (GlyphRenderer & HasCDS & HasPolyGlyph)[]
 
   tool_name = "Polygon Draw Tool"
@@ -188,3 +191,8 @@ export class PolyDrawTool extends EditTool {
 PolyDrawTool.prototype.type = "PolyDrawTool"
 
 PolyDrawTool.prototype.default_view = PolyDrawToolView
+
+
+PointDrawTool.define({
+  drag: [ p.Bool, true ],
+})
