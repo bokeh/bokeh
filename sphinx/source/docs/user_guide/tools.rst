@@ -3,24 +3,39 @@
 Configuring Plot Tools
 ======================
 
-Bokeh comes with a number of interactive tools. There are three categories of tool
-interactions:
+Bokeh comes with a number of interactive tools that can be used to report
+information, to change plot parameters such as zoom level or range extents,
+or to add, edit, or delete glyphs. Tools can be grouped into four basic
+categories:
 
-* Gestures:
+Gestures
+    These are tools that respond to single gestures, such as a pan movement.
+    The types of gesture tools are:
 
-  - :ref:`userguide_tools_pandrag`
-  - :ref:`userguide_tools_clicktap`
-  - :ref:`userguide_tools_scrollpinch`
+    - :ref:`userguide_tools_pandrag`
+    - :ref:`userguide_tools_clicktap`
+    - :ref:`userguide_tools_scrollpinch`
 
-* :ref:`userguide_tools_actions`
-* :ref:`userguide_tools_inspectors`
-* :ref:`userguide_tools_edit`
+    For each type of gesture, one tool can be active at any given time, and
+    the active tool is indicated on the toolbar by a highlight next to to the
+    tool icon.
 
-For each type of gesture, one tool can be active at any given time, and
-the active tool is indicated on the toolbar by a highlight next to to the
-tool icon. Actions are immediate or modal operations that are only activated
-when their button in the toolbar is pressed. Inspectors are passive tools
-that report information or annotate the plot in some way.
+:ref:`userguide_tools_actions`
+    These  are immediate or modal operations that are only activated when their
+    button in the toolbar is pressed, such as the ``ResetTool``.
+
+:ref:`userguide_tools_inspectors`
+    These are passive tools that report information or annotate plots in some
+    way, such as the ``HoverTool`` or ``CrosshairTool``.
+
+:ref:`userguide_tools_edit`
+    These are sophisticated multi-gesture tools that can add, delete, or modify
+    glyphs on a plot. Since they may respond to several gestures at once, an
+    edit tool will potentially deactivate multiple single-gesture tools at once
+    when it is activated.
+
+In addition to information about all the individual tools, this chapter
+describes how the toolbar may be configured.
 
 .. _userguide_tools_toolbar:
 
