@@ -22,34 +22,34 @@ export class GraphRendererView extends RendererView {
     [this.node_view, this.edge_view] = build_views(this._renderer_views,
       [this.model.node_renderer, this.model.edge_renderer], this.plot_view.view_options());
 
-    this.set_data(true);
+    this.set_data();
   }
 
   connect_signals(): void {
     super.connect_signals();
 
-    this.connect(this.model.layout_provider.change, () => this.set_data(true))
-    this.connect(this.model.node_renderer.data_source._select, () => this.set_data(true))
-    this.connect(this.model.node_renderer.data_source.inspect, () => this.set_data(true))
-    this.connect(this.model.node_renderer.data_source.change, () => this.set_data(true))
-    this.connect(this.model.edge_renderer.data_source._select, () => this.set_data(true))
-    this.connect(this.model.edge_renderer.data_source.inspect, () => this.set_data(true))
-    this.connect(this.model.edge_renderer.data_source.change, () => this.set_data(true))
+    this.connect(this.model.layout_provider.change, () => this.set_data())
+    this.connect(this.model.node_renderer.data_source._select, () => this.set_data())
+    this.connect(this.model.node_renderer.data_source.inspect, () => this.set_data())
+    this.connect(this.model.node_renderer.data_source.change, () => this.set_data())
+    this.connect(this.model.edge_renderer.data_source._select, () => this.set_data())
+    this.connect(this.model.edge_renderer.data_source.inspect, () => this.set_data())
+    this.connect(this.model.edge_renderer.data_source.change, () => this.set_data())
 
     const {x_ranges, y_ranges} = this.plot_model.frame
 
     for (const  name in x_ranges) {
       const rng = x_ranges[name];
-      this.connect(rng.change, () => this.set_data(true))
+      this.connect(rng.change, () => this.set_data())
     }
 
     for (const name in y_ranges) {
       const rng = y_ranges[name];
-      this.connect(rng.change, () => this.set_data(true))
+      this.connect(rng.change, () => this.set_data())
     }
   }
 
-  set_data(request_render: boolean) {
+  set_data(request_render: boolean = true) {
     // TODO (bev) this is a bit clunky, need to make sure glyphs use the correct ranges when they call
     // mapping functions on the base Renderer class
     if (request_render == null) { request_render = true; }
