@@ -1,5 +1,6 @@
 import * as p from "core/properties"
 import {PointGeometry} from "core/geometry"
+import {copy} from "core/util/array"
 import {XYGlyph} from "models/glyphs/xy_glyph"
 import {ColumnDataSource} from "models/sources/column_data_source"
 import {GlyphRenderer} from "models/renderers/glyph_renderer"
@@ -55,7 +56,11 @@ export abstract class EditToolView extends GestureToolView {
     const indices = cds.selected['1d'].indices;
     indices.sort()
     for (const column of cds.columns()) {
-      const values = cds.data[column];
+      let values = cds.data[column];
+      if ((values.splice == null)) {
+        // Convert typed arrays to regular arrays for editing
+        cds.data[column] = (values = copy(values));
+      }
       for (let index = 0; index < indices.length; index++) {
         const ind = indices[index];
         values.splice(ind-index, 1);
@@ -96,10 +101,10 @@ export abstract class EditToolView extends GestureToolView {
   _pad_empty_columns(cds: ColumnDataSource, coord_columns: string[]): void {
     // Pad ColumnDataSource non-coordinate columns with empty_value
     for (const column of cds.columns()) {
-      let values = cds.data[column];
       if (coord_columns.indexOf(column) === -1) {
+        let values = cds.data[column];
         if ((values.push == null)) {
-          cds.data[column] = (values = Array.prototype.slice.call(values));
+          cds.data[column] = (values = copy(values));
         }
         values.push(this.model.empty_value);
       }

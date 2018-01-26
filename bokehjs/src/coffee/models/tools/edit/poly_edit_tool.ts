@@ -1,5 +1,6 @@
 import {Keys} from "core/dom"
 import * as p from "core/properties"
+import {copy} from "core/util/array"
 import {MultiLine} from "models/glyphs/multi_line"
 import {Patches} from "models/glyphs/patches"
 import {GlyphRenderer} from "models/renderers/glyph_renderer"
@@ -68,7 +69,7 @@ export class PolyEditToolView extends EditToolView {
       let xs = ds.data[xkey][index];
       if ((xs.concat == null)) {
         // Convert typed arrays to regular arrays for editing
-        ds.data[xkey][index] = (xs = Array.prototype.slice.call(xs));
+        ds.data[xkey][index] = (xs = copy(xs));
       }
       if (pxkey) { point_ds.data[pxkey] = xs; }
     } else {
@@ -78,7 +79,7 @@ export class PolyEditToolView extends EditToolView {
       let ys = ds.data[ykey][index];
       // Convert typed arrays to regular arrays for editing
       if ((ys.concat == null)) {
-        ds.data[ykey][index] = (ys = Array.prototype.slice.call(ys));
+        ds.data[ykey][index] = (ys = copy(ys));
       }
       if (pykey) { point_ds.data[pykey] = ys; }
     } else {

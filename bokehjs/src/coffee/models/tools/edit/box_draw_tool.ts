@@ -1,5 +1,6 @@
 import {Keys} from "core/dom"
 import {Dimensions} from "core/enums"
+import {copy} from "core/util/array"
 import * as p from "core/properties"
 import {Rect} from "models/glyphs/rect"
 import {GlyphRenderer} from "models/renderers/glyph_renderer"
@@ -48,10 +49,34 @@ export class BoxDrawToolView extends EditToolView {
     const [xkey, ykey] = [glyph.x.field, glyph.y.field];
     const [wkey, hkey] = [glyph.width.field, glyph.height.field];
     if (append) {
-      if (xkey) { ds.data[xkey].push(x) }
-      if (ykey) { ds.data[ykey].push(y) }
-      if (wkey) { ds.data[wkey].push(w) }
-      if (hkey) { ds.data[hkey].push(h) }
+      if (xkey) {
+        let xs = ds.data[xkey];
+        if (xs.push == null) {
+          ds.data[xkey] = (xs = copy(xs));
+        }
+        xs.push(x)
+      }
+      if (ykey) {
+        let ys = ds.data[ykey];
+        if (ys.push == null) {
+          ds.data[ykey] = (ys = copy(ys));
+        }
+        ys.push(y)
+      }
+      if (wkey) {
+        let ws = ds.data[wkey];
+        if (ws.push == null) {
+          ds.data[wkey] = (ws = copy(ws));
+        }
+        ws.push(w)
+      }
+      if (hkey) {
+        let hs = ds.data[hkey];
+        if (hs.push == null) {
+          ds.data[hkey] = (hs = copy(hs));
+        }
+        hs.push(h)
+      }
       this._pad_empty_columns(ds, [xkey, ykey, wkey, hkey])
     } else {
       const index = ds.data[xkey].length-1;

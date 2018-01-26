@@ -1,5 +1,6 @@
 import {Keys} from "core/dom"
 import * as p from "core/properties"
+import {copy} from "core/util/array"
 import {GlyphRenderer} from "models/renderers/glyph_renderer"
 import {EditTool, EditToolView, HasCDS, HasXYGlyph, BkEv} from "./edit_tool"
 
@@ -28,14 +29,14 @@ export class PointDrawToolView extends EditToolView {
     if (xkey) {
       let xs = ds.data[xkey];
       if ((xs.push == null)) {
-        ds.data[xkey] = (xs = Array.prototype.slice.call(xs));
+        ds.data[xkey] = (xs = copy(xs));
       }
       xs.push(x);
     }
     if (ykey) {
       let ys = ds.data[ykey];
       if ((ys.push == null)) {
-        ds.data[ykey] = (ys = Array.prototype.slice.call(ys));
+        ds.data[ykey] = (ys = copy(ys));
       }
       ys.push(y);
     }

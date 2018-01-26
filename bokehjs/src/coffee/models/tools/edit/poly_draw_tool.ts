@@ -1,5 +1,6 @@
 import {Keys} from "core/dom"
 import * as p from "core/properties"
+import {copy} from "core/util/array"
 import {MultiLine} from "models/glyphs/multi_line"
 import {Patches} from "models/glyphs/patches"
 import {GlyphRenderer} from "models/renderers/glyph_renderer"
@@ -48,13 +49,21 @@ export class PolyDrawToolView extends EditToolView {
       }
     } else if (mode == 'add') {
       if (xkey) {
-        const xs = ds.data[xkey][ds.data[xkey].length-1];
+        const xidx = ds.data[xkey].length-1;
+        let xs = ds.data[xkey][xidx];
+        if (xs.push == null) {
+          ds.data[xkey][xidx] = (xs = copy(xs));
+        }
         const nx = xs[xs.length-1];
         xs[xs.length-1] = x;
         xs.push(nx);
       }
       if (ykey) {
-        const ys = ds.data[ykey][ds.data[ykey].length-1];
+        const yidx = ds.data[ykey].length-1;
+        let ys = ds.data[ykey][yidx];
+        if (ys.push == null) {
+          ds.data[ykey][yidx] = (ys = copy(ys));
+        }
         const ny = ys[ys.length-1];
         ys[ys.length-1] = y;
         ys.push(ny);
@@ -87,11 +96,20 @@ export class PolyDrawToolView extends EditToolView {
     const glyph: any = renderer.glyph;
     const [xkey, ykey] = [glyph.xs.field, glyph.ys.field];
     if (xkey) {
-      const xs = ds.data[xkey][ds.data[xkey].length-1];
+      const xidx = ds.data[xkey].length-1;
+      let xs = ds.data[xkey][xidx];
+      if (xs.splice == null) {
+          ds.data[xkey][xidx] = (xs = copy(xs));
+      }
       xs.splice(xs.length-1, 1);
     }
     if (ykey) {
-      const ys = ds.data[ykey][ds.data[ykey].length-1];
+      const yidx = ds.data[ykey].length-1;
+      let ys = ds.data[ykey][yidx];
+      if (ys.push == null) {
+          ds.data[ykey][yidx] = (ys = copy(ys));
+        }
+
       ys.splice(ys.length-1, 1);
     }
     ds.change.emit(undefined)
