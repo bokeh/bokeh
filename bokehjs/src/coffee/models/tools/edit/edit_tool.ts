@@ -51,7 +51,7 @@ export abstract class EditToolView extends GestureToolView {
 
   _delete_selected(renderer: GlyphRenderer & HasCDS): void {
     // Deletes all selected rows in the ColumnDataSource
-    const cds = renderer.data_source;
+    const cds: any = renderer.data_source;
     const indices = cds.selected['1d'].indices;
     indices.sort()
     for (const column of cds.columns()) {
@@ -61,10 +61,9 @@ export abstract class EditToolView extends GestureToolView {
         values.splice(ind-index, 1);
       }
     }
-    cds.selected['1d'].indices = [];
     cds.change.emit(undefined);
     cds.properties.data.change.emit(undefined);
-    cds.properties.selected.change.emit(undefined);
+    cds.selection_manager.clear();
   }
 
   _drag_points(e: BkEv, renderers: (GlyphRenderer & HasCDS & HasXYGlyph)[]): void {
