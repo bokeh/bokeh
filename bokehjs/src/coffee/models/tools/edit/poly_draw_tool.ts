@@ -1,4 +1,5 @@
 import {Keys} from "core/dom"
+import * as p from "core/properties"
 import {MultiLine} from "models/glyphs/multi_line"
 import {Patches} from "models/glyphs/patches"
 import {GlyphRenderer} from "models/renderers/glyph_renderer"
@@ -192,7 +193,6 @@ PolyDrawTool.prototype.type = "PolyDrawTool"
 
 PolyDrawTool.prototype.default_view = PolyDrawToolView
 
-
-PointDrawTool.define({
+PolyDrawTool.define({
   drag: [ p.Bool, true ],
 })
