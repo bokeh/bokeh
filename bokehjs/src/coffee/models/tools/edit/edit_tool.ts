@@ -28,6 +28,15 @@ export interface HasXYGlyph {
 export abstract class EditToolView extends GestureToolView {
   model: EditTool
   _basepoint: [number, number] | null
+  _mouse_in_frame: boolean = true
+
+  _move_enter(_e: BkEv): void {
+    this._mouse_in_frame = true;
+  }
+
+  _move_exit(_e: BkEv): void {
+	this._mouse_in_frame = false;
+  }
 
   _map_drag(sx: number, sy: number, renderer: GlyphRenderer): [number, number] | null {
     // Maps screen to data coordinates

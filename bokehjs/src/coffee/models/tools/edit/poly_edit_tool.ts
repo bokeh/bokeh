@@ -118,7 +118,7 @@ export class PolyEditToolView extends EditToolView {
   }
 
   _keyup(e: BkEv): void {
-    if (!this.model.active) { return; }
+    if (!this.model.active || !this._mouse_in_frame) { return; }
     let renderers;
     if (this._selected_renderer) {
       renderers = [this.model.vertex_renderer]
@@ -126,7 +126,7 @@ export class PolyEditToolView extends EditToolView {
       renderers = this.model.renderers
     }
     for (const renderer of renderers) {
-      if (e.keyCode === Keys.Delete) {
+      if (e.keyCode === Keys.Backspace) {
         this._delete_selected(renderer);
       } else if (e.keyCode == Keys.Esc) {
         // Type once selection_manager is typed
@@ -156,7 +156,7 @@ export class PolyEditTool extends EditTool {
 
   tool_name = "Poly Edit Tool"
   icon = "bk-tool-icon-poly-edit"
-  event_type = ["tap", "pan"]
+  event_type = ["tap", "pan", "move"]
   default_order = 12
 }
 

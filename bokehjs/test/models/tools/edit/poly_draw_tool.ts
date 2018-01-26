@@ -9,7 +9,8 @@ import {Plot} from "models/plots/plot"
 import {Range1d} from "models/ranges/range1d"
 import {GlyphRenderer} from "models/renderers/glyph_renderer"
 import {ColumnDataSource} from "models/sources/column_data_source"
-import {PolyDrawTool, PolyDrawToolView, BkEv} from "models/tools/edit/poly_draw_tool"
+import {BkEv} from "models/tools/edit/edit_tool"
+import {PolyDrawTool, PolyDrawToolView} from "models/tools/edit/poly_draw_tool"
 
 const utils = require("../../../utils")
 
@@ -122,7 +123,8 @@ describe("PolyDrawTool", (): void => {
       const tap_event = make_event(300, 300);
       testcase.draw_tool_view._tap(tap_event);
 
-      const keyup_event = make_event(300, 300, false, Keys.Delete);
+      const keyup_event = make_event(300, 300, false, Keys.Backspace);
+      testcase.draw_tool_view._move_enter(keyup_event);
       testcase.draw_tool_view._keyup(keyup_event);
 
       expect(testcase.data_source.selected['1d'].indices).to.be.deep.equal([]);
@@ -140,6 +142,7 @@ describe("PolyDrawTool", (): void => {
       testcase.draw_tool_view._tap(tap_event);
 
       const keyup_event = make_event(300, 300, false, Keys.Esc);
+      testcase.draw_tool_view._move_enter(keyup_event);
       testcase.draw_tool_view._keyup(keyup_event);
 
       expect(testcase.data_source.selected['1d'].indices).to.be.deep.equal([]);
@@ -210,6 +213,7 @@ describe("PolyDrawTool", (): void => {
       hit_test_stub.returns(null);
       testcase.draw_tool_view._doubletap(make_event(300, 300));
       testcase.draw_tool_view._tap(make_event(250, 250));
+      testcase.draw_tool_view._move_enter(make_event(0, 0));
       testcase.draw_tool_view._keyup(make_event(200, 200, false, Keys.Esc));
 
       const new_xs = [0.04424778761061947, -0.13274336283185842];

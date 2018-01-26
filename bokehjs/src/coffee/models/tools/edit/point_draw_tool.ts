@@ -46,9 +46,9 @@ export class PointDrawToolView extends EditToolView {
   }
 
   _keyup(e: BkEv): void {
-    if (!this.model.active) { return; }
+    if (!this.model.active || !this._mouse_in_frame) { return; }
     for (const renderer of this.model.renderers) {
-      if (e.keyCode === Keys.Delete) {
+      if (e.keyCode === Keys.Backspace) {
         this._delete_selected(renderer);
       } else if (e.keyCode == Keys.Esc) {
         // Type once selection_manager is typed
@@ -90,7 +90,7 @@ export class PointDrawTool extends EditTool {
 
   tool_name = "Point Draw Tool"
   icon = "bk-tool-icon-point-draw"
-  event_type = ["tap", "pan"]
+  event_type = ["tap", "pan", "move"]
   default_order = 12
 }
 

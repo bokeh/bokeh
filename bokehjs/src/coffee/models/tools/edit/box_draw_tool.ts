@@ -20,9 +20,9 @@ export class BoxDrawToolView extends EditToolView {
   }
 
   _keyup(e: BkEv): void {
-    if (!this.model.active) { return; }
+    if (!this.model.active || !this._mouse_in_frame) { return; }
     for (const renderer of this.model.renderers) {
-      if (e.keyCode === Keys.Delete) {
+      if (e.keyCode === Keys.Backspace) {
         this._delete_selected(renderer);
       } else if (e.keyCode == Keys.Esc) {
         // Type properly once selection_manager is typed
@@ -112,7 +112,7 @@ export class BoxDrawTool extends EditTool {
 
   tool_name = "Box Draw Tool"
   icon = "bk-tool-icon-box-draw"
-  event_type = ["tap", "pan"]
+  event_type = ["tap", "pan", "move"]
   default_order = 30
 }
 

@@ -127,7 +127,8 @@ describe("BoxDrawTool", () =>
       const tap_event = make_event(300, 300);
       testcase.draw_tool_view._tap(tap_event);
 
-      const keyup_event = make_event(300, 300, false, Keys.Delete);
+      const keyup_event = make_event(300, 300, false, Keys.Backspace);
+      testcase.draw_tool_view._move_enter(keyup_event);
       testcase.draw_tool_view._keyup(keyup_event);
 
       expect(testcase.data_source.selected['1d'].indices).to.be.deep.equal([]);
@@ -145,6 +146,7 @@ describe("BoxDrawTool", () =>
       testcase.draw_tool_view._tap(tap_event);
 
       const keyup_event = make_event(300, 300, false, Keys.Esc);
+      testcase.draw_tool_view._move_enter(keyup_event);
       testcase.draw_tool_view._keyup(keyup_event);
 
       expect(testcase.data_source.selected['1d'].indices).to.be.deep.equal([]);
@@ -187,7 +189,7 @@ describe("BoxDrawTool", () =>
       expect(testcase.draw_tool_view._basepoint).to.be.deep.equal([300, 300]);
       drag_event = make_event(200, 200, true);
       testcase.draw_tool_view._pan(drag_event,);
-      expect(testcase.draw_tool_view._basepoint).to.be.deep.equal([200, 200]);
+      expect(testcase.draw_tool_view._basepoint).to.be.deep.equal([300, 300]);
       testcase.draw_tool_view._pan_end(drag_event);
 
       expect(testcase.draw_tool_view._basepoint).to.be.equal(null);

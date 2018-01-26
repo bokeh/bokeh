@@ -98,9 +98,9 @@ export class PolyDrawToolView extends EditToolView {
   }
 
   _keyup(e: BkEv): void {
-    if (!this.model.active) { return; }
+    if (!this.model.active || !this._mouse_in_frame) { return; }
     for (const renderer of this.model.renderers) {
-      if (e.keyCode === Keys.Delete) {
+      if (e.keyCode === Keys.Backspace) {
         this._delete_selected(renderer);
       } else if (e.keyCode == Keys.Esc) {
         // Type once selection_manager is typed

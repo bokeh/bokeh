@@ -10,7 +10,8 @@ import {Plot} from "models/plots/plot"
 import {Range1d} from "models/ranges/range1d"
 import {GlyphRenderer} from "models/renderers/glyph_renderer"
 import {ColumnDataSource} from "models/sources/column_data_source"
-import {PolyEditTool, PolyEditToolView, BkEv} from "models/tools/edit/poly_edit_tool"
+import {BkEv} from "models/tools/edit/edit_tool"
+import {PolyEditTool, PolyEditToolView} from "models/tools/edit/poly_edit_tool"
 
 const utils = require("../../../utils")
 
@@ -160,7 +161,8 @@ describe("PolyEditTool", (): void => {
       const tap_event = make_event(300, 300);
       testcase.draw_tool_view._tap(tap_event);
 
-      const keyup_event = make_event(300, 300, false, Keys.Delete);
+      const keyup_event = make_event(300, 300, false, Keys.Backspace);
+      testcase.draw_tool_view._move_enter(keyup_event);
       testcase.draw_tool_view._keyup(keyup_event);
 
       expect(testcase.data_source.selected['1d'].indices).to.be.deep.equal([]);
@@ -180,6 +182,7 @@ describe("PolyEditTool", (): void => {
       testcase.draw_tool_view._tap(tap_event);
 
       const keyup_event = make_event(300, 300, false, Keys.Esc);
+      testcase.draw_tool_view._move_enter(keyup_event);
       testcase.draw_tool_view._keyup(keyup_event);
 
       expect(testcase.data_source.selected['1d'].indices).to.be.deep.equal([]);
@@ -229,7 +232,8 @@ describe("PolyEditTool", (): void => {
       vertex_hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
       testcase.draw_tool_view._tap(tap_event);
 
-      const keyup_event = make_event(300, 300, false, Keys.Delete);
+      const keyup_event = make_event(300, 300, false, Keys.Backspace);
+      testcase.draw_tool_view._move_enter(keyup_event);
       testcase.draw_tool_view._keyup(keyup_event);
 
       expect(testcase.vertex_source.selected['1d'].indices).to.be.deep.equal([]);
