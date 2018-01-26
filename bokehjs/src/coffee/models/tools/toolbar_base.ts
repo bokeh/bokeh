@@ -111,6 +111,7 @@ export class ToolbarBase extends Model {
         doubletap: { tools: [], active: null },
         press:     { tools: [], active: null },
         rotate:    { tools: [], active: null },
+        move:      { tools: [], active: null },
         multi:     { tools: [], active: null},
       })  ],
       actions:    [ p.Array, [] ],

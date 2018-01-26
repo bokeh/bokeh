@@ -180,6 +180,10 @@ export class UIEvents {
 
     switch (base_type) {
       case "move": {
+        const active_gesture = this.toolbar.gestures[base_type].active;
+        if (active_gesture != null)
+          this.trigger(signal, e, active_gesture.id);
+
         const active_inspectors = this.toolbar.inspectors.filter(t => t.active);
         let cursor = "default";
 
