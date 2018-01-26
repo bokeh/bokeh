@@ -138,16 +138,23 @@ export abstract class EditToolView extends GestureToolView {
   }
 }
 
-export abstract class EditTool extends GestureTool {
-  empty_value: any
-  renderers: (GlyphRenderer & HasCDS)[]
+export namespace EditTool {
+  export interface Attrs extends GestureTool.Attrs {
+    empty_value: any
+    renderers: (GlyphRenderer & HasCDS)[]
+  }
 }
 
-EditTool.prototype.type = "EditTool"
+export interface EditTool extends EditTool.Attrs {}
 
-// EditTool.prototype.default_view = null
+export abstract class EditTool extends GestureTool {
+  static initClass() {
+    this.prototype.type = "EditTool"
 
-EditTool.define({
-  empty_value: [ p.Any ],
-  renderers:   [ p.Array, [] ],
-})
+    this.define({
+      empty_value: [ p.Any       ],
+      renderers:   [ p.Array, [] ],
+    })
+  }
+}
+EditTool.initClass()

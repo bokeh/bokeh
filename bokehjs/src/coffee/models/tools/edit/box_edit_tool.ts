@@ -130,21 +130,31 @@ export class BoxEditToolView extends EditToolView {
   }
 }
 
+export namespace BoxEditTool {
+  export interface Attrs extends EditTool.Attrs {
+    dimensions: Dimensions
+    renderers: (GlyphRenderer & HasRectCDS)[]
+  }
+}
+
+export interface BoxEditTool extends BoxEditTool.Attrs {}
 
 export class BoxEditTool extends EditTool {
-  dimensions: Dimensions
+
   renderers: (GlyphRenderer & HasRectCDS)[]
+
+  static initClass() {
+    this.prototype.type = "BoxEditTool"
+    this.prototype.default_view = BoxEditToolView
+
+    this.define({
+      dimensions: [ p.Dimensions, "both" ],
+    })
+  }
 
   tool_name = "Box Draw Tool"
   icon = "bk-tool-icon-box-edit"
   event_type = ["tap", "pan", "move"]
   default_order = 30
 }
-
-BoxEditTool.prototype.type = "BoxEditTool"
-
-BoxEditTool.prototype.default_view = BoxEditToolView
-
-BoxEditTool.define({
-  dimensions: [ p.Dimensions, "both"],
-})
+BoxEditTool.initClass()

@@ -83,23 +83,33 @@ export class PointDrawToolView extends EditToolView {
   }
 }
 
+export namespace PointDrawTool {
+  export interface Attrs extends EditTool.Attrs {
+    add: boolean
+    drag: boolean
+    renderers: (GlyphRenderer & HasCDS & HasXYGlyph)[]
+  }
+}
+
+export interface PointDrawTool extends PointDrawTool.Attrs {}
 
 export class PointDrawTool extends EditTool {
-  add: boolean
-  drag: boolean
+
   renderers: (GlyphRenderer & HasCDS & HasXYGlyph)[]
+
+  static initClass() {
+    this.prototype.type = "PointDrawTool"
+    this.prototype.default_view = PointDrawToolView
+
+    this.define({
+      add:  [ p.Bool, true ],
+      drag: [ p.Bool, true ],
+    })
+  }
 
   tool_name = "Point Draw Tool"
   icon = "bk-tool-icon-point-draw"
   event_type = ["tap", "pan", "move"]
   default_order = 12
 }
-
-PointDrawTool.prototype.type = "PointDrawTool"
-
-PointDrawTool.prototype.default_view = PointDrawToolView
-
-PointDrawTool.define({
-  add:  [ p.Bool, true ],
-  drag: [ p.Bool, true ],
-})
+PointDrawTool.initClass()
