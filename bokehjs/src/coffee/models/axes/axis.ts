@@ -187,7 +187,7 @@ export class AxisView extends GuideRendererView {
     if (!visuals.doit || labels.length == 0)
       return
 
-    let sxs, sys: number[]
+    let sxs, sys: ArrayLike<number>
     let xoff, yoff: number
 
     if (units == "screen") {

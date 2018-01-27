@@ -44,7 +44,11 @@ export type FrameBox = [number, number, number, number]
 export class PlotCanvasView extends DOMView {
   model: PlotCanvas
 
+  frame: CartesianFrame
+
+  canvas: Canvas
   canvas_view: CanvasView
+
   state_changed: Signal<void, this>
   renderer_views: {[key: string]: RendererView}
 
@@ -297,7 +301,8 @@ export class PlotCanvasView extends DOMView {
     return this.range_update_timestamp = Date.now();
   }
 
-  map_to_screen(x, y, x_name = 'default', y_name = 'default') {
+  map_to_screen(x: number[] | Float64Array, y: number[] | Float64Array,
+                x_name: string = "default", y_name: string = "default"): [Float64Array, Float64Array] {
     return this.frame.map_to_screen(x, y, x_name, y_name);
   }
 
