@@ -1,7 +1,7 @@
 /* XXX: partial */
 import {XYGlyph, XYGlyphView} from "./xy_glyph";
 import {DistanceSpec, AngleSpec} from "core/vectorization"
-import {RadiusDimension} from "core/enums"
+import {Dimension} from "core/enums"
 import * as hittest from "core/hittest";
 import * as p from "core/properties"
 import {range, map} from "core/util/array"
@@ -227,7 +227,7 @@ export namespace Circle {
     angle: AngleSpec
     size: DistanceSpec
     radius: DistanceSpec | null
-    radius_dimension: RadiusDimension
+    radius_dimension: Dimension
   }
 }
 

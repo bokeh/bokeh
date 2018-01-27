@@ -69,6 +69,7 @@ export const
   style    = _createElement("style"),
   a        = _createElement("a"),
   p        = _createElement("p"),
+  i        = _createElement("i" as any), // XXX: TypeScript 2.7
   pre      = _createElement("pre"),
   button   = _createElement("button"),
   label    = _createElement("label"),

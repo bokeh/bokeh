@@ -77,11 +77,11 @@ export const TextBaseline: TextBaseline[] = ["top", "middle", "bottom", "alphabe
 export type TooltipAttachment = "horizontal" | "vertical" | "left" | "right" | "above" | "below"
 export const TooltipAttachment: TooltipAttachment[] = ["horizontal", "vertical", "left", "right", "above", "below"]
 
-export type DistributionTypes = "uniform" | "normal"
-export const DistributionTypes: DistributionTypes[] = ["uniform", "normal"]
+export type Distribution = "uniform" | "normal"
+export const Distribution: Distribution[] = ["uniform", "normal"]
 
-export type StepModes = "after" | "before" | "center"
-export const StepModes: StepModes[] = ["after", "before", "center"]
+export type StepMode = "after" | "before" | "center"
+export const StepMode: StepMode[] = ["after", "before", "center"]
 
 export type SizingMode = "stretch_both" | "scale_width" | "scale_height" | "scale_both" | "fixed"
 export const SizingMode: SizingMode[] = ["stretch_both", "scale_width", "scale_height", "scale_both", "fixed"]
