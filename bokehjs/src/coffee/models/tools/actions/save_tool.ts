@@ -1,7 +1,6 @@
 import {ActionTool, ActionToolView} from "./action_tool"
 
 export class SaveToolView extends ActionToolView {
-
   model: SaveTool
 
   doit(): void {
@@ -9,11 +8,16 @@ export class SaveToolView extends ActionToolView {
   }
 }
 
+export namespace SaveTool {
+  export interface Attrs extends ActionTool.Attrs {}
+}
+
+export interface SaveTool extends SaveTool.Attrs {}
+
 export class SaveTool extends ActionTool {
 
   static initClass() {
     this.prototype.type = "SaveTool"
-
     this.prototype.default_view = SaveToolView
   }
 

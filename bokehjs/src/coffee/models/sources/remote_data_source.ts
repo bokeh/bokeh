@@ -2,10 +2,16 @@
 import {ColumnDataSource} from "./column_data_source"
 import * as p from "core/properties"
 
-export class RemoteDataSource extends ColumnDataSource {
+export namespace RemoteDataSource {
+  export interface Attrs extends ColumnDataSource.Attrs {
+    data_url: string
+    polling_interval: number
+  }
+}
 
-  data_url: string
-  polling_interval: number
+export interface RemoteDataSource extends RemoteDataSource.Attrs {}
+
+export class RemoteDataSource extends ColumnDataSource {
 
   static initClass() {
     this.prototype.type = 'RemoteDataSource'

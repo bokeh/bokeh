@@ -1,13 +1,13 @@
 /* XXX: partial */
-/*
- * decaffeinate suggestions:
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
-
 import {Model} from "../../model"
 
-export class Transform extends Model {
+export namespace Transform {
+  export interface Attrs extends Model.Attrs {}
+}
+
+export interface Transform extends Transform.Attrs {}
+
+export abstract class Transform extends Model {
 
   // default implementation based on compute
   v_compute(xs) {

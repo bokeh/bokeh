@@ -3,6 +3,7 @@ import {XYGlyph, XYGlyphView} from "./xy_glyph";
 import * as hittest from "core/hittest"
 
 export class LineView extends XYGlyphView {
+  model: Line
 
   _render(ctx, indices, {sx, sy}) {
     let drawing = false;
@@ -127,11 +128,18 @@ export class LineView extends XYGlyphView {
   }
 }
 
-export class Line extends XYGlyph {
-  static initClass() {
-    this.prototype.default_view = LineView;
+export namespace Line {
+  export interface Attrs extends XYGlyph.Attrs {
+  }
+}
 
+export interface Line extends Line.Attrs {}
+
+export class Line extends XYGlyph {
+
+  static initClass() {
     this.prototype.type = 'Line';
+    this.prototype.default_view = LineView;
 
     this.mixins(['line']);
   }

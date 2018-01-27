@@ -1,9 +1,11 @@
 /* XXX: partial */
 import {XYGlyph, XYGlyphView} from "./xy_glyph";
+import {DistanceSpec, NumberSpec} from "core/vectorization"
 import * as p from "core/properties";
 import {max, concat} from "core/util/array"
 
 export class ImageRGBAView extends XYGlyphView {
+  model: ImageRGBA
 
   _set_data(_source, indices) {
     if ((this.image_data == null) || (this.image_data.length !== this._image.length)) {
@@ -113,17 +115,28 @@ export class ImageRGBAView extends XYGlyphView {
   }
 }
 
+export namespace ImageRGBA {
+  export interface Attrs extends XYGlyph.Attrs {
+    image:  NumberSpec
+    dw: DistanceSpec
+    dh: DistanceSpec
+    dilate: boolean
+  }
+}
+
+export interface ImageRGBA extends ImageRGBA.Attrs {}
+
 export class ImageRGBA extends XYGlyph {
+
   static initClass() {
+    this.prototype.type = 'ImageRGBA';
     this.prototype.default_view = ImageRGBAView;
 
-    this.prototype.type = 'ImageRGBA';
-
     this.define({
-        image:  [ p.NumberSpec       ], // TODO (bev) array spec?
-        dw:     [ p.DistanceSpec     ],
-        dh:     [ p.DistanceSpec     ],
-        dilate: [ p.Bool,      false ],
+      image:  [ p.NumberSpec       ], // TODO (bev) array spec?
+      dw:     [ p.DistanceSpec     ],
+      dh:     [ p.DistanceSpec     ],
+      dilate: [ p.Bool,      false ],
     });
   }
 }

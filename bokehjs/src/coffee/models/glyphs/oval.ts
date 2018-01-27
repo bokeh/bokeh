@@ -1,8 +1,10 @@
 /* XXX: partial */
 import {XYGlyph, XYGlyphView} from "./xy_glyph";
+import {DistanceSpec, AngleSpec} from "core/vectorization"
 import * as p from "core/properties"
 
 export class OvalView extends XYGlyphView {
+  model: Oval
 
   _set_data() {
     this.max_w2 = 0;
@@ -86,18 +88,28 @@ export class OvalView extends XYGlyphView {
   }
 }
 
-export class Oval extends XYGlyph {
-  static initClass() {
-    this.prototype.default_view = OvalView;
+export namespace Oval {
+  export interface Attrs extends XYGlyph.Attrs {
+    angle: AngleSpec
+    width: DistanceSpec
+    height: DistanceSpec
+  }
+}
 
+export interface Oval extends Oval.Attrs {}
+
+export class Oval extends XYGlyph {
+
+  static initClass() {
     this.prototype.type = 'Oval';
+    this.prototype.default_view = OvalView;
 
     this.mixins(['line', 'fill']);
     this.define({
-        angle:  [ p.AngleSpec,   0.0 ],
-        width:  [ p.DistanceSpec     ],
-        height: [ p.DistanceSpec     ],
-      });
+      angle:  [ p.AngleSpec,   0.0 ],
+      width:  [ p.DistanceSpec     ],
+      height: [ p.DistanceSpec     ],
+    });
   }
 }
 Oval.initClass();

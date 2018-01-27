@@ -7,9 +7,7 @@ import {Context2d} from "core/util/canvas"
 import {isArray} from "core/util/types"
 
 export class GridView extends GuideRendererView {
-
   model: Grid
-
   visuals: Grid.Visuals
 
   protected get _x_range_name(): string {
@@ -79,11 +77,28 @@ export class GridView extends GuideRendererView {
   }
 }
 
+export namespace Grid {
+  export interface Attrs extends GuideRenderer.Attrs {
+    bounds: [number, number] | "auto"
+    dimension: 0 | 1
+    ticker: Ticker<any>
+    x_range_name: string
+    y_range_name: string
+  }
+
+  export type Visuals = GuideRenderer.Visuals & {
+    grid_line: Line
+    minor_grid_line: Line
+    band_fill: Fill
+  }
+}
+
+export interface Grid extends Grid.Attrs {}
+
 export class Grid extends GuideRenderer {
 
   static initClass() {
     this.prototype.type = "Grid"
-
     this.prototype.default_view = GridView
 
     this.mixins(['line:grid_', 'line:minor_grid_', 'fill:band_'])
@@ -104,12 +119,6 @@ export class Grid extends GuideRenderer {
       minor_grid_line_color: null,
     })
   }
-
-  bounds: [number, number] | "auto"
-  dimension: 0 | 1
-  ticker: Ticker<any>
-  x_range_name: string
-  y_range_name: string
 
   ranges(): [Range, Range] {
     const i = this.dimension
@@ -191,13 +200,4 @@ export class Grid extends GuideRenderer {
     return coords
   }
 }
-
 Grid.initClass()
-
-export module Grid {
-  export type Visuals = GuideRenderer.Visuals & {
-    grid_line: Line
-    minor_grid_line: Line
-    band_fill: Fill
-  }
-}

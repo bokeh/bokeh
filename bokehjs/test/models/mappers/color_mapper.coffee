@@ -38,6 +38,7 @@ describe "ColorMapper module", ->
 
       spy.restore()
 
+  ### XXX: ColorMapper is an abstract class, so _get_values() isn't defined yet.
   describe "ColorMapper.v_map_screen method", ->
     it "should call get_values with data and palette", ->
       spy = sinon.spy(ColorMapper.prototype, "_get_values")
@@ -63,3 +64,4 @@ describe "ColorMapper module", ->
       @color_mapper.v_compute(data)
       expect(spy.withArgs(data, palette).calledOnce).to.be.true
       spy.restore()
+  ###

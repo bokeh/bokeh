@@ -4,17 +4,27 @@ import * as p from "core/properties";
 import {logger} from "core/logging"
 import {range} from "core/util/array"
 
+export namespace GroupFilter {
+  export interface Attrs extends Filter.Attrs {
+    column_name: string
+    group: string
+  }
+}
+
+export interface GroupFilter extends GroupFilter.Attrs {}
+
 export class GroupFilter extends Filter {
+
   static initClass() {
     this.prototype.type = 'GroupFilter';
 
     this.define({
-      column_name:  [ p.String  ],
-      group:        [ p.String  ],
+      column_name: [ p.String  ],
+      group:       [ p.String  ],
     });
   }
 
-  compute_indices(source) {
+  compute_indices(source): any {
     const column = source.get_column(this.column_name);
     if ((column == null)) {
       logger.warn("group filter: groupby column not found in data source");

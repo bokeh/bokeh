@@ -10,6 +10,15 @@ export class InputWidgetView extends WidgetView {
   }
 }
 
+export namespace InputWidget {
+  export interface Attrs extends Widget.Attrs {
+    title: string
+    callback: any | null // TODO
+  }
+}
+
+export interface InputWidget extends InputWidget.Attrs {}
+
 export class InputWidget extends Widget {
 
   static initClass() {
@@ -21,9 +30,6 @@ export class InputWidget extends Widget {
       callback: [ p.Instance   ],
     })
   }
-
-  title: string
-  callback: any | null // TODO
 }
 
 InputWidget.initClass()

@@ -1,9 +1,11 @@
 /* XXX: partial */
 import {XYGlyph, XYGlyphView} from "./xy_glyph";
+import {NumberSpec, StringSpec, AngleSpec} from "core/vectorization"
 import * as p from "core/properties";
 import {get_text_height} from "core/util/text"
 
 export class TextView extends XYGlyphView {
+  model: Text
 
   _render(ctx, indices, {sx, sy, _x_offset, _y_offset, _angle, _text}) {
     for (const i of indices) {
@@ -66,10 +68,22 @@ export class TextView extends XYGlyphView {
   }
 }
 
+export namespace Text {
+  export interface Attrs extends XYGlyph.Attrs {
+    text: StringSpec
+    angle: AngleSpec
+    x_offset: NumberSpec
+    y_offset: NumberSpec
+  }
+}
+
+export interface Text extends Text.Attrs {}
+
 export class Text extends XYGlyph {
+
   static initClass() {
-    this.prototype.default_view = TextView;
     this.prototype.type = 'Text';
+    this.prototype.default_view = TextView;
 
     this.mixins(['text']);
     this.define({

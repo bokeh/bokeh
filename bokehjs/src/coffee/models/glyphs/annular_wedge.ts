@@ -1,10 +1,13 @@
 /* XXX: partial */
 import {XYGlyph, XYGlyphView} from "./xy_glyph";
+import {DistanceSpec, AngleSpec} from "core/vectorization"
+import {Direction} from "core/enums"
 import * as hittest from "core/hittest";
 import * as p from "core/properties";
 import {angle_between} from "core/util/math"
 
 export class AnnularWedgeView extends XYGlyphView {
+  model: AnnularWedge
 
   _map_data(): void {
     if (this.model.properties.inner_radius.units === "data")
@@ -121,20 +124,32 @@ export class AnnularWedgeView extends XYGlyphView {
   scy(i) { return this._scxy(i).y; }
 }
 
-export class AnnularWedge extends XYGlyph {
-  static initClass() {
-    this.prototype.default_view = AnnularWedgeView;
+export namespace AnnularWedge {
+  export interface Attrs extends XYGlyph.Attrs {
+    direction: Direction
+    inner_radius: DistanceSpec
+    outer_radius: DistanceSpec
+    start_angle: AngleSpec
+    end_angle:  AngleSpec
+  }
+}
 
+export interface AnnularWedge extends AnnularWedge.Attrs {}
+
+export class AnnularWedge extends XYGlyph {
+
+  static initClass() {
     this.prototype.type = 'AnnularWedge';
+    this.prototype.default_view = AnnularWedgeView;
 
     this.mixins(['line', 'fill']);
     this.define({
-        direction:    [ p.Direction,   'anticlock' ],
-        inner_radius: [ p.DistanceSpec             ],
-        outer_radius: [ p.DistanceSpec             ],
-        start_angle:  [ p.AngleSpec                ],
-        end_angle:    [ p.AngleSpec                ],
-      });
+      direction:    [ p.Direction,   'anticlock' ],
+      inner_radius: [ p.DistanceSpec             ],
+      outer_radius: [ p.DistanceSpec             ],
+      start_angle:  [ p.AngleSpec                ],
+      end_angle:    [ p.AngleSpec                ],
+    });
   }
 }
 AnnularWedge.initClass();

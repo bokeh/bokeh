@@ -1,9 +1,20 @@
 /* XXX: partial */
 import {Widget} from "../widget";
+import {DataSource} from "../../sources/data_source";
 import {CDSView} from "../../sources/cds_view";
 import * as p from "core/properties"
 
+export namespace TableWidget {
+  export interface Attrs extends Widget.Attrs {
+    source: DataSource
+    view: CDSView
+  }
+}
+
+export interface TableWidget extends TableWidget.Attrs {}
+
 export class TableWidget extends Widget {
+
   static initClass() {
     this.prototype.type = "TableWidget";
 

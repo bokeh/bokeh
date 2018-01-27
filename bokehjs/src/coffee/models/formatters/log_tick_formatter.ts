@@ -1,10 +1,20 @@
 /* XXX: partial */
-import {BasicTickFormatter} from "./basic_tick_formatter";
 import {TickFormatter} from "./tick_formatter";
+import {BasicTickFormatter} from "./basic_tick_formatter";
+import {LogTicker} from "../tickers/log_ticker"
 import {logger} from "core/logging";
 import * as p from "core/properties"
 
+export namespace LogTickFormatter {
+  export interface Attrs extends TickFormatter.Attrs {
+    ticker: LogTicker | null
+  }
+}
+
+export interface LogTickFormatter extends LogTickFormatter.Attrs {}
+
 export class LogTickFormatter extends TickFormatter {
+
   static initClass() {
     this.prototype.type = 'LogTickFormatter';
 

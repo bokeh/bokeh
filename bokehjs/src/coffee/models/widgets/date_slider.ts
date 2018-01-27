@@ -20,6 +20,12 @@ export class DateSliderView extends AbstractSliderView {
   }
 }
 
+export namespace DateSlider {
+  export interface Attrs extends AbstractSlider.Attrs {}
+}
+
+export interface DateSlider extends DateSlider.Attrs {}
+
 export class DateSlider extends AbstractSlider {
 
   static initClass() {
@@ -31,7 +37,7 @@ export class DateSlider extends AbstractSlider {
     })
   }
 
-  behaviour = 'tap'
+  behaviour = "tap" as "tap"
   connected = [true, false]
 
   _formatter = tz

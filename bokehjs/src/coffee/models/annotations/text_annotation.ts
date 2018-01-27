@@ -4,7 +4,9 @@ import {show, hide} from "core/dom";
 import {isString, isArray} from "core/util/types";
 import {get_text_height} from "core/util/text"
 
-export class TextAnnotationView extends AnnotationView {
+export abstract class TextAnnotationView extends AnnotationView {
+  model: TextAnnotation
+
   initialize(options: any): void {
     super.initialize(options);
 
@@ -145,10 +147,15 @@ export class TextAnnotationView extends AnnotationView {
   }
 }
 
-export class TextAnnotation extends Annotation {
+export namespace TextAnnotation {
+  export interface Attrs extends Annotation.Attrs {}
+}
+
+export interface TextAnnotation extends TextAnnotation.Attrs {}
+
+export abstract class TextAnnotation extends Annotation {
   static initClass() {
     this.prototype.type = 'TextAnnotation';
-    this.prototype.default_view = TextAnnotationView;
   }
 }
 TextAnnotation.initClass();

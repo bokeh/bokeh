@@ -7,7 +7,13 @@ export interface ViewTransform {
   v_compute: (vv: number[] | Float64Array) => Float64Array
 }
 
-export class LayoutCanvas extends HasProps {
+export namespace LayoutCanvas {
+  export interface Attrs extends HasProps.Attrs {}
+}
+
+export interface LayoutCanvas extends LayoutCanvas.Attrs {}
+
+export abstract class LayoutCanvas extends HasProps {
 
   static initClass() {
     this.prototype.type = "LayoutCanvas"

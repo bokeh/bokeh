@@ -1,10 +1,13 @@
 /* XXX: partial */
 import {XYGlyph, XYGlyphView} from "./xy_glyph";
+import {DistanceSpec, AngleSpec} from "core/vectorization"
+import {Direction} from "core/enums"
 import * as hittest from "core/hittest";
 import * as p from "core/properties";
 import {angle_between} from "core/util/math"
 
 export class WedgeView extends XYGlyphView {
+  model: Wedge
 
   _map_data() {
     if (this.model.properties.radius.units === "data") {
@@ -93,19 +96,30 @@ export class WedgeView extends XYGlyphView {
   }
 }
 
-export class Wedge extends XYGlyph {
-  static initClass() {
-    this.prototype.default_view = WedgeView;
+export namespace Wedge {
+  export interface Attrs extends XYGlyph.Attrs {
+    direction: Direction
+    radius: DistanceSpec
+    start_angle: AngleSpec
+    end_angle: AngleSpec
+  }
+}
 
+export interface Wedge extends Wedge.Attrs {}
+
+export class Wedge extends XYGlyph {
+
+  static initClass() {
     this.prototype.type = 'Wedge';
+    this.prototype.default_view = WedgeView;
 
     this.mixins(['line', 'fill']);
     this.define({
-        direction:    [ p.Direction,   'anticlock' ],
-        radius:       [ p.DistanceSpec             ],
-        start_angle:  [ p.AngleSpec                ],
-        end_angle:    [ p.AngleSpec                ],
-      });
+      direction:    [ p.Direction,   'anticlock' ],
+      radius:       [ p.DistanceSpec             ],
+      start_angle:  [ p.AngleSpec                ],
+      end_angle:    [ p.AngleSpec                ],
+    });
   }
 }
 Wedge.initClass();

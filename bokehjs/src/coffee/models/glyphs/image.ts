@@ -1,10 +1,13 @@
 /* XXX: partial */
 import {XYGlyph, XYGlyphView} from "./xy_glyph";
+import {DistanceSpec, NumberSpec} from "core/vectorization"
+import {ColorMapper} from "../mappers/color_mapper";
 import {LinearColorMapper} from "../mappers/linear_color_mapper";
 import * as p from "core/properties";
 import {max, concat} from "core/util/array"
 
 export class ImageView extends XYGlyphView {
+  model: Image
 
   initialize(options: any): void {
     super.initialize(options);
@@ -126,18 +129,30 @@ export class ImageView extends XYGlyphView {
 // NOTE: this needs to be redefined here, because palettes are located in bokeh-api.js bundle
 const Greys9 = () => [0x000000, 0x252525, 0x525252, 0x737373, 0x969696, 0xbdbdbd, 0xd9d9d9, 0xf0f0f0, 0xffffff];
 
+export namespace Image {
+  export interface Attrs extends XYGlyph.Attrs {
+    image: NumberSpec
+    dw: DistanceSpec
+    dh: DistanceSpec
+    dilate: boolean
+    color_mapper: ColorMapper
+  }
+}
+
+export interface Image extends Image.Attrs {}
+
 export class Image extends XYGlyph {
+
   static initClass() {
+    this.prototype.type = 'Image';
     this.prototype.default_view = ImageView;
 
-    this.prototype.type = 'Image';
-
     this.define({
-        image:        [ p.NumberSpec       ], // TODO (bev) array spec?
-        dw:           [ p.DistanceSpec     ],
-        dh:           [ p.DistanceSpec     ],
-        dilate:       [ p.Bool,      false ],
-        color_mapper: [ p.Instance,  () => new LinearColorMapper({palette: Greys9()}) ],
+      image:        [ p.NumberSpec       ], // TODO (bev) array spec?
+      dw:           [ p.DistanceSpec     ],
+      dh:           [ p.DistanceSpec     ],
+      dilate:       [ p.Bool,      false ],
+      color_mapper: [ p.Instance,  () => new LinearColorMapper({palette: Greys9()}) ],
     });
   }
 }

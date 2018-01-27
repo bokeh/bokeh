@@ -96,6 +96,14 @@ export class AutocompleteInputView extends TextInputView {
   }
 }
 
+export namespace AutocompleteInput {
+  export interface Attrs extends TextInput.Attrs {
+    completions: string[]
+  }
+}
+
+export interface AutocompleteInput extends AutocompleteInput.Attrs {}
+
 export class AutocompleteInput extends TextInput {
 
   static initClass() {
@@ -111,7 +119,6 @@ export class AutocompleteInput extends TextInput {
     })
   }
 
-  completions: string[]
   active: boolean
 }
 

@@ -7,8 +7,7 @@ import {Renderer} from "../renderers/renderer"
 import {CartesianFrame} from "../canvas/cartesian_frame"
 import {PlotCanvas, PlotCanvasView} from "../plots/plot_canvas"
 
-export class ToolView extends View {
-
+export abstract class ToolView extends View {
   model: Tool
 
   plot_view: PlotCanvasView
@@ -39,7 +38,15 @@ export class ToolView extends View {
   deactivate(): void {}
 }
 
-export class Tool extends Model {
+export namespace Tool {
+  export interface Attrs extends Model.Attrs {
+    active: boolean
+  }
+}
+
+export interface Tool extends Tool.Attrs {}
+
+export abstract class Tool extends Model {
 
   static initClass() {
     this.prototype.type = "Tool"
@@ -48,9 +55,6 @@ export class Tool extends Model {
       active: [ p.Boolean, false ],
     })
   }
-
-  active: boolean
-  overlay?: Renderer
 
   get synthetic_renderers(): Renderer[] {
     return []

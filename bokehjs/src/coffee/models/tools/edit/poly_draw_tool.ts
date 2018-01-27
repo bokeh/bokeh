@@ -196,21 +196,31 @@ export class PolyDrawToolView extends EditToolView {
 
 }
 
+export namespace PolyDrawTool {
+  export interface Attrs extends EditTool.Attrs {
+    drag: boolean
+    renderers: (GlyphRenderer & HasCDS & HasPolyGlyph)[]
+  }
+}
+
+export interface PolyDrawTool extends PolyDrawTool.Attrs {}
 
 export class PolyDrawTool extends EditTool {
-  drag: boolean
+
   renderers: (GlyphRenderer & HasCDS & HasPolyGlyph)[]
+
+  static initClass() {
+    this.prototype.type = "PolyDrawTool"
+    this.prototype.default_view = PolyDrawToolView
+
+    this.define({
+      drag: [ p.Bool, true ],
+    })
+  }
 
   tool_name = "Polygon Draw Tool"
   icon = "bk-tool-icon-poly-draw"
   event_type = ["pan", "tap", "move"]
   default_order = 12
 }
-
-PolyDrawTool.prototype.type = "PolyDrawTool"
-
-PolyDrawTool.prototype.default_view = PolyDrawToolView
-
-PolyDrawTool.define({
-  drag: [ p.Bool, true ],
-})
+PolyDrawTool.initClass()

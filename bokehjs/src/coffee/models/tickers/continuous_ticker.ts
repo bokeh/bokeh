@@ -15,6 +15,16 @@ import {isStrictNaN} from "core/util/types"
 // magnitudes.  To make it possible to select Tickers programmatically, they
 // also support some additional methods: get_interval(), get_min_interval(),
 // and get_max_interval().
+
+export namespace ContinuousTicker {
+  export interface Attrs extends Ticker.Attrs {
+    num_minor_ticks: number
+    desired_num_ticks: number
+  }
+}
+
+export interface ContinuousTicker extends ContinuousTicker.Attrs {}
+
 export abstract class ContinuousTicker extends Ticker<number> {
 
   static initClass() {
@@ -25,9 +35,6 @@ export abstract class ContinuousTicker extends Ticker<number> {
       desired_num_ticks: [ p.Number, 6 ],
     })
   }
-
-  num_minor_ticks: number
-  desired_num_ticks: number
 
   min_interval: number
   max_interval: number

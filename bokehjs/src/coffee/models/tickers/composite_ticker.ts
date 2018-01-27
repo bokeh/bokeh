@@ -5,6 +5,15 @@ import {isEmpty} from "core/util/object"
 
 // This Ticker takes a collection of Tickers and picks the one most appropriate
 // for a given range.
+
+export namespace CompositeTicker {
+  export interface Attrs extends ContinuousTicker.Attrs {
+    tickers: ContinuousTicker[]
+  }
+}
+
+export interface CompositeTicker extends CompositeTicker.Attrs {}
+
 export class CompositeTicker extends ContinuousTicker {
 
   static initClass() {
@@ -14,8 +23,6 @@ export class CompositeTicker extends ContinuousTicker {
       tickers: [p.Array, [] ],
     })
   }
-
-  tickers: ContinuousTicker[]
 
   // The tickers should be in order of increasing interval size; specifically,
   // if S comes before T, then it should be the case that

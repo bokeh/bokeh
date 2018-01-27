@@ -1,9 +1,12 @@
 /* XXX: partial */
 import {TextAnnotation, TextAnnotationView} from "./text_annotation";
+import {SpatialUnits, AngleUnits, RenderMode} from "core/enums"
 import {hide} from "core/dom";
 import * as p from "core/properties"
 
 export class LabelView extends TextAnnotationView {
+  model: Label
+
   initialize(options: any): void {
     super.initialize(options);
     this.visuals.warm_cache(null);
@@ -53,28 +56,47 @@ export class LabelView extends TextAnnotationView {
   }
 }
 
-export class Label extends TextAnnotation {
-  static initClass() {
-    this.prototype.default_view = LabelView;
+export namespace Label {
+  export interface Attrs extends TextAnnotation.Attrs {
+    x: number
+    x_units: SpatialUnits
+    y: number
+    y_units: SpatialUnits
+    text: string
+    angle: number
+    angle_units: AngleUnits
+    x_offset: number
+    y_offset: number
+    x_range_name: string
+    y_range_name: string
+    render_mode: RenderMode
+  }
+}
 
+export interface Label extends Label.Attrs {}
+
+export class Label extends TextAnnotation {
+
+  static initClass() {
     this.prototype.type = 'Label';
+    this.prototype.default_view = LabelView;
 
     this.mixins(['text', 'line:border_', 'fill:background_']);
 
     this.define({
-        x:            [ p.Number,                      ],
-        x_units:      [ p.SpatialUnits, 'data'         ],
-        y:            [ p.Number,                      ],
-        y_units:      [ p.SpatialUnits, 'data'         ],
-        text:         [ p.String,                      ],
-        angle:        [ p.Angle,       0               ],
-        angle_units:  [ p.AngleUnits,  'rad'           ],
-        x_offset:     [ p.Number,      0               ],
-        y_offset:     [ p.Number,      0               ],
-        x_range_name: [ p.String,      'default'       ],
-        y_range_name: [ p.String,      'default'       ],
-        render_mode:  [ p.RenderMode,  'canvas'        ],
-      });
+      x:            [ p.Number,                      ],
+      x_units:      [ p.SpatialUnits, 'data'         ],
+      y:            [ p.Number,                      ],
+      y_units:      [ p.SpatialUnits, 'data'         ],
+      text:         [ p.String,                      ],
+      angle:        [ p.Angle,       0               ],
+      angle_units:  [ p.AngleUnits,  'rad'           ],
+      x_offset:     [ p.Number,      0               ],
+      y_offset:     [ p.Number,      0               ],
+      x_range_name: [ p.String,      'default'       ],
+      y_range_name: [ p.String,      'default'       ],
+      render_mode:  [ p.RenderMode,  'canvas'        ],
+    });
 
     this.override({
       background_fill_color: null,

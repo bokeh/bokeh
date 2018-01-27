@@ -1,6 +1,12 @@
 import {range} from "core/util/array"
 import {AdaptiveTicker} from "./adaptive_ticker"
 
+export namespace LogTicker {
+  export interface Attrs extends AdaptiveTicker.Attrs {}
+}
+
+export interface LogTicker extends LogTicker.Attrs {}
+
 export class LogTicker extends AdaptiveTicker {
 
   static initClass() {

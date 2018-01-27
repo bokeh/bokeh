@@ -1,10 +1,12 @@
 /* XXX: partial */
 import {Annotation, AnnotationView} from "./annotation";
+import {Toolbar} from "../tools/toolbar"
 import {build_views, remove_views} from "core/build_views";
 import {empty, show, hide} from "core/dom";
 import * as p from "core/properties"
 
 export class ToolbarPanelView extends AnnotationView {
+  model: ToolbarPanel
 
   initialize(options: any): void {
     super.initialize(options);
@@ -49,7 +51,16 @@ export class ToolbarPanelView extends AnnotationView {
   }
 }
 
+export namespace ToolbarPanel {
+  export interface Attrs extends Annotation.Attrs {
+    toolbar: Toolbar
+  }
+}
+
+export interface ToolbarPanel extends ToolbarPanel.Attrs {}
+
 export class ToolbarPanel extends Annotation {
+
   static initClass() {
     this.prototype.type = 'ToolbarPanel';
     this.prototype.default_view = ToolbarPanelView;

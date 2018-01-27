@@ -16,7 +16,6 @@ export interface BkEv {
 }
 
 export class PanToolView extends GestureToolView {
-
   model: PanTool
 
   protected last_dx: number
@@ -137,19 +136,24 @@ export class PanToolView extends GestureToolView {
   }
 }
 
+export namespace PanTool {
+  export interface Attrs extends GestureTool.Attrs {
+    dimensions: Dimensions
+  }
+}
+
+export interface PanTool extends PanTool.Attrs {}
+
 export class PanTool extends GestureTool {
 
   static initClass() {
     this.prototype.type = "PanTool"
-
     this.prototype.default_view = PanToolView
 
     this.define({
       dimensions: [ p.Dimensions, "both" ],
     })
   }
-
-  dimensions: Dimensions
 
   tool_name = "Pan"
   event_type = "pan"

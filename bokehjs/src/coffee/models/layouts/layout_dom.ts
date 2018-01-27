@@ -11,7 +11,6 @@ import {DOMView} from "core/dom_view"
 export type Layoutable = LayoutCanvas | LayoutDOM
 
 export abstract class LayoutDOMView extends DOMView {
-
   model: LayoutDOM
 
   protected _solver: Solver
@@ -349,6 +348,18 @@ export abstract class LayoutDOMView extends DOMView {
   }
 }
 
+export namespace LayoutDOM {
+  export interface Attrs extends Model.Attrs {
+    height: number
+    width: number
+    disabled: boolean
+    sizing_mode: SizingMode
+    css_classes: string[]
+  }
+}
+
+export interface LayoutDOM extends LayoutDOM.Attrs {}
+
 export abstract class LayoutDOM extends Model {
 
   static initClass() {
@@ -362,12 +373,6 @@ export abstract class LayoutDOM extends Model {
       css_classes: [ p.Array,      []      ],
     })
   }
-
-  height: number
-  width: number
-  disabled: boolean
-  sizing_mode: SizingMode
-  css_classes: string[]
 
   _width: Variable
   _height: Variable

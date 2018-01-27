@@ -1,6 +1,7 @@
 /* XXX: partial */
 import {Tile} from "./tile_source"
 import {ImagePool} from "./image_pool";
+import {TileSource} from "./tile_source"
 import {WMTSTileSource} from "./wmts_tile_source";
 import {Renderer, RendererView} from "../renderers/renderer";
 import {div} from "core/dom";
@@ -9,6 +10,7 @@ import {includes} from "core/util/array";
 import {isString} from "core/util/types"
 
 export class TileRendererView extends RendererView {
+  model: TileRenderer
 
   initialize(options: any): void {
     this.attributionEl = null;
@@ -125,7 +127,8 @@ export class TileRendererView extends RendererView {
     };
 
     this.model.tile_source.tiles[tile.tile_data.cache_key] = tile.tile_data;
-    tile.src = this.model.tile_source.get_image_url(...normalized_coords || []);
+    const [nx, ny, nz] = normalized_coords
+    tile.src = this.model.tile_source.get_image_url(nx, ny, nz);
 
     this._tiles.push(tile);
     return tile;
@@ -343,18 +346,31 @@ export class TileRendererView extends RendererView {
   }
 }
 
+export namespace TileRenderer {
+  export interface Attrs extends Renderer.Attrs {
+    alpha: number
+    x_range_name: string
+    y_range_name: string
+    tile_source: TileSource
+    render_parents: boolean
+  }
+}
+
+export interface TileRenderer extends TileRenderer.Attrs {}
+
 export class TileRenderer extends Renderer {
+
   static initClass() {
-    this.prototype.default_view = TileRendererView;
     this.prototype.type = 'TileRenderer';
+    this.prototype.default_view = TileRendererView;
 
     this.define({
-        alpha:          [ p.Number,   1.0              ],
-        x_range_name:   [ p.String,   "default"        ],
-        y_range_name:   [ p.String,   "default"        ],
-        tile_source:    [ p.Instance, () => new WMTSTileSource() ],
-        render_parents: [ p.Bool,     true             ],
-      });
+      alpha:          [ p.Number,   1.0              ],
+      x_range_name:   [ p.String,   "default"        ],
+      y_range_name:   [ p.String,   "default"        ],
+      tile_source:    [ p.Instance, () => new WMTSTileSource() ],
+      render_parents: [ p.Bool,     true             ],
+    });
 
     this.override({
       level: 'underlay',

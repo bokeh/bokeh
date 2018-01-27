@@ -1,12 +1,16 @@
 /* XXX: partial */
 import {Annotation, AnnotationView} from "./annotation";
+import {Ticker} from "../tickers/ticker"
+import {TickFormatter} from "../formatters/tick_formatter"
 import {BasicTicker} from "../tickers/basic_ticker";
 import {BasicTickFormatter} from "../formatters/basic_tick_formatter";
+import {ColorMapper} from "../mappers/color_mapper"
 import {LinearColorMapper} from "../mappers/linear_color_mapper";
 import {LinearScale} from "../scales/linear_scale";
 import {LogScale} from "../scales/log_scale";
 import {Range1d} from "../ranges/range1d";
 
+import {LegendLocation, Orientation} from "core/enums"
 import * as p from "core/properties";
 import * as text_util from "core/util/text";
 import {min, max, range} from "core/util/array";
@@ -18,6 +22,8 @@ const LONG_DIM_MIN_SCALAR = 0.3;
 const LONG_DIM_MAX_SCALAR = 0.8;
 
 export class ColorBarView extends AnnotationView {
+  model: ColorBar
+
   initialize(options: any): void {
     super.initialize(options);
     this._set_canvas_image();
@@ -345,54 +351,80 @@ export class ColorBarView extends AnnotationView {
   }
 }
 
+export namespace ColorBar {
+  export interface Attrs extends Annotation.Attrs {
+    location: LegendLocation
+    orientation: Orientation
+    title: string
+    title_standoff: number
+    width: number | "auto"
+    height: number | "auto"
+    scale_alpha: number
+    ticker: Ticker<any>
+    formatter: TickFormatter
+    major_label_overrides: {[key: string]: string}
+    color_mapper: ColorMapper
+    label_standoff: number
+    margin: number
+    padding: number
+    major_tick_in: number
+    major_tick_out: number
+    minor_tick_in: number
+    minor_tick_out: number
+  }
+}
+
+export interface ColorBar extends ColorBar.Attrs {}
+
 export class ColorBar extends Annotation {
+
   static initClass() {
-    this.prototype.default_view = ColorBarView;
     this.prototype.type = 'ColorBar';
+    this.prototype.default_view = ColorBarView;
 
     this.mixins([
-        'text:major_label_',
-        'text:title_',
-        'line:major_tick_',
-        'line:minor_tick_',
-        'line:border_',
-        'line:bar_',
-        'fill:background_',
+      'text:major_label_',
+      'text:title_',
+      'line:major_tick_',
+      'line:minor_tick_',
+      'line:border_',
+      'line:bar_',
+      'fill:background_',
     ]);
 
     this.define({
-        location:                [ p.Any,            'top_right' ],
-        orientation:             [ p.Orientation,    'vertical'  ],
-        title:                   [ p.String,                     ],
-        title_standoff:          [ p.Number,         2           ],
-        height:                  [ p.Any,            'auto'      ],
-        width:                   [ p.Any,            'auto'      ],
-        scale_alpha:             [ p.Number,         1.0         ],
-        ticker:                  [ p.Instance,    () => new BasicTicker()         ],
-        formatter:               [ p.Instance,    () => new BasicTickFormatter()  ],
-        major_label_overrides:   [ p.Any,      {}           ],
-        color_mapper:            [ p.Instance                    ],
-        label_standoff:          [ p.Number,         5           ],
-        margin:                  [ p.Number,         30          ],
-        padding:                 [ p.Number,         10          ],
-        major_tick_in:           [ p.Number,         5           ],
-        major_tick_out:          [ p.Number,         0           ],
-        minor_tick_in:           [ p.Number,         0           ],
-        minor_tick_out:          [ p.Number,         0           ],
+      location:                [ p.Any,            'top_right' ],
+      orientation:             [ p.Orientation,    'vertical'  ],
+      title:                   [ p.String,                     ],
+      title_standoff:          [ p.Number,         2           ],
+      width:                   [ p.Any,            'auto'      ],
+      height:                  [ p.Any,            'auto'      ],
+      scale_alpha:             [ p.Number,         1.0         ],
+      ticker:                  [ p.Instance,    () => new BasicTicker()         ],
+      formatter:               [ p.Instance,    () => new BasicTickFormatter()  ],
+      major_label_overrides:   [ p.Any,      {}           ],
+      color_mapper:            [ p.Instance                    ],
+      label_standoff:          [ p.Number,         5           ],
+      margin:                  [ p.Number,         30          ],
+      padding:                 [ p.Number,         10          ],
+      major_tick_in:           [ p.Number,         5           ],
+      major_tick_out:          [ p.Number,         0           ],
+      minor_tick_in:           [ p.Number,         0           ],
+      minor_tick_out:          [ p.Number,         0           ],
     });
 
     this.override({
-        background_fill_color: "#ffffff",
-        background_fill_alpha: 0.95,
-        bar_line_color: null,
-        border_line_color: null,
-        major_label_text_align: "center",
-        major_label_text_baseline: "middle",
-        major_label_text_font_size: "8pt",
-        major_tick_line_color: "#ffffff",
-        minor_tick_line_color: null,
-        title_text_font_size: "10pt",
-        title_text_font_style: "italic",
+      background_fill_color: "#ffffff",
+      background_fill_alpha: 0.95,
+      bar_line_color: null,
+      border_line_color: null,
+      major_label_text_align: "center",
+      major_label_text_baseline: "middle",
+      major_label_text_font_size: "8pt",
+      major_tick_line_color: "#ffffff",
+      minor_tick_line_color: null,
+      title_text_font_size: "10pt",
+      title_text_font_style: "italic",
     });
   }
 
@@ -422,7 +454,7 @@ export class ColorBar extends Annotation {
     return tick_extent;
   }
 
-  _computed_image_dimensions() {
+  _computed_image_dimensions(): {height: number, width: number} {
     /*
     Heuristics to determine ColorBar image dimensions if set to "auto"
 

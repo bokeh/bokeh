@@ -16,6 +16,7 @@ const load_google_api = function(api_key) {
 };
 
 export class GMapPlotCanvasView extends PlotCanvasView {
+  model: GMapPlotCanvas
 
   initialize(options: any): void {
     this.pause();
@@ -246,7 +247,14 @@ export class GMapPlotCanvasView extends PlotCanvasView {
   }
 }
 
+export namespace GMapPlotCanvas {
+  export interface Attrs extends PlotCanvas.Attrs {}
+}
+
+export interface GMapPlotCanvas extends GMapPlotCanvas.Attrs {}
+
 export class GMapPlotCanvas extends PlotCanvas {
+
   static initClass() {
     this.prototype.type = 'GMapPlotCanvas';
     this.prototype.default_view = GMapPlotCanvasView;

@@ -1,8 +1,10 @@
 /* XXX: partial */
 import {XYGlyph, XYGlyphView} from "./xy_glyph";
+import {DistanceSpec, AngleSpec} from "core/vectorization"
 import * as p from "core/properties"
 
 export class RayView extends XYGlyphView {
+  model: Ray
 
   _map_data() {
     if (this.model.properties.length.units === "data") {
@@ -50,11 +52,20 @@ export class RayView extends XYGlyphView {
   }
 }
 
-export class Ray extends XYGlyph {
-  static initClass() {
-    this.prototype.default_view = RayView;
+export namespace Ray {
+  export interface Attrs extends XYGlyph.Attrs {
+    length: DistanceSpec
+    angle: AngleSpec
+  }
+}
 
+export interface Ray extends Ray.Attrs {}
+
+export class Ray extends XYGlyph {
+
+  static initClass() {
     this.prototype.type = 'Ray';
+    this.prototype.default_view = RayView;
 
     this.mixins(['line']);
     this.define({

@@ -225,20 +225,31 @@ export class PolyEditToolView extends EditToolView {
   }
 }
 
+export namespace PolyEditTool {
+  export interface Attrs extends EditTool.Attrs {
+    vertex_renderer: (GlyphRenderer & HasCDS & HasXYGlyph)
+    renderers: (GlyphRenderer & HasCDS & HasPolyGlyph)[]
+  }
+}
+
+export interface PolyEditTool extends PolyEditTool.Attrs {}
+
 export class PolyEditTool extends EditTool {
+
   renderers: (GlyphRenderer & HasCDS & HasPolyGlyph)[]
-  vertex_renderer: (GlyphRenderer & HasCDS & HasXYGlyph)
+
+  static initClass() {
+    this.prototype.type = "PolyEditTool"
+    this.prototype.default_view = PolyEditToolView
+
+    this.define({
+      vertex_renderer: [ p.Instance ],
+    })
+  }
 
   tool_name = "Poly Edit Tool"
   icon = "bk-tool-icon-poly-edit"
   event_type = ["tap", "pan", "move"]
   default_order = 12
 }
-
-PolyEditTool.prototype.type = "PolyEditTool"
-
-PolyEditTool.prototype.default_view = PolyEditToolView
-
-PolyEditTool.define({
-  vertex_renderer: [ p.Instance ],
-})
+PolyEditTool.initClass()

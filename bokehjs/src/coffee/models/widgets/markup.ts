@@ -30,6 +30,15 @@ export class MarkupView extends WidgetView {
   }
 }
 
+export namespace Markup {
+  export interface Attrs extends Widget.Attrs {
+    text: string
+    style: {[key: string]: string}
+  }
+}
+
+export interface Markup extends Markup.Attrs {}
+
 export class Markup extends Widget {
 
   static initClass() {

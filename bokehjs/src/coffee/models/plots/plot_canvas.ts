@@ -39,8 +39,8 @@ import {update_panel_constraints, _view_sizes} from "core/layout/side_panel"
 let global_glcanvas: HTMLCanvasElement | null = null
 
 export class PlotCanvasView extends DOMView {
-
   model: PlotCanvas
+
   canvas_view: CanvasView
   state_changed: Signal<void, this>
   renderer_views: {[key: string]: RendererView}
@@ -917,28 +917,35 @@ class RightPanel extends LayoutCanvas {
 }
 RightPanel.initClass();
 
-export class PlotCanvas extends LayoutDOM {
+export namespace PlotCanvas {
+  export interface Attrs extends LayoutDOM.Attrs {
+    plot: Plot
+    toolbar: Toolbar
+    canvas: Canvas
+    frame: CartesianFrame
+  }
+}
 
-  plot: Plot
-  toolbar: Toolbar
-  canvas: Canvas
-  frame: CartesianFrame
+export interface PlotCanvas extends PlotCanvas.Attrs {
   use_map: boolean
+}
+
+export class PlotCanvas extends LayoutDOM {
 
   static initClass() {
     this.prototype.type = 'PlotCanvas';
     this.prototype.default_view = PlotCanvasView;
-
-    this.override({
-      // We should find a way to enforce this
-      sizing_mode: 'stretch_both',
-    });
 
     this.internal({
       plot:         [ p.Instance ],
       toolbar:      [ p.Instance ],
       canvas:       [ p.Instance ],
       frame:        [ p.Instance ],
+    });
+
+    this.override({
+      // We should find a way to enforce this
+      sizing_mode: 'stretch_both',
     });
   }
 

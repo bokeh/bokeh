@@ -9,11 +9,19 @@ export class HelpToolView extends ActionToolView {
   }
 }
 
+export namespace HelpTool {
+  export interface Attrs extends ActionTool.Attrs {
+    help_tooltip: string
+    redirect: string
+  }
+}
+
+export interface HelpTool extends HelpTool.Attrs {}
+
 export class HelpTool extends ActionTool {
 
   static initClass() {
     this.prototype.type = "HelpTool"
-
     this.prototype.default_view = HelpToolView
 
     this.define({
@@ -21,9 +29,6 @@ export class HelpTool extends ActionTool {
       redirect:     [ p.String, 'https://bokeh.pydata.org/en/latest/docs/user_guide/tools.html#built-in-tools'],
     })
   }
-
-  help_tooltip: string
-  redirect: string
 
   tool_name = "Help"
   icon = "bk-tool-icon-help"

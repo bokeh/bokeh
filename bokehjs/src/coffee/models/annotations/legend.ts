@@ -1,5 +1,7 @@
 /* XXX: partial */
 import {Annotation, AnnotationView} from "./annotation";
+import {LegendItem} from "./legend_item"
+import {Orientation, LegendLocation, LegendClickPolicy} from "core/enums"
 import * as p from "core/properties";
 import {get_text_height} from "core/util/text";
 import {BBox} from "core/util/bbox";
@@ -8,6 +10,7 @@ import {values} from "core/util/object";
 import {isString, isArray} from "core/util/types"
 
 export class LegendView extends AnnotationView {
+  model: Legend
 
   get legend_padding(): number {
     return this.visuals.border_line.line_color.value() != null ? this.model.padding : 0
@@ -273,27 +276,45 @@ export class LegendView extends AnnotationView {
   }
 }
 
+export namespace Legend {
+  export interface Attrs extends Annotation.Attrs {
+    orientation: Orientation
+    location: LegendLocation
+    label_standoff: number
+    glyph_height: number
+    glyph_width: number
+    label_height: number
+    label_width: number
+    margin: number
+    padding: number
+    spacing: number
+    items: LegendItem[]
+    click_policy: LegendClickPolicy
+  }
+}
+
+export interface Legend extends Legend.Attrs {}
+
 export class Legend extends Annotation {
   static initClass() {
-    this.prototype.default_view = LegendView;
-
     this.prototype.type = 'Legend';
+    this.prototype.default_view = LegendView;
 
     this.mixins(['text:label_', 'fill:inactive_', 'line:border_', 'fill:background_']);
 
     this.define({
-        orientation:      [ p.Orientation,    'vertical'  ],
-        location:         [ p.Any,            'top_right' ], // TODO (bev)
-        label_standoff:   [ p.Number,         5           ],
-        glyph_height:     [ p.Number,         20          ],
-        glyph_width:      [ p.Number,         20          ],
-        label_height:     [ p.Number,         20          ],
-        label_width:      [ p.Number,         20          ],
-        margin:           [ p.Number,         10          ],
-        padding:          [ p.Number,         10          ],
-        spacing:          [ p.Number,         3           ],
-        items:            [ p.Array,          []          ],
-        click_policy:     [ p.Any,            "none"      ],
+      orientation:      [ p.Orientation,    'vertical'  ],
+      location:         [ p.Any,            'top_right' ], // TODO (bev)
+      label_standoff:   [ p.Number,         5           ],
+      glyph_height:     [ p.Number,         20          ],
+      glyph_width:      [ p.Number,         20          ],
+      label_height:     [ p.Number,         20          ],
+      label_width:      [ p.Number,         20          ],
+      margin:           [ p.Number,         10          ],
+      padding:          [ p.Number,         10          ],
+      spacing:          [ p.Number,         3           ],
+      items:            [ p.Array,          []          ],
+      click_policy:     [ p.Any,            "none"      ],
     });
 
     this.override({

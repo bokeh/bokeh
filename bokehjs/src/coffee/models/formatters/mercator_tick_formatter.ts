@@ -1,9 +1,19 @@
 /* XXX: partial */
 import {BasicTickFormatter} from "./basic_tick_formatter";
+import {LatLon} from "core/enums"
 import * as p from "core/properties";
 import {proj4, mercator} from "core/util/proj4"
 
+export namespace MercatorTickFormatter {
+  export interface Attrs extends BasicTickFormatter.Attrs {
+    dimension: LatLon
+  }
+}
+
+export interface MercatorTickFormatter extends MercatorTickFormatter.Attrs {}
+
 export class MercatorTickFormatter extends BasicTickFormatter {
+
   static initClass() {
     this.prototype.type = 'MercatorTickFormatter';
 

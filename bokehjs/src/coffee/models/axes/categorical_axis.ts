@@ -13,9 +13,7 @@ export type CategoricalTickCoords = TickCoords & {
 }
 
 export class CategoricalAxisView extends AxisView {
-
   model: CategoricalAxis
-
   visuals: CategoricalAxis.Visuals
 
   protected _render(ctx: Context2d, extents: Extents, tick_coords: TickCoords): void {
@@ -109,11 +107,28 @@ export class CategoricalAxisView extends AxisView {
   }
 }
 
+export namespace CategoricalAxis {
+  export interface Attrs extends Axis.Attrs {
+    ticker: CategoricalTicker
+    formatter: CategoricalTickFormatter
+  }
+
+  export type Visuals = Axis.Visuals & {
+    separator_line: Line,
+    group_text: Text,
+    subgroup_text: Text,
+  }
+}
+
+export interface CategoricalAxis extends CategoricalAxis.Attrs {}
+
 export class CategoricalAxis extends Axis {
+
+  ticker: CategoricalTicker
+  formatter: CategoricalTickFormatter
 
   static initClass() {
     this.prototype.type = "CategoricalAxis"
-
     this.prototype.default_view = CategoricalAxisView
 
     this.mixins([
@@ -134,9 +149,6 @@ export class CategoricalAxis extends Axis {
       subgroup_text_font_size: "8pt",
     })
   }
-
-  ticker: CategoricalTicker
-  formatter: CategoricalTickFormatter
 
   get tick_coords(): CategoricalTickCoords {
     const i = this.dimension
@@ -167,13 +179,4 @@ export class CategoricalAxis extends Axis {
     return coords
   }
 }
-
 CategoricalAxis.initClass()
-
-export module CategoricalAxis {
-  export type Visuals = Axis.Visuals & {
-    separator_line: Line,
-    group_text: Text,
-    subgroup_text: Text,
-  }
-}

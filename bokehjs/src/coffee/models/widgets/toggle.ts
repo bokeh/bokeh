@@ -18,6 +18,14 @@ export class ToggleView extends AbstractButtonView {
   }
 }
 
+export namespace Toggle {
+  export interface Attrs extends AbstractButton.Attrs {
+    active: boolean
+  }
+}
+
+export interface Toggle extends Toggle.Attrs {}
+
 export class Toggle extends AbstractButton {
 
   static initClass() {

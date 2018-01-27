@@ -14,6 +14,14 @@ export class ButtonView extends AbstractButtonView {
   }
 }
 
+export namespace Button {
+  export interface Attrs extends AbstractButton.Attrs {
+    clicks: number
+  }
+}
+
+export interface Button extends Button.Attrs {}
+
 export class Button extends AbstractButton {
 
   static initClass() {
@@ -26,8 +34,6 @@ export class Button extends AbstractButton {
 
     register_with_event(ButtonClick, this)
   }
-
-  clicks: number
 }
 
 Button.initClass()

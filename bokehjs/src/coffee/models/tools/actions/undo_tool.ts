@@ -1,7 +1,6 @@
 import {ActionTool, ActionToolView} from "./action_tool"
 
 export class UndoToolView extends ActionToolView {
-
   model: UndoTool
 
   connect_signals(): void {
@@ -14,11 +13,16 @@ export class UndoToolView extends ActionToolView {
   }
 }
 
+export namespace UndoTool {
+  export interface Attrs extends ActionTool.Attrs {}
+}
+
+export interface UndoTool extends UndoTool.Attrs {}
+
 export class UndoTool extends ActionTool {
 
   static initClass() {
     this.prototype.type = "UndoTool"
-
     this.prototype.default_view = UndoToolView
 
     this.override({

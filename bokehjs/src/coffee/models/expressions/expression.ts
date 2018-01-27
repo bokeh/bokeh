@@ -1,7 +1,17 @@
 /* XXX: partial */
 import {Model} from "../../model"
 
-export class Expression extends Model {
+export namespace Expression {
+  export interface Attrs extends Model.Attrs {}
+}
+
+export interface Expression extends Expression.Attrs {}
+
+export abstract class Expression extends Model {
+
+  static initClass() {
+    this.prototype.type = "Expression"
+  }
 
   initialize(): void {
     super.initialize();
@@ -23,3 +33,4 @@ export class Expression extends Model {
     return this._result[source.id];
   }
 }
+Expression.initClass()

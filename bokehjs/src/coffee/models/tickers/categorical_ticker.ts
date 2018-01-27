@@ -1,6 +1,12 @@
 import {Ticker} from "./ticker"
 import {FactorRange, Factor} from "../ranges/factor_range"
 
+export namespace CategoricalTicker {
+  export interface Attrs extends Ticker.Attrs {}
+}
+
+export interface CategoricalTicker extends CategoricalTicker.Attrs {}
+
 export class CategoricalTicker extends Ticker<Factor> {
 
   static initClass() {

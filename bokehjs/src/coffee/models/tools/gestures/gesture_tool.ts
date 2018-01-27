@@ -5,6 +5,12 @@ export abstract class GestureToolView extends ButtonToolView {
   model: GestureTool
 }
 
+export namespace GestureTool {
+  export interface Attrs extends ButtonTool.Attrs {}
+}
+
+export interface GestureTool extends GestureTool.Attrs {}
+
 export abstract class GestureTool extends ButtonTool {
 
   static initClass() {

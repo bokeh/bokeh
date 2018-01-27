@@ -14,6 +14,19 @@ import * as p from "core/properties"
 export type Ranges = {[key: string]: Range}
 export type Scales = {[key: string]: Scale}
 
+export namespace CartesianFrame {
+  export interface Attrs extends LayoutCanvas.Attrs {
+    extra_x_ranges: Ranges
+    extra_y_ranges: Ranges
+    x_range: Range
+    y_range: Range
+    x_scale: Scale
+    y_scale: Scale
+  }
+}
+
+export interface CartesianFrame extends CartesianFrame.Attrs {}
+
 export class CartesianFrame extends LayoutCanvas {
 
   static initClass() {
@@ -28,13 +41,6 @@ export class CartesianFrame extends LayoutCanvas {
       y_scale:        [ p.Instance ],
     })
   }
-
-  extra_x_ranges: Ranges
-  extra_y_ranges: Ranges
-  x_range: Range
-  y_range: Range
-  x_scale: Scale
-  y_scale: Scale
 
   protected _h_target: Range1d
   protected _v_target: Range1d

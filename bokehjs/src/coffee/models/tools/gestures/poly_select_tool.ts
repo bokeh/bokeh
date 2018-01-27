@@ -17,7 +17,6 @@ export interface BkEv {
 }
 
 export class PolySelectToolView extends SelectToolView {
-
   model: PolySelectTool
 
   protected data: {sx: number[], sy: number[]}
@@ -106,11 +105,19 @@ const DEFAULT_POLY_OVERLAY = () => {
   })
 }
 
+export namespace PolySelectTool {
+  export interface Attrs extends SelectTool.Attrs {
+    callback: any // XXX
+    overlay: PolyAnnotation
+  }
+}
+
+export interface PolySelectTool extends PolySelectTool.Attrs {}
+
 export class PolySelectTool extends SelectTool {
 
   static initClass() {
     this.prototype.type = "PolySelectTool"
-
     this.prototype.default_view = PolySelectToolView
 
     this.define({
@@ -118,9 +125,6 @@ export class PolySelectTool extends SelectTool {
       overlay:    [ p.Instance, DEFAULT_POLY_OVERLAY ],
     })
   }
-
-  callback: any // XXX
-  overlay: PolyAnnotation
 
   tool_name = "Poly Select"
   icon = "bk-tool-icon-polygon-select"

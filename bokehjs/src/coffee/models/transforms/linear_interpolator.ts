@@ -2,7 +2,17 @@
 import {findLastIndex} from "core/util/array";
 import {Interpolator} from "./interpolator"
 
+export namespace LinearInterpolator {
+  export interface Attrs extends Interpolator.Attrs {}
+}
+
+export interface LinearInterpolator extends LinearInterpolator.Attrs {}
+
 export class LinearInterpolator extends Interpolator {
+
+  static initClass() {
+    this.prototype.type = "LinearInterpolator"
+  }
 
   compute(x) {
     // Apply the transform to a single value
@@ -47,3 +57,4 @@ export class LinearInterpolator extends Interpolator {
     return result;
   }
 }
+LinearInterpolator.initClass()

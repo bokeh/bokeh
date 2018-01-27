@@ -1,7 +1,14 @@
 /* XXX: partial */
 import {MercatorTileSource} from './mercator_tile_source'
 
+export namespace QUADKEYTileSource {
+  export interface Attrs extends MercatorTileSource.Attrs {}
+}
+
+export interface QUADKEYTileSource extends QUADKEYTileSource.Attrs {}
+
 export class QUADKEYTileSource extends MercatorTileSource {
+
   static initClass() {
     this.prototype.type = 'QUADKEYTileSource';
   }

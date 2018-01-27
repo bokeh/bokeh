@@ -16,7 +16,6 @@ export interface BkEv {
 }
 
 export class BoxSelectToolView extends SelectToolView {
-
   model: BoxSelectTool
 
   protected _base_point: [number, number] | null
@@ -104,6 +103,17 @@ const DEFAULT_BOX_OVERLAY = () => {
   })
 }
 
+export namespace BoxSelectTool {
+  export interface Attrs extends SelectTool.Attrs {
+    dimensions: Dimensions
+    select_every_mousemove: boolean
+    callback: any // XXX
+    overlay: BoxAnnotation
+  }
+}
+
+export interface BoxSelectTool extends BoxSelectTool.Attrs {}
+
 export class BoxSelectTool extends SelectTool {
 
   static initClass() {
@@ -118,11 +128,6 @@ export class BoxSelectTool extends SelectTool {
       overlay:                [ p.Instance, DEFAULT_BOX_OVERLAY ],
     })
   }
-
-  dimensions: Dimensions
-  select_every_mousemove: boolean
-  callback: any // XXX
-  overlay: BoxAnnotation
 
   tool_name = "Box Select"
   icon = "bk-tool-icon-box-select"

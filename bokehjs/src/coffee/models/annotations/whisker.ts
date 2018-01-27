@@ -1,11 +1,15 @@
 /* XXX: partial */
 import {Annotation, AnnotationView} from "./annotation";
+import {DataSource} from "../sources/data_source"
 import {ColumnDataSource} from "../sources/column_data_source";
-import {TeeHead} from "./arrow_head";
-
+import {ArrowHead, TeeHead} from "./arrow_head";
+import {DistanceSpec} from "core/vectorization"
+import {Dimension} from "core/enums"
 import * as p from "core/properties"
 
 export class WhiskerView extends AnnotationView {
+  model: Whisker
+
   initialize(options: any): void {
     super.initialize(options);
     this.set_data(this.model.source);
@@ -111,10 +115,27 @@ export class WhiskerView extends AnnotationView {
   }
 }
 
+export namespace Whisker {
+  export interface Attrs extends Annotation.Attrs {
+    lower: DistanceSpec
+    lower_head: ArrowHead
+    upper: DistanceSpec
+    upper_head: ArrowHead
+    base: DistanceSpec
+    dimension: Dimension
+    source: DataSource
+    x_range_name: string
+    y_range_name: string
+  }
+}
+
+export interface Whisker extends Whisker.Attrs {}
+
 export class Whisker extends Annotation {
+
   static initClass() {
-    this.prototype.default_view = WhiskerView;
     this.prototype.type = 'Whisker';
+    this.prototype.default_view = WhiskerView;
 
     this.mixins(['line']);
 

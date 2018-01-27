@@ -6,6 +6,7 @@ import {isStrictNaN} from "core/util/types";
 import * as hittest from "core/hittest"
 
 export class PatchesView extends GlyphView {
+  model: Patches
 
   _build_discontinuous_object(nanned_qs) {
     // _s is @xs, @ys, @sxs, @sys
@@ -214,13 +215,20 @@ export class PatchesView extends GlyphView {
   }
 }
 
+export namespace Patches {
+  export interface Attrs extends Glyph.Attrs {
+  }
+}
+
+export interface Patches extends Patches.Attrs {}
+
 export class Patches extends Glyph {
+
   static initClass() {
+    this.prototype.type = 'Patches';
     this.prototype.default_view = PatchesView;
 
-    this.prototype.type = 'Patches';
-
-    this.coords([ ['xs', 'ys'] ]);
+    this.coords([['xs', 'ys']]);
     this.mixins(['line', 'fill']);
   }
 }

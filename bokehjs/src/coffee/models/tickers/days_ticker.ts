@@ -30,6 +30,15 @@ function date_range_by_month(start_time: number, end_time: number): Date[] {
 // A DaysTicker produces ticks from a fixed subset of calendar days.
 // E.g., DaysTicker([1, 15]) produces ticks on the 1st and 15th days of each
 // month.
+
+export namespace DaysTicker {
+  export interface Attrs extends SingleIntervalTicker.Attrs {
+    days: number[]
+  }
+}
+
+export interface DaysTicker extends DaysTicker.Attrs {}
+
 export class DaysTicker extends SingleIntervalTicker {
 
   static initClass() {
@@ -43,8 +52,6 @@ export class DaysTicker extends SingleIntervalTicker {
       num_minor_ticks: 0,
     })
   }
-
-  days: number[]
 
   initialize(): void {
     super.initialize()

@@ -1,5 +1,11 @@
 import {Scale} from "./scale"
 
+export namespace LinearScale {
+  export interface Attrs extends Scale.Attrs {}
+}
+
+export interface LinearScale extends LinearScale.Attrs {}
+
 export class LinearScale extends Scale {
 
   static initClass() {
