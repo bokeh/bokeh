@@ -39,6 +39,8 @@ export class HBarView extends BoxView {
 
 export namespace HBar {
   export interface Attrs extends Box.Attrs {
+    left: NumberSpec
+    y: NumberSpec
     height: DistanceSpec
     right: NumberSpec
   }

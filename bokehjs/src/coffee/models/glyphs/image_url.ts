@@ -1,6 +1,6 @@
 /* XXX: partial */
 import {Glyph, GlyphView} from "./glyph";
-import {DistanceSpec, AngleSpec, StringSpec} from "core/vectorization"
+import {NumberSpec, DistanceSpec, AngleSpec, StringSpec} from "core/vectorization"
 import {Anchor} from "core/enums"
 import {logger} from "core/logging";
 import * as p from "core/properties"
@@ -170,6 +170,8 @@ export class ImageURLView extends GlyphView {
 
 export namespace ImageURL {
   export interface Attrs extends Glyph.Attrs {
+    x: NumberSpec
+    y: NumberSpec
     url: StringSpec
     anchor: Anchor
     global_alpha: number

@@ -1,5 +1,6 @@
 /* XXX: partial */
 import {RBush} from "core/util/spatial";
+import {NumberSpec} from "core/vectorization"
 import * as hittest from "core/hittest";
 import {keys} from "core/util/object";
 import {min, max} from "core/util/array";
@@ -155,6 +156,8 @@ export class MultiLineView extends GlyphView {
 
 export namespace MultiLine {
   export interface Attrs extends Glyph.Attrs {
+    xs: NumberSpec
+    ys: NumberSpec
   }
 }
 

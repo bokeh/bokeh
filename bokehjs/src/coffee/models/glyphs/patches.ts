@@ -3,6 +3,7 @@ import {RBush} from "core/util/spatial";
 import {Glyph, GlyphView} from "./glyph";
 import {min, max, copy, findLastIndex} from "core/util/array";
 import {isStrictNaN} from "core/util/types";
+import {NumberSpec} from "core/vectorization"
 import * as hittest from "core/hittest"
 
 export class PatchesView extends GlyphView {
@@ -217,6 +218,8 @@ export class PatchesView extends GlyphView {
 
 export namespace Patches {
   export interface Attrs extends Glyph.Attrs {
+    xs: NumberSpec
+    ys: NumberSpec
   }
 }
 

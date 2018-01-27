@@ -1,4 +1,5 @@
 /* XXX: partial */
+import {NumberSpec} from "core/vectorization"
 import {RBush} from "core/util/spatial";
 import {Glyph, GlyphView} from "./glyph"
 
@@ -65,6 +66,12 @@ export class QuadraticView extends GlyphView {
 
 export namespace Quadratic {
   export interface Attrs extends Glyph.Attrs {
+    x0: NumberSpec
+    y0: NumberSpec
+    x1: NumberSpec
+    y1: NumberSpec
+    cx: NumberSpec
+    cy: NumberSpec
   }
 }
 

@@ -1,4 +1,5 @@
 /* XXX: partial */
+import {NumberSpec} from "core/vectorization"
 import {RBush} from "core/util/spatial";
 import {Glyph, GlyphView} from "./glyph"
 
@@ -114,6 +115,14 @@ export class BezierView extends GlyphView {
 
 export namespace Bezier {
   export interface Attrs extends Glyph.Attrs {
+    x0: NumberSpec
+    y0: NumberSpec
+    x1: NumberSpec
+    y1: NumberSpec
+    cx0: NumberSpec
+    cy0: NumberSpec
+    cx1: NumberSpec
+    cy1: NumberSpec
   }
 }
 

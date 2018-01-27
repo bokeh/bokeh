@@ -1,5 +1,6 @@
 /* XXX: partial */
 import * as hittest from "core/hittest";
+import {NumberSpec} from "core/vectorization"
 import {RBush} from "core/util/spatial";
 import {Glyph, GlyphView} from "./glyph"
 
@@ -110,6 +111,10 @@ export class SegmentView extends GlyphView {
 
 export namespace Segment {
   export interface Attrs extends Glyph.Attrs {
+    x0: NumberSpec
+    y0: NumberSpec
+    x1: NumberSpec
+    y1: NumberSpec
   }
 }
 

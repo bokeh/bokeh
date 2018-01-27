@@ -369,8 +369,8 @@ export abstract class Glyph extends Model {
     this.prototype._coords = [];
 
     this.internal({
-      x_range_name: [ p.String,      'default' ],
-      y_range_name: [ p.String,      'default' ],
+      x_range_name: [ p.String, 'default' ],
+      y_range_name: [ p.String, 'default' ],
     });
   }
 

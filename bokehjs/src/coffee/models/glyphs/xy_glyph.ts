@@ -1,4 +1,5 @@
 /* XXX: partial */
+import {NumberSpec} from "core/vectorization"
 import {RBush} from "core/util/spatial";
 import {Glyph, GlyphView} from "./glyph"
 
@@ -23,6 +24,8 @@ export abstract class XYGlyphView extends GlyphView {
 
 export namespace XYGlyph {
   export interface Attrs extends Glyph.Attrs {
+    x: NumberSpec
+    y: NumberSpec
   }
 }
 

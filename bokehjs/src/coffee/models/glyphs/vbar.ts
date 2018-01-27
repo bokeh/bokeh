@@ -39,6 +39,8 @@ export class VBarView extends BoxView {
 
 export namespace VBar {
   export interface Attrs extends Box.Attrs {
+    x: NumberSpec
+    bottom: NumberSpec
     width: DistanceSpec
     top: NumberSpec
   }
