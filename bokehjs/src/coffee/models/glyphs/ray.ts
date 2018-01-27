@@ -2,6 +2,7 @@
 import {XYGlyph, XYGlyphView} from "./xy_glyph";
 import {DistanceSpec, AngleSpec} from "core/vectorization"
 import * as p from "core/properties"
+import {Context2d} from "core/util/canvas"
 
 export class RayView extends XYGlyphView {
   model: Ray
@@ -14,7 +15,7 @@ export class RayView extends XYGlyphView {
     }
   }
 
-  _render(ctx, indices, {sx, sy, slength, _angle}) {
+  _render(ctx: Context2d, indices, {sx, sy, slength, _angle}) {
     if (this.visuals.line.doit) {
       const width = this.renderer.plot_view.frame._width.value;
       const height = this.renderer.plot_view.frame._height.value;
@@ -47,7 +48,7 @@ export class RayView extends XYGlyphView {
     }
   }
 
-  draw_legend_for_index(ctx, x0, x1, y0, y1, index) {
+  draw_legend_for_index(ctx: Context2d, x0, x1, y0, y1, index) {
     return this._generic_line_legend(ctx, x0, x1, y0, y1, index);
   }
 }

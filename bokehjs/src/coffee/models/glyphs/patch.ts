@@ -1,10 +1,11 @@
 /* XXX: partial */
 import {XYGlyph, XYGlyphView} from "./xy_glyph"
+import {Context2d} from "core/util/canvas"
 
 export class PatchView extends XYGlyphView {
   model: Patch
 
-  _render(ctx, indices, {sx, sy}) {
+  _render(ctx: Context2d, indices, {sx, sy}) {
     if (this.visuals.fill.doit) {
       this.visuals.fill.set_value(ctx);
 
@@ -50,7 +51,7 @@ export class PatchView extends XYGlyphView {
     }
   }
 
-  draw_legend_for_index(ctx, x0, x1, y0, y1, index) {
+  draw_legend_for_index(ctx: Context2d, x0, x1, y0, y1, index) {
     return this._generic_area_legend(ctx, x0, x1, y0, y1, index);
   }
 }

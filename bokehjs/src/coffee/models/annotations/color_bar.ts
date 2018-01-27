@@ -16,6 +16,7 @@ import * as text_util from "core/util/text";
 import {min, max, range} from "core/util/array";
 import {isEmpty} from "core/util/object";
 import {isString, isArray} from "core/util/types"
+import {Context2d} from "core/util/canvas"
 
 const SHORT_DIM = 25;
 const LONG_DIM_MIN_SCALAR = 0.3;
@@ -204,7 +205,7 @@ export class ColorBarView extends AnnotationView {
     return ctx.restore();
   }
 
-  _draw_bbox(ctx) {
+  _draw_bbox(ctx: Context2d) {
     const bbox = this.compute_legend_dimensions();
     ctx.save();
     if (this.visuals.background_fill.doit) {
@@ -218,7 +219,7 @@ export class ColorBarView extends AnnotationView {
     return ctx.restore();
   }
 
-  _draw_image(ctx) {
+  _draw_image(ctx: Context2d) {
     const image = this.model._computed_image_dimensions();
     ctx.save();
     ctx.setImageSmoothingEnabled(false);
@@ -231,7 +232,7 @@ export class ColorBarView extends AnnotationView {
     return ctx.restore();
   }
 
-  _draw_major_ticks(ctx, tick_info) {
+  _draw_major_ticks(ctx: Context2d, tick_info) {
     if (!this.visuals.major_tick_line.doit) {
       return;
     }
@@ -256,7 +257,7 @@ export class ColorBarView extends AnnotationView {
     return ctx.restore();
   }
 
-  _draw_minor_ticks(ctx, tick_info) {
+  _draw_minor_ticks(ctx: Context2d, tick_info) {
     if (!this.visuals.minor_tick_line.doit) {
       return;
     }
@@ -281,7 +282,7 @@ export class ColorBarView extends AnnotationView {
     return ctx.restore();
   }
 
-  _draw_major_labels(ctx, tick_info) {
+  _draw_major_labels(ctx: Context2d, tick_info) {
     if (!this.visuals.major_label_text.doit) {
       return;
     }
@@ -308,7 +309,7 @@ export class ColorBarView extends AnnotationView {
     return ctx.restore();
   }
 
-  _draw_title(ctx) {
+  _draw_title(ctx: Context2d) {
     if (!this.visuals.title_text.doit) {
       return;
     }

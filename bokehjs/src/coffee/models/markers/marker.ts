@@ -4,11 +4,12 @@ import {DistanceSpec, AngleSpec} from "core/vectorization"
 import * as hittest from "core/hittest";
 import * as p from "core/properties"
 import {range} from "core/util/array"
+import {Context2d} from "core/util/canvas"
 
 export class MarkerView extends XYGlyphView {
   model: Marker
 
-  draw_legend_for_index(ctx, x0, x1, y0, y1, index) {
+  draw_legend_for_index(ctx: Context2d, x0, x1, y0, y1, index) {
     // using objects like this seems a little wonky, since the keys are coerced to
     // stings, but it works
     const indices = [index];
@@ -25,7 +26,7 @@ export class MarkerView extends XYGlyphView {
     return this._render(ctx, indices, data);
   }
 
-  _render(ctx, indices, {sx, sy, _size, _angle}) {
+  _render(ctx: Context2d, indices, {sx, sy, _size, _angle}) {
     for (const i of indices) {
       if (isNaN(sx[i]+sy[i]+_size[i]+_angle[i])) {
         continue;

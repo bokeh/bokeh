@@ -1,23 +1,24 @@
 /* XXX: partial */
 import {Marker, MarkerView} from "./marker"
+import {Context2d} from "core/util/canvas"
 
 const SQ3 = Math.sqrt(3);
 
-const _one_x =  function(ctx, r) {
+const _one_x =  function(ctx: Context2d, r) {
   ctx.moveTo(-r,  r);
   ctx.lineTo( r, -r);
   ctx.moveTo(-r, -r);
   return ctx.lineTo( r,  r);
 };
 
-const _one_cross = function(ctx, r) {
+const _one_cross = function(ctx: Context2d, r) {
   ctx.moveTo( 0,  r);
   ctx.lineTo( 0, -r);
   ctx.moveTo(-r,  0);
   return ctx.lineTo( r,  0);
 };
 
-const _one_diamond = function(ctx, r) {
+const _one_diamond = function(ctx: Context2d, r) {
   ctx.moveTo(0, r);
   ctx.lineTo(r/1.5, 0);
   ctx.lineTo(0, -r);
@@ -25,7 +26,7 @@ const _one_diamond = function(ctx, r) {
   return ctx.closePath();
 };
 
-const _one_tri = function(ctx, r) {
+const _one_tri = function(ctx: Context2d, r) {
   const h = r * SQ3;
   const a = h/3;
 
@@ -36,7 +37,7 @@ const _one_tri = function(ctx, r) {
   return ctx.closePath();
 };
 
-const asterisk = function(ctx, i, _sx, _sy, r, line, _fill) {
+const asterisk = function(ctx: Context2d, i, _sx, _sy, r, line, _fill) {
   const r2 = r*0.65;
 
   _one_cross(ctx, r);
@@ -49,7 +50,7 @@ const asterisk = function(ctx, i, _sx, _sy, r, line, _fill) {
 
 };
 
-const circle_cross = function(ctx, i, _sx, _sy, r, line, fill)  {
+const circle_cross = function(ctx: Context2d, i, _sx, _sy, r, line, fill)  {
   ctx.arc(0, 0, r, 0, 2*Math.PI, false);
 
   if (fill.doit) {
@@ -65,7 +66,7 @@ const circle_cross = function(ctx, i, _sx, _sy, r, line, fill)  {
 
 };
 
-const circle_x = function(ctx, i, _sx, _sy, r, line, fill) {
+const circle_x = function(ctx: Context2d, i, _sx, _sy, r, line, fill) {
   ctx.arc(0, 0, r, 0, 2*Math.PI, false);
 
   if (fill.doit) {
@@ -81,7 +82,7 @@ const circle_x = function(ctx, i, _sx, _sy, r, line, fill) {
 
 };
 
-const cross = function(ctx, i, _sx, _sy, r, line, _fill) {
+const cross = function(ctx: Context2d, i, _sx, _sy, r, line, _fill) {
   _one_cross(ctx, r);
 
   if (line.doit) {
@@ -91,7 +92,7 @@ const cross = function(ctx, i, _sx, _sy, r, line, _fill) {
 
 };
 
-const diamond = function(ctx, i, _sx, _sy, r, line, fill) {
+const diamond = function(ctx: Context2d, i, _sx, _sy, r, line, fill) {
   _one_diamond(ctx, r);
 
   if (fill.doit) {
@@ -106,7 +107,7 @@ const diamond = function(ctx, i, _sx, _sy, r, line, fill) {
 
 };
 
-const diamond_cross = function(ctx, i, _sx, _sy, r, line, fill) {
+const diamond_cross = function(ctx: Context2d, i, _sx, _sy, r, line, fill) {
   _one_diamond(ctx, r);
 
   if (fill.doit) {
@@ -122,7 +123,7 @@ const diamond_cross = function(ctx, i, _sx, _sy, r, line, fill) {
 
 };
 
-const inverted_triangle = function(ctx, i, _sx, _sy, r, line, fill) {
+const inverted_triangle = function(ctx: Context2d, i, _sx, _sy, r, line, fill) {
   ctx.rotate(Math.PI);
   _one_tri(ctx, r);
   ctx.rotate(-Math.PI);
@@ -139,7 +140,7 @@ const inverted_triangle = function(ctx, i, _sx, _sy, r, line, fill) {
 
 };
 
-const square = function(ctx, i, _sx, _sy, r, line, fill) {
+const square = function(ctx: Context2d, i, _sx, _sy, r, line, fill) {
   const size = 2*r;
   ctx.rect(-r, -r, size, size);
 
@@ -155,7 +156,7 @@ const square = function(ctx, i, _sx, _sy, r, line, fill) {
 
 };
 
-const square_cross = function(ctx, i, _sx, _sy, r, line, fill) {
+const square_cross = function(ctx: Context2d, i, _sx, _sy, r, line, fill) {
   const size = 2*r;
   ctx.rect(-r, -r, size, size);
 
@@ -172,7 +173,7 @@ const square_cross = function(ctx, i, _sx, _sy, r, line, fill) {
 
 };
 
-const square_x = function(ctx, i, _sx, _sy, r, line, fill) {
+const square_x = function(ctx: Context2d, i, _sx, _sy, r, line, fill) {
   const size = 2*r;
   ctx.rect(-r, -r, size, size);
 
@@ -189,7 +190,7 @@ const square_x = function(ctx, i, _sx, _sy, r, line, fill) {
 
 };
 
-const triangle = function(ctx, i, _sx, _sy, r, line, fill) {
+const triangle = function(ctx: Context2d, i, _sx, _sy, r, line, fill) {
   _one_tri(ctx, r);
 
   if (fill.doit) {
@@ -204,7 +205,7 @@ const triangle = function(ctx, i, _sx, _sy, r, line, fill) {
 
 };
 
-const x = function(ctx, i, _sx, _sy, r, line, _fill) {
+const x = function(ctx: Context2d, i, _sx, _sy, r, line, _fill) {
   _one_x(ctx, r);
 
   if (line.doit) {

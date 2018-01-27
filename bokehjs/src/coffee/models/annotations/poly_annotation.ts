@@ -15,7 +15,7 @@ export class PolyAnnotationView extends AnnotationView {
     this.connect(this.model.data_update, () => this.plot_view.request_render());
   }
 
-  render(ctx) {
+  render() {
     if (!this.model.visible) {
       return;
     }
@@ -32,7 +32,7 @@ export class PolyAnnotationView extends AnnotationView {
     }
 
     const { frame } = this.plot_view;
-    ({ ctx } = this.plot_view.canvas_view);
+    const { ctx } = this.plot_view.canvas_view
 
     for (let i = 0, end = xs.length; i < end; i++) {
       let sx, sy;

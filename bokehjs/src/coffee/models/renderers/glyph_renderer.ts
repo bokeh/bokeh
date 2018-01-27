@@ -9,6 +9,7 @@ import {logger} from "core/logging";
 import * as p from "core/properties";
 import {difference, includes, range} from "core/util/array";
 import {extend, clone} from "core/util/object"
+import {Context2d} from "core/util/canvas"
 
 export class GlyphRendererView extends RendererView {
   model: GlyphRenderer
@@ -319,7 +320,7 @@ export class GlyphRendererView extends RendererView {
     return ctx.restore();
   }
 
-  draw_legend(ctx, x0, x1, y0, y1, field, label) {
+  draw_legend(ctx: Context2d, x0, x1, y0, y1, field, label) {
     const index = this.model.get_reference_point(field, label);
     return this.glyph.draw_legend_for_index(ctx, x0, x1, y0, y1, index);
   }

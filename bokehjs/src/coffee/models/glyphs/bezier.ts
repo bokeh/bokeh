@@ -1,6 +1,7 @@
 /* XXX: partial */
 import {NumberSpec} from "core/vectorization"
 import {RBush} from "core/util/spatial";
+import {Context2d} from "core/util/canvas"
 import {Glyph, GlyphView} from "./glyph"
 
 // algorithm adapted from http://stackoverflow.com/a/14429749/3406693
@@ -91,7 +92,7 @@ export class BezierView extends GlyphView {
     return new RBush(points);
   }
 
-  _render(ctx, indices, {sx0, sy0, sx1, sy1, scx0, scy0, scx1, scy1}) {
+  _render(ctx: Context2d, indices, {sx0, sy0, sx1, sy1, scx0, scy0, scx1, scy1}) {
     if (this.visuals.line.doit) {
       for (const i of indices) {
         if (isNaN(sx0[i]+sy0[i]+sx1[i]+sy1[i]+scx0[i]+scy0[i]+scx1[i]+scy1[i])) {
@@ -108,7 +109,7 @@ export class BezierView extends GlyphView {
     }
   }
 
-  draw_legend_for_index(ctx, x0, x1, y0, y1, index) {
+  draw_legend_for_index(ctx: Context2d, x0, x1, y0, y1, index) {
     return this._generic_line_legend(ctx, x0, x1, y0, y1, index);
   }
 }

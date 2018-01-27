@@ -3,6 +3,7 @@ import {Annotation, AnnotationView} from "./annotation";
 import {show, hide} from "core/dom";
 import {isString, isArray} from "core/util/types";
 import {get_text_height} from "core/util/text"
+import {Context2d} from "core/util/canvas"
 
 export abstract class TextAnnotationView extends AnnotationView {
   model: TextAnnotation
@@ -26,13 +27,13 @@ export abstract class TextAnnotationView extends AnnotationView {
     }
   }
 
-  _calculate_text_dimensions(ctx, text) {
+  _calculate_text_dimensions(ctx: Context2d, text) {
     const { width } = ctx.measureText(text);
     const { height } = get_text_height(this.visuals.text.font_value());
     return [width, height];
   }
 
-  _calculate_bounding_box_dimensions(ctx, text) {
+  _calculate_bounding_box_dimensions(ctx: Context2d, text) {
     let x_offset, y_offset;
     const [width, height] = this._calculate_text_dimensions(ctx, text);
 
@@ -65,7 +66,7 @@ export abstract class TextAnnotationView extends AnnotationView {
     return null;
   }
 
-  _canvas_text(ctx, text, sx, sy, angle) {
+  _canvas_text(ctx: Context2d, text, sx, sy, angle) {
     this.visuals.text.set_value(ctx);
     const bbox_dims = this._calculate_bounding_box_dimensions(ctx, text);
 
@@ -97,7 +98,7 @@ export abstract class TextAnnotationView extends AnnotationView {
     return ctx.restore();
   }
 
-  _css_text(ctx, text, sx, sy, angle) {
+  _css_text(ctx: Context2d, text, sx, sy, angle) {
     let line_dash;
     hide(this.el);
 

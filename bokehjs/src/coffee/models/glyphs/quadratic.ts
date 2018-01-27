@@ -1,6 +1,7 @@
 /* XXX: partial */
 import {NumberSpec} from "core/vectorization"
 import {RBush} from "core/util/spatial";
+import {Context2d} from "core/util/canvas"
 import {Glyph, GlyphView} from "./glyph"
 
 // Formula from: http://pomax.nihongoresources.com/pages/bezier/
@@ -42,7 +43,7 @@ export class QuadraticView extends GlyphView {
     return new RBush(points);
   }
 
-  _render(ctx, indices, {sx0, sy0, sx1, sy1, scx, scy}) {
+  _render(ctx: Context2d, indices, {sx0, sy0, sx1, sy1, scx, scy}) {
     if (this.visuals.line.doit) {
       for (const i of indices) {
         if (isNaN(sx0[i]+sy0[i]+sx1[i]+sy1[i]+scx[i]+scy[i])) {
@@ -59,7 +60,7 @@ export class QuadraticView extends GlyphView {
     }
   }
 
-  draw_legend_for_index(ctx, x0, x1, y0, y1, index) {
+  draw_legend_for_index(ctx: Context2d, x0, x1, y0, y1, index) {
     return this._generic_line_legend(ctx, x0, x1, y0, y1, index);
   }
 }

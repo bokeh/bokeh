@@ -4,6 +4,7 @@ import {DistanceSpec, AngleSpec} from "core/vectorization"
 import * as hittest from "core/hittest";
 import * as p from "core/properties";
 import {max} from "core/util/array";
+import {Context2d} from "core/util/canvas"
 
 export class RectView extends XYGlyphView {
   model: Rect
@@ -53,7 +54,7 @@ export class RectView extends XYGlyphView {
     })());
   }
 
-  _render(ctx, indices, {sx, sy, sx0, sy1, sw, sh, _angle}) {
+  _render(ctx: Context2d, indices, {sx, sy, sx0, sy1, sw, sh, _angle}) {
     if (this.visuals.fill.doit) {
       for (const i of indices) {
         if (isNaN(sx[i] + sy[i] + sx0[i] + sy1[i] + sw[i] + sh[i] + _angle[i])) {
@@ -243,7 +244,7 @@ export class RectView extends XYGlyphView {
     })());
   }
 
-  draw_legend_for_index(ctx, x0, x1, y0, y1, index) {
+  draw_legend_for_index(ctx: Context2d, x0, x1, y0, y1, index) {
     return this._generic_area_legend(ctx, x0, x1, y0, y1, index);
   }
 

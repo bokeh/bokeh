@@ -4,6 +4,7 @@ import {NumberSpec, DistanceSpec, AngleSpec, StringSpec} from "core/vectorizatio
 import {Anchor} from "core/enums"
 import {logger} from "core/logging";
 import * as p from "core/properties"
+import {Context2d} from "core/util/canvas"
 
 export class ImageURLView extends GlyphView {
   model: ImageURL
@@ -95,7 +96,7 @@ export class ImageURLView extends GlyphView {
     }
   }
 
-  _render(ctx, indices, {_url, image, sx, sy, sw, sh, _angle}) {
+  _render(ctx: Context2d, indices, {_url, image, sx, sy, sw, sh, _angle}) {
 
     // TODO (bev): take actual border width into account when clipping
     const { frame } = this.renderer.plot_view;
@@ -144,7 +145,7 @@ export class ImageURLView extends GlyphView {
     }
   }
 
-  _render_image(ctx, i, image, sx, sy, sw, sh, angle) {
+  _render_image(ctx: Context2d, i, image, sx, sy, sw, sh, angle) {
     if (isNaN(sw[i])) { sw[i] = image.width; }
     if (isNaN(sh[i])) { sh[i] = image.height; }
 

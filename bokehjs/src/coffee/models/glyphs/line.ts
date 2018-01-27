@@ -1,11 +1,12 @@
 /* XXX: partial */
 import {XYGlyph, XYGlyphView} from "./xy_glyph";
 import * as hittest from "core/hittest"
+import {Context2d} from "core/util/canvas"
 
 export class LineView extends XYGlyphView {
   model: Line
 
-  _render(ctx, indices, {sx, sy}) {
+  _render(ctx: Context2d, indices, {sx, sy}) {
     let drawing = false;
     this.visuals.line.set_value(ctx);
     let last_index = null;
@@ -123,7 +124,7 @@ export class LineView extends XYGlyphView {
     return [res.x, res.y];
   }
 
-  draw_legend_for_index(ctx, x0, x1, y0, y1, index) {
+  draw_legend_for_index(ctx: Context2d, x0, x1, y0, y1, index) {
     return this._generic_line_legend(ctx, x0, x1, y0, y1, index);
   }
 }

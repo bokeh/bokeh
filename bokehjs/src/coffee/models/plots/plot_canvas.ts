@@ -24,6 +24,7 @@ import {isStrictNaN} from "core/util/types";
 import {difference, sortBy, reversed, includes} from "core/util/array";
 import {extend, values} from "core/util/object";
 import {update_panel_constraints, _view_sizes} from "core/layout/side_panel"
+import {Context2d} from "core/util/canvas"
 
 // Notes on WebGL support:
 // Glyps can be rendered into the original 2D canvas, or in a (hidden)
@@ -37,6 +38,8 @@ import {update_panel_constraints, _view_sizes} from "core/layout/side_panel"
 // marker that we use throughout that determines whether we have gl support.
 
 let global_glcanvas: HTMLCanvasElement | null = null
+
+export type FrameBox = [number, number, number, number]
 
 export class PlotCanvasView extends DOMView {
   model: PlotCanvas
@@ -181,7 +184,7 @@ export class PlotCanvasView extends DOMView {
     }
   }
 
-  prepare_webgl(ratio, frame_box) {
+  prepare_webgl(ratio: number, frame_box: FrameBox): void {
     // Prepare WebGL for a drawing pass
     const { ctx } = this.canvas_view;
     const canvas = this.canvas_view.get_canvas_element();
@@ -199,7 +202,7 @@ export class PlotCanvasView extends DOMView {
       gl.scissor(ratio*frame_box[0], ratio*frame_box[1], ratio*frame_box[2], ratio*frame_box[3]);
       // Setup blending
       gl.enable(gl.BLEND);
-      return gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE_MINUS_DST_ALPHA, gl.ONE);  // premultipliedAlpha == true
+      gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE_MINUS_DST_ALPHA, gl.ONE);  // premultipliedAlpha == true
     }
   }
       //gl.blendFuncSeparate(gl.ONE_MINUS_DST_ALPHA, gl.DST_ALPHA, gl.ONE_MINUS_DST_ALPHA, gl.ONE)  # Without premultipliedAlpha == false
@@ -769,7 +772,7 @@ export class PlotCanvasView extends DOMView {
     ctx.scale(ratio, ratio);
     ctx.translate(0.5, 0.5);
 
-    const frame_box = [
+    const frame_box: FrameBox = [
       this.frame._left.value,
       this.frame._top.value,
       this.frame._width.value,
@@ -814,7 +817,7 @@ export class PlotCanvasView extends DOMView {
     }
   }
 
-  _paint_levels(ctx, levels, clip_region = null) {
+  _paint_levels(ctx: Context2d, levels, clip_region = null) {
     ctx.save();
 
     if ((clip_region != null) && (this.model.plot.output_backend === "canvas")) {
@@ -842,18 +845,23 @@ export class PlotCanvasView extends DOMView {
     return ctx.restore();
   }
 
-  _map_hook(_ctx, _frame_box) {}
+  _map_hook(_ctx: Context2d, _frame_box: FrameBox): void {}
 
-  _paint_empty(ctx, frame_box) {
-    ctx.clearRect(0, 0,  this.canvas_view.model._width.value, this.canvas_view.model._height.value);
+  _paint_empty(ctx: Context2d, frame_box: FrameBox): void {
+    const [cx, cy, cw, ch] = [0, 0, this.canvas_view.model._width.value, this.canvas_view.model._height.value]
+    const [fx, fy, fw, fh] = frame_box
+
+    ctx.clearRect(cx, cy, cw, ch)
+
     if (this.visuals.border_fill.doit) {
       this.visuals.border_fill.set_value(ctx);
-      ctx.fillRect(0, 0,  this.canvas_view.model._width.value, this.canvas_view.model._height.value);
-      ctx.clearRect(...frame_box || []);
+      ctx.fillRect(cx, cy, cw, ch)
+      ctx.clearRect(fx, fy, fw, fh)
     }
+
     if (this.visuals.background_fill.doit) {
       this.visuals.background_fill.set_value(ctx);
-      return ctx.fillRect(...frame_box || []);
+      ctx.fillRect(fx, fy, fw, fh)
     }
   }
 

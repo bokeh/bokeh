@@ -8,6 +8,7 @@ import {BBox} from "core/util/bbox";
 import {max, all} from "core/util/array";
 import {values} from "core/util/object";
 import {isString, isArray} from "core/util/types"
+import {Context2d} from "core/util/canvas"
 
 export class LegendView extends AnnotationView {
   model: Legend
@@ -192,7 +193,7 @@ export class LegendView extends AnnotationView {
     return ctx.restore();
   }
 
-  _draw_legend_box(ctx, bbox) {
+  _draw_legend_box(ctx: Context2d, bbox) {
     ctx.beginPath();
     ctx.rect(bbox.x, bbox.y, bbox.width, bbox.height);
     this.visuals.background_fill.set_value(ctx);
@@ -203,7 +204,7 @@ export class LegendView extends AnnotationView {
     }
   }
 
-  _draw_legend_items(ctx, bbox) {
+  _draw_legend_items(ctx: Context2d, bbox) {
     let yoffset;
     const { glyph_height } = this.model;
     const { glyph_width } = this.model;

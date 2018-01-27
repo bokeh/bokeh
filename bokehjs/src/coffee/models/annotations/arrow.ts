@@ -7,6 +7,7 @@ import {NumberSpec} from "core/vectorization"
 import {SpatialUnits} from "core/enums"
 import * as p from "core/properties";
 import {atan2} from "core/util/math"
+import {Context2d} from "core/util/canvas"
 
 export class ArrowView extends AnnotationView {
   model: Arrow
@@ -89,7 +90,7 @@ export class ArrowView extends AnnotationView {
     return ctx.restore();
   }
 
-  _arrow_body(ctx) {
+  _arrow_body(ctx: Context2d) {
     if (!this.visuals.line.doit)
       return;
 
@@ -103,7 +104,7 @@ export class ArrowView extends AnnotationView {
     }
   }
 
-  _arrow_head(ctx, action, head, start, end) {
+  _arrow_head(ctx: Context2d, action, head, start, end) {
     for (let i = 0, _end = this._x_start.length; i < _end; i++) {
       // arrow head runs orthogonal to arrow body
       const angle = (Math.PI/2) + atan2([start[0][i], start[1][i]], [end[0][i], end[1][i]]);

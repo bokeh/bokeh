@@ -5,6 +5,7 @@ import {Dimension} from "core/enums"
 import * as hittest from "core/hittest";
 import * as p from "core/properties"
 import {range, map} from "core/util/array"
+import {Context2d} from "core/util/canvas"
 
 export class CircleView extends XYGlyphView {
   model: Circle
@@ -56,7 +57,7 @@ export class CircleView extends XYGlyphView {
     return this.index.indices(bbox);
   }
 
-  _render(ctx, indices, {sx, sy, sradius}) {
+  _render(ctx: Context2d, indices, {sx, sy, sradius}) {
     for (const i of indices) {
       if (isNaN(sx[i]+sy[i]+sradius[i])) {
         continue;
@@ -206,7 +207,7 @@ export class CircleView extends XYGlyphView {
 
   // circle does not inherit from marker (since it also accepts radius) so we
   // must supply a draw_legend for it  here
-  draw_legend_for_index(ctx, x0, x1, y0, y1, index) {
+  draw_legend_for_index(ctx: Context2d, x0, x1, y0, y1, index) {
     // using objects like this seems a little wonky, since the keys are coerced to
     // stings, but it works
     const indices = [index];

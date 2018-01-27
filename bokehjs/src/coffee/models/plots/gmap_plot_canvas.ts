@@ -1,5 +1,6 @@
 /* XXX: partial */
 import {proj4, mercator} from "core/util/proj4";
+import {Context2d} from "core/util/canvas"
 
 import {PlotCanvas, PlotCanvasView} from "./plot_canvas";
 import {Signal} from "core/signaling";
@@ -221,7 +222,7 @@ export class GMapPlotCanvasView extends PlotCanvasView {
   }
 
   // this overrides the standard _paint_empty to make the inner canvas transparent
-  _paint_empty(ctx, frame_box) {
+  _paint_empty(ctx: Context2d, frame_box) {
     const ow = this.canvas._width.value;
     const oh = this.canvas._height.value;
     const [left, top, iw, ih] = frame_box;

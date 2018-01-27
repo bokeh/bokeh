@@ -3,6 +3,7 @@ import {XYGlyph, XYGlyphView} from "./xy_glyph";
 import {DistanceSpec} from "core/vectorization"
 import * as hittest from "core/hittest";
 import * as p from "core/properties"
+import {Context2d} from "core/util/canvas"
 
 export class AnnulusView extends XYGlyphView {
   model: Annulus
@@ -20,7 +21,7 @@ export class AnnulusView extends XYGlyphView {
     }
   }
 
-  _render(ctx, indices, {sx, sy, sinner_radius, souter_radius}) {
+  _render(ctx: Context2d, indices, {sx, sy, sinner_radius, souter_radius}) {
     for (const i of indices) {
       if (isNaN(sx[i] + sy[i] + sinner_radius[i] + souter_radius[i]))
         continue;
@@ -92,7 +93,7 @@ export class AnnulusView extends XYGlyphView {
     return hittest.create_1d_hit_test_result(hits);
   }
 
-  draw_legend_for_index(ctx, x0, x1, y0, y1, index) {
+  draw_legend_for_index(ctx: Context2d, x0, x1, y0, y1, index) {
     const indices = [index];
     const sx = { };
     sx[index] = (x0+x1)/2;
