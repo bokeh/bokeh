@@ -96,6 +96,8 @@ export namespace Dropdown {
     default_value: string
     menu: ([string, string] | null)[]
   }
+
+  export interface Opts extends AbstractButton.Opts {}
 }
 
 export interface Dropdown extends Dropdown.Attrs {}

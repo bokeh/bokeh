@@ -160,6 +160,8 @@ export namespace MultiLine {
     xs: NumberSpec
     ys: NumberSpec
   }
+
+  export interface Opts extends Glyph.Opts {}
 }
 
 export interface MultiLine extends MultiLine.Attrs {}

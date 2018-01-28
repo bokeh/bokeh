@@ -110,6 +110,8 @@ export namespace BoxSelectTool {
     callback: any // XXX
     overlay: BoxAnnotation
   }
+
+  export interface Opts extends SelectTool.Opts {}
 }
 
 export interface BoxSelectTool extends BoxSelectTool.Attrs {}

@@ -45,6 +45,8 @@ export namespace Arc {
     start_angle: AngleSpec
     end_angle: AngleSpec
   }
+
+  export interface Opts extends XYGlyph.Opts {}
 }
 
 export interface Arc extends Arc.Attrs {}

@@ -65,6 +65,8 @@ export namespace Box {
     children: LayoutDOM[]
     spacing: number
   }
+
+  export interface Opts extends LayoutDOM.Opts {}
 }
 
 export interface Box extends Box.Attrs {}

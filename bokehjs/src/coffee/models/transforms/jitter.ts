@@ -12,6 +12,8 @@ export namespace Jitter {
     distribution: Distribution
     range: Range
   }
+
+  export interface Opts extends Transform.Opts {}
 }
 
 export interface Jitter extends Jitter.Attrs {}

@@ -9,6 +9,8 @@ export namespace TableWidget {
     source: DataSource
     view: CDSView
   }
+
+  export interface Opts extends Widget.Opts {}
 }
 
 export interface TableWidget extends TableWidget.Attrs {}

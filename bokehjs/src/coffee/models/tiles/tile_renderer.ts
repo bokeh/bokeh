@@ -350,6 +350,8 @@ export namespace TileRenderer {
     tile_source: TileSource
     render_parents: boolean
   }
+
+  export interface Opts extends Renderer.Opts {}
 }
 
 export interface TileRenderer extends TileRenderer.Attrs {}

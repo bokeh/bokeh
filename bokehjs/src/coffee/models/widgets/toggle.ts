@@ -22,6 +22,8 @@ export namespace Toggle {
   export interface Attrs extends AbstractButton.Attrs {
     active: boolean
   }
+
+  export interface Opts extends AbstractButton.Opts {}
 }
 
 export interface Toggle extends Toggle.Attrs {}

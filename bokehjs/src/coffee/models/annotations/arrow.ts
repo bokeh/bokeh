@@ -139,6 +139,8 @@ export namespace Arrow {
     x_range_name: string
     y_range_name: string
   }
+
+  export interface Opts extends Annotation.Opts {}
 }
 
 export interface Arrow extends Arrow.Attrs {}

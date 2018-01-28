@@ -6,6 +6,8 @@ export namespace Stack {
   export interface Attrs extends Expression.Attrs {
     fields: string[]
   }
+
+  export interface Opts extends Expression.Opts {}
 }
 
 export interface Stack extends Stack.Attrs {}

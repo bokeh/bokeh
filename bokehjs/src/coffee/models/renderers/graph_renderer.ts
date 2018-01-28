@@ -94,6 +94,8 @@ export namespace GraphRenderer {
     selection_policy: GraphHitTestPolicy
     inspection_policy: GraphHitTestPolicy
   }
+
+  export interface Opts extends Renderer.Opts {}
 }
 
 export interface GraphRenderer extends GraphRenderer.Attrs {}

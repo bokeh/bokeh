@@ -156,6 +156,8 @@ export namespace Marker {
     size: DistanceSpec
     angle: AngleSpec
   }
+
+  export interface Opts extends XYGlyph.Opts {}
 }
 
 export interface Marker extends Marker.Attrs {}

@@ -7,6 +7,8 @@ export namespace DataRange {
     names: string[]
     renderers: Renderer[]
   }
+
+  export interface Opts extends Range.Opts {}
 }
 
 export interface DataRange extends DataRange.Attrs {}

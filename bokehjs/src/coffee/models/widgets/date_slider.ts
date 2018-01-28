@@ -22,6 +22,8 @@ export class DateSliderView extends AbstractSliderView {
 
 export namespace DateSlider {
   export interface Attrs extends AbstractSlider.Attrs {}
+
+  export interface Opts extends AbstractSlider.Opts {}
 }
 
 export interface DateSlider extends DateSlider.Attrs {}

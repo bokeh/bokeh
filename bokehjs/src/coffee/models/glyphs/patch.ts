@@ -59,6 +59,8 @@ export class PatchView extends XYGlyphView {
 export namespace Patch {
   export interface Attrs extends XYGlyph.Attrs {
   }
+
+  export interface Opts extends XYGlyph.Opts {}
 }
 
 export interface Patch extends Patch.Attrs {}

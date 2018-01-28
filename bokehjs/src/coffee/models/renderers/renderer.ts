@@ -56,6 +56,8 @@ export namespace Renderer {
   }
 
   export type Visuals = visuals.Visuals
+
+  export interface Opts extends Model.Opts {}
 }
 
 export interface Renderer extends Renderer.Attrs {}

@@ -177,6 +177,8 @@ export namespace BoxZoomTool {
     overlay: BoxAnnotation
     match_aspect: boolean
   }
+
+  export interface Opts extends GestureTool.Opts {}
 }
 
 export interface BoxZoomTool extends BoxZoomTool.Attrs {}

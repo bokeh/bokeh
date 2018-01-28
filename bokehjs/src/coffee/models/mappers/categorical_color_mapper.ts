@@ -23,6 +23,8 @@ export namespace CategoricalColorMapper {
     start: number
     end: number
   }
+
+  export interface Opts extends ColorMapper.Opts {}
 }
 
 export interface CategoricalColorMapper extends CategoricalColorMapper.Attrs {}

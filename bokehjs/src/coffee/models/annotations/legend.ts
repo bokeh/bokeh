@@ -292,6 +292,8 @@ export namespace Legend {
     items: LegendItem[]
     click_policy: LegendClickPolicy
   }
+
+  export interface Opts extends Annotation.Opts {}
 }
 
 export interface Legend extends Legend.Attrs {}

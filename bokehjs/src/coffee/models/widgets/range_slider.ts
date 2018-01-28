@@ -22,6 +22,8 @@ export class RangeSliderView extends AbstractSliderView {
 
 export namespace RangeSlider {
   export interface Attrs extends AbstractSlider.Attrs {}
+
+  export interface Opts extends AbstractSlider.Opts {}
 }
 
 export interface RangeSlider extends RangeSlider.Attrs {}

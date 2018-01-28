@@ -138,6 +138,8 @@ export namespace Image {
     dilate: boolean
     color_mapper: ColorMapper
   }
+
+  export interface Opts extends XYGlyph.Opts {}
 }
 
 export interface Image extends Image.Attrs {}

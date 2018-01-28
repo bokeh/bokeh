@@ -9,6 +9,8 @@ export namespace Filter {
   export interface Attrs extends Model.Attrs {
     filter: boolean[] | null
   }
+
+  export interface Opts extends Model.Opts {}
 }
 
 export interface Filter extends Filter.Attrs {}

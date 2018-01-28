@@ -21,6 +21,8 @@ export namespace Annotation {
   export interface Attrs extends Renderer.Attrs {
     plot: Plot
   }
+
+  export interface Opts extends Renderer.Opts {}
 }
 
 export interface Annotation extends Annotation.Attrs {

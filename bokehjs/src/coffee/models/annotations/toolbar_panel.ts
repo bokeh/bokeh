@@ -55,6 +55,8 @@ export namespace ToolbarPanel {
   export interface Attrs extends Annotation.Attrs {
     toolbar: Toolbar
   }
+
+  export interface Opts extends Annotation.Opts {}
 }
 
 export interface ToolbarPanel extends ToolbarPanel.Attrs {}

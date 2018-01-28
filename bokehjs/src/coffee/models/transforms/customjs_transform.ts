@@ -11,6 +11,8 @@ export namespace CustomJSTransform {
     func: string
     v_func: string
   }
+
+  export interface Opts extends Transform.Opts {}
 }
 
 export interface CustomJSTransform extends CustomJSTransform.Attrs {}

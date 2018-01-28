@@ -117,6 +117,8 @@ export namespace Segment {
     x1: NumberSpec
     y1: NumberSpec
   }
+
+  export interface Opts extends Glyph.Opts {}
 }
 
 export interface Segment extends Segment.Attrs {}

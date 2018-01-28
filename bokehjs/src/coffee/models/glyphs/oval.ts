@@ -95,6 +95,8 @@ export namespace Oval {
     width: DistanceSpec
     height: DistanceSpec
   }
+
+  export interface Opts extends XYGlyph.Opts {}
 }
 
 export interface Oval extends Oval.Attrs {}

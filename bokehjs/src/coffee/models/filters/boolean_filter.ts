@@ -9,6 +9,8 @@ export namespace BooleanFilter {
   export interface Attrs extends Filter.Attrs {
     booleans: boolean[] | null
   }
+
+  export interface Opts extends Filter.Opts {}
 }
 
 export interface BooleanFilter extends BooleanFilter.Attrs {}

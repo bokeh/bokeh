@@ -230,6 +230,8 @@ export namespace PolyEditTool {
     vertex_renderer: (GlyphRenderer & HasCDS & HasXYGlyph)
     renderers: (GlyphRenderer & HasCDS & HasPolyGlyph)[]
   }
+
+  export interface Opts extends EditTool.Opts {}
 }
 
 export interface PolyEditTool extends PolyEditTool.Attrs {}

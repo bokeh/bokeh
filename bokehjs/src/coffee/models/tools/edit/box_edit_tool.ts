@@ -135,6 +135,8 @@ export namespace BoxEditTool {
     dimensions: Dimensions
     renderers: (GlyphRenderer & HasRectCDS)[]
   }
+
+  export interface Opts extends EditTool.Opts {}
 }
 
 export interface BoxEditTool extends BoxEditTool.Attrs {}

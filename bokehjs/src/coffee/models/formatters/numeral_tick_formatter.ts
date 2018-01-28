@@ -11,6 +11,8 @@ export namespace NumeralTickFormatter {
     language: string
     rounding: RoundingFunction
   }
+
+  export interface Opts extends TickFormatter.Opts {}
 }
 
 export interface NumeralTickFormatter extends NumeralTickFormatter.Attrs {}

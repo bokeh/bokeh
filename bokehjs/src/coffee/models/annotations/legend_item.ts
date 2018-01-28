@@ -12,6 +12,8 @@ export namespace LegendItem {
     label: StringSpec | null
     renderers: Renderer[]
   }
+
+  export interface Opts extends Model.Opts {}
 }
 
 export interface LegendItem extends LegendItem.Attrs {}

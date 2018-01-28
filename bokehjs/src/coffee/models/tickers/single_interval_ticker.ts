@@ -9,6 +9,8 @@ export namespace SingleIntervalTicker {
   export interface Attrs extends ContinuousTicker.Attrs {
     interval: number
   }
+
+  export interface Opts extends ContinuousTicker.Opts {}
 }
 
 export interface SingleIntervalTicker extends SingleIntervalTicker.Attrs {}

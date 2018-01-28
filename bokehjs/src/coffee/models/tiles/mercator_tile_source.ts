@@ -8,6 +8,8 @@ export namespace MercatorTileSource {
     snap_to_zoom: boolean
     wrap_around: boolean
   }
+
+  export interface Opts extends TileSource.Opts {}
 }
 
 export interface MercatorTileSource extends MercatorTileSource.Attrs {}

@@ -10,6 +10,8 @@ export namespace CompositeTicker {
   export interface Attrs extends ContinuousTicker.Attrs {
     tickers: ContinuousTicker[]
   }
+
+  export interface Opts extends ContinuousTicker.Opts {}
 }
 
 export interface CompositeTicker extends CompositeTicker.Attrs {}

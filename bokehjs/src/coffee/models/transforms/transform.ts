@@ -3,6 +3,8 @@ import {Model} from "../../model"
 
 export namespace Transform {
   export interface Attrs extends Model.Attrs {}
+
+  export interface Opts extends Model.Opts {}
 }
 
 export interface Transform extends Transform.Attrs {}

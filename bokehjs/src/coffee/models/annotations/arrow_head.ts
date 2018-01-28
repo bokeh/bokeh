@@ -7,6 +7,8 @@ export namespace ArrowHead {
   export interface Attrs extends Annotation.Attrs {
     size: number
   }
+
+  export interface Opts extends Annotation.Opts {}
 }
 
 export interface ArrowHead extends ArrowHead.Attrs {}
@@ -37,6 +39,8 @@ ArrowHead.initClass()
 export namespace OpenHead {
   export interface Attrs extends ArrowHead.Attrs {
   }
+
+  export interface Opts extends ArrowHead.Opts {}
 }
 
 export interface OpenHead extends OpenHead.Attrs {}
@@ -79,6 +83,8 @@ OpenHead.initClass()
 export namespace NormalHead {
   export interface Attrs extends ArrowHead.Attrs {
   }
+
+  export interface Opts extends ArrowHead.Opts {}
 }
 
 export interface NormalHead extends NormalHead.Attrs {}
@@ -134,6 +140,8 @@ NormalHead.initClass()
 export namespace VeeHead {
   export interface Attrs extends ArrowHead.Attrs {
   }
+
+  export interface Opts extends ArrowHead.Opts {}
 }
 
 export interface VeeHead extends VeeHead.Attrs {}
@@ -191,6 +199,8 @@ VeeHead.initClass()
 export namespace TeeHead {
   export interface Attrs extends ArrowHead.Attrs {
   }
+
+  export interface Opts extends ArrowHead.Opts {}
 }
 
 export interface TeeHead extends TeeHead.Attrs {}

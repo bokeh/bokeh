@@ -42,6 +42,8 @@ export namespace Tool {
   export interface Attrs extends Model.Attrs {
     active: boolean
   }
+
+  export interface Opts extends Model.Opts {}
 }
 
 export interface Tool extends Tool.Attrs {}

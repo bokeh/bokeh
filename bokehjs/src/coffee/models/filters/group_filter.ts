@@ -9,6 +9,8 @@ export namespace GroupFilter {
     column_name: string
     group: string
   }
+
+  export interface Opts extends Filter.Opts {}
 }
 
 export interface GroupFilter extends GroupFilter.Attrs {}

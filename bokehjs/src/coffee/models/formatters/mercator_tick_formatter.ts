@@ -8,6 +8,8 @@ export namespace MercatorTickFormatter {
   export interface Attrs extends BasicTickFormatter.Attrs {
     dimension: LatLon
   }
+
+  export interface Opts extends BasicTickFormatter.Opts {}
 }
 
 export interface MercatorTickFormatter extends MercatorTickFormatter.Attrs {}

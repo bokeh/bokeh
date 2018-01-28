@@ -21,6 +21,8 @@ export namespace Div {
   export interface Attrs extends Markup.Attrs {
     render_as_text: boolean
   }
+
+  export interface Opts extends Markup.Opts {}
 }
 
 export interface Div extends Div.Attrs {}

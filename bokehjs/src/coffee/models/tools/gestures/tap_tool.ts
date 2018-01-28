@@ -77,6 +77,8 @@ export namespace TapTool {
     behavior: "select" | "inspect"
     callback: any // XXX
   }
+
+  export interface Opts extends SelectTool.Opts {}
 }
 
 export interface TapTool extends TapTool.Attrs {}

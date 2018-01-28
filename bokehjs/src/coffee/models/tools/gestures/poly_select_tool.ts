@@ -110,6 +110,8 @@ export namespace PolySelectTool {
     callback: any // XXX
     overlay: PolyAnnotation
   }
+
+  export interface Opts extends SelectTool.Opts {}
 }
 
 export interface PolySelectTool extends PolySelectTool.Attrs {}

@@ -8,6 +8,8 @@ export namespace CustomJSFilter {
     args: {[key: string]: any}
     code: string
   }
+
+  export interface Opts extends Filter.Opts {}
 }
 
 export interface CustomJSFilter extends CustomJSFilter.Attrs {}

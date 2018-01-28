@@ -71,6 +71,8 @@ export namespace Label {
     y_range_name: string
     render_mode: RenderMode
   }
+
+  export interface Opts extends TextAnnotation.Opts {}
 }
 
 export interface Label extends Label.Attrs {}

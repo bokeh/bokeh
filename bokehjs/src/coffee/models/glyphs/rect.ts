@@ -260,6 +260,8 @@ export namespace Rect {
     height: DistanceSpec
     dilate: boolean
   }
+
+  export interface Opts extends XYGlyph.Opts {}
 }
 
 export interface Rect extends Rect.Attrs {}

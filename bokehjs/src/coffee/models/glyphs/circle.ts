@@ -230,6 +230,8 @@ export namespace Circle {
     radius: DistanceSpec | null
     radius_dimension: Dimension
   }
+
+  export interface Opts extends XYGlyph.Opts {}
 }
 
 export interface Circle extends Circle.Attrs {}

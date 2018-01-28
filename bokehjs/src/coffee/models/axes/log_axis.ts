@@ -12,6 +12,8 @@ export namespace LogAxis {
     ticker:    LogTicker
     formatter: LogTickFormatter
   }
+
+  export interface Opts extends ContinuousAxis.Opts {}
 }
 
 export interface LogAxis extends LogAxis.Attrs {}

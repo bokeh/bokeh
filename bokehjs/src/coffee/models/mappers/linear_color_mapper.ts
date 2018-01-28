@@ -12,6 +12,8 @@ export namespace LinearColorMapper {
     high_color: string // XXX: Color
     low_color: string // XXX: Color
   }
+
+  export interface Opts extends ColorMapper.Opts {}
 }
 
 export interface LinearColorMapper extends LinearColorMapper.Attrs {}

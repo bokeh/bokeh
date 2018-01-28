@@ -2,6 +2,8 @@ import {AdaptiveTicker} from "./adaptive_ticker"
 
 export namespace BasicTicker {
   export interface Attrs extends AdaptiveTicker.Attrs {}
+
+  export interface Opts extends AdaptiveTicker.Opts {}
 }
 
 export interface BasicTicker extends BasicTicker.Attrs {}

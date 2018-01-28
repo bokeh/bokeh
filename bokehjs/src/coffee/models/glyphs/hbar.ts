@@ -44,6 +44,8 @@ export namespace HBar {
     height: DistanceSpec
     right: NumberSpec
   }
+
+  export interface Opts extends Box.Opts {}
 }
 
 export interface HBar extends HBar.Attrs {}

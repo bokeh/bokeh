@@ -92,6 +92,8 @@ export namespace MultiSelect {
     options: string[]
     size: number
   }
+
+  export interface Opts extends InputWidget.Opts {}
 }
 
 export interface MultiSelect extends MultiSelect.Attrs {}

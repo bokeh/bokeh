@@ -128,6 +128,8 @@ export namespace ColumnDataSource {
   export interface Attrs extends ColumnarDataSource.Attrs {
     data: {[key: string]: any[]}
   }
+
+  export interface Opts extends ColumnarDataSource.Opts {}
 }
 
 export interface ColumnDataSource extends ColumnDataSource.Attrs {}

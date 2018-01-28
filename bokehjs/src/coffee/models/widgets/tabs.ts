@@ -70,6 +70,8 @@ export namespace Tabs {
     active: number
     callback: any // XXX
   }
+
+  export interface Opts extends Widget.Opts {}
 }
 
 export interface Tabs extends Tabs.Attrs {}

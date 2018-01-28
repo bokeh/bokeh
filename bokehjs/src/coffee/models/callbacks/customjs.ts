@@ -8,6 +8,8 @@ export namespace CustomJS {
     args: {[key: string]: any}
     code: string
   }
+
+  export interface Opts extends Model.Opts {}
 }
 
 export interface CustomJS extends CustomJS.Attrs {}

@@ -23,6 +23,8 @@ export namespace CartesianFrame {
     x_scale: Scale
     y_scale: Scale
   }
+
+  export interface Opts extends LayoutCanvas.Opts {}
 }
 
 export interface CartesianFrame extends CartesianFrame.Attrs {}

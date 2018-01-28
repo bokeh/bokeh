@@ -268,6 +268,8 @@ export namespace DataTable {
     row_headers: boolean
     scroll_to_selection: boolean
   }
+
+  export interface Opts extends TableWidget.Opts {}
 }
 
 export interface DataTable extends DataTable.Attrs {}

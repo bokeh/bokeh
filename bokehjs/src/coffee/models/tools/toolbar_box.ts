@@ -18,6 +18,8 @@ import {build_views, remove_views} from "core/build_views"
 
 export namespace ProxyToolbar {
   export interface Attrs extends ToolbarBase.Attrs {}
+
+  export interface Opts extends ToolbarBase.Opts {}
 }
 
 export interface ProxyToolbar extends ProxyToolbar.Attrs {}
@@ -209,6 +211,8 @@ export namespace ToolbarBox {
     toolbar: Toolbar
     toolbar_location: Location
   }
+
+  export interface Opts extends LayoutDOM.Opts {}
 }
 
 export interface ToolbarBox extends ToolbarBox.Attrs {}

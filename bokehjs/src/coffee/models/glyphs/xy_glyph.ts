@@ -27,6 +27,8 @@ export namespace XYGlyph {
     x: NumberSpec
     y: NumberSpec
   }
+
+  export interface Opts extends Glyph.Opts {}
 }
 
 export interface XYGlyph extends XYGlyph.Attrs {}

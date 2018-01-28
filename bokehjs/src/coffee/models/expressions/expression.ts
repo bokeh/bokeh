@@ -3,6 +3,8 @@ import {Model} from "../../model"
 
 export namespace Expression {
   export interface Attrs extends Model.Attrs {}
+
+  export interface Opts extends Model.Opts {}
 }
 
 export interface Expression extends Expression.Attrs {}

@@ -356,6 +356,8 @@ export namespace LayoutDOM {
     sizing_mode: SizingMode
     css_classes: string[]
   }
+
+  export interface Opts extends Model.Opts {}
 }
 
 export interface LayoutDOM extends LayoutDOM.Attrs {}

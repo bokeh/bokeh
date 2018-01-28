@@ -12,6 +12,8 @@ export class PasswordInputView extends TextInputView {
 
 export namespace PasswordInput {
   export interface Attrs extends TextInput.Attrs {}
+
+  export interface Opts extends TextInput.Opts {}
 }
 
 export interface PasswordInput extends PasswordInput.Attrs {}

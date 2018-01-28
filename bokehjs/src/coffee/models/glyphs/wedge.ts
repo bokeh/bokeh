@@ -104,6 +104,8 @@ export namespace Wedge {
     start_angle: AngleSpec
     end_angle: AngleSpec
   }
+
+  export interface Opts extends XYGlyph.Opts {}
 }
 
 export interface Wedge extends Wedge.Attrs {}

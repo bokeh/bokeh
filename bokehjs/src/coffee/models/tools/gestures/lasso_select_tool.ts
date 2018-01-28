@@ -116,6 +116,8 @@ export namespace LassoSelectTool {
     callback: any // XXX
     overlay: PolyAnnotation
   }
+
+  export interface Opts extends SelectTool.Opts {}
 }
 
 export interface LassoSelectTool extends LassoSelectTool.Attrs {}

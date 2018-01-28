@@ -125,6 +125,8 @@ export namespace Bezier {
     cx1: NumberSpec
     cy1: NumberSpec
   }
+
+  export interface Opts extends Glyph.Opts {}
 }
 
 export interface Bezier extends Bezier.Attrs {}

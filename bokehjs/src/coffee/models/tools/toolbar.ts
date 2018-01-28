@@ -24,6 +24,8 @@ export namespace Toolbar {
     active_scroll: Scroll | "auto"
     active_tap: Tap | "auto"
   }
+
+  export interface Opts extends ToolbarBase.Opts {}
 }
 
 export interface Toolbar extends Toolbar.Attrs {}

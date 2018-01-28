@@ -91,6 +91,8 @@ export namespace Grid {
     minor_grid_line: Line
     band_fill: Fill
   }
+
+  export interface Opts extends GuideRenderer.Opts {}
 }
 
 export interface Grid extends Grid.Attrs {}

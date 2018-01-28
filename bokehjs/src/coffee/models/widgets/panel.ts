@@ -19,6 +19,8 @@ export namespace Panel {
     child: LayoutDOM
     closable: boolean
   }
+
+  export interface Opts extends Widget.Opts {}
 }
 
 export interface Panel extends Panel.Attrs {}

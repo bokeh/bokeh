@@ -44,6 +44,8 @@ export namespace VBar {
     width: DistanceSpec
     top: NumberSpec
   }
+
+  export interface Opts extends Box.Opts {}
 }
 
 export interface VBar extends VBar.Attrs {}

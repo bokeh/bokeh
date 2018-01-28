@@ -13,6 +13,8 @@ export namespace AjaxDataSource {
     method: HTTPMethod
     if_modified: boolean
   }
+
+  export interface Opts extends RemoteDataSource.Opts {}
 }
 
 export interface AjaxDataSource extends AjaxDataSource.Attrs {}

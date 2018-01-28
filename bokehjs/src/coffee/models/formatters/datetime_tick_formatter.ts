@@ -53,6 +53,8 @@ export namespace DatetimeTickFormatter {
     months: string[]
     years: string[]
   }
+
+  export interface Opts extends TickFormatter.Opts {}
 }
 
 export interface DatetimeTickFormatter extends DatetimeTickFormatter.Attrs {}

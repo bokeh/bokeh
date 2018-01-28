@@ -109,6 +109,8 @@ export namespace Plot {
     match_aspect: boolean
     aspect_scale: number
   }
+
+  export interface Opts extends LayoutDOM.Opts {}
 }
 
 export interface Plot extends Plot.Attrs {}

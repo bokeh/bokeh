@@ -10,6 +10,8 @@ export class SaveToolView extends ActionToolView {
 
 export namespace SaveTool {
   export interface Attrs extends ActionTool.Attrs {}
+
+  export interface Opts extends ActionTool.Opts {}
 }
 
 export interface SaveTool extends SaveTool.Attrs {}

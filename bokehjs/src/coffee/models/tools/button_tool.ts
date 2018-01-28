@@ -39,6 +39,8 @@ export namespace ButtonTool {
   export interface Attrs extends Tool.Attrs {
     disabled: boolean
   }
+
+  export interface Opts extends Tool.Opts {}
 }
 
 export interface ButtonTool extends ButtonTool.Attrs {}

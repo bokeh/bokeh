@@ -143,6 +143,8 @@ export namespace EditTool {
     empty_value: any
     renderers: (GlyphRenderer & HasCDS)[]
   }
+
+  export interface Opts extends GestureTool.Opts {}
 }
 
 export interface EditTool extends EditTool.Attrs {}

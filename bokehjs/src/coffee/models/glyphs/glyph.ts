@@ -358,6 +358,8 @@ export namespace Glyph {
     x_range_name: string
     y_range_name: string
   }
+
+  export interface Opts extends Model.Opts {}
 }
 
 export interface Glyph extends Glyph.Attrs {}

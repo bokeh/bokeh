@@ -25,6 +25,8 @@ export class SliderView extends AbstractSliderView {
 
 export namespace Slider {
   export interface Attrs extends AbstractSlider.Attrs {}
+
+  export interface Opts extends AbstractSlider.Opts {}
 }
 
 export interface Slider extends Slider.Attrs {}

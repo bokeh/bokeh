@@ -76,6 +76,8 @@ export namespace Text {
     x_offset: NumberSpec
     y_offset: NumberSpec
   }
+
+  export interface Opts extends XYGlyph.Opts {}
 }
 
 export interface Text extends Text.Attrs {}

@@ -100,6 +100,8 @@ export namespace AutocompleteInput {
   export interface Attrs extends TextInput.Attrs {
     completions: string[]
   }
+
+  export interface Opts extends TextInput.Opts {}
 }
 
 export interface AutocompleteInput extends AutocompleteInput.Attrs {}

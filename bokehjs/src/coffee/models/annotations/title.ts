@@ -116,6 +116,8 @@ export namespace Title {
     text_align: TextAlign
     text_baseline: TextBaseline
   }
+
+  export interface Opts extends TextAnnotation.Opts {}
 }
 
 export interface Title extends Title.Attrs {}

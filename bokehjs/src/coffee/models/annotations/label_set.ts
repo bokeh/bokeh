@@ -206,6 +206,8 @@ export namespace LabelSet {
     y_range_name: string
     render_mode: RenderMode
   }
+
+  export interface Opts extends TextAnnotation.Opts {}
 }
 
 export interface LabelSet extends LabelSet.Attrs {}

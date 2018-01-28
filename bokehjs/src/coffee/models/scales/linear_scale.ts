@@ -2,6 +2,8 @@ import {Scale} from "./scale"
 
 export namespace LinearScale {
   export interface Attrs extends Scale.Attrs {}
+
+  export interface Opts extends Scale.Opts {}
 }
 
 export interface LinearScale extends LinearScale.Attrs {}

@@ -51,6 +51,8 @@ export namespace CrosshairTool {
     render_mode: RenderMode
     spans: {width: Span, height: Span}
   }
+
+  export interface Opts extends InspectTool.Opts {}
 }
 
 export interface CrosshairTool extends CrosshairTool.Attrs {}

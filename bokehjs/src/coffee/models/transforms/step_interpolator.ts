@@ -8,6 +8,8 @@ export namespace StepInterpolator {
   export interface Attrs extends Interpolator.Attrs {
     mode: StepMode
   }
+
+  export interface Opts extends Interpolator.Opts {}
 }
 
 export interface StepInterpolator extends StepInterpolator.Attrs {}

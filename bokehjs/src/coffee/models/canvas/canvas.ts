@@ -131,6 +131,8 @@ export namespace Canvas {
     pixel_ratio: number
     output_backend: OutputBackend
   }
+
+  export interface Opts extends LayoutCanvas.Opts {}
 }
 
 export interface Canvas extends Canvas.Attrs {}

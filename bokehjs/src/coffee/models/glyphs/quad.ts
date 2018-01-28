@@ -53,6 +53,8 @@ export namespace Quad {
     left: NumberSpec
     top: NumberSpec
   }
+
+  export interface Opts extends Box.Opts {}
 }
 
 export interface Quad extends Quad.Attrs {}

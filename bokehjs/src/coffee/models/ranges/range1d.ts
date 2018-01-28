@@ -9,6 +9,8 @@ export namespace Range1d {
     min_interval: number
     max_interval: number
   }
+
+  export interface Opts extends Range.Opts {}
 }
 
 export interface Range1d extends Range1d.Attrs {}

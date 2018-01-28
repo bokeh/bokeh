@@ -140,6 +140,8 @@ export namespace PanTool {
   export interface Attrs extends GestureTool.Attrs {
     dimensions: Dimensions
   }
+
+  export interface Opts extends GestureTool.Opts {}
 }
 
 export interface PanTool extends PanTool.Attrs {}

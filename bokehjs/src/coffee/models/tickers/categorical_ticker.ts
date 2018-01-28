@@ -3,6 +3,8 @@ import {FactorRange, Factor} from "../ranges/factor_range"
 
 export namespace CategoricalTicker {
   export interface Attrs extends Ticker.Attrs {}
+
+  export interface Opts extends Ticker.Opts {}
 }
 
 export interface CategoricalTicker extends CategoricalTicker.Attrs {}

@@ -15,6 +15,8 @@ export class RedoToolView extends ActionToolView {
 
 export namespace RedoTool {
   export interface Attrs extends ActionTool.Attrs {}
+
+  export interface Opts extends ActionTool.Opts {}
 }
 
 export interface RedoTool extends RedoTool.Attrs {}

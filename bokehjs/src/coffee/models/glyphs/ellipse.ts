@@ -86,6 +86,8 @@ export namespace Ellipse {
     width: DistanceSpec
     height: DistanceSpec
   }
+
+  export interface Opts extends XYGlyph.Opts {}
 }
 
 export interface Ellipse extends Ellipse.Attrs {}

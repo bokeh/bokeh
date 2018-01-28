@@ -59,6 +59,8 @@ export namespace WheelZoomTool {
     dimensions: Dimensions
     speed: number
   }
+
+  export interface Opts extends GestureTool.Opts {}
 }
 
 export interface WheelZoomTool extends WheelZoomTool.Attrs {}

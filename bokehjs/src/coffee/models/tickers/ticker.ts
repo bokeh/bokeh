@@ -20,6 +20,8 @@ export type TickSpec<T> = {
 
 export namespace Ticker{
   export interface Attrs extends Model.Attrs {}
+
+  export interface Opts extends Model.Opts {}
 }
 
 export interface Ticker<T> extends Ticker.Attrs {}

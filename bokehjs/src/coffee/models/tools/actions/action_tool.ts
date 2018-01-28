@@ -22,6 +22,8 @@ export abstract class ActionToolView extends ButtonToolView {
 
 export namespace ActionTool {
   export interface Attrs extends ButtonTool.Attrs {}
+
+  export interface Opts extends ButtonTool.Opts {}
 }
 
 export interface ActionTool extends ActionTool.Attrs {}

@@ -135,6 +135,8 @@ export namespace Band {
     x_range_name: string
     y_range_name: string
   }
+
+  export interface Opts extends Annotation.Opts {}
 }
 
 export interface Band extends Band.Attrs {}

@@ -436,6 +436,8 @@ export namespace HoverTool {
     attachment: TooltipAttachment
     callback: any // XXX
   }
+
+  export interface Opts extends InspectTool.Opts {}
 }
 
 export interface HoverTool extends HoverTool.Attrs {}

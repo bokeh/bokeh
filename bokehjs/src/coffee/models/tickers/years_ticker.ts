@@ -4,6 +4,8 @@ import {last_year_no_later_than, ONE_YEAR} from "./util"
 
 export namespace YearsTicker {
   export interface Attrs extends SingleIntervalTicker.Attrs {}
+
+  export interface Opts extends SingleIntervalTicker.Opts {}
 }
 
 export interface YearsTicker extends YearsTicker.Attrs {}

@@ -9,6 +9,8 @@ export namespace IndexFilter {
   export interface Attrs extends Filter.Attrs {
     indices: number[] | null
   }
+
+  export interface Opts extends Filter.Opts {}
 }
 
 export interface IndexFilter extends IndexFilter.Attrs {}

@@ -5,6 +5,8 @@ import * as p from "core/properties"
 
 export namespace Scale {
   export interface Attrs extends Transform.Attrs {}
+
+  export interface Opts extends Transform.Opts {}
 }
 
 export interface Scale extends Scale.Attrs {}

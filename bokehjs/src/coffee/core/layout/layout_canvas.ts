@@ -9,6 +9,8 @@ export interface ViewTransform {
 
 export namespace LayoutCanvas {
   export interface Attrs extends HasProps.Attrs {}
+
+  export interface Opts extends HasProps.Opts {}
 }
 
 export interface LayoutCanvas extends LayoutCanvas.Attrs {}

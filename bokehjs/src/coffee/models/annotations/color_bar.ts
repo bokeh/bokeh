@@ -373,6 +373,8 @@ export namespace ColorBar {
     minor_tick_in: number
     minor_tick_out: number
   }
+
+  export interface Opts extends Annotation.Opts {}
 }
 
 export interface ColorBar extends ColorBar.Attrs {}

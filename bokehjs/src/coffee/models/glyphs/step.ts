@@ -58,6 +58,8 @@ export namespace Step {
   export interface Attrs extends XYGlyph.Attrs {
     mode: StepMode
   }
+
+  export interface Opts extends XYGlyph.Opts {}
 }
 
 export interface Step extends Step.Attrs {}

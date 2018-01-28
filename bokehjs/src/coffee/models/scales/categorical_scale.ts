@@ -3,6 +3,8 @@ import {FactorRange} from "../ranges/factor_range"
 
 export namespace CategoricalScale {
   export interface Attrs extends LinearScale.Attrs {}
+
+  export interface Opts extends LinearScale.Opts {}
 }
 
 export interface CategoricalScale extends CategoricalScale.Attrs {}

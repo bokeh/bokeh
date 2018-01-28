@@ -32,6 +32,8 @@ export namespace MonthsTicker {
   export interface Attrs extends SingleIntervalTicker.Attrs {
     months: number[]
   }
+
+  export interface Opts extends SingleIntervalTicker.Opts {}
 }
 
 export interface MonthsTicker extends MonthsTicker.Attrs {}

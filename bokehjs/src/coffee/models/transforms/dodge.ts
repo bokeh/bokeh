@@ -8,6 +8,8 @@ export namespace Dodge {
     value: number
     range: Range
   }
+
+  export interface Opts extends Transform.Opts {}
 }
 
 export interface Dodge extends Dodge.Attrs {}

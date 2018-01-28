@@ -7,6 +7,8 @@ export abstract class GestureToolView extends ButtonToolView {
 
 export namespace GestureTool {
   export interface Attrs extends ButtonTool.Attrs {}
+
+  export interface Opts extends ButtonTool.Opts {}
 }
 
 export interface GestureTool extends GestureTool.Attrs {}

@@ -134,6 +134,8 @@ export namespace Tooltip {
     data: [number, number, HTMLElement][]
     custom: boolean
   }
+
+  export interface Opts extends Annotation.Opts {}
 }
 
 export interface Tooltip extends Tooltip.Attrs {}

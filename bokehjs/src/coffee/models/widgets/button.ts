@@ -18,6 +18,8 @@ export namespace Button {
   export interface Attrs extends AbstractButton.Attrs {
     clicks: number
   }
+
+  export interface Opts extends AbstractButton.Opts {}
 }
 
 export interface Button extends Button.Attrs {}

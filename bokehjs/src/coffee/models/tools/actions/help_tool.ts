@@ -14,6 +14,8 @@ export namespace HelpTool {
     help_tooltip: string
     redirect: string
   }
+
+  export interface Opts extends ActionTool.Opts {}
 }
 
 export interface HelpTool extends HelpTool.Attrs {}

@@ -6,6 +6,8 @@ export namespace StaticLayoutProvider {
   export interface Attrs extends LayoutProvider.Attrs {
     graph_layout: {[key: string]: any[]}
   }
+
+  export interface Opts extends LayoutProvider.Opts {}
 }
 
 export interface StaticLayoutProvider extends StaticLayoutProvider.Attrs {}

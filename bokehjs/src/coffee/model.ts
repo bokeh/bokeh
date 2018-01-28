@@ -15,6 +15,8 @@ export namespace Model {
     js_event_callbacks: {[key: string]: CustomJS[]}
     subscribed_events: string[]
   }
+
+  export interface Opts extends HasProps.Opts {}
 }
 
 export interface Model extends Model.Attrs {}

@@ -11,6 +11,8 @@ export namespace DatetimeAxis {
     // XXX: ticker:    DatetimeTicker
     // XXX: formatter: DatetimeTickFormatter
   }
+
+  export interface Opts extends LinearAxis.Opts {}
 }
 
 export interface DatetimeAxis extends DatetimeAxis.Attrs {}

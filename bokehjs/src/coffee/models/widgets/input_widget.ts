@@ -15,6 +15,8 @@ export namespace InputWidget {
     title: string
     callback: any | null // TODO
   }
+
+  export interface Opts extends Widget.Opts {}
 }
 
 export interface InputWidget extends InputWidget.Attrs {}

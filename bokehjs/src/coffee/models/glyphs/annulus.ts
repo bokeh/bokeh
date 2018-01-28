@@ -117,6 +117,8 @@ export namespace Annulus {
     inner_radius: DistanceSpec
     outer_radius: DistanceSpec
   }
+
+  export interface Opts extends XYGlyph.Opts {}
 }
 
 export interface Annulus extends Annulus.Attrs {}

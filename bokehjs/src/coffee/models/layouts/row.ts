@@ -10,6 +10,8 @@ export class RowView extends BoxView {
 
 export namespace Row {
   export interface Attrs extends Box.Attrs {}
+
+  export interface Opts extends Box.Opts {}
 }
 
 export interface Row extends Row.Attrs {}

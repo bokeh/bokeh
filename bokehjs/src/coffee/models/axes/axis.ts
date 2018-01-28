@@ -328,6 +328,8 @@ export namespace Axis {
     major_label_text: Text
     axis_label_text: Text
   }
+
+  export interface Opts extends GuideRenderer.Opts {}
 }
 
 export interface Axis extends Axis.Attrs {

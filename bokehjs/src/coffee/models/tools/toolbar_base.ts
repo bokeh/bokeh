@@ -109,6 +109,8 @@ export namespace ToolbarBase {
     help: Tool[]
     toolbar_location: Location
   }
+
+  export interface Opts extends Model.Opts {}
 }
 
 export interface ToolbarBase extends ToolbarBase.Attrs {}

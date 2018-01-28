@@ -4,6 +4,8 @@ import {Interpolator} from "./interpolator"
 
 export namespace LinearInterpolator {
   export interface Attrs extends Interpolator.Attrs {}
+
+  export interface Opts extends Interpolator.Opts {}
 }
 
 export interface LinearInterpolator extends LinearInterpolator.Attrs {}

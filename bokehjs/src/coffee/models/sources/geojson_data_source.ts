@@ -8,6 +8,8 @@ export namespace GeoJSONDataSource {
   export interface Attrs extends ColumnarDataSource.Attrs {
     geojson: any
   }
+
+  export interface Opts extends ColumnarDataSource.Opts {}
 }
 
 export interface GeoJSONDataSource extends GeoJSONDataSource.Attrs {}

@@ -35,6 +35,8 @@ export namespace Markup {
     text: string
     style: {[key: string]: string}
   }
+
+  export interface Opts extends Widget.Opts {}
 }
 
 export interface Markup extends Markup.Attrs {}

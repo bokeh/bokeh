@@ -12,6 +12,8 @@ export namespace LinearAxis {
     ticker: BasicTicker
     formatters: BasicTickFormatter
   }
+
+  export interface Opts extends ContinuousAxis.Opts {}
 }
 
 export interface LinearAxis extends LinearAxis.Attrs {}

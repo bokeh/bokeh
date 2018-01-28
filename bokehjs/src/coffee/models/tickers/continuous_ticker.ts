@@ -21,6 +21,8 @@ export namespace ContinuousTicker {
     num_minor_ticks: number
     desired_num_ticks: number
   }
+
+  export interface Opts extends Ticker.Opts {}
 }
 
 export interface ContinuousTicker extends ContinuousTicker.Attrs {}

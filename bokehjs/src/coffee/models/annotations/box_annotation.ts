@@ -131,6 +131,8 @@ export namespace BoxAnnotation {
     right: number | null
     right_units: SpatialUnits
   }
+
+  export interface Opts extends Annotation.Opts {}
 }
 
 export interface BoxAnnotation extends BoxAnnotation.Attrs {}

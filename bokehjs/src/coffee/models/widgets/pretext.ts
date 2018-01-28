@@ -14,6 +14,8 @@ export class PreTextView extends MarkupView {
 
 export namespace PreText {
   export interface Attrs extends Markup.Attrs {}
+
+  export interface Opts extends Markup.Opts {}
 }
 
 export interface PreText extends PreText.Attrs {}

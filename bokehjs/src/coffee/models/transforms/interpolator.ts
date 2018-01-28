@@ -11,6 +11,8 @@ export namespace Interpolator {
     data: ColumnarDataSource
     clip: boolean
   }
+
+  export interface Opts extends Transform.Opts {}
 }
 
 export interface Interpolator extends Interpolator.Attrs {}

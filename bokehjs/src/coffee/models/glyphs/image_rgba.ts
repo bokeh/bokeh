@@ -123,6 +123,8 @@ export namespace ImageRGBA {
     dh: DistanceSpec
     dilate: boolean
   }
+
+  export interface Opts extends XYGlyph.Opts {}
 }
 
 export interface ImageRGBA extends ImageRGBA.Attrs {}

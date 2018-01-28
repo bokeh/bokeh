@@ -69,6 +69,8 @@ export namespace CheckboxGroup {
     inline: boolean
     callback: any // XXX
   }
+
+  export interface Opts extends Widget.Opts {}
 }
 
 export interface CheckboxGroup extends CheckboxGroup.Attrs {}

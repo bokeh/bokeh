@@ -89,6 +89,8 @@ export namespace PointDrawTool {
     drag: boolean
     renderers: (GlyphRenderer & HasCDS & HasXYGlyph)[]
   }
+
+  export interface Opts extends EditTool.Opts {}
 }
 
 export interface PointDrawTool extends PointDrawTool.Attrs {}

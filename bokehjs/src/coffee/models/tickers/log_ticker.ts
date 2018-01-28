@@ -3,6 +3,8 @@ import {AdaptiveTicker} from "./adaptive_ticker"
 
 export namespace LogTicker {
   export interface Attrs extends AdaptiveTicker.Attrs {}
+
+  export interface Opts extends AdaptiveTicker.Opts {}
 }
 
 export interface LogTicker extends LogTicker.Attrs {}

@@ -150,6 +150,8 @@ export abstract class TextAnnotationView extends AnnotationView {
 
 export namespace TextAnnotation {
   export interface Attrs extends Annotation.Attrs {}
+
+  export interface Opts extends Annotation.Opts {}
 }
 
 export interface TextAnnotation extends TextAnnotation.Attrs {}

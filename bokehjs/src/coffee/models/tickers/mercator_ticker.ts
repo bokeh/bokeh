@@ -7,6 +7,8 @@ export namespace MercatorTicker {
   export interface Attrs extends BasicTicker.Attrs {
     dimension: LatLon | null | undefined
   }
+
+  export interface Opts extends BasicTicker.Opts {}
 }
 
 export interface MercatorTicker extends MercatorTicker.Attrs {}

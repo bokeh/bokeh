@@ -88,6 +88,8 @@ export abstract class BoxView extends GlyphView {
 export namespace Box {
   export interface Attrs extends Glyph.Attrs {
   }
+
+  export interface Opts extends Glyph.Opts {}
 }
 
 export interface Box extends Box.Attrs {}

@@ -30,6 +30,8 @@ export abstract class WidgetView extends LayoutDOMView {
 
 export namespace Widget {
   export interface Attrs extends LayoutDOM.Attrs {}
+
+  export interface Opts extends LayoutDOM.Opts {}
 }
 
 export interface Widget extends Widget.Attrs {}

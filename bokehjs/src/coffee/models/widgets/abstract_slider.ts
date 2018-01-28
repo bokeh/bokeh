@@ -209,6 +209,8 @@ export namespace AbstractSlider {
     callback_policy: SliderCallbackPolicy
     bar_color: any // XXX: Color
   }
+
+  export interface Opts extends Widget.Opts {}
 }
 
 export interface AbstractSlider extends AbstractSlider.Attrs {}

@@ -13,6 +13,8 @@ export namespace GuideRenderer {
   }
 
   export type Visuals = Renderer.Visuals
+
+  export interface Opts extends Renderer.Opts {}
 }
 
 export interface GuideRenderer extends GuideRenderer.Attrs {}

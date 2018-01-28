@@ -60,6 +60,8 @@ export namespace TextInput {
     value: string
     placeholder: string
   }
+
+  export interface Opts extends InputWidget.Opts {}
 }
 
 export interface TextInput extends TextInput.Attrs {}

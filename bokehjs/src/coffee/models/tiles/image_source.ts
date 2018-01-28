@@ -7,6 +7,8 @@ export namespace ImageSource {
     url: string
     extra_url_vars: {[key: string]: string}
   }
+
+  export interface Opts extends Model.Opts {}
 }
 
 export interface ImageSource extends ImageSource.Attrs {}

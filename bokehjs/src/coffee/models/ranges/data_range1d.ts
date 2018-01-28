@@ -27,6 +27,8 @@ export namespace DataRange1d {
 
     scale_hint: "log" | "auto"
   }
+
+  export interface Opts extends DataRange.Opts {}
 }
 
 export interface DataRange1d extends DataRange1d.Attrs {}

@@ -9,6 +9,8 @@ export namespace ColorMapper {
     palette: (number | string)[]
     nan_color: string // XXX: Color
   }
+
+  export interface Opts extends Transform.Opts {}
 }
 
 export interface ColorMapper extends ColorMapper.Attrs {}

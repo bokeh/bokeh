@@ -15,6 +15,8 @@ import {ONE_MILLI,ONE_SECOND,ONE_MINUTE,ONE_HOUR} from "./util"
 
 export namespace DatetimeTicker {
   export interface Attrs extends CompositeTicker.Attrs {}
+
+  export interface Opts extends CompositeTicker.Opts {}
 }
 
 export interface DatetimeTicker extends DatetimeTicker.Attrs {}

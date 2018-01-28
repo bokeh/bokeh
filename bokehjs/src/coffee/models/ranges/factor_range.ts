@@ -115,6 +115,8 @@ export namespace FactorRange {
     tops: string[] | undefined
     tops_groups: string[]
   }
+
+  export interface Opts extends Range.Opts {}
 }
 
 export interface FactorRange extends FactorRange.Attrs {}

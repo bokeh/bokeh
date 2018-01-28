@@ -72,6 +72,8 @@ export namespace PolyAnnotation {
     y_range_name: string
     screen: boolean
   }
+
+  export interface Opts extends Annotation.Opts {}
 }
 
 export interface PolyAnnotation extends PolyAnnotation.Attrs {}

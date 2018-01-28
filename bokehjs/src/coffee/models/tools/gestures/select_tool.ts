@@ -124,6 +124,8 @@ export namespace SelectTool {
     renderers: DataRenderer[]
     names: string[]
   }
+
+  export interface Opts extends GestureTool.Opts {}
 }
 
 export interface SelectTool extends SelectTool.Attrs {}

@@ -30,6 +30,8 @@ export namespace ZoomInTool {
     factor: number
     dimensions: Dimensions
   }
+
+  export interface Opts extends ActionTool.Opts {}
 }
 
 export interface ZoomInTool extends ZoomInTool.Attrs {}

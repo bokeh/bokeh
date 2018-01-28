@@ -9,6 +9,8 @@ export namespace LogTickFormatter {
   export interface Attrs extends TickFormatter.Attrs {
     ticker: LogTicker | null
   }
+
+  export interface Opts extends TickFormatter.Opts {}
 }
 
 export interface LogTickFormatter extends LogTickFormatter.Attrs {}

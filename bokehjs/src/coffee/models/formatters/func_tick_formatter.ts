@@ -8,6 +8,8 @@ export namespace FuncTickFormatter {
     args: {[key: string]: any}
     code: string
   }
+
+  export interface Opts extends TickFormatter.Opts {}
 }
 
 export interface FuncTickFormatter extends FuncTickFormatter.Attrs {}

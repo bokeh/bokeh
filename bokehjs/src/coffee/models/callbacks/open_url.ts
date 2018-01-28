@@ -8,6 +8,8 @@ export namespace OpenURL {
   export interface Attrs extends Model.Attrs {
     url: string
   }
+
+  export interface Opts extends Model.Opts {}
 }
 
 export interface OpenURL extends OpenURL.Attrs {}

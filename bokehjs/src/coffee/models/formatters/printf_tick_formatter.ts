@@ -8,6 +8,8 @@ export namespace PrintfTickFormatter {
   export interface Attrs extends TickFormatter.Attrs {
     format: string
   }
+
+  export interface Opts extends TickFormatter.Opts {}
 }
 
 export interface PrintfTickFormatter extends PrintfTickFormatter.Attrs {}

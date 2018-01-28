@@ -93,6 +93,8 @@ export namespace DatePicker {
     min_date: string
     max_date: string
   }
+
+  export interface Opts extends InputWidget.Opts {}
 }
 
 export interface DatePicker extends DatePicker.Attrs {}

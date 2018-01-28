@@ -10,6 +10,8 @@ export class ColumnView extends BoxView {
 
 export namespace Column {
   export interface Attrs extends Box.Attrs {}
+
+  export interface Opts extends Box.Opts {}
 }
 
 export interface Column extends Column.Attrs {}

@@ -16,6 +16,8 @@ export namespace LogColorMapper {
     high_color: string // XXX: Color
     low_color: string // XXX: Color
   }
+
+  export interface Opts extends ColorMapper.Opts {}
 }
 
 export interface LogColorMapper extends LogColorMapper.Attrs {}

@@ -71,6 +71,8 @@ export namespace AbstractButton {
     button_type: ButtonType
     callback: any // XXX
   }
+
+  export interface Opts extends Widget.Opts {}
 }
 
 export interface AbstractButton extends AbstractButton.Attrs {}

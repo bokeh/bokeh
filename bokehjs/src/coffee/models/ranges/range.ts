@@ -9,6 +9,8 @@ export namespace Range {
     callback?: ((obj: Range) => void) | CustomJS // XXX: Callback
     plots: Plot[]
   }
+
+  export interface Opts extends Model.Opts {}
 }
 
 export interface Range extends Range.Attrs {}

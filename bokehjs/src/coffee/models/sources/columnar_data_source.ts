@@ -15,6 +15,8 @@ export namespace ColumnarDataSource {
     column_names: string[]
     selection_manager: SelectionManager
   }
+
+  export interface Opts extends DataSource.Opts {}
 }
 
 export interface ColumnarDataSource extends ColumnarDataSource.Attrs {}

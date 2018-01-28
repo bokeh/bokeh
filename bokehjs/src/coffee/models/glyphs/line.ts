@@ -132,6 +132,8 @@ export class LineView extends XYGlyphView {
 export namespace Line {
   export interface Attrs extends XYGlyph.Attrs {
   }
+
+  export interface Opts extends XYGlyph.Opts {}
 }
 
 export interface Line extends Line.Attrs {}

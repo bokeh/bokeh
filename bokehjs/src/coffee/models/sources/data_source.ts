@@ -8,6 +8,8 @@ export namespace DataSource {
     selected: hittest.HitTestResult
     callback: any // XXX
   }
+
+  export interface Opts extends Model.Opts {}
 }
 
 export interface DataSource extends DataSource.Attrs {}

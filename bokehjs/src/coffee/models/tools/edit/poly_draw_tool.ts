@@ -201,6 +201,8 @@ export namespace PolyDrawTool {
     drag: boolean
     renderers: (GlyphRenderer & HasCDS & HasPolyGlyph)[]
   }
+
+  export interface Opts extends EditTool.Opts {}
 }
 
 export interface PolyDrawTool extends PolyDrawTool.Attrs {}

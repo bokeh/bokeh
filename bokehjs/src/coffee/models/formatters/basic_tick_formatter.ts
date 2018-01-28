@@ -10,6 +10,8 @@ export namespace BasicTickFormatter {
     power_limit_high: number
     power_limit_low: number
   }
+
+  export interface Opts extends TickFormatter.Opts {}
 }
 
 export interface BasicTickFormatter extends BasicTickFormatter.Attrs {}

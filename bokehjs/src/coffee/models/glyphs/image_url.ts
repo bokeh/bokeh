@@ -183,6 +183,8 @@ export namespace ImageURL {
     retry_attempts: number
     retry_timeout: number
   }
+
+  export interface Opts extends Glyph.Opts {}
 }
 
 export interface ImageURL extends ImageURL.Attrs {}

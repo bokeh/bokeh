@@ -116,6 +116,8 @@ export namespace Span {
     for_hover: boolean
     computed_location: number | null
   }
+
+  export interface Opts extends Annotation.Opts {}
 }
 
 export interface Span extends Span.Attrs {}

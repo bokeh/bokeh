@@ -74,6 +74,8 @@ export namespace Select {
     value: string
     options: string[] | {[key: string]: string | [string, string]}
   }
+
+  export interface Opts extends InputWidget.Opts {}
 }
 
 export interface Select extends Select.Attrs {}

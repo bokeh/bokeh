@@ -118,6 +118,8 @@ export namespace CategoricalAxis {
     group_text: Text,
     subgroup_text: Text,
   }
+
+  export interface Opts extends Axis.Opts {}
 }
 
 export interface CategoricalAxis extends CategoricalAxis.Attrs {}

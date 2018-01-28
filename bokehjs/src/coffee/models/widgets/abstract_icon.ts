@@ -6,6 +6,8 @@ export abstract class AbstractIconView extends WidgetView {
 
 export namespace AbstractIcon {
   export interface Attrs extends Widget.Attrs {}
+
+  export interface Opts extends Widget.Opts {}
 }
 
 export interface AbstractIcon extends AbstractIcon.Attrs {}

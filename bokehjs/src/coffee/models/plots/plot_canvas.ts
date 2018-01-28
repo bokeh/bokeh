@@ -937,6 +937,8 @@ export namespace PlotCanvas {
     canvas: Canvas
     frame: CartesianFrame
   }
+
+  export interface Opts extends LayoutDOM.Opts {}
 }
 
 export interface PlotCanvas extends PlotCanvas.Attrs {

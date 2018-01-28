@@ -10,6 +10,8 @@ export namespace ToolProxy {
     active: boolean
     disabled: boolean
   }
+
+  export interface Opts extends Model.Opts {}
 }
 
 export interface ToolProxy extends ToolProxy.Attrs {}

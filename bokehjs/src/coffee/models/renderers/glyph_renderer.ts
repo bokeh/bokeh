@@ -343,6 +343,8 @@ export namespace GlyphRenderer {
     muted_glyph: Glyph
     muted: boolean
   }
+
+  export interface Opts extends Renderer.Opts {}
 }
 
 export interface GlyphRenderer extends GlyphRenderer.Attrs {}

@@ -222,6 +222,8 @@ export namespace Patches {
     xs: NumberSpec
     ys: NumberSpec
   }
+
+  export interface Opts extends Glyph.Opts {}
 }
 
 export interface Patches extends Patches.Attrs {}

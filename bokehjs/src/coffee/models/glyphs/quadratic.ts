@@ -74,6 +74,8 @@ export namespace Quadratic {
     cx: NumberSpec
     cy: NumberSpec
   }
+
+  export interface Opts extends Glyph.Opts {}
 }
 
 export interface Quadratic extends Quadratic.Attrs {}

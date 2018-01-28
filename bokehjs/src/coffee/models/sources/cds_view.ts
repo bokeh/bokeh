@@ -14,6 +14,8 @@ export namespace CDSView {
     indices: number[]
     indices_map: {[key: string]: number[]}
   }
+
+  export interface Opts extends Model.Opts {}
 }
 
 export interface CDSView extends CDSView.Attrs {}

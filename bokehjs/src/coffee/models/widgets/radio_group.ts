@@ -70,6 +70,8 @@ export namespace RadioGroup {
     inline: boolean
     callback: any // XXX
   }
+
+  export interface Opts extends Widget.Opts {}
 }
 
 export interface RadioGroup extends RadioGroup.Attrs {}
