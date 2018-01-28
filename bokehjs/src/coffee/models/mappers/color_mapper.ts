@@ -1,5 +1,6 @@
 /* XXX: partial */
 import * as p from "core/properties";
+import {Color} from "core/types"
 
 import {Transform} from "../transforms/transform";
 import {isNumber} from "core/util/types"
@@ -7,7 +8,7 @@ import {isNumber} from "core/util/types"
 export namespace ColorMapper {
   export interface Attrs extends Transform.Attrs {
     palette: (number | string)[]
-    nan_color: string // XXX: Color
+    nan_color: Color
   }
 
   export interface Opts extends Transform.Opts {}

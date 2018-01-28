@@ -1,6 +1,7 @@
 /* XXX: partial */
 import {TextAnnotation, TextAnnotationView} from "./text_annotation";
 import {TextMixinScalar} from "core/property_mixins"
+import {Color} from "core/types"
 import {LineJoin, LineCap} from "core/enums"
 import {SpatialUnits, AngleUnits, RenderMode} from "core/enums"
 import {hide} from "core/dom";

@@ -2,6 +2,7 @@
 import * as noUiSlider from "nouislider"
 
 import * as p from "core/properties"
+import {Color} from "core/types"
 import {label, div} from "core/dom"
 import {logger} from "core/logging"
 import {repeat} from "core/util/array"
@@ -207,7 +208,7 @@ export namespace AbstractSlider {
     callback: any // XXX
     callback_throttle: number
     callback_policy: SliderCallbackPolicy
-    bar_color: any // XXX: Color
+    bar_color: Color
   }
 
   export interface Opts extends Widget.Opts {}

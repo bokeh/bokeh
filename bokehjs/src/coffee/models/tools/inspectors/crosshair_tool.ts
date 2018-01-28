@@ -3,6 +3,7 @@ import {Renderer} from "../../renderers/renderer"
 import {Span} from "../../annotations/span"
 import {Dimensions, SpatialUnits, RenderMode} from "core/enums"
 import * as p from "core/properties"
+import {Color} from "core/types"
 import {values} from "core/util/object"
 
 export interface BkEv {
@@ -43,7 +44,7 @@ export class CrosshairToolView extends InspectToolView {
 export namespace CrosshairTool {
   export interface Attrs extends InspectTool.Attrs {
     dimensions: Dimensions
-    line_color: any // XXX: Color
+    line_color: Color
     line_width: number
     line_alpha: number
 

@@ -6,6 +6,7 @@ import {FactorRange, Factor} from "../ranges/factor_range"
 
 import {Text, Line} from "core/visuals"
 import {Context2d} from "core/util/canvas"
+import {Color} from "core/types"
 import {FontStyle, TextAlign, TextBaseline, LineJoin, LineCap} from "core/enums"
 
 export type CategoricalTickCoords = TickCoords & {

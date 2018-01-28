@@ -1,3 +1,4 @@
+import {Color} from "./types"
 import {SpatialUnits, AngleUnits} from "./enums"
 
 export interface Value<T> {
@@ -12,7 +13,7 @@ export type Vectorized<T> = Value<T> | Field
 
 export type AngleSpec = Vectorized<number> & { units?: AngleUnits }
 
-export type ColorSpec = Vectorized<string> // XXX: Color
+export type ColorSpec = Vectorized<Color>
 
 export type DirectionSpec = Vectorized<number> & { units?: SpatialUnits }
 

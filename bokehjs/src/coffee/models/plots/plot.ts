@@ -1,6 +1,7 @@
 import {EQ, Constraint, Variable} from "core/layout/solver"
 import {logger} from "core/logging"
 import * as p from "core/properties"
+import {Color} from "core/types"
 import {LineJoin, LineCap} from "core/enums"
 import {Place, Location, OutputBackend} from "core/enums"
 import {find, removeBy} from "core/util/array"

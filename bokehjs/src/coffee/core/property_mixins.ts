@@ -1,10 +1,9 @@
 import * as p from "./properties"
+import {Color} from "./types"
 import {extend} from "./util/object"
 
 import {NumberSpec, StringSpec, ColorSpec} from "core/vectorization"
 import {LineJoin, LineCap, FontStyle, TextAlign, TextBaseline} from "core/enums"
-
-export type Color = string
 
 export interface LineMixinScalar {
   line_color: Color

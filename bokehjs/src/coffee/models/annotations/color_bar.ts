@@ -10,6 +10,7 @@ import {LinearScale} from "../scales/linear_scale";
 import {LogScale} from "../scales/log_scale";
 import {Range1d} from "../ranges/range1d";
 
+import {Color} from "core/types"
 import {FontStyle, TextAlign, TextBaseline, LineJoin, LineCap} from "core/enums"
 import {LegendLocation, Orientation} from "core/enums"
 import * as p from "core/properties";

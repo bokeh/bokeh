@@ -1,6 +1,7 @@
 /* XXX: partial */
 import {Annotation, AnnotationView} from "./annotation";
 import {LegendItem} from "./legend_item"
+import {Color} from "core/types"
 import {FontStyle, TextAlign, TextBaseline, LineJoin, LineCap} from "core/enums"
 import {Orientation, LegendLocation, LegendClickPolicy} from "core/enums"
 import * as p from "core/properties";

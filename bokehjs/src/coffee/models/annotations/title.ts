@@ -1,6 +1,7 @@
 /* XXX: partial */
 import {TextAnnotation, TextAnnotationView} from "./text_annotation";
 import {FontSizeSpec, ColorSpec, NumberSpec} from "core/vectorization"
+import {Color} from "core/types"
 import {LineJoin, LineCap} from "core/enums"
 import {FontStyle, VerticalAlign, TextAlign, TextBaseline, RenderMode} from "core/enums"
 import {hide} from "core/dom";

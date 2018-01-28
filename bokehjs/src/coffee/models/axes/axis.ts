@@ -4,6 +4,7 @@ import {TickFormatter} from "../formatters/tick_formatter"
 import {Range} from "../ranges/range"
 
 import * as p from "core/properties"
+import {Color} from "core/types"
 import {FontStyle, TextAlign, TextBaseline, LineJoin, LineCap} from "core/enums"
 import {Side, Orientation, SpatialUnits} from "core/enums"
 import {Text, Line} from "core/visuals"

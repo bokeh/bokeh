@@ -4,6 +4,7 @@ import {DataSource} from "../sources/data_source";
 import {ColumnDataSource} from "../sources/column_data_source";
 import {NumberSpec, AngleSpec, StringSpec, ColorSpec} from "core/vectorization"
 import {TextMixinVector} from "core/property_mixins"
+import {LineJoin, LineCap} from "core/enums"
 import {SpatialUnits, RenderMode} from "core/enums"
 import {div, show, hide} from "core/dom";
 import * as p from "core/properties";
