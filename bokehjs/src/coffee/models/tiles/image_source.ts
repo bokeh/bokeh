@@ -14,6 +14,11 @@ export namespace ImageSource {
 export interface ImageSource extends ImageSource.Attrs {}
 
 export class ImageSource extends Model {
+
+  constructor(attrs?: Partial<ImageSource.Attrs>, opts?: ImageSource.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'ImageSource';
 

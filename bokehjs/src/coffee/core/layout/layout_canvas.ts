@@ -17,6 +17,10 @@ export interface LayoutCanvas extends LayoutCanvas.Attrs {}
 
 export abstract class LayoutCanvas extends HasProps {
 
+  constructor(attrs?: Partial<LayoutCanvas.Attrs>, opts?: LayoutCanvas.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "LayoutCanvas"
   }

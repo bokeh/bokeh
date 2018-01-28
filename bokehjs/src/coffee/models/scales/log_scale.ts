@@ -10,6 +10,10 @@ export interface LogScale extends LogScale.Attrs {}
 
 export class LogScale extends Scale {
 
+  constructor(attrs?: Partial<LogScale.Attrs>, opts?: LogScale.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "LogScale"
   }

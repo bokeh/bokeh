@@ -66,6 +66,10 @@ export interface Ray extends Ray.Attrs {}
 
 export class Ray extends XYGlyph {
 
+  constructor(attrs?: Partial<Ray.Attrs>, opts?: Ray.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'Ray';
     this.prototype.default_view = RayView;

@@ -97,6 +97,10 @@ export interface WidgetBox extends WidgetBox.Attrs {}
 
 export class WidgetBox extends LayoutDOM {
 
+  constructor(attrs?: Partial<WidgetBox.Attrs>, opts?: WidgetBox.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "WidgetBox"
     this.prototype.default_view = WidgetBoxView

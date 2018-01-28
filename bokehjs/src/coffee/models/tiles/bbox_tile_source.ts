@@ -14,6 +14,10 @@ export interface BBoxTileSource extends BBoxTileSource.Attrs {}
 
 export class BBoxTileSource extends MercatorTileSource {
 
+  constructor(attrs?: Partial<BBoxTileSource.Attrs>, opts?: BBoxTileSource.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'BBoxTileSource';
 

@@ -217,6 +217,10 @@ export interface AbstractSlider extends AbstractSlider.Attrs {}
 
 export abstract class AbstractSlider extends Widget {
 
+  constructor(attrs?: Partial<AbstractSlider.Attrs>, opts?: AbstractSlider.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "AbstractSlider"
 

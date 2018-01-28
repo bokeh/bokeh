@@ -23,6 +23,10 @@ export interface Model extends Model.Attrs {}
 
 export class Model extends HasProps {
 
+  constructor(attrs?: Partial<Model.Attrs>, opts?: Model.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "Model"
 

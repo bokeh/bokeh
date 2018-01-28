@@ -16,6 +16,10 @@ export interface CustomJSFilter extends CustomJSFilter.Attrs {}
 
 export class CustomJSFilter extends Filter {
 
+  constructor(attrs?: Partial<CustomJSFilter.Attrs>, opts?: CustomJSFilter.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'CustomJSFilter';
 

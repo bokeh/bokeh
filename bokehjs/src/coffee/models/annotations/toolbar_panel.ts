@@ -63,6 +63,10 @@ export interface ToolbarPanel extends ToolbarPanel.Attrs {}
 
 export class ToolbarPanel extends Annotation {
 
+  constructor(attrs?: Partial<ToolbarPanel.Attrs>, opts?: ToolbarPanel.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'ToolbarPanel';
     this.prototype.default_view = ToolbarPanelView;

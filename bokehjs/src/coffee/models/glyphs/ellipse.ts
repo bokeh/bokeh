@@ -94,6 +94,10 @@ export interface Ellipse extends Ellipse.Attrs {}
 
 export class Ellipse extends XYGlyph {
 
+  constructor(attrs?: Partial<Ellipse.Attrs>, opts?: Ellipse.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'Ellipse';
     this.prototype.default_view = EllipseView;

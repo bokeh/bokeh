@@ -17,6 +17,10 @@ export interface Range1d extends Range1d.Attrs {}
 
 export class Range1d extends Range {
 
+  constructor(attrs?: Partial<Range1d.Attrs>, opts?: Range1d.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "Range1d"
 

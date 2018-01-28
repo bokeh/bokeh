@@ -23,6 +23,10 @@ export interface UndoTool extends UndoTool.Attrs {}
 
 export class UndoTool extends ActionTool {
 
+  constructor(attrs?: Partial<UndoTool.Attrs>, opts?: UndoTool.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "UndoTool"
     this.prototype.default_view = UndoToolView

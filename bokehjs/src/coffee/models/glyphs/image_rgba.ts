@@ -131,6 +131,10 @@ export interface ImageRGBA extends ImageRGBA.Attrs {}
 
 export class ImageRGBA extends XYGlyph {
 
+  constructor(attrs?: Partial<ImageRGBA.Attrs>, opts?: ImageRGBA.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'ImageRGBA';
     this.prototype.default_view = ImageRGBAView;

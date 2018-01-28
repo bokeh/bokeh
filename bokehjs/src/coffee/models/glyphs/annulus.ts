@@ -125,6 +125,10 @@ export interface Annulus extends Annulus.Attrs {}
 
 export class Annulus extends XYGlyph {
 
+  constructor(attrs?: Partial<Annulus.Attrs>, opts?: Annulus.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'Annulus';
     this.prototype.default_view = AnnulusView;

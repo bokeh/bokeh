@@ -364,6 +364,10 @@ export interface LayoutDOM extends LayoutDOM.Attrs {}
 
 export abstract class LayoutDOM extends Model {
 
+  constructor(attrs?: Partial<LayoutDOM.Attrs>, opts?: LayoutDOM.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "LayoutDOM"
 

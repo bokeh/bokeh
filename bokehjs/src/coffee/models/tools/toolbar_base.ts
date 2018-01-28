@@ -117,6 +117,10 @@ export interface ToolbarBase extends ToolbarBase.Attrs {}
 
 export class ToolbarBase extends Model {
 
+  constructor(attrs?: Partial<ToolbarBase.Attrs>, opts?: ToolbarBase.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'ToolbarBase';
     this.prototype.default_view = ToolbarBaseView;

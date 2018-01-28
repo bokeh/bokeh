@@ -16,6 +16,10 @@ export interface Dodge extends Dodge.Attrs {}
 
 export class Dodge extends Transform {
 
+  constructor(attrs?: Partial<Dodge.Attrs>, opts?: Dodge.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "Dodge"
 

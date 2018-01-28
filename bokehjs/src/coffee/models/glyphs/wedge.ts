@@ -112,6 +112,10 @@ export interface Wedge extends Wedge.Attrs {}
 
 export class Wedge extends XYGlyph {
 
+  constructor(attrs?: Partial<Wedge.Attrs>, opts?: Wedge.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'Wedge';
     this.prototype.default_view = WedgeView;

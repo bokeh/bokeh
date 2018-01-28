@@ -146,6 +146,10 @@ export interface Image extends Image.Attrs {}
 
 export class Image extends XYGlyph {
 
+  constructor(attrs?: Partial<Image.Attrs>, opts?: Image.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'Image';
     this.prototype.default_view = ImageView;

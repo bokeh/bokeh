@@ -16,6 +16,10 @@ export interface MercatorTileSource extends MercatorTileSource.Attrs {}
 
 export class MercatorTileSource extends TileSource {
 
+  constructor(attrs?: Partial<MercatorTileSource.Attrs>, opts?: MercatorTileSource.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'MercatorTileSource';
 

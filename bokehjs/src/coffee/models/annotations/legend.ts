@@ -299,6 +299,11 @@ export namespace Legend {
 export interface Legend extends Legend.Attrs {}
 
 export class Legend extends Annotation {
+
+  constructor(attrs?: Partial<Legend.Attrs>, opts?: Legend.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'Legend';
     this.prototype.default_view = LegendView;

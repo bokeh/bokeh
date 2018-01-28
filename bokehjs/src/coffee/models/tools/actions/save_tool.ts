@@ -18,6 +18,10 @@ export interface SaveTool extends SaveTool.Attrs {}
 
 export class SaveTool extends ActionTool {
 
+  constructor(attrs?: Partial<SaveTool.Attrs>, opts?: SaveTool.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "SaveTool"
     this.prototype.default_view = SaveToolView

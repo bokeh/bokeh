@@ -19,6 +19,10 @@ export interface CustomJSTransform extends CustomJSTransform.Attrs {}
 
 export class CustomJSTransform extends Transform {
 
+  constructor(attrs?: Partial<CustomJSTransform.Attrs>, opts?: CustomJSTransform.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'CustomJSTransform';
 

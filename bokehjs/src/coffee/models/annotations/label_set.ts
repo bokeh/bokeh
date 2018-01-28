@@ -214,6 +214,10 @@ export interface LabelSet extends LabelSet.Attrs {}
 
 export class LabelSet extends TextAnnotation {
 
+  constructor(attrs?: Partial<LabelSet.Attrs>, opts?: LabelSet.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'LabelSet';
     this.prototype.default_view = LabelSetView;

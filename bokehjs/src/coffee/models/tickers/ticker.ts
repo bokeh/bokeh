@@ -28,6 +28,10 @@ export interface Ticker<T> extends Ticker.Attrs {}
 
 export abstract class Ticker<T> extends Model {
 
+  constructor(attrs?: Partial<Ticker.Attrs>, opts?: Ticker.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "Ticker"
   }

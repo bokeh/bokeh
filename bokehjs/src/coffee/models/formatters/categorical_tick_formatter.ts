@@ -11,6 +11,10 @@ export interface CategoricalTickFormatter extends CategoricalTickFormatter.Attrs
 
 export class CategoricalTickFormatter extends TickFormatter {
 
+  constructor(attrs?: Partial<CategoricalTickFormatter.Attrs>, opts?: CategoricalTickFormatter.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'CategoricalTickFormatter';
   }

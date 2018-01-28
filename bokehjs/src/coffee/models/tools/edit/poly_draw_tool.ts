@@ -211,6 +211,10 @@ export class PolyDrawTool extends EditTool {
 
   renderers: (GlyphRenderer & HasCDS & HasPolyGlyph)[]
 
+  constructor(attrs?: Partial<PolyDrawTool.Attrs>, opts?: PolyDrawTool.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "PolyDrawTool"
     this.prototype.default_view = PolyDrawToolView

@@ -18,6 +18,10 @@ export interface Row extends Row.Attrs {}
 
 export class Row extends Box {
 
+  constructor(attrs?: Partial<Row.Attrs>, opts?: Row.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "Row"
     this.prototype.default_view = RowView

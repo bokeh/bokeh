@@ -11,6 +11,10 @@ export interface WMTSTileSource extends WMTSTileSource.Attrs {}
 
 export class WMTSTileSource extends MercatorTileSource {
 
+  constructor(attrs?: Partial<WMTSTileSource.Attrs>, opts?: WMTSTileSource.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'WMTSTileSource';
   }

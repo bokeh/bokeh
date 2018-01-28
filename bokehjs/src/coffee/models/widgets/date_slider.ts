@@ -30,6 +30,10 @@ export interface DateSlider extends DateSlider.Attrs {}
 
 export class DateSlider extends AbstractSlider {
 
+  constructor(attrs?: Partial<DateSlider.Attrs>, opts?: DateSlider.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "DateSlider"
     this.prototype.default_view = DateSliderView

@@ -351,6 +351,10 @@ export interface GlyphRenderer extends GlyphRenderer.Attrs {}
 
 export class GlyphRenderer extends Renderer {
 
+  constructor(attrs?: Partial<GlyphRenderer.Attrs>, opts?: GlyphRenderer.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'GlyphRenderer';
     this.prototype.default_view = GlyphRendererView;

@@ -132,6 +132,10 @@ export interface SelectTool extends SelectTool.Attrs {}
 
 export abstract class SelectTool extends GestureTool {
 
+  constructor(attrs?: Partial<SelectTool.Attrs>, opts?: SelectTool.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "SelectTool"
 

@@ -141,6 +141,10 @@ export interface AnnularWedge extends AnnularWedge.Attrs {}
 
 export class AnnularWedge extends XYGlyph {
 
+  constructor(attrs?: Partial<AnnularWedge.Attrs>, opts?: AnnularWedge.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'AnnularWedge';
     this.prototype.default_view = AnnularWedgeView;

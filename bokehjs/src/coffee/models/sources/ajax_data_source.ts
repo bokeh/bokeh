@@ -21,6 +21,10 @@ export interface AjaxDataSource extends AjaxDataSource.Attrs {}
 
 export class AjaxDataSource extends RemoteDataSource {
 
+  constructor(attrs?: Partial<AjaxDataSource.Attrs>, opts?: AjaxDataSource.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'AjaxDataSource'
 

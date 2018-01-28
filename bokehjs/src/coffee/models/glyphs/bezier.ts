@@ -133,6 +133,10 @@ export interface Bezier extends Bezier.Attrs {}
 
 export class Bezier extends Glyph {
 
+  constructor(attrs?: Partial<Bezier.Attrs>, opts?: Bezier.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'Bezier';
     this.prototype.default_view = BezierView;

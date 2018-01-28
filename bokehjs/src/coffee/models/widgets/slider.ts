@@ -33,6 +33,10 @@ export interface Slider extends Slider.Attrs {}
 
 export class Slider extends AbstractSlider {
 
+  constructor(attrs?: Partial<Slider.Attrs>, opts?: Slider.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "Slider"
     this.prototype.default_view = SliderView

@@ -12,6 +12,10 @@ export interface YearsTicker extends YearsTicker.Attrs {}
 
 export class YearsTicker extends SingleIntervalTicker {
 
+  constructor(attrs?: Partial<YearsTicker.Attrs>, opts?: YearsTicker.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "YearsTicker"
   }

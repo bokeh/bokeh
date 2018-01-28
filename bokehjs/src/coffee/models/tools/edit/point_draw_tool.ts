@@ -99,6 +99,10 @@ export class PointDrawTool extends EditTool {
 
   renderers: (GlyphRenderer & HasCDS & HasXYGlyph)[]
 
+  constructor(attrs?: Partial<PointDrawTool.Attrs>, opts?: PointDrawTool.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "PointDrawTool"
     this.prototype.default_view = PointDrawToolView

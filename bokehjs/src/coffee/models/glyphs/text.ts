@@ -84,6 +84,10 @@ export interface Text extends Text.Attrs {}
 
 export class Text extends XYGlyph {
 
+  constructor(attrs?: Partial<Text.Attrs>, opts?: Text.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'Text';
     this.prototype.default_view = TextView;

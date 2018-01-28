@@ -185,6 +185,10 @@ export interface BoxZoomTool extends BoxZoomTool.Attrs {}
 
 export class BoxZoomTool extends GestureTool {
 
+  constructor(attrs?: Partial<BoxZoomTool.Attrs>, opts?: BoxZoomTool.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "BoxZoomTool"
     this.prototype.default_view = BoxZoomToolView

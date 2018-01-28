@@ -82,6 +82,10 @@ export interface Select extends Select.Attrs {}
 
 export class Select extends InputWidget {
 
+  constructor(attrs?: Partial<Select.Attrs>, opts?: Select.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "Select"
     this.prototype.default_view = SelectView

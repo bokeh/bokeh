@@ -14,6 +14,10 @@ export interface Stack extends Stack.Attrs {}
 
 export class Stack extends Expression {
 
+  constructor(attrs?: Partial<Stack.Attrs>, opts?: Stack.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "Stack"
 

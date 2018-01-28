@@ -102,6 +102,10 @@ export interface GraphRenderer extends GraphRenderer.Attrs {}
 
 export class GraphRenderer extends Renderer {
 
+  constructor(attrs?: Partial<GraphRenderer.Attrs>, opts?: GraphRenderer.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'GraphRenderer';
     this.prototype.default_view = GraphRendererView;

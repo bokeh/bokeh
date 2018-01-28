@@ -11,6 +11,10 @@ export interface TMSTileSource extends TMSTileSource.Attrs {}
 
 export class TMSTileSource extends MercatorTileSource {
 
+  constructor(attrs?: Partial<TMSTileSource.Attrs>, opts?: TMSTileSource.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'TMSTileSource';
   }

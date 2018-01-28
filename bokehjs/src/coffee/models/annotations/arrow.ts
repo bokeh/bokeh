@@ -146,6 +146,11 @@ export namespace Arrow {
 export interface Arrow extends Arrow.Attrs {}
 
 export class Arrow extends Annotation {
+
+  constructor(attrs?: Partial<Arrow.Attrs>, opts?: Arrow.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'Arrow';
     this.prototype.default_view = ArrowView;

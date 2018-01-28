@@ -43,6 +43,10 @@ export interface Markup extends Markup.Attrs {}
 
 export class Markup extends Widget {
 
+  constructor(attrs?: Partial<Markup.Attrs>, opts?: Markup.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "Markup"
 

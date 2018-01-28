@@ -947,6 +947,10 @@ export interface PlotCanvas extends PlotCanvas.Attrs {
 
 export class PlotCanvas extends LayoutDOM {
 
+  constructor(attrs?: Partial<PlotCanvas.Attrs>, opts?: PlotCanvas.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'PlotCanvas';
     this.prototype.default_view = PlotCanvasView;

@@ -381,6 +381,10 @@ export interface ColorBar extends ColorBar.Attrs {}
 
 export class ColorBar extends Annotation {
 
+  constructor(attrs?: Partial<ColorBar.Attrs>, opts?: ColorBar.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'ColorBar';
     this.prototype.default_view = ColorBarView;

@@ -20,6 +20,10 @@ export interface Jitter extends Jitter.Attrs {}
 
 export class Jitter extends Transform {
 
+  constructor(attrs?: Partial<Jitter.Attrs>, opts?: Jitter.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "Jitter"
 

@@ -125,6 +125,10 @@ export interface Segment extends Segment.Attrs {}
 
 export class Segment extends Glyph {
 
+  constructor(attrs?: Partial<Segment.Attrs>, opts?: Segment.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'Segment';
     this.prototype.default_view = SegmentView;

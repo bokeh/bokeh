@@ -26,6 +26,10 @@ export interface Button extends Button.Attrs {}
 
 export class Button extends AbstractButton {
 
+  constructor(attrs?: Partial<Button.Attrs>, opts?: Button.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "Button"
     this.prototype.default_view = ButtonView

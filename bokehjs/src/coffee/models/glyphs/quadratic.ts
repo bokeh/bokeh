@@ -82,6 +82,10 @@ export interface Quadratic extends Quadratic.Attrs {}
 
 export class Quadratic extends Glyph {
 
+  constructor(attrs?: Partial<Quadratic.Attrs>, opts?: Quadratic.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'Quadratic';
     this.prototype.default_view = QuadraticView;

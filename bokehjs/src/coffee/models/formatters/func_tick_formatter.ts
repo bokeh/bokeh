@@ -16,6 +16,10 @@ export interface FuncTickFormatter extends FuncTickFormatter.Attrs {}
 
 export class FuncTickFormatter extends TickFormatter {
 
+  constructor(attrs?: Partial<FuncTickFormatter.Attrs>, opts?: FuncTickFormatter.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'FuncTickFormatter';
 

@@ -124,6 +124,10 @@ export interface Span extends Span.Attrs {}
 
 export class Span extends Annotation {
 
+  constructor(attrs?: Partial<Span.Attrs>, opts?: Span.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'Span';
     this.prototype.default_view = SpanView;

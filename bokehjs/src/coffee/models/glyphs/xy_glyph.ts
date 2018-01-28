@@ -35,6 +35,10 @@ export interface XYGlyph extends XYGlyph.Attrs {}
 
 export abstract class XYGlyph extends Glyph {
 
+  constructor(attrs?: Partial<XYGlyph.Attrs>, opts?: XYGlyph.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "XYGlyph";
     this.prototype.default_view = XYGlyphView;

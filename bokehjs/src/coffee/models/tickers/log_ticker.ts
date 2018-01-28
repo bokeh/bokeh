@@ -11,6 +11,10 @@ export interface LogTicker extends LogTicker.Attrs {}
 
 export class LogTicker extends AdaptiveTicker {
 
+  constructor(attrs?: Partial<LogTicker.Attrs>, opts?: LogTicker.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "LogTicker"
 

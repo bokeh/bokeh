@@ -52,6 +52,10 @@ export interface VBar extends VBar.Attrs {}
 
 export class VBar extends Box {
 
+  constructor(attrs?: Partial<VBar.Attrs>, opts?: VBar.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'VBar';
     this.prototype.default_view = VBarView;

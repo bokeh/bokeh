@@ -59,6 +59,10 @@ export interface CrosshairTool extends CrosshairTool.Attrs {}
 
 export class CrosshairTool extends InspectTool {
 
+  constructor(attrs?: Partial<CrosshairTool.Attrs>, opts?: CrosshairTool.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "CrosshairTool"
     this.prototype.default_view = CrosshairToolView

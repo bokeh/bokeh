@@ -139,6 +139,10 @@ export interface Canvas extends Canvas.Attrs {}
 
 export class Canvas extends LayoutCanvas {
 
+  constructor(attrs?: Partial<Canvas.Attrs>, opts?: Canvas.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "Canvas"
     this.prototype.default_view = CanvasView

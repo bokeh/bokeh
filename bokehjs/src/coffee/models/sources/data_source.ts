@@ -16,6 +16,10 @@ export interface DataSource extends DataSource.Attrs {}
 
 export abstract class DataSource extends Model {
 
+  constructor(attrs?: Partial<DataSource.Attrs>, opts?: DataSource.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "DataSource"
 

@@ -258,6 +258,10 @@ export interface GMapPlotCanvas extends GMapPlotCanvas.Attrs {}
 
 export class GMapPlotCanvas extends PlotCanvas {
 
+  constructor(attrs?: Partial<GMapPlotCanvas.Attrs>, opts?: GMapPlotCanvas.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'GMapPlotCanvas';
     this.prototype.default_view = GMapPlotCanvasView;

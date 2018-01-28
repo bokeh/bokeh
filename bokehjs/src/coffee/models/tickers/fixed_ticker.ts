@@ -13,6 +13,10 @@ export interface FixedTicker extends FixedTicker.Attrs {}
 
 export class FixedTicker extends ContinuousTicker {
 
+  constructor(attrs?: Partial<FixedTicker.Attrs>, opts?: FixedTicker.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "FixedTicker"
 

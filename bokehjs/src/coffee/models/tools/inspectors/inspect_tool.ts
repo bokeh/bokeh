@@ -19,6 +19,10 @@ export interface InspectTool extends InspectTool.Attrs {}
 
 export abstract class InspectTool extends ButtonTool {
 
+  constructor(attrs?: Partial<InspectTool.Attrs>, opts?: InspectTool.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "InspectTool"
     this.prototype.button_view = OnOffButtonView

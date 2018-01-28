@@ -73,6 +73,10 @@ export interface Box extends Box.Attrs {}
 
 export class Box extends LayoutDOM {
 
+  constructor(attrs?: Partial<Box.Attrs>, opts?: Box.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "Box"
     this.prototype.default_view = BoxView

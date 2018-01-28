@@ -20,6 +20,10 @@ export interface MapOptions extends MapOptions.Attrs {}
 
 export class MapOptions extends Model {
 
+  constructor(attrs?: Partial<MapOptions.Attrs>, opts?: MapOptions.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "MapOptions"
 
@@ -45,6 +49,10 @@ export namespace GMapOptions {
 export interface GMapOptions extends GMapOptions.Attrs {}
 
 export class GMapOptions extends MapOptions {
+
+  constructor(attrs?: Partial<GMapOptions.Attrs>, opts?: GMapOptions.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "GMapOptions"
@@ -74,6 +82,10 @@ export namespace GMapPlot {
 export interface GMapPlot extends GMapPlot.Attrs {}
 
 export class GMapPlot extends Plot {
+
+  constructor(attrs?: Partial<GMapPlot.Attrs>, opts?: GMapPlot.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "GMapPlot"

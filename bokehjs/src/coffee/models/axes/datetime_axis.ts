@@ -19,6 +19,10 @@ export interface DatetimeAxis extends DatetimeAxis.Attrs {}
 
 export class DatetimeAxis extends LinearAxis {
 
+  constructor(attrs?: Partial<DatetimeAxis.Attrs>, opts?: DatetimeAxis.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "DatetimeAxis"
     this.prototype.default_view = DatetimeAxisView

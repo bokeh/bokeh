@@ -17,6 +17,10 @@ export interface TableWidget extends TableWidget.Attrs {}
 
 export class TableWidget extends Widget {
 
+  constructor(attrs?: Partial<TableWidget.Attrs>, opts?: TableWidget.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "TableWidget";
 

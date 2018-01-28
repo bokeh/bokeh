@@ -17,6 +17,10 @@ export interface ColorMapper extends ColorMapper.Attrs {}
 
 export abstract class ColorMapper extends Transform {
 
+  constructor(attrs?: Partial<ColorMapper.Attrs>, opts?: ColorMapper.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "ColorMapper";
 

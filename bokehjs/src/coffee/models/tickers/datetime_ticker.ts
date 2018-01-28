@@ -23,6 +23,10 @@ export interface DatetimeTicker extends DatetimeTicker.Attrs {}
 
 export class DatetimeTicker extends CompositeTicker {
 
+  constructor(attrs?: Partial<DatetimeTicker.Attrs>, opts?: DatetimeTicker.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "DatetimeTicker"
 

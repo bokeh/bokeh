@@ -15,6 +15,10 @@ export interface ArrowHead extends ArrowHead.Attrs {}
 
 export abstract class ArrowHead extends Annotation {
 
+  constructor(attrs?: Partial<ArrowHead.Attrs>, opts?: ArrowHead.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'ArrowHead'
 
@@ -46,6 +50,10 @@ export namespace OpenHead {
 export interface OpenHead extends OpenHead.Attrs {}
 
 export class OpenHead extends ArrowHead {
+
+  constructor(attrs?: Partial<OpenHead.Attrs>, opts?: OpenHead.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = 'OpenHead'
@@ -90,6 +98,10 @@ export namespace NormalHead {
 export interface NormalHead extends NormalHead.Attrs {}
 
 export class NormalHead extends ArrowHead {
+
+  constructor(attrs?: Partial<NormalHead.Attrs>, opts?: NormalHead.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = 'NormalHead'
@@ -147,6 +159,10 @@ export namespace VeeHead {
 export interface VeeHead extends VeeHead.Attrs {}
 
 export class VeeHead extends ArrowHead {
+
+  constructor(attrs?: Partial<VeeHead.Attrs>, opts?: VeeHead.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = 'VeeHead'
@@ -206,6 +222,10 @@ export namespace TeeHead {
 export interface TeeHead extends TeeHead.Attrs {}
 
 export class TeeHead extends ArrowHead {
+
+  constructor(attrs?: Partial<TeeHead.Attrs>, opts?: TeeHead.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = 'TeeHead'

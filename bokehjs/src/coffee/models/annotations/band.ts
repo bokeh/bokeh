@@ -143,6 +143,10 @@ export interface Band extends Band.Attrs {}
 
 export class Band extends Annotation {
 
+  constructor(attrs?: Partial<Band.Attrs>, opts?: Band.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'Band';
     this.prototype.default_view = BandView;

@@ -157,6 +157,11 @@ export namespace TextAnnotation {
 export interface TextAnnotation extends TextAnnotation.Attrs {}
 
 export abstract class TextAnnotation extends Annotation {
+
+  constructor(attrs?: Partial<TextAnnotation.Attrs>, opts?: TextAnnotation.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'TextAnnotation';
   }

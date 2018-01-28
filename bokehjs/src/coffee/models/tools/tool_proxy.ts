@@ -18,6 +18,10 @@ export interface ToolProxy extends ToolProxy.Attrs {}
 
 export class ToolProxy extends Model {
 
+  constructor(attrs?: Partial<ToolProxy.Attrs>, opts?: ToolProxy.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "ToolProxy"
 

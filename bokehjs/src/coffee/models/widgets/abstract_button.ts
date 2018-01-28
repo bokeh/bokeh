@@ -79,6 +79,10 @@ export interface AbstractButton extends AbstractButton.Attrs {}
 
 export abstract class AbstractButton extends Widget {
 
+  constructor(attrs?: Partial<AbstractButton.Attrs>, opts?: AbstractButton.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "AbstractButton"
 

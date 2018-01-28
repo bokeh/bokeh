@@ -29,6 +29,10 @@ export interface ContinuousTicker extends ContinuousTicker.Attrs {}
 
 export abstract class ContinuousTicker extends Ticker<number> {
 
+  constructor(attrs?: Partial<ContinuousTicker.Attrs>, opts?: ContinuousTicker.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "ContinuousTicker"
 

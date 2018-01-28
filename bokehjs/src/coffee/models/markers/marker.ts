@@ -164,6 +164,10 @@ export interface Marker extends Marker.Attrs {}
 
 export class Marker extends XYGlyph {
 
+  constructor(attrs?: Partial<Marker.Attrs>, opts?: Marker.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.mixins(['line', 'fill']);
     this.define({

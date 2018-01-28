@@ -71,6 +71,10 @@ export interface RadioButtonGroup extends RadioButtonGroup.Attrs {}
 
 export class RadioButtonGroup extends Widget {
 
+  constructor(attrs?: Partial<RadioButtonGroup.Attrs>, opts?: RadioButtonGroup.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "RadioButtonGroup"
     this.prototype.default_view = RadioButtonGroupView

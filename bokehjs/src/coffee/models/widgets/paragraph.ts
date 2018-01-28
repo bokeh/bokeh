@@ -23,6 +23,10 @@ export interface Paragraph extends Paragraph.Attrs {}
 
 export class Paragraph extends Markup {
 
+  constructor(attrs?: Partial<Paragraph.Attrs>, opts?: Paragraph.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "Paragraph"
     this.prototype.default_view = ParagraphView

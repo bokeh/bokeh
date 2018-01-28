@@ -79,6 +79,11 @@ export namespace PolyAnnotation {
 export interface PolyAnnotation extends PolyAnnotation.Attrs {}
 
 export class PolyAnnotation extends Annotation {
+
+  constructor(attrs?: Partial<PolyAnnotation.Attrs>, opts?: PolyAnnotation.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "PolyAnnotation";
     this.prototype.default_view = PolyAnnotationView;

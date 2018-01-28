@@ -275,6 +275,11 @@ export namespace DataTable {
 export interface DataTable extends DataTable.Attrs {}
 
 export class DataTable extends TableWidget {
+
+  constructor(attrs?: Partial<DataTable.Attrs>, opts?: DataTable.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'DataTable';
     this.prototype.default_view = DataTableView;

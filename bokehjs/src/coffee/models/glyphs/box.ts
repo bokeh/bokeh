@@ -96,6 +96,10 @@ export interface Box extends Box.Attrs {}
 
 export abstract class Box extends Glyph {
 
+  constructor(attrs?: Partial<Box.Attrs>, opts?: Box.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "Box";
 

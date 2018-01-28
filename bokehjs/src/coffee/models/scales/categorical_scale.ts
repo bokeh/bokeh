@@ -11,6 +11,10 @@ export interface CategoricalScale extends CategoricalScale.Attrs {}
 
 export class CategoricalScale extends LinearScale {
 
+  constructor(attrs?: Partial<CategoricalScale.Attrs>, opts?: CategoricalScale.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "CategoricalScale"
   }

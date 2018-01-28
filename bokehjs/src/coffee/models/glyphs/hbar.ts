@@ -51,6 +51,11 @@ export namespace HBar {
 export interface HBar extends HBar.Attrs {}
 
 export class HBar extends Box {
+
+  constructor(attrs?: Partial<HBar.Attrs>, opts?: HBar.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'HBar';
     this.prototype.default_view = HBarView;

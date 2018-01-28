@@ -20,6 +20,10 @@ export interface LegendItem extends LegendItem.Attrs {}
 
 export class LegendItem extends Model {
 
+  constructor(attrs?: Partial<LegendItem.Attrs>, opts?: LegendItem.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "LegendItem";
 

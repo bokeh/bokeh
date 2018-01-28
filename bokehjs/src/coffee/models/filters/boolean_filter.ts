@@ -17,6 +17,10 @@ export interface BooleanFilter extends BooleanFilter.Attrs {}
 
 export class BooleanFilter extends Filter {
 
+  constructor(attrs?: Partial<BooleanFilter.Attrs>, opts?: BooleanFilter.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'BooleanFilter';
 

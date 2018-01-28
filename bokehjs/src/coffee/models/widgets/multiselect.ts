@@ -100,6 +100,10 @@ export interface MultiSelect extends MultiSelect.Attrs {}
 
 export class MultiSelect extends InputWidget {
 
+  constructor(attrs?: Partial<MultiSelect.Attrs>, opts?: MultiSelect.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "MultiSelect"
     this.prototype.default_view = MultiSelectView

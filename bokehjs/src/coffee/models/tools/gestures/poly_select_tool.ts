@@ -118,6 +118,10 @@ export interface PolySelectTool extends PolySelectTool.Attrs {}
 
 export class PolySelectTool extends SelectTool {
 
+  constructor(attrs?: Partial<PolySelectTool.Attrs>, opts?: PolySelectTool.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "PolySelectTool"
     this.prototype.default_view = PolySelectToolView

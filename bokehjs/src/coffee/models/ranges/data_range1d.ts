@@ -35,6 +35,10 @@ export interface DataRange1d extends DataRange1d.Attrs {}
 
 export class DataRange1d extends DataRange {
 
+  constructor(attrs?: Partial<DataRange1d.Attrs>, opts?: DataRange1d.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "DataRange1d"
 

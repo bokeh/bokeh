@@ -145,6 +145,10 @@ export class BoxEditTool extends EditTool {
 
   renderers: (GlyphRenderer & HasRectCDS)[]
 
+  constructor(attrs?: Partial<BoxEditTool.Attrs>, opts?: BoxEditTool.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "BoxEditTool"
     this.prototype.default_view = BoxEditToolView

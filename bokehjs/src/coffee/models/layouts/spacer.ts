@@ -37,6 +37,10 @@ export interface Spacer extends Spacer.Attrs {}
 
 export class Spacer extends LayoutDOM {
 
+  constructor(attrs?: Partial<Spacer.Attrs>, opts?: Spacer.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "Spacer"
     this.prototype.default_view = SpacerView

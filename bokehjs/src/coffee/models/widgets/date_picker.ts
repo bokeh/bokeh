@@ -101,6 +101,10 @@ export interface DatePicker extends DatePicker.Attrs {}
 
 export class DatePicker extends InputWidget {
 
+  constructor(attrs?: Partial<DatePicker.Attrs>, opts?: DatePicker.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "DatePicker"
     this.prototype.default_view = DatePickerView

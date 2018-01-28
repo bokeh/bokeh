@@ -15,6 +15,10 @@ export interface GestureTool extends GestureTool.Attrs {}
 
 export abstract class GestureTool extends ButtonTool {
 
+  constructor(attrs?: Partial<GestureTool.Attrs>, opts?: GestureTool.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "GestureTool"
   }

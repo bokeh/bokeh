@@ -30,6 +30,10 @@ export interface ActionTool extends ActionTool.Attrs {}
 
 export abstract class ActionTool extends ButtonTool {
 
+  constructor(attrs?: Partial<ActionTool.Attrs>, opts?: ActionTool.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "ActionTool"
   }

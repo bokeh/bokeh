@@ -338,6 +338,10 @@ export interface Axis extends Axis.Attrs {
 
 export class Axis extends GuideRenderer {
 
+  constructor(attrs?: Partial<Axis.Attrs>, opts?: Axis.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "Axis"
     this.prototype.default_view = AxisView

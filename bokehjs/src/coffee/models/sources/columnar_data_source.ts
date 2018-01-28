@@ -32,6 +32,10 @@ export abstract class ColumnarDataSource extends DataSource {
   streaming: Signal<any, this>
   patching: Signal<any, this> // <number[], ColumnarDataSource>
 
+  constructor(attrs?: Partial<ColumnarDataSource.Attrs>, opts?: ColumnarDataSource.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'ColumnarDataSource'
 

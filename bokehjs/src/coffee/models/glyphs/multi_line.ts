@@ -168,6 +168,10 @@ export interface MultiLine extends MultiLine.Attrs {}
 
 export class MultiLine extends Glyph {
 
+  constructor(attrs?: Partial<MultiLine.Attrs>, opts?: MultiLine.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'MultiLine';
     this.prototype.default_view = MultiLineView;

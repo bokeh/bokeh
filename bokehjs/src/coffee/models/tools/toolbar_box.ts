@@ -26,6 +26,10 @@ export interface ProxyToolbar extends ProxyToolbar.Attrs {}
 
 export class ProxyToolbar extends ToolbarBase {
 
+  constructor(attrs?: Partial<ProxyToolbar.Attrs>, opts?: ProxyToolbar.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'ProxyToolbar';
   }
@@ -218,6 +222,10 @@ export namespace ToolbarBox {
 export interface ToolbarBox extends ToolbarBox.Attrs {}
 
 export class ToolbarBox extends LayoutDOM {
+
+  constructor(attrs?: Partial<ToolbarBox.Attrs>, opts?: ToolbarBox.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = 'ToolbarBox';

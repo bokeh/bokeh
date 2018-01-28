@@ -358,6 +358,10 @@ export interface TileRenderer extends TileRenderer.Attrs {}
 
 export class TileRenderer extends Renderer {
 
+  constructor(attrs?: Partial<TileRenderer.Attrs>, opts?: TileRenderer.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'TileRenderer';
     this.prototype.default_view = TileRendererView;

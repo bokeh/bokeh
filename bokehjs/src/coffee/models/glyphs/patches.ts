@@ -230,6 +230,10 @@ export interface Patches extends Patches.Attrs {}
 
 export class Patches extends Glyph {
 
+  constructor(attrs?: Partial<Patches.Attrs>, opts?: Patches.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'Patches';
     this.prototype.default_view = PatchesView;

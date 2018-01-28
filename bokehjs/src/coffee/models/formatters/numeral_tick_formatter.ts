@@ -19,6 +19,10 @@ export interface NumeralTickFormatter extends NumeralTickFormatter.Attrs {}
 
 export class NumeralTickFormatter extends TickFormatter {
 
+  constructor(attrs?: Partial<NumeralTickFormatter.Attrs>, opts?: NumeralTickFormatter.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'NumeralTickFormatter';
 

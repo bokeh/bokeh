@@ -67,6 +67,10 @@ export interface CheckboxButtonGroup extends CheckboxButtonGroup.Attrs {}
 
 export class CheckboxButtonGroup extends Widget {
 
+  constructor(attrs?: Partial<CheckboxButtonGroup.Attrs>, opts?: CheckboxButtonGroup.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "CheckboxButtonGroup"
     this.prototype.default_view = CheckboxButtonGroupView

@@ -12,6 +12,10 @@ export interface LinearInterpolator extends LinearInterpolator.Attrs {}
 
 export class LinearInterpolator extends Interpolator {
 
+  constructor(attrs?: Partial<LinearInterpolator.Attrs>, opts?: LinearInterpolator.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "LinearInterpolator"
   }

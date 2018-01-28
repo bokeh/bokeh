@@ -64,6 +64,10 @@ export interface Renderer extends Renderer.Attrs {}
 
 export abstract class Renderer extends Model {
 
+  constructor(attrs?: Partial<Renderer.Attrs>, opts?: Renderer.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "Renderer"
 

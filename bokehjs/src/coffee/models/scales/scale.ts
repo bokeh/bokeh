@@ -13,6 +13,10 @@ export interface Scale extends Scale.Attrs {}
 
 export abstract class Scale extends Transform {
 
+  constructor(attrs?: Partial<Scale.Attrs>, opts?: Scale.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "Scale"
 

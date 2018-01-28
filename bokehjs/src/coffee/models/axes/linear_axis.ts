@@ -23,6 +23,10 @@ export class LinearAxis extends ContinuousAxis {
   ticker: BasicTicker
   formatters: BasicTickFormatter
 
+  constructor(attrs?: Partial<LinearAxis.Attrs>, opts?: LinearAxis.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "LinearAxis"
     this.prototype.default_view = LinearAxisView

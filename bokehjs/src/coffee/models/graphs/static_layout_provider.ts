@@ -14,6 +14,10 @@ export interface StaticLayoutProvider extends StaticLayoutProvider.Attrs {}
 
 export class StaticLayoutProvider extends LayoutProvider {
 
+  constructor(attrs?: Partial<StaticLayoutProvider.Attrs>, opts?: StaticLayoutProvider.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "StaticLayoutProvider";
 

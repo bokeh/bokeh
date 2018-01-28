@@ -139,6 +139,10 @@ export interface BoxAnnotation extends BoxAnnotation.Attrs {}
 
 export class BoxAnnotation extends Annotation {
 
+  constructor(attrs?: Partial<BoxAnnotation.Attrs>, opts?: BoxAnnotation.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'BoxAnnotation';
     this.prototype.default_view = BoxAnnotationView;

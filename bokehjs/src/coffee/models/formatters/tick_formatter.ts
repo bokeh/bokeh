@@ -11,6 +11,10 @@ export interface TickFormatter extends TickFormatter.Attrs {}
 
 export abstract class TickFormatter extends Model {
 
+  constructor(attrs?: Partial<TickFormatter.Attrs>, opts?: TickFormatter.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'TickFormatter';
   }

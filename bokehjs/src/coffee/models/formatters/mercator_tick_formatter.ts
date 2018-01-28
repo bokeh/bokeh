@@ -16,6 +16,10 @@ export interface MercatorTickFormatter extends MercatorTickFormatter.Attrs {}
 
 export class MercatorTickFormatter extends BasicTickFormatter {
 
+  constructor(attrs?: Partial<MercatorTickFormatter.Attrs>, opts?: MercatorTickFormatter.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'MercatorTickFormatter';
 

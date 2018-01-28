@@ -19,6 +19,11 @@ export namespace LinearColorMapper {
 export interface LinearColorMapper extends LinearColorMapper.Attrs {}
 
 export class LinearColorMapper extends ColorMapper {
+
+  constructor(attrs?: Partial<LinearColorMapper.Attrs>, opts?: LinearColorMapper.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "LinearColorMapper";
 

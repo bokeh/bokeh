@@ -23,6 +23,10 @@ export interface RedoTool extends RedoTool.Attrs {}
 
 export class RedoTool extends ActionTool {
 
+  constructor(attrs?: Partial<RedoTool.Attrs>, opts?: RedoTool.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "RedoTool"
     this.prototype.default_view = RedoToolView

@@ -38,6 +38,10 @@ export interface ZoomInTool extends ZoomInTool.Attrs {}
 
 export class ZoomInTool extends ActionTool {
 
+  constructor(attrs?: Partial<ZoomInTool.Attrs>, opts?: ZoomInTool.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "ZoomInTool"
     this.prototype.default_view = ZoomInToolView

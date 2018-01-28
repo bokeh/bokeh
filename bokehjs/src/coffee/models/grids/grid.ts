@@ -99,6 +99,10 @@ export interface Grid extends Grid.Attrs {}
 
 export class Grid extends GuideRenderer {
 
+  constructor(attrs?: Partial<Grid.Attrs>, opts?: Grid.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "Grid"
     this.prototype.default_view = GridView

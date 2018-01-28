@@ -11,6 +11,14 @@ export interface Transform extends Transform.Attrs {}
 
 export abstract class Transform extends Model {
 
+  constructor(attrs?: Partial<Transform.Attrs>, opts?: Transform.Opts) {
+    super(attrs, opts)
+  }
+
+  static initClass() {
+    this.prototype.type = "Transform"
+  }
+
   // default implementation based on compute
   v_compute(xs) {
     if ((this.range != null ? this.range.v_synthetic : undefined) != null) {
@@ -24,3 +32,4 @@ export abstract class Transform extends Model {
     return result;
   }
 }
+Transform.initClass()

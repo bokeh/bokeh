@@ -22,6 +22,10 @@ export interface ResetTool extends ResetTool.Attrs {}
 
 export class ResetTool extends ActionTool {
 
+  constructor(attrs?: Partial<ResetTool.Attrs>, opts?: ResetTool.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "ResetTool"
     this.prototype.default_view = ResetToolView

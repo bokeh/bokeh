@@ -191,6 +191,10 @@ export interface ImageURL extends ImageURL.Attrs {}
 
 export class ImageURL extends Glyph {
 
+  constructor(attrs?: Partial<ImageURL.Attrs>, opts?: ImageURL.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'ImageURL';
     this.prototype.default_view = ImageURLView;

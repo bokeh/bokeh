@@ -43,6 +43,10 @@ export interface DaysTicker extends DaysTicker.Attrs {}
 
 export class DaysTicker extends SingleIntervalTicker {
 
+  constructor(attrs?: Partial<DaysTicker.Attrs>, opts?: DaysTicker.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "DaysTicker"
 

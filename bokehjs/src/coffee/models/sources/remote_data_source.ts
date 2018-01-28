@@ -15,6 +15,10 @@ export interface RemoteDataSource extends RemoteDataSource.Attrs {}
 
 export class RemoteDataSource extends ColumnDataSource {
 
+  constructor(attrs?: Partial<RemoteDataSource.Attrs>, opts?: RemoteDataSource.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'RemoteDataSource'
 

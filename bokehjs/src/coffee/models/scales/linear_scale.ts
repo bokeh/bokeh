@@ -10,6 +10,10 @@ export interface LinearScale extends LinearScale.Attrs {}
 
 export class LinearScale extends Scale {
 
+  constructor(attrs?: Partial<LinearScale.Attrs>, opts?: LinearScale.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "LinearScale"
   }

@@ -85,6 +85,10 @@ export interface TapTool extends TapTool.Attrs {}
 
 export class TapTool extends SelectTool {
 
+  constructor(attrs?: Partial<TapTool.Attrs>, opts?: TapTool.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "TapTool"
     this.prototype.default_view = TapToolView

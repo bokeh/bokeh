@@ -67,6 +67,10 @@ export interface Patch extends Patch.Attrs {}
 
 export class Patch extends XYGlyph {
 
+  constructor(attrs?: Partial<Patch.Attrs>, opts?: Patch.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'Patch';
     this.prototype.default_view = PatchView;

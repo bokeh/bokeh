@@ -18,6 +18,11 @@ export namespace Interpolator {
 export interface Interpolator extends Interpolator.Attrs {}
 
 export class Interpolator extends Transform {
+
+  constructor(attrs?: Partial<Interpolator.Attrs>, opts?: Interpolator.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "Interpolator"
 

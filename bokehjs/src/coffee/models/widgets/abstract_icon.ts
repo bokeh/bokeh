@@ -13,6 +13,11 @@ export namespace AbstractIcon {
 export interface AbstractIcon extends AbstractIcon.Attrs {}
 
 export abstract class AbstractIcon extends Widget {
+
+  constructor(attrs?: Partial<AbstractIcon.Attrs>, opts?: AbstractIcon.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "AbstractIcon"
   }

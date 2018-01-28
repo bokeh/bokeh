@@ -67,6 +67,10 @@ export interface WheelZoomTool extends WheelZoomTool.Attrs {}
 
 export class WheelZoomTool extends GestureTool {
 
+  constructor(attrs?: Partial<WheelZoomTool.Attrs>, opts?: WheelZoomTool.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "WheelZoomTool"
 

@@ -268,6 +268,10 @@ export interface Rect extends Rect.Attrs {}
 
 export class Rect extends XYGlyph {
 
+  constructor(attrs?: Partial<Rect.Attrs>, opts?: Rect.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'Rect';
     this.prototype.default_view = RectView;

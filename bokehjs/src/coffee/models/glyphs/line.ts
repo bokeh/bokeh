@@ -140,6 +140,10 @@ export interface Line extends Line.Attrs {}
 
 export class Line extends XYGlyph {
 
+  constructor(attrs?: Partial<Line.Attrs>, opts?: Line.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'Line';
     this.prototype.default_view = LineView;

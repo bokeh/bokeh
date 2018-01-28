@@ -37,6 +37,11 @@ export namespace Widget {
 export interface Widget extends Widget.Attrs {}
 
 export abstract class Widget extends LayoutDOM {
+
+  constructor(attrs?: Partial<Widget.Attrs>, opts?: Widget.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "Widget"
   }

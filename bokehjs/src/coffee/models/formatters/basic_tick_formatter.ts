@@ -18,6 +18,10 @@ export interface BasicTickFormatter extends BasicTickFormatter.Attrs {}
 
 export class BasicTickFormatter extends TickFormatter {
 
+  constructor(attrs?: Partial<BasicTickFormatter.Attrs>, opts?: BasicTickFormatter.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'BasicTickFormatter';
 

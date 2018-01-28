@@ -240,6 +240,10 @@ export class PolyEditTool extends EditTool {
 
   renderers: (GlyphRenderer & HasCDS & HasPolyGlyph)[]
 
+  constructor(attrs?: Partial<PolyEditTool.Attrs>, opts?: PolyEditTool.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "PolyEditTool"
     this.prototype.default_view = PolyEditToolView

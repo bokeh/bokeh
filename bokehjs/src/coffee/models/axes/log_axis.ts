@@ -23,6 +23,10 @@ export class LogAxis extends ContinuousAxis {
   ticker:    LogTicker
   formatter: LogTickFormatter
 
+  constructor(attrs?: Partial<LogAxis.Attrs>, opts?: LogAxis.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "LogAxis"
     this.prototype.default_view = LogAxisView

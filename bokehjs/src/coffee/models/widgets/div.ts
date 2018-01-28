@@ -29,6 +29,10 @@ export interface Div extends Div.Attrs {}
 
 export class Div extends Markup {
 
+  constructor(attrs?: Partial<Div.Attrs>, opts?: Div.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "Div"
     this.prototype.default_view = DivView

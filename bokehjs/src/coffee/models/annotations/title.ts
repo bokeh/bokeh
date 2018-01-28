@@ -124,6 +124,10 @@ export interface Title extends Title.Attrs {}
 
 export class Title extends TextAnnotation {
 
+  constructor(attrs?: Partial<Title.Attrs>, opts?: Title.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'Title';
     this.prototype.default_view = TitleView;

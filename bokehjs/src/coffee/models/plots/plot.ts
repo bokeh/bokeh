@@ -117,6 +117,10 @@ export interface Plot extends Plot.Attrs {}
 
 export class Plot extends LayoutDOM {
 
+  constructor(attrs?: Partial<Plot.Attrs>, opts?: Plot.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "Plot"
     this.prototype.default_view = PlotView

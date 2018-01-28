@@ -15,6 +15,11 @@ export namespace CustomJS {
 export interface CustomJS extends CustomJS.Attrs {}
 
 export class CustomJS extends Model {
+
+  constructor(attrs?: Partial<CustomJS.Attrs>, opts?: CustomJS.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'CustomJS';
 

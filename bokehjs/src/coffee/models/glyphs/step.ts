@@ -66,6 +66,10 @@ export interface Step extends Step.Attrs {}
 
 export class Step extends XYGlyph {
 
+  constructor(attrs?: Partial<Step.Attrs>, opts?: Step.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'Step';
     this.prototype.default_view = StepView;

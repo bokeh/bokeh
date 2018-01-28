@@ -17,6 +17,10 @@ export interface LogTickFormatter extends LogTickFormatter.Attrs {}
 
 export class LogTickFormatter extends TickFormatter {
 
+  constructor(attrs?: Partial<LogTickFormatter.Attrs>, opts?: LogTickFormatter.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'LogTickFormatter';
 

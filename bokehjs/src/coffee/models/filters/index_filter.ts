@@ -17,6 +17,10 @@ export interface IndexFilter extends IndexFilter.Attrs {}
 
 export class IndexFilter extends Filter {
 
+  constructor(attrs?: Partial<IndexFilter.Attrs>, opts?: IndexFilter.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'IndexFilter';
 

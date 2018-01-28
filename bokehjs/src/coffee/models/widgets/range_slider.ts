@@ -30,6 +30,10 @@ export interface RangeSlider extends RangeSlider.Attrs {}
 
 export class RangeSlider extends AbstractSlider {
 
+  constructor(attrs?: Partial<RangeSlider.Attrs>, opts?: RangeSlider.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "RangeSlider"
     this.prototype.default_view = RangeSliderView

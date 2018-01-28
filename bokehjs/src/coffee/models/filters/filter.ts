@@ -17,6 +17,10 @@ export interface Filter extends Filter.Attrs {}
 
 export class Filter extends Model {
 
+  constructor(attrs?: Partial<Filter.Attrs>, opts?: Filter.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'Filter';
 

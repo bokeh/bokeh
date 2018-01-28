@@ -104,6 +104,10 @@ export interface Dropdown extends Dropdown.Attrs {}
 
 export class Dropdown extends AbstractButton {
 
+  constructor(attrs?: Partial<Dropdown.Attrs>, opts?: Dropdown.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "Dropdown"
     this.prototype.default_view = DropdownView

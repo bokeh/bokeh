@@ -53,6 +53,10 @@ export interface Arc extends Arc.Attrs {}
 
 export class Arc extends XYGlyph {
 
+  constructor(attrs?: Partial<Arc.Attrs>, opts?: Arc.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'Arc';
     this.prototype.default_view = ArcView;

@@ -238,6 +238,10 @@ export interface Circle extends Circle.Attrs {}
 
 export class Circle extends XYGlyph {
 
+  constructor(attrs?: Partial<Circle.Attrs>, opts?: Circle.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() { // XXX: Marker
     this.prototype.type = 'Circle';
     this.prototype.default_view = CircleView;

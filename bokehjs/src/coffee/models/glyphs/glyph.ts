@@ -366,6 +366,10 @@ export interface Glyph extends Glyph.Attrs {}
 
 export abstract class Glyph extends Model {
 
+  constructor(attrs?: Partial<Glyph.Attrs>, opts?: Glyph.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'Glyph';
 

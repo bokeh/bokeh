@@ -50,6 +50,10 @@ export interface Tool extends Tool.Attrs {}
 
 export abstract class Tool extends Model {
 
+  constructor(attrs?: Partial<Tool.Attrs>, opts?: Tool.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "Tool"
 

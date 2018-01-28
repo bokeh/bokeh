@@ -61,6 +61,10 @@ export interface Quad extends Quad.Attrs {}
 
 export class Quad extends Box {
 
+  constructor(attrs?: Partial<Quad.Attrs>, opts?: Quad.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'Quad';
     this.prototype.default_view = QuadView;

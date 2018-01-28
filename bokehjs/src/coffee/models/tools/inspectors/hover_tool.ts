@@ -444,6 +444,10 @@ export interface HoverTool extends HoverTool.Attrs {}
 
 export class HoverTool extends InspectTool {
 
+  constructor(attrs?: Partial<HoverTool.Attrs>, opts?: HoverTool.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "HoverTool"
     this.prototype.default_view = HoverToolView

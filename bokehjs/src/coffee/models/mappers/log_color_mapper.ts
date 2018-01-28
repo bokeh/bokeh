@@ -23,6 +23,11 @@ export namespace LogColorMapper {
 export interface LogColorMapper extends LogColorMapper.Attrs {}
 
 export class LogColorMapper extends ColorMapper {
+
+  constructor(attrs?: Partial<LogColorMapper.Attrs>, opts?: LogColorMapper.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "LogColorMapper";
 

@@ -30,6 +30,10 @@ export interface Toggle extends Toggle.Attrs {}
 
 export class Toggle extends AbstractButton {
 
+  constructor(attrs?: Partial<Toggle.Attrs>, opts?: Toggle.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "Toggle"
     this.prototype.default_view = ToggleView

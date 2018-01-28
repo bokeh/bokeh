@@ -16,6 +16,10 @@ export interface StepInterpolator extends StepInterpolator.Attrs {}
 
 export class StepInterpolator extends Interpolator {
 
+  constructor(attrs?: Partial<StepInterpolator.Attrs>, opts?: StepInterpolator.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "StepInterpolator"
 

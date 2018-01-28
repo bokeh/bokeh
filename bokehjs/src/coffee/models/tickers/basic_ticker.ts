@@ -9,6 +9,11 @@ export namespace BasicTicker {
 export interface BasicTicker extends BasicTicker.Attrs {}
 
 export class BasicTicker extends AdaptiveTicker {
+
+  constructor(attrs?: Partial<BasicTicker.Attrs>, opts?: BasicTicker.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "BasicTicker"
   }

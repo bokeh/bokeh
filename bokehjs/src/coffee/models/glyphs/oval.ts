@@ -103,6 +103,10 @@ export interface Oval extends Oval.Attrs {}
 
 export class Oval extends XYGlyph {
 
+  constructor(attrs?: Partial<Oval.Attrs>, opts?: Oval.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'Oval';
     this.prototype.default_view = OvalView;

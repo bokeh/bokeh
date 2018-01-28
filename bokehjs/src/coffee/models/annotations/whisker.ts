@@ -135,6 +135,10 @@ export interface Whisker extends Whisker.Attrs {}
 
 export class Whisker extends Annotation {
 
+  constructor(attrs?: Partial<Whisker.Attrs>, opts?: Whisker.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'Whisker';
     this.prototype.default_view = WhiskerView;

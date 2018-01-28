@@ -79,6 +79,10 @@ export interface Label extends Label.Attrs {}
 
 export class Label extends TextAnnotation {
 
+  constructor(attrs?: Partial<Label.Attrs>, opts?: Label.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'Label';
     this.prototype.default_view = LabelView;

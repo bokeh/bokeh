@@ -16,6 +16,10 @@ export interface PrintfTickFormatter extends PrintfTickFormatter.Attrs {}
 
 export class PrintfTickFormatter extends TickFormatter {
 
+  constructor(attrs?: Partial<PrintfTickFormatter.Attrs>, opts?: PrintfTickFormatter.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'PrintfTickFormatter';
 
