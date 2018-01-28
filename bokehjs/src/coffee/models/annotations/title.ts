@@ -102,7 +102,10 @@ export class TitleView extends TextAnnotationView {
 }
 
 export namespace Title {
-  export interface Attrs extends TextAnnotation.Attrs {
+  export interface Mixins {
+  }
+
+  export interface Attrs extends TextAnnotation.Attrs, Mixins {
     text: string
     text_font: string // XXX: Font
     text_font_size: FontSizeSpec

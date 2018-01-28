@@ -4,6 +4,7 @@ import {ArrowHead, OpenHead} from "./arrow_head";
 import {DataSource} from "../sources/data_source"
 import {ColumnDataSource} from "../sources/column_data_source";
 import {NumberSpec} from "core/vectorization"
+import {LineMixinVector} from "core/property_mixins"
 import {SpatialUnits} from "core/enums"
 import * as p from "core/properties";
 import {atan2} from "core/util/math"
@@ -126,7 +127,9 @@ export class ArrowView extends AnnotationView {
 }
 
 export namespace Arrow {
-  export interface Attrs extends Annotation.Attrs {
+  export interface Mixins extends LineMixinVector {}
+
+  export interface Attrs extends Annotation.Attrs, Mixins {
     x_start: NumberSpec
     y_start: NumberSpec
     start_units: SpatialUnits

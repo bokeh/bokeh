@@ -3,6 +3,7 @@ import {Annotation, AnnotationView} from "./annotation";
 import {DataSource} from "../sources/data_source"
 import {ColumnDataSource} from "../sources/column_data_source";
 import {DistanceSpec} from "core/vectorization"
+import {LineMixinScalar, FillMixinScalar} from "core/property_mixins"
 import {Dimension} from "core/enums"
 import * as p from "core/properties"
 
@@ -126,7 +127,9 @@ export class BandView extends AnnotationView {
 }
 
 export namespace Band {
-  export interface Attrs extends Annotation.Attrs {
+  export interface Mixins extends LineMixinScalar, FillMixinScalar {}
+
+  export interface Attrs extends Annotation.Attrs, Mixins {
     lower: DistanceSpec
     upper: DistanceSpec
     base: DistanceSpec

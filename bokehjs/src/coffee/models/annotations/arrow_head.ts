@@ -1,5 +1,6 @@
 import {Annotation} from "./annotation"
 import {Visuals, Line, Fill} from "core/visuals"
+import {LineMixinVector, FillMixinVector} from "core/property_mixins"
 import * as p from "core/properties"
 import {Context2d} from "core/util/canvas"
 
@@ -41,8 +42,9 @@ export abstract class ArrowHead extends Annotation {
 ArrowHead.initClass()
 
 export namespace OpenHead {
-  export interface Attrs extends ArrowHead.Attrs {
-  }
+  export interface Mixins extends LineMixinVector {}
+
+  export interface Attrs extends ArrowHead.Attrs, Mixins {}
 
   export interface Opts extends ArrowHead.Opts {}
 }
@@ -89,8 +91,9 @@ export class OpenHead extends ArrowHead {
 OpenHead.initClass()
 
 export namespace NormalHead {
-  export interface Attrs extends ArrowHead.Attrs {
-  }
+  export interface Mixins extends LineMixinVector, FillMixinVector {}
+
+  export interface Attrs extends ArrowHead.Attrs, Mixins {}
 
   export interface Opts extends ArrowHead.Opts {}
 }
@@ -150,8 +153,9 @@ export class NormalHead extends ArrowHead {
 NormalHead.initClass()
 
 export namespace VeeHead {
-  export interface Attrs extends ArrowHead.Attrs {
-  }
+  export interface Mixins extends LineMixinVector, FillMixinVector {}
+
+  export interface Attrs extends ArrowHead.Attrs, Mixins {}
 
   export interface Opts extends ArrowHead.Opts {}
 }
@@ -213,8 +217,9 @@ export class VeeHead extends ArrowHead {
 VeeHead.initClass()
 
 export namespace TeeHead {
-  export interface Attrs extends ArrowHead.Attrs {
-  }
+  export interface Mixins extends LineMixinVector {}
+
+  export interface Attrs extends ArrowHead.Attrs, Mixins {}
 
   export interface Opts extends ArrowHead.Opts {}
 }

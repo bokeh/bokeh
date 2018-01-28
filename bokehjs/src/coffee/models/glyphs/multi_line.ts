@@ -1,6 +1,7 @@
 /* XXX: partial */
 import {RBush} from "core/util/spatial";
 import {NumberSpec} from "core/vectorization"
+import {LineMixinVector} from "core/property_mixins"
 import * as hittest from "core/hittest";
 import {keys} from "core/util/object";
 import {min, max} from "core/util/array";
@@ -156,7 +157,9 @@ export class MultiLineView extends GlyphView {
 }
 
 export namespace MultiLine {
-  export interface Attrs extends Glyph.Attrs {
+  export interface Mixins extends LineMixinVector {}
+
+  export interface Attrs extends Glyph.Attrs, Mixins {
     xs: NumberSpec
     ys: NumberSpec
   }

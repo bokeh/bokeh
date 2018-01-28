@@ -353,7 +353,10 @@ export class ColorBarView extends AnnotationView {
 }
 
 export namespace ColorBar {
-  export interface Attrs extends Annotation.Attrs {
+  export interface Mixins {
+  }
+
+  export interface Attrs extends Annotation.Attrs, Mixins {
     location: LegendLocation
     orientation: Orientation
     title: string

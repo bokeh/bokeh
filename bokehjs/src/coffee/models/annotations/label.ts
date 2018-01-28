@@ -1,5 +1,6 @@
 /* XXX: partial */
 import {TextAnnotation, TextAnnotationView} from "./text_annotation";
+import {TextMixinScalar} from "core/property_mixins"
 import {SpatialUnits, AngleUnits, RenderMode} from "core/enums"
 import {hide} from "core/dom";
 import * as p from "core/properties"
@@ -57,7 +58,10 @@ export class LabelView extends TextAnnotationView {
 }
 
 export namespace Label {
-  export interface Attrs extends TextAnnotation.Attrs {
+  export interface Mixins extends TextMixinScalar {
+  }
+
+  export interface Attrs extends TextAnnotation.Attrs, Mixins {
     x: number
     x_units: SpatialUnits
     y: number

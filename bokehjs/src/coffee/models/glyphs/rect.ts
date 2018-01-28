@@ -1,6 +1,7 @@
 /* XXX: partial */
 import {XYGlyph, XYGlyphView} from "./xy_glyph";
 import {DistanceSpec, AngleSpec} from "core/vectorization"
+import {LineMixinVector, FillMixinVector} from "core/property_mixins"
 import * as hittest from "core/hittest";
 import * as p from "core/properties";
 import {max} from "core/util/array";
@@ -254,7 +255,9 @@ export class RectView extends XYGlyphView {
 }
 
 export namespace Rect {
-  export interface Attrs extends XYGlyph.Attrs {
+  export interface Mixins extends LineMixinVector, FillMixinVector {}
+
+  export interface Attrs extends XYGlyph.Attrs, Mixins {
     angle: AngleSpec
     width: DistanceSpec
     height: DistanceSpec

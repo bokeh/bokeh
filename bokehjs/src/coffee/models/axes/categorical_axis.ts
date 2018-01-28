@@ -108,7 +108,10 @@ export class CategoricalAxisView extends AxisView {
 }
 
 export namespace CategoricalAxis {
-  export interface Attrs extends Axis.Attrs {
+  export interface Mixins {
+  }
+
+  export interface Attrs extends Axis.Attrs, Mixins {
     ticker: CategoricalTicker
     formatter: CategoricalTickFormatter
   }

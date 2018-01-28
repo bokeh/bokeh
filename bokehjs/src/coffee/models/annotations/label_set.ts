@@ -3,6 +3,7 @@ import {TextAnnotation, TextAnnotationView} from "./text_annotation";
 import {DataSource} from "../sources/data_source";
 import {ColumnDataSource} from "../sources/column_data_source";
 import {NumberSpec, AngleSpec, StringSpec} from "core/vectorization"
+import {TextMixinVector} from "core/property_mixins"
 import {SpatialUnits, RenderMode} from "core/enums"
 import {div, show, hide} from "core/dom";
 import * as p from "core/properties";
@@ -192,7 +193,10 @@ export class LabelSetView extends TextAnnotationView {
 }
 
 export namespace LabelSet {
-  export interface Attrs extends TextAnnotation.Attrs {
+  export interface Mixins extends TextMixinVector {
+  }
+
+  export interface Attrs extends TextAnnotation.Attrs, Mixins {
     x: NumberSpec
     y: NumberSpec
     x_units: SpatialUnits

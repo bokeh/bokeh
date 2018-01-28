@@ -1,5 +1,6 @@
 /* XXX: partial */
 import {NumberSpec} from "core/vectorization"
+import {LineMixinVector} from "core/property_mixins"
 import {RBush} from "core/util/spatial";
 import {Context2d} from "core/util/canvas"
 import {Glyph, GlyphView} from "./glyph"
@@ -115,7 +116,9 @@ export class BezierView extends GlyphView {
 }
 
 export namespace Bezier {
-  export interface Attrs extends Glyph.Attrs {
+  export interface Mixins extends LineMixinVector {}
+
+  export interface Attrs extends Glyph.Attrs, Mixins {
     x0: NumberSpec
     y0: NumberSpec
     x1: NumberSpec

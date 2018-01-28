@@ -5,6 +5,7 @@ import {min, max, copy, findLastIndex} from "core/util/array";
 import {isStrictNaN} from "core/util/types";
 import {Context2d} from "core/util/canvas"
 import {NumberSpec} from "core/vectorization"
+import {LineMixinVector, FillMixinVector} from "core/property_mixins"
 import * as hittest from "core/hittest"
 
 export class PatchesView extends GlyphView {
@@ -218,7 +219,9 @@ export class PatchesView extends GlyphView {
 }
 
 export namespace Patches {
-  export interface Attrs extends Glyph.Attrs {
+  export interface Mixins extends LineMixinVector, FillMixinVector {}
+
+  export interface Attrs extends Glyph.Attrs, Mixins {
     xs: NumberSpec
     ys: NumberSpec
   }

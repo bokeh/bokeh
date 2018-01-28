@@ -78,7 +78,10 @@ export class GridView extends GuideRendererView {
 }
 
 export namespace Grid {
-  export interface Attrs extends GuideRenderer.Attrs {
+  export interface Mixins {
+  }
+
+  export interface Attrs extends GuideRenderer.Attrs, Mixins {
     bounds: [number, number] | "auto"
     dimension: 0 | 1
     ticker: Ticker<any>

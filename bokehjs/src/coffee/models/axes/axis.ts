@@ -304,7 +304,10 @@ export class AxisView extends GuideRendererView {
 }
 
 export namespace Axis {
-  export interface Attrs extends GuideRenderer.Attrs {
+  export interface Mixins {
+  }
+
+  export interface Attrs extends GuideRenderer.Attrs, Mixins {
     bounds: [number, number] | "auto"
     ticker: Ticker<any> // TODO
     formatter: TickFormatter

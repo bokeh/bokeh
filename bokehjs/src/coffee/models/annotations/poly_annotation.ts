@@ -1,5 +1,6 @@
 /* XXX: partial */
 import {Annotation, AnnotationView} from "./annotation";
+import {LineMixinScalar, FillMixinScalar} from "core/property_mixins"
 import {SpatialUnits} from "core/enums"
 import {Signal} from "core/signaling";
 import * as p from "core/properties"
@@ -63,7 +64,9 @@ export class PolyAnnotationView extends AnnotationView {
 }
 
 export namespace PolyAnnotation {
-  export interface Attrs extends Annotation.Attrs {
+  export interface Mixins extends LineMixinScalar, FillMixinScalar {}
+
+  export interface Attrs extends Annotation.Attrs, Mixins {
     xs: number[]
     xs_units: SpatialUnits
     ys: number[]

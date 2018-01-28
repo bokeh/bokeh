@@ -1,6 +1,7 @@
 /* XXX: partial */
 import {XYGlyph, XYGlyphView} from "../glyphs/xy_glyph";
 import {DistanceSpec, AngleSpec} from "core/vectorization"
+import {LineMixinVector, FillMixinVector} from "core/property_mixins"
 import * as hittest from "core/hittest";
 import * as p from "core/properties"
 import {range} from "core/util/array"
@@ -152,7 +153,9 @@ export class MarkerView extends XYGlyphView {
 }
 
 export namespace Marker {
-  export interface Attrs extends XYGlyph.Attrs {
+  export interface Mixins extends LineMixinVector, FillMixinVector {}
+
+  export interface Attrs extends XYGlyph.Attrs, Mixins {
     size: DistanceSpec
     angle: AngleSpec
   }

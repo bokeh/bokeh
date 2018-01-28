@@ -1,6 +1,7 @@
 /* XXX: partial */
 import {XYGlyph, XYGlyphView} from "./xy_glyph";
 import {DistanceSpec, AngleSpec} from "core/vectorization"
+import {LineMixinVector} from "core/property_mixins"
 import {Direction} from "core/enums"
 import * as p from "core/properties"
 import {Context2d} from "core/util/canvas"
@@ -39,7 +40,9 @@ export class ArcView extends XYGlyphView {
 }
 
 export namespace Arc {
-  export interface Attrs extends XYGlyph.Attrs {
+  export interface Mixins extends LineMixinVector {}
+
+  export interface Attrs extends XYGlyph.Attrs, Mixins {
     direction: Direction
     radius: DistanceSpec
     start_angle: AngleSpec

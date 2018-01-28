@@ -278,7 +278,10 @@ export class LegendView extends AnnotationView {
 }
 
 export namespace Legend {
-  export interface Attrs extends Annotation.Attrs {
+  export interface Mixins {
+  }
+
+  export interface Attrs extends Annotation.Attrs, Mixins {
     orientation: Orientation
     location: LegendLocation
     label_standoff: number

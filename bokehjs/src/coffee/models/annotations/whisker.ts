@@ -4,6 +4,7 @@ import {DataSource} from "../sources/data_source"
 import {ColumnDataSource} from "../sources/column_data_source";
 import {ArrowHead, TeeHead} from "./arrow_head";
 import {DistanceSpec} from "core/vectorization"
+import {LineMixinVector} from "core/property_mixins"
 import {Dimension} from "core/enums"
 import * as p from "core/properties"
 
@@ -116,7 +117,9 @@ export class WhiskerView extends AnnotationView {
 }
 
 export namespace Whisker {
-  export interface Attrs extends Annotation.Attrs {
+  export interface Mixins extends LineMixinVector {}
+
+  export interface Attrs extends Annotation.Attrs, Mixins {
     lower: DistanceSpec
     lower_head: ArrowHead
     upper: DistanceSpec

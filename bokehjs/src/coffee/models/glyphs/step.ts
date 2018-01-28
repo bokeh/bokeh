@@ -1,5 +1,6 @@
 /* XXX: partial */
 import {XYGlyph, XYGlyphView} from "./xy_glyph";
+import {LineMixinVector} from "core/property_mixins"
 import {StepMode} from "core/enums"
 import * as p from "core/properties"
 import {Context2d} from "core/util/canvas"
@@ -55,7 +56,9 @@ export class StepView extends XYGlyphView {
 }
 
 export namespace Step {
-  export interface Attrs extends XYGlyph.Attrs {
+  export interface Mixins extends LineMixinVector {}
+
+  export interface Attrs extends XYGlyph.Attrs, Mixins {
     mode: StepMode
   }
 

@@ -1,4 +1,5 @@
 /* XXX: partial */
+import {LineMixinVector, FillMixinVector} from "core/property_mixins"
 import {RBush} from "core/util/spatial";
 import {Context2d} from "core/util/canvas"
 import {Glyph, GlyphView} from "./glyph";
@@ -86,8 +87,9 @@ export abstract class BoxView extends GlyphView {
 }
 
 export namespace Box {
-  export interface Attrs extends Glyph.Attrs {
-  }
+  export interface Mixins extends LineMixinVector, FillMixinVector {}
+
+  export interface Attrs extends Glyph.Attrs, Mixins {}
 
   export interface Opts extends Glyph.Opts {}
 }

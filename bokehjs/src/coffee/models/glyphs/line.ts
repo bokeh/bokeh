@@ -1,5 +1,6 @@
 /* XXX: partial */
 import {XYGlyph, XYGlyphView} from "./xy_glyph";
+import {LineMixinVector} from "core/property_mixins"
 import * as hittest from "core/hittest"
 import {Context2d} from "core/util/canvas"
 
@@ -130,8 +131,9 @@ export class LineView extends XYGlyphView {
 }
 
 export namespace Line {
-  export interface Attrs extends XYGlyph.Attrs {
-  }
+  export interface Mixins extends LineMixinVector {}
+
+  export interface Attrs extends XYGlyph.Attrs, Mixins {}
 
   export interface Opts extends XYGlyph.Opts {}
 }

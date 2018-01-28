@@ -1,6 +1,7 @@
 /* XXX: partial */
 import {XYGlyph, XYGlyphView} from "./xy_glyph";
 import {NumberSpec, StringSpec, AngleSpec} from "core/vectorization"
+import {TextMixinVector} from "core/property_mixins"
 import * as p from "core/properties";
 import {get_text_height} from "core/util/text"
 import {Context2d} from "core/util/canvas"
@@ -70,7 +71,9 @@ export class TextView extends XYGlyphView {
 }
 
 export namespace Text {
-  export interface Attrs extends XYGlyph.Attrs {
+  export interface Mixins extends TextMixinVector {}
+
+  export interface Attrs extends XYGlyph.Attrs, Mixins {
     text: StringSpec
     angle: AngleSpec
     x_offset: NumberSpec

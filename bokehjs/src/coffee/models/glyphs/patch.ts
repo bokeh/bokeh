@@ -1,5 +1,6 @@
 /* XXX: partial */
 import {XYGlyph, XYGlyphView} from "./xy_glyph"
+import {LineMixinVector, FillMixinVector} from "core/property_mixins"
 import {Context2d} from "core/util/canvas"
 
 export class PatchView extends XYGlyphView {
@@ -57,8 +58,9 @@ export class PatchView extends XYGlyphView {
 }
 
 export namespace Patch {
-  export interface Attrs extends XYGlyph.Attrs {
-  }
+  export interface Mixins extends LineMixinVector, FillMixinVector {}
+
+  export interface Attrs extends XYGlyph.Attrs, Mixins {}
 
   export interface Opts extends XYGlyph.Opts {}
 }

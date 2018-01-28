@@ -58,7 +58,10 @@ export class PlotView extends LayoutDOMView {
 }
 
 export namespace Plot {
-  export interface Attrs extends LayoutDOM.Attrs {
+  export interface Mixins {
+  }
+
+  export interface Attrs extends LayoutDOM.Attrs, Mixins {
     toolbar: Toolbar
     toolbar_location: Location | null
     toolbar_sticky: boolean

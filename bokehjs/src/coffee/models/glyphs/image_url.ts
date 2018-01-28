@@ -200,7 +200,6 @@ export class ImageURL extends Glyph {
     this.prototype.default_view = ImageURLView;
 
     this.coords([['x', 'y']]);
-    this.mixins([]);
     this.define({
       url:            [ p.StringSpec            ],
       anchor:         [ p.Anchor,    'top_left' ],

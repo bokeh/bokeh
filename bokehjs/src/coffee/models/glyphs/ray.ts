@@ -1,6 +1,7 @@
 /* XXX: partial */
 import {XYGlyph, XYGlyphView} from "./xy_glyph";
 import {DistanceSpec, AngleSpec} from "core/vectorization"
+import {LineMixinVector} from "core/property_mixins"
 import * as p from "core/properties"
 import {Context2d} from "core/util/canvas"
 
@@ -54,7 +55,9 @@ export class RayView extends XYGlyphView {
 }
 
 export namespace Ray {
-  export interface Attrs extends XYGlyph.Attrs {
+  export interface Mixins extends LineMixinVector {}
+
+  export interface Attrs extends XYGlyph.Attrs, Mixins {
     length: DistanceSpec
     angle: AngleSpec
   }
