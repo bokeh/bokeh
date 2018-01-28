@@ -1,6 +1,7 @@
 /* XXX: partial */
 import {Annotation, AnnotationView} from "./annotation";
 import {LegendItem} from "./legend_item"
+import {FontStyle, TextAlign, TextBaseline, LineJoin, LineCap} from "core/enums"
 import {Orientation, LegendLocation, LegendClickPolicy} from "core/enums"
 import * as p from "core/properties";
 import {get_text_height} from "core/util/text";
@@ -278,8 +279,42 @@ export class LegendView extends AnnotationView {
 }
 
 export namespace Legend {
-  export interface Mixins {
+  // text:label_
+  export interface LabelText {
+    label_text_font: string
+    label_text_font_size: string
+    label_text_font_style: FontStyle
+    label_text_color: Color
+    label_text_alpha: number
+    label_text_align: TextAlign
+    label_text_baseline: TextBaseline
+    label_text_line_height: number
   }
+
+  // fill:inactive_
+  export interface InactiveFill {
+    inactive_fill_color: Color
+    inactive_fill_alpha: number
+  }
+
+  // line:border_
+  export interface BorderLine {
+    border_line_color: Color
+    border_line_width: number
+    border_line_alpha: number
+    border_line_join: LineJoin
+    border_line_cap: LineCap
+    border_line_dash: number[]
+    border_line_dash_offset: number
+  }
+
+  // fill:background_
+  export interface BackgroundFill {
+    background_fill_color: Color
+    background_fill_alpha: number
+  }
+
+  export interface Mixins extends LabelText, InactiveFill, BorderLine, BackgroundFill {}
 
   export interface Attrs extends Annotation.Attrs, Mixins {
     orientation: Orientation

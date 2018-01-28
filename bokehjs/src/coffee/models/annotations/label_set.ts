@@ -2,7 +2,7 @@
 import {TextAnnotation, TextAnnotationView} from "./text_annotation";
 import {DataSource} from "../sources/data_source";
 import {ColumnDataSource} from "../sources/column_data_source";
-import {NumberSpec, AngleSpec, StringSpec} from "core/vectorization"
+import {NumberSpec, AngleSpec, StringSpec, ColorSpec} from "core/vectorization"
 import {TextMixinVector} from "core/property_mixins"
 import {SpatialUnits, RenderMode} from "core/enums"
 import {div, show, hide} from "core/dom";
@@ -193,8 +193,24 @@ export class LabelSetView extends TextAnnotationView {
 }
 
 export namespace LabelSet {
-  export interface Mixins extends TextMixinVector {
+  // line:border_ v
+  export interface BorderLine {
+    border_line_color: ColorSpec
+    border_line_width: NumberSpec
+    border_line_alpha: NumberSpec
+    border_line_join: LineJoin
+    border_line_cap: LineCap
+    border_line_dash: number[]
+    border_line_dash_offset: number
   }
+
+  // fill:background_ v
+  export interface BackgroundFill {
+    background_fill_color: ColorSpec
+    background_fill_alpha: NumberSpec
+  }
+
+  export interface Mixins extends TextMixinVector, BorderLine, BackgroundFill {}
 
   export interface Attrs extends TextAnnotation.Attrs, Mixins {
     x: NumberSpec

@@ -6,6 +6,7 @@ import {FactorRange, Factor} from "../ranges/factor_range"
 
 import {Text, Line} from "core/visuals"
 import {Context2d} from "core/util/canvas"
+import {FontStyle, TextAlign, TextBaseline, LineJoin, LineCap} from "core/enums"
 
 export type CategoricalTickCoords = TickCoords & {
   mids: Coords
@@ -108,8 +109,42 @@ export class CategoricalAxisView extends AxisView {
 }
 
 export namespace CategoricalAxis {
-  export interface Mixins {
+  // line:separator_
+  export interface SeparatorLine {
+    separator_line_color: Color
+    separator_line_width: number
+    separator_line_alpha: number
+    separator_line_join: LineJoin
+    separator_line_cap: LineCap
+    separator_line_dash: number[]
+    separator_line_dash_offset: number
   }
+
+  // text:group_
+  export interface GroupText {
+    group_text_font: string
+    group_text_font_size: string
+    group_text_font_style: FontStyle
+    group_text_color: Color
+    group_text_alpha: number
+    group_text_align: TextAlign
+    group_text_baseline: TextBaseline
+    group_text_line_height: number
+  }
+
+  // text:subgroup_
+  export interface SubgroupText {
+    subgroup_text_font: string
+    subgroup_text_font_size: string
+    subgroup_text_font_style: FontStyle
+    subgroup_text_color: Color
+    subgroup_text_alpha: number
+    subgroup_text_align: TextAlign
+    subgroup_text_baseline: TextBaseline
+    subgroup_text_line_height: number
+  }
+
+  export interface Mixins extends SeparatorLine, GroupText, SubgroupText {}
 
   export interface Attrs extends Axis.Attrs, Mixins {
     ticker: CategoricalTicker

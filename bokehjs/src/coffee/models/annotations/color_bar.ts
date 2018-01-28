@@ -10,6 +10,7 @@ import {LinearScale} from "../scales/linear_scale";
 import {LogScale} from "../scales/log_scale";
 import {Range1d} from "../ranges/range1d";
 
+import {FontStyle, TextAlign, TextBaseline, LineJoin, LineCap} from "core/enums"
 import {LegendLocation, Orientation} from "core/enums"
 import * as p from "core/properties";
 import * as text_util from "core/util/text";
@@ -353,8 +354,81 @@ export class ColorBarView extends AnnotationView {
 }
 
 export namespace ColorBar {
-  export interface Mixins {
+  // text:major_label_
+  export interface MajorLabelText {
+    major_label_text_font: string
+    major_label_text_font_size: string
+    major_label_text_font_style: FontStyle
+    major_label_text_color: Color
+    major_label_text_alpha: number
+    major_label_text_align: TextAlign
+    major_label_text_baseline: TextBaseline
+    major_label_text_line_height: number
   }
+
+  // text:title_
+  export interface TitleText {
+    title_text_font: string
+    title_text_font_size: string
+    title_text_font_style: FontStyle
+    title_text_color: Color
+    title_text_alpha: number
+    title_text_align: TextAlign
+    title_text_baseline: TextBaseline
+    title_text_line_height: number
+  }
+
+  // line:major_tick_
+  export interface MajorTickLine {
+    major_tick_line_color: Color
+    major_tick_line_width: number
+    major_tick_line_alpha: number
+    major_tick_line_join: LineJoin
+    major_tick_line_cap: LineCap
+    major_tick_line_dash: number[]
+    major_tick_line_dash_offset: number
+  }
+
+  // line:minor_tick_
+  export interface MinorTickLine {
+    minor_tick_line_color: Color
+    minor_tick_line_width: number
+    minor_tick_line_alpha: number
+    minor_tick_line_join: LineJoin
+    minor_tick_line_cap: LineCap
+    minor_tick_line_dash: number[]
+    minor_tick_line_dash_offset: number
+  }
+
+  // line:border_
+  export interface BorderLine {
+    border_line_color: Color
+    border_line_width: number
+    border_line_alpha: number
+    border_line_join: LineJoin
+    border_line_cap: LineCap
+    border_line_dash: number[]
+    border_line_dash_offset: number
+  }
+
+  // line:bar_
+  export interface BarLine {
+    bar_line_color: Color
+    bar_line_width: number
+    bar_line_alpha: number
+    bar_line_join: LineJoin
+    bar_line_cap: LineCap
+    bar_line_dash: number[]
+    bar_line_dash_offset: number
+  }
+
+  // fill:background_
+  export interface BackgroundFill {
+    background_fill_color: Color
+    background_fill_alpha: number
+  }
+
+  export interface Mixins extends MajorLabelText, TitleText, MajorTickLine, MinorTickLine, BorderLine, BarLine, BackgroundFill {}
 
   export interface Attrs extends Annotation.Attrs, Mixins {
     location: LegendLocation
