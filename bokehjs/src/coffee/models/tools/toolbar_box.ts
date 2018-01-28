@@ -9,7 +9,6 @@ import {ActionTool} from "./actions/action_tool";
 import {HelpTool} from "./actions/help_tool";
 import {GestureTool} from "./gestures/gesture_tool";
 import {InspectTool} from "./inspectors/inspect_tool";
-import {Toolbar} from "./toolbar"
 import {ToolbarBase} from "./toolbar_base";
 import {ToolProxy} from "./tool_proxy";
 
@@ -212,7 +211,7 @@ export class ToolbarBoxView extends LayoutDOMView {
 
 export namespace ToolbarBox {
   export interface Attrs extends LayoutDOM.Attrs {
-    toolbar: Toolbar
+    toolbar: ToolbarBase
     toolbar_location: Location
   }
 
