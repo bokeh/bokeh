@@ -1,31 +1,53 @@
-/* XXX: partial */
 import {sprintf} from "sprintf-js";
 import {Document} from "../document";
 import * as embed from "../embed";
 import {BOKEH_ROOT} from "../embed";
 import * as models from "./models";
+import {HasProps} from "../core/has_props"
+import {Value, Field} from "../core/vectorization"
 import {div} from "../core/dom";
 import {Class} from "../core/class"
+import {Location} from "../core/enums"
+import {StringSpec} from "../core/vectorization"
 import {startsWith} from "../core/util/string";
 import {isEqual} from "../core/util/eq";
 import {any, all, includes} from "../core/util/array";
 import {extend, clone} from "../core/util/object";
 import {isNumber, isString, isArray} from "../core/util/types";
 
-import {GlyphRenderer, Axis, Grid, Range, Scale, Tool, Plot} from "./models"
+import {Glyph, GlyphRenderer, Axis, Grid, Range, Scale, Tool, Plot, ColumnarDataSource} from "./models"
 import {DOMView} from "../core/dom_view"
+
+import {LayoutDOM} from "models/layouts/layout_dom"
+import {Renderer} from "models/renderers/renderer"
+import {Legend} from "models/annotations/legend"
 
 export {gridplot} from "./gridplot"
 
-const _default_tooltips = [
+const _default_tooltips: [string, string][] = [
   ["index",         "$index"    ],
   ["data (x, y)",   "($x, $y)"  ],
   ["screen (x, y)", "($sx, $sy)"],
 ];
 
-const _default_tools = "pan,wheel_zoom,box_zoom,save,reset,help";
+export type ToolName =
+  "pan" | "xpan" | "ypan" |
+  "xwheel_pan" | "ywheel_pan" | "wheel_zoom" |
+  "xwheel_zoom" | "ywheel_zoom" |
+  "zoom_in" | "xzoom_in" | "yzoom_in" |
+  "zoom_out" | "xzoom_out" | "yzoom_out" |
+  "click" | "tap" |
+  "box_select" | "xbox_select" | "ybox_select" |
+  "poly_select" | "lasso_select" |
+  "box_zoom" | "xbox_zoom" | "ybox_zoom" |
+  "crosshair" | "hover" |
+  "save" |
+  "undo" | "redo" | "reset" |
+  "help"
 
-const _known_tools: {[key: string]: () => Tool} = {
+const _default_tools: ToolName[] = ["pan", "wheel_zoom", "box_zoom", "save", "reset", "help"]
+
+const _known_tools: {[key in ToolName]: () => Tool} = {
   pan:          () => new models.PanTool({dimensions: 'both'}),
   xpan:         () => new models.PanTool({dimensions: 'width'}),
   ypan:         () => new models.PanTool({dimensions: 'height'}),
@@ -53,44 +75,55 @@ const _known_tools: {[key: string]: () => Tool} = {
   ybox_zoom:    () => new models.BoxZoomTool({dimensions: 'height'}),
   hover:        () => new models.HoverTool({tooltips: _default_tooltips}),
   save:         () => new models.SaveTool(),
-  previewsave:  () => new models.SaveTool(),
   undo:         () => new models.UndoTool(),
   redo:         () => new models.RedoTool(),
   reset:        () => new models.ResetTool(),
   help:         () => new models.HelpTool(),
 };
 
+const _default_color = "#1f77b4"
+
+const _default_alpha = 1.0
+
 function _with_default<T>(value: T | undefined, default_value: T): T {
   return value === undefined ? default_value : value
 }
 
-export class Figure extends Plot {
-  static initClass() {
-    this.prototype._vectorable = [
-      "fill_color", "fill_alpha",
-      "line_color", "line_alpha", "line_width",
-      "text_color", "text_alpha", "text_font_size",
-    ];
+export type AxisType = "auto" | "linear" | "datetime" | "log" | null
 
-    this.prototype._default_color = "#1f77b4";
-    this.prototype._default_alpha = 1.0;
-  }
+export interface FigureAttrs {
+  width?: number
+  height?: number
+  x_range?: Range | [number, number] | string[]
+  y_range?: Range | [number, number] | string[]
+  x_axis_type?: AxisType
+  y_axis_type?: AxisType
+  x_axis_label?: string
+  y_axis_label?: string
+  x_minor_ticks?: number | "auto"
+  y_minor_ticks?: number | "auto"
+  tools?: (Tool | ToolName)[] | string
+}
+
+export class Figure extends Plot {
 
   get xgrid(): Grid {
-    return this.renderers.filter((r): r is Grid => r instanceof Grid && (r.dimension === 0))[0] // TODO
+    return this.renderers.filter((r: Renderer): r is Grid => r instanceof Grid && r.dimension === 0)[0] // TODO
   }
   get ygrid(): Grid {
-    return this.renderers.filter((r): r is Grid => r instanceof Grid && (r.dimension === 1))[0] // TODO
+    return this.renderers.filter((r: Renderer): r is Grid => r instanceof Grid && r.dimension === 1)[0] // TODO
   }
 
   get xaxis(): Axis {
-    return this.below.concat(this.above).filter((r): r is Axis => r instanceof Axis)[0] // TODO
+    return this.below.concat(this.above).filter((r: Renderer): r is Axis => r instanceof Axis)[0] // TODO
   }
   get yaxis(): Axis {
-    return this.left.concat(this.right).filter((r): r is Axis => r instanceof Axis)[0] // TODO
+    return this.left.concat(this.right).filter((r: Renderer): r is Axis => r instanceof Axis)[0] // TODO
   }
 
-  constructor(attributes = {}, options = {}) {
+  protected _legend: Legend
+
+  constructor(attributes: any = {}) {
     const attrs = clone(attributes);
 
     const tools = _with_default(attrs.tools, _default_tools);
@@ -99,8 +132,8 @@ export class Figure extends Plot {
     attrs.x_range = Figure._get_range(attrs.x_range);
     attrs.y_range = Figure._get_range(attrs.y_range);
 
-    const x_axis_type = attrs.x_axis_type === undefined ? "auto" : attrs.x_axis_type;
-    const y_axis_type = attrs.y_axis_type === undefined ? "auto" : attrs.y_axis_type;
+    const x_axis_type = _with_default(attrs.x_axis_type, "auto")
+    const y_axis_type = _with_default(attrs.y_axis_type, "auto")
     delete attrs.x_axis_type;
     delete attrs.y_axis_type;
 
@@ -140,14 +173,14 @@ export class Figure extends Plot {
       delete attrs.height;
     }
 
-    super(attrs, options);
+    super(attrs);
 
     this._process_axis_and_grid(x_axis_type, x_axis_location, x_minor_ticks, x_axis_label, attrs.x_range, 0);
     this._process_axis_and_grid(y_axis_type, y_axis_location, y_minor_ticks, y_axis_label, attrs.y_range, 1);
 
     this.add_tools(...this._process_tools(tools))
 
-    this._legend = new models.Legend({plot: this, items: []});
+    this._legend = new Legend({plot: this, items: []});
     this.add_renderers(this._legend);
   }
 
@@ -186,8 +219,9 @@ export class Figure extends Plot {
   triangle(...args: any[])          { return this._marker(models.Triangle,         args); }
   x(...args: any[])                 { return this._marker(models.X,                args); }
 
-  _pop_colors_and_alpha(cls, attrs, prefix = "", default_color = this._default_color, default_alpha = this._default_alpha) {
-    const result = {};
+  _pop_colors_and_alpha(cls: Class<HasProps>, attrs: {[key: string]: any}, prefix: string = "",
+                        default_color: string = _default_color, default_alpha: number = _default_alpha): {[key: string]: any} {
+    const result: {[key: string]: any} = {};
 
     const color = _with_default(attrs[prefix + "color"], default_color);
     const alpha = _with_default(attrs[prefix + "alpha"], default_alpha);
@@ -195,12 +229,12 @@ export class Figure extends Plot {
     delete attrs[prefix + "color"];
     delete attrs[prefix + "alpha"];
 
-    const _update_with = function(name, default_value) {
+    const _update_with = function(name: string, default_value: any): void {
       if (cls.prototype.props[name] != null) {
         result[name] = _with_default(attrs[prefix + name], default_value);
-        return delete attrs[prefix + name];
+        delete attrs[prefix + name];
       }
-    };
+    }
 
     _update_with("fill_color", color);
     _update_with("line_color", color);
@@ -213,7 +247,7 @@ export class Figure extends Plot {
     return result;
   }
 
-  _find_uniq_name(data, name) {
+  _find_uniq_name(data: {[key: string]: any[]}, name: string): string {
     let i = 1;
     while (true) {
       const new_name = `${name}__${i}`;
@@ -225,7 +259,7 @@ export class Figure extends Plot {
     }
   }
 
-  _fixup_values(cls, data, attrs) {
+  _fixup_values(cls: Class<HasProps>, data: {[key: string]: any}, attrs: {[key: string]: any}) {
     for (const name in attrs) {
       const value = attrs[name];
       const prop = cls.prototype.props[name];
@@ -257,10 +291,10 @@ export class Figure extends Plot {
     }
   }
 
-  _glyph(cls, params, args): GlyphRenderer {
-    let attrs;
-    params = params.split(",");
+  _glyph(cls: Class<Glyph>, params_string: string, args: any): GlyphRenderer {
+    const params = params_string.split(",");
 
+    let attrs;
     if (args.length === 1) {
       [attrs] = args;
       attrs = clone(attrs);
@@ -297,18 +331,18 @@ export class Figure extends Plot {
 
     source.data = data;
 
-    const _make_glyph = (cls, attrs, extra_attrs) => {
+    const _make_glyph = (cls: Class<Glyph>, attrs: any, extra_attrs: any) => {
       return new cls(extend({}, attrs, extra_attrs));
-    };
+    }
 
     const glyph   = _make_glyph(cls, attrs,   glyph_ca);
     const nsglyph = _make_glyph(cls, attrs, nsglyph_ca);
-    const sglyph  = has_sglyph ? _make_glyph(cls, attrs,  sglyph_ca) : null;
-    const hglyph  = has_hglyph ? _make_glyph(cls, attrs,  hglyph_ca) : null;
+    const sglyph  = has_sglyph ? _make_glyph(cls, attrs, sglyph_ca) : undefined;
+    const hglyph  = has_hglyph ? _make_glyph(cls, attrs, hglyph_ca) : undefined;
 
     const glyph_renderer = new GlyphRenderer({
       data_source:        source,
-      glyph,
+      glyph:              glyph,
       nonselection_glyph: nsglyph,
       selection_glyph:    sglyph,
       hover_glyph:        hglyph,
@@ -322,11 +356,11 @@ export class Figure extends Plot {
     return glyph_renderer
   }
 
-  _marker(cls, args) {
+  _marker(cls: Class<Glyph>, args: any) {
     return this._glyph(cls, "x,y", args);
   }
 
-  static _get_range(range): Range {
+  static _get_range(range?: Range | [number, number] | string[]): Range {
     if (range == null) {
       return new models.DataRange1d();
     }
@@ -335,17 +369,20 @@ export class Figure extends Plot {
     }
     if (isArray(range)) {
       if (all(range, isString)) {
-        return new models.FactorRange({factors: range});
+        const factors = range as string[]
+        return new models.FactorRange({factors: factors});
       }
-      if (range.length === 2) {
-        return new models.Range1d({start: range[0], end: range[1]});
+      if (range.length == 2) {
+        const [start, end] = range as [number, number]
+        return new models.Range1d({start, end})
       }
     }
     throw new Error(`unable to determine proper range for: '${range}'`);
   }
 
-  static _get_scale(range_input, axis_type): Scale {
-    if (range_input instanceof models.DataRange1d || range_input instanceof models.Range1d) {
+  static _get_scale(range_input: Range, axis_type: AxisType): Scale {
+    if (range_input instanceof models.DataRange1d ||
+        range_input instanceof models.Range1d) {
       switch (axis_type) {
         case null:
         case "auto":
@@ -364,7 +401,8 @@ export class Figure extends Plot {
     throw new Error(`unable to determine proper scale for: '${range_input}'`);
   }
 
-  _process_axis_and_grid(axis_type, axis_location, minor_ticks, axis_label, rng, dim): void {
+  _process_axis_and_grid(axis_type: AxisType, axis_location: Location,
+                         minor_ticks: number | "auto" | undefined, axis_label: string, rng: Range, dim: 0 | 1): void {
     const axiscls = this._get_axis_class(axis_type, rng);
     if (axiscls != null) {
       if (axiscls === models.LogAxis) {
@@ -393,7 +431,7 @@ export class Figure extends Plot {
     }
   }
 
-  _get_axis_class(axis_type: null | "linear" | "log" | "datetime" | "auto", range: Range): Class<Axis> {
+  _get_axis_class(axis_type: AxisType, range: Range): Class<Axis> | null {
     switch (axis_type) {
       case null:
         return null
@@ -413,14 +451,14 @@ export class Figure extends Plot {
     }
   }
 
-  _get_num_minor_ticks(axis_class, num_minor_ticks) {
+  _get_num_minor_ticks(axis_class: Class<Axis>, num_minor_ticks?: number | "auto"): number {
     if (isNumber(num_minor_ticks)) {
       if (num_minor_ticks <= 1) {
         throw new Error("num_minor_ticks must be > 1");
       }
       return num_minor_ticks;
     }
-    if ((num_minor_ticks == null)) {
+    if (num_minor_ticks == null) {
       return 0;
     }
     if (num_minor_ticks === 'auto') {
@@ -429,24 +467,27 @@ export class Figure extends Plot {
       }
       return 5;
     }
+    throw new Error("shouldn't have happened")
   }
 
   _process_tools(tools: (Tool | string)[] | string): Tool[] {
     if (isString(tools))
       tools = tools.split(/\s*,\s*/).filter((tool) => tool.length > 0)
 
+    function isToolName(tool: string): tool is ToolName {
+      return _known_tools.hasOwnProperty(tool)
+    }
+
     const objs = (() => {
       const result = [];
       for (const tool of tools) {
         if (isString(tool)) {
-          if (_known_tools.hasOwnProperty(tool)) {
+          if (isToolName(tool))
             result.push(_known_tools[tool]());
-          } else {
+          else
             throw new Error(`unknown tool type: ${tool}`);
-          }
-        } else {
+        } else
           result.push(tool);
-        }
       }
       return result;
     })();
@@ -454,7 +495,7 @@ export class Figure extends Plot {
     return objs;
   }
 
-  _process_legend(legend, source) {
+  _process_legend(legend: string | StringSpec | undefined, source: ColumnarDataSource): StringSpec | null {
     let legend_item_label = null;
     if (legend != null) {
       if (isString(legend)) {
@@ -471,16 +512,18 @@ export class Figure extends Plot {
     return legend_item_label;
   }
 
-  _update_legend(legend_item_label, glyph_renderer) {
+  _update_legend(legend_item_label: StringSpec, glyph_renderer: GlyphRenderer): void {
     let added = false;
     for (const item of this._legend.items) {
-      if (isEqual(item.label, legend_item_label)) {
-        if (item.label.value != null) {
+      if (item.label != null && isEqual(item.label, legend_item_label)) {
+        // XXX: remove this when vectorable properties are refined
+        const label = item.label as Value<string> | Field
+        if ("value" in label) {
           item.renderers.push(glyph_renderer);
           added = true;
           break;
         }
-        if ((item.label.field != null) && (glyph_renderer.data_source === item.renderers[0].data_source)) {
+        if ("field" in label && glyph_renderer.data_source == item.renderers[0].data_source) {
           item.renderers.push(glyph_renderer);
           added = true;
           break;
@@ -489,43 +532,36 @@ export class Figure extends Plot {
     }
     if (!added) {
       const new_item = new models.LegendItem({ label: legend_item_label, renderers: [glyph_renderer] });
-      return this._legend.items.push(new_item);
+      this._legend.items.push(new_item);
     }
   }
 }
-Figure.initClass();
 
-export const figure = function(attributes = {}, options = {}) {
-  return new Figure(attributes, options)
+export function figure(attributes: any = {}) {
+  return new Figure(attributes)
 }
 
 declare var $: any
 
-export const show = function(obj, target): DOMView | {[key: string]: DOMView} {
-  let element;
-  const multiple = isArray(obj);
+export const show = function(obj: LayoutDOM | LayoutDOM[], target?: HTMLElement | string): {[key: string]: DOMView} {
+  const doc = new Document()
 
-  const doc = new Document();
+  for (const item of isArray(obj) ? obj : [obj])
+    doc.add_root(item)
 
-  if (!multiple) {
-    doc.add_root(obj);
-  } else {
-    for (const _obj of obj) {
-      doc.add_root(_obj);
-    }
-  }
-
-  if ((target == null)) {
+  let element: HTMLElement
+  if (target == null) {
     element = document.body;
   } else if (isString(target)) {
-    element = document.querySelector(target);
-    if ((element == null)) {
+    const found = document.querySelector(target);
+    if (found != null && found instanceof HTMLElement)
+      element = found
+    else
       throw new Error(`'${target}' selector didn't match any elements`);
-    }
   } else if (target instanceof HTMLElement) {
     element = target;
-  } else if ((typeof $ !== 'undefined' && $ !== null) && target instanceof $) {
-    element = target[0];
+  } else if (typeof $ !== 'undefined' && (target as any) instanceof $) {
+    element = (target as any)[0];
   } else {
     throw new Error("target should be HTMLElement, string selector, $ or null");
   }
@@ -533,13 +569,9 @@ export const show = function(obj, target): DOMView | {[key: string]: DOMView} {
   const root = div({class: BOKEH_ROOT});
   element.appendChild(root);
 
-  const views = embed.add_document_standalone(doc, root);
+  return embed.add_document_standalone(doc, root);
+}
 
-  if (!multiple) {
-    return views[obj.id];
-  } else {
-    return views;
-  }
-};
-
-export const color = (r, g, b) => sprintf("#%02x%02x%02x", r, g, b);
+export function color(r: number, g: number, b: number): string {
+  return sprintf("#%02x%02x%02x", r, g, b)
+}
