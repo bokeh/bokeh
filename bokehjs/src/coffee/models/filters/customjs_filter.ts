@@ -8,11 +8,17 @@ export namespace CustomJSFilter {
     args: {[key: string]: any}
     code: string
   }
+
+  export interface Opts extends Filter.Opts {}
 }
 
 export interface CustomJSFilter extends CustomJSFilter.Attrs {}
 
 export class CustomJSFilter extends Filter {
+
+  constructor(attrs?: Partial<CustomJSFilter.Attrs>, opts?: CustomJSFilter.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = 'CustomJSFilter';

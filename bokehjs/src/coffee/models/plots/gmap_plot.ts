@@ -12,11 +12,17 @@ export namespace MapOptions {
     lng: number
     zoom: number
   }
+
+  export interface Opts extends Model.Opts {}
 }
 
 export interface MapOptions extends MapOptions.Attrs {}
 
 export class MapOptions extends Model {
+
+  constructor(attrs?: Partial<MapOptions.Attrs>, opts?: MapOptions.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "MapOptions"
@@ -36,11 +42,17 @@ export namespace GMapOptions {
     scale_control: boolean
     styles: string
   }
+
+  export interface Opts extends MapOptions.Opts {}
 }
 
 export interface GMapOptions extends GMapOptions.Attrs {}
 
 export class GMapOptions extends MapOptions {
+
+  constructor(attrs?: Partial<GMapOptions.Attrs>, opts?: GMapOptions.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "GMapOptions"
@@ -63,11 +75,17 @@ export namespace GMapPlot {
     map_options: GMapOptions
     api_key: string
   }
+
+  export interface Opts extends Plot.Opts {}
 }
 
 export interface GMapPlot extends GMapPlot.Attrs {}
 
 export class GMapPlot extends Plot {
+
+  constructor(attrs?: Partial<GMapPlot.Attrs>, opts?: GMapPlot.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "GMapPlot"

@@ -9,11 +9,17 @@ export namespace SingleIntervalTicker {
   export interface Attrs extends ContinuousTicker.Attrs {
     interval: number
   }
+
+  export interface Opts extends ContinuousTicker.Opts {}
 }
 
 export interface SingleIntervalTicker extends SingleIntervalTicker.Attrs {}
 
 export class SingleIntervalTicker extends ContinuousTicker {
+
+  constructor(attrs?: Partial<SingleIntervalTicker.Attrs>, opts?: SingleIntervalTicker.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "SingleIntervalTicker"

@@ -13,11 +13,17 @@ export namespace GuideRenderer {
   }
 
   export type Visuals = Renderer.Visuals
+
+  export interface Opts extends Renderer.Opts {}
 }
 
 export interface GuideRenderer extends GuideRenderer.Attrs {}
 
 export abstract class GuideRenderer extends Renderer {
+
+  constructor(attrs?: Partial<GuideRenderer.Attrs>, opts?: GuideRenderer.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "GuideRenderer"

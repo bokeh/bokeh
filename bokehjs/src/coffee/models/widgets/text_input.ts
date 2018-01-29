@@ -60,11 +60,17 @@ export namespace TextInput {
     value: string
     placeholder: string
   }
+
+  export interface Opts extends InputWidget.Opts {}
 }
 
 export interface TextInput extends TextInput.Attrs {}
 
 export class TextInput extends InputWidget {
+
+  constructor(attrs?: Partial<TextInput.Attrs>, opts?: TextInput.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "TextInput"

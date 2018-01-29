@@ -2,12 +2,15 @@
 import {TextAnnotation, TextAnnotationView} from "./text_annotation";
 import {DataSource} from "../sources/data_source";
 import {ColumnDataSource} from "../sources/column_data_source";
-import {NumberSpec, AngleSpec, StringSpec} from "core/vectorization"
+import {NumberSpec, AngleSpec, StringSpec, ColorSpec} from "core/vectorization"
+import {TextMixinVector} from "core/property_mixins"
+import {LineJoin, LineCap} from "core/enums"
 import {SpatialUnits, RenderMode} from "core/enums"
 import {div, show, hide} from "core/dom";
 import * as p from "core/properties";
 import {isString, isArray} from "core/util/types"
 import {range} from "core/util/array"
+import {Context2d} from "core/util/canvas"
 
 export class LabelSetView extends TextAnnotationView {
   model: LabelSet
@@ -114,7 +117,7 @@ export class LabelSetView extends TextAnnotationView {
     }
   }
 
-  _v_canvas_text(ctx, i, text, sx, sy, angle) {
+  _v_canvas_text(ctx: Context2d, i, text, sx, sy, angle) {
     this.visuals.text.set_vectorize(ctx, i);
     const bbox_dims = this._calculate_bounding_box_dimensions(ctx, text);
 
@@ -144,7 +147,7 @@ export class LabelSetView extends TextAnnotationView {
     return ctx.restore();
   }
 
-  _v_css_text(ctx, i, text, sx, sy, angle) {
+  _v_css_text(ctx: Context2d, i, text, sx, sy, angle) {
     let line_dash;
     const el = this.el.childNodes[i];
     el.textContent = text;
@@ -191,7 +194,26 @@ export class LabelSetView extends TextAnnotationView {
 }
 
 export namespace LabelSet {
-  export interface Attrs extends TextAnnotation.Attrs {
+  // line:border_ v
+  export interface BorderLine {
+    border_line_color: ColorSpec
+    border_line_width: NumberSpec
+    border_line_alpha: NumberSpec
+    border_line_join: LineJoin
+    border_line_cap: LineCap
+    border_line_dash: number[]
+    border_line_dash_offset: number
+  }
+
+  // fill:background_ v
+  export interface BackgroundFill {
+    background_fill_color: ColorSpec
+    background_fill_alpha: NumberSpec
+  }
+
+  export interface Mixins extends TextMixinVector, BorderLine, BackgroundFill {}
+
+  export interface Attrs extends TextAnnotation.Attrs, Mixins {
     x: NumberSpec
     y: NumberSpec
     x_units: SpatialUnits
@@ -205,11 +227,17 @@ export namespace LabelSet {
     y_range_name: string
     render_mode: RenderMode
   }
+
+  export interface Opts extends TextAnnotation.Opts {}
 }
 
 export interface LabelSet extends LabelSet.Attrs {}
 
 export class LabelSet extends TextAnnotation {
+
+  constructor(attrs?: Partial<LabelSet.Attrs>, opts?: LabelSet.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = 'LabelSet';

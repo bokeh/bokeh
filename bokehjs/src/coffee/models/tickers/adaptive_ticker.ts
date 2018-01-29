@@ -23,11 +23,17 @@ export namespace AdaptiveTicker {
     min_interval: number
     max_interval: number
   }
+
+  export interface Opts extends ContinuousTicker.Opts {}
 }
 
 export interface AdaptiveTicker extends AdaptiveTicker.Attrs {}
 
 export class AdaptiveTicker extends ContinuousTicker {
+
+  constructor(attrs?: Partial<AdaptiveTicker.Attrs>, opts?: AdaptiveTicker.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "AdaptiveTicker"

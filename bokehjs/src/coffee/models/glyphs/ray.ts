@@ -1,7 +1,9 @@
 /* XXX: partial */
 import {XYGlyph, XYGlyphView} from "./xy_glyph";
 import {DistanceSpec, AngleSpec} from "core/vectorization"
+import {LineMixinVector} from "core/property_mixins"
 import * as p from "core/properties"
+import {Context2d} from "core/util/canvas"
 
 export class RayView extends XYGlyphView {
   model: Ray
@@ -14,7 +16,7 @@ export class RayView extends XYGlyphView {
     }
   }
 
-  _render(ctx, indices, {sx, sy, slength, _angle}) {
+  _render(ctx: Context2d, indices, {sx, sy, slength, _angle}) {
     if (this.visuals.line.doit) {
       const width = this.renderer.plot_view.frame._width.value;
       const height = this.renderer.plot_view.frame._height.value;
@@ -47,21 +49,29 @@ export class RayView extends XYGlyphView {
     }
   }
 
-  draw_legend_for_index(ctx, x0, x1, y0, y1, index) {
+  draw_legend_for_index(ctx: Context2d, x0, x1, y0, y1, index) {
     return this._generic_line_legend(ctx, x0, x1, y0, y1, index);
   }
 }
 
 export namespace Ray {
-  export interface Attrs extends XYGlyph.Attrs {
+  export interface Mixins extends LineMixinVector {}
+
+  export interface Attrs extends XYGlyph.Attrs, Mixins {
     length: DistanceSpec
     angle: AngleSpec
   }
+
+  export interface Opts extends XYGlyph.Opts {}
 }
 
 export interface Ray extends Ray.Attrs {}
 
 export class Ray extends XYGlyph {
+
+  constructor(attrs?: Partial<Ray.Attrs>, opts?: Ray.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = 'Ray';

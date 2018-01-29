@@ -2,13 +2,15 @@
 import {Renderer, RendererView} from "./renderer";
 import {Glyph} from "../glyphs/glyph";
 import {LineView} from "../glyphs/line";
-import {DataSource} from "../sources/data_source";
+import {ColumnarDataSource} from "../sources/columnar_data_source";
 import {RemoteDataSource} from "../sources/remote_data_source";
 import {CDSView} from "../sources/cds_view";
 import {logger} from "core/logging";
 import * as p from "core/properties";
 import {difference, includes, range} from "core/util/array";
 import {extend, clone} from "core/util/object"
+import {Context2d} from "core/util/canvas"
+import {SelectionManager} from "core/selection_manager"
 
 export class GlyphRendererView extends RendererView {
   model: GlyphRenderer
@@ -319,7 +321,7 @@ export class GlyphRendererView extends RendererView {
     return ctx.restore();
   }
 
-  draw_legend(ctx, x0, x1, y0, y1, field, label) {
+  draw_legend(ctx: Context2d, x0, x1, y0, y1, field, label) {
     const index = this.model.get_reference_point(field, label);
     return this.glyph.draw_legend_for_index(ctx, x0, x1, y0, y1, index);
   }
@@ -333,7 +335,7 @@ export namespace GlyphRenderer {
   export interface Attrs extends Renderer.Attrs {
     x_range_name: string
     y_range_name: string
-    data_source: DataSource
+    data_source: ColumnarDataSource
     view: CDSView
     glyph: Glyph
     hover_glyph: Glyph
@@ -342,11 +344,17 @@ export namespace GlyphRenderer {
     muted_glyph: Glyph
     muted: boolean
   }
+
+  export interface Opts extends Renderer.Opts {}
 }
 
 export interface GlyphRenderer extends GlyphRenderer.Attrs {}
 
 export class GlyphRenderer extends Renderer {
+
+  constructor(attrs?: Partial<GlyphRenderer.Attrs>, opts?: GlyphRenderer.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = 'GlyphRenderer';
@@ -427,7 +435,7 @@ export class GlyphRenderer extends Renderer {
     return !indices.is_empty();
   }
 
-  get_selection_manager() {
+  get_selection_manager(): SelectionManager {
     return this.data_source.selection_manager;
   }
 }

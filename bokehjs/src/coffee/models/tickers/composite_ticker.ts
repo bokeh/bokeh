@@ -10,11 +10,17 @@ export namespace CompositeTicker {
   export interface Attrs extends ContinuousTicker.Attrs {
     tickers: ContinuousTicker[]
   }
+
+  export interface Opts extends ContinuousTicker.Opts {}
 }
 
 export interface CompositeTicker extends CompositeTicker.Attrs {}
 
 export class CompositeTicker extends ContinuousTicker {
+
+  constructor(attrs?: Partial<CompositeTicker.Attrs>, opts?: CompositeTicker.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "CompositeTicker"

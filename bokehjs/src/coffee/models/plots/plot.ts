@@ -1,6 +1,8 @@
 import {EQ, Constraint, Variable} from "core/layout/solver"
 import {logger} from "core/logging"
 import * as p from "core/properties"
+import {Color} from "core/types"
+import {LineJoin, LineCap} from "core/enums"
 import {Place, Location, OutputBackend} from "core/enums"
 import {find, removeBy} from "core/util/array"
 import {extend, values} from "core/util/object"
@@ -58,7 +60,32 @@ export class PlotView extends LayoutDOMView {
 }
 
 export namespace Plot {
-  export interface Attrs extends LayoutDOM.Attrs {
+  // line:outline_
+  export interface OutlineLine {
+    outline_line_color: Color
+    outline_line_width: number
+    outline_line_alpha: number
+    outline_line_join: LineJoin
+    outline_line_cap: LineCap
+    outline_line_dash: number[]
+    outline_line_dash_offset: number
+  }
+
+  // fill:background_
+  export interface BackgroundFill {
+    background_fill_color: Color
+    background_fill_alpha: number
+  }
+
+  // fill:border_
+  export interface BorderFill {
+    border_fill_color: Color
+    border_fill_alpha: number
+  }
+
+  export interface Mixins extends OutlineLine, BackgroundFill, BorderFill {}
+
+  export interface Attrs extends LayoutDOM.Attrs, Mixins {
     toolbar: Toolbar
     toolbar_location: Location | null
     toolbar_sticky: boolean
@@ -109,11 +136,17 @@ export namespace Plot {
     match_aspect: boolean
     aspect_scale: number
   }
+
+  export interface Opts extends LayoutDOM.Opts {}
 }
 
 export interface Plot extends Plot.Attrs {}
 
 export class Plot extends LayoutDOM {
+
+  constructor(attrs?: Partial<Plot.Attrs>, opts?: Plot.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "Plot"

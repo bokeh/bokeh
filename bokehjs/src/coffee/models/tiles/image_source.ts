@@ -7,11 +7,18 @@ export namespace ImageSource {
     url: string
     extra_url_vars: {[key: string]: string}
   }
+
+  export interface Opts extends Model.Opts {}
 }
 
 export interface ImageSource extends ImageSource.Attrs {}
 
 export class ImageSource extends Model {
+
+  constructor(attrs?: Partial<ImageSource.Attrs>, opts?: ImageSource.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'ImageSource';
 

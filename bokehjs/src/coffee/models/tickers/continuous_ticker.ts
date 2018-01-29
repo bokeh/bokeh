@@ -21,11 +21,17 @@ export namespace ContinuousTicker {
     num_minor_ticks: number
     desired_num_ticks: number
   }
+
+  export interface Opts extends Ticker.Opts {}
 }
 
 export interface ContinuousTicker extends ContinuousTicker.Attrs {}
 
 export abstract class ContinuousTicker extends Ticker<number> {
+
+  constructor(attrs?: Partial<ContinuousTicker.Attrs>, opts?: ContinuousTicker.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "ContinuousTicker"

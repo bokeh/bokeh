@@ -1,5 +1,6 @@
 /* XXX: partial */
 import {Box, BoxView} from "./box"
+import {NumberSpec} from "core/vectorization"
 import {RBush} from "core/util/spatial"
 
 export class QuadView extends BoxView {
@@ -47,12 +48,22 @@ export class QuadView extends BoxView {
 
 export namespace Quad {
   export interface Attrs extends Box.Attrs {
+    right: NumberSpec
+    bottom: NumberSpec
+    left: NumberSpec
+    top: NumberSpec
   }
+
+  export interface Opts extends Box.Opts {}
 }
 
 export interface Quad extends Quad.Attrs {}
 
 export class Quad extends Box {
+
+  constructor(attrs?: Partial<Quad.Attrs>, opts?: Quad.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = 'Quad';

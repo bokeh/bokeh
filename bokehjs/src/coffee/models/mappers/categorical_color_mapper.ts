@@ -23,11 +23,18 @@ export namespace CategoricalColorMapper {
     start: number
     end: number
   }
+
+  export interface Opts extends ColorMapper.Opts {}
 }
 
 export interface CategoricalColorMapper extends CategoricalColorMapper.Attrs {}
 
 export class CategoricalColorMapper extends ColorMapper {
+
+  constructor(attrs?: Partial<CategoricalColorMapper.Attrs>, opts?: CategoricalColorMapper.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "CategoricalColorMapper";
 

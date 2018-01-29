@@ -143,11 +143,18 @@ export namespace EditTool {
     empty_value: any
     renderers: (GlyphRenderer & HasCDS)[]
   }
+
+  export interface Opts extends GestureTool.Opts {}
 }
 
 export interface EditTool extends EditTool.Attrs {}
 
 export abstract class EditTool extends GestureTool {
+
+  constructor(attrs?: Partial<EditTool.Attrs>, opts?: EditTool.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "EditTool"
 

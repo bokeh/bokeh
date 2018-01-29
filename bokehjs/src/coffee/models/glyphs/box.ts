@@ -1,5 +1,7 @@
 /* XXX: partial */
+import {LineMixinVector, FillMixinVector} from "core/property_mixins"
 import {RBush} from "core/util/spatial";
+import {Context2d} from "core/util/canvas"
 import {Glyph, GlyphView} from "./glyph";
 import * as hittest from "core/hittest";
 
@@ -22,7 +24,7 @@ export abstract class BoxView extends GlyphView {
     return new RBush(points);
   }
 
-  _render(ctx, indices, {sleft, sright, stop, sbottom}) {
+  _render(ctx: Context2d, indices, {sleft, sright, stop, sbottom}) {
     for (const i of indices) {
       if (isNaN(sleft[i]+stop[i]+sright[i]+sbottom[i])) {
         continue;
@@ -79,19 +81,26 @@ export abstract class BoxView extends GlyphView {
     return result;
   }
 
-  draw_legend_for_index(ctx, x0, x1, y0, y1, index) {
+  draw_legend_for_index(ctx: Context2d, x0, x1, y0, y1, index) {
     return this._generic_area_legend(ctx, x0, x1, y0, y1, index);
   }
 }
 
 export namespace Box {
-  export interface Attrs extends Glyph.Attrs {
-  }
+  export interface Mixins extends LineMixinVector, FillMixinVector {}
+
+  export interface Attrs extends Glyph.Attrs, Mixins {}
+
+  export interface Opts extends Glyph.Opts {}
 }
 
 export interface Box extends Box.Attrs {}
 
 export abstract class Box extends Glyph {
+
+  constructor(attrs?: Partial<Box.Attrs>, opts?: Box.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "Box";

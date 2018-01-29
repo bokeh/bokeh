@@ -3,11 +3,21 @@ import {Model} from "../../model"
 
 export namespace Transform {
   export interface Attrs extends Model.Attrs {}
+
+  export interface Opts extends Model.Opts {}
 }
 
 export interface Transform extends Transform.Attrs {}
 
 export abstract class Transform extends Model {
+
+  constructor(attrs?: Partial<Transform.Attrs>, opts?: Transform.Opts) {
+    super(attrs, opts)
+  }
+
+  static initClass() {
+    this.prototype.type = "Transform"
+  }
 
   // default implementation based on compute
   v_compute(xs) {
@@ -22,3 +32,4 @@ export abstract class Transform extends Model {
     return result;
   }
 }
+Transform.initClass()

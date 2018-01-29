@@ -15,11 +15,17 @@ export class UndoToolView extends ActionToolView {
 
 export namespace UndoTool {
   export interface Attrs extends ActionTool.Attrs {}
+
+  export interface Opts extends ActionTool.Opts {}
 }
 
 export interface UndoTool extends UndoTool.Attrs {}
 
 export class UndoTool extends ActionTool {
+
+  constructor(attrs?: Partial<UndoTool.Attrs>, opts?: UndoTool.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "UndoTool"

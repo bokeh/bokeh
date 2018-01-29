@@ -3,11 +3,17 @@ import {FactorRange, Factor} from "../ranges/factor_range"
 
 export namespace CategoricalTicker {
   export interface Attrs extends Ticker.Attrs {}
+
+  export interface Opts extends Ticker.Opts {}
 }
 
 export interface CategoricalTicker extends CategoricalTicker.Attrs {}
 
 export class CategoricalTicker extends Ticker<Factor> {
+
+  constructor(attrs?: Partial<CategoricalTicker.Attrs>, opts?: CategoricalTicker.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "CategoricalTicker"

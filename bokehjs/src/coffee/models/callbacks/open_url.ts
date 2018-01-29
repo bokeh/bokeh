@@ -8,11 +8,17 @@ export namespace OpenURL {
   export interface Attrs extends Model.Attrs {
     url: string
   }
+
+  export interface Opts extends Model.Opts {}
 }
 
 export interface OpenURL extends OpenURL.Attrs {}
 
 export class OpenURL extends Model {
+
+  constructor(attrs?: Partial<OpenURL.Attrs>, opts?: OpenURL.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = 'OpenURL';

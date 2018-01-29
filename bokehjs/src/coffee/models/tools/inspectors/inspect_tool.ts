@@ -11,11 +11,17 @@ export namespace InspectTool {
   export interface Attrs extends ButtonTool.Attrs {
     toggleable: boolean
   }
+
+  export interface Opts extends ButtonTool.Opts {}
 }
 
 export interface InspectTool extends InspectTool.Attrs {}
 
 export abstract class InspectTool extends ButtonTool {
+
+  constructor(attrs?: Partial<InspectTool.Attrs>, opts?: InspectTool.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "InspectTool"

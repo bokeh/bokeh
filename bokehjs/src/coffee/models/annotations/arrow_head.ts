@@ -1,5 +1,6 @@
 import {Annotation} from "./annotation"
 import {Visuals, Line, Fill} from "core/visuals"
+import {LineMixinVector, FillMixinVector} from "core/property_mixins"
 import * as p from "core/properties"
 import {Context2d} from "core/util/canvas"
 
@@ -7,11 +8,17 @@ export namespace ArrowHead {
   export interface Attrs extends Annotation.Attrs {
     size: number
   }
+
+  export interface Opts extends Annotation.Opts {}
 }
 
 export interface ArrowHead extends ArrowHead.Attrs {}
 
 export abstract class ArrowHead extends Annotation {
+
+  constructor(attrs?: Partial<ArrowHead.Attrs>, opts?: ArrowHead.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = 'ArrowHead'
@@ -35,13 +42,20 @@ export abstract class ArrowHead extends Annotation {
 ArrowHead.initClass()
 
 export namespace OpenHead {
-  export interface Attrs extends ArrowHead.Attrs {
-  }
+  export interface Mixins extends LineMixinVector {}
+
+  export interface Attrs extends ArrowHead.Attrs, Mixins {}
+
+  export interface Opts extends ArrowHead.Opts {}
 }
 
 export interface OpenHead extends OpenHead.Attrs {}
 
 export class OpenHead extends ArrowHead {
+
+  constructor(attrs?: Partial<OpenHead.Attrs>, opts?: OpenHead.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = 'OpenHead'
@@ -77,13 +91,20 @@ export class OpenHead extends ArrowHead {
 OpenHead.initClass()
 
 export namespace NormalHead {
-  export interface Attrs extends ArrowHead.Attrs {
-  }
+  export interface Mixins extends LineMixinVector, FillMixinVector {}
+
+  export interface Attrs extends ArrowHead.Attrs, Mixins {}
+
+  export interface Opts extends ArrowHead.Opts {}
 }
 
 export interface NormalHead extends NormalHead.Attrs {}
 
 export class NormalHead extends ArrowHead {
+
+  constructor(attrs?: Partial<NormalHead.Attrs>, opts?: NormalHead.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = 'NormalHead'
@@ -132,13 +153,20 @@ export class NormalHead extends ArrowHead {
 NormalHead.initClass()
 
 export namespace VeeHead {
-  export interface Attrs extends ArrowHead.Attrs {
-  }
+  export interface Mixins extends LineMixinVector, FillMixinVector {}
+
+  export interface Attrs extends ArrowHead.Attrs, Mixins {}
+
+  export interface Opts extends ArrowHead.Opts {}
 }
 
 export interface VeeHead extends VeeHead.Attrs {}
 
 export class VeeHead extends ArrowHead {
+
+  constructor(attrs?: Partial<VeeHead.Attrs>, opts?: VeeHead.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = 'VeeHead'
@@ -189,13 +217,20 @@ export class VeeHead extends ArrowHead {
 VeeHead.initClass()
 
 export namespace TeeHead {
-  export interface Attrs extends ArrowHead.Attrs {
-  }
+  export interface Mixins extends LineMixinVector {}
+
+  export interface Attrs extends ArrowHead.Attrs, Mixins {}
+
+  export interface Opts extends ArrowHead.Opts {}
 }
 
 export interface TeeHead extends TeeHead.Attrs {}
 
 export class TeeHead extends ArrowHead {
+
+  constructor(attrs?: Partial<TeeHead.Attrs>, opts?: TeeHead.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = 'TeeHead'

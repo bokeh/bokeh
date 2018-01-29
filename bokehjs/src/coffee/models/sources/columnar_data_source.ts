@@ -15,6 +15,8 @@ export namespace ColumnarDataSource {
     column_names: string[]
     selection_manager: SelectionManager
   }
+
+  export interface Opts extends DataSource.Opts {}
 }
 
 export interface ColumnarDataSource extends ColumnarDataSource.Attrs {}
@@ -29,6 +31,10 @@ export abstract class ColumnarDataSource extends DataSource {
 
   streaming: Signal<any, this>
   patching: Signal<any, this> // <number[], ColumnarDataSource>
+
+  constructor(attrs?: Partial<ColumnarDataSource.Attrs>, opts?: ColumnarDataSource.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = 'ColumnarDataSource'

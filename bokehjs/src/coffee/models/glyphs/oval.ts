@@ -1,7 +1,9 @@
 /* XXX: partial */
 import {XYGlyph, XYGlyphView} from "./xy_glyph";
 import {DistanceSpec, AngleSpec} from "core/vectorization"
+import {LineMixinVector, FillMixinVector} from "core/property_mixins"
 import * as p from "core/properties"
+import {Context2d} from "core/util/canvas"
 
 export class OvalView extends XYGlyphView {
   model: Oval
@@ -30,7 +32,7 @@ export class OvalView extends XYGlyphView {
     }
   }
 
-  _render(ctx, indices, {sx, sy, sw, sh}) {
+  _render(ctx: Context2d, indices, {sx, sy, sw, sh}) {
     for (const i of indices) {
       if (isNaN(sx[i]+sy[i]+sw[i]+sh[i]+this._angle[i])) {
         continue;
@@ -60,7 +62,7 @@ export class OvalView extends XYGlyphView {
     }
   }
 
-  draw_legend_for_index(ctx, x0, x1, y0, y1, index) {
+  draw_legend_for_index(ctx: Context2d, x0, x1, y0, y1, index) {
     const indices = [index];
     const sx = { };
     sx[index] = (x0+x1)/2;
@@ -89,16 +91,24 @@ export class OvalView extends XYGlyphView {
 }
 
 export namespace Oval {
-  export interface Attrs extends XYGlyph.Attrs {
+  export interface Mixins extends LineMixinVector, FillMixinVector {}
+
+  export interface Attrs extends XYGlyph.Attrs, Mixins {
     angle: AngleSpec
     width: DistanceSpec
     height: DistanceSpec
   }
+
+  export interface Opts extends XYGlyph.Opts {}
 }
 
 export interface Oval extends Oval.Attrs {}
 
 export class Oval extends XYGlyph {
+
+  constructor(attrs?: Partial<Oval.Attrs>, opts?: Oval.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = 'Oval';

@@ -44,7 +44,7 @@ export abstract class RendererView extends DOMView {
     }
   }
 
-  map_to_screen(x: number[], y: number[]): [number[], number[]] {
+  map_to_screen(x: number[] | Float64Array, y: number[] | Float64Array): [Float64Array, Float64Array] {
     return this.plot_view.map_to_screen(x, y, (this.model as any).x_range_name, (this.model as any).y_range_name)
   }
 }
@@ -56,11 +56,17 @@ export namespace Renderer {
   }
 
   export type Visuals = visuals.Visuals
+
+  export interface Opts extends Model.Opts {}
 }
 
 export interface Renderer extends Renderer.Attrs {}
 
 export abstract class Renderer extends Model {
+
+  constructor(attrs?: Partial<Renderer.Attrs>, opts?: Renderer.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "Renderer"

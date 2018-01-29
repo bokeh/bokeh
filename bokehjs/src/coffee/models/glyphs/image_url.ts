@@ -1,9 +1,10 @@
 /* XXX: partial */
 import {Glyph, GlyphView} from "./glyph";
-import {DistanceSpec, AngleSpec, StringSpec} from "core/vectorization"
+import {NumberSpec, DistanceSpec, AngleSpec, StringSpec} from "core/vectorization"
 import {Anchor} from "core/enums"
 import {logger} from "core/logging";
 import * as p from "core/properties"
+import {Context2d} from "core/util/canvas"
 
 export class ImageURLView extends GlyphView {
   model: ImageURL
@@ -95,7 +96,7 @@ export class ImageURLView extends GlyphView {
     }
   }
 
-  _render(ctx, indices, {_url, image, sx, sy, sw, sh, _angle}) {
+  _render(ctx: Context2d, indices, {_url, image, sx, sy, sw, sh, _angle}) {
 
     // TODO (bev): take actual border width into account when clipping
     const { frame } = this.renderer.plot_view;
@@ -144,7 +145,7 @@ export class ImageURLView extends GlyphView {
     }
   }
 
-  _render_image(ctx, i, image, sx, sy, sw, sh, angle) {
+  _render_image(ctx: Context2d, i, image, sx, sy, sw, sh, angle) {
     if (isNaN(sw[i])) { sw[i] = image.width; }
     if (isNaN(sh[i])) { sh[i] = image.height; }
 
@@ -170,6 +171,8 @@ export class ImageURLView extends GlyphView {
 
 export namespace ImageURL {
   export interface Attrs extends Glyph.Attrs {
+    x: NumberSpec
+    y: NumberSpec
     url: StringSpec
     anchor: Anchor
     global_alpha: number
@@ -180,18 +183,23 @@ export namespace ImageURL {
     retry_attempts: number
     retry_timeout: number
   }
+
+  export interface Opts extends Glyph.Opts {}
 }
 
 export interface ImageURL extends ImageURL.Attrs {}
 
 export class ImageURL extends Glyph {
 
+  constructor(attrs?: Partial<ImageURL.Attrs>, opts?: ImageURL.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'ImageURL';
     this.prototype.default_view = ImageURLView;
 
     this.coords([['x', 'y']]);
-    this.mixins([]);
     this.define({
       url:            [ p.StringSpec            ],
       anchor:         [ p.Anchor,    'top_left' ],

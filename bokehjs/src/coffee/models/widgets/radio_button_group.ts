@@ -63,11 +63,17 @@ export namespace RadioButtonGroup {
     button_type: ButtonType
     callback: any // XXX
   }
+
+  export interface Opts extends Widget.Opts {}
 }
 
 export interface RadioButtonGroup extends RadioButtonGroup.Attrs {}
 
 export class RadioButtonGroup extends Widget {
+
+  constructor(attrs?: Partial<RadioButtonGroup.Attrs>, opts?: RadioButtonGroup.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "RadioButtonGroup"

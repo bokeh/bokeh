@@ -3,11 +3,17 @@ import {AdaptiveTicker} from "./adaptive_ticker"
 
 export namespace LogTicker {
   export interface Attrs extends AdaptiveTicker.Attrs {}
+
+  export interface Opts extends AdaptiveTicker.Opts {}
 }
 
 export interface LogTicker extends LogTicker.Attrs {}
 
 export class LogTicker extends AdaptiveTicker {
+
+  constructor(attrs?: Partial<LogTicker.Attrs>, opts?: LogTicker.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "LogTicker"

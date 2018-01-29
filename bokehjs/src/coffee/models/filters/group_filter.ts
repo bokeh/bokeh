@@ -9,11 +9,17 @@ export namespace GroupFilter {
     column_name: string
     group: string
   }
+
+  export interface Opts extends Filter.Opts {}
 }
 
 export interface GroupFilter extends GroupFilter.Attrs {}
 
 export class GroupFilter extends Filter {
+
+  constructor(attrs?: Partial<GroupFilter.Attrs>, opts?: GroupFilter.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = 'GroupFilter';

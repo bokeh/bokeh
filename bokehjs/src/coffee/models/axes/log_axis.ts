@@ -12,6 +12,8 @@ export namespace LogAxis {
     ticker:    LogTicker
     formatter: LogTickFormatter
   }
+
+  export interface Opts extends ContinuousAxis.Opts {}
 }
 
 export interface LogAxis extends LogAxis.Attrs {}
@@ -20,6 +22,10 @@ export class LogAxis extends ContinuousAxis {
 
   ticker:    LogTicker
   formatter: LogTickFormatter
+
+  constructor(attrs?: Partial<LogAxis.Attrs>, opts?: LogAxis.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "LogAxis"

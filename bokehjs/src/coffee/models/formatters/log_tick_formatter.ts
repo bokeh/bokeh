@@ -9,11 +9,17 @@ export namespace LogTickFormatter {
   export interface Attrs extends TickFormatter.Attrs {
     ticker: LogTicker | null
   }
+
+  export interface Opts extends TickFormatter.Opts {}
 }
 
 export interface LogTickFormatter extends LogTickFormatter.Attrs {}
 
 export class LogTickFormatter extends TickFormatter {
+
+  constructor(attrs?: Partial<LogTickFormatter.Attrs>, opts?: LogTickFormatter.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = 'LogTickFormatter';

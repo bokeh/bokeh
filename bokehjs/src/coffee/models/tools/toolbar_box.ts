@@ -9,7 +9,6 @@ import {ActionTool} from "./actions/action_tool";
 import {HelpTool} from "./actions/help_tool";
 import {GestureTool} from "./gestures/gesture_tool";
 import {InspectTool} from "./inspectors/inspect_tool";
-import {Toolbar} from "./toolbar"
 import {ToolbarBase} from "./toolbar_base";
 import {ToolProxy} from "./tool_proxy";
 
@@ -18,11 +17,17 @@ import {build_views, remove_views} from "core/build_views"
 
 export namespace ProxyToolbar {
   export interface Attrs extends ToolbarBase.Attrs {}
+
+  export interface Opts extends ToolbarBase.Opts {}
 }
 
 export interface ProxyToolbar extends ProxyToolbar.Attrs {}
 
 export class ProxyToolbar extends ToolbarBase {
+
+  constructor(attrs?: Partial<ProxyToolbar.Attrs>, opts?: ProxyToolbar.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = 'ProxyToolbar';
@@ -206,14 +211,20 @@ export class ToolbarBoxView extends LayoutDOMView {
 
 export namespace ToolbarBox {
   export interface Attrs extends LayoutDOM.Attrs {
-    toolbar: Toolbar
+    toolbar: ToolbarBase
     toolbar_location: Location
   }
+
+  export interface Opts extends LayoutDOM.Opts {}
 }
 
 export interface ToolbarBox extends ToolbarBox.Attrs {}
 
 export class ToolbarBox extends LayoutDOM {
+
+  constructor(attrs?: Partial<ToolbarBox.Attrs>, opts?: ToolbarBox.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = 'ToolbarBox';

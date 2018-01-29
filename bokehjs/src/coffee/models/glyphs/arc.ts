@@ -1,8 +1,10 @@
 /* XXX: partial */
 import {XYGlyph, XYGlyphView} from "./xy_glyph";
 import {DistanceSpec, AngleSpec} from "core/vectorization"
+import {LineMixinVector} from "core/property_mixins"
 import {Direction} from "core/enums"
 import * as p from "core/properties"
+import {Context2d} from "core/util/canvas"
 
 export class ArcView extends XYGlyphView {
   model: Arc
@@ -15,7 +17,7 @@ export class ArcView extends XYGlyphView {
     }
   }
 
-  _render(ctx, indices, {sx, sy, sradius, _start_angle, _end_angle}) {
+  _render(ctx: Context2d, indices, {sx, sy, sradius, _start_angle, _end_angle}) {
     if (this.visuals.line.doit) {
       const direction = this.model.properties.direction.value();
       for (const i of indices) {
@@ -32,23 +34,31 @@ export class ArcView extends XYGlyphView {
     }
   }
 
-  draw_legend_for_index(ctx, x0, x1, y0, y1, index) {
+  draw_legend_for_index(ctx: Context2d, x0, x1, y0, y1, index) {
     return this._generic_line_legend(ctx, x0, x1, y0, y1, index);
   }
 }
 
 export namespace Arc {
-  export interface Attrs extends XYGlyph.Attrs {
+  export interface Mixins extends LineMixinVector {}
+
+  export interface Attrs extends XYGlyph.Attrs, Mixins {
     direction: Direction
     radius: DistanceSpec
     start_angle: AngleSpec
     end_angle: AngleSpec
   }
+
+  export interface Opts extends XYGlyph.Opts {}
 }
 
 export interface Arc extends Arc.Attrs {}
 
 export class Arc extends XYGlyph {
+
+  constructor(attrs?: Partial<Arc.Attrs>, opts?: Arc.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = 'Arc';

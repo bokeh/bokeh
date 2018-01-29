@@ -1,9 +1,11 @@
 /* XXX: partial */
 import {XYGlyph, XYGlyphView} from "./xy_glyph";
 import {DistanceSpec, AngleSpec} from "core/vectorization"
+import {LineMixinVector, FillMixinVector} from "core/property_mixins"
 import * as hittest from "core/hittest";
 import * as p from "core/properties";
 import {max} from "core/util/array";
+import {Context2d} from "core/util/canvas"
 
 export class RectView extends XYGlyphView {
   model: Rect
@@ -53,7 +55,7 @@ export class RectView extends XYGlyphView {
     })());
   }
 
-  _render(ctx, indices, {sx, sy, sx0, sy1, sw, sh, _angle}) {
+  _render(ctx: Context2d, indices, {sx, sy, sx0, sy1, sw, sh, _angle}) {
     if (this.visuals.fill.doit) {
       for (const i of indices) {
         if (isNaN(sx[i] + sy[i] + sx0[i] + sy1[i] + sw[i] + sh[i] + _angle[i])) {
@@ -243,7 +245,7 @@ export class RectView extends XYGlyphView {
     })());
   }
 
-  draw_legend_for_index(ctx, x0, x1, y0, y1, index) {
+  draw_legend_for_index(ctx: Context2d, x0, x1, y0, y1, index) {
     return this._generic_area_legend(ctx, x0, x1, y0, y1, index);
   }
 
@@ -253,17 +255,25 @@ export class RectView extends XYGlyphView {
 }
 
 export namespace Rect {
-  export interface Attrs extends XYGlyph.Attrs {
+  export interface Mixins extends LineMixinVector, FillMixinVector {}
+
+  export interface Attrs extends XYGlyph.Attrs, Mixins {
     angle: AngleSpec
     width: DistanceSpec
     height: DistanceSpec
     dilate: boolean
   }
+
+  export interface Opts extends XYGlyph.Opts {}
 }
 
 export interface Rect extends Rect.Attrs {}
 
 export class Rect extends XYGlyph {
+
+  constructor(attrs?: Partial<Rect.Attrs>, opts?: Rect.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = 'Rect';

@@ -39,11 +39,17 @@ export namespace ButtonTool {
   export interface Attrs extends Tool.Attrs {
     disabled: boolean
   }
+
+  export interface Opts extends Tool.Opts {}
 }
 
 export interface ButtonTool extends ButtonTool.Attrs {}
 
 export abstract class ButtonTool extends Tool {
+
+  constructor(attrs?: Partial<ButtonTool.Attrs>, opts?: ButtonTool.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "ButtonTool"

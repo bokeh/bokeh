@@ -14,11 +14,17 @@ export namespace CDSView {
     indices: number[]
     indices_map: {[key: string]: number[]}
   }
+
+  export interface Opts extends Model.Opts {}
 }
 
 export interface CDSView extends CDSView.Attrs {}
 
 export class CDSView extends Model {
+
+  constructor(attrs?: Partial<CDSView.Attrs>, opts?: CDSView.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = 'CDSView'

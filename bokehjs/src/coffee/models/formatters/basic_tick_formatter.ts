@@ -10,11 +10,17 @@ export namespace BasicTickFormatter {
     power_limit_high: number
     power_limit_low: number
   }
+
+  export interface Opts extends TickFormatter.Opts {}
 }
 
 export interface BasicTickFormatter extends BasicTickFormatter.Attrs {}
 
 export class BasicTickFormatter extends TickFormatter {
+
+  constructor(attrs?: Partial<BasicTickFormatter.Attrs>, opts?: BasicTickFormatter.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = 'BasicTickFormatter';

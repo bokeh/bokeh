@@ -2,6 +2,8 @@ import {GuideRenderer, GuideRendererView} from "../renderers/guide_renderer"
 import {Range} from "../ranges/range"
 import {Ticker} from "../tickers/ticker"
 import {Line, Fill} from "core/visuals"
+import {Color} from "core/types"
+import {LineJoin, LineCap} from "core/enums"
 import * as p from "core/properties"
 import {Context2d} from "core/util/canvas"
 import {isArray} from "core/util/types"
@@ -78,7 +80,37 @@ export class GridView extends GuideRendererView {
 }
 
 export namespace Grid {
-  export interface Attrs extends GuideRenderer.Attrs {
+  // line:grid_
+  export interface GridLine {
+    grid_line_color: Color
+    grid_line_width: number
+    grid_line_alpha: number
+    grid_line_join: LineJoin
+    grid_line_cap: LineCap
+    grid_line_dash: number[]
+    grid_line_dash_offset: number
+  }
+
+  // line:minor_grid_
+  export interface MinorGridLine {
+    minor_grid_line_color: Color
+    minor_grid_line_width: number
+    minor_grid_line_alpha: number
+    minor_grid_line_join: LineJoin
+    minor_grid_line_cap: LineCap
+    minor_grid_line_dash: number[]
+    minor_grid_line_dash_offset: number
+  }
+
+  // fill:band_
+  export interface BandFill {
+    fill_color: Color
+    fill_alpha: number
+  }
+
+  export interface Mixins extends GridLine, MinorGridLine, BandFill {}
+
+  export interface Attrs extends GuideRenderer.Attrs, Mixins {
     bounds: [number, number] | "auto"
     dimension: 0 | 1
     ticker: Ticker<any>
@@ -91,11 +123,17 @@ export namespace Grid {
     minor_grid_line: Line
     band_fill: Fill
   }
+
+  export interface Opts extends GuideRenderer.Opts {}
 }
 
 export interface Grid extends Grid.Attrs {}
 
 export class Grid extends GuideRenderer {
+
+  constructor(attrs?: Partial<Grid.Attrs>, opts?: Grid.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "Grid"

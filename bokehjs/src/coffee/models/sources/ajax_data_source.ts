@@ -13,11 +13,17 @@ export namespace AjaxDataSource {
     method: HTTPMethod
     if_modified: boolean
   }
+
+  export interface Opts extends RemoteDataSource.Opts {}
 }
 
 export interface AjaxDataSource extends AjaxDataSource.Attrs {}
 
 export class AjaxDataSource extends RemoteDataSource {
+
+  constructor(attrs?: Partial<AjaxDataSource.Attrs>, opts?: AjaxDataSource.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = 'AjaxDataSource'

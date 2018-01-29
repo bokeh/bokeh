@@ -1,14 +1,16 @@
 /* XXX: partial */
 import {XYGlyph, XYGlyphView} from "../glyphs/xy_glyph";
 import {DistanceSpec, AngleSpec} from "core/vectorization"
+import {LineMixinVector, FillMixinVector} from "core/property_mixins"
 import * as hittest from "core/hittest";
 import * as p from "core/properties"
 import {range} from "core/util/array"
+import {Context2d} from "core/util/canvas"
 
 export class MarkerView extends XYGlyphView {
   model: Marker
 
-  draw_legend_for_index(ctx, x0, x1, y0, y1, index) {
+  draw_legend_for_index(ctx: Context2d, x0, x1, y0, y1, index) {
     // using objects like this seems a little wonky, since the keys are coerced to
     // stings, but it works
     const indices = [index];
@@ -25,7 +27,7 @@ export class MarkerView extends XYGlyphView {
     return this._render(ctx, indices, data);
   }
 
-  _render(ctx, indices, {sx, sy, _size, _angle}) {
+  _render(ctx: Context2d, indices, {sx, sy, _size, _angle}) {
     for (const i of indices) {
       if (isNaN(sx[i]+sy[i]+_size[i]+_angle[i])) {
         continue;
@@ -151,15 +153,23 @@ export class MarkerView extends XYGlyphView {
 }
 
 export namespace Marker {
-  export interface Attrs extends XYGlyph.Attrs {
+  export interface Mixins extends LineMixinVector, FillMixinVector {}
+
+  export interface Attrs extends XYGlyph.Attrs, Mixins {
     size: DistanceSpec
     angle: AngleSpec
   }
+
+  export interface Opts extends XYGlyph.Opts {}
 }
 
 export interface Marker extends Marker.Attrs {}
 
 export class Marker extends XYGlyph {
+
+  constructor(attrs?: Partial<Marker.Attrs>, opts?: Marker.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.mixins(['line', 'fill']);

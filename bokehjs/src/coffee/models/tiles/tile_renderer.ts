@@ -191,20 +191,16 @@ export class TileRendererView extends RendererView {
     }
   }
 
-  _draw_tile(tile_key) {
+  _draw_tile(tile_key: string): void {
     const tile_obj = this.model.tile_source.tiles[tile_key];
     if (tile_obj != null) {
-      let [sxmin, symin] = this.plot_view.map_to_screen([tile_obj.bounds[0]], [tile_obj.bounds[3]]);
-      let [sxmax, symax] = this.plot_view.map_to_screen([tile_obj.bounds[2]], [tile_obj.bounds[1]]);
-      sxmin = sxmin[0];
-      symin = symin[0];
-      sxmax = sxmax[0];
-      symax = symax[0];
+      const [[sxmin], [symin]] = this.plot_view.map_to_screen([tile_obj.bounds[0]], [tile_obj.bounds[3]]);
+      const [[sxmax], [symax]] = this.plot_view.map_to_screen([tile_obj.bounds[2]], [tile_obj.bounds[1]]);
       const sw = sxmax - sxmin;
       const sh = symax - symin;
       const sx = sxmin;
       const sy = symin;
-      return this.map_canvas.drawImage(tile_obj.img, sx, sy, sw, sh);
+      this.map_canvas.drawImage(tile_obj.img, sx, sy, sw, sh);
     }
   }
 
@@ -354,11 +350,17 @@ export namespace TileRenderer {
     tile_source: TileSource
     render_parents: boolean
   }
+
+  export interface Opts extends Renderer.Opts {}
 }
 
 export interface TileRenderer extends TileRenderer.Attrs {}
 
 export class TileRenderer extends Renderer {
+
+  constructor(attrs?: Partial<TileRenderer.Attrs>, opts?: TileRenderer.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = 'TileRenderer';

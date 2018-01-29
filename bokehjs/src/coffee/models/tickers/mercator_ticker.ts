@@ -7,11 +7,17 @@ export namespace MercatorTicker {
   export interface Attrs extends BasicTicker.Attrs {
     dimension: LatLon | null | undefined
   }
+
+  export interface Opts extends BasicTicker.Opts {}
 }
 
 export interface MercatorTicker extends MercatorTicker.Attrs {}
 
 export class MercatorTicker extends BasicTicker {
+
+  constructor(attrs?: Partial<MercatorTicker.Attrs>, opts?: MercatorTicker.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "MercatorTicker"

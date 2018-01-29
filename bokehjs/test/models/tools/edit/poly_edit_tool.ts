@@ -55,12 +55,12 @@ const make_testcase = function(): PolyEditTestCase {
     ys: {field: "ys"},
   });
 
-  const vertex_renderer = new GlyphRenderer({
+  const vertex_renderer: any = new GlyphRenderer({
     glyph: vertex_glyph,
     data_source: vertex_source,
   });
 
-  const glyph_renderer = new GlyphRenderer({
+  const glyph_renderer: any = new GlyphRenderer({
     glyph: glyph,
     data_source: data_source,
   });

@@ -95,11 +95,17 @@ export namespace WheelPanTool {
     dimension: Dimension
     speed: number
   }
+
+  export interface Opts extends GestureTool.Opts {}
 }
 
 export interface WheelPanTool extends WheelPanTool.Attrs {}
 
 export class WheelPanTool extends GestureTool {
+
+  constructor(attrs?: Partial<WheelPanTool.Attrs>, opts?: WheelPanTool.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = 'WheelPanTool'

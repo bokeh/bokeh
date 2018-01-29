@@ -7,11 +7,17 @@ export namespace DataRange {
     names: string[]
     renderers: Renderer[]
   }
+
+  export interface Opts extends Range.Opts {}
 }
 
 export interface DataRange extends DataRange.Attrs {}
 
 export abstract class DataRange extends Range {
+
+  constructor(attrs?: Partial<DataRange.Attrs>, opts?: DataRange.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "DataRange"

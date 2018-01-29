@@ -5,6 +5,7 @@ import {LayoutProvider} from "../graphs/layout_provider"
 import {GraphHitTestPolicy, NodesOnly} from "../graphs/graph_hit_test_policy";
 import * as p from "core/properties";
 import {build_views} from "core/build_views";
+import {SelectionManager} from "core/selection_manager"
 
 export class GraphRendererView extends RendererView {
   model: GraphRenderer
@@ -94,11 +95,17 @@ export namespace GraphRenderer {
     selection_policy: GraphHitTestPolicy
     inspection_policy: GraphHitTestPolicy
   }
+
+  export interface Opts extends Renderer.Opts {}
 }
 
 export interface GraphRenderer extends GraphRenderer.Attrs {}
 
 export class GraphRenderer extends Renderer {
+
+  constructor(attrs?: Partial<GraphRenderer.Attrs>, opts?: GraphRenderer.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = 'GraphRenderer';
@@ -119,7 +126,7 @@ export class GraphRenderer extends Renderer {
     });
   }
 
-  get_selection_manager() {
+  get_selection_manager(): SelectionManager {
     return this.node_renderer.data_source.selection_manager;
   }
 }

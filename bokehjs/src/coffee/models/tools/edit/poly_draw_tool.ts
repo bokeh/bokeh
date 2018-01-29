@@ -201,6 +201,8 @@ export namespace PolyDrawTool {
     drag: boolean
     renderers: (GlyphRenderer & HasCDS & HasPolyGlyph)[]
   }
+
+  export interface Opts extends EditTool.Opts {}
 }
 
 export interface PolyDrawTool extends PolyDrawTool.Attrs {}
@@ -208,6 +210,10 @@ export interface PolyDrawTool extends PolyDrawTool.Attrs {}
 export class PolyDrawTool extends EditTool {
 
   renderers: (GlyphRenderer & HasCDS & HasPolyGlyph)[]
+
+  constructor(attrs?: Partial<PolyDrawTool.Attrs>, opts?: PolyDrawTool.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "PolyDrawTool"

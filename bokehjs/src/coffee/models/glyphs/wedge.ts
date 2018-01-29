@@ -1,10 +1,12 @@
 /* XXX: partial */
 import {XYGlyph, XYGlyphView} from "./xy_glyph";
 import {DistanceSpec, AngleSpec} from "core/vectorization"
+import {LineMixinVector, FillMixinVector} from "core/property_mixins"
 import {Direction} from "core/enums"
 import * as hittest from "core/hittest";
 import * as p from "core/properties";
 import {angle_between} from "core/util/math"
+import {Context2d} from "core/util/canvas"
 
 export class WedgeView extends XYGlyphView {
   model: Wedge
@@ -17,7 +19,7 @@ export class WedgeView extends XYGlyphView {
     }
   }
 
-  _render(ctx, indices, {sx, sy, sradius, _start_angle, _end_angle}) {
+  _render(ctx: Context2d, indices, {sx, sy, sradius, _start_angle, _end_angle}) {
     const direction = this.model.properties.direction.value();
     for (const i of indices) {
       if (isNaN(sx[i]+sy[i]+sradius[i]+_start_angle[i]+_end_angle[i])) {
@@ -91,23 +93,31 @@ export class WedgeView extends XYGlyphView {
     return hittest.create_1d_hit_test_result(hits);
   }
 
-  draw_legend_for_index(ctx, x0, x1, y0, y1, index) {
+  draw_legend_for_index(ctx: Context2d, x0, x1, y0, y1, index) {
     return this._generic_area_legend(ctx, x0, x1, y0, y1, index);
   }
 }
 
 export namespace Wedge {
-  export interface Attrs extends XYGlyph.Attrs {
+  export interface Mixins extends LineMixinVector, FillMixinVector {}
+
+  export interface Attrs extends XYGlyph.Attrs, Mixins {
     direction: Direction
     radius: DistanceSpec
     start_angle: AngleSpec
     end_angle: AngleSpec
   }
+
+  export interface Opts extends XYGlyph.Opts {}
 }
 
 export interface Wedge extends Wedge.Attrs {}
 
 export class Wedge extends XYGlyph {
+
+  constructor(attrs?: Partial<Wedge.Attrs>, opts?: Wedge.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = 'Wedge';

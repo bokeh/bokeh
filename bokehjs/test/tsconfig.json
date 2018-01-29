@@ -7,7 +7,7 @@
     "noImplicitReturns": true,
     "strictNullChecks": true,
     "alwaysStrict": true,
-    "noEmitOnError": true,
+    "noEmitOnError": false,
     "declaration": false,
     "module": "commonjs",
     "moduleResolution": "node",
@@ -17,5 +17,6 @@
     "paths": {
       "*": ["../build/js/tree/*", "../build/js/types/*"]
     }
-  }
+  },
+  "include": ["./**/*.ts"]
 }

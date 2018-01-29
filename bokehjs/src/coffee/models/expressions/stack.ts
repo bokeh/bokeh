@@ -6,11 +6,17 @@ export namespace Stack {
   export interface Attrs extends Expression.Attrs {
     fields: string[]
   }
+
+  export interface Opts extends Expression.Opts {}
 }
 
 export interface Stack extends Stack.Attrs {}
 
 export class Stack extends Expression {
+
+  constructor(attrs?: Partial<Stack.Attrs>, opts?: Stack.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "Stack"

@@ -21,6 +21,8 @@ export namespace Annotation {
   export interface Attrs extends Renderer.Attrs {
     plot: Plot
   }
+
+  export interface Opts extends Renderer.Opts {}
 }
 
 export interface Annotation extends Annotation.Attrs {
@@ -28,6 +30,10 @@ export interface Annotation extends Annotation.Attrs {
 }
 
 export abstract class Annotation extends Renderer {
+
+  constructor(attrs?: Partial<Annotation.Attrs>, opts?: Annotation.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = 'Annotation';

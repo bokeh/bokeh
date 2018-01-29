@@ -70,11 +70,17 @@ export namespace Tabs {
     active: number
     callback: any // XXX
   }
+
+  export interface Opts extends Widget.Opts {}
 }
 
 export interface Tabs extends Tabs.Attrs {}
 
 export class Tabs extends Widget {
+
+  constructor(attrs?: Partial<Tabs.Attrs>, opts?: Tabs.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "Tabs"

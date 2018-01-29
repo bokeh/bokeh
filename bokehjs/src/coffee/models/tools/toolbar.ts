@@ -24,11 +24,17 @@ export namespace Toolbar {
     active_scroll: Scroll | "auto"
     active_tap: Tap | "auto"
   }
+
+  export interface Opts extends ToolbarBase.Opts {}
 }
 
 export interface Toolbar extends Toolbar.Attrs {}
 
 export class Toolbar extends ToolbarBase {
+
+  constructor(attrs?: Partial<Toolbar.Attrs>, opts?: Toolbar.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = 'Toolbar';

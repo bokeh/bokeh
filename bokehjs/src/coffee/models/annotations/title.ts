@@ -1,6 +1,8 @@
 /* XXX: partial */
 import {TextAnnotation, TextAnnotationView} from "./text_annotation";
 import {FontSizeSpec, ColorSpec, NumberSpec} from "core/vectorization"
+import {Color} from "core/types"
+import {LineJoin, LineCap} from "core/enums"
 import {FontStyle, VerticalAlign, TextAlign, TextBaseline, RenderMode} from "core/enums"
 import {hide} from "core/dom";
 import * as p from "core/properties";
@@ -102,7 +104,26 @@ export class TitleView extends TextAnnotationView {
 }
 
 export namespace Title {
-  export interface Attrs extends TextAnnotation.Attrs {
+  // line:border_
+  export interface BorderLine {
+    border_line_color: Color
+    border_line_width: number
+    border_line_alpha: number
+    border_line_join: LineJoin
+    border_line_cap: LineCap
+    border_line_dash: number[]
+    border_line_dash_offset: number
+  }
+
+  // fill:background_
+  export interface BackgroundFill {
+    background_fill_color: Color
+    background_fill_alpha: number
+  }
+
+  export interface Mixins extends BorderLine, BackgroundFill {}
+
+  export interface Attrs extends TextAnnotation.Attrs, Mixins {
     text: string
     text_font: string // XXX: Font
     text_font_size: FontSizeSpec
@@ -116,11 +137,17 @@ export namespace Title {
     text_align: TextAlign
     text_baseline: TextBaseline
   }
+
+  export interface Opts extends TextAnnotation.Opts {}
 }
 
 export interface Title extends Title.Attrs {}
 
 export class Title extends TextAnnotation {
+
+  constructor(attrs?: Partial<Title.Attrs>, opts?: Title.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = 'Title';

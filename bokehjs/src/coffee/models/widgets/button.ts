@@ -18,11 +18,17 @@ export namespace Button {
   export interface Attrs extends AbstractButton.Attrs {
     clicks: number
   }
+
+  export interface Opts extends AbstractButton.Opts {}
 }
 
 export interface Button extends Button.Attrs {}
 
 export class Button extends AbstractButton {
+
+  constructor(attrs?: Partial<Button.Attrs>, opts?: Button.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "Button"

@@ -6,11 +6,17 @@ export namespace StaticLayoutProvider {
   export interface Attrs extends LayoutProvider.Attrs {
     graph_layout: {[key: string]: any[]}
   }
+
+  export interface Opts extends LayoutProvider.Opts {}
 }
 
 export interface StaticLayoutProvider extends StaticLayoutProvider.Attrs {}
 
 export class StaticLayoutProvider extends LayoutProvider {
+
+  constructor(attrs?: Partial<StaticLayoutProvider.Attrs>, opts?: StaticLayoutProvider.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "StaticLayoutProvider";

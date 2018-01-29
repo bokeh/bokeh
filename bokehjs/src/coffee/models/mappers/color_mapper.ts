@@ -1,5 +1,6 @@
 /* XXX: partial */
 import * as p from "core/properties";
+import {Color} from "core/types"
 
 import {Transform} from "../transforms/transform";
 import {isNumber} from "core/util/types"
@@ -7,13 +8,19 @@ import {isNumber} from "core/util/types"
 export namespace ColorMapper {
   export interface Attrs extends Transform.Attrs {
     palette: (number | string)[]
-    nan_color: string // XXX: Color
+    nan_color: Color
   }
+
+  export interface Opts extends Transform.Opts {}
 }
 
 export interface ColorMapper extends ColorMapper.Attrs {}
 
 export abstract class ColorMapper extends Transform {
+
+  constructor(attrs?: Partial<ColorMapper.Attrs>, opts?: ColorMapper.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "ColorMapper";

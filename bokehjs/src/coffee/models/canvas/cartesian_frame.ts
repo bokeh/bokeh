@@ -23,11 +23,17 @@ export namespace CartesianFrame {
     x_scale: Scale
     y_scale: Scale
   }
+
+  export interface Opts extends LayoutCanvas.Opts {}
 }
 
 export interface CartesianFrame extends CartesianFrame.Attrs {}
 
 export class CartesianFrame extends LayoutCanvas {
+
+  constructor(attrs?: Partial<CartesianFrame.Attrs>, opts?: CartesianFrame.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "CartesianFrame"

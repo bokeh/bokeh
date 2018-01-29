@@ -1,6 +1,7 @@
 /* XXX: partial */
 // This module implements the Base GL Glyph and some utilities
 import {color2rgba} from "core/util/color"
+import {Context2d} from "core/util/canvas"
 
 export class BaseGLGlyph {
   static initClass() {
@@ -35,7 +36,7 @@ export class BaseGLGlyph {
     return this.visuals_changed = true;
   }
 
-  render(ctx, indices, mainglyph) {
+  render(ctx: Context2d, indices, mainglyph) {
     // Get transform
     let wy;
     let wx = (wy = 1);  // Weights to scale our vectors

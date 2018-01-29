@@ -1,7 +1,7 @@
 /* XXX: partial */
 import {Transform} from "./transform";
 import {Range} from "../ranges/range"
-import {DistributionType} from "core/enums"
+import {Distribution} from "core/enums"
 import * as p from "core/properties";
 import * as bokeh_math from "core/util/math"
 
@@ -9,14 +9,20 @@ export namespace Jitter {
   export interface Attrs extends Transform.Attrs {
     mean: number
     width: number
-    distribution: DistributionType
+    distribution: Distribution
     range: Range
   }
+
+  export interface Opts extends Transform.Opts {}
 }
 
 export interface Jitter extends Jitter.Attrs {}
 
 export class Jitter extends Transform {
+
+  constructor(attrs?: Partial<Jitter.Attrs>, opts?: Jitter.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "Jitter"

@@ -7,6 +7,20 @@ import {argv} from "yargs"
 import * as paths from "../paths"
 import {buildWatchTask} from "../utils"
 
+import {join} from "path"
+const ts = require('gulp-typescript')
+
+gulp.task("test:compile", () => {
+  function error(err: {message: string}) {
+    gutil.log(err.message)
+  }
+
+  const project = ts.createProject("./test/tsconfig.json")
+  const result = project.src().pipe(project().on("error", error))
+
+  return result.js.pipe(gulp.dest(join("./build", "test")))
+})
+
 function mocha(options: {coverage?: boolean} = {}) {
   const files: string[] = []
 

@@ -23,11 +23,17 @@ export namespace TileSource {
     y_origin_offset: number
     initial_resolution: number
   }
+
+  export interface Opts extends Model.Opts {}
 }
 
 export interface TileSource extends TileSource.Attrs {}
 
 export abstract class TileSource extends Model {
+
+  constructor(attrs?: Partial<TileSource.Attrs>, opts?: TileSource.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = 'TileSource';

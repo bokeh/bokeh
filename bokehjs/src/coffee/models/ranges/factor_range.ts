@@ -115,11 +115,17 @@ export namespace FactorRange {
     tops: string[] | undefined
     tops_groups: string[]
   }
+
+  export interface Opts extends Range.Opts {}
 }
 
 export interface FactorRange extends FactorRange.Attrs {}
 
 export class FactorRange extends Range {
+
+  constructor(attrs?: Partial<FactorRange.Attrs>, opts?: FactorRange.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "FactorRange"

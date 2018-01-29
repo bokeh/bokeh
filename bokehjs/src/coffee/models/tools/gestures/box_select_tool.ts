@@ -110,11 +110,17 @@ export namespace BoxSelectTool {
     callback: any // XXX
     overlay: BoxAnnotation
   }
+
+  export interface Opts extends SelectTool.Opts {}
 }
 
 export interface BoxSelectTool extends BoxSelectTool.Attrs {}
 
 export class BoxSelectTool extends SelectTool {
+
+  constructor(attrs?: Partial<BoxSelectTool.Attrs>, opts?: BoxSelectTool.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "BoxSelectTool"

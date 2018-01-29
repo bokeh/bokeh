@@ -12,6 +12,8 @@ export namespace LinearAxis {
     ticker: BasicTicker
     formatters: BasicTickFormatter
   }
+
+  export interface Opts extends ContinuousAxis.Opts {}
 }
 
 export interface LinearAxis extends LinearAxis.Attrs {}
@@ -20,6 +22,10 @@ export class LinearAxis extends ContinuousAxis {
 
   ticker: BasicTicker
   formatters: BasicTickFormatter
+
+  constructor(attrs?: Partial<LinearAxis.Attrs>, opts?: LinearAxis.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "LinearAxis"

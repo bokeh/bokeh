@@ -1,5 +1,6 @@
 /* XXX: partial */
 import * as p from "core/properties";
+import {Color} from "core/types"
 
 import {color2hex} from "core/util/color";
 import {min, max} from "core/util/array";
@@ -9,14 +10,21 @@ export namespace LinearColorMapper {
   export interface Attrs extends ColorMapper.Attrs {
     high: number
     low: number
-    high_color: string // XXX: Color
-    low_color: string // XXX: Color
+    high_color: Color
+    low_color: Color
   }
+
+  export interface Opts extends ColorMapper.Opts {}
 }
 
 export interface LinearColorMapper extends LinearColorMapper.Attrs {}
 
 export class LinearColorMapper extends ColorMapper {
+
+  constructor(attrs?: Partial<LinearColorMapper.Attrs>, opts?: LinearColorMapper.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "LinearColorMapper";
 

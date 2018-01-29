@@ -128,11 +128,17 @@ export namespace ColumnDataSource {
   export interface Attrs extends ColumnarDataSource.Attrs {
     data: {[key: string]: any[]}
   }
+
+  export interface Opts extends ColumnarDataSource.Opts {}
 }
 
 export interface ColumnDataSource extends ColumnDataSource.Attrs {}
 
 export class ColumnDataSource extends ColumnarDataSource {
+
+  constructor(attrs?: Partial<ColumnDataSource.Attrs>, opts?: ColumnDataSource.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = 'ColumnDataSource'

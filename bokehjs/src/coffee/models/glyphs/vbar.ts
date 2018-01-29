@@ -39,14 +39,22 @@ export class VBarView extends BoxView {
 
 export namespace VBar {
   export interface Attrs extends Box.Attrs {
+    x: NumberSpec
+    bottom: NumberSpec
     width: DistanceSpec
     top: NumberSpec
   }
+
+  export interface Opts extends Box.Opts {}
 }
 
 export interface VBar extends VBar.Attrs {}
 
 export class VBar extends Box {
+
+  constructor(attrs?: Partial<VBar.Attrs>, opts?: VBar.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = 'VBar';

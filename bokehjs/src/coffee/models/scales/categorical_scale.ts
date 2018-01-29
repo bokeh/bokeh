@@ -3,11 +3,17 @@ import {FactorRange} from "../ranges/factor_range"
 
 export namespace CategoricalScale {
   export interface Attrs extends LinearScale.Attrs {}
+
+  export interface Opts extends LinearScale.Opts {}
 }
 
 export interface CategoricalScale extends CategoricalScale.Attrs {}
 
 export class CategoricalScale extends LinearScale {
+
+  constructor(attrs?: Partial<CategoricalScale.Attrs>, opts?: CategoricalScale.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "CategoricalScale"

@@ -10,12 +10,15 @@ import {LinearScale} from "../scales/linear_scale";
 import {LogScale} from "../scales/log_scale";
 import {Range1d} from "../ranges/range1d";
 
+import {Color} from "core/types"
+import {FontStyle, TextAlign, TextBaseline, LineJoin, LineCap} from "core/enums"
 import {LegendLocation, Orientation} from "core/enums"
 import * as p from "core/properties";
 import * as text_util from "core/util/text";
 import {min, max, range} from "core/util/array";
 import {isEmpty} from "core/util/object";
 import {isString, isArray} from "core/util/types"
+import {Context2d} from "core/util/canvas"
 
 const SHORT_DIM = 25;
 const LONG_DIM_MIN_SCALAR = 0.3;
@@ -204,7 +207,7 @@ export class ColorBarView extends AnnotationView {
     return ctx.restore();
   }
 
-  _draw_bbox(ctx) {
+  _draw_bbox(ctx: Context2d) {
     const bbox = this.compute_legend_dimensions();
     ctx.save();
     if (this.visuals.background_fill.doit) {
@@ -218,7 +221,7 @@ export class ColorBarView extends AnnotationView {
     return ctx.restore();
   }
 
-  _draw_image(ctx) {
+  _draw_image(ctx: Context2d) {
     const image = this.model._computed_image_dimensions();
     ctx.save();
     ctx.setImageSmoothingEnabled(false);
@@ -231,7 +234,7 @@ export class ColorBarView extends AnnotationView {
     return ctx.restore();
   }
 
-  _draw_major_ticks(ctx, tick_info) {
+  _draw_major_ticks(ctx: Context2d, tick_info) {
     if (!this.visuals.major_tick_line.doit) {
       return;
     }
@@ -256,7 +259,7 @@ export class ColorBarView extends AnnotationView {
     return ctx.restore();
   }
 
-  _draw_minor_ticks(ctx, tick_info) {
+  _draw_minor_ticks(ctx: Context2d, tick_info) {
     if (!this.visuals.minor_tick_line.doit) {
       return;
     }
@@ -281,7 +284,7 @@ export class ColorBarView extends AnnotationView {
     return ctx.restore();
   }
 
-  _draw_major_labels(ctx, tick_info) {
+  _draw_major_labels(ctx: Context2d, tick_info) {
     if (!this.visuals.major_label_text.doit) {
       return;
     }
@@ -308,7 +311,7 @@ export class ColorBarView extends AnnotationView {
     return ctx.restore();
   }
 
-  _draw_title(ctx) {
+  _draw_title(ctx: Context2d) {
     if (!this.visuals.title_text.doit) {
       return;
     }
@@ -352,7 +355,83 @@ export class ColorBarView extends AnnotationView {
 }
 
 export namespace ColorBar {
-  export interface Attrs extends Annotation.Attrs {
+  // text:major_label_
+  export interface MajorLabelText {
+    major_label_text_font: string
+    major_label_text_font_size: string
+    major_label_text_font_style: FontStyle
+    major_label_text_color: Color
+    major_label_text_alpha: number
+    major_label_text_align: TextAlign
+    major_label_text_baseline: TextBaseline
+    major_label_text_line_height: number
+  }
+
+  // text:title_
+  export interface TitleText {
+    title_text_font: string
+    title_text_font_size: string
+    title_text_font_style: FontStyle
+    title_text_color: Color
+    title_text_alpha: number
+    title_text_align: TextAlign
+    title_text_baseline: TextBaseline
+    title_text_line_height: number
+  }
+
+  // line:major_tick_
+  export interface MajorTickLine {
+    major_tick_line_color: Color
+    major_tick_line_width: number
+    major_tick_line_alpha: number
+    major_tick_line_join: LineJoin
+    major_tick_line_cap: LineCap
+    major_tick_line_dash: number[]
+    major_tick_line_dash_offset: number
+  }
+
+  // line:minor_tick_
+  export interface MinorTickLine {
+    minor_tick_line_color: Color
+    minor_tick_line_width: number
+    minor_tick_line_alpha: number
+    minor_tick_line_join: LineJoin
+    minor_tick_line_cap: LineCap
+    minor_tick_line_dash: number[]
+    minor_tick_line_dash_offset: number
+  }
+
+  // line:border_
+  export interface BorderLine {
+    border_line_color: Color
+    border_line_width: number
+    border_line_alpha: number
+    border_line_join: LineJoin
+    border_line_cap: LineCap
+    border_line_dash: number[]
+    border_line_dash_offset: number
+  }
+
+  // line:bar_
+  export interface BarLine {
+    bar_line_color: Color
+    bar_line_width: number
+    bar_line_alpha: number
+    bar_line_join: LineJoin
+    bar_line_cap: LineCap
+    bar_line_dash: number[]
+    bar_line_dash_offset: number
+  }
+
+  // fill:background_
+  export interface BackgroundFill {
+    background_fill_color: Color
+    background_fill_alpha: number
+  }
+
+  export interface Mixins extends MajorLabelText, TitleText, MajorTickLine, MinorTickLine, BorderLine, BarLine, BackgroundFill {}
+
+  export interface Attrs extends Annotation.Attrs, Mixins {
     location: LegendLocation
     orientation: Orientation
     title: string
@@ -372,11 +451,17 @@ export namespace ColorBar {
     minor_tick_in: number
     minor_tick_out: number
   }
+
+  export interface Opts extends Annotation.Opts {}
 }
 
 export interface ColorBar extends ColorBar.Attrs {}
 
 export class ColorBar extends Annotation {
+
+  constructor(attrs?: Partial<ColorBar.Attrs>, opts?: ColorBar.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = 'ColorBar';

@@ -1,5 +1,6 @@
 /* XXX: partial */
 import {Annotation, AnnotationView} from "./annotation";
+import {LineMixinScalar, FillMixinScalar} from "core/property_mixins"
 import {SpatialUnits} from "core/enums"
 import {Signal} from "core/signaling";
 import * as p from "core/properties"
@@ -15,7 +16,7 @@ export class PolyAnnotationView extends AnnotationView {
     this.connect(this.model.data_update, () => this.plot_view.request_render());
   }
 
-  render(ctx) {
+  render() {
     if (!this.model.visible) {
       return;
     }
@@ -32,7 +33,7 @@ export class PolyAnnotationView extends AnnotationView {
     }
 
     const { frame } = this.plot_view;
-    ({ ctx } = this.plot_view.canvas_view);
+    const { ctx } = this.plot_view.canvas_view
 
     for (let i = 0, end = xs.length; i < end; i++) {
       let sx, sy;
@@ -63,7 +64,9 @@ export class PolyAnnotationView extends AnnotationView {
 }
 
 export namespace PolyAnnotation {
-  export interface Attrs extends Annotation.Attrs {
+  export interface Mixins extends LineMixinScalar, FillMixinScalar {}
+
+  export interface Attrs extends Annotation.Attrs, Mixins {
     xs: number[]
     xs_units: SpatialUnits
     ys: number[]
@@ -72,11 +75,18 @@ export namespace PolyAnnotation {
     y_range_name: string
     screen: boolean
   }
+
+  export interface Opts extends Annotation.Opts {}
 }
 
 export interface PolyAnnotation extends PolyAnnotation.Attrs {}
 
 export class PolyAnnotation extends Annotation {
+
+  constructor(attrs?: Partial<PolyAnnotation.Attrs>, opts?: PolyAnnotation.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "PolyAnnotation";
     this.prototype.default_view = PolyAnnotationView;

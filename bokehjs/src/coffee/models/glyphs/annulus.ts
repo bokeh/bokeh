@@ -1,8 +1,10 @@
 /* XXX: partial */
 import {XYGlyph, XYGlyphView} from "./xy_glyph";
 import {DistanceSpec} from "core/vectorization"
+import {LineMixinVector, FillMixinVector} from "core/property_mixins"
 import * as hittest from "core/hittest";
 import * as p from "core/properties"
+import {Context2d} from "core/util/canvas"
 
 export class AnnulusView extends XYGlyphView {
   model: Annulus
@@ -20,7 +22,7 @@ export class AnnulusView extends XYGlyphView {
     }
   }
 
-  _render(ctx, indices, {sx, sy, sinner_radius, souter_radius}) {
+  _render(ctx: Context2d, indices, {sx, sy, sinner_radius, souter_radius}) {
     for (const i of indices) {
       if (isNaN(sx[i] + sy[i] + sinner_radius[i] + souter_radius[i]))
         continue;
@@ -92,7 +94,7 @@ export class AnnulusView extends XYGlyphView {
     return hittest.create_1d_hit_test_result(hits);
   }
 
-  draw_legend_for_index(ctx, x0, x1, y0, y1, index) {
+  draw_legend_for_index(ctx: Context2d, x0, x1, y0, y1, index) {
     const indices = [index];
     const sx = { };
     sx[index] = (x0+x1)/2;
@@ -112,15 +114,23 @@ export class AnnulusView extends XYGlyphView {
 }
 
 export namespace Annulus {
-  export interface Attrs extends XYGlyph.Attrs {
+  export interface Mixins extends LineMixinVector, FillMixinVector {}
+
+  export interface Attrs extends XYGlyph.Attrs, Mixins {
     inner_radius: DistanceSpec
     outer_radius: DistanceSpec
   }
+
+  export interface Opts extends XYGlyph.Opts {}
 }
 
 export interface Annulus extends Annulus.Attrs {}
 
 export class Annulus extends XYGlyph {
+
+  constructor(attrs?: Partial<Annulus.Attrs>, opts?: Annulus.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = 'Annulus';

@@ -39,14 +39,23 @@ export class HBarView extends BoxView {
 
 export namespace HBar {
   export interface Attrs extends Box.Attrs {
+    left: NumberSpec
+    y: NumberSpec
     height: DistanceSpec
     right: NumberSpec
   }
+
+  export interface Opts extends Box.Opts {}
 }
 
 export interface HBar extends HBar.Attrs {}
 
 export class HBar extends Box {
+
+  constructor(attrs?: Partial<HBar.Attrs>, opts?: HBar.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'HBar';
     this.prototype.default_view = HBarView;

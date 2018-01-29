@@ -5,6 +5,7 @@ import {ColorMapper} from "../mappers/color_mapper";
 import {LinearColorMapper} from "../mappers/linear_color_mapper";
 import * as p from "core/properties";
 import {max, concat} from "core/util/array"
+import {Context2d} from "core/util/canvas"
 
 export class ImageView extends XYGlyphView {
   model: Image
@@ -92,7 +93,7 @@ export class ImageView extends XYGlyphView {
     }
   }
 
-  _render(ctx, indices, {image_data, sx, sy, sw, sh}) {
+  _render(ctx: Context2d, indices, {image_data, sx, sy, sw, sh}) {
     const old_smoothing = ctx.getImageSmoothingEnabled();
     ctx.setImageSmoothingEnabled(false);
 
@@ -137,11 +138,17 @@ export namespace Image {
     dilate: boolean
     color_mapper: ColorMapper
   }
+
+  export interface Opts extends XYGlyph.Opts {}
 }
 
 export interface Image extends Image.Attrs {}
 
 export class Image extends XYGlyph {
+
+  constructor(attrs?: Partial<Image.Attrs>, opts?: Image.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = 'Image';

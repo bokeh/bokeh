@@ -1,4 +1,5 @@
 /* XXX: partial */
+import {NumberSpec} from "core/vectorization"
 import {RBush} from "core/util/spatial";
 import {Glyph, GlyphView} from "./glyph"
 
@@ -23,12 +24,20 @@ export abstract class XYGlyphView extends GlyphView {
 
 export namespace XYGlyph {
   export interface Attrs extends Glyph.Attrs {
+    x: NumberSpec
+    y: NumberSpec
   }
+
+  export interface Opts extends Glyph.Opts {}
 }
 
 export interface XYGlyph extends XYGlyph.Attrs {}
 
 export abstract class XYGlyph extends Glyph {
+
+  constructor(attrs?: Partial<XYGlyph.Attrs>, opts?: XYGlyph.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "XYGlyph";

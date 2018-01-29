@@ -53,11 +53,17 @@ export namespace DatetimeTickFormatter {
     months: string[]
     years: string[]
   }
+
+  export interface Opts extends TickFormatter.Opts {}
 }
 
 export interface DatetimeTickFormatter extends DatetimeTickFormatter.Attrs {}
 
 export class DatetimeTickFormatter extends TickFormatter {
+
+  constructor(attrs?: Partial<DatetimeTickFormatter.Attrs>, opts?: DatetimeTickFormatter.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = 'DatetimeTickFormatter';

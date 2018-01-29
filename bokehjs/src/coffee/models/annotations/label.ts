@@ -1,5 +1,8 @@
 /* XXX: partial */
 import {TextAnnotation, TextAnnotationView} from "./text_annotation";
+import {TextMixinScalar} from "core/property_mixins"
+import {Color} from "core/types"
+import {LineJoin, LineCap} from "core/enums"
 import {SpatialUnits, AngleUnits, RenderMode} from "core/enums"
 import {hide} from "core/dom";
 import * as p from "core/properties"
@@ -57,7 +60,26 @@ export class LabelView extends TextAnnotationView {
 }
 
 export namespace Label {
-  export interface Attrs extends TextAnnotation.Attrs {
+  // line:border_
+  export interface BorderLine {
+    border_line_color: Color
+    border_line_width: number
+    border_line_alpha: number
+    border_line_join: LineJoin
+    border_line_cap: LineCap
+    border_line_dash: number[]
+    border_line_dash_offset: number
+  }
+
+  // fill:background_
+  export interface BackgorundFill {
+    background_fill_color: Color
+    background_fill_alpha: number
+  }
+
+  export interface Mixins extends TextMixinScalar, BorderLine, BackgorundFill {}
+
+  export interface Attrs extends TextAnnotation.Attrs, Mixins {
     x: number
     x_units: SpatialUnits
     y: number
@@ -71,11 +93,17 @@ export namespace Label {
     y_range_name: string
     render_mode: RenderMode
   }
+
+  export interface Opts extends TextAnnotation.Opts {}
 }
 
 export interface Label extends Label.Attrs {}
 
 export class Label extends TextAnnotation {
+
+  constructor(attrs?: Partial<Label.Attrs>, opts?: Label.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = 'Label';

@@ -29,11 +29,17 @@ export class SpacerView extends LayoutDOMView {
 
 export namespace Spacer {
   export interface Attrs extends LayoutDOM.Attrs {}
+
+  export interface Opts extends LayoutDOM.Opts {}
 }
 
 export interface Spacer extends Spacer.Attrs {}
 
 export class Spacer extends LayoutDOM {
+
+  constructor(attrs?: Partial<Spacer.Attrs>, opts?: Spacer.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "Spacer"

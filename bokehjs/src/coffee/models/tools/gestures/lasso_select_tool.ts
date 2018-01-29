@@ -116,11 +116,17 @@ export namespace LassoSelectTool {
     callback: any // XXX
     overlay: PolyAnnotation
   }
+
+  export interface Opts extends SelectTool.Opts {}
 }
 
 export interface LassoSelectTool extends LassoSelectTool.Attrs {}
 
 export class LassoSelectTool extends SelectTool {
+
+  constructor(attrs?: Partial<LassoSelectTool.Attrs>, opts?: LassoSelectTool.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "LassoSelectTool"

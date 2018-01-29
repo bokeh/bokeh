@@ -1,6 +1,7 @@
 /* XXX: partial */
 import {Annotation, AnnotationView} from "./annotation";
 import {Signal} from "core/signaling";
+import {LineMixinScalar, FillMixinScalar} from "core/property_mixins"
 import {SpatialUnits, RenderMode} from "core/enums"
 import {show, hide} from "core/dom";
 import * as p from "core/properties";
@@ -118,7 +119,9 @@ export class BoxAnnotationView extends AnnotationView {
 }
 
 export namespace BoxAnnotation {
-  export interface Attrs extends Annotation.Attrs {
+  export interface Mixins extends LineMixinScalar, FillMixinScalar {}
+
+  export interface Attrs extends Annotation.Attrs, Mixins {
     render_mode: RenderMode
     x_range_name: string
     y_range_name: string
@@ -131,11 +134,17 @@ export namespace BoxAnnotation {
     right: number | null
     right_units: SpatialUnits
   }
+
+  export interface Opts extends Annotation.Opts {}
 }
 
 export interface BoxAnnotation extends BoxAnnotation.Attrs {}
 
 export class BoxAnnotation extends Annotation {
+
+  constructor(attrs?: Partial<BoxAnnotation.Attrs>, opts?: BoxAnnotation.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = 'BoxAnnotation';

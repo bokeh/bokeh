@@ -2,11 +2,17 @@ import {Scale} from "./scale"
 
 export namespace LogScale {
   export interface Attrs extends Scale.Attrs {}
+
+  export interface Opts extends Scale.Opts {}
 }
 
 export interface LogScale extends LogScale.Attrs {}
 
 export class LogScale extends Scale {
+
+  constructor(attrs?: Partial<LogScale.Attrs>, opts?: LogScale.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "LogScale"

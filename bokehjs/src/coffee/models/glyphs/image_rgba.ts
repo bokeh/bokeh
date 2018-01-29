@@ -3,6 +3,7 @@ import {XYGlyph, XYGlyphView} from "./xy_glyph";
 import {DistanceSpec, NumberSpec} from "core/vectorization"
 import * as p from "core/properties";
 import {max, concat} from "core/util/array"
+import {Context2d} from "core/util/canvas"
 
 export class ImageRGBAView extends XYGlyphView {
   model: ImageRGBA
@@ -83,7 +84,7 @@ export class ImageRGBAView extends XYGlyphView {
     }
   }
 
-  _render(ctx, indices, {image_data, sx, sy, sw, sh}) {
+  _render(ctx: Context2d, indices, {image_data, sx, sy, sw, sh}) {
     const old_smoothing = ctx.getImageSmoothingEnabled();
     ctx.setImageSmoothingEnabled(false);
 
@@ -122,11 +123,17 @@ export namespace ImageRGBA {
     dh: DistanceSpec
     dilate: boolean
   }
+
+  export interface Opts extends XYGlyph.Opts {}
 }
 
 export interface ImageRGBA extends ImageRGBA.Attrs {}
 
 export class ImageRGBA extends XYGlyph {
+
+  constructor(attrs?: Partial<ImageRGBA.Attrs>, opts?: ImageRGBA.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = 'ImageRGBA';
