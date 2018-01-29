@@ -2,7 +2,7 @@
 import {Renderer, RendererView} from "./renderer";
 import {Glyph} from "../glyphs/glyph";
 import {LineView} from "../glyphs/line";
-import {DataSource} from "../sources/data_source";
+import {ColumnarDataSource} from "../sources/columnar_data_source";
 import {RemoteDataSource} from "../sources/remote_data_source";
 import {CDSView} from "../sources/cds_view";
 import {logger} from "core/logging";
@@ -10,6 +10,7 @@ import * as p from "core/properties";
 import {difference, includes, range} from "core/util/array";
 import {extend, clone} from "core/util/object"
 import {Context2d} from "core/util/canvas"
+import {SelectionManager} from "core/selection_manager"
 
 export class GlyphRendererView extends RendererView {
   model: GlyphRenderer
@@ -334,7 +335,7 @@ export namespace GlyphRenderer {
   export interface Attrs extends Renderer.Attrs {
     x_range_name: string
     y_range_name: string
-    data_source: DataSource
+    data_source: ColumnarDataSource
     view: CDSView
     glyph: Glyph
     hover_glyph: Glyph
@@ -434,7 +435,7 @@ export class GlyphRenderer extends Renderer {
     return !indices.is_empty();
   }
 
-  get_selection_manager() {
+  get_selection_manager(): SelectionManager {
     return this.data_source.selection_manager;
   }
 }

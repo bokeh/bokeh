@@ -45,7 +45,7 @@ export class SelectionManager extends HasProps {
     return did_hit
   }
 
-  clear(_rview: RendererView): void {
+  clear(): void {
     this.selector.clear()
     this.source.selected = hittest.create_hit_test_result()
   }

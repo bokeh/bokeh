@@ -1,7 +1,8 @@
 import {SelectTool, SelectToolView} from "./select_tool"
 import * as p from "core/properties"
 import {isFunction} from "core/util/types"
-import {PointGeometry} from "core/geometry"
+import {Geometry, PointGeometry} from "core/geometry"
+import {DataSource} from "../../sources/data_source"
 
 export interface BkEv {
   bokeh: {
@@ -30,7 +31,10 @@ export class TapToolView extends SelectToolView {
   _select(geometry: PointGeometry, final: boolean, append: boolean): void {
     const callback = this.model.callback
 
-    const cb_data = {
+    const cb_data: {
+      geometries: Geometry,
+      source: DataSource | null,
+    } = {
       geometries: geometry,
       source: null,
     }
