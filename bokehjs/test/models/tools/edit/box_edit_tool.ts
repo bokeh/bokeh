@@ -49,7 +49,7 @@ const make_testcase = function(): BoxEditTestCase {
     height: {field: "height"},
   });
 
-  const glyph_renderer = new GlyphRenderer({
+  const glyph_renderer: any = new GlyphRenderer({
     glyph: glyph,
     data_source: data_source,
   });

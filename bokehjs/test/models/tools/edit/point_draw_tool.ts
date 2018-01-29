@@ -42,7 +42,7 @@ const make_testcase = function(): PointDrawTestCase {
     size: {units: "screen", value: 20},
   });
 
-  const glyph_renderer = new GlyphRenderer({
+  const glyph_renderer: any = new GlyphRenderer({
     glyph: glyph,
     data_source: data_source,
   });
