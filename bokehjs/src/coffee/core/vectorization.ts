@@ -9,7 +9,9 @@ export interface Field {
   field: string
 }
 
-export type Vectorized<T> = Value<T> | Field
+export type Scalar<T> = T | null | Value<T>
+
+export type Vectorized<T> = T | null | Value<T> | Field
 
 export type AngleSpec = Vectorized<number> & { units?: AngleUnits }
 
