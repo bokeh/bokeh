@@ -1,5 +1,4 @@
 export {BBoxTileSource}       from "./bbox_tile_source"
-export {ImageSource}          from "./image_source"
 export {MercatorTileSource}   from "./mercator_tile_source"
 export {QUADKEYTileSource}    from "./quadkey_tile_source"
 export {TileRenderer}         from "./tile_renderer"
