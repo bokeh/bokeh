@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
 import datetime
+import time
 import unittest
 import numpy as np
 import pandas as pd
@@ -9,7 +10,7 @@ from copy import copy
 import pytest
 
 from bokeh.core.properties import (field, value,
-    NumberSpec, ColorSpec, Bool, Int, Float, Complex, String,
+    NumberSpec, ColorSpec, Bool, Int, Float, Complex, Date, String,
     Regex, Seq, List, Dict, Tuple, Instance, Any, Interval, Either,
     Enum, Color, DashPattern, Size, Percent, Angle, AngleSpec, StringSpec,
     DistanceSpec, FontSize, FontSizeSpec, Override, Include, MinMaxBounds,
@@ -20,6 +21,17 @@ from bokeh.core.property.containers import PropertyValueColumnData, PropertyValu
 from bokeh.core.has_props import HasProps
 
 from bokeh.models import Plot
+
+class Test_Date(object):
+    def test_validate_seconds(self):
+        t = time.time()
+        d = Date()
+        assert d.transform(t) == datetime.date.today()
+
+    def test_validate_milliseconds(self):
+        t = time.time() * 1000
+        d = Date()
+        assert d.transform(t) == datetime.date.today()
 
 class Basictest(unittest.TestCase):
 

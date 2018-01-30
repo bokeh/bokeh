@@ -3,13 +3,29 @@ import {TileSource} from "./tile_source";
 import * as p from "core/properties";
 import {includes, range} from "core/util/array";
 
+export namespace MercatorTileSource {
+  export interface Attrs extends TileSource.Attrs {
+    snap_to_zoom: boolean
+    wrap_around: boolean
+  }
+
+  export interface Opts extends TileSource.Opts {}
+}
+
+export interface MercatorTileSource extends MercatorTileSource.Attrs {}
+
 export class MercatorTileSource extends TileSource {
+
+  constructor(attrs?: Partial<MercatorTileSource.Attrs>, opts?: MercatorTileSource.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'MercatorTileSource';
 
     this.define({
-      snap_to_zoom:       [ p.Bool,   false              ],
-      wrap_around:        [ p.Bool,   true               ],
+      snap_to_zoom: [ p.Bool, false ],
+      wrap_around:  [ p.Bool, true  ],
     });
 
     this.override({
@@ -231,7 +247,7 @@ export class MercatorTileSource extends TileSource {
     return tiles;
   }
 
-  quadkey_to_tile_xyz(quadKey) {
+  quadkey_to_tile_xyz(quadKey: string): [number, number, number] {
     /**
      * Computes tile x, y and z values based on quadKey.
      */
@@ -312,7 +328,7 @@ export class MercatorTileSource extends TileSource {
     return [0, 0, 0];
   }
 
-  normalize_xyz(x, y, z) {
+  normalize_xyz(x: number, y: number, z: number): [number, number, number] {
     if (this.wrap_around) {
       const tile_count = Math.pow(2, z);
       return [((x % tile_count) + tile_count) % tile_count, y, z];

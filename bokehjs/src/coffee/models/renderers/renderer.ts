@@ -11,9 +11,7 @@ import {ColumnarDataSource} from "../sources/columnar_data_source"
 
 // This shouldn't be a DOMView, but annotations create a mess.
 export abstract class RendererView extends DOMView {
-
   model: Renderer
-
   visuals: Renderer.Visuals
 
   plot_view: PlotCanvasView
@@ -46,12 +44,29 @@ export abstract class RendererView extends DOMView {
     }
   }
 
-  map_to_screen(x: number[], y: number[]): [number[], number[]] {
+  map_to_screen(x: number[] | Float64Array, y: number[] | Float64Array): [Float64Array, Float64Array] {
     return this.plot_view.map_to_screen(x, y, (this.model as any).x_range_name, (this.model as any).y_range_name)
   }
 }
 
+export namespace Renderer {
+  export interface Attrs extends Model.Attrs {
+    level: RenderLevel
+    visible: boolean
+  }
+
+  export type Visuals = visuals.Visuals
+
+  export interface Opts extends Model.Opts {}
+}
+
+export interface Renderer extends Renderer.Attrs {}
+
 export abstract class Renderer extends Model {
+
+  constructor(attrs?: Partial<Renderer.Attrs>, opts?: Renderer.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "Renderer"
@@ -61,13 +76,5 @@ export abstract class Renderer extends Model {
       visible: [ p.Bool, true ],
     })
   }
-
-  level: RenderLevel
-  visible: boolean
 }
-
 Renderer.initClass()
-
-export module Renderer {
-  export type Visuals = visuals.Visuals
-}

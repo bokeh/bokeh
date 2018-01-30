@@ -2,13 +2,28 @@
 import {MercatorTileSource} from './mercator_tile_source';
 import * as p from "core/properties"
 
+export namespace BBoxTileSource {
+  export interface Attrs extends MercatorTileSource.Attrs {
+    use_latlon: boolean
+  }
+
+  export interface Opts extends MercatorTileSource.Opts {}
+}
+
+export interface BBoxTileSource extends BBoxTileSource.Attrs {}
+
 export class BBoxTileSource extends MercatorTileSource {
+
+  constructor(attrs?: Partial<BBoxTileSource.Attrs>, opts?: BBoxTileSource.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'BBoxTileSource';
 
     this.define({
-        use_latlon : [ p.Bool, false ],
-      });
+      use_latlon: [ p.Bool, false ],
+    });
   }
 
   get_image_url(x, y, z) {

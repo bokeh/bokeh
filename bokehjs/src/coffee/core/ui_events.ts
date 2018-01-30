@@ -76,12 +76,14 @@ export class UIEvents {
     return document.addEventListener("keyup", e => this._key_up(e));
   }
 
-  register_tool(tool_view, event_type) {
+  register_tool(tool_view, event_type, shared=true) {
     let e;
     const et = event_type || tool_view.model.event_type;
     if ((et != null) && !(typeof et === 'string')) {
-      for (e of et) {
-        this.register_tool(tool_view, e);
+      for (let index = 0; index < et.length; index++) {
+        e = et[index];
+        // Multi-tools should only registered shared events once
+        this.register_tool(tool_view, e, index<1);
       }
       return;
     }
@@ -130,6 +132,9 @@ export class UIEvents {
       default:
         throw new Error(`unsupported event_type: ${et}`);
     }
+
+    // Skip shared events if registering multi-tool
+    if (!shared) { return }
 
     if (v._doubletap != null) {
       v.connect(this.doubletap, x => v._doubletap(x.e));
@@ -180,6 +185,10 @@ export class UIEvents {
 
     switch (base_type) {
       case "move": {
+        const active_gesture = this.toolbar.gestures[base_type].active;
+        if (active_gesture != null)
+          this.trigger(signal, e, active_gesture.id);
+
         const active_inspectors = this.toolbar.inspectors.filter(t => t.active);
         let cursor = "default";
 

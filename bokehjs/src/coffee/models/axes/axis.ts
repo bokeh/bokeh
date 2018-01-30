@@ -4,6 +4,8 @@ import {TickFormatter} from "../formatters/tick_formatter"
 import {Range} from "../ranges/range"
 
 import * as p from "core/properties"
+import {Color} from "core/types"
+import {FontStyle, TextAlign, TextBaseline, LineJoin, LineCap} from "core/enums"
 import {Side, Orientation, SpatialUnits} from "core/enums"
 import {Text, Line} from "core/visuals"
 import {SidePanel, Orient} from "core/layout/side_panel"
@@ -27,9 +29,7 @@ export interface TickCoords {
 }
 
 export class AxisView extends GuideRendererView {
-
   model: Axis
-
   visuals: Axis.Visuals
 
   render(): void {
@@ -189,7 +189,7 @@ export class AxisView extends GuideRendererView {
     if (!visuals.doit || labels.length == 0)
       return
 
-    let sxs, sys: number[]
+    let sxs, sys: ArrayLike<number>
     let xoff, yoff: number
 
     if (units == "screen") {
@@ -305,11 +305,106 @@ export class AxisView extends GuideRendererView {
   }
 }
 
+export namespace Axis {
+  // line:axis_
+  export interface AxisLine {
+    axis_line_color: Color
+    axis_line_width: number
+    axis_line_alpha: number
+    axis_line_join: LineJoin
+    axis_line_cap: LineCap
+    axis_line_dash: number[]
+    axis_line_dash_offset: number
+  }
+
+  // line:major_tick_
+  export interface MajorTickLine {
+    major_tick_line_color: Color
+    major_tick_line_width: number
+    major_tick_line_alpha: number
+    major_tick_line_join: LineJoin
+    major_tick_line_cap: LineCap
+    major_tick_line_dash: number[]
+    major_tick_line_dash_offset: number
+  }
+
+  // line:minor_tick_
+  export interface MinorTickLine {
+    minor_tick_line_color: Color
+    minor_tick_line_width: number
+    minor_tick_line_alpha: number
+    minor_tick_line_join: LineJoin
+    minor_tick_line_cap: LineCap
+    minor_tick_line_dash: number[]
+    minor_tick_line_dash_offset: number
+  }
+
+  // text:major_label_
+  export interface MajorLabelText {
+    major_lable_text_font: string
+    major_lable_text_font_size: string
+    major_lable_text_font_style: FontStyle
+    major_lable_text_color: Color
+    major_lable_text_alpha: number
+    major_lable_text_align: TextAlign
+    major_lable_text_baseline: TextBaseline
+    major_lable_text_line_height: number
+  }
+
+  // text:axis_label_
+  export interface AxisLabelText {
+    axis_lable_text_font: string
+    axis_lable_text_font_size: string
+    axis_lable_text_font_style: FontStyle
+    axis_lable_text_color: Color
+    axis_lable_text_alpha: number
+    axis_lable_text_align: TextAlign
+    axis_lable_text_baseline: TextBaseline
+    axis_lable_text_line_height: number
+  }
+
+  export interface Mixins extends AxisLine, MajorTickLine, MinorTickLine, MajorLabelText, AxisLabelText {}
+
+  export interface Attrs extends GuideRenderer.Attrs, Mixins {
+    bounds: [number, number] | "auto"
+    ticker: Ticker<any> // TODO
+    formatter: TickFormatter
+    x_range_name: string
+    y_range_name: string
+    axis_label: string
+    axis_label_standoff: number
+    major_label_standoff: number
+    major_label_orientation: Orientation | number
+    major_label_overrides: {[key: string]: string}
+    major_tick_in: number
+    major_tick_out: number
+    minor_tick_in: number
+    minor_tick_out: number
+  }
+
+  export type Visuals = GuideRenderer.Visuals & {
+    axis_line: Line
+    major_tick_line: Line
+    minor_tick_line: Line
+    major_label_text: Text
+    axis_label_text: Text
+  }
+
+  export interface Opts extends GuideRenderer.Opts {}
+}
+
+export interface Axis extends Axis.Attrs {
+  panel: SidePanel
+}
+
 export class Axis extends GuideRenderer {
+
+  constructor(attrs?: Partial<Axis.Attrs>, opts?: Axis.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "Axis"
-
     this.prototype.default_view = AxisView
 
     this.mixins([
@@ -351,23 +446,6 @@ export class Axis extends GuideRenderer {
       axis_label_text_font_style: "italic",
     })
   }
-
-  panel: SidePanel
-
-  bounds: [number, number] | "auto"
-  ticker: Ticker<any> // TODO
-  formatter: TickFormatter
-  x_range_name: string
-  y_range_name: string
-  axis_label: string
-  axis_label_standoff: number
-  major_label_standoff: number
-  major_label_orientation: Orientation | number
-  major_label_overrides: {[key: string]: string}
-  major_tick_in: number
-  major_tick_out: number
-  minor_tick_in: number
-  minor_tick_out: number
 
   add_panel(side: Side): void {
     this.panel = new SidePanel({side: side})
@@ -536,15 +614,4 @@ export class Axis extends GuideRenderer {
     }
   }
 }
-
 Axis.initClass()
-
-export module Axis {
-  export type Visuals = GuideRenderer.Visuals & {
-    axis_line: Line
-    major_tick_line: Line
-    minor_tick_line: Line
-    major_label_text: Text
-    axis_label_text: Text
-  }
-}

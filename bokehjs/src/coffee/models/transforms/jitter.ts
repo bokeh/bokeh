@@ -1,17 +1,32 @@
 /* XXX: partial */
-/*
- * decaffeinate suggestions:
- * DS206: Consider reworking classes to avoid initClass
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
-
 import {Transform} from "./transform";
+import {Range} from "../ranges/range"
+import {Distribution} from "core/enums"
 import * as p from "core/properties";
 import * as bokeh_math from "core/util/math"
 
+export namespace Jitter {
+  export interface Attrs extends Transform.Attrs {
+    mean: number
+    width: number
+    distribution: Distribution
+    range: Range
+  }
+
+  export interface Opts extends Transform.Opts {}
+}
+
+export interface Jitter extends Jitter.Attrs {}
+
 export class Jitter extends Transform {
+
+  constructor(attrs?: Partial<Jitter.Attrs>, opts?: Jitter.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
+    this.prototype.type = "Jitter"
+
     this.define({
       mean:         [ p.Number      , 0        ],
       width:        [ p.Number      , 1        ],

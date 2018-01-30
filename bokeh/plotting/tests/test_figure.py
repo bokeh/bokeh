@@ -271,19 +271,33 @@ def p():
     return plt.figure()
 
 
-def test_glyph_label_is_legend_if_column_in_datasouurce_is_added_as_legend(p, source):
+def test_glyph_label_is_legend_if_column_in_datasource_is_added_as_legend(p, source):
     p.circle(x='x', y='y', legend='label', source=source)
     legends = p.select(Legend)
     assert len(legends) == 1
     assert legends[0].items[0].label == {'field': 'label'}
 
 
-def test_glyph_label_is_value_if_column_not_in_datasouurce_is_added_as_legend(p, source):
+def test_glyph_label_is_value_if_column_not_in_datasource_is_added_as_legend(p, source):
     p.circle(x='x', y='y', legend='milk', source=source)
     legends = p.select(Legend)
     assert len(legends) == 1
     assert legends[0].items[0].label == {'value': 'milk'}
 
+def test_glyph_label_is_legend_if_column_in_df_datasource_is_added_as_legend(p):
+    source = pd.DataFrame(data=dict(x=[1, 2, 3], y=[1, 2, 3], label=['a', 'b', 'c']))
+    p.circle(x='x', y='y', legend='label', source=source)
+    legends = p.select(Legend)
+    assert len(legends) == 1
+    assert legends[0].items[0].label == {'field': 'label'}
+
+
+def test_glyph_label_is_value_if_column_not_in_df_datasource_is_added_as_legend(p):
+    source = pd.DataFrame(data=dict(x=[1, 2, 3], y=[1, 2, 3], label=['a', 'b', 'c']))
+    p.circle(x='x', y='y', legend='milk', source=source)
+    legends = p.select(Legend)
+    assert len(legends) == 1
+    assert legends[0].items[0].label == {'value': 'milk'}
 
 def test_glyph_label_is_just_added_directly_if_not_string(p, source):
     p.circle(x='x', y='y', legend={'field': 'milk'}, source=source)
@@ -347,3 +361,16 @@ def test_compound_legend_behavior_initiated_if_labels_are_same_on_multiple_rende
     assert len(legends) == 1
     assert legends[0].items[0].renderers == [square, circle]
     assert legends[0].items[0].label == {'field': 'label'}
+
+# XXX (bev) this doesn't work yet because compound behaviour depends on renderer sources
+# matching, but passing a df means every renderer gets its own new source
+# def test_compound_legend_behavior_initiated_if_labels_are_same_on_multiple_renderers_and_are_field_with_df_source(p):
+#     source = pd.DataFrame(data=dict(x=[1, 2, 3], y=[1, 2, 3], label=['a', 'b', 'c']))
+#     # label is a field
+#     square = p.square(x='x', y='y', legend='label', source=source)
+#     circle = p.circle(x='x', y='y', legend='label', source=source)
+#     legends = p.select(Legend)
+#     assert len(legends) == 1
+#     print(legends[0].items[0].renderers)
+#     assert legends[0].items[0].renderers == [square, circle]
+#     assert legends[0].items[0].label == {'field': 'label'}

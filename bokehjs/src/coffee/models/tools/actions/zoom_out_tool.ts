@@ -5,7 +5,6 @@ import {scale_range} from "core/util/zoom"
 import * as p from "core/properties"
 
 export class ZoomOutToolView extends ActionToolView {
-
   model: ZoomOutTool
 
   doit(): void {
@@ -27,11 +26,25 @@ export class ZoomOutToolView extends ActionToolView {
   }
 }
 
+export namespace ZoomOutTool {
+  export interface Attrs extends ActionTool.Attrs {
+    factor: number
+    dimensions: Dimensions
+  }
+
+  export interface Opts extends ActionTool.Opts {}
+}
+
+export interface ZoomOutTool extends ZoomOutTool.Attrs {}
+
 export class ZoomOutTool extends ActionTool {
+
+  constructor(attrs?: Partial<ZoomOutTool.Attrs>, opts?: ZoomOutTool.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "ZoomOutTool"
-
     this.prototype.default_view = ZoomOutToolView
 
     this.define({
@@ -39,9 +52,6 @@ export class ZoomOutTool extends ActionTool {
       dimensions: [ p.Dimensions, "both" ],
     })
   }
-
-  factor: number
-  dimensions: Dimensions
 
   tool_name = "Zoom Out"
   icon = "bk-tool-icon-zoom-out"

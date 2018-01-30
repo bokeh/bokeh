@@ -20,7 +20,19 @@ export class DateRangeSliderView extends AbstractSliderView {
   }
 }
 
+export namespace DateRangeSlider {
+  export interface Attrs extends AbstractSlider.Attrs {}
+
+  export interface Opts extends AbstractSlider.Opts {}
+}
+
+export interface DateRangeSlider extends DateRangeSlider.Attrs {}
+
 export class DateRangeSlider extends AbstractSlider {
+
+  constructor(attrs?: Partial<DateRangeSlider.Attrs>, opts?: DateRangeSlider.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "DateRangeSlider"
@@ -31,7 +43,7 @@ export class DateRangeSlider extends AbstractSlider {
     })
   }
 
-  behaviour = 'drag'
+  behaviour = "drag" as "drag"
   connected = [false, true, false]
 
   _formatter = tz

@@ -2,11 +2,28 @@ import {Renderer, RendererView} from "./renderer"
 import {Plot} from "../plots/plot"
 import * as p from "core/properties"
 
-export class GuideRendererView extends RendererView {
+export abstract class GuideRendererView extends RendererView {
+  model: GuideRenderer
   visuals: GuideRenderer.Visuals
 }
 
-export class GuideRenderer extends Renderer {
+export namespace GuideRenderer {
+  export interface Attrs extends Renderer.Attrs {
+    plot: Plot
+  }
+
+  export type Visuals = Renderer.Visuals
+
+  export interface Opts extends Renderer.Opts {}
+}
+
+export interface GuideRenderer extends GuideRenderer.Attrs {}
+
+export abstract class GuideRenderer extends Renderer {
+
+  constructor(attrs?: Partial<GuideRenderer.Attrs>, opts?: GuideRenderer.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "GuideRenderer"
@@ -19,12 +36,5 @@ export class GuideRenderer extends Renderer {
       level: "overlay",
     })
   }
-
-  plot: Plot
 }
-
 GuideRenderer.initClass()
-
-export module GuideRenderer {
-  export type Visuals = Renderer.Visuals
-}

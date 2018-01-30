@@ -1,12 +1,15 @@
 /* XXX: partial */
 import {XYGlyph, XYGlyphView} from "./xy_glyph";
 import {PointGeometry, SpanGeometry} from "core/geometry";
-import * as hittest from "core/hittest";
 import {Selection} from "models/selections/selection";
+import {LineMixinVector} from "core/property_mixins"
+import * as hittest from "core/hittest"
+import {Context2d} from "core/util/canvas"
 
 export class LineView extends XYGlyphView {
+  model: Line
 
-  _render(ctx, indices, {sx, sy}) {
+  _render(ctx: Context2d, indices, {sx, sy}) {
     let drawing = false;
     this.visuals.line.set_value(ctx);
     let last_index = null;
@@ -122,16 +125,30 @@ export class LineView extends XYGlyphView {
     return [res.x, res.y];
   }
 
-  draw_legend_for_index(ctx, x0, x1, y0, y1, index) {
+  draw_legend_for_index(ctx: Context2d, x0, x1, y0, y1, index) {
     return this._generic_line_legend(ctx, x0, x1, y0, y1, index);
   }
 }
 
-export class Line extends XYGlyph {
-  static initClass() {
-    this.prototype.default_view = LineView;
+export namespace Line {
+  export interface Mixins extends LineMixinVector {}
 
+  export interface Attrs extends XYGlyph.Attrs, Mixins {}
+
+  export interface Opts extends XYGlyph.Opts {}
+}
+
+export interface Line extends Line.Attrs {}
+
+export class Line extends XYGlyph {
+
+  constructor(attrs?: Partial<Line.Attrs>, opts?: Line.Opts) {
+    super(attrs, opts)
+  }
+
+  static initClass() {
     this.prototype.type = 'Line';
+    this.prototype.default_view = LineView;
 
     this.mixins(['line']);
   }

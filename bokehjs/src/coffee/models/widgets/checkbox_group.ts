@@ -62,7 +62,24 @@ export class CheckboxGroupView extends WidgetView {
   }
 }
 
+export namespace CheckboxGroup {
+  export interface Attrs extends Widget.Attrs {
+    active: number[]
+    labels: string[]
+    inline: boolean
+    callback: any // XXX
+  }
+
+  export interface Opts extends Widget.Opts {}
+}
+
+export interface CheckboxGroup extends CheckboxGroup.Attrs {}
+
 export class CheckboxGroup extends Widget {
+
+  constructor(attrs?: Partial<CheckboxGroup.Attrs>, opts?: CheckboxGroup.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "CheckboxGroup"
@@ -75,11 +92,6 @@ export class CheckboxGroup extends Widget {
       callback: [ p.Instance     ],
     })
   }
-
-  active: number[]
-  labels: string[]
-  inline: boolean
-  callback: any // XXX
 }
 
 CheckboxGroup.initClass()

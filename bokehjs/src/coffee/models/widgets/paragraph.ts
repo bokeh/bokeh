@@ -13,7 +13,19 @@ export class ParagraphView extends MarkupView {
   }
 }
 
+export namespace Paragraph {
+  export interface Attrs extends Markup.Attrs {}
+
+  export interface Opts extends Markup.Opts {}
+}
+
+export interface Paragraph extends Paragraph.Attrs {}
+
 export class Paragraph extends Markup {
+
+  constructor(attrs?: Partial<Paragraph.Attrs>, opts?: Paragraph.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "Paragraph"

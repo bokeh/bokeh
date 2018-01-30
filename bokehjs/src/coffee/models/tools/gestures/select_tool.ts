@@ -14,7 +14,6 @@ export interface BkEv {
 }
 
 export abstract class SelectToolView extends GestureToolView {
-
   model: SelectTool
 
   get computed_renderers(): DataRenderer[] {
@@ -120,21 +119,31 @@ export abstract class SelectToolView extends GestureToolView {
   }
 }
 
+export namespace SelectTool {
+  export interface Attrs extends GestureTool.Attrs {
+    renderers: DataRenderer[]
+    names: string[]
+  }
+
+  export interface Opts extends GestureTool.Opts {}
+}
+
+export interface SelectTool extends SelectTool.Attrs {}
+
 export abstract class SelectTool extends GestureTool {
+
+  constructor(attrs?: Partial<SelectTool.Attrs>, opts?: SelectTool.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "SelectTool"
-
-    // this.prototype.default_view = null
 
     this.define({
       renderers: [ p.Array, [] ],
       names:     [ p.Array, [] ],
     })
   }
-
-  renderers: DataRenderer[]
-  names: string[]
 }
 
 SelectTool.initClass()

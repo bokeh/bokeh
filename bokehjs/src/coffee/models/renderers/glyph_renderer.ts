@@ -12,6 +12,7 @@ import {extend, clone} from "core/util/object";
 import * as hittest from "core/hittest";
 import {Geometry} from "core/geometry";
 import {SelectionManager} from "core/selection_manager";
+import {Context2d} from "core/util/canvas"
 
 export class GlyphRendererView extends RendererView {
   model: GlyphRenderer
@@ -30,7 +31,7 @@ export class GlyphRendererView extends RendererView {
       const attrs = clone(glyph_attrs);
       if (has_fill) { extend(attrs, defaults.fill); }
       if (has_line) { extend(attrs, defaults.line); }
-      return new (base_glyph.constructor)(attrs);
+      return new (base_glyph.constructor as any)(attrs);
     };
 
     this.glyph = this.build_glyph_view(base_glyph);
@@ -318,7 +319,7 @@ export class GlyphRendererView extends RendererView {
     return ctx.restore();
   }
 
-  draw_legend(ctx, x0, x1, y0, y1, field, label) {
+  draw_legend(ctx: Context2d, x0, x1, y0, y1, field, label) {
     const index = this.model.get_reference_point(field, label);
     return this.glyph.draw_legend_for_index(ctx, x0, x1, y0, y1, index);
   }
@@ -328,23 +329,34 @@ export class GlyphRendererView extends RendererView {
   }
 }
 
+export namespace GlyphRenderer {
+  export interface Attrs extends Renderer.Attrs {
+    x_range_name: string
+    y_range_name: string
+    data_source: ColumnarDataSource
+    view: CDSView
+    glyph: Glyph
+    hover_glyph: Glyph
+    nonselection_glyph: Glyph | "auto"
+    selection_glyph: Glyph | "auto"
+    muted_glyph: Glyph
+    muted: boolean
+  }
+
+  export interface Opts extends Renderer.Opts {}
+}
+
+export interface GlyphRenderer extends GlyphRenderer.Attrs {}
+
 export class GlyphRenderer extends Renderer {
 
-  x_range_name: string
-  y_range_name: string
-  data_source: ColumnarDataSource
-  view: CDSView
-  glyph: Glyph
-  hover_glyph: Glyph
-  nonselection_glyph: Glyph | "auto"
-  selection_glyph: Glyph | "auto"
-  muted_glyph: Glyph
-  muted: boolean
+  constructor(attrs?: Partial<GlyphRenderer.Attrs>, opts?: GlyphRenderer.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
-    this.prototype.default_view = GlyphRendererView;
-
     this.prototype.type = 'GlyphRenderer';
+    this.prototype.default_view = GlyphRendererView;
 
     this.define({
         x_range_name:       [ p.String,  'default' ],

@@ -1,5 +1,6 @@
 /* XXX: partial */
 import * as p from "core/properties";
+import {Color} from "core/types"
 
 import {color2hex} from "core/util/color";
 import {min, max} from "core/util/array";
@@ -9,16 +10,34 @@ import {ColorMapper} from "./color_mapper"
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/log1p.
 const log1p = Math.log1p != null ? Math.log1p : x => Math.log(1 + x);
 
+export namespace LogColorMapper {
+  export interface Attrs extends ColorMapper.Attrs {
+    high: number
+    low: number
+    high_color: Color
+    low_color: Color
+  }
+
+  export interface Opts extends ColorMapper.Opts {}
+}
+
+export interface LogColorMapper extends LogColorMapper.Attrs {}
+
 export class LogColorMapper extends ColorMapper {
+
+  constructor(attrs?: Partial<LogColorMapper.Attrs>, opts?: LogColorMapper.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "LogColorMapper";
 
     this.define({
-        high:       [ p.Number ],
-        low:        [ p.Number ],
-        high_color: [ p.Color  ],
-        low_color:  [ p.Color  ],
-      });
+      high:       [ p.Number ],
+      low:        [ p.Number ],
+      high_color: [ p.Color  ],
+      low_color:  [ p.Color  ],
+    });
   }
 
   initialize(): void {
@@ -28,7 +47,7 @@ export class LogColorMapper extends ColorMapper {
     this._low_color = (this.low_color != null) ? this._build_palette([color2hex(this.low_color)])[0] : undefined;
   }
 
-  _get_values(data, palette, image_glyph = false) {
+  _get_values(data: number[], palette: number[], image_glyph: boolean = false): number[] {
     const n = palette.length;
     const low = this.low != null ? this.low : min(data);
     const high = this.high != null ? this.high : max(data);

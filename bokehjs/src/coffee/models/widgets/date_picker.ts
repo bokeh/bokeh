@@ -87,7 +87,23 @@ export class DatePickerView extends InputWidgetView {
   }
 }
 
+export namespace DatePicker {
+  export interface Attrs extends InputWidget.Attrs {
+    value:    string
+    min_date: string
+    max_date: string
+  }
+
+  export interface Opts extends InputWidget.Opts {}
+}
+
+export interface DatePicker extends DatePicker.Attrs {}
+
 export class DatePicker extends InputWidget {
+
+  constructor(attrs?: Partial<DatePicker.Attrs>, opts?: DatePicker.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "DatePicker"
@@ -100,10 +116,6 @@ export class DatePicker extends InputWidget {
       max_date: [ p.Any                            ],
     })
   }
-
-  value:    string
-  min_date: string
-  max_date: string
 }
 
 DatePicker.initClass()

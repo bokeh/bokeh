@@ -4,10 +4,14 @@ import {Glyph, GlyphView} from "./glyph";
 import {min, max, copy, findLastIndex} from "core/util/array";
 import {isStrictNaN} from "core/util/types";
 import {PointGeometry} from "core/geometry";
-import * as hittest from "core/hittest";
 import {Selection} from "models/selections/selection";
+import {Context2d} from "core/util/canvas"
+import {NumberSpec} from "core/vectorization"
+import {LineMixinVector, FillMixinVector} from "core/property_mixins"
+import * as hittest from "core/hittest"
 
 export class PatchesView extends GlyphView {
+  model: Patches
 
   _build_discontinuous_object(nanned_qs) {
     // _s is @xs, @ys, @sxs, @sys
@@ -89,7 +93,7 @@ export class PatchesView extends GlyphView {
     return indices.sort((a, b) => a-b);
   }
 
-  _render(ctx, indices, {sxs, sys}) {
+  _render(ctx: Context2d, indices, {sxs, sys}) {
     // @sxss and @syss are used by _hit_point and sxc, syc
     // This is the earliest we can build them, and only build them once
     this.renderer.sxss = this._build_discontinuous_object(sxs);
@@ -211,18 +215,35 @@ export class PatchesView extends GlyphView {
     }
   }
 
-  draw_legend_for_index(ctx, x0, x1, y0, y1, index) {
+  draw_legend_for_index(ctx: Context2d, x0, x1, y0, y1, index) {
     return this._generic_area_legend(ctx, x0, x1, y0, y1, index);
   }
 }
 
+export namespace Patches {
+  export interface Mixins extends LineMixinVector, FillMixinVector {}
+
+  export interface Attrs extends Glyph.Attrs, Mixins {
+    xs: NumberSpec
+    ys: NumberSpec
+  }
+
+  export interface Opts extends Glyph.Opts {}
+}
+
+export interface Patches extends Patches.Attrs {}
+
 export class Patches extends Glyph {
+
+  constructor(attrs?: Partial<Patches.Attrs>, opts?: Patches.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
+    this.prototype.type = 'Patches';
     this.prototype.default_view = PatchesView;
 
-    this.prototype.type = 'Patches';
-
-    this.coords([ ['xs', 'ys'] ]);
+    this.coords([['xs', 'ys']]);
     this.mixins(['line', 'fill']);
   }
 }

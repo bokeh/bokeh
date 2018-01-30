@@ -23,7 +23,19 @@ export class SliderView extends AbstractSliderView {
   }
 }
 
+export namespace Slider {
+  export interface Attrs extends AbstractSlider.Attrs {}
+
+  export interface Opts extends AbstractSlider.Opts {}
+}
+
+export interface Slider extends Slider.Attrs {}
+
 export class Slider extends AbstractSlider {
+
+  constructor(attrs?: Partial<Slider.Attrs>, opts?: Slider.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "Slider"
@@ -34,7 +46,7 @@ export class Slider extends AbstractSlider {
     })
   }
 
-  behaviour = 'tap'
+  behaviour = "tap" as "tap"
   connected = [true, false]
 
   _formatter = format

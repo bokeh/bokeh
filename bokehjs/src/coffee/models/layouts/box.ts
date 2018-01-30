@@ -26,7 +26,6 @@ export interface Info {
 }
 
 export class BoxView extends LayoutDOMView {
-
   model: Box
 
   connect_signals(): void {
@@ -61,11 +60,25 @@ export class BoxView extends LayoutDOMView {
   }
 }
 
+export namespace Box {
+  export interface Attrs extends LayoutDOM.Attrs {
+    children: LayoutDOM[]
+    spacing: number
+  }
+
+  export interface Opts extends LayoutDOM.Opts {}
+}
+
+export interface Box extends Box.Attrs {}
+
 export class Box extends LayoutDOM {
+
+  constructor(attrs?: Partial<Box.Attrs>, opts?: Box.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "Box"
-
     this.prototype.default_view = BoxView
 
     this.define({
@@ -76,9 +89,6 @@ export class Box extends LayoutDOM {
       spacing: [ p.Number, 6 ],
     })
   }
-
-  children: LayoutDOM[]
-  spacing: number
 
   _horizontal: boolean
 

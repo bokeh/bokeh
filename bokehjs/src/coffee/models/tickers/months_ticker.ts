@@ -27,7 +27,22 @@ function date_range_by_year(start_time: number, end_time: number): Date[] {
 // A MonthsTicker produces ticks from a fixed subset of months of the year.
 // E.g., MonthsTicker([0, 3, 6, 9]) produces ticks of the 1st of January,
 // April, July, and October of each year.
+
+export namespace MonthsTicker {
+  export interface Attrs extends SingleIntervalTicker.Attrs {
+    months: number[]
+  }
+
+  export interface Opts extends SingleIntervalTicker.Opts {}
+}
+
+export interface MonthsTicker extends MonthsTicker.Attrs {}
+
 export class MonthsTicker extends SingleIntervalTicker {
+
+  constructor(attrs?: Partial<MonthsTicker.Attrs>, opts?: MonthsTicker.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "MonthsTicker"
@@ -36,8 +51,6 @@ export class MonthsTicker extends SingleIntervalTicker {
       months: [ p.Array, [] ],
     })
   }
-
-  months: number[]
 
   initialize(): void {
     super.initialize()

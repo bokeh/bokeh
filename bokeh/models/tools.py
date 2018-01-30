@@ -26,15 +26,22 @@ from ..core.enums import (Anchor, Dimension, Dimensions, Location,
                           TooltipFieldFormatter, TooltipAttachment)
 from ..core.has_props import abstract
 from ..core.properties import (
-    Auto, Bool, Color, Dict, Either, Enum, Float, Percent, Instance, List,
-    Seq, String, Tuple
+    Auto, Bool, Color, Date, Datetime, Dict, Either, Enum, Int, Float,
+    Percent, Instance, List, Seq, String, Tuple
+)
+from ..core.validation import error
+from ..core.validation.errors import (
+    INCOMPATIBLE_BOX_EDIT_RENDERER, INCOMPATIBLE_POINT_DRAW_RENDERER,
+    INCOMPATIBLE_POLY_DRAW_RENDERER, INCOMPATIBLE_POLY_EDIT_RENDERER,
+    INCOMPATIBLE_POLY_EDIT_VERTEX_RENDERER
 )
 from ..model import Model
 from ..util.deprecation import deprecated
 
 from .annotations import BoxAnnotation, PolyAnnotation
 from .callbacks import Callback
-from .renderers import Renderer
+from .glyphs import XYGlyph, Rect, Patches, MultiLine
+from .renderers import Renderer, GlyphRenderer
 from .layouts import LayoutDOM
 
 
@@ -865,3 +872,227 @@ class RedoTool(Action):
         :height: 18pt
 
     '''
+
+@abstract
+class EditTool(Tool):
+    ''' A base class for all interactive draw tool types.
+
+    '''
+
+    empty_value = Either(Bool, Int, Float, Date, Datetime, Color, help="""
+    Defines the value to insert on non-coordinate columns when a new
+    glyph is inserted into the ColumnDataSource columns, e.g. when a
+    circle glyph defines 'x', 'y' and 'color' columns, adding a new
+    point will add the x and y-coordinates to 'x' and 'y' columns and
+    the color column will be filled with the defined empty value.
+    """)
+
+    renderers = List(Instance(Renderer), help="""
+    An explicit list of renderers corresponding to scatter glyphs
+    that may be edited.
+    """)
+
+class BoxEditTool(EditTool, Drag, Tap):
+    ''' *toolbar icon*: |box_draw_icon|
+
+    The BoxEditTool allows drawing, dragging and deleting ``Rect``
+    glyphs on one or more renderers by editing the underlying
+    ``ColumnDataSource`` data. Like other drawing tools, the renderers
+    that are to be edited must be supplied explicitly as a list. When
+    drawing a new box the data will always be added to the
+    ``ColumnDataSource`` on the first supplied renderer.
+
+    The tool will automatically modify the columns on the data source
+    corresponding to the ``x``, ``y``, ``width`` and ``height`` values
+    of the glyph. Any additional columns in the data source will be
+    padded with the declared ``empty_value``, when adding a new box.
+
+    The supported actions include:
+
+    * Add box: Hold shift then click and drag anywhere on the plot.
+
+    * Move box: Click and drag an existing box, the box will be
+      dropped once you let go of the mouse button.
+
+    * Delete box: Tap a box to select it then press <<backspace>> key
+      while the mouse is within the plot area.
+
+    To **Move** or **Delete** multiple boxes at once:
+
+    * Move selection: Select box(es) with <<shift>>+tap (or another
+      selection tool) then drag anywhere on the plot. Selecting and
+      then dragging on a specific box will move both.
+
+    * Delete selection: Select box(es) with <<shift>>+tap (or another
+      selection tool) then press <<backspace>> while the mouse is
+      within the plot area.
+
+    .. |box_draw_icon| image:: /_images/icons/BoxEdit.png
+        :height: 18pt
+    '''
+
+    dimensions = Enum(Dimensions, default="both", help="""
+    Which dimensions the box drawing is to be free in. By default,
+    users may freely draw boxes with any dimensions. If only "width"
+    is supplied, the box will be constrained to span the entire
+    vertical space of the plot, only the horizontal dimension can be
+    controlled. If only "height" is supplied, the box will be
+    constrained to span the entire horizontal space of the plot, and
+    the vertical dimension can be controlled.
+    """)
+
+    @error(INCOMPATIBLE_BOX_EDIT_RENDERER)
+    def _check_compatible_renderers(self):
+        incompatible_renderers = []
+        for renderer in self.renderers:
+            if not isinstance(renderer.glyph, Rect):
+                incompatible_renderers.append(renderer)
+        if incompatible_renderers:
+            glyph_types = ', '.join([type(renderer.glyph).__name__ for renderer in incompatible_renderers])
+            return "%s glyph type(s) found." % glyph_types
+
+class PointDrawTool(EditTool, Drag, Tap):
+    ''' *toolbar icon*: |point_draw_icon|
+
+    The PointDrawTool allows adding, dragging and deleting point-like
+    glyphs (of ``XYGlyph`` type) on one or more renderers by editing
+    the underlying ``ColumnDataSource`` data. Like other drawing
+    tools, the renderers that are to be edited must be supplied
+    explicitly as a list. Any newly added points will be inserted on
+    the ``ColumnDataSource`` of the first supplied renderer.
+
+    The tool will automatically modify the columns on the data source
+    corresponding to the ``x`` and ``y`` values of the glyph. Any
+    additional columns in the data source will be padded with the
+    declared ``empty_value``, when adding a new point.
+
+    The supported actions include:
+
+    * Add point: Tap anywhere on the plot
+
+    * Move point: Tap and drag an existing point, the point will be
+      dropped once you let go of the mouse button.
+
+    * Delete point: Tap a point to select it then press <<backspace>>
+      key while the mouse is within the plot area.
+
+    .. |point_draw_icon| image:: /_images/icons/PointDraw.png
+        :height: 18pt
+    '''
+
+    add = Bool(default=True, help="""
+    Enables adding of new points on tap events.""")
+
+    drag = Bool(default=True, help="""
+    Enables dragging of existing points on pan events.""")
+
+    @error(INCOMPATIBLE_POINT_DRAW_RENDERER)
+    def _check_compatible_renderers(self):
+        incompatible_renderers = []
+        for renderer in self.renderers:
+            if not isinstance(renderer.glyph, XYGlyph):
+                incompatible_renderers.append(renderer)
+        if incompatible_renderers:
+            glyph_types = ', '.join([type(renderer.glyph).__name__ for renderer in incompatible_renderers])
+            return "%s glyph type(s) found." % glyph_types
+
+class PolyDrawTool(EditTool, Drag, Tap):
+    ''' *toolbar icon*: |poly_draw_icon|
+
+    The PolyDrawTool allows drawing, selecting and deleting
+    ``Patches`` and ``MultiLine`` glyphs on one or more renderers by
+    editing the underlying ColumnDataSource data. Like other drawing
+    tools, the renderers that are to be edited must be supplied
+    explicitly as a list.
+
+    The tool will automatically modify the columns on the data source
+    corresponding to the ``xs`` and ``ys`` values of the glyph. Any
+    additional columns in the data source will be padded with the
+    declared ``empty_value``, when adding a new point.
+
+    The supported actions include:
+
+    * Add patch/multi-line: Double tap to add the first vertex, then
+      use tap to add each subsequent vertex, to finalize the draw
+      action double tap to insert the final vertex or press the <<esc>
+      key.
+
+    * Move patch/multi-line: Tap and drag an existing
+      patch/multi-line, the point will be dropped once you let go of
+      the mouse button.
+
+    * Delete patch/multi-line: Tap a patch/multi-line to select it
+      then press <<backspace>> key while the mouse is within the plot
+      area.
+
+    .. |poly_draw_icon| image:: /_images/icons/PolyDraw.png
+        :height: 18pt
+    '''
+
+    drag = Bool(default=True, help="""
+    Enables dragging of existing patches and multi-lines on pan events.""")
+
+    @error(INCOMPATIBLE_POLY_DRAW_RENDERER)
+    def _check_compatible_renderers(self):
+        incompatible_renderers = []
+        for renderer in self.renderers:
+            if not isinstance(renderer.glyph, (MultiLine, Patches)):
+                incompatible_renderers.append(renderer)
+        if incompatible_renderers:
+            glyph_types = ', '.join([type(renderer.glyph).__name__ for renderer in incompatible_renderers])
+            return "%s glyph type(s) found." % glyph_types
+
+
+class PolyEditTool(EditTool, Drag, Tap):
+    ''' *toolbar icon*: |poly_edit_icon|
+
+    The PolyEditTool allows editing the vertices of one or more
+    ``Patches`` or ``MultiLine`` glyphs. The glyphs to be edited can
+    be defined via the ``renderers`` property and the renderer for the
+    vertices can be defined via the ``vertex_renderer``, which must
+    render a point-like Glyph (of ``XYGlyph`` type).
+
+    The tool will automatically modify the columns on the data source
+    corresponding to the ``xs`` and ``ys`` values of the glyph. Any
+    additional columns in the data source will be padded with the
+    declared ``empty_value``, when adding a new point.
+
+    The supported actions include:
+
+    * Show vertices: Double tap an existing patch or multi-line
+
+    * Add vertex: Double tap an existing vertex to select it, the tool
+      will draw the next point, to add it tap in a new location. To
+      finish editing and add a point double tap otherwise press the
+      <<esc> key to cancel.
+
+    * Move vertex: Drag an existing vertex and let go of the mouse
+      button to release it.
+
+    * Delete vertex: After selecting one or more vertices press
+      <<backspace>> while the mouse cursor is within the plot area.
+
+    .. |poly_edit_icon| image:: /_images/icons/PolyEdit.png
+        :height: 18pt
+    '''
+
+    vertex_renderer = Instance(GlyphRenderer, help="""
+    The renderer used to render the vertices of a selected line or
+    polygon.""")
+
+    @error(INCOMPATIBLE_POLY_EDIT_VERTEX_RENDERER)
+    def _check_compatible_vertex_renderer(self):
+        glyph = self.vertex_renderer.glyph
+        if not isinstance(glyph, XYGlyph):
+            return "glyph type %s found." % type(glyph).__name__
+
+    @error(INCOMPATIBLE_POLY_EDIT_RENDERER)
+    def _check_compatible_renderers(self):
+        incompatible_renderers = []
+        for renderer in self.renderers:
+            if not isinstance(renderer.glyph, (MultiLine, Patches)):
+                incompatible_renderers.append(renderer)
+        if incompatible_renderers:
+            glyph_types = ', '.join([type(renderer.glyph).__name__
+                                     for renderer in incompatible_renderers])
+            return "%s glyph type(s) found." % glyph_types

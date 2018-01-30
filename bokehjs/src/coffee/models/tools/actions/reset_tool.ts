@@ -2,7 +2,6 @@ import {ActionTool, ActionToolView} from "./action_tool"
 import {Reset} from "core/bokeh_events"
 
 export class ResetToolView extends ActionToolView {
-
   model: ResetTool
 
   doit(): void {
@@ -13,15 +12,24 @@ export class ResetToolView extends ActionToolView {
   }
 }
 
+export namespace ResetTool {
+  export interface Attrs extends ActionTool.Attrs {}
+
+  export interface Opts extends ActionTool.Opts {}
+}
+
+export interface ResetTool extends ResetTool.Attrs {}
+
 export class ResetTool extends ActionTool {
+
+  constructor(attrs?: Partial<ResetTool.Attrs>, opts?: ResetTool.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "ResetTool"
-
     this.prototype.default_view = ResetToolView
   }
-
-  reset_size: boolean
 
   tool_name = "Reset"
   icon = "bk-tool-icon-reset"

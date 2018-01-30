@@ -1,6 +1,7 @@
 /* XXX: partial */
 import {Tile} from "./tile_source"
 import {ImagePool} from "./image_pool";
+import {TileSource} from "./tile_source"
 import {WMTSTileSource} from "./wmts_tile_source";
 import {Renderer, RendererView} from "../renderers/renderer";
 import {div} from "core/dom";
@@ -9,6 +10,7 @@ import {includes} from "core/util/array";
 import {isString} from "core/util/types"
 
 export class TileRendererView extends RendererView {
+  model: TileRenderer
 
   initialize(options: any): void {
     this.attributionEl = null;
@@ -125,7 +127,8 @@ export class TileRendererView extends RendererView {
     };
 
     this.model.tile_source.tiles[tile.tile_data.cache_key] = tile.tile_data;
-    tile.src = this.model.tile_source.get_image_url(...normalized_coords || []);
+    const [nx, ny, nz] = normalized_coords
+    tile.src = this.model.tile_source.get_image_url(nx, ny, nz);
 
     this._tiles.push(tile);
     return tile;
@@ -188,20 +191,16 @@ export class TileRendererView extends RendererView {
     }
   }
 
-  _draw_tile(tile_key) {
+  _draw_tile(tile_key: string): void {
     const tile_obj = this.model.tile_source.tiles[tile_key];
     if (tile_obj != null) {
-      let [sxmin, symin] = this.plot_view.map_to_screen([tile_obj.bounds[0]], [tile_obj.bounds[3]]);
-      let [sxmax, symax] = this.plot_view.map_to_screen([tile_obj.bounds[2]], [tile_obj.bounds[1]]);
-      sxmin = sxmin[0];
-      symin = symin[0];
-      sxmax = sxmax[0];
-      symax = symax[0];
+      const [[sxmin], [symin]] = this.plot_view.map_to_screen([tile_obj.bounds[0]], [tile_obj.bounds[3]]);
+      const [[sxmax], [symax]] = this.plot_view.map_to_screen([tile_obj.bounds[2]], [tile_obj.bounds[1]]);
       const sw = sxmax - sxmin;
       const sh = symax - symin;
       const sx = sxmin;
       const sy = symin;
-      return this.map_canvas.drawImage(tile_obj.img, sx, sy, sw, sh);
+      this.map_canvas.drawImage(tile_obj.img, sx, sy, sw, sh);
     }
   }
 
@@ -343,18 +342,37 @@ export class TileRendererView extends RendererView {
   }
 }
 
+export namespace TileRenderer {
+  export interface Attrs extends Renderer.Attrs {
+    alpha: number
+    x_range_name: string
+    y_range_name: string
+    tile_source: TileSource
+    render_parents: boolean
+  }
+
+  export interface Opts extends Renderer.Opts {}
+}
+
+export interface TileRenderer extends TileRenderer.Attrs {}
+
 export class TileRenderer extends Renderer {
+
+  constructor(attrs?: Partial<TileRenderer.Attrs>, opts?: TileRenderer.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
-    this.prototype.default_view = TileRendererView;
     this.prototype.type = 'TileRenderer';
+    this.prototype.default_view = TileRendererView;
 
     this.define({
-        alpha:          [ p.Number,   1.0              ],
-        x_range_name:   [ p.String,   "default"        ],
-        y_range_name:   [ p.String,   "default"        ],
-        tile_source:    [ p.Instance, () => new WMTSTileSource() ],
-        render_parents: [ p.Bool,     true             ],
-      });
+      alpha:          [ p.Number,   1.0              ],
+      x_range_name:   [ p.String,   "default"        ],
+      y_range_name:   [ p.String,   "default"        ],
+      tile_source:    [ p.Instance, () => new WMTSTileSource() ],
+      render_parents: [ p.Bool,     true             ],
+    });
 
     this.override({
       level: 'underlay',

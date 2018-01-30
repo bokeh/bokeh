@@ -1,19 +1,28 @@
 /* XXX: partial */
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS206: Consider reworking classes to avoid initClass
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
-
 import {Transform} from "./transform";
 import * as p from "core/properties";
 import {values} from "core/util/object"
 
 declare var exports: {[key: string]: any}
 
+export namespace CustomJSTransform {
+  export interface Attrs extends Transform.Attrs {
+    args: {[key: string]: any}
+    func: string
+    v_func: string
+  }
+
+  export interface Opts extends Transform.Opts {}
+}
+
+export interface CustomJSTransform extends CustomJSTransform.Attrs {}
+
 export class CustomJSTransform extends Transform {
+
+  constructor(attrs?: Partial<CustomJSTransform.Attrs>, opts?: CustomJSTransform.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'CustomJSTransform';
 

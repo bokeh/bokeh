@@ -30,7 +30,22 @@ export class MarkupView extends WidgetView {
   }
 }
 
+export namespace Markup {
+  export interface Attrs extends Widget.Attrs {
+    text: string
+    style: {[key: string]: string}
+  }
+
+  export interface Opts extends Widget.Opts {}
+}
+
+export interface Markup extends Markup.Attrs {}
+
 export class Markup extends Widget {
+
+  constructor(attrs?: Partial<Markup.Attrs>, opts?: Markup.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "Markup"

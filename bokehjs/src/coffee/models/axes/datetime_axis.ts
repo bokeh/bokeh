@@ -2,13 +2,29 @@ import {LinearAxis, LinearAxisView} from "./linear_axis"
 import {DatetimeTickFormatter} from "../formatters/datetime_tick_formatter"
 import {DatetimeTicker} from "../tickers/datetime_ticker"
 
-export class DatetimeAxisView extends LinearAxisView {}
+export class DatetimeAxisView extends LinearAxisView {
+  model: DatetimeAxis
+}
+
+export namespace DatetimeAxis {
+  export interface Attrs extends LinearAxis.Attrs {
+    // XXX: ticker:    DatetimeTicker
+    // XXX: formatter: DatetimeTickFormatter
+  }
+
+  export interface Opts extends LinearAxis.Opts {}
+}
+
+export interface DatetimeAxis extends DatetimeAxis.Attrs {}
 
 export class DatetimeAxis extends LinearAxis {
 
+  constructor(attrs?: Partial<DatetimeAxis.Attrs>, opts?: DatetimeAxis.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "DatetimeAxis"
-
     this.prototype.default_view = DatetimeAxisView
 
     this.override({
@@ -16,10 +32,5 @@ export class DatetimeAxis extends LinearAxis {
       formatter: () => new DatetimeTickFormatter(),
     })
   }
-
-  // XXX
-  //ticker:    DatetimeTicker
-  //formatter: DatetimeTickFormatter
 }
-
 DatetimeAxis.initClass()

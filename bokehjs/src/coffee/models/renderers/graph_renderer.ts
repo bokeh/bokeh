@@ -1,11 +1,11 @@
 /* XXX: partial */
-import {Renderer, RendererView} from "../renderers/renderer";
-import {GlyphRenderer, GlyphRendererView} from "../renderers/glyph_renderer"
-import {NodesOnly} from "../graphs/graph_hit_test_policy";
-import {SelectionManager} from "core/selection_manager"
-
+import {Renderer, RendererView} from "./renderer"
+import {GlyphRenderer, GlyphRendererView} from "./glyph_renderer"
+import {LayoutProvider} from "../graphs/layout_provider"
+import {GraphHitTestPolicy, NodesOnly} from "../graphs/graph_hit_test_policy";
 import * as p from "core/properties";
 import {build_views} from "core/build_views";
+import {SelectionManager} from "core/selection_manager"
 
 export class GraphRendererView extends RendererView {
   node_view: GlyphRendererView
@@ -73,34 +73,41 @@ export class GraphRendererView extends RendererView {
 
 }
 
+export namespace GraphRenderer {
+  export interface Attrs extends Renderer.Attrs {
+    x_range_name: string;
+    y_range_name: string
+    layout_provider: LayoutProvider
+    node_renderer: GlyphRenderer
+    edge_renderer: GlyphRenderer
+    selection_policy: GraphHitTestPolicy
+    inspection_policy: GraphHitTestPolicy
+  }
+
+  export interface Opts extends Renderer.Opts {}
+}
+
+export interface GraphRenderer extends GraphRenderer.Attrs {}
 
 export class GraphRenderer extends Renderer {
 
-  x_range_name: string;
-  y_range_name: string
-  node_renderer: GlyphRenderer
-  edge_renderer: GlyphRenderer
-  /*
-  layout_provider:
-  selection_policy:
-  inspection_policy:
-  */
-  ;
+  constructor(attrs?: Partial<GraphRenderer.Attrs>, opts?: GraphRenderer.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
-
-    this.prototype.default_view = GraphRendererView;
     this.prototype.type = 'GraphRenderer';
+    this.prototype.default_view = GraphRendererView;
 
     this.define({
-        x_range_name:       [ p.String,        'default'              ],
-        y_range_name:       [ p.String,        'default'              ],
-        layout_provider:    [ p.Instance                              ],
-        node_renderer:      [ p.Instance                              ],
-        edge_renderer:      [ p.Instance                              ],
-        selection_policy:   [ p.Instance,      () => new NodesOnly()  ],
-        inspection_policy:  [ p.Instance,      () => new NodesOnly()  ],
-      });
+      x_range_name:       [ p.String,        'default'              ],
+      y_range_name:       [ p.String,        'default'              ],
+      layout_provider:    [ p.Instance                              ],
+      node_renderer:      [ p.Instance                              ],
+      edge_renderer:      [ p.Instance                              ],
+      selection_policy:   [ p.Instance,      () => new NodesOnly()  ],
+      inspection_policy:  [ p.Instance,      () => new NodesOnly()  ],
+    });
 
     this.override({
       level: 'glyph',

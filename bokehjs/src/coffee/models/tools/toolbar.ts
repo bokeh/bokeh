@@ -3,6 +3,7 @@ import * as p from "core/properties";
 import {any, sortBy, includes} from "core/util/array";
 import {logger} from "core/logging";
 
+import {Tool} from "./tool"
 import {ActionTool} from "./actions/action_tool";
 import {HelpTool} from "./actions/help_tool";
 import {GestureTool} from "./gestures/gesture_tool";
@@ -10,16 +11,40 @@ import {InspectTool} from "./inspectors/inspect_tool";
 
 import {ToolbarBase, ToolbarBaseView} from "./toolbar_base"
 
+// XXX: add appropriate base classes to get rid of this
+export type Drag = Tool
+export type Inspection = Tool
+export type Scroll = Tool
+export type Tap = Tool
+
+export namespace Toolbar {
+  export interface Attrs extends ToolbarBase.Attrs {
+    active_drag: Drag | "auto"
+    active_inspect: Inspection | Inspection[] | "auto"
+    active_scroll: Scroll | "auto"
+    active_tap: Tap | "auto"
+  }
+
+  export interface Opts extends ToolbarBase.Opts {}
+}
+
+export interface Toolbar extends Toolbar.Attrs {}
+
 export class Toolbar extends ToolbarBase {
+
+  constructor(attrs?: Partial<Toolbar.Attrs>, opts?: Toolbar.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'Toolbar';
     this.prototype.default_view = ToolbarBaseView; // XXX
 
     this.define({
-        active_drag:     [ p.Any, 'auto' ],
-        active_inspect:  [ p.Any, 'auto' ],
-        active_scroll:   [ p.Any, 'auto' ],
-        active_tap:      [ p.Any, 'auto' ],
+      active_drag:     [ p.Any, 'auto' ],
+      active_inspect:  [ p.Any, 'auto' ],
+      active_scroll:   [ p.Any, 'auto' ],
+      active_tap:      [ p.Any, 'auto' ],
     });
   }
 

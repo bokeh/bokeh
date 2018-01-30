@@ -1,18 +1,27 @@
 /* XXX: partial */
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS206: Consider reworking classes to avoid initClass
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
-
 import {Interpolator} from "./interpolator";
+import {StepMode} from "core/enums"
 import * as p from "core/properties";
 import {min, findIndex, findLastIndex} from "core/util/array"
 
+export namespace StepInterpolator {
+  export interface Attrs extends Interpolator.Attrs {
+    mode: StepMode
+  }
+
+  export interface Opts extends Interpolator.Opts {}
+}
+
+export interface StepInterpolator extends StepInterpolator.Attrs {}
 
 export class StepInterpolator extends Interpolator {
+
+  constructor(attrs?: Partial<StepInterpolator.Attrs>, opts?: StepInterpolator.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
+    this.prototype.type = "StepInterpolator"
 
     this.define({
       mode: [ p.StepMode, "after"],

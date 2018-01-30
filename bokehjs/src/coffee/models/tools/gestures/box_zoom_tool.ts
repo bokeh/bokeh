@@ -12,7 +12,6 @@ export interface BkEv {
 }
 
 export class BoxZoomToolView extends GestureToolView {
-
   model: BoxZoomTool
 
   protected _base_point: [number, number] | null
@@ -172,11 +171,26 @@ const DEFAULT_BOX_OVERLAY = () => {
   })
 }
 
+export namespace BoxZoomTool {
+  export interface Attrs extends GestureTool.Attrs {
+    dimensions: Dimensions
+    overlay: BoxAnnotation
+    match_aspect: boolean
+  }
+
+  export interface Opts extends GestureTool.Opts {}
+}
+
+export interface BoxZoomTool extends BoxZoomTool.Attrs {}
+
 export class BoxZoomTool extends GestureTool {
+
+  constructor(attrs?: Partial<BoxZoomTool.Attrs>, opts?: BoxZoomTool.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "BoxZoomTool"
-
     this.prototype.default_view = BoxZoomToolView
 
     this.define({
@@ -185,10 +199,6 @@ export class BoxZoomTool extends GestureTool {
       match_aspect: [ p.Bool,     false               ],
     })
   }
-
-  dimensions: Dimensions
-  overlay: BoxAnnotation
-  match_aspect: boolean
 
   tool_name = "Box Zoom"
   icon = "bk-tool-icon-box-zoom"

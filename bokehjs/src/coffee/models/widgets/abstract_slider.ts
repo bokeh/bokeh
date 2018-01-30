@@ -2,6 +2,7 @@
 import * as noUiSlider from "nouislider"
 
 import * as p from "core/properties"
+import {Color} from "core/types"
 import {label, div} from "core/dom"
 import {logger} from "core/logging"
 import {repeat} from "core/util/array"
@@ -192,7 +193,34 @@ export abstract class AbstractSliderView extends WidgetView {
   }
 }
 
+export namespace AbstractSlider {
+  export interface Attrs extends Widget.Attrs {
+    title: string
+    show_value: boolean
+    start: any // XXX
+    end: any // XXX
+    value: any // XXX
+    step: number
+    format: string
+    orientation: Orientation
+    direction: "ltr" | "rtl"
+    tooltips: boolean
+    callback: any // XXX
+    callback_throttle: number
+    callback_policy: SliderCallbackPolicy
+    bar_color: Color
+  }
+
+  export interface Opts extends Widget.Opts {}
+}
+
+export interface AbstractSlider extends AbstractSlider.Attrs {}
+
 export abstract class AbstractSlider extends Widget {
+
+  constructor(attrs?: Partial<AbstractSlider.Attrs>, opts?: AbstractSlider.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "AbstractSlider"
@@ -215,23 +243,8 @@ export abstract class AbstractSlider extends Widget {
     })
   }
 
-  title: string
-  show_value: boolean
-  start: any // XXX
-  end: any // XXX
-  value: any // XXX
-  step: number
-  format: string
-  orientation: Orientation
-  direction: "ltr" | "rtl"
-  tooltips: boolean
-  callback: any // XXX
-  callback_throttle: number
-  callback_policy: SliderCallbackPolicy
-  bar_color: any // XXX: Color
-
-  behaviour = null
-  connected = false
+  behaviour: "drag" | "tap"
+  connected: false | boolean[] = false
 
   _formatter = (value, _format) => {
     return `${value}`

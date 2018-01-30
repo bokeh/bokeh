@@ -3,13 +3,29 @@ import {Filter} from "./filter";
 import * as p from "core/properties";
 import {values} from "core/util/object"
 
+export namespace CustomJSFilter {
+  export interface Attrs extends Filter.Attrs {
+    args: {[key: string]: any}
+    code: string
+  }
+
+  export interface Opts extends Filter.Opts {}
+}
+
+export interface CustomJSFilter extends CustomJSFilter.Attrs {}
+
 export class CustomJSFilter extends Filter {
+
+  constructor(attrs?: Partial<CustomJSFilter.Attrs>, opts?: CustomJSFilter.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'CustomJSFilter';
 
     this.define({
-        args: [ p.Any,    {} ], // TODO (bev) better type
-        code: [ p.String, '' ],
+      args: [ p.Any,    {} ], // TODO (bev) better type
+      code: [ p.String, '' ],
     });
   }
 
@@ -21,9 +37,9 @@ export class CustomJSFilter extends Filter {
     return this._make_func()
   }
 
-  compute_indices(source) {
+  compute_indices(source): any {
     this.filter = this.func(...this.values, source, require, {});
-    return super.compute_indices();
+    return super.compute_indices(source);
   }
 
   _make_values() { return values(this.args); }

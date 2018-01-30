@@ -11,9 +11,21 @@ import {SelectionPolicy, UnionRenderers} from "../selections/interaction_policy"
 
 // Abstract baseclass for column based data sources, where the column
 // based data may be supplied directly or be computed from an attribute
-export class ColumnarDataSource extends DataSource {
 
-  data: {[key: string]: any}
+export namespace ColumnarDataSource {
+  export interface Attrs extends DataSource.Attrs {
+    column_names: string[]
+    selection_manager: SelectionManager
+  }
+
+  export interface Opts extends DataSource.Opts {}
+}
+
+export interface ColumnarDataSource extends ColumnarDataSource.Attrs {}
+
+export abstract class ColumnarDataSource extends DataSource {
+
+  data: {[key: string]: any[]}
   _shapes: {[key: string]: any}
 
   _select: Signal<any, this>
@@ -25,6 +37,10 @@ export class ColumnarDataSource extends DataSource {
   inspected: Selection
   selection_policy: SelectionPolicy
   selection_manager: SelectionManager
+
+  constructor(attrs?: Partial<ColumnarDataSource.Attrs>, opts?: ColumnarDataSource.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = 'ColumnarDataSource'

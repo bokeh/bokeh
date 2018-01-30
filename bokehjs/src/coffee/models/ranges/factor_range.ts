@@ -96,7 +96,36 @@ export function map_three_levels(factors: L3Factor[],
   return [mapping, tops_order, mids_order, (tops_order.length-1)*outer_pad + total_subpad]
 }
 
+export namespace FactorRange {
+  export interface Attrs extends Range.Attrs {
+    factors: Factor[]
+    factor_padding: number
+    subgroup_padding: number
+    group_padding: number
+    range_padding: number
+    range_padding_units: PaddingUnits
+    start: number
+    end: number
+    bounds: [number, number] | "auto"
+    min_interval: any // XXX: what's this
+    max_interval: any // XXX: what's this
+
+    levels: number
+    mids: [string, string][] | undefined
+    tops: string[] | undefined
+    tops_groups: string[]
+  }
+
+  export interface Opts extends Range.Opts {}
+}
+
+export interface FactorRange extends FactorRange.Attrs {}
+
 export class FactorRange extends Range {
+
+  constructor(attrs?: Partial<FactorRange.Attrs>, opts?: FactorRange.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "FactorRange"
@@ -122,23 +151,6 @@ export class FactorRange extends Range {
       tops_groups: [ p.Array  ], // ordered list of full factors for each top level factor in tops
     })
   }
-
-  factors: Factor[]
-  factor_padding: number
-  subgroup_padding: number
-  group_padding: number
-  range_padding: number
-  range_padding_units: PaddingUnits
-  start: number
-  end: number
-  bounds: [number, number] | "auto"
-  min_interval: any // XXX: what's this
-  max_interval: any // XXX: what's this
-
-  levels: number
-  mids: [string, string][] | undefined
-  tops: string[] | undefined
-  tops_groups: string[]
 
   protected _mapping: L1Mapping | L2Mapping | L3Mapping
 

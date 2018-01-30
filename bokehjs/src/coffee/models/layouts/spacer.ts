@@ -3,6 +3,7 @@ import {extend} from "core/util/object"
 import {Variable} from "core/layout/solver"
 
 export class SpacerView extends LayoutDOMView {
+  model: Spacer
 
   render() {
     super.render()
@@ -26,7 +27,19 @@ export class SpacerView extends LayoutDOMView {
   }
 }
 
+export namespace Spacer {
+  export interface Attrs extends LayoutDOM.Attrs {}
+
+  export interface Opts extends LayoutDOM.Opts {}
+}
+
+export interface Spacer extends Spacer.Attrs {}
+
 export class Spacer extends LayoutDOM {
+
+  constructor(attrs?: Partial<Spacer.Attrs>, opts?: Spacer.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "Spacer"
@@ -52,5 +65,4 @@ export class Spacer extends LayoutDOM {
     })
   }
 }
-
 Spacer.initClass()

@@ -17,7 +17,21 @@ export class DivView extends MarkupView {
   }
 }
 
+export namespace Div {
+  export interface Attrs extends Markup.Attrs {
+    render_as_text: boolean
+  }
+
+  export interface Opts extends Markup.Opts {}
+}
+
+export interface Div extends Div.Attrs {}
+
 export class Div extends Markup {
+
+  constructor(attrs?: Partial<Div.Attrs>, opts?: Div.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "Div"

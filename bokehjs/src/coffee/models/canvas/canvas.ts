@@ -1,5 +1,4 @@
 import {LayoutCanvas} from "core/layout/layout_canvas"
-
 import {DOMView} from "core/dom_view"
 import {EQ, Constraint} from "core/layout/solver"
 import {logger} from "core/logging"
@@ -21,7 +20,6 @@ if ((window as any).CanvasPixelArray != null) {
 }
 
 export class CanvasView extends DOMView {
-
   model: Canvas
 
   private _ctx: any
@@ -126,11 +124,27 @@ export class CanvasView extends DOMView {
   }
 }
 
+export namespace Canvas {
+  export interface Attrs extends LayoutCanvas.Attrs {
+    map: boolean
+    use_hidpi: boolean
+    pixel_ratio: number
+    output_backend: OutputBackend
+  }
+
+  export interface Opts extends LayoutCanvas.Opts {}
+}
+
+export interface Canvas extends Canvas.Attrs {}
+
 export class Canvas extends LayoutCanvas {
+
+  constructor(attrs?: Partial<Canvas.Attrs>, opts?: Canvas.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "Canvas"
-
     this.prototype.default_view = CanvasView
 
     this.internal({
@@ -141,14 +155,8 @@ export class Canvas extends LayoutCanvas {
     })
   }
 
-  map: boolean
-  use_hidpi: boolean
-  pixel_ratio: number
-  output_backend: OutputBackend
-
   get panel() {
     return this
   }
 }
-
 Canvas.initClass()

@@ -4,6 +4,7 @@ import {uniqueId} from "core/util/string"
 import * as p from "core/properties"
 
 import {Widget, WidgetView} from "./widget"
+import {ButtonType} from "./abstract_button"
 
 export class RadioButtonGroupView extends WidgetView {
   model: RadioButtonGroup
@@ -55,7 +56,24 @@ export class RadioButtonGroupView extends WidgetView {
   }
 }
 
+export namespace RadioButtonGroup {
+  export interface Attrs extends Widget.Attrs {
+    active: number[]
+    labels: string[]
+    button_type: ButtonType
+    callback: any // XXX
+  }
+
+  export interface Opts extends Widget.Opts {}
+}
+
+export interface RadioButtonGroup extends RadioButtonGroup.Attrs {}
+
 export class RadioButtonGroup extends Widget {
+
+  constructor(attrs?: Partial<RadioButtonGroup.Attrs>, opts?: RadioButtonGroup.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "RadioButtonGroup"

@@ -4,6 +4,7 @@ import * as p from "core/properties";
 import * as bbox from "core/util/bbox";
 import * as proj from "core/util/projections";
 import {Geometry, RectGeometry} from "core/geometry";
+import {Context2d} from "core/util/canvas"
 import {View} from "core/view";
 import {Model} from "../../model";
 import {Visuals} from "core/visuals";
@@ -13,7 +14,8 @@ import {isArray} from "core/util/types";
 import {LineView} from "./line";
 import {Selection} from "models/selections/selection";
 
-export class GlyphView extends View {
+export abstract class GlyphView extends View {
+  model: Glyph
 
   initialize(options: any): void {
     super.initialize(options);
@@ -57,7 +59,7 @@ export class GlyphView extends View {
     }
   }
 
-  render(ctx, indices, data) {
+  render(ctx: Context2d, indices, data) {
     ctx.beginPath();
 
     if (this.glglyph != null) {
@@ -193,7 +195,7 @@ export class GlyphView extends View {
     return null;
   }
 
-  _generic_line_legend(ctx, x0, x1, y0, y1, index) {
+  _generic_line_legend(ctx: Context2d, x0, x1, y0, y1, index) {
     ctx.save();
     ctx.beginPath();
     ctx.moveTo(x0, (y0 + y1) /2);
@@ -205,7 +207,7 @@ export class GlyphView extends View {
     return ctx.restore();
   }
 
-  _generic_area_legend(ctx, x0, x1, y0, y1, index) {
+  _generic_area_legend(ctx: Context2d, x0, x1, y0, y1, index) {
     const w = Math.abs(x1-x0);
     const dw = w*0.1;
     const h = Math.abs(y1-y0);
@@ -353,14 +355,31 @@ export class GlyphView extends View {
   }
 }
 
-export class Glyph extends Model {
+export namespace Glyph {
+  export interface Attrs extends Model.Attrs {
+    x_range_name: string
+    y_range_name: string
+  }
+
+  export interface Opts extends Model.Opts {}
+}
+
+export interface Glyph extends Glyph.Attrs {}
+
+export abstract class Glyph extends Model {
+
+  constructor(attrs?: Partial<Glyph.Attrs>, opts?: Glyph.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
+    this.prototype.type = 'Glyph';
 
     this.prototype._coords = [];
 
     this.internal({
-      x_range_name: [ p.String,      'default' ],
-      y_range_name: [ p.String,      'default' ],
+      x_range_name: [ p.String, 'default' ],
+      y_range_name: [ p.String, 'default' ],
     });
   }
 

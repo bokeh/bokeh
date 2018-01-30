@@ -1,7 +1,21 @@
 import {ContinuousTicker} from "./continuous_ticker"
 import * as p from "core/properties"
 
+export namespace FixedTicker {
+  export interface Attrs extends ContinuousTicker.Attrs {
+    ticks: number[]
+  }
+
+  export interface Opts extends ContinuousTicker.Opts {}
+}
+
+export interface FixedTicker extends FixedTicker.Attrs {}
+
 export class FixedTicker extends ContinuousTicker {
+
+  constructor(attrs?: Partial<FixedTicker.Attrs>, opts?: FixedTicker.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "FixedTicker"
@@ -10,8 +24,6 @@ export class FixedTicker extends ContinuousTicker {
       ticks: [ p.Array, [] ],
     })
   }
-
-  ticks: number[]
 
   get_ticks_no_defaults(_data_low: number, _data_high: number, _cross_loc: any, _desired_n_ticks: number) {
     return {

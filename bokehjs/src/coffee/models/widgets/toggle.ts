@@ -18,7 +18,21 @@ export class ToggleView extends AbstractButtonView {
   }
 }
 
+export namespace Toggle {
+  export interface Attrs extends AbstractButton.Attrs {
+    active: boolean
+  }
+
+  export interface Opts extends AbstractButton.Opts {}
+}
+
+export interface Toggle extends Toggle.Attrs {}
+
 export class Toggle extends AbstractButton {
+
+  constructor(attrs?: Partial<Toggle.Attrs>, opts?: Toggle.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "Toggle"

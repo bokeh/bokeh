@@ -11,21 +11,43 @@ export interface Tile {
   retain: boolean
 }
 
+export namespace TileSource {
+  export interface Attrs extends Model.Attrs {
+    url: string
+    tile_size: number
+    max_zoom: number
+    min_zoom: number
+    extra_url_vars: {[key: string]: string}
+    attribution: string
+    x_origin_offset: number
+    y_origin_offset: number
+    initial_resolution: number
+  }
+
+  export interface Opts extends Model.Opts {}
+}
+
+export interface TileSource extends TileSource.Attrs {}
+
 export abstract class TileSource extends Model {
+
+  constructor(attrs?: Partial<TileSource.Attrs>, opts?: TileSource.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = 'TileSource';
 
     this.define({
-        url:            [ p.String, ''  ],
-        tile_size:      [ p.Number, 256 ],
-        max_zoom:       [ p.Number, 30  ],
-        min_zoom:       [ p.Number, 0   ],
-        extra_url_vars: [ p.Any,    {}  ],
-        attribution:    [ p.String, ''  ],
-        x_origin_offset:    [ p.Number ],
-        y_origin_offset:    [ p.Number ],
-        initial_resolution: [ p.Number ],
+      url:                [ p.String, ''  ],
+      tile_size:          [ p.Number, 256 ],
+      max_zoom:           [ p.Number, 30  ],
+      min_zoom:           [ p.Number, 0   ],
+      extra_url_vars:     [ p.Any,    {}  ],
+      attribution:        [ p.String, ''  ],
+      x_origin_offset:    [ p.Number      ],
+      y_origin_offset:    [ p.Number      ],
+      initial_resolution: [ p.Number      ],
     });
   }
 

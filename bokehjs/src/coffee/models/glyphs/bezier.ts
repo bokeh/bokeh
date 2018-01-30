@@ -1,6 +1,9 @@
 /* XXX: partial */
-import {RBush} from "core/util/spatial";
-import {Glyph, GlyphView} from "./glyph";
+import {NumberSpec} from "core/vectorization"
+import {LineMixinVector} from "core/property_mixins"
+import {RBush} from "core/util/spatial"
+import {Context2d} from "core/util/canvas"
+import {Glyph, GlyphView} from "./glyph"
 
 // algorithm adapted from http://stackoverflow.com/a/14429749/3406693
 const _cbb = function(x0, y0, x1, y1, x2, y2, x3, y3) {
@@ -54,11 +57,9 @@ const _cbb = function(x0, y0, x1, y1, x2, y2, x3, y3) {
   while (j--) {
     t = tvalues[j];
     const mt = 1 - t;
-    const x = ((mt * mt * mt * x0) + (3 * mt * mt * t * x1) + (3 * mt * t * t * x2) +
-         (t * t * t * x3));
+    const x = ((mt * mt * mt * x0) + (3 * mt * mt * t * x1) + (3 * mt * t * t * x2) + (t * t * t * x3));
     bounds[0][j] = x;
-    const y = ((mt * mt * mt * y0) + (3 * mt * mt * t * y1) + (3 * mt * t * t * y2) +
-         (t * t * t * y3));
+    const y = ((mt * mt * mt * y0) + (3 * mt * mt * t * y1) + (3 * mt * t * t * y2) + (t * t * t * y3));
     bounds[1][j] = y;
   }
 
@@ -76,6 +77,7 @@ const _cbb = function(x0, y0, x1, y1, x2, y2, x3, y3) {
 };
 
 export class BezierView extends GlyphView {
+  model: Bezier
 
   _index_data() {
     const points = [];
@@ -91,7 +93,7 @@ export class BezierView extends GlyphView {
     return new RBush(points);
   }
 
-  _render(ctx, indices, {sx0, sy0, sx1, sy1, scx0, scy0, scx1, scy1}) {
+  _render(ctx: Context2d, indices, {sx0, sy0, sx1, sy1, scx0, scy0, scx1, scy1}) {
     if (this.visuals.line.doit) {
       for (const i of indices) {
         if (isNaN(sx0[i]+sy0[i]+sx1[i]+sy1[i]+scx0[i]+scy0[i]+scx1[i]+scy1[i])) {
@@ -108,18 +110,41 @@ export class BezierView extends GlyphView {
     }
   }
 
-  draw_legend_for_index(ctx, x0, x1, y0, y1, index) {
+  draw_legend_for_index(ctx: Context2d, x0, x1, y0, y1, index) {
     return this._generic_line_legend(ctx, x0, x1, y0, y1, index);
   }
 }
 
+export namespace Bezier {
+  export interface Mixins extends LineMixinVector {}
+
+  export interface Attrs extends Glyph.Attrs, Mixins {
+    x0: NumberSpec
+    y0: NumberSpec
+    x1: NumberSpec
+    y1: NumberSpec
+    cx0: NumberSpec
+    cy0: NumberSpec
+    cx1: NumberSpec
+    cy1: NumberSpec
+  }
+
+  export interface Opts extends Glyph.Opts {}
+}
+
+export interface Bezier extends Bezier.Attrs {}
+
 export class Bezier extends Glyph {
+
+  constructor(attrs?: Partial<Bezier.Attrs>, opts?: Bezier.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
+    this.prototype.type = 'Bezier';
     this.prototype.default_view = BezierView;
 
-    this.prototype.type = 'Bezier';
-
-    this.coords([ ['x0', 'y0'], ['x1', 'y1'], ['cx0', 'cy0'], ['cx1', 'cy1'] ]);
+    this.coords([['x0', 'y0'], ['x1', 'y1'], ['cx0', 'cy0'], ['cx1', 'cy1']]);
     this.mixins(['line']);
   }
 }

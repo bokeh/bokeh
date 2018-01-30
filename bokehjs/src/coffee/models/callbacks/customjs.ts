@@ -3,7 +3,23 @@ import * as p from "core/properties";
 import {values} from "core/util/object";
 import {Model} from "../../model"
 
+export namespace CustomJS {
+  export interface Attrs extends Model.Attrs {
+    args: {[key: string]: any}
+    code: string
+  }
+
+  export interface Opts extends Model.Opts {}
+}
+
+export interface CustomJS extends CustomJS.Attrs {}
+
 export class CustomJS extends Model {
+
+  constructor(attrs?: Partial<CustomJS.Attrs>, opts?: CustomJS.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'CustomJS';
 

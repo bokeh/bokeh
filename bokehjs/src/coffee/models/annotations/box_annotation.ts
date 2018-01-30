@@ -1,11 +1,15 @@
 /* XXX: partial */
 import {Annotation, AnnotationView} from "./annotation";
 import {Signal} from "core/signaling";
+import {LineMixinScalar, FillMixinScalar} from "core/property_mixins"
+import {SpatialUnits, RenderMode} from "core/enums"
 import {show, hide} from "core/dom";
 import * as p from "core/properties";
 import {isString, isArray} from "core/util/types"
 
 export class BoxAnnotationView extends AnnotationView {
+  model: BoxAnnotation
+
   initialize(options: any): void {
     super.initialize(options);
     this.plot_view.canvas_overlays.appendChild(this.el);
@@ -114,26 +118,52 @@ export class BoxAnnotationView extends AnnotationView {
   }
 }
 
-export class BoxAnnotation extends Annotation {
-  static initClass() {
-    this.prototype.default_view = BoxAnnotationView;
+export namespace BoxAnnotation {
+  export interface Mixins extends LineMixinScalar, FillMixinScalar {}
 
+  export interface Attrs extends Annotation.Attrs, Mixins {
+    render_mode: RenderMode
+    x_range_name: string
+    y_range_name: string
+    top: number | null
+    top_units: SpatialUnits
+    bottom: number | null
+    bottom_units: SpatialUnits
+    left: number | null
+    left_units: SpatialUnits
+    right: number | null
+    right_units: SpatialUnits
+  }
+
+  export interface Opts extends Annotation.Opts {}
+}
+
+export interface BoxAnnotation extends BoxAnnotation.Attrs {}
+
+export class BoxAnnotation extends Annotation {
+
+  constructor(attrs?: Partial<BoxAnnotation.Attrs>, opts?: BoxAnnotation.Opts) {
+    super(attrs, opts)
+  }
+
+  static initClass() {
     this.prototype.type = 'BoxAnnotation';
+    this.prototype.default_view = BoxAnnotationView;
 
     this.mixins(['line', 'fill']);
 
     this.define({
-        render_mode:  [ p.RenderMode,   'canvas'  ],
-        x_range_name: [ p.String,       'default' ],
-        y_range_name: [ p.String,       'default' ],
-        top:          [ p.Number,       null      ],
-        top_units:    [ p.SpatialUnits, 'data'    ],
-        bottom:       [ p.Number,       null      ],
-        bottom_units: [ p.SpatialUnits, 'data'    ],
-        left:         [ p.Number,       null      ],
-        left_units:   [ p.SpatialUnits, 'data'    ],
-        right:        [ p.Number,       null      ],
-        right_units:  [ p.SpatialUnits, 'data'    ],
+      render_mode:  [ p.RenderMode,   'canvas'  ],
+      x_range_name: [ p.String,       'default' ],
+      y_range_name: [ p.String,       'default' ],
+      top:          [ p.Number,       null      ],
+      top_units:    [ p.SpatialUnits, 'data'    ],
+      bottom:       [ p.Number,       null      ],
+      bottom_units: [ p.SpatialUnits, 'data'    ],
+      left:         [ p.Number,       null      ],
+      left_units:   [ p.SpatialUnits, 'data'    ],
+      right:        [ p.Number,       null      ],
+      right_units:  [ p.SpatialUnits, 'data'    ],
     });
 
     this.internal({

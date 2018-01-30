@@ -3,6 +3,7 @@ import {Renderer} from "../../renderers/renderer"
 import {Span} from "../../annotations/span"
 import {Dimensions, SpatialUnits, RenderMode} from "core/enums"
 import * as p from "core/properties"
+import {Color} from "core/types"
 import {values} from "core/util/object"
 
 export interface BkEv {
@@ -13,7 +14,6 @@ export interface BkEv {
 }
 
 export class CrosshairToolView extends InspectToolView {
-
   model: CrosshairTool
 
   _move(e: BkEv): void {
@@ -41,11 +41,31 @@ export class CrosshairToolView extends InspectToolView {
   }
 }
 
+export namespace CrosshairTool {
+  export interface Attrs extends InspectTool.Attrs {
+    dimensions: Dimensions
+    line_color: Color
+    line_width: number
+    line_alpha: number
+
+    location_units: SpatialUnits
+    render_mode: RenderMode
+    spans: {width: Span, height: Span}
+  }
+
+  export interface Opts extends InspectTool.Opts {}
+}
+
+export interface CrosshairTool extends CrosshairTool.Attrs {}
+
 export class CrosshairTool extends InspectTool {
+
+  constructor(attrs?: Partial<CrosshairTool.Attrs>, opts?: CrosshairTool.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "CrosshairTool"
-
     this.prototype.default_view = CrosshairToolView
 
     this.define({
@@ -61,15 +81,6 @@ export class CrosshairTool extends InspectTool {
       spans:          [ p.Any                    ],
     })
   }
-
-  dimensions: Dimensions
-  line_color: any // XXX: Color
-  line_width: number
-  line_alpha: number
-
-  location_units: SpatialUnits
-  render_mode: RenderMode
-  spans: {width: Span, height: Span}
 
   tool_name = "Crosshair"
   icon = "bk-tool-icon-crosshair"

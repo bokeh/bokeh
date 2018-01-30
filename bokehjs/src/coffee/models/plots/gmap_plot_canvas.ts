@@ -1,5 +1,6 @@
 /* XXX: partial */
 import {proj4, mercator} from "core/util/proj4";
+import {Context2d} from "core/util/canvas"
 
 import {PlotCanvas, PlotCanvasView} from "./plot_canvas";
 import {Signal} from "core/signaling";
@@ -16,6 +17,7 @@ const load_google_api = function(api_key) {
 };
 
 export class GMapPlotCanvasView extends PlotCanvasView {
+  model: GMapPlotCanvas
 
   initialize(options: any): void {
     this.pause();
@@ -220,7 +222,7 @@ export class GMapPlotCanvasView extends PlotCanvasView {
   }
 
   // this overrides the standard _paint_empty to make the inner canvas transparent
-  _paint_empty(ctx, frame_box) {
+  _paint_empty(ctx: Context2d, frame_box) {
     const ow = this.canvas._width.value;
     const oh = this.canvas._height.value;
     const [left, top, iw, ih] = frame_box;
@@ -246,7 +248,20 @@ export class GMapPlotCanvasView extends PlotCanvasView {
   }
 }
 
+export namespace GMapPlotCanvas {
+  export interface Attrs extends PlotCanvas.Attrs {}
+
+  export interface Opts extends PlotCanvas.Opts {}
+}
+
+export interface GMapPlotCanvas extends GMapPlotCanvas.Attrs {}
+
 export class GMapPlotCanvas extends PlotCanvas {
+
+  constructor(attrs?: Partial<GMapPlotCanvas.Attrs>, opts?: GMapPlotCanvas.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'GMapPlotCanvas';
     this.prototype.default_view = GMapPlotCanvasView;

@@ -5,7 +5,22 @@ import {isEmpty} from "core/util/object"
 
 // This Ticker takes a collection of Tickers and picks the one most appropriate
 // for a given range.
+
+export namespace CompositeTicker {
+  export interface Attrs extends ContinuousTicker.Attrs {
+    tickers: ContinuousTicker[]
+  }
+
+  export interface Opts extends ContinuousTicker.Opts {}
+}
+
+export interface CompositeTicker extends CompositeTicker.Attrs {}
+
 export class CompositeTicker extends ContinuousTicker {
+
+  constructor(attrs?: Partial<CompositeTicker.Attrs>, opts?: CompositeTicker.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "CompositeTicker"
@@ -14,8 +29,6 @@ export class CompositeTicker extends ContinuousTicker {
       tickers: [p.Array, [] ],
     })
   }
-
-  tickers: ContinuousTicker[]
 
   // The tickers should be in order of increasing interval size; specifically,
   // if S comes before T, then it should be the case that

@@ -1,9 +1,11 @@
 /* XXX: partial */
 import {Box, BoxView} from "./box";
-import * as p from "core/properties";
-import {RBush} from "core/util/spatial";
+import {NumberSpec, DistanceSpec} from "core/vectorization"
+import * as p from "core/properties"
+import {RBush} from "core/util/spatial"
 
 export class VBarView extends BoxView {
+  model: VBar
 
   scy(i) { return (this.stop[i] + this.sbottom[i])/2; }
 
@@ -35,17 +37,37 @@ export class VBarView extends BoxView {
   }
 }
 
+export namespace VBar {
+  export interface Attrs extends Box.Attrs {
+    x: NumberSpec
+    bottom: NumberSpec
+    width: DistanceSpec
+    top: NumberSpec
+  }
+
+  export interface Opts extends Box.Opts {}
+}
+
+export interface VBar extends VBar.Attrs {}
+
 export class VBar extends Box {
+
+  constructor(attrs?: Partial<VBar.Attrs>, opts?: VBar.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
-    this.prototype.default_view = VBarView;
     this.prototype.type = 'VBar';
+    this.prototype.default_view = VBarView;
 
     this.coords([['x', 'bottom']]);
     this.define({
       width:  [ p.DistanceSpec  ],
       top:    [ p.NumberSpec    ],
     });
-    this.override({ bottom: 0 });
+    this.override({
+      bottom: 0,
+    });
   }
 }
 VBar.initClass();

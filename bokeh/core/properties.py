@@ -1071,7 +1071,7 @@ class Date(Property):
         if isinstance(value, (float,) + bokeh_integer_types):
             try:
                 value = datetime.date.fromtimestamp(value)
-            except ValueError:
+            except (ValueError, OSError):
                 value = datetime.date.fromtimestamp(value/1000)
         elif isinstance(value, string_types):
             value = dateutil.parser.parse(value).date()

@@ -1,8 +1,10 @@
 /* XXX: partial */
+import {NumberSpec} from "core/vectorization"
 import {RBush} from "core/util/spatial";
 import {Glyph, GlyphView} from "./glyph";
 
-export class XYGlyphView extends GlyphView {
+export abstract class XYGlyphView extends GlyphView {
+  model: XYGlyph
 
   _index_data() {
     const points = [];
@@ -20,7 +22,23 @@ export class XYGlyphView extends GlyphView {
   }
 }
 
-export class XYGlyph extends Glyph {
+export namespace XYGlyph {
+  export interface Attrs extends Glyph.Attrs {
+    x: NumberSpec
+    y: NumberSpec
+  }
+
+  export interface Opts extends Glyph.Opts {}
+}
+
+export interface XYGlyph extends XYGlyph.Attrs {}
+
+export abstract class XYGlyph extends Glyph {
+
+  constructor(attrs?: Partial<XYGlyph.Attrs>, opts?: XYGlyph.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "XYGlyph";
     this.prototype.default_view = XYGlyphView;

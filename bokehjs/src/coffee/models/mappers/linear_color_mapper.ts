@@ -1,20 +1,39 @@
 /* XXX: partial */
 import * as p from "core/properties";
+import {Color} from "core/types"
 
 import {color2hex} from "core/util/color";
 import {min, max} from "core/util/array";
 import {ColorMapper} from "./color_mapper"
 
+export namespace LinearColorMapper {
+  export interface Attrs extends ColorMapper.Attrs {
+    high: number
+    low: number
+    high_color: Color
+    low_color: Color
+  }
+
+  export interface Opts extends ColorMapper.Opts {}
+}
+
+export interface LinearColorMapper extends LinearColorMapper.Attrs {}
+
 export class LinearColorMapper extends ColorMapper {
+
+  constructor(attrs?: Partial<LinearColorMapper.Attrs>, opts?: LinearColorMapper.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "LinearColorMapper";
 
     this.define({
-        high:       [ p.Number ],
-        low:        [ p.Number ],
-        high_color: [ p.Color  ],
-        low_color:  [ p.Color  ],
-      });
+      high:       [ p.Number ],
+      low:        [ p.Number ],
+      high_color: [ p.Color  ],
+      low_color:  [ p.Color  ],
+    });
   }
 
   initialize(): void {
@@ -24,7 +43,7 @@ export class LinearColorMapper extends ColorMapper {
     this._low_color = (this.low_color != null) ? this._build_palette([color2hex(this.low_color)])[0] : undefined;
   }
 
-  _get_values(data, palette, image_glyph = false) {
+  _get_values(data: number[], palette: number[], image_glyph: boolean = false): number[] {
     const low = this.low != null ? this.low : min(data);
     const high = this.high != null ? this.high : max(data);
     const max_key = palette.length - 1;

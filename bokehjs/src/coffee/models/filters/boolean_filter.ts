@@ -5,16 +5,31 @@ import {logger} from "core/logging";
 import {range, all} from "core/util/array";
 import {isBoolean} from "core/util/types"
 
+export namespace BooleanFilter {
+  export interface Attrs extends Filter.Attrs {
+    booleans: boolean[] | null
+  }
+
+  export interface Opts extends Filter.Opts {}
+}
+
+export interface BooleanFilter extends BooleanFilter.Attrs {}
+
 export class BooleanFilter extends Filter {
+
+  constructor(attrs?: Partial<BooleanFilter.Attrs>, opts?: BooleanFilter.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'BooleanFilter';
 
     this.define({
-      booleans:    [ p.Array,  null ],
+      booleans: [ p.Array, null ],
     });
   }
 
-  compute_indices(source) {
+  compute_indices(source): any {
     if ((this.booleans != null ? this.booleans.length : undefined) > 0) {
       if (all(this.booleans, isBoolean)) {
         if (this.booleans.length !== source.get_length()) {

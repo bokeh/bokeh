@@ -1,11 +1,15 @@
 /* XXX: partial */
 import {XYGlyph, XYGlyphView} from "./xy_glyph";
+import {NumberSpec, StringSpec, AngleSpec} from "core/vectorization"
+import {TextMixinVector} from "core/property_mixins"
 import * as p from "core/properties";
-import {get_text_height} from "core/util/text";
+import {get_text_height} from "core/util/text"
+import {Context2d} from "core/util/canvas"
 
 export class TextView extends XYGlyphView {
+  model: Text
 
-  _render(ctx, indices, {sx, sy, _x_offset, _y_offset, _angle, _text}) {
+  _render(ctx: Context2d, indices, {sx, sy, _x_offset, _y_offset, _angle, _text}) {
     for (const i of indices) {
       if (isNaN(sx[i]+sy[i]+_x_offset[i]+_y_offset[i]+_angle[i]) || (_text[i] == null)) {
         continue;
@@ -61,15 +65,35 @@ export class TextView extends XYGlyphView {
     }
   }
 
-  draw_legend_for_index(_ctx, _x0, _x1, _y0, _y1, _index) {
+  draw_legend_for_index(_ctx: Context2d, _x0, _x1, _y0, _y1, _index) {
     return null;
   }
 }
 
+export namespace Text {
+  export interface Mixins extends TextMixinVector {}
+
+  export interface Attrs extends XYGlyph.Attrs, Mixins {
+    text: StringSpec
+    angle: AngleSpec
+    x_offset: NumberSpec
+    y_offset: NumberSpec
+  }
+
+  export interface Opts extends XYGlyph.Opts {}
+}
+
+export interface Text extends Text.Attrs {}
+
 export class Text extends XYGlyph {
+
+  constructor(attrs?: Partial<Text.Attrs>, opts?: Text.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
-    this.prototype.default_view = TextView;
     this.prototype.type = 'Text';
+    this.prototype.default_view = TextView;
 
     this.mixins(['text']);
     this.define({

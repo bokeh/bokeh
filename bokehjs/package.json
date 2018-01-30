@@ -1,6 +1,6 @@
 {
   "name": "bokehjs",
-  "version": "0.12.14dev4",
+  "version": "0.12.14dev5",
   "description": "Interactive, novel data visualization",
   "keywords": [
     "bokeh",
@@ -80,6 +80,7 @@
     "@types/esprima": "^2.1.33",
     "@types/escodegen": "^0.0.6",
     "@types/estraverse": "^0.0.6",
+    "@types/sinon": "^4.1.3",
     "combine-source-map": "^0.8.0",
     "@types/combine-source-map": "^0.8.0",
     "convert-source-map": "^1.5.0",

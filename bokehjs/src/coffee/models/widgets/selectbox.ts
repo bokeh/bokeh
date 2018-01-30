@@ -69,7 +69,22 @@ export class SelectView extends InputWidgetView {
   }
 }
 
+export namespace Select {
+  export interface Attrs extends InputWidget.Attrs {
+    value: string
+    options: string[] | {[key: string]: string | [string, string]}
+  }
+
+  export interface Opts extends InputWidget.Opts {}
+}
+
+export interface Select extends Select.Attrs {}
+
 export class Select extends InputWidget {
+
+  constructor(attrs?: Partial<Select.Attrs>, opts?: Select.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "Select"

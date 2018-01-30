@@ -18,7 +18,8 @@ from ..models import (
     LogAxis, PanTool, ZoomInTool, ZoomOutTool, PolySelectTool, ContinuousTicker,
     SaveTool, Range, Range1d, UndoTool, RedoTool, ResetTool, Tool,
     WheelPanTool, WheelZoomTool, ColumnarDataSource, ColumnDataSource,
-    LogScale, LinearScale, CategoricalScale, Circle, MultiLine)
+    LogScale, LinearScale, CategoricalScale, Circle, MultiLine,
+    BoxEditTool, PointDrawTool, PolyDrawTool, PolyEditTool)
 from ..models.renderers import GlyphRenderer
 
 from ..core.properties import ColorSpec, Datetime, value, field
@@ -245,7 +246,7 @@ def _get_legend_item_label(kwargs):
             # Do the simple thing first
             legend_item_label = value(legend)
             # But if there's a source - try and do something smart
-            if source and hasattr(source, 'column_names'):
+            if source is not None and hasattr(source, 'column_names'):
                 if legend in source.column_names:
                     legend_item_label = field(legend)
         else:
@@ -439,6 +440,10 @@ _known_tools = {
     "redo": lambda: RedoTool(),
     "reset": lambda: ResetTool(),
     "help": lambda: HelpTool(),
+    "box_edit": lambda: BoxEditTool(),
+    "point_draw": lambda: PointDrawTool(),
+    "poly_draw": lambda: PolyDrawTool(),
+    "poly_edit": lambda: PolyEditTool()
 }
 
 
@@ -694,26 +699,30 @@ def _glyph_function(glyphclass, extra_docs=None):
 
     def func(self, **kwargs):
 
+        # Convert data source, if necesary
+        is_user_source = kwargs.get('source', None) is not None
+        if is_user_source:
+            source = kwargs['source']
+            if not isinstance(source, ColumnarDataSource):
+                try:
+                    # try converting the soruce to ColumnDataSource
+                    source = ColumnDataSource(source)
+                except ValueError as err:
+                    msg = "Failed to auto-convert {curr_type} to ColumnDataSource.\n Original error: {err}".format(
+                        curr_type=str(type(source)),
+                        err=err.message
+                    )
+                    reraise(ValueError, ValueError(msg), sys.exc_info()[2])
+
+                # update reddered_kws so that others can use the new source
+                kwargs['source'] = source
+
         # Process legend kwargs and remove legend before we get going
         legend_item_label = _get_legend_item_label(kwargs)
 
         # Need to check if user source is present before _pop_renderer_args
-        is_user_source = kwargs.get('source', None) is not None
         renderer_kws = _pop_renderer_args(kwargs)
         source = renderer_kws['data_source']
-        if not isinstance(source, ColumnarDataSource):
-            try:
-                # try converting the soruce to ColumnDataSource
-                source = ColumnDataSource(source)
-            except ValueError as err:
-                msg = "Failed to auto-convert {curr_type} to ColumnDataSource.\n Original error: {err}".format(
-                    curr_type=str(type(source)),
-                    err=err.message
-                )
-                reraise(ValueError, ValueError(msg), sys.exc_info()[2])
-
-            # update reddered_kws so that others can use the new source
-            renderer_kws['data_source'] = source
 
         # handle the main glyph, need to process literals
         glyph_ca = _pop_colors_and_alpha(glyphclass, kwargs)

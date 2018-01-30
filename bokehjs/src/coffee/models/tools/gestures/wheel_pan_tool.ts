@@ -9,7 +9,6 @@ export interface BkEv {
 }
 
 export class WheelPanToolView extends GestureToolView {
-
   model: WheelPanTool
 
   _scroll(e: BkEv): void {
@@ -91,11 +90,25 @@ export class WheelPanToolView extends GestureToolView {
   }
 }
 
+export namespace WheelPanTool {
+  export interface Attrs extends GestureTool.Attrs {
+    dimension: Dimension
+    speed: number
+  }
+
+  export interface Opts extends GestureTool.Opts {}
+}
+
+export interface WheelPanTool extends WheelPanTool.Attrs {}
+
 export class WheelPanTool extends GestureTool {
+
+  constructor(attrs?: Partial<WheelPanTool.Attrs>, opts?: WheelPanTool.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = 'WheelPanTool'
-
     this.prototype.default_view = WheelPanToolView
 
     this.define({
@@ -106,9 +119,6 @@ export class WheelPanTool extends GestureTool {
       speed: [ p.Number, 1/1000 ],
     })
   }
-
-  dimension: Dimension
-  speed: number
 
   tool_name = "Wheel Pan"
   icon = "bk-tool-icon-wheel-pan"

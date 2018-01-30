@@ -16,7 +16,24 @@ function log(x: number, base=Math.E): number {
 // AdaptiveTicker([1, 2, 5]) will choose the best tick interval from the
 // following:
 // ..., 0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100, ...
+export namespace AdaptiveTicker {
+  export interface Attrs extends ContinuousTicker.Attrs {
+    base: number
+    mantissas: number[]
+    min_interval: number
+    max_interval: number
+  }
+
+  export interface Opts extends ContinuousTicker.Opts {}
+}
+
+export interface AdaptiveTicker extends AdaptiveTicker.Attrs {}
+
 export class AdaptiveTicker extends ContinuousTicker {
+
+  constructor(attrs?: Partial<AdaptiveTicker.Attrs>, opts?: AdaptiveTicker.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "AdaptiveTicker"
@@ -28,9 +45,6 @@ export class AdaptiveTicker extends ContinuousTicker {
       max_interval: [ p.Number            ],
     })
   }
-
-  base: number
-  mantissas: number[]
 
   /*protected*/ extended_mantissas: number[]
   /*protected*/ base_factor: number

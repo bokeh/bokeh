@@ -14,6 +14,26 @@ import {isEqual} from './util/eq'
 import {ColumnarDataSource} from "models/sources/columnar_data_source"
 import {Document} from "../document"
 
+export module HasProps {
+  export interface Attrs {
+    id: string
+  }
+
+  export interface Opts {
+    defer_initialization?: boolean
+  }
+
+  export interface SetOptions {
+    check_eq?: boolean
+    silent?: boolean
+    no_change?: boolean
+    defaults?: boolean
+    setter_id?: string
+  }
+}
+
+export interface HasProps extends HasProps.Attrs {}
+
 export abstract class HasProps extends Signalable() {
 
   static initClass() {
@@ -127,7 +147,6 @@ export abstract class HasProps extends Signalable() {
     return `${this.type}(${this.id})`
   }
 
-  id: string
   _subtype: string | undefined = undefined
 
   document: Document | null = null
@@ -141,7 +160,7 @@ export abstract class HasProps extends Signalable() {
 
   protected readonly _set_after_defaults: {[key: string]: boolean} = {}
 
-  constructor(attributes: {[key: string]: any} = {}, options: HasProps.Options = {}) {
+  constructor(attrs: {[key: string]: any} = {}, opts: HasProps.Opts = {}) {
     super()
 
     for (const name in this.props) {
@@ -153,16 +172,16 @@ export abstract class HasProps extends Signalable() {
     }
 
     // auto generating ID
-    if (attributes.id == null)
+    if (attrs.id == null)
       this.setv({id: uniqueId()}, {silent: true})
 
-    this.setv(attributes, {silent: true})
+    this.setv(attrs, {silent: true})
 
     // allowing us to defer initialization when loading many models
     // when loading a bunch of models, we want to do initialization as a second pass
     // because other objects that this one depends on might not be loaded yet
 
-    if (!options.defer_initialization)
+    if (!opts.defer_initialization)
       this.finalize()
   }
 
@@ -505,19 +524,4 @@ export abstract class HasProps extends Signalable() {
     return data
   }
 }
-
 HasProps.initClass()
-
-export module HasProps {
-  export interface Options {
-    defer_initialization?: boolean
-  }
-
-  export interface SetOptions {
-    check_eq?: boolean
-    silent?: boolean
-    no_change?: boolean
-    defaults?: boolean
-    setter_id?: string
-  }
-}

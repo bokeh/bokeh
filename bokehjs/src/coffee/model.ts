@@ -7,7 +7,25 @@ import {isEmpty} from "./core/util/object"
 import {logger} from "./core/logging"
 import {CustomJS} from "./models/callbacks/customjs"
 
+export namespace Model {
+  export interface Attrs extends HasProps.Attrs {
+    tags: string[]
+    name: string | null
+    js_property_callbacks: {[key: string]: CustomJS[]}
+    js_event_callbacks: {[key: string]: CustomJS[]}
+    subscribed_events: string[]
+  }
+
+  export interface Opts extends HasProps.Opts {}
+}
+
+export interface Model extends Model.Attrs {}
+
 export class Model extends HasProps {
+
+  constructor(attrs?: Partial<Model.Attrs>, opts?: Model.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "Model"
@@ -20,12 +38,6 @@ export class Model extends HasProps {
       subscribed_events:     [ p.Array, [] ],
     })
   }
-
-  tags: string[]
-  name: string | null
-  js_property_callbacks: {[key: string]: CustomJS[]}
-  js_event_callbacks: {[key: string]: CustomJS[]}
-  subscribed_events: string[]
 
   connect_signals(): void {
     super.connect_signals()
@@ -97,5 +109,4 @@ export class Model extends HasProps {
     }
   }
 }
-
 Model.initClass()

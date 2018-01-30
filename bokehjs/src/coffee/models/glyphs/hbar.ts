@@ -1,9 +1,11 @@
 /* XXX: partial */
 import {Box, BoxView} from "./box";
-import * as p from "core/properties";
-import {RBush} from "core/util/spatial";
+import {DistanceSpec, NumberSpec} from "core/vectorization"
+import * as p from "core/properties"
+import {RBush} from "core/util/spatial"
 
 export class HBarView extends BoxView {
+  model: HBar
 
   scx(i) { return (this.sleft[i] + this.sright[i])/2; }
 
@@ -35,10 +37,28 @@ export class HBarView extends BoxView {
   }
 }
 
+export namespace HBar {
+  export interface Attrs extends Box.Attrs {
+    left: NumberSpec
+    y: NumberSpec
+    height: DistanceSpec
+    right: NumberSpec
+  }
+
+  export interface Opts extends Box.Opts {}
+}
+
+export interface HBar extends HBar.Attrs {}
+
 export class HBar extends Box {
+
+  constructor(attrs?: Partial<HBar.Attrs>, opts?: HBar.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
-    this.prototype.default_view = HBarView;
     this.prototype.type = 'HBar';
+    this.prototype.default_view = HBarView;
 
     this.coords([['left', 'y']]);
     this.define({

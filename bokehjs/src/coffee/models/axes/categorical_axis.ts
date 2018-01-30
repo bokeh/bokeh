@@ -6,6 +6,8 @@ import {FactorRange, Factor} from "../ranges/factor_range"
 
 import {Text, Line} from "core/visuals"
 import {Context2d} from "core/util/canvas"
+import {Color} from "core/types"
+import {FontStyle, TextAlign, TextBaseline, LineJoin, LineCap} from "core/enums"
 
 export type CategoricalTickCoords = TickCoords & {
   mids: Coords
@@ -13,9 +15,7 @@ export type CategoricalTickCoords = TickCoords & {
 }
 
 export class CategoricalAxisView extends AxisView {
-
   model: CategoricalAxis
-
   visuals: CategoricalAxis.Visuals
 
   protected _render(ctx: Context2d, extents: Extents, tick_coords: TickCoords): void {
@@ -109,11 +109,71 @@ export class CategoricalAxisView extends AxisView {
   }
 }
 
+export namespace CategoricalAxis {
+  // line:separator_
+  export interface SeparatorLine {
+    separator_line_color: Color
+    separator_line_width: number
+    separator_line_alpha: number
+    separator_line_join: LineJoin
+    separator_line_cap: LineCap
+    separator_line_dash: number[]
+    separator_line_dash_offset: number
+  }
+
+  // text:group_
+  export interface GroupText {
+    group_text_font: string
+    group_text_font_size: string
+    group_text_font_style: FontStyle
+    group_text_color: Color
+    group_text_alpha: number
+    group_text_align: TextAlign
+    group_text_baseline: TextBaseline
+    group_text_line_height: number
+  }
+
+  // text:subgroup_
+  export interface SubgroupText {
+    subgroup_text_font: string
+    subgroup_text_font_size: string
+    subgroup_text_font_style: FontStyle
+    subgroup_text_color: Color
+    subgroup_text_alpha: number
+    subgroup_text_align: TextAlign
+    subgroup_text_baseline: TextBaseline
+    subgroup_text_line_height: number
+  }
+
+  export interface Mixins extends SeparatorLine, GroupText, SubgroupText {}
+
+  export interface Attrs extends Axis.Attrs, Mixins {
+    ticker: CategoricalTicker
+    formatter: CategoricalTickFormatter
+  }
+
+  export type Visuals = Axis.Visuals & {
+    separator_line: Line,
+    group_text: Text,
+    subgroup_text: Text,
+  }
+
+  export interface Opts extends Axis.Opts {}
+}
+
+export interface CategoricalAxis extends CategoricalAxis.Attrs {}
+
 export class CategoricalAxis extends Axis {
+
+  ticker: CategoricalTicker
+  formatter: CategoricalTickFormatter
+
+  constructor(attrs?: Partial<CategoricalAxis.Attrs>, opts?: CategoricalAxis.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "CategoricalAxis"
-
     this.prototype.default_view = CategoricalAxisView
 
     this.mixins([
@@ -134,9 +194,6 @@ export class CategoricalAxis extends Axis {
       subgroup_text_font_size: "8pt",
     })
   }
-
-  ticker: CategoricalTicker
-  formatter: CategoricalTickFormatter
 
   get tick_coords(): CategoricalTickCoords {
     const i = this.dimension
@@ -167,13 +224,4 @@ export class CategoricalAxis extends Axis {
     return coords
   }
 }
-
 CategoricalAxis.initClass()
-
-export module CategoricalAxis {
-  export type Visuals = Axis.Visuals & {
-    separator_line: Line,
-    group_text: Text,
-    subgroup_text: Text,
-  }
-}

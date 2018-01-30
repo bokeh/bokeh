@@ -2,9 +2,27 @@
 import * as Numbro from "numbro";
 
 import {TickFormatter} from "./tick_formatter";
+import {RoundingFunction} from "core/enums"
 import * as p from "core/properties"
 
+export namespace NumeralTickFormatter {
+  export interface Attrs extends TickFormatter.Attrs {
+    format: string
+    language: string
+    rounding: RoundingFunction
+  }
+
+  export interface Opts extends TickFormatter.Opts {}
+}
+
+export interface NumeralTickFormatter extends NumeralTickFormatter.Attrs {}
+
 export class NumeralTickFormatter extends TickFormatter {
+
+  constructor(attrs?: Partial<NumeralTickFormatter.Attrs>, opts?: NumeralTickFormatter.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'NumeralTickFormatter';
 

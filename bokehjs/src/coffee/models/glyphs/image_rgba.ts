@@ -1,9 +1,12 @@
 /* XXX: partial */
 import {XYGlyph, XYGlyphView} from "./xy_glyph";
+import {DistanceSpec, NumberSpec} from "core/vectorization"
 import * as p from "core/properties";
-import {max, concat} from "core/util/array";
+import {max, concat} from "core/util/array"
+import {Context2d} from "core/util/canvas"
 
 export class ImageRGBAView extends XYGlyphView {
+  model: ImageRGBA
 
   _set_data(_source, indices) {
     if ((this.image_data == null) || (this.image_data.length !== this._image.length)) {
@@ -81,7 +84,7 @@ export class ImageRGBAView extends XYGlyphView {
     }
   }
 
-  _render(ctx, indices, {image_data, sx, sy, sw, sh}) {
+  _render(ctx: Context2d, indices, {image_data, sx, sy, sw, sh}) {
     const old_smoothing = ctx.getImageSmoothingEnabled();
     ctx.setImageSmoothingEnabled(false);
 
@@ -113,17 +116,34 @@ export class ImageRGBAView extends XYGlyphView {
   }
 }
 
+export namespace ImageRGBA {
+  export interface Attrs extends XYGlyph.Attrs {
+    image:  NumberSpec
+    dw: DistanceSpec
+    dh: DistanceSpec
+    dilate: boolean
+  }
+
+  export interface Opts extends XYGlyph.Opts {}
+}
+
+export interface ImageRGBA extends ImageRGBA.Attrs {}
+
 export class ImageRGBA extends XYGlyph {
+
+  constructor(attrs?: Partial<ImageRGBA.Attrs>, opts?: ImageRGBA.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
+    this.prototype.type = 'ImageRGBA';
     this.prototype.default_view = ImageRGBAView;
 
-    this.prototype.type = 'ImageRGBA';
-
     this.define({
-        image:  [ p.NumberSpec       ], // TODO (bev) array spec?
-        dw:     [ p.DistanceSpec     ],
-        dh:     [ p.DistanceSpec     ],
-        dilate: [ p.Bool,      false ],
+      image:  [ p.NumberSpec       ], // TODO (bev) array spec?
+      dw:     [ p.DistanceSpec     ],
+      dh:     [ p.DistanceSpec     ],
+      dilate: [ p.Bool,      false ],
     });
   }
 }

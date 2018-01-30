@@ -25,6 +25,9 @@ export const LineJoin: LineJoin[] = ["miter", "round", "bevel"]
 export type Location = "above" | "below" | "left" | "right"
 export const Location: Location[] = ["above", "below", "left", "right"]
 
+export type LegendClickPolicy = "none" | "hide" | "mute"
+export const LegendClickPolicy: LegendClickPolicy[] = ["none", "hide", "mute"]
+
 export type LegendLocation =
   "top_left"    | "top_center"    | "top_right"    |
   "center_left" | "center"        | "center_right" |
@@ -74,11 +77,11 @@ export const TextBaseline: TextBaseline[] = ["top", "middle", "bottom", "alphabe
 export type TooltipAttachment = "horizontal" | "vertical" | "left" | "right" | "above" | "below"
 export const TooltipAttachment: TooltipAttachment[] = ["horizontal", "vertical", "left", "right", "above", "below"]
 
-export type DistributionTypes = "uniform" | "normal"
-export const DistributionTypes: DistributionTypes[] = ["uniform", "normal"]
+export type Distribution = "uniform" | "normal"
+export const Distribution: Distribution[] = ["uniform", "normal"]
 
-export type StepModes = "after" | "before" | "center"
-export const StepModes: StepModes[] = ["after", "before", "center"]
+export type StepMode = "after" | "before" | "center"
+export const StepMode: StepMode[] = ["after", "before", "center"]
 
 export type SizingMode = "stretch_both" | "scale_width" | "scale_height" | "scale_both" | "fixed"
 export const SizingMode: SizingMode[] = ["stretch_both", "scale_width", "scale_height", "scale_both", "fixed"]
@@ -88,3 +91,15 @@ export const PaddingUnits: PaddingUnits[] = ["percent", "absolute"]
 
 export type SliderCallbackPolicy = "continuous" | "throttle" | "mouseup"
 export const SliderCallbackPolicy: SliderCallbackPolicy[] = ["continuous", "throttle", "mouseup"]
+
+export type RoundingFunction = "round" | "nearest" | "floor" | "rounddown" | "ceil" | "roundup"
+export const RoundingFunction: RoundingFunction[] = ["round", "nearest", "floor", "rounddown", "ceil", "roundup"]
+
+export type UpdateMode = "replace" | "append"
+export const UpdateMode: UpdateMode[] = ["replace", "append"]
+
+export type HTTPMethod = "POST" | "GET"
+export const HTTPMethod: HTTPMethod[] = ["POST", "GET"]
+
+export type Logo = "normal" | "grey"
+export const Logo: Logo[] = ["normal", "grey"]

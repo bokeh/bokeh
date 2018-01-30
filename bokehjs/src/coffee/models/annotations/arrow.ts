@@ -1,11 +1,17 @@
 /* XXX: partial */
 import {Annotation, AnnotationView} from "./annotation";
-import {OpenHead} from "./arrow_head";
+import {ArrowHead, OpenHead} from "./arrow_head";
+import {DataSource} from "../sources/data_source"
 import {ColumnDataSource} from "../sources/column_data_source";
+import {NumberSpec} from "core/vectorization"
+import {LineMixinVector} from "core/property_mixins"
+import {SpatialUnits} from "core/enums"
 import * as p from "core/properties";
 import {atan2} from "core/util/math"
+import {Context2d} from "core/util/canvas"
 
 export class ArrowView extends AnnotationView {
+  model: Arrow
 
   initialize(options: any): void {
     super.initialize(options);
@@ -85,7 +91,7 @@ export class ArrowView extends AnnotationView {
     return ctx.restore();
   }
 
-  _arrow_body(ctx) {
+  _arrow_body(ctx: Context2d) {
     if (!this.visuals.line.doit)
       return;
 
@@ -99,7 +105,7 @@ export class ArrowView extends AnnotationView {
     }
   }
 
-  _arrow_head(ctx, action, head, start, end) {
+  _arrow_head(ctx: Context2d, action, head, start, end) {
     for (let i = 0, _end = this._x_start.length; i < _end; i++) {
       // arrow head runs orthogonal to arrow body
       const angle = (Math.PI/2) + atan2([start[0][i], start[1][i]], [end[0][i], end[1][i]]);
@@ -120,26 +126,52 @@ export class ArrowView extends AnnotationView {
   }
 }
 
-export class Arrow extends Annotation {
-  static initClass() {
-    this.prototype.default_view = ArrowView;
+export namespace Arrow {
+  export interface Mixins extends LineMixinVector {}
 
+  export interface Attrs extends Annotation.Attrs, Mixins {
+    x_start: NumberSpec
+    y_start: NumberSpec
+    start_units: SpatialUnits
+    start: ArrowHead | null
+    x_end: NumberSpec
+    y_end: NumberSpec
+    end_units: SpatialUnits
+    end: ArrowHead | null
+    source: DataSource
+    x_range_name: string
+    y_range_name: string
+  }
+
+  export interface Opts extends Annotation.Opts {}
+}
+
+export interface Arrow extends Arrow.Attrs {}
+
+export class Arrow extends Annotation {
+
+  constructor(attrs?: Partial<Arrow.Attrs>, opts?: Arrow.Opts) {
+    super(attrs, opts)
+  }
+
+  static initClass() {
     this.prototype.type = 'Arrow';
+    this.prototype.default_view = ArrowView;
 
     this.mixins(['line']);
 
     this.define({
-        x_start:      [ p.NumberSpec,                   ],
-        y_start:      [ p.NumberSpec,                   ],
-        start_units:  [ p.String,      'data'           ],
-        start:        [ p.Instance,    null             ],
-        x_end:        [ p.NumberSpec,                   ],
-        y_end:        [ p.NumberSpec,                   ],
-        end_units:    [ p.String,      'data'           ],
-        end:          [ p.Instance,    () => new OpenHead({}) ],
-        source:       [ p.Instance                      ],
-        x_range_name: [ p.String,      'default'        ],
-        y_range_name: [ p.String,      'default'        ],
+      x_start:      [ p.NumberSpec,                   ],
+      y_start:      [ p.NumberSpec,                   ],
+      start_units:  [ p.String,      'data'           ],
+      start:        [ p.Instance,    null             ],
+      x_end:        [ p.NumberSpec,                   ],
+      y_end:        [ p.NumberSpec,                   ],
+      end_units:    [ p.String,      'data'           ],
+      end:          [ p.Instance,    () => new OpenHead({}) ],
+      source:       [ p.Instance                      ],
+      x_range_name: [ p.String,      'default'        ],
+      y_range_name: [ p.String,      'default'        ],
     });
   }
 }

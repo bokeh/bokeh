@@ -1,10 +1,14 @@
 /* XXX: partial */
 import {XYGlyph, XYGlyphView} from "./xy_glyph";
-import * as p from "core/properties";
+import {LineMixinVector} from "core/property_mixins"
+import {StepMode} from "core/enums"
+import * as p from "core/properties"
+import {Context2d} from "core/util/canvas"
 
 export class StepView extends XYGlyphView {
+  model: Step
 
-  _render(ctx, indices, {sx, sy}) {
+  _render(ctx: Context2d, indices, {sx, sy}) {
     this.visuals.line.set_value(ctx);
 
     const L = indices.length;
@@ -46,16 +50,32 @@ export class StepView extends XYGlyphView {
     return ctx.stroke();
   }
 
-  draw_legend_for_index(ctx, x0, x1, y0, y1, index) {
+  draw_legend_for_index(ctx: Context2d, x0, x1, y0, y1, index) {
     return this._generic_line_legend(ctx, x0, x1, y0, y1, index);
   }
 }
 
-export class Step extends XYGlyph {
-  static initClass() {
-    this.prototype.default_view = StepView;
+export namespace Step {
+  export interface Mixins extends LineMixinVector {}
 
+  export interface Attrs extends XYGlyph.Attrs, Mixins {
+    mode: StepMode
+  }
+
+  export interface Opts extends XYGlyph.Opts {}
+}
+
+export interface Step extends Step.Attrs {}
+
+export class Step extends XYGlyph {
+
+  constructor(attrs?: Partial<Step.Attrs>, opts?: Step.Opts) {
+    super(attrs, opts)
+  }
+
+  static initClass() {
     this.prototype.type = 'Step';
+    this.prototype.default_view = StepView;
 
     this.mixins(['line']);
     this.define({

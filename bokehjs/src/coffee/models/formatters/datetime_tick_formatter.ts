@@ -40,7 +40,31 @@ const _strftime = function(t, format) {
   }
 };
 
+export namespace DatetimeTickFormatter {
+  export interface Attrs extends TickFormatter.Attrs {
+    microseconds: string[]
+    milliseconds: string[]
+    seconds: string[]
+    minsec: string[]
+    minutes: string[]
+    hourmin: string[]
+    hours: string[]
+    days: string[]
+    months: string[]
+    years: string[]
+  }
+
+  export interface Opts extends TickFormatter.Opts {}
+}
+
+export interface DatetimeTickFormatter extends DatetimeTickFormatter.Attrs {}
+
 export class DatetimeTickFormatter extends TickFormatter {
+
+  constructor(attrs?: Partial<DatetimeTickFormatter.Attrs>, opts?: DatetimeTickFormatter.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'DatetimeTickFormatter';
 

@@ -1,7 +1,8 @@
 import {SelectTool, SelectToolView} from "./select_tool"
 import * as p from "core/properties"
 import {isFunction} from "core/util/types"
-import {PointGeometry} from "core/geometry"
+import {Geometry, PointGeometry} from "core/geometry"
+import {DataSource} from "../../sources/data_source"
 
 export interface BkEv {
   bokeh: {
@@ -14,7 +15,6 @@ export interface BkEv {
 }
 
 export class TapToolView extends SelectToolView {
-
   model: TapTool
 
   _tap(e: BkEv): void {
@@ -31,7 +31,10 @@ export class TapToolView extends SelectToolView {
   _select(geometry: PointGeometry, final: boolean, append: boolean): void {
     const callback = this.model.callback
 
-    const cb_data = {
+    const cb_data: {
+      geometries: Geometry,
+      source: DataSource | null,
+    } = {
       geometries: geometry,
       source: null,
     }
@@ -73,11 +76,25 @@ export class TapToolView extends SelectToolView {
   }
 }
 
+export namespace TapTool {
+  export interface Attrs extends SelectTool.Attrs {
+    behavior: "select" | "inspect"
+    callback: any // XXX
+  }
+
+  export interface Opts extends SelectTool.Opts {}
+}
+
+export interface TapTool extends TapTool.Attrs {}
+
 export class TapTool extends SelectTool {
+
+  constructor(attrs?: Partial<TapTool.Attrs>, opts?: TapTool.Opts) {
+    super(attrs, opts)
+  }
 
   static initClass() {
     this.prototype.type = "TapTool"
-
     this.prototype.default_view = TapToolView
 
     this.define({
@@ -85,9 +102,6 @@ export class TapTool extends SelectTool {
       callback: [ p.Any ], // TODO: p.Either(p.Instance(Callback), p.Function) ]
     })
   }
-
-  behavior: "select" | "inspect"
-  callback: any // XXX
 
   tool_name = "Tap"
   icon = "bk-tool-icon-tap-select"

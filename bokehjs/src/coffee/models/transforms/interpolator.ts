@@ -1,28 +1,37 @@
 /* XXX: partial */
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS104: Avoid inline assignments
- * DS202: Simplify dynamic range loops
- * DS206: Consider reworking classes to avoid initClass
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
-
 import {Transform} from "./transform";
+import {ColumnarDataSource} from "../sources/columnar_data_source"
 import * as p from "core/properties";
 import {includes} from "core/util/array";
 
+export namespace Interpolator {
+  export interface Attrs extends Transform.Attrs {
+    x: string | number[]
+    y: string | number[]
+    data: ColumnarDataSource
+    clip: boolean
+  }
+
+  export interface Opts extends Transform.Opts {}
+}
+
+export interface Interpolator extends Interpolator.Attrs {}
+
 export class Interpolator extends Transform {
+
+  constructor(attrs?: Partial<Interpolator.Attrs>, opts?: Interpolator.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
+    this.prototype.type = "Interpolator"
 
     this.define({
-      x:    [ p.Any],
-      y:    [ p.Any],
-      data: [ p.Any],
-      clip: [ p.Bool, true],
-      });
+      x:    [ p.Any        ],
+      y:    [ p.Any        ],
+      data: [ p.Any        ],
+      clip: [ p.Bool, true ],
+    });
   }
 
   initialize(): void {

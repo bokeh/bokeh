@@ -4,7 +4,22 @@ import {logger} from "core/logging"
 import * as p from "core/properties"
 import {range} from "core/util/array"
 
+export namespace GeoJSONDataSource {
+  export interface Attrs extends ColumnarDataSource.Attrs {
+    geojson: any
+  }
+
+  export interface Opts extends ColumnarDataSource.Opts {}
+}
+
+export interface GeoJSONDataSource extends GeoJSONDataSource.Attrs {}
+
 export class GeoJSONDataSource extends ColumnarDataSource {
+
+  constructor(attrs?: Partial<GeoJSONDataSource.Attrs>, opts?: GeoJSONDataSource.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = 'GeoJSONDataSource'
 
