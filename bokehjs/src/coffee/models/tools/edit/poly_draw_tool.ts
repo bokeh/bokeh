@@ -17,6 +17,7 @@ export class PolyDrawToolView extends EditToolView {
   _tap(e: BkEv): void {
     if (this._drawing) {
       this._draw(e, 'add');
+      this.model.renderers[0].data_source.properties.data.change.emit(undefined);
     } else {
       const append = e.srcEvent.shiftKey != null ? e.srcEvent.shiftKey : false;
       this._select_event(e, append, this.model.renderers);
@@ -37,7 +38,6 @@ export class PolyDrawToolView extends EditToolView {
       if (xkey) { ds.data[xkey].push([x, x]); }
       if (ykey) { ds.data[ykey].push([y, y]); }
       this._pad_empty_columns(ds, [xkey, ykey]);
-      ds.properties.data.change.emit(undefined);
     } else if (mode == 'edit') {
       if (xkey) {
         const xs = ds.data[xkey][ds.data[xkey].length-1];
@@ -68,7 +68,6 @@ export class PolyDrawToolView extends EditToolView {
         ys[ys.length-1] = y;
         ys.push(ny);
       }
-      ds.properties.data.change.emit(undefined);
     }
     ds.change.emit(undefined)
   }
@@ -82,6 +81,7 @@ export class PolyDrawToolView extends EditToolView {
       this._drawing = true;
       this._draw(e, 'new');
     }
+    this.model.renderers[0].data_source.properties.data.change.emit(undefined);
   }
 
   _move(e: BkEv): void {
@@ -227,6 +227,6 @@ export class PolyDrawTool extends EditTool {
   tool_name = "Polygon Draw Tool"
   icon = "bk-tool-icon-poly-draw"
   event_type = ["pan", "tap", "move"]
-  default_order = 12
+  default_order = 3
 }
 PolyDrawTool.initClass()
