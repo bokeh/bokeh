@@ -116,6 +116,6 @@ export class PointDrawTool extends EditTool {
   tool_name = "Point Draw Tool"
   icon = "bk-tool-icon-point-draw"
   event_type = ["tap", "pan", "move"]
-  default_order = 12
+  default_order = 2
 }
 PointDrawTool.initClass()
