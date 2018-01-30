@@ -176,7 +176,7 @@ export class GlyphRendererView extends RendererView {
     ctx.save();
 
     // selected is in full set space
-    const {_selected} = this.model.data_source;
+    const {selected: _selected} = this.model.data_source;
     let selected: number[]
     if (!_selected || (_selected.length === 0)) {
       selected = [];
