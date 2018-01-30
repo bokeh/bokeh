@@ -42,6 +42,9 @@ Alternatively, you can install phantomjs from npm via
 
     npm install -g phantomjs-prebuilt
 
+Note that the minimum compatible version of PhantomJS is 2.1, regardless of
+how it is installed.
+
 Example usage
 ~~~~~~~~~~~~~
 

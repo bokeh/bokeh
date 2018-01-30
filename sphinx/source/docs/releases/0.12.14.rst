@@ -27,6 +27,12 @@ The following deprecated features have been removed in this release:
 * BokehJS support for `*.tsx` templates (not typically user-facing)
 * `autoload_server` (use `server_document` or `server_session` instead)
 
+New Runtime Dependency
+~~~~~~~~~~~~~~~~~~~~~~
+
+The package ``packaging``, available via both conda and pip, was added as a
+new runtime dependency.
+
 Mapping of Unknown Catgorical Factors
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
