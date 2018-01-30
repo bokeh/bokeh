@@ -76,7 +76,7 @@ export class PointDrawToolView extends EditToolView {
     if (!this.model.drag) { return; }
     this._pan(e);
     for (const renderer of this.model.renderers) {
-      renderer.data_source.selected['1d'].indices = [];
+      renderer.data_source.selected.indices = [];
       renderer.data_source.properties.data.change.emit(undefined);
     }
     this._basepoint = null;

@@ -31,15 +31,15 @@ export class PolyEditToolView extends EditToolView {
     const [pxkey, pykey] = [point_glyph.x.field, point_glyph.y.field];
     if (vertex_selected.length && this._selected_renderer != null) {
       // Insert a new point after the selected vertex and enter draw mode
-      const index = point_ds.selected['1d'].indices[0];
+      const index = point_ds.selected.indices[0];
       if (this._drawing) {
-        point_ds.selected['1d'].indices = [];
+        point_ds.selected.indices = [];
         if (pxkey) { point_ds.data[pxkey][index] = x; }
         if (pykey) { point_ds.data[pykey][index] = y; }
         this._drawing = false;
         this._selected_renderer.data_source.properties.data.change.emit(undefined);
       } else {
-        point_ds.selected['1d'].indices = [index+1];
+        point_ds.selected.indices = [index+1];
         if (pxkey) { point_ds.data[pxkey].splice(index+1, 0, x); }
         if (pykey) { point_ds.data[pykey].splice(index+1, 0, y); }
         this._drawing = true;
@@ -63,7 +63,7 @@ export class PolyEditToolView extends EditToolView {
     // Type once dataspecs are typed
     const glyph: any = renderer.glyph;
     const ds = renderer.data_source;
-    const index = ds.selected['1d'].indices[0];
+    const index = ds.selected.indices[0];
     const [xkey, ykey] = [glyph.xs.field, glyph.ys.field];
     if (xkey) {
       let xs = ds.data[xkey][index];
@@ -85,7 +85,7 @@ export class PolyEditToolView extends EditToolView {
     } else {
       point_glyph.y = {value: glyph.ys.value};
     }
-    point_ds.selected['1d'].indices = [];
+    point_ds.selected.indices = [];
     this._selected_renderer = renderer;
     point_ds.change.emit(undefined);
     point_ds.properties.data.change.emit(undefined);
@@ -100,7 +100,7 @@ export class PolyEditToolView extends EditToolView {
       const ds = renderer.data_source;
       const glyph: any = renderer.glyph;
       const [xkey, ykey] = [glyph.x.field, glyph.y.field];
-      const index = ds.selected['1d'].indices[0];
+      const index = ds.selected.indices[0];
       if (xkey) { ds.data[xkey][index] = x; }
       if (ykey) { ds.data[ykey][index] = y; }
       ds.change.emit(undefined);
@@ -119,8 +119,8 @@ export class PolyEditToolView extends EditToolView {
       // Type once dataspecs are typed
       const glyph: any = renderer.glyph;
       const [xkey, ykey] = [glyph.x.field, glyph.y.field];
-      const index = ds.selected['1d'].indices[0];
-      ds.selected['1d'].indices = [index+1];
+      const index = ds.selected.indices[0];
+      ds.selected.indices = [index+1];
       if (xkey) {
         const xs = ds.data[xkey];
         const nx = xs[index];
@@ -148,7 +148,7 @@ export class PolyEditToolView extends EditToolView {
     const ds = renderer.data_source;
     // Type once dataspecs are typed
     const glyph: any = renderer.glyph;
-    const index = ds.selected['1d'].indices[0];
+    const index = ds.selected.indices[0];
     const [xkey, ykey] = [glyph.x.field, glyph.y.field];
     if (xkey) { ds.data[xkey].splice(index, 1); }
     if (ykey) { ds.data[ykey].splice(index, 1); }
@@ -172,7 +172,7 @@ export class PolyEditToolView extends EditToolView {
   }
 
   _pan_end(_e: BkEv): void {
-    this.model.vertex_renderer.data_source.selected['1d'].indices = [];
+    this.model.vertex_renderer.data_source.selected.indices = [];
     if (this._selected_renderer) {
       this._selected_renderer.data_source.properties.data.change.emit(undefined);
     }

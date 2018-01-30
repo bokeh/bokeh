@@ -78,9 +78,10 @@ export class SelectionManager extends HasProps {
     return did_hit
   }
 
-  clear(rview: RendererView): void {
+  clear(rview: RendererView | undefined): void {
     this.source.selected.clear()
-    this.get_or_create_inspector(rview.model).clear()
+    if(rview)
+      this.get_or_create_inspector(rview.model).clear()
   }
 
   get_or_create_inspector(rmodel: Renderer): Selection {

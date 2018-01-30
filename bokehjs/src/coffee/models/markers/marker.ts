@@ -93,7 +93,7 @@ export class MarkerView extends XYGlyphView {
         hits.push([i, dist]);
       }
     }
-    return hittest.create_1d_hit_test_result(hits);
+    return hittest.create_hit_test_result_from_hits(hits);
   }
 
   _hit_span(geometry: SpanGeometry): Selection {

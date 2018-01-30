@@ -124,7 +124,7 @@ export class BoxEditToolView extends EditToolView {
     this._pan(e, false, true)
     this._basepoint = null;
     for (const renderer of this.model.renderers) {
-      renderer.data_source.selected['1d'].indices = [];
+      renderer.data_source.selected.indices = [];
       renderer.data_source.properties.data.change.emit(undefined);
     }
   }
