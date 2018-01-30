@@ -18,6 +18,12 @@ Migration Guide
 NOTE: the 0.12.x series is the last planned release series before a version
 1.0 release. For more information see the `project roadmap`_.
 
+New Runtime Dependency
+~~~~~~~~~~~~~~~~~~~~~~
+
+The package ``packaging``, available via both conda and pip, was added as a
+new runtime dependency.
+
 Mapping of Unknown Catgorical Factors
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
