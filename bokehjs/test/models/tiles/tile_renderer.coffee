@@ -72,13 +72,6 @@ describe "tile sources", ->
 
     source = new TileSource(tile_options)
 
-    it "should remove tile and add back to image pool ", ->
-      expect(source.pool.images.length).to.be.equal(0)
-      tile_obj = {img: {}}
-      source.tiles['test'] = tile_obj
-      source.remove_tile('test')
-      expect(source.pool.images.length).to.be.equal(1)
-
     it "should convert tile xyz into a tile key", ->
       k = source.tile_xyz_to_key(1,1,1)
       expect(k).to.be.equal("1:1:1")
@@ -133,10 +126,10 @@ describe "tile sources", ->
           tiles.push([x, y])
 
       tiles = shuffle(tiles)
-      sorted_tiles = source.sort_tiles_from_center(tiles, [1, 1, 6, 6])
+      source.sort_tiles_from_center(tiles, [1, 1, 6, 6])
 
       for i in [0..3] by 1
-        t = sorted_tiles[i]
+        t = tiles[i]
         expect(t[0]).to.be.within(3, 4)
         expect(t[1]).to.be.within(3, 4)
 

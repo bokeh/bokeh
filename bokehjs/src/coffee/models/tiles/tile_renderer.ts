@@ -1,6 +1,6 @@
-/* XXX: partial */
 import {Tile} from "./tile_source"
-import {ImagePool} from "./image_pool";
+import {ImagePool, Image} from "./image_pool";
+import {Extent, Bounds} from "./tile_utils"
 import {TileSource} from "./tile_source"
 import {WMTSTileSource} from "./wmts_tile_source";
 import {Renderer, RendererView} from "../renderers/renderer";
@@ -9,8 +9,34 @@ import * as p from "core/properties";
 import {includes} from "core/util/array";
 import {isString} from "core/util/types"
 
+export interface TileData {
+  img: Image
+  tile_coords: [number, number, number]
+  normalized_coords: [number, number, number]
+  quadkey: string
+  cache_key: string
+  bounds: Bounds
+  loaded: boolean
+  finished: boolean
+  x_coord: number
+  y_coord: number
+}
+
 export class TileRendererView extends RendererView {
   model: TileRenderer
+
+  protected attributionEl: HTMLElement | null
+
+  protected _tiles: TileData[]
+
+  protected pool: ImagePool
+  protected extent: Extent
+  protected initial_extent: Extent
+  protected _last_height?: number
+  protected _last_width?: number
+  protected map_initialized?: boolean
+  protected render_timer?: number
+  protected prefetch_timer?: number
 
   initialize(options: any): void {
     this.attributionEl = null;
@@ -23,23 +49,38 @@ export class TileRendererView extends RendererView {
     this.connect(this.model.change, () => this.request_render())
   }
 
-  get_extent() {
-    return [this.x_range.start, this.y_range.start, this.x_range.end, this.y_range.end];
+  get_extent(): Extent {
+    return [this.x_range.start, this.y_range.start, this.x_range.end, this.y_range.end]
   }
 
-  _set_data() {
+  private get map_plot() {
+    return this.plot_model.plot
+  }
+
+  private get map_canvas() {
+    return this.plot_view.canvas_view.ctx
+  }
+
+  private get map_frame() {
+    return this.plot_model.frame
+  }
+
+  private get x_range() {
+    return this.map_plot.x_range
+  }
+
+  private get y_range() {
+    return this.map_plot.y_range
+  }
+
+  protected _set_data(): void {
     this.pool = new ImagePool();
-    this.map_plot = this.plot_model.plot;
-    this.map_canvas = this.plot_view.canvas_view.ctx;
-    this.map_frame = this.plot_model.frame;
-    this.x_range = this.map_plot.x_range;
-    this.y_range = this.map_plot.y_range;
     this.extent = this.get_extent();
     this._last_height = undefined;
-    return this._last_width = undefined;
+    this._last_width = undefined;
   }
 
-  _add_attribution() {
+  protected _add_attribution(): void {
     const { attribution } = this.model.tile_source;
 
     if (isString(attribution) && (attribution.length > 0)) {
@@ -65,11 +106,11 @@ export class TileRendererView extends RendererView {
         overlays.appendChild(this.attributionEl);
       }
 
-      return this.attributionEl.innerHTML = attribution;
+      this.attributionEl.innerHTML = attribution;
     }
   }
 
-  _map_data() {
+  protected _map_data(): void {
     this.initial_extent = this.get_extent();
     const zoom_level = this.model.tile_source.get_level_by_extent(this.initial_extent, this.map_frame._height.value, this.map_frame._width.value);
     const new_extent = this.model.tile_source.snap_to_zoom_level(this.initial_extent, this.map_frame._height.value, this.map_frame._width.value, zoom_level);
@@ -77,64 +118,53 @@ export class TileRendererView extends RendererView {
     this.y_range.start = new_extent[1];
     this.x_range.end = new_extent[2];
     this.y_range.end = new_extent[3];
-    return this._add_attribution();
+    this._add_attribution();
   }
 
-  _on_tile_load(e) {
-    const { tile_data } = e.target;
+  protected _on_tile_load(tile_data: TileData, e: Event & {target: Image}): void {
     tile_data.img = e.target;
-    tile_data.current = true;
     tile_data.loaded = true;
-    return this.request_render();
+    this.request_render();
   }
 
-  _on_tile_cache_load(e) {
-    const { tile_data } = e.target;
+  protected _on_tile_cache_load(tile_data: TileData, e: Event & {target: Image}): void {
     tile_data.img = e.target;
     tile_data.loaded = true;
     tile_data.finished = true;
-    return this.notify_finished();
+    this.notify_finished();
   }
 
-  _on_tile_error(e) {
-    const { tile_data } = e.target;
-    return tile_data.finished = true;
+  protected _on_tile_error(tile_data: TileData): void {
+    tile_data.finished = true;
   }
 
-  _create_tile(x, y, z, bounds, cache_only = false) {
-    const normalized_coords = this.model.tile_source.normalize_xyz(x, y, z);
-    const tile = this.pool.pop();
+  protected _create_tile(x: number, y: number, z: number, bounds: Bounds, cache_only: boolean = false): void {
+    const [nx, ny, nz] = this.model.tile_source.normalize_xyz(x, y, z);
 
-    if (cache_only) {
-      tile.onload = this._on_tile_cache_load.bind(this);
-    } else {
-      tile.onload = this._on_tile_load.bind(this);
-    }
-
-    tile.onerror = this._on_tile_error.bind(this);
-    tile.alt = '';
-
-    tile.tile_data = {
-      tile_coords : [x, y, z],
-      normalized_coords,
-      quadkey : this.model.tile_source.tile_xyz_to_quadkey(x, y, z),
-      cache_key : this.model.tile_source.tile_xyz_to_key(x, y, z),
+    const img = this.pool.pop();
+    const tile = {
+      img,
+      tile_coords: [x, y, z] as [number, number, number],
+      normalized_coords: [nx, ny, nz] as [number, number, number],
+      quadkey: this.model.tile_source.tile_xyz_to_quadkey(x, y, z),
+      cache_key: this.model.tile_source.tile_xyz_to_key(x, y, z),
       bounds,
-      loaded : false,
-      finished : false,
-      x_coord : bounds[0],
-      y_coord : bounds[3],
+      loaded: false,
+      finished: false,
+      x_coord: bounds[0],
+      y_coord: bounds[3],
     };
 
-    this.model.tile_source.tiles[tile.tile_data.cache_key] = tile.tile_data;
-    const [nx, ny, nz] = normalized_coords
-    tile.src = this.model.tile_source.get_image_url(nx, ny, nz);
+    img.onload = cache_only ? this._on_tile_cache_load.bind(this, tile) : this._on_tile_load.bind(this, tile)
+    img.onerror = this._on_tile_error.bind(this, tile);
+    img.alt = '';
+    img.src = this.model.tile_source.get_image_url(nx, ny, nz);
 
-    this._tiles.push(tile);
-    return tile;
+    this.model.tile_source.tiles[tile.cache_key] = tile as Tile
+    this._tiles.push(tile)
   }
 
-  _enforce_aspect_ratio() {
+  protected _enforce_aspect_ratio(): boolean {
     // brute force way of handling resize or sizing_mode event -------------------------------------------------------------
     if ((this._last_height !== this.map_frame._height.value) || (this._last_width !== this.map_frame._width.value)) {
       const extent = this.get_extent();
@@ -150,7 +180,7 @@ export class TileRendererView extends RendererView {
     return false;
   }
 
-  has_finished() {
+  has_finished(): boolean {
     if (!super.has_finished()) {
       return false;
     }
@@ -160,7 +190,7 @@ export class TileRendererView extends RendererView {
     }
 
     for (const tile of this._tiles) {
-      if (!tile.tile_data.finished) {
+      if (!tile.finished) {
         return false;
       }
     }
@@ -168,8 +198,8 @@ export class TileRendererView extends RendererView {
     return true;
   }
 
-  render() {
-    if ((this.map_initialized == null)) {
+  render(): void {
+    if (this.map_initialized == null) {
       this._set_data();
       this._map_data();
       this.map_initialized = true;
@@ -187,15 +217,15 @@ export class TileRendererView extends RendererView {
     this.prefetch_timer = setTimeout(this._prefetch_tiles.bind(this), 500);
 
     if (this.has_finished()) {
-      return this.notify_finished();
+      this.notify_finished();
     }
   }
 
   _draw_tile(tile_key: string): void {
-    const tile_obj = this.model.tile_source.tiles[tile_key];
+    const tile_obj = this.model.tile_source.tiles[tile_key] as TileData
     if (tile_obj != null) {
-      const [[sxmin], [symin]] = this.plot_view.map_to_screen([tile_obj.bounds[0]], [tile_obj.bounds[3]]);
-      const [[sxmax], [symax]] = this.plot_view.map_to_screen([tile_obj.bounds[2]], [tile_obj.bounds[1]]);
+      const [[sxmin], [symin]] = this.plot_view.map_to_screen([tile_obj.bounds[0]], [tile_obj.bounds[3]]) as any as [number[], number[]] // XXX: TS #20623
+      const [[sxmax], [symax]] = this.plot_view.map_to_screen([tile_obj.bounds[2]], [tile_obj.bounds[1]]) as any as [number[], number[]] //
       const sw = sxmax - sxmin;
       const sh = symax - symin;
       const sx = sxmin;
@@ -204,35 +234,35 @@ export class TileRendererView extends RendererView {
     }
   }
 
-  _set_rect() {
+  protected _set_rect(): void {
     const outline_width = this.plot_model.plot.properties.outline_line_width.value();
     const l = this.map_frame._left.value + (outline_width/2);
     const t = this.map_frame._top.value + (outline_width/2);
     const w = this.map_frame._width.value - outline_width;
     const h = this.map_frame._height.value - outline_width;
     this.map_canvas.rect(l, t, w, h);
-    return this.map_canvas.clip();
+    this.map_canvas.clip();
   }
 
-  _render_tiles(tile_keys) {
+  protected _render_tiles(tile_keys: string[]): void {
     this.map_canvas.save();
     this._set_rect();
     this.map_canvas.globalAlpha = this.model.alpha;
     for (const tile_key of tile_keys) {
       this._draw_tile(tile_key);
     }
-    return this.map_canvas.restore();
+    this.map_canvas.restore();
   }
 
-  _prefetch_tiles() {
+  protected _prefetch_tiles(): void {
     const { tile_source } = this.model;
     const extent = this.get_extent();
     const h = this.map_frame._height.value;
     const w = this.map_frame._width.value;
     const zoom_level = this.model.tile_source.get_level_by_extent(extent, h, w);
     const tiles = this.model.tile_source.get_tiles_by_extent(extent, zoom_level);
-    for (let t = 0, end = Math.min(10, tiles.length); t <= end; t++) {
-      const [x, y, z,] = t;
+    for (let t = 0, end = Math.min(10, tiles.length); t < end; t++) {
+      const [x, y, z,] = tiles[t];
       const children = this.model.tile_source.children_by_tile_xyz(x, y, z);
       for (const c of children) {
         const [cx, cy, cz, cbounds] = c;
@@ -245,20 +275,19 @@ export class TileRendererView extends RendererView {
     }
   }
 
-  _fetch_tiles(tiles) {
-    for (const t of tiles) {
-      const [x, y, z, bounds] = t;
+  protected _fetch_tiles(tiles: [number, number, number, Bounds][]): void {
+    for (const tile of tiles) {
+      const [x, y, z, bounds] = tile;
       this._create_tile(x, y, z, bounds);
     }
   }
 
-  _update() {
+  protected _update(): void {
     const { tile_source } = this.model;
 
     const { min_zoom } = tile_source;
     const { max_zoom } = tile_source;
 
-    tile_source.update();
     let extent = this.get_extent();
     const zooming_out = (this.extent[2] - this.extent[0]) < (extent[2] - extent[0]);
     const h = this.map_frame._height.value;
@@ -267,12 +296,11 @@ export class TileRendererView extends RendererView {
     let snap_back = false;
 
     if (zoom_level < min_zoom) {
-      ({ extent } = this);
+      extent = this.extent
       zoom_level = min_zoom;
       snap_back = true;
-
     } else if (zoom_level > max_zoom) {
-      ({ extent } = this);
+      extent = this.extent
       zoom_level = max_zoom;
       snap_back = true;
     }
@@ -285,42 +313,39 @@ export class TileRendererView extends RendererView {
 
     this.extent = extent;
     const tiles = tile_source.get_tiles_by_extent(extent, zoom_level);
-    const parents = [];
-    const need_load: Tile[] = [];
+    const need_load: typeof tiles = [];
     const cached = [];
-    let children = [];
+    const parents = [];
+    const children = [];
 
     for (const t of tiles) {
       const [x, y, z,] = t;
       const key = tile_source.tile_xyz_to_key(x, y, z);
-      const tile = tile_source.tiles[key];
-      if ((tile != null) && (tile.loaded === true)) {
+      const tile = tile_source.tiles[key] as TileData;
+      if (tile != null && tile.loaded) {
         cached.push(key);
       } else {
         if (this.model.render_parents) {
           const [px, py, pz] = tile_source.get_closest_parent_by_tile_xyz(x, y, z);
           const parent_key = tile_source.tile_xyz_to_key(px, py, pz);
-          const parent_tile = tile_source.tiles[parent_key];
+          const parent_tile = tile_source.tiles[parent_key] as TileData;
           if ((parent_tile != null) && parent_tile.loaded && !includes(parents, parent_key)) {
             parents.push(parent_key);
           }
           if (zooming_out) {
-            children = tile_source.children_by_tile_xyz(x, y, z);
-            for (const c of children) {
-              const [cx, cy, cz,] = c;
+            const child_tiles = tile_source.children_by_tile_xyz(x, y, z);
+            for (const [cx, cy, cz] of child_tiles) {
               const child_key = tile_source.tile_xyz_to_key(cx, cy, cz);
 
-              if (child_key in tile_source.tiles) {
+              if (child_key in tile_source.tiles)
                 children.push(child_key);
-              }
             }
           }
         }
       }
 
-      if (tile == null) {
+      if (tile == null)
         need_load.push(t);
-      }
     }
 
     // draw stand-in parents ----------
@@ -329,16 +354,13 @@ export class TileRendererView extends RendererView {
 
     // draw cached ----------
     this._render_tiles(cached);
-    for (const t of cached) {
-      tile_source.tiles[t].current = true;
-    }
 
     // fetch missing -------
     if (this.render_timer != null) {
       clearTimeout(this.render_timer);
     }
 
-    return this.render_timer = setTimeout((() => this._fetch_tiles(need_load)), 65);
+    this.render_timer = setTimeout((() => this._fetch_tiles(need_load)), 65);
   }
 }
 

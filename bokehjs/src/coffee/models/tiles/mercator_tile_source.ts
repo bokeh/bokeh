@@ -1,7 +1,7 @@
-/* XXX: partial */
 import {TileSource} from "./tile_source";
 import * as p from "core/properties";
-import {includes, range} from "core/util/array";
+import {range} from "core/util/array";
+import {Extent, Bounds, meters_extent_to_geographic} from "./tile_utils"
 
 export namespace MercatorTileSource {
   export interface Attrs extends TileSource.Attrs {
@@ -35,102 +35,71 @@ export class MercatorTileSource extends TileSource {
     });
   }
 
+  protected _resolutions: number[]
+
   initialize(): void {
     super.initialize();
-    this._resolutions = (range(this.min_zoom, this.max_zoom+1).map((z) => this.get_resolution(z)));
+    this._resolutions = range(this.min_zoom, this.max_zoom+1).map((z) => this.get_resolution(z))
   }
 
-  _computed_initial_resolution() {
-    if (this.initial_resolution != null) {
+  protected _computed_initial_resolution(): number {
+    if (this.initial_resolution != null)
       return this.initial_resolution;
-    } else {
+    else {
       // TODO testing 2015-11-17, if this codepath is used it seems
       // to use 100% cpu and wedge Chrome
       return (2 * Math.PI * 6378137) / this.tile_size;
     }
   }
 
-  is_valid_tile(x, y, z) {
-
+  is_valid_tile(x: number, y: number, z: number): boolean {
     if (!this.wrap_around) {
-      if ((x < 0) || (x >= Math.pow(2, z))) {
-        return false;
-      }
+      if (x < 0 || x >= Math.pow(2, z))
+        return false
     }
 
-    if ((y < 0) || (y >= Math.pow(2, z))) {
-      return false;
-    }
+    if (y < 0 || y >= Math.pow(2, z))
+      return false
 
     return true;
   }
 
-  retain_children(reference_tile) {
-    const { quadkey } = reference_tile;
-    const min_zoom = quadkey.length;
-    const max_zoom = min_zoom + 3;
-    for (const key in this.tiles) {
-      const tile = this.tiles[key];
-      if ((tile.quadkey.indexOf(quadkey) === 0) && (tile.quadkey.length > min_zoom) && (tile.quadkey.length <= max_zoom)) {
-        tile.retain = true;
-      }
-    }
+  parent_by_tile_xyz(x: number, y: number, z: number): [number, number, number] {
+    const quadkey = this.tile_xyz_to_quadkey(x, y, z)
+    const parent_quadkey = quadkey.substring(0, quadkey.length - 1)
+    return this.quadkey_to_tile_xyz(parent_quadkey)
   }
 
-  retain_neighbors(reference_tile) {
-    const neighbor_radius = 4;
-    const [tx, ty, tz] = reference_tile.tile_coords;
-    const neighbor_x = (range(tx - neighbor_radius, tx + neighbor_radius+1));
-    const neighbor_y = (range(ty - neighbor_radius, ty + neighbor_radius+1));
-
-    for (const key in this.tiles) {
-      const tile = this.tiles[key];
-      if (tile.tile_coords[2] === tz && includes(neighbor_x, tile.tile_coords[0])
-                                     && includes(neighbor_y, tile.tile_coords[1])) {
-        tile.retain = true;
-      }
-    }
+  get_resolution(level: number): number {
+    return this._computed_initial_resolution() / Math.pow(2, level)
   }
 
-  retain_parents(reference_tile) {
-    const { quadkey } = reference_tile;
-    for (const key in this.tiles) {
-      const tile = this.tiles[key];
-      tile.retain = quadkey.indexOf(tile.quadkey) === 0;
-    }
+  get_resolution_by_extent(extent: Extent, height: number, width: number): [number, number] {
+    const x_rs = (extent[2] - extent[0]) / width
+    const y_rs = (extent[3] - extent[1]) / height
+    return [x_rs, y_rs]
   }
 
-  parent_by_tile_xyz(x, y, z) {
-    const quad_key = this.tile_xyz_to_quadkey(x, y, z);
-    const parent_quad_key = quad_key.substring(0, quad_key.length - 1);
-    return this.quadkey_to_tile_xyz(parent_quad_key);
-  }
+  get_level_by_extent(extent: Extent, height: number, width: number): number {
+    const x_rs = (extent[2] - extent[0]) / width
+    const y_rs = (extent[3] - extent[1]) / height
+    const resolution = Math.max(x_rs, y_rs)
 
-  get_resolution(level) {
-    return this._computed_initial_resolution() / Math.pow(2, level);
-  }
-
-  get_resolution_by_extent(extent, height, width) {
-    const x_rs = (extent[2] - extent[0]) / width;
-    const y_rs = (extent[3] - extent[1]) / height;
-    return [x_rs, y_rs];
-  }
-
-  get_level_by_extent(extent, height, width) {
-    const x_rs = (extent[2] - extent[0]) / width;
-    const y_rs = (extent[3] - extent[1]) / height;
-    const resolution = Math.max(x_rs, y_rs);
-    let i = 0;
+    let i = 0
     for (const r of this._resolutions) {
       if (resolution > r) {
-        if (i === 0) { return 0; }
-        if (i > 0) { return i - 1; }
+        if (i === 0)
+          return 0
+        if (i > 0)
+          return i - 1
       }
-      i += 1;
+      i += 1
     }
+
+    return undefined as never // XXX
   }
 
-  get_closest_level_by_extent(extent, height, width) {
+  get_closest_level_by_extent(extent: Extent, height: number, width: number): number {
     const x_rs = (extent[2] - extent[0]) / width;
     const y_rs = (extent[3] - extent[1]) / height;
     const resolution = Math.max(x_rs, y_rs);
@@ -141,7 +110,7 @@ export class MercatorTileSource extends TileSource {
     return this._resolutions.indexOf(closest);
   }
 
-  snap_to_zoom_level(extent, height, width, level) {
+  snap_to_zoom_level(extent: Extent, height: number, width: number, level: number): Extent {
     const [xmin, ymin, xmax, ymax] = extent;
     const desired_res = this._resolutions[level];
     let desired_x_delta = width * desired_res;
@@ -163,66 +132,61 @@ export class MercatorTileSource extends TileSource {
     return [xmin - x_adjust, ymin - y_adjust, xmax + x_adjust, ymax + y_adjust];
   }
 
-  tms_to_wmts(x, y, z) {
+  tms_to_wmts(x: number, y: number, z: number): [number, number, number] {
     'Note this works both ways';
     return [x, Math.pow(2, z) - 1 - y, z];
   }
 
-  wmts_to_tms(x, y, z) {
+  wmts_to_tms(x: number, y: number, z: number): [number, number, number] {
     'Note this works both ways';
     return [x, Math.pow(2, z) - 1 - y, z];
   }
 
-  pixels_to_meters(px, py, level) {
+  pixels_to_meters(px: number, py: number, level: number): [number, number] {
     const res = this.get_resolution(level);
     const mx = (px * res) - this.x_origin_offset;
     const my = (py * res) - this.y_origin_offset;
     return [mx, my];
   }
 
-  meters_to_pixels(mx, my, level) {
+  meters_to_pixels(mx: number, my: number, level: number): [number, number] {
     const res = this.get_resolution(level);
     const px = (mx + this.x_origin_offset) / res;
     const py = (my + this.y_origin_offset) / res;
     return [px, py];
   }
 
-  pixels_to_tile(px, py) {
-    let tx = Math.ceil(px / parseFloat(this.tile_size));
+  pixels_to_tile(px: number, py: number): [number, number] {
+    let tx = Math.ceil(px / this.tile_size);
     tx = tx === 0 ? tx : tx - 1;
-    const ty = Math.max(Math.ceil(py / parseFloat(this.tile_size)) - 1, 0);
+    const ty = Math.max(Math.ceil(py / this.tile_size) - 1, 0);
     return [tx, ty];
   }
 
-  pixels_to_raster(px, py, level) {
+  pixels_to_raster(px: number, py: number, level: number): [number, number] {
     const mapSize = this.tile_size << level;
     return [px, mapSize - py];
   }
 
-  meters_to_tile(mx, my, level) {
+  meters_to_tile(mx: number, my: number, level: number): [number, number] {
     const [px, py] = this.meters_to_pixels(mx, my, level);
     return this.pixels_to_tile(px, py);
   }
 
-  get_tile_meter_bounds(tx, ty, level) {
+  get_tile_meter_bounds(tx: number, ty: number, level: number): Bounds {
     // expects tms styles coordinates (bottom-left origin)
     const [xmin, ymin] = this.pixels_to_meters(tx * this.tile_size, ty * this.tile_size, level);
     const [xmax, ymax] = this.pixels_to_meters((tx + 1) * this.tile_size, (ty + 1) * this.tile_size, level);
-
-    if ((xmin != null) && (ymin != null) && (xmax != null) && (ymax != null)) {
-      return [xmin, ymin, xmax, ymax];
-    } else {
-      return undefined;
-    }
+    return [xmin, ymin, xmax, ymax]
   }
 
-  get_tile_geographic_bounds(tx, ty, level) {
+  get_tile_geographic_bounds(tx: number, ty: number, level: number): Bounds {
     const bounds = this.get_tile_meter_bounds(tx, ty, level);
-    const [minLon, minLat, maxLon, maxLat] = this.utils.meters_extent_to_geographic(bounds);
-    return [minLon, minLat, maxLon, maxLat];
+    const [minLon, minLat, maxLon, maxLat] = meters_extent_to_geographic(bounds);
+    return [minLon, minLat, maxLon, maxLat]
   }
 
-  get_tiles_by_extent(extent, level, tile_border = 1) {
+  get_tiles_by_extent(extent: Extent, level: number, tile_border: number = 1): [number, number, number, Bounds][] {
     // unpack extent and convert to tile coordinates
     const [xmin, ymin, xmax, ymax] = extent;
     let [txmin, tymin] = this.meters_to_tile(xmin, ymin, level);
@@ -234,17 +198,16 @@ export class MercatorTileSource extends TileSource {
     txmax += tile_border;
     tymax += tile_border;
 
-    let tiles = [];
-    for (let ty = tymax, end = tymin; ty >= end; ty--) {
-      for (let tx = txmin, end1 = txmax; tx <= end1; tx++) {
-        if (this.is_valid_tile(tx, ty, level)) {
+    let tiles: [number, number, number, Bounds][] = [];
+    for (let ty = tymax; ty >= tymin; ty--) {
+      for (let tx = txmin; tx <= txmax; tx++) {
+        if (this.is_valid_tile(tx, ty, level))
           tiles.push([tx, ty, level, this.get_tile_meter_bounds(tx, ty, level)]);
-        }
       }
     }
 
-    tiles = this.sort_tiles_from_center(tiles, [txmin, tymin, txmax, tymax]);
-    return tiles;
+    this.sort_tiles_from_center(tiles, [txmin, tymin, txmax, tymax]);
+    return tiles
   }
 
   quadkey_to_tile_xyz(quadKey: string): [number, number, number] {
@@ -280,50 +243,48 @@ export class MercatorTileSource extends TileSource {
     return [tileX, tileY, tileZ];
   }
 
-  tile_xyz_to_quadkey(x, y, z) {
+  tile_xyz_to_quadkey(x: number, y: number, z: number): string {
     /*
      * Computes quadkey value based on tile x, y and z values.
      */
-    let quadKey = '';
+    let quadkey = "";
     for (let i = z; i > 0; i--) {
-      let digit = 0;
       const mask = 1 << (i - 1);
-      if((x & mask) !== 0) {
+      let digit = 0;
+      if ((x & mask) !== 0) {
         digit += 1;
       }
-      if((y & mask) !== 0) {
+      if ((y & mask) !== 0) {
         digit += 2;
       }
-      quadKey += digit.toString();
+      quadkey += digit.toString();
     }
-    return quadKey;
+    return quadkey;
   }
 
-  children_by_tile_xyz(x, y, z) {
-    const quad_key = this.tile_xyz_to_quadkey(x, y, z);
-    const child_tile_xyz = [];
+  children_by_tile_xyz(x: number, y: number, z: number): [number, number, number, Bounds][] {
+    const quadkey = this.tile_xyz_to_quadkey(x, y, z);
+    const child_tile_xyz: [number, number, number, Bounds][] = [];
+
     for (let i = 0; i <= 3; i++) {
-      [x, y, z] = this.quadkey_to_tile_xyz(quad_key + i.toString());
+      [x, y, z] = this.quadkey_to_tile_xyz(quadkey + i.toString());
       const b = this.get_tile_meter_bounds(x, y, z);
-      if (b != null) {
-        child_tile_xyz.push([x, y, z, b]);
-      }
+      child_tile_xyz.push([x, y, z, b]);
     }
 
     return child_tile_xyz;
   }
 
-  get_closest_parent_by_tile_xyz(x, y, z) {
+  get_closest_parent_by_tile_xyz(x: number, y: number, z: number): [number, number, number] {
     const world_x = this.calculate_world_x_by_tile_xyz(x, y, z);
     [x, y, z] = this.normalize_xyz(x, y, z);
-    let quad_key = this.tile_xyz_to_quadkey(x, y, z);
-    while (quad_key.length > 0) {
-      quad_key = quad_key.substring(0, quad_key.length - 1);
-      [x, y, z] = this.quadkey_to_tile_xyz(quad_key);
+    let quadkey = this.tile_xyz_to_quadkey(x, y, z);
+    while (quadkey.length > 0) {
+      quadkey = quadkey.substring(0, quadkey.length - 1);
+      [x, y, z] = this.quadkey_to_tile_xyz(quadkey);
       [x, y, z] = this.denormalize_xyz(x, y, z, world_x);
-      if (this.tile_xyz_to_key(x, y, z) in this.tiles) {
-          return [x, y, z];
-        }
+      if (this.tile_xyz_to_key(x, y, z) in this.tiles)
+        return [x, y, z];
     }
     return [0, 0, 0];
   }
@@ -337,15 +298,15 @@ export class MercatorTileSource extends TileSource {
     }
   }
 
-  denormalize_xyz(x, y, z, world_x) {
+  denormalize_xyz(x: number, y: number, z: number, world_x: number): [number, number, number] {
     return [x + (world_x * Math.pow(2, z)), y, z];
   }
 
-  denormalize_meters(meters_x, meters_y, _level, world_x) {
+  denormalize_meters(meters_x: number, meters_y: number, _level: number, world_x: number): [number, number] {
     return [meters_x + (world_x * 2 * Math.PI * 6378137), meters_y];
   }
 
-  calculate_world_x_by_tile_xyz(x, _y, z) {
+  calculate_world_x_by_tile_xyz(x: number, _y: number, z: number): number {
     return Math.floor(x / Math.pow(2, z));
   }
 }
