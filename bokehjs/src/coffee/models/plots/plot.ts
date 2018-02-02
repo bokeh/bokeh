@@ -4,7 +4,7 @@ import * as p from "core/properties"
 import {Color} from "core/types"
 import {LineJoin, LineCap} from "core/enums"
 import {Place, Location, OutputBackend} from "core/enums"
-import {find, removeBy} from "core/util/array"
+import {find, removeBy, includes} from "core/util/array"
 import {extend, values} from "core/util/object"
 import {isString, isArray} from "core/util/types"
 
@@ -216,7 +216,6 @@ export class Plot extends LayoutDOM {
   }
 
   protected _plot_canvas: PlotCanvas
-  protected _toolbar_panel: ToolbarPanel | null
 
   initialize(): void {
     super.initialize()
@@ -282,18 +281,19 @@ export class Plot extends LayoutDOM {
   }
 
   protected _init_toolbar_panel(): void {
-    if (this._toolbar_panel != null) {
-      for (const items of [this.left, this.right, this.above, this.below, this.renderers])
-        removeBy(items, (item) => item == this._toolbar_panel)
-      this._toolbar_panel = null
-    }
+    let tpanel = find(this.renderers, (model): model is ToolbarPanel => {
+      return model instanceof ToolbarPanel && includes(model.tags, this.id)
+    })
+
+    if (tpanel != null)
+      this.remove_layout(tpanel)
 
     switch (this.toolbar_location) {
       case "left":
       case "right":
       case "above":
       case "below": {
-        this._toolbar_panel = new ToolbarPanel({toolbar: this.toolbar})
+        tpanel = new ToolbarPanel({toolbar: this.toolbar, tags: [this.id]})
         this.toolbar.toolbar_location = this.toolbar_location
 
         if (this.toolbar_sticky) {
@@ -301,13 +301,13 @@ export class Plot extends LayoutDOM {
           const title = find(models, (model): model is Title => model instanceof Title)
 
           if (title != null) {
-            this._toolbar_panel.set_panel((title as any).panel) // XXX
-            this.add_renderers(this._toolbar_panel)
+            (tpanel as ToolbarPanel).set_panel((title as Title).panel!) // XXX, XXX: because find() doesn't provide narrowed types
+            this.add_renderers(tpanel)
             return
           }
         }
 
-        this.add_layout(this._toolbar_panel, this.toolbar_location)
+        this.add_layout(tpanel, this.toolbar_location)
         break
       }
     }
@@ -342,6 +342,19 @@ export class Plot extends LayoutDOM {
       renderer.add_panel(side) // XXX
     }
     this.add_renderers(renderer)
+  }
+
+  remove_layout(renderer: Renderer): void {
+
+    const del = (items: Renderer[]): void => {
+      removeBy(items, (item) => item == renderer)
+    }
+
+    del(this.left)
+    del(this.right)
+    del(this.above)
+    del(this.below)
+    del(this.renderers)
   }
 
   add_glyph(glyph: Glyph, source: DataSource = new ColumnDataSource(), extra_attrs: any = {}): GlyphRenderer {
