@@ -13,7 +13,7 @@ import * as hittest from "core/hittest";
 import {Geometry} from "core/geometry";
 import {SelectionManager} from "core/selection_manager";
 import {Context2d} from "core/util/canvas"
-import { FactorRange } from '../ranges/factor_range';
+import {FactorRange} from '../ranges/factor_range';
 
 export class GlyphRendererView extends RendererView {
   model: GlyphRenderer
