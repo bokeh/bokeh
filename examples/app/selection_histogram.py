@@ -15,7 +15,7 @@ in your browser.
 import numpy as np
 
 from bokeh.layouts import row, column
-from bokeh.models import BoxSelectTool, LassoSelectTool, Spacer
+from bokeh.models import BoxSelectTool, LassoSelectTool, Spacer, Selection
 from bokeh.plotting import figure, curdoc
 
 # create three normal population samples with different parameters
@@ -42,6 +42,8 @@ p.select(BoxSelectTool).select_every_mousemove = False
 p.select(LassoSelectTool).select_every_mousemove = False
 
 r = p.scatter(x, y, size=3, color="#3A5785", alpha=0.6)
+
+r.data_source.selected = Selection()
 
 # create the horizontal histogram
 hhist, hedges = np.histogram(x, bins=20)
@@ -81,7 +83,7 @@ curdoc().add_root(layout)
 curdoc().title = "Selection Histogram"
 
 def update(attr, old, new):
-    inds = np.array(new['1d']['indices'])
+    inds = np.array(new)
     if len(inds) == 0 or len(inds) == len(x):
         hhist1, hhist2 = hzeros, hzeros
         vhist1, vhist2 = vzeros, vzeros
@@ -98,4 +100,4 @@ def update(attr, old, new):
     vh1.data_source.data["right"] =  vhist1
     vh2.data_source.data["right"] = -vhist2
 
-r.data_source.on_change('selected', update)
+r.data_source.selected.on_change('indices', update)
