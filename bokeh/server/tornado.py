@@ -232,15 +232,13 @@ class BokehTornado(TornadoApplication):
         self._clients = set()
 
         self._stats_job = PeriodicCallback(self._log_stats,
-                                           self._stats_log_frequency_milliseconds,
-                                           io_loop=self._loop)
+                                           self._stats_log_frequency_milliseconds)
 
         self._cleanup_job = PeriodicCallback(self._cleanup_sessions,
-                                             self._check_unused_sessions_milliseconds,
-                                             io_loop=self._loop)
+                                             self._check_unused_sessions_milliseconds)
 
         if self._keep_alive_milliseconds > 0:
-            self._ping_job = PeriodicCallback(self._keep_alive, self._keep_alive_milliseconds, io_loop=self._loop)
+            self._ping_job = PeriodicCallback(self._keep_alive, self._keep_alive_milliseconds)
         else:
             self._ping_job = None
 

@@ -606,7 +606,7 @@ BoxEditTool
 ~~~~~~~~~~~
 
 * name: ``'box_edit'``
-* menu icon: |box_draw_icon|
+* menu icon: |box_edit_icon|
 
 The BoxEditTool allows drawing, dragging and deleting ``Rect`` glyphs
 on one or more renderers by editing the underlying
@@ -897,7 +897,7 @@ properties on |Plot| objects that control LOD behavior:
     :height: 14pt
 .. |zoom_out_icon| image:: /_images/icons/ZoomOut.png
     :height: 14pt
-.. |box_draw_icon| image:: /_images/icons/BoxEdit.png
+.. |box_edit_icon| image:: /_images/icons/BoxEdit.png
     :height: 14pt
 .. |point_draw_icon| image:: /_images/icons/PointDraw.png
     :height: 14pt

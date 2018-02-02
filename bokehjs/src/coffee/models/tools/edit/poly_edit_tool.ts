@@ -134,7 +134,9 @@ export class PolyEditToolView extends EditToolView {
         ys.splice(index+1, 0, ny)
       }
       ds.change.emit(undefined);
-      this._selected_renderer.data_source.change.emit(undefined);
+      const selected_ds = this._selected_renderer.data_source;
+      selected_ds.change.emit(undefined);
+      selected_ds.properties.data.change.emit(undefined);
       return;
     }
     const append = e.srcEvent.shiftKey != null ? e.srcEvent.shiftKey : false;
@@ -256,6 +258,6 @@ export class PolyEditTool extends EditTool {
   tool_name = "Poly Edit Tool"
   icon = "bk-tool-icon-poly-edit"
   event_type = ["tap", "pan", "move"]
-  default_order = 12
+  default_order = 4
 }
 PolyEditTool.initClass()

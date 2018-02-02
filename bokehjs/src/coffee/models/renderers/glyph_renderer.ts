@@ -13,6 +13,7 @@ import * as hittest from "core/hittest";
 import {Geometry} from "core/geometry";
 import {SelectionManager} from "core/selection_manager";
 import {Context2d} from "core/util/canvas"
+import { FactorRange } from '../ranges/factor_range';
 
 export class GlyphRendererView extends RendererView {
   model: GlyphRenderer
@@ -98,12 +99,14 @@ export class GlyphRendererView extends RendererView {
 
     for (const name in x_ranges) {
       const rng = x_ranges[name];
-      this.connect(rng.change, () => this.set_data())
+      if rng instanceof FactorRange
+        this.connect(rng.change, () => this.set_data())
     }
 
     for (const name in y_ranges) {
       const rng = y_ranges[name];
-      this.connect(rng.change, () => this.set_data())
+      if rng instanceof FactorRange
+        this.connect(rng.change, () => this.set_data())
     }
 
     this.connect(this.model.glyph.transformchange, () => this.set_data())

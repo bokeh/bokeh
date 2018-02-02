@@ -893,7 +893,7 @@ class EditTool(Tool):
     """)
 
 class BoxEditTool(EditTool, Drag, Tap):
-    ''' *toolbar icon*: |box_draw_icon|
+    ''' *toolbar icon*: |box_edit_icon|
 
     The BoxEditTool allows drawing, dragging and deleting ``Rect``
     glyphs on one or more renderers by editing the underlying
@@ -927,7 +927,7 @@ class BoxEditTool(EditTool, Drag, Tap):
       selection tool) then press <<backspace>> while the mouse is
       within the plot area.
 
-    .. |box_draw_icon| image:: /_images/icons/BoxEdit.png
+    .. |box_edit_icon| image:: /_images/icons/BoxEdit.png
         :height: 18pt
     '''
 

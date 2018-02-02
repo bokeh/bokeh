@@ -18,6 +18,15 @@ Migration Guide
 NOTE: the 0.12.x series is the last planned release series before a version
 1.0 release. For more information see the `project roadmap`_.
 
+Deprecations Removed
+~~~~~~~~~~~~~~~~~~~~
+
+The following deprecated features have been removed in this release:
+
+* `DynamicImageRenderer` (consider GeoViews_ instead)
+* BokehJS support for `*.tsx` templates (not typically user-facing)
+* `autoload_server` (use `server_document` or `server_session` instead)
+
 New Runtime Dependency
 ~~~~~~~~~~~~~~~~~~~~~~
 
@@ -78,13 +87,13 @@ sub-views. The new approach is to override `css_classes()` method, e.g.:
 
 This change affects only creators of custom extensions.
 
-`HasProps.initialize()`
-~~~~~~~~~~~~~~~~~~~~~~~
+``HasProps.initialize()``
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Previously `HasProps.initialize()` took `attrs` and `options` as its arguments.
+Previously ``HasProps.initialize()`` took `attrs` and `options` as its arguments.
 This was nearly never used and so it was removed. The preferred way to configure
 values of attributes is to use bokehjs' properties system. This change affects
 only creators of custom extensions.
 
-
+.. _GeoViews: http://geo.holoviews.org
 .. _project roadmap: https://bokehplots.com/pages/roadmap.html

@@ -164,7 +164,7 @@ export class ProxyToolbar extends ToolbarBase {
         continue;
       }
       this.gestures[et].tools = sortBy(tools, tool => tool.default_order);
-      if (!(et == 'pinch' || et == 'scroll'))
+      if (!(et == 'pinch' || et == 'scroll' || et == 'multi'))
         this.gestures[et].tools[0].active = true;
     }
   }

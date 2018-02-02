@@ -41,7 +41,7 @@ def websocket_open(io_loop, url, origin=None):
     request = HTTPRequest(url)
     if origin is not None:
         request.headers['Origin'] = origin
-    websocket_connect(request, callback=handle_connection, io_loop=io_loop)
+    websocket_connect(request, callback=handle_connection)
 
     io_loop.start()
 

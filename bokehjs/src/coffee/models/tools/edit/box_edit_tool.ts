@@ -158,9 +158,9 @@ export class BoxEditTool extends EditTool {
     })
   }
 
-  tool_name = "Box Draw Tool"
+  tool_name = "Box Edit Tool"
   icon = "bk-tool-icon-box-edit"
   event_type = ["tap", "pan", "move"]
-  default_order = 30
+  default_order = 1
 }
 BoxEditTool.initClass()
