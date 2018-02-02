@@ -1,9 +1,9 @@
 import * as p from "core/properties"
 import {PointGeometry} from "core/geometry"
 import {copy} from "core/util/array"
-import {XYGlyph} from "models/glyphs/xy_glyph"
-import {ColumnDataSource} from "models/sources/column_data_source"
-import {GlyphRenderer} from "models/renderers/glyph_renderer"
+import {XYGlyph} from "../../glyphs/xy_glyph"
+import {ColumnDataSource} from "../../sources/column_data_source"
+import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {GestureTool, GestureToolView} from "../gestures/gesture_tool"
 
 export interface BkEv {

@@ -7,9 +7,9 @@ import * as hittest from "core/hittest";
 import {keys} from "core/util/object";
 import {min, max} from "core/util/array";
 import {isStrictNaN} from "core/util/types";
-import {Selection} from "models/selections/selection";
 import {Context2d} from "core/util/canvas"
 import {Glyph, GlyphView} from "./glyph"
+import {Selection} from "../selections/selection";
 
 export class MultiLineView extends GlyphView {
   model: MultiLine

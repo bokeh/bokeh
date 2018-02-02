@@ -1,13 +1,13 @@
 /* XXX: partial */
 import {XYGlyph, XYGlyphView} from "./xy_glyph";
 import {PointGeometry, RectGeometry} from "core/geometry";
-import {Selection} from "models/selections/selection";
 import {DistanceSpec, AngleSpec} from "core/vectorization"
 import {LineMixinVector, FillMixinVector} from "core/property_mixins"
 import * as hittest from "core/hittest";
 import * as p from "core/properties";
 import {max} from "core/util/array";
 import {Context2d} from "core/util/canvas"
+import {Selection} from "../selections/selection";
 
 export class RectView extends XYGlyphView {
   model: Rect

@@ -4,11 +4,11 @@ import {Glyph, GlyphView} from "./glyph";
 import {min, max, copy, findLastIndex} from "core/util/array";
 import {isStrictNaN} from "core/util/types";
 import {PointGeometry} from "core/geometry";
-import {Selection} from "models/selections/selection";
 import {Context2d} from "core/util/canvas"
 import {NumberSpec} from "core/vectorization"
 import {LineMixinVector, FillMixinVector} from "core/property_mixins"
 import * as hittest from "core/hittest"
+import {Selection} from "../selections/selection";
 
 export class PatchesView extends GlyphView {
   model: Patches

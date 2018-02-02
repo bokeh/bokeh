@@ -1,12 +1,12 @@
 /* XXX: partial */
 import {XYGlyph, XYGlyphView} from "./xy_glyph";
 import {PointGeometry} from "core/geometry";
-import {Selection} from "models/selections/selection";
 import {DistanceSpec} from "core/vectorization"
 import {LineMixinVector, FillMixinVector} from "core/property_mixins"
 import * as hittest from "core/hittest";
 import * as p from "core/properties"
 import {Context2d} from "core/util/canvas"
+import {Selection} from "../selections/selection";
 
 export class AnnulusView extends XYGlyphView {
   model: Annulus

@@ -1,8 +1,8 @@
 import {Model} from "../../model"
 import {Geometry} from "core/geometry"
 import {HitTestResult} from "core/hittest"
-import {GlyphRendererView} from "models/renderers/glyph_renderer"
-import {ColumnarDataSource} from "models/sources/columnar_data_source"
+import {GlyphRendererView} from "../renderers/glyph_renderer"
+import {ColumnarDataSource} from "../sources/columnar_data_source"
 
 export abstract class SelectionPolicy extends Model {
 

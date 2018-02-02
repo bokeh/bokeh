@@ -99,13 +99,13 @@ export class GlyphRendererView extends RendererView {
 
     for (const name in x_ranges) {
       const rng = x_ranges[name];
-      if rng instanceof FactorRange
+      if (rng instanceof FactorRange)
         this.connect(rng.change, () => this.set_data())
     }
 
     for (const name in y_ranges) {
       const rng = y_ranges[name];
-      if rng instanceof FactorRange
+      if (rng instanceof FactorRange)
         this.connect(rng.change, () => this.set_data())
     }
 
@@ -182,8 +182,8 @@ export class GlyphRendererView extends RendererView {
     ctx.save();
 
     // selected is in full set space
-    let { selected } = this.model.data_source;
-    let selected_full_indices: number[] = []
+    const { selected } = this.model.data_source;
+    let selected_full_indices: number[]
     if (!selected || selected.is_empty()) {
       selected_full_indices = [];
     } else {
@@ -195,8 +195,8 @@ export class GlyphRendererView extends RendererView {
     }
 
     // inspected is in full set space
-    let { inspected } = this.model.data_source;
-    let inspected_full_indices: number[] = []
+    const { inspected } = this.model.data_source;
+    let inspected_full_indices: number[]
     if (!inspected || (inspected.length === 0)) {
       inspected_full_indices = [];
     } else {
@@ -216,7 +216,7 @@ export class GlyphRendererView extends RendererView {
     }
 
     // inspected is transformed to subset space
-    let inspected_subset_indices: number[] = ((() => {
+    const inspected_subset_indices: number[] = ((() => {
       const result = [];
       for (const i of indices) {
         if (includes(inspected_full_indices, this.all_indices[i])) {

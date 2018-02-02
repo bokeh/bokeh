@@ -1,7 +1,7 @@
 import {Keys} from "core/dom"
 import * as p from "core/properties"
 import {copy} from "core/util/array"
-import {GlyphRenderer} from "models/renderers/glyph_renderer"
+import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {EditTool, EditToolView, HasCDS, HasXYGlyph, BkEv} from "./edit_tool"
 
 

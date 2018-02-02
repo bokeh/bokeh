@@ -2,9 +2,29 @@ import {Model} from "../../model"
 import * as p from "core/properties"
 import {union, intersection} from "core/util/array"
 import {merge} from "core/util/object"
-import {Glyph, GlyphView} from "models/glyphs/glyph"
+import {Glyph, GlyphView} from "../glyphs/glyph"
+
+export namespace Selection {
+  export interface Attrs extends Model.Attrs {
+    indices: number[]
+    final: boolean
+    line_indices: number[]
+    selected_glyphs: Glyph[]
+    get_view: () => GlyphView | null
+    multiline_indices: {[key: string]: number[]}
+  }
+
+  export interface Opts extends Model.Opts {}
+}
+
+export interface Selection extends Selection.Attrs {}
 
 export class Selection extends Model {
+
+  constructor(attrs?: Partial<Selection.Attrs>, opts?: Selection.Opts) {
+    super(attrs, opts)
+  }
+
   static initClass() {
     this.prototype.type = "Selection";
 
@@ -21,12 +41,6 @@ export class Selection extends Model {
     });
   }
 
-  indices: number[]
-  final: boolean
-  line_indices: number[]
-  selected_glyphs: Glyph[]
-  get_view: () => GlyphView | null
-  multiline_indices: {[key: string]: number[]} // XXX: [key: number]?
   [key: string]: any
 
   initialize(): void {

@@ -15,7 +15,10 @@ import {SelectionPolicy, UnionRenderers} from "../selections/interaction_policy"
 export namespace ColumnarDataSource {
   export interface Attrs extends DataSource.Attrs {
     column_names: string[]
+    selection_policy: SelectionPolicy
     selection_manager: SelectionManager
+    inspected: Selection
+    _shapes: {[key: string]: any}
   }
 
   export interface Opts extends DataSource.Opts {}
@@ -26,17 +29,12 @@ export interface ColumnarDataSource extends ColumnarDataSource.Attrs {}
 export abstract class ColumnarDataSource extends DataSource {
 
   data: {[key: string]: any[]}
-  _shapes: {[key: string]: any}
 
   _select: Signal<any, this>
   inspect: Signal<any, this> // XXX: <[indices, tool, renderer-view, source, data], this>
 
   streaming: Signal<any, this>
   patching: Signal<any, this> // <number[], ColumnarDataSource>
-
-  inspected: Selection
-  selection_policy: SelectionPolicy
-  selection_manager: SelectionManager
 
   constructor(attrs?: Partial<ColumnarDataSource.Attrs>, opts?: ColumnarDataSource.Opts) {
     super(attrs, opts)

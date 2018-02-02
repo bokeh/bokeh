@@ -4,9 +4,9 @@ import * as hittest from "core/hittest";
 import {NumberSpec} from "core/vectorization"
 import {LineMixinVector} from "core/property_mixins"
 import {RBush} from "core/util/spatial";
-import {Selection} from "models/selections/selection";
 import {Context2d} from "core/util/canvas"
 import {Glyph, GlyphView} from "./glyph"
+import {Selection} from "../selections/selection";
 
 export class SegmentView extends GlyphView {
   model: Segment

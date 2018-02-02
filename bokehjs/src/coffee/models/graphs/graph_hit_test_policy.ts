@@ -2,9 +2,9 @@ import {Model} from "../../model"
 import {contains, uniq} from "core/util/array"
 import {create_empty_hit_test_result, HitTestResult} from "core/hittest"
 import {Geometry} from "core/geometry"
-import {Selection} from "models/selections/selection"
-import {GraphRenderer, GraphRendererView} from "models/renderers/graph_renderer";
-import {ColumnarDataSource} from "models/sources/columnar_data_source";
+import {Selection} from "../selections/selection"
+import {GraphRenderer, GraphRendererView} from "../renderers/graph_renderer";
+import {ColumnarDataSource} from "../sources/columnar_data_source";
 
 export abstract class GraphHitTestPolicy extends Model {
 

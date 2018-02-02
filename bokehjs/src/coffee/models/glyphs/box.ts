@@ -5,7 +5,7 @@ import {Context2d} from "core/util/canvas"
 import {Glyph, GlyphView} from "./glyph";
 import {PointGeometry, SpanGeometry, RectGeometry} from "core/geometry";
 import * as hittest from "core/hittest";
-import {Selection} from "models/selections/selection";
+import {Selection} from "../selections/selection";
 
 // Not a publicly exposed Glyph, exists to factor code for bars and quads
 

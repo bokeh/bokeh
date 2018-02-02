@@ -12,7 +12,7 @@ import {logger} from "core/logging";
 import {extend} from "core/util/object";
 import {isArray} from "core/util/types";
 import {LineView} from "./line";
-import {Selection} from "models/selections/selection";
+import {Selection} from "../selections/selection";
 
 export abstract class GlyphView extends View {
   model: Glyph

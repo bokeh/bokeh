@@ -1,10 +1,10 @@
 /* XXX: partial */
 import {XYGlyph, XYGlyphView} from "./xy_glyph";
 import {PointGeometry, SpanGeometry} from "core/geometry";
-import {Selection} from "models/selections/selection";
 import {LineMixinVector} from "core/property_mixins"
 import * as hittest from "core/hittest"
 import {Context2d} from "core/util/canvas"
+import {Selection} from "../selections/selection";
 
 export class LineView extends XYGlyphView {
   model: Line

@@ -1,9 +1,9 @@
 import {Keys} from "core/dom"
 import * as p from "core/properties"
 import {copy} from "core/util/array"
-import {MultiLine} from "models/glyphs/multi_line"
-import {Patches} from "models/glyphs/patches"
-import {GlyphRenderer} from "models/renderers/glyph_renderer"
+import {MultiLine} from "../../glyphs/multi_line"
+import {Patches} from "../../glyphs/patches"
+import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {EditTool, EditToolView, HasCDS, BkEv} from "./edit_tool"
 
 export interface HasPolyGlyph {
