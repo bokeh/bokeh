@@ -1,6 +1,9 @@
 from ..core.has_props import abstract
-from ..core.properties import Int, Seq
+from ..core.properties import Dict, Int, Seq, String
 from ..model import Model
+
+import logging
+logger = logging.getLogger(__name__)
 
 class Selection(Model):
     '''
@@ -15,6 +18,24 @@ class Selection(Model):
     indices = Seq(Int, default=[], help="""
     The indices included in a selection.
     """)
+
+    line_indices = Seq(Int, default=[], help="""
+    """)
+
+    multiline_indices = Dict(String, Seq(Int), default={}, help="""
+    """)
+
+    def __getitem__(self, key):
+        if key == '0d':
+            logger.warn("['0d']['indices'] is deprecated. Use .line_indices instead.")
+            return None
+        elif key == '2d':
+            logger.warn("['2d']['indices'] is deprecated. Use .multiline_indices instead.")
+            return None
+        elif key == '1d':
+            return self
+        elif key == 'indices':
+            return self.indices
 
 @abstract
 class SelectionPolicy(Model):

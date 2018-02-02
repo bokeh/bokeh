@@ -29,15 +29,15 @@ export class Selection extends Model {
     this.prototype.type = "Selection";
 
     this.define({
-      indices:         [ p.Array,   [] ],
+      indices:           [ p.Array,   [] ],
+      line_indices:      [ p.Array,   [] ],
+      multiline_indices: [ p.Any,     {} ],
     });
 
     this.internal({
       final:             [ p.Boolean     ],
-      line_indices:      [ p.Array,   [] ],
       selected_glyphs:   [ p.Array,   [] ],
       get_view:          [ p.Any         ],
-      multiline_indices: [ p.Any,     {} ],
     });
   }
 
