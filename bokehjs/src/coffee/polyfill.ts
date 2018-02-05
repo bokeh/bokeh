@@ -9,9 +9,8 @@ if (typeof Set !== "function") {
 }
 
 // ref: https://github.com/bokeh/bokeh/issues/7373
-const Number_proto = Number.prototype as any
-if (!Number_proto.isInteger) {
-  Number_proto.isInteger = function(value: number): boolean {
+if (!Number.isInteger) {
+  Number.isInteger = function(value: number): boolean {
     return typeof value === 'number' && isFinite(value) && Math.floor(value) === value;
   }
 }
