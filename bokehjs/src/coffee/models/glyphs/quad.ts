@@ -1,12 +1,13 @@
 /* XXX: partial */
 import {Box, BoxView} from "./box"
 import {NumberSpec} from "core/vectorization"
+import {Anchor} from "core/enums"
 import {RBush} from "core/util/spatial"
 
 export class QuadView extends BoxView {
   model: Quad
 
-  get_anchor_point(anchor, i, _spt) {
+  get_anchor_point(anchor: Anchor, i: number, _spt: [number, number]): {x: number, y: number} | null {
     const left = Math.min(this.sleft[i], this.sright[i]);
     const right = Math.max(this.sright[i], this.sleft[i]);
     const top = Math.min(this.stop[i], this.sbottom[i]);     // screen coordinates !!!
@@ -22,6 +23,7 @@ export class QuadView extends BoxView {
       case 'bottom_left':   return {x: left,             y: bottom           };
       case 'center_left':   return {x: left,             y: (top + bottom)/2 };
       case 'center':        return {x: (left + right)/2, y: (top + bottom)/2 };
+      default:              return null
     }
   }
 

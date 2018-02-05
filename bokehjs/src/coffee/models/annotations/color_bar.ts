@@ -45,18 +45,22 @@ export class ColorBarView extends AnnotationView {
     }
   }
 
-  _get_size() {
-    if ((this.model.color_mapper == null)) {
-      return 0;
-    }
+  protected _get_size(): number {
+    if (this.model.color_mapper == null)
+      return 0
 
-    const bbox = this.compute_legend_dimensions();
-    const { side } = this.model.panel;
-    if ((side === 'above') || (side === 'below')) {
-      return bbox.height;
-    }
-    if ((side === 'left') || (side === 'right')) {
-      return bbox.width;
+    const bbox = this.compute_legend_dimensions()
+    const {side} = this.model.panel
+
+    switch (side) {
+      case "above":
+      case "below":
+        return bbox.height
+      case "left":
+      case "right":
+        return bbox.width
+      default:
+        return undefined as never
     }
   }
 

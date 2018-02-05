@@ -113,7 +113,7 @@ export class GlyphRendererView extends RendererView {
 
   // in case of partial updates like patching, the list of indices that actually
   // changed may be passed as the "indices" parameter to afford any optional optimizations
-  set_data(request_render = true, indices = null) { // XXX: indices
+  set_data(request_render: boolean = true, indices: number[] | null = null): void {
     const t0 = Date.now();
     const source = this.model.data_source;
 
@@ -149,7 +149,7 @@ export class GlyphRendererView extends RendererView {
     this.set_data_timestamp = Date.now();
 
     if (request_render) {
-      return this.request_render();
+      this.request_render();
     }
   }
 

@@ -12,7 +12,7 @@ export abstract class CellEditorView extends DOMView {
 
   defaultValue: any
 
-  get emptyValue() {
+  get emptyValue(): any {
     return null
   }
 
@@ -109,7 +109,7 @@ CellEditor.initClass();
 export class StringEditorView extends CellEditorView {
   model: StringEditor
 
-  get emptyValue() {
+  get emptyValue(): string {
     return ""
   }
 
@@ -354,7 +354,7 @@ export class DateEditorView extends CellEditorView {
     return input({type: "text"})
   }
 
-  get emptyValue() {
+  get emptyValue(): Date {
     return new Date()
   }
 
@@ -392,7 +392,7 @@ export class DateEditorView extends CellEditorView {
     return super.hide();
   }
 
-  position(_position) {
+  position(/*_position*/) {
     //if @calendarOpen
     //  $.datepicker.dpDiv.css(top: position.top + 30, left: position.left)
     return super.position();
