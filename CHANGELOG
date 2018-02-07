@@ -1,3 +1,76 @@
+2018-02-07  0.12.14:
+--------------------
+  * bugfixes:
+    - #5420 [component: bokehjs] View.classname doesn't respect class structure
+    - #6655 [component: bokehjs] X/y_range not properly set with tile source
+    - #6680 [component: bokehjs] Datetime (convert_datetime_type) seems to add in extra milliseconds
+    - #6932 [layout] 0.12.9 misplaced figure title
+    - #7083 [component: bokehjs] Factorrange regression: plot does not get updated when factors change
+    - #7101 [component: bokehjs] [widgets] Broken datatable selecteditor
+    - #7139 [component: bokehjs] [regression] [widgets] Datatable automatically scrolls down when app loads
+    - #7218 [component: bokehjs] Circle not circular
+    - #7266 [layout] [regression] Spacer does not display using show on 0.12.11
+    - #7290 [component: bokehjs] Regression in boxzoomtool with match_aspect
+    - #7291 [component: bokehjs] Hovertool with attachment="vertical" incorrectly positions tooltips
+    - #7295 [component: docs] Removed a broken link from server.rst
+    - #7298 Remove dependency on phantomjs when other webdriver is used
+    - #7304 [component: bokehjs] [regression] [widgets] Datatable editing regression
+    - #7319 [notebook] Themes not applying in the notebook
+    - #7327 Output_png and output_svgs fails in the settings.phantomjs_path( ) function.  
+    - #7337 [component: bokehjs] Legend entry for text renderer causes error
+    - #7370 [component: bokehjs] Regression in graph rendering during zoom
+    - #7373 [component: bokehjs] [regression] "number.isinteger()" javascript error of slider in internet explorer
+    - #7386 [component: docs] Error in documentation for handling categorical data
+    - #7398 [component: bokehjs] [regression] [typescript] Missing import of includes function in tile_renderer 
+    - #7400 Issue with figure and legend when a dataframe is passed as a source
+    - #7412 [component: bokehjs] [typescript] Variables in widget selectview undeclared 
+    - #7439 [component: bokehjs] [notebook] [regression] Regression displaying embedded bokeh plots outside the notebook
+    - #7443 [component: bokehjs] [layout] [regression] Bokeh layout elements overlap in new version
+    - #7448 [component: bokehjs] [regression] [typescript] "typeerror: hits.map is not a function" when hovering over multiline
+    - #7452 [component: bokehjs] [regression] [widgets] Revert nouislider rev update
+    - #7460 Bokeh.core.properties.date#transform fails on windows
+    - #7461 [component: server] [regression] Unable to reuse sessions of a server application
+    - #7470 [component: bokehjs] Polydrawtool does not emit event on double-click
+    - #7475 [component: bokehjs] [regression] Setting range end or start through customjs not working
+    - #7478 [component: bokehjs] [regression] Selection and nonselection glyph properties ignored
+    - #7484 [regression] Cannot select tools in certain examples
+    - #7488 [component: bokehjs] [regression] Renderers/glyph_renderer contains invalid syntax
+    - #7503 [component: bokehjs] [regression] [widgets] Selecteditorview (and others) doesn't have access to its model
+  * features:
+    - #6370 [component: bokehjs] Proposing a bokeh draw tool
+    - #7292 [API: models] Make it possible to create hovertool with attachment set to explicit left, right, above, below
+  * tasks:
+    - #3250 [component: bokehjs] Tool icons should have the same dimensions
+    - #3551 Add https to tile providers urls in `bokeh/tile_providers.py`
+    - #6605 [component: bokehjs] [component: build] Add support for tslint in bokehjs' build
+    - #6681 [component: server] Streaming numpy datetime64 data does not work
+    - #6887 Remove all server examples that use session.loop_until_closed
+    - #7014 [component: bokehjs] The inherited width should be set to 100% and up to the user to implement margin and padding restrictions
+    - #7084 [component: bokehjs] Factorrange regression: bokehjs crashes if data has values not in factorrange factors
+    - #7164 [component: tests] Axes labels misplaced on multiple extra_x_ranges
+    - #7267 [component: bokehjs] [component: build] Make bokehjs' build work with npm 5
+    - #7288 404 error on website page for releases
+    - #7289 [component: server] Sort application names in index page
+    - #7308 [component: server] Tornado 5.0 compatibility
+    - #7318 [component: docs] Make old/dev docs warning banner always float
+    - #7323 [component: docs] Components not working with notebook show in the same cell
+    - #7331 [component: tests] Replace strict fp equality with allclose
+    - #7332 [component: bokehjs] [layout] Initialize box's  layout variables in initialize()
+    - #7344 [component: docs] Minor typos in bokeh server docs code example
+    - #7346 [component: tests] Resolve pytest --log-file conflict
+    - #7354 [component: bokehjs] Remove resettool.reset_size
+    - #7376 Add traceback information to exception messages callbacks
+    - #7385 [component: docs] Fixed a broken link ('why anaconda')
+    - #7391 [component: bokehjs] Multi-gesture tools do not work on proxytoolbar
+    - #7405 Icons have various visual artifacts
+    - #7420 [component: bokehjs] [component: build] [typescript] Move gloo2 to its own repository
+    - #7426 [notebook] Allow push_notebook() to run when no change has occurred
+    - #7431 [component: bokehjs] [typescript] Remove attrs from hasprops.initialize()
+    - #7434 [component: docs] Remove references to autoload_server() from the docs
+    - #7455 [component: docs] State and check min phantomjs version
+    - #7458 [component: build] Update version number in package-lock.json
+    - #7500 [component: examples] Expand elements example with tooltip
+
 2017-12-06  0.12.13:
 --------------------
   * bugfixes:
