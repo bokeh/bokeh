@@ -9,8 +9,8 @@ if (typeof Set !== "function") {
 }
 
 // ref: https://github.com/bokeh/bokeh/issues/7373
-if (!Number.isInteger) {
-  Number.isInteger = function(value: number): boolean {
+if (!(Number as any).isInteger) {
+  (Number as any).isInteger = function(value: number): boolean {
     return typeof value === 'number' && isFinite(value) && Math.floor(value) === value;
   }
 }
