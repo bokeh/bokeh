@@ -61,29 +61,23 @@ gulp.task("scripts:ts", () => {
     gutil.log(err.message)
   }
 
-  const tsconfig = require(join(paths.src_dir.coffee, "tsconfig.json"))
-  let compilerOptions = tsconfig.compilerOptions
-
-  if (argv.es6) {
-    compilerOptions.target = "ES6"
-    compilerOptions.lib[0] = "es6"
-  }
-
-  const project = gulp
-    .src(join(paths.src_dir.coffee, "**", "*.ts"))
+  const project = ts.createProject(join(paths.src_dir.coffee, "tsconfig.json"))
+  const compiler = project
+    .src()
     .pipe(sourcemaps.init())
-    .pipe(ts(tsconfig.compilerOptions, ts.reporter.nullReporter()).on('error', error))
+    .pipe(project(ts.reporter.nullReporter()).on("error", error))
 
   const result = merge([
-    project.js
+    compiler.js
       .pipe(sourcemaps.write("."))
       .pipe(gulp.dest(paths.build_dir.tree)),
-    project.dts
+    compiler.dts
       .pipe(gulp.dest(paths.build_dir.types)),
   ])
   result.on("finish", () => {
     fs.writeFileSync(join(paths.build_dir.js, "ts.log"), errors.join("\n"))
   })
+
   return result
 })
 
