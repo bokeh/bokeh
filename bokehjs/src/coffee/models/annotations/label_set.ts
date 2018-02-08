@@ -9,7 +9,6 @@ import {SpatialUnits, RenderMode} from "core/enums"
 import {div, show, hide} from "core/dom";
 import * as p from "core/properties";
 import {isString, isArray} from "core/util/types"
-import {range} from "core/util/array"
 import {Context2d} from "core/util/canvas"
 
 export class LabelSetView extends TextAnnotationView {
@@ -68,7 +67,7 @@ export class LabelSetView extends TextAnnotationView {
     }
   }
 
-  set_data(source) {
+  set_data(source): void {
     super.set_data(source);
     this.visuals.warm_cache(source);
   }
@@ -85,35 +84,40 @@ export class LabelSetView extends TextAnnotationView {
     return [sx, sy];
   }
 
-  render() {
-    if (!this.model.visible && (this.model.render_mode === 'css')) {
+  render(): void {
+    if (!this.model.visible && this.model.render_mode == 'css')
       hide(this.el);
-    }
-    if (!this.model.visible) {
+
+    if (!this.model.visible)
       return;
-    }
 
     const draw = this.model.render_mode === 'canvas' ? this._v_canvas_text.bind(this) : this._v_css_text.bind(this);
-    const { ctx } = this.plot_view.canvas_view;
+    const {ctx} = this.plot_view.canvas_view;
 
     const [sx, sy] = this._map_data();
 
-    return range(0, this._text.length).map((i) =>
-      draw(ctx, i, this._text[i], sx[i] + this._x_offset[i], sy[i] - this._y_offset[i], this._angle[i]));
+    for (let i = 0, end = this._text.length; i < end; i++) {
+      draw(ctx, i, this._text[i], sx[i] + this._x_offset[i], sy[i] - this._y_offset[i], this._angle[i])
+    }
   }
 
-  _get_size() {
-    const { ctx } = this.plot_view.canvas_view;
+  protected _get_size(): number {
+    const {ctx} = this.plot_view.canvas_view;
     this.visuals.text.set_value(ctx);
 
-    const { side } = this.model.panel;
-    if ((side === "above") || (side === "below")) {
-      const height = ctx.measureText(this._text[0]).ascent;
-      return height;
-    }
-    if ((side === 'left') || (side === 'right')) {
-      const { width } = ctx.measureText(this._text[0]);
-      return width;
+    switch (this.model.panel.side) {
+      case "above":
+      case "below": {
+        const height = ctx.measureText(this._text[0]).ascent;
+        return height;
+      }
+      case "left":
+      case "right": {
+        const {width} = ctx.measureText(this._text[0]);
+        return width;
+      }
+      default:
+        return undefined as never
     }
   }
 

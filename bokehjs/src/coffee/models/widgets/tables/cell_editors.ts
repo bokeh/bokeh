@@ -12,7 +12,7 @@ export abstract class CellEditorView extends DOMView {
 
   defaultValue: any
 
-  get emptyValue() {
+  get emptyValue(): any {
     return null
   }
 
@@ -21,7 +21,7 @@ export abstract class CellEditorView extends DOMView {
   protected abstract _createInput(): HTMLElement
 
   constructor(options) {
-    super(extend({model: options.column.editor}, options));
+    super(extend({model: options.column.model}, options));
   }
 
   initialize(options: any): void {
@@ -78,10 +78,10 @@ export abstract class CellEditorView extends DOMView {
     return this.args.grid.getData().setField(item[DTINDEX_NAME], this.args.column.field, state);
   }
 
-  loadValue(item) {
+  loadValue(item): void {
     const value = item[this.args.column.field];
     this.defaultValue = (value != null) ? value : this.emptyValue;
-    return this.setValue(this.defaultValue);
+    this.setValue(this.defaultValue);
   }
 
   validateValue(value) {
@@ -109,7 +109,7 @@ CellEditor.initClass();
 export class StringEditorView extends CellEditorView {
   model: StringEditor
 
-  get emptyValue() {
+  get emptyValue(): string {
     return ""
   }
 
@@ -173,11 +173,6 @@ export class SelectEditorView extends CellEditorView {
       this.inputEl.appendChild(option({value: opt}, opt));
     }
     return this.focus();
-  }
-
-  loadValue(item) {
-    super.loadValue(item);
-    return this.inputEl.select();
   }
 }
 
@@ -354,7 +349,7 @@ export class DateEditorView extends CellEditorView {
     return input({type: "text"})
   }
 
-  get emptyValue() {
+  get emptyValue(): Date {
     return new Date()
   }
 
@@ -392,7 +387,7 @@ export class DateEditorView extends CellEditorView {
     return super.hide();
   }
 
-  position(_position) {
+  position(/*_position*/) {
     //if @calendarOpen
     //  $.datepicker.dpDiv.css(top: position.top + 30, left: position.left)
     return super.position();

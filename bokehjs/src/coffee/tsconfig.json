@@ -18,6 +18,7 @@
     "importHelpers": true,
     "experimentalDecorators": true,
     "types": [],
-    "baseUrl": "./src/coffee/"
-  }
+    "baseUrl": "."
+  },
+  "include": ["./**/*.ts"]
 }

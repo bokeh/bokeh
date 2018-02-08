@@ -16,7 +16,9 @@ gulp.task("test:compile", () => {
   }
 
   const project = ts.createProject("./test/tsconfig.json")
-  const result = project.src().pipe(project().on("error", error))
+  const result = project
+    .src()
+    .pipe(project(ts.reporter.nullReporter()).on("error", error))
 
   return result.js.pipe(gulp.dest(join("./build", "test")))
 })

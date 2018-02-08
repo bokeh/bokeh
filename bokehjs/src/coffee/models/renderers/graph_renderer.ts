@@ -49,7 +49,7 @@ export class GraphRendererView extends RendererView {
     }
   }
 
-  set_data(request_render: boolean = true) {
+  set_data(request_render: boolean = true): void {
     // TODO (bev) this is a bit clunky, need to make sure glyphs use the correct ranges when they call
     // mapping functions on the base Renderer class
     if (request_render == null) { request_render = true; }

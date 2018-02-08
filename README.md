@@ -34,14 +34,14 @@ Bokeh
   <td>Conda</td>
   <td>
     <a href="https://bokeh.pydata.org/en/latest/docs/installation.html">
-    <img src="http://pubbadges.s3-website-us-east-1.amazonaws.com/pkgs-downloads-bokeh.png" alt="conda downloads" />
+    <img src="https://s3.amazonaws.com/pubbadges/bokeh_current.svg" alt="conda downloads" />
     </a>
   </td>
 </tr>
 <tr>
   <td>PyPI</td>
   <td>
-    <img src="https://bokeh.pydata.org/pip-bokeh-badge.png" />
+    <img src="https://bokeh.pydata.org/pip-bokeh-badge.svg" />
   </td>
 </tr>
 <tr>
