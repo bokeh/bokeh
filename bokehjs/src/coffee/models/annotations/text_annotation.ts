@@ -62,9 +62,7 @@ export abstract class TextAnnotationView extends AnnotationView {
     return ctx.measureText(this.model.text).ascent;
   }
 
-  render() {
-    return null;
-  }
+  abstract render(): void
 
   _canvas_text(ctx: Context2d, text, sx, sy, angle) {
     this.visuals.text.set_value(ctx);

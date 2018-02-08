@@ -197,15 +197,15 @@ export class ToolbarBoxView extends LayoutDOMView {
     toolbar.render();
 
     empty(this.el);
-    return this.el.appendChild(toolbar.el);
+    this.el.appendChild(toolbar.el);
   }
 
-  get_width() {
-    if (this.model.toolbar.vertical) { return 30; } else { return null; }
+  get_width(): number {
+    return this.model.toolbar.vertical ? 30 : null as never
   }
 
-  get_height() {
-    if (this.model.toolbar.horizontal) { return 30; } else { return null; }
+  get_height(): number {
+    return this.model.toolbar.horizontal ? 30 : null as never
   }
 }
 

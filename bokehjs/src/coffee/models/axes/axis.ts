@@ -158,7 +158,7 @@ export class AxisView extends GuideRendererView {
   }
 
   protected _draw_ticks(ctx: Context2d, coords: Coords, tin: number, tout: number, visuals: Line): void {
-    if (!visuals.doit || coords.length == 0)
+    if (!visuals.doit)
       return
 
     const [x, y]       = coords

@@ -29,10 +29,10 @@ export class ArrowView extends AnnotationView {
     this.connect(this.model.source.change, () => this.set_data(this.model.source))
   }
 
-  set_data(source) {
+  set_data(source): void {
     super.set_data(source);
     this.visuals.warm_cache(source);
-    return this.plot_view.request_render();
+    this.plot_view.request_render();
   }
 
   _map_data() {

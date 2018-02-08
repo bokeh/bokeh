@@ -10,7 +10,7 @@ import {isString} from "core/util/types";
 import {Model} from "../../../model"
 
 export class CellFormatter extends Model {
-  doFormat(_row, _cell, value, _columnDef, _dataContext) {
+  doFormat(_row, _cell, value, _columnDef, _dataContext): string {
     if ((value == null)) {
       return "";
     } else {
@@ -30,7 +30,7 @@ export class StringFormatter extends CellFormatter {
     });
   }
 
-  doFormat(_row, _cell, value, _columnDef, _dataContext) {
+  doFormat(_row, _cell, value, _columnDef, _dataContext): string {
     const { font_style } = this;
     const { text_align } = this;
     const { text_color } = this;
@@ -69,7 +69,7 @@ export class NumberFormatter extends StringFormatter {
     });
   }
 
-  doFormat(row, cell, value, columnDef, dataContext) {
+  doFormat(row, cell, value, columnDef, dataContext): string {
     const { format } = this;
     const { language } = this;
     const rounding = (() => { switch (this.rounding) {
@@ -92,7 +92,7 @@ export class BooleanFormatter extends CellFormatter {
     });
   }
 
-  doFormat(_row, _cell, value, _columnDef, _dataContext) {
+  doFormat(_row, _cell, value, _columnDef, _dataContext): string {
     if (!!value) { return i({class: this.icon}).outerHTML; } else { return ""; }
   }
 }
@@ -122,7 +122,7 @@ export class DateFormatter extends CellFormatter {
     if (fmt === "__CUSTOM__") { return this.format; } else { return fmt; }
   }
 
-  doFormat(row, cell, value, columnDef, dataContext) {
+  doFormat(row, cell, value, columnDef, dataContext): string {
     value = isString(value) ? parseInt(value, 10) : value;
     const date = tz(value, this.getFormat());
     return super.doFormat(row, cell, date, columnDef, dataContext);
@@ -139,7 +139,7 @@ export class HTMLTemplateFormatter extends CellFormatter {
     });
   }
 
-  doFormat(_row, _cell, value, _columnDef, dataContext) {
+  doFormat(_row, _cell, value, _columnDef, dataContext): string {
     const { template } = this;
     if (value === null) {
       return "";
