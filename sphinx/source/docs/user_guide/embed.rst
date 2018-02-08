@@ -67,7 +67,7 @@ Components
 ~~~~~~~~~~
 
 It is also possible to ask Bokeh to return the individual components of a
-stnadalone document for a idiidual  embedding using the |components| function.
+standalone document for individual embedding using the |components| function.
 This function returns a ``<script>`` that contains the data for your plot,
 together with an accompanying ``<div>`` tag that the plot view is loaded into.
 These tags can be used in HTML documents however you like:
