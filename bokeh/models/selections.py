@@ -1,9 +1,7 @@
 from ..core.has_props import abstract
 from ..core.properties import Dict, Int, Seq, String
+from ..util.deprecation import deprecated
 from ..model import Model
-
-import logging
-logger = logging.getLogger(__name__)
 
 class Selection(Model):
     '''
@@ -27,10 +25,10 @@ class Selection(Model):
 
     def __getitem__(self, key):
         if key == '0d':
-            logger.warn("['0d']['indices'] is deprecated. Use .line_indices instead.")
+            deprecated((0, 12, 15), "['0d']['indices']", ".line_indices")
             return None
         elif key == '2d':
-            logger.warn("['2d']['indices'] is deprecated. Use .multiline_indices instead.")
+            deprecated((0, 12, 15), "['2d']['indices']", ".multiline_indices")
             return None
         elif key == '1d':
             return self
