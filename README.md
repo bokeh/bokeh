@@ -41,7 +41,7 @@ Bokeh
 <tr>
   <td>PyPI</td>
   <td>
-    <img src="https://bokeh.pydata.org/pip-bokeh-badge.png" />
+    <img src="https://bokeh.pydata.org/pip-bokeh-badge.svg" />
   </td>
 </tr>
 <tr>
