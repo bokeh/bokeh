@@ -6,6 +6,8 @@ import {SelectionManager} from "core/selection_manager"
 import * as p from "core/properties"
 import {uniq, range} from "core/util/array"
 import {keys, values} from "core/util/object"
+import {Selection} from "../selections/selection"
+import {SelectionPolicy, UnionRenderers} from "../selections/interaction_policy"
 
 // Abstract baseclass for column based data sources, where the column
 // based data may be supplied directly or be computed from an attribute
@@ -13,7 +15,10 @@ import {keys, values} from "core/util/object"
 export namespace ColumnarDataSource {
   export interface Attrs extends DataSource.Attrs {
     column_names: string[]
+    selection_policy: SelectionPolicy
     selection_manager: SelectionManager
+    inspected: Selection
+    _shapes: {[key: string]: any}
   }
 
   export interface Opts extends DataSource.Opts {}
@@ -24,7 +29,6 @@ export interface ColumnarDataSource extends ColumnarDataSource.Attrs {}
 export abstract class ColumnarDataSource extends DataSource {
 
   data: {[key: string]: any[]}
-  _shapes: {[key: string]: any}
 
   _select: Signal<any, this>
   inspect: Signal<any, this> // XXX: <[indices, tool, renderer-view, source, data], this>
@@ -40,12 +44,13 @@ export abstract class ColumnarDataSource extends DataSource {
     this.prototype.type = 'ColumnarDataSource'
 
     this.define({
-      column_names: [ p.Array, [] ],
+      column_names:     [ p.Array, [] ],
+      selection_policy: [ p.Instance  ],
     })
 
     this.internal({
       selection_manager: [ p.Instance, (self: ColumnarDataSource) => new SelectionManager({source: self}) ],
-      inspected:         [ p.Any ],
+      inspected:         [ p.Instance, () => new Selection() ],
       _shapes:           [ p.Any, {}],
     })
   }
@@ -58,6 +63,10 @@ export abstract class ColumnarDataSource extends DataSource {
 
     this.streaming = new Signal(this, "streaming")
     this.patching = new Signal(this, "patching") // <number[], ColumnarDataSource>
+
+    if (!this.selection_policy)
+      this.selection_policy = new UnionRenderers() // added here instead of as default because can't set default
+                                                   // on Python side without error
   }
 
   get_column(colname: string): any[] | null {
@@ -95,6 +104,7 @@ export abstract class ColumnarDataSource extends DataSource {
   get_indices(): number[] {
     const length = this.get_length()
     return range(0, length != null ? length : 1)
+    //TODO: returns [0] when no data, should it?
   }
 }
 ColumnarDataSource.initClass()

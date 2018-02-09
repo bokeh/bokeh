@@ -245,8 +245,8 @@ export class DataTableView extends WidgetView {
           return;
         }
 
-        const selected = hittest.create_hit_test_result();
-        selected['1d'].indices = (args.rows.map((i) => this.data.index[i]));
+        const selected = hittest.create_empty_hit_test_result();
+        selected.indices = (args.rows.map((i) => this.data.index[i]));
         return this.model.source.selected = selected;
       });
 

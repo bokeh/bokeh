@@ -11,6 +11,7 @@ from ..util.warnings import BokehUserWarning
 
 from .callbacks import Callback
 from .filters import Filter
+from .selections import Selection, SelectionPolicy
 
 pd = import_optional('pandas')
 
@@ -20,37 +21,8 @@ class DataSource(Model):
 
     '''
 
-    selected = Dict(String, Dict(String, Any), default={
-        '0d': {'glyph': None, 'indices': []},
-        '1d': {'indices': []},
-        '2d': {'indices': {}}
-    }, help="""
-    A dict to indicate selected indices on different dimensions on this DataSource. Keys are:
-
-    .. code-block:: python
-
-        # selection information for line and patch glyphs
-        '0d' : {
-          # the glyph that was selected
-          'glyph': None
-
-          # array with the [smallest] index of the segment of the line that was hit
-          'indices': []
-        }
-
-        # selection for most (point-like) glyphs, except lines and patches
-        '1d': {
-          # indices of the points included in the selection
-          indices: []
-        }
-
-        # selection information for multiline and patches glyphs
-        '2d': {
-          # mapping of indices of the multiglyph to array of glyph indices that were hit
-          # e.g. {3: [5, 6], 4: [5]}
-          indices: {}
-        }
-
+    selected = Instance(Selection, help="""
+    A Selection that indicates selected indices on this DataSource.
     """)
 
     callback = Instance(Callback, help="""
@@ -66,6 +38,10 @@ class ColumnarDataSource(DataSource):
 
     column_names = List(String, help="""
     An list of names for all the columns in this DataSource.
+    """)
+
+    selection_policy = Instance(SelectionPolicy, help="""
+    An instance of a SelectionPolicy that determines how selections are set.
     """)
 
 class ColumnDataSource(ColumnarDataSource):

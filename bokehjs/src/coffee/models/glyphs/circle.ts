@@ -1,5 +1,6 @@
 /* XXX: partial */
 import {XYGlyph, XYGlyphView} from "./xy_glyph";
+import {PointGeometry, SpanGeometry, RectGeometry, PolyGeometry} from "core/geometry";
 import {DistanceSpec, AngleSpec} from "core/vectorization"
 import {LineMixinVector, FillMixinVector} from "core/property_mixins"
 import {Dimension} from "core/enums"
@@ -7,6 +8,7 @@ import * as hittest from "core/hittest";
 import * as p from "core/properties"
 import {range, map} from "core/util/array"
 import {Context2d} from "core/util/canvas"
+import {Selection} from "../selections/selection";
 
 export class CircleView extends XYGlyphView {
   model: Circle
@@ -79,7 +81,7 @@ export class CircleView extends XYGlyphView {
     }
   }
 
-  _hit_point(geometry) {
+  _hit_point(geometry: PointGeometry): Selection {
     let dist, r2, sx0, sx1, sy0, sy1, x0, x1, y0, y1;
     const {sx, sy} = geometry;
     const x = this.renderer.xscale.invert(sx);
@@ -129,14 +131,14 @@ export class CircleView extends XYGlyphView {
       }
     }
 
-    return hittest.create_1d_hit_test_result(hits);
+    return hittest.create_hit_test_result_from_hits(hits);
   }
 
-  _hit_span(geometry) {
+  _hit_span(geometry: SpanGeometry): Selection {
       let ms, x0, x1, y0, y1;
       const {sx, sy} = geometry;
       const {minX, minY, maxX, maxY} = this.bounds();
-      const result = hittest.create_hit_test_result();
+      const result = hittest.create_empty_hit_test_result();
 
       if (geometry.direction === 'h') {
         // use circle bounds instead of current pointer y coordinates
@@ -173,21 +175,21 @@ export class CircleView extends XYGlyphView {
       const bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1]);
       const hits = this.index.indices(bbox);
 
-      result['1d'].indices = hits;
+      result.indices = hits;
       return result;
     }
 
-  _hit_rect(geometry) {
+  _hit_rect(geometry: RectGeometry): Selection {
     const {sx0, sx1, sy0, sy1} = geometry;
     const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1);
     const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1);
     const bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1]);
-    const result = hittest.create_hit_test_result();
-    result['1d'].indices = this.index.indices(bbox);
+    const result = hittest.create_empty_hit_test_result();
+    result.indices = this.index.indices(bbox);
     return result;
   }
 
-  _hit_poly(geometry) {
+  _hit_poly(geometry: PolyGeometry): Selection {
     const {sx, sy} = geometry;
 
     // TODO (bev) use spatial index to pare candidate list
@@ -201,8 +203,8 @@ export class CircleView extends XYGlyphView {
       }
     }
 
-    const result = hittest.create_hit_test_result();
-    result['1d'].indices = hits;
+    const result = hittest.create_empty_hit_test_result();
+    result.indices = hits;
     return result;
   }
 

@@ -3,10 +3,12 @@ import {RBush} from "core/util/spatial";
 import {Glyph, GlyphView} from "./glyph";
 import {min, max, copy, findLastIndex} from "core/util/array";
 import {isStrictNaN} from "core/util/types";
+import {PointGeometry} from "core/geometry";
 import {Context2d} from "core/util/canvas"
 import {NumberSpec} from "core/vectorization"
 import {LineMixinVector, FillMixinVector} from "core/property_mixins"
 import * as hittest from "core/hittest"
+import {Selection} from "../selections/selection";
 
 export class PatchesView extends GlyphView {
   model: Patches
@@ -145,7 +147,7 @@ export class PatchesView extends GlyphView {
     }
   }
 
-  _hit_point(geometry) {
+  _hit_point(geometry: PointGeometry): Selection {
     const {sx, sy} = geometry;
 
     const x = this.renderer.xscale.invert(sx);
@@ -165,8 +167,8 @@ export class PatchesView extends GlyphView {
       }
     }
 
-    const result = hittest.create_hit_test_result();
-    result['1d'].indices = hits;
+    const result = hittest.create_empty_hit_test_result();
+    result.indices = hits;
     return result;
   }
 

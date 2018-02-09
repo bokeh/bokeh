@@ -1,18 +1,17 @@
 /* XXX: partial */
 import {Model} from "../../model"
 import * as p from "core/properties"
-import {create_hit_test_result, HitTestResult} from "core/hittest"
-import {intersection, range} from "core/util/array"
+import {Selection} from "../selections/selection"
+import {intersection} from "core/util/array"
 import {Filter} from "../filters/filter"
-import {DataSource} from "./data_source"
 import {ColumnarDataSource} from "./columnar_data_source"
 
 export namespace CDSView {
   export interface Attrs extends Model.Attrs {
     filters: Filter[]
-    source: DataSource
+    source: ColumnarDataSource
     indices: number[]
-    indices_map: {[key: string]: number[]}
+    indices_map: {[key: string]: number}
   }
 
   export interface Opts extends Model.Opts {}
@@ -61,7 +60,7 @@ export class CDSView extends Model {
     }
   }
 
-  compute_indices() {
+  compute_indices(): void {
     let indices = (this.filters.map((filter) => filter.compute_indices(this.source)))
     indices = ((() => {
       const result = []
@@ -76,36 +75,37 @@ export class CDSView extends Model {
       this.indices = intersection.apply(this, indices)
     } else {
       if (this.source instanceof ColumnarDataSource) {
-        this.indices = this.source != null ? this.source.get_indices() : undefined
+        this.indices = this.source.get_indices()
       }
     }
 
-    return this.indices_map_to_subset()
+    this.indices_map_to_subset()
   }
 
-  indices_map_to_subset() {
+  indices_map_to_subset(): void {
     this.indices_map = {}
-    return range(0, this.indices.length).map((i) =>
-      (this.indices_map[this.indices[i]] = i))
+    for (let i = 0; i < this.indices.length; i++){
+      this.indices_map[this.indices[i]] = i
+    }
   }
 
-  convert_selection_from_subset(selection_subset): HitTestResult {
-    const selection_full = create_hit_test_result()
+  convert_selection_from_subset(selection_subset: Selection): Selection {
+    const selection_full = new Selection()
     selection_full.update_through_union(selection_subset)
-    const indices_1d = (selection_subset['1d']['indices'].map((i) => this.indices[i]))
-    selection_full['1d']['indices'] = indices_1d
+    const indices_1d = (selection_subset.indices.map((i) => this.indices[i]))
+    selection_full.indices = indices_1d
     return selection_full
   }
 
-  convert_selection_to_subset(selection_full): HitTestResult {
-    const selection_subset = create_hit_test_result()
+  convert_selection_to_subset(selection_full: Selection): Selection {
+    const selection_subset = new Selection()
     selection_subset.update_through_union(selection_full)
-    const indices_1d = (selection_full['1d']['indices'].map((i) => this.indices_map[i]))
-    selection_subset['1d']['indices'] = indices_1d
+    const indices_1d = (selection_full.indices.map((i) => this.indices_map[i]))
+    selection_subset.indices = indices_1d
     return selection_subset
   }
 
-  convert_indices_from_subset(indices) {
+  convert_indices_from_subset(indices: number[]) {
     return (indices.map((i) => this.indices[i]))
   }
 }

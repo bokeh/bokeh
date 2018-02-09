@@ -1,9 +1,9 @@
 import * as p from "core/properties"
 import {PointGeometry} from "core/geometry"
 import {copy} from "core/util/array"
-import {XYGlyph} from "models/glyphs/xy_glyph"
-import {ColumnDataSource} from "models/sources/column_data_source"
-import {GlyphRenderer} from "models/renderers/glyph_renderer"
+import {XYGlyph} from "../../glyphs/xy_glyph"
+import {ColumnDataSource} from "../../sources/column_data_source"
+import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {GestureTool, GestureToolView} from "../gestures/gesture_tool"
 
 export interface BkEv {
@@ -53,7 +53,7 @@ export abstract class EditToolView extends GestureToolView {
   _delete_selected(renderer: GlyphRenderer & HasCDS): void {
     // Deletes all selected rows in the ColumnDataSource
     const cds: any = renderer.data_source;
-    const indices = cds.selected['1d'].indices;
+    const indices = cds.selected.indices;
     indices.sort()
     for (const column of cds.columns()) {
       let values = cds.data[column];
@@ -87,7 +87,7 @@ export abstract class EditToolView extends GestureToolView {
       const glyph: any = renderer.glyph;
       const ds = renderer.data_source;
       const [xkey, ykey] = [glyph.x.field, glyph.y.field];
-      for (const index of ds.selected['1d'].indices) {
+      for (const index of ds.selected.indices) {
         if (xkey) { ds.data[xkey][index] += dx; }
         if (ykey) { ds.data[ykey][index] += dy; }
       }

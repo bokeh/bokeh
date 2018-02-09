@@ -1,9 +1,9 @@
 import {Keys} from "core/dom"
 import * as p from "core/properties"
 import {copy} from "core/util/array"
-import {MultiLine} from "models/glyphs/multi_line"
-import {Patches} from "models/glyphs/patches"
-import {GlyphRenderer} from "models/renderers/glyph_renderer"
+import {MultiLine} from "../../glyphs/multi_line"
+import {Patches} from "../../glyphs/patches"
+import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {EditTool, EditToolView, HasCDS, BkEv} from "./edit_tool"
 
 export interface HasPolyGlyph {
@@ -158,7 +158,7 @@ export class PolyDrawToolView extends EditToolView {
       const [x, y] = point;
       const [px, py] = basepoint;
       const [dx, dy] = [x-px, y-py];
-      for (const index of ds.selected['1d'].indices) {
+      for (const index of ds.selected.indices) {
         let length, xs, ys;
         if (xkey) { xs = ds.data[xkey][index]; }
         if (ykey) {
@@ -181,7 +181,7 @@ export class PolyDrawToolView extends EditToolView {
     if (!this.model.drag) { return; }
     this._pan(e);
     for (const renderer of this.model.renderers) {
-      renderer.data_source.selected['1d'].indices = [];
+      renderer.data_source.selected.indices = [];
       renderer.data_source.properties.data.change.emit(undefined);
     }
     this._basepoint = null;

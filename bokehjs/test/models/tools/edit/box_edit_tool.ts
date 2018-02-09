@@ -2,7 +2,7 @@ import {expect} from "chai"
 import * as sinon from "sinon"
 
 import {Keys} from "core/dom"
-import {create_1d_hit_test_result} from "core/hittest"
+import {create_hit_test_result_from_hits} from "core/hittest"
 
 import {Rect, RectView} from "models/glyphs/rect"
 import {Plot} from "models/plots/plot"
@@ -98,32 +98,32 @@ describe("BoxEditTool", () =>
       const testcase = make_testcase();
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test");
 
-      hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
+      hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]));
       const tap_event = make_event(300, 300);
       testcase.draw_tool_view._tap(tap_event);
 
-      expect(testcase.data_source.selected['1d'].indices).to.be.deep.equal([1]);
+      expect(testcase.data_source.selected.indices).to.be.deep.equal([1]);
     });
 
     it("should select multiple rect on shift-tap", function(): void {
       const testcase = make_testcase();
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test");
 
-      hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
+      hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]));
       let tap_event = make_event(300, 300);
       testcase.draw_tool_view._tap(tap_event);
-      hit_test_stub.returns(create_1d_hit_test_result([[2, 0]]));
+      hit_test_stub.returns(create_hit_test_result_from_hits([[2, 0]]));
       tap_event = make_event(560, 560, true);
       testcase.draw_tool_view._tap(tap_event);
 
-      expect(testcase.data_source.selected['1d'].indices).to.be.deep.equal([1, 2]);
+      expect(testcase.data_source.selected.indices).to.be.deep.equal([2, 1]);
     });
 
     it("should delete selected on delete key", function(): void {
       const testcase = make_testcase();
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test");
 
-      hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
+      hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]));
       const tap_event = make_event(300, 300);
       testcase.draw_tool_view._tap(tap_event);
 
@@ -131,7 +131,7 @@ describe("BoxEditTool", () =>
       testcase.draw_tool_view._move_enter(keyup_event);
       testcase.draw_tool_view._keyup(keyup_event);
 
-      expect(testcase.data_source.selected['1d'].indices).to.be.deep.equal([]);
+      expect(testcase.data_source.selected.indices).to.be.deep.equal([]);
       expect(testcase.data_source.data['x']).to.be.deep.equal([0, 1]);
       expect(testcase.data_source.data['y']).to.be.deep.equal([0, 1]);
       expect(testcase.data_source.data['z']).to.be.deep.equal([null, null]);
@@ -141,7 +141,7 @@ describe("BoxEditTool", () =>
       const testcase = make_testcase();
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test");
 
-      hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
+      hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]));
       const tap_event = make_event(300, 300);
       testcase.draw_tool_view._tap(tap_event);
 
@@ -149,7 +149,7 @@ describe("BoxEditTool", () =>
       testcase.draw_tool_view._move_enter(keyup_event);
       testcase.draw_tool_view._keyup(keyup_event);
 
-      expect(testcase.data_source.selected['1d'].indices).to.be.deep.equal([]);
+      expect(testcase.data_source.selected.indices).to.be.deep.equal([]);
       expect(testcase.data_source.data).to.be.deep.equal(testcase.data);
     });
 
@@ -157,7 +157,7 @@ describe("BoxEditTool", () =>
       const testcase = make_testcase();
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test");
 
-      hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
+      hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]));
       const tap_event = make_event(300, 300);
       testcase.draw_tool_view._tap(tap_event);
 
@@ -193,7 +193,7 @@ describe("BoxEditTool", () =>
       testcase.draw_tool_view._pan_end(drag_event);
 
       expect(testcase.draw_tool_view._basepoint).to.be.equal(null);
-      expect(testcase.data_source.selected['1d'].indices).to.be.deep.equal([]);
+      expect(testcase.data_source.selected.indices).to.be.deep.equal([]);
       expect(testcase.data_source.data['x']).to.be.deep.equal([0, 0.5, 1, -0.1327433628318584]);
       expect(testcase.data_source.data['y']).to.be.deep.equal([0, 0.5, 1, 0.1694915254237288]);
       expect(testcase.data_source.data['width']).to.be.deep.equal([0.1, 0.2, 0.3, 0.35398230088495575]);

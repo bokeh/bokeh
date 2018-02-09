@@ -27,31 +27,29 @@ export interface BkEv {
 
 export function _nearest_line_hit(i: number, geometry: Geometry,
     sx: number, sy: number, dx: number[], dy: number[]): [[number, number], number] {
-  const d1x = dx[i]
-  const d1y = dy[i]
-
-  const d2x = dx[i+1]
-  const d2y = dy[i+1]
+  const d1 = {x: dx[i], y: dy[i]}
+  const d2 = {x: dx[i+1], y: dy[i+1]}
 
   let dist1: number
   let dist2: number
   if (geometry.type == "span") {
     if (geometry.direction == "h") {
-      dist1 = Math.abs(d1x - sx)
-      dist2 = Math.abs(d2x - sx)
+      dist1 = Math.abs(d1.x - sx)
+      dist2 = Math.abs(d2.x - sx)
     } else {
-      dist1 = Math.abs(d1y - sy)
-      dist2 = Math.abs(d2y - sy)
+      dist1 = Math.abs(d1.y - sy)
+      dist2 = Math.abs(d2.y - sy)
     }
   } else {
-    dist1 = hittest.dist_2_pts(d1x, d1y, sx, sy)
-    dist2 = hittest.dist_2_pts(d2x, d2y, sx, sy)
+    const s = {x: sx, y: sy}
+    dist1 = hittest.dist_2_pts(d1, s)
+    dist2 = hittest.dist_2_pts(d2, s)
   }
 
   if (dist1 < dist2)
-    return [[d1x, d1y], i]
+    return [[d1.x, d1.y], i]
   else
-    return [[d2x, d2y], i+1]
+    return [[d2.x, d2.y], i+1]
 }
 
 export function _line_hit(xs: number[], ys: number[], ind: number): [[number, number], number] {
@@ -206,7 +204,7 @@ export class HoverToolView extends InspectToolView {
       return
     tooltip.clear()
 
-    let indices = (renderer_view.model as any).get_selection_manager().inspectors[renderer_view.model.id].indices
+    let indices = (renderer_view.model as any).get_selection_manager().inspectors[renderer_view.model.id]
     if (renderer_view.model instanceof GlyphRenderer)
       indices = (renderer_view.model as any).view.convert_selection_to_subset(indices)
 
@@ -226,7 +224,7 @@ export class HoverToolView extends InspectToolView {
 
     const glyph = (renderer_view as any).glyph // XXX
 
-    for (const i of indices['0d'].indices) {
+    for (const i of indices.line_indices) {
       let data_x = glyph._x[i+1]
       let data_y = glyph._y[i+1]
       let ii = i
@@ -263,12 +261,10 @@ export class HoverToolView extends InspectToolView {
       tooltip.add(rx, ry, this._render_tooltips(ds, ii, vars))
     }
 
-    for (const i of indices['1d'].indices) {
-      // multiglyphs will set '1d' and '2d' results, but have different tooltips
-      if (!isEmpty(indices['2d'].indices)) {
-        for (const i in indices['2d'].indices) {
-          const [j] = indices['2d'].indices[i]
-
+    for (const i of indices.indices) {
+      // multiglyphs set additional indices, e.g. multiline_indices for different tooltips
+      if (!isEmpty(indices.multiline_indices)) {
+        for (const j of indices.multiline_indices[i.toString()]) {
           let data_x = glyph._xs[i][j]
           let data_y = glyph._ys[i][j]
           let jj = j

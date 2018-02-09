@@ -1,6 +1,6 @@
 /* XXX: partial */
 import {Renderer, RendererView} from "./renderer"
-import {GlyphRenderer} from "./glyph_renderer"
+import {GlyphRenderer, GlyphRendererView} from "./glyph_renderer"
 import {LayoutProvider} from "../graphs/layout_provider"
 import {GraphHitTestPolicy, NodesOnly} from "../graphs/graph_hit_test_policy";
 import * as p from "core/properties";
@@ -8,6 +8,8 @@ import {build_views} from "core/build_views";
 import {SelectionManager} from "core/selection_manager"
 
 export class GraphRendererView extends RendererView {
+  node_view: GlyphRendererView
+  edge_view: GlyphRendererView
   model: GraphRenderer
 
   initialize(options: any): void {
@@ -50,6 +52,7 @@ export class GraphRendererView extends RendererView {
   set_data(request_render: boolean = true): void {
     // TODO (bev) this is a bit clunky, need to make sure glyphs use the correct ranges when they call
     // mapping functions on the base Renderer class
+    if (request_render == null) { request_render = true; }
     this.node_view.glyph.model.setv({x_range_name: this.model.x_range_name, y_range_name: this.model.y_range_name}, {silent: true});
     this.edge_view.glyph.model.setv({x_range_name: this.model.x_range_name, y_range_name: this.model.y_range_name}, {silent: true});
 
@@ -68,21 +71,6 @@ export class GraphRendererView extends RendererView {
     return this.node_view.render();
   }
 
-  hit_test(geometry, final, append, mode = "select") {
-    if (!this.model.visible) {
-      return false;
-    }
-
-    let did_hit = false;
-
-    if (mode === "select") {
-      did_hit = this.model.selection_policy != null ? this.model.selection_policy.do_selection(geometry, this, final, append) : undefined;
-    } else { // if mode == "inspect"
-      did_hit = this.model.inspection_policy != null ? this.model.inspection_policy.do_inspection(geometry, this, final, append) : undefined;
-    }
-
-    return did_hit;
-  }
 }
 
 export namespace GraphRenderer {

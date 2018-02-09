@@ -1,5 +1,6 @@
 /* XXX: partial */
 import {RBush} from "core/util/spatial";
+import {PointGeometry, SpanGeometry} from "core/geometry"
 import {NumberSpec} from "core/vectorization"
 import {LineMixinVector} from "core/property_mixins"
 import * as hittest from "core/hittest";
@@ -8,6 +9,7 @@ import {min, max} from "core/util/array";
 import {isStrictNaN} from "core/util/types";
 import {Context2d} from "core/util/canvas"
 import {Glyph, GlyphView} from "./glyph"
+import {Selection} from "../selections/selection";
 
 export class MultiLineView extends GlyphView {
   model: MultiLine
@@ -69,8 +71,8 @@ export class MultiLineView extends GlyphView {
     }
   }
 
-  _hit_point(geometry) {
-    const result = hittest.create_hit_test_result();
+  _hit_point(geometry: PointGeometry): Selection {
+    const result = hittest.create_empty_hit_test_result();
     const point = {x: geometry.sx, y: geometry.sy};
     let shortest = 9999;
 
@@ -91,16 +93,16 @@ export class MultiLineView extends GlyphView {
       }
     }
 
-    result['1d'].indices = keys(hits).map(parseInt)
-    result['2d'].indices = hits;
+    result.indices = keys(hits).map(function(x: string) { return parseInt(x, 10); });
+    result.multiline_indices = hits;
 
     return result;
   }
 
-  _hit_span(geometry) {
+  _hit_span(geometry: SpanGeometry): Selection {
     let val, values;
     const {sx, sy} = geometry;
-    const result = hittest.create_hit_test_result();
+    const result = hittest.create_empty_hit_test_result();
 
     if (geometry.direction === 'v') {
       val = this.renderer.yscale.invert(sy);
@@ -123,13 +125,13 @@ export class MultiLineView extends GlyphView {
       }
     }
 
-    result['1d'].indices = keys(hits).map(parseInt)
-    result['2d'].indices = hits;
+    result.indices = keys(hits).map(function(x: string) { return parseInt(x, 10); });
+    result.multiline_indices = hits;
 
     return result;
   }
 
-  get_interpolation_hit(i, point_i, geometry){
+  get_interpolation_hit(i, point_i, geometry: PointGeometry | SpanGeometry){
     let x0, x1, y0, y1;
     const {sx, sy} = geometry;
     const [x2, y2, x3, y3] = [this._xs[i][point_i], this._ys[i][point_i], this._xs[i][point_i+1], this._ys[i][point_i+1]];

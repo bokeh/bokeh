@@ -3,7 +3,9 @@ import {LineMixinVector, FillMixinVector} from "core/property_mixins"
 import {RBush} from "core/util/spatial";
 import {Context2d} from "core/util/canvas"
 import {Glyph, GlyphView} from "./glyph";
+import {PointGeometry, SpanGeometry, RectGeometry} from "core/geometry";
 import * as hittest from "core/hittest";
+import {Selection} from "../selections/selection";
 
 // Not a publicly exposed Glyph, exists to factor code for bars and quads
 
@@ -44,23 +46,23 @@ export abstract class BoxView extends GlyphView {
     }
   }
 
-  _hit_rect(geometry) {
+  _hit_rect(geometry: RectGeometry): Selection {
     return this._hit_rect_against_index(geometry);
   }
 
-  _hit_point(geometry) {
+  _hit_point(geometry: PointGeometry): Selection {
     const {sx, sy} = geometry;
     const x = this.renderer.xscale.invert(sx);
     const y = this.renderer.yscale.invert(sy);
 
     const hits = this.index.indices({minX: x, minY: y, maxX: x, maxY: y});
 
-    const result = hittest.create_hit_test_result();
-    result['1d'].indices = hits;
+    const result = hittest.create_empty_hit_test_result();
+    result.indices = hits;
     return result;
   }
 
-  _hit_span(geometry) {
+  _hit_span(geometry: SpanGeometry): Selection {
     let hits, maxX, minX;
     const {sx, sy} = geometry;
 
@@ -76,8 +78,8 @@ export abstract class BoxView extends GlyphView {
       hits = this.index.indices({ minX: x, minY, maxX: x, maxY });
     }
 
-    const result = hittest.create_hit_test_result();
-    result['1d'].indices = hits;
+    const result = hittest.create_empty_hit_test_result();
+    result.indices = hits;
     return result;
   }
 

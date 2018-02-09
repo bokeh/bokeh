@@ -2,9 +2,9 @@ import {Keys} from "core/dom"
 import {Dimensions} from "core/enums"
 import {copy} from "core/util/array"
 import * as p from "core/properties"
-import {Rect} from "models/glyphs/rect"
-import {GlyphRenderer} from "models/renderers/glyph_renderer"
-import {ColumnDataSource} from "models/sources/column_data_source"
+import {Rect} from "../../glyphs/rect"
+import {GlyphRenderer} from "../../renderers/glyph_renderer"
+import {ColumnDataSource} from "../../sources/column_data_source"
 import {EditTool, EditToolView, BkEv} from "./edit_tool"
 
 export interface HasRectCDS {
@@ -124,7 +124,7 @@ export class BoxEditToolView extends EditToolView {
     this._pan(e, false, true)
     this._basepoint = null;
     for (const renderer of this.model.renderers) {
-      renderer.data_source.selected['1d'].indices = [];
+      renderer.data_source.selected.indices = [];
       renderer.data_source.properties.data.change.emit(undefined);
     }
   }

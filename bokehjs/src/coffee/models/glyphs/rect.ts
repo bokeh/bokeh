@@ -1,11 +1,13 @@
 /* XXX: partial */
 import {XYGlyph, XYGlyphView} from "./xy_glyph";
+import {PointGeometry, RectGeometry} from "core/geometry";
 import {DistanceSpec, AngleSpec} from "core/vectorization"
 import {LineMixinVector, FillMixinVector} from "core/property_mixins"
 import * as hittest from "core/hittest";
 import * as p from "core/properties";
 import {max} from "core/util/array";
 import {Context2d} from "core/util/canvas"
+import {Selection} from "../selections/selection";
 
 export class RectView extends XYGlyphView {
   model: Rect
@@ -112,11 +114,11 @@ export class RectView extends XYGlyphView {
     }
   }
 
-  _hit_rect(geometry) {
+  _hit_rect(geometry: RectGeometry): Selection {
     return this._hit_rect_against_index(geometry);
   }
 
-  _hit_point(geometry) {
+  _hit_point(geometry: PointGeometry): Selection {
     let {sx, sy} = geometry;
     const x = this.renderer.xscale.invert(sx);
     const y = this.renderer.yscale.invert(sy);
@@ -168,8 +170,8 @@ export class RectView extends XYGlyphView {
       }
     }
 
-    const result = hittest.create_hit_test_result();
-    result['1d'].indices = hits;
+    const result = hittest.create_empty_hit_test_result();
+    result.indices = hits;
     return result;
   }
 

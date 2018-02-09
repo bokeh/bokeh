@@ -1,5 +1,6 @@
 /* XXX: partial */
 import {XYGlyph, XYGlyphView} from "./xy_glyph";
+import {PointGeometry} from "core/geometry";
 import {DistanceSpec, AngleSpec} from "core/vectorization"
 import {LineMixinVector, FillMixinVector} from "core/property_mixins"
 import {Direction} from "core/enums"
@@ -7,6 +8,7 @@ import * as hittest from "core/hittest";
 import * as p from "core/properties";
 import {angle_between} from "core/util/math"
 import {Context2d} from "core/util/canvas"
+import {Selection} from "../selections/selection";
 
 export class AnnularWedgeView extends XYGlyphView {
   model: AnnularWedge
@@ -62,7 +64,7 @@ export class AnnularWedgeView extends XYGlyphView {
     }
   }
 
-  _hit_point(geometry) {
+  _hit_point(geometry: PointGeometry): Selection {
     const {sx, sy} = geometry;
     const x = this.renderer.xscale.invert(sx);
     const y = this.renderer.yscale.invert(sy);
@@ -109,7 +111,7 @@ export class AnnularWedgeView extends XYGlyphView {
       }
     }
 
-    return hittest.create_1d_hit_test_result(hits);
+    return hittest.create_hit_test_result_from_hits(hits);
   }
 
   draw_legend_for_index(ctx: Context2d, x0, x1, y0, y1, index) {

@@ -1,10 +1,12 @@
 /* XXX: partial */
+import {PointGeometry, SpanGeometry} from "core/geometry";
 import * as hittest from "core/hittest";
 import {NumberSpec} from "core/vectorization"
 import {LineMixinVector} from "core/property_mixins"
 import {RBush} from "core/util/spatial";
 import {Context2d} from "core/util/canvas"
 import {Glyph, GlyphView} from "./glyph"
+import {Selection} from "../selections/selection";
 
 export class SegmentView extends GlyphView {
   model: Segment
@@ -43,7 +45,7 @@ export class SegmentView extends GlyphView {
     }
   }
 
-  _hit_point(geometry) {
+  _hit_point(geometry: PointGeometry): Selection {
     const {sx, sy} = geometry;
     const point = {x: sx, y: sy};
 
@@ -63,12 +65,12 @@ export class SegmentView extends GlyphView {
       }
     }
 
-    const result = hittest.create_hit_test_result();
-    result['1d'].indices = hits;
+    const result = hittest.create_empty_hit_test_result();
+    result.indices = hits;
     return result;
   }
 
-  _hit_span(geometry) {
+  _hit_span(geometry: SpanGeometry): Selection {
     let v0, v1, val;
     const [hr, vr] = this.renderer.plot_view.frame.bbox.ranges;
     const {sx, sy} = geometry;
@@ -93,8 +95,8 @@ export class SegmentView extends GlyphView {
       }
     }
 
-    const result = hittest.create_hit_test_result();
-    result['1d'].indices = hits;
+    const result = hittest.create_empty_hit_test_result();
+    result.indices = hits;
     return result;
   }
 

@@ -1,7 +1,7 @@
 /* XXX: partial */
 import {NumberSpec} from "core/vectorization"
 import {LineMixinVector} from "core/property_mixins"
-import {RBush} from "core/util/spatial";
+import {RBush} from "core/util/spatial"
 import {Context2d} from "core/util/canvas"
 import {Glyph, GlyphView} from "./glyph"
 

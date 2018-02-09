@@ -1,7 +1,7 @@
 import {Keys} from "core/dom"
 import * as p from "core/properties"
 import {copy} from "core/util/array"
-import {GlyphRenderer} from "models/renderers/glyph_renderer"
+import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {EditTool, EditToolView, HasCDS, HasXYGlyph, BkEv} from "./edit_tool"
 
 
@@ -76,7 +76,7 @@ export class PointDrawToolView extends EditToolView {
     if (!this.model.drag) { return; }
     this._pan(e);
     for (const renderer of this.model.renderers) {
-      renderer.data_source.selected['1d'].indices = [];
+      renderer.data_source.selected.indices = [];
       renderer.data_source.properties.data.change.emit(undefined);
     }
     this._basepoint = null;

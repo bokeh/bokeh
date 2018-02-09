@@ -2,7 +2,7 @@ import {expect} from "chai"
 import * as sinon from "sinon"
 
 import {Keys} from "core/dom"
-import {create_1d_hit_test_result} from "core/hittest"
+import {create_hit_test_result_from_hits} from "core/hittest"
 
 import {Circle, CircleView} from "models/glyphs/circle"
 import {Patches, PatchesView} from "models/glyphs/patches"
@@ -125,13 +125,13 @@ describe("PolyEditTool", (): void => {
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test");
       const vertex_hit_test_stub = sinon.stub(testcase.vertex_glyph_view, "hit_test");
 
-      hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
+      hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]));
       vertex_hit_test_stub.returns(null);
 
       const tap_event = make_event(300, 300);
       testcase.draw_tool_view._tap(tap_event);
 
-      expect(testcase.data_source.selected['1d'].indices).to.be.deep.equal([1]);
+      expect(testcase.data_source.selected.indices).to.be.deep.equal([1]);
     });
 
 
@@ -141,14 +141,14 @@ describe("PolyEditTool", (): void => {
       const vertex_hit_test_stub = sinon.stub(testcase.vertex_glyph_view, "hit_test");
 
       vertex_hit_test_stub.returns(null);
-      hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
+      hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]));
       let tap_event = make_event(300, 300);
       testcase.draw_tool_view._tap(tap_event);
-      hit_test_stub.returns(create_1d_hit_test_result([[0, 0]]));
+      hit_test_stub.returns(create_hit_test_result_from_hits([[0, 0]]));
       tap_event = make_event(560, 560, true);
       testcase.draw_tool_view._tap(tap_event);
 
-      expect(testcase.data_source.selected['1d'].indices).to.be.deep.equal([1, 0]);
+      expect(testcase.data_source.selected.indices).to.be.deep.equal([0, 1]);
     });
 
     it("should delete selected patch on delete key", function(): void {
@@ -156,7 +156,7 @@ describe("PolyEditTool", (): void => {
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test");
       const vertex_hit_test_stub = sinon.stub(testcase.vertex_glyph_view, "hit_test");
 
-      hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
+      hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]));
       vertex_hit_test_stub.returns(null);
       const tap_event = make_event(300, 300);
       testcase.draw_tool_view._tap(tap_event);
@@ -165,7 +165,7 @@ describe("PolyEditTool", (): void => {
       testcase.draw_tool_view._move_enter(keyup_event);
       testcase.draw_tool_view._keyup(keyup_event);
 
-      expect(testcase.data_source.selected['1d'].indices).to.be.deep.equal([]);
+      expect(testcase.data_source.selected.indices).to.be.deep.equal([]);
       expect(testcase.data_source.data.xs).to.be.deep.equal([[0, 0.5, 1]]);
       expect(testcase.data_source.data.ys).to.be.deep.equal([[0, -0.5, -1]]);
       expect(testcase.data_source.data['z']).to.be.deep.equal([null]);
@@ -177,7 +177,7 @@ describe("PolyEditTool", (): void => {
       const vertex_hit_test_stub = sinon.stub(testcase.vertex_glyph_view, "hit_test");
 
       vertex_hit_test_stub.returns(null);
-      hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
+      hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]));
       const tap_event = make_event(300, 300);
       testcase.draw_tool_view._tap(tap_event);
 
@@ -185,7 +185,7 @@ describe("PolyEditTool", (): void => {
       testcase.draw_tool_view._move_enter(keyup_event);
       testcase.draw_tool_view._keyup(keyup_event);
 
-      expect(testcase.data_source.selected['1d'].indices).to.be.deep.equal([]);
+      expect(testcase.data_source.selected.indices).to.be.deep.equal([]);
       expect(testcase.data_source.data).to.be.deep.equal(testcase.data);
     });
 
@@ -194,7 +194,7 @@ describe("PolyEditTool", (): void => {
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test");
       sinon.stub(testcase.vertex_glyph_view, "hit_test").returns(null);
 
-      hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
+      hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]));
       const tap_event = make_event(300, 300);
       testcase.draw_tool_view._doubletap(tap_event);
 
@@ -209,14 +209,14 @@ describe("PolyEditTool", (): void => {
       const vertex_hit_test_stub = sinon.stub(testcase.vertex_glyph_view, "hit_test");
 
       vertex_hit_test_stub.returns(null);
-      hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
+      hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]));
       const tap_event = make_event(300, 300);
       testcase.draw_tool_view._doubletap(tap_event);
       // Have to call CDSView.compute_indices manually for testing
       testcase.vertex_renderer.view.compute_indices();
-      vertex_hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
+      vertex_hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]));
       testcase.draw_tool_view._tap(tap_event);
-      expect(testcase.vertex_source.selected['1d'].indices).to.be.deep.equal([1]);
+      expect(testcase.vertex_source.selected.indices).to.be.deep.equal([1]);
     });
 
     it("should delete selected vertex on tap", function(): void {
@@ -225,20 +225,20 @@ describe("PolyEditTool", (): void => {
       const vertex_hit_test_stub = sinon.stub(testcase.vertex_glyph_view, "hit_test");
 
       vertex_hit_test_stub.returns(null);
-      hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
+      hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]));
       const tap_event = make_event(300, 300);
       testcase.draw_tool_view._doubletap(tap_event);
       // Have to call CDSView.compute_indices manually for testing
       testcase.vertex_renderer.view.compute_indices();
 
-      vertex_hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
+      vertex_hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]));
       testcase.draw_tool_view._tap(tap_event);
 
       const keyup_event = make_event(300, 300, false, Keys.Backspace);
       testcase.draw_tool_view._move_enter(keyup_event);
       testcase.draw_tool_view._keyup(keyup_event);
 
-      expect(testcase.vertex_source.selected['1d'].indices).to.be.deep.equal([]);
+      expect(testcase.vertex_source.selected.indices).to.be.deep.equal([]);
       expect(testcase.vertex_source.data.x).to.be.deep.equal([0, 1]);
       expect(testcase.vertex_source.data.y).to.be.deep.equal([0, -1]);
       expect(testcase.data_source.data.xs).to.be.deep.equal([[0, 0.5, 1], [0, 1]]);
@@ -251,19 +251,19 @@ describe("PolyEditTool", (): void => {
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test");
       const vertex_hit_test_stub = sinon.stub(testcase.vertex_glyph_view, "hit_test");
 
-      hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
+      hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]));
       vertex_hit_test_stub.returns(null);
       const tap_event = make_event(300, 300);
       testcase.draw_tool_view._doubletap(tap_event);
       // Have to call CDSView.compute_indices manually for testing
       testcase.vertex_renderer.view.compute_indices();
-      vertex_hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
+      vertex_hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]));
       testcase.draw_tool_view._pan_start(tap_event);
       const pan_event = make_event(290, 290);
       testcase.draw_tool_view._pan(pan_event);
       testcase.draw_tool_view._pan_end(pan_event);
 
-      expect(testcase.vertex_source.selected['1d'].indices).to.be.deep.equal([]);
+      expect(testcase.vertex_source.selected.indices).to.be.deep.equal([]);
       expect(testcase.vertex_source.data.x).to.be.deep.equal([0, 0.4646017699115044, 1]);
       expect(testcase.vertex_source.data.y).to.be.deep.equal([0, -0.4661016949152542, -1]);
       expect(testcase.data_source.data.xs).to.be.deep.equal([[0, 0.5, 1], [0, 0.4646017699115044, 1]]);
@@ -276,19 +276,19 @@ describe("PolyEditTool", (): void => {
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test");
       const vertex_hit_test_stub = sinon.stub(testcase.vertex_glyph_view, "hit_test");
 
-      hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
+      hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]));
       vertex_hit_test_stub.returns(null);
       const tap_event = make_event(300, 300);
       testcase.draw_tool_view._doubletap(tap_event); // Poly selected
-      vertex_hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
+      vertex_hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]));
       testcase.vertex_renderer.view.compute_indices();
       testcase.draw_tool_view._doubletap(tap_event); // Vertex selected
-      vertex_hit_test_stub.returns(create_1d_hit_test_result([[2, 0]]));
+      vertex_hit_test_stub.returns(create_hit_test_result_from_hits([[2, 0]]));
       testcase.draw_tool_view._doubletap(make_event(290, 290)); // Add new vertex
 
       const xs = [0, 0.5, 0.008849557522123894, 1];
       const ys = [0, -0.5, 0.03389830508474576, -1];
-      expect(testcase.vertex_source.selected['1d'].indices).to.be.deep.equal([]);
+      expect(testcase.vertex_source.selected.indices).to.be.deep.equal([]);
       expect(testcase.vertex_source.data.x).to.be.deep.equal(xs);
       expect(testcase.vertex_source.data.y).to.be.deep.equal(ys);
       expect(testcase.data_source.data.xs).to.be.deep.equal([[0, 0.5, 1], xs]);
@@ -301,14 +301,14 @@ describe("PolyEditTool", (): void => {
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test");
       const vertex_hit_test_stub = sinon.stub(testcase.vertex_glyph_view, "hit_test");
 
-      hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
+      hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]));
       vertex_hit_test_stub.returns(null);
       const tap_event = make_event(300, 300);
       testcase.draw_tool_view._doubletap(tap_event); // Poly selected
-      vertex_hit_test_stub.returns(create_1d_hit_test_result([[1, 0]]));
+      vertex_hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]));
       testcase.vertex_renderer.view.compute_indices();
       testcase.draw_tool_view._doubletap(tap_event); // Vertex selected
-      vertex_hit_test_stub.returns(create_1d_hit_test_result([[2, 0]]));
+      vertex_hit_test_stub.returns(create_hit_test_result_from_hits([[2, 0]]));
       const key_event = make_event(290, 290, false, Keys.Esc);
       testcase.draw_tool_view._tap(key_event); // Add new vertex
       testcase.draw_tool_view._move_enter(key_event);
@@ -316,7 +316,7 @@ describe("PolyEditTool", (): void => {
 
       const xs = [0, 0.5, 0.008849557522123894, 1];
       const ys = [0, -0.5, 0.03389830508474576, -1];
-      expect(testcase.vertex_source.selected['1d'].indices).to.be.deep.equal([]);
+      expect(testcase.vertex_source.selected.indices).to.be.deep.equal([]);
       expect(testcase.vertex_source.data.x).to.be.deep.equal(xs);
       expect(testcase.vertex_source.data.y).to.be.deep.equal(ys);
       expect(testcase.data_source.data.xs).to.be.deep.equal([[0, 0.5, 1], xs]);

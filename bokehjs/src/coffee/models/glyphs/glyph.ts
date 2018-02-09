@@ -3,6 +3,7 @@ import * as hittest from "core/hittest";
 import * as p from "core/properties";
 import * as bbox from "core/util/bbox";
 import * as proj from "core/util/projections";
+import {Geometry, RectGeometry} from "core/geometry";
 import {Context2d} from "core/util/canvas"
 import {View} from "core/view";
 import {Model} from "../../model";
@@ -11,7 +12,8 @@ import {Anchor} from "core/enums"
 import {logger} from "core/logging";
 import {extend} from "core/util/object";
 import {isArray} from "core/util/types";
-import {LineView} from "./line"
+import {LineView} from "./line";
+import {Selection} from "../selections/selection";
 
 export abstract class GlyphView extends View {
   model: Glyph
@@ -228,7 +230,7 @@ export abstract class GlyphView extends View {
     }
   }
 
-  hit_test(geometry) {
+  hit_test(geometry: Geometry): hittest.HitTestResult {
     let result = null;
 
     const func = `_hit_${geometry.type}`;
@@ -242,13 +244,13 @@ export abstract class GlyphView extends View {
     return result;
   }
 
-  _hit_rect_against_index(geometry) {
+  _hit_rect_against_index(geometry: RectGeometry): Selection {
     const {sx0, sx1, sy0, sy1} = geometry;
     const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1);
     const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1);
     const bb = hittest.validate_bbox_coords([x0, x1], [y0, y1]);
-    const result = hittest.create_hit_test_result();
-    result['1d'].indices = this.index.indices(bb);
+    const result = hittest.create_empty_hit_test_result();
+    result.indices = this.index.indices(bb);
     return result;
   }
 

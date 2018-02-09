@@ -1,8 +1,10 @@
 /* XXX: partial */
 import {XYGlyph, XYGlyphView} from "./xy_glyph";
+import {PointGeometry, SpanGeometry} from "core/geometry";
 import {LineMixinVector} from "core/property_mixins"
 import * as hittest from "core/hittest"
 import {Context2d} from "core/util/canvas"
+import {Selection} from "../selections/selection";
 
 export class LineView extends XYGlyphView {
   model: Line
@@ -44,7 +46,7 @@ export class LineView extends XYGlyphView {
     }
   }
 
-  _hit_point(geometry) {
+  _hit_point(geometry: PointGeometry): Selection {
     /* Check if the point geometry hits this line glyph and return an object
     that describes the hit result:
       Args:
@@ -57,7 +59,7 @@ export class LineView extends XYGlyphView {
           * 0d (bool): whether the point hits the glyph or not
           * 1d (array(int)): array with the indices hit by the point
     */
-    const result = hittest.create_hit_test_result();
+    const result = hittest.create_empty_hit_test_result();
     const point = {x: geometry.sx, y: geometry.sy};
     let shortest = 9999;
     const threshold = Math.max(2, this.visuals.line.line_width.value() / 2);
@@ -68,20 +70,19 @@ export class LineView extends XYGlyphView {
 
       if ((dist < threshold) && (dist < shortest)) {
         shortest = dist;
-        result['0d'].glyph = this.model;
-        result['0d'].get_view = () => this
-        result['0d'].flag = true;  // backward compat
-        result['0d'].indices = [i];
+        result.add_to_selected_glyphs(this.model)
+        result.get_view = () => this
+        result.line_indices = [i]
       }
     }
 
     return result;
   }
 
-  _hit_span(geometry) {
+  _hit_span(geometry: SpanGeometry): Selection {
     let val, values;
     const {sx, sy} = geometry;
-    const result = hittest.create_hit_test_result();
+    const result = hittest.create_empty_hit_test_result();
 
     if (geometry.direction === 'v') {
       val = this.renderer.yscale.invert(sy);
@@ -93,17 +94,16 @@ export class LineView extends XYGlyphView {
 
     for (let i = 0, end = values.length-1; i < end; i++) {
       if ((values[i]<=val && val<=values[i+1]) || (values[i+1]<=val && val<=values[i])) {
-        result['0d'].glyph = this.model;
-        result['0d'].get_view = () => this
-        result['0d'].flag = true;  // backward compat
-        result['0d'].indices.push(i);
+        result.add_to_selected_glyphs(this.model)
+        result.get_view = () => this
+        result.line_indices.push(i)
       }
     }
 
     return result;
   }
 
-  get_interpolation_hit(i, geometry){
+  get_interpolation_hit(i, geometry: PointGeometry | SpanGeometry){
     let x0, x1, y0, y1;
     const {sx, sy} = geometry;
     const [x2, y2, x3, y3] = [this._x[i], this._y[i], this._x[i+1], this._y[i+1]];
