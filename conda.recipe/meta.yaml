@@ -62,8 +62,7 @@ test:
     - mock
     - packaging
     - pandas
-    - pytest >=3.0.2
-    - pytest-catchlog >=1.2.2
+    - pytest >=3.3.0
     - pytest-cov >=1.8.1
     - pytest-selenium >=1.6.0 [unix]
     - pytest-html
