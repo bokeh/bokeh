@@ -114,6 +114,7 @@
     "slickgrid": "https://github.com/bokeh/SlickGrid.git#6c1327b"
   },
   "scripts": {
+    "prepare": "node ./prepare.js",
     "build": "gulp build",
     "dev-build": "gulp dev-build"
   },
