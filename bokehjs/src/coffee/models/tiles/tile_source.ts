@@ -1,7 +1,7 @@
 import {Model} from "../../model"
-import {ImagePool} from "./image_pool";
+import {ImagePool} from "./image_pool"
 import {Extent, Bounds} from "./tile_utils"
-import * as p from "core/properties";
+import * as p from "core/properties"
 
 export interface Tile {
   tile_coords: [number, number, number]
@@ -32,7 +32,7 @@ export abstract class TileSource extends Model {
   }
 
   static initClass() {
-    this.prototype.type = 'TileSource';
+    this.prototype.type = 'TileSource'
 
     this.define({
       url:                [ p.String, ''  ],
@@ -44,7 +44,7 @@ export abstract class TileSource extends Model {
       x_origin_offset:    [ p.Number      ],
       y_origin_offset:    [ p.Number      ],
       initial_resolution: [ p.Number      ],
-    });
+    })
   }
 
   tiles: {[key: string]: Tile}
@@ -52,19 +52,19 @@ export abstract class TileSource extends Model {
   protected pool: ImagePool
 
   initialize(): void {
-    super.initialize();
-    this.tiles = {};
-    this.pool = new ImagePool();
-    this._normalize_case();
+    super.initialize()
+    this.tiles = {}
+    this.pool = new ImagePool()
+    this._normalize_case()
   }
 
   string_lookup_replace(str: string, lookup: {[key: string]: string}): string {
-    let result_str = str;
+    let result_str = str
     for (const key in lookup) {
-      const value = lookup[key];
-      result_str = result_str.replace(`{${key}}`, value);
+      const value = lookup[key]
+      result_str = result_str.replace(`{${key}}`, value)
     }
-    return result_str;
+    return result_str
   }
 
   protected _normalize_case(): void {
@@ -93,18 +93,18 @@ export abstract class TileSource extends Model {
   }
 
   sort_tiles_from_center(tiles: [number, number, number, Bounds][], tile_extent: Extent): void {
-    const [txmin, tymin, txmax, tymax] = tile_extent;
-    const center_x = ((txmax - txmin) / 2) + txmin;
-    const center_y = ((tymax - tymin) / 2) + tymin;
+    const [txmin, tymin, txmax, tymax] = tile_extent
+    const center_x = ((txmax - txmin) / 2) + txmin
+    const center_y = ((tymax - tymin) / 2) + tymin
     tiles.sort(function(a, b) {
-      const a_distance = Math.sqrt(Math.pow(center_x - a[0], 2) + Math.pow(center_y - a[1], 2));
-      const b_distance = Math.sqrt(Math.pow(center_x - b[0], 2) + Math.pow(center_y - b[1], 2));
-      return a_distance - b_distance;
-    });
+      const a_distance = Math.sqrt(Math.pow(center_x - a[0], 2) + Math.pow(center_y - a[1], 2))
+      const b_distance = Math.sqrt(Math.pow(center_x - b[0], 2) + Math.pow(center_y - b[1], 2))
+      return a_distance - b_distance
+    })
   }
 
   get_image_url(x: number, y: number, z: number): string {
-    const image_url = this.string_lookup_replace(this.url, this.extra_url_vars);
+    const image_url = this.string_lookup_replace(this.url, this.extra_url_vars)
     return image_url.replace("{X}", x.toString())
                     .replace('{Y}', y.toString())
                     .replace("{Z}", z.toString())

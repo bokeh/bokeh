@@ -13,15 +13,15 @@ export type Bounds = [number, number, number, number]
 export type Extent = [number, number, number, number]
 
 export function geographic_extent_to_meters(extent: Extent): Extent {
-  let [xmin, ymin, xmax, ymax] = extent;
-  [xmin, ymin] = geographic_to_meters(xmin, ymin);
-  [xmax, ymax] = geographic_to_meters(xmax, ymax);
-  return [xmin, ymin, xmax, ymax]
+  const [g_xmin, g_ymin, g_xmax, g_ymax] = extent
+  const [m_xmin, m_ymin] = geographic_to_meters(g_xmin, g_ymin)
+  const [m_xmax, m_ymax] = geographic_to_meters(g_xmax, g_ymax)
+  return [m_xmin, m_ymin, m_xmax, m_ymax]
 }
 
 export function meters_extent_to_geographic(extent: Extent): Extent {
-  let [xmin, ymin, xmax, ymax] = extent;
-  [xmin, ymin] = meters_to_geographic(xmin, ymin);
-  [xmax, ymax] = meters_to_geographic(xmax, ymax);
-  return [xmin, ymin, xmax, ymax]
+  const [m_xmin, m_ymin, m_xmax, m_ymax] = extent
+  const [g_xmin, g_ymin] = meters_to_geographic(m_xmin, m_ymin)
+  const [g_xmax, g_ymax] = meters_to_geographic(m_xmax, m_ymax)
+  return [g_xmin, g_ymin, g_xmax, g_ymax]
 }
