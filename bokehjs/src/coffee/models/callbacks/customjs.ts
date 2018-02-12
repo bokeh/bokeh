@@ -1,52 +1,48 @@
-/* XXX: partial */
-import * as p from "core/properties";
-import {values} from "core/util/object";
-import {Model} from "../../model"
+import {Callback} from "./callback"
+import * as p from "core/properties"
+import {keys, values} from "core/util/object"
 
 export namespace CustomJS {
-  export interface Attrs extends Model.Attrs {
+  export interface Attrs extends Callback.Attrs {
     args: {[key: string]: any}
     code: string
   }
 
-  export interface Opts extends Model.Opts {}
+  export interface Opts extends Callback.Opts {}
 }
 
 export interface CustomJS extends CustomJS.Attrs {}
 
-export class CustomJS extends Model {
+export class CustomJS extends Callback {
 
   constructor(attrs?: Partial<CustomJS.Attrs>, opts?: CustomJS.Opts) {
     super(attrs, opts)
   }
 
   static initClass() {
-    this.prototype.type = 'CustomJS';
+    this.prototype.type = 'CustomJS'
 
     this.define({
       args: [ p.Any,     {} ], // TODO (bev) better type
       code: [ p.String,  '' ],
-    });
+    })
   }
 
-  get values() {
-    return this._make_values()
+  get names(): string[] {
+    return keys(this.args)
   }
 
-  get func() {
-    return this._make_func()
+  get values(): any[] {
+    return values(this.args)
   }
 
-  execute(cb_obj, cb_data) {
-    return this.func.apply(cb_obj, this.values.concat(cb_obj, cb_data, require, {}));
+  get func(): Function {
+    // this relies on keys(args) and values(args) returning keys and values in the same order
+    return new Function(...this.names, "cb_obj", "cb_data", "require", "exports", this.code)
   }
 
-  _make_values() { return values(this.args); }
-
-  _make_func() {
-    // this relies on Object.keys(args) and values(args) returning keys and values
-    // in the same order
-    return new Function(...Object.keys(this.args), "cb_obj", "cb_data", "require", "exports", this.code);
+  execute(cb_obj: any, cb_data: {[key: string]: any}): any {
+    return this.func.apply(cb_obj, this.values.concat(cb_obj, cb_data, require, {}))
   }
 }
-CustomJS.initClass();
+CustomJS.initClass()
