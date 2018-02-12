@@ -9,26 +9,25 @@ utils = require "../../utils"
 {WMTSTileSource} = utils.require "models/tiles/wmts_tile_source"
 {QUADKEYTileSource} = utils.require "models/tiles/quadkey_tile_source"
 {BBoxTileSource} = utils.require "models/tiles/bbox_tile_source"
-{ProjectionUtils} = utils.require "models/tiles/tile_utils"
+tile_utils = utils.require "models/tiles/tile_utils"
 
 describe "projection utils", ->
 
-  utils = new ProjectionUtils()
   tol = 0.01
 
   it "should convert lat/lng to meters", ->
-    [x, y] = utils.geographic_to_meters(-90.17578125, 29.840643899834436)
+    [x, y] = tile_utils.geographic_to_meters(-90.17578125, 29.840643899834436)
     expect(x).to.be.closeTo(-10038322.050635627, tol)
     expect(y).to.be.closeTo(3483082.504898913, tol)
 
   it "should convert meters to lat/lng", ->
-    [x, y] = utils.meters_to_geographic(-10038322.050635627, 3483082.504898913)
+    [x, y] = tile_utils.meters_to_geographic(-10038322.050635627, 3483082.504898913)
     expect(x).to.be.closeTo(-90.17578125, tol)
     expect(y).to.be.closeTo(29.840643899834436, tol)
 
   it "should convert geographic extent to meters", ->
     extent = [-67.5, -21.943045533438166, -45, 0]
-    bounds = utils.geographic_extent_to_meters(extent)
+    bounds = tile_utils.geographic_extent_to_meters(extent)
     expect(bounds[0]).to.be.closeTo(-7514065.628545966, tol)
     expect(bounds[1]).to.be.closeTo(-2504688.542848654, tol)
     expect(bounds[2]).to.be.closeTo(-5009377.085697312, tol)
@@ -36,7 +35,7 @@ describe "projection utils", ->
 
   it "should convert meters extent to geographic", ->
     extent = [-7514065.628545966, -2504688.542848654, -5009377.085697312, 0]
-    bounds = utils.meters_extent_to_geographic(extent)
+    bounds = tile_utils.meters_extent_to_geographic(extent)
     expect(bounds[0]).to.be.closeTo(-67.5, tol)
     expect(bounds[1]).to.be.closeTo(-21.943045533438166, tol)
     expect(bounds[2]).to.be.closeTo(-45, tol)
