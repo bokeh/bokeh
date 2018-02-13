@@ -3,8 +3,8 @@ import {contains, uniq} from "core/util/array"
 import {create_empty_hit_test_result, HitTestResult} from "core/hittest"
 import {Geometry} from "core/geometry"
 import {Selection} from "../selections/selection"
-import {GraphRenderer, GraphRendererView} from "../renderers/graph_renderer";
-import {ColumnarDataSource} from "../sources/columnar_data_source";
+import {GraphRenderer, GraphRendererView} from "../renderers/graph_renderer"
+import {ColumnarDataSource} from "../sources/columnar_data_source"
 
 export abstract class GraphHitTestPolicy extends Model {
 
@@ -43,7 +43,7 @@ GraphHitTestPolicy.prototype.type = "GraphHitTestPolicy"
 
 export class NodesOnly extends GraphHitTestPolicy {
   static initClass() {
-    this.prototype.type = 'NodesOnly';
+    this.prototype.type = 'NodesOnly'
   }
 
   hit_test(geometry: Geometry, graph_view: GraphRendererView): HitTestResult {
@@ -75,11 +75,11 @@ export class NodesOnly extends GraphHitTestPolicy {
     return !node_inspection.is_empty()
   }
 }
-NodesOnly.initClass();
+NodesOnly.initClass()
 
 export class NodesAndLinkedEdges extends GraphHitTestPolicy {
   static initClass() {
-    this.prototype.type = 'NodesAndLinkedEdges';
+    this.prototype.type = 'NodesAndLinkedEdges'
   }
 
   hit_test(geometry: Geometry, graph_view: GraphRendererView): HitTestResult {
@@ -143,11 +143,11 @@ export class NodesAndLinkedEdges extends GraphHitTestPolicy {
     return !node_inspection.is_empty()
   }
 }
-NodesAndLinkedEdges.initClass();
+NodesAndLinkedEdges.initClass()
 
 export class EdgesAndLinkedNodes extends GraphHitTestPolicy {
   static initClass() {
-    this.prototype.type = 'EdgesAndLinkedNodes';
+    this.prototype.type = 'EdgesAndLinkedNodes'
   }
 
   hit_test(geometry: Geometry, graph_view: GraphRendererView): HitTestResult {
@@ -207,4 +207,4 @@ export class EdgesAndLinkedNodes extends GraphHitTestPolicy {
     return !edge_inspection.is_empty()
   }
 }
-EdgesAndLinkedNodes.initClass();
+EdgesAndLinkedNodes.initClass()

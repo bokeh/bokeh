@@ -18,6 +18,14 @@ utils = require "../../utils"
 {ColumnDataSource} = utils.require("models/sources/column_data_source")
 {Document} = utils.require "document"
 
+class TrivialLayoutProvider extends LayoutProvider
+
+  get_node_coordinates: (source) ->
+    return [[], []]
+
+  get_edge_coordinates: (source) ->
+    return [[], []]
+
 describe "GraphHitTestPolicy", ->
 
   afterEach ->
@@ -54,7 +62,7 @@ describe "GraphHitTestPolicy", ->
     @gr = new GraphRenderer({
       node_renderer: @node_renderer
       edge_renderer: @edge_renderer
-      layout_provider: new LayoutProvider()
+      layout_provider: new TrivialLayoutProvider()
     })
 
     @gv = new @gr.default_view({
