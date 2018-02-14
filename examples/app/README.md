@@ -95,7 +95,7 @@ The demos container here are:
   <tr><td colspan="2">weather</td></tr>
   <tr>
     <td><img src="https://bokeh.pydata.org/static/weather_t.png" width=400></img></td>
-    <td> A basic demo with dropdown menus and weather data for verious cities</td>
+    <td> A basic demo with dropdown menus and weather data for various cities</td>
   </tr>
 
 </table>
