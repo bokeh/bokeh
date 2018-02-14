@@ -1,31 +1,27 @@
-/* XXX: partial */
 import {proj4, mercator, wgs84} from "core/util/proj4"
 
-export class ProjectionUtils {
+export function geographic_to_meters(xLon: number, yLat: number): [number, number] {
+  return proj4(wgs84, mercator, [xLon, yLat])
+}
 
-  constructor() {
-    this.origin_shift = (2 * Math.PI * 6378137) / 2.0;
-  }
+export function meters_to_geographic(mx: number, my: number): [number, number] {
+  return proj4(mercator, wgs84, [mx, my])
+}
 
-  geographic_to_meters(xLon, yLat) {
-    return  proj4(wgs84, mercator, [xLon, yLat]);
-  }
+export type Bounds = [number, number, number, number]
 
-  meters_to_geographic(mx, my) {
-    return  proj4(mercator, wgs84, [mx, my]);
-  }
+export type Extent = [number, number, number, number]
 
-  geographic_extent_to_meters(extent) {
-    let [xmin, ymin, xmax, ymax] = extent;
-    [xmin, ymin] = this.geographic_to_meters(xmin, ymin);
-    [xmax, ymax] = this.geographic_to_meters(xmax, ymax);
-    return [xmin, ymin, xmax, ymax];
-  }
+export function geographic_extent_to_meters(extent: Extent): Extent {
+  const [g_xmin, g_ymin, g_xmax, g_ymax] = extent
+  const [m_xmin, m_ymin] = geographic_to_meters(g_xmin, g_ymin)
+  const [m_xmax, m_ymax] = geographic_to_meters(g_xmax, g_ymax)
+  return [m_xmin, m_ymin, m_xmax, m_ymax]
+}
 
-  meters_extent_to_geographic(extent) {
-    let [xmin, ymin, xmax, ymax] = extent;
-    [xmin, ymin] = this.meters_to_geographic(xmin, ymin);
-    [xmax, ymax] = this.meters_to_geographic(xmax, ymax);
-    return [xmin, ymin, xmax, ymax];
-  }
+export function meters_extent_to_geographic(extent: Extent): Extent {
+  const [m_xmin, m_ymin, m_xmax, m_ymax] = extent
+  const [g_xmin, g_ymin] = meters_to_geographic(m_xmin, m_ymin)
+  const [g_xmax, g_ymax] = meters_to_geographic(m_xmax, m_ymax)
+  return [g_xmin, g_ymin, g_xmax, g_ymax]
 }

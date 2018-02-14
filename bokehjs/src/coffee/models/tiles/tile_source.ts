@@ -1,14 +1,10 @@
-/* XXX: partial */
-import {ImagePool} from "./image_pool";
-import {ProjectionUtils} from "./tile_utils";
-import {logger} from "core/logging";
-import * as p from "core/properties";
 import {Model} from "../../model"
+import {ImagePool} from "./image_pool"
+import {Extent, Bounds} from "./tile_utils"
+import * as p from "core/properties"
 
 export interface Tile {
   tile_coords: [number, number, number]
-  current: boolean
-  retain: boolean
 }
 
 export namespace TileSource {
@@ -36,7 +32,7 @@ export abstract class TileSource extends Model {
   }
 
   static initClass() {
-    this.prototype.type = 'TileSource';
+    this.prototype.type = 'TileSource'
 
     this.define({
       url:                [ p.String, ''  ],
@@ -48,109 +44,86 @@ export abstract class TileSource extends Model {
       x_origin_offset:    [ p.Number      ],
       y_origin_offset:    [ p.Number      ],
       initial_resolution: [ p.Number      ],
-    });
+    })
   }
+
+  tiles: {[key: string]: Tile}
+
+  protected pool: ImagePool
 
   initialize(): void {
-    super.initialize();
-    this.utils = new ProjectionUtils();
-    this.pool = new ImagePool();
-    this.tiles = {};
-    this.normalize_case();
+    super.initialize()
+    this.tiles = {}
+    this.pool = new ImagePool()
+    this._normalize_case()
   }
 
-  string_lookup_replace(str, lookup) {
-    let result_str = str;
+  string_lookup_replace(str: string, lookup: {[key: string]: string}): string {
+    let result_str = str
     for (const key in lookup) {
-      const value = lookup[key];
-      result_str = result_str.replace(`{${key}}`, value.toString());
+      const value = lookup[key]
+      result_str = result_str.replace(`{${key}}`, value)
     }
-    return result_str;
+    return result_str
   }
 
-  normalize_case() {
-    'Note: should probably be refactored into subclasses.';
-    let { url } = this;
-    url = url.replace('{x}','{X}');
-    url = url.replace('{y}','{Y}');
-    url = url.replace('{z}','{Z}');
-    url = url.replace('{q}','{Q}');
-    url = url.replace('{xmin}','{XMIN}');
-    url = url.replace('{ymin}','{YMIN}');
-    url = url.replace('{xmax}','{XMAX}');
-    url = url.replace('{ymax}','{YMAX}');
-    return this.url = url;
+  protected _normalize_case(): void {
+    /*
+     * Note: should probably be refactored into subclasses.
+     */
+    const url = this.url
+      .replace('{x}','{X}')
+      .replace('{y}','{Y}')
+      .replace('{z}','{Z}')
+      .replace('{q}','{Q}')
+      .replace('{xmin}','{XMIN}')
+      .replace('{ymin}','{YMIN}')
+      .replace('{xmax}','{XMAX}')
+      .replace('{ymax}','{YMAX}')
+    this.url = url
   }
 
-  update() {
-    logger.debug(`TileSource: tile cache count: ${Object.keys(this.tiles).length}`);
-    for (const key in this.tiles) {
-      const tile = this.tiles[key];
-      tile.current = false;
-      tile.retain = false;
-    }
+  tile_xyz_to_key(x: number, y: number, z: number): string {
+    return `${x}:${y}:${z}`
   }
 
-  tile_xyz_to_key(x, y, z) {
-    const key = `${x}:${y}:${z}`;
-    return key;
+  key_to_tile_xyz(key: string): [number, number, number] {
+    const [x, y, z] = key.split(':').map((c) => parseInt(c))
+    return [x, y, z]
   }
 
-  key_to_tile_xyz(key) {
-    return (key.split(':').map((c) => parseInt(c)));
-  }
-
-  sort_tiles_from_center(tiles, tile_extent) {
-    const [txmin, tymin, txmax, tymax] = tile_extent;
-    const center_x = ((txmax - txmin) / 2) + txmin;
-    const center_y = ((tymax - tymin) / 2) + tymin;
+  sort_tiles_from_center(tiles: [number, number, number, Bounds][], tile_extent: Extent): void {
+    const [txmin, tymin, txmax, tymax] = tile_extent
+    const center_x = ((txmax - txmin) / 2) + txmin
+    const center_y = ((tymax - tymin) / 2) + tymin
     tiles.sort(function(a, b) {
-      const a_distance = Math.sqrt(Math.pow(center_x - a[0], 2) + Math.pow(center_y - a[1], 2));
-      const b_distance = Math.sqrt(Math.pow(center_x - b[0], 2) + Math.pow(center_y - b[1], 2));
-      return a_distance - b_distance;
-    });
-    return tiles;
+      const a_distance = Math.sqrt(Math.pow(center_x - a[0], 2) + Math.pow(center_y - a[1], 2))
+      const b_distance = Math.sqrt(Math.pow(center_x - b[0], 2) + Math.pow(center_y - b[1], 2))
+      return a_distance - b_distance
+    })
   }
 
-  prune_tiles() {
-    for (const key in this.tiles) {
-      const tile = this.tiles[key];
-      tile.retain = tile.current || tile.tile_coords[2] < 3 // save the parents...they are cheap
-      if (tile.current) {
-        this.retain_neighbors(tile);
-        this.retain_children(tile);
-        this.retain_parents(tile);
-      }
-    }
-
-    for (const key in this.tiles) {
-      const tile = this.tiles[key];
-      if (!tile.retain)
-        this.remove_tile(key);
-    }
+  get_image_url(x: number, y: number, z: number): string {
+    const image_url = this.string_lookup_replace(this.url, this.extra_url_vars)
+    return image_url.replace("{X}", x.toString())
+                    .replace('{Y}', y.toString())
+                    .replace("{Z}", z.toString())
   }
-
-  remove_tile(key) {
-    const tile = this.tiles[key];
-    if (tile != null) {
-      this.pool.push(tile.img);
-      return delete this.tiles[key];
-    }
-  }
-
-  get_image_url(x, y, z) {
-    const image_url = this.string_lookup_replace(this.url, this.extra_url_vars);
-    return image_url.replace("{X}", x).replace('{Y}', y).replace("{Z}", z);
-  }
-
-  abstract retain_neighbors(reference_tile: Tile): void
-
-  abstract retain_parents(reference_tile: Tile): void
-
-  abstract retain_children(reference_tile: Tile): void
 
   abstract tile_xyz_to_quadkey(x: number, y: number, z: number): string
 
   abstract quadkey_to_tile_xyz(quadkey: string): [number, number, number]
+
+  abstract children_by_tile_xyz(x: number, y: number, z: number): [number, number, number, Bounds][]
+
+  abstract get_closest_parent_by_tile_xyz(x: number, y: number, z: number): [number, number, number]
+
+  abstract get_tiles_by_extent(extent: Extent, level: number, tile_border?: number): [number, number, number, Bounds][]
+
+  abstract get_level_by_extent(extent: Extent, height: number, width: number): number
+
+  abstract snap_to_zoom_level(extent: Extent, height: number, width: number, level: number): Extent
+
+  abstract normalize_xyz(x: number, y: number, z: number): [number, number, number]
 }
 TileSource.initClass()

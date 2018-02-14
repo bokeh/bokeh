@@ -1,4 +1,3 @@
-/* XXX: partial */
 import {MercatorTileSource} from './mercator_tile_source'
 
 export namespace QUADKEYTileSource {
@@ -16,14 +15,14 @@ export class QUADKEYTileSource extends MercatorTileSource {
   }
 
   static initClass() {
-    this.prototype.type = 'QUADKEYTileSource';
+    this.prototype.type = 'QUADKEYTileSource'
   }
 
-  get_image_url(x, y, z) {
-    const image_url = this.string_lookup_replace(this.url, this.extra_url_vars);
-    [x, y, z] = this.tms_to_wmts(x, y, z);
-    const quadKey = this.tile_xyz_to_quadkey(x, y, z);
-    return image_url.replace("{Q}", quadKey);
+  get_image_url(x: number, y: number, z: number): string {
+    const image_url = this.string_lookup_replace(this.url, this.extra_url_vars)
+    const [wx, wy, wz] = this.tms_to_wmts(x, y, z)
+    const quadKey = this.tile_xyz_to_quadkey(wx, wy, wz)
+    return image_url.replace("{Q}", quadKey)
   }
 }
-QUADKEYTileSource.initClass();
+QUADKEYTileSource.initClass()

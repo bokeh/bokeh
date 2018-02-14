@@ -24,7 +24,6 @@
 /// <reference path="./typings/models/formatters.d.ts" />
 /// <reference path="./typings/models/glyphs.d.ts" />
 /// <reference path="./typings/models/grids.d.ts" />
-/// <reference path="./typings/models/images.d.ts" />
 /// <reference path="./typings/models/layouts.d.ts" />
 /// <reference path="./typings/models/map_plots.d.ts" />
 /// <reference path="./typings/models/mappers.d.ts" />

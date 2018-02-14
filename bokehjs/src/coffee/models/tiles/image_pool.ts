@@ -1,29 +1,23 @@
-/* XXX: partial */
+import {isArray} from "core/util/types"
+
+export type Image = HTMLImageElement
+
 export class ImagePool {
 
-  constructor() {
-    this.images = [];
+  protected images: Image[] = []
+
+  pop(): Image {
+    const img = this.images.pop()
+    return img != null ? img : new Image()
   }
 
-  pop() {
-    const img = this.images.pop();
-    if (img != null) {
-      return img;
-    } else {
-      return new Image();
-    }
-  }
+  push(img: Image | Image[]): void {
+    if (this.images.length > 50)
+      return
 
-  push(img) {
-
-    if (this.images.length > 50) {
-      return;
-    }
-
-    if (img.constructor === Array) {
-      return Array.prototype.push.apply(this.images, img);
-    } else {
-      return this.images.push(img);
-    }
+    if (isArray(img))
+      this.images.push(...img)
+    else
+      this.images.push(img)
   }
 }
