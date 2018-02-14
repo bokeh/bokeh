@@ -1,6 +1,6 @@
 /* XXX: partial */
 import {Model} from "../../model";
-import {Renderer} from "../renderers/renderer"
+import {GlyphRenderer} from "../renderers/glyph_renderer"
 import {ColumnDataSource} from "../sources/column_data_source"
 import {StringSpec} from "core/vectorization"
 import * as p from "core/properties";
@@ -10,7 +10,7 @@ import {uniq, includes} from "core/util/array";
 export namespace LegendItem {
   export interface Attrs extends Model.Attrs {
     label: StringSpec | null
-    renderers: Renderer[]
+    renderers: GlyphRenderer[]
   }
 
   export interface Opts extends Model.Opts {}
