@@ -1,10 +1,10 @@
-/* XXX: partial */
-import {LayoutProvider} from "./layout_provider";
+import {LayoutProvider} from "./layout_provider"
+import {ColumnarDataSource} from "../sources/columnar_data_source"
 import * as p from "../../core/properties"
 
 export namespace StaticLayoutProvider {
   export interface Attrs extends LayoutProvider.Attrs {
-    graph_layout: {[key: string]: any[]}
+    graph_layout: {[key: string]: [number, number]}
   }
 
   export interface Opts extends LayoutProvider.Opts {}
@@ -19,46 +19,47 @@ export class StaticLayoutProvider extends LayoutProvider {
   }
 
   static initClass() {
-    this.prototype.type = "StaticLayoutProvider";
+    this.prototype.type = "StaticLayoutProvider"
 
     this.define({
       graph_layout: [ p.Any, {} ],
-    });
+    })
   }
 
-  get_node_coordinates(node_source) {
-    const [xs, ys] = [[], []];
+  get_node_coordinates(node_source: ColumnarDataSource): [number[], number[]] {
+    const xs: number[] = []
+    const ys: number[] = []
     for (const i of node_source.data.index) {
-      const x = (this.graph_layout[i] != null) ? this.graph_layout[i][0] : NaN;
-      const y = (this.graph_layout[i] != null) ? this.graph_layout[i][1] : NaN;
-      xs.push(x);
-      ys.push(y);
+      const x = (this.graph_layout[i] != null) ? this.graph_layout[i][0] : NaN
+      const y = (this.graph_layout[i] != null) ? this.graph_layout[i][1] : NaN
+      xs.push(x)
+      ys.push(y)
     }
-    return [xs, ys];
+    return [xs, ys]
   }
 
-  get_edge_coordinates(edge_source) {
-    const [xs, ys] = [[], []];
-    const starts = edge_source.data.start;
-    const ends = edge_source.data.end;
-    const has_paths = (edge_source.data.xs != null) && (edge_source.data.ys != null);
+  get_edge_coordinates(edge_source: ColumnarDataSource): [[number, number][], [number, number][]] {
+    const xs: [number, number][] = []
+    const ys: [number, number][] = []
+    const starts = edge_source.data.start
+    const ends = edge_source.data.end
+    const has_paths = (edge_source.data.xs != null) && (edge_source.data.ys != null)
     for (let i = 0, endi = starts.length; i < endi; i++) {
-      const in_layout = (this.graph_layout[starts[i]] != null) && (this.graph_layout[ends[i]] != null);
+      const in_layout = (this.graph_layout[starts[i]] != null) && (this.graph_layout[ends[i]] != null)
       if (has_paths && in_layout) {
-        xs.push(edge_source.data.xs[i]);
-        ys.push(edge_source.data.ys[i]);
+        xs.push(edge_source.data.xs[i])
+        ys.push(edge_source.data.ys[i])
       } else {
-        let end, start;
-        if (in_layout) {
-          [start, end] = [this.graph_layout[starts[i]], this.graph_layout[ends[i]]];
-        } else {
-          [start, end] = [[NaN, NaN], [NaN, NaN]];
-        }
-        xs.push([start[0], end[0]]);
-        ys.push([start[1], end[1]]);
+        let end, start
+        if (in_layout)
+          [start, end] = [this.graph_layout[starts[i]], this.graph_layout[ends[i]]]
+        else
+          [start, end] = [[NaN, NaN], [NaN, NaN]]
+        xs.push([start[0], end[0]])
+        ys.push([start[1], end[1]])
       }
     }
-    return [xs, ys];
+    return [xs, ys]
   }
 }
-StaticLayoutProvider.initClass();
+StaticLayoutProvider.initClass()

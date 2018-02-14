@@ -1,5 +1,5 @@
-/* XXX: partial */
 import {Model} from "../../model"
+import {ColumnarDataSource} from "../sources/columnar_data_source"
 
 export namespace LayoutProvider {
   export interface Attrs extends Model.Attrs {}
@@ -19,14 +19,8 @@ export abstract class LayoutProvider extends Model {
     this.prototype.type = "LayoutProvider"
   }
 
-  get_node_coordinates(_graph_source) {
-    // this is implemented by base classes
-    return [[], []];
-  }
+  abstract get_node_coordinates(graph_source: ColumnarDataSource): [number[], number[]]
 
-  get_edge_coordinates(_graph_source) {
-    // this is implemented by base classes
-    return [[], []];
-  }
+  abstract get_edge_coordinates(graph_source: ColumnarDataSource): [[number, number][], [number, number][]]
 }
 LayoutProvider.initClass()
