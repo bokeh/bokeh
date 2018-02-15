@@ -45,6 +45,7 @@ def make_plot(xname, yname, xax=False, yax=False):
     xticker = BasicTicker()
     if xax:
         xaxis = LinearAxis()
+        xaxis.axis_label = xname
         plot.add_layout(xaxis, 'below')
         xticker = xaxis.ticker
     plot.add_layout(Grid(dimension=0, ticker=xticker))
@@ -52,6 +53,8 @@ def make_plot(xname, yname, xax=False, yax=False):
     yticker = BasicTicker()
     if yax:
         yaxis = LinearAxis()
+        yaxis.axis_label = yname
+        yaxis.major_label_orientation = 'vertical'
         plot.add_layout(yaxis, 'left')
         yticker = yaxis.ticker
     plot.add_layout(Grid(dimension=1, ticker=yticker))
