@@ -13,7 +13,7 @@ export namespace RemoteDataSource {
 
 export interface RemoteDataSource extends RemoteDataSource.Attrs {}
 
-export class RemoteDataSource extends ColumnDataSource {
+export abstract class RemoteDataSource extends ColumnDataSource {
 
   constructor(attrs?: Partial<RemoteDataSource.Attrs>, opts?: RemoteDataSource.Opts) {
     super(attrs, opts)
@@ -27,5 +27,7 @@ export class RemoteDataSource extends ColumnDataSource {
       polling_interval: [ p.Number    ],
     })
   }
+
+  abstract setup(): void
 }
 RemoteDataSource.initClass()

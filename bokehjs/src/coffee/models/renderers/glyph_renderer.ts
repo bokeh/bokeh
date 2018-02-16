@@ -4,6 +4,7 @@ import {LineView} from "../glyphs/line";
 import {Glyph, GlyphView} from "../glyphs/glyph";
 import {ColumnarDataSource} from "../sources/columnar_data_source";
 import {RemoteDataSource} from "../sources/remote_data_source";
+import {Scale} from "../scales/scale"
 import {CDSView} from "../sources/cds_view";
 import {logger} from "core/logging";
 import * as p from "core/properties";
@@ -15,9 +16,39 @@ import {SelectionManager} from "core/selection_manager";
 import {Context2d} from "core/util/canvas"
 import {FactorRange} from '../ranges/factor_range';
 
+const selection_defaults = {
+  fill: {},
+  line: {},
+}
+
+const decimated_defaults = {
+  fill: {fill_alpha: 0.3, fill_color: "grey"},
+  line: {line_alpha: 0.3, line_color: "grey"},
+}
+
+const nonselection_defaults = {
+  fill: {fill_alpha: 0.2, line_alpha: 0.2},
+  line: {},
+}
+
 export class GlyphRendererView extends RendererView {
   model: GlyphRenderer
+
   glyph: GlyphView
+  selection_glyph: GlyphView
+  nonselection_glyph: GlyphView
+  hover_glyph?: GlyphView
+  muted_glyph?: GlyphView
+  decimated_glyph: GlyphView
+
+  xscale: Scale
+  yscale: Scale
+
+  protected all_indices: number[]
+  protected decimated: number[]
+
+  protected set_data_timestamp: number
+  protected last_dtrender: number
 
   initialize(options: any): void {
     super.initialize(options);
@@ -41,7 +72,7 @@ export class GlyphRendererView extends RendererView {
     if ((selection_glyph == null)) {
       selection_glyph = mk_glyph({fill: {}, line: {}});
     } else if (selection_glyph === "auto") {
-      selection_glyph = mk_glyph(this.model.selection_defaults);
+      selection_glyph = mk_glyph(selection_defaults);
     }
     this.selection_glyph = this.build_glyph_view(selection_glyph);
 
@@ -49,7 +80,7 @@ export class GlyphRendererView extends RendererView {
     if ((nonselection_glyph == null)) {
       nonselection_glyph = mk_glyph({fill: {}, line: {}});
     } else if (nonselection_glyph === "auto") {
-      nonselection_glyph = mk_glyph(this.model.nonselection_defaults);
+      nonselection_glyph = mk_glyph(nonselection_defaults);
     }
     this.nonselection_glyph = this.build_glyph_view(nonselection_glyph);
 
@@ -63,7 +94,7 @@ export class GlyphRendererView extends RendererView {
       this.muted_glyph = this.build_glyph_view(muted_glyph);
     }
 
-    const decimated_glyph = mk_glyph(this.model.decimated_defaults);
+    const decimated_glyph = mk_glyph(decimated_defaults);
     this.decimated_glyph = this.build_glyph_view(decimated_glyph);
 
     this.xscale = this.plot_view.frame.xscales[this.model.x_range_name];
@@ -72,7 +103,7 @@ export class GlyphRendererView extends RendererView {
     this.set_data(false);
 
     if (this.model.data_source instanceof RemoteDataSource) {
-      return this.model.data_source.setup();
+      this.model.data_source.setup();
     }
   }
 
@@ -112,7 +143,9 @@ export class GlyphRendererView extends RendererView {
     this.connect(this.model.glyph.transformchange, () => this.set_data())
   }
 
-  have_selection_glyphs() { return (this.selection_glyph != null) && (this.nonselection_glyph != null); }
+  have_selection_glyphs(): boolean {
+    return this.selection_glyph != null && this.nonselection_glyph != null
+  }
 
   // in case of partial updates like patching, the list of indices that actually
   // changed may be passed as the "indices" parameter to afford any optional optimizations
@@ -362,25 +395,21 @@ export class GlyphRenderer extends Renderer {
     this.prototype.default_view = GlyphRendererView;
 
     this.define({
-        x_range_name:       [ p.String,  'default' ],
-        y_range_name:       [ p.String,  'default' ],
-        data_source:        [ p.Instance           ],
-        view:               [ p.Instance, () => new CDSView() ],
-        glyph:              [ p.Instance           ],
-        hover_glyph:        [ p.Instance           ],
-        nonselection_glyph: [ p.Any,      'auto'   ], // Instance or "auto"
-        selection_glyph:    [ p.Any,      'auto'   ], // Instance or "auto"
-        muted_glyph:        [ p.Instance           ],
-        muted:              [ p.Bool,        false ],
-      });
+      x_range_name:       [ p.String,  'default' ],
+      y_range_name:       [ p.String,  'default' ],
+      data_source:        [ p.Instance           ],
+      view:               [ p.Instance, () => new CDSView() ],
+      glyph:              [ p.Instance           ],
+      hover_glyph:        [ p.Instance           ],
+      nonselection_glyph: [ p.Any,      'auto'   ], // Instance or "auto"
+      selection_glyph:    [ p.Any,      'auto'   ], // Instance or "auto"
+      muted_glyph:        [ p.Instance           ],
+      muted:              [ p.Bool,     false    ],
+    });
 
     this.override({
       level: 'glyph',
     });
-
-    this.prototype.selection_defaults = {fill: {}, line: {}};
-    this.prototype.decimated_defaults = {fill: {fill_alpha: 0.3, fill_color: "grey"}, line: {line_alpha: 0.3, line_color: "grey"}};
-    this.prototype.nonselection_defaults = {fill: {fill_alpha: 0.2, line_alpha: 0.2}, line: {}};
   }
 
   initialize(): void {

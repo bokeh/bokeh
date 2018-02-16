@@ -1,12 +1,13 @@
 /* XXX: partial */
 import * as p from "core/properties";
 import {Signal} from "core/signaling";
-import {Tool} from "./tool"
+import {Class} from "core/class"
 import {Model} from "../../model"
+import {ButtonTool, ButtonToolButtonView} from "./button_tool"
 
 export namespace ToolProxy {
   export interface Attrs extends Model.Attrs {
-    tools: Tool[]
+    tools: ButtonTool[]
     active: boolean
     disabled: boolean
   }
@@ -32,9 +33,11 @@ export class ToolProxy extends Model {
     });
   }
 
+  do: Signal<void, this>
+
   // Operates all the tools given only one button
 
-  get button_view() {
+  get button_view(): Class<ButtonToolButtonView> {
     return this.tools[0].button_view
   }
 
@@ -61,27 +64,25 @@ export class ToolProxy extends Model {
 
   connect_signals(): void {
     super.connect_signals()
-    this.connect(this.do, function() { return this.doit(); });
-    this.connect(this.properties.active.change, function() { return this.set_active(); });
+    this.connect(this.do, () => this.doit())
+    this.connect(this.properties.active.change, () => this.set_active())
   }
 
-  doit() {
+  doit(): void {
     for (const tool of this.tools) {
       tool.do.emit(undefined);
     }
-    return null;
   }
 
-  set_active() {
+  set_active(): void {
     for (const tool of this.tools) {
       tool.active = this.active;
     }
-    return null;
   }
 
-  _clicked() {
-    const { active } = this.model;
-    return this.model.active = !active;
+  protected _clicked(): void {
+    const {active} = this.model
+    this.model.active = !active
   }
 }
 ToolProxy.initClass();

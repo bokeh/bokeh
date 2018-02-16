@@ -1,9 +1,9 @@
 /* XXX: partial */
+import {Signal} from "core/signaling";
 import {proj4, mercator} from "core/util/proj4";
 import {Context2d} from "core/util/canvas"
-
+import {GMapPlot} from "./gmap_plot"
 import {PlotCanvas, PlotCanvasView} from "./plot_canvas";
-import {Signal} from "core/signaling";
 
 const gmaps_ready = new Signal(this, "gmaps_ready");
 
@@ -257,6 +257,8 @@ export namespace GMapPlotCanvas {
 export interface GMapPlotCanvas extends GMapPlotCanvas.Attrs {}
 
 export class GMapPlotCanvas extends PlotCanvas {
+
+  plot: GMapPlot
 
   constructor(attrs?: Partial<GMapPlotCanvas.Attrs>, opts?: GMapPlotCanvas.Opts) {
     super(attrs, opts)

@@ -9,7 +9,7 @@ import {ActionTool} from "./actions/action_tool";
 import {HelpTool} from "./actions/help_tool";
 import {GestureTool} from "./gestures/gesture_tool";
 import {InspectTool} from "./inspectors/inspect_tool";
-import {ToolbarBase} from "./toolbar_base";
+import {ToolbarBase, ToolbarBaseView} from "./toolbar_base";
 import {ToolProxy} from "./tool_proxy";
 
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom";
@@ -173,6 +173,8 @@ ProxyToolbar.initClass();
 
 export class ToolbarBoxView extends LayoutDOMView {
   model: ToolbarBox
+
+  protected _toolbar_views: {[key: string]: ToolbarBaseView}
 
   initialize(options: any): void {
     super.initialize(options);

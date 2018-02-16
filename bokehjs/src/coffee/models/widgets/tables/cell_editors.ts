@@ -18,6 +18,8 @@ export abstract class CellEditorView extends DOMView {
 
   inputEl: HTMLElement
 
+  protected args: any
+
   protected abstract _createInput(): HTMLElement
 
   constructor(options) {
@@ -354,7 +356,7 @@ export class DateEditorView extends CellEditorView {
   }
 
   renderEditor() {
-    this.calendarOpen = false;
+    //this.calendarOpen = false;
 
     //@$datepicker = $(@inputEl).datepicker({
     //  showOn: "button"

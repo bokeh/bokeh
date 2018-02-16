@@ -8,6 +8,8 @@ import * as p from "core/properties"
 export class AutocompleteInputView extends TextInputView {
   model: AutocompleteInput
 
+  protected menuEl: HTMLElement
+
   connect_signals(): void {
     super.connect_signals()
     clear_menus.connect(() => this._clear_menu())

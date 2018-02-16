@@ -100,7 +100,9 @@ export namespace Dropdown {
   export interface Opts extends AbstractButton.Opts {}
 }
 
-export interface Dropdown extends Dropdown.Attrs {}
+export interface Dropdown extends Dropdown.Attrs {
+  active: boolean
+}
 
 export class Dropdown extends AbstractButton {
 

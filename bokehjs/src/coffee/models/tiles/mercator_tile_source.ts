@@ -198,7 +198,7 @@ export class MercatorTileSource extends TileSource {
     txmax += tile_border
     tymax += tile_border
 
-    let tiles: [number, number, number, Bounds][] = []
+    const tiles: [number, number, number, Bounds][] = []
     for (let ty = tymax; ty >= tymin; ty--) {
       for (let tx = txmin; tx <= txmax; tx++) {
         if (this.is_valid_tile(tx, ty, level))

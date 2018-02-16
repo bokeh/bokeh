@@ -40,7 +40,7 @@ export class TabsView extends WidgetView {
       event.preventDefault()
 
       if (event.target != event.currentTarget) {
-        const el = event.target
+        const el = event.target as HTMLElement
 
         const old_active = this.model.active
         const new_active = parseInt(el.dataset.index)

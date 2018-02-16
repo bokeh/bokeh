@@ -173,7 +173,9 @@ export enum Keys {
   Esc       = 27,
   PageUp    = 33,
   PageDown  = 34,
+  Left      = 37,
   Up        = 38,
+  Right     = 39,
   Down      = 40,
   Delete    = 46,
 }

@@ -34,6 +34,10 @@ export class Interpolator extends Transform {
     });
   }
 
+  protected _x_sorted: any[] = []
+  protected _y_sorted: any[] = []
+  protected _sorted_dirty = true
+
   initialize(): void {
     super.initialize();
     this._x_sorted = [];

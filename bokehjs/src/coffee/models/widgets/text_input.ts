@@ -8,6 +8,8 @@ import {InputWidget, InputWidgetView} from "./input_widget"
 export class TextInputView extends InputWidgetView {
   model: TextInput
 
+  protected inputEl: HTMLInputElement
+
   initialize(options: any): void {
     super.initialize(options)
     this.render()

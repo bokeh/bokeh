@@ -1,6 +1,7 @@
 /* XXX: partial */
 import {Transform} from "./transform";
 import {Range} from "../ranges/range"
+import {FactorRange} from "../ranges/factor_range"
 import {Distribution} from "core/enums"
 import * as p from "core/properties";
 import * as bokeh_math from "core/util/math"
@@ -36,7 +37,7 @@ export class Jitter extends Transform {
   }
 
   compute(x, use_synthetic = true) {
-    if (((this.range != null ? this.range.synthetic : undefined) != null) && use_synthetic) {
+    if (this.range instanceof FactorRange && use_synthetic) {
       x = this.range.synthetic(x);
     }
     if (this.distribution === 'uniform') {

@@ -8,6 +8,8 @@ import {InputWidget, InputWidgetView} from "./input_widget"
 export class MultiSelectView extends InputWidgetView {
   model: MultiSelect
 
+  protected selectEl: HTMLSelectElement
+
   initialize(options: any): void {
     super.initialize(options)
     this.render()

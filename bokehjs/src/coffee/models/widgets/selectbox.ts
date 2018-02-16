@@ -9,6 +9,8 @@ import {InputWidget, InputWidgetView} from "./input_widget"
 export class SelectView extends InputWidgetView {
   model: Select
 
+  protected selectEl: HTMLSelectElement
+
   initialize(options: any): void {
     super.initialize(options)
     this.render()

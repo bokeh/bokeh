@@ -14,8 +14,10 @@ import {Widget, WidgetView} from "./widget"
 export abstract class AbstractSliderView extends WidgetView {
   model: AbstractSlider
 
-  protected sliderEl: HTMLElement
+  protected sliderEl?: noUiSlider.Instance
+  protected titleEl?: HTMLElement
   protected valueEl?: HTMLElement
+  protected callback_wrapper?: () => void
 
   initialize(options: any): void {
     super.initialize(options)
@@ -88,7 +90,7 @@ export abstract class AbstractSliderView extends WidgetView {
       this.sliderEl.noUiSlider.on('change', (_, __, values) => this._change(values))
 
       // Add keyboard support
-      const keypress = (e: Event): void => {
+      const keypress = (e: KeyboardEvent): void => {
         let value = Number(this.sliderEl.noUiSlider.get())
         switch (e.which) {
           case 37: {
@@ -115,12 +117,11 @@ export abstract class AbstractSliderView extends WidgetView {
 
       const handle = this.sliderEl.querySelector(`.${prefix}handle`)
       handle.setAttribute('tabindex', 0)
-      handle.addEventListener('click', this.focus)
       handle.addEventListener('keydown', keypress)
 
       const toggleTooltip = (i: number, show: boolean): void => {
         const handle = this.sliderEl.querySelectorAll(`.${prefix}handle`)[i]
-        const tooltip = handle.querySelector(`.${prefix}tooltip`)
+        const tooltip = handle.querySelector<HTMLElement>(`.${prefix}tooltip`)
         tooltip.style.display = show ? 'block' : ''
       }
 
@@ -153,7 +154,7 @@ export abstract class AbstractSliderView extends WidgetView {
     }
 
     if (!this.model.disabled) {
-      this.sliderEl.querySelector(`.${prefix}connect`)
+      this.sliderEl.querySelector<HTMLElement>(`.${prefix}connect`)
                    .style
                    .backgroundColor = this.model.bar_color
     }
@@ -180,7 +181,7 @@ export abstract class AbstractSliderView extends WidgetView {
     const pretty = values.map((v) => this.model.pretty(v)).join(" .. ")
     logger.debug(`[slider change] value = ${pretty}`)
     if (this.valueEl != null)
-      this.valueEl.value = pretty
+      this.valueEl.dataset.value = pretty
     this.model.value = value
     switch (this.model.callback_policy) {
       case 'mouseup':

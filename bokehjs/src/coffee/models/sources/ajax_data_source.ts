@@ -38,9 +38,11 @@ export class AjaxDataSource extends RemoteDataSource {
     })
   }
 
+  protected interval: number
+
   destroy(): void {
     if (this.interval != null)
-      return clearInterval(this.interval)
+      clearInterval(this.interval)
     super.destroy()
   }
 

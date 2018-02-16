@@ -18,6 +18,8 @@ import {Selection} from "../selections/selection";
 export abstract class GlyphView extends View {
   model: Glyph
 
+  glglyph?: any
+
   initialize(options: any): void {
     super.initialize(options);
     this._nohit_warned = {};
