@@ -75,7 +75,7 @@ Python to JavaScript at this level is nearly one-to-one:
 
     // create some ranges for the plot
     var xdr = new Bokeh.Range1d({ start: -0.5, end: 20.5 });
-    var ydr = Bokeh.Range1d(-0.5, 20.5);
+    var ydr = new Bokeh.Range1d({ start: -0.5, end: 20.5 });
 
     // make the plot
     var plot = new Bokeh.Plot({
