@@ -77,7 +77,7 @@ class BokehJSONEncoder(json.JSONEncoder):
             return dict(start=obj.start, stop=obj.stop, step=obj.step)
 
         # NumPy scalars
-        elif np.issubdtype(type(obj), np.float):
+        elif np.issubdtype(type(obj), np.floating):
             return float(obj)
         elif np.issubdtype(type(obj), np.integer):
             return int(obj)
