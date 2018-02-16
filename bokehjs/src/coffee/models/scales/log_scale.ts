@@ -14,7 +14,7 @@ export class LogScale extends Scale {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "LogScale"
   }
 

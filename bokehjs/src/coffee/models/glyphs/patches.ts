@@ -239,7 +239,7 @@ export class Patches extends Glyph {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'Patches';
     this.prototype.default_view = PatchesView;
 

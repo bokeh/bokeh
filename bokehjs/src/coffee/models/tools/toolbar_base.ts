@@ -121,7 +121,7 @@ export class ToolbarBase extends Model {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'ToolbarBase';
     this.prototype.default_view = ToolbarBaseView;
 

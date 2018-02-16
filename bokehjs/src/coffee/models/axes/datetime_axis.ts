@@ -23,7 +23,7 @@ export class DatetimeAxis extends LinearAxis {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "DatetimeAxis"
     this.prototype.default_view = DatetimeAxisView
 

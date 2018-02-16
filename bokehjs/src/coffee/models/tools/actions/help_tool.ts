@@ -26,7 +26,7 @@ export class HelpTool extends ActionTool {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "HelpTool"
     this.prototype.default_view = HelpToolView
 

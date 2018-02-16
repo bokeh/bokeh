@@ -25,7 +25,7 @@ export class Selection extends Model {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "Selection";
 
     this.define({

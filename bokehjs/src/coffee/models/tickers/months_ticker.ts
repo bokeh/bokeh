@@ -44,7 +44,7 @@ export class MonthsTicker extends SingleIntervalTicker {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "MonthsTicker"
 
     this.define({

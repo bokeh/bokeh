@@ -56,7 +56,7 @@ export class VBar extends Box {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'VBar';
     this.prototype.default_view = VBarView;
 

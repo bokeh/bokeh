@@ -35,7 +35,7 @@ export class CartesianFrame extends LayoutCanvas {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "CartesianFrame"
 
     this.internal({

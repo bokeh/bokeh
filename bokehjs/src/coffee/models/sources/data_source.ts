@@ -20,7 +20,7 @@ export abstract class DataSource extends Model {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "DataSource"
 
     this.define({

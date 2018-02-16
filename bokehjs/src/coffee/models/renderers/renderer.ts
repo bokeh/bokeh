@@ -52,7 +52,7 @@ export abstract class Renderer extends Model {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "Renderer"
 
     this.define({

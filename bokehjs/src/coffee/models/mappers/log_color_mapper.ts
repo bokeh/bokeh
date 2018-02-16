@@ -29,7 +29,7 @@ export class LogColorMapper extends ColorMapper {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "LogColorMapper";
 
     this.define({

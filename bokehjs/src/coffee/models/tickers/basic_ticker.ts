@@ -14,7 +14,7 @@ export class BasicTicker extends AdaptiveTicker {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "BasicTicker"
   }
 }

@@ -127,7 +127,7 @@ export class FactorRange extends Range {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "FactorRange"
 
     this.define({

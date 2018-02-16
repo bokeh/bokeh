@@ -27,7 +27,7 @@ export class Model extends HasProps {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "Model"
 
     this.define({

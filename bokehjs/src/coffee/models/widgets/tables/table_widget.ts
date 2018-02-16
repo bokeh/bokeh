@@ -20,7 +20,7 @@ export class TableWidget extends Widget {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "TableWidget";
 
     this.define({

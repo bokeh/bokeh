@@ -23,7 +23,7 @@ export class ToolProxy extends Model {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "ToolProxy"
 
     this.define({

@@ -131,7 +131,7 @@ export class Span extends Annotation {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'Span';
     this.prototype.default_view = SpanView;
 

@@ -14,7 +14,7 @@ export abstract class ContinuousAxis extends Axis {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "ContinuousAxis"
   }
 }

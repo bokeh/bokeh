@@ -21,7 +21,7 @@ export class GroupFilter extends Filter {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'GroupFilter';
 
     this.define({

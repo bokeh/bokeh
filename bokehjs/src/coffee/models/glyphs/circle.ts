@@ -247,7 +247,7 @@ export class Circle extends XYGlyph {
     super(attrs, opts)
   }
 
-  static initClass() { // XXX: Marker
+  static initClass(): void { // XXX: Marker
     this.prototype.type = 'Circle';
     this.prototype.default_view = CircleView;
 

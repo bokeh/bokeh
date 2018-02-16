@@ -22,7 +22,7 @@ export abstract class ColorMapper extends Transform {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "ColorMapper";
 
     this.define({

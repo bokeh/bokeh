@@ -172,7 +172,7 @@ export class CategoricalAxis extends Axis {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "CategoricalAxis"
     this.prototype.default_view = CategoricalAxisView
 

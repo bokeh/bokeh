@@ -82,7 +82,7 @@ export class Tabs extends Widget {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "Tabs"
     this.prototype.default_view = TabsView
 

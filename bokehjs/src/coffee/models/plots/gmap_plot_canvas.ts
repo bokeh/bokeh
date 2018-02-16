@@ -264,7 +264,7 @@ export class GMapPlotCanvas extends PlotCanvas {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'GMapPlotCanvas';
     this.prototype.default_view = GMapPlotCanvasView;
   }

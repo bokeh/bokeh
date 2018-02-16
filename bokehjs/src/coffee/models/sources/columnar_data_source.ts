@@ -40,7 +40,7 @@ export abstract class ColumnarDataSource extends DataSource {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'ColumnarDataSource'
 
     this.define({

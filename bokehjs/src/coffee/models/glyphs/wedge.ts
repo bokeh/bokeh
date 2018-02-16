@@ -121,7 +121,7 @@ export class Wedge extends XYGlyph {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'Wedge';
     this.prototype.default_view = WedgeView;
 

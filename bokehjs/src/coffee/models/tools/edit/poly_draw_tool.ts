@@ -216,7 +216,7 @@ export class PolyDrawTool extends EditTool {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "PolyDrawTool"
     this.prototype.default_view = PolyDrawToolView
 

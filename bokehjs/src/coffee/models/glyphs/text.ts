@@ -91,7 +91,7 @@ export class Text extends XYGlyph {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'Text';
     this.prototype.default_view = TextView;
 

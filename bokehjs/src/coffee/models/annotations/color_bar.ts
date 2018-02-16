@@ -467,7 +467,7 @@ export class ColorBar extends Annotation {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'ColorBar';
     this.prototype.default_view = ColorBarView;
 

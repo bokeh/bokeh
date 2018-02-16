@@ -15,7 +15,7 @@ export class CategoricalTicker extends Ticker<Factor> {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "CategoricalTicker"
   }
 

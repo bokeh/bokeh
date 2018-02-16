@@ -39,7 +39,7 @@ export abstract class XYGlyph extends Glyph {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "XYGlyph";
     this.prototype.default_view = XYGlyphView;
 

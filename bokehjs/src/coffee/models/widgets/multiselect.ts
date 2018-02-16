@@ -106,7 +106,7 @@ export class MultiSelect extends InputWidget {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "MultiSelect"
     this.prototype.default_view = MultiSelectView
 

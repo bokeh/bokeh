@@ -19,7 +19,7 @@ export abstract class GestureTool extends ButtonTool {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "GestureTool"
   }
 

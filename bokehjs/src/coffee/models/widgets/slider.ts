@@ -37,7 +37,7 @@ export class Slider extends AbstractSlider {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "Slider"
     this.prototype.default_view = SliderView
 

@@ -390,7 +390,7 @@ export class GlyphRenderer extends Renderer {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'GlyphRenderer';
     this.prototype.default_view = GlyphRendererView;
 

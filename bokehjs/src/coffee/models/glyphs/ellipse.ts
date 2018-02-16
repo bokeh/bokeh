@@ -101,7 +101,7 @@ export class Ellipse extends XYGlyph {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'Ellipse';
     this.prototype.default_view = EllipseView;
 

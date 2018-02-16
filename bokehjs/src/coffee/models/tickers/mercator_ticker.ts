@@ -19,7 +19,7 @@ export class MercatorTicker extends BasicTicker {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "MercatorTicker"
 
     this.define({

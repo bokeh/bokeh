@@ -25,7 +25,7 @@ export class Jitter extends Transform {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "Jitter"
 
     this.define({

@@ -26,7 +26,7 @@ export class ResetTool extends ActionTool {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "ResetTool"
     this.prototype.default_view = ResetToolView
   }

@@ -150,7 +150,7 @@ export class Band extends Annotation {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'Band';
     this.prototype.default_view = BandView;
 

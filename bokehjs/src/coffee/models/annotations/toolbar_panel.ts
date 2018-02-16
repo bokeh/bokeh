@@ -67,7 +67,7 @@ export class ToolbarPanel extends Annotation {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'ToolbarPanel';
     this.prototype.default_view = ToolbarPanelView;
 

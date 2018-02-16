@@ -29,7 +29,7 @@ export class ProxyToolbar extends ToolbarBase {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'ProxyToolbar';
   }
 
@@ -228,7 +228,7 @@ export class ToolbarBox extends LayoutDOM {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'ToolbarBox';
     this.prototype.default_view = ToolbarBoxView;
 

@@ -16,7 +16,7 @@ export class LinearInterpolator extends Interpolator {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "LinearInterpolator"
   }
 

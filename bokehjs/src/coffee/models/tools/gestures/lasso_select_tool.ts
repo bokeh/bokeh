@@ -119,7 +119,7 @@ export class LassoSelectTool extends SelectTool {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "LassoSelectTool"
 
     this.prototype.default_view = LassoSelectToolView

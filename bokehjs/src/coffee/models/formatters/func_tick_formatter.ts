@@ -20,7 +20,7 @@ export class FuncTickFormatter extends TickFormatter {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'FuncTickFormatter';
 
     this.define({

@@ -101,7 +101,7 @@ export class WidgetBox extends LayoutDOM {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "WidgetBox"
     this.prototype.default_view = WidgetBoxView
 

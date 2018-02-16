@@ -27,7 +27,7 @@ export class DatetimeTicker extends CompositeTicker {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "DatetimeTicker"
 
     this.override({

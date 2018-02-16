@@ -89,7 +89,7 @@ export class Quadratic extends Glyph {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'Quadratic';
     this.prototype.default_view = QuadraticView;
 

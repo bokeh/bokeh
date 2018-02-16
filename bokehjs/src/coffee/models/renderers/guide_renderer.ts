@@ -25,7 +25,7 @@ export abstract class GuideRenderer extends Renderer {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "GuideRenderer"
 
     this.define({

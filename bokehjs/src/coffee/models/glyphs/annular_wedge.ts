@@ -150,7 +150,7 @@ export class AnnularWedge extends XYGlyph {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'AnnularWedge';
     this.prototype.default_view = AnnularWedgeView;
 

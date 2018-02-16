@@ -21,7 +21,7 @@ export class IndexFilter extends Filter {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'IndexFilter';
 
     this.define({

@@ -243,7 +243,7 @@ export class LabelSet extends TextAnnotation {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'LabelSet';
     this.prototype.default_view = LabelSetView;
 

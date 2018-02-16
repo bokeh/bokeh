@@ -38,7 +38,7 @@ export namespace StringFormatter {
 export interface StringFormatter extends StringFormatter.Attrs {}
 
 export class StringFormatter extends CellFormatter {
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'StringFormatter';
 
     this.define({
@@ -87,7 +87,7 @@ export namespace NumberFormatter {
 export interface NumberFormatter extends NumberFormatter.Attrs {}
 
 export class NumberFormatter extends StringFormatter {
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'NumberFormatter';
 
     this.define({
@@ -120,7 +120,7 @@ export namespace BooleanFormatter {
 export interface BooleanFormatter extends BooleanFormatter.Attrs {}
 
 export class BooleanFormatter extends CellFormatter {
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'BooleanFormatter';
 
     this.define({
@@ -143,7 +143,7 @@ export namespace DateFormatter {
 export interface DateFormatter extends DateFormatter.Attrs {}
 
 export class DateFormatter extends CellFormatter {
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'DateFormatter';
 
     this.define({
@@ -183,7 +183,7 @@ export namespace HTMLTemplateFormatter {
 export interface HTMLTemplateFormatter extends HTMLTemplateFormatter.Attrs {}
 
 export class HTMLTemplateFormatter extends CellFormatter {
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'HTMLTemplateFormatter';
 
     this.define({

@@ -65,7 +65,7 @@ export class DatetimeTickFormatter extends TickFormatter {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'DatetimeTickFormatter';
 
     this.define({

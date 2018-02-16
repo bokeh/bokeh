@@ -19,7 +19,7 @@ export class OpenURL extends Callback {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'OpenURL'
 
     this.define({

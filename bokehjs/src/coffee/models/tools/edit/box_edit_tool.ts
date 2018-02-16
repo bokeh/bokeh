@@ -149,7 +149,7 @@ export class BoxEditTool extends EditTool {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "BoxEditTool"
     this.prototype.default_view = BoxEditToolView
 

@@ -140,7 +140,7 @@ export class ColumnDataSource extends ColumnarDataSource {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'ColumnDataSource'
 
     this.define({

@@ -20,7 +20,7 @@ export class CustomJSFilter extends Filter {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'CustomJSFilter';
 
     this.define({

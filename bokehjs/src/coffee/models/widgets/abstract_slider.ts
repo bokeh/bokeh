@@ -223,7 +223,7 @@ export abstract class AbstractSlider extends Widget {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "AbstractSlider"
 
     this.define({

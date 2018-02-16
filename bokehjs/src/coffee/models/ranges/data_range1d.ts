@@ -39,7 +39,7 @@ export class DataRange1d extends DataRange {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "DataRange1d"
 
     this.define({

@@ -177,7 +177,7 @@ export class MultiLine extends Glyph {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'MultiLine';
     this.prototype.default_view = MultiLineView;
 

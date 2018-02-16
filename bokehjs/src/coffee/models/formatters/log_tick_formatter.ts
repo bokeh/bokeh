@@ -21,7 +21,7 @@ export class LogTickFormatter extends TickFormatter {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'LogTickFormatter';
 
     this.define({

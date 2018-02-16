@@ -51,7 +51,7 @@ export abstract class Annotation extends Renderer {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'Annotation';
 
     this.define({

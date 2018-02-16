@@ -33,7 +33,7 @@ export class Div extends Markup {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "Div"
     this.prototype.default_view = DivView
 

@@ -403,7 +403,7 @@ export class Axis extends GuideRenderer {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "Axis"
     this.prototype.default_view = AxisView
 

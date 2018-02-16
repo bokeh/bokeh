@@ -73,7 +73,7 @@ export class Ray extends XYGlyph {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'Ray';
     this.prototype.default_view = RayView;
 

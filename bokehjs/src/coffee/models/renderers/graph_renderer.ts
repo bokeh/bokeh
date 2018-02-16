@@ -102,7 +102,7 @@ export class GraphRenderer extends Renderer {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'GraphRenderer';
     this.prototype.default_view = GraphRendererView;
 

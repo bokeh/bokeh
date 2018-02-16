@@ -4,7 +4,7 @@ import {BaseGLGlyph, attach_float, attach_color} from "./base";
 import {logger} from "core/logging"
 
 export abstract class MarkerGLGlyph extends BaseGLGlyph {
-  static initClass() {
+  static initClass(): void {
     // Base class for markers. All markers share the same GLSL, except for one
     // function that defines the marker geometry.
 
@@ -278,7 +278,7 @@ MarkerGLGlyph.initClass();
 
 
 export class CircleGLGlyph extends MarkerGLGlyph {
-  static initClass() {
+  static initClass(): void {
 
     this.prototype.GLYPH = 'circle';
 
@@ -294,7 +294,7 @@ float marker(vec2 P, float size)
 CircleGLGlyph.initClass();
 
 export class SquareGLGlyph extends MarkerGLGlyph {
-  static initClass() {
+  static initClass(): void {
 
     this.prototype.GLYPH = 'square';
 
@@ -310,7 +310,7 @@ float marker(vec2 P, float size)
 SquareGLGlyph.initClass();
 
 export class AnnulusGLGlyph extends MarkerGLGlyph {
-  static initClass() {
+  static initClass(): void {
 
     this.prototype.GLYPH = 'annulus';
 
@@ -327,7 +327,7 @@ float marker(vec2 P, float size)
 AnnulusGLGlyph.initClass();
 
 export class DiamondGLGlyph extends MarkerGLGlyph {
-  static initClass() {
+  static initClass(): void {
 
     this.prototype.GLYPH = 'diamond';
 
@@ -346,7 +346,7 @@ float marker(vec2 P, float size)
 DiamondGLGlyph.initClass();
 
 export class TriangleGLGlyph extends MarkerGLGlyph {
-  static initClass() {
+  static initClass(): void {
 
     this.prototype.GLYPH = 'triangle';
 
@@ -366,7 +366,7 @@ float marker(vec2 P, float size)
 TriangleGLGlyph.initClass();
 
 export class InvertedTriangleGLGlyph extends MarkerGLGlyph {
-  static initClass() {
+  static initClass(): void {
 
     this.prototype.GLYPH = 'invertedtriangle';
 
@@ -386,7 +386,7 @@ float marker(vec2 P, float size)
 InvertedTriangleGLGlyph.initClass();
 
 export class CrossGLGlyph extends MarkerGLGlyph {
-  static initClass() {
+  static initClass(): void {
 
     this.prototype.GLYPH = 'cross';
 
@@ -403,7 +403,7 @@ float marker(vec2 P, float size)
 CrossGLGlyph.initClass();
 
 export class CircleCrossGLGlyph extends MarkerGLGlyph {
-  static initClass() {
+  static initClass(): void {
 
     this.prototype.GLYPH = 'circlecross';
 
@@ -431,7 +431,7 @@ float marker(vec2 P, float size)
 CircleCrossGLGlyph.initClass();
 
 export class SquareCrossGLGlyph extends MarkerGLGlyph {
-  static initClass() {
+  static initClass(): void {
 
     this.prototype.GLYPH = 'squarecross';
 
@@ -459,7 +459,7 @@ float marker(vec2 P, float size)
 SquareCrossGLGlyph.initClass();
 
 export class DiamondCrossGLGlyph extends MarkerGLGlyph {
-  static initClass() {
+  static initClass(): void {
 
     this.prototype.GLYPH = 'diamondcross';
 
@@ -490,7 +490,7 @@ float marker(vec2 P, float size)
 DiamondCrossGLGlyph.initClass();
 
 export class XGLGlyph extends MarkerGLGlyph {
-  static initClass() {
+  static initClass(): void {
 
     this.prototype.GLYPH = 'x';
 
@@ -507,7 +507,7 @@ float marker(vec2 P, float size)
 XGLGlyph.initClass();
 
 export class CircleXGLGlyph extends MarkerGLGlyph {
-  static initClass() {
+  static initClass(): void {
 
     this.prototype.GLYPH = 'circlex';
 
@@ -541,7 +541,7 @@ float marker(vec2 P, float size)
 CircleXGLGlyph.initClass();
 
 export class SquareXGLGlyph extends MarkerGLGlyph {
-  static initClass() {
+  static initClass(): void {
 
     this.prototype.GLYPH = 'squarex';
 
@@ -571,7 +571,7 @@ float marker(vec2 P, float size)
 SquareXGLGlyph.initClass();
 
 export class AsteriskGLGlyph extends MarkerGLGlyph {
-  static initClass() {
+  static initClass(): void {
 
     this.prototype.GLYPH = 'asterisk';
 

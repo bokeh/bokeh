@@ -19,7 +19,7 @@ export abstract class RemoteDataSource extends ColumnDataSource {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'RemoteDataSource'
 
     this.define({

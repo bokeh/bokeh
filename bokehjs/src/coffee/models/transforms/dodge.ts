@@ -21,7 +21,7 @@ export class Dodge extends Transform {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "Dodge"
 
     this.define({

@@ -17,7 +17,7 @@ export class FixedTicker extends ContinuousTicker {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "FixedTicker"
 
     this.define({

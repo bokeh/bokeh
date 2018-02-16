@@ -34,7 +34,7 @@ export abstract class ActionTool extends ButtonTool {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "ActionTool"
   }
 

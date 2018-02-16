@@ -23,7 +23,7 @@ export class NumeralTickFormatter extends TickFormatter {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'NumeralTickFormatter';
 
     this.define({

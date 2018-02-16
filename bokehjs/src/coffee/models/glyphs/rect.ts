@@ -277,7 +277,7 @@ export class Rect extends XYGlyph {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'Rect';
     this.prototype.default_view = RectView;
 

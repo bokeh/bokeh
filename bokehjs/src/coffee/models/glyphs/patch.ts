@@ -73,7 +73,7 @@ export class Patch extends XYGlyph {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'Patch';
     this.prototype.default_view = PatchView;
 

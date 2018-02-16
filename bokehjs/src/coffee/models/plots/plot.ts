@@ -148,7 +148,7 @@ export class Plot extends LayoutDOM {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "Plot"
     this.prototype.default_view = PlotView
 

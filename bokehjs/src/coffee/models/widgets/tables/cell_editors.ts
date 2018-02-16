@@ -101,7 +101,7 @@ export abstract class CellEditorView extends DOMView {
 }
 
 export class CellEditor extends Model {
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "CellEditor";
     this.prototype.default_view = CellEditorView;
   }
@@ -137,7 +137,7 @@ export class StringEditorView extends CellEditorView {
 }
 
 export class StringEditor extends CellEditor {
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'StringEditor';
     this.prototype.default_view = StringEditorView;
     this.define({
@@ -156,7 +156,7 @@ export class TextEditorView extends CellEditorView {
 }
 
 export class TextEditor extends CellEditor {
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'TextEditor';
     this.prototype.default_view = TextEditorView;
   }
@@ -179,7 +179,7 @@ export class SelectEditorView extends CellEditorView {
 }
 
 export class SelectEditor extends CellEditor {
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'SelectEditor';
     this.prototype.default_view = SelectEditorView;
     this.define({
@@ -198,7 +198,7 @@ export class PercentEditorView extends CellEditorView {
 }
 
 export class PercentEditor extends CellEditor {
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'PercentEditor';
     this.prototype.default_view = PercentEditorView;
   }
@@ -225,7 +225,7 @@ export class CheckboxEditorView extends CellEditorView {
 }
 
 export class CheckboxEditor extends CellEditor {
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'CheckboxEditor';
     this.prototype.default_view = CheckboxEditorView;
   }
@@ -270,7 +270,7 @@ export class IntEditorView extends CellEditorView {
 }
 
 export class IntEditor extends CellEditor {
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'IntEditor';
     this.prototype.default_view = IntEditorView;
     this.define({
@@ -318,7 +318,7 @@ export class NumberEditorView extends CellEditorView {
 }
 
 export class NumberEditor extends CellEditor {
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'NumberEditor';
     this.prototype.default_view = NumberEditorView;
     this.define({
@@ -337,7 +337,7 @@ export class TimeEditorView extends CellEditorView {
 }
 
 export class TimeEditor extends CellEditor {
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'TimeEditor';
     this.prototype.default_view = TimeEditorView;
   }
@@ -403,7 +403,7 @@ export class DateEditorView extends CellEditorView {
     //@$datepicker.datepicker("setDate", new Date(val))
 
 export class DateEditor extends CellEditor {
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'DateEditor';
     this.prototype.default_view = DateEditorView;
   }

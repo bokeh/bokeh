@@ -73,7 +73,7 @@ export class Step extends XYGlyph {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'Step';
     this.prototype.default_view = StepView;
 

@@ -71,7 +71,7 @@ export class CheckboxButtonGroup extends Widget {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "CheckboxButtonGroup"
     this.prototype.default_view = CheckboxButtonGroupView
 

@@ -134,7 +134,7 @@ export class Segment extends Glyph {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'Segment';
     this.prototype.default_view = SegmentView;
 

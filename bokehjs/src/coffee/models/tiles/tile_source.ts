@@ -31,7 +31,7 @@ export abstract class TileSource extends Model {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'TileSource'
 
     this.define({

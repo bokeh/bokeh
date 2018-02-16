@@ -14,7 +14,7 @@ export class LinearScale extends Scale {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "LinearScale"
   }
 

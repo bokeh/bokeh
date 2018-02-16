@@ -85,7 +85,7 @@ class DashAtlas {
 
 export class LineGLGlyph extends BaseGLGlyph {
 
-    static initClass() {
+    static initClass(): void {
       this.prototype.GLYPH = 'line';
 
       this.prototype.JOINS =

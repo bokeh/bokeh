@@ -134,7 +134,7 @@ export abstract class SelectTool extends GestureTool {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "SelectTool"
 
     this.define({

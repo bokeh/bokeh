@@ -110,7 +110,7 @@ export class Dropdown extends AbstractButton {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "Dropdown"
     this.prototype.default_view = DropdownView
 

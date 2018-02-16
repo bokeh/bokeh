@@ -4,7 +4,7 @@ import {color2rgba} from "core/util/color"
 import {Context2d} from "core/util/canvas"
 
 export class BaseGLGlyph {
-  static initClass() {
+  static initClass(): void {
 
     this.prototype.GLYPH = '';  // name of the glyph that this gl-glyph applies to
 
