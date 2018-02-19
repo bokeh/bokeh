@@ -247,6 +247,13 @@ export class Plot extends LayoutDOM {
         this.min_border_right = this.min_border
     }
 
+    // Setup side renderers
+    for (const side of ['above', 'below', 'left', 'right']) {
+      const layout_renderers = this.getv(side)
+      for (const renderer of layout_renderers)
+        renderer.add_panel(side)
+    }
+
     this._init_title_panel()
     this._init_toolbar_panel()
 
@@ -260,13 +267,6 @@ export class Plot extends LayoutDOM {
       this.width = this.plot_width
     if (this.height == null)
       this.height = this.plot_height
-
-    // Setup side renderers
-    for (const side of ['above', 'below', 'left', 'right']) {
-      const layout_renderers = this.getv(side)
-      for (const renderer of layout_renderers)
-        renderer.add_panel(side)
-    }
   }
 
   protected _init_plot_canvas(): PlotCanvas {
