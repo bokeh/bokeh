@@ -45,7 +45,7 @@ import os
 import sys
 import warnings
 
-from ...io.export import get_screenshot_as_png
+from ...io.export import get_screenshot_as_png, terminate_web_driver
 from ...models.plots import Plot
 from .file_output import FileOutputSubcommand
 
@@ -89,7 +89,7 @@ class PNG(FileOutputSubcommand):
         import selenium.webdriver as webdriver
         self.driver = webdriver.PhantomJS(service_log_path=os.path.devnull)
         super(PNG, self).invoke(args)
-        self.driver.quit()
+        terminate_web_driver(self.driver)
 
     def write_file(self, args, filename, doc):
         '''

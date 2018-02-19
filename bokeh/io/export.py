@@ -25,6 +25,7 @@ from bokeh.util.api import general, dev ; general, dev
 
 # Standard library imports
 import io
+import signal
 from os.path import abspath, devnull
 from tempfile import NamedTemporaryFile
 from warnings import warn
@@ -160,24 +161,26 @@ def get_screenshot_as_png(obj, driver=None, **kwargs):
                             'To use bokeh.io.export_png you need pillow ' +
                             '("conda install pillow" or "pip install pillow")')
 
-    html_path = save_layout_html(obj, **kwargs)
+    with _tmp_file() as tmp:
+        html_path = tmp.name
 
-    web_driver = driver if driver is not None else _create_default_webdriver()
+        save_layout_html(obj, html_path, **kwargs)
 
-    web_driver.get("file:///" + html_path)
-    web_driver.maximize_window()
+        web_driver = driver if driver is not None else _create_default_webdriver()
+        web_driver.get("file:///" + html_path)
+        web_driver.maximize_window()
 
-    ## resize for PhantomJS compat
-    web_driver.execute_script("document.body.style.width = '100%';")
+        ## resize for PhantomJS compat
+        web_driver.execute_script("document.body.style.width = '100%';")
 
-    wait_until_render_complete(web_driver)
+        wait_until_render_complete(web_driver)
 
-    png = web_driver.get_screenshot_as_png()
+        png = web_driver.get_screenshot_as_png()
 
-    b_rect = web_driver.execute_script(_BOUNDING_RECT_SCRIPT)
+        b_rect = web_driver.execute_script(_BOUNDING_RECT_SCRIPT)
 
-    if driver is None: # only quit webdriver if not passed in as arg
-        web_driver.quit()
+        if driver is None: # only quit webdriver if not passed in as arg
+            terminate_web_driver(web_driver)
 
     image = Image.open(io.BytesIO(png))
     cropped_image = _crop_image(image, **b_rect)
@@ -189,23 +192,25 @@ def get_svgs(obj, driver=None, **kwargs):
     '''
 
     '''
-    html_path = save_layout_html(obj, **kwargs)
+    with _tmp_file() as tmp:
+        html_path = tmp.name
 
-    web_driver = driver if driver is not None else _create_default_webdriver()
-    web_driver.get("file:///" + html_path)
+        save_layout_html(obj, html_path, **kwargs)
 
-    wait_until_render_complete(web_driver)
+        web_driver = driver if driver is not None else _create_default_webdriver()
+        web_driver.get("file:///" + html_path)
 
-    svgs = web_driver.execute_script(_SVG_SCRIPT)
+        wait_until_render_complete(web_driver)
 
-    if driver is None: # only quit webdriver if not passed in as arg
-        web_driver.quit()
+        svgs = web_driver.execute_script(_SVG_SCRIPT)
 
+        if driver is None: # only quit webdriver if not passed in as arg
+            terminate_web_driver(web_driver)
 
     return svgs
 
 @dev((1,0,0))
-def save_layout_html(obj, resources=INLINE, **kwargs):
+def save_layout_html(obj, html_path, resources=INLINE, **kwargs):
     '''
 
     '''
@@ -222,14 +227,11 @@ def save_layout_html(obj, resources=INLINE, **kwargs):
             obj.plot_height = kwargs.get('height', old_height)
             obj.plot_width = kwargs.get('width', old_width)
 
-    html_path = NamedTemporaryFile(suffix=".html").name
     save(obj, filename=html_path, resources=resources, title="")
 
     if resize:
         obj.plot_height = old_height
         obj.plot_width = old_width
-
-    return html_path
 
 @dev((1,0,0))
 def wait_until_render_complete(driver):
@@ -255,6 +257,11 @@ def wait_until_render_complete(driver):
         severe_errors = [l for l in browser_logs if l.get('level') == 'SEVERE']
         if len(severe_errors) > 0:
             log.warn("There were severe browser errors that may have affected your export: {}".format(severe_errors))
+
+@dev((1,0,0))
+def terminate_web_driver(driver):
+    driver.service.process.send_signal(signal.SIGTERM)
+    driver.quit()
 
 #-----------------------------------------------------------------------------
 # Private API
@@ -302,6 +309,9 @@ def _create_default_webdriver():
 
     phantomjs_path = detect_phantomjs()
     return webdriver.PhantomJS(executable_path=phantomjs_path, service_log_path=devnull)
+
+def _tmp_file():
+    return NamedTemporaryFile(suffix=".html")
 
 #-----------------------------------------------------------------------------
 # Code
