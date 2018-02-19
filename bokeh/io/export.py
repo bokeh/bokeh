@@ -25,6 +25,7 @@ from bokeh.util.api import general, dev ; general, dev
 
 # Standard library imports
 import io
+import signal
 from os.path import abspath, devnull
 from tempfile import NamedTemporaryFile
 from warnings import warn
@@ -179,7 +180,7 @@ def get_screenshot_as_png(obj, driver=None, **kwargs):
         b_rect = web_driver.execute_script(_BOUNDING_RECT_SCRIPT)
 
         if driver is None: # only quit webdriver if not passed in as arg
-            web_driver.quit()
+            terminate_web_driver(web_driver)
 
     image = Image.open(io.BytesIO(png))
     cropped_image = _crop_image(image, **b_rect)
@@ -204,7 +205,7 @@ def get_svgs(obj, driver=None, **kwargs):
         svgs = web_driver.execute_script(_SVG_SCRIPT)
 
         if driver is None: # only quit webdriver if not passed in as arg
-            web_driver.quit()
+            terminate_web_driver(web_driver)
 
     return svgs
 
@@ -256,6 +257,11 @@ def wait_until_render_complete(driver):
         severe_errors = [l for l in browser_logs if l.get('level') == 'SEVERE']
         if len(severe_errors) > 0:
             log.warn("There were severe browser errors that may have affected your export: {}".format(severe_errors))
+
+@dev((1,0,0))
+def terminate_web_driver(driver):
+    driver.service.process.send_signal(signal.SIGTERM)
+    driver.quit()
 
 #-----------------------------------------------------------------------------
 # Private API

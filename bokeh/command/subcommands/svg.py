@@ -46,7 +46,7 @@ import io
 import os
 import warnings
 
-from ...io.export import get_svgs
+from ...io.export import get_svgs, terminate_web_driver
 from ...models.plots import Plot
 from ...util.string import decode_utf8
 from .file_output import FileOutputSubcommand
@@ -91,7 +91,7 @@ class SVG(FileOutputSubcommand):
         import selenium.webdriver as webdriver
         self.driver = webdriver.PhantomJS(service_log_path=os.path.devnull)
         super(SVG, self).invoke(args)
-        self.driver.quit()
+        terminate_web_driver(self.driver)
 
     def write_file(self, args, filename, doc):
         '''

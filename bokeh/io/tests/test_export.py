@@ -32,6 +32,7 @@ import selenium.webdriver as webdriver
 # Bokeh imports
 from bokeh.models.plots import Plot
 from bokeh.models.ranges import Range1d
+from bokeh.io.export import terminate_web_driver
 
 # Module under test
 import bokeh.io.export as bie
@@ -53,6 +54,7 @@ api = {
         ( 'get_svgs',                   (1, 0, 0) ),
         ( 'save_layout_html',           (1, 0, 0) ),
         ( 'wait_until_render_complete', (1, 0, 0) ),
+        ( 'terminate_web_driver',       (1, 0, 0) ),
 
     ),
 
@@ -98,7 +100,7 @@ def test_get_screenshot_as_png_with_driver():
     png = bie.get_screenshot_as_png(layout, driver=driver)
 
     # Have to manually clean up the driver session
-    driver.quit()
+    terminate_web_driver(driver)
 
     assert png.size == (20, 20)
     # a 20x20px image of transparent pixels
@@ -122,7 +124,7 @@ def test_get_screenshot_as_png_large_plot():
     assert driver.get_window_size() == {'width': 1366, 'height': 768}
 
     # Have to manually clean up the driver session
-    driver.quit()
+    terminate_web_driver(driver)
 
 @pytest.mark.unit
 @pytest.mark.selenium
@@ -160,7 +162,7 @@ def test_get_svgs_with_svg_present_with_driver():
     svgs = bie.get_svgs(layout)
 
     # Have to manually clean up the driver session
-    driver.quit()
+    terminate_web_driver(driver)
 
     assert svgs[0] == ('<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" '
                        'width="20" height="20" style="width: 20px; height: 20px;"><defs/><g><g transform="scale(1,1) '
