@@ -103,7 +103,7 @@ def test_PropertyValueColumnData_update(mock_notify):
     assert sorted(mock_notify.call_args[1]['hint'].cols) == ['bar', 'foo']
 
 @patch('bokeh.core.property.containers.PropertyValueContainer._notify_owners')
-def test_PropertyValueColumnData__stream_list(mock_notify):
+def test_PropertyValueColumnData__stream_list_to_list(mock_notify):
     from bokeh.document.events import ColumnsStreamedEvent
 
     source = ColumnDataSource(data=dict(foo=[10]))
@@ -112,11 +112,29 @@ def test_PropertyValueColumnData__stream_list(mock_notify):
     mock_notify.reset_mock()
     pvcd._stream("doc", source, dict(foo=[20]), setter="setter")
     assert mock_notify.call_count == 1
-    assert mock_notify.call_args[0] == ({'foo': [10, 20]},)
+    assert mock_notify.call_args[0] == ({'foo': [10, 20]},) # streaming to list, "old" is actually updated value
     assert 'hint' in mock_notify.call_args[1]
     assert isinstance(mock_notify.call_args[1]['hint'], ColumnsStreamedEvent)
     assert mock_notify.call_args[1]['hint'].setter == 'setter'
     assert mock_notify.call_args[1]['hint'].rollover == None
+
+@patch('bokeh.core.property.containers.PropertyValueContainer._notify_owners')
+def test_PropertyValueColumnData__stream_list_to_array(mock_notify):
+    from bokeh.document.events import ColumnsStreamedEvent
+    import numpy as np
+
+    source = ColumnDataSource(data=dict(foo=np.array([10])))
+    pvcd = pc.PropertyValueColumnData(source.data)
+
+    mock_notify.reset_mock()
+    pvcd._stream("doc", source, dict(foo=[20]), setter="setter")
+    assert mock_notify.call_count == 1
+    assert (mock_notify.call_args[0][0]['foo'] == np.array([10])).all()
+    assert 'hint' in mock_notify.call_args[1]
+    assert isinstance(mock_notify.call_args[1]['hint'], ColumnsStreamedEvent)
+    assert mock_notify.call_args[1]['hint'].setter == 'setter'
+    assert mock_notify.call_args[1]['hint'].rollover == None
+
 
 @patch('bokeh.core.property.containers.PropertyValueContainer._notify_owners')
 def test_PropertyValueColumnData__stream_list_with_rollover(mock_notify):
@@ -128,14 +146,14 @@ def test_PropertyValueColumnData__stream_list_with_rollover(mock_notify):
     mock_notify.reset_mock()
     pvcd._stream("doc", source, dict(foo=[40]), rollover=3, setter="setter")
     assert mock_notify.call_count == 1
-    assert mock_notify.call_args[0] == ({'foo': [20, 30, 40]},)
+    assert mock_notify.call_args[0] == ({'foo': [20, 30, 40]},) # streaming to list, "old" is actually updated value
     assert 'hint' in mock_notify.call_args[1]
     assert isinstance(mock_notify.call_args[1]['hint'], ColumnsStreamedEvent)
     assert mock_notify.call_args[1]['hint'].setter == 'setter'
     assert mock_notify.call_args[1]['hint'].rollover == 3
 
 @patch('bokeh.core.property.containers.PropertyValueContainer._notify_owners')
-def test_PropertyValueColumnData__stream_array(mock_notify):
+def test_PropertyValueColumnData__stream_array_to_array(mock_notify):
     from bokeh.document.events import ColumnsStreamedEvent
     import numpy as np
 
@@ -148,6 +166,24 @@ def test_PropertyValueColumnData__stream_array(mock_notify):
     assert len(mock_notify.call_args[0]) == 1
     assert 'foo' in mock_notify.call_args[0][0]
     assert (mock_notify.call_args[0][0]['foo'] == np.array([10])).all()
+    assert 'hint' in mock_notify.call_args[1]
+    assert isinstance(mock_notify.call_args[1]['hint'], ColumnsStreamedEvent)
+    assert mock_notify.call_args[1]['hint'].setter == 'setter'
+    assert mock_notify.call_args[1]['hint'].rollover == None
+
+@patch('bokeh.core.property.containers.PropertyValueContainer._notify_owners')
+def test_PropertyValueColumnData__stream_array_to_list(mock_notify):
+    from bokeh.document.events import ColumnsStreamedEvent
+
+    source = ColumnDataSource(data=dict(foo=[10]))
+    pvcd = pc.PropertyValueColumnData(source.data)
+
+    mock_notify.reset_mock()
+    pvcd._stream("doc", source, dict(foo=[20]), setter="setter")
+    assert mock_notify.call_count == 1
+    assert len(mock_notify.call_args[0]) == 1
+    assert 'foo' in mock_notify.call_args[0][0]
+    assert mock_notify.call_args[0] == ({'foo': [10, 20]},) # streaming to list, "old" is actually updated value
     assert 'hint' in mock_notify.call_args[1]
     assert isinstance(mock_notify.call_args[1]['hint'], ColumnsStreamedEvent)
     assert mock_notify.call_args[1]['hint'].setter == 'setter'
