@@ -723,7 +723,7 @@ Examples:
         Examples:
 
             Assuming a ``ColumnDataSource`` named ``source`` with columns
-            *2106* and *2017*, then the following call to ``vbar_stack`` will
+            *2016* and *2017*, then the following call to ``vbar_stack`` will
             will create two ``VBar`` renderers that stack:
 
             .. code-block:: python
