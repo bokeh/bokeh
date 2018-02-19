@@ -22,6 +22,7 @@ from bokeh.util.testing import verify_api ; verify_api
 
 # Standard library imports
 from mock import patch
+from tempfile import NamedTemporaryFile
 import os
 
 # External imports
@@ -172,7 +173,9 @@ def test_save_layout_html_resets_plot_dims():
     layout = Plot(x_range=Range1d(), y_range=Range1d(),
                   plot_height=initial_height, plot_width=initial_width)
 
-    bie.save_layout_html(layout, height=100, width=100)
+    with NamedTemporaryFile() as tmp:
+        bie.save_layout_html(layout, tmp.name, height=100, width=100)
+
     assert layout.plot_height == initial_height
     assert layout.plot_width == initial_width
 
