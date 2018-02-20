@@ -15,27 +15,27 @@ export const concat_typed_arrays = function(a, b) {
 }
 
 //exported for testing
-export const stream_to_column = function(col, new_col, rollover) {
+export const stream_to_column = function(col, new_col, rollover?: number) {
   // handle regular (non-typed) arrays
-  let tmp
   if (col.concat != null) {
     col = col.concat(new_col)
-    if (col.length > rollover) {
+
+    if (rollover != null && col.length > rollover)
       col = col.slice(-rollover)
-    }
+
     return col
   }
 
   const total_len = col.length + new_col.length
 
   // handle rollover case for typed arrays
-  if ((rollover != null) && (total_len > rollover)) {
+  if (rollover != null && total_len > rollover) {
     const start = total_len - rollover
     const end = col.length
 
     // resize col if it is shorter than the rollover length
     if (col.length < rollover) {
-      tmp = new (col.constructor)(rollover)
+      const tmp = new (col.constructor)(rollover)
       tmp.set(col, 0)
       col = tmp
     }
@@ -54,7 +54,7 @@ export const stream_to_column = function(col, new_col, rollover) {
   }
 
   // handle non-rollover case for typed arrays
-  tmp = new col.constructor(new_col)
+  const tmp = new col.constructor(new_col)
   return concat_typed_arrays(col, tmp)
 }
 
