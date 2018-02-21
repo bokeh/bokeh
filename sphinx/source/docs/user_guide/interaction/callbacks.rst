@@ -232,7 +232,7 @@ A CustomJS callback can also be implemented as a Python function, which
 is then translated to JavaScript using PyScript. This makes it easier
 for users to define client-side interactions without having to learn
 JavaScript. To use this functionality you need the Flexx library
-(install with ``conda install -c bokeh flexx`` or ``pip install flexx``).
+(install with ``conda install -c conda-forge flexx`` or ``pip install flexx``).
 
 .. warning::
     It is critical to note that **no python code is ever executed when

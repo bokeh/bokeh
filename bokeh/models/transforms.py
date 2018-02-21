@@ -94,7 +94,7 @@ class CustomJSTransform(Transform):
             'flexx.pyscript',
             dedent("""\
                 To use Python functions for CustomJSTransform, you need Flexx
-                '("conda install -c bokeh flexx" or "pip install flexx")""")
+                '("conda install -c conda-forge flexx" or "pip install flexx")""")
             )
 
         def pyscript_compile(func):

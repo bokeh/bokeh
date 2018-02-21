@@ -100,7 +100,7 @@ class CustomJSFilter(Filter):
             'flexx.pyscript',
             dedent("""\
                 To use Python functions for CustomJSFilter, you need Flexx
-                '("conda install -c bokeh flexx" or "pip install flexx")""")
+                '("conda install -c conda-forge flexx" or "pip install flexx")""")
             )
 
         argspec = inspect.getargspec(func)

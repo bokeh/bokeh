@@ -49,7 +49,7 @@ class CustomJS(Callback):
             raise ValueError('CustomJS.from_py_func needs function object.')
         pyscript = import_required('flexx.pyscript',
                                    'To use Python functions for CustomJS, you need Flexx ' +
-                                   '("conda install -c bokeh flexx" or "pip install flexx")')
+                                   '("conda install -c conda-forge flexx" or "pip install flexx")')
         # Collect default values
         default_values = func.__defaults__  # Python 2.6+
         default_names = func.__code__.co_varnames[:len(default_values)]
