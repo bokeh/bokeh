@@ -275,7 +275,7 @@ class FuncTickFormatter(TickFormatter):
             raise ValueError('CustomJS.from_py_func needs function object.')
         pyscript = import_required('flexx.pyscript',
                                    'To use Python functions for CustomJS, you need Flexx ' +
-                                   '("conda install -c bokeh flexx" or "pip install flexx")')
+                                   '("conda install -c conda-forge flexx" or "pip install flexx")')
         sig = signature(func)
 
         all_names, default_values = get_param_info(sig)
