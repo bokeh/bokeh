@@ -1,3 +1,4 @@
+import {Axis} from "../axes/axis"
 import {GuideRenderer, GuideRendererView} from "../renderers/guide_renderer"
 import {Range} from "../ranges/range"
 import {Ticker} from "../tickers/ticker"
@@ -194,6 +195,11 @@ export class Grid extends GuideRenderer {
       //  end = null
     } else {
       [start, end] = range_bounds
+      for (const axis of this.plot.select(Axis)) {
+        if (axis.dimension == this.dimension && axis.x_range_name == this.x_range_name && axis.y_range_name == this.y_range_name) {
+          [start, end] = axis.computed_bounds
+        }
+      }
     }
 
     return [start, end]
