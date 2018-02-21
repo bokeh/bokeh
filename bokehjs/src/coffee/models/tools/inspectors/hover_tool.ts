@@ -4,6 +4,7 @@ import {RendererView} from "../../renderers/renderer"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {GraphRenderer} from "../../renderers/graph_renderer"
 import * as hittest from "core/hittest"
+import {MoveEvent} from "core/ui_events"
 import {replace_placeholders} from "core/util/templating"
 import {div, span} from "core/dom"
 import * as p from "core/properties"
@@ -17,13 +18,6 @@ import {Geometry, PointGeometry, SpanGeometry} from "core/geometry"
 import {DataSource} from "../../sources/data_source"
 
 export type DataRenderer = GlyphRenderer | GraphRenderer
-
-export interface BkEv {
-  bokeh: {
-    sx: number
-    sy: number
-  }
-}
 
 export function _nearest_line_hit(i: number, geometry: Geometry,
     sx: number, sy: number, dx: number[], dy: number[]): [[number, number], number] {
@@ -163,10 +157,10 @@ export class HoverToolView extends InspectToolView {
     }
   }
 
-  _move(e: BkEv): void {
+  _move(ev: MoveEvent): void {
     if (!this.model.active)
       return
-    const {sx, sy} = e.bokeh
+    const {sx, sy} = ev
     if (!this.plot_model.frame.bbox.contains(sx, sy))
       this._clear()
     else

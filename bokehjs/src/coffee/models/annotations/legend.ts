@@ -15,6 +15,10 @@ import {Context2d} from "core/util/canvas"
 export class LegendView extends AnnotationView {
   model: Legend
 
+  get cursor(): string | null {
+    return this.model.click_policy === "none" ? null : "pointer"
+  }
+
   get legend_padding(): number {
     return this.visuals.border_line.line_color.value() != null ? this.model.padding : 0
   }
@@ -117,12 +121,12 @@ export class LegendView extends AnnotationView {
     return {x: sx, y: sy, width: legend_width, height: legend_height};
   }
 
-  bbox() {
+  bbox(): BBox {
     const {x, y, width, height} = this.compute_legend_bbox();
     return new BBox({x, y, width, height});
   }
 
-  on_hit(sx, sy) {
+  on_hit(sx: number, sy: number): boolean {
     let yoffset;
     const { glyph_width } = this.model;
     const { legend_padding } = this;
@@ -376,8 +380,6 @@ export class Legend extends Annotation {
       label_text_baseline: "middle",
     });
   }
-
-  cursor() { if (this.click_policy === "none") { return null; } else { return "pointer"; } }
 
   get_legend_names(): string[] {
     const legend_names: string[] = []

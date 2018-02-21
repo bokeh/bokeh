@@ -2,25 +2,19 @@ import {InspectTool, InspectToolView} from "./inspect_tool"
 import {Renderer} from "../../renderers/renderer"
 import {Span} from "../../annotations/span"
 import {Dimensions, SpatialUnits, RenderMode} from "core/enums"
+import {MoveEvent} from "core/ui_events"
 import * as p from "core/properties"
 import {Color} from "core/types"
 import {values} from "core/util/object"
 
-export interface BkEv {
-  bokeh: {
-    sx: number
-    sy: number
-  }
-}
-
 export class CrosshairToolView extends InspectToolView {
   model: CrosshairTool
 
-  _move(e: BkEv): void {
+  _move(ev: MoveEvent): void {
     if (!this.model.active)
       return
 
-    const {sx, sy} = e.bokeh
+    const {sx, sy} = ev
 
     if (!this.plot_model.frame.bbox.contains(sx, sy))
       this._update_spans(null, null)
@@ -28,7 +22,7 @@ export class CrosshairToolView extends InspectToolView {
       this._update_spans(sx, sy)
   }
 
-  _move_exit(_e: BkEv): void {
+  _move_exit(_e: MoveEvent): void {
     this._update_spans(null, null)
   }
 

@@ -1,20 +1,11 @@
 import {SelectTool, SelectToolView} from "./select_tool"
 import {PolyAnnotation} from "../../annotations/poly_annotation"
 import {PolyGeometry} from "core/geometry"
+import {TapEvent, KeyEvent} from "core/ui_events"
+import {Keys} from "core/dom"
 import * as p from "core/properties"
 import {copy} from "core/util/array"
 import {extend} from "core/util/object"
-
-export interface BkEv {
-  bokeh: {
-    sx: number
-    sy: number
-  }
-  srcEvent: {
-    shiftKey?: boolean
-  }
-  keyCode: number
-}
 
 export class PolySelectToolView extends SelectToolView {
   model: PolySelectTool
@@ -36,13 +27,13 @@ export class PolySelectToolView extends SelectToolView {
       this._clear_data()
   }
 
-  _keyup(e: BkEv): void {
-    if (e.keyCode == 13)
+  _keyup(ev: KeyEvent): void {
+    if (ev.keyCode == Keys.Enter)
       this._clear_data()
   }
 
-  _doubletap(e: BkEv): void {
-    const append = e.srcEvent.shiftKey || false
+  _doubletap(ev: TapEvent): void {
+    const append = ev.shiftKey
     this._do_select(this.data.sx, this.data.sy, true, append)
     this.plot_view.push_state('poly_select', {selection: this.plot_view.get_selection()})
 
@@ -54,8 +45,8 @@ export class PolySelectToolView extends SelectToolView {
     this.model.overlay.update({xs: [], ys: []})
   }
 
-  _tap(e: BkEv): void {
-    const {sx, sy} = e.bokeh
+  _tap(ev: TapEvent): void {
+    const {sx, sy} = ev
 
     const frame = this.plot_model.frame
     if (!frame.bbox.contains(sx, sy))
@@ -134,7 +125,7 @@ export class PolySelectTool extends SelectTool {
 
   tool_name = "Poly Select"
   icon = "bk-tool-icon-polygon-select"
-  event_type = "tap"
+  event_type = "tap" as "tap"
   default_order = 11
 }
 

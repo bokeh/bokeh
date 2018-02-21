@@ -109,7 +109,7 @@ export /* TODO abstract */ class PointEvent extends UIEvent {
   }
 
   static from_event(e: any, model_id: string | null = null) {
-    return new this({ sx: e.bokeh['sx'], sy: e.bokeh['sy'], model_id: model_id })
+    return new this({ sx: e.sx, sy: e.sy, model_id: model_id })
   }
 
   _customize_event(plot: any) {
@@ -128,8 +128,8 @@ export class Pan extends PointEvent {
 
   static from_event(e: any, model_id: string | null = null) {
     return new this({
-      sx: e.bokeh['sx'],
-      sy: e.bokeh['sy'],
+      sx: e.sx,
+      sy: e.sy,
       delta_x: e.deltaX,
       delta_y: e.deltaY,
       direction: e.direction,
@@ -152,8 +152,8 @@ export class Pinch extends PointEvent {
 
   static from_event(e: any, model_id: string | null = null) {
     return new this({
-      sx: e.bokeh['sx'],
-      sy: e.bokeh['sy'],
+      sx: e.sx,
+      sy: e.sy,
       scale: e.scale,
       model_id: model_id,
     })
@@ -172,9 +172,9 @@ export class MouseWheel extends PointEvent {
 
   static from_event(e: any, model_id: string | null = null) {
     return new this({
-      sx: e.bokeh['sx'],
-      sy: e.bokeh['sy'],
-      delta: e.bokeh['delta'],
+      sx: e.sx,
+      sy: e.sy,
+      delta: e.delta,
       model_id: model_id,
     })
   }

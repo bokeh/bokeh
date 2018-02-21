@@ -4,14 +4,12 @@ import {GraphRenderer} from "../../renderers/graph_renderer"
 import * as p from "core/properties"
 import {extend} from "core/util/object"
 import {includes} from "core/util/array"
+import {KeyEvent} from "core/ui_events"
+import {Keys} from "core/dom"
 import {SelectionGeometry} from "core/bokeh_events"
 import {Geometry} from "core/geometry"
 
 export type DataRenderer = GlyphRenderer | GraphRenderer
-
-export interface BkEv {
-  keyCode: number
-}
 
 export abstract class SelectToolView extends GestureToolView {
   model: SelectTool
@@ -52,8 +50,8 @@ export abstract class SelectToolView extends GestureToolView {
     return renderers_by_source
   }
 
-  _keyup(e: BkEv): void {
-    if (e.keyCode == 27) {
+  _keyup(ev: KeyEvent): void {
+    if (ev.keyCode == Keys.Esc) {
       for (const r of this.computed_renderers) {
         // XXX: needs typings for renderers
         const ds = (r as any).data_source

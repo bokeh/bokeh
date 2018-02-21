@@ -27,6 +27,10 @@ export class DOMView extends View {
     return []
   }
 
+  get cursor(): string | null {
+    return null
+  }
+
   layout(): void {}
 
   render(): void {}
@@ -39,6 +43,8 @@ export class DOMView extends View {
 
     this.layout()
   }
+
+  on_hit?(sx: number, sy: number): boolean
 
   has_finished(): boolean {
     return this._has_finished

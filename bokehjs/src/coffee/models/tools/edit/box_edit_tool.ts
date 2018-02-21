@@ -1,11 +1,12 @@
 import {Keys} from "core/dom"
+import {GestureEvent, TapEvent, KeyEvent} from "core/ui_events"
 import {Dimensions} from "core/enums"
 import {copy} from "core/util/array"
 import * as p from "core/properties"
 import {Rect} from "../../glyphs/rect"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {ColumnDataSource} from "../../sources/column_data_source"
-import {EditTool, EditToolView, BkEv} from "./edit_tool"
+import {EditTool, EditToolView} from "./edit_tool"
 
 export interface HasRectCDS {
   glyph: Rect
@@ -15,17 +16,17 @@ export interface HasRectCDS {
 export class BoxEditToolView extends EditToolView {
   model: BoxEditTool
 
-  _tap(e: BkEv): void {
-    const append = e.srcEvent.shiftKey != null ? e.srcEvent.shiftKey : false;
-    this._select_event(e, append, this.model.renderers);
+  _tap(ev: TapEvent): void {
+    const append = ev.shiftKey
+    this._select_event(ev, append, this.model.renderers);
   }
 
-  _keyup(e: BkEv): void {
+  _keyup(ev: KeyEvent): void {
     if (!this.model.active || !this._mouse_in_frame) { return; }
     for (const renderer of this.model.renderers) {
-      if (e.keyCode === Keys.Backspace) {
+      if (ev.keyCode === Keys.Backspace) {
         this._delete_selected(renderer);
-      } else if (e.keyCode == Keys.Esc) {
+      } else if (ev.keyCode == Keys.Esc) {
         // Type properly once selection_manager is typed
         const cds: any = renderer.data_source;
         cds.selection_manager.clear();
@@ -91,23 +92,22 @@ export class BoxEditToolView extends EditToolView {
     }
   }
 
-  _pan_start(e: BkEv): void {
-    this._basepoint = [e.bokeh.sx, e.bokeh.sy];
-    const shift = e.srcEvent.shiftKey != null ? e.srcEvent.shiftKey : false;
-    this._select_event(e, true, this.model.renderers);
+  _pan_start(ev: GestureEvent): void {
+    this._basepoint = [ev.sx, ev.sy];
+    const shift = ev.shiftKey
+    this._select_event(ev, true, this.model.renderers);
     if (shift) {
-      this._pan(e, true, false);
+      this._pan(ev, true, false);
     }
   }
 
-  _pan(e: BkEv, append: boolean = false, emit: boolean = false): void {
+  _pan(ev: GestureEvent, append: boolean = false, emit: boolean = false): void {
     if (this._basepoint == null) { return; }
-    const curpoint: [number, number] = [e.bokeh.sx, e.bokeh.sy];
+    const curpoint: [number, number] = [ev.sx, ev.sy];
 
     // Attempt to drag selected rects
-    const shift = e.srcEvent.shiftKey != null ? e.srcEvent.shiftKey : false;
-    if (!shift) {
-      this._drag_points(e, this.model.renderers);
+    if (!ev.shiftKey) {
+      this._drag_points(ev, this.model.renderers);
       return;
     }
 
@@ -120,8 +120,8 @@ export class BoxEditToolView extends EditToolView {
     }
   }
 
-  _pan_end(e: BkEv): void {
-    this._pan(e, false, true)
+  _pan_end(ev: GestureEvent): void {
+    this._pan(ev, false, true)
     this._basepoint = null;
     for (const renderer of this.model.renderers) {
       renderer.data_source.selected.indices = [];
@@ -160,7 +160,7 @@ export class BoxEditTool extends EditTool {
 
   tool_name = "Box Edit Tool"
   icon = "bk-tool-icon-box-edit"
-  event_type = ["tap", "pan", "move"]
+  event_type = ["tap" as "tap", "pan" as "pan", "move" as "move"]
   default_order = 1
 }
 BoxEditTool.initClass()

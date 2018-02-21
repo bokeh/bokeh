@@ -36,7 +36,7 @@ export abstract class InspectTool extends ButtonTool {
     })
   }
 
-  event_type = "move"
+  event_type = "move" as "move"
 }
 
 InspectTool.initClass()

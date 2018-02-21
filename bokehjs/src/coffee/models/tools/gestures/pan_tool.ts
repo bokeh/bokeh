@@ -1,19 +1,7 @@
 import {GestureTool, GestureToolView} from "./gesture_tool"
 import * as p from "core/properties"
+import {GestureEvent} from "core/ui_events"
 import {Dimensions} from "core/enums"
-
-export interface BkEv {
-  bokeh: {
-    sx: number
-    sy: number
-  }
-  srcEvent: {
-    shiftKey?: boolean
-  }
-  keyCode: number
-  deltaX: number
-  deltaY: number
-}
 
 export class PanToolView extends GestureToolView {
   model: PanTool
@@ -31,10 +19,10 @@ export class PanToolView extends GestureToolView {
     sdy: number
   }
 
-  _pan_start(e: BkEv): void {
+  _pan_start(ev: GestureEvent): void {
     this.last_dx = 0
     this.last_dy = 0
-    const {sx, sy} = e.bokeh
+    const {sx, sy} = ev
     const bbox = this.plot_model.frame.bbox
     if (!bbox.contains(sx, sy)) {
       const hr = bbox.h_range
@@ -49,14 +37,14 @@ export class PanToolView extends GestureToolView {
       this.model.document.interactive_start(this.plot_model.plot)
   }
 
-  _pan(e: BkEv): void {
-    this._update(e.deltaX, e.deltaY)
+  _pan(ev: GestureEvent): void {
+    this._update(ev.deltaX, ev.deltaY)
 
     if (this.model.document != null)
       this.model.document.interactive_start(this.plot_model.plot)
   }
 
-  _pan_end(_e: BkEv): void {
+  _pan_end(_e: GestureEvent): void {
     this.h_axis_only = false
     this.v_axis_only = false
 
@@ -162,7 +150,7 @@ export class PanTool extends GestureTool {
   }
 
   tool_name = "Pan"
-  event_type = "pan"
+  event_type = "pan" as "pan"
   default_order = 10
 
   get tooltip(): string {

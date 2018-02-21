@@ -1,22 +1,11 @@
 import * as p from "core/properties"
+import {UIEvent, MoveEvent} from "core/ui_events"
 import {PointGeometry} from "core/geometry"
 import {copy} from "core/util/array"
 import {XYGlyph} from "../../glyphs/xy_glyph"
 import {ColumnDataSource} from "../../sources/column_data_source"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {GestureTool, GestureToolView} from "../gestures/gesture_tool"
-
-export interface BkEv {
-  bokeh: {
-    sx: number
-    sy: number
-  }
-  srcEvent: {
-    shiftKey?: boolean
-  }
-  keyCode: number
-  shiftKey: boolean
-}
 
 export interface HasCDS {
   data_source: ColumnDataSource
@@ -31,11 +20,11 @@ export abstract class EditToolView extends GestureToolView {
   _basepoint: [number, number] | null
   _mouse_in_frame: boolean = true
 
-  _move_enter(_e: BkEv): void {
+  _move_enter(_e: MoveEvent): void {
     this._mouse_in_frame = true;
   }
 
-  _move_exit(_e: BkEv): void {
+  _move_exit(_e: MoveEvent): void {
     this._mouse_in_frame = false;
   }
 
@@ -71,12 +60,12 @@ export abstract class EditToolView extends GestureToolView {
     cds.selection_manager.clear();
   }
 
-  _drag_points(e: BkEv, renderers: (GlyphRenderer & HasCDS & HasXYGlyph)[]): void {
+  _drag_points(ev: UIEvent, renderers: (GlyphRenderer & HasCDS & HasXYGlyph)[]): void {
     if (this._basepoint == null) { return; };
     const [bx, by] = this._basepoint;
     for (const renderer of renderers) {
       const basepoint = this._map_drag(bx, by, renderer);
-      const point = this._map_drag(e.bokeh.sx, e.bokeh.sy, renderer);
+      const point = this._map_drag(ev.sx, ev.sy, renderer);
       if (point == null || basepoint == null) {
         continue;
       }
@@ -95,7 +84,7 @@ export abstract class EditToolView extends GestureToolView {
     for (const renderer of renderers) {
       renderer.data_source.change.emit(undefined);
     }
-    this._basepoint = [e.bokeh.sx, e.bokeh.sy];
+    this._basepoint = [ev.sx, ev.sy];
   }
 
   _pad_empty_columns(cds: ColumnDataSource, coord_columns: string[]): void {
@@ -111,10 +100,10 @@ export abstract class EditToolView extends GestureToolView {
     }
   }
 
-  _select_event(e: BkEv, append: boolean, renderers: (GlyphRenderer & HasCDS)[]): (GlyphRenderer & HasCDS)[] {
+  _select_event(ev: UIEvent, append: boolean, renderers: (GlyphRenderer & HasCDS)[]): (GlyphRenderer & HasCDS)[] {
     // Process selection event on the supplied renderers and return selected renderers
     const frame = this.plot_model.frame;
-    const {sx, sy} = e.bokeh;
+    const {sx, sy} = ev
     if (!frame.bbox.contains(sx, sy)) {
       return [];
     }
