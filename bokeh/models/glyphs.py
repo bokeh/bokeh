@@ -324,9 +324,10 @@ class Image(XYGlyph):
         if 'palette' in kwargs and 'color_mapper' in kwargs:
             raise ValueError("only one of 'palette' and 'color_mapper' may be specified")
         elif 'color_mapper' not in kwargs:
-            # Use a palette (given or default)
+            # Use a palette and alpha value (given or default)
             palette = kwargs.pop('palette', 'Greys9')
-            mapper = LinearColorMapper(palette)
+            alpha = kwargs.pop('global_alpha', 1.0)
+            mapper = LinearColorMapper(palette=palette, alpha=alpha)
             kwargs['color_mapper'] = mapper
 
         super(Image, self).__init__(**kwargs)

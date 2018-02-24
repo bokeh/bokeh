@@ -28,9 +28,15 @@ class ColorMapper(Transform):
     Color to be used if data is NaN. Default: 'gray'
     """)
 
-    def __init__(self, palette=None, **kwargs):
+    alpha = Float(default=1.0, help="""
+    An overall opacity applied to all colors in the palette.
+    """)
+
+    def __init__(self, palette=None, alpha=None, **kwargs):
         if palette is not None:
             kwargs['palette'] = palette
+        if alpha is not None:
+            kwargs['alpha'] = alpha
         super(ColorMapper, self).__init__(**kwargs)
 
 
