@@ -322,9 +322,11 @@ class FuncTickFormatter(TickFormatter):
     """)
 
     code = String(default="", help="""
-    A snippet of JavaScript code that reformats a single tick to the desired
-    format. The variable ``tick`` will contain the unformatted tick value and
+    A snippet of JavaScript code that reformats ticks to the desired format.
+    The variable ``tick`` will contain the unformatted tick value and
     can be expected to be present in the code snippet namespace at render time.
+    If ``pass_all_ticks`` is ``True``, ``tick`` will contain an array of ticks,
+    with array of strings expected in return.
 
     Example:
 
@@ -333,6 +335,11 @@ class FuncTickFormatter(TickFormatter):
             code = '''
             return Math.floor(tick) + " + " + (tick % 1).toFixed(2)
             '''
+    """)
+
+    pass_all_ticks = Bool(default=False, help="""
+    Whether the variable ``tick`` passed to ``code`` contains a single
+    tick at a time or an array of all ticks at once.
     """)
 
 def _DATETIME_TICK_FORMATTER_HELP(field):

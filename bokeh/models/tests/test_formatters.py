@@ -78,3 +78,7 @@ def test_functickformatter_from_coffeescript_with_args():
         return Math.floor(slider.get("value") / 2) + tick;
         """)
     assert formatter.args == {"slider": slider}
+
+def test_functickformatter_pass_all_ticks():
+    formatter = FuncTickFormatter(code='...', pass_all_ticks=True)
+    assert formatter.pass_all_ticks

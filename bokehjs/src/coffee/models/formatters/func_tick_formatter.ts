@@ -7,6 +7,7 @@ export namespace FuncTickFormatter {
   export interface Attrs extends TickFormatter.Attrs {
     args: {[key: string]: any}
     code: string
+    pass_all_ticks: boolean
   }
 
   export interface Opts extends TickFormatter.Opts {}
@@ -26,6 +27,7 @@ export class FuncTickFormatter extends TickFormatter {
     this.define({
       args: [ p.Any,     {} ], // TODO (bev) better type
       code: [ p.String,  '' ],
+      pass_all_ticks: [ p.Bool, false ],
     });
   }
 
@@ -35,7 +37,8 @@ export class FuncTickFormatter extends TickFormatter {
 
   doFormat(ticks, _axis) {
     const func = this._make_func();
-    return (ticks.map((tick) => func(tick, ...values(this.args), require)));
+    const formatter = tick => func(tick, ...values(this.args), require);
+    return this.pass_all_ticks ? formatter(ticks) : ticks.map(formatter);
   }
 }
 FuncTickFormatter.initClass();

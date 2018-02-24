@@ -47,3 +47,11 @@ describe "func_tick_formatter module", ->
       })
       labels = formatter.doFormat([-10, -0.1, 0, 0.1, 10])
       expect(labels).to.deep.equal([5, 14.9, 15, 15.1, 25])
+
+    it "should handle array of ticks", ->
+      formatter = new FuncTickFormatter({
+        code: "return tick.map(t => t * 10)"
+        pass_all_ticks: true
+      })
+      labels = formatter.doFormat([-10, -0.1, 0, 0.1, 10])
+      expect(labels).to.deep.equal([-100, -1.0, 0, 1, 100])
