@@ -159,7 +159,7 @@ export class Image extends XYGlyph {
       dw:           [ p.DistanceSpec     ],
       dh:           [ p.DistanceSpec     ],
       dilate:       [ p.Bool,      false ],
-      color_mapper: [ p.Instance,  () => new LinearColorMapper({palette: Greys9()}) ],
+      color_mapper: [ p.Instance,  () => new LinearColorMapper({palette: Greys9(), alpha: 1.0}) ],
     });
   }
 }

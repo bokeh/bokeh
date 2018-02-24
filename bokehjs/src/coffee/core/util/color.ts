@@ -2,7 +2,7 @@
 import * as svg_colors from "./svg_colors"
 import {includes} from "./array";
 
-const _component2hex = function(v) {
+export const component2hex = function(v) {
   let h = Number(v).toString(16);
   return h = h.length === 1 ? `0${h}` : h;
 };
@@ -15,9 +15,9 @@ export const color2hex = function(color) {
     return svg_colors[color];
   } else if (color.indexOf('rgb') === 0) {
     const rgb = color.replace(/^rgba?\(|\s+|\)$/g,'').split(',');
-    let hex = (rgb.slice(0, 3).map((v) => _component2hex(v))).join('');
+    let hex = (rgb.slice(0, 3).map((v) => component2hex(v))).join('');
     if (rgb.length === 4) {
-      hex = hex + _component2hex(Math.floor(parseFloat(rgb.slice(3)) * 255));
+      hex = hex + component2hex(Math.floor(parseFloat(rgb.slice(3)) * 255));
     }
     const hex_string = `#${hex.slice(0, 8)}`;  // can also be rgba
     return hex_string;

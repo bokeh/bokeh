@@ -5,9 +5,12 @@ import {Color} from "core/types"
 import {Transform} from "../transforms/transform";
 import {isNumber} from "core/util/types"
 
+import {component2hex} from "core/util/color";
+
 export namespace ColorMapper {
   export interface Attrs extends Transform.Attrs {
     palette: (number | string)[]
+    alpha: number
     nan_color: Color
   }
 
@@ -27,6 +30,7 @@ export abstract class ColorMapper extends Transform {
 
     this.define({
       palette:   [ p.Any           ], // TODO (bev)
+      alpha: [ p.Number, 1.0 ],
       nan_color: [ p.Color, "gray" ],
     });
   }
@@ -37,7 +41,7 @@ export abstract class ColorMapper extends Transform {
   initialize(): void {
     super.initialize();
     this._little_endian = this._is_little_endian();
-    this._palette       = this._build_palette(this.palette);
+    this._palette       = this._build_palette(this.palette, this.alpha);
   }
 
   connect_signals(): void {
@@ -80,10 +84,10 @@ export abstract class ColorMapper extends Transform {
   }
 
   v_compute(xs) {
-    return this._get_values(xs, this.palette);
+    return this._get_values(xs, this.palette, this.alpha);
   }
 
-  abstract _get_values(data: number[] | string[], palette: number[], image_glyph?: boolean): number[]
+  abstract _get_values(data: number[] | string[], palette: number[], alpha: number, image_glyph?: boolean): number[]
 
   _is_little_endian() {
     const buf = new ArrayBuffer(4);
@@ -98,14 +102,14 @@ export abstract class ColorMapper extends Transform {
     return little_endian;
   }
 
-  _build_palette(palette): number[] {
+  _build_palette(palette, alpha): number[] {
     const new_palette = new Uint32Array(palette.length);
     const _convert = function(value) {
       if (isNumber(value)) {
         return value;
       } else {
         if (value.length !== 9) {
-          value = value + 'ff';
+          value = value + component2hex(Math.floor(alpha*255)));
         }
         return parseInt(value.slice(1), 16);
       }
