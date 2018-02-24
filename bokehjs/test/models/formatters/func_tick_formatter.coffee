@@ -12,13 +12,13 @@ describe "func_tick_formatter module", ->
       expect(formatter._make_func()).to.be.an.instanceof(Function)
 
     it "should have code property as function body", ->
-      func = new Function("tick", "require", "return 10")
+      func = new Function("tick", "index", "ticks", "require", "return 10")
       expect(formatter._make_func().toString()).to.be.equal(func.toString())
 
     it "should have values as function args", ->
       rng = new Range1d()
       formatter.args = {foo: rng.ref()}
-      func = new Function("tick", "foo", "require", "return 10")
+      func = new Function("tick", "index", "ticks", "foo", "require", "return 10")
       expect(formatter._make_func().toString()).to.be.equal(func.toString())
 
   describe "doFormat method", ->
@@ -47,3 +47,12 @@ describe "func_tick_formatter module", ->
       })
       labels = formatter.doFormat([-10, -0.1, 0, 0.1, 10])
       expect(labels).to.deep.equal([5, 14.9, 15, 15.1, 25])
+
+    it "should handle array of ticks", ->
+      formatter = new FuncTickFormatter({
+        code: "this.k = this.k || (ticks.length > 3 ? 10 : 100); return tick * this.k"
+      })
+      labels = formatter.doFormat([-10, -0.1, 0, 0.1, 10])
+      expect(labels).to.deep.equal([-100, -1.0, 0, 1, 100])
+      labels = formatter.doFormat([-0.1, 0, 0.1])
+      expect(labels).to.deep.equal([-10, 0, 10])
