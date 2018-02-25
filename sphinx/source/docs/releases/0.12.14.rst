@@ -1,4 +1,4 @@
-0.12.14 (Dec 2017)
+0.12.14 (Feb 2018)
 ==================
 
 Bokeh Version ``0.12.14`` is an incremental update that adds a few

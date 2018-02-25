@@ -1,0 +1,34 @@
+0.12.15 (Mar 2018)
+==================
+
+Bokeh Version ``0.12.15`` is an incremental update that adds a few
+important features and fixes several bugs. Some of the highlights
+include:
+
+
+
+Many other small bugfixes and docs additions. For full details see the
+:bokeh-tree:`CHANGELOG`.
+
+Migration Guide
+---------------
+
+NOTE: the 0.12.x series is the last planned release series before a version
+1.0 release. For more information see the `project roadmap`_.
+
+Grid Bounds
+~~~~~~~~~~~
+
+Grids now automatically defer to any existing axis bounds when their
+own bounds are set to `"auto"`. Previously grids used always used the full
+range bounds. Thie change makes it simpler to have axes and grids both
+use a consistent set of bounds.
+
+Minor Ticks
+~~~~~~~~~~~
+
+Minor ticks are no longer displayed outside explicitly set axis bounds.
+Previously minor ticks would dislay one extra "major tick" distance outside
+explicit range bounds.
+
+.. _project roadmap: https://bokehplots.com/pages/roadmap.html

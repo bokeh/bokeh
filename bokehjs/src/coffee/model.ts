@@ -88,16 +88,16 @@ export class Model extends HasProps {
       this._update_event_callbacks()
   }
 
-  select(selector: Class<HasProps> | string): HasProps[] {
+  select<T extends HasProps>(selector: Class<T> | string): T[] {
     if (isString(selector))
-      return this.references().filter((ref) => ref instanceof Model && ref.name === selector)
+      return this.references().filter((ref): ref is T => ref instanceof Model && ref.name === selector)
     else if (selector.prototype instanceof HasProps)
-      return this.references().filter((ref) => ref instanceof selector)
+      return this.references().filter((ref): ref is T => ref instanceof selector)
     else
       throw new Error("invalid selector")
   }
 
-  select_one(selector: Class<HasProps> | string): HasProps | null {
+  select_one<T extends HasProps>(selector: Class<T> | string): T | null {
     const result = this.select(selector)
     switch (result.length) {
       case 0:
