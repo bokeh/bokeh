@@ -21,8 +21,9 @@ class Grid(GuideRenderer):
     """)
 
     bounds = Either(Auto, Tuple(Float, Float), help="""
-    Bounds for the rendered grid lines. If unset, the grid
-    lines will span the entire plot in the given dimension.
+    Bounds for the rendered grid lines. By default, a grid will look for a
+    corresponding axis to ask for bounds. If one cannot be found, the grid
+    will span the entire visible range.
     """)
 
     # Note: we must allow the possibility of setting both

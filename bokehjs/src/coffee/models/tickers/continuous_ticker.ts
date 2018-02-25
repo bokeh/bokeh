@@ -80,11 +80,17 @@ export abstract class ContinuousTicker extends Ticker<number> {
       const minor_interval = interval / num_minor_ticks
       const minor_offsets = range(0, num_minor_ticks).map((i) => i*minor_interval)
       for (const x of minor_offsets.slice(1)) {
-        minor_ticks.push(ticks[0] - x)
+        const mt = ticks[0] - x
+        if (data_low <= mt && mt <= data_high) {
+          minor_ticks.push(mt)
+        }
       }
       for (const tick of ticks) {
         for (const x of minor_offsets) {
-          minor_ticks.push(tick + x)
+          const mt = tick + x
+          if (data_low <= mt && mt <= data_high) {
+            minor_ticks.push(mt)
+          }
         }
       }
     }
